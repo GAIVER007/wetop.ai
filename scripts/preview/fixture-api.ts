@@ -511,6 +511,8 @@ function seedDesign() {
  * говорить, что броней нет, а не выглядеть сломанными.
  */
 let noBookings = false;
+/** Бронь создана на стенде после «пустой базы» — для «Первых шагов» (ТЗ ux-retention п. 2.1) */
+let createdReservation = false;
 // Новый отель без фонда: гейт уводит на /onboarding. По умолчанию отель настроен (false),
 // иначе существующие UI-тесты на рабочих экранах уходили бы на онбординг.
 let onboardingNeeded = false;
@@ -1395,7 +1397,18 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
       updatedAt: new Date(),
     });
 }
+/** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
+function setOrgTrial(days: unknown) {
+  const now = Date.now();
+  uiUser.organization =
+    days === 'ended'
+      ? { ...uiUser.organization, status: 'TRIAL', trialEndsAt: new Date(now - DAY_MS).toISOString() }
+      : typeof days === 'number'
+        ? { ...uiUser.organization, status: 'TRIAL', trialEndsAt: new Date(now + days * DAY_MS - 3_600_000).toISOString() }
+        : { ...uiUser.organization, status: 'ACTIVE', trialEndsAt: null };
+}
 function resetAccess() {
+  setOrgTrial(null);
   uiRole = 'OWNER';
   uiPlatformAdmin = false;
   platformExtensions.clear();
@@ -1801,6 +1814,8 @@ function read(path: string, q: URLSearchParams): unknown {
     };
   if (path === '/hotel/onboarding')
     return { needed: onboardingNeeded, name: propertyName, currency: 'KZT' };
+  if (path === '/hotel/first-steps')
+    return { hasReservations: createdReservation || (!noBookings && !emptyFixture) };
   if (path === '/hotel/channel-report') {
     const status = q.get('status') || 'ALL';
     const empty = status !== 'ALL';
@@ -2474,6 +2489,7 @@ createServer(async (req, res) => {
       incidentHistory = 0;
       emptyFixture = false;
       noBookings = false;
+      createdReservation = false;
       onboardingNeeded = false;
       housekeeping.clear();
       blocks.clear();
@@ -2572,6 +2588,7 @@ createServer(async (req, res) => {
       uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
       setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
+      setOrgTrial(body['orgTrialDays']);
       supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
       // правил у помощника нет — файла промпта на томе ещё не завели (ADR-084)
       if (body['supportPromptEmpty'] === true) supportPrompt = '';
@@ -3427,6 +3444,7 @@ createServer(async (req, res) => {
       r.adults = r.items.reduce((sum, it) => sum + it.adults, 0);
       extraCards.set(r.confirmationNumber, r);
       extraGuests.set(g.id, g);
+      createdReservation = true;
       return send(201, r);
     }
     if (path.startsWith('/guests/') && path.split('/')[3] === 'documents') {

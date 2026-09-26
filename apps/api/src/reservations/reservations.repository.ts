@@ -16,7 +16,7 @@ import type {
   StayRestriction,
 } from '@pms/domain';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
-import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY, todayAt } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { cardForAudit, isReservationCard, loadReservationCard, type ReservationCard } from './reservation-card';
@@ -385,7 +385,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
-      if (hasSignedInActor()) {
+      if (actsForOrganization()) {
         const organizationId = currentOrganizationId();
         if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         const found = await this.db.property.findFirst({
@@ -397,6 +397,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       } else {
         const found = await this.db.property.findFirstOrThrow({
           where: { name: this.propertyName },
+          orderBy: { createdAt: 'asc' },
           select: { id: true, currency: true, timezone: true },
         });
         this.propertyCache = found;
@@ -530,8 +531,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
   }
   async unitByCode(code: string): Promise<UnitRef | null> {
+    // только место своего объекта: код уникален внутри объекта (DATA_MODEL v1.11, ADR-096)
+    const propertyId = (await this.property()).id;
     return this.db.inventoryUnit.findUnique({
-      where: { code },
+      where: { propertyId_code: { propertyId, code } },
       select: { id: true, code: true, accommodationTypeId: true, active: true },
     });
   }

@@ -1,7 +1,7 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import type { Db } from '@pms/database';
 import { todayAt } from '@pms/domain';
-import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
 
 /**
  * Идентификатор объекта: один запрос на процесс, а не на каждый рейс в базу.
@@ -44,7 +44,7 @@ export const PROPERTY_NOT_SET_UP_MESSAGE =
  * владелец. Вошедший человек проходит только к объекту своей организации.
  */
 export function assertPropertyVisible(property: PropertyRef): void {
-  if (!hasSignedInActor()) return;
+  if (!actsForOrganization()) return;
   const organizationId = currentOrganizationId();
   if (organizationId !== null && property.organizationId === organizationId) return;
   throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
@@ -59,15 +59,17 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
   // Это тот же замок ADR-061, перенесённый в саму выборку: подставить чужой объект нельзя, потому
   // что имя больше не участвует в выборке для человека. Служебный ходок (сторож, скрипт, импорт,
   // публичный виджет) человека за собой не имеет и по-прежнему берёт объект по имени.
-  if (hasSignedInActor()) return organizationPropertyRef(db);
+  if (actsForOrganization()) return organizationPropertyRef(db);
 
   const key = `${schema()}|name|${name}`;
   const known = cache.get(key);
   if (known) return known;
   // `findFirst`, а не `findFirstOrThrow`: так же читают объект остальные места, и подделки в тестах
   // не приходится учить второму методу. Отсутствие объекта — это «база ещё не настроена».
+  // Самый старый объект с этим именем: регистрация тёзок не пускает, но и без неё выбор не зависит от порядка строк
   const found = await db.property.findFirst({
     where: { name },
+    orderBy: { createdAt: 'asc' },
     select: { id: true, name: true, organizationId: true, timezone: true },
   });
   if (!found) throw new Error(`Объект «${name}» не найден: база ещё не настроена`);

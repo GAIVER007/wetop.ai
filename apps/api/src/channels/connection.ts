@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import { UseGuards } from '@nestjs/common';
+import { IntegrationOwnerGuard } from './integration-owner';
 import { Controller, Get, Inject, Injectable } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
@@ -90,6 +92,7 @@ export class ChannelConnectionService {
   }
 }
 
+@UseGuards(IntegrationOwnerGuard)
 @Controller('channels/channex')
 export class ChannelConnectionController {
   constructor(

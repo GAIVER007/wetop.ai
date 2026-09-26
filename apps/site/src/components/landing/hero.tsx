@@ -1,5 +1,5 @@
 import { getDictionary } from '../../i18n';
-import { loginLink, trialLink } from '../../lib/site';
+import { loginLink, registerLink } from '../../lib/site';
 import { ChessboardMockup } from '../chessboard-mockup';
 import { Icon } from '../icon';
 import { typo } from '../typo';
@@ -26,14 +26,15 @@ export function Hero() {
               </h1>
               <p className="hero__lead">{typo(t.hero.lead)}</p>
               <div className="hero__actions">
-                <a className="btn btn--primary btn--lg" href={trialLink().href}>
-                  {t.nav.trial}
+                <a className="btn btn--primary btn--lg" href={registerLink().href}>
+                  {t.nav.register}
                   <Icon name="arrowRight" size={18} />
                 </a>
                 <a className="btn btn--secondary btn--lg" href={loginLink().href}>
                   {t.nav.login}
                 </a>
               </div>
+              <p className="hero__note">{typo(t.hero.note)}</p>
               <ul className="hero__points">
                 {t.hero.points.map((point) => (
                   <li key={point}>

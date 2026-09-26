@@ -281,7 +281,8 @@ test('настройки гостиницы: сбой с повтором, пу�
   // пустой справочник услуг — откуда он берётся
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto('/hotel-settings/services');
-  await expect(main.getByTestId('services-empty')).toContainText('приходит из справочника Exely');
+  // без Exely: новому клиенту имя прежней системы ничего не говорит (ТЗ ux-retention п. 1.2)
+  await expect(main.getByTestId('services-empty')).toHaveText('Услуг в каталоге пока нет.');
   await request.post(`${fixture}/__test/control`, { data: {} });
   // загрузка словом
   await request.post(`${fixture}/__test/control`, {

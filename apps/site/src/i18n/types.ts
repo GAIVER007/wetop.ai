@@ -23,19 +23,21 @@ export type Dictionary = {
     start: string;
     blog: string;
     login: string;
-    trial: string;
+    register: string;
   };
   hero: {
     /** Слово-знак металлом на первом экране. */
     word: string;
     badge: string;
-    /** Плашка «принимаем заявки» у макета. */
+    /** Плашка «регистрация открыта» у макета. */
     available: string;
     title: string;
     lead: string;
     points: string[];
     /** Надпись по кругу на знаке первого экрана. */
     seal: string;
+    /** Строка под кнопками первого экрана: срок пробного периода (ADR-095). */
+    note: string;
   };
   stats: {
     items: Array<{ icon: IconName; value: string; label: string; note: string }>;

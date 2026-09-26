@@ -8,7 +8,7 @@ import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
-import { activeNavigation } from '../lib/navigation';
+import { activeNavigation, sidebarSections } from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 export function TopNav({
@@ -31,6 +31,8 @@ export function TopNav({
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  // Сочетание поиска словами той ОС, на которой человек сидит: ⌘ бывает только у Apple
+  const [searchKey, setSearchKey] = useState('⌘ K');
   const { setTheme } = useTheme();
   useEffect(() => {
     try {
@@ -38,6 +40,7 @@ export function TopNav({
     } catch {
       /* Optional preference. */
     }
+    if (!/Mac|iPhone|iPad/.test(navigator.platform)) setSearchKey('Ctrl K');
   }, []);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -62,12 +65,8 @@ export function TopNav({
       /* Optional preference. */
     }
   };
-  const nav = [
-    { href: '/today', label: 'Главная', icon: 'today' },
-    { href: '/reservations', label: 'Брони', icon: 'booking' },
-    { href: '/guests', label: 'Гости', icon: 'guests' },
-    { href: '/chessboard', label: 'Шахматка', icon: 'board' },
-  ] as const;
+  // Нижняя панель телефона — первый раздел бокового меню, в том же порядке и с теми же подписями
+  const nav = sidebarSections[0]!.items;
   return (
     <DataFreshnessProvider>
       <div className={cx('workspace', collapsed && 'is-collapsed')}>
@@ -102,7 +101,7 @@ export function TopNav({
               <span className="workspace-search-short" aria-hidden="true">
                 Поиск
               </span>
-              <kbd>⌘ K</kbd>
+              <kbd>{searchKey}</kbd>
             </button>
             <div className="header-tools">
               {demo && (

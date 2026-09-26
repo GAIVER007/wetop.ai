@@ -1,4 +1,4 @@
-import { MEMBERSHIP_ROLES } from '@pms/domain';
+import { MEMBERSHIP_ROLES, daysLeft } from '@pms/domain';
 import { CLOSED_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
 
 /** Кто на смене — подпись в меню вместо «Администратор» (ADR-083): имя, роль и буквы для кружка */
@@ -12,9 +12,26 @@ export interface DeskPerson {
 export interface DeskShell {
   access: NavigationAccess;
   person: DeskPerson | null;
+  /** «Пробный период: ещё N дн.» — только у организации на пробном сроке (ТЗ ux-retention п. 2.7) */
+  trial: string | null;
 }
 
-export const CLOSED_SHELL: DeskShell = { access: CLOSED_ACCESS, person: null };
+export const CLOSED_SHELL: DeskShell = { access: CLOSED_ACCESS, person: null, trial: null };
+
+interface TrialOrganization {
+  status: string;
+  trialEndsAt: string | null;
+}
+
+/**
+ * Строка о пробном сроке организации (ADR-046, 7 дней). После срока — только факт: перехода в «только чтение» в
+ * системе пока нет (Q-144), поэтому строка ничего не обещает и не пугает.
+ */
+export function trialLine(org: TrialOrganization | null | undefined, now: Date): string | null {
+  if (!org || org.status !== 'TRIAL' || !org.trialEndsAt) return null;
+  const left = daysLeft(new Date(org.trialEndsAt), now);
+  return left === 0 ? 'Пробный период закончился' : `Пробный период: ещё ${left} дн.`;
+}
 
 type MeLike = Parameters<typeof deskAccessOf>[0] & {
   user: {
@@ -22,6 +39,7 @@ type MeLike = Parameters<typeof deskAccessOf>[0] & {
     name: string | null;
     role?: string;
     platformAdmin?: boolean;
+    organization?: TrialOrganization | null;
   } | null;
 };
 
@@ -45,5 +63,9 @@ export function deskPerson(user: NonNullable<MeLike['user']>): DeskPerson {
 
 export function deskShellOf(me: MeLike | null): DeskShell {
   if (!me?.user) return CLOSED_SHELL;
-  return { access: deskAccessOf(me), person: deskPerson(me.user) };
+  return {
+    access: deskAccessOf(me),
+    person: deskPerson(me.user),
+    trial: trialLine(me.user.organization, new Date()),
+  };
 }

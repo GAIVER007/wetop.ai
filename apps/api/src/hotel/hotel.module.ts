@@ -114,6 +114,19 @@ export class HotelService {
     return { property, ratePlans, needsOnboarding: categories === 0 };
   }
 
+  /**
+   * «Первые шаги» на Главной (ТЗ ux-retention п. 2.1): есть ли в объекте хоть одна бронь. Без кэша — панель
+   * должна уйти сразу после первой брони; одна выборка по индексу `property_id`.
+   */
+  async firstSteps() {
+    const property = await this.property();
+    const reservation = await this.prisma.db.reservation.findFirst({
+      where: { propertyId: property.id },
+      select: { id: true },
+    });
+    return { hasReservations: reservation !== null };
+  }
+
   /** Сбросить кэш настроек (после онбординга: у объекта появились номера, гейт больше не нужен). */
   forget(): void {
     this.cachedSettings.clear();
@@ -207,6 +220,9 @@ export class HotelController {
   constructor(@Inject(HotelService) private readonly service: HotelService) {}
   @Get('settings') settings() {
     return this.service.settings();
+  }
+  @Get('first-steps') firstSteps() {
+    return this.service.firstSteps();
   }
   @Get('channel-report') channelReport(
     @Query('from') from?: string,

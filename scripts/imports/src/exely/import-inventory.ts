@@ -108,15 +108,17 @@ export async function importInventoryPlan(
     else report.physicalRooms.created += 1;
 
     const unitData = {
+      propertyId: prop.id,
       physicalRoomId: room.id,
       accommodationTypeId: typeId,
       kind: u.kind,
       exelyRoomNumber: u.exelyRoomNumber,
       active: true,
     };
-    const existingUnit = await tx.inventoryUnit.findUnique({ where: { code: u.code } });
+    const unitKey = { propertyId_code: { propertyId: prop.id, code: u.code } };
+    const existingUnit = await tx.inventoryUnit.findUnique({ where: unitKey });
     if (existingUnit) {
-      await tx.inventoryUnit.update({ where: { code: u.code }, data: unitData });
+      await tx.inventoryUnit.update({ where: unitKey, data: unitData });
       report.units.updated += 1;
     } else {
       await tx.inventoryUnit.create({ data: { code: u.code, ...unitData } });

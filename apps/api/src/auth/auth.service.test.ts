@@ -282,6 +282,29 @@ describe('AuthService.register', () => {
     expect(organizations).toHaveLength(before.orgs);
   });
 
+  /**
+   * Название занято другим объектом — отказ (план `plans/tenant-isolation-2026-09-26.md` п. 1): служебные пути API и
+   * скрипты владельца находят объект Luxx по названию, и тёзка из чужой организации мог бы перехватить её брони.
+   */
+  it('название объекта, который уже есть в WETOP, не занимает — без учёта регистра и пробелов', async () => {
+    const { auth, users, organizations, properties } = service();
+    properties.push({
+      id: 'prop-luxx',
+      organizationId: 'org-luxx',
+      name: 'Luxx Aparts',
+      timezone: 'Asia/Almaty',
+      currency: 'KZT',
+      checkInTime: '14:00',
+      checkOutTime: '12:00',
+    });
+    const before = { users: users.length, orgs: organizations.length };
+    await expect(auth.register({ ...NEW, hotelName: '  luxx   APARTS ' }, NOW)).rejects.toThrow(
+      /уже есть в WETOP/,
+    );
+    expect(users).toHaveLength(before.users);
+    expect(organizations).toHaveLength(before.orgs);
+  });
+
   it('заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена', async () => {
     const { auth, users, sessions, memberships, organizations, properties, audit, letters } =
       service();

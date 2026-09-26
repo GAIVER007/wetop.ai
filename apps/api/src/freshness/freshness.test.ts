@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
-import { FreshnessService } from './freshness.module';
+import { FreshnessController, FreshnessService } from './freshness.module';
 
 function service(opts: {
   webhookAt?: string | null;
@@ -47,6 +47,38 @@ describe('FreshnessService — свежесть данных для шапки �
   });
 
   it('событий ещё не было — null', async () => {
-    expect((await service({}).snapshot(NOW)).channex.lastEventAt).toBeNull();
+    expect((await service({}).snapshot(NOW)).channex!.lastEventAt).toBeNull();
+  });
+});
+
+/**
+ * План tenant-isolation-2026-09-26 п. 5: состояние Channex — только гостинице с подключёнными каналами и главному
+ * администратору. Меню опрашивает строку раз в минуту на каждом экране, поэтому другим гостиницам — не 403 (журнал
+ * ошибок человека получал бы запись каждую минуту), а «каналов нет».
+ */
+describe('FreshnessController — состояние каналов только своей гостинице', () => {
+  const snapshot = {
+    checkedAt: 'now',
+    channex: { lastEventAt: null, outboxPending: 3, outboxFailed: 0, oldestPendingAt: null },
+  };
+  const controller = (integrationOrg: string | null) =>
+    new FreshnessController(
+      { snapshot: async () => snapshot } as never,
+      {
+        db: { property: { findFirst: async () => ({ organizationId: integrationOrg }) } },
+      } as never,
+    );
+  const req = (user?: { organizationId: string; platformAdmin?: boolean }) => ({ user }) as never;
+
+  it('своя гостиница и служебный ключ видят очередь', async () => {
+    expect(await controller('org-luxx').freshness(req({ organizationId: 'org-luxx' }))).toEqual(
+      snapshot,
+    );
+    expect(await controller('org-luxx').freshness(req(undefined))).toEqual(snapshot);
+  });
+
+  it('другая гостиница — каналов нет, без отказа', async () => {
+    const r = await controller('org-luxx').freshness(req({ organizationId: 'org-b' }));
+    expect(r.channex).toBeNull();
   });
 });

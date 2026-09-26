@@ -42,7 +42,6 @@ export default async function InventoryPage() {
             <li>Создайте номера или койки</li>
             <li>Настройте тарифы</li>
           </ol>
-          <Link href="/onboarding">Первоначальная настройка с ценами</Link>
         </section>
       )}
       <dl className="inventory-summary" data-testid="inventory-summary">

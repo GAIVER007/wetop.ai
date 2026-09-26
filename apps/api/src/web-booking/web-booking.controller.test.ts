@@ -16,6 +16,7 @@ import {
 } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 import { INCIDENTS_REPOSITORY } from '../guard/incidents.repository';
+import { currentOrganizationId } from '../auth/request-context';
 import { WebBookingModule } from './web-booking.module';
 import { BOOKING_RATE_LIMITS, WebBookingService } from './web-booking.service';
 
@@ -112,17 +113,22 @@ const fakeRepo = {
     ]);
   },
 };
+/** От чьего имени шли чтение и бронь (план tenant-isolation-2026-09-26 п. 4) */
+const scopes: Array<string | null> = [];
 const uow = {
   run: <T>(fn: (repo: ReservationsRepository) => Promise<T>) =>
     fn(fakeRepo as unknown as ReservationsRepository),
-  read: <T>(fn: (repo: ReservationsRepository) => Promise<T>) =>
-    fn(fakeRepo as unknown as ReservationsRepository),
+  read: <T>(fn: (repo: ReservationsRepository) => Promise<T>) => {
+    scopes.push(currentOrganizationId());
+    return fn(fakeRepo as unknown as ReservationsRepository);
+  },
 };
 
 const created = { dtos: [] as unknown[] };
 const reservations = {
   create: vi.fn(async (dto: { arrivalDate: string; departureDate: string }) => {
     created.dtos.push(dto);
+    scopes.push(currentOrganizationId());
     return {
       confirmationNumber: '20260912-ABC123',
       source: 'WEBSITE',
@@ -183,6 +189,7 @@ describe('виджет бронирования /w/*', () => {
     sites = new FakeAnalyticsRepository();
     sites.sitesById.set(SITE.id, {
       ...SITE,
+      organizationId: 'org-site',
       bookingEnabled: true,
       bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name },
     });
@@ -335,6 +342,13 @@ describe('виджет бронирования /w/*', () => {
     ],
   ])('%s', async (_l, path, origin, status) => {
     await get(path, origin).expect(status);
+  });
+
+  it('расчёт и бронь идут от имени организации сайта, а не объекта Luxx по имени', async () => {
+    scopes.length = 0;
+    await post(booking()).expect(201);
+    expect(scopes.length).toBeGreaterThan(0);
+    expect(new Set(scopes)).toEqual(new Set(['org-site']));
   });
 
   it('бронь: DTO для ReservationsService — WEBSITE, тариф сайта, autoAssign, псевдоним гостя; сессия связана; журнал', async () => {

@@ -144,11 +144,20 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         properties.push(row);
         return { ...row };
       },
-      async findFirst({ where }: { where: { organizationId?: string; name?: string } }) {
+      async findFirst({
+        where,
+      }: {
+        where: { organizationId?: string; name?: string | { equals: string; mode: 'insensitive' } };
+      }) {
+        const sameName = (name: string) =>
+          where.name === undefined ||
+          (typeof where.name === 'string'
+            ? name === where.name
+            : name.toLowerCase() === where.name.equals.toLowerCase());
         const row = properties.find(
           (pr) =>
             (where.organizationId === undefined || pr.organizationId === where.organizationId) &&
-            (where.name === undefined || pr.name === where.name),
+            sameName(pr.name),
         );
         return row ? { ...row } : null;
       },

@@ -130,14 +130,14 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
           data-testid="rates-empty"
           title="Календарь цен пуст"
           actions={
-            <Link href="/hotel-settings/penalties" className="btn btn--secondary">
-              Открыть тарифы объекта
+            <Link href="/rooms/categories" className="btn btn--secondary">
+              Создать категорию
             </Link>
           }
         >
           {!options.categories.length
-            ? 'Категорий ещё нет: состав и категории приходят из Exely при импорте фонда, цены задаются по категориям.'
-            : 'Тарифов ещё нет: они приходят из Exely при импорте, а цена задаётся на категорию и тариф — без тарифа календарь заполнить нечем.'}
+            ? 'Категорий ещё нет. Цена задаётся на категорию номеров: создайте категорию в номерном фонде — и календарь заполнится.'
+            : 'Тарифов ещё нет. Тариф создаётся вместе с категорией в номерном фонде, цена задаётся на категорию и тариф.'}
         </EmptyState>
       ) : (
         <>

@@ -1,0 +1,81 @@
+# Модульные (unit) · 26.09.2026 22:13 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7a351d4 (claude/ux-retention), незакоммиченных файлов набора: 49
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-13-43Z-unit-8490.json' 'apps/api/src/database/property-ref.test.ts' 'apps/api/src/web-booking/web-booking.controller.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop-------------------WETOP/c0ea45ed-43bd-4ff8-be48-ebf0614fd84e/scratchpad/wetop-ux
+
+ ❯ |unit| apps/api/src/database/property-ref.test.ts (10 tests | 1 failed) 6ms
+   ✓ идентификатор объекта (4)
+     ✓ второй запрос берётся из памяти: в базу ходим один раз 1ms
+     ✓ у каждой схемы свой ответ: прогон в pms_test не подсовывает id рабочих данных 0ms
+     ✓ разные объекты не путаются (пригодится, когда объектов станет много) 0ms
+     ✓ отказ не запоминается: база ещё не настроена — спросим снова 1ms
+   ❯ вошедший получает объект своей организации, не чужой (6)
+     ✓ служебный ходок проходит по имени: за ним нет человека — скрипт, сторож, импорт 0ms
+     ✓ вошедший получает объект своей организации, даже когда репозиторий просит по чужому имени 0ms
+     ✓ память одной организации не отдаётся другой 0ms
+     ✓ у чьей организации ещё нет объекта — «создайте в настройках», а не чужой объект 0ms
+     × путь от имени организации без человека получает объект этой организации, а не объект по имени 2ms
+     ✓ вошедший без организации (нет членства) не видит ни одного объекта 0ms
+ ❯ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (15 tests | 1 failed) 213ms
+   ❯ виджет бронирования /w/* (15)
+     ✓ скрипт виджета и CORS: свой домен получает заголовки, чужой — нет; preflight — 204 16ms
+     ✓ цены и места: категории с тарифом, цена за период, «мест нет», закрытая ограничением, без тарифа не показана 6ms
+     ✓ чужой Origin → 403 1ms
+     ✓ неизвестный ключ → 404 2ms
+     ✓ бронирование выключено → 404 2ms
+     ✓ заезд вчера → 400 2ms
+     × расчёт и бронь идут от имени организации сайта, а не объекта Luxx по имени 35ms
+     ✓ бронь: DTO для ReservationsService — WEBSITE, тариф сайта, autoAssign, псевдоним гостя; сессия связана; журнал 5ms
+     ✓ бронь сразу после первого просмотра: очередь счётчика записана до привязки, источник брони не теряется (гонка 15.09.2026) 2ms
+     ✓ honeypot, кривая форма и чужой домен — без брони 4ms
+     ✓ лимит: шестая бронь с одного адреса за час — 429 6ms
+     ✓ Д3: за туннелем Cloudflare все запросы приходят с 127.0.0.1 — лимит считается по CF-Connecting-IP посетителя 14ms
+     ✓ С-7: предел броней за час держит журнал, а не память — после «перезапуска» он не обнуляется 3ms
+     ✓ С-7: упёршийся предел записывает неисправность booking.flood — сторож разбудит; адреса в ней нет 14ms
+     ✓ демо-страница: виджет и счётчик по ключу; сайт без бронирования — 404 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/database/property-ref.test.ts > вошедший получает объект своей организации, не чужой > путь от имени организации без человека получает объект этой организации, а не объект по имени
+TypeError: withOrganizationScope is not a function
+ ❯ apps/api/src/database/property-ref.test.ts:141:11
+    139|   it('путь от имени организации без человека получает объект этой орга…
+    140|     const db = fakeDb(two).db as never;
+    141|     await withOrganizationScope('org-b', async () => {
+       |           ^
+    142|       expect(await propertyIdRef(db, 'Luxx')).toBe('p2');
+    143|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > расчёт и бронь идут от имени организации сайта, а не объекта Luxx по имени
+AssertionError: expected Set{ null } to deeply equal Set{ 'org-site' }
+
+- Expected
++ Received
+
+  Set {
+-   "org-site",
++   null,
+  }
+
+ ❯ apps/api/src/web-booking/web-booking.controller.test.ts:351:29
+    349|     await post(booking()).expect(201);
+    350|     expect(scopes.length).toBeGreaterThan(0);
+    351|     expect(new Set(scopes)).toEqual(new Set(['org-site']));
+       |                             ^
+    352|   });
+    353|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 23 passed (25)
+   Start at  10:13:44
+   Duration  1.57s (transform 45%, import 42%, tests 11%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-13-43Z-unit-8490.json
+
+# код выхода 1 · 3 с

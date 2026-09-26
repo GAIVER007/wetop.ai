@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import { UseGuards } from '@nestjs/common';
+import { IntegrationOwnerGuard } from './integration-owner';
 import { Controller, Get, Inject, Injectable, Query } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
@@ -234,6 +236,7 @@ export class ChannelContentService {
   }
 }
 
+@UseGuards(IntegrationOwnerGuard)
 @Controller('channels/channex')
 export class ChannelContentController {
   constructor(@Inject(ChannelContentService) private readonly service: ChannelContentService) {}

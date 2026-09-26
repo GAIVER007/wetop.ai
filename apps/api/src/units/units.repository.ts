@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyToday } from '../database/property-ref';
+import { propertyIdRef, propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 export type BlockType = 'MAINTENANCE' | 'MANAGEMENT' | 'OUT_OF_ORDER' | 'OTHER';
@@ -78,9 +78,17 @@ export class PrismaUnitsRepository implements UnitsRepository {
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
+  /**
+   * Место своего объекта по коду: вошедший — объект своей организации, служебный ходок — Luxx. Код уникален только
+   * внутри объекта (DATA_MODEL v1.11, ADR-096): поиск по одному коду нашёл бы место чужой гостиницы.
+   */
+  private async unitKey(code: string) {
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    return { propertyId_code: { propertyId, code } };
+  }
   async unitByCode(code: string) {
     const u = await this.prisma.db.inventoryUnit.findUnique({
-      where: { code },
+      where: await this.unitKey(code),
       include: { accommodationType: { select: { code: true } } },
     });
     return u
@@ -95,7 +103,7 @@ export class PrismaUnitsRepository implements UnitsRepository {
   }
   async card(code: string, from: string, to: string): Promise<UnitCard | null> {
     const u = await this.prisma.db.inventoryUnit.findUnique({
-      where: { code },
+      where: await this.unitKey(code),
       include: {
         accommodationType: { select: { code: true, name: true } },
         physicalRoom: { select: { roomNumber: true } },

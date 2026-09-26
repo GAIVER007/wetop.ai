@@ -56,6 +56,7 @@ model Property {
   payments           Payment[]
   services           Service[]
   trackedSites       TrackedSite[]
+  inventoryUnits     InventoryUnit[]
 
   @@index([organizationId])
   @@map("properties")
@@ -158,11 +159,13 @@ enum HousekeepingStatus {
 /// Ничего не выводится из номера единицы — только явные связи (DATA_MODEL принцип 7).
 model InventoryUnit {
   id                  String             @id @default(uuid()) @db.Uuid
+  /// Объект места (v1.11, ADR-096): дублирует объект категории, чтобы код был уникален внутри объекта
+  propertyId          String             @map("property_id") @db.Uuid
   physicalRoomId      String             @map("physical_room_id") @db.Uuid
   accommodationTypeId String             @map("accommodation_type_id") @db.Uuid
   kind                InventoryUnitKind
-  /// Код единицы в PMS; в MVP уникален глобально (один объект)
-  code                String             @unique
+  /// Код места в PMS; уникален внутри объекта (v1.11) — искать только в паре с объектом
+  code                String
   housekeepingStatus  HousekeepingStatus @default(DIRTY) @map("housekeeping_status")
   active              Boolean            @default(true)
   /// «№ комнаты в Exely» (1…88) — внешняя ссылка, ADR-003. Из него ничего не выводится.
@@ -170,12 +173,14 @@ model InventoryUnit {
   createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  property           Property            @relation(fields: [propertyId], references: [id])
   physicalRoom       PhysicalRoom        @relation(fields: [physicalRoomId], references: [id])
   accommodationType  AccommodationType   @relation(fields: [accommodationTypeId], references: [id])
   blocks             InventoryBlock[]
   housekeepingEvents HousekeepingEvent[]
   allocations        Allocation[]
 
+  @@unique([propertyId, code])
   @@index([accommodationTypeId])
   @@index([physicalRoomId])
   @@map("inventory_units")

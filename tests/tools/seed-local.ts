@@ -174,6 +174,7 @@ export async function seedLocal(
       }));
     await db.inventoryUnit.create({
       data: {
+        propertyId: property.id,
         physicalRoomId: room.id,
         accommodationTypeId: typeIds.get(u.category)!,
         code: `L${u.number}`,

@@ -1,0 +1,53 @@
+# Интеграционные (integration) · 26.09.2026 22:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7a351d4 (claude/ux-retention), незакоммиченных файлов набора: 35
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-33-17Z-integration-bbba.json' 'tests/integration/organization-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop-------------------WETOP/c0ea45ed-43bd-4ff8-be48-ebf0614fd84e/scratchpad/wetop-ux
+
+[pms_test] миграций применено 1; данные на месте
+(node:33277) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/organization-isolation.test.ts (2 tests | 1 failed) 173ms
+   ❯ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (2)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 134ms
+     × чужая организация не находит место объекта по коду и не видит, не меняет и не удаляет его сайты 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) > чужая организация не находит место объекта по коду и не видит, не меняет и не удаляет его сайты
+AssertionError: expected { …(5) } to deeply equal { …(5) }
+
+- Expected
++ Received
+
+  {
+-   "delete": false,
+-   "site": false,
+-   "sites": false,
++   "delete": true,
++   "site": true,
++   "sites": true,
+    "unitType": "3893370f-3c0b-402e-8409-acf28aaff9dd",
+-   "update": false,
++   "update": true,
+  }
+
+ ❯ tests/integration/organization-isolation.test.ts:181:23
+    179|     forgetPropertyRef();
+    180|
+    181|     expect(seen['B']).toEqual({
+       |                       ^
+    182|       unitType: seen['typeB'],
+    183|       sites: false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  10:33:18
+   Duration  850ms (tests 35%, import 35%, transform 29%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-33-17Z-integration-bbba.json
+
+# код выхода 1 · 1 с

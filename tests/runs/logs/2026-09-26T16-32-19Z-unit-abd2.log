@@ -1,0 +1,16 @@
+# Модульные (unit) · 26.09.2026 21:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7a351d4 (claude/ux-retention), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T16-32-19Z-unit-abd2.json' 'apps/web/src/lib/desk-person.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop-------------------WETOP/c0ea45ed-43bd-4ff8-be48-ebf0614fd84e/scratchpad/wetop-ux
+
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (6 tests) 3ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  09:32:19
+   Duration  182ms (transform 78%, import 18%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T16-32-19Z-unit-abd2.json
+
+# код выхода 0 · 1 с

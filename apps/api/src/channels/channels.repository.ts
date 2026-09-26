@@ -260,9 +260,17 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       ratePlan: rp,
     };
   }
+  /**
+   * Сопоставления, блокировки и продажи — только своего объекта (план tenant-isolation-2026-09-26 п. 5): иначе
+   * публикация остатков смешивала объекты, и продажи чужой категории с тем же кодом уходили в остатки Luxx на OTA.
+   * Служебный ходок (вебхук, очередь, сторож) — объект по имени, как раньше.
+   */
+  private scopedPropertyId(): Promise<string> {
+    return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
   async mappings(provider: string): Promise<MappingRow[]> {
     const rows = await this.prisma.db.channelMapping.findMany({
-      where: { provider },
+      where: { provider, propertyId: await this.scopedPropertyId() },
       include: { accommodationType: { select: { code: true } } },
       orderBy: { createdAt: 'asc' },
     });
@@ -360,7 +368,11 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   }
   async categoryBlocks(from: string, toExclusive: string) {
     const rows = await this.prisma.db.inventoryBlock.findMany({
-      where: { dateFrom: { lt: asDate(toExclusive) }, dateTo: { gt: asDate(from) } },
+      where: {
+        inventoryUnit: { propertyId: await this.scopedPropertyId() },
+        dateFrom: { lt: asDate(toExclusive) },
+        dateTo: { gt: asDate(from) },
+      },
       include: { inventoryUnit: { select: { accommodationType: { select: { code: true } } } } },
     });
     return rows.map((b) => ({
@@ -372,6 +384,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   async soldItems(from: string, toExclusive: string) {
     const rows = await this.prisma.db.reservationItem.findMany({
       where: {
+        reservation: { propertyId: await this.scopedPropertyId() },
         status: { notIn: ['CANCELLED', 'NO_SHOW'] },
         arrivalDate: { lt: asDate(toExclusive) },
         departureDate: { gt: asDate(from) },

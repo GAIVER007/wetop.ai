@@ -4,7 +4,7 @@ import type { Prisma } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
-import { hasSignedInActor } from '../auth/request-context';
+import { actsForOrganization } from '../auth/request-context';
 import { propertyIdRef } from '../database/property-ref';
 
 export interface GuestSummary {
@@ -96,7 +96,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
    * объекта его организации — основным гостем или на проживании. Служебный ходок (сторож, скрипты) — как раньше.
    */
   private async visible(): Promise<Prisma.GuestWhereInput> {
-    if (!hasSignedInActor()) return {};
+    if (!actsForOrganization()) return {};
     const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     return {
       OR: [

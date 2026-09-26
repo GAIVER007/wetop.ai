@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 26.09.2026 21:28 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7a351d4 (claude/ux-retention), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/site/landing.spec.ts:19:1 › чат ИИ-помощника: анонимный тег по адресу помощника (ТЗ П2, ADR-081) (327ms)
+  ✓  2 tests/site/landing.spec.ts:28:3 › / — открывается, доступна и без «TODO» на экране (767ms)
+  ✓  3 tests/site/landing.spec.ts:43:3 › / — на телефоне нет горизонтальной прокрутки (837ms)
+  ✓  4 tests/site/landing.spec.ts:28:3 › /blog/ — открывается, доступна и без «TODO» на экране (554ms)
+  ✓  5 tests/site/landing.spec.ts:43:3 › /blog/ — на телефоне нет горизонтальной прокрутки (140ms)
+  ✓  6 tests/site/landing.spec.ts:56:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (542ms)
+  ✓  7 tests/site/landing.spec.ts:74:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (63ms)
+  ✓  8 tests/site/landing.spec.ts:95:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (1.8s)
+
+  8 passed (9.9s)
+
+# код выхода 0 · 10 с

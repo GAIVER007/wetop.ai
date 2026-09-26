@@ -9,7 +9,7 @@ interface Freshness {
     outboxPending: number;
     outboxFailed: number;
     oldestPendingAt: string | null;
-  };
+  } | null;
 }
 
 /** Дельта ARI уходит за секунды; висит дольше 10 минут — канал не знает об изменении */
@@ -74,6 +74,8 @@ export function DataFreshness() {
         Нет связи с API
       </span>
     ) : null;
+  // каналы у гостиницы не подключены — строки о Channex нет (план tenant-isolation-2026-09-26 п. 5)
+  if (!data.channex) return null;
   const queueStale =
     data.channex.outboxFailed > 0 ||
     (data.channex.oldestPendingAt !== null &&

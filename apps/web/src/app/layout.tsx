@@ -1,3 +1,4 @@
+import { headers } from 'next/headers';
 import { Suspense, type ReactNode } from 'react';
 import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
@@ -37,13 +38,20 @@ async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
 }
 
 /** Общий shell и параллельная карточка используют одну тему и существующие server actions. */
-export default function RootLayout({
+export default async function RootLayout({
   children,
   drawer,
 }: {
   children: ReactNode;
   drawer: ReactNode;
 }) {
+  // Public creation does not fetch hotel data or start the authenticated desk shell.
+  if ((await headers()).get('x-wetop-path') === '/create') {
+    return <html lang="ru" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
+      <body><ThemeProvider><ToastProvider>{children}</ToastProvider></ThemeProvider></body>
+    </html>;
+  }
   // Кто вошёл и что ему открыто (ADR-083): меню получает обещание и не задерживает страницу
   const desk = deskShell();
   return (

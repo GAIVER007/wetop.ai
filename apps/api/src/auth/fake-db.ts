@@ -20,7 +20,17 @@ export interface FakeUser {
 export interface FakeMembership {
   userId: string;
   organizationId: string;
+  /** DATA_MODEL §16.1: в базе по умолчанию `STAFF` */
+  role: 'OWNER' | 'STAFF';
   createdAt: Date;
+}
+
+/** Главный администратор платформы (DATA_MODEL §16.2) */
+export interface FakePlatformAdmin {
+  userId: string;
+  grantedAt: Date;
+  revokedAt: Date | null;
+  note: string | null;
 }
 
 export interface FakeSession {
@@ -96,12 +106,14 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
   const verifications: FakeVerification[] = [];
   const audit: AuditRow[] = [];
   const properties: FakeProperty[] = [];
-  // каждый заведённый человек состоит в одной организации — так его пускает §13.3
-  const memberships: FakeMembership[] = users.map((u) => ({
+  // каждый заведённый человек состоит в одной организации — так его пускает §13.3; первый — её владелец (§16.1)
+  const memberships: FakeMembership[] = users.map((u, i) => ({
     userId: u.id,
     organizationId: FAKE_ORG,
+    role: i === 0 ? 'OWNER' : 'STAFF',
     createdAt: new Date('2026-09-15T00:00:00Z'),
   }));
+  const platformAdmins: FakePlatformAdmin[] = [];
   const organizations: FakeOrganization[] = [
     {
       id: FAKE_ORG,
@@ -158,10 +170,24 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         if (!include?.memberships) return { ...found };
         return { ...found, memberships: memberships.filter((m) => m.userId === found.id) };
       },
-      async update({ where, data }: { where: { id: string }; data: Partial<FakeUser> }) {
+      async update({
+        where,
+        data,
+      }: {
+        where: { id: string };
+        data: Partial<Omit<FakeUser, 'failedAttempts'>> & {
+          failedAttempts?: number | { increment: number };
+        };
+        select?: Record<string, boolean>;
+      }) {
         const user = users.find((u) => u.id === where.id);
         if (!user) throw new Error('нет такого пользователя');
-        Object.assign(user, data);
+        const { failedAttempts, ...rest } = data;
+        Object.assign(user, rest);
+        if (typeof failedAttempts === 'number') user.failedAttempts = failedAttempts;
+        // атомарный счётчик промахов, как `{ increment }` у Prisma (С-5): прибавка к текущему значению в «базе»
+        if (typeof failedAttempts === 'object' && failedAttempts !== null)
+          user.failedAttempts += failedAttempts.increment;
         return { ...user };
       },
       async create({
@@ -275,13 +301,32 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
       },
     },
     membership: {
-      async create({ data }: { data: { userId: string; organizationId: string } }) {
-        const row: FakeMembership = { ...data, createdAt: new Date() };
+      async create({
+        data,
+      }: {
+        data: { userId: string; organizationId: string; role?: 'OWNER' | 'STAFF' };
+      }) {
+        const row: FakeMembership = { role: 'STAFF', ...data, createdAt: new Date() };
         memberships.push(row);
         return { ...row };
       },
       async findFirst({ where }: { where: { userId: string } }) {
         return memberships.find((m) => m.userId === where.userId) ?? null;
+      },
+      async findUnique({
+        where,
+      }: {
+        where: { userId_organizationId: { userId: string; organizationId: string } };
+      }) {
+        const { userId, organizationId } = where.userId_organizationId;
+        const row = memberships.find((m) => m.userId === userId && m.organizationId === organizationId);
+        return row ? { ...row } : null;
+      },
+    },
+    platformAdmin: {
+      async findUnique({ where }: { where: { userId: string } }) {
+        const row = platformAdmins.find((a) => a.userId === where.userId);
+        return row ? { ...row } : null;
       },
     },
     session: {
@@ -399,6 +444,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     resets,
     verifications,
     memberships,
+    platformAdmins,
     properties,
     organizations,
     audit,

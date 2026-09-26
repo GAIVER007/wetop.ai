@@ -5,7 +5,7 @@ import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyToday, propertyIdRef } from '../database/property-ref';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { stayFacts } from '../chessboard/stay-facts';
 import type { LocalDailyRate, LocalRestriction } from './ari';
@@ -51,6 +51,8 @@ export interface LocalSetup {
 }
 
 export interface ChannelsRepository {
+  /** Сегодня по часам объекта (С-13, ТЗ аудита 25.09.2026): окно ARI считается от него */
+  today(): Promise<string>;
   localSetup(ratePlanCode: string): Promise<LocalSetup>;
   mappings(provider: string): Promise<MappingRow[]>;
   savePropertyMapping(
@@ -217,6 +219,10 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 @Injectable()
 export class PrismaChannelsRepository implements ChannelsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async today(): Promise<string> {
+    return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+  }
 
   async localSetup(ratePlanCode: string): Promise<LocalSetup> {
     // Мультитенантность: объект по организации вошедшего (служебный путь property-ref возьмёт Luxx

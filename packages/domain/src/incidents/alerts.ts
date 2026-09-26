@@ -89,6 +89,8 @@ const DESK_HINT: Partial<Record<IncidentKind, string>> = {
     'стойке: экраны PMS не открываются — заезды на бумажный лист, сторож перезапускает стойку',
   'ari.oversell':
     'стойке: канал может продать место, которого нет; не подтверждать новые брони без проверки шахматки',
+  'backup.stale':
+    'стойке: работать как обычно; владельцу — журнал копии на сервере: tail -5 /var/log/wetop-db-backup.log (docs/ops/backups.md)',
 };
 
 function line(c: AlertCandidate, now: Date): string {

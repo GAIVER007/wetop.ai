@@ -71,17 +71,18 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq postgresql-client-16
           psql --version && pg_dump --version
-      - name: Применение и откат каждой миграции
-        env:
-          MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
-        run: scripts/ops/check-migrations.sh
-      # Дальше — тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
+      # Зависимости — до проверки миграций: она сверяет schema.prisma с базой из миграций CLI Prisma
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run generate -w @pms/database
+      - name: Применение и откат каждой миграции, schema.prisma против базы из миграций
+        env:
+          MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
+        run: scripts/ops/check-migrations.sh
+      # Дальше — тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
       - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
       - name: Интеграционные тесты
         env:

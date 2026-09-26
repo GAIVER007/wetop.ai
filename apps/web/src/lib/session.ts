@@ -1,6 +1,7 @@
 import { cookies, headers } from 'next/headers';
 import type { AuthClientInfo } from './api';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
+import { lockRequired } from './auth-lock';
 
 // имена сохранены: их зовут действия входа, спеки и посредник
 export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
@@ -12,11 +13,13 @@ export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
  * куки то же, что у API (`wetop_session`): на `.wetop.ai` это одна и та же кука, локально — своя у
  * каждого хоста, и это нормально.
  *
- * Пока `APP_AUTH_REQUIRED` не задан, стойка работает и без входа: иначе сквозные тесты, сторож и
- * демонстрационный режим встали бы разом. Охрану снаружи держит Cloudflare Access (ADR-045).
+ * В production замок включён всегда и выключается только явным `APP_AUTH_REQUIRED=0` (fail-closed,
+ * ТЗ аудита 25.09.2026 В-2, правило — `auth-lock.ts`); на dev-стенде и в тестах он включается явной
+ * единицей — иначе сквозные наборы и демонстрационный режим встали бы разом.
  */
 
-export const authRequired = () => process.env.APP_AUTH_REQUIRED === '1';
+export const authRequired = () =>
+  lockRequired(process.env.APP_AUTH_REQUIRED, process.env.NODE_ENV);
 
 /** Адрес посетителя и его браузер — API считает по ним пределы и список «где я вошёл». Вне запроса — пусто. */
 export async function clientInfo(): Promise<AuthClientInfo> {

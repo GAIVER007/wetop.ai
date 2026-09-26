@@ -33,6 +33,9 @@ describe('AuthService.login', () => {
       email: 'admin@example.invalid',
       name: 'Айгуль Тестова',
       organizationId: FAKE_ORG,
+      // единственный участник организации — её владелец (DATA_MODEL §16.1); главным администратором не назначен
+      role: 'OWNER',
+      platformAdmin: false,
     });
     expect(result.token).toHaveLength(43);
     expect(new Date(result.expiresAt).getTime() - NOW.getTime()).toBe(SESSION_HOURS * 3_600_000);
@@ -69,6 +72,24 @@ describe('AuthService.login', () => {
     expect(sessions).toHaveLength(0);
     expect(users[0]!.failedAttempts).toBe(1);
     expect(JSON.stringify(audit)).not.toContain('не тот');
+  });
+
+  it('два одновременных промаха дают счётчик 2: параллельные попытки не съедают локаут (С-5)', async () => {
+    const { auth, users } = service();
+    const miss = () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => {});
+    // обе попытки читают пользователя до того, как первая запишет счётчик, — как два запроса в API
+    await Promise.all([miss(), miss()]);
+    expect(users[0]!.failedAttempts).toBe(2);
+  });
+
+  it('пятый промах ставит запрет по счётчику из базы, а не по прочитанному до записи (С-5)', async () => {
+    const { auth, users } = service([fakeUser({ failedAttempts: MAX_FAILED_ATTEMPTS - 2 })]);
+    const miss = () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => {});
+    await Promise.all([miss(), miss()]);
+    expect(users[0]!.failedAttempts).toBe(MAX_FAILED_ATTEMPTS);
+    expect(users[0]!.lockedUntil).not.toBeNull();
   });
 
   it('неизвестная почта отвечает тем же текстом, что и неверный пароль', async () => {
@@ -148,6 +169,22 @@ describe('AuthService.whoami', () => {
         trialEndsAt: '2026-09-22T00:00:00.000Z',
       },
     });
+  });
+
+  it('роль — из членства в организации сессии, отметка главного администратора — пока не отозвана (ADR-083)', async () => {
+    const { auth, memberships, platformAdmins } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+
+    memberships[0]!.role = 'STAFF';
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({
+      user: { role: 'STAFF', platformAdmin: false },
+    });
+
+    platformAdmins.push({ userId: 'u-1', grantedAt: NOW, revokedAt: null, note: null });
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: true } });
+
+    platformAdmins[0]!.revokedAt = NOW;
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: false } });
   });
 
   // Сессии входа по коду (второй отпечаток, HMAC с SESSION_SECRET) сняты 20.09.2026 вместе с самим
@@ -265,8 +302,9 @@ describe('AuthService.register', () => {
     expect(org, 'организация заведена').toBeDefined();
     expect(org!.status).toBe('TRIAL');
     expect(org!.trialEndsAt!.getTime()).toBeGreaterThan(NOW.getTime());
-    expect(memberships.some((m) => m.userId === created!.id && m.organizationId === org!.id)).toBe(
-      true,
+    // зарегистрировавший — владелец своей организации (DATA_MODEL §16.1, ADR-083)
+    expect(memberships.find((m) => m.userId === created!.id && m.organizationId === org!.id)?.role).toBe(
+      'OWNER',
     );
 
     // объект организации создан сразу, назван отелем — иначе новый кабинет упирался бы в
@@ -327,6 +365,46 @@ describe('AuthService.register', () => {
     await expect(verification.confirm(token, NOW)).resolves.toMatchObject({
       organizationId: expect.any(String),
     });
+  });
+
+  /*
+   * ТЗ аудита 25.09.2026, В-1: использованная ссылка не должна быть вечным входом без пароля.
+   * Повтор впускает только короткое окно после использования (почтовые клиенты ходят по ссылкам сами),
+   * и только пока ссылка не истекла и человек не заблокирован.
+   */
+  it('через 10 минут использованная ссылка больше не впускает — зовёт войти паролем', async () => {
+    const { verification, letters, auth } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(token, NOW);
+    const later = new Date(NOW.getTime() + 11 * 60_000);
+    await expect(verification.confirm(token, later)).rejects.toThrow(/уже подтверждена/);
+  });
+
+  it('использованная ссылка не впускает заблокированного даже в свежем окне', async () => {
+    const { verification, letters, auth, users } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(token, NOW);
+    users.find((u) => u.email === 'novyi@example.invalid')!.status = 'BLOCKED';
+    const shortly = new Date(NOW.getTime() + 60_000);
+    await expect(verification.confirm(token, shortly)).rejects.toThrow(/Ссылка не годится/);
+  });
+
+  it('окно повтора не продлевает срок самой ссылки', async () => {
+    const { verification, letters, auth } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    const nearExpiry = new Date(NOW.getTime() + 72 * 3_600_000 - 60_000);
+    await verification.confirm(token, nearExpiry);
+    const pastExpiry = new Date(NOW.getTime() + 72 * 3_600_000 + 60_000);
+    await expect(verification.confirm(token, pastExpiry)).rejects.toThrow(/уже подтверждена/);
   });
 
   it('негодная ссылка отвечает отказом и никого не впускает', async () => {

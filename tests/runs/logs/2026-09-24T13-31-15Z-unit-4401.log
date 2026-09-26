@@ -1,0 +1,245 @@
+# Модульные (unit) · 24.09.2026 18:31 Алматы · vm
+# коммит b8db4dc (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T13-31-15Z-unit-4401.json' 'apps/api/src/auth/auth.guard.test.ts' 'apps/api/src/assistant/assistant.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/auth.guard.test.ts (22 tests | 2 failed) 30ms
+   ✓ tokenFromHeaders (1)
+     ✓ берёт токен из Authorization: Bearer <скрыто> из x-wetop-session 2ms
+   ❯ SessionGuard (21)
+     ✓ пока вход не включён, пускает всех и никого не спрашивает 3ms
+     ✓ когда AUTH_REQUIRED=1 (9)
+       ✓ без токена не пускает 2ms
+       ✓ с годным токеном пускает и кладёт вошедшего в запрос 1ms
+       ✓ с негодным токеном не пускает 1ms
+       ✓ публичный маршрут пускает без токена: счётчик сайта, виджет и webhook работают снаружи 0ms
+       ✓ служебный ключ пускает сторожа и скрипты сверки 1ms
+       ✓ неверный служебный ключ не пускает 0ms
+       ✓ ключ той же длины, но другой, не пускает — сравнение идёт до конца, а не до первого знака 1ms
+       ✓ ключ другой длины не пускает и не роняет замок 1ms
+       ✓ когда служебный ключ в окружении не задан, служебный заголовок ничего не даёт 1ms
+     ✓ пока вход не включён, но токен пришёл — узнаёт автора, чтобы журнал знал, кто действовал 0ms
+     ✓ пока вход не включён, негодный токен не мешает работать 0ms
+     ✓ метка публичного маршрута читается тем же ключом, которым её ставит декоратор 0ms
+     ✓ ключ дежурного агента (GUARD_READ_KEY) (4)
+       ✓ пускает читать неисправности сторожа 1ms
+       ✓ не пускает закрывать неисправность, дёргать сторожа и слать пробную тревогу 1ms
+       ✓ не открывает остальной API: ни броней, ни денег, ни учёток 1ms
+       ✓ служебный ключ по-прежнему открывает всё, а чужой ключ не пускает никуда 1ms
+     ❯ ключ ИИ-помощника (ASSISTANT_READ_KEY) (4)
+       × пускает ровно на два адреса: ошибки человека и состояние системы 8ms
+       × неисправности, запись и остальной API — 403 2ms
+       ✓ ключ дежурного агента ошибок человека не читает 1ms
+       ✓ похожий ключ не пускает: сравнение до конца 0ms
+ ❯ |unit| apps/api/src/assistant/assistant.controller.test.ts (15 tests | 8 failed) 208ms
+   ✓ GET /assistant/identity — подпись вошедшего (ТЗ П1) (7)
+     ✓ вошедшему отдаёт токен, который сходится с общим секретом и несёт поля сессии 25ms
+     ✓ ответ не кэшируется: в подписи почта человека 4ms
+     ✓ без сессии при включённом замке — 401 3ms
+     ✓ без сессии при выключенном замке — тоже 401: подпись выдаётся только человеку 3ms
+     ✓ служебный ключ — не человек: подписи нет 3ms
+     ✓ при выключенном замке вошедший тоже получает подпись: автора узнаёт замок и без AUTH_REQUIRED 3ms
+     ✓ секрет не вписан — 503, а не подпись пустым ключом 3ms
+   ❯ GET /assistant/errors — ошибки человека для помощника (ТЗ П4) (8)
+     × по ключу помощника отдаёт время, раздел, код и текст — новые сверху, как отдало хранилище 4ms
+     × по умолчанию — за сутки и не больше 20 строк; больше 50 не отдаёт 5ms
+     × userId и organizationId обязательны и должны быть UUID; since — дата 4ms
+     × служебный ключ владельца тоже читает 2ms
+     × ключ дежурного агента — 403: ошибки человека не его 3ms
+     × вошедший человек без ключа не читает даже свои ошибки через этот адрес 2ms
+     × при выключенном замке без ключа — отказ, а не чужие ошибки 2ms
+     × ключ помощника не задан в окружении — адрес закрыт для всех, кроме служебного ключа 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > по ключу помощника отдаёт время, раздел, код и текст — новые сверху, как отдало хранилище
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:210:8
+    208|       .get(`/assistant/errors?${query}&since=2026-09-24T00:00:00.000Z&…
+    209|       .set('x-wetop-service-key', ASSISTANT_KEY)
+    210|       .expect(200);
+       |        ^
+    211|     expect(res.body).toEqual([
+    212|       { at: '2026-09-24T09:12:03.120Z', section: 'Брони', status: 400,…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > по умолчанию — за сутки и не больше 20 строк; больше 50 не отдаёт
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:227:8
+    225|       .get(`/assistant/errors?${query}`)
+    226|       .set('x-wetop-service-key', ASSISTANT_KEY)
+    227|       .expect(200);
+       |        ^
+    228|     await request(app.getHttpServer())
+    229|       .get(`/assistant/errors?${query}&limit=500`)
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > userId и organizationId обязательны и должны быть UUID; since — дата
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:250:10
+    248|         .get(`/assistant/errors?${bad}`)
+    249|         .set('x-wetop-service-key', ASSISTANT_KEY)
+    250|         .expect(400);
+       |          ^
+    251|     }
+    252|     expect(userErrors.queries).toHaveLength(0);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > служебный ключ владельца тоже читает
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:260:8
+    258|       .get(`/assistant/errors?${query}`)
+    259|       .set('x-wetop-service-key', 'service-key-for-run')
+    260|       .expect(200);
+       |        ^
+    261|   });
+    262|
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > ключ дежурного агента — 403: ошибки человека не его
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:268:8
+    266|       .get(`/assistant/errors?${query}`)
+    267|       .set('x-wetop-service-key', 'guard-read-key-for-run')
+    268|       .expect(403);
+       |        ^
+    269|     expect(userErrors.queries).toHaveLength(0);
+    270|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > вошедший человек без ключа не читает даже свои ошибки через этот адрес
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:277:8
+    275|       .get(`/assistant/errors?${query}`)
+    276|       .set('x-wetop-session', 'good-session')
+    277|       .expect(403);
+       |        ^
+    278|     expect(userErrors.queries).toHaveLength(0);
+    279|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > при выключенном замке без ключа — отказ, а не чужие ошибки
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:283:74
+    281|   it('при выключенном замке без ключа — отказ, а не чужие ошибки', asy…
+    282|     vi.stubEnv('ASSISTANT_READ_KEY', ASSISTANT_KEY);
+    283|     await request(app.getHttpServer()).get(`/assistant/errors?${query}…
+       |                                                                          ^
+    284|     await request(app.getHttpServer())
+    285|       .get(`/assistant/errors?${query}`)
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts > GET /assistant/errors — ошибки человека для помощника (ТЗ П4) > ключ помощника не задан в окружении — адрес закрыт для всех, кроме служебного ключа
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:300:8
+    298|       .get(`/assistant/errors?${query}`)
+    299|       .set('x-wetop-service-key', '')
+    300|       .expect(401);
+       |        ^
+    301|     expect(userErrors.queries).toHaveLength(0);
+    302|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > ключ ИИ-помощника (ASSISTANT_READ_KEY) > пускает ровно на два адреса: ошибки человека и состояние системы
+AssertionError: promise rejected "UnauthorizedException: Служебный ключ не … { …(4) }" instead of resolving
+ ❯ apps/api/src/auth/auth.guard.test.ts:256:10
+    254|         await expect(
+    255|           new SessionGuard(reflector(false), auth(false)).canActivate(…
+    256|         ).resolves.toBe(true);
+       |          ^
+    257|         expect(request.service).toBe(true);
+    258|       }
+
+Caused by: UnauthorizedException: Служебный ключ не подходит
+ ❯ SessionGuard.canActivate apps/api/src/auth/auth.guard.ts:120:13
+ ❯ apps/api/src/auth/auth.guard.test.ts:255:59
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { response: { message: 'Служебный ключ не подходит', error: 'Unauthorized', statusCode: 401 }, status: 401, options: {}, errorCode: undefined, initCause: 'Function<initCause>', initErrorCode: 'Function<initErrorCode>', initMessage: 'Function<initMessage>', initName: 'Function<initName>', getResponse: 'Function<getResponse>', getStatus: 'Function<getStatus>' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > ключ ИИ-помощника (ASSISTANT_READ_KEY) > неисправности, запись и остальной API — 403
+AssertionError: expected [Function] to throw error matching /Ключ помощника читает только/ but got 'Служебный ключ не подходит'
+
+- Expected:
+/Ключ помощника читает только/
+
++ Received:
+"Служебный ключ не подходит"
+
+ ❯ apps/api/src/auth/auth.guard.test.ts:279:10
+    277|         await expect(
+    278|           new SessionGuard(reflector(false), auth(false)).canActivate(…
+    279|         ).rejects.toThrow(/Ключ помощника читает только/);
+       |          ^
+    280|       }
+    281|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  10 failed | 27 passed (37)
+   Start at  13:31:16
+   Duration  1.99s (transform 62%, import 31%, tests 7%)
+
+JSON report written to /tmp/pms-test-2026-09-24T13-31-15Z-unit-4401.json
+
+# код выхода 1 · 3 с

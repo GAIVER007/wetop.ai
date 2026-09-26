@@ -30,6 +30,10 @@ model Property {
   legalName    String?  @map("legal_name")
   bin          String?
   address      String?
+  /// Контакты объекта для печатных форм (v1.7, ADR-082): до них телефон и почта были зашиты в код
+  /// печати и напечатались бы в договоре любой организации. Пустое — в формах прочерк.
+  phone        String?
+  email        String?
   /// IANA timezone объекта, например Asia/Almaty
   timezone     String
   /// ISO 4217, на объекте KZT
@@ -41,7 +45,9 @@ model Property {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization       Organization?       @relation(fields: [organizationId], references: [id])
+  /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
+  /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
+  organization       Organization?       @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
@@ -51,6 +57,7 @@ model Property {
   services           Service[]
   trackedSites       TrackedSite[]
 
+  @@index([organizationId])
   @@map("properties")
 }
 
@@ -229,6 +236,8 @@ model Reservation {
   webSessions  WebSession[]
 
   @@unique([propertyId, confirmationNumber])
+  /// дубль OTA-брони отвергает база, NULL ручных броней различны (ТЗ аудита 25.09, С-4; v1.10)
+  @@unique([propertyId, externalId])
   @@index([propertyId, arrivalDate])
   @@index([propertyId, departureDate])
   @@index([status])
@@ -346,9 +355,12 @@ model GuestDocument {
   type            String
   numberEncrypted String    @map("number_encrypted")
   /// ISO 3166-1 alpha-3 либо NULL; CHECK guest_documents_issue_country_alpha3 (Q-117)
+  /// Открытым остаётся намеренно: класс «персональные», как citizenship, нужен eQonaq (v1.7, ADR-082)
   issueCountry    String?   @map("issue_country") @db.VarChar(3)
-  issuedAt        DateTime? @map("issued_at") @db.Date
-  expiresAt       DateTime? @map("expires_at") @db.Date
+  /// Даты документа — особо чувствительные (SECURITY.md §1): ISO-дата, зашифрованная тем же ключом,
+  /// что номер (v1.7, ADR-082). В запросах не участвуют — только запись и показ, расшифровка в приложении
+  issuedAtEncrypted  String? @map("issued_at_encrypted")
+  expiresAtEncrypted String? @map("expires_at_encrypted")
   documentFileId  String?   @map("document_file_id")
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -957,6 +969,9 @@ model Organization {
   sessions    Session[]
   invites     Invite[]
   properties  Property[]
+  userErrors  UserError[]
+  sellerProfile SellerProfile?
+  extensions  OrganizationExtension[]
 
   @@map("organizations")
 }
@@ -987,6 +1002,10 @@ model User {
   passwordResets PasswordReset[]
   emailVerifications EmailVerification[]
   auditLogs      AuditLog[]
+  userErrors     UserError[]
+  sellerProfileEdits SellerProfile[]
+  platformAdmin  PlatformAdmin?
+  extensionEdits OrganizationExtension[]
 
   @@map("users")
 }
@@ -1009,9 +1028,10 @@ model PasswordReset {
 /// Ссылка подтверждения почты. В базе только хеш ссылки, срок 72 часа, ссылка одноразовая.
 /// Новая ссылка гасит прежние: одна живая ссылка на человека.
 model EmailVerification {
-  id        String    @id @default(uuid()) @db.Uuid
+  /// id выдаёт база, у ключа на users нет ON UPDATE — как в миграции 20260920000015
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String    @map("user_id") @db.Uuid
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tokenHash String    @unique @map("token_hash")
   expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
   usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
@@ -1021,11 +1041,19 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
-/// Человек в организации. Ролей нет: ADR-023 в этой части в силе, контролем остаётся журнал действий.
+/// Роль в организации (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет — ADR-023 там в силе; владельцу —
+/// сотрудники, приглашения и настройки ИИ-продавца.
+enum MembershipRole {
+  OWNER
+  STAFF
+}
+
+/// Человек в организации. Роль — §16.1: у самого раннего участника организации `OWNER` (миграция 20260925000020).
 model Membership {
-  userId         String   @map("user_id") @db.Uuid
-  organizationId String   @map("organization_id") @db.Uuid
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  userId         String         @map("user_id") @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  role           MembershipRole @default(STAFF)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
 
   user         User         @relation(fields: [userId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])
@@ -1073,4 +1101,133 @@ model Invite {
 
   @@index([organizationId])
   @@map("invites")
+}
+
+// ───────────────────────── §14 Ошибки, которые видит человек ─────────────────────────
+
+/// Ответ API с ошибкой (4xx, 5xx), который получил вошедший человек (DATA_MODEL §14, ТЗ ред. 1 П3, ADR-079).
+/// Читает ИИ-помощник по узкому ключу. Время ставит приложение — у колонки нет DEFAULT; CHECK status 400…599 — в миграции.
+/// Тела запроса, значений из адреса и данных гостей нет по построению: маршрут шаблоном, текст ответа с маской.
+model UserError {
+  id             String   @id @default(uuid()) @db.Uuid
+  at             DateTime @db.Timestamptz(6)
+  userId         String   @map("user_id") @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  method         String   @db.VarChar(10)
+  route          String   @db.VarChar(200)
+  status         Int      @db.SmallInt
+  message        String   @db.VarChar(500)
+  requestId      String   @map("request_id") @db.Uuid
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, organizationId, at])
+  @@index([at])
+  @@map("user_errors")
+}
+
+// ───────────────────────── §15 Профиль ИИ-продавца ─────────────────────────
+
+enum SellerAddressForm {
+  FORMAL
+  INFORMAL
+}
+
+/// Эмодзи в ответах продавца — значения модели бота `SellerProfile` (Б6): нет, изредка, только в приветствии
+enum SellerEmoji {
+  NEVER
+  MODERATE
+  GREETING_ONLY
+}
+
+/// Длина реплик — значения модели бота: коротко или развёрнуто
+enum SellerReplyLength {
+  SHORT
+  DETAILED
+}
+
+/// Профиль ИИ-продавца: одна строка на организацию (DATA_MODEL §15, ТЗ ред. 1 П5, ADR-079, ADR-081). Поля экрана
+/// «Настройки», не текст промпта: ядро правил держит бот. Перечисления и пределы — модели бота `SellerProfile`. Поля
+/// доставки (П8) ведёт платформа. CHECK на число языков и строк в списках — в миграции.
+model SellerProfile {
+  organizationId   String            @id @map("organization_id") @db.Uuid
+  botName          String?           @map("bot_name") @db.VarChar(40)
+  addressForm      SellerAddressForm @map("address_form")
+  emoji            SellerEmoji       @default(NEVER)
+  replyLength      SellerReplyLength @map("reply_length")
+  languages        String[]
+  greeting         String            @default("") @db.VarChar(300)
+  includedInPrice  String            @default("") @map("included_in_price") @db.VarChar(1000)
+  extraCharges     String            @default("") @map("extra_charges") @db.VarChar(1000)
+  houseRules       String            @default("") @map("house_rules") @db.VarChar(2000)
+  /// Запреты по одному в строке: до 30 (CHECK в миграции), строка до 300 — проверяет домен
+  prohibitions     String[]          @default([])
+  /// Когда звать человека, по одному в строке: до 30 (CHECK), строка до 300
+  callHumanWhen    String[]          @default([]) @map("call_human_when")
+  /// [{ question, answer }], до 50 — проверяет домен (`parseSellerProfile`)
+  faq              Json              @default("[]")
+  updatedAt        DateTime          @map("updated_at") @db.Timestamptz(6)
+  updatedBy        String?           @map("updated_by") @db.Uuid
+  /// Версия профиля (`updated_at`), которую продавец принял; NULL — не принимал
+  profileAppliedAt DateTime?         @map("profile_applied_at") @db.Timestamptz(6)
+  /// SHA-256 последних доставленных фактов объекта
+  factsHash        String?           @map("facts_hash") @db.Char(64)
+  factsAppliedAt   DateTime?         @map("facts_applied_at") @db.Timestamptz(6)
+  /// Последний отказ продавца, маскированный; NULL — отказов нет
+  lastError        String?           @map("last_error") @db.VarChar(500)
+  lastErrorAt      DateTime?         @map("last_error_at") @db.Timestamptz(6)
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  editor       User?        @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@map("seller_profiles")
+}
+
+/// Главный администратор платформы (DATA_MODEL §16.2, ADR-083). Ставит и снимает только команда на сервере
+/// (`npm run accounts -- platform-admin`): маршрута API, который пишет сюда, нет. Действует, пока `revoked_at` пуст.
+/// Отдельная таблица, а не поле в `users`: правка профиля человека не может задеть отметку.
+model PlatformAdmin {
+  userId    String    @id @map("user_id") @db.Uuid
+  grantedAt DateTime  @default(now()) @map("granted_at") @db.Timestamptz(6)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  note      String?   @db.VarChar(200)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("platform_admins")
+}
+
+/// Платное расширение организации (DATA_MODEL §16.3, ADR-083)
+enum ExtensionKind {
+  AI_SELLER
+}
+
+/// `TRIAL` — пробный, `ACTIVE` — оплачен, `OFF` — выключен
+enum ExtensionStatus {
+  TRIAL
+  ACTIVE
+  OFF
+}
+
+/// Расширение действует, если статус `TRIAL` или `ACTIVE` и срок не вышел (`active_until` пуст — бессрочно). Меняет
+/// только главный администратор; строки не удаляются, выключение — `OFF`. Денег здесь нет (Q-141, Q-143).
+model OrganizationExtension {
+  organizationId String          @map("organization_id") @db.Uuid
+  extension      ExtensionKind
+  status         ExtensionStatus
+  /// NULL — бессрочно; у пробного обязателен (CHECK в миграции)
+  activeUntil    DateTime?       @map("active_until") @db.Timestamptz(6)
+  /// Номер счёта и т. п.; без персональных данных
+  note           String?         @db.VarChar(300)
+  updatedAt      DateTime        @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?         @map("updated_by") @db.Uuid
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  editor       User?        @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@id([organizationId, extension])
+  @@map("organization_extensions")
 }

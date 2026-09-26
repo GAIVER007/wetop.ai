@@ -25,7 +25,9 @@ export type IncidentKind =
   | 'reconciliation.fail'
   | 'tests.failing'
   | 'web.down'
-  | 'ari.oversell';
+  | 'ari.oversell'
+  | 'backup.stale'
+  | 'booking.flood';
 
 export interface FixPolicy {
   /** Сколько раз сторож пробует сам, дальше — будит */
@@ -157,6 +159,23 @@ export const POLICY: Record<IncidentKind, KindPolicy> = {
     fix: { maxAttempts: 1, minIntervalMs: HOUR },
     close: { by: 'recheck' },
   },
+  /*
+   * Ночной копии базы нет дольше 26 часов, статуса нет или он не читается (ADR-078). Копию снимает cron на сервере;
+   * прав на сервер у сторожа нет, и чинить ему нечем. Порог уже с запасом, поэтому к человеку сразу, но WARNING:
+   * будит днём, а висит сутки — и ночью (STALE_AFTER_MS). Закрывается сама, когда появится свежая копия.
+   */
+  'backup.stale': {
+    class: 'A',
+    severity: 'WARNING',
+    escalateAfterMs: 0,
+    close: { by: 'recheck' },
+  },
+  /**
+   * Брони с сайта упёрлись в предел за час (С-7, ТЗ аудита 25.09.2026): либо всплеск спроса, либо
+   * фальшивые брони закрывают продажи (denial of inventory). Чинить нечего — человек смотрит свежие
+   * брони и решает; сутки тишины закрывают строку сами.
+   */
+  'booking.flood': { class: 'B', severity: 'WARNING', close: { by: 'quiet', afterMs: 24 * HOUR } },
 };
 
 /** Что заметила проверка. Без ФИО, телефонов и секретов — только номера и коды. */

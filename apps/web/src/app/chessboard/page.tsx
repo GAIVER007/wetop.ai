@@ -232,7 +232,7 @@ export default async function ChessboardPage({
             ]}
           />
         </details>
-        <span className="board-gesture-hint">Плашка — переселить · правый край — продлить</span>
+        <span className="board-gesture-hint">Плашка — переселить, правый край — продлить</span>
         {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
       </div>
     </Page>

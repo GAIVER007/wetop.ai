@@ -1,0 +1,43 @@
+# Интеграционные (integration) · 26.09.2026 03:56 Алматы · vm
+# коммит 6338f43 (claude/cool-hawking-c030jv)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T22-56-45Z-integration-db52.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+No test files found, exiting with code 0
+
+projects: integration
+
+|integration| 
+
+include: tests/integration/**/*.test.ts
+exclude:  **/node_modules/**
+
+JSON report written to /tmp/pms-test-2026-09-25T22-56-45Z-integration-db52.json
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: connect ECONNREFUSED 127.0.0.1:55432
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ processTicksAndRejections node:internal/process/task_queues:103:5
+ ❯ ensureTestSchema tests/tools/test-schema.ts:56:18
+     54|   const log = opts.log ?? (() => undefined);
+     55|   const pool = new pg.Pool({ connectionString: connectionString(), max…
+     56|   const client = await pool.connect();
+       |                  ^
+     57|   try {
+     58|     const existed =
+ ❯ Object.setup tests/integration-setup.ts:13:18
+ ❯ TestProject._initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:12116:21
+ ❯ Vitest.initializeGlobalSetup node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21204:35
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21044:6
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:21073:11
+ ❯ node_modules/vitest/dist/chunks/index.B89dZ0-N.js:20935:19
+ ❯ startVitest node_modules/vitest/dist/chunks/cli-api.LUtK11-x.js:369:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -111, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 55432 }
+
+
+
+
+# код выхода 1 · 1 с

@@ -196,6 +196,11 @@ describe('guests API', () => {
     const stored = fakes.guests.get('g1')!.documents[0]!.numberEncrypted;
     expect(stored).not.toContain('1234567');
     expect(decryptPii(stored, KEY)).toBe('N 1234567');
+    // v1.7 (ADR-082): дата — особо чувствительные данные, в хранилище шифртекст, не ISO
+    const doc = fakes.guests.get('g1')!.documents[0]!;
+    expect(doc.issuedAtEncrypted).toBeNull();
+    expect(doc.expiresAtEncrypted).not.toContain('2030-01-01');
+    expect(decryptPii(doc.expiresAtEncrypted!, KEY)).toBe('2030-01-01');
     await request(app.getHttpServer())
       .post('/guests/g1/documents')
       .send({ type: 'DRIVER', number: 'x' })
@@ -225,8 +230,8 @@ describe('guests API', () => {
       type: 'PASSPORT',
       numberEncrypted: 'не расшифруется — маска «недоступно»',
       issueCountry: 'KAZ',
-      issuedAt: null,
-      expiresAt: null,
+      issuedAtEncrypted: null,
+      expiresAtEncrypted: null,
     });
     await request(app.getHttpServer()).get('/guests/g1').expect(200);
     await request(app.getHttpServer()).get('/guests/g1').expect(200);

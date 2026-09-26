@@ -7,6 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
+  VERIFY_ALREADY_MESSAGE,
   VERIFY_BAD_LINK_MESSAGE,
   VERIFY_EXPIRED_MESSAGE,
   emailVerificationLetter,
@@ -15,6 +16,7 @@ import {
   validEmail,
   verifyExpiry,
   verifyLink,
+  VERIFY_REUSE_WINDOW_MS,
   verifyState,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
@@ -96,9 +98,18 @@ export class EmailVerificationService {
     if (!row || !row.user) throw new UnauthorizedException(VERIFY_BAD_LINK_MESSAGE);
 
     const state = verifyState(row, now);
-    // Уже подтверждённая почта + использованная ссылка — это повторный переход по той же ссылке
-    // (письмо открыли дважды, почтовый клиент сходил по ссылке сам). Это не ошибка человека.
+    /*
+     * Уже подтверждённая почта + использованная ссылка — повторный переход по той же ссылке: письмо
+     * открыли дважды или почтовый клиент сходил по ссылке сам. Впускаем только короткое окно после
+     * использования и только пока ссылка не истекла и человек не заблокирован (ТЗ аудита 25.09.2026,
+     * В-1): иначе письмо в ящике оставалось бы вечным входом без пароля.
+     */
     if (state === 'used' && row.user.emailVerifiedAt !== null) {
+      const recent =
+        row.usedAt !== null && now.getTime() - row.usedAt.getTime() <= VERIFY_REUSE_WINDOW_MS;
+      if (!recent || row.expiresAt.getTime() <= now.getTime())
+        throw new UnauthorizedException(VERIFY_ALREADY_MESSAGE);
+      if (row.user.status === 'BLOCKED') throw new UnauthorizedException(VERIFY_BAD_LINK_MESSAGE);
       const organizationId = row.user.memberships[0]?.organizationId;
       if (!organizationId) throw new UnauthorizedException(VERIFY_BAD_LINK_MESSAGE);
       return { userId: row.user.id, organizationId };

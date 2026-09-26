@@ -38,6 +38,9 @@ export interface InventoryUnit {
   isDorm: boolean;
 }
 
+/** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
+const QUIET_401_PATHS = ['/auth/', '/assistant/identity'];
+
 /** Explicit test/demo sources are isolated from normal and production API access. */
 async function backendFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const endpoint = process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001';
@@ -83,8 +86,9 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
     );
   }
   // Сессия кончилась: при включённом замке человека ведём на вход. Ответы самого входа исключены —
-  // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046).
-  if (response.status === 401 && !path.startsWith('/auth/')) {
+  // иначе неверный пароль отправлял бы на ту же страницу без объяснения (ADR-046). Подпись помощника
+  // тоже: её просит макет на каждой странице, включая сам экран входа, и 401 там значит «чат анонимный».
+  if (response.status === 401 && !QUIET_401_PATHS.some((p) => path.startsWith(p))) {
     const { redirectToLoginIfRequired } = await import('./session');
     await redirectToLoginIfRequired();
   }
@@ -290,13 +294,14 @@ export interface RatePlanOption {
 export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';
 
 async function sendJson<T>(
-  method: 'POST' | 'PATCH' | 'DELETE',
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body: unknown,
+  headers: Record<string, string> = {},
 ): Promise<T> {
   const res = await backendFetch(path, {
     method,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify(body),
     cache: 'no-store',
   });
@@ -326,6 +331,27 @@ export interface SignedIn {
   organizationId: string;
   /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
   organization?: SignedInOrganization | null;
+  /**
+   * Роль в организации сессии (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет (ADR-023): владельцу — сотрудники,
+   * приглашения и настройки ИИ-продавца. Старый API роли не присылает — тогда считаем сотрудником
+   */
+  role?: 'OWNER' | 'STAFF';
+  /** Главный администратор платформы (§16.2): раздел «Платформа» */
+  platformAdmin?: boolean;
+}
+
+/** Расширение «ИИ-продавец» организации (ADR-083, Q-183): `expired` — срок вышел, раздел только для чтения */
+export interface ExtensionAccessView {
+  access: 'active' | 'expired' | 'off';
+  status: 'TRIAL' | 'ACTIVE' | 'OFF' | null;
+  activeUntil: string | null;
+  /** Дней до конца срока; бессрочно или выключено — `null` */
+  daysLeft: number | null;
+}
+
+/** Что открыто организации вошедшего — от этого зависят пункты меню */
+export interface DeskAccessView {
+  aiSeller: ExtensionAccessView;
 }
 
 export interface SignedInOrganization {
@@ -366,15 +392,27 @@ async function messageOf(res: Response): Promise<string> {
  */
 export const authApi = {
   options: () => getJson<{ registrationEnabled: boolean }>('/auth/options'),
-  login: (body: { email: string; password: string }) =>
-    sendJson<{ token: string; expiresAt: string; user: SignedIn }>('POST', '/auth/login', body),
-  me: () => getJson<{ user: SignedIn | null; expiresAt?: string }>('/auth/me'),
+  // адрес посетителя уезжает заголовком: лимиты входа по адресу (С-5, ТЗ аудита 25.09.2026) считает API
+  login: (body: { email: string; password: string }, info?: AuthClientInfo) =>
+    sendJson<{ token: string; expiresAt: string; user: SignedIn }>(
+      'POST',
+      '/auth/login',
+      body,
+      info ? authHeaders(info) : {},
+    ),
+  me: () =>
+    getJson<{ user: SignedIn | null; expiresAt?: string; access?: DeskAccessView }>('/auth/me'),
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
   /** «Забыли пароль»: ответ один и тот же, есть такая почта или нет */
-  requestReset: (body: { email: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/password-reset/request', body),
+  requestReset: (body: { email: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>(
+      'POST',
+      '/auth/password-reset/request',
+      body,
+      info ? authHeaders(info) : {},
+    ),
   /** Пароль по одноразовой ссылке из письма */
   confirmReset: (body: { token: string; password: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password-reset/confirm', body),
@@ -383,11 +421,15 @@ export const authApi = {
    * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Ключа сессии в ответе нет — сначала письмо
    * и подтверждение почты. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
-  register: (body: { email: string; name: string; hotelName: string; password: string }) =>
+  register: (
+    body: { email: string; name: string; hotelName: string; password: string },
+    info?: AuthClientInfo,
+  ) =>
     sendJson<{ pendingVerification: true; email: string; name: string; sent: boolean }>(
       'POST',
       '/auth/register',
       body,
+      info ? authHeaders(info) : {},
     ),
   /** Подтверждение почты по ссылке из письма: ответ тот же, что у входа — ключ, срок, кто вошёл */
   verifyEmail: (body: { token: string }) =>
@@ -397,8 +439,8 @@ export const authApi = {
       body,
     ),
   /** «Выслать письмо заново»: ответ один и тот же, есть такая почта или нет */
-  resendVerification: (body: { email: string }) =>
-    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body),
+  resendVerification: (body: { email: string }, info?: AuthClientInfo) =>
+    sendJson<{ ok: boolean }>('POST', '/auth/email/resend', body, info ? authHeaders(info) : {}),
   // ── Приглашения (срез 13, этап 7) ─────────────────────────────────────────────────────────────
   /** Ожидающие приглашения своей организации. 401 — сессии нет. */
   invites: async (token: string, info: AuthClientInfo): Promise<AuthInvite[]> => {
@@ -1227,6 +1269,347 @@ export interface GuardStatus {
   } | null;
   open: { total: number; critical: number; escalated: number };
 }
+/** Подпись вошедшего для виджета ИИ-помощника (ТЗ П1, П2): кладётся в `data-identity` тега */
+export interface AssistantIdentity {
+  token: string;
+  expiresAt: string;
+}
+
+export const assistantApi = {
+  /**
+   * `null` — чат анонимный: не вошёл (401), подпись не настроена (503), API не ответил. Страница из-за чата
+   * не падает и на вход не уводит — макет рисуется и на экране входа.
+   */
+  identity: async (): Promise<AssistantIdentity | null> => {
+    try {
+      const res = await backendFetch('/assistant/identity');
+      if (!res.ok) return null;
+      const body = (await res.json()) as Partial<AssistantIdentity>;
+      return typeof body.token === 'string' && typeof body.expiresAt === 'string'
+        ? { token: body.token, expiresAt: body.expiresAt }
+        : null;
+    } catch (error) {
+      if (error instanceof ApiError) return null;
+      throw error;
+    }
+  },
+};
+
+// ── Раздел «ИИ-продавец» (ТЗ ред. 1 П5–П8, ADR-079; контракт — docs/assistant/README.md) ──────────────
+
+export type SellerAddressForm = 'FORMAL' | 'INFORMAL';
+export type SellerEmoji = 'NEVER' | 'MODERATE' | 'GREETING_ONLY';
+export type SellerReplyLength = 'SHORT' | 'DETAILED';
+
+/** Поля экрана «Настройки» — профиль продавца полями, не текстом промпта (DATA_MODEL §15, ADR-081) */
+export interface SellerProfileBody {
+  botName: string | null;
+  addressForm: SellerAddressForm;
+  emoji: SellerEmoji;
+  replyLength: SellerReplyLength;
+  languages: string[];
+  greeting: string;
+  includedInPrice: string;
+  extraCharges: string;
+  houseRules: string;
+  /** По одному в строке */
+  prohibitions: string[];
+  callHumanWhen: string[];
+  faq: Array<{ question: string; answer: string }>;
+}
+
+export interface SellerProfileView {
+  saved: boolean;
+  profile: SellerProfileBody;
+  updatedAt: string | null;
+  applied: boolean;
+}
+
+export interface SellerStatus {
+  /**
+   * `extension-off` — расширение не подключено; `extension-expired` — срок вышел, раздел только для чтения (ADR-083);
+   * `not-configured` — у платформы нет адреса и ключа продавца. Состояния `other-organization` больше нет (Э4):
+   * продавец общий, вызовы идут с организацией вошедшего.
+   */
+  state: 'extension-off' | 'extension-expired' | 'not-configured' | 'ready';
+  profile: { saved: boolean; updatedAt: string | null; applied: boolean };
+  facts: { applied: boolean; appliedAt: string | null };
+  lastError: string | null;
+  lastErrorAt: string | null;
+  /** Отказ временный — платформа повторит сама; `false` — продавец отклонил версию, ждём правки или «Применить» */
+  retrying: boolean;
+  embedAvailable: boolean;
+  /** Расширение организации; старый API его не присылает */
+  extension?: ExtensionAccessView | null;
+  /** Подключён ли продавец, какое бы ни было расширение: читать диалоги после срока можно, только если он есть */
+  connection?: 'not-configured' | 'ready';
+  /** Может ли вошедший менять настройки: владелец организации при действующем расширении */
+  canConfigure?: boolean;
+}
+
+/** Факты объекта ровно в том виде, в каком их получает продавец (`PUT /seller/facts`, snake_case) */
+export interface SellerFactsPayload {
+  object_name: string;
+  address: string;
+  timezone: string;
+  check_in: string;
+  check_out: string;
+  currency: string;
+  categories: Array<{ name: string; kind: 'room' | 'bed'; capacity: number; price_minor: number | null }>;
+}
+
+/** Цена категории глазами стойки: что ушло продавцу и почему (ADR-081, Q-179) */
+export interface SellerCategoryPrice {
+  code: string;
+  name: string;
+  kind: string;
+  capacity: number;
+  units: number;
+  occupancy: number | null;
+  /** Тиыны строкой — то, что уходит продавцу; `null` — цена не уходит */
+  priceMinor: string | null;
+  reason: 'same' | 'varies' | 'none';
+  min: string | null;
+  max: string | null;
+  days: number;
+}
+
+/** «Данные объекта»: ровно факты, что уходят продавцу, и для экрана — тариф сайта, окно и разбор цен */
+export interface SellerFactsView {
+  facts: SellerFactsPayload;
+  hash: string;
+  applied: boolean;
+  ratePlan: { code: string; name: string; currency: string } | null;
+  window: { from: string; to: string };
+  prices: SellerCategoryPrice[];
+}
+
+export interface SellerConversationRow {
+  id: string;
+  channel: string;
+  /** Имя маскирует продавец: в списке контакта нет, он — в карточке */
+  clientName: string | null;
+  mode: string;
+  stage: string;
+  lastActivityAt: string | null;
+  messages: number;
+  hasContact: boolean;
+}
+
+export interface SellerConversationCard {
+  id: string;
+  mode: string;
+  stage: string;
+  leadData: Record<string, unknown>;
+  contact: {
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    channel: string | null;
+    externalId: string | null;
+  };
+  messages: Array<{ role: string; text: string; at: string | null; sentByUs: boolean }>;
+}
+
+export interface SellerSummary {
+  hours: number;
+  dialogs: number;
+  replies: number;
+  leads: number;
+  slaBreaches: number;
+}
+
+export interface SellerExtractResult {
+  filled: string[];
+  skipped: string[];
+  rejected: string[];
+  unparsed: string[];
+  /** Не записывается никуда: адрес, заезд и цены из рассказа — сверить с данными платформы */
+  aside: {
+    objectName: string | null;
+    address: string | null;
+    checkIn: string | null;
+    checkOut: string | null;
+    categories: Array<{ name: string; kind: string; capacity: number; priceMinor: number | null }>;
+  };
+  profile: SellerProfileView;
+}
+
+export interface SellerWhatsAppView {
+  set: boolean;
+  phoneNumberId: string | null;
+  verifyToken: string | null;
+  webhookUrl: string | null;
+}
+
+export const sellerApi = {
+  status: () => getJson<SellerStatus>('/ai-seller/status'),
+  /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
+  extract: (story: string) =>
+    sendJson<SellerExtractResult>('POST', '/ai-seller/extract', { story }),
+  /** Ключ модели партнёра (С2): хранит бот, наружу — «установлен + последние 4 знака» */
+  llmKey: () => getJson<{ set: boolean; last4: string | null }>('/ai-seller/llm-key'),
+  saveLlmKey: (key: string) =>
+    sendJson<{ set: boolean; last4: string | null }>('PUT', '/ai-seller/llm-key', { key }),
+  checkLlmKey: (key: string) =>
+    sendJson<{ valid: boolean; reason: string | null }>('POST', '/ai-seller/llm-key/check', { key }),
+  /** Подключение WhatsApp (С3): токен и секрет Meta живут только у бота */
+  whatsapp: () => getJson<SellerWhatsAppView>('/ai-seller/whatsapp'),
+  saveWhatsApp: (input: { phoneNumberId: string; token?: string; appSecret?: string }) =>
+    sendJson<SellerWhatsAppView>('PUT', '/ai-seller/whatsapp', input),
+  checkWhatsApp: (input: { phoneNumberId: string; token: string }) =>
+    sendJson<{ valid: boolean; phone: string | null; reason: string | null }>(
+      'POST',
+      '/ai-seller/whatsapp/check',
+      input,
+    ),
+  profile: () => getJson<SellerProfileView>('/ai-seller/profile'),
+  saveProfile: (body: SellerProfileBody) =>
+    sendJson<SellerProfileView>('PUT', '/ai-seller/profile', body),
+  apply: () =>
+    sendJson<{ profileApplied: boolean; factsApplied: boolean }>('POST', '/ai-seller/apply', {}),
+  facts: () => getJson<SellerFactsView>('/ai-seller/facts'),
+  conversations: (mode?: string) =>
+    getJson<{ items: SellerConversationRow[] }>(
+      `/ai-seller/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
+    ),
+  conversation: (id: string) =>
+    getJson<SellerConversationCard>(`/ai-seller/conversations/${encodeURIComponent(id)}`),
+  switchMode: (id: string, action: 'takeover' | 'release') =>
+    sendJson<{ mode: string | null; previousMode: string | null }>(
+      'POST',
+      `/ai-seller/conversations/${encodeURIComponent(id)}/${action}`,
+      {},
+    ),
+  reply: (id: string, text: string) =>
+    sendJson<{ ok: true }>('POST', `/ai-seller/conversations/${encodeURIComponent(id)}/reply`, {
+      text,
+    }),
+  knowledge: () =>
+    getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
+      '/ai-seller/knowledge',
+    ),
+  /** Документ базы знаний: multipart, поле `file`; заголовок с границей ставит сам fetch */
+  uploadKnowledge: async (
+    file: File,
+  ): Promise<{ source: string; created: boolean; chunks: number }> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch('/ai-seller/knowledge', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { source: string; created: boolean; chunks: number };
+  },
+  summary: () => getJson<SellerSummary>('/ai-seller/summary'),
+  sandbox: (text: string) =>
+    sendJson<{ reply: string | null; needsHuman: boolean; reasons: string[] }>(
+      'POST',
+      '/ai-seller/sandbox',
+      { text },
+    ),
+  embed: () => getJson<{ snippet: string | null; hosts?: string[] }>('/ai-seller/embed'),
+};
+
+/** Организация глазами главного администратора платформы (ADR-083): без броней, гостей и переписки */
+export interface PlatformOrganization {
+  id: string;
+  name: string;
+  status: SignedInOrganization['status'];
+  trialEndsAt: string | null;
+  createdAt: string;
+  members: number;
+  owners: string[];
+  aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
+}
+
+/** Изменение расширения: статус, дата «до» (`ГГГГ-ММ-ДД`, включительно; пусто — бессрочно) и заметка */
+export interface ExtensionChangeBody {
+  status: 'TRIAL' | 'ACTIVE' | 'OFF';
+  activeUntil: string;
+  note: string;
+}
+
+/** Раздел «Платформа» (DATA_MODEL §16, ADR-083): только главному администратору, остальным API отвечает 403 */
+export const platformApi = {
+  organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
+  changeAiSeller: (organizationId: string, body: ExtensionChangeBody) =>
+    sendJson<PlatformOrganization>(
+      'PUT',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
+      body,
+    ),
+};
+
+/** Кто пишет в техподдержку — из подписи стойки; анонимный посетитель wetop.ai — `null` в карточке */
+export interface SupportPlatformUser {
+  userId: string | null;
+  email: string | null;
+  organizationId: string | null;
+  organizationName: string | null;
+  role: 'owner' | 'staff' | null;
+}
+
+export type SupportConversationCard = SellerConversationCard & {
+  platformUser: SupportPlatformUser | null;
+};
+
+/**
+ * «Платформа → Техподдержка» (ADR-083, план Э3): панель ИИ-помощника через API платформы — адреса и ключа помощника
+ * стойка не знает. Только главному администратору; остальным API отвечает 403.
+ */
+export const supportApi = {
+  status: () => getJson<{ state: 'not-configured' | 'ready' }>('/platform/support/status'),
+  conversations: (mode?: string) =>
+    getJson<{ items: SellerConversationRow[] }>(
+      `/platform/support/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
+    ),
+  conversation: (id: string) =>
+    getJson<SupportConversationCard>(`/platform/support/conversations/${encodeURIComponent(id)}`),
+  switchMode: (id: string, action: 'takeover' | 'release') =>
+    sendJson<{ mode: string | null; previousMode: string | null }>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/${action}`,
+      {},
+    ),
+  reply: (id: string, text: string) =>
+    sendJson<{ ok: true }>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/reply`,
+      { text },
+    ),
+  knowledge: () =>
+    getJson<{ items: Array<{ source: string; chunks: number; createdAt: string | null }> }>(
+      '/platform/support/knowledge',
+    ),
+  /** Документ базы знаний помощника: multipart, поле `file`; заголовок с границей ставит сам fetch */
+  uploadKnowledge: async (
+    file: File,
+  ): Promise<{ source: string; created: boolean; chunks: number }> => {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    const res = await backendFetch('/platform/support/knowledge', { method: 'POST', body: form });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { source: string; created: boolean; chunks: number };
+  },
+  summary: () => getJson<SellerSummary>('/platform/support/summary'),
+  // ── настройка помощника (ADR-084): правила, модель, песочница ──
+  prompt: () => getJson<{ text: string }>('/platform/support/prompt'),
+  savePrompt: (text: string) =>
+    sendJson<{ length: number }>('PUT', '/platform/support/prompt', { text }),
+  settings: () => getJson<{ models: string[]; model: string | null }>('/platform/support/settings'),
+  saveModel: (model: string) =>
+    sendJson<{ model: string | null; previous: string | null }>(
+      'PUT',
+      '/platform/support/settings/model',
+      { model },
+    ),
+  sandbox: (text: string) =>
+    sendJson<{ reply: string | null; needsHuman: boolean; reasons: string[] }>(
+      'POST',
+      '/platform/support/sandbox',
+      { text },
+    ),
+};
+
 export const guardApi = {
   status: () => getJson<GuardStatus>('/guard/status'),
   incidents: (status: 'open' | 'all', limit = 100) =>

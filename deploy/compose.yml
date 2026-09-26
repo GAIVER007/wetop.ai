@@ -40,6 +40,16 @@ x-app: &app
       required: false
   security_opt: ['no-new-privileges:true']
 
+# Общая сеть с ИИ-помощником и ИИ-продавцом (ADR-081, docs/assistant/README.md §3): помощник читает у API ошибки
+# человека и состояние сторожа, API зовёт продавца по SELLER_URL. Заводит её платформа — с постоянным именем, чтобы бот
+# подключился к ней из своего compose как к внешней; внешней здесь она не объявлена, иначе выкладка падала бы, пока сеть
+# не заведена руками. internal: true — выхода наружу у этой сети нет, она только для служб между собой. В ней api и
+# cloudflared: туннель выводит наружу assistant.wetop.ai (только чат и живость, deploy/cloudflared.example.yml). Стойки нет.
+networks:
+  wetop-internal:
+    name: wetop-internal
+    internal: true
+
 # environment у служб не наследуется через &app (слияние YAML не глубокое), поэтому у каждой службы свой блок.
 # TZ и NODE_ENV заданы в образе (Dockerfile), здесь только то, что различается.
 services:
@@ -74,7 +84,15 @@ services:
       # а в контейнере /app — слепок кода на момент сборки образа (docs/deploy.md §1а). Выключателя
       # для этого больше нет: сторож сам считает данные старше двух суток слепком и молчит о них
       # (LOCAL_FILE_FRESH_MS в @pms/domain, разбор 21.09.2026).
+      # Статус ночной копии базы (ADR-078, docs/ops/backups.md): его пишет scripts/ops/db-backup.sh из cron хоста.
+      # Файла нет или копия старше 26 часов — сторож поднимает «ночной копии базы нет». Выключить: GUARD_BACKUP=off в .env.
+      GUARD_BACKUP_STATUS: /backup-status/last.json
+    # Только папка статуса и только на чтение. Сами копии в контейнер НЕ монтируются: в них хеши паролей и почты
+    # сотрудников, а API смотрит в интернет через туннель. Папки ещё нет — Docker создаст пустую, сторож скажет «не найден».
+    volumes: ['/root/backups/status:/backup-status:ro']
     expose: ['3001']
+    # default — стойка и туннель; wetop-internal — бот. default обязателен: без него стойка API не увидит
+    networks: [default, wetop-internal]
     # Живость меряем публичным /health, который трогает базу. Рабочий маршрут сюда не годится:
     # с включённым AUTH_REQUIRED=1 он отвечает 401 без сессии, контейнер навсегда «нездоров»,
     # а стойка и туннель ждут его здоровья и не поднимаются вовсе. Проверка через node: она есть в любом
@@ -119,6 +137,8 @@ services:
     # Правила маршрутизации живут в репозитории и видны в ревью, а не в панели Cloudflare.
     # Ключ туннеля кладёт владелец рядом с конфигом; в git не едет.
     volumes: ['./cloudflared:/etc/cloudflared:ro']
+    # default — стойка и API; wetop-internal — ИИ-помощник для assistant.wetop.ai (ADR-081)
+    networks: [default, wetop-internal]
     depends_on:
       api: { condition: service_healthy }
       web: { condition: service_healthy }

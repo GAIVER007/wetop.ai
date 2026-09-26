@@ -13,10 +13,61 @@ describe('parseAccountsArgs', () => {
     });
   });
 
-  it('роли не принимаются: их нет в модели (ADR-023 в силе, Q-140)', () => {
+  it('create роль не задаёт: для этого команда role (DATA_MODEL §16.1, ADR-083)', () => {
     expect(parseAccountsArgs(['create', '--email=a@b.kz', '--name=Имя', '--role=owner'])).toEqual({
       ok: true,
       command: { kind: 'create', email: 'a@b.kz', name: 'Имя' },
+    });
+  });
+
+  it('роль в организации: owner или staff', () => {
+    expect(parseAccountsArgs(['role', '--email=Aigul@Luxx.KZ', '--role=owner'])).toEqual({
+      ok: true,
+      command: { kind: 'role', email: 'aigul@luxx.kz', role: 'OWNER' },
+    });
+    expect(parseAccountsArgs(['role', '--email=a@b.kz', '--role=STAFF'])).toEqual({
+      ok: true,
+      command: { kind: 'role', email: 'a@b.kz', role: 'STAFF' },
+    });
+    expect(parseAccountsArgs(['role', '--email=a@b.kz', '--role=admin'])).toMatchObject({ ok: false });
+    expect(parseAccountsArgs(['role', '--role=owner'])).toMatchObject({ ok: false });
+  });
+
+  it('главный администратор: выдать с заметкой и снять — по почте, только командой на сервере (ADR-083)', () => {
+    expect(parseAccountsArgs(['platform-admin', '--email=Owner@Wetop.AI', '--note=владелец WETOP'])).toEqual({
+      ok: true,
+      command: { kind: 'platform-admin', email: 'owner@wetop.ai', note: 'владелец WETOP' },
+    });
+    expect(parseAccountsArgs(['platform-admin', '--email=owner@wetop.ai'])).toEqual({
+      ok: true,
+      command: { kind: 'platform-admin', email: 'owner@wetop.ai', note: null },
+    });
+    expect(parseAccountsArgs(['platform-admin-revoke', '--email=owner@wetop.ai'])).toEqual({
+      ok: true,
+      command: { kind: 'platform-admin-revoke', email: 'owner@wetop.ai' },
+    });
+    expect(parseAccountsArgs(['platform-admin', '--email=не-почта'])).toMatchObject({ ok: false });
+  });
+
+  it('расширение организации человека: статус, срок и заметка — проверяет домен при выполнении', () => {
+    expect(
+      parseAccountsArgs(['extension', '--email=owner@wetop.ai', '--status=active', '--until=2026-12-31', '--note=счёт 1']),
+    ).toEqual({
+      ok: true,
+      command: {
+        kind: 'extension',
+        email: 'owner@wetop.ai',
+        status: 'ACTIVE',
+        until: '2026-12-31',
+        note: 'счёт 1',
+      },
+    });
+    expect(parseAccountsArgs(['extension', '--email=owner@wetop.ai', '--status=off'])).toEqual({
+      ok: true,
+      command: { kind: 'extension', email: 'owner@wetop.ai', status: 'OFF', until: '', note: '' },
+    });
+    expect(parseAccountsArgs(['extension', '--email=owner@wetop.ai', '--status=paid'])).toMatchObject({
+      ok: false,
     });
   });
 

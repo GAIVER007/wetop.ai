@@ -64,6 +64,9 @@ export interface AnalyticsRepository {
   sites(): Promise<SiteRecord[]>;
   site(id: string): Promise<SiteRecord | null>;
   siteByKey(publicKey: string): Promise<SiteRecord | null>;
+  /** Сайт бронирования организации для котировки продавца (Q-166, ADR-085): первый ACTIVE с включённым
+   * бронированием и тарифом сайта — тот же выбор, что у фактов продавца. `null` — такого нет */
+  bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null>;
   createSite(input: { name: string; hosts: string[]; publicKey: string }): Promise<SiteRecord>;
   updateSite(
     id: string,
@@ -92,6 +95,11 @@ export interface AnalyticsRepository {
   ): Promise<Array<{ name: string; sessionKey: string; props: unknown }>>;
   status(siteId: string, todayStartUtc: Date): Promise<SiteStatus>;
   audit(action: string, siteId: string, after: Record<string, unknown>): Promise<void>;
+  /**
+   * Броней с сайта с момента `since` — по журналу действий (`analytics.site.booking`), который только
+   * дописывается: счёт переживает перезапуск API, в отличие от окон в памяти (С-7, ТЗ аудита 25.09.2026)
+   */
+  siteBookingsSince(siteId: string, since: Date): Promise<number>;
   /** Тариф для виджета по коду (срез 9) */
   ratePlanByCode(code: string): Promise<RatePlanOption | null>;
   /** Тариф сайта по умолчанию: «Базовый тариф» Exely (10157482), иначе первый активный */
@@ -170,6 +178,19 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   async siteByKey(publicKey: string): Promise<SiteRecord | null> {
     const r = await this.prisma.db.trackedSite.findUnique({
       where: { publicKey },
+      select: SITE_SELECT,
+    });
+    return r ? toRecord(r) : null;
+  }
+  async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
+    const r = await this.prisma.db.trackedSite.findFirst({
+      where: {
+        property: { organizationId },
+        status: 'ACTIVE',
+        bookingEnabled: true,
+        bookingRatePlanId: { not: null },
+      },
+      orderBy: { createdAt: 'asc' },
       select: SITE_SELECT,
     });
     return r ? toRecord(r) : null;
@@ -348,6 +369,17 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         entityId: siteId,
         action,
         after: after as Prisma.InputJsonObject,
+      },
+    });
+  }
+
+  async siteBookingsSince(siteId: string, since: Date): Promise<number> {
+    return this.prisma.db.auditLog.count({
+      where: {
+        entityType: 'TrackedSite',
+        entityId: siteId,
+        action: 'analytics.site.booking',
+        createdAt: { gt: since },
       },
     });
   }

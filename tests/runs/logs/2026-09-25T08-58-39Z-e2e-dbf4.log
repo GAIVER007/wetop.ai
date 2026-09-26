@@ -1,0 +1,267 @@
+# Сквозные (e2e) · 25.09.2026 13:58 Алматы · vm
+# коммит 0729998 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ai-seller.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 14 tests using 1 worker
+
+  ✘   1 tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния (18.1s)
+  ✘   2 tests/ui/ai-seller.spec.ts:48:1 › семь шагов по порядку: «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) (18.2s)
+  ✘   3 tests/ui/ai-seller.spec.ts:119:1 › «Назад» сохраняет введённое; эмодзи — из трёх вариантов бота, запреты — по одному в строке (ADR-081) (16.5s)
+  ✘   4 tests/ui/ai-seller.spec.ts:145:1 › без языков шаг отказывает словами домена и остаётся открытым, введённое не пропадает (45.2s)
+  ✘   5 tests/ui/ai-seller.spec.ts:155:1 › «Запуск» называет незаполненные шаги и не прячет правила ядра (16.4s)
+  ✓   6 tests/ui/ai-seller.spec.ts:165:1 › «Данные объекта» — только просмотр: факты, цены по категориям, куда идти править (1.6s)
+  ✓   7 tests/ui/ai-seller.spec.ts:187:1 › «Знания»: список и загрузка документа (2.2s)
+  ✓   8 tests/ui/ai-seller.spec.ts:203:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (3.5s)
+  ✓   9 tests/ui/ai-seller.spec.ts:237:1 › «Код для сайта»: тег чата продавца и кнопка «Скопировать» (1.3s)
+  ✓  10 tests/ui/ai-seller.spec.ts:245:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.3s)
+  ✘  11 tests/ui/ai-seller.spec.ts:251:1 › продавец не подключён — раздел говорит об этом, настройки сохраняются заранее (ТЗ §4.4) (16.4s)
+  ✓  12 tests/ui/ai-seller.spec.ts:279:1 › продавец недоступен — раздел говорит об этом и обещает повтор (1.5s)
+  ✓  13 tests/ui/ai-seller.spec.ts:289:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.4s)
+  ✘  14 tests/ui/ai-seller.spec.ts:306:1 › снимки экранов раздела (45.4s)
+
+
+  1) tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния ────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link')
+    Expected: 7
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link') with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link')
+        34 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      35 |   // «Настройки» — семь шагов; новый продавец открывается на первом (поручение владельца 25.09.2026)
+      36 |   const steps = page.getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link');
+    > 37 |   await expect(steps).toHaveCount(7);
+         |                       ^
+      38 |   await expect(steps.first()).toHaveAttribute('aria-current', 'step');
+      39 |   await expect(page.getByRole('heading', { level: 2, name: 'Знакомство' })).toBeVisible();
+      40 | });
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:37:23
+
+    Error Context: test-results/ai-seller-раздел-в-меню-«П-73491-ть-вкладок-полоса-состояния/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-раздел-в-меню-«П-73491-ть-вкладок-полоса-состояния/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-раздел-в-меню-«П-73491-ть-вкладок-полоса-состояния/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller.spec.ts:48:1 › семь шагов по порядку: «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Знакомство', level: 2 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Знакомство', level: 2 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Знакомство', level: 2 })
+
+
+      42 | const next = (page: import('@playwright/test').Page) => page.getByTestId('seller-step-next').click();
+      43 | const stepHeading = (page: import('@playwright/test').Page, name: string) =>
+    > 44 |   expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
+         |                                                         ^
+      45 | const stepWord = (page: import('@playwright/test').Page, step: string) =>
+      46 |   page.getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link', { name: new RegExp(step) });
+      47 |
+        at stepHeading (/home/user/wetop.ai/tests/ui/ai-seller.spec.ts:44:57)
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:57:9
+
+    Error Context: test-results/ai-seller-семь-шагов-по-по-7d177-«Проверке»-на-«ты»-ТЗ-§4-4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-семь-шагов-по-по-7d177-«Проверке»-на-«ты»-ТЗ-§4-4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-семь-шагов-по-по-7d177-«Проверке»-на-«ты»-ТЗ-§4-4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-seller.spec.ts:119:1 › «Назад» сохраняет введённое; эмодзи — из трёх вариантов бота, запреты — по одному в строке (ADR-081) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('group', { name: 'Эмодзи' }).getByRole('radio')
+    Expected: 3
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('group', { name: 'Эмодзи' }).getByRole('radio') with timeout 15000ms
+      - waiting for getByRole('group', { name: 'Эмодзи' }).getByRole('radio')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      122 |   await page.goto('/ai-seller?step=2');
+      123 |   const emoji = page.getByRole('group', { name: 'Эмодзи' }).getByRole('radio');
+    > 124 |   await expect(emoji).toHaveCount(3);
+          |                       ^
+      125 |   await expect(page.getByRole('group', { name: 'Эмодзи' })).toContainText('только в приветствии');
+      126 |   await expect(page.getByRole('group', { name: 'Длина ответов' }).getByRole('radio')).toHaveCount(2);
+      127 |   await page.getByRole('radio', { name: /только в приветствии/ }).check();
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:124:23
+
+    Error Context: test-results/ai-seller-«Назад»-сохраняе-61224-по-одному-в-строке-ADR-081-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Назад»-сохраняе-61224-по-одному-в-строке-ADR-081-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Назад»-сохраняе-61224-по-одному-в-строке-ADR-081-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-seller.spec.ts:145:1 › без языков шаг отказывает словами домена и остаётся открытым, введённое не пропадает 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('seller-step-next')
+
+
+      40 | });
+      41 |
+    > 42 | const next = (page: import('@playwright/test').Page) => page.getByTestId('seller-step-next').click();
+         |                                                                                              ^
+      43 | const stepHeading = (page: import('@playwright/test').Page, name: string) =>
+      44 |   expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
+      45 | const stepWord = (page: import('@playwright/test').Page, step: string) =>
+        at next (/home/user/wetop.ai/tests/ui/ai-seller.spec.ts:42:94)
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:149:9
+
+    Error Context: test-results/ai-seller-без-языков-шаг-о-7c7d9-ытым-введённое-не-пропадает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-без-языков-шаг-о-7c7d9-ытым-введённое-не-пропадает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-без-языков-шаг-о-7c7d9-ытым-введённое-не-пропадает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-seller.spec.ts:155:1 › «Запуск» называет незаполненные шаги и не прячет правила ядра 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('seller-setup-missing')
+    Expected substring: "«Знакомство»"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('seller-setup-missing') with timeout 15000ms
+      - waiting for getByTestId('seller-setup-missing')
+
+
+      155 | test('«Запуск» называет незаполненные шаги и не прячет правила ядра', async ({ page }) => {
+      156 |   await page.goto('/ai-seller?step=7');
+    > 157 |   await expect(page.getByTestId('seller-setup-missing')).toContainText('«Знакомство»');
+          |                                                          ^
+      158 |   await expect(page.getByTestId('seller-briefing')).toContainText('без имени — от лица гостиницы');
+      159 |   await expect(page.getByTestId('seller-briefing')).toContainText(
+      160 |     'всегда — жалоба, возврат денег, изменение или отмена брони',
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:157:58
+
+    Error Context: test-results/ai-seller-«Запуск»-называе-cbafb-ги-и-не-прячет-правила-ядра/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Запуск»-называе-cbafb-ги-и-не-прячет-правила-ядра/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Запуск»-называе-cbafb-ги-и-не-прячет-правила-ядра/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-seller.spec.ts:251:1 › продавец не подключён — раздел говорит об этом, настройки сохраняются заранее (ТЗ §4.4) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link', { name: /Документы/ })
+    Expected substring: "после подключения"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link', { name: /Документы/ }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Шаги настройки продавца' }).getByRole('link', { name: /Документы/ })
+
+
+      256 |   await page.goto('/ai-seller');
+      257 |   await expect(page.getByTestId('seller-state')).toContainText('не подключён');
+    > 258 |   await expect(stepWord(page, 'Документы')).toContainText('после подключения');
+          |                                             ^
+      259 |   await page.getByLabel('Приветствие').fill('Здравствуйте!');
+      260 |   await next(page);
+      261 |   await expect(page).toHaveURL(/step=2/);
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:258:45
+
+    Error Context: test-results/ai-seller-продавец-не-подк-bbdf6-охраняются-заранее-ТЗ-§4-4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-продавец-не-подк-bbdf6-охраняются-заранее-ТЗ-§4-4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-продавец-не-подк-bbdf6-охраняются-заранее-ТЗ-§4-4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ai-seller.spec.ts:306:1 › снимки экранов раздела ─────────────────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('seller-step-next')
+
+
+      40 | });
+      41 |
+    > 42 | const next = (page: import('@playwright/test').Page) => page.getByTestId('seller-step-next').click();
+         |                                                                                              ^
+      43 | const stepHeading = (page: import('@playwright/test').Page, name: string) =>
+      44 |   expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
+      45 | const stepWord = (page: import('@playwright/test').Page, step: string) =>
+        at next (/home/user/wetop.ai/tests/ui/ai-seller.spec.ts:42:94)
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:315:9
+
+    Error Context: test-results/ai-seller-снимки-экранов-раздела/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-снимки-экранов-раздела/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-снимки-экранов-раздела/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния ─────
+    tests/ui/ai-seller.spec.ts:48:1 › семь шагов по порядку: «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) 
+    tests/ui/ai-seller.spec.ts:119:1 › «Назад» сохраняет введённое; эмодзи — из трёх вариантов бота, запреты — по одному в строке (ADR-081) 
+    tests/ui/ai-seller.spec.ts:145:1 › без языков шаг отказывает словами домена и остаётся открытым, введённое не пропадает 
+    tests/ui/ai-seller.spec.ts:155:1 › «Запуск» называет незаполненные шаги и не прячет правила ядра 
+    tests/ui/ai-seller.spec.ts:251:1 › продавец не подключён — раздел говорит об этом, настройки сохраняются заранее (ТЗ §4.4) 
+    tests/ui/ai-seller.spec.ts:306:1 › снимки экранов раздела ──────────────────────────────────────
+  7 passed (3.4m)
+
+# код выхода 1 · 3 мин 27 с

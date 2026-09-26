@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Inject, Injectable, type OnModuleDestroy } from '@nestjs/common';
+import { RateWindows } from '../rate-window';
 import {
   classifySource,
   deviceFromUserAgent,
@@ -48,7 +49,7 @@ export class CollectService implements OnModuleDestroy {
   private timer: NodeJS.Timeout | null = null;
   private flushing: Promise<number> | null = null;
   private readonly siteCache = new Map<string, { site: SiteRecord | null; at: number }>();
-  private windows = new Map<string, { start: number; count: number }>();
+  private windows = new RateWindows(WINDOW_MS, 50_000);
 
   constructor(@Inject(ANALYTICS_REPOSITORY) private readonly repo: AnalyticsRepository) {}
 
@@ -111,7 +112,7 @@ export class CollectService implements OnModuleDestroy {
 
   /** Для тестов: обнулить окна лимитов и кэш сайтов. */
   resetLimits(): void {
-    this.windows = new Map();
+    this.windows.reset();
     this.siteCache.clear();
   }
 
@@ -142,15 +143,8 @@ export class CollectService implements OnModuleDestroy {
   }
 
   private allow(key: string, limit: number, now: Date): boolean {
-    const t = now.getTime();
-    const w = this.windows.get(key);
-    if (!w || t - w.start >= WINDOW_MS) {
-      this.windows.set(key, { start: t, count: 1 });
-      if (this.windows.size > 50_000) this.windows.clear(); // защита памяти от перебора ключей
-      return true;
-    }
-    w.count += 1;
-    return w.count <= limit;
+    // С-6 (ТЗ аудита 25.09.2026): вытеснение только протухших окон — общий класс, не clear()
+    return this.windows.allow(key, limit, now);
   }
 }
 

@@ -1,0 +1,18 @@
+# Модульные (unit) · 24.09.2026 18:29 Алматы · vm
+# коммит 0ad921a (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T13-29-11Z-unit-eac4.json' 'apps/api/src/guard/api-error.filter.test.ts' 'apps/api/src/assistant/user-errors-retention.service.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 9286  - 09/24/2026, 1:29:13 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/guard/api-error.filter.test.ts (9 tests) 380ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  13:29:12
+   Duration  1.77s (transform 57%, import 29%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-09-24T13-29-11Z-unit-eac4.json
+
+# код выхода 0 · 3 с

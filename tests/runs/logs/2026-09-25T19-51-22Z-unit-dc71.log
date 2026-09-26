@@ -1,0 +1,16 @@
+# Модульные (unit) · 26.09.2026 00:51 Алматы · vm
+# коммит 6d072bd (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T19-51-22Z-unit-dc71.json' 'apps/api/src/rate-window.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/rate-window.test.ts (5 tests) 5ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  19:51:23
+   Duration  214ms (transform 75%, import 14%, tests 6%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-25T19-51-22Z-unit-dc71.json
+
+# код выхода 0 · 1 с

@@ -122,8 +122,12 @@ function makeFakes() {
   /** Оплачено не каналом (перенос из Exely, стойка) — баланс счёта проживания в тестах ADR-024 */
   const paidExternally = new Map<string, bigint>();
   const repo: ReservationsRepository = {
+    async today() {
+      // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
+      return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    },
     async property() {
-      return { id: 'P', currency: 'KZT' };
+      return { id: 'P', currency: 'KZT', timezone: 'Asia/Almaty' };
     },
     async categoryByCode() {
       return null;

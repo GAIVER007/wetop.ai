@@ -56,6 +56,16 @@ export function hasTrialHref(config: SiteConfig = siteConfig): boolean {
   return config.trialHref.trim() !== '';
 }
 
+/**
+ * Скрипт виджета ИИ-помощника (ТЗ П2): тот же, что в стойке, но без `data-identity` — посетитель главной аноним.
+ * Пусто — чата нет; неверный адрес останавливает сборку, как и остальные ссылки настроек.
+ */
+export function assistantScriptSrc(config: SiteConfig = siteConfig): string | null {
+  const value = config.assistantUrl.trim();
+  if (!value) return null;
+  return `${checkHttpUrl('assistantUrl', value)}/widget/widget.js`;
+}
+
 /** Почта и телефон из настроек — только заполненные. */
 export function contactLinks(config: SiteConfig = siteConfig): ContactLink[] {
   const links: ContactLink[] = [];

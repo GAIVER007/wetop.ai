@@ -1,0 +1,15 @@
+# Линтер (lint) · 24.09.2026 18:28 Алматы · vm
+# коммит 0ad921a (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 16
+# npx eslint .
+
+/home/user/wetop.ai/apps/api/src/assistant/user-errors-retention.service.test.ts
+  10:16  error  '_row' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/user/wetop.ai/apps/api/src/guard/api-error.filter.test.ts
+  43:20  error  '_id' is defined but never used    @typescript-eslint/no-unused-vars
+  43:41  error  '_body' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 3 problems (3 errors, 0 warnings)
+
+
+# код выхода 1 · 15 с

@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
       // Next сверяет Origin серверного действия с Host. cloudflared передаёт Host как есть, так что совпадёт и без
       // этого; список — страховка, если прокси когда-нибудь подменит Host (docs: config serverActions.allowedOrigins)
       allowedOrigins: ['app.wetop.ai'],
+      // Документ знаний ИИ-продавца уходит серверным действием (ТЗ ред. 1 П6): продавец принимает до 10 МБ,
+      // сверху — запас на разметку multipart (docs: config serverActions.bodySizeLimit). Остальным хватало 1 МБ.
+      bodySizeLimit: '11mb',
     },
   },
 };

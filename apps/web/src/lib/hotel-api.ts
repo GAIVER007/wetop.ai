@@ -10,6 +10,9 @@ export interface HotelSettings {
     /** ИИН/БИН объекта для печатных форм; старый API поля не шлёт */
     bin?: string | null;
     address: string | null;
+    /** Контакты объекта для печатных форм (v1.7, ADR-082); старый API полей не шлёт */
+    phone?: string | null;
+    email?: string | null;
     timezone: string;
     currency: string;
     checkInTime: string;

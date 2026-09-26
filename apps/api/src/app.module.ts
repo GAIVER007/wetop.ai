@@ -2,7 +2,9 @@ import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AccountsModule } from './accounts/accounts.module';
+import { AiSellerModule } from './ai-seller/ai-seller.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AssistantModule } from './assistant/assistant.module';
 import { AuthModule } from './auth/auth.module';
 import { SessionGuard } from './auth/auth.guard';
 import { AuthorInterceptor } from './auth/author.interceptor';
@@ -18,6 +20,7 @@ import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { HotelModule } from './hotel/hotel.module';
+import { PlatformModule } from './platform/platform.module';
 import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UnitsModule } from './units/units.module';
@@ -33,6 +36,8 @@ import { DataConnectionModule } from './database/connection';
     // одноразовый код на почту — AccountsModule (ADR-046).
     AuthModule,
     AccountsModule,
+    // главный администратор: организации и их расширения (ADR-083)
+    PlatformModule,
     InventoryModule,
     HotelModule,
     ChessboardModule,
@@ -49,6 +54,10 @@ import { DataConnectionModule } from './database/connection';
     WebBookingModule,
     GuardModule,
     FreshnessModule,
+    // ИИ-помощник: подпись вошедшего для виджета, журнал ошибок человека (ТЗ ред. 1, ADR-079)
+    AssistantModule,
+    // Раздел «ИИ-продавец»: профиль, прокси к продавцу, применение и сверка (ТЗ ред. 1, ADR-079)
+    AiSellerModule,
   ],
   // Замок непубличных маршрутов. Молчит, пока не задан AUTH_REQUIRED=1 (auth.guard.ts)
   providers: [

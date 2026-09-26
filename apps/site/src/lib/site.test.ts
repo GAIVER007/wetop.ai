@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { loginLink, trialLink } from './site';
+import { assistantScriptSrc, loginLink, trialLink } from './site';
 import type { SiteConfig } from '../site.config';
 
 const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
   siteUrl: 'https://wetop.ai',
   appUrl: 'https://app.wetop.ai',
   trialHref: '',
+  assistantUrl: '',
   company: { name: '', city: '', email: '', phone: '', about: '' },
   ...over,
 });
@@ -38,5 +39,31 @@ describe('loginLink', () => {
 describe('trialLink', () => {
   it('без ссылки владельца ведёт в раздел «Как начать» на самой главной', () => {
     expect(trialLink(config())).toEqual({ href: '/#start', external: false });
+  });
+});
+
+/**
+ * Чат ИИ-помощника на главной (ТЗ ред. 1, П2): тот же тег, что в стойке, но без `data-identity` — посетитель
+ * главной аноним. Адрес задаёт владелец в `site.config.ts` (Q-180): сайт статический, окружения во время работы нет.
+ */
+describe('assistantScriptSrc', () => {
+  it('без адреса помощника чата на главной нет', () => {
+    expect(assistantScriptSrc(config())).toBeNull();
+    expect(assistantScriptSrc(config({ assistantUrl: '   ' }))).toBeNull();
+  });
+
+  it('скрипт виджета лежит у помощника по /widget/widget.js', () => {
+    expect(assistantScriptSrc(config({ assistantUrl: 'https://assistant.wetop.ai' }))).toBe(
+      'https://assistant.wetop.ai/widget/widget.js',
+    );
+    expect(assistantScriptSrc(config({ assistantUrl: 'https://assistant.wetop.ai/' }))).toBe(
+      'https://assistant.wetop.ai/widget/widget.js',
+    );
+  });
+
+  it('останавливает сборку, если адрес записан неверно', () => {
+    expect(() => assistantScriptSrc(config({ assistantUrl: 'assistant.wetop.ai' }))).toThrow(
+      /assistantUrl/,
+    );
   });
 });

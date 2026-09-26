@@ -1,0 +1,25 @@
+# Модульные (unit) · 26.09.2026 03:57 Алматы · vm
+# коммит 6338f43 (claude/cool-hawking-c030jv)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T22-57-37Z-unit-41b5.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (9 tests) 6303ms
+   ✓ scripts/ops/auto-deploy.sh (9)
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 493ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 441ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 667ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 402ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 631ms
+     ✓ локальные правки в клоне — не затирает их 374ms
+     ✓ историю ветки переписали — не выкладывает поверх 552ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2461ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  22:57:38
+   Duration  6.50s (tests 99%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-25T22-57-37Z-unit-41b5.json
+
+# код выхода 0 · 7 с

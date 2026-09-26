@@ -15,7 +15,7 @@ const routes = [
   '/guests',
   '/guests?q=Тест',
   '/guests/ui-guest',
-  '/rooms',
+  // `/rooms` без раздела с PR #66 уводит на `/inventory` (он ниже): axe на уходящей странице теряет контекст
   '/rooms/categories',
   '/rooms/availability',
   '/inventory',
@@ -35,6 +35,19 @@ const routes = [
   '/login',
   '/incidents',
   '/journal',
+  // раздел «ИИ-продавец» (ТЗ ред. 1 П6): все шесть экранов и открытая карточка диалога
+  '/ai-seller',
+  // шаги настройки (25.09.2026): варианты «Манеры», цены внутри формы, частые вопросы с подсказками, «Запуск»
+  '/ai-seller?step=2',
+  '/ai-seller?step=3',
+  '/ai-seller?step=5',
+  '/ai-seller?step=7',
+  '/ai-seller/data',
+  '/ai-seller/knowledge',
+  '/ai-seller/dialogs',
+  '/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c',
+  '/ai-seller/embed',
+  '/ai-seller/check',
 ];
 
 for (const width of [1440, 390]) {
@@ -77,7 +90,7 @@ for (const width of [1440, 390]) {
         expect
           .soft(layout.content, `${route}: page overflow`)
           .toBeLessThanOrEqual(layout.viewport + 1);
-        if (['/today', '/chessboard', '/guests', '/rooms'].includes(route))
+        if (['/today', '/chessboard', '/guests', '/inventory'].includes(route))
           await page.screenshot({
             path: `reports/ui-quality/${route.slice(1)}-${theme}-${width}.png`,
           });

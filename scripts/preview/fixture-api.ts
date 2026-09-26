@@ -7,8 +7,21 @@ import {
   previousPeriod,
   type DashboardPeriod,
   housekeepingRefusal,
+  DEFAULT_SELLER_PROFILE,
+  buildSellerFacts,
+  parseSellerProfile,
+  sellerCategoryPrices,
+  sellerFactsHash,
+  type SellerFactsSource,
+  extensionAccess,
+  extensionDaysLeft,
+  identityRole,
+  parseExtensionChange,
+  INVITE_OWNER_ONLY_MESSAGE,
+  type ExtensionStatus,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
+import { assistant } from '@pms/integrations';
 import type {
   Chessboard,
   DeskDay,
@@ -1352,6 +1365,267 @@ let registrationEnabled = true;
 const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 /** Сессии стенда: ключ → кто вошёл. Вход один — по паролю (ADR-053). */
 const uiSessions = new Map<string, UiUser>();
+// ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
+// `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
+let uiRole: 'OWNER' | 'STAFF' = 'OWNER';
+let uiPlatformAdmin = false;
+interface FixtureExtension {
+  status: ExtensionStatus;
+  activeUntil: Date | null;
+  note: string | null;
+  updatedAt: Date;
+}
+/** Строки `organization_extensions` стенда: у своей гостиницы — «оплачен, бессрочно», как после шага выкладки Э2 */
+const platformExtensions = new Map<string, FixtureExtension>();
+const DAY_MS = 86_400_000;
+function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
+  const status: ExtensionStatus = trial ? 'TRIAL' : 'ACTIVE';
+  const now = Date.now();
+  if (state === 'off') platformExtensions.delete('ui-org');
+  else if (state === 'expired')
+    platformExtensions.set('ui-org', { status, activeUntil: new Date(now - DAY_MS), note: null, updatedAt: new Date() });
+  else
+    platformExtensions.set('ui-org', {
+      status,
+      // «осталось N дней»: конец срока чуть раньше N полных суток — неполный день считается днём
+      activeUntil:
+        typeof days === 'number' ? new Date(now + days * DAY_MS - 3_600_000) : trial ? new Date(now + 7 * DAY_MS) : null,
+      note: null,
+      updatedAt: new Date(),
+    });
+}
+function resetAccess() {
+  uiRole = 'OWNER';
+  uiPlatformAdmin = false;
+  platformExtensions.clear();
+  setSellerExtension('active', null, false);
+}
+resetAccess();
+const aiSellerView = (organizationId: string) => {
+  const row = platformExtensions.get(organizationId) ?? null;
+  const now = new Date();
+  return {
+    access: extensionAccess(row, now),
+    status: row?.status ?? null,
+    activeUntil: row?.activeUntil?.toISOString() ?? null,
+    daysLeft: extensionDaysLeft(row, now),
+  };
+};
+/** Вошедший так, как его отдаёт API после ADR-083: с ролью и отметкой главного администратора */
+const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: uiPlatformAdmin });
+/** Гостиницы платформы глазами главного администратора — вымышленные (ADR-010) */
+const platformOrganizations = () => [
+  {
+    id: 'ui-org',
+    name: uiUser.organization.name,
+    status: 'ACTIVE',
+    trialEndsAt: null,
+    createdAt: '2026-09-01T04:00:00.000Z',
+    members: uiMembers.size,
+    owners: ['admin@wetop.test'],
+  },
+  {
+    id: 'ui-org-2',
+    name: 'Хостел «Пример»',
+    status: 'TRIAL',
+    trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
+    createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
+    members: 1,
+    owners: ['owner@example.com'],
+  },
+];
+// ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
+const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
+const SUPPORT_DIALOG_B = '7b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e';
+const supportDialogSeed = () => [
+  {
+    id: SUPPORT_DIALOG_A,
+    channel: 'widget',
+    clientName: 'd***',
+    mode: 'needs_human',
+    stage: 'new',
+    lastActivityAt: new Date(Date.now() - 15 * 60_000).toISOString(),
+    hasContact: false,
+    // так API отдаёт подпись стойки из `lead_data.platform_user` вместе с названием организации
+    platformUser: {
+      userId: 'ui-user-staff',
+      email: 'dana@example.invalid',
+      organizationId: 'ui-org',
+      organizationName: 'Luxx Aparts',
+      role: 'staff' as 'owner' | 'staff' | null,
+    },
+    messages: [
+      { role: 'user', text: 'Не сохраняется бронь: пишет «Нет связи с API».', at: new Date(Date.now() - 20 * 60_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Вижу ошибку в журнале. Позову человека.', at: new Date(Date.now() - 19 * 60_000).toISOString(), sentByUs: true },
+    ],
+  },
+  {
+    id: SUPPORT_DIALOG_B,
+    channel: 'widget',
+    clientName: '—',
+    mode: 'bot_active',
+    stage: 'new',
+    lastActivityAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
+    hasContact: false,
+    platformUser: null,
+    messages: [
+      { role: 'user', text: 'Сколько стоит WETOP для хостела?', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Расскажу о тарифах: оставьте почту — ответит менеджер.', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: true },
+    ],
+  },
+];
+let supportDialogs = supportDialogSeed();
+const supportKnowledgeSeed = () => [
+  { source: 'справочник-ошибок.md', chunks: 5, createdAt: '2026-09-24T06:00:00.000Z' },
+];
+let supportKnowledge = supportKnowledgeSeed();
+/** Подключена ли панель помощника — `POST /__test/control { supportState: 'not-configured' }` */
+let supportState: 'ready' | 'not-configured' = 'ready';
+/** Правила и модель помощника (ADR-084): песочница отвечает по сохранённым правилам — так видно, что они дошли */
+const SUPPORT_PROMPT_SEED = 'Ты — ИИ-помощник WETOP. Отвечай на «вы», коротко и по делу.';
+let supportPrompt = SUPPORT_PROMPT_SEED;
+const SUPPORT_MODELS = ['модель-а', 'модель-б'];
+let supportModel = SUPPORT_MODELS[0]!;
+function resetSupport() {
+  supportDialogs = supportDialogSeed();
+  supportKnowledge = supportKnowledgeSeed();
+  supportState = 'ready';
+  supportPrompt = SUPPORT_PROMPT_SEED;
+  supportModel = SUPPORT_MODELS[0]!;
+}
+
+const platformOrganizationJson = (o: ReturnType<typeof platformOrganizations>[number]) => {
+  const row = platformExtensions.get(o.id);
+  return {
+    ...o,
+    aiSeller: {
+      ...aiSellerView(o.id),
+      note: row?.note ?? null,
+      updatedAt: row?.updatedAt.toISOString() ?? null,
+    },
+  };
+};
+
+/** Секрет подписи помощника на стенде (ТЗ П1): вымышленный, как и всё в фикстуре */
+const FIXTURE_IDENTITY_SECRET = 'fixture-identity-secret';
+
+// ── ИИ-продавец (ТЗ П5–П8): подставной продавец стенда. Гости и переписка — вымышленные (ADR-010) ──────
+// профиль и факты — теми же функциями домена, что у API (ADR-081): стенд не расходится со схемой бота
+const sellerProfileSeed = structuredClone(DEFAULT_SELLER_PROFILE);
+/** Факты стенда: двухместный номер — одна цена весь срок, общие — по субботам дороже (цена меняется) */
+const sellerFactsSource = (): SellerFactsSource => ({
+  property: {
+    name: propertyName,
+    address: 'Алматы, ул. Тестовая, 1',
+    timezone: 'Asia/Almaty',
+    currency: 'KZT',
+    checkInTime: '14:00',
+    checkOutTime: '12:00',
+  },
+  categories: categories.map((c) => ({
+    code: c.code,
+    name: c.name,
+    kind: c.code === 'ROOM' ? 'PRIVATE_ROOM' : 'DORM_BED',
+    capacityAdults: c.capacityAdults,
+    units: c.count,
+  })),
+  ratePlan: { code: 'BASE', name: 'Базовый тариф', currency: 'KZT' },
+  rates: categories.flatMap((c) =>
+    Array.from({ length: 60 }, (_, i) => ({
+      categoryCode: c.code,
+      date: add(today, i),
+      occupancy: c.capacityAdults,
+      priceMinor: c.code === 'ROOM' ? 1_500_000n : i % 7 === 5 ? 520_000n : 450_000n,
+    })),
+  ),
+  window: { from: today, to: add(today, 59) },
+});
+const SELLER_DIALOG_A = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
+const SELLER_DIALOG_B = '8c7d6e5f-4a3b-4c2d-9e1f-0a9b8c7d6e5f';
+const sellerDialogSeed = () => [
+  {
+    id: SELLER_DIALOG_A,
+    channel: 'widget',
+    clientName: 'А***',
+    mode: 'needs_human',
+    stage: 'closing',
+    lastActivityAt: new Date(Date.now() - 20 * 60_000).toISOString(),
+    hasContact: true,
+    contact: { name: 'Алия Тестова', phone: '+7 700 000 00 01', email: null, channel: 'widget', externalId: 'ui-a' },
+    // как `LeadFields` бота: ядро (имя, телефон, интерес, сроки) и свободная сумка `extra`
+    leadData: {
+      name: 'Алия Тестова',
+      phone: '+7 700 000 00 01',
+      interest: 'двухместный номер',
+      timeframe: '1–3 октября',
+      extra: { guests: 2 },
+    },
+    messages: [
+      { role: 'user', text: 'Здравствуйте, есть двухместный на 1–3 октября?', at: new Date(Date.now() - 25 * 60_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Здравствуйте! Уточню у администратора и вернусь.', at: new Date(Date.now() - 24 * 60_000).toISOString(), sentByUs: true },
+    ],
+  },
+  {
+    id: SELLER_DIALOG_B,
+    channel: 'widget',
+    clientName: null as string | null,
+    mode: 'bot_active',
+    stage: 'new',
+    lastActivityAt: new Date(Date.now() - 3 * 3600_000).toISOString(),
+    hasContact: false,
+    contact: { name: null as string | null, phone: null, email: null, channel: 'widget', externalId: 'ui-b' },
+    leadData: {},
+    messages: [
+      { role: 'user', text: 'Во сколько заезд?', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: false },
+      { role: 'assistant', text: 'Заезд с 14:00, выезд до 12:00.', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: true },
+    ],
+  },
+];
+let sellerProfile = structuredClone(sellerProfileSeed);
+let sellerAppliedProfile = structuredClone(sellerProfileSeed);
+let sellerSaved = false;
+let sellerApplied = false;
+let sellerUpdatedAt: string | null = null;
+let sellerDialogs = sellerDialogSeed();
+const sellerKnowledgeSeed = () => [
+  { source: 'platform:facts.md', chunks: 2, createdAt: '2026-09-24T06:00:00.000Z' },
+  { source: 'правила.md', chunks: 3, createdAt: '2026-09-20T06:00:00.000Z' },
+];
+let sellerKnowledge = sellerKnowledgeSeed();
+// С2: ключ модели партнёра — подставной бот хранит только последние 4 знака
+let sellerLlmKey: string | null = null;
+// С3: подключение WhatsApp — подставной бот выдаёт слово вебхука, токен не хранится
+let sellerWhatsApp: { phoneNumberId: string; verifyToken: string } | null = null;
+const sellerWhatsAppView = () => ({
+  set: sellerWhatsApp !== null,
+  phoneNumberId: sellerWhatsApp?.phoneNumberId ?? null,
+  verifyToken: sellerWhatsApp?.verifyToken ?? null,
+  webhookUrl: sellerWhatsApp
+    ? `https://seller.wetop.example/channels/whatsapp/webhook/ui-org`
+    : null,
+});
+/** Состояние продавца и его последний отказ — `POST /__test/control { sellerState, sellerLastError, sellerRetrying }`.
+ * Э4: продавец общий для всех гостиниц, состояния `other-organization` больше нет. */
+let sellerState: 'ready' | 'not-configured' = 'ready';
+/** Домены сайтов гостиницы для экрана «Код для сайта» (Э4): пусто — экран говорит завести сайт */
+let sellerHosts: string[] = ['hotel-a.example.invalid'];
+let sellerLastError: string | null = null;
+let sellerRetrying = false;
+function resetSeller() {
+  sellerProfile = structuredClone(sellerProfileSeed);
+  sellerAppliedProfile = structuredClone(sellerProfileSeed);
+  sellerSaved = false;
+  sellerApplied = false;
+  sellerLlmKey = null;
+  sellerWhatsApp = null;
+  sellerUpdatedAt = null;
+  sellerDialogs = sellerDialogSeed();
+  sellerKnowledge = sellerKnowledgeSeed();
+  sellerState = 'ready';
+  sellerHosts = ['hotel-a.example.invalid'];
+  sellerLastError = null;
+  sellerRetrying = false;
+}
 
 /**
  * Сколько раз стойка спросила каждый путь. Разбор «всё тормозит» (16.09.2026): экран, который делает
@@ -1513,6 +1787,9 @@ function read(path: string, q: URLSearchParams): unknown {
         legalName: null,
         bin: null,
         address: 'Тестовый адрес, 1',
+        // контакты объекта для печатных форм (v1.7, ADR-082)
+        phone: '+7 700 000 00 00',
+        email: 'hostel@example.invalid',
         timezone: 'Asia/Almaty',
         currency: 'KZT',
         checkInTime: '14:00',
@@ -2124,9 +2401,11 @@ createServer(async (req, res) => {
     const path = url.pathname;
     const chunks: Buffer[] = [];
     for await (const chunk of req) chunks.push(Buffer.from(chunk));
-    const body = chunks.length
-      ? (JSON.parse(Buffer.concat(chunks).toString()) as Record<string, unknown>)
-      : {};
+    const raw = Buffer.concat(chunks);
+    // Файл знаний продавца приходит multipart — JSON там не разобрать (ТЗ П6)
+    const multipart = String(req.headers['content-type'] ?? '').startsWith('multipart/form-data');
+    const body =
+      chunks.length && !multipart ? (JSON.parse(raw.toString()) as Record<string, unknown>) : {};
     const send = (status: number, data: unknown) => {
       res.writeHead(status, {
         'content-type': 'application/json',
@@ -2158,6 +2437,8 @@ createServer(async (req, res) => {
       hits.clear();
       requestHits.clear();
       resetUiAuth();
+      resetAccess();
+      resetSupport();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -2206,6 +2487,7 @@ createServer(async (req, res) => {
       paid = new Map();
       paymentLines = [];
       piiStorage = 'real';
+      resetSeller();
       return send(200, {});
     }
     if (path === '/__test/control') {
@@ -2276,6 +2558,20 @@ createServer(async (req, res) => {
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
+      // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
+      sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
+      sellerHosts = Array.isArray(body['sellerHosts'])
+        ? (body['sellerHosts'] as string[]).map(String)
+        : ['hotel-a.example.invalid'];
+      sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
+      sellerRetrying = body['sellerRetrying'] === true;
+      // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
+      uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
+      uiPlatformAdmin = body['platformAdmin'] === true;
+      setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
+      supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
+      // правил у помощника нет — файла промпта на томе ещё не завели (ADR-084)
+      if (body['supportPromptEmpty'] === true) supportPrompt = '';
       return send(200, {});
     }
     // Полный дом на сегодня: 40 вымышленных броней (ADR-010) для проверки, что «Гости» не режут
@@ -2376,6 +2672,8 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : null;
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      // зовёт только владелец организации (ADR-083) — и список ожидающих тоже его
+      if (uiRole !== 'OWNER') return send(403, { message: INVITE_OWNER_ONLY_MESSAGE });
       if (req.method === 'POST') {
         const email = String(body['email'] ?? '')
           .trim()
@@ -2420,7 +2718,375 @@ createServer(async (req, res) => {
     }
     if (path === '/auth/me') {
       const token = sessionOf(req as never);
-      return send(200, { user: (token && uiSessions.get(token)) || null });
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(200, { user: null });
+      // что открыто организации — пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083)
+      return send(200, { user: signedInView(who), access: { aiSeller: aiSellerView(who.organizationId) } });
+    }
+    // «Платформа» (ADR-083): только вошедшему главному администратору
+    if (path === '/platform/organizations' || path.startsWith('/platform/')) {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who || !uiPlatformAdmin)
+        return send(403, { message: 'Раздел «Платформа» — только для главного администратора платформы' });
+      if (path === '/platform/organizations' && req.method === 'GET')
+        return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
+      const change = /^\/platform\/organizations\/([^/]+)\/extensions\/ai-seller$/.exec(path);
+      if (change && req.method === 'PUT') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(change[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        const parsed = parseExtensionChange(body, new Date());
+        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
+        platformExtensions.set(org.id, { ...parsed.value, updatedAt: new Date() });
+        return send(200, platformOrganizationJson(org));
+      }
+      if (path.startsWith('/platform/support/')) {
+        if (path === '/platform/support/status' && req.method === 'GET') return send(200, { state: supportState });
+        if (supportState === 'not-configured')
+          return send(503, { message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа' });
+        const dialog = /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/.exec(path);
+        if (path === '/platform/support/conversations' && req.method === 'GET') {
+          const mode = url.searchParams.get('mode');
+          return send(200, {
+            items: supportDialogs
+              .filter((d) => !mode || d.mode === mode)
+              .map((d) => ({
+                id: d.id,
+                channel: d.channel,
+                clientName: d.clientName,
+                mode: d.mode,
+                stage: d.stage,
+                lastActivityAt: d.lastActivityAt,
+                messages: d.messages.length,
+                hasContact: d.hasContact,
+              })),
+          });
+        }
+        if (dialog) {
+          const d = supportDialogs.find((x) => x.id === dialog[1]);
+          if (!d) return send(404, { message: 'диалог не найден' });
+          if (!dialog[2] && req.method === 'GET')
+            return send(200, {
+              id: d.id,
+              mode: d.mode,
+              stage: d.stage,
+              leadData: {},
+              contact: { name: d.platformUser?.email ?? null, phone: null, email: null, channel: d.channel, externalId: null },
+              messages: d.messages,
+              platformUser: d.platformUser,
+            });
+          if (dialog[2] === 'reply' && req.method === 'POST') {
+            const text = String(body['text'] ?? '').trim();
+            if (!text) return send(400, { message: 'Ответ: пустое сообщение' });
+            d.messages.push({ role: 'operator', text, at: new Date().toISOString(), sentByUs: true });
+            return send(200, { ok: true });
+          }
+          if (dialog[2] && req.method === 'POST') {
+            const previousMode = d.mode;
+            d.mode = dialog[2] === 'takeover' ? 'owner_takeover' : 'bot_active';
+            return send(200, { mode: d.mode, previousMode });
+          }
+        }
+        if (path === '/platform/support/knowledge' && req.method === 'GET') return send(200, { items: supportKnowledge });
+        if (path === '/platform/support/knowledge' && req.method === 'POST') {
+          const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
+          if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
+            return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
+          supportKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...supportKnowledge];
+          return send(201, { source: name, created: true, chunks: 1 });
+        }
+        if (path === '/platform/support/summary' && req.method === 'GET')
+          return send(200, { hours: 24, dialogs: supportDialogs.length, replies: 3, leads: 0, slaBreaches: 1 });
+        if (path === '/platform/support/prompt' && req.method === 'GET') return send(200, { text: supportPrompt });
+        if (path === '/platform/support/prompt' && req.method === 'PUT') {
+          const text = String(body['text'] ?? '').trim();
+          if (!text) return send(400, { message: 'Правила: пустой текст' });
+          supportPrompt = text;
+          return send(200, { length: text.length });
+        }
+        if (path === '/platform/support/settings' && req.method === 'GET')
+          return send(200, { models: SUPPORT_MODELS, model: supportModel });
+        if (path === '/platform/support/settings/model' && req.method === 'PUT') {
+          const model = String(body['model'] ?? '').trim();
+          if (!SUPPORT_MODELS.includes(model))
+            return send(422, { message: 'ИИ-помощник отклонил: модель не из списка разрешённых' });
+          const previous = supportModel;
+          supportModel = model;
+          return send(200, { model, previous });
+        }
+        if (path === '/platform/support/sandbox' && req.method === 'POST') {
+          if (!String(body['text'] ?? '').trim()) return send(400, { message: 'Проверка: пустое сообщение' });
+          const informal = supportPrompt.includes('на «ты»');
+          return send(200, {
+            reply: informal ? 'Привет! Чем помочь?' : 'Здравствуйте! Чем помочь?',
+            needsHuman: false,
+            reasons: [],
+          });
+        }
+      }
+      return send(404, { message: 'Нет такого адреса платформы' });
+    }
+    // ИИ-помощник (ТЗ П1): подпись только вошедшему — тем же форматом и той же функцией, что у API,
+    // с секретом стенда. Набор `tests/ui/assistant-widget.spec.ts` читает её из тега виджета.
+    if (path === '/assistant/identity') {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Подпись помощника выдаётся только вошедшему' });
+      const issuedAt = Math.floor(Date.now() / 1000);
+      return send(200, {
+        token: assistant.signIdentity(FIXTURE_IDENTITY_SECRET, {
+          userId: who.id,
+          email: who.email,
+          organizationId: who.organizationId,
+          role: identityRole(uiRole),
+          issuedAt,
+        }),
+        expiresAt: new Date((issuedAt + assistant.IDENTITY_TTL_SECONDS) * 1000).toISOString(),
+      });
+    }
+    // ИИ-продавец (ТЗ П5–П8): раздел стойки говорит с этим подставным продавцом через «API»
+    if (path.startsWith('/ai-seller/')) {
+      const sellerToken = sessionOf(req as never);
+      // служебный ходок (без сессии) для API — владелец; вошедший сотрудник — нет (ADR-083)
+      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole === 'OWNER';
+      const extension = aiSellerView('ui-org');
+      const sellerUse =
+        req.method === 'GET'
+          ? path === '/ai-seller/embed'
+            ? 'act'
+            : path === '/ai-seller/llm-key' || path === '/ai-seller/whatsapp'
+              ? 'configure'
+              : 'read'
+          : path === '/ai-seller/profile' || path === '/ai-seller/apply' || path === '/ai-seller/knowledge' ||
+              path === '/ai-seller/extract' || path.startsWith('/ai-seller/llm-key') || path.startsWith('/ai-seller/whatsapp')
+            ? 'configure'
+            : 'act';
+      if (path !== '/ai-seller/status') {
+        if (sellerUse === 'configure' && !sellerOwner)
+          return send(403, { message: 'Настройки продавца меняет владелец организации' });
+        if (extension.access === 'off')
+          return send(403, {
+            message:
+              'Расширение «ИИ-продавец» для вашей организации не подключено. Подключает администратор WETOP после оплаты',
+          });
+        if (extension.access === 'expired' && sellerUse !== 'read')
+          return send(403, {
+            message: 'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP',
+          });
+      }
+      const sellerView = () => ({
+        saved: sellerSaved,
+        profile: sellerProfile,
+        updatedAt: sellerUpdatedAt,
+        applied: sellerApplied,
+      });
+      const dialog = path.match(/^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/);
+      if (req.method === 'GET') {
+        if (path === '/ai-seller/status')
+          return send(200, {
+            state:
+              extension.access === 'off'
+                ? 'extension-off'
+                : extension.access === 'expired'
+                  ? 'extension-expired'
+                  : sellerState,
+            connection: sellerState,
+            extension,
+            canConfigure: sellerOwner && extension.access === 'active',
+            profile: { saved: sellerSaved, updatedAt: sellerUpdatedAt, applied: sellerApplied },
+            facts: { applied: sellerApplied, appliedAt: sellerApplied ? sellerUpdatedAt : null },
+            lastError: sellerLastError,
+            lastErrorAt: sellerLastError ? new Date(Date.now() - 5 * 60_000).toISOString() : null,
+            retrying: sellerLastError !== null && sellerRetrying,
+            embedAvailable: true,
+          });
+        if (path === '/ai-seller/profile') return send(200, sellerView());
+        if (path === '/ai-seller/facts') {
+          const src = sellerFactsSource();
+          const facts = buildSellerFacts(src);
+          return send(200, {
+            facts,
+            hash: sellerFactsHash(facts),
+            applied: sellerApplied,
+            ratePlan: src.ratePlan,
+            window: src.window,
+            prices: sellerCategoryPrices(src),
+          });
+        }
+        if (path === '/ai-seller/conversations') {
+          const mode = url.searchParams.get('mode');
+          return send(200, {
+            items: sellerDialogs
+              .filter((d) => !mode || d.mode === mode)
+              .map((d) => ({
+                id: d.id,
+                channel: d.channel,
+                clientName: d.clientName,
+                mode: d.mode,
+                stage: d.stage,
+                lastActivityAt: d.lastActivityAt,
+                messages: d.messages.length,
+                hasContact: d.hasContact,
+              })),
+          });
+        }
+        if (dialog && !dialog[2]) {
+          const d = sellerDialogs.find((x) => x.id === dialog[1]);
+          if (!d) return send(404, { message: 'диалог не найден' });
+          return send(200, {
+            id: d.id,
+            mode: d.mode,
+            stage: d.stage,
+            leadData: d.leadData,
+            contact: d.contact,
+            messages: d.messages,
+          });
+        }
+        if (path === '/ai-seller/knowledge') return send(200, { items: sellerKnowledge });
+        if (path === '/ai-seller/summary')
+          return send(200, { hours: 24, dialogs: sellerDialogs.length, replies: 5, leads: 1, slaBreaches: 0 });
+        if (path === '/ai-seller/embed')
+          // Э4: тег с публичным ключом гостиницы (выводимый, не секрет) и домены её сайтов
+          return send(200, {
+            snippet:
+              '<script async src="https://seller.example.invalid/widget/widget.js" data-key="sk_' +
+              'a1'.repeat(12) +
+              '"></script>',
+            hosts: sellerHosts,
+          });
+      }
+      if (path === '/ai-seller/profile' && req.method === 'PUT') {
+        // та же проверка, что у API: слова отказа — домена
+        const parsed = parseSellerProfile(body);
+        if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
+        sellerProfile = parsed.value;
+        sellerSaved = true;
+        sellerApplied = false;
+        sellerUpdatedAt = new Date().toISOString();
+        return send(200, sellerView());
+      }
+      if (path === '/ai-seller/whatsapp' && req.method === 'GET')
+        return send(200, sellerWhatsAppView());
+      if (path === '/ai-seller/whatsapp' && req.method === 'PUT') {
+        const phoneId = String(body['phoneNumberId'] ?? '').trim();
+        if (phoneId === '') {
+          sellerWhatsApp = null;
+          return send(200, sellerWhatsAppView());
+        }
+        if (!/^\d+$/.test(phoneId))
+          return send(400, { message: 'phone_number_id — цифры из консоли Meta' });
+        if (String(body['token'] ?? '').trim().length < 16)
+          return send(400, { message: 'Нужны постоянный токен и секрет приложения Meta' });
+        sellerWhatsApp = { phoneNumberId: phoneId, verifyToken: 'slovo-dlya-meta-ui' };
+        return send(200, sellerWhatsAppView());
+      }
+      if (path === '/ai-seller/whatsapp/check' && req.method === 'POST') {
+        const phoneId = String(body['phoneNumberId'] ?? '').trim();
+        const token = String(body['token'] ?? '').trim();
+        if (phoneId === '' || token === '') return send(400, { message: 'Нужны phone_number_id и токен' });
+        return send(200, token.includes('valid')
+          ? { valid: true, phone: '+7 701 000-00-00', reason: null }
+          : { valid: false, phone: null, reason: 'Meta не приняла номер или токен' });
+      }
+      if (path === '/ai-seller/llm-key' && req.method === 'GET')
+        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+      if (path === '/ai-seller/llm-key' && req.method === 'PUT') {
+        const key = String(body['key'] ?? '').trim();
+        sellerLlmKey = key === '' ? null : key.slice(-4);
+        return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
+      }
+      if (path === '/ai-seller/llm-key/check' && req.method === 'POST') {
+        const key = String(body['key'] ?? '').trim();
+        if (key === '') return send(400, { message: 'Нечего проверять: ключ пуст' });
+        // подставной роутер: «valid» в ключе — действителен, иначе отказ словами
+        return send(200, key.includes('valid')
+          ? { valid: true, reason: null }
+          : { valid: false, reason: 'Роутер не принял ключ' });
+      }
+      if (path === '/ai-seller/extract' && req.method === 'POST') {
+        // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)
+        const story = String(body['story'] ?? '').trim();
+        if (story.length < 10)
+          return send(400, { message: 'Рассказ короче 10 знаков — расскажите подробнее' });
+        const extracted: Array<[keyof typeof sellerProfile, unknown]> = [
+          ['botName', 'Айсулу'],
+          ['greeting', 'Здравствуйте! Помогу выбрать место и ответить на вопросы.'],
+          ['includedInPrice', 'Бельё и Wi-Fi.'],
+          ['houseRules', 'Тишина после 23:00.'],
+        ];
+        const filled: string[] = [];
+        const skipped: string[] = [];
+        for (const [field, value] of extracted) {
+          const current = sellerProfile[field];
+          const empty =
+            current === null ||
+            (typeof current === 'string' && current.trim() === '') ||
+            (Array.isArray(current) && current.length === 0);
+          if (!empty) {
+            skipped.push(field);
+            continue;
+          }
+          (sellerProfile as unknown as Record<string, unknown>)[field] = value;
+          filled.push(field);
+        }
+        if (filled.length > 0) {
+          sellerSaved = true;
+          sellerApplied = false;
+          sellerUpdatedAt = new Date().toISOString();
+        }
+        return send(200, {
+          filled,
+          skipped,
+          rejected: [],
+          unparsed: ['как добраться от вокзала — в рассказе нет'],
+          aside: {
+            objectName: 'Хостел «Тёплый»',
+            address: 'Алматы, ул. Вымышленная, 1',
+            checkIn: '14:00',
+            checkOut: '12:00',
+            categories: [{ name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 }],
+          },
+          profile: sellerView(),
+        });
+      }
+      if (path === '/ai-seller/apply' && req.method === 'POST') {
+        if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });
+        if (sellerState === 'not-configured')
+          return send(503, { message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца' });
+        sellerApplied = true;
+        sellerAppliedProfile = structuredClone(sellerProfile);
+        return send(200, { profileApplied: true, factsApplied: true });
+      }
+      if (dialog && dialog[2] && req.method === 'POST') {
+        const d = sellerDialogs.find((x) => x.id === dialog[1]);
+        if (!d) return send(404, { message: 'диалог не найден' });
+        if (dialog[2] === 'reply') {
+          const text = String(body['text'] ?? '').trim();
+          if (!text) return send(400, { message: 'Ответ: пустое сообщение' });
+          d.messages.push({ role: 'operator', text, at: new Date().toISOString(), sentByUs: true });
+          return send(200, { ok: true });
+        }
+        const previousMode = d.mode;
+        d.mode = dialog[2] === 'takeover' ? 'owner_takeover' : 'bot_active';
+        return send(200, { mode: d.mode, previousMode });
+      }
+      if (path === '/ai-seller/knowledge' && req.method === 'POST') {
+        const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
+        if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
+          return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
+        sellerKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...sellerKnowledge];
+        return send(201, { source: name, created: true, chunks: 1 });
+      }
+      if (path === '/ai-seller/sandbox' && req.method === 'POST') {
+        // ответ зависит от ПРИМЕНЁННОГО обращения: так видно, что «Применить» дошло до продавца (ТЗ §4.4)
+        const informal = sellerAppliedProfile.addressForm === 'INFORMAL';
+        return send(200, {
+          reply: informal ? 'Привет! Чем могу тебе помочь?' : 'Здравствуйте! Чем могу вам помочь?',
+          needsHuman: false,
+          reasons: [],
+        });
+      }
+      return send(404, { message: 'Нет такого адреса продавца' });
     }
     // ── Вход по коду и регистрация (ADR-046): код всегда 123456. Декорация для экрана, не проверка API.
     const noContent = () => {
@@ -2538,7 +3204,7 @@ createServer(async (req, res) => {
       return send(200, {
         token,
         expiresAt: new Date(Date.now() + 12 * 3_600_000).toISOString(),
-        user: uiUser,
+        user: signedInView(uiUser),
       });
     }
     if (path === '/auth/logout' && req.method === 'POST') {

@@ -1,0 +1,23 @@
+# Модульные (unit) · 24.09.2026 23:38 Алматы · vm
+# коммит 99f6880 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T18-38-29Z-unit-3153.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (6 tests) 5700ms
+   ✓ scripts/ops/auto-deploy.sh (6)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 436ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 670ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 606ms
+     ✓ локальные правки в клоне — не затирает их 521ms
+     ✓ историю ветки переписали — не выкладывает поверх 829ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2635ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  18:38:30
+   Duration  5.94s (tests 98%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T18-38-29Z-unit-3153.json
+
+# код выхода 0 · 7 с

@@ -26,10 +26,10 @@ export function tokenFromHeaders(headers: Record<string, unknown>): string | nul
 /**
  * Замок на непубличных маршрутах API (DATA_MODEL §13 шаг 1, ADR-046).
  *
- * **Включается переменной `AUTH_REQUIRED=1` и по умолчанию выключен** — иначе первый же выкат положил бы
- * живую стойку, сторожа, импорт из Exely и скрипты сверки: они ходят в API без токена (ADR-023). Порядок
- * включения и проверки — `plans/slice-13-accounts-saas.md`. Пока выключен, охрану держит Cloudflare Access
- * на периметре (ADR-045).
+ * **В production включён всегда** и выключается только явным `AUTH_REQUIRED=0` (fail-closed, ТЗ аудита
+ * 25.09.2026 В-2); вне production включается `AUTH_REQUIRED=1` — dev-стенды, сквозные наборы и скрипты
+ * сверки ходят в API без токена (ADR-023). Порядок включения и проверки — `plans/slice-13-accounts-saas.md`;
+ * Cloudflare Access снят 20.09.2026 (ADR-053), периметр держит сам замок.
  *
  * Служебные ходоки (сторож, скрипты, задачи launchd) приходят с `x-wetop-service-key`: это не человек,
  * записи в журнале от него идут без автора.
@@ -57,11 +57,42 @@ function sameKey(presented: string, expected: string): boolean {
  */
 const GUARD_READ_ALLOWED = ['/guard/status', '/guard/incidents'];
 
-function guardReadAllowed(method: unknown, url: unknown): boolean {
+/**
+ * Узкий ключ ИИ-помощника (`ASSISTANT_READ_KEY`, ТЗ ред. 1 П4, ADR-079) — по тому же образцу: помощник видит ошибки,
+ * которые API отдал человеку (DATA_MODEL §14), и состояние системы — и больше ничего. Неисправности, запись, брони,
+ * гости, деньги — отказ. Сам `GET /assistant/errors` сверяет ключ ещё раз: замок молчит без `AUTH_REQUIRED=1`.
+ */
+const ASSISTANT_READ_ALLOWED = ['/assistant/errors', '/guard/status', '/assistant/organization'];
+
+/**
+ * Узкий ключ котировки ИИ-продавца (`SELLER_QUOTE_KEY`, Q-166 в объёме чтения — ADR-085): наличие и цена
+ * тарифа сайта по организации, ровно один адрес, только GET — тот же образец. Брони этим ключом нет:
+ * она остаётся заявкой администратору до базы в РК (Q-166б, ADR-086).
+ */
+const SELLER_QUOTE_ALLOWED = ['/bot/availability'];
+
+function readAllowed(allowed: readonly string[], method: unknown, url: unknown): boolean {
   if (method !== 'GET') return false;
   if (typeof url !== 'string') return false;
   const path = url.split('?')[0]!.replace(/\/+$/, '');
-  return GUARD_READ_ALLOWED.includes(path);
+  return allowed.includes(path);
+}
+
+/** Какой служебный ключ пришёл в `x-wetop-service-key`: `null` — никакого, `unknown` — ни один не подошёл */
+export type ServiceKeyKind = 'service' | 'guard-read' | 'assistant-read' | 'seller-quote' | 'unknown';
+
+export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
+  const presented = headers['x-wetop-service-key'];
+  if (typeof presented !== 'string' || presented === '') return null;
+  const serviceKey = process.env.SERVICE_API_KEY?.trim();
+  if (serviceKey && sameKey(presented, serviceKey)) return 'service';
+  const readKey = process.env.GUARD_READ_KEY?.trim();
+  if (readKey && sameKey(presented, readKey)) return 'guard-read';
+  const assistantKey = process.env.ASSISTANT_READ_KEY?.trim();
+  if (assistantKey && sameKey(presented, assistantKey)) return 'assistant-read';
+  const quoteKey = process.env.SELLER_QUOTE_KEY?.trim();
+  if (quoteKey && sameKey(presented, quoteKey)) return 'seller-quote';
+  return 'unknown';
 }
 
 @Injectable()
@@ -72,7 +103,12 @@ export class SessionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const required = process.env.AUTH_REQUIRED === '1';
+    // ТЗ аудита 25.09.2026, В-2: fail-closed. В production замок включён всегда и выключается только
+    // явным AUTH_REQUIRED=0 — опечатка или пустая переменная не открывают API молча. Вне production
+    // прежнее правило ('1' включает): dev-стенды, сквозные наборы и демо работают без входа.
+    const flag = process.env.AUTH_REQUIRED;
+    const required =
+      flag === '1' || (process.env.NODE_ENV === 'production' && flag !== '0');
 
     if (!required) {
       // Замок молчит, но токен, если он пришёл, всё равно опознаём: журналу нужен автор действия.
@@ -102,23 +138,35 @@ export class SessionGuard implements CanActivate {
       service?: boolean;
     }>();
 
-    const serviceKey = process.env.SERVICE_API_KEY?.trim();
-    const readKey = process.env.GUARD_READ_KEY?.trim();
-    const presented = request.headers['x-wetop-service-key'];
-    if (typeof presented === 'string' && presented !== '') {
-      if (serviceKey && sameKey(presented, serviceKey)) {
+    const key = serviceKeyKind(request.headers);
+    if (key === 'service') {
+      request.service = true;
+      return true;
+    }
+    if (key === 'guard-read') {
+      if (readAllowed(GUARD_READ_ALLOWED, request.method, request.url)) {
         request.service = true;
         return true;
       }
-      if (readKey && sameKey(presented, readKey)) {
-        if (guardReadAllowed(request.method, request.url)) {
-          request.service = true;
-          return true;
-        }
-        throw new ForbiddenException('Ключ дежурного агента читает только неисправности сторожа');
-      }
-      throw new UnauthorizedException('Служебный ключ не подходит');
+      throw new ForbiddenException('Ключ дежурного агента читает только неисправности сторожа');
     }
+    if (key === 'assistant-read') {
+      if (readAllowed(ASSISTANT_READ_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException(
+        'Ключ помощника читает только ошибки человека и состояние системы',
+      );
+    }
+    if (key === 'seller-quote') {
+      if (readAllowed(SELLER_QUOTE_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException('Ключ котировки продавца читает только наличие и цену');
+    }
+    if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 
     const token = tokenFromHeaders(request.headers);
     const signedIn = token ? await this.auth.whoami(token) : null;

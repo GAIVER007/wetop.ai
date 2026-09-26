@@ -1,0 +1,65 @@
+# Интеграционные (integration) · 25.09.2026 12:06 Алматы · vm
+# коммит 6cd565f (claude/festive-johnson-0aark9)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T07-06-17Z-integration-78df.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/reservations-import.test.ts (6 tests) 1349ms
+   ✓ importReservations (integration, DATABASE_URL required) (6)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 590ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 1040ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 760ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 657ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 655ms
+(node:19170) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/manual-reservation.test.ts (1 test) 621ms
+   ✓ manual reservation against the database (integration, rolled back) (1)
+     ✓ creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 575ms
+ ✓ |integration| tests/integration/exely-reimport-rules.test.ts (3 tests) 634ms
+   ✓ повторный импорт Exely → PMS: Q-162 и Q-164 (integration, rolled back) (3)
+     ✓ Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не возвращает в «ждём» и койку не занимает 374ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 473ms
+(node:19198) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-capacity.test.ts (1 test) 559ms
+   ✓ category capacity across the places of one booking (integration, rolled back) (1)
+     ✓ refuses more places without a unit than the category has, counting all places of the booking together 513ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (6 tests) 533ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 549ms
+ ✓ |integration| tests/integration/price-calendar-import.test.ts (2 tests) 480ms
+   ✓ importPriceCalendar (integration, DATABASE_URL required) (2)
+     ✓ writes daily_rates and restrictions idempotently, sets the tariff currency from the calendar, all rolled back 394ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 414ms
+ ✓ |integration| tests/integration/inventory-import.test.ts (1 test) 420ms
+   ✓ importInventoryPlan (integration, DATABASE_URL required) (1)
+     ✓ imports the synthetic plan idempotently: second run creates nothing, count stays 7 382ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 259ms
+(node:19262) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (1 test) 334ms
+ ✓ |integration| tests/integration/invites.test.ts (3 tests) 371ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 295ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 288ms
+(node:19295) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 254ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 235ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 286ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 235ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 262ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 261ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 232ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 224ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 159ms
+
+ Test Files  26 passed (26)
+      Tests  64 passed (64)
+   Start at  07:06:18
+   Duration  26.66s (tests 55%, import 35%, transform 10%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-25T07-06-17Z-integration-78df.json
+
+# код выхода 0 · 28 с

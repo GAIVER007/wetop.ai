@@ -423,7 +423,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       );
     const providerPropertyId = mappings[0]!.providerPropertyId;
     const local = await this.repo.localSetup(DEFAULT_OTA_RATE_PLAN_CODE);
-    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const today = await this.repo.today();
     const from = today;
     const to = plusDays(today, days - 1);
     // Доступность для канала: единицы − блокировки − проданные проживания (DATA_MODEL §7)

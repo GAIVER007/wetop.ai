@@ -1,0 +1,55 @@
+# Интеграционные (integration) · 24.09.2026 19:54 Алматы · vm
+# коммит d01ac8b (claude/festive-johnson-0aark9)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-24T14-54-10Z-integration-710d.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/reservations-import.test.ts (6 tests) 1124ms
+   ✓ importReservations (integration, DATABASE_URL required) (6)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 530ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (5 tests) 388ms
+ ✓ |integration| tests/integration/exely-reimport-rules.test.ts (3 tests) 582ms
+   ✓ повторный импорт Exely → PMS: Q-162 и Q-164 (integration, rolled back) (3)
+     ✓ Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не возвращает в «ждём» и койку не занимает 350ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 330ms
+(node:23630) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/manual-reservation.test.ts (1 test) 570ms
+   ✓ manual reservation against the database (integration, rolled back) (1)
+     ✓ creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 534ms
+(node:23638) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 271ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 409ms
+(node:23654) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-capacity.test.ts (1 test) 468ms
+   ✓ category capacity across the places of one booking (integration, rolled back) (1)
+     ✓ refuses more places without a unit than the category has, counting all places of the booking together 434ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 431ms
+ ✓ |integration| tests/integration/price-calendar-import.test.ts (2 tests) 359ms
+ ✓ |integration| tests/integration/invites.test.ts (3 tests) 290ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 231ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 254ms
+(node:23707) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (1 test) 266ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 242ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 238ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 212ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 235ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 241ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 241ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 255ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 235ms
+ ✓ |integration| tests/integration/inventory-import.test.ts (1 test) 313ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 142ms
+
+ Test Files  24 passed (24)
+      Tests  60 passed (60)
+   Start at  14:54:11
+   Duration  20.64s (tests 53%, import 36%, transform 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-24T14-54-10Z-integration-710d.json
+
+# код выхода 0 · 22 с

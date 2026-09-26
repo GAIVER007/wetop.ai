@@ -153,67 +153,76 @@ export function LoginForm({
                 <span>Смена закончена?</span>
                 <button type="submit">Выйти</button>
               </form>
-              {/* Приглашения (срез 13, этап 7): ролей нет — каждый вошедший зовёт в свою организацию */}
-              <section className="login-invites" aria-labelledby="invite-heading">
-                <h3 id="invite-heading">Пригласить администратора</h3>
-                <p className="muted">
-                  Ссылка действует 7 дней. По ней сотрудник присоединится к вашей организации.
-                </p>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    submitInvite();
-                  }}
-                >
-                  <label className="field">
-                    Почта приглашённого
-                    <input
-                      className="inp"
-                      type="email"
-                      name="inviteEmail"
-                      autoComplete="off"
-                      placeholder="admin@hotel.com"
-                      required
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                    />
-                  </label>
-                  {inviteError && (
-                    <p className="alert" role="alert">
-                      {inviteError}
-                    </p>
-                  )}
-                  <button className="btn btn--secondary" type="submit" disabled={registerPending}>
-                    Отправить приглашение
-                  </button>
-                </form>
-                {invited.length + invites.length > 0 ? (
-                  <ul className="login-invite-list" data-testid="invite-list">
-                    {invited.map((e) => (
-                      <li key={`new-${e}`}>
-                        <b>{e}</b> <span className="muted">приглашение отправлено</span>
-                      </li>
-                    ))}
-                    {invites
-                      .filter((i) => !invited.includes(i.email))
-                      .map((i) => (
-                        <li key={i.id}>
-                          <b>{i.email}</b>{' '}
-                          <span className="muted">
-                            ждёт ответа до{' '}
-                            <time dateTime={i.expiresAt}>
-                              {displayDate(i.expiresAt.slice(0, 10))}
-                            </time>
-                          </span>
+              {/* Приглашения (срез 13, этап 7): зовёт владелец организации (ADR-083); сотруднику — кто это делает */}
+              {user.role === 'STAFF' ? (
+                <section className="login-invites" aria-labelledby="invite-heading">
+                  <h3 id="invite-heading">Пригласить администратора</h3>
+                  <p className="muted" data-testid="invite-owner-only">
+                    Приглашать сотрудников может только владелец организации.
+                  </p>
+                </section>
+              ) : (
+                <section className="login-invites" aria-labelledby="invite-heading">
+                  <h3 id="invite-heading">Пригласить администратора</h3>
+                  <p className="muted">
+                    Ссылка действует 7 дней. По ней сотрудник присоединится к вашей организации.
+                  </p>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      submitInvite();
+                    }}
+                  >
+                    <label className="field">
+                      Почта приглашённого
+                      <input
+                        className="inp"
+                        type="email"
+                        name="inviteEmail"
+                        autoComplete="off"
+                        placeholder="admin@hotel.com"
+                        required
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                      />
+                    </label>
+                    {inviteError && (
+                      <p className="alert" role="alert">
+                        {inviteError}
+                      </p>
+                    )}
+                    <button className="btn btn--secondary" type="submit" disabled={registerPending}>
+                      Отправить приглашение
+                    </button>
+                  </form>
+                  {invited.length + invites.length > 0 ? (
+                    <ul className="login-invite-list" data-testid="invite-list">
+                      {invited.map((e) => (
+                        <li key={`new-${e}`}>
+                          <b>{e}</b> <span className="muted">приглашение отправлено</span>
                         </li>
                       ))}
-                  </ul>
-                ) : (
-                  <p className="muted" data-testid="invite-empty">
-                    Ожидающих приглашений нет.
-                  </p>
-                )}
-              </section>
+                      {invites
+                        .filter((i) => !invited.includes(i.email))
+                        .map((i) => (
+                          <li key={i.id}>
+                            <b>{i.email}</b>{' '}
+                            <span className="muted">
+                              ждёт ответа до{' '}
+                              <time dateTime={i.expiresAt}>
+                                {displayDate(i.expiresAt.slice(0, 10))}
+                              </time>
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p className="muted" data-testid="invite-empty">
+                      Ожидающих приглашений нет.
+                    </p>
+                  )}
+                </section>
+              )}
               {/* «Где я вошёл» и «выйти везде» (§13.5): отзыв гасит все ключи человека, включая этот */}
               <section className="login-invites" aria-labelledby="sessions-heading">
                 <h3 id="sessions-heading">Где вы вошли</h3>

@@ -46,7 +46,7 @@ export class DeskService {
   constructor(@Inject(DESK_REPOSITORY) private readonly repo: DeskRepository) {}
 
   async today(date?: string): Promise<DeskDay> {
-    const day = date ?? new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const day = date ?? (await this.repo.today());
     if (!ISO.test(day)) throw new BadRequestException('date — дата YYYY-MM-DD');
     const stays = await this.repo.stays(day);
     const row = (s: DeskStay): DeskRow => ({

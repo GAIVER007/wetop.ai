@@ -32,6 +32,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
           orderBy: { createdAt: 'asc' },
           take: 1,
           select: {
+            role: true,
             organization: {
               select: { id: true, name: true, status: true, trialEndsAt: true },
             },
@@ -41,7 +42,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
     });
     if (!user || user.status !== 'ACTIVE') return null;
     const org = user.memberships[0]?.organization;
-    if (!org) return null;
+    const role = user.memberships[0]?.role;
+    if (!org || !role) return null;
     return {
       userId: user.id,
       email: user.email,
@@ -49,6 +51,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
       organizationName: org.name,
       organizationStatus: org.status,
       trialEndsAt: org.trialEndsAt,
+      role,
     };
   }
 
@@ -72,7 +75,10 @@ export class PrismaAccountsRepository implements AccountsRepository {
           data: { email: input.email, status: 'ACTIVE' },
           select: { id: true, email: true },
         });
-        await tx.membership.create({ data: { userId: user.id, organizationId: org.id } });
+        // заведший организацию — её владелец (DATA_MODEL §16.1, ADR-083)
+        await tx.membership.create({
+          data: { userId: user.id, organizationId: org.id, role: 'OWNER' },
+        });
         return {
           userId: user.id,
           email: user.email,
@@ -80,6 +86,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
           organizationName: org.name,
           organizationStatus: org.status,
           trialEndsAt: org.trialEndsAt,
+          role: 'OWNER' as const,
         };
       });
     } catch (e) {
@@ -98,11 +105,19 @@ export class PrismaAccountsRepository implements AccountsRepository {
       select: {
         expiresAt: true,
         revokedAt: true,
-        user: { select: { id: true, email: true } },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            // членств у человека одно-два: роль берём у организации этой сессии
+            memberships: { select: { organizationId: true, role: true } },
+          },
+        },
         organization: { select: { id: true, name: true, status: true, trialEndsAt: true } },
       },
     });
     if (!row) return null;
+    const role = row.user.memberships.find((m) => m.organizationId === row.organization.id)?.role;
     return {
       userId: row.user.id,
       email: row.user.email,
@@ -112,6 +127,8 @@ export class PrismaAccountsRepository implements AccountsRepository {
       trialEndsAt: row.organization.trialEndsAt,
       expiresAt: row.expiresAt,
       revokedAt: row.revokedAt,
+      // членство сняли — прав владельца точно нет
+      role: role ?? 'STAFF',
     };
   }
 
@@ -204,10 +221,12 @@ export class PrismaAccountsRepository implements AccountsRepository {
         update: {},
         select: { id: true, email: true },
       });
-      await tx.membership.upsert({
+      // приглашённый — сотрудник (DATA_MODEL §16.1); уже состоящему роль не меняется
+      const membership = await tx.membership.upsert({
         where: { userId_organizationId: { userId: user.id, organizationId: input.organizationId } },
-        create: { userId: user.id, organizationId: input.organizationId },
+        create: { userId: user.id, organizationId: input.organizationId, role: 'STAFF' },
         update: {},
+        select: { role: true },
       });
       const org = await tx.organization.findUniqueOrThrow({
         where: { id: input.organizationId },
@@ -220,6 +239,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
         organizationName: org.name,
         organizationStatus: org.status,
         trialEndsAt: org.trialEndsAt,
+        role: membership.role,
       };
     });
   }

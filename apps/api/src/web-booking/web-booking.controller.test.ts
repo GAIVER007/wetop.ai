@@ -15,8 +15,9 @@ import {
   type ReservationsRepository,
 } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
+import { INCIDENTS_REPOSITORY } from '../guard/incidents.repository';
 import { WebBookingModule } from './web-booking.module';
-import { WebBookingService } from './web-booking.service';
+import { BOOKING_RATE_LIMITS, WebBookingService } from './web-booking.service';
 
 /**
  * Виджет на фальшивках: сайт с включённым бронированием и тарифом, две категории (одиночная 1 место,
@@ -24,6 +25,14 @@ import { WebBookingService } from './web-booking.service';
  * ReservationsService.create — здесь он подменён и только запоминает DTO.
  */
 const ORIGIN = 'http://test-site.local';
+/** Неисправности (С-7): запоминаем наблюдения, строки не строим — сервис ответ не читает */
+const incidents = {
+  rows: [] as Array<Record<string, unknown>>,
+  async record(o: Record<string, unknown>) {
+    incidents.rows.push(o);
+    return o as never;
+  },
+};
 const TODAY = new Date('2026-09-12T06:00:00Z'); // 11:00 Алматы
 const CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
@@ -190,6 +199,8 @@ describe('виджет бронирования /w/*', () => {
       .useValue({ reservationChanged: async () => {} })
       .overrideProvider(CHANNELS_REPOSITORY)
       .useValue({})
+      .overrideProvider(INCIDENTS_REPOSITORY)
+      .useValue(incidents)
       .compile();
     app = m.createNestApplication();
     await app.init();
@@ -206,6 +217,8 @@ describe('виджет бронирования /w/*', () => {
     sites.recorded = [];
     sites.linked = [];
     sites.audits = [];
+    sites.bookingsSince = null;
+    incidents.rows = [];
     service.resetLimits();
     fakeRepo.restrictions = [];
   });
@@ -410,6 +423,24 @@ describe('виджет бронирования /w/*', () => {
     // мусор в заголовке не выдаётся за адрес: считается как сам запрос (loopback)
     await post(booking()).set('CF-Connecting-IP', 'not-an-ip').expect(201);
     expect(created.dtos).toHaveLength(7);
+  });
+
+  it('С-7: предел броней за час держит журнал, а не память — после «перезапуска» он не обнуляется', async () => {
+    // окна в памяти пусты (beforeEach — как после рестарта API), но журнал помнит: предел за час уже выбран
+    sites.bookingsSince = BOOKING_RATE_LIMITS.perSitePerHour;
+    await post(booking()).expect(429);
+    expect(created.dtos).toHaveLength(0);
+  });
+
+  it('С-7: упёршийся предел записывает неисправность booking.flood — сторож разбудит; адреса в ней нет', async () => {
+    const from = () => post(booking()).set('CF-Connecting-IP', '203.0.113.77');
+    for (let i = 0; i < 5; i += 1) await from().expect(201);
+    await from().expect(429);
+    const flood = incidents.rows.filter((r) => r.kind === 'booking.flood');
+    expect(flood.length).toBeGreaterThan(0);
+    expect(flood[0]).toMatchObject({ subjectId: SITE.id, fingerprint: `booking.flood:${SITE.id}` });
+    // приватность среза 9 (план §4): адрес посетителя никуда не сохраняется — и в неисправность не едет
+    expect(JSON.stringify(incidents.rows)).not.toContain('203.0.113.77');
   });
 
   it('демо-страница: виджет и счётчик по ключу; сайт без бронирования — 404', async () => {

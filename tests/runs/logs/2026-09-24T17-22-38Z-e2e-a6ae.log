@@ -1,0 +1,472 @@
+# Сквозные (e2e) · 24.09.2026 22:22 Алматы · vm
+# коммит 3824468 (claude/laughing-franklin-9xn55c)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 349 tests using 1 worker
+
+  ✓    1 tests/ui/accessibility.spec.ts:50:5 › доступность всех разделов: light, 1440px (1.3m)
+  ✓    2 tests/ui/accessibility.spec.ts:50:5 › доступность всех разделов: dark, 1440px (1.2m)
+  ✓    3 tests/ui/accessibility.spec.ts:50:5 › доступность всех разделов: light, 390px (1.1m)
+  ✓    4 tests/ui/accessibility.spec.ts:50:5 › доступность всех разделов: dark, 390px (1.1m)
+  ✓    5 tests/ui/accessibility.spec.ts:114:5 › доступность открытых форм и drawer: light, 1440px (8.8s)
+  ✓    6 tests/ui/accessibility.spec.ts:114:5 › доступность открытых форм и drawer: dark, 1440px (7.5s)
+  ✓    7 tests/ui/accessibility.spec.ts:114:5 › доступность открытых форм и drawer: light, 390px (7.0s)
+  ✓    8 tests/ui/accessibility.spec.ts:114:5 › доступность открытых форм и drawer: dark, 390px (6.9s)
+  ✓    9 tests/ui/ai-seller.spec.ts:15:1 › раздел в меню «Продажи», шесть вкладок, полоса состояния (1.3s)
+  ✓   10 tests/ui/ai-seller.spec.ts:37:1 › «вы» → «ты», «Применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4) (4.0s)
+  ✓   11 tests/ui/ai-seller.spec.ts:63:1 › без языков «Применить» отказывает словами продавца, введённое не пропадает (1.7s)
+  ✓   12 tests/ui/ai-seller.spec.ts:72:1 › «Данные объекта» — только просмотр: факты, цены по категориям, куда идти править (1.2s)
+  ✓   13 tests/ui/ai-seller.spec.ts:90:1 › «Знания»: список и загрузка документа (1.7s)
+  ✓   14 tests/ui/ai-seller.spec.ts:103:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (3.1s)
+  ✓   15 tests/ui/ai-seller.spec.ts:137:1 › «Код для сайта»: тег чата продавца и кнопка «Скопировать» (901ms)
+  ✓   16 tests/ui/ai-seller.spec.ts:145:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.1s)
+  ✓   17 tests/ui/ai-seller.spec.ts:151:1 › продавец не подключён — раздел говорит об этом, настройки сохраняются заранее (ТЗ §4.4) (3.9s)
+  ✓   18 tests/ui/ai-seller.spec.ts:170:1 › продавец недоступен — раздел говорит об этом и обещает повтор (1.1s)
+  ✓   19 tests/ui/ai-seller.spec.ts:180:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.3s)
+  ✓   20 tests/ui/ai-seller.spec.ts:197:1 › снимки экранов раздела (10.3s)
+  ✓   21 tests/ui/analytics-design.spec.ts:19:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (2.2s)
+  ✓   22 tests/ui/analytics-design.spec.ts:49:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (1.4s)
+  ✓   23 tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API (2.6s)
+  ✓   24 tests/ui/channex-screens.spec.ts:24:1 › менеджер каналов: стоимость — плитка в ряду, без дубля числа источников и без монограмм (2.0s)
+  ✓   25 tests/ui/channex-screens.spec.ts:59:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.9s)
+  ✓   26 tests/ui/channex-screens.spec.ts:119:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (2.0s)
+  ✓   27 tests/ui/channex-screens.spec.ts:136:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (5.4s)
+  ✓   28 tests/ui/channex-screens.spec.ts:200:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (5.0s)
+  ✓   29 tests/ui/channex-screens.spec.ts:249:1 › приём брони: ревизия с двоеточиями в номере открывается (1.3s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:56:12)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   30 tests/ui/channex-screens.spec.ts:263:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.8s)
+  ✓   31 tests/ui/channex-screens.spec.ts:283:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (7.7s)
+  ✓   32 tests/ui/channex-screens.spec.ts:348:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (10.0s)
+  ✓   33 tests/ui/channex-screens.spec.ts:428:1 › менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (7.8s)
+  ✓   34 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (2.0s)
+  ✓   35 tests/ui/chessboard-design.spec.ts:9:1 › статусы шахматки понятны без открытия инструкции (1.9s)
+  ✓   36 tests/ui/chessboard-design.spec.ts:33:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (5.7s)
+  ✓   37 tests/ui/chessboard-design.spec.ts:54:3 › дизайн шахматки: light, компактное управление и доступная сетка (20.1s)
+  ✓   38 tests/ui/chessboard-design.spec.ts:54:3 › дизайн шахматки: dark, компактное управление и доступная сетка (18.8s)
+  ✓   39 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (4.1s)
+  ✓   40 tests/ui/chessboard-month.spec.ts:24:1 › все 31 день помещаются по ширине окна (5.4s)
+  ✓   41 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (6.5s)
+  ✓   42 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (6.6s)
+  ✓   43 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (6.6s)
+  ✓   44 tests/ui/chessboard-month.spec.ts:48:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (7.1s)
+  ✓   45 tests/ui/chessboard-month.spec.ts:66:1 › неделя, 14 дней, произвольный период и возврат к месяцу (6.4s)
+  ✓   46 tests/ui/chessboard-month.spec.ts:86:1 › в месяце открываются брони, свободные даты и группы номеров (8.4s)
+  ✓   47 tests/ui/chessboard-month.spec.ts:122:3 › месячная сетка: light, читаемость и адаптивность (39.0s)
+  ✓   48 tests/ui/chessboard-month.spec.ts:122:3 › месячная сетка: dark, читаемость и адаптивность (36.5s)
+  ✓   49 tests/ui/chessboard-week.spec.ts:9:1 › C1: сетка начинается до 350 px, фильтры объясняют дату статуса (2.5s)
+  ✓   50 tests/ui/chessboard-week.spec.ts:22:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (7.8s)
+  ✓   51 tests/ui/chessboard-week.spec.ts:62:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (2.7s)
+  ✓   52 tests/ui/chessboard-week.spec.ts:92:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (5.4s)
+  ✓   53 tests/ui/chessboard-week.spec.ts:92:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (5.1s)
+  ✓   54 tests/ui/chessboard-week.spec.ts:92:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (5.1s)
+  ✓   55 tests/ui/chessboard-week.spec.ts:112:1 › в неделе работают бронь, категории и создание на воскресенье (4.1s)
+  ✓   56 tests/ui/chessboard-week.spec.ts:146:3 › неделя помещается на экране: light, обе панели и телефон (20.6s)
+  ✓   57 tests/ui/chessboard-week.spec.ts:146:3 › неделя помещается на экране: dark, обе панели и телефон (20.3s)
+  ✓   58 tests/ui/chessboard-week.spec.ts:182:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.0s)
+  ✓   59 tests/ui/control-design.spec.ts:10:1 › контроль: поиск и чипы открытых неисправностей не меняют сводку и не повторяют API (1.8s)
+  ✓   60 tests/ui/control-design.spec.ts:34:1 › контроль: принятие с ошибкой и повтором, закрытие и история сохраняются после reload (3.9s)
+  ✓   61 tests/ui/control-design.spec.ts:57:1 › журнал: дни группами, время без года, объект одной подписью, чипы разделов (2.1s)
+CONTROL_JOURNAL_CONTROLS_MS 479
+  ✓   62 tests/ui/control-design.spec.ts:105:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса (7.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   63 tests/ui/control-design.spec.ts:131:3 › контроль: мобильный вид, клавиатура и доступность light (6.0s)
+  ✓   64 tests/ui/control-design.spec.ts:131:3 › контроль: мобильный вид, клавиатура и доступность dark (5.4s)
+  ✓   65 tests/ui/dashboard-design.spec.ts:19:1 › главная: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (2.5s)
+  ✓   66 tests/ui/dashboard-design.spec.ts:56:1 › главная: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.4s)
+  ✓   67 tests/ui/dashboard-design.spec.ts:94:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (2.9s)
+  ✓   68 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (3.4s)
+  ✓   69 tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (9.7s)
+  ✓   70 tests/ui/dashboard-desk.spec.ts:81:1 › 3. сводка сверху называет причины и дату, без двойной точки (2.5s)
+  ✓   71 tests/ui/dashboard-desk.spec.ts:97:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку (6.5s)
+  ✓   72 tests/ui/dashboard-desk.spec.ts:137:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» (1.7s)
+  ✓   73 tests/ui/dashboard-desk.spec.ts:170:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока (2.5s)
+  ✓   74 tests/ui/dashboard-desk.spec.ts:186:1 › 7. строки главной без разделителя « · » (1.7s)
+  ✓   75 tests/ui/dashboard-desk.spec.ts:207:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (2.1s)
+  ✓   76 tests/ui/dashboard-desk.spec.ts:239:1 › 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px (3.3s)
+  ✓   77 tests/ui/dashboard-desk.spec.ts:268:1 › 10. заголовок страницы и панели брони — по шкале §6 (6.0s)
+  ✓   78 tests/ui/dashboard-resilience.spec.ts:15:1 › показатели не пришли — экран открыт, стойка на месте, причина названа (1.3s)
+  ✓   79 tests/ui/dashboard-resilience.spec.ts:30:1 › период выбирается: «этот месяц» открывается с числами (1.2s)
+  ✓   80 tests/ui/date-field.spec.ts:20:1 › главная: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (2.0s)
+  ✓   81 tests/ui/date-field.spec.ts:51:1 › главная: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (3.4s)
+  ✓   82 tests/ui/date-field.spec.ts:74:1 › телефон: кнопки календаря нет, родное поле остаётся (1.1s)
+  ✓   83 tests/ui/date-field.spec.ts:82:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (4.9s)
+  ✓   84 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (26.6s)
+  ✓   85 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (25.1s)
+  ✓   86 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и резюме внимания доступны на первом экране (4.1s)
+  ✓   87 tests/ui/design-refresh.spec.ts:27:1 › период на телефоне: подписанные поля и цели не меньше 44 px (1.4s)
+  ✓   88 tests/ui/design-refresh.spec.ts:45:1 › месячные показатели и задачи конкретного дня подписаны отдельно (1.6s)
+  ✓   89 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (12.2s)
+  ✓   90 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (11.3s)
+  ✓   91 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (11.8s)
+  ✓   92 tests/ui/design-refresh.spec.ts:56:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (10.8s)
+  ✓   93 tests/ui/design-system.spec.ts:20:1 › обе темы на одной странице, у интерактивных компонентов восемь состояний (2.8s)
+  ✓   94 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (12.9s)
+  ✓   95 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (12.7s)
+  ✓   96 tests/ui/design-system.spec.ts:73:1 › масштаб 200 %: нет горизонтальной прокрутки (2.0s)
+  ✓   97 tests/ui/design-system.spec.ts:94:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (2.7s)
+  ✓   98 tests/ui/design-system.spec.ts:116:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (3.5s)
+  ✓   99 tests/ui/design-system.spec.ts:131:1 › уведомление появляется в живой области и закрывается (2.7s)
+  ✓  100 tests/ui/design-system.spec.ts:143:1 › подсказка открывается фокусом и закрывается Escape (2.5s)
+  ✓  101 tests/ui/design-system.spec.ts:156:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (2.5s)
+  ✓  102 tests/ui/empty-base.spec.ts:39:3 › пустая база: /today открывается и объясняет пустоту (1.2s)
+  ✓  103 tests/ui/empty-base.spec.ts:39:3 › пустая база: /chessboard открывается и объясняет пустоту (1.8s)
+  ✓  104 tests/ui/empty-base.spec.ts:39:3 › пустая база: /reservations открывается и объясняет пустоту (947ms)
+  ✓  105 tests/ui/empty-base.spec.ts:39:3 › пустая база: /guests открывается и объясняет пустоту (1.0s)
+  ✓  106 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms открывается и объясняет пустоту (1.2s)
+  ✓  107 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.2s)
+  ✓  108 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.3s)
+  ✓  109 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rates открывается и объясняет пустоту (1.2s)
+  ✓  110 tests/ui/empty-base.spec.ts:39:3 › пустая база: /finance открывается и объясняет пустоту (1.1s)
+  ✓  111 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/statistics открывается и объясняет пустоту (1.1s)
+  ✓  112 tests/ui/empty-base.spec.ts:39:3 › пустая база: /journal открывается и объясняет пустоту (930ms)
+  ✓  113 tests/ui/empty-base.spec.ts:39:3 › пустая база: /incidents открывается и объясняет пустоту (915ms)
+  ✓  114 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels открывается и объясняет пустоту (1.0s)
+  ✓  115 tests/ui/empty-base.spec.ts:39:3 › пустая база: /connections открывается и объясняет пустоту (1.1s)
+  ✓  116 tests/ui/empty-base.spec.ts:39:3 › пустая база: /analytics открывается и объясняет пустоту (1.1s)
+  ✓  117 tests/ui/empty-base.spec.ts:39:3 › пустая база: /hotel-settings открывается и объясняет пустоту (1.1s)
+  ✓  118 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channel-manager открывается и объясняет пустоту (951ms)
+  ✓  119 tests/ui/empty-base.spec.ts:49:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.8s)
+  ✓  120 tests/ui/empty-base.spec.ts:60:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (1.1s)
+  ✓  121 tests/ui/finance-units-design.spec.ts:22:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (1440) (1.4s)
+  ✓  122 tests/ui/finance-units-design.spec.ts:22:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (телефон) (1.2s)
+  ✓  123 tests/ui/finance-units-design.spec.ts:62:1 › карточка ячейки: подзаголовок словами, даты проживаний в <time>, заголовок без скобок (1.3s)
+  ✓  124 tests/ui/fixture-isolation.spec.ts:7:1 › сброс после дизайн-сценария восстанавливает названия категорий и ячеек (23ms)
+  ✓  125 tests/ui/fixture-isolation.spec.ts:19:1 › сумма продления в подтверждении совпадает с подсказкой и записанным проживанием (20ms)
+  ✓  126 tests/ui/guests-design.spec.ts:22:1 › гости: выборка названа одним предложением со статусом, статус гостя — в единственном числе (1.7s)
+  ✓  127 tests/ui/guests-design.spec.ts:42:1 › гости: пустой список не рисует шапку таблицы, разделы — чипы, имя гостя видно как ссылка (2.8s)
+  ✓  128 tests/ui/housekeeping.spec.ts:20:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (4.3s)
+  ✓  129 tests/ui/housekeeping.spec.ts:76:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (3.2s)
+  ✓  130 tests/ui/housekeeping.spec.ts:105:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (1.9s)
+  ✓  131 tests/ui/housekeeping.spec.ts:113:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (3.1s)
+  ✓  132 tests/ui/housekeeping.spec.ts:153:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (2.6s)
+  ✓  133 tests/ui/housekeeping.spec.ts:180:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (6.4s)
+  ✓  134 tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (1.4s)
+  ✓  135 tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (1.6s)
+  ✓  136 tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (1.3s)
+  ✓  137 tests/ui/incidents-design.spec.ts:96:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (6.2s)
+  ✓  138 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (3.2s)
+  ✓  139 tests/ui/inventory-catalog.spec.ts:31:1 › прямая ссылка на категорию и вид списка сохраняются, карточка открывается (2.9s)
+  ✓  140 tests/ui/inventory-catalog.spec.ts:49:1 › пустой поиск объясняется, сброс возвращает фонд (1.4s)
+  ✓  141 tests/ui/inventory-catalog.spec.ts:60:3 › каталог адаптивен и доступен: light (11.4s)
+  ✓  142 tests/ui/inventory-catalog.spec.ts:60:3 › каталог адаптивен и доступен: dark (11.3s)
+  ✓  143 tests/ui/inventory-catalog.spec.ts:93:1 › пустой фонд отличается от пустого поиска (965ms)
+  ✓  144 tests/ui/inventory-catalog.spec.ts:101:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (2.2s)
+  ✓  145 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (3.1s)
+  ✓  146 tests/ui/invites.spec.ts:45:1 › без сессии формы приглашения нет (2.0s)
+  ✓  147 tests/ui/invites.spec.ts:52:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (3.0s)
+  ✓  148 tests/ui/invites.spec.ts:71:1 › мёртвая ссылка — один текст и путь на форму входа (1.2s)
+  ✓  149 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (2.1s)
+  ✓  150 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (1.2s)
+  ✓  151 tests/ui/loading-performance.spec.ts:48:1 › стойка и её шахматка запрашиваются параллельно (6.5s)
+  ✓  152 tests/ui/loading-performance.spec.ts:73:1 › мобильное меню использует уже загруженную свежесть без второго опроса (2.6s)
+TODAY_LOADING_MS [{"heading":678,"kpi":835,"desk":842},{"heading":642,"kpi":647,"desk":648},{"heading":635,"kpi":637,"desk":639}]
+  ✓  153 tests/ui/loading-performance.spec.ts:97:1 › замер: блоки Главной при задержке настроек 2000 мс (7.6s)
+  ✓  154 tests/ui/loading-performance.spec.ts:127:1 › фоновый опрос не перекрывается и восстанавливается после отказа (1.9s)
+  ✓  155 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (927ms)
+  ✓  156 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (2.0s)
+  ✓  157 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (1.1s)
+  ✓  158 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (1.0s)
+  ✓  159 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (2.2s)
+  ✓  160 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (1.9s)
+  ✓  161 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (9.9s)
+  ✓  162 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (9.7s)
+  ✓  163 tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль (1.1s)
+  ✓  164 tests/ui/login-access.spec.ts:200:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (2.6s)
+  ✓  165 tests/ui/login-access.spec.ts:224:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (1.1s)
+  ✓  166 tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (1.2s)
+  ✓  167 tests/ui/login-access.spec.ts:250:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (936ms)
+  ✓  168 tests/ui/login-access.spec.ts:257:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (1.6s)
+  ✓  169 tests/ui/login-access.spec.ts:277:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (2.5s)
+  ✓  170 tests/ui/login-access.spec.ts:300:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (1.1s)
+  ✓  171 tests/ui/login-access.spec.ts:307:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (1.4s)
+  ✓  172 tests/ui/manager-actions.spec.ts:27:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (4.9s)
+  ✓  173 tests/ui/manager-actions.spec.ts:69:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (4.5s)
+  ✓  174 tests/ui/manager-actions.spec.ts:133:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (9.3s)
+  ✓  175 tests/ui/manager-actions.spec.ts:194:1 › карточка: предварительная бронь названа словом, место за ней держится (1.2s)
+  ✓  176 tests/ui/manager-actions.spec.ts:213:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.9s)
+  ✓  177 tests/ui/manager-actions.spec.ts:229:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (3.7s)
+  ✓  178 tests/ui/manager-actions.spec.ts:270:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (3.8s)
+  ✓  179 tests/ui/manager-actions.spec.ts:330:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.6s)
+  ✓  180 tests/ui/manager-actions.spec.ts:353:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.4s)
+  ✓  181 tests/ui/navigation.spec.ts:34:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.2s)
+  ✓  182 tests/ui/navigation.spec.ts:47:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.1s)
+  ✓  183 tests/ui/navigation.spec.ts:88:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.1s)
+  ✓  184 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (11.8s)
+  ✓  185 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: light (5.1s)
+  ✓  186 tests/ui/navigation.spec.ts:137:3 › навигация ровная, адаптивная и доступная: dark (5.3s)
+  ✓  187 tests/ui/onboarding.spec.ts:14:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (3.6s)
+  ✓  188 tests/ui/onboarding.spec.ts:36:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.1s)
+  ✓  189 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (1.4s)
+  ✓  190 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (2.3s)
+  ✓  191 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (2.6s)
+  ✓  192 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (1.3s)
+  ✓  193 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (1.4s)
+  ✓  194 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (1.3s)
+  ✓  195 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (883ms)
+  ✓  196 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (1.1s)
+  ✓  197 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (941ms)
+  ✓  198 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (3.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  199 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (2.7s)
+  ✓  200 tests/ui/payment-draft.spec.ts:62:1 › оплата D3: строка сути называет сумму, способ, счёт и бронь; не число не уходит (2.2s)
+  ✓  201 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (2.5s)
+  ✓  202 tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (1.8s)
+  ✓  203 tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (3.3s)
+  ✓  204 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.9s)
+  ✓  205 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск (4.1s)
+  ✓  206 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (7.3s)
+  ✓  207 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (7.3s)
+  ✓  208 tests/ui/premium.spec.ts:118:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (1.7m)
+  ✓  209 tests/ui/premium.spec.ts:174:1 › вход не пускает с чужой почтой и чужим паролем (1.3s)
+  ✓  210 tests/ui/premium.spec.ts:191:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (4.3s)
+  ✓  211 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (2.6s)
+  ✓  212 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (1.1s)
+  ✓  213 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.5s)
+  ✓  214 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (2.3s)
+  ✓  215 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (3.3s)
+  ✓  216 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (2.5s)
+  ✓  217 tests/ui/quality.spec.ts:91:1 › список гостей и вторая бронь открывают собственные карточки (2.8s)
+  ✓  218 tests/ui/quality.spec.ts:103:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (2.1s)
+  ✓  219 tests/ui/quality.spec.ts:126:1 › изменение уборки относится только к выбранному номеру (2.6s)
+  ✓  220 tests/ui/quality.spec.ts:140:1 › неподключённые внешние демо не ведут на несуществующие страницы (1.3s)
+  ✓  221 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: профиль гостя (1.9s)
+  ✓  222 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: документ гостя (1.8s)
+  ✓  223 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: блокировка номера (2.1s)
+  ✓  224 tests/ui/quality.spec.ts:182:3 › отказ API сохраняет поля: сайт аналитики (1.8s)
+  ✓  225 tests/ui/rates-design.spec.ts:18:1 › цены: ограничения одной колонкой словами, строка по шкале, таблица помещается в панель (1.5s)
+  ✓  226 tests/ui/rates-design.spec.ts:56:1 › цены: на телефоне строка складывается в карточку, цена по-прежнему правится в ячейке (1.9s)
+  ✓  227 tests/ui/rates-design.spec.ts:91:1 › массовое изменение: дни недели одной строкой, кнопка называет число изменений (2.3s)
+  ✓  228 tests/ui/real-data.spec.ts:8:1 › источник и агрегаты проекта видны отдельно от Channex (1.2s)
+  ✓  229 tests/ui/real-data.spec.ts:18:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (1.6s)
+  ✓  230 tests/ui/real-data.spec.ts:36:1 › название гостиницы в каркасе и обзоре поступает из backend (1.5s)
+  ✓  231 tests/ui/real-data.spec.ts:47:1 › недоступный API не скрывается за демо или выдуманным объектом (1.1s)
+  ✓  232 tests/ui/real-data.spec.ts:57:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (1.6s)
+  ✓  233 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login оставляет вход сотрудников (1.0s)
+  ✓  234 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /register оставляет вход сотрудников (1.0s)
+  ✓  235 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login?mode=register оставляет вход сотрудников (971ms)
+  ✓  236 tests/ui/registration-closed.spec.ts:27:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (1.0s)
+  ✓  237 tests/ui/registration-closed.spec.ts:39:1 › ранее открытая форма получает отказ через server action без новой сессии (1.2s)
+  ✓  238 tests/ui/requests.spec.ts:61:3 › экран /today: данные берутся одним запросом на путь (1.7s)
+  ✓  239 tests/ui/requests.spec.ts:61:3 › экран /chessboard: данные берутся одним запросом на путь (2.2s)
+  ✓  240 tests/ui/requests.spec.ts:61:3 › экран /reservations: данные берутся одним запросом на путь (1.7s)
+  ✓  241 tests/ui/requests.spec.ts:61:3 › экран /guests: данные берутся одним запросом на путь (1.6s)
+  ✓  242 tests/ui/requests.spec.ts:61:3 › экран /rooms: данные берутся одним запросом на путь (1.8s)
+  ✓  243 tests/ui/requests.spec.ts:61:3 › экран /inventory: данные берутся одним запросом на путь (1.9s)
+  ✓  244 tests/ui/requests.spec.ts:61:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.6s)
+  ✓  245 tests/ui/requests.spec.ts:61:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.7s)
+  ✓  246 tests/ui/requests.spec.ts:61:3 › экран /rates: данные берутся одним запросом на путь (1.8s)
+  ✓  247 tests/ui/requests.spec.ts:61:3 › экран /management/statistics: данные берутся одним запросом на путь (1.6s)
+  ✓  248 tests/ui/requests.spec.ts:61:3 › экран /finance: данные берутся одним запросом на путь (1.6s)
+  ✓  249 tests/ui/requests.spec.ts:61:3 › экран /channel-manager: данные берутся одним запросом на путь (1.5s)
+  ✓  250 tests/ui/requests.spec.ts:61:3 › экран /channels: данные берутся одним запросом на путь (1.7s)
+  ✓  251 tests/ui/requests.spec.ts:61:3 › экран /analytics: данные берутся одним запросом на путь (1.7s)
+  ✓  252 tests/ui/requests.spec.ts:61:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.6s)
+  ✓  253 tests/ui/requests.spec.ts:61:3 › экран /hotel-settings/penalties: данные берутся одним запросом на путь (1.7s)
+  ✓  254 tests/ui/requests.spec.ts:61:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.5s)
+  ✓  255 tests/ui/requests.spec.ts:61:3 › экран /connections: данные берутся одним запросом на путь (1.6s)
+  ✓  256 tests/ui/requests.spec.ts:61:3 › экран /analytics/setup: данные берутся одним запросом на путь (1.6s)
+  ✓  257 tests/ui/requests.spec.ts:61:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓  258 tests/ui/requests.spec.ts:61:3 › экран /journal: данные берутся одним запросом на путь (1.5s)
+  ✓  259 tests/ui/requests.spec.ts:61:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.5s)
+  ✓  260 tests/ui/reservation-tariff.spec.ts:23:1 › смена дат по умолчанию сохраняет текущий тариф брони (2.2s)
+  ✓  261 tests/ui/reservation-tariff.spec.ts:44:1 › у брони без тарифа смена дат и «+1 ночь» просят выбрать тариф (2.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  262 tests/ui/reservation-tariff.spec.ts:64:1 › справочник тарифов не загрузился — карточка брони остаётся с предупреждением, а не экран ошибки (1.8s)
+  ✓  263 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (1.8s)
+  ✓  264 tests/ui/reservations-design.spec.ts:35:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (3.5s)
+  ✓  265 tests/ui/reservations-design.spec.ts:57:3 › Брони: light, читаемый список на пяти ширинах (9.1s)
+  ✓  266 tests/ui/reservations-design.spec.ts:57:3 › Брони: dark, читаемый список на пяти ширинах (9.6s)
+  ✓  267 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (1.6s)
+  ✓  268 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (1.1s)
+  ✓  269 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (3.0s)
+  ✓  270 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (2.2s)
+  ✓  271 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (2.3s)
+  ✓  272 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (3.8s)
+  ✓  273 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (1.1s)
+  ✓  274 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (900ms)
+  ✓  275 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (4.0s)
+  ✓  276 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (2.7s)
+  ✓  277 tests/ui/settings-simplification.spec.ts:34:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (7.8s)
+  ✓  278 tests/ui/settings-simplification.spec.ts:55:1 › поиск услуг и фильтр правил отмены работают без повторной загрузки каталога (2.0s)
+  ✓  279 tests/ui/settings-simplification.spec.ts:81:1 › ошибка каталога сохраняет навигацию и исправляется повтором (1.6s)
+  ✓  280 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (6.9s)
+  ✓  281 tests/ui/settings-simplification.spec.ts:95:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (7.0s)
+  ✓  282 tests/ui/settings-simplification.spec.ts:157:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (2.5s)
+  ✓  283 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (7.6s)
+  ✓  284 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (6.9s)
+  ✓  285 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (12.7s)
+  ✓  286 tests/ui/system-screens.spec.ts:249:1 › настройки гостиницы: сбой с повтором, пустые справочники с причиной, загрузка словом (8.6s)
+  ✓  287 tests/ui/system-screens.spec.ts:301:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (7.4s)
+  ✓  288 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (32.2s)
+  ✓  289 tests/ui/workspace.spec.ts:95:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (3.9s)
+  ✓  290 tests/ui/workspace.spec.ts:133:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (2.7s)
+  ✓  291 tests/ui/workspace.spec.ts:151:1 › менеджер каналов: реальные фильтры, пустой результат, период и отказ API (3.1s)
+  ✓  292 tests/ui/workspace.spec.ts:176:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.3s)
+  ✓  293 tests/ui/workspace.spec.ts:203:1 › главная: период готовыми отрезками и своими датами; мобильное меню и возврат фокуса (5.3s)
+  ✓  294 tests/ui/workspace.spec.ts:254:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.6s)
+  ✓  295 tests/ui/workspace.spec.ts:282:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (3.1s)
+  ✓  296 tests/ui/workspace.spec.ts:302:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.7s)
+  ✓  297 tests/ui/workspace.spec.ts:334:1 › карточка: профиль гостя и заселение проходят через server actions (6.6s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:10:28)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:10:28)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  298 tests/ui/workspace.spec.ts:377:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.8s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:42:13)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  299 tests/ui/workspace.spec.ts:394:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.6s)
+  ✓  300 tests/ui/workspace.spec.ts:411:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.5s)
+  ✓  301 tests/ui/workspace.spec.ts:433:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.9s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:10:28)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  302 tests/ui/workspace.spec.ts:459:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.0s)
+  ✓  303 tests/ui/workspace.spec.ts:468:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.7s)
+  ✓  304 tests/ui/workspace.spec.ts:494:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.7s)
+  ✓  305 tests/ui/workspace.spec.ts:506:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.8s)
+  ✓  306 tests/ui/workspace.spec.ts:513:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (4.5s)
+  ✓  307 tests/ui/workspace.spec.ts:522:1 › групповая бронь: разные категории сохраняются при конфликте (2.0s)
+  ✓  308 tests/ui/workspace.spec.ts:546:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (3.7s)
+  ✓  309 tests/ui/workspace.spec.ts:573:1 › обзор: задачи ведут к счетам, период не меняет полосу стойки, узкие экраны сохраняют действия (3.3s)
+  ✓  310 tests/ui/workspace.spec.ts:614:1 › ошибка буфера обмена видна, код остаётся доступен (1.4s)
+  ✓  311 tests/ui/workspace.spec.ts:631:1 › финансы: неверные даты можно исправить без падения страницы (1.7s)
+  ✓  312 tests/ui/workspace.spec.ts:642:1 › ошибка загрузки тарифов не позволяет включить виджет (1.0s)
+  ✓  313 tests/ui/workspace.spec.ts:651:1 › номера: статус уборки, блокировка и снятие сохраняются (3.4s)
+  ✓  314 tests/ui/workspace.spec.ts:681:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (3.1s)
+  ✓  315 tests/ui/workspace.spec.ts:708:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.4s)
+  ✓  316 tests/ui/workspace.spec.ts:717:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.2s)
+  ✓  317 tests/ui/workspace.spec.ts:735:1 › неисправности: когда история обрезана, это написано (2.5s)
+  ✓  318 tests/ui/workspace.spec.ts:743:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.7s)
+  ✓  319 tests/ui/workspace.spec.ts:755:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (3.0s)
+  ✓  320 tests/ui/workspace.spec.ts:780:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (4.9s)
+  ✓  321 tests/ui/workspace.spec.ts:807:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (3.9s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-21&to=2026-09-27: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:76:38)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/units: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async RoomsDirectory (src/app/rooms/[[...section]]/page.tsx:355:26)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  322 tests/ui/workspace.spec.ts:839:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (8.0s)
+  ✓  323 tests/ui/workspace.spec.ts:895:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.9s)
+  ✓  324 tests/ui/workspace.spec.ts:924:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (2.1s)
+  ✓  325 tests/ui/workspace.spec.ts:948:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.9s)
+  ✓  326 tests/ui/workspace.spec.ts:967:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.5s)
+  ✓  327 tests/ui/workspace.spec.ts:979:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.8s)
+  ✓  328 tests/ui/workspace.spec.ts:986:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (2.9s)
+  ✓  329 tests/ui/workspace.spec.ts:1010:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.7s)
+  ✓  330 tests/ui/workspace.spec.ts:1032:1 › номера: сбой шахматки назван сбоем, а не пустотой (2.9s)
+  ✓  331 tests/ui/workspace.spec.ts:1056:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.2s)
+  ✓  332 tests/ui/workspace.spec.ts:1074:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.7s)
+  ✓  333 tests/ui/workspace.spec.ts:1093:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (3.1s)
+  ✓  334 tests/ui/workspace.spec.ts:1108:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (1.0s)
+  ✓  335 tests/ui/workspace.spec.ts:1121:1 › счета: приём оплаты подтверждается суммой на экране (2.5s)
+  ✓  336 tests/ui/workspace.spec.ts:1138:1 › деньги за период: период длиннее года объясняется на странице (1.2s)
+  ✓  337 tests/ui/workspace.spec.ts:1157:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (2.1s)
+  ✓  338 tests/ui/workspace.spec.ts:1174:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (2.1s)
+  ✓  339 tests/ui/workspace.spec.ts:1199:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.5s)
+  ✓  340 tests/ui/workspace.spec.ts:1218:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.6s)
+  ✓  341 tests/ui/workspace.spec.ts:1233:1 › каналы: входящая бронь ведёт на карточку брони (2.7s)
+  ✓  342 tests/ui/workspace.spec.ts:1246:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (2.2s)
+  ✓  343 tests/ui/workspace.spec.ts:1265:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.2s)
+  ✓  344 tests/ui/workspace.spec.ts:1283:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.8s)
+  ✓  345 tests/ui/workspace.spec.ts:1321:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.8s)
+  ✓  346 tests/ui/workspace.spec.ts:1383:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (4.0s)
+  ✓  347 tests/ui/workspace.spec.ts:1449:1 › деньги D2: период словами, три блока с пояснениями, отказ не выглядит нулями (2.8s)
+  ✓  348 tests/ui/workspace.spec.ts:1490:1 › номера D4: пустота фильтров словами со сбросом, телефон без прокрутки вбок, скелетон (6.4s)
+  ✓  349 tests/ui/workspace.spec.ts:1533:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (2.2s)
+
+  Slow test file: tests/ui/accessibility.spec.ts (5.1m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  349 passed (29.8m)
+
+# код выхода 0 · 29 мин 51 с

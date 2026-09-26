@@ -12,6 +12,8 @@ import {
   REGISTRATION_PERSON_NAME_MESSAGE,
   REGISTRATION_TAKEN_MESSAGE,
   VERIFY_PENDING_MESSAGE,
+  LOCK_MINUTES,
+  MAX_FAILED_ATTEMPTS,
   checkPassword,
   evaluateLogin,
   hashPassword,
@@ -26,6 +28,7 @@ import {
   sessionExpiry,
   sessionState,
   verifyPassword,
+  type MembershipRole,
   type UserStatus,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
@@ -37,8 +40,15 @@ export interface SignedInUser {
   email: string;
   /** Имя в модели необязательно (§13.2) — тогда человека зовём по почте */
   name: string | null;
-  /** Организация, под которой открыта сессия (§13.5). Ролей нет: ADR-023 в силе */
+  /** Организация, под которой открыта сессия (§13.5) */
   organizationId: string;
+  /**
+   * Роль в этой организации (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет — там ADR-023 в силе; владельцу —
+   * сотрудники, приглашения и настройки ИИ-продавца.
+   */
+  role: MembershipRole;
+  /** Главный администратор платформы (§16.2): раздел «Платформа». Данных чужих гостиниц это не открывает */
+  platformAdmin: boolean;
 }
 
 /** Организация сессии — то, что показывает экран входа: имя, состояние и пробный период (ADR-046, §13.1). */
@@ -86,14 +96,23 @@ export function registrationOpen(env: Record<string, string | undefined> = proce
 /** Чтобы неизвестная почта отвечала не быстрее неверного пароля, проверка идёт и в пустую. */
 const DECOY_HASH = hashPassword('пароля-нет-такого-пользователя');
 
+/** Роль и отметка главного администратора — к сессии, а не к человеку: роль у каждой организации своя */
+interface Access {
+  role: MembershipRole;
+  platformAdmin: boolean;
+}
+
 const visible = (
   user: { id: string; email: string; name: string | null },
   organizationId: string,
+  access: Access,
 ): SignedInUser => ({
   id: user.id,
   email: user.email,
   name: user.name,
   organizationId,
+  role: access.role,
+  platformAdmin: access.platformAdmin,
 });
 
 /**
@@ -162,10 +181,19 @@ export class AuthService {
 
     if (decision.outcome !== 'ok') {
       if (decision.outcome === 'wrong') {
-        await this.prisma.db.user.update({
+        // С-5 (ТЗ аудита 25.09.2026): счётчик растёт атомарно в базе — параллельные промахи не читают
+        // одно значение и не съедают локаут; запрет ставится по значению, которое вернула сама база
+        const { failedAttempts } = await this.prisma.db.user.update({
           where: { id: user.id },
-          data: { failedAttempts: decision.failedAttempts, lockedUntil: decision.lockedUntil },
+          data: { failedAttempts: { increment: 1 } },
+          select: { failedAttempts: true },
         });
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+          await this.prisma.db.user.update({
+            where: { id: user.id },
+            data: { lockedUntil: new Date(now.getTime() + LOCK_MINUTES * 60_000) },
+          });
+        }
       }
       throw new UnauthorizedException(WRONG);
     }
@@ -196,7 +224,11 @@ export class AuthService {
     });
     await this.record(user.id, 'user.login', { via: 'password' });
 
-    return { token, expiresAt: expiresAt.toISOString(), user: visible(user, organizationId) };
+    return {
+      token,
+      expiresAt: expiresAt.toISOString(),
+      user: visible(user, organizationId, await this.access(user.id, organizationId)),
+    };
   }
 
   /**
@@ -258,7 +290,10 @@ export class AuthService {
           data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now },
           select: { id: true },
         });
-        await tx.membership.create({ data: { userId: user.id, organizationId: org.id } });
+        // зарегистрировавший — владелец своей организации (DATA_MODEL §16.1, ADR-083)
+        await tx.membership.create({
+          data: { userId: user.id, organizationId: org.id, role: 'OWNER' },
+        });
         return { userId: user.id, organizationId: org.id };
       });
     } catch (e) {
@@ -305,7 +340,7 @@ export class AuthService {
     return {
       token,
       expiresAt: expiresAt.toISOString(),
-      user: visible(user, input.organizationId),
+      user: visible(user, input.organizationId, await this.access(user.id, input.organizationId)),
     };
   }
 
@@ -331,7 +366,11 @@ export class AuthService {
     const expiresAt = found.session.expiresAt;
     const org = found.session.organization;
     return {
-      user: visible(found.user, found.session.organizationId),
+      user: visible(
+        found.user,
+        found.session.organizationId,
+        await this.access(found.user.id, found.session.organizationId),
+      ),
       organization: org
         ? {
             name: org.name,
@@ -399,6 +438,25 @@ export class AuthService {
     if (sessionState(found.row, now) !== 'active') return null;
     if (found.row.user.status !== 'ACTIVE') return null;
     return { session: found.row, user: found.row.user };
+  }
+
+  /**
+   * Роль человека в организации сессии и отметка главного администратора (DATA_MODEL §16). Два маленьких запроса по
+   * ключу: читаются при каждом запросе, и отозванная отметка или сменённая роль действуют сразу, без нового входа.
+   */
+  private async access(userId: string, organizationId: string): Promise<Access> {
+    const [membership, admin] = await Promise.all([
+      this.prisma.db.membership.findUnique({
+        where: { userId_organizationId: { userId, organizationId } },
+        select: { role: true },
+      }),
+      this.prisma.db.platformAdmin.findUnique({ where: { userId }, select: { revokedAt: true } }),
+    ]);
+    return {
+      // без членства сессии не бывает (§13.5); если его сняли — прав владельца точно нет
+      role: membership?.role ?? 'STAFF',
+      platformAdmin: admin !== null && admin.revokedAt === null,
+    };
   }
 
   /** Журнал: кто и что сделал. Пароли и токены здесь не появляются никогда. */

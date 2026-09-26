@@ -1116,7 +1116,7 @@ export class ReservationsService {
     const policy = item.cancellationPenalty;
     if (policy === 'NONE' || item.priceMinor <= 0n)
       return { policy, dueNow: false, amountMinor: 0n };
-    const dueNow = penaltyDue({ arrivalDate: item.arrivalDate, on: this.today(), reason });
+    const dueNow = penaltyDue({ arrivalDate: item.arrivalDate, on: await repo.today(), reason });
     if (!dueNow) return { policy, dueNow, amountMinor: 0n };
     const nights = Math.round(
       (Date.parse(`${item.departureDate}T00:00:00Z`) -
@@ -1339,11 +1339,6 @@ export class ReservationsService {
     });
   }
 
-  /** Сегодня по часам объекта (Asia/Almaty, UTC+5). */
-  private today(): string {
-    return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
-  }
-
   /** Заселить гостя в назначенную ячейку. */
   async checkIn(number: string, itemId: string): Promise<ReservationCard> {
     const card = await this.uow.run((repo) =>
@@ -1404,7 +1399,7 @@ export class ReservationsService {
           throw new ConflictException(
             `На счёте долг ${formatMinorRu(debtMinor)}. Примите оплату или подтвердите выселение с долгом`,
           );
-        const today = this.today();
+        const today = await repo.today();
         const early = today < item.departureDate && today > item.arrivalDate;
         if (early) {
           for (const a of item.allocations) {

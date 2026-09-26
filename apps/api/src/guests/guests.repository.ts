@@ -34,8 +34,9 @@ export interface GuestProfile {
     type: string;
     numberEncrypted: string;
     issueCountry: string | null;
-    issuedAt: string | null;
-    expiresAt: string | null;
+    /// v1.7 (ADR-082): даты — шифртекстом, как номер; расшифровывает guests.service
+    issuedAtEncrypted: string | null;
+    expiresAtEncrypted: string | null;
   }>;
   stays: Array<{
     confirmationNumber: string;
@@ -67,8 +68,8 @@ export interface GuestsRepository {
       type: string;
       numberEncrypted: string;
       issueCountry: string | null;
-      issuedAt: string | null;
-      expiresAt: string | null;
+      issuedAtEncrypted: string | null;
+      expiresAtEncrypted: string | null;
     },
   ): Promise<string>;
   /** Удалённый документ (его тип — для журнала) или null, если такого нет */
@@ -179,8 +180,8 @@ export class PrismaGuestsRepository implements GuestsRepository {
         type: d.type,
         numberEncrypted: d.numberEncrypted,
         issueCountry: d.issueCountry,
-        issuedAt: iso(d.issuedAt),
-        expiresAt: iso(d.expiresAt),
+        issuedAtEncrypted: d.issuedAtEncrypted,
+        expiresAtEncrypted: d.expiresAtEncrypted,
       })),
       stays: g.stays
         .map((s) => ({
@@ -218,8 +219,8 @@ export class PrismaGuestsRepository implements GuestsRepository {
       type: string;
       numberEncrypted: string;
       issueCountry: string | null;
-      issuedAt: string | null;
-      expiresAt: string | null;
+      issuedAtEncrypted: string | null;
+      expiresAtEncrypted: string | null;
     },
   ): Promise<string> {
     const row = await this.prisma.db.guestDocument.create({
@@ -228,8 +229,9 @@ export class PrismaGuestsRepository implements GuestsRepository {
         type: d.type,
         numberEncrypted: d.numberEncrypted,
         issueCountry: d.issueCountry,
-        issuedAt: d.issuedAt ? asDate(d.issuedAt) : null,
-        expiresAt: d.expiresAt ? asDate(d.expiresAt) : null,
+        // v1.7 (ADR-082): в базе только шифртекст — дат открытым текстом в строке нет
+        issuedAtEncrypted: d.issuedAtEncrypted,
+        expiresAtEncrypted: d.expiresAtEncrypted,
       },
       select: { id: true },
     });

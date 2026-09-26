@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 25.09.2026 15:00 Алматы · vm
+# коммит 81632d7 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 18
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T10-00-13Z-integration-89b5.json' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/platform-extensions.test.ts (3 tests | 1 failed) 402ms
+   ❯ расширения организаций (integration, DATABASE_URL required) (3)
+     ✓ изменение и журнал — одной транзакцией: было, стало, кто 73ms
+     × отказ базы — ни изменения, ни записи в журнале 38ms
+     ✓ список организаций: люди, почты владельцев и расширение — без броней и гостей 26ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/platform-extensions.test.ts > расширения организаций (integration, DATABASE_URL required) > отказ базы — ни изменения, ни записи в журнале
+AssertionError: expected [ { …(3) }, { …(3) }, { …(3) } ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ tests/integration/platform-extensions.test.ts:113:29
+    111|     ).rejects.toThrow();
+    112|     expect(await repo.aiSeller(orgA)).toMatchObject({ status: 'ACTIVE'…
+    113|     expect(await journal()).toHaveLength(2);
+       |                             ^
+    114|   });
+    115|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  10:00:14
+   Duration  2.62s (tests 39%, import 31%, transform 30%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-25T10-00-13Z-integration-89b5.json
+
+# код выхода 1 · 4 с

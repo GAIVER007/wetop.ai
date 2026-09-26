@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 25.09.2026 17:15 Алматы · vm
+# коммит 6d215d5 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/platform-support.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (4.1s)
+  ✓  2 tests/ui/platform-support.spec.ts:57:1 › главный администратор: сводка, отбор, карточка — кто пишет; перехват, ответ, возврат (10.4s)
+  ✓  3 tests/ui/platform-support.spec.ts:117:1 › знания помощника: список и загрузка документа (5.6s)
+  ✓  4 tests/ui/platform-support.spec.ts:137:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (10.3s)
+  ✓  5 tests/ui/platform-support.spec.ts:181:1 › помощник не подключён — раздел говорит, что вписать владельцу (3.1s)
+  ✓  6 tests/ui/platform-support.spec.ts:191:5 › доступность «Техподдержки»: light, 1440px (14.2s)
+  ✓  7 tests/ui/platform-support.spec.ts:191:5 › доступность «Техподдержки»: dark, 1440px (13.7s)
+  ✓  8 tests/ui/platform-support.spec.ts:191:5 › доступность «Техподдержки»: light, 390px (13.2s)
+  ✓  9 tests/ui/platform-support.spec.ts:191:5 › доступность «Техподдержки»: dark, 390px (12.9s)
+
+  9 passed (1.6m)
+
+# код выхода 0 · 1 мин 36 с

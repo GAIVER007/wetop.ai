@@ -1,0 +1,100 @@
+# Модульные (unit) · 25.09.2026 14:37 Алматы · vm
+# коммит 7fe897b (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T09-37-11Z-unit-649e.json' 'apps/api/src/auth/request-context.test.ts' 'apps/api/src/auth/author.interceptor.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/request-context.test.ts (11 tests | 3 failed) 32ms
+   ✓ withSignedInUser и currentUserId (3)
+     ✓ внутри запроса виден вошедший, снаружи — никто 7ms
+     ✓ служебный ходок (сторож, скрипты) автора не подставляет 1ms
+     ✓ параллельные запросы не путают авторов 7ms
+   ✓ attachAuthor — подстановка автора в запись журнала (5)
+     ✓ ставит вошедшего, если автор не указан 1ms
+     ✓ не перебивает автора, указанного явно 0ms
+     ✓ без вошедшего оставляет запись как была: это действие сторожа или импорта 1ms
+     ✓ пачку записей подписывает целиком 0ms
+     ✓ чужую форму аргументов не ломает 4ms
+   ❯ роль и главный администратор в запросе (DATA_MODEL §16, ADR-083) (3)
+     × владелец и сотрудник организации различаются; служебный ходок считается владельцем — он и есть владелец 6ms
+     × вошедший без известной роли — не владелец: права не выдаются по умолчанию 1ms
+     × главный администратор — только вошедший с отметкой; служебный ходок им не считается 1ms
+ ❯ |unit| apps/api/src/auth/author.interceptor.test.ts (6 tests | 1 failed) 14ms
+   ✓ AuthorInterceptor — автор виден всему, что делает обработчик (5)
+     ✓ внутри обработчика виден вошедший 4ms
+     ✓ без вошедшего автора нет: так ходят сторож, импорт и скрипты 1ms
+     ✓ внутри обработчика видна организация вошедшего: по ней открывается его объект (ADR-061) 0ms
+     ✓ у служебного ходока организации нет — и объект ему не ограничивают 1ms
+     ✓ пустой ответ обработчика не роняет запрос 1ms
+   ❯ AuthorInterceptor — роль и отметка главного администратора (ADR-083) (1)
+     × внутри обработчика видны роль вошедшего и его отметка 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/author.interceptor.test.ts > AuthorInterceptor — роль и отметка главного администратора (ADR-083) > внутри обработчика видны роль вошедшего и его отметка
+TypeError: currentRole is not a function
+ ❯ Object.handle apps/api/src/auth/author.interceptor.test.ts:82:24
+     80|     const next = {
+     81|       handle: () => {
+     82|         seen = { role: currentRole(), admin: actorIsPlatformAdmin() };
+       |                        ^
+     83|         return of('ответ');
+     84|       },
+ ❯ apps/api/src/auth/author.interceptor.ts:26:26
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:30:18
+ ❯ AuthorInterceptor.intercept apps/api/src/auth/author.interceptor.ts:25:25
+ ❯ apps/api/src/auth/author.interceptor.test.ts:86:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/auth/request-context.test.ts > роль и главный администратор в запросе (DATA_MODEL §16, ADR-083) > владелец и сотрудник организации различаются; служебный ходок считается владельцем — он и есть владелец
+TypeError: currentRole is not a function
+ ❯ apps/api/src/auth/request-context.test.ts:74:14
+     72|   it('владелец и сотрудник организации различаются; служебный ходок сч…
+     73|     await withSignedInUser({ userId: 'u-1', organizationId: 'org-1', r…
+     74|       expect(currentRole()).toBe('OWNER');
+       |              ^
+     75|       expect(actorIsOwner()).toBe(true);
+     76|     });
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:30:18
+ ❯ apps/api/src/auth/request-context.test.ts:73:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/api/src/auth/request-context.test.ts > роль и главный администратор в запросе (DATA_MODEL §16, ADR-083) > вошедший без известной роли — не владелец: права не выдаются по умолчанию
+TypeError: actorIsOwner is not a function
+ ❯ apps/api/src/auth/request-context.test.ts:89:14
+     87|   it('вошедший без известной роли — не владелец: права не выдаются по …
+     88|     await withSignedInUser({ userId: 'u-3', organizationId: 'org-1' },…
+     89|       expect(actorIsOwner()).toBe(false);
+       |              ^
+     90|     });
+     91|   });
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:30:18
+ ❯ apps/api/src/auth/request-context.test.ts:88:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/api/src/auth/request-context.test.ts > роль и главный администратор в запросе (DATA_MODEL §16, ADR-083) > главный администратор — только вошедший с отметкой; служебный ходок им не считается
+TypeError: actorIsPlatformAdmin is not a function
+ ❯ apps/api/src/auth/request-context.test.ts:96:26
+     94|     await withSignedInUser(
+     95|       { userId: 'u-1', organizationId: 'org-1', role: 'OWNER', platfor…
+     96|       async () => expect(actorIsPlatformAdmin()).toBe(true),
+       |                          ^
+     97|     );
+     98|     await withSignedInUser({ userId: 'u-2', organizationId: 'org-1', r…
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:30:18
+ ❯ apps/api/src/auth/request-context.test.ts:94:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 13 passed (17)
+   Start at  09:37:12
+   Duration  470ms (import 52%, transform 35%, tests 11%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-25T09-37-11Z-unit-649e.json
+
+# код выхода 1 · 2 с

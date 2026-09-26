@@ -1,6 +1,20 @@
 import 'reflect-metadata';
-import { BadRequestException, Body, Controller, Get, Headers, Inject, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Ip,
+  Post,
+} from '@nestjs/common';
 import { deviceFromUserAgent } from '@pms/domain';
+import { ExtensionsService } from '../platform/extensions.service';
+import { RateWindows } from '../rate-window';
+import { visitorIp } from '../web-booking/client-ip';
 import { AuthService } from './auth.service';
 import { PasswordResetService } from './password-reset.service';
 import { EmailVerificationService } from './email-verification.service';
@@ -15,6 +29,19 @@ const text = (value: unknown, field: string, max = 200): string => {
 };
 
 /**
+ * Попыток в час с одного адреса (С-5, ТЗ аудита 25.09.2026). Локаут учётки (5 промахов) остаётся первой
+ * защитой; лимит по адресу сдерживает перебор МНОГИХ учёток и рассылку писем с одной точки. Вход щедрее
+ * остальных: за офисным адресом гостиницы вся смена.
+ */
+export const AUTH_IP_LIMITS = {
+  loginPerHour: 30,
+  registerPerHour: 10,
+  resetPerHour: 10,
+  resendPerHour: 10,
+} as const;
+const HOUR_MS = 3_600_000;
+
+/**
  * Вход в стойку (DATA_MODEL §13 шаг 1, ADR-046). Cookie ставит стойка: браузер ходит к Next, а Next — к API,
  * который слушает 127.0.0.1. Поэтому здесь токен только выдаётся и проверяется, а хранит его стойка.
  */
@@ -24,7 +51,22 @@ export class AuthController {
     @Inject(AuthService) private readonly auth: AuthService,
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
     @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
+    @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
   ) {}
+
+  /** Окна лимитов по адресу; адрес нигде не сохраняется — только ключ окна в памяти */
+  private readonly windows = new RateWindows(HOUR_MS, 10_000);
+
+  private ipLimit(kind: string, limit: number, socketIp?: string, cfConnectingIp?: string): void {
+    const ip = visitorIp(socketIp, cfConnectingIp);
+    if (!ip) return; // свои службы с туннеля без заголовка, юнит-тесты и вызовы без сокета
+    if (!this.windows.allow(`${kind}:${ip}`, limit, new Date())) {
+      throw new HttpException(
+        'слишком много попыток с одного адреса, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+  }
 
   @Public()
   @Get('options')
@@ -35,7 +77,14 @@ export class AuthController {
   /** Без входа по построению: этим маршрутом и входят. */
   @Public()
   @Post('login')
-  login(@Body() body: Record<string, unknown>, @Headers('user-agent') userAgent?: string) {
+  // async: отказ лимита должен прийти отказом промиса, как и отказ сервиса
+  async login(
+    @Body() body: Record<string, unknown>,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('login', AUTH_IP_LIMITS.loginPerHour, socketIp, cfConnectingIp);
     return this.auth.login({
       email: text(body?.email, 'email'),
       password: text(body?.password, 'password', 200),
@@ -50,7 +99,12 @@ export class AuthController {
    */
   @Public()
   @Post('register')
-  register(@Body() body: Record<string, unknown>) {
+  async register(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('register', AUTH_IP_LIMITS.registerPerHour, socketIp, cfConnectingIp);
     this.auth.assertRegistrationOpen();
     return this.auth.register({
       email: text(body?.email, 'email'),
@@ -81,7 +135,12 @@ export class AuthController {
   /** «Выслать письмо заново». Ответ всегда одинаковый: по нему не узнать, есть ли такая почта. */
   @Public()
   @Post('email/resend')
-  async resendEmail(@Body() body: Record<string, unknown>) {
+  async resendEmail(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('resend', AUTH_IP_LIMITS.resendPerHour, socketIp, cfConnectingIp);
     await this.verification.resend(text(body?.email, 'email'));
     return { ok: true };
   }
@@ -90,7 +149,12 @@ export class AuthController {
   async me(@Headers() headers: Record<string, string>) {
     const token = tokenFromHeaders(headers);
     const signedIn = token ? await this.auth.whoami(token) : null;
-    return signedIn ?? { user: null };
+    if (!signedIn) return { user: null };
+    // что открыто организации: пункт меню «ИИ-продавец» и напоминание о сроке расширения (ADR-083, Q-183)
+    return {
+      ...signedIn,
+      access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
+    };
   }
 
   @Public()
@@ -107,7 +171,12 @@ export class AuthController {
    */
   @Public()
   @Post('password-reset/request')
-  async requestReset(@Body() body: Record<string, unknown>) {
+  async requestReset(
+    @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
+  ) {
+    this.ipLimit('reset', AUTH_IP_LIMITS.resetPerHour, socketIp, cfConnectingIp);
     await this.reset.request(text(body?.email, 'email'));
     return { ok: true };
   }

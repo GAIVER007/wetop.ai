@@ -3,8 +3,10 @@ import { ThemeProvider, themeScript } from '../components/theme-provider';
 import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
 import { AccountMenu } from '../components/shell/account-menu';
+import { AssistantWidget } from '../components/shell/assistant-widget';
 import { OnboardingGate } from './onboarding-gate';
 import { hotelApi } from '../lib/hotel-api';
+import { deskShell } from '../lib/desk-shell';
 import { ApiError } from '../lib/api';
 import './globals.css';
 import './workspace.css';
@@ -42,6 +44,8 @@ export default function RootLayout({
   children: ReactNode;
   drawer: ReactNode;
 }) {
+  // Кто вошёл и что ему открыто (ADR-083): меню получает обещание и не задерживает страницу
+  const desk = deskShell();
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
@@ -60,6 +64,7 @@ export default function RootLayout({
                 </Suspense>
               }
               demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+              desk={desk}
               property={{
                 name: (
                   <Suspense fallback="Объект не загружен">
@@ -78,6 +83,10 @@ export default function RootLayout({
             {drawer}
           </ToastProvider>
         </ThemeProvider>
+        {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}
+        <Suspense fallback={null}>
+          <AssistantWidget />
+        </Suspense>
       </body>
     </html>
   );

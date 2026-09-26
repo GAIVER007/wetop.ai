@@ -1,5 +1,6 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import type { Db } from '@pms/database';
+import { todayAt } from '@pms/domain';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 
 /**
@@ -19,6 +20,8 @@ interface PropertyRef {
   name: string;
   /** Чья это гостиница (ADR-061). `null` — ничья: видна только служебным ходокам. */
   organizationId: string | null;
+  /** IANA-пояс объекта: «сегодня» и границы суток считаются по нему (С-13, ТЗ аудита 25.09.2026) */
+  timezone: string;
 }
 
 /**
@@ -65,7 +68,7 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
   // не приходится учить второму методу. Отсутствие объекта — это «база ещё не настроена».
   const found = await db.property.findFirst({
     where: { name },
-    select: { id: true, name: true, organizationId: true },
+    select: { id: true, name: true, organizationId: true, timezone: true },
   });
   if (!found) throw new Error(`Объект «${name}» не найден: база ещё не настроена`);
   cache.set(key, found);
@@ -85,7 +88,7 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   if (known) return known;
   const found = await db.property.findFirst({
     where: { organizationId },
-    select: { id: true, name: true, organizationId: true },
+    select: { id: true, name: true, organizationId: true, timezone: true },
   });
   if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
   cache.set(key, found);
@@ -94,6 +97,11 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
 
 export async function propertyIdRef(db: Db, name: string): Promise<string> {
   return (await propertyRef(db, name)).id;
+}
+
+/** «Сегодня» по часам объекта — из того же кэша, что id (С-13): без лишнего рейса в базу. */
+export async function propertyToday(db: Db, name: string): Promise<string> {
+  return todayAt((await propertyRef(db, name)).timezone);
 }
 
 /** Забыть запомненное: тесты и случай, когда объект пересоздали. */

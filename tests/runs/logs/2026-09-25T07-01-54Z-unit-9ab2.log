@@ -1,0 +1,107 @@
+# Модульные (unit) · 25.09.2026 12:01 Алматы · vm
+# коммит 6cd565f (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-25T07-01-54Z-unit-9ab2.json' 'tests/unit/deploy-server.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/deploy-server.test.ts (33 tests | 2 failed) 46ms
+   ✓ deploy/Dockerfile (6)
+     ✓ копирует манифест каждого рабочего пакета — иначе npm ci в образе не сойдётся 5ms
+     ✓ копирует схему базы и prisma.config.ts до npm ci: клиент Prisma генерируется на postinstall 1ms
+     ✓ ставит и devDependencies: API и скрипты идут через tsx, стойка собирается next-ом 0ms
+     ✓ собирает стойку: next start без сборки не поднимется 0ms
+     ✓ ставит пояс объекта 0ms
+     ✓ не запускается от root и держит PID 1 за tini 1ms
+   ❯ deploy/compose.yml (21)
+     ✓ поднимает три службы: API, стойка, туннель 1ms
+     ✓ службы синхронизации с Exely нет: Exely перестал быть источником (ADR-052, 19.09.2026) 1ms
+     ✓ API и стойка идут из одного образа — иначе сборка стойки и клиент базы разъезжаются 1ms
+     ✓ туннель ровно один и никогда не масштабируется 2ms
+     ✓ живость меряется маршрутами, которые отвечают и с включённым замком 1ms
+     ✓ API в контейнере слушает 0.0.0.0 — иначе до него не достучится никто, даже стойка 0ms
+     ✓ API запускается из своей папки: из корня tsx берёт tsconfig без декораторов и Nest падает 0ms
+     ✓ у API пул соединений задан явно: умолчание переполняет пулер и роняет соседнюю копию 0ms
+     ✓ стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1 0ms
+     ✓ стойка ходит в API по имени службы, а не в собственный контейнер 0ms
+     ✓ проверки синхронизации из Exely у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073) 0ms
+     ✓ выключателя GUARD_LOCAL_FILES в compose больше нет: возраст файлов сторож судит сам 0ms
+     × API и туннель в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, стойки в ней нет 14ms
+     ✓ сторож проверяет стойку по имени службы, а не собственный контейнер 0ms
+     ✓ порты наружу не публикуются: 0.0.0.0 виден только внутри сети compose 0ms
+     ✓ выключатель ARI подхватывается файлом и не обязателен 0ms
+     ✓ секреты приходят снаружи, а не из файла compose, и .env лежит в корне репозитория 0ms
+     ✓ боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15) 0ms
+     ✓ команды служб зовут то, что есть в репозитории 0ms
+     ✓ ключ туннеля монтируется только на чтение 0ms
+     ✓ сторож видит статус ночной копии, но не сами копии: смонтирована только папка статуса и только на чтение 2ms
+   ❯ контекст сборки (6)
+     ✓ runtime multer не содержит известные multipart DoS из версий до 2.3.0 4ms
+     ✓ Docker читает исключения из корня context, а не произвольного файла рядом с Dockerfile 0ms
+     ✓ секреты в образ не попадают 0ms
+     ✓ папка с ключом туннеля не едет в git 0ms
+     ✓ образец конфига туннеля ходит в службы по именам, а не на 127.0.0.1 0ms
+     × помощник наружу — только чат и живость (ADR-081): панель бота и /internal/* туннель не пропускает 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/compose.yml > API и туннель в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, стойки в ней нет
+AssertionError: cloudflared: expected '  cloudflared:\n    image: cloudflare…' to match /networks: \[default, wetop-internal\]/
+
+- Expected:
+/networks: \[default, wetop-internal\]/
+
++ Received:
+"  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: ['tunnel', '--no-autoupdate', '--config', '/etc/cloudflared/wetop.yml', 'run']
+    volumes: ['./cloudflared:/etc/cloudflared:ro']
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+
+"
+
+ ❯ tests/unit/deploy-server.test.ts:197:46
+    195|     expect(block).not.toMatch(/external:/);
+    196|     for (const s of ['api', 'cloudflared'])
+    197|       expect(withoutComments(service(s)), s).toMatch(/networks: \[defa…
+       |                                              ^
+    198|     expect(withoutComments(service('web'))).not.toContain('wetop-inter…
+    199|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > контекст сборки > помощник наружу — только чат и живость (ADR-081): панель бота и /internal/* туннель не пропускает
+AssertionError: expected [] to deeply equal [ [ '^/(widget/.*|health)$', …(1) ] ]
+
+- Expected
++ Received
+
+- [
+-   [
+-     "^/(widget/.*|health)$",
+-     "http://assistant:8000",
+-   ],
+- ]
++ []
+
+ ❯ tests/unit/deploy-server.test.ts:294:48
+    292|       ...rules.matchAll(/- hostname: assistant\.wetop\.ai\n\s+path: (\…
+    293|     ];
+    294|     expect(assistant.map((m) => [m[1], m[2]])).toEqual([['^/(widget/.*…
+       |                                                ^
+    295|     // У продавца адреса наружу пока нет: код его чата на сайт объекта…
+    296|     expect(rules).not.toContain('seller.wetop.ai');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 31 passed (33)
+   Start at  07:01:55
+   Duration  381ms (transform 61%, tests 23%, import 13%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-25T07-01-54Z-unit-9ab2.json
+
+# код выхода 1 · 2 с

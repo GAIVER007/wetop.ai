@@ -2,14 +2,29 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { navigationItems } from '../../lib/navigation';
+import {
+  CLOSED_ACCESS,
+  allowedItem,
+  navigationItems,
+  type NavigationAccess,
+} from '../../lib/navigation';
 import { Icon } from '../icon';
 import { Overlay } from '../overlay';
-export function GlobalSearch({ open, close }: { open: boolean; close: () => void }) {
+export function GlobalSearch({
+  open,
+  close,
+  access = CLOSED_ACCESS,
+}: {
+  open: boolean;
+  close: () => void;
+  /** Разделы, закрытые вошедшему (ADR-083), поиск не предлагает */
+  access?: NavigationAccess | undefined;
+}) {
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState('guest');
   const router = useRouter();
   const matches = navigationItems
+    .filter((n) => allowedItem(n, access))
     .filter((n) => n.label.toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')))
     .slice(0, 6);
   return (

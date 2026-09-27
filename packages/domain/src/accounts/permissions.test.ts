@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PERMISSIONS, accessDeniedMessage, can, permissionsOf, rolesWith, type Permission } from './permissions';
 
 /**
- * Права ролей (DATA_MODEL §16.5, ADR-100) — ответы владельца 27.09.2026: роль — готовый набор; управляющий — всё, кроме
+ * Права ролей (DATA_MODEL §16.5, ADR-101) — ответы владельца 27.09.2026: роль — готовый набор; управляющий — всё, кроме
  * владельческого; администратор — работа с гостями плюс статистика и «Оплаты» на просмотр; возврат и сторно — владелец
  * и управляющий.
  */

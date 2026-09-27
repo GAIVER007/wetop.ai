@@ -65,7 +65,7 @@ import { DataConnectionModule } from './database/connection';
   // Замок непубличных маршрутов. В боевом образе включён, пока не выключен явным AUTH_REQUIRED=0 (auth.guard.ts)
   providers: [
     { provide: APP_GUARD, useClass: SessionGuard },
-    // Замок ролей — сразу за ним: право маршрута (@Access) против роли вошедшего (ADR-100, DATA_MODEL §16.5)
+    // Замок ролей — сразу за ним: право маршрута (@Access) против роли вошедшего (ADR-101, DATA_MODEL §16.5)
     { provide: APP_GUARD, useClass: RoleGuard },
     // автор действия в журнале берётся из сессии (request-context.ts)
     { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },

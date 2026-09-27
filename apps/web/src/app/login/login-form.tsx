@@ -38,9 +38,9 @@ export function LoginForm({
   mode?: LoginMode;
   /** Серверное состояние API. До получения настройки форму регистрации не показываем. */
   registrationEnabled?: boolean;
-  /** Ожидающие приглашения своей организации (этап 7) — владельцу и управляющему (ADR-100). */
+  /** Ожидающие приглашения своей организации (этап 7) — владельцу и управляющему (ADR-101). */
   invites?: AuthInvite[];
-  /** Люди своей организации с ролями (ADR-100) — владельцу и управляющему. */
+  /** Люди своей организации с ролями (ADR-101) — владельцу и управляющему. */
   members?: AuthMember[];
   /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
   sessions?: AuthSessionRow[];
@@ -59,7 +59,7 @@ export function LoginForm({
   const [error, setError] = useState('');
   const [registerPending, startTransition] = useTransition();
   const { setTheme } = useTheme();
-  // роль вошедшего: сотрудниками ведают владелец и управляющий (ADR-100); незнакомая — как у администратора
+  // роль вошедшего: сотрудниками ведают владелец и управляющий (ADR-101); незнакомая — как у администратора
   const role = user?.role ? parseMembershipRole(user.role) : null;
 
   const switchTo = (next: LoginMode) => {
@@ -132,7 +132,7 @@ export function LoginForm({
                 <span>Смена закончена?</span>
                 <button type="submit">Выйти</button>
               </form>
-              {/* Сотрудники и приглашения (срез 13, этап 7; роли — ADR-100): владельцу и управляющему */}
+              {/* Сотрудники и приглашения (срез 13, этап 7; роли — ADR-101): владельцу и управляющему */}
               {user.organization && role && canManageStaff(role) ? (
                 <TeamSection role={role} invites={invites} members={members} />
               ) : (

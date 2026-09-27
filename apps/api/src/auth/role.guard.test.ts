@@ -9,7 +9,7 @@ import { RoleGuard, ROUTE_WITHOUT_ACCESS, SERVICE_KEY_ONLY } from './role.guard'
 import { PLATFORM_ADMIN_ONLY } from '../platform/admin';
 
 /**
- * Замок ролей (ADR-100, DATA_MODEL §16.5): у каждого маршрута записано право, роль вошедшего его либо даёт, либо нет.
+ * Замок ролей (ADR-101, DATA_MODEL §16.5): у каждого маршрута записано право, роль вошедшего его либо даёт, либо нет.
  * Без человека за запросом (служебный ключ, замок выключен в разработке) ролей не проверяют — как и раньше.
  */
 @Controller('demo')

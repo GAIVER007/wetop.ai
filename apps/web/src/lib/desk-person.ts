@@ -35,7 +35,7 @@ export function trialLine(org: TrialOrganization | null | undefined, now: Date):
 
 /**
  * `/auth/me` не ответил (сбой, тайм-аут) — это не «никто не вошёл»: вошедшим может быть администратор, и меню с кнопками —
- * как у него (ADR-100). Роль `null` («не прятать») — только когда API ответил, что никто не вошёл. Страницы по адресу
+ * как у него (ADR-101). Роль `null` («не прятать») — только когда API ответил, что никто не вошёл. Страницы по адресу
  * при этом не закрываются (`pageOpen`): роль неизвестна, решает API.
  */
 export const UNKNOWN_SHELL: DeskShell = { access: UNKNOWN_ACCESS, person: null, trial: null };

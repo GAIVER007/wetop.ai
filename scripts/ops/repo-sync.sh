@@ -17,7 +17,10 @@
 #   scripts/ops/repo-sync.sh --fix              = --pull --relink, плюс: npm install / npm ci и клиент Prisma, если
 #                                               зависимости устарели или нативные модули не той платформы; пересборка
 #                                               стойки, если она старше кода; возврат webhook Channex на постоянный
-#                                               адрес; перезапуск api и web через launchctl kickstart
+#                                               адрес; перезапуск api и web через launchctl kickstart; то же, что
+#                                               --archive-nested, и возврат версии main файлам бота из старой папки
+#   scripts/ops/repo-sync.sh --archive-nested   копию репозитория внутри папки (старая папка бота «Чат агент»),
+#                                               если вся её работа уже на GitHub, — целиком в «<папка>-архив» рядом
 #   scripts/ops/repo-sync.sh --dir "<папка>"    проверять не текущую папку, а указанную
 #
 # Код выхода: 0 — всё сходится; 1 — есть что сделать (строки со стрелкой); 2 — папка не связана с репозиторием.
@@ -28,20 +31,21 @@ EXPECT_REMOTE="${EXPECT_REMOTE:-GAIVER007/wetop.ai}"
 BRANCH="${BRANCH:-main}"
 API_URL="${API_URL:-http://127.0.0.1:3001}"
 restart_api=0; restart_web=0
-PULL=0; RELINK=0; FIX=0; FROM=""; DIR=""
+PULL=0; RELINK=0; FIX=0; ARCHIVE=0; FROM=""; DIR=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --pull) PULL=1 ;;
     --relink) RELINK=1 ;;
-    --fix) PULL=1; RELINK=1; FIX=1 ;;
+    --fix) PULL=1; RELINK=1; FIX=1; ARCHIVE=1 ;;
+    --archive-nested) ARCHIVE=1 ;;
     --from) shift; FROM="${1:-}" ;;
     --from=*) FROM="${1#--from=}" ;;
     --dir) shift; DIR="${1:-}" ;;
     --dir=*) DIR="${1#--dir=}" ;;
-    -h|--help) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     # zsh без INTERACTIVE_COMMENTS отдаёт «# комментарий» из строки команды скрипту как аргументы (Mac, 16.09.2026)
     \#*) break ;;
-    *) echo "неизвестно: $1 (есть --pull, --relink, --from <папка>, --fix, --dir <папка>)"; exit 2 ;;
+    *) echo "неизвестно: $1 (есть --pull, --relink, --from <папка>, --fix, --archive-nested, --dir <папка>)"; exit 2 ;;
   esac
   shift
 done
@@ -104,6 +108,39 @@ modified="$(dirty_paths | grep -vE "$GENERATED_RE" | grep -c . || true)"
 untracked="$(git status --porcelain --untracked-files=normal | grep -c '^??' || true)"
 echo "Git: ветка $branch, коммит $head_short; origin/$BRANCH $(git rev-parse --short "origin/$BRANCH")"
 [ "$branch" != "$BRANCH" ] && bad "ветка $branch — стойка работает с $BRANCH (git checkout $BRANCH)"
+# Файлы бота из старой папки поверх apps/ai-seller (27.09.2026). До 24.09 бот жил отдельной папкой на ветке
+# ai-seller («Чат агент/WETOP»); в main он с тех пор ушёл вперёд. Файл, совпавший байт в байт со своей версией на
+# замороженной ветке, — копия оттуда, а не работа: версия main ничего не теряет (старая — в истории ветки), а
+# оставить копию — откатить бота к 24.09 и запереть --pull. Правка, которой на ветке нет, остаётся работой человека.
+BOT_DIR='apps/ai-seller'
+old_bot=""
+bot_dirty="$(git -c core.quotePath=false status --porcelain --untracked-files=no -- "$BOT_DIR" | sed 's/^...//')"
+if [ -n "$bot_dirty" ]; then
+  git fetch --quiet origin ai-seller </dev/null 2>/dev/null || true
+  if git rev-parse --verify -q origin/ai-seller >/dev/null 2>&1; then
+    old_bot="$(printf '%s\n' "$bot_dirty" | while IFS= read -r f; do
+      [ -f "$f" ] || continue
+      was="$(git rev-parse -q --verify "origin/ai-seller:${f#"$BOT_DIR"/}" 2>/dev/null || true)"
+      [ -n "$was" ] && [ "$was" = "$(git hash-object -- "$f")" ] && printf '%s\n' "$f"
+    done)"
+  fi
+fi
+if [ -n "$old_bot" ]; then
+  n_old="$(printf '%s\n' "$old_bot" | grep -c .)"
+  if [ "$FIX" -eq 1 ]; then
+    printf '%s\n' "$old_bot" | while IFS= read -r f; do git checkout -- "$f" 2>/dev/null; done
+    ok "вернул версию $BRANCH файлам бота из старой папки: $n_old (старые — на ветке ai-seller)"
+    old_bot=""
+    modified="$(dirty_paths | grep -vE "$GENERATED_RE" | grep -c . || true)"
+  else
+    bad "в $BOT_DIR файлов из старой папки бота: $n_old — байт в байт как на замороженной ветке ai-seller, в $BRANCH они новее"
+    printf '%s\n' "$old_bot" | head -10 | sed 's/^/      /'
+    need "вернуть им версию $BRANCH (ничего не теряется): scripts/ops/repo-sync.sh --fix"
+  fi
+fi
+# работа человека — правки без сгенерированных сборкой и без копий из старой папки: у тех свой совет выше
+work_paths() { dirty_paths | grep -vE "$GENERATED_RE" | { if [ -n "$old_bot" ]; then grep -vxF -e "$old_bot"; else cat; fi; } || true; }
+modified_work="$(work_paths | grep -c . || true)"
 pulled=0
 if [ "$behind" -gt 0 ] && [ "$ahead" -gt 0 ]; then
   bad "ветки разошлись: отстаёт от origin/$BRANCH на $behind, впереди origin/$BRANCH на $ahead"
@@ -111,8 +148,10 @@ if [ "$behind" -gt 0 ] && [ "$ahead" -gt 0 ]; then
 elif [ "$behind" -gt 0 ]; then
   bad "отстаёт от origin/$BRANCH на $behind — службы работают на старом коде"
   if [ "$PULL" -eq 1 ]; then
-    if [ "$modified" -gt 0 ]; then
+    if [ "$modified_work" -gt 0 ]; then
       need "--pull не трогает дерево с незакоммиченными правками: закоммитить своими файлами или убрать (git stash)"
+    elif [ "$modified" -gt 0 ]; then
+      need "--pull не трогает дерево с файлами из старой папки бота: scripts/ops/repo-sync.sh --fix вернёт их и подтянет"
     elif [ "$branch" != "$BRANCH" ]; then
       need "--pull только на $BRANCH: git checkout $BRANCH, затем снова --pull"
     else
@@ -138,9 +177,9 @@ elif [ "$ahead" -gt 0 ]; then
 else
   ok "совпадает с origin/$BRANCH"
 fi
-if [ "$modified" -gt 0 ]; then
-  bad "незакоммиченных правок: $modified"
-  dirty_paths | grep -vE "$GENERATED_RE" | head -10 | sed 's/^/      /'
+if [ "$modified_work" -gt 0 ]; then
+  bad "незакоммиченных правок: $modified_work"
+  work_paths | head -10 | sed 's/^/      /'
   [ "$pulled" -eq 1 ] || [ "$behind" -eq 0 ] && need "закоммитить своими файлами (явным списком, не git add -A) или убрать (git stash)"
 fi
 if [ -n "$generated_dirty" ]; then
@@ -160,6 +199,92 @@ for d in "$parent"/*/; do
       need "оставить одну папку: службы launchd, .env, тесты и синхронизация Exely живут в одной (AGENTS.md §17)" ;;
   esac
 done
+
+# Копии внутри папки (27.09.2026): владелец перенёс внутрь рабочей старую папку бота («Чат агент/WETOP» — второй
+# клон этого репозитория на ветке ai-seller). С 24.09 бот живёт в apps/ai-seller ветки main; копия внутри — дубль:
+# git видит её вложенным репозиторием, eslint и prettier ходят по её файлам, а работа, которой нет на GitHub, не видна
+# ни одной сессии. Переносится (--archive-nested, --fix) только папка, вся работа которой уже на GitHub, — целиком,
+# с .env и данными, в «<папка>-архив» рядом; ничего не удаляется. Ищется клон (.git — папка): рабочие копии сессий
+# (.claude/worktrees) и подмодули держат .git файлом и копиями не считаются.
+ARCHIVE_DIR="$parent/$(basename "$ROOT_P")-архив"
+# верхняя папка внутри рабочей, в которой нет ни одного файла из git: её и переносить (с заметками владельца рядом)
+top_of() {
+  local d="$1" up
+  while :; do
+    up="$(dirname "$d")"
+    [ "$up" = "$ROOT_P" ] && break
+    [ -n "$(git ls-files -- "${up#"$ROOT_P"/}" | head -1)" ] && break
+    d="$up"
+  done
+  printf '%s' "$d"
+}
+# «коммиты правки stash» — чего из клона нет на GitHub
+copy_work() {
+  git -C "$1" fetch --quiet origin </dev/null 2>/dev/null || true
+  printf '%s %s %s' \
+    "$(git -C "$1" rev-list --count --branches --not --remotes 2>/dev/null || echo 0)" \
+    "$(git -C "$1" status --porcelain --untracked-files=normal 2>/dev/null | grep -c . || true)" \
+    "$(git -C "$1" stash list 2>/dev/null | grep -c . || true)"
+}
+# без -mindepth: с ним find не отсекает то, что лежит в корне (.git, node_modules), и обходит их целиком
+nested_git="$(find "$ROOT_P" -maxdepth 6 \
+  \( -path "$ROOT_P/.git" -o -path "$ROOT_P/.claude" -o -path "$ROOT_P/.agent-tmp" -o -name node_modules \
+     -o -name '.next*' -o -name .venv -o -name venv -o -name __pycache__ \) -prune \
+  -o -type d -name .git -print 2>/dev/null)"
+seen_tops="|"
+while IFS= read -r g; do
+  [ -n "$g" ] || continue
+  top="$(top_of "${g%/.git}")"
+  case "$seen_tops" in *"|$top|"*) continue ;; esac
+  seen_tops="$seen_tops$top|"
+  top_rel="${top#"$ROOT_P"/}"
+  movable=1
+  clones="$(find "$top" -maxdepth 5 \( -name node_modules -o -name .venv -o -name venv \) -prune -o -type d -name .git -print 2>/dev/null)"
+  while IFS= read -r cg; do
+    [ -n "$cg" ] || continue
+    c="${cg%/.git}"; c_rel="${c#"$ROOT_P"/}"
+    c_url="$(git -C "$c" remote get-url origin 2>/dev/null || true)"
+    case "$(lower "$c_url")" in
+      *"$expect_lc"*) ;;
+      *)
+        movable=0
+        bad "внутри папки чужой репозиторий: $c_rel (origin: ${c_url:-нет})"
+        need "держать рядом, не внутри: mv \"$c\" \"$parent/\""
+        continue ;;
+    esac
+    c_branch="$(git -C "$c" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+    bad "внутри папки вторая копия репозитория: $c_rel (ветка $c_branch)"
+    [ "$c_branch" = ai-seller ] && info "это старая папка бота: с 24.09 он живёт в $BOT_DIR ветки $BRANCH, со всей историей"
+    work="$(copy_work "$c")"
+    c_commits="${work%% *}"; work="${work#* }"; c_changes="${work%% *}"; c_stash="${work#* }"
+    if [ "$c_commits" -gt 0 ] || [ "$c_changes" -gt 0 ] || [ "$c_stash" -gt 0 ]; then
+      movable=0
+      [ "$c_commits" -gt 0 ] && info "коммитов только здесь, не на GitHub: $c_commits"
+      if [ "$c_changes" -gt 0 ]; then
+        info "незакоммиченных правок: $c_changes"
+        git -C "$c" -c core.quotePath=false status --porcelain --untracked-files=normal 2>/dev/null | head -10 | sed 's/^/      /'
+      fi
+      [ "$c_stash" -gt 0 ] && info "отложено в git stash: $c_stash"
+      need "сначала сохранить на GitHub то, чего там нет: правки — закоммитить в копии своими файлами; коммиты — git -C \"$c\" push origin 'refs/heads/*:refs/heads/rescue/$(date +%Y%m%d)/*'; затем повторить. Пока не отправлено, копия не переносится"
+    fi
+  done <<EOF
+$clones
+EOF
+  [ "$movable" -eq 1 ] || continue
+  if [ "$ARCHIVE" -eq 1 ]; then
+    dest="$ARCHIVE_DIR/$(basename "$top")-$(date +%Y%m%d-%H%M%S)"
+    if mkdir -p "$ARCHIVE_DIR" && mv "$top" "$dest"; then
+      ok "перенёс в архив целиком, с .env и данными: $top_rel → $dest"
+    else
+      need "перенести не удалось: mv \"$top\" \"$ARCHIVE_DIR/\""
+    fi
+  else
+    info "всё из неё уже на GitHub; .env и данные переедут вместе с папкой"
+    need "убрать дубль из рабочей папки: scripts/ops/repo-sync.sh --archive-nested (перенесёт «$top_rel» целиком в $ARCHIVE_DIR, ничего не удалит)"
+  fi
+done <<EOF
+$nested_git
+EOF
 
 # ---------- 4. Службы launchd: в какой папке они держат PMS ----------
 AGENTS="${LAUNCH_AGENTS:-$HOME/Library/LaunchAgents}"

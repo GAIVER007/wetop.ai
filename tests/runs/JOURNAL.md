@@ -2745,3 +2745,6 @@
 | 27.09.2026 01:36 | unit | ✅ 2004 из 2007, пропущено 3 | 1 мин 32 с | df2b47f | [лог](logs/2026-09-26T20-36-50Z-unit-35ba.log) | Linux node:24 container, nothing else running: stage B full unit rerun on df2b47f2 (first pass: 2 load timeouts in restore-rates-guard, green 3/3 alone) |
 | 27.09.2026 01:39 | e2e | ✅ 25 из 25 | 52 с | df2b47f | [лог](logs/2026-09-26T20-39-09Z-e2e-2d77.log) | stage B df2b47f2: live e2e after db:local reset |
 | 27.09.2026 01:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 387 из 387 | 14 мин 24 с | df2b47f | [лог](logs/2026-09-26T20-40-02Z-e2e-54e9.log) | stage B df2b47f2: full UI suite |
+| 27.09.2026 12:42 | unit (частично: tests/unit/repo-sync.test.ts) | ❌ упало 5 из 25 | 16 с | b5c32f4 +1 | [лог](logs/2026-09-27T07-42-06Z-unit-3896.log) | red: папка бота внутри рабочей — проверки ещё нет |
+| 27.09.2026 12:44 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 25 из 25 | 11 с | b5c32f4 +2 | [лог](logs/2026-09-27T07-44-10Z-unit-3cb5.log) | green: копия внутри папки и файлы старой папки бота |
+| 27.09.2026 12:46 | unit (частично: tests/unit/repo-sync.test.ts) | ✅ 25 из 25 | 11 с | b5c32f4 +2 | [лог](logs/2026-09-27T07-46-08Z-unit-7f64.log) | green: у копий из старой папки свой совет, без «закоммитить» |

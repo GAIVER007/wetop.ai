@@ -18,6 +18,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   realpathSync,
   renameSync,
   writeFileSync,
@@ -505,5 +506,123 @@ describe('repo-sync.sh: связь папки с репозиторием', { ti
     const { out } = run(sb, []);
     expect(out).toMatch(/ещё одна копия/);
     expect(out).toContain(realpathSync(sb.oldDir));
+  });
+});
+
+/**
+ * 27.09.2026: владелец перенёс папку бота («Чат агент/WETOP» — второй клон этого же репозитория на ветке
+ * ai-seller) внутрь рабочей папки. С 24.09 бот живёт в apps/ai-seller ветки main; копия внутри — дубль, а файлы
+ * из неё, положенные поверх apps/ai-seller, откатили бы бота к версии 24.09 и заперли бы --pull.
+ */
+describe('repo-sync.sh: папка бота, перенесённая внутрь рабочей', { timeout: 90_000 }, () => {
+  /** origin: ветка ai-seller со старым ботом в корне, в main — apps/ai-seller новее; папка — на вершине main */
+  function botSandbox(): Sandbox {
+    const sb = sandbox();
+    git(sb.seed, 'checkout', '-q', '-b', 'ai-seller');
+    writeFileSync(join(sb.seed, 'bot.py'), 'old\n');
+    writeFileSync(join(sb.seed, '.gitignore'), '.env\ndata/*\n');
+    git(sb.seed, 'add', 'bot.py', '.gitignore');
+    git(sb.seed, 'commit', '-q', '-m', 'bot on its own branch');
+    git(sb.seed, 'push', '-q', 'origin', 'ai-seller');
+    git(sb.seed, 'checkout', '-q', 'main');
+    mkdirSync(join(sb.seed, 'apps', 'ai-seller'), { recursive: true });
+    writeFileSync(join(sb.seed, 'apps/ai-seller/bot.py'), 'new\n');
+    git(sb.seed, 'add', 'apps/ai-seller/bot.py');
+    git(sb.seed, 'commit', '-q', '-m', 'bot moved into main');
+    git(sb.seed, 'push', '-q', 'origin', 'main');
+    git(sb.newDir, 'pull', '-q', 'origin', 'main');
+    return sb;
+  }
+
+  /** старая папка бота целиком внутри рабочей: клон на ai-seller, его .env и заметки владельца рядом */
+  function nestedBotCopy(sb: Sandbox): string {
+    const top = join(sb.newDir, 'Чат агент');
+    mkdirSync(top);
+    git(sb.dir, 'clone', '-q', '-b', 'ai-seller', sb.origin, join(top, 'WETOP'));
+    writeFileSync(join(top, 'WETOP', '.env'), 'SECRET=1\n');
+    writeFileSync(join(top, 'заметки.md'), 'мои заметки\n');
+    return top;
+  }
+
+  it('находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает', () => {
+    const sb = botSandbox();
+    const top = nestedBotCopy(sb);
+    const { code, out } = run(sb, []);
+    expect(out).toMatch(/внутри папки вторая копия репозитория: Чат агент\/WETOP \(ветка ai-seller\)/);
+    expect(out).toMatch(/apps\/ai-seller/);
+    expect(out).toMatch(/всё из неё уже на GitHub/);
+    expect(out).toContain('--archive-nested');
+    expect(out).not.toContain('SECRET=1');
+    expect(existsSync(join(top, 'WETOP', '.env'))).toBe(true);
+    expect(code).toBe(1);
+  });
+
+  it('--archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая', () => {
+    const sb = botSandbox();
+    nestedBotCopy(sb);
+    const { out } = run(sb, ['--archive-nested']);
+    expect(existsSync(join(sb.newDir, 'Чат агент'))).toBe(false);
+    const archive = join(sb.dir, 'WETOP-архив');
+    const moved = readdirSync(archive);
+    expect(moved).toHaveLength(1);
+    expect(moved[0]).toMatch(/^Чат агент-\d{8}-\d{6}$/);
+    expect(readFileSync(join(archive, moved[0], 'WETOP', '.env'), 'utf8')).toBe('SECRET=1\n');
+    expect(readFileSync(join(archive, moved[0], 'заметки.md'), 'utf8')).toBe('мои заметки\n');
+    expect(out).toMatch(/перенёс в архив/);
+    expect(git(sb.newDir, 'status', '--porcelain')).toBe('');
+  });
+
+  it('копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки', () => {
+    const sb = botSandbox();
+    const copy = join(nestedBotCopy(sb), 'WETOP');
+    writeFileSync(join(copy, 'local.py'), 'print(1)\n');
+    git(copy, 'add', 'local.py');
+    git(copy, 'commit', '-q', '-m', 'local work');
+    writeFileSync(join(copy, 'bot.py'), 'old, edited\n');
+    const { code, out } = run(sb, ['--archive-nested']);
+    expect(existsSync(copy)).toBe(true);
+    expect(out).toMatch(/коммитов только здесь, не на GitHub: 1/);
+    expect(out).toMatch(/незакоммиченных правок: 1/);
+    expect(out).toMatch(/refs\/heads\/rescue\//);
+    expect(code).toBe(1);
+  });
+
+  it('чужой репозиторий внутри папки назван, но не переносится', () => {
+    const sb = botSandbox();
+    const other = join(sb.dir, 'other', 'competitor.git');
+    mkdirSync(other, { recursive: true });
+    git(other, 'init', '--bare', '-b', 'main');
+    git(sb.dir, 'clone', '-q', other, join(sb.newDir, 'competitor'));
+    const { out } = run(sb, ['--archive-nested']);
+    expect(existsSync(join(sb.newDir, 'competitor'))).toBe(true);
+    expect(out).toMatch(/внутри папки чужой репозиторий: competitor/);
+  });
+
+  it('рабочие копии сессий и node_modules копиями не считаются', () => {
+    const sb = botSandbox();
+    mkdirSync(join(sb.newDir, 'node_modules', 'pkg', '.git'), { recursive: true });
+    git(sb.newDir, 'worktree', 'add', '-q', join(sb.newDir, '.claude', 'worktrees', 'w1'));
+    const { out } = run(sb, []);
+    expect(out).not.toMatch(/внутри папки/);
+  });
+
+  it('файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает', () => {
+    const sb = botSandbox();
+    writeFileSync(join(sb.newDir, 'apps/ai-seller/bot.py'), 'old\n');
+    const { out } = run(sb, []);
+    expect(out).toMatch(/из старой папки бота/);
+    expect(out).toContain('apps/ai-seller/bot.py');
+    expect(out).not.toMatch(/незакоммиченных правок/);
+    run(sb, ['--fix']);
+    expect(readFileSync(join(sb.newDir, 'apps/ai-seller/bot.py'), 'utf8')).toBe('new\n');
+  });
+
+  it('настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает', () => {
+    const sb = botSandbox();
+    writeFileSync(join(sb.newDir, 'apps/ai-seller/bot.py'), 'new, edited\n');
+    const { out } = run(sb, ['--fix']);
+    expect(readFileSync(join(sb.newDir, 'apps/ai-seller/bot.py'), 'utf8')).toBe('new, edited\n');
+    expect(out).not.toMatch(/из старой папки бота/);
+    expect(out).toMatch(/незакоммиченных правок: 1/);
   });
 });

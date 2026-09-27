@@ -56,7 +56,9 @@ test('обзор каналов: отчёт по источникам без д�
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto('/channels');
   await expect(main.getByTestId('channel-report-empty')).toBeVisible();
-  await expect(main.getByRole('columnheader')).toHaveCount(0);
+  // шапки нет у отчёта; таблица «Каналы» рядом живёт по событиям, а не по броням
+  const report = main.getByRole('region', { name: 'Брони по источникам' });
+  await expect(report.getByRole('columnheader')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: {} });
 });
 

@@ -2906,3 +2906,5 @@
 | 28.09.2026 01:54 | integration | ✅ 107 из 107 | 32 с | 5b30418 | [лог](logs/2026-09-27T20-54-09Z-integration-d2a8.log) |  |
 | 28.09.2026 01:54 | e2e | ✅ 25 из 25 | 1 мин 23 с | e40c46f | [лог](logs/2026-09-27T20-54-53Z-e2e-4a57.log) |  |
 | 28.09.2026 01:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 7 мин 8 с | e40c46f | [лог](logs/2026-09-27T20-56-16Z-e2e-77e9.log) |  |
+| 28.09.2026 02:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 6 мин 56 с | 9d7014e | [лог](logs/2026-09-27T21-03-39Z-e2e-ac83.log) |  |
+| 28.09.2026 02:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 14 из 14 | 1 мин 7 с | 9d7014e +1 | [лог](logs/2026-09-27T21-10-47Z-e2e-3a80.log) |  |

@@ -359,7 +359,8 @@ function FolioPanel({
                       name="unitPrice"
                       aria-label="Цена за единицу"
                       defaultValue={chargeState.values?.unitPrice ?? ''}
-                      placeholder={kind === 'ADJUSTMENT' ? 'сумма (можно −)' : 'сумма'}
+                      // на уменьшение — владелец и управляющий (ADR-098): администратору минус не подсказываем
+                      placeholder={kind === 'ADJUSTMENT' && reverse ? 'сумма (можно −)' : 'сумма'}
                       required
                       className="inp--w120"
                     />

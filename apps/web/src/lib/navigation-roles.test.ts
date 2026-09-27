@@ -76,11 +76,14 @@ describe('страница по адресу: какое право её отк�
     expect(routeRule('/ai-seller/dialogs')?.requires).toBe('dialogs');
   });
 
-  it('адреса вне меню: настройки продавца, его агенты, первичная настройка', () => {
+  it('адреса вне меню: настройки продавца и его агенты', () => {
     expect(routeRule('/ai-seller/knowledge')?.requires).toBe('seller');
     expect(routeRule('/ai-seller/connections')?.requires).toBe('seller');
     expect(routeRule('/ai-seller/agents/new')?.requires).toBe('seller');
-    expect(routeRule('/onboarding')?.requires).toBe('settings');
+  });
+
+  it('первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает', () => {
+    expect(routeRule('/onboarding')).toBeUndefined();
   });
 
   it('карточка ячейки и брони — работа смены, отдельного права нет', () => {

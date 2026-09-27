@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { parseInviteRole } from '@pms/domain';
+import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
 import { ApiError, authApi } from '../../lib/api';
 import { clearSessionCookie, clientInfo, sessionToken, setSessionCookie } from '../../lib/session';
 
@@ -161,18 +161,15 @@ export interface InviteActionResult {
 
 /**
  * Пригласить по почте с ролью (срез 13, этап 7; роль — ADR-098). Ошибки формы и отказ по роли приходят текстом из API;
- * без сессии — тоже текстом. Непонятную роль из формы отправляем как есть: откажет API, одним текстом для всех.
+ * без сессии — тоже текстом. Непонятная роль из формы — отказ теми же словами, что у API, а не приглашение администратора.
  */
 export async function inviteAction(email: string, role: string): Promise<InviteActionResult> {
   const token = await sessionToken();
   if (!token) return { error: 'Сеанс закончился. Войдите заново.', email: null };
+  const invited = parseInviteRole(role);
+  if (!invited) return { error: INVITE_ROLE_MESSAGE, email: null };
   try {
-    const invite = await authApi.invite(
-      token,
-      email,
-      parseInviteRole(role) ?? 'STAFF',
-      await clientInfo(),
-    );
+    const invite = await authApi.invite(token, email, invited, await clientInfo());
     revalidatePath('/login');
     return { error: null, email: invite.email };
   } catch (e) {

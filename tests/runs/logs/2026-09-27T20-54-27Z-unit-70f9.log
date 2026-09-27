@@ -1,0 +1,228 @@
+# Модульные (unit) · 28.09.2026 01:54 Алматы · vm
+# коммит e69e158 (claude/ecstatic-galileo-dm8omt), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T20-54-27Z-unit-70f9.json' 'apps/api/src/hotel/reservation-directory.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests | 9 failed) 40ms
+   ✓ reservation directory is a bounded read projection (9)
+     ✓ rejects repeated or structured query parameters with a client error 4ms
+     ✓ rejects invalid dates, statuses and pagination before querying records 4ms
+     ✓ scopes and limits reads, preserving empty data and decimal-safe money 2ms
+     ✓ размер страницы задаётся вызывающим, по умолчанию прежние 25 1ms
+     ✓ негодный размер страницы отклоняется до запроса к базе 1ms
+     ✓ ADR-071: ищет и по номеру брони в канале — без пробелов, как его хранит стойка 1ms
+     ✓ считает брони по статусам отбором без самого статуса 1ms
+     ✓ excludes voided finance entries in the read selection and preserves refunds 1ms
+     ✓ без дат «сегодня» — по поясу объекта, а не по Алматы 3ms
+   ❯ «Брони v2», R2: отбор каталога на сервере (9)
+     × неизвестный вид, семантика даты, оплата, размещение и сортировка — 400 до запроса к базе 11ms
+     × view=today: период — сегодня объекта, как бы ни звали from/to; по умолчанию ближайший заезд 2ms
+     × view=future и view=inhouse не смотрят на период 1ms
+     × date=arrival и date=departure относят период к дню заезда или выезда 1ms
+     × источник: значение перечисления без регистра — по source, иначе подстрока канала 1ms
+     × категория, размещение и сортировка — в запросе, а не на странице 1ms
+     × оплата: страница, итог и чипы — одним SQL-отбором по формуле folioBalance 1ms
+     × «Требуют внимания» — четыре существующих факта, без новых статусов 1ms
+     × date=created считает сутки создания по поясу объекта 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > неизвестный вид, семантика даты, оплата, размещение и сортировка — 400 до запроса к базе
+AssertionError: promise resolved "{ from: '2026-09-28', …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "counts": {
++     "ALL": 0,
++   },
++   "from": "2026-09-28",
++   "page": 1,
++   "pageSize": 25,
++   "rows": [],
++   "to": "2026-09-28",
++   "total": 0,
+  }
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:238:41
+    236|     ]) {
+    237|       const { db, service } = r2();
+    238|       await expect(service.list(params)).rejects.toBeInstanceOf(BadReq…
+       |                                         ^
+    239|       expect(db.property.findFirst).not.toHaveBeenCalled();
+    240|       expect(db.$queryRaw).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > view=today: период — сегодня объекта, как бы ни звали from/to; по умолчанию ближайший заезд
+AssertionError: expected { from: '2026-01-01', …(6) } to match object { Object (from, to) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "from": "2026-09-27",
+-   "to": "2026-09-27",
++   "from": "2026-01-01",
++   "to": "2026-01-31",
+  }
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:249:22
+    247|       const { db, service } = r2();
+    248|       const result = await service.list({ view: 'today', from: '2026-0…
+    249|       expect(result).toMatchObject({ from: '2026-09-27', to: '2026-09-…
+       |                      ^
+    250|       const args = db.reservation.findMany.mock.calls[0]![0];
+    251|       expect(args.orderBy).toEqual([{ arrivalDate: 'asc' }, { id: 'asc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > view=future и view=inhouse не смотрят на период
+AssertionError: expected { lte: 2026-01-02T00:00:00.000Z } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "lte": 2026-01-02T00:00:00.000Z,
+}
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:265:30
+    263|       await future.service.list({ view: 'future', from: '2026-01-01', …
+    264|       const fw = future.db.reservation.findMany.mock.calls[0]![0].wher…
+    265|       expect(fw.arrivalDate).toBeUndefined();
+       |                              ^
+    266|       expect(fw.departureDate).toBeUndefined();
+    267|       expect(extras(future.db)).toEqual(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > date=arrival и date=departure относят период к дню заезда или выезда
+AssertionError: expected { gte: 2026-09-27T00:00:00.000Z } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "gte": 2026-09-27T00:00:00.000Z,
+}
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:287:30
+    285|     await arrival.service.list({ date: 'arrival', from: '2026-09-27', …
+    286|     const aw = arrival.db.reservation.findMany.mock.calls[0]![0].where;
+    287|     expect(aw.departureDate).toBeUndefined();
+       |                              ^
+    288|     expect(aw.arrivalDate).toEqual({ gte: new Date('2026-09-27'), lte:…
+    289|     const departure = r2();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > источник: значение перечисления без регистра — по source, иначе подстрока канала
+AssertionError: expected [] to deep equally contain { source: 'OTA' }
+
+- Expected:
+{
+  "source": "OTA",
+}
+
++ Received:
+[]
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:299:31
+    297|     const byEnum = r2();
+    298|     await byEnum.service.list({ source: 'ota' });
+    299|     expect(extras(byEnum.db)).toContainEqual({ source: 'OTA' });
+       |                               ^
+    300|     const byChannel = r2();
+    301|     await byChannel.service.list({ source: 'booking' });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > категория, размещение и сортировка — в запросе, а не на странице
+AssertionError: expected [ { arrivalDate: 'desc' }, …(1) ] to deeply equal [ { totalAmount: 'desc' }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "totalAmount": "desc",
++     "arrivalDate": "desc",
+    },
+    {
+      "id": "asc",
+    },
+  ]
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:311:26
+    309|     await service.list({ category: 'DBL', allocation: 'missing', sort:…
+    310|     const args = db.reservation.findMany.mock.calls[0]![0];
+    311|     expect(args.orderBy).toEqual([{ totalAmount: 'desc' }, { id: 'asc'…
+       |                          ^
+    312|     expect(extras(db)).toEqual(
+    313|       expect.arrayContaining([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > оплата: страница, итог и чипы — одним SQL-отбором по формуле folioBalance
+AssertionError: expected [ 'A', 'B' ] to deeply equal [ 'B', 'A' ]
+
+- Expected
++ Received
+
+  [
+-   "B",
+    "A",
++   "B",
+  ]
+
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:347:58
+    345|     const result = await service.list({ payment: 'due', status: 'CHECK…
+    346|     // Страница в порядке SQL (b, a), а не в порядке второй выборки
+    347|     expect(result.rows.map((r) => r.confirmationNumber)).toEqual(['B',…
+       |                                                          ^
+    348|     expect(result).toMatchObject({ total: 2, counts: { ALL: 2, CHECKED…
+    349|     expect(result.rows[0]).toMatchObject({ balanceMinor: '60', paidMin…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > «Требуют внимания» — четыре существующих факта, без новых статусов
+TypeError: Cannot read properties of undefined (reading 'sql')
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:369:19
+    367|       await service.list({ view: 'attention', sort: 'debt' });
+    368|       const page = queries.find((q) => /LIMIT/.test(q.sql))!;
+    369|       expect(page.sql).toMatch(/NOT EXISTS \(SELECT 1 FROM "allocation…
+       |                   ^
+    370|       expect(page.sql).toMatch(/IN \('TENTATIVE', 'CONFIRMED'\) AND r\…
+    371|       expect(page.sql).toMatch(/> 0 AND r\."status"::text IN \('CHECKE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |unit| apps/api/src/hotel/reservation-directory.test.ts > «Брони v2», R2: отбор каталога на сервере > date=created считает сутки создания по поясу объекта
+TypeError: Cannot read properties of undefined (reading 'sql')
+ ❯ apps/api/src/hotel/reservation-directory.test.ts:384:17
+    382|     await service.list({ date: 'created', from: '2026-09-20', to: '202…
+    383|     const page = queries.find((q) => /LIMIT/.test(q.sql))!;
+    384|     expect(page.sql).toMatch(/\(r\."created_at" AT TIME ZONE \?\)::dat…
+       |                 ^
+    385|     expect(page.values).toEqual(expect.arrayContaining(['Asia/Almaty',…
+    386|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 9 passed (18)
+   Start at  20:54:32
+   Duration  5.04s (import 74%, transform 24%, worker 2%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T20-54-27Z-unit-70f9.json
+
+# код выхода 1 · 11 с

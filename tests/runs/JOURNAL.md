@@ -2877,3 +2877,6 @@
 | 27.09.2026 21:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 11 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-31-45Z-e2e-8992.log) | C1 категории: снимки §48 |
 | 27.09.2026 21:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 12 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-34-40Z-e2e-53e7.log) | C1 категории: снимки §48, без dev-оверлея |
 | 27.09.2026 21:35 | e2e (частично: --config tests/ui/playwright.config.ts) | ❌ упало 33 из 402 | 24 мин 35 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-35-16Z-e2e-094f.log) | C1 категории: полный UI-набор |
+| 27.09.2026 22:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 402 | 32 мин 37 с | 283105f | [лог](logs/2026-09-27T17-00-51Z-e2e-bdde.log) | C1 категории: полный UI-набор, один поток |
+| 27.09.2026 22:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/categories-screens.spec.ts) | ✅ 9 из 9 | 4 мин 49 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-34-42Z-e2e-e660.log) | C1: цели 44px у ссылок карточки на 390 |
+| 27.09.2026 22:39 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-39-46Z-unit-fe2a.log) |  |

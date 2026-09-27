@@ -290,6 +290,14 @@
     grid-row: 1;
     align-self: center;
   }
+  /* ссылки сложенной карточки — цель нажатия 44 px (§11; axe target-size на 390) */
+  .fund-cat-table tbody td.fund-cat-name a,
+  .fund-cat-table tbody td.fund-cat-units a,
+  .fund-cat-table tbody td.fund-cat-rates a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target);
+  }
   .fund-cat-table tbody td.fund-cat-actions {
     grid-column: 2;
     grid-row: 1;

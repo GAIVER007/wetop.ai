@@ -135,7 +135,8 @@ test('новые страницы и обе темы: адаптивность �
     '/journal',
     '/incidents',
     '/analytics',
-    '/management/statistics',
+    '/management/analytics',
+    '/management/analytics/occupancy',
     '/hotel-settings/services',
   ];
   for (const width of [320, 390, 768, 1280, 1440, 1920]) {

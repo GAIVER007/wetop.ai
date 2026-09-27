@@ -10,7 +10,8 @@ afterEach(() => {
 const affected = [
   '/channel-manager',
   '/today',
-  '/management/statistics',
+  '/management/analytics',
+  '/management/analytics/occupancy',
   '/rooms/availability',
   '/finance',
   '/guests',

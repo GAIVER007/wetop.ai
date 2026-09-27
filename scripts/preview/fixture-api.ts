@@ -5,7 +5,9 @@ import {
   parseMoney,
   assertAllocationsMatch,
   buildDashboard,
+  DASHBOARD_FUNDS,
   previousPeriod,
+  type DashboardFund,
   type DashboardPeriod,
   housekeepingRefusal,
   DEFAULT_SELLER_PROFILE,
@@ -544,6 +546,87 @@ function seedDesign() {
   ];
 }
 /**
+ * История для «Аналитики» (ADR-108, срез AN1): вымышленные проживания (ADR-010) с начала позапрошлого
+ * месяца до конца текущего, чтобы у «Обзора» была база сравнения. Номера в этом месяце загружены плотнее,
+ * чем в прошлом, койки — слабее: на одном экране видны и рост, и падение. Детерминированно; только по флагу
+ * `analyticsHistory` — по умолчанию стенд прежний.
+ */
+let analyticsHistory = false;
+function seedAnalyticsHistory() {
+  analyticsHistory = true;
+  const monthStart = (shift: number) => {
+    const [y, m] = today.split('-').map(Number) as [number, number];
+    return new Date(Date.UTC(y, m - 1 + shift, 1)).toISOString().slice(0, 10);
+  };
+  const start = monthStart(-2);
+  const end = monthStart(1);
+  let seed = 7;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  // ячейки броней стенда около сегодняшнего дня — история на них кончается раньше
+  const busy = new Set(['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01', 'F03']);
+  const sources: Array<[string, string | null]> = [
+    ['OTA', 'Booking.com'],
+    ['DESK', null],
+    ['OTA', 'Booking.com'],
+    ['WEBSITE', null],
+    ['OTA', 'Agoda'],
+    ['WHATSAPP', null],
+    ['PHONE', null],
+  ];
+  const labels = ['Гость Учебный', 'Клиент Пример', 'Посетитель Демо'];
+  let n = 0;
+  for (const u of units) {
+    const room = u.kind === 'ROOM';
+    let d = add(start, Math.floor(rnd() * 3));
+    while (d < end) {
+      const shift = d < monthStart(-1) ? 0 : d < monthStart(0) ? 1 : 2;
+      const fill = room ? [0.5, 0.6, 0.8][shift]! : [0.75, 0.7, 0.55][shift]!;
+      const nights = 1 + Math.floor(rnd() * 4);
+      const dep = add(d, nights);
+      const roll = rnd();
+      const free = busy.has(u.code) && dep > add(today, -3);
+      const stay = roll < fill && !free;
+      const lost = !stay && !free && roll > 0.93;
+      if (stay || lost) {
+        n += 1;
+        const r = cardSeed();
+        const [source, channel] = sources[n % sources.length]!;
+        const status = stay
+          ? dep <= today
+            ? 'CHECKED_OUT'
+            : d <= today
+              ? 'CHECKED_IN'
+              : 'CONFIRMED'
+          : d < today && n % 4 === 0
+            ? 'NO_SHOW'
+            : 'CANCELLED';
+        const price = (room ? 800000n : 400000n) * BigInt(nights);
+        r.confirmationNumber = `20260900-HIST${String(n).padStart(4, '0')}`;
+        r.source = source;
+        r.channel = channel;
+        r.status = status;
+        r.arrivalDate = d;
+        r.departureDate = dep;
+        r.totalAmountMinor = price.toString();
+        r.notes = null;
+        r.primaryGuest = { id: 'ui-guest', label: labels[n % 3]!, citizenship: 'KAZ', phone: null };
+        const item = r.items[0]!;
+        item.id = `hist-item-${n}`;
+        item.accommodationTypeCode = u.accommodationTypeCode;
+        item.accommodationTypeName = u.accommodationTypeName;
+        item.arrivalDate = d;
+        item.departureDate = dep;
+        item.status = status;
+        item.priceMinor = price.toString();
+        item.unitCode = stay ? u.code : null;
+        item.guests = [{ label: labels[n % 3]!, isPrimary: true }];
+        extraCards.set(r.confirmationNumber, r);
+      }
+      d = dep;
+    }
+  }
+}
+/**
  * Стенд без единой брони, но с фондом, категориями и ценами — это состояние боевой базы после
  * очистки 19.09.2026 (ADR-052) и до первой живой смены. Экраны обязаны в нём открываться и
  * говорить, что броней нет, а не выглядеть сломанными.
@@ -1079,7 +1162,10 @@ function board(from: string, to: string): Chessboard {
         const it = r.items.find(
           (it) =>
             it.unitCode === u.code &&
-            !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
+            // выехавшие занимают прошлые ночи, как в API; стенд по умолчанию их не рисует (прежние снимки)
+            !['CANCELLED', 'NO_SHOW', ...(analyticsHistory ? [] : ['CHECKED_OUT'])].includes(
+              it.status,
+            ) &&
             it.arrivalDate <= date &&
             it.departureDate > date,
         );
@@ -1167,19 +1253,28 @@ function board(from: string, to: string): Chessboard {
  * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
  * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
  */
-function dashboardPeriod(from: string, to: string): DashboardPeriod {
+function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
+  const unassignedByCategory: Record<string, number> = {};
+  for (const u of b.unassigned)
+    unassignedByCategory[u.categoryCode] = (unassignedByCategory[u.categoryCode] ?? 0) + 1;
   return buildDashboard({
     from,
     to,
-    categories: categories.map((c) => ({ code: c.code, name: c.name, units: c.count })),
+    // тип категории — по её единицам, как в API (Аналитика v2, тип фонда)
+    categories: categories.map((c) => ({
+      code: c.code,
+      name: c.name,
+      units: c.count,
+      kind: units.find((u) => u.accommodationTypeCode === c.code)?.kind ?? 'ROOM',
+    })),
     days: b.dates.map((date) => ({
       date,
       ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
       byCategory: b.byCategory[date] ?? {},
     })),
-    unassigned: b.unassigned.length,
+    unassignedByCategory,
     stays: allCards().flatMap((r) =>
       r.items.map((it) => ({
         arrivalDate: it.arrivalDate,
@@ -1200,6 +1295,7 @@ function dashboardPeriod(from: string, to: string): DashboardPeriod {
           kind: 'ACCOMMODATION' as const,
           amountMinor: BigInt(it.priceMinor),
           categoryCode: it.accommodationTypeCode,
+          serviceDate: it.arrivalDate,
         })),
     ),
     payments:
@@ -1207,11 +1303,14 @@ function dashboardPeriod(from: string, to: string): DashboardPeriod {
         ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
         : [],
     refundsMinor: 0n,
-  });
+  }, fund);
 }
-function dashboard(from: string, to: string) {
+function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
   const prev = previousPeriod(from, to);
-  return { current: dashboardPeriod(from, to), previous: dashboardPeriod(prev.from, prev.to) };
+  return {
+    current: dashboardPeriod(from, to, fund),
+    previous: dashboardPeriod(prev.from, prev.to, fund),
+  };
 }
 /** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
 const nightly = (categoryCode: string) => (categoryCode === 'ROOM' ? 800000n : 400000n);
@@ -1798,7 +1897,7 @@ function read(path: string, q: URLSearchParams): unknown {
             blocked: 0,
             byCategory: {},
           })),
-          unassigned: 0,
+          unassignedByCategory: {},
           stays: [],
           charges: [],
           payments: [],
@@ -1965,7 +2064,12 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/inventory/units')
     return units.filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode);
   if (path === '/desk/today') return desk(q.get('date') || today);
-  if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
+  if (path === '/desk/dashboard') {
+    const fund = q.get('fund') || 'all';
+    // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
+    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund)) throw new Error('fund — all, rooms или beds');
+    return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
+  }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return plans;
   if (path === '/availability') {
@@ -2574,6 +2678,7 @@ createServer(async (req, res) => {
       site = structuredClone(siteSeed);
       siteDeleted = false;
       groupFixture = false;
+      analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
       piiStorage = 'real';
@@ -2597,6 +2702,7 @@ createServer(async (req, res) => {
         onboardingNeeded = body['onboardingNeeded'];
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
+      if (body['analyticsHistory'] === true) seedAnalyticsHistory();
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
       failPath = String(body['failPath'] || '');

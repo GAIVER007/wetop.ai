@@ -2887,3 +2887,12 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 28.09.2026 01:54 | unit (частично: packages/domain/src/dashboard/metrics.test.ts) | ❌ упало 8 из 12 | 3 с | a0fa497 +1 | [лог](logs/2026-09-27T20-54-35Z-unit-dc9c.log) | AN1 red: fund filter, bookings, daily revenue |
+| 28.09.2026 01:55 | unit (частично: apps/api/src/dashboard/) | ❌ упало 6 из 8 | 3 с | a0fa497 +5 | [лог](logs/2026-09-27T20-55-56Z-unit-7262.log) | AN1 red: API fund param, category kind, charge serviceDate |
+| 28.09.2026 02:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-v2.spec.ts) | ✅ 8 из 8 | 50 с | a0fa497 +37 | [лог](logs/2026-09-27T21-10-08Z-e2e-b855.log) | AN1 overview spec |
+| 28.09.2026 02:11 | typecheck | ✅ без ошибок | 30 с | a0fa497 +37 | [лог](logs/2026-09-27T21-11-13Z-typecheck-8b7f.log) |  |
+| 28.09.2026 02:11 | lint | ✅ без ошибок | 17 с | a0fa497 +37 | [лог](logs/2026-09-27T21-11-44Z-lint-604b.log) |  |
+| 28.09.2026 02:12 | unit | ❌ упало 2 из 2127, пропущено 3 | 1 мин 35 с | a0fa497 +28 | [лог](logs/2026-09-27T21-12-11Z-unit-f6fd.log) | design: сторож ИИ-слопа (DESIGN.md §15) uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase |
+| 28.09.2026 02:14 | unit | ✅ 2124 из 2127, пропущено 3 | 1 мин 12 с | a0fa497 +28 | [лог](logs/2026-09-27T21-14-13Z-unit-4cd4.log) |  |
+| 28.09.2026 02:15 | typecheck | ✅ без ошибок | 23 с | a0fa497 +38 | [лог](logs/2026-09-27T21-15-26Z-typecheck-d9de.log) |  |
+| 28.09.2026 02:15 | lint | ✅ без ошибок | 17 с | a0fa497 +38 | [лог](logs/2026-09-27T21-15-49Z-lint-bbc0.log) |  |

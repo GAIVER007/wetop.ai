@@ -5,7 +5,7 @@ export type { ActionPreview } from './action-preview';
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
-import type { DashboardPeriod } from '@pms/domain';
+import type { DashboardFund, DashboardPeriod } from '@pms/domain';
 import { ApiError } from './api-error';
 export interface CategorySummary {
   code: string;
@@ -1134,8 +1134,11 @@ export interface DashboardView {
   previous: DashboardPeriod;
 }
 export const dashboardApi = {
-  period: (from: string, to: string) =>
-    getJson<DashboardView>(`/desk/dashboard?${new URLSearchParams({ from, to })}`),
+  /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-108); по умолчанию весь фонд */
+  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+    getJson<DashboardView>(
+      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+    ),
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────

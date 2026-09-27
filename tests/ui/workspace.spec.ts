@@ -60,7 +60,8 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/description', 'Настройки гостиницы'],
     ['/hotel-settings/photos', 'Интеграции'],
     ['/hotel-settings/amenities', 'Интеграции'],
-    ['/management/statistics', 'Статистика'],
+    ['/management/analytics', 'Аналитика'],
+    ['/management/analytics/occupancy', 'Аналитика'],
     ['/channel-manager', 'Менеджер каналов'],
     ['/connections', 'Интеграции'],
   ];

@@ -19,7 +19,7 @@ const routes = [
   '/channels',
   '/analytics',
   '/finance',
-  '/management/statistics',
+  '/management/analytics',
   '/hotel-settings',
   '/connections',
   '/analytics/setup',

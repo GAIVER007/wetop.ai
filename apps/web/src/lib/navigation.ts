@@ -89,10 +89,11 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/management/statistics',
-        label: 'Статистика',
+        // «Статистика» стала вкладкой «Загрузка» этого модуля (ТЗ «Аналитика v2», ADR-108)
+        href: '/management/analytics',
+        label: 'Аналитика',
         icon: 'analytics',
-        description: 'Занятые, свободные и заблокированные места по категориям.',
+        description: 'Загрузка, выручка, брони, отмены и категории за период со сравнением.',
       },
       {
         href: '/finance',
@@ -128,7 +129,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/analytics',
-        label: 'Аналитика',
+        // «Аналитика» — теперь модуль показателей объекта; этот пункт — посещаемость сайта
+        label: 'Аналитика сайта',
         icon: 'analytics',
         description: 'Посещаемость сайта, источники трафика и бронирования.',
       },
@@ -238,14 +240,14 @@ export const sidebarSections: SidebarSection[] = [
       menuItem('/channels', 'Синхронизация каналов'),
       // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
       menuItem('/ai-seller'),
-      menuItem('/analytics', 'Аналитика сайта'),
+      menuItem('/analytics'),
     ],
   },
   {
     id: 'finance',
     label: 'Финансы и отчёты',
     icon: 'money',
-    items: [menuItem('/finance'), menuItem('/management/statistics')],
+    items: [menuItem('/finance'), menuItem('/management/analytics')],
   },
   {
     id: 'settings',

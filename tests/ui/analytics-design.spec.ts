@@ -37,7 +37,7 @@ test('аналитика и статистика: подпись периода 
   });
   expect(tail).toBeLessThanOrEqual(300);
 
-  await page.goto('/management/statistics');
+  await page.goto('/management/analytics/occupancy');
   const stats = main.getByTestId('statistics-meta');
   const lead = await stats.evaluate((el) => {
     const t = el.querySelector('time')!.getBoundingClientRect();

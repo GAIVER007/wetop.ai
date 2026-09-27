@@ -193,13 +193,15 @@ test('аналитика и статистика: пустое состояни�
     '/analytics/setup',
   );
   await request.post(`${fixture}/__test/control`, { data: {} });
-  // статистика: подпись даты словами; отказ шахматки оставляет форму и дату
+  // статистика (с ADR-108 — «Аналитика → Загрузка»): старый адрес ведёт на вкладку с той же датой;
+  // подпись даты словами; отказ шахматки оставляет форму и дату
   await page.goto('/management/statistics?date=2026-09-25');
+  await expect(page).toHaveURL(/\/management\/analytics\/occupancy\?date=2026-09-25$/);
   await expect(main.getByTestId('statistics-meta')).toContainText('Загрузка на 25.09.2026');
   await expect(main.getByTestId('statistics-table').locator('tbody tr').first()).toBeVisible();
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/chessboard' } });
-  await page.goto('/management/statistics?date=2026-09-25');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Статистика');
+  await page.goto('/management/analytics/occupancy?date=2026-09-25');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
   await expect(main.getByLabel('Дата')).toHaveValue('2026-09-25');
   const statsFailure = main.getByTestId('statistics-error');
   await expect(statsFailure).toContainText('Проверьте подключение и повторите запрос');
@@ -210,7 +212,7 @@ test('аналитика и статистика: пустое состояни�
   await expect(page).toHaveURL(/date=2026-09-25/);
   // телефон: таблица категорий карточкой, без прокрутки вбок
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/management/statistics');
+  await page.goto('/management/analytics/occupancy');
   const layout = await page.evaluate(() => {
     const w = globalThis as unknown as {
       innerWidth: number;
@@ -235,7 +237,7 @@ test('аналитика и статистика: пустое состояни�
   await request.post(`${fixture}/__test/control`, {
     data: { delayPath: '/chessboard', delayMs: 2500 },
   });
-  await page.goto('/management/statistics', { waitUntil: 'commit' });
+  await page.goto('/management/analytics/occupancy', { waitUntil: 'commit' });
   await expect(main.getByTestId('statistics-loading')).toContainText(
     'Считаем загрузку по шахматке',
   );

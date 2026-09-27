@@ -28,13 +28,14 @@ import {
   MEMBER_ROLE_OWNER_ONLY_MESSAGE,
   MEMBER_SELF_MESSAGE,
   RATE_PLAN_CHANGE_MESSAGE,
-  RATE_PLAN_UNKNOWN_MESSAGE,
+  RATE_PLAN_SOFT_MESSAGE,
   accessDeniedMessage,
   can,
   canInvite,
   canManageStaff,
   canRemoveMember,
   canSetRoleAtDesk,
+  mayAssignPlanWithoutRates,
   parseInviteRole,
   parseHotelSettingsPatch,
   type ExtensionStatus,
@@ -143,7 +144,25 @@ const units: InventoryUnit[] = categories.flatMap((c) =>
     isDorm: c.code !== 'ROOM',
   })),
 );
-const plans = [{ code: 'BASE', name: 'Стандартный', currency: 'KZT', active: true }];
+const plans = [
+  {
+    code: 'BASE',
+    name: 'Стандартный',
+    currency: 'KZT',
+    active: true,
+    cancellationPenalty: 'FIRST_NIGHT' as const,
+  },
+];
+/** Тариф без штрафа за отмену — `POST /__test/control { softPlan: true }`, сбрасывается `reset` (Q-198) */
+const softPlanSeed = {
+  code: 'FLEX',
+  name: 'Гибкий без штрафа',
+  currency: 'KZT',
+  active: true,
+  cancellationPenalty: 'NONE' as const,
+};
+let softPlan = false;
+const ratePlanList = () => (softPlan ? [...plans, softPlanSeed] : plans);
 const guestSeed: GuestCard = {
   id: 'ui-guest',
   firstName: 'Тестовый',
@@ -1394,15 +1413,25 @@ const uiSessions = new Map<string, UiUser>();
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
 let uiRole: MembershipRole = 'OWNER';
 /**
- * Тариф брони у роли стенда — как в API (Q-197): администратор пересчитывает только в тарифе брони; другой тариф или
- * тариф брони без него (из Exely) — отказ словами. `null` — можно.
+ * Тариф брони у роли стенда — как в API: администратор пересчитывает только в тарифе брони (Q-197); брони без тарифа
+ * (из Exely) назначает тариф со штрафом не мягче «первых суток» (Q-198). `null` — можно.
  */
 function planRefusal(current: string | null | undefined, requested: unknown): string | null {
-  if (can(uiRole, 'rates')) return null;
-  if (!current) return RATE_PLAN_UNKNOWN_MESSAGE;
-  return typeof requested === 'string' && requested && requested !== current
-    ? RATE_PLAN_CHANGE_MESSAGE
+  if (can(uiRole, 'rates') || typeof requested !== 'string' || !requested) return null;
+  if (current) return requested !== current ? RATE_PLAN_CHANGE_MESSAGE : null;
+  const plan = ratePlanList().find((p) => p.code === requested);
+  return plan && !mayAssignPlanWithoutRates(plan.cancellationPenalty)
+    ? RATE_PLAN_SOFT_MESSAGE
     : null;
+}
+/** Бронь без тарифа получает выбранный тариф — как в API: дальше пересчёт в нём (Q-198) */
+function recordPlan(
+  item: { ratePlanCode?: string | null; ratePlanName?: string | null },
+  requested: unknown,
+) {
+  const plan = ratePlanList().find((p) => p.code === requested);
+  if (plan && (!item.ratePlanCode || can(uiRole, 'rates')))
+    Object.assign(item, { ratePlanCode: plan.code, ratePlanName: plan.name });
 }
 let uiPlatformAdmin = false;
 /**
@@ -1911,7 +1940,7 @@ function read(path: string, q: URLSearchParams): unknown {
         checkOutTime: '12:00',
         ...hotelOverrides,
       },
-      ratePlans: plans.map((p) => ({ ...p, active: true, cancellationPenalty: 'FIRST_NIGHT' })),
+      ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
     };
   if (path === '/hotel/onboarding')
@@ -1999,7 +2028,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/desk/today') return desk(q.get('date') || today);
   if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
-  if (path === '/rate-plans') return plans;
+  if (path === '/rate-plans') return ratePlanList();
   if (path === '/availability') {
     const arrival = q.get('arrival') || today,
       departure = q.get('departure') || add(arrival, 1);
@@ -2635,6 +2664,7 @@ createServer(async (req, res) => {
       paid = new Map();
       paymentLines = [];
       piiStorage = 'real';
+      softPlan = false;
       resetSeller();
       return send(200, {});
     }
@@ -2706,6 +2736,7 @@ createServer(async (req, res) => {
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
+      if (body['softPlan'] === true) softPlan = true;
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
@@ -3730,6 +3761,7 @@ createServer(async (req, res) => {
         const departure = add(item.departureDate, n);
         if (item.unitCode && unitBusy(item.unitCode, item.departureDate, departure, item))
           return send(409, { message: `Ячейка ${item.unitCode} занята: сначала переселите` });
+        if (!item.ratePlanCode) recordPlan(item, body['ratePlanCode']);
         item.priceMinor = (
           BigInt(item.priceMinor) +
           nightly(item.accommodationTypeCode) * BigInt(n)
@@ -3750,6 +3782,7 @@ createServer(async (req, res) => {
             : null;
         if (refused) return send(403, { message: refused });
         if (unit.accommodationTypeCode !== item.accommodationTypeCode) {
+          recordPlan(item, body['ratePlanCode']);
           item.accommodationTypeCode = unit.accommodationTypeCode;
           item.accommodationTypeName = unit.accommodationTypeName;
           item.priceMinor = (

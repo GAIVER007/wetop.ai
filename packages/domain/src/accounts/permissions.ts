@@ -1,3 +1,4 @@
+import type { CancellationPenaltyPolicy } from '../finance/finance';
 import type { MembershipRole } from './roles';
 
 /**
@@ -77,9 +78,41 @@ export const ADJUSTMENT_DOWN_MESSAGE =
 export const RATE_PLAN_CHANGE_MESSAGE =
   'Тариф у брони меняют владелец и управляющий: администратор меняет даты и место в том же тарифе.';
 
-/** Бронь из Exely без тарифа: выбрать тариф — выбрать цену и штраф; до ответа на Q-198 — владелец и управляющий */
-export const RATE_PLAN_UNKNOWN_MESSAGE =
-  'У брони нет тарифа (перенесена из Exely): назначить его могут владелец и управляющий.';
+/** Строже какой политики штрафа: чем выше, тем больше удерживается при отмене (Q-103) */
+const PENALTY_STRENGTH: Record<CancellationPenaltyPolicy, number> = {
+  NONE: 0,
+  FIRST_NIGHT: 1,
+  FULL_STAY: 2,
+};
+
+/**
+ * Q-198 (ответ владельца 27.09.2026 — «Да, разрешить»): брони без тарифа (перенесённой из Exely) тариф назначает и
+ * администратор — один раз и только со штрафом не мягче «первых суток». Без тарифа штрафа нет (`NONE`, Q-103), так что
+ * назначение штраф добавляет, а не снимает; записанный тариф дальше меняют владелец и управляющий (Q-197).
+ */
+export function mayAssignPlanWithoutRates(penalty: CancellationPenaltyPolicy): boolean {
+  return PENALTY_STRENGTH[penalty] >= PENALTY_STRENGTH.FIRST_NIGHT;
+}
+
+/** Отказ администратору, выбравшему брони без тарифа тариф с мягким штрафом (Q-198) */
+export const RATE_PLAN_SOFT_MESSAGE =
+  'Брони без тарифа администратор назначает тариф со штрафом не мягче «первых суток»; другой — владелец и управляющий.';
+
+/**
+ * Какие тарифы стойка предлагает выбрать для проживания — ровно те, что примет API (Q-197, Q-198): с правом `rates` —
+ * любой; без него у проживания с тарифом — никакой (пересчёт в тарифе брони), без тарифа — только со штрафом не мягче
+ * «первых суток». Тариф без правила штрафа (ответ API до Q-198) администратору не предлагается.
+ */
+export function plansToChoose<P extends { cancellationPenalty?: CancellationPenaltyPolicy }>(
+  plans: readonly P[],
+  opts: { mayChangePlan: boolean; hasPlan: boolean },
+): P[] {
+  if (opts.mayChangePlan) return [...plans];
+  if (opts.hasPlan) return [];
+  return plans.filter(
+    (p) => p.cancellationPenalty !== undefined && mayAssignPlanWithoutRates(p.cancellationPenalty),
+  );
+}
 
 /** Права роли, по порядку таблицы. Неизвестная роль — ничего */
 export function permissionsOf(role: MembershipRole | null | undefined): Permission[] {

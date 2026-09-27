@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { PERMISSIONS, accessDeniedMessage, can, permissionsOf, rolesWith, type Permission } from './permissions';
+import {
+  PERMISSIONS,
+  accessDeniedMessage,
+  can,
+  mayAssignPlanWithoutRates,
+  permissionsOf,
+  plansToChoose,
+  rolesWith,
+  type Permission,
+} from './permissions';
 
 /**
  * Права ролей (DATA_MODEL §16.5, ADR-101) — ответы владельца 27.09.2026: роль — готовый набор; управляющий — всё, кроме
@@ -75,12 +84,57 @@ describe('права ролей', () => {
   });
 
   it('отказ называет раздел и у кого доступ', () => {
-    expect(accessDeniedMessage('rates')).toBe('«Тарифы и цены»: доступ есть у владельца и управляющего.');
+    expect(accessDeniedMessage('rates')).toBe(
+      '«Тарифы и цены»: доступ есть у владельца и управляющего.',
+    );
     expect(accessDeniedMessage('refunds')).toBe(
       '«Возврат оплаты и сторно»: доступ есть у владельца и управляющего.',
     );
     expect(accessDeniedMessage('owner')).toBe(
       '«Управляющие, роли и платные расширения»: доступ есть только у владельца.',
     );
+  });
+});
+
+/**
+ * Q-198 (ответ владельца 27.09.2026 — «Да, разрешить»): брони без тарифа (из Exely) администратор назначает тариф один
+ * раз, и только со штрафом не мягче «первых суток». Без тарифа штрафа нет (`NONE`), так что назначение его добавляет.
+ */
+describe('тариф брони без тарифа у администратора (Q-198)', () => {
+  it('назначить можно тариф со штрафом «первые сутки» или «всё проживание», без штрафа — нет', () => {
+    expect(mayAssignPlanWithoutRates('FIRST_NIGHT')).toBe(true);
+    expect(mayAssignPlanWithoutRates('FULL_STAY')).toBe(true);
+    expect(mayAssignPlanWithoutRates('NONE')).toBe(false);
+  });
+
+  // стойка предлагает ровно то, что примет API: лишний тариф в списке — отказ после выбора
+  const plans = [
+    { code: 'BASE', cancellationPenalty: 'FIRST_NIGHT' as const },
+    { code: 'FLEX', cancellationPenalty: 'NONE' as const },
+    { code: 'STRICT', cancellationPenalty: 'FULL_STAY' as const },
+  ];
+  const codes = (list: Array<{ code: string }>) => list.map((p) => p.code);
+
+  it('владелец и управляющий выбирают любой тариф — и у брони с тарифом, и без', () => {
+    expect(codes(plansToChoose(plans, { mayChangePlan: true, hasPlan: true }))).toEqual([
+      'BASE',
+      'FLEX',
+      'STRICT',
+    ]);
+    expect(codes(plansToChoose(plans, { mayChangePlan: true, hasPlan: false }))).toHaveLength(3);
+  });
+
+  it('администратору у брони с тарифом выбирать нечего, у брони без тарифа — только со штрафом', () => {
+    expect(plansToChoose(plans, { mayChangePlan: false, hasPlan: true })).toEqual([]);
+    expect(codes(plansToChoose(plans, { mayChangePlan: false, hasPlan: false }))).toEqual([
+      'BASE',
+      'STRICT',
+    ]);
+  });
+
+  it('тариф без правила штрафа (старый ответ API) администратору не предлагается', () => {
+    const old: Array<{ code: string; cancellationPenalty?: 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY' }> =
+      [{ code: 'OLD' }];
+    expect(plansToChoose(old, { mayChangePlan: false, hasPlan: false })).toEqual([]);
   });
 });

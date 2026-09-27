@@ -141,7 +141,7 @@ test('администратор принимает оплату, но возв�
   await expect(main.getByTestId('refund-form').first()).toBeVisible();
 });
 
-test('администратор меняет даты и продлевает в тарифе брони: выбора тарифа у него нет (Q-197)', async ({
+test('администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-197, Q-198)', async ({
   page,
   request,
 }) => {
@@ -158,23 +158,48 @@ test('администратор меняет даты и продлевает �
   await expect(main.getByLabel('Тариф для пересчёта')).toHaveCount(0);
   await expect(main.getByText('Тариф при смене категории')).toHaveCount(0);
 
-  // бронь из Exely без тарифа: пересчитать не по чему — слова вместо кнопки и выбора тарифа
-  await request.post(`${API}/__test/control`, { data: { role: 'STAFF', withoutRatePlan: true } });
+  // бронь из Exely без тарифа: администратор назначает её тариф, но только со штрафом за отмену (Q-198) —
+  // «Гибкий без штрафа» в списках нет
+  await request.post(`${API}/__test/control`, {
+    data: { role: 'STAFF', withoutRatePlan: true, softPlan: true },
+  });
   await actions();
   await expect(main.getByTestId('dates-no-plan')).toContainText(
-    'даты пересчитывают владелец или управляющий',
+    'выберите тариф со штрафом за отмену',
   );
-  await expect(main.getByRole('button', { name: 'Пересчитать и сохранить' })).toHaveCount(0);
-  await expect(main.getByLabel('Тариф для продления')).toHaveCount(0);
-  await expect(main.getByTestId('hint-extend-ui-item')).toHaveText(
-    'У брони нет тарифа (перенесена из Exely): назначить его могут владелец и управляющий.',
-  );
+  await expect(main.getByLabel('Тариф для пересчёта').locator('option')).toHaveText([
+    '— выберите тариф —',
+    'Стандартный',
+  ]);
+  await expect(main.getByRole('button', { name: 'Пересчитать и сохранить' })).toBeVisible();
+  await expect(main.getByText('Тариф при смене категории')).toBeVisible();
+  const extendPlan = main.getByLabel('Тариф для продления');
+  await expect(extendPlan.locator('option')).toHaveText([
+    '— тариф для новой ночи —',
+    'Стандартный',
+  ]);
   await expect(main.getByTestId('extend-ui-item')).toBeDisabled();
+  await extendPlan.selectOption('BASE');
+  await expect(main.getByTestId('hint-extend-ui-item')).toContainText('на счёт');
+  await main.getByTestId('extend-ui-item').click();
+  await page
+    .locator('dialog[open][data-testid="confirm-dialog"]')
+    .getByRole('button', { name: 'Продлить' })
+    .click();
+  await expect(main.getByTestId('done-extend-ui-item')).toBeVisible();
+  // тариф записан в бронь: выбирать администратору больше нечего, дальше его меняют владелец и управляющий
+  await expect(main.getByLabel('Тариф для продления')).toHaveCount(0);
+  await expect(main.getByLabel('Тариф для пересчёта')).toHaveCount(0);
+  await expect(main.getByTestId('dates-no-plan')).toHaveCount(0);
 
-  // у управляющего выбор тарифа на месте
-  await request.post(`${API}/__test/control`, { data: { role: 'MANAGER' } });
+  // у управляющего выбор любого тарифа, и без штрафа тоже
+  await request.post(`${API}/__test/control`, { data: { role: 'MANAGER', withoutRatePlan: true } });
   await actions();
-  await expect(main.getByLabel('Тариф для пересчёта')).toBeVisible();
+  await expect(main.getByLabel('Тариф для пересчёта').locator('option')).toHaveText([
+    '— выберите тариф —',
+    'Стандартный',
+    'Гибкий без штрафа',
+  ]);
   await expect(main.getByLabel('Тариф для продления')).toBeVisible();
 });
 

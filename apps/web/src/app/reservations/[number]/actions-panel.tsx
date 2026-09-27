@@ -8,7 +8,7 @@ import {
   type RefObject,
 } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { HOUSEKEEPING_RU } from '@pms/domain';
+import { HOUSEKEEPING_RU, plansToChoose } from '@pms/domain';
 import { useCommand } from '../../../lib/use-command';
 import {
   Alert,
@@ -23,7 +23,13 @@ import {
 } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
 import { ConfirmDialog } from '../../../components/confirm-dialog';
-import type { CancelPreview, ExtendPreview, MovePreview, PiiStorage } from '../../../lib/api';
+import type {
+  CancelPreview,
+  ExtendPreview,
+  MovePreview,
+  PiiStorage,
+  RatePlanOption,
+} from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { penaltyText } from '../../../lib/penalty-text';
 import { pluralRu } from '../../../lib/plural';
@@ -115,7 +121,7 @@ export function ReservationActions(props: {
   departureDate: string;
   /** Валюта брони — для сумм в окнах подтверждения */
   currency: string;
-  ratePlans: Array<{ code: string; name: string; currency: string }>;
+  ratePlans: RatePlanOption[];
   items: Array<{
     id: string;
     status: string;
@@ -138,8 +144,13 @@ export function ReservationActions(props: {
 }) {
   // Как в API (changeDates): без явного выбора пересчёт идёт по тарифу первого неотменённого проживания (Б1)
   const current = props.items.find((it) => it.status !== 'CANCELLED' && it.ratePlanCode);
-  // тариф брони — её цена и штраф: выбирают владелец и управляющий (Q-197), администратор меняет даты в том же тарифе
+  // тариф брони — её цена и штраф: выбирают владелец и управляющий (Q-197), администратор меняет даты в том же тарифе;
+  // брони без тарифа он назначает тариф со штрафом (Q-198) — в списке ровно то, что примет API
   const choosePlan = useMay('rates');
+  const datePlans = plansToChoose(props.ratePlans, {
+    mayChangePlan: choosePlan,
+    hasPlan: !!current,
+  });
   const {
     state: cancelState,
     run: cancel,
@@ -210,7 +221,7 @@ export function ReservationActions(props: {
                 defaultValue={datesState.values?.departureDate ?? props.departureDate}
               />
             </Field>
-            {choosePlan && (
+            {datePlans.length > 0 && (
               <Select
                 name="ratePlanCode"
                 aria-label="Тариф для пересчёта"
@@ -226,14 +237,14 @@ export function ReservationActions(props: {
                     — выберите тариф —
                   </option>
                 )}
-                {props.ratePlans.map((p) => (
+                {datePlans.map((p) => (
                   <option key={p.code} value={p.code}>
                     {p.name}
                   </option>
                 ))}
               </Select>
             )}
-            {(choosePlan || current) && (
+            {(datePlans.length > 0 || current) && (
               <Button type="submit" disabled={datesPending}>
                 Пересчитать и сохранить
               </Button>
@@ -243,7 +254,9 @@ export function ReservationActions(props: {
             <p className="hint" data-testid="dates-no-plan">
               {choosePlan
                 ? 'У брони нет тарифа (перенесена из Exely) — выберите, по какому пересчитать цену.'
-                : 'У брони нет тарифа (перенесена из Exely): даты пересчитывают владелец или управляющий — они назначат тариф.'}
+                : datePlans.length > 0
+                  ? 'У брони нет тарифа (перенесена из Exely) — выберите тариф со штрафом за отмену: он запишется в бронь, менять его будут владелец или управляющий.'
+                  : 'У брони нет тарифа (перенесена из Exely), а тарифа со штрафом за отмену нет: даты пересчитывают владелец или управляющий.'}
             </p>
           )}
           {datesState.error && <Alert>{datesState.error}</Alert>}
@@ -460,16 +473,17 @@ function StayButtons(props: {
     ratePlanCode: string | null;
     debtMinor: string | null;
   };
-  ratePlans: Array<{ code: string; name: string }>;
+  ratePlans: RatePlanOption[];
 }) {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
   const { ask, dialog } = useConfirm();
   const { toast } = useToast();
-  // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф выбирают владелец и управляющий (Q-197):
-  // администратору API называет причину в предпросмотре, и кнопка стоит неактивной
+  // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф надо выбрать. Администратор выбирает только
+  // тариф со штрафом (Q-198), и выбранный записывается в бронь; нет таких тарифов — продлевают владелец и управляющий
   const [extendPlan, setExtendPlan] = useState('');
   const needsPlan = !props.item.ratePlanCode;
-  const choosePlan = useMay('rates');
+  const mayChangePlan = useMay('rates');
+  const extendPlans = plansToChoose(props.ratePlans, { mayChangePlan, hasPlan: !needsPlan });
   const expected = props.item.status === 'CONFIRMED' || props.item.status === 'TENTATIVE';
   const live = expected || props.item.status === 'CHECKED_IN';
 
@@ -510,7 +524,9 @@ function StayButtons(props: {
         : !preview.nextNightsFree
           ? `${preview.unitCode ?? 'Ячейка'} занята ${dd(props.item.departureDate)} — сначала переселите`
           : preview.ratePlanRequired
-            ? 'выберите тариф для новой ночи'
+            ? extendPlans.length > 0
+              ? 'выберите тариф для новой ночи'
+              : 'У брони нет тарифа (перенесена из Exely), а тарифа со штрафом за отмену нет: продлевают владелец или управляющий.'
             : preview.problem
               ? preview.problem
               : `до ${dd(preview.departureDate)}${
@@ -629,7 +645,7 @@ function StayButtons(props: {
             Выселить
           </Button>
         )}
-        {live && needsPlan && choosePlan && (
+        {live && needsPlan && extendPlans.length > 0 && (
           <Select
             aria-label="Тариф для продления"
             data-quick-action={`extend-plan:${props.item.id}`}
@@ -639,7 +655,7 @@ function StayButtons(props: {
             <option value="" disabled>
               — тариф для новой ночи —
             </option>
-            {props.ratePlans.map((p) => (
+            {extendPlans.map((p) => (
               <option key={p.code} value={p.code}>
                 {p.name}
               </option>
@@ -657,7 +673,7 @@ function StayButtons(props: {
             title={
               !needsPlan
                 ? 'Выезд на сутки позже, цена по календарю'
-                : choosePlan
+                : extendPlans.length > 0
                   ? 'У проживания нет тарифа (перенесено из Exely): выберите тариф для новой ночи'
                   : 'У проживания нет тарифа (перенесено из Exely): продлевают владелец или управляющий'
             }
@@ -743,12 +759,13 @@ function AssignForm(props: {
   number: string;
   currency: string;
   arrivalDate: string;
-  ratePlans: Array<{ code: string; name: string; currency: string }>;
+  ratePlans: RatePlanOption[];
   item: {
     id: string;
     accommodationTypeCode: string;
     accommodationTypeName: string;
     unitCode: string | null;
+    ratePlanCode: string | null;
     availableGroups: Array<{ code: string; name: string; units: string[] }>;
   };
 }) {
@@ -756,8 +773,13 @@ function AssignForm(props: {
     assignUnitAction.bind(null, props.number, props.item.id),
     { error: null },
   );
-  // другой тариф при смене категории — выбор цены: владелец и управляющий (Q-197)
-  const choosePlan = useMay('rates');
+  // другой тариф при смене категории — выбор цены: владелец и управляющий (Q-197); проживанию без тарифа администратор
+  // назначает тариф со штрафом (Q-198)
+  const mayChangePlan = useMay('rates');
+  const movePlans = plansToChoose(props.ratePlans, {
+    mayChangePlan,
+    hasPlan: !!props.item.ratePlanCode,
+  });
   const formRef = useRef<HTMLFormElement>(null);
   const confirmed = useRef(false);
   const [move, setMove] = useState<{
@@ -846,11 +868,11 @@ function AssignForm(props: {
             </optgroup>
           ))}
         </Select>
-        {choosePlan && (
+        {movePlans.length > 0 && (
           <Field label="Тариф при смене категории">
             <Select name="ratePlanCode" defaultValue={state.values?.ratePlanCode ?? ''}>
               <option value="">Тариф проживания</option>
-              {props.ratePlans.map((plan) => (
+              {movePlans.map((plan) => (
                 <option key={plan.code} value={plan.code}>
                   {plan.name} ({plan.currency})
                 </option>

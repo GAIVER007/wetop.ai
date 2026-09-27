@@ -5,7 +5,12 @@ export type { ActionPreview } from './action-preview';
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
-import type { DashboardPeriod, InviteRole, MembershipRole } from '@pms/domain';
+import type {
+  CancellationPenaltyPolicy,
+  DashboardPeriod,
+  InviteRole,
+  MembershipRole,
+} from '@pms/domain';
 import { ApiError } from './api-error';
 export interface CategorySummary {
   code: string;
@@ -294,6 +299,8 @@ export interface RatePlanOption {
   code: string;
   name: string;
   currency: string;
+  /** Правило штрафа тарифа: администратор назначает брони без тарифа только тариф со штрафом (Q-198) */
+  cancellationPenalty?: CancellationPenaltyPolicy;
 }
 /** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
 export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';

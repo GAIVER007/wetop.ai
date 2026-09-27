@@ -2880,3 +2880,6 @@
 | 27.09.2026 22:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 402 | 32 мин 37 с | 283105f | [лог](logs/2026-09-27T17-00-51Z-e2e-bdde.log) | C1 категории: полный UI-набор, один поток |
 | 27.09.2026 22:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/categories-screens.spec.ts) | ✅ 9 из 9 | 4 мин 49 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-34-42Z-e2e-e660.log) | C1: цели 44px у ссылок карточки на 390 |
 | 27.09.2026 22:39 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-39-46Z-unit-fe2a.log) |  |
+| 27.09.2026 22:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 402 | 32 мин 13 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-41-06Z-e2e-d532.log) | C1 категории: полный UI-набор, один поток, цели 44px |
+| 28.09.2026 01:52 | typecheck | ✅ без ошибок | 29 с | ba8f884 | [лог](logs/2026-09-27T20-52-56Z-typecheck-4ac5.log) |  |
+| 28.09.2026 01:53 | lint | ✅ без ошибок | 17 с | ba8f884 | [лог](logs/2026-09-27T20-53-26Z-lint-1666.log) |  |

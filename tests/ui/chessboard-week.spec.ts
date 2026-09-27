@@ -115,7 +115,8 @@ test('в неделе работают бронь, категории и соз�
   await page.goto('/chessboard');
   const stay = page.getByTestId('stay-cell').first();
   const number = await stay.getAttribute('data-number');
-  await stay.click();
+  // одинарный клик — предпросмотр, полная карточка — двойным (ТЗ «Шахматка v2» §24)
+  await stay.dblclick();
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText(number!);
   await page.keyboard.press('Escape');

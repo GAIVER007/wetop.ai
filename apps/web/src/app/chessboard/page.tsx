@@ -14,6 +14,7 @@ import { displayDate } from '../../lib/display-date';
 import { hotelToday, validDate } from '../../lib/hotel-api';
 import { Icon } from '../../components/icon';
 import { monthPeriod } from './month-period';
+import { deskShell } from '../../lib/desk-shell';
 import { weekPeriod } from './week-period';
 import './board.css';
 
@@ -73,10 +74,12 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events] = await Promise.all([
+  const [board, incidents, events, shell] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
+    // «Только чтение» (ADR-102): предпросмотр брони не предлагает изменений (ТЗ §47)
+    deskShell().catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -221,7 +224,12 @@ export default async function ChessboardPage({
         </Alert>
       )}
       <UnassignedStays stays={board.unassigned ?? []} critical={overbooked.length > 0} />
-      <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
+      <ChessboardGrid
+        board={board}
+        today={today}
+        fitMonth={isMonth}
+        readOnly={shell?.readOnly ?? false}
+      />
       <div className="board-footer">
         <details className="board-legend-details">
           <summary>Обозначения</summary>

@@ -46,7 +46,7 @@ test('drawer: бронь открывается поверх доски, вкл�
 }) => {
   await page.goto('/chessboard');
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/chessboard-light.png` });
-  await page.getByTestId('stay-cell').first().click();
+  await page.getByTestId('stay-cell').first().dblclick();
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer).toBeVisible();
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText('Бронь');

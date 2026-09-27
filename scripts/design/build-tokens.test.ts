@@ -76,6 +76,7 @@ describe('tokens.css генерируется из design/tokens.json', () => {
       '--month-min-width',
       '--board-caption-end', // board.css: место под меню брони, 8 px без меню на узкой сетке
       '--board-head-real', // board.css: фактическая высота шапки дат, замер из board-grid.tsx
+      '--board-unit-real', // board.css: фактическая ширина колонки мест — к ней липнет имя длинной брони
       '--chart-', // `var(--chart-${n})` в daily-chart.tsx — шаблон, а не имя
       '--space-', // `var(--space-${n})` на странице /design-system — тоже шаблон
       '--text-', //  `var(--text-${s})` там же

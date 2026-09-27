@@ -1,0 +1,182 @@
+# Сквозные (e2e) · 28.09.2026 01:57 Алматы · vm
+# коммит b663815 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-card.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (19.1s)
+  ✓  2 tests/ui/chessboard-card.spec.ts:40:1 › двойной клик открывает полную карточку брони (2.5s)
+  ✘  3 tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (17.0s)
+  ✘  4 tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (45.3s)
+  ✘  5 tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (18.7s)
+  ✘  6 tests/ui/chessboard-card.spec.ts:119:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (4.1s)
+
+
+  1) tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('stay-preview')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('stay-preview') with timeout 15000ms
+      - waiting for getByTestId('stay-preview')
+
+
+      21 |   await stay.click();
+      22 |   const preview = page.getByTestId('stay-preview');
+    > 23 |   await expect(preview).toBeVisible();
+         |                         ^
+      24 |   await expect(page).toHaveURL('/chessboard');
+      25 |   // состав по ТЗ §23: гость → даты → размещение → источник → суммы; технических ID нет
+      26 |   await expect(preview.getByTestId('preview-guest')).not.toBeEmpty();
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:23:25
+
+    Error Context: test-results/chessboard-card-одинарный--1f6f6-акрывает-и-возвращает-фокус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-одинарный--1f6f6-акрывает-и-возвращает-фокус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-одинарный--1f6f6-акрывает-и-возвращает-фокус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('stay-preview').getByRole('button', { name: 'Заселить', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('stay-preview').getByRole('button', { name: 'Заселить', exact: true }) with timeout 15000ms
+      - waiting for getByTestId('stay-preview').getByRole('button', { name: 'Заселить', exact: true })
+
+
+      49 |
+      50 |   await page.locator('td[data-status="CONFIRMED"] [data-testid="stay-cell"]').first().click();
+    > 51 |   await expect(preview.getByRole('button', { name: 'Заселить', exact: true })).toBeVisible();
+         |                                                                                ^
+      52 |   await expect(preview.getByRole('button', { name: 'Выселить', exact: true })).toHaveCount(0);
+      53 |   await expect(preview.getByRole('link', { name: 'Принять оплату', exact: true })).toHaveAttribute(
+      54 |     'href',
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:51:80
+
+    Error Context: test-results/chessboard-card-действия-п-0e1f0-лить-заселённому-—-выселить/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-действия-п-0e1f0-лить-заселённому-—-выселить/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-действия-п-0e1f0-лить-заселённому-—-выселить/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('stay-preview').getByRole('button', { name: 'Заселить', exact: true })
+
+
+      76 |     .getByTestId('stay-preview')
+      77 |     .getByRole('button', { name: 'Заселить', exact: true })
+    > 78 |     .click();
+         |      ^
+      79 |   // как в карточке брони (Q-156): в непроверенную ячейку — только после подтверждения
+      80 |   const checkedIn = page.locator(`td[data-status="CHECKED_IN"] [data-number="${number}"]`).first();
+      81 |   const confirm = page.locator('dialog[open]');
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:78:6
+
+    Error Context: test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-«Заселить»-6bd84-щую-команду-и-меняет-статус/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('[data-unit-code="M04"] .board-stay-caption').locator('.board-stay-name-short')
+    Expected: "Гость Б."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" locator('[data-unit-code="M04"] .board-stay-caption').locator('.board-stay-name-short') with timeout 15000ms
+      - waiting for locator('[data-unit-code="M04"] .board-stay-caption').locator('.board-stay-name-short')
+
+
+      101 |   await expect(page.getByTestId('date-col')).toHaveCount(30);
+      102 |   const oneNight = page.locator('[data-unit-code="M04"] .board-stay-caption');
+    > 103 |   await expect(oneNight.locator('.board-stay-name-short')).toHaveText('Гость Б.');
+          |                                                            ^
+      104 |   await expect(oneNight.locator('.board-stay-name')).toBeHidden();
+      105 |   await expect(page.getByTestId('cell-due-dot').filter({ visible: true }).first()).toBeVisible();
+      106 |   // календарный месяц: колонка 24 px — инициалы
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:103:60
+
+    Error Context: test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-подпись-по-d63e8-ициалы-долг-точкой-на-узкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-card.spec.ts:119:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 443
+    Received:    288
+
+      136 |   const after = await name.boundingBox();
+      137 |   // имя прилипло к правому краю колонки мест, а не уехало влево за экран
+    > 138 |   expect(after!.x).toBeGreaterThanOrEqual(colRight.x + colRight.width - 4);
+          |                    ^
+      139 |   await expect(name).toBeVisible();
+      140 | });
+      141 |
+        at /home/user/wetop.ai/tests/ui/chessboard-card.spec.ts:138:20
+
+    Error Context: test-results/chessboard-card-длинное-пр-31c03-ри-горизонтальной-прокрутке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-card-длинное-пр-31c03-ри-горизонтальной-прокрутке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-card-длинное-пр-31c03-ри-горизонтальной-прокрутке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус 
+    tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить 
+    tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус 
+    tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой 
+    tests/ui/chessboard-card.spec.ts:119:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке 
+  1 passed (2.2m)
+
+# код выхода 1 · 2 мин 16 с

@@ -110,6 +110,30 @@ export async function seedLocal(
   const property =
     (await db.property.findFirst({ where: { name: LOCAL_PROPERTY.name }, select: { id: true } })) ??
     (await db.property.create({ data: { ...LOCAL_PROPERTY, organizationId: organization.id }, select: { id: true } }));
+  // Platform P1 (ADR-104 §18): сид идёт ПОСЛЕ миграций, поэтому цепочку Organization → Business → Location
+  // строит сам — так же, как backfill миграции 20260927000030 строит её на живых данных
+  const linked = await db.property.findUniqueOrThrow({
+    where: { id: property.id },
+    select: { locationId: true, timezone: true, currency: true },
+  });
+  if (!linked.locationId) {
+    const business =
+      (await db.business.findFirst({ where: { organizationId: organization.id }, orderBy: { createdAt: 'asc' }, select: { id: true } })) ??
+      (await db.business.create({
+        data: { organizationId: organization.id, name: LOCAL_PROPERTY.name, vertical: 'HOSPITALITY' },
+        select: { id: true },
+      }));
+    const location = await db.location.create({
+      data: {
+        businessId: business.id,
+        name: LOCAL_PROPERTY.name,
+        timezone: linked.timezone,
+        currency: linked.currency,
+      },
+      select: { id: true },
+    });
+    await db.property.update({ where: { id: property.id }, data: { locationId: location.id } });
+  }
 
   const typeIds = new Map<string, string>();
   for (const c of CATEGORIES) {

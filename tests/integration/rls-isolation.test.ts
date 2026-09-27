@@ -63,6 +63,9 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     const property = (await client.query<{ id: string }>(`SELECT id FROM properties ORDER BY created_at LIMIT 1`)).rows[0]!.id;
     await client.query(`INSERT INTO organizations (id, name) VALUES ($1, 'RLS own'), ($2, 'RLS other')`, [own, other]);
     await client.query(`UPDATE properties SET organization_id = $1 WHERE id = $2`, [own, property]);
+    // Platform P1 (ADR-104 §18): бизнес тестовой базы — «своей» организации; его филиал виден через
+    // родителя-Business, что и проверяет обход таблиц под wetop_app ниже
+    await client.query(`UPDATE businesses SET organization_id = $1`, [own]);
     // все гости и записи журнала тестовой базы — объекта «своей» организации
     await client.query(`UPDATE guests SET organization_id = $1`, [own]);
     // журнал только дописывается; в откатываемой транзакции триггер выключается, как в миграции …27

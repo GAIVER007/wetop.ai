@@ -52,7 +52,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'web_events',
   'wizard_jobs',
   'wizard_messages',
-  // Phase 2 (ADR-100 §17.1): точка бизнеса — организация в строке, политика в миграции 20260927000029
+  // Platform P1 (ADR-104 §18): бизнес — организация в строке; филиал — через родителя-Business.
+  // Политики — в миграции 20260927000030_platform_p1_business_location
+  'businesses',
   'locations',
 ];
 

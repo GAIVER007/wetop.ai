@@ -1,17 +1,19 @@
 import type { Db } from '@pms/database';
 
 /**
- * Location — точка бизнеса организации (Phase 2, ADR-100 §17.1, DATA_MODEL v2.2 §17.6).
+ * Location — филиал бизнеса партнёра (Platform P1, ADR-104, DATA_MODEL §18.2; Q-199 — вариант Б).
+ * Цепочка владения: Organization → Business → Location → Property; canonical vertical живёт ТОЛЬКО
+ * на Business — здесь он отдаётся из связки, на филиале не хранится (§18.3).
  *
  * Резолвер повторяет устройство property-ref: один рейс в базу на процесс, ключ памяти — организация
  * плюс схема базы (ADR-042: прогон в pms_test не должен получить id рабочих данных). Отказ не
- * запоминается: до применения миграции Phase 2 таблица `locations` пуста, и стойка живёт прежним
- * путём по `properties.organization_id` — как только Location появится, следующий запрос её увидит.
+ * запоминается: до применения миграции Platform P1 таблиц нет, и стойка живёт прежним путём по
+ * `properties.organization_id` — как только цепочка появится, следующий запрос её увидит.
  */
 export interface LocationRef {
   id: string;
-  organizationId: string;
-  /** Денормализованная неизменяемая копия (каноническое хранилище — Business, Phase 2.5) */
+  businessId: string;
+  /** Canonical vertical — с Business (§18.1), на филиале не хранится */
   vertical: 'HOSPITALITY' | 'BEAUTY';
   name: string;
   timezone: string;
@@ -22,25 +24,40 @@ const cache = new Map<string, LocationRef>();
 const schema = (): string => process.env.DATABASE_SCHEMA?.trim() || 'public';
 
 /**
- * Location организации. `null` — у организации ещё нет Location (миграция Phase 2 не применена или
- * организация ещё не прошла онбординг). Самая ранняя — тем же порядком, что выбор объекта (аудит 26.09, С-2):
- * выбор не зависит от порядка строк и не перехватывается созданной позже.
+ * Филиал организации через её Business. `null` — цепочки ещё нет (миграция Platform P1 не применена или
+ * организация не прошла онбординг). Самый ранний — тем же порядком, что выбор объекта (аудит 26.09, С-2):
+ * выбор не зависит от порядка строк и не перехватывается созданным позже.
  */
 export async function organizationLocationRef(db: Db, organizationId: string): Promise<LocationRef | null> {
   const key = `${schema()}|org|${organizationId}`;
   const known = cache.get(key);
   if (known) return known;
   const found = await db.location.findFirst({
-    where: { organizationId },
+    where: { business: { organizationId } },
     orderBy: { createdAt: 'asc' },
-    select: { id: true, organizationId: true, vertical: true, name: true, timezone: true, currency: true },
+    select: {
+      id: true,
+      businessId: true,
+      name: true,
+      timezone: true,
+      currency: true,
+      business: { select: { vertical: true } },
+    },
   });
   if (!found) return null;
-  cache.set(key, found);
-  return found;
+  const ref: LocationRef = {
+    id: found.id,
+    businessId: found.businessId,
+    vertical: found.business.vertical,
+    name: found.name,
+    timezone: found.timezone,
+    currency: found.currency,
+  };
+  cache.set(key, ref);
+  return ref;
 }
 
-/** Забыть запомненное: тесты и случай, когда точку пересоздали. */
+/** Забыть запомненное: тесты и случай, когда филиал пересоздали. */
 export function forgetLocationRef(): void {
   cache.clear();
 }

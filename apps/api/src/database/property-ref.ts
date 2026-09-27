@@ -90,13 +90,14 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const key = `${schema()}|org|${organizationId}`;
   const known = cache.get(key);
   if (known) return known;
-  // Phase 2 (ADR-100 §17.1, v1 §D.4 шаг 2): путь к объекту идёт через Location организации; внешний
-  // контракт PropertyRef не меняется. Пока миграция 20260927000029 не применена (locations пуста или
-  // properties.location_id ещё NULL) — прежняя выборка по properties.organization_id, поведение то же.
+  // Platform P1 (ADR-104 §18, Q-199 вариант Б): путь к объекту идёт по финальной цепочке
+  // Organization → Business → Location → Property; внешний контракт PropertyRef не меняется. Пока
+  // миграция 20260927000030 не применена (цепочки нет или properties.location_id ещё NULL) —
+  // прежняя выборка по properties.organization_id, поведение то же.
   const select = { id: true, name: true, organizationId: true, timezone: true };
   const found =
     (await db.property.findFirst({
-      where: { location: { organizationId } },
+      where: { location: { business: { organizationId } } },
       orderBy: { createdAt: 'asc' },
       select,
     })) ?? (await db.property.findFirst({ where: { organizationId }, select }));

@@ -38,6 +38,7 @@ v1.13 (27.09.2026; **утверждено владельцем 27.09.2026 — AD
 v2.0 (27.09.2026; **утверждено владельцем 27.09.2026 — «Архитектуру в целом утверждаю», ADR-100; кода нет, миграций нет**): §17 — целевая архитектура двух вертикалей заморожена: иерархия `WETOP → Partner/Organization → Business → Location → Vertical Domain`; четыре финальных решения (RLS-gate до публичной регистрации; канонический `Customer` на Organization + `CustomerBusiness`; `reportingCurrency`/`ExchangeRate` на Organization, `reportingAmount` — снимок; идемпотентность автоматической выручки `sourceType`+`sourceId`+UNIQUE). Существующие разделы §1–§16 не меняются; детальные спецификации новых таблиц добавляются в этот файл пофазно перед каждой миграцией. Полная архитектура — `ARCHITECTURE.md` и `reports/hospitality-beauty-target-architecture-v2-2026-09-27.md`
 v2.1 (27.09.2026; Phase 1 изоляции по ADR-100 §17.2, поручение владельца «Поехали… Начинаем Phase 1»): §3 `guests.organization_id`, §10 `audit_logs.organization_id`, §8 `external_events.property_id` и `channel_outbox.property_id` — все nullable + FK + индекс, детерминированный backfill в миграции (неоднозначные строки остаются NULL и попадают в отчёт, NOT NULL не вводится) — миграция `20260927000026_phase1_tenant_scope` с `down.sql`, **на рабочей базе применяет владелец**
 v2.2 (27.09.2026; Phase 2 «Location foundation» по ADR-100 §17.1, поручение владельца «Начинай Phase 2»): §17.6 — enum `LocationVertical`, таблица `locations`, nullable `properties.location_id` (1:1); backfill — по одной Location на каждый существующий объект (для Luxx — одна); Business НЕ добавляется (Phase 2.5) — миграция `20260927000029_phase2_location` с `down.sql`, **на рабочей базе применяет владелец**
+v2.3 (27.09.2026, вечер; **Q-199 закрыт владельцем — вариант Б, строго ADR-104/v3**): линия v2.2/§17.6 ОТМЕНЕНА до применения куда-либо (миграция `20260927000029_phase2_location` удалена из ветки); реализация — **Platform P1 — Business + Location foundation** по §18: enum'ы `BusinessVertical`/`BusinessStatus`/`LocationStatus`, таблицы `businesses` (§18.1) и `locations` (§18.2 — `business_id` NOT NULL, БЕЗ organization_id и vertical), `properties.location_id` nullable UNIQUE (1:1, §18.4), `organizations.reporting_currency` (§18.4; backfill из фактической валюты Property, где однозначна); RLS по финальной цепочке (Business — по организации, Location — через Business); backfill: организация с объектами → один Business (HOSPITALITY, имя организации) → Location на каждый объект → связка. Миграция `20260927000030_platform_p1_business_location` с `down.sql`, **на рабочей базе применяет владелец**
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -1463,7 +1464,11 @@ MVP вводится вручную и используется всеми Busin
 (`FOLIO`/`APPOINTMENT`/`MANUAL`) + `source_id` c `UNIQUE(source_type, source_id)` — повторный запуск sync-job не
 создаёт дубль (у `MANUAL` `source_id` NULL, в UNIQUE не конфликтует). Ручной ввод — только расходы.
 
-### 17.6 Phase 2 — Location (v2.2, 27.09.2026; спецификация перед миграцией по правилу этого раздела)
+### 17.6 ~~Phase 2 — Location~~ (v2.2 — ОТМЕНЕНА 27.09.2026 решением Q-199, вариант Б)
+
+> **Q-199 закрыт владельцем**: `locations` живёт по §18 (ADR-104), не по этому подразделу. Спецификация ниже
+> сохранена как история линии ADR-100; её миграция `20260927000029_phase2_location` удалена до применения
+> куда-либо. Действующая реализация — Platform P1 (§18, миграция `20260927000030_platform_p1_business_location`).
 
 Поручение владельца 27.09.2026: «Начинай Phase 2 — Location foundation. Строго по замороженной ADR-100».
 Содержание — v1 §D.3/§L Фаза 2 и v2 §12 (строка «2 — Location: без изменений от v1»); `Business` в этой фазе

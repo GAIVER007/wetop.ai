@@ -43,6 +43,7 @@ import {
   SprayCan,
   ClipboardCheck,
   MessagesSquare,
+  CircleHelp,
 } from 'lucide-react';
 const icons = {
   arrival: LogIn,
@@ -90,6 +91,7 @@ const icons = {
   inspected: ClipboardCheck,
   // переписка: раздел «ИИ-продавец» (DESIGN.md §7, «добавить при первом использовании»; ТЗ ред. 1 П6)
   chat: MessagesSquare,
+  help: CircleHelp,
 };
 export type IconName = keyof typeof icons;
 /** Все имена набора — для таблицы на странице /design-system (DESIGN.md §7). */

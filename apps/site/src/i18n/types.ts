@@ -131,4 +131,62 @@ export type Dictionary = {
     home: string;
     blog: string;
   };
+  /** Окно входа и регистрации поверх главной (ADR-100). */
+  auth: {
+    dialogLabel: string;
+    close: string;
+    tabs: { login: string; register: string };
+    login: {
+      title: string;
+      lead: string;
+      submit: string;
+      pending: string;
+      forgot: string;
+      noAccount: string;
+    };
+    register: {
+      title: string;
+      lead: string;
+      submit: string;
+      pending: string;
+      terms: string;
+      haveAccount: string;
+    };
+    closed: { title: string; text: string; action: string };
+    sent: {
+      title: string;
+      /** `{email}` заменяется адресом. */
+      text: string;
+      next: string;
+      notSent: string;
+      resend: string;
+      resendPending: string;
+      resent: string;
+      /** `{seconds}` — сколько ждать до следующей отправки. */
+      wait: string;
+      change: string;
+    };
+    fields: {
+      email: string;
+      emailPlaceholder: string;
+      password: string;
+      passwordPlaceholder: string;
+      newPasswordPlaceholder: string;
+      name: string;
+      namePlaceholder: string;
+      hotel: string;
+      hotelPlaceholder: string;
+      show: string;
+      hide: string;
+      showLabel: string;
+      hideLabel: string;
+    };
+    errors: {
+      required: string;
+      network: string;
+      /** Ссылка на ту же форму на отдельной странице стойки — на случай сбоя окна. */
+      fallback: string;
+    };
+    signedIn: string;
+  };
 };

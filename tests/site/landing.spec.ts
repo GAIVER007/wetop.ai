@@ -108,24 +108,25 @@ test('главная: «Войти» и «Регистрация», шаги п�
   ]);
   await expect(start).toContainText(/7\sдней/);
   await expect(start).not.toContainText(/код из письма/);
-  // «Регистрация» — прямо на форму стойки, «Войти» — на экран входа (не в корень стойки)
+  // «Создать аккаунт» (27.09.2026, ADR-100) без JavaScript — прямо на форму стойки, «Войти» — на экран входа;
+  // с JavaScript обе открывают окно поверх главной (tests/site/auth-dialog.spec.ts)
   const header = page.locator('.site-header');
   await expect(header.getByRole('link', { name: 'Войти', exact: true })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/login',
   );
-  await expect(header.getByRole('link', { name: 'Регистрация', exact: true })).toHaveAttribute(
+  await expect(header.getByRole('link', { name: 'Создать аккаунт', exact: true })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
   const hero = page.locator('.hero');
-  await expect(hero.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Создать аккаунт/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
   await expect(hero.getByRole('link', { name: 'Войти', exact: true })).toBeVisible();
   await expect(hero).toContainText(/7\sдней бесплатно/);
-  await expect(start.getByRole('link', { name: /Регистрация/ })).toHaveAttribute(
+  await expect(start.getByRole('link', { name: /Создать аккаунт/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );

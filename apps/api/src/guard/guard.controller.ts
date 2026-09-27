@@ -16,11 +16,13 @@ import { formatAlert } from '@pms/domain';
 import { INCIDENTS_REPOSITORY, type IncidentsRepository } from './incidents.repository';
 import { ALERT_NOTIFIER, type AlertNotifier } from './guard.ports';
 import { GuardService } from './guard.service';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Сторож системы (срез 11): экран «Неисправности» стойки и дежурный агент читают отсюда.
  * «Принято» — человек в курсе, будить больше не надо; «Решено» — закрыть руками то, что проверка не перепроверит.
  */
+@Access('desk')
 @Controller('guard')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)
@@ -82,6 +84,7 @@ export class GuardController {
   }
 
   /** Пробное сообщение будильника: проверить токен и чат, не дожидаясь аварии */
+  @Access('settings')
   @Post('alert/test')
   @HttpCode(200)
   async alertTest() {

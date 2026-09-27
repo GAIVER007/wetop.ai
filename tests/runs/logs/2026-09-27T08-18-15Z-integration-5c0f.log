@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 27.09.2026 13:18 Алматы · vm
+# коммит 4b966af (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 62
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T08-18-15Z-integration-5c0f.json' 'tests/integration/invites.test.ts' 'tests/integration/access-extensions.test.ts' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 284ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 281ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 210ms
+
+ Test Files  3 passed (3)
+      Tests  10 passed (10)
+   Start at  08:18:15
+   Duration  3.38s (tests 39%, import 31%, transform 30%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T08-18-15Z-integration-5c0f.json
+
+# код выхода 0 · 4 с

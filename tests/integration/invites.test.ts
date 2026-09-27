@@ -60,6 +60,7 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
       tokenHash: hashSecret(token),
       expiresAt: new Date(Date.now() + 7 * 86_400_000),
       createdBy: ownerId,
+      role: 'STAFF',
     });
     expect(created.organizationId).toBe(organizationId);
     expect(created.email).toBe(inviteeEmail);
@@ -77,6 +78,7 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
       tokenHash: hashSecret(newSessionToken()),
       expiresAt: new Date(Date.now() - 1000),
       createdBy: ownerId,
+      role: 'STAFF',
     });
     const pending = await repo.pendingInvites(organizationId, new Date());
     expect(pending.map((i) => i.email)).toEqual([inviteeEmail]);
@@ -88,12 +90,12 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
 
   it('вступление: новый человек заведён с членством; повторное вступление не падает и не дублирует', async () => {
     expect(await repo.isMember(inviteeEmail, organizationId)).toBe(false);
-    const joined = await repo.joinOrganization({ email: inviteeEmail, organizationId });
+    const joined = await repo.joinOrganization({ email: inviteeEmail, organizationId, role: 'STAFF' });
     expect(joined.email).toBe(inviteeEmail);
     expect(joined.organizationId).toBe(organizationId);
     expect(await repo.isMember(inviteeEmail, organizationId)).toBe(true);
 
-    const again = await repo.joinOrganization({ email: inviteeEmail, organizationId });
+    const again = await repo.joinOrganization({ email: inviteeEmail, organizationId, role: 'STAFF' });
     expect(again.userId).toBe(joined.userId);
     const memberships = await db.membership.count({ where: { organizationId } });
     expect(memberships).toBe(2); // владелец и приглашённый, без дубля
@@ -111,6 +113,7 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
       tokenHash,
       expiresAt: new Date(Date.now() + 86_400_000),
       createdBy: ownerId,
+      role: 'STAFF',
     });
     await expect(
       repo.createInvite({
@@ -119,9 +122,13 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
         tokenHash,
         expiresAt: new Date(Date.now() + 86_400_000),
         createdBy: ownerId,
+        role: 'STAFF',
       }),
     ).rejects.toMatchObject({ code: 'P2002' });
   });
+
+  /** Отзывает владелец: ему доступны приглашения с любой ролью (ADR-098) */
+  const ALL_INVITE_ROLES = ['MANAGER', 'STAFF'] as const;
 
   // Аудит 26.09, С-10 и С-11: отзыв приглашения и суточный счётчик — на настоящей базе, а не только на подделке
   it('отзыв гасит только живое приглашение своей организации; счётчик за сутки считает созданные', async () => {
@@ -133,14 +140,15 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
       tokenHash: hashSecret(newSessionToken()),
       expiresAt: new Date(Date.now() + 86_400_000),
       createdBy: ownerId,
+      role: 'STAFF',
     });
     expect(await repo.invitesCreatedSince(organizationId, since)).toBe(before + 1);
-    expect(await repo.revokeInvite(created.id, randomUUID(), new Date())).toBe(false);
-    expect(await repo.revokeInvite('не-uuid', organizationId, new Date())).toBe(false);
-    expect(await repo.revokeInvite(created.id, organizationId, new Date())).toBe(true);
+    expect(await repo.revokeInvite(created.id, randomUUID(), new Date(), ALL_INVITE_ROLES)).toBe(false);
+    expect(await repo.revokeInvite('не-uuid', organizationId, new Date(), ALL_INVITE_ROLES)).toBe(false);
+    expect(await repo.revokeInvite(created.id, organizationId, new Date(), ALL_INVITE_ROLES)).toBe(true);
     expect((await repo.pendingInvites(organizationId, new Date())).map((i) => i.id)).not.toContain(
       created.id,
     );
-    expect(await repo.revokeInvite(created.id, organizationId, new Date())).toBe(false);
+    expect(await repo.revokeInvite(created.id, organizationId, new Date(), ALL_INVITE_ROLES)).toBe(false);
   });
 });

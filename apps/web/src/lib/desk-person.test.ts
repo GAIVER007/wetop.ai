@@ -52,13 +52,16 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
     });
     expect(deskPerson(me({ role: 'STAFF', name: null }).user)).toEqual({
       name: 'dana@example.invalid',
-      caption: 'Сотрудник',
+      caption: 'Администратор',
       initials: 'D',
     });
+    // третья роль (ADR-098)
+    expect(deskPerson(me({ role: 'MANAGER' }).user).caption).toBe('Управляющий');
     expect(deskPerson(me({ platformAdmin: true }).user).caption).toBe(
       'Владелец · главный администратор',
     );
-    // роли в ответе нет (старый API) — подпись не обещает прав владельца
-    expect(deskPerson(me({ role: undefined }).user).caption).toBe('Сотрудник');
+    // роли в ответе нет (старый API) или она незнакома — подпись не обещает прав больше, чем у администратора
+    expect(deskPerson(me({ role: undefined }).user).caption).toBe('Администратор');
+    expect(deskPerson(me({ role: 'ADMIN' }).user).caption).toBe('Администратор');
   });
 });

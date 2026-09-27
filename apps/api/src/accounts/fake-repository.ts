@@ -3,10 +3,12 @@
  * Ведёт себя как настоящее в том, что важно проверкам: считает коды за час, помнит попытки,
  * гасит использованный код, отзывает сессии.
  */
+import type { MembershipRole } from '@pms/domain';
 import type {
   AccountRecord,
   AccountsRepository,
   InviteRecord,
+  MemberRecord,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -138,6 +140,7 @@ export class FakeAccountsRepository implements AccountsRepository {
     tokenHash: string;
     expiresAt: Date;
     createdBy: string;
+    role: MembershipRole;
   }): Promise<InviteRecord> {
     this.seq += 1;
     const org = this.accounts.find((a) => a.organizationId === input.organizationId);
@@ -151,6 +154,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       acceptedAt: null,
       createdBy: input.createdBy,
       createdAt: new Date(),
+      role: input.role,
     };
     this.invites.push(stored);
     return toInviteRecord(stored);
@@ -180,10 +184,19 @@ export class FakeAccountsRepository implements AccountsRepository {
       .length;
   }
 
-  async revokeInvite(id: string, organizationId: string, at: Date): Promise<boolean> {
+  async revokeInvite(
+    id: string,
+    organizationId: string,
+    at: Date,
+    roles: readonly MembershipRole[],
+  ): Promise<boolean> {
     const i = this.invites.find(
       (x) =>
-        x.id === id && x.organizationId === organizationId && x.acceptedAt === null && x.expiresAt > at,
+        x.id === id &&
+        x.organizationId === organizationId &&
+        x.acceptedAt === null &&
+        x.expiresAt > at &&
+        roles.includes(x.role),
     );
     if (!i) return false;
     i.expiresAt = at;
@@ -195,7 +208,11 @@ export class FakeAccountsRepository implements AccountsRepository {
   }
 
   /** Подделка держит одну строку на членство: тот же человек в другой организации — ещё одна строка. */
-  async joinOrganization(input: { email: string; organizationId: string }): Promise<AccountRecord> {
+  async joinOrganization(input: {
+    email: string;
+    organizationId: string;
+    role: MembershipRole;
+  }): Promise<AccountRecord> {
     const existing = this.accounts.find(
       (a) => a.email === input.email && a.organizationId === input.organizationId,
     );
@@ -210,10 +227,65 @@ export class FakeAccountsRepository implements AccountsRepository {
       organizationName: org?.organizationName ?? input.organizationId,
       organizationStatus: org?.organizationStatus ?? 'TRIAL',
       trialEndsAt: org?.trialEndsAt ?? null,
-      role: 'STAFF',
+      role: input.role,
     };
     this.accounts.push(account);
     return account;
+  }
+
+  // ── Сотрудники (ADR-098) ────────────────────────────────────────────────────────────────────
+  /** Что ушло бы в журнал при отключении и смене роли — проверкам видно, кто и кого */
+  readonly removed: Array<{ organizationId: string; userId: string; by: string }> = [];
+  readonly roleChanges: Array<{
+    organizationId: string;
+    userId: string;
+    before: MembershipRole;
+    after: MembershipRole;
+    by: string;
+  }> = [];
+
+  async members(organizationId: string): Promise<MemberRecord[]> {
+    return this.accounts
+      .filter((a) => a.organizationId === organizationId)
+      .map((a) => ({
+        userId: a.userId,
+        email: a.email,
+        name: null,
+        role: a.role,
+        joinedAt: new Date('2026-09-01T00:00:00.000Z'),
+      }));
+  }
+
+  async removeMember(input: { organizationId: string; userId: string; by: string }): Promise<boolean> {
+    const at = this.accounts.findIndex(
+      (a) => a.userId === input.userId && a.organizationId === input.organizationId,
+    );
+    if (at < 0) return false;
+    this.accounts.splice(at, 1);
+    this.removed.push({ ...input });
+    return true;
+  }
+
+  async setMemberRole(input: {
+    organizationId: string;
+    userId: string;
+    role: MembershipRole;
+    by: string;
+  }): Promise<{ before: MembershipRole } | null> {
+    const a = this.accounts.find(
+      (x) => x.userId === input.userId && x.organizationId === input.organizationId,
+    );
+    if (!a) return null;
+    const before = a.role;
+    a.role = input.role;
+    this.roleChanges.push({
+      organizationId: input.organizationId,
+      userId: input.userId,
+      before,
+      after: input.role,
+      by: input.by,
+    });
+    return { before };
   }
 
   /** Ссылки «задайте пароль» для приглашённых: по ним видно, что ушло человеку, без настоящей базы. */
@@ -254,5 +326,6 @@ function toInviteRecord(i: StoredInvite): InviteRecord {
     expiresAt: i.expiresAt,
     acceptedAt: i.acceptedAt,
     createdAt: i.createdAt,
+    role: i.role,
   };
 }

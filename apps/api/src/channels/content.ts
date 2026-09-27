@@ -4,6 +4,7 @@ import { ChannelOperatorInterceptor } from './operator-access';
 import { channex } from '@pms/integrations';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 import { PROVIDER } from './ari-publisher';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Контент объекта для WETOP читается из Channex (ADR-033): описание, контакты, правила объекта, удобства, фото.
@@ -235,6 +236,7 @@ export class ChannelContentService {
   }
 }
 
+@Access('channels')
 @Controller('channels/channex')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)

@@ -3,8 +3,15 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
   INVITES_PER_DAY,
   INVITE_TTL_MS,
+  MEMBERSHIP_ROLES,
+  canInvite,
   canManageStaff,
+  canRemoveMember,
+  canSetRoleAtDesk,
   checkInvite,
+  invitableRoles,
+  parseInviteRole,
+  type MembershipRole,
   checkSession,
   describeUserAgent,
   hashSessionToken,
@@ -39,7 +46,29 @@ export interface InviteView {
   expiresAt: Date;
   acceptedAt: Date | null;
   createdAt: Date;
+  /** С какой ролью войдёт приглашённый (ADR-098) */
+  role: MembershipRole;
+  /** Может ли этот вошедший его отозвать: тот, кто вправе позвать с этой ролью */
+  revocable: boolean;
 }
+
+/** Строка списка «Сотрудники» (ADR-098): кто, роль, с какого дня и что с ним может сделать этот вошедший */
+export interface MemberView {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: Date;
+  /** Это вы */
+  you: boolean;
+  /** Этот вошедший может его отключить */
+  removable: boolean;
+  /** Этот вошедший может сменить ему роль (между управляющим и администратором) */
+  roleEditable: boolean;
+}
+
+/** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
+export type MemberRefusal = 'staff' | 'missing' | 'self' | 'owner-target' | 'manager-target' | 'role' | 'owner-only';
 
 /** Что видит человек, открывший ссылку: кто зовёт и кого. */
 export interface InvitePreview {
@@ -56,7 +85,7 @@ export interface InvitePreview {
 
 export type InviteOutcome =
   | { ok: true; invite: InviteView }
-  | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' };
+  | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' | 'role' | 'manager-role' };
 
 @Injectable()
 export class AccountsService {
@@ -121,11 +150,16 @@ export class AccountsService {
   async createInvite(
     sessionToken: string | null,
     rawEmail: unknown,
+    rawRole?: unknown,
   ): Promise<InviteOutcome | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
-    // приглашает только владелец организации (DATA_MODEL §16.1, ADR-083)
+    // приглашают владелец и управляющий (DATA_MODEL §16.5, ADR-098); ярлык 'owner' — отказ «не ваше»
     if (!canManageStaff(who.role)) return { ok: false, reason: 'owner' };
+    // без роли — администратор, как принимались приглашения до ADR-098; владельца приглашением не назначают
+    const role = rawRole === undefined || rawRole === null || rawRole === '' ? 'STAFF' : parseInviteRole(rawRole);
+    if (!role) return { ok: false, reason: 'role' };
+    if (!canInvite(who.role, role)) return { ok: false, reason: 'manager-role' };
     if (typeof rawEmail !== 'string') return { ok: false, reason: 'email' };
     const email = normalizeEmail(rawEmail);
     if (!isEmailShaped(email)) return { ok: false, reason: 'email' };
@@ -143,18 +177,21 @@ export class AccountsService {
       tokenHash: hashSecret(token),
       expiresAt: inviteExpiresAt(now),
       createdBy: who.userId,
+      role,
     });
     const link = `${this.appUrl.replace(/\/+$/, '')}/invite/${token}`;
     try {
       if (!this.mailReady) {
         this.log.error('MAIL_* не настроены — приглашение создано, но письмо не отправлено');
       } else {
-        await this.sender.send(mail.inviteLetter(email, who.organizationName, link, INVITE_TTL_MS));
+        await this.sender.send(
+          mail.inviteLetter(email, who.organizationName, link, INVITE_TTL_MS, MEMBERSHIP_ROLES[role]),
+        );
       }
     } catch (e) {
       this.log.error(`письмо с приглашением не отправлено: ${(e as Error).message}`);
     }
-    return { ok: true, invite: toInviteView(invite) };
+    return { ok: true, invite: toInviteView(invite, who.role) };
   }
 
   /**
@@ -169,7 +206,9 @@ export class AccountsService {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
     if (!canManageStaff(who.role)) return 'owner';
-    return (await this.repo.revokeInvite(id, who.organizationId, new Date())) ? 'ok' : 'missing';
+    // отзывает тот, кто вправе позвать с этой ролью: приглашение управляющего управляющему «не найдено»
+    const allowed = invitableRoles(who.role);
+    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed)) ? 'ok' : 'missing';
   }
 
   /**
@@ -180,7 +219,73 @@ export class AccountsService {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
     if (!canManageStaff(who.role)) return 'owner';
-    return (await this.repo.pendingInvites(who.organizationId, new Date())).map(toInviteView);
+    return (await this.repo.pendingInvites(who.organizationId, new Date())).map((i) =>
+      toInviteView(i, who.role),
+    );
+  }
+
+  // ── Сотрудники (ADR-098, DATA_MODEL §16.1 v1.12) ────────────────────────────────────────────
+
+  /** Люди своей организации с ролями. `null` — сессии нет; `'staff'` — вошедшему сотрудники не открыты */
+  async members(sessionToken: string | null): Promise<MemberView[] | 'staff' | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'staff';
+    return (await this.repo.members(who.organizationId)).map((m) => {
+      const you = m.userId === who.userId;
+      return {
+        ...m,
+        you,
+        removable: !you && canRemoveMember(who.role, m.role),
+        roleEditable: !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+      };
+    });
+  }
+
+  /**
+   * Отключить сотрудника: владелец — управляющих и администраторов, управляющий — администраторов; себя и владельца — нет.
+   * Членство удаляется, сессии этой организации гаснут на следующем запросе.
+   */
+  async removeMember(sessionToken: string | null, userId: string): Promise<'ok' | MemberRefusal | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'staff';
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return 'missing';
+    if (target.userId === who.userId) return 'self';
+    if (target.role === 'OWNER') return 'owner-target';
+    if (!canRemoveMember(who.role, target.role)) return 'manager-target';
+    const removed = await this.repo.removeMember({
+      organizationId: who.organizationId,
+      userId,
+      by: who.userId,
+    });
+    return removed ? 'ok' : 'missing';
+  }
+
+  /** Сменить роль между управляющим и администратором — только владелец; владельца назначает команда на сервере */
+  async setMemberRole(
+    sessionToken: string | null,
+    userId: string,
+    rawRole: unknown,
+  ): Promise<{ ok: true; member: { userId: string; role: MembershipRole } } | { ok: false; reason: MemberRefusal } | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
+    if (!canSetRoleAtDesk(who.role, 'STAFF', 'MANAGER')) return { ok: false, reason: 'owner-only' };
+    const role = parseInviteRole(rawRole);
+    if (!role) return { ok: false, reason: 'role' };
+    const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
+    if (!target) return { ok: false, reason: 'missing' };
+    if (target.userId === who.userId) return { ok: false, reason: 'self' };
+    if (!canSetRoleAtDesk(who.role, target.role, role)) return { ok: false, reason: 'owner-target' };
+    const changed = await this.repo.setMemberRole({
+      organizationId: who.organizationId,
+      userId,
+      role,
+      by: who.userId,
+    });
+    return changed ? { ok: true, member: { userId, role } } : { ok: false, reason: 'missing' };
   }
 
   /**
@@ -226,6 +331,7 @@ export class AccountsService {
     await this.repo.joinOrganization({
       email: invite.email,
       organizationId: invite.organizationId,
+      role: invite.role,
     });
     const now = new Date();
     await this.repo.markInviteAccepted(invite.id, now);
@@ -258,12 +364,14 @@ export class AccountsService {
   }
 }
 
-function toInviteView(i: InviteRecord): InviteView {
+function toInviteView(i: InviteRecord, actor: MembershipRole): InviteView {
   return {
     id: i.id,
     email: i.email,
     expiresAt: i.expiresAt,
     acceptedAt: i.acceptedAt,
     createdAt: i.createdAt,
+    role: i.role,
+    revocable: canInvite(actor, i.role),
   };
 }

@@ -19,6 +19,7 @@ import { currentOrganizationId, hasSignedInActor } from '../auth/request-context
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
 import { HotelService } from './hotel.module';
+import { Access } from '../auth/access.decorator';
 
 /** Горизонт цен: столько дней вперёд, как полная выгрузка ARI. Дальше цену продлевают в «Ценах». */
 const PRICE_HORIZON_DAYS = 500;
@@ -218,12 +219,14 @@ export class OnboardingService {
   }
 }
 
+@Access('desk')
 @Controller('hotel/onboarding')
 export class OnboardingController {
   constructor(@Inject(OnboardingService) private readonly service: OnboardingService) {}
   @Get() status() {
     return this.service.status();
   }
+  @Access('settings')
   @Post() provision(@Body() body: Record<string, unknown>) {
     return this.service.provision(body ?? {});
   }

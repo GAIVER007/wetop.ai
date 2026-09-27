@@ -16,12 +16,14 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { KNOWLEDGE_MAX_BYTES, type UploadedFile as PanelFile } from '../bots/panel';
 import { SupportService } from './support.service';
+import { Access } from '../auth/access.decorator';
 
 /**
  * «Платформа → Техподдержка» (ADR-083, план `plans/platform-roles-extensions-2026-09-25.md` Э3): прокси к панели
  * ИИ-помощника. Явный список маршрутов — ровно то, что нужно экранам; правил помощника здесь нет. Адрес и ключ
  * панели живут только в окружении API.
  */
+@Access('platform')
 @Controller('platform/support')
 export class SupportController {
   constructor(@Inject(SupportService) private readonly support: SupportService) {}

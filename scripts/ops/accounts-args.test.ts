@@ -20,6 +20,17 @@ describe('parseAccountsArgs', () => {
     });
   });
 
+  it('роль управляющего — manager; отказ называет все три роли (ADR-098)', () => {
+    expect(parseAccountsArgs(['role', '--email=a@b.kz', '--role=Manager'])).toEqual({
+      ok: true,
+      command: { kind: 'role', email: 'a@b.kz', role: 'MANAGER' },
+    });
+    expect(parseAccountsArgs(['role', '--email=a@b.kz', '--role=admin'])).toEqual({
+      ok: false,
+      error: '--role= owner, manager или staff',
+    });
+  });
+
   it('роль в организации: owner или staff', () => {
     expect(parseAccountsArgs(['role', '--email=Aigul@Luxx.KZ', '--role=owner'])).toEqual({
       ok: true,

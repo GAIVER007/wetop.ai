@@ -13,11 +13,13 @@ import {
 } from '@nestjs/common';
 import { piiStorageMode } from '@pms/shared';
 import { GuestsService } from './guests.service';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Где лежат данные гостей (ADR-072): `real` — база в Казахстане, введённое хранится как есть; `pseudonymized` —
  * нет, и формы стойки не спрашивают имя, контакты и документы. Стойка читает режим заранее, а не узнаёт отказом.
  */
+@Access('desk')
 @Controller('system')
 export class PiiStorageController {
   @Get('pii-storage')
@@ -26,6 +28,7 @@ export class PiiStorageController {
   }
 }
 
+@Access('desk')
 @Controller('guests')
 export class GuestsController {
   constructor(@Inject(GuestsService) private readonly service: GuestsService) {}

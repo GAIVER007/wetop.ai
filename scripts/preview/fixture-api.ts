@@ -18,7 +18,7 @@ import {
   extensionDaysLeft,
   identityRole,
   parseExtensionChange,
-  INVITE_OWNER_ONLY_MESSAGE,
+  INVITE_STAFF_ONLY_MESSAGE,
   type ExtensionStatus,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
@@ -2681,7 +2681,7 @@ createServer(async (req, res) => {
       const who = token ? uiSessions.get(token) : null;
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
       // зовёт только владелец организации (ADR-083) — и список ожидающих тоже его
-      if (uiRole !== 'OWNER') return send(403, { message: INVITE_OWNER_ONLY_MESSAGE });
+      if (uiRole !== 'OWNER') return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       if (req.method === 'POST') {
         const email = String(body['email'] ?? '')
           .trim()

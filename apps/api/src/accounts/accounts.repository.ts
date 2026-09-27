@@ -43,6 +43,17 @@ export interface InviteRecord {
   expiresAt: Date;
   acceptedAt: Date | null;
   createdAt: Date;
+  /** С какой ролью войдёт приглашённый (§13.6 v1.12, ADR-098): `MANAGER` или `STAFF` */
+  role: MembershipRole;
+}
+
+/** Человек организации для списка «Сотрудники» (§16.1 v1.12): кто, с какой ролью и с какого дня */
+export interface MemberRecord {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: Date;
 }
 
 export interface AccountsRepository {
@@ -76,6 +87,7 @@ export interface AccountsRepository {
     tokenHash: string;
     expiresAt: Date;
     createdBy: string;
+    role: MembershipRole;
   }): Promise<InviteRecord>;
   /** Не принятые и не просроченные на момент `now`, новые сверху. */
   pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]>;
@@ -85,16 +97,44 @@ export interface AccountsRepository {
   invitesCreatedSince(organizationId: string, since: Date): Promise<number>;
   /**
    * Отозвать живое приглашение своей организации: срок истекает сейчас, ссылка больше не открывается (аудит 26.09,
-   * С-10). `false` — такого живого приглашения у этой организации нет.
+   * С-10). `false` — такого живого приглашения у этой организации нет или его роль не из `roles` (ADR-098: отзывает тот,
+   * кто вправе позвать с этой ролью).
    */
-  revokeInvite(id: string, organizationId: string, at: Date): Promise<boolean>;
+  revokeInvite(
+    id: string,
+    organizationId: string,
+    at: Date,
+    roles: readonly MembershipRole[],
+  ): Promise<boolean>;
   /** Есть ли у адреса членство в этой организации (любой статус человека). */
   isMember(email: string, organizationId: string): Promise<boolean>;
   /**
    * Вступление по приглашению: человек заводится, если его нет; членство — если его нет. Повторный
-   * вызов ничего не дублирует (составной ключ `memberships`). Возвращает учётку в этой организации.
+   * вызов ничего не дублирует (составной ключ `memberships`). Возвращает учётку в этой организации. Роль — из
+   * приглашения (ADR-098); уже состоящему роль не меняется.
    */
-  joinOrganization(input: { email: string; organizationId: string }): Promise<AccountRecord>;
+  joinOrganization(input: {
+    email: string;
+    organizationId: string;
+    role: MembershipRole;
+  }): Promise<AccountRecord>;
+  /** Люди организации: владельцы, управляющие, администраторы; внутри роли — по дате вступления */
+  members(organizationId: string): Promise<MemberRecord[]>;
+  /**
+   * Отключить (ADR-098, §16.1 v1.12): удалить членство и записать в журнал организации (`membership.removed`) одной
+   * транзакцией. Сессии этой организации гаснут сами — сессия живёт, пока есть членство. `false` — членства нет.
+   */
+  removeMember(input: { organizationId: string; userId: string; by: string }): Promise<boolean>;
+  /**
+   * Сменить роль и записать в журнал организации (`membership.role.updated`: было, стало) одной транзакцией. `null` —
+   * членства нет.
+   */
+  setMemberRole(input: {
+    organizationId: string;
+    userId: string;
+    role: MembershipRole;
+    by: string;
+  }): Promise<{ before: MembershipRole } | null>;
   /**
    * Одноразовая ссылка «задайте пароль» для только что вступившего (ADR-053). Раньше принятие
    * приглашения слало код на почту — но вход по коду с экрана снят, а почта может быть не настроена.

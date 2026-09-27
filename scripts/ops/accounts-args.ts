@@ -30,7 +30,7 @@ export const USAGE = `Учётные записи стойки (DATA_MODEL §13,
   PMS_NEW_PASSWORD=… npm run accounts -- password --email=aigul@luxx.kz
   npm run accounts -- block --email=aigul@luxx.kz
   npm run accounts -- unblock --email=aigul@luxx.kz
-  npm run accounts -- role --email=aigul@luxx.kz --role=owner|staff
+  npm run accounts -- role --email=aigul@luxx.kz --role=owner|manager|staff
   npm run accounts -- platform-admin --email=owner@wetop.ai --note="владелец WETOP"
   npm run accounts -- platform-admin-revoke --email=owner@wetop.ai
   npm run accounts -- extension --email=owner@wetop.ai --status=active|trial|off --until=2026-12-31 --note="счёт 12"
@@ -38,10 +38,11 @@ export const USAGE = `Учётные записи стойки (DATA_MODEL §13,
 invite — сотрудник задаёт пароль сам по ссылке из письма (нужен MAIL_API_KEY; без него команда
 печатает ссылку, и её передаёт владелец). create — владелец задаёт пароль за него.
 
-Роли (DATA_MODEL §16.1, ADR-083): владелец (owner) и сотрудник (staff). На стойке они равноправны (ADR-023);
-владелец приглашает сотрудников и настраивает ИИ-продавца. create и invite заводят сотрудника, владельца —
-только если в организации его ещё нет; последнего владельца команда role не снимает. Роль и расширение
-относятся к организации, в которой человек открывает сессию, — самой ранней по вступлению.
+Роли (DATA_MODEL §16.1, §16.5, ADR-098): владелец (owner), управляющий (manager) и администратор (staff); у каждой
+свой набор прав на стойке. Управляющих и администраторов приглашают со стойки; владельца назначает только эта
+команда. create и invite заводят администратора, владельца — только если в организации его ещё нет; последнего
+владельца команда role не снимает. Роль и расширение относятся к организации, в которой человек открывает
+сессию, — самой ранней по вступлению.
 
 platform-admin — главный администратор платформы (§16.2): раздел «Платформа», расширения организаций,
 техподдержка. Выдаётся и снимается только этой командой. extension — расширение «ИИ-продавец» организации
@@ -70,7 +71,7 @@ export function parseAccountsArgs(argv: readonly string[]): ParseResult {
     const email = validEmail(arg('email'));
     const role = parseMembershipRole(arg('role') ?? '');
     if (!email) return { ok: false, error: '--email= непохож на почту' };
-    if (!role) return { ok: false, error: '--role= owner или staff' };
+    if (!role) return { ok: false, error: '--role= owner, manager или staff' };
     return { ok: true, command: { kind: 'role', email, role } };
   }
 

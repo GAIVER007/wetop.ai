@@ -1,4 +1,4 @@
-import { MEMBERSHIP_ROLES } from '@pms/domain';
+import { MEMBERSHIP_ROLES, parseMembershipRole } from '@pms/domain';
 import { CLOSED_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
 
 /** Кто на смене — подпись в меню вместо «Администратор» (ADR-083): имя, роль и буквы для кружка */
@@ -30,8 +30,8 @@ const capital = (text: string) => text.charAt(0).toLocaleUpperCase('ru') + text.
 /** Подпись вошедшего: имя (или почта), роль словом; главный администратор — ещё и это */
 export function deskPerson(user: NonNullable<MeLike['user']>): DeskPerson {
   const name = user.name?.trim() || user.email;
-  // старый API роли не присылает — показываем сотрудником: подпись не должна обещать прав, которых нет
-  const role = user.role === 'OWNER' ? MEMBERSHIP_ROLES.OWNER : MEMBERSHIP_ROLES.STAFF;
+  // роли нет (старый API) или она незнакома — администратор: подпись не должна обещать прав, которых нет
+  const role = MEMBERSHIP_ROLES[(user.role && parseMembershipRole(user.role)) || 'STAFF'];
   const caption = capital(role) + (user.platformAdmin === true ? ' · главный администратор' : '');
   const words = (user.name?.trim() || user.email.split('@')[0] || '?')
     .split(/[\s._-]+/)

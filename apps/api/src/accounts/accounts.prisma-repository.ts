@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
+import type { MembershipRole } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import type {
   AccountRecord,
   AccountsRepository,
   InviteRecord,
+  MemberRecord,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -167,6 +169,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
     tokenHash: string;
     expiresAt: Date;
     createdBy: string;
+    role: MembershipRole;
   }): Promise<InviteRecord> {
     const row = await this.prisma.db.invite.create({
       data: {
@@ -175,6 +178,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
         tokenHash: input.tokenHash,
         expiresAt: input.expiresAt,
         createdBy: input.createdBy,
+        role: input.role,
       },
       select: INVITE_SELECT,
     });
@@ -194,11 +198,22 @@ export class PrismaAccountsRepository implements AccountsRepository {
     return this.prisma.db.invite.count({ where: { organizationId, createdAt: { gte: since } } });
   }
 
-  async revokeInvite(id: string, organizationId: string, at: Date): Promise<boolean> {
+  async revokeInvite(
+    id: string,
+    organizationId: string,
+    at: Date,
+    roles: readonly MembershipRole[],
+  ): Promise<boolean> {
     // id из адреса: не uuid — такого приглашения нет, а не ошибка базы
     if (!UUID.test(id)) return false;
     const { count } = await this.prisma.db.invite.updateMany({
-      where: { id, organizationId, acceptedAt: null, expiresAt: { gt: at } },
+      where: {
+        id,
+        organizationId,
+        acceptedAt: null,
+        expiresAt: { gt: at },
+        role: { in: [...roles] },
+      },
       data: { expiresAt: at },
     });
     return count > 0;
@@ -229,7 +244,11 @@ export class PrismaAccountsRepository implements AccountsRepository {
    * Человек и членство одной транзакцией. Человека ищем по почте (уникальна), членство — по
    * составному ключу: второе вступление того же человека ничего не дублирует и не падает.
    */
-  async joinOrganization(input: { email: string; organizationId: string }): Promise<AccountRecord> {
+  async joinOrganization(input: {
+    email: string;
+    organizationId: string;
+    role: MembershipRole;
+  }): Promise<AccountRecord> {
     return this.prisma.db.$transaction(async (tx) => {
       const user = await tx.user.upsert({
         where: { email: input.email },
@@ -237,10 +256,10 @@ export class PrismaAccountsRepository implements AccountsRepository {
         update: {},
         select: { id: true, email: true },
       });
-      // приглашённый — сотрудник (DATA_MODEL §16.1); уже состоящему роль не меняется
+      // роль — из приглашения (DATA_MODEL §13.6, §16.1 v1.12); уже состоящему роль не меняется
       const membership = await tx.membership.upsert({
         where: { userId_organizationId: { userId: user.id, organizationId: input.organizationId } },
-        create: { userId: user.id, organizationId: input.organizationId, role: 'STAFF' },
+        create: { userId: user.id, organizationId: input.organizationId, role: input.role },
         update: {},
         select: { role: true },
       });
@@ -257,6 +276,79 @@ export class PrismaAccountsRepository implements AccountsRepository {
         trialEndsAt: org.trialEndsAt,
         role: membership.role,
       };
+    });
+  }
+
+  // ── Сотрудники (ADR-098, DATA_MODEL §16.1 v1.12) ────────────────────────────────────────────
+
+  async members(organizationId: string): Promise<MemberRecord[]> {
+    // порядок перечисления в базе — OWNER, MANAGER, STAFF (миграция 20260927000025): владельцы сверху
+    const rows = await this.prisma.db.membership.findMany({
+      where: { organizationId },
+      orderBy: [{ role: 'asc' }, { createdAt: 'asc' }, { userId: 'asc' }],
+      select: {
+        role: true,
+        createdAt: true,
+        user: { select: { id: true, email: true, name: true } },
+      },
+    });
+    return rows.map((m) => ({
+      userId: m.user.id,
+      email: m.user.email,
+      name: m.user.name,
+      role: m.role,
+      joinedAt: m.createdAt,
+    }));
+  }
+
+  async removeMember(input: { organizationId: string; userId: string; by: string }): Promise<boolean> {
+    if (!UUID.test(input.userId)) return false;
+    return this.prisma.db.$transaction(async (tx) => {
+      const membership = await tx.membership.findUnique({
+        where: { userId_organizationId: { userId: input.userId, organizationId: input.organizationId } },
+        select: { role: true },
+      });
+      if (!membership) return false;
+      await tx.membership.delete({
+        where: { userId_organizationId: { userId: input.userId, organizationId: input.organizationId } },
+      });
+      // в журнале организации: строка о человеке ушла бы из виду вместе с его членством
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'membership.removed',
+          before: { userId: input.userId, role: membership.role },
+        },
+      });
+      return true;
+    });
+  }
+
+  async setMemberRole(input: {
+    organizationId: string;
+    userId: string;
+    role: MembershipRole;
+    by: string;
+  }): Promise<{ before: MembershipRole } | null> {
+    if (!UUID.test(input.userId)) return null;
+    return this.prisma.db.$transaction(async (tx) => {
+      const key = { userId_organizationId: { userId: input.userId, organizationId: input.organizationId } };
+      const membership = await tx.membership.findUnique({ where: key, select: { role: true } });
+      if (!membership) return null;
+      await tx.membership.update({ where: key, data: { role: input.role } });
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'membership.role.updated',
+          before: { userId: input.userId, role: membership.role },
+          after: { userId: input.userId, role: input.role },
+        },
+      });
+      return { before: membership.role };
     });
   }
 
@@ -289,6 +381,7 @@ const INVITE_SELECT = {
   expiresAt: true,
   acceptedAt: true,
   createdAt: true,
+  role: true,
   organization: { select: { name: true } },
 } as const;
 
@@ -299,6 +392,7 @@ function toInviteRecord(row: {
   expiresAt: Date;
   acceptedAt: Date | null;
   createdAt: Date;
+  role: MembershipRole;
   organization: { name: string };
 }): InviteRecord {
   return {
@@ -309,6 +403,7 @@ function toInviteRecord(row: {
     expiresAt: row.expiresAt,
     acceptedAt: row.acceptedAt,
     createdAt: row.createdAt,
+    role: row.role,
   };
 }
 

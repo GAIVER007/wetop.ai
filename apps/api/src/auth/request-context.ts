@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import type { MembershipRole } from '@pms/domain';
+import { can, type MembershipRole, type Permission } from '@pms/domain';
 
 /**
  * Кто делает текущий запрос — чтобы `audit_logs.user_id` заполнялся сам, а не в каждом репозитории руками
@@ -77,6 +77,15 @@ export function currentRole(): MembershipRole | null {
  */
 export function actorIsOwner(): boolean {
   return !hasSignedInActor() || currentRole() === 'OWNER';
+}
+
+/**
+ * Есть ли у текущего запроса право (ADR-098, DATA_MODEL §16.5) — для проверок внутри действия, которые не решить по
+ * маршруту: корректировка счёта на уменьшение, кнопки продавца. Служебный ходок — да, как `actorIsOwner`; вошедший —
+ * по таблице прав его роли; неизвестная роль — нет.
+ */
+export function actorMay(permission: Permission): boolean {
+  return !hasSignedInActor() || can(currentRole(), permission);
 }
 
 /** Главный администратор платформы — только вошедший с отметкой: служебные ключи раздел «Платформа» не открывают */

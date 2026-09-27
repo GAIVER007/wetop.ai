@@ -2,7 +2,13 @@ import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { ConflictException, type INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ADJUSTMENT_DOWN_MESSAGE, accessDeniedMessage, type MembershipRole } from '@pms/domain';
+import { SessionGuard } from '../auth/auth.guard';
+import { AuthService } from '../auth/auth.service';
+import { AuthorInterceptor } from '../auth/author.interceptor';
+import { RoleGuard } from '../auth/role.guard';
 import { PrismaService } from '../database/prisma.provider';
 import { UnitsService } from '../units/units.service';
 import { FinanceModule } from './finance.module';
@@ -651,5 +657,136 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
     await request(app.getHttpServer()).post(`/finance/charges/${chargeId}/void`).expect(200);
     expect(fakes.blocks.map((b) => b.reason)).toEqual(['ремонт']);
+  });
+});
+
+/**
+ * Роли в деньгах (ADR-098, Q-024): администратор принимает оплаты и начисляет услуги, а возврат, сторно и корректировку
+ * счёта на уменьшение делают владелец и управляющий. Приложение собрано с настоящими замками входа и ролей.
+ */
+describe('роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-098)', () => {
+  let app: INestApplication;
+  let fakes = makeFakes();
+  const users: Record<string, MembershipRole> = {
+    'session-owner': 'OWNER',
+    'session-manager': 'MANAGER',
+    'session-admin': 'STAFF',
+  };
+  beforeEach(() => {
+    fakes = makeFakes();
+    vi.stubEnv('AUTH_REQUIRED', '1');
+  });
+  afterEach(() => vi.unstubAllEnvs());
+  beforeAll(async () => {
+    const proxy = (get: () => object) =>
+      new Proxy({}, { get: (_t, k) => (get() as Record<string, unknown>)[k as string] });
+    const auth = {
+      whoami: async (token: string) =>
+        users[token]
+          ? {
+              user: {
+                id: `u-${token}`,
+                email: 'desk@example.invalid',
+                name: null,
+                organizationId: 'org-1',
+                role: users[token],
+                platformAdmin: false,
+              },
+              organization: null,
+              expiresAt: '2026-10-01T00:00:00.000Z',
+            }
+          : null,
+    };
+    const m = await Test.createTestingModule({
+      imports: [FinanceModule],
+      providers: [
+        { provide: AuthService, useValue: auth },
+        { provide: APP_GUARD, useClass: SessionGuard },
+        { provide: APP_GUARD, useClass: RoleGuard },
+        { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
+      ],
+    })
+      .overrideProvider(FINANCE_REPOSITORY)
+      .useFactory({ factory: () => proxy(() => fakes.repo) })
+      .overrideProvider(UnitsService)
+      .useFactory({ factory: () => proxy(() => fakes.units) })
+      .overrideProvider(PrismaService)
+      .useValue({})
+      .compile();
+    app = m.createNestApplication();
+    await app.init();
+  });
+  afterAll(async () => {
+    await app.close();
+  });
+  const as = (session: string) => ({ 'x-wetop-session': session });
+  const charge = (session: string, body: Record<string, unknown>) =>
+    request(app.getHttpServer()).post('/finance/folios/f1/charges').set(as(session)).send(body);
+  const pay = (session: string) =>
+    request(app.getHttpServer())
+      .post('/finance/payments')
+      .set(as(session))
+      .send({ method: 'CASH', amount: '1000', allocations: [{ folioId: 'f1', amount: '1000' }] });
+
+  /** Ручное начисление, созданное этим ответом: его id — для сторно (проживание сторнирует только система) */
+  const manualChargeId = (body: { folios: Array<{ charges: Array<{ id: string; kind: string }> }> }) =>
+    body.folios[0]!.charges.find((c) => c.kind !== 'ACCOMMODATION')!.id;
+
+  it('администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт', async () => {
+    const up = await charge('session-admin', {
+      kind: 'ADJUSTMENT',
+      description: 'Доплата',
+      unitPrice: '100',
+    }).expect(201);
+    const down = await charge('session-admin', {
+      kind: 'ADJUSTMENT',
+      description: 'Скидка',
+      unitPrice: '-100',
+    });
+    expect(down.status).toBe(403);
+    expect(down.body.message).toBe(ADJUSTMENT_DOWN_MESSAGE);
+
+    const paid = await pay('session-admin').expect(201);
+    const paymentId: string = paid.body.folios[0].payments[0].paymentId;
+    const refund = await request(app.getHttpServer())
+      .post(`/finance/payments/${paymentId}/refunds`)
+      .set(as('session-admin'))
+      .send({ folioId: 'f1', amount: '500', reason: 'ошибся суммой' });
+    expect(refund.status).toBe(403);
+    expect(refund.body.message).toBe(accessDeniedMessage('refunds'));
+    const voided = await request(app.getHttpServer())
+      .post(`/finance/charges/${manualChargeId(up.body)}/void`)
+      .set(as('session-admin'));
+    expect(voided.status).toBe(403);
+    expect(fakes.audits).toEqual(['finance.charge', 'finance.payment']);
+  });
+
+  it('управляющий и владелец возвращают, сторнируют и уменьшают счёт', async () => {
+    for (const session of ['session-manager', 'session-owner']) {
+      fakes = makeFakes();
+      const down = await charge(session, {
+        kind: 'ADJUSTMENT',
+        description: 'Скидка',
+        unitPrice: '-100',
+      }).expect(201);
+      const paid = await pay(session).expect(201);
+      const paymentId: string = paid.body.folios[0].payments[0].paymentId;
+      await request(app.getHttpServer())
+        .post(`/finance/payments/${paymentId}/refunds`)
+        .set(as(session))
+        .send({ folioId: 'f1', amount: '500', reason: 'ошибся суммой' })
+        .expect(201);
+      await request(app.getHttpServer())
+        .post(`/finance/charges/${manualChargeId(down.body)}/void`)
+        .set(as(session))
+        .expect(200);
+    }
+  });
+
+  it('отчёт за период администратор смотрит', async () => {
+    await request(app.getHttpServer())
+      .get('/finance/report?from=2026-10-01&to=2026-10-31')
+      .set(as('session-admin'))
+      .expect(200);
   });
 });

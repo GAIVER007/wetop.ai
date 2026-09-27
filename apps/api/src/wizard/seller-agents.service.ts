@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { canWrite } from '@pms/domain';
+import { can, canWrite } from '@pms/domain';
 import { createHash } from 'node:crypto';
 import {
   BadRequestException,
@@ -25,15 +25,16 @@ export class SellerAgentsService {
       organizationId = currentOrganizationId();
     if (!userId || !organizationId)
       throw new UnauthorizedException('Войдите в аккаунт, чтобы сохранить агента');
-    if (currentRole() !== 'OWNER')
-      throw new ForbiddenException('Создавать агентов может владелец организации');
+    // агенты — настройки ИИ-продавца: владелец и управляющий (ADR-098, DATA_MODEL §16.5)
+    if (!can(currentRole(), 'seller'))
+      throw new ForbiddenException('Создавать агентов могут владелец и управляющий');
     const membership = await this.prisma.db.membership.findUnique({
       where: { userId_organizationId: { userId, organizationId } },
       include: { user: true, organization: true },
     });
     if (
       !membership ||
-      membership.role !== 'OWNER' ||
+      !can(membership.role, 'seller') ||
       membership.user.status !== 'ACTIVE' ||
       !membership.user.emailVerifiedAt ||
       !canWrite(membership.organization.status, membership.organization.trialEndsAt, new Date())

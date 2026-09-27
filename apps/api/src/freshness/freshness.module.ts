@@ -3,6 +3,7 @@ import { Controller, Get, Inject, Injectable, Module } from '@nestjs/common';
 import { ChannelsModule } from '../channels/channels.module';
 import { PROVIDER } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from '../channels/channels.repository';
+import { Access } from '../auth/access.decorator';
 
 export interface DataFreshness {
   checkedAt: string;
@@ -47,6 +48,7 @@ export class FreshnessService {
   }
 }
 
+@Access('desk')
 @Controller('system')
 export class FreshnessController {
   constructor(@Inject(FreshnessService) private readonly service: FreshnessService) {}

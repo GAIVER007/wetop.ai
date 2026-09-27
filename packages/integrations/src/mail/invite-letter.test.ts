@@ -26,6 +26,19 @@ describe('inviteLetter', () => {
     expect(letter.text).not.toMatch(/Код для входа/);
   });
 
+  it('роль названа, если её передали (ADR-098); без роли строки нет', () => {
+    expect(
+      inviteLetter('gost@example.com', 'Хостел «Пример»', 'https://x/invite/a', 86_400_000, 'управляющий')
+        .text,
+    ).toContain('Роль: управляющий.');
+    expect(letter.text).not.toMatch(/Роль:/);
+  });
+
+  it('после принятия человек задаёт пароль — кода на почту больше нет (ADR-053)', () => {
+    expect(letter.text).toContain('зададите себе пароль');
+    expect(letter.text).not.toMatch(/придёт код/);
+  });
+
   it('daysWord склоняет', () => {
     expect(daysWord(1)).toBe('день');
     expect(daysWord(2)).toBe('дня');

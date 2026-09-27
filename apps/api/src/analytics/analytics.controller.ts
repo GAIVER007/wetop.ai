@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
+import { Access } from '../auth/access.decorator';
 
 /** Аналитика сайта для стойки: сайты, код счётчика, отчёт. Только localhost, как всё в PMS (ADR-023). */
+@Access('settings')
 @Controller('analytics')
 export class AnalyticsController {
   constructor(@Inject(AnalyticsService) private readonly service: AnalyticsService) {}

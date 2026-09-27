@@ -18,6 +18,7 @@ import { channex } from '@pms/integrations';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE } from '../database/property-ref';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Сколько держать настройки объекта в памяти API (волна 4 плана wetop-domain).
@@ -202,12 +203,14 @@ export class HotelService {
   }
 }
 
+@Access('desk')
 @Controller('hotel')
 export class HotelController {
   constructor(@Inject(HotelService) private readonly service: HotelService) {}
   @Get('settings') settings() {
     return this.service.settings();
   }
+  @Access('channels')
   @Get('channel-report') channelReport(
     @Query('from') from?: string,
     @Query('to') to?: string,

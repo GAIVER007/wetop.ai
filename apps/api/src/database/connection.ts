@@ -5,6 +5,7 @@ import type { DataConnection } from '@pms/shared';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from './prisma.provider';
 import { assertPropertyVisible } from './property-ref';
+import { Access } from '../auth/access.decorator';
 
 function databaseProvider(): DataConnection['database']['provider'] {
   try {
@@ -90,6 +91,7 @@ export class DataConnectionService {
   }
 }
 
+@Access('settings')
 @Controller('system')
 class DataConnectionController {
   constructor(@Inject(DataConnectionService) private readonly service: DataConnectionService) {}

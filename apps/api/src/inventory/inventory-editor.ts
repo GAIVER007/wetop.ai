@@ -18,6 +18,7 @@ import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 import { INVENTORY_REPOSITORY, type InventoryRepository } from './inventory.repository';
 import { categoryInput, inventoryText, roomInput } from './inventory-input';
+import { Access } from '../auth/access.decorator';
 
 @Injectable()
 export class InventoryEditor {
@@ -192,6 +193,7 @@ export class InventoryEditor {
     }
   }
 }
+@Access('property')
 @Controller('inventory')
 export class InventoryEditorController {
   constructor(@Inject(InventoryEditor) private readonly editor: InventoryEditor) {}

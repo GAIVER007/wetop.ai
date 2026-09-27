@@ -13,6 +13,7 @@ import {
   Inject,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Res,
   UnauthorizedException,
@@ -23,17 +24,29 @@ import {
   INVITE_EMAIL_MESSAGE,
   INVITE_INVALID_MESSAGE,
   INVITE_LIMIT_MESSAGE,
-  INVITE_OWNER_ONLY_MESSAGE,
+  INVITE_MANAGER_OWNER_ONLY_MESSAGE,
+  INVITE_ROLE_MESSAGE,
+  INVITE_STAFF_ONLY_MESSAGE,
+  MEMBER_MANAGER_REMOVES_STAFF_MESSAGE,
+  MEMBER_NOT_FOUND_MESSAGE,
+  MEMBER_OWNER_MESSAGE,
+  MEMBER_ROLE_MESSAGE,
+  MEMBER_ROLE_OWNER_ONLY_MESSAGE,
+  MEMBER_SELF_MESSAGE,
   SESSION_ENDED_MESSAGE,
+  type MembershipRole,
 } from '@pms/domain';
 import {
   AccountsService,
   type InvitePreview,
   type InviteView,
+  type MemberRefusal,
+  type MemberView,
   type SessionRow,
 } from './accounts.service';
 import { SESSION_COOKIE, cookieOptions, sessionFromCookieHeader } from './cookie';
 import { Public } from '../auth/public.decorator';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Откуда берём ключ. Основной способ — кука: она `HttpOnly`, и чужой скрипт на странице её не
@@ -70,6 +83,7 @@ export class AccountsController {
   // ── «Где я вошёл» и «выйти везде» (§13.5) ────────────────────────────────────────────────────
 
   /** Живые сессии вошедшего: устройство словами, своя помечена. 401 без сессии. */
+  @Access('self')
   @Get('sessions')
   async sessions(
     @Headers('cookie') cookie?: string,
@@ -81,6 +95,7 @@ export class AccountsController {
   }
 
   /** «Выйти везде»: все сессии человека отозваны, кука снята. Всегда 204, как обычный выход. */
+  @Access('self')
   @Post('logout-all')
   @HttpCode(204)
   async logoutAll(
@@ -105,17 +120,25 @@ export class AccountsController {
    * Пригласить по почте. Только для вошедшего (401 без сессии). Ошибки формы — 400 с текстом:
    * приглашающий уже внутри, скрывать от него состав своей организации незачем.
    */
+  @Access('staff')
   @Post('invites')
   @HttpCode(201)
   async createInvite(
-    @Body() body: { email?: unknown },
+    @Body() body: { email?: unknown; role?: unknown },
     @Headers('cookie') cookie?: string,
     @Headers('authorization') authorization?: string,
   ): Promise<InviteJson> {
-    const outcome = await this.accounts.createInvite(tokenFrom(cookie, authorization), body?.email);
+    const outcome = await this.accounts.createInvite(
+      tokenFrom(cookie, authorization),
+      body?.email,
+      body?.role,
+    );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
-    // приглашает только владелец организации (DATA_MODEL §16.1, ADR-083)
-    if (!outcome.ok && outcome.reason === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
+    // приглашают владелец и управляющий; управляющих — только владелец (DATA_MODEL §16.5, ADR-098)
+    if (!outcome.ok && outcome.reason === 'owner') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'manager-role')
+      throw new ForbiddenException(INVITE_MANAGER_OWNER_ONLY_MESSAGE);
+    if (!outcome.ok && outcome.reason === 'role') throw new BadRequestException(INVITE_ROLE_MESSAGE);
     if (!outcome.ok && outcome.reason === 'limit')
       throw new HttpException(INVITE_LIMIT_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
     if (!outcome.ok) {
@@ -127,6 +150,7 @@ export class AccountsController {
   }
 
   /** Ожидающие приглашения своей организации. Ключей в ответе нет — только кого и до когда. */
+  @Access('staff')
   @Get('invites')
   async invites(
     @Headers('cookie') cookie?: string,
@@ -134,11 +158,15 @@ export class AccountsController {
   ): Promise<InviteJson[]> {
     const list = await this.accounts.pendingInvites(tokenFrom(cookie, authorization));
     if (!list) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
-    if (list === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
+    if (list === 'owner') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
     return list.map(inviteJson);
   }
 
-  /** Отозвать приглашение своей организации (аудит 26.09, С-10). Только владелец; чужое и мёртвое — 404. */
+  /**
+   * Отозвать приглашение своей организации (аудит 26.09, С-10). Отзывает тот, кто вправе позвать с этой ролью (ADR-098);
+   * чужое, мёртвое и не по роли — 404.
+   */
+  @Access('staff')
   @Delete('invites/:id')
   @HttpCode(200)
   async revokeInvite(
@@ -148,9 +176,54 @@ export class AccountsController {
   ): Promise<{ ok: true }> {
     const outcome = await this.accounts.revokeInvite(tokenFrom(cookie, authorization), id);
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
-    if (outcome === 'owner') throw new ForbiddenException(INVITE_OWNER_ONLY_MESSAGE);
+    if (outcome === 'owner') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
     if (outcome === 'missing') throw new NotFoundException(INVITE_INVALID_MESSAGE);
     return { ok: true };
+  }
+
+  // ── Сотрудники (ADR-098, DATA_MODEL §16.1 v1.12) ────────────────────────────────────────────
+
+  /** Люди своей организации с ролями — владельцу и управляющему; что каждый из них может с человеком — в строке */
+  @Access('staff')
+  @Get('members')
+  async members(
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<MemberJson[]> {
+    const list = await this.accounts.members(tokenFrom(cookie, authorization));
+    if (!list) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (list === 'staff') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    return list.map(memberJson);
+  }
+
+  /** Отключить сотрудника: членство удаляется, его сессии этой организации гаснут на следующем запросе */
+  @Access('staff')
+  @Delete('members/:userId')
+  @HttpCode(200)
+  async removeMember(
+    @Param('userId') userId: string,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ ok: true }> {
+    const outcome = await this.accounts.removeMember(tokenFrom(cookie, authorization), userId);
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (outcome !== 'ok') throw memberRefusal(outcome);
+    return { ok: true };
+  }
+
+  /** Роль между управляющим и администратором — только владелец; владельца назначает команда на сервере */
+  @Access('owner')
+  @Patch('members/:userId')
+  async setMemberRole(
+    @Param('userId') userId: string,
+    @Body() body: { role?: unknown },
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ userId: string; role: MembershipRole }> {
+    const outcome = await this.accounts.setMemberRole(tokenFrom(cookie, authorization), userId, body?.role);
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (!outcome.ok) throw memberRefusal(outcome.reason);
+    return outcome.member;
   }
 
   /** Кто зовёт и кого — по ключу из ссылки. Мёртвая ссылка — 404 одним текстом, без подробностей. */
@@ -200,6 +273,52 @@ interface InviteJson {
   expiresAt: string;
   acceptedAt: string | null;
   createdAt: string;
+  role: MembershipRole;
+  revocable: boolean;
+}
+
+interface MemberJson {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: string;
+  you: boolean;
+  removable: boolean;
+  roleEditable: boolean;
+}
+
+function memberJson(m: MemberView): MemberJson {
+  return {
+    userId: m.userId,
+    email: m.email,
+    name: m.name,
+    role: m.role,
+    joinedAt: m.joinedAt.toISOString(),
+    you: m.you,
+    removable: m.removable,
+    roleEditable: m.roleEditable,
+  };
+}
+
+/** Отказ в действии над сотрудником — словами из домена */
+function memberRefusal(reason: MemberRefusal): HttpException {
+  switch (reason) {
+    case 'staff':
+      return new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    case 'missing':
+      return new NotFoundException(MEMBER_NOT_FOUND_MESSAGE);
+    case 'self':
+      return new ForbiddenException(MEMBER_SELF_MESSAGE);
+    case 'owner-target':
+      return new ForbiddenException(MEMBER_OWNER_MESSAGE);
+    case 'manager-target':
+      return new ForbiddenException(MEMBER_MANAGER_REMOVES_STAFF_MESSAGE);
+    case 'role':
+      return new BadRequestException(MEMBER_ROLE_MESSAGE);
+    case 'owner-only':
+      return new ForbiddenException(MEMBER_ROLE_OWNER_ONLY_MESSAGE);
+  }
 }
 
 interface InvitePreviewJson {
@@ -217,6 +336,8 @@ function inviteJson(i: InviteView): InviteJson {
     expiresAt: i.expiresAt.toISOString(),
     acceptedAt: i.acceptedAt ? i.acceptedAt.toISOString() : null,
     createdAt: i.createdAt.toISOString(),
+    role: i.role,
+    revocable: i.revocable,
   };
 }
 

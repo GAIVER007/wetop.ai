@@ -1045,10 +1045,11 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
-/// Роль в организации (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет — ADR-023 там в силе; владельцу —
-/// сотрудники, приглашения и настройки ИИ-продавца.
+/// Роль в организации (DATA_MODEL §16.1, ADR-083). MANAGER — управляющий (v1.12, ADR-098); STAFF на экране —
+/// «администратор». Роль — готовый набор прав (§16.5, `packages/domain/src/accounts/permissions.ts`).
 enum MembershipRole {
   OWNER
+  MANAGER
   STAFF
 }
 
@@ -1094,6 +1095,8 @@ model Invite {
   id             String    @id @default(uuid()) @db.Uuid
   organizationId String    @map("organization_id") @db.Uuid
   email          String    @db.VarChar(320)
+  /// С какой ролью человек войдёт (v1.12, ADR-098): MANAGER или STAFF; CHECK invites_role_not_owner — не OWNER
+  role           MembershipRole @default(STAFF)
   tokenHash      String    @unique @map("token_hash") @db.VarChar(64)
   expiresAt      DateTime  @map("expires_at") @db.Timestamptz(6)
   acceptedAt     DateTime? @map("accepted_at") @db.Timestamptz(6)

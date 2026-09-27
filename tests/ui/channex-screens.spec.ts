@@ -82,6 +82,12 @@ test('обзор каналов: полоса состояния, вкладки
   await expect(main.getByTestId('channels-errors')).toHaveText('2');
   // webhook стенда не настроен (registered=false без PUBLIC_API_URL) — слово честное, не «выключен»
   await expect(main.getByTestId('webhook-status')).toHaveText('нет PUBLIC_API_URL');
+  // наблюдаемые каналы (Q-199 закрыт владельцем, дополнение к ADR-107): факты из событий,
+  // без зелёного health — формулировка «Booking.com — работает» запрещена
+  const observedTable = main.getByTestId('channels-observed');
+  await expect(observedTable.getByTestId('observed-row').first()).toContainText('Booking.com');
+  await expect(observedTable).not.toContainText('работает');
+  await expect(main.getByTestId('mapping-note')).toContainText('категорий 3 из 3');
   // ежедневные кнопки обмена — здесь; настройка подключения — на «Подключениях»
   await expect(main.getByTestId('channel-flush')).toBeVisible();
   await expect(main.getByTestId('channel-pull')).toBeVisible();

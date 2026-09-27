@@ -128,15 +128,22 @@ const queueFilter = (raw: string | undefined): OutboxRowStatus | '' =>
 
 async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
   const clock = await hotelClock();
-  const [connection, webhook, loadedOutbox, failedEvents] = await Promise.all([
-    channelsApi.connection().catch(() => null),
-    channelsApi.webhookStatus().catch(() => null),
-    settle(channelsApi.outbox()),
-    channelsApi
-      .events({ limit: 1, status: 'FAILED' })
-      .then((r) => r.total)
-      .catch(() => null),
-  ]);
+  const [connection, webhook, loadedOutbox, failedEvents, recentEvents, summaryFund] =
+    await Promise.all([
+      channelsApi.connection().catch(() => null),
+      channelsApi.webhookStatus().catch(() => null),
+      settle(channelsApi.outbox()),
+      channelsApi
+        .events({ limit: 1, status: 'FAILED' })
+        .then((r) => r.total)
+        .catch(() => null),
+      // наблюдаемые каналы (решение владельца по Q-199, дополнение к ADR-107): только факты из событий
+      channelsApi
+        .events({ limit: 50 })
+        .then((r) => r.rows)
+        .catch(() => null),
+      api.inventorySummary().catch(() => null),
+    ]);
   const outbox = loadedOutbox.ok ? loadedOutbox.r : null;
   const stalledMinutes = outbox?.oldestPendingAt
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
@@ -171,6 +178,25 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
       .sort()
       .at(-1) ?? null;
   const failedTotal = (outbox?.failed ?? 0) + (failedEvents ?? 0);
+  /**
+   * Наблюдаемые OTA (Q-199, дополнение владельца к ADR-107): «Booking.com — работает» запрещено,
+   * пока backend не может это подтвердить — показываем только факты из последних событий Channex:
+   * имя, последнюю активность и события с ошибкой. Канал без событий в окне из списка выпадает —
+   * это окно наблюдения, а не состояние подключения.
+   */
+  const observed = new Map<string, { lastAt: string; failed: number }>();
+  for (const e of recentEvents ?? []) {
+    if (!e.otaName) continue;
+    const row = observed.get(e.otaName) ?? { lastAt: e.receivedAt, failed: 0 };
+    if (e.receivedAt > row.lastAt) row.lastAt = e.receivedAt;
+    if (e.status === 'FAILED') row.failed += 1;
+    observed.set(e.otaName, row);
+  }
+  const observedRows = [...observed.entries()].sort((a, b) => (a[1].lastAt < b[1].lastAt ? 1 : -1));
+  const fundCategories = summaryFund?.byCategory?.length ?? null;
+  const mappedCategories = connection?.mappedCategories ?? null;
+  const mappingGap =
+    fundCategories !== null && mappedCategories !== null && mappedCategories < fundCategories;
   return (
     <div className="stack">
       {!loadedOutbox.ok && (
@@ -241,6 +267,71 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
         </StateFact>
       </StateBar>
       {outbox && <OverbookingAlarm outbox={outbox} />}
+      <section className="stack stack--sm" aria-labelledby="observed-title">
+        <SectionTitle id="observed-title">Каналы</SectionTitle>
+        <p className="note">
+          Наблюдаются по входящим событиям Channex — это последняя активность источника, а не
+          состояние его подключения.
+        </p>
+        <Table size="sm" className="dir-table" data-testid="channels-observed">
+          <thead>
+            <tr>
+              {['Канал', 'Последнее событие', 'Событий с ошибкой'].map((h) => (
+                <th key={h}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {recentEvents === null && (
+              <tr>
+                <td colSpan={3} className="empty-state" data-testid="observed-failed">
+                  События не загрузились: API не ответил. Обновите страницу или откройте{' '}
+                  <Link href="/incidents">неисправности</Link>.
+                </td>
+              </tr>
+            )}
+            {recentEvents !== null && observedRows.length === 0 && (
+              <tr>
+                <td colSpan={3} className="empty-state" data-testid="observed-empty">
+                  Событий от каналов ещё не было. Канал появится здесь, когда Channex пришлёт его
+                  бронь, изменение или отмену.
+                </td>
+              </tr>
+            )}
+            {observedRows.map(([name, row]) => (
+              <tr key={name} data-testid="observed-row">
+                <td>
+                  <strong>{name}</strong>
+                </td>
+                <td className="nowrap">{eventTime(row.lastAt, clock)}</td>
+                <td className="num">
+                  {row.failed > 0 ? (
+                    <Link href="/channels/events?status=FAILED" className="danger-text">
+                      {row.failed}
+                    </Link>
+                  ) : (
+                    '0'
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+        {mappedCategories !== null &&
+          (mappingGap ? (
+            <p className="note danger-text" data-testid="mapping-gap">
+              Сопоставлены не все категории: {mappedCategories} из {fundCategories} — по остальным
+              цены и остатки в каналы не уходят. Проверить —{' '}
+              <Link href="/channels/mapping">«Сопоставление»</Link>.
+            </p>
+          ) : (
+            <p className="note" data-testid="mapping-note">
+              Сопоставление — общее для всех каналов Channex: категорий {mappedCategories}
+              {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
+              {connection?.mappedRatePlans ?? '—'}.
+            </p>
+          ))}
+      </section>
       <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} />
       <ChannelReport sp={sp} />
       <details className="context-help" data-testid="channels-tech">

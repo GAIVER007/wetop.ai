@@ -414,7 +414,8 @@ Budgets — позже. Курс — вручную на Organization, сним�
 
 ## 12. Мультивалютность
 
-- `Organization.reportingCurrency` — отчётная валюта партнёра (умолчание KZT, DATA_MODEL §17.4);
+- `Organization.reportingCurrency` — отчётная валюта партнёра (DATA_MODEL §18.4; без умолчания в базе —
+  backfill по валюте объектов организации, новым партнёрам выберет онбординг; уточнение владельца 27.09);
 - `Location.currency` — операционная валюта филиала (у Luxx — KZT, у филиала в Dubai — AED);
 - финансовая аналитика хранит обе стороны пересчёта: `originalAmount` + `originalCurrency`,
   `exchangeRate`, `reportingAmount` + `reportingCurrency` — филиалы в KZT/AED/USD корректно
@@ -562,15 +563,22 @@ Property Luxx                        Business «Luxx Aparts»   vertical = HOSPI
 Порядок (одна additive-миграция схемы + backfill; на рабочей базе применяет владелец, AGENTS.md §15):
 
 1. **Схема:** создать `businesses` и `locations`; добавить `properties.location_id uuid NULL → locations`;
-   добавить `organizations.reporting_currency` DEFAULT `'KZT'`. Ничего не удаляется и не переименовывается.
-2. **Backfill (данными, не схемой):** для каждой организации, у которой есть объект, — один Business
-   (название = название объекта, `vertical = HOSPITALITY`, `status = ACTIVE`) и один Location на каждый
+   добавить `organizations.reporting_currency` **NULL, без DEFAULT** (уточнение владельца 27.09, DATA_MODEL
+   v2.2: слепой `'KZT'` создал бы ложные данные организации с объектом в другой валюте; заполнение — только
+   backfill ниже). Ничего не удаляется и не переименовывается.
+2. **Backfill (данными, не схемой), строго по Organization** (уточнение владельца 27.09): для каждой
+   организации, у которой есть объект, — ровно **один** Business (**название = название организации,
+   текущий бренд** — не имя объекта; `vertical = HOSPITALITY`, `status = ACTIVE`), и Location на каждый
    её объект (название, адрес, телефон, почта, часовой пояс и валюта — из записи `Property`);
-   `properties.location_id` проставляется. Для Luxx конкретно: Business «Luxx Aparts» → Location
-   «Luxx Aparts Almaty» → существующая строка Property. Организации без объекта (зарегистрировались и
-   не прошли онбординг) не получают ничего: их цепочка создастся онбордингом.
-3. **Что остаётся временно nullable:** `properties.location_id` — NOT NULL ставится отдельной миграцией
-   после проверки backfill; `properties.organization_id` остаётся как есть на миграционный период —
+   `properties.location_id` проставляется; никакой идентификации по совпадению названий — только по
+   строкам `properties` и FK. `reporting_currency`: у всех объектов организации одна валюта — берётся она
+   (Luxx → KZT); иначе NULL + строка в отчёте миграции. Для Luxx конкретно: Business «Luxx Aparts» →
+   Location «Luxx Aparts Almaty» → существующая строка Property. Организации без объекта
+   (зарегистрировались и не прошли онбординг) не получают ничего: их цепочка создастся онбордингом.
+3. **Что остаётся временно nullable:** `properties.location_id` — NOT NULL **не объявляется заранее**
+   (уточнение владельца 27.09): перед будущей NOT NULL-миграцией — gate
+   `SELECT count(*) FROM properties WHERE location_id IS NULL` = 0 либо явное решение владельца по каждой
+   оставшейся строке; `properties.organization_id` остаётся как есть на миграционный период —
    замок ADR-061 продолжает работать без единой правки кода. Снятие этой денормализации (организация
    через Location → Business) — отдельное решение после перевода замка на новую цепочку, не раньше.
 4. **Старые связи сохраняются все:** каждая Hospitality-таблица ссылается на `Property` как сейчас;
@@ -615,7 +623,7 @@ Property Luxx                        Business «Luxx Aparts»   vertical = HOSPI
    четыре сверки в ноль; изоляция.
 2. **Фаза 2 — контекст.** RequestActor со scope, переключатель контекста в стойке, раздел «Партнёры»
    в «Платформе» (§17).
-3. **Фаза 3 — Beauty.** Домен §9 по утверждённому `DATA_MODEL.md` §18, онбординг Beauty, экраны
+3. **Фаза 3 — Beauty.** Домен §9 по утверждённому `DATA_MODEL.md` §19, онбординг Beauty, экраны
    Location-уровня.
 4. **Фаза 4 — аналитика и финансы.** Агрегация §10; управленческие финансы §11 — по freeze-решениям №3–№4
    и собственного раздела в DATA_MODEL.

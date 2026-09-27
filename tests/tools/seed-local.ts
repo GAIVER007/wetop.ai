@@ -103,9 +103,13 @@ const RATE_DAYS_AHEAD = 400;
 export async function seedLocal(
   db: Db,
 ): Promise<{ propertyId: string; units: number; rates: number; stays: number }> {
+  // Объект — своей организации (DATA_MODEL v1.13: организация обязательна), гости — её же (RLS-1)
+  const organization =
+    (await db.organization.findFirst({ orderBy: { createdAt: 'asc' }, select: { id: true } })) ??
+    (await db.organization.create({ data: { name: LOCAL_PROPERTY.name, status: 'ACTIVE' }, select: { id: true } }));
   const property =
     (await db.property.findFirst({ where: { name: LOCAL_PROPERTY.name }, select: { id: true } })) ??
-    (await db.property.create({ data: LOCAL_PROPERTY, select: { id: true } }));
+    (await db.property.create({ data: { ...LOCAL_PROPERTY, organizationId: organization.id }, select: { id: true } }));
 
   const typeIds = new Map<string, string>();
   for (const c of CATEGORIES) {
@@ -256,6 +260,10 @@ export const STAND_PAST = {
 export const STAND_LIVING_UNITS = ['8', '51', '41', '85'];
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
 async function seedStays(db: Db, propertyId: string, ratePlanId: string): Promise<number> {
+  const organization = await db.property.findUniqueOrThrow({
+    where: { id: propertyId },
+    select: { organizationId: true },
+  }).then((p) => ({ id: p.organizationId }));
   const today = Date.now();
   const living = { from: iso(today - 86_400_000), to: iso(today + 2 * 86_400_000) };
   const wanted = [
@@ -291,7 +299,12 @@ async function seedStays(db: Db, propertyId: string, ratePlanId: string): Promis
     const price = nightPrice * nights;
     const at = (d: string) => new Date(`${d}T00:00:00Z`);
     const guest = await db.guest.create({
-      data: { firstName: `Гость ${w.number.slice(-2)}`, lastName: 'Стендовый', citizenship: 'KAZ' },
+      data: {
+        organizationId: organization.id,
+        firstName: `Гость ${w.number.slice(-2)}`,
+        lastName: 'Стендовый',
+        citizenship: 'KAZ',
+      },
       select: { id: true },
     });
     const reservation = await db.reservation.create({

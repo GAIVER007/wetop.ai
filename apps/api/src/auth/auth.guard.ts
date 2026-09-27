@@ -9,6 +9,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { READ_ONLY_MESSAGE, writeBlocked, type OrganizationStatus } from '@pms/domain';
 import { AuthService, type SignedInUser } from './auth.service';
 import { PUBLIC_ROUTE } from './public.decorator';
 
@@ -179,6 +180,25 @@ export class SessionGuard implements CanActivate {
     if (!signedIn) throw new UnauthorizedException('Войдите в систему');
 
     request.user = signedIn.user;
+    // Пробный период вышел или организация переведена в «только чтение» (Q-144 — Б, ADR-102): читать можно, менять —
+    // после оплаты. Вход не закрывается; выход, пароль и «Платформа» главного администратора — открыты (домен)
+    const org = signedIn.organization;
+    if (
+      writeBlocked({
+        method: typeof request.method === 'string' ? request.method : 'GET',
+        path: typeof request.url === 'string' ? request.url : '',
+        organization: org
+          ? {
+              status: org.status as OrganizationStatus,
+              trialEndsAt: org.trialEndsAt ? new Date(org.trialEndsAt) : null,
+            }
+          : null,
+        platformAdmin: signedIn.user.platformAdmin,
+        now: new Date(),
+      })
+    ) {
+      throw new ForbiddenException(READ_ONLY_MESSAGE);
+    }
     return true;
   }
 }

@@ -8,6 +8,14 @@
     }
   },
   {
+    "route": "/management/dashboard",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
     "route": "/chessboard",
     "violations": [],
     "layout": {

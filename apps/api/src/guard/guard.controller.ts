@@ -87,7 +87,7 @@ export class GuardController {
   @HttpCode(200)
   async tick(@Query('all') all?: string, @Req() request?: { user?: SignedInUser }) {
     const full = all === '1' || all === 'true';
-    // полная сверка с Channex и починка полной выгрузкой — дело каналов (ADR-101): администратору — обычная проверка.
+    // полная сверка с Channex и починка полной выгрузкой — дело каналов (ADR-104): администратору — обычная проверка.
     // Роль — из `request.user`: обработчик идёт в служебном контексте ChannelOperatorInterceptor
     const user = request?.user;
     if (full && user && !can(user.role, 'channels'))

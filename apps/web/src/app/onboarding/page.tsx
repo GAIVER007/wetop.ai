@@ -14,7 +14,7 @@ import { OnboardingForm } from './onboarding-form';
 export default async function OnboardingPage() {
   const [status, desk] = await Promise.all([onboardingApi.status().catch(() => null), deskShell()]);
   if (status && !status.needed) redirect('/today');
-  // номера и цены заводят владелец и управляющий (ADR-101): администратору — не форма и не «Нет доступа», а кто и что;
+  // номера и цены заводят владелец и управляющий (ADR-104): администратору — не форма и не «Нет доступа», а кто и что;
   // роль не узнали — форма: отправку без права отклонит API
   if (!pageOpen(desk.access, 'settings'))
     return (

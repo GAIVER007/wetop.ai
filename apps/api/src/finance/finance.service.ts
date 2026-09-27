@@ -394,7 +394,7 @@ export class FinanceService {
           ? 'Корректировка не может быть нулевой'
           : 'Цена должна быть больше нуля',
       );
-    // уменьшить счёт — то же, что вернуть деньги или снять штраф: владелец и управляющий (ADR-101, Q-024)
+    // уменьшить счёт — то же, что вернуть деньги или снять штраф: владелец и управляющий (ADR-104, Q-024)
     if (kind === 'ADJUSTMENT' && unitPriceMinor < 0n && !actorMay('refunds'))
       throw new ForbiddenException(ADJUSTMENT_DOWN_MESSAGE);
     const amountMinor = unitPriceMinor * BigInt(quantity);

@@ -125,7 +125,7 @@ function FolioPanel({
 }) {
   // Дата оплаты и возврата — день по часам объекта, а не срез UTC-строки (волна 3, С-13)
   const clock = usePropertyClock();
-  // возврат и сторно (снятие штрафа — тоже сторно) — владелец и управляющий (ADR-101, Q-024); API откажет и так
+  // возврат и сторно (снятие штрафа — тоже сторно) — владелец и управляющий (ADR-104, Q-024); API откажет и так
   const reverse = useMay('refunds');
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
@@ -359,7 +359,7 @@ function FolioPanel({
                       name="unitPrice"
                       aria-label="Цена за единицу"
                       defaultValue={chargeState.values?.unitPrice ?? ''}
-                      // на уменьшение — владелец и управляющий (ADR-101): администратору минус не подсказываем
+                      // на уменьшение — владелец и управляющий (ADR-104): администратору минус не подсказываем
                       placeholder={kind === 'ADJUSTMENT' && reverse ? 'сумма (можно −)' : 'сумма'}
                       required
                       className="inp--w120"

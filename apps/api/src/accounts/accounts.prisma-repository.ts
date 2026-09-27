@@ -260,7 +260,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
         update: {},
         select: { id: true, email: true },
       });
-      // роль — из приглашения (DATA_MODEL §13.6, §16.1 v1.13); уже состоящему роль не меняется
+      // роль — из приглашения (DATA_MODEL §13.6, §16.1 v1.14); уже состоящему роль не меняется
       const membership = await tx.membership.upsert({
         where: { userId_organizationId: { userId: user.id, organizationId: input.organizationId } },
         create: { userId: user.id, organizationId: input.organizationId, role: input.role },
@@ -283,10 +283,10 @@ export class PrismaAccountsRepository implements AccountsRepository {
     });
   }
 
-  // ── Сотрудники (ADR-101, DATA_MODEL §16.1 v1.13) ────────────────────────────────────────────
+  // ── Сотрудники (ADR-104, DATA_MODEL §16.1 v1.14) ────────────────────────────────────────────
 
   async members(organizationId: string): Promise<MemberRecord[]> {
-    // порядок перечисления в базе — OWNER, MANAGER, STAFF (миграция 20260927000026): владельцы сверху
+    // порядок перечисления в базе — OWNER, MANAGER, STAFF (миграция 20260927000029): владельцы сверху
     const rows = await this.prisma.db.membership.findMany({
       where: { organizationId },
       orderBy: [{ role: 'asc' }, { createdAt: 'asc' }, { userId: 'asc' }],

@@ -20,7 +20,7 @@ describe('parseAccountsArgs', () => {
     });
   });
 
-  it('роль управляющего — manager; отказ называет все три роли (ADR-101)', () => {
+  it('роль управляющего — manager; отказ называет все три роли (ADR-104)', () => {
     expect(parseAccountsArgs(['role', '--email=a@b.kz', '--role=Manager'])).toEqual({
       ok: true,
       command: { kind: 'role', email: 'a@b.kz', role: 'MANAGER' },

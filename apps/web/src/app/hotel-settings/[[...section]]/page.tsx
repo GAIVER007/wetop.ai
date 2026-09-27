@@ -78,7 +78,7 @@ export default async function HotelSettingsPage({
 }
 
 /**
- * Правят «Общие» владелец и управляющий (ТЗ ux-retention п. 3.1, ADR-101); администратору раздел закрыт целиком
+ * Правят «Общие» владелец и управляющий (ТЗ ux-retention п. 3.1, ADR-104); администратору раздел закрыт целиком
  * (`AccessGate`). Никто не вошёл или вход не ответил — только просмотр: API без человека сведений не меняет.
  */
 async function mayEditSettings(): Promise<boolean> {

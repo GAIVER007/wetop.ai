@@ -128,7 +128,7 @@ test('срок вышел: всё видно, но менять, отвечат�
   await expect(main.getByTestId('seller-embed-snippet')).toHaveCount(0);
 });
 
-test('администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-101)', async ({
+test('администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-104)', async ({
   page,
   request,
 }) => {
@@ -155,7 +155,7 @@ test('администратор: вместо настроек продавца
   );
 });
 
-test('управляющий настраивает продавца наравне с владельцем (ADR-101)', async ({
+test('управляющий настраивает продавца наравне с владельцем (ADR-104)', async ({
   page,
   request,
 }) => {
@@ -180,7 +180,7 @@ test('за неделю до конца срока владелец видит �
   await expect(reminder).toContainText('Продлевает администратор WETOP после оплаты');
   await shot(page, 'seller-reminder');
 
-  // платные расширения — владельческое (ADR-101): управляющий настраивает, но о продлении не напоминаем
+  // платные расширения — владельческое (ADR-104): управляющий настраивает, но о продлении не напоминаем
   await control(request, { sellerDaysLeft: 3, role: 'MANAGER' });
   await page.goto('/ai-seller/knowledge');
   await expect(page.getByRole('main').getByTestId('seller-facts')).toBeVisible();

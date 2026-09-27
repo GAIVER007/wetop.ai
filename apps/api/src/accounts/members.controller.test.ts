@@ -26,7 +26,7 @@ import { AccountsService } from './accounts.service';
 import { ACCOUNT, FakeAccountsRepository } from './fake-repository';
 
 /**
- * Сотрудники и приглашения с ролью (ADR-101, DATA_MODEL §13.6, §16.1): владелец зовёт управляющих и администраторов,
+ * Сотрудники и приглашения с ролью (ADR-104, DATA_MODEL §13.6, §16.1): владелец зовёт управляющих и администраторов,
  * управляющий — администраторов; отключает тот, кто вправе позвать с этой ролью; роль меняет владелец. Сервис решает
  * это сам — замок ролей на маршрутах стоит в приложении отдельно и здесь не собирается.
  */
@@ -108,7 +108,7 @@ describe('приглашение с ролью', () => {
     expect(sender.to('manager-new@example.invalid').at(-1)?.text).toContain('Роль: управляющий.');
   });
 
-  it('без роли — администратор, как принимались приглашения до ADR-101', async () => {
+  it('без роли — администратор, как принимались приглашения до ADR-104', async () => {
     const res = await invite(await as('u-owner'), { email: 'plain@example.invalid' }).expect(201);
     expect(res.body.role).toBe('STAFF');
     expect(sender.to('plain@example.invalid').at(-1)?.text).toContain('Роль: администратор.');

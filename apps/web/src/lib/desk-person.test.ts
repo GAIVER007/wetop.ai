@@ -60,7 +60,7 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
       caption: 'Администратор',
       initials: 'D',
     });
-    // третья роль (ADR-101)
+    // третья роль (ADR-104)
     expect(deskPerson(me({ role: 'MANAGER' }).user).caption).toBe('Управляющий');
     expect(deskPerson(me({ platformAdmin: true }).user).caption).toBe(
       'Владелец · главный администратор',

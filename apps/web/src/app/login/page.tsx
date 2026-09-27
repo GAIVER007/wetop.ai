@@ -23,7 +23,7 @@ async function pendingInvites(): Promise<AuthInvite[]> {
   }
 }
 
-/** Сотрудники своей организации (ADR-101) — владельцу и управляющему; сбой списка экран входа не роняет. */
+/** Сотрудники своей организации (ADR-104) — владельцу и управляющему; сбой списка экран входа не роняет. */
 async function teamMembers(): Promise<AuthMember[]> {
   const token = await sessionToken();
   if (!token) return [];
@@ -56,7 +56,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const [user, registrationEnabled] = await Promise.all([signedInUser(), registrationAvailable()]);
   // `?mode=register` открывает регистрацию сразу — с неё ведёт ссылка «Попробовать бесплатно» с сайта.
   const mode: LoginMode = q.mode === 'register' ? 'register' : 'password';
-  // приглашениями и сотрудниками ведают владелец и управляющий (ADR-101): администратору их и не запрашиваем
+  // приглашениями и сотрудниками ведают владелец и управляющий (ADR-104): администратору их и не запрашиваем
   const role = user?.role ? parseMembershipRole(user.role) : null;
   const team = !!user?.organization && !!role && canManageStaff(role);
   return (

@@ -134,7 +134,7 @@ export class AccountsController {
       body?.role,
     );
     if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
-    // приглашают владелец и управляющий; управляющих — только владелец (DATA_MODEL §16.5, ADR-101)
+    // приглашают владелец и управляющий; управляющих — только владелец (DATA_MODEL §16.5, ADR-104)
     if (!outcome.ok && outcome.reason === 'owner') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
     if (!outcome.ok && outcome.reason === 'manager-role')
       throw new ForbiddenException(INVITE_MANAGER_OWNER_ONLY_MESSAGE);
@@ -163,7 +163,7 @@ export class AccountsController {
   }
 
   /**
-   * Отозвать приглашение своей организации (аудит 26.09, С-10). Отзывает тот, кто вправе позвать с этой ролью (ADR-101);
+   * Отозвать приглашение своей организации (аудит 26.09, С-10). Отзывает тот, кто вправе позвать с этой ролью (ADR-104);
    * чужое, мёртвое и не по роли — 404.
    */
   @Access('staff')
@@ -181,7 +181,7 @@ export class AccountsController {
     return { ok: true };
   }
 
-  // ── Сотрудники (ADR-101, DATA_MODEL §16.1 v1.13) ────────────────────────────────────────────
+  // ── Сотрудники (ADR-104, DATA_MODEL §16.1 v1.14) ────────────────────────────────────────────
 
   /** Люди своей организации с ролями — владельцу и управляющему; что каждый из них может с человеком — в строке */
   @Access('staff')

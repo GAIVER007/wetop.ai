@@ -72,7 +72,7 @@ export default async function RootLayout({
         </Suspense>
         <ThemeProvider>
           <PropertyTimeProvider timezone={timezone}>
-            {/* кто вошёл — кнопкам и закрытым по роли страницам (ADR-101): то же обещание, что у меню */}
+            {/* кто вошёл — кнопкам и закрытым по роли страницам (ADR-104): то же обещание, что у меню */}
             <DeskAccessProvider desk={desk}>
               <ToastProvider>
                 <TopNav

@@ -2892,3 +2892,7 @@
 | 28.09.2026 02:01 | unit | ✅ 2125 из 2128, пропущено 3 | 1 мин 47 с | a0fa497 +10 | [лог](logs/2026-09-27T21-01-10Z-unit-423e.log) | INT1 |
 | 28.09.2026 02:03 | typecheck | ✅ без ошибок | 37 с | a0fa497 +14 | [лог](logs/2026-09-27T21-03-02Z-typecheck-87d8.log) | INT1 |
 | 28.09.2026 02:03 | lint | ✅ без ошибок | 19 с | a0fa497 +14 | [лог](logs/2026-09-27T21-03-39Z-lint-0a99.log) | INT1 |
+| 28.09.2026 02:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 415 | 33 мин 18 с | a0fa497 +14 | [лог](logs/2026-09-27T21-00-05Z-e2e-c6d4.log) | INT1: full UI suite |
+| 28.09.2026 02:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/real-data.spec.ts tests/ui/integrations.spec.ts) | ❌ упало 1 из 14 | 51 с | b2cfa0a +1 | [лог](logs/2026-09-27T21-33-48Z-e2e-5535.log) | INT1: platform tests sign in |
+| 28.09.2026 02:36 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/real-data.spec.ts tests/ui/integrations.spec.ts) | ❌ упало 1 из 14 | 49 с | b2cfa0a +1 | [лог](logs/2026-09-27T21-36-12Z-e2e-0346.log) | INT1: re-run after cold-start red |
+| 28.09.2026 02:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/real-data.spec.ts tests/ui/integrations.spec.ts) | ✅ 14 из 14 | 43 с | b2cfa0a +1 | [лог](logs/2026-09-27T21-38-39Z-e2e-b474.log) | INT1: affected specs, one worker |

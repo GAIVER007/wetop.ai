@@ -1,9 +1,18 @@
-import { expect, test } from './fixtures';
+import { expect, test, type Page } from './fixtures';
 
 const fixture = 'http://127.0.0.1:4311';
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
+
+/** «Платформа» открыта только вошедшему главному администратору (ADR-083) */
+async function signIn(page: Page) {
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+}
 
 /*
  * INT1 (ADR-107): источник данных и база — внутренняя диагностика. С «Интеграций» она ушла в «Платформу», к главному
@@ -19,6 +28,7 @@ test('источник и агрегаты проекта видны главн�
   await expect(page.getByRole('main')).not.toContainText('Supabase');
   await expect(page.getByRole('main')).not.toContainText('Данные проекта');
   await request.post(`${fixture}/__test/control`, { data: { platformAdmin: true } });
+  await signIn(page);
   await page.goto('/platform');
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('Данные проекта');
@@ -34,6 +44,7 @@ test('ошибка базы не превращается в нулевые по
   await request.post(`${fixture}/__test/control`, {
     data: { connectionState: 'DATABASE_UNAVAILABLE', platformAdmin: true },
   });
+  await signIn(page);
   await page.goto('/platform');
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('База данных недоступна');

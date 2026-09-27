@@ -1,0 +1,437 @@
+'use client';
+
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import type { Dictionary } from '../i18n/types';
+import type { AuthMode } from '../lib/site';
+
+type Texts = Dictionary['auth'];
+
+type Props = {
+  texts: Texts;
+  /** Адреса стойки — считает сервер сборки (`lib/site.ts`), клиенту настройки не нужны. */
+  urls: {
+    login: string;
+    register: string;
+    reset: string;
+    app: string;
+    endpoint: Record<'options' | 'login' | 'register' | 'resend', string>;
+  };
+};
+
+type Registration = 'unknown' | 'open' | 'closed';
+type Sent = { email: string; sent: boolean };
+
+/** Ответ стойки: `{ message }` при ошибке. Сбой сети — `null`: окно предложит отдельную страницу. */
+async function post(url: string, body: unknown): Promise<{ ok: boolean; data: Record<string, unknown> } | null> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    return { ok: res.ok, data };
+  } catch {
+    return null;
+  }
+}
+
+function message(data: Record<string, unknown>, fallback: string): string {
+  return typeof data.message === 'string' && data.message ? data.message : fallback;
+}
+
+/** Путь от стойки — только от корня; иначе Главная стойки (то же правило, что `appPath` в `lib/site.ts`). */
+function nextUrl(app: string, next: unknown): string {
+  const path = typeof next === 'string' && /^\/(?!\/)[\w\-./?=&%]*$/.test(next) ? next : '/today';
+  return `${app}${path}`;
+}
+
+const RESEND_PAUSE_S = 60;
+
+/*
+ * Окно входа и создания аккаунта поверх главной (ADR-100, plans/site-auth-dialog-tour-2026-09-27.md).
+ *
+ * Кнопки «Войти» и «Создать аккаунт» остаются обычными ссылками на стойку — без JavaScript они и работают как раньше.
+ * Здесь ссылки с `data-auth` перехватываются и открывают окно; `#login` и `#register` в адресе — тоже.
+ * Запрос уходит на стойку (`/api/site-auth/*`), куку сессии ставит она; после входа браузер переходит в стойку.
+ */
+export function AuthDialog({ texts, urls }: Props) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [mode, setMode] = useState<AuthMode>('login');
+  const [registration, setRegistration] = useState<Registration>('unknown');
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<{ text: string; fallback: boolean } | null>(null);
+  const [done, setDone] = useState(false);
+  const [sent, setSent] = useState<Sent | null>(null);
+  const [resent, setResent] = useState(false);
+  const [pause, setPause] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState({ email: '', password: '', name: '', hotelName: '' });
+  const optionsAsked = useRef(false);
+  const passwordId = useId();
+
+  const open = useCallback(
+    (next: AuthMode) => {
+      setMode(next);
+      setError(null);
+      const dialog = dialogRef.current;
+      if (dialog && !dialog.open) dialog.showModal();
+      if (!optionsAsked.current) {
+        optionsAsked.current = true;
+        fetch(urls.endpoint.options, { credentials: 'include' })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data: { registrationEnabled?: boolean } | null) =>
+            setRegistration(data ? (data.registrationEnabled ? 'open' : 'closed') : 'unknown'),
+          )
+          .catch(() => setRegistration('unknown'));
+      }
+    },
+    [urls.endpoint.options],
+  );
+
+  // Ссылки с data-auth по всей странице и #login / #register в адресе
+  useEffect(() => {
+    const fromHash = () => {
+      const hash = window.location.hash;
+      if (hash === '#login' || hash === '#register') open(hash === '#login' ? 'login' : 'register');
+    };
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return; // новая вкладка — как обычная ссылка
+      const link = (event.target as Element | null)?.closest?.('a[data-auth]');
+      if (!link) return;
+      const target = link.getAttribute('data-auth');
+      if (target !== 'login' && target !== 'register') return;
+      event.preventDefault();
+      open(target);
+    };
+    fromHash();
+    document.addEventListener('click', onClick);
+    window.addEventListener('hashchange', fromHash);
+    return () => {
+      document.removeEventListener('click', onClick);
+      window.removeEventListener('hashchange', fromHash);
+    };
+  }, [open]);
+
+  // Пауза перед повторным письмом — секунды словами на кнопке
+  useEffect(() => {
+    if (pause <= 0) return;
+    const id = window.setTimeout(() => setPause((s) => s - 1), 1000);
+    return () => window.clearTimeout(id);
+  }, [pause]);
+
+  const close = () => dialogRef.current?.close();
+  const onClose = () => {
+    const hash = window.location.hash;
+    if (hash === '#login' || hash === '#register') {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  };
+
+  const switchTo = (next: AuthMode) => {
+    setMode(next);
+    setError(null);
+  };
+
+  const set = (key: keyof typeof form) => (event: { target: { value: string } }) =>
+    setForm((f) => ({ ...f, [key]: event.target.value }));
+
+  const submitLogin = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!form.email.trim() || !form.password) return setError({ text: texts.errors.required, fallback: false });
+    setPending(true);
+    setError(null);
+    const res = await post(urls.endpoint.login, { email: form.email.trim(), password: form.password });
+    if (res?.ok) {
+      setDone(true);
+      window.location.assign(nextUrl(urls.app, res.data.next));
+      return;
+    }
+    setPending(false);
+    if (!res) return setError({ text: texts.errors.network, fallback: true });
+    setError({ text: message(res.data, texts.errors.network), fallback: false });
+  };
+
+  const submitRegister = async (event: FormEvent) => {
+    event.preventDefault();
+    const body = {
+      email: form.email.trim(),
+      name: form.name.trim(),
+      hotelName: form.hotelName.trim(),
+      password: form.password,
+    };
+    if (!body.email || !body.name || !body.hotelName || !body.password) {
+      return setError({ text: texts.errors.required, fallback: false });
+    }
+    setPending(true);
+    setError(null);
+    const res = await post(urls.endpoint.register, body);
+    setPending(false);
+    if (!res) return setError({ text: texts.errors.network, fallback: true });
+    if (!res.ok) return setError({ text: message(res.data, texts.errors.network), fallback: false });
+    setSent({
+      email: typeof res.data.email === 'string' ? res.data.email : body.email,
+      sent: res.data.sent !== false,
+    });
+    setResent(false);
+    setPause(RESEND_PAUSE_S);
+  };
+
+  const resend = async () => {
+    if (!sent || pause > 0) return;
+    setPending(true);
+    setError(null);
+    const res = await post(urls.endpoint.resend, { email: sent.email });
+    setPending(false);
+    if (!res) return setError({ text: texts.errors.network, fallback: true });
+    if (!res.ok) return setError({ text: message(res.data, texts.errors.network), fallback: false });
+    setResent(true);
+    setPause(RESEND_PAUSE_S);
+  };
+
+  const errorBlock = error && (
+    <div className="auth-dialog__alert" role="alert">
+      <span>{error.text}</span>
+      {error.fallback ? (
+        <a href={mode === 'login' ? urls.login : urls.register}>{texts.errors.fallback}</a>
+      ) : null}
+    </div>
+  );
+
+  const passwordField = (autoComplete: 'current-password' | 'new-password') => (
+    // Подпись связана с полем через id: кнопка «Показать» внутри <label> вошла бы в имя поля
+    <div className="auth-field">
+      <label className="auth-field__label" htmlFor={passwordId}>
+        {texts.fields.password}
+      </label>
+      <span className="auth-field__password">
+        <input
+          id={passwordId}
+          className="auth-field__input"
+          type={showPassword ? 'text' : 'password'}
+          name="password"
+          autoComplete={autoComplete}
+          required
+          minLength={autoComplete === 'new-password' ? 10 : undefined}
+          placeholder={
+            autoComplete === 'new-password' ? texts.fields.newPasswordPlaceholder : texts.fields.passwordPlaceholder
+          }
+          value={form.password}
+          onChange={set('password')}
+          disabled={pending || done}
+        />
+        <button
+          type="button"
+          className="auth-field__toggle"
+          aria-label={showPassword ? texts.fields.hideLabel : texts.fields.showLabel}
+          aria-pressed={showPassword}
+          onClick={() => setShowPassword((v) => !v)}
+        >
+          {showPassword ? texts.fields.hide : texts.fields.show}
+        </button>
+      </span>
+    </div>
+  );
+
+  const emailField = (
+    <label className="auth-field">
+      <span className="auth-field__label">{texts.fields.email}</span>
+      <input
+        className="auth-field__input"
+        type="email"
+        name="email"
+        autoComplete="username"
+        inputMode="email"
+        // Окно открылось — курсор сразу в почте (вход) или в имени (регистрация)
+        autoFocus={mode === 'login'}
+        required
+        placeholder={texts.fields.emailPlaceholder}
+        value={form.email}
+        onChange={set('email')}
+        disabled={pending || done}
+      />
+    </label>
+  );
+
+  return (
+    <dialog
+      ref={dialogRef}
+      className="auth-dialog"
+      aria-label={texts.dialogLabel}
+      onClose={onClose}
+      onClick={(event) => {
+        // Щелчок по подложке (сам <dialog> за пределами панели) закрывает окно
+        if (event.target === dialogRef.current) close();
+      }}
+    >
+      <div className="auth-dialog__panel">
+        <button type="button" className="auth-dialog__close" aria-label={texts.close} onClick={close}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" focusable="false">
+            <path d="M6 6l12 12M18 6 6 18" />
+          </svg>
+        </button>
+
+        {sent ? (
+          <div className="auth-dialog__body" data-testid="auth-sent">
+            <span className="auth-dialog__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+            </span>
+            <h2 className="auth-dialog__title">{texts.sent.title}</h2>
+            {sent.sent ? (
+              <>
+                <p className="auth-dialog__lead">{texts.sent.text.replace('{email}', sent.email)}</p>
+                <p className="auth-dialog__lead">{texts.sent.next}</p>
+              </>
+            ) : (
+              <p className="auth-dialog__lead">{texts.sent.notSent}</p>
+            )}
+            {resent ? (
+              <p className="auth-dialog__status" role="status">
+                {texts.sent.resent}
+              </p>
+            ) : null}
+            {errorBlock}
+            <div className="auth-dialog__actions">
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={resend}
+                disabled={pending || pause > 0}
+                aria-busy={pending}
+              >
+                {pending
+                  ? texts.sent.resendPending
+                  : pause > 0
+                    ? texts.sent.wait.replace('{seconds}', String(pause))
+                    : texts.sent.resend}
+              </button>
+              <button
+                type="button"
+                className="auth-dialog__link"
+                onClick={() => {
+                  setSent(null);
+                  setError(null);
+                  setResent(false);
+                }}
+              >
+                {texts.sent.change}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="auth-dialog__body">
+            <div className="auth-tabs" role="tablist" aria-label={texts.dialogLabel}>
+              {(['login', 'register'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  id={`auth-tab-${tab}`}
+                  aria-selected={mode === tab}
+                  aria-controls="auth-tabpanel"
+                  className="auth-tabs__tab"
+                  onClick={() => switchTo(tab)}
+                >
+                  {texts.tabs[tab]}
+                </button>
+              ))}
+            </div>
+
+            <div id="auth-tabpanel" role="tabpanel" aria-labelledby={`auth-tab-${mode}`}>
+              {mode === 'login' ? (
+                <form className="auth-form" onSubmit={submitLogin} noValidate>
+                  <h2 className="auth-dialog__title">{texts.login.title}</h2>
+                  <p className="auth-dialog__lead">{texts.login.lead}</p>
+                  {emailField}
+                  {passwordField('current-password')}
+                  {errorBlock}
+                  {done ? (
+                    <p className="auth-dialog__status" role="status">
+                      {texts.signedIn}
+                    </p>
+                  ) : null}
+                  <button className="btn btn--primary auth-form__submit" type="submit" disabled={pending || done} aria-busy={pending}>
+                    {pending || done ? texts.login.pending : texts.login.submit}
+                  </button>
+                  <div className="auth-form__foot">
+                    <a href={urls.reset}>{texts.login.forgot}</a>
+                    <span>
+                      {texts.login.noAccount}{' '}
+                      <button type="button" className="auth-dialog__link" onClick={() => switchTo('register')}>
+                        {texts.tabs.register}
+                      </button>
+                    </span>
+                  </div>
+                </form>
+              ) : registration === 'closed' ? (
+                <div className="auth-form" data-testid="auth-closed">
+                  <h2 className="auth-dialog__title">{texts.closed.title}</h2>
+                  <p className="auth-dialog__lead">{texts.closed.text}</p>
+                  <a className="btn btn--secondary" href="#start" onClick={close}>
+                    {texts.closed.action}
+                  </a>
+                </div>
+              ) : (
+                <form className="auth-form" onSubmit={submitRegister} noValidate>
+                  <h2 className="auth-dialog__title">{texts.register.title}</h2>
+                  <p className="auth-dialog__lead">{texts.register.lead}</p>
+                  <label className="auth-field">
+                    <span className="auth-field__label">{texts.fields.name}</span>
+                    <input
+                      className="auth-field__input"
+                      type="text"
+                      name="name"
+                      autoComplete="name"
+                      autoFocus
+                      required
+                      maxLength={200}
+                      placeholder={texts.fields.namePlaceholder}
+                      value={form.name}
+                      onChange={set('name')}
+                      disabled={pending}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span className="auth-field__label">{texts.fields.hotel}</span>
+                    <input
+                      className="auth-field__input"
+                      type="text"
+                      name="hotelName"
+                      autoComplete="organization"
+                      required
+                      maxLength={200}
+                      placeholder={texts.fields.hotelPlaceholder}
+                      value={form.hotelName}
+                      onChange={set('hotelName')}
+                      disabled={pending}
+                    />
+                  </label>
+                  {emailField}
+                  {passwordField('new-password')}
+                  <p className="auth-form__hint">{texts.register.terms}</p>
+                  {errorBlock}
+                  <button className="btn btn--primary auth-form__submit" type="submit" disabled={pending} aria-busy={pending}>
+                    {pending ? texts.register.pending : texts.register.submit}
+                  </button>
+                  <div className="auth-form__foot">
+                    <span>
+                      {texts.register.haveAccount}{' '}
+                      <button type="button" className="auth-dialog__link" onClick={() => switchTo('login')}>
+                        {texts.tabs.login}
+                      </button>
+                    </span>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </dialog>
+  );
+}

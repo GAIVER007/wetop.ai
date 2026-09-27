@@ -12,7 +12,7 @@ type Props = {
 };
 
 /*
- * Меню шапки на узком экране — единственный клиентский код сайта. Закрывается по ссылке, Escape, щелчку
+ * Меню шапки на узком экране (клиентский код сайта — оно и окно входа, `auth-dialog.tsx`). Закрывается по ссылке, Escape, щелчку
  * мимо и при переходе на широкий экран, где пункты уже видны в шапке.
  */
 export function MobileMenu({ links, login, register, labels }: Props) {
@@ -84,10 +84,10 @@ export function MobileMenu({ links, login, register, labels }: Props) {
           </ul>
         </nav>
         <div className="mobile-menu__actions">
-          <a className="btn btn--secondary" href={login.href} onClick={close}>
+          <a className="btn btn--secondary" href={login.href} data-auth="login" onClick={close}>
             {login.label}
           </a>
-          <a className="btn btn--primary" href={register.href} onClick={close}>
+          <a className="btn btn--primary" href={register.href} data-auth="register" onClick={close}>
             {register.label}
           </a>
         </div>

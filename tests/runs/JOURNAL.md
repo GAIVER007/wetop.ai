@@ -2818,4 +2818,23 @@
 | 27.09.2026 12:56 | lint | ✅ без ошибок | 20 с | 3bad134 +3 | [лог](logs/2026-09-27T07-56-45Z-lint-781e.log) |  |
 | 27.09.2026 14:53 | unit | ❌ упало 13 из 2044, пропущено 3 | 1 мин 12 с | 2b4cfe5 | [лог](logs/2026-09-27T09-53-08Z-unit-7728.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
 | 27.09.2026 14:54 | unit | ❌ упало 12 из 2044, пропущено 3 | 1 мин 12 с | 2b4cfe5 | [лог](logs/2026-09-27T09-54-48Z-unit-2fae.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
+| 27.09.2026 15:35 | typecheck | ✅ без ошибок | 27 с | 986e2be +26 | [лог](logs/2026-09-27T10-35-32Z-typecheck-efa2.log) |  |
+| 27.09.2026 15:35 | lint | ✅ без ошибок | 14 с | 986e2be +26 | [лог](logs/2026-09-27T10-35-59Z-lint-c76d.log) |  |
+| 27.09.2026 15:36 | unit | ❌ упало 2 из 2078, пропущено 3 | 1 мин 32 с | 986e2be +21 | [лог](logs/2026-09-27T10-36-14Z-unit-4272.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 27.09.2026 15:38 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | 986e2be +21 | [лог](logs/2026-09-27T10-38-45Z-unit-0fdc.log) |  |
+| 27.09.2026 15:40 | e2e (частично: --config tests/ui/playwright.config.ts) | ❌ упало 21 из 399 | 22 мин 3 с | 986e2be +24 | [лог](logs/2026-09-27T10-40-04Z-e2e-5d18.log) | доступность всех разделов: dark, 1440px |
+| 27.09.2026 16:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/onboarding.spec.ts tests/ui/control-design.spec.ts tests/ui/payment-draft.spec.ts tests/ui/system | ❌ упало 20 из 96 | 4 мин 36 с | 890caed | [лог](logs/2026-09-27T11-02-37Z-e2e-98b0.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 16:19 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/product-tour.spec.ts tests/ui/onboarding.spec.ts tests/ui/navigation.spec.ts tests/ui/ux-retentio | ❌ упало 7 из 51 | 2 мин 3 с | 890caed | [лог](logs/2026-09-27T11-19-55Z-e2e-aac5.log) | 9. размеры шрифта на главной — из шкалы §6, число плитки 28 px |
+| 27.09.2026 16:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/product-tour.spec.ts tests/ui/onboarding.spec.ts tests/ui/navigation.spec.ts tests/ui/ux-retentio | ❌ упало 3 из 51 | 2 мин 12 с | 890caed +2 | [лог](logs/2026-09-27T11-22-33Z-e2e-1ffd.log) | пустой отель: рабочий экран уводит на онбординг, форма запускает отель |
+| 27.09.2026 16:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/product-tour.spec.ts tests/ui/onboarding.spec.ts tests/ui/navigation.spec.ts tests/ui | ✅ 51 из 51 | 2 мин 25 с | 890caed +2 | [лог](logs/2026-09-27T11-25-16Z-e2e-e4b4.log) |  |
+| 27.09.2026 16:27 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 15 из 15 | 16 с | 890caed +2 | [лог](logs/2026-09-27T11-27-48Z-e2e-21cb.log) |  |
+| 27.09.2026 16:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 399 | 29 мин 14 с | 890caed +2 | [лог](logs/2026-09-27T11-28-08Z-e2e-fd4b.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
 | 27.09.2026 15:18 | unit | ❌ упало 12 из 2044, пропущено 3 | 1 мин 12 с | a8f0df4 +4 | [лог](logs/2026-09-27T10-18-15Z-unit-2060.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
+| 27.09.2026 16:59 | typecheck | ✅ без ошибок | 21 с | 0b78f98 | [лог](logs/2026-09-27T11-59-01Z-typecheck-2be3.log) |  |
+| 27.09.2026 16:59 | lint | ✅ без ошибок | 14 с | 0b78f98 | [лог](logs/2026-09-27T11-59-23Z-lint-7d10.log) |  |
+| 27.09.2026 16:59 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | 0b78f98 | [лог](logs/2026-09-27T11-59-42Z-unit-3ede.log) |  |
+| 27.09.2026 17:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/product-tour.spec.ts tests/ui/onboarding.spec.ts tests/ui/navigation.spec.ts tests/ui | ✅ 34 из 34 | 3 мин 5 с | 0b78f98 | [лог](logs/2026-09-27T12-00-54Z-e2e-a4c2.log) |  |
+| 27.09.2026 17:04 | integration | ✅ 0 из 101, пропущено 101 | 17 с | ebbeb57 | [лог](logs/2026-09-27T12-04-41Z-integration-9bdf.log) |  |
+| 27.09.2026 17:05 | integration | ✅ 101 из 101 | 31 с | ebbeb57 | [лог](logs/2026-09-27T12-05-19Z-integration-b86c.log) |  |
+| 27.09.2026 17:06 | e2e | ❌ код выхода 1 | 4 с | ebbeb57 | [лог](logs/2026-09-27T12-06-04Z-e2e-804f.log) | (ошибка вне тестов) |
+| 27.09.2026 17:06 | e2e | ✅ 25 из 25 | 58 с | ebbeb57 | [лог](logs/2026-09-27T12-06-46Z-e2e-ef47.log) |  |

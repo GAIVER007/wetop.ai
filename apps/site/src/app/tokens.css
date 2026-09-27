@@ -44,6 +44,8 @@
   --success-soft: #e2f6ef;
   --warning: #94600b;
   --warning-soft: #fff3dd;
+  --danger: #b42336;
+  --danger-soft: #fde8eb;
   --purple: #7860cb;
   --purple-soft: #f1eeff;
   --chip-bg: rgba(255, 255, 255, 0.62);
@@ -144,6 +146,8 @@
     --success-soft: rgba(12, 60, 52, 0.7);
     --warning: #f6ba52;
     --warning-soft: rgba(62, 47, 24, 0.7);
+    --danger: #ff8a98;
+    --danger-soft: rgba(84, 26, 36, 0.7);
     --purple: #b4a0f2;
     --purple-soft: rgba(43, 35, 66, 0.7);
     --chip-bg: rgba(255, 255, 255, 0.06);

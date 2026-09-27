@@ -46,7 +46,7 @@ export function Start() {
             <h3 className="cta__title">{typo(t.start.ctaTitle)}</h3>
             <p className="cta__text">{typo(t.start.ctaText)}</p>
             <div className="cta__actions">
-              <a className="btn btn--primary btn--lg" href={registerLink().href}>
+              <a className="btn btn--primary btn--lg" href={registerLink().href} data-auth="register">
                 {t.nav.register}
                 <Icon name="arrowRight" size={18} />
               </a>
@@ -79,7 +79,7 @@ export function Start() {
             <p className="connect__label">{t.start.connectLabel}</p>
             <ConnectGem />
             <p className="connect__text">{typo(t.start.connectText)}</p>
-            <a className="connect__link" href={login.href}>
+            <a className="connect__link" href={login.href} data-auth="login">
               {appHost}
             </a>
           </div>

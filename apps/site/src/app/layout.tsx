@@ -2,11 +2,20 @@ import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans, Manrope } from 'next/font/google';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
+import { AuthDialog } from '../components/auth-dialog';
 import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
 import { getDictionary, localeInfo } from '../i18n';
 import { websiteOpenGraph } from '../lib/metadata';
-import { assistantScriptSrc, siteUrl } from '../lib/site';
+import {
+  assistantScriptSrc,
+  loginLink,
+  registerLink,
+  resetLink,
+  siteAuthEndpoint,
+  siteUrl,
+} from '../lib/site';
+import { siteConfig } from '../site.config';
 import './tokens.css';
 import './globals.css';
 
@@ -34,6 +43,19 @@ const monoFont = IBM_Plex_Mono({
 
 const t = getDictionary();
 const assistantSrc = assistantScriptSrc();
+// Окно входа и создания аккаунта (ADR-100): адреса стойки считаются при сборке, клиенту настройки не передаются
+const authUrls = {
+  login: loginLink().href,
+  register: registerLink().href,
+  reset: resetLink().href,
+  app: siteConfig.appUrl.replace(/\/+$/, ''),
+  endpoint: {
+    options: siteAuthEndpoint('options'),
+    login: siteAuthEndpoint('login'),
+    register: siteAuthEndpoint('register'),
+    resend: siteAuthEndpoint('resend'),
+  },
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -68,6 +90,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <SiteFooter />
+        <AuthDialog texts={t.auth} urls={authUrls} />
         {/* Чат ИИ-помощника (ТЗ П2): анонимный, адрес — assistantUrl в site.config.ts */}
         {assistantSrc && <Script src={assistantSrc} />}
       </body>

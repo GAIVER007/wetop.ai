@@ -27,6 +27,8 @@ import {
   MEMBER_ROLE_MESSAGE,
   MEMBER_ROLE_OWNER_ONLY_MESSAGE,
   MEMBER_SELF_MESSAGE,
+  accessDeniedMessage,
+  can,
   canInvite,
   canManageStaff,
   canRemoveMember,
@@ -3303,8 +3305,8 @@ createServer(async (req, res) => {
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/hotel/settings' && req.method === 'PATCH') {
-      if (uiRole !== 'OWNER')
-        return send(403, { message: 'Сведения гостиницы меняет владелец организации' });
+      // как API: право `settings` — владелец и управляющий (ADR-100)
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
       hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };

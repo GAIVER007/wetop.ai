@@ -28,9 +28,14 @@ describe('оболочка стойки: кто вошёл', () => {
     expect((await deskShell()).access.role).toBe('MANAGER');
   });
 
-  it('`/auth/me` не ответил — меню как у администратора, «Платформы» нет', async () => {
+  it('`/auth/me` не ответил — меню как у администратора, «Платформы» нет, а роль помечена неизвестной', async () => {
     me.mockRejectedValue(new ApiError(504, 'API не ответил'));
     const { deskShell } = await import('./desk-shell');
-    expect((await deskShell()).access).toEqual({ aiSeller: false, platform: false, role: 'STAFF' });
+    expect((await deskShell()).access).toEqual({
+      aiSeller: false,
+      platform: false,
+      role: 'STAFF',
+      unknown: true,
+    });
   });
 });

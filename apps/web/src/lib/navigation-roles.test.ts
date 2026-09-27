@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   CLOSED_ACCESS,
   PENDING_ACCESS,
+  UNKNOWN_ACCESS,
   deskAccessOf,
   mayAccess,
   navigationItems,
+  pageOpen,
   routeRule,
   sidebarSectionsFor,
   type NavigationAccess,
@@ -98,6 +100,21 @@ describe('право вошедшего', () => {
     expect(mayAccess(access('MANAGER'), 'refunds')).toBe(true);
     expect(mayAccess(access('MANAGER'), 'owner')).toBe(false);
     expect(mayAccess(CLOSED_ACCESS, 'owner')).toBe(true);
+  });
+
+  it('роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора', () => {
+    expect(mayAccess(UNKNOWN_ACCESS, 'refunds')).toBe(false);
+    expect(mayAccess(UNKNOWN_ACCESS, 'settings')).toBe(false);
+    expect(hrefs(UNKNOWN_ACCESS)).toEqual(hrefs(PENDING_ACCESS));
+  });
+
+  it('страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа»', () => {
+    expect(pageOpen(access('MANAGER'), 'settings')).toBe(true);
+    expect(pageOpen(access('STAFF'), 'settings')).toBe(false);
+    expect(pageOpen(PENDING_ACCESS, 'settings')).toBe(false);
+    // владелец при недоступном API видел бы «Нет доступа… ваша роль — администратор» — неправду
+    expect(pageOpen(UNKNOWN_ACCESS, 'settings')).toBe(true);
+    expect(pageOpen(CLOSED_ACCESS, 'owner')).toBe(true);
   });
 
   it('роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет', () => {

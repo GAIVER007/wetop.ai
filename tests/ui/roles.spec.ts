@@ -219,6 +219,24 @@ test('владелец: зовёт управляющего и админист�
   await shot(page, 'team-owner');
 });
 
+test('администратор: в «Первых шагах» нет приглашения сотрудников — зовут владелец и управляющий', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await request.post(`${API}/__test/control`, { data: { role: 'STAFF', noBookings: true } });
+  await page.goto('/today');
+  const steps = page.getByTestId('first-steps');
+  await expect(steps.getByRole('link', { name: 'Создать первую бронь' })).toBeVisible();
+  await expect(steps.getByRole('listitem')).toHaveCount(3);
+  await expect(steps.getByRole('link', { name: 'Пригласить' })).toHaveCount(0);
+
+  await request.post(`${API}/__test/control`, { data: { role: 'MANAGER', noBookings: true } });
+  await page.goto('/today');
+  await expect(steps.getByRole('listitem')).toHaveCount(4);
+  await expect(steps.getByRole('link', { name: 'Пригласить' })).toBeVisible();
+});
+
 test('администратор: сотрудниками ведают владелец и управляющий', async ({ page, request }) => {
   await signIn(page);
   await asRole(request, 'STAFF');

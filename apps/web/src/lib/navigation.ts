@@ -17,9 +17,14 @@ export interface NavigationAccess {
   /**
    * Роль вошедшего. `null` — API ответил, что никто не вошёл: так бывает, только пока замок выключен (разработка, проверки
    * стенда), и тогда разделы по ролям не прячутся — как и API без человека за запросом ролей не проверяет. Сбой
-   * `/auth/me` — не `null`, а `PENDING_ACCESS` (`desk-shell.ts`).
+   * `/auth/me` — не `null`, а `UNKNOWN_ACCESS` (`desk-shell.ts`).
    */
   role: MembershipRole | null;
+  /**
+   * Роль не узнали: `/auth/me` не ответил (сбой, тайм-аут). Меню и кнопки тогда — как у администратора, а страница по
+   * адресу открывается как есть (`pageOpen`): решает API, а «нет доступа» было бы неправдой.
+   */
+  unknown?: true;
 }
 
 /** Никто не вошёл (или API не ответил): «Платформы» нет, разделы по ролям не прячутся */
@@ -27,6 +32,9 @@ export const CLOSED_ACCESS: NavigationAccess = { aiSeller: false, platform: fals
 
 /** Пока `/auth/me` не ответил, меню — как у администратора: пункты появляются, а не исчезают у него на глазах */
 export const PENDING_ACCESS: NavigationAccess = { aiSeller: false, platform: false, role: 'STAFF' };
+
+/** `/auth/me` ответил сбоем: меню и кнопки — как у администратора, страницы по адресу не закрываем (ADR-100) */
+export const UNKNOWN_ACCESS: NavigationAccess = { ...PENDING_ACCESS, unknown: true };
 
 /** Право, которым открыт пункт: право роли (§16.5) или «Платформа» — отметка главного администратора */
 export type NavigationRequirement = Permission | 'platform';
@@ -324,6 +332,15 @@ export const sidebarSections: SidebarSection[] = [
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-100) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
   return access.role === null || can(access.role, permission);
+}
+
+/**
+ * Открыть ли страницу, пришедшую по адресу (ADR-100): право есть — да; роль не узнали — тоже да: данных без права API
+ * всё равно не отдаст, а при недоступном API страница сама скажет, что связи нет, — вместо «Нет доступа… ваша роль —
+ * администратор», неправды для владельца. Кнопки возврата и сторно этим не открываются: они смотрят `mayAccess`.
+ */
+export function pageOpen(access: NavigationAccess, permission: Permission): boolean {
+  return mayAccess(access, permission) || access.unknown === true;
 }
 
 /** Открыт ли пункт этому вошедшему */

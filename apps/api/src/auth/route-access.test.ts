@@ -56,6 +56,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',
+  'GET /hotel/first-steps': 'desk',
   'GET /hotel/onboarding': 'desk',
   'GET /rate-plans': 'desk',
   'POST /reservations': 'desk',
@@ -139,6 +140,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
 
   // ── настройки, интеграции, сайт, журнал ─────────────────────────────────────────────────
   'POST /hotel/onboarding': 'settings',
+  'PATCH /hotel/settings': 'settings',
   'GET /system/connection': 'settings',
   'GET /analytics/sites': 'settings',
   'POST /analytics/sites': 'settings',

@@ -7,13 +7,14 @@ import { useDeskAccess } from './desk-access';
 import { Icon } from './icon';
 import { Page } from './page';
 import { EmptyState, LoadingState } from './ui';
-import { allowedItem, openToEveryRole, routeRule } from '../lib/navigation';
+import { openToEveryRole, pageOpen, routeRule } from '../lib/navigation';
 
 /**
  * Закрытая по роли страница (ADR-100): вместо её содержимого — кому раздел открыт. Проверка здесь, а не в макете: корневой
  * макет Next при переходах по ссылкам не перерисовывается, а путь из `usePathname` меняется на каждом переходе. Данных
  * страница всё равно не получит — API ответит 403 (`RoleGuard`); здесь человек видит понятные слова вместо сбоя.
- * «Платформа» закрывает себя сама (ADR-083), страницы, открытые всем ролям, не ждут ответа `/auth/me`.
+ * «Платформа» закрывает себя сама (ADR-083), страницы, открытые всем ролям, не ждут ответа `/auth/me`. Роль не узнали
+ * (сбой `/auth/me`) — страница открывается: «нет доступа» было бы неправдой, а данных без права API не отдаст.
  */
 export function AccessGate({ children }: { children: ReactNode }) {
   const rule = routeRule(usePathname() ?? '/');
@@ -38,7 +39,7 @@ function RoleCheck({
   children: ReactNode;
 }) {
   const access = useDeskAccess();
-  if (allowedItem({ requires }, access)) return children;
+  if (pageOpen(access, requires)) return children;
   return <NoAccess label={label} requires={requires} role={access.role} />;
 }
 

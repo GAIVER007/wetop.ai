@@ -18,11 +18,12 @@ import { ReservationStatus } from '@pms/database';
 import {
   LUXX_APARTS_PROPERTY,
   REGISTRATION_NAME_TAKEN_MESSAGE,
+  accessDeniedMessage,
   parseHotelSettingsPatch,
   type HotelSettingsPatch,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
-import { actorIsOwner, currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import { actorMay, currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE } from '../database/property-ref';
 import { Access } from '../auth/access.decorator';
@@ -136,13 +137,14 @@ export class HotelService {
   }
 
   /**
-   * Правка «Общих» настроек владельцем организации (ТЗ ux-retention п. 3.1, UQ-1 — «да» владельца 26.09.2026).
-   * Сотрудник только смотрит (ADR-083). Валюта и пояс не правятся (разбор их не пропускает). Название объекта Luxx
-   * служебные пути ищут по имени — его не переименовать; чужое название не занять (ADR-099). Журнал — «было/стало».
+   * Правка «Общих» настроек (ТЗ ux-retention п. 3.1, UQ-1 — «да» владельца 26.09.2026): право `settings` — владелец и
+   * управляющий (ADR-100); администратору раздел закрыт, служебный ключ сведений не меняет. Валюта и пояс не правятся
+   * (разбор их не пропускает). Название объекта Luxx служебные пути ищут по имени — его не переименовать; чужое название
+   * не занять (ADR-099). Журнал — «было/стало».
    */
   async updateSettings(raw: unknown) {
-    if (!hasSignedInActor() || !actorIsOwner())
-      throw new ForbiddenException('Сведения гостиницы меняет владелец организации');
+    if (!hasSignedInActor() || !actorMay('settings'))
+      throw new ForbiddenException(accessDeniedMessage('settings'));
     const parsed = parseHotelSettingsPatch(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const patch = parsed.value;
@@ -289,14 +291,18 @@ export class HotelController {
   @Get('settings') settings() {
     return this.service.settings();
   }
-  @Patch('settings') updateSettings(@Body() body: unknown) {
+  // «Общие» сведения гостиницы — владелец и управляющий (ADR-100)
+  @Access('settings')
+  @Patch('settings')
+  updateSettings(@Body() body: unknown) {
     return this.service.updateSettings(body);
   }
   @Get('first-steps') firstSteps() {
     return this.service.firstSteps();
   }
   @Access('channels')
-  @Get('channel-report') channelReport(
+  @Get('channel-report')
+  channelReport(
     @Query('from') from?: string,
     @Query('to') to?: string,
     @Query('status') status?: string,

@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import type { Permission } from '@pms/domain';
 import { ApiError } from '../../lib/api';
+import { deskShell } from '../../lib/desk-shell';
 import { hotelApi } from '../../lib/hotel-api';
+import { mayAccess } from '../../lib/navigation';
 import { Badge, Panel } from '../../components/ui';
 
 type Step = {
@@ -8,6 +11,8 @@ type Step = {
   state: 'done' | 'next' | 'optional';
   hint: string;
   action?: { href: string; label: string };
+  /** Шаг — тому, у кого есть право (ADR-100): администратору приглашать сотрудников нельзя */
+  requires?: Permission;
 };
 
 /** Слово состояния шага — как у шагов ИИ-продавца (DESIGN.md §8) */
@@ -35,6 +40,7 @@ const STEPS: Step[] = [
     state: 'optional',
     hint: 'Каждый получит свою почту для входа и задаст пароль сам.',
     action: { href: '/login', label: 'Пригласить' },
+    requires: 'staff',
   },
 ];
 
@@ -44,18 +50,22 @@ const STEPS: Step[] = [
  * из-за подсказки.
  */
 export async function FirstSteps() {
-  const state = await hotelApi.firstSteps().catch((error: unknown) => {
-    if (error instanceof ApiError) return null;
-    throw error;
-  });
+  const [state, desk] = await Promise.all([
+    hotelApi.firstSteps().catch((error: unknown) => {
+      if (error instanceof ApiError) return null;
+      throw error;
+    }),
+    deskShell(),
+  ]);
   if (!state || state.hasReservations) return null;
+  const steps = STEPS.filter((step) => !step.requires || mayAccess(desk.access, step.requires));
   return (
     <Panel className="first-steps" data-testid="first-steps" aria-labelledby="first-steps-title">
       <h2 id="first-steps-title" className="first-steps__title">
         Первые шаги
       </h2>
       <ol className="first-steps__list">
-        {STEPS.map((step, index) => (
+        {steps.map((step, index) => (
           <li
             key={step.title}
             className="first-steps__item"

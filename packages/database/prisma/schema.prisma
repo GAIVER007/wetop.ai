@@ -56,6 +56,8 @@ model Property {
   services           Service[]
   trackedSites       TrackedSite[]
   inventoryUnits     InventoryUnit[]
+  externalEvents     ExternalEvent[]
+  channelOutbox      ChannelOutbox[]
 
   @@index([organizationId])
   @@map("properties")
@@ -342,7 +344,7 @@ model Guest {
   exelyPersonId String?   @unique @map("exely_person_id")
   /// Гость принадлежит своей организации (v1.13, RLS-1, ADR-103). В базе DEFAULT app_current_org() — запрос
   /// организации может не передавать; служебный путь передаёт организацию объекта сам.
-  organizationId String   @map("organization_id") @db.Uuid
+  organizationId String   @default(dbgenerated("app_current_org()")) @map("organization_id") @db.Uuid
   organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -522,7 +524,7 @@ model AuditLog {
   /// Чья запись (v1.13, ADR-103). Заполняет триггер audit_logs_organization: организация запроса, иначе — по
   /// сущности. NULL — платформа и система без организации.
   organizationId String? @map("organization_id") @db.Uuid
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
   @@index([organizationId, createdAt])
   @@index([entityType, entityId])
@@ -576,6 +578,10 @@ enum ExternalEventStatus {
 /// идемпотентность обязательна (ADR-007): сначала записано, потом обработано, повтор безопасен.
 model ExternalEvent {
   id              String              @id @default(uuid()) @db.Uuid
+  /// Объект события (миграция 20260927000026_phase1_tenant_scope, применена владельцем 27.09.2026). NULL — не выведен
+  /// при заполнении. Таблица без RLS (DATA_MODEL §17.3): её читает служебный путь; код колонку пока не пишет.
+  propertyId      String?             @map("property_id") @db.Uuid
+  property        Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider        String
   externalEventId String              @map("external_event_id")
   type            String
@@ -591,6 +597,7 @@ model ExternalEvent {
   processedAt     DateTime?           @map("processed_at") @db.Timestamptz(6)
 
   @@unique([provider, externalEventId])
+  @@index([propertyId])
   @@index([status, receivedAt])
   @@map("external_events")
 }
@@ -615,6 +622,9 @@ enum ChannelOutboxStatus {
 /// Очередь исходящих изменений ARI (DATA_MODEL §7, ChannelOutbox). Не бизнес-данные.
 model ChannelOutbox {
   id            String              @id @default(uuid()) @db.Uuid
+  /// Объект изменения (миграция 20260927000026_phase1_tenant_scope). NULL — не выведен; код колонку пока не пишет.
+  propertyId    String?             @map("property_id") @db.Uuid
+  property      Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider      String
   kind          ChannelOutboxKind
   payload       Json
@@ -626,6 +636,7 @@ model ChannelOutbox {
   createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   sentAt        DateTime?           @map("sent_at") @db.Timestamptz(6)
 
+  @@index([propertyId])
   @@index([provider, status, nextAttemptAt])
   @@map("channel_outbox")
 }

@@ -2871,3 +2871,9 @@
 | 27.09.2026 19:55 | integration (частично: tests/integration/chessboard-cell-facts.test.ts) | ✅ 1 из 1 | 3 с | dd7e2ea +3 | [лог](logs/2026-09-27T14-55-02Z-integration-e9de.log) | GREEN PR2: physicalRoomNumber on every unit |
 | 27.09.2026 19:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-grid.spec.ts --workers=1) | ❌ упало 1 из 3 | 20 с | dd7e2ea +5 | [лог](logs/2026-09-27T14-55-12Z-e2e-0a5e.log) | GREEN PR2 grid: tooltip, collapsed memory, sticky category |
 | 27.09.2026 20:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-gate.spec.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-week.spec.ts --wor | ✅ 16 из 16 | 1 мин 56 с | dd7e2ea +2 | [лог](logs/2026-09-27T15-04-06Z-e2e-07ed.log) | PR1 gate: owner's screenshot set + calm today column, sanity on design/week specs |
+| 27.09.2026 19:53 | typecheck | ✅ без ошибок | 29 с | b954994 +6 | [лог](logs/2026-09-27T14-53-03Z-typecheck-e387.log) |  |
+| 27.09.2026 19:53 | lint | ✅ без ошибок | 17 с | b954994 +6 | [лог](logs/2026-09-27T14-53-33Z-lint-0d64.log) |  |
+| 27.09.2026 19:53 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 13 с | b954994 +5 | [лог](logs/2026-09-27T14-53-51Z-unit-7cf6.log) |  |
+| 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
+| 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
+| 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |

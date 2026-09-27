@@ -49,6 +49,9 @@ test('не главный администратор: пункта нет, а с
   await signIn(page);
   await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
   expect(await menuLinks(page)).not.toContain('/platform/support');
+  // Техподдержка переехала под переключатель агентов на «ИИ-продавце» — не главному администратору его не видно
+  await page.goto('/ai-seller');
+  await expect(page.getByRole('link', { name: 'Техподдержка' })).toHaveCount(0);
   await page.goto('/platform/support');
   await expect(page.getByTestId('support-forbidden')).toContainText('главного администратора');
   await expect(page.getByTestId('support-dialogs')).toHaveCount(0);
@@ -61,9 +64,12 @@ test('главный администратор: сводка, отбор, ка�
   await signIn(page);
   await control(request, { platformAdmin: true });
   await page.goto('/today');
-  await expect.poll(() => menuLinks(page)).toContain('/platform/support');
-
-  await page.goto('/platform/support');
+  expect(await menuLinks(page)).not.toContain('/platform/support');
+  // Своего пункта меню у техподдержки больше нет — до неё главный администратор доходит переключателем
+  // агентов на «ИИ-продавце» (перенос раздела под общую навигацию ботов)
+  await page.goto('/ai-seller');
+  await page.getByRole('link', { name: 'Техподдержка' }).click();
+  await page.waitForURL('**/platform/support');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Техподдержка');
   await expect(main.getByTestId('support-summary')).toContainText('Диалогов за сутки');

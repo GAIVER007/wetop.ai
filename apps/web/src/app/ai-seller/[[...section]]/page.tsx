@@ -39,6 +39,7 @@ import {
   type SellerView,
 } from '../../../lib/ai-seller';
 import { hotelClock } from '../../../lib/hotel-api';
+import { deskShell } from '../../../lib/desk-shell';
 import { displayPeriod } from '../../../lib/display-date';
 import { sellerApi, type SellerFactsView, type SellerStatus } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
@@ -99,6 +100,7 @@ export default async function AiSellerPage({
   if (!SELLER_TABS.some((item) => item.view === view)) notFound();
   const query = await searchParams;
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
+  const { access } = await deskShell();
   return (
     <Page
       title="ИИ-продавец"
@@ -113,6 +115,16 @@ export default async function AiSellerPage({
         </Link>
       }
     >
+      {access.platform && (
+        <nav className="settings-tabs" aria-label="Агент">
+          <Link href="/ai-seller" aria-current="page">
+            Продавец
+          </Link>
+          <Link href="/platform/support" prefetch={false}>
+            Техподдержка
+          </Link>
+        </nav>
+      )}
       <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">
         {SELLER_TABS.map((item) => (
           <Link

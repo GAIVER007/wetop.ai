@@ -9,9 +9,14 @@ import pg from 'pg';
  * меняется, а запрос организации мимо резолвера объекта всё равно упирается в базу.
  */
 
-/** Таблицы под RLS — политика `rls_tenant` на каждой (миграция `20260927000028_rls_policies`) */
+/**
+ * Таблицы под RLS — политика `rls_tenant` на каждой (миграция `20260927000028_rls_policies`;
+ * `businesses`/`locations` — фаза Business+Location, миграция `20260927000029_business_location`)
+ */
 export const RLS_TENANT_TABLES: readonly string[] = [
   'organizations',
+  'businesses',
+  'locations',
   'memberships',
   'sessions',
   'invites',

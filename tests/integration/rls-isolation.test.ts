@@ -159,6 +159,93 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
       await client.query('ROLLBACK TO SAVEPOINT svc');
     });
   });
+
+  // ── Фаза Business + Location (план plans/phase-business-location-2026-09-27.md §6.5, DATA_MODEL v2.2 §18) ──
+  // Изоляция уровней владения доказывается в самой базе под ролью wetop_app, не только замком приложения:
+  // политика businesses — по organization_id прямо, политика locations — join к businesses (родительская
+  // политика режет сама, как у floors → buildings). Рекурсивных эффектов у join-политики нет: businesses
+  // внутри подзапроса уже отфильтрованы своей политикой — это и проверяется счётом видимых строк.
+
+  /** Цепочка Business → Location для организации (суперпользователь тестовой базы, политики его не режут) */
+  async function seedChain(organizationId: string, name: string): Promise<{ business: string; location: string }> {
+    const business = randomUUID();
+    const location = randomUUID();
+    await client.query(
+      `INSERT INTO businesses (id, organization_id, name, vertical, updated_at) VALUES ($1, $2, $3, 'HOSPITALITY', now())`,
+      [business, organizationId, name],
+    );
+    await client.query(
+      `INSERT INTO locations (id, business_id, name, timezone, currency, updated_at)
+       VALUES ($1, $2, $3, 'Asia/Almaty', 'KZT', now())`,
+      [location, business, name],
+    );
+    return { business, location };
+  }
+
+  it('Business и Location: организация видит только свои; чужие не приходят даже прямым запросом по id', async () => {
+    await inRollback(async () => {
+      const { own, other } = await seedTwoOrganizations();
+      const ownChain = await seedChain(own, 'Свой бизнес (RLS)');
+      const otherChain = await seedChain(other, 'Чужой бизнес (RLS)');
+      // каждая организация видит ровно свою пару строк — join-политика locations под действующей политикой businesses
+      expect(await visible('businesses', own)).toBe(1);
+      expect(await visible('locations', own)).toBe(1);
+      expect(await visible('businesses', other)).toBe(1);
+      expect(await visible('locations', other)).toBe(1);
+      // без переменной — ничего
+      expect(await visible('businesses', '')).toBe(0);
+      expect(await visible('locations', '')).toBe(0);
+      // прямой SQL по id чужой строки под app-ролью — пусто, и своя строка при этом читается
+      await client.query('SAVEPOINT direct');
+      await client.query('SET LOCAL ROLE wetop_app');
+      await client.query(`SELECT set_config('app.org_id', $1, true)`, [own]);
+      expect((await client.query(`SELECT id FROM businesses WHERE id = $1`, [otherChain.business])).rowCount).toBe(0);
+      expect((await client.query(`SELECT id FROM locations WHERE id = $1`, [otherChain.location])).rowCount).toBe(0);
+      expect((await client.query(`SELECT id FROM locations WHERE id = $1`, [ownChain.location])).rowCount).toBe(1);
+      await client.query('ROLLBACK TO SAVEPOINT direct');
+    });
+  });
+
+  it('Business и Location: записать строку в чужую организацию под app-ролью нельзя — отказ базы', async () => {
+    await inRollback(async () => {
+      const { own, other } = await seedTwoOrganizations();
+      const otherChain = await seedChain(other, 'Чужой бизнес (RLS)');
+      await client.query('SAVEPOINT write');
+      await client.query('SET LOCAL ROLE wetop_app');
+      await client.query(`SELECT set_config('app.org_id', $1, true)`, [own]);
+      await expect(
+        client.query(
+          `INSERT INTO businesses (id, organization_id, name, vertical, updated_at) VALUES ($1, $2, 'Подлог', 'HOSPITALITY', now())`,
+          [randomUUID(), other],
+        ),
+      ).rejects.toThrow(/row-level security/);
+      await client.query('ROLLBACK TO SAVEPOINT write');
+      await client.query('SAVEPOINT write2');
+      await client.query('SET LOCAL ROLE wetop_app');
+      await client.query(`SELECT set_config('app.org_id', $1, true)`, [own]);
+      await expect(
+        client.query(
+          `INSERT INTO locations (id, business_id, name, timezone, currency, updated_at)
+           VALUES ($1, $2, 'Подлог', 'Asia/Almaty', 'KZT', now())`,
+          [randomUUID(), otherChain.business],
+        ),
+      ).rejects.toThrow(/row-level security/);
+      await client.query('ROLLBACK TO SAVEPOINT write2');
+    });
+  });
+
+  it('Business и Location: служебная роль видит цепочки всех организаций', async () => {
+    await inRollback(async () => {
+      const { own, other } = await seedTwoOrganizations();
+      await seedChain(own, 'Свой бизнес (RLS)');
+      await seedChain(other, 'Чужой бизнес (RLS)');
+      await client.query('SAVEPOINT svc2');
+      await client.query('SET LOCAL ROLE wetop_service');
+      expect((await client.query(`SELECT count(*)::int AS n FROM businesses`)).rows[0].n).toBeGreaterThanOrEqual(2);
+      expect((await client.query(`SELECT count(*)::int AS n FROM locations`)).rows[0].n).toBeGreaterThanOrEqual(2);
+      await client.query('ROLLBACK TO SAVEPOINT svc2');
+    });
+  });
 });
 
 /**

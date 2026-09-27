@@ -1,0 +1,17 @@
+# Интеграционные (integration) · 27.09.2026 20:48 Алматы · vm
+# коммит 33a41bb (claude/eager-noether-1uncrq), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T15-48-18Z-integration-b9b2.json' 'tests/integration/rls-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[pms_test] миграций применено 1; данные на месте
+ ✓ |integration| tests/integration/rls-isolation.test.ts (9 tests) 345ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  15:48:19
+   Duration  1.85s (tests 50%, transform 34%, import 15%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T15-48-18Z-integration-b9b2.json
+
+# код выхода 0 · 3 с

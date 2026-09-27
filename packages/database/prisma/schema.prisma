@@ -25,6 +25,11 @@ model Property {
   id           String   @id @default(uuid()) @db.Uuid
   /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
   organizationId String @map("organization_id") @db.Uuid
+  /// Родитель объекта — филиал (v2.0/v2.2 §18.4, фаза Business+Location). NULL на миграционный период;
+  /// NOT NULL — только через gate владельца (count IS NULL = 0 либо решение по каждой строке), заранее
+  /// не объявляется. organization_id остаётся, пока замок ADR-061 не переведён на цепочку Location → Business.
+  locationId   String?  @map("location_id") @db.Uuid
+  location     Location? @relation(fields: [locationId], references: [id], onDelete: Restrict)
   name         String
   legalName    String?  @map("legal_name")
   bin          String?
@@ -60,6 +65,7 @@ model Property {
   channelOutbox      ChannelOutbox[]
 
   @@index([organizationId])
+  @@index([locationId])
   @@map("properties")
 }
 
@@ -990,8 +996,13 @@ model Organization {
   name        String             @db.VarChar(200)
   status      OrganizationStatus @default(TRIAL)
   trialEndsAt DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
+  /// Отчётная валюта партнёра (v2.2, §18.4, freeze-решение №3): в неё сводится аналитика филиалов.
+  /// NULL и без DEFAULT: backfill фазы Business+Location берёт валюту объектов организации, если она одна;
+  /// неоднозначное остаётся NULL и попадает в отчёт миграции; новым партнёрам валюту выберет онбординг.
+  reportingCurrency String?      @map("reporting_currency") @db.VarChar(3)
   createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  businesses  Business[]
   memberships Membership[]
   sessions    Session[]
   invites     Invite[]
@@ -1005,6 +1016,64 @@ model Organization {
   auditLogs   AuditLog[]
 
   @@map("organizations")
+}
+
+/// Вертикаль живёт на Business — не на организации и не на филиале (DATA_MODEL §18.1, ADR-104)
+enum BusinessVertical {
+  HOSPITALITY
+  BEAUTY
+}
+
+enum BusinessStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum LocationStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+/// Направление/бренд партнёра (DATA_MODEL §18.1, фаза Business+Location). Удаления строк нет — ARCHIVED.
+/// Уникальности имени нет сознательно: тёзки внутри организации — её дело.
+model Business {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  name           String           @db.VarChar(200)
+  vertical       BusinessVertical
+  status         BusinessStatus   @default(ACTIVE)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  locations Location[]
+
+  @@index([organizationId])
+  @@map("businesses")
+}
+
+/// Филиал бизнеса (DATA_MODEL §18.2). Без organization_id — организация выводится через business_id (§18.3).
+model Location {
+  id         String         @id @default(uuid()) @db.Uuid
+  businessId String         @map("business_id") @db.Uuid
+  business   Business       @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  name       String         @db.VarChar(200)
+  address    String?        @db.VarChar(500)
+  /// Контакты филиала: пусто — прочерк, как контакты объекта в §1 (v1.7)
+  phone      String?
+  email      String?
+  /// IANA, например Asia/Almaty; правило дат AGENTS.md §13 отсчитывается отсюда
+  timezone   String         @db.VarChar(50)
+  /// Операционная валюта филиала, ISO 4217
+  currency   String         @db.VarChar(3)
+  status     LocationStatus @default(ACTIVE)
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  properties Property[]
+
+  @@index([businessId])
+  @@map("locations")
 }
 
 /// Человек. Почта в нижнем регистре — за этим следит CHECK в миграции, Prisma такого не описывает.

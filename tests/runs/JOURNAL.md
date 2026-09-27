@@ -2895,3 +2895,9 @@
 | 27.09.2026 20:35 | integration | ✅ 0 из 109, пропущено 109 | 20 с | 2f778c0 | [лог](logs/2026-09-27T15-35-48Z-integration-3928.log) |  |
 | 27.09.2026 20:36 | integration | ✅ 109 из 109 | 32 с | 2f778c0 | [лог](logs/2026-09-27T15-36-33Z-integration-83e7.log) |  |
 | 27.09.2026 20:37 | unit | ✅ 2108 из 2111, пропущено 3 | 1 мин 12 с | 2f778c0 | [лог](logs/2026-09-27T15-37-14Z-unit-c8c7.log) |  |
+| 27.09.2026 20:44 | integration (частично: tests/integration/rls-isolation.test.ts) | ❌ упало 3 из 9 | 3 с | 33a41bb +1 | [лог](logs/2026-09-27T15-44-42Z-integration-a517.log) | red: Business/Location isolation before the migration |
+| 27.09.2026 20:48 | integration (частично: tests/integration/rls-isolation.test.ts) | ✅ 9 из 9 | 3 с | 33a41bb +6 | [лог](logs/2026-09-27T15-48-18Z-integration-b9b2.log) | green: Business/Location RLS after migration 20260927000029 |
+| 27.09.2026 20:52 | typecheck | ✅ без ошибок | 22 с | 33a41bb +7 | [лог](logs/2026-09-27T15-52-28Z-typecheck-afd0.log) |  |
+| 27.09.2026 20:52 | lint | ✅ без ошибок | 19 с | 33a41bb +7 | [лог](logs/2026-09-27T15-52-51Z-lint-dd9c.log) |  |
+| 27.09.2026 20:53 | unit | ✅ 2109 из 2112, пропущено 3 | 1 мин 12 с | 33a41bb +6 | [лог](logs/2026-09-27T15-53-15Z-unit-bd35.log) |  |
+| 27.09.2026 20:54 | integration | ✅ 112 из 112 | 32 с | 33a41bb +7 | [лог](logs/2026-09-27T15-54-27Z-integration-95a7.log) |  |

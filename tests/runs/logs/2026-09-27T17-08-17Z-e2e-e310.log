@@ -1,0 +1,146 @@
+# Сквозные (e2e) · 27.09.2026 22:08 Алматы · vm
+# коммит bf26db5 (claude/festive-cray-5cn5az), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✘   1 tests/ui/channex-screens.spec.ts:25:1 › источники продаж: стоимость — плитка в ряду, без дубля числа источников и без монограмм (18.4s)
+  ✘   2 tests/ui/channex-screens.spec.ts:65:1 › каналы продаж: обзор состояния вместо отчёта — счётчики, «Требует внимания», карточка Channex (16.9s)
+  ✓   3 tests/ui/channex-screens.spec.ts:132:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (3.4s)
+  ✓   4 tests/ui/channex-screens.spec.ts:192:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (2.0s)
+  ✓   5 tests/ui/channex-screens.spec.ts:209:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (6.6s)
+  ✓   6 tests/ui/channex-screens.spec.ts:273:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (5.5s)
+  ✓   7 tests/ui/channex-screens.spec.ts:322:1 › приём брони: ревизия с двоеточиями в номере открывается (1.3s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   8 tests/ui/channex-screens.spec.ts:336:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.6s)
+  ✓   9 tests/ui/channex-screens.spec.ts:356:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (8.2s)
+  ✓  10 tests/ui/channex-screens.spec.ts:422:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (10.0s)
+  ✘  11 tests/ui/channex-screens.spec.ts:503:1 › источники продаж и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (16.0s)
+
+
+  1) tests/ui/channex-screens.spec.ts:25:1 › источники продаж: стоимость — плитка в ряду, без дубля числа источников и без монограмм 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('channel-amount')
+    Expected substring: "1 920 000"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('channel-amount') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('channel-amount')
+
+
+      32 |
+      33 |   // стоимость стоит рядом с остальными числами, отдельной панели под неё нет
+    > 34 |   await expect(main.getByTestId('channel-amount')).toContainText('1 920 000');
+         |                                                    ^
+      35 |   await expect(main.locator('.channel-value-panel')).toHaveCount(0);
+      36 |   // плитка «Источников продаж» повторяла число строк таблицы — снята
+      37 |   await expect(main.getByText('Источников продаж')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:34:52
+
+    Error Context: test-results/channex-screens-источники--e64a4--источников-и-без-монограмм/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-источники--e64a4--источников-и-без-монограмм/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-источники--e64a4--источников-и-без-монограмм/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/channex-screens.spec.ts:65:1 › каналы продаж: обзор состояния вместо отчёта — счётчики, «Требует внимания», карточка Channex 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Каналы продаж"
+    Received: "Менеджер каналов"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Менеджер каналов</h1>
+           - unexpected value "Менеджер каналов"
+
+
+      70 |   await page.setViewportSize({ width: 1440, height: 1000 });
+      71 |   await page.goto('/channel-manager');
+    > 72 |   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
+         |                                                         ^
+      73 |   // аналитического фильтра периода на обзоре нет (ТЗ §22) — период живёт в аналитике
+      74 |   await expect(main.getByTestId('channel-period-form')).toHaveCount(0);
+      75 |   await expect(main.getByLabel('Заезд с')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:72:57
+
+    Error Context: test-results/channex-screens-каналы-про-00f5c--внимания»-карточка-Channex/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-каналы-про-00f5c--внимания»-карточка-Channex/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-каналы-про-00f5c--внимания»-карточка-Channex/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/channex-screens.spec.ts:503:1 › источники продаж и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').locator('.page__subtitle')
+    Expected: "Брони с заездом 1 сент. → 30 сент., 30 дней, все статусы"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').locator('.page__subtitle') with timeout 15000ms
+      - waiting for getByRole('main').locator('.page__subtitle')
+
+
+      508 |   await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30');
+      509 |   // 21.09: подпись периода без двоеточия — «Брони с заездом …» (§14)
+    > 510 |   await expect(main.locator('.page__subtitle')).toHaveText(
+          |                                                 ^
+      511 |     'Брони с заездом 1 сент. → 30 сент., 30 дней, все статусы',
+      512 |   );
+      513 |   await expect(main.getByTestId('channel-report')).not.toContainText(' · ');
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:510:49
+
+    Error Context: test-results/channex-screens-источники--ae741-ой-отчёт-с-причиной-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-источники--ae741-ой-отчёт-с-причиной-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-источники--ae741-ой-отчёт-с-причиной-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/channex-screens.spec.ts:25:1 › источники продаж: стоимость — плитка в ряду, без дубля числа источников и без монограмм 
+    tests/ui/channex-screens.spec.ts:65:1 › каналы продаж: обзор состояния вместо отчёта — счётчики, «Требует внимания», карточка Channex 
+    tests/ui/channex-screens.spec.ts:503:1 › источники продаж и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон 
+  8 passed (1.6m)
+
+# код выхода 1 · 1 мин 40 с

@@ -109,7 +109,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         href: '/channel-manager',
         label: 'Менеджер каналов',
         icon: 'channels',
-        description: 'Брони и стоимость по Booking.com, Trip.com и другим источникам.',
+        description: 'Состояние подключений, сопоставления и синхронизация с каналами.',
         children: [
           {
             href: '/channels',
@@ -131,6 +131,15 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Аналитика',
         icon: 'analytics',
         description: 'Посещаемость сайта, источники трафика и бронирования.',
+        children: [
+          {
+            // Отчёт по источникам продаж переехал с «Менеджера каналов» (CH1, ADR-106)
+            href: '/analytics/sources',
+            label: 'Источники продаж',
+            icon: 'channels',
+            description: 'Брони и стоимость по Booking.com, Trip.com и другим источникам.',
+          },
+        ],
       },
     ],
   },

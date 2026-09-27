@@ -61,7 +61,8 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/photos', 'Интеграции'],
     ['/hotel-settings/amenities', 'Интеграции'],
     ['/management/statistics', 'Статистика'],
-    ['/channel-manager', 'Менеджер каналов'],
+    ['/channel-manager', 'Каналы продаж'],
+    ['/analytics/sources', 'Источники продаж'],
     ['/connections', 'Интеграции'],
   ];
   for (const [route, title] of routes) {
@@ -149,11 +150,11 @@ test('доступность переносит даты и свободное �
   await expect(page.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveCount(0);
 });
 
-test('менеджер каналов: реальные фильтры, пустой результат, период и отказ API', async ({
+test('источники продаж: реальные фильтры, пустой результат, период и отказ API', async ({
   page,
   request,
 }) => {
-  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30');
   await expect(page.getByTestId('channel-bookings')).toHaveText('48');
   await expect(page.getByTestId('channel-report')).toContainText('Booking.com');
   await expect(page.getByTestId('channel-report')).toContainText('Trip.com');
@@ -162,13 +163,13 @@ test('менеджер каналов: реальные фильтры, пуст
   await expect(page).toHaveURL(/status=CANCELLED/);
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
   await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
-  await page.goto('/channel-manager?from=2026-09-30&to=2026-09-01');
+  await page.goto('/analytics/sources?from=2026-09-30&to=2026-09-01');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Выберите корректные даты');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
-  await page.goto('/channel-manager');
+  await page.goto('/analytics/sources');
   // D4 (20.09): отказ отчёта не уносит экран — форма и заголовок на месте, вместо чисел сбой словами
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Менеджер каналов',
+    'Источники продаж',
   );
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.getByTestId('channel-bookings')).toHaveCount(0);
@@ -839,7 +840,7 @@ test('кнопки Channex отправляют команды один раз �
 
 test('пустые ответы дают нули; сбой API не выдаётся за пустую базу', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
-  await page.goto('/channel-manager');
+  await page.goto('/analytics/sources');
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
   await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/finance');
@@ -856,13 +857,20 @@ test('пустые ответы дают нули; сбой API не выдаё�
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
   }
-  // «Менеджер каналов» с D4 (20.09) остаётся на экране: заголовок и форма на месте, вместо чисел — сбой
-  await page.goto('/channel-manager');
+  // «Источники продаж» с D4 (20.09) остаются на экране: заголовок и форма на месте, вместо чисел — сбой
+  await page.goto('/analytics/sources');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Менеджер каналов',
+    'Источники продаж',
   );
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
+  // Обзор «Каналы продаж» (CH1, ADR-106) при отказе всего API остаётся и говорит «неизвестно», не «всё в порядке»
+  await page.goto('/channel-manager');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+    'Каналы продаж',
+  );
+  await expect(page.getByTestId('overview-health')).toHaveText('Состояние неизвестно');
+  await expect(page.getByTestId('overview-pending')).toHaveText('—');
   // «Деньги за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
   await page.goto('/finance');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(

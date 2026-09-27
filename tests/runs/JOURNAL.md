@@ -2863,3 +2863,8 @@
 | 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
 | 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
 | 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |
+| 27.09.2026 22:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ❌ упало 11 из 11 | 22 с | bf26db5 +1 | [лог](logs/2026-09-27T17-07-31Z-e2e-1d4f.log) | CH1 red: обзор каналов и переезд отчёта на /analytics/sources до реализации |
+| 27.09.2026 22:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ❌ упало 3 из 11 | 1 мин 40 с | bf26db5 +1 | [лог](logs/2026-09-27T17-08-17Z-e2e-e310.log) | CH1 red: обзор каналов и переезд отчёта на /analytics/sources до реализации |
+| 27.09.2026 22:19 | typecheck | ✅ без ошибок | 34 с | bf26db5 +17 | [лог](logs/2026-09-27T17-19-35Z-typecheck-83e6.log) | CH1: обзор каналов, отчёт на /analytics/sources |
+| 27.09.2026 22:20 | lint | ✅ без ошибок | 20 с | bf26db5 +17 | [лог](logs/2026-09-27T17-20-17Z-lint-a8ef.log) | CH1: обзор каналов, отчёт на /analytics/sources |
+| 27.09.2026 22:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 11 из 11 | 1 мин 3 с | bf26db5 +17 | [лог](logs/2026-09-27T17-20-44Z-e2e-9d8e.log) | CH1 green: обзор каналов и отчёт на /analytics/sources |

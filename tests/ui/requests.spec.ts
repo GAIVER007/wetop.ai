@@ -49,6 +49,7 @@ for (const screen of [
   '/channel-manager',
   '/channels',
   '/analytics',
+  '/analytics/sources',
   '/hotel-settings',
   '/hotel-settings/penalties',
   '/hotel-settings/services',

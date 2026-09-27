@@ -30,6 +30,7 @@ const routes = [
   '/channels',
   '/connections',
   '/analytics',
+  '/analytics/sources',
   '/analytics/setup',
   '/profile',
   '/login',

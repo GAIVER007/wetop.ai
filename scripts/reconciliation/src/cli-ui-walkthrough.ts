@@ -77,6 +77,7 @@ const STATIC = [
   '/channel-manager',
   '/channels',
   '/analytics',
+  '/analytics/sources',
   '/connections',
   '/analytics/setup',
   '/incidents',
@@ -609,19 +610,19 @@ async function walkPeriodPages(page: Page) {
       `начислено ${charged}, оплачено ${paid}${ok ? ' = API' : ` ≠ API ${r.chargedMinor}/${r.paidMinor}`}`,
     );
   }
-  // Менеджер каналов — отчёт по каналам
+  // Источники продаж — отчёт по каналам (до CH1/ADR-106 жил на /channel-manager)
   for (const [from, to] of [
     [monthStart(today), today],
     [addDays(today, -30), today],
   ]) {
-    await open(page, `/channel-manager?from=${from}&to=${to}&status=ALL`);
+    await open(page, `/analytics/sources?from=${from}&to=${to}&status=ALL`);
     const report = await json<{ rows: Array<{ count: number }> }>(
       `/hotel/channel-report?from=${from}&to=${to}&status=ALL`,
     );
     const expected = report.rows.reduce((s, r) => s + r.count, 0);
     const screen = num(await page.getByTestId('channel-bookings').first().innerText());
     note(
-      '/channel-manager',
+      '/analytics/sources',
       `бронирований за ${from}…${to}`,
       screen === expected ? 'ok' : 'FAIL',
       `экран ${screen}, API ${expected}`,

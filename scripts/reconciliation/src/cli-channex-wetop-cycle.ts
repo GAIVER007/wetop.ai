@@ -212,8 +212,8 @@ if (number) {
     (h) => h.includes(encodeURIComponent(n)) || h.includes(n),
   );
   checkPage(
-    'WETOP: «Менеджер каналов» видит канал',
-    await page(`/channel-manager?from=${ARRIVAL}&to=${ARRIVAL}&status=ALL`),
+    'WETOP: «Источники продаж» видят канал',
+    await page(`/analytics/sources?from=${ARRIVAL}&to=${ARRIVAL}&status=ALL`),
     (h) => h.includes(card.channel ?? OTA_NAME),
   );
   const afterCreate = await availabilityMatches();

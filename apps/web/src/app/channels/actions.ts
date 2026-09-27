@@ -88,6 +88,7 @@ function refreshChannelViews() {
     '/channels',
     '/chessboard',
     '/channel-manager',
+    '/analytics/sources',
     '/today',
     '/management/statistics',
     '/rooms/availability',

@@ -9,6 +9,7 @@ afterEach(() => {
 });
 const affected = [
   '/channel-manager',
+  '/analytics/sources',
   '/today',
   '/management/statistics',
   '/rooms/availability',

@@ -13,7 +13,8 @@ test.beforeEach(async ({ request }) => {
 });
 
 /**
- * «Менеджер каналов» (21.09.2026, продолжение правки «чтобы каши не было»).
+ * Отчёт по источникам (21.09.2026, продолжение правки «чтобы каши не было»; с 27.09 — CH1 ADR-106:
+ * отчёт живёт в «Аналитика → Источники продаж», а «Менеджер каналов» стал обзором состояния).
  *
  * Было: ряд из четырёх плиток, где четвёртая — «Источников продаж 4» — повторяла число строк таблицы
  * под ней; следом панель «Стоимость выбранных броней» высотой ~230 px ради одного числа, и до таблицы
@@ -21,13 +22,13 @@ test.beforeEach(async ({ request }) => {
  * справочниках от аватаров отказались (DESIGN.md §8) и логотипы каналов не вставляем (§7); пустой отчёт
  * рисовался ячейкой внутри таблицы с шапкой из шести колонок.
  */
-test('менеджер каналов: стоимость — плитка в ряду, без дубля числа источников и без монограмм', async ({
+test('источники продаж: стоимость — плитка в ряду, без дубля числа источников и без монограмм', async ({
   page,
   request,
 }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/channel-manager');
+  await page.goto('/analytics/sources');
 
   // стоимость стоит рядом с остальными числами, отдельной панели под неё нет
   await expect(main.getByTestId('channel-amount')).toContainText('1 920 000');
@@ -50,10 +51,82 @@ test('менеджер каналов: стоимость — плитка в р
 
   // пустой отчёт — общее пустое состояние, шапки из шести колонок над ним нет
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
-  await page.goto('/channel-manager');
+  await page.goto('/analytics/sources');
   await expect(main.getByTestId('channel-report-empty')).toBeVisible();
   await expect(main.getByRole('columnheader')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: {} });
+});
+
+/**
+ * CH1 «Каналы продаж v2» (ADR-106, plans/tz-channels-2026-09-27.md §3, §22): «Менеджер каналов» —
+ * обзор состояния интеграции без аналитического фильтра периода. Витрина: очередь 2, ошибка
+ * отправки 1, событие FAILED, сопоставлений нет — обзор называет проблемы и ведёт туда, где чинят.
+ */
+test('каналы продаж: обзор состояния вместо отчёта — счётчики, «Требует внимания», карточка Channex', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/channel-manager');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
+  // аналитического фильтра периода на обзоре нет (ТЗ §22) — период живёт в аналитике
+  await expect(main.getByTestId('channel-period-form')).toHaveCount(0);
+  await expect(main.getByLabel('Заезд с')).toHaveCount(0);
+  // полоса здоровья и счётчики: витрина даёт очередь 2 и ошибку отправки 1 — «Есть ошибки»
+  await expect(main.getByTestId('overview-health')).toHaveText('Есть ошибки');
+  await expect(main.getByTestId('overview-pending')).toHaveText('2');
+  await expect(main.getByTestId('overview-failed')).toHaveText('1');
+  await expect(main.getByTestId('overview-inbox')).toHaveText('1');
+  await expect(main.getByTestId('overview-unmapped')).toHaveText('3');
+  // «Требует внимания»: у каждой строки — ссылка туда, где проблему чинят
+  const troubles = main.getByTestId('overview-troubles');
+  await expect(troubles.getByRole('link', { name: 'Открыть очередь' })).toHaveAttribute(
+    'href',
+    '/channels?queue=FAILED',
+  );
+  await expect(troubles.getByRole('link', { name: 'Разобрать' })).toHaveAttribute(
+    'href',
+    '/channels?status=FAILED',
+  );
+  // карточка подключения: среда словами; property id и ключи не показываются (ТЗ §26)
+  const card = main.getByTestId('overview-connection');
+  await expect(card).toContainText('Channex');
+  await expect(card).toContainText('Тестовая');
+  await expect(card).not.toContainText('ui-property');
+  await expect(card.getByRole('link', { name: 'Открыть синхронизацию' })).toHaveAttribute(
+    'href',
+    '/channels',
+  );
+  // источники за 30 дней — компактно, по числу броней, со ссылкой в аналитику
+  const sources = main.getByTestId('overview-sources');
+  await expect(sources).toContainText('Booking.com');
+  await expect(sources).toContainText('50%');
+  await sources.getByRole('link', { name: /Подробнее в аналитике/ }).click();
+  await expect(page).toHaveURL(/\/analytics\/sources\?/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Источники продаж');
+  await expect(main.getByTestId('channel-report')).toBeVisible();
+  // D4: отказ отчёта не уносит обзор — сбой только в блоке источников, счётчики на месте
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, failPath: '/hotel/channel-report' },
+  });
+  await page.goto('/channel-manager');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
+  await expect(main.getByTestId('sources-summary-error')).toBeVisible();
+  await expect(main.getByTestId('overview-pending')).toHaveText('2');
+  // телефон: обзор читается без прокрутки вбок
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/channel-manager');
+  await expect(main.getByTestId('overview-health')).toBeVisible();
+  const layout = await page.evaluate(() => {
+    const w = globalThis as unknown as {
+      innerWidth: number;
+      document: { documentElement: { scrollWidth: number } };
+    };
+    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+  });
+  expect(layout.content, 'обзор шире экрана телефона').toBeLessThanOrEqual(layout.viewport + 1);
 });
 
 test('цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит', async ({
@@ -421,17 +494,18 @@ test('каналы: сбой сводки очереди и сопоставле
 });
 
 /**
- * D4 «Каналы и состояние соединений», часть 2: «Менеджер каналов» называет период словами, отказ отчёта
+ * D4 «Каналы и состояние соединений», часть 2: отчёт по источникам называет период словами, отказ отчёта
  * оставляет форму (сбой вместо чисел, повтор с теми же условиями), пустой отчёт называет условие и путь к
  * «все статусы», строка источника без « · », на телефоне строки читаются без прокрутки вбок; «Подключения»
- * называют сопоставления словами и пустое время «—».
+ * называют сопоставления словами и пустое время «—». С 27.09 (CH1, ADR-106) отчёт живёт в
+ * «Аналитика → Источники продаж».
  */
-test('менеджер каналов и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон', async ({
+test('источники продаж и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон', async ({
   page,
   request,
 }) => {
   const main = page.getByRole('main');
-  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30');
   // 21.09: подпись периода без двоеточия — «Брони с заездом …» (§14)
   await expect(main.locator('.page__subtitle')).toHaveText(
     'Брони с заездом 1 сент. → 30 сент., 30 дней, все статусы',
@@ -439,7 +513,7 @@ test('менеджер каналов и подключения: период с
   await expect(main.getByTestId('channel-report')).not.toContainText(' · ');
   await expect(main.getByTestId('channel-report')).toContainText('Канал продаж, KZT');
   // пустой отчёт по статусу — условие и ссылка на все статусы
-  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30&status=NO_SHOW');
+  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30&status=NO_SHOW');
   const empty = main.getByTestId('channel-report-empty');
   await expect(empty).toContainText(
     'Нет бронирований с заездом 1 сент. → 30 сент. со статусом «Незаезды»',
@@ -449,8 +523,8 @@ test('менеджер каналов и подключения: период с
   await expect(main.getByTestId('channel-bookings')).toHaveText('48');
   // отказ отчёта: заголовок, подпись и форма на месте, повтор возвращает числа с теми же условиями
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
-  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30&status=CONFIRMED');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
+  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30&status=CONFIRMED');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Источники продаж');
   await expect(main.getByLabel('Статус брони')).toHaveValue('CONFIRMED');
   const failure = main.getByTestId('channel-report-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -462,7 +536,7 @@ test('менеджер каналов и подключения: период с
   await expect(page).toHaveURL(/status=CONFIRMED/);
   // телефон: строки отчёта карточкой, без прокрутки вбок
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30');
   const layout = await page.evaluate(() => {
     const w = globalThis as unknown as {
       innerWidth: number;
@@ -484,9 +558,9 @@ test('менеджер каналов и подключения: период с
   await request.post(`${fixture}/__test/control`, {
     data: { delayPath: '/hotel/channel-report', delayMs: 2500 },
   });
-  await page.goto('/channel-manager', { waitUntil: 'commit' });
-  const loading = main.getByTestId('channel-manager-loading');
+  await page.goto('/analytics/sources', { waitUntil: 'commit' });
+  const loading = main.getByTestId('sources-loading');
   await expect(loading).toBeVisible();
-  await expect(loading).toContainText('Загружаем отчёт по каналам');
+  await expect(loading).toContainText('Загружаем отчёт по источникам');
   await expect(main.getByTestId('channel-bookings')).toBeVisible({ timeout: 15_000 });
 });

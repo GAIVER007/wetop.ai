@@ -138,7 +138,7 @@ export function QuickActions({ day }: { day: DeskDay }) {
       .includes(q),
   );
   return (
-    <section className="quick-actions-card" aria-label="Быстрые действия">
+    <section className="quick-actions-card" aria-label="Быстрые действия" data-tour="quick-actions">
       <div className="card-heading">
         <h2>Быстрые действия</h2>
         <Link className="card-heading__link" href="/reservations">

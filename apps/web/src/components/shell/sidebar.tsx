@@ -154,6 +154,7 @@ function SectionLinks({
             <button
               type="button"
               className={cx('sidebar-section-toggle', selected && 'has-current-page')}
+              data-tour={`section-${section.id}`}
               aria-label={section.label}
               aria-expanded={open}
               aria-controls={panelId}
@@ -195,7 +196,7 @@ function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
   const trial = desk ? use(desk).trial : null;
   if (!trial) return null;
   return (
-    <p className="sidebar-trial" data-testid="trial-line">
+    <p className="sidebar-trial" data-testid="trial-line" data-tour="trial">
       <Icon name="clock" width={16} />
       <span>{trial}</span>
     </p>

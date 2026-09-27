@@ -40,6 +40,10 @@
    «Регистрация», а `/register` и `/login?mode=register` показывают «Самостоятельная
    регистрация временно закрыта». Приглашения остаются доступны. Отдельный
    `APP_REGISTRATION_OPEN` не нужен.
+   Окно входа и регистрации на wetop.ai (ADR-100) ходит на `app.wetop.ai/api/site-auth/*`. Стойка отвечает только
+   источникам из `SITE_ORIGINS` (через запятую); пусто — `https://wetop.ai` и `https://www.wetop.ai`, для боевого
+   сервера этого хватает. Проверка после выкладки: `curl -si -X OPTIONS -H 'Origin: https://wetop.ai'
+   https://app.wetop.ai/api/site-auth/login` → 204 и `access-control-allow-origin: https://wetop.ai`; с чужим `Origin` — 403.
 5. Доказать версию по SHA клона, ID запущенных образов и `BUILD_ID` Next из
    контейнера, затем проверить внутренний `/health` с базой, публичный вход,
    отказ анонимному запросу и чтение основных экранов под сотрудником.

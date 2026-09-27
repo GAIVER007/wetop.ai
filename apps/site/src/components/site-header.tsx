@@ -35,10 +35,10 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="site-header__actions">
-          <a className="btn btn--ghost btn--sm site-header__login" href={login.href}>
+          <a className="btn btn--ghost btn--sm site-header__login" href={login.href} data-auth="login">
             {t.nav.login}
           </a>
-          <a className="btn btn--primary btn--sm site-header__register" href={register.href}>
+          <a className="btn btn--primary btn--sm site-header__register" href={register.href} data-auth="register">
             {t.nav.register}
           </a>
           <MobileMenu

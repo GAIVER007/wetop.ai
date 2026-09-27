@@ -49,6 +49,31 @@ export function registerLink(config: SiteConfig = siteConfig): SiteLink {
   return { href: `${checkHttpUrl('appUrl', config.appUrl)}/register`, external: true };
 }
 
+/** «Забыли пароль?» из окна входа — экран сброса стойки: письмо со ссылкой уходит оттуда (ADR-049). */
+export function resetLink(config: SiteConfig = siteConfig): SiteLink {
+  return { href: `${checkHttpUrl('appUrl', config.appUrl)}/login/reset`, external: true };
+}
+
+/** Какое окно открывает кнопка: вход или создание аккаунта (ADR-100). */
+export type AuthMode = 'login' | 'register';
+
+/**
+ * Адрес стойки, куда окно входа и регистрации шлёт запрос (`apps/web/src/app/api/site-auth`, ADR-100).
+ * Кука сессии ставится ответом стойки: сайт её не видит и ключа не получает.
+ */
+export function siteAuthEndpoint(
+  action: 'options' | 'login' | 'register' | 'resend',
+  config: SiteConfig = siteConfig,
+): string {
+  return `${checkHttpUrl('appUrl', config.appUrl)}/api/site-auth/${action}`;
+}
+
+/** Куда вести после входа: стойка называет путь сама (`next`), чужой адрес не принимаем — только путь от корня. */
+export function appPath(next: unknown, config: SiteConfig = siteConfig): string {
+  const path = typeof next === 'string' && /^\/(?!\/)[\w\-./?=&%]*$/.test(next) ? next : '/today';
+  return `${checkHttpUrl('appUrl', config.appUrl)}${path}`;
+}
+
 /**
  * Скрипт виджета ИИ-помощника (ТЗ П2): тот же, что в стойке, но без `data-identity` — посетитель главной аноним.
  * Пусто — чата нет; неверный адрес останавливает сборку, как и остальные ссылки настроек.

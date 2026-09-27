@@ -81,7 +81,47 @@
 }
 .onboarding__actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+}
+/* Путь нового аккаунта: три шага словами, текущий — акцентом (ADR-100) */
+.onboarding__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+  counter-reset: onboarding-step;
+}
+.onboarding__steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  counter-increment: onboarding-step;
+}
+.onboarding__steps li::before {
+  content: counter(onboarding-step);
+  font-weight: 700;
+}
+.onboarding__steps li.is-done {
+  color: var(--success);
+}
+.onboarding__steps li.is-done::before {
+  content: '✓';
+}
+.onboarding__steps li[aria-current='step'] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
 }
 @media (max-width: 760px) {
   .onboarding__hotel {

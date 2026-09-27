@@ -26,11 +26,11 @@ export function Hero() {
               </h1>
               <p className="hero__lead">{typo(t.hero.lead)}</p>
               <div className="hero__actions">
-                <a className="btn btn--primary btn--lg" href={registerLink().href}>
+                <a className="btn btn--primary btn--lg" href={registerLink().href} data-auth="register">
                   {t.nav.register}
                   <Icon name="arrowRight" size={18} />
                 </a>
-                <a className="btn btn--secondary btn--lg" href={loginLink().href}>
+                <a className="btn btn--secondary btn--lg" href={loginLink().href} data-auth="login">
                   {t.nav.login}
                 </a>
               </div>

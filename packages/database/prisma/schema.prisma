@@ -525,7 +525,6 @@ model AuditLog {
   organizationId String?       @map("organization_id") @db.Uuid
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
-  @@index([organizationId])
   @@index([organizationId, createdAt])
   @@index([entityType, entityId])
   @@index([createdAt])
@@ -580,6 +579,7 @@ model ExternalEvent {
   id              String              @id @default(uuid()) @db.Uuid
   /// Чей это объект (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1): scope по объекту — событие канала
   /// принадлежит гостинице, не организации. NULL — принадлежность не выведена при backfill (отчёт 20260927000026).
+  /// Таблица без RLS (DATA_MODEL §17.3): читает и служебный путь; чтения стойки фильтрует код (Phase 1).
   propertyId      String?             @map("property_id") @db.Uuid
   property        Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider        String
@@ -623,6 +623,7 @@ enum ChannelOutboxStatus {
 model ChannelOutbox {
   id            String              @id @default(uuid()) @db.Uuid
   /// Чей это объект (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1). NULL — backfill не вывел однозначно.
+  /// Таблица без RLS (DATA_MODEL §17.3): читает и служебный путь; чтения стойки фильтрует код (Phase 1).
   propertyId    String?             @map("property_id") @db.Uuid
   property      Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider      String

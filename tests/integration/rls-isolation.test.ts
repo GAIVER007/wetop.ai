@@ -64,10 +64,11 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     await client.query(`INSERT INTO organizations (id, name) VALUES ($1, 'RLS own'), ($2, 'RLS other')`, [own, other]);
     await client.query(`UPDATE properties SET organization_id = $1 WHERE id = $2`, [own, property]);
     // все гости и записи журнала тестовой базы — объекта «своей» организации
-    await client.query(`SELECT set_config('wetop.audit_purge', 'on', true)`);
     await client.query(`UPDATE guests SET organization_id = $1`, [own]);
+    // журнал только дописывается; в откатываемой транзакции триггер выключается, как в миграции …27
+    await client.query(`ALTER TABLE audit_logs DISABLE TRIGGER audit_logs_immutable`);
     await client.query(`UPDATE audit_logs SET organization_id = $1`, [own]);
-    await client.query(`SELECT set_config('wetop.audit_purge', '', true)`);
+    await client.query(`ALTER TABLE audit_logs ENABLE TRIGGER audit_logs_immutable`);
     await client.query(
       `INSERT INTO properties (id, organization_id, name, timezone, currency, check_in_time, check_out_time, updated_at)
        VALUES ($1, $2, 'Чужой объект (RLS)', 'Asia/Almaty', 'KZT', '14:00', '12:00', now())`,

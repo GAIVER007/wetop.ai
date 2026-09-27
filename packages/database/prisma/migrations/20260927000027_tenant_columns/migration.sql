@@ -1,10 +1,9 @@
 -- DATA_MODEL v1.13 §17.1 (ADR-103), план plans/rls-2026-09-27.md п. 3: у каждой строки арендатора — своя организация.
 -- Применяет владелец (AGENTS.md §9, §14): копия базы → миграция → проверка → откат (down.sql).
 --
--- 27.09.2026 (слияние с Phase 1, ADR-100 §17.2): колонки guests.organization_id и audit_logs.organization_id уже
--- созданы миграцией 20260927000026_phase1_tenant_scope и ПРИМЕНЕНЫ на рабочей базе. Эта миграция сделана
--- идемпотентной к ним: колонки/индексы — IF NOT EXISTS, FK пересоздаются на определения ADR-103, backfill
--- журнала заполняет только NULL (значения, проставленные кодом Phase 1, не перезаписываются).
+-- Идёт после 20260927000026_phase1_tenant_scope (параллельная ветка, на рабочей базе применена владельцем 27.09.2026):
+-- та уже добавила guests.organization_id и audit_logs.organization_id без NOT NULL и заполнила однозначные строки.
+-- Поэтому здесь всё «если нет»: колонки, ключи и индексы не создаются второй раз, заполняются только пустые строки.
 
 -- Организация текущего запроса роли wetop_app (§17.2). Пусто — NULL: политики не пропустят ни одной строки.
 CREATE OR REPLACE FUNCTION app_current_org() RETURNS uuid
@@ -58,7 +57,7 @@ UPDATE "guests" g SET "organization_id" = src.org
       JOIN "reservations" r ON r."id" = i."reservation_id"
       JOIN "properties" p ON p."id" = r."property_id"
   ) src
- WHERE src.guest_id = g."id";
+ WHERE src.guest_id = g."id" AND g."organization_id" IS NULL;
 -- гость без броней — самой старой организации (как объекты в …16)
 UPDATE "guests"
    SET "organization_id" = (SELECT "id" FROM "organizations" ORDER BY "created_at" ASC LIMIT 1)
@@ -79,6 +78,8 @@ ALTER TABLE "audit_logs" DROP CONSTRAINT IF EXISTS "audit_logs_organization_id_f
 ALTER TABLE "audit_logs"
   ADD CONSTRAINT "audit_logs_organization_id_fkey" FOREIGN KEY ("organization_id")
   REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- индекс phase1 по одной колонке заменяет составной: журнал стойки читается «организация + свежие сверху»
+DROP INDEX IF EXISTS "audit_logs_organization_id_idx";
 CREATE INDEX IF NOT EXISTS "audit_logs_organization_id_created_at_idx" ON "audit_logs"("organization_id", "created_at");
 
 -- Организация сущности записи журнала — те же правила, что ownAuditRows в apps/api/src/audit/audit.module.ts.
@@ -119,9 +120,9 @@ LANGUAGE sql STABLE AS $$
   )
 $$;
 
--- Старые записи: журнал только дописывается. Флаг wetop.audit_purge НЕ подходит: под ним триггер
--- audit_logs_immutable возвращает OLD и молча превращает UPDATE в no-op (…22). Поэтому, как и в
--- 20260927000026_phase1_tenant_scope, триггер выключается только внутри транзакции этой миграции.
+-- Старые записи. Журнал только дописывается (триггер audit_logs_immutable, …22); его обход wetop.audit_purge
+-- пропускает удаление, а на UPDATE возвращает прежнюю строку — изменение молча не запишется. Поэтому, как в phase1,
+-- триггер выключается только внутри этой транзакции: заполняется одна новая колонка, содержимое записей не меняется.
 ALTER TABLE "audit_logs" DISABLE TRIGGER "audit_logs_immutable";
 UPDATE "audit_logs"
    SET "organization_id" = COALESCE(

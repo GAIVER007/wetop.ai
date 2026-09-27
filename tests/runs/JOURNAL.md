@@ -2878,3 +2878,4 @@
 | 27.09.2026 15:33 | typecheck | ✅ без ошибок | 30 с | f4294cf +17 | [лог](logs/2026-09-27T10-33-25Z-typecheck-dcb2.log) |  |
 | 27.09.2026 15:33 | lint | ✅ без ошибок | 16 с | f4294cf +17 | [лог](logs/2026-09-27T10-33-55Z-lint-5516.log) |  |
 | 27.09.2026 15:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ux-retention.spec.ts tests/ui/roles.spec.ts tests/ui/real-data.spec.ts tests/ui/works | ✅ 90 из 90 | 5 мин | f4294cf +17 | [лог](logs/2026-09-27T10-34-18Z-e2e-1bb3.log) | green: сведения гостиницы — владелец и управляющий; «Первые шаги» по роли; при сбое API страницы не врут «нет доступа» (ADR-100) |
+| 27.09.2026 15:18 | unit | ❌ упало 12 из 2044, пропущено 3 | 1 мин 12 с | a8f0df4 +4 | [лог](logs/2026-09-27T10-18-15Z-unit-2060.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |

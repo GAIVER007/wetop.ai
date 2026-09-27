@@ -26,6 +26,7 @@ import {
   knowledgeSourceLabel,
 } from '../../../../lib/ai-seller';
 import { propertyClock } from '../../../../lib/property-time';
+import { deskShell } from '../../../../lib/desk-shell';
 import { ApiError, supportApi, type SupportConversationCard } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
 import {
@@ -113,6 +114,7 @@ export default async function SupportPage({
   if (!tab) notFound();
   const query = await searchParams;
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
+  const { access } = await deskShell();
   return (
     <Page
       title={view ? tab.label : 'Техподдержка'}
@@ -120,6 +122,16 @@ export default async function SupportPage({
       actions={<RefreshButton />}
       crumbs={view ? <Link href="/platform/support">Техподдержка</Link> : undefined}
     >
+      {access.platform && (
+        <nav className="settings-tabs" aria-label="Агент">
+          <Link href="/ai-seller" prefetch={false}>
+            Продавец
+          </Link>
+          <Link href="/platform/support" aria-current="page">
+            Техподдержка
+          </Link>
+        </nav>
+      )}
       <nav className="settings-tabs" aria-label="Техподдержка">
         {TABS.map((item) => (
           <Link

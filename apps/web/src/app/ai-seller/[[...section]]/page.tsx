@@ -123,6 +123,16 @@ export default async function AiSellerPage({
         ) : undefined
       }
     >
+      {access.platform && (
+        <nav className="settings-tabs" aria-label="Агент">
+          <Link href="/ai-seller" aria-current="page">
+            Продавец
+          </Link>
+          <Link href="/platform/support" prefetch={false}>
+            Техподдержка
+          </Link>
+        </nav>
+      )}
       <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">
         {tabs.map((item) => (
           <Link

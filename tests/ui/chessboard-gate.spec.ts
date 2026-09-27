@@ -9,7 +9,7 @@ import { mkdirSync } from 'node:fs';
  * Спек ничего не доказывает red→green — он генерирует артефакты гейта; счётчики строк
  * подтверждают, что снят настоящий экран, а не пустая страница.
  */
-const DIR = 'reports/chessboard-v2-pr1-2026-09-27/gate';
+const DIR = 'reports/chessboard-v2-pr2-2026-09-27/gate';
 const fixture = 'http://127.0.0.1:4311';
 
 test.beforeEach(async ({ request }) => {
@@ -86,6 +86,9 @@ test('гейт: тёмная тема — полный экран и верх', 
     path: `${DIR}/today-column-dark.png`,
     clip: { x: today!.x - 140, y: 0, width: today!.width + 180, height: 700 },
   });
+  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await expect(page.getByTestId('date-col')).toHaveCount(30);
+  await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days-dark.png` });
 });
 
 test('гейт: овербукинг (critical), режим 30 дней и включённый фильтр', async ({
@@ -105,6 +108,9 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   await expect(strip).toHaveAttribute('data-tone', 'critical');
   await expect(strip).toHaveAttribute('open', '');
   await page.screenshot({ caret: 'initial', path: `${DIR}/overbooking-critical.png` });
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.screenshot({ caret: 'initial', path: `${DIR}/overbooking-critical-dark.png` });
+  await page.emulateMedia({ colorScheme: 'light' });
 
   // 30-дневный режим: окно от сегодня, горизонтальная прокрутка внутри сетки
   await request.post(`${fixture}/__test/reset`);

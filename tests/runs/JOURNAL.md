@@ -2878,3 +2878,15 @@
 | 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
 | 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |
 | 27.09.2026 20:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-gate.spec.ts --workers=1) | ✅ 3 из 3 | 22 с | 4b3bf2b +1 | [лог](logs/2026-09-27T15-24-59Z-e2e-bc8b.log) | PR1 gate: final owner set - overbooking critical, 30-day mode, applied filter |
+| 27.09.2026 20:41 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-grid.spec.ts --workers=1) | ❌ упало 2 из 4 | 23 с | d9e56e1 +5 | [лог](logs/2026-09-27T15-41-46Z-e2e-fb6a.log) | PR2 grid: RED on 72px day width, sticky offset now measured from thead |
+| 27.09.2026 20:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-grid.spec.ts --workers=1) | ✅ 4 из 4 | 21 с | d9e56e1 +5 | [лог](logs/2026-09-27T15-49-40Z-e2e-bf74.log) | GREEN PR2 grid: sticky pinned check via scrolled units, 72px day width in 30-day view |
+| 27.09.2026 20:57 | typecheck | ✅ без ошибок | 28 с | d9e56e1 +7 | [лог](logs/2026-09-27T15-57-22Z-typecheck-d8c6.log) | PR2 grid visual |
+| 27.09.2026 20:57 | lint | ✅ без ошибок | 16 с | d9e56e1 +7 | [лог](logs/2026-09-27T15-57-50Z-lint-4591.log) | PR2 grid visual |
+| 27.09.2026 20:58 | integration | ❌ упало 1 из 107 | 32 с | d9e56e1 +3 | [лог](logs/2026-09-27T15-58-12Z-integration-e066.log) | PR2 grid: physicalRoomNumber in units projection, full set |
+| 27.09.2026 20:59 | integration | ✅ 107 из 107 | 31 с | d9e56e1 +3 | [лог](logs/2026-09-27T15-59-57Z-integration-5fca.log) | PR2 grid: full set; local stand got wetop_app LOGIN per docs/ops/rls.md step 1 |
+| 27.09.2026 21:00 | unit | ❌ упало 2 из 2108, пропущено 3 | 1 мин 12 с | d9e56e1 +4 | [лог](logs/2026-09-27T16-00-39Z-unit-e1b8.log) | PR2 grid visual |
+| 27.09.2026 21:02 | unit | ❌ упало 1 из 2108, пропущено 3 | 1 мин 12 с | d9e56e1 +4 | [лог](logs/2026-09-27T16-02-43Z-unit-72e1.log) | PR2 grid: layer tokens for new z-indexes, --board-head-real defined in CSS |
+| 27.09.2026 21:04 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | d9e56e1 +5 | [лог](logs/2026-09-27T16-04-23Z-unit-4190.log) | PR2 grid: board-head-real allowlisted as page-local var |
+| 27.09.2026 21:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 409 | 32 мин 13 с | d9e56e1 +7 | [лог](logs/2026-09-27T16-05-47Z-e2e-70f3.log) | PR2 grid visual: full UI set on final code |
+| 27.09.2026 21:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 17 из 17 | 45 с | d9e56e1 +7 | [лог](logs/2026-09-27T16-45-10Z-e2e-def6.log) | re-check: login-access dark timed out on goto during 32-min full run; stand transient suspected |
+| 27.09.2026 21:52 | e2e | ✅ 25 из 25 | 1 мин 22 с | d9e56e1 +7 | [лог](logs/2026-09-27T16-52-41Z-e2e-9dcf.log) | PR2 grid visual: full e2e on local PostgreSQL |

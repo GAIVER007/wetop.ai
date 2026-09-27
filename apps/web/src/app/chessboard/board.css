@@ -289,6 +289,9 @@
 .board-wrap {
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: none;
+  /* фактическая высота шапки дат: по умолчанию токен, точнее — замер из board-grid
+     (ResizeObserver пишет inline-значение на эту же обёртку и перекрывает это) */
+  --board-head-real: var(--board-head-h);
 }
 
 /* ── сетка: больше строк на экране ── */
@@ -324,8 +327,9 @@
 .board thead th {
   height: var(--board-head-h);
   padding: var(--space-2) var(--space-1);
-  /* шапка дат выше липкой колонки ячеек, иначе строки просвечивают сквозь неё при прокрутке */
-  z-index: 6;
+  /* шапка дат выше липкой колонки ячеек и липкой строки категории,
+     иначе строки просвечивают сквозь неё при прокрутке */
+  z-index: 7;
 }
 .board th.board__unit-head {
   z-index: 8;
@@ -460,12 +464,38 @@
     inset -1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
+/* §56: наведение различимо — строка места подсвечивается вся, свободные клетки чуть заметнее */
+.board tbody tr:hover td.board__unit {
+  background: var(--row-hover);
+}
+.board tbody tr:not(.board__group):hover td.board__cell {
+  background: color-mix(in srgb, var(--row-hover) 55%, transparent);
+}
+
 /* строка категории: полное название, число мест жирно, свободно на ночь — зелёным, нет — красным */
 .board tr.board__group td,
 .board .board__group td,
 .board .board__group-name {
   height: 30px;
   padding: 4px 8px;
+}
+/* ТЗ v2 §13/§15: строка категории прилипает под шапкой дат. Фон непрозрачный и своим тоном
+   отличается от строк мест (§56); правило стоит после is-we/is-today и потому ровняет их тоже. */
+.board tr.board__group td {
+  position: sticky;
+  /* фактическая высота шапки — замер из board-grid; токен — запас до гидрации */
+  top: var(--board-head-real, var(--board-head-h));
+  z-index: calc(var(--layer-sticky) - 1);
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+}
+/* угловая клетка липнет и влево, и вниз от шапки: выше клеток мест (5), ниже шапки дат (7/8) */
+.board tr.board__group td.board__group-name {
+  z-index: calc(var(--layer-sticky) + 1);
+}
+/* «0 св.» у категории — предупреждение, как «мест нет» в шапке (§15) */
+.board td.board__group-free.is-full {
+  color: var(--danger);
 }
 .board .board-group-toggle {
   min-height: 26px;

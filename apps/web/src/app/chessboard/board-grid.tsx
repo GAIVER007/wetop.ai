@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import {
   Fragment,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -49,6 +50,23 @@ const STATUS_RU: Record<string, string> = {
  */
 const needsHousekeeping = (status?: string): status is 'DIRTY' | 'CLEAN' =>
   status === 'DIRTY' || status === 'CLEAN';
+
+/** Свёрнутые категории помнятся на пользователя браузера (ТЗ v2 §15); ключ localStorage */
+const COLLAPSED_KEY = 'chessboard.collapsed-categories';
+
+/** Подсказка колонки места (ТЗ v2 §16): вид, код и состояние уборки словами */
+function unitTitle(unit: ChessboardRow['unit']): string {
+  const bed = unit.kind === 'BED';
+  const state =
+    unit.housekeepingStatus === 'DIRTY'
+      ? 'требует уборки'
+      : unit.housekeepingStatus === 'CLEAN'
+        ? 'убрано, ждёт проверки'
+        : bed
+          ? 'готова к заселению'
+          : 'готов к заселению';
+  return `${bed ? 'Койка' : 'Номер'} ${unit.code} — ${state}`;
+}
 
 /** Что нужно меню плашки (C2): номер, проживание, ячейка, имя для заголовка окна и статус для доступности пунктов */
 interface StayMenuPayload {
@@ -107,6 +125,28 @@ export function ChessboardGrid({
   const filtersId = useId();
   const activeFilters = Number(!!category) + Number(!!kind) + Number(state !== 'all');
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  // Память свёрнутости читается после гидрации: чтение в useState разошлось бы с SSR-разметкой
+  useEffect(() => {
+    try {
+      const saved: unknown = JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? '[]');
+      if (Array.isArray(saved) && saved.length)
+        setCollapsed(new Set(saved.filter((x): x is string => typeof x === 'string')));
+    } catch {
+      // повреждённое значение равно отсутствию памяти
+    }
+  }, []);
+  const toggleGroup = (code: string) =>
+    setCollapsed((old) => {
+      const next = new Set(old);
+      if (next.has(code)) next.delete(code);
+      else next.add(code);
+      try {
+        localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...next]));
+      } catch {
+        // приватное окно без localStorage — сворачивание работает, память нет
+      }
+      return next;
+    });
   const [error, setError] = useState<string | null>(null);
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -115,6 +155,23 @@ export function ChessboardGrid({
   const fitWeek = board.dates.length === 7;
   // Во время dragover браузер не даёт читать данные — держим их и в ref, чтобы подсвечивать строку
   const dragging = useRef<DragPayload | null>(null);
+  /**
+   * Липкой строке категории нужен отступ, равный фактической высоте шапки дат: токен
+   * --board-head-h — минимум, на узких экранах шапка выше (перенос метрик). Замер пишется
+   * в --board-head-real на обёртке; CSS берёт var(--board-head-real, var(--board-head-h)).
+   */
+  const wrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const head = wrap?.querySelector('thead');
+    if (!wrap || !head) return;
+    const apply = () =>
+      wrap.style.setProperty('--board-head-real', `${head.getBoundingClientRect().height}px`);
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(head);
+    return () => observer.disconnect();
+  }, []);
 
   const onDragStart = (payload: DragPayload) => (e: React.DragEvent) => {
     e.dataTransfer.setData(DRAG_MIME, encodeDrag(payload));
@@ -268,7 +325,9 @@ export function ChessboardGrid({
       ),
     [board.rows],
   );
-  const dayWidth = board.dates.length > 14 ? 64 : 104;
+  // 30 дней: день не уже 72 px — читаемость ценой горизонтальной прокрутки внутри сетки
+  // (условие владельца к PR 2; ТЗ §44). Календарный месяц вписывается в окно отдельным режимом.
+  const dayWidth = board.dates.length > 14 ? 72 : 104;
   return (
     <>
       <div className="board-toolbar" data-filters-open={filtersOpen}>
@@ -378,6 +437,7 @@ export function ChessboardGrid({
         </div>
       )}
       <div
+        ref={wrapRef}
         className="tbl-wrap board-wrap"
         role="region"
         aria-label="Шахматка по дням"
@@ -469,14 +529,7 @@ export function ChessboardGrid({
                       type="button"
                       className="board-group-toggle"
                       aria-expanded={!collapsed.has(g.code)}
-                      onClick={() =>
-                        setCollapsed((old) => {
-                          const next = new Set(old);
-                          if (next.has(g.code)) next.delete(g.code);
-                          else next.add(g.code);
-                          return next;
-                        })
-                      }
+                      onClick={() => toggleGroup(g.code)}
                     >
                       <span aria-hidden="true">{collapsed.has(g.code) ? '›' : '⌄'}</span>
                       <span className="board-group-name-text" title={g.name}>
@@ -518,6 +571,7 @@ export function ChessboardGrid({
                           href={`/units/${encodeURIComponent(row.unit.code)}`}
                           data-testid="unit-link"
                           className="unit board-unit-link"
+                          title={unitTitle(row.unit)}
                         >
                           <Icon name={row.unit.kind === 'BED' ? 'bed' : 'inventory'} />
                           {row.unit.code}

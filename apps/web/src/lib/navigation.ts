@@ -189,13 +189,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Гостиницы платформы и их расширения — только для главного администратора.',
         requires: 'platform',
       },
-      {
-        href: '/platform/support',
-        label: 'Техподдержка',
-        icon: 'chat',
-        description: 'Диалоги ИИ-помощника с пользователями платформы, его знания и сводка.',
-        requires: 'platform',
-      },
     ],
   },
 ];
@@ -271,11 +264,12 @@ export const sidebarSections: SidebarSection[] = [
     items: [menuItem('/incidents'), menuItem('/journal')],
   },
   {
-    // только главному администратору (ADR-083): данных чужих гостиниц здесь нет — названия, люди и расширения
+    // только главному администратору (ADR-083): данных чужих гостиниц здесь нет — названия, люди и расширения.
+    // Техподдержка переехала под «ИИ-продавец» — там теперь два агента (переключатель на странице раздела)
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
-    items: [menuItem('/platform'), menuItem('/platform/support')],
+    items: [menuItem('/platform')],
   },
 ];
 

@@ -2829,3 +2829,4 @@
 | 27.09.2026 16:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/product-tour.spec.ts tests/ui/onboarding.spec.ts tests/ui/navigation.spec.ts tests/ui | ✅ 51 из 51 | 2 мин 25 с | 890caed +2 | [лог](logs/2026-09-27T11-25-16Z-e2e-e4b4.log) |  |
 | 27.09.2026 16:27 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 15 из 15 | 16 с | 890caed +2 | [лог](logs/2026-09-27T11-27-48Z-e2e-21cb.log) |  |
 | 27.09.2026 16:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 399 | 29 мин 14 с | 890caed +2 | [лог](logs/2026-09-27T11-28-08Z-e2e-fd4b.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 15:18 | unit | ❌ упало 12 из 2044, пропущено 3 | 1 мин 12 с | a8f0df4 +4 | [лог](logs/2026-09-27T10-18-15Z-unit-2060.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |

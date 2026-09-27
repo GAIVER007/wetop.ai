@@ -95,7 +95,7 @@ test('компактная панель открывает выбранную г
     'aria-expanded',
     'true',
   );
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Гостиница');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Объект');
   await page.getByRole('button', { name: 'Свернуть панель', exact: true }).click();
   await sidebar.getByRole('button', { name: 'Номерной фонд', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Свернуть панель', exact: true })).toBeVisible();

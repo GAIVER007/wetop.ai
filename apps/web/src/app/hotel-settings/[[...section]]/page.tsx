@@ -2,21 +2,30 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { financeApi } from '../../../lib/api';
-import { hotelApi } from '../../../lib/hotel-api';
+import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
-import { RefreshButton } from '../../../components/refresh-button';
-import { Badge, Fact, Grid, Panel } from '../../../components/ui';
-import { ServicesCatalog, CancellationPolicies } from '../catalogs';
-import { HotelSettingsForm } from '../settings-form';
-import { currentMe } from '../../../lib/desk-shell';
+import { Notice, Panel } from '../../../components/ui';
+import { ServicesCatalog } from '../catalogs';
+import {
+  GeneralSettingsForm,
+  RegionalSettings,
+  StayNote,
+  StaySettingsForm,
+} from '../settings-form';
+import { SaveAction, SettingsSave } from '../settings-save';
+import { currentMe, deskShell } from '../../../lib/desk-shell';
 
+/**
+ * «Настройки объекта» (ТЗ «Настройки объекта» v2, срез SET1, ADR-107): один заголовок на три вкладки. Правила отмены
+ * ушли к тарифам — это свойство тарифного плана (SET4); старый адрес ведёт на «Цены и ограничения».
+ */
 const tabs = [
-  { view: '', href: '/hotel-settings', label: 'Общие' },
+  { view: '', href: '/hotel-settings', label: 'Основное' },
+  { view: 'stay', href: '/hotel-settings/stay', label: 'Проживание' },
   { view: 'services', href: '/hotel-settings/services', label: 'Услуги' },
-  { view: 'penalties', href: '/hotel-settings/penalties', label: 'Правила отмены' },
 ] as const;
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
@@ -33,148 +42,149 @@ export default async function HotelSettingsPage({
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
   if (view === 'description') redirect('/hotel-settings');
-  if (view === 'check-in') redirect('/hotel-settings#stay-settings');
+  if (view === 'check-in') redirect('/hotel-settings/stay');
+  if (view === 'penalties') redirect('/rates');
   if (view === 'photos' || view === 'amenities') redirect('/connections#channex-connection');
-  const tab = tabs.find((item) => item.view === view);
-  if (!tab) notFound();
+  if (!tabs.some((item) => item.view === view)) notFound();
+  // настройки уже прочитал макет (кэш на одну отрисовку): название объекта в подзаголовке ничего не стоит
+  const [loaded, me, { readOnly }] = await Promise.all([
+    settle(hotelApi.settings()),
+    settle(currentMe()),
+    deskShell(),
+  ]);
+  const owner = me.ok && me.value.user?.role === 'OWNER';
+  // Правит владелец организации (ТЗ ux-retention п. 3.1) и только вне «только чтения» (ADR-102): иначе сведения
+  // фактами, а кнопки сохранения нет вовсе (DESIGN.md §8 — действия, которого нельзя, не рисуем)
+  const editable = owner && !readOnly && loaded.ok && view !== 'services';
   return (
-    <Page
-      title={view ? tab.label : 'Настройки гостиницы'}
-      subtitle={
-        view === 'services'
-          ? 'Каталог услуг для счёта гостя.'
-          : view === 'penalties'
-            ? 'Политика отмены каждого тарифного плана.'
-            : 'Сведения об объекте и работа стойки.'
-      }
-      actions={<RefreshButton />}
-      crumbs={view ? <Link href="/hotel-settings">Настройки гостиницы</Link> : undefined}
-    >
-      <nav className="settings-tabs" aria-label="Настройки гостиницы">
-        {tabs.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={false}
-            aria-current={item.view === view ? 'page' : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-      <Suspense
-        key={view}
-        fallback={
-          <Panel data-testid="settings-loading" role="status">
-            Читаем настройки объекта…
-          </Panel>
-        }
+    <SettingsSave>
+      <Page
+        title="Настройки объекта"
+        subtitle={loaded.ok ? loaded.value.property.name : undefined}
+        actions={editable ? <SaveAction /> : undefined}
       >
-        {view === 'services' ? <Services /> : <StoredSettings view={view} />}
-      </Suspense>
-    </Page>
+        <nav className="settings-tabs" aria-label="Настройки объекта">
+          {tabs.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              prefetch={false}
+              aria-current={item.view === view ? 'page' : undefined}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        {view === 'services' ? (
+          <Suspense
+            fallback={
+              <Panel data-testid="settings-loading" role="status">
+                Читаем настройки объекта…
+              </Panel>
+            }
+          >
+            <Services />
+          </Suspense>
+        ) : !loaded.ok ? (
+          <LoadError testId="settings-error" {...loadErrorProps(loaded.error)} />
+        ) : view === 'stay' ? (
+          <StaySettings property={loaded.value.property} editable={editable} owner={owner} />
+        ) : (
+          <GeneralSettings property={loaded.value.property} editable={editable} owner={owner} />
+        )}
+      </Page>
+    </SettingsSave>
   );
 }
 
-/** Правит «Общие» владелец организации (ТЗ ux-retention п. 3.1); не ответил вход — только просмотр */
-async function isOwner(): Promise<boolean> {
-  const me = await settle(currentMe());
-  return me.ok && me.value.user?.role === 'OWNER';
+type Property = HotelSettings['property'];
+const OWNER_ONLY = 'Сведения меняет владелец организации.';
+
+function Facts({ rows }: { rows: Array<[string, string | null | undefined]> }) {
+  return (
+    <dl className="settings-facts">
+      {rows.map(([label, value]) => (
+        <div key={label}>
+          <dt>{label}</dt>
+          <dd>{value || '—'}</dd>
+        </div>
+      ))}
+    </dl>
+  );
 }
 
-async function StoredSettings({ view }: { view: string }) {
-  const loaded = await settle(hotelApi.settings());
-  if (!loaded.ok) return <LoadError testId="settings-error" {...loadErrorProps(loaded.error)} />;
-  const { property: p, ratePlans } = loaded.value;
-  if (view === 'penalties')
+function GeneralSettings({
+  property: p,
+  editable,
+  owner,
+}: {
+  property: Property;
+  editable: boolean;
+  owner: boolean;
+}) {
+  if (editable)
     return (
-      <>
-        <CancellationPolicies plans={ratePlans} />
-        <p className="settings-note">
-          Сохранённые правила тарифов. Начисленный штраф — в счёте конкретной брони.
-        </p>
-        <Link href="/rates" className="btn btn--secondary">
-          Открыть тарифы
-        </Link>
-      </>
+      <div className="settings-stack" data-testid="stored-property">
+        <GeneralSettingsForm property={p} />
+      </div>
     );
-  const owner = await isOwner();
   return (
-    <div className="settings-overview">
-      <Panel className="settings-property" data-testid="stored-property">
-        <div className="settings-section-heading">
-          <span className="settings-mark">
-            <Icon name="inventory" />
-          </span>
-          <div>
-            <h2>{p.name}</h2>
-            <p>Сведения гостиницы в PMS</p>
-          </div>
-          {!owner && <Badge>Только просмотр</Badge>}
-        </div>
-        {owner ? (
-          <HotelSettingsForm property={p} />
-        ) : (
-          <>
-            <dl className="settings-facts">
-              <div>
-                <dt>Название</dt>
-                <dd>{p.name}</dd>
-              </div>
-              <div>
-                <dt>Юридическое название</dt>
-                <dd>{p.legalName || '—'}</dd>
-              </div>
-              <div>
-                <dt>Адрес в PMS</dt>
-                <dd>{p.address || '—'}</dd>
-              </div>
-              <div>
-                <dt>Телефон</dt>
-                <dd>{p.phone || '—'}</dd>
-              </div>
-              <div>
-                <dt>Почта</dt>
-                <dd>{p.email || '—'}</dd>
-              </div>
-              <div>
-                <dt>Валюта</dt>
-                <dd>{p.currency}</dd>
-              </div>
-              <div>
-                <dt>Часовой пояс</dt>
-                <dd>{p.timezone}</dd>
-              </div>
-            </dl>
-            <p className="settings-note">
-              Используются на стойке, в счетах и отчётах. Сведения меняет владелец организации.
-            </p>
-          </>
-        )}
+    <div className="settings-stack" data-testid="stored-property">
+      <Panel className="settings-block" aria-labelledby="settings-main">
+        <h2 id="settings-main">Основная информация</h2>
+        <Facts
+          rows={[
+            ['Название объекта', p.name],
+            ['Телефон', p.phone],
+            ['Почта', p.email],
+            ['Адрес', p.address],
+          ]}
+        />
       </Panel>
-      <Panel id="stay-settings" data-testid="stay-settings" className="settings-stay">
-        <div className="settings-section-heading">
-          <span className="settings-mark">
-            <Icon name="clock" />
-          </span>
-          <div>
-            <h2>Заезд и выезд</h2>
-            <p>По времени гостиницы</p>
-          </div>
-        </div>
-        <Grid min={120} className="settings-times">
-          <Fact label="Заезд с" value={p.checkInTime} />
-          <Fact label="Выезд до" value={p.checkOutTime} />
-        </Grid>
-        <p className="settings-note">
-          {owner
-            ? 'Меняются в сведениях гостиницы выше.'
-            : 'Расчётные часы меняет владелец организации.'}
-        </p>
-        <Link href="/today" className="btn btn--secondary">
-          Заезды и выезды сегодня
-        </Link>
+      <RegionalSettings property={p} />
+      <Panel className="settings-block" aria-labelledby="settings-legal">
+        <h2 id="settings-legal">Юридическое лицо</h2>
+        {/* ИИН/БИН у ИП — ИИН человека: сотруднику экран его не показывает (как и до SET1) */}
+        <Facts
+          rows={[
+            ['Юридическое название', p.legalName],
+            ...(owner ? [['ИИН/БИН', p.bin] as [string, string | null | undefined]] : []),
+          ]}
+        />
       </Panel>
+      {!owner && <Notice tone="muted">{OWNER_ONLY}</Notice>}
+    </div>
+  );
+}
+
+function StaySettings({
+  property: p,
+  editable,
+  owner,
+}: {
+  property: Property;
+  editable: boolean;
+  owner: boolean;
+}) {
+  if (editable)
+    return (
+      <div className="settings-stack">
+        <StaySettingsForm property={p} />
+      </div>
+    );
+  return (
+    <div className="settings-stack">
+      <Panel className="settings-block" aria-labelledby="settings-stay" data-testid="stay-settings">
+        <h2 id="settings-stay">Заезд и выезд</h2>
+        <Facts
+          rows={[
+            ['Заезд с', p.checkInTime],
+            ['Выезд до', p.checkOutTime],
+          ]}
+        />
+        <StayNote timezone={p.timezone} />
+      </Panel>
+      {!owner && <Notice tone="muted">{OWNER_ONLY}</Notice>}
     </div>
   );
 }

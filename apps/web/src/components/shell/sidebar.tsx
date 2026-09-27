@@ -83,7 +83,7 @@ export function Sidebar({
         </span>
         <div>
           <strong>{property?.name ?? 'Объект не загружен'}</strong>
-          <span>{property?.address ?? 'Настройки гостиницы'}</span>
+          <span>{property?.address ?? 'Настройки объекта'}</span>
         </div>
         <Icon name="chevron" width={14} />
       </Link>

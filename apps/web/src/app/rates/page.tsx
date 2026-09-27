@@ -1,7 +1,8 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { ratesApi, channelsApi } from '../../lib/api';
-import { hotelClock } from '../../lib/hotel-api';
+import { hotelApi, hotelClock } from '../../lib/hotel-api';
+import { cancellationRuleText } from '../../lib/penalty-text';
 import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
@@ -116,6 +117,13 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
   };
   const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
   const planName = options.ratePlans.find((p) => p.code === ratePlan)?.name ?? ratePlan;
+  // Правило отмены выбранного тарифа (ADR-107): до «Тарифных планов» (SET4) — одной строкой здесь. Настройки уже
+  // прочитал макет; не ответили — строки просто нет, экран цен от неё не зависит (D4)
+  const settings = await settle(hotelApi.settings());
+  const penalty = settings.ok
+    ? settings.r.ratePlans.find((p) => p.code === ratePlan)?.cancellationPenalty
+    : undefined;
+  const cancellationRule = penalty ? (cancellationRuleText[penalty] ?? null) : null;
   return (
     <Page
       width="wide"
@@ -178,6 +186,11 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
               Показать
             </Button>
           </form>
+          {!error && cancellationRule && (
+            <p className="rates-rule" data-testid="rate-plan-cancellation">
+              При отмене по тарифу «{planName}»: {cancellationRule}.
+            </p>
+          )}
           {error && (
             <Alert boxed>
               {error} <Link href="/rates">Сбросить фильтры</Link>

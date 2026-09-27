@@ -19,7 +19,7 @@ const SECTIONS: ReadonlyArray<readonly [prefix: string, section: string]> = [
   ['/hotel/onboarding', 'Настройка отеля'],
   ['/hotel/reservations', 'Брони'],
   ['/hotel/channel-report', 'Менеджер каналов'],
-  ['/hotel', 'Настройки гостиницы'],
+  ['/hotel', 'Настройки объекта'],
   ['/reservations', 'Брони'],
   ['/chessboard', 'Шахматка'],
   ['/availability', 'Доступность номеров'],

@@ -35,7 +35,7 @@ async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
     throw error;
   });
   return (
-    hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки гостиницы')
+    hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта')
   );
 }
 
@@ -86,7 +86,7 @@ export default async function RootLayout({
                     </Suspense>
                   ),
                   address: (
-                    <Suspense fallback="Настройки гостиницы">
+                    <Suspense fallback="Настройки объекта">
                       <ProjectProperty field="address" />
                     </Suspense>
                   ),

@@ -2887,3 +2887,9 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 28.09.2026 01:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings.spec.ts) | ❌ упало 6 из 6 | 2 мин 20 с | a0fa497 +1 | [лог](logs/2026-09-27T20-52-06Z-e2e-278d.log) | SET1: красный до правки |
+| 28.09.2026 01:58 | typecheck | ✅ без ошибок | 30 с | a0fa497 +14 | [лог](logs/2026-09-27T20-58-02Z-typecheck-6387.log) | SET1: типы после правки |
+| 28.09.2026 01:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings.spec.ts) | ✅ 6 из 6 | 48 с | a0fa497 +14 | [лог](logs/2026-09-27T20-58-37Z-e2e-3998.log) | SET1: зелёный после правки |
+| 28.09.2026 02:01 | lint | ✅ без ошибок | 17 с | a0fa497 +26 | [лог](logs/2026-09-27T21-01-47Z-lint-2c65.log) | SET1: линтер |
+| 28.09.2026 02:02 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 35 с | a0fa497 +18 | [лог](logs/2026-09-27T21-02-08Z-unit-7246.log) | SET1: модульные |
+| 28.09.2026 02:04 | unit (частично: tests/unit/desk-glass.test.ts tests/unit/site-design.test.ts) | ✅ 11 из 11 | 1 с | a0fa497 +18 | [лог](logs/2026-09-27T21-04-53Z-unit-b10e.log) | SET1: сторожа DESIGN.md после строки реестра |

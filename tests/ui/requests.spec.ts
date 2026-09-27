@@ -13,8 +13,8 @@ import { expect, test } from './fixtures';
  * рисуется в двух местах оболочки (панель и меню профиля); плюс стенд работает на `next dev`, где React
  * умышленно вызывает эффекты и рендер по два раза — это шум разработки, а не рейсы живой стойки.
  *
- * Старые адреса `/hotel-settings/{check-in,description,photos,amenities}` здесь не считаются: это не
- * экраны, а redirect() на «Настройки гостиницы» и «Интеграции». Переадресация по определению проходит
+ * Старые адреса `/hotel-settings/{check-in,description,penalties,photos,amenities}` здесь не считаются: это не
+ * экраны, а redirect() на «Настройки объекта», «Цены» и «Интеграции». Переадресация по определению проходит
  * оболочку дважды — уходящий рендер и целевой, — и удвоение видно даже там, где экран берёт данные
  * один раз. Сами экраны-получатели в списке есть, а сама переадресация проверена в
  * tests/ui/settings-simplification.spec.ts (разбор 21.09.2026).
@@ -50,7 +50,7 @@ for (const screen of [
   '/channels',
   '/analytics',
   '/hotel-settings',
-  '/hotel-settings/penalties',
+  '/hotel-settings/stay',
   '/hotel-settings/services',
   '/connections',
   '/analytics/setup',

@@ -67,6 +67,7 @@ const STATIC = [
   '/rates',
   '/hotel-settings',
   '/hotel-settings/check-in',
+  '/hotel-settings/stay',
   '/hotel-settings/penalties',
   '/hotel-settings/services',
   '/hotel-settings/description',

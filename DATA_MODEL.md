@@ -37,6 +37,7 @@ v1.12 (26.09.2026; **утверждено владельцем 26.09.2026 — AD
 v1.13 (27.09.2026; **утверждено владельцем 27.09.2026 — ADR-103**, план `plans/rls-2026-09-27.md` утверждён вместе с ответами RLS-1…RLS-3): Row Level Security — §17; `guests.organization_id` (§3, гость принадлежит своей организации — RLS-1), `audit_logs.organization_id` (§10), `properties.organization_id` NOT NULL (§1); миграции — применяет владелец
 v2.0 (27.09.2026; **утверждено владельцем 27.09.2026 — «Архитектуру в целом утверждаю», ADR-100; кода нет, миграций нет**): §17 — целевая архитектура двух вертикалей заморожена: иерархия `WETOP → Partner/Organization → Business → Location → Vertical Domain`; четыре финальных решения (RLS-gate до публичной регистрации; канонический `Customer` на Organization + `CustomerBusiness`; `reportingCurrency`/`ExchangeRate` на Organization, `reportingAmount` — снимок; идемпотентность автоматической выручки `sourceType`+`sourceId`+UNIQUE). Существующие разделы §1–§16 не меняются; детальные спецификации новых таблиц добавляются в этот файл пофазно перед каждой миграцией. Полная архитектура — `ARCHITECTURE.md` и `reports/hospitality-beauty-target-architecture-v2-2026-09-27.md`
 v2.1 (27.09.2026; Phase 1 изоляции по ADR-100 §17.2, поручение владельца «Поехали… Начинаем Phase 1»): §3 `guests.organization_id`, §10 `audit_logs.organization_id`, §8 `external_events.property_id` и `channel_outbox.property_id` — все nullable + FK + индекс, детерминированный backfill в миграции (неоднозначные строки остаются NULL и попадают в отчёт, NOT NULL не вводится) — миграция `20260927000026_phase1_tenant_scope` с `down.sql`, **на рабочей базе применяет владелец**
+v2.2 (27.09.2026; Phase 2 «Location foundation» по ADR-100 §17.1, поручение владельца «Начинай Phase 2»): §17.6 — enum `LocationVertical`, таблица `locations`, nullable `properties.location_id` (1:1); backfill — по одной Location на каждый существующий объект (для Luxx — одна); Business НЕ добавляется (Phase 2.5) — миграция `20260927000029_phase2_location` с `down.sql`, **на рабочей базе применяет владелец**
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -1454,6 +1455,37 @@ MVP вводится вручную и используется всеми Busin
 выручка (из закрытых Folio и оплаченных Appointment) обязана нести `source_type`
 (`FOLIO`/`APPOINTMENT`/`MANUAL`) + `source_id` c `UNIQUE(source_type, source_id)` — повторный запуск sync-job не
 создаёт дубль (у `MANUAL` `source_id` NULL, в UNIQUE не конфликтует). Ручной ввод — только расходы.
+
+### 17.6 Phase 2 — Location (v2.2, 27.09.2026; спецификация перед миграцией по правилу этого раздела)
+
+Поручение владельца 27.09.2026: «Начинай Phase 2 — Location foundation. Строго по замороженной ADR-100».
+Содержание — v1 §D.3/§L Фаза 2 и v2 §12 (строка «2 — Location: без изменений от v1»); `Business` в этой фазе
+НЕ добавляется — он придёт в Phase 2.5 вместе с `locations.business_id`.
+
+- **enum `LocationVertical`**: `HOSPITALITY` | `BEAUTY`.
+- **`locations`** — филиал/точка бизнеса:
+  - `id` UUID PK;
+  - `organization_id` UUID NOT NULL, FK `organizations` — чья точка;
+  - `vertical` `LocationVertical` NOT NULL — денормализованная НЕИЗМЕНЯЕМАЯ копия (пишется при создании,
+    каноническое хранилище появится на Business в Phase 2.5);
+  - `name` NOT NULL; `address`, `phone`, `email` — nullable;
+  - `timezone` NOT NULL; `currency` CHAR(3) NOT NULL;
+  - `created_at` timestamptz NOT NULL DEFAULT now();
+  - индекс `(organization_id)`.
+- **`properties.location_id`** — UUID nullable, FK `locations` (ON DELETE RESTRICT), UNIQUE (1:1:
+  Property — HOSPITALITY-специализация Location). `Property` не переименовывается, все её существующие FK
+  (§1–§10) не меняются; `properties.organization_id` остаётся рабочим (окно совместимости до Фазы 8).
+- **Backfill (детерминированный, в той же транзакции)**: для КАЖДОЙ строки `properties` без `location_id`
+  создаётся ровно одна `Location` копией полей (`organization_id`, `'HOSPITALITY'`, `name`, `address`,
+  `phone`, `email`, `timezone`, `currency`) и проставляется `properties.location_id`. Для Luxx — одна строка.
+  NOT NULL на `location_id` не вводится.
+- **RLS (§17 v1.13, ADR-103)**: `locations` — арендаторская таблица с организацией в строке: политика
+  `rls_tenant` по `organization_id`, имя вносится в `RLS_TENANT_TABLES`.
+- **Код**: `location-ref.ts` (кэш-резолвер Location организации, по образцу `property-ref.ts`); внутренняя
+  реализация `organizationPropertyRef()` идёт через Location с фолбэком на прежний путь по
+  `properties.organization_id`, пока миграция не применена; внешний контракт `PropertyRef` не меняется.
+- Миграция `20260927000029_phase2_location` + `down.sql` (снять политику, колонку, таблицу, тип).
+  **На рабочей базе применяет владелец.**
 
 ---
 

@@ -90,10 +90,16 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const key = `${schema()}|org|${organizationId}`;
   const known = cache.get(key);
   if (known) return known;
-  const found = await db.property.findFirst({
-    where: { organizationId },
-    select: { id: true, name: true, organizationId: true, timezone: true },
-  });
+  // Phase 2 (ADR-100 §17.1, v1 §D.4 шаг 2): путь к объекту идёт через Location организации; внешний
+  // контракт PropertyRef не меняется. Пока миграция 20260927000029 не применена (locations пуста или
+  // properties.location_id ещё NULL) — прежняя выборка по properties.organization_id, поведение то же.
+  const select = { id: true, name: true, organizationId: true, timezone: true };
+  const found =
+    (await db.property.findFirst({
+      where: { location: { organizationId } },
+      orderBy: { createdAt: 'asc' },
+      select,
+    })) ?? (await db.property.findFirst({ where: { organizationId }, select }));
   if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
   cache.set(key, found);
   return found;

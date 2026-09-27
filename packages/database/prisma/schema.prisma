@@ -21,6 +21,37 @@ datasource db {
 // ───────────────────────── §1 Объект и физическая структура ─────────────────────────
 
 /// Объект размещения. В MVP одна запись (ADR-001), но все запросы фильтруются по property_id.
+/// Вертикаль точки бизнеса (Phase 2, ADR-100 §17.1). Каноническое хранилище появится на Business (Phase 2.5);
+/// здесь — денормализованная НЕИЗМЕНЯЕМАЯ копия: пишется при создании Location и не обновляется.
+enum LocationVertical {
+  HOSPITALITY
+  BEAUTY
+}
+
+/// Точка бизнеса организации (Phase 2, ADR-100 §17.1, DATA_MODEL v2.2 §17.6): филиал с адресом, поясом и валютой.
+/// `Property` не переименовывается и не переписывается — она 1:1 HOSPITALITY-специализация Location.
+/// `business_id` появится в Phase 2.5 вместе с таблицей Business.
+model Location {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  vertical       LocationVertical
+  name           String
+  address        String?
+  phone          String?
+  email          String?
+  /// IANA timezone точки, например Asia/Almaty
+  timezone       String
+  /// ISO 4217
+  currency       String           @db.Char(3)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  property     Property?
+
+  @@index([organizationId])
+  @@map("locations")
+}
+
 model Property {
   id           String   @id @default(uuid()) @db.Uuid
   /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
@@ -41,12 +72,17 @@ model Property {
   checkInTime  String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
   checkOutTime String   @map("check_out_time")
+  /// Phase 2 (ADR-100 §17.1, DATA_MODEL v2.2 §17.6): объект — HOSPITALITY-специализация Location (1:1).
+  /// NULL — окно совместимости до применения миграции 20260927000029; NOT NULL не вводится в этой фазе.
+  locationId   String?  @unique @map("location_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
   organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  /// Location удалить, пока на ней объект, нельзя (RESTRICT): объект не остаётся без точки молча.
+  location           Location?           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
@@ -996,6 +1032,7 @@ model Organization {
   sessions    Session[]
   invites     Invite[]
   properties  Property[]
+  locations          Location[]
   userErrors  UserError[]
   sellerProfile SellerProfile?
   agents SellerAgent[]

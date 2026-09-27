@@ -52,6 +52,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'web_events',
   'wizard_jobs',
   'wizard_messages',
+  // Phase 2 (ADR-100 §17.1): точка бизнеса — организация в строке, политика в миграции 20260927000029
+  'locations',
 ];
 
 /**

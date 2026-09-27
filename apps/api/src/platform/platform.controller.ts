@@ -64,6 +64,26 @@ export class PlatformController {
     const saved = await this.repo.organization(id);
     return organizationJson(saved!, now);
   }
+
+  /**
+   * Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — `ACTIVE`, организация снова пишет; «только чтение» —
+   * `READ_ONLY`. Приостановка и пробный период отсюда не ставятся: это не оплата.
+   */
+  @Put('organizations/:id/status')
+  async changeStatus(@Param('id') id: string, @Body() body: unknown) {
+    requirePlatformAdmin();
+    if (!UUID.test(id)) throw new BadRequestException('Организация: ожидается идентификатор');
+    const input = (body ?? {}) as { status?: unknown; note?: unknown };
+    if (input.status !== 'ACTIVE' && input.status !== 'READ_ONLY') {
+      throw new BadRequestException('Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)');
+    }
+    const note = typeof input.note === 'string' && input.note.trim() ? input.note.trim().slice(0, 500) : null;
+    if (!(await this.repo.organization(id))) throw new NotFoundException(PLATFORM_NO_ORGANIZATION);
+    const now = new Date();
+    await this.repo.saveStatus({ organizationId: id, status: input.status, note, by: currentUserId(), now });
+    const saved = await this.repo.organization(id);
+    return organizationJson(saved!, now);
+  }
 }
 
 function organizationJson(o: OrganizationSummary, now: Date) {

@@ -1032,8 +1032,8 @@ resolved_by       GUARD (исчезла после починки или сам�
 |---|---|---|
 | `id` | `uuid` PK | |
 | `name` | `varchar(200)` NOT NULL | название, вводит человек при регистрации |
-| `status` | enum `OrganizationStatus` NOT NULL DEFAULT `TRIAL` | `TRIAL`, `ACTIVE`, `READ_ONLY`, `SUSPENDED`; перехода в `READ_ONLY` по сроку в коде нет (22.09) |
-| `trial_ends_at` | `timestamptz` | срок пробного периода, 7 суток от создания |
+| `status` | enum `OrganizationStatus` NOT NULL DEFAULT `TRIAL` | `TRIAL`, `ACTIVE`, `READ_ONLY`, `SUSPENDED`. С 27.09 (ADR-102) пишут только `ACTIVE` и `TRIAL` до срока (`canWrite`); после срока — только чтение, считается на лету, в базе статус не переписывается. `ACTIVE` ставит главный администратор после оплаты счёта |
+| `trial_ends_at` | `timestamptz` | срок пробного периода: 14 суток от создания с 27.09.2026 (ADR-102; до того — 7) |
 | `created_at` | `timestamptz` NOT NULL | |
 
 Тип — перечисление Postgres `OrganizationStatus` (миграция `20260915000013_accounts`), а не `varchar` с CHECK, как

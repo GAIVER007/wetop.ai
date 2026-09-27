@@ -57,3 +57,41 @@ export async function changeAiSellerAction(
     };
   }
 }
+
+export interface StatusFormResult {
+  error: string | null;
+  message: string | null;
+  attempt: number;
+}
+
+/**
+ * Подписка организации (Q-141 — А, ADR-102): счёт оплачен — «Оплата получена», организация снова пишет; «Только
+ * чтение» — обратно. Кнопка передаёт статус, заметка — номер счёта. Проверяет API.
+ */
+export async function changeStatusAction(
+  organizationId: string,
+  prev: StatusFormResult | null,
+  form: FormData,
+): Promise<StatusFormResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const status = String(form.get('status') ?? '') as 'ACTIVE' | 'READ_ONLY';
+  const note = String(form.get('note') ?? '').trim();
+  try {
+    await platformApi.changeStatus(organizationId, { status, note });
+    revalidatePath('/platform');
+    return {
+      error: null,
+      message:
+        status === 'ACTIVE'
+          ? 'Оплата подтверждена: организация снова может вносить изменения.'
+          : 'Организация переведена в «только чтение».',
+      attempt,
+    };
+  } catch (e) {
+    return {
+      error: e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e),
+      message: null,
+      attempt,
+    };
+  }
+}

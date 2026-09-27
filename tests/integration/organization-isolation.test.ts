@@ -93,9 +93,19 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         });
         seen['B'] = await look(orgB.id);
         seen['A'] = await look(orgA.id);
+        // в сиде сотни гостей — страница по алфавиту гостя не гарантирует, ищем его по фамилии
+        const guestName = await tx.guest.findUniqueOrThrow({
+          where: { id: guestId },
+          select: { lastName: true },
+        });
         const dirLook = (organizationId: string) =>
           as(organizationId, async () => {
-            const d = await guests.directory({ state: 'ALL', q: '', page: 1, pageSize: 100 });
+            const d = await guests.directory({
+              state: 'ALL',
+              q: guestName.lastName,
+              page: 1,
+              pageSize: 100,
+            });
             return { total: d.counts.ALL, sawGuest: d.rows.some((r) => r.id === guestId) };
           });
         dir['B'] = await dirLook(orgB.id);

@@ -57,6 +57,8 @@ model Property {
   services           Service[]
   trackedSites       TrackedSite[]
   inventoryUnits     InventoryUnit[]
+  externalEvents     ExternalEvent[]
+  channelOutbox      ChannelOutbox[]
 
   @@index([organizationId])
   @@map("properties")
@@ -327,6 +329,9 @@ enum Gender {
 /// В dev-БД только анонимизированные значения (ADR-018).
 model Guest {
   id            String    @id @default(uuid()) @db.Uuid
+  /// Чей это гость (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1). NULL — принадлежность не выведена
+  /// однозначно при backfill (см. отчёт миграции 20260927000026); новые гости получают организацию объекта.
+  organizationId String?  @map("organization_id") @db.Uuid
   firstName     String    @map("first_name")
   lastName      String    @map("last_name")
   middleName    String?   @map("middle_name")
@@ -344,10 +349,12 @@ model Guest {
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  organization        Organization?   @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   documents           GuestDocument[]
   stays               StayGuest[]
   primaryReservations Reservation[]   @relation("primaryGuest")
 
+  @@index([organizationId])
   @@index([lastName, firstName])
   @@index([phone])
   @@map("guests")
@@ -508,6 +515,10 @@ model AuditLog {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  /// Чья это запись (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1). Заполняется из контекста запроса тем же
+  /// механизмом, что автор; NULL — служебная запись без выводимой организации (backfill-отчёт миграции 20260927000026).
+  organizationId String?       @map("organization_id") @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entityType String   @map("entity_type")
   entityId   String   @map("entity_id")
   action     String
@@ -515,6 +526,7 @@ model AuditLog {
   after      Json?
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  @@index([organizationId])
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_logs")
@@ -566,6 +578,10 @@ enum ExternalEventStatus {
 /// идемпотентность обязательна (ADR-007): сначала записано, потом обработано, повтор безопасен.
 model ExternalEvent {
   id              String              @id @default(uuid()) @db.Uuid
+  /// Чей это объект (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1): scope по объекту — событие канала
+  /// принадлежит гостинице, не организации. NULL — принадлежность не выведена при backfill (отчёт 20260927000026).
+  propertyId      String?             @map("property_id") @db.Uuid
+  property        Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider        String
   externalEventId String              @map("external_event_id")
   type            String
@@ -581,6 +597,7 @@ model ExternalEvent {
   processedAt     DateTime?           @map("processed_at") @db.Timestamptz(6)
 
   @@unique([provider, externalEventId])
+  @@index([propertyId])
   @@index([status, receivedAt])
   @@map("external_events")
 }
@@ -605,6 +622,9 @@ enum ChannelOutboxStatus {
 /// Очередь исходящих изменений ARI (DATA_MODEL §7, ChannelOutbox). Не бизнес-данные.
 model ChannelOutbox {
   id            String              @id @default(uuid()) @db.Uuid
+  /// Чей это объект (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1). NULL — backfill не вывел однозначно.
+  propertyId    String?             @map("property_id") @db.Uuid
+  property      Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider      String
   kind          ChannelOutboxKind
   payload       Json
@@ -616,6 +636,7 @@ model ChannelOutbox {
   createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   sentAt        DateTime?           @map("sent_at") @db.Timestamptz(6)
 
+  @@index([propertyId])
   @@index([provider, status, nextAttemptAt])
   @@map("channel_outbox")
 }
@@ -979,6 +1000,8 @@ model Organization {
   agents SellerAgent[]
   wizardDrafts WizardDraft[]
   extensions  OrganizationExtension[]
+  guests      Guest[]
+  auditLogs   AuditLog[]
 
   @@map("organizations")
 }

@@ -63,6 +63,24 @@ describe('attachAuthor — подстановка автора в запись �
     ).toEqual({ data: [{ action: 'a', userId: 'u-1' }, { action: 'b', userId: 'u-9' }] });
   });
 
+  it('ставит организацию вошедшего тем же механизмом, что автора (Phase 1, ADR-100 §17.2)', () => {
+    expect(attachAuthor({ data: { action: 'reservation.checkIn' } }, 'u-1', 'org-1')).toEqual({
+      data: { action: 'reservation.checkIn', userId: 'u-1', organizationId: 'org-1' },
+    });
+  });
+
+  it('не перебивает организацию, указанную явно', () => {
+    expect(
+      attachAuthor({ data: { action: 'exely.sync', organizationId: 'org-9' } }, null, 'org-1'),
+    ).toEqual({ data: { action: 'exely.sync', organizationId: 'org-9' } });
+  });
+
+  it('организацию ставит и без автора: публичный путь сайта действует от имени организации', () => {
+    expect(attachAuthor({ data: { action: 'web.book' } }, null, 'org-1')).toEqual({
+      data: { action: 'web.book', organizationId: 'org-1' },
+    });
+  });
+
   it('чужую форму аргументов не ломает', () => {
     expect(attachAuthor({ where: { id: 'x' } } as never, 'u-1')).toEqual({ where: { id: 'x' } });
   });

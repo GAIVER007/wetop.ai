@@ -2819,3 +2819,12 @@
 | 27.09.2026 14:53 | unit | ❌ упало 13 из 2044, пропущено 3 | 1 мин 12 с | 2b4cfe5 | [лог](logs/2026-09-27T09-53-08Z-unit-7728.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
 | 27.09.2026 14:54 | unit | ❌ упало 12 из 2044, пропущено 3 | 1 мин 12 с | 2b4cfe5 | [лог](logs/2026-09-27T09-54-48Z-unit-2fae.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
 | 27.09.2026 15:18 | unit | ❌ упало 12 из 2044, пропущено 3 | 1 мин 12 с | a8f0df4 +4 | [лог](logs/2026-09-27T10-18-15Z-unit-2060.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
+| 27.09.2026 17:16 | integration (частично: tests/integration/organization-isolation.test.ts) | ❌ упало 2 из 7 | 10 с | 5814464 +2 | [лог](logs/2026-09-27T12-16-31Z-integration-3225.log) | Phase 1: красный прогон изоляционных тестов на старом коде (ADR-100 §17.2) |
+| 27.09.2026 17:16 | integration (частично: tests/integration/organization-isolation.test.ts) | ❌ упало 1 из 7 | 4 с | 5814464 +12 | [лог](logs/2026-09-27T12-16-59Z-integration-da7d.log) | Phase 1: зелёный прогон после правок write/read-path (ADR-100 §17.2) |
+| 27.09.2026 17:18 | integration (частично: tests/integration/organization-isolation.test.ts) | ❌ упало 1 из 7 | 4 с | 5814464 +12 | [лог](logs/2026-09-27T12-18-46Z-integration-09aa.log) | Phase 1: разбор падения первого теста (временная диагностика) |
+| 27.09.2026 17:20 | integration (частично: tests/integration/organization-isolation.test.ts) | ✅ 7 из 7 | 4 с | 5814464 +12 | [лог](logs/2026-09-27T12-20-22Z-integration-8cf8.log) | Phase 1: зелёный прогон изоляционных тестов после правок (ADR-100 §17.2) |
+| 27.09.2026 17:21 | integration | ✅ 91 из 103, пропущено 12 | 31 с | 5814464 +12 | [лог](logs/2026-09-27T12-21-04Z-integration-f18e.log) | Phase 1: полный набор integration после tenant-scope правок |
+| 27.09.2026 17:21 | unit | ❌ упало 2 из 2048, пропущено 3 | 1 мин 33 с | 5814464 +11 | [лог](logs/2026-09-27T12-21-35Z-unit-9377.log) | Phase 1: полный набор unit после tenant-scope правок |
+| 27.09.2026 17:23 | typecheck | ✅ без ошибок | 30 с | 5814464 +12 | [лог](logs/2026-09-27T12-23-09Z-typecheck-a9da.log) | Phase 1 |
+| 27.09.2026 17:23 | lint | ✅ без ошибок | 18 с | 5814464 +12 | [лог](logs/2026-09-27T12-23-40Z-lint-43b3.log) | Phase 1 |
+| 27.09.2026 17:25 | unit | ✅ 2045 из 2048, пропущено 3 | 1 мин 12 с | 5814464 +12 | [лог](logs/2026-09-27T12-25-32Z-unit-1ba4.log) | Phase 1: unit после починки фейка audit-card-redact (property для штампа организации) |

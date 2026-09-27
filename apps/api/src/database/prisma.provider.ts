@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Injectable, type OnModuleDestroy } from '@nestjs/common';
 import { createPrismaClient, type Db } from '@pms/database';
-import { attachAuthor, currentUserId } from '../auth/request-context';
+import { attachAuthor, currentOrganizationId, currentUserId } from '../auth/request-context';
 
 export const DB = Symbol('DB');
 
@@ -9,15 +9,16 @@ export const DB = Symbol('DB');
 let shared: { db: Db; refs: number } | null = null;
 
 /**
- * Записи журнала подписываются автором сами: `auditLog.create` берёт вошедшего из контекста запроса
- * (ADR-023, DATA_MODEL §13 шаг 1). Явно переданный `userId` сильнее — его не перебиваем.
+ * Записи журнала подписываются автором и организацией сами: `auditLog.create` берёт вошедшего из
+ * контекста запроса (ADR-023, DATA_MODEL §13 шаг 1; организация — Phase 1 изоляции, ADR-100 §17.2).
+ * Явно переданные `userId`/`organizationId` сильнее — их не перебиваем.
  */
 function withAuthor(db: Db): Db {
   return db.$extends({
     query: {
       auditLog: {
         create({ args, query }) {
-          return query(attachAuthor(args, currentUserId()));
+          return query(attachAuthor(args, currentUserId(), currentOrganizationId()));
         },
       },
     },

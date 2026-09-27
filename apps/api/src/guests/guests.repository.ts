@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
-import { actsForOrganization } from '../auth/request-context';
+import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
 import { propertyIdRef } from '../database/property-ref';
 
 export interface GuestSummary {
@@ -92,16 +92,25 @@ const iso = (x: Date | null) => (x ? x.toISOString().slice(0, 10) : null);
 export class PrismaGuestsRepository implements GuestsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   /**
-   * Замок организаций (ADR-061, Q-152). У гостя нет своего объекта: вошедший видит гостя, если у того есть бронь
-   * объекта его организации — основным гостем или на проживании. Служебный ходок (сторож, скрипты) — как раньше.
+   * Замок организаций (ADR-061, Q-152; Phase 1 — ADR-100 §17.2). Первое условие — собственная колонка
+   * `guests.organization_id` (backfill 20260927000026, новые гости получают её с рождения); цепочка через
+   * брони объекта остаётся для строк, которым backfill не вывел организацию (NULL — см. отчёт миграции).
+   * Служебный ходок (сторож, скрипты) — как раньше, без фильтра.
    */
   private async visible(): Promise<Prisma.GuestWhereInput> {
     if (!actsForOrganization()) return {};
     const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const organizationId = currentOrganizationId();
     return {
       OR: [
-        { primaryReservations: { some: { propertyId } } },
-        { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
+        ...(organizationId ? [{ organizationId }] : []),
+        {
+          organizationId: null,
+          OR: [
+            { primaryReservations: { some: { propertyId } } },
+            { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
+          ],
+        },
       ],
     };
   }
@@ -196,8 +205,10 @@ export class PrismaGuestsRepository implements GuestsRepository {
     };
   }
   async update(id: string, p: GuestPatch): Promise<void> {
-    await this.prisma.db.guest.update({
-      where: { id },
+    // Phase 1 изоляции (ADR-100 §17.2): правка по прямому id — только гостя своей организации.
+    // Сервис уже проверяет byId, это второй замок на уровне репозитория: чужой id — «не найден».
+    const updated = await this.prisma.db.guest.updateMany({
+      where: { AND: [{ id }, await this.visible()] },
       data: {
         ...(p.firstName !== undefined ? { firstName: p.firstName } : {}),
         ...(p.lastName !== undefined ? { lastName: p.lastName } : {}),
@@ -212,6 +223,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
         ...(p.notes !== undefined ? { notes: p.notes } : {}),
       },
     });
+    if (updated.count === 0) throw new NotFoundException(`Гость ${id} не найден`);
   }
   async addDocument(
     guestId: string,
@@ -223,6 +235,12 @@ export class PrismaGuestsRepository implements GuestsRepository {
       expiresAtEncrypted: string | null;
     },
   ): Promise<string> {
+    // Phase 1 изоляции (ADR-100 §17.2): документ по прямому id гостя — только гостю своей организации
+    const guest = await this.prisma.db.guest.findFirst({
+      where: { AND: [{ id: guestId }, await this.visible()] },
+      select: { id: true },
+    });
+    if (!guest) throw new NotFoundException(`Гость ${guestId} не найден`);
     const row = await this.prisma.db.guestDocument.create({
       data: {
         guestId,
@@ -238,13 +256,14 @@ export class PrismaGuestsRepository implements GuestsRepository {
     return row.id;
   }
   async deleteDocument(guestId: string, documentId: string): Promise<{ type: string } | null> {
+    // Phase 1 изоляции (ADR-100 §17.2): и поиск, и удаление — только внутри гостей своей организации
     const doc = await this.prisma.db.guestDocument.findFirst({
-      where: { id: documentId, guestId },
+      where: { id: documentId, guestId, guest: await this.visible() },
       select: { type: true },
     });
     if (!doc) return null;
     const res = await this.prisma.db.guestDocument.deleteMany({
-      where: { id: documentId, guestId },
+      where: { id: documentId, guestId, guest: await this.visible() },
     });
     return res.count > 0 ? doc : null;
   }

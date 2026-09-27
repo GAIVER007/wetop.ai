@@ -35,6 +35,7 @@ v1.10 (25.09.2026; предохранители в самой базе по ТЗ
 v1.11 (26.09.2026; **утверждено владельцем 26.09.2026** — план `plans/seller-prompt-window-2026-09-26.md` и макет «Макет нравится, делай этап Б так», ADR-097): §15 `seller_profiles.prompt_text` — инструкция продавцу одним текстом; есть она — продавцу уходит текст, а не поля профиля — миграция `20260926000024_seller_prompt_text` с `down.sql`, **на рабочей базе применяет владелец**
 v1.12 (26.09.2026; **утверждено владельцем 26.09.2026 — ADR-096**, ответ «Да, делай» на вопрос о коде места перед открытием регистрации; номер версии и миграции сдвинуты при слиянии двух параллельных веток 27.09.2026 — v1.11 и `20260926000024` заняла миграция `seller_prompt_text` выше): §2 `InventoryUnit.property_id` и уникальность кода места **внутри объекта** `UNIQUE(property_id, code)` вместо глобальной — вторая гостиница с кодами «101…» не падает на онбординге, а поиск места по коду не находит чужое (план `plans/tenant-isolation-2026-09-26.md`); миграция `20260926000025_unit_code_per_property` — применяет владелец
 v2.0 (27.09.2026; **утверждено владельцем 27.09.2026 — «Архитектуру в целом утверждаю», ADR-100; кода нет, миграций нет**): §17 — целевая архитектура двух вертикалей заморожена: иерархия `WETOP → Partner/Organization → Business → Location → Vertical Domain`; четыре финальных решения (RLS-gate до публичной регистрации; канонический `Customer` на Organization + `CustomerBusiness`; `reportingCurrency`/`ExchangeRate` на Organization, `reportingAmount` — снимок; идемпотентность автоматической выручки `sourceType`+`sourceId`+UNIQUE). Существующие разделы §1–§16 не меняются; детальные спецификации новых таблиц добавляются в этот файл пофазно перед каждой миграцией. Полная архитектура — `ARCHITECTURE.md` и `reports/hospitality-beauty-target-architecture-v2-2026-09-27.md`
+v2.1 (27.09.2026; Phase 1 изоляции по ADR-100 §17.2, поручение владельца «Поехали… Начинаем Phase 1»): §3 `guests.organization_id`, §10 `audit_logs.organization_id`, §8 `external_events.property_id` и `channel_outbox.property_id` — все nullable + FK + индекс, детерминированный backfill в миграции (неоднозначные строки остаются NULL и попадают в отчёт, NOT NULL не вводится) — миграция `20260927000026_phase1_tenant_scope` с `down.sql`, **на рабочей базе применяет владелец**
 Дата: 2026-09-07
 
 ---
@@ -311,10 +312,17 @@ end_date
 
 ## 3. Гости
 
+> **v2.1 (27.09.2026, Phase 1 изоляции — ADR-100 §17.2):** у `guests` появляется nullable `organization_id`
+> (FK → `organizations`, индекс). Заполняется при создании гостя от организации объекта; существующие строки —
+> backfill по цепочке `stay_guests → reservation_items → reservations → properties.organization_id` и по
+> `reservations.primary_guest_id`, только когда все связанные брони гостя дают ровно одну организацию; иначе NULL
+> и строка в отчёт (не угадываем). NOT NULL не вводится.
+
 ### Guest
 
 ```
 id
+organization_id   nullable, FK organizations (v2.1)
 first_name
 last_name
 middle_name
@@ -723,10 +731,17 @@ created_at / sent_at
 
 ## 8. Внешние события
 
+> **v2.1 (27.09.2026, Phase 1 изоляции — ADR-100 §17.2):** у `external_events` и `channel_outbox` появляется
+> nullable `property_id` (FK → `properties`, индекс) — это Channex/Hospitality-понятия, поэтому scope по объекту,
+> не по организации. Заполняется при записи (объект известен из контекста обработки); существующие строки —
+> backfill на единственный объект, имеющий строки в `channel_mappings` данного провайдера; если таких объектов
+> ноль или больше одного — NULL и строка в отчёт. NOT NULL не вводится.
+
 ### ExternalEvent
 
 ```
 id
+property_id   nullable, FK properties (v2.1)
 provider
 external_event_id
 type
@@ -816,10 +831,19 @@ error
 
 ## 10. Аудит
 
+> **v2.1 (27.09.2026, Phase 1 изоляции — ADR-100 §17.2):** у `audit_logs` появляется nullable `organization_id`
+> (FK → `organizations`, индекс). Новые записи получают организацию из контекста запроса (тот же механизм, что
+> подпись автора, DATA_MODEL §13 шаг 1) либо явно от организации объекта на служебных путях. Существующие строки —
+> backfill: по `user_id`, когда у человека ровно одно членство; для строк без автора — по `entity_type`/`entity_id`
+> через таблицу сущности к `properties.organization_id`; неоднозначные — NULL и строка в отчёт. Backfill идёт при
+> временно выключенном триггере `audit_logs_immutable` внутри транзакции миграции (журнал остаётся append-only для
+> приложения; это разовое обогащение, санкционированное ADR-100). NOT NULL не вводится.
+
 ### AuditLog
 
 ```
 id
+organization_id   nullable, FK organizations (v2.1)
 user_id
 entity_type
 entity_id

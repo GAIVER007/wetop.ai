@@ -385,14 +385,24 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 const json = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 
 export class PrismaReservationsRepository implements ReservationsRepository {
-  private propertyCache: { id: string; currency: string; timezone: string } | null = null;
+  private propertyCache: {
+    id: string;
+    currency: string;
+    timezone: string;
+    organizationId: string | null;
+  } | null = null;
   /** propertyName — имя объекта; в тестах на вымышленных данных передаётся тестовый объект. */
   constructor(
     private readonly db: Db | DbTx,
     private readonly propertyName: string = LUXX_APARTS_PROPERTY.name,
   ) {}
 
-  async property(): Promise<{ id: string; currency: string; timezone: string }> {
+  async property(): Promise<{
+    id: string;
+    currency: string;
+    timezone: string;
+    organizationId: string | null;
+  }> {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
@@ -401,7 +411,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         const found = await this.db.property.findFirst({
           where: { organizationId },
-          select: { id: true, currency: true, timezone: true },
+          select: { id: true, currency: true, timezone: true, organizationId: true },
         });
         if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
         this.propertyCache = found;
@@ -410,7 +420,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         const found = await this.db.property.findFirstOrThrow({
           where: { name: this.propertyName },
           orderBy: { createdAt: 'asc' },
-          select: { id: true, currency: true, timezone: true },
+          select: { id: true, currency: true, timezone: true, organizationId: true },
         });
         this.propertyCache = found;
       }
@@ -641,6 +651,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return n > 0;
   }
   async createGuest(guest: NewGuest): Promise<string> {
+    // Phase 1 изоляции (ADR-100 §17.2): гость с рождения знает организацию объекта — и от стойки
+    // (вошедший), и от канала/виджета (служебный путь и organizationScope дают тот же объект).
+    const { organizationId } = await this.property();
     const g = await this.db.guest.create({
       data: {
         firstName: guest.firstName,
@@ -648,6 +661,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         middleName: guest.middleName ?? null,
         phone: guest.phone ?? null,
         email: guest.email ?? null,
+        organizationId,
       },
       select: { id: true },
     });
@@ -1277,6 +1291,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { id: true, status: true, attemptCount: true, lastError: true },
     });
     if (existing) return { ...existing, isNew: false };
+    // Phase 1 изоляции (ADR-100 §17.2): событие канала с рождения знает объект обработки
+    const { id: propertyId } = await this.property();
     const created = await this.db.externalEvent.create({
       data: {
         provider: event.provider,
@@ -1284,6 +1300,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         type: event.type,
         payloadHash: event.payloadHash,
         payload: json(event.payload),
+        propertyId,
         ...(event.receivedVia ? { receivedVia: event.receivedVia } : {}),
       },
       select: { id: true, status: true, attemptCount: true, lastError: true },
@@ -1321,9 +1338,13 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     // ключами, и в свободном тексте (заметка, комментарий, причина) контакты под маской: журнал только дописывается
     const forJournal = (v: unknown) =>
       isReservationCard(v) ? maskAuditFreeText(cardForAudit(v)) : withoutGuestIdentity(v);
+    // Phase 1 изоляции (ADR-100 §17.2): служебные записи (синхронизация, вебхук) тоже несут
+    // организацию объекта — иначе они копили бы NULL-остаток, который уже разбирал backfill
+    const { organizationId } = await this.property();
     await this.db.auditLog.create({
       data: {
         userId: auditUserId(),
+        organizationId,
         entityType: entry.entityType,
         entityId: entry.entityId,
         action: entry.action,

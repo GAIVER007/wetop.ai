@@ -79,7 +79,7 @@ export function MonthGrid({
               <div className="rate-cal__price" data-testid={`price-${d.date}-${capacityAdults}`}>
                 {capacityAdults > 1 && (
                   <span className="rate-cal__word">
-                    {capacityAdults} {pluralRu(capacityAdults, ['гость', 'гостя', 'гостей'])}
+                    {pluralRu(capacityAdults, ['гость', 'гостя', 'гостей'])}
                   </span>
                 )}
                 <PriceCell
@@ -98,7 +98,7 @@ export function MonthGrid({
                   data-testid={`price-${d.date}-${occ}`}
                 >
                   <span className="rate-cal__word">
-                    {occ} {pluralRu(occ, ['гость', 'гостя', 'гостей'])}
+                    {pluralRu(occ, ['гость', 'гостя', 'гостей'])}
                   </span>
                   <PriceCell
                     date={d.date}

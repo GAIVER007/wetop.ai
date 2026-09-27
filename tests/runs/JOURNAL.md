@@ -2936,3 +2936,7 @@
 | 28.09.2026 01:53 | typecheck | ✅ без ошибок | 28 с | 3e42212 +1 | [лог](logs/2026-09-27T20-53-09Z-typecheck-7131.log) |  |
 | 28.09.2026 01:53 | lint | ✅ без ошибок | 20 с | 3e42212 +1 | [лог](logs/2026-09-27T20-53-37Z-lint-0646.log) |  |
 | 28.09.2026 01:54 | unit | ✅ 2123 из 2126, пропущено 3 | 1 мин 14 с | 3e42212 +1 | [лог](logs/2026-09-27T20-54-01Z-unit-d69e.log) |  |
+| 28.09.2026 01:55 | integration | ✅ 107 из 107 | 31 с | 2c985d4 | [лог](logs/2026-09-27T20-55-56Z-integration-a914.log) |  |
+| 28.09.2026 01:56 | integration (частично: tests/integration/organization-isolation.test.ts) | ❌ упало 1 из 5 | 4 с | 2c985d4 +1 | [лог](logs/2026-09-27T20-56-38Z-integration-8f41.log) | red: preview без visible() — чужой гость по прямому id открывается |
+| 28.09.2026 01:57 | e2e | ✅ 25 из 25 | 1 мин | 2c985d4 | [лог](logs/2026-09-27T20-57-21Z-e2e-ca14.log) |  |
+| 28.09.2026 01:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/quality.spec.ts) | ✅ 20 из 20 | 2 мин 44 с | 2c985d4 | [лог](logs/2026-09-27T20-58-35Z-e2e-a1ce.log) | G3 стоп-гейт: гости, только чтение, качество |

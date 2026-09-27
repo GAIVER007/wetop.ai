@@ -381,3 +381,53 @@ describe('SessionGuard', () => {
     });
   });
 });
+
+/**
+ * «Только чтение» после пробного периода (Q-144 — Б, ADR-102): замок API пускает вошедшего читать, но изменения
+ * организации без права записи отклоняет словами — вход при этом не закрывается.
+ */
+describe('SessionGuard — только чтение после пробного периода', () => {
+  afterEach(() => vi.unstubAllEnvs());
+  const signedIn = (organization: { status: string; trialEndsAt: string | null } | null, platformAdmin = false) =>
+    ({
+      whoami: vi.fn(async () => ({
+        user: { ...user, platformAdmin },
+        organization: organization && { name: 'Хостел «Пример»', ...organization },
+        expiresAt: '2099-01-01T00:00:00.000Z',
+      })),
+    }) as never;
+  const expired = { status: 'TRIAL', trialEndsAt: '2020-01-01T00:00:00.000Z' };
+
+  it('срок вышел: чтение пропускает, изменение — 403 словами', async () => {
+    vi.stubEnv('AUTH_REQUIRED', '1');
+    const guard = new SessionGuard(reflector(false), signedIn(expired));
+    await expect(guard.canActivate(context({ authorization: 'Bearer t' }, 'GET').ctx)).resolves.toBe(true);
+    await expect(
+      guard.canActivate(context({ authorization: 'Bearer t' }, 'POST', '/hotel/reservations').ctx),
+    ).rejects.toThrow(/Пробный период закончился/);
+  });
+
+  it('оплаченная организация пишет', async () => {
+    vi.stubEnv('AUTH_REQUIRED', '1');
+    const guard = new SessionGuard(reflector(false), signedIn({ status: 'ACTIVE', trialEndsAt: null }));
+    await expect(
+      guard.canActivate(context({ authorization: 'Bearer t' }, 'POST', '/hotel/reservations').ctx),
+    ).resolves.toBe(true);
+  });
+
+  it('выход работает и после срока', async () => {
+    vi.stubEnv('AUTH_REQUIRED', '1');
+    const guard = new SessionGuard(reflector(false), signedIn(expired));
+    await expect(
+      guard.canActivate(context({ authorization: 'Bearer t' }, 'POST', '/auth/logout').ctx),
+    ).resolves.toBe(true);
+  });
+
+  it('главный администратор подтверждает оплату и из организации «только чтение»', async () => {
+    vi.stubEnv('AUTH_REQUIRED', '1');
+    const guard = new SessionGuard(reflector(false), signedIn(expired, true));
+    await expect(
+      guard.canActivate(context({ authorization: 'Bearer t' }, 'PUT', '/platform/organizations/x/status').ctx),
+    ).resolves.toBe(true);
+  });
+});

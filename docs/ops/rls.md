@@ -19,7 +19,7 @@ mig() { ( set -a; . ./.env; set +a
     -v /tmp/wetop-mig/packages/database/prisma:/app/packages/database/prisma:ro \
     -w /app/packages/database pms-lux:latest npx prisma migrate "$@" ); }
 BACKUP='docker run --rm -v /root/wetop/scripts/ops/db-backup.sh:/db-backup.sh:ro -v /root/wetop/.env:/wetop.env:ro -v /root/backups:/root/backups -e ENV_FILE=/wetop.env postgres:17 bash /db-backup.sh'
-mig status     # ждём: не применены три миграции 20260927000026…28
+mig status     # ждём: не применены три миграции 20260927000026_rls_roles, …27, …28; применённая 20260927000026_phase1_tenant_scope — известна
 $BACKUP        # ждём «db-backup: wetop-…dump»; без неё дальше не идём
 mig deploy     # ждём «All migrations have been successfully applied»
 mig status     # ждём «Database schema is up to date»

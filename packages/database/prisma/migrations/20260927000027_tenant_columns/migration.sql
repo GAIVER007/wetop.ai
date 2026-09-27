@@ -1,5 +1,9 @@
 -- DATA_MODEL v1.13 §17.1 (ADR-103), план plans/rls-2026-09-27.md п. 3: у каждой строки арендатора — своя организация.
 -- Применяет владелец (AGENTS.md §9, §14): копия базы → миграция → проверка → откат (down.sql).
+--
+-- Идёт после 20260927000026_phase1_tenant_scope (параллельная ветка, на рабочей базе применена владельцем 27.09.2026):
+-- та уже добавила guests.organization_id и audit_logs.organization_id без NOT NULL и заполнила однозначные строки.
+-- Поэтому здесь всё «если нет»: колонки, ключи и индексы не создаются второй раз, заполняются только пустые строки.
 
 -- Организация текущего запроса роли wetop_app (§17.2). Пусто — NULL: политики не пропустят ни одной строки.
 CREATE OR REPLACE FUNCTION app_current_org() RETURNS uuid
@@ -19,7 +23,7 @@ UPDATE "properties"
 ALTER TABLE "properties" ALTER COLUMN "organization_id" SET NOT NULL;
 
 -- ── Гость принадлежит своей организации (RLS-1) ───────────────────────────────────────────────────────────────
-ALTER TABLE "guests" ADD COLUMN "organization_id" UUID;
+ALTER TABLE "guests" ADD COLUMN IF NOT EXISTS "organization_id" UUID;
 
 -- Гость в бронях двух организаций — остановка: разделить такого гостя молча нельзя (до RLS реальные данные только у Luxx)
 DO $$
@@ -53,7 +57,7 @@ UPDATE "guests" g SET "organization_id" = src.org
       JOIN "reservations" r ON r."id" = i."reservation_id"
       JOIN "properties" p ON p."id" = r."property_id"
   ) src
- WHERE src.guest_id = g."id";
+ WHERE src.guest_id = g."id" AND g."organization_id" IS NULL;
 -- гость без броней — самой старой организации (как объекты в …16)
 UPDATE "guests"
    SET "organization_id" = (SELECT "id" FROM "organizations" ORDER BY "created_at" ASC LIMIT 1)
@@ -62,17 +66,21 @@ UPDATE "guests"
 ALTER TABLE "guests" ALTER COLUMN "organization_id" SET NOT NULL;
 -- запрос организации может не передавать её явно: берётся из переменной (служебный путь передаёт сам)
 ALTER TABLE "guests" ALTER COLUMN "organization_id" SET DEFAULT app_current_org();
+ALTER TABLE "guests" DROP CONSTRAINT IF EXISTS "guests_organization_id_fkey";
 ALTER TABLE "guests"
   ADD CONSTRAINT "guests_organization_id_fkey" FOREIGN KEY ("organization_id")
   REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-CREATE INDEX "guests_organization_id_idx" ON "guests"("organization_id");
+CREATE INDEX IF NOT EXISTS "guests_organization_id_idx" ON "guests"("organization_id");
 
 -- ── Журнал: чья запись ────────────────────────────────────────────────────────────────────────────────────────
-ALTER TABLE "audit_logs" ADD COLUMN "organization_id" UUID;
+ALTER TABLE "audit_logs" ADD COLUMN IF NOT EXISTS "organization_id" UUID;
+ALTER TABLE "audit_logs" DROP CONSTRAINT IF EXISTS "audit_logs_organization_id_fkey";
 ALTER TABLE "audit_logs"
   ADD CONSTRAINT "audit_logs_organization_id_fkey" FOREIGN KEY ("organization_id")
   REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-CREATE INDEX "audit_logs_organization_id_created_at_idx" ON "audit_logs"("organization_id", "created_at");
+-- индекс phase1 по одной колонке заменяет составной: журнал стойки читается «организация + свежие сверху»
+DROP INDEX IF EXISTS "audit_logs_organization_id_idx";
+CREATE INDEX IF NOT EXISTS "audit_logs_organization_id_created_at_idx" ON "audit_logs"("organization_id", "created_at");
 
 -- Организация сущности записи журнала — те же правила, что ownAuditRows в apps/api/src/audit/audit.module.ts.
 -- Не нашлась — организация автора; нет и её — NULL (платформа, система).
@@ -112,13 +120,16 @@ LANGUAGE sql STABLE AS $$
   )
 $$;
 
--- Старые записи: журнал только дописывается, поэтому — штатный обход триггера (…22) на время миграции
-SELECT set_config('wetop.audit_purge', 'on', false);
+-- Старые записи. Журнал только дописывается (триггер audit_logs_immutable, …22); его обход wetop.audit_purge
+-- пропускает удаление, а на UPDATE возвращает прежнюю строку — изменение молча не запишется. Поэтому, как в phase1,
+-- триггер выключается только внутри этой транзакции: заполняется одна новая колонка, содержимое записей не меняется.
+ALTER TABLE "audit_logs" DISABLE TRIGGER "audit_logs_immutable";
 UPDATE "audit_logs"
    SET "organization_id" = COALESCE(
      app_audit_organization("entity_type", "entity_id", "user_id"),
-     (SELECT "id" FROM "organizations" ORDER BY "created_at" ASC LIMIT 1));
-SELECT set_config('wetop.audit_purge', '', false);
+     (SELECT "id" FROM "organizations" ORDER BY "created_at" ASC LIMIT 1))
+ WHERE "organization_id" IS NULL;
+ALTER TABLE "audit_logs" ENABLE TRIGGER "audit_logs_immutable";
 
 -- Новые записи: организация запроса, иначе — по сущности (фоновые циклы пишут без переменной)
 CREATE OR REPLACE FUNCTION audit_logs_organization() RETURNS trigger

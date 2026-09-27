@@ -2892,3 +2892,17 @@
 | 28.09.2026 01:57 | integration (частично: tests/integration/reservation-directory-filters.test.ts) | ❌ упало 1 из 1 | 4 с | e69e158 +2 | [лог](logs/2026-09-27T20-57-38Z-integration-354d.log) | R2 red: server-side filters before implementation (seed fixed) |
 | 28.09.2026 01:59 | unit (частично: apps/api/src/hotel/reservation-directory.test.ts) | ✅ 18 из 18 | 2 с | e69e158 +2 | [лог](logs/2026-09-27T20-59-29Z-unit-d8f7.log) | R2 green: directory params |
 | 28.09.2026 01:59 | integration (частично: tests/integration/reservation-directory-filters.test.ts) | ✅ 1 из 1 | 6 с | e69e158 +3 | [лог](logs/2026-09-27T20-59-35Z-integration-6abe.log) | R2 green: server-side filters on PostgreSQL |
+| 28.09.2026 02:05 | unit (частично: apps/web/src/app/reservations/filters.test.ts) | ❌ код выхода 1 | 1 с | 515da92 +2 | [лог](logs/2026-09-27T21-05-10Z-unit-d26e.log) | R2 red: URL filters module before implementation |
+| 28.09.2026 02:05 | unit (частично: apps/web/src/app/reservations/filters.test.ts) | ✅ 7 из 7 | 2 с | 515da92 +3 | [лог](logs/2026-09-27T21-05-30Z-unit-b079.log) | R2 green: URL filters module |
+| 28.09.2026 02:06 | unit (частично: apps/web/src/app/reservations/filters.test.ts) | ❌ упало 1 из 8 | 2 с | 515da92 +3 | [лог](logs/2026-09-27T21-06-25Z-unit-84f4.log) | R2 red: legacy ?date=day link |
+| 28.09.2026 02:06 | unit (частично: apps/web/src/app/reservations/filters.test.ts) | ✅ 8 из 8 | 2 с | 515da92 +3 | [лог](logs/2026-09-27T21-06-46Z-unit-9bbc.log) | R2 green: legacy ?date=day link, cleanHref |
+| 28.09.2026 02:10 | e2e (частично: tests/ui/reservations-v2-r2.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 7 | 57 с | 515da92 +7 | [лог](logs/2026-09-27T21-10-11Z-e2e-2d05.log) | R2 UI first run |
+| 28.09.2026 02:11 | e2e (частично: tests/ui/reservations-v2-r2.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 7 из 7 | 46 с | 515da92 +7 | [лог](logs/2026-09-27T21-11-51Z-e2e-7caa.log) | R2 UI second run |
+| 28.09.2026 02:13 | unit (частично: apps/web/src/app/reservations/filters.test.ts) | ❌ упало 2 из 8 | 2 с | 515da92 +6 | [лог](logs/2026-09-27T21-13-04Z-unit-54b1.log) | R2 red: clean URL without q= and status=ALL |
+| 28.09.2026 02:13 | unit (частично: apps/web/src/app/reservations/filters.test.ts) | ✅ 8 из 8 | 2 с | 515da92 +6 | [лог](logs/2026-09-27T21-13-15Z-unit-a552.log) | R2 green: clean URL without q= and status=ALL |
+| 28.09.2026 02:13 | typecheck | ✅ без ошибок | 27 с | 515da92 +7 | [лог](logs/2026-09-27T21-13-31Z-typecheck-9b19.log) | R2 |
+| 28.09.2026 02:13 | lint | ✅ без ошибок | 20 с | 515da92 +7 | [лог](logs/2026-09-27T21-13-58Z-lint-357f.log) | R2 |
+| 28.09.2026 02:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 413 | 31 мин 37 с | 515da92 +7 | [лог](logs/2026-09-27T21-13-26Z-e2e-11de.log) | R2: full UI suite |
+| 28.09.2026 02:45 | unit | ✅ 2130 из 2133, пропущено 3 | 1 мин 12 с | 515da92 +6 | [лог](logs/2026-09-27T21-45-09Z-unit-ab07.log) | R2 |
+| 28.09.2026 02:46 | integration | ✅ 108 из 108 | 35 с | 515da92 +1 | [лог](logs/2026-09-27T21-46-25Z-integration-6d22.log) | R2 |
+| 28.09.2026 02:47 | e2e | ✅ 25 из 25 | 58 с | 515da92 +7 | [лог](logs/2026-09-27T21-47-19Z-e2e-b79b.log) | R2 live e2e on local PostgreSQL |

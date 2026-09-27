@@ -1,0 +1,16 @@
+# Модульные (unit) · 28.09.2026 02:13 Алматы · vm
+# коммит 515da92 (claude/ecstatic-galileo-dm8omt), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T21-13-15Z-unit-a552.json' 'apps/web/src/app/reservations/filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/reservations/filters.test.ts (8 tests) 8ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  21:13:15
+   Duration  781ms (transform 85%, import 13%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T21-13-15Z-unit-a552.json
+
+# код выхода 0 · 2 с

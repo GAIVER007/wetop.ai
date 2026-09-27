@@ -2897,3 +2897,6 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 28.09.2026 01:53 | typecheck | ✅ без ошибок | 27 с | 6ffa358 | [лог](logs/2026-09-27T20-53-30Z-typecheck-950a.log) |  |
+| 28.09.2026 01:53 | lint | ✅ без ошибок | 18 с | 6ffa358 | [лог](logs/2026-09-27T20-53-57Z-lint-8e8c.log) |  |
+| 28.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/availability-gate.spec.ts tests/ui/empty-base.spec.ts --workers=1 | ✅ 25 из 25 | 2 мин 12 с | 6ffa358 | [лог](logs/2026-09-27T20-54-22Z-e2e-2b7d.log) | AV1 после слияния main (ADR-107): свободные места + пустая база |

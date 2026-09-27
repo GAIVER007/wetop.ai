@@ -3017,3 +3017,9 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 27.09.2026 23:35 | typecheck | ✅ без ошибок | 34 с | 5ec4fac | [лог](logs/2026-09-27T18-35-08Z-typecheck-5bb2.log) | дерево 5ec4fac5: роли ADR-107 + main (Брони v2 R1) |
+| 27.09.2026 23:35 | lint | ✅ без ошибок | 18 с | 5ec4fac | [лог](logs/2026-09-27T18-35-42Z-lint-7e6a.log) | дерево 5ec4fac5 |
+| 27.09.2026 23:36 | unit | ✅ 2201 из 2204, пропущено 3 | 1 мин 12 с | 5ec4fac | [лог](logs/2026-09-27T18-36-01Z-unit-4982.log) | дерево 5ec4fac5 |
+| 27.09.2026 23:37 | integration | ✅ 113 из 113 | 35 с | 5ec4fac | [лог](logs/2026-09-27T18-37-24Z-integration-909d.log) | дерево 5ec4fac5 |
+| 27.09.2026 23:37 | e2e | ✅ 25 из 25 | 1 мин 9 с | 5ec4fac | [лог](logs/2026-09-27T18-37-59Z-e2e-e739.log) | дерево 5ec4fac5 |
+| 27.09.2026 23:39 | e2e | ✅ 26 из 26 | 1 мин 13 с | 5ec4fac | [лог](logs/2026-09-27T18-39-09Z-e2e-f087.log) | дерево 5ec4fac5, со входом |

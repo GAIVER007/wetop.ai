@@ -2867,3 +2867,5 @@
 | 27.09.2026 21:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 14 из 14 | 1 мин 7 с | 74d8b1c +26 | [лог](logs/2026-09-27T16-31-14Z-e2e-e169.log) |  |
 | 27.09.2026 21:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/requests.spec.ts tests/ui/empty-base.spec.ts tests/ui/manager-actions. | ❌ упало 1 из 123 | 8 мин 42 с | 74d8b1c +26 | [лог](logs/2026-09-27T16-32-58Z-e2e-6f62.log) | шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор |
 | 27.09.2026 21:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 408 | 33 мин 37 с | 527c8ae +1 | [лог](logs/2026-09-27T16-41-59Z-e2e-36a4.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 22:17 | typecheck | ✅ без ошибок | 33 с | ca237a8 | [лог](logs/2026-09-27T17-17-01Z-typecheck-8ad9.log) |  |
+| 27.09.2026 22:17 | lint | ✅ без ошибок | 17 с | ca237a8 | [лог](logs/2026-09-27T17-17-34Z-lint-2ad9.log) |  |

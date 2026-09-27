@@ -63,7 +63,7 @@ export default async function ConnectionsPage() {
             ) : (
               <Alert>Не удалось проверить webhook.</Alert>
             )}
-            <Link className="btn btn--secondary" href="/channels">
+            <Link className="btn btn--secondary" href="/channels/connections">
               Настроить Channex
             </Link>
             <p className="note" data-testid="channel-content-location">

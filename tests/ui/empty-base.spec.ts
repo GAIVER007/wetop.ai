@@ -32,7 +32,7 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/connections', title: /Интеграции/ },
   { route: '/analytics', title: /Аналитика/ },
   { route: '/hotel-settings', title: /Объект|Настройки|гостиниц/i },
-  { route: '/channel-manager', title: /Менеджер каналов|Каналы/ },
+  { route: '/channels/mapping', title: /Сопоставление/ },
 ];
 
 for (const screen of SCREENS) {

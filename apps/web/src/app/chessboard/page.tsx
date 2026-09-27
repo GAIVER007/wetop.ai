@@ -209,7 +209,7 @@ export default async function ChessboardPage({
         <Alert boxed tone="warning" data-testid="review-callout">
           Входящая бронь требует разбора:{' '}
           {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} Channex не разобрана
-          автоматически. <Link href="/channels">Разобрать</Link>
+          автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
         </Alert>
       )}
       {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}

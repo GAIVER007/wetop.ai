@@ -15,7 +15,6 @@ const routes = [
   '/rooms/categories',
   '/rooms/availability',
   '/rates',
-  '/channel-manager',
   '/channels',
   '/analytics',
   '/finance',

@@ -34,7 +34,12 @@ export function Sidebar({
   desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
-  const active = route?.startsWith('/hotel-settings') ? '/hotel-settings' : route;
+  // Вкладки модулей — не пункты меню: активен их корень («Гостиница», «Каналы продаж», ADR-106)
+  const active = route?.startsWith('/hotel-settings')
+    ? '/hotel-settings'
+    : route?.startsWith('/channels')
+      ? '/channels'
+      : route;
   const activeSection = sidebarSections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;

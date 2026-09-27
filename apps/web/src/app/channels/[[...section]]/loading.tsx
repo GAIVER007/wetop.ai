@@ -1,12 +1,12 @@
-import { Page } from '../../components/page';
-import { LoadingState, Skeleton } from '../../components/ui';
+import { Page } from '../../../components/page';
+import { LoadingState, Skeleton } from '../../../components/ui';
 
-/** Ожидание «Каналов» (D4): заголовок сразу, под ним плитки очереди и строки таблиц. */
+/** Ожидание «Каналов продаж» (D4): заголовок сразу, под ним плитки состояния и строки таблиц. */
 export default function Loading() {
   return (
-    <Page title="Каналы продаж — Channex">
+    <Page title="Каналы продаж">
       <LoadingState
-        label="Загружаем очередь, webhook и события Channex…"
+        label="Загружаем состояние обмена с каналами…"
         data-testid="channels-loading"
       >
         <div className="stats">

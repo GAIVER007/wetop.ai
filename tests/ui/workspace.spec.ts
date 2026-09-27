@@ -95,21 +95,23 @@ test('все разделы, карточки и печать открывают
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/today');
   const sidebar = page.locator('.workspace-sidebar');
-  const rooms = sidebar.getByRole('button', { name: 'Номерной фонд', exact: true });
-  await expect(rooms).toHaveAttribute('aria-expanded', 'false');
+  const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
+  await expect(sales).toHaveAttribute('aria-expanded', 'false');
   // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
   await expect(async () => {
-    await rooms.click();
-    await expect(rooms).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
+    await sales.click();
+    await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
   }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Категории номеров', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'Тарифы', exact: true }).click();
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы');
+  await sales.click();
+  await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).not.toBeVisible();
+  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-106); вкладки страницы подсвечивают его пункт
+  await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Категории номеров');
-  await rooms.click();
-  await expect(
-    sidebar.getByRole('link', { name: 'Категории номеров', exact: true }),
-  ).not.toBeVisible();
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
   await page.goto('/analytics/setup');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт');

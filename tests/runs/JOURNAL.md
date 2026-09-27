@@ -2901,3 +2901,6 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 27.09.2026 23:06 | typecheck | ✅ без ошибок | 33 с | c0555e4 | [лог](logs/2026-09-27T18-06-04Z-typecheck-a239.log) |  |
+| 27.09.2026 23:06 | lint | ✅ без ошибок | 18 с | c0555e4 | [лог](logs/2026-09-27T18-06-38Z-lint-362d.log) |  |
+| 27.09.2026 23:07 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 13 с | c0555e4 | [лог](logs/2026-09-27T18-07-04Z-unit-cd8b.log) |  |

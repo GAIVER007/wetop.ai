@@ -181,7 +181,10 @@ export class ReservationDirectory {
               }
             : null,
           unitCodes: r.items.flatMap((it) => it.allocations.map((a) => a.inventoryUnit.code)),
+          itemsCount: r.items.length,
+          chargedMinor: balance.chargedMinor.toString(),
           paidMinor: balance.paidMinor.toString(),
+          refundedMinor: balance.refundedMinor.toString(),
           balanceMinor: balance.balanceMinor.toString(),
           hasFolios: folios.length > 0,
         };

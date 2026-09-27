@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assistantScriptSrc, loginLink, registerLink } from './site';
+import { appPath, assistantScriptSrc, loginLink, registerLink, resetLink, siteAuthEndpoint } from './site';
 import type { SiteConfig } from '../site.config';
 
 const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
@@ -74,5 +74,33 @@ describe('assistantScriptSrc', () => {
     expect(() => assistantScriptSrc(config({ assistantUrl: 'assistant.wetop.ai' }))).toThrow(
       /assistantUrl/,
     );
+  });
+});
+
+/**
+ * Окно входа и регистрации на главной (ADR-100): запрос уходит на стойку, после входа — переход в стойку по пути,
+ * который назвала стойка. Чужой адрес в `next` не открывает переход на другой сайт.
+ */
+describe('окно входа: адреса стойки', () => {
+  it('запросы окна — на /api/site-auth стойки', () => {
+    expect(siteAuthEndpoint('login', config())).toBe('https://app.wetop.ai/api/site-auth/login');
+    expect(siteAuthEndpoint('options', config({ appUrl: 'https://app.wetop.ai/' }))).toBe(
+      'https://app.wetop.ai/api/site-auth/options',
+    );
+  });
+
+  it('«Забыли пароль?» — экран сброса стойки', () => {
+    expect(resetLink(config()).href).toBe('https://app.wetop.ai/login/reset');
+  });
+
+  it('после входа — путь от стойки внутри стойки', () => {
+    expect(appPath('/today', config())).toBe('https://app.wetop.ai/today');
+    expect(appPath('/onboarding', config())).toBe('https://app.wetop.ai/onboarding');
+  });
+
+  it('чужой адрес или мусор — на Главную стойки, а не на другой сайт', () => {
+    expect(appPath('https://evil.example/today', config())).toBe('https://app.wetop.ai/today');
+    expect(appPath('//evil.example', config())).toBe('https://app.wetop.ai/today');
+    expect(appPath(undefined, config())).toBe('https://app.wetop.ai/today');
   });
 });

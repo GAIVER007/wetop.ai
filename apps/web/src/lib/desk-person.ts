@@ -1,5 +1,6 @@
 import { MEMBERSHIP_ROLES, daysLeft, parseMembershipRole } from '@pms/domain';
 import { CLOSED_ACCESS, UNKNOWN_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
+import { tourKeyOf } from '../components/shell/tour-steps';
 
 /** Кто на смене — подпись в меню вместо «Администратор» (ADR-083): имя, роль и буквы для кружка */
 export interface DeskPerson {
@@ -14,9 +15,11 @@ export interface DeskShell {
   person: DeskPerson | null;
   /** «Пробный период: ещё N дн.» — только у организации на пробном сроке (ТЗ ux-retention п. 2.7) */
   trial: string | null;
+  /** Ключ отметки «обучение пройдено» в браузере (ADR-100); вошедшего нет — обучения нет */
+  tourKey: string | null;
 }
 
-export const CLOSED_SHELL: DeskShell = { access: CLOSED_ACCESS, person: null, trial: null };
+export const CLOSED_SHELL: DeskShell = { access: CLOSED_ACCESS, person: null, trial: null, tourKey: null };
 
 interface TrialOrganization {
   status: string;
@@ -38,7 +41,12 @@ export function trialLine(org: TrialOrganization | null | undefined, now: Date):
  * как у него (ADR-101). Роль `null` («не прятать») — только когда API ответил, что никто не вошёл. Страницы по адресу
  * при этом не закрываются (`pageOpen`): роль неизвестна, решает API.
  */
-export const UNKNOWN_SHELL: DeskShell = { access: UNKNOWN_ACCESS, person: null, trial: null };
+export const UNKNOWN_SHELL: DeskShell = {
+  access: UNKNOWN_ACCESS,
+  person: null,
+  trial: null,
+  tourKey: null,
+};
 
 type MeLike = Parameters<typeof deskAccessOf>[0] & {
   user: {
@@ -74,5 +82,6 @@ export function deskShellOf(me: MeLike | null): DeskShell {
     access: deskAccessOf(me),
     person: deskPerson(me.user),
     trial: trialLine(me.user.organization, new Date()),
+    tourKey: tourKeyOf(me.user.email),
   };
 }

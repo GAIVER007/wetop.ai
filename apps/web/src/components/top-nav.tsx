@@ -11,6 +11,8 @@ import { cx } from './ui';
 import { CLOSED_ACCESS, activeNavigation, allowedItem, sidebarSections } from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
+import { ProductTour } from './shell/product-tour';
+import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 export function TopNav({
   children,
   demo = false,
@@ -93,6 +95,7 @@ export function TopNav({
             </button>
             <button
               className="workspace-search"
+              data-tour="search"
               aria-label="Найти гостя или бронь"
               onClick={() => setSearch(true)}
             >
@@ -126,6 +129,7 @@ export function TopNav({
               <div className="profile-menu">
                 <button
                   className="profile-trigger"
+                  data-tour="profile"
                   aria-label="Меню администратора"
                   aria-expanded={profile}
                   aria-controls="profile-dropdown"
@@ -166,6 +170,16 @@ export function TopNav({
                       >
                         <Icon name="system" />
                         Тема устройства
+                      </button>
+                      <button
+                        data-testid="tour-restart"
+                        onClick={() => {
+                          setProfile(false);
+                          window.dispatchEvent(new Event(TOUR_RESTART_EVENT));
+                        }}
+                      >
+                        <Icon name="help" />
+                        Обучение: как устроена стойка
                       </button>
                       {account ?? (
                         <Link href="/login">
@@ -213,6 +227,10 @@ export function TopNav({
         </Overlay>
         <Suspense fallback={<GlobalSearch open={search} close={() => setSearch(false)} />}>
           <GrantedSearch desk={desk} open={search} close={() => setSearch(false)} />
+        </Suspense>
+        {/* Обучение (ADR-100): само — один раз на Главной, повтор — из меню профиля */}
+        <Suspense fallback={null}>
+          <ProductTour desk={desk} path={path} />
         </Suspense>
       </div>
     </DataFreshnessProvider>

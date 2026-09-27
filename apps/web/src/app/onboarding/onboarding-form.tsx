@@ -2,7 +2,7 @@
 import { useState, useTransition } from 'react';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
-import { provisionHotel } from './actions';
+import { postponeOnboarding, provisionHotel } from './actions';
 import type { OnboardingCategoryInput } from '../../lib/api';
 import './onboarding.css';
 
@@ -69,9 +69,16 @@ export function OnboardingForm({ hotelName, currency }: { hotelName: string; cur
   return (
     <main className="onboarding" id="main-content">
       <header className="onboarding__head">
+        {/* Путь нового аккаунта (ADR-100): почта подтверждена → номера и цены → знакомство со стойкой */}
+        <ol className="onboarding__steps" aria-label="Путь до работы">
+          <li className="is-done">Почта подтверждена</li>
+          <li aria-current="step">Номера и цены</li>
+          <li>Знакомство со стойкой</li>
+        </ol>
         <h1>Настройте отель</h1>
         <p>
           Заведите номера и цены — и можно принимать гостей. Всё это потом меняется в настройках.
+          Нет времени сейчас — нажмите «Заполнить позже»: стойка откроется, а Главная напомнит об этом шаге.
         </p>
       </header>
 
@@ -163,6 +170,11 @@ export function OnboardingForm({ hotelName, currency }: { hotelName: string; cur
       {error && <Alert boxed>{error}</Alert>}
 
       <div className="onboarding__actions">
+        <form action={postponeOnboarding}>
+          <Button tone="ghost" type="submit" disabled={pending} data-testid="onboarding-later">
+            Заполнить позже
+          </Button>
+        </form>
         <Button onClick={submit} disabled={pending} aria-busy={pending}>
           {pending ? 'Запускаем…' : 'Запустить отель'}
           <Icon name="arrow" width={16} />

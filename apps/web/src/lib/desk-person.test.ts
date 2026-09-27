@@ -100,4 +100,11 @@ describe('строка пробного периода в меню', () => {
     expect(shell.trial).toMatch(/^Пробный период: ещё \d+ дн\.$/);
     expect(CLOSED_SHELL.trial).toBeNull();
   });
+
+  it('обучение (ADR-100): ключ отметки — у вошедшего, без почты в ключе; без вошедшего — нет', () => {
+    const shell = deskShellOf({ user: { email: 'dana@example.invalid', name: null } });
+    expect(shell.tourKey).toMatch(/^wetop\.tour\.v1:/);
+    expect(shell.tourKey).not.toContain('dana');
+    expect(CLOSED_SHELL.tourKey).toBeNull();
+  });
 });

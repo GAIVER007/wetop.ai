@@ -1,19 +1,10 @@
 import Link from 'next/link';
-import type { Permission } from '@pms/domain';
 import { ApiError } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { hotelApi } from '../../lib/hotel-api';
 import { mayAccess } from '../../lib/navigation';
 import { Badge, Panel } from '../../components/ui';
-
-type Step = {
-  title: string;
-  state: 'done' | 'next' | 'optional';
-  hint: string;
-  action?: { href: string; label: string };
-  /** Шаг — тому, у кого есть право (ADR-101): администратору приглашать сотрудников нельзя */
-  requires?: Permission;
-};
+import { firstStepsFor, type Step } from './first-steps-list';
 
 /** Слово состояния шага — как у шагов ИИ-продавца (DESIGN.md §8) */
 const STATE: Record<Step['state'], { label: string; tone: 'ok' | 'info' | 'neutral' }> = {
@@ -22,43 +13,29 @@ const STATE: Record<Step['state'], { label: string; tone: 'ok' | 'info' | 'neutr
   optional: { label: 'по желанию', tone: 'neutral' },
 };
 
-const STEPS: Step[] = [
-  { title: 'Отель запущен', state: 'done', hint: 'Номера, цены и шахматка готовы.' },
-  {
-    title: 'Создайте первую бронь',
-    state: 'next',
-    hint: 'Даты, категория и имя гостя — остальное можно дописать потом.',
-    action: { href: '/reservations/new', label: 'Создать первую бронь' },
-  },
-  {
-    title: 'Заселите гостя и примите оплату',
-    state: 'optional',
-    hint: 'Кнопки «Заселить» и «Принять оплату» — в карточке брони.',
-  },
-  {
-    title: 'Пригласите сотрудников',
-    state: 'optional',
-    hint: 'Каждый получит свою почту для входа и задаст пароль сам.',
-    action: { href: '/login', label: 'Пригласить' },
-    requires: 'staff',
-  },
-];
-
 /**
  * «Первые шаги» (ТЗ `plans/ux-retention-2026-09-26.md` п. 2.1, DESIGN.md §8): пока в объекте нет ни одной брони,
  * Главная ведёт к первой. Панель уходит сама после первой брони; сбой запроса — панели нет, Главная не ломается
  * из-за подсказки.
  */
 export async function FirstSteps() {
-  const [state, desk] = await Promise.all([
+  const [state, settings, desk] = await Promise.all([
     hotelApi.firstSteps().catch((error: unknown) => {
+      if (error instanceof ApiError) return null;
+      throw error;
+    }),
+    // те же настройки, что у шапки и гейта (кэш на рендер) — отдельного рейса нет
+    hotelApi.settings().catch((error: unknown) => {
       if (error instanceof ApiError) return null;
       throw error;
     }),
     deskShell(),
   ]);
   if (!state || state.hasReservations) return null;
-  const steps = STEPS.filter((step) => !step.requires || mayAccess(desk.access, step.requires));
+  // шаг — тому, у кого есть право (ADR-101): администратор отеля не настраивает и сотрудников не зовёт
+  const steps = firstStepsFor(settings?.needsOnboarding === true).filter(
+    (step) => !step.requires || mayAccess(desk.access, step.requires),
+  );
   return (
     <Panel className="first-steps" data-testid="first-steps" aria-labelledby="first-steps-title">
       <h2 id="first-steps-title" className="first-steps__title">

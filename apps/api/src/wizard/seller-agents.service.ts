@@ -13,7 +13,12 @@ import {
 } from '@nestjs/common';
 import { wizardConfig } from './wizard-input';
 import { PrismaService } from '../database/prisma.provider';
-import { currentUserId, currentOrganizationId, currentRole } from '../auth/request-context';
+import {
+  currentUserId,
+  currentOrganizationId,
+  currentRole,
+  withServiceDatabase,
+} from '../auth/request-context';
 
 @Injectable()
 export class SellerAgentsService {
@@ -160,7 +165,9 @@ export class SellerAgentsService {
     if (!token || !/^wz_[a-f0-9]{64}$/.test(token))
       throw new UnauthorizedException('Черновик не найден');
     const tokenHash = createHash('sha256').update(token).digest('hex');
-    return this.prisma.db.$transaction(async (tx) => {
+    // Черновик мастера до присвоения — ничей (organization_id NULL): под ролью организации (RLS, DATA_MODEL §17) его не
+    // видно. Право на него доказывает токен мастера, поэтому присвоение идёт служебной ролью базы
+    return withServiceDatabase(() => this.prisma.db.$transaction(async (tx) => {
       // All claims of this bearer serialize; config writes also lock this row.
       const sessions = await tx.$queryRaw<
         Array<{ id: string }>
@@ -208,6 +215,7 @@ export class SellerAgentsService {
       await tx.auditLog.create({
         data: {
           userId,
+          organizationId,
           entityType: 'seller-agent',
           entityId: agent.id,
           action: 'agent.created',
@@ -215,6 +223,6 @@ export class SellerAgentsService {
         },
       });
       return { id: agent.id };
-    });
+    }));
   }
 }

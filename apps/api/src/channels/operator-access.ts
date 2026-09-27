@@ -16,6 +16,7 @@ import {
   actorIsPlatformAdmin,
   currentOrganizationId,
   hasSignedInActor,
+  withServiceDatabase,
   withSignedInUser,
 } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
@@ -66,7 +67,9 @@ export class ChannelOperatorInterceptor implements NestInterceptor {
     ]);
     if (isPublic || !hasSignedInActor()) return next.handle();
 
-    const operator = await channelOperatorOrganizationId(this.prisma.db);
+    // Кто оператор — вопрос про всю установку, а не про организацию вошедшего: под ролью организации (RLS,
+    // DATA_MODEL §17) чужих сопоставлений не видно, и ответ был бы «оператор неизвестен» или «ты сам»
+    const operator = await withServiceDatabase(() => channelOperatorOrganizationId(this.prisma.db));
     if (operator !== null && currentOrganizationId() === operator) return next.handle();
     if (actorIsPlatformAdmin()) {
       return from(

@@ -100,3 +100,25 @@ describe('строка пробного периода в меню', () => {
     expect(CLOSED_SHELL.tourKey).toBeNull();
   });
 });
+
+/** «Только чтение» после пробного периода (Q-144 — Б, ADR-102): стойка показывает полосу, вход не закрыт */
+describe('deskShellOf — только чтение', () => {
+  const who = (organization: { status: string; trialEndsAt: string | null } | null) => ({
+    user: { email: 'dana@example.invalid', name: null, organization },
+  });
+
+  it('пробный срок вышел — полоса есть', () => {
+    expect(deskShellOf(who({ status: 'TRIAL', trialEndsAt: '2020-01-01T00:00:00Z' })).readOnly).toBe(true);
+  });
+
+  it('переведена в «только чтение» руками — полоса есть', () => {
+    expect(deskShellOf(who({ status: 'READ_ONLY', trialEndsAt: null })).readOnly).toBe(true);
+  });
+
+  it('в срок, после оплаты и без организации в ответе — полосы нет', () => {
+    expect(deskShellOf(who({ status: 'TRIAL', trialEndsAt: '2099-01-01T00:00:00Z' })).readOnly).toBe(false);
+    expect(deskShellOf(who({ status: 'ACTIVE', trialEndsAt: null })).readOnly).toBe(false);
+    expect(deskShellOf(who(null)).readOnly).toBe(false);
+    expect(CLOSED_SHELL.readOnly).toBe(false);
+  });
+});

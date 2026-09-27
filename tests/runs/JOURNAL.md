@@ -2876,3 +2876,4 @@
 | 27.09.2026 21:30 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ❌ упало 1 из 1 | 23 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-30-32Z-e2e-eb5b.log) | C1 категории: снимки §48 |
 | 27.09.2026 21:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 11 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-31-45Z-e2e-8992.log) | C1 категории: снимки §48 |
 | 27.09.2026 21:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 12 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-34-40Z-e2e-53e7.log) | C1 категории: снимки §48, без dev-оверлея |
+| 27.09.2026 21:35 | e2e (частично: --config tests/ui/playwright.config.ts) | ❌ упало 33 из 402 | 24 мин 35 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-35-16Z-e2e-094f.log) | C1 категории: полный UI-набор |

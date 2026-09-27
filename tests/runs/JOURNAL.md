@@ -2902,3 +2902,4 @@
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
 | 28.09.2026 01:52 | typecheck | ✅ без ошибок | 21 с | 544ef58 | [лог](logs/2026-09-27T20-52-06Z-typecheck-6577.log) |  |
 | 28.09.2026 01:52 | lint | ✅ без ошибок | 16 с | 544ef58 | [лог](logs/2026-09-27T20-52-27Z-lint-bf73.log) |  |
+| 28.09.2026 01:52 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 12 с | 544ef58 | [лог](logs/2026-09-27T20-52-44Z-unit-cd05.log) |  |

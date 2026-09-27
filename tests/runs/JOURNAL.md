@@ -2863,3 +2863,13 @@
 | 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
 | 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
 | 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |
+| 27.09.2026 21:21 | typecheck | ✅ без ошибок | 26 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-21-34Z-typecheck-ff87.log) |  |
+| 27.09.2026 21:22 | lint | ✅ без ошибок | 14 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-22-08Z-lint-e84b.log) |  |
+| 27.09.2026 21:22 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 32 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-22-29Z-unit-47e1.log) |  |
+| 27.09.2026 21:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts) | ✅ 5 из 5 | 20 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-25-05Z-e2e-f009.log) | RT1: первый прогон переписанного спека тарифов |
+| 27.09.2026 21:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/empty-base.spec.ts tests/ui/quality.spec.ts) | ❌ упало 4 из 43 | 1 мин 36 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-25-40Z-e2e-ae10.log) | RT1: задетые спеки после переделки тарифов |
+| 27.09.2026 21:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts) | ✅ 10 из 10 | 48 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-28-07Z-e2e-ca93.log) | RT1: перепроверка трёх красных channex-screens отдельно |
+| 27.09.2026 21:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/quality.spec.ts tests/ui/empty-base.spec.ts tests/ui/workspace.spec.ts) | ❌ упало 1 из 95 | 3 мин 31 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-29-09Z-e2e-7f2a.log) | RT1: quality после правки, empty-base, workspace |
+| 27.09.2026 21:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/quality.spec.ts tests/ui/empty-base.spec.ts tests/ui/workspace.spec.ts tests/ui/channex-screens.s | ✅ 105 из 105 | 4 мин 35 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-33-24Z-e2e-e281.log) | RT1: задетые спеки одним потоком |
+| 27.09.2026 21:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 6 мин 18 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-38-25Z-e2e-b4b8.log) | RT1 тарифы: полный UI-набор одним потоком |
+| 27.09.2026 21:45 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-45-46Z-unit-94b3.log) |  |

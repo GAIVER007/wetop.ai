@@ -2,15 +2,13 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import Link from 'next/link';
 import { ratesApi, channelsApi } from '../../lib/api';
 import { hotelClock } from '../../lib/hotel-api';
-import { displayDate } from '../../lib/display-date';
-import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
-import { Icon } from '../../components/icon';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { Alert, Button, EmptyState, Field, Input, Select, Table, cx } from '../../components/ui';
-import { BulkEditor } from './bulk-editor';
-import { PriceCell } from './price-cell';
+import { Alert, EmptyState } from '../../components/ui';
+import { RatesFilters } from './filters';
+import { RatesEditDrawer } from './edit-drawer';
+import { MonthGrid } from './month-grid';
 import './rates.css';
 
 const monthRange = (ym: string) => {
@@ -18,15 +16,11 @@ const monthRange = (ym: string) => {
   const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
   return { from: `${ym}-01`, to: `${ym}-${String(last).padStart(2, '0')}` };
 };
-const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 const monthTitle = new Intl.DateTimeFormat('ru-RU', {
   timeZone: 'UTC',
   month: 'long',
   year: 'numeric',
 });
-const nights = (n: number) => pluralRu(n, ['ночь', 'ночи', 'ночей']);
-/** Родительный падеж после «до»: до 1 ночи, до 5 ночей, до 21 ночи */
-const maxNights = (n: number) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'ночи' : 'ночей'}`;
 
 /** Ответ API как есть или причина отказа: экран остаётся, вместо данных — сбой со следующим шагом (D4) */
 const settle = <T,>(p: Promise<T>) =>
@@ -36,15 +30,18 @@ const settle = <T,>(p: Promise<T>) =>
   );
 
 /**
- * Календарь цен и ограничений по категории × тарифу за месяц; массовое изменение справа.
- * Цена правится в ячейке (срез 7.2), ограничения — только массовым изменением (развилка 7.2-1).
- * D4 (план владельца 19.09): отказ справочников или календаря не уносит экран — заголовок, форма и
- * массовое изменение остаются, вместо таблицы сбой с «Повторить загрузку»; пустой справочник назван
- * пустым состоянием с причиной; месяц листается только кнопками-значками (дубли ссылок сняты).
+ * «Тарифы и цены» (ТЗ v2 27.09.2026, ADR-106, RT1): сетка месяца по категории × тарифу, правка —
+ * прежними путями (цена в ячейке — срез 7.2; массовое изменение — та же форма в выдвижной панели за
+ * кнопкой «Изменить цены»). Фильтры перезагружают данные сами, кнопки «Показать» нет.
+ * D4 (план владельца 19.09): отказ справочников или календаря не уносит экран — заголовок, фильтры и
+ * правка остаются, вместо сетки сбой с «Повторить загрузку»; пустой справочник назван пустым
+ * состоянием с причиной; месяц листается кнопками-значками.
  */
 export default async function RatesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const q = normalizeSearchParams(await searchParams);
-  const month = q.month ?? (await hotelClock()).month();
+  const clock = await hotelClock();
+  const month = q.month ?? clock.month();
+  const today = clock.today();
   const validMonth =
     /^\d{4}-(0[1-9]|1[0-2])$/.test(month) &&
     Number(month.slice(0, 4)) >= 1000 &&
@@ -56,7 +53,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
   if (!loadedOptions.ok) {
     // Без справочника категорий и тарифов заполнять нечего: заголовок и месяц на месте, дальше — повтор
     return (
-      <Page width="wide" title="Цены и ограничения" subtitle={monthLabel || undefined}>
+      <Page width="wide" title="Тарифы и цены" subtitle={monthLabel || undefined}>
         <LoadError testId="rates-error" {...loadErrorProps(loadedOptions.e)} />
       </Page>
     );
@@ -109,21 +106,31 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
       : null;
   const cal = loadedCal?.ok ? loadedCal.r : null;
   const calError: unknown = loadedCal && !loadedCal.ok ? loadedCal.e : null;
-  const shift = (n: number) => {
-    const [y, m] = month.split('-').map(Number) as [number, number];
-    const d = new Date(Date.UTC(y, m - 1 + n, 1)).toISOString().slice(0, 7);
-    return `/rates?category=${category}&ratePlan=${ratePlan}&month=${d}`;
-  };
   const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
   const planName = options.ratePlans.find((p) => p.code === ratePlan)?.name ?? ratePlan;
   return (
     <Page
       width="wide"
-      title="Цены и ограничения"
+      title="Тарифы и цены"
       subtitle={
         !error && !noDirectory && validMonth
           ? `${categoryName}, ${planName}, ${monthLabel}`
-          : undefined
+          : 'Управление ценами и ограничениями продаж'
+      }
+      actions={
+        !noDirectory && !error ? (
+          <RatesEditDrawer
+            channels={channelHints}
+            categories={options.categories}
+            ratePlans={options.ratePlans}
+            defaults={{
+              accommodationTypeCode: category,
+              ratePlanCode: ratePlan,
+              dateFrom: from,
+              dateTo: to,
+            }}
+          />
+        ) : undefined
       }
     >
       {noDirectory ? (
@@ -142,151 +149,37 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
         </EmptyState>
       ) : (
         <>
-          <form method="get" className="row row--end row--lg toolbar">
-            <Field label="Категория">
-              <Select name="category" defaultValue={category}>
-                {options.categories.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Тариф">
-              <Select name="ratePlan" defaultValue={ratePlan}>
-                {options.ratePlans.map((p) => (
-                  <option key={p.code} value={p.code}>
-                    {p.name} ({p.currency}){p.active ? '' : ' — неактивен'}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            {validMonth && (
-              <Link href={shift(-1)} className="icon-button" aria-label="Предыдущий месяц">
-                <Icon name="chevron" className="rotate-left" />
-              </Link>
-            )}
-            <Field label="Месяц">
-              <Input type="month" name="month" defaultValue={month} />
-            </Field>
-            {validMonth && (
-              <Link href={shift(1)} className="icon-button" aria-label="Следующий месяц">
-                <Icon name="chevron" />
-              </Link>
-            )}
-            <Button type="submit" tone="secondary">
-              Показать
-            </Button>
-          </form>
+          <RatesFilters
+            key={`${category}|${ratePlan}|${month}`}
+            categories={options.categories}
+            ratePlans={options.ratePlans}
+            category={category}
+            ratePlan={ratePlan}
+            month={month}
+            validMonth={validMonth}
+          />
           {error && (
             <Alert boxed>
               {error} <Link href="/rates">Сбросить фильтры</Link>
             </Alert>
           )}
-          <div className="split">
-            <div className="tbl-wrap stack stack--sm">
-              {calError !== null && (
-                <LoadError testId="rates-error" {...loadErrorProps(calError)} />
-              )}
-              {cal && (
-                <Table size="sm" nowrap className="rates-table" data-testid="rates-table">
-                  <thead>
-                    <tr>
-                      {[
-                        'Дата',
-                        ...Array.from(
-                          { length: cal.capacityAdults },
-                          (_, i) => `Цена за ${pluralRu(i + 1, ['гостя', 'гостей', 'гостей'])}`,
-                        ),
-                        'Мин. ночей',
-                        'Ограничения',
-                      ].map((h) => (
-                        <th key={h}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cal.days.map((d) => {
-                      const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
-                      const weekend = wd === 0 || wd === 6;
-                      // Ограничения — одной колонкой словами: на обычный месяц их нет, и четыре
-                      // колонки прочерков только прятали последнюю за прокруткой (21.09).
-                      // «закрыто» — слово, которое ждёт запись сертификации Channex
-                      const restrictions = [
-                        d.stopSell ? 'закрыто (стоп-продажа)' : '',
-                        d.closedToArrival ? 'закрыт заезд' : '',
-                        d.closedToDeparture ? 'закрыт выезд' : '',
-                        d.maxStay != null ? `до ${maxNights(d.maxStay)}` : '',
-                      ].filter(Boolean);
-                      return (
-                        <tr
-                          key={d.date}
-                          data-testid={`rate-row-${d.date}`}
-                          className={cx(
-                            d.stopSell && 'is-stop',
-                            !d.stopSell && weekend && 'is-weekend',
-                          )}
-                        >
-                          <td className="nowrap">
-                            <time dateTime={d.date}>{displayDate(d.date)}</time>{' '}
-                            <span className="muted-2">{WD[wd]}</span>
-                          </td>
-                          {Array.from({ length: cal.capacityAdults }, (_, i) => {
-                            return (
-                              <td key={i} className="num" data-testid={`price-${d.date}-${i + 1}`}>
-                                <span className="rates-cell-word">
-                                  {pluralRu(i + 1, ['гость', 'гостя', 'гостей'])}
-                                </span>
-                                <PriceCell
-                                  date={d.date}
-                                  occupancy={i + 1}
-                                  minor={d.prices[String(i + 1)] ?? null}
-                                  currency={cal.currency}
-                                  accommodationTypeCode={category}
-                                  ratePlanCode={ratePlan}
-                                />
-                              </td>
-                            );
-                          })}
-                          <td>
-                            <span className="rates-cell-word">мин. </span>
-                            {d.minStay != null ? nights(d.minStay) : '—'}
-                          </td>
-                          <td
-                            className={cx(
-                              'rates-restrictions',
-                              !restrictions.length && 'rates-restrictions--none',
-                            )}
-                          >
-                            {restrictions.length ? restrictions.join(', ') : '—'}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </Table>
-              )}
-              {cal && !cal.days.length && (
-                <EmptyState data-testid="rates-empty" title="В этом месяце нет ни одной ночи">
-                  Календарь на {monthLabel} пуст: проверьте месяц или откройте соседний кнопками
-                  рядом с полем.
-                </EmptyState>
-              )}
-            </div>
-            {!error && (
-              <BulkEditor
-                channels={channelHints}
-                categories={options.categories}
-                ratePlans={options.ratePlans}
-                defaults={{
-                  accommodationTypeCode: category,
-                  ratePlanCode: ratePlan,
-                  dateFrom: from,
-                  dateTo: to,
-                }}
-              />
-            )}
-          </div>
+          {calError !== null && <LoadError testId="rates-error" {...loadErrorProps(calError)} />}
+          {cal && cal.days.length > 0 && (
+            <MonthGrid
+              days={cal.days}
+              currency={cal.currency}
+              capacityAdults={cal.capacityAdults}
+              category={category}
+              ratePlan={ratePlan}
+              today={today}
+            />
+          )}
+          {cal && !cal.days.length && (
+            <EmptyState data-testid="rates-empty" title="В этом месяце нет ни одной ночи">
+              Календарь на {monthLabel} пуст: проверьте месяц или откройте соседний кнопками рядом с
+              полем.
+            </EmptyState>
+          )}
         </>
       )}
     </Page>

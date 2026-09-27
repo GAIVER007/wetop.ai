@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { Button, Input, cx } from '../../components/ui';
+import { Tooltip } from '../../components/tooltip';
 import { formatMoney, minorToInput } from '../../lib/money';
 import { bulkRatesAction } from './actions';
 
@@ -64,21 +65,31 @@ export function PriceCell({
     });
   };
 
+  const trigger = (
+    <button
+      type="button"
+      className={cx('price-cell__value', !minor && 'price-cell__value--empty')}
+      data-testid="price-cell-edit"
+      aria-label={`Изменить цену на ${date}, гостей ${occupancy}`}
+      onClick={() => {
+        setValue(minor ? minorToInput(minor) : '');
+        setResult(null);
+        setOpen((v) => !v);
+      }}
+    >
+      {/* «Нет цены» вместо «—» (ТЗ v2 §21, ADR-106): прочерк читался как пустая клетка, а не как «продажи нет» */}
+      {minor ? formatMoney(minor, currency) : 'Нет цены'}
+    </button>
+  );
   return (
     <div className="price-cell">
-      <button
-        type="button"
-        className="price-cell__value"
-        data-testid="price-cell-edit"
-        aria-label={`Изменить цену на ${date}, гостей ${occupancy}`}
-        onClick={() => {
-          setValue(minor ? minorToInput(minor) : '');
-          setResult(null);
-          setOpen((v) => !v);
-        }}
-      >
-        {minor ? formatMoney(minor, currency) : '—'}
-      </button>
+      {minor ? (
+        trigger
+      ) : (
+        <Tooltip text="Цена не задана: бронь на эту ночь создать нельзя, и в каналы она не уходит">
+          {trigger}
+        </Tooltip>
+      )}
       {open && (
         <div className="price-editor" role="group" aria-label={`Цена на ${date}`}>
           <Input

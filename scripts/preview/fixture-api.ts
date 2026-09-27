@@ -2143,13 +2143,18 @@ function read(path: string, q: URLSearchParams): unknown {
         const stop = forDay.find((c) => c.stopSell !== undefined)?.stopSell;
         return {
           date,
-          prices: { '1': price(1, '8000'), '2': price(2, '10000') },
-          minStay: forDay.find((c) => c.minStay !== undefined)?.minStay ?? 1,
-          maxStay: null,
-          // Витрина: две закрытые ночи, как на макете «Rates» — слово «закрыто» и подсветка строки
+          // Витрина: ночь без цены (idx 20) — календарь называет её словами «Нет цены» (ТЗ v2 §21)
+          prices:
+            showcase && idx === 20 ? {} : { '1': price(1, '8000'), '2': price(2, '10000') },
+          minStay:
+            forDay.find((c) => c.minStay !== undefined)?.minStay ??
+            (showcase && idx >= 15 && idx <= 17 ? 2 : 1),
+          maxStay: showcase && idx === 18 ? 4 : null,
+          // Витрина: две закрытые ночи, как на макете «Rates» — слово «закрыто» и подсветка ячейки;
+          // с 27.09 (ADR-106) ещё CTA/CTD, «мин. 2» и «до 4 ночей» — для календаря месяца и снимков RT1
           stopSell: stop ?? (showcase && (idx === 5 || idx === 11)),
-          closedToArrival: false,
-          closedToDeparture: false,
+          closedToArrival: showcase && idx === 8,
+          closedToDeparture: showcase && idx === 9,
         };
       }),
     };

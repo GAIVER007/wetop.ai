@@ -1,25 +1,180 @@
 /*
- * Срез 7.2: цена правится прямо в ячейке календаря. Поле и кнопки всплывают над таблицей
- * (absolute), иначе строка таблицы прыгает на 40 px и колонка растягивается под кнопки.
+ * «Тарифы и цены» v2 (ТЗ 27.09.2026, ADR-106, RT1): сетка месяца вместо вертикального списка,
+ * массовое изменение — в выдвижной панели. Цена правится прямо в ячейке (срез 7.2): поле и кнопки
+ * всплывают над сеткой (absolute), иначе ячейка прыгает по высоте под кнопки.
  */
+
+/* ── шапка фильтров: категория, тариф, месяц; данные грузятся сами, кнопки «Показать» нет ── */
+.rates-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.rates-filters .field {
+  min-width: 0;
+  max-width: 100%;
+}
+.rates-filters select {
+  max-width: 100%;
+}
+.rates-month {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+.rates-month .icon-button {
+  margin-bottom: var(--space-1);
+}
+.rates-month__today {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  padding: 0 var(--space-2);
+  color: var(--primary);
+  text-decoration: none;
+}
+.rates-month__today:hover {
+  text-decoration: underline;
+}
+
+/* ── сетка месяца ── */
+.rate-cal {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.rate-cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--border);
+}
+.rate-cal__weekdays span {
+  padding: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-2);
+  text-align: right;
+}
+.rate-cal__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.rate-cal__day,
+.rate-cal__void {
+  min-height: var(--space-16);
+  padding: var(--space-2);
+  border-right: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  min-width: 0;
+}
+/* хвостовые пустые клетки добивают неделю, поэтому последняя строка — всегда последние семь */
+.rate-cal__grid li:nth-child(7n) {
+  border-right: 0;
+}
+.rate-cal__grid li:nth-last-child(-n + 7) {
+  border-bottom: 0;
+}
+.rate-cal__grid li:last-child {
+  border-bottom-right-radius: calc(var(--radius) - 1px);
+}
+.rate-cal__grid li:nth-last-child(7) {
+  border-bottom-left-radius: calc(var(--radius) - 1px);
+}
+/* те же смыслы, что были у строк списка: выходной — лёгкий акцентный фон, стоп-продажа — тревожный */
+.rate-cal__day.is-weekend {
+  background: var(--primary-soft);
+}
+.rate-cal__day.is-stop {
+  background: var(--danger-soft);
+}
+.rate-cal__day.is-today {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+.rate-cal__date {
+  display: block;
+  margin-bottom: var(--space-1);
+}
+.rate-cal__num {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-2);
+}
+.is-today .rate-cal__num {
+  color: var(--primary);
+  font-weight: var(--weight-semibold);
+}
+/* полная дата читается программой чтения и видна в сложенном списке телефона */
+.rate-cal__full {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.rate-cal__price {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.rate-cal__price--secondary {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--text-2);
+}
+.rate-cal__word {
+  float: left;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--muted);
+}
+.rate-cal__limits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-2);
+}
+.rate-cal__stop {
+  color: var(--danger);
+  font-weight: var(--weight-medium);
+}
+
+/* ── правка цены в ячейке (срез 7.2) ── */
 .price-cell {
   position: relative;
 }
 .price-cell__value {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   width: 100%;
+  /* цель нажатия не ниже 24 px (§11, WCAG 2.5.8): строка цены сама по себе 20 px */
+  min-height: var(--control-h-xs);
   padding: 0;
   background: transparent;
   border: 0;
   border-bottom: 1px dashed var(--border);
   color: inherit;
   font: inherit;
+  font-variant-numeric: tabular-nums;
   text-align: right;
   cursor: pointer;
 }
 .price-cell__value:hover {
   color: var(--primary);
   border-bottom-color: var(--primary);
+}
+/* «Нет цены» (ТЗ v2 §21): продажи нет — слово тише цены, подсказка объясняет последствие */
+.price-cell__value--empty {
+  color: var(--muted);
+  font-weight: var(--weight-regular);
 }
 .price-editor {
   position: absolute;
@@ -49,25 +204,6 @@
   white-space: normal;
 }
 
-/*
- * 21.09: плотность календаря по §4 (ячейка 8×16, строка ≈ 38 px) — общий `.tbl td` в premium.css
- * держит 14×16 и перекрывает `.tbl--sm`/`.tbl--dense` (нарушение, ждёт 7.4); здесь — своей строкой.
- */
-.rates-table th,
-.rates-table td {
-  padding: var(--space-2) var(--space-4);
-}
-.rates-table th {
-  height: auto;
-}
-.rates-restrictions {
-  white-space: normal;
-}
-/* слово у числа нужно только сложенной строке на телефоне */
-.rates-cell-word {
-  display: none;
-}
-
 /* Дни недели в массовом изменении: подпись своей строкой, семь дней одним рядом */
 .rates-days {
   margin: 0;
@@ -88,69 +224,65 @@
   gap: var(--space-1) var(--space-2);
 }
 
-/* ── телефон: строка календаря складывается в карточку, разметка и хуки те же ── */
+/* ── телефон: сетка складывается в список дней (ТЗ v2 §44), разметка и хуки те же ── */
 @media (max-width: 600px) {
-  .tbl.rates-table,
-  .rates-table tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .rates-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .rates-table tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--space-1) var(--space-4);
-    padding: var(--space-2) var(--space-4);
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .rates-table tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .rates-table tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-  }
-  .rates-table tbody td:first-child,
-  .rates-table tbody td.rates-restrictions {
-    grid-column: 1 / -1;
-  }
-  /* «—» на телефоне не рисуем: место дороже прочерка */
-  .rates-table tbody td.rates-restrictions--none {
+  .rate-cal__weekdays,
+  .rate-cal__void,
+  .rate-cal__num {
     display: none;
   }
-  .rates-table tbody td.num {
+  .rate-cal__grid {
+    display: block;
+  }
+  .rate-cal__grid li:nth-last-child(-n + 7) {
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .rate-cal__day {
+    min-height: 0;
+    border-right: 0;
+    padding: var(--space-2) var(--space-4);
+  }
+  .rate-cal__day:last-of-type {
+    border-bottom: 0;
+  }
+  .rate-cal__full {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-2);
+  }
+  .is-today .rate-cal__full {
+    color: var(--primary);
+  }
+  .rate-cal__price {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: var(--space-1);
   }
-  .rates-table tbody td.num .price-cell {
+  .rate-cal__price .rate-cal__word {
+    float: none;
+  }
+  .rate-cal__price .price-cell {
     flex: 1;
     min-width: 0;
   }
-  .rates-cell-word {
-    display: inline;
-    color: var(--muted);
+  /* на телефоне цель нажатия — 44 px (§11) */
+  .rate-cal__day .price-cell__value {
+    min-height: var(--touch-target);
   }
-  /* Окно правки цены — во всю ширину карточки, а не половины: привязанное к ячейке, оно
-     уезжало за левый край экрана (снимок 21.09) */
-  .rates-table tbody tr {
+  /* Окно правки цены — во всю ширину карточки дня, привязанное к ячейке уезжало за край экрана */
+  .rate-cal__day {
     position: relative;
   }
-  .rates-table .price-cell {
+  .rate-cal__day .price-cell {
     position: static;
   }
-  .rates-table .price-editor {
+  .rate-cal__day .price-editor {
     top: auto;
     right: var(--space-4);
     bottom: 0;
@@ -160,14 +292,12 @@
   }
 }
 
-
-/* Подпись сопоставления с Channex под выбором номера/тарифа (анти-путаница при сертификации) */
+/* Подпись сопоставления с Channex в панели правки (анти-путаница при сертификации) */
 .rates-channel-hint {
   margin: 0;
-  font-size: 0.85rem;
-  opacity: 0.75;
+  font-size: var(--text-sm);
+  color: var(--text-2);
 }
 .rates-channel-hint--warn {
   color: var(--warning);
-  opacity: 1;
 }

@@ -61,7 +61,7 @@ test('цены: правка в ячейке — Enter сохраняет и у�
   request,
 }) => {
   await page.goto('/rates?month=2026-10');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
   // Формат §14: дата «1 окт. чт», деньги без «,00», стоп-продажа словом
   await expect(page.getByRole('main').getByTestId('rate-row-2026-10-01')).toContainText(
     '1 окт. чт',
@@ -72,7 +72,7 @@ test('цены: правка в ячейке — Enter сохраняет и у�
   const cell = page.getByRole('main').getByTestId('price-2026-10-02-1');
   await expect(cell).toContainText('8 000 ₸');
   await expect(cell).not.toContainText(',00');
-  await expect(page.locator('.tbl tr.is-stop').first()).toContainText('закрыто');
+  await expect(page.locator('.rate-cal__day.is-stop').first()).toContainText('закрыто');
   // Escape — ничего не ушло
   await cell.getByTestId('price-cell-edit').click();
   const input = cell.getByRole('textbox');
@@ -124,6 +124,7 @@ test('цены: месяц листается кнопками со значка
   await page.getByLabel('Следующий месяц', { exact: true }).click();
   await expect(page).toHaveURL(/month=2026-11/);
   await expect(page.locator('.page__subtitle')).toContainText('ноябрь 2026');
+  await page.getByRole('main').getByTestId('rates-edit-open').click();
   const editor = page.getByRole('main').getByTestId('bulk-editor');
   await editor.getByLabel('Цена за ночь').fill('9100');
   await editor.getByLabel('Мин. ночей', { exact: true }).fill('3');
@@ -285,36 +286,38 @@ test('цены: сбой календаря оставляет форму и м�
   request,
 }) => {
   const main = page.getByRole('main');
-  // заголовки словами, ограничения словами, одна пара кнопок месяца
+  // ограничения словами в ячейке дня, одна пара кнопок месяца
   await page.goto('/rates?month=2026-10');
-  const table = main.getByTestId('rates-table');
-  await expect(table.locator('th').nth(1)).toHaveText('Цена за 1 гостя');
-  await expect(table.locator('th').nth(2)).toHaveText('Цена за 2 гостей');
-  await expect(main.getByTestId('rate-row-2026-10-01')).toContainText('1 ночь');
+  await expect(main.getByTestId('rates-calendar')).toBeVisible();
+  await expect(main.getByTestId('rate-row-2026-10-16')).toContainText('мин. 2 ночи');
+  await expect(main.getByTestId('rate-row-2026-10-19')).toContainText('до 4 ночей');
   await expect(main.getByRole('link', { name: 'Следующий месяц', exact: true })).toHaveCount(1);
   await expect(main.getByRole('link', { name: 'Предыдущий месяц', exact: true })).toHaveCount(1);
-  // сбой календаря: форма, подпись и массовое изменение на месте, таблицы нет, повтор возвращает её
+  // сбой календаря: фильтры и правка на месте, сетки нет, повтор возвращает её
   await request.post(`${fixture}/__test/control`, { data: { showcase: true, failPath: '/rates' } });
   await page.goto('/rates?month=2026-10');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
   await expect(main.getByLabel('Категория').first()).toBeVisible();
+  await main.getByTestId('rates-edit-open').click();
   await expect(main.getByTestId('bulk-editor')).toBeVisible();
+  await page.keyboard.press('Escape');
   const failure = main.getByTestId('rates-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
-  await expect(main.getByTestId('rates-table')).toHaveCount(0);
+  await expect(main.getByTestId('rates-calendar')).toHaveCount(0);
   await expect(main.getByTestId('rates-empty')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
-  await expect(main.getByTestId('rates-table')).toBeVisible();
+  await expect(main.getByTestId('rates-calendar')).toBeVisible();
   await expect(main.getByTestId('rates-error')).toHaveCount(0);
   await expect(page).toHaveURL(/month=2026-10/);
-  // сбой справочника: заголовок и повтор, без формы (заполнять нечего)
+  // сбой справочника: заголовок и повтор, без правки (заполнять нечего)
   await request.post(`${fixture}/__test/control`, {
     data: { showcase: true, failPath: '/rates/options' },
   });
   await page.goto('/rates?month=2026-10');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
   await expect(main.getByTestId('rates-error')).toBeVisible();
+  await expect(main.getByTestId('rates-edit-open')).toHaveCount(0);
   await expect(main.getByTestId('bulk-editor')).toHaveCount(0);
   // пустой справочник — не сбой и не нули: причина и куда идти
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
@@ -336,7 +339,7 @@ test('цены: сбой календаря оставляет форму и м�
   const loading = main.getByTestId('rates-loading');
   await expect(loading).toBeVisible();
   await expect(loading).toContainText('Загружаем категории, тарифы и календарь цен');
-  await expect(main.getByTestId('rates-table')).toBeVisible({ timeout: 15_000 });
+  await expect(main.getByTestId('rates-calendar')).toBeVisible({ timeout: 15_000 });
   await expect(main.getByTestId('rates-loading')).toHaveCount(0);
 });
 

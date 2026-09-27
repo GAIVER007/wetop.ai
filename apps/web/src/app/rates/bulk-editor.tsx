@@ -3,7 +3,7 @@ import { useState, useTransition } from 'react';
 import type { RateChangeInput } from '../../lib/api';
 import { displayDay, displayPeriod } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
-import { Alert, Button, Field, Grid, Input, Notice, Panel, Row, Select } from '../../components/ui';
+import { Alert, Button, Field, Grid, Input, Notice, Row, Select } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import { bulkRatesAction } from './actions';
 
@@ -108,8 +108,9 @@ export function BulkEditor(props: {
     });
   const name = (code: string, list: Array<{ code: string; name: string }>) =>
     list.find((x) => x.code === code)?.name ?? code;
+  // Без Panel: с 27.09 (ADR-106) форма живёт в выдвижной панели, заголовок даёт она
   return (
-    <Panel size="lg" title="Массовое изменение" data-testid="bulk-editor">
+    <div className="stack" data-testid="bulk-editor">
       <form onSubmit={add} className="stack stack--sm">
         <Grid min={140} gap="sm">
           <Field label="Категория">
@@ -267,6 +268,6 @@ export function BulkEditor(props: {
         {error && <Alert>{error}</Alert>}
         {done && <Notice data-testid="bulk-done">{done}</Notice>}
       </Row>
-    </Panel>
+    </div>
   );
 }

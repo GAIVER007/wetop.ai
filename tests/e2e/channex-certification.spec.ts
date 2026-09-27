@@ -32,7 +32,12 @@ async function addChange(
     ctd?: 'true' | 'false';
   },
 ) {
-  const ed = page.getByRole('main').getByTestId('bulk-editor');
+  const main = page.getByRole('main');
+  // С 27.09 (ADR-106, RT1) форма массового изменения живёт в выдвижной панели за кнопкой
+  // «Изменить цены»; поля, testid'ы и порядок команд — прежние
+  if (!(await main.getByTestId('bulk-editor').isVisible().catch(() => false)))
+    await main.getByTestId('rates-edit-open').click();
+  const ed = main.getByTestId('bulk-editor');
   await ed.locator('select[name="accommodationTypeCode"]').selectOption(c.category);
   await ed.locator('select[name="ratePlanCode"]').selectOption(OTA);
   await ed.locator('input[name="dateFrom"]').fill(c.dateFrom);

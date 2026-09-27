@@ -616,6 +616,12 @@ Property Luxx                        Business «Luxx Aparts»   vertical = HOSPI
 
 ## 20. Фазы реализации (после утверждения v3)
 
+> **Именование этапов (владелец, 27.09.2026, ADR-107):** фаза 1 ниже = **Platform P1** (Business +
+> Location, `plans/phase-business-location-2026-09-27.md`); фаза 2 = **Platform P2** (RequestActor /
+> scope, `plans/platform-p2-request-context-2026-09-27.md`) плюс **Platform P3** (переключатель +
+> онбординг цепочки + «Партнёры»). P2 стартует только когда P1 в `main` и применён на рабочей базе
+> с проверкой в ноль; P3 — после среза К1 этапа P2.
+
 Код не пишется, пока владелец не утвердил этот документ и `DATA_MODEL.md` v2.0. Дальше — по фазам,
 каждая со своим планом (AGENTS.md §1), тестами red-before-green и сверками:
 

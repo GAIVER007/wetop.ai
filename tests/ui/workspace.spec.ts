@@ -1228,7 +1228,8 @@ test('шахматка: несопоставленные ревизии кана
   const notice = page.getByTestId('review-callout');
   await expect(notice).toContainText('требует разбора');
   await notice.getByRole('link').click();
-  await expect(page).toHaveURL(/\/channels$/);
+  // «Разобрать» ведёт сразу к событиям с ошибкой (модуль «Каналы продаж», ADR-106)
+  await expect(page).toHaveURL(/\/channels\/events\?status=FAILED$/);
 });
 
 /**

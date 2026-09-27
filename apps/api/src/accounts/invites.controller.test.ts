@@ -96,7 +96,7 @@ function invite(token: string, email: unknown) {
     .send({ email });
 }
 
-describe('приглашение: владелец и управляющий, не администратор (DATA_MODEL §16.5, ADR-098)', () => {
+describe('приглашение: владелец и управляющий, не администратор (DATA_MODEL §16.5, ADR-100)', () => {
   it('администратор получает 403 и на создание, и на список; письма и приглашения нет', async () => {
     repo.accounts = [{ ...ACCOUNT, role: 'STAFF' }];
     const token = await login();

@@ -83,7 +83,7 @@ export function Sidebar({
         <GrantedProperty desk={desk} property={property} close={close} />
       </Suspense>
       <nav className="workspace-links" aria-label="Разделы">
-        {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-098) */}
+        {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-100) */}
         <Suspense
           fallback={<SectionLinks sections={sidebarSectionsFor(PENDING_ACCESS)} {...links} />}
         >
@@ -183,7 +183,7 @@ function SectionLinks({
   );
 }
 
-/** Объект вверху панели ведёт в настройки гостиницы — тем, кому они открыты (ADR-098) */
+/** Объект вверху панели ведёт в настройки гостиницы — тем, кому они открыты (ADR-100) */
 function GrantedProperty({
   desk,
   ...props

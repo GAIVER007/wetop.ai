@@ -8,7 +8,7 @@ import {
 import type { IconName } from '../components/icon';
 
 /**
- * Что открыто вошедшему (ADR-083, ADR-098): «Платформа» — главному администратору; остальное — по роли в организации
+ * Что открыто вошедшему (ADR-083, ADR-100): «Платформа» — главному администратору; остальное — по роли в организации
  * (права — DATA_MODEL §16.5, таблица в домене). Расширение «ИИ-продавец» пункт меню не прячет (ADR-090).
  */
 export interface NavigationAccess {
@@ -39,7 +39,7 @@ export interface NavigationItem {
   description: string;
   pending?: boolean;
   children?: NavigationItem[];
-  /** Кому открыт пункт и страница по его адресу (ADR-098); у пункта меню поле обязательно — тест */
+  /** Кому открыт пункт и страница по его адресу (ADR-100); у пункта меню поле обязательно — тест */
   requires?: NavigationRequirement;
 }
 export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
@@ -321,7 +321,7 @@ export const sidebarSections: SidebarSection[] = [
   },
 ];
 
-/** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-098) */
+/** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-100) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
   return access.role === null || can(access.role, permission);
 }
@@ -342,7 +342,7 @@ export function openToEveryRole(requires: NavigationRequirement | undefined): bo
 }
 
 /**
- * Адреса вне меню, которые открыты не всем (ADR-098): вкладки настроек продавца и его агенты. Остальные адреса наследуют
+ * Адреса вне меню, которые открыты не всем (ADR-100): вкладки настроек продавца и его агенты. Остальные адреса наследуют
  * право пункта меню по самому длинному совпадению пути. Первичную настройку объекта (`/onboarding`) не закрываем: туда
  * гейт ведёт всех, пока в отеле нет номеров, и администратору страница сама говорит, кто настраивает.
  */

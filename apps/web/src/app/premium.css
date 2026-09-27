@@ -261,7 +261,7 @@ select.inp { appearance: none; padding-right: 32px; background-image: linear-gra
 .login-invites h3 { font-size: 16px; font-weight: 600; margin: 0 0 8px; }
 .login-invites > p { margin: 0 0 16px; }
 .login-invite-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; font-size: var(--text-sm); }
-/* Сотрудники (ADR-098): человек или приглашение слева, роль и действия справа; на телефоне переносятся под строку */
+/* Сотрудники (ADR-100): человек или приглашение слева, роль и действия справа; на телефоне переносятся под строку */
 .login-team-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .login-team-row__who { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; }
 .login-team-row .inp { width: auto; min-height: var(--control-h-sm); }

@@ -332,7 +332,7 @@ export interface SignedIn {
   /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
   organization?: SignedInOrganization | null;
   /**
-   * Роль в организации сессии (DATA_MODEL §16.1): владелец, управляющий или администратор; права ролей — §16.5, ADR-098.
+   * Роль в организации сессии (DATA_MODEL §16.1): владелец, управляющий или администратор; права ролей — §16.5, ADR-100.
    * Старый API роли не присылает — тогда считаем администратором
    */
   role?: MembershipRole;
@@ -451,7 +451,7 @@ export const authApi = {
   },
   /**
    * 201 с приглашением; 400 с текстом про почту, роль или «уже в организации»; 403 — звать с этой ролью нельзя
-   * (управляющих зовёт только владелец, ADR-098); 401 — сессии нет.
+   * (управляющих зовёт только владелец, ADR-100); 401 — сессии нет.
    */
   invite: async (
     token: string,
@@ -475,7 +475,7 @@ export const authApi = {
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
-  // ── Сотрудники (ADR-098, DATA_MODEL §16.1 v1.12) ──────────────────────────────────────────────
+  // ── Сотрудники (ADR-100, DATA_MODEL §16.1 v1.13) ──────────────────────────────────────────────
   /** Люди своей организации с ролями — владельцу и управляющему; 403 — администратору */
   members: async (token: string, info: AuthClientInfo): Promise<AuthMember[]> => {
     const res = await backendFetch('/auth/members', { headers: authHeaders(info, token) });
@@ -1692,13 +1692,13 @@ export interface AuthInvite {
   expiresAt: string;
   acceptedAt: string | null;
   createdAt: string;
-  /** С какой ролью войдёт (ADR-098); старый API роли не присылает — администратор */
+  /** С какой ролью войдёт (ADR-100); старый API роли не присылает — администратор */
   role?: InviteRole;
   /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable?: boolean;
 }
 
-/** Человек своей организации в блоке «Сотрудники» (ADR-098) */
+/** Человек своей организации в блоке «Сотрудники» (ADR-100) */
 export interface AuthMember {
   userId: string;
   email: string;

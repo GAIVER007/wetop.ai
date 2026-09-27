@@ -26,7 +26,7 @@ describe('inviteLetter', () => {
     expect(letter.text).not.toMatch(/Код для входа/);
   });
 
-  it('роль названа, если её передали (ADR-098); без роли строки нет', () => {
+  it('роль названа, если её передали (ADR-100); без роли строки нет', () => {
     expect(
       inviteLetter('gost@example.com', 'Хостел «Пример»', 'https://x/invite/a', 86_400_000, 'управляющий')
         .text,

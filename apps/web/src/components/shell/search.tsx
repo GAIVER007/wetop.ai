@@ -17,7 +17,7 @@ export function GlobalSearch({
 }: {
   open: boolean;
   close: () => void;
-  /** Разделы, закрытые вошедшему (ADR-083, ADR-098), поиск не предлагает; пока API не ответил — как администратору */
+  /** Разделы, закрытые вошедшему (ADR-083, ADR-100), поиск не предлагает; пока API не ответил — как администратору */
   access?: NavigationAccess | undefined;
 }) {
   const [query, setQuery] = useState('');

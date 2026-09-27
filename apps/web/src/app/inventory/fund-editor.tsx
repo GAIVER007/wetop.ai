@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
@@ -12,15 +12,24 @@ export function FundEditor({
   mode = 'room',
   category,
   room,
+  control,
 }: {
   categories: InventoryCategory[];
   mode?: Mode;
   category?: InventoryCategory;
   room?: { code: string; roomNumber: string };
+  /** Внешнее управление: drawer открывает меню строки, своей кнопки нет (ТЗ «Категории v2» C1) */
+  control?: { onClose: () => void };
 }) {
-  const [open, setOpen] = useState(false),
+  const [selfOpen, setSelfOpen] = useState(false),
     [pending, start] = useTransition(),
     [error, setError] = useState<string | null>(null);
+  const open = control ? true : selfOpen;
+  const setOpen = (v: boolean) => {
+    if (control) {
+      if (!v) control.onClose();
+    } else setSelfOpen(v);
+  };
   const [selected, setSelected] = useState(category?.code ?? categories[0]?.code ?? '');
   const [kind, setKind] = useState<InventoryCategory['kind']>(category?.kind ?? 'PRIVATE_ROOM');
   const [rates, setRates] = useState<{ code: string; name: string }[]>([]);
@@ -76,27 +85,34 @@ export function FundEditor({
       router.refresh();
     });
   }
+  const loadRates = () => {
+    setLoadingRates(true);
+    inventoryRates().then((r) => {
+      setRates(r.plans);
+      setRate(r.plans[0]?.code ?? '');
+      setError(r.error);
+      setLoadingRates(false);
+    });
+  };
+  // Открытие из меню строки: тарифы подгружаются один раз при монтировании (кнопки нет)
+  useEffect(() => {
+    if (control && mode === 'category' && !edit) loadRates();
+  }, []); // намеренно один раз: контролируемый редактор монтируется уже открытым
   return (
     <>
-      <Button
-        tone={edit ? 'secondary' : 'primary'}
-        onClick={() => {
-          setError(null);
-          setOpen(true);
-          if (mode === 'category' && !edit) {
-            setLoadingRates(true);
-            inventoryRates().then((r) => {
-              setRates(r.plans);
-              setRate(r.plans[0]?.code ?? '');
-              setError(r.error);
-              setLoadingRates(false);
-            });
-          }
-        }}
-        disabled={mode === 'room' && !room && !categories.length}
-      >
-        {edit ? 'Редактировать' : mode === 'category' ? '+ Категория' : '+ Номер / койки'}
-      </Button>
+      {!control && (
+        <Button
+          tone={edit ? 'secondary' : 'primary'}
+          onClick={() => {
+            setError(null);
+            setSelfOpen(true);
+            if (mode === 'category' && !edit) loadRates();
+          }}
+          disabled={mode === 'room' && !room && !categories.length}
+        >
+          {edit ? 'Редактировать' : mode === 'category' ? '+ Категория' : '+ Номер / койки'}
+        </Button>
+      )}
       <Overlay
         open={open}
         onClose={() => {

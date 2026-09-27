@@ -28,13 +28,22 @@ export class InventoryEditor {
   private property() {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
+  /** Список для стойки: `ratePlans` — число действующих тарифов категории (ТЗ «Категории v2», ADR-106). */
   async categories() {
     const propertyId = await this.property();
-    return this.prisma.db.accommodationType.findMany({
+    const rows = await this.prisma.db.accommodationType.findMany({
       where: { propertyId },
-      select: { code: true, name: true, kind: true, capacityAdults: true },
+      select: {
+        code: true,
+        name: true,
+        kind: true,
+        capacityAdults: true,
+        active: true,
+        _count: { select: { ratePlanLinks: { where: { ratePlan: { active: true } } } } },
+      },
       orderBy: { createdAt: 'asc' },
     });
+    return rows.map(({ _count, ...row }) => ({ ...row, ratePlans: _count.ratePlanLinks }));
   }
   async createCategory(body: Record<string, unknown>) {
     const data = categoryInput(body),

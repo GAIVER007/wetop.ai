@@ -2863,3 +2863,16 @@
 | 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
 | 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
 | 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |
+| 27.09.2026 21:15 | typecheck | ✅ без ошибок | 30 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-15-48Z-typecheck-df3e.log) |  |
+| 27.09.2026 21:16 | lint | ❌ ошибок: 1 | 18 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-16-24Z-lint-4f11.log) | react-hooks/exhaustive-deps |
+| 27.09.2026 21:17 | lint | ✅ без ошибок | 17 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-17-20Z-lint-7c89.log) |  |
+| 27.09.2026 21:17 | unit | ❌ упало 1 из 2108, пропущено 3 | 1 мин 34 с | 74d8b1c +7 | [лог](logs/2026-09-27T16-17-43Z-unit-91c5.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 27.09.2026 21:20 | unit | ❌ упало 1 из 2108, пропущено 3 | 1 мин 12 с | 74d8b1c +7 | [лог](logs/2026-09-27T16-20-02Z-unit-80f0.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 27.09.2026 21:21 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 74d8b1c +7 | [лог](logs/2026-09-27T16-21-43Z-unit-e1b4.log) |  |
+| 27.09.2026 21:23 | integration | ❌ упало 1 из 107 | 33 с | 74d8b1c +3 | [лог](logs/2026-09-27T16-23-25Z-integration-0f79.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
+| 27.09.2026 21:25 | integration | ✅ 107 из 107 | 33 с | 74d8b1c +3 | [лог](logs/2026-09-27T16-25-44Z-integration-fc2b.log) |  |
+| 27.09.2026 21:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts) | ❌ упало 1 из 3 | 1 мин 16 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-27-11Z-e2e-dcb2.log) | C1 категории: задетый спек |
+| 27.09.2026 21:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts) | ✅ 3 из 3 | 30 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-28-52Z-e2e-5f99.log) | C1 категории: задетый спек, searchbox |
+| 27.09.2026 21:30 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ❌ упало 1 из 1 | 23 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-30-32Z-e2e-eb5b.log) | C1 категории: снимки §48 |
+| 27.09.2026 21:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 11 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-31-45Z-e2e-8992.log) | C1 категории: снимки §48 |
+| 27.09.2026 21:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 12 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-34-40Z-e2e-53e7.log) | C1 категории: снимки §48, без dev-оверлея |

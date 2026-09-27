@@ -1674,6 +1674,9 @@ export interface InventoryCategory {
   name: string;
   kind: 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT';
   capacityAdults: number;
+  active: boolean;
+  /** Число действующих тарифов категории — сигнал «настроено ли для продаж» (ADR-106) */
+  ratePlans: number;
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),

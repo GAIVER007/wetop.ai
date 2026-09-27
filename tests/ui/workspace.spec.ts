@@ -1039,12 +1039,12 @@ test('фонд и категории открываются независимо
   await expect(page).toHaveURL(/\/inventory$/);
   await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(88);
   await page.goto('/rooms/categories');
-  await expect(page.locator('.fund-category')).toHaveCount(3);
+  await expect(page.getByTestId('fund-category-row')).toHaveCount(3);
   await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/categories' } });
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Не удалось загрузить данные' })).toBeVisible();
-  await expect(page.locator('.fund-category')).toHaveCount(0);
+  await expect(page.getByTestId('fund-category-row')).toHaveCount(0);
 });
 
 /**
@@ -1504,7 +1504,9 @@ test('единый фонд: старый адрес, сброс фильтро�
     '/rooms/availability?arrival=2026-10-01&departure=2026-10-04',
   ]) {
     await page.goto(route);
-    await expect(main.locator('.fund-category,.fund-availability article').first()).toBeVisible();
+    await expect(
+      main.locator('[data-testid="fund-category-row"],.fund-availability article').first(),
+    ).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

@@ -34,6 +34,7 @@ v1.9 (25.09.2026; **утверждено владельцем 25.09.2026 — ADR
 v1.10 (25.09.2026; предохранители в самой базе по ТЗ аудита безопасности, поручение «наводи порядок по тому ТЗ, строго иди» — `plans/security-audit-fixes-2026-09-25.md`, блок 3; сущности и поля не меняются): §2 `UNIQUE(property_id, external_id)` — дубль OTA-брони отвергает база (С-4); §6 `CHECK (amount > 0)` на `payments`/`payment_allocations`/`refunds` (С-14); §10 журнал только дописывается уже сейчас — триггер `audit_logs_immutable` (С-14) — миграция `20260925000022_integrity_guards` с `down.sql`, **на рабочей базе применяет владелец**
 v1.11 (26.09.2026; **утверждено владельцем 26.09.2026** — план `plans/seller-prompt-window-2026-09-26.md` и макет «Макет нравится, делай этап Б так», ADR-097): §15 `seller_profiles.prompt_text` — инструкция продавцу одним текстом; есть она — продавцу уходит текст, а не поля профиля — миграция `20260926000024_seller_prompt_text` с `down.sql`, **на рабочей базе применяет владелец**
 v1.12 (26.09.2026; **утверждено владельцем 26.09.2026 — ADR-096**, ответ «Да, делай» на вопрос о коде места перед открытием регистрации; номер версии и миграции сдвинуты при слиянии двух параллельных веток 27.09.2026 — v1.11 и `20260926000024` заняла миграция `seller_prompt_text` выше): §2 `InventoryUnit.property_id` и уникальность кода места **внутри объекта** `UNIQUE(property_id, code)` вместо глобальной — вторая гостиница с кодами «101…» не падает на онбординге, а поиск места по коду не находит чужое (план `plans/tenant-isolation-2026-09-26.md`); миграция `20260926000025_unit_code_per_property` — применяет владелец
+v2.0 (27.09.2026; **утверждено владельцем 27.09.2026 — «Архитектуру в целом утверждаю», ADR-100; кода нет, миграций нет**): §17 — целевая архитектура двух вертикалей заморожена: иерархия `WETOP → Partner/Organization → Business → Location → Vertical Domain`; четыре финальных решения (RLS-gate до публичной регистрации; канонический `Customer` на Organization + `CustomerBusiness`; `reportingCurrency`/`ExchangeRate` на Organization, `reportingAmount` — снимок; идемпотентность автоматической выручки `sourceType`+`sourceId`+UNIQUE). Существующие разделы §1–§16 не меняются; детальные спецификации новых таблиц добавляются в этот файл пофазно перед каждой миграцией. Полная архитектура — `ARCHITECTURE.md` и `reports/hospitality-beauty-target-architecture-v2-2026-09-27.md`
 Дата: 2026-09-07
 
 ---
@@ -1361,6 +1362,66 @@ PK составной (`organization_id`, `extension`).
 `select o.name, u.email, m.role from memberships m join organizations o on o.id = m.organization_id join users u on
 u.id = m.user_id order by o.name, m.created_at;` — у каждой организации ровно один `OWNER`; `platform_admins` и
 `organization_extensions` пустые. Миграцию применяет владелец.
+
+---
+
+## 17. Целевая архитектура двух вертикалей (v2.0 — заморожена владельцем 27.09.2026, ADR-100; кода нет)
+
+Этот раздел фиксирует **утверждённую и замороженную** целевую иерархию и четыре финальных решения владельца.
+Он — рамка, а не спецификация таблиц: детальные описания каждой новой сущности (поля, типы, ключи, CHECK)
+добавляются в этот файл **пофазно, перед соответствующей миграцией** (AGENTS.md §2), и утверждаются владельцем
+обычным порядком. Существующие разделы §1–§16 этим разделом не меняются. Полные документы:
+`ARCHITECTURE.md` (замороженная сводка), `reports/hospitality-beauty-target-architecture-v2-2026-09-27.md`
+(действующая редакция архитектуры, там же план миграции по фазам), v1 и аудит — рядом в `reports/`.
+
+### 17.1 Замороженная иерархия
+
+```
+WETOP → Partner/Organization → Business → Location → Vertical Domain
+```
+
+- `Organization` (§13) — без изменений; получит `reporting_currency` (17.4).
+- `Business` — новая сущность: направление/бренд, `vertical` (`HOSPITALITY` | `BEAUTY`) живёт здесь.
+- `Location` — новая сущность: филиал/объект (адрес, таймзона, валюта); `vertical` — денормализованная
+  неизменяемая копия с Business (тот же приём, что `sessions.organization_id` от membership).
+- `Property` (§1) — **не переименовывается и не переписывается**: получает nullable `location_id` и становится
+  HOSPITALITY-специализацией Location; все существующие FK (§1–§10) не трогаются. Hotel-enum'ы
+  (`InventoryUnitKind`, `AccommodationKind`) не расширяются значениями других вертикалей.
+- BEAUTY-домен (`Customer`, `Employee`+`EmployeeLocation`, `BeautyService`+`LocationService`, `WorkingHours`,
+  `TimeOff`, `Appointment` c timestamptz `start_at`/`end_at` и GiST-запретом пересечений по мастеру) — параллельные
+  новые таблицы; `Reservation` и `Appointment` физически не объединяются.
+
+### 17.2 Решение 1 — RLS / регистрация (gate)
+
+До публичного self-service подключения внешних организаций Row Level Security обязателен. До этого — только
+вручную подключённые Partner/пилоты, и только после закрытия P0-долга изоляции (tenant-scope у `Guest`,
+`AuditLog`, `ExternalEvent`, `ChannelOutbox`; ключи интеграций per organization — `IntegrationConnection`;
+снятие фоллбэка `LUXX_APARTS_PROPERTY`; хардкоды таймзоны). Публичная регистрация не открывается
+(`REGISTRATION_OPEN=0`); согласуется с ADR-056, ADR-061, ADR-099.
+
+### 17.3 Решение 2 — Customer / CustomerBusiness
+
+Канонический `Customer` — на уровне Organization (`organization_id` NOT NULL). Видимость/связь клиента в
+конкретном Business — join-сущность `CustomerBusiness` (`customer_id` + `business_id`, PK по паре; создаётся при
+первом обращении клиента в этот Business). Business-scoped доступ видит только клиентов со строкой своего
+Business; Organization Owner — канонического клиента целиком. Существующий `Guest` (§3) не меняется; переход
+Hospitality на Customer — отдельное будущее решение, additive.
+
+### 17.4 Решение 3 — Exchange Rates
+
+`organizations.reporting_currency` (ISO 4217) и политика курсов принадлежат Organization. `ExchangeRate`
+(`organization_id`, `from_currency`, `to_currency`, `rate`, `as_of`, `source`; UNIQUE по четвёрке без source) на
+MVP вводится вручную и используется всеми Business организации. Исторический `reporting_amount` на управленческих
+записях — снимок по курсу на дату операции, при просмотре не пересчитывается. Оригинальные `amount`+`currency`
+операций неприкосновенны (ADR-008 — деньги integer minor units, включая `reporting_amount`).
+
+### 17.5 Решение 4 — Management Revenue idempotency
+
+Управленческий Finance (`FinancialCategory`, `ManagementFinanceEntry` со scope `organization_id` +
+`business_id?` + `location_id?`) — слой поверх операционного Folio/Payment (§6), не замена. Автоматическая
+выручка (из закрытых Folio и оплаченных Appointment) обязана нести `source_type`
+(`FOLIO`/`APPOINTMENT`/`MANUAL`) + `source_id` c `UNIQUE(source_type, source_id)` — повторный запуск sync-job не
+создаёт дубль (у `MANUAL` `source_id` NULL, в UNIQUE не конфликтует). Ручной ввод — только расходы.
 
 ---
 

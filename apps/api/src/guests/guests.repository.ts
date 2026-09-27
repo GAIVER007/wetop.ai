@@ -10,7 +10,7 @@ import {
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
-import { actsForOrganization } from '../auth/request-context';
+import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
 import { propertyIdRef, propertyToday } from '../database/property-ref';
 
 export interface GuestSummary {
@@ -122,14 +122,22 @@ const iso = (x: Date | null) => (x ? x.toISOString().slice(0, 10) : null);
 export class PrismaGuestsRepository implements GuestsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   /**
-   * Замок организаций (ADR-061, Q-152). У гостя нет своего объекта: вошедший видит гостя, если у того есть бронь
-   * объекта его организации — основным гостем или на проживании. Служебный ходок (сторож, скрипты) — как раньше.
+   * Замок организаций (ADR-061, Q-152; v1.13 §17.1, ADR-103). Первый признак принадлежности —
+   * `guests.organization_id`: колонка проштампована у новых гостей при создании и у старых —
+   * backfill-ом миграции `20260927000027`. Цепочка через брони объекта остаётся вторым условием —
+   * прежним замком для строк, которые колонкой не помечены как мои (база до миграции, чужой
+   * backfill); после миграции у Luxx оба условия совпадают. Тем же правилом режет и сама база
+   * (RLS, роль wetop_app) — здесь оно повторено для пути без DATABASE_APP_URL.
+   * Служебный ходок (сторож, скрипты) — как раньше, без фильтра.
    */
   private async visible(): Promise<Prisma.GuestWhereInput> {
     if (!actsForOrganization()) return {};
+    // резолвит объект организации вошедшего и отказывает чужому (ForbiddenException) — до выборки
     const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const organizationId = currentOrganizationId();
     return {
       OR: [
+        ...(organizationId !== null ? [{ organizationId }] : []),
         { primaryReservations: { some: { propertyId } } },
         { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
       ],

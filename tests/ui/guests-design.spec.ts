@@ -64,6 +64,35 @@ test('гости: одна строка — один гость, разделы-
   expect(chipHeight).toBeGreaterThanOrEqual(38);
 });
 
+test('гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/guest-cases`);
+  const main = page.getByRole('main');
+  await page.goto('/guests');
+  await expect(main.getByTestId('guests-table').locator('tbody tr')).toHaveCount(13);
+
+  // три брони одного человека — одна строка: живёт, «Визитов 3», последний визит заполнен
+  const returning = main.getByTestId('guest-row').filter({ hasText: 'Возвращающийся' });
+  await expect(returning).toHaveCount(1);
+  await expect(returning).toContainText('живёт');
+  await expect(returning.locator('td').nth(4)).toHaveText(/(визитов )?3/);
+  await expect(returning.locator('td').nth(3).locator('time')).toHaveCount(2);
+
+  // только отменённая бронь — это статус брони, не человека: «—» и подпись словами (ТЗ §16)
+  const cancelled = main.getByTestId('guest-row').filter({ hasText: 'Отменившийся' });
+  await expect(cancelled).toContainText('бронь на');
+  await expect(cancelled).toContainText('отменена');
+  await expect(cancelled.locator('.badge')).toHaveCount(0);
+
+  // выехал 40 дней назад: активного проживания нет и «Недавние» его не считают
+  await expect(main.getByTestId('guest-row').filter({ hasText: 'Давний' })).toContainText('—');
+  const chips = main.getByRole('navigation', { name: 'Гости по состоянию' });
+  await expect(chips.getByRole('link', { name: 'Недавние 1' })).toBeVisible();
+  await expect(chips.getByRole('link', { name: 'Проживают 6' })).toBeVisible();
+});
+
 test('гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами', async ({
   page,
   request,

@@ -53,6 +53,9 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     const seen: Record<string, unknown> = {};
     // Гости v2 (план guests-v2-2026-09-27): справочник ходит тем же замком visible()
     const dir: Record<string, { total: number; sawGuest: boolean }> = {};
+    // v1.13 §17.1 (ADR-103): guests.organization_id — первый признак; гость без броней виден своей
+    // организации по одной колонке, чужой — нет (указание владельца 27.09, sync с Phase 1)
+    const col: Record<string, { directory: boolean; byId: boolean }> = {};
 
     await expect(
       db.$transaction(async (tx) => {
@@ -110,6 +113,20 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
           });
         dir['B'] = await dirLook(orgB.id);
         dir['A'] = await dirLook(orgA.id);
+        // проштампованный колонкой гость без единой брони (вымышленный, ADR-010)
+        const stamped = await tx.guest.create({
+          data: { firstName: 'Колонкой', lastName: 'Проштампованный', organizationId: orgB.id },
+          select: { id: true },
+        });
+        const colLook = (organizationId: string) =>
+          as(organizationId, async () => ({
+            directory: (
+              await guests.directory({ state: 'ALL', q: 'Проштампованный', page: 1, pageSize: 100 })
+            ).rows.some((r) => r.id === stamped.id),
+            byId: (await guests.byId(stamped.id)) !== null,
+          }));
+        col['B'] = await colLook(orgB.id);
+        col['A'] = await colLook(orgA.id);
         throw new Rollback();
       }),
     ).rejects.toBeInstanceOf(Rollback);
@@ -131,6 +148,9 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     // чужой организации справочник пуст — не «отфильтрован», а нулевой, включая счётчики чипов
     expect(dir['B']).toEqual({ total: 0, sawGuest: false });
     expect(dir['A']).toMatchObject({ sawGuest: true });
+    // organization_id — первый признак: гость без броней виден своей организации, чужой — нет
+    expect(col['B']).toEqual({ directory: true, byId: true });
+    expect(col['A']).toEqual({ directory: false, byId: false });
   });
 
   /**

@@ -2698,6 +2698,56 @@ createServer(async (req, res) => {
       seedDesign();
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
     }
+    // Кейсы «Гостей v2» для визуального согласования G1 (поручение владельца 27.09): несколько
+    // проживаний у одного гостя, только отменённая бронь, давний выезд, живущий с неоплаченным
+    // счётом (задел под панель предпросмотра — в таблице G1 долг не показывается). Включается
+    // только этим вызовом, обычные тесты гостей не видят. Все имена вымышленные (ADR-010).
+    if (path === '/__test/guest-cases') {
+      const put = (
+        n: string,
+        label: string,
+        cases: Array<{ status: string; unit: string; from: number; to: number }>,
+      ) => {
+        let guestId = '';
+        for (const [i, s] of cases.entries()) {
+          const { r, g } = designCard(
+            {
+              n: `${n}${i}`,
+              label,
+              status: s.status,
+              source: 'DESK',
+              channel: null,
+              unit: s.unit,
+              from: s.from,
+              to: s.to,
+              price: '1200000',
+            },
+            add(today, s.from),
+            add(today, s.to),
+          );
+          // все брони — одного человека: гость заводится один, карточки ссылаются на него
+          if (i === 0) {
+            guestId = g.id;
+            extraGuests.set(g.id, g);
+          }
+          r.primaryGuest = { ...r.primaryGuest!, id: guestId };
+          extraCards.set(r.confirmationNumber, r);
+        }
+      };
+      // живёт сейчас, а до этого приезжал дважды: «Визитов 3», последний визит заполнен
+      put('GCRET', 'Возвращающийся Гость', [
+        { status: 'CHECKED_OUT', unit: 'R07', from: -21, to: -18 },
+        { status: 'CHECKED_OUT', unit: 'M05', from: -9, to: -7 },
+        { status: 'CHECKED_IN', unit: 'R08', from: -1, to: 2 },
+      ]);
+      // только отменённая бронь: статус гостя «—», подпись «бронь на … отменена» (ТЗ §16)
+      put('GCCAN', 'Отменившийся Гость', [{ status: 'CANCELLED', unit: 'R09', from: -3, to: -1 }]);
+      // выехал 40 дней назад: активного проживания нет, в «Недавние» не попадает
+      put('GCOLD', 'Давний Гость', [{ status: 'CHECKED_OUT', unit: 'R10', from: -43, to: -40 }]);
+      // живёт сейчас; его счёт станет виден в панели предпросмотра (следующая ступень)
+      put('GCDEBT', 'Задолжавший Гость', [{ status: 'CHECKED_IN', unit: 'R11', from: -2, to: 3 }]);
+      return send(200, { guests: 4 });
+    }
     if (path === '/__test/commands') return send(200, commands);
     if (delayPath && path === delayPath)
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));

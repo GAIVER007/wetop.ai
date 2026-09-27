@@ -277,6 +277,17 @@ Availability v2 — после первого визуального шага In
 | **AV4** | Sold-out категории с «ближайшей доступностью», позже ±1/±3 дня | — |
 | **AV5** | Deep links с Chessboard / Reservations / Today; mobile, loading, error | — |
 
+**AV1 выполнен 27.09.2026** (эта же ветка, PR #108): переименование везде (вкладка, заголовок, меню,
+поиск, кнопка на `/inventory`), «Гостей» в форме и в пресетах, фильтр категорий по вместимости,
+summary по запросу («Найдено N вариантов», счётчики только подходящих), компактные строки, переключатель
+`.seg` «Только доступные / Все категории» вместо checkbox, строка-объяснение у неподходящей категории.
+Доказательства: red 2/2 на старом коде (`…17-01-38Z-e2e-a4f3.log`) → green 4/4
+(`…17-04-33Z-e2e-1bd3.log`); задетые переименованием спеки workspace/empty-base/navigation/
+accessibility/requests — **116/116** (`…17-05-41Z-e2e-ccf0.log`); typecheck и lint чисто. Витрина
+light/dark + mobile — `reports/availability-av1-2026-09-27/` (`tests/ui/availability-gate.spec.ts`,
+подставной API; даты в полях en-US — хром CI, на машине владельца ru). **Визуальный стоп: ждёт
+подтверждения владельца; AV2 до него не начинается.**
+
 ## 11. Технические заметки (для исполнителя)
 
 - Экран: `apps/web/src/app/rooms/[[...section]]/page.tsx` + `apps/web/src/app/rooms/availability-finder.tsx`;

@@ -24,7 +24,7 @@ export default async function InventoryPage() {
           <FundEditor categories={categories} mode="category" />
           <FundEditor categories={categories} />
           <Link href="/rooms/availability" className="btn btn--secondary">
-            Доступность
+            Свободные места
           </Link>
           <Link href="/chessboard" className="btn">
             <Icon name="board" />

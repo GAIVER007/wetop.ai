@@ -34,7 +34,7 @@ test('availability preserves exact unit and dates; responsive category design', 
   page,
 }) => {
   await page.goto('/rooms/availability?arrival=2026-09-24&departure=2026-09-27');
-  await expect(page.getByRole('heading', { name: 'Свободно на весь срок' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Найдено \d+ вариант/ })).toBeVisible();
   await page.locator('.fund-availability summary').first().click();
   const link = page.locator('.fund-book-unit').first();
   await expect(link).toHaveAttribute('href', /arrival=2026-09-24&departure=2026-09-27&unit=/);
@@ -60,6 +60,38 @@ test('availability preserves exact unit and dates; responsive category design', 
   await page.getByRole('combobox', { name: 'Тип размещения', exact: true }).selectOption('ROOM');
   await page.getByRole('combobox', { name: 'Тип размещения', exact: true }).selectOption('');
   await page.screenshot({ path: 'reports/fund-workspace-availability.png', fullPage: true });
+});
+
+test('guests filter categories by capacity; toggle shows all; tab renamed', async ({ page }) => {
+  // ТЗ «Свободные места» AV1 (ADR-106): поиск отвечает «нас трое», а не только «есть ли место»
+  await page.goto('/rooms/availability?arrival=2026-09-24&departure=2026-09-27&guests=3');
+  await expect(page.getByText(/3 ночи · 3 гостя/)).toBeVisible();
+  const rows = page.locator('.fund-availability article');
+  // «Двухместный номер» вмещает двоих — запросу на троих не подходит и в выдачу не попадает
+  await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(0);
+  await expect(rows.filter({ hasText: 'Мужской общий номер' })).toHaveCount(1);
+  // счётчик результата — по запросу: подходящих номеров нет
+  await expect(page.locator('.fund-counts')).toContainText('0 номеров');
+  // «Все категории» возвращает неподходящие строки с объяснением
+  await page.getByRole('button', { name: 'Все категории', exact: true }).click();
+  await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(1);
+  await expect(
+    rows.filter({ hasText: 'Двухместный номер' }).getByText(/Не вмещает 3 гостей/),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Только доступные', exact: true }).click();
+  await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(0);
+  // раздел переименован: вкладка фонда и заголовок — «Свободные места», маршрут прежний
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Номерной фонд', exact: true })
+      .getByRole('link', { name: 'Свободные места' }),
+  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
+  // пресет дат сохраняет число гостей
+  await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
+    'href',
+    /guests=3/,
+  );
 });
 
 test('dark categories and availability; invalid dates and empty onboarding', async ({

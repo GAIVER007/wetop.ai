@@ -40,6 +40,8 @@ export default async function RoomsPage({
   const q = normalizeSearchParams(await searchParams),
     arrival = q.arrival ?? today,
     departure = q.departure ?? (validDate(arrival) ? nextDay(arrival) : today);
+  const guestsRaw = Number.parseInt(q.guests ?? '', 10);
+  const guests = Number.isFinite(guestsRaw) ? Math.min(Math.max(guestsRaw, 1), 99) : 1;
   const valid =
     validDate(arrival) &&
     validDate(departure) &&
@@ -63,14 +65,15 @@ export default async function RoomsPage({
   ]);
   return (
     <Page
-      title="Доступность номеров"
-      subtitle="Найдите номер или койку, свободные на весь срок проживания."
+      title="Свободные места"
+      subtitle="Найдите размещение, свободное на весь период проживания."
     >
       <FundTabs active="availability" />
       <AvailabilityFinder
         today={today}
         arrival={arrival}
         departure={departure}
+        guests={guests}
         result={result.data}
         error={result.error}
         summary={summary}

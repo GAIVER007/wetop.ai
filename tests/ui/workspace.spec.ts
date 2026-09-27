@@ -52,7 +52,7 @@ test('все разделы, карточки и печать открывают
     ['/analytics/setup', 'Настройки сайта'],
     ['/rooms', 'Номерной фонд'],
     ['/rooms/categories', 'Категории номеров'],
-    ['/rooms/availability', 'Доступность номеров'],
+    ['/rooms/availability', 'Свободные места'],
     ['/hotel-settings', 'Настройки гостиницы'],
     ['/hotel-settings/check-in', 'Настройки гостиницы'],
     ['/hotel-settings/penalties', 'Правила отмены'],
@@ -1021,9 +1021,9 @@ test('доступность: период длиннее 62 ночей объя
   await expect(page.getByLabel('Заезд')).toHaveValue('2026-10-01');
   // тот же предел стоит и в самом поле даты: браузер не даст выбрать выезд дальше горизонта
   await expect(page.getByLabel('Выезд')).toHaveAttribute('max', '2026-12-02');
-  await page.getByRole('link', { name: 'Неделя' }).click();
+  await page.getByRole('link', { name: '7 дней' }).click();
   await expect(page.getByText('не больше 62 ночей')).toHaveCount(0);
-  await expect(page.getByText('Свободно на весь срок')).toBeVisible();
+  await expect(page.getByText(/Найдено \d+ вариант/)).toBeVisible();
 });
 
 /**

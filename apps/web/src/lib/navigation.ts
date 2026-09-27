@@ -76,9 +76,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
           },
           {
             href: '/rooms/availability',
-            label: 'Доступность номеров',
+            label: 'Свободные места',
             icon: 'board',
-            description: 'Свободные номера и койки на весь срок проживания.',
+            description: 'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
           },
           {
             href: '/rates',
@@ -225,7 +225,7 @@ export const sidebarSections: SidebarSection[] = [
     items: [
       menuItem('/inventory', 'Номера и койки'),
       menuItem('/rooms/categories', 'Категории номеров'),
-      menuItem('/rooms/availability', 'Доступность'),
+      menuItem('/rooms/availability', 'Свободные места'),
     ],
   },
   {

@@ -3,6 +3,8 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
+import { hashSessionToken } from '@pms/domain';
+import { newSessionToken } from '@pms/shared';
 import { PrismaAccountsRepository } from '../../apps/api/src/accounts/accounts.prisma-repository';
 import { AuditService } from '../../apps/api/src/audit/audit.module';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
@@ -114,7 +116,8 @@ describe.skipIf(!url)(
       await rolledBack(async (tx) => {
         const { org, ids } = await organization(tx, { owner: 'OWNER', admin: 'STAFF' });
         const repo = new PrismaAccountsRepository({ db: tx } as PrismaService);
-        const tokenHash = randomUUID().replace(/-/g, '');
+        // отпечаток сессии база принимает только в виде HMAC-SHA256 (`sessions_token_hash_shape`)
+        const tokenHash = hashSessionToken(newSessionToken());
         await tx.session.create({
           data: {
             tokenHash,

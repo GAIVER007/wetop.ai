@@ -34,7 +34,7 @@ export function Sidebar({
   desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
-  // «Категории» и «Доступность» — вкладки «Номерного фонда» (ADR-106): подсвечивается его пункт
+  // «Категории» и «Доступность» — вкладки «Номерного фонда» (ADR-107): подсвечивается его пункт
   const active = route?.startsWith('/hotel-settings')
     ? '/hotel-settings'
     : route?.startsWith('/rooms')
@@ -154,7 +154,7 @@ function SectionLinks({
         const open = !collapsed && expanded === section.id;
         const selected = activeSection === section.id;
         const panelId = `${id}-${section.id}`;
-        // Раздел из одного пункта (ADR-106): прямая ссылка вместо раскрывашки с единственной строкой
+        // Раздел из одного пункта (ADR-107): прямая ссылка вместо раскрывашки с единственной строкой
         const single = section.direct ? section.items[0] : undefined;
         if (single)
           return (

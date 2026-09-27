@@ -18,7 +18,7 @@ export interface InventoryReadModel {
   blocks: number;
 }
 
-/** Живое состояние места для списка фонда (ADR-106): уборка, действующая блокировка, участие в продаже */
+/** Живое состояние места для списка фонда (ADR-107): уборка, действующая блокировка, участие в продаже */
 export interface InventoryUnitState {
   code: string;
   housekeepingStatus: 'DIRTY' | 'CLEAN' | 'INSPECTED';

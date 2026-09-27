@@ -372,6 +372,43 @@ const DESIGN_STAYS: Array<{
     to: 2,
     price: '1600000',
   },
+  // Финансы отменённой брони (ТЗ «Брони v2» §16, ADR-106): четыре состояния колонки «Финансы» —
+  // «к возврату» (платёж остался после сторно), «возвращено», «оплачено» (начисление осталось и
+  // оплачено полностью — почему именно, список не знает; DSG-CANC выше остаётся пустым счётом «—»).
+  // Деньги задаёт finance().
+  {
+    n: 'DSG-RFND',
+    label: 'Гость К-Возврату',
+    status: 'CANCELLED',
+    source: 'OTA',
+    channel: 'Trip.com',
+    unit: 'R10',
+    from: 0,
+    to: 2,
+    price: '1600000',
+  },
+  {
+    n: 'DSG-RETD',
+    label: 'Гость Возвращено',
+    status: 'CANCELLED',
+    source: 'WEBSITE',
+    channel: null,
+    unit: 'R11',
+    from: 0,
+    to: 2,
+    price: '1600000',
+  },
+  {
+    n: 'DSG-CPAID',
+    label: 'Гость Оплачено',
+    status: 'CANCELLED',
+    source: 'OTA',
+    channel: 'Ostrovok',
+    unit: 'R12',
+    from: 0,
+    to: 2,
+    price: '1600000',
+  },
 ];
 function designCard(d: (typeof DESIGN_STAYS)[number], arrival: string, departure: string) {
   const unit = d.unit ? units.find((u) => u.code === d.unit)! : null;
@@ -1210,11 +1247,22 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
       1,
       Math.round((Date.parse(it.departureDate) - Date.parse(it.arrivalDate)) / 86400000),
     );
-    const prepaid = reservation.confirmationNumber.includes('-NEW')
-      ? 0n
-      : /TEST[1357]$/.test(reservation.confirmationNumber)
-        ? BigInt(it.priceMinor)
-        : 800000n;
+    // Витрина финансов отмены (только design-seed): CANC — счёт пуст, RFND — платёж остался,
+    // RETD — возвращён, CPAID — начисление осталось и оплачено; остальные карточки — как раньше
+    const showcase =
+      /DSG-(CANC|RFND|RETD|CPAID)$/.exec(reservation.confirmationNumber)?.[1] ?? null;
+    const voided = showcase !== null && showcase !== 'CPAID';
+    const prepaid =
+      showcase === 'CANC'
+        ? 0n
+        : showcase
+          ? BigInt(it.priceMinor)
+          : reservation.confirmationNumber.includes('-NEW')
+            ? 0n
+            : /TEST[1357]$/.test(reservation.confirmationNumber)
+              ? BigInt(it.priceMinor)
+              : 800000n;
+    const refunded = showcase === 'RETD' ? BigInt(it.priceMinor) : 0n;
     const amount = BigInt(it.priceMinor);
     const payments = paymentLines
       .filter((p) => p.folioId === id)
@@ -1263,15 +1311,25 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
           amountMinor: amount.toString(),
           serviceDate: it.arrivalDate,
           createdAt: `${today}T07:00:00Z`,
-          voidedAt: null,
+          voidedAt: voided ? `${today}T09:00:00Z` : null,
         },
       ],
       payments,
-      refunds: [],
-      chargedMinor: amount.toString(),
+      refunds: refunded
+        ? [
+            {
+              id: `refund-${id}`,
+              paymentId: `prepaid-${id}`,
+              amountMinor: refunded.toString(),
+              reason: 'Отмена брони',
+              createdAt: `${today}T09:30:00Z`,
+            },
+          ]
+        : [],
+      chargedMinor: (voided ? 0n : amount).toString(),
       paidMinor: (prepaid + (paid.get(id) ?? 0n)).toString(),
-      refundedMinor: '0',
-      balanceMinor: (amount - prepaid - (paid.get(id) ?? 0n)).toString(),
+      refundedMinor: refunded.toString(),
+      balanceMinor: ((voided ? 0n : amount) - prepaid - (paid.get(id) ?? 0n) + refunded).toString(),
     };
   });
   if (groupFixture && reservation === card) {
@@ -2681,23 +2739,29 @@ createServer(async (req, res) => {
       if (!emptyFixture) for (const r of inPeriod) counts[r.status] = (counts[r.status] ?? 0) + 1;
       const rows = inPeriod
         .filter((r) => status === 'ALL' || r.status === status)
-        .map((r) => ({
-          confirmationNumber: r.confirmationNumber,
-          status: r.status,
-          source: r.source,
-          channel: r.channel,
-          arrivalDate: r.arrivalDate,
-          departureDate: r.departureDate,
-          currency: r.currency,
-          totalAmountMinor: r.totalAmountMinor,
-          paidMinor: finance(r).paidMinor,
-          balanceMinor: finance(r).balanceMinor,
-          hasFolios: true,
-          unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
-          primaryGuest: r.primaryGuest
-            ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
-            : null,
-        }));
+        .map((r) => {
+          const money = finance(r);
+          return {
+            confirmationNumber: r.confirmationNumber,
+            status: r.status,
+            source: r.source,
+            channel: r.channel,
+            arrivalDate: r.arrivalDate,
+            departureDate: r.departureDate,
+            currency: r.currency,
+            totalAmountMinor: r.totalAmountMinor,
+            chargedMinor: money.chargedMinor,
+            paidMinor: money.paidMinor,
+            refundedMinor: money.refundedMinor,
+            balanceMinor: money.balanceMinor,
+            hasFolios: true,
+            unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
+            itemsCount: r.items.length,
+            primaryGuest: r.primaryGuest
+              ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
+              : null,
+          };
+        });
       const pageSize = Number(url.searchParams.get('pageSize') || 25);
       const page = Number(url.searchParams.get('page') || 1);
       return send(200, {

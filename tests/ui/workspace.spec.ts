@@ -107,7 +107,7 @@ test('вложенные разделы: раскрытие, один актив
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы');
   await sales.click();
   await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).not.toBeVisible();
-  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-106); вкладки страницы подсвечивают его пункт
+  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-107); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);

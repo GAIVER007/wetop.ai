@@ -7,10 +7,13 @@ import { DateInput } from '../../components/date-field';
 import { AmountChip } from '../../components/amount-chip';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { messengerLinks } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { displayDate } from '../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../lib/plural';
+import { DatesToggle } from './dates-toggle';
+import { DensityScope } from './density-toggle';
+import { financeState } from './finance-state';
+import { deskShell } from '../../lib/desk-shell';
 import '../directory.css';
 import './reservations.css';
 import {
@@ -20,7 +23,44 @@ import {
   validDate,
   sourceNames,
   reservationStatuses,
+  reservationStatusWords,
+  type ReservationListRow,
 } from '../../lib/hotel-api';
+
+/** Вторая строка колонки «Финансы» (ADR-106): состояние по счетам, слова из DESIGN.md §14 */
+function FinanceLine({ row }: { row: ReservationListRow }) {
+  const state = financeState(row);
+  switch (state.kind) {
+    case 'unpaid':
+      return <span className="warn-text reservations-fin">не оплачено</span>;
+    case 'due':
+      return (
+        <AmountChip
+          className="reservations-fin"
+          tone="due"
+          minor={state.minor}
+          currency={row.currency}
+        />
+      );
+    case 'refund-due':
+      return (
+        <AmountChip
+          className="reservations-fin"
+          tone="refund"
+          label="к возврату"
+          minor={state.minor}
+          currency={row.currency}
+        />
+      );
+    case 'refunded':
+      return <span className="muted reservations-fin">возвращено</span>;
+    case 'paid':
+      return <span className="dir-paid reservations-fin">оплачено</span>;
+    default:
+      return <span className="muted reservations-fin">—</span>;
+  }
+}
+
 export default async function ReservationsPage({
   searchParams,
 }: {
@@ -66,14 +106,15 @@ export default async function ReservationsPage({
     from === to
       ? displayDate(from)
       : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
-  // Готовые отрезки, как в «Деньгах за период»: обычные вопросы стойки — один щелчок вместо
-  // двух календарей (owner 21.09). Поиск и статус сохраняются, страница сбрасывается на первую.
+  // Готовые отрезки — обычные вопросы стойки одним щелчком (owner 21.09); ручной период
+  // раскрывается кнопкой «Даты» (ADR-106 по ТЗ «Брони v2» §62: «С/По» не занимают место при пресете)
   const periodPresets: [string, { from: string; to: string }][] = [
     ['Сегодня', { from: today, to: today }],
     ['Завтра', { from: plusDays(today, 1), to: plusDays(today, 1) }],
     ['7 дней', { from: today, to: plusDays(today, 6) }],
     ['30 дней', { from: today, to: plusDays(today, 29) }],
   ];
+  const isPreset = periodPresets.some(([, p]) => p.from === from && p.to === to);
   // Числа на чипах: видно, сколько предварительных и проживающих, до нажатия. Ряд не
   // перестраивается от периода к периоду — статус с нулём остаётся на месте и приглушён,
   // «Отменены 0» — это тоже ответ, за которым не надо никуда нажимать.
@@ -82,19 +123,24 @@ export default async function ReservationsPage({
   const pageOutOfRange = (result?.total ?? 0) > 0 && result?.rows.length === 0;
   const statusText = status !== 'ALL' ? `, статус «${reservationStatuses[status]}»` : '';
   const queryText = q ? `, по запросу «${q}»` : '';
+  // «Только чтение» (ADR-102): запись держит API, полосу — оболочка; страница лишь не показывает
+  // «Новую бронь» — действие, которого нельзя, не рисуется вовсе (приём ИИ-продавца, DESIGN.md §8)
+  const { readOnly } = await deskShell();
   return (
     <Page
       title="Брони"
       width="full"
       actions={
-        <Link href="/reservations/new" className="btn">
-          <Icon name="plus" />
-          Новая бронь
-        </Link>
+        readOnly ? undefined : (
+          <Link href="/reservations/new" className="btn">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        )
       }
     >
       <section className="reservations-controls" aria-label="Фильтры броней">
-        <form className="directory-toolbar" method="get">
+        <form className="reservations-toolbar" method="get">
           <div className="search-field">
             <Icon name="search" />
             <Input
@@ -107,23 +153,32 @@ export default async function ReservationsPage({
               aria-label="Поиск броней"
             />
           </div>
-          <Field inline label="С">
-            <DateInput
-              key={`from-${from}`}
-              name="from"
-              defaultValue={from}
-              aria-label="Период: с"
-            />
-          </Field>
-          <Field inline label="По">
-            <DateInput
-              key={`to-${to}`}
-              name="to"
-              rangeFromName="from"
-              defaultValue={to}
-              aria-label="Период: по"
-            />
-          </Field>
+          <nav className="directory-filters reservations-presets" aria-label="Готовые периоды">
+            {periodPresets.map(([label, p]) => (
+              <Link
+                key={label}
+                href={href({ from: p.from, to: p.to, page: '1' })}
+                className={p.from === from && p.to === to ? 'is-active' : ''}
+                aria-current={p.from === from && p.to === to ? 'page' : undefined}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <DatesToggle defaultOpen={!isPreset}>
+            <Field inline label="С">
+              <DateInput key={`from-${from}`} name="from" defaultValue={from} aria-label="Период: с" />
+            </Field>
+            <Field inline label="По">
+              <DateInput
+                key={`to-${to}`}
+                name="to"
+                rangeFromName="from"
+                defaultValue={to}
+                aria-label="Период: по"
+              />
+            </Field>
+          </DatesToggle>
           <Field label="Статус" className="reservations-status-mobile">
             <Select
               name="status"
@@ -140,40 +195,24 @@ export default async function ReservationsPage({
           </Field>
           <Button tone="secondary">Показать</Button>
         </form>
-        <div className="reservations-quick">
-          <nav className="directory-filters" aria-label="Готовые периоды">
-            <span className="reservations-quick__word">Период</span>
-            {periodPresets.map(([label, p]) => (
+        <nav className="directory-filters reservations-statuses" aria-label="Статусы броней">
+          {Object.entries(reservationStatuses).map(([id, label]) => {
+            const count = counts ? (counts[id] ?? 0) : null;
+            return (
               <Link
-                key={label}
-                href={href({ from: p.from, to: p.to, page: '1' })}
-                className={p.from === from && p.to === to ? 'is-active' : ''}
-                aria-current={p.from === from && p.to === to ? 'page' : undefined}
+                key={id}
+                href={href({ status: id, page: '1' })}
+                className={
+                  status === id ? 'is-active' : count === 0 ? 'reservations-chip--zero' : ''
+                }
+                aria-current={status === id ? 'page' : undefined}
               >
                 {label}
+                {count !== null && <span className="reservations-count">{count}</span>}
               </Link>
-            ))}
-          </nav>
-          <nav className="directory-filters reservations-statuses" aria-label="Статусы броней">
-            <span className="reservations-quick__word">Статус</span>
-            {Object.entries(reservationStatuses).map(([id, label]) => {
-              const count = counts ? (counts[id] ?? 0) : null;
-              return (
-                <Link
-                  key={id}
-                  href={href({ status: id, page: '1' })}
-                  className={
-                    status === id ? 'is-active' : count === 0 ? 'reservations-chip--zero' : ''
-                  }
-                  aria-current={status === id ? 'page' : undefined}
-                >
-                  {label}
-                  {count !== null && <span className="reservations-count">{count}</span>}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+            );
+          })}
+        </nav>
       </section>
       {error && (
         <Alert boxed>
@@ -185,49 +224,56 @@ export default async function ReservationsPage({
       )}
       {result && (
         <section className="reservations-results" aria-label="Список бронирований">
-          <p className="directory-meta" data-testid="directory-meta">
-            {pluralRu(result.total, ['бронирование', 'бронирования', 'бронирований'])} на{' '}
-            {periodText}
-            {statusText}
-            {queryText}
-            {filtersOn && (
-              <>
-                {' '}
-                <Link href="/reservations" className="reservations-reset">
-                  Сбросить фильтры
-                </Link>
-              </>
-            )}
-          </p>
-          {/* Строка в одну линию: гость и номер, откуда, где живёт, когда, статус, деньги, которыми занимается стойка */}
-          {result.rows.length > 0 && (
-            <Table
-              aria-label="Бронирования"
-              data-testid="reservations-table"
-              className="dir-table dir-table--reservations"
-              nowrap
-            >
-              <thead>
-                <tr>
-                  <th>Гость</th>
-                  <th>Источник</th>
-                  <th>Место</th>
-                  <th>Проживание</th>
-                  <th>Статус</th>
-                  <th className="num">Стоимость</th>
-                  <th className="num">К оплате</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.rows.map((r) => {
-                  const nights = nightsBetween(r.arrivalDate, r.departureDate);
-                  const debt = r.hasFolios && BigInt(r.balanceMinor) > 0n;
-                  const wa = messengerLinks(r.primaryGuest?.phone ?? null);
-                  return (
-                    <tr key={r.confirmationNumber}>
-                      <td>
-                        {/* Одна ссылка на всю ячейку: два мелких якоря впритык не проходят по размеру цели (axe target-size) */}
-                        <div className="dir-guest-cell">
+          <DensityScope
+            showControl={result.rows.length > 0}
+            meta={
+              <p className="directory-meta" data-testid="directory-meta">
+                {pluralRu(result.total, ['бронирование', 'бронирования', 'бронирований'])} на{' '}
+                {periodText}
+                {statusText}
+                {queryText}
+                {filtersOn && (
+                  <>
+                    {' '}
+                    <Link href="/reservations" className="reservations-reset">
+                      Сбросить фильтры
+                    </Link>
+                  </>
+                )}
+              </p>
+            }
+          >
+            {/* Иерархия строки (ADR-106): кто и какая бронь → когда → где → откуда → деньги → статус */}
+            {result.rows.length > 0 && (
+              <Table
+                aria-label="Бронирования"
+                data-testid="reservations-table"
+                className="dir-table dir-table--reservations"
+                nowrap
+              >
+                <thead>
+                  <tr>
+                    <th>Бронь / гость</th>
+                    <th>Проживание</th>
+                    <th>Размещение</th>
+                    <th>Источник</th>
+                    <th className="num">Финансы</th>
+                    <th>Статус</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.rows.map((r) => {
+                    const nights = nightsBetween(r.arrivalDate, r.departureDate);
+                    const itemsCount = r.itemsCount ?? (r.unitCodes.length || 1);
+                    const unassigned = r.unitCodes.length < itemsCount;
+                    // Вычисляемые пометки дня (§12 ТЗ): не статус в модели, а взгляд стойки на дату
+                    const arrivesToday =
+                      r.arrivalDate === today && (r.status === 'CONFIRMED' || r.status === 'TENTATIVE');
+                    const departsToday = r.departureDate === today && r.status === 'CHECKED_IN';
+                    return (
+                      <tr key={r.confirmationNumber}>
+                        <td>
+                          {/* Одна ссылка на всю ячейку: два мелких якоря впритык не проходят по размеру цели (axe target-size) */}
                           <Link
                             className="dir-guest"
                             prefetch={false}
@@ -237,117 +283,122 @@ export default async function ReservationsPage({
                             <strong>{r.primaryGuest?.label || 'Гость без имени'}</strong>
                             <span className="dir-number">{r.confirmationNumber}</span>
                           </Link>
-                          {wa && (
-                            <a
-                              className="dir-wa"
-                              href={wa.whatsapp}
-                              target="_blank"
-                              rel="noreferrer"
-                              aria-label={`WhatsApp: ${r.primaryGuest?.label ?? ''}`}
-                            >
-                              WA
-                            </a>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="source-tag">
-                          {r.channel || sourceNames[r.source] || r.source}
-                        </span>
-                      </td>
-                      <td>
-                        {r.unitCodes.length ? (
-                          <span className="dir-unit">
-                            <Icon name="bed" />
-                            {r.unitCodes.join(', ')}
+                        </td>
+                        <td className="dir-stay">
+                          <span className="reservations-stay-dates">
+                            <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
+                            {' → '}
+                            <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
                           </span>
-                        ) : (
-                          <span className="warn-text">не назначено</span>
-                        )}
-                      </td>
-                      <td className="dir-stay">
-                        <span className="reservations-stay-dates">
-                          <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate)}</time>
-                          {' → '}
-                          <time dateTime={r.departureDate}>{displayDate(r.departureDate)}</time>
-                        </span>
-                        {nights > 0 && <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>}
-                      </td>
-                      <td>
-                        <StatusBadge
-                          status={r.status}
-                          label={reservationStatuses[r.status] || r.status}
-                        />
-                      </td>
-                      <td className="num nowrap">
-                        <span className="dir-cell-word">стоимость </span>
-                        {formatMoney(r.totalAmountMinor, r.currency)}
-                      </td>
-                      <td className="num nowrap">
-                        {!r.hasFolios ? (
-                          <span className="muted">—</span>
-                        ) : debt ? (
-                          <AmountChip tone="due" minor={r.balanceMinor} currency={r.currency} />
-                        ) : (
-                          <span className="dir-paid">оплачено</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          )}
-          {!result.rows.length && (
-            <div className="empty-state" data-testid="reservations-empty">
-              <Icon name="booking" />
-              <h3>Бронирований не найдено</h3>
-              {pageOutOfRange ? (
-                <p>
-                  На этой странице бронирований нет: страниц меньше, чем номер в адресе.{' '}
-                  <Link href={href({ page: '1' })}>К первой странице</Link>
-                </p>
-              ) : (
-                <p>
-                  На {periodText}
-                  {statusText}
-                  {queryText} бронирований нет. Уберите условие или выберите другой день.
-                </p>
-              )}
-              <div className="empty-state__actions">
-                {q && (
-                  <Link href={href({ q: '', page: '1' })} className="btn btn--secondary">
-                    Убрать поиск
-                  </Link>
+                          {nights > 0 && (
+                            <small>{pluralRu(nights, ['ночь', 'ночи', 'ночей'])}</small>
+                          )}
+                          {arrivesToday && <small className="reservations-flag">заезд сегодня</small>}
+                          {departsToday && <small className="reservations-flag">выезд сегодня</small>}
+                        </td>
+                        <td>
+                          {itemsCount > 1 ? (
+                            <span className="dir-unit">
+                              <Icon name="bed" />
+                              {pluralRu(itemsCount, ['размещение', 'размещения', 'размещений'])}
+                            </span>
+                          ) : r.unitCodes.length ? (
+                            <span className="dir-unit">
+                              <Icon name="bed" />
+                              {r.unitCodes.join(', ')}
+                            </span>
+                          ) : null}
+                          {/* у группы предупреждение называет число (формулировка владельца 27.09):
+                              «3 размещения» + «⚠ 1 без размещения»; одиночная — «⚠ без ячейки» (§9) */}
+                          {unassigned && (
+                            <span className="warn-text reservations-unassigned">
+                              {itemsCount > 1
+                                ? `⚠ ${itemsCount - r.unitCodes.length} без размещения`
+                                : '⚠ без ячейки'}
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <span className="source-tag">
+                            {r.channel || sourceNames[r.source] || r.source}
+                          </span>
+                        </td>
+                        <td className="num nowrap">
+                          <span className="reservations-total">
+                            {formatMoney(r.totalAmountMinor, r.currency)}
+                          </span>
+                          <FinanceLine row={r} />
+                        </td>
+                        <td>
+                          <StatusBadge
+                            status={r.status}
+                            label={reservationStatusWords[r.status] || r.status}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            )}
+            {!result.rows.length && (
+              <div className="empty-state" data-testid="reservations-empty">
+                <Icon name="booking" />
+                <h3>Бронирований не найдено</h3>
+                {pageOutOfRange ? (
+                  <p>
+                    На этой странице бронирований нет: страниц меньше, чем номер в адресе.{' '}
+                    <Link href={href({ page: '1' })}>К первой странице</Link>
+                  </p>
+                ) : (
+                  <p>
+                    На {periodText}
+                    {statusText}
+                    {queryText} бронирований нет. Уберите условие или выберите другой день.
+                  </p>
                 )}
-                {status !== 'ALL' && (
-                  <Link href={href({ status: 'ALL', page: '1' })} className="btn btn--secondary">
-                    Все статусы
+                <div className="empty-state__actions">
+                  {q && (
+                    <Link href={href({ q: '', page: '1' })} className="btn btn--secondary">
+                      Убрать поиск
+                    </Link>
+                  )}
+                  {status !== 'ALL' && (
+                    <Link href={href({ status: 'ALL', page: '1' })} className="btn btn--secondary">
+                      Все статусы
+                    </Link>
+                  )}
+                  <Link href="/reservations" className="btn btn--secondary">
+                    Сбросить фильтры
                   </Link>
-                )}
-                <Link href="/reservations" className="btn btn--secondary">
-                  Сбросить фильтры
-                </Link>
+                </div>
               </div>
-            </div>
-          )}
-          {result.total > result.pageSize && (
-            <nav className="pagination" aria-label="Страницы броней">
-              {result.page > 1 && (
-                <Link className="btn btn--secondary" href={href({ page: String(result.page - 1) })}>
-                  Назад
-                </Link>
-              )}
-              <span>
-                Страница {result.page} из {Math.max(1, Math.ceil(result.total / result.pageSize))}
-              </span>
-              {result.page * result.pageSize < result.total && (
-                <Link className="btn btn--secondary" href={href({ page: String(result.page + 1) })}>
-                  Далее
-                </Link>
-              )}
-            </nav>
-          )}
+            )}
+            {result.total > result.pageSize && (
+              <nav className="pagination" aria-label="Страницы броней">
+                {result.page > 1 && (
+                  <Link
+                    className="btn btn--secondary"
+                    href={href({ page: String(result.page - 1) })}
+                  >
+                    Назад
+                  </Link>
+                )}
+                <span>
+                  Страница {result.page} из{' '}
+                  {Math.max(1, Math.ceil(result.total / result.pageSize))}
+                </span>
+                {result.page * result.pageSize < result.total && (
+                  <Link
+                    className="btn btn--secondary"
+                    href={href({ page: String(result.page + 1) })}
+                  >
+                    Далее
+                  </Link>
+                )}
+              </nav>
+            )}
+          </DensityScope>
         </section>
       )}
     </Page>

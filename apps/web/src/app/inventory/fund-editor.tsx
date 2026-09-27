@@ -9,7 +9,7 @@ import { saveInventory, inventoryRates } from './actions';
 type Mode = 'category' | 'room';
 
 /**
- * Управляемый drawer создания/правки фонда (ADR-106): открывается и кнопкой `FundEditor`,
+ * Управляемый drawer создания/правки фонда (ADR-107): открывается и кнопкой `FundEditor`,
  * и пунктами меню «+ Добавить» и «⋯» строки — у меню своей кнопки-триггера нет.
  */
 export function FundEditorDialog({

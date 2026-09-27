@@ -28,7 +28,7 @@ export interface InventoryUnitSpec {
   roomNumber: string;
   roomCapacity: number;
   isDorm: boolean;
-  /** Корпус и этаж места — только показ (ADR-106); план импорта их не задаёт, читает БД */
+  /** Корпус и этаж места — только показ (ADR-107); план импорта их не задаёт, читает БД */
   buildingName?: string;
   floorName?: string;
 }

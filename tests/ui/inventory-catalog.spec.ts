@@ -21,7 +21,7 @@ test('каталог: поиск, тип, категория, сброс и со
   await expect(main.getByRole('searchbox')).toHaveValue('M01');
   await main.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
   await expect(main.getByTestId('unit-row')).toHaveCount(88);
-  // категория — фильтр в toolbar (ADR-106), постоянной левой панели больше нет
+  // категория — фильтр в toolbar (ADR-107), постоянной левой панели больше нет
   await main.getByRole('combobox', { name: 'Категория размещения' }).selectOption('MALE');
   await expect(main.getByTestId('unit-row')).toHaveCount(36);
   await expect(page).toHaveURL(/category=MALE/);

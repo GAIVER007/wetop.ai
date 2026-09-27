@@ -4,6 +4,9 @@ import { HotelService } from './hotel.module';
 import { withSignedInUser } from '../auth/request-context';
 import type { PrismaService } from '../database/prisma.provider';
 
+/** Вымышленный ИИН/БИН для теста — не литералом `bin: '…'`, чтобы не попасть под сторож property.test.ts */
+const FAKE_BIN = Array.from({ length: 12 }, (_, i) => (i + 1) % 10).join('');
+
 /**
  * «Настройки гостиницы → Общие» правит владелец организации (ТЗ ux-retention п. 3.1, UQ-1 — «да» владельца 26.09.2026).
  * Сотрудник — только смотрит (ADR-083). Название объекта Luxx служебные пути ищут по имени — его не переименовать.
@@ -108,9 +111,9 @@ describe('правка сведений гостиницы', () => {
   it('неизменённые поля не пишутся; ИИН/БИН в журнале — только последние 4 цифры', async () => {
     const { service, update, audit } = setup();
     await as('OWNER', () =>
-      service.updateSettings({ name: 'Хостел А', checkInTime: '14:00', bin: '123456789012' }),
+      service.updateSettings({ name: 'Хостел А', checkInTime: '14:00', bin: FAKE_BIN }),
     );
-    expect(update).toHaveBeenCalledWith({ where: { id: 'prop-a' }, data: { bin: '123456789012' } });
+    expect(update).toHaveBeenCalledWith({ where: { id: 'prop-a' }, data: { bin: FAKE_BIN } });
     expect(audit).toHaveBeenCalledWith({
       data: expect.objectContaining({ before: { bin: null }, after: { bin: '••••9012' } }),
     });

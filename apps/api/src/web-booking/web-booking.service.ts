@@ -397,7 +397,9 @@ export class WebBookingService {
    * Luxx (аудит 26.09, В-4; Q-194, ADR-095) — такому сайту честный отказ, пока расчёт не научится нескольким объектам.
    */
   private async assertServingProperty(site: SiteRecord, message: string): Promise<void> {
-    const serving = await this.uow.read((repo) => repo.property());
+    // От имени организации сайта (план tenant-isolation-2026-09-26 п. 4): без этого чтение шло служебным путём и
+    // сравнивало с Luxx по имени, а не с объектом организации сайта, — второй объект отваливался этой же проверкой.
+    const serving = await asSite(site, () => this.uow.read((repo) => repo.property()));
     if (site.propertyId !== serving.id) throw new NotFoundException(message);
   }
 

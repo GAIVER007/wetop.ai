@@ -144,8 +144,8 @@ export function ReservationActions(props: {
 }) {
   // Как в API (changeDates): без явного выбора пересчёт идёт по тарифу первого неотменённого проживания (Б1)
   const current = props.items.find((it) => it.status !== 'CANCELLED' && it.ratePlanCode);
-  // тариф брони — её цена и штраф: выбирают владелец и управляющий (Q-197), администратор меняет даты в том же тарифе;
-  // брони без тарифа он назначает тариф со штрафом (Q-198) — в списке ровно то, что примет API
+  // тариф брони — её цена и штраф: выбирают владелец и управляющий (Q-199), администратор меняет даты в том же тарифе;
+  // брони без тарифа он назначает тариф со штрафом (Q-200) — в списке ровно то, что примет API
   const choosePlan = useMay('rates');
   const datePlans = plansToChoose(props.ratePlans, {
     mayChangePlan: choosePlan,
@@ -479,7 +479,7 @@ function StayButtons(props: {
   const { ask, dialog } = useConfirm();
   const { toast } = useToast();
   // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф надо выбрать. Администратор выбирает только
-  // тариф со штрафом (Q-198), и выбранный записывается в бронь; нет таких тарифов — продлевают владелец и управляющий
+  // тариф со штрафом (Q-200), и выбранный записывается в бронь; нет таких тарифов — продлевают владелец и управляющий
   const [extendPlan, setExtendPlan] = useState('');
   const needsPlan = !props.item.ratePlanCode;
   const mayChangePlan = useMay('rates');
@@ -773,8 +773,8 @@ function AssignForm(props: {
     assignUnitAction.bind(null, props.number, props.item.id),
     { error: null },
   );
-  // другой тариф при смене категории — выбор цены: владелец и управляющий (Q-197); проживанию без тарифа администратор
-  // назначает тариф со штрафом (Q-198)
+  // другой тариф при смене категории — выбор цены: владелец и управляющий (Q-199); проживанию без тарифа администратор
+  // назначает тариф со штрафом (Q-200)
   const mayChangePlan = useMay('rates');
   const movePlans = plansToChoose(props.ratePlans, {
     mayChangePlan,

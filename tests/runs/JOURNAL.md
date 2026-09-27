@@ -2842,3 +2842,9 @@
 | 27.09.2026 19:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 4 из 11 | 49 с | 6440f99 +14 | [лог](logs/2026-09-27T14-06-12Z-e2e-e2b8.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
 | 27.09.2026 19:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 1 из 11 | 1 мин 6 с | 6440f99 +14 | [лог](logs/2026-09-27T14-08-30Z-e2e-5b7b.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
 | 27.09.2026 19:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 11 из 11 | 49 с | 6440f99 +14 | [лог](logs/2026-09-27T14-12-15Z-e2e-d841.log) |  |
+| 27.09.2026 19:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 403 | 34 мин 27 с | 6440f99 +14 | [лог](logs/2026-09-27T14-13-54Z-e2e-856d.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 19:49 | typecheck | ✅ без ошибок | 37 с | d899c92 | [лог](logs/2026-09-27T14-49-18Z-typecheck-f925.log) |  |
+| 27.09.2026 19:49 | lint | ✅ без ошибок | 18 с | d899c92 | [лог](logs/2026-09-27T14-49-56Z-lint-bb46.log) |  |
+| 27.09.2026 19:50 | unit | ✅ 2083 из 2086, пропущено 3 | 1 мин 14 с | d899c92 | [лог](logs/2026-09-27T14-50-35Z-unit-ba59.log) |  |
+| 27.09.2026 19:51 | integration | ✅ 101 из 101 | 36 с | d899c92 | [лог](logs/2026-09-27T14-51-59Z-integration-4cf1.log) |  |
+| 27.09.2026 19:52 | e2e | ✅ 25 из 25 | 1 мин 37 с | d899c92 | [лог](logs/2026-09-27T14-52-46Z-e2e-04ee.log) |  |

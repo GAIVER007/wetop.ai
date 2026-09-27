@@ -145,6 +145,8 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByTestId('site-card-snippet')).toBeVisible();
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('site-card-snippet')).not.toBeVisible();
+    // код виджета — во вкладке «Бронирование» модуля сайта (ADR-107)
+    await page.goto('/website/booking');
     const widget = page
       .locator('summary')
       .getByText('Установка виджета бронирования', { exact: true });

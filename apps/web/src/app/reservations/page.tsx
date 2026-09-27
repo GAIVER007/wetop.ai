@@ -27,7 +27,7 @@ import {
   type ReservationListRow,
 } from '../../lib/hotel-api';
 
-/** Вторая строка колонки «Финансы» (ADR-104): состояние по счетам, слова из DESIGN.md §14 */
+/** Вторая строка колонки «Финансы» (ADR-106): состояние по счетам, слова из DESIGN.md §14 */
 function FinanceLine({ row }: { row: ReservationListRow }) {
   const state = financeState(row);
   switch (state.kind) {
@@ -107,7 +107,7 @@ export default async function ReservationsPage({
       ? displayDate(from)
       : `${displayDate(from, withYear ? 'numeric' : 'short')} → ${displayDate(to, withYear ? 'numeric' : 'short')}`;
   // Готовые отрезки — обычные вопросы стойки одним щелчком (owner 21.09); ручной период
-  // раскрывается кнопкой «Даты» (ADR-104 по ТЗ «Брони v2» §62: «С/По» не занимают место при пресете)
+  // раскрывается кнопкой «Даты» (ADR-106 по ТЗ «Брони v2» §62: «С/По» не занимают место при пресете)
   const periodPresets: [string, { from: string; to: string }][] = [
     ['Сегодня', { from: today, to: today }],
     ['Завтра', { from: plusDays(today, 1), to: plusDays(today, 1) }],
@@ -243,7 +243,7 @@ export default async function ReservationsPage({
               </p>
             }
           >
-            {/* Иерархия строки (ADR-104): кто и какая бронь → когда → где → откуда → деньги → статус */}
+            {/* Иерархия строки (ADR-106): кто и какая бронь → когда → где → откуда → деньги → статус */}
             {result.rows.length > 0 && (
               <Table
                 aria-label="Бронирования"

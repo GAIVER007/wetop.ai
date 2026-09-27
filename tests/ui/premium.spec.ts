@@ -193,7 +193,7 @@ test('список броней: выборка названа, пустой р�
   // один день — одна дата словами, без «20 сент. — 20 сент.»
   await expect(meta).toContainText(/на \d{1,2} [а-яё]+\.?/); // «мая» — без точки
   await expect(meta).not.toContainText('—');
-  // ручной период — за кнопкой «Даты» (ADR-104, §62 ТЗ); в раскрытом виде подписи видны, не только aria-label
+  // ручной период — за кнопкой «Даты» (ADR-106, §62 ТЗ); в раскрытом виде подписи видны, не только aria-label
   await main.getByRole('button', { name: 'Даты', exact: true }).click();
   await expect(main.locator('.reservations-toolbar').getByText('С', { exact: true })).toBeVisible();
   await expect(main.locator('.reservations-toolbar').getByText('По', { exact: true })).toBeVisible();
@@ -226,7 +226,7 @@ test('список броней: выборка названа, пустой р�
   expect(overflow).toBeLessThanOrEqual(1);
   const row = table.locator('tbody tr').first();
   await expect(row).toContainText(/\d{1,2} [а-яё]+\.?/);
-  // слово о брони в единственном числе (ADR-104, Q-135); «Подтверждены» осталось именем фильтра
+  // слово о брони в единственном числе (ADR-106, Q-135); «Подтверждены» осталось именем фильтра
   await expect(row).toContainText('подтверждена');
   await expect(row).toContainText('к оплате');
   await expect(row.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();

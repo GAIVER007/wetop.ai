@@ -132,7 +132,7 @@ describe('reservation directory is a bounded read projection', () => {
       totalAmountMinor: '9007199254740999',
       paidMinor: '5',
       balanceMinor: '9007199254740996',
-      // «Финансы» одной колонкой (ADR-104): состояние возврата и группа считаются из того же
+      // «Финансы» одной колонкой (ADR-106): состояние возврата и группа считаются из того же
       // folioBalance и уже выбранных items — новых запросов и полей схемы нет
       chargedMinor: '9007199254740999',
       refundedMinor: '2',

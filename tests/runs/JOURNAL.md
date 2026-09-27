@@ -2868,3 +2868,5 @@
 | 27.09.2026 22:19 | typecheck | ✅ без ошибок | 34 с | bf26db5 +17 | [лог](logs/2026-09-27T17-19-35Z-typecheck-83e6.log) | CH1: обзор каналов, отчёт на /analytics/sources |
 | 27.09.2026 22:20 | lint | ✅ без ошибок | 20 с | bf26db5 +17 | [лог](logs/2026-09-27T17-20-17Z-lint-a8ef.log) | CH1: обзор каналов, отчёт на /analytics/sources |
 | 27.09.2026 22:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 11 из 11 | 1 мин 3 с | bf26db5 +17 | [лог](logs/2026-09-27T17-20-44Z-e2e-9d8e.log) | CH1 green: обзор каналов и отчёт на /analytics/sources |
+| 27.09.2026 22:22 | unit | ❌ упало 2 из 2108, пропущено 3 | 1 мин 38 с | bf26db5 +11 | [лог](logs/2026-09-27T17-22-00Z-unit-0a62.log) | CH1: обзор каналов; revalidate /analytics/sources в actions |
+| 27.09.2026 22:24 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | f2b5bf3 +1 | [лог](logs/2026-09-27T17-24-29Z-unit-950e.log) | CH1: убрана стрелка в конце ссылки (DESIGN.md §14, сторож слопа) |

@@ -366,7 +366,7 @@ export default async function ChannelOverviewPage() {
                 <p className="note">Броней с заездом за последние 30 дней нет.</p>
               )}
               <Link className="btn btn--secondary" href={sourcesHref}>
-                Подробнее в аналитике →
+                Подробнее в аналитике
               </Link>
             </Panel>
           ) : (

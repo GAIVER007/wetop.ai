@@ -1,0 +1,185 @@
+# Модульные (unit) · 27.09.2026 12:42 Алматы · vm
+# коммит b5c32f4 (claude/festive-johnson-0aark9), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T07-42-06Z-unit-3896.json' 'tests/unit/repo-sync.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/repo-sync.test.ts (25 tests | 5 failed) 8127ms
+   ✓ repo-sync.sh: связь папки с репозиторием (18)
+     ✓ проверка: называет remote, отставание от origin/main, службы в другой папке; код выхода 1 311ms
+     ✓ --pull подтягивает origin/main только fast-forward и потом отставания нет 246ms
+     ✓ --pull не трогает дерево с незакоммиченными правками 235ms
+     ✓ --pull с локальными коммитами не сливает, а просит отправить их 277ms
+     ✓ --relink переводит службы launchd на эту папку через uninstall.sh + install.sh 510ms
+     ✓ --from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее 335ms
+     ✓ без .env говорит, что его нет, но содержимое не читает и не печатает 219ms
+     ✓ чужой remote или папка не под git — код 2 и ни одного действия 126ms
+     ✓ аргументы после # — комментарий: zsh без INTERACTIVE_COMMENTS передаёт их скрипту 217ms
+     ✓ при постоянном адресе быстрый туннель не переустанавливается, а снимается; нужен domain 541ms
+     ✓ быстрый туннель не переустанавливается ни на какой машине: без wetop.yml тоже снимается 615ms
+     ✓ esbuild не той платформы: API и скрипты падали бы на старте — просит npm ci 314ms
+     ✓ --fix при битом esbuild: npm ci, клиент Prisma и перезапуск API — сам, без диктовки команд 561ms
+     ✓ webhook Channex не на постоянном адресе: проверка называет, --fix перерегистрирует 560ms
+     ✓ next-env.d.ts переписан сборкой — это не работа для человека, а строка «сборка» 314ms
+     ✓ настоящая правка рядом со сгенерированным файлом по-прежнему пункт к исполнению 212ms
+     ✓ --pull возвращает сгенерированный файл и подтягивает: из-за него fast-forward не отменяется 207ms
+     ✓ находит вторую копию репозитория рядом с папкой 214ms
+   ❯ repo-sync.sh: папка бота, перенесённая внутрь рабочей (7)
+     × находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает 313ms
+     × --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая 223ms
+     × копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки 240ms
+     × чужой репозиторий внутри папки назван, но не переносится 220ms
+     ✓ рабочие копии сессий и node_modules копиями не считаются 303ms
+     × файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает 300ms
+     ✓ настоящая правка в apps/ai-seller копией не считается, и --fix её не трогает 506ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > находит перенесённую внутрь копию (папку бота) и без флага ничего не двигает
+AssertionError: expected 'Папка: /tmp/repo-sync-P47X1w/WETOP\n …' to match /внутри папки…/WETOP \(ветка ai-seller\)
+
+- Expected:
+/внутри папки вторая копия репозитория: Чат агент\/WETOP \(ветка ai-seller\)/
+
++ Received:
+"Папка: /tmp/repo-sync-P47X1w/WETOP
+  ✓ origin → /tmp/repo-sync-P47X1w/GAIVER007/wetop.ai.git
+Git: ветка main, коммит d453b68; origin/main d453b68
+  ✓ совпадает с origin/main
+  · неотслеживаемых файлов: 1 (git status)
+  ✗ ещё одна копия репозитория рядом: /tmp/repo-sync-P47X1w/seed (d453b68 от 2026-09-27)
+  → оставить одну папку: службы launchd, .env, тесты и синхронизация Exely живут в одной (AGENTS.md §17)
+  ✗ служба api (загружена) держит PMS в «/tmp/repo-sync-P47X1w/Pms Lux» — такой папки больше нет, launchd не может её открыть
+  ✗ служба web (загружена) держит PMS в «/tmp/repo-sync-P47X1w/Pms Lux» — такой папки больше нет, launchd не может её открыть
+  ✗ служба exely-sync (загружена) осталась от снятой автосинхронизации Exely (ADR-052)
+  → снять: scripts/ops/launchd/uninstall.sh exely-sync (--relink снимет сам)
+  → перевести службы на эту папку: scripts/ops/repo-sync.sh --relink
+  ✗ .env нет — без ключей не работают API, синхронизация Exely и Channex
+  → вписать ключи по .env.example (владелец) или перенести из старой папки: scripts/ops/repo-sync.sh --from \"<папка>\"
+  ✗ node_modules нет
+  → npm install
+  · production-сборки стойки нет — служба web соберёт её при старте (scripts/ops/launchd/web-start.mjs)
+  · API на http://127.0.0.1:9 не отвечает — адрес webhook в Channex не проверен
+
+Итог: пунктов к исполнению — 5 (строки со стрелкой выше).
+"
+
+ ❯ tests/unit/repo-sync.test.ts:551:17
+    549|     const top = nestedBotCopy(sb);
+    550|     const { code, out } = run(sb, []);
+    551|     expect(out).toMatch(/внутри папки вторая копия репозитория: Чат аг…
+       |                 ^
+    552|     expect(out).toMatch(/apps\/ai-seller/);
+    553|     expect(out).toMatch(/всё из неё уже на GitHub/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > --archive-nested переносит папку целиком в архив рядом: .env и заметки с ней, рабочая чистая
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/repo-sync.test.ts:564:54
+    562|     nestedBotCopy(sb);
+    563|     const { out } = run(sb, ['--archive-nested']);
+    564|     expect(existsSync(join(sb.newDir, 'Чат агент'))).toBe(false);
+       |                                                      ^
+    565|     const archive = join(sb.dir, 'WETOP-архив');
+    566|     const moved = readdirSync(archive);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > копия с неотправленной работой остаётся на месте: названы коммиты и правки, команда отправки
+AssertionError: expected 'неизвестно: --archive-nested (есть --…' to match /коммитов только здесь, не на GitHub: 1/
+
+- Expected:
+/коммитов только здесь, не на GitHub: 1/
+
++ Received:
+"неизвестно: --archive-nested (есть --pull, --relink, --from <папка>, --fix, --dir <папка>)
+"
+
+ ❯ tests/unit/repo-sync.test.ts:584:17
+    582|     const { code, out } = run(sb, ['--archive-nested']);
+    583|     expect(existsSync(copy)).toBe(true);
+    584|     expect(out).toMatch(/коммитов только здесь, не на GitHub: 1/);
+       |                 ^
+    585|     expect(out).toMatch(/незакоммиченных правок: 1/);
+    586|     expect(out).toMatch(/refs\/heads\/rescue\//);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > чужой репозиторий внутри папки назван, но не переносится
+AssertionError: expected 'неизвестно: --archive-nested (есть --…' to match /внутри папки чужой репозиторий: compe…/
+
+- Expected:
+/внутри папки чужой репозиторий: competitor/
+
++ Received:
+"неизвестно: --archive-nested (есть --pull, --relink, --from <папка>, --fix, --dir <папка>)
+"
+
+ ❯ tests/unit/repo-sync.test.ts:598:17
+    596|     const { out } = run(sb, ['--archive-nested']);
+    597|     expect(existsSync(join(sb.newDir, 'competitor'))).toBe(true);
+    598|     expect(out).toMatch(/внутри папки чужой репозиторий: competitor/);
+       |                 ^
+    599|   });
+    600|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| tests/unit/repo-sync.test.ts > repo-sync.sh: папка бота, перенесённая внутрь рабочей > файлы из старой папки поверх apps/ai-seller названы; --fix возвращает версию main и подтягивает
+AssertionError: expected 'Папка: /tmp/repo-sync-IEeKdp/WETOP\n …' to match /из старой папки бота/
+
+- Expected:
+/из старой папки бота/
+
++ Received:
+"Папка: /tmp/repo-sync-IEeKdp/WETOP
+  ✓ origin → /tmp/repo-sync-IEeKdp/GAIVER007/wetop.ai.git
+Git: ветка main, коммит 0fd697b; origin/main 0fd697b
+  ✓ совпадает с origin/main
+  ✗ незакоммиченных правок: 1
+      apps/ai-seller/bot.py
+  → закоммитить своими файлами (явным списком, не git add -A) или убрать (git stash)
+  ✗ ещё одна копия репозитория рядом: /tmp/repo-sync-IEeKdp/seed (0fd697b от 2026-09-27)
+  → оставить одну папку: службы launchd, .env, тесты и синхронизация Exely живут в одной (AGENTS.md §17)
+  ✗ служба api (загружена) держит PMS в «/tmp/repo-sync-IEeKdp/Pms Lux» — такой папки больше нет, launchd не может её открыть
+  ✗ служба web (загружена) держит PMS в «/tmp/repo-sync-IEeKdp/Pms Lux» — такой папки больше нет, launchd не может её открыть
+  ✗ служба exely-sync (загружена) осталась от снятой автосинхронизации Exely (ADR-052)
+  → снять: scripts/ops/launchd/uninstall.sh exely-sync (--relink снимет сам)
+  → перевести службы на эту папку: scripts/ops/repo-sync.sh --relink
+  ✗ .env нет — без ключей не работают API, синхронизация Exely и Channex
+  → вписать ключи по .env.example (владелец) или перенести из старой папки: scripts/ops/repo-sync.sh --from \"<папка>\"
+  ✗ node_modules нет
+  → npm install
+  · production-сборки стойки нет — служба web соберёт её при старте (scripts/ops/launchd/web-start.mjs)
+  · API на http://127.0.0.1:9 не отвечает — адрес webhook в Channex не проверен
+
+Итог: пунктов к исполнению — 6 (строки со стрелкой выше).
+"
+
+ ❯ tests/unit/repo-sync.test.ts:613:17
+    611|     writeFileSync(join(sb.newDir, 'apps/ai-seller/bot.py'), 'old\n');
+    612|     const { out } = run(sb, []);
+    613|     expect(out).toMatch(/из старой папки бота/);
+       |                 ^
+    614|     expect(out).toContain('apps/ai-seller/bot.py');
+    615|     run(sb, ['--fix']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 20 passed (25)
+   Start at  07:42:12
+   Duration  9.28s (tests 96%, transform 2%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T07-42-06Z-unit-3896.json
+
+# код выхода 1 · 16 с

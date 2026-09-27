@@ -54,6 +54,23 @@ def test_preflight_is_answered(app) -> None:
     assert "POST" in response.headers.get("access-control-allow-methods", "")
 
 
+def test_preflight_allows_the_visitor_key_header(app) -> None:
+    """Ключ посетителя ходит заголовком. Не разрешён в ответе на
+    предварительный запрос — браузер не отправит ни опрос, ни снимок."""
+    response = app.client.options(
+        f"{PREFIX}/messages",
+        headers={
+            "Origin": SITE_ORIGIN,
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "content-type, x-widget-visitor",
+        },
+    )
+
+    assert response.status_code == 204, response.status_code
+    allowed = response.headers.get("access-control-allow-headers", "").lower()
+    assert "x-widget-visitor" in allowed, allowed
+
+
 def test_foreign_domain_gets_no_headers(app) -> None:
     response = app.session(origin=OTHER_ORIGIN)
 

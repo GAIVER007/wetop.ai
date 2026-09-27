@@ -39,8 +39,7 @@ def board(monkeypatch, fake_redis, sync_db):  # noqa: F811
 def _poll(board, visitor_key: str = VISITOR) -> dict:
     response = board.client.get(
         f"{PREFIX}/messages",
-        params={"visitor_key": visitor_key},
-        headers={"Origin": SITE_ORIGIN},
+        headers={"Origin": SITE_ORIGIN, "X-Widget-Visitor": visitor_key},
     )
     assert response.status_code == 200, response.text
     return response.json()

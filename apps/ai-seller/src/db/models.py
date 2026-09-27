@@ -282,6 +282,12 @@ class Message(Base):
     sent_by_us: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
     audio_url: Mapped[str | None] = mapped_column(sa.Text)
     tokens_used: Mapped[int | None] = mapped_column(sa.Integer)
+    # Разбивка расхода ответа (Р2, миграция 0005): вход, из него кэш, выход —
+    # цена у них разная. tokens_used остаётся суммой: на ней дневной предел.
+    llm_model: Mapped[str | None] = mapped_column(sa.Text)
+    tokens_input: Mapped[int | None] = mapped_column(sa.Integer)
+    tokens_cached: Mapped[int | None] = mapped_column(sa.Integer)
+    tokens_output: Mapped[int | None] = mapped_column(sa.Integer)
     created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
 
     conversation: Mapped["Conversation"] = relationship(back_populates="messages")

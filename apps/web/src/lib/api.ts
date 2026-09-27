@@ -1578,6 +1578,13 @@ export const platformApi = {
       `/platform/organizations/${encodeURIComponent(organizationId)}/extensions/ai-seller`,
       body,
     ),
+  /** Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — ACTIVE, обратно — READ_ONLY */
+  changeStatus: (organizationId: string, body: { status: 'ACTIVE' | 'READ_ONLY'; note: string }) =>
+    sendJson<PlatformOrganization>(
+      'PUT',
+      `/platform/organizations/${encodeURIComponent(organizationId)}/status`,
+      body,
+    ),
 };
 
 /** Кто пишет в техподдержку — из подписи стойки; анонимный посетитель wetop.ai — `null` в карточке */

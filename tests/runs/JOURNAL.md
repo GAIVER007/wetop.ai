@@ -2884,3 +2884,9 @@
 | 27.09.2026 20:35 | unit | ✅ 2112 из 2115, пропущено 3 | 1 мин 12 с | ae949ce +2 | [лог](logs/2026-09-27T15-35-05Z-unit-0cc3.log) |  |
 | 27.09.2026 20:36 | integration | ❌ упало 1 из 107 | 29 с | ae949ce +5 | [лог](logs/2026-09-27T15-36-51Z-integration-2dcb.log) | manual reservation against the database (integration, rolled back) creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on  |
 | 27.09.2026 20:37 | integration | ✅ 107 из 107 | 30 с | ae949ce +5 | [лог](logs/2026-09-27T15-37-39Z-integration-898b.log) |  |
+| 27.09.2026 19:53 | typecheck | ✅ без ошибок | 29 с | b954994 +6 | [лог](logs/2026-09-27T14-53-03Z-typecheck-e387.log) |  |
+| 27.09.2026 19:53 | lint | ✅ без ошибок | 17 с | b954994 +6 | [лог](logs/2026-09-27T14-53-33Z-lint-0d64.log) |  |
+| 27.09.2026 19:53 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 13 с | b954994 +5 | [лог](logs/2026-09-27T14-53-51Z-unit-7cf6.log) |  |
+| 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
+| 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
+| 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |

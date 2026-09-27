@@ -1,15 +1,12 @@
--- Откат 20260927000027_tenant_columns. Данные гостей и журнала не теряются: снимаются только новые колонки.
--- Порядок: сначала откатить 20260927000028_rls_policies (политики ссылаются на эти колонки).
+-- Откат 20260927000027_tenant_columns — к состоянию после 20260927000026_phase1_tenant_scope (колонки организации у
+-- гостей и журнала остаются, как их завела phase1: без NOT NULL). Данные не теряются.
+-- Порядок: сначала откатить 20260927000028_rls_policies (политики зовут функции ниже).
 DROP TRIGGER IF EXISTS audit_logs_organization ON "audit_logs";
 DROP FUNCTION IF EXISTS audit_logs_organization();
-SELECT set_config('wetop.audit_purge', 'on', false);
-ALTER TABLE "audit_logs" DROP CONSTRAINT IF EXISTS "audit_logs_organization_id_fkey";
-DROP INDEX IF EXISTS "audit_logs_organization_id_created_at_idx";
-ALTER TABLE "audit_logs" DROP COLUMN IF EXISTS "organization_id";
-SELECT set_config('wetop.audit_purge', '', false);
 DROP FUNCTION IF EXISTS app_audit_organization(text, text, uuid);
-ALTER TABLE "guests" DROP CONSTRAINT IF EXISTS "guests_organization_id_fkey";
-DROP INDEX IF EXISTS "guests_organization_id_idx";
-ALTER TABLE "guests" DROP COLUMN IF EXISTS "organization_id";
+DROP INDEX IF EXISTS "audit_logs_organization_id_created_at_idx";
+CREATE INDEX IF NOT EXISTS "audit_logs_organization_id_idx" ON "audit_logs" ("organization_id");
+ALTER TABLE "guests" ALTER COLUMN "organization_id" DROP DEFAULT;
+ALTER TABLE "guests" ALTER COLUMN "organization_id" DROP NOT NULL;
 ALTER TABLE "properties" ALTER COLUMN "organization_id" DROP NOT NULL;
 DROP FUNCTION IF EXISTS app_current_org();

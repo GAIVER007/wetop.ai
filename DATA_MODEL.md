@@ -35,6 +35,7 @@ v1.10 (25.09.2026; предохранители в самой базе по ТЗ
 v1.11 (26.09.2026; **утверждено владельцем 26.09.2026** — план `plans/seller-prompt-window-2026-09-26.md` и макет «Макет нравится, делай этап Б так», ADR-097): §15 `seller_profiles.prompt_text` — инструкция продавцу одним текстом; есть она — продавцу уходит текст, а не поля профиля — миграция `20260926000024_seller_prompt_text` с `down.sql`, **на рабочей базе применяет владелец**
 v1.12 (26.09.2026; **утверждено владельцем 26.09.2026 — ADR-096**, ответ «Да, делай» на вопрос о коде места перед открытием регистрации; номер версии и миграции сдвинуты при слиянии двух параллельных веток 27.09.2026 — v1.11 и `20260926000024` заняла миграция `seller_prompt_text` выше): §2 `InventoryUnit.property_id` и уникальность кода места **внутри объекта** `UNIQUE(property_id, code)` вместо глобальной — вторая гостиница с кодами «101…» не падает на онбординге, а поиск места по коду не находит чужое (план `plans/tenant-isolation-2026-09-26.md`); миграция `20260926000025_unit_code_per_property` — применяет владелец
 v1.13 (27.09.2026; **утверждено владельцем 27.09.2026 — ADR-103**, план `plans/rls-2026-09-27.md` утверждён вместе с ответами RLS-1…RLS-3): Row Level Security — §17; `guests.organization_id` (§3, гость принадлежит своей организации — RLS-1), `audit_logs.organization_id` (§10), `properties.organization_id` NOT NULL (§1); миграции — применяет владелец
+v2.0 (27.09.2026; **утверждена владельцем 27.09.2026** — «архитектура v3 уже утверждена и заморожена»; задача владельца от 27.09.2026 об архитектуре платформы, `ARCHITECTURE.md`, ADR-104 — в поручении названо первым номером ADR-100, дважды перенумеровано при слияниях с `main`, политика ADR-052): §18 — уровни владения `Business` и `Location` между организацией и объектом, `properties.location_id`, `organizations.reporting_currency`; §19 — Beauty-домен (целевой). Номера разделов сдвинуты при слиянии: §17 занял RLS (v1.13). Существующие таблицы §1–§17 не меняются, кроме двух добавляемых колонок; ни один существующий ID не меняется. Миграции пишутся фазой Business+Location со своим планом (`plans/phase-business-location-2026-09-27.md`); на рабочей базе применяет владелец (AGENTS.md §15)
 Дата: 2026-09-07
 
 ---
@@ -1365,82 +1366,6 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
 
 ---
 
-## Чего в модели нет и почему
-
-| Область                                                   | Решение                                                          |
-| --------------------------------------------------------- | ---------------------------------------------------------------- |
-| Сезоны                                                    | Не заводим — на объекте не используются, `DailyRate` достаточно  |
-| Детские тарифы и возрастные группы                        | Не заводим — детское размещение выключено, 0 детей за месяц      |
-| Ярус койки, окно у dorm-места, площадь, планировка комнат | Данных не существует; по ADR-013 в MVP не нужны. Q-081 закрыт    |
-| Roles/Permissions                                         | Ждём Q-061…Q-064; две роли в организации — §16 (v1.9, ADR-083) |
-| Company / юрлица-заказчики                                | Справочник в Exely есть, за август **0 реальных юрлиц**. Вне MVP |
-| Учёт расходов бизнеса (зарплата, коммуналка)              | Вне scope PMS (`SPEC.md`), но люди этим пользуются — Q-084       |
-| Овербукинг                                                | На объекте не настроен. Механизм квот отложен                    |
-
----
-
-## Гейт утверждения
-
-- [x] Аудит по `TZ-EXELY-AUDIT.md` сдан — `project-input/exely/audit-2026-09-07/`
-- [x] Раздел 5 (номерной фонд) закрыт: 88 = 16 ROOM + 72 BED, подтверждено трижды
-- [x] Раздел 6 (dorm) закрыт, кроме 6.11 и 6.14
-- [x] Вопросы Q-001…Q-011 записаны с источниками
-- [x] Пробный маппинг инвентаря: 88 строк укладываются в `InventoryUnit` без изменения схемы
-- [x] Вопрос occupancy в `DailyRate` разрешён (только «Двухместная», 1|2)
-- [x] **Q-080 — модель койки** — закрыт 07.09.2026, вариант А (ADR-013)
-- [x] Правки v0.3 (StayGuest, статус проживания, `quantity`, notes, уборка по единице) — утверждены 07.09.2026
-- [x] **Q-091 — Folio на бронь или на проживание** — закрыт 09.09.2026: на проживание (ADR-014), §6 утверждён
-- [x] ~~Q-092~~ — отложен владельцем 07.09.2026; на схему не влияет, сверка по 88 как в Exely
-- [ ] Пробный маппинг будущих броней: 209 проживаний укладываются в Reservation + Item + Allocation
-- [x] Явное подтверждение владельца — 07.09.2026, чат («да»), кроме раздела 6
-- [x] **Поправки v1.6 (20.09.2026)** — `properties.organization_id`, `users.email_verified_at`, `email_verifications`,
-  снятие `login_codes`: в схеме и на рабочей базе с 20.09, в документ внесены задним числом 22.09.2026;
-  **утверждены владельцем 25.09.2026 (ADR-082)**
-- [x] **v1.7 (24.09.2026)** — даты документа шифрованием, контакты объекта, журнал только дописывается, виды
-  неисправностей по `POLICY`: **утверждено 25.09.2026 (ADR-082) и реализовано 25.09.2026** — миграция
-  `20260925000021` с `down.sql`, на рабочей базе применяет владелец
-- [x] **v1.8 (24.09.2026)** — §14 `user_errors` и §15 `seller_profiles` (в редакции под профиль бота): утверждены
-  владельцем 24.09.2026 (ADR-081). Миграции с `down.sql`; на рабочей базе применяет владелец
-- [x] **v1.11 (26.09.2026)** — §15 `seller_profiles.prompt_text`: утверждено владельцем 26.09.2026 (ADR-097). Миграция
-  `20260926000024` с `down.sql`; на рабочей базе применяет владелец
-- [x] **v1.12 (26.09.2026)** — §2 `InventoryUnit.property_id`, код места уникален внутри объекта: утверждено владельцем
-  26.09.2026 (ADR-096). Миграция `20260926000025` с `down.sql`; на рабочей базе применяет владелец
-
-Раздел 6 утверждён 09.09.2026 (Q-091 закрыт, ADR-014). Пробный маппинг 209 броней — задача Slice 2.
-
-## Гостевой мастер и несколько агентов — утверждено для реализации и тестовой базы (26.09.2026)
-
-Источник — `plans/ai-seller-unified-2026-09-26.md`, поручение владельца реализовать единый план.
-Владелец утвердил модель 26.09.2026 ответом «Утверждаю модель для реализации и тестовой базы». Production migration этим не разрешена; текущий SellerProfile не заменяется молча.
-
-- `Agent`: UUID, organization_id FK, name, scenario (sales/support), profile JSON с валидацией,
-  lifecycle (draft/preparing/ready/error/archived), created_by FK, created_at, updated_at.
-  Организация 1:N Agent. Существующий продавец переносится в один Agent своей организации;
-  знания, диалоги и подключения должны получить agent_id с проверкой принадлежности организации.
-- `WizardSession`: UUID, token_hash unique, ref до 200, last_step, created_at, expires_at.
-  Исходный секрет не хранится в таблице/журнале. Истёкшая сессия не получает доступ к черновику.
-- `WizardDraft`: UUID, guest_session_id unique FK, claimed_by nullable FK, organization_id nullable FK,
-  business_name, niche, description, config JSON, sources JSON, revision integer,
-  generated_revision nullable, generated_prompt, generated_knowledge JSON,
-  test_messages_used integer >= 0, agent_id nullable unique FK, created_at, updated_at.
-  1:1 с гостевой сессией; один черновик может стать только одним агентом.
-- `WizardJob`: UUID, draft_id FK, kind (scan/generate/index), revision,
-  state (queued/running/succeeded/failed), attempt, retry_at, masked_error, created_at, updated_at.
-  Уникальный ключ (draft_id, kind, revision); новые настройки не используют старую генерацию.
-- `WizardMessage`: UUID, draft_id FK, request_id, role, text, state, created_at;
-  уникальный request_id в пределах draft, серверная история. Квота резервируется атомарно;
-  технический отказ освобождает резерв, повтор с тем же ID не оплачивает второй ответ.
-- `WizardSurvey`: guest_session_id unique FK, goal, team_size, leads_per_day, source, industry.
-- `WizardEvent`: UUID, guest_session_id FK, event_type из allowlist, payload с лимитом,
-  deduplication_key unique, created_at; без токенов, текстов переписки и паролей.
-- Присвоение Agent, связь draft, запись outbox для индексации и право на trial — одна транзакция
-  платформы. Бот применяет outbox идемпотентно; общая транзакция двух баз не предполагается.
-- Email handoff: одноразовая серверная связь подтверждённой регистрации с draft, не guestToken
-  в публичных метаданных. Повтор после входа возвращает прежний agent_id только владельцу.
-
-До миграции: согласовать TTL/retention, trial с текущими расширениями и лимит расходов;
-описать backup, backfill существующего продавца, validation и rollback без удаления его истории.
-
 ---
 
 ## 17. Разделение организаций в самой базе — Row Level Security (v1.13 — утверждено 27.09.2026, ADR-103)
@@ -1489,3 +1414,219 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
 
 `users` без RLS намеренно: вошедшему нужны имена авторов журнала и коллег; почты чужих организаций API наружу не отдаёт.
 
+---
+
+## 18. Платформа: Партнёр → Бизнес → Филиал (v2.0 — утверждён владельцем 27.09.2026, ADR-104)
+
+> Основание — задача владельца от 27.09.2026 (термины и иерархия — `ARCHITECTURE.md` §1–§2, решение —
+> ADR-104, в поручении названо первым номером ADR-100); **утверждено владельцем 27.09.2026**
+> («архитектура v3 уже утверждена и заморожена»).
+> Миграции пишутся фазой 1 `ARCHITECTURE.md` §20 со своим планом среза; порядок backfill для Luxx —
+> `ARCHITECTURE.md` §18; на рабочей базе применяет владелец (AGENTS.md §15). Существующие таблицы не
+> меняются, кроме двух добавляемых колонок ниже; ни один существующий ID не меняется.
+
+Соответствие терминов зафиксировано: в интерфейсе продукта партнёр WETOP, в базе и коде — `Organization`,
+в технической архитектуре — Tenant / Organization. Отдельная таблица `Partner` **не создаётся** — это
+та же `organizations` (§13.1).
+
+### 18.1. `businesses` — направление бизнеса партнёра
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `organization_id` | `uuid` FK → `organizations` NOT NULL | бизнес принадлежит одной организации; у организации N бизнесов |
+| `name` | `varchar(200)` NOT NULL | «Luxx Hotels», «Alma Beauty» |
+| `vertical` | enum `BusinessVertical` NOT NULL | `HOSPITALITY`, `BEAUTY` — минимальный набор из задачи; вертикаль живёт здесь, не на организации и не на филиале |
+| `status` | enum `BusinessStatus` NOT NULL DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED`; удаления строк нет, как во всём §13 |
+| `created_at` / `updated_at` | `timestamptz` NOT NULL | |
+
+Индекс по `organization_id`. Уникальности названия не заводим: тёзки внутри организации — её дело,
+ограничений базы, которым нужно имя, нет (регистрационная защита имён объектов ADR-099 остаётся
+про `properties`).
+
+### 18.2. `locations` — филиал бизнеса
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `business_id` | `uuid` FK → `businesses` NOT NULL | филиал принадлежит одному бизнесу |
+| `name` | `varchar(200)` NOT NULL | «Luxx Aparts Almaty», «Marina» |
+| `address` | `varchar(500)` | |
+| `phone` / `email` | `varchar` NULL | как контакты объекта в §1 (v1.7): пусто — прочерк |
+| `timezone` | `varchar(50)` NOT NULL | IANA, «Asia/Almaty»; правило дат AGENTS.md §13 отсчитывается отсюда |
+| `currency` | `varchar(3)` NOT NULL | операционная валюта филиала (KZT, AED, …) |
+| `status` | enum `LocationStatus` NOT NULL DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED` |
+| `created_at` / `updated_at` | `timestamptz` NOT NULL | |
+
+### 18.3. Почему у `locations` нет `organization_id`
+
+Задача просила обосновать, нужен ли он на миграционный период. Не нужен: организация выводится через
+`business_id` одной связкой; ограничений базы, которым нужна колонка прямо на филиале, нет; вторая
+колонка-правда потребовала бы составного FK `(business_id, organization_id) →
+businesses(id, organization_id)`, чтобы не разъехаться (урок денормализации v1.12: её заводили только
+ради UNIQUE в базе — здесь такого UNIQUE нет). Если Row Level Security (путь Б из ADR-061) потребует
+`organization_id` на каждой строке — колонка добавится тогда, сразу с этим составным FK.
+
+### 18.4. Изменения существующих таблиц — ровно два поля
+
+| Таблица | Поле | Примечание |
+|---|---|---|
+| `properties` | `location_id` `uuid` FK → `locations` NULL | родитель объекта. NULL — только на миграционный период: NOT NULL ставится отдельной миграцией после backfill (`ARCHITECTURE.md` §18). `Property` не переименовывается; `organization_id` (v1.6) остаётся, пока замок ADR-061 не переведён на цепочку Location → Business |
+| `organizations` | `reporting_currency` `varchar(3)` NOT NULL DEFAULT `'KZT'` | отчётная валюта партнёра: в неё сводится аналитика филиалов с разными операционными валютами (`ARCHITECTURE.md` §12); источник курса — Q-197 |
+
+### 18.5. Контекст запроса (не таблица)
+
+Целевой RequestActor: `userId`, `organizationId`, `businessId?`, `locationId?`, `vertical?`,
+`scope` (`ORGANIZATION` | `BUSINESS` | `LOCATION`), `role`, `platformAdmin` — расширение существующего
+контекста `apps/api/src/accounts/actor.ts`, переходное правило и разбор — `ARCHITECTURE.md` §6.
+Нужны ли `sessions.business_id` / `sessions.location_id` или контекст ходит запросом — решается планом
+фазы 2, схему §13.5 эта версия не меняет.
+
+### 18.6. Что этот раздел не вводит
+
+Таблицу `Partner`; вертикаль на `Organization` или `Location`; перенос Hospitality-таблиц с `Property`;
+управленческие финансы и мультивалютную аналитику (целевая модель — `ARCHITECTURE.md` §11–§12, свой
+раздел здесь появится перед реализацией); роли Business Manager / Location Manager (точки привязки
+готовы, состав прав — за владельцем, Q-140); активацию расширений на Business/Location
+(`organization_extensions` §16.3 не меняется).
+
+---
+
+## 19. Beauty-домен (v2.0 — утверждён владельцем 27.09.2026, ADR-104; целевой, реализация — фазой Beauty)
+
+> Цепочка: `Organization → Business (vertical = BEAUTY) → Location → этот домен`. Beauty **не использует**
+> `Property`, `Reservation`, `InventoryUnit`, `RatePlan` и шахматку; общей таблицы броней и общего
+> «ресурса» у вертикалей нет (ADR-104, там же — почему это согласуется с ADR-019). Деньги — integer minor
+> units (ADR-008); моменты записей — UTC `timestamptz`, показ в часовом поясе филиала (AGENTS.md §13).
+> Перед фазой 3 раздел уточняется планом среза; здесь — состав и связи, которые фиксирует архитектура.
+
+### Customer
+
+`id`, `business_id` FK NOT NULL (развилка «на бизнес или на организацию» — Q-198), `first_name`,
+`last_name`, `phone`, `email`, `notes`, `status`, `created_at` / `updated_at`. Клиентская база сети,
+не филиала.
+
+### Employee
+
+`id`, `business_id` FK NOT NULL, `name`, `phone`, `email`, `user_id` FK → `users` NULL (мастер со входом
+в систему — уровень «Employee / Self» из `ARCHITECTURE.md` §13), `status`, `created_at` / `updated_at`.
+Мастер — сотрудник **сети**, не филиала: к одной Location навсегда не привязан.
+
+### EmployeeLocation
+
+`employee_id` FK + `location_id` FK, PK составной. Один мастер работает в нескольких салонах.
+
+### BeautyService
+
+`id`, `business_id` FK NOT NULL, `name`, `category`, `duration_minutes`, `price` integer minor units,
+`active`. Единый каталог услуг сети — принадлежит бизнесу, на филиалы не копируется.
+
+### LocationService
+
+`location_id` FK + `service_id` FK → `beauty_services`, PK составной; `enabled` bool,
+`price_override` integer minor units NULL, `duration_override` NULL. Филиал включает услугу и может
+переопределить цену и длительность; пусто — действует каталог бизнеса.
+
+### EmployeeService
+
+`employee_id` FK + `service_id` FK, PK составной. Что мастер умеет.
+
+### WorkingHours
+
+`id`, `employee_id` FK, `location_id` FK NOT NULL — график **всегда в контексте филиала** (в каком салоне
+мастер стоит в этот день), `weekday`, `time_from`, `time_to`. Недельный шаблон или календарные интервалы —
+уточняется планом фазы 3.
+
+### TimeOff
+
+`id`, `employee_id` FK, `date_from`, `date_to`, `reason`.
+
+### Appointment
+
+`id`, `location_id` FK NOT NULL, `customer_id` FK, `employee_id` FK, `service_id` FK,
+`starts_at` / `ends_at` `timestamptz`, `status` (`BOOKED | CONFIRMED | DONE | NO_SHOW | CANCELLED`),
+`price` integer minor units, `notes`, `created_at` / `updated_at`. Пересечение записей одного мастера
+запрещает база — exclusion constraint на `(employee_id, tstzrange(starts_at, ends_at, '[)'))`, тот же
+механизм, что `allocations_no_overlap_per_unit` в §2, но своя таблица.
+
+---
+
+## Чего в модели нет и почему
+
+| Область                                                   | Решение                                                          |
+| --------------------------------------------------------- | ---------------------------------------------------------------- |
+| Сезоны                                                    | Не заводим — на объекте не используются, `DailyRate` достаточно  |
+| Детские тарифы и возрастные группы                        | Не заводим — детское размещение выключено, 0 детей за месяц      |
+| Ярус койки, окно у dorm-места, площадь, планировка комнат | Данных не существует; по ADR-013 в MVP не нужны. Q-081 закрыт    |
+| Roles/Permissions                                         | Ждём Q-061…Q-064; две роли в организации — §16 (v1.9, ADR-083) |
+| Company / юрлица-заказчики                                | Справочник в Exely есть, за август **0 реальных юрлиц**. Вне MVP |
+| Учёт расходов бизнеса (зарплата, коммуналка)              | Вне scope PMS (`SPEC.md`), но люди этим пользуются — Q-084; целевая модель управленческих финансов — `ARCHITECTURE.md` §11, сюда войдёт своей версией перед реализацией |
+| Овербукинг                                                | На объекте не настроен. Механизм квот отложен                    |
+
+---
+
+## Гейт утверждения
+
+- [x] Аудит по `TZ-EXELY-AUDIT.md` сдан — `project-input/exely/audit-2026-09-07/`
+- [x] Раздел 5 (номерной фонд) закрыт: 88 = 16 ROOM + 72 BED, подтверждено трижды
+- [x] Раздел 6 (dorm) закрыт, кроме 6.11 и 6.14
+- [x] Вопросы Q-001…Q-011 записаны с источниками
+- [x] Пробный маппинг инвентаря: 88 строк укладываются в `InventoryUnit` без изменения схемы
+- [x] Вопрос occupancy в `DailyRate` разрешён (только «Двухместная», 1|2)
+- [x] **Q-080 — модель койки** — закрыт 07.09.2026, вариант А (ADR-013)
+- [x] Правки v0.3 (StayGuest, статус проживания, `quantity`, notes, уборка по единице) — утверждены 07.09.2026
+- [x] **Q-091 — Folio на бронь или на проживание** — закрыт 09.09.2026: на проживание (ADR-014), §6 утверждён
+- [x] ~~Q-092~~ — отложен владельцем 07.09.2026; на схему не влияет, сверка по 88 как в Exely
+- [ ] Пробный маппинг будущих броней: 209 проживаний укладываются в Reservation + Item + Allocation
+- [x] Явное подтверждение владельца — 07.09.2026, чат («да»), кроме раздела 6
+- [x] **Поправки v1.6 (20.09.2026)** — `properties.organization_id`, `users.email_verified_at`, `email_verifications`,
+  снятие `login_codes`: в схеме и на рабочей базе с 20.09, в документ внесены задним числом 22.09.2026;
+  **утверждены владельцем 25.09.2026 (ADR-082)**
+- [x] **v1.7 (24.09.2026)** — даты документа шифрованием, контакты объекта, журнал только дописывается, виды
+  неисправностей по `POLICY`: **утверждено 25.09.2026 (ADR-082) и реализовано 25.09.2026** — миграция
+  `20260925000021` с `down.sql`, на рабочей базе применяет владелец
+- [x] **v1.8 (24.09.2026)** — §14 `user_errors` и §15 `seller_profiles` (в редакции под профиль бота): утверждены
+  владельцем 24.09.2026 (ADR-081). Миграции с `down.sql`; на рабочей базе применяет владелец
+- [x] **v1.11 (26.09.2026)** — §15 `seller_profiles.prompt_text`: утверждено владельцем 26.09.2026 (ADR-097). Миграция
+  `20260926000024` с `down.sql`; на рабочей базе применяет владелец
+- [x] **v1.12 (26.09.2026)** — §2 `InventoryUnit.property_id`, код места уникален внутри объекта: утверждено владельцем
+  26.09.2026 (ADR-096). Миграция `20260926000025` с `down.sql`; на рабочей базе применяет владелец
+- [x] **v2.0 (27.09.2026)** — §18 `Business` и `Location`, `properties.location_id`,
+  `organizations.reporting_currency`; §19 Beauty-домен (целевой): **утверждена владельцем 27.09.2026**
+  вместе с `ARCHITECTURE.md` (WETOP Target Architecture v3, ADR-104 — «архитектура v3 уже утверждена и
+  заморожена»). Миграции — фазой 1 со своим планом; на рабочей базе применяет владелец
+
+Раздел 6 утверждён 09.09.2026 (Q-091 закрыт, ADR-014). Пробный маппинг 209 броней — задача Slice 2.
+
+## Гостевой мастер и несколько агентов — утверждено для реализации и тестовой базы (26.09.2026)
+
+Источник — `plans/ai-seller-unified-2026-09-26.md`, поручение владельца реализовать единый план.
+Владелец утвердил модель 26.09.2026 ответом «Утверждаю модель для реализации и тестовой базы». Production migration этим не разрешена; текущий SellerProfile не заменяется молча.
+
+- `Agent`: UUID, organization_id FK, name, scenario (sales/support), profile JSON с валидацией,
+  lifecycle (draft/preparing/ready/error/archived), created_by FK, created_at, updated_at.
+  Организация 1:N Agent. Существующий продавец переносится в один Agent своей организации;
+  знания, диалоги и подключения должны получить agent_id с проверкой принадлежности организации.
+- `WizardSession`: UUID, token_hash unique, ref до 200, last_step, created_at, expires_at.
+  Исходный секрет не хранится в таблице/журнале. Истёкшая сессия не получает доступ к черновику.
+- `WizardDraft`: UUID, guest_session_id unique FK, claimed_by nullable FK, organization_id nullable FK,
+  business_name, niche, description, config JSON, sources JSON, revision integer,
+  generated_revision nullable, generated_prompt, generated_knowledge JSON,
+  test_messages_used integer >= 0, agent_id nullable unique FK, created_at, updated_at.
+  1:1 с гостевой сессией; один черновик может стать только одним агентом.
+- `WizardJob`: UUID, draft_id FK, kind (scan/generate/index), revision,
+  state (queued/running/succeeded/failed), attempt, retry_at, masked_error, created_at, updated_at.
+  Уникальный ключ (draft_id, kind, revision); новые настройки не используют старую генерацию.
+- `WizardMessage`: UUID, draft_id FK, request_id, role, text, state, created_at;
+  уникальный request_id в пределах draft, серверная история. Квота резервируется атомарно;
+  технический отказ освобождает резерв, повтор с тем же ID не оплачивает второй ответ.
+- `WizardSurvey`: guest_session_id unique FK, goal, team_size, leads_per_day, source, industry.
+- `WizardEvent`: UUID, guest_session_id FK, event_type из allowlist, payload с лимитом,
+  deduplication_key unique, created_at; без токенов, текстов переписки и паролей.
+- Присвоение Agent, связь draft, запись outbox для индексации и право на trial — одна транзакция
+  платформы. Бот применяет outbox идемпотентно; общая транзакция двух баз не предполагается.
+- Email handoff: одноразовая серверная связь подтверждённой регистрации с draft, не guestToken
+  в публичных метаданных. Повтор после входа возвращает прежний agent_id только владельцу.
+
+До миграции: согласовать TTL/retention, trial с текущими расширениями и лимит расходов;
+описать backup, backfill существующего продавца, validation и rollback без удаления его истории.

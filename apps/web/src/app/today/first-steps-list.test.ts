@@ -19,4 +19,15 @@ describe('firstStepsFor', () => {
   it('до настройки кнопки «Создать первую бронь» нет — бронь не на что ставить', () => {
     expect(firstStepsFor(true).some((s) => s.action?.href === '/reservations/new')).toBe(false);
   });
+
+  it('шаги с правом (ADR-101): настройка отеля — `settings`, приглашение сотрудников — `staff`', () => {
+    const setup = firstStepsFor(true).find((s) => s.action?.href === '/onboarding');
+    const invite = firstStepsFor(false).find((s) => s.action?.href === '/login');
+    expect(setup?.requires).toBe('settings');
+    expect(invite?.requires).toBe('staff');
+    // работа с бронью — у всех ролей
+    expect(
+      firstStepsFor(false).find((s) => s.action?.href === '/reservations/new')?.requires,
+    ).toBeUndefined();
+  });
 });

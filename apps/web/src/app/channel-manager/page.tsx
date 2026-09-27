@@ -257,8 +257,17 @@ export default async function ChannelOverviewPage() {
         >
           <SectionTitle id="overview-troubles-title">Требует внимания</SectionTitle>
           {troubles.map((t) => (
-            <Alert key={t.key} boxed tone={t.tone === 'alarm' ? undefined : 'warning'}>
-              {t.text} <Link href={t.href}>{t.action}</Link>
+            // действие — кнопкой-ссылкой: голая ссылка в цветном тексте тревоги неотличима без цвета (axe link-in-text-block)
+            <Alert
+              key={t.key}
+              boxed
+              tone={t.tone === 'alarm' ? undefined : 'warning'}
+              className="overview-trouble"
+            >
+              <span>{t.text}</span>
+              <Link href={t.href} className="btn btn--secondary btn--sm">
+                {t.action}
+              </Link>
             </Alert>
           ))}
         </section>

@@ -1271,3 +1271,14 @@ a.dir-number:hover {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+/* Строка «Требует внимания» обзора: текст слева, действие-кнопка справа, на телефоне переносится */
+.overview-trouble {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+.overview-trouble .btn {
+  flex-shrink: 0;
+}

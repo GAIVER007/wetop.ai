@@ -2870,3 +2870,8 @@
 | 27.09.2026 22:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 11 из 11 | 1 мин 3 с | bf26db5 +17 | [лог](logs/2026-09-27T17-20-44Z-e2e-9d8e.log) | CH1 green: обзор каналов и отчёт на /analytics/sources |
 | 27.09.2026 22:22 | unit | ❌ упало 2 из 2108, пропущено 3 | 1 мин 38 с | bf26db5 +11 | [лог](logs/2026-09-27T17-22-00Z-unit-0a62.log) | CH1: обзор каналов; revalidate /analytics/sources в actions |
 | 27.09.2026 22:24 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | f2b5bf3 +1 | [лог](logs/2026-09-27T17-24-29Z-unit-950e.log) | CH1: убрана стрелка в конце ссылки (DESIGN.md §14, сторож слопа) |
+| 27.09.2026 22:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 6 из 404 | 32 мин 47 с | f2b5bf3 +1 | [лог](logs/2026-09-27T17-25-52Z-e2e-0ffa.log) | CH1: полный UI-набор после обзора каналов и переезда отчёта |
+| 27.09.2026 23:01 | typecheck | ✅ без ошибок | 29 с | cd1b74f +3 | [лог](logs/2026-09-27T18-01-22Z-typecheck-0806.log) | CH1: кнопки в строках внимания, бюджет обзора |
+| 27.09.2026 23:01 | lint | ✅ без ошибок | 15 с | cd1b74f +3 | [лог](logs/2026-09-27T18-01-51Z-lint-126e.log) | CH1: кнопки в строках внимания, бюджет обзора |
+| 27.09.2026 23:02 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | cd1b74f +2 | [лог](logs/2026-09-27T18-02-07Z-unit-298c.log) | CH1: кнопки в строках внимания |
+| 27.09.2026 23:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 30 из 30 | 5 мин 2 с | cd1b74f +3 | [лог](logs/2026-09-27T18-03-27Z-e2e-09f1.log) | CH1: точечная проверка axe и бюджета запросов после правок |

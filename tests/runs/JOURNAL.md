@@ -2877,3 +2877,4 @@
 | 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
 | 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
 | 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |
+| 27.09.2026 20:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-gate.spec.ts --workers=1) | ✅ 3 из 3 | 22 с | 4b3bf2b +1 | [лог](logs/2026-09-27T15-24-59Z-e2e-bc8b.log) | PR1 gate: final owner set - overbooking critical, 30-day mode, applied filter |

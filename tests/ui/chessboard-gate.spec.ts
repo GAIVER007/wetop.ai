@@ -87,3 +87,38 @@ test('гейт: тёмная тема — полный экран и верх', 
     clip: { x: today!.x - 140, y: 0, width: today!.width + 180, height: 700 },
   });
 });
+
+test('гейт: овербукинг (critical), режим 30 дней и включённый фильтр', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ colorScheme: 'light' });
+
+  // продано сверх мест: плашка «Без ячейки» — critical и раскрыта сразу, сверху плашка овербукинга
+  await request.post(`${fixture}/__test/reset`);
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await page.goto('/chessboard');
+  await expect(page.getByTestId('overbooked-callout')).toBeVisible();
+  const strip = page.getByTestId('unassigned-stays');
+  await expect(strip).toHaveAttribute('data-tone', 'critical');
+  await expect(strip).toHaveAttribute('open', '');
+  await page.screenshot({ caret: 'initial', path: `${DIR}/overbooking-critical.png` });
+
+  // 30-дневный режим: окно от сегодня, горизонтальная прокрутка внутри сетки
+  await request.post(`${fixture}/__test/reset`);
+  const seeded = await request.post(`${fixture}/__test/design-seed`);
+  expect(seeded.ok()).toBe(true);
+  await page.goto('/chessboard');
+  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  await expect(page.getByTestId('date-col')).toHaveCount(30);
+  await page.screenshot({ caret: 'initial', path: `${DIR}/mode-30-days.png` });
+
+  // включённый фильтр: «Номера» — показано 16 из 88, счётчик и «Сбросить» на виду
+  await page.getByRole('link', { name: '7 дней', exact: true }).click();
+  await expect(page.getByTestId('date-col')).toHaveCount(7);
+  await page.getByRole('button', { name: 'Номера', exact: true }).click();
+  await expect(page.getByTestId('unit-row')).toHaveCount(16);
+  await page.screenshot({ caret: 'initial', path: `${DIR}/filters-applied.png` });
+});

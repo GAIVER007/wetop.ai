@@ -34,6 +34,7 @@ v1.9 (25.09.2026; **утверждено владельцем 25.09.2026 — ADR
 v1.10 (25.09.2026; предохранители в самой базе по ТЗ аудита безопасности, поручение «наводи порядок по тому ТЗ, строго иди» — `plans/security-audit-fixes-2026-09-25.md`, блок 3; сущности и поля не меняются): §2 `UNIQUE(property_id, external_id)` — дубль OTA-брони отвергает база (С-4); §6 `CHECK (amount > 0)` на `payments`/`payment_allocations`/`refunds` (С-14); §10 журнал только дописывается уже сейчас — триггер `audit_logs_immutable` (С-14) — миграция `20260925000022_integrity_guards` с `down.sql`, **на рабочей базе применяет владелец**
 v1.11 (26.09.2026; **утверждено владельцем 26.09.2026** — план `plans/seller-prompt-window-2026-09-26.md` и макет «Макет нравится, делай этап Б так», ADR-097): §15 `seller_profiles.prompt_text` — инструкция продавцу одним текстом; есть она — продавцу уходит текст, а не поля профиля — миграция `20260926000024_seller_prompt_text` с `down.sql`, **на рабочей базе применяет владелец**
 v1.12 (26.09.2026; **утверждено владельцем 26.09.2026 — ADR-096**, ответ «Да, делай» на вопрос о коде места перед открытием регистрации; номер версии и миграции сдвинуты при слиянии двух параллельных веток 27.09.2026 — v1.11 и `20260926000024` заняла миграция `seller_prompt_text` выше): §2 `InventoryUnit.property_id` и уникальность кода места **внутри объекта** `UNIQUE(property_id, code)` вместо глобальной — вторая гостиница с кодами «101…» не падает на онбординге, а поиск места по коду не находит чужое (план `plans/tenant-isolation-2026-09-26.md`); миграция `20260926000025_unit_code_per_property` — применяет владелец
+v2.0 (27.09.2026; **ПРЕДЛОЖЕНО — ждёт утверждения владельца, код и миграции до утверждения не пишутся**; задача владельца от 27.09.2026 об архитектуре платформы, `ARCHITECTURE.md`, ADR-100): §17 — уровни владения `Business` и `Location` между организацией и объектом, `properties.location_id`, `organizations.reporting_currency`; §18 — Beauty-домен (целевой). Существующие таблицы §1–§16 не меняются, кроме двух добавляемых колонок; ни один существующий ID не меняется
 Дата: 2026-09-07
 
 ---
@@ -1364,6 +1365,139 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
 
 ---
 
+## 17. Платформа: Партнёр → Бизнес → Филиал (v2.0 — ПРЕДЛОЖЕНО 27.09.2026, ждёт утверждения)
+
+> Основание — задача владельца от 27.09.2026 (термины и иерархия — `ARCHITECTURE.md` §1–§2, решение —
+> ADR-100). **До утверждения владельцем ни кода, ни миграций** (AGENTS.md §2); порядок backfill для Luxx —
+> `ARCHITECTURE.md` §18. Существующие таблицы не меняются, кроме двух добавляемых колонок ниже; ни один
+> существующий ID не меняется.
+
+Соответствие терминов зафиксировано: в интерфейсе продукта партнёр WETOP, в базе и коде — `Organization`,
+в технической архитектуре — Tenant / Organization. Отдельная таблица `Partner` **не создаётся** — это
+та же `organizations` (§13.1).
+
+### 17.1. `businesses` — направление бизнеса партнёра
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `organization_id` | `uuid` FK → `organizations` NOT NULL | бизнес принадлежит одной организации; у организации N бизнесов |
+| `name` | `varchar(200)` NOT NULL | «Luxx Hotels», «Alma Beauty» |
+| `vertical` | enum `BusinessVertical` NOT NULL | `HOSPITALITY`, `BEAUTY` — минимальный набор из задачи; вертикаль живёт здесь, не на организации и не на филиале |
+| `status` | enum `BusinessStatus` NOT NULL DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED`; удаления строк нет, как во всём §13 |
+| `created_at` / `updated_at` | `timestamptz` NOT NULL | |
+
+Индекс по `organization_id`. Уникальности названия не заводим: тёзки внутри организации — её дело,
+ограничений базы, которым нужно имя, нет (регистрационная защита имён объектов ADR-099 остаётся
+про `properties`).
+
+### 17.2. `locations` — филиал бизнеса
+
+| Поле | Тип | Примечание |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `business_id` | `uuid` FK → `businesses` NOT NULL | филиал принадлежит одному бизнесу |
+| `name` | `varchar(200)` NOT NULL | «Luxx Aparts Almaty», «Marina» |
+| `address` | `varchar(500)` | |
+| `phone` / `email` | `varchar` NULL | как контакты объекта в §1 (v1.7): пусто — прочерк |
+| `timezone` | `varchar(50)` NOT NULL | IANA, «Asia/Almaty»; правило дат AGENTS.md §13 отсчитывается отсюда |
+| `currency` | `varchar(3)` NOT NULL | операционная валюта филиала (KZT, AED, …) |
+| `status` | enum `LocationStatus` NOT NULL DEFAULT `ACTIVE` | `ACTIVE`, `ARCHIVED` |
+| `created_at` / `updated_at` | `timestamptz` NOT NULL | |
+
+### 17.3. Почему у `locations` нет `organization_id`
+
+Задача просила обосновать, нужен ли он на миграционный период. Не нужен: организация выводится через
+`business_id` одной связкой; ограничений базы, которым нужна колонка прямо на филиале, нет; вторая
+колонка-правда потребовала бы составного FK `(business_id, organization_id) →
+businesses(id, organization_id)`, чтобы не разъехаться (урок денормализации v1.12: её заводили только
+ради UNIQUE в базе — здесь такого UNIQUE нет). Если Row Level Security (путь Б из ADR-061) потребует
+`organization_id` на каждой строке — колонка добавится тогда, сразу с этим составным FK.
+
+### 17.4. Изменения существующих таблиц — ровно два поля
+
+| Таблица | Поле | Примечание |
+|---|---|---|
+| `properties` | `location_id` `uuid` FK → `locations` NULL | родитель объекта. NULL — только на миграционный период: NOT NULL ставится отдельной миграцией после backfill (`ARCHITECTURE.md` §18). `Property` не переименовывается; `organization_id` (v1.6) остаётся, пока замок ADR-061 не переведён на цепочку Location → Business |
+| `organizations` | `reporting_currency` `varchar(3)` NOT NULL DEFAULT `'KZT'` | отчётная валюта партнёра: в неё сводится аналитика филиалов с разными операционными валютами (`ARCHITECTURE.md` §12); источник курса — Q-197 |
+
+### 17.5. Контекст запроса (не таблица)
+
+Целевой RequestActor: `userId`, `organizationId`, `businessId?`, `locationId?`, `vertical?`,
+`scope` (`ORGANIZATION` | `BUSINESS` | `LOCATION`), `role`, `platformAdmin` — расширение существующего
+контекста `apps/api/src/accounts/actor.ts`, переходное правило и разбор — `ARCHITECTURE.md` §6.
+Нужны ли `sessions.business_id` / `sessions.location_id` или контекст ходит запросом — решается планом
+фазы 2, схему §13.5 эта версия не меняет.
+
+### 17.6. Что этот раздел не вводит
+
+Таблицу `Partner`; вертикаль на `Organization` или `Location`; перенос Hospitality-таблиц с `Property`;
+управленческие финансы и мультивалютную аналитику (целевая модель — `ARCHITECTURE.md` §11–§12, свой
+раздел здесь появится перед реализацией); роли Business Manager / Location Manager (точки привязки
+готовы, состав прав — за владельцем, Q-140); активацию расширений на Business/Location
+(`organization_extensions` §16.3 не меняется).
+
+---
+
+## 18. Beauty-домен (v2.0 — ПРЕДЛОЖЕНО 27.09.2026, целевой; реализация — фазой 3 после утверждения)
+
+> Цепочка: `Organization → Business (vertical = BEAUTY) → Location → этот домен`. Beauty **не использует**
+> `Property`, `Reservation`, `InventoryUnit`, `RatePlan` и шахматку; общей таблицы броней и общего
+> «ресурса» у вертикалей нет (ADR-100, там же — почему это согласуется с ADR-019). Деньги — integer minor
+> units (ADR-008); моменты записей — UTC `timestamptz`, показ в часовом поясе филиала (AGENTS.md §13).
+> Перед фазой 3 раздел уточняется планом среза; здесь — состав и связи, которые фиксирует архитектура.
+
+### Customer
+
+`id`, `business_id` FK NOT NULL (развилка «на бизнес или на организацию» — Q-198), `first_name`,
+`last_name`, `phone`, `email`, `notes`, `status`, `created_at` / `updated_at`. Клиентская база сети,
+не филиала.
+
+### Employee
+
+`id`, `business_id` FK NOT NULL, `name`, `phone`, `email`, `user_id` FK → `users` NULL (мастер со входом
+в систему — уровень «Employee / Self» из `ARCHITECTURE.md` §13), `status`, `created_at` / `updated_at`.
+Мастер — сотрудник **сети**, не филиала: к одной Location навсегда не привязан.
+
+### EmployeeLocation
+
+`employee_id` FK + `location_id` FK, PK составной. Один мастер работает в нескольких салонах.
+
+### BeautyService
+
+`id`, `business_id` FK NOT NULL, `name`, `category`, `duration_minutes`, `price` integer minor units,
+`active`. Единый каталог услуг сети — принадлежит бизнесу, на филиалы не копируется.
+
+### LocationService
+
+`location_id` FK + `service_id` FK → `beauty_services`, PK составной; `enabled` bool,
+`price_override` integer minor units NULL, `duration_override` NULL. Филиал включает услугу и может
+переопределить цену и длительность; пусто — действует каталог бизнеса.
+
+### EmployeeService
+
+`employee_id` FK + `service_id` FK, PK составной. Что мастер умеет.
+
+### WorkingHours
+
+`id`, `employee_id` FK, `location_id` FK NOT NULL — график **всегда в контексте филиала** (в каком салоне
+мастер стоит в этот день), `weekday`, `time_from`, `time_to`. Недельный шаблон или календарные интервалы —
+уточняется планом фазы 3.
+
+### TimeOff
+
+`id`, `employee_id` FK, `date_from`, `date_to`, `reason`.
+
+### Appointment
+
+`id`, `location_id` FK NOT NULL, `customer_id` FK, `employee_id` FK, `service_id` FK,
+`starts_at` / `ends_at` `timestamptz`, `status` (`BOOKED | CONFIRMED | DONE | NO_SHOW | CANCELLED`),
+`price` integer minor units, `notes`, `created_at` / `updated_at`. Пересечение записей одного мастера
+запрещает база — exclusion constraint на `(employee_id, tstzrange(starts_at, ends_at, '[)'))`, тот же
+механизм, что `allocations_no_overlap_per_unit` в §2, но своя таблица.
+
+---
+
 ## Чего в модели нет и почему
 
 | Область                                                   | Решение                                                          |
@@ -1373,7 +1507,7 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
 | Ярус койки, окно у dorm-места, площадь, планировка комнат | Данных не существует; по ADR-013 в MVP не нужны. Q-081 закрыт    |
 | Roles/Permissions                                         | Ждём Q-061…Q-064; две роли в организации — §16 (v1.9, ADR-083) |
 | Company / юрлица-заказчики                                | Справочник в Exely есть, за август **0 реальных юрлиц**. Вне MVP |
-| Учёт расходов бизнеса (зарплата, коммуналка)              | Вне scope PMS (`SPEC.md`), но люди этим пользуются — Q-084       |
+| Учёт расходов бизнеса (зарплата, коммуналка)              | Вне scope PMS (`SPEC.md`), но люди этим пользуются — Q-084; целевая модель управленческих финансов — `ARCHITECTURE.md` §11, сюда войдёт своей версией перед реализацией |
 | Овербукинг                                                | На объекте не настроен. Механизм квот отложен                    |
 
 ---
@@ -1404,6 +1538,9 @@ u.id = m.user_id order by o.name, m.created_at;` — у каждой орган�
   `20260926000024` с `down.sql`; на рабочей базе применяет владелец
 - [x] **v1.12 (26.09.2026)** — §2 `InventoryUnit.property_id`, код места уникален внутри объекта: утверждено владельцем
   26.09.2026 (ADR-096). Миграция `20260926000025` с `down.sql`; на рабочей базе применяет владелец
+- [ ] **v2.0 (27.09.2026)** — §17 `Business` и `Location`, `properties.location_id`,
+  `organizations.reporting_currency`; §18 Beauty-домен (целевой): **ПРЕДЛОЖЕНО, ждёт утверждения владельца**
+  вместе с `ARCHITECTURE.md` (WETOP Target Architecture v3, ADR-100). До утверждения — ни кода, ни миграций
 
 Раздел 6 утверждён 09.09.2026 (Q-091 закрыт, ADR-014). Пробный маппинг 209 броней — задача Slice 2.
 

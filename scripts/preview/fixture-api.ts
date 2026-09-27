@@ -19,7 +19,22 @@ import {
   identityRole,
   parseExtensionChange,
   INVITE_STAFF_ONLY_MESSAGE,
+  INVITE_MANAGER_OWNER_ONLY_MESSAGE,
+  INVITE_ROLE_MESSAGE,
+  MEMBER_MANAGER_REMOVES_STAFF_MESSAGE,
+  MEMBER_NOT_FOUND_MESSAGE,
+  MEMBER_OWNER_MESSAGE,
+  MEMBER_ROLE_MESSAGE,
+  MEMBER_ROLE_OWNER_ONLY_MESSAGE,
+  MEMBER_SELF_MESSAGE,
+  canInvite,
+  canManageStaff,
+  canRemoveMember,
+  canSetRoleAtDesk,
+  parseInviteRole,
   type ExtensionStatus,
+  type InviteRole,
+  type MembershipRole,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { assistant } from '@pms/integrations';
@@ -1368,8 +1383,70 @@ const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 const uiSessions = new Map<string, UiUser>();
 // ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
-let uiRole: 'OWNER' | 'STAFF' = 'OWNER';
+let uiRole: MembershipRole = 'OWNER';
 let uiPlatformAdmin = false;
+/**
+ * Люди вымышленной организации и её ожидающие приглашения (ADR-098): вошедшая Дана — с ролью `uiRole`, остальные —
+ * как в базе после приглашений. Вымышленные (ADR-010), сбрасываются `reset`.
+ */
+interface FixtureMember {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: string;
+}
+interface FixtureInvite {
+  id: string;
+  email: string;
+  role: InviteRole;
+  expiresAt: string;
+  createdAt: string;
+}
+let uiTeam: FixtureMember[] = [];
+let uiInvites: FixtureInvite[] = [];
+function resetTeam() {
+  uiTeam = [
+    { userId: 'ui-manager', email: 'marat@example.invalid', name: 'Марат Тестов', role: 'MANAGER', joinedAt: '2026-09-02T09:00:00.000Z' },
+    { userId: 'ui-admin', email: 'urij@example.com', name: 'Юрий Тестов', role: 'STAFF', joinedAt: '2026-09-03T09:00:00.000Z' },
+  ];
+  uiInvites = [
+    {
+      id: 'inv-fixture',
+      email: 'zhdet@example.com',
+      role: 'STAFF',
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(Date.now() - 3600_000).toISOString(),
+    },
+    {
+      id: 'inv-fixture-manager',
+      email: 'boss@example.com',
+      role: 'MANAGER',
+      expiresAt: new Date(Date.now() + 6 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(Date.now() - 7200_000).toISOString(),
+    },
+  ];
+}
+resetTeam();
+/** Люди организации глазами вошедшего: он сам с ролью `uiRole` и что он может с каждым */
+function teamView(me: UiUser) {
+  const people: FixtureMember[] = [
+    { userId: me.id, email: me.email, name: me.name, role: uiRole, joinedAt: '2026-09-01T09:00:00.000Z' },
+    ...uiTeam,
+  ];
+  const order: MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
+  return people
+    .sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.joinedAt.localeCompare(b.joinedAt))
+    .map((m) => {
+      const you = m.userId === me.id;
+      return {
+        ...m,
+        you,
+        removable: !you && canRemoveMember(uiRole, m.role),
+        roleEditable: !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+      };
+    });
+}
 interface FixtureExtension {
   status: ExtensionStatus;
   activeUntil: Date | null;
@@ -1397,6 +1474,7 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
 }
 function resetAccess() {
   uiRole = 'OWNER';
+  resetTeam();
   uiPlatformAdmin = false;
   platformExtensions.clear();
   setSellerExtension('active', null, false);
@@ -2574,7 +2652,7 @@ createServer(async (req, res) => {
       sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
-      uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
+      uiRole = body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
       setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
       supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
@@ -2680,34 +2758,74 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : null;
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
-      // зовёт только владелец организации (ADR-083) — и список ожидающих тоже его
-      if (uiRole !== 'OWNER') return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      // зовут владелец и управляющий (ADR-098) — и список ожидающих тоже их
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const view = (i: FixtureInvite) => ({ ...i, acceptedAt: null, revocable: canInvite(uiRole, i.role) });
       if (req.method === 'POST') {
+        const raw = body['role'];
+        const role = raw === undefined || raw === null || raw === '' ? 'STAFF' : parseInviteRole(raw);
+        if (!role) return send(400, { message: INVITE_ROLE_MESSAGE });
+        if (!canInvite(uiRole, role)) return send(403, { message: INVITE_MANAGER_OWNER_ONLY_MESSAGE });
         const email = String(body['email'] ?? '')
           .trim()
           .toLowerCase();
         if (!email.includes('@'))
           return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
         // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
-        if (email === who.email || uiMembers.has(email))
+        if (email === who.email || uiMembers.has(email) || uiTeam.some((m) => m.email === email))
           return send(400, { message: 'Этот человек уже в организации.' });
-        return send(201, {
+        const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
+          role,
           expiresAt: invitePreview.expiresAt,
-          acceptedAt: null,
           createdAt: new Date().toISOString(),
-        });
+        };
+        uiInvites.unshift(invite);
+        return send(201, view(invite));
       }
-      return send(200, [
-        {
-          id: 'inv-fixture',
-          email: 'zhdet@example.com',
-          expiresAt: invitePreview.expiresAt,
-          acceptedAt: null,
-          createdAt: new Date(Date.now() - 3600_000).toISOString(),
-        },
-      ]);
+      return send(200, uiInvites.map(view));
+    }
+    // отозвать приглашение (С-10): тот, кто вправе позвать с этой ролью; иначе — «не найдено», как API
+    const revokeMatch = /^\/auth\/invites\/([^/]+)$/.exec(path);
+    if (revokeMatch && req.method === 'DELETE') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const at = uiInvites.findIndex((i) => i.id === revokeMatch[1] && canInvite(uiRole, i.role));
+      if (at < 0) return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      uiInvites.splice(at, 1);
+      return send(200, { ok: true });
+    }
+    // Сотрудники (ADR-098): список, отключение, смена роли — по тем же правилам, что у API
+    const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
+    if (memberMatch) {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      if (!memberMatch[1]) return send(200, teamView(who));
+      const target = teamView(who).find((m) => m.userId === memberMatch[1]);
+      if (req.method === 'PATCH') {
+        if (!canSetRoleAtDesk(uiRole, 'STAFF', 'MANAGER'))
+          return send(403, { message: MEMBER_ROLE_OWNER_ONLY_MESSAGE });
+        const role = parseInviteRole(body['role']);
+        if (!role) return send(400, { message: MEMBER_ROLE_MESSAGE });
+        if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+        if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+        if (!canSetRoleAtDesk(uiRole, target.role, role)) return send(403, { message: MEMBER_OWNER_MESSAGE });
+        uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role } : m));
+        return send(200, { userId: target.userId, role });
+      }
+      if (req.method === 'DELETE') {
+        if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+        if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+        if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+        if (!canRemoveMember(uiRole, target.role))
+          return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+        uiTeam = uiTeam.filter((m) => m.userId !== target.userId);
+        return send(200, { ok: true });
+      }
     }
     const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
     if (inviteMatch) {
@@ -2855,8 +2973,8 @@ createServer(async (req, res) => {
     // ИИ-продавец (ТЗ П5–П8): раздел стойки говорит с этим подставным продавцом через «API»
     if (path.startsWith('/ai-seller/')) {
       const sellerToken = sessionOf(req as never);
-      // служебный ходок (без сессии) для API — владелец; вошедший сотрудник — нет (ADR-083)
-      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole === 'OWNER';
+      // служебный ходок (без сессии) для API — владелец; вошедший — по роли: настройки у владельца и управляющего (ADR-098)
+      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole !== 'STAFF';
       const extension = aiSellerView('ui-org');
       const sellerUse =
         req.method === 'GET'
@@ -2872,7 +2990,7 @@ createServer(async (req, res) => {
             : 'act';
       if (path !== '/ai-seller/status') {
         if (sellerUse === 'configure' && !sellerOwner)
-          return send(403, { message: 'Настройки продавца меняет владелец организации' });
+          return send(403, { message: 'Настройки продавца меняют владелец и управляющий' });
         if (extension.access === 'off')
           return send(403, {
             message:

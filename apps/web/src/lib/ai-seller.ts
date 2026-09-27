@@ -57,7 +57,7 @@ export function sellerReadOnlyReason(status: SellerStatus): string | null {
   if (status.state === 'extension-expired')
     return 'Срок расширения вышел: настройки только для просмотра. Продлевает администратор WETOP.';
   // старый API ролей не знает — тогда настраивать может каждый, как было до ADR-083
-  if (status.canConfigure === false) return 'Настройки продавца меняет владелец организации.';
+  if (status.canConfigure === false) return 'Настройки продавца меняют владелец и управляющий.';
   return null;
 }
 

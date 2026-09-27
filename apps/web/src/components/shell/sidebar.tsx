@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Suspense, use, useEffect, useId, useState, type ReactNode } from 'react';
 import {
   CLOSED_ACCESS,
+  PENDING_ACCESS,
+  allowedItem,
   sidebarSections,
   sidebarSectionsFor,
   activeNavigation,
@@ -77,19 +79,13 @@ export function Sidebar({
           </button>
         )}
       </div>
-      <Link href="/hotel-settings" className="workspace-property" onClick={() => close?.()}>
-        <span className="property-mark">
-          <Icon name="inventory" />
-        </span>
-        <div>
-          <strong>{property?.name ?? 'Объект не загружен'}</strong>
-          <span>{property?.address ?? 'Настройки гостиницы'}</span>
-        </div>
-        <Icon name="chevron" width={14} />
-      </Link>
+      <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
+        <GrantedProperty desk={desk} property={property} close={close} />
+      </Suspense>
       <nav className="workspace-links" aria-label="Разделы">
+        {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-098) */}
         <Suspense
-          fallback={<SectionLinks sections={sidebarSectionsFor(CLOSED_ACCESS)} {...links} />}
+          fallback={<SectionLinks sections={sidebarSectionsFor(PENDING_ACCESS)} {...links} />}
         >
           <GrantedSectionLinks desk={desk} {...links} />
         </Suspense>
@@ -184,6 +180,50 @@ function SectionLinks({
         );
       })}{' '}
     </>
+  );
+}
+
+/** Объект вверху панели ведёт в настройки гостиницы — тем, кому они открыты (ADR-098) */
+function GrantedProperty({
+  desk,
+  ...props
+}: {
+  desk: Promise<DeskShell> | undefined;
+  property?: PropertyIdentity | null | undefined;
+  close: (() => void) | undefined;
+}) {
+  const shell = desk ? use(desk) : null;
+  const settings = allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS);
+  return <PropertyBlock {...props} settings={settings} />;
+}
+
+function PropertyBlock({
+  property,
+  settings,
+  close,
+}: {
+  property?: PropertyIdentity | null | undefined;
+  settings: boolean;
+  close: (() => void) | undefined;
+}) {
+  const identity = (
+    <>
+      <span className="property-mark">
+        <Icon name="inventory" />
+      </span>
+      <div>
+        <strong>{property?.name ?? 'Объект не загружен'}</strong>
+        <span>{property?.address ?? 'Настройки гостиницы'}</span>
+      </div>
+    </>
+  );
+  return settings ? (
+    <Link href="/hotel-settings" className="workspace-property" onClick={() => close?.()}>
+      {identity}
+      <Icon name="chevron" width={14} />
+    </Link>
+  ) : (
+    <div className="workspace-property">{identity}</div>
   );
 }
 

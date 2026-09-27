@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { MEMBERSHIP_ROLES, PLATFORM_TIMEZONE } from '@pms/domain';
+import { MEMBERSHIP_ROLES, PLATFORM_TIMEZONE, parseMembershipRole } from '@pms/domain';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { RefreshButton } from '../../../../components/refresh-button';
@@ -313,8 +313,10 @@ async function DialogsView({ mode, id }: { mode: string; id: string }) {
 }
 
 /** Роль вошедшего словом домена; нет роли в подписи — прочерк */
-const roleWord = (role: 'owner' | 'staff' | null) =>
-  role === 'owner' ? MEMBERSHIP_ROLES.OWNER : role === 'staff' ? MEMBERSHIP_ROLES.STAFF : '—';
+const roleWord = (role: string | null) => {
+  const known = role ? parseMembershipRole(role) : null;
+  return known ? MEMBERSHIP_ROLES[known] : '—';
+};
 
 /** Карточка диалога: кто пишет — почта, организация и роль из подписи стойки; переписка; перехват и ответ */
 function DialogCard({ card }: { card: SupportConversationCard }) {

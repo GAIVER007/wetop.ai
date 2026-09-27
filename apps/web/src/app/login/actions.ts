@@ -1,5 +1,7 @@
 'use server';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { parseInviteRole } from '@pms/domain';
 import { ApiError, authApi } from '../../lib/api';
 import { clearSessionCookie, clientInfo, sessionToken, setSessionCookie } from '../../lib/session';
 
@@ -157,16 +159,61 @@ export interface InviteActionResult {
   email: string | null;
 }
 
-/** Пригласить по почте (срез 13, этап 7). Ошибки формы приходят текстом из API; без сессии — тоже текстом. */
-export async function inviteAction(email: string): Promise<InviteActionResult> {
+/**
+ * Пригласить по почте с ролью (срез 13, этап 7; роль — ADR-098). Ошибки формы и отказ по роли приходят текстом из API;
+ * без сессии — тоже текстом. Непонятную роль из формы отправляем как есть: откажет API, одним текстом для всех.
+ */
+export async function inviteAction(email: string, role: string): Promise<InviteActionResult> {
   const token = await sessionToken();
   if (!token) return { error: 'Сеанс закончился. Войдите заново.', email: null };
   try {
-    const invite = await authApi.invite(token, email, await clientInfo());
+    const invite = await authApi.invite(
+      token,
+      email,
+      parseInviteRole(role) ?? 'STAFF',
+      await clientInfo(),
+    );
+    revalidatePath('/login');
     return { error: null, email: invite.email };
   } catch (e) {
     return { error: errorText(e), email: null };
   }
+}
+
+export interface TeamActionResult {
+  error: string | null;
+}
+
+/** Действие над сотрудником или приглашением (ADR-098): сессия, вызов, обновить блок «Сотрудники» */
+async function teamAction(run: (token: string) => Promise<void>): Promise<TeamActionResult> {
+  const token = await sessionToken();
+  if (!token) return { error: 'Сеанс закончился. Войдите заново.' };
+  try {
+    await run(token);
+  } catch (e) {
+    return { error: errorText(e) };
+  }
+  revalidatePath('/login');
+  return { error: null };
+}
+
+/** Отозвать ожидающее приглашение: ссылка больше не откроется */
+export async function revokeInviteAction(id: string): Promise<TeamActionResult> {
+  return teamAction(async (token) => authApi.revokeInvite(token, id, await clientInfo()));
+}
+
+/** Отключить сотрудника: членство удаляется, его сеансы в этой организации гаснут */
+export async function removeMemberAction(userId: string): Promise<TeamActionResult> {
+  return teamAction(async (token) => authApi.removeMember(token, userId, await clientInfo()));
+}
+
+/** Сменить роль между управляющим и администратором — только владелец */
+export async function setMemberRoleAction(userId: string, role: string): Promise<TeamActionResult> {
+  const next = parseInviteRole(role);
+  if (!next) return { error: 'Роль сотрудника — «управляющий» или «администратор».' };
+  return teamAction(async (token) =>
+    authApi.setMemberRole(token, userId, next, await clientInfo()),
+  );
 }
 
 /**

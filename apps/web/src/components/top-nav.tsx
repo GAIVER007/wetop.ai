@@ -8,7 +8,7 @@ import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
-import { activeNavigation } from '../lib/navigation';
+import { CLOSED_ACCESS, activeNavigation, allowedItem } from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 export function TopNav({
@@ -156,10 +156,9 @@ export function TopNav({
                         <Icon name="guests" />
                         Профиль и предпочтения
                       </Link>
-                      <Link href="/hotel-settings">
-                        <Icon name="settings" />
-                        Настройки объекта
-                      </Link>
+                      <Suspense fallback={null}>
+                        <GrantedSettingsLink desk={desk} />
+                      </Suspense>
                       <button
                         onClick={() => {
                           setTheme('system');
@@ -218,6 +217,18 @@ export function TopNav({
         </Suspense>
       </div>
     </DataFreshnessProvider>
+  );
+}
+
+/** «Настройки объекта» в меню профиля — тем, кому они открыты (ADR-098) */
+function GrantedSettingsLink({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const shell = desk ? use(desk) : null;
+  if (!allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS)) return null;
+  return (
+    <Link href="/hotel-settings">
+      <Icon name="settings" />
+      Настройки объекта
+    </Link>
   );
 }
 

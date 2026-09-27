@@ -5,7 +5,7 @@ export type { ActionPreview } from './action-preview';
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
-import type { DashboardPeriod } from '@pms/domain';
+import type { DashboardPeriod, InviteRole, MembershipRole } from '@pms/domain';
 import { ApiError } from './api-error';
 export interface CategorySummary {
   code: string;
@@ -332,10 +332,10 @@ export interface SignedIn {
   /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
   organization?: SignedInOrganization | null;
   /**
-   * Роль в организации сессии (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет (ADR-023): владельцу — сотрудники,
-   * приглашения и настройки ИИ-продавца. Старый API роли не присылает — тогда считаем сотрудником
+   * Роль в организации сессии (DATA_MODEL §16.1): владелец, управляющий или администратор; права ролей — §16.5, ADR-098.
+   * Старый API роли не присылает — тогда считаем администратором
    */
-  role?: 'OWNER' | 'STAFF';
+  role?: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа» */
   platformAdmin?: boolean;
 }
@@ -449,15 +449,60 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite[];
   },
-  /** 201 с приглашением; 400 с текстом про почту или «уже в организации»; 401 — сессии нет. */
-  invite: async (token: string, email: string, info: AuthClientInfo): Promise<AuthInvite> => {
+  /**
+   * 201 с приглашением; 400 с текстом про почту, роль или «уже в организации»; 403 — звать с этой ролью нельзя
+   * (управляющих зовёт только владелец, ADR-098); 401 — сессии нет.
+   */
+  invite: async (
+    token: string,
+    email: string,
+    role: InviteRole,
+    info: AuthClientInfo,
+  ): Promise<AuthInvite> => {
     const res = await backendFetch('/auth/invites', {
       method: 'POST',
       headers: authHeaders(info, token),
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, role }),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
+  },
+  /** Отозвать ожидающее приглашение (аудит 26.09, С-10): 404 — его нет или оно не по роли вошедшего */
+  revokeInvite: async (token: string, id: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: authHeaders(info, token),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  // ── Сотрудники (ADR-098, DATA_MODEL §16.1 v1.12) ──────────────────────────────────────────────
+  /** Люди своей организации с ролями — владельцу и управляющему; 403 — администратору */
+  members: async (token: string, info: AuthClientInfo): Promise<AuthMember[]> => {
+    const res = await backendFetch('/auth/members', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthMember[];
+  },
+  /** Отключить: членство удаляется, его сессии гаснут; 403 со словами, если нельзя */
+  removeMember: async (token: string, userId: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+      headers: authHeaders(info, token),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** Роль между управляющим и администратором — только владелец */
+  setMemberRole: async (
+    token: string,
+    userId: string,
+    role: InviteRole,
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}`, {
+      method: 'PATCH',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ role }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Кто зовёт и кого — по ключу из ссылки. `null` на любую мёртвую ссылку (404). */
   inviteByToken: async (
@@ -1556,7 +1601,7 @@ export interface SupportPlatformUser {
   email: string | null;
   organizationId: string | null;
   organizationName: string | null;
-  role: 'owner' | 'staff' | null;
+  role: 'owner' | 'manager' | 'staff' | null;
 }
 
 export type SupportConversationCard = SellerConversationCard & {
@@ -1647,6 +1692,22 @@ export interface AuthInvite {
   expiresAt: string;
   acceptedAt: string | null;
   createdAt: string;
+  /** С какой ролью войдёт (ADR-098); старый API роли не присылает — администратор */
+  role?: InviteRole;
+  /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
+  revocable?: boolean;
+}
+
+/** Человек своей организации в блоке «Сотрудники» (ADR-098) */
+export interface AuthMember {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: string;
+  you: boolean;
+  removable: boolean;
+  roleEditable: boolean;
 }
 
 export interface AuthInvitePreview {

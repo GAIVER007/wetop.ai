@@ -128,23 +128,18 @@ test('срок вышел: всё видно, но менять, отвечат�
   await expect(main.getByTestId('seller-embed-snippet')).toHaveCount(0);
 });
 
-test('сотрудник: настройки только смотрит, а диалоги ведёт; приглашает — владелец', async ({
+test('администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-098)', async ({
   page,
   request,
 }) => {
   await signIn(page);
   await control(request, { role: 'STAFF' });
   await page.goto('/ai-seller');
+  // настройка, знания и подключения — владельцу и управляющему: раздел открывается сразу на диалогах
+  await page.waitForURL('**/ai-seller/dialogs');
   const main = page.getByRole('main');
-  await expect(main.getByTestId('seller-read-only')).toHaveText(
-    'Настройки продавца меняет владелец организации.',
-  );
-  await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeDisabled();
-  await expect(main.getByTestId('seller-prompt-save')).toHaveCount(0);
-  await expect(main.getByTestId('seller-checklist')).toHaveCount(0);
-  // проверять ответы продавца сотруднику можно — это не настройка
-  await expect(main.getByTestId('seller-check').getByTestId('sandbox-send')).toBeVisible();
-  await shot(page, 'seller-staff-read-only');
+  await expect(main.getByTestId('seller-setup')).toHaveCount(0);
+  await shot(page, 'seller-staff-dialogs');
 
   await page.goto('/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c');
   await expect(
@@ -153,14 +148,27 @@ test('сотрудник: настройки только смотрит, а д�
   await expect(main.getByTestId('seller-dialog-card').getByTestId('dialog-reply')).toBeVisible();
   await expect(main.getByTestId('seller-dialog-card').getByTestId('dialog-takeover')).toBeVisible();
 
-  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Сотрудник');
+  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Администратор');
   await page.goto('/login');
-  await expect(page.getByTestId('invite-owner-only')).toHaveText(
-    'Приглашать сотрудников может только владелец организации.',
+  await expect(page.getByTestId('invite-not-allowed')).toHaveText(
+    'Приглашать сотрудников могут владелец и управляющий.',
   );
 });
 
-test('за неделю до конца срока владелец видит напоминание; сотрудник — нет', async ({
+test('управляющий настраивает продавца наравне с владельцем (ADR-098)', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  await control(request, { role: 'MANAGER' });
+  await page.goto('/ai-seller');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeEnabled();
+  await expect(main.getByTestId('seller-read-only')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Все агенты' })).toBeVisible();
+});
+
+test('за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет', async ({
   page,
   request,
 }) => {
@@ -172,9 +180,14 @@ test('за неделю до конца срока владелец видит �
   await expect(reminder).toContainText('Продлевает администратор WETOP после оплаты');
   await shot(page, 'seller-reminder');
 
-  await control(request, { sellerDaysLeft: 3, role: 'STAFF' });
+  // платные расширения — владельческое (ADR-098): управляющий настраивает, но о продлении не напоминаем
+  await control(request, { sellerDaysLeft: 3, role: 'MANAGER' });
   await page.goto('/ai-seller/knowledge');
   await expect(page.getByRole('main').getByTestId('seller-facts')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('seller-extension-ending')).toHaveCount(0);
+
+  await control(request, { sellerDaysLeft: 3, role: 'STAFF' });
+  await page.goto('/ai-seller/dialogs');
   await expect(page.getByRole('main').getByTestId('seller-extension-ending')).toHaveCount(0);
 });
 

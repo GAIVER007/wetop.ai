@@ -1,15 +1,34 @@
+import {
+  can,
+  parseMembershipRole,
+  rolesWith,
+  type MembershipRole,
+  type Permission,
+} from '@pms/domain';
 import type { IconName } from '../components/icon';
 
 /**
- * Что открыто вошедшему (ADR-083): пункт «ИИ-продавец» — организации с расширением, которое действует или у которого
- * вышел срок (тогда раздел только для чтения, Q-183); «Платформа» — главному администратору. Не знаем — закрыто.
+ * Что открыто вошедшему (ADR-083, ADR-098): «Платформа» — главному администратору; остальное — по роли в организации
+ * (права — DATA_MODEL §16.5, таблица в домене). Расширение «ИИ-продавец» пункт меню не прячет (ADR-090).
  */
 export interface NavigationAccess {
   aiSeller: boolean;
   platform: boolean;
+  /**
+   * Роль вошедшего. `null` — никто не вошёл: так бывает, только пока замок выключен (разработка, проверки стенда), и
+   * тогда разделы по ролям не прячутся — как и API без человека за запросом ролей не проверяет.
+   */
+  role: MembershipRole | null;
 }
 
-export const CLOSED_ACCESS: NavigationAccess = { aiSeller: false, platform: false };
+/** Никто не вошёл (или API не ответил): «Платформы» нет, разделы по ролям не прячутся */
+export const CLOSED_ACCESS: NavigationAccess = { aiSeller: false, platform: false, role: null };
+
+/** Пока `/auth/me` не ответил, меню — как у администратора: пункты появляются, а не исчезают у него на глазах */
+export const PENDING_ACCESS: NavigationAccess = { aiSeller: false, platform: false, role: 'STAFF' };
+
+/** Право, которым открыт пункт: право роли (§16.5) или «Платформа» — отметка главного администратора */
+export type NavigationRequirement = Permission | 'platform';
 
 export interface NavigationItem {
   href: string;
@@ -19,8 +38,8 @@ export interface NavigationItem {
   description: string;
   pending?: boolean;
   children?: NavigationItem[];
-  /** Пункт виден только тому, кому это открыто; без поля — всем */
-  requires?: keyof NavigationAccess;
+  /** Кому открыт пункт и страница по его адресу (ADR-098); у пункта меню поле обязательно — тест */
+  requires?: NavigationRequirement;
 }
 export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
   {
@@ -28,24 +47,28 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     items: [
       {
         href: '/today',
+        requires: 'desk',
         label: 'Главная',
         icon: 'today',
         description: 'Загрузка, деньги за период и задачи дня.',
       },
       {
         href: '/chessboard',
+        requires: 'desk',
         label: 'Шахматка',
         icon: 'board',
         description: 'Размещение по номерам, койкам и датам.',
       },
       {
         href: '/reservations',
+        requires: 'desk',
         label: 'Брони',
         icon: 'booking',
         description: 'Брони и проживания за выбранный день.',
       },
       {
         href: '/guests',
+        requires: 'desk',
         label: 'Гости',
         icon: 'guests',
         description: 'Карточки гостей и история проживания.',
@@ -57,6 +80,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     items: [
       {
         href: '/rooms',
+        requires: 'property',
         label: 'Управление номерами',
         shortLabel: 'Номера',
         icon: 'bed',
@@ -64,24 +88,28 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         children: [
           {
             href: '/inventory',
+            requires: 'property',
             label: 'Номерной фонд',
             icon: 'inventory',
             description: 'Все номера и койки, состав и карточки размещения.',
           },
           {
             href: '/rooms/categories',
+            requires: 'property',
             label: 'Категории номеров',
             icon: 'bed',
             description: 'Типы размещения, количество единиц и вместимость.',
           },
           {
             href: '/rooms/availability',
+            requires: 'property',
             label: 'Доступность номеров',
             icon: 'board',
             description: 'Свободные номера и койки на весь срок проживания.',
           },
           {
             href: '/rates',
+            requires: 'rates',
             label: 'Тарифы',
             icon: 'rates',
             description: 'Календарь цен, ограничения и массовое редактирование.',
@@ -90,12 +118,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/management/statistics',
+        requires: 'reports',
         label: 'Статистика',
         icon: 'analytics',
         description: 'Занятые, свободные и заблокированные места по категориям.',
       },
       {
         href: '/finance',
+        requires: 'reports',
         label: 'Оплаты',
         icon: 'money',
         description: 'Начисления, оплаты, возвраты и остатки за период.',
@@ -107,12 +137,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     items: [
       {
         href: '/channel-manager',
+        requires: 'channels',
         label: 'Менеджер каналов',
         icon: 'channels',
         description: 'Брони и стоимость по Booking.com, Trip.com и другим источникам.',
         children: [
           {
             href: '/channels',
+            requires: 'channels',
             label: 'Синхронизация',
             icon: 'channels',
             description: 'Сопоставления, события и очередь Channex.',
@@ -121,6 +153,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/ai-seller',
+        requires: 'dialogs',
         label: 'ИИ-продавец',
         icon: 'chat',
         description: 'Бот на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
@@ -128,6 +161,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/analytics',
+        requires: 'settings',
         label: 'Аналитика',
         icon: 'analytics',
         description: 'Посещаемость сайта, источники трафика и бронирования.',
@@ -139,6 +173,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     items: [
       {
         href: '/hotel-settings',
+        requires: 'settings',
         label: 'Настройки гостиницы',
         shortLabel: 'Гостиница',
         icon: 'settings',
@@ -146,12 +181,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         children: [
           {
             href: '/hotel-settings/penalties',
+            requires: 'settings',
             label: 'Правила отмены',
             icon: 'journal',
             description: 'Политика отмены для каждого тарифного плана.',
           },
           {
             href: '/hotel-settings/services',
+            requires: 'settings',
             label: 'Услуги',
             icon: 'plus',
             description: 'Каталог дополнительных услуг и цены.',
@@ -160,24 +197,28 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/connections',
+        requires: 'settings',
         label: 'Интеграции',
         icon: 'channels',
         description: 'Подключение каналов, счётчика и модуля бронирования.',
       },
       {
         href: '/analytics/setup',
+        requires: 'settings',
         label: 'Настройки сайта',
         icon: 'settings',
         description: 'Подключение сайта и настройка виджета.',
       },
       {
         href: '/incidents',
+        requires: 'desk',
         label: 'Неисправности',
         icon: 'incidents',
         description: 'Ошибки и состояние фоновых процессов.',
       },
       {
         href: '/journal',
+        requires: 'journal',
         label: 'Журнал',
         icon: 'journal',
         description: 'История операций в системе.',
@@ -279,9 +320,46 @@ export const sidebarSections: SidebarSection[] = [
   },
 ];
 
+/** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-098) */
+export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
+  return access.role === null || can(access.role, permission);
+}
+
 /** Открыт ли пункт этому вошедшему */
-export function allowedItem(item: NavigationItem, access: NavigationAccess): boolean {
-  return !item.requires || access[item.requires];
+export function allowedItem(
+  item: { requires?: NavigationRequirement | undefined },
+  access: NavigationAccess,
+): boolean {
+  if (!item.requires) return true;
+  if (item.requires === 'platform') return access.platform;
+  return mayAccess(access, item.requires);
+}
+
+/** Право, открытое всем ролям, страницу не закрывает: проверять его незачем */
+export function openToEveryRole(requires: NavigationRequirement | undefined): boolean {
+  return !requires || (requires !== 'platform' && rolesWith(requires).length === 3);
+}
+
+/**
+ * Адреса вне меню, которые открыты не всем (ADR-098): вкладки настроек продавца, его агенты, первичная настройка
+ * объекта. Остальные адреса наследуют право пункта меню по самому длинному совпадению пути.
+ */
+const OFF_MENU_ROUTES: Array<Pick<NavigationItem, 'href' | 'label' | 'requires'>> = [
+  { href: '/ai-seller/knowledge', label: 'Знания ИИ-продавца', requires: 'seller' },
+  { href: '/ai-seller/connections', label: 'Подключения ИИ-продавца', requires: 'seller' },
+  { href: '/ai-seller/agents', label: 'Агенты ИИ-продавца', requires: 'seller' },
+  { href: '/onboarding', label: 'Первичная настройка', requires: 'settings' },
+];
+
+/** Какой пункт (или адрес вне меню) отвечает за страницу — с его названием и правом. Нет такого — страница общая */
+export function routeRule(
+  path: string,
+): Pick<NavigationItem, 'href' | 'label' | 'requires'> | undefined {
+  const within = (href: string) => path === href || path.startsWith(`${href}/`);
+  const extra = OFF_MENU_ROUTES.filter((r) => within(r.href)).sort(
+    (a, b) => b.href.length - a.href.length,
+  )[0];
+  return extra ?? activeNavigation(path);
 }
 
 /** Меню вошедшего: закрытые пункты убраны, раздел без пунктов не показывается */
@@ -294,10 +372,13 @@ export function sidebarSectionsFor(access: NavigationAccess): SidebarSection[] {
     .filter((section) => section.items.length > 0);
 }
 
-/** Ответ `/auth/me` → что открыто. Нет вошедшего или ответа — закрыто: пункт не появляется по ошибке */
+/**
+ * Ответ `/auth/me` → что открыто. Нет вошедшего или ответа — `CLOSED_ACCESS`. Роль незнакома (старый API) —
+ * администратор: меню не обещает прав, которых у человека может не быть; решает всё равно API.
+ */
 export function deskAccessOf(
   me: {
-    user: { platformAdmin?: boolean } | null;
+    user: { platformAdmin?: boolean; role?: string } | null;
     access?: { aiSeller?: { access?: string } | null } | null;
   } | null,
 ): NavigationAccess {
@@ -306,6 +387,7 @@ export function deskAccessOf(
   return {
     aiSeller: seller === 'active' || seller === 'expired',
     platform: me.user.platformAdmin === true,
+    role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
   };
 }
 

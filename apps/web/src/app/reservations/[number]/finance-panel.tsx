@@ -28,6 +28,7 @@ import {
   stayExtraAction,
 } from './finance-actions';
 import { usePropertyClock } from '../../../components/property-time';
+import { useMay } from '../../../components/desk-access';
 import { displayDate } from '../../../lib/display-date';
 import { useConfirm } from '../../../components/use-confirm';
 
@@ -124,6 +125,8 @@ function FolioPanel({
 }) {
   // Дата оплаты и возврата — день по часам объекта, а не срез UTC-строки (волна 3, С-13)
   const clock = usePropertyClock();
+  // возврат и сторно (снятие штрафа — тоже сторно) — владелец и управляющий (ADR-098, Q-024); API откажет и так
+  const reverse = useMay('refunds');
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
     INIT,
@@ -205,7 +208,7 @@ function FolioPanel({
               </td>
               <td className="num">{formatMoney(c.amountMinor, folio.currency)}</td>
               <td>
-                {open && !c.voidedAt && c.kind !== 'ACCOMMODATION' && (
+                {open && reverse && !c.voidedAt && c.kind !== 'ACCOMMODATION' && (
                   <Button
                     type="button"
                     tone="secondary"
@@ -229,7 +232,13 @@ function FolioPanel({
         <Table plain>
           <thead>
             <tr>
-              {['Платёж', 'Когда', 'На этот счёт', 'Возвращено', 'Возврат'].map((h) => (
+              {[
+                'Платёж',
+                'Когда',
+                'На этот счёт',
+                'Возвращено',
+                ...(reverse ? ['Возврат'] : []),
+              ].map((h) => (
                 <th
                   key={h}
                   className={h === 'На этот счёт' || h === 'Возвращено' ? 'num' : undefined}
@@ -251,18 +260,20 @@ function FolioPanel({
                 <td>{clock.date(p.paidAt)}</td>
                 <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
                 <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
-                <td>
-                  {open &&
-                    p.status === 'COMPLETED' &&
-                    BigInt(p.allocatedMinor) > BigInt(p.refundedMinor) && (
-                      <RefundForm
-                        number={number}
-                        paymentId={p.paymentId}
-                        folioId={folio.id}
-                        onResult={setOther}
-                      />
-                    )}
-                </td>
+                {reverse && (
+                  <td>
+                    {open &&
+                      p.status === 'COMPLETED' &&
+                      BigInt(p.allocatedMinor) > BigInt(p.refundedMinor) && (
+                        <RefundForm
+                          number={number}
+                          paymentId={p.paymentId}
+                          folioId={folio.id}
+                          onResult={setOther}
+                        />
+                      )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

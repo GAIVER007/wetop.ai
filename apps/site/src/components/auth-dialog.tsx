@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import type { Dictionary } from '../i18n/types';
 import type { AuthMode } from '../lib/site';
 
@@ -69,6 +69,7 @@ export function AuthDialog({ texts, urls }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: '', password: '', name: '', hotelName: '' });
   const optionsAsked = useRef(false);
+  const passwordId = useId();
 
   const open = useCallback(
     (next: AuthMode) => {
@@ -200,10 +201,14 @@ export function AuthDialog({ texts, urls }: Props) {
   );
 
   const passwordField = (autoComplete: 'current-password' | 'new-password') => (
-    <label className="auth-field">
-      <span className="auth-field__label">{texts.fields.password}</span>
+    // Подпись связана с полем через id: кнопка «Показать» внутри <label> вошла бы в имя поля
+    <div className="auth-field">
+      <label className="auth-field__label" htmlFor={passwordId}>
+        {texts.fields.password}
+      </label>
       <span className="auth-field__password">
         <input
+          id={passwordId}
           className="auth-field__input"
           type={showPassword ? 'text' : 'password'}
           name="password"
@@ -227,7 +232,7 @@ export function AuthDialog({ texts, urls }: Props) {
           {showPassword ? texts.fields.hide : texts.fields.show}
         </button>
       </span>
-    </label>
+    </div>
   );
 
   const emailField = (
@@ -239,6 +244,8 @@ export function AuthDialog({ texts, urls }: Props) {
         name="email"
         autoComplete="username"
         inputMode="email"
+        // Окно открылось — курсор сразу в почте (вход) или в имени (регистрация)
+        autoFocus={mode === 'login'}
         required
         placeholder={texts.fields.emailPlaceholder}
         value={form.email}
@@ -380,6 +387,7 @@ export function AuthDialog({ texts, urls }: Props) {
                       type="text"
                       name="name"
                       autoComplete="name"
+                      autoFocus
                       required
                       maxLength={200}
                       placeholder={texts.fields.namePlaceholder}

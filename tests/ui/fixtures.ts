@@ -39,8 +39,25 @@ export * from '@playwright/test';
  */
 export const devNoise = /Failed to execute 'measure' on 'Performance'/;
 
-export const test = base.extend({
-  page: async ({ page }, use) => {
+/**
+ * Обучение в стойке (ADR-100) само открывается на Главной у вошедшего, пока в браузере нет отметки «пройдено».
+ * Спекам, которые входят и работают на Главной, окно поверх экрана не нужно: по умолчанию стенд считает обучение
+ * пройденным. Спек обучения включает его сам: `test.use({ tour: true })`.
+ */
+const TOUR_DONE_SCRIPT = `(() => {
+  try {
+    const get = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key) {
+      const value = get.call(this, key);
+      return value === null && typeof key === 'string' && key.startsWith('wetop.tour.v1:') ? 'done' : value;
+    };
+  } catch (e) {}
+})();`;
+
+export const test = base.extend<{ tour: boolean }>({
+  tour: [false, { option: true }],
+  page: async ({ page, tour }, use) => {
+    if (!tour) await page.addInitScript(TOUR_DONE_SCRIPT);
     const goto = page.goto.bind(page);
     page.goto = async (url, options) => {
       const response = await goto(url, options);

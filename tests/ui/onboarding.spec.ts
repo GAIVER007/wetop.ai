@@ -83,3 +83,32 @@ test('у работающего отеля с бронями «Первых ша
   await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
 });
+
+/**
+ * «Заполнить позже» (plans/site-auth-dialog-tour-2026-09-27.md, Д3, ADR-100): после подтверждения почты человек может
+ * не заводить номера сразу. Стойка открывается, гейт больше не уводит, а Главная первым шагом ведёт настроить отель.
+ */
+test('«Заполнить позже»: стойка открывается, Главная ведёт настроить номера и цены', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, {
+    data: { onboardingNeeded: true, noBookings: true },
+  });
+  await page.goto('/today');
+  await expect(page).toHaveURL(/\/onboarding/);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('list', { name: 'Путь до работы' })).toContainText('Номера и цены');
+  await page.screenshot({ path: 'test-results/onboarding-later-1-form.png', fullPage: true });
+  await main.getByTestId('onboarding-later').click();
+
+  await page.waitForURL('**/today');
+  const steps = page.getByTestId('first-steps');
+  await expect(steps).toContainText('Настройте номера и цены');
+  await expect(steps.getByRole('link', { name: 'Настроить отель' })).toHaveAttribute('href', '/onboarding');
+  await page.screenshot({ path: 'test-results/onboarding-later-2-today.png' });
+
+  // другой рабочий экран тоже не уводит
+  await page.goto('/reservations');
+  await expect(page).toHaveURL(/\/reservations/);
+  // а ссылка ведёт обратно в настройку
+  await page.goto('/onboarding');
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Настройте отель', level: 1 })).toBeVisible();
+});

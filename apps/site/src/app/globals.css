@@ -2123,6 +2123,7 @@ button {
   margin: auto;
   padding: 0;
   overflow: auto;
+  border: 1px solid var(--border);
   color: var(--text);
   background: var(--surface-solid);
   border-radius: var(--radius-lg);
@@ -2138,7 +2139,7 @@ button {
 }
 @media (min-width: 30rem) {
   .auth-dialog__panel {
-    padding: 36px 36px 28px;
+    padding: 40px 40px 28px;
   }
 }
 .auth-dialog__close {
@@ -2211,6 +2212,14 @@ button {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px 16px;
+}
+/* Стеклянная белая кнопка на сплошном белом окне сливается с фоном — ей нужна рамка поля */
+.auth-dialog .btn--secondary {
+  border-color: var(--border-input);
+}
+.auth-dialog .btn--secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 .auth-dialog__link {
   padding: 0;
@@ -2294,17 +2303,36 @@ button {
   color: var(--muted);
 }
 .auth-field__password {
-  position: relative;
-  display: block;
+  /* Поле и «Показать» в одной рамке: кнопка стоит рядом с полем, а не поверх текста пароля */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.auth-field__password:hover {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border-input));
+}
+.auth-field__password:focus-within {
+  border-color: var(--primary);
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
 }
 .auth-field__password .auth-field__input {
-  padding-right: 96px;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+}
+/* кольцо фокуса — у рамки целиком (`:focus-within` выше), второе внутри не нужно */
+.auth-field__password .auth-field__input:focus-visible {
+  outline: none;
 }
 .auth-field__toggle {
-  position: absolute;
-  top: 50%;
-  right: 6px;
+  flex: none;
   min-height: 36px;
+  margin-right: 6px;
   padding: 0 10px;
   border: 0;
   border-radius: var(--radius-sm);
@@ -2313,7 +2341,6 @@ button {
   font: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
-  transform: translateY(-50%);
   cursor: pointer;
 }
 .auth-field__toggle:hover {

@@ -39,3 +39,65 @@
     overflow-wrap: anywhere;
   }
 }
+
+/*
+ * Панель предпросмотра гостя (G3, ТЗ §17): быстрый ответ стойке поверх списка. Живёт в общей
+ * панели 480 px (`route-drawer`), поэтому здесь только внутренний ритм: имя, контакты полосой
+ * фактов, разделы «Сейчас / История / Финансы» и действия внизу.
+ */
+.guest-preview {
+  display: block;
+}
+.guest-preview__name {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+.guest-preview__contacts {
+  margin-bottom: var(--space-4);
+}
+.guest-preview__now {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-2);
+}
+.guest-preview__now p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+.guest-preview__now .dir-sub {
+  margin-top: 0;
+}
+.guest-preview__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+.guest-preview__facts dt {
+  margin: 0 0 var(--space-1);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.guest-preview__facts dd {
+  margin: 0;
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.guest-preview__finance {
+  margin: 0;
+}
+.guest-preview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-soft);
+}

@@ -40,7 +40,11 @@ test('пробный срок вышел — полоса «оплатите п�
   const main = page.getByRole('main');
   await expect(main.getByTestId('guests-meta')).toBeVisible();
   await expect(main.getByLabel('Поиск гостей')).toBeVisible();
+  // G3: щелчок открывает предпросмотр (чтение), из него — полная карточка
   await main.getByTestId('guests-table').getByRole('link').first().click();
+  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+  await expect(drawer.getByTestId('guest-preview')).toBeVisible();
+  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\//);
   await expect(main.getByTestId('guest-head')).toBeVisible();
   await page.goto('/today');

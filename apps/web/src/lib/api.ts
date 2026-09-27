@@ -965,10 +965,33 @@ export interface GuestDirectoryRow {
   email: string | null;
   staysCount: number;
   state: GuestDirectoryState;
-  current: { unitCode: string | null; accommodationTypeName: string; departureDate: string } | null;
-  next: { arrivalDate: string; departureDate: string; accommodationTypeName: string } | null;
-  last: { arrivalDate: string; departureDate: string; unitCode: string | null } | null;
+  current: {
+    unitCode: string | null;
+    accommodationTypeName: string;
+    departureDate: string;
+    confirmationNumber: string | null;
+  } | null;
+  next: {
+    arrivalDate: string;
+    departureDate: string;
+    accommodationTypeName: string;
+    confirmationNumber: string | null;
+  } | null;
+  last: {
+    arrivalDate: string;
+    departureDate: string;
+    unitCode: string | null;
+    confirmationNumber: string | null;
+  } | null;
   lastCancelledAt: string | null;
+}
+/** Предпросмотр гостя панелью (G3, ТЗ §17): контакты, «сейчас», история, долг из Folio */
+export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
+  id: string;
+  nightsTotal: number;
+  hasFolios: boolean;
+  debtMinor: string;
+  currency: string;
 }
 export interface GuestDirectoryResult {
   total: number;
@@ -981,6 +1004,7 @@ export const guestsApi = {
   search: (q: string) => getJson<GuestSummary[]>(`/guests?q=${encodeURIComponent(q)}`),
   directory: (query: Record<string, string>) =>
     getJson<GuestDirectoryResult>(`/guests/directory?${new URLSearchParams(query)}`),
+  preview: (id: string) => getJson<GuestPreview>(`/guests/${encodeURIComponent(id)}/preview`),
   card: (id: string) => getJson<GuestCard>(`/guests/${encodeURIComponent(id)}`),
   update: (id: string, body: unknown) =>
     sendJson<GuestCard>('PATCH', `/guests/${encodeURIComponent(id)}`, body),

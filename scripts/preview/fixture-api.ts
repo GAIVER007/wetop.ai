@@ -21,6 +21,7 @@ import {
   INVITE_OWNER_ONLY_MESSAGE,
   type ExtensionStatus,
   parseHotelSettingsPatch,
+  countGuestNights,
   summarizeGuestStays,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
@@ -2159,6 +2160,29 @@ function read(path: string, q: URLSearchParams): unknown {
         staysCount: g.stays.length,
         lastStay: g.stays[0]?.arrivalDate ?? null,
       }));
+  // Предпросмотр панелью (G3): история и долг из «счетов» карточек — как в настоящем API из Folio
+  const previewMatch = /^\/guests\/([^/]+)\/preview$/.exec(path);
+  if (previewMatch) {
+    const g = getGuest(decodeURIComponent(previewMatch[1]!));
+    if (!g) return undefined;
+    const cards = allCards().filter((r) => r.primaryGuest?.id === g.id);
+    // у отменённых и незаездов счёт в фикстуре не строится: их «долг» — не долг гостя
+    const billed = cards.filter((r) => r.status !== 'CANCELLED' && r.status !== 'NO_SHOW');
+    const debt = billed.reduce((sum, r) => sum + BigInt(finance(r).balanceMinor), 0n);
+    return {
+      id: g.id,
+      firstName: g.firstName,
+      lastName: g.lastName,
+      middleName: g.middleName,
+      phone: g.phone,
+      email: g.email,
+      ...summarizeGuestStays(g.stays, today),
+      nightsTotal: countGuestNights(g.stays),
+      hasFolios: billed.length > 0,
+      debtMinor: debt.toString(),
+      currency: 'KZT',
+    };
+  }
   if (path.startsWith('/guests/')) return getGuest(decodeURIComponent(path.split('/')[2]!));
   if (path.startsWith('/units/')) {
     const u = units.find((u) => u.code === decodeURIComponent(path.split('/')[2]!));

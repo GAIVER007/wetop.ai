@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GUEST_RECENT_DAYS, shiftDate, summarizeGuestStays } from './directory';
+import { GUEST_RECENT_DAYS, countGuestNights, shiftDate, summarizeGuestStays } from './directory';
 
 const TODAY = '2026-09-27';
 const stay = (
@@ -21,9 +21,37 @@ describe('summarizeGuestStays — состояние гостя из его пр
       unitCode: 'R01',
       accommodationTypeName: 'Двухместный номер',
       departureDate: '2026-09-30',
+      confirmationNumber: null,
     });
     expect(s.staysCount).toBe(2);
-    expect(s.last).toEqual({ arrivalDate: '2026-08-12', departureDate: '2026-08-15', unitCode: 'M03' });
+    expect(s.last).toEqual({
+      arrivalDate: '2026-08-12',
+      departureDate: '2026-08-15',
+      unitCode: 'M03',
+      confirmationNumber: null,
+    });
+  });
+
+  it('предпросмотр (G3): номер брони доезжает до «сейчас», ночи считаются по визитам', () => {
+    const s = summarizeGuestStays(
+      [
+        { ...stay('CHECKED_IN', '2026-09-25', '2026-09-30'), confirmationNumber: 'B-77' },
+        stay('CHECKED_OUT', '2026-08-12', '2026-08-15', 'M03'),
+        stay('CONFIRMED', '2026-10-04', '2026-10-06'),
+        stay('CANCELLED', '2026-07-01', '2026-07-05'),
+      ],
+      TODAY,
+    );
+    expect(s.current?.confirmationNumber).toBe('B-77');
+    // ночи: 5 (живёт) + 3 (выехал); будущая и отменённая — не визит и не ночи
+    expect(
+      countGuestNights([
+        stay('CHECKED_IN', '2026-09-25', '2026-09-30'),
+        stay('CHECKED_OUT', '2026-08-12', '2026-08-15'),
+        stay('CONFIRMED', '2026-10-04', '2026-10-06'),
+        stay('CANCELLED', '2026-07-01', '2026-07-05'),
+      ]),
+    ).toBe(8);
   });
 
   it('ожидается: ближайшая будущая бронь, просроченный заезд остаётся «ожидается»', () => {

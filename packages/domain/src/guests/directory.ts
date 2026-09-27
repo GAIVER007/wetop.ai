@@ -21,6 +21,8 @@ export interface GuestStayFacts {
   departureDate: string;
   unitCode: string | null;
   accommodationTypeName: string;
+  /** Номер брони — для «Открыть бронь» в предпросмотре (G3); списку не нужен и не передаётся */
+  confirmationNumber?: string | null;
 }
 
 export interface GuestStaySummary {
@@ -28,13 +30,40 @@ export interface GuestStaySummary {
   staysCount: number;
   state: GuestDirectoryState;
   /** Живёт сейчас: где и до какого числа */
-  current: { unitCode: string | null; accommodationTypeName: string; departureDate: string } | null;
+  current: {
+    unitCode: string | null;
+    accommodationTypeName: string;
+    departureDate: string;
+    confirmationNumber: string | null;
+  } | null;
   /** Ближайший будущий визит; просроченный заезд (заезд в прошлом, выезд ещё нет) остаётся здесь */
-  next: { arrivalDate: string; departureDate: string; accommodationTypeName: string } | null;
+  next: {
+    arrivalDate: string;
+    departureDate: string;
+    accommodationTypeName: string;
+    confirmationNumber: string | null;
+  } | null;
   /** Последний состоявшийся визит */
-  last: { arrivalDate: string; departureDate: string; unitCode: string | null } | null;
+  last: {
+    arrivalDate: string;
+    departureDate: string;
+    unitCode: string | null;
+    confirmationNumber: string | null;
+  } | null;
   /** Дата заезда последней отменённой/незаезда — только когда визитов нет и ничего не ожидается (ТЗ §16) */
   lastCancelledAt: string | null;
+}
+
+/** Ночей по визитам (живёт сейчас или уже выехал) — вся длительность проживания, как в счёте */
+export function countGuestNights(stays: GuestStayFacts[]): number {
+  let nights = 0;
+  for (const s of stays)
+    if (s.status === 'CHECKED_IN' || s.status === 'CHECKED_OUT')
+      nights += Math.max(
+        0,
+        Math.round((Date.parse(s.departureDate) - Date.parse(s.arrivalDate)) / 86400000),
+      );
+  return nights;
 }
 
 /** Дата через n дней от YYYY-MM-DD; отрицательное n — назад */
@@ -60,13 +89,19 @@ export function summarizeGuestStays(stays: GuestStayFacts[], today: string): Gue
           unitCode: s.unitCode,
           accommodationTypeName: s.accommodationTypeName,
           departureDate: s.departureDate,
+          confirmationNumber: s.confirmationNumber ?? null,
         };
         currentArrival = s.arrivalDate;
       }
     } else if (s.status === 'CHECKED_OUT') {
       staysCount += 1;
       if (!last || s.departureDate > last.departureDate)
-        last = { arrivalDate: s.arrivalDate, departureDate: s.departureDate, unitCode: s.unitCode };
+        last = {
+          arrivalDate: s.arrivalDate,
+          departureDate: s.departureDate,
+          unitCode: s.unitCode,
+          confirmationNumber: s.confirmationNumber ?? null,
+        };
     } else if (s.status === 'CONFIRMED' || s.status === 'TENTATIVE') {
       // выезд ещё не прошёл — визит впереди; целиком прошедшая подтверждённая бронь — ничья
       if (s.departureDate >= today && (!next || s.arrivalDate < next.arrivalDate))
@@ -74,6 +109,7 @@ export function summarizeGuestStays(stays: GuestStayFacts[], today: string): Gue
           arrivalDate: s.arrivalDate,
           departureDate: s.departureDate,
           accommodationTypeName: s.accommodationTypeName,
+          confirmationNumber: s.confirmationNumber ?? null,
         };
     } else if (s.status === 'CANCELLED' || s.status === 'NO_SHOW') {
       if (!cancelledAt || s.arrivalDate > cancelledAt) cancelledAt = s.arrivalDate;

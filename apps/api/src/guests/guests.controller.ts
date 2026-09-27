@@ -41,6 +41,12 @@ export class GuestsController {
     return this.service.directory(query);
   }
 
+  // предпросмотр панелью (G3): без документов — показ карточки с ними пишется в журнал, панель нет
+  @Get(':id/preview')
+  preview(@Param('id') id: string) {
+    return this.service.preview(id);
+  }
+
   @Get(':id')
   card(@Param('id') id: string) {
     return this.service.card(id);

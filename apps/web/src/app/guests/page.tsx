@@ -5,11 +5,12 @@ import { Icon } from '../../components/icon';
 import { Alert, Badge, EmptyState, Table } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
-import { guestsApi, messengerLinks, type GuestDirectoryState } from '../../lib/api';
+import { guestsApi, messengerLinks } from '../../lib/api';
 import { hotelToday } from '../../lib/hotel-api';
 import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { GuestsSearch } from './guests-search';
+import { STATE_BADGE } from './guest-state';
 import '../directory.css';
 import './guests.css';
 
@@ -24,13 +25,6 @@ const SECTIONS: ReadonlyArray<{ id: string; label: string; meta: string }> = [
   { id: 'EXPECTED', label: 'Ожидаются', meta: 'ожидаются' },
   { id: 'RECENT', label: 'Недавние', meta: 'выехали за 30 дней' },
 ];
-/** Слово о госте и тон бейджа; NONE — прочерк, бейджа нет (пустое значение — «—», DESIGN.md §14) */
-const STATE_BADGE: Record<GuestDirectoryState, { word: string; tone: 'ok' | 'info' | 'neutral' } | null> = {
-  INHOUSE: { word: 'живёт', tone: 'ok' },
-  EXPECTED: { word: 'ожидается', tone: 'info' },
-  RECENT: { word: 'выехал недавно', tone: 'neutral' },
-  NONE: null,
-};
 /** Старые адреса ?status=CHECKED_IN живут в закладках и тестах — читаются как раздел */
 const LEGACY_STATUS: Record<string, string> = {
   ALL: 'ALL',
@@ -189,7 +183,14 @@ export default async function GuestsPage({
                   return (
                     <tr key={g.id} data-testid="guest-row">
                       <td>
-                        <Link className="dir-guest" href={`/guests/${encodeURIComponent(g.id)}`}>
+                        {/* G3: щелчок по гостю — панель предпросмотра поверх списка (ТЗ §17);
+                            без JavaScript адрес ведёт на карточку. prefetch выключен: сто строк —
+                            сто панелей загодя не нужны */}
+                        <Link
+                          className="dir-guest"
+                          prefetch={false}
+                          href={`/guests/${encodeURIComponent(g.id)}/preview`}
+                        >
                           <strong>
                             {g.lastName} {g.firstName} {g.middleName ?? ''}
                           </strong>

@@ -93,6 +93,56 @@ test('гости: кейсы владельца — несколько прож�
   await expect(chips.getByRole('link', { name: 'Проживают 6' })).toBeVisible();
 });
 
+test('гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3)', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/guest-cases`);
+  const main = page.getByRole('main');
+  await page.goto('/guests');
+
+  // живущий должник: где живёт, долг словом и суммой, «Открыть бронь» ведёт на его бронь
+  await main.getByRole('link', { name: /Задолжавший/ }).click();
+  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByTestId('guest-preview-now')).toContainText('живёт');
+  await expect(drawer.getByTestId('guest-preview-now')).toContainText('R11');
+  await expect(drawer.getByTestId('guest-preview-finance')).toContainText('к оплате');
+  await expect(drawer.getByTestId('guest-preview-finance')).toContainText('4 000 ₸');
+  await expect(drawer.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+    'href',
+    /\/reservations\/20260916-GCDEBT0/,
+  );
+  const audit = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+  // Escape закрывает панель и возвращает список
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
+  await expect(page).toHaveURL(/\/guests$/);
+
+  // история одного человека: три визита, восемь ночей
+  await main.getByRole('link', { name: /Возвращающийся/ }).click();
+  const history = drawer.getByTestId('guest-preview-history');
+  await expect(history).toContainText('Визитов');
+  await expect(history).toContainText('3');
+  await expect(history).toContainText('Ночей');
+  await expect(history).toContainText('8');
+  await page.keyboard.press('Escape');
+
+  // только отменённая бронь: счетов нет, подпись называет бронь, не человека
+  await main.getByRole('link', { name: /Отменившийся/ }).click();
+  await expect(drawer.getByTestId('guest-preview-finance')).toContainText('Счетов пока нет');
+  await expect(drawer.getByTestId('guest-preview-now')).toContainText('отменена');
+  await expect(drawer.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveCount(0);
+
+  // «Открыть гостя» — полная карточка с документами и историей
+  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+  await expect(page).toHaveURL(/\/guests\/ui-guest-GCCAN0$/);
+  await expect(main.getByTestId('guest-head')).toBeVisible();
+});
+
 test('гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами', async ({
   page,
   request,

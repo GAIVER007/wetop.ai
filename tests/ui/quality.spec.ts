@@ -94,7 +94,11 @@ test('список гостей и вторая бронь открывают с
   await expect(page.locator('.dir-guest')).toHaveCount(9);
   const link = page.locator('.dir-guest').nth(1);
   const label = await link.locator('strong').innerText();
+  // G3: щелчок по гостю — панель предпросмотра, полная карточка — из неё
   await link.click();
+  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+  await expect(drawer).toContainText(label);
+  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText(label);
   await page.goto('/reservations/20260913-TEST1');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('20260913-TEST1');

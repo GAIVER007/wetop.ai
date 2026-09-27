@@ -4,6 +4,8 @@ import type { Prisma } from '@pms/database';
 import {
   GUEST_RECENT_DAYS,
   LUXX_APARTS_PROPERTY,
+  countGuestNights,
+  folioBalance,
   shiftDate,
   summarizeGuestStays,
   type GuestStaySummary,
@@ -70,6 +72,22 @@ export interface GuestDirectoryResult {
   counts: Record<GuestDirectoryFilter, number>;
   rows: GuestDirectoryRow[];
 }
+/** Предпросмотр гостя панелью (G3, ТЗ §17): контакты, «сейчас», история и долг из Folio */
+export interface GuestPreview extends GuestStaySummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName: string | null;
+  phone: string | null;
+  email: string | null;
+  /** Ночей по визитам — вся длительность, как в счёте */
+  nightsTotal: number;
+  /** Есть ли у проживаний гостя счета: без них долг — «—», а не 0 */
+  hasFolios: boolean;
+  /** Сумма остатков по счетам его проживаний; источник правды — Folio (ТЗ §24) */
+  debtMinor: string;
+  currency: string;
+}
 export interface GuestPatch {
   firstName?: string;
   lastName?: string;
@@ -91,6 +109,8 @@ export interface GuestsRepository {
     pageSize: number;
   }): Promise<GuestDirectoryResult>;
   byId(id: string): Promise<GuestProfile | null>;
+  /** Предпросмотр панелью (G3): null — гость не найден или не этой организации */
+  preview(id: string): Promise<GuestPreview | null>;
   update(id: string, patch: GuestPatch): Promise<void>;
   addDocument(
     guestId: string,
@@ -301,6 +321,86 @@ export class PrismaGuestsRepository implements GuestsRepository {
           today,
         ),
       })),
+    };
+  }
+  /**
+   * Предпросмотр гостя панелью (G3, ТЗ §17; «долг — сначала в предпросмотре» — решение владельца
+   * 27.09). Долг считается из счетов его проживаний тем же `folioBalance`, что список броней и
+   * карточка (ТЗ §24: источник правды — Folio, отдельных «денег гостя» нет). Документы сюда
+   * намеренно не входят: их показ — событие журнала, предпросмотру они не нужны.
+   */
+  async preview(id: string): Promise<GuestPreview | null> {
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const g = await this.prisma.db.guest.findFirst({
+      where: { AND: [{ id }, this.visible()] },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        middleName: true,
+        phone: true,
+        email: true,
+        stays: {
+          select: {
+            reservationItem: {
+              select: {
+                status: true,
+                arrivalDate: true,
+                departureDate: true,
+                accommodationType: { select: { name: true } },
+                reservation: { select: { confirmationNumber: true, currency: true } },
+                allocations: {
+                  orderBy: { startDate: 'desc' },
+                  take: 1,
+                  select: { inventoryUnit: { select: { code: true } } },
+                },
+                folio: {
+                  select: {
+                    charges: { where: { voidedAt: null }, select: { amount: true } },
+                    allocations: {
+                      where: { payment: { status: 'COMPLETED' } },
+                      select: { amount: true },
+                    },
+                    refunds: { select: { amount: true } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!g) return null;
+    const stays = g.stays.map((s) => ({
+      status: s.reservationItem.status,
+      arrivalDate: iso(s.reservationItem.arrivalDate)!,
+      departureDate: iso(s.reservationItem.departureDate)!,
+      unitCode: s.reservationItem.allocations[0]?.inventoryUnit.code ?? null,
+      accommodationTypeName: s.reservationItem.accommodationType.name,
+      confirmationNumber: s.reservationItem.reservation.confirmationNumber,
+    }));
+    const folios = g.stays.flatMap((s) =>
+      s.reservationItem.folio ? [s.reservationItem.folio] : [],
+    );
+    const balance = folioBalance({
+      charges: folios.flatMap((f) =>
+        f.charges.map((c) => ({ amountMinor: c.amount, voided: false })),
+      ),
+      allocations: folios.flatMap((f) => f.allocations.map((a) => ({ amountMinor: a.amount }))),
+      refunds: folios.flatMap((f) => f.refunds.map((r) => ({ amountMinor: r.amount }))),
+    });
+    return {
+      id: g.id,
+      firstName: g.firstName,
+      lastName: g.lastName,
+      middleName: g.middleName,
+      phone: g.phone,
+      email: g.email,
+      ...summarizeGuestStays(stays, today),
+      nightsTotal: countGuestNights(stays),
+      hasFolios: folios.length > 0,
+      debtMinor: balance.balanceMinor.toString(),
+      currency: g.stays[0]?.reservationItem.reservation.currency ?? 'KZT',
     };
   }
   async byId(id: string): Promise<GuestProfile | null> {

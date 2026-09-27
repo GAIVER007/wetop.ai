@@ -4,7 +4,7 @@ import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { decryptPii } from '@pms/shared';
-import { summarizeGuestStays } from '@pms/domain';
+import { countGuestNights, summarizeGuestStays } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { GuestsModule } from './guests.module';
 import { GUESTS_REPOSITORY, type GuestProfile, type GuestsRepository } from './guests.repository';
@@ -126,6 +126,23 @@ function makeFakes() {
       const g = guests.get(id);
       return g ? structuredClone(g) : null;
     },
+    async preview(id) {
+      const g = guests.get(id);
+      if (!g) return null;
+      return {
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        ...summarizeGuestStays(g.stays, FAKE_TODAY),
+        nightsTotal: countGuestNights(g.stays),
+        hasFolios: id === 'g2',
+        debtMinor: id === 'g2' ? '4000000' : '0',
+        currency: 'KZT',
+      };
+    },
     async update(id, patch) {
       Object.assign(guests.get(id)!, patch);
     },
@@ -214,6 +231,21 @@ describe('guests API', () => {
     ).body;
     expect(found.counts.ALL).toBe(1);
     expect(found.rows.map((x: { id: string }) => x.id)).toEqual(['g2']);
+  });
+
+  it('preview (G3): контакты, состояние, ночи, номер брони и долг; без документов и журнала; 404 чужому', async () => {
+    const p = (await request(app.getHttpServer()).get('/guests/g2/preview').expect(200)).body;
+    expect(p).toMatchObject({
+      state: 'INHOUSE',
+      staysCount: 1,
+      nightsTotal: 4,
+      hasFolios: true,
+      debtMinor: '4000000',
+      current: { unitCode: '9002', confirmationNumber: 'B-2' },
+    });
+    expect(p.documents).toBeUndefined();
+    expect(fakes.audits).toEqual([]);
+    await request(app.getHttpServer()).get('/guests/nope/preview').expect(404);
   });
 
   it('directory: границы параметров — 400 словами', async () => {

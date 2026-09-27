@@ -86,6 +86,13 @@ export class GuestsService {
     return this.repo.directory({ state: state as GuestDirectoryFilter, q, page, pageSize });
   }
 
+  /** Предпросмотр панелью (G3): контакты, «сейчас», история, долг из Folio; документов здесь нет */
+  async preview(id: string) {
+    const p = await this.repo.preview(id);
+    if (!p) throw new NotFoundException(`Гость ${id} не найден`);
+    return p;
+  }
+
   async card(id: string) {
     const g = await this.repo.byId(id);
     if (!g) throw new NotFoundException(`Гость ${id} не найден`);

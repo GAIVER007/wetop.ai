@@ -30,7 +30,8 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/incidents', title: /Неисправност/ },
   { route: '/channels', title: /Подключени|Channex|Каналы/ },
   { route: '/connections', title: /Интеграции/ },
-  { route: '/analytics', title: /Аналитика/ },
+  { route: '/website', title: /Сайт и онлайн-бронирование/ },
+  { route: '/website/analytics', title: /Сайт и онлайн-бронирование/ },
   { route: '/hotel-settings', title: /Объект|Настройки|гостиниц/i },
   { route: '/channel-manager', title: /Менеджер каналов|Каналы/ },
 ];

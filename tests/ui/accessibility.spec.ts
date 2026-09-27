@@ -29,8 +29,11 @@ const routes = [
   '/channel-manager',
   '/channels',
   '/connections',
-  '/analytics',
-  '/analytics/setup',
+  // «Сайт и онлайн-бронирование» (ADR-107): четыре вкладки вместо «Аналитики сайта» и «Настроек сайта»
+  '/website',
+  '/website/booking',
+  '/website/analytics',
+  '/website/settings',
   '/profile',
   '/login',
   '/incidents',

@@ -1,27 +1,32 @@
-import Link from 'next/link';
-import { analyticsApi, reservationsApi, type TrackedSiteCard } from '../../../lib/api';
+import { analyticsApi, type TrackedSiteCard } from '../../../lib/api';
+import { propertyClock } from '../../../lib/property-time';
+import { WEBSITE_TITLE, siteState } from '../../../lib/website';
 import { Page } from '../../../components/page';
 import { Alert, Badge, Fact, Help, Panel, Row, SectionTitle, Stack } from '../../../components/ui';
-import { BookingSettings, CopyButton, CreateSiteForm, HostsForm, SiteButtons } from './forms';
+import {
+  CheckCounterButton,
+  CopyButton,
+  CreateSiteForm,
+  HostsForm,
+  SiteDangerZone,
+} from '../forms';
+import { WebsiteTabs } from '../parts';
+import '../../directory.css';
 
-/** Подключение счётчика: сайты, код для вставки, статус. Постоянный публичный адрес API — Q-112. */
-export default async function AnalyticsSetupPage() {
+/**
+ * «Сайт и онлайн-бронирование → Настройки» (ADR-107, WEB1): бывшие «Настройки сайта» (`/analytics/setup`) без блока
+ * бронирования — он во вкладке «Бронирование». Домены, счётчик и код; пауза и удаление — в «Опасной зоне».
+ * Постоянный публичный адрес API — Q-112. Домены списком и окно установки — WEB2.
+ */
+export default async function WebsiteSettingsPage() {
   const sites = await analyticsApi.sites();
   const cards = await Promise.all(sites.map((s) => analyticsApi.card(s.id)));
-  const plans = await reservationsApi.ratePlans().catch(() => null);
   const scriptUrl = cards[0]?.snippet.scriptUrl ?? null;
   const localOnly = !scriptUrl || /127\.0\.0\.1|localhost/.test(scriptUrl);
   const insecure = !!scriptUrl && !localOnly && !scriptUrl.startsWith('https://');
   return (
-    <Page
-      title="Настройки сайта"
-      subtitle="Домены, счётчик посещений и бронирование с сайта."
-      actions={
-        <Link className="btn btn--secondary" href="/analytics">
-          Аналитика сайта
-        </Link>
-      }
-    >
+    <Page title={WEBSITE_TITLE} subtitle="Домены сайта, счётчик посещений и установка кода.">
+      <WebsiteTabs current="settings" />
       <div className="settings-site">
         <Stack>
           {cards.length > 0 && localOnly && (
@@ -37,11 +42,11 @@ export default async function AnalyticsSetupPage() {
           )}
 
           {cards.map((c) => (
-            <SiteCard key={c.site.id} card={c} plans={plans} />
+            <SiteCard key={c.site.id} card={c} />
           ))}
 
           <Panel size="lg">
-            <SectionTitle first>{cards.length ? 'Ещё один сайт' : 'Добавить сайт'}</SectionTitle>
+            <SectionTitle first>{cards.length ? 'Ещё один сайт' : 'Подключить сайт'}</SectionTitle>
             <CreateSiteForm />
           </Panel>
 
@@ -72,8 +77,8 @@ export default async function AnalyticsSetupPage() {
               </li>
               <li>
                 Нажмите «Проверить счётчик» после первого захода на сайт — здесь появится время
-                последнего события. Проверить без сайта: откройте «демо-страницу» с телефона и
-                нажмите кнопки на ней.
+                последнего события. Проверить без сайта: откройте демо-страницу из «Установки
+                счётчика» с телефона и нажмите кнопки на ней.
               </li>
             </ol>
           </Help>
@@ -83,14 +88,10 @@ export default async function AnalyticsSetupPage() {
   );
 }
 
-function SiteCard({
-  card,
-  plans,
-}: {
-  card: TrackedSiteCard;
-  plans: Array<{ code: string; name: string }> | null;
-}) {
+function SiteCard({ card }: { card: TrackedSiteCard }) {
   const { site, status, snippet } = card;
+  const clock = propertyClock(site.timezone);
+  const state = siteState(card, clock);
   const previewAvailable = (url: string) => {
     try {
       return ['https:', 'http:'].includes(new URL(url).protocol);
@@ -98,6 +99,12 @@ function SiteCard({
       return false;
     }
   };
+  // Одна плашка состояния вместо пары «Счётчик включён» + «Ожидает первых событий» (ADR-107)
+  const badge = !state.connected
+    ? { tone: 'warn' as const, text: 'Адрес не указан' }
+    : state.counter.state === 'today'
+      ? { tone: 'ok' as const, text: state.counter.value }
+      : { tone: 'neutral' as const, text: state.counter.value };
   return (
     <Panel
       size="lg"
@@ -109,115 +116,72 @@ function SiteCard({
         <h2 className="panel__title panel__title--lg" data-testid="site-card-name">
           {site.name}
         </h2>
-        <span className="sub">{site.hosts.join(', ')}</span>
-        <Badge tone={site.status === 'ACTIVE' ? 'ok' : 'neutral'} data-testid="site-card-status">
-          {site.status === 'ACTIVE' ? 'Счётчик включён' : 'Счётчик на паузе'}
+        <Badge tone={badge.tone} data-testid="site-card-status">
+          {badge.text}
         </Badge>
-        {site.status === 'ACTIVE' && !status.lastEventAt && <Badge>Ожидает первых событий</Badge>}
-        {previewAvailable(snippet.demoUrl) ? (
-          <a
-            href={snippet.demoUrl}
-            target="_blank"
-            rel="noreferrer"
-            data-testid="site-card-demo"
-            className="ml-auto"
-            title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
-          >
-            демо-страница
-          </a>
-        ) : (
-          <Badge>Демо счётчика не подключено</Badge>
-        )}
-        <Link href={`/analytics?site=${site.id}`}>Открыть отчёт</Link>
       </Row>
-      <div className="facts">
-        <Fact
-          label="Последнее событие"
-          value={
-            status.lastEventAt
-              ? new Date(status.lastEventAt).toLocaleString('ru-RU', { timeZone: site.timezone })
-              : 'ещё не было'
-          }
-          testId="site-card-last"
-        />
-        <Fact
-          label="Сессий сегодня"
-          value={String(status.sessionsToday)}
-          testId="site-card-today"
-        />
-        <Fact label="Просмотров сегодня" value={String(status.pageviewsToday)} />
-      </div>
-      <SiteButtons id={site.id} status={site.status} />
-      <h3 className="site-domains-heading">Домены сайта</h3>
-      {site.hosts.some((h) => h.endsWith('.example')) && (
-        <Alert tone="warning">
-          Домен-заглушка: впишите настоящий адрес сайта, иначе приёмник и виджет не примут запросы с
-          него.
+
+      <h3 className="site-domains-heading">Домены</h3>
+      {!state.connected && (
+        <Alert tone="warning" data-testid="site-domain-missing">
+          Основной домен не настроен. Добавьте адрес сайта, с которого WETOP будет принимать
+          посещения и запросы бронирования.
         </Alert>
       )}
       <HostsForm id={site.id} hosts={site.hosts} />
-      <details className="settings-disclosure">
-        <summary>Установка счётчика</summary>
-        <div>
-          <Fact label="Публичный ключ сайта" value={site.publicKey} testId="site-card-key" />
-          <p className="settings-note">Вставьте код в &lt;head&gt; страниц сайта.</p>
-          <pre data-testid="site-card-snippet" className="code">
-            {snippet.code}
-          </pre>
-          <Row className="items-start">
-            <CopyButton text={snippet.code} />
-          </Row>
-        </div>
-      </details>
 
       <div className="divider">
-        <h3>Бронирование с сайта</h3>
-        {plans ? (
-          <BookingSettings
-            id={site.id}
-            enabled={site.bookingEnabled}
-            ratePlanCode={site.bookingRatePlan?.code ?? ''}
-            plans={plans}
+        <h3>Счётчик WETOP</h3>
+        <div className="facts">
+          <Fact
+            label="Последнее событие"
+            value={status.lastEventAt ? clock.local(status.lastEventAt) : 'ещё не было'}
+            testId="site-card-last"
           />
-        ) : (
-          <Alert>Не удалось загрузить тарифы. Обновите страницу.</Alert>
-        )}
-        {site.bookingEnabled && (
-          <details className="settings-disclosure">
-            <summary>Установка виджета бронирования</summary>
-            <div>
-              <div className="hint--lg block--top block--bottom-xs">
-                Второй код — виджет: вставьте туда, где на сайте должна быть форма бронирования
-                (тариф «{site.bookingRatePlan?.name}», бронь сразу подтверждается, оплата при
-                заселении):
-              </div>
-              <pre data-testid="site-card-booking-snippet" className="code">
-                {snippet.bookingCode}
-              </pre>
-              <Row>
-                <CopyButton text={snippet.bookingCode} />
-                {previewAvailable(snippet.bookingDemoUrl) ? (
-                  <a
-                    href={snippet.bookingDemoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    data-testid="site-card-booking-demo"
-                  >
-                    демо бронирования
-                  </a>
-                ) : (
-                  <Badge>Демо виджета не подключено</Badge>
-                )}
-              </Row>
-              {/* Демо работает на живом API: бронь с него — обычная бронь PMS, а не примерка (§7.3) */}
-              <p className="note" data-testid="booking-demo-warning">
-                Бронь с демо-страницы настоящая: она попадёт в PMS, займёт место и откроет счёт.
-                После проверки отмените её на карточке брони.
-              </p>
-            </div>
-          </details>
-        )}
+          <Fact
+            label="Сессий сегодня"
+            value={String(status.sessionsToday)}
+            testId="site-card-today"
+          />
+          <Fact label="Просмотров сегодня" value={String(status.pageviewsToday)} />
+        </div>
+        <CheckCounterButton id={site.id} />
+        <details className="settings-disclosure">
+          <summary>Установка счётчика</summary>
+          <div>
+            <Fact label="Публичный ключ сайта" value={site.publicKey} testId="site-card-key" />
+            <p className="settings-note">Вставьте код в &lt;head&gt; страниц сайта.</p>
+            <pre data-testid="site-card-snippet" className="code">
+              {snippet.code}
+            </pre>
+            <Row className="items-start">
+              <CopyButton text={snippet.code} />
+              {previewAvailable(snippet.demoUrl) ? (
+                <a
+                  href={snippet.demoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-testid="site-card-demo"
+                  title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
+                >
+                  Открыть демо-страницу счётчика
+                </a>
+              ) : (
+                <Badge>Демо счётчика не подключено</Badge>
+              )}
+            </Row>
+          </div>
+        </details>
       </div>
+
+      <section className="panel panel--danger block--top" data-testid="site-danger">
+        <b className="panel__title">Опасная зона</b>
+        <p className="hint">
+          Приостановка останавливает и счётчик, и бронирование с сайта. Удаление стирает накопленную
+          статистику — вернуть её нельзя.
+        </p>
+        <SiteDangerZone id={site.id} status={site.status} />
+      </section>
     </Panel>
   );
 }

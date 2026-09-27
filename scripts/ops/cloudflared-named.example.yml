@@ -11,8 +11,8 @@
 #   4. скопировать этот файл в ~/.cloudflared/config.yml, подставить TUNNEL-ID, путь и домен
 #   5. cloudflared tunnel run pms                     # или как служба: sudo cloudflared service install
 #   6. в .env вписать PUBLIC_API_URL=https://pms.<домен>  (значение вписывает владелец, SECURITY.md §3)
-#   7. перезапустить API; на /channels нажать «Зарегистрировать webhook»; на /analytics/setup код счётчика
-#      и виджета сам покажет новый адрес — обновить две строки на сайте.
+#   7. перезапустить API; на /channels нажать «Зарегистрировать webhook»; код счётчика (/website/settings)
+#      и виджета (/website/booking) сам покажет новый адрес — обновить две строки на сайте.
 #
 # Наружу выходят ТОЛЬКО: /a/* (счётчик), /w/* (виджет), webhook Channex. Всё остальное — 404.
 

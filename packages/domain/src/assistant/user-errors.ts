@@ -31,7 +31,7 @@ const SECTIONS: ReadonlyArray<readonly [prefix: string, section: string]> = [
   ['/units', 'Номера'],
   ['/inventory', 'Номерной фонд'],
   ['/channels', 'Менеджер каналов'],
-  ['/analytics', 'Аналитика'],
+  ['/analytics', 'Сайт и онлайн-бронирование'],
   ['/guard', 'Неисправности'],
   ['/audit', 'Журнал действий'],
   ['/auth', 'Вход и учётная запись'],

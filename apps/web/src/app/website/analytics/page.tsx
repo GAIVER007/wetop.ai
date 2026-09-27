@@ -1,27 +1,29 @@
-import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
-import { ApiError, analyticsApi, type SiteReport, type TrackedSite } from '../../lib/api';
-import { displayDate } from '../../lib/display-date';
-import { pluralRu } from '../../lib/plural';
-import { Page } from '../../components/page';
-import { Icon } from '../../components/icon';
-import { LoadError } from '../../components/load-error';
-import { loadErrorProps } from '../../lib/load-error';
+import { ApiError, analyticsApi, type SiteReport, type TrackedSite } from '../../../lib/api';
+import { displayDate } from '../../../lib/display-date';
+import { pluralRu } from '../../../lib/plural';
+import { WEBSITE_TITLE, primaryHost } from '../../../lib/website';
+import { Page } from '../../../components/page';
+import { LoadError } from '../../../components/load-error';
+import { loadErrorProps } from '../../../lib/load-error';
 import {
   Alert,
   Button,
   EmptyState,
   Field,
   Grid,
+  Notice,
   SectionTitle,
   Select,
   Stat,
   Stats,
   Table,
-} from '../../components/ui';
-import { DateInput } from '../../components/date-field';
+} from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
 import { DailyChart } from './daily-chart';
-import '../directory.css';
+import { WebsiteTabs } from '../parts';
+import '../../directory.css';
 
 const MAX_PERIOD_DAYS = 366;
 const periodDays = (from: string, to: string) =>
@@ -55,6 +57,7 @@ const KIND_RU: Record<SiteReport['sources'][number]['kind'], string> = {
  * D4 (план владельца 19.09): без счётчика — `EmptyState` с шагом; отказ сервиса аналитики — `LoadError` с
  * повтором (отклонённый запрос по-прежнему словами у формы); период словами в `<time>`, готовые отрезки чипами,
  * пустые таблицы объясняют, откуда возьмутся строки. Расчёт отчёта в API не менялся.
+ * С 27.09 (ADR-107) — вкладка «Аналитика» модуля «Сайт и онлайн-бронирование»; прежний `/analytics` ведёт сюда.
  */
 export default async function AnalyticsPage({
   searchParams,
@@ -82,16 +85,14 @@ export default async function AnalyticsPage({
       else failure = e;
     }
   return (
-    <Page
-      title="Аналитика сайта"
-      subtitle={<span data-testid="an-site-name">{site.name}</span>}
-      actions={
-        <Link href="/analytics/setup" className="btn btn--secondary">
-          <Icon name="settings" />
-          Подключение счётчика
-        </Link>
-      }
-    >
+    <Page title={WEBSITE_TITLE} subtitle={<span data-testid="an-site-name">{site.name}</span>}>
+      <WebsiteTabs current="analytics" />
+      {!primaryHost(site) && (
+        <Notice className="block" data-testid="an-domain-missing">
+          Адрес сайта не указан: счётчик не принимает посещения, отчёт останется пустым.{' '}
+          <Link href="/website/settings">Добавить домен</Link>
+        </Notice>
+      )}
       <PeriodForm sites={sites} site={site} report={report} from={sp.from} to={sp.to} />
       {error && <Alert className="block">{error}</Alert>}
       {failure !== null && <LoadError testId="an-error" {...loadErrorProps(failure)} />}
@@ -102,18 +103,19 @@ export default async function AnalyticsPage({
 
 function NoSites() {
   return (
-    <Page title="Аналитика сайта" width="medium">
+    <Page title={WEBSITE_TITLE}>
+      <WebsiteTabs current="analytics" />
       <EmptyState
         data-testid="an-no-sites"
-        title="Счётчик ещё не подключён"
+        title="Сайт ещё не подключён"
         actions={
-          <Link href="/analytics/setup" className="btn">
-            Подключить счётчик
+          <Link href="/website/settings" className="btn">
+            Подключить сайт
           </Link>
         }
       >
-        Отчёт строится по событиям счётчика на сайте объекта. Добавьте сайт и вставьте код на
-        странице подключения: первые сессии появятся здесь через несколько минут после установки.
+        Отчёт строится по событиям счётчика на сайте объекта. Подключите сайт и вставьте код
+        счётчика: первые сессии появятся здесь через несколько минут после установки.
       </EmptyState>
     </Page>
   );
@@ -172,17 +174,20 @@ function PeriodForm({
       {period && prevMonth && (
         // Готовые отрезки — чипами, как на «Деньгах» и «Бронях»: период виден в адресе и в подписи ниже
         <nav className="directory-filters" aria-label="Готовые периоды">
-          <Link href={`/analytics?site=${site.id}`} className={!from && !to ? 'is-active' : ''}>
+          <Link
+            href={`/website/analytics?site=${site.id}`}
+            className={!from && !to ? 'is-active' : ''}
+          >
             Этот месяц
           </Link>
           <Link
-            href={`/analytics?site=${site.id}&from=${prevMonth.from}&to=${prevMonth.to}`}
+            href={`/website/analytics?site=${site.id}&from=${prevMonth.from}&to=${prevMonth.to}`}
             className={isPreset(prevMonth.from, prevMonth.to) ? 'is-active' : ''}
           >
             Прошлый месяц
           </Link>
           <Link
-            href={`/analytics?site=${site.id}&from=${daysAgo(period.to, 29)}&to=${period.to}`}
+            href={`/website/analytics?site=${site.id}&from=${daysAgo(period.to, 29)}&to=${period.to}`}
             className={isPreset(daysAgo(period.to, 29), period.to) ? 'is-active' : ''}
           >
             30 дней
@@ -374,8 +379,8 @@ function Report({ report }: { report: SiteReport }) {
           {/* Пустое — словами для смены: инструкция для разработчика живёт на странице подключения */}
           {report.demand.length === 0 ? (
             <p className="hint" data-testid="an-demand-empty">
-              Запросов нет: сайт ещё не присылает событие поиска дат. Как его включить — на странице{' '}
-              <Link href="/analytics/setup">Подключение счётчика</Link>.
+              Запросов нет: сайт ещё не присылает событие поиска дат. Как его включить — в{' '}
+              <Link href="/website/settings">настройках сайта</Link>.
             </p>
           ) : (
             <Table size="sm" data-testid="an-demand">
@@ -407,7 +412,7 @@ function Report({ report }: { report: SiteReport }) {
           {report.events.length === 0 ? (
             <p className="hint" data-testid="an-events-empty">
               Событий нет: кнопки «позвонить» и WhatsApp на сайте ещё не присылают событий. Как их
-              включить — на странице <Link href="/analytics/setup">Подключение счётчика</Link>.
+              включить — в <Link href="/website/settings">настройках сайта</Link>.
             </p>
           ) : (
             <Table size="sm" data-testid="an-events">

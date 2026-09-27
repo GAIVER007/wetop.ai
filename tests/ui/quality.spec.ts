@@ -138,9 +138,11 @@ test('изменение уборки относится только к выб�
 });
 
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
-  await page.goto('/analytics/setup');
+  // Код счётчика и виджета лежат в свёртках своих вкладок (ADR-107): раскрываем их, как это делает пользователь
+  await page.goto('/website/settings');
+  await page.locator('summary').getByText('Установка счётчика', { exact: true }).click();
   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
-  // После упрощения настроек код виджета лежит в свёртке: раскрываем её, как это делает пользователь
+  await page.goto('/website/booking');
   await page
     .locator('summary')
     .getByText('Установка виджета бронирования', { exact: true })
@@ -173,7 +175,7 @@ for (const scenario of [
   },
   {
     name: 'сайт аналитики',
-    path: '/analytics/setup',
+    path: '/website/settings',
     form: 'site-form',
     button: 'Добавить сайт',
     fields: { name: 'Тестовый сайт', hosts: 'example.invalid' },

@@ -32,7 +32,7 @@ describe('userErrorSection — раздел стойки по шаблону м�
     ['/hotel/onboarding', 'Настройка отеля'],
     ['/hotel/channel-report', 'Менеджер каналов'],
     ['/channels/channex/mapping', 'Менеджер каналов'],
-    ['/analytics/sites/:id', 'Аналитика'],
+    ['/analytics/sites/:id', 'Сайт и онлайн-бронирование'],
     ['/guard/incidents/:id/resolve', 'Неисправности'],
     ['/audit', 'Журнал действий'],
     ['/auth/password', 'Вход и учётная запись'],

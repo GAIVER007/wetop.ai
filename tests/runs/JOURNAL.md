@@ -2887,3 +2887,7 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 28.09.2026 01:56 | unit (частично: apps/web/src/lib/website.test.ts apps/web/src/lib/website-navigation.test.ts apps/web/src/app/analytics/actions.test.ts) | ❌ упало 8 из 8 | 2 с | a0fa497 +3 | [лог](logs/2026-09-27T20-56-11Z-unit-9bae.log) | WEB1 red: модуль сайта ещё не сделан |
+| 28.09.2026 02:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts) | ❌ упало 3 из 8 | 1 мин 4 с | a0fa497 +39 | [лог](logs/2026-09-27T21-06-07Z-e2e-29b8.log) | WEB1: новый спек модуля сайта |
+| 28.09.2026 02:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts) | ✅ 8 из 8 | 1 мин | a0fa497 +40 | [лог](logs/2026-09-27T21-08-14Z-e2e-7c64.log) | WEB1: новый спек модуля сайта, второй заход |
+| 28.09.2026 02:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts) | ✅ 8 из 8 | 57 с | a0fa497 +40 | [лог](logs/2026-09-27T21-10-38Z-e2e-9b8d.log) | WEB1: модуль сайта после правки «Бронирования» |

@@ -17,12 +17,11 @@ const routes = [
   '/rates',
   '/channel-manager',
   '/channels',
-  '/analytics',
+  '/website',
   '/finance',
   '/management/statistics',
   '/hotel-settings',
   '/connections',
-  '/analytics/setup',
   '/incidents',
   '/journal',
 ];
@@ -175,7 +174,7 @@ for (const theme of ['light', 'dark'] as const) {
       }
       if (mobile) {
         await menu.getByRole('button', { name: 'Настройки', exact: true }).click();
-        await menu.getByRole('link', { name: 'Сайт', exact: true }).scrollIntoViewIfNeeded();
+        await menu.getByRole('link', { name: 'Интеграции', exact: true }).scrollIntoViewIfNeeded();
         const close = menu.getByRole('button', { name: 'Закрыть: Навигация', exact: true });
         const rect = await close.boundingBox();
         expect(rect!.y).toBeGreaterThanOrEqual(0);

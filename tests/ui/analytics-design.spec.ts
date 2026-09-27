@@ -19,7 +19,7 @@ test.beforeEach(async ({ request }) => {
 test('аналитика и статистика: подпись периода — одной строкой без разрывов', async ({ page }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/analytics');
+  await page.goto('/website/analytics');
   const caption = main.getByTestId('an-period');
   await expect(caption).toContainText('даты по');
   // между двумя датами только « → »: расстояние в десятки пикселей, а не в сотни
@@ -51,13 +51,14 @@ test('аналитика: нижние таблицы не обрезаются,
 }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/analytics');
+  await page.goto('/website/analytics');
   await expect(main.getByTestId('an-summary')).toBeVisible();
-  // смене не показывают код: инструкция для разработчика живёт на странице подключения
+  // смене не показывают код: инструкция для разработчика живёт в настройках сайта
   await expect(main.locator('code')).toHaveCount(0);
   const demand = main.getByTestId('an-demand-empty');
   await expect(demand).toContainText('Запросов нет');
-  await expect(demand.getByRole('link', { name: /подключени/i })).toBeVisible();
+  // инструкция для разработчика — во вкладке «Настройки» модуля сайта (ADR-107)
+  await expect(demand.getByRole('link', { name: /настройках сайта/i })).toBeVisible();
   await expect(main.getByTestId('an-events-empty')).toContainText('Событий нет');
   // пустые «Устройства», «Браузеры», «ОС» видны целиком, без обрезки в прокрутку
   for (const id of ['an-devices', 'an-browsers', 'an-os']) {

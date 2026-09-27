@@ -127,10 +127,11 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
       {
-        href: '/analytics',
-        label: 'Аналитика',
+        // ADR-107: сайт объекта — одно место (раньше «Аналитика сайта», «Настройки сайта» и панель в «Интеграциях»)
+        href: '/website',
+        label: 'Сайт и онлайн-бронирование',
         icon: 'analytics',
-        description: 'Посещаемость сайта, источники трафика и бронирования.',
+        description: 'Домен сайта, счётчик посещений, бронирование с сайта и его аналитика.',
       },
     ],
   },
@@ -162,13 +163,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         href: '/connections',
         label: 'Интеграции',
         icon: 'channels',
-        description: 'Подключение каналов, счётчика и модуля бронирования.',
-      },
-      {
-        href: '/analytics/setup',
-        label: 'Настройки сайта',
-        icon: 'settings',
-        description: 'Подключение сайта и настройка виджета.',
+        description: 'Внешние сервисы: Channex и обмен данными с базой.',
       },
       {
         href: '/incidents',
@@ -236,9 +231,9 @@ export const sidebarSections: SidebarSection[] = [
       menuItem('/rates'),
       menuItem('/channel-manager'),
       menuItem('/channels', 'Синхронизация каналов'),
+      menuItem('/website'),
       // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
       menuItem('/ai-seller'),
-      menuItem('/analytics', 'Аналитика сайта'),
     ],
   },
   {
@@ -251,11 +246,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
-    items: [
-      menuItem('/hotel-settings', 'Гостиница'),
-      menuItem('/connections'),
-      menuItem('/analytics/setup', 'Сайт'),
-    ],
+    items: [menuItem('/hotel-settings', 'Гостиница'), menuItem('/connections')],
   },
   {
     id: 'control',

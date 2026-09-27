@@ -8,7 +8,7 @@ import { TEST_WEB_PORT } from './tools/test-schema-plan';
 import { ensureTestSchema } from './tools/test-schema';
 
 /** Страницы разных частей стойки: у каждой свои чанки, одной проверки готовности Playwright не хватило */
-const PAGES = ['/today', '/chessboard', '/reservations', '/inventory', '/analytics'];
+const PAGES = ['/today', '/chessboard', '/reservations', '/inventory', '/website/analytics'];
 
 export default async function globalSetup(): Promise<void> {
   const report = await ensureTestSchema();

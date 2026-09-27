@@ -10,15 +10,15 @@ import {
   Select,
   Stack,
   Textarea,
-} from '../../../components/ui';
+} from '../../components/ui';
 import {
   bookingSettingsAction,
   createSiteAction,
   hostsAction,
   siteAction,
   type SiteActionResult,
-} from '../actions';
-import { useConfirm } from '../../../components/use-confirm';
+} from './actions';
+import { useConfirm } from '../../components/use-confirm';
 
 export function CreateSiteForm() {
   const [state, action, pending] = useActionState<SiteActionResult | null, FormData>(
@@ -62,31 +62,58 @@ export function CreateSiteForm() {
   );
 }
 
-export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PAUSED' }) {
+/** Проверка счётчика: время последнего события и сессии сегодня — тем же запросом, что карточка сайта */
+export function CheckCounterButton({ id }: { id: string }) {
+  const [result, setResult] = useState<SiteActionResult | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <Stack gap="sm">
+      <Row>
+        <Button
+          type="button"
+          tone="secondary"
+          onClick={() => start(async () => setResult(await siteAction(id, 'check')))}
+          disabled={pending}
+          data-testid="site-check"
+        >
+          Проверить счётчик
+        </Button>
+      </Row>
+      {result?.error && <Alert>{result.error}</Alert>}
+      {result?.message && <Notice data-testid="site-check-result">{result.message}</Notice>}
+    </Stack>
+  );
+}
+
+/**
+ * «Опасная зона» (ADR-107): пауза и удаление внизу карточки, оба через подтверждение. Пауза сайта останавливает
+ * и счётчик, и виджет бронирования (так работает API) — прежняя «Поставить на паузу» говорила только про счётчик.
+ */
+export function SiteDangerZone({ id, status }: { id: string; status: 'ACTIVE' | 'PAUSED' }) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
-  const run = (kind: 'pause' | 'resume' | 'delete' | 'check') =>
+  const run = (kind: 'pause' | 'resume' | 'delete') =>
     start(async () => setResult(await siteAction(id, kind)));
   return (
     <Stack gap="sm">
       <Row>
         <Button
           type="button"
-          onClick={() => run('check')}
-          disabled={pending}
-          data-testid="site-check"
-        >
-          Проверить счётчик
-        </Button>
-        <Button
-          type="button"
           tone="secondary"
-          onClick={() => run(status === 'ACTIVE' ? 'pause' : 'resume')}
+          onClick={async () => {
+            if (status !== 'ACTIVE') return run('resume');
+            const ok = await ask({
+              title: 'Приостановить сайт?',
+              body: 'Пока сайт приостановлен, счётчик не записывает посещения, а виджет на сайте не принимает брони. Возобновить можно здесь же.',
+              confirmLabel: 'Приостановить',
+            });
+            if (ok) run('pause');
+          }}
           disabled={pending}
           data-testid="site-toggle"
         >
-          {status === 'ACTIVE' ? 'Поставить на паузу' : 'Включить'}
+          {status === 'ACTIVE' ? 'Приостановить сайт' : 'Возобновить сайт'}
         </Button>
         <Button
           type="button"
@@ -94,20 +121,20 @@ export function SiteButtons({ id, status }: { id: string; status: 'ACTIVE' | 'PA
           className="is-danger"
           onClick={async () => {
             const ok = await ask({
-              title: 'Удалить сайт?',
-              body: 'Вместе с сайтом исчезнет вся накопленная статистика посещений; код счётчика и виджета на странице сайта перестанет работать. Вернуть данные будет нельзя.',
-              confirmLabel: 'Удалить сайт',
+              title: 'Удалить подключение сайта?',
+              body: 'Вместе с подключением исчезнет вся накопленная статистика посещений; код счётчика и виджета на странице сайта перестанет работать. Вернуть данные будет нельзя.',
+              confirmLabel: 'Удалить подключение',
             });
             if (ok) run('delete');
           }}
           disabled={pending}
           data-testid="site-delete"
         >
-          Удалить
+          Удалить подключение сайта
         </Button>
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}
-      {result?.message && <Notice data-testid="site-check-result">{result.message}</Notice>}
+      {result?.message && <Notice data-testid="site-toggle-result">{result.message}</Notice>}
       {dialog}
     </Stack>
   );

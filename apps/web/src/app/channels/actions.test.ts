@@ -19,7 +19,7 @@ it('после импорта обновляет связанные отчёты
   vi.spyOn(channelsApi, 'pull').mockResolvedValue({ received: 0, acknowledged: 0, outcomes: [] });
   expect((await channelAction('pull')).error).toBeNull();
   for (const path of affected) expect(revalidatePath).toHaveBeenCalledWith(path);
-  // модуль «Каналы продаж» со вкладками обновляется целиком (ADR-106)
+  // модуль «Каналы продаж» со вкладками обновляется целиком (ADR-107)
   expect(revalidatePath).toHaveBeenCalledWith('/channels', 'layout');
 });
 it('повтор обработки обновляет те же данные без второго импорта', async () => {

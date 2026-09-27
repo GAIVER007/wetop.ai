@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 
 /**
- * «Менеджер каналов» слит в модуль «Каналы продаж» (ADR-106): отчёт по источникам живёт на «Обзоре»
+ * «Менеджер каналов» слит в модуль «Каналы продаж» (ADR-107): отчёт по источникам живёт на «Обзоре»
  * `/channels`. Старые ссылки с периодом и статусом продолжают работать — параметры переносятся.
  */
 export default async function ChannelManagerRedirect({

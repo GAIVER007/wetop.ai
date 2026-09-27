@@ -133,7 +133,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Посещаемость сайта, источники трафика и бронирования.',
         children: [
           {
-            // Отчёт по источникам продаж переехал с «Менеджера каналов» (CH1, ADR-106)
+            // Отчёт по источникам продаж переехал с «Менеджера каналов» (CH1, ADR-107)
             href: '/analytics/sources',
             label: 'Источники продаж',
             icon: 'channels',

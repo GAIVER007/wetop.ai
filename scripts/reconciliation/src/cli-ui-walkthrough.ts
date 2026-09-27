@@ -610,7 +610,7 @@ async function walkPeriodPages(page: Page) {
       `начислено ${charged}, оплачено ${paid}${ok ? ' = API' : ` ≠ API ${r.chargedMinor}/${r.paidMinor}`}`,
     );
   }
-  // Источники продаж — отчёт по каналам (до CH1/ADR-106 жил на /channel-manager)
+  // Источники продаж — отчёт по каналам (до CH1/ADR-107 жил на /channel-manager)
   for (const [from, to] of [
     [monthStart(today), today],
     [addDays(today, -30), today],

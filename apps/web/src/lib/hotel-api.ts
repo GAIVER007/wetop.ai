@@ -143,6 +143,16 @@ export const reservationStatuses: Record<string, string> = {
   CANCELLED: 'Отменены',
   NO_SHOW: 'Незаезды',
 };
+/** Слово о брони в единственном числе для строки списка (DESIGN.md §9, Q-135; ADR-106) —
+ * как у списка гостей: «Проживают» — имя фильтра, «проживает» — состояние одной брони */
+export const reservationStatusWords: Record<string, string> = {
+  TENTATIVE: 'не подтверждена',
+  CONFIRMED: 'подтверждена',
+  CHECKED_IN: 'проживает',
+  CHECKED_OUT: 'завершена',
+  CANCELLED: 'отменена',
+  NO_SHOW: 'незаезд',
+};
 export const sourceNames: Record<string, string> = {
   OTA: 'Канал продаж',
   DESK: 'Стойка',
@@ -165,8 +175,13 @@ export interface ReservationListRow {
   totalAmountMinor: string;
   paidMinor: string;
   balanceMinor: string;
+  /** Начислено и возвращено по счетам (ADR-106, колонка «Финансы»). Старый API их не присылает. */
+  chargedMinor?: string;
+  refundedMinor?: string;
   hasFolios: boolean;
   unitCodes: string[];
+  /** Сколько проживаний в брони — групповая бронь показывается как «N размещений». */
+  itemsCount?: number;
   primaryGuest: { id: string; label: string; phone: string | null; email: string | null } | null;
 }
 export interface ReservationDirectoryResult {

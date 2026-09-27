@@ -864,7 +864,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   );
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
-  // Обзор «Каналы продаж» (CH1, ADR-106) при отказе всего API остаётся и говорит «неизвестно», не «всё в порядке»
+  // Обзор «Каналы продаж» (CH1, ADR-107) при отказе всего API остаётся и говорит «неизвестно», не «всё в порядке»
   await page.goto('/channel-manager');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
     'Каналы продаж',

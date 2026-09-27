@@ -2863,3 +2863,5 @@
 | 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
 | 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
 | 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |
+| 27.09.2026 21:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/navigation.spec.ts --workers=1) | ❌ упало 2 из 20 | 2 мин 23 с | 74d8b1c +25 | [лог](logs/2026-09-27T16-25-58Z-e2e-e183.log) | обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой |
+| 27.09.2026 21:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 14 из 14 | 1 мин 7 с | 74d8b1c +26 | [лог](logs/2026-09-27T16-31-14Z-e2e-e169.log) |  |

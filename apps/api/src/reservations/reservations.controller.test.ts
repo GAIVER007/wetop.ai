@@ -7,7 +7,14 @@ import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { ReservationsModule } from './reservations.module';
-import type { StayRestriction } from '@pms/domain';
+import { ReservationsService } from './reservations.service';
+import { withSignedInUser } from '../auth/request-context';
+import {
+  RATE_PLAN_CHANGE_MESSAGE,
+  RATE_PLAN_UNKNOWN_MESSAGE,
+  type MembershipRole,
+  type StayRestriction,
+} from '@pms/domain';
 import {
   type RatePlanRef,
   AllocationOverlapError,
@@ -76,6 +83,8 @@ function makeFake() {
     { id: 'u5', code: '9005', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
     { id: 'u4', code: '9004', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
   ];
+  /** Какие тарифы действуют на обе категории; второй тариф тест добавляет сам (Q-197) */
+  const covers = new Set(['p1']);
   const rates: Record<string, bigint> = {};
   for (const d of ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']) {
     rates[`t1|p1|${d}|1`] = 1_100_000n;
@@ -166,7 +175,7 @@ function makeFake() {
       return plans.filter((p) => p.active);
     },
     async ratePlanCoversType(planId, typeId) {
-      return planId === 'p1' && ['t1', 't2'].includes(typeId);
+      return covers.has(planId) && ['t1', 't2'].includes(typeId);
     },
     async nightRates(typeId, planId, from, toExclusive) {
       return Object.entries(rates)
@@ -399,7 +408,7 @@ function makeFake() {
     },
   };
   const uow: UnitOfWork = { run: (fn) => fn(repo), read: (fn) => fn(repo) };
-  return { uow, state, penalties, blocked, units };
+  return { uow, state, penalties, blocked, units, plans, rates, covers };
 }
 
 const body = (over: Record<string, unknown> = {}) => ({
@@ -1499,6 +1508,97 @@ describe('manual reservation API', () => {
       'reservation.create',
       'reservation.create',
     ]);
+  });
+
+  /**
+   * Q-197 (ответ владельца 27.09.2026 — «нет не могут»): тариф — цена и правило штрафа брони, у существующей брони его
+   * меняют владелец и управляющий (право `rates`). Администратор меняет даты, продлевает и переселяет в том же тарифе.
+   * Брони из Exely без тарифа тариф назначают они же — до ответа на Q-198.
+   */
+  describe('тариф брони по роли (Q-197, ADR-100)', () => {
+    const secondPlan = () => {
+      fake.plans.push({
+        id: 'p2',
+        code: 'exely-800002',
+        name: 'Тестовый без штрафа',
+        currency: 'KZT',
+        active: true,
+        cancellationPenalty: 'NONE',
+      });
+      fake.covers.add('p2');
+      for (const d of ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']) {
+        fake.rates[`t1|p2|${d}|1`] = 900_000n;
+        fake.rates[`t2|p2|${d}|1`] = 1_200_000n;
+      }
+    };
+    const as = <T>(role: MembershipRole, fn: () => Promise<T>) =>
+      withSignedInUser({ userId: `user-${role}`, organizationId: 'org-test', role }, fn);
+    const service = () => app.get(ReservationsService);
+    const book = async () => {
+      const res = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+      return { n: res.body.confirmationNumber as string, itemId: res.body.items[0].id as string };
+    };
+    const planOf = (n: string) => fake.state.reservations.get(n)!.items[0]!.ratePlanId;
+    const stay = { arrivalDate: '2026-09-15', departureDate: '2026-09-18' };
+
+    it('администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута', async () => {
+      secondPlan();
+      const { n } = await book();
+      await expect(
+        as('STAFF', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+      expect(planOf(n)).toBe('p1');
+      expect(fake.state.reservations.get(n)!.departureDate).toBe('2026-09-17');
+
+      const kept = await as('STAFF', () => service().changeDates(n, stay));
+      expect(kept.departureDate).toBe('2026-09-18');
+      expect(planOf(n)).toBe('p1');
+    });
+
+    it('управляющий тариф меняет', async () => {
+      secondPlan();
+      const { n } = await book();
+      await as('MANAGER', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' }));
+      expect(planOf(n)).toBe('p2');
+    });
+
+    it('продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ', async () => {
+      secondPlan();
+      const { n, itemId } = await book();
+      await expect(
+        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+      await as('STAFF', () => service().extend(n, itemId, { nights: 1 }));
+      await expect(
+        as('STAFF', () => service().assign(n, itemId, { unitCode: '9002', ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+      const moved = await as('STAFF', () => service().assign(n, itemId, { unitCode: '9002' }));
+      expect(moved.items[0]!.unitCode).toBe('9002');
+      expect(planOf(n)).toBe('p1');
+    });
+
+    it('бронь из Exely без тарифа: администратору пересчитать не по чему — тариф назначают владелец и управляющий (Q-198)', async () => {
+      const { n, itemId } = await book();
+      fake.state.reservations.get(n)!.items[0]!.ratePlanId = null;
+      await expect(as('STAFF', () => service().changeDates(n, stay))).rejects.toThrow(
+        RATE_PLAN_UNKNOWN_MESSAGE,
+      );
+      await expect(
+        as('STAFF', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800001' })),
+      ).rejects.toThrow(RATE_PLAN_UNKNOWN_MESSAGE);
+      await expect(
+        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800001' })),
+      ).rejects.toThrow(RATE_PLAN_UNKNOWN_MESSAGE);
+      // окно продления на стойке: причина словами, а не «выберите тариф» — выбрать ему не дадут
+      const preview = await as('STAFF', () => service().previewExtend(n, itemId, { nights: 1 }));
+      expect(preview.problem).toBe(RATE_PLAN_UNKNOWN_MESSAGE);
+      expect(preview.ratePlanRequired).toBe(false);
+
+      await as('MANAGER', () =>
+        service().changeDates(n, { ...stay, ratePlanCode: 'exely-800001' }),
+      );
+      expect(planOf(n)).toBe('p1');
+    });
   });
 
   it('GET /rate-plans lists only active tariffs', async () => {

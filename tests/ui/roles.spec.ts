@@ -141,6 +141,43 @@ test('администратор принимает оплату, но возв�
   await expect(main.getByTestId('refund-form').first()).toBeVisible();
 });
 
+test('администратор меняет даты и продлевает в тарифе брони: выбора тарифа у него нет (Q-197)', async ({
+  page,
+  request,
+}) => {
+  await signIn(page);
+  const actions = async () => {
+    await page.goto('/reservations/20260913-TESTAA');
+    await page.getByRole('tab', { name: 'Действия', exact: true }).click();
+  };
+  const main = page.getByRole('main');
+
+  await asRole(request, 'STAFF');
+  await actions();
+  await expect(main.getByRole('button', { name: 'Пересчитать и сохранить' })).toBeVisible();
+  await expect(main.getByLabel('Тариф для пересчёта')).toHaveCount(0);
+  await expect(main.getByText('Тариф при смене категории')).toHaveCount(0);
+
+  // бронь из Exely без тарифа: пересчитать не по чему — слова вместо кнопки и выбора тарифа
+  await request.post(`${API}/__test/control`, { data: { role: 'STAFF', withoutRatePlan: true } });
+  await actions();
+  await expect(main.getByTestId('dates-no-plan')).toContainText(
+    'даты пересчитывают владелец или управляющий',
+  );
+  await expect(main.getByRole('button', { name: 'Пересчитать и сохранить' })).toHaveCount(0);
+  await expect(main.getByLabel('Тариф для продления')).toHaveCount(0);
+  await expect(main.getByTestId('hint-extend-ui-item')).toHaveText(
+    'У брони нет тарифа (перенесена из Exely): назначить его могут владелец и управляющий.',
+  );
+  await expect(main.getByTestId('extend-ui-item')).toBeDisabled();
+
+  // у управляющего выбор тарифа на месте
+  await request.post(`${API}/__test/control`, { data: { role: 'MANAGER' } });
+  await actions();
+  await expect(main.getByLabel('Тариф для пересчёта')).toBeVisible();
+  await expect(main.getByLabel('Тариф для продления')).toBeVisible();
+});
+
 test('управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их', async ({
   page,
   request,

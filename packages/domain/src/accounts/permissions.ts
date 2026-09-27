@@ -70,6 +70,17 @@ const GENITIVE: Readonly<Record<MembershipRole, string>> = {
 export const ADJUSTMENT_DOWN_MESSAGE =
   'Корректировку счёта на уменьшение делают владелец и управляющий — как возврат и сторно.';
 
+/**
+ * Тариф брони — её цена и правило штрафа (Q-197, ответ владельца 27.09.2026 — «нет не могут»): у существующей брони его
+ * меняют владелец и управляющий (право `rates`), администратор меняет даты и место в том же тарифе.
+ */
+export const RATE_PLAN_CHANGE_MESSAGE =
+  'Тариф у брони меняют владелец и управляющий: администратор меняет даты и место в том же тарифе.';
+
+/** Бронь из Exely без тарифа: выбрать тариф — выбрать цену и штраф; до ответа на Q-198 — владелец и управляющий */
+export const RATE_PLAN_UNKNOWN_MESSAGE =
+  'У брони нет тарифа (перенесена из Exely): назначить его могут владелец и управляющий.';
+
 /** Права роли, по порядку таблицы. Неизвестная роль — ничего */
 export function permissionsOf(role: MembershipRole | null | undefined): Permission[] {
   const granted = role ? ROLE_PERMISSIONS[role] : undefined;

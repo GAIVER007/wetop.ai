@@ -2,12 +2,15 @@ import 'reflect-metadata';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import {
+  RATE_PLAN_CHANGE_MESSAGE,
+  RATE_PLAN_UNKNOWN_MESSAGE,
   RESERVATION_SOURCES,
   ReservationRuleError,
   RestrictionViolationError,
@@ -30,6 +33,7 @@ import {
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
+import { actorMay } from '../auth/request-context';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
 import {
@@ -519,10 +523,13 @@ export class ReservationsService {
         const ownPlanId = state.items.find(
           (i) => i.status !== 'CANCELLED' && i.ratePlanId,
         )?.ratePlanId;
-        if (!dto.ratePlanCode && !ownPlanId)
+        if (!dto.ratePlanCode && !ownPlanId) {
+          // выбрать тариф брони без тарифа — выбрать её цену и штраф (Q-197, Q-198)
+          if (!actorMay('rates')) throw new ForbiddenException(RATE_PLAN_UNKNOWN_MESSAGE);
           throw new BadRequestException(
             'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
           );
+        }
         const plan = dto.ratePlanCode
           ? await repo.ratePlanByCode(dto.ratePlanCode)
           : await repo.ratePlanById(ownPlanId!);
@@ -534,6 +541,9 @@ export class ReservationsService {
           throw new UnprocessableEntityException(
             `Тариф в ${plan.currency}, бронь в ${state.currency}`,
           );
+        // до первой записи: у каждого проживания тариф остаётся прежним, если менять его нельзя (Q-197)
+        for (const item of state.items)
+          if (item.status !== 'CANCELLED') this.assertPlanKept(item, plan.id);
         let total = 0n;
         for (const item of state.items) {
           if (item.status === 'CANCELLED') continue;
@@ -675,13 +685,7 @@ export class ReservationsService {
         if (!Number.isInteger(nights) || nights < 1 || nights > 30)
           throw new BadRequestException('nights — целое от 1 до 30');
         const departureDate = addDays(item.departureDate, nights);
-        const planId = q.ratePlanCode
-          ? (await repo.ratePlanByCode(q.ratePlanCode))?.id
-          : item.ratePlanId;
-        if (!planId)
-          throw new BadRequestException(
-            'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
-          );
+        const planId = await this.resolvePlanId(repo, item, q.ratePlanCode);
         // Как и само продление: считаются только добавленные ночи, проданные не переоцениваются
         const rates = await repo.nightRates(
           item.accommodationTypeId,
@@ -720,13 +724,7 @@ export class ReservationsService {
       const target = await repo.categoryById(unit.accommodationTypeId);
       if (!target || !target.active)
         throw new UnprocessableEntityException(`Категория ячейки ${q.unitCode} неактивна`);
-      const planId = q.ratePlanCode
-        ? (await repo.ratePlanByCode(q.ratePlanCode))?.id
-        : item.ratePlanId;
-      if (!planId)
-        throw new BadRequestException(
-          'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
-        );
+      const planId = await this.resolvePlanId(repo, item, q.ratePlanCode);
       if (!(await repo.ratePlanCoversType(planId, target.id)))
         throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
       const rates = await repo.nightRates(target.id, planId, item.arrivalDate, item.departureDate);
@@ -1143,18 +1141,37 @@ export class ReservationsService {
     };
   }
 
-  /** Тариф для пересчёта: явный код или тариф проживания; у перенесённых из Exely его нет (Б8) */
+  /**
+   * Тариф для пересчёта: явный код или тариф проживания; у перенесённых из Exely его нет (Б8). Выбрать другой тариф или
+   * назначить его брони без тарифа может только тот, кому открыты тарифы (Q-197): у администратора отказ словами.
+   */
   private async resolvePlanId(
     repo: ReservationsRepository,
     item: ItemState,
     ratePlanCode: string | undefined,
   ): Promise<string> {
     const planId = ratePlanCode ? (await repo.ratePlanByCode(ratePlanCode))?.id : item.ratePlanId;
-    if (!planId)
+    if (!planId) {
+      if (!item.ratePlanId && !actorMay('rates'))
+        throw new ForbiddenException(RATE_PLAN_UNKNOWN_MESSAGE);
       throw new BadRequestException(
         'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
       );
+    }
+    this.assertPlanKept(item, planId);
     return planId;
+  }
+
+  /**
+   * Q-197 (ответ владельца 27.09.2026 — «нет не могут»): тариф — цена и правило штрафа брони, и у существующей брони его
+   * меняют владелец и управляющий (право `rates`). Администратор меняет даты, продлевает и переселяет в том же тарифе;
+   * брони без тарифа (из Exely) тариф назначают они же — до ответа на Q-198. Без человека за запросом — как раньше.
+   */
+  private assertPlanKept(item: { ratePlanId: string | null }, planId: string): void {
+    if (planId === item.ratePlanId || actorMay('rates')) return;
+    throw new ForbiddenException(
+      item.ratePlanId ? RATE_PLAN_CHANGE_MESSAGE : RATE_PLAN_UNKNOWN_MESSAGE,
+    );
   }
 
   /** Цена добавленных ночей по календарю тарифа — только их, проданные ночи не переоцениваются */

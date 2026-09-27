@@ -27,6 +27,8 @@ import {
   MEMBER_ROLE_MESSAGE,
   MEMBER_ROLE_OWNER_ONLY_MESSAGE,
   MEMBER_SELF_MESSAGE,
+  RATE_PLAN_CHANGE_MESSAGE,
+  RATE_PLAN_UNKNOWN_MESSAGE,
   accessDeniedMessage,
   can,
   canInvite,
@@ -1391,6 +1393,17 @@ const uiSessions = new Map<string, UiUser>();
 // ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
 let uiRole: MembershipRole = 'OWNER';
+/**
+ * Тариф брони у роли стенда — как в API (Q-197): администратор пересчитывает только в тарифе брони; другой тариф или
+ * тариф брони без него (из Exely) — отказ словами. `null` — можно.
+ */
+function planRefusal(current: string | null | undefined, requested: unknown): string | null {
+  if (can(uiRole, 'rates')) return null;
+  if (!current) return RATE_PLAN_UNKNOWN_MESSAGE;
+  return typeof requested === 'string' && requested && requested !== current
+    ? RATE_PLAN_CHANGE_MESSAGE
+    : null;
+}
 let uiPlatformAdmin = false;
 /**
  * Люди вымышленной организации и её ожидающие приглашения (ADR-100): вошедшая Дана — с ролью `uiRole`, остальные —
@@ -2120,6 +2133,19 @@ function read(path: string, q: URLSearchParams): unknown {
         };
       const to = categories.find((c) => c.code === unit.accommodationTypeCode)!;
       const changes = to.code !== item.accommodationTypeCode;
+      const refused = changes ? planRefusal(item.ratePlanCode, q.get('ratePlanCode')) : null;
+      if (refused)
+        return {
+          unitCode: unit.code,
+          changesCategory: true,
+          fromCategory: from && { code: from.code, name: from.name },
+          toCategory: { code: to.code, name: to.name },
+          nights,
+          currentMinor: item.priceMinor,
+          newMinor: null,
+          ratePlanRequired: false,
+          problem: refused,
+        };
       return {
         unitCode: unit.code,
         changesCategory: changes,
@@ -2136,6 +2162,19 @@ function read(path: string, q: URLSearchParams): unknown {
       const n = Math.max(1, Number(q.get('nights') || 1));
       const departure = add(item.departureDate, n);
       const added = nightly(item.accommodationTypeCode) * BigInt(n);
+      const refused = planRefusal(item.ratePlanCode, q.get('ratePlanCode'));
+      if (refused)
+        return {
+          nights: n,
+          departureDate: departure,
+          unitCode: item.unitCode,
+          addedMinor: null,
+          newMinor: null,
+          ratePlanRequired: false,
+          nextNightsFree:
+            !item.unitCode || !unitBusy(item.unitCode, item.departureDate, departure, item),
+          problem: refused,
+        };
       return {
         nights: n,
         departureDate: departure,
@@ -3684,6 +3723,8 @@ createServer(async (req, res) => {
       }
       if (item && action === 'extend') {
         const n = Math.max(1, Number(body['nights'] ?? 1));
+        const refused = planRefusal(item.ratePlanCode, body['ratePlanCode']);
+        if (refused) return send(403, { message: refused });
         if (!item.ratePlanCode && !body['ratePlanCode'])
           return send(400, { message: 'У проживания нет тарифа: выберите тариф для новой ночи' });
         const departure = add(item.departureDate, n);
@@ -3703,6 +3744,11 @@ createServer(async (req, res) => {
         if (!unit) return send(404, { message: 'Ячейка не найдена' });
         if (unitBusy(unit.code, item.arrivalDate, item.departureDate, item))
           return send(409, { message: `Ячейка ${unit.code} уже занята` });
+        const refused =
+          unit.accommodationTypeCode !== item.accommodationTypeCode
+            ? planRefusal(item.ratePlanCode, body['ratePlanCode'])
+            : null;
+        if (refused) return send(403, { message: refused });
         if (unit.accommodationTypeCode !== item.accommodationTypeCode) {
           item.accommodationTypeCode = unit.accommodationTypeCode;
           item.accommodationTypeName = unit.accommodationTypeName;

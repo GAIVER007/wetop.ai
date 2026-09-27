@@ -44,6 +44,7 @@ import { CHANNELS, SOURCES, fromChannex } from '../sources';
 import { useConfirm } from '../../../components/use-confirm';
 import { previewLine } from '../../../lib/action-preview';
 import { useToast } from '../../../components/toast';
+import { useMay } from '../../../components/desk-access';
 import { previewAction } from '../actions';
 
 const OPEN = new Set(['TENTATIVE', 'CONFIRMED']);
@@ -137,6 +138,8 @@ export function ReservationActions(props: {
 }) {
   // Как в API (changeDates): без явного выбора пересчёт идёт по тарифу первого неотменённого проживания (Б1)
   const current = props.items.find((it) => it.status !== 'CANCELLED' && it.ratePlanCode);
+  // тариф брони — её цена и штраф: выбирают владелец и управляющий (Q-197), администратор меняет даты в том же тарифе
+  const choosePlan = useMay('rates');
   const {
     state: cancelState,
     run: cancel,
@@ -207,34 +210,40 @@ export function ReservationActions(props: {
                 defaultValue={datesState.values?.departureDate ?? props.departureDate}
               />
             </Field>
-            <Select
-              name="ratePlanCode"
-              aria-label="Тариф для пересчёта"
-              defaultValue={datesState.values?.ratePlanCode ?? ''}
-              required={!current}
-            >
-              {current ? (
-                <option value="">
-                  — оставить текущий тариф: {current.ratePlanName ?? current.ratePlanCode} —
-                </option>
-              ) : (
-                <option value="" disabled>
-                  — выберите тариф —
-                </option>
-              )}
-              {props.ratePlans.map((p) => (
-                <option key={p.code} value={p.code}>
-                  {p.name}
-                </option>
-              ))}
-            </Select>
-            <Button type="submit" disabled={datesPending}>
-              Пересчитать и сохранить
-            </Button>
+            {choosePlan && (
+              <Select
+                name="ratePlanCode"
+                aria-label="Тариф для пересчёта"
+                defaultValue={datesState.values?.ratePlanCode ?? ''}
+                required={!current}
+              >
+                {current ? (
+                  <option value="">
+                    — оставить текущий тариф: {current.ratePlanName ?? current.ratePlanCode} —
+                  </option>
+                ) : (
+                  <option value="" disabled>
+                    — выберите тариф —
+                  </option>
+                )}
+                {props.ratePlans.map((p) => (
+                  <option key={p.code} value={p.code}>
+                    {p.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+            {(choosePlan || current) && (
+              <Button type="submit" disabled={datesPending}>
+                Пересчитать и сохранить
+              </Button>
+            )}
           </Row>
           {!current && (
-            <p className="hint">
-              У брони нет тарифа (перенесена из Exely) — выберите, по какому пересчитать цену.
+            <p className="hint" data-testid="dates-no-plan">
+              {choosePlan
+                ? 'У брони нет тарифа (перенесена из Exely) — выберите, по какому пересчитать цену.'
+                : 'У брони нет тарифа (перенесена из Exely): даты пересчитывают владелец или управляющий — они назначат тариф.'}
             </p>
           )}
           {datesState.error && <Alert>{datesState.error}</Alert>}
@@ -456,9 +465,11 @@ function StayButtons(props: {
   const { state, run: command, pending } = useCommand<ActionResult>({ error: null });
   const { ask, dialog } = useConfirm();
   const { toast } = useToast();
-  // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф выбирает администратор
+  // Б8: у проживания без тарифа цену новой ночи взять не из чего — тариф выбирают владелец и управляющий (Q-197):
+  // администратору API называет причину в предпросмотре, и кнопка стоит неактивной
   const [extendPlan, setExtendPlan] = useState('');
   const needsPlan = !props.item.ratePlanCode;
+  const choosePlan = useMay('rates');
   const expected = props.item.status === 'CONFIRMED' || props.item.status === 'TENTATIVE';
   const live = expected || props.item.status === 'CHECKED_IN';
 
@@ -618,7 +629,7 @@ function StayButtons(props: {
             Выселить
           </Button>
         )}
-        {live && needsPlan && (
+        {live && needsPlan && choosePlan && (
           <Select
             aria-label="Тариф для продления"
             data-quick-action={`extend-plan:${props.item.id}`}
@@ -644,9 +655,11 @@ function StayButtons(props: {
             disabled={pending || extendBlocked || (needsPlan && !extendPlan)}
             onClick={extend}
             title={
-              needsPlan
-                ? 'У проживания нет тарифа (перенесено из Exely): выберите тариф для новой ночи'
-                : 'Выезд на сутки позже, цена по календарю'
+              !needsPlan
+                ? 'Выезд на сутки позже, цена по календарю'
+                : choosePlan
+                  ? 'У проживания нет тарифа (перенесено из Exely): выберите тариф для новой ночи'
+                  : 'У проживания нет тарифа (перенесено из Exely): продлевают владелец или управляющий'
             }
           >
             Продлить на ночь
@@ -743,6 +756,8 @@ function AssignForm(props: {
     assignUnitAction.bind(null, props.number, props.item.id),
     { error: null },
   );
+  // другой тариф при смене категории — выбор цены: владелец и управляющий (Q-197)
+  const choosePlan = useMay('rates');
   const formRef = useRef<HTMLFormElement>(null);
   const confirmed = useRef(false);
   const [move, setMove] = useState<{
@@ -831,16 +846,18 @@ function AssignForm(props: {
             </optgroup>
           ))}
         </Select>
-        <Field label="Тариф при смене категории">
-          <Select name="ratePlanCode" defaultValue={state.values?.ratePlanCode ?? ''}>
-            <option value="">Тариф проживания</option>
-            {props.ratePlans.map((plan) => (
-              <option key={plan.code} value={plan.code}>
-                {plan.name} ({plan.currency})
-              </option>
-            ))}
-          </Select>
-        </Field>
+        {choosePlan && (
+          <Field label="Тариф при смене категории">
+            <Select name="ratePlanCode" defaultValue={state.values?.ratePlanCode ?? ''}>
+              <option value="">Тариф проживания</option>
+              {props.ratePlans.map((plan) => (
+                <option key={plan.code} value={plan.code}>
+                  {plan.name} ({plan.currency})
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         <Field inline label="с даты">
           <DateInput name="fromDate" defaultValue={state.values?.fromDate ?? props.arrivalDate} />
         </Field>

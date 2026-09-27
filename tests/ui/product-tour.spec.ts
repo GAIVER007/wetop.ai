@@ -12,6 +12,9 @@ test.use({ tour: true });
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });
+test.afterEach(async ({ request }) => {
+  await request.post(`${API}/__test/reset`);
+});
 
 async function signIn(page: Page) {
   await page.goto('/login');

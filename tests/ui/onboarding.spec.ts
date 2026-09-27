@@ -11,6 +11,12 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: { onboardingNeeded: true } });
 });
 
+// Стенд общий на весь набор: «нужен онбординг» не должен уйти в следующий файл — там рабочие экраны увело бы
+// на /onboarding («Заполнить позже» оставляет объект без номеров, 27.09.2026)
+test.afterEach(async ({ request }) => {
+  await request.post(`${fixture}/__test/reset`);
+});
+
 test('пустой отель: рабочий экран уводит на онбординг, форма запускает отель', async ({ page }) => {
   // гейт: с рабочего экрана — на онбординг
   await page.goto('/today');

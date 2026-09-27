@@ -2,7 +2,7 @@ import { SetMetadata } from '@nestjs/common';
 import type { Permission } from '@pms/domain';
 
 /**
- * Право маршрута (ADR-106, DATA_MODEL §16.5). Кроме прав ролей — два особых случая: `platform` — раздел главного
+ * Право маршрута (ADR-107, DATA_MODEL §16.5). Кроме прав ролей — два особых случая: `platform` — раздел главного
  * администратора (§16.2), от роли в организации не зависит; `service` — только служебный ключ, вошедшему человеку закрыт.
  */
 export type RouteAccess = Permission | 'platform' | 'service';

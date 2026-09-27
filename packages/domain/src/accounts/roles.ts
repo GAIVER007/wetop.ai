@@ -1,7 +1,7 @@
 import { can } from './permissions';
 
 /**
- * Роли в организации (DATA_MODEL §16.1; ADR-083, третья роль и права — ADR-106, §16.5). Роль — готовый набор прав
+ * Роли в организации (DATA_MODEL §16.1; ADR-083, третья роль и права — ADR-107, §16.5). Роль — готовый набор прав
  * (`permissions.ts`): владелец — всё, управляющий — всё, кроме владельческого, администратор — работа с гостями,
  * диалоги продавца и отчёты на просмотр. `STAFF` в базе прежний, на экране — «администратор».
  */
@@ -26,7 +26,7 @@ export function canConfigureSeller(role: MembershipRole): boolean {
   return can(role, 'seller');
 }
 
-/** Кого может позвать: владелец — управляющих и администраторов, управляющий — администраторов (ADR-106) */
+/** Кого может позвать: владелец — управляющих и администраторов, управляющий — администраторов (ADR-107) */
 export function invitableRoles(actor: MembershipRole): InviteRole[] {
   if (!canManageStaff(actor)) return [];
   return can(actor, 'owner') ? ['MANAGER', 'STAFF'] : ['STAFF'];

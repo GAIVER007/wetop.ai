@@ -9,7 +9,7 @@ export type Step = {
   state: 'done' | 'next' | 'optional';
   hint: string;
   action?: { href: string; label: string };
-  /** Шаг — тому, у кого есть право (ADR-106): администратор отель не настраивает и сотрудников не зовёт */
+  /** Шаг — тому, у кого есть право (ADR-107): администратор отель не настраивает и сотрудников не зовёт */
   requires?: Permission;
 };
 

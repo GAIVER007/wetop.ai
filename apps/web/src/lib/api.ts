@@ -344,7 +344,7 @@ export interface SignedIn {
   /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
   organization?: SignedInOrganization | null;
   /**
-   * Роль в организации сессии (DATA_MODEL §16.1): владелец, управляющий или администратор; права ролей — §16.5, ADR-106.
+   * Роль в организации сессии (DATA_MODEL §16.1): владелец, управляющий или администратор; права ролей — §16.5, ADR-107.
    * Старый API роли не присылает — тогда считаем администратором
    */
   role?: MembershipRole;
@@ -463,7 +463,7 @@ export const authApi = {
   },
   /**
    * 201 с приглашением; 400 с текстом про почту, роль или «уже в организации»; 403 — звать с этой ролью нельзя
-   * (управляющих зовёт только владелец, ADR-106); 401 — сессии нет.
+   * (управляющих зовёт только владелец, ADR-107); 401 — сессии нет.
    */
   invite: async (
     token: string,
@@ -487,7 +487,7 @@ export const authApi = {
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
-  // ── Сотрудники (ADR-106, DATA_MODEL §16.1 v1.14) ──────────────────────────────────────────────
+  // ── Сотрудники (ADR-107, DATA_MODEL §16.1 v1.14) ──────────────────────────────────────────────
   /** Люди своей организации с ролями — владельцу и управляющему; 403 — администратору */
   members: async (token: string, info: AuthClientInfo): Promise<AuthMember[]> => {
     const res = await backendFetch('/auth/members', { headers: authHeaders(info, token) });
@@ -1401,7 +1401,7 @@ export interface SellerStatus {
   extension?: ExtensionAccessView | null;
   /** Подключён ли продавец, какое бы ни было расширение: читать диалоги после срока можно, только если он есть */
   connection?: 'not-configured' | 'ready';
-  /** Может ли вошедший менять настройки: владелец или управляющий (ADR-106) при действующем расширении */
+  /** Может ли вошедший менять настройки: владелец или управляющий (ADR-107) при действующем расширении */
   canConfigure?: boolean;
 }
 
@@ -1711,13 +1711,13 @@ export interface AuthInvite {
   expiresAt: string;
   acceptedAt: string | null;
   createdAt: string;
-  /** С какой ролью войдёт (ADR-106); старый API роли не присылает — администратор */
+  /** С какой ролью войдёт (ADR-107); старый API роли не присылает — администратор */
   role?: InviteRole;
   /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable?: boolean;
 }
 
-/** Человек своей организации в блоке «Сотрудники» (ADR-106) */
+/** Человек своей организации в блоке «Сотрудники» (ADR-107) */
 export interface AuthMember {
   userId: string;
   email: string;

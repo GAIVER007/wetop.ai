@@ -27,7 +27,7 @@
 | Срок | 12 часов: `expiresAt` = `issued_at` + 43200 с; у помощника `WIDGET_IDENTITY_TTL_SECONDS=43200` (Б2) |
 
 Откуда поля: `user_id` — id человека (UUID), `email` — его почта, `org_id` — организация, под которой открыта сессия
-(UUID). **`role`** — роль в организации строчными: `owner`, `manager` или `staff` (ADR-083, ADR-106; до 25.09 была
+(UUID). **`role`** — роль в организации строчными: `owner`, `manager` или `staff` (ADR-083, ADR-107; до 25.09 была
 пустой). Эталон ТЗ
 (`42|ivan@example.com|7|owner|1700000000` → `NDJ8…MDA.7e42…9a2c`) функция платформы даёт байт в байт
 (`packages/integrations/src/assistant/identity.test.ts`). 24.09 то же проверено кодом бота: `sign_identity` бота на тех

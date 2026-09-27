@@ -93,7 +93,7 @@ test('главный администратор: сводка, отбор, ка�
     'href',
     '/platform?org=ui-org',
   );
-  // роль словом стойки: «сотрудник» стал «администратором» (ADR-106)
+  // роль словом стойки: «сотрудник» стал «администратором» (ADR-107)
   await expect(who).toContainText('администратор');
   await expect(card).toContainText('Не сохраняется бронь');
   await shot(page, 'support-dialog');

@@ -63,7 +63,7 @@ import '../ai-seller.css';
  * модель, код для сайта и WhatsApp. Всё — через API платформы: адреса и ключа продавца стойка не знает.
  *
  * Раздел работает у организации с расширением «ИИ-продавец» (ADR-083): без него — объяснение вместо экранов; срок
- * вышел — всё видно, но менять и отвечать гостям нельзя (Q-183); настройки меняют владелец и управляющий (ADR-106).
+ * вышел — всё видно, но менять и отвечать гостям нельзя (Q-183); настройки меняют владелец и управляющий (ADR-107).
  */
 
 const settle = <T,>(promise: Promise<T>) =>
@@ -99,7 +99,7 @@ export default async function AiSellerPage({
   if (legacy !== undefined) redirect(legacy ? `/ai-seller/${legacy}` : '/ai-seller');
   const view = (section[0] ?? '') as SellerView;
   if (!SELLER_TABS.some((item) => item.view === view)) notFound();
-  // администратору раздел — это диалоги с гостями (ADR-106): настройку, знания и подключения ведут владелец и
+  // администратору раздел — это диалоги с гостями (ADR-107): настройку, знания и подключения ведут владелец и
   // управляющий; напоминание о продлении платного расширения — только владельцу
   const { access } = await deskShell();
   const configure = mayAccess(access, 'seller');
@@ -181,13 +181,13 @@ async function SellerScreen({
   view: SellerView;
   mode: string;
   id: string;
-  /** Платные расширения — владельческое (ADR-106): напоминание о продлении только ему */
+  /** Платные расширения — владельческое (ADR-107): напоминание о продлении только ему */
   owner: boolean;
 }) {
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
   if (status.value.state === 'extension-off') return <ExtensionOff status={status.value} />;
-  // напоминание — тому, кто продлевает: владельцу организации (Q-183, ADR-106)
+  // напоминание — тому, кто продлевает: владельцу организации (Q-183, ADR-107)
   const reminder =
     owner && status.value.canConfigure !== false ? extensionReminder(status.value.extension) : null;
   return (

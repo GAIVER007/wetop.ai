@@ -60,7 +60,7 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
       caption: 'Администратор',
       initials: 'D',
     });
-    // третья роль (ADR-106)
+    // третья роль (ADR-107)
     expect(deskPerson(me({ role: 'MANAGER' }).user).caption).toBe('Управляющий');
     expect(deskPerson(me({ platformAdmin: true }).user).caption).toBe(
       'Владелец · главный администратор',
@@ -130,7 +130,7 @@ describe('deskShellOf — только чтение', () => {
     expect(CLOSED_SHELL.readOnly).toBe(false);
   });
 
-  // /auth/me не ответил: статус организации неизвестен — полосу не обещаем, запись закроет API (ADR-102, ADR-106)
+  // /auth/me не ответил: статус организации неизвестен — полосу не обещаем, запись закроет API (ADR-102, ADR-107)
   it('сбой ответа о вошедшем — полосы нет', () => {
     expect(UNKNOWN_SHELL.readOnly).toBe(false);
   });

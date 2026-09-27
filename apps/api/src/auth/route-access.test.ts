@@ -13,7 +13,7 @@ import { PUBLIC_ROUTE } from './public.decorator';
 import { RoleGuard } from './role.guard';
 
 /**
- * У каждого маршрута API записано право (ADR-106, DATA_MODEL §16.5): роли проверяет замок `RoleGuard` по метке
+ * У каждого маршрута API записано право (ADR-107, DATA_MODEL §16.5): роли проверяет замок `RoleGuard` по метке
  * `@Access(…)`, и маршрут без метки вошедшему закрыт. Тест собирает настоящее приложение и сверяет каждый маршрут с
  * этой таблицей: новый маршрут без строки здесь — красный, смена права — только правкой строки. Так таблица и есть
  * полная карта доступа, которую читает человек.
@@ -251,7 +251,7 @@ async function routes(): Promise<Record<string, RouteAccess | 'public' | undefin
   return found;
 }
 
-describe('права маршрутов API (ADR-106)', () => {
+describe('права маршрутов API (ADR-107)', () => {
   it('у каждого маршрута — право из таблицы, и в таблице нет лишних строк', async () => {
     const actual = await routes();
     const unannotated = Object.entries(actual)

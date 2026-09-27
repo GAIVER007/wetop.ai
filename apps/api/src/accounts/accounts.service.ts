@@ -46,13 +46,13 @@ export interface InviteView {
   expiresAt: Date;
   acceptedAt: Date | null;
   createdAt: Date;
-  /** С какой ролью войдёт приглашённый (ADR-106) */
+  /** С какой ролью войдёт приглашённый (ADR-107) */
   role: MembershipRole;
   /** Может ли этот вошедший его отозвать: тот, кто вправе позвать с этой ролью */
   revocable: boolean;
 }
 
-/** Строка списка «Сотрудники» (ADR-106): кто, роль, с какого дня и что с ним может сделать этот вошедший */
+/** Строка списка «Сотрудники» (ADR-107): кто, роль, с какого дня и что с ним может сделать этот вошедший */
 export interface MemberView {
   userId: string;
   email: string;
@@ -154,9 +154,9 @@ export class AccountsService {
   ): Promise<InviteOutcome | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
-    // приглашают владелец и управляющий (DATA_MODEL §16.5, ADR-106); ярлык 'owner' — отказ «не ваше»
+    // приглашают владелец и управляющий (DATA_MODEL §16.5, ADR-107); ярлык 'owner' — отказ «не ваше»
     if (!canManageStaff(who.role)) return { ok: false, reason: 'owner' };
-    // без роли — администратор, как принимались приглашения до ADR-106; владельца приглашением не назначают
+    // без роли — администратор, как принимались приглашения до ADR-107; владельца приглашением не назначают
     const role = rawRole === undefined || rawRole === null || rawRole === '' ? 'STAFF' : parseInviteRole(rawRole);
     if (!role) return { ok: false, reason: 'role' };
     if (!canInvite(who.role, role)) return { ok: false, reason: 'manager-role' };
@@ -224,7 +224,7 @@ export class AccountsService {
     );
   }
 
-  // ── Сотрудники (ADR-106, DATA_MODEL §16.1 v1.14) ────────────────────────────────────────────
+  // ── Сотрудники (ADR-107, DATA_MODEL §16.1 v1.14) ────────────────────────────────────────────
 
   /** Люди своей организации с ролями. `null` — сессии нет; `'staff'` — вошедшему сотрудники не открыты */
   async members(sessionToken: string | null): Promise<MemberView[] | 'staff' | null> {

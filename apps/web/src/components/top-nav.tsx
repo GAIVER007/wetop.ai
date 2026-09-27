@@ -240,7 +240,7 @@ export function TopNav({
   );
 }
 
-/** «Настройки объекта» в меню профиля — тем, кому они открыты (ADR-106) */
+/** «Настройки объекта» в меню профиля — тем, кому они открыты (ADR-107) */
 function GrantedSettingsLink({ desk }: { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
   if (!allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS)) return null;

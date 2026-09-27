@@ -4,28 +4,42 @@
  * всплывают над сеткой (absolute), иначе ячейка прыгает по высоте под кнопки.
  */
 
-/* ── шапка фильтров: категория, тариф, месяц; данные грузятся сами, кнопки «Показать» нет ── */
+/* ── шапка: категория и тариф чипами в одно касание, месяц русским списком; «Показать» нет ── */
 .rates-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.rates-chips {
+  margin: 0;
+  align-items: center;
+}
+.rates-chips__word {
+  min-width: 6em;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.rates-filters__controls {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--space-4);
-  margin-bottom: var(--space-4);
 }
-.rates-filters .field {
-  min-width: 0;
-  max-width: 100%;
+/* выпадающие списки — только на телефоне, вместо чипов (как статус на «Бронях») */
+.rates-filters__selects {
+  display: none;
 }
 .rates-filters select {
   max-width: 100%;
 }
 .rates-month {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--space-1);
 }
-.rates-month .icon-button {
-  margin-bottom: var(--space-1);
+.rates-month__select {
+  min-width: 0;
 }
 .rates-month__today {
   display: inline-flex;
@@ -37,6 +51,22 @@
 }
 .rates-month__today:hover {
   text-decoration: underline;
+}
+@media (max-width: 600px) {
+  .rates-chips {
+    display: none;
+  }
+  .rates-filters__selects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    width: 100%;
+  }
+  .rates-filters__selects .field {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
 }
 
 /* ── сетка месяца ── */
@@ -95,6 +125,10 @@
 .rate-cal__day.is-today {
   outline: 2px solid var(--primary);
   outline-offset: -2px;
+}
+/* день под курсором — лёгкий отклик; занятые смыслом фоны (стоп, выходной) не перекрашиваются */
+.rate-cal__day:not(.is-stop):not(.is-weekend):hover {
+  background: var(--row-hover);
 }
 .rate-cal__date {
   display: block;

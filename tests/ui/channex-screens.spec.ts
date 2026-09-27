@@ -120,10 +120,11 @@ test('цены: месяц листается кнопками со значка
   page,
 }) => {
   await page.goto('/rates?month=2026-10');
-  await expect(page.locator('.page__subtitle')).toContainText('октябрь 2026');
+  const monthSelect = page.getByRole('main').getByLabel('Месяц', { exact: true });
+  await expect(monthSelect).toHaveValue('2026-10');
   await page.getByLabel('Следующий месяц', { exact: true }).click();
   await expect(page).toHaveURL(/month=2026-11/);
-  await expect(page.locator('.page__subtitle')).toContainText('ноябрь 2026');
+  await expect(monthSelect).toHaveValue('2026-11');
   await page.getByRole('main').getByTestId('rates-edit-open').click();
   const editor = page.getByRole('main').getByTestId('bulk-editor');
   await editor.getByLabel('Цена за ночь').fill('9100');
@@ -297,7 +298,7 @@ test('цены: сбой календаря оставляет форму и м�
   await request.post(`${fixture}/__test/control`, { data: { showcase: true, failPath: '/rates' } });
   await page.goto('/rates?month=2026-10');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
-  await expect(main.getByLabel('Категория').first()).toBeVisible();
+  await expect(main.getByRole('navigation', { name: 'Категория' })).toBeVisible();
   await main.getByTestId('rates-edit-open').click();
   await expect(main.getByTestId('bulk-editor')).toBeVisible();
   await page.keyboard.press('Escape');

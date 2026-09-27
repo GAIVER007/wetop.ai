@@ -53,7 +53,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
   if (!loadedOptions.ok) {
     // Без справочника категорий и тарифов заполнять нечего: заголовок и месяц на месте, дальше — повтор
     return (
-      <Page width="wide" title="Тарифы и цены" subtitle={monthLabel || undefined}>
+      <Page width="wide" title="Тарифы и цены" subtitle="Управление ценами и ограничениями продаж">
         <LoadError testId="rates-error" {...loadErrorProps(loadedOptions.e)} />
       </Page>
     );
@@ -106,17 +106,11 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
       : null;
   const cal = loadedCal?.ok ? loadedCal.r : null;
   const calError: unknown = loadedCal && !loadedCal.ok ? loadedCal.e : null;
-  const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
-  const planName = options.ratePlans.find((p) => p.code === ratePlan)?.name ?? ratePlan;
   return (
     <Page
       width="wide"
       title="Тарифы и цены"
-      subtitle={
-        !error && !noDirectory && validMonth
-          ? `${categoryName}, ${planName}, ${monthLabel}`
-          : 'Управление ценами и ограничениями продаж'
-      }
+      subtitle="Управление ценами и ограничениями продаж"
       actions={
         !noDirectory && !error ? (
           <RatesEditDrawer
@@ -156,6 +150,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
             category={category}
             ratePlan={ratePlan}
             month={month}
+            currentMonth={clock.month()}
             validMonth={validMonth}
           />
           {error && (

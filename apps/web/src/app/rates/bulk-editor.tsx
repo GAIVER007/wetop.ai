@@ -112,7 +112,7 @@ export function BulkEditor(props: {
   return (
     <div className="stack" data-testid="bulk-editor">
       <form onSubmit={add} className="stack stack--sm">
-        <Grid min={140} gap="sm">
+        <Grid min={180} gap="sm">
           <Field label="Категория">
             <Select
               name="accommodationTypeCode"
@@ -172,7 +172,7 @@ export function BulkEditor(props: {
             ))}
           </div>
         </fieldset>
-        <Grid min={140} gap="sm">
+        <Grid min={180} gap="sm">
           <Field label="Цена за ночь">
             <Input name="price" placeholder="напр. 15400" inputMode="decimal" />
           </Field>

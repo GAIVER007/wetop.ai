@@ -2882,3 +2882,8 @@
 | 27.09.2026 22:29 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 3881557 +2 | [лог](logs/2026-09-27T17-29-59Z-unit-d795.log) |  |
 | 27.09.2026 22:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 402 | 28 мин 49 с | 3881557 +2 | [лог](logs/2026-09-27T17-31-30Z-e2e-c8b2.log) | RT1 тарифы: полный UI-набор после правки слова гостей и флекса цены |
 | 27.09.2026 23:00 | e2e | ✅ 25 из 25 | 1 мин 18 с | 3881557 +2 | [лог](logs/2026-09-27T18-00-42Z-e2e-fa2d.log) | RT1 тарифы: живой e2e после правки слова гостей, продакшен-сборка пересобрана |
+| 27.09.2026 23:11 | typecheck | ✅ без ошибок | 21 с | 32add9b +7 | [лог](logs/2026-09-27T18-11-35Z-typecheck-6b14.log) |  |
+| 27.09.2026 23:11 | lint | ✅ без ошибок | 15 с | 32add9b +7 | [лог](logs/2026-09-27T18-11-56Z-lint-3733.log) |  |
+| 27.09.2026 23:12 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 32add9b +5 | [лог](logs/2026-09-27T18-12-17Z-unit-6612.log) |  |
+| 27.09.2026 23:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts tests/ui/channex-screens.spec.ts tests/ui/quality.spec.ts --workers=1) | ✅ 29 из 29 | 1 мин 28 с | 32add9b +7 | [лог](logs/2026-09-27T18-13-30Z-e2e-3614.log) | RT1.1: чипы, месяц списком — задетые спеки |
+| 28.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/empty-base.s | ✅ 145 из 145 | 10 мин 19 с | 32add9b +7 | [лог](logs/2026-09-27T20-54-10Z-e2e-3f34.log) | RT1.1: чипы и месяц списком — доступность, навигация, запросы и задетые спеки |

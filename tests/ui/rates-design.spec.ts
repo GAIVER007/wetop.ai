@@ -107,18 +107,33 @@ test('массовое изменение: ни одного дня недели
   await expect(editor.getByTestId('apply-changes')).toHaveText('Сохранить');
 });
 
-test('фильтры: смена категории перезагружает данные сама, без кнопки «Показать»', async ({
+test('фильтры: категория и тариф чипами в одно касание, месяц русским списком — без «Показать»', async ({
   page,
 }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/rates?month=2026-10');
   const filters = main.getByTestId('rates-filters');
-  await filters.getByLabel('Категория').selectOption('MALE');
+  // категория — чип-ссылка (правка владельца по снимкам RT1: выбор в одно касание)
+  await filters
+    .getByRole('navigation', { name: 'Категория' })
+    .getByRole('link', { name: 'Мужской общий номер' })
+    .click();
   await expect(page).toHaveURL(/category=MALE/);
+  await expect(
+    filters.getByRole('navigation', { name: 'Категория' }).getByRole('link', {
+      name: 'Мужской общий номер',
+    }),
+  ).toHaveAttribute('aria-current', 'true');
   // категория на одного гостя — в ячейке одна цена, без слова «гость»
   await expect(main.getByTestId('price-2026-10-01-1')).toBeVisible();
   await expect(main.getByTestId('rate-row-2026-10-01')).not.toContainText('гост');
+  // месяц — русским списком, смена перезагружает данные сама
+  const monthSelect = filters.getByLabel('Месяц', { exact: true });
+  await expect(monthSelect.locator('option', { hasText: 'октябрь 2026' })).toHaveCount(1);
+  await monthSelect.selectOption('2026-11');
+  await expect(page).toHaveURL(/month=2026-11/);
+  await expect(main.getByTestId('rate-row-2026-11-01')).toBeVisible();
 });
 
 test('на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке', async ({

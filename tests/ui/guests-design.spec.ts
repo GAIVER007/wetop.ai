@@ -2,13 +2,13 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
- * «Гости» (21.09.2026, поручение владельца «проверь, чтобы всё чётко отображалось»).
+ * «Гости v2» (27.09.2026, ТЗ владельца; план plans/guests-v2-2026-09-27.md).
  *
- * Найдено на стенде: над пустым состоянием рисовалась шапка таблицы из шести колонок; подпись выборки
- * говорила «Гости с проживанием на сегодня: 1 гость» даже при выбранном «Выехали» — условие не названо,
- * а «на сегодня» для выехавшего неверно; статус брался из словаря броней во множественном числе
- * («Завершены», «Проживают») и описывал одного гостя; разделы по статусу рисовались обычными ссылками,
- * а не чипами, как в «Бронях» и «Журнале»; имя гостя — ссылка цветом обычного текста и без подчёркивания.
+ * Прежний экран показывал брони на сегодня и подписывал гостя статусом брони («отменена») — то самое
+ * смешение сущностей, которое ТЗ называет главной проблемой (§3, §15). Здесь проверяется новый
+ * справочник: одна строка — один человек; разделы-чипы со счётчиками до нажатия; состояние гостя —
+ * вычисленное слово («живёт», «ожидается», «выехал недавно»), а не статус брони; компактный
+ * автопоиск без кнопки «Найти»; пустые состояния словами.
  */
 const fixture = 'http://127.0.0.1:4311';
 
@@ -19,61 +19,88 @@ test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: {} });
 });
 
-test('гости: выборка названа одним предложением со статусом, статус гостя — в единственном числе', async ({
+test('гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте', async ({
   page,
 }) => {
   const main = page.getByRole('main');
   await page.goto('/guests');
-  const meta = main.getByTestId('guests-today-count');
-  await expect(meta).not.toContainText(':');
-  await expect(meta).toContainText('9 гостей');
+  // 9 гостей фикстуры: 4 живут, 4 ожидаются (включая просроченный заезд TEST8), 1 выехал сегодня
+  await expect(main.getByTestId('guests-meta')).toContainText('9 гостей');
+  await expect(main.getByTestId('guests-table').locator('tbody tr')).toHaveCount(9);
 
-  // статус описывает одного гостя, а не пачку броней
-  await expect(main.getByTestId('guests-today-table')).toContainText('живёт');
-  await expect(main.getByText('Проживают', { exact: true })).toHaveCount(1); // только чип раздела
+  const chips = main.getByRole('navigation', { name: 'Гости по состоянию' });
+  await expect(chips).toHaveClass(/chips/);
+  for (const [label, count] of [
+    ['Все', '9'],
+    ['Проживают', '4'],
+    ['Ожидаются', '4'],
+    ['Недавние', '1'],
+  ] as const) {
+    await expect(chips.getByRole('link', { name: `${label} ${count}` })).toBeVisible();
+  }
+  // слово о госте, не статус брони: «Завершены» и «Проживают» из словаря броней в строках нет
+  await expect(main.getByTestId('guests-table')).toContainText('живёт');
+  await expect(main.getByTestId('guests-table')).toContainText('ожидается');
   await expect(main.getByText('Завершены', { exact: true })).toHaveCount(0);
 
-  // выбранный раздел назван в выборке
+  // раздел фильтрует и назван в выборке; бейджи строк совпадают с разделом
+  await page.goto('/guests?state=inhouse');
+  await expect(main.getByTestId('guests-meta')).toContainText('4 гостя, проживают');
+  await expect(main.getByTestId('guests-table').locator('tbody tr')).toHaveCount(4);
+  await expect(main.getByTestId('guests-table')).not.toContainText('ожидается');
+
+  // старый адрес со статусом брони живёт в закладках — читается как раздел
   await page.goto('/guests?status=CHECKED_OUT');
-  await expect(main.getByTestId('guests-today-count')).toContainText('выехали');
-  await expect(main.getByTestId('guests-today-table')).toContainText('выехал');
+  await expect(main.getByTestId('guests-meta')).toContainText('выехали за 30 дней');
+  await expect(main.getByTestId('guests-table')).toContainText('выехал недавно');
+
+  // строка ведёт в карточку человека, а колонка «Сейчас» показывает ячейку живущего
+  await page.goto('/guests?state=inhouse');
+  const row = main.getByTestId('guest-row').first();
+  await expect(row.locator('.dir-unit')).toBeVisible();
+  const chipHeight = await chips
+    .getByRole('link', { name: /Проживают/ })
+    .evaluate((el) => el.getBoundingClientRect().height);
+  expect(chipHeight).toBeGreaterThanOrEqual(38);
 });
 
-test('гости: пустой список не рисует шапку таблицы, разделы — чипы, имя гостя видно как ссылка', async ({
+test('гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами', async ({
   page,
   request,
 }) => {
   const main = page.getByRole('main');
-  // разделы — те же чипы, что на «Неисправностях» и в «Журнале»
   await page.goto('/guests');
-  const filters = main.getByRole('navigation', { name: 'Гости по статусу' });
-  await expect(filters).toHaveClass(/chips/);
-  const chipHeight = await filters
-    .getByRole('link', { name: 'Проживают', exact: true })
-    .evaluate((el) => el.getBoundingClientRect().height);
-  expect(chipHeight).toBeGreaterThanOrEqual(38);
+  // компактный поиск: поле с подсказкой, кнопки «Найти» больше нет (ТЗ §6, §48)
+  const input = main.getByLabel('Поиск гостей');
+  expect((await input.boundingBox())!.width).toBeGreaterThanOrEqual(280);
+  await expect(main.getByRole('button', { name: 'Найти', exact: true })).toHaveCount(0);
+  await input.fill('Демо');
+  await page.waitForURL(/\/guests\?q=%D0%94%D0%B5%D0%BC%D0%BE|\/guests\?q=Демо/);
+  await expect(main.getByTestId('guests-meta')).toContainText('по запросу «Демо»');
+  await expect(main.getByTestId('guests-table').locator('tbody tr')).toHaveCount(2);
 
   // имя гостя отличается от обычного текста: ссылка подчёркивается под курсором и в фокусе
-  const guest = main.getByTestId('guests-today-table').getByRole('link').first();
+  const guest = main.getByTestId('guests-table').getByRole('link').first();
   await guest.hover();
   await expect(guest).toHaveCSS('text-decoration-line', 'underline');
-
   // имя читается от левого края ячейки: старый класс `.directory-guest` центрировал его (21.09)
   const offset = await guest.evaluate(
     (el) => el.getBoundingClientRect().left - el.closest('td')!.getBoundingClientRect().left,
   );
   expect(offset, 'имя гостя не прижато к левому краю ячейки').toBeLessThanOrEqual(16);
 
-  // поле поиска вмещает свою подсказку целиком
-  const input = main.getByLabel('Поиск гостей');
-  expect((await input.boundingBox())!.width).toBeGreaterThanOrEqual(280);
+  // пустой результат отбора: что пусто и что сделать, шапки таблицы над пустотой нет
+  await page.goto('/guests?q=Нетакого');
+  await expect(main.getByTestId('guests-empty')).toContainText('Ничего не найдено');
+  await expect(main.getByTestId('guests-table')).toHaveCount(0);
+  await expect(main.getByRole('columnheader')).toHaveCount(0);
 
-  // пусто: шапки из шести колонок над пустым состоянием нет
+  // пустая база: гостей нет вовсе — свой текст и путь к первой брони (ТЗ §42)
   await request.post(`${fixture}/__test/control`, { data: { noBookings: true } });
   await page.goto('/guests');
-  await expect(main.getByTestId('guests-today-empty')).toBeVisible();
-  await expect(main.getByTestId('guests-today-table')).toHaveCount(0);
-  await expect(main.getByRole('columnheader')).toHaveCount(0);
+  await expect(main.getByTestId('guests-none')).toContainText('Гостей пока нет');
+  await expect(main.getByTestId('guests-none').getByRole('link', { name: 'Новая бронь' }))
+    .toBeVisible();
 
   const audit = await new AxeBuilder({ page })
     .include('main')

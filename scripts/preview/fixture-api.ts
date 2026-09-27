@@ -21,6 +21,7 @@ import {
   INVITE_OWNER_ONLY_MESSAGE,
   type ExtensionStatus,
   parseHotelSettingsPatch,
+  summarizeGuestStays,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { assistant } from '@pms/integrations';
@@ -1711,6 +1712,14 @@ function read(path: string, q: URLSearchParams): unknown {
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units', '/inventory/categories'].includes(path))
       return [];
+    if (path === '/guests/directory')
+      return {
+        total: 0,
+        page: 1,
+        pageSize: 25,
+        counts: { ALL: 0, INHOUSE: 0, EXPECTED: 0, RECENT: 0 },
+        rows: [],
+      };
     if (path === '/inventory/summary')
       return {
         property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -2082,6 +2091,57 @@ function read(path: string, q: URLSearchParams): unknown {
           })),
         }
       : found;
+  }
+  // Справочник «Гости v2»: гости собираются из карточек броней — «пустая база» остаётся пустой
+  if (path === '/guests/directory') {
+    const state = q.get('state') || 'ALL';
+    const search = (q.get('q') || '').trim().toLocaleLowerCase('ru');
+    const page = Math.max(1, Number(q.get('page') || 1));
+    const pageSize = Math.max(1, Number(q.get('pageSize') || 25));
+    const ids = [...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : [])))];
+    const all = ids
+      .flatMap((id) => {
+        const g = getGuest(id);
+        return g ? [g] : [];
+      })
+      .filter(
+        (g) =>
+          !search ||
+          `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
+            .toLocaleLowerCase('ru')
+            .includes(search),
+      )
+      .sort((a, b) =>
+        `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'ru'),
+      )
+      .map((g) => ({
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        ...summarizeGuestStays(
+          g.stays.map((s) => ({
+            status: s.status,
+            arrivalDate: s.arrivalDate,
+            departureDate: s.departureDate,
+            unitCode: s.unitCode,
+            accommodationTypeName: s.accommodationTypeName,
+          })),
+          today,
+        ),
+      }));
+    const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
+    for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
+    const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
+    return {
+      total: rows.length,
+      page,
+      pageSize,
+      counts,
+      rows: rows.slice((page - 1) * pageSize, page * pageSize),
+    };
   }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]

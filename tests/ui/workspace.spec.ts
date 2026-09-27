@@ -952,12 +952,12 @@ test('удаление документа гостя спрашивают: от�
 test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
   const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
   expect(seeded.stays).toBe(40);
-  await page.goto('/guests');
+  // Гости v2: полный дом (до 92 живущих) виден без листания — страница просит потолок API (ТЗ §44)
+  await page.goto('/guests?state=inhouse');
   const rows = page.locator('.dir-table tbody tr');
-  // 40 засеянных плюс брони обычной фикстуры на сегодня; страница в 25 строк дала бы ровно 25
   const shown = await rows.count();
   expect(shown).toBeGreaterThan(40);
-  await expect(page.getByTestId('guests-today-count')).toContainText(`${shown} гост`);
+  await expect(page.getByTestId('guests-meta')).toContainText(`${shown} гост`);
   await expect(page.getByText('показаны гости из первых')).toHaveCount(0);
 });
 
@@ -976,8 +976,9 @@ test('настройки услуг: путь к начислению назва
   await expect(panel).toContainText('«Счета»');
   await expect(panel).not.toContainText('«Финансы»');
   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
-  await expect(page).toHaveURL(/\/guests$/);
-  await expect(page.getByTestId('guests-today-count')).toBeVisible();
+  // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
+  await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
+  await expect(page.getByTestId('guests-meta')).toContainText('проживают');
 });
 
 test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {
@@ -991,9 +992,10 @@ test('кнопки называют своё действие: гость зав
   page,
 }) => {
   // «Добавить гостя» вела в форму брони, «Принять оплату» на «Деньгах» — в список броней:
-  // ни гостя отдельно, ни оплаты по этим кнопкам не заводится (§7.3).
+  // ни гостя отдельно, ни оплаты по этим кнопкам не заводится (§7.3). Гости v2: кнопка — «Новая
+  // бронь» без «с гостем» (ТЗ §5), потому что самостоятельного «Добавить гостя» по-прежнему нет.
   await page.goto('/guests');
-  const newBooking = page.getByRole('main').getByRole('link', { name: 'Новая бронь с гостем' });
+  const newBooking = page.getByRole('main').getByRole('link', { name: 'Новая бронь' });
   await expect(newBooking).toBeVisible();
   await newBooking.click();
   await expect(page).toHaveURL(/\/reservations\/new$/);
@@ -1393,15 +1395,14 @@ test('гости D1: выборка и пустота словами, стату
   const row = main.getByTestId('guests-table').locator('tbody tr').first();
   await expect(row).toContainText('Гость Тестовый');
   await expect(row.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
-  await expect(main.getByRole('link', { name: 'Убрать поиск' })).toBeVisible();
+  await expect(main.getByRole('link', { name: 'Сбросить фильтры' })).toBeVisible();
 
   await page.goto('/guests?q=Нетакого');
   const empty = main.getByTestId('guests-empty');
-  await expect(empty).toContainText('Гостей по запросу «Нетакого» не найдено');
-  await expect(empty.getByRole('link', { name: 'Новая бронь с гостем' })).toBeVisible();
+  await expect(empty).toContainText('Ничего не найдено');
   await empty.getByRole('link', { name: 'Убрать поиск' }).click();
   await expect(page).toHaveURL(/\/guests$/);
-  await expect(main.getByTestId('guests-today-count')).toBeVisible();
+  await expect(main.getByTestId('guests-meta')).toBeVisible();
 
   // длинное имя (вымышленное, ADR-010) — через ту же правку профиля, что делает стойка
   await request.patch(`${fixture}/guests/ui-guest`, {

@@ -1,0 +1,95 @@
+import { describe, expect, it } from 'vitest';
+import { GUEST_RECENT_DAYS, shiftDate, summarizeGuestStays } from './directory';
+
+const TODAY = '2026-09-27';
+const stay = (
+  status: string,
+  arrivalDate: string,
+  departureDate: string,
+  unitCode: string | null = 'R01',
+  accommodationTypeName = 'Двухместный номер',
+) => ({ status, arrivalDate, departureDate, unitCode, accommodationTypeName });
+
+describe('summarizeGuestStays — состояние гостя из его проживаний (ТЗ «Гости v2» §12–§16)', () => {
+  it('живёт: CHECKED_IN даёт INHOUSE с ячейкой и датой выезда; визит считается', () => {
+    const s = summarizeGuestStays(
+      [stay('CHECKED_IN', '2026-09-25', '2026-09-30'), stay('CHECKED_OUT', '2026-08-12', '2026-08-15', 'M03')],
+      TODAY,
+    );
+    expect(s.state).toBe('INHOUSE');
+    expect(s.current).toEqual({
+      unitCode: 'R01',
+      accommodationTypeName: 'Двухместный номер',
+      departureDate: '2026-09-30',
+    });
+    expect(s.staysCount).toBe(2);
+    expect(s.last).toEqual({ arrivalDate: '2026-08-12', departureDate: '2026-08-15', unitCode: 'M03' });
+  });
+
+  it('ожидается: ближайшая будущая бронь, просроченный заезд остаётся «ожидается»', () => {
+    const s = summarizeGuestStays(
+      [stay('CONFIRMED', '2026-10-04', '2026-10-06'), stay('CONFIRMED', '2026-11-01', '2026-11-03')],
+      TODAY,
+    );
+    expect(s.state).toBe('EXPECTED');
+    expect(s.next?.arrivalDate).toBe('2026-10-04');
+    expect(s.staysCount).toBe(0);
+    // заезд был позавчера, выезд не наступил — гость всё ещё ожидается (как в «Требуют внимания»)
+    const overdue = summarizeGuestStays([stay('CONFIRMED', '2026-09-25', '2026-09-30')], TODAY);
+    expect(overdue.state).toBe('EXPECTED');
+    expect(overdue.next?.arrivalDate).toBe('2026-09-25');
+    // подтверждённая бронь, у которой прошёл и выезд, — не «ожидается» и не визит
+    const stale = summarizeGuestStays([stay('CONFIRMED', '2026-09-01', '2026-09-03')], TODAY);
+    expect(stale.state).toBe('NONE');
+    expect(stale.next).toBeNull();
+  });
+
+  it(`выехал недавно: RECENT в пределах ${GUEST_RECENT_DAYS} дней, дальше — NONE`, () => {
+    const edge = shiftDate(TODAY, -GUEST_RECENT_DAYS);
+    expect(summarizeGuestStays([stay('CHECKED_OUT', '2026-08-20', edge)], TODAY).state).toBe('RECENT');
+    expect(
+      summarizeGuestStays([stay('CHECKED_OUT', '2026-08-01', shiftDate(edge, -1))], TODAY).state,
+    ).toBe('NONE');
+  });
+
+  it('живёт > ожидается > выехал: состояния взаимоисключающие, бейдж равен фильтру', () => {
+    const all = [
+      stay('CHECKED_IN', '2026-09-26', '2026-09-29'),
+      stay('CONFIRMED', '2026-10-04', '2026-10-06'),
+      stay('CHECKED_OUT', '2026-09-20', '2026-09-22'),
+    ];
+    expect(summarizeGuestStays(all, TODAY).state).toBe('INHOUSE');
+    expect(summarizeGuestStays(all.slice(1), TODAY).state).toBe('EXPECTED');
+    expect(summarizeGuestStays(all.slice(2), TODAY).state).toBe('RECENT');
+  });
+
+  it('только отменённая бронь — не статус гостя: NONE и дата отменённой (ТЗ §16)', () => {
+    const s = summarizeGuestStays([stay('CANCELLED', '2026-09-24', '2026-09-27')], TODAY);
+    expect(s.state).toBe('NONE');
+    expect(s.staysCount).toBe(0);
+    expect(s.lastCancelledAt).toBe('2026-09-24');
+    // был настоящий визит — отменённая бронь строку не подписывает
+    const visited = summarizeGuestStays(
+      [stay('CANCELLED', '2026-09-24', '2026-09-27'), stay('CHECKED_OUT', '2026-05-01', '2026-05-03')],
+      TODAY,
+    );
+    expect(visited.lastCancelledAt).toBeNull();
+    // отмена при живой будущей брони тоже не подписывает
+    const expecting = summarizeGuestStays(
+      [stay('CANCELLED', '2026-09-24', '2026-09-27'), stay('CONFIRMED', '2026-10-04', '2026-10-06')],
+      TODAY,
+    );
+    expect(expecting.lastCancelledAt).toBeNull();
+  });
+
+  it('пусто: без проживаний — NONE и прочерки', () => {
+    expect(summarizeGuestStays([], TODAY)).toEqual({
+      staysCount: 0,
+      state: 'NONE',
+      current: null,
+      next: null,
+      last: null,
+      lastCancelledAt: null,
+    });
+  });
+});

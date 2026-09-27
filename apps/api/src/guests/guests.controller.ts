@@ -35,6 +35,12 @@ export class GuestsController {
     return this.service.search(q);
   }
 
+  // объявлен до ':id', иначе «directory» читался бы как идентификатор гостя
+  @Get('directory')
+  directory(@Query() query: { state?: string; q?: string; page?: string; pageSize?: string }) {
+    return this.service.directory(query);
+  }
+
   @Get(':id')
   card(@Param('id') id: string) {
     return this.service.card(id);

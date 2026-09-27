@@ -1,11 +1,17 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import {
+  GUEST_RECENT_DAYS,
+  LUXX_APARTS_PROPERTY,
+  shiftDate,
+  summarizeGuestStays,
+  type GuestStaySummary,
+} from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
 import { actsForOrganization } from '../auth/request-context';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyIdRef, propertyToday } from '../database/property-ref';
 
 export interface GuestSummary {
   id: string;
@@ -47,6 +53,23 @@ export interface GuestProfile {
     unitCode: string | null;
   }>;
 }
+/** Разделы справочника «Гости v2»: бейдж строки равен фильтру, суммы чипов сходятся с «Все» */
+export type GuestDirectoryFilter = 'ALL' | 'INHOUSE' | 'EXPECTED' | 'RECENT';
+export interface GuestDirectoryRow extends GuestStaySummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName: string | null;
+  phone: string | null;
+  email: string | null;
+}
+export interface GuestDirectoryResult {
+  total: number;
+  page: number;
+  pageSize: number;
+  counts: Record<GuestDirectoryFilter, number>;
+  rows: GuestDirectoryRow[];
+}
 export interface GuestPatch {
   firstName?: string;
   lastName?: string;
@@ -60,6 +83,13 @@ export interface GuestPatch {
 }
 export interface GuestsRepository {
   search(q: string, limit: number): Promise<GuestSummary[]>;
+  /** Справочник «Гости v2»: одна строка — один гость, состояние вычисляется из его проживаний */
+  directory(query: {
+    state: GuestDirectoryFilter;
+    q: string;
+    page: number;
+    pageSize: number;
+  }): Promise<GuestDirectoryResult>;
   byId(id: string): Promise<GuestProfile | null>;
   update(id: string, patch: GuestPatch): Promise<void>;
   addDocument(
@@ -140,6 +170,136 @@ export class PrismaGuestsRepository implements GuestsRepository {
           .sort()
           .at(-1) ?? null,
     }));
+  }
+  /**
+   * Справочник «Гости v2» (ТЗ 27.09.2026, план plans/guests-v2-2026-09-27.md). SQL-условия разделов
+   * повторяют определения summarizeGuestStays: живёт — есть CHECKED_IN; ожидается — не живёт и есть
+   * CONFIRMED/TENTATIVE с выездом не раньше сегодня; недавние — не первые два и выехал за 30 дней.
+   * Числа чипов считаются тем же отбором без раздела — видно до нажатия, как на «Бронях».
+   */
+  async directory(query: {
+    state: GuestDirectoryFilter;
+    q: string;
+    page: number;
+    pageSize: number;
+  }): Promise<GuestDirectoryResult> {
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const inhouse: Prisma.GuestWhereInput = {
+      stays: { some: { reservationItem: { status: 'CHECKED_IN' } } },
+    };
+    const expectedSome: Prisma.GuestWhereInput = {
+      stays: {
+        some: {
+          reservationItem: {
+            status: { in: ['CONFIRMED', 'TENTATIVE'] },
+            departureDate: { gte: asDate(today) },
+          },
+        },
+      },
+    };
+    const recentSome: Prisma.GuestWhereInput = {
+      stays: {
+        some: {
+          reservationItem: {
+            status: 'CHECKED_OUT',
+            departureDate: { gte: asDate(shiftDate(today, -GUEST_RECENT_DAYS)) },
+          },
+        },
+      },
+    };
+    const byState: Record<Exclude<GuestDirectoryFilter, 'ALL'>, Prisma.GuestWhereInput> = {
+      INHOUSE: inhouse,
+      EXPECTED: { AND: [expectedSome, { NOT: inhouse }] },
+      RECENT: { AND: [recentSome, { NOT: inhouse }, { NOT: expectedSome }] },
+    };
+    const q = query.q;
+    const digits = q.replace(/\D/g, '');
+    const search: Prisma.GuestWhereInput = q
+      ? {
+          OR: [
+            { lastName: { contains: q, mode: 'insensitive' } },
+            { firstName: { contains: q, mode: 'insensitive' } },
+            { email: { contains: q, mode: 'insensitive' } },
+            ...(digits.length >= 4 ? [{ phone: { contains: digits } }] : []),
+            // человека можно найти и по номеру его брони (ТЗ §6)
+            {
+              stays: {
+                some: {
+                  reservationItem: {
+                    reservation: { confirmationNumber: { contains: q, mode: 'insensitive' } },
+                  },
+                },
+              },
+            },
+          ],
+        }
+      : {};
+    const base: Prisma.GuestWhereInput = { AND: [await this.visible(), search] };
+    const whereFor = (f: GuestDirectoryFilter): Prisma.GuestWhereInput =>
+      f === 'ALL' ? base : { AND: [base, byState[f]] };
+    const [all, inh, exp, rec] = await Promise.all([
+      this.prisma.db.guest.count({ where: whereFor('ALL') }),
+      this.prisma.db.guest.count({ where: whereFor('INHOUSE') }),
+      this.prisma.db.guest.count({ where: whereFor('EXPECTED') }),
+      this.prisma.db.guest.count({ where: whereFor('RECENT') }),
+    ]);
+    const counts = { ALL: all, INHOUSE: inh, EXPECTED: exp, RECENT: rec };
+    const rows = await this.prisma.db.guest.findMany({
+      where: whereFor(query.state),
+      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }, { id: 'asc' }],
+      skip: (query.page - 1) * query.pageSize,
+      take: query.pageSize,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        middleName: true,
+        phone: true,
+        email: true,
+        // одним запросом на страницу, без рейса на каждого гостя (ТЗ §45)
+        stays: {
+          select: {
+            reservationItem: {
+              select: {
+                status: true,
+                arrivalDate: true,
+                departureDate: true,
+                accommodationType: { select: { name: true } },
+                allocations: {
+                  orderBy: { startDate: 'desc' },
+                  take: 1,
+                  select: { inventoryUnit: { select: { code: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    return {
+      total: counts[query.state],
+      page: query.page,
+      pageSize: query.pageSize,
+      counts,
+      rows: rows.map((g) => ({
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        ...summarizeGuestStays(
+          g.stays.map((s) => ({
+            status: s.reservationItem.status,
+            arrivalDate: iso(s.reservationItem.arrivalDate)!,
+            departureDate: iso(s.reservationItem.departureDate)!,
+            unitCode: s.reservationItem.allocations[0]?.inventoryUnit.code ?? null,
+            accommodationTypeName: s.reservationItem.accommodationType.name,
+          })),
+          today,
+        ),
+      })),
+    };
   }
   async byId(id: string): Promise<GuestProfile | null> {
     const g = await this.prisma.db.guest.findFirst({

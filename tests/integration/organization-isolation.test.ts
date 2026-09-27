@@ -51,6 +51,8 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     const { propertyId } = stay!.reservationItem.reservation;
     const reservationId = stay!.reservationItem.reservation.id;
     const seen: Record<string, unknown> = {};
+    // Гости v2 (план guests-v2-2026-09-27): справочник ходит тем же замком visible()
+    const dir: Record<string, { total: number; sawGuest: boolean }> = {};
 
     await expect(
       db.$transaction(async (tx) => {
@@ -91,6 +93,13 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         });
         seen['B'] = await look(orgB.id);
         seen['A'] = await look(orgA.id);
+        const dirLook = (organizationId: string) =>
+          as(organizationId, async () => {
+            const d = await guests.directory({ state: 'ALL', q: '', page: 1, pageSize: 100 });
+            return { total: d.counts.ALL, sawGuest: d.rows.some((r) => r.id === guestId) };
+          });
+        dir['B'] = await dirLook(orgB.id);
+        dir['A'] = await dirLook(orgA.id);
         throw new Rollback();
       }),
     ).rejects.toBeInstanceOf(Rollback);
@@ -109,6 +118,9 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
       payment: true,
       audit: 1,
     });
+    // чужой организации справочник пуст — не «отфильтрован», а нулевой, включая счётчики чипов
+    expect(dir['B']).toEqual({ total: 0, sawGuest: false });
+    expect(dir['A']).toMatchObject({ sawGuest: true });
   });
 
   /**

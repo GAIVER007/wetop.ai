@@ -954,8 +954,33 @@ export interface GuestCard {
     unitCode: string | null;
   }>;
 }
+/** Справочник «Гости v2» (план guests-v2-2026-09-27): состояние гостя вычислено, статус брони наружу не идёт */
+export type GuestDirectoryState = 'INHOUSE' | 'EXPECTED' | 'RECENT' | 'NONE';
+export interface GuestDirectoryRow {
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName: string | null;
+  phone: string | null;
+  email: string | null;
+  staysCount: number;
+  state: GuestDirectoryState;
+  current: { unitCode: string | null; accommodationTypeName: string; departureDate: string } | null;
+  next: { arrivalDate: string; departureDate: string; accommodationTypeName: string } | null;
+  last: { arrivalDate: string; departureDate: string; unitCode: string | null } | null;
+  lastCancelledAt: string | null;
+}
+export interface GuestDirectoryResult {
+  total: number;
+  page: number;
+  pageSize: number;
+  counts: { ALL: number; INHOUSE: number; EXPECTED: number; RECENT: number };
+  rows: GuestDirectoryRow[];
+}
 export const guestsApi = {
   search: (q: string) => getJson<GuestSummary[]>(`/guests?q=${encodeURIComponent(q)}`),
+  directory: (query: Record<string, string>) =>
+    getJson<GuestDirectoryResult>(`/guests/directory?${new URLSearchParams(query)}`),
   card: (id: string) => getJson<GuestCard>(`/guests/${encodeURIComponent(id)}`),
   update: (id: string, body: unknown) =>
     sendJson<GuestCard>('PATCH', `/guests/${encodeURIComponent(id)}`, body),

@@ -273,50 +273,46 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           Наблюдаются по входящим событиям Channex — это последняя активность источника, а не
           состояние его подключения.
         </p>
-        <Table size="sm" className="dir-table" data-testid="channels-observed">
-          <thead>
-            <tr>
-              {['Канал', 'Последнее событие', 'Событий с ошибкой'].map((h) => (
-                <th key={h}>{h}</th>
+        {recentEvents === null ? (
+          <p className="note" data-testid="observed-failed">
+            События не загрузились: API не ответил. Обновите страницу или откройте{' '}
+            <Link href="/incidents">неисправности</Link>.
+          </p>
+        ) : observedRows.length === 0 ? (
+          <p className="note" data-testid="observed-empty">
+            Событий от каналов ещё не было. Канал появится здесь, когда Channex пришлёт его бронь,
+            изменение или отмену.
+          </p>
+        ) : (
+          <Table size="sm" className="dir-table" data-testid="channels-observed">
+            <thead>
+              <tr>
+                {['Канал', 'Последнее событие', 'Событий с ошибкой'].map((h) => (
+                  <th key={h}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {observedRows.map(([name, row]) => (
+                <tr key={name} data-testid="observed-row">
+                  <td>
+                    <strong>{name}</strong>
+                  </td>
+                  <td className="nowrap">{eventTime(row.lastAt, clock)}</td>
+                  <td className="num">
+                    {row.failed > 0 ? (
+                      <Link href="/channels/events?status=FAILED" className="danger-text">
+                        {row.failed}
+                      </Link>
+                    ) : (
+                      '0'
+                    )}
+                  </td>
+                </tr>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {recentEvents === null && (
-              <tr>
-                <td colSpan={3} className="empty-state" data-testid="observed-failed">
-                  События не загрузились: API не ответил. Обновите страницу или откройте{' '}
-                  <Link href="/incidents">неисправности</Link>.
-                </td>
-              </tr>
-            )}
-            {recentEvents !== null && observedRows.length === 0 && (
-              <tr>
-                <td colSpan={3} className="empty-state" data-testid="observed-empty">
-                  Событий от каналов ещё не было. Канал появится здесь, когда Channex пришлёт его
-                  бронь, изменение или отмену.
-                </td>
-              </tr>
-            )}
-            {observedRows.map(([name, row]) => (
-              <tr key={name} data-testid="observed-row">
-                <td>
-                  <strong>{name}</strong>
-                </td>
-                <td className="nowrap">{eventTime(row.lastAt, clock)}</td>
-                <td className="num">
-                  {row.failed > 0 ? (
-                    <Link href="/channels/events?status=FAILED" className="danger-text">
-                      {row.failed}
-                    </Link>
-                  ) : (
-                    '0'
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+            </tbody>
+          </Table>
+        )}
         {mappedCategories !== null &&
           (mappingGap ? (
             <p className="note danger-text" data-testid="mapping-gap">

@@ -2834,3 +2834,7 @@
 | 27.09.2026 16:59 | lint | ✅ без ошибок | 14 с | 0b78f98 | [лог](logs/2026-09-27T11-59-23Z-lint-7d10.log) |  |
 | 27.09.2026 16:59 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | 0b78f98 | [лог](logs/2026-09-27T11-59-42Z-unit-3ede.log) |  |
 | 27.09.2026 17:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/product-tour.spec.ts tests/ui/onboarding.spec.ts tests/ui/navigation.spec.ts tests/ui | ✅ 34 из 34 | 3 мин 5 с | 0b78f98 | [лог](logs/2026-09-27T12-00-54Z-e2e-a4c2.log) |  |
+| 27.09.2026 17:04 | integration | ✅ 0 из 101, пропущено 101 | 17 с | ebbeb57 | [лог](logs/2026-09-27T12-04-41Z-integration-9bdf.log) |  |
+| 27.09.2026 17:05 | integration | ✅ 101 из 101 | 31 с | ebbeb57 | [лог](logs/2026-09-27T12-05-19Z-integration-b86c.log) |  |
+| 27.09.2026 17:06 | e2e | ❌ код выхода 1 | 4 с | ebbeb57 | [лог](logs/2026-09-27T12-06-04Z-e2e-804f.log) | (ошибка вне тестов) |
+| 27.09.2026 17:06 | e2e | ✅ 25 из 25 | 58 с | ebbeb57 | [лог](logs/2026-09-27T12-06-46Z-e2e-ef47.log) |  |

@@ -2887,3 +2887,17 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 27.09.2026 23:06 | unit (частично: apps/api/src/finance/finance.controller.test.ts) | ❌ упало 1 из 12 | 3 с | a0fa497 +1 | [лог](logs/2026-09-27T18-06-23Z-unit-b26c.log) | red: ADR-107 debts endpoint missing |
+| 27.09.2026 23:09 | integration (частично: tests/integration/finance-debts.test.ts) | ❌ упало 1 из 1 | 3 с | a0fa497 +4 | [лог](logs/2026-09-27T18-09-30Z-integration-3453.log) | red: ADR-107 repository periodDebts missing |
+| 27.09.2026 23:09 | integration (частично: tests/integration/finance-debts.test.ts) | ✅ 1 из 1 | 3 с | a0fa497 +5 | [лог](logs/2026-09-27T18-09-38Z-integration-2135.log) | green: ADR-107 repository periodDebts |
+| 28.09.2026 01:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts --workers=1) | ❌ упало 9 из 9 | 31 с | a0fa497 +13 | [лог](logs/2026-09-27T20-55-34Z-e2e-5ed1.log) | F1 finance screen spec, first run |
+| 28.09.2026 01:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts --workers=1) | ❌ упало 4 из 9 | 42 с | a0fa497 +13 | [лог](logs/2026-09-27T20-56-15Z-e2e-79a8.log) | F1 finance screen spec |
+| 28.09.2026 01:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts --workers=1) | ✅ 9 из 9 | 26 с | a0fa497 +13 | [лог](logs/2026-09-27T20-58-33Z-e2e-224b.log) | F1 finance screen spec |
+| 28.09.2026 01:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts tests/ui/finance-units-design.spec.ts tests/ui/workspace.spec.ts tests/ui/empt | ✅ 114 из 114 | 4 мин 50 с | a0fa497 +13 | [лог](logs/2026-09-27T20-59-10Z-e2e-b0e7.log) | F1 finance + affected specs |
+| 28.09.2026 02:04 | typecheck | ✅ без ошибок | 30 с | a0fa497 +14 | [лог](logs/2026-09-27T21-04-08Z-typecheck-cca4.log) |  |
+| 28.09.2026 02:04 | lint | ✅ без ошибок | 18 с | a0fa497 +14 | [лог](logs/2026-09-27T21-04-38Z-lint-ae18.log) |  |
+| 28.09.2026 02:04 | unit | ❌ упало 1 из 2117, пропущено 3 | 1 мин 34 с | a0fa497 +10 | [лог](logs/2026-09-27T21-04-56Z-unit-e97a.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 28.09.2026 02:06 | integration | ❌ код выхода 1 | 2 с | a0fa497 +6 | [лог](logs/2026-09-27T21-06-31Z-integration-6d7b.log) |  |
+| 28.09.2026 02:07 | unit | ✅ 2114 из 2117, пропущено 3 | 1 мин 12 с | a0fa497 +10 | [лог](logs/2026-09-27T21-07-02Z-unit-2b90.log) |  |
+| 28.09.2026 02:08 | integration | ❌ упало 1 из 108 | 33 с | a0fa497 +6 | [лог](logs/2026-09-27T21-08-15Z-integration-5fe2.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
+| 28.09.2026 02:09 | integration | ✅ 108 из 108 | 33 с | a0fa497 +6 | [лог](logs/2026-09-27T21-09-03Z-integration-1ba1.log) |  |

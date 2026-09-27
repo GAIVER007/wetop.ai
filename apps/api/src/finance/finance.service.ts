@@ -102,6 +102,31 @@ export interface PeriodReportView {
   /** начислено − оплачено + возвращено за период: сколько ещё не собрано */
   balanceMinor: string;
 }
+/** Строка списка «Брони с остатком к сбору» (ADR-107): остаток — по всем счетам брони, как на её карточке */
+export interface DebtRowView {
+  confirmationNumber: string;
+  status: string;
+  arrivalDate: string;
+  departureDate: string;
+  guestLabel: string | null;
+  chargedMinor: string;
+  paidMinor: string;
+  refundedMinor: string;
+  balanceMinor: string;
+}
+export interface PeriodDebtsView {
+  from: string;
+  to: string;
+  currency: string;
+  /** броней с остатком > 0 и сумма их остатков — по всем, не только по строкам ниже */
+  count: number;
+  balanceMinor: string;
+  /** из них гость уже выехал, а остаток не оплачен */
+  checkedOut: { count: number; balanceMinor: string };
+  rows: DebtRowView[];
+  /** строк больше, чем отдаёт ответ (`MAX_DEBT_ROWS`) */
+  truncated: boolean;
+}
 export interface ServiceView {
   code: string;
   nameRu: string;
@@ -114,6 +139,18 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/;
 /** Предел периода сводки: год с запасом, как у отчёта по каналам — дальше это уже выгрузка, не экран */
 const MAX_PERIOD_DAYS = 366;
 const s = (x: bigint) => x.toString();
+/** Потолок строк списка долгов: экран показывает 20 и «все»; за год должников больше не бывает (88 мест) */
+const MAX_DEBT_ROWS = 500;
+/** Период отчёта: обе даты, по порядку, не длиннее `MAX_PERIOD_DAYS` */
+function checkedPeriod(from?: string, to?: string): { from: string; to: string } {
+  if (!from || !ISO.test(from) || !to || !ISO.test(to))
+    throw new BadRequestException('from и to — даты YYYY-MM-DD');
+  if (to < from) throw new BadRequestException('to не может быть раньше from');
+  // Волна 4: без предела отчёт просили хоть за десять лет и собирали всю базу разом
+  if ((Date.parse(to) - Date.parse(from)) / 86_400_000 + 1 > MAX_PERIOD_DAYS)
+    throw new BadRequestException(`Период до ${MAX_PERIOD_DAYS} дней включительно`);
+  return { from, to };
+}
 /** Тиыны → «12 000,00 ₸» для сообщения администратору; без float. */
 const formatMinorRu = (minor: bigint): string => {
   const neg = minor < 0n;
@@ -260,13 +297,8 @@ export class FinanceService {
   }
 
   /** T4 «Финансовый учёт период»: начисления, оплаты и возвраты за период в разрезах. */
-  async periodReport(from?: string, to?: string): Promise<PeriodReportView> {
-    if (!from || !ISO.test(from) || !to || !ISO.test(to))
-      throw new BadRequestException('from и to — даты YYYY-MM-DD');
-    if (to < from) throw new BadRequestException('to не может быть раньше from');
-    // Волна 4: без предела отчёт просили хоть за десять лет и собирали всю базу разом
-    if ((Date.parse(to) - Date.parse(from)) / 86_400_000 + 1 > MAX_PERIOD_DAYS)
-      throw new BadRequestException(`Период до ${MAX_PERIOD_DAYS} дней включительно`);
+  async periodReport(fromParam?: string, toParam?: string): Promise<PeriodReportView> {
+    const { from, to } = checkedPeriod(fromParam, toParam);
     const r = await this.repo.periodReport(from, to);
     const sum = (xs: Array<{ amountMinor: bigint }>) => xs.reduce((a, x) => a + x.amountMinor, 0n);
     const charged = sum(r.chargesByKind);
@@ -295,6 +327,53 @@ export class FinanceService {
       paidMinor: s(paid),
       refundedMinor: s(r.refunds.amountMinor),
       balanceMinor: s(charged - paid + r.refunds.amountMinor),
+    };
+  }
+
+  /**
+   * «Брони с остатком к сбору» (ADR-107): брони с начислением в периоде, у которых остаток по всему счёту больше
+   * нуля. Остаток считает тот же `folioBalance`, что карточка и список броней, — числа везде одни. Крупные долги
+   * первыми, равные — по дате заезда. Ровно оплаченные и переплаты в список не входят.
+   */
+  async periodDebts(fromParam?: string, toParam?: string): Promise<PeriodDebtsView> {
+    const { from, to } = checkedPeriod(fromParam, toParam);
+    const debts = (await this.repo.periodDebts(from, to))
+      .map((r) => ({
+        ...r,
+        balance: folioBalance({
+          charges: [{ amountMinor: r.chargedMinor, voided: false }],
+          allocations: [{ amountMinor: r.paidMinor }],
+          refunds: [{ amountMinor: r.refundedMinor }],
+        }).balanceMinor,
+      }))
+      .filter((r) => r.balance > 0n)
+      .sort(
+        (a, b) =>
+          (a.balance === b.balance ? 0 : a.balance > b.balance ? -1 : 1) ||
+          a.arrivalDate.localeCompare(b.arrivalDate) ||
+          a.confirmationNumber.localeCompare(b.confirmationNumber),
+      );
+    const total = (xs: typeof debts) => xs.reduce((a, x) => a + x.balance, 0n);
+    const left = debts.filter((r) => r.status === 'CHECKED_OUT');
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      count: debts.length,
+      balanceMinor: s(total(debts)),
+      checkedOut: { count: left.length, balanceMinor: s(total(left)) },
+      rows: debts.slice(0, MAX_DEBT_ROWS).map((r) => ({
+        confirmationNumber: r.confirmationNumber,
+        status: r.status,
+        arrivalDate: r.arrivalDate,
+        departureDate: r.departureDate,
+        guestLabel: r.guestLabel,
+        chargedMinor: s(r.chargedMinor),
+        paidMinor: s(r.paidMinor),
+        refundedMinor: s(r.refundedMinor),
+        balanceMinor: s(r.balance),
+      })),
+      truncated: debts.length > MAX_DEBT_ROWS,
     };
   }
 

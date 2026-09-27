@@ -711,14 +711,7 @@ a.dir-number:hover {
   }
 }
 
-/* ---------- D2: деньги за период — начисления, деньги на руках и остаток тремя блоками ---------- */
-.finance-blocks {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
-  gap: 16px;
-  align-items: start;
-  margin-top: 16px;
-}
+/* ---------- Финансы за период: панель блока и её таблицы (раскладка экрана — finance/finance.css, ADR-107) ---------- */
 .finance-block {
   padding: 16px;
   background: var(--glass-panel);
@@ -738,9 +731,6 @@ a.dir-number:hover {
 .finance-block .tbl td.num,
 .finance-block .tbl th.num {
   white-space: nowrap;
-}
-.finance-block--due {
-  border-color: var(--warning-border);
 }
 
 /* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */

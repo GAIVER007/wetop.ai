@@ -88,6 +88,47 @@ function makeFakes() {
             accommodationByCategory: [],
           };
     },
+    async periodDebts(from, to) {
+      // ADR-107: брони с начислением в периоде и суммы по всем их счетам. Октябрь — пять броней:
+      // долг, долг побольше, ровно оплачено, переплата у отменённой, долг после возврата
+      if (from <= '2026-11-01' && to >= '2026-11-01')
+        // ноябрь — 501 должник: ответ держит не больше 500 строк
+        return Array.from({ length: 501 }, (_, i) => ({
+          confirmationNumber: `N-${String(i).padStart(3, '0')}`,
+          status: 'CONFIRMED',
+          arrivalDate: '2026-11-01',
+          departureDate: '2026-11-02',
+          guestLabel: null,
+          chargedMinor: 1_000n + BigInt(i),
+          paidMinor: 0n,
+          refundedMinor: 0n,
+        }));
+      if (!(from <= '2026-10-02' && to >= '2026-10-02')) return [];
+      const row = (
+        n: string,
+        status: string,
+        arrivalDate: string,
+        charged: bigint,
+        paid: bigint,
+        refunded: bigint,
+      ) => ({
+        confirmationNumber: n,
+        status,
+        arrivalDate,
+        departureDate: '2026-10-09',
+        guestLabel: `Гость ${n}`,
+        chargedMinor: charged,
+        paidMinor: paid,
+        refundedMinor: refunded,
+      });
+      return [
+        row('B-10', 'CHECKED_OUT', '2026-09-28', 500_000n, 200_000n, 0n),
+        row('B-11', 'CONFIRMED', '2026-10-06', 1_000_000n, 0n, 0n),
+        row('B-12', 'CHECKED_IN', '2026-10-01', 400_000n, 400_000n, 0n),
+        row('B-13', 'CANCELLED', '2026-10-02', 100_000n, 300_000n, 100_000n),
+        row('B-14', 'CHECKED_IN', '2026-10-05', 300_000n, 100_000n, 100_000n),
+      ];
+    },
     async services() {
       return [
         {
@@ -338,6 +379,55 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       .get('/finance/report?from=2026-01-01&to=2026-01-31')
       .expect(200);
     expect(empty.body).toMatchObject({ chargedMinor: '0', paidMinor: '0', balanceMinor: '0' });
+  });
+
+  it('ADR-107: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, выехавшие отдельно; неверный период → 400', async () => {
+    const debts = (qs: string) => request(app.getHttpServer()).get(`/finance/debts${qs}`);
+    await debts('').expect(400);
+    await debts('?from=2026-10-31&to=2026-10-01').expect(400);
+    await debts('?from=2020-01-01&to=2030-12-31').expect(400);
+
+    const r = await debts('?from=2026-10-01&to=2026-10-31').expect(200);
+    expect(r.body).toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-31',
+      currency: 'KZT',
+      count: 3,
+      balanceMinor: '1600000',
+      checkedOut: { count: 1, balanceMinor: '300000' },
+      truncated: false,
+    });
+    // ровно оплаченная B-12 и переплата B-13 в список к сбору не входят; равные остатки — по дате заезда
+    expect(r.body.rows.map((x: { confirmationNumber: string }) => x.confirmationNumber)).toEqual([
+      'B-11',
+      'B-10',
+      'B-14',
+    ]);
+    expect(r.body.rows[2]).toEqual({
+      confirmationNumber: 'B-14',
+      status: 'CHECKED_IN',
+      arrivalDate: '2026-10-05',
+      departureDate: '2026-10-09',
+      guestLabel: 'Гость B-14',
+      chargedMinor: '300000',
+      paidMinor: '100000',
+      refundedMinor: '100000',
+      balanceMinor: '300000', // начислено − оплачено + возвращено
+    });
+
+    const many = await debts('?from=2026-11-01&to=2026-11-30').expect(200);
+    expect(many.body).toMatchObject({ count: 501, truncated: true });
+    expect(many.body.rows).toHaveLength(500);
+    expect(many.body.rows[0].confirmationNumber).toBe('N-500');
+
+    const empty = await debts('?from=2026-01-01&to=2026-01-31').expect(200);
+    expect(empty.body).toMatchObject({
+      count: 0,
+      balanceMinor: '0',
+      checkedOut: { count: 0, balanceMinor: '0' },
+      rows: [],
+      truncated: false,
+    });
   });
 
   it('charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price', async () => {

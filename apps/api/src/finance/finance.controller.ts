@@ -17,6 +17,12 @@ export class FinanceController {
     return this.service.periodReport(from, to);
   }
 
+  /** Брони с остатком к сбору за период — список к «Финансам за период» (ADR-107) */
+  @Get('debts')
+  debts(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.periodDebts(from, to);
+  }
+
   @Get('services')
   services() {
     return this.service.services();

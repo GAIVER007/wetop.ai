@@ -1807,6 +1807,17 @@ function read(path: string, q: URLSearchParams): unknown {
       const prev = previousPeriod(from, to);
       return { current: zero(from, to), previous: zero(prev.from, prev.to) };
     }
+    if (path === '/finance/debts')
+      return {
+        from: q.get('from'),
+        to: q.get('to'),
+        currency: 'KZT',
+        count: 0,
+        balanceMinor: '0',
+        checkedOut: { count: 0, balanceMinor: '0' },
+        rows: [],
+        truncated: false,
+      };
     if (path === '/finance/report')
       return {
         currency: 'KZT',
@@ -2229,6 +2240,45 @@ function read(path: string, q: URLSearchParams): unknown {
         { category: 'Двухместный номер', count: 3, amountMinor: '2400000' },
       ],
     };
+  if (path === '/finance/debts') {
+    // Как у API (ADR-107): бронь с начислением в периоде — проживание начисляется датой заезда; остаток — по всему
+    // счёту брони, в список только > 0, крупные первыми, равные — по дате заезда
+    const from = q.get('from') || today;
+    const to = q.get('to') || from;
+    const debts = allCards()
+      .filter((r) => r.arrivalDate >= from && r.arrivalDate <= to)
+      .map((r) => ({ r, money: finance(r) }))
+      .filter(({ money }) => BigInt(money.balanceMinor) > 0n)
+      .sort(
+        (a, b) =>
+          Number(BigInt(b.money.balanceMinor) - BigInt(a.money.balanceMinor)) ||
+          a.r.arrivalDate.localeCompare(b.r.arrivalDate) ||
+          a.r.confirmationNumber.localeCompare(b.r.confirmationNumber),
+      );
+    const sum = (xs: typeof debts) =>
+      xs.reduce((acc, x) => acc + BigInt(x.money.balanceMinor), 0n).toString();
+    const left = debts.filter(({ r }) => r.status === 'CHECKED_OUT');
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      count: debts.length,
+      balanceMinor: sum(debts),
+      checkedOut: { count: left.length, balanceMinor: sum(left) },
+      rows: debts.map(({ r, money }) => ({
+        confirmationNumber: r.confirmationNumber,
+        status: r.status,
+        arrivalDate: r.arrivalDate,
+        departureDate: r.departureDate,
+        guestLabel: r.primaryGuest?.label ?? null,
+        chargedMinor: money.chargedMinor,
+        paidMinor: money.paidMinor,
+        refundedMinor: money.refundedMinor,
+        balanceMinor: money.balanceMinor,
+      })),
+      truncated: false,
+    };
+  }
   // Свежесть данных и контент объекта из Channex (план wetop-live-data: шаг 4, ADR-033)
   if (path === '/system/pii-storage') return { storage: piiStorage };
   if (path === '/system/freshness')

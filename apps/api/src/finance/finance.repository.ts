@@ -139,6 +139,22 @@ export interface PeriodReport {
   accommodationByCategory: Array<{ category: string; count: number; amountMinor: bigint }>;
 }
 
+/**
+ * Бронь для списка «Брони с остатком к сбору» (ADR-107): у неё есть действующее начисление с датой услуги в
+ * периоде, а суммы — по всем её счетам за всё время, как у остатка на карточке брони.
+ */
+export interface DebtCandidate {
+  confirmationNumber: string;
+  status: string;
+  arrivalDate: string;
+  departureDate: string;
+  guestLabel: string | null;
+  chargedMinor: bigint;
+  /** только проведённые платежи (`COMPLETED`) — как `folioBalance` на карточке */
+  paidMinor: bigint;
+  refundedMinor: bigint;
+}
+
 /** Порт финансов: счета читаются целиком (начисления, распределения, возвраты), команды — точечные записи. */
 /**
  * Строка журнала, которую операция пишет вместе с деньгами — одной транзакцией (хвост Б6): иначе обрыв
@@ -168,6 +184,8 @@ export interface FinanceRepository {
   services(): Promise<ServiceRef[]>;
   /** Сводка за период [from, to] включительно (T4 «финансовый учёт период») */
   periodReport(from: string, to: string): Promise<PeriodReport>;
+  /** Брони с начислением в периоде [from, to] и суммы по всем их счетам (ADR-107) */
+  periodDebts(from: string, to: string): Promise<DebtCandidate[]>;
   /** Сегодня по часам объекта (С-13): дата услуги по умолчанию */
   today(): Promise<string>;
   addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string>;
@@ -453,6 +471,70 @@ export class PrismaFinanceRepository implements FinanceRepository {
       },
       accommodationByCategory: [...byCategory].map(([category, v]) => ({ category, ...v })),
     };
+  }
+  /**
+   * Один запрос вместо загрузки всех начислений в память: за год это тысячи броней. Бронь попадает в выборку по
+   * действующему начислению с датой услуги в периоде — та же база, что у «Начислено» в сводке; суммы берутся по
+   * каждому счёту брони подзапросами (три отдельных соединения размножили бы строки) и складываются по брони.
+   */
+  async periodDebts(from: string, to: string): Promise<DebtCandidate[]> {
+    const { id: propertyId } = await this.property();
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{
+        confirmation_number: string;
+        status: string;
+        arrival_date: Date;
+        departure_date: Date;
+        first_name: string | null;
+        last_name: string | null;
+        charged: bigint;
+        paid: bigint;
+        refunded: bigint;
+      }>
+    >`
+      WITH period_reservations AS (
+        SELECT DISTINCT ri.reservation_id
+          FROM charges c
+          JOIN folios f ON f.id = c.folio_id
+          JOIN reservation_items ri ON ri.id = f.reservation_item_id
+          JOIN reservations r ON r.id = ri.reservation_id
+         WHERE r.property_id = ${propertyId}::uuid
+           AND c.voided_at IS NULL
+           AND c.service_date >= ${from}::date
+           AND c.service_date <= ${to}::date
+      ),
+      folio_sums AS (
+        SELECT ri.reservation_id,
+               (SELECT COALESCE(SUM(c.amount), 0) FROM charges c
+                 WHERE c.folio_id = f.id AND c.voided_at IS NULL) AS charged,
+               (SELECT COALESCE(SUM(a.amount), 0) FROM payment_allocations a
+                  JOIN payments p ON p.id = a.payment_id
+                 WHERE a.folio_id = f.id AND p.status = 'COMPLETED') AS paid,
+               (SELECT COALESCE(SUM(x.amount), 0) FROM refunds x WHERE x.folio_id = f.id) AS refunded
+          FROM folios f
+          JOIN reservation_items ri ON ri.id = f.reservation_item_id
+         WHERE ri.reservation_id IN (SELECT reservation_id FROM period_reservations)
+      )
+      SELECT r.confirmation_number, r.status::text AS status, r.arrival_date, r.departure_date,
+             g.first_name, g.last_name,
+             SUM(s.charged)::bigint AS charged, SUM(s.paid)::bigint AS paid,
+             SUM(s.refunded)::bigint AS refunded
+        FROM folio_sums s
+        JOIN reservations r ON r.id = s.reservation_id
+        LEFT JOIN guests g ON g.id = r.primary_guest_id
+       GROUP BY r.id, g.id`;
+    const day = (d: Date) => d.toISOString().slice(0, 10);
+    return rows.map((r) => ({
+      confirmationNumber: r.confirmation_number,
+      status: r.status,
+      arrivalDate: day(r.arrival_date),
+      departureDate: day(r.departure_date),
+      guestLabel:
+        r.first_name === null ? null : `${r.first_name} ${r.last_name ?? ''}`.trim() || null,
+      chargedMinor: BigInt(r.charged),
+      paidMinor: BigInt(r.paid),
+      refundedMinor: BigInt(r.refunded),
+    }));
   }
   /**
    * Запись денег и строка журнала одной транзакцией. Без данных журнала (`audit`) метод работает как

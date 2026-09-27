@@ -1046,10 +1046,35 @@ export interface PeriodReport {
   refundedMinor: string;
   balanceMinor: string;
 }
+/** «Брони с остатком к сбору» за период (ADR-107): остаток — по всему счёту брони, как на карточке */
+export interface PeriodDebts {
+  from: string;
+  to: string;
+  currency: string;
+  count: number;
+  balanceMinor: string;
+  checkedOut: { count: number; balanceMinor: string };
+  rows: Array<{
+    confirmationNumber: string;
+    status: string;
+    arrivalDate: string;
+    departureDate: string;
+    guestLabel: string | null;
+    chargedMinor: string;
+    paidMinor: string;
+    refundedMinor: string;
+    balanceMinor: string;
+  }>;
+  truncated: boolean;
+}
 export const financeApi = {
   report: (from: string, to: string) =>
     getJson<PeriodReport>(
       `/finance/report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+  debts: (from: string, to: string) =>
+    getJson<PeriodDebts>(
+      `/finance/debts?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     ),
   reservation: (number: string) =>
     getJson<ReservationFinance>(`/finance/reservations/${encodeURIComponent(number)}`),

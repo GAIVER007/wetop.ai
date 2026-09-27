@@ -13,9 +13,6 @@ const SHOTS = 'reports/property-settings-set1-2026-09-27';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 
-// время в полях — 24 часа, как у администратора (DESIGN.md §14); без локали браузер стенда рисует «02:00 PM»
-test.use({ locale: 'ru-RU' });
-
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
 });

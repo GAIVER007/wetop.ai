@@ -65,9 +65,19 @@ test('все разделы, карточки и печать открывают
     ['/channel-manager', 'Менеджер каналов'],
     ['/connections', 'Интеграции'],
   ];
+  // Старые адреса — redirect(): у экрана загрузки «Настроек объекта» тот же заголовок, что у цели (ADR-107), поэтому
+  // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
+  const redirects: Record<string, RegExp> = {
+    '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
+    '/hotel-settings/penalties': /\/rates$/,
+    '/hotel-settings/description': /\/hotel-settings$/,
+    '/hotel-settings/photos': /\/connections#channex-connection$/,
+    '/hotel-settings/amenities': /\/connections#channex-connection$/,
+  };
   for (const [route, title] of routes) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(route!);
+    if (redirects[route!]) await expect(page).toHaveURL(redirects[route!]!);
     await expect(page.getByRole('heading', { level: 1 })).toContainText(title!);
     await noPageOverflow(page);
     if (

@@ -2893,3 +2893,9 @@
 | 28.09.2026 02:01 | lint | ✅ без ошибок | 17 с | a0fa497 +26 | [лог](logs/2026-09-27T21-01-47Z-lint-2c65.log) | SET1: линтер |
 | 28.09.2026 02:02 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 35 с | a0fa497 +18 | [лог](logs/2026-09-27T21-02-08Z-unit-7246.log) | SET1: модульные |
 | 28.09.2026 02:04 | unit (частично: tests/unit/desk-glass.test.ts tests/unit/site-design.test.ts) | ✅ 11 из 11 | 1 с | a0fa497 +18 | [лог](logs/2026-09-27T21-04-53Z-unit-b10e.log) | SET1: сторожа DESIGN.md после строки реестра |
+| 28.09.2026 02:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 412 | 32 мин 17 с | a0fa497 +26 | [лог](logs/2026-09-27T21-03-53Z-e2e-98b1.log) | SET1: полный UI-набор в один поток |
+| 28.09.2026 02:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/property-settings.spec.ts) | ✅ 68 из 68 | 4 мин 3 с | 8f9eb39 +2 | [лог](logs/2026-09-27T21-36-26Z-e2e-7294.log) | SET1: workspace ждёт адрес переадресации; спек настроек без локали |
+| 28.09.2026 02:40 | integration | ❌ упало 1 из 107 | 32 с | 8f9eb39 | [лог](logs/2026-09-27T21-40-55Z-integration-03f7.log) | SET1: integration на локальной PostgreSQL 16 |
+| 28.09.2026 02:41 | integration | ✅ 107 из 107 | 33 с | 8f9eb39 | [лог](logs/2026-09-27T21-41-41Z-integration-5773.log) | SET1: integration после ALTER ROLE wetop_app LOGIN на свежем стенде |
+| 28.09.2026 02:42 | e2e | ❌ код выхода 1 | 5 с | 8f9eb39 +2 | [лог](logs/2026-09-27T21-42-19Z-e2e-9674.log) | SET1: живые e2e на локальной PostgreSQL 16 |
+| 28.09.2026 02:42 | e2e | ✅ 25 из 25 | 1 мин 1 с | 8f9eb39 +2 | [лог](logs/2026-09-27T21-42-54Z-e2e-f928.log) | SET1: живые e2e на локальной PostgreSQL 16 |

@@ -112,7 +112,7 @@ test('R1: панель в две строки, таблица в первом э
 
   // финансы отменённой брони (§16): больше нет двусмысленного «Отменена | оплачено» —
   // пустой счёт «—», платёж остался «к возврату», возврат сделан «возвращено»,
-  // удержание при невозвратном тарифе — честное «оплачено»
+  // начисление осталось и покрыто платежом — честное «оплачено» («удержан штраф» — только в R6, когда список узнает PENALTY)
   const finOf = (number: string) => rowOf(number).locator('.reservations-fin');
   await expect(finOf('DSG-CANC')).toHaveText('—');
   await expect(finOf('DSG-RFND')).toContainText('к возврату');
@@ -121,7 +121,7 @@ test('R1: панель в две строки, таблица в первом э
 
   // групповая бронь: «3 размещения», у частично назначенной — число мест без ячейки (§23)
   await expect(rowOf(created.group)).toContainText('3 размещения');
-  await expect(rowOf(created.group)).toContainText('⚠ 1 без ячейки');
+  await expect(rowOf(created.group)).toContainText('⚠ 1 без размещения');
   await expect(rowOf('DSG-UNAS')).toContainText('без ячейки');
 
   // вычисляемые пометки дня (§12): не новые статусы, а взгляд стойки на дату
@@ -187,7 +187,7 @@ test('R1: «только чтение» — список, поиск и карт
 for (const theme of ['light', 'dark'] as const) {
   test(`R1, стоп-гейт: снимки для владельца, ${theme}`, async ({ page, request }) => {
     test.setTimeout(120_000);
-    await seedShowcase(request);
+    const created = await seedShowcase(request);
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto('/reservations');
@@ -205,6 +205,12 @@ for (const theme of ['light', 'dark'] as const) {
     await main
       .locator('.reservations-list')
       .screenshot({ path: `${report}/${theme}-table-closeup.png` });
+    // групповая бронь с частичным назначением — отдельной строкой крупно
+    await main
+      .getByTestId('reservations-table')
+      .locator('tbody tr')
+      .filter({ hasText: created.group })
+      .screenshot({ path: `${report}/${theme}-group-row.png` });
     // отменённые и их финансы одним экраном (§16): «—», «к возврату», «возвращено», «оплачено»
     await page.goto('/reservations?status=CANCELLED');
     await expect(

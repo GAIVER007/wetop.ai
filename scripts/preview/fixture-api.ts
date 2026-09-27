@@ -369,8 +369,9 @@ const DESIGN_STAYS: Array<{
     price: '1600000',
   },
   // Финансы отменённой брони (ТЗ «Брони v2» §16, ADR-104): четыре состояния колонки «Финансы» —
-  // «к возврату» (платёж остался после сторно), «возвращено», «оплачено» (удержание при
-  // невозвратном тарифе; DSG-CANC выше остаётся пустым счётом «—»). Деньги задаёт finance().
+  // «к возврату» (платёж остался после сторно), «возвращено», «оплачено» (начисление осталось и
+  // оплачено полностью — почему именно, список не знает; DSG-CANC выше остаётся пустым счётом «—»).
+  // Деньги задаёт finance().
   {
     n: 'DSG-RFND',
     label: 'Гость К-Возврату',
@@ -395,7 +396,7 @@ const DESIGN_STAYS: Array<{
   },
   {
     n: 'DSG-CPAID',
-    label: 'Гость Удержание',
+    label: 'Гость Оплачено',
     status: 'CANCELLED',
     source: 'OTA',
     channel: 'Ostrovok',
@@ -1243,7 +1244,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
       Math.round((Date.parse(it.departureDate) - Date.parse(it.arrivalDate)) / 86400000),
     );
     // Витрина финансов отмены (только design-seed): CANC — счёт пуст, RFND — платёж остался,
-    // RETD — возвращён, CPAID — удержан начислением; остальные карточки — как раньше
+    // RETD — возвращён, CPAID — начисление осталось и оплачено; остальные карточки — как раньше
     const showcase =
       /DSG-(CANC|RFND|RETD|CPAID)$/.exec(reservation.confirmationNumber)?.[1] ?? null;
     const voided = showcase !== null && showcase !== 'CPAID';

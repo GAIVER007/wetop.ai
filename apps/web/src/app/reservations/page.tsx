@@ -308,11 +308,12 @@ export default async function ReservationsPage({
                               {r.unitCodes.join(', ')}
                             </span>
                           ) : null}
-                          {/* у группы предупреждение называет число: «3 размещения» + «⚠ 1 без ячейки» */}
+                          {/* у группы предупреждение называет число (формулировка владельца 27.09):
+                              «3 размещения» + «⚠ 1 без размещения»; одиночная — «⚠ без ячейки» (§9) */}
                           {unassigned && (
                             <span className="warn-text reservations-unassigned">
                               {itemsCount > 1
-                                ? `⚠ ${itemsCount - r.unitCodes.length} без ячейки`
+                                ? `⚠ ${itemsCount - r.unitCodes.length} без размещения`
                                 : '⚠ без ячейки'}
                             </span>
                           )}

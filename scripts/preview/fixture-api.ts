@@ -2727,7 +2727,8 @@ createServer(async (req, res) => {
       piiStorage = 'real';
       softPlan = false;
       resetSeller();
-      return send(200, {});
+      // «сегодня» стенда: тест берёт дату отсюда, а не считает сам — долгий прогон переходит полночь Алматы
+      return send(200, { today });
     }
     if (path === '/__test/control') {
       if (typeof body['registrationEnabled'] === 'boolean')

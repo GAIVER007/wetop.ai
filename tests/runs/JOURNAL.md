@@ -3023,3 +3023,5 @@
 | 27.09.2026 23:37 | integration | ✅ 113 из 113 | 35 с | 5ec4fac | [лог](logs/2026-09-27T18-37-24Z-integration-909d.log) | дерево 5ec4fac5 |
 | 27.09.2026 23:37 | e2e | ✅ 25 из 25 | 1 мин 9 с | 5ec4fac | [лог](logs/2026-09-27T18-37-59Z-e2e-e739.log) | дерево 5ec4fac5 |
 | 27.09.2026 23:39 | e2e | ✅ 26 из 26 | 1 мин 13 с | 5ec4fac | [лог](logs/2026-09-27T18-39-09Z-e2e-f087.log) | дерево 5ec4fac5, со входом |
+| 27.09.2026 23:42 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 421 | 34 мин 16 с | 5c0cebe | [лог](logs/2026-09-27T18-42-02Z-e2e-add5.log) | полный UI после шестого слияния 5c0cebe4: роли ADR-107 + Брони v2 R1 |
+| 28.09.2026 00:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/manager-actions.spec.ts) | ✅ 9 из 9 | 41 с | 5c0cebe +2 | [лог](logs/2026-09-27T19-18-49Z-e2e-ba2d.log) | manager-actions: дата стенда из ответа /__test/reset (прогон через полночь Алматы) |

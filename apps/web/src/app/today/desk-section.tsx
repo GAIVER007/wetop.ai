@@ -1,12 +1,13 @@
 import { cache } from 'react';
 import { ApiError, chessboardApi, deskApi } from '../../lib/api';
 import { Alert, Panel } from '../../components/ui';
-import { AttentionSummary, DayAttention } from './day-attention';
+import { DayAttention } from './day-attention';
 import { QuickActions } from './dashboard-widgets';
 import { DeskStrip } from './desk-strip';
 
 /**
- * Полоса стойки и задачи смены — своим куском: показателям за период они не нужны, и ждать их незачем.
+ * Операционная часть Главной (A1, ADR-103): полоса «На стойке» — верхний ряд показателей дня,
+ * под ней «Требуют внимания» (шире, слева) рядом с «Быстрыми действиями».
  * Отказ API называется словами, а не пустым экраном (замечание владельца 16.09.2026).
  */
 const loadDeskDay = cache((date: string) =>
@@ -15,13 +16,6 @@ const loadDeskDay = cache((date: string) =>
     throw error;
   }),
 );
-
-/** Сводка сверху и полоса стойки используют один запрос в рамках серверного рендера. */
-export async function AttentionSection({ date }: { date: string }) {
-  const day = await loadDeskDay(date);
-  if (day instanceof ApiError) return <span className="muted">Задачи дня не загрузились</span>;
-  return <AttentionSummary day={day} date={date} />;
-}
 
 export async function DeskSection({ date, today }: { date: string; today: string }) {
   // Оба чтения зависят только от даты; дополнительное ожидание дня здесь не нужно.
@@ -50,10 +44,8 @@ export async function DeskSection({ date, today }: { date: string; today: string
     <>
       <DeskStrip day={day} board={board} today={today} />
       <div className="dash-grid dash-grid--desk">
+        <DayAttention day={day} />
         <QuickActions day={day} />
-        <aside aria-label="Задачи и размещение">
-          <DayAttention day={day} />
-        </aside>
       </div>
     </>
   );

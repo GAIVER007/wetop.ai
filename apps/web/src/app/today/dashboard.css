@@ -1,41 +1,61 @@
-/* Главная собственника (срез 14): период, показатели, графики на CSS, полоса стойки. */
+/*
+ * Главная — рабочий экран дня (A1, ADR-103): полоса дня, полоса стойки, задачи и быстрые действия.
+ * Периодная часть ниже (период, показатели, графики, таблицы) обслуживает «Показатели за период»
+ * (`/management/dashboard`) — блок, переехавший с Главной; файл подключается глобально из layout.
+ */
 
-/* ---------- период ---------- */
-.dashboard-day {
+/* ---------- полоса дня ---------- */
+.day-bar-row {
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 16px;
 }
-.attention-summary {
+.day-bar {
   display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.seg.day-presets {
+  gap: 4px;
+}
+.seg.day-presets a {
+  border: 0;
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-control);
-  background: var(--glass-panel);
+  min-height: var(--control-h);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.seg.day-presets a:hover {
   color: var(--text);
 }
-.attention-summary:hover {
-  border-color: var(--primary);
-  background: var(--primary-soft);
+.day-custom {
+  display: flex;
+  align-items: end;
+  gap: 8px;
 }
-.attention-summary > svg {
-  flex: none;
-  color: var(--primary);
-}
-.attention-summary strong {
-  display: block;
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-}
-/* причины с числами — подпись 13 px (разбор 23.09.2026, находка 3) */
-.attention-summary small {
-  display: block;
+.day-custom label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
   color: var(--text-2);
-  font-size: var(--text-sm);
+  min-width: 0;
+}
+.day-custom .inp {
+  min-height: var(--control-h);
+  width: 100%;
+  min-width: 0;
+  font-size: 14px;
+}
+/* ссылки на модули внизу Главной (ТЗ §4 п. 8) */
+.today-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 #day-attention {
   scroll-margin-top: calc(var(--header-h) + 24px);
@@ -560,7 +580,7 @@
 }
 .desk-strip__stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--space-2);
 }
 .desk-stat {
@@ -593,6 +613,16 @@
   font-size: var(--text-xl);
   line-height: 1.5;
   white-space: nowrap;
+}
+/* число плитки — ссылка в раздел (ТЗ §4): цвет наследуется, чтобы счётчик дня не стал «синим статусом» (§9) */
+.desk-stat__link {
+  color: inherit;
+  text-decoration: none;
+  width: fit-content;
+}
+.desk-stat__link:hover .desk-stat__value,
+.desk-stat__link:focus-visible .desk-stat__value {
+  color: var(--primary);
 }
 .desk-stat__hint {
   font-size: var(--text-xs);
@@ -694,14 +724,12 @@ a.desk-stat__hint--warn {
   }
 }
 @media (max-width: 600px) {
-  .dashboard-day {
+  .day-bar-row {
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
   }
-  .attention-summary > svg:last-child {
-    margin-left: auto;
-  }
+  .day-custom .inp,
   .period-custom .inp {
     font-size: 16px;
     min-height: var(--touch-target);

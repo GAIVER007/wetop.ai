@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { resolvePeriod } from '@pms/domain';
 import { api, chessboardApi } from '../../../lib/api';
 import { hotelToday, validDate } from '../../../lib/hotel-api';
 import { navigationItems } from '../../../lib/navigation';
@@ -10,6 +12,8 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { displayDate } from '../../../lib/display-date';
 import { Alert, Help, Button, Field, Stat, Stats, Table } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
+import { PeriodBar } from '../period/period-bar';
+import { DashboardSection, DashboardSkeleton } from '../period/dashboard-section';
 import '../../directory.css';
 
 export default async function ManagementPage({
@@ -20,7 +24,7 @@ export default async function ManagementPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { section = [] } = await params;
-  // Хаба больше нет (15.09.2026, решение владельца): единственный раздел — статистика
+  // Хаба больше нет (15.09.2026, решение владельца): разделы — статистика и показатели за период
   if (!section.length) redirect('/management/statistics');
   const path = `/management${section.length ? `/${section.join('/')}` : ''}`;
   const item = navigationItems.find((item) => item.href === path);
@@ -29,7 +33,34 @@ export default async function ManagementPage({
   return (
     <Page title={item.label}>
       {section[0] === 'statistics' && <Statistics date={sp.date ?? (await hotelToday())} />}
+      {section[0] === 'dashboard' && (
+        <PeriodDashboard period={sp.period} from={sp.from} to={sp.to} date={sp.date} />
+      )}
     </Page>
+  );
+}
+
+/**
+ * Показатели за период — блок, до A1 (ADR-103) стоявший на Главной: те же компоненты, тот же
+ * `GET /desk/dashboard`, определения ADR-047 не менялись. Ожидание и отказ — как было на Главной:
+ * полоса периода открывается сразу, числа приходят своим куском (`Suspense`).
+ */
+async function PeriodDashboard(sp: {
+  period?: string | undefined;
+  from?: string | undefined;
+  to?: string | undefined;
+  date?: string | undefined;
+}) {
+  const today = await hotelToday();
+  const period = resolvePeriod({ preset: sp.period, from: sp.from, to: sp.to, date: sp.date }, today);
+  return (
+    <>
+      <PeriodBar period={period} today={today} />
+      {period.error && <Alert boxed>{period.error}. Показан сегодняшний день.</Alert>}
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardSection period={period} today={today} />
+      </Suspense>
+    </>
   );
 }
 async function Statistics({ date }: { date: string }) {

@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 import type { DashboardDailyPoint } from '@pms/domain';
-import { Button, cx } from '../../components/ui';
-import { Icon } from '../../components/icon';
-import { formatPercent } from '../../lib/dashboard-format';
-import { displayDate } from '../../lib/display-date';
+import { Button, cx } from '../../../components/ui';
+import { Icon } from '../../../components/icon';
+import { formatPercent } from '../../../lib/dashboard-format';
+import { displayDate } from '../../../lib/display-date';
 
 const dayOfMonth = (iso: string) => Number(iso.slice(8, 10));
 const weekend = (iso: string) => [0, 6].includes(new Date(`${iso}T00:00:00Z`).getUTCDay());

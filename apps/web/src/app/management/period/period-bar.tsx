@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { PERIOD_PRESETS, type ResolvedPeriod } from '@pms/domain';
-import { Button, cx } from '../../components/ui';
-import { DateInput } from '../../components/date-field';
-import { displayDate } from '../../lib/display-date';
-import { pluralRu } from '../../lib/plural';
+import { Button, cx } from '../../../components/ui';
+import { DateInput } from '../../../components/date-field';
+import { displayDate } from '../../../lib/display-date';
+import { pluralRu } from '../../../lib/plural';
 
 /** Подпись периода: один день — полностью, отрезок — «1 сент. — 30 сент. · 30 дней» */
 export function periodCaption(period: { from: string; to: string }): string {
@@ -16,14 +16,23 @@ export function periodCaption(period: { from: string; to: string }): string {
 }
 
 /** Готовые отрезки — ссылки (GET, без JS), свой отрезок — форма с двумя датами. */
-export function PeriodBar({ period, today }: { period: ResolvedPeriod; today: string }) {
+export function PeriodBar({
+  period,
+  today,
+  basePath = '/management/dashboard',
+}: {
+  period: ResolvedPeriod;
+  today: string;
+  /** Экран, на котором стоит полоса: пресеты — обычные GET-ссылки на него же (A1: был `/today`) */
+  basePath?: string;
+}) {
   return (
     <nav className="period-bar" aria-label="Период показателей">
       <div className="seg period-presets">
         {PERIOD_PRESETS.map((p) => (
           <Link
             key={p.id}
-            href={`/today?period=${p.id}`}
+            href={`${basePath}?period=${p.id}`}
             className={cx(period.preset === p.id && 'is-on')}
             aria-current={period.preset === p.id ? 'page' : undefined}
           >

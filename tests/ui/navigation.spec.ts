@@ -18,6 +18,7 @@ const routes = [
   '/channel-manager',
   '/channels',
   '/analytics',
+  '/management/dashboard',
   '/finance',
   '/management/statistics',
   '/hotel-settings',

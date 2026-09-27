@@ -2838,3 +2838,11 @@
 | 27.09.2026 17:05 | integration | ✅ 101 из 101 | 31 с | ebbeb57 | [лог](logs/2026-09-27T12-05-19Z-integration-b86c.log) |  |
 | 27.09.2026 17:06 | e2e | ❌ код выхода 1 | 4 с | ebbeb57 | [лог](logs/2026-09-27T12-06-04Z-e2e-804f.log) | (ошибка вне тестов) |
 | 27.09.2026 17:06 | e2e | ✅ 25 из 25 | 58 с | ebbeb57 | [лог](logs/2026-09-27T12-06-46Z-e2e-ef47.log) |  |
+| 27.09.2026 18:01 | typecheck | ❌ ошибок: 1 | 29 с | 6440f99 +26 | [лог](logs/2026-09-27T13-01-29Z-typecheck-2f09.log) | TS2375 |
+| 27.09.2026 18:02 | typecheck | ✅ без ошибок | 21 с | 6440f99 +26 | [лог](logs/2026-09-27T13-02-13Z-typecheck-70c9.log) |  |
+| 27.09.2026 18:02 | lint | ✅ без ошибок | 16 с | 6440f99 +26 | [лог](logs/2026-09-27T13-02-35Z-lint-f804.log) |  |
+| 27.09.2026 18:02 | unit | ❌ упало 2 из 2078, пропущено 3 | 1 мин 33 с | 6440f99 +14 | [лог](logs/2026-09-27T13-02-57Z-unit-e176.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 27.09.2026 18:05 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | 6440f99 +15 | [лог](logs/2026-09-27T13-05-32Z-unit-9084.log) |  |
+| 27.09.2026 18:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts -- | ❌ упало 16 из 16 | 22 с | 6440f99 +26 | [лог](logs/2026-09-27T13-06-54Z-e2e-3d27.log) | показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек |
+| 27.09.2026 18:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts -- | ❌ упало 16 из 16 | 19 с | 6440f99 +26 | [лог](logs/2026-09-27T13-07-37Z-e2e-bbbb.log) | показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек |
+| 27.09.2026 18:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts -- | ✅ 16 из 16 | 1 мин 14 с | 6440f99 +26 | [лог](logs/2026-09-27T13-08-16Z-e2e-f748.log) |  |

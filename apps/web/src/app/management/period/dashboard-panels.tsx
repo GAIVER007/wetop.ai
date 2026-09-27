@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import type { DashboardPeriod } from '@pms/domain';
-import { Panel, Table, cx } from '../../components/ui';
+import { Panel, Table, cx } from '../../../components/ui';
 import {
   METHOD_RU,
   formatInt,
   formatPercent,
   sourceLabel,
   wholeTenge,
-} from '../../lib/dashboard-format';
-import { pluralRu } from '../../lib/plural';
+} from '../../../lib/dashboard-format';
+import { pluralRu } from '../../../lib/plural';
 import { DailyBars } from './daily-bars';
 
 /** Столбики загрузки по дням; на один день — полосы по категориям. Только CSS, без библиотек графиков. */

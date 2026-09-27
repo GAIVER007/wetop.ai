@@ -12,6 +12,7 @@ import { HotelClock } from './dashboard-widgets';
 import { PeriodBar } from './period-bar';
 import { DashboardSection, DashboardSkeleton } from './dashboard-section';
 import { AttentionSection, DeskSection, DeskSkeleton } from './desk-section';
+import { FirstSteps } from './first-steps';
 
 async function loadHotel() {
   return hotelApi.settings().catch((error: unknown) => {
@@ -72,6 +73,9 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         </>
       }
     >
+      <Suspense fallback={null}>
+        <FirstSteps />
+      </Suspense>
       <div className="dashboard-day">
         <Suspense fallback={<span className="muted">Загружаем задачи дня…</span>}>
           <AttentionSection date={deskDate} />

@@ -29,6 +29,8 @@ export interface SiteRecord {
   /** Виджет бронирования (срез 9) */
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
+  /** Организация объекта сайта: публичный путь сайта действует от её имени (план tenant-isolation п. 4); null — ничья */
+  organizationId?: string | null;
 }
 
 export interface RatePlanOption {
@@ -130,7 +132,9 @@ const SITE_SELECT = {
   createdAt: true,
   bookingEnabled: true,
   bookingRatePlan: { select: { id: true, code: true, name: true } },
-  property: { select: { timezone: true, checkInTime: true, checkOutTime: true } },
+  property: {
+    select: { timezone: true, checkInTime: true, checkOutTime: true, organizationId: true },
+  },
 } as const;
 
 type SiteRow = {
@@ -143,7 +147,12 @@ type SiteRow = {
   createdAt: Date;
   bookingEnabled: boolean;
   bookingRatePlan: { id: string; code: string; name: string } | null;
-  property: { timezone: string; checkInTime: string; checkOutTime: string };
+  property: {
+    timezone: string;
+    checkInTime: string;
+    checkOutTime: string;
+    organizationId: string | null;
+  };
 };
 
 const toRecord = (r: SiteRow): SiteRecord => ({
@@ -159,6 +168,7 @@ const toRecord = (r: SiteRow): SiteRecord => ({
   checkOutTime: r.property.checkOutTime,
   bookingEnabled: r.bookingEnabled,
   bookingRatePlan: r.bookingRatePlan,
+  organizationId: r.property.organizationId,
 });
 
 @Injectable()
@@ -167,8 +177,9 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   /**
-   * Сайты объекта: вошедший — объекта своей организации (ADR-061). Список, карточка, правка и удаление шли по голому
-   * id, и чужая организация читала, меняла и удаляла сайт объекта вместе с его аналитикой (аудит 26.09, В-3).
+   * Сайты объекта: вошедший — объекта своей организации (ADR-061), служебный ходок — Luxx. Список, карточка, правка и
+   * удаление шли по голому id, и чужая организация читала, меняла и удаляла сайт объекта вместе с его аналитикой
+   * (аудит 26.09, В-3; план tenant-isolation-2026-09-26 п. 3).
    */
   private async propertyId(): Promise<string> {
     return propertyIdRef(this.prisma.db, this.propertyName);
@@ -411,6 +422,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   }
   async defaultBookingRatePlan(): Promise<RatePlanOption | null> {
     const select = { id: true, code: true, name: true, active: true } as const;
+    // тариф своего объекта: без этого сайт чужой организации включал бронирование по тарифу Luxx
     const propertyId = await this.propertyId();
     return (
       (await this.prisma.db.ratePlan.findFirst({
@@ -429,6 +441,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     sessionKey: string,
     confirmationNumber: string,
   ): Promise<boolean> {
+    // бронь того же объекта, что и сайт: номер брони не уникален между объектами
     const reservation = await this.prisma.db.reservation.findFirst({
       where: { confirmationNumber, property: { trackedSites: { some: { id: siteId } } } },
       select: { id: true },

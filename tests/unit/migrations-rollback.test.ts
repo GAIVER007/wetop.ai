@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -23,5 +23,21 @@ describe('миграции: у каждой есть откат (AGENTS.md §14)
   it.each(dirs)('%s — есть migration.sql и down.sql', (name) => {
     expect(existsSync(resolve(MIGRATIONS, name, 'migration.sql')), 'migration.sql').toBe(true);
     expect(existsSync(resolve(MIGRATIONS, name, 'down.sql')), 'down.sql').toBe(true);
+  });
+});
+
+/**
+ * Ворота `check-migrations.sh` на macOS (26.09.2026): системный bash там 3.2 и не знает `mapfile`. Список миграций
+ * выходил пустым, а итог — «RESULT: OK» без единой проверенной миграции: ложный зелёный. Скрипт пишется под bash 3.2,
+ * а пустой список — отказ, а не успех.
+ */
+describe('ворота миграций работают и на bash 3.2', () => {
+  const script = readFileSync(resolve(import.meta.dirname, '../../scripts/ops/check-migrations.sh'), 'utf8');
+  it('без mapfile и readarray (их нет в bash 3.2)', () => {
+    const code = script.split('\n').filter((line) => !line.trimStart().startsWith('#'));
+    expect(code.join('\n')).not.toMatch(/\b(mapfile|readarray)\b/);
+  });
+  it('пустой список миграций — отказ, а не RESULT: OK', () => {
+    expect(script).toMatch(/if \[ "\$\{#MIGS\[@\]\}" -eq 0 \]/);
   });
 });

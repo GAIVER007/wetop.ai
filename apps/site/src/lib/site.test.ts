@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { assistantScriptSrc, loginLink, trialLink } from './site';
+import { assistantScriptSrc, loginLink, registerLink } from './site';
 import type { SiteConfig } from '../site.config';
 
 const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
   siteUrl: 'https://wetop.ai',
   appUrl: 'https://app.wetop.ai',
-  trialHref: '',
   assistantUrl: '',
   company: { name: '', city: '', email: '', phone: '', about: '' },
   ...over,
@@ -36,9 +35,19 @@ describe('loginLink', () => {
   });
 });
 
-describe('trialLink', () => {
-  it('без ссылки владельца ведёт в раздел «Как начать» на самой главной', () => {
-    expect(trialLink(config())).toEqual({ href: '/#start', external: false });
+/**
+ * «Регистрация» (решение владельца 26.09.2026, ADR-098): самостоятельная регистрация в стойке с 7 днями пробного
+ * периода. Кнопка ведёт прямо на форму `/register`, а не в раздел «Как начать» и не на заявку по почте.
+ */
+describe('registerLink', () => {
+  it('ведёт на форму регистрации стойки', () => {
+    expect(registerLink(config())).toEqual({ href: 'https://app.wetop.ai/register', external: true });
+  });
+
+  it('не удваивает слеш, если адрес стойки записан со слешем в конце', () => {
+    expect(registerLink(config({ appUrl: 'https://app.wetop.ai/' })).href).toBe(
+      'https://app.wetop.ai/register',
+    );
   });
 });
 

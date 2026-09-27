@@ -10,6 +10,8 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { RefreshButton } from '../../../components/refresh-button';
 import { Badge, Fact, Grid, Panel } from '../../../components/ui';
 import { ServicesCatalog, CancellationPolicies } from '../catalogs';
+import { HotelSettingsForm } from '../settings-form';
+import { currentMe } from '../../../lib/desk-shell';
 
 const tabs = [
   { view: '', href: '/hotel-settings', label: 'Общие' },
@@ -74,6 +76,12 @@ export default async function HotelSettingsPage({
   );
 }
 
+/** Правит «Общие» владелец организации (ТЗ ux-retention п. 3.1); не ответил вход — только просмотр */
+async function isOwner(): Promise<boolean> {
+  const me = await settle(currentMe());
+  return me.ok && me.value.user?.role === 'OWNER';
+}
+
 async function StoredSettings({ view }: { view: string }) {
   const loaded = await settle(hotelApi.settings());
   if (!loaded.ok) return <LoadError testId="settings-error" {...loadErrorProps(loaded.error)} />;
@@ -90,6 +98,7 @@ async function StoredSettings({ view }: { view: string }) {
         </Link>
       </>
     );
+  const owner = await isOwner();
   return (
     <div className="settings-overview">
       <Panel className="settings-property" data-testid="stored-property">
@@ -101,41 +110,47 @@ async function StoredSettings({ view }: { view: string }) {
             <h2>{p.name}</h2>
             <p>Сведения гостиницы в PMS</p>
           </div>
-          <Badge>Только просмотр</Badge>
+          {!owner && <Badge>Только просмотр</Badge>}
         </div>
-        <dl className="settings-facts">
-          <div>
-            <dt>Название</dt>
-            <dd>{p.name}</dd>
-          </div>
-          <div>
-            <dt>Юридическое название</dt>
-            <dd>{p.legalName || '—'}</dd>
-          </div>
-          <div>
-            <dt>Адрес в PMS</dt>
-            <dd>{p.address || '—'}</dd>
-          </div>
-          <div>
-            <dt>Телефон</dt>
-            <dd>{p.phone || '—'}</dd>
-          </div>
-          <div>
-            <dt>Почта</dt>
-            <dd>{p.email || '—'}</dd>
-          </div>
-          <div>
-            <dt>Валюта</dt>
-            <dd>{p.currency}</dd>
-          </div>
-          <div>
-            <dt>Часовой пояс</dt>
-            <dd>{p.timezone}</dd>
-          </div>
-        </dl>
-        <p className="settings-note">
-          Используются на стойке, в счетах и отчётах. Редактирование пока недоступно.
-        </p>
+        {owner ? (
+          <HotelSettingsForm property={p} />
+        ) : (
+          <>
+            <dl className="settings-facts">
+              <div>
+                <dt>Название</dt>
+                <dd>{p.name}</dd>
+              </div>
+              <div>
+                <dt>Юридическое название</dt>
+                <dd>{p.legalName || '—'}</dd>
+              </div>
+              <div>
+                <dt>Адрес в PMS</dt>
+                <dd>{p.address || '—'}</dd>
+              </div>
+              <div>
+                <dt>Телефон</dt>
+                <dd>{p.phone || '—'}</dd>
+              </div>
+              <div>
+                <dt>Почта</dt>
+                <dd>{p.email || '—'}</dd>
+              </div>
+              <div>
+                <dt>Валюта</dt>
+                <dd>{p.currency}</dd>
+              </div>
+              <div>
+                <dt>Часовой пояс</dt>
+                <dd>{p.timezone}</dd>
+              </div>
+            </dl>
+            <p className="settings-note">
+              Используются на стойке, в счетах и отчётах. Сведения меняет владелец организации.
+            </p>
+          </>
+        )}
       </Panel>
       <Panel id="stay-settings" data-testid="stay-settings" className="settings-stay">
         <div className="settings-section-heading">
@@ -151,7 +166,11 @@ async function StoredSettings({ view }: { view: string }) {
           <Fact label="Заезд с" value={p.checkInTime} />
           <Fact label="Выезд до" value={p.checkOutTime} />
         </Grid>
-        <p className="settings-note">Расчётные часы доступны только для просмотра.</p>
+        <p className="settings-note">
+          {owner
+            ? 'Меняются в сведениях гостиницы выше.'
+            : 'Расчётные часы меняет владелец организации.'}
+        </p>
         <Link href="/today" className="btn btn--secondary">
           Заезды и выезды сегодня
         </Link>

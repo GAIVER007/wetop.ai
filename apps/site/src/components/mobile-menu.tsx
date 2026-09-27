@@ -7,7 +7,7 @@ type MenuLink = { href: string; label: string };
 type Props = {
   links: MenuLink[];
   login: MenuLink;
-  trial: MenuLink;
+  register: MenuLink;
   labels: { button: string; nav: string };
 };
 
@@ -15,7 +15,7 @@ type Props = {
  * Меню шапки на узком экране — единственный клиентский код сайта. Закрывается по ссылке, Escape, щелчку
  * мимо и при переходе на широкий экран, где пункты уже видны в шапке.
  */
-export function MobileMenu({ links, login, trial, labels }: Props) {
+export function MobileMenu({ links, login, register, labels }: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -87,8 +87,8 @@ export function MobileMenu({ links, login, trial, labels }: Props) {
           <a className="btn btn--secondary" href={login.href} onClick={close}>
             {login.label}
           </a>
-          <a className="btn btn--primary" href={trial.href} onClick={close}>
-            {trial.label}
+          <a className="btn btn--primary" href={register.href} onClick={close}>
+            {register.label}
           </a>
         </div>
       </div>

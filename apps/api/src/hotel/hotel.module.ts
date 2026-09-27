@@ -3,6 +3,7 @@ import { ReservationDirectory, ReservationDirectoryController } from './reservat
 import { OnboardingController, OnboardingService } from './onboarding';
 import {
   BadRequestException,
+  Body,
   Controller,
   ForbiddenException,
   Get,
@@ -10,12 +11,18 @@ import {
   Injectable,
   Module,
   NotFoundException,
+  Patch,
   Query,
 } from '@nestjs/common';
 import { ReservationStatus } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import {
+  LUXX_APARTS_PROPERTY,
+  REGISTRATION_NAME_TAKEN_MESSAGE,
+  parseHotelSettingsPatch,
+  type HotelSettingsPatch,
+} from '@pms/domain';
 import { channex } from '@pms/integrations';
-import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import { actorIsOwner, currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE } from '../database/property-ref';
 
@@ -114,6 +121,78 @@ export class HotelService {
     return { property, ratePlans, needsOnboarding: categories === 0 };
   }
 
+  /**
+   * «Первые шаги» на Главной (ТЗ ux-retention п. 2.1): есть ли в объекте хоть одна бронь. Без кэша — панель
+   * должна уйти сразу после первой брони; одна выборка по индексу `property_id`.
+   */
+  async firstSteps() {
+    const property = await this.property();
+    const reservation = await this.prisma.db.reservation.findFirst({
+      where: { propertyId: property.id },
+      select: { id: true },
+    });
+    return { hasReservations: reservation !== null };
+  }
+
+  /**
+   * Правка «Общих» настроек владельцем организации (ТЗ ux-retention п. 3.1, UQ-1 — «да» владельца 26.09.2026).
+   * Сотрудник только смотрит (ADR-083). Валюта и пояс не правятся (разбор их не пропускает). Название объекта Luxx
+   * служебные пути ищут по имени — его не переименовать; чужое название не занять (ADR-099). Журнал — «было/стало».
+   */
+  async updateSettings(raw: unknown) {
+    if (!hasSignedInActor() || !actorIsOwner())
+      throw new ForbiddenException('Сведения гостиницы меняет владелец организации');
+    const parsed = parseHotelSettingsPatch(raw);
+    if (!parsed.ok) throw new BadRequestException(parsed.reason);
+    const patch = parsed.value;
+    const property = await this.property();
+    if (patch.name !== undefined && patch.name !== property.name) {
+      if (property.name === LUXX_APARTS_PROPERTY.name)
+        throw new BadRequestException(
+          'Название этого объекта используют каналы продаж и сторож — его меняет поддержка WETOP',
+        );
+      const namesake = await this.prisma.db.property.findFirst({
+        where: { name: { equals: patch.name, mode: 'insensitive' }, NOT: { id: property.id } },
+        select: { id: true },
+      });
+      if (namesake) throw new BadRequestException(REGISTRATION_NAME_TAKEN_MESSAGE);
+    }
+    // пишем только изменённое: форма шлёт все поля, а журнал только дописывается
+    const keys = (Object.keys(patch) as Array<keyof HotelSettingsPatch>).filter(
+      (k) => patch[k] !== (property[k] ?? null),
+    );
+    if (keys.length === 0) return this.settings();
+    const changed = Object.fromEntries(
+      keys.map((k) => [k, patch[k] ?? null]),
+    ) as HotelSettingsPatch;
+    // ИИН/БИН у ИП — ИИН человека: в неудаляемый журнал только последние 4 цифры (как В-5 для гостей)
+    const masked = (row: Record<string, string | null>): Record<string, string | null> =>
+      'bin' in row && typeof row['bin'] === 'string'
+        ? { ...row, bin: `••••${row['bin'].slice(-4)}` }
+        : row;
+    const before = masked(Object.fromEntries(keys.map((k) => [k, property[k] ?? null])));
+    const organizationId = currentOrganizationId();
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.property.update({ where: { id: property.id }, data: changed });
+      if (changed.name !== undefined && organizationId)
+        await tx.organization.update({
+          where: { id: organizationId },
+          data: { name: changed.name },
+        });
+      await tx.auditLog.create({
+        data: {
+          entityType: 'Property',
+          entityId: property.id,
+          action: 'hotel.settings.updated',
+          before,
+          after: masked({ ...changed } as Record<string, string | null>),
+        },
+      });
+    });
+    this.forget();
+    return this.settings();
+  }
+
   /** Сбросить кэш настроек (после онбординга: у объекта появились номера, гейт больше не нужен). */
   forget(): void {
     this.cachedSettings.clear();
@@ -207,6 +286,12 @@ export class HotelController {
   constructor(@Inject(HotelService) private readonly service: HotelService) {}
   @Get('settings') settings() {
     return this.service.settings();
+  }
+  @Patch('settings') updateSettings(@Body() body: unknown) {
+    return this.service.updateSettings(body);
+  }
+  @Get('first-steps') firstSteps() {
+    return this.service.firstSteps();
   }
   @Get('channel-report') channelReport(
     @Query('from') from?: string,

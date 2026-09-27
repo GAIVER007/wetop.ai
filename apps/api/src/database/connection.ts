@@ -38,6 +38,7 @@ export class DataConnectionService {
       // Approved single-property MVP selection, identical to the inventory and hotel APIs.
       const property = await this.prisma.db.property.findFirst({
         where: { name: LUXX_APARTS_PROPERTY.name },
+        orderBy: { createdAt: 'asc' },
         select: {
           id: true,
           name: true,

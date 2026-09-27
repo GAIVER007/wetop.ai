@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import { UseGuards } from '@nestjs/common';
+import { IntegrationOwnerGuard } from '../channels/integration-owner';
 import {
   Controller,
   Get,
@@ -21,6 +23,7 @@ import { GuardService } from './guard.service';
  * Сторож системы (срез 11): экран «Неисправности» стойки и дежурный агент читают отсюда.
  * «Принято» — человек в курсе, будить больше не надо; «Решено» — закрыть руками то, что проверка не перепроверит.
  */
+@UseGuards(IntegrationOwnerGuard)
 @Controller('guard')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)

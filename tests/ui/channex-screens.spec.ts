@@ -322,9 +322,10 @@ test('цены: сбой календаря оставляет форму и м�
   const empty = main.getByTestId('rates-empty');
   await expect(empty).toContainText('Календарь цен пуст');
   await expect(empty).toContainText('Категорий ещё нет');
-  await expect(empty.getByRole('link', { name: 'Открыть тарифы объекта' })).toHaveAttribute(
+  // куда идти — создать категорию, а не «тарифы объекта» (там правила отмены; ТЗ ux-retention п. 1.5)
+  await expect(empty.getByRole('link', { name: 'Создать категорию' })).toHaveAttribute(
     'href',
-    '/hotel-settings/penalties',
+    '/rooms/categories',
   );
   await expect(main.getByTestId('rates-error')).toHaveCount(0);
   // загрузка: скелетон с подписью словом, пока справочник идёт

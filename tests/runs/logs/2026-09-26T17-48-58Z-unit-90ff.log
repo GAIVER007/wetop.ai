@@ -1,0 +1,21 @@
+# Модульные (unit) · 26.09.2026 22:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит 78d8b2f (claude/ux-retention), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-48-58Z-unit-90ff.json' 'apps/api/src/hotel'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop-------------------WETOP/c0ea45ed-43bd-4ff8-be48-ebf0614fd84e/scratchpad/wetop-ux
+
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (9 tests) 17ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 3ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (6 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 5ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (8 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 110ms
+
+ Test Files  6 passed (6)
+      Tests  40 passed (40)
+   Start at  10:48:59
+   Duration  799ms (transform 49%, import 46%, tests 4%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-48-58Z-unit-90ff.json
+
+# код выхода 0 · 1 с

@@ -95,6 +95,9 @@ export function Sidebar({
         </Suspense>
       </nav>
       <div className="sidebar-bottom">
+        <Suspense fallback={null}>
+          <GrantedTrial desk={desk} />
+        </Suspense>
         {/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */}
         <div className="sidebar-freshness">
           <DataFreshness />
@@ -184,6 +187,18 @@ function SectionLinks({
         );
       })}{' '}
     </>
+  );
+}
+
+/** Пробный период организации — на каждом экране, а не только на `/login` (ТЗ ux-retention п. 2.7) */
+function GrantedTrial({ desk }: { desk: Promise<DeskShell> | undefined }) {
+  const trial = desk ? use(desk).trial : null;
+  if (!trial) return null;
+  return (
+    <p className="sidebar-trial" data-testid="trial-line">
+      <Icon name="clock" width={16} />
+      <span>{trial}</span>
+    </p>
   );
 }
 

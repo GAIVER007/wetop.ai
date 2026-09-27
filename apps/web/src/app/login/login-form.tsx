@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { useActionState, useState, useTransition } from 'react';
-import { daysLeft } from '@pms/domain';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
 import type { AuthInvite, AuthSessionRow, SignedIn } from '../../lib/api';
@@ -13,6 +12,7 @@ import {
   signOut,
   type LoginState,
 } from './actions';
+import { trialLine } from '../../lib/desk-person';
 import { displayDate } from '../../lib/display-date';
 import './login.css';
 
@@ -95,12 +95,7 @@ export function LoginForm({
     });
   }
 
-  const trialLine = (u: SignedIn) => {
-    const org = u.organization;
-    if (!org || org.status !== 'TRIAL' || !org.trialEndsAt) return null;
-    const left = daysLeft(new Date(org.trialEndsAt), new Date());
-    return left === 0 ? 'Пробный период закончился' : `Пробный период: ещё ${left} дн.`;
-  };
+  const trial = user ? trialLine(user.organization, new Date()) : null;
 
   return (
     <main className="login-page login-page--entry" id="main-content">
@@ -136,10 +131,10 @@ export function LoginForm({
                   <>
                     <br />
                     {user.organization.name}
-                    {trialLine(user) && (
+                    {trial && (
                       <>
                         <br />
-                        <span className="muted">{trialLine(user)}</span>
+                        <span className="muted">{trial}</span>
                       </>
                     )}
                   </>

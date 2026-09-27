@@ -190,7 +190,7 @@ export function InventoryCatalog({
           >
             {units.length
               ? 'Измените поиск или сбросьте фильтры.'
-              : 'Номера и койко-места появятся после загрузки фонда.'}
+              : 'Добавьте номер или койки кнопкой «+ Номер / койки» — они сразу появятся на шахматке.'}
           </EmptyState>
         ) : view === 'cards' ? (
           <div className="inventory-groups">

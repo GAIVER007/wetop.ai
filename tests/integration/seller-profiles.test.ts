@@ -73,10 +73,10 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     });
     await db.inventoryUnit.createMany({
       data: [
-        { physicalRoomId: room.id, accommodationTypeId: dbl.id, kind: 'ROOM', code: `S-${mark}-1` },
-        { physicalRoomId: room.id, accommodationTypeId: dbl.id, kind: 'ROOM', code: `S-${mark}-2` },
-        { physicalRoomId: room.id, accommodationTypeId: dbl.id, kind: 'ROOM', code: `S-${mark}-3`, active: false },
-        { physicalRoomId: room.id, accommodationTypeId: dorm.id, kind: 'BED', code: `S-${mark}-4` },
+        { propertyId, physicalRoomId: room.id, accommodationTypeId: dbl.id, kind: 'ROOM', code: `S-${mark}-1` },
+        { propertyId, physicalRoomId: room.id, accommodationTypeId: dbl.id, kind: 'ROOM', code: `S-${mark}-2` },
+        { propertyId, physicalRoomId: room.id, accommodationTypeId: dbl.id, kind: 'ROOM', code: `S-${mark}-3`, active: false },
+        { propertyId, physicalRoomId: room.id, accommodationTypeId: dorm.id, kind: 'BED', code: `S-${mark}-4` },
       ],
     });
     const site = await db.ratePlan.create({

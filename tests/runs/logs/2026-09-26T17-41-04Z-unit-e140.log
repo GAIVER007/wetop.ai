@@ -1,0 +1,21 @@
+# Модульные (unit) · 26.09.2026 22:41 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1a66ce4 (claude/ux-retention)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-41-04Z-unit-e140.json' 'tests/unit/launchd-status.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop-------------------WETOP/c0ea45ed-43bd-4ff8-be48-ebf0614fd84e/scratchpad/wetop-ux
+
+ ✓ |unit| tests/unit/launchd-status.test.ts (4 tests) 3080ms
+   ✓ status.sh: состояние туннеля (4)
+     ✓ ни tunnel, ни domain не загружены, но адрес отвечает — говорит, что туннель работает 1259ms
+     ✓ адрес молчит и задача не загружена — говорит, что туннеля нет 593ms
+     ✓ задача загружена и адрес отвечает — обычная строка без предупреждения 718ms
+     ✓ задача загружена, а снаружи молчит — называет это расхождением 509ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  10:41:04
+   Duration  3.16s (tests 99%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-41-04Z-unit-e140.json
+
+# код выхода 0 · 4 с

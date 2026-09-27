@@ -1,0 +1,49 @@
+# Модульные (unit) · 26.09.2026 22:20 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7a351d4 (claude/ux-retention), незакоммиченных файлов набора: 60
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-20-51Z-unit-1881.json' 'apps/api/src/freshness'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop-------------------WETOP/c0ea45ed-43bd-4ff8-be48-ebf0614fd84e/scratchpad/wetop-ux
+
+ ❯ |unit| apps/api/src/freshness/freshness.test.ts (4 tests | 1 failed) 5ms
+   ✓ FreshnessService — свежесть данных для шапки стойки (2)
+     ✓ последнее событие Channex из webhook или ленты, очередь ARI; строки Exely нет (ADR-073) 2ms
+     ✓ событий ещё не было — null 0ms
+   ❯ FreshnessController — состояние каналов только своей гостинице (2)
+     ✓ своя гостиница и служебный ключ видят очередь 0ms
+     × другая гостиница — каналов нет, без отказа 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/freshness/freshness.test.ts > FreshnessController — состояние каналов только своей гостинице > другая гостиница — каналов нет, без отказа
+AssertionError: expected { lastEventAt: null, …(3) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "lastEventAt": null,
+  "oldestPendingAt": null,
+  "outboxFailed": 0,
+  "outboxPending": 3,
+}
+
+ ❯ apps/api/src/freshness/freshness.test.ts:75:23
+     73|   it('другая гостиница — каналов нет, без отказа', async () => {
+     74|     const r = await controller('org-luxx').freshness(req({ organizatio…
+     75|     expect(r.channex).toBeNull();
+       |                       ^
+     76|   });
+     77| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  10:20:53
+   Duration  951ms (transform 58%, import 41%, tests 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-20-51Z-unit-1881.json
+
+# код выхода 1 · 3 с

@@ -52,6 +52,12 @@ export function workspaceNameFor(personName: string): string {
 /** Тексты для формы. Про почту, имя и пароль говорим прямо: это ошибки ввода, не секрет. */
 export const REGISTRATION_EMAIL_MESSAGE = 'Укажите почту — ею же вы будете входить.';
 export const REGISTRATION_NAME_MESSAGE = `Укажите название организации, до ${ORGANIZATION_NAME_MAX} знаков.`;
+/**
+ * Название занято объектом другой организации (план tenant-isolation-2026-09-26 п. 1): служебные пути и скрипты
+ * владельца ищут объект по названию, тёзка перехватил бы чужие брони. Совет — как отличить свой объект.
+ */
+export const REGISTRATION_NAME_TAKEN_MESSAGE =
+  'Объект с таким названием уже есть в WETOP. Добавьте город или уточнение — например, «Хостел на Абая, Астана».';
 export const REGISTRATION_PERSON_NAME_MESSAGE = `Укажите имя, до ${PERSON_NAME_MAX} знаков.`;
 /**
  * Занятый адрес называется прямо — без этого человек не понимает, почему форма не работает.

@@ -30,7 +30,10 @@ ADMIN="$URL"
 PSQL=(psql -q -v ON_ERROR_STOP=1)
 PG_DUMP="$(command -v pg_dump || echo /usr/lib/postgresql/16/bin/pg_dump)"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
-mapfile -t MIGS < <(ls -d "$MIGRATIONS"/*/ | sort)
+# bash 3.2 (macOS) не знает mapfile: без него список выходил пустым, а итог — «RESULT: OK» (26.09.2026)
+MIGS=()
+while IFS= read -r dir; do MIGS+=("$dir"); done < <(ls -d "$MIGRATIONS"/*/ | sort)
+if [ "${#MIGS[@]}" -eq 0 ]; then echo "RESULT: FAIL (миграций не найдено в $MIGRATIONS)"; exit 1; fi
 fails=0
 
 snapshot() { # $1 — база; снимок схемы без комментариев и разовых ключей pg_dump

@@ -1,6 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { ratesApi, channelsApi } from '../../lib/api';
+import { hotelClock } from '../../lib/hotel-api';
 import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { Page } from '../../components/page';
@@ -43,7 +44,7 @@ const settle = <T,>(p: Promise<T>) =>
  */
 export default async function RatesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const q = normalizeSearchParams(await searchParams);
-  const month = q.month ?? new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 7);
+  const month = q.month ?? (await hotelClock()).month();
   const validMonth =
     /^\d{4}-(0[1-9]|1[0-2])$/.test(month) &&
     Number(month.slice(0, 4)) >= 1000 &&

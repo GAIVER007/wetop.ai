@@ -1,0 +1,73 @@
+# Модульные (unit) · 26.09.2026 18:24 Алматы · vm
+# коммит 3260e01 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-24-05Z-unit-2b00.json' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 18775  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ❯ |unit| apps/api/src/reservations/reservations.controller.test.ts (30 tests | 1 failed) 1484ms
+   ❯ manual reservation API (30)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 291ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 15ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 10ms
+     ✓ POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 10ms
+     ✓ ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 21ms
+     ✓ ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 8ms
+     ✓ ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 44ms
+     ✓ ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 58ms
+     ✓ ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 57ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 24ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 24ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 21ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 86ms
+     ✓ отмена и незаезд берут замок брони раньше, чем читают её состояние 20ms
+     × предпросмотр действия замок брони не берёт — только читает 28ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 62ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 17ms
+     ✓ T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 9ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 20ms
+     ✓ T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 79ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 53ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 17ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 41ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке брони маскируются — и при создании, и при правке 23ms
+     ✓ Q-169: база в Казахстане (PII_STORAGE=real) — заметка как введена 3ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 29ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 13ms
+     ✓ GET /rate-plans lists only active tariffs 4ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 63ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 44ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > предпросмотр действия замок брони не берёт — только читает
+AssertionError: expected [ 'lock:20260910-CAYAAZ', …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "lock:20260910-CAYAAZ",
++   "lock:20260910-CAYAAZ",
++ ]
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:808:68
+    806|       .get(`/reservations/${n}/items/${itemId}/extend-preview?nights=1…
+    807|       .expect(200);
+    808|     expect(fake.state.events.filter((e) => e.startsWith('lock:'))).toE…
+       |                                                                    ^
+    809|     expect(fake.state.events).toContain(`read:${n}`);
+    810|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 29 passed (30)
+   Start at  13:24:06
+   Duration  6.74s (transform 56%, tests 23%, import 21%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-24-05Z-unit-2b00.json
+
+# код выхода 1 · 8 с

@@ -64,6 +64,8 @@ export interface AnalyticsRepository {
   sites(): Promise<SiteRecord[]>;
   site(id: string): Promise<SiteRecord | null>;
   siteByKey(publicKey: string): Promise<SiteRecord | null>;
+  /** Все сайты всех объектов — только для приёмника счётчика: ключ → сайт одним запросом, без поиска на каждый ключ */
+  allSites(): Promise<SiteRecord[]>;
   /** Сайт бронирования организации для котировки продавца (Q-166, ADR-085): первый ACTIVE с включённым
    * бронированием и тарифом сайта — тот же выбор, что у фактов продавца. `null` — такого нет */
   bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null>;
@@ -164,15 +166,27 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   private readonly propertyName = LUXX_APARTS_PROPERTY.name;
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  /**
+   * Сайты объекта: вошедший — объекта своей организации (ADR-061). Список, карточка, правка и удаление шли по голому
+   * id, и чужая организация читала, меняла и удаляла сайт объекта вместе с его аналитикой (аудит 26.09, В-3).
+   */
+  private async propertyId(): Promise<string> {
+    return propertyIdRef(this.prisma.db, this.propertyName);
+  }
+
   async sites(): Promise<SiteRecord[]> {
     const rows = await this.prisma.db.trackedSite.findMany({
+      where: { propertyId: await this.propertyId() },
       orderBy: { createdAt: 'asc' },
       select: SITE_SELECT,
     });
     return rows.map(toRecord);
   }
   async site(id: string): Promise<SiteRecord | null> {
-    const r = await this.prisma.db.trackedSite.findUnique({ where: { id }, select: SITE_SELECT });
+    const r = await this.prisma.db.trackedSite.findFirst({
+      where: { id, propertyId: await this.propertyId() },
+      select: SITE_SELECT,
+    });
     return r ? toRecord(r) : null;
   }
   async siteByKey(publicKey: string): Promise<SiteRecord | null> {
@@ -181,6 +195,10 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       select: SITE_SELECT,
     });
     return r ? toRecord(r) : null;
+  }
+  async allSites(): Promise<SiteRecord[]> {
+    const rows = await this.prisma.db.trackedSite.findMany({ select: SITE_SELECT });
+    return rows.map(toRecord);
   }
   async bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null> {
     const r = await this.prisma.db.trackedSite.findFirst({
@@ -200,9 +218,8 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     hosts: string[];
     publicKey: string;
   }): Promise<SiteRecord> {
-    const property = { id: await propertyIdRef(this.prisma.db, this.propertyName) };
     const r = await this.prisma.db.trackedSite.create({
-      data: { propertyId: property.id, ...input },
+      data: { propertyId: await this.propertyId(), ...input },
       select: SITE_SELECT,
     });
     return toRecord(r);
@@ -217,8 +234,8 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       bookingRatePlanId?: string | null;
     },
   ): Promise<SiteRecord | null> {
-    const exists = await this.prisma.db.trackedSite.findUnique({
-      where: { id },
+    const exists = await this.prisma.db.trackedSite.findFirst({
+      where: { id, propertyId: await this.propertyId() },
       select: { id: true },
     });
     if (!exists) return null;
@@ -230,7 +247,9 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     return toRecord(r);
   }
   async deleteSite(id: string): Promise<boolean> {
-    const { count } = await this.prisma.db.trackedSite.deleteMany({ where: { id } });
+    const { count } = await this.prisma.db.trackedSite.deleteMany({
+      where: { id, propertyId: await this.propertyId() },
+    });
     return count > 0;
   }
 
@@ -385,21 +404,21 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   }
 
   async ratePlanByCode(code: string): Promise<RatePlanOption | null> {
-    const property = { id: await propertyIdRef(this.prisma.db, this.propertyName) };
     return this.prisma.db.ratePlan.findUnique({
-      where: { propertyId_code: { propertyId: property.id, code } },
+      where: { propertyId_code: { propertyId: await this.propertyId(), code } },
       select: { id: true, code: true, name: true, active: true },
     });
   }
   async defaultBookingRatePlan(): Promise<RatePlanOption | null> {
     const select = { id: true, code: true, name: true, active: true } as const;
+    const propertyId = await this.propertyId();
     return (
       (await this.prisma.db.ratePlan.findFirst({
-        where: { active: true, exelyId: '10157482' },
+        where: { propertyId, active: true, exelyId: '10157482' },
         select,
       })) ??
       this.prisma.db.ratePlan.findFirst({
-        where: { active: true },
+        where: { propertyId, active: true },
         orderBy: { name: 'asc' },
         select,
       })
@@ -411,7 +430,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     confirmationNumber: string,
   ): Promise<boolean> {
     const reservation = await this.prisma.db.reservation.findFirst({
-      where: { confirmationNumber },
+      where: { confirmationNumber, property: { trackedSites: { some: { id: siteId } } } },
       select: { id: true },
     });
     if (!reservation) return false;

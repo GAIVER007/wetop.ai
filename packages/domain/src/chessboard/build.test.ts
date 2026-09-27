@@ -1,5 +1,9 @@
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { buildChessboard, dateRange, type ChessboardInput } from './index';
+import { buildChessboard, dateRange, daySpan, type ChessboardInput } from './index';
+
+const BUILD_MODULE = fileURLToPath(new URL('./build.ts', import.meta.url));
 
 /** Вымышленный фонд: 3 ячейки, 2 назначения, 1 блокировка. Полуинтервалы [start, end). */
 const input: ChessboardInput = {
@@ -67,6 +71,33 @@ describe('dateRange', () => {
       '2026-09-12',
       '2026-09-13',
     ]);
+  });
+
+  // Аудит 26.09.2026, В-6: после 9999-12-31 строка даты становится «+010000-01», а она по строкам меньше
+  // «9999-12-31» — цикл не кончался, и один запрос шахматки вешал весь API. Зависание синхронное, vitest его
+  // не прервёт, поэтому вызов идёт в отдельном процессе с таймаутом.
+  it('ends on the last representable date instead of looping forever', () => {
+    const run = spawnSync(
+      process.execPath,
+      [
+        '--import',
+        'tsx',
+        '-e',
+        `import('${BUILD_MODULE}').then((m) => console.log(JSON.stringify(m.dateRange('9999-12-30', '9999-12-31'))))`,
+      ],
+      { encoding: 'utf8', timeout: 15_000 },
+    );
+    expect(run.signal, 'dateRange завис и был убит по таймауту').toBeNull();
+    expect(run.stdout.trim()).toBe('["9999-12-30","9999-12-31"]');
+  });
+});
+
+describe('daySpan', () => {
+  it('counts inclusive days without building the list', () => {
+    expect(daySpan('2026-09-10', '2026-09-13')).toBe(4);
+    expect(daySpan('2026-09-10', '2026-09-10')).toBe(1);
+    expect(daySpan('2026-02-27', '2026-03-01')).toBe(3);
+    expect(daySpan('1000-01-01', '9999-12-31')).toBe(3_287_182);
   });
 });
 
@@ -223,5 +254,33 @@ describe('buildChessboard: канал, долг и уборка', () => {
     expect(cell.state).toBe('OCCUPIED');
     expect(cell.channel).toBeUndefined();
     expect(cell.balanceMinor).toBeUndefined();
+  });
+});
+
+// Аудит 26.09, С-37: блокировка и проживание обходились день за днём по всей длине, даже за пределами доски. Блокировка
+// до 9999 года — 2,9 млн шагов на каждую отрисовку шахматки и Главной, секунды занятого процесса.
+describe('шахматка и далёкие даты', () => {
+  it('блокировка до 9999 года красит только окно доски и не обходит тысячелетия', () => {
+    const started = performance.now();
+    const b = buildChessboard({
+      ...input,
+      blocks: [
+        { unitId: 'u3', dateFrom: '2026-09-11', dateTo: '9999-12-31', type: 'MAINTENANCE', reason: null },
+      ],
+    });
+    const ms = performance.now() - started;
+    expect(b.rows.find((r) => r.unit.code === '9011')!.cells.map((c) => c.state)).toEqual([
+      'FREE',
+      'BLOCKED',
+      'BLOCKED',
+      'BLOCKED',
+    ]);
+    expect(ms, `шахматка строилась ${Math.round(ms)} мс`).toBeLessThan(500);
+  });
+
+  it('проживание, начатое до доски, красится с первого дня доски и не помечается заездом', () => {
+    const b = buildChessboard(input);
+    const u1 = b.rows.find((r) => r.unit.code === '9001')!.cells;
+    expect(u1[0]).toMatchObject({ state: 'OCCUPIED', isArrival: false, isLastNight: true });
   });
 });

@@ -12,7 +12,9 @@ import {
   Param,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
+import { ChannelOperatorInterceptor } from './operator-access';
 import { InboundBookingsService } from './inbound.service';
 import { OutboxWorker } from './outbox.worker';
 import { ARI_PUBLISHER, PROVIDER, type AriPublisher } from './ari-publisher';
@@ -43,6 +45,8 @@ function within<T>(work: Promise<T>, ms: number, message: string): Promise<T> {
 
 /** Channex: настройка объекта на staging и полная выгрузка ARI. Только localhost (роли — Q-061…064). */
 @Controller('channels/channex')
+// только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
+@UseInterceptors(ChannelOperatorInterceptor)
 export class ChannelsController {
   constructor(
     @Inject(ChannexSyncService) private readonly sync: ChannexSyncService,

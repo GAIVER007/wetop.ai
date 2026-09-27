@@ -3,6 +3,7 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import { resolvePeriod } from '@pms/domain';
 import { ApiError } from '../../lib/api';
 import { hotelApi, hotelToday, validDate } from '../../lib/hotel-api';
+import { FALLBACK_TIMEZONE } from '../../lib/property-time';
 import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
 import Link from 'next/link';
@@ -26,7 +27,7 @@ async function PropertyName() {
 
 async function PropertyClock() {
   const hotel = await loadHotel();
-  return <HotelClock timezone={hotel?.property.timezone ?? 'Asia/Almaty'} />;
+  return <HotelClock timezone={hotel?.property.timezone ?? FALLBACK_TIMEZONE} />;
 }
 
 /**
@@ -40,7 +41,7 @@ async function PropertyClock() {
  */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
-  const today = hotelToday();
+  const today = await hotelToday();
   const period = resolvePeriod(
     { preset: sp.period, from: sp.from, to: sp.to, date: sp.date },
     today,

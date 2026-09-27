@@ -11,6 +11,8 @@ import { RATES_REPOSITORY, type RateChange, type RatesRepository } from './rates
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 /** Предел календаря цен: год с запасом. Экран просит месяц, массовая правка — период руками */
 const MAX_CALENDAR_DAYS = 366;
+/** Строк в одной массовой правке: экран шлёт единицы, скрипты сертификации — десятки */
+const MAX_BULK_CHANGES = 200;
 const DAYS = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'] as const;
 export interface RateChangeDto {
   accommodationTypeCode?: string;
@@ -93,6 +95,10 @@ export class RatesService {
   async bulk(dto: { changes?: RateChangeDto[] }) {
     if (!Array.isArray(dto.changes) || dto.changes.length === 0)
       throw new BadRequestException('changes: хотя бы одно изменение');
+    // Пределы проверяются до базы: строка до 9999 года разворачивалась в миллионы дат внутри транзакции и
+    // останавливала весь API (аудит 26.09, С-32)
+    if (dto.changes.length > MAX_BULK_CHANGES)
+      throw new BadRequestException(`changes: не больше ${MAX_BULK_CHANGES} изменений за раз`);
     const prepared: Array<
       RateChange & { accommodationTypeId: string; ratePlanId: string; capacityAdults: number }
     > = [];
@@ -104,6 +110,14 @@ export class RatesService {
         throw new BadRequestException(
           `${where}: dateFrom/dateTo — даты YYYY-MM-DD, dateFrom ≤ dateTo`,
         );
+      if ((Date.parse(c.dateTo!) - Date.parse(c.dateFrom!)) / 86_400_000 + 1 > MAX_CALENDAR_DAYS)
+        throw new BadRequestException(
+          `${where}: период — не длиннее ${MAX_CALENDAR_DAYS} дней за одну строку`,
+        );
+      // Пустой список — это «ни одного дня», а не «все дни»: иначе стоп-продажа уходила на весь период (С-48).
+      // Все дни — список не передавать.
+      if (Array.isArray(c.days) && c.days.filter((d) => d).length === 0)
+        throw new BadRequestException(`${where}: отметьте хотя бы один день недели`);
       const days = (c.days ?? []).filter((d) => d);
       if (days.some((d) => !(DAYS as readonly string[]).includes(d)))
         throw new BadRequestException(`${where}: days — из ${DAYS.join(', ')}`);

@@ -39,7 +39,7 @@ export default async function ChannelManagerPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = normalizeSearchParams(await searchParams);
-  const today = hotelToday();
+  const today = await hotelToday();
   const from = sp.from ?? `${today.slice(0, 7)}-01`;
   const to = sp.to ?? today;
   const status = sp.status ?? 'ALL';

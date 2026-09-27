@@ -31,3 +31,12 @@ def test_postgres_18_volume_is_mounted_one_level_up() -> None:
     app и monitor не поднимаются. Поймано живым docker compose up."""
     assert "pgdata:/var/lib/postgresql\n" in COMPOSE_TEXT
     assert "pgdata:/var/lib/postgresql/data" not in COMPOSE_TEXT
+
+
+def test_env_example_has_no_comment_after_empty_value() -> None:
+    # «KEY=   # пояснение»: compose при пустом значении отдаёт в контейнер сам комментарий, и настройки
+    # падают на разборе чисел — так 26.09.2026 не поднялся продавец из `cp env.example .env`.
+    # Пояснение к пустому значению — строкой выше.
+    text = (ROOT / "env.example").read_text(encoding="utf-8")
+    offenders = re.findall(r"^([A-Z][A-Z0-9_]*)=[ \t]+#", text, re.MULTILINE)
+    assert offenders == []

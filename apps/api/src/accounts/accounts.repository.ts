@@ -81,6 +81,13 @@ export interface AccountsRepository {
   pendingInvites(organizationId: string, now: Date): Promise<InviteRecord[]>;
   inviteByTokenHash(tokenHash: string): Promise<InviteRecord | null>;
   markInviteAccepted(id: string, at: Date): Promise<void>;
+  /** Сколько приглашений организация создала с `since` — для суточного предела (аудит 26.09, С-11). */
+  invitesCreatedSince(organizationId: string, since: Date): Promise<number>;
+  /**
+   * Отозвать живое приглашение своей организации: срок истекает сейчас, ссылка больше не открывается (аудит 26.09,
+   * С-10). `false` — такого живого приглашения у этой организации нет.
+   */
+  revokeInvite(id: string, organizationId: string, at: Date): Promise<boolean>;
   /** Есть ли у адреса членство в этой организации (любой статус человека). */
   isMember(email: string, organizationId: string): Promise<boolean>;
   /**

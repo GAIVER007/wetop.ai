@@ -86,7 +86,12 @@ exit 0
 `,
   );
   // Подставной curl: Telegram «принимает», вызов записывается — с токеном, чтобы проверить, что в журнал он не идёт
-  writeFileSync(join(bin, 'curl'), '#!/usr/bin/env bash\necho "curl $*" >> "$FAKE_CALLS.curl"\nexit 0\n');
+  // Настройки из stdin (`--config -`) пишутся отдельно: так видно, что токен не в аргументах, которые видны в `ps`
+  writeFileSync(
+    join(bin, 'curl'),
+    '#!/usr/bin/env bash\necho "curl $*" >> "$FAKE_CALLS.curl"\n' +
+      'if [[ " $* " == *" --config - "* ]]; then cat >> "$FAKE_CALLS.curl.stdin"; fi\nexit 0\n',
+  );
   chmodSync(join(bin, 'docker'), 0o755);
   chmodSync(join(bin, 'curl'), 0o755);
 });
@@ -112,8 +117,10 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(dockerCalls()).toContain('exec -T api wget');
     expect(readFileSync(join(state, 'deployed'), 'utf8').trim()).toBe(target);
     expect(r.out).toContain(`${target.slice(0, 8)} выложен`);
-    expect(readFileSync(`${calls}.curl`, 'utf8')).toContain('sendMessage');
+    expect(readFileSync(`${calls}.curl.stdin`, 'utf8')).toContain('sendMessage');
     expect(r.out).not.toContain(TOKEN);
+    // Аудит 25.09, С-15: токен бота был частью адреса в аргументах curl — его видел любой процесс через `ps`
+    expect(readFileSync(`${calls}.curl`, 'utf8')).not.toContain(TOKEN);
     // второй запуск — выкладывать нечего
     expect(run().out).toBe('');
   });
@@ -152,6 +159,20 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(next.out).toContain('0003_next');
   });
 
+  // Проверка исправлений 26.09: отказ на A, release ушёл на B, cron отказал и B; флаг без вершины не должен выложить B
+  it('флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине', () => {
+    commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    const before = head();
+    expect(run().code).toBe(1);
+    commit('packages/database/prisma/migrations/0003_next/migration.sql', 'select 3;\n', 'next migration');
+    expect(run().code).toBe(1);
+    const r = run({}, ['--migrations-applied']);
+    expect(r.code, r.out).toBe(2);
+    expect(r.out).toContain('вершин');
+    expect(head()).toBe(before);
+    expect(dockerCalls()).not.toContain('up -d');
+  });
+
   // ТЗ аудита 25.09.2026, С-1: флаг без вершины разрешал бы ту вершину, что стоит СЕЙЧАС, а не ту,
   // чьи миграции применял владелец, — release могли перемотать между отказом и запуском
   it('--migrations-applied без вершины — отказ с подсказкой, ничего не выложено', () => {
@@ -163,6 +184,28 @@ describe('scripts/ops/auto-deploy.sh', () => {
     expect(r.out).toContain('вершин');
     expect(head()).toBe(before);
     expect(dockerCalls()).not.toContain('up -d');
+  });
+
+  it('--migrations-applied с номером вершины выкладывает ровно её, другую — нет', () => {
+    const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
+    expect(run().code).toBe(1);
+    expect(run({}, ['--migrations-applied', 'deadbeef']).code).not.toBe(0);
+    const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
+    expect(r.code, r.out).toBe(0);
+    expect(head()).toBe(target);
+  });
+
+  // Аудит 26.09, С-67: клон переключался на новую вершину до сборки. Прерванный запуск (нехватка памяти, перезагрузка)
+  // оставлял клон на новой вершине с прежними контейнерами, и следующий запуск молча считал всё выложенным.
+  it('прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает', () => {
+    expect(run().code).toBe(0); // первый запуск запоминает выложенное
+    const target = commit('apps/web/page.txt', 'v2\n', 'new page');
+    git(server, 'fetch', '-q', 'origin', 'release');
+    git(server, 'checkout', '-q', '-B', 'release', target);
+    const r = run();
+    expect(r.code, r.out).toBe(0);
+    expect(dockerCalls()).toMatch(/up -d --build api web/);
+    expect(readFileSync(join(state, 'deployed'), 'utf8').trim()).toBe(target);
   });
 
   it('release перемотали после отказа — флаг со старой вершиной не выкладывает новую', () => {

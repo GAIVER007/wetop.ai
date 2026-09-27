@@ -20,6 +20,7 @@ import {
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const BLOCK_TYPES: BlockType[] = ['MAINTENANCE', 'MANAGEMENT', 'OUT_OF_ORDER', 'OTHER'];
 const HK: HousekeepingStatus[] = ['DIRTY', 'CLEAN', 'INSPECTED'];
+const MAX_BLOCK_NIGHTS = 3 * 366;
 const plusDays = (iso: string, n: number) => {
   const x = new Date(`${iso}T00:00:00Z`);
   x.setUTCDate(x.getUTCDate() + n);
@@ -64,6 +65,10 @@ export class UnitsService {
       throw new BadRequestException(
         'dateFrom/dateTo — даты YYYY-MM-DD, dateTo > dateFrom (ночь выезда не блокируется)',
       );
+    // Три года — с запасом на долгий ремонт; дольше — почти наверняка опечатка в годе, а каждый расчёт доступности
+    // обходил бы такую блокировку по дням (аудит 26.09, С-37)
+    if ((Date.parse(dto.dateTo!) - Date.parse(dto.dateFrom!)) / 86_400_000 > MAX_BLOCK_NIGHTS)
+      throw new BadRequestException('Блокировка — не дольше трёх лет. Проверьте год в датах.');
     if (!dto.type || !BLOCK_TYPES.includes(dto.type as BlockType))
       throw new BadRequestException(`type — один из ${BLOCK_TYPES.join(', ')}`);
     this.assertCode(code);

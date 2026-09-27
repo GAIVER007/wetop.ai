@@ -18,6 +18,7 @@ import type {
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY, todayAt } from '@pms/domain';
+import { maskAuditFreeText, withoutGuestIdentity } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
 import { cardForAudit, isReservationCard, loadReservationCard, type ReservationCard } from './reservation-card';
 import { auditUserId } from '../accounts/actor';
@@ -234,6 +235,12 @@ export interface ReservationsRepository {
    * блокировки два запроса одновременно продают последнее место категории (Б2).
    */
   lockCategories(typeIds: string[]): Promise<void>;
+  /**
+   * Замок брони до конца транзакции (pg_advisory_xact_lock). Берётся до чтения её состояния: две одновременные отмены
+   * иначе обе проходили проверку «ещё не отменена» и начисляли штраф дважды (аудит 26.09, С-15). Порядок один для всех
+   * путей: сначала бронь, потом категории.
+   */
+  lockReservation(confirmationNumber: string): Promise<void>;
   /** Ограничения продаж (ADR-020) по датам [from, toExclusive) для категории × тарифа; нет строки — нет ограничений */
   restrictionsFor(
     accommodationTypeId: string,
@@ -334,7 +341,11 @@ export interface ReservationsRepository {
     confirmationNumber: string,
   ): Promise<Array<{ categoryCode: string; from: string; toExclusive: string }>>;
   /** Баланс счёта проживания: начислено − оплачено + возвращено (T3: выселение с долгом) */
-  stayBalanceMinor(itemId: string): Promise<bigint>;
+  /**
+   * Остаток к оплате по счёту проживания. `forUpdate` — сначала блокировка строки счёта, той же, что берут начисления и
+   * платежи (`finance.repository`): для выезда, который по этому остатку закрывает счёт (проверка исправлений 26.09).
+   */
+  stayBalanceMinor(itemId: string, opts?: { forUpdate?: boolean }): Promise<bigint>;
   /** Закрыть счёт проживания: гость рассчитался и уехал (DATA_MODEL §6, Folio.status) */
   closeFolio(itemId: string): Promise<void>;
   /** Маппинг провайдера: категория/тариф ↔ ID провайдера */
@@ -395,8 +406,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
         this.propertyCache = found;
       } else {
+        // самый ранний с этим именем — как `propertyRef` (аудит 26.09, С-2)
         const found = await this.db.property.findFirstOrThrow({
           where: { name: this.propertyName },
+          orderBy: { createdAt: 'asc' },
           select: { id: true, currency: true, timezone: true },
         });
         this.propertyCache = found;
@@ -530,8 +543,9 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
   }
   async unitByCode(code: string): Promise<UnitRef | null> {
-    return this.db.inventoryUnit.findUnique({
-      where: { code },
+    const { id: propertyId } = await this.property();
+    return this.db.inventoryUnit.findFirst({
+      where: { code, accommodationType: { propertyId } },
       select: { id: true, code: true, accommodationTypeId: true, active: true },
     });
   }
@@ -564,6 +578,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
     free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
     return free;
+  }
+  async lockReservation(confirmationNumber: string): Promise<void> {
+    await this.db
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.reservation:${confirmationNumber}`}, 0))`;
   }
   async lockCategories(typeIds: string[]): Promise<void> {
     // xact-блокировка отпускается сама при COMMIT/ROLLBACK; в одной транзакции повторный вызов не ждёт
@@ -1163,7 +1181,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       data: { status: 'CLOSED', closedAt: new Date() },
     });
   }
-  async stayBalanceMinor(itemId: string): Promise<bigint> {
+  async stayBalanceMinor(itemId: string, opts: { forUpdate?: boolean } = {}): Promise<bigint> {
+    if (opts.forUpdate)
+      await this.db.$queryRaw`
+        SELECT "id" FROM "folios" WHERE "reservation_item_id" = ${itemId}::uuid FOR UPDATE`;
     const folio = await this.db.folio.findUnique({
       where: { reservationItemId: itemId },
       select: {
@@ -1295,8 +1316,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
   }
   async audit(entry: AuditEntry): Promise<void> {
-    // В-5 (ТЗ аудита 25.09.2026): карточка в журнале — без ФИО, телефон маской; остальное — как было
-    const forJournal = (v: unknown) => (isReservationCard(v) ? cardForAudit(v) : v);
+    // В-5 (ТЗ аудита 25.09.2026): карточка в журнале — без ФИО, телефон маской. Остальное — без данных гостя под его
+    // ключами, и в свободном тексте (заметка, комментарий, причина) контакты под маской: журнал только дописывается
+    const forJournal = (v: unknown) =>
+      isReservationCard(v) ? maskAuditFreeText(cardForAudit(v)) : withoutGuestIdentity(v);
     await this.db.auditLog.create({
       data: {
         userId: auditUserId(),

@@ -1,0 +1,45 @@
+# Модульные (unit) · 26.09.2026 18:02 Алматы · vm
+# коммит ac21b4e (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-02-08Z-unit-7d7e.json' 'tests/unit/db-backup.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/db-backup.test.ts (13 tests | 1 failed) 626ms
+   ❯ db-backup.sh: ночная копия рабочей базы (13)
+     ✓ снимает копию схемы public по DIRECT_URL из .env, проверяет её и кладёт с правами 600; пароль не печатается 63ms
+     ✓ адрес из BACKUP_DATABASE_URL важнее .env 48ms
+     ✓ работает вне клона, как в контейнере postgres:17: скрипт и .env смонтированы отдельными файлами 52ms
+     × адрес для копии можно задать в .env: BACKUP_DATABASE_URL важнее DIRECT_URL 69ms
+     ✓ параметры Prisma из адреса срезаются: pg_dump их не понимает и падает 64ms
+     ✓ пароль с %-кодированием уходит в PGPASSWORD раскодированным, в аргументах его нет 56ms
+     ✓ pg_dump старше базы — отказ до съёмки: 16 не снимет базу 17 18ms
+     ✓ без строки подключения — понятный отказ, pg_dump не зовётся 10ms
+     ✓ копия без таблиц с данными не принимается и недописанной не остаётся 32ms
+     ✓ pg_dump упал — копии нет, код ненулевой, пароль из его сообщения замаскирован 30ms
+     ✓ после проверенной копии пишет статус для сторожа: его читает разбор домена, права 644, папка 755 64ms
+     ✓ упавшая или отвергнутая копия статус не трогает: сторож видит последнюю удачную 60ms
+     ✓ копии старше срока удаляются, свежие и чужие файлы остаются 57ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-backup.test.ts > db-backup.sh: ночная копия рабочей базы > адрес для копии можно задать в .env: BACKUP_DATABASE_URL важнее DIRECT_URL
+AssertionError: expected [ '--format=custom', …(5) ] to include 'postgresql://reader:***@backup.example…'
+ ❯ tests/unit/db-backup.test.ts:148:27
+    146|     const sb = sandbox({ env: `BACKUP_DATABASE_URL=${own}\nDIRECT_URL=…
+    147|     expect(sb.run().status).toBe(0);
+    148|     expect(sb.dumpArgs()).toContain(own);
+       |                           ^
+    149|   });
+    150|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  13:02:09
+   Duration  956ms (tests 77%, transform 20%, import 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-02-08Z-unit-7d7e.json
+
+# код выхода 1 · 2 с

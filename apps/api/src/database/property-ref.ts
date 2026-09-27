@@ -66,8 +66,12 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
   if (known) return known;
   // `findFirst`, а не `findFirstOrThrow`: так же читают объект остальные места, и подделки в тестах
   // не приходится учить второму методу. Отсутствие объекта — это «база ещё не настроена».
+  // Имя не уникально: регистрация создаёт объект с названием, введённым человеком. Без порядка база отдаёт строки как
+  // придётся, и одноимённая организация могла подменить объект служебного контекста (аудит 26.09, С-2). Самый ранний
+  // заведён до всех регистраций — его регистрацией не перехватить.
   const found = await db.property.findFirst({
     where: { name },
+    orderBy: { createdAt: 'asc' },
     select: { id: true, name: true, organizationId: true, timezone: true },
   });
   if (!found) throw new Error(`Объект «${name}» не найден: база ещё не настроена`);

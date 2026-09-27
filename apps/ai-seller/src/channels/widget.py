@@ -292,7 +292,23 @@ async def upload_attachment(request: Request, visitor_key: str = "") -> Response
     if sniff_type(data) not in allowed:
         raise HTTPException(status_code=415, detail="unsupported")
     attachment_id = secrets.token_hex(16)
-    directory = Path(settings.widget_attachment_dir)
+    root = Path(settings.widget_attachment_dir)
+    # У продавца — подпапка гостиницы: её доля считается отдельно (ревизия 26.09).
+    # Имя — UUID организации из двери, а не что-то из запроса.
+    org_folder = str(org.id) if org is not None else None
+    directory = root / org_folder if org_folder else root
+    room = await run_in_threadpool(
+        _make_room,
+        root,
+        settings.widget_attachment_dir_max_mb * 1024 * 1024,
+        settings.widget_attachment_keep_days,
+        len(data),
+        org_folder=org_folder,
+        org_max_bytes=settings.widget_attachment_org_max_mb * 1024 * 1024,
+    )
+    if not room:
+        logger.warning("widget: папка вложений полна, снимок не принят")
+        raise HTTPException(status_code=507, detail="storage_full")
     try:
         await run_in_threadpool(directory.mkdir, parents=True, exist_ok=True)
         # 🔴 Имя и расширение из запроса не берём: в них приезжает '../'.
@@ -301,3 +317,58 @@ async def upload_attachment(request: Request, visitor_key: str = "") -> Response
         logger.exception("widget: вложение не сохранено")
         raise HTTPException(status_code=500, detail="error") from None
     return JSONResponse(content={"attachment_id": attachment_id})
+
+
+def _make_room(
+    directory: Path,
+    max_bytes: int,
+    keep_days: int,
+    incoming: int,
+    *,
+    org_folder: str | None = None,
+    org_max_bytes: int = 0,
+) -> bool:
+    """Место под новое вложение: старше срока — удаляются, остальное считается.
+
+    🔴 Папка на том же диске, что база; файлы никто не удалял, и с одного адреса
+    набегало ~7 ГБ в сутки (аудит 26.09, С-62). Сверх предела — отказ, а не
+    заполненный диск у платформы.
+
+    Предел папки общий на всех, поэтому у продавца у каждой гостиницы ещё и своя
+    доля в подпапке org_folder: посетители одной гостиницы упираются в её долю,
+    а не забивают папку остальным (ревизия 26.09). org_max_bytes <= 0 — без доли.
+    """
+    if not directory.exists():
+        within_share = org_folder is None or org_max_bytes <= 0 or incoming <= org_max_bytes
+        return incoming <= max_bytes and within_share
+    cutoff = time.time() - keep_days * 86_400
+    total = 0
+    share = 0
+    for path in directory.iterdir():
+        try:
+            if path.is_dir():
+                size = sum(_live_size(inner, cutoff) for inner in path.iterdir())
+                total += size
+                if path.name == org_folder:
+                    share = size
+            else:
+                total += _live_size(path, cutoff)
+        except OSError:
+            continue
+    if org_folder is not None and org_max_bytes > 0 and share + incoming > org_max_bytes:
+        return False
+    return total + incoming <= max_bytes
+
+
+def _live_size(path: Path, cutoff: float) -> int:
+    """Размер файла; старше срока — удаляется и не считается. Не файл — ноль."""
+    try:
+        info = path.stat()
+        if not path.is_file():
+            return 0
+        if info.st_mtime < cutoff:
+            path.unlink(missing_ok=True)
+            return 0
+        return info.st_size
+    except OSError:
+        return 0

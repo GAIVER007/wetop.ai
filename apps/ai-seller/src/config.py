@@ -8,6 +8,7 @@
 import logging
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -59,6 +60,8 @@ class Settings(BaseSettings):
     llm_keys_secret: str = ""
     # С3: адрес Graph API для WhatsApp Cloud (в тестах подменяется).
     whatsapp_graph_base_url: str = "https://graph.facebook.com/v20.0"
+    # Предел тела вебхука WhatsApp; проверяется по Content-Length ДО чтения и подписи.
+    whatsapp_max_body_bytes: int = 256 * 1024
     llm_model: str = ""
     llm_model_fallback: str = ""
     llm_model_emergency: str = ""
@@ -163,6 +166,14 @@ class Settings(BaseSettings):
     widget_attachments_enabled: bool = True
     widget_attachment_max_mb: int = 5
     widget_attachment_dir: str = "data/attachments"
+    # 🔴 Папка вложений — на том же диске, что база. Без предела с одного
+    # адреса набегало ~7 ГБ в сутки (аудит 26.09, С-62): сверх предела —
+    # отказ, старше срока — удаляются.
+    widget_attachment_dir_max_mb: int = 500
+    # Доля одной гостиницы (ревизия 26.09): у продавца вложения лежат в подпапке
+    # организации, и одна гостиница не забивает папку всем. 0 — без доли.
+    widget_attachment_org_max_mb: int = 100
+    widget_attachment_keep_days: int = 30
     # Что принимаем: снимок экрана — это картинка.
     widget_attachment_types: str = "image/png,image/jpeg,image/webp"
     # Долгий опрос: браузер висит на запросе до ответа или до этого срока.
@@ -196,6 +207,12 @@ class Settings(BaseSettings):
     # Белый список имён, которые панель меняет без перезапуска (см.
     # runtime_settings.py). 🔴 Системного промпта здесь нет и быть не может:
     # его источник правды — файл на томе, а не ключ в Redis.
+    # ─── Бюджет модели ───
+    # Токенов в сутки на организацию (у помощника — на экземпляр). Публичный
+    # ключ виджета иначе превращается в счёт за модель без предела (аудит
+    # 25.09, С-10). Исчерпан — вежливый ответ без платного вызова. 0 — без предела.
+    llm_daily_token_budget: int = 3_000_000
+
     runtime_settings_allowed: str = (
         "llm_model,sla_seconds,alert_heartbeat_enabled,guard_max_input_chars"
     )
@@ -203,8 +220,14 @@ class Settings(BaseSettings):
     # ─── Роль бота ───
     # support — помощник платформы, seller — продавец. От роли зависят
     # инструменты, промпт и сбор контакта, поэтому это настройка, а не
-    # правка кода. Незнакомое значение сводит к support normalize_bot_role.
+    # правка кода. Пустое значение — support; незнакомое — отказ старта
+    # (_check_bot_role ниже).
     bot_role: str = "support"
+
+    @field_validator("bot_role", mode="before")
+    @classmethod
+    def _known_role(cls, value: object) -> str:
+        return _check_bot_role(value)
     # Справочник ошибок и папка документации платформы — ДАННЫЕ на томе,
     # их правит владелец без выкатки.
     errors_catalog_path: str = "data/errors.md"
@@ -310,6 +333,22 @@ class Settings(BaseSettings):
 
 # Роли бота. Список здесь, а не в канале: канал только спрашивает.
 BOT_ROLES: tuple[str, ...] = ("support", "seller")
+
+
+def _check_bot_role(value: object) -> str:
+    """Роль бота при старте: пустая — помощник, как раньше; незнакомая — отказ.
+
+    🔴 До 26.09 незнакомая роль молча сводилась к помощнику. У экземпляра
+    продавца это значило: панель без отбора по организации отдаёт диалоги
+    всех гостиниц, виджет не требует ключа и доменов (аудит 26.09, С-60).
+    Бот, который не стартовал, видно по /health; молчаливую утечку — нет.
+    """
+    role = str(value or "").strip().lower()
+    if not role:
+        return "support"
+    if role not in BOT_ROLES:
+        raise ValueError(f"BOT_ROLE={value!r}: роль бота — одна из {', '.join(BOT_ROLES)}")
+    return role
 
 
 def normalize_bot_role(value: str | None) -> str:

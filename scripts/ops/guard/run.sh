@@ -30,10 +30,11 @@ say() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"; }
 tg() {
   [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ] || return 0
   for chat in $(echo "$TELEGRAM_CHAT_ID" | tr ',' ' '); do
-    curl -fsS -o /dev/null -X POST \
-      "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-      --data-urlencode "chat_id=${chat}" \
-      --data-urlencode "text=$1" || say 'телеграм не принял сообщение'
+    # Адрес с токеном — через --config из stdin: аргументы curl видны в `ps` всем процессам машины (аудит 26.09)
+    printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' "$TELEGRAM_BOT_TOKEN" |
+      curl -fsS -o /dev/null -X POST --config - \
+        --data-urlencode "chat_id=${chat}" \
+        --data-urlencode "text=$1" || say 'телеграм не принял сообщение'
   done
 }
 

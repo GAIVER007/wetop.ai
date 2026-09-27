@@ -83,22 +83,48 @@ export function guestForStorage(
   return pseudonymizeGuest(contacts, key, pseudonymSalt(env));
 }
 
-/** Почта в свободном тексте */
-const EMAIL_IN_TEXT = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+/**
+ * Почта в свободном тексте. Совпадение начинается только на границе слова: без этого якоря выражение перебирало каждую
+ * позицию длинного слова до конца — квадратичная работа, заметка в 100 КБ маскировалась секунды (аудит 26.09, С-38).
+ */
+const EMAIL_IN_TEXT = /(?<![\p{L}\p{N}._%+-])[\p{L}\p{N}._%+-]+@[\p{L}\p{N}.-]+\.\p{L}{2,}/gu;
 /** Международный номер: «+», код страны и ещё не меньше шести цифр, с пробелами, скобками, точками и дефисами */
 const PHONE_INTL = /(?<![\w+])\+\d[\d\s().-]{6,}\d(?!\w)/g;
 /** Казахстанский или российский номер без «+»: 11 цифр на 7 или 8. Номер брони канала после «BDC-» не задевается */
 const PHONE_LOCAL = /(?<![\w-])[78][\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}(?![\w-])/g;
 
 /**
- * Почта и телефоны в свободном тексте заменяются на `<почта>` и `<телефон>` (Q-169, SECURITY.md §2, §7).
- * Номера броней, даты, суммы и время остаются. Имена так не поймать — от них защищает только подсказка у поля.
+ * Казахстанский мобильный без кода страны: 10 цифр на 700–708, 747, 750–751, 760–764, 771–778 — с пробелами, скобками,
+ * дефисами или слитно (аудит 26.09, С-40). Коды — узкие, чтобы не задеть десятизначные номера броней каналов.
+ */
+const PHONE_KZ_MOBILE =
+  /(?<![\w-])\(?7(?:0[0-8]|47|5[01]|6[0-4]|7[1-8])\)?[\s-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}(?![\w-])/g;
+/** 12 цифр подряд — кандидат в ИИН; маскируется, только если сходятся дата рождения и контрольная цифра */
+const IIN_CANDIDATE = /(?<![\w-])\d{12}(?![\w-])/g;
+
+/** Контрольная цифра ИИН (алгоритм РК): веса 1…11, при остатке 10 — веса 3…11,1,2; снова 10 — номер негодный */
+function isIin(value: string): boolean {
+  const d = [...value].map(Number);
+  const month = d[2]! * 10 + d[3]!;
+  const day = d[4]! * 10 + d[5]!;
+  if (month < 1 || month > 12 || day < 1 || day > 31 || d[6]! < 1 || d[6]! > 6) return false;
+  const sum = (weights: number[]) => d.slice(0, 11).reduce((a, x, i) => a + x * weights[i]!, 0) % 11;
+  let control = sum([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  if (control === 10) control = sum([3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2]);
+  return control !== 10 && control === d[11];
+}
+
+/**
+ * Почта, телефоны и ИИН в свободном тексте заменяются на `<почта>`, `<телефон>` и `<ИИН>` (Q-169, SECURITY.md §2,
+ * §7). Номера броней, даты, суммы и время остаются. Имена так не поймать — от них защищает только подсказка у поля.
  */
 export function maskContacts(text: string): string {
   return text
     .replace(EMAIL_IN_TEXT, '<почта>')
     .replace(PHONE_INTL, '<телефон>')
-    .replace(PHONE_LOCAL, '<телефон>');
+    .replace(PHONE_LOCAL, '<телефон>')
+    .replace(PHONE_KZ_MOBILE, '<телефон>')
+    .replace(IIN_CANDIDATE, (m) => (isIin(m) ? '<ИИН>' : m));
 }
 
 /**
@@ -158,4 +184,59 @@ export function deskGuestForStorage(
     phone: null,
     email: null,
   };
+}
+
+/** Ключи, под которыми в записях журнала лежит гость (карточка брони, ревизия канала) */
+const GUEST_KEYS = new Set(['primaryGuest', 'guest', 'guests', 'customer']);
+/**
+ * Свободный текст, куда гость и канал пишут что угодно — телефон, почту, имя. В журнале — всегда с маской контактов, и при
+ * `PII_STORAGE=real` тоже: в самой записи текст хранится как введён, а журнал только дописывается (проверка исправлений 26.09)
+ */
+const FREE_TEXT_KEYS = new Set(['notes', 'note', 'comment', 'reason']);
+/** Что о госте журналу можно знать: кто это (id) и для отчётов eQonaq — гражданство. Имени и контактов нет */
+const GUEST_AUDIT_FIELDS = new Set(['id', 'citizenship', 'isPrimary']);
+
+const keepGuestIdentityOut = (guest: unknown): unknown => {
+  if (guest === null || typeof guest !== 'object') return null;
+  return Object.fromEntries(
+    Object.entries(guest as Record<string, unknown>).filter(([k]) => GUEST_AUDIT_FIELDS.has(k)),
+  );
+};
+
+/**
+ * Значение для `audit_logs.before/after` без имени и контактов гостя (аудит 25.09, В-5). Карточка брони уходила в журнал
+ * целиком; после переезда базы в РК и «журнал только дописывается» (ADR-082) настоящие ФИО и телефоны стали бы в нём
+ * неудаляемыми. Под ключами гостя остаются только id, гражданство и признак основного гостя — по разрешённому списку,
+ * чтобы новое поле карточки не уехало в журнал само.
+ */
+/**
+ * Только маска контактов в свободном тексте (`notes`, `note`, `comment`, `reason`) на любой глубине; остальное как есть.
+ * Для карточки брони, у которой гостя уже спроецировал `cardForAudit` (apps/api), — и для частей `withoutGuestIdentity`.
+ */
+export function maskAuditFreeText(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(maskAuditFreeText);
+  if (value === null || typeof value !== 'object' || value instanceof Date) return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([k, v]) => [
+      k,
+      FREE_TEXT_KEYS.has(k) && typeof v === 'string' ? maskContacts(v) : maskAuditFreeText(v),
+    ]),
+  );
+}
+
+export function withoutGuestIdentity(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutGuestIdentity);
+  if (value === null || typeof value !== 'object' || value instanceof Date) return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([k, v]) => [
+      k,
+      GUEST_KEYS.has(k)
+        ? Array.isArray(v)
+          ? v.map(keepGuestIdentityOut)
+          : keepGuestIdentityOut(v)
+        : FREE_TEXT_KEYS.has(k) && typeof v === 'string'
+          ? maskContacts(v)
+          : withoutGuestIdentity(v),
+    ]),
+  );
 }

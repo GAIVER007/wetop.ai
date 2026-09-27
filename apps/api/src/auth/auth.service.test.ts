@@ -114,9 +114,84 @@ describe('AuthService.login', () => {
       ).rejects.toThrow();
     }
     expect(users[0]!.lockedUntil).not.toBeNull();
+    // Ответ запертой учётки тот же, что у неверной почты: иначе форма входа подтверждает, что почта у нас есть
+    // (аудит 26.09, С-6). Текст сам говорит про замок — человеку есть что делать.
     await expect(
       auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
-    ).rejects.toThrow(/Вход заперт/);
+    ).rejects.toThrow('Неверная почта или пароль');
+    await expect(
+      auth.login({ email: 'nikogo-net@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow(/запирается на 15 минут/);
+  });
+
+  it('когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6)', async () => {
+    const { auth, users } = service();
+    for (let i = 0; i < MAX_FAILED_ATTEMPTS; i += 1) {
+      await expect(
+        auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW),
+      ).rejects.toThrow();
+    }
+    const afterLock = new Date(NOW.getTime() + 16 * 60_000);
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: 'опять не тот' }, afterLock),
+    ).rejects.toThrow();
+    expect(users[0]!.failedAttempts).toBe(1);
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, afterLock),
+    ).resolves.toMatchObject({ user: { email: 'admin@example.invalid' } });
+  });
+
+  it('одновременные неверные попытки считаются все, а не как одна (аудит 26.09, С-6)', async () => {
+    const { auth, users } = service();
+    await Promise.all(
+      Array.from({ length: MAX_FAILED_ATTEMPTS }, () =>
+        auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => null),
+      ),
+    );
+    expect(users[0]!.failedAttempts).toBe(MAX_FAILED_ATTEMPTS);
+    expect(users[0]!.lockedUntil).not.toBeNull();
+  });
+
+  // Проверка исправлений 26.09 (к С-6): состояние замка читалось ДО очереди проверок пароля. Попытки, уже стоявшие в
+  // очереди, когда пятая ошибка ставила замок, проверяли настоящий пароль, и верная догадка входила; а пачка попыток на
+  // истёкшем замке каждая сбрасывала счёт в 1 — замок не возвращался никогда.
+  it('попытка, ждавшая в очереди, пока учётку заперли, уже не входит — даже с верным паролем', async () => {
+    const { auth } = service();
+    const wrong = Array.from({ length: MAX_FAILED_ATTEMPTS + 1 }, () =>
+      auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => null),
+    );
+    const right = auth
+      .login({ email: 'admin@example.invalid', password: PASSWORD }, NOW)
+      .then(
+        () => 'вошла',
+        (e: Error) => e.message,
+      );
+    await Promise.all(wrong);
+    expect(await right).toMatch(/^Неверная почта или пароль/);
+  });
+
+  it('пачка ошибок на истёкшем замке запирает снова, а не сбрасывает счёт каждой попыткой', async () => {
+    const { auth, users } = service();
+    users[0]!.failedAttempts = MAX_FAILED_ATTEMPTS;
+    users[0]!.lockedUntil = new Date(NOW.getTime() - 60_000);
+    await Promise.all(
+      Array.from({ length: MAX_FAILED_ATTEMPTS + 3 }, () =>
+        auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW).catch(() => null),
+      ),
+    );
+    expect(users[0]!.lockedUntil!.getTime()).toBeGreaterThan(NOW.getTime());
+  });
+
+  it('опоздавшая ошибка не снимает свежий замок', async () => {
+    const { auth, users } = service();
+    const late = auth.login({ email: 'admin@example.invalid', password: 'не тот' }, NOW);
+    // пока попытка в очереди, учётку заперли другие
+    users[0]!.failedAttempts = MAX_FAILED_ATTEMPTS;
+    const fresh = new Date(NOW.getTime() + 10 * 60_000);
+    users[0]!.lockedUntil = fresh;
+    await expect(late).rejects.toThrow();
+    expect(users[0]!.lockedUntil).toEqual(fresh);
+    expect(users[0]!.failedAttempts).toBe(MAX_FAILED_ATTEMPTS);
   });
 
   it('заблокированного сотрудника не пускает', async () => {
@@ -185,6 +260,23 @@ describe('AuthService.whoami', () => {
 
     platformAdmins[0]!.revokedAt = NOW;
     await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: false } });
+  });
+
+  it('сессия человека, которого исключили из организации, больше не годится (аудит 26.09, С-10)', async () => {
+    const { auth, memberships } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    memberships.splice(0, memberships.length);
+    await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+  });
+
+  it('сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4)', async () => {
+    const { auth, organizations } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    organizations[0]!.status = 'SUSPENDED';
+    await expect(auth.whoami(token, NOW)).resolves.toBeNull();
+    await expect(
+      auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW),
+    ).rejects.toThrow();
   });
 
   // Сессии входа по коду (второй отпечаток, HMAC с SESSION_SECRET) сняты 20.09.2026 вместе с самим
@@ -282,6 +374,26 @@ describe('AuthService.register', () => {
     expect(organizations).toHaveLength(before.orgs);
   });
 
+  // Проверка исправлений 26.09 (к С-5): вход ушёл в пул потоков, а регистрация считала scrypt синхронно — поток
+  // регистраций с разных адресов снова замораживал главный поток, как вход до исправления.
+  it('регистрация не останавливает главный поток на время scrypt', async () => {
+    const { auth } = service();
+    let last = performance.now();
+    let longest = 0;
+    const tick = setInterval(() => {
+      const t = performance.now();
+      longest = Math.max(longest, t - last);
+      last = t;
+    }, 1);
+    try {
+      await auth.register(NEW, NOW);
+      await new Promise((ok) => setTimeout(ok, 5));
+    } finally {
+      clearInterval(tick);
+    }
+    expect(longest).toBeLessThan(25);
+  });
+
   it('заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена', async () => {
     const { auth, users, sessions, memberships, organizations, properties, audit, letters } =
       service();
@@ -362,9 +474,65 @@ describe('AuthService.register', () => {
     );
     await verification.confirm(token, NOW);
     // почтовый клиент ходит по ссылкам сам — повтор должен впускать, а не пугать отказом
-    await expect(verification.confirm(token, NOW)).resolves.toMatchObject({
+    const soon = new Date(NOW.getTime() + 5 * 60_000);
+    await expect(verification.confirm(token, soon)).resolves.toMatchObject({
       organizationId: expect.any(String),
     });
+  });
+
+  // Аудит 25.09 В-1 и 26.09 С-7: использованная ссылка открывала сессию без пароля бессрочно — переживала смену
+  // пароля и «выйти везде». Повтор остаётся ради двойного открытия письма, но только своей ссылкой и 10 минут.
+  it('повтор по ссылке позже 10 минут не впускает, а просит войти паролем', async () => {
+    const { auth, verification, letters } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(token, NOW);
+    const later = new Date(NOW.getTime() + 11 * 60_000);
+    await expect(verification.confirm(token, later)).rejects.toThrow(/войдите/i);
+    const year = new Date(NOW.getTime() + 365 * 24 * 3_600_000);
+    await expect(verification.confirm(token, year)).rejects.toThrow(/войдите/i);
+  });
+
+  it('погашенная повторной отправкой ссылка не впускает и после подтверждения почты новой', async () => {
+    const { auth, verification, letters } = service();
+    await auth.register(NEW, NOW);
+    const first = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    const later = new Date(NOW.getTime() + 2 * 60_000);
+    await verification.resend('novyi@example.invalid', later);
+    const second = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[1]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(second, later);
+    await expect(verification.confirm(first, later)).rejects.toThrow();
+  });
+
+  it('повтор по ссылке заблокированного человека не впускает', async () => {
+    const { auth, verification, letters, users } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    await verification.confirm(token, NOW);
+    users.find((u) => u.email === 'novyi@example.invalid')!.status = 'BLOCKED';
+    await expect(verification.confirm(token, NOW)).rejects.toThrow();
+  });
+
+  it('вход по ссылке пишется в журнал, а заблокированному сессию не открыть', async () => {
+    const { auth, verification, letters, users, audit } = service();
+    await auth.register(NEW, NOW);
+    const token = decodeURIComponent(
+      /\/login\/verify\?token=([^\s]+)/.exec(letters[0]!.text)![1]!.replace(/\+/g, '%20'),
+    );
+    const confirmed = await verification.confirm(token, NOW);
+    await auth.startSession({ ...confirmed }, NOW);
+    expect(audit.at(-1)).toMatchObject({ action: 'user.login', after: { via: 'email-link' } });
+
+    users.find((u) => u.email === 'novyi@example.invalid')!.status = 'BLOCKED';
+    await expect(auth.startSession({ ...confirmed }, NOW)).rejects.toThrow();
   });
 
   /*
@@ -405,6 +573,12 @@ describe('AuthService.register', () => {
     await verification.confirm(token, nearExpiry);
     const pastExpiry = new Date(NOW.getTime() + 72 * 3_600_000 + 60_000);
     await expect(verification.confirm(token, pastExpiry)).rejects.toThrow(/уже подтверждена/);
+  });
+
+  it('письмо просит не переходить по ссылке, если учётную запись заводили не вы (аудит 26.09, С-8)', async () => {
+    const { auth, letters } = service();
+    await auth.register(NEW, NOW);
+    expect(letters[0]!.text).toMatch(/не переходите по ссылке/);
   });
 
   it('негодная ссылка отвечает отказом и никого не впускает', async () => {

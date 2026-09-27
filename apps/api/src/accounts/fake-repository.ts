@@ -175,6 +175,21 @@ export class FakeAccountsRepository implements AccountsRepository {
     if (i && i.acceptedAt === null) i.acceptedAt = at;
   }
 
+  async invitesCreatedSince(organizationId: string, since: Date): Promise<number> {
+    return this.invites.filter((i) => i.organizationId === organizationId && i.createdAt >= since)
+      .length;
+  }
+
+  async revokeInvite(id: string, organizationId: string, at: Date): Promise<boolean> {
+    const i = this.invites.find(
+      (x) =>
+        x.id === id && x.organizationId === organizationId && x.acceptedAt === null && x.expiresAt > at,
+    );
+    if (!i) return false;
+    i.expiresAt = at;
+    return true;
+  }
+
   async isMember(email: string, organizationId: string): Promise<boolean> {
     return this.accounts.some((a) => a.email === email && a.organizationId === organizationId);
   }

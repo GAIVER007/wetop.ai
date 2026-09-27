@@ -138,3 +138,35 @@ describe('вошедший получает объект своей органи
     });
   });
 });
+
+/**
+ * Аудит 26.09, С-2: служебный контекст (webhook Channex, публичный виджет, сторож, импорт) выбирал объект по имени без
+ * порядка, а имя не уникально — регистрация создаёт объект с названием, введённым человеком. База без ORDER BY отдаёт
+ * строки в любом порядке, и одноимённая организация могла подменить объект. Берётся самый ранний: так выбор не зависит
+ * от порядка строк, а подменить его регистрацией позже нельзя.
+ */
+describe('служебный контекст и одноимённые объекты', () => {
+  it('из двух объектов с одним именем берётся заведённый раньше, в каком бы порядке их ни отдала база', async () => {
+    const rows = [
+      { id: 'чужой', name: 'Luxx', organizationId: 'org-b', createdAt: new Date('2026-09-25') },
+      { id: 'настоящий', name: 'Luxx', organizationId: 'org-a', createdAt: new Date('2026-09-01') },
+    ];
+    const db = {
+      property: {
+        findFirst: async ({
+          where,
+          orderBy,
+        }: {
+          where: { name?: string };
+          orderBy?: { createdAt?: 'asc' | 'desc' };
+        }) => {
+          const hit = rows.filter((r) => r.name === where.name);
+          if (orderBy?.createdAt === 'asc')
+            hit.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+          return hit[0] ? { id: hit[0].id, name: hit[0].name, organizationId: hit[0].organizationId } : null;
+        },
+      },
+    };
+    expect(await propertyIdRef(db as never, 'Luxx')).toBe('настоящий');
+  });
+});

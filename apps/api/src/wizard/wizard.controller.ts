@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, Header, Headers, Inject, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Inject, Ip, Patch, Post } from '@nestjs/common';
 import { Public } from '../auth/public.decorator';
+import { visitorIp } from '../web-booking/client-ip';
 import { WizardService } from './wizard.service';
 
 @Controller('wizard')
@@ -12,8 +13,10 @@ export class WizardController {
   open(
     @Headers('x-wizard-token') token: string | undefined,
     @Body() body: { ref?: unknown } | undefined,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
   ) {
-    return this.wizard.open(token, body?.ref);
+    return this.wizard.open(token, body?.ref, visitorIp(socketIp, cfConnectingIp));
   }
   @Get('status')
   @Header('Cache-Control', 'no-store')

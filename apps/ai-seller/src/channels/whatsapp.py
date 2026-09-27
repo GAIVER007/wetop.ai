@@ -10,12 +10,18 @@ GET — подтверждение подписки Meta проверочным 
 приходит каналом (`wa_id`), просить его не нужно.
 
 Организация хода — правило Э4: её ставит дверь, движок про Meta не знает.
+
+🔴 Срок расширения вышел (`organizations.active=false`) — продавец молчит
+(Q-183), как гаснет виджет: Meta получает 200 (иначе повторяет доставку),
+а движок и модель не вызываются. Тело вебхука — с пределом
+`WHATSAPP_MAX_BODY_BYTES` ДО чтения и подписи: дверь публичная.
 """
 
 from __future__ import annotations
 
 import hashlib
 import hmac
+import json
 import logging
 import uuid
 
@@ -29,7 +35,7 @@ from src.channels.sender import SendResult
 from src.channels.widget_runner import WidgetRunner, build_runner
 from src.config import Settings
 from src.db.base import utcnow
-from src.db.models import WhatsAppConnection
+from src.db.models import Organization, WhatsAppConnection
 from src.security.llm_keys import decrypt_key
 
 logger = logging.getLogger(__name__)
@@ -121,21 +127,50 @@ async def verify(org_id: uuid.UUID, request: Request) -> PlainTextResponse:
     return PlainTextResponse(request.query_params.get("hub.challenge") or "")
 
 
+async def _read_limited(request: Request, max_bytes: int) -> bytes:
+    """Заявленный Content-Length сверх предела — отказ сразу; тело без него
+    (chunked) читается кусками и обрывается на первом лишнем байте.
+    Прочитать целиком и померить потом — значит уже принять переростка
+    в память, а подпись проверяется только ПОСЛЕ чтения."""
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > max_bytes:
+        raise HTTPException(status_code=413, detail="too_large")
+    body = bytearray()
+    async for chunk in request.stream():
+        body += chunk
+        if len(body) > max_bytes:
+            raise HTTPException(status_code=413, detail="too_large")
+    return bytes(body)
+
+
+async def _organization_active(org_id: uuid.UUID) -> bool:
+    async with dependencies.get_sessionmaker()() as session:
+        org = await session.get(Organization, org_id)
+    return org is not None and bool(org.active)
+
+
 @router.post("/channels/whatsapp/webhook/{org_id}")
 async def receive(org_id: uuid.UUID, request: Request) -> JSONResponse:
+    settings: Settings = request.app.state.settings
+    raw = await _read_limited(request, settings.whatsapp_max_body_bytes)
     row = await _connection(org_id)
     if row is None:
         raise HTTPException(status_code=403, detail="forbidden")
-    raw = await request.body()
-    secret = decrypt_key(row.app_secret_encrypted, request.app.state.settings)
+    secret = decrypt_key(row.app_secret_encrypted, settings)
     expected = "sha256=" + hmac.new((secret or "").encode(), raw, hashlib.sha256).hexdigest()
     provided = request.headers.get(SIGNATURE_HEADER) or ""
     if not secret or not hmac.compare_digest(provided, expected):
         raise HTTPException(status_code=403, detail="forbidden")
+    if not await _organization_active(org_id):
+        # Срок расширения вышел (Q-183): 200 — Meta не повторяет, хода нет.
+        logger.info("whatsapp: расширение гостиницы %s не действует, сообщение без ответа", org_id)
+        return JSONResponse({"status": "ok", "accepted": 0})
 
     try:
-        body = await request.json()
+        body = json.loads(raw)
     except Exception:  # noqa: BLE001 — не JSON: подпись сошлась, но тело не наше
+        return JSONResponse({"status": "ok"})
+    if not isinstance(body, dict):
         return JSONResponse({"status": "ok"})
     accepted = 0
     for entry in body.get("entry") or []:

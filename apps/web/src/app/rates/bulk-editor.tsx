@@ -58,6 +58,11 @@ export function BulkEditor(props: {
     const tri = (k: string) => (s(k) === '' ? undefined : s(k) === 'true');
     const num = (k: string) => (s(k) === '' ? undefined : Number(s(k)));
     const days = DAYS.map(([d]) => d).filter((d) => fd.get(`day-${d}`) === 'on');
+    // Ни одного дня — не «все дни»: список просто не передавался, и правка уходила на весь период (аудит 26.09, С-48)
+    if (days.length === 0) {
+      setError('Отметьте хотя бы один день недели');
+      return;
+    }
     const row: RateChangeInput = {
       accommodationTypeCode: s('accommodationTypeCode'),
       ratePlanCode: s('ratePlanCode'),
@@ -76,6 +81,7 @@ export function BulkEditor(props: {
     };
     setRows((r) => [...r, row]);
     setDone(null);
+    setError(null);
     // Категория, тариф и даты остаются для следующей строки; значения — очищаются
     for (const n of ['price', 'occupancy', 'minStay', 'maxStay'])
       (form.elements.namedItem(n) as HTMLInputElement).value = '';

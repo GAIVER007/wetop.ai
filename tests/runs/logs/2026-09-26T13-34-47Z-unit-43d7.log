@@ -1,0 +1,23 @@
+# Модульные (unit) · 26.09.2026 18:34 Алматы · vm
+# коммит 3260e01 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 30
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-34-47Z-unit-43d7.json' 'apps/api/src/web-booking' 'apps/api/src/auth/attempt-limits.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 29ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (17 tests) 619ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (8 tests) 1989ms
+   ✓ вход: предел попыток с одного адреса (1)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 1961ms
+
+ Test Files  3 passed (3)
+      Tests  29 passed (29)
+   Start at  13:34:48
+   Duration  4.12s (transform 43%, tests 34%, import 23%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-34-47Z-unit-43d7.json
+
+# код выхода 0 · 5 с

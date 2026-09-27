@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 26.09.2026 17:00 Алматы · vm
+# коммит 0e00b19 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-00-39Z-integration-1186.json' 'tests/integration/organization-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:15260) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (3 tests) 434ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  12:00:39
+   Duration  2.56s (transform 45%, tests 32%, import 23%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-00-39Z-integration-1186.json
+
+# код выхода 0 · 3 с

@@ -40,6 +40,10 @@ const plan = {
 };
 const fakeRepo = {
   availability: { t1: 3, t2: 1 } as Record<string, number>,
+  // объект этой установки: цены, тарифы и фонд котировки — его (служебный контекст)
+  async property() {
+    return { id: SITE.propertyId, currency: 'KZT', timezone: 'Asia/Almaty' };
+  },
   async activeCategories() {
     return types;
   },
@@ -129,6 +133,30 @@ describe('котировка продавца /bot/availability', () => {
     departure: '2026-09-15',
     adults: '2',
   };
+
+  // Проверка слияния 26.09 (к В-4, Q-194): котировка считается по объекту этой установки. Сайт другой гостиницы получал
+  // бы места и цены Luxx — чужой фонд и чужие цены в ответе её продавца. До мультиобъектной котировки — честный отказ.
+  it('сайт другого объекта: отказ, а не цены и места этой установки', async () => {
+    const OTHER_ORG = '55555555-5555-4555-8555-555555555555';
+    const other = {
+      ...SITE,
+      id: '66666666-6666-4666-8666-666666666666',
+      propertyId: '77777777-7777-4777-8777-777777777777',
+      publicKey: 'pms_abcdefabcdef',
+      bookingEnabled: true,
+      bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name },
+    };
+    sites.sitesById.set(other.id, other);
+    sites.siteOrganizations.set(other.id, OTHER_ORG);
+    try {
+      const res = await quote({ ...dates, organization: OTHER_ORG });
+      expect(res.status).toBe(404);
+      expect(res.body.categories).toBeUndefined();
+    } finally {
+      sites.sitesById.delete(other.id);
+      sites.siteOrganizations.delete(other.id);
+    }
+  });
 
   it('свой ключ и организация — тот же JSON, что у виджета: категории, места, цена строкой минорных', async () => {
     const res = await quote(dates).expect(200);

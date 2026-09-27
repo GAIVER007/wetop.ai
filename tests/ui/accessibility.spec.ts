@@ -35,19 +35,12 @@ const routes = [
   '/login',
   '/incidents',
   '/journal',
-  // раздел «ИИ-продавец» (ТЗ ред. 1 П6): все шесть экранов и открытая карточка диалога
+  // раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097): четыре вкладки и открытая карточка диалога
   '/ai-seller',
-  // шаги настройки (25.09.2026): варианты «Манеры», цены внутри формы, частые вопросы с подсказками, «Запуск»
-  '/ai-seller?step=2',
-  '/ai-seller?step=3',
-  '/ai-seller?step=5',
-  '/ai-seller?step=7',
-  '/ai-seller/data',
-  '/ai-seller/knowledge',
   '/ai-seller/dialogs',
   '/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c',
-  '/ai-seller/embed',
-  '/ai-seller/check',
+  '/ai-seller/knowledge',
+  '/ai-seller/connections',
 ];
 
 for (const width of [1440, 390]) {

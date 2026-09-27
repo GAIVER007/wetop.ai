@@ -1,31 +1,16 @@
-/** Время объекта (Алматы, UTC+5) с датой: `14.09 09:10` — DESIGN.md §14 */
-const fmt = new Intl.DateTimeFormat('ru-RU', {
-  timeZone: 'Asia/Almaty',
-  day: '2-digit',
-  month: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-export function almatyDateTime(iso: string | null | undefined): string {
+import type { PropertyClock } from '../../lib/property-time';
+
+/** Время события по часам объекта с датой: `14.09 09:10` — DESIGN.md §14; пояс — объекта (С-13) */
+export function eventTime(iso: string | null | undefined, clock: PropertyClock): string {
   if (!iso) return '—';
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return iso;
-  return fmt.format(d).replace(',', '');
+  if (!Number.isFinite(Date.parse(iso))) return iso;
+  return clock.moment(iso);
 }
-/** Полная дата и время объекта: `14.09.2026 09:10` */
-const fmtFull = new Intl.DateTimeFormat('ru-RU', {
-  timeZone: 'Asia/Almaty',
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-export function almatyDateTimeFull(iso: string | null | undefined): string {
+/** Полная дата и время события по часам объекта: `14.09.2026 09:10` */
+export function eventTimeFull(iso: string | null | undefined, clock: PropertyClock): string {
   if (!iso) return '—';
-  const d = new Date(iso);
-  if (!Number.isFinite(d.getTime())) return iso;
-  return fmtFull.format(d).replace(',', '');
+  if (!Number.isFinite(Date.parse(iso))) return iso;
+  return clock.full(iso);
 }
 export const EVENT_STATUS_RU: Record<string, string> = {
   PROCESSED: 'обработано',

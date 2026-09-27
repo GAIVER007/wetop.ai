@@ -51,6 +51,37 @@ describe('SessionGuard', () => {
     delete process.env.ASSISTANT_READ_KEY;
   });
 
+  // Аудит 25.09 В-2 и 26.09: замок молча снимался любым значением, кроме строки «1», — опечаткой «true», пустой строкой,
+  // забытой переменной на новом стенде. В боевом образе (NODE_ENV=production) он включён всегда, кроме явного «0».
+  describe('замок не снимается случайно', () => {
+    afterEach(() => vi.unstubAllEnvs());
+
+    it('в боевом образе без AUTH_REQUIRED закрыт', async () => {
+      vi.stubEnv('NODE_ENV', 'production');
+      const { ctx } = context();
+      await expect(
+        new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
+      ).rejects.toThrow();
+    });
+
+    it.each(['true', 'yes', 'on', ' 1 ', 'да'])('значение «%s» замок включает, а не снимает', async (value) => {
+      vi.stubEnv('AUTH_REQUIRED', value);
+      const { ctx } = context();
+      await expect(
+        new SessionGuard(reflector(false), auth(false)).canActivate(ctx),
+      ).rejects.toThrow();
+    });
+
+    it('явный «0» снимает замок и в боевом образе — это видно в .env и в ревью', async () => {
+      vi.stubEnv('NODE_ENV', 'production');
+      vi.stubEnv('AUTH_REQUIRED', '0');
+      const { ctx } = context();
+      await expect(new SessionGuard(reflector(false), auth(false)).canActivate(ctx)).resolves.toBe(
+        true,
+      );
+    });
+  });
+
   it('пока вход не включён, пускает всех и никого не спрашивает', async () => {
     const { ctx, request } = context();
     const service = auth(false);
@@ -83,6 +114,14 @@ describe('SessionGuard', () => {
 
     it('опечатка вроде AUTH_REQUIRED=true — замок закрыт, а не молча открыт', async () => {
       process.env.AUTH_REQUIRED = 'true';
+      const { ctx } = context();
+      await expect(new SessionGuard(reflector(false), auth(true)).canActivate(ctx)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('«false» в production — тоже закрыт: снимает только явный «0»', async () => {
+      process.env.AUTH_REQUIRED = 'false';
       const { ctx } = context();
       await expect(new SessionGuard(reflector(false), auth(true)).canActivate(ctx)).rejects.toThrow(
         UnauthorizedException,

@@ -1,428 +1,99 @@
 'use client';
-import Link from 'next/link';
-import { useActionState, useEffect, useState, useTransition, type ReactNode } from 'react';
+import { useActionState, useState, useTransition } from 'react';
 import {
   Alert,
   Button,
   Field,
-  Grid,
   Input,
   Notice,
   Row,
   Stack,
   Textarea,
 } from '../../components/ui';
+import type { SellerWhatsAppView } from '../../lib/api';
 import {
-  FAQ_MAX,
-  LIST_MAX,
-  SELLER_FAQ_SUGGESTIONS,
-  SELLER_SETUP_STEPS,
-  sellerStoryFieldWords,
-  type SellerProfileStep,
-} from '../../lib/ai-seller';
-import { formatMoney } from '../../lib/money';
-import type { SellerProfileBody, SellerWhatsAppView } from '../../lib/api';
-import {
-  applySellerAction,
   dialogModeAction,
-  extractStoryAction,
   llmKeyCheckAction,
   llmKeySaveAction,
   whatsappCheckAction,
   whatsappSaveAction,
   replyAction,
   sandboxAction,
-  saveSellerStepAction,
+  savePromptAction,
   uploadKnowledgeAction,
   type SandboxResult,
-  type SellerFormResult,
   type LlmKeyResult,
+  type PromptResult,
   type SimpleResult,
-  type StoryResult,
   type WhatsAppResult,
 } from './actions';
 
-export interface Choice {
-  value: string;
-  label: string;
-}
-
-/** Варианты «Манеры»: подпись — словами домена, пример — как это звучит у продавца */
-export interface MannerChoice {
-  value: string;
-  label: string;
-  example: string;
-}
-
 /**
- * Шаг настройки продавца (`plans/ai-seller-setup-wizard-2026-09-25.md`): поля шага и внизу «Назад» и «Сохранить и
- * дальше» — обе кнопки сохраняют. Варианты и пределы — модели бота `SellerProfile` (ADR-081): чего бот не примет,
- * форма не предлагает. Над полями — `children`: то, что шаг показывает только для чтения (цены по тарифу сайта).
- *
- * `readOnly` — почему менять нельзя (сотрудник или срок расширения вышел, ADR-083): поля видны, но выключены, а внизу
- * вместо «Сохранить и дальше» — переход по шагам.
+ * Инструкция продавцу одним окном (макет владельца 26.09.2026, ADR-097): кто он, тон, языки, правила и частые
+ * вопросы — своими словами. «Сохранить и применить» записывает текст и сразу отправляет продавцу. `readOnly` — почему
+ * менять нельзя (сотрудник или срок расширения вышел, ADR-083): текст виден, кнопки нет.
  */
-export function SellerStepForm({
-  stepKey,
+export function SellerPromptForm({
   initial,
-  first,
-  languages,
-  addressForms,
-  emojis,
-  replyLengths,
-  children,
-  readOnly = null,
+  max,
+  readOnly,
+  note,
 }: {
-  stepKey: SellerProfileStep;
-  initial: SellerProfileBody;
-  first: boolean;
-  languages: Array<{ value: string; label: string }>;
-  addressForms: MannerChoice[];
-  emojis: MannerChoice[];
-  replyLengths: MannerChoice[];
-  children?: ReactNode;
-  readOnly?: string | null;
+  initial: string;
+  max: number;
+  readOnly: string | null;
+  /** Состояние рядом с кнопкой: применено или только сохранено */
+  note: string | null;
 }) {
-  const [state, action, pending] = useActionState<SellerFormResult | null, FormData>(
-    saveSellerStepAction.bind(null, stepKey),
+  const [state, action, pending] = useActionState<PromptResult | null, FormData>(
+    savePromptAction,
     null,
   );
-  const values = state?.values ?? initial;
-  const fields = (
-    <>
-      {stepKey === 'intro' && <IntroFields values={values} languages={languages} />}
-      {stepKey === 'manner' && (
-        <Stack>
-          <MannerGroup
-            legend="Обращение к гостю"
-            name="addressForm"
-            value={values.addressForm}
-            choices={addressForms}
-          />
-          <MannerGroup legend="Эмодзи" name="emoji" value={values.emoji} choices={emojis} />
-          <MannerGroup
-            legend="Длина ответов"
-            name="replyLength"
-            value={values.replyLength}
-            choices={replyLengths}
-          />
-        </Stack>
-      )}
-      {stepKey === 'prices' && <PricesFields values={values} />}
-      {stepKey === 'rules' && <RulesFields values={values} />}
-      {stepKey === 'faq' && <FaqRows initial={values.faq} />}
-    </>
-  );
-  if (readOnly) {
-    const step = SELLER_SETUP_STEPS.findIndex((s) => s.key === stepKey) + 1;
-    return (
-      <div className="stack" data-testid={`seller-step-${stepKey}`}>
-        {children}
-        <Notice tone="muted" data-testid="seller-read-only">
-          {readOnly}
-        </Notice>
-        <fieldset disabled className="seller-readonly">
-          {fields}
-        </fieldset>
-        <div className="form-footer">
-          {first ? (
-            <span />
-          ) : (
-            <Link className="btn btn--secondary" href={`/ai-seller?step=${step - 1}`}>
-              Назад
-            </Link>
-          )}
-          <Link className="btn" href={`/ai-seller?step=${step + 1}`} data-testid="seller-step-next">
-            Дальше
-          </Link>
-        </div>
-      </div>
-    );
-  }
   return (
     <form
       key={state?.attempt ?? 0}
       action={action}
       className="stack"
-      data-testid={`seller-step-${stepKey}`}
+      data-testid="seller-prompt-form"
     >
-      {children}
-      {fields}
-      {state?.error && <Alert data-testid="seller-step-error">{state.error}</Alert>}
-      <div className="form-footer">
-        {first ? (
-          <span />
-        ) : (
+      <Textarea
+        name="text"
+        aria-labelledby="seller-prompt-title"
+        rows={16}
+        maxLength={max}
+        required
+        disabled={readOnly !== null}
+        defaultValue={state?.text || initial}
+        data-testid="seller-prompt-text"
+      />
+      {readOnly ? (
+        <Notice tone="muted" data-testid="seller-read-only">
+          {readOnly}
+        </Notice>
+      ) : (
+        <Row>
           <Button
             type="submit"
-            name="go"
-            value="back"
-            tone="secondary"
             disabled={pending}
-            data-testid="seller-step-back"
+            aria-busy={pending}
+            data-testid="seller-prompt-save"
           >
-            Назад
+            {pending ? 'Отправляю…' : 'Сохранить и применить'}
           </Button>
-        )}
-        <Button
-          type="submit"
-          name="go"
-          value="next"
-          disabled={pending}
-          aria-busy={pending}
-          data-testid="seller-step-next"
-        >
-          {pending ? 'Сохраняю…' : 'Сохранить и дальше'}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-function IntroFields({
-  values,
-  languages,
-}: {
-  values: SellerProfileBody;
-  languages: Array<{ value: string; label: string }>;
-}) {
-  return (
-    <Stack>
-      <Field label="Имя бота">
-        <Input
-          name="botName"
-          defaultValue={values.botName ?? ''}
-          maxLength={40}
-          placeholder="Например, Айгерим"
-        />
-      </Field>
-      <p className="settings-note">Пусто — продавец говорит от лица гостиницы, без имени.</p>
-      <Field label="Приветствие">
-        <Textarea
-          name="greeting"
-          rows={3}
-          maxLength={300}
-          defaultValue={values.greeting}
-          placeholder="Здравствуйте! Помогу выбрать номер и расскажу о ценах. На какие даты смотрите?"
-        />
-      </Field>
-      <p className="settings-note">Первое сообщение гостю в чате. До 300 знаков.</p>
-      <fieldset className="seller-choices">
-        <legend className="seller-choices__legend">
-          Языки — первый отмеченный продавец считает основным
-        </legend>
-        <div className="seller-choices__list">
-          {languages.map((l) => (
-            <label key={l.value} className="check">
-              <input
-                type="checkbox"
-                name="languages"
-                value={l.value}
-                defaultChecked={values.languages.includes(l.value)}
-              />{' '}
-              {l.label}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-    </Stack>
-  );
-}
-
-/** Группа вариантов «Манеры»: подпись и пример фразы — чтобы выбирать по звучанию, а не по слову */
-function MannerGroup({
-  legend,
-  name,
-  value,
-  choices,
-}: {
-  legend: string;
-  name: string;
-  value: string;
-  choices: MannerChoice[];
-}) {
-  return (
-    <fieldset className="seller-choices">
-      <legend className="seller-choices__legend">{legend}</legend>
-      <div className="seller-manner">
-        {choices.map((c) => (
-          <label key={c.value} className="seller-manner__option">
-            <span className="check">
-              <input type="radio" name={name} value={c.value} defaultChecked={c.value === value} />{' '}
-              {c.label}
+          {note && (
+            <span className="sub" data-testid="seller-prompt-state">
+              {note}
             </span>
-            <span className="sub">{c.example}</span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-  );
-}
-
-function PricesFields({ values }: { values: SellerProfileBody }) {
-  return (
-    <Grid min={280}>
-      <Field label="Что входит в цену">
-        <Textarea
-          name="includedInPrice"
-          rows={4}
-          maxLength={1000}
-          defaultValue={values.includedInPrice}
-          placeholder="Постельное бельё, полотенца, Wi-Fi, общая кухня"
-        />
-      </Field>
-      <Field label="Что за доплату">
-        <Textarea
-          name="extraCharges"
-          rows={4}
-          maxLength={1000}
-          defaultValue={values.extraCharges}
-          placeholder="Трансфер из аэропорта, поздний выезд, стирка"
-        />
-      </Field>
-    </Grid>
-  );
-}
-
-function RulesFields({ values }: { values: SellerProfileBody }) {
-  return (
-    <Stack>
-      <Field label="Правила проживания">
-        <Textarea
-          name="houseRules"
-          rows={4}
-          maxLength={2000}
-          defaultValue={values.houseRules}
-          placeholder="Тишина с 23:00. Обувь снимаем у входа."
-        />
-      </Field>
-      <Grid min={280}>
-        <Field label="Запреты — по одному в строке">
-          <Textarea
-            name="prohibitions"
-            rows={4}
-            defaultValue={values.prohibitions.join('\n')}
-            placeholder={'Не курить в номерах\nБез животных'}
-          />
-        </Field>
-        <Field label="Когда звать человека — по одному в строке">
-          <Textarea
-            name="callHumanWhen"
-            rows={4}
-            defaultValue={values.callHumanWhen.join('\n')}
-            placeholder={'Группа от 6 человек\nОплата по счёту'}
-          />
-        </Field>
-      </Grid>
-      <p className="settings-note">
-        В списках — до {LIST_MAX} строк, строка до 300 знаков. Жалобы, возврат денег, изменение и
-        отмену брони продавец передаёт человеку и без этого списка.
-      </p>
-    </Stack>
-  );
-}
-
-/**
- * Частые вопросы с ответами: строки добавляются и убираются; пустая строка при отправке отбрасывается. Подсказки —
- * вопросы, которые гости задают чаще всего: щелчок добавляет строку с вопросом, ответ пишет владелец.
- */
-function FaqRows({ initial }: { initial: Array<{ question: string; answer: string }> }) {
-  const [rows, setRows] = useState(initial.length > 0 ? initial : []);
-  const update = (i: number, key: 'question' | 'answer', value: string) =>
-    setRows((all) => all.map((r, j) => (j === i ? { ...r, [key]: value } : r)));
-  const add = (question: string) => setRows((all) => [...all, { question, answer: '' }]);
-  const asked = new Set(rows.map((r) => r.question.trim()));
-  const suggestions = SELLER_FAQ_SUGGESTIONS.filter((q) => !asked.has(q));
-  const full = rows.length >= FAQ_MAX;
-  return (
-    <Stack data-testid="seller-faq">
-      <input type="hidden" name="faqCount" value={rows.length} />
-      {rows.length === 0 && (
-        <p className="settings-note">
-          Вопросов нет. Добавьте то, о чём гости спрашивают чаще всего.
-        </p>
+          )}
+        </Row>
       )}
-      {rows.map((r, i) => (
-        <Grid key={i} min={260} className="seller-faq__row">
-          <Field label={`Вопрос ${i + 1}`}>
-            <Input
-              name={`faq-question-${i}`}
-              value={r.question}
-              maxLength={300}
-              onChange={(e) => update(i, 'question', e.target.value)}
-            />
-          </Field>
-          <Field label={`Ответ ${i + 1}`}>
-            <Textarea
-              name={`faq-answer-${i}`}
-              rows={2}
-              value={r.answer}
-              maxLength={1000}
-              onChange={(e) => update(i, 'answer', e.target.value)}
-            />
-          </Field>
-          <Row>
-            <Button
-              type="button"
-              tone="secondary"
-              size="sm"
-              onClick={() => setRows((all) => all.filter((_, j) => j !== i))}
-            >
-              Убрать вопрос {i + 1}
-            </Button>
-          </Row>
-        </Grid>
-      ))}
-      <Row>
-        <Button
-          type="button"
-          tone="secondary"
-          disabled={full}
-          onClick={() => add('')}
-          data-testid="seller-faq-add"
-        >
-          Добавить вопрос
-        </Button>
-        {full && <span className="settings-note">Не больше {FAQ_MAX}.</span>}
-      </Row>
-      {!full && suggestions.length > 0 && (
-        <div role="group" aria-label="Частые вопросы гостей" className="stack stack--sm">
-          <p className="settings-note">
-            Частые вопросы гостей — нажмите, чтобы добавить и написать ответ:
-          </p>
-          <Row>
-            {suggestions.map((q) => (
-              <Button key={q} type="button" tone="secondary" size="sm" onClick={() => add(q)}>
-                {q}
-              </Button>
-            ))}
-          </Row>
-        </div>
-      )}
-    </Stack>
-  );
-}
-
-/** «Применить» на шаге «Запуск»: отправить продавцу сохранённые настройки и данные объекта сейчас, а не через минуту */
-export function ApplySellerForm() {
-  const [state, action, pending] = useActionState<SellerFormResult | null, FormData>(
-    applySellerAction,
-    null,
-  );
-  return (
-    <form key={state?.attempt ?? 0} action={action} className="stack stack--sm">
-      <Row>
-        <Button type="submit" disabled={pending} aria-busy={pending} data-testid="seller-apply">
-          {pending ? 'Отправляю…' : 'Применить — отправить продавцу'}
-        </Button>
-      </Row>
-      {state?.error && <Alert data-testid="seller-apply-error">{state.error}</Alert>}
+      {state?.error && <Alert data-testid="seller-prompt-error">{state.error}</Alert>}
       {state?.warning && (
-        <Alert tone="warning" data-testid="seller-apply-warning">
+        <Alert tone="warning" data-testid="seller-prompt-warning">
           {state.warning}
         </Alert>
       )}
-      {state?.message && <Notice data-testid="seller-apply-result">{state.message}</Notice>}
+      {state?.message && <Notice data-testid="seller-prompt-result">{state.message}</Notice>}
     </form>
   );
 }
@@ -612,183 +283,10 @@ export function SandboxForm({
   );
 }
 
-/** Распознавание речи браузера, если оно есть; наружу аудио не уходит — текст появляется в поле на устройстве */
-type Recognition = {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((event: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => void) | null;
-  onend: (() => void) | null;
-  onerror: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-function speechRecognition(): (new () => Recognition) | null {
-  const w = window as unknown as {
-    SpeechRecognition?: new () => Recognition;
-    webkitSpeechRecognition?: new () => Recognition;
-  };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
-}
-
-/**
- * Окно рассказа (С1 «под ключ», `plans/seller-partner-bot-2026-09-25.md`): партнёр рассказывает о гостинице
- * голосом или текстом, «Создать» раскладывает рассказ по полям мастера ниже. Свободный текст промптом не
- * становится (ТЗ §2 п. 2): извлечённое ложится в черновик профиля, занятые руками поля не затираются,
- * а адрес, заезд и цены из рассказа не пишутся никуда — их сверяют с «Данными объекта» и «Тарифами» глазами.
- */
-export function StoryIntake({
-  saved,
-  readOnly,
-  extract = extractStoryAction,
-}: {
-  saved: boolean;
-  readOnly: string | null;
-  extract?: (prev: StoryResult | null, form: FormData) => Promise<StoryResult>;
-}) {
-  const [state, action, pending] = useActionState<StoryResult | null, FormData>(extract, null);
-  const [story, setStory] = useState('');
-  const [listening, setListening] = useState(false);
-  const [recognizer, setRecognizer] = useState<Recognition | null>(null);
-  const [noSpeech, setNoSpeech] = useState(false);
-  // раскрытость запоминается при первом показе: успех делает saved=true, но открытое окно с итогом не схлопывается
-  const [startOpen] = useState(!saved);
-  useEffect(() => {
-    if (state?.result) setStory('');
-  }, [state]);
-
-  const toggleMic = () => {
-    if (listening) {
-      recognizer?.stop();
-      return;
-    }
-    const Ctor = speechRecognition();
-    if (!Ctor) {
-      setNoSpeech(true);
-      return;
-    }
-    const rec = new Ctor();
-    rec.lang = 'ru-RU';
-    rec.continuous = true;
-    rec.interimResults = false;
-    rec.onresult = (event) => {
-      let heard = '';
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
-        const result = event.results[i]!;
-        if (result.isFinal) heard += result[0].transcript;
-      }
-      if (heard.trim() !== '')
-        setStory((prev) => `${prev}${prev !== '' && !prev.endsWith(' ') ? ' ' : ''}${heard.trim()}`);
-    };
-    rec.onend = () => setListening(false);
-    rec.onerror = () => setListening(false);
-    setRecognizer(rec);
-    setListening(true);
-    rec.start();
-  };
-
-  const result = state?.result ?? null;
-  return (
-    <details className="seller-story" open={startOpen} data-testid="seller-story">
-      <summary>Расскажите о вашем объекте своими словами — поля мастера заполнятся сами</summary>
-      <form action={action} className="stack stack--sm">
-        <p className="settings-note">
-          Город и адрес, сколько номеров и коек, цены, заезд и выезд, что входит в цену, правила.
-        </p>
-        <Field label="Рассказ">
-          <Textarea
-            name="story"
-            rows={5}
-            maxLength={4000}
-            required
-            minLength={10}
-            value={story !== '' ? story : (state?.story ?? '')}
-            onChange={(e) => setStory(e.currentTarget.value)}
-            placeholder="У нас хостел в Алматы, улица… Койка — … тенге за ночь, заезд с 14:00…"
-            data-testid="seller-story-text"
-            disabled={readOnly !== null}
-          />
-        </Field>
-        <Row>
-          <Button
-            type="button"
-            tone="secondary"
-            onClick={toggleMic}
-            aria-pressed={listening}
-            disabled={readOnly !== null}
-            data-testid="seller-story-mic"
-          >
-            {listening ? 'Остановить запись' : 'Говорить голосом'}
-          </Button>
-          <Button
-            type="submit"
-            disabled={pending || readOnly !== null}
-            aria-busy={pending}
-            data-testid="seller-story-send"
-          >
-            {pending ? 'Разбираем…' : 'Создать'}
-          </Button>
-        </Row>
-        {noSpeech && (
-          <p className="settings-note">Этот браузер не умеет распознавать речь — печатайте текст.</p>
-        )}
-        {readOnly !== null && <p className="settings-note">{readOnly}</p>}
-        {state?.error && <Alert data-testid="seller-story-error">{state.error}</Alert>}
-        {result && (
-          <div className="stack stack--sm" data-testid="seller-story-result">
-            {result.filled.length > 0 && (
-              <Notice>Заполнено из рассказа: {sellerStoryFieldWords(result.filled)}. Проверьте шаги ниже.</Notice>
-            )}
-            {result.filled.length === 0 && (
-              <p className="settings-note">Из рассказа не удалось заполнить ни одного пустого поля.</p>
-            )}
-            {result.skipped.length > 0 && (
-              <p className="settings-note">
-                Уже заполнено раньше и не тронуто: {sellerStoryFieldWords(result.skipped)}.
-              </p>
-            )}
-            {result.rejected.length > 0 && (
-              <Alert data-testid="seller-story-rejected">
-                Отброшено защитой (в тексте инструкции для модели): {sellerStoryFieldWords(result.rejected)}.
-              </Alert>
-            )}
-            {(result.aside.address || result.aside.checkIn || result.aside.categories.length > 0) && (
-              <div data-testid="seller-story-aside">
-                <p className="settings-note">
-                  Из рассказа, никуда не записано — сверьте с «Данными объекта» и «Тарифами»:
-                </p>
-                <ul className="settings-note">
-                  {result.aside.objectName && <li>Название: {result.aside.objectName}</li>}
-                  {result.aside.address && <li>Адрес: {result.aside.address}</li>}
-                  {(result.aside.checkIn || result.aside.checkOut) && (
-                    <li>
-                      Заезд {result.aside.checkIn ?? '—'}, выезд {result.aside.checkOut ?? '—'}
-                    </li>
-                  )}
-                  {result.aside.categories.map((c, i) => (
-                    <li key={i}>
-                      {c.name} ({c.kind === 'bed' ? 'койка' : 'номер'}, до {c.capacity} гостей)
-                      {c.priceMinor !== null ? ` — ${formatMoney(String(c.priceMinor), 'KZT')} за ночь` : ''}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {result.unparsed.length > 0 && (
-              <p className="settings-note">Не разобрано: {result.unparsed.join('; ')}</p>
-            )}
-          </div>
-        )}
-      </form>
-    </details>
-  );
-}
-
 /**
  * Окно «Модель» (С2, Q-186): API-ключ модели самого партнёра — расход на нём. Ключ хранит только бот,
  * шифрованным; здесь он вводится, проверяется живым вызовом и сохраняется, обратно не читается —
- * видны лишь последние 4 знака. Ключ снят — ходы идут ключом платформы, как раньше.
+ * видны лишь последние 4 знака. Ключ снят — продавцу этой гостиницы нечем отвечать, если у платформы своего ключа нет.
  */
 export function LlmKeyForm({
   status,

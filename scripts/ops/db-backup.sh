@@ -80,8 +80,19 @@ status_partial="$status_dir/last.json.partial"
 errors="$(mktemp)"
 trap 'rm -f "$partial" "$errors" "$status_partial"' EXIT
 
+# Пароль — не аргументом: аргументы процесса видит любой через `ps`, пока копия снимается (аудит 25.09). Он уходит
+# в PGPASSWORD (переменные процесса видит только его владелец), раскодированным из %XX, а адрес — без него.
+conn="$url"
+pgpass=""
+if [[ "$url" =~ ^([A-Za-z][A-Za-z0-9+.-]*://[^:/@]+):([^@]*)@(.*)$ ]]; then
+  conn="${BASH_REMATCH[1]}@${BASH_REMATCH[3]}"
+  # %XX → байт; обратная косая сначала удваивается, чтобы printf '%b' не прочёл её как «\c» или «\n» (проверка 26.09)
+  raw="${BASH_REMATCH[2]//\\/\\\\}"
+  pgpass="$(printf '%b' "${raw//%/\\x}")"
+fi
+
 # Пароль в сообщении pg_dump (адрес вида postgresql://user:pass@host) заменяется на ***
-if ! pg_dump --format=custom --schema=public --no-owner --no-privileges --file="$partial" "$url" 2>"$errors"; then
+if ! PGPASSWORD="$pgpass" pg_dump --format=custom --schema=public --no-owner --no-privileges --file="$partial" "$conn" 2>"$errors"; then
   sed -E 's#(://[^:/@[:space:]]*:)[^@[:space:]]*@#\1***@#g' "$errors" >&2
   fail "pg_dump не снял копию — сообщение выше; прежние копии не тронуты" 1
 fi

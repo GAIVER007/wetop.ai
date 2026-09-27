@@ -1,0 +1,72 @@
+# Модульные (unit) · 26.09.2026 18:35 Алматы · vm
+# коммит 3260e01 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 31
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-35-22Z-unit-6c61.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/auto-deploy.test.ts (11 tests | 2 failed) 11296ms
+   ❯ scripts/ops/auto-deploy.sh (11)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 376ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 566ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 582ms
+     × владелец применил миграции и запустил с --migrations-applied — выкладывает ту же вершину 646ms
+     ✓ release ушёл вперёд после отказа — --migrations-applied не выкладывает новую вершину 809ms
+     × флаг без вершины не принимается: cron мог уже отказать и следующей вершине 1248ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1235ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 740ms
+     ✓ локальные правки в клоне — не затирает их 681ms
+     ✓ историю ветки переписали — не выкладывает поверх 1389ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3021ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > владелец применил миграции и запустил с --migrations-applied — выкладывает ту же вершину
+AssertionError: expected '2026-09-26T13:35:25Z auto-deploy: 48f…' to contain '--migrations-applied 48fd5464'
+
+- Expected
++ Received
+
+- --migrations-applied 48fd5464
++ 2026-09-26T13:35:25Z auto-deploy: 48fd5464 не выложен: в обновлении миграции (packages/database/prisma/migrations/0002_more) — их применяет владелец (AGENTS.md §15), затем на сервере: /home/user/wetop.ai/scripts/ops/auto-deploy.sh --migrations-applied. На сервере по-прежнему 47b91b7f.
++
+
+ ❯ tests/unit/auto-deploy.test.ts:150:25
+    148|     expect(refused.code).toBe(1);
+    149|     // подсказка называет вершину: флаг без неё не принимается
+    150|     expect(refused.out).toContain(`--migrations-applied ${target.slice…
+       |                         ^
+    151|     const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
+    152|     expect(r.code, r.out).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| tests/unit/auto-deploy.test.ts > scripts/ops/auto-deploy.sh > флаг без вершины не принимается: cron мог уже отказать и следующей вершине
+AssertionError: 2026-09-26T13:35:27Z auto-deploy: выкладываю 10e0b888 поверх 11b8b12b
+2026-09-26T13:35:27Z auto-deploy: 10e0b888 выложен за 0 с: next migration
+: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/unit/auto-deploy.test.ts:186:27
+    184|     expect(run().code).toBe(1);
+    185|     const r = run({}, ['--migrations-applied']);
+    186|     expect(r.code, r.out).toBe(1);
+       |                           ^
+    187|     expect(r.out).toMatch(/назовите вершину/);
+    188|     expect(head()).toBe(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 passed (11)
+   Start at  13:35:23
+   Duration  11.66s (tests 99%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-35-22Z-unit-6c61.json
+
+# код выхода 1 · 13 с

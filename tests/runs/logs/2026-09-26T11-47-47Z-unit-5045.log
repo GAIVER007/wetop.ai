@@ -1,0 +1,242 @@
+# Модульные (unit) · 26.09.2026 16:47 Алматы · vm
+# коммит 27bdf62 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 25
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T11-47-47Z-unit-5045.json' 'apps/api/src/auth' 'apps/api/src/accounts' 'apps/web/src/lib/auth-required.test.ts' 'packages/domain/src/accounts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (11 tests) 390ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (14 tests) 1122ms
+ ❯ |unit| apps/api/src/auth/auth.guard.test.ts (29 tests | 6 failed) 40ms
+   ✓ tokenFromHeaders (1)
+     ✓ берёт токен из Authorization: Bearer <скрыто> из x-wetop-session 2ms
+   ❯ SessionGuard (28)
+     ❯ замок не снимается случайно (7)
+       × в боевом образе без AUTH_REQUIRED закрыт 10ms
+       × значение «true» замок включает, а не снимает 1ms
+       × значение «yes» замок включает, а не снимает 1ms
+       × значение «on» замок включает, а не снимает 1ms
+       × значение « 1 » замок включает, а не снимает 1ms
+       × значение «да» замок включает, а не снимает 1ms
+       ✓ явный «0» снимает замок и в боевом образе — это видно в .env и в ревью 1ms
+     ✓ пока вход не включён, пускает всех и никого не спрашивает 1ms
+     ✓ когда AUTH_REQUIRED=1 (9)
+       ✓ без токена не пускает 2ms
+       ✓ с годным токеном пускает и кладёт вошедшего в запрос 1ms
+       ✓ с негодным токеном не пускает 1ms
+       ✓ публичный маршрут пускает без токена: счётчик сайта, виджет и webhook работают снаружи 0ms
+       ✓ служебный ключ пускает сторожа и скрипты сверки 0ms
+       ✓ неверный служебный ключ не пускает 0ms
+       ✓ ключ той же длины, но другой, не пускает — сравнение идёт до конца, а не до первого знака 0ms
+       ✓ ключ другой длины не пускает и не роняет замок 0ms
+       ✓ когда служебный ключ в окружении не задан, служебный заголовок ничего не даёт 0ms
+     ✓ пока вход не включён, но токен пришёл — узнаёт автора, чтобы журнал знал, кто действовал 0ms
+     ✓ пока вход не включён, негодный токен не мешает работать 0ms
+     ✓ метка публичного маршрута читается тем же ключом, которым её ставит декоратор 0ms
+     ✓ ключ дежурного агента (GUARD_READ_KEY) (4)
+       ✓ пускает читать неисправности сторожа 1ms
+       ✓ не пускает закрывать неисправность, дёргать сторожа и слать пробную тревогу 1ms
+       ✓ не открывает остальной API: ни броней, ни денег, ни учёток 1ms
+       ✓ служебный ключ по-прежнему открывает всё, а чужой ключ не пускает никуда 1ms
+     ✓ ключ ИИ-помощника (ASSISTANT_READ_KEY) (4)
+       ✓ пускает ровно на два адреса: ошибки человека и состояние системы 6ms
+       ✓ неисправности, запись и остальной API — 403 2ms
+       ✓ ключ дежурного агента ошибок человека не читает 0ms
+       ✓ похожий ключ не пускает: сравнение до конца 0ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1543ms
+   ✓ единая настройка самостоятельной регистрации (ADR-055) (10)
+     ✓ настройка 0: прямой HTTP-запрос получает 403 без записей 317ms
+ ❯ |unit| apps/api/src/auth/auth.service.test.ts (35 tests | 1 failed) 3711ms
+   ✓ AuthService.login (9)
+     ✓ верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал 124ms
+     ✓ почта с пробелами и в верхнем регистре — тот же человек 166ms
+     ✓ неверный пароль: общий текст, попытка посчитана, сессии нет, пароль в журнал не попал 124ms
+     ✓ неизвестная почта отвечает тем же текстом, что и неверный пароль 102ms
+     ✓ мусор вместо почты не пускает 82ms
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 294ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 273ms
+     ✓ одновременные неверные попытки считаются все, а не как одна (аудит 26.09, С-6) 162ms
+     ✓ заблокированного сотрудника не пускает 97ms
+   ✓ AuthService.whoami (7)
+     ✓ живая сессия возвращает сотрудника и продлевает отметку активности 88ms
+     ✓ неизвестный, просроченный и отозванный токен — никто 99ms
+     ✓ сессия заблокированного сотрудника больше не годится 86ms
+     ✓ называет организацию сессии: имя, состояние и пробный период — их показывает экран входа 75ms
+     ✓ роль — из членства в организации сессии, отметка главного администратора — пока не отозвана (ADR-083) 70ms
+     ✓ сессия человека, которого исключили из организации, больше не годится (аудит 26.09, С-10) 70ms
+     ✓ сессия приостановленной организации не годится (ADR-046, аудит 26.09, С-4) 142ms
+   ✓ AuthService.logout (1)
+     ✓ отзывает сессию, пишет выход в журнал и повторный вызов не падает 83ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 254ms
+     ✓ неверный текущий пароль ничего не меняет 126ms
+     ✓ слабый новый пароль отклоняется с объяснением 114ms
+     ✓ без годной сессии пароль не сменить 52ms
+   ❯ AuthService.register (14)
+     ✓ явный REGISTRATION_OPEN=0 закрывает регистрацию без записи в базу 44ms
+     ✓ заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена 78ms
+     ✓ до подтверждения почты вход закрыт — и говорит, что делать 135ms
+     ✓ по ссылке из письма человек подтверждается и входит той же парой почта-пароль 125ms
+     ✓ ссылка одноразовая: второй заход по ней уже подтверждённого человека не ломает вход 85ms
+     ✓ повтор по ссылке позже 10 минут не впускает, а просит войти паролем 74ms
+     × погашенная повторной отправкой ссылка не впускает и после подтверждения почты новой 89ms
+     ✓ повтор по ссылке заблокированного человека не впускает 69ms
+     ✓ вход по ссылке пишется в журнал, а заблокированному сессию не открыть 62ms
+     ✓ письмо просит не переходить по ссылке, если учётную запись заводили не вы (аудит 26.09, С-8) 78ms
+     ✓ негодная ссылка отвечает отказом и никого не впускает 37ms
+     ✓ занятый адрес назван прямо — иначе человеку нечего ответить на вторую попытку 73ms
+     ✓ короткий пароль не принимается, и организация от такой попытки не остаётся 38ms
+     ✓ пустое имя и строка, не похожая на почту, — отказ с понятным текстом 36ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (4 tests) 1854ms
+   ✓ вход: предел попыток с одного адреса (1)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 1848ms
+ ❯ |unit| packages/domain/src/accounts/accounts.test.ts (23 tests | 1 failed) 685ms
+   ✓ validEmail (2)
+     ✓ приводит к нижнему регистру и убирает пробелы по краям 2ms
+     ✓ отвергает то, что не похоже на почту 0ms
+   ✓ checkPassword (4)
+     ✓ короткий пароль не принимается 1ms
+     ✓ пароль из одних цифр не принимается 0ms
+     ✓ обычный рабочий пароль принимается 0ms
+     ✓ пробелы по краям не считаются длиной 0ms
+   ✓ hashPassword и verifyPassword (3)
+     ✓ хеш не содержит самого пароля и узнаёт его обратно 111ms
+     ✓ два пользователя с одним паролем получают разные хеши — соль своя у каждого 78ms
+     ✓ испорченный хеш не пускает и не роняет проверку 1ms
+   ❯ evaluateLogin (8)
+     ✓ верный пароль пускает и сбрасывает счётчик 79ms
+     × неверный пароль считает попытку, но не говорит, что не так 87ms
+     ✓ после 5 промахов вход запирается на 15 минут 93ms
+     ✓ пока заперто, верный пароль тоже не пускает 47ms
+     ✓ когда запрет истёк, верный пароль снова пускает 78ms
+     ✓ заблокированного не пускает даже с верным паролем 34ms
+     ✓ человека без пароля по паролю не пускает: он войдёт другим способом, когда тот появится 33ms
+     ✓ пользователя без пароля не пускает с пустым паролем 33ms
+   ✓ токен сессии (2)
+     ✓ токен каждый раз новый и достаточно длинный 0ms
+     ✓ в базу идёт хеш, не токен 1ms
+   ✓ sessionState (4)
+     ✓ живая сессия пускает 0ms
+     ✓ просроченная не пускает 0ms
+     ✓ отозванная не пускает, даже если срок не вышел 0ms
+     ✓ срок сессии — 12 часов от входа 0ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 179ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (2 tests) 153ms
+ ✓ |unit| packages/domain/src/accounts/extensions.test.ts (10 tests) 22ms
+ ✓ |unit| packages/domain/src/accounts/registration.test.ts (11 tests) 7ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (11 tests) 14ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (6 tests) 12ms
+ ✓ |unit| packages/domain/src/accounts/trial.test.ts (11 tests) 6ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 18ms
+ ✓ |unit| packages/domain/src/accounts/roles.test.ts (5 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/session-renew.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 12ms
+ ✓ |unit| packages/domain/src/accounts/reset.test.ts (9 tests) 6ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 6ms
+ ✓ |unit| packages/domain/src/accounts/session.test.ts (6 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/invite.test.ts (5 tests) 5ms
+ ✓ |unit| packages/domain/src/accounts/session-device.test.ts (2 tests) 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > в боевом образе без AUTH_REQUIRED закрыт
+AssertionError: promise resolved "true" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+true
+
+ ❯ apps/api/src/auth/auth.guard.test.ts:63:8
+     61|       await expect(
+     62|         new SessionGuard(reflector(false), auth(false)).canActivate(ct…
+     63|       ).rejects.toThrow();
+       |        ^
+     64|     });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «true» замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «yes» замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «on» замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение « 1 » замок включает, а не снимает
+ FAIL  |unit| apps/api/src/auth/auth.guard.test.ts > SessionGuard > замок не снимается случайно > значение «да» замок включает, а не снимает
+AssertionError: promise resolved "true" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+true
+
+ ❯ apps/api/src/auth/auth.guard.test.ts:71:8
+     69|       await expect(
+     70|         new SessionGuard(reflector(false), auth(false)).canActivate(ct…
+     71|       ).rejects.toThrow();
+       |        ^
+     72|     });
+     73|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.service.test.ts > AuthService.register > погашенная повторной отправкой ссылка не впускает и после подтверждения почты новой
+AssertionError: promise resolved "{ userId: 'u-4', …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "organizationId": "org-2",
++   "userId": "u-4",
+  }
+
+ ❯ apps/api/src/auth/auth.service.test.ts:430:53
+    428|     );
+    429|     await verification.confirm(second, later);
+    430|     await expect(verification.confirm(first, later)).rejects.toThrow();
+       |                                                     ^
+    431|   });
+    432|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/accounts.test.ts > evaluateLogin > неверный пароль считает попытку, но не говорит, что не так
+AssertionError: expected { outcome: 'wrong', …(3) } to deeply equal { outcome: 'wrong', …(2) }
+
+- Expected
++ Received
+
+  {
+    "failedAttempts": 1,
+    "lockedUntil": null,
+    "outcome": "wrong",
++   "resetCounter": false,
+  }
+
+ ❯ packages/domain/src/accounts/accounts.test.ts:86:70
+     84|
+     85|   it('неверный пароль считает попытку, но не говорит, что не так', () …
+     86|     expect(evaluateLogin({ user: user(), password: 'не тот', now })).t…
+       |                                                                      ^
+     87|       outcome: 'wrong',
+     88|       failedAttempts: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+
+ Test Files  3 failed | 21 passed (24)
+      Tests  8 failed | 238 passed (246)
+   Start at  11:47:48
+   Duration  7.29s (tests 53%, import 26%, transform 21%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-26T11-47-47Z-unit-5045.json
+
+# код выхода 1 · 8 с

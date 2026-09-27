@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { MEMBERSHIP_ROLES } from '@pms/domain';
+import { MEMBERSHIP_ROLES, PLATFORM_TIMEZONE } from '@pms/domain';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { RefreshButton } from '../../../../components/refresh-button';
@@ -25,7 +25,7 @@ import {
   conversationStageLabel,
   knowledgeSourceLabel,
 } from '../../../../lib/ai-seller';
-import { almatyMoment } from '../../../../lib/almaty';
+import { propertyClock } from '../../../../lib/property-time';
 import { ApiError, supportApi, type SupportConversationCard } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
 import {
@@ -44,6 +44,9 @@ import {
 import { SupportModelForm, SupportPromptForm } from '../forms';
 // переписка — тем же списком строками, что у «ИИ-продавца» (DESIGN.md §8)
 import '../../../ai-seller/ai-seller.css';
+
+/** Раздел оператора платформы: время обращений — по поясу платформы, а не отдельной гостиницы (С-13) */
+const platformClock = propertyClock(PLATFORM_TIMEZONE);
 
 /**
  * «Платформа → Техподдержка» (ADR-083, план `plans/platform-roles-extensions-2026-09-25.md` Э3): диалоги ИИ-помощника с
@@ -298,7 +301,7 @@ async function DialogsView({ mode, id }: { mode: string; id: string }) {
                   </td>
                   <td>{conversationStageLabel(c.stage)}</td>
                   <td>{c.messages}</td>
-                  <td>{almatyMoment(c.lastActivityAt)}</td>
+                  <td>{platformClock.moment(c.lastActivityAt)}</td>
                 </tr>
               );
             })}
@@ -357,7 +360,8 @@ function DialogCard({ card }: { card: SupportConversationCard }) {
               }
             >
               <b>{ROLE[msg.role] ?? msg.role}</b>
-              {msg.at ? <span className="sub"> {almatyMoment(msg.at)}</span> : null}: {msg.text}
+              {msg.at ? <span className="sub"> {platformClock.moment(msg.at)}</span> : null}:{' '}
+              {msg.text}
             </p>
           </li>
         ))}
@@ -402,7 +406,7 @@ async function KnowledgeView() {
                 <tr key={`${d.source}-${i}`}>
                   <td>{knowledgeSourceLabel(d.source)}</td>
                   <td>{d.chunks}</td>
-                  <td>{almatyMoment(d.createdAt)}</td>
+                  <td>{platformClock.moment(d.createdAt)}</td>
                 </tr>
               ))}
             </tbody>

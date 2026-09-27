@@ -230,6 +230,50 @@ describe('профиль (П5)', () => {
   });
 });
 
+describe('инструкция продавцу одним текстом (ADR-097)', () => {
+  it('без сохранённой — пустой текст и признак «не сохранена»', async () => {
+    const res = await api().get('/ai-seller/prompt').set(as('session-a')).expect(200);
+    expect(res.body).toMatchObject({ saved: false, text: '' });
+  });
+
+  it('сохраняет текст своей организации; пустой и длиннее 20 000 знаков — 400', async () => {
+    await api().put('/ai-seller/prompt').set(as('session-a')).send({ text: '   ' }).expect(400);
+    await api()
+      .put('/ai-seller/prompt')
+      .set(as('session-a'))
+      .send({ text: 'а'.repeat(20_001) })
+      .expect(400);
+    const res = await api()
+      .put('/ai-seller/prompt')
+      .set(as('session-a'))
+      .send({ text: '  Отвечай кратко.  ' })
+      .expect(200);
+    expect(res.body).toMatchObject({ saved: true, text: 'Отвечай кратко.' });
+    expect(profiles.rows.get(ORG_A)?.promptText).toBe('Отвечай кратко.');
+    expect(profiles.rows.get(ORG_B)).toBeUndefined();
+  });
+
+  it('сотрудник текст не меняет — 403', async () => {
+    await api().put('/ai-seller/prompt').set(as('session-staff')).send({ text: 'x' }).expect(403);
+  });
+
+  it('«Применить» шлёт продавцу текст вместо полей и факты объекта', async () => {
+    await api()
+      .put('/ai-seller/prompt')
+      .set(as('session-a'))
+      .send({ text: 'Отвечай кратко.' })
+      .expect(200);
+    await api().post('/ai-seller/apply').set(as('session-a')).expect(200);
+    expect(connection.seller.ops()).toEqual(['putSellerPrompt', 'putFacts']);
+    expect(connection.seller.calls[0]!.args[0]).toEqual({
+      object_name: 'Тестовый хостел',
+      text: 'Отвечай кратко.',
+    });
+    const status = await api().get('/ai-seller/status').set(as('session-a')).expect(200);
+    expect(status.body).toMatchObject({ profile: { saved: true, applied: true } });
+  });
+});
+
 describe('«Применить» (П8)', () => {
   it('без сохранённого профиля — 409', async () => {
     await api().post('/ai-seller/apply').set(as('session-a')).expect(409);

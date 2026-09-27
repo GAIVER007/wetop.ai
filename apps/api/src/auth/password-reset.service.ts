@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import {
   checkPassword,
-  hashPassword,
   hashSessionToken,
   newSessionToken,
   validEmail,
@@ -18,6 +17,7 @@ import {
   resetState,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { hashPasswordQueued } from './attempt-limits';
 
 /**
  * Кому отдаём письмо. Порт — общий с входом по коду (`@pms/integrations` mail, ADR-004): один
@@ -102,10 +102,13 @@ export class PasswordResetService {
     await this.prisma.db.user.update({
       where: { id: row.user.id },
       data: {
-        passwordHash: hashPassword(input.password),
+        passwordHash: await hashPasswordQueued(input.password),
         status: 'ACTIVE',
         failedAttempts: 0,
         lockedUntil: null,
+        // Ссылка пришла на эту почту — значит, почта его. Приглашённый задаёт пароль этой же дорогой и без отметки
+        // упирался в «Почта не подтверждена» навсегда, вопреки ADR-060 (аудит 26.09, С-9)
+        emailVerifiedAt: row.user.emailVerifiedAt ?? now,
       },
     });
     await this.prisma.db.passwordReset.update({ where: { id: row.id }, data: { usedAt: now } });

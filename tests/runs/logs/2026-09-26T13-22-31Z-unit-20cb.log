@@ -1,0 +1,16 @@
+# Модульные (unit) · 26.09.2026 18:22 Алматы · vm
+# коммит 5546ef1 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 24
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-22-31Z-unit-20cb.json' 'tests/unit/no-hardcoded-utc5.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  13:22:32
+   Duration  216ms (transform 44%, tests 31%, import 18%, worker 6%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-22-31Z-unit-20cb.json
+
+# код выхода 0 · 1 с

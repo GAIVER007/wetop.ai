@@ -43,6 +43,18 @@ export class AiSellerController {
     return this.seller.saveProfile(body);
   }
 
+  /** Инструкция продавцу одним текстом (ADR-097) */
+  @Get('prompt')
+  @Header('Cache-Control', 'no-store')
+  prompt() {
+    return this.seller.prompt();
+  }
+
+  @Put('prompt')
+  savePrompt(@Body() body: { text?: unknown } | undefined) {
+    return this.seller.savePrompt(body?.text);
+  }
+
   @Post('apply')
   @HttpCode(200)
   apply() {

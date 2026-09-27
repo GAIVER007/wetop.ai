@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { Icon } from './icon';
+import { usePropertyClock } from './property-time';
 import { cx } from './ui';
 
 const MONTHS = [
@@ -44,8 +45,6 @@ const POP_W = 296;
 const POP_H = 372;
 const DAY = 86_400_000;
 
-/** Сегодня по часам объекта (Asia/Almaty, UTC+5) — как считает остальная стойка */
-const hotelToday = () => new Date(Date.now() + 5 * 3_600_000).toISOString().slice(0, 10);
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const parse = (s: string | null | undefined) =>
   s && /^\d{4}-\d{2}-\d{2}$/.test(s) ? new Date(`${s}T00:00:00Z`) : null;
@@ -90,6 +89,9 @@ export function DateInput({
 }) {
   const autoId = useId();
   const popId = `${autoId}-calendar`;
+  // Сегодня по часам объекта, как считает остальная стойка (С-13): пояс — из настроек объекта
+  const clock = usePropertyClock();
+  const hotelToday = () => clock.today();
   const initial =
     parse(typeof rest.defaultValue === 'string' ? rest.defaultValue : null) ?? parse(hotelToday())!;
   const [open, setOpen] = useState(!!defaultOpen);

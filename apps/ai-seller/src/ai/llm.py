@@ -65,6 +65,8 @@ class LlmResult:
     model: str | None = None
     attempts: list[AttemptLog] = field(default_factory=list)
     mapping: dict[str, str] = field(default_factory=dict)
+    # Токены всех ступеней, включая отказавшие: огрызок, отказ модели и лишний
+    # раунд инструментов тоже оплачены (ревизия 26.09). None — роутер не сообщил.
     tokens_used: int | None = None
     error: str | None = None
 
@@ -159,9 +161,11 @@ class CascadeClient:
         # httpx пишет полный URL запроса на INFO; в нём бывает токен.
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("openai").setLevel(logging.WARNING)
-        if settings.llm_base_url and settings.llm_api_key:
+        # Клиент — как только задан адрес роутера: ключ бывает только у гостиницы (вкладка «Модель», С2).
+        # Заглушка никуда не уходит: ход без ключа гостиницы и без ключа платформы отказывает в generate().
+        if settings.llm_base_url:
             self._client = AsyncOpenAI(
-                api_key=settings.llm_api_key,
+                api_key=settings.llm_api_key or "no-platform-key",
                 base_url=settings.llm_base_url,
                 # Повтор делаем сами, меняя модель между попытками.
                 max_retries=0,
@@ -197,11 +201,13 @@ class CascadeClient:
         masked = masker.mask(messages)
         # Тот же маскировщик дописывает метки из результатов инструментов.
         mapping = masker.mapping
-        if self._client is None or not self.models:
+        no_key = api_key is None and not self._settings.llm_api_key
+        if self._client is None or not self.models or no_key:
             logger.error("слой модели не настроен: нет адреса, ключа или списка моделей")
             return LlmResult(ok=False, mapping=mapping, error=NOT_CONFIGURED)
 
         attempts: list[AttemptLog] = []
+        spent: int | None = None
         try:
             for model in self.models:
                 started = time.perf_counter()
@@ -214,6 +220,8 @@ class CascadeClient:
                     api_key=api_key,
                 )
                 seconds = round(time.perf_counter() - started, 3)
+                if tokens is not None:
+                    spent = (spent or 0) + tokens
                 if outcome == OK:
                     attempts.append(AttemptLog(model, OK, seconds))
                     return LlmResult(
@@ -223,7 +231,7 @@ class CascadeClient:
                         model=model,
                         attempts=attempts,
                         mapping=mapping,
-                        tokens_used=tokens,
+                        tokens_used=spent,
                     )
                 # При отказе слот text несёт короткую заметку, не текст ответа.
                 attempts.append(AttemptLog(model, outcome, seconds, note=text))
@@ -232,7 +240,7 @@ class CascadeClient:
             # Последний рубеж: сбой диспетчера или разбора не должен вылететь в движок.
             logger.exception("слой модели: непредвиденный сбой каскада")
         logger.error("все ступени каскада отказали")
-        return LlmResult(ok=False, attempts=attempts, mapping=mapping, error=ALL_FAILED)
+        return LlmResult(ok=False, attempts=attempts, mapping=mapping, tokens_used=spent, error=ALL_FAILED)
 
     async def _attempt(
         self,

@@ -82,8 +82,10 @@ notify() {
   chats="${TELEGRAM_CHAT_ID:-$(env_value TELEGRAM_CHAT_ID)}"
   [ -n "$token" ] && [ -n "$chats" ] || return 0
   for chat in $(printf '%s' "$chats" | tr ',' ' '); do
-    curl -fsS -o /dev/null --max-time 15 -X POST "https://api.telegram.org/bot${token}/sendMessage" \
-      --data-urlencode "chat_id=${chat}" --data-urlencode "text=WETOP, выкладка: $1" ||
+    # Адрес с токеном — через stdin, а не аргументом: аргументы процесса видит любой через `ps` (аудит 25.09)
+    printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' "$token" |
+      curl -fsS -o /dev/null --max-time 15 -X POST --config - \
+        --data-urlencode "chat_id=${chat}" --data-urlencode "text=WETOP, выкладка: $1" ||
       say 'Telegram не принял сообщение'
   done
 }
@@ -95,7 +97,10 @@ flock -n 9 || exit 0 # прошлый запуск ещё собирает об�
 cd "$REPO"
 git fetch --quiet origin "$BRANCH"
 target="$(git rev-parse "origin/$BRANCH")"
-current="$(git rev-parse HEAD)"
+# Что выложено — по записи удачной выкладки, а не по клону: клон переключается до сборки, и прерванный запуск оставлял
+# его на новой вершине при прежних контейнерах — следующий молча считал всё выложенным (аудит 26.09, С-67).
+[ -s "$STATE/deployed" ] || git rev-parse HEAD >"$STATE/deployed"
+current="$(cat "$STATE/deployed")"
 short() { git rev-parse --short=8 "$1"; }
 
 [ "$target" != "$current" ] || exit 0

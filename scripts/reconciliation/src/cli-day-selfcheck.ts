@@ -9,7 +9,8 @@ import { dirname, resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { serviceFetch } from '../../lib/service-api';
 import { reportTarget } from '../../lib/desk-page';
-import { checkDay, verdict, type BoardSnapshot, type DaySnapshot } from './day-selfcheck';
+import type { Chessboard } from '@pms/domain';
+import { boardSnapshot, checkDay, verdict, type DaySnapshot } from './day-selfcheck';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
@@ -23,30 +24,8 @@ const get = async <T>(path: string): Promise<T> => {
   return (await res.json()) as T;
 };
 
-type ApiDay = DaySnapshot;
-type ApiBoard = {
-  rows: Array<{ cells: Array<{ date: string; stay?: { confirmationNumber: string } | null }>; unit: { code: string } }>;
-  byCategory: Record<string, Record<string, { occupied: number }>>;
-  unassigned: Array<{ confirmationNumber: string; categoryName: string; arrivalDate: string; departureDate: string }>;
-};
-
-const day = await get<ApiDay>(`/desk/today?date=${DATE}`);
-const raw = await get<ApiBoard>(`/chessboard?from=${DATE}&to=${DATE}`);
-
-const occupiedByNumber: Record<string, string[]> = {};
-for (const r of raw.rows) {
-  for (const c of r.cells) {
-    if (c.date !== DATE || !c.stay) continue;
-    (occupiedByNumber[c.stay.confirmationNumber] ??= []).push(r.unit.code);
-  }
-}
-const board: BoardSnapshot = {
-  occupiedByNumber,
-  unassigned: raw.unassigned
-    .filter((u) => u.arrivalDate <= DATE && DATE < u.departureDate)
-    .map((u) => ({ confirmationNumber: u.confirmationNumber, categoryName: u.categoryName })),
-  occupiedCells: Object.values(raw.byCategory[DATE] ?? {}).reduce((s, c) => s + c.occupied, 0),
-};
+const day = await get<DaySnapshot>(`/desk/today?date=${DATE}`);
+const board = boardSnapshot(await get<Chessboard>(`/chessboard?from=${DATE}&to=${DATE}`), DATE);
 
 const findings = checkDay(day, board);
 const line = verdict(findings);

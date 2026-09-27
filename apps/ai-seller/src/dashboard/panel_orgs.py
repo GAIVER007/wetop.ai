@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from src.db.base import utcnow
 from src.db.models import ORG_KEY_RE_TEXT, Organization
-from src.dashboard.auth_router import require_owner
+from src.dashboard.auth_router import require_platform
 from src.dashboard.panel_common import log_action, sessions
 from src.dashboard.panel_seller import _require_seller
 
@@ -42,7 +42,7 @@ class OrganizationIn(BaseModel):
     hosts: Annotated[list[Annotated[str, Field(min_length=1, max_length=253)]], Field(max_length=20)] = []
 
 
-@router.put("/seller/organizations/{org_id}", dependencies=[Depends(require_owner)])
+@router.put("/seller/organizations/{org_id}", dependencies=[Depends(require_platform)])
 async def upsert_organization(request: Request, org_id: uuid.UUID, body: OrganizationIn) -> dict:
     _require_seller(request)
     now = utcnow()

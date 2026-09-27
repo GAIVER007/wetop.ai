@@ -1,0 +1,160 @@
+# Модульные (unit) · 26.09.2026 17:22 Алматы · vm
+# коммит d53aff7 (claude/youthful-hypatia-i0v104), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T12-22-26Z-unit-cba3.json' 'packages/shared/src/pii-residency.test.ts' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/shared/src/pii-residency.test.ts (27 tests | 5 failed) 27ms
+   ✓ где можно хранить настоящие данные гостя (9)
+     ✓ по умолчанию гость канала записывается псевдонимом: ни имени, ни телефона, ни почты 3ms
+     ✓ псевдоним детерминирован по ключу брони: повтор ревизии не создаёт второго гостя 2ms
+     ✓ другая соль — другой псевдоним: по известной соли значение не подобрать 0ms
+     ✓ пустой телефон и почта остаются пустыми, а не превращаются в выдуманные 0ms
+     ✓ контакт из пробелов — это «нет контакта»: псевдоним не выдумывает телефон и почту 0ms
+     ✓ в боевом режиме пустой контакт хранится как NULL, а не пустой строкой; края обрезаются 1ms
+     ✓ настоящие данные проходят только при PII_STORAGE=real 0ms
+     ✓ без соли — отказ с инструкцией, а не тихая запись предсказуемого псевдонима 1ms
+     ✓ запасной вариант соли — уже заданный ключ шифрования ПД 1ms
+   ✓ гость, введённый стойкой руками (ADR-072) (4)
+     ✓ пока база не в Казахстане — «Гость Стойка-…» без отчества и контактов; соль не нужна 1ms
+     ✓ имя не обязательно: форма в этом режиме его не спрашивает 0ms
+     ✓ два ручных гостя — два разных псевдонима: у ручного ввода нет ключа брони канала 0ms
+     ✓ PII_STORAGE=real — как введено: края обрезаны, пустое — NULL 0ms
+   ✓ maskContacts, freeTextForStorage (3)
+     ✓ маскирует почту и телефоны: местные, международные, со скобками и дефисами 0ms
+     ✓ номера броней, даты, суммы и время не трогает 0ms
+     ✓ пока база не в РК — текст с маской; PII_STORAGE=real — как введён; пусто остаётся пустым 0ms
+   ✓ маска контактов и длинный текст (1)
+     ✓ 100 КБ одного слова маскируются быстро 1ms
+   ❯ маска контактов: пропущенные формы (10)
+     × «звонить 701 234 56 78 после обеда» 7ms
+     × «номер 7011234567» 1ms
+     × «тел. (777) 123-45-67» 3ms
+     × «ИИН 900101300013 для договора» 1ms
+     × «почта иван.тестов@почта.рф» 1ms
+     ✓ не трогает «бронь BDC-4123456789 от канала» 0ms
+     ✓ не трогает «бронь 20260912-ABC123» 0ms
+     ✓ не трогает «сумма 12 500 000 тиын» 0ms
+     ✓ не трогает «даты 2026-09-12 — 2026-09-15» 0ms
+     ✓ не трогает «номер 900101300014 — не ИИН: контрольная цифра не сходится» 0ms
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (11 tests | 1 failed) 347ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (11)
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 38ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 18ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 35ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 14ms
+     × Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 11ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 12ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 18ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 11ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Exely; занятая койка — отказ без начисления 10ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 13ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/shared/src/pii-residency.test.ts > маска контактов: пропущенные формы > «звонить 701 234 56 78 после обеда»
+AssertionError: expected 'звонить 701 234 56 78 после обеда' to be 'звонить <телефон> после обеда' // Object.is equality
+
+Expected: "звонить <телефон> после обеда"
+Received: "звонить 701 234 56 78 после обеда"
+
+ ❯ packages/shared/src/pii-residency.test.ts:182:31
+    180|     ['почта иван.тестов@почта.рф', 'почта <почта>'],
+    181|   ])('«%s»', (raw, masked) => {
+    182|     expect(maskContacts(raw)).toBe(masked);
+       |                               ^
+    183|   });
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| packages/shared/src/pii-residency.test.ts > маска контактов: пропущенные формы > «номер 7011234567»
+AssertionError: expected 'номер 7011234567' to be 'номер <телефон>' // Object.is equality
+
+Expected: "номер <телефон>"
+Received: "номер 7011234567"
+
+ ❯ packages/shared/src/pii-residency.test.ts:182:31
+    180|     ['почта иван.тестов@почта.рф', 'почта <почта>'],
+    181|   ])('«%s»', (raw, masked) => {
+    182|     expect(maskContacts(raw)).toBe(masked);
+       |                               ^
+    183|   });
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| packages/shared/src/pii-residency.test.ts > маска контактов: пропущенные формы > «тел. (777) 123-45-67»
+AssertionError: expected 'тел. (777) 123-45-67' to be 'тел. <телефон>' // Object.is equality
+
+Expected: "тел. <телефон>"
+Received: "тел. (777) 123-45-67"
+
+ ❯ packages/shared/src/pii-residency.test.ts:182:31
+    180|     ['почта иван.тестов@почта.рф', 'почта <почта>'],
+    181|   ])('«%s»', (raw, masked) => {
+    182|     expect(maskContacts(raw)).toBe(masked);
+       |                               ^
+    183|   });
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| packages/shared/src/pii-residency.test.ts > маска контактов: пропущенные формы > «ИИН 900101300013 для договора»
+AssertionError: expected 'ИИН 900101300013 для договора' to be 'ИИН <ИИН> для договора' // Object.is equality
+
+Expected: "ИИН <ИИН> для договора"
+Received: "ИИН 900101300013 для договора"
+
+ ❯ packages/shared/src/pii-residency.test.ts:182:31
+    180|     ['почта иван.тестов@почта.рф', 'почта <почта>'],
+    181|   ])('«%s»', (raw, masked) => {
+    182|     expect(maskContacts(raw)).toBe(masked);
+       |                               ^
+    183|   });
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| packages/shared/src/pii-residency.test.ts > маска контактов: пропущенные формы > «почта иван.тестов@почта.рф»
+AssertionError: expected 'почта иван.тестов@почта.рф' to be 'почта <почта>' // Object.is equality
+
+Expected: "почта <почта>"
+Received: "почта иван.тестов@почта.рф"
+
+ ❯ packages/shared/src/pii-residency.test.ts:182:31
+    180|     ['почта иван.тестов@почта.рф', 'почта <почта>'],
+    181|   ])('«%s»', (raw, masked) => {
+    182|     expect(maskContacts(raw)).toBe(masked);
+       |                               ^
+    183|   });
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются
+AssertionError: expected '[{"folioId":"f1","amountMinor":"50000…' not to contain '777 123 45 67'
+
+Expected: "777 123 45 67"
+Received: "[{"folioId":"f1","amountMinor":"50000","reason":"вернуть на <телефон>"}]"
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:456:52
+    454|       for (const raw of ['701 234 56 78', '<email>', '7…
+    455|       // и в журнал причина возврата уходит с той же маской: раньше ту…
+    456|       expect(JSON.stringify(fakes.auditAfter)).not.toContain('777 123 …
+       |                                                    ^
+    457|       expect(JSON.stringify(fakes.auditAfter)).toContain('<телефон>');
+    458|       expect(all).toContain('Скидка по звонку <телефон>');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  6 failed | 32 passed (38)
+   Start at  12:22:27
+   Duration  2.37s (transform 65%, import 19%, tests 15%)
+
+JSON report written to /tmp/pms-test-2026-09-26T12-22-26Z-unit-cba3.json
+
+# код выхода 1 · 3 с

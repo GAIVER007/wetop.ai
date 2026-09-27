@@ -48,6 +48,8 @@ function makeFakes() {
   const folios = [folio('f1', 'S-1', 1_200_000n), folio('f2', 'S-2', 800_000n)];
   const payments: PaymentRecord[] = [];
   const audits: string[] = [];
+  /** Что возврат записал в журнал — проверяем, что туда не уехали контакты (аудит 26.09, С-39) */
+  const auditAfter: unknown[] = [];
   let seq = 0;
   const repo: FinanceRepository = {
     async today() {
@@ -170,6 +172,7 @@ function makeFakes() {
     },
     async createRefund(r, audit) {
       if (audit) audits.push(audit.action);
+      if (audit) auditAfter.push(audit.after);
       const id = `r${++seq}`;
       payments
         .find((p) => p.id === r.paymentId)!
@@ -235,6 +238,7 @@ function makeFakes() {
   return {
     repo,
     audits,
+    auditAfter,
     blocks,
     units,
     get blockConflict() {
@@ -452,6 +456,9 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
         .expect(201);
       const all = JSON.stringify([charge.body, pay.body, refund.body]);
       for (const raw of ['701 234 56 78', 'guest.test@example.com', '777 123 45 67']) expect(all).not.toContain(raw);
+      // и в журнал причина возврата уходит с той же маской: раньше туда писался сырой текст (аудит 26.09, С-39)
+      expect(JSON.stringify(fakes.auditAfter)).not.toContain('777 123 45 67');
+      expect(JSON.stringify(fakes.auditAfter)).toContain('<телефон>');
       expect(all).toContain('Скидка по звонку <телефон>');
       expect(all).toContain('чек на <почта>');
     } finally {

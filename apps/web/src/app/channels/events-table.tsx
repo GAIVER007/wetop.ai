@@ -2,14 +2,9 @@ import Link from 'next/link';
 import type { InboundEvent } from '../../lib/api';
 import { Badge, Button, Input, Select, Table } from '../../components/ui';
 import { Icon } from '../../components/icon';
+import { hotelClock } from '../../lib/hotel-api';
 import { RetryEventButton } from './buttons';
-import {
-  EVENT_STATUS_RU,
-  EVENT_STATUS_TONE,
-  EVENT_TYPE_RU,
-  VIA_RU,
-  almatyDateTime,
-} from './format';
+import { EVENT_STATUS_RU, EVENT_STATUS_TONE, EVENT_TYPE_RU, VIA_RU, eventTime } from './format';
 
 export interface EventsFilter {
   status: string;
@@ -24,7 +19,7 @@ export const EVENTS_PAGE = 20;
  * брони или `unique_id`, постраничность «показано 20 из 312», колонка «Бронь» ведёт на карточку,
  * событие — на страницу приёма брони.
  */
-export function EventsTable({
+export async function EventsTable({
   data,
   filter,
   hrefFor,
@@ -36,6 +31,7 @@ export function EventsTable({
   /** сохраняем фильтр очереди в форме поиска, чтобы GET не сбрасывал вторую таблицу */
   queueFilter: string;
 }) {
+  const clock = await hotelClock();
   const shown = data?.rows.length ?? 0;
   const total = data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / EVENTS_PAGE));
@@ -144,7 +140,7 @@ export function EventsTable({
                 </Badge>
                 <div className="cell-sub">попыток: {e.attempts}</div>
               </td>
-              <td className="nowrap">{almatyDateTime(e.receivedAt)}</td>
+              <td className="nowrap">{eventTime(e.receivedAt, clock)}</td>
               <td>
                 {e.confirmationNumber ? (
                   <Link

@@ -1,19 +1,11 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { notFound } from 'next/navigation';
-import {
-  SELLER_ADDRESS_FORMS,
-  SELLER_EMOJI,
-  SELLER_LANGUAGES,
-  SELLER_REPLY_LENGTHS,
-} from '@pms/domain';
+import { notFound, redirect } from 'next/navigation';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
-import { RefreshButton } from '../../../components/refresh-button';
 import {
   Alert,
   Badge,
-  type BadgeTone,
   EmptyState,
   Fact,
   Grid,
@@ -25,62 +17,48 @@ import {
   Stack,
   Table,
 } from '../../../components/ui';
-import { Icon } from '../../../components/icon';
+import { Icon, type IconName } from '../../../components/icon';
 import {
-  SELLER_MANNER_EXAMPLES,
-  SELLER_SETUP_STEPS,
+  SELLER_LEGACY_VIEWS,
+  SELLER_PROMPT_MAX,
   SELLER_TABS,
   categoryPriceLine,
   conversationChannelLabel,
   conversationModeLabel,
   conversationStageLabel,
-  defaultSellerStep,
   extensionReminder,
   knowledgeSourceLabel,
   leadFacts,
   sellerBanner,
-  sellerBriefing,
   sellerCanAct,
+  sellerChecklist,
   sellerConnected,
+  sellerPromptDraft,
   sellerReadOnlyReason,
-  sellerSetupProgress,
-  sellerStepNumber,
-  userDocuments,
-  type SellerProfileStep,
-  type SellerStepProgress,
-  type SellerStepState,
+  type SellerChecklistItem,
   type SellerView,
 } from '../../../lib/ai-seller';
-import { almatyMoment, almatyWhen } from '../../../lib/almaty';
+import { hotelClock } from '../../../lib/hotel-api';
 import { displayPeriod } from '../../../lib/display-date';
-import {
-  sellerApi,
-  type SellerFactsView,
-  type SellerProfileBody,
-  type SellerStatus,
-} from '../../../lib/api';
+import { sellerApi, type SellerFactsView, type SellerStatus } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
 import { pluralRu } from '../../../lib/plural';
 import { CopyButton } from '../../analytics/setup/forms';
 import {
-  ApplySellerForm,
   DialogModeButtons,
   DialogReplyForm,
   KnowledgeUploadForm,
   LlmKeyForm,
   SandboxForm,
+  SellerPromptForm,
   WhatsAppForm,
-  SellerStepForm,
-  StoryIntake,
-  type MannerChoice,
 } from '../forms';
 import '../ai-seller.css';
-import { SetupWorkspace } from '../setup-workspace';
 
 /**
- * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079). Шесть экранов вкладками — так же, как «Настройки гостиницы».
- * Всё — через API платформы: адреса и ключа продавца стойка не знает. Копия продавца обслуживает одну организацию;
- * у остальных раздел открывается, но говорит, что продавец не подключён.
+ * Раздел «ИИ-продавец» (ТЗ ред. 1 §4.1, П6; ADR-079; макет владельца 26.09.2026 — ADR-097). Четыре экрана:
+ * «Настройка» — одно окно инструкции и проверка рядом, «Диалоги», «Знания» с данными объекта, «Подключения» —
+ * модель, код для сайта и WhatsApp. Всё — через API платформы: адреса и ключа продавца стойка не знает.
  *
  * Раздел работает у организации с расширением «ИИ-продавец» (ADR-083): без него — объяснение вместо экранов; срок
  * вышел — всё видно, но менять и отвечать гостям нельзя (Q-183); настройки меняет владелец организации.
@@ -115,17 +93,25 @@ export default async function AiSellerPage({
 }) {
   const { section = [] } = await params;
   if (section.length > 1) notFound();
+  const legacy = SELLER_LEGACY_VIEWS[section[0] ?? ''];
+  if (legacy !== undefined) redirect(legacy ? `/ai-seller/${legacy}` : '/ai-seller');
   const view = (section[0] ?? '') as SellerView;
-  const tab = SELLER_TABS.find((item) => item.view === view);
-  if (!tab) notFound();
+  if (!SELLER_TABS.some((item) => item.view === view)) notFound();
   const query = await searchParams;
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
   return (
     <Page
-      title={view ? tab.label : 'ИИ-продавец'}
-      subtitle="Продавец гостиницы: настройка и подключения"
-      actions={<><Link className="btn btn--secondary" href="/ai-seller/agents">Мои агенты</Link><RefreshButton /></>}
-      crumbs={view ? <Link href="/ai-seller">ИИ-продавец</Link> : undefined}
+      title="ИИ-продавец"
+      subtitle={
+        <Suspense fallback={null}>
+          <SellerStatePill />
+        </Suspense>
+      }
+      actions={
+        <Link className="btn btn--secondary" href="/ai-seller/agents">
+          Все агенты
+        </Link>
+      }
     >
       <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">
         {SELLER_TABS.map((item) => (
@@ -140,28 +126,28 @@ export default async function AiSellerPage({
         ))}
       </nav>
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем продавца…" />}>
-        <SellerScreen
-          view={view}
-          mode={one(query.mode)}
-          id={one(query.id)}
-          step={one(query.step)}
-        />
+        <SellerScreen view={view} mode={one(query.mode)} id={one(query.id)} />
       </Suspense>
     </Page>
   );
 }
 
-async function SellerScreen({
-  view,
-  mode,
-  id,
-  step,
-}: {
-  view: SellerView;
-  mode: string;
-  id: string;
-  step: string;
-}) {
+/** Метка состояния под заголовком: одно слово и строка — подробности там, где их можно исправить */
+async function SellerStatePill() {
+  const status = await settle(sellerApi.status());
+  if (!status.ok) return null;
+  const banner = sellerBanner(status.value);
+  return (
+    <span className="seller-state" data-testid="seller-state">
+      <Badge tone={banner.tone === 'calm' ? 'ok' : banner.tone === 'alarm' ? 'danger' : 'warn'}>
+        {banner.value}
+      </Badge>
+      <span>{banner.title}</span>
+    </span>
+  );
+}
+
+async function SellerScreen({ view, mode, id }: { view: SellerView; mode: string; id: string }) {
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
   if (status.value.state === 'extension-off') return <ExtensionOff status={status.value} />;
@@ -170,20 +156,152 @@ async function SellerScreen({
     status.value.canConfigure === false ? null : extensionReminder(status.value.extension);
   return (
     <Stack>
-      <SellerBanner status={status.value} />
       {reminder && (
         <Alert tone="warning" data-testid="seller-extension-ending">
           {reminder}
         </Alert>
       )}
-      {view === '' && <SetupView status={status.value} step={step} />}
-      {view === 'data' && <DataView />}
-      {view === 'knowledge' && <KnowledgeView status={status.value} />}
+      {view === '' && <SetupView status={status.value} />}
       {view === 'dialogs' && <DialogsView status={status.value} mode={mode} id={id} />}
-      {view === 'embed' && <EmbedView status={status.value} />}
-      {view === 'model' && <ModelView status={status.value} />}
-      {view === 'whatsapp' && <WhatsAppView status={status.value} />}
-      {view === 'check' && <CheckView status={status.value} />}
+      {view === 'knowledge' && <KnowledgeView status={status.value} />}
+      {view === 'connections' && <ConnectionsView status={status.value} />}
+    </Stack>
+  );
+}
+
+/**
+ * «Настройка» (макет владельца 26.09.2026): сверху — только то, что осталось до запуска; ниже — одно окно инструкции
+ * и рядом разговор с продавцом до публикации. Пустое окно заполнено черновиком из прежних полей — ничего не теряется.
+ */
+async function SetupView({ status }: { status: SellerStatus }) {
+  const readOnly = sellerReadOnlyReason(status);
+  const connected = sellerConnected(status);
+  const [prompt, profile, key, clock] = await Promise.all([
+    settle(sellerApi.prompt()),
+    settle(sellerApi.profile()),
+    connected && !readOnly ? settle(sellerApi.llmKey()) : Promise.resolve(null),
+    hotelClock(),
+  ]);
+  if (!prompt.ok)
+    return <LoadError testId="seller-prompt-error-load" {...loadErrorProps(prompt.error)} />;
+  const banner = sellerBanner(status);
+  // что осталось до запуска — тому, кто может это сделать: сотруднику и после срока список ни к чему
+  const checklist = readOnly ? null : sellerChecklist(status, key?.ok ? key.value.set : null, prompt.value);
+  const initial =
+    prompt.value.text ||
+    sellerPromptDraft(profile.ok && profile.value.saved ? profile.value.profile : null);
+  const note =
+    prompt.value.applied && prompt.value.updatedAt
+      ? `Применено ${clock.when(prompt.value.updatedAt)}`
+      : prompt.value.saved
+        ? 'Сохранено, но ещё не у продавца'
+        : null;
+  return (
+    <Stack>
+      {banner.tone === 'alarm' && <Alert data-testid="seller-state-reason">{banner.text}</Alert>}
+      {checklist && <SetupChecklist items={checklist} />}
+      <div className="seller-setup">
+        <Panel data-testid="seller-setup" aria-labelledby="seller-prompt-title">
+          <SectionTitle first id="seller-prompt-title">
+            Инструкция продавцу
+          </SectionTitle>
+          <SellerPromptForm
+            initial={initial}
+            max={SELLER_PROMPT_MAX}
+            readOnly={readOnly}
+            note={note}
+          />
+          <p className="settings-note seller-setup__note">
+            <Icon name="board" width={16} height={16} aria-hidden="true" />
+            Цены, номера, заезд и выезд продавец берёт из WETOP сам — их писать не нужно.
+          </p>
+          <p className="settings-note seller-setup__note">
+            <Icon name="shield" width={16} height={16} aria-hidden="true" />
+            Защитные правила продавец добавляет всегда: не считает суммы, не обещает за
+            администратора, зовёт человека.
+          </p>
+        </Panel>
+        <Panel data-testid="seller-check" aria-labelledby="seller-check-title">
+          <SectionTitle first id="seller-check-title">
+            Проверка
+          </SectionTitle>
+          {!connected ? (
+            <p className="settings-note">Проверка заработает, когда продавец будет подключён.</p>
+          ) : !sellerCanAct(status) ? (
+            <p className="settings-note" data-testid="seller-action-closed">
+              Проверка — при действующем расширении.
+            </p>
+          ) : (
+            <SandboxForm />
+          )}
+        </Panel>
+      </div>
+    </Stack>
+  );
+}
+
+const CHECKLIST_ICON: Record<SellerChecklistItem['key'], IconName> = {
+  connect: 'system',
+  model: 'shield',
+  prompt: 'journal',
+  check: 'chat',
+};
+
+/** Что осталось до запуска: сделанное — галочкой, у несделанного — куда идти */
+function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
+  const left = items.filter((item) => !item.done && item.key !== 'check').length;
+  return (
+    <Panel data-testid="seller-checklist" aria-labelledby="seller-checklist-title">
+      <SectionTitle first id="seller-checklist-title">
+        До запуска — {pluralRu(left, ['шаг', 'шага', 'шагов'])}
+      </SectionTitle>
+      <ol className="seller-checklist">
+        {items.map((item) => (
+          <li
+            key={item.key}
+            data-state={item.done ? 'done' : 'todo'}
+            data-testid={`seller-checklist-${item.key}`}
+          >
+            <Icon
+              name={item.done ? 'check' : CHECKLIST_ICON[item.key]}
+              width={18}
+              height={18}
+              aria-hidden="true"
+            />
+            <div>
+              <strong>{item.title}</strong>
+              <span className="sub">{item.hint}</span>
+            </div>
+            {!item.done && item.href && (
+              <Link className="btn btn--secondary" href={item.href}>
+                {item.key === 'model' ? 'Вставить ключ' : 'Открыть'}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ol>
+    </Panel>
+  );
+}
+
+/** «Подключения»: модель, код для сайта и WhatsApp — всё, что связывает продавца с внешним миром, на одном экране */
+async function ConnectionsView({ status }: { status: SellerStatus }) {
+  return (
+    <Stack>
+      <section className="stack" aria-labelledby="seller-model-title">
+        <SectionTitle first id="seller-model-title">
+          Модель
+        </SectionTitle>
+        <ModelView status={status} />
+      </section>
+      <section className="stack" aria-labelledby="seller-embed-title">
+        <SectionTitle id="seller-embed-title">Код для сайта</SectionTitle>
+        <EmbedView status={status} />
+      </section>
+      <section className="stack" aria-labelledby="seller-whatsapp-title">
+        <SectionTitle id="seller-whatsapp-title">WhatsApp</SectionTitle>
+        <WhatsAppView status={status} />
+      </section>
     </Stack>
   );
 }
@@ -244,319 +362,6 @@ function ExtensionOff({ status }: { status: SellerStatus }) {
       Продавец отвечает гостям в чате на сайте объекта: называет цены по тарифу сайта, рассказывает
       о правилах, берёт контакт и зовёт человека, когда нужно. {banner.text}
     </EmptyState>
-  );
-}
-
-/** Полоса состояния: подключён ли продавец и дошли ли до него правки */
-function SellerBanner({ status }: { status: SellerStatus }) {
-  const banner = sellerBanner(status);
-  return (
-    <section className="seller-connection" data-testid="seller-state" aria-label="Состояние агента">
-      <div className="seller-connection__summary">
-        <Badge tone={banner.tone === 'calm' ? 'ok' : banner.tone === 'alarm' ? 'danger' : 'warn'}>
-          {banner.value}
-        </Badge>
-        <strong>{banner.title}</strong>
-        <span>
-          Настройки:{' '}
-          {!status.profile.saved
-            ? 'не сохранены'
-            : status.profile.applied
-              ? 'применены'
-              : 'ждут отправки'}
-        </span>
-        <span>Данные объекта: {status.facts.applied ? 'у продавца' : 'ждут отправки'}</span>
-      </div>
-      <details data-testid="seller-connection-details">
-        <summary>Подробности подключения</summary>
-        <p>{banner.text}</p>
-        {status.profile.updatedAt && (
-          <p>Настройки обновлены: {almatyWhen(status.profile.updatedAt)}</p>
-        )}
-        {status.facts.appliedAt && <p>Данные отправлены: {almatyWhen(status.facts.appliedAt)}</p>}
-        {status.lastErrorAt && <p>Последний отказ: {almatyWhen(status.lastErrorAt)}</p>}
-      </details>
-    </section>
-  );
-}
-
-const pad = (n: number) => String(n).padStart(2, '0');
-
-const STEP_TONE: Record<SellerStepState, BadgeTone> = {
-  done: 'ok',
-  todo: 'warn',
-  optional: 'neutral',
-  later: 'neutral',
-};
-
-/** Варианты «Манеры» из слов домена и примеров, как это звучит у продавца */
-const manner = <T extends string>(
-  labels: Readonly<Record<T, string>>,
-  examples: Readonly<Record<T, string>>,
-): MannerChoice[] =>
-  (Object.keys(labels) as T[]).map((value) => ({
-    value,
-    label: labels[value],
-    example: examples[value],
-  }));
-
-/**
- * «Настройки» — пошаговая настройка продавца (поручение владельца 25.09.2026,
- * `plans/ai-seller-setup-wizard-2026-09-25.md`): наверху шаги с состоянием словом, ниже — открытый шаг. Без шага в
- * адресе открывается первый незаполненный; всё заполнено — «Запуск».
- */
-async function SetupView({ status, step: raw }: { status: SellerStatus; step: string }) {
-  const readOnly = sellerReadOnlyReason(status);
-  const [loaded, knowledge] = await Promise.all([
-    settle(sellerApi.profile()),
-    sellerConnected(status) ? settle(sellerApi.knowledge()) : Promise.resolve(null),
-  ]);
-  if (!loaded.ok)
-    return <LoadError testId="seller-profile-error" {...loadErrorProps(loaded.error)} />;
-  const items = knowledge?.ok ? knowledge.value.items : null;
-  const progress = sellerSetupProgress({
-    saved: loaded.value.saved,
-    profile: loaded.value.profile,
-    // продавец подключён, а список не пришёл — шаг «по желанию», а не «после подключения»
-    documents: knowledge === null ? null : items ? userDocuments(items) : 0,
-    applied: status.profile.applied && status.facts.applied,
-  });
-  const step = sellerStepNumber(raw) ?? defaultSellerStep(progress);
-  const current = progress[step - 1]!;
-  const profile = loaded.value.profile;
-  return (
-    <Stack>
-      <SetupWorkspace
-        key={`${step}:${profile.botName}:${profile.greeting}`}
-        name={profile.botName}
-        greeting={profile.greeting}
-        navigation={<SetupSteps progress={progress} current={step} />}
-      >
-        <Panel data-testid="seller-setup" aria-labelledby="seller-step-title">
-          <div className="form-section-title">
-            <span>{pad(step)}</span>
-            <div>
-              <h2 id="seller-step-title">{current.title}</h2>
-              <p>{current.hint}</p>
-            </div>
-          </div>
-          {current.key === 'docs' ? (
-            <DocsStep ready={sellerConnected(status)} items={items} readOnly={readOnly} />
-          ) : current.key === 'launch' ? (
-            <LaunchStep profile={profile} progress={progress} readOnly={readOnly} />
-          ) : (
-            <ProfileStep stepKey={current.key} profile={profile} readOnly={readOnly} />
-          )}
-        </Panel>
-      </SetupWorkspace>
-      <Panel data-testid="seller-story-panel">
-        <StoryIntake saved={loaded.value.saved} readOnly={readOnly} />
-      </Panel>
-    </Stack>
-  );
-}
-
-/** Список шагов: номер, название и состояние словом; открытый шаг — `aria-current="step"` */
-function SetupSteps({ progress, current }: { progress: SellerStepProgress[]; current: number }) {
-  return (
-    <nav aria-label="Шаги настройки продавца">
-      <ol className="seller-steps">
-        {progress.map((p) => (
-          <li key={p.key}>
-            <Link
-              href={`/ai-seller?step=${p.step}`}
-              prefetch={false}
-              className="seller-steps__link"
-              aria-current={p.step === current ? 'step' : undefined}
-            >
-              <span className="seller-steps__num" aria-hidden="true">
-                {pad(p.step)}
-              </span>
-              <span className="seller-steps__title">{p.title}</span>
-              <Badge tone={STEP_TONE[p.state]} className="seller-steps__state">
-                {p.word}
-              </Badge>
-            </Link>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
-
-/** Шаг с полями профиля; у «Цен» над полями — что продавец скажет о цене (только для чтения) */
-function ProfileStep({
-  stepKey,
-  profile,
-  readOnly,
-}: {
-  stepKey: SellerProfileStep;
-  profile: SellerProfileBody;
-  readOnly: string | null;
-}) {
-  return (
-    <SellerStepForm
-      // своя форма на шаг: ответ действия прошлого шага (отказ и введённое) не переезжает на следующий
-      key={stepKey}
-      stepKey={stepKey}
-      initial={profile}
-      readOnly={readOnly}
-      first={stepKey === SELLER_SETUP_STEPS[0].key}
-      languages={Object.entries(SELLER_LANGUAGES).map(([value, label]) => ({ value, label }))}
-      addressForms={manner(SELLER_ADDRESS_FORMS, SELLER_MANNER_EXAMPLES.addressForm)}
-      emojis={manner(SELLER_EMOJI, SELLER_MANNER_EXAMPLES.emoji)}
-      replyLengths={manner(SELLER_REPLY_LENGTHS, SELLER_MANNER_EXAMPLES.replyLength)}
-    >
-      {stepKey === 'prices' && (
-        <Suspense fallback={<LoadingState label="Загружаем цены…" />}>
-          <StepPrices />
-        </Suspense>
-      )}
-    </SellerStepForm>
-  );
-}
-
-/** Цены на шаге «Цены»: их продавец берёт из тарифа сайта, здесь их не вводят — иначе у ночи было бы две цены */
-async function StepPrices() {
-  const loaded = await settle(sellerApi.facts());
-  if (!loaded.ok)
-    return <LoadError testId="seller-facts-error" {...loadErrorProps(loaded.error)} />;
-  return (
-    <Stack>
-      <PricesTable view={loaded.value} />
-      <Row>
-        <Link className="btn btn--secondary" href="/rates">
-          Изменить цены в «Тарифах»
-        </Link>
-        <Link className="btn btn--secondary" href="/hotel-settings">
-          Изменить карточку объекта
-        </Link>
-      </Row>
-      <p className="settings-note">
-        Ниже — что добавить к цене словами: продавец скажет это гостю вместе с суммой.
-      </p>
-    </Stack>
-  );
-}
-
-/** Шаг «Документы»: загрузка в знания продавца; без подключённого продавца — пропустить и вернуться позже */
-function DocsStep({
-  ready,
-  items,
-  readOnly,
-}: {
-  ready: boolean;
-  items: Array<{ source: string; chunks: number; createdAt: string | null }> | null;
-  readOnly: string | null;
-}) {
-  return (
-    <Stack>
-      {ready ? (
-        <>
-          <p className="settings-note">
-            Прайс, правила, описание номеров — продавец отвечает и по ним. Цены и адрес сюда класть
-            не нужно: их продавец берёт из «Данных объекта». Шаг можно пропустить.
-          </p>
-          {readOnly ? (
-            <Notice tone="muted" data-testid="seller-read-only">
-              {readOnly}
-            </Notice>
-          ) : (
-            <KnowledgeUploadForm />
-          )}
-          {items && items.length > 0 && <KnowledgeTable items={items} />}
-        </>
-      ) : (
-        <EmptyState
-          icon={<Icon name="journal" width={32} height={32} />}
-          title="Документы — после подключения продавца"
-          data-testid="seller-docs-later"
-        >
-          Сюда загружают прайс, правила и описание файлом. Шаг можно пропустить и вернуться, когда
-          продавец будет подключён.
-        </EmptyState>
-      )}
-      <div className="form-footer">
-        <Link className="btn btn--secondary" href="/ai-seller?step=5">
-          Назад
-        </Link>
-        <Link className="btn" href="/ai-seller?step=7" data-testid="seller-step-next">
-          Дальше
-        </Link>
-      </div>
-    </Stack>
-  );
-}
-
-/**
- * «Запуск»: что продавец получит — словами, а не текстом промпта (ТЗ §2 п. 2); чего не хватает; «Применить» — сейчас,
- * а не через минуту; дальше — «Проверка» и «Код для сайта».
- */
-async function LaunchStep({
-  profile,
-  progress,
-  readOnly,
-}: {
-  profile: SellerProfileBody;
-  progress: SellerStepProgress[];
-  readOnly: string | null;
-}) {
-  const missing = progress.filter(
-    (p) => p.key !== 'docs' && p.key !== 'launch' && p.state === 'todo',
-  );
-  const facts = await settle(sellerApi.facts());
-  const prices = facts.ok ? facts.value.prices : [];
-  // та же граница, что в «Данных объекта»: цена уходит продавцу, только если она одна весь срок (ADR-081)
-  const known = prices.filter((p) => p.reason === 'same' && p.priceMinor !== null).length;
-  return (
-    <Stack>
-      {missing.length > 0 && (
-        <Alert tone="warning" data-testid="seller-setup-missing">
-          Не заполнено: {missing.map((m) => `«${m.title}»`).join(', ')}. Продавец будет работать и
-          так, но гостю ответит хуже — вернитесь к этим шагам.
-        </Alert>
-      )}
-      <SectionTitle first>Что получит продавец</SectionTitle>
-      <Grid min={240} data-testid="seller-briefing">
-        {sellerBriefing(profile).map((line) => (
-          <Fact key={line.label} label={line.label} value={line.value} />
-        ))}
-      </Grid>
-      {facts.ok && (
-        <p className="settings-note" data-testid="seller-briefing-facts">
-          О гостинице продавец знает из «Данных объекта»: адрес, заезд с{' '}
-          {facts.value.facts.check_in}, выезд до {facts.value.facts.check_out},{' '}
-          {pluralRu(prices.length, ['категория', 'категории', 'категорий'])}. Цену за ночь он
-          назовёт у {known} из {prices.length}, у остальных скажет «уточнит администратор».
-        </p>
-      )}
-      <p className="settings-note">
-        Промпт продавец собирает сам: из этих ответов и своих правил — не считать деньги, не обещать
-        того, чего он не делает, звать человека. Свои правила стереть нельзя, поэтому текста промпта
-        здесь нет.
-      </p>
-      {readOnly ? (
-        <Notice tone="muted" data-testid="seller-read-only">
-          {readOnly}
-        </Notice>
-      ) : (
-        <ApplySellerForm />
-      )}
-      <Row>
-        <Link className="btn btn--secondary" href="/ai-seller/check">
-          Поговорить с продавцом
-        </Link>
-        <Link className="btn btn--secondary" href="/ai-seller/embed">
-          Код для сайта
-        </Link>
-      </Row>
-      <div className="form-footer">
-        <Link className="btn btn--secondary" href="/ai-seller?step=6">
-          Назад
-        </Link>
-        <span />
-      </div>
-    </Stack>
   );
 }
 
@@ -657,11 +462,12 @@ function PricesTable({ view }: { view: SellerFactsView }) {
 }
 
 /** Загруженные документы продавца */
-function KnowledgeTable({
+async function KnowledgeTable({
   items,
 }: {
   items: Array<{ source: string; chunks: number; createdAt: string | null }>;
 }) {
+  const clock = await hotelClock();
   return (
     <Table aria-label="Документы продавца" data-testid="seller-knowledge">
       <thead>
@@ -676,7 +482,7 @@ function KnowledgeTable({
           <tr key={`${d.source}-${i}`}>
             <td>{knowledgeSourceLabel(d.source)}</td>
             <td>{d.chunks}</td>
-            <td>{almatyMoment(d.createdAt)}</td>
+            <td>{clock.moment(d.createdAt)}</td>
           </tr>
         ))}
       </tbody>
@@ -697,9 +503,15 @@ function NotReady({ status, title }: { status: SellerStatus; title: string }) {
   );
 }
 
+/** «Знания»: документы продавца и данные объекта, которые он получает из WETOP сам */
 async function KnowledgeView({ status }: { status: SellerStatus }) {
   if (!sellerConnected(status))
-    return <NotReady status={status} title="Знания появятся, когда продавец будет подключён" />;
+    return (
+      <Stack>
+        <NotReady status={status} title="Документы появятся, когда продавец будет подключён" />
+        <DataView />
+      </Stack>
+    );
   const readOnly = sellerReadOnlyReason(status);
   const loaded = await settle(sellerApi.knowledge());
   return (
@@ -730,6 +542,7 @@ async function KnowledgeView({ status }: { status: SellerStatus }) {
           <KnowledgeTable items={loaded.value.items} />
         </Panel>
       )}
+      <DataView />
     </Stack>
   );
 }
@@ -743,6 +556,7 @@ async function DialogsView({
   mode: string;
   id: string;
 }) {
+  const clock = await hotelClock();
   if (!sellerConnected(status))
     return <NotReady status={status} title="Диалоги появятся, когда продавец будет подключён" />;
   const selected = MODES.some((m) => m.value === mode) ? mode : '';
@@ -813,7 +627,7 @@ async function DialogsView({
                   </td>
                   <td>{conversationStageLabel(c.stage)}</td>
                   <td>{c.messages}</td>
-                  <td>{almatyMoment(c.lastActivityAt)}</td>
+                  <td>{clock.moment(c.lastActivityAt)}</td>
                 </tr>
               );
             })}
@@ -824,13 +638,14 @@ async function DialogsView({
   );
 }
 
-function DialogCard({
+async function DialogCard({
   card,
   canAct,
 }: {
   card: Awaited<ReturnType<typeof sellerApi.conversation>>;
   canAct: boolean;
 }) {
+  const clock = await hotelClock();
   const m = conversationModeLabel(card.mode);
   const lead = leadFacts(card.leadData);
   return (
@@ -866,7 +681,7 @@ function DialogCard({
               }
             >
               <b>{ROLE[msg.role] ?? msg.role}</b>
-              {msg.at ? <span className="sub"> {almatyMoment(msg.at)}</span> : null}: {msg.text}
+              {msg.at ? <span className="sub"> {clock.moment(msg.at)}</span> : null}: {msg.text}
             </p>
           </li>
         ))}
@@ -942,22 +757,6 @@ async function EmbedView({ status }: { status: SellerStatus }) {
           с доменом, и продавец начнёт пускать с него.
         </p>
       )}
-    </Panel>
-  );
-}
-
-function CheckView({ status }: { status: SellerStatus }) {
-  if (!sellerConnected(status))
-    return <NotReady status={status} title="Проверка заработает, когда продавец будет подключён" />;
-  if (!sellerCanAct(status)) return <ActionClosed title="Проверка — при действующем расширении" />;
-  return (
-    <Panel data-testid="seller-check">
-      <SectionTitle first>Поговорить с продавцом до публикации</SectionTitle>
-      <p className="settings-note">
-        Напишите так, как написал бы гость. Разговор идёт в песочнице: гости и «Диалоги» его не
-        видят. Нажмите «Применить» в «Настройках», чтобы проверить новую версию.
-      </p>
-      <SandboxForm />
     </Panel>
   );
 }

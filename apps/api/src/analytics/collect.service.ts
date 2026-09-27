@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { Inject, Injectable, type OnModuleDestroy } from '@nestjs/common';
-import { RateWindows } from '../rate-window';
 import {
   classifySource,
   deviceFromUserAgent,
@@ -17,6 +16,7 @@ import {
   type SiteRecord,
   type StoredHit,
 } from './analytics.repository';
+import { AttemptWindows } from '../auth/attempt-limits';
 
 export interface HitHeaders {
   userAgent?: string | null | undefined;
@@ -33,6 +33,13 @@ export const COLLECT_LIMITS = {
   perVisitorPerMinute: 60,
   perSitePerMinute: 600,
   siteCacheMs: 30_000,
+  /**
+   * Поисков сайта в базе в минуту на весь приёмник. Настоящих сайтов единицы, их ключи живут в кэше; поток случайных
+   * ключей иначе занимал общий пул базы (аудит 26.09, С-34). Сверх предела — отказ без базы или прежний ответ из кэша.
+   */
+  unknownLookupsPerMinute: 300,
+  /** Сколько ключей держит кэш: прежний хранил каждый присланный ключ вечно */
+  siteCacheSize: 5_000,
   flushIntervalMs: 1000,
   flushBatch: 100,
 } as const;
@@ -49,7 +56,12 @@ export class CollectService implements OnModuleDestroy {
   private timer: NodeJS.Timeout | null = null;
   private flushing: Promise<number> | null = null;
   private readonly siteCache = new Map<string, { site: SiteRecord | null; at: number }>();
-  private windows = new RateWindows(WINDOW_MS, 50_000);
+  private known = new Map<string, SiteRecord>();
+  private knownAt = Number.NEGATIVE_INFINITY;
+  private loadingKnown: Promise<void> | null = null;
+  private lookups = new AttemptWindows(COLLECT_LIMITS.unknownLookupsPerMinute, WINDOW_MS);
+  private perVisitor = new AttemptWindows(COLLECT_LIMITS.perVisitorPerMinute, WINDOW_MS);
+  private perSite = new AttemptWindows(COLLECT_LIMITS.perSitePerMinute, WINDOW_MS);
 
   constructor(@Inject(ANALYTICS_REPOSITORY) private readonly repo: AnalyticsRepository) {}
 
@@ -73,10 +85,10 @@ export class CollectService implements OnModuleDestroy {
     const fromOwnPage = !!originHost && !!ownHost && originHost === ownHost;
     if (!fromOwnPage && !hostMatches(site.hosts, originHost)) return 'rejected:origin';
 
-    if (!this.allow(`v:${site.id}:${hit.visitorKey}`, COLLECT_LIMITS.perVisitorPerMinute, now)) {
+    if (!this.perVisitor.allow(`${site.id}:${hit.visitorKey}`, now.getTime())) {
       return 'rejected:visitor limit';
     }
-    if (!this.allow(`s:${site.id}`, COLLECT_LIMITS.perSitePerMinute, now)) {
+    if (!this.perSite.allow(site.id, now.getTime())) {
       return 'rejected:site limit';
     }
 
@@ -112,8 +124,12 @@ export class CollectService implements OnModuleDestroy {
 
   /** Для тестов: обнулить окна лимитов и кэш сайтов. */
   resetLimits(): void {
-    this.windows.reset();
+    this.lookups = new AttemptWindows(COLLECT_LIMITS.unknownLookupsPerMinute, WINDOW_MS);
+    this.perVisitor = new AttemptWindows(COLLECT_LIMITS.perVisitorPerMinute, WINDOW_MS);
+    this.perSite = new AttemptWindows(COLLECT_LIMITS.perSitePerMinute, WINDOW_MS);
     this.siteCache.clear();
+    this.known.clear();
+    this.knownAt = Number.NEGATIVE_INFINITY;
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -134,17 +150,55 @@ export class CollectService implements OnModuleDestroy {
     return this.siteFor(key, Date.now());
   }
 
+  /**
+   * Ключи всех настоящих сайтов — одним запросом раз в `siteCacheMs`. Поток случайных ключей расходует только предел
+   * поисков незнакомых ключей и настоящим сайтам не мешает: раньше предел был общий, и пять запросов в секунду
+   * выключали сбор всем сайтам после каждого перезапуска (проверка исправлений 26.09).
+   */
+  private async knownSite(key: string, nowMs: number): Promise<SiteRecord | undefined> {
+    if (nowMs - this.knownAt >= COLLECT_LIMITS.siteCacheMs) {
+      this.loadingKnown ??= this.repo
+        .allSites()
+        .then((sites) => {
+          this.known = new Map(sites.map((s) => [s.publicKey, s]));
+          this.knownAt = nowMs;
+        })
+        .catch((e: unknown) => {
+          // база недоступна — работаем на прежнем списке; следующая попытка через тот же срок
+          this.knownAt = nowMs;
+          console.warn(`[analytics] список сайтов не прочитан: ${(e as Error).message}`);
+        })
+        .finally(() => {
+          this.loadingKnown = null;
+        });
+      await this.loadingKnown;
+    }
+    return this.known.get(key);
+  }
+
   private async siteFor(key: string, nowMs: number): Promise<SiteRecord | null> {
+    const known = await this.knownSite(key, nowMs);
+    if (known) return known;
     const cached = this.siteCache.get(key);
     if (cached && nowMs - cached.at < COLLECT_LIMITS.siteCacheMs) return cached.site;
+    // предел поисков исчерпан — база не трогается; известный сайт живёт на прежнем ответе, пока поток не схлынет
+    if (!this.lookups.allow('all', nowMs)) return cached?.site ?? null;
     const site = await this.repo.siteByKey(key);
+    this.siteCache.delete(key);
     this.siteCache.set(key, { site, at: nowMs });
+    if (this.siteCache.size > COLLECT_LIMITS.siteCacheSize) this.evict(nowMs);
     return site;
   }
 
-  private allow(key: string, limit: number, now: Date): boolean {
-    // С-6 (ТЗ аудита 25.09.2026): вытеснение только протухших окон — общий класс, не clear()
-    return this.windows.allow(key, limit, now);
+  /** Сначала протухшие, потом самые старые записи: порядок вставки в Map — порядок записи */
+  private evict(nowMs: number): void {
+    for (const [key, entry] of this.siteCache) {
+      if (nowMs - entry.at >= COLLECT_LIMITS.siteCacheMs) this.siteCache.delete(key);
+    }
+    for (const key of this.siteCache.keys()) {
+      if (this.siteCache.size <= COLLECT_LIMITS.siteCacheSize) break;
+      this.siteCache.delete(key);
+    }
   }
 }
 

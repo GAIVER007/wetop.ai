@@ -1,19 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { DEFAULT_SELLER_PROFILE } from '@pms/domain';
-import {
-  SELLER_SETUP_STEPS,
-  sellerStepFromForm,
-  type SellerProfileStep,
-} from '../../lib/ai-seller';
-import {
-  ApiError,
-  sellerApi,
-  type SellerExtractResult,
-  type SellerProfileBody,
-  type SellerWhatsAppView,
-} from '../../lib/api';
+import { ApiError, sellerApi, type SellerWhatsAppView } from '../../lib/api';
 
 /**
  * Действия раздела «ИИ-продавец» (ТЗ ред. 1 П6, П8). Всё идёт через API платформы: ни адреса, ни ключа продавца
@@ -25,67 +12,6 @@ const describe = (e: unknown) =>
   e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e);
 
 const refresh = () => revalidatePath('/ai-seller', 'layout');
-
-export interface SellerFormResult {
-  error: string | null;
-  warning: string | null;
-  message: string | null;
-  attempt: number;
-  /** Что человек ввёл — чтобы форма после отказа не сбрасывалась */
-  values?: SellerProfileBody;
-}
-
-/**
- * Шаг настройки (`plans/ai-seller-setup-wizard-2026-09-25.md`): сохранить поля шага поверх сохранённого профиля и
- * перейти. «Назад» и «Сохранить и дальше» сохраняют оба — возврат назад введённого не теряет. Отказ домена
- * остаётся на шаге вместе с введённым.
- */
-export async function saveSellerStepAction(
-  key: SellerProfileStep,
-  prev: SellerFormResult | null,
-  form: FormData,
-): Promise<SellerFormResult> {
-  const attempt = (prev?.attempt ?? 0) + 1;
-  const index = SELLER_SETUP_STEPS.findIndex((s) => s.key === key);
-  let body: SellerProfileBody | undefined;
-  try {
-    const current = await sellerApi.profile();
-    body = sellerStepFromForm(key, form, current.profile);
-    await sellerApi.saveProfile(body);
-  } catch (e) {
-    // профиль не загрузился — на экран вернутся хотя бы поля этого шага: форма после ответа сбрасывается сама
-    const values = body ?? sellerStepFromForm(key, form, DEFAULT_SELLER_PROFILE);
-    return { error: describe(e), warning: null, message: null, attempt, values };
-  }
-  refresh();
-  const back = form.get('go') === 'back';
-  const next = back ? Math.max(index - 1, 0) : Math.min(index + 1, SELLER_SETUP_STEPS.length - 1);
-  redirect(`/ai-seller?step=${SELLER_SETUP_STEPS[next]!.step}`);
-}
-
-export interface StoryResult {
-  error: string | null;
-  result: SellerExtractResult | null;
-  attempt: number;
-  /** Введённый рассказ — вернуть в поле при отказе, чтобы не перепечатывать */
-  story: string;
-}
-
-/** Рассказ своими словами → черновик профиля (С1): извлекает бот, поля увидит мастер ниже */
-export async function extractStoryAction(
-  prev: StoryResult | null,
-  form: FormData,
-): Promise<StoryResult> {
-  const attempt = (prev?.attempt ?? 0) + 1;
-  const story = String(form.get('story') ?? '').trim();
-  try {
-    const result = await sellerApi.extract(story);
-    refresh();
-    return { error: null, result, attempt, story: '' };
-  } catch (e) {
-    return { error: describe(e), result: null, attempt, story };
-  }
-}
 
 export interface LlmKeyResult {
   error: string | null;
@@ -196,50 +122,49 @@ export async function whatsappCheckAction(
   }
 }
 
-/** «Применить» на шаге «Запуск»: сразу отправить продавцу сохранённые настройки и данные объекта */
-export async function applySellerAction(prev: SellerFormResult | null): Promise<SellerFormResult> {
+export interface PromptResult {
+  error: string | null;
+  warning: string | null;
+  message: string | null;
+  attempt: number;
+  /** Введённый текст — вернуть в поле при отказе, чтобы не перепечатывать */
+  text: string;
+}
+
+/**
+ * «Сохранить и применить» (макет владельца 26.09.2026, ADR-097): инструкция записывается и сразу уходит продавцу
+ * вместе с данными объекта. Не дошла — это предупреждение, а не ошибка: текст сохранён, сверка отправит его сама.
+ */
+export async function savePromptAction(prev: PromptResult | null, form: FormData): Promise<PromptResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
+  const text = String(form.get('text') ?? '');
+  try {
+    await sellerApi.savePrompt(text);
+  } catch (e) {
+    return { error: describe(e), warning: null, message: null, attempt, text };
+  }
+  const saved = (warning: string): PromptResult => ({ error: null, warning, message: null, attempt, text: '' });
   try {
     await sellerApi.apply();
     refresh();
     return {
       error: null,
       warning: null,
-      message: 'Применено: продавец получил настройки и данные объекта.',
+      message: 'Применено: продавец получил инструкцию и данные объекта.',
       attempt,
+      text: '',
     };
   } catch (e) {
     refresh();
     const status = e instanceof ApiError ? e.status : undefined;
-    if (status === 409)
-      return {
-        error: null,
-        warning: 'Сначала заполните и сохраните первый шаг — «Знакомство».',
-        message: null,
-        attempt,
-      };
     if (status === 422)
-      return {
-        error: `Продавец отклонил настройки: ${describe(e)}`,
-        warning: null,
-        message: null,
-        attempt,
-      };
-    if (status === 403)
-      return { error: null, warning: `Настройки сохранены. ${describe(e)}.`, message: null, attempt };
+      return { error: `Продавец не принял инструкцию: ${describe(e)}`, warning: null, message: null, attempt, text };
+    if (status === 403) return saved(`Инструкция сохранена. ${describe(e)}.`);
     if (status === 503 && /не подключён/.test(describe(e)))
-      return {
-        error: null,
-        warning: 'Настройки сохранены. Продавец ещё не подключён — он получит их при подключении.',
-        message: null,
-        attempt,
-      };
-    return {
-      error: null,
-      warning: `Настройки сохранены. ${describe(e)}. Отправим продавцу автоматически, как только он ответит.`,
-      message: null,
-      attempt,
-    };
+      return saved('Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.');
+    return saved(
+      `Инструкция сохранена. ${describe(e)}. Отправим продавцу автоматически, как только он ответит.`,
+    );
   }
 }
 
@@ -260,7 +185,7 @@ export async function uploadKnowledgeAction(
     return { error: 'Выберите файл: md, txt, pdf, docx или xlsx', message: null, attempt };
   try {
     const r = await sellerApi.uploadKnowledge(file);
-    // список документов — и во вкладке «Знания», и на шаге «Документы» настройки
+    // список документов — во вкладке «Знания»
     refresh();
     return {
       error: null,

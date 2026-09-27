@@ -77,6 +77,7 @@ def configure_logging(settings: Settings, name: str = "app") -> None:
     root = logging.getLogger()
     level = logging.getLevelName(settings.log_level.upper())
     root.setLevel(level if isinstance(level, int) else logging.INFO)
+    _mask_server_loggers(settings)
 
     existing = {h.get_name() for h in root.handlers}
     if _STDOUT_HANDLER in existing and _FILE_HANDLER in existing:
@@ -119,6 +120,25 @@ def configure_logging(settings: Settings, name: str = "app") -> None:
         root.addHandler(file_handler)
 
 
+# Логгеры сервера со своими обработчиками: их записи до корня не доходят
+_SERVER_LOGGERS = ("uvicorn", "uvicorn.error", "uvicorn.access", "gunicorn.error", "gunicorn.access")
+
+
+def _mask_server_loggers(settings: Settings) -> None:
+    """Маска ПД и на обработчиках uvicorn и gunicorn.
+
+    🔴 Под gunicorn с UvicornWorker у этих логгеров свои обработчики, и
+    трассировка ошибки базы с параметрами запроса (ключ посетителя, почта,
+    ответ оператора) уходила в stderr мимо маски корня (аудит 26.09, С-41).
+    Повторный вызов второй фильтр не вешает.
+    """
+    pii_filter = PiiLogFilter(settings.pii_allowlist_phones_list, settings.pii_allowlist_emails_list)
+    for name in _SERVER_LOGGERS:
+        for handler in logging.getLogger(name).handlers:
+            if not any(isinstance(f, PiiLogFilter) for f in handler.filters):
+                handler.addFilter(pii_filter)
+
+
 class _Resources:
     """Держатель синглтонов. Один объект, а не россыпь глобалов."""
 
@@ -135,8 +155,10 @@ _resources = _Resources()
 def get_engine() -> AsyncEngine:
     """Движок SQLAlchemy. pool_pre_ping: мёртвое соединение из пула не отдаётся."""
     if _resources.engine is None:
+        # hide_parameters: текст ошибки базы без значений запроса — в них ключ
+        # посетителя, почта, ответ оператора (аудит 26.09, С-41)
         _resources.engine = create_async_engine(
-            get_settings().sqlalchemy_url, pool_pre_ping=True
+            get_settings().sqlalchemy_url, pool_pre_ping=True, hide_parameters=True
         )
     return _resources.engine
 

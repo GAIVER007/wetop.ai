@@ -1,0 +1,43 @@
+# Модульные (unit) · 26.09.2026 18:21 Алматы · vm
+# коммит 5546ef1 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-26T13-21-51Z-unit-bfb7.json' 'tests/unit/no-hardcoded-utc5.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests | 1 failed) 37ms
+   ❯ С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет (2)
+     ✓ API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty 15ms
+     × стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/no-hardcoded-utc5.test.ts > С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет > стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5
+AssertionError: часы объекта — lib/property-time.ts: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/create/wizard-fields.tsx:97:          <option value=\"Asia/Almaty\">Алматы / Астана (UTC+5)</option>",
++ ]
+
+ ❯ tests/unit/no-hardcoded-utc5.test.ts:59:86
+     57|
+     58|   it('стойка: даты и моменты — по поясу объекта из /hotel/settings, а …
+     59|     expect(hardcodedTimezone('apps/web/src'), 'часы объекта — lib/prop…
+       |                                                                                      ^
+     60|   });
+     61| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  13:21:52
+   Duration  263ms (transform 40%, tests 38%, import 17%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-26T13-21-51Z-unit-bfb7.json
+
+# код выхода 1 · 1 с

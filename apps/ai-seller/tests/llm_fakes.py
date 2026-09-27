@@ -96,11 +96,13 @@ class ScriptedRouter:
 
     def __init__(self, script: dict[str, list] | None = None) -> None:
         self.calls: list[dict] = []
+        self.authorizations: list[str | None] = []  # заголовок Authorization каждого запроса
         self.script: dict[str, list] = {name: list(queue) for name, queue in (script or {}).items()}
 
     def _handle(self, request: httpx.Request) -> httpx.Response:
         body = json.loads(request.content or b"{}")
         self.calls.append(body)
+        self.authorizations.append(request.headers.get("authorization"))
         queue = self.script.get(body.get("model"), [])
         if not queue:
             return httpx.Response(500, json={"error": {"message": "x"}}, request=request)

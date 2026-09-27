@@ -108,6 +108,18 @@ describe('PasswordResetService.confirm', () => {
     ).resolves.toMatchObject({ user: { email: 'admin@example.invalid' } });
   });
 
+  // Аудит 26.09, С-9: приглашённый задаёт пароль по такой же ссылке, но почта у него не отмечена подтверждённой, и вход
+  // отвечал «Почта не подтверждена» навсегда — вопреки ADR-060 («приглашения подтверждения не требуют»). Ссылка из письма
+  // сама доказывает, что почта его.
+  it('приглашённый без подтверждённой почты после пароля по ссылке входит', async () => {
+    const world = await withLink([fakeUser({ passwordHash: '', emailVerifiedAt: null })]);
+    await world.reset.confirm({ token: world.token, password: 'zhanga-parol-2026' }, NOW);
+    expect(world.users[0]!.emailVerifiedAt).toEqual(NOW);
+    await expect(
+      world.auth.login({ email: 'admin@example.invalid', password: 'zhanga-parol-2026' }, NOW),
+    ).resolves.toMatchObject({ user: { email: 'admin@example.invalid' } });
+  });
+
   it('вторая попытка по той же ссылке не проходит', async () => {
     const world = await withLink();
     await world.reset.confirm({ token: world.token, password: 'zhanga-parol-2026' }, NOW);

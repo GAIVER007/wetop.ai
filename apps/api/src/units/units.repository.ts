@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyToday } from '../database/property-ref';
+import { propertyIdRef, propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 
 export type BlockType = 'MAINTENANCE' | 'MANAGEMENT' | 'OUT_OF_ORDER' | 'OTHER';
@@ -74,13 +74,24 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 @Injectable()
 export class PrismaUnitsRepository implements UnitsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  /**
+   * Ячейки объекта: вошедший — объект своей организации (ADR-061). Код ячейки уникален на всю базу, и поиск по нему
+   * без объекта отдавал чужую ячейку с гостями и блокировками (аудит 26.09, В-1).
+   */
+  private async ofProperty() {
+    return {
+      accommodationType: {
+        propertyId: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name),
+      },
+    };
+  }
 
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
   async unitByCode(code: string) {
-    const u = await this.prisma.db.inventoryUnit.findUnique({
-      where: { code },
+    const u = await this.prisma.db.inventoryUnit.findFirst({
+      where: { code, ...(await this.ofProperty()) },
       include: { accommodationType: { select: { code: true } } },
     });
     return u
@@ -94,8 +105,8 @@ export class PrismaUnitsRepository implements UnitsRepository {
       : null;
   }
   async card(code: string, from: string, to: string): Promise<UnitCard | null> {
-    const u = await this.prisma.db.inventoryUnit.findUnique({
-      where: { code },
+    const u = await this.prisma.db.inventoryUnit.findFirst({
+      where: { code, ...(await this.ofProperty()) },
       include: {
         accommodationType: { select: { code: true, name: true } },
         physicalRoom: { select: { roomNumber: true } },
@@ -227,7 +238,9 @@ export class PrismaUnitsRepository implements UnitsRepository {
     });
   }
   async blockById(id: string) {
-    const b = await this.prisma.db.inventoryBlock.findUnique({ where: { id } });
+    const b = await this.prisma.db.inventoryBlock.findFirst({
+      where: { id, inventoryUnit: await this.ofProperty() },
+    });
     return b
       ? { id: b.id, unitId: b.inventoryUnitId, dateFrom: iso(b.dateFrom), dateTo: iso(b.dateTo) }
       : null;

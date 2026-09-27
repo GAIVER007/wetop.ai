@@ -33,6 +33,7 @@ from src.dashboard.panel_common import (
 from src.db.base import utcnow
 from src.db.models import Client, Conversation, Document, Message
 from src.knowledge.ingestor import (
+    DocumentTooComplex,
     FileTooLarge,
     SuspiciousDocument,
     UnsupportedFormat,
@@ -146,6 +147,8 @@ async def upload_knowledge(
         raise HTTPException(status_code=415, detail=str(exc)) from None
     except FileTooLarge:
         raise HTTPException(status_code=413, detail="файл больше допустимого размера") from None
+    except DocumentTooComplex as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
     except SuspiciousDocument:
         # Слой 9: инструкция в прайсе работает так же, как присланная в чат.
         raise HTTPException(status_code=422, detail="в документе найдены инструкции для модели") from None

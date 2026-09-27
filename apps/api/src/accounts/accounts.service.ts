@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
+  INVITES_PER_DAY,
   INVITE_TTL_MS,
   canManageStaff,
   checkInvite,
@@ -54,7 +55,8 @@ export interface InvitePreview {
 }
 
 export type InviteOutcome =
-  { ok: true; invite: InviteView } | { ok: false; reason: 'email' | 'member' | 'owner' };
+  | { ok: true; invite: InviteView }
+  | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' };
 
 @Injectable()
 export class AccountsService {
@@ -129,8 +131,12 @@ export class AccountsService {
     if (!isEmailShaped(email)) return { ok: false, reason: 'email' };
     if (await this.repo.isMember(email, who.organizationId)) return { ok: false, reason: 'member' };
 
-    const token = newSessionToken();
     const now = new Date();
+    const dayAgo = new Date(now.getTime() - 24 * 3_600_000);
+    if ((await this.repo.invitesCreatedSince(who.organizationId, dayAgo)) >= INVITES_PER_DAY)
+      return { ok: false, reason: 'limit' };
+
+    const token = newSessionToken();
     const invite = await this.repo.createInvite({
       organizationId: who.organizationId,
       email,
@@ -149,6 +155,21 @@ export class AccountsService {
       this.log.error(`письмо с приглашением не отправлено: ${(e as Error).message}`);
     }
     return { ok: true, invite: toInviteView(invite) };
+  }
+
+  /**
+   * Отозвать приглашение (аудит 26.09, С-10): опечатка в адресе иначе оставляла постороннему ссылку на 7 суток.
+   * `null` — сессии нет; `'owner'` — отзывает только владелец; `'missing'` — живого приглашения с таким id у этой
+   * организации нет (чужое — тоже «нет», без подробностей).
+   */
+  async revokeInvite(
+    sessionToken: string | null,
+    id: string,
+  ): Promise<'ok' | 'owner' | 'missing' | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'owner';
+    return (await this.repo.revokeInvite(id, who.organizationId, new Date())) ? 'ok' : 'missing';
   }
 
   /**

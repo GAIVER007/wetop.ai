@@ -2887,3 +2887,8 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 28.09.2026 01:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/integrations.spec.ts) | ❌ упало 2 из 9 | 1 мин 4 с | a0fa497 +14 | [лог](logs/2026-09-27T20-57-48Z-e2e-650a.log) | INT1: new integrations suite |
+| 28.09.2026 01:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/integrations.spec.ts) | ✅ 9 из 9 | 33 с | a0fa497 +14 | [лог](logs/2026-09-27T20-59-21Z-e2e-4a0a.log) | INT1: new integrations suite, sign-in fix |
+| 28.09.2026 02:01 | unit | ✅ 2125 из 2128, пропущено 3 | 1 мин 47 с | a0fa497 +10 | [лог](logs/2026-09-27T21-01-10Z-unit-423e.log) | INT1 |
+| 28.09.2026 02:03 | typecheck | ✅ без ошибок | 37 с | a0fa497 +14 | [лог](logs/2026-09-27T21-03-02Z-typecheck-87d8.log) | INT1 |
+| 28.09.2026 02:03 | lint | ✅ без ошибок | 19 с | a0fa497 +14 | [лог](logs/2026-09-27T21-03-39Z-lint-0a99.log) | INT1 |

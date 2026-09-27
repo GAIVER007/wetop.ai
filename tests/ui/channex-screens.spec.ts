@@ -478,7 +478,7 @@ test('менеджер каналов и подключения: период с
   await page.goto('/connections');
   await expect(main).toContainText('3 категории, 3 тарифа');
   await expect(main).not.toContainText(' · ');
-  await expect(main.getByText('Последний webhook, по Алматы')).toBeVisible();
+  await expect(main.getByText('Последний обмен')).toBeVisible();
   await expect(main).not.toContainText('Нет событий');
   // загрузка словом, пока отчёт идёт
   await request.post(`${fixture}/__test/control`, {

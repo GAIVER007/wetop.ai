@@ -5,14 +5,26 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('источник и агрегаты проекта видны отдельно от Channex', async ({ page }) => {
+/*
+ * INT1 (ADR-107): источник данных и база — внутренняя диагностика. С «Интеграций» она ушла в «Платформу», к главному
+ * администратору; правило проверки прежнее — сбой базы не превращается в нули.
+ */
+test('источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях»', async ({
+  page,
+  request,
+}) => {
   await page.goto('/connections');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(page.getByTestId('data-connection')).toHaveCount(0);
+  await expect(page.getByRole('main')).not.toContainText('Supabase');
+  await expect(page.getByRole('main')).not.toContainText('Данные проекта');
+  await request.post(`${fixture}/__test/control`, { data: { platformAdmin: true } });
+  await page.goto('/platform');
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('Данные проекта');
   await expect(panel).toContainText('Тестовые данные');
   await expect(panel.getByTestId('database-units')).toHaveText('88');
   await expect(panel).not.toContainText('Supabase подключён');
-  await expect(page.getByRole('button', { name: 'Проверить соединение' })).toBeEnabled();
 });
 
 test('ошибка базы не превращается в нулевые показатели; повтор обновляет состояние', async ({
@@ -20,16 +32,16 @@ test('ошибка базы не превращается в нулевые по
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, {
-    data: { connectionState: 'DATABASE_UNAVAILABLE' },
+    data: { connectionState: 'DATABASE_UNAVAILABLE', platformAdmin: true },
   });
-  await page.goto('/connections');
+  await page.goto('/platform');
   const panel = page.getByTestId('data-connection');
   await expect(panel).toContainText('База данных недоступна');
   await expect(panel.getByTestId('database-units')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, {
-    data: { connectionState: 'READY', empty: true },
+    data: { connectionState: 'READY', empty: true, platformAdmin: true },
   });
-  await page.getByRole('button', { name: 'Проверить соединение' }).click();
+  await page.getByRole('button', { name: 'Обновить' }).click();
   await expect(panel.getByTestId('database-units')).toHaveText('0');
 });
 
@@ -47,7 +59,9 @@ test('название гостиницы в каркасе и обзоре по
 test('недоступный API не скрывается за демо или выдуманным объектом', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '*' } });
   await page.goto('/connections');
-  await expect(page.getByTestId('data-connection')).toContainText('Нет связи с рабочим API');
+  // нет связи — состояние Channex «неизвестно», а не зелёное и не «не подключено»
+  await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
+  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить Channex');
   await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
     'Объект не загружен',
   );

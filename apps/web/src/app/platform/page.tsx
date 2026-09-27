@@ -24,6 +24,8 @@ import {
   organizationStatusLine,
 } from '../../lib/platform';
 import { ExtensionForm, StatusForm } from './forms';
+import { DataConnectionPanel } from './data-connection';
+import { hotelApi } from '../../lib/hotel-api';
 
 /**
  * «Платформа → Организации» (DATA_MODEL §16, ADR-083): гостиницы платформы и расширение «ИИ-продавец». Только главному
@@ -116,7 +118,24 @@ async function Organizations({ selected }: { selected: string }) {
           </tbody>
         </Table>
       )}
+      <Suspense fallback={<LoadingState label="Проверяем базу…" />}>
+        <SystemState />
+      </Suspense>
     </Stack>
+  );
+}
+
+/**
+ * Состояние системы (INT1, ADR-107): источник данных и база — внутренняя диагностика, не интеграция гостиницы.
+ * Раньше жила на «Интеграциях» у каждого сотрудника; теперь её видит только главный администратор.
+ */
+async function SystemState() {
+  const connection = await hotelApi.connection().catch(() => null);
+  return (
+    <section className="stack stack--sm" aria-labelledby="system-state-title">
+      <SectionTitle id="system-state-title">Состояние системы</SectionTitle>
+      <DataConnectionPanel connection={connection} />
+    </section>
   );
 }
 

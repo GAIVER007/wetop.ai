@@ -587,6 +587,17 @@ let delayPath = '';
 let delayMs = 0;
 /** Код ответа для failPath: 503 (сбой) по умолчанию, 400/404 — отклонённый запрос */
 let failStatus = 503;
+/**
+ * Состояние Channex для «Интеграций» (INT1, ADR-107): '' — прежний ответ; 'ok' — объект доступен, webhook включён и
+ * отвечает, обмен минуты назад; 'attention' — webhook не отвечает, ошибки отправки, обмен два часа назад;
+ * 'foreign' — интеграция установки у другой организации (403, ADR-095); 'no-key' — ключ не задан
+ */
+let channexMode: '' | 'ok' | 'attention' | 'foreign' | 'no-key' = '';
+const CHANNEX_FOREIGN = new Set([
+  '/channels/channex/connection',
+  '/channels/channex/webhook/status',
+  '/channels/channex/outbox',
+]);
 let emptyFixture = false;
 /** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
 let ratesUnmapped = false;
@@ -2272,8 +2283,9 @@ function read(path: string, q: URLSearchParams): unknown {
         },
       ],
     };
-  if (path === '/channels/channex/connection')
-    return {
+  if (path === '/channels/channex/connection') {
+    const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+    const base = {
       checkedAt: new Date().toISOString(),
       environment: 'staging',
       apiConfigured: true,
@@ -2281,12 +2293,22 @@ function read(path: string, q: URLSearchParams): unknown {
       propertyAccessible: true,
       mappedCategories: 3,
       mappedRatePlans: 3,
-      lastWebhookAt: null,
-      lastPullAt: null,
+      lastWebhookAt: null as string | null,
+      lastPullAt: null as string | null,
       state: 'READY',
       message: 'Соединение установлено',
     };
+    if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
+    if (channexMode === 'attention') return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+    if (channexMode === 'no-key')
+      return { ...base, apiConfigured: false, propertyAccessible: false, state: 'NO_KEY', message: 'Не задан ключ Channex' };
+    return base;
+  }
   if (path === '/channels/channex/mapping') return [];
+  if (path === '/channels/channex/outbox' && channexMode === 'attention')
+    return { pending: 0, failed: 2, sent: 405, lastSentAt: new Date(Date.now() - 150 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
+  if (path === '/channels/channex/outbox' && channexMode === 'ok')
+    return { pending: 0, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 20 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
   if (path === '/channels/channex/outbox')
     return showcase
       ? {
@@ -2387,7 +2409,16 @@ function read(path: string, q: URLSearchParams): unknown {
       },
     ];
   if (path === '/channels/channex/webhook/status')
-    return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
+    return channexMode === 'ok' || channexMode === 'attention'
+      ? {
+          registered: true,
+          active: true,
+          expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
+          secretConfigured: true,
+          callbackReachable: channexMode === 'ok',
+          callbackCheckedAt: new Date().toISOString(),
+        }
+      : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
   if (path === '/audit') {
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');
@@ -2555,6 +2586,7 @@ createServer(async (req, res) => {
       delayPath = '';
       delayMs = 0;
       failStatus = 503;
+      channexMode = '';
       ratesUnmapped = false;
       incidentHistory = 0;
       emptyFixture = false;
@@ -2633,6 +2665,9 @@ createServer(async (req, res) => {
         applyChannelShowcase();
       }
       failStatus = Number(body['failStatus']) || 503;
+      channexMode = ['ok', 'attention', 'foreign', 'no-key'].includes(String(body['channex']))
+        ? (body['channex'] as typeof channexMode)
+        : '';
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
       journalHistory = body['journalHistory'] === true;
@@ -2699,6 +2734,10 @@ createServer(async (req, res) => {
     if (path === '/__test/commands') return send(200, commands);
     if (delayPath && path === delayPath)
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+    if (channexMode === 'foreign' && CHANNEX_FOREIGN.has(path))
+      return send(403, {
+        message: 'Каналы продаж, обмен с Channex и сторож системы ведёт поддержка WETOP.',
+      });
     if (path === failPath || failPath === '*')
       return send(
         failStatus,

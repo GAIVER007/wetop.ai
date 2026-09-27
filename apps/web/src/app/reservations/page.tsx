@@ -13,6 +13,7 @@ import { nightsBetween, pluralRu } from '../../lib/plural';
 import { DatesToggle } from './dates-toggle';
 import { DensityScope } from './density-toggle';
 import { financeState } from './finance-state';
+import { deskShell } from '../../lib/desk-shell';
 import '../directory.css';
 import './reservations.css';
 import {
@@ -122,15 +123,20 @@ export default async function ReservationsPage({
   const pageOutOfRange = (result?.total ?? 0) > 0 && result?.rows.length === 0;
   const statusText = status !== 'ALL' ? `, статус «${reservationStatuses[status]}»` : '';
   const queryText = q ? `, по запросу «${q}»` : '';
+  // «Только чтение» (ADR-102): запись держит API, полосу — оболочка; страница лишь не показывает
+  // «Новую бронь» — действие, которого нельзя, не рисуется вовсе (приём ИИ-продавца, DESIGN.md §8)
+  const { readOnly } = await deskShell();
   return (
     <Page
       title="Брони"
       width="full"
       actions={
-        <Link href="/reservations/new" className="btn">
-          <Icon name="plus" />
-          Новая бронь
-        </Link>
+        readOnly ? undefined : (
+          <Link href="/reservations/new" className="btn">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        )
       }
     >
       <section className="reservations-controls" aria-label="Фильтры броней">
@@ -302,8 +308,13 @@ export default async function ReservationsPage({
                               {r.unitCodes.join(', ')}
                             </span>
                           ) : null}
+                          {/* у группы предупреждение называет число: «3 размещения» + «⚠ 1 без ячейки» */}
                           {unassigned && (
-                            <span className="warn-text reservations-unassigned">⚠ без ячейки</span>
+                            <span className="warn-text reservations-unassigned">
+                              {itemsCount > 1
+                                ? `⚠ ${itemsCount - r.unitCodes.length} без ячейки`
+                                : '⚠ без ячейки'}
+                            </span>
                           )}
                         </td>
                         <td>

@@ -51,8 +51,12 @@
      не добирали контраст 4,5:1 (axe, прогон …17-04-16Z): текст живёт на плотной подложке —
      §20.3 «плотные данные — на непрозрачном». Отступы свои: .booking-drawer обнуляет
      overlay-content под карточку брони с её .page */
-  min-height: 100%;
   padding: var(--space-6) var(--space-6) var(--space-8);
+  background: var(--surface-solid);
+}
+/* панель — не flex-колонка, и подложка содержимого кончалась под кнопками: ниже снова
+   просвечивало стекло. Плотной делается вся панель, пока в ней предпросмотр гостя */
+.booking-drawer:has(.guest-preview) {
   background: var(--surface-solid);
 }
 .guest-preview__name {
@@ -96,6 +100,11 @@
   margin: 0;
   font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
+}
+/* «бронь на … отменена» в узкой колонке переносится, а не уходит за край панели */
+.guest-preview__facts .dir-sub {
+  margin-top: 0;
+  white-space: normal;
 }
 .guest-preview__finance {
   margin: 0;

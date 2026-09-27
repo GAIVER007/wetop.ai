@@ -9,6 +9,7 @@ import type {
   AccountsRepository,
   InviteRecord,
   MemberRecord,
+  MemberWrite,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -108,23 +109,32 @@ export class FakeAccountsRepository implements AccountsRepository {
     this.sessions.push({ ...input, id: `s-${this.seq}`, issuedAt: new Date(), revokedAt: null });
   }
 
+  /** Как настоящее хранилище: членство сняли — строка есть, но `member: false` и роль «администратор» */
   async sessionByTokenHash(tokenHash: string): Promise<SessionRecord | null> {
     const s = this.sessions.find((x) => x.tokenHash === tokenHash);
     if (!s) return null;
-    const a = this.accounts.find((x) => x.userId === s.userId);
+    const membership = this.accounts.find(
+      (x) => x.userId === s.userId && x.organizationId === s.organizationId,
+    );
+    const a = membership ?? this.accounts.find((x) => x.userId === s.userId) ?? this.gone.get(s.userId);
     if (!a) return null;
     return {
       userId: a.userId,
       email: a.email,
-      organizationId: a.organizationId,
+      organizationId: s.organizationId,
       organizationName: a.organizationName,
       organizationStatus: a.organizationStatus,
       trialEndsAt: a.trialEndsAt,
       expiresAt: s.expiresAt,
       revokedAt: s.revokedAt,
-      role: a.role,
+      role: membership?.role ?? 'STAFF',
+      userStatus: this.blocked.has(a.userId) ? 'BLOCKED' : 'ACTIVE',
+      member: membership !== undefined,
     };
   }
+
+  /** Люди, чьё членство сняли: сам человек (строка `users`) остаётся — сессия находит его, но не членство */
+  private readonly gone = new Map<string, AccountRecord>();
 
   async revokeSession(tokenHash: string, at: Date): Promise<void> {
     const s = this.sessions.find((x) => x.tokenHash === tokenHash);
@@ -234,6 +244,10 @@ export class FakeAccountsRepository implements AccountsRepository {
   }
 
   // ── Сотрудники (ADR-098) ────────────────────────────────────────────────────────────────────
+  /** Заблокированные люди (`users.status = BLOCKED`) */
+  readonly blocked = new Set<string>();
+  /** Роль «в базе» в момент записи, если она уже не та, что показал список: так выглядит гонка с владельцем */
+  readonly roleOverride = new Map<string, MembershipRole>();
   /** Что ушло бы в журнал при отключении и смене роли — проверкам видно, кто и кого */
   readonly removed: Array<{ organizationId: string; userId: string; by: string }> = [];
   readonly roleChanges: Array<{
@@ -256,14 +270,22 @@ export class FakeAccountsRepository implements AccountsRepository {
       }));
   }
 
-  async removeMember(input: { organizationId: string; userId: string; by: string }): Promise<boolean> {
+  async removeMember(input: {
+    organizationId: string;
+    userId: string;
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
     const at = this.accounts.findIndex(
       (a) => a.userId === input.userId && a.organizationId === input.organizationId,
     );
-    if (at < 0) return false;
-    this.accounts.splice(at, 1);
-    this.removed.push({ ...input });
-    return true;
+    if (at < 0) return { outcome: 'missing', role: null };
+    const role = this.roleOverride.get(input.userId) ?? this.accounts[at]!.role;
+    if (!input.roles.includes(role)) return { outcome: 'role', role };
+    const [gone] = this.accounts.splice(at, 1);
+    this.gone.set(input.userId, gone!);
+    this.removed.push({ organizationId: input.organizationId, userId: input.userId, by: input.by });
+    return { outcome: 'done', role };
   }
 
   async setMemberRole(input: {
@@ -271,12 +293,14 @@ export class FakeAccountsRepository implements AccountsRepository {
     userId: string;
     role: MembershipRole;
     by: string;
-  }): Promise<{ before: MembershipRole } | null> {
+    from: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
     const a = this.accounts.find(
       (x) => x.userId === input.userId && x.organizationId === input.organizationId,
     );
-    if (!a) return null;
-    const before = a.role;
+    if (!a) return { outcome: 'missing', role: null };
+    const before = this.roleOverride.get(input.userId) ?? a.role;
+    if (!input.from.includes(before)) return { outcome: 'role', role: before };
     a.role = input.role;
     this.roleChanges.push({
       organizationId: input.organizationId,
@@ -285,7 +309,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       after: input.role,
       by: input.by,
     });
-    return { before };
+    return { outcome: 'done', role: before };
   }
 
   /** Ссылки «задайте пароль» для приглашённых: по ним видно, что ушло человеку, без настоящей базы. */

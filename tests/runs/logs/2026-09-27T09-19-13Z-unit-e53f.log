@@ -1,0 +1,104 @@
+# Модульные (unit) · 27.09.2026 14:19 Алматы · vm
+# коммит d54e800 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T09-19-13Z-unit-e53f.json' 'apps/api/src/accounts/members.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/accounts/members.controller.test.ts (22 tests | 3 failed) 334ms
+   ✓ приглашение с ролью (7)
+     ✓ владелец зовёт управляющего: роль в приглашении, в ответе и в письме 40ms
+     ✓ без роли — администратор, как принимались приглашения до ADR-098 5ms
+     ✓ владельца приглашением не назначают; непонятная роль — 400, приглашения нет 14ms
+     ✓ управляющий зовёт администратора, управляющего — нет 6ms
+     ✓ администратор не приглашает и списка не видит 7ms
+     ✓ управляющий видит все ожидающие приглашения, но отозвать может только приглашение администратора 12ms
+     ✓ принятое приглашение управляющего даёт роль управляющего 5ms
+   ✓ сотрудники организации (4)
+     ✓ владелец видит людей своей организации с ролями; чужих — нет 3ms
+     ✓ управляющему: отключить можно только администраторов, роль не меняет никому 27ms
+     ✓ администратор список сотрудников не видит 2ms
+     ✓ без сессии — 401 4ms
+   ✓ отключить сотрудника (3)
+     ✓ владелец отключает управляющего: членства нет, в журнал — кто и кого 2ms
+     ✓ управляющий отключает администратора, но не управляющего и не владельца 6ms
+     ✓ себя не отключить; администратор не отключает никого; чужого и несуществующего нет 7ms
+   ✓ сменить роль (3)
+     ✓ владелец делает администратора управляющим и обратно; в журнал — было и стало 4ms
+     ✓ владельца так не назначить и не снять; себе — нельзя; непонятная роль — 400 7ms
+     ✓ управляющий роль не меняет 2ms
+   ❯ сессия действия проверяется полностью (3)
+     × приостановленная организация — 401 7ms
+     × заблокированный человек — 401 2ms
+     ✓ отключённый со старой сессией — 401, а не «администратор» 4ms
+   ❯ отключение и смена роли — по роли в момент записи (2)
+     × роль сменилась между проверкой и записью: управляющий не удаляет нового управляющего 2ms
+     ✓ повторное «Отключить» того же человека — 404, а не сбой 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > сессия действия проверяется полностью > приостановленная организация — 401
+AssertionError: expected 200 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 200
+
+ ❯ apps/api/src/accounts/members.controller.test.ts:304:43
+    302|       a.organizationId === ORG ? { ...a, organizationStatus: 'SUSPENDE…
+    303|     );
+    304|     expect((await members(token)).status).toBe(401);
+       |                                           ^
+    305|     expect((await invite(token, { email: '<email>' })).statu…
+    306|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > сессия действия проверяется полностью > заблокированный человек — 401
+AssertionError: expected 200 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 200
+
+ ❯ apps/api/src/accounts/members.controller.test.ts:311:43
+    309|     const token = await as('u-owner');
+    310|     repo.blocked.add('u-owner');
+    311|     expect((await members(token)).status).toBe(401);
+       |                                           ^
+    312|   });
+    313|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/accounts/members.controller.test.ts > отключение и смена роли — по роли в момент записи > роль сменилась между проверкой и записью: управляющий не удаляет нового управляющего
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ apps/api/src/accounts/members.controller.test.ts:328:24
+    326|     repo.roleOverride.set('u-admin', 'MANAGER');
+    327|     const res = await http().delete('/auth/members/u-admin').set('Auth…
+    328|     expect(res.status).toBe(403);
+       |                        ^
+    329|     expect(res.body.message).toBe(MEMBER_MANAGER_REMOVES_STAFF_MESSAGE…
+    330|     expect(repo.accounts.some((a) => a.userId === 'u-admin')).toBe(tru…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 19 passed (22)
+   Start at  09:19:14
+   Duration  2.61s (transform 59%, import 27%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-09-27T09-19-13Z-unit-e53f.json
+
+# код выхода 1 · 4 с

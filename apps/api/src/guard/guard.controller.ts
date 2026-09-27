@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   Inject,
@@ -9,10 +10,12 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  Req,
   UseInterceptors,
 } from '@nestjs/common';
 import { ChannelOperatorInterceptor } from '../channels/operator-access';
-import { formatAlert } from '@pms/domain';
+import { accessDeniedMessage, can, formatAlert } from '@pms/domain';
+import type { SignedInUser } from '../auth/auth.service';
 import { INCIDENTS_REPOSITORY, type IncidentsRepository } from './incidents.repository';
 import { ALERT_NOTIFIER, type AlertNotifier } from './guard.ports';
 import { GuardService } from './guard.service';
@@ -79,8 +82,14 @@ export class GuardController {
   /** Проход сторожа прямо сейчас — для учений и дежурного агента; `?all=1` — и редкие проверки (сверка с каналом) */
   @Post('tick')
   @HttpCode(200)
-  tick(@Query('all') all?: string) {
-    return this.guard.tick(new Date(), { all: all === '1' || all === 'true' });
+  async tick(@Query('all') all?: string, @Req() request?: { user?: SignedInUser }) {
+    const full = all === '1' || all === 'true';
+    // полная сверка с Channex и починка полной выгрузкой — дело каналов (ADR-098): администратору — обычная проверка.
+    // Роль — из `request.user`: обработчик идёт в служебном контексте ChannelOperatorInterceptor
+    const user = request?.user;
+    if (full && user && !can(user.role, 'channels'))
+      throw new ForbiddenException(accessDeniedMessage('channels'));
+    return this.guard.tick(new Date(), { all: full });
   }
 
   /** Пробное сообщение будильника: проверить токен и чат, не дожидаясь аварии */

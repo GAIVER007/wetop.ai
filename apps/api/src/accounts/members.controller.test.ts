@@ -68,6 +68,7 @@ beforeEach(() => {
   repo.sessions.length = 0;
   repo.invites.length = 0;
   repo.removed.length = 0;
+  repo.blocked.clear();
   repo.accounts = [
     person('u-owner', 'OWNER'),
     person('u-manager', 'MANAGER'),
@@ -145,12 +146,14 @@ describe('приглашение с ролью', () => {
     await invite(await as('u-owner'), { email: 'm@example.invalid', role: 'manager' }).expect(201);
     await invite(await as('u-owner'), { email: 's@example.invalid', role: 'staff' }).expect(201);
     const token = await as('u-manager');
-    const list = await http().get('/auth/invites').set('Authorization', `Bearer ${token}`).expect(200);
+    const list = await http()
+      .get('/auth/invites')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
     const byEmail = Object.fromEntries(
-      (list.body as Array<{ email: string; role: string; revocable: boolean; id: string }>).map((i) => [
-        i.email,
-        i,
-      ]),
+      (list.body as Array<{ email: string; role: string; revocable: boolean; id: string }>).map(
+        (i) => [i.email, i],
+      ),
     );
     expect(byEmail['m@example.invalid']).toMatchObject({ role: 'MANAGER', revocable: false });
     expect(byEmail['s@example.invalid']).toMatchObject({ role: 'STAFF', revocable: true });
@@ -166,7 +169,9 @@ describe('приглашение с ролью', () => {
   });
 
   it('принятое приглашение управляющего даёт роль управляющего', async () => {
-    await invite(await as('u-owner'), { email: 'boss@example.invalid', role: 'manager' }).expect(201);
+    await invite(await as('u-owner'), { email: 'boss@example.invalid', role: 'manager' }).expect(
+      201,
+    );
     const link = /\/invite\/(\S+)/.exec(sender.to('boss@example.invalid').at(-1)!.text)![1]!;
     await http().post(`/auth/invites/${link}/accept`).expect(200);
     expect(repo.accounts.find((a) => a.email === 'boss@example.invalid')?.role).toBe('MANAGER');
@@ -203,7 +208,9 @@ describe('сотрудники организации', () => {
   });
 
   it('администратор список сотрудников не видит', async () => {
-    const res = await http().get('/auth/members').set('Authorization', `Bearer ${await as('u-admin')}`);
+    const res = await http()
+      .get('/auth/members')
+      .set('Authorization', `Bearer ${await as('u-admin')}`);
     expect(res.status).toBe(403);
     expect(res.body.message).toBe(INVITE_STAFF_ONLY_MESSAGE);
   });
@@ -284,5 +291,63 @@ describe('сменить роль', () => {
     expect(res.status).toBe(403);
     expect(res.body.message).toBe(MEMBER_ROLE_OWNER_ONLY_MESSAGE);
     expect(repo.accounts.find((a) => a.userId === 'u-admin')?.role).toBe('STAFF');
+  });
+});
+
+/**
+ * Сессия, по которой действуют приглашения и сотрудники, проверяется так же полно, как вход (аудит 26.09, С-4 и С-10):
+ * у приостановленной организации, заблокированного человека и снятого членства её нет — даже если замок входа пропустил
+ * запрос по другой сессии (замок читает заголовки, этот контроллер — сначала куку).
+ */
+describe('сессия действия проверяется полностью', () => {
+  const members = (token: string) =>
+    http().get('/auth/members').set('Authorization', `Bearer ${token}`);
+
+  it('приостановленная организация — 401', async () => {
+    const token = await as('u-owner');
+    repo.accounts = repo.accounts.map((a) =>
+      a.organizationId === ORG ? { ...a, organizationStatus: 'SUSPENDED' as const } : a,
+    );
+    expect((await members(token)).status).toBe(401);
+    expect((await invite(token, { email: 'z@example.invalid' })).status).toBe(401);
+  });
+
+  it('заблокированный человек — 401', async () => {
+    const token = await as('u-owner');
+    repo.blocked.add('u-owner');
+    expect((await members(token)).status).toBe(401);
+  });
+
+  it('отключённый со старой сессией — 401, а не «администратор»', async () => {
+    const token = await as('u-manager');
+    repo.accounts = repo.accounts.filter((a) => a.userId !== 'u-manager');
+    expect((await members(token)).status).toBe(401);
+    expect((await invite(token, { email: 'z@example.invalid' })).status).toBe(401);
+  });
+});
+
+describe('отключение и смена роли — по роли в момент записи', () => {
+  it('роль сменилась между проверкой и записью: управляющий не удаляет нового управляющего', async () => {
+    const token = await as('u-manager');
+    // хранилище говорит «роль уже не та» — так выглядит гонка с владельцем, повысившим человека
+    repo.roleOverride.set('u-admin', 'MANAGER');
+    const res = await http()
+      .delete('/auth/members/u-admin')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.status).toBe(403);
+    expect(res.body.message).toBe(MEMBER_MANAGER_REMOVES_STAFF_MESSAGE);
+    expect(repo.accounts.some((a) => a.userId === 'u-admin')).toBe(true);
+  });
+
+  it('повторное «Отключить» того же человека — 404, а не сбой', async () => {
+    const token = await as('u-owner');
+    await http()
+      .delete('/auth/members/u-admin')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    await http()
+      .delete('/auth/members/u-admin')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404);
   });
 });

@@ -255,12 +255,16 @@ export class AccountsService {
     if (target.userId === who.userId) return 'self';
     if (target.role === 'OWNER') return 'owner-target';
     if (!canRemoveMember(who.role, target.role)) return 'manager-target';
-    const removed = await this.repo.removeMember({
+    // роль сверяется ещё раз в момент записи: пока шла проверка, владелец мог повысить человека
+    const write = await this.repo.removeMember({
       organizationId: who.organizationId,
       userId,
       by: who.userId,
+      roles: invitableRoles(who.role),
     });
-    return removed ? 'ok' : 'missing';
+    if (write.outcome === 'missing') return 'missing';
+    if (write.outcome === 'role') return write.role === 'OWNER' ? 'owner-target' : 'manager-target';
+    return 'ok';
   }
 
   /** Сменить роль между управляющим и администратором — только владелец; владельца назначает команда на сервере */
@@ -279,13 +283,17 @@ export class AccountsService {
     if (!target) return { ok: false, reason: 'missing' };
     if (target.userId === who.userId) return { ok: false, reason: 'self' };
     if (!canSetRoleAtDesk(who.role, target.role, role)) return { ok: false, reason: 'owner-target' };
-    const changed = await this.repo.setMemberRole({
+    // владельца так не задеть: роль меняется, только если в момент записи она управляющий или администратор
+    const write = await this.repo.setMemberRole({
       organizationId: who.organizationId,
       userId,
       role,
       by: who.userId,
+      from: ['MANAGER', 'STAFF'],
     });
-    return changed ? { ok: true, member: { userId, role } } : { ok: false, reason: 'missing' };
+    if (write.outcome === 'missing') return { ok: false, reason: 'missing' };
+    if (write.outcome === 'role') return { ok: false, reason: 'owner-target' };
+    return { ok: true, member: { userId, role } };
   }
 
   /**
@@ -297,12 +305,21 @@ export class AccountsService {
     return [hashSessionToken(token)];
   }
 
-  /** Живая сессия целиком: автор для `created_by` и организация для письма. Наружу не отдаётся. */
+  /**
+   * Живая сессия целиком: автор для `created_by` и организация для письма. Наружу не отдаётся. Проверяется так же полно,
+   * как при входе (`AuthService`): срок и отзыв, приостановленная организация (аудит 26.09, С-4), заблокированный человек,
+   * снятое членство (С-10). Замок входа читает заголовки, а этот контроллер — сначала куку: без этих проверок по куке
+   * действовала бы сессия, которую замок не видел.
+   */
   private async liveSession(token: string | null): Promise<SessionRecord | null> {
     if (!token) return null;
     for (const hash of this.tokenHashes(token)) {
       const stored = await this.repo.sessionByTokenHash(hash);
-      if (stored) return checkSession(stored, new Date()).ok ? stored : null;
+      if (!stored) continue;
+      if (!checkSession(stored, new Date()).ok) return null;
+      if (stored.organizationStatus === 'SUSPENDED' || stored.userStatus !== 'ACTIVE' || !stored.member)
+        return null;
+      return stored;
     }
     return null;
   }

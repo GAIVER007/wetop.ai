@@ -1,4 +1,4 @@
-import type { MembershipRole, OrganizationStatus } from '@pms/domain';
+import type { MembershipRole, OrganizationStatus, UserStatus } from '@pms/domain';
 
 /** Пользователь и его организация — всё, что нужно для выдачи сессии (DATA_MODEL §13). */
 export interface AccountRecord {
@@ -21,8 +21,19 @@ export interface SessionRecord {
   trialEndsAt: Date | null;
   expiresAt: Date;
   revokedAt: Date | null;
-  /** Роль человека в организации сессии (DATA_MODEL §16.1): приглашает только владелец */
+  /** Роль человека в организации сессии (DATA_MODEL §16.1); членства нет — `STAFF`, но тогда `member: false` */
   role: MembershipRole;
+  /** Человек заблокирован — сессия не действует, как и при входе (§13.2) */
+  userStatus: UserStatus;
+  /** Есть ли ещё членство в организации сессии: отключённого сотрудника сессия не пускает (аудит 26.09, С-10) */
+  member: boolean;
+}
+
+/** Итог записи о сотруднике: роль проверяется в момент записи, под блокировкой строки (ADR-098) */
+export interface MemberWrite {
+  outcome: 'done' | 'missing' | 'role';
+  /** Роль в базе на момент записи; `null` — членства нет */
+  role: MembershipRole | null;
 }
 
 /** Строка списка «где я вошёл» (§13.5). Отпечаток нужен только чтобы отметить свой сеанс; наружу не едет. */
@@ -122,19 +133,26 @@ export interface AccountsRepository {
   members(organizationId: string): Promise<MemberRecord[]>;
   /**
    * Отключить (ADR-098, §16.1 v1.12): удалить членство и записать в журнал организации (`membership.removed`) одной
-   * транзакцией. Сессии этой организации гаснут сами — сессия живёт, пока есть членство. `false` — членства нет.
+   * транзакцией. Роль сверяется с `roles` под блокировкой строки: пока шла проверка, владелец мог повысить человека.
+   * Сессии этой организации гаснут сами — сессия живёт, пока есть членство. Повторное удаление — `missing`, не сбой.
    */
-  removeMember(input: { organizationId: string; userId: string; by: string }): Promise<boolean>;
+  removeMember(input: {
+    organizationId: string;
+    userId: string;
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite>;
   /**
-   * Сменить роль и записать в журнал организации (`membership.role.updated`: было, стало) одной транзакцией. `null` —
-   * членства нет.
+   * Сменить роль и записать в журнал организации (`membership.role.updated`: было, стало) одной транзакцией. Меняется
+   * только роль из `from` — сверка под блокировкой строки, владельца так не задеть.
    */
   setMemberRole(input: {
     organizationId: string;
     userId: string;
     role: MembershipRole;
     by: string;
-  }): Promise<{ before: MembershipRole } | null>;
+    from: readonly MembershipRole[];
+  }): Promise<MemberWrite>;
   /**
    * Одноразовая ссылка «задайте пароль» для только что вступившего (ADR-053). Раньше принятие
    * приглашения слало код на почту — но вход по коду с экрана снят, а почта может быть не настроена.

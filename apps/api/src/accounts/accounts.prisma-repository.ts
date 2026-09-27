@@ -7,6 +7,7 @@ import type {
   AccountsRepository,
   InviteRecord,
   MemberRecord,
+  MemberWrite,
   SessionListRecord,
   SessionRecord,
 } from './accounts.repository';
@@ -113,6 +114,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
           select: {
             id: true,
             email: true,
+            status: true,
             // членств у человека одно-два: роль берём у организации этой сессии
             memberships: { select: { organizationId: true, role: true } },
           },
@@ -131,8 +133,10 @@ export class PrismaAccountsRepository implements AccountsRepository {
       trialEndsAt: row.organization.trialEndsAt,
       expiresAt: row.expiresAt,
       revokedAt: row.revokedAt,
-      // членство сняли — прав владельца точно нет
+      // членство сняли — прав владельца точно нет, а `member: false` сессию и вовсе не пустит
       role: role ?? 'STAFF',
+      userStatus: row.user.status,
+      member: role !== undefined,
     };
   }
 
@@ -301,16 +305,22 @@ export class PrismaAccountsRepository implements AccountsRepository {
     }));
   }
 
-  async removeMember(input: { organizationId: string; userId: string; by: string }): Promise<boolean> {
-    if (!UUID.test(input.userId)) return false;
+  async removeMember(input: {
+    organizationId: string;
+    userId: string;
+    by: string;
+    roles: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
+    if (!UUID.test(input.userId)) return { outcome: 'missing', role: null };
     return this.prisma.db.$transaction(async (tx) => {
-      const membership = await tx.membership.findUnique({
-        where: { userId_organizationId: { userId: input.userId, organizationId: input.organizationId } },
-        select: { role: true },
-      });
-      if (!membership) return false;
+      // строка под блокировкой: вторая такая же команда ждёт и видит, что членства уже нет, — без сбоя P2025
+      const role = await lockedRole(tx, input.organizationId, input.userId);
+      if (!role) return { outcome: 'missing', role: null };
+      if (!input.roles.includes(role)) return { outcome: 'role', role };
       await tx.membership.delete({
-        where: { userId_organizationId: { userId: input.userId, organizationId: input.organizationId } },
+        where: {
+          userId_organizationId: { userId: input.userId, organizationId: input.organizationId },
+        },
       });
       // в журнале организации: строка о человеке ушла бы из виду вместе с его членством
       await tx.auditLog.create({
@@ -319,10 +329,10 @@ export class PrismaAccountsRepository implements AccountsRepository {
           entityType: 'organization',
           entityId: input.organizationId,
           action: 'membership.removed',
-          before: { userId: input.userId, role: membership.role },
+          before: { userId: input.userId, role },
         },
       });
-      return true;
+      return { outcome: 'done', role };
     });
   }
 
@@ -331,12 +341,16 @@ export class PrismaAccountsRepository implements AccountsRepository {
     userId: string;
     role: MembershipRole;
     by: string;
-  }): Promise<{ before: MembershipRole } | null> {
-    if (!UUID.test(input.userId)) return null;
+    from: readonly MembershipRole[];
+  }): Promise<MemberWrite> {
+    if (!UUID.test(input.userId)) return { outcome: 'missing', role: null };
     return this.prisma.db.$transaction(async (tx) => {
-      const key = { userId_organizationId: { userId: input.userId, organizationId: input.organizationId } };
-      const membership = await tx.membership.findUnique({ where: key, select: { role: true } });
-      if (!membership) return null;
+      const before = await lockedRole(tx, input.organizationId, input.userId);
+      if (!before) return { outcome: 'missing', role: null };
+      if (!input.from.includes(before)) return { outcome: 'role', role: before };
+      const key = {
+        userId_organizationId: { userId: input.userId, organizationId: input.organizationId },
+      };
       await tx.membership.update({ where: key, data: { role: input.role } });
       await tx.auditLog.create({
         data: {
@@ -344,11 +358,11 @@ export class PrismaAccountsRepository implements AccountsRepository {
           entityType: 'organization',
           entityId: input.organizationId,
           action: 'membership.role.updated',
-          before: { userId: input.userId, role: membership.role },
+          before: { userId: input.userId, role: before },
           after: { userId: input.userId, role: input.role },
         },
       });
-      return { before: membership.role };
+      return { outcome: 'done', role: before };
     });
   }
 
@@ -405,6 +419,19 @@ function toInviteRecord(row: {
     createdAt: row.createdAt,
     role: row.role,
   };
+}
+
+/** Роль в членстве под блокировкой строки до конца транзакции (`FOR UPDATE`); `null` — членства нет */
+async function lockedRole(
+  tx: Pick<PrismaService['db'], '$queryRaw'>,
+  organizationId: string,
+  userId: string,
+): Promise<MembershipRole | null> {
+  const rows = await tx.$queryRaw<Array<{ role: MembershipRole }>>`
+    SELECT "role"::text AS "role" FROM "memberships"
+    WHERE "user_id" = ${userId}::uuid AND "organization_id" = ${organizationId}::uuid
+    FOR UPDATE`;
+  return rows[0]?.role ?? null;
 }
 
 /** Код P2002 у Prisma — нарушение уникального индекса. Другие ошибки базы не глотаем. */

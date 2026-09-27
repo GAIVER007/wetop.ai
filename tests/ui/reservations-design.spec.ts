@@ -84,13 +84,20 @@ for (const theme of ['light', 'dark'] as const) {
       ).toBeLessThanOrEqual(1);
       if (width <= 390) {
         expect((await table.locator('tbody tr').first().boundingBox())!.y).toBeLessThanOrEqual(450);
+        const dates = page.getByRole('button', { name: 'Даты', exact: true });
         for (const control of [
           page.getByLabel('Статус брони', { exact: true }),
-          page.getByLabel('Период: с'),
+          dates,
           page.getByRole('button', { name: 'Показать', exact: true }),
         ]) {
           expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
         }
+        // ручной период — за кнопкой «Даты» (ADR-101): в раскрытом виде цели тоже не меньше 44 px
+        await dates.click();
+        expect((await page.getByLabel('Период: с').boundingBox())!.height).toBeGreaterThanOrEqual(
+          44,
+        );
+        await dates.click();
       }
       const axe = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

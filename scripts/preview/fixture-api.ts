@@ -2663,23 +2663,29 @@ createServer(async (req, res) => {
       if (!emptyFixture) for (const r of inPeriod) counts[r.status] = (counts[r.status] ?? 0) + 1;
       const rows = inPeriod
         .filter((r) => status === 'ALL' || r.status === status)
-        .map((r) => ({
-          confirmationNumber: r.confirmationNumber,
-          status: r.status,
-          source: r.source,
-          channel: r.channel,
-          arrivalDate: r.arrivalDate,
-          departureDate: r.departureDate,
-          currency: r.currency,
-          totalAmountMinor: r.totalAmountMinor,
-          paidMinor: finance(r).paidMinor,
-          balanceMinor: finance(r).balanceMinor,
-          hasFolios: true,
-          unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
-          primaryGuest: r.primaryGuest
-            ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
-            : null,
-        }));
+        .map((r) => {
+          const money = finance(r);
+          return {
+            confirmationNumber: r.confirmationNumber,
+            status: r.status,
+            source: r.source,
+            channel: r.channel,
+            arrivalDate: r.arrivalDate,
+            departureDate: r.departureDate,
+            currency: r.currency,
+            totalAmountMinor: r.totalAmountMinor,
+            chargedMinor: money.chargedMinor,
+            paidMinor: money.paidMinor,
+            refundedMinor: money.refundedMinor,
+            balanceMinor: money.balanceMinor,
+            hasFolios: true,
+            unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
+            itemsCount: r.items.length,
+            primaryGuest: r.primaryGuest
+              ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
+              : null,
+          };
+        });
       const pageSize = Number(url.searchParams.get('pageSize') || 25);
       const page = Number(url.searchParams.get('page') || 1);
       return send(200, {

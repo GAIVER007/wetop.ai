@@ -2838,3 +2838,7 @@
 | 27.09.2026 17:05 | integration | ✅ 101 из 101 | 31 с | ebbeb57 | [лог](logs/2026-09-27T12-05-19Z-integration-b86c.log) |  |
 | 27.09.2026 17:06 | e2e | ❌ код выхода 1 | 4 с | ebbeb57 | [лог](logs/2026-09-27T12-06-04Z-e2e-804f.log) | (ошибка вне тестов) |
 | 27.09.2026 17:06 | e2e | ✅ 25 из 25 | 58 с | ebbeb57 | [лог](logs/2026-09-27T12-06-46Z-e2e-ef47.log) |  |
+| 27.09.2026 19:04 | unit | ✅ 2083 из 2086, пропущено 3 | 1 мин 35 с | 6440f99 +11 | [лог](logs/2026-09-27T14-04-08Z-unit-3390.log) |  |
+| 27.09.2026 19:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 4 из 11 | 49 с | 6440f99 +14 | [лог](logs/2026-09-27T14-06-12Z-e2e-e2b8.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
+| 27.09.2026 19:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 1 из 11 | 1 мин 6 с | 6440f99 +14 | [лог](logs/2026-09-27T14-08-30Z-e2e-5b7b.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
+| 27.09.2026 19:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 11 из 11 | 49 с | 6440f99 +14 | [лог](logs/2026-09-27T14-12-15Z-e2e-d841.log) |  |

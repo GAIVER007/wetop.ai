@@ -28,12 +28,21 @@ test('пробный срок вышел — полоса «оплатите п�
   await expect(page.getByTestId('read-only-banner')).toHaveCount(0);
 
   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 'ended' } });
-  for (const path of ['/today', '/chessboard', '/reservations']) {
+  for (const path of ['/today', '/chessboard', '/reservations', '/guests']) {
     await page.goto(path);
     const banner = page.getByTestId('read-only-banner');
     await expect(banner).toContainText('Пробный период закончился — оплатите подписку');
     await expect(banner).toContainText('Данные доступны для просмотра');
   }
+  // «Гости» после срока читаются целиком: список со счётчиками, поиск, карточка и документы;
+  // запись держит общий запрет API по методу (auth.guard.test.ts) — своей trial-логики у гостей нет
+  await page.goto('/guests');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('guests-meta')).toBeVisible();
+  await expect(main.getByLabel('Поиск гостей')).toBeVisible();
+  await main.getByTestId('guests-table').getByRole('link').first().click();
+  await expect(page).toHaveURL(/\/guests\//);
+  await expect(main.getByTestId('guest-head')).toBeVisible();
   await page.goto('/today');
   await page.screenshot({ path: 'test-results/trial-read-only-banner.png' });
 });

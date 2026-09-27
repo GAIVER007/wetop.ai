@@ -189,6 +189,12 @@ describe.skipIf(!url)('importReservations (integration, DATABASE_URL required)',
           expect(g.firstName).toBe('Гость');
           expect(g.lastName).toMatch(/^Тест-/);
           expect(g.email).not.toContain('G-1@');
+          // v1.13 §17.1 (ADR-103): импорт Exely штампует гостя организацией объекта
+          const owner = await tx.property.findUniqueOrThrow({
+            where: { id: inv.propertyId },
+            select: { organizationId: true },
+          });
+          expect(g.organizationId).toBe(owner.organizationId);
           const alloc = await tx.allocation.findMany({
             where: { reservationItem: { exelyRoomStayId: 'S-1' } },
             include: { inventoryUnit: true },

@@ -39,6 +39,7 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         guestId: true,
         reservationItem: {
           select: {
+            id: true,
             folio: { select: { id: true, charges: { select: { id: true }, take: 1 } } },
             reservation: { select: { id: true, propertyId: true } },
           },
@@ -56,12 +57,16 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     // v1.13 §17.1 (ADR-103): guests.organization_id — первый признак; гость без броней виден своей
     // организации по одной колонке, чужой — нет (указание владельца 27.09, sync с Phase 1)
     const col: Record<string, { directory: boolean; byId: boolean }> = {};
+    // и единственный: связь через бронь не открывает гостя чужой организации (снятие fallback, 27.09)
+    const chain: Record<string, { directory: boolean; byId: boolean }> = {};
 
     await expect(
       db.$transaction(async (tx) => {
         const orgA = await tx.organization.create({ data: { name: 'Integration A' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B' }, select: { id: true } });
         await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
+        // канон v1.13 §17.1: гости следуют за организацией своих броней — как backfill миграции …027
+        await tx.guest.updateMany({ data: { organizationId: orgA.id } });
         await tx.property.create({
           data: {
             organizationId: orgB.id,
@@ -127,6 +132,28 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
           }));
         col['B'] = await colLook(orgB.id);
         col['A'] = await colLook(orgA.id);
+        // колонка — единственный признак: гость организации B со связью-бронью в объект A
+        // организации A НЕ виден (фильтр шире колонки расходился бы с RLS)
+        const cross = await tx.guest.create({
+          data: { firstName: 'Через', lastName: 'Бронь-Чужой', organizationId: orgB.id },
+          select: { id: true },
+        });
+        await tx.stayGuest.create({
+          data: {
+            reservationItemId: stay!.reservationItem.id,
+            guestId: cross.id,
+            isPrimary: false,
+          },
+        });
+        const crossLook = (organizationId: string) =>
+          as(organizationId, async () => ({
+            directory: (
+              await guests.directory({ state: 'ALL', q: 'Бронь-Чужой', page: 1, pageSize: 100 })
+            ).rows.some((r) => r.id === cross.id),
+            byId: (await guests.byId(cross.id)) !== null,
+          }));
+        chain['A'] = await crossLook(orgA.id);
+        chain['B'] = await crossLook(orgB.id);
         throw new Rollback();
       }),
     ).rejects.toBeInstanceOf(Rollback);
@@ -151,6 +178,9 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     // organization_id — первый признак: гость без броней виден своей организации, чужой — нет
     expect(col['B']).toEqual({ directory: true, byId: true });
     expect(col['A']).toEqual({ directory: false, byId: false });
+    // …и единственный: бронь в объекте A не делает гостя организации B видимым для A
+    expect(chain['A']).toEqual({ directory: false, byId: false });
+    expect(chain['B']).toEqual({ directory: true, byId: true });
   });
 
   /**

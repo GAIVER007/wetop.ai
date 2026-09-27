@@ -2875,3 +2875,12 @@
 | 27.09.2026 20:14 | lint | ✅ без ошибок | 15 с | a403891 +4 | [лог](logs/2026-09-27T15-14-15Z-lint-bf2f.log) |  |
 | 27.09.2026 20:14 | unit | ✅ 2112 из 2115, пропущено 3 | 1 мин 31 с | a403891 +2 | [лог](logs/2026-09-27T15-14-30Z-unit-45de.log) |  |
 | 27.09.2026 20:16 | e2e (частично: --config tests/ui/playwright.config.ts) | ❌ код выхода 1 | 1 с | a403891 +3 | [лог](logs/2026-09-27T15-16-09Z-e2e-8e16.log) | (ошибка вне тестов) |
+| 27.09.2026 20:17 | e2e (частично: --config tests/ui/playwright.config.ts) | ⏹ прерван | 8 мин 41 с | a403891 +3 | [лог](logs/2026-09-27T15-17-39Z-e2e-d2c3.log) |  |
+| 27.09.2026 20:30 | integration (частично: tests/integration/organization-isolation.test.ts) | ❌ упало 1 из 5 | 3 с | ae949ce +1 | [лог](logs/2026-09-27T15-30-35Z-integration-6dbc.log) | red: fallback через брони ещё в visible() |
+| 27.09.2026 20:31 | integration | ✅ 107 из 107 | 30 с | ae949ce +2 | [лог](logs/2026-09-27T15-31-25Z-integration-2826.log) |  |
+| 27.09.2026 20:33 | integration | ❌ упало 1 из 107 | 36 с | ae949ce +5 | [лог](logs/2026-09-27T15-33-45Z-integration-8cf6.log) | manual reservation against the database (integration, rolled back) creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on  |
+| 27.09.2026 20:34 | typecheck | ✅ без ошибок | 22 с | ae949ce +6 | [лог](logs/2026-09-27T15-34-21Z-typecheck-c8ff.log) |  |
+| 27.09.2026 20:34 | lint | ✅ без ошибок | 21 с | ae949ce +6 | [лог](logs/2026-09-27T15-34-43Z-lint-a9d7.log) |  |
+| 27.09.2026 20:35 | unit | ✅ 2112 из 2115, пропущено 3 | 1 мин 12 с | ae949ce +2 | [лог](logs/2026-09-27T15-35-05Z-unit-0cc3.log) |  |
+| 27.09.2026 20:36 | integration | ❌ упало 1 из 107 | 29 с | ae949ce +5 | [лог](logs/2026-09-27T15-36-51Z-integration-2dcb.log) | manual reservation against the database (integration, rolled back) creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on  |
+| 27.09.2026 20:37 | integration | ✅ 107 из 107 | 30 с | ae949ce +5 | [лог](logs/2026-09-27T15-37-39Z-integration-898b.log) |  |

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
 import {
   GUEST_RECENT_DAYS,
@@ -11,7 +11,7 @@ import {
 import { PrismaService } from '../database/prisma.provider';
 import { auditUserId } from '../accounts/actor';
 import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
-import { propertyIdRef, propertyToday } from '../database/property-ref';
+import { FOREIGN_PROPERTY_MESSAGE, propertyToday } from '../database/property-ref';
 
 export interface GuestSummary {
   id: string;
@@ -122,33 +122,27 @@ const iso = (x: Date | null) => (x ? x.toISOString().slice(0, 10) : null);
 export class PrismaGuestsRepository implements GuestsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   /**
-   * Замок организаций (ADR-061, Q-152; v1.13 §17.1, ADR-103). Первый признак принадлежности —
-   * `guests.organization_id`: колонка проштампована у новых гостей при создании и у старых —
-   * backfill-ом миграции `20260927000027`. Цепочка через брони объекта остаётся вторым условием —
-   * прежним замком для строк, которые колонкой не помечены как мои (база до миграции, чужой
-   * backfill); после миграции у Luxx оба условия совпадают. Тем же правилом режет и сама база
-   * (RLS, роль wetop_app) — здесь оно повторено для пути без DATABASE_APP_URL.
-   * Служебный ходок (сторож, скрипты) — как раньше, без фильтра.
+   * Замок организаций (ADR-061, Q-152 → v1.13 §17.1, ADR-103; поручение владельца 27.09).
+   * `guests.organization_id` NOT NULL — канонический и ЕДИНСТВЕННЫЙ признак принадлежности:
+   * гостя без колонки не существует (backfill миграции `20260927000027` + NOT NULL, все пути
+   * создания — стойка, канал, сайт, импорт Exely — штампуют организацию). Прежняя цепочка через
+   * брони объекта снята: условие шире колонки расходилось бы с RLS — база под ролью `wetop_app`
+   * режет ровно по колонке, и гость, проштампованный чужой организацией, не должен открываться
+   * из-за связи через бронь. Служебный ходок (сторож, скрипты, импорт) — без фильтра, как раньше.
    */
-  private async visible(): Promise<Prisma.GuestWhereInput> {
+  private visible(): Prisma.GuestWhereInput {
     if (!actsForOrganization()) return {};
-    // резолвит объект организации вошедшего и отказывает чужому (ForbiddenException) — до выборки
-    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const organizationId = currentOrganizationId();
-    return {
-      OR: [
-        ...(organizationId !== null ? [{ organizationId }] : []),
-        { primaryReservations: { some: { propertyId } } },
-        { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
-      ],
-    };
+    // вошедший без организации не видит ни одного гостя — как и объект в property-ref
+    if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
+    return { organizationId };
   }
   async search(q: string, limit: number): Promise<GuestSummary[]> {
     const digits = q.replace(/\D/g, '');
     const rows = await this.prisma.db.guest.findMany({
       where: {
         AND: [
-          await this.visible(),
+          this.visible(),
           {
             OR: [
               { lastName: { contains: q, mode: 'insensitive' } },
@@ -242,7 +236,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
           ],
         }
       : {};
-    const base: Prisma.GuestWhereInput = { AND: [await this.visible(), search] };
+    const base: Prisma.GuestWhereInput = { AND: [this.visible(), search] };
     const whereFor = (f: GuestDirectoryFilter): Prisma.GuestWhereInput =>
       f === 'ALL' ? base : { AND: [base, byState[f]] };
     const [all, inh, exp, rec] = await Promise.all([
@@ -311,7 +305,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
   }
   async byId(id: string): Promise<GuestProfile | null> {
     const g = await this.prisma.db.guest.findFirst({
-      where: { AND: [{ id }, await this.visible()] },
+      where: { AND: [{ id }, this.visible()] },
       include: {
         documents: { orderBy: { createdAt: 'asc' } },
         stays: {

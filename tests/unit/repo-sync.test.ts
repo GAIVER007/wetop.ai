@@ -565,9 +565,10 @@ describe('repo-sync.sh: папка бота, перенесённая внутр
     const archive = join(sb.dir, 'WETOP-архив');
     const moved = readdirSync(archive);
     expect(moved).toHaveLength(1);
-    expect(moved[0]).toMatch(/^Чат агент-\d{8}-\d{6}$/);
-    expect(readFileSync(join(archive, moved[0], 'WETOP', '.env'), 'utf8')).toBe('SECRET=1\n');
-    expect(readFileSync(join(archive, moved[0], 'заметки.md'), 'utf8')).toBe('мои заметки\n');
+    const name = moved[0] ?? '';
+    expect(name).toMatch(/^Чат агент-\d{8}-\d{6}$/);
+    expect(readFileSync(join(archive, name, 'WETOP', '.env'), 'utf8')).toBe('SECRET=1\n');
+    expect(readFileSync(join(archive, name, 'заметки.md'), 'utf8')).toBe('мои заметки\n');
     expect(out).toMatch(/перенёс в архив/);
     expect(git(sb.newDir, 'status', '--porcelain')).toBe('');
   });

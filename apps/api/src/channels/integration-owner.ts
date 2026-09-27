@@ -7,6 +7,7 @@ import {
   type ExecutionContext,
 } from '@nestjs/common';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
+import { withServiceDatabase } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 
 export const INTEGRATION_ONLY =
@@ -23,11 +24,15 @@ const known = new WeakMap<PrismaService, { at: number; organizationId: string | 
 async function integrationOrganizationId(prisma: PrismaService): Promise<string | null> {
   const hit = known.get(prisma);
   if (hit && Date.now() - hit.at < 60_000) return hit.organizationId;
-  const property = await prisma.db.property.findFirst({
-    where: { name: LUXX_APARTS_PROPERTY.name },
-    orderBy: { createdAt: 'asc' },
-    select: { organizationId: true },
-  });
+  // Вопрос про всю установку — служебной ролью базы: под ролью организации (RLS, DATA_MODEL §17) объект Luxx
+  // другой гостинице не виден, и ответ зависел бы от того, кто спросил
+  const property = await withServiceDatabase(() =>
+    prisma.db.property.findFirst({
+      where: { name: LUXX_APARTS_PROPERTY.name },
+      orderBy: { createdAt: 'asc' },
+      select: { organizationId: true },
+    }),
+  );
   const organizationId = property?.organizationId ?? null;
   known.set(prisma, { at: Date.now(), organizationId });
   return organizationId;

@@ -385,14 +385,14 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 const json = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 
 export class PrismaReservationsRepository implements ReservationsRepository {
-  private propertyCache: { id: string; currency: string; timezone: string } | null = null;
+  private propertyCache: { id: string; currency: string; timezone: string; organizationId: string } | null = null;
   /** propertyName — имя объекта; в тестах на вымышленных данных передаётся тестовый объект. */
   constructor(
     private readonly db: Db | DbTx,
     private readonly propertyName: string = LUXX_APARTS_PROPERTY.name,
   ) {}
 
-  async property(): Promise<{ id: string; currency: string; timezone: string }> {
+  async property(): Promise<{ id: string; currency: string; timezone: string; organizationId: string }> {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
@@ -401,7 +401,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         const found = await this.db.property.findFirst({
           where: { organizationId },
-          select: { id: true, currency: true, timezone: true },
+          select: { id: true, currency: true, timezone: true, organizationId: true },
         });
         if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
         this.propertyCache = found;
@@ -410,7 +410,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         const found = await this.db.property.findFirstOrThrow({
           where: { name: this.propertyName },
           orderBy: { createdAt: 'asc' },
-          select: { id: true, currency: true, timezone: true },
+          select: { id: true, currency: true, timezone: true, organizationId: true },
         });
         this.propertyCache = found;
       }
@@ -641,8 +641,11 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return n > 0;
   }
   async createGuest(guest: NewGuest): Promise<string> {
+    // Гость принадлежит организации объекта (DATA_MODEL v1.13 §17.1, RLS-1): и у стойки, и у брони из канала
+    const { organizationId } = await this.property();
     const g = await this.db.guest.create({
       data: {
+        organizationId,
         firstName: guest.firstName,
         lastName: guest.lastName,
         middleName: guest.middleName ?? null,

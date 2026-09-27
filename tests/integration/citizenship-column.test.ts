@@ -16,8 +16,11 @@ describe.skipIf(!url)('guests.citizenship column (integration, DATABASE_URL requ
   let db: Db;
   /** Пока миграция 20260913000011 не применена к этой базе, проверять нечего — тесты пропускаются */
   let migrated = false;
+  /** Гость принадлежит организации (DATA_MODEL v1.13, RLS-1) — берём самую старую, как привязка объектов */
+  let organizationId = '';
   beforeAll(async () => {
     db = createPrismaClient(url);
+    organizationId = (await db.organization.findFirstOrThrow({ orderBy: { createdAt: 'asc' } })).id;
     const rows = await db.$queryRaw<Array<{ conname: string }>>`
       SELECT conname FROM pg_constraint WHERE conname = 'guests_citizenship_alpha3'`;
     migrated = rows.length > 0;
@@ -31,6 +34,7 @@ describe.skipIf(!url)('guests.citizenship column (integration, DATABASE_URL requ
   });
 
   const guest = (citizenship: string | null) => ({
+    organizationId,
     firstName: 'Гость',
     lastName: 'Тест-колонка',
     citizenship,

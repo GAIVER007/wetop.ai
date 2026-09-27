@@ -9,7 +9,9 @@ import {
   NotFoundException,
   Param,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
+import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
 import { parseExtensionChange } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
@@ -29,6 +31,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * вошедшему с отметкой `platform_admins`: служебные ключи и выключенный замок (`AUTH_REQUIRED=0`) его не открывают.
  * Брони, гости, счета и переписка чужих гостиниц отсюда не видны — в ответе их нет по построению.
  */
+// RLS (DATA_MODEL §17): главный администратор читает все организации — служебной ролью базы
+@UseInterceptors(ServiceDatabaseInterceptor)
 @Controller('platform')
 export class PlatformController {
   constructor(

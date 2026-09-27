@@ -2902,3 +2902,6 @@
 | 28.09.2026 02:08 | integration | ❌ упало 1 из 108 | 33 с | a0fa497 +6 | [лог](logs/2026-09-27T21-08-15Z-integration-5fe2.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
 | 28.09.2026 02:09 | integration | ✅ 108 из 108 | 33 с | a0fa497 +6 | [лог](logs/2026-09-27T21-09-03Z-integration-1ba1.log) |  |
 | 28.09.2026 02:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 415 | 32 мин 45 с | a0fa497 +13 | [лог](logs/2026-09-27T21-09-43Z-e2e-40b1.log) | full UI suite after F1 |
+| 28.09.2026 02:43 | e2e | ❌ упало 1 из 25 | 1 мин 12 с | 37f5b9e | [лог](logs/2026-09-27T21-43-18Z-e2e-0c25.log) | live e2e after F1 |
+| 28.09.2026 02:44 | e2e (частично: tests/e2e/desk-tasks.spec.ts) | ✅ 2 из 2 | 13 с | 37f5b9e | [лог](logs/2026-09-27T21-44-45Z-e2e-8e12.log) | re-check desk-tasks after F1 |
+| 28.09.2026 02:45 | e2e | ✅ 25 из 25 | 1 мин 1 с | 37f5b9e | [лог](logs/2026-09-27T21-45-05Z-e2e-0035.log) | live e2e after F1, second full run |

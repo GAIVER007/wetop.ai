@@ -209,6 +209,12 @@ CREATE TABLE messages (
     sent_by_us      BOOLEAN NOT NULL DEFAULT FALSE,
     audio_url       TEXT,
     tokens_used     INTEGER,
+    -- Разбивка расхода ответа бота: цена входа, кэша и выхода разная, одной
+    -- суммы для цены продавца мало. tokens_used — по-прежнему сумма.
+    llm_model       TEXT,
+    tokens_input    INTEGER,
+    tokens_cached   INTEGER,           -- часть tokens_input, прочитанная из кэша
+    tokens_output   INTEGER,
     created_at      TIMESTAMPTZ NOT NULL
 );
 

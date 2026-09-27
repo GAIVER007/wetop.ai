@@ -47,6 +47,13 @@
  */
 .guest-preview {
   display: block;
+  /* стекло панели полупрозрачно (--glass), и приглушённые подписи на просвечивающем списке
+     не добирали контраст 4,5:1 (axe, прогон …17-04-16Z): текст живёт на плотной подложке —
+     §20.3 «плотные данные — на непрозрачном». Отступы свои: .booking-drawer обнуляет
+     overlay-content под карточку брони с её .page */
+  min-height: 100%;
+  padding: var(--space-6) var(--space-6) var(--space-8);
+  background: var(--surface-solid);
 }
 .guest-preview__name {
   margin: 0 0 var(--space-4);

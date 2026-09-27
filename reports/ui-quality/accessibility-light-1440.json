@@ -145,7 +145,21 @@
   },
   {
     "route": "/channel-manager",
-    "violations": [],
+    "violations": [
+      {
+        "id": "link-in-text-block",
+        "impact": "serious",
+        "help": "Links must be distinguishable without relying on color",
+        "nodes": [
+          {
+            "target": [
+              ".alert > a[href$=\"channels\"]"
+            ],
+            "summary": "Fix any of the following:\n  The link has insufficient color contrast of 1.17:1 with the surrounding text. (Minimum contrast is 3:1, link text: #085fba, surrounding text: #94600b)\n  The link has no styling (such as underline) to distinguish it from the surrounding text"
+          }
+        ]
+      }
+    ],
     "layout": {
       "viewport": 1440,
       "content": 1440
@@ -169,6 +183,14 @@
   },
   {
     "route": "/analytics",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/analytics/sources",
     "violations": [],
     "layout": {
       "viewport": 1440,

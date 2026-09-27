@@ -99,45 +99,64 @@ test('гости: панель предпросмотра — сейчас, ис
 }) => {
   await request.post(`${fixture}/__test/guest-cases`);
   const main = page.getByRole('main');
-  await page.goto('/guests');
+  // стоп-гейт п. 1: панель открывается из отфильтрованного раздела и возвращает тот же отбор
+  await page.goto('/guests?state=inhouse');
 
-  // живущий должник: где живёт, долг словом и суммой, «Открыть бронь» ведёт на его бронь
+  // живущий должник: состояние — слово у имени, где живёт — ячейка и дата, долг словом и суммой
   await main.getByRole('link', { name: /Задолжавший/ }).click();
   const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
   await expect(drawer).toBeVisible();
-  await expect(drawer.getByTestId('guest-preview-now')).toContainText('живёт');
+  await expect(drawer.locator('.guest-preview__name')).toContainText('живёт');
   await expect(drawer.getByTestId('guest-preview-now')).toContainText('R11');
+  await expect(drawer.getByTestId('guest-preview-now')).toContainText('до');
   await expect(drawer.getByTestId('guest-preview-finance')).toContainText('к оплате');
   await expect(drawer.getByTestId('guest-preview-finance')).toContainText('4 000 ₸');
   await expect(drawer.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
     'href',
     /\/reservations\/20260916-GCDEBT0/,
   );
+  // стоп-гейт п. 2–3: действия на месте, документов и ИИН в предпросмотре нет — их показ пишется
+  // в журнал и живёт на карточке
+  await expect(drawer.getByRole('link', { name: 'Новая бронь' })).toBeVisible();
+  await expect(drawer.getByText(/ИИН|Документ/)).toHaveCount(0);
   const audit = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
   expect(audit.violations).toEqual([]);
-  // Escape закрывает панель и возвращает список
+  // Escape закрывает панель и возвращает тот же раздел с тем же отбором
   await page.keyboard.press('Escape');
   await expect(drawer).toHaveCount(0);
-  await expect(page).toHaveURL(/\/guests$/);
+  await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
 
-  // история одного человека: три визита, восемь ночей
+  // история одного человека: три визита, восемь ночей; «Назад» браузера — тоже возврат к отбору
   await main.getByRole('link', { name: /Возвращающийся/ }).click();
   const history = drawer.getByTestId('guest-preview-history');
   await expect(history).toContainText('Визитов');
   await expect(history).toContainText('3');
   await expect(history).toContainText('Ночей');
   await expect(history).toContainText('8');
-  await page.keyboard.press('Escape');
+  await page.goBack();
+  await expect(drawer).toHaveCount(0);
+  await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
 
-  // только отменённая бронь: счетов нет, подпись называет бронь, не человека
+  // только отменённая бронь: ложного «Сейчас» нет вовсе, подпись про бронь — в истории;
+  // долга нет — раздел «Финансы» не занимает место (стоп-гейт пп. 4–5)
+  await page.goto('/guests');
   await main.getByRole('link', { name: /Отменившийся/ }).click();
-  await expect(drawer.getByTestId('guest-preview-finance')).toContainText('Счетов пока нет');
-  await expect(drawer.getByTestId('guest-preview-now')).toContainText('отменена');
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByTestId('guest-preview-history')).toContainText('отменена');
+  await expect(drawer.getByTestId('guest-preview-now')).toHaveCount(0);
+  await expect(drawer.getByText('Сейчас', { exact: true })).toHaveCount(0);
+  await expect(drawer.getByTestId('guest-preview-finance')).toHaveCount(0);
+  await expect(drawer.getByText(/Долга нет|Счетов пока нет/)).toHaveCount(0);
   await expect(drawer.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveCount(0);
+  // крестик закрывает панель мышью — та же точка возврата
+  await drawer.getByRole('button', { name: 'Закрыть: Гость' }).click();
+  await expect(drawer).toHaveCount(0);
+  await expect(page).toHaveURL(/\/guests$/);
 
   // «Открыть гостя» — полная карточка с документами и историей
+  await main.getByRole('link', { name: /Отменившийся/ }).click();
   await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\/ui-guest-GCCAN0$/);
   await expect(main.getByTestId('guest-head')).toBeVisible();

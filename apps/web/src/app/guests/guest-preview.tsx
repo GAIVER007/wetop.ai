@@ -28,6 +28,8 @@ export async function GuestPreview({ id }: { id: string }) {
     <div className="guest-preview" data-testid="guest-preview">
       <h2 className="guest-preview__name">
         {g.lastName} {g.firstName} {g.middleName ?? ''}
+        {/* состояние — у имени: блок «Сейчас» есть только у живущего или ожидаемого (стоп-гейт п. 5) */}
+        {badge && <Badge tone={badge.tone}>{badge.word}</Badge>}
       </h2>
       <dl className="booking-head guest-head guest-preview__contacts">
         <div>
@@ -52,47 +54,50 @@ export async function GuestPreview({ id }: { id: string }) {
         </div>
       </dl>
 
-      <SectionTitle first>Сейчас</SectionTitle>
-      <div className="guest-preview__now" data-testid="guest-preview-now">
-        {badge ? <Badge tone={badge.tone}>{badge.word}</Badge> : <span className="muted">—</span>}
-        {g.current ? (
-          <p>
-            {g.current.unitCode && (
-              <span className="dir-unit">
-                <Icon name="bed" />
-                {g.current.unitCode}
-              </span>
+      {/* «Сейчас» — только когда гостю действительно есть где быть: у гостя с одними отменёнными
+          бронями ложного «сейчас» и «следующего визита» не бывает (стоп-гейт п. 5) */}
+      {(g.current || g.next) && (
+        <>
+          <SectionTitle first>Сейчас</SectionTitle>
+          <div className="guest-preview__now" data-testid="guest-preview-now">
+            {g.current ? (
+              <p>
+                {g.current.unitCode && (
+                  <span className="dir-unit">
+                    <Icon name="bed" />
+                    {g.current.unitCode}
+                  </span>
+                )}
+                <span className="dir-sub">{g.current.accommodationTypeName}</span>
+                <span className="dir-sub">
+                  до{' '}
+                  <time dateTime={g.current.departureDate}>
+                    {displayDate(g.current.departureDate)}
+                  </time>
+                </span>
+              </p>
+            ) : (
+              <p>
+                <span>
+                  {g.next!.arrivalDate < today ? 'заезд был' : 'заезд'}{' '}
+                  <time dateTime={g.next!.arrivalDate}>{displayDate(g.next!.arrivalDate)}</time>
+                </span>
+                <span className="dir-sub">{g.next!.accommodationTypeName}</span>
+              </p>
             )}
-            <span className="dir-sub">{g.current.accommodationTypeName}</span>
-            <span className="dir-sub">
-              до{' '}
-              <time dateTime={g.current.departureDate}>{displayDate(g.current.departureDate)}</time>
-            </span>
-          </p>
-        ) : g.next ? (
-          <p>
-            <span>
-              {g.next.arrivalDate < today ? 'заезд был' : 'заезд'}{' '}
-              <time dateTime={g.next.arrivalDate}>{displayDate(g.next.arrivalDate)}</time>
-            </span>
-            <span className="dir-sub">{g.next.accommodationTypeName}</span>
-          </p>
-        ) : g.lastCancelledAt ? (
-          <p>
-            <span className="dir-sub">
-              бронь на{' '}
-              <time dateTime={g.lastCancelledAt}>{displayDate(g.lastCancelledAt)}</time> отменена
-            </span>
-          </p>
-        ) : null}
-        {openNumber && (
-          <Link className="btn btn--secondary btn--sm" href={`/reservations/${encodeURIComponent(openNumber)}`}>
-            Открыть бронь
-          </Link>
-        )}
-      </div>
+            {openNumber && (
+              <Link
+                className="btn btn--secondary btn--sm"
+                href={`/reservations/${encodeURIComponent(openNumber)}`}
+              >
+                Открыть бронь
+              </Link>
+            )}
+          </div>
+        </>
+      )}
 
-      <SectionTitle>История</SectionTitle>
+      <SectionTitle first={!g.current && !g.next}>История</SectionTitle>
       <dl className="guest-preview__facts" data-testid="guest-preview-history">
         <div>
           <dt>Визитов</dt>
@@ -115,6 +120,12 @@ export async function GuestPreview({ id }: { id: string }) {
                   {displayDate(g.last.departureDate, lastWithYear ? 'numeric' : 'short')}
                 </time>
               </>
+            ) : g.lastCancelledAt ? (
+              // §16 ТЗ: «отменена» — про бронь; подпись живёт в истории, ложного «Сейчас» нет
+              <span className="dir-sub">
+                бронь на{' '}
+                <time dateTime={g.lastCancelledAt}>{displayDate(g.lastCancelledAt)}</time> отменена
+              </span>
             ) : (
               <span className="muted">—</span>
             )}
@@ -122,16 +133,16 @@ export async function GuestPreview({ id }: { id: string }) {
         </div>
       </dl>
 
-      <SectionTitle>Финансы</SectionTitle>
-      <p className="guest-preview__finance" data-testid="guest-preview-finance">
-        {!g.hasFolios ? (
-          <span className="muted">Счетов пока нет</span>
-        ) : debt ? (
-          <AmountChip tone="due" minor={g.debtMinor} currency={g.currency} />
-        ) : (
-          <span className="dir-paid">оплачено</span>
-        )}
-      </p>
+      {/* Финансы — только когда есть долг: строка «долга нет» места не занимает (стоп-гейт п. 4);
+          источник — Folio/Payment проживаний гостя, своего поля у Guest нет */}
+      {debt && (
+        <>
+          <SectionTitle>Финансы</SectionTitle>
+          <p className="guest-preview__finance" data-testid="guest-preview-finance">
+            <AmountChip tone="due" minor={g.debtMinor} currency={g.currency} />
+          </p>
+        </>
+      )}
 
       <div className="guest-preview__actions">
         <Link className="btn btn--secondary" href={`/guests/${encodeURIComponent(g.id)}`}>

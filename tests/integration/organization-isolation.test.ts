@@ -55,10 +55,12 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     // Гости v2 (план guests-v2-2026-09-27): справочник ходит тем же замком visible()
     const dir: Record<string, { total: number; sawGuest: boolean }> = {};
     // v1.13 §17.1 (ADR-103): guests.organization_id — первый признак; гость без броней виден своей
-    // организации по одной колонке, чужой — нет (указание владельца 27.09, sync с Phase 1)
-    const col: Record<string, { directory: boolean; byId: boolean }> = {};
+    // организации по одной колонке, чужой — нет (указание владельца 27.09, sync с Phase 1).
+    // preview — тем же замком: чужой гость по прямому id отдаёт null, сервис делает из него 404
+    // (стоп-гейт G3 п. 7)
+    const col: Record<string, { directory: boolean; byId: boolean; preview: boolean }> = {};
     // и единственный: связь через бронь не открывает гостя чужой организации (снятие fallback, 27.09)
-    const chain: Record<string, { directory: boolean; byId: boolean }> = {};
+    const chain: Record<string, { directory: boolean; byId: boolean; preview: boolean }> = {};
 
     await expect(
       db.$transaction(async (tx) => {
@@ -129,6 +131,7 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
               await guests.directory({ state: 'ALL', q: 'Проштампованный', page: 1, pageSize: 100 })
             ).rows.some((r) => r.id === stamped.id),
             byId: (await guests.byId(stamped.id)) !== null,
+            preview: (await guests.preview(stamped.id)) !== null,
           }));
         col['B'] = await colLook(orgB.id);
         col['A'] = await colLook(orgA.id);
@@ -151,6 +154,7 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
               await guests.directory({ state: 'ALL', q: 'Бронь-Чужой', page: 1, pageSize: 100 })
             ).rows.some((r) => r.id === cross.id),
             byId: (await guests.byId(cross.id)) !== null,
+            preview: (await guests.preview(cross.id)) !== null,
           }));
         chain['A'] = await crossLook(orgA.id);
         chain['B'] = await crossLook(orgB.id);
@@ -176,11 +180,11 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     expect(dir['B']).toEqual({ total: 0, sawGuest: false });
     expect(dir['A']).toMatchObject({ sawGuest: true });
     // organization_id — первый признак: гость без броней виден своей организации, чужой — нет
-    expect(col['B']).toEqual({ directory: true, byId: true });
-    expect(col['A']).toEqual({ directory: false, byId: false });
+    expect(col['B']).toEqual({ directory: true, byId: true, preview: true });
+    expect(col['A']).toEqual({ directory: false, byId: false, preview: false });
     // …и единственный: бронь в объекте A не делает гостя организации B видимым для A
-    expect(chain['A']).toEqual({ directory: false, byId: false });
-    expect(chain['B']).toEqual({ directory: true, byId: true });
+    expect(chain['A']).toEqual({ directory: false, byId: false, preview: false });
+    expect(chain['B']).toEqual({ directory: true, byId: true, preview: true });
   });
 
   /**

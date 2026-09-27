@@ -34,8 +34,16 @@ v1.9 (25.09.2026; **утверждено владельцем 25.09.2026 — ADR
 v1.10 (25.09.2026; предохранители в самой базе по ТЗ аудита безопасности, поручение «наводи порядок по тому ТЗ, строго иди» — `plans/security-audit-fixes-2026-09-25.md`, блок 3; сущности и поля не меняются): §2 `UNIQUE(property_id, external_id)` — дубль OTA-брони отвергает база (С-4); §6 `CHECK (amount > 0)` на `payments`/`payment_allocations`/`refunds` (С-14); §10 журнал только дописывается уже сейчас — триггер `audit_logs_immutable` (С-14) — миграция `20260925000022_integrity_guards` с `down.sql`, **на рабочей базе применяет владелец**
 v1.11 (26.09.2026; **утверждено владельцем 26.09.2026** — план `plans/seller-prompt-window-2026-09-26.md` и макет «Макет нравится, делай этап Б так», ADR-097): §15 `seller_profiles.prompt_text` — инструкция продавцу одним текстом; есть она — продавцу уходит текст, а не поля профиля — миграция `20260926000024_seller_prompt_text` с `down.sql`, **на рабочей базе применяет владелец**
 v1.12 (26.09.2026; **утверждено владельцем 26.09.2026 — ADR-096**, ответ «Да, делай» на вопрос о коде места перед открытием регистрации; номер версии и миграции сдвинуты при слиянии двух параллельных веток 27.09.2026 — v1.11 и `20260926000024` заняла миграция `seller_prompt_text` выше): §2 `InventoryUnit.property_id` и уникальность кода места **внутри объекта** `UNIQUE(property_id, code)` вместо глобальной — вторая гостиница с кодами «101…» не падает на онбординге, а поиск места по коду не находит чужое (план `plans/tenant-isolation-2026-09-26.md`); миграция `20260926000025_unit_code_per_property` — применяет владелец
+v1.13 (27.09.2026; **утверждено владельцем 27.09.2026 — ADR-103**, план `plans/rls-2026-09-27.md` утверждён вместе с ответами RLS-1…RLS-3): Row Level Security — §17; `guests.organization_id` (§3, гость принадлежит своей организации — RLS-1), `audit_logs.organization_id` (§10), `properties.organization_id` NOT NULL (§1); миграции — применяет владелец
 v2.0 (27.09.2026; **утверждено владельцем 27.09.2026 — «Архитектуру в целом утверждаю», ADR-100; кода нет, миграций нет**): §17 — целевая архитектура двух вертикалей заморожена: иерархия `WETOP → Partner/Organization → Business → Location → Vertical Domain`; четыре финальных решения (RLS-gate до публичной регистрации; канонический `Customer` на Organization + `CustomerBusiness`; `reportingCurrency`/`ExchangeRate` на Organization, `reportingAmount` — снимок; идемпотентность автоматической выручки `sourceType`+`sourceId`+UNIQUE). Существующие разделы §1–§16 не меняются; детальные спецификации новых таблиц добавляются в этот файл пофазно перед каждой миграцией. Полная архитектура — `ARCHITECTURE.md` и `reports/hospitality-beauty-target-architecture-v2-2026-09-27.md`
 v2.1 (27.09.2026; Phase 1 изоляции по ADR-100 §17.2, поручение владельца «Поехали… Начинаем Phase 1»): §3 `guests.organization_id`, §10 `audit_logs.organization_id`, §8 `external_events.property_id` и `channel_outbox.property_id` — все nullable + FK + индекс, детерминированный backfill в миграции (неоднозначные строки остаются NULL и попадают в отчёт, NOT NULL не вводится) — миграция `20260927000026_phase1_tenant_scope` с `down.sql`, **на рабочей базе применяет владелец**
+
+> **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
+> «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
+> двойными номерами ADR (политика ADR-052), различать по заголовку и номеру ADR. Колонку `guests.organization_id`
+> завела nullable миграция `20260927000026_phase1_tenant_scope` (ADR-100, применена на рабочей базе 27.09);
+> `20260927000027_tenant_columns` (ADR-103) делает её NOT NULL с DEFAULT `app_current_org()` и идемпотентна
+> к уже применённой Phase 1.
 Дата: 2026-09-07
 
 ---
@@ -1057,8 +1065,8 @@ resolved_by       GUARD (исчезла после починки или сам�
 |---|---|---|
 | `id` | `uuid` PK | |
 | `name` | `varchar(200)` NOT NULL | название, вводит человек при регистрации |
-| `status` | enum `OrganizationStatus` NOT NULL DEFAULT `TRIAL` | `TRIAL`, `ACTIVE`, `READ_ONLY`, `SUSPENDED`; перехода в `READ_ONLY` по сроку в коде нет (22.09) |
-| `trial_ends_at` | `timestamptz` | срок пробного периода, 7 суток от создания |
+| `status` | enum `OrganizationStatus` NOT NULL DEFAULT `TRIAL` | `TRIAL`, `ACTIVE`, `READ_ONLY`, `SUSPENDED`. С 27.09 (ADR-102) пишут только `ACTIVE` и `TRIAL` до срока (`canWrite`); после срока — только чтение, считается на лету, в базе статус не переписывается. `ACTIVE` ставит главный администратор после оплаты счёта |
+| `trial_ends_at` | `timestamptz` | срок пробного периода: 14 суток от создания с 27.09.2026 (ADR-102; до того — 7) |
 | `created_at` | `timestamptz` NOT NULL | |
 
 Тип — перечисление Postgres `OrganizationStatus` (миграция `20260915000013_accounts`), а не `varchar` с CHECK, как
@@ -1524,3 +1532,52 @@ MVP вводится вручную и используется всеми Busin
 
 До миграции: согласовать TTL/retention, trial с текущими расширениями и лимит расходов;
 описать backup, backfill существующего продавца, validation и rollback без удаления его истории.
+
+---
+
+## 17. Разделение организаций в самой базе — Row Level Security (v1.13 — утверждено 27.09.2026, ADR-103)
+
+План и обоснование — `plans/rls-2026-09-27.md`. Ответы владельца: RLS-1 — гость принадлежит своей организации; RLS-2 —
+роли заводит владелец, пароли только в `.env`; RLS-3 — временное замедление до 20 % допустимо, затем замер.
+
+### 17.1. Новые колонки
+
+| Таблица | Колонка | Правило | Заполнение существующих строк |
+|---|---|---|---|
+| `properties` | `organization_id` | становится `NOT NULL` | уже заполнена миграцией `…16` (самая старая организация); перед `SET NOT NULL` миграция проверяет, что пустых нет |
+| `guests` | `organization_id uuid NOT NULL` FK → `organizations`, индекс | гость — свой у каждой организации; создаёт его код объекта (`createGuest`), организация — объекта | по броням гостя (основной гость или проживающий) → объект → организация; гость без броней — самая старая организация; гость в броннях двух организаций — миграция останавливается с текстом (такой строки быть не должно: до RLS реальные данные только у Luxx) |
+| `audit_logs` | `organization_id uuid NULL` FK → `organizations`, индекс | чья запись журнала; `NULL` — платформа и система без организации (стойке не видны) | функцией `app_audit_organization(entity_type, entity_id, user_id)` — те же правила, что `ownAuditRows` в `audit.module.ts`; не нашлась — самая старая организация. Журнал только дописывается: заполнение идёт в транзакции миграции через штатный обход `wetop.audit_purge` |
+
+Новые записи журнала получают организацию триггером `BEFORE INSERT`: из переменной `app.org_id`, иначе той же функцией
+по сущности (фоновые циклы пишут без переменной).
+
+### 17.2. Роли и переменная арендатора
+
+- `wetop_app` — `NOBYPASSRLS`, не владелец таблиц; права `SELECT/INSERT/UPDATE/DELETE` на таблицы схемы, `USAGE` на
+  последовательности. Ею ходит API, когда за запросом стоит организация: вошедший человек или публичный путь её сайта.
+- `wetop_service` — `BYPASSRLS`, те же права: фоновые циклы, вебхуки, служебные ключи, вход и регистрация (до
+  организации), раздел «Платформа», скрипты.
+- Роли создаёт миграция без входа (`NOLOGIN`); вход и пароль включает владелец (`ALTER ROLE … LOGIN PASSWORD`), пароль —
+  только в `.env` (`DATABASE_URL` → `wetop_app`, `DATABASE_SERVICE_URL` → `wetop_service`).
+- Переменная `app.org_id` ставится на соединение при каждой выдаче его из пула (`set_config(..., false)`; пулер Supabase
+  в режиме сессий держит соединение за клиентом). Пустая переменная — ни одной строки у `wetop_app`.
+- Уточнение плана (п. 2.3): вместо транзакции на каждый запрос — пул выбирает роль по контексту запроса и ставит
+  переменную при выдаче соединения. Итог тот же: запрос организации не видит чужого, служебный путь видит всё.
+
+### 17.3. Политики
+
+Функция `app_current_org()` — `NULLIF(current_setting('app.org_id', true), '')::uuid`. На всех таблицах ниже —
+`ENABLE ROW LEVEL SECURITY` и одна политика `TO wetop_app` (`FOR ALL`, `USING` = `WITH CHECK`). `FORCE` не ставится
+(уточнение плана п. 2.5): владелец таблиц — роль миграций (`postgres`), и с `FORCE` API на ней остался бы без строк, если
+миграция политик придёт раньше смены ролей. Без `FORCE` порядок выкладки ничего не ломает: политики действуют ровно на
+`wetop_app`.
+
+| Правило | Таблицы |
+|---|---|
+| `organization_id = app_current_org()` | `organizations` (по `id`), `memberships`, `sessions`, `invites`, `user_errors`, `seller_profiles`, `organization_extensions`, `seller_agents`, `wizard_drafts`, `properties`, `guests`, `audit_logs` |
+| объект своей организации — `app_property_visible(property_id)` | `buildings`, `accommodation_types`, `inventory_units`, `reservations`, `rate_plans`, `channel_mappings`, `services`, `payments`, `tracked_sites` |
+| через родителя (`EXISTS` к родителю, у которого своя политика) | `floors`, `physical_rooms`, `reservation_items`, `stay_guests`, `allocations`, `guest_documents`, `housekeeping_events`, `inventory_blocks`, `rate_plan_accommodation_types`, `daily_rates`, `restrictions`, `folios`, `charges`, `payment_allocations`, `refunds`, `web_sessions`, `web_pageviews`, `web_events`, `wizard_jobs`, `wizard_messages` |
+| без RLS, только `wetop_service` читает по делу | `users`, `password_resets`, `email_verifications`, `platform_admins`, `wizard_sessions`, `wizard_surveys`, `wizard_events`, `external_events`, `channel_outbox`, `system_incidents` |
+
+`users` без RLS намеренно: вошедшему нужны имена авторов журнала и коллег; почты чужих организаций API наружу не отдаёт.
+

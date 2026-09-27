@@ -23,9 +23,8 @@ datasource db {
 /// Объект размещения. В MVP одна запись (ADR-001), но все запросы фильтруются по property_id.
 model Property {
   id           String   @id @default(uuid()) @db.Uuid
-  /// Чей это объект (ADR-061). NULL — ничей: такой объект не виден никому из вошедших,
-  /// он доступен только служебным ходокам (скрипты владельца, сторож, импорт).
-  organizationId String? @map("organization_id") @db.Uuid
+  /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
+  organizationId String @map("organization_id") @db.Uuid
   name         String
   legalName    String?  @map("legal_name")
   bin          String?
@@ -47,7 +46,7 @@ model Property {
 
   /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
-  organization       Organization?       @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
@@ -329,9 +328,9 @@ enum Gender {
 /// В dev-БД только анонимизированные значения (ADR-018).
 model Guest {
   id            String    @id @default(uuid()) @db.Uuid
-  /// Чей это гость (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1). NULL — принадлежность не выведена
-  /// однозначно при backfill (см. отчёт миграции 20260927000026); новые гости получают организацию объекта.
-  organizationId String?  @map("organization_id") @db.Uuid
+  /// Гость принадлежит своей организации (v1.13 RLS-1, ADR-103; колонку nullable завела Phase 1 ADR-100 §17.2,
+  /// NOT NULL и DEFAULT app_current_org() — миграция 20260927000027). Служебный путь передаёт организацию объекта сам.
+  organizationId String   @default(dbgenerated("app_current_org()")) @map("organization_id") @db.Uuid
   firstName     String    @map("first_name")
   lastName      String    @map("last_name")
   middleName    String?   @map("middle_name")
@@ -349,7 +348,7 @@ model Guest {
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization        Organization?   @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organization        Organization    @relation(fields: [organizationId], references: [id])
   documents           GuestDocument[]
   stays               StayGuest[]
   primaryReservations Reservation[]   @relation("primaryGuest")
@@ -515,18 +514,19 @@ model AuditLog {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  /// Чья это запись (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1). Заполняется из контекста запроса тем же
-  /// механизмом, что автор; NULL — служебная запись без выводимой организации (backfill-отчёт миграции 20260927000026).
-  organizationId String?       @map("organization_id") @db.Uuid
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entityType String   @map("entity_type")
   entityId   String   @map("entity_id")
   action     String
   before     Json?
   after      Json?
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// Чья запись (v1.13 ADR-103 + Phase 1 ADR-100 §17.2). Пишет код из контекста запроса (attachAuthor), добирает
+  /// триггер audit_logs_organization (организация запроса, иначе — по сущности). NULL — платформа/система.
+  organizationId String?       @map("organization_id") @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
   @@index([organizationId])
+  @@index([organizationId, createdAt])
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_logs")

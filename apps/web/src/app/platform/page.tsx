@@ -23,7 +23,7 @@ import {
   organizationSince,
   organizationStatusLine,
 } from '../../lib/platform';
-import { ExtensionForm } from './forms';
+import { ExtensionForm, StatusForm } from './forms';
 
 /**
  * «Платформа → Организации» (DATA_MODEL §16, ADR-083): гостиницы платформы и расширение «ИИ-продавец». Только главному
@@ -132,6 +132,9 @@ function OrganizationCard({ organization: o }: { organization: PlatformOrganizat
         <Fact label="Людей" value={String(o.members)} />
         <Fact label="ИИ-продавец" value={`${seller.label}, ${seller.detail}`} />
       </Grid>
+      <SectionTitle>Подписка</SectionTitle>
+      <StatusForm key={`status-${o.id}`} organizationId={o.id} organizationName={o.name} status={o.status} />
+      <SectionTitle>ИИ-продавец</SectionTitle>
       {o.aiSeller.note && <p className="settings-note">Заметка: {o.aiSeller.note}</p>}
       <ExtensionForm
         key={o.id}

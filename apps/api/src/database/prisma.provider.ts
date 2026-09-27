@@ -1,7 +1,12 @@
 import 'reflect-metadata';
 import { Injectable, type OnModuleDestroy } from '@nestjs/common';
 import { createPrismaClient, type Db } from '@pms/database';
-import { attachAuthor, currentOrganizationId, currentUserId } from '../auth/request-context';
+import {
+  attachAuthor,
+  currentOrganizationId,
+  currentUserId,
+  databaseTenant,
+} from '../auth/request-context';
 
 export const DB = Symbol('DB');
 
@@ -30,7 +35,17 @@ function withAuthor(db: Db): Db {
 export class PrismaService implements OnModuleDestroy {
   readonly db: Db;
   constructor() {
-    if (!shared) shared = { db: withAuthor(createPrismaClient()), refs: 0 };
+    // RLS (DATA_MODEL §17, ADR-103): запросы организации — ролью wetop_app по DATABASE_APP_URL; пока её нет — прежняя роль
+    if (!shared)
+      shared = {
+        db: withAuthor(
+          createPrismaClient(undefined, undefined, {
+            of: databaseTenant,
+            appConnectionString: process.env.DATABASE_APP_URL,
+          }),
+        ),
+        refs: 0,
+      };
     shared.refs += 1;
     this.db = shared.db;
   }

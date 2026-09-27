@@ -385,24 +385,14 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 const json = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 
 export class PrismaReservationsRepository implements ReservationsRepository {
-  private propertyCache: {
-    id: string;
-    currency: string;
-    timezone: string;
-    organizationId: string | null;
-  } | null = null;
+  private propertyCache: { id: string; currency: string; timezone: string; organizationId: string } | null = null;
   /** propertyName — имя объекта; в тестах на вымышленных данных передаётся тестовый объект. */
   constructor(
     private readonly db: Db | DbTx,
     private readonly propertyName: string = LUXX_APARTS_PROPERTY.name,
   ) {}
 
-  async property(): Promise<{
-    id: string;
-    currency: string;
-    timezone: string;
-    organizationId: string | null;
-  }> {
+  async property(): Promise<{ id: string; currency: string; timezone: string; organizationId: string }> {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
@@ -651,17 +641,17 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return n > 0;
   }
   async createGuest(guest: NewGuest): Promise<string> {
-    // Phase 1 изоляции (ADR-100 §17.2): гость с рождения знает организацию объекта — и от стойки
-    // (вошедший), и от канала/виджета (служебный путь и organizationScope дают тот же объект).
+    // Гость с рождения знает организацию объекта (Phase 1 ADR-100 §17.2 + RLS-1 v1.13 §17.1):
+    // и от стойки (вошедший), и от канала/виджета (служебный путь и organizationScope дают тот же объект).
     const { organizationId } = await this.property();
     const g = await this.db.guest.create({
       data: {
+        organizationId,
         firstName: guest.firstName,
         lastName: guest.lastName,
         middleName: guest.middleName ?? null,
         phone: guest.phone ?? null,
         email: guest.email ?? null,
-        organizationId,
       },
       select: { id: true },
     });

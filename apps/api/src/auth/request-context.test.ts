@@ -5,6 +5,9 @@ import {
   attachAuthor,
   currentRole,
   currentUserId,
+  databaseTenant,
+  withOrganizationScope,
+  withServiceDatabase,
   withSignedInUser,
 } from './request-context';
 
@@ -117,5 +120,35 @@ describe('роль и главный администратор в запрос�
       expect(actorIsPlatformAdmin()).toBe(false),
     );
     await withSignedInUser(null, async () => expect(actorIsPlatformAdmin()).toBe(false));
+  });
+});
+
+/**
+ * Запрос Prisma ленивый: уходит в базу на `then`. Помощник контекста обязан дождаться его ВНУТРИ — иначе запрос
+ * выполнится снаружи, другой ролью базы и другой организацией (RLS, DATA_MODEL §17, ADR-103). Найдено 27.09.2026:
+ * `withServiceDatabase(() => db.property.findFirst(...))` уходил в базу ролью организации вошедшего.
+ */
+describe('помощники контекста дожидаются ленивого запроса внутри', () => {
+  /** Как PrismaPromise: работа начинается только на then и читает контекст в этот момент */
+  const lazy = () => ({
+    then<R>(resolve: (v: { tenant: string | null; service: boolean }) => R) {
+      return Promise.resolve({ tenant: databaseTenant(), service: databaseTenant() === null }).then(resolve);
+    },
+  }) as unknown as Promise<{ tenant: string | null; service: boolean }>;
+  const ORG = '5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00';
+
+  it('withSignedInUser — организация вошедшего', async () => {
+    const seen = await withSignedInUser({ userId: 'u', organizationId: ORG }, lazy);
+    expect(seen.tenant).toBe(ORG);
+  });
+
+  it('withServiceDatabase внутри запроса человека — служебная роль', async () => {
+    const seen = await withSignedInUser({ userId: 'u', organizationId: ORG }, () => withServiceDatabase(lazy));
+    expect(seen.service).toBe(true);
+  });
+
+  it('withOrganizationScope — организация сайта', async () => {
+    const seen = await withOrganizationScope(ORG, lazy);
+    expect(seen.tenant).toBe(ORG);
   });
 });

@@ -1,0 +1,45 @@
+# Интеграционные (integration) · 27.09.2026 17:16 Алматы · vm
+# коммит 5814464 (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 12
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T12-16-59Z-integration-da7d.json' 'tests/integration/organization-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[pms_test] миграций применено 1; данные на месте
+(node:5602) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/organization-isolation.test.ts (7 tests | 1 failed) 620ms
+   ✓ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 260ms
+     ✓ чужая организация не находит место объекта по коду и не видит, не меняет и не удаляет его сайты 36ms
+     ✓ чужая организация не получает сопоставления Channex и продажи объекта 25ms
+   ✓ изоляция организаций: ячейки и сайты (integration, DATABASE_URL required) (1)
+     ✓ чужая организация не видит ячейку, её блокировку и сайт объекта; своя — видит 85ms
+   ✓ организация подключённого к Channex объекта (integration, DATABASE_URL required) (1)
+     ✓ по сопоставлению Channex — организация объекта с сопоставлениями 34ms
+   ❯ Phase 1: tenant-scope гостей, журнала, событий и очереди (integration, DATABASE_URL required) (2)
+     × чужая организация не меняет гостя и документы по прямому id; новый гость и запись журнала несут организацию 72ms
+     ✓ чужая организация не видит события канала и очередь ARI; ревизия по прямому id чужому не отдаётся 44ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > Phase 1: tenant-scope гостей, журнала, событий и очереди (integration, DATABASE_URL required) > чужая организация не меняет гостя и документы по прямому id; новый гость и запись журнала несут организацию
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:486:6
+    484|         throw new Rollback();
+    485|       }),
+    486|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    487|     forgetPropertyRef();
+    488|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  12:16:59
+   Duration  3.17s (transform 49%, tests 33%, import 18%)
+
+JSON report written to /tmp/pms-test-2026-09-27T12-16-59Z-integration-da7d.json
+
+# код выхода 1 · 4 с

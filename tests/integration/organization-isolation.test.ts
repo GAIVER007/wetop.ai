@@ -13,6 +13,7 @@ import { PrismaAnalyticsRepository } from '../../apps/api/src/analytics/analytic
 import { channelOperatorOrganizationId } from '../../apps/api/src/channels/operator-access';
 import { forgetPropertyRef } from '../../apps/api/src/database/property-ref';
 import { PrismaChannelsRepository } from '../../apps/api/src/channels/channels.repository';
+import { PrismaReservationsRepository } from '../../apps/api/src/reservations/reservations.repository';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -57,6 +58,8 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         const orgA = await tx.organization.create({ data: { name: 'Integration A' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B' }, select: { id: true } });
         await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
+        // NOT NULL v1.13 §17.1 (ADR-103): гость несёт организацию сида — переводится вместе с объектом
+        await tx.guest.update({ where: { id: guestId }, data: { organizationId: orgA.id } });
         await tx.property.create({
           data: {
             organizationId: orgB.id,
@@ -376,3 +379,196 @@ describe.skipIf(!url)('организация подключённого к Chan
   });
 });
 
+
+/**
+ * Phase 1 изоляции (ADR-100 §17.2, DATA_MODEL v2.1, миграция 20260927000026): tenant-scope у гостей,
+ * журнала, событий канала и очереди ARI. До Phase 1 чужая организация меняла гостя и его документы по
+ * прямому id (сервис прикрывал, репозиторий — нет), а события и очередь каналов читались без объекта.
+ * Красный прогон на старом коде — в журнале тестов рядом с зелёным.
+ */
+describe.skipIf(!url)('Phase 1: tenant-scope гостей, журнала, событий и очереди (integration, DATABASE_URL required)', () => {
+  let db: Db;
+  beforeAll(() => {
+    db = createPrismaClient(url);
+  });
+  afterAll(async () => {
+    await db?.$disconnect();
+  });
+
+  it('чужая организация не меняет гостя и документы по прямому id; новый гость и запись журнала несут организацию', async () => {
+    const stay = await db.stayGuest.findFirst({
+      select: {
+        guestId: true,
+        reservationItem: { select: { reservation: { select: { id: true, propertyId: true } } } },
+      },
+    });
+    expect(stay).toBeTruthy();
+    const guestId = stay!.guestId;
+    const { propertyId } = stay!.reservationItem.reservation;
+    const seen: Record<string, unknown> = {};
+
+    await expect(
+      db.$transaction(async (tx) => {
+        forgetPropertyRef();
+        const orgA = await tx.organization.create({ data: { name: 'Integration A4' }, select: { id: true } });
+        const orgB = await tx.organization.create({ data: { name: 'Integration B4' }, select: { id: true } });
+        await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
+        // NOT NULL v1.13 §17.1 (ADR-103): гость несёт организацию сида — переводится вместе с объектом
+        await tx.guest.update({ where: { id: guestId }, data: { organizationId: orgA.id } });
+        await tx.property.create({
+          data: {
+            organizationId: orgB.id,
+            name: 'Чужой объект 4 (integration)',
+            timezone: 'Asia/Almaty',
+            currency: 'KZT',
+            checkInTime: '14:00',
+            checkOutTime: '12:00',
+          },
+        });
+        const doc = await tx.guestDocument.create({
+          data: { guestId, type: 'PASSPORT', numberEncrypted: 'enc-phase1-test' },
+          select: { id: true },
+        });
+        const prisma = { db: tx } as unknown as PrismaService;
+        const guests = new PrismaGuestsRepository(prisma);
+        const as = <T>(organizationId: string, fn: () => Promise<T>) =>
+          withSignedInUser({ userId: randomUUID(), organizationId }, fn);
+
+        // Б: правка, документ и удаление документа по прямому id — «не найден», данные не меняются
+        seen['B:update'] = await as(orgB.id, () =>
+          guests.update(guestId, { notes: 'взломано' }).then(() => 'updated', () => 'refused'),
+        );
+        seen['B:addDocument'] = await as(orgB.id, () =>
+          guests
+            .addDocument(guestId, {
+              type: 'PASSPORT',
+              numberEncrypted: 'enc-foreign',
+              issueCountry: null,
+              issuedAtEncrypted: null,
+              expiresAtEncrypted: null,
+            })
+            .then(() => 'added', () => 'refused'),
+        );
+        seen['B:deleteDocument'] = await as(orgB.id, () => guests.deleteDocument(guestId, doc.id));
+        seen['B:notesUntouched'] =
+          (await tx.guest.findUniqueOrThrow({ where: { id: guestId }, select: { notes: true } })).notes !==
+          'взломано';
+        seen['B:docSurvived'] = (await tx.guestDocument.count({ where: { id: doc.id } })) === 1;
+
+        // А: своя правка и удаление документа работают, как раньше
+        seen['A:update'] = await as(orgA.id, () =>
+          guests.update(guestId, { notes: 'своя стойка' }).then(() => 'updated', () => 'refused'),
+        );
+        seen['A:deleteDocument'] = (await as(orgA.id, () => guests.deleteDocument(guestId, doc.id)))?.type ?? null;
+
+        // Новый гость от стойки А несёт организацию с рождения (Phase 1, столбец читается raw SQL —
+        // на старом коде колонки нет, и этот шаг честно красный)
+        const reservations = new PrismaReservationsRepository(tx as never);
+        const newGuestId = await as(orgA.id, () =>
+          reservations.createGuest({ firstName: 'Фикстура', lastName: 'Изоляция' }),
+        );
+        const guestOrg = await tx.$queryRaw<Array<{ organization_id: string | null }>>`
+          SELECT "organization_id" FROM "guests" WHERE "id" = ${newGuestId}::uuid`;
+        seen['A:newGuestOrg'] = guestOrg[0]?.organization_id === orgA.id;
+
+        // Служебная запись журнала (без вошедшего — как сторож/синхронизация) несёт организацию
+        // объекта: property уже разрешён этим же экземпляром репозитория под организацией А
+        await reservations.audit({
+          entityType: 'Reservation',
+          entityId: stay!.reservationItem.reservation.id,
+          action: 'integration.phase1.scope',
+          before: null,
+          after: { ok: true },
+        });
+        const auditOrg = await tx.$queryRaw<Array<{ organization_id: string | null }>>`
+          SELECT "organization_id" FROM "audit_logs" WHERE "action" = 'integration.phase1.scope'
+          ORDER BY "created_at" DESC LIMIT 1`;
+        seen['A:auditOrg'] = auditOrg[0]?.organization_id === orgA.id;
+        throw new Rollback();
+      }),
+    ).rejects.toBeInstanceOf(Rollback);
+    forgetPropertyRef();
+
+    expect(seen['B:update']).toBe('refused');
+    expect(seen['B:addDocument']).toBe('refused');
+    expect(seen['B:deleteDocument']).toBeNull();
+    expect(seen['B:notesUntouched']).toBe(true);
+    expect(seen['B:docSurvived']).toBe(true);
+    expect(seen['A:update']).toBe('updated');
+    expect(seen['A:deleteDocument']).toBe('PASSPORT');
+    expect(seen['A:newGuestOrg']).toBe(true);
+    expect(seen['A:auditOrg']).toBe(true);
+  });
+
+  it('чужая организация не видит события канала и очередь ARI; ревизия по прямому id чужому не отдаётся', async () => {
+    const anyProperty = await db.property.findFirst({ orderBy: { createdAt: 'asc' }, select: { id: true } });
+    expect(anyProperty).toBeTruthy();
+    const seen: Record<string, unknown> = {};
+
+    await expect(
+      db.$transaction(async (tx) => {
+        forgetPropertyRef();
+        const orgA = await tx.organization.create({ data: { name: 'Integration A5' }, select: { id: true } });
+        const orgB = await tx.organization.create({ data: { name: 'Integration B5' }, select: { id: true } });
+        await tx.property.update({ where: { id: anyProperty!.id }, data: { organizationId: orgA.id } });
+        await tx.property.create({
+          data: {
+            organizationId: orgB.id,
+            name: 'Чужой объект 5 (integration)',
+            timezone: 'Asia/Almaty',
+            currency: 'KZT',
+            checkInTime: '14:00',
+            checkOutTime: '12:00',
+          },
+        });
+        const as = <T>(organizationId: string, fn: () => Promise<T>) =>
+          withSignedInUser({ userId: randomUUID(), organizationId }, fn);
+        const revisionId = `phase1-${randomUUID()}`;
+
+        // Событие и сообщение очереди пишутся от имени организации А — с объектом с рождения
+        const reservations = new PrismaReservationsRepository(tx as never);
+        await as(orgA.id, () =>
+          reservations.recordExternalEvent({
+            provider: 'channex',
+            externalEventId: revisionId,
+            type: 'booking',
+            payloadHash: 'phase1-hash',
+            payload: { unique_id: revisionId },
+          }),
+        );
+        const channels = new PrismaChannelsRepository({ db: tx } as unknown as PrismaService);
+        await as(orgA.id, () => channels.enqueueOutbox('channex', 'AVAILABILITY', [{ probe: revisionId }]));
+
+        const eventProp = await tx.$queryRaw<Array<{ property_id: string | null }>>`
+          SELECT "property_id" FROM "external_events" WHERE "external_event_id" = ${revisionId}`;
+        seen['A:eventProperty'] = eventProp[0]?.property_id === anyProperty!.id;
+        const outboxProp = await tx.$queryRaw<Array<{ property_id: string | null }>>`
+          SELECT "property_id" FROM "channel_outbox" ORDER BY "created_at" DESC LIMIT 1`;
+        seen['A:outboxProperty'] = outboxProp[0]?.property_id === anyProperty!.id;
+
+        // Б: событий и очереди объекта А не видит ни списком, ни по прямому id
+        seen['B:events'] = (await as(orgB.id, () => channels.eventsPage('channex', { limit: 50, offset: 0 }))).total;
+        seen['B:revision'] = await as(orgB.id, () => channels.eventByRevision('channex', revisionId));
+        seen['B:outboxRows'] = (await as(orgB.id, () => channels.outboxRows('channex', { limit: 50, status: undefined }))).length;
+        seen['B:outboxPending'] = (await as(orgB.id, () => channels.outboxSummary('channex'))).pending;
+
+        // А: свои событие и очередь видит
+        seen['A:events'] = (await as(orgA.id, () => channels.eventsPage('channex', { limit: 50, offset: 0 }))).total > 0;
+        seen['A:revision'] = (await as(orgA.id, () => channels.eventByRevision('channex', revisionId))) !== null;
+        seen['A:outboxRows'] = (await as(orgA.id, () => channels.outboxRows('channex', { limit: 50, status: undefined }))).length > 0;
+        throw new Rollback();
+      }),
+    ).rejects.toBeInstanceOf(Rollback);
+    forgetPropertyRef();
+
+    expect(seen['A:eventProperty']).toBe(true);
+    expect(seen['A:outboxProperty']).toBe(true);
+    expect(seen['B:events']).toBe(0);
+    expect(seen['B:revision']).toBeNull();
+    expect(seen['B:outboxRows']).toBe(0);
+    expect(seen['B:outboxPending']).toBe(0);
+    expect(seen['A:events']).toBe(true);
+    expect(seen['A:revision']).toBe(true);
+    expect(seen['A:outboxRows']).toBe(true);
+  });
+});

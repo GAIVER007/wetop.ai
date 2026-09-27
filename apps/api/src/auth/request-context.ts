@@ -102,11 +102,23 @@ export function hasSignedInActor(): boolean {
 
 type AuditCreateArgs = { data?: Record<string, unknown> | Array<Record<string, unknown>> };
 
-/** Подставляет автора в аргументы `auditLog.create`. Явно указанный автор сильнее: его не перебиваем. */
-export function attachAuthor<T extends AuditCreateArgs>(args: T, userId: string | null): T {
-  if (!userId || !args || typeof args !== 'object' || !('data' in args) || !args.data) return args;
-  const stamp = (row: Record<string, unknown>) =>
-    row.userId === undefined ? { ...row, userId } : row;
+/**
+ * Подставляет автора и организацию в аргументы `auditLog.create`. Явно указанные значения сильнее:
+ * их не перебиваем. Организация — Phase 1 изоляции (ADR-100 §17.2): запись журнала с рождения знает,
+ * чья она, тем же механизмом, что и подпись автора.
+ */
+export function attachAuthor<T extends AuditCreateArgs>(
+  args: T,
+  userId: string | null,
+  organizationId: string | null = null,
+): T {
+  if ((!userId && !organizationId) || !args || typeof args !== 'object' || !('data' in args) || !args.data)
+    return args;
+  const stamp = (row: Record<string, unknown>) => ({
+    ...row,
+    ...(userId && row.userId === undefined ? { userId } : {}),
+    ...(organizationId && row.organizationId === undefined ? { organizationId } : {}),
+  });
   return {
     ...args,
     data: Array.isArray(args.data) ? args.data.map(stamp) : stamp(args.data),

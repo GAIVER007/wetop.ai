@@ -641,7 +641,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return n > 0;
   }
   async createGuest(guest: NewGuest): Promise<string> {
-    // Гость принадлежит организации объекта (DATA_MODEL v1.13 §17.1, RLS-1): и у стойки, и у брони из канала
+    // Гость с рождения знает организацию объекта (Phase 1 ADR-100 §17.2 + RLS-1 v1.13 §17.1):
+    // и от стойки (вошедший), и от канала/виджета (служебный путь и organizationScope дают тот же объект).
     const { organizationId } = await this.property();
     const g = await this.db.guest.create({
       data: {
@@ -1280,6 +1281,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { id: true, status: true, attemptCount: true, lastError: true },
     });
     if (existing) return { ...existing, isNew: false };
+    // Phase 1 изоляции (ADR-100 §17.2): событие канала с рождения знает объект обработки
+    const { id: propertyId } = await this.property();
     const created = await this.db.externalEvent.create({
       data: {
         provider: event.provider,
@@ -1287,6 +1290,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         type: event.type,
         payloadHash: event.payloadHash,
         payload: json(event.payload),
+        propertyId,
         ...(event.receivedVia ? { receivedVia: event.receivedVia } : {}),
       },
       select: { id: true, status: true, attemptCount: true, lastError: true },
@@ -1324,9 +1328,13 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     // ключами, и в свободном тексте (заметка, комментарий, причина) контакты под маской: журнал только дописывается
     const forJournal = (v: unknown) =>
       isReservationCard(v) ? maskAuditFreeText(cardForAudit(v)) : withoutGuestIdentity(v);
+    // Phase 1 изоляции (ADR-100 §17.2): служебные записи (синхронизация, вебхук) тоже несут
+    // организацию объекта — иначе они копили бы NULL-остаток, который уже разбирал backfill
+    const { organizationId } = await this.property();
     await this.db.auditLog.create({
       data: {
         userId: auditUserId(),
+        organizationId,
         entityType: entry.entityType,
         entityId: entry.entityId,
         action: entry.action,

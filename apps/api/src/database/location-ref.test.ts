@@ -28,8 +28,14 @@ function fakeDb(
           calls += 1;
           const row = rows.find((r) => r.organizationId === where.business?.organizationId);
           if (!row) return null;
-          const { organizationId: _org, vertical, ...rest } = row;
-          return { ...rest, business: { vertical } };
+          return {
+            id: row.id,
+            businessId: row.businessId,
+            name: row.name,
+            timezone: row.timezone,
+            currency: row.currency,
+            business: { vertical: row.vertical },
+          };
         },
       },
     },

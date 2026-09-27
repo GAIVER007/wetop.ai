@@ -1,0 +1,11 @@
+# Линтер (lint) · 27.09.2026 23:03 Алматы · vm
+# коммит f05e67f (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 3
+# npx eslint .
+
+/home/user/wetop.ai/apps/api/src/database/location-ref.test.ts
+  31:35  error  '_org' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 22 с

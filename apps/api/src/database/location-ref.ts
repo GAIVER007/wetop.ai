@@ -9,6 +9,8 @@ import type { Db } from '@pms/database';
  * плюс схема базы (ADR-042: прогон в pms_test не должен получить id рабочих данных). Отказ не
  * запоминается: до применения миграции Platform P1 таблиц нет, и стойка живёт прежним путём по
  * `properties.organization_id` — как только цепочка появится, следующий запрос её увидит.
+ * Этот прежний путь — миграционное окно (приёмка владельца 27.09.2026): после production backfill
+ * и broken_chain = 0 фолбэк снимается в следующей platform-фазе.
  */
 export interface LocationRef {
   id: string;

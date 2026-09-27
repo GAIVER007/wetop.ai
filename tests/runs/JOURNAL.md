@@ -2915,3 +2915,7 @@
 | 27.09.2026 21:04 | integration | ❌ упало 2 из 112 | 34 с | f43815a +13 | [лог](logs/2026-09-27T16-04-48Z-integration-8119.log) | Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) каждый объект привязан к Location своего Business своей  |
 | 27.09.2026 21:05 | typecheck | ✅ без ошибок | 22 с | f43815a +14 | [лог](logs/2026-09-27T16-05-23Z-typecheck-c436.log) |  |
 | 27.09.2026 21:06 | integration | ✅ 112 из 112 | 35 с | f43815a +13 | [лог](logs/2026-09-27T16-06-05Z-integration-af29.log) |  |
+| 27.09.2026 23:03 | typecheck | ✅ без ошибок | 26 с | f05e67f +3 | [лог](logs/2026-09-27T18-03-03Z-typecheck-df49.log) |  |
+| 27.09.2026 23:03 | lint | ❌ ошибок: 1 | 22 с | f05e67f +3 | [лог](logs/2026-09-27T18-03-30Z-lint-f61f.log) | @typescript-eslint/no-unused-vars |
+| 27.09.2026 23:04 | lint | ✅ без ошибок | 18 с | f05e67f +4 | [лог](logs/2026-09-27T18-04-08Z-lint-21d9.log) |  |
+| 27.09.2026 23:04 | unit | ✅ 2115 из 2118, пропущено 3 | 1 мин 12 с | f05e67f +4 | [лог](logs/2026-09-27T18-04-27Z-unit-cdca.log) |  |

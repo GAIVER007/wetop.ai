@@ -91,9 +91,10 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const known = cache.get(key);
   if (known) return known;
   // Platform P1 (ADR-104 §18, Q-199 вариант Б): путь к объекту идёт по финальной цепочке
-  // Organization → Business → Location → Property; внешний контракт PropertyRef не меняется. Пока
-  // миграция 20260927000030 не применена (цепочки нет или properties.location_id ещё NULL) —
-  // прежняя выборка по properties.organization_id, поведение то же.
+  // Organization → Business → Location → Property; внешний контракт PropertyRef не меняется.
+  // Фолбэк по properties.organization_id — ТОЛЬКО миграционное окно (приёмка владельца 27.09.2026,
+  // отчёт Platform P1 §5): после production backfill и broken_chain = 0 он снимается в следующей
+  // platform-фазе — окончательный переход на цепочку, новых зависимостей от фолбэка не заводить.
   const select = { id: true, name: true, organizationId: true, timezone: true };
   const found =
     (await db.property.findFirst({

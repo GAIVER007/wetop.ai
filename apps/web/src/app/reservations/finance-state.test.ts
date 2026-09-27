@@ -10,7 +10,7 @@ const row = (over: Partial<Parameters<typeof financeState>[0]>) => ({
   ...over,
 });
 
-describe('колонка «Финансы» (ADR-101): состояние по счетам, без выдумок на фронте', () => {
+describe('колонка «Финансы» (ADR-104): состояние по счетам, без выдумок на фронте', () => {
   it('брони без счетов и пустой счёт — «—», а не «оплачено» (случай отменённой брони из ТЗ §16)', () => {
     expect(financeState(row({ hasFolios: false }))).toEqual({ kind: 'none' });
     expect(financeState(row({}))).toEqual({ kind: 'none' });

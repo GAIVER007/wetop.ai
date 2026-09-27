@@ -9,7 +9,9 @@ import {
   NotFoundException,
   Param,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
+import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
 import { parseExtensionChange } from '@pms/domain';
 import { currentUserId } from '../auth/request-context';
 import { requirePlatformAdmin } from './admin';
@@ -29,6 +31,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * вошедшему с отметкой `platform_admins`: служебные ключи и выключенный замок (`AUTH_REQUIRED=0`) его не открывают.
  * Брони, гости, счета и переписка чужих гостиниц отсюда не видны — в ответе их нет по построению.
  */
+// RLS (DATA_MODEL §17): главный администратор читает все организации — служебной ролью базы
+@UseInterceptors(ServiceDatabaseInterceptor)
 @Controller('platform')
 export class PlatformController {
   constructor(
@@ -61,6 +65,26 @@ export class PlatformController {
     });
     // Э4: гостиница уходит продавцу сразу (active по новому состоянию), сверка догонит при отказе
     this.extensions.notifyAiSellerChanged(id);
+    const saved = await this.repo.organization(id);
+    return organizationJson(saved!, now);
+  }
+
+  /**
+   * Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — `ACTIVE`, организация снова пишет; «только чтение» —
+   * `READ_ONLY`. Приостановка и пробный период отсюда не ставятся: это не оплата.
+   */
+  @Put('organizations/:id/status')
+  async changeStatus(@Param('id') id: string, @Body() body: unknown) {
+    requirePlatformAdmin();
+    if (!UUID.test(id)) throw new BadRequestException('Организация: ожидается идентификатор');
+    const input = (body ?? {}) as { status?: unknown; note?: unknown };
+    if (input.status !== 'ACTIVE' && input.status !== 'READ_ONLY') {
+      throw new BadRequestException('Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)');
+    }
+    const note = typeof input.note === 'string' && input.note.trim() ? input.note.trim().slice(0, 500) : null;
+    if (!(await this.repo.organization(id))) throw new NotFoundException(PLATFORM_NO_ORGANIZATION);
+    const now = new Date();
+    await this.repo.saveStatus({ organizationId: id, status: input.status, note, by: currentUserId(), now });
     const saved = await this.repo.organization(id);
     return organizationJson(saved!, now);
   }

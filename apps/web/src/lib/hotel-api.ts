@@ -143,7 +143,7 @@ export const reservationStatuses: Record<string, string> = {
   CANCELLED: 'Отменены',
   NO_SHOW: 'Незаезды',
 };
-/** Слово о брони в единственном числе для строки списка (DESIGN.md §9, Q-135; ADR-101) —
+/** Слово о брони в единственном числе для строки списка (DESIGN.md §9, Q-135; ADR-104) —
  * как у списка гостей: «Проживают» — имя фильтра, «проживает» — состояние одной брони */
 export const reservationStatusWords: Record<string, string> = {
   TENTATIVE: 'не подтверждена',
@@ -175,7 +175,7 @@ export interface ReservationListRow {
   totalAmountMinor: string;
   paidMinor: string;
   balanceMinor: string;
-  /** Начислено и возвращено по счетам (ADR-101, колонка «Финансы»). Старый API их не присылает. */
+  /** Начислено и возвращено по счетам (ADR-104, колонка «Финансы»). Старый API их не присылает. */
   chargedMinor?: string;
   refundedMinor?: string;
   hasFolios: boolean;

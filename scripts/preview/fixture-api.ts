@@ -1401,6 +1401,8 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
     });
 }
 /** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
+// Подписка, подтверждённая руками главного администратора (ADR-102): статус поверх начального
+const platformStatuses = new Map<string, string>();
 function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
@@ -1415,6 +1417,7 @@ function resetAccess() {
   uiRole = 'OWNER';
   uiPlatformAdmin = false;
   platformExtensions.clear();
+  platformStatuses.clear();
   setSellerExtension('active', null, false);
 }
 resetAccess();
@@ -1435,7 +1438,7 @@ const platformOrganizations = () => [
   {
     id: 'ui-org',
     name: uiUser.organization.name,
-    status: 'ACTIVE',
+    status: platformStatuses.get('ui-org') ?? 'ACTIVE',
     trialEndsAt: null,
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
@@ -1444,7 +1447,7 @@ const platformOrganizations = () => [
   {
     id: 'ui-org-2',
     name: 'Хостел «Пример»',
-    status: 'TRIAL',
+    status: platformStatuses.get('ui-org-2') ?? 'TRIAL',
     trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
@@ -2775,6 +2778,17 @@ createServer(async (req, res) => {
         if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
         platformExtensions.set(org.id, { ...parsed.value, updatedAt: new Date() });
         return send(200, platformOrganizationJson(org));
+      }
+      // Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — ACTIVE, обратно — READ_ONLY
+      const status = /^\/platform\/organizations\/([^/]+)\/status$/.exec(path);
+      if (status && req.method === 'PUT') {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(status[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        const next = body['status'];
+        if (next !== 'ACTIVE' && next !== 'READ_ONLY')
+          return send(400, { message: 'Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)' });
+        platformStatuses.set(org.id, next);
+        return send(200, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
       }
       if (path.startsWith('/platform/support/')) {
         if (path === '/platform/support/status' && req.method === 'GET') return send(200, { state: supportState });

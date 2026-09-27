@@ -1,4 +1,4 @@
-import { MEMBERSHIP_ROLES, daysLeft } from '@pms/domain';
+import { MEMBERSHIP_ROLES, canWrite, daysLeft, type OrganizationStatus } from '@pms/domain';
 import { CLOSED_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
 import { tourKeyOf } from '../components/shell/tour-steps';
 
@@ -17,9 +17,25 @@ export interface DeskShell {
   trial: string | null;
   /** Ключ отметки «обучение пройдено» в браузере (ADR-100); вошедшего нет — обучения нет */
   tourKey: string | null;
+  /** Пробный срок вышел или организация в «только чтение» (Q-144 — Б, ADR-102): полоса над экраном */
+  readOnly: boolean;
 }
 
-export const CLOSED_SHELL: DeskShell = { access: CLOSED_ACCESS, person: null, trial: null, tourKey: null };
+export const CLOSED_SHELL: DeskShell = {
+  access: CLOSED_ACCESS,
+  person: null,
+  trial: null,
+  tourKey: null,
+  readOnly: false,
+};
+
+/** Нет права записи — то же правило, что у API (`canWrite` в домене). Нет организации в ответе — полосы нет. */
+export function readOnlyOf(org: TrialOrganization | null | undefined, now: Date): boolean {
+  if (!org) return false;
+  const known: OrganizationStatus[] = ['TRIAL', 'ACTIVE', 'READ_ONLY', 'SUSPENDED'];
+  if (!known.includes(org.status as OrganizationStatus)) return false;
+  return !canWrite(org.status as OrganizationStatus, org.trialEndsAt ? new Date(org.trialEndsAt) : null, now);
+}
 
 interface TrialOrganization {
   status: string;
@@ -71,5 +87,6 @@ export function deskShellOf(me: MeLike | null): DeskShell {
     person: deskPerson(me.user),
     trial: trialLine(me.user.organization, new Date()),
     tourKey: tourKeyOf(me.user.email),
+    readOnly: readOnlyOf(me.user.organization, new Date()),
   };
 }

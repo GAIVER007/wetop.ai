@@ -2891,3 +2891,8 @@
 | 28.09.2026 02:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts) | ❌ упало 3 из 8 | 1 мин 4 с | a0fa497 +39 | [лог](logs/2026-09-27T21-06-07Z-e2e-29b8.log) | WEB1: новый спек модуля сайта |
 | 28.09.2026 02:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts) | ✅ 8 из 8 | 1 мин | a0fa497 +40 | [лог](logs/2026-09-27T21-08-14Z-e2e-7c64.log) | WEB1: новый спек модуля сайта, второй заход |
 | 28.09.2026 02:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts) | ✅ 8 из 8 | 57 с | a0fa497 +40 | [лог](logs/2026-09-27T21-10-38Z-e2e-9b8d.log) | WEB1: модуль сайта после правки «Бронирования» |
+| 28.09.2026 02:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 417 | 38 мин 7 с | a0fa497 +40 | [лог](logs/2026-09-27T21-13-03Z-e2e-f530.log) | WEB1: полный UI-набор стойки после объединения сайта |
+| 28.09.2026 02:51 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/settings-simplification.spec.ts tests/ui/website.spec.ts tests/ui/ | ✅ 85 из 85 | 6 мин 37 с | ae5b6a9 +1 | [лог](logs/2026-09-27T21-51-27Z-e2e-1371.log) | WEB1: перепрогон упавших после правок |
+| 28.09.2026 02:58 | unit | ✅ 2138 из 2141, пропущено 3 | 1 мин 34 с | ae5b6a9 | [лог](logs/2026-09-27T21-58-11Z-unit-13af.log) | WEB1: модуль сайта |
+| 28.09.2026 02:59 | typecheck | ✅ без ошибок | 30 с | ae5b6a9 +1 | [лог](logs/2026-09-27T21-59-45Z-typecheck-728b.log) | WEB1: модуль сайта |
+| 28.09.2026 03:00 | lint | ✅ без ошибок | 17 с | ae5b6a9 +1 | [лог](logs/2026-09-27T22-00-15Z-lint-4478.log) | WEB1: модуль сайта |

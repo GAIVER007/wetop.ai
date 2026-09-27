@@ -191,7 +191,8 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Не удалось проверить webhook',
   );
-  await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
+  // сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-107), в «Интеграциях» его нет
+  await expect(page.getByRole('main')).not.toContainText('Сайтов в системе');
   // Контент каналов не дублируется: старые ссылки ведут к подключению Channex.
   for (const section of ['photos', 'amenities']) {
     await page.goto(`/hotel-settings/${section}`);

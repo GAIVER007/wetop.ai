@@ -2927,3 +2927,8 @@
 | 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
 | 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
 | 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |
+| 27.09.2026 23:03 | typecheck | ✅ без ошибок | 32 с | aada7bc | [лог](logs/2026-09-27T18-03-25Z-typecheck-c3d7.log) |  |
+| 27.09.2026 23:03 | lint | ✅ без ошибок | 18 с | aada7bc | [лог](logs/2026-09-27T18-03-57Z-lint-fe5d.log) |  |
+| 27.09.2026 23:04 | unit | ✅ 2117 из 2120, пропущено 3 | 1 мин 12 с | aada7bc | [лог](logs/2026-09-27T18-04-21Z-unit-a62a.log) |  |
+| 27.09.2026 23:05 | integration | ❌ код выхода 1 | 2 с | aada7bc | [лог](logs/2026-09-27T18-05-34Z-integration-3ac3.log) |  |
+| 27.09.2026 23:05 | integration | ✅ 112 из 112 | 33 с | aada7bc | [лог](logs/2026-09-27T18-05-54Z-integration-bb52.log) |  |

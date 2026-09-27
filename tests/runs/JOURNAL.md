@@ -2908,3 +2908,4 @@
 | 28.09.2026 01:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 7 мин 8 с | e40c46f | [лог](logs/2026-09-27T20-56-16Z-e2e-77e9.log) |  |
 | 28.09.2026 02:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 6 мин 56 с | 9d7014e | [лог](logs/2026-09-27T21-03-39Z-e2e-ac83.log) |  |
 | 28.09.2026 02:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 14 из 14 | 1 мин 7 с | 9d7014e +1 | [лог](logs/2026-09-27T21-10-47Z-e2e-3a80.log) |  |
+| 28.09.2026 02:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 413 | 33 мин 29 с | 60ce378 | [лог](logs/2026-09-27T21-12-06Z-e2e-50e9.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |

@@ -278,7 +278,7 @@ function RevenuePanel({ c, today }: { c: DashboardPeriod; today: string }) {
           }))}
         />
       )}
-      <p className="muted dash-note">
+      <p className="muted dash-note pa-note-links">
         Начисление за проживание датировано днём заезда
         {c.nights > 1
           ? ': столбик — стоимость заехавших в этот день проживаний, а не проданные в этот день ночи.'
@@ -311,7 +311,7 @@ function SourcesPanel({ c }: { c: DashboardPeriod }) {
           ))}
         </ul>
       )}
-      <p className="muted dash-note">
+      <p className="muted dash-note pa-note-links">
         По дате заезда, без отмен и незаездов; сумма — стоимость броней.{' '}
         {c.sources.length > top.length && `Ещё ${c.sources.length - top.length} источников — `}
         <Link href={`/channel-manager?from=${c.from}&to=${c.to}`}>полный отчёт по каналам</Link>
@@ -376,7 +376,7 @@ function CategoriesPanel({ c }: { c: DashboardPeriod }) {
           ))}
         </tbody>
       </Table>
-      <p className="muted dash-note">
+      <p className="muted dash-note pa-note-links">
         Средняя цена — выручка проживания категории на её проданную ночь: категория — или номера,
         или койки, поэтому цены не смешиваются.
       </p>

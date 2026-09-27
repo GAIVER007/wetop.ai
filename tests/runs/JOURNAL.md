@@ -2900,3 +2900,5 @@
 | 28.09.2026 02:17 | integration | ✅ 107 из 107 | 33 с | 599cffc | [лог](logs/2026-09-27T21-17-34Z-integration-0f8f.log) | после ALTER ROLE wetop_app LOGIN на свежем стенде (docs/ops/rls.md) |
 | 28.09.2026 02:18 | e2e | ❌ код выхода 1 | 5 с | 599cffc | [лог](logs/2026-09-27T21-18-11Z-e2e-2c7c.log) | (ошибка вне тестов) |
 | 28.09.2026 02:18 | e2e | ✅ 25 из 25 | 1 мин 3 с | 599cffc | [лог](logs/2026-09-27T21-18-51Z-e2e-b106.log) |  |
+| 28.09.2026 02:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 3 мин 19 с | 599cffc | [лог](logs/2026-09-27T21-20-00Z-e2e-2ff3.log) | полный UI-набор на AN1 |
+| 28.09.2026 02:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-v2.spec.ts) | ✅ 16 из 16 | 5 мин 23 с | 8bcd97a +2 | [лог](logs/2026-09-27T21-23-28Z-e2e-5c10.log) | AN1: подчёркнутые ссылки в подписях (axe link-in-text-block) |

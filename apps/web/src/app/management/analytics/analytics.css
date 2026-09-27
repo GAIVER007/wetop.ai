@@ -169,3 +169,10 @@
     width: min(360px, calc(100vw - var(--space-8)));
   }
 }
+
+/* ссылка внутри поясняющего текста отличается от текста не только цветом (WCAG 1.4.1, axe link-in-text-block) */
+.pa-note a,
+.pa-note-links a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

@@ -136,7 +136,15 @@
     }
   },
   {
-    "route": "/management/statistics",
+    "route": "/management/analytics",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/management/analytics/occupancy",
     "violations": [],
     "layout": {
       "viewport": 390,

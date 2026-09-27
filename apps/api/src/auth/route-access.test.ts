@@ -184,6 +184,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── «Платформа» — главный администратор (§16.2) ─────────────────────────────────────────
   'GET /platform/organizations': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
+  // оплата получена / «только чтение» (ADR-102): решает главный администратор
+  'PUT /platform/organizations/:id/status': 'platform',
   'GET /platform/support/status': 'platform',
   'GET /platform/support/conversations': 'platform',
   'GET /platform/support/conversations/:id': 'platform',

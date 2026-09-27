@@ -84,7 +84,7 @@ test('ошибочные даты шахматки и месяца тарифо�
     await page.goto(route);
     await expect(page.getByRole('heading', { name: /Тарифы и цены|Шахматка/ })).toBeVisible();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(/период|месяц/i);
-    // форма исправления: у тарифов с 27.09 (ADR-106) кнопки нет — месяц перезагружает данные сам
+    // форма исправления: у тарифов с 27.09 (ADR-107) кнопки нет — месяц перезагружает данные сам
     if (route.startsWith('/rates'))
       await expect(page.getByRole('main').getByLabel('Месяц', { exact: true })).toBeEnabled();
     else

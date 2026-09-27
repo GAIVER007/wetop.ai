@@ -176,6 +176,14 @@
     }
   },
   {
+    "route": "/analytics/sources",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
     "route": "/analytics/setup",
     "violations": [],
     "layout": {

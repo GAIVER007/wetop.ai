@@ -166,7 +166,13 @@ export default async function ChannelOverviewPage() {
   const partlyUnknown =
     !loadedOutbox.ok || !loadedMapping.ok || !connection || !webhook || !failedEvents || !summary;
   const hasAlarm = troubles.some((t) => t.tone === 'alarm');
-  const tone = nothingLoaded ? 'warn' : hasAlarm ? 'alarm' : troubles.length || partlyUnknown ? 'warn' : 'calm';
+  const tone = nothingLoaded
+    ? 'warn'
+    : hasAlarm
+      ? 'alarm'
+      : troubles.length || partlyUnknown
+        ? 'warn'
+        : 'calm';
   const health = nothingLoaded
     ? 'Состояние неизвестно'
     : hasAlarm
@@ -199,11 +205,14 @@ export default async function ChannelOverviewPage() {
 
   return (
     <Page title="Каналы продаж" subtitle="Состояние подключений, сопоставлений и синхронизации.">
-      {!loadedOutbox.ok && (
-        <LoadError testId="overview-outbox-error" {...loadErrorProps(loadedOutbox.e)} />
-      )}
-      {!loadedMapping.ok && (
-        <LoadError testId="overview-mapping-error" {...loadErrorProps(loadedMapping.e)} />
+      {/* один блок сбоя на экран: при отказе всего API два одинаковых «Повторить» подряд сдвигали полосу вниз */}
+      {(!loadedOutbox.ok || !loadedMapping.ok) && (
+        <LoadError
+          testId="overview-error"
+          {...loadErrorProps(
+            !loadedOutbox.ok ? loadedOutbox.e : loadedMapping.ok ? null : loadedMapping.e,
+          )}
+        />
       )}
       <StateBar
         className="state-bar--wide"
@@ -214,7 +223,9 @@ export default async function ChannelOverviewPage() {
       >
         <StateFact
           label="В очереди"
-          value={<span data-testid="overview-pending">{outbox ? String(outbox.pending) : '—'}</span>}
+          value={
+            <span data-testid="overview-pending">{outbox ? String(outbox.pending) : '—'}</span>
+          }
         >
           <span className="state-bar__sub">
             {outbox?.lastSentAt
@@ -241,11 +252,15 @@ export default async function ChannelOverviewPage() {
         <StateFact
           label="Без сопоставления"
           value={
-            <span data-testid="overview-unmapped">{unmapped === null ? '—' : String(unmapped)}</span>
+            <span data-testid="overview-unmapped">
+              {unmapped === null ? '—' : String(unmapped)}
+            </span>
           }
         >
           <span className="state-bar__sub">
-            {totalCategories === null ? 'категории не загрузились' : `из ${totalCategories} категорий объекта`}
+            {totalCategories === null
+              ? 'категории не загрузились'
+              : `из ${totalCategories} категорий объекта`}
           </span>
         </StateFact>
       </StateBar>

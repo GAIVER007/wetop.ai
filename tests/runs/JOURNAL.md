@@ -2875,3 +2875,7 @@
 | 27.09.2026 23:01 | lint | ✅ без ошибок | 15 с | cd1b74f +3 | [лог](logs/2026-09-27T18-01-51Z-lint-126e.log) | CH1: кнопки в строках внимания, бюджет обзора |
 | 27.09.2026 23:02 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | cd1b74f +2 | [лог](logs/2026-09-27T18-02-07Z-unit-298c.log) | CH1: кнопки в строках внимания |
 | 27.09.2026 23:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 30 из 30 | 5 мин 2 с | cd1b74f +3 | [лог](logs/2026-09-27T18-03-27Z-e2e-09f1.log) | CH1: точечная проверка axe и бюджета запросов после правок |
+| 27.09.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 404 | 31 мин 13 с | cd1b74f +3 | [лог](logs/2026-09-27T18-08-44Z-e2e-5f5c.log) | CH1: полный UI-набор после правок axe и бюджета |
+| 28.09.2026 01:54 | typecheck | ✅ без ошибок | 26 с | 85177bf +1 | [лог](logs/2026-09-27T20-54-43Z-typecheck-0f0f.log) | CH1: один блок сбоя на обзоре |
+| 28.09.2026 01:55 | lint | ✅ без ошибок | 17 с | 85177bf +1 | [лог](logs/2026-09-27T20-55-10Z-lint-59d2.log) | CH1: один блок сбоя на обзоре |
+| 28.09.2026 01:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/workspace.spec.ts tests/ui/empty-base.spec.ts tests/ui/requests. | ✅ 115 из 115 | 5 мин 2 с | 85177bf +1 | [лог](logs/2026-09-27T20-56-12Z-e2e-001d.log) | CH1: один блок сбоя на обзоре — затронутые спеки |

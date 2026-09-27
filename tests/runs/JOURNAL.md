@@ -2866,3 +2866,8 @@
 | 27.09.2026 19:13 | integration | ✅ 107 из 107 | 32 с | 772cc6b +25 | [лог](logs/2026-09-27T14-13-44Z-integration-ed91.log) |  |
 | 27.09.2026 19:14 | e2e | ✅ 25 из 25 | 59 с | 772cc6b +22 | [лог](logs/2026-09-27T14-14-22Z-e2e-1db5.log) |  |
 | 27.09.2026 19:15 | e2e | ✅ 26 из 26 | 1 мин 7 с | 772cc6b +22 | [лог](logs/2026-09-27T14-15-22Z-e2e-195f.log) |  |
+| 27.09.2026 19:47 | integration (частично: tests/integration/chessboard-cell-facts.test.ts) | ❌ упало 1 из 1 | 5 с | dd7e2ea +1 | [лог](logs/2026-09-27T14-47-05Z-integration-6c9c.log) | RED PR2: physicalRoomNumber missing on ChessboardUnit |
+| 27.09.2026 19:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-grid.spec.ts --workers=1) | ❌ упало 3 из 3 | 2 мин 29 с | dd7e2ea +1 | [лог](logs/2026-09-27T14-47-17Z-e2e-0e5d.log) | RED PR2 grid: unit tooltip, collapsed persistence, sticky category row |
+| 27.09.2026 19:55 | integration (частично: tests/integration/chessboard-cell-facts.test.ts) | ✅ 1 из 1 | 3 с | dd7e2ea +3 | [лог](logs/2026-09-27T14-55-02Z-integration-e9de.log) | GREEN PR2: physicalRoomNumber on every unit |
+| 27.09.2026 19:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-grid.spec.ts --workers=1) | ❌ упало 1 из 3 | 20 с | dd7e2ea +5 | [лог](logs/2026-09-27T14-55-12Z-e2e-0a5e.log) | GREEN PR2 grid: tooltip, collapsed memory, sticky category |
+| 27.09.2026 20:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-gate.spec.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-week.spec.ts --wor | ✅ 16 из 16 | 1 мин 56 с | dd7e2ea +2 | [лог](logs/2026-09-27T15-04-06Z-e2e-07ed.log) | PR1 gate: owner's screenshot set + calm today column, sanity on design/week specs |

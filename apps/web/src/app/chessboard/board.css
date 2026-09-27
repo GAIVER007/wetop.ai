@@ -447,6 +447,19 @@
   background: color-mix(in srgb, var(--surface-muted) 70%, var(--surface));
 }
 
+/* ТЗ v2 §59 (просьба владельца к стоп-гейту): сегодня — выделенная шапка, очень лёгкий фон
+   колонки и тонкие кромки слева/справа, а не сплошная насыщенная заливка всей высоты
+   (прежний вид — premium.css). Кромки — inset-тенью: она не двигает раскладку таблицы. */
+.board td.is-today {
+  background: color-mix(in srgb, var(--primary-soft) 45%, var(--surface));
+}
+.board th.is-today,
+.board td.is-today {
+  box-shadow:
+    inset 1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
 /* строка категории: полное название, число мест жирно, свободно на ночь — зелёным, нет — красным */
 .board tr.board__group td,
 .board .board__group td,

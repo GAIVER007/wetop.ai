@@ -2847,6 +2847,16 @@
 | 27.09.2026 18:15 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | dfde045 +5 | [лог](logs/2026-09-27T13-15-51Z-unit-da52.log) | PR1 chessboard v2: no trailing arrow, slop baseline updated |
 | 27.09.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 400 | 29 мин 49 с | dfde045 +9 | [лог](logs/2026-09-27T13-21-31Z-e2e-749c.log) | PR1 chessboard v2: full UI set on final code |
 | 27.09.2026 19:01 | e2e | ✅ 25 из 25 | 1 мин 23 с | dfde045 +9 | [лог](logs/2026-09-27T14-01-47Z-e2e-c8ee.log) | PR1 chessboard v2: full e2e on local PostgreSQL, collapsed unassigned strip |
+| 27.09.2026 19:04 | unit | ✅ 2083 из 2086, пропущено 3 | 1 мин 35 с | 6440f99 +11 | [лог](logs/2026-09-27T14-04-08Z-unit-3390.log) |  |
+| 27.09.2026 19:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 4 из 11 | 49 с | 6440f99 +14 | [лог](logs/2026-09-27T14-06-12Z-e2e-e2b8.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
+| 27.09.2026 19:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 1 из 11 | 1 мин 6 с | 6440f99 +14 | [лог](logs/2026-09-27T14-08-30Z-e2e-5b7b.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
+| 27.09.2026 19:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 11 из 11 | 49 с | 6440f99 +14 | [лог](logs/2026-09-27T14-12-15Z-e2e-d841.log) |  |
+| 27.09.2026 19:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 403 | 34 мин 27 с | 6440f99 +14 | [лог](logs/2026-09-27T14-13-54Z-e2e-856d.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 19:49 | typecheck | ✅ без ошибок | 37 с | d899c92 | [лог](logs/2026-09-27T14-49-18Z-typecheck-f925.log) |  |
+| 27.09.2026 19:49 | lint | ✅ без ошибок | 18 с | d899c92 | [лог](logs/2026-09-27T14-49-56Z-lint-bb46.log) |  |
+| 27.09.2026 19:50 | unit | ✅ 2083 из 2086, пропущено 3 | 1 мин 14 с | d899c92 | [лог](logs/2026-09-27T14-50-35Z-unit-ba59.log) |  |
+| 27.09.2026 19:51 | integration | ✅ 101 из 101 | 36 с | d899c92 | [лог](logs/2026-09-27T14-51-59Z-integration-4cf1.log) |  |
+| 27.09.2026 19:52 | e2e | ✅ 25 из 25 | 1 мин 37 с | d899c92 | [лог](logs/2026-09-27T14-52-46Z-e2e-04ee.log) |  |
 | 27.09.2026 18:04 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 15 из 15 | 18 с | f2193b5 +16 | [лог](logs/2026-09-27T13-04-53Z-e2e-1d30.log) |  |
 | 27.09.2026 18:08 | typecheck | ✅ без ошибок | 20 с | f2193b5 +20 | [лог](logs/2026-09-27T13-08-20Z-typecheck-627a.log) |  |
 | 27.09.2026 18:08 | lint | ✅ без ошибок | 15 с | f2193b5 +20 | [лог](logs/2026-09-27T13-08-41Z-lint-24c5.log) |  |
@@ -2871,6 +2881,13 @@
 | 27.09.2026 19:55 | integration (частично: tests/integration/chessboard-cell-facts.test.ts) | ✅ 1 из 1 | 3 с | dd7e2ea +3 | [лог](logs/2026-09-27T14-55-02Z-integration-e9de.log) | GREEN PR2: physicalRoomNumber on every unit |
 | 27.09.2026 19:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-grid.spec.ts --workers=1) | ❌ упало 1 из 3 | 20 с | dd7e2ea +5 | [лог](logs/2026-09-27T14-55-12Z-e2e-0a5e.log) | GREEN PR2 grid: tooltip, collapsed memory, sticky category |
 | 27.09.2026 20:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-gate.spec.ts tests/ui/chessboard-design.spec.ts tests/ui/chessboard-week.spec.ts --wor | ✅ 16 из 16 | 1 мин 56 с | dd7e2ea +2 | [лог](logs/2026-09-27T15-04-06Z-e2e-07ed.log) | PR1 gate: owner's screenshot set + calm today column, sanity on design/week specs |
+| 27.09.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 12 с | b00a222 +3 | [лог](logs/2026-09-27T15-14-00Z-e2e-de3c.log) |  |
+| 27.09.2026 20:16 | typecheck | ✅ без ошибок | 28 с | b00a222 +4 | [лог](logs/2026-09-27T15-16-14Z-typecheck-8cb2.log) |  |
+| 27.09.2026 20:16 | lint | ✅ без ошибок | 21 с | b00a222 +4 | [лог](logs/2026-09-27T15-16-43Z-lint-180b.log) |  |
+| 27.09.2026 20:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 8 мин 1 с | b00a222 +4 | [лог](logs/2026-09-27T15-15-59Z-e2e-33ce.log) |  |
+| 27.09.2026 20:25 | unit | ✅ 2112 из 2115, пропущено 3 | 1 мин 14 с | a6c29f4 +2 | [лог](logs/2026-09-27T15-25-39Z-unit-f4d7.log) |  |
+| 27.09.2026 20:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 1 с | a6c29f4 +3 | [лог](logs/2026-09-27T15-26-59Z-e2e-0898.log) | (ошибка вне тестов) |
+| 27.09.2026 20:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 406 | 34 мин | a6c29f4 +3 | [лог](logs/2026-09-27T15-27-33Z-e2e-d7e4.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
 | 27.09.2026 19:53 | typecheck | ✅ без ошибок | 29 с | b954994 +6 | [лог](logs/2026-09-27T14-53-03Z-typecheck-e387.log) |  |
 | 27.09.2026 19:53 | lint | ✅ без ошибок | 17 с | b954994 +6 | [лог](logs/2026-09-27T14-53-33Z-lint-0d64.log) |  |
 | 27.09.2026 19:53 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 13 с | b954994 +5 | [лог](logs/2026-09-27T14-53-51Z-unit-7cf6.log) |  |
@@ -2890,3 +2907,10 @@
 | 27.09.2026 21:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 409 | 32 мин 13 с | d9e56e1 +7 | [лог](logs/2026-09-27T16-05-47Z-e2e-70f3.log) | PR2 grid visual: full UI set on final code |
 | 27.09.2026 21:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/login-access.spec.ts --workers=1) | ✅ 17 из 17 | 45 с | d9e56e1 +7 | [лог](logs/2026-09-27T16-45-10Z-e2e-def6.log) | re-check: login-access dark timed out on goto during 32-min full run; stand transient suspected |
 | 27.09.2026 21:52 | e2e | ✅ 25 из 25 | 1 мин 22 с | d9e56e1 +7 | [лог](logs/2026-09-27T16-52-41Z-e2e-9dcf.log) | PR2 grid visual: full e2e on local PostgreSQL |
+| 27.09.2026 21:03 | typecheck | ✅ без ошибок | 32 с | 309ff27 | [лог](logs/2026-09-27T16-03-06Z-typecheck-5660.log) |  |
+| 27.09.2026 21:03 | lint | ✅ без ошибок | 18 с | 309ff27 | [лог](logs/2026-09-27T16-03-39Z-lint-cad3.log) |  |
+| 27.09.2026 21:03 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 15 с | 309ff27 | [лог](logs/2026-09-27T16-03-57Z-unit-4d9f.log) |  |
+| 27.09.2026 21:06 | integration | ❌ упало 1 из 107 | 38 с | 309ff27 | [лог](logs/2026-09-27T16-06-29Z-integration-9be8.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
+| 27.09.2026 21:08 | integration | ✅ 107 из 107 | 36 с | 309ff27 | [лог](logs/2026-09-27T16-08-25Z-integration-9c85.log) |  |
+| 27.09.2026 21:09 | e2e | ✅ 25 из 25 | 1 мин 30 с | 309ff27 | [лог](logs/2026-09-27T16-09-06Z-e2e-a7e8.log) |  |
+| 27.09.2026 21:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ✅ 14 из 14 | 1 мин 9 с | 309ff27 | [лог](logs/2026-09-27T16-10-52Z-e2e-5364.log) |  |

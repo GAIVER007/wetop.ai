@@ -13,6 +13,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { KNOWLEDGE_MAX_BYTES, type UploadedFile as PanelFile } from '../bots/panel';
 import { SupportService } from './support.service';
@@ -24,6 +25,8 @@ import { Access } from '../auth/access.decorator';
  * панели живут только в окружении API.
  */
 @Access('platform')
+// RLS (DATA_MODEL §17): главный администратор читает все организации — служебной ролью базы
+@UseInterceptors(ServiceDatabaseInterceptor)
 @Controller('platform/support')
 export class SupportController {
   constructor(@Inject(SupportService) private readonly support: SupportService) {}

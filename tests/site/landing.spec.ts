@@ -101,32 +101,32 @@ test('главная: «Войти» и «Регистрация», шаги п�
   expect(body).not.toContain(' · ');
   const start = page.locator('#start');
   await expect(start.getByRole('heading', { level: 3 })).toHaveText([
-    /^Регистрация$/,
+    /^Доступ$/, // ручное подключение пилотных партнёров до RLS (ADR-102)
     /^Номера и цены$/, // `typo()` может ставить неразрывные пробелы — regex их пропускает
     /^Работа$/,
     /./, // заголовок призыва
   ]);
-  await expect(start).toContainText(/7\sдней/);
+  await expect(start).toContainText(/14\sдней/);
   await expect(start).not.toContainText(/код из письма/);
-  // «Создать аккаунт» (27.09.2026, ADR-100) без JavaScript — прямо на форму стойки, «Войти» — на экран входа;
+  // «Получить доступ» (27.09.2026, ADR-100, ADR-102) без JavaScript — прямо на форму стойки, «Войти» — на экран входа;
   // с JavaScript обе открывают окно поверх главной (tests/site/auth-dialog.spec.ts)
   const header = page.locator('.site-header');
   await expect(header.getByRole('link', { name: 'Войти', exact: true })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/login',
   );
-  await expect(header.getByRole('link', { name: 'Создать аккаунт', exact: true })).toHaveAttribute(
+  await expect(header.getByRole('link', { name: 'Получить доступ', exact: true })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
   const hero = page.locator('.hero');
-  await expect(hero.getByRole('link', { name: /Создать аккаунт/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
   await expect(hero.getByRole('link', { name: 'Войти', exact: true })).toBeVisible();
-  await expect(hero).toContainText(/7\sдней бесплатно/);
-  await expect(start.getByRole('link', { name: /Создать аккаунт/ })).toHaveAttribute(
+  await expect(hero).toContainText(/14\sдней бесплатно/);
+  await expect(start.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );

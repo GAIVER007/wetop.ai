@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CLOSED_SHELL, deskPerson, deskShellOf, trialLine } from './desk-person';
+import { CLOSED_SHELL, UNKNOWN_SHELL, deskPerson, deskShellOf, trialLine } from './desk-person';
 import { sidebarSectionsFor } from './navigation';
 
 const hrefs = (access: { aiSeller: boolean; platform: boolean }) =>
@@ -106,5 +106,32 @@ describe('строка пробного периода в меню', () => {
     expect(shell.tourKey).toMatch(/^wetop\.tour\.v1:/);
     expect(shell.tourKey).not.toContain('dana');
     expect(CLOSED_SHELL.tourKey).toBeNull();
+  });
+});
+
+/** «Только чтение» после пробного периода (Q-144 — Б, ADR-102): стойка показывает полосу, вход не закрыт */
+describe('deskShellOf — только чтение', () => {
+  const who = (organization: { status: string; trialEndsAt: string | null } | null) => ({
+    user: { email: 'dana@example.invalid', name: null, organization },
+  });
+
+  it('пробный срок вышел — полоса есть', () => {
+    expect(deskShellOf(who({ status: 'TRIAL', trialEndsAt: '2020-01-01T00:00:00Z' })).readOnly).toBe(true);
+  });
+
+  it('переведена в «только чтение» руками — полоса есть', () => {
+    expect(deskShellOf(who({ status: 'READ_ONLY', trialEndsAt: null })).readOnly).toBe(true);
+  });
+
+  it('в срок, после оплаты и без организации в ответе — полосы нет', () => {
+    expect(deskShellOf(who({ status: 'TRIAL', trialEndsAt: '2099-01-01T00:00:00Z' })).readOnly).toBe(false);
+    expect(deskShellOf(who({ status: 'ACTIVE', trialEndsAt: null })).readOnly).toBe(false);
+    expect(deskShellOf(who(null)).readOnly).toBe(false);
+    expect(CLOSED_SHELL.readOnly).toBe(false);
+  });
+
+  // /auth/me не ответил: статус организации неизвестен — полосу не обещаем, запись закроет API (ADR-102, ADR-104)
+  it('сбой ответа о вошедшем — полосы нет', () => {
+    expect(UNKNOWN_SHELL.readOnly).toBe(false);
   });
 });

@@ -24,9 +24,22 @@ interface RequestActor {
    * по имени (план tenant-isolation-2026-09-26 п. 4). Прав владельца и автора в журнале это не даёт.
    */
   organizationScope?: boolean;
+  /**
+   * Служебный доступ к базе внутри запроса человека (RLS, DATA_MODEL §17): раздел «Платформа» главного администратора
+   * читает все организации. Кто автор — не меняется; меняется только роль базы.
+   */
+  serviceDatabase?: boolean;
 }
 
 const storage = new AsyncLocalStorage<RequestActor>();
+
+/**
+ * Запустить в контексте и дождаться ВНУТРИ него. Запрос Prisma ленивый: уходит в базу только на `then`. Верни помощник
+ * его не дождавшись — запрос выполнился бы снаружи, в чужом контексте: другой организацией или без неё (RLS, §17).
+ */
+function runAwaited<T>(value: RequestActor, fn: () => Promise<T>): Promise<T> {
+  return storage.run(value, async () => await fn());
+}
 
 export function withSignedInUser<T>(
   actor: RequestActor | string | null,
@@ -37,12 +50,12 @@ export function withSignedInUser<T>(
     actor === null || typeof actor === 'string'
       ? { userId: actor, organizationId: null }
       : actor;
-  return storage.run(value, fn);
+  return runAwaited(value, fn);
 }
 
 /** Выполнить публичный путь от имени организации её сайта: объект — этой организации, человека за запросом нет */
 export function withOrganizationScope<T>(organizationId: string, fn: () => Promise<T>): Promise<T> {
-  return storage.run({ userId: null, organizationId, organizationScope: true }, fn);
+  return runAwaited({ userId: null, organizationId, organizationScope: true }, fn);
 }
 
 /**
@@ -51,6 +64,22 @@ export function withOrganizationScope<T>(organizationId: string, fn: () => Promi
  */
 export function actsForOrganization(): boolean {
   return hasSignedInActor() || storage.getStore()?.organizationScope === true;
+}
+
+/**
+ * Организация для роли базы `wetop_app` (RLS, DATA_MODEL §17, ADR-103): вошедший человек или публичный путь сайта
+ * организации. `null` — служебный путь: фоновые циклы, вебхуки, служебные ключи, вход и «Платформа».
+ */
+export function databaseTenant(): string | null {
+  const store = storage.getStore();
+  if (!store || store.serviceDatabase) return null;
+  return store.organizationId ?? null;
+}
+
+/** Выполнить внутри запроса человека служебной ролью базы — только для раздела «Платформа» (§17.2) */
+export function withServiceDatabase<T>(fn: () => Promise<T>): Promise<T> {
+  const store = storage.getStore();
+  return runAwaited({ ...(store ?? { userId: null, organizationId: null }), serviceDatabase: true }, fn);
 }
 
 export function currentUserId(): string | null {

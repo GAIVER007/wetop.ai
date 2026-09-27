@@ -19,10 +19,8 @@
   flex-wrap: wrap;
   gap: 8px 16px;
 }
-.seg.day-presets {
-  gap: 4px;
-}
-.seg.day-presets a {
+/* как у периода: база (0,1,1), чтобы мобильное правило ниже её перебивало */
+.day-presets a {
   border: 0;
   display: inline-flex;
   align-items: center;
@@ -30,8 +28,14 @@
   white-space: nowrap;
   text-decoration: none;
 }
-.seg.day-presets a:hover {
+.day-presets a:hover {
   color: var(--text);
+}
+.seg.day-presets {
+  gap: 4px;
+}
+.seg.day-presets a {
+  border-left: 0;
 }
 .day-custom {
   display: flex;
@@ -734,6 +738,7 @@ a.desk-stat__hint--warn {
     font-size: 16px;
     min-height: var(--touch-target);
   }
+  .day-presets a,
   .period-presets a {
     min-height: var(--touch-target);
   }

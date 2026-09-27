@@ -23,9 +23,8 @@ datasource db {
 /// Объект размещения. В MVP одна запись (ADR-001), но все запросы фильтруются по property_id.
 model Property {
   id           String   @id @default(uuid()) @db.Uuid
-  /// Чей это объект (ADR-061). NULL — ничей: такой объект не виден никому из вошедших,
-  /// он доступен только служебным ходокам (скрипты владельца, сторож, импорт).
-  organizationId String? @map("organization_id") @db.Uuid
+  /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
+  organizationId String @map("organization_id") @db.Uuid
   name         String
   legalName    String?  @map("legal_name")
   bin          String?
@@ -47,7 +46,7 @@ model Property {
 
   /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
-  organization       Organization?       @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
@@ -341,12 +340,18 @@ model Guest {
   notes         String?
   /// pmsPersonId в Exely — внешняя ссылка (ADR-003)
   exelyPersonId String?   @unique @map("exely_person_id")
+  /// Гость принадлежит своей организации (v1.13, RLS-1, ADR-103). В базе DEFAULT app_current_org() — запрос
+  /// организации может не передавать; служебный путь передаёт организацию объекта сам.
+  organizationId String   @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   documents           GuestDocument[]
   stays               StayGuest[]
   primaryReservations Reservation[]   @relation("primaryGuest")
+
+  @@index([organizationId])
 
   @@index([lastName, firstName])
   @@index([phone])
@@ -514,7 +519,12 @@ model AuditLog {
   before     Json?
   after      Json?
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// Чья запись (v1.13, ADR-103). Заполняет триггер audit_logs_organization: организация запроса, иначе — по
+  /// сущности. NULL — платформа и система без организации.
+  organizationId String? @map("organization_id") @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id])
 
+  @@index([organizationId, createdAt])
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_logs")
@@ -979,6 +989,8 @@ model Organization {
   agents SellerAgent[]
   wizardDrafts WizardDraft[]
   extensions  OrganizationExtension[]
+  guests      Guest[]
+  auditLogs   AuditLog[]
 
   @@map("organizations")
 }

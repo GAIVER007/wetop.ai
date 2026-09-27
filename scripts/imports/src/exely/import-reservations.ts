@@ -138,6 +138,11 @@ export async function importReservations(
     unseated: [],
   };
   const today = opts.today ?? iso(new Date(Date.now() + 5 * 3_600_000));
+  // Гость — организации объекта (DATA_MODEL v1.13 §17.1, RLS-1)
+  const { organizationId } = await tx.property.findUniqueOrThrow({
+    where: { id: opts.propertyId },
+    select: { organizationId: true },
+  });
   const types = await tx.accommodationType.findMany({
     where: { propertyId: opts.propertyId },
     select: { id: true, code: true },
@@ -276,7 +281,7 @@ export async function importReservations(
       return existing.id;
     }
     const created = await tx.guest.create({
-      data: { exelyPersonId: g.exelyPersonId, ...fields, citizenship: citizenship ?? null },
+      data: { organizationId, exelyPersonId: g.exelyPersonId, ...fields, citizenship: citizenship ?? null },
       select: { id: true },
     });
     report.guests.created += 1;

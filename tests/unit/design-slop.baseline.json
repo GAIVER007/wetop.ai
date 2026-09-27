@@ -1,7 +1,7 @@
 {
   "color-literal": {},
   "space-off-scale": {
-    "apps/web/src/app/chessboard/board.css": 14,
+    "apps/web/src/app/chessboard/board.css": 12,
     "apps/web/src/app/directory.css": 11,
     "apps/web/src/app/globals.css": 74,
     "apps/web/src/app/login/login.css": 1,

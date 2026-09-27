@@ -2838,3 +2838,12 @@
 | 27.09.2026 17:05 | integration | ✅ 101 из 101 | 31 с | ebbeb57 | [лог](logs/2026-09-27T12-05-19Z-integration-b86c.log) |  |
 | 27.09.2026 17:06 | e2e | ❌ код выхода 1 | 4 с | ebbeb57 | [лог](logs/2026-09-27T12-06-04Z-e2e-804f.log) | (ошибка вне тестов) |
 | 27.09.2026 17:06 | e2e | ✅ 25 из 25 | 58 с | ebbeb57 | [лог](logs/2026-09-27T12-06-46Z-e2e-ef47.log) |  |
+| 27.09.2026 17:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts tests/ui/empty-base.spec.ts tests/ui/ma | ❌ упало 6 из 49 | 6 мин 13 с | dfde045 +5 | [лог](logs/2026-09-27T12-32-34Z-e2e-1724.log) | RED PR1 chessboard v2 on original code: segment 7/14/30, month via Dates, help button, collapsed unassigned strip |
+| 27.09.2026 17:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts tests/ui/empty-base.spec.ts tests/ui/ma | ❌ упало 5 из 49 | 8 мин 57 с | dfde045 +9 | [лог](logs/2026-09-27T12-44-09Z-e2e-1ad4.log) | GREEN PR1 chessboard v2: segment 7/14/30, month via Dates, help button, collapsed unassigned strip |
+| 27.09.2026 17:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts tests/ui/empty-base.spec.ts tests/ui/ma | ✅ 49 из 49 | 3 мин 48 с | dfde045 +9 | [лог](logs/2026-09-27T12-55-58Z-e2e-489a.log) | GREEN PR1 chessboard v2, take 2: settle waits before Dates->Month, critical strip open assertions |
+| 27.09.2026 18:05 | typecheck | ✅ без ошибок | 26 с | dfde045 +9 | [лог](logs/2026-09-27T13-05-10Z-typecheck-a183.log) | PR1 chessboard v2 |
+| 27.09.2026 18:05 | lint | ✅ без ошибок | 14 с | dfde045 +9 | [лог](logs/2026-09-27T13-05-37Z-lint-b160.log) | PR1 chessboard v2 |
+| 27.09.2026 18:05 | unit | ❌ упало 2 из 2078, пропущено 3 | 1 мин 32 с | dfde045 +4 | [лог](logs/2026-09-27T13-05-56Z-unit-eff0.log) | PR1 chessboard v2 |
+| 27.09.2026 18:15 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | dfde045 +5 | [лог](logs/2026-09-27T13-15-51Z-unit-da52.log) | PR1 chessboard v2: no trailing arrow, slop baseline updated |
+| 27.09.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 400 | 29 мин 49 с | dfde045 +9 | [лог](logs/2026-09-27T13-21-31Z-e2e-749c.log) | PR1 chessboard v2: full UI set on final code |
+| 27.09.2026 19:01 | e2e | ✅ 25 из 25 | 1 мин 23 с | dfde045 +9 | [лог](logs/2026-09-27T14-01-47Z-e2e-c8ee.log) | PR1 chessboard v2: full e2e on local PostgreSQL, collapsed unassigned strip |

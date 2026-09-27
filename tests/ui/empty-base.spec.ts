@@ -53,8 +53,8 @@ test('пустая база: шахматка показывает все мес
   const main = page.getByRole('main');
   await expect(main.getByTestId('unit-row').first()).toBeVisible();
   await expect(main.getByTestId('stay-cell')).toHaveCount(0);
-  // «без ячейки» при пустой базе — ноль, и это короткая строка, а не предупреждение
-  await expect(main.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '0');
+  // «без ячейки» при пустой базе — блока нет вовсе (ТЗ «Шахматка v2» §11)
+  await expect(main.getByTestId('unassigned-stays')).toHaveCount(0);
 });
 
 test('пустая база: главная говорит про ноль словами, а не пустыми плитками', async ({ page }) => {

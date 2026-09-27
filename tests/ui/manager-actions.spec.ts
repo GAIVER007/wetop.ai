@@ -245,6 +245,13 @@ test('шахматка: плашки «сверх мест» и «требует
     'data-count',
     '1',
   );
+  // При проданном сверх мест плашка «Без ячейки» раскрыта сразу и тоном critical (ТЗ v2 §11);
+  // без овербукинга она свёрнута в одну строку, список — по щелчку
+  await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute(
+    'data-tone',
+    'critical',
+  );
+  await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute('open', '');
   await page
     .getByRole('main')
     .getByTestId('unassigned-stays')

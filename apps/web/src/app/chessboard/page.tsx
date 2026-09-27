@@ -158,13 +158,15 @@ export default async function ChessboardPage({
               Сегодня
             </Link>
           </span>{' '}
+          {/* Сегмент — rolling 7/14/30 (ТЗ «Шахматка v2» §6–7); календарный месяц живёт в «Датах».
+              «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
           <span className="seg" role="group" aria-label="Вид шахматки">
             <Link
               href={weekHref()}
               className={cx(isWeek && 'is-on')}
               aria-current={isWeek ? 'true' : undefined}
             >
-              Неделя
+              7 дней
             </Link>
             <Link
               href={window(14)}
@@ -174,26 +176,32 @@ export default async function ChessboardPage({
               14 дней
             </Link>
             <Link
-              href={monthHref()}
-              className={cx(isMonth && 'is-on')}
-              aria-current={isMonth ? 'true' : undefined}
+              href={window(30)}
+              className={cx(board.dates.length === 30 && !isMonth && 'is-on')}
+              aria-current={board.dates.length === 30 && !isMonth ? 'true' : undefined}
             >
-              Месяц
+              30 дней
             </Link>
           </span>
         </div>
         <div className="board-bar">
-          <BoardDateRange key={`${board.from}-${board.to}`} from={board.from} to={board.to} />
-          <BoardHelp title="Как работать с шахматкой">
+          <BoardDateRange
+            key={`${board.from}-${board.to}`}
+            from={board.from}
+            to={board.to}
+            monthHref={monthHref()}
+            monthCurrent={isMonth}
+          />
+          <BoardHelp title="Помощь">
             <div className="board-help-content">
               <p className="note">
-                В строке категории — сколько мест свободно на эту ночь; под датой в шапке — свободно
-                и занято из {board.rows.length}. Ночь выезда ячейку не занимает. Клик по занятой
-                клетке открывает бронь, по пустой — форму новой брони на эту дату. Перетащите клетку
-                на другую строку — бронь переселится в ту ячейку с даты взятой клетки (в другую
-                категорию — только на всё проживание). Фильтры статусов считаются на{' '}
-                {displayDate(board.from)}. Брони без ячейки на сетке не видны — они в списке над
-                сеткой; ячейка назначается с карточки брони.
+                <b>Как работать с шахматкой.</b> В строке категории — сколько мест свободно на эту
+                ночь; под датой в шапке — свободно и занято из {board.rows.length}. Ночь выезда
+                ячейку не занимает. Клик по занятой клетке открывает бронь, по пустой — форму новой
+                брони на эту дату. Перетащите клетку на другую строку — бронь переселится в ту
+                ячейку с даты взятой клетки (в другую категорию — только на всё проживание). Фильтры
+                статусов считаются на {displayDate(board.from)}. Брони без ячейки на сетке не видны
+                — они в списке над сеткой; ячейка назначается с карточки брони.
               </p>
             </div>
           </BoardHelp>
@@ -212,7 +220,7 @@ export default async function ChessboardPage({
           автоматически. <Link href="/channels">Разобрать</Link>
         </Alert>
       )}
-      {!!(board.unassigned ?? []).length && <UnassignedStays stays={board.unassigned ?? []} />}
+      <UnassignedStays stays={board.unassigned ?? []} critical={overbooked.length > 0} />
       <ChessboardGrid board={board} today={today} fitMonth={isMonth} />
       <div className="board-footer">
         <details className="board-legend-details">
@@ -233,7 +241,6 @@ export default async function ChessboardPage({
           />
         </details>
         <span className="board-gesture-hint">Плашка — переселить, правый край — продлить</span>
-        {!(board.unassigned ?? []).length && <UnassignedStays stays={[]} />}
       </div>
     </Page>
   );
@@ -243,8 +250,12 @@ export default async function ChessboardPage({
  * Строка «Без ячейки» — как «Без номера» в шахматке Exely: проживания в диапазоне доски, у которых
  * нет назначения (бронь канала, которой не хватило места — Q-107, или снятое назначение). Список
  * приходит отсортированным по категории и заезду, здесь только группируется. Гостей не показываем.
+ * ТЗ «Шахматка v2» §11: без таких броней блока нет вовсе; плашка — одна строка, список по щелчку;
+ * при проданном сверх мест (риск овербукинга) тон critical и список раскрыт — на него ведёт якорь
+ * из плашки «Продано сверх мест», а закрытый details по якорю не открывается.
  */
-function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
+function UnassignedStays({ stays, critical }: { stays: UnassignedStay[]; critical?: boolean }) {
+  if (!stays.length) return null;
   const groups: Array<{ code: string; name: string; items: UnassignedStay[] }> = [];
   for (const s of stays) {
     const last = groups[groups.length - 1];
@@ -252,16 +263,18 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
     else groups.push({ code: s.categoryCode, name: s.categoryName, items: [s] });
   }
   return (
-    <section
+    <details
       id="unassigned-stays"
       data-testid="unassigned-stays"
       data-count={stays.length}
-      className={cx('board-unassigned', !stays.length && 'board-unassigned--empty')}
+      data-tone={critical ? 'critical' : 'warning'}
+      open={critical || undefined}
+      className="board-unassigned"
     >
-      <div className={cx('board-unassigned-title', stays.length ? 'warn-text' : 'muted')}>
-        <Icon name={stays.length ? 'incidents' : 'check'} />{' '}
-        {stays.length ? `Без ячейки: ${stays.length}` : 'Все проживания с ячейкой'}
-      </div>
+      <summary className="board-unassigned-title warn-text">
+        <Icon name="incidents" /> Без ячейки: {stays.length}
+        <span className="board-unassigned-hint">Разместить</span>
+      </summary>
       {groups.map((g) => (
         <div key={g.code}>
           <span className="muted-2">{g.name}</span>
@@ -295,6 +308,6 @@ function UnassignedStays({ stays }: { stays: UnassignedStay[] }) {
           </ul>
         </div>
       ))}
-    </section>
+    </details>
   );
 }

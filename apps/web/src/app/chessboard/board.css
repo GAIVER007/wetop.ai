@@ -71,7 +71,7 @@
   min-height: var(--control-h);
 }
 .board-bar .board-help summary::before {
-  content: '+';
+  content: '?';
   margin-right: 6px;
 }
 
@@ -168,28 +168,46 @@
   width: var(--space-4);
   height: var(--space-4);
 }
-.board-footer .board-unassigned--empty {
-  margin-left: auto;
-  padding: 0;
-  background: transparent;
-}
 .board-bar .board-help[open] summary::before {
   content: '−';
 }
-.board-unassigned--empty {
-  display: inline-flex;
-  margin: 0;
-  padding: 6px 10px;
-  max-height: none;
-  background: transparent;
-  border: 0;
-  color: var(--muted);
+
+/* «Без ячейки» — одна строка (ТЗ «Шахматка v2» §11): счётчик и «Разместить», список по щелчку.
+   Без таких броней блока нет вовсе; при проданном сверх мест тон critical и блок раскрыт
+   с сервера — на него ведёт якорь из плашки овербукинга (page.tsx). */
+.board-unassigned {
+  display: block;
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1) var(--space-4);
 }
-.board-unassigned--empty .board-unassigned-title {
-  font-weight: 400;
+.board-unassigned > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h);
+  cursor: pointer;
+  list-style: none;
 }
-.board-unassigned--empty svg {
-  color: var(--success);
+.board-unassigned > summary::-webkit-details-marker {
+  display: none;
+}
+.board-unassigned-hint {
+  margin-left: auto;
+  color: var(--primary);
+  font-weight: 500;
+}
+.board-unassigned[data-tone='critical'] {
+  background: var(--danger-soft);
+}
+.board-unassigned > div {
+  display: inline-block;
+  vertical-align: top;
+  margin: var(--space-1) var(--space-6) var(--space-1) 0;
+}
+/* Ссылка «Месяц» в раскрытых «Датах»: текущее состояние — как у сегмента */
+.board-range-form .btn[aria-current='true'] {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* ── фильтры и поиск в одну строку ── */

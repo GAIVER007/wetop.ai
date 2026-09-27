@@ -2902,3 +2902,4 @@
 | 28.09.2026 02:18 | e2e | ✅ 25 из 25 | 1 мин 3 с | 599cffc | [лог](logs/2026-09-27T21-18-51Z-e2e-b106.log) |  |
 | 28.09.2026 02:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 3 мин 19 с | 599cffc | [лог](logs/2026-09-27T21-20-00Z-e2e-2ff3.log) | полный UI-набор на AN1 |
 | 28.09.2026 02:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-v2.spec.ts) | ✅ 16 из 16 | 5 мин 23 с | 8bcd97a +2 | [лог](logs/2026-09-27T21-23-28Z-e2e-5c10.log) | AN1: подчёркнутые ссылки в подписях (axe link-in-text-block) |
+| 28.09.2026 02:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 416 | 33 мин 9 с | 16818d5 | [лог](logs/2026-09-27T21-29-09Z-e2e-cdcb.log) | полный UI-набор на AN1 |

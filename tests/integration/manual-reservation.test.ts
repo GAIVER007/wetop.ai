@@ -97,11 +97,12 @@ describe.skipIf(!url)('manual reservation against the database (integration, rol
           await importPriceCalendar(tx, calendar, property.id);
           // вторая одноместная ячейка для переселения: в фикстуре одноместная только 9001
           const u9001 = await tx.inventoryUnit.findUniqueOrThrow({
-            where: { code: '9001' },
+            where: { propertyId_code: { propertyId: property.id, code: '9001' } },
             select: { physicalRoomId: true, accommodationTypeId: true, kind: true },
           });
           await tx.inventoryUnit.create({
             data: {
+              propertyId: property.id,
               code: '9901',
               kind: u9001.kind,
               physicalRoomId: u9001.physicalRoomId,

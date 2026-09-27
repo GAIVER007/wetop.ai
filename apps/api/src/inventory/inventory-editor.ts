@@ -134,6 +134,7 @@ export class InventoryEditor {
         });
         await tx.inventoryUnit.createMany({
           data: input.codes.map((code) => ({
+            propertyId,
             code,
             physicalRoomId: room.id,
             accommodationTypeId: category.id,

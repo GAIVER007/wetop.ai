@@ -65,3 +65,46 @@ test('пустая категория без цены — форма проси�
   await expect(main.getByRole('alert')).toContainText(/хотя бы одну категорию/i);
   await expect(page).toHaveURL(/\/onboarding/);
 });
+
+/**
+ * Время до первой пользы (ТЗ `plans/ux-retention-2026-09-26.md` пп. 0.2, 2.1, 2.2): после «Запустить отель» Главная
+ * показывает «Первые шаги» и ведёт к первой брони; бронь создаётся, и панель уходит сама. Тест считает путь —
+ * экраны после онбординга до карточки брони: Главная → форма → карточка (цель ТЗ ≤ 3).
+ */
+test('после запуска отеля — «Первые шаги» ведут к первой брони, после неё панель уходит', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, {
+    data: { onboardingNeeded: true, noBookings: true },
+  });
+  await page.goto('/onboarding');
+  const main = page.getByRole('main');
+  await main.getByLabel('Название категории').fill('Двухместный номер');
+  await main.getByLabel(/Цена за ночь/).fill('21000');
+  await main.getByRole('button', { name: 'Запустить отель' }).click();
+  await page.waitForURL('**/today');
+
+  const steps = page.getByTestId('first-steps');
+  await expect(steps.getByRole('heading', { name: 'Первые шаги' })).toBeVisible();
+  await expect(steps.getByRole('listitem')).toHaveCount(4);
+  await expect(steps.getByRole('listitem').first()).toContainText('готово');
+  await steps.getByRole('link', { name: 'Создать первую бронь' }).click();
+
+  const form = page.getByTestId('new-reservation-form');
+  await form.getByLabel('Имя *', { exact: true }).fill('Первый');
+  await form.getByLabel('Фамилия *', { exact: true }).fill('Гость');
+  await form.getByRole('button', { name: 'Создать бронь' }).click();
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+
+  await page.goto('/today');
+  await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
+  await expect(page.getByTestId('first-steps')).toHaveCount(0);
+});
+
+test('у работающего отеля с бронями «Первых шагов» нет', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { onboardingNeeded: false } });
+  await page.goto('/today');
+  await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
+  await expect(page.getByTestId('first-steps')).toHaveCount(0);
+});

@@ -82,7 +82,7 @@ export function NewReservationForm(props: {
         )}
       <Grid>
         <Field label="Источник *">
-          <Select name="source" required defaultValue={kept['source'] ?? ''}>
+          <Select name="source" required defaultValue={kept['source'] ?? SOURCES[0]![0]}>
             <option value="" disabled>
               — выбрать —
             </option>

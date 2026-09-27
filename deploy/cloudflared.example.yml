@@ -13,7 +13,8 @@
 #      docs/ops/server-setup-2026-09-18.md §8). Тогда шаги 1–4 не нужны
 #   3. cloudflared tunnel create wetop           — новый TUNNEL-ID и файл ключа; положить в deploy/cloudflared/
 #   4. cloudflared tunnel route dns --overwrite-dns wetop app.wetop.ai   (и то же для api.wetop.ai)
-#      имена те же → webhook Channex не трогается; для ИИ-помощника — то же для assistant.wetop.ai
+#      имена те же → webhook Channex не трогается; для ИИ-помощника — то же для assistant.wetop.ai, для вебхука
+#      WhatsApp продавца — для seller.wetop.ai (docs/assistant/README.md §6, шаг 12)
 #   5. подставить ниже TUNNEL-ID
 #   6. docker compose -f deploy/compose.yml up -d cloudflared; проверить: cloudflared tunnel info wetop →
 #      ровно один коннектор, linux_amd64, IP сервера
@@ -40,9 +41,15 @@ ingress:
     path: ^/channels/channex/webhook$
     service: http://api:3001
   # ИИ-помощник (ADR-081, docs/assistant/README.md §3): наружу только чат (/widget/*) и живость (/health). Панель
-  # бота и /internal/* — только внутренняя сеть wetop-internal. У продавца адреса наружу пока нет: код его чата
-  # на сайт объекта ставится, только когда база бота в РК (ADR-009).
+  # бота и /internal/* — только внутренняя сеть wetop-internal.
   - hostname: assistant.wetop.ai
     path: ^/(widget/.*|health)$
     service: http://assistant:8000
+  # ИИ-продавец (С3, SECURITY.md §11): наружу только вебхук WhatsApp — один путь на гостиницу, номер организации
+  # строго uuid; кривой адрес получает 404 здесь и до бота не доходит. Чат продавца на сайт объекта — только когда
+  # база бота в РК (ADR-009), его здесь нет; панель и /internal/* — только внутренняя сеть. На сервер правило
+  # ставится шагом 12 docs/assistant/README.md §6; настоящий номер гостиницы — после базы бота в РК.
+  - hostname: seller.wetop.ai
+    path: ^/channels/whatsapp/webhook/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+    service: http://seller:8000
   - service: http_status:404

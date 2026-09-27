@@ -19,6 +19,11 @@ interface RequestActor {
   role?: MembershipRole | null;
   /** Главный администратор платформы (§16.2) */
   platformAdmin?: boolean;
+  /**
+   * Публичный путь сайта организации (виджет брони, котировка продавца): человека нет, но объект — её, а не объект
+   * по имени (план tenant-isolation-2026-09-26 п. 4). Прав владельца и автора в журнале это не даёт.
+   */
+  organizationScope?: boolean;
 }
 
 const storage = new AsyncLocalStorage<RequestActor>();
@@ -33,6 +38,19 @@ export function withSignedInUser<T>(
       ? { userId: actor, organizationId: null }
       : actor;
   return storage.run(value, fn);
+}
+
+/** Выполнить публичный путь от имени организации её сайта: объект — этой организации, человека за запросом нет */
+export function withOrganizationScope<T>(organizationId: string, fn: () => Promise<T>): Promise<T> {
+  return storage.run({ userId: null, organizationId, organizationScope: true }, fn);
+}
+
+/**
+ * Запрос ограничен одной организацией: вошедший человек или публичный путь её сайта. Выбор объекта идёт по организации;
+ * служебный ходок (скрипт, сторож, импорт) — как раньше, объект по имени.
+ */
+export function actsForOrganization(): boolean {
+  return hasSignedInActor() || storage.getStore()?.organizationScope === true;
 }
 
 export function currentUserId(): string | null {

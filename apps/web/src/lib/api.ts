@@ -154,6 +154,11 @@ export const onboardingApi = {
     sendJson<{ ok: true; categories: number; units: number }>('POST', '/hotel/onboarding', body),
 };
 
+/** Правка «Общих» настроек гостиницы владельцем (ТЗ ux-retention п. 3.1). Валюту и пояс API не принимает. */
+export const hotelSettingsApi = {
+  update: (patch: Record<string, string | null>) => sendJson<unknown>('PATCH', '/hotel/settings', patch),
+};
+
 /** Где лежат данные гостей (ADR-072): `real` — база в Казахстане; `pseudonymized` — имена и контакты не хранятся */
 export type PiiStorage = 'real' | 'pseudonymized';
 

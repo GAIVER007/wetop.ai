@@ -9,6 +9,7 @@ import {
 import {
   REGISTRATION_EMAIL_MESSAGE,
   REGISTRATION_NAME_MESSAGE,
+  REGISTRATION_NAME_TAKEN_MESSAGE,
   REGISTRATION_PERSON_NAME_MESSAGE,
   REGISTRATION_TAKEN_MESSAGE,
   VERIFY_PENDING_MESSAGE,
@@ -292,6 +293,13 @@ export class AuthService {
 
     const name = normalizePersonName(input.name);
     const organizationName = normalizeOrganizationName(input.hotelName);
+    // ponytail: проверка до транзакции — две одновременные регистрации одного названия обе пройдут; закрыть
+    // уникальным индексом по lower(name), если это случится на деле
+    const namesake = await this.prisma.db.property.findFirst({
+      where: { name: { equals: organizationName, mode: 'insensitive' } },
+      select: { id: true },
+    });
+    if (namesake) throw new BadRequestException(REGISTRATION_NAME_TAKEN_MESSAGE);
     const passwordHash = await hashPasswordQueued(input.password);
     let created: { userId: string; organizationId: string };
     try {

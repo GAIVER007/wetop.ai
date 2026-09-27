@@ -5,7 +5,7 @@
  * Объект один и не переименовывается на ходу, поэтому id держим в памяти процесса.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { withSignedInUser } from '../auth/request-context';
+import { withOrganizationScope, withSignedInUser } from '../auth/request-context';
 import { forgetPropertyRef, propertyIdRef } from './property-ref';
 
 /** Поддельная база: считает, сколько раз её спросили */
@@ -128,6 +128,18 @@ describe('вошедший получает объект своей органи
     const db = fakeDb(two).db as never;
     await withSignedInUser({ userId: 'u-3', organizationId: 'org-novaya' }, async () => {
       await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/ещё нет объекта/);
+    });
+  });
+
+  /**
+   * Публичный путь сайта (виджет брони, котировка продавца) человека за собой не имеет, но действует от имени организации
+   * своего сайта (план tenant-isolation-2026-09-26 п. 4): раньше он брал объект Luxx по имени, и сайт другой гостиницы
+   * продавал бы номера Luxx.
+   */
+  it('путь от имени организации без человека получает объект этой организации, а не объект по имени', async () => {
+    const db = fakeDb(two).db as never;
+    await withOrganizationScope('org-b', async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p2');
     });
   });
 

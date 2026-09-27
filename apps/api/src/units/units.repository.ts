@@ -89,9 +89,17 @@ export class PrismaUnitsRepository implements UnitsRepository {
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
+  /**
+   * Место своего объекта по коду: вошедший — объект своей организации, служебный ходок — Luxx. Код уникален только
+   * внутри объекта (DATA_MODEL v1.12, ADR-099): поиск по одному коду нашёл бы место чужой гостиницы.
+   */
+  private async unitKey(code: string) {
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    return { propertyId_code: { propertyId, code } };
+  }
   async unitByCode(code: string) {
-    const u = await this.prisma.db.inventoryUnit.findFirst({
-      where: { code, ...(await this.ofProperty()) },
+    const u = await this.prisma.db.inventoryUnit.findUnique({
+      where: await this.unitKey(code),
       include: { accommodationType: { select: { code: true } } },
     });
     return u
@@ -105,8 +113,8 @@ export class PrismaUnitsRepository implements UnitsRepository {
       : null;
   }
   async card(code: string, from: string, to: string): Promise<UnitCard | null> {
-    const u = await this.prisma.db.inventoryUnit.findFirst({
-      where: { code, ...(await this.ofProperty()) },
+    const u = await this.prisma.db.inventoryUnit.findUnique({
+      where: await this.unitKey(code),
       include: {
         accommodationType: { select: { code: true, name: true } },
         physicalRoom: { select: { roomNumber: true } },

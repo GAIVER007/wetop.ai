@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 26.09.2026 22:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит 7a351d4 (claude/ux-retention), незакоммиченных файлов набора: 36
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-33-46Z-integration-59b8.json' 'tests/integration/organization-isolation.test.ts'
+
+ RUN  v5.0.0 /private/tmp/claude-501/-Users-vyacheslav-Desktop-------------------WETOP/c0ea45ed-43bd-4ff8-be48-ebf0614fd84e/scratchpad/wetop-ux
+
+(node:33799) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (3 tests) 143ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  10:33:47
+   Duration  680ms (transform 41%, tests 34%, import 25%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-26T17-33-46Z-integration-59b8.json
+
+# код выхода 0 · 1 с

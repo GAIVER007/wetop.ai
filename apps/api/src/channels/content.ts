@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { Controller, Get, Inject, Injectable, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Inject, Injectable, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ChannelOperatorInterceptor } from './operator-access';
+import { IntegrationOwnerGuard } from './integration-owner';
 import { channex } from '@pms/integrations';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 import { PROVIDER } from './ari-publisher';
@@ -237,6 +238,7 @@ export class ChannelContentService {
 }
 
 @Access('channels')
+@UseGuards(IntegrationOwnerGuard)
 @Controller('channels/channex')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)

@@ -16,7 +16,7 @@ import type {
   StayRestriction,
 } from '@pms/domain';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
-import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
 import { LUXX_APARTS_PROPERTY, todayAt } from '@pms/domain';
 import { maskAuditFreeText, withoutGuestIdentity } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
@@ -396,7 +396,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
-      if (hasSignedInActor()) {
+      if (actsForOrganization()) {
         const organizationId = currentOrganizationId();
         if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
         const found = await this.db.property.findFirst({
@@ -543,9 +543,10 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
   }
   async unitByCode(code: string): Promise<UnitRef | null> {
-    const { id: propertyId } = await this.property();
-    return this.db.inventoryUnit.findFirst({
-      where: { code, accommodationType: { propertyId } },
+    // только место своего объекта: код уникален внутри объекта (DATA_MODEL v1.12, ADR-099)
+    const propertyId = (await this.property()).id;
+    return this.db.inventoryUnit.findUnique({
+      where: { propertyId_code: { propertyId, code } },
       select: { id: true, code: true, accommodationTypeId: true, active: true },
     });
   }

@@ -1,13 +1,12 @@
 import { getDictionary } from '../../i18n';
-import { contactLinks, hasTrialHref, loginLink, siteUrl, trialLink } from '../../lib/site';
+import { contactLinks, loginLink, registerLink, siteUrl } from '../../lib/site';
 import { siteConfig } from '../../site.config';
 import { Icon } from '../icon';
 import { SectionHeading } from '../section-heading';
 import { typo } from '../typo';
 
 /*
- * «Как начать»: три шага и большая стеклянная плита призыва — заголовок, контакты, вход в стойку.
- * Кнопка заявки здесь — только когда владелец дал ссылку: без неё кнопка вела бы на этот же раздел.
+ * «Как начать»: три шага и большая стеклянная плита призыва — регистрация, контакты, вход в стойку.
  * Контакты — только заполненные в site.config.ts; пустые поля просто не показываются.
  *
  * Заголовков третьего уровня в разделе ровно четыре — три шага и призыв: на это смотрит
@@ -16,7 +15,6 @@ import { typo } from '../typo';
 export function Start() {
   const t = getDictionary();
   const contacts = contactLinks();
-  const showTrial = hasTrialHref();
   const city = siteConfig.company.city.trim();
   const host = new URL(siteUrl()).host;
   const login = loginLink();
@@ -47,14 +45,12 @@ export function Start() {
           <div className="cta__copy">
             <h3 className="cta__title">{typo(t.start.ctaTitle)}</h3>
             <p className="cta__text">{typo(t.start.ctaText)}</p>
-            {showTrial ? (
-              <div className="cta__actions">
-                <a className="btn btn--primary btn--lg" href={trialLink().href}>
-                  {t.nav.trial}
-                  <Icon name="arrowRight" size={18} />
-                </a>
-              </div>
-            ) : null}
+            <div className="cta__actions">
+              <a className="btn btn--primary btn--lg" href={registerLink().href}>
+                {t.nav.register}
+                <Icon name="arrowRight" size={18} />
+              </a>
+            </div>
           </div>
 
           <div className="contact-panel glass glass--quiet">

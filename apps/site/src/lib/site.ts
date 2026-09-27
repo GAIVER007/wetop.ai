@@ -5,8 +5,6 @@ export type SiteLink = { href: string; external: boolean };
 
 export type ContactLink = { kind: 'email' | 'phone'; href: string; label: string };
 
-const START_ANCHOR = '/#start';
-
 function fail(field: string, message: string): never {
   throw new Error(`apps/site/src/site.config.ts: ${field} — ${message}`);
 }
@@ -43,17 +41,12 @@ export function loginLink(config: SiteConfig = siteConfig): SiteLink {
   return { href: `${checkHttpUrl('appUrl', config.appUrl)}/login`, external: true };
 }
 
-/** «Попробовать бесплатно»: ссылка владельца, а пока её нет — раздел «Как начать». */
-export function trialLink(config: SiteConfig = siteConfig): SiteLink {
-  const value = config.trialHref.trim();
-  if (!value) return { href: START_ANCHOR, external: false };
-  if (/^(mailto|tel):\S+$/i.test(value)) return { href: value, external: true };
-  return { href: checkHttpUrl('trialHref', value), external: true };
-}
-
-/** Задана ли у владельца ссылка на заявку (иначе кнопка в разделе «Как начать» не показывается). */
-export function hasTrialHref(config: SiteConfig = siteConfig): boolean {
-  return config.trialHref.trim() !== '';
+/**
+ * «Регистрация»: форма самостоятельной регистрации стойки, 7 дней пробного периода (ADR-098, 26.09.2026).
+ * Раньше на её месте была заявка по почте: одна установка обслуживала одну гостиницу (ADR-056).
+ */
+export function registerLink(config: SiteConfig = siteConfig): SiteLink {
+  return { href: `${checkHttpUrl('appUrl', config.appUrl)}/register`, external: true };
 }
 
 /**

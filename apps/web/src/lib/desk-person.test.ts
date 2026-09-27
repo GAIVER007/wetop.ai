@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CLOSED_SHELL, deskPerson, deskShellOf } from './desk-person';
+import { CLOSED_SHELL, deskPerson, deskShellOf, trialLine } from './desk-person';
 import { sidebarSectionsFor } from './navigation';
 
 const hrefs = (access: { aiSeller: boolean; platform: boolean }) =>
@@ -68,5 +68,36 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
     // роли в ответе нет (старый API) или она незнакома — подпись не обещает прав больше, чем у администратора
     expect(deskPerson(me({ role: undefined }).user).caption).toBe('Администратор');
     expect(deskPerson(me({ role: 'ADMIN' }).user).caption).toBe('Администратор');
+  });
+});
+
+/**
+ * Пробный период виден на каждом экране, а не только на `/login` (ТЗ `plans/ux-retention-2026-09-26.md` п. 2.7,
+ * ADR-098): человек узнаёт о сроке заранее, а не в день, когда он кончился. Что будет после — не обещаем:
+ * автоматического перехода в «только чтение» пока нет (Q-144).
+ */
+describe('строка пробного периода в меню', () => {
+  const NOW = new Date('2026-09-26T09:00:00Z');
+  const org = (status: string, trialEndsAt: string | null) => ({ name: 'Хостел', status, trialEndsAt });
+
+  it('пробный — сколько дней осталось; кончился — так и сказано', () => {
+    expect(trialLine(org('TRIAL', '2026-10-03T09:00:00Z'), NOW)).toBe('Пробный период: ещё 7 дн.');
+    expect(trialLine(org('TRIAL', '2026-09-26T10:00:00Z'), NOW)).toBe('Пробный период: ещё 1 дн.');
+    expect(trialLine(org('TRIAL', '2026-09-25T09:00:00Z'), NOW)).toBe('Пробный период закончился');
+  });
+
+  it('у оплаченной организации, без срока и без организации строки нет', () => {
+    expect(trialLine(org('ACTIVE', '2026-10-03T09:00:00Z'), NOW)).toBeNull();
+    expect(trialLine(org('TRIAL', null), NOW)).toBeNull();
+    expect(trialLine(null, NOW)).toBeNull();
+    expect(trialLine(undefined, NOW)).toBeNull();
+  });
+
+  it('оболочка несёт строку вошедшего; без вошедшего — пусто', () => {
+    const shell = deskShellOf({
+      user: { email: 'dana@example.invalid', name: null, organization: org('TRIAL', '2099-01-01T00:00:00Z') },
+    });
+    expect(shell.trial).toMatch(/^Пробный период: ещё \d+ дн\.$/);
+    expect(CLOSED_SHELL.trial).toBeNull();
   });
 });

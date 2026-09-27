@@ -146,6 +146,7 @@ export class OnboardingService {
         });
         await tx.inventoryUnit.create({
           data: {
+            propertyId: property.id,
             physicalRoomId: room.id,
             accommodationTypeId: typeIdByCode.get(u.accommodationTypeCode)!,
             kind: u.kind as InventoryUnitKind,

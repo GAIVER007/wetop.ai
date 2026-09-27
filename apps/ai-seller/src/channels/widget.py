@@ -70,6 +70,9 @@ PREFIX = "/widget"
 # Признак пользователя платформы ходит заголовком, а не в адресе:
 # адреса пишут в журналы привратника, а там персональным данным не место.
 IDENTITY_HEADER = "X-Widget-Identity"
+# Ключ посетителя — тоже заголовком: у анонима он единственный пропуск
+# к переписке, у пользователя платформы в нём user_id.
+VISITOR_HEADER = "X-Widget-Visitor"
 POLL_STEP_SECONDS = 0.5
 # Раз в столько секунд опрос всё равно заглядывает в базу: отметка могла
 # не дойти (сбой Redis), а молчать из-за этого нельзя.
@@ -219,22 +222,41 @@ async def _wait_for_flag(key: str, deadline: float) -> None:
             alive = False
 
 
+def _visitor_key(request: Request) -> str:
+    """Ключ посетителя для опроса и вложения — из заголовка.
+
+    🔴 Переходный период: widget.js до 26.09.2026 клал ключ в адрес, а вкладка
+    платформы держит старый скрипт до перезагрузки. Такой вход принимаем,
+    но пишем в журнал — без самого ключа. Двое суток этой строки в журнале
+    нет — приём из адреса убрать вместе с тестом
+    test_a_key_in_the_url_still_works_but_is_logged.
+    """
+    key = request.headers.get(VISITOR_HEADER, "")
+    if key:
+        return key
+    legacy = request.query_params.get("visitor_key", "")
+    if legacy:
+        logger.warning("widget: ключ посетителя пришёл в адресе — старый widget.js")
+    return legacy
+
+
 @router.get("/messages")
-async def poll_messages(request: Request, visitor_key: str = "", after: str = "") -> dict:
+async def poll_messages(request: Request, after: str = "") -> dict:
     """Долгий опрос: держим запрос до нового сообщения или до предела времени.
     Пустой список по таймауту — не ошибка, браузер спросит снова.
 
     🔴 Ключ проходит ту же проверку, что и на приёме: читать чужое нельзя
     там, где писать уже нельзя, а ключ пользователя платформы предсказуем.
 
-    🔴 Признак пользователя приходит заголовком X-Widget-Identity, а не
-    параметром адреса: в нём идентификатор и почта, а адреса целиком
-    оседают в журналах привратника, в истории браузера и в Referer.
+    🔴 Признак пользователя и ключ посетителя приходят заголовками
+    X-Widget-Identity и X-Widget-Visitor, а не параметрами адреса: в признаке
+    идентификатор и почта, ключ анонима — пропуск к переписке, а адреса
+    целиком оседают в журналах привратника, в истории браузера и в Referer.
     """
     org = await require_org(request)
     settings = settings_of(request)
     identity = request.headers.get(IDENTITY_HEADER, "")
-    visitor = visitor_from(settings, identity, visitor_key, allow_new=False)
+    visitor = visitor_from(settings, identity, _visitor_key(request), allow_new=False)
     deadline = time.monotonic() + max(0, settings.widget_poll_timeout_seconds)
     while True:
         messages, mode = await load_messages(
@@ -247,10 +269,11 @@ async def poll_messages(request: Request, visitor_key: str = "", after: str = ""
 
 
 @router.post("/attachment")
-async def upload_attachment(request: Request, visitor_key: str = "") -> Response:
+async def upload_attachment(request: Request) -> Response:
     """Снимок экрана от посетителя. Имя файла из запроса не используется.
 
-    Признак пользователя — заголовком, как и на опросе: в адресе ему не место.
+    Признак пользователя и ключ посетителя — заголовками, как и на опросе:
+    в адресе им не место.
     """
     org = await require_org(request)
     settings = settings_of(request)
@@ -258,7 +281,7 @@ async def upload_attachment(request: Request, visitor_key: str = "") -> Response
         # Выключено — двери нет: лишний маршрут не объявляем даже отказом.
         raise HTTPException(status_code=404, detail="not_found")
     identity = request.headers.get(IDENTITY_HEADER, "")
-    visitor = visitor_from(settings, identity, visitor_key, allow_new=False)
+    visitor = visitor_from(settings, identity, _visitor_key(request), allow_new=False)
     max_bytes = settings.widget_attachment_max_mb * 1024 * 1024
     declared = request.headers.get("content-length", "")
     # 🔴 Предел ДО чтения. Без внятного Content-Length разбирать нечего:

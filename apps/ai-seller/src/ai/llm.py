@@ -12,6 +12,10 @@
 Отказ определяется по телу ответа, а не по коду: роутер отдаёт отказ
 и ошибку с кодом 200. Исключение наружу не выходит никогда.
 Адрес и ключ — только из Settings.
+
+Второй путь (Р3): аварийная ступень может идти своим адресом и ключом
+поставщика напрямую (LLM_EMERGENCY_BASE_URL + LLM_EMERGENCY_API_KEY) —
+иначе лёг шлюз, легли все три ступени. Только на ключе платформы.
 """
 
 from __future__ import annotations
@@ -69,6 +73,32 @@ class LlmResult:
     # раунд инструментов тоже оплачены (ревизия 26.09). None — роутер не сообщил.
     tokens_used: int | None = None
     error: str | None = None
+    # Разбивка расхода удачной ступени (Р2): вход, из него кэш, выход.
+    # None — поставщик эту часть не сообщил.
+    tokens_input: int | None = None
+    tokens_cached: int | None = None
+    tokens_output: int | None = None
+
+
+def _add(a: int | None, b: int | None) -> int | None:
+    """Сумма, где «не сообщено» не превращается в ноль раньше времени."""
+    return b if a is None else a if b is None else a + b
+
+
+@dataclass
+class Usage:
+    """Расход одной ступени по раундам инструментов: сумма и разбивка."""
+
+    total: int | None = None
+    input: int | None = None
+    cached: int | None = None
+    output: int | None = None
+
+    def add(self, other: Usage) -> None:
+        self.total = _add(self.total, other.total)
+        self.input = _add(self.input, other.input)
+        self.cached = _add(self.cached, other.cached)
+        self.output = _add(self.output, other.output)
 
 
 def vendor_of(model: str) -> str:
@@ -129,10 +159,41 @@ def _inspect(response: Any) -> tuple[str, Any, str]:
     return OK, message, ""
 
 
-def _tokens_of(response: Any) -> int | None:
+def _int_or_none(value: Any) -> int | None:
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def _usage_of(response: Any) -> Usage:
+    """usage ответа -> Usage. Кэшированная часть входа — в
+    prompt_tokens_details.cached_tokens (OpenAI и роутеры в его формате)."""
     usage = getattr(response, "usage", None)
-    total = getattr(usage, "total_tokens", None)
-    return total if isinstance(total, int) else None
+    details = getattr(usage, "prompt_tokens_details", None)
+    return Usage(
+        total=_int_or_none(getattr(usage, "total_tokens", None)),
+        input=_int_or_none(getattr(usage, "prompt_tokens", None)),
+        cached=_int_or_none(getattr(details, "cached_tokens", None)),
+        output=_int_or_none(getattr(usage, "completion_tokens", None)),
+    )
+
+
+# Вендоры, которым кэш префикса нужно разметить явно; OpenAI, Gemini
+# и DeepSeek кэшируют префикс сами.
+_CACHE_MARK_VENDORS = frozenset({"anthropic", "claude"})
+
+
+def _with_cache_mark(messages: list[dict]) -> list[dict]:
+    """Метка кэша Anthropic на первом системном сообщении — постоянной части
+    промпта (правила и профиль гостиницы, src/ai/context.py).
+
+    🔴 Ставится на уже замаскированный список: маскировщик видит только
+    строковый content, и метка до маскировки пронесла бы ПД мимо него.
+    Знания и история меняются от хода к ходу — метки на них нет.
+    """
+    if not messages or messages[0].get("role") != "system" or not isinstance(messages[0].get("content"), str):
+        return messages
+    first = dict(messages[0])
+    first["content"] = [{"type": "text", "text": first["content"], "cache_control": {"type": "ephemeral"}}]
+    return [first, *messages[1:]]
 
 
 def _assistant_message(message: Any) -> dict:
@@ -158,22 +219,61 @@ class CascadeClient:
         self._settings = settings
         self._tools = tools if tools is not None else ToolRegistry()
         self._client: AsyncOpenAI | None = None
+        self._emergency_client: AsyncOpenAI | None = None
         # httpx пишет полный URL запроса на INFO; в нём бывает токен.
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("openai").setLevel(logging.WARNING)
         # Клиент — как только задан адрес роутера: ключ бывает только у гостиницы (вкладка «Модель», С2).
         # Заглушка никуда не уходит: ход без ключа гостиницы и без ключа платформы отказывает в generate().
         if settings.llm_base_url:
-            self._client = AsyncOpenAI(
-                api_key=settings.llm_api_key or "no-platform-key",
-                base_url=settings.llm_base_url,
-                # Повтор делаем сами, меняя модель между попытками.
-                max_retries=0,
-                timeout=settings.llm_timeout_seconds,
-                http_client=http_client,
+            self._client = self._make_client(
+                settings.llm_base_url, settings.llm_api_key or "no-platform-key", http_client
+            )
+        base = settings.llm_emergency_base_url.strip()
+        key = settings.llm_emergency_api_key.strip()
+        if base and key:
+            self._emergency_client = self._make_client(base, key, http_client)
+        elif base or key:
+            # Полунастроенный путь молча выключенным не остаётся: владелец
+            # думает, что страховка есть, а её нет.
+            logger.warning(
+                "второй путь аварийной модели не включён: нужны и LLM_EMERGENCY_BASE_URL, "
+                "и LLM_EMERGENCY_API_KEY"
             )
         for warning in check_distinct_vendors(self.models):
             logger.warning("каскад моделей: %s", warning)
+
+    def _make_client(self, base_url: str, api_key: str, http_client: httpx.AsyncClient | None) -> AsyncOpenAI:
+        return AsyncOpenAI(
+            api_key=api_key,
+            base_url=base_url,
+            # Повтор делаем сами, меняя модель между попытками.
+            max_retries=0,
+            timeout=self._settings.llm_timeout_seconds,
+            http_client=http_client,
+        )
+
+    def _client_for(self, model: str, api_key: str | None) -> AsyncOpenAI:
+        """Клиент ступени: шлюз, шлюз с ключом партнёра или второй путь.
+
+        Второй путь — только аварийной ступени и только на ключе платформы.
+        Ступень узнаём по имени из настроек, но лишь когда оно не совпало
+        с основной или запасной: дубль каскад схлопнул, и отдельной
+        аварийной ступени тогда нет.
+        """
+        assert self._client is not None
+        if api_key is not None:
+            # Ключ партнёра — тем же клиентом и пулом соединений, только другой Authorization.
+            return self._client.with_options(api_key=api_key)
+        s = self._settings
+        emergency = s.llm_model_emergency.strip()
+        if (
+            self._emergency_client is not None
+            and model == emergency
+            and model not in (s.llm_model.strip(), s.llm_model_fallback.strip())
+        ):
+            return self._emergency_client
+        return self._client
 
     @property
     def models(self) -> list[str]:
@@ -211,7 +311,7 @@ class CascadeClient:
         try:
             for model in self.models:
                 started = time.perf_counter()
-                outcome, text, tokens = await self._attempt(
+                outcome, text, usage = await self._attempt(
                     model,
                     masked,
                     masker,
@@ -220,8 +320,7 @@ class CascadeClient:
                     api_key=api_key,
                 )
                 seconds = round(time.perf_counter() - started, 3)
-                if tokens is not None:
-                    spent = (spent or 0) + tokens
+                spent = _add(spent, usage.total)
                 if outcome == OK:
                     attempts.append(AttemptLog(model, OK, seconds))
                     return LlmResult(
@@ -231,7 +330,12 @@ class CascadeClient:
                         model=model,
                         attempts=attempts,
                         mapping=mapping,
+                        # Сумма — все ступени, включая отказавшие (ревизия 26.09): на ней пределы;
+                        # разбивка — удачной ступени, по её модели считается цена (Р2).
                         tokens_used=spent,
+                        tokens_input=usage.input,
+                        tokens_cached=usage.cached,
+                        tokens_output=usage.output,
                     )
                 # При отказе слот text несёт короткую заметку, не текст ответа.
                 attempts.append(AttemptLog(model, outcome, seconds, note=text))
@@ -251,23 +355,23 @@ class CascadeClient:
         use_tools: bool,
         max_tool_rounds: int,
         api_key: str | None = None,
-    ) -> tuple[str, str, int | None]:
-        """Одна ступень -> (исход, текст, токены).
+    ) -> tuple[str, str, Usage]:
+        """Одна ступень -> (исход, текст, расход по всем её раундам).
 
         При исходе OK текст — ответ модели; при отказе — короткая нейтральная
         заметка для журнала (код HTTP, причина), без тела ответа и ПД.
         Раунды инструментов идут внутри той же ступени. Любое исключение —
         исход invalid: сбой одной ступени не должен класть остальные.
         """
-        assert self._client is not None
-        # Ключ партнёра — тем же клиентом и пулом соединений, только другой Authorization.
-        client = self._client if api_key is None else self._client.with_options(api_key=api_key)
+        client = self._client_for(model, api_key)
         settings = self._settings
         tools = self._tools.specs_for_openai() if use_tools else []
         # Копия: раунды инструментов дописывают сообщения, а следующая
         # ступень должна начать с исходного замаскированного списка.
         convo = list(messages)
-        tokens: int | None = None
+        if settings.llm_prompt_cache_mark and vendor_of(model) in _CACHE_MARK_VENDORS:
+            convo = _with_cache_mark(convo)
+        tokens = Usage()
 
         try:
             for round_no in range(max_tool_rounds + 1):
@@ -287,9 +391,7 @@ class CascadeClient:
                 except openai.APIStatusError as exc:
                     return HTTP_ERROR, f"HTTP {exc.status_code}", tokens
 
-                got = _tokens_of(response)
-                if got is not None:
-                    tokens = (tokens or 0) + got
+                tokens.add(_usage_of(response))
 
                 outcome, message, note = _inspect(response)
                 if outcome == OK:

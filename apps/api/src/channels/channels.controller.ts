@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import { UseGuards } from '@nestjs/common';
+import { IntegrationOwnerGuard } from './integration-owner';
 import {
   BadRequestException,
   Body,
@@ -46,6 +48,7 @@ function within<T>(work: Promise<T>, ms: number, message: string): Promise<T> {
 
 /** Channex: настройка объекта на staging и полная выгрузка ARI. Только localhost (роли — Q-061…064). */
 @Access('channels')
+@UseGuards(IntegrationOwnerGuard)
 @Controller('channels/channex')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
 @UseInterceptors(ChannelOperatorInterceptor)

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
-import { loginLink, trialLink } from '../lib/site';
+import { loginLink, registerLink } from '../lib/site';
 import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { MobileMenu } from './mobile-menu';
@@ -8,7 +8,7 @@ import { MobileMenu } from './mobile-menu';
 export function SiteHeader() {
   const t = getDictionary();
   const login = loginLink();
-  const trial = trialLink();
+  const register = registerLink();
   // Якоря ведут на главную: из блога ссылка «Возможности» открывает главную сразу на нужном разделе.
   // «Блог» — только когда есть опубликованные статьи (С2, 20.09.2026): пустую страницу в меню не зовём.
   const hasPosts = getPublishedPosts().length > 0;
@@ -38,13 +38,13 @@ export function SiteHeader() {
           <a className="btn btn--ghost btn--sm site-header__login" href={login.href}>
             {t.nav.login}
           </a>
-          <a className="btn btn--primary btn--sm site-header__trial" href={trial.href}>
-            {t.nav.trial}
+          <a className="btn btn--primary btn--sm site-header__register" href={register.href}>
+            {t.nav.register}
           </a>
           <MobileMenu
             links={links}
             login={{ href: login.href, label: t.nav.login }}
-            trial={{ href: trial.href, label: t.nav.trial }}
+            register={{ href: register.href, label: t.nav.register }}
             labels={{ button: t.a11y.menu, nav: t.a11y.mainNav }}
           />
         </div>

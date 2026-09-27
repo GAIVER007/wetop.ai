@@ -31,6 +31,7 @@ import { CollectService } from '../analytics/collect.service';
 import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/incidents.repository';
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
+import { withOrganizationScope } from '../auth/request-context';
 
 export interface RequestContext {
   originHost: string | null;
@@ -100,6 +101,13 @@ const newLimits = () => ({
   botQuotePerOrg: new AttemptWindows(BOT_QUOTES_PER_HOUR, HOUR_MS),
 });
 
+/**
+ * Расчёт и бронь сайта — от имени организации его объекта (план tenant-isolation-2026-09-26 п. 4): без этого публичный
+ * путь брал объект Luxx по имени, и сайт другой гостиницы продавал бы её номера. Ничей объект — служебный путь, как раньше.
+ */
+const asSite = <T>(site: { organizationId?: string | null }, fn: () => Promise<T>): Promise<T> =>
+  site.organizationId ? withOrganizationScope(site.organizationId, fn) : fn();
+
 const addDays = (date: string, n: number): string => {
   const x = new Date(`${date}T00:00:00Z`);
   x.setUTCDate(x.getUTCDate() + n);
@@ -139,7 +147,7 @@ export class WebBookingService {
     }
     const siteKey = typeof (raw as { k?: unknown })?.k === 'string' ? (raw as { k: string }).k : '';
     const site = await this.bookingSite(siteKey, ctx);
-    return this.quoteForSite(site, raw, now);
+    return asSite(site, () => this.quoteForSite(site, raw, now));
   }
 
   /**
@@ -147,7 +155,11 @@ export class WebBookingService {
    * виджета, но сайт находится по организации, а не по ключу в запросе, и домены не проверяются — дверь
    * держит узкий ключ `SELLER_QUOTE_KEY` (контроллер `/bot/availability`). Брони здесь нет (Q-166б).
    */
-  async quoteForOrganization(organizationId: string, raw: unknown, now: Date = new Date()): Promise<Quote> {
+  async quoteForOrganization(
+    organizationId: string,
+    raw: unknown,
+    now: Date = new Date(),
+  ): Promise<Quote> {
     const site = await this.sites.bookingSiteForOrganization(organizationId);
     if (!site) {
       throw new NotFoundException('у организации нет сайта с включённым бронированием');
@@ -159,7 +171,7 @@ export class WebBookingService {
     // Ключ сайта в тело подставляет дверь: разбор запроса общий с виджетом и требует его,
     // а продавец знает организацию, не ключ.
     const body = raw && typeof raw === 'object' ? { ...(raw as Record<string, unknown>) } : {};
-    return this.quoteForSite(site, { ...body, k: site.publicKey }, now);
+    return asSite(site, () => this.quoteForSite(site, { ...body, k: site.publicKey }, now));
   }
 
   /** Общий расчёт двух дверей: сайт уже найден и проверен вызывающим */
@@ -281,8 +293,8 @@ export class WebBookingService {
     const guest = guestForStorage(req.guest, `web:${site.id}:${randomUUID()}`);
     const notes =
       `Бронь с сайта «${site.name}»` + (req.comment ? `. Комментарий гостя: ${req.comment}` : '');
-    const card = await this.reservations
-      .create(
+    const card = await asSite(site, () =>
+      this.reservations.create(
         {
           source: 'WEBSITE',
           arrivalDate: req.arrivalDate,
@@ -304,11 +316,11 @@ export class WebBookingService {
           ],
         },
         { guestPrepared: true },
-      )
-      .catch((e: unknown) => {
-        this.limits.bookPerSite.release(site.id, slot);
-        throw e;
-      });
+      ),
+    ).catch((e: unknown) => {
+      this.limits.bookPerSite.release(site.id, slot);
+      throw e;
+    });
     // Бронь уже записана. Дальше — привязка к счётчику и журнал сайта «лучшим усилием»: их сбой раньше отдавал гостю
     // ошибку, кнопка снова была активна, и повтор создавал вторую настоящую бронь (аудит 26.09, С-33).
     let linkedSession = false;
@@ -385,7 +397,9 @@ export class WebBookingService {
    * Luxx (аудит 26.09, В-4; Q-194, ADR-095) — такому сайту честный отказ, пока расчёт не научится нескольким объектам.
    */
   private async assertServingProperty(site: SiteRecord, message: string): Promise<void> {
-    const serving = await this.uow.read((repo) => repo.property());
+    // От имени организации сайта (план tenant-isolation-2026-09-26 п. 4): без этого чтение шло служебным путём и
+    // сравнивало с Luxx по имени, а не с объектом организации сайта, — второй объект отваливался этой же проверкой.
+    const serving = await asSite(site, () => this.uow.read((repo) => repo.property()));
     if (site.propertyId !== serving.id) throw new NotFoundException(message);
   }
 
@@ -395,7 +409,11 @@ export class WebBookingService {
    * повторы растят occurrences; адрес посетителя в неисправность не пишется (план среза 9 §4).
    * Сбой записи бронь не роняет: лимит уже отказал, наблюдение — best effort.
    */
-  private async flood(site: SiteRecord, details: Record<string, unknown>, now: Date): Promise<void> {
+  private async flood(
+    site: SiteRecord,
+    details: Record<string, unknown>,
+    now: Date,
+  ): Promise<void> {
     const kind = 'booking.flood' as const;
     try {
       await this.incidents.record(
@@ -410,7 +428,9 @@ export class WebBookingService {
         now,
       );
     } catch (e) {
-      console.warn(`[web-booking] неисправность booking.flood не записана: ${(e as Error).message}`);
+      console.warn(
+        `[web-booking] неисправность booking.flood не записана: ${(e as Error).message}`,
+      );
     }
   }
 

@@ -452,11 +452,11 @@ button {
     display: inline-flex;
   }
 }
-.site-header__trial {
+.site-header__register {
   display: none;
 }
 @media (min-width: 60rem) {
-  .site-header__trial {
+  .site-header__register {
     display: inline-flex;
   }
 }
@@ -646,6 +646,11 @@ button {
   gap: 12px;
   margin-top: 32px;
 }
+.hero__note {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
 .hero__points {
   display: grid;
   gap: 10px;
@@ -671,7 +676,7 @@ button {
   flex-direction: column;
   min-width: 0;
 }
-/* Плашка «принимаем заявки» над макетом — как отметка доступности на снимках направления. */
+/* Плашка «регистрация открыта» над макетом — как отметка доступности на снимках направления. */
 .hero__available {
   display: inline-flex;
   align-items: center;

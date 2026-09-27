@@ -94,4 +94,9 @@ def window_for(event_type: str, settings) -> int:
     """
     if event_type == "hot_lead":
         return int(settings.alert_dedup_hot_lead_hours) * 3600
+    if event_type == "llm_budget":
+        # Предел гостиницы — один алерт в сутки: ключ несёт местную дату
+        # (src/ai/budget.py), окно молчания — сутки. С окном срока ответа
+        # владелец получал бы тот же алерт каждые десять минут до полуночи.
+        return 24 * 3600
     return int(settings.alert_dedup_sla_minutes) * 60

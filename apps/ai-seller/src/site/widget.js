@@ -99,8 +99,10 @@
     if (ORG_KEY) { path += (path.indexOf('?') >= 0 ? '&' : '?') + 'k=' + encodeURIComponent(ORG_KEY); }
     xhr.open(method, BASE + path, true);
     if (!isForm) { xhr.setRequestHeader('Content-Type', 'application/json'); }
-    // Признак — заголовком: адреса оседают в журналах, а в нём почта.
+    // Признак и ключ — заголовками: адреса оседают в журналах, а в признаке
+    // почта, в ключе посетителя — пропуск к его переписке.
     if (IDENTITY) { xhr.setRequestHeader('X-Widget-Identity', IDENTITY); }
+    if (visitorKey) { xhr.setRequestHeader('X-Widget-Visitor', visitorKey); }
     xhr.timeout = XHR_TIMEOUT_MS;
     xhr.ontimeout = function () { if (fail) { fail(0); } };
     xhr.onreadystatechange = function () {
@@ -133,8 +135,7 @@
   function poll(mine) {
     if (mine !== generation) { return; }
     // Ключ платформы предсказуем: опрос тоже требует подписи из заголовка.
-    var url = '/messages?visitor_key=' + encodeURIComponent(visitorKey) +
-      '&after=' + encodeURIComponent(after);
+    var url = '/messages?after=' + encodeURIComponent(after);
     send('GET', url, null, false, function (data) {
       if (mine !== generation) { return; }  // цикл устарел: был перезапуск
       retryMs = RETRY_MIN_MS;
@@ -185,8 +186,7 @@
     var form = new FormData();
     form.append('file', file);
     chip.textContent = 'Загружаю…';
-    var url = '/attachment?visitor_key=' + encodeURIComponent(visitorKey);
-    send('POST', url, form, true, function (data) {
+    send('POST', '/attachment', form, true, function (data) {
       attachmentId = data.attachment_id || '';
       chip.textContent = attachmentId ? 'Снимок прикреплён' : 'Файл не принят';
       fileInput.value = '';

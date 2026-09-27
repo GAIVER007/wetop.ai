@@ -3,7 +3,8 @@
 Что платформа WETOP даёт боту и чего от него ждёт. Источник — ТЗ ред. 1 от 24.09.2026
 ([`tz-2026-09-24.md`](tz-2026-09-24.md) — копия `TZ-integratsiya-wetop.md` с ветки бота, обновлена 24.09 вечером до
 `3014331d`: обёртка `items`, заголовок `x-wetop-service-key`, источник фактов `platform:facts.md`), решение — ADR-079, план — `plans/ai-assistant-seller-2026-09-24.md`.
-Бот живёт в `apps/ai-seller/` ветки `main` (до 24.09.2026 — отдельная ветка `ai-seller`, перенесена с историей); один образ, два экземпляра: помощник (`BOT_ROLE=support`) и
+Бот живёт в `apps/ai-seller/` ветки `main` (до 24.09.2026 — отдельная ветка `ai-seller` и папка на Mac «Чат агент/WETOP»,
+перенесены с историей; как убрать старую папку и карта связей бота с платформой — `apps/README.md`); один образ, два экземпляра: помощник (`BOT_ROLE=support`) и
 продавец (`BOT_ROLE=seller`). **Сверено с кодом бота** `origin/ai-seller` `3014331d` (Б1–Б7) 24.09.2026: где платформа
 расходилась с ботом, правилась платформа; контракт бота не менялся.
 
@@ -324,6 +325,10 @@ networks:
 | продавец | `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`, `INTEGRATION_API_KEY` = `SELLER_QUOTE_KEY` платформы | котировка (ADR-085): без них инструменты наличия и цены отвечают «не знаю» |
 | продавец | `LLM_KEYS_SECRET` | хранилище ключей моделей партнёров (С2, Q-186): Fernet, `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`; пуст — ключи партнёров не принимаются, ходы идут ключом платформы |
 | продавец | `WHATSAPP_GRAPH_BASE_URL` | по умолчанию `https://graph.facebook.com/v20.0`; менять не нужно |
+| продавец | `LLM_DAILY_TOKENS_PER_ORG` | дневной предел токенов гостиницы на ключе платформы; по умолчанию `150000` (решение 26.09), `0` — без предела. Выше предела гостю — «администратор свяжется», диалог помечен «нужен человек», владельцу — алерт раз в сутки; сутки по UTC+5. Гостиница со своим ключом — без предела |
+| продавец | `LLM_EMERGENCY_BASE_URL`, `LLM_EMERGENCY_API_KEY` | по желанию: второй путь аварийной модели — к поставщику напрямую, мимо роутера; нужны оба; имя в `LLM_MODEL_EMERGENCY` — как у этого поставщика. Только ключ платформы |
+| продавец | `LLM_PRICES` | по желанию: цены моделей для отчёта о расходе — за 1 млн токенов `модель=вход/кэш/выход` через запятую, в валюте счёта роутера |
+| продавец, помощник | `LLM_PROMPT_CACHE_MARK` | `false` по умолчанию; `true` — метка кэша на постоянной части промпта для моделей Claude. Включать, только если роутер её понимает (иначе ступень Claude отказывает) |
 
 ## 6. Включение по шагам (владелец; 25.09.2026)
 
@@ -346,6 +351,7 @@ networks:
 | 10 | Котировка продавца (после слияния ADR-085): `openssl rand -hex 32` → `SELLER_QUOTE_KEY` в `.env` платформы; тот же ключ у продавца в `.env` — `INTEGRATION_API_KEY`, там же `INTEGRATION_MODE=wetop`, `INTEGRATION_BASE_URL=http://api:3001`; перезапуск `api` и продавца | веб-терминал; имена — в `.env.example` вписать владельцу | в чате продавца «есть места на завтра на двоих?» — признак и цена тарифа сайта, а не «уточнит администратор» |
 | 11 | Ключ модели партнёра (С2): сгенерировать `LLM_KEYS_SECRET` (команда в §5) → в `.env` продавца; обновить код копии продавца («Обновить код продавца» ниже) — alembic применит `0003_org_llm_keys` при старте; затем в стойке «ИИ-продавец → Модель» — ключ, «Проверить», «Сохранить» | веб-терминал, затем стойка | в окне «Модель» — «оканчивается на ····…»; ход в «Проверке» отвечает как раньше |
 | 12 | WhatsApp гостиницы (С3; после ответа Q-185 и при базе бота в РК для чужих сайтов — ADR-009): партнёр заводит номер, Meta Business c проверкой и постоянный токен; в стойке «ИИ-продавец → WhatsApp» — номер, токен, секрет → «Проверить» → «Подключить»; адрес вебхука и слово с экрана — в консоль Meta (Webhook → Callback URL / Verify token, подписка на messages). Наружу нужен путь `/channels/whatsapp/webhook/*` к продавцу (`SELLER_PUBLIC_URL`) | стойка + консоль Meta; ingress продавца | сообщение на номер → ответ бота в WhatsApp; диалог в «Диалогах» раздела |
+| 13 | Расход модели под контролем (после слияния `claude/seller-cost-controls`; план `plans/seller-cost-controls-2026-09-26.md`): обновить код копии продавца («Обновить код продавца» ниже) — alembic применит `0005_message_usage` при старте, дневной предел 150 000 токенов на гостиницу включится сам. По желанию — второй путь аварийной модели и цены (§5) в `.env` продавца, затем `docker compose up -d --force-recreate app monitor` в `/opt/wetop-bot/seller`. Помощник получит `0005` при следующем обновлении своего кода — на его работу это не влияет | веб-терминал | `cd /opt/wetop-bot/seller && docker compose exec app python -m src.jobs.usage_report` — таблица по гостиницам за текущий месяц; в журнале продавца нет строки «второй путь аварийной модели не включён» |
 
 Код чата продавца на сайт объекта ставится, только когда база бота в Казахстане: в переписке гостей персональные
 данные (ADR-009, ADR-081).
@@ -464,7 +470,7 @@ cd /opt/wetop-bot/assistant && docker compose up -d --build app && curl -s 127.0
 
 **Обновить код продавца** — то же, но папка `seller`, и 🔴 порт возвращается сразу после копирования: `compose.yml` из
 клона снова слушает `8000`, а он занят помощником — без правки продавец не поднимется. Пересобираются обе службы
-(`app` и `monitor`), миграции бота (`0002`…`0004`) alembic применит сам при старте:
+(`app` и `monitor`), миграции бота (`0002`…`0005`) alembic применит сам при старте:
 
 ```bash
 tar -C /root/wetop/apps/ai-seller --exclude=./data --exclude=./logs --exclude=./.env -cf - . | tar -C /opt/wetop-bot/seller -xf -
@@ -517,6 +523,27 @@ cd /opt/wetop-bot/assistant && docker compose up -d --force-recreate app
 cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml up -d --force-recreate api
 SCRIPT
 ```
+
+**Вебхук WhatsApp продавца наружу (шаг 12).** Правило — как в `deploy/cloudflared.example.yml`: к продавцу пропускается
+только `/channels/whatsapp/webhook/<uuid гостиницы>`; чат продавца, панель и `/internal/*` наружу не выходят. Пока база
+бота не в РК, подключать только тестовый номер Meta (ADR-009). Одна вставка в веб-терминал, повтор ничего не дублирует;
+`cloudflared` перезапускается — стойка на полминуты недоступна:
+
+```bash
+bash <<'SCRIPT'
+set -eu
+F=/root/wetop/deploy/cloudflared/wetop.yml
+grep -q 'seller.wetop.ai' "$F" || sed -i 's#^\(\s*\)- service: http_status:404#\1- hostname: seller.wetop.ai\n\1  path: ^/channels/whatsapp/webhook/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$\n\1  service: http://seller:8000\n\1- service: http_status:404#' "$F"
+grep -A2 'hostname: seller.wetop.ai' "$F"
+cd /root/wetop/deploy && docker compose -f compose.yml -f compose.hostinger.yml restart cloudflared
+SCRIPT
+```
+
+Затем запись DNS `seller` — CNAME на `<ID туннеля>.cfargotunnel.com` с оранжевым облаком — в панели Cloudflare (ID —
+строка `tunnel:` в том же файле). Проверка: адрес вебхука из окна «ИИ-продавец → WhatsApp» с чужим словом —
+`curl -s -o /dev/null -w '%{http_code}\n' '<адрес вебхука>?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=1'`
+даёт `403` (дверь продавца на месте и чужое слово не принимает); `https://seller.wetop.ai/widget/widget.js` и
+`https://seller.wetop.ai/health` — `404`.
 
 **Что вписать в `.env` помощника.**
 

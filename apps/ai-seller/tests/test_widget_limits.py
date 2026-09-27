@@ -157,9 +157,9 @@ def test_a_chunked_attachment_is_not_parsed_at_all(monkeypatch, fake_redis, sync
         key = app.new_visitor()
         response = app.client.post(
             f"{PREFIX}/attachment",
-            params={"visitor_key": key},
             content=_chunked(body, taken=taken),
-            headers={**app.headers(), "Content-Type": "multipart/form-data; boundary=BOUNDARY"},
+            headers={**app.headers(visitor=key),
+                     "Content-Type": "multipart/form-data; boundary=BOUNDARY"},
         )
 
     assert response.status_code == 411, response.status_code

@@ -292,9 +292,36 @@ describe('контекст сборки', () => {
       ...rules.matchAll(/- hostname: assistant\.wetop\.ai\n\s+path: (\S+)\n\s+service: (\S+)/g),
     ];
     expect(assistant.map((m) => [m[1], m[2]])).toEqual([['^/(widget/.*|health)$', 'http://assistant:8000']]);
-    // У продавца адреса наружу пока нет: код его чата на сайт объекта — только когда база бота в РК (ADR-009)
-    expect(rules).not.toContain('seller.wetop.ai');
     // Последнее правило — отказ всему остальному
     expect(rules.trimEnd().split('\n').at(-1)).toMatch(/- service: http_status:404$/);
+  });
+
+  it('продавец наружу — только вебхук WhatsApp гостиницы (С3, SECURITY.md §11): чат, панель и /internal/* — нет', () => {
+    const rules = withoutComments(read('deploy/cloudflared.example.yml'));
+    // Одно правило и обязательно с путём: правило без path открыло бы наружу весь продавец
+    expect(rules.match(/hostname: seller\.wetop\.ai/g)).toHaveLength(1);
+    const seller = [
+      ...rules.matchAll(/- hostname: seller\.wetop\.ai\n\s+path: (\S+)\n\s+service: (\S+)/g),
+    ];
+    expect(seller.map((m) => m[2])).toEqual(['http://seller:8000']);
+    const path = new RegExp(seller[0]![1]!);
+    const org = 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa';
+    expect(path.test(`/channels/whatsapp/webhook/${org}`)).toBe(true);
+    // Чат продавца на сайт объекта — только когда база бота в РК (ADR-009); панель и служебное — никогда.
+    // Кривой номер организации до бота не доходит: он ответил бы разбором ошибки со своими именами полей
+    for (const closed of [
+      '/widget/widget.js',
+      '/widget/session',
+      '/health',
+      '/internal/sandbox',
+      '/internal/health',
+      '/panel-x/conversations',
+      '/channels/whatsapp/webhook/',
+      '/channels/whatsapp/webhook/not-a-uuid',
+      `/channels/whatsapp/webhook/${org}/extra`,
+      `/channels/whatsapp/webhook/${org.toUpperCase()}`,
+      `/x/channels/whatsapp/webhook/${org}`,
+    ])
+      expect(path.test(closed), closed).toBe(false);
   });
 });

@@ -2863,3 +2863,11 @@
 | 27.09.2026 19:55 | integration | ✅ 107 из 107 | 31 с | b954994 +6 | [лог](logs/2026-09-27T14-55-12Z-integration-75f2.log) |  |
 | 27.09.2026 19:56 | e2e | ✅ 25 из 25 | 1 мин 2 с | b954994 +5 | [лог](logs/2026-09-27T14-56-03Z-e2e-4f6b.log) |  |
 | 27.09.2026 19:57 | e2e | ✅ 26 из 26 | 1 мин 6 с | b954994 +5 | [лог](logs/2026-09-27T14-57-06Z-e2e-e409.log) |  |
+| 27.09.2026 21:23 | typecheck | ❌ ошибок: 1 | 30 с | 74d8b1c +18 | [лог](logs/2026-09-27T16-23-50Z-typecheck-ff5b.log) | TS2345 |
+| 27.09.2026 21:24 | typecheck | ✅ без ошибок | 23 с | 74d8b1c +18 | [лог](logs/2026-09-27T16-24-45Z-typecheck-db45.log) |  |
+| 27.09.2026 21:29 | lint | ❌ ошибок: 1 | 18 с | 74d8b1c +20 | [лог](logs/2026-09-27T16-29-12Z-lint-10fe.log) | react-hooks/exhaustive-deps |
+| 27.09.2026 21:29 | lint | ✅ без ошибок | 17 с | 74d8b1c +20 | [лог](logs/2026-09-27T16-29-43Z-lint-a22c.log) |  |
+| 27.09.2026 21:30 | unit | ❌ упало 4 из 2108, пропущено 3 | 1 мин 34 с | 74d8b1c +18 | [лог](logs/2026-09-27T16-30-01Z-unit-46b1.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 27.09.2026 21:32 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 74d8b1c +18 | [лог](logs/2026-09-27T16-32-50Z-unit-7b89.log) |  |
+| 27.09.2026 21:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/fund-workspace.spec.ts | ❌ упало 1 из 17 | 2 мин 20 с | 74d8b1c +19 | [лог](logs/2026-09-27T16-34-44Z-e2e-5a76.log) | таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают |
+| 27.09.2026 21:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts) | ✅ 8 из 8 | 55 с | 74d8b1c +19 | [лог](logs/2026-09-27T16-38-07Z-e2e-296d.log) |  |

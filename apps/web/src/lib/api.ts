@@ -36,6 +36,12 @@ export interface InventoryUnit {
   roomNumber: string;
   roomCapacity: number;
   isDorm: boolean;
+  /** Расположение и живое состояние для списка фонда (ADR-106) */
+  buildingName: string | null;
+  floorName: string | null;
+  housekeepingStatus: 'DIRTY' | 'CLEAN' | 'INSPECTED';
+  active: boolean;
+  block: { dateTo: string; type: string; reason: string | null } | null;
 }
 
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */

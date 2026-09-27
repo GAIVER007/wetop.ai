@@ -20,6 +20,8 @@ export function ActionMenu({
   items,
   label = 'Действия',
   icon = 'more',
+  text,
+  tone,
   size,
   className,
   style,
@@ -28,6 +30,10 @@ export function ActionMenu({
   label?: string;
   /** значок на кнопке: по умолчанию «⋯»; уборка на шахматке открывает меню щёткой (DESIGN.md §7) */
   icon?: IconName | undefined;
+  /** подпись на кнопке («+ Добавить»): кнопка с текстом и стрелкой вместо одного значка (ADR-106) */
+  text?: string | undefined;
+  /** тон кнопки: главное действие экрана — залитая (DESIGN.md §8) */
+  tone?: 'primary' | undefined;
   size?: 'sm' | undefined;
   className?: string | undefined;
   /** положение на плашке шахматки задаётся данными (ширина отрезка) — единственный инлайн-стиль */
@@ -64,11 +70,15 @@ export function ActionMenu({
       <button
         ref={button}
         type="button"
-        className={cx('btn btn--secondary action-menu__button', size && `btn--${size}`)}
+        className={cx(
+          'btn action-menu__button',
+          tone !== 'primary' && 'btn--secondary',
+          size && `btn--${size}`,
+        )}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={id}
-        aria-label={label}
+        aria-label={text ? undefined : label}
         onClick={() => {
           setActive(enabled[0] ?? 0);
           setOpen((v) => !v);
@@ -81,7 +91,14 @@ export function ActionMenu({
           }
         }}
       >
-        <Icon name={icon} />
+        {text ? (
+          <>
+            {text}
+            <Icon className="action-menu__chevron" name="down" width={16} height={16} />
+          </>
+        ) : (
+          <Icon name={icon} />
+        )}
       </button>
       <div
         ref={list}

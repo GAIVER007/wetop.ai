@@ -32,7 +32,7 @@ export async function FirstSteps() {
     deskShell(),
   ]);
   if (!state || state.hasReservations) return null;
-  // шаг — тому, у кого есть право (ADR-104): администратор отеля не настраивает и сотрудников не зовёт
+  // шаг — тому, у кого есть право (ADR-106): администратор отеля не настраивает и сотрудников не зовёт
   const steps = firstStepsFor(settings?.needsOnboarding === true).filter(
     (step) => !step.requires || mayAccess(desk.access, step.requires),
   );

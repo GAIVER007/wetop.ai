@@ -283,7 +283,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
     });
   }
 
-  // ── Сотрудники (ADR-104, DATA_MODEL §16.1 v1.14) ────────────────────────────────────────────
+  // ── Сотрудники (ADR-106, DATA_MODEL §16.1 v1.14) ────────────────────────────────────────────
 
   async members(organizationId: string): Promise<MemberRecord[]> {
     // порядок перечисления в базе — OWNER, MANAGER, STAFF (миграция 20260927000029): владельцы сверху

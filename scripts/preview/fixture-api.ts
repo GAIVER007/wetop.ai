@@ -1435,7 +1435,7 @@ function recordPlan(
 }
 let uiPlatformAdmin = false;
 /**
- * Люди вымышленной организации и её ожидающие приглашения (ADR-104): вошедшая Дана — с ролью `uiRole`, остальные —
+ * Люди вымышленной организации и её ожидающие приглашения (ADR-106): вошедшая Дана — с ролью `uiRole`, остальные —
  * как в базе после приглашений. Вымышленные (ADR-010), сбрасываются `reset`.
  */
 interface FixtureMember {
@@ -2855,7 +2855,7 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : null;
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
-      // зовут владелец и управляющий (ADR-104) — и список ожидающих тоже их
+      // зовут владелец и управляющий (ADR-106) — и список ожидающих тоже их
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       const view = (i: FixtureInvite) => ({ ...i, acceptedAt: null, revocable: canInvite(uiRole, i.role) });
       if (req.method === 'POST') {
@@ -2894,7 +2894,7 @@ createServer(async (req, res) => {
       uiInvites.splice(at, 1);
       return send(200, { ok: true });
     }
-    // Сотрудники (ADR-104): список, отключение, смена роли — по тем же правилам, что у API
+    // Сотрудники (ADR-106): список, отключение, смена роли — по тем же правилам, что у API
     const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
     if (memberMatch) {
       const token = sessionOf(req as never);
@@ -3081,7 +3081,7 @@ createServer(async (req, res) => {
     // ИИ-продавец (ТЗ П5–П8): раздел стойки говорит с этим подставным продавцом через «API»
     if (path.startsWith('/ai-seller/')) {
       const sellerToken = sessionOf(req as never);
-      // служебный ходок (без сессии) для API — владелец; вошедший — по роли: настройки у владельца и управляющего (ADR-104)
+      // служебный ходок (без сессии) для API — владелец; вошедший — по роли: настройки у владельца и управляющего (ADR-106)
       const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole !== 'STAFF';
       const extension = aiSellerView('ui-org');
       const sellerUse =
@@ -3389,7 +3389,7 @@ createServer(async (req, res) => {
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/hotel/settings' && req.method === 'PATCH') {
-      // как API: право `settings` — владелец и управляющий (ADR-104)
+      // как API: право `settings` — владелец и управляющий (ADR-106)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });

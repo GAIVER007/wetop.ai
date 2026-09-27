@@ -30,7 +30,7 @@ export class SellerAgentsService {
       organizationId = currentOrganizationId();
     if (!userId || !organizationId)
       throw new UnauthorizedException('Войдите в аккаунт, чтобы сохранить агента');
-    // агенты — настройки ИИ-продавца: владелец и управляющий (ADR-104, DATA_MODEL §16.5)
+    // агенты — настройки ИИ-продавца: владелец и управляющий (ADR-106, DATA_MODEL §16.5)
     if (!can(currentRole(), 'seller'))
       throw new ForbiddenException('Создавать агентов могут владелец и управляющий');
     const membership = await this.prisma.db.membership.findUnique({

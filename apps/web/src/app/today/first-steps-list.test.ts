@@ -20,7 +20,7 @@ describe('firstStepsFor', () => {
     expect(firstStepsFor(true).some((s) => s.action?.href === '/reservations/new')).toBe(false);
   });
 
-  it('шаги с правом (ADR-104): настройка отеля — `settings`, приглашение сотрудников — `staff`', () => {
+  it('шаги с правом (ADR-106): настройка отеля — `settings`, приглашение сотрудников — `staff`', () => {
     const setup = firstStepsFor(true).find((s) => s.action?.href === '/onboarding');
     const invite = firstStepsFor(false).find((s) => s.action?.href === '/login');
     expect(setup?.requires).toBe('settings');

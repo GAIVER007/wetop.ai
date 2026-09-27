@@ -127,7 +127,7 @@ describe.skipIf(!url)('invites repository (integration, DATABASE_URL required)',
     ).rejects.toMatchObject({ code: 'P2002' });
   });
 
-  /** Отзывает владелец: ему доступны приглашения с любой ролью (ADR-104) */
+  /** Отзывает владелец: ему доступны приглашения с любой ролью (ADR-106) */
   const ALL_INVITE_ROLES = ['MANAGER', 'STAFF'] as const;
 
   // Аудит 26.09, С-10 и С-11: отзыв приглашения и суточный счётчик — на настоящей базе, а не только на подделке

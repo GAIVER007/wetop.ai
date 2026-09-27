@@ -102,7 +102,7 @@ beforeAll(async () => {
     'session-a': { id: USER_A, organizationId: ORG_A, role: 'OWNER' },
     'session-b': { id: USER_B, organizationId: ORG_B, role: 'OWNER' },
     'session-staff': { id: USER_STAFF, organizationId: ORG_A, role: 'STAFF' },
-    // управляющий организации A (ADR-104): настройки продавца — наравне с владельцем
+    // управляющий организации A (ADR-106): настройки продавца — наравне с владельцем
     'session-manager': { id: USER_MANAGER, organizationId: ORG_A, role: 'MANAGER' },
   };
   const auth = {
@@ -659,7 +659,7 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
     expect(owner.body.canConfigure).toBe(true);
   });
 
-  it('управляющий настраивает продавца наравне с владельцем (ADR-104)', async () => {
+  it('управляющий настраивает продавца наравне с владельцем (ADR-106)', async () => {
     const status = await api().get('/ai-seller/status').set(as('session-manager')).expect(200);
     expect(status.body.canConfigure).toBe(true);
     await api().put('/ai-seller/profile').set(as('session-manager')).send(profile).expect(200);

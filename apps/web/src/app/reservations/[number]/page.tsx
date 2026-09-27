@@ -55,7 +55,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
   const longPeriods = [...periods.values()].filter(tooLong).length;
   // Справочники тарифов и фонда нужны только формам действий: без них карточка остаётся, а формы
   // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
-  // журнал — владельцу и управляющему (ADR-104): администратору ссылки туда не даём; тот же `/auth/me`, что у меню
+  // журнал — владельцу и управляющему (ADR-106): администратору ссылки туда не даём; тот же `/auth/me`, что у меню
   const access = deskShell();
   const [ratePlans, finance, services, summary, periodResults, piiStorage] = await Promise.all([
     reservationsApi.ratePlans().catch(() => null),

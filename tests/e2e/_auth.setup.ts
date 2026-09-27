@@ -60,7 +60,7 @@ test('вход сотрудника автотестов: замок включ�
       where: { userId: user.id, organizationId: { not: organization.id } },
     });
     // Владелец тестовой организации: спеки проходят всю стойку — тарифы, каналы, возвраты, журнал, а у администратора
-    // их нет (роли — ADR-104, DATA_MODEL §16.5). Раньше членство заводилось без роли, то есть администратором
+    // их нет (роли — ADR-106, DATA_MODEL §16.5). Раньше членство заводилось без роли, то есть администратором
     await db.membership.upsert({
       where: { userId_organizationId: { userId: user.id, organizationId: organization.id } },
       create: { userId: user.id, organizationId: organization.id, role: 'OWNER' },

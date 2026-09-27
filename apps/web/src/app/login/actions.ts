@@ -160,7 +160,7 @@ export interface InviteActionResult {
 }
 
 /**
- * Пригласить по почте с ролью (срез 13, этап 7; роль — ADR-104). Ошибки формы и отказ по роли приходят текстом из API;
+ * Пригласить по почте с ролью (срез 13, этап 7; роль — ADR-106). Ошибки формы и отказ по роли приходят текстом из API;
  * без сессии — тоже текстом. Непонятная роль из формы — отказ теми же словами, что у API, а не приглашение администратора.
  */
 export async function inviteAction(email: string, role: string): Promise<InviteActionResult> {
@@ -181,7 +181,7 @@ export interface TeamActionResult {
   error: string | null;
 }
 
-/** Действие над сотрудником или приглашением (ADR-104): сессия, вызов, обновить блок «Сотрудники» */
+/** Действие над сотрудником или приглашением (ADR-106): сессия, вызов, обновить блок «Сотрудники» */
 async function teamAction(run: (token: string) => Promise<void>): Promise<TeamActionResult> {
   const token = await sessionToken();
   if (!token) return { error: 'Сеанс закончился. Войдите заново.' };

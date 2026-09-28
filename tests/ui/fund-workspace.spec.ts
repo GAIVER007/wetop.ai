@@ -136,9 +136,12 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   await room.getByText('Показать номера', { exact: true }).click();
   const roomList = room.getByRole('list', { name: 'Места: Двухместный номер' });
   await expect(roomList.getByRole('listitem').first()).toContainText('R01');
-  await expect(roomList.getByRole('link', { name: 'Выбрать номер R01' })).toHaveAttribute(
+  // стенд «вокруг сегодня»: какой номер свободен, решает дата прогона, а не тест (TESTING.md)
+  const roomPick = roomList.getByRole('link', { name: /^Выбрать номер / }).first();
+  const roomCode = (await roomPick.getAttribute('aria-label'))!.replace('Выбрать номер ', '');
+  await expect(roomPick).toHaveAttribute(
     'href',
-    /unit=R01&category=ROOM&rate=BASE&adults=2$/,
+    new RegExp(`unit=${roomCode}&category=ROOM&rate=BASE&adults=2$`),
   );
   await room.getByRole('link', { name: 'Выбрать автоматически', exact: true }).click();
   const form = page.getByTestId('new-reservation-form');

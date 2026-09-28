@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 29.09.2026 01:11 Алматы · vm
+# коммит db0cb5b (claude/modest-pascal-bgu2qe)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 31 tests using 1 worker
+
+  ✓   1 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (4.5s)
+  ✓   2 tests/ui/inventory-catalog.spec.ts:32:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (4.2s)
+  ✓   3 tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (3.7s)
+  ✓   4 tests/ui/inventory-catalog.spec.ts:88:1 › пустой поиск объясняется, сброс возвращает фонд (1.8s)
+  ✓   5 tests/ui/inventory-catalog.spec.ts:99:3 › каталог адаптивен и доступен: light (16.7s)
+  ✓   6 tests/ui/inventory-catalog.spec.ts:99:3 › каталог адаптивен и доступен: dark (16.2s)
+  ✓   7 tests/ui/inventory-catalog.spec.ts:132:1 › пустой фонд отличается от пустого поиска (1.4s)
+  ✓   8 tests/ui/inventory-catalog.spec.ts:140:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (3.1s)
+  ✓   9 tests/ui/inventory-catalog.spec.ts:162:1 › панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами (5.2s)
+  ✓  10 tests/ui/inventory-catalog.spec.ts:210:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (3.9s)
+  ✓  11 tests/ui/inventory-catalog.spec.ts:235:3 › панель места доступна: light (5.7s)
+  ✓  12 tests/ui/inventory-catalog.spec.ts:235:3 › панель места доступна: dark (5.3s)
+  ✓  13 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.3s)
+  ✓  14 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.2s)
+
+# код выхода —, сигнал SIGTERM · 1 мин 26 с

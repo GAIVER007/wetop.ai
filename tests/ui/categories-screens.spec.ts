@@ -4,7 +4,7 @@ const fixture = 'http://127.0.0.1:4311';
 const shots = 'reports/categories-v2-c1-2026-09-27';
 
 /**
- * «Категории v2» C1 (ADR-106, ТЗ §48): таблица с пятью категориями формы Luxx, категория без фонда
+ * «Категории v2» C1 (ADR-107, ТЗ §48): таблица с пятью категориями формы Luxx, категория без фонда
  * и тарифа, длинное имя, фильтр типа, меню строки — снимки light/dark/телефон для стопа этапа.
  */
 test('categories C1: five Luxx-shaped rows, filters, row menu, long name — light/dark/mobile', async ({

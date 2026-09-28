@@ -28,7 +28,7 @@ export class InventoryEditor {
   private property() {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
-  /** Список для стойки: `ratePlans` — число действующих тарифов категории (ТЗ «Категории v2», ADR-106). */
+  /** Список для стойки: `ratePlans` — число действующих тарифов категории (ТЗ «Категории v2», ADR-107). */
   async categories() {
     const propertyId = await this.property();
     const rows = await this.prisma.db.accommodationType.findMany({

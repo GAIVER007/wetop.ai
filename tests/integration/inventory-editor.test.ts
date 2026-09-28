@@ -75,7 +75,7 @@ describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and is
           .expect(200)
           .expect((res) => {
             expect(res.body[0].code).toBe(category.code);
-            // сигнал «настроено для продаж» в списке категорий (ТЗ «Категории v2», ADR-106)
+            // сигнал «настроено для продаж» в списке категорий (ТЗ «Категории v2», ADR-107)
             expect(res.body[0].active).toBe(true);
             expect(res.body[0].ratePlans).toBe(1);
           });

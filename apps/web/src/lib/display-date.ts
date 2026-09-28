@@ -30,7 +30,7 @@ const mm = (value: string) => value.slice(5, 7);
 const yyyy = (value: string) => value.slice(0, 4);
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
-/** `14.09.2026` — как на паспорте и в Exely (DESIGN.md §14) */
+/** `14.09.2026` — привычный формат даты документа (DESIGN.md §14). */
 export function displayDay(value: string): string {
   return ISO.test(value) ? `${dd(value)}.${mm(value)}.${yyyy(value)}` : value;
 }

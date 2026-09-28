@@ -16,7 +16,7 @@ Platform Core                 — Organization, User, Membership, Session, Invit
     │
     ├── Vertical: HOSPITALITY — Property, AccommodationType, InventoryUnit, Reservation,
     │                            ReservationItem, Allocation, RatePlan, DailyRate, Restriction,
-    │                            Housekeeping, ChannelMapping, Chessboard, Channex/Exely/eQonaq
+    │                            Housekeeping, ChannelMapping, Chessboard, Channex/архивный источник/eQonaq
     │
     └── Vertical: BEAUTY      — Customer, Employee, BeautyService, EmployeeService, WorkingHours,
                                  TimeOff, Appointment, Beauty Calendar
@@ -71,7 +71,7 @@ Platform Core                 — Organization, User, Membership, Session, Invit
                                   │                      │
                      ┌────────────▼──────────┐  ┌────────▼─────────────┐
                      │  packages/database      │  │ packages/integrations  │
-                     │  Property/InventoryUnit/│  │ Channex/Exely/eQonaq   │
+                     │  Property/InventoryUnit/│  │ Channex/архивный источник/eQonaq   │
                      │  Reservation (не трогать)│  │  (только HOSPITALITY)  │
                      │  + НОВОЕ: Location,      │  │ mail/telegram/fiscal   │
                      │  Customer, Employee,     │  │  (platform, оба        │
@@ -196,9 +196,9 @@ model Location {
 
 ## E. Hospitality Bounded Context (закрывает пункт 3)
 
-Не переписываются и не расширяются (буквально по списку задания): `Property`, `AccommodationType`, `InventoryUnit`, `PhysicalRoom`, `Reservation`, `ReservationItem`, `Allocation`, `RatePlan`, `DailyRate`, `Restriction`, Housekeeping (`HousekeepingEvent`, `InventoryBlock`), `ChannelMapping`, Channex/Exely/eQonaq (`packages/integrations/src/{channex,exely,eqonaq}`), Chessboard (`packages/domain/src/chessboard/build.ts`, `apps/api/src/chessboard`, `apps/web/src/app/chessboard`).
+Не переписываются и не расширяются (буквально по списку задания): `Property`, `AccommodationType`, `InventoryUnit`, `PhysicalRoom`, `Reservation`, `ReservationItem`, `Allocation`, `RatePlan`, `DailyRate`, `Restriction`, Housekeeping (`HousekeepingEvent`, `InventoryBlock`), `ChannelMapping`, Channex/архивный источник/eQonaq (`packages/integrations/src/{channex,retired-source,eqonaq}`), Chessboard (`packages/domain/src/chessboard/build.ts`, `apps/api/src/chessboard`, `apps/web/src/app/chessboard`).
 
-**Единственное изменение, которое их касается:** `InventoryUnitKind` (`ROOM|BED`) и `AccommodationKind` (`PRIVATE_ROOM|DORM_BED|APARTMENT`) **не получают новых значений** (`MASTER`/`CHAIR`/`SERVICE` и т.п. туда не добавляются — прямое требование задания и одновременно то, что защищает Channex/ARI/шахматку/availability/pricing/Exely-сверку от риска, описанного в аудите §I.2). Всё, что нужно Hospitality от новой модели — это то, что `Property` теперь на один шаг глубже (через `Location`), и это прозрачно благодаря §D.4.
+**Единственное изменение, которое их касается:** `InventoryUnitKind` (`ROOM|BED`) и `AccommodationKind` (`PRIVATE_ROOM|DORM_BED|APARTMENT`) **не получают новых значений** (`MASTER`/`CHAIR`/`SERVICE` и т.п. туда не добавляются — прямое требование задания и одновременно то, что защищает Channex/ARI/шахматку/availability/pricing/архивный источник-сверку от риска, описанного в аудите §I.2). Всё, что нужно Hospitality от новой модели — это то, что `Property` теперь на один шаг глубже (через `Location`), и это прозрачно благодаря §D.4.
 
 Шахматка (Chessboard) сохраняет архитектурное назначение без изменений (пункт 15): `apps/web/src/app/chessboard/board-grid.tsx` и `packages/domain/src/chessboard/build.ts` не трогаются. Generic overlap-движок внутри `buildChessboard()` остаётся источником *паттерна* (не кода) для Beauty Calendar — см. §F.7.
 

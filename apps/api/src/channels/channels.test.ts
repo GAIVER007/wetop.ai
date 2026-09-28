@@ -22,7 +22,7 @@ const property = {
 const categories = [
   {
     id: 't1',
-    code: 'exely-900001',
+    code: 'category-single',
     name: 'Тестовая одиночная',
     kind: 'PRIVATE_ROOM' as const,
     capacityAdults: 1,
@@ -30,7 +30,7 @@ const categories = [
   },
   {
     id: 't2',
-    code: 'exely-900002',
+    code: 'category-twin',
     name: 'Тестовая двойная',
     kind: 'PRIVATE_ROOM' as const,
     capacityAdults: 2,
@@ -38,14 +38,14 @@ const categories = [
   },
   {
     id: 't3',
-    code: 'exely-900003',
+    code: 'category-dorm',
     name: 'Тестовый dorm',
     kind: 'DORM_BED' as const,
     capacityAdults: 1,
     units: 36,
   },
 ];
-const ratePlan = { id: 'p2', code: 'exely-800002', name: 'Тестовый для ОТА +35%', currency: 'KZT' };
+const ratePlan = { id: 'p2', code: 'rate-ota', name: 'Тестовый для ОТА +35%', currency: 'KZT' };
 
 describe('buildChannexSetup', () => {
   it('maps categories to room types (dorm → room_kind dorm, capacity 18) and one manual per_room rate plan each', () => {
@@ -95,21 +95,21 @@ describe('ARI values', () => {
       id: 'u1',
       code: '9001',
       kind: 'ROOM' as const,
-      accommodationTypeCode: 'exely-900001',
+      accommodationTypeCode: 'category-single',
       accommodationTypeName: 'Одиночная',
     },
     {
       id: 'u2',
       code: '9010',
       kind: 'BED' as const,
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       accommodationTypeName: 'Dorm',
     },
     {
       id: 'u3',
       code: '9011',
       kind: 'BED' as const,
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       accommodationTypeName: 'Dorm',
     },
   ];
@@ -155,8 +155,8 @@ describe('ARI values', () => {
       from: '2026-10-01',
       to: '2026-10-05',
       roomTypes: [
-        { localCategoryCode: 'exely-900001', providerRoomTypeId: 'R1' },
-        { localCategoryCode: 'exely-900003', providerRoomTypeId: 'R3' },
+        { localCategoryCode: 'category-single', providerRoomTypeId: 'R1' },
+        { localCategoryCode: 'category-dorm', providerRoomTypeId: 'R3' },
       ],
       free,
     });
@@ -204,26 +204,26 @@ describe('ARI values', () => {
       from: '2026-10-01',
       to: '2026-10-04',
       ratePlans: [
-        { localCategoryCode: 'exely-900001', localRatePlanId: 'p2', providerRatePlanId: 'RP1' },
+        { localCategoryCode: 'category-single', localRatePlanId: 'p2', providerRatePlanId: 'RP1' },
       ],
       dailyRates: [
         {
           date: '2026-10-01',
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           ratePlanId: 'p2',
           occupancy: 1,
           priceMinor: 1_540_000n,
         },
         {
           date: '2026-10-02',
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           ratePlanId: 'p2',
           occupancy: 1,
           priceMinor: 1_540_000n,
         },
         {
           date: '2026-10-03',
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           ratePlanId: 'p2',
           occupancy: 1,
           priceMinor: 1_600_000n,
@@ -232,7 +232,7 @@ describe('ARI values', () => {
       restrictions: [
         {
           date: '2026-10-02',
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           ratePlanId: 'p2',
           minStay: 2,
           maxStay: null,
@@ -241,7 +241,7 @@ describe('ARI values', () => {
           closedToDeparture: false,
         },
       ],
-      occupancyByCategory: { 'exely-900001': 1 },
+      occupancyByCategory: { 'category-single': 1 },
     });
     expect(values).toEqual([
       {
@@ -332,26 +332,26 @@ describe('Full Sync: ограничения тянутся до конца ок�
       from: '2026-10-01',
       to: '2026-10-06',
       ratePlans: [
-        { localCategoryCode: 'exely-900001', localRatePlanId: 'p2', providerRatePlanId: 'RP1' },
+        { localCategoryCode: 'category-single', localRatePlanId: 'p2', providerRatePlanId: 'RP1' },
       ],
       dailyRates: [
         {
           date: '2026-10-01',
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           ratePlanId: 'p2',
           occupancy: 1,
           priceMinor: 1_540_000n,
         },
         {
           date: '2026-10-02',
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           ratePlanId: 'p2',
           occupancy: 1,
           priceMinor: 1_600_000n,
         },
       ],
       restrictions: [],
-      occupancyByCategory: { 'exely-900001': 1 },
+      occupancyByCategory: { 'category-single': 1 },
     });
     const last = values[values.length - 1]!;
     // окно ограничений доходит до конца периода (как доступность), а не обрывается на последней цене

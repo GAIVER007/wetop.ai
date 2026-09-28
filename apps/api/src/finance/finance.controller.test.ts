@@ -779,7 +779,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       .expect(400);
   });
 
-  it('ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Exely; занятая койка — отказ без начисления', async () => {
+  it('ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления', async () => {
     // счёт f1: проживание 01→03.10 в ячейке 9001 (фальшивка stayUnitCode)
     fakes.blocks.length = 0;
     await request(app.getHttpServer())

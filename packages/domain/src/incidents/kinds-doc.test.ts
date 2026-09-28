@@ -5,7 +5,7 @@ import { POLICY } from './incidents';
 
 /**
  * v1.7 §12 (ADR-082): список видов неисправностей в `DATA_MODEL.md` разъехался с кодом — в документе не было
- * `webhook.misrouted`, `ari.delta.lost` и `backup.stale`, а `exely.stale` остался после снятия его проверки
+ * `webhook.misrouted`, `ari.delta.lost` и `backup.stale`, а `legacy.stale` остался после снятия его проверки
  * (ADR-073). Источник правды — `POLICY` здесь; этот тест держит документ в сверке: разъехались — красный
  * с именами видов, а не тихое устаревание.
  */

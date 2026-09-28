@@ -156,7 +156,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
   /** GUARD_AUTOFIX=off — только запись и будильник */
   autofix = process.env.GUARD_AUTOFIX !== 'off';
   /**
-   * GUARD_PROPERTY_LIVE=true — объект работает в этой PMS. Пока нет (брони до 19.09 приходили из Exely, ADR-052),
+   * GUARD_PROPERTY_LIVE=true — объект работает в этой PMS. Пока нет (брони до 19.09 приходили из Legacy, ADR-052),
    * овербукинг — не авария этой системы: предупреждение днём, а не звонок в 3 часа ночи.
    */
   propertyLive = process.env.GUARD_PROPERTY_LIVE === 'true';
@@ -504,7 +504,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         items: s.items,
       }).map((n) => ({
         kind: 'stay.overbooked',
-        title: `Продано сверх вместимости: ${name(n.code)}, ночь ${ddmm(n.date)} — ${n.sold} на ${n.capacity}${this.propertyLive ? '' : ' (объект пока работает в Exely)'}`,
+        title: `Продано сверх вместимости: ${name(n.code)}, ночь ${ddmm(n.date)} — ${n.sold} на ${n.capacity}${this.propertyLive ? '' : ''}`,
         subjectType: 'category_night',
         subjectId: `${n.code}:${n.date}`,
         severity: this.propertyLive && n.date === today ? 'CRITICAL' : 'WARNING',

@@ -111,14 +111,12 @@ export function buildHotelSetupPlan(setup: HotelSetup): HotelSetupPlan {
       kind: c.kind,
       capacityAdults: c.capacityAdults,
       capacityChildren: 0,
-      exelyId: null,
     });
     for (let n = 1; n <= c.units; n += 1) {
       // Код места: <номер категории><порядковый>, например 101, 102; номер комнаты — тот же
       const unitCode = `${i + 1}${pad(n, c.units)}`;
       units.push({
         code: unitCode,
-        exelyRoomNumber: null,
         kind: unitKind,
         accommodationTypeCode: code,
         roomNumber: unitCode,

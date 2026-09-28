@@ -25,18 +25,18 @@ backups/
 .claude/worktrees/
 
 # --- Персональные данные: реальные выгрузки НЕ коммитим (SECURITY.md §4) ---
-project-input/exely/*
-!project-input/exely/README.md
-!project-input/exely/.gitkeep
+project-input/retired-source/*
+!project-input/retired-source/README.md
+!project-input/retired-source/.gitkeep
 # Аудит 07.09.2026 — проверено: данных гостей (ФИО, телефоны, email, документы) нет.
 # Содержит рабочие email сотрудников и финансовые показатели объекта.
 # Только разборы .md: таблица или выгрузка, положенная в эту папку, в git не уезжает (проверка 24.09.2026)
-!project-input/exely/audit-2026-09-07/
-project-input/exely/audit-2026-09-07/*
-!project-input/exely/audit-2026-09-07/*.md
-project-input/exely-screens/*
-!project-input/exely-screens/README.md
-!project-input/exely-screens/.gitkeep
+!project-input/retired-source/audit-2026-09-07/
+project-input/retired-source/audit-2026-09-07/*
+!project-input/retired-source/audit-2026-09-07/*.md
+project-input/retired-source-screens/*
+!project-input/retired-source-screens/README.md
+!project-input/retired-source-screens/.gitkeep
 project-input/forms/*
 !project-input/forms/README.md
 !project-input/forms/.gitkeep
@@ -83,9 +83,9 @@ packages/database/src/generated/
 # Замки прогонов: чей-то живой процесс, в историю не едут
 tests/runs/.locks/
 
-# --- Дизайн-система: скриншоты Exely с закрашенными фамилиями остаются на машине владельца (ADR-048, Д7) ---
-design/reference/exely/*
-!design/reference/exely/.gitkeep
+# --- Дизайн-система: скриншоты архивный источник с закрашенными фамилиями остаются на машине владельца (ADR-048, Д7) ---
+design/reference/retired-source/*
+!design/reference/retired-source/.gitkeep
 tests/runs/.auth/
 .agent-tmp/
 

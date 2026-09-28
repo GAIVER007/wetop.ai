@@ -31,7 +31,9 @@ describe('главная: имя канала у проживаний', () => {
     const prisma = {
       db: {
         property: {
-          findFirst: vi.fn().mockResolvedValue({ id: 'p1', name: 'Luxx Aparts', organizationId: null }),
+          findFirst: vi
+            .fn()
+            .mockResolvedValue({ id: 'p1', name: 'Luxx Aparts', organizationId: null }),
         },
         reservationItem: { findMany },
       },
@@ -41,5 +43,84 @@ describe('главная: имя канала у проживаний', () => {
     const stays = await repo.stays('2026-10-01', '2026-10-31');
 
     expect(stays.map((s) => s.channel)).toEqual(['Booking.com', 'Booking.com', null, 'Klook']);
+  });
+});
+
+/** Аналитика v2, AN1: тип фонда берётся из единиц шахматки, «без ячейки» и выручка по дням — по категориям. */
+describe('аналитика: тип категории, без ячейки по категориям, дата начисления', () => {
+  afterEach(() => forgetPropertyRef());
+
+  it('тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории', async () => {
+    const unit = (code: string, kind: 'ROOM' | 'BED', typeCode: string, typeName: string) => ({
+      unit: {
+        id: code,
+        code,
+        kind,
+        accommodationTypeCode: typeCode,
+        accommodationTypeName: typeName,
+      },
+    });
+    const board = vi.fn().mockImplementation(async (from: string, to: string) => ({
+      dates: from === to ? [from] : [from, to],
+      rows: [
+        unit('1', 'ROOM', 'SGL', 'Одноместная'),
+        unit('5', 'BED', 'DRM', 'Мужская общая'),
+        unit('6', 'BED', 'DRM', 'Мужская общая'),
+      ],
+      summary: {},
+      byCategory: {},
+      // одно и то же проживание в двух кусках периода — одно
+      unassigned: [
+        { confirmationNumber: 'T-1', categoryCode: 'DRM', arrivalDate: '2026-10-01' },
+        { confirmationNumber: 'T-2', categoryCode: 'SGL', arrivalDate: '2026-10-01' },
+      ],
+    }));
+    const repo = new PrismaDashboardRepository(
+      {} as PrismaService,
+      { board } as unknown as ChessboardService,
+    );
+
+    const b = await repo.board('2026-10-01', '2026-12-31');
+
+    expect(board.mock.calls.length).toBeGreaterThan(1);
+    expect(b.categories).toEqual([
+      { code: 'SGL', name: 'Одноместная', units: 1, kind: 'ROOM' },
+      { code: 'DRM', name: 'Мужская общая', units: 2, kind: 'BED' },
+    ]);
+    expect(b.unassignedByCategory).toEqual({ DRM: 1, SGL: 1 });
+  });
+
+  it('начисление несёт дату услуги — по ней строится выручка по дням', async () => {
+    const findMany = vi.fn().mockResolvedValue([
+      {
+        kind: 'ACCOMMODATION',
+        amount: 500_000n,
+        serviceDate: new Date('2026-10-05T00:00:00Z'),
+        folio: { reservationItem: { accommodationType: { code: 'SGL' } } },
+      },
+    ]);
+    const prisma = {
+      db: {
+        property: {
+          findFirst: vi
+            .fn()
+            .mockResolvedValue({ id: 'p1', name: 'Luxx Aparts', organizationId: null }),
+        },
+        charge: { findMany },
+      },
+    } as unknown as PrismaService;
+    const repo = new PrismaDashboardRepository(prisma, {} as ChessboardService);
+
+    const charges = await repo.charges('2026-10-01', '2026-10-31');
+
+    expect(charges).toEqual([
+      {
+        kind: 'ACCOMMODATION',
+        amountMinor: 500_000n,
+        categoryCode: 'SGL',
+        serviceDate: '2026-10-05',
+      },
+    ]);
+    expect(findMany.mock.calls[0]![0].select).toMatchObject({ serviceDate: true });
   });
 });

@@ -73,7 +73,8 @@ const STATIC = [
   '/hotel-settings/description',
   '/hotel-settings/photos',
   '/hotel-settings/amenities',
-  '/management/statistics',
+  '/management/analytics',
+  '/management/analytics/occupancy',
   '/finance',
   '/channel-manager',
   '/channels',
@@ -744,15 +745,71 @@ async function walkPeriodPages(page: Page) {
     firstDay !== firstDay2 && rows >= 28 ? 'ok' : 'FAIL',
     `«${firstDay}» → «${firstDay2}», строк ${rows}`,
   );
-  // Статистика на дату
-  await open(page, `/management/statistics?date=${addDays(today, -1)}`);
+  // Статистика на дату — с ADR-114 вкладка «Аналитика → Загрузка»
+  await open(page, `/management/analytics/occupancy?date=${addDays(today, -1)}`);
   const stText = (await page.locator('main').first().innerText()).replace(/\s+/g, ' ');
   note(
-    '/management/statistics',
+    '/management/analytics/occupancy',
     `на дату ${addDays(today, -1)}`,
     /Загрузка|занято/i.test(stText) ? 'ok' : 'FAIL',
     stText.slice(0, 80),
   );
+}
+
+/** «Аналитика → Обзор» (ADR-114): этот месяц по каждому типу фонда — плитки равны ответу API */
+async function walkAnalytics(page: Page) {
+  const route = '/management/analytics';
+  const from = `${today.slice(0, 7)}-01`;
+  const last = new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 0));
+  const to = last.toISOString().slice(0, 10);
+  for (const fund of ['all', 'rooms', 'beds'] as const) {
+    await open(page, fund === 'all' ? route : `${route}?fund=${fund}`);
+    const kpi = page.getByTestId('pa-kpi-occupancy').first();
+    const empty = page.getByTestId('pa-empty').first();
+    await Promise.race([
+      kpi.waitFor({ timeout: 90_000 }),
+      empty.waitFor({ timeout: 90_000 }),
+    ]).catch(() => undefined);
+    if (!(await kpi.count())) {
+      note(route, `обзор «${fund}»`, (await empty.count()) ? 'ok' : 'FAIL', 'плиток нет');
+      continue;
+    }
+    const api = await json<{
+      current: {
+        occupancy: { percent: number; occupiedNights: number };
+        revenue: { accommodationMinor: string };
+        bookings: { total: number };
+      };
+    }>(`/desk/dashboard?from=${from}&to=${to}&fund=${fund}`);
+    const c = api.current;
+    const checks: Array<[string, number, number]> = [
+      ['Загрузка', num(await kpi.innerText()), Math.round(c.occupancy.percent * 10) / 10],
+      [
+        'Выручка проживания',
+        num(await page.getByTestId('pa-kpi-revenue').first().innerText()),
+        tenge(c.revenue.accommodationMinor),
+      ],
+      [
+        'Продано ночей',
+        num(await page.getByTestId('pa-kpi-nights').first().innerText()),
+        c.occupancy.occupiedNights,
+      ],
+      [
+        'Брони',
+        num(await page.getByTestId('pa-kpi-bookings').first().innerText()),
+        c.bookings.total,
+      ],
+    ];
+    const bad = checks.filter(([, screen, expected]) => Math.abs(screen - expected) > 0.051);
+    note(
+      route,
+      `обзор «${fund}» ${from}…${to}`,
+      bad.length ? 'FAIL' : 'ok',
+      bad.length
+        ? bad.map(([n, sc, e]) => `${n}: на экране ${sc}, API ${e}`).join('; ')
+        : `${checks.map(([n, sc]) => `${n} ${sc}`).join(', ')} = API`,
+    );
+  }
 }
 
 /** Отчёт обхода: пишется всегда — в том числе когда обход остановил замок входа. */
@@ -867,6 +924,7 @@ async function main() {
 
   await walkDashboard(page);
   await walkPeriodPages(page);
+  await walkAnalytics(page);
 
   const visited = new Set<string>();
   for (const route of [...STATIC, ...dynamic]) {

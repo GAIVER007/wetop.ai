@@ -87,7 +87,8 @@ function refreshChannelViews() {
   for (const path of [
     '/chessboard',
     '/today',
-    '/management/statistics',
+    '/management/analytics',
+    '/management/analytics/occupancy',
     '/rooms/availability',
     '/finance',
     '/guests',

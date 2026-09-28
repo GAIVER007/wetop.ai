@@ -3412,3 +3412,19 @@
 | 28.09.2026 12:16 | typecheck | ✅ без ошибок | 23 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-16-15Z-typecheck-8adf.log) |  |
 | 28.09.2026 12:16 | lint | ✅ без ошибок | 17 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-16-38Z-lint-3d29.log) |  |
 | 28.09.2026 12:16 | unit | ✅ 2119 из 2122, пропущено 3 | 1 мин 12 с | 0eeeb0e +13 | [лог](logs/2026-09-28T07-16-55Z-unit-355a.log) |  |
+| 28.09.2026 01:54 | unit (частично: packages/domain/src/dashboard/metrics.test.ts) | ❌ упало 8 из 12 | 3 с | a0fa497 +1 | [лог](logs/2026-09-27T20-54-35Z-unit-dc9c.log) | AN1 red: fund filter, bookings, daily revenue |
+| 28.09.2026 01:55 | unit (частично: apps/api/src/dashboard/) | ❌ упало 6 из 8 | 3 с | a0fa497 +5 | [лог](logs/2026-09-27T20-55-56Z-unit-7262.log) | AN1 red: API fund param, category kind, charge serviceDate |
+| 28.09.2026 02:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-v2.spec.ts) | ✅ 8 из 8 | 50 с | a0fa497 +37 | [лог](logs/2026-09-27T21-10-08Z-e2e-b855.log) | AN1 overview spec |
+| 28.09.2026 02:11 | typecheck | ✅ без ошибок | 30 с | a0fa497 +37 | [лог](logs/2026-09-27T21-11-13Z-typecheck-8b7f.log) |  |
+| 28.09.2026 02:11 | lint | ✅ без ошибок | 17 с | a0fa497 +37 | [лог](logs/2026-09-27T21-11-44Z-lint-604b.log) |  |
+| 28.09.2026 02:12 | unit | ❌ упало 2 из 2127, пропущено 3 | 1 мин 35 с | a0fa497 +28 | [лог](logs/2026-09-27T21-12-11Z-unit-f6fd.log) | design: сторож ИИ-слопа (DESIGN.md §15) uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase |
+| 28.09.2026 02:14 | unit | ✅ 2124 из 2127, пропущено 3 | 1 мин 12 с | a0fa497 +28 | [лог](logs/2026-09-27T21-14-13Z-unit-4cd4.log) |  |
+| 28.09.2026 02:15 | typecheck | ✅ без ошибок | 23 с | a0fa497 +38 | [лог](logs/2026-09-27T21-15-26Z-typecheck-d9de.log) |  |
+| 28.09.2026 02:15 | lint | ✅ без ошибок | 17 с | a0fa497 +38 | [лог](logs/2026-09-27T21-15-49Z-lint-bbc0.log) |  |
+| 28.09.2026 02:16 | integration | ❌ упало 1 из 107 | 33 с | 599cffc | [лог](logs/2026-09-27T21-16-48Z-integration-b464.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
+| 28.09.2026 02:17 | integration | ✅ 107 из 107 | 33 с | 599cffc | [лог](logs/2026-09-27T21-17-34Z-integration-0f8f.log) | после ALTER ROLE wetop_app LOGIN на свежем стенде (docs/ops/rls.md) |
+| 28.09.2026 02:18 | e2e | ❌ код выхода 1 | 5 с | 599cffc | [лог](logs/2026-09-27T21-18-11Z-e2e-2c7c.log) | (ошибка вне тестов) |
+| 28.09.2026 02:18 | e2e | ✅ 25 из 25 | 1 мин 3 с | 599cffc | [лог](logs/2026-09-27T21-18-51Z-e2e-b106.log) |  |
+| 28.09.2026 02:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 3 мин 19 с | 599cffc | [лог](logs/2026-09-27T21-20-00Z-e2e-2ff3.log) | полный UI-набор на AN1 |
+| 28.09.2026 02:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-v2.spec.ts) | ✅ 16 из 16 | 5 мин 23 с | 8bcd97a +2 | [лог](logs/2026-09-27T21-23-28Z-e2e-5c10.log) | AN1: подчёркнутые ссылки в подписях (axe link-in-text-block) |
+| 28.09.2026 02:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 416 | 33 мин 9 с | 16818d5 | [лог](logs/2026-09-27T21-29-09Z-e2e-cdcb.log) | полный UI-набор на AN1 |

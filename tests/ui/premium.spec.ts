@@ -135,7 +135,8 @@ test('новые страницы и обе темы: адаптивность �
     '/journal',
     '/incidents',
     '/analytics',
-    '/management/statistics',
+    '/management/analytics',
+    '/management/analytics/occupancy',
     '/management/dashboard',
     '/hotel-settings/services',
   ];

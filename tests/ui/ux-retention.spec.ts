@@ -63,7 +63,7 @@ test('пустые экраны без «Exely» и «импорта», с де�
   await expect(main).not.toContainText(/Exely|загрузки фонда/);
   await expect(main.locator('a[href="/onboarding"]')).toHaveCount(0);
 
-  await page.goto('/management/statistics');
+  await page.goto('/management/analytics/occupancy');
   await expect(main.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(main).not.toContainText(/Exely/);
 

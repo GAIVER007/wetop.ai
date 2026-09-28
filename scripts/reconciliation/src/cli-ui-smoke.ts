@@ -25,7 +25,7 @@ const STATIC = [
   '/rooms', '/rooms/categories', '/rooms/availability', '/inventory', '/rates',
   '/hotel-settings', '/hotel-settings/check-in', '/hotel-settings/penalties', '/hotel-settings/services',
   '/hotel-settings/description', '/hotel-settings/photos', '/hotel-settings/amenities',
-  '/management/statistics', '/finance',
+  '/management/analytics', '/management/analytics/occupancy', '/finance',
   '/channel-manager', '/channels', '/connections', '/analytics', '/analytics/setup',
   '/journal', '/incidents',
   // экраны premium UI (PR #2, ADR-035): справочник броней, сообщения, профиль, вход

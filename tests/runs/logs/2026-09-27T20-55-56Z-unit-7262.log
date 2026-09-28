@@ -1,0 +1,182 @@
+# Модульные (unit) · 28.09.2026 01:55 Алматы · vm
+# коммит a0fa497 (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T20-55-56Z-unit-7262.json' 'apps/api/src/dashboard/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/dashboard/dashboard.service.test.ts (1 test | 1 failed) 11ms
+   ❯ главная: выборки периода (1)
+     × деньги, проживания и возвраты запрашиваются одновременно, а не по очереди 9ms
+ ❯ |unit| apps/api/src/dashboard/dashboard.repository.test.ts (3 tests | 2 failed) 20ms
+   ✓ главная: имя канала у проживаний (1)
+     ✓ один канал под двумя именами Channex приходит на «Главную» одним именем 4ms
+   ❯ аналитика: тип категории, без ячейки по категориям, дата начисления (2)
+     × тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории 11ms
+     × начисление несёт дату услуги — по ней строится выручка по дням 2ms
+[Nest] 1258  - 09/27/2026, 8:55:59 PM   ERROR [ExceptionsHandler] TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at buildDashboard (/home/user/wetop.ai/packages/domain/src/dashboard/metrics.ts:317:24)
+    at DashboardService.period (/home/user/wetop.ai/apps/api/src/dashboard/dashboard.service.ts:48:12)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at DashboardService.dashboard (/home/user/wetop.ai/apps/api/src/dashboard/dashboard.service.ts:32:21)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+[Nest] 1258  - 09/27/2026, 8:55:59 PM   ERROR [ExceptionsHandler] TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at buildDashboard (/home/user/wetop.ai/packages/domain/src/dashboard/metrics.ts:317:24)
+    at DashboardService.period (/home/user/wetop.ai/apps/api/src/dashboard/dashboard.service.ts:48:12)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at DashboardService.dashboard (/home/user/wetop.ai/apps/api/src/dashboard/dashboard.service.ts:32:21)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+[Nest] 1258  - 09/27/2026, 8:55:59 PM   ERROR [ExceptionsHandler] TypeError: Cannot convert undefined or null to object
+    at Function.values (<anonymous>)
+    at buildDashboard (/home/user/wetop.ai/packages/domain/src/dashboard/metrics.ts:317:24)
+    at DashboardService.period (/home/user/wetop.ai/apps/api/src/dashboard/dashboard.service.ts:48:12)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at DashboardService.dashboard (/home/user/wetop.ai/apps/api/src/dashboard/dashboard.service.ts:32:21)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ❯ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (4 tests | 3 failed) 176ms
+   ❯ desk dashboard API (4)
+     × период и предыдущий отрезок той же длины; загрузка из шахматки, деньги из счетов 28ms
+     × тип фонда: по умолчанию весь фонд, койки — отдельно; оба периода считаются одним типом 6ms
+     × неизвестный тип фонда — 400, а не молча весь фонд 5ms
+     ✓ без дат — 400; to раньше from — 400; больше 366 дней — 400 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.controller.test.ts > desk dashboard API > период и предыдущий отрезок той же длины; загрузка из шахматки, деньги из счетов
+Error: expected 200 "OK", got 500 "Internal Server Error"
+ ❯ apps/api/src/dashboard/dashboard.controller.test.ts:96:8
+     94|     const r = await request(app.getHttpServer())
+     95|       .get('/desk/dashboard?from=2026-10-05&to=2026-10-06&fund=rooms')
+     96|       .expect(200);
+       |        ^
+     97|     expect(r.body.current).toMatchObject({
+     98|       from: '2026-10-05',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.controller.test.ts > desk dashboard API > тип фонда: по умолчанию весь фонд, койки — отдельно; оба периода считаются одним типом
+Error: expected 200 "OK", got 500 "Internal Server Error"
+ ❯ apps/api/src/dashboard/dashboard.controller.test.ts:124:8
+    122|     const all = await request(app.getHttpServer())
+    123|       .get('/desk/dashboard?from=2026-10-05&to=2026-10-06')
+    124|       .expect(200);
+       |        ^
+    125|     expect(all.body.current).toMatchObject({
+    126|       fund: 'all',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.controller.test.ts > desk dashboard API > неизвестный тип фонда — 400, а не молча весь фонд
+Error: expected 400 "Bad Request", got 500 "Internal Server Error"
+ ❯ apps/api/src/dashboard/dashboard.controller.test.ts:149:8
+    147|     await request(app.getHttpServer())
+    148|       .get('/desk/dashboard?from=2026-10-05&to=2026-10-06&fund=apartme…
+    149|       .expect(400);
+       |        ^
+    150|   });
+    151|
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.repository.test.ts > аналитика: тип категории, без ячейки по категориям, дата начисления > тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории
+AssertionError: expected [ { code: 'SGL', …(2) }, …(1) ] to deeply equal [ { code: 'SGL', …(3) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "code": "SGL",
+-     "kind": "ROOM",
+      "name": "Одноместная",
+      "units": 1,
+    },
+    {
+      "code": "DRM",
+-     "kind": "BED",
+      "name": "Мужская общая",
+      "units": 2,
+    },
+  ]
+
+ ❯ apps/api/src/dashboard/dashboard.repository.test.ts:78:26
+     76|
+     77|     expect(board.mock.calls.length).toBeGreaterThan(1);
+     78|     expect(b.categories).toEqual([
+       |                          ^
+     79|       { code: 'SGL', name: 'Одноместная', units: 1, kind: 'ROOM' },
+     80|       { code: 'DRM', name: 'Мужская общая', units: 2, kind: 'BED' },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.repository.test.ts > аналитика: тип категории, без ячейки по категориям, дата начисления > начисление несёт дату услуги — по ней строится выручка по дням
+AssertionError: expected [ { kind: 'ACCOMMODATION', …(2) } ] to deeply equal [ { kind: 'ACCOMMODATION', …(3) } ]
+
+- Expected
++ Received
+
+  [
+    {
+      "amountMinor": 500000n,
+      "categoryCode": "SGL",
+      "kind": "ACCOMMODATION",
+-     "serviceDate": "2026-10-05",
+    },
+  ]
+
+ ❯ apps/api/src/dashboard/dashboard.repository.test.ts:106:21
+    104|     const charges = await repo.charges('2026-10-01', '2026-10-31');
+    105|
+    106|     expect(charges).toEqual([
+       |                     ^
+    107|       { kind: 'ACCOMMODATION', amountMinor: 500_000n, categoryCode: 'S…
+    108|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.service.test.ts > главная: выборки периода > деньги, проживания и возвраты запрашиваются одновременно, а не по очереди
+TypeError: Cannot convert undefined or null to object
+ ❯ buildDashboard packages/domain/src/dashboard/metrics.ts:317:24
+    315|       percent: percent(occupiedNights, unitNights),
+    316|     },
+    317|     unassigned: Object.values(input.unassignedByCategory).reduce((n, v…
+       |                        ^
+    318|     revenue: {
+    319|       accommodationMinor: s(accommodation),
+ ❯ DashboardService.period apps/api/src/dashboard/dashboard.service.ts:48:12
+ ❯ DashboardService.dashboard apps/api/src/dashboard/dashboard.service.ts:32:21
+ ❯ apps/api/src/dashboard/dashboard.service.test.ts:71:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  6 failed | 2 passed (8)
+   Start at  20:55:57
+   Duration  1.81s (transform 63%, import 32%, tests 5%)
+
+JSON report written to /tmp/pms-test-2026-09-27T20-55-56Z-unit-7262.json
+
+# код выхода 1 · 3 с

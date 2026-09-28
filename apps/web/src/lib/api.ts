@@ -7,6 +7,7 @@ export type { ActionPreview } from './action-preview';
  */
 import type {
   CancellationPenaltyPolicy,
+  DashboardFund,
   DashboardPeriod,
   InviteRole,
   MembershipRole,
@@ -1306,8 +1307,11 @@ export interface DashboardView {
   previous: DashboardPeriod;
 }
 export const dashboardApi = {
-  period: (from: string, to: string) =>
-    getJson<DashboardView>(`/desk/dashboard?${new URLSearchParams({ from, to })}`),
+  /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
+  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+    getJson<DashboardView>(
+      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+    ),
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────

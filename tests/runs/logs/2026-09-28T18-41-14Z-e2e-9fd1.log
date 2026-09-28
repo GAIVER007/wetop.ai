@@ -1,0 +1,110 @@
+# Сквозные (e2e) · 28.09.2026 23:41 Алматы · vm
+# коммит e0ac75f (HEAD)
+# npx playwright test --workers=2 --reporter=list,json 'tests/e2e/finance.spec.ts' 'tests/e2e/full-day.spec.ts'
+[pms_test] миграций применено 0 из 33; данные от 2026-09-28T18:41:05.136Z (сид)
+
+Running 3 tests using 2 workers
+
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (47ms)
+[WebServer] (node:6901) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  2 [isolated] › tests/e2e/finance.spec.ts:29:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (2.0m)
+  ✘  3 [isolated] › tests/e2e/full-day.spec.ts:25:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (4.0m)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 2)
+  свежих, моложе 15 мин, оставлено: 2 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/finance.spec.ts:29:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('folio-panel').getByTestId('charge-form').locator('select[name="serviceCode"]')
+        - locator resolved to <select class="inp" name="serviceCode" aria-label="Услуга">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        232 × waiting for element to be visible and enabled
+            - did not find some options
+          - retrying select option action
+            - waiting 500ms
+
+
+      75 |   cf = panel.getByTestId('charge-form');
+      76 |   await cf.locator('select[name="kind"]').selectOption('SERVICE');
+    > 77 |   await cf.locator('select[name="serviceCode"]').selectOption('Стирка (1 загрузка)');
+         |                                                  ^
+      78 |   await cf.locator('input[name="quantity"]').fill('2');
+      79 |   await cf.getByRole('button', { name: 'Начислить' }).click();
+      80 |   await expect(panel.getByTestId('charge-row')).toHaveCount(3);
+        at /home/user/wetop.ai/tests/e2e/finance.spec.ts:77:50
+
+    Error Context: test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/full-day.spec.ts:25:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 240000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('folio-panel').getByTestId('charge-form').locator('select[name="serviceCode"]')
+        - locator resolved to <select class="inp" name="serviceCode" aria-label="Услуга">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - did not find some options
+        - retrying select option action
+          - waiting 100ms
+        464 × waiting for element to be visible and enabled
+            - did not find some options
+          - retrying select option action
+            - waiting 500ms
+
+
+      100 |   await cardTab(page, 'Счета');
+      101 |   await charge.locator('select[name="kind"]').selectOption('SERVICE');
+    > 102 |   await charge.locator('select[name="serviceCode"]').selectOption('Стирка (1 загрузка)');
+          |                                                      ^
+      103 |   await charge.getByRole('button', { name: 'Начислить' }).click();
+      104 |   await expect(panel.getByTestId('charge-row')).toHaveCount(2);
+      105 |   const withService = await balance();
+        at /home/user/wetop.ai/tests/e2e/full-day.spec.ts:102:54
+
+    Error Context: test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [isolated] › tests/e2e/finance.spec.ts:29:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+    [isolated] › tests/e2e/full-day.spec.ts:25:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+  1 passed (4.1m)
+
+# код выхода 1 · 4 мин 8 с

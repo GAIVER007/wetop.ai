@@ -3489,3 +3489,7 @@
 | 28.09.2026 15:05 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 20 с | b5bbd54 | [лог](logs/2026-09-28T10-05-02Z-unit-7164.log) | integration 28.09: final HEAD after merging main (auto-deploy test) |
 | 28.09.2026 15:06 | typecheck | ✅ без ошибок | 24 с | b5bbd54 | [лог](logs/2026-09-28T10-06-41Z-typecheck-dfb9.log) | integration 28.09: final HEAD after merging main |
 | 28.09.2026 15:07 | lint | ✅ без ошибок | 18 с | b5bbd54 | [лог](logs/2026-09-28T10-07-05Z-lint-2273.log) | integration 28.09: final HEAD after merging main |
+| 28.09.2026 15:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep categories C2\|R1: панель) | ✅ 2 из 2 | 12 с | ce78e65 +4 | [лог](logs/2026-09-28T10-50-01Z-e2e-c3ac.log) | contrast and reservations density verification after main sync |
+| 28.09.2026 15:50 | typecheck | ✅ без ошибок | 7 с | ce78e65 +4 | [лог](logs/2026-09-28T10-50-22Z-typecheck-3626.log) | post-sync UI gate typecheck |
+| 28.09.2026 15:50 | lint | ✅ без ошибок | 22 с | ce78e65 +4 | [лог](logs/2026-09-28T10-50-38Z-lint-0623.log) | post-sync UI gate lint |
+| 28.09.2026 15:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep categories C2) | ✅ 1 из 1 | 11 с | ce78e65 +4 | [лог](logs/2026-09-28T10-51-55Z-e2e-0df6.log) | final category preview contrast verification |

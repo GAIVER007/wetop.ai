@@ -3208,6 +3208,30 @@
 | 27.09.2026 22:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ❌ код выхода 1 | 1 с | db59b8d +10 | [лог](logs/2026-09-27T17-20-56Z-e2e-7fe0.log) | AV1: витрина, ru-локаль, без dev-оверлея (ADR-106) |
 | 27.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ❌ код выхода 1 | 3 с | db59b8d +10 | [лог](logs/2026-09-27T17-21-20Z-e2e-6fbe.log) | AV1: витрина, ru-локаль, без dev-оверлея (ADR-106) |
 | 27.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ✅ 2 из 2 | 16 с | db59b8d +10 | [лог](logs/2026-09-27T17-21-37Z-e2e-9653.log) | AV1: витрина, ru-локаль, без dev-оверлея (ADR-106) |
+| 27.09.2026 21:21 | typecheck | ✅ без ошибок | 26 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-21-34Z-typecheck-ff87.log) |  |
+| 27.09.2026 21:22 | lint | ✅ без ошибок | 14 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-22-08Z-lint-e84b.log) |  |
+| 27.09.2026 21:22 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 32 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-22-29Z-unit-47e1.log) |  |
+| 27.09.2026 21:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts) | ✅ 5 из 5 | 20 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-25-05Z-e2e-f009.log) | RT1: первый прогон переписанного спека тарифов |
+| 27.09.2026 21:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/empty-base.spec.ts tests/ui/quality.spec.ts) | ❌ упало 4 из 43 | 1 мин 36 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-25-40Z-e2e-ae10.log) | RT1: задетые спеки после переделки тарифов |
+| 27.09.2026 21:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts) | ✅ 10 из 10 | 48 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-28-07Z-e2e-ca93.log) | RT1: перепроверка трёх красных channex-screens отдельно |
+| 27.09.2026 21:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/quality.spec.ts tests/ui/empty-base.spec.ts tests/ui/workspace.spec.ts) | ❌ упало 1 из 95 | 3 мин 31 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-29-09Z-e2e-7f2a.log) | RT1: quality после правки, empty-base, workspace |
+| 27.09.2026 21:33 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/quality.spec.ts tests/ui/empty-base.spec.ts tests/ui/workspace.spec.ts tests/ui/channex-screens.s | ✅ 105 из 105 | 4 мин 35 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-33-24Z-e2e-e281.log) | RT1: задетые спеки одним потоком |
+| 27.09.2026 21:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 6 мин 18 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-38-25Z-e2e-b4b8.log) | RT1 тарифы: полный UI-набор одним потоком |
+| 27.09.2026 21:45 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-45-46Z-unit-94b3.log) |  |
+| 27.09.2026 21:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 402 | 28 мин 46 с | 74d8b1c +16 | [лог](logs/2026-09-27T16-47-11Z-e2e-ac6d.log) | RT1 тарифы: полный UI-набор одним потоком, повтор после починки целей нажатия |
+| 27.09.2026 22:16 | integration | ❌ упало 1 из 107 | 30 с | 3881557 | [лог](logs/2026-09-27T17-16-46Z-integration-6ad1.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
+| 27.09.2026 22:20 | integration | ✅ 107 из 107 | 30 с | 3881557 | [лог](logs/2026-09-27T17-20-03Z-integration-e658.log) | повтор: локальному стенду дан вход wetop_app (docs/ops/rls.md, шаг владельца) |
+| 27.09.2026 22:22 | e2e | ✅ 25 из 25 | 1 мин 21 с | 3881557 | [лог](logs/2026-09-27T17-22-42Z-e2e-d632.log) | RT1 тарифы: живой e2e на локальном PostgreSQL с сидом |
+| 27.09.2026 22:29 | typecheck | ✅ без ошибок | 27 с | 3881557 +2 | [лог](logs/2026-09-27T17-29-17Z-typecheck-5fcd.log) |  |
+| 27.09.2026 22:29 | lint | ✅ без ошибок | 14 с | 3881557 +2 | [лог](logs/2026-09-27T17-29-44Z-lint-19b2.log) |  |
+| 27.09.2026 22:29 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 3881557 +2 | [лог](logs/2026-09-27T17-29-59Z-unit-d795.log) |  |
+| 27.09.2026 22:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 402 | 28 мин 49 с | 3881557 +2 | [лог](logs/2026-09-27T17-31-30Z-e2e-c8b2.log) | RT1 тарифы: полный UI-набор после правки слова гостей и флекса цены |
+| 27.09.2026 23:00 | e2e | ✅ 25 из 25 | 1 мин 18 с | 3881557 +2 | [лог](logs/2026-09-27T18-00-42Z-e2e-fa2d.log) | RT1 тарифы: живой e2e после правки слова гостей, продакшен-сборка пересобрана |
+| 27.09.2026 23:11 | typecheck | ✅ без ошибок | 21 с | 32add9b +7 | [лог](logs/2026-09-27T18-11-35Z-typecheck-6b14.log) |  |
+| 27.09.2026 23:11 | lint | ✅ без ошибок | 15 с | 32add9b +7 | [лог](logs/2026-09-27T18-11-56Z-lint-3733.log) |  |
+| 27.09.2026 23:12 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 32add9b +5 | [лог](logs/2026-09-27T18-12-17Z-unit-6612.log) |  |
+| 27.09.2026 23:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts tests/ui/channex-screens.spec.ts tests/ui/quality.spec.ts --workers=1) | ✅ 29 из 29 | 1 мин 28 с | 32add9b +7 | [лог](logs/2026-09-27T18-13-30Z-e2e-3614.log) | RT1.1: чипы, месяц списком — задетые спеки |
+| 28.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/accessibility.spec.ts tests/ui/navigation.spec.ts tests/ui/requests.spec.ts tests/ui/empty-base.s | ✅ 145 из 145 | 10 мин 19 с | 32add9b +7 | [лог](logs/2026-09-27T20-54-10Z-e2e-3f34.log) | RT1.1: чипы и месяц списком — доступность, навигация, запросы и задетые спеки |
 | 27.09.2026 21:03 | typecheck | ✅ без ошибок | 32 с | 309ff27 | [лог](logs/2026-09-27T16-03-06Z-typecheck-5660.log) |  |
 | 27.09.2026 21:03 | lint | ✅ без ошибок | 18 с | 309ff27 | [лог](logs/2026-09-27T16-03-39Z-lint-cad3.log) |  |
 | 27.09.2026 21:03 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 15 с | 309ff27 | [лог](logs/2026-09-27T16-03-57Z-unit-4d9f.log) |  |
@@ -3324,3 +3348,7 @@
 | 28.09.2026 01:53 | typecheck | ✅ без ошибок | 27 с | 6ffa358 | [лог](logs/2026-09-27T20-53-30Z-typecheck-950a.log) |  |
 | 28.09.2026 01:53 | lint | ✅ без ошибок | 18 с | 6ffa358 | [лог](logs/2026-09-27T20-53-57Z-lint-8e8c.log) |  |
 | 28.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/availability-gate.spec.ts tests/ui/empty-base.spec.ts --workers=1 | ✅ 25 из 25 | 2 мин 12 с | 6ffa358 | [лог](logs/2026-09-27T20-54-22Z-e2e-2b7d.log) | AV1 после слияния main (ADR-107): свободные места + пустая база |
+| 28.09.2026 03:09 | typecheck | ✅ без ошибок | 26 с | 62874d6 +24 | [лог](logs/2026-09-27T22-09-15Z-typecheck-d51c.log) |  |
+| 28.09.2026 03:09 | lint | ✅ без ошибок | 18 с | 62874d6 +24 | [лог](logs/2026-09-27T22-09-41Z-lint-347b.log) |  |
+| 28.09.2026 03:10 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 13 с | 62874d6 +18 | [лог](logs/2026-09-27T22-10-00Z-unit-9564.log) |  |
+| 28.09.2026 03:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 407 | 31 мин 10 с | 62874d6 +24 | [лог](logs/2026-09-27T22-11-23Z-e2e-5cff.log) | PR #114: слитое дерево с main (Брони v2 R1) — полный UI-набор одним потоком |

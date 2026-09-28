@@ -716,26 +716,33 @@ async function walkPeriodPages(page: Page) {
       `экран ${screen}, API ${rep.summary.sessions}`,
     );
   } else note('/analytics', 'сверка за период', 'skip', 'сайтов в базе нет');
-  // Тарифы — листание месяца
+  // Тарифы — листание месяца (с 27.09, ADR-111: подзаголовок постоянный, месяц читается по ячейкам)
   await open(page, '/rates');
-  const sub = await page.locator('.page__subtitle').first().innerText();
+  const firstDay = await page
+    .locator('[data-testid^="rate-row-"]')
+    .first()
+    .getAttribute('data-testid');
   await page.getByRole('link', { name: 'Следующий месяц' }).first().click();
-  // Link ведёт клиентски: события load нет — ждём новый месяц в адресе и перерисованный подзаголовок
+  // Link ведёт клиентски: события load нет — ждём новый месяц в адресе и перерисованную сетку
   await page.waitForURL(/month=\d{4}-\d{2}/, { timeout: NAV_TIMEOUT }).catch(() => undefined);
   await page
     .waitForFunction(
-      (was) => document.querySelector('.page__subtitle')?.textContent?.trim() !== was,
-      sub,
+      (was) =>
+        document.querySelector('[data-testid^="rate-row-"]')?.getAttribute('data-testid') !== was,
+      firstDay,
       { timeout: 30_000 },
     )
     .catch(() => undefined);
-  const sub2 = await page.locator('.page__subtitle').first().innerText();
+  const firstDay2 = await page
+    .locator('[data-testid^="rate-row-"]')
+    .first()
+    .getAttribute('data-testid');
   const rows = await page.locator('[data-testid^="rate-row-"]').count();
   note(
     '/rates',
     'следующий месяц',
-    sub !== sub2 && rows >= 28 ? 'ok' : 'FAIL',
-    `«${sub}» → «${sub2}», строк ${rows}`,
+    firstDay !== firstDay2 && rows >= 28 ? 'ok' : 'FAIL',
+    `«${firstDay}» → «${firstDay2}», строк ${rows}`,
   );
   // Статистика на дату
   await open(page, `/management/statistics?date=${addDays(today, -1)}`);

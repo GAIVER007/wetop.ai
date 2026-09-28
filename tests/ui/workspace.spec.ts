@@ -42,7 +42,7 @@ test('все разделы, карточки и печать открывают
     [`/reservations/${booking}`, `Бронь ${booking}`],
     ['/reservations/new?unit=M03', 'Новая бронь'],
     ['/finance', 'Деньги за период'],
-    ['/rates', 'Цены и ограничения'],
+    ['/rates', 'Тарифы и цены'],
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
@@ -725,6 +725,7 @@ test('тарифы: гостей в массовом изменении — по
   request,
 }) => {
   await page.goto('/rates?month=2026-10&category=MALE');
+  await page.getByTestId('rates-edit-open').click();
   const editor = page.getByTestId('bulk-editor');
   await expect(editor.getByLabel('Гостей (occupancy)')).toHaveAttribute('max', '1');
   await editor.locator('select[name="accommodationTypeCode"]').selectOption('ROOM');
@@ -763,6 +764,7 @@ test('тарифы: добавить, удалить, сохранить и пр
   request,
 }) => {
   await page.goto('/rates?month=2026-10');
+  await page.getByTestId('rates-edit-open').click();
   const editor = page.getByTestId('bulk-editor');
   await editor.getByLabel('Цена за ночь').fill('9100');
   await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
@@ -1260,7 +1262,7 @@ test('цены: правка в ячейке календаря уходит т�
   page,
 }) => {
   await page.goto('/rates');
-  const cell = page.getByTestId('rates-table').getByTestId('price-cell-edit').first();
+  const cell = page.getByTestId('rates-calendar').getByTestId('price-cell-edit').first();
   await cell.click();
   const input = page.getByTestId('price-cell-input');
   await input.fill('15000');

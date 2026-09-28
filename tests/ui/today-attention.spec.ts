@@ -55,11 +55,15 @@ async function expected(request: import('@playwright/test').APIRequestContext) {
       severity: 'warning',
       count: arrivals.filter((r) => BigInt(r.balanceMinor) > 0n).length,
     },
-    dirty: { severity: 'warning', count: board.rows.filter((r) => r.unit.housekeepingStatus === 'DIRTY').length },
+    dirty: {
+      severity: 'warning',
+      count: board.rows.filter((r) => r.unit.housekeepingStatus === 'DIRTY').length,
+    },
     incidents: { severity: 'warning', count: guard.open.total - guard.open.critical },
     cards: {
       severity: 'info',
-      count: arrivals.filter((r) => r.unitCode && (r.blockedReason || r.guestsRecorded < r.adults)).length,
+      count: arrivals.filter((r) => r.unitCode && (r.blockedReason || r.guestsRecorded < r.adults))
+        .length,
     },
   };
   return events;
@@ -101,29 +105,42 @@ test('очередь: каждое событие дня с числом, важ
       .reduce((n, e) => n + e.count, 0);
   const tally = block.getByTestId('attention-tally');
   for (const severity of ['critical', 'warning', 'info'] as const)
-    await expect(tally.locator(`[data-severity="${severity}"] strong`)).toHaveText(String(sum(severity)));
+    await expect(tally.locator(`[data-severity="${severity}"] strong`)).toHaveText(
+      String(sum(severity)),
+    );
   await expect(block.locator('.attention-count')).toHaveText(
     String(sum('critical') + sum('warning') + sum('info')),
   );
 });
 
-test('незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером', async ({ page, request }) => {
+test('незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером', async ({
+  page,
+  request,
+}) => {
   const day: Day = await (await request.get(`${fixture}/desk/today`, asClient)).json();
   await page.goto('/today');
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   const noShow = block.locator('[data-event="no-show"]');
   const first = day.overdueArrivals[0]!;
   const row = noShow.getByTestId('overdue-arrival').filter({ hasText: first.confirmationNumber });
-  await expect(row).toHaveAttribute('href', `/reservations/${first.confirmationNumber}#booking-actions`);
+  await expect(row).toHaveAttribute(
+    'href',
+    `/reservations/${first.confirmationNumber}#booking-actions`,
+  );
   const debt = block.locator('[data-event="departure-debt"] .attention-item').first();
   await expect(debt).toHaveAttribute('href', /#booking-finance$/);
 });
 
-test('сторож не ответил — строк инцидентов нет, остальная очередь на месте', async ({ page, request }) => {
+test('сторож не ответил — строк инцидентов нет, остальная очередь на месте', async ({
+  page,
+  request,
+}) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/status' } });
   await page.goto('/today');
   const block = page.getByRole('region', { name: 'Требуют внимания' });
-  await expect(block.locator('[data-event="incidents"], [data-event="incidents-critical"]')).toHaveCount(0);
+  await expect(
+    block.locator('[data-event="incidents"], [data-event="incidents-critical"]'),
+  ).toHaveCount(0);
   await expect(block.locator('[data-event="no-show"]')).toHaveCount(1);
 });
 
@@ -134,4 +151,34 @@ test('день без броней — «Всё в порядке»: инцид�
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(block).toContainText('Всё в порядке');
   await expect(block.getByTestId('attention-event')).toHaveCount(0);
+});
+
+/**
+ * Снимки для визуального STOP после A3 (план §6): светлая и тёмная 1440, телефон 390, светлый и тёмный, и блок очереди
+ * отдельно в натуральную величину. Высокое окно вместо склейки: закреплённые меню и шапка на склейке «плывут».
+ * Данные — подставного API; на реальных данных Luxx снимает владелец на своём стенде (ADR-018).
+ */
+test('снимки Главной после A3', async ({ page }) => {
+  const dir = 'reports/today-a3-2026-09-28';
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+  for (const width of [1440, 390]) {
+    for (const theme of ['light', 'dark'] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await page.goto('/today');
+      const block = page.getByRole('region', { name: 'Требуют внимания' });
+      await expect(block.getByTestId('attention-event').first()).toBeVisible();
+      const systems = page.getByRole('region', { name: 'Системы' });
+      await expect(systems.getByTestId('systems-channex')).toBeVisible();
+      await expect(page.getByTestId('money-paid')).toBeVisible();
+      const height = await page.evaluate(() => document.documentElement.scrollHeight);
+      await page.setViewportSize({ width, height });
+      await page.screenshot({ path: `${dir}/today-${width}-${theme}.png` });
+      await block.screenshot({ path: `${dir}/attention-${width}-${theme}.png` });
+    }
+  }
 });

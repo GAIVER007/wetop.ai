@@ -58,7 +58,12 @@ function attentionEvents(input: {
   const push = (e: AttentionEvent) => {
     if (e.count > 0) events.push(e);
   };
-  const bookingRow = (r: DeskRow, note: string, anchor: 'booking-actions' | 'booking-finance', testId?: string) => ({
+  const bookingRow = (
+    r: DeskRow,
+    note: string,
+    anchor: 'booking-actions' | 'booking-finance',
+    testId?: string,
+  ) => ({
     key: `${r.itemId}-${anchor}`,
     name: r.guestLabel || r.confirmationNumber,
     number: r.confirmationNumber,
@@ -78,12 +83,19 @@ function attentionEvents(input: {
     });
   // Без ячейки: шахматка дня знает все такие брони, день стойки — только заезды; имя гостя берём из дня стойки
   const known = new Map(
-    [...day.arrivals, ...day.overdueArrivals, ...day.inHouse, ...day.departures].map((r) => [r.confirmationNumber, r]),
+    [...day.arrivals, ...day.overdueArrivals, ...day.inHouse, ...day.departures].map((r) => [
+      r.confirmationNumber,
+      r,
+    ]),
   );
   const unassigned = board
-    ? [...new Map(board.unassigned.map((u) => [u.confirmationNumber, u.categoryName])).entries()].map(
-        ([number, category]) => ({ number, category, name: known.get(number)?.guestLabel || number }),
-      )
+    ? [
+        ...new Map(board.unassigned.map((u) => [u.confirmationNumber, u.categoryName])).entries(),
+      ].map(([number, category]) => ({
+        number,
+        category,
+        name: known.get(number)?.guestLabel || number,
+      }))
     : arrivals
         .filter((r) => !r.unitCode)
         .map((r) => ({
@@ -114,7 +126,9 @@ function attentionEvents(input: {
       count: notReady.length,
       text: `${pluralRu(notReady.length, ['заезд', 'заезда', 'заездов'])} сегодня в неготовую ячейку`,
       action: { label: 'Открыть шахматку', href: chessboard },
-      rows: notReady.map((r) => bookingRow(r, `Ячейка ${r.unitCode}: уборка не проверена`, 'booking-actions')),
+      rows: notReady.map((r) =>
+        bookingRow(r, `Ячейка ${r.unitCode}: уборка не проверена`, 'booking-actions'),
+      ),
     });
   }
 
@@ -141,7 +155,9 @@ function attentionEvents(input: {
     count: departureDebt.length,
     text: `${pluralRu(departureDebt.length, ['уезжающий', 'уезжающих', 'уезжающих'])} с долгом`,
     action: { label: 'Выезды дня', href: `/reservations?departure=${day.date}` },
-    rows: departureDebt.map((r) => bookingRow(r, `К оплате ${formatMoney(r.balanceMinor)}`, 'booking-finance')),
+    rows: departureDebt.map((r) =>
+      bookingRow(r, `К оплате ${formatMoney(r.balanceMinor)}`, 'booking-finance'),
+    ),
   });
   const arrivalDebt = arrivals.filter((r) => BigInt(r.balanceMinor) > 0n);
   push({
@@ -150,7 +166,9 @@ function attentionEvents(input: {
     count: arrivalDebt.length,
     text: `${pluralRu(arrivalDebt.length, ['заезд', 'заезда', 'заездов'])} без оплаты`,
     action: { label: 'Заезды дня', href: `/reservations?arrival=${day.date}` },
-    rows: arrivalDebt.map((r) => bookingRow(r, `К оплате ${formatMoney(r.balanceMinor)}`, 'booking-finance')),
+    rows: arrivalDebt.map((r) =>
+      bookingRow(r, `К оплате ${formatMoney(r.balanceMinor)}`, 'booking-finance'),
+    ),
   });
   if (isToday && board) {
     const dirty = board.rows.filter((r) => r.unit.housekeepingStatus === 'DIRTY').length;
@@ -172,7 +190,9 @@ function attentionEvents(input: {
     });
 
   // Info. Без ячейки — уже строкой выше: причина «нет ячейки» стоит первой и прятала бы карточки
-  const cards = arrivals.filter((r) => r.unitCode && (r.blockedReason || r.guestsRecorded < r.adults));
+  const cards = arrivals.filter(
+    (r) => r.unitCode && (r.blockedReason || r.guestsRecorded < r.adults),
+  );
   push({
     key: 'cards',
     severity: 'info',
@@ -180,7 +200,11 @@ function attentionEvents(input: {
     text: `${pluralRu(cards.length, ['карточка гостя', 'карточки гостей', 'карточек гостей'])} не готовы к заселению`,
     action: { label: 'Заезды дня', href: `/reservations?arrival=${day.date}` },
     rows: cards.map((r) =>
-      bookingRow(r, r.blockedReason || `Заполнить карточки: ${r.guestsRecorded} из ${r.adults}`, 'booking-actions'),
+      bookingRow(
+        r,
+        r.blockedReason || `Заполнить карточки: ${r.guestsRecorded} из ${r.adults}`,
+        'booking-actions',
+      ),
     ),
   });
 
@@ -200,9 +224,11 @@ export function DayAttention(props: {
 }) {
   const events = attentionEvents(props);
   const total = events.reduce((n, e) => n + e.count, 0);
-  const bySeverity = (s: Severity) => events.filter((e) => e.severity === s).reduce((n, e) => n + e.count, 0);
+  const bySeverity = (s: Severity) =>
+    events.filter((e) => e.severity === s).reduce((n, e) => n + e.count, 0);
   const { day } = props;
-  const hasDay = day.arrivals.length + day.departures.length + day.inHouse.length > 0 || events.length > 0;
+  const hasDay =
+    day.arrivals.length + day.departures.length + day.inHouse.length > 0 || events.length > 0;
   return (
     <section className="attention-card" id="day-attention" aria-label="Требуют внимания">
       <div className="attention-heading">
@@ -241,7 +267,11 @@ export function DayAttention(props: {
               <div className="attention-event__head">
                 <Badge tone={SEVERITY[e.severity].tone}>{SEVERITY[e.severity].word}</Badge>
                 <span className="attention-event__text">{e.text}</span>
-                <Link className="card-heading__link" href={e.action.href} data-testid="attention-action">
+                <Link
+                  className="card-heading__link"
+                  href={e.action.href}
+                  data-testid="attention-action"
+                >
                   {e.action.label}
                   <Icon name="chevron" width={14} />
                 </Link>

@@ -20,7 +20,12 @@ export async function SystemsToday() {
       <ul className="systems-list">
         <ChannelsSystemRow />
         {seller && (
-          <SystemRow name="ИИ-продавец" testId="systems-seller" href="/ai-seller" {...sellerState(seller)} />
+          <SystemRow
+            name="ИИ-продавец"
+            testId="systems-seller"
+            href="/ai-seller"
+            {...sellerState(seller)}
+          />
         )}
         {guard && (
           <SystemRow

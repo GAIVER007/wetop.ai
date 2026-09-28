@@ -69,7 +69,9 @@ test('главная открывается с корня; заезд на да�
   await expect(unassigned).toHaveAttribute('data-count', String(unassignedBefore + 1));
   await expect(unassigned).toHaveAttribute('data-severity', 'critical');
   if (unassignedBefore < 3)
-    await expect(unassigned.getByRole('link', { name: new RegExp(number) })).toContainText('нет ячейки');
+    await expect(unassigned.getByRole('link', { name: new RegExp(number) })).toContainText(
+      'нет ячейки',
+    );
   // полоса стойки — на выбранную дату; день стоит в полосе дня
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('На стойке');
   await expect(page.getByRole('main').getByLabel('День стойки: дата')).toHaveValue(day);

@@ -714,7 +714,7 @@ test('гости: удаление документа переспрашивае
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest#guest-profile');
+  await page.goto('/guests/ui-guest#guest-documents');
   const form = page.getByTestId('document-form');
   await form.getByLabel('Номер документа').fill('TEST-ONLY-0042');
   await form.getByRole('button', { name: 'Добавить', exact: true }).click();
@@ -1002,7 +1002,7 @@ test('удаление документа гостя спрашивают: от�
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest#guest-profile');
+  await page.goto('/guests/ui-guest#guest-documents');
   await expect(page.getByTestId('document-row')).toHaveCount(1);
   await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
   const dialog = page.getByTestId('confirm-dialog');
@@ -1532,8 +1532,14 @@ test('гости D1: выборка и пустота словами, стату
     .locator('xpath=ancestor::div[contains(@class,"table-scroll")]')
     .evaluate((el) => el.scrollWidth - el.clientWidth);
   expect(tableOverflow).toBeLessThanOrEqual(1);
-  await main.getByRole('tab', { name: 'Счета и услуги', exact: true }).click();
-  await expect(main.locator('.guest-account-links a').first()).toContainText('20260913-TESTAA');
+  // G5: «Счета и услуги» стали «Финансами» — строка проживания ведёт в счёт брони
+  await main.getByRole('tab', { name: 'Финансы', exact: true }).click();
+  const financeRow = main.getByRole('tabpanel').getByTestId('guest-finance-row').first();
+  await expect(financeRow).toContainText('20260913-TESTAA');
+  await expect(financeRow.getByRole('link').first()).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TESTAA#booking-finance',
+  );
 });
 
 /**

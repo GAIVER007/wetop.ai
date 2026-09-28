@@ -125,8 +125,8 @@ export async function GuestPreview({ id }: { id: string }) {
             ) : g.lastCancelledAt ? (
               // §16 ТЗ: «отменена» — про бронь; подпись живёт в истории, ложного «Сейчас» нет
               <span className="dir-sub">
-                бронь на{' '}
-                <time dateTime={g.lastCancelledAt}>{displayDate(g.lastCancelledAt)}</time> отменена
+                бронь на <time dateTime={g.lastCancelledAt}>{displayDate(g.lastCancelledAt)}</time>{' '}
+                отменена
               </span>
             ) : (
               <span className="muted">—</span>
@@ -150,10 +150,9 @@ export async function GuestPreview({ id }: { id: string }) {
         <Link className="btn btn--secondary" href={`/guests/${encodeURIComponent(g.id)}`}>
           Открыть гостя
         </Link>
-        {/* предзаполнение гостя в форме — ступень G6, пока обычная новая бронь; «только чтение»
-            (ADR-102) — действие не рисуется */}
+        {/* G6 (ТЗ §33): форма брони сразу с этим гостем; «только чтение» (ADR-102) — не рисуется */}
         {!readOnly && (
-          <Link className="btn" href="/reservations/new">
+          <Link className="btn" href={`/reservations/new?guest=${encodeURIComponent(g.id)}`}>
             <Icon name="plus" />
             Новая бронь
           </Link>

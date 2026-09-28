@@ -37,6 +37,29 @@
 | 28.09.2026 22:52 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | 3ae45d4 | [лог](logs/2026-09-28T17-52-23Z-e2e-22f5.log) | AN2 on main after platform reset: live e2e |
 | 28.09.2026 22:57 | e2e | ❌ упало 2 из 26 | 4 мин 39 с | 3ae45d4 | [лог](logs/2026-09-28T17-57-21Z-e2e-466e.log) | AN2 on main after platform reset: E2E_AUTH=1, API as wetop_app |
 | 28.09.2026 23:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 524 из 524 | 38 мин 18 с | 3ae45d4 | [лог](logs/2026-09-28T18-02-08Z-e2e-dca6.log) | AN2 on main after platform reset: full UI suite, single worker |
+| 28.09.2026 22:57 | typecheck | ✅ без ошибок | 29 с | 1a66960 | [лог](logs/2026-09-28T17-57-00Z-typecheck-df39.log) |  |
+| 28.09.2026 22:57 | lint | ✅ без ошибок | 17 с | 1a66960 | [лог](logs/2026-09-28T17-57-30Z-lint-ee6d.log) |  |
+| 28.09.2026 22:57 | unit | ✅ 2145 из 2148, пропущено 3 | 1 мин 23 с | 1a66960 | [лог](logs/2026-09-28T17-57-47Z-unit-6625.log) |  |
+| 28.09.2026 22:59 | integration | ✅ 111 из 111 | 32 с | 1a66960 | [лог](logs/2026-09-28T17-59-11Z-integration-48df.log) |  |
+| 28.09.2026 22:59 | integration (частично: tests/integration/booking-existing-guest.test.ts) | ❌ упало 1 из 1 | 3 с | 1a66960 +1 | [лог](logs/2026-09-28T17-59-57Z-integration-6472.log) | бронь существующему гостю (integration, rolled back) вторая бронь по guestId — тот же гость, новых строк в guests нет; чужой гость — 404 |
+| 28.09.2026 23:00 | integration (частично: tests/integration/booking-existing-guest.test.ts) | ✅ 1 из 1 | 3 с | 1a66960 | [лог](logs/2026-09-28T18-00-07Z-integration-de98.log) |  |
+| 28.09.2026 23:00 | e2e | ❌ упало 2 из 25 | 4 мин 39 с | 1a66960 | [лог](logs/2026-09-28T18-00-42Z-e2e-f40a.log) | счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс |
+| 28.09.2026 23:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 519 из 519 | 42 мин 10 с | b6c1e78 | [лог](logs/2026-09-28T18-06-06Z-e2e-64bc.log) |  |
+| 28.09.2026 23:58 | unit (частично: apps/api/src/guests/guests.controller.test.ts apps/web/src/app/guests/filters.test.ts) | ❌ упало 1 из 14 | 3 с | bc75898 +3 | [лог](logs/2026-09-28T18-58-52Z-unit-a9af.log) | guests API directory G7: отборы визита, числа визитов, порядок и раздел NONE доходят до выборки |
+| 28.09.2026 23:58 | integration (частично: tests/integration/guest-directory.test.ts) | ❌ упало 1 из 1 | 3 с | bc75898 +3 | [лог](logs/2026-09-28T18-58-56Z-integration-b76b.log) | справочник гостей: отборы визита, число визитов, порядок (integration) раздел NONE, последний визит, число визитов, сортировки и числа чипов с отборами |
+| 28.09.2026 23:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G7) | ❌ упало 1 из 1 | 24 с | bc75898 +4 | [лог](logs/2026-09-28T18-59-10Z-e2e-4b8c.log) | гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) |
+| 28.09.2026 23:59 | unit (частично: apps/api/src/guests/guests.controller.test.ts apps/web/src/app/guests/filters.test.ts) | ✅ 19 из 19 | 3 с | bc75898 +11 | [лог](logs/2026-09-28T18-59-40Z-unit-3d6e.log) |  |
+| 28.09.2026 23:59 | integration (частично: tests/integration/guest-directory.test.ts) | ✅ 1 из 1 | 3 с | bc75898 +6 | [лог](logs/2026-09-28T18-59-43Z-integration-8405.log) |  |
+| 28.09.2026 23:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G7) | ❌ упало 1 из 1 | 10 с | bc75898 +12 | [лог](logs/2026-09-28T18-59-50Z-e2e-d851.log) | гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) |
+| 29.09.2026 00:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G7) | ❌ упало 1 из 1 | 52 с | bc75898 +12 | [лог](logs/2026-09-28T19-00-09Z-e2e-a38d.log) | гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) |
+| 29.09.2026 00:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G7) | ❌ упало 1 из 1 | 25 с | bc75898 +12 | [лог](logs/2026-09-28T19-01-26Z-e2e-f254.log) | гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) |
+| 29.09.2026 00:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G7) | ❌ упало 1 из 1 | 28 с | bc75898 +12 | [лог](logs/2026-09-28T19-02-08Z-e2e-0bdd.log) | гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) |
+| 29.09.2026 00:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G7) | ✅ 1 из 1 | 15 с | bc75898 +12 | [лог](logs/2026-09-28T19-02-47Z-e2e-dbec.log) |  |
+| 29.09.2026 00:03 | typecheck | ✅ без ошибок | 29 с | bc75898 +13 | [лог](logs/2026-09-28T19-03-08Z-typecheck-6910.log) |  |
+| 29.09.2026 00:03 | lint | ✅ без ошибок | 17 с | bc75898 +13 | [лог](logs/2026-09-28T19-03-38Z-lint-4a52.log) |  |
+| 29.09.2026 00:04 | unit | ✅ 2151 из 2154, пропущено 3 | 1 мин 16 с | bc75898 +11 | [лог](logs/2026-09-28T19-04-00Z-unit-cc6b.log) |  |
+| 29.09.2026 00:05 | integration | ✅ 112 из 112 | 34 с | bc75898 +6 | [лог](logs/2026-09-28T19-05-16Z-integration-a55d.log) |  |
+| 29.09.2026 00:06 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | bc75898 +12 | [лог](logs/2026-09-28T19-06-10Z-e2e-7fb2.log) | счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс |
 | 28.09.2026 22:48 | typecheck | ✅ без ошибок | 30 с | e0ac75f | [лог](logs/2026-09-28T17-48-22Z-typecheck-6ec2.log) | release e0ac75fb verification |
 | 28.09.2026 22:48 | lint | ✅ без ошибок | 17 с | e0ac75f | [лог](logs/2026-09-28T17-48-52Z-lint-d614.log) | release e0ac75fb verification |
 | 28.09.2026 22:49 | unit | ❌ упало 2 из 2143, пропущено 3 | 1 мин 36 с | e0ac75f | [лог](logs/2026-09-28T17-49-10Z-unit-d242.log) | release e0ac75fb verification |
@@ -100,6 +123,14 @@
 | 29.09.2026 00:32 | unit | ✅ 2151 из 2154, пропущено 3 | 1 мин 16 с | b26c218 | [лог](logs/2026-09-28T19-32-52Z-unit-531b.log) | AN2 merged with main #132 |
 | 29.09.2026 00:34 | integration | ✅ 113 из 113 | 31 с | b26c218 | [лог](logs/2026-09-28T19-34-22Z-integration-d05a.log) | AN2 merged with main #132, fresh stand |
 | 29.09.2026 00:35 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | b26c218 | [лог](logs/2026-09-28T19-35-07Z-e2e-e57c.log) | AN2 merged with main #132: live e2e |
+| 29.09.2026 00:33 | typecheck | ✅ без ошибок | 20 с | c633218 +1 | [лог](logs/2026-09-28T19-33-40Z-typecheck-1fe2.log) |  |
+| 29.09.2026 00:34 | lint | ✅ без ошибок | 16 с | c633218 +1 | [лог](logs/2026-09-28T19-34-00Z-lint-ecb4.log) |  |
+| 29.09.2026 00:34 | unit | ✅ 2152 из 2155, пропущено 3 | 1 мин 15 с | c633218 | [лог](logs/2026-09-28T19-34-17Z-unit-8f96.log) |  |
+| 29.09.2026 00:35 | integration | ✅ 115 из 115 | 34 с | c633218 +1 | [лог](logs/2026-09-28T19-35-32Z-integration-78bd.log) |  |
+| 29.09.2026 00:36 | e2e | ❌ упало 2 из 25 | 4 мин 37 с | c633218 | [лог](logs/2026-09-28T19-36-20Z-e2e-66ef.log) | счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс |
+| 29.09.2026 00:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ❌ упало 1 из 90 | 5 мин 20 с | c633218 | [лог](logs/2026-09-28T19-41-06Z-e2e-36eb.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |
+| 29.09.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts -g доступность переносит) | ❌ упало 1 из 1 | 24 с | c633218 | [лог](logs/2026-09-28T19-46-47Z-e2e-11d8.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |
+| 29.09.2026 00:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/pii-storage.spec.ts tests/ui/workspace.spec.ts -g бронь существующему гостю\|доступнос | ❌ упало 1 из 2 | 25 с | c633218 | [лог](logs/2026-09-28T19-47-11Z-e2e-e6fc.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |
 | 28.09.2026 22:46 | typecheck | ✅ без ошибок | 33 с | 1fbbb0e | [лог](logs/2026-09-28T17-46-46Z-typecheck-0cb3.log) | PR #123 после слияния main e0ac75fb (сброс платформы, швы интеграции) |
 | 28.09.2026 22:47 | lint | ✅ без ошибок | 19 с | 1fbbb0e | [лог](logs/2026-09-28T17-47-20Z-lint-b945.log) | PR #123 после слияния main e0ac75fb |
 | 28.09.2026 22:47 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 22 с | 1fbbb0e | [лог](logs/2026-09-28T17-47-40Z-unit-cb07.log) | PR #123 после слияния main e0ac75fb |
@@ -145,11 +176,20 @@
 | 29.09.2026 00:42 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/channel-booking-number.spec.ts tests/ui/requests.spec.ts --worker | ✅ 35 из 35 | 1 мин 25 с | 79a0bd4 +9 | [лог](logs/2026-09-28T19-42-24Z-e2e-23e3.log) | AV2–AV3 перед вливанием: фонд, форма брони, бюджет запросов на дереве с RT2 |
 | 29.09.2026 00:41 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ✅ 3 из 3 | 14 с | 4de2d98 | [лог](logs/2026-09-28T19-41-12Z-e2e-c5d2.log) |  |
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
+| 29.09.2026 00:49 | typecheck | ✅ без ошибок | 20 с | bf5d8f0 | [лог](logs/2026-09-28T19-49-44Z-typecheck-022b.log) |  |
+| 29.09.2026 00:50 | lint | ✅ без ошибок | 16 с | bf5d8f0 | [лог](logs/2026-09-28T19-50-05Z-lint-0016.log) |  |
+| 29.09.2026 00:50 | unit | ✅ 2179 из 2182, пропущено 3 | 1 мин 16 с | bf5d8f0 | [лог](logs/2026-09-28T19-50-21Z-unit-2723.log) |  |
+| 29.09.2026 00:51 | integration | ✅ 115 из 115 | 33 с | bf5d8f0 | [лог](logs/2026-09-28T19-51-38Z-integration-9101.log) |  |
+| 29.09.2026 00:52 | e2e | ❌ упало 5 из 25 | 2 мин 13 с | bf5d8f0 | [лог](logs/2026-09-28T19-52-33Z-e2e-85f6.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts tests/ui/trial-read-only.spec.ts t | ✅ 84 из 84 | 5 мин 28 с | bf5d8f0 | [лог](logs/2026-09-28T19-55-16Z-e2e-1dcc.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
 | 29.09.2026 01:00 | lint | ✅ без ошибок | 14 с | ed07369 | [лог](logs/2026-09-28T20-00-31Z-lint-7c23.log) | AN2 merged with main (AV2-AV3, P2) |
 | 29.09.2026 01:00 | unit | ✅ 2178 из 2181, пропущено 3 | 1 мин 12 с | ed07369 | [лог](logs/2026-09-28T20-00-45Z-unit-7a36.log) | AN2 merged with main (AV2-AV3, P2) |
 | 29.09.2026 01:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-occupancy.spec.ts tests/ui/analytics-v2.spec.ts) | ✅ 17 из 17 | 1 мин 18 с | ed07369 | [лог](logs/2026-09-28T20-02-02Z-e2e-f81f.log) | AN2 merged with main (AV2-AV3, P2): analytics specs |
+| 29.09.2026 01:01 | typecheck | ✅ без ошибок | 28 с | 26976cb | [лог](logs/2026-09-28T20-01-17Z-typecheck-4518.log) |  |
+| 29.09.2026 01:01 | unit | ✅ 2179 из 2182, пропущено 3 | 1 мин 16 с | 26976cb | [лог](logs/2026-09-28T20-01-46Z-unit-a9a4.log) |  |
+| 29.09.2026 01:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts) | ✅ 12 из 12 | 1 мин 3 с | 26976cb | [лог](logs/2026-09-28T20-03-03Z-e2e-c58d.log) |  |
 | 29.09.2026 00:56 | typecheck | ✅ без ошибок | 30 с | 6d7d532 | [лог](logs/2026-09-28T19-56-42Z-typecheck-8c40.log) | PR #135 merged with main e1adee87 |
 | 29.09.2026 00:57 | lint | ✅ без ошибок | 17 с | 6d7d532 | [лог](logs/2026-09-28T19-57-12Z-lint-ec08.log) | PR #135 merged with main e1adee87 |
 | 29.09.2026 00:57 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 17 с | 6d7d532 | [лог](logs/2026-09-28T19-57-30Z-unit-68ff.log) | PR #135 merged with main e1adee87 |
@@ -158,3 +198,4 @@
 | 29.09.2026 01:03 | typecheck | ✅ без ошибок | 19 с | c54312b | [лог](logs/2026-09-28T20-03-52Z-typecheck-7577.log) | AN2 merged with main (#135) |
 | 29.09.2026 01:04 | lint | ✅ без ошибок | 14 с | c54312b | [лог](logs/2026-09-28T20-04-11Z-lint-d001.log) | AN2 merged with main (#135) |
 | 29.09.2026 01:04 | unit | ✅ 2178 из 2181, пропущено 3 | 1 мин 12 с | c54312b | [лог](logs/2026-09-28T20-04-26Z-unit-164c.log) | AN2 merged with main (#135) |
+| 29.09.2026 01:04 | typecheck | ✅ без ошибок | 21 с | 40403b9 | [лог](logs/2026-09-28T20-04-59Z-typecheck-d3b8.log) |  |

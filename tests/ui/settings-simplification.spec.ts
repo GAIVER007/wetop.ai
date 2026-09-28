@@ -15,7 +15,8 @@ test('короткое меню настроек ведёт в единый об
   const group = sidebar
     .locator('.sidebar-section')
     .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
-  await expect(group.locator('a')).toHaveText(['Объект', 'Интеграции', 'Сайт']);
+  // Сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-117), в «Настройках» его больше нет
+  await expect(group.locator('a')).toHaveText(['Объект', 'Интеграции']);
   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();
@@ -98,7 +99,7 @@ for (const theme of ['light', 'dark'] as const) {
       '/hotel-settings/services',
       '/hotel-settings/stay',
       '/connections',
-      '/analytics/setup',
+      '/website/settings',
     ]) {
       await page.goto(route);
       const main = page.getByRole('main');
@@ -110,7 +111,7 @@ for (const theme of ['light', 'dark'] as const) {
           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
         ).toBe(true);
       }
-      if (route === '/hotel-settings' || route === '/analytics/setup') {
+      if (route === '/hotel-settings' || route === '/website/settings') {
         const audit = await new AxeBuilder({ page })
           .include('main')
           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -136,6 +137,8 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByTestId('site-card-snippet')).toBeVisible();
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('site-card-snippet')).not.toBeVisible();
+    // код виджета — во вкладке «Бронирование» модуля сайта (ADR-117)
+    await page.goto('/website/booking');
     const widget = page
       .locator('summary')
       .getByText('Установка виджета бронирования', { exact: true });

@@ -45,7 +45,7 @@ import { displayPeriod } from '../../../lib/display-date';
 import { sellerApi, type SellerFactsView, type SellerStatus } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
 import { pluralRu } from '../../../lib/plural';
-import { CopyButton } from '../../analytics/setup/forms';
+import { CopyButton } from '../../website/forms';
 import {
   DialogModeButtons,
   DialogReplyForm,
@@ -439,7 +439,7 @@ async function DataView() {
         <Link className="btn btn--secondary" href="/rates">
           Изменить цены в «Тарифах»
         </Link>
-        <Link className="btn btn--secondary" href="/analytics/setup">
+        <Link className="btn btn--secondary" href="/website/booking">
           Тариф сайта
         </Link>
       </Row>

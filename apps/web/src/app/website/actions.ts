@@ -58,7 +58,11 @@ export async function siteAction(
         : 'Событий ещё не было: откройте сайт с установленным кодом и нажмите «Проверить» снова';
     } else {
       card = await analyticsApi.update(id, { status: kind === 'pause' ? 'PAUSED' : 'ACTIVE' });
-      message = kind === 'pause' ? 'Счётчик на паузе: события не сохраняются' : 'Счётчик включён';
+      // Пауза сайта останавливает и приёмник счётчика, и виджет (collect.service, web-booking.service)
+      message =
+        kind === 'pause'
+          ? 'Сайт приостановлен: посещения не записываются, брони с сайта не принимаются'
+          : 'Сайт снова принимает посещения и брони';
     }
     refreshSiteViews();
     return { error: null, message, card };
@@ -105,7 +109,8 @@ export async function hostsAction(id: string, raw: string): Promise<SiteActionRe
   }
 }
 
+/** Все вкладки «Сайта и онлайн-бронирования» (ADR-117): состояние сайта видно на каждой */
 function refreshSiteViews() {
-  for (const path of ['/analytics/setup', '/analytics', '/connections'])
+  for (const path of ['/website', '/website/booking', '/website/analytics', '/website/settings'])
     revalidatePath(path);
 }

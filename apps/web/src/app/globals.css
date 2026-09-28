@@ -1651,6 +1651,12 @@ td.empty-state {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+/* и внутри предупреждения и сообщения: синяя ссылка на цветном тексте даёт контраст 1,17:1 (axe, модуль сайта, 27.09) */
+.alert a,
+.notice a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 /* ---------- поле даты с календарём (DESIGN.md §8, 21.09) ----------
    Родное поле остаётся; кнопка справа открывает месяц в стиле стойки. На телефоне и при грубом

@@ -79,9 +79,11 @@ const STATIC = [
   '/finance',
   '/channel-manager',
   '/channels',
-  '/analytics',
+  '/website',
+  '/website/booking',
+  '/website/analytics',
+  '/website/settings',
   '/connections',
-  '/analytics/setup',
   '/incidents',
   '/journal',
   '/reservations/new',
@@ -700,7 +702,7 @@ async function walkPeriodPages(page: Page) {
   const sites = await json<Array<{ id: string }>>('/analytics/sites').catch(() => []);
   if (sites[0]) {
     const from = addDays(today, -13);
-    await open(page, `/analytics?site=${sites[0].id}&from=${from}&to=${today}`);
+    await open(page, `/website/analytics?site=${sites[0].id}&from=${from}&to=${today}`);
     const rep = await json<{ summary: { sessions: number } }>(
       `/analytics/sites/${sites[0].id}/report?from=${from}&to=${today}`,
     );
@@ -712,12 +714,12 @@ async function walkPeriodPages(page: Page) {
         .catch(() => 'NaN'),
     );
     note(
-      '/analytics',
+      '/website/analytics',
       `сессий за ${from}…${today}`,
       screen === rep.summary.sessions ? 'ok' : 'FAIL',
       `экран ${screen}, API ${rep.summary.sessions}`,
     );
-  } else note('/analytics', 'сверка за период', 'skip', 'сайтов в базе нет');
+  } else note('/website/analytics', 'сверка за период', 'skip', 'сайтов в базе нет');
   // Тарифы — листание месяца (с 27.09, ADR-111: подзаголовок постоянный, месяц читается по ячейкам)
   await open(page, '/rates');
   const firstDay = await page

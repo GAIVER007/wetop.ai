@@ -199,12 +199,12 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
       {
-        href: '/analytics',
+        // ADR-117: сайт объекта — одно место (раньше «Аналитика сайта», «Настройки сайта» и панель в «Интеграциях»)
+        href: '/website',
         requires: 'settings',
-        // «Аналитика» — теперь модуль показателей объекта; этот пункт — посещаемость сайта
-        label: 'Аналитика сайта',
+        label: 'Сайт и онлайн-бронирование',
         icon: 'analytics',
-        description: 'Посещаемость сайта, источники трафика и бронирования.',
+        description: 'Домен сайта, счётчик посещений, бронирование с сайта и его аналитика.',
       },
     ],
   },
@@ -242,13 +242,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         label: 'Интеграции',
         icon: 'channels',
         description: 'Внешние сервисы объекта: состояние подключения и где его настроить.',
-      },
-      {
-        href: '/analytics/setup',
-        requires: 'settings',
-        label: 'Настройки сайта',
-        icon: 'settings',
-        description: 'Подключение сайта и настройка виджета.',
       },
       {
         href: '/incidents',
@@ -319,9 +312,9 @@ export const sidebarSections: SidebarSection[] = [
     items: [
       menuItem('/rates'),
       menuItem('/channels'),
+      menuItem('/website'),
       // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
       menuItem('/ai-seller'),
-      menuItem('/analytics', 'Сайт и онлайн-бронирование'),
     ],
   },
   {
@@ -335,11 +328,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
-    items: [
-      menuItem('/hotel-settings', 'Объект'),
-      menuItem('/connections'),
-      menuItem('/analytics/setup', 'Сайт'),
-    ],
+    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/connections')],
   },
   {
     id: 'control',

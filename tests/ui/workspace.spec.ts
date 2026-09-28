@@ -52,8 +52,10 @@ test('все разделы, карточки и печать открывают
     ['/channels/events', 'События'],
     ['/journal', 'Журнал действий'],
     ['/incidents', 'Неисправности'],
-    ['/analytics', 'Аналитика сайта'],
-    ['/analytics/setup', 'Настройки сайта'],
+    ['/website', 'Сайт и онлайн-бронирование'],
+    ['/website/booking', 'Сайт и онлайн-бронирование'],
+    ['/website/analytics', 'Сайт и онлайн-бронирование'],
+    ['/website/settings', 'Сайт и онлайн-бронирование'],
     ['/rooms', 'Номерной фонд'],
     ['/rooms/categories', 'Категории номеров'],
     ['/rooms/availability', 'Свободные места'],
@@ -129,9 +131,13 @@ test('вложенные разделы: раскрытие, один актив
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
-  await page.goto('/analytics/setup');
+  // вкладка модуля сайта подсвечивает один пункт «Продаж» (ADR-117)
+  await page.goto('/website/settings');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
+  await page.goto('/connections');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Интеграции');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -434,16 +440,16 @@ test('аналитика: период дольше года и отклонён
   page,
   request,
 }) => {
-  await page.goto('/analytics?from=2025-01-01&to=2026-12-31');
+  await page.goto('/website/analytics?from=2025-01-01&to=2026-12-31');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('не больше года');
   await request.post(`${fixture}/__test/control`, {
     data: { failPath: '/analytics/sites/ui-site/report', failStatus: 400 },
   });
-  await page.goto('/analytics?from=2026-09-01&to=2026-09-30');
+  await page.goto('/website/analytics?from=2026-09-01&to=2026-09-30');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('запрос отклонён');
   await expect(page.getByRole('main').getByRole('alert')).not.toContainText('HTTP 400');
   await request.post(`${fixture}/__test/control`, { data: {} });
-  await page.goto('/analytics/setup');
+  await page.goto('/website/booking');
   await page
     .locator('summary')
     .getByText('Установка виджета бронирования', { exact: true })
@@ -642,7 +648,7 @@ test('ошибка буфера обмена видна, код остаётся
       configurable: true,
     });
   });
-  await page.goto('/analytics/setup');
+  await page.goto('/website/settings');
   await page.locator('summary').getByText('Установка счётчика', { exact: true }).click();
   await page.getByRole('button', { name: 'Скопировать код' }).first().click();
   await expect(
@@ -664,7 +670,7 @@ test('финансы: неверные даты можно исправить б
 
 test('ошибка загрузки тарифов не позволяет включить виджет', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/rate-plans' } });
-  await page.goto('/analytics/setup');
+  await page.goto('/website/booking');
   await expect(
     page.getByRole('main').getByRole('alert').filter({ hasText: 'Не удалось загрузить тарифы' }),
   ).toBeVisible();
@@ -805,23 +811,37 @@ test('тарифы: добавить, удалить, сохранить и пр
 test('сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные', async ({
   page,
 }) => {
-  await page.goto('/analytics/setup');
+  await page.goto('/website/settings');
+  // у учебного сайта домен-заглушка: состояние «адрес не указан», а не зелёный «счётчик включён» (ADR-117)
+  await expect(page.getByTestId('site-card-status')).toHaveText('Адрес не указан');
+  await expect(page.getByTestId('site-domain-missing')).toContainText('Основной домен не настроен');
   await page.getByTestId('site-check').click();
   await expect(page.getByTestId('site-check-result')).toBeVisible();
-  await page.getByTestId('hosts-input').fill('updated.example.invalid');
+  await page.getByTestId('hosts-input').fill('luxxaparts.kz');
   await page.getByTestId('hosts-save').click();
-  await expect(page.getByTestId('hosts-result')).toContainText('updated.example.invalid');
+  await expect(page.getByTestId('hosts-result')).toContainText('luxxaparts.kz');
+  await expect(page.getByTestId('site-card-status')).toHaveText('Ждём первое посещение');
+  await expect(page.getByTestId('site-domain-missing')).toHaveCount(0);
+  // пауза — через подтверждение, и окно говорит, что остановятся и посещения, и брони
   await page.getByTestId('site-toggle').click();
-  await expect(page.getByTestId('site-card-status')).toHaveText('Счётчик на паузе');
+  const confirm = page.getByRole('dialog');
+  await expect(confirm).toContainText('не принимает брони');
+  await confirm.getByRole('button', { name: 'Приостановить' }).click();
+  await expect(page.getByTestId('site-toggle-result')).toContainText(
+    'брони с сайта не принимаются',
+  );
+  await expect(page.getByTestId('site-card-status')).toHaveText('Приостановлен');
   await page.getByTestId('site-toggle').click();
-  await expect(page.getByTestId('site-card-status')).toHaveText('Счётчик включён');
+  await expect(page.getByTestId('site-card-status')).toHaveText('Ждём первое посещение');
+  await page.goto('/website/booking');
+  await expect(page.getByTestId('website-booking-state')).toContainText('Включено');
   await page.getByTestId('booking-enabled').uncheck();
   await page.getByTestId('booking-save').click();
   await expect(page.getByTestId('booking-result')).toContainText('выключено');
-  await page.goto('/analytics/setup');
+  await page.goto('/website/settings');
   const main = page.getByRole('main');
   await main.getByTestId('site-delete').click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Удалить сайт' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Удалить подключение' }).click();
   await expect(main.getByTestId('site-card')).toHaveCount(0);
   await main.getByTestId('site-name').fill('Новый тестовый сайт');
   await main.getByTestId('site-hosts').fill('new.example.invalid');
@@ -1108,7 +1128,7 @@ test('фонд и категории открываются независимо
  * виджета молча съедала койку.
  */
 test('настройка сайта: у демо бронирования сказано, что бронь настоящая', async ({ page }) => {
-  await page.goto('/analytics/setup');
+  await page.goto('/website/booking');
   await page
     .locator('summary')
     .getByText('Установка виджета бронирования', { exact: true })

@@ -8,7 +8,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 it.each(['pause', 'widget', 'hosts'])(
-  'обновляет аналитику и подключения после %s',
+  'обновляет все вкладки «Сайта и онлайн-бронирования» после %s',
   async (action) => {
     const card = { site: { bookingEnabled: false, hosts: ['example.invalid'] } } as TrackedSiteCard;
     vi.spyOn(analyticsApi, 'update').mockResolvedValue(card);
@@ -16,7 +16,7 @@ it.each(['pause', 'widget', 'hosts'])(
     if (action === 'widget')
       await bookingSettingsAction('site', { enabled: false, ratePlanCode: '' });
     if (action === 'hosts') await hostsAction('site', 'example.invalid');
-    for (const path of ['/analytics', '/analytics/setup', '/connections']) {
+    for (const path of ['/website', '/website/booking', '/website/analytics', '/website/settings']) {
       expect(revalidatePath).toHaveBeenCalledWith(path);
     }
   },

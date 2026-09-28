@@ -1567,6 +1567,8 @@ const siteSeed: TrackedSite = {
   bookingRatePlan: { id: 'ui-rate', code: 'BASE', name: 'Стандартный' },
 };
 let site = structuredClone(siteSeed);
+/** Последнее событие счётчика — `POST /__test/control { siteLastEventAt }`: состояние «Работает» на обзоре сайта */
+let siteLastEventAt: string | null = null;
 function report(): SiteReport {
   return {
     site: { id: site.id, name: site.name },
@@ -3127,7 +3129,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/analytics/sites/ui-site')
     return {
       site,
-      status: { lastEventAt: null, sessionsToday: 20, pageviewsToday: 38 },
+      status: { lastEventAt: siteLastEventAt, sessionsToday: 20, pageviewsToday: 38 },
       snippet: {
         key: site.publicKey,
         scriptUrl: '/w/tracker.js',
@@ -3237,6 +3239,7 @@ createServer(async (req, res) => {
       showcaseRevisions.clear();
       site = structuredClone(siteSeed);
       siteDeleted = false;
+      siteLastEventAt = null;
       groupFixture = false;
       analyticsHistory = false;
       paid = new Map();
@@ -3276,6 +3279,7 @@ createServer(async (req, res) => {
         body['channelsOverrides'] && typeof body['channelsOverrides'] === 'object'
           ? (body['channelsOverrides'] as typeof channelsOverrides)
           : {};
+      siteLastEventAt = typeof body['siteLastEventAt'] === 'string' ? body['siteLastEventAt'] : null;
       // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
       if (body['tentative'] === true) {
         card.status = 'TENTATIVE';

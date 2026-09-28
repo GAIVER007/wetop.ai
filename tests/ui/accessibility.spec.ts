@@ -34,8 +34,11 @@ const routes = [
   '/channels/sync',
   '/channels/events',
   '/connections',
-  '/analytics',
-  '/analytics/setup',
+  // «Сайт и онлайн-бронирование» (ADR-117): четыре вкладки вместо «Аналитики сайта» и «Настроек сайта»
+  '/website',
+  '/website/booking',
+  '/website/analytics',
+  '/website/settings',
   '/profile',
   '/login',
   '/incidents',

@@ -154,7 +154,7 @@ test('аналитика и статистика: пустое состояни�
   request,
 }) => {
   const main = page.getByRole('main');
-  await page.goto('/analytics');
+  await page.goto('/website/analytics');
   await expect(main.getByTestId('an-period')).toContainText(
     /Период \d{2}\.\d{2}\.\d{4} → \d{2}\.\d{2}\.\d{4}, 7 дней/,
   );
@@ -173,8 +173,8 @@ test('аналитика и статистика: пустое состояни�
   await request.post(`${fixture}/__test/control`, {
     data: { failPath: '/analytics/sites/ui-site/report' },
   });
-  await page.goto('/analytics?from=2026-09-01&to=2026-09-30');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика сайта');
+  await page.goto('/website/analytics?from=2026-09-01&to=2026-09-30');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сайт и онлайн-бронирование');
   await expect(main.getByLabel('Аналитика: с')).toHaveValue('2026-09-01');
   const failure = main.getByTestId('an-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -185,12 +185,12 @@ test('аналитика и статистика: пустое состояни�
   await expect(page).toHaveURL(/from=2026-09-01/);
   // без счётчика — не пустая страница, а шаг
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
-  await page.goto('/analytics');
+  await page.goto('/website/analytics');
   const noSites = main.getByTestId('an-no-sites');
-  await expect(noSites).toContainText('Счётчик ещё не подключён');
-  await expect(noSites.getByRole('link', { name: 'Подключить счётчик' })).toHaveAttribute(
+  await expect(noSites).toContainText('Сайт ещё не подключён');
+  await expect(noSites.getByRole('link', { name: 'Подключить сайт' })).toHaveAttribute(
     'href',
-    '/analytics/setup',
+    '/website/settings',
   );
   await request.post(`${fixture}/__test/control`, { data: {} });
   // статистика (с ADR-114 — «Аналитика → Загрузка»): старый адрес ведёт на вкладку с той же датой;
@@ -231,7 +231,7 @@ test('аналитика и статистика: пустое состояни�
   await request.post(`${fixture}/__test/control`, {
     data: { delayPath: '/analytics/sites/ui-site/report', delayMs: 2500 },
   });
-  await page.goto('/analytics', { waitUntil: 'commit' });
+  await page.goto('/website/analytics', { waitUntil: 'commit' });
   await expect(main.getByTestId('an-loading')).toContainText('Считаем отчёт по сайту');
   await expect(main.getByTestId('an-summary')).toBeVisible({ timeout: 15_000 });
   await request.post(`${fixture}/__test/control`, {

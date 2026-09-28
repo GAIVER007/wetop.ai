@@ -47,7 +47,16 @@ const HK_NEXT: Record<HkStatus, string> = {
   INSPECTED: 'Ячейка доступна для заселения. Испачкали — «Требует уборки», и цикл начнётся заново.',
 };
 
-export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) {
+export function UnitActions({
+  unit,
+  today,
+  blockPeriod,
+}: {
+  unit: UnitCard;
+  today: string;
+  /** Период из окошка шахматки (ТЗ v2 §31–32): форма блокировки открывается с ним */
+  blockPeriod?: { dateFrom: string; dateTo: string } | undefined;
+}) {
   const [blockState, blockAction, blockPending] = useActionState<UnitActionResult, FormData>(
     blockUnitAction.bind(null, unit.code),
     { error: null },
@@ -125,13 +134,14 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
         <form
           key={blockState.attempt ?? 0}
           action={blockAction}
+          id="block-form"
           data-testid="block-form"
           className="row unit-block-form"
         >
           <Field label="Блокировка с">
             <DateInput
               name="dateFrom"
-              defaultValue={blockState.values?.dateFrom ?? today}
+              defaultValue={blockState.values?.dateFrom ?? blockPeriod?.dateFrom ?? today}
               required
             />
           </Field>
@@ -139,7 +149,7 @@ export function UnitActions({ unit, today }: { unit: UnitCard; today: string }) 
             <DateInput
               name="dateTo"
               rangeFromName="dateFrom"
-              defaultValue={blockState.values?.dateTo ?? ''}
+              defaultValue={blockState.values?.dateTo ?? blockPeriod?.dateTo ?? ''}
               required
             />
           </Field>

@@ -118,3 +118,6 @@
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
+| 29.09.2026 01:00 | lint | ✅ без ошибок | 14 с | ed07369 | [лог](logs/2026-09-28T20-00-31Z-lint-7c23.log) | AN2 merged with main (AV2-AV3, P2) |
+| 29.09.2026 01:00 | unit | ✅ 2178 из 2181, пропущено 3 | 1 мин 12 с | ed07369 | [лог](logs/2026-09-28T20-00-45Z-unit-7a36.log) | AN2 merged with main (AV2-AV3, P2) |
+| 29.09.2026 01:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-occupancy.spec.ts tests/ui/analytics-v2.spec.ts) | ✅ 17 из 17 | 1 мин 18 с | ed07369 | [лог](logs/2026-09-28T20-02-02Z-e2e-f81f.log) | AN2 merged with main (AV2-AV3, P2): analytics specs |

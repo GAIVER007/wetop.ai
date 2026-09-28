@@ -137,13 +137,36 @@ const categorySeed: {
   count: number;
   prefix: string;
   capacityAdults: number;
-  /** У созданных через POST: тип из формы и число тарифов (ТЗ «Категории v2», ADR-109) */
+  /** У созданных через POST: тип из формы и привязанные тарифы по именам (ТЗ «Категории v2», ADR-109, ADR-119) */
   kind?: string;
-  ratePlans?: number;
+  rateNames?: string[];
+  /** Что использует категорию (C4): у засеянных — брони и Channex, у созданных через POST — ничего */
+  usage?: { reservations: number; upcomingReservations: number; channexMapped: boolean };
 }[] = [
-  { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
-  { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
-  { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
+  {
+    code: 'ROOM',
+    name: 'Двухместный номер',
+    count: 16,
+    prefix: 'R',
+    capacityAdults: 2,
+    usage: { reservations: 123, upcomingReservations: 5, channexMapped: true },
+  },
+  {
+    code: 'MALE',
+    name: 'Мужской общий номер',
+    count: 36,
+    prefix: 'M',
+    capacityAdults: 1,
+    usage: { reservations: 312, upcomingReservations: 14, channexMapped: true },
+  },
+  {
+    code: 'FEMALE',
+    name: 'Женский общий номер',
+    count: 36,
+    prefix: 'F',
+    capacityAdults: 1,
+    usage: { reservations: 287, upcomingReservations: 11, channexMapped: true },
+  },
 ];
 const categories = structuredClone(categorySeed);
 /** Структура места; живое состояние (уборка, блокировка) подставляется на каждый запрос */
@@ -179,7 +202,32 @@ const softPlanSeed = {
   cancellationPenalty: 'NONE' as const,
 };
 let softPlan = false;
-const ratePlanList = () => (softPlan ? [...plans, softPlanSeed] : plans);
+/** Тарифы, названные в «Категориях» (ADR-119): живут до `reset` */
+const extraPlans: {
+  code: string;
+  name: string;
+  currency: string;
+  active: boolean;
+  cancellationPenalty: 'FIRST_NIGHT' | 'NONE';
+}[] = [];
+const ratePlanList = () => [...plans, ...(softPlan ? [softPlanSeed] : []), ...extraPlans];
+/** Выбор тарифа из тела запроса: undefined — не выбран, null — такого кода нет; новый тариф заводится */
+function fixturePlanChoice(body: Record<string, unknown>) {
+  if (body.ratePlanCode) return ratePlanList().find((p) => p.code === body.ratePlanCode) ?? null;
+  if (typeof body.newRatePlanName === 'string' && body.newRatePlanName.trim()) {
+    const plan = {
+      code: `rate-${extraPlans.length + 1}`,
+      name: body.newRatePlanName.trim(),
+      currency: 'KZT',
+      active: true,
+      // как умолчание схемы у RatePlan
+      cancellationPenalty: 'FIRST_NIGHT' as const,
+    };
+    extraPlans.push(plan);
+    return plan;
+  }
+  return undefined;
+}
 const guestSeed: GuestCard = {
   id: 'ui-guest',
   firstName: 'Тестовый',
@@ -770,13 +818,24 @@ let failStatus = 503;
 /**
  * Состояние Channex для «Интеграций» (INT1, ADR-116): '' — прежний ответ; 'ok' — объект доступен, webhook включён и
  * отвечает, обмен минуты назад; 'attention' — webhook не отвечает, ошибки отправки, обмен два часа назад;
- * 'foreign' — интеграция установки у другой организации (403, ADR-095); 'no-key' — ключ не задан
+ * 'foreign' — интеграция установки у другой организации (403, ADR-095); 'no-key' — ключ не задан.
+ * INT2 (ADR-121): 'stale' — очередь в каналы стоит 40 мин, обмен три часа назад, webhook в порядке; 'webhook' — адрес
+ * webhook не отвечает, остальное в порядке. Во всех режимах с подключением все три категории сопоставлены
  */
-let channexMode: '' | 'ok' | 'attention' | 'foreign' | 'no-key' = '';
+type ChannexMode = '' | 'ok' | 'attention' | 'stale' | 'webhook' | 'foreign' | 'no-key';
+const CHANNEX_MODES: ChannexMode[] = ['ok', 'attention', 'stale', 'webhook', 'foreign', 'no-key'];
+let channexMode: ChannexMode = '';
+/** Режимы, где Channex подключён и отвечает: у них webhook включён и категории сопоставлены */
+const channexLive = () =>
+  channexMode === 'ok' ||
+  channexMode === 'attention' ||
+  channexMode === 'stale' ||
+  channexMode === 'webhook';
 const CHANNEX_FOREIGN = new Set([
   '/channels/channex/connection',
   '/channels/channex/webhook/status',
   '/channels/channex/outbox',
+  '/channels/channex/mapping',
 ]);
 let emptyFixture = false;
 /** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
@@ -1583,6 +1642,11 @@ const siteSeed: TrackedSite = {
 let site = structuredClone(siteSeed);
 /** Последнее событие счётчика — `POST /__test/control { siteLastEventAt }`: состояние «Работает» на обзоре сайта */
 let siteLastEventAt: string | null = null;
+/**
+ * Адрес демо виджета. По умолчанию относительный — стойка пишет «Демо виджета не подключено»; настоящий, как у API
+ * на сервере, — `POST /__test/control { bookingDemoUrl }` (WEB3), сбрасывается `reset`
+ */
+let siteBookingDemoUrl = '/demo-booking';
 function report(): SiteReport {
   return {
     site: { id: site.id, name: site.name },
@@ -1622,6 +1686,14 @@ function report(): SiteReport {
     demand: [],
     events: [],
     devices: { devices: [], browsers: [], os: [] },
+    // WEB4: воронка по сессиям и брони с сайта (Q-212) — числа учебные, сверяются в tests/ui/website.spec.ts
+    funnel: { visits: 125, searches: 40, started: 18, booked: 12, conversion: 0.096 },
+    siteReservations: {
+      count: 14,
+      cancelled: 1,
+      noShow: 1,
+      charged: [{ currency: 'KZT', chargedMinor: '142000000' }],
+    },
   };
 }
 
@@ -2373,8 +2445,9 @@ function read(path: string, q: URLSearchParams): unknown {
           : 'PRIVATE_ROOM'),
       capacityAdults: c.capacityAdults,
       active: true,
-      ratePlans: c.ratePlans ?? 1,
-      ratePlanNames: (c.ratePlans ?? 1) ? [plans[0]!.name] : [],
+      ratePlans: (c.rateNames ?? [plans[0]!.name]).length,
+      ratePlanNames: c.rateNames ?? [plans[0]!.name],
+      ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
   if (path === '/inventory/summary')
     return {
@@ -3046,6 +3119,8 @@ function read(path: string, q: URLSearchParams): unknown {
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
     if (channexMode === 'attention')
       return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+    if (channexMode === 'stale') return { ...base, lastWebhookAt: ago(185), lastPullAt: ago(240) };
+    if (channexMode === 'webhook') return { ...base, lastWebhookAt: ago(130), lastPullAt: ago(12) };
     if (channexMode === 'no-key')
       return {
         ...base,
@@ -3087,6 +3162,19 @@ function read(path: string, q: URLSearchParams): unknown {
             providerRatePlanId: 'ui-rp-male',
           },
         ]
+      : channexLive()
+      ? [
+          { id: 'ui-map-property', localAccommodationTypeCode: null, localRatePlanId: null, localRatePlanCode: null, providerPropertyId: 'ui-property', providerRoomTypeId: null, providerRatePlanId: null },
+          ...categories.slice(0, 3).map((c) => ({
+            id: `ui-map-${c.code}`,
+            localAccommodationTypeCode: c.code,
+            localRatePlanId: null,
+            localRatePlanCode: 'BAR',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: `ui-rt-${c.code.toLowerCase()}`,
+            providerRatePlanId: `ui-rp-${c.code.toLowerCase()}`,
+          })),
+        ]
       : [];
   // названия номеров и тарифов Channex (как GET content/names): только когда объект «создан»
   if (path === '/channels/channex/content/names')
@@ -3096,6 +3184,10 @@ function read(path: string, q: URLSearchParams): unknown {
           ratePlans: { 'ui-rp-room': 'OTA Rate · Double', 'ui-rp-male': 'OTA Rate · Male Dorm' },
         }
       : { roomTypes: {}, ratePlans: {} };
+  if (path === '/channels/channex/outbox' && channexMode === 'stale')
+    return { pending: 5, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 200 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a', oldestPendingAt: new Date(Date.now() - 40 * 60_000).toISOString() };
+  if (path === '/channels/channex/outbox' && channexMode === 'webhook')
+    return { pending: 0, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 12 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
   if (path === '/channels/channex/outbox' && channexMode === 'attention')
     return {
       pending: 0,
@@ -3221,13 +3313,13 @@ function read(path: string, q: URLSearchParams): unknown {
     ];
   if (path === '/channels/channex/webhook/status') {
     const base =
-      channexMode === 'ok' || channexMode === 'attention'
+      channexLive()
         ? {
             registered: true,
             active: true,
             expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
             secretConfigured: true,
-            callbackReachable: channexMode === 'ok',
+            callbackReachable: channexMode !== 'attention' && channexMode !== 'webhook',
             callbackCheckedAt: new Date().toISOString(),
           }
         : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
@@ -3320,7 +3412,7 @@ function read(path: string, q: URLSearchParams): unknown {
         code: '<script data-site="public-ui-fixture"></script>',
         demoUrl: '/demo',
         bookingCode: '<div data-booking></div>',
-        bookingDemoUrl: '/demo-booking',
+        bookingDemoUrl: siteBookingDemoUrl,
       },
     };
   return undefined;
@@ -3382,6 +3474,7 @@ createServer(async (req, res) => {
       today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
       units.splice(88);
       categories.splice(0, categories.length, ...structuredClone(categorySeed));
+      extraPlans.splice(0, extraPlans.length);
       for (const unit of units)
         unit.accommodationTypeName = categories.find(
           (c) => c.code === unit.accommodationTypeCode,
@@ -3425,6 +3518,7 @@ createServer(async (req, res) => {
       site = structuredClone(siteSeed);
       siteDeleted = false;
       siteLastEventAt = null;
+      siteBookingDemoUrl = '/demo-booking';
       groupFixture = false;
       analyticsHistory = false;
       paid = new Map();
@@ -3498,8 +3592,8 @@ createServer(async (req, res) => {
         applyChannelShowcase();
       }
       failStatus = Number(body['failStatus']) || 503;
-      channexMode = ['ok', 'attention', 'foreign', 'no-key'].includes(String(body['channex']))
-        ? (body['channex'] as typeof channexMode)
+      channexMode = CHANNEX_MODES.includes(String(body['channex']) as ChannexMode)
+        ? (body['channex'] as ChannexMode)
         : '';
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
@@ -3517,6 +3611,7 @@ createServer(async (req, res) => {
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       if (body['softPlan'] === true) softPlan = true;
+      if (typeof body['bookingDemoUrl'] === 'string') siteBookingDemoUrl = body['bookingDemoUrl'];
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
@@ -4536,6 +4631,11 @@ createServer(async (req, res) => {
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {
+      // как на настоящем API (ADR-119): тариф — существующий, новый с названием или явно «позже»
+      const rate = fixturePlanChoice(body);
+      if (rate === undefined && body.ratePlanLater !== true)
+        return send(400, { message: 'Выберите тариф или «Настроить позже»' });
+      if (rate === null) return send(404, { message: 'Тариф не найден' });
       const code = `test-category-${categories.length}`;
       categories.push({
         code,
@@ -4544,10 +4644,20 @@ createServer(async (req, res) => {
         count: 0,
         prefix: 'T',
         kind: body.kind ? String(body.kind) : 'PRIVATE_ROOM',
-        // как на настоящем API: тариф при создании обязателен и связывается сразу (ADR-077)
-        ratePlans: body.ratePlanCode || body.newRatePlanName ? 1 : 0,
+        rateNames: rate ? [rate.name] : [],
       });
       return send(201, { code });
+    }
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/rate-plan') && req.method === 'POST') {
+      const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-2)!));
+      if (!c) return send(404, { message: 'Категория не найдена' });
+      const rate = fixturePlanChoice(body);
+      if (rate === undefined) return send(400, { message: 'Выберите тариф или назовите новый' });
+      if (rate === null) return send(404, { message: 'Тариф не найден' });
+      const names = c.rateNames ?? [plans[0]!.name];
+      if (names.includes(rate.name)) return send(201, { code: c.code, linked: false });
+      c.rateNames = [...names, rate.name];
+      return send(201, { code: c.code, linked: true });
     }
     if (path.startsWith('/inventory/categories/') && req.method === 'PATCH') {
       const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));
@@ -4633,7 +4743,22 @@ createServer(async (req, res) => {
         siteDeleted = true;
         return send(200, { deleted: true });
       }
-      site = { ...site, ...body };
+      // тариф сайта — по коду из списка тарифов, как у API (`AnalyticsService.update`): неизвестный — 400 (WEB3)
+      const { bookingRatePlanCode, ...rest } = body as Record<string, unknown> & {
+        bookingRatePlanCode?: string | null;
+      };
+      if (typeof bookingRatePlanCode === 'string' && bookingRatePlanCode) {
+        const plan = ratePlanList().find((p) => p.code === bookingRatePlanCode && p.active);
+        if (!plan)
+          return send(400, { message: `тариф ${bookingRatePlanCode} не найден или неактивен` });
+        site = {
+          ...site,
+          bookingRatePlan: { id: `ui-rate-${plan.code}`, code: plan.code, name: plan.name },
+        };
+      } else if (bookingRatePlanCode === null || bookingRatePlanCode === '') {
+        site = { ...site, bookingRatePlan: null };
+      }
+      site = { ...site, ...rest };
       return send(200, read(path, url.searchParams));
     }
     if (path === '/channels/channex/pull')

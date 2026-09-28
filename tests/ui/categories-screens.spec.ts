@@ -29,6 +29,7 @@ test('categories C1: five Luxx-shaped rows, filters, row menu, long name — lig
       name: 'Одноместная комната без окон и с очень длинным названием для проверки переноса',
       kind: 'PRIVATE_ROOM',
       capacityAdults: 1,
+      ratePlanLater: true,
     },
   });
   await page.goto('/rooms/categories');
@@ -41,7 +42,7 @@ test('categories C1: five Luxx-shaped rows, filters, row menu, long name — lig
   // категория без фонда и без тарифа называет это словами, а не пустыми ячейками (ТЗ §20, §35)
   const bare = rows.filter({ hasText: 'длинным названием' });
   await expect(bare.getByText('не добавлен', { exact: true })).toBeVisible();
-  await expect(bare.getByText('нет тарифа', { exact: true })).toBeVisible();
+  await expect(bare.getByText('тариф не настроен', { exact: true })).toBeVisible();
   // у категорий с фондом число единиц — ссылка в состав (ТЗ §10)
   await expect(
     rows.filter({ hasText: 'Мужской общий номер' }).getByRole('link', { name: '36 коек' }),

@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { randomBytes } from 'node:crypto';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
+  bookingFunnel,
   dailyBreakdown,
   demandCalendar,
   devicesBreakdown,
@@ -11,6 +12,7 @@ import {
   monthPeriod,
   normalizeHost,
   periodBoundsUtc,
+  siteReservations,
   sourcesBreakdown,
   summarize,
   topPages,
@@ -19,7 +21,9 @@ import {
   type DemandRow,
   type DevicesBreakdown,
   type EventRow,
+  type Funnel,
   type PageRow,
+  type SiteReservations,
   type SourceRow,
   type Summary,
 } from '@pms/domain';
@@ -57,6 +61,10 @@ export interface SiteReport {
   demand: DemandRow[];
   events: EventRow[];
   devices: DevicesBreakdown;
+  /** Воронка по сессиям периода (WEB4) */
+  funnel: Funnel;
+  /** Брони с источником «Сайт», созданные за период, — по объекту (WEB4, Q-212) */
+  siteReservations: SiteReservations;
 }
 
 /** Предел периода отчёта: 400 дней — чуть больше 13 месяцев хранения данных счётчика */
@@ -223,10 +231,11 @@ export class AnalyticsService {
       period = { from, to };
     }
     const { startUtc, endUtcExclusive } = periodBoundsUtc(period.from, period.to, tz);
-    const [sessions, pageviews, events] = await Promise.all([
+    const [sessions, pageviews, events, reservations] = await Promise.all([
       this.repo.sessions(site.id, startUtc, endUtcExclusive),
       this.repo.pageviews(site.id, startUtc, endUtcExclusive),
       this.repo.events(site.id, startUtc, endUtcExclusive),
+      this.repo.siteReservations(startUtc, endUtcExclusive),
     ]);
     return {
       site: { id: site.id, name: site.name },
@@ -238,6 +247,8 @@ export class AnalyticsService {
       demand: demandCalendar(events.filter((e) => e.name === 'search')),
       events: eventsBreakdown(events),
       devices: devicesBreakdown(sessions),
+      funnel: bookingFunnel(sessions, events),
+      siteReservations: siteReservations(reservations),
     };
   }
 

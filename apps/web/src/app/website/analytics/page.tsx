@@ -2,6 +2,7 @@ import { normalizeSearchParams, type SearchParams } from '../../../lib/search-pa
 import Link from 'next/link';
 import { ApiError, analyticsApi, type SiteReport, type TrackedSite } from '../../../lib/api';
 import { displayDate } from '../../../lib/display-date';
+import { formatMoney } from '../../../lib/money';
 import { pluralRu } from '../../../lib/plural';
 import { WEBSITE_TITLE, primaryHost } from '../../../lib/website';
 import { Page } from '../../../components/page';
@@ -214,6 +215,10 @@ function Report({ report }: { report: SiteReport }) {
           даты по {report.period.timezone}
         </span>
       </p>
+      <section className="grid-2 block">
+        <SiteBookings report={report} />
+        <FunnelBlock funnel={report.funnel} />
+      </section>
       <Stats min={230} data-testid="an-summary">
         <Stat label="Сессии" value={String(s.sessions)} testId="an-sessions" />
         <Stat label="Уникальные посетители" value={String(s.visitors)} testId="an-visitors" />
@@ -240,11 +245,14 @@ function Report({ report }: { report: SiteReport }) {
           hint="один просмотр и меньше 10 с"
           testId="an-bounce-rate"
         />
+        {/* WEB4: брони с сайта — отдельный блок выше; здесь только сессии счётчика, дошедшие до брони */}
         <Stat
-          label="Брони с сайта"
+          label="Сессий с бронью"
           value={String(s.bookings)}
           hint={
-            s.sessions ? `${Math.round((s.bookings / s.sessions) * 1000) / 10} % сессий` : undefined
+            s.sessions
+              ? `${(Math.round((s.bookings / s.sessions) * 1000) / 10).toLocaleString('ru-RU')} % сессий`
+              : undefined
           }
           testId="an-bookings"
         />
@@ -450,6 +458,120 @@ function Report({ report }: { report: SiteReport }) {
         <ShareTable title="Операционные системы" rows={report.devices.os} testId="an-os" />
       </Grid>
     </>
+  );
+}
+
+/**
+ * Брони с сайта (WEB4, Q-212): брони объекта с источником «Сайт», созданные за период, — все, а не только из сессий
+ * со счётчиком; начислено — по их счетам, как колонка «Финансы» в «Бронях». Ссылка ведёт туда с тем же отбором.
+ */
+function SiteBookings({ report }: { report: SiteReport }) {
+  const r = report.siteReservations;
+  const href = `/reservations?${new URLSearchParams({
+    from: report.period.from,
+    to: report.period.to,
+    date: 'created',
+    source: 'WEBSITE',
+  })}`;
+  const lost = [
+    r.cancelled ? `отменено ${r.cancelled}` : null,
+    r.noShow ? `не заехали ${r.noShow}` : null,
+  ].filter(Boolean);
+  return (
+    <div data-testid="an-site-reservations">
+      <SectionTitle first>Брони с сайта</SectionTitle>
+      <Stats min={180}>
+        {/* Q-209 (правило владельца): одна Reservation — одна бронь; «Новые брони» — по дате создания */}
+        <Stat
+          label="Новые брони"
+          value={String(r.count)}
+          hint={lost.length ? `из них ${lost.join(', ')}` : undefined}
+          testId="an-site-reservations-count"
+        />
+        <Stat
+          label="Начислено"
+          value={
+            r.charged.length
+              ? // валют бывает больше одной — каждая своей строкой (DESIGN.md §14: без точки-разделителя)
+                r.charged.map((c) => (
+                  <div key={c.currency}>{formatMoney(c.chargedMinor, c.currency)}</div>
+                ))
+              : '—'
+          }
+          hint="по счетам этих броней"
+          testId="an-site-reservations-charged"
+        />
+      </Stats>
+      <p className="hint block--top">
+        Брони с источником «Сайт», созданные за период, — с виджета и без счётчика тоже. У брони нет
+        номера сайта, поэтому это брони всего объекта.
+      </p>
+      {r.count > 0 && (
+        <p className="block--top">
+          <Link href={href}>Открыть в «Бронях»</Link>
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Воронка сайта (WEB4): сессии периода, дошедшие до шага. Порядка событий база не хранит, но виджет ведёт гостя
+ * строго по шагам — сессия, дошедшая дальше, засчитана и на шагах до этого (`bookingFunnel` домена).
+ */
+function FunnelBlock({ funnel }: { funnel: SiteReport['funnel'] }) {
+  const steps = [
+    { label: 'Посещения', value: funnel.visits, of: null },
+    {
+      label: 'Поиск дат',
+      value: funnel.searches,
+      of: { value: funnel.visits, word: 'от посещений' },
+    },
+    {
+      label: 'Начали бронь',
+      value: funnel.started,
+      of: { value: funnel.searches, word: 'от поиска' },
+    },
+    { label: 'Бронь', value: funnel.booked, of: { value: funnel.started, word: 'от начатых' } },
+  ];
+  const conversion = `${(Math.round(funnel.conversion * 1000) / 10).toLocaleString('ru-RU')} %`;
+  return (
+    <div className="an-funnel" data-testid="an-funnel">
+      <SectionTitle first>Воронка</SectionTitle>
+      <Table size="sm" plain>
+        <thead>
+          <tr>
+            <th>Шаг</th>
+            <th className="num">Сессий</th>
+          </tr>
+        </thead>
+        <tbody>
+          {steps.map((step) => (
+            <tr key={step.label} data-testid="an-funnel-step">
+              {/* переход — второй строкой под шагом: колонки перехода и доли на телефоне уезжали за край */}
+              <td>
+                {step.label}
+                {step.of && (
+                  <div className="hint">
+                    {step.of.value
+                      ? `${Math.round((step.value / step.of.value) * 100)} % ${step.of.word}`
+                      : '—'}
+                  </div>
+                )}
+              </td>
+              <td className="num">{step.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <p className="block--top">
+        Конверсия в бронь <strong data-testid="an-funnel-conversion">{conversion}</strong>
+      </p>
+      <p className="hint">
+        Сессии со счётчиком WETOP: поиск и шаги брони шлёт виджет. Брони без счётчика есть только в
+        «Бронях с сайта».
+      </p>
+    </div>
   );
 }
 

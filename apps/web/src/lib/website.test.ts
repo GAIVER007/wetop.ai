@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { TrackedSiteCard } from './api';
 import { propertyClock } from './property-time';
-import { isPlaceholderHost, primaryHost, siteState } from './website';
+import {
+  hostsAfterAdd,
+  hostsAfterRemove,
+  isOpenableUrl,
+  isPlaceholderHost,
+  parseDomainInput,
+  primaryHost,
+  siteState,
+} from './website';
 
 const clock = propertyClock('Asia/Almaty');
 // 27.09.2026 15:00 по Алматы
@@ -122,10 +130,78 @@ describe('состояние сайта на обзоре', () => {
       value: 'Включено',
       note: 'Тариф «Базовый тариф»',
     });
+    // WEB3: выключенный виджет ничего не объявляет — форма остаётся, а «Показать цены» гость получает отказ
     expect(siteState(card({ bookingEnabled: false }), clock, NOW).booking).toMatchObject({
       state: 'off',
       value: 'Выключено',
+      note: 'Форма на сайте цены не покажет',
     });
     expect(siteState(card({ bookingRatePlan: null }), clock, NOW).booking.state).toBe('blocked');
+  });
+});
+
+describe('ввод домена (WEB2)', () => {
+  it.each([
+    ['https://www.LuxxAparts.kz/rooms?x=1', 'luxxaparts.kz'],
+    ['  luxxaparts.kz  ', 'luxxaparts.kz'],
+    ['luxxaparts.kz:443', 'luxxaparts.kz'],
+    ['http://promo.luxxaparts.kz/', 'promo.luxxaparts.kz'],
+    ['WWW.luxxaparts.kz.', 'luxxaparts.kz'],
+  ])('«%s» — это %s', (raw, host) => {
+    expect(parseDomainInput(raw)).toEqual({ host });
+  });
+
+  it('пустой ввод и не-адрес названы словами до запроса в API', () => {
+    expect(parseDomainInput('   ')).toEqual({
+      error: 'Впишите адрес сайта, например myhotel.kz',
+    });
+    for (const raw of ['luxx aparts', 'https://', 'luxx_aparts.kz', '-luxx.kz'])
+      expect(parseDomainInput(raw)).toHaveProperty(
+        'error',
+        'Не похоже на адрес сайта: впишите домен, например myhotel.kz',
+      );
+  });
+});
+
+describe('список доменов после правки (WEB2)', () => {
+  it('настоящий домен вытесняет заглушку — так и сказано', () => {
+    expect(hostsAfterAdd(['luxx-aparts.example'], 'luxxaparts.kz')).toEqual({
+      hosts: ['luxxaparts.kz'],
+      dropped: ['luxx-aparts.example'],
+    });
+  });
+
+  it('второй домен встаёт в конец, основной не меняется', () => {
+    expect(hostsAfterAdd(['luxxaparts.kz'], 'promo.kz')).toEqual({
+      hosts: ['luxxaparts.kz', 'promo.kz'],
+      dropped: [],
+    });
+  });
+
+  it('домен, который уже есть, не дублируется', () => {
+    expect(hostsAfterAdd(['luxxaparts.kz'], 'luxxaparts.kz')).toEqual({
+      error: 'luxxaparts.kz уже в списке',
+    });
+  });
+
+  it('убрать можно любой, кроме последнего', () => {
+    expect(hostsAfterRemove(['luxxaparts.kz', 'promo.kz'], 'luxxaparts.kz')).toEqual({
+      hosts: ['promo.kz'],
+    });
+    expect(hostsAfterRemove(['luxxaparts.kz'], 'luxxaparts.kz')).toEqual({
+      error: 'Сайту нужен хотя бы один адрес: сначала добавьте другой',
+    });
+    expect(hostsAfterRemove(['luxxaparts.kz'], 'promo.kz')).toEqual({
+      error: 'promo.kz уже нет в списке',
+    });
+  });
+});
+
+describe('адрес демо виджета (WEB3)', () => {
+  it('открываем только настоящий адрес http или https', () => {
+    expect(isOpenableUrl('https://api.wetop.ai/w/demo?k=pms_1')).toBe(true);
+    expect(isOpenableUrl('http://127.0.0.1:3001/w/demo?k=pms_1')).toBe(true);
+    for (const url of ['/demo-booking', '', 'javascript:alert(1)', 'ftp://x.kz/demo'])
+      expect(isOpenableUrl(url)).toBe(false);
   });
 });

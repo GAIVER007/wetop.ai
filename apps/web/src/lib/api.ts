@@ -13,6 +13,7 @@ import type {
   MembershipRole,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import { requestScopeHeader } from './scope-pointer';
 export interface CategorySummary {
   code: string;
   name: string;
@@ -73,6 +74,8 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
       headers: {
         ...options.headers,
         ...(await sessionHeader()),
+        // указатель выбора Business и филиала (Platform P2, К1): проверяет API, стойка только пересылает
+        ...(await requestScopeHeader()),
         ...(testing ? { 'x-wetop-test-client': '1' } : {}),
         ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
       },
@@ -1415,6 +1418,15 @@ export interface SiteReport {
     browsers: Array<{ key: string | null; sessions: number; share: number }>;
     os: Array<{ key: string | null; sessions: number; share: number }>;
   };
+  /** Воронка по сессиям периода (WEB4): сессия, дошедшая дальше, засчитана и на шагах до этого */
+  funnel: { visits: number; searches: number; started: number; booked: number; conversion: number };
+  /** Брони с источником «Сайт», созданные за период, — по объекту; начислено по их счетам (WEB4, Q-212) */
+  siteReservations: {
+    count: number;
+    cancelled: number;
+    noShow: number;
+    charged: Array<{ currency: string; chargedMinor: string }>;
+  };
 }
 export const analyticsApi = {
   sites: () => getJson<TrackedSite[]>('/analytics/sites'),
@@ -1905,13 +1917,26 @@ export interface InventoryCategory {
   ratePlans: number;
   /** Имена тех же тарифов — для панели категории (C2), цены здесь нет: она своя на каждую дату */
   ratePlanNames: string[];
+  /** Что использует категорию (C4, ТЗ §17): брони в истории — разные брони, не проживания */
+  reservations: number;
+  /** Из них впереди: не отменены и не закрыты, выезд сегодня или позже */
+  upcomingReservations: number;
+  /** Категория сопоставлена с типом номера в Channex */
+  channexMapped: boolean;
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
-    sendJson(
+    sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
+      body,
+    ),
+  /** «Настроить тариф» (ADR-119): существующий `ratePlanCode` или новый `newRatePlanName` */
+  linkRatePlan: (code: string, body: Record<string, unknown>) =>
+    sendJson<{ linked: boolean }>(
+      'POST',
+      `/inventory/categories/${encodeURIComponent(code)}/rate-plan`,
       body,
     ),
 };

@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { REAL_UNIT_OPTION } from './pick-unit';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -30,7 +31,7 @@ test('заселить → карточка и шахматка показыва
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(3), plus(4)));
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  const unitCode = (await unitSelect.locator(REAL_UNIT_OPTION).nth(0).getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-заезд');

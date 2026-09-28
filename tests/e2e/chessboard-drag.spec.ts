@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { REAL_UNIT_OPTION } from './pick-unit';
 
 /**
  * Переселение перетаскиванием в шахматке: администратор тянет клетку брони на другую строку-ячейку
@@ -38,8 +39,8 @@ test('перетаскивание клетки брони на свободну
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitA = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
-  const unitB = (await unitSelect.locator('option').nth(2).getAttribute('value'))!;
+  const unitA = (await unitSelect.locator(REAL_UNIT_OPTION).nth(0).getAttribute('value'))!;
+  const unitB = (await unitSelect.locator(REAL_UNIT_OPTION).nth(1).getAttribute('value'))!;
   expect(unitB).not.toBe(unitA);
   await unitSelect.selectOption(unitA);
   await form.locator('input[name="firstName"]').fill('Гость');

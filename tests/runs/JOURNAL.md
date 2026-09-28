@@ -7271,3 +7271,8 @@
 | 29.09.2026 00:43 | lint | ✅ без ошибок | 19 с | 2c7a6fd | [лог](logs/2026-09-28T19-43-07Z-lint-f51d.log) | integration wave 2, 28.09 |
 | 29.09.2026 00:43 | unit | ❌ упало 2 из 2246, пропущено 3 | 1 мин 33 с | 2c7a6fd | [лог](logs/2026-09-28T19-43-26Z-unit-4149.log) | integration wave 2, 28.09 |
 | 29.09.2026 00:46 | unit | ✅ 2243 из 2246, пропущено 3 | 1 мин 23 с | 2c7a6fd +2 | [лог](logs/2026-09-28T19-46-59Z-unit-d916.log) | integration wave 2: after design-audit baseline and hotel-time timer fix |
+| 29.09.2026 00:50 | integration | ✅ 117 из 117 | 36 с | 03726fa | [лог](logs/2026-09-28T19-50-17Z-integration-2a68.log) | integration wave 2, fresh stand |
+| 29.09.2026 00:51 | e2e | ❌ упало 5 из 25 | 2 мин 10 с | 03726fa | [лог](logs/2026-09-28T19-51-37Z-e2e-aaf2.log) | integration wave 2: live DB e2e |
+| 29.09.2026 00:53 | e2e | ❌ упало 5 из 26 | 2 мин 9 с | 03726fa | [лог](logs/2026-09-28T19-53-47Z-e2e-30ef.log) | integration wave 2: E2E_AUTH=1, API as wetop_app |
+| 29.09.2026 00:57 | e2e | ✅ 25 из 25 | 1 мин 2 с | 03726fa +9 | [лог](logs/2026-09-28T19-57-10Z-e2e-465d.log) | integration wave 2: e2e specs skip the AV3 @auto unit option |
+| 29.09.2026 00:58 | e2e | ✅ 26 из 26 | 1 мин 12 с | 03726fa +9 | [лог](logs/2026-09-28T19-58-20Z-e2e-5338.log) | integration wave 2: E2E_AUTH=1, API as wetop_app |

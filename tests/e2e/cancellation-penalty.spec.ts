@@ -3,6 +3,7 @@ import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { ratePlanWithPenalty, roomiestCategory } from './pick-category';
+import { REAL_UNIT_OPTION } from './pick-unit';
 
 /**
  * Q-103: отмена сторнирует начисление за проживание и ставит штраф по политике тарифа
@@ -74,7 +75,7 @@ test('отмена заранее — без штрафа, незаезд — с
     .locator('select[name="ratePlanCode"]')
     .selectOption(await ratePlanWithPenalty(request, 'FIRST_NIGHT'));
   const unit = f2.locator('select[name="unitCode"]');
-  await unit.selectOption((await unit.locator('option').nth(1).getAttribute('value'))!);
+  await unit.selectOption((await unit.locator(REAL_UNIT_OPTION).nth(0).getAttribute('value'))!);
   await f2.locator('input[name="firstName"]').fill('Гость');
   await f2.locator('input[name="lastName"]').fill('Тест-незаезд-штраф');
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты

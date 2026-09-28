@@ -3,6 +3,7 @@ import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
 import { selectService } from './pick-service';
+import { REAL_UNIT_OPTION } from './pick-unit';
 
 /**
  * Срез 5 целиком одной цепочкой: «сутки можно прожить руками».
@@ -39,7 +40,7 @@ test('сутки гостя целиком: заезд, услуга на счё
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, arrival, departure));
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  const unitCode = (await unitSelect.locator(REAL_UNIT_OPTION).nth(0).getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-сутки');

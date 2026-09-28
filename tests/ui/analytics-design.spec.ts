@@ -57,7 +57,7 @@ test('аналитика: нижние таблицы не обрезаются,
   await expect(main.locator('code')).toHaveCount(0);
   const demand = main.getByTestId('an-demand-empty');
   await expect(demand).toContainText('Запросов нет');
-  // инструкция для разработчика — во вкладке «Настройки» модуля сайта (ADR-107)
+  // инструкция для разработчика — во вкладке «Настройки» модуля сайта (ADR-117)
   await expect(demand.getByRole('link', { name: /настройках сайта/i })).toBeVisible();
   await expect(main.getByTestId('an-events-empty')).toContainText('Событий нет');
   // пустые «Устройства», «Браузеры», «ОС» видны целиком, без обрезки в прокрутку

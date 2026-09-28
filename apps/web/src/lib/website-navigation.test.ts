@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import nextConfig from '../../next.config';
 import { CLOSED_ACCESS, activeNavigation, navigationItems, sidebarSectionsFor } from './navigation';
 
-describe('сайт в меню — одно место (ADR-107)', () => {
+describe('сайт в меню — одно место (ADR-117)', () => {
   const sections = sidebarSectionsFor(CLOSED_ACCESS);
   const hrefs = sections.flatMap((section) => section.items.map((item) => item.href));
 

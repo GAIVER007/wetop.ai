@@ -112,7 +112,7 @@ test('вложенные разделы: раскрытие, один актив
   await expect(
     sidebar.getByRole('link', { name: 'Категории номеров', exact: true }),
   ).not.toBeVisible();
-  // вкладка модуля сайта подсвечивает один пункт «Продаж» (ADR-107)
+  // вкладка модуля сайта подсвечивает один пункт «Продаж» (ADR-117)
   await page.goto('/website/settings');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
@@ -191,7 +191,7 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Не удалось проверить webhook',
   );
-  // сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-107), в «Интеграциях» его нет
+  // сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-117), в «Интеграциях» его нет
   await expect(page.getByRole('main')).not.toContainText('Сайтов в системе');
   // Контент каналов не дублируется: старые ссылки ведут к подключению Channex.
   for (const section of ['photos', 'amenities']) {
@@ -789,7 +789,7 @@ test('сайты: проверка, домены, пауза, виджет, уд
   page,
 }) => {
   await page.goto('/website/settings');
-  // у учебного сайта домен-заглушка: состояние «адрес не указан», а не зелёный «счётчик включён» (ADR-107)
+  // у учебного сайта домен-заглушка: состояние «адрес не указан», а не зелёный «счётчик включён» (ADR-117)
   await expect(page.getByTestId('site-card-status')).toHaveText('Адрес не указан');
   await expect(page.getByTestId('site-domain-missing')).toContainText('Основной домен не настроен');
   await page.getByTestId('site-check').click();

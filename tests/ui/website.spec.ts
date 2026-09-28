@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { devNoise, expect, test, type APIRequestContext, type Page } from './fixtures';
 
 /**
- * «Продажи → Сайт и онлайн-бронирование» (ADR-107, срез WEB1): сайт объекта — одно место вместо трёх («Аналитика
+ * «Продажи → Сайт и онлайн-бронирование» (ADR-117, срез WEB1): сайт объекта — одно место вместо трёх («Аналитика
  * сайта», «Настройки сайта», панель в «Интеграциях»). Браузер → `next dev` → подставной API; учебный сайт фикстуры —
  * на домене-заглушке `example.invalid`, как боевой «Сайт Luxx Aparts» на `luxx-aparts.example`.
  */

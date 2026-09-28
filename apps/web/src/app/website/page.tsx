@@ -8,7 +8,7 @@ import { Notice, StateBar, StateFact, Stack } from '../../components/ui';
 import { WebsiteNotConnected, WebsiteTabs } from './parts';
 
 /**
- * «Сайт и онлайн-бронирование → Обзор» (ADR-107, WEB1): как сайт объекта связан с WETOP — одним взглядом.
+ * «Сайт и онлайн-бронирование → Обзор» (ADR-117, WEB1): как сайт объекта связан с WETOP — одним взглядом.
  * Сайт с доменом-заглушкой подключённым не считается: вместо зелёной карточки — пустое состояние.
  */
 export default async function WebsiteOverviewPage() {

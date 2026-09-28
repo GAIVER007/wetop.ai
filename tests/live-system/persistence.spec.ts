@@ -301,7 +301,7 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
       await page.getByTestId('site-create').click();
       await expect.poll(() => db.trackedSite.count({ where: { name: marker } })).toBe(1);
       const card = page.getByTestId('site-card').filter({ hasText: marker });
-      // пауза — через подтверждение (ADR-107): останавливает и счётчик, и брони с сайта
+      // пауза — через подтверждение (ADR-117): останавливает и счётчик, и брони с сайта
       await card.getByTestId('site-toggle').click();
       await page
         .getByRole('dialog', { name: 'Приостановить сайт?' })

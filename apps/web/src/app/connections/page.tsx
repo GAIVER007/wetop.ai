@@ -10,7 +10,7 @@ import { DataConnectionPanel } from './data-connection';
 export default async function ConnectionsPage() {
   // Время события по часам объекта (С-13); событий не было — «—» (§14), а не фраза вместо значения
   const clock = await hotelClock();
-  // Сайт объекта здесь не показывается (ADR-107): счётчик и виджет — свои, WETOP, а не внешний сервис;
+  // Сайт объекта здесь не показывается (ADR-117): счётчик и виджет — свои, WETOP, а не внешний сервис;
   // у них одно место — «Продажи → Сайт и онлайн-бронирование»
   const [connection, webhook, database] = await Promise.allSettled([
     channelsApi.connection(),

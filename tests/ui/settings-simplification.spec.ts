@@ -15,7 +15,7 @@ test('короткое меню настроек ведёт в единый об
   const group = sidebar
     .locator('.sidebar-section')
     .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
-  // Сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-107), в «Настройках» его больше нет
+  // Сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-117), в «Настройках» его больше нет
   await expect(group.locator('a')).toHaveText(['Гостиница', 'Интеграции']);
   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
   await expect(page.getByTestId('stay-settings')).toContainText('14:00');
@@ -145,7 +145,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByTestId('site-card-snippet')).toBeVisible();
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('site-card-snippet')).not.toBeVisible();
-    // код виджета — во вкладке «Бронирование» модуля сайта (ADR-107)
+    // код виджета — во вкладке «Бронирование» модуля сайта (ADR-117)
     await page.goto('/website/booking');
     const widget = page
       .locator('summary')

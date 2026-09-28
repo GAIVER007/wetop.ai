@@ -36,7 +36,12 @@ export function Sidebar({
   desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
-  const active = route?.startsWith('/hotel-settings') ? '/hotel-settings' : route;
+  // «Категории» и «Доступность» — вкладки «Номерного фонда» (ADR-108): подсвечивается его пункт
+  const active = route?.startsWith('/hotel-settings')
+    ? '/hotel-settings'
+    : route?.startsWith('/rooms')
+      ? '/inventory'
+      : route;
   const activeSection = sidebarSections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;
@@ -145,6 +150,25 @@ function SectionLinks({
         const open = !collapsed && expanded === section.id;
         const selected = activeSection === section.id;
         const panelId = `${id}-${section.id}`;
+        // Раздел из одного пункта (ADR-108): прямая ссылка вместо раскрывашки с единственной строкой
+        const single = section.direct ? section.items[0] : undefined;
+        if (single)
+          return (
+            <div className="sidebar-section" key={section.id}>
+              <Link
+                href={single.href}
+                prefetch={false}
+                onClick={() => close?.()}
+                data-tour={`section-${section.id}`}
+                title={collapsed ? section.label : undefined}
+                className={cx('sidebar-section-toggle', selected && 'has-current-page')}
+                aria-current={single.href === active ? 'page' : undefined}
+              >
+                <Icon name={section.icon} />
+                <span>{section.label}</span>
+              </Link>
+            </div>
+          );
         return (
           <div className="sidebar-section" key={section.id}>
             <button

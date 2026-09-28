@@ -116,6 +116,9 @@ start() {
   ( cd "$ROOT" && DATABASE_URL="$URL" DIRECT_URL="$URL" npm run --silent migrate:deploy -w @pms/database >/dev/null )
   # Схема автотестов (ADR-042) — тем же кодом, что и перед прогоном на dev-БД
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent test:schema >/dev/null )
+  # Вход роли wetop_app: миграция заводит её NOLOGIN (на рабочей базе вход — этап 2 docs/ops/rls.md), а rls-isolation
+  # подключается ею напрямую. Только локальная база — шаг сам отказывает на чужом адресе (TESTING.md §4)
+  ( cd "$ROOT" && DATABASE_URL="$URL" npx --yes tsx tests/tools/local-app-login.ts >/dev/null )
   # public нужен локальным скриптам. pms_test уже заполнен test:schema выше:
   # второй seed-local добавляет другие проживания на те же ячейки и падает по overlap.
   ( cd "$ROOT" && DATABASE_URL="$URL" DATABASE_SCHEMA="" npx --yes tsx tests/tools/seed-local.ts >/dev/null )

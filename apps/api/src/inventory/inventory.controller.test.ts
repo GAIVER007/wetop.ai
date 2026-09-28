@@ -68,6 +68,19 @@ const fakeRepo: InventoryRepository = {
       blocks: 0,
     };
   },
+  // Живое состояние (ADR-108): у 9010 действующая блокировка, 9011 в состояниях не найден —
+  // сервис подставляет безопасное умолчание (грязно, в продаже, без блокировки)
+  async states() {
+    return [
+      { code: '9001', housekeepingStatus: 'INSPECTED' as const, active: true, block: null },
+      {
+        code: '9010',
+        housekeepingStatus: 'DIRTY' as const,
+        active: true,
+        block: { dateTo: '2026-10-01', type: 'MAINTENANCE', reason: 'ремонт: тестовый кран' },
+      },
+    ];
+  },
 };
 
 describe('GET /inventory', () => {
@@ -109,7 +122,7 @@ describe('GET /inventory', () => {
     });
   });
 
-  it('/inventory/units lists every unit with its category name', async () => {
+  it('/inventory/units lists every unit with its category name and live state', async () => {
     const res = await request(app.getHttpServer()).get('/inventory/units').expect(200);
     expect(res.body).toHaveLength(3);
     expect(res.body[1]).toEqual({
@@ -121,6 +134,18 @@ describe('GET /inventory', () => {
       roomNumber: '9010',
       roomCapacity: 1,
       isDorm: true,
+      buildingName: null,
+      floorName: null,
+      housekeepingStatus: 'DIRTY',
+      active: true,
+      block: { dateTo: '2026-10-01', type: 'MAINTENANCE', reason: 'ремонт: тестовый кран' },
+    });
+    // место без строки состояния получает безопасное умолчание, а не 500
+    expect(res.body[2]).toMatchObject({
+      code: '9011',
+      housekeepingStatus: 'DIRTY',
+      active: true,
+      block: null,
     });
   });
 

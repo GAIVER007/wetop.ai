@@ -257,6 +257,8 @@ export interface SidebarSection {
   label: string;
   icon: IconName;
   items: NavigationItem[];
+  /** Раздел из одного пункта: в меню — прямая ссылка без раскрывашки (ADR-108) */
+  direct?: boolean;
 }
 
 // Метаданные и дочерние ссылки нужны страницам-обзорам. Меню группирует тот же
@@ -275,14 +277,13 @@ export const sidebarSections: SidebarSection[] = [
     items: ['/today', '/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
   },
   {
+    // Один пункт вместо трёх (ADR-108): «Категории» и «Доступность» — вкладки внутри страницы,
+    // их адреса живут (deep links), а меню не дублирует навигацию экрана
     id: 'inventory',
     label: 'Номерной фонд',
     icon: 'bed',
-    items: [
-      menuItem('/inventory', 'Номера и койки'),
-      menuItem('/rooms/categories', 'Категории номеров'),
-      menuItem('/rooms/availability', 'Доступность'),
-    ],
+    items: [menuItem('/inventory', 'Номерной фонд')],
+    direct: true,
   },
   {
     id: 'sales',

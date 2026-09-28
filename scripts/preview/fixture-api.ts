@@ -135,7 +135,9 @@ const categorySeed = [
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
 ];
 const categories = structuredClone(categorySeed);
-const units: InventoryUnit[] = categories.flatMap((c) =>
+/** Структура места; живое состояние (уборка, блокировка) подставляется на каждый запрос */
+type SeedUnit = Omit<InventoryUnit, 'housekeepingStatus' | 'active' | 'block'>;
+const units: SeedUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
     exelyRoomNumber: null,
@@ -145,6 +147,8 @@ const units: InventoryUnit[] = categories.flatMap((c) =>
     roomNumber: `${c.prefix}${Math.floor(i / 6) + 1}`,
     roomCapacity: c.code === 'ROOM' ? 2 : 6,
     isDorm: c.code !== 'ROOM',
+    buildingName: 'Основной',
+    floorName: `${Math.floor(i / 24) + 1}`,
   })),
 );
 const plans = [
@@ -2199,7 +2203,18 @@ function read(path: string, q: URLSearchParams): unknown {
       })),
     };
   if (path === '/inventory/units')
-    return units.filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode);
+    return units
+      .filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode)
+      .map((u) => {
+        // как countActiveBlocks: действует блокировка, у которой dateFrom <= сегодня < dateTo
+        const block = blocksFor(u.code).find((b) => b.dateFrom <= today && today < b.dateTo);
+        return {
+          ...u,
+          housekeepingStatus: housekeepingOf(u.code),
+          active: true,
+          block: block ? { dateTo: block.dateTo, type: block.type, reason: block.reason } : null,
+        } satisfies InventoryUnit;
+      });
   if (path === '/desk/today') return desk(q.get('date') || today);
   if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
@@ -3996,6 +4011,8 @@ createServer(async (req, res) => {
           roomNumber: String(body.roomNumber),
           roomCapacity: c.capacityAdults,
           isDorm: false,
+          buildingName: String(body.building ?? '') || null,
+          floorName: String(body.floor ?? '') || null,
         });
       c.count += codes.length;
       return send(201, { codes });

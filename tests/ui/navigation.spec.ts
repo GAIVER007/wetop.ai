@@ -12,8 +12,6 @@ const routes = [
   '/reservations',
   '/guests',
   '/inventory',
-  '/rooms/categories',
-  '/rooms/availability',
   '/rates',
   '/channel-manager',
   '/channels',
@@ -98,17 +96,19 @@ test('компактная панель открывает выбранную г
   );
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Гостиница');
   await page.getByRole('button', { name: 'Свернуть панель', exact: true }).click();
-  await sidebar.getByRole('button', { name: 'Номерной фонд', exact: true }).click();
+  await sidebar.getByRole('button', { name: 'Продажи', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Свернуть панель', exact: true })).toBeVisible();
-  await expect(sidebar.getByRole('button', { name: 'Номерной фонд', exact: true })).toHaveAttribute(
+  await expect(sidebar.getByRole('button', { name: 'Продажи', exact: true })).toHaveAttribute(
     'aria-expanded',
     'true',
   );
-  await sidebar.getByRole('link', { name: 'Номера и койки', exact: true }).click();
+  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108): один пункт вместо трёх
+  await sidebar.getByRole('link', { name: 'Номерной фонд', exact: true }).click();
   await expect(page).toHaveURL(/\/inventory$/);
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
     'Номерной фонд',
   );
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
@@ -120,7 +120,12 @@ test('все пункты меню открывают существующие �
   for (let i = 0; i < (await sections.count()); i++) {
     const section = sections.nth(i);
     const toggle = section.getByRole('button');
-    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    // раздел из одного пункта — прямая ссылка без кнопки-раскрывашки (ADR-108)
+    if (
+      (await toggle.count()) > 0 &&
+      (await toggle.getAttribute('aria-expanded')) !== 'true'
+    )
+      await toggle.click();
     const links = section.locator('a');
     for (let j = 0; j < (await links.count()); j++) {
       const link = links.nth(j);

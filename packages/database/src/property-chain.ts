@@ -14,6 +14,17 @@ type ChainTx = Pick<Prisma.TransactionClient, 'organization' | 'business' | 'loc
 
 export type PropertyInChainData = Omit<Prisma.PropertyUncheckedCreateInput, 'organizationId' | 'locationId'>;
 
+/**
+ * Умолчания нового объекта — у регистрации и у онбординга организации без объекта (после сброса ADR-118) одни и те
+ * же: казахстанские часы и валюта, заезд с 14:00, выезд до 12:00. Реквизиты человек заполнит в настройках.
+ */
+export const NEW_PROPERTY_DEFAULTS = {
+  timezone: 'Asia/Almaty', // tz-allow: значение по умолчанию новой гостиницы, не вычисление времени
+  currency: 'KZT',
+  checkInTime: '14:00',
+  checkOutTime: '12:00',
+} as const;
+
 export async function createPropertyInChain(
   tx: ChainTx,
   organizationId: string,

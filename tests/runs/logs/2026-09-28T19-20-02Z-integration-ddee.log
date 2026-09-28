@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 29.09.2026 00:20 Алматы · vm
+# коммит c5e7511 (claude/serene-fermat-om5559), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-20-02Z-integration-ddee.json' 'tests/integration/website-reservations.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/website-reservations.test.ts (1 test | 1 failed) 461ms
+   ❯ брони с сайта для отчёта сайта (integration, rolled back) (1)
+     × источник «Сайт», сутки создания по поясу объекта, начислено без аннулированного 361ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/website-reservations.test.ts > брони с сайта для отчёта сайта (integration, rolled back) > источник «Сайт», сутки создания по поясу объекта, начислено без аннулированного
+TypeError: repo.siteReservations is not a function
+ ❯ db.$transaction.timeout tests/integration/website-reservations.test.ts:116:29
+    114|             'Asia/Almaty',
+    115|           );
+    116|           rows = await repo.siteReservations(startUtc, endUtcExclusive…
+       |                             ^
+    117|           throw new Rollback();
+    118|         },
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/website-reservations.test.ts:33:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  19:20:03
+   Duration  2.60s (transform 43%, tests 33%, import 24%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-20-02Z-integration-ddee.json
+
+# код выхода 1 · 3 с

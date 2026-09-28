@@ -1,0 +1,20 @@
+# Модульные (unit) · 29.09.2026 00:18 Алматы · vm
+# коммит c5e7511 (claude/serene-fermat-om5559), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-18-54Z-unit-6960.json' 'apps/api/src/analytics'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/analytics/collect.limits.test.ts (2 tests) 184ms
+ ✓ |unit| apps/api/src/analytics/analytics.controller.test.ts (12 tests) 288ms
+ ✓ |unit| apps/api/src/analytics/collect.controller.test.ts (15 tests) 391ms
+[Nest] 2528  - 09/28/2026, 7:18:57 PM     LOG [WebRetentionService] счётчик сайта: удалено сессий 3, начатых до 2026-09-13 (хранение 13 мес.)
+ ✓ |unit| apps/api/src/analytics/retention.service.test.ts (4 tests) 8ms
+
+ Test Files  4 passed (4)
+      Tests  33 passed (33)
+   Start at  19:18:55
+   Duration  2.82s (transform 52%, import 36%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-18-54Z-unit-6960.json
+
+# код выхода 0 · 4 с

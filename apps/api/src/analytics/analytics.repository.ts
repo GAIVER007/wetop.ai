@@ -62,6 +62,13 @@ export interface SiteStatus {
   pageviewsToday: number;
 }
 
+/** Бронь с источником «Сайт» для отчёта сайта (WEB4, Q-212): статус, валюта и начисления её счетов */
+export interface SiteReservationRow {
+  status: string;
+  currency: string;
+  charges: Array<{ amountMinor: bigint; voided: boolean }>;
+}
+
 export interface AnalyticsRepository {
   sites(): Promise<SiteRecord[]>;
   site(id: string): Promise<SiteRecord | null>;
@@ -104,6 +111,11 @@ export interface AnalyticsRepository {
    * дописывается: счёт переживает перезапуск API, в отличие от окон в памяти (С-7, ТЗ аудита 25.09.2026)
    */
   siteBookingsSince(siteId: string, since: Date): Promise<number>;
+  /**
+   * Брони объекта с источником «Сайт», созданные в полуинтервале (WEB4): у брони нет номера сайта, поэтому — по
+   * объекту; аннулированные начисления приходят помеченными, считает их `siteReservations` домена
+   */
+  siteReservations(startUtc: Date, endUtcExclusive: Date): Promise<SiteReservationRow[]>;
   /** Тариф для виджета по коду (срез 9) */
   ratePlanByCode(code: string): Promise<RatePlanOption | null>;
   /** Первый активный тариф объекта по стабильной сортировке */
@@ -338,6 +350,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       where: { siteId, startedAt: { gte: startUtc, lt: endUtcExclusive } },
       select: {
         visitorKey: true,
+        sessionKey: true,
         startedAt: true,
         pageviews: true,
         durationSeconds: true,
@@ -401,6 +414,35 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         after: after as Prisma.InputJsonObject,
       },
     });
+  }
+
+  async siteReservations(startUtc: Date, endUtcExclusive: Date): Promise<SiteReservationRow[]> {
+    const rows = await this.prisma.db.reservation.findMany({
+      where: {
+        propertyId: await this.propertyId(),
+        source: 'WEBSITE',
+        createdAt: { gte: startUtc, lt: endUtcExclusive },
+      },
+      select: {
+        status: true,
+        currency: true,
+        // начисления — как у списка «Брони» (R1): действующие, по счетам проживаний брони
+        items: {
+          select: {
+            folio: {
+              select: { charges: { where: { voidedAt: null }, select: { amount: true } } },
+            },
+          },
+        },
+      },
+    });
+    return rows.map((r) => ({
+      status: r.status,
+      currency: r.currency,
+      charges: r.items.flatMap((it) =>
+        (it.folio?.charges ?? []).map((c) => ({ amountMinor: c.amount, voided: false })),
+      ),
+    }));
   }
 
   async siteBookingsSince(siteId: string, since: Date): Promise<number> {

@@ -31,7 +31,7 @@ import {
   type MembershipRole,
   type UserStatus,
 } from '@pms/domain';
-import { createPropertyInChain } from '@pms/database';
+import { NEW_PROPERTY_DEFAULTS, createPropertyInChain } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { EmailVerificationService } from './email-verification.service';
 import { hashPasswordQueued, verifyPasswordQueued } from './attempt-limits';
@@ -314,13 +314,7 @@ export class AuthService {
         // Часы и валюта — казахстанские по умолчанию, реквизиты человек заполнит в настройках.
         // Сразу в цепочке Organization → Business → Location (Platform P1, DATA_MODEL v2.6): объект вошедшего
         // ищется только ею, а объект без филиала база не примет.
-        await createPropertyInChain(tx, org.id, {
-          name: organizationName,
-          timezone: 'Asia/Almaty', // tz-allow: значение по умолчанию новой гостиницы, не вычисление времени
-          currency: 'KZT',
-          checkInTime: '14:00',
-          checkOutTime: '12:00',
-        });
+        await createPropertyInChain(tx, org.id, { name: organizationName, ...NEW_PROPERTY_DEFAULTS });
         const user = await tx.user.create({
           data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now },
           select: { id: true },

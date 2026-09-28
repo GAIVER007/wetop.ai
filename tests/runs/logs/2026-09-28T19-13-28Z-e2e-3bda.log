@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 29.09.2026 00:13 Алматы · vm
+# коммит 7485e92 (claude/magical-bohr-uxmglf), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/categories-safe-edit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/categories-safe-edit.spec.ts:18:1 › categories C4: edit shows what uses the category, type as a fact, Channex rename note; preview shows bookings (17.9s)
+
+
+  1) tests/ui/categories-safe-edit.spec.ts:18:1 › categories C4: edit shows what uses the category, type as a fact, Channex rename note; preview shows bookings 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Редактировать категорию' }).getByRole('list', { name: 'Эту категорию используют' }).getByRole('listitem')
+    Timeout: 15000ms
+    - Expected  - 6
+    + Received  + 1
+
+    - Array [
+    -   "16 номеров",
+    -   "1 тариф: Стандартный",
+    -   "123 брони в истории, из них 5 впереди",
+    -   "Сопоставлена с Channex",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Редактировать категорию' }).getByRole('list', { name: 'Эту категорию используют' }).getByRole('listitem') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Редактировать категорию' }).getByRole('list', { name: 'Эту категорию используют' }).getByRole('listitem')
+        34 × locator resolved to 0 elements
+
+
+      32 |   await expect(edit.getByLabel('Название категории')).toHaveValue('Двухместный номер');
+      33 |   const usage = edit.getByRole('list', { name: 'Эту категорию используют' });
+    > 34 |   await expect(usage.getByRole('listitem')).toHaveText([
+         |                                             ^
+      35 |     '16 номеров',
+      36 |     '1 тариф: Стандартный',
+      37 |     '123 брони в истории, из них 5 впереди',
+        at /home/user/wetop.ai/tests/ui/categories-safe-edit.spec.ts:34:45
+
+    Error Context: test-results/categories-safe-edit-categ-a87e3-note-preview-shows-bookings/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/categories-safe-edit-categ-a87e3-note-preview-shows-bookings/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/categories-safe-edit-categ-a87e3-note-preview-shows-bookings/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/categories-safe-edit.spec.ts:18:1 › categories C4: edit shows what uses the category, type as a fact, Channex rename note; preview shows bookings 
+
+# код выхода 1 · 1 мин 14 с

@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
@@ -32,7 +33,7 @@ test('поздний выезд и ранний заезд начисляютс�
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(12), plus(14)));
-  const unit = (await form.locator('select[name="unitCode"] option').nth(1).getAttribute('value'))!;
+  const unit = await unitOption(form.locator('select[name="unitCode"]'));
   await form.locator('select[name="unitCode"]').selectOption(unit);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-поздний-выезд');

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
-  CLOSED_ACCESS,
+  PENDING_ACCESS,
   allowedItem,
   navigationItems,
   type NavigationAccess,
@@ -13,11 +13,11 @@ import { Overlay } from '../overlay';
 export function GlobalSearch({
   open,
   close,
-  access = CLOSED_ACCESS,
+  access = PENDING_ACCESS,
 }: {
   open: boolean;
   close: () => void;
-  /** Разделы, закрытые вошедшему (ADR-083), поиск не предлагает */
+  /** Разделы, закрытые вошедшему (ADR-083, ADR-107), поиск не предлагает; пока API не ответил — как администратору */
   access?: NavigationAccess | undefined;
 }) {
   const [query, setQuery] = useState('');

@@ -34,7 +34,7 @@ function repoWithBarrier(gate: ReturnType<typeof barrier>): DashboardRepository 
   return {
     async board(from, to) {
       return {
-        categories: [{ code: 'ROOM', name: 'Двухместная', units: 1 }],
+        categories: [{ code: 'ROOM', name: 'Двухместная', units: 1, kind: 'ROOM' }],
         days: dateRange(from, to).map((date) => ({
           date,
           occupied: 0,
@@ -42,7 +42,7 @@ function repoWithBarrier(gate: ReturnType<typeof barrier>): DashboardRepository 
           blocked: 0,
           byCategory: {},
         })),
-        unassigned: 0,
+        unassignedByCategory: {},
       };
     },
     async stays() {

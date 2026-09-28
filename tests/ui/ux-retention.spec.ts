@@ -42,7 +42,7 @@ test('пробный период виден в меню на рабочих э�
   await expect(line).toHaveText('Пробный период закончился');
 });
 
-test('пустые экраны без «Exely» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3)', async ({
+test('пустые экраны без «Legacy» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3)', async ({
   page,
   request,
 }) => {
@@ -52,7 +52,7 @@ test('пустые экраны без «Exely» и «импорта», с де�
   await page.goto('/rates');
   const rates = main.getByTestId('rates-empty');
   await expect(rates).toContainText('Категорий ещё нет');
-  await expect(rates).not.toContainText(/Exely|импорт/);
+  await expect(rates).not.toContainText(/Legacy|импорт/);
   await expect(rates.getByRole('link', { name: 'Создать категорию' })).toHaveAttribute(
     'href',
     '/rooms/categories',
@@ -60,16 +60,16 @@ test('пустые экраны без «Exely» и «импорта», с де�
 
   await page.goto('/inventory');
   await expect(main.getByText('Номерной фонд пока пуст')).toBeVisible();
-  await expect(main).not.toContainText(/Exely|загрузки фонда/);
+  await expect(main).not.toContainText(/Legacy|загрузки фонда/);
   await expect(main.locator('a[href="/onboarding"]')).toHaveCount(0);
 
-  await page.goto('/management/statistics');
+  await page.goto('/management/analytics/occupancy');
   await expect(main.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(main).not.toContainText(/Exely/);
+  await expect(main).not.toContainText(/Legacy/);
 
   await page.goto('/hotel-settings/services');
   await expect(main.getByTestId('services-empty')).toBeVisible();
-  await expect(main.getByTestId('services-empty')).not.toContainText(/Exely|импорт/);
+  await expect(main.getByTestId('services-empty')).not.toContainText(/Legacy|импорт/);
 });
 
 test('новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4)', async ({ page }) => {
@@ -94,33 +94,44 @@ test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на ос�
 });
 
 /**
- * П. 3.1 (UQ-1 — «да» владельца 26.09.2026): «Общие» настройки правит владелец организации, сотрудник только смотрит.
- * Отказ API не стирает ввод. Валюта и часовой пояс остаются только для просмотра.
+ * П. 3.1 (UQ-1 — «да» владельца 26.09.2026): «Общие» настройки правит владелец организации, и управляющий — тоже: ему
+ * «всё, кроме владельческого» (ADR-107). Администратору раздел закрыт целиком. Отказ API не стирает ввод. Валюта и
+ * часовой пояс остаются только для просмотра.
  */
-test('владелец правит сведения гостиницы; отказ сохраняет ввод; сотрудник только смотрит (п. 3.1)', async ({
+test('владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1)', async ({
   page,
   request,
 }) => {
   await signIn(page);
   await page.goto('/hotel-settings');
+  // «Настройки объекта» SET1 (ADR-115): часы заезда — на вкладке «Проживание», сохранение — в шапке
   const form = page.getByTestId('hotel-settings-form');
-  await expect(form.getByLabel('Название', { exact: true })).toHaveValue('Luxx Aparts');
+  const save = page.getByRole('main').getByRole('button', { name: 'Сохранить изменения' });
+  await expect(form.getByLabel('Название объекта', { exact: true })).toHaveValue('Luxx Aparts');
   await expect(form.getByLabel('Валюта')).toHaveCount(0);
   await form.getByLabel('Телефон').fill('+7 701 555 44 33');
-  await form.getByLabel('Заезд с').fill('15:00');
-  await form.getByRole('button', { name: 'Сохранить' }).click();
-  await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+  await save.click();
+  await expect(page.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
   await page.reload();
   await expect(form.getByLabel('Телефон')).toHaveValue('+7 701 555 44 33');
-  await expect(form.getByLabel('Заезд с')).toHaveValue('15:00');
 
   await form.getByLabel('Почта').fill('не почта');
-  await form.getByRole('button', { name: 'Сохранить' }).click();
+  await save.click();
   await expect(form.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
   await expect(form.getByLabel('Почта')).toHaveValue('не почта');
+
+  await control(request, { role: 'MANAGER' });
+  await page.goto('/hotel-settings');
+  await expect(form.getByLabel('Телефон')).toBeVisible();
+  await form.getByLabel('Телефон').fill('+7 701 555 44 34');
+  await save.click();
+  await expect(page.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
 
   await control(request, { role: 'STAFF' });
   await page.goto('/hotel-settings');
   await expect(page.getByTestId('hotel-settings-form')).toHaveCount(0);
-  await expect(page.getByTestId('stored-property')).toContainText('Сведения меняет владелец организации');
+  await expect(page.getByTestId('stored-property')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('no-access')).toContainText(
+    '«Настройки гостиницы»: доступ есть у владельца и управляющего.',
+  );
 });

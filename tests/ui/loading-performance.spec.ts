@@ -34,7 +34,7 @@ test('Главная показывает блоки, пока настройк�
     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.getByTestId('kpi-occupancy')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('c-inhouse')).toBeVisible({ timeout: 5000 });
     await expect(page.getByTestId('c-arrivals')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
       'Объект не загружен',
@@ -107,7 +107,7 @@ test('замер: блоки Главной при задержке настро
     await Promise.all(
       [
         ['heading', page.getByRole('heading', { name: 'Главная', exact: true })],
-        ['kpi', page.getByTestId('kpi-occupancy')],
+        ['strip', page.getByTestId('c-inhouse')],
         ['desk', page.getByTestId('c-arrivals')],
       ].map(async ([key, locator]) => {
         await expect(locator as import('@playwright/test').Locator).toBeVisible();

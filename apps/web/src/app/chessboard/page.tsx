@@ -220,7 +220,7 @@ export default async function ChessboardPage({
         <Alert boxed tone="warning" data-testid="review-callout">
           Входящая бронь требует разбора:{' '}
           {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} Channex не разобрана
-          автоматически. <Link href="/channels">Разобрать</Link>
+          автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
         </Alert>
       )}
       <UnassignedStays stays={board.unassigned ?? []} critical={overbooked.length > 0} />
@@ -255,7 +255,7 @@ export default async function ChessboardPage({
 }
 
 /**
- * Строка «Без ячейки» — как «Без номера» в шахматке Exely: проживания в диапазоне доски, у которых
+ * Строка «Без ячейки»: проживания в диапазоне доски, у которых
  * нет назначения (бронь канала, которой не хватило места — Q-107, или снятое назначение). Список
  * приходит отсортированным по категории и заезду, здесь только группируется. Гостей не показываем.
  * ТЗ «Шахматка v2» §11: без таких броней блока нет вовсе; плашка — одна строка, список по щелчку;

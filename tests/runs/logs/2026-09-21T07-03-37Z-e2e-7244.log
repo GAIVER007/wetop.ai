@@ -1,6 +1,0 @@
-# Сквозные (e2e) · 21.09.2026 12:03 Алматы · Noutbuk-Vyacheslav.local
-# коммит 3b7b1c3 (merge/settings-simplification)
-# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--update-snapshots' 'tests/ui/design-system.spec.ts' '--workers=1'
-error: option '-u, --update-snapshots [mode]' argument 'tests/ui/design-system.spec.ts' is invalid. Allowed choices are all, changed, missing, none.
-
-# код выхода 1 · 1 с

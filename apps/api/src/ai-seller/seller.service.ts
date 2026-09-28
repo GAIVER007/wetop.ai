@@ -24,7 +24,7 @@ import {
 } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import {
-  actorIsOwner,
+  actorMay,
   currentOrganizationId,
   currentUserId,
   hasSignedInActor,
@@ -73,8 +73,8 @@ export const SELLER_EXTENSION_OFF =
   'Расширение «ИИ-продавец» для вашей организации не подключено. Подключает администратор WETOP после оплаты';
 export const SELLER_EXTENSION_EXPIRED =
   'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP';
-/** Роли в организации (§16.1): настройки, знания и «Применить» — у владельца, диалоги ведут все */
-export const SELLER_OWNER_ONLY = 'Настройки продавца меняет владелец организации';
+/** Права ролей (§16.5, ADR-107): настройки, знания и «Применить» — владелец и управляющий, диалоги ведут все */
+export const SELLER_CONFIGURE_ONLY = 'Настройки продавца меняют владелец и управляющий';
 /** Инструкция продавцу одним текстом (ADR-097): предел — как колонка `seller_profiles.prompt_text` */
 export const SELLER_PROMPT_MAX = 20_000;
 
@@ -197,7 +197,7 @@ export interface SellerStatus {
   extension: AiSellerAccessView | null;
   /** Подключён ли продавец к платформе — отдельно от расширения: после срока диалоги читаются, если он есть */
   connection: 'not-configured' | 'ready';
-  /** Может ли вошедший менять настройки: владелец организации и действующее расширение */
+  /** Может ли вошедший менять настройки: владелец или управляющий (ADR-107) и действующее расширение */
   canConfigure: boolean;
 }
 
@@ -327,7 +327,7 @@ export class SellerService {
 
   /** Отказ по расширению и роли — до любого вызова продавца и до записи в базу */
   private checkUse(extension: AiSellerAccessView | null, use: SellerUse): void {
-    if (use === 'configure' && !actorIsOwner()) throw new ForbiddenException(SELLER_OWNER_ONLY);
+    if (use === 'configure' && !actorMay('seller')) throw new ForbiddenException(SELLER_CONFIGURE_ONLY);
     if (extension?.access === 'off') throw new ForbiddenException(SELLER_EXTENSION_OFF);
     if (extension?.access === 'expired' && use !== 'read')
       throw new ForbiddenException(SELLER_EXTENSION_EXPIRED);
@@ -403,7 +403,7 @@ export class SellerService {
       embedAvailable: this.connection.config().publicUrl !== null,
       extension,
       connection,
-      canConfigure: actorIsOwner() && extension?.access === 'active',
+      canConfigure: actorMay('seller') && extension?.access === 'active',
     };
   }
 

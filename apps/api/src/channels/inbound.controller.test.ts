@@ -119,7 +119,7 @@ function makeFakes() {
   const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
   const guests: Array<{ firstName: string; lastName: string; phone?: string | null }> = [];
   const prepayments: Array<{ itemId: string; amountMinor: bigint; externalReference: string }> = [];
-  /** Оплачено не каналом (перенос из Exely, стойка) — баланс счёта проживания в тестах ADR-024 */
+  /** Оплачено не каналом (перенос из Legacy, стойка) — баланс счёта проживания в тестах ADR-024 */
   const paidExternally = new Map<string, bigint>();
   const repo: ReservationsRepository = {
     async today() {
@@ -138,7 +138,7 @@ function makeFakes() {
     async categoryById() {
       return null;
     },
-    // как в Prisma: начислено (цена проживания) − оплачено (платежи Exely/стойки + предоплаты канала)
+    // как в Prisma: начислено (цена проживания) − оплачено (платежи Legacy/стойки + предоплаты канала)
     async stayBalanceMinor(itemId) {
       const item = [...reservations.values()].flatMap((r) => r.items).find((i) => i.id === itemId);
       if (!item) return 0n;
@@ -248,7 +248,7 @@ function makeFakes() {
       reservations.set(input.confirmationNumber, {
         id: rid,
         confirmationNumber: input.confirmationNumber,
-        // как в Prisma: без внешнего ID поле пустое (перенос из Exely, ADR-024), а не номер брони
+        // как в Prisma: без внешнего ID поле пустое (перенос из Legacy, ADR-024), а не номер брони
         externalId: input.externalId ?? null,
         status: input.status,
         arrivalDate: input.arrivalDate,
@@ -263,32 +263,6 @@ function makeFakes() {
         notes: input.notes,
       });
       return { id: rid, itemIds: items.map((i) => i.id) };
-    },
-    // ADR-024: перенесённые из Exely OTA-брони без внешнего ID, живые проживания пересекают период
-    async importedOtaCandidates({ from, toExclusive }) {
-      return [...reservations.values()]
-        .filter(
-          (r) =>
-            r.source === 'OTA' &&
-            !r.externalId &&
-            r.status !== 'CANCELLED' &&
-            r.items.some(
-              (i) =>
-                i.status !== 'CANCELLED' && i.arrivalDate < toExclusive && i.departureDate > from,
-            ),
-        )
-        .map((r) => ({
-          id: r.id,
-          confirmationNumber: r.confirmationNumber,
-          channel: r.channel,
-          notes: r.notes,
-          items: r.items.map((i) => ({
-            accommodationTypeId: i.accommodationTypeId,
-            arrivalDate: i.arrivalDate,
-            departureDate: i.departureDate,
-            status: i.status,
-          })),
-        }));
     },
     async addStayGuest(itemId) {
       for (const r of reservations.values())
@@ -328,7 +302,7 @@ function makeFakes() {
       return [
         {
           localAccommodationTypeId: 't1',
-          localAccommodationTypeCode: 'exely-900001',
+          localAccommodationTypeCode: 'category-single',
           localRatePlanId: 'p2',
           providerPropertyId: 'prop-1',
           providerRoomTypeId: 'rt-2',
@@ -421,7 +395,7 @@ function makeFakes() {
         primaryGuest: null,
         items: r.items.map((it) => ({
           id: it.id,
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           accommodationTypeName: 'Одиночная',
           arrivalDate: it.arrivalDate,
           departureDate: it.departureDate,
@@ -543,7 +517,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       priceMinor: 3_080_000n,
       status: 'CONFIRMED',
     });
-    // Q-094: первая свободная ячейка категории на весь период — назначена сразу, как в Exely
+    // Q-094: первая свободная ячейка категории на весь период — назначена сразу, как в Legacy
     expect(fakes.allocations).toEqual([
       {
         id: expect.any(String),
@@ -630,8 +604,8 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     });
   });
 
-  it('перенесённая из Exely бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку', async () => {
-    // так выглядит бронь после переноса: номер — из Exely, внешний ID — номер на стороне канала
+  it('перенесённая из Legacy бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку', async () => {
+    // так выглядит бронь после переноса: номер — из Legacy, внешний ID — номер на стороне канала
     const seeded = await fakes.repo.createReservation({
       confirmationNumber: '20260901-513903-1262128988',
       source: 'OTA',
@@ -705,7 +679,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     fakes.setFeed([revision({ id: 'rev-desk-1', notes: null })]);
     const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     expect(res.body.outcomes[0]).toMatchObject({
-      result: 'linked',
+      result: 'modified',
       confirmationNumber: '20261101-DESK01',
     });
     expect(fakes.state()).toHaveLength(before);
@@ -726,8 +700,8 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
   });
 
   /**
-   * ADR-024 (Q-034): так выглядит бронь Booking.com после переноса из Exely — номер из Exely, канал как
-   * его называет Exely, внешнего ID нет (Универсальный API номер брони канала не отдаёт), ячейка назначена.
+   * ADR-024 (Q-034): так выглядит бронь Booking.com после переноса из Legacy — номер из Legacy, канал как
+   * его называет Legacy, внешнего ID нет (Универсальный API номер брони канала не отдаёт), ячейка назначена.
    */
   const seedImported = async (
     over: Partial<{
@@ -761,294 +735,13 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       for (const [i, itemId] of seeded.itemIds.entries())
         await fakes.repo.createAllocation(
           itemId,
-          over.unitId ?? `u-exely-${i}`,
+          over.unitId ?? `u-legacy-${i}`,
           items[i]!.arrivalDate,
           items[i]!.departureDate,
         );
     return seeded;
   };
 
-  it('ADR-024: подтянутая Channex бронь с единственным кандидатом СВЯЗЫВАЕТСЯ с перенесённой: дубля и второй ячейки нет, дальше modified/cancelled находят её по unique_id', async () => {
-    const seeded = await seedImported({ unitId: 'u-9001' });
-    const before = fakes.state().length;
-
-    // подтяжка: Channex присылает существующую бронь Booking.com как booking_new, деньги собрала площадка
-    fakes.setFeed([revision({ id: 'rev-link-1', payment_collect: 'ota' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({
-      result: 'linked',
-      confirmationNumber: '20260901-513903-1262128988',
-      warnings: [],
-    });
-    expect(fakes.state()).toHaveLength(before); // новой брони нет
-    const linked = fakes.state().find((r) => r.id === seeded.id)!;
-    expect(linked).toMatchObject({
-      externalId: 'BDC-9996013801',
-      status: 'CONFIRMED',
-      arrivalDate: '2026-11-10',
-      departureDate: '2026-11-12',
-    });
-    expect(fakes.reservations.get('20260901-513903-1262128988')).toMatchObject({
-      channel: 'Booking.com', // имя канала теперь как у Channex
-    });
-    // проживание и ячейка из Exely на месте: та же ячейка, тот же itemId, вторая не занята
-    expect(fakes.allocations).toEqual([
-      {
-        id: expect.any(String),
-        itemId: seeded.itemIds[0],
-        unitId: 'u-9001',
-        start: '2026-11-10',
-        end: '2026-11-12',
-      },
-    ]);
-    // предоплата канала записана на счёт перенесённого проживания, как на модификации (Q-086)
-    expect(fakes.prepayments).toEqual([
-      {
-        itemId: seeded.itemIds[0],
-        amountMinor: 3_080_000n,
-        externalReference: 'channex:BDC-9996013801:0',
-      },
-    ]);
-    expect(fakes.audits).toEqual(['channex.booking.linked']);
-    expect(fakes.acks).toEqual(['rev-link-1']);
-
-    // после связывания обычный путь: модификация находит бронь по unique_id, отмена освобождает ячейку
-    fakes.setFeed([
-      revision({
-        id: 'rev-link-2',
-        status: 'modified',
-        arrival_date: '2026-11-11',
-        departure_date: '2026-11-13',
-        rooms: [
-          {
-            ...revision().attributes.rooms[0]!,
-            checkin_date: '2026-11-11',
-            checkout_date: '2026-11-13',
-          },
-        ],
-      }),
-    ]);
-    const mod = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(mod.body.outcomes[0]).toMatchObject({
-      result: 'modified',
-      confirmationNumber: '20260901-513903-1262128988',
-    });
-    expect(fakes.state()).toHaveLength(before);
-    expect(fakes.allocations[0]).toMatchObject({
-      unitId: 'u-9001',
-      start: '2026-11-11',
-      end: '2026-11-13',
-    });
-
-    fakes.setFeed([revision({ id: 'rev-link-3', status: 'cancelled' })]);
-    const can = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(can.body.outcomes[0]).toMatchObject({
-      result: 'cancelled',
-      confirmationNumber: '20260901-513903-1262128988',
-    });
-    expect(fakes.allocations).toHaveLength(0);
-    expect(fakes.state()).toHaveLength(before);
-  });
-
-  it('ADR-024: два одинаковых кандидата → PMS не выбирает сама: ревизия отклонена с обоими номерами, бронь не создана, вторая ячейка не занята, ack не отправлен', async () => {
-    await seedImported({ confirmationNumber: '20260901-513903-A', unitId: 'u-exely-a' });
-    await seedImported({ confirmationNumber: '20260901-513903-B', unitId: 'u-exely-b' });
-    fakes.setFeed([revision({ id: 'rev-two' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({ result: 'failed', confirmationNumber: null });
-    expect(res.body.outcomes[0].error).toContain('20260901-513903-A, 20260901-513903-B');
-    // дубля нет, ячейка u-9001 не занята, перенесённые не тронуты: внешнего ID у них по-прежнему нет
-    expect(fakes.state()).toHaveLength(2);
-    expect(fakes.allocations.map((x) => x.unitId).sort()).toEqual(['u-exely-a', 'u-exely-b']);
-    for (const n of ['20260901-513903-A', '20260901-513903-B'])
-      expect(fakes.reservations.get(n)!.externalId).toBeNull();
-    expect(fakes.audits).toEqual([]);
-    expect(fakes.acks).toEqual([]);
-    // событие FAILED с объяснением — видно на /channels, кнопка «Обработать заново» доступна
-    const ev = [...fakes.events.values()].find((e) => e.id.endsWith('rev-two'))!;
-    expect(ev.status).toBe('FAILED');
-    expect(ev.lastError).toContain('20260901-513903-A, 20260901-513903-B');
-  });
-
-  it('ADR-024: ноль кандидатов → создаётся как раньше; другой канал, другие даты, метка автотеста и отменённая бронь кандидатами не считаются', async () => {
-    await seedImported({ confirmationNumber: '20260901-513903-TRIP', channel: 'Trip.com Group' });
-    await seedImported({
-      confirmationNumber: '20260901-513903-DATES',
-      items: [
-        { accommodationTypeId: 't1', arrivalDate: '2026-11-11', departureDate: '2026-11-13' },
-      ],
-    });
-    await seedImported({ confirmationNumber: '20260901-513903-E2E', notes: 'E2E-АВТОТЕСТ бронь' });
-    const cancelled = await seedImported({ confirmationNumber: '20260901-513903-CANC' });
-    await fakes.repo.updateItem(cancelled.itemIds[0]!, { status: 'CANCELLED' });
-    await fakes.repo.updateReservation(cancelled.id, { status: 'CANCELLED' });
-
-    fakes.setFeed([revision({ id: 'rev-none' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({
-      result: 'created',
-      confirmationNumber: 'BDC-9996013801',
-      warnings: [],
-    });
-    expect(fakes.state()).toHaveLength(5);
-    for (const r of fakes.state())
-      if (r.confirmationNumber !== 'BDC-9996013801') expect(r.externalId).toBeNull();
-  });
-
-  it('ADR-024: отменённая ревизия для неизвестной брони с перенесённой не сопоставляется — только журнал', async () => {
-    const seeded = await seedImported({ unitId: 'u-9001' });
-    fakes.setFeed([revision({ id: 'rev-cancel-unknown', status: 'cancelled' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({ result: 'cancelled', confirmationNumber: null });
-    expect(JSON.stringify(res.body.outcomes[0].warnings)).toContain('брони нет в PMS');
-    const untouched = fakes.state().find((r) => r.id === seeded.id)!;
-    expect(untouched).toMatchObject({ status: 'CONFIRMED', externalId: null });
-    expect(untouched.items[0]!.status).toBe('CONFIRMED');
-    expect(fakes.allocations).toHaveLength(1);
-    expect(fakes.audits).toEqual([]);
-  });
-
-  it('ADR-024: канал под неизвестным PMS именем, а перенесённая бронь с тем же составом есть → ревизия отклонена с именем канала и номером кандидата, а не молчаливый дубль', async () => {
-    await seedImported({
-      confirmationNumber: '20260901-513903-TRIP',
-      channel: 'Trip.com Group',
-      unitId: 'u-exely-t',
-    });
-    fakes.setFeed([
-      revision({ id: 'rev-unknown', ota_name: 'Trip Hotels Ltd', unique_id: 'CTRIP-777' }),
-    ]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({ result: 'failed', confirmationNumber: null });
-    expect(res.body.outcomes[0].error).toContain('Trip Hotels Ltd');
-    expect(res.body.outcomes[0].error).toContain('20260901-513903-TRIP');
-    expect(fakes.state()).toHaveLength(1);
-    expect(fakes.allocations.map((x) => x.unitId)).toEqual(['u-exely-t']);
-    expect(fakes.acks).toEqual([]);
-  });
-
-  it('ADR-024: имя канала незнакомое, но код в unique_id документирован (CTP = Ctrip, channel-codes.md:140) → сопоставляется с «Trip.com Group» из Exely', async () => {
-    const seeded = await seedImported({
-      confirmationNumber: '20260901-513903-TRIP2',
-      channel: 'Trip.com Group',
-      unitId: 'u-exely-t2',
-    });
-    fakes.setFeed([revision({ id: 'rev-ctp', ota_name: 'Trip Hotels Ltd', unique_id: 'CTP-778' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({
-      result: 'linked',
-      confirmationNumber: '20260901-513903-TRIP2',
-    });
-    expect(fakes.state()).toHaveLength(1);
-    expect(fakes.state().find((r) => r.id === seeded.id)).toMatchObject({ externalId: 'CTP-778' });
-    expect(fakes.allocations.map((x) => x.unitId)).toEqual(['u-exely-t2']);
-  });
-
-  it('ADR-024: Expedia приходит как «A-Expedia» (bookings-collection.md:1802) и сопоставляется с «Expedia/Hotels.com» из Exely', async () => {
-    const seeded = await seedImported({
-      confirmationNumber: '20260901-513903-EXP',
-      channel: 'Expedia/Hotels.com',
-      unitId: 'u-exely-e',
-    });
-    fakes.setFeed([revision({ id: 'rev-aexp', ota_name: 'A-Expedia', unique_id: 'EXP-1' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({
-      result: 'linked',
-      confirmationNumber: '20260901-513903-EXP',
-    });
-    expect(fakes.state()).toHaveLength(1);
-    expect(fakes.state().find((r) => r.id === seeded.id)).toMatchObject({
-      externalId: 'EXP-1',
-      channel: 'A-Expedia',
-    });
-    expect(fakes.allocations.map((x) => x.unitId)).toEqual(['u-exely-e']);
-  });
-
-  it('ADR-024: Agoda Channex не подтягивает — бронь Agoda с тем же составом, что у перенесённой, новая: создаётся со своей ячейкой, а не сопоставляется', async () => {
-    await seedImported({
-      confirmationNumber: '20260901-513903-AGO',
-      channel: 'Agoda',
-      unitId: 'u-exely-ag',
-    });
-    fakes.setFeed([revision({ id: 'rev-agoda', ota_name: 'Agoda', unique_id: 'AGO-1' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({
-      result: 'created',
-      confirmationNumber: 'AGO-1',
-      warnings: [],
-    });
-    expect(fakes.state()).toHaveLength(2);
-    expect(fakes.allocations.map((x) => x.unitId).sort()).toEqual(['u-9001', 'u-exely-ag']);
-    expect(fakes.reservations.get('20260901-513903-AGO')!.externalId).toBeNull();
-  });
-
-  it('ADR-024: счёт перенесённого проживания уже оплачен из Exely → предоплата канала не записывается второй раз, есть предупреждение', async () => {
-    const seeded = await seedImported({ unitId: 'u-9001' });
-    fakes.paidExternally.set(seeded.itemIds[0]!, 3_080_000n);
-    fakes.setFeed([revision({ id: 'rev-paid', payment_collect: 'ota' })]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({
-      result: 'linked',
-      confirmationNumber: '20260901-513903-1262128988',
-    });
-    expect(fakes.prepayments).toEqual([]);
-    expect(JSON.stringify(res.body.outcomes[0].warnings)).toContain('оплачен');
-  });
-
-  it('ADR-024: валюта ревизии не совпадает с валютой перенесённой брони → связана, но сумма шапки и предоплата не переносятся, есть предупреждение', async () => {
-    const seeded = await seedImported({ unitId: 'u-9001' });
-    fakes.setFeed([
-      revision({
-        id: 'rev-usd',
-        payment_collect: 'ota',
-        currency: 'USD',
-        amount: '60.00',
-        rooms: [{ ...revision().attributes.rooms[0]!, amount: '60.00' }],
-      }),
-    ]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes[0]).toMatchObject({ result: 'linked' });
-    const linked = fakes.state().find((r) => r.id === seeded.id)!;
-    expect(linked).toMatchObject({ externalId: 'BDC-9996013801', currency: 'KZT' });
-    expect(fakes.reservations.get('20260901-513903-1262128988')!.totalAmountMinor).toBe(3_080_000n);
-    expect(fakes.prepayments).toEqual([]);
-    expect(JSON.stringify(res.body.outcomes[0].warnings)).toContain('USD');
-  });
-
-  it('ADR-024: заметки перенесённой брони сохраняются, если в ревизии заметки нет; заметка ревизии их заменяет', async () => {
-    await seedImported({ unitId: 'u-9001', notes: 'Заезд после 22:00' });
-    await seedImported({
-      confirmationNumber: '20260901-513903-SECOND',
-      unitId: 'u-9002',
-      notes: 'Из Exely',
-      items: [
-        { accommodationTypeId: 't1', arrivalDate: '2026-11-13', departureDate: '2026-11-15' },
-      ],
-    });
-    fakes.setFeed([
-      revision({ id: 'rev-n1', notes: null }),
-      revision({
-        id: 'rev-n2',
-        unique_id: 'BDC-2',
-        notes: 'quiet room please',
-        arrival_date: '2026-11-13',
-        departure_date: '2026-11-15',
-        rooms: [
-          {
-            ...revision().attributes.rooms[0]!,
-            checkin_date: '2026-11-13',
-            checkout_date: '2026-11-15',
-          },
-        ],
-      }),
-    ]);
-    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(res.body.outcomes.map((o: { result: string }) => o.result)).toEqual([
-      'linked',
-      'linked',
-    ]);
-    expect(fakes.reservations.get('20260901-513903-1262128988')!.notes).toBe('Заезд после 22:00');
-    expect(fakes.reservations.get('20260901-513903-SECOND')!.notes).toBe('quiet room please');
-  });
 
   it('предупреждения разбора не теряются: записываются в журнал события (PROCESSED + текст) — и при webhook, где результат никто не читает', async () => {
     // ячейка u-9001 занята перенесённой броней Agoda: её Channex не подтягивает, бронь Booking.com новая,

@@ -13,7 +13,6 @@ it('keeps category capacity before the first unit is created', () => {
           kind: 'PRIVATE_ROOM',
           capacityAdults: 2,
           capacityChildren: 0,
-          exelyId: null,
         },
       ],
     }).byCategory[0]?.capacityAdults,

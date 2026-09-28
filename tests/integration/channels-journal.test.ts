@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaChannelsRepository } from '../../apps/api/src/channels/channels.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 

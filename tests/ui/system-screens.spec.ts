@@ -154,7 +154,7 @@ test('аналитика и статистика: пустое состояни�
   request,
 }) => {
   const main = page.getByRole('main');
-  await page.goto('/analytics');
+  await page.goto('/website/analytics');
   await expect(main.getByTestId('an-period')).toContainText(
     /Период \d{2}\.\d{2}\.\d{4} → \d{2}\.\d{2}\.\d{4}, 7 дней/,
   );
@@ -173,8 +173,8 @@ test('аналитика и статистика: пустое состояни�
   await request.post(`${fixture}/__test/control`, {
     data: { failPath: '/analytics/sites/ui-site/report' },
   });
-  await page.goto('/analytics?from=2026-09-01&to=2026-09-30');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика сайта');
+  await page.goto('/website/analytics?from=2026-09-01&to=2026-09-30');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сайт и онлайн-бронирование');
   await expect(main.getByLabel('Аналитика: с')).toHaveValue('2026-09-01');
   const failure = main.getByTestId('an-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -185,21 +185,23 @@ test('аналитика и статистика: пустое состояни�
   await expect(page).toHaveURL(/from=2026-09-01/);
   // без счётчика — не пустая страница, а шаг
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
-  await page.goto('/analytics');
+  await page.goto('/website/analytics');
   const noSites = main.getByTestId('an-no-sites');
-  await expect(noSites).toContainText('Счётчик ещё не подключён');
-  await expect(noSites.getByRole('link', { name: 'Подключить счётчик' })).toHaveAttribute(
+  await expect(noSites).toContainText('Сайт ещё не подключён');
+  await expect(noSites.getByRole('link', { name: 'Подключить сайт' })).toHaveAttribute(
     'href',
-    '/analytics/setup',
+    '/website/settings',
   );
   await request.post(`${fixture}/__test/control`, { data: {} });
-  // статистика: подпись даты словами; отказ шахматки оставляет форму и дату
+  // статистика (с ADR-114 — «Аналитика → Загрузка»): старый адрес ведёт на вкладку с той же датой;
+  // подпись даты словами; отказ шахматки оставляет форму и дату
   await page.goto('/management/statistics?date=2026-09-25');
+  await expect(page).toHaveURL(/\/management\/analytics\/occupancy\?date=2026-09-25$/);
   await expect(main.getByTestId('statistics-meta')).toContainText('Загрузка на 25.09.2026');
   await expect(main.getByTestId('statistics-table').locator('tbody tr').first()).toBeVisible();
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/chessboard' } });
-  await page.goto('/management/statistics?date=2026-09-25');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Статистика');
+  await page.goto('/management/analytics/occupancy?date=2026-09-25');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
   await expect(main.getByLabel('Дата')).toHaveValue('2026-09-25');
   const statsFailure = main.getByTestId('statistics-error');
   await expect(statsFailure).toContainText('Проверьте подключение и повторите запрос');
@@ -210,7 +212,7 @@ test('аналитика и статистика: пустое состояни�
   await expect(page).toHaveURL(/date=2026-09-25/);
   // телефон: таблица категорий карточкой, без прокрутки вбок
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/management/statistics');
+  await page.goto('/management/analytics/occupancy');
   const layout = await page.evaluate(() => {
     const w = globalThis as unknown as {
       innerWidth: number;
@@ -229,13 +231,13 @@ test('аналитика и статистика: пустое состояни�
   await request.post(`${fixture}/__test/control`, {
     data: { delayPath: '/analytics/sites/ui-site/report', delayMs: 2500 },
   });
-  await page.goto('/analytics', { waitUntil: 'commit' });
+  await page.goto('/website/analytics', { waitUntil: 'commit' });
   await expect(main.getByTestId('an-loading')).toContainText('Считаем отчёт по сайту');
   await expect(main.getByTestId('an-summary')).toBeVisible({ timeout: 15_000 });
   await request.post(`${fixture}/__test/control`, {
     data: { delayPath: '/chessboard', delayMs: 2500 },
   });
-  await page.goto('/management/statistics', { waitUntil: 'commit' });
+  await page.goto('/management/analytics/occupancy', { waitUntil: 'commit' });
   await expect(main.getByTestId('statistics-loading')).toContainText(
     'Считаем загрузку по шахматке',
   );
@@ -246,7 +248,7 @@ test('аналитика и статистика: пустое состояни�
  * Настройки объекта: ошибки с повтором не скрывают навигацию; пустые значения — «—»,
  * справочники объясняют источник, загрузка обозначена текстом. Контент каналов не дублируется.
  */
-test('настройки гостиницы: сбой с повтором, пустые справочники с причиной, загрузка словом', async ({
+test('настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом', async ({
   page,
   request,
 }) => {
@@ -255,15 +257,16 @@ test('настройки гостиницы: сбой с повтором, пу�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // штрафы: подпись тарифа без « · »
+  // правила отмены ушли к тарифам (ADR-115): старый адрес — «Цены» со строкой правила, без кода тарифа
   await page.goto('/hotel-settings/penalties');
-  await expect(main.getByTestId('rate-plans-table')).toContainText('BASE, KZT');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText(' · ');
+  await expect(page).toHaveURL(/\/rates$/);
+  await expect(main.getByTestId('rate-plan-cancellation')).toContainText('стоимость первой ночи');
+  await expect(main.getByTestId('rate-plan-cancellation')).not.toContainText('BASE');
   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
   await page.goto('/hotel-settings');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки гостиницы');
-  await expect(main.getByRole('navigation', { name: 'Настройки гостиницы' })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
+  await expect(main.getByRole('navigation', { name: 'Настройки объекта' })).toBeVisible();
   const failure = main.getByTestId('settings-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
   await request.post(`${fixture}/__test/control`, { data: {} });
@@ -273,7 +276,7 @@ test('настройки гостиницы: сбой с повтором, пу�
   // отказ настроек на «Услугах»: сбой с повтором вместо общего экрана
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/services' } });
   await page.goto('/hotel-settings/services');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Услуги');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
   await expect(main.getByTestId('services-error')).toContainText(
     'Проверьте подключение и повторите запрос',
   );
@@ -281,7 +284,7 @@ test('настройки гостиницы: сбой с повтором, пу�
   // пустой справочник услуг — откуда он берётся
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto('/hotel-settings/services');
-  // без Exely: новому клиенту имя прежней системы ничего не говорит (ТЗ ux-retention п. 1.2)
+  // без Legacy: новому клиенту имя прежней системы ничего не говорит (ТЗ ux-retention п. 1.2)
   await expect(main.getByTestId('services-empty')).toHaveText('Услуг в каталоге пока нет.');
   await request.post(`${fixture}/__test/control`, { data: {} });
   // загрузка словом

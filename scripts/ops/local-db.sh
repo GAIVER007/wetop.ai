@@ -98,6 +98,10 @@ start() {
   if [ -x "$b/psql" ]; then
     "$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DBNAME'" \
       | grep -q 1 || "$b/createdb" -h 127.0.0.1 -p "$PORT" -U postgres "$DBNAME"
+    # Абсолютные события Prisma пишет в timestamptz. Локальный сервер не должен наследовать пояс машины:
+    # иначе один и тот же Date на Mac и CI попадает в базу с разным сдвигом до первой SQL-сверки.
+    "$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -d postgres \
+      -c "ALTER DATABASE \"$DBNAME\" SET timezone TO 'UTC'" >/dev/null
   else
   ( cd "$ROOT" && node -e '
     const { Client } = require("pg");
@@ -107,6 +111,7 @@ start() {
       await c.connect();
       const r = await c.query("SELECT 1 FROM pg_database WHERE datname = $1", [name]);
       if (!r.rowCount) await c.query(`CREATE DATABASE "${name}"`);
+      await c.query(`ALTER DATABASE "${name}" SET timezone TO 'UTC'`);
       await c.end();
     })().catch((e) => { console.error("local-db: база не создалась —", e.message); process.exit(1); });
   ' "postgresql://postgres@127.0.0.1:$PORT/postgres" "$DBNAME" )
@@ -114,8 +119,27 @@ start() {
   # DIRECT_URL — тоже на локальную: prisma.config.ts предпочитает его DATABASE_URL и дочитывает из .env корня,
   # и прямой адрес рабочей базы оттуда молча уводил миграции в рабочую (24.09.2026, local-db-migrate-target.test.ts)
   ( cd "$ROOT" && DATABASE_URL="$URL" DIRECT_URL="$URL" npm run --silent migrate:deploy -w @pms/database >/dev/null )
+  # Вход роли wetop_app (RLS, ADR-103): миграция создаёт её NOLOGIN — на рабочей базе вход и пароль включает
+  # владелец (docs/ops/rls.md). Этот стенд слушает только 127.0.0.1 с trust, и без входа rls-isolation и e2e
+  # под wetop_app падают на свежем клоне «denied access» (27.09.2026, лог …17-20-11Z-integration-9a74)
+  if [ -x "$b/psql" ]; then
+    "$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -d "$DBNAME" -c 'ALTER ROLE wetop_app LOGIN' >/dev/null
+  else
+  ( cd "$ROOT" && node -e '
+    const { Client } = require("pg");
+    (async () => {
+      const c = new Client({ connectionString: process.argv[1] });
+      await c.connect();
+      await c.query("ALTER ROLE wetop_app LOGIN");
+      await c.end();
+    })().catch((e) => { console.error("local-db: вход wetop_app не включился —", e.message); process.exit(1); });
+  ' "$URL" )
+  fi
   # Схема автотестов (ADR-042) — тем же кодом, что и перед прогоном на dev-БД
   ( cd "$ROOT" && DATABASE_URL="$URL" npm run --silent test:schema >/dev/null )
+  # Вход роли wetop_app: миграция заводит её NOLOGIN (на рабочей базе вход — этап 2 docs/ops/rls.md), а rls-isolation
+  # подключается ею напрямую. Только локальная база — шаг сам отказывает на чужом адресе (TESTING.md §4)
+  ( cd "$ROOT" && DATABASE_URL="$URL" npx --yes tsx tests/tools/local-app-login.ts >/dev/null )
   # public нужен локальным скриптам. pms_test уже заполнен test:schema выше:
   # второй seed-local добавляет другие проживания на те же ячейки и падает по overlap.
   ( cd "$ROOT" && DATABASE_URL="$URL" DATABASE_SCHEMA="" npx --yes tsx tests/tools/seed-local.ts >/dev/null )

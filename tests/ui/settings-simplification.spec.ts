@@ -15,17 +15,18 @@ test('короткое меню настроек ведёт в единый об
   const group = sidebar
     .locator('.sidebar-section')
     .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
-  await expect(group.locator('a')).toHaveText(['Гостиница', 'Интеграции', 'Сайт']);
+  // Сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-117), в «Настройках» его больше нет
+  await expect(group.locator('a')).toHaveText(['Объект', 'Интеграции']);
   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
-  await expect(page.getByTestId('stay-settings')).toContainText('14:00');
-  const tabs = page.getByRole('navigation', { name: 'Настройки гостиницы', exact: true });
+  const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();
   await expect(page.getByTestId('services-table')).toBeVisible();
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Гостиница');
-  await tabs.getByRole('link', { name: 'Правила отмены', exact: true }).click();
-  await expect(page.getByTestId('rate-plans-table')).toBeVisible();
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Объект');
+  // часы заезда и выезда — своей вкладкой (ADR-115), правила отмены — у тарифов
+  await tabs.getByRole('link', { name: 'Проживание', exact: true }).click();
+  await expect(page.getByTestId('stay-settings')).toContainText('14:00');
   await page.reload();
-  await expect(tabs.getByRole('link', { name: 'Правила отмены' })).toHaveAttribute(
+  await expect(tabs.getByRole('link', { name: 'Проживание' })).toHaveAttribute(
     'aria-current',
     'page',
   );
@@ -46,13 +47,13 @@ test('старые страницы контента ведут в интегр�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/check-in');
-  await expect(page).toHaveURL(/\/hotel-settings#stay-settings$/);
+  await expect(page).toHaveURL(/\/hotel-settings\/stay$/);
   await expect(page.getByRole('main').getByTestId('stay-settings')).toBeVisible();
   const hits = await (await request.get(`${API}/__test/hits`)).json();
   expect(hits.byPath['/channels/channex/content'] ?? 0).toBe(0);
 });
 
-test('поиск услуг и фильтр правил отмены работают без повторной загрузки каталога', async ({
+test('поиск услуг работает без повторной загрузки каталога', async ({
   page,
   request,
 }) => {
@@ -68,21 +69,13 @@ test('поиск услуг и фильтр правил отмены работ
   await expect(table.locator('tbody tr')).toHaveCount(count);
   const after = await (await request.get(`${API}/__test/hits`)).json();
   expect(after.byPath['/finance/services']).toBe(before.byPath['/finance/services']);
-  await page
-    .getByRole('navigation', { name: 'Настройки гостиницы' })
-    .getByRole('link', { name: 'Правила отмены' })
-    .click();
-  await page.getByLabel('Статус тарифа').selectOption('inactive');
-  await expect(page.getByTestId('rate-plans-empty')).toContainText('Нет тарифов');
-  await page.getByLabel('Статус тарифа').selectOption('all');
-  await expect(page.getByTestId('rate-plans-table').getByText('BASE, KZT')).toBeVisible();
 });
 
 test('ошибка каталога сохраняет навигацию и исправляется повтором', async ({ page, request }) => {
   await request.post(`${API}/__test/control`, { data: { failPath: '/finance/services' } });
   await page.goto('/hotel-settings/services');
   await expect(page.getByTestId('services-error')).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Настройки гостиницы' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Настройки объекта' })).toBeVisible();
   await request.post(`${API}/__test/control`, { data: {} });
   await page
     .getByTestId('services-error')
@@ -104,9 +97,9 @@ for (const theme of ['light', 'dark'] as const) {
     for (const route of [
       '/hotel-settings',
       '/hotel-settings/services',
-      '/hotel-settings/penalties',
+      '/hotel-settings/stay',
       '/connections',
-      '/analytics/setup',
+      '/website/settings',
     ]) {
       await page.goto(route);
       const main = page.getByRole('main');
@@ -118,7 +111,7 @@ for (const theme of ['light', 'dark'] as const) {
           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
         ).toBe(true);
       }
-      if (route === '/hotel-settings' || route === '/analytics/setup') {
+      if (route === '/hotel-settings' || route === '/website/settings') {
         const audit = await new AxeBuilder({ page })
           .include('main')
           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -144,6 +137,8 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByTestId('site-card-snippet')).toBeVisible();
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('site-card-snippet')).not.toBeVisible();
+    // код виджета — во вкладке «Бронирование» модуля сайта (ADR-117)
+    await page.goto('/website/booking');
     const widget = page
       .locator('summary')
       .getByText('Установка виджета бронирования', { exact: true });

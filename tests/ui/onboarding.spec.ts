@@ -39,6 +39,31 @@ test('пустой отель: рабочий экран уводит на он�
   await expect(page).toHaveURL(/\/today/);
 });
 
+test('администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107)', async ({
+  page,
+  request,
+}) => {
+  // входим, пока отель настроен: после входа стойка ведёт на «Главную», а гейт увёл бы на онбординг
+  await request.post(`${fixture}/__test/control`, { data: { onboardingNeeded: false } });
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+
+  await request.post(`${fixture}/__test/control`, {
+    data: { onboardingNeeded: true, role: 'STAFF' },
+  });
+  await page.goto('/today');
+  await expect(page).toHaveURL(/\/onboarding/);
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('onboarding-waiting')).toContainText(
+    'настройку делают владелец и управляющий',
+  );
+  await expect(main.getByRole('button', { name: 'Запустить отель' })).toHaveCount(0);
+  await expect(main.getByTestId('no-access')).toHaveCount(0);
+});
+
 test('пустая категория без цены — форма просит добавить, отель не создаётся', async ({ page }) => {
   await page.goto('/onboarding');
   const main = page.getByRole('main');

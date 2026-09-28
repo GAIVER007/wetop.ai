@@ -24,35 +24,10 @@ function attentionItems(day: DeskDay) {
   return { arrivals, departures, overdue, count, reasons };
 }
 
-/**
- * Сводка над показателями (ADR-049: компактное резюме с датой, ведёт к задачам ниже). Разбор 23.09.2026,
- * находка 3: задачи смены стоят под аналитикой, и сводка говорила только «Требуют внимания: 2» —
- * чтобы узнать, что именно, надо было прокрутить три экрана. Теперь она называет причины с числами;
- * порядок блоков — решение владельца, его не трогаем. Раньше дата и «Открыть список» склеивались
- * в «23 сент.. Открыть».
+/*
+ * Сводки над показателями больше нет (A1, ADR-103): блок «Требуют внимания» один и стоит сразу под
+ * полосой «На стойке» — дублирующая карточка сверху (находка владельца по скринам 27.09) снята.
  */
-export function AttentionSummary({ day, date }: { day: DeskDay; date: string }) {
-  const { count, reasons } = attentionItems(day);
-  const named = reasons
-    .filter((r) => r.count > 0)
-    .map((r) => `${r.label.toLocaleLowerCase('ru')} ${r.count}`)
-    .join(', ');
-  return (
-    <a href="#day-attention" className="attention-summary" data-testid="attention-summary">
-      <Icon name={count ? 'clock' : 'check'} />
-      <span>
-        <strong>Требуют внимания: {count}</strong>
-        <small>
-          {count === 0
-            ? `На ${displayDate(date)} всё в порядке`
-            : `На ${displayDate(date)}: ${named}`}
-        </small>
-      </span>
-      <Icon name="chevron" />
-    </a>
-  );
-}
-
 export function DayAttention({ day }: { day: DeskDay }) {
   const { arrivals, departures, overdue, count, reasons } = attentionItems(day);
   /*
@@ -62,7 +37,7 @@ export function DayAttention({ day }: { day: DeskDay }) {
    */
   const hasDay = day.arrivals.length + day.departures.length + day.inHouse.length > 0;
   return (
-    <section className="attention-card" id="day-attention">
+    <section className="attention-card" id="day-attention" aria-label="Требуют внимания">
       <div className="attention-heading">
         <h2>Требуют внимания</h2>
         <span className="attention-count" data-state={count ? 'on' : 'off'}>

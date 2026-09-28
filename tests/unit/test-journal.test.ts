@@ -28,7 +28,7 @@ const ROOT = '/repo';
 const FAKE_JWT = ['eyJhbGciOiJIUzI1NiJ9', 'eyJzdWIiOiJ0ZXN0In0', 'ZmFrZS1zaWduYXR1cmU'].join('.');
 const FAKE_PASS = ['not', 'a', 'real', 'pass'].join('-');
 const FAKE_DB_URL = `postgresql://app:${FAKE_PASS}@db.example.com:5432/pms`;
-const FAKE_KEY = ['fake', 'exely', 'key', '0123456789'].join('-');
+const FAKE_KEY = ['fake', 'legacy', 'key', '0123456789'].join('-');
 
 function run(over: Partial<RunRecord> = {}): RunRecord {
   return {
@@ -61,7 +61,7 @@ function run(over: Partial<RunRecord> = {}): RunRecord {
 describe('лог уходит в репозиторий без секретов и ПД', () => {
   it('JWT, пароль в адресе базы, ключ в заголовке и значения секретов из .env скрыты', () => {
     const values = secretValuesFromEnv({
-      EXELY_API_KEY: FAKE_KEY,
+      LEGACY_API_KEY: FAKE_KEY,
       PII_STORAGE: 'anonymized',
       PORT: '3001',
       CHANNEX_WEBHOOK_SECRET: 'short',
@@ -75,7 +75,7 @@ describe('лог уходит в репозиторий без секретов 
         `url ${FAKE_DB_URL}`,
         'user-api-key: fake-channex-header-0123456789',
         `Authorization: Bearer ${FAKE_KEY}`,
-        `ответ Exely: ключ ${FAKE_KEY} отклонён`,
+        `ответ Legacy: ключ ${FAKE_KEY} отклонён`,
       ].join('\n'),
       values,
     );
@@ -374,7 +374,7 @@ describe('что входит в отпечаток кода', () => {
     expect(spec).toContain(':(exclude)tests/runs');
     // правка документации тесты не обесценивает
     expect(spec).toContain(':(exclude,glob)**/README.md');
-    // тесты импорта читают scripts/imports/src/exely/__fixtures__/*.md — Markdown целиком исключать нельзя
+    // тесты импорта читают scripts/imports/src/legacy/__fixtures__/*.md — Markdown целиком исключать нельзя
     expect(spec.some((p) => p.includes('*.md'))).toBe(false);
     // next dev переписывает apps/web/next-env.d.ts под свою папку сборки (.next или .next-ui): это не код,
     // иначе каждый UI-прогон помечал бы себя «код менялся во время прогона»

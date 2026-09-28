@@ -7,6 +7,8 @@ import { AccountMenu } from '../components/shell/account-menu';
 import { AssistantWidget } from '../components/shell/assistant-widget';
 import { OnboardingGate } from './onboarding-gate';
 import { PropertyTimeProvider } from '../components/property-time';
+import { DeskAccessProvider } from '../components/desk-access';
+import { AccessGate } from '../components/access-gate';
 import { hotelApi, propertyTimezone } from '../lib/hotel-api';
 import { FALLBACK_TIMEZONE } from '../lib/property-time';
 import { deskShell } from '../lib/desk-shell';
@@ -29,13 +31,20 @@ export const metadata = {
   description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
 };
 
+/** Public entry screens must never start authenticated hotel requests from the workspace shell. */
+function isPublicEntryPath(path: string): boolean {
+  return ['/create', '/login', '/register', '/invite'].some(
+    (entry) => path === entry || path.startsWith(`${entry}/`),
+  );
+}
+
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
   });
   return (
-    hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки гостиницы')
+    hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта')
   );
 }
 
@@ -47,12 +56,23 @@ export default async function RootLayout({
   children: ReactNode;
   drawer: ReactNode;
 }) {
-  // Public creation does not fetch hotel data or start the authenticated desk shell.
-  if ((await headers()).get('x-wetop-path') === '/create') {
-    return <html lang="ru" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
-      <body><ThemeProvider><ToastProvider>{children}</ToastProvider></ThemeProvider></body>
-    </html>;
+  const path = (await headers()).get('x-wetop-path') ?? '';
+  // Вход, регистрация, ссылки из писем и приглашения доступны без сессии.
+  // Защищённая оболочка здесь не нужна: её запросы `/hotel/settings` и `/auth/me`
+  // при включённом замке уводят на `/login` раньше, чем токен подтверждения дойдёт до API.
+  if (isPublicEntryPath(path)) {
+    return (
+      <html lang="ru" suppressHydrationWarning>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        </head>
+        <body>
+          <ThemeProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    );
   }
   // Кто вошёл и что ему открыто (ADR-083): меню получает обещание и не задерживает страницу
   const desk = deskShell();
@@ -70,32 +90,35 @@ export default async function RootLayout({
         </Suspense>
         <ThemeProvider>
           <PropertyTimeProvider timezone={timezone}>
-            <ToastProvider>
-              <TopNav
-                account={
-                  <Suspense fallback={null}>
-                    <AccountMenu />
-                  </Suspense>
-                }
-                demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
-                desk={desk}
-                property={{
-                  name: (
-                    <Suspense fallback="Объект не загружен">
-                      <ProjectProperty field="name" />
+            {/* кто вошёл — кнопкам и закрытым по роли страницам (ADR-107): то же обещание, что у меню */}
+            <DeskAccessProvider desk={desk}>
+              <ToastProvider>
+                <TopNav
+                  account={
+                    <Suspense fallback={null}>
+                      <AccountMenu />
                     </Suspense>
-                  ),
-                  address: (
-                    <Suspense fallback="Настройки гостиницы">
-                      <ProjectProperty field="address" />
-                    </Suspense>
-                  ),
-                }}
-              >
-                {children}
-              </TopNav>
-              {drawer}
-            </ToastProvider>
+                  }
+                  demo={process.env.NODE_ENV === 'development' && process.env.APP_DEMO_MODE === '1'}
+                  desk={desk}
+                  property={{
+                    name: (
+                      <Suspense fallback="Объект не загружен">
+                        <ProjectProperty field="name" />
+                      </Suspense>
+                    ),
+                    address: (
+                      <Suspense fallback="Настройки объекта">
+                        <ProjectProperty field="address" />
+                      </Suspense>
+                    ),
+                  }}
+                >
+                  <AccessGate>{children}</AccessGate>
+                </TopNav>
+                {drawer}
+              </ToastProvider>
+            </DeskAccessProvider>
           </PropertyTimeProvider>
         </ThemeProvider>
         {/* Чат ИИ-помощника на каждом экране (ТЗ П2): без ASSISTANT_URL ничего не рисует */}

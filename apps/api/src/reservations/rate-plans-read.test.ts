@@ -14,7 +14,7 @@ describe('ReservationsService.ratePlans', () => {
       activeRatePlans: async () => [
         {
           id: 'plan-1',
-          code: 'exely-10157482',
+          code: 'legacy-10157482',
           name: 'Базовый тариф',
           currency: 'KZT',
           active: true,
@@ -32,7 +32,12 @@ describe('ReservationsService.ratePlans', () => {
     const service = new ReservationsService(uow, {} as AriPublisher);
 
     await expect(service.ratePlans()).resolves.toEqual([
-      { code: 'exely-10157482', name: 'Базовый тариф', currency: 'KZT' },
+      {
+        code: 'legacy-10157482',
+        name: 'Базовый тариф',
+        currency: 'KZT',
+        cancellationPenalty: 'NONE',
+      },
     ]);
   });
 });

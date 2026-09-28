@@ -96,6 +96,8 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
 
     await test.step('редактирование гостя обновляет Supabase, бронь, историю и шахматку', async () => {
       await page.getByTestId('guest-link').click();
+      // G4: карточка открывается «Обзором»; профиль и документы — за «Редактировать»
+      await page.getByRole('link', { name: 'Редактировать', exact: true }).click();
       const form = page.getByTestId('guest-form');
       await form.locator('[name="firstName"]').fill('Проверено');
       await form.locator('[name="notes"]').fill(marker);
@@ -295,24 +297,29 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
     });
 
     await test.step('сайт аналитики: создание, пауза, повторное чтение и удаление', async () => {
-      await page.goto('/analytics/setup');
+      await page.goto('/website/settings');
       await page.getByTestId('site-name').fill(marker);
       await page.getByTestId('site-hosts').fill(`audit-${marker.slice(-12)}.example.invalid`);
       await page.getByTestId('site-create').click();
       await expect.poll(() => db.trackedSite.count({ where: { name: marker } })).toBe(1);
       const card = page.getByTestId('site-card').filter({ hasText: marker });
+      // пауза — через подтверждение (ADR-117): останавливает и счётчик, и брони с сайта
       await card.getByTestId('site-toggle').click();
+      await page
+        .getByRole('dialog', { name: 'Приостановить сайт?' })
+        .getByRole('button', { name: 'Приостановить', exact: true })
+        .click();
       await expect
         .poll(
           async () => (await db.trackedSite.findFirstOrThrow({ where: { name: marker } })).status,
         )
         .toBe('PAUSED');
       await page.reload();
-      await expect(card.getByTestId('site-card-status')).toHaveText('Счётчик на паузе');
+      await expect(card.getByTestId('site-toggle')).toHaveText('Возобновить сайт');
       await card.getByTestId('site-delete').click();
       await page
-        .getByRole('dialog', { name: 'Удалить сайт?' })
-        .getByRole('button', { name: 'Удалить сайт', exact: true })
+        .getByRole('dialog', { name: 'Удалить подключение сайта?' })
+        .getByRole('button', { name: 'Удалить подключение', exact: true })
         .click();
       await expect.poll(() => db.trackedSite.count({ where: { name: marker } })).toBe(0);
       await expect(card).toHaveCount(0);

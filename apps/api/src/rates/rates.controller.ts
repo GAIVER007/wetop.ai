@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import { RatesService, type RateChangeDto } from './rates.service';
+import { Access } from '../auth/access.decorator';
 
 /** Календарь цен и ограничений: чтение и массовое изменение (стойка). Изменения уходят в каналы через очередь. */
+@Access('rates')
 @Controller('rates')
 export class RatesController {
   constructor(@Inject(RatesService) private readonly service: RatesService) {}

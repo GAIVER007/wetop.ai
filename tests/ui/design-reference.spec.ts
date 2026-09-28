@@ -84,17 +84,21 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.getByRole('main').getByTestId('group-hint')).toBeVisible();
     await shot(page, 'reservation-form-group', theme, true);
 
-    // цены и ограничения вместе с массовым изменением
+    // календарь цен (ТЗ v2, RT1): сетка месяца, правка — панелью за кнопкой «Изменить цены»
     await page.goto('/rates');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены');
-    await expect(main.getByTestId('bulk-editor')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Тарифы');
+    await expect(main.getByTestId('rates-calendar')).toBeVisible();
     await shot(page, 'rates', theme);
     await shot(page, 'rates-full', theme, true);
+    await main.getByTestId('rates-edit-open').click();
+    await expect(main.getByTestId('bulk-editor')).toBeVisible();
+    await shot(page, 'rates-drawer', theme);
+    await page.keyboard.press('Escape');
     // Телефон: длинное название категории («Одноместная комната с окном и балконом») растягивало
     // выпадающий список фильтра, и экран уезжал вбок на 94 px — найдено обходом стойки 17.09.2026
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/rates');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Цены');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Тарифы');
     const ratesLayout = await page.evaluate(() => {
       const w = globalThis as unknown as {
         innerWidth: number;
@@ -107,11 +111,14 @@ for (const theme of ['light', 'dark'] as const) {
     );
     await page.setViewportSize({ width: 1440, height: 1000 });
 
-    // журнал интеграции: очередь, события, ревизия с ошибкой
+    // модуль «Каналы продаж» (ADR-112): обзор и журнал событий
     await page.goto('/channels');
-    await expect(main.getByTestId('event-row')).toHaveCount(3);
+    await expect(main.getByTestId('outbox-pending')).toBeVisible();
     await shot(page, 'channels', theme);
     await shot(page, 'channels-full', theme, true);
+    await page.goto('/channels/events');
+    await expect(main.getByTestId('event-row')).toHaveCount(3);
+    await shot(page, 'channels-events', theme);
 
     // список броней и гости — одной строкой (правки 15.09)
     await page.goto('/reservations');

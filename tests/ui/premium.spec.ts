@@ -15,7 +15,7 @@ test('темы: system, мгновенное переключение, сохр�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('.occupancy-ring').first()).toBeVisible();
+  await expect(page.locator('.desk-stat__value').first()).toBeVisible();
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-dark.png` });
   await page.goto('/profile');
   await page.getByRole('button', { name: 'Как на устройстве' }).click();
@@ -130,12 +130,15 @@ test('новые страницы и обе темы: адаптивность �
     '/login',
     '/connections',
     '/hotel-settings',
-    '/channel-manager',
     '/channels',
+    '/channels/sync',
     '/journal',
     '/incidents',
-    '/analytics',
-    '/management/statistics',
+    '/website',
+    '/website/analytics',
+    '/management/analytics',
+    '/management/analytics/occupancy',
+    '/management/dashboard',
     '/hotel-settings/services',
   ];
   for (const width of [320, 390, 768, 1280, 1440, 1920]) {

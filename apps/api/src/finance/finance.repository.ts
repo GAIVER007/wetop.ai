@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
-import type { Prisma } from '@pms/database';
+import { Prisma } from '@pms/database';
 import {
   FinanceRuleError,
   LUXX_APARTS_PROPERTY,
@@ -23,7 +23,7 @@ export type PaymentMethod =
   | 'DEPOSIT'
   | 'HALYK'
   | 'KASPI';
-/** 9 способов оплаты из справочника Exely (DATA_MODEL §6) */
+/** Поддерживаемые способы оплаты (DATA_MODEL §6). */
 export const PAYMENT_METHODS: readonly PaymentMethod[] = [
   'CASH',
   'CARD_TERMINAL',
@@ -139,6 +139,48 @@ export interface PeriodReport {
   accommodationByCategory: Array<{ category: string; count: number; amountMinor: bigint }>;
 }
 
+/**
+ * Бронь для списка «Брони с остатком к сбору» (ADR-113): у неё есть действующее начисление с датой услуги в
+ * периоде, а суммы — по всем её счетам за всё время, как у остатка на карточке брони.
+ */
+export interface DebtCandidate {
+  confirmationNumber: string;
+  status: string;
+  arrivalDate: string;
+  departureDate: string;
+  guestLabel: string | null;
+  chargedMinor: bigint;
+  /** только проведённые платежи (`COMPLETED`) — как `folioBalance` на карточке */
+  paidMinor: bigint;
+  refundedMinor: bigint;
+}
+
+/**
+ * Операция денег за период (ADR-113, F2): оплата (проведённая или аннулированная) или возврат. Время — по часам
+ * объекта; бронь — через распределение платежа (первая по номеру, `reservations` — сколько их) или счёт возврата.
+ */
+export interface OperationRecord {
+  kind: 'PAYMENT' | 'REFUND';
+  id: string;
+  at: string;
+  /** `YYYY-MM-DD HH:mm` по поясу объекта */
+  localAt: string;
+  method: PaymentMethod;
+  amountMinor: bigint;
+  status: 'COMPLETED' | 'VOIDED';
+  confirmationNumber: string | null;
+  reservations: number;
+  guestLabel: string | null;
+}
+/** Итоги операций периода без отборов — для сумм по отбору и чисел на чипах способов */
+export interface OperationsSummaryRow {
+  kind: 'PAYMENT' | 'REFUND';
+  method: PaymentMethod;
+  status: 'COMPLETED' | 'VOIDED';
+  count: number;
+  amountMinor: bigint;
+}
+
 /** Порт финансов: счета читаются целиком (начисления, распределения, возвраты), команды — точечные записи. */
 /**
  * Строка журнала, которую операция пишет вместе с деньгами — одной транзакцией (хвост Б6): иначе обрыв
@@ -168,6 +210,14 @@ export interface FinanceRepository {
   services(): Promise<ServiceRef[]>;
   /** Сводка за период [from, to] включительно (T4 «финансовый учёт период») */
   periodReport(from: string, to: string): Promise<PeriodReport>;
+  /** Брони с начислением в периоде [from, to] и суммы по всем их счетам (ADR-113) */
+  periodDebts(from: string, to: string): Promise<DebtCandidate[]>;
+  /** Оплаты и возвраты периода: строки по отбору (новые первыми, не больше `limit`) и итоги без отборов (ADR-113, F2) */
+  periodOperations(
+    from: string,
+    to: string,
+    filter: { type?: 'PAYMENT' | 'REFUND'; method?: PaymentMethod; limit: number },
+  ): Promise<{ rows: OperationRecord[]; summary: OperationsSummaryRow[] }>;
   /** Сегодня по часам объекта (С-13): дата услуги по умолчанию */
   today(): Promise<string>;
   addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string>;
@@ -455,6 +505,170 @@ export class PrismaFinanceRepository implements FinanceRepository {
     };
   }
   /**
+   * Один запрос вместо загрузки всех начислений в память: за год это тысячи броней. Бронь попадает в выборку по
+   * действующему начислению с датой услуги в периоде — та же база, что у «Начислено» в сводке; суммы берутся по
+   * каждому счёту брони подзапросами (три отдельных соединения размножили бы строки) и складываются по брони.
+   */
+  async periodDebts(from: string, to: string): Promise<DebtCandidate[]> {
+    const { id: propertyId } = await this.property();
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{
+        confirmation_number: string;
+        status: string;
+        arrival_date: Date;
+        departure_date: Date;
+        first_name: string | null;
+        last_name: string | null;
+        charged: bigint;
+        paid: bigint;
+        refunded: bigint;
+      }>
+    >`
+      WITH period_reservations AS (
+        SELECT DISTINCT ri.reservation_id
+          FROM charges c
+          JOIN folios f ON f.id = c.folio_id
+          JOIN reservation_items ri ON ri.id = f.reservation_item_id
+          JOIN reservations r ON r.id = ri.reservation_id
+         WHERE r.property_id = ${propertyId}::uuid
+           AND c.voided_at IS NULL
+           AND c.service_date >= ${from}::date
+           AND c.service_date <= ${to}::date
+      ),
+      folio_sums AS (
+        SELECT ri.reservation_id,
+               (SELECT COALESCE(SUM(c.amount), 0) FROM charges c
+                 WHERE c.folio_id = f.id AND c.voided_at IS NULL) AS charged,
+               (SELECT COALESCE(SUM(a.amount), 0) FROM payment_allocations a
+                  JOIN payments p ON p.id = a.payment_id
+                 WHERE a.folio_id = f.id AND p.status = 'COMPLETED') AS paid,
+               (SELECT COALESCE(SUM(x.amount), 0) FROM refunds x WHERE x.folio_id = f.id) AS refunded
+          FROM folios f
+          JOIN reservation_items ri ON ri.id = f.reservation_item_id
+         WHERE ri.reservation_id IN (SELECT reservation_id FROM period_reservations)
+      )
+      SELECT r.confirmation_number, r.status::text AS status, r.arrival_date, r.departure_date,
+             g.first_name, g.last_name,
+             SUM(s.charged)::bigint AS charged, SUM(s.paid)::bigint AS paid,
+             SUM(s.refunded)::bigint AS refunded
+        FROM folio_sums s
+        JOIN reservations r ON r.id = s.reservation_id
+        LEFT JOIN guests g ON g.id = r.primary_guest_id
+       GROUP BY r.id, g.id`;
+    const day = (d: Date) => d.toISOString().slice(0, 10);
+    return rows.map((r) => ({
+      confirmationNumber: r.confirmation_number,
+      status: r.status,
+      arrivalDate: day(r.arrival_date),
+      departureDate: day(r.departure_date),
+      guestLabel:
+        r.first_name === null ? null : `${r.first_name} ${r.last_name ?? ''}`.trim() || null,
+      chargedMinor: BigInt(r.charged),
+      paidMinor: BigInt(r.paid),
+      refundedMinor: BigInt(r.refunded),
+    }));
+  }
+  /**
+   * Оплаты по `paid_at` и возвраты по `created_at` в границах суток пояса объекта — та же выборка, что у «Оплачено»
+   * и «Возвращено» в сводке; аннулированные оплаты тоже здесь, со своим статусом. Возврат отбирается по брони своего
+   * счёта, как в сводке. Два запроса: строки с бронью и гостем (с отборами и пределом) и итоги без отборов.
+   */
+  async periodOperations(
+    from: string,
+    to: string,
+    filter: { type?: 'PAYMENT' | 'REFUND'; method?: PaymentMethod; limit: number },
+  ): Promise<{ rows: OperationRecord[]; summary: OperationsSummaryRow[] }> {
+    const tz = await this.timezone();
+    const { id: propertyId } = await this.property();
+    const start = localStart(from, tz);
+    const end = localEndExclusive(to, tz);
+    const ops = Prisma.sql`
+      SELECT 'PAYMENT'::text AS kind, p.id, p.paid_at AS at, p.method::text AS method, p.amount,
+             p.status::text AS status, NULL::uuid AS folio_id
+        FROM payments p
+       WHERE p.property_id = ${propertyId}::uuid AND p.paid_at >= ${start} AND p.paid_at < ${end}
+      UNION ALL
+      SELECT 'REFUND'::text, x.id, x.created_at, p.method::text, x.amount, 'COMPLETED'::text, x.folio_id
+        FROM refunds x
+        JOIN payments p ON p.id = x.payment_id
+        JOIN folios f ON f.id = x.folio_id
+        JOIN reservation_items ri ON ri.id = f.reservation_item_id
+        JOIN reservations r ON r.id = ri.reservation_id
+       WHERE r.property_id = ${propertyId}::uuid AND x.created_at >= ${start} AND x.created_at < ${end}`;
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{
+        kind: 'PAYMENT' | 'REFUND';
+        id: string;
+        at: Date;
+        local_at: string;
+        method: PaymentMethod;
+        amount: bigint;
+        status: 'COMPLETED' | 'VOIDED';
+        confirmation_number: string | null;
+        first_name: string | null;
+        last_name: string | null;
+        reservations: bigint | null;
+      }>
+    >(Prisma.sql`
+      WITH ops AS (${ops})
+      SELECT o.kind, o.id, o.at, to_char(o.at AT TIME ZONE ${tz}, 'YYYY-MM-DD HH24:MI') AS local_at,
+             o.method, o.amount, o.status, b.confirmation_number, b.first_name, b.last_name, b.reservations
+        FROM ops o
+        LEFT JOIN LATERAL (
+          SELECT r.confirmation_number, g.first_name, g.last_name, COUNT(*) OVER () AS reservations
+            FROM reservations r
+            LEFT JOIN guests g ON g.id = r.primary_guest_id
+           WHERE r.id IN (
+                   SELECT ri.reservation_id
+                     FROM folios f
+                     JOIN reservation_items ri ON ri.id = f.reservation_item_id
+                    WHERE f.id = o.folio_id
+                       OR (o.kind = 'PAYMENT'
+                           AND f.id IN (SELECT a.folio_id FROM payment_allocations a WHERE a.payment_id = o.id)))
+           ORDER BY r.confirmation_number
+           LIMIT 1
+        ) b ON true
+       WHERE (${filter.type ?? null}::text IS NULL OR o.kind = ${filter.type ?? null}::text)
+         AND (${filter.method ?? null}::text IS NULL OR o.method = ${filter.method ?? null}::text)
+       ORDER BY o.at DESC, o.id
+       LIMIT ${filter.limit}`);
+    const summary = await this.prisma.db.$queryRaw<
+      Array<{
+        kind: 'PAYMENT' | 'REFUND';
+        method: PaymentMethod;
+        status: 'COMPLETED' | 'VOIDED';
+        count: bigint;
+        amount: bigint;
+      }>
+    >(Prisma.sql`
+      WITH ops AS (${ops})
+      SELECT kind, method, status, COUNT(*)::bigint AS count, SUM(amount)::bigint AS amount
+        FROM ops
+       GROUP BY kind, method, status`);
+    return {
+      rows: rows.map((r) => ({
+        kind: r.kind,
+        id: r.id,
+        at: r.at.toISOString(),
+        localAt: r.local_at,
+        method: r.method,
+        amountMinor: BigInt(r.amount),
+        status: r.status,
+        confirmationNumber: r.confirmation_number,
+        reservations: Number(r.reservations ?? 0),
+        guestLabel:
+          r.first_name === null ? null : `${r.first_name} ${r.last_name ?? ''}`.trim() || null,
+      })),
+      summary: summary.map((x) => ({
+        kind: x.kind,
+        method: x.method,
+        status: x.status,
+        count: Number(x.count),
+        amountMinor: BigInt(x.amount),
+      })),
+    };
+  }
+  /**
    * Запись денег и строка журнала одной транзакцией. Без данных журнала (`audit`) метод работает как
    * прежде — одним запросом: транзакция ради одной вставки только занимает соединение пулера.
    */
@@ -524,7 +738,10 @@ export class PrismaFinanceRepository implements FinanceRepository {
         });
         await lockOpenFolios(tx, [charge.folioId]);
         // Под блокировкой счёта: два одновременных сторно оба проходили проверку сервиса (проверка исправлений 26.09)
-        const now = await tx.charge.findUniqueOrThrow({ where: { id }, select: { voidedAt: true } });
+        const now = await tx.charge.findUniqueOrThrow({
+          where: { id },
+          select: { voidedAt: true },
+        });
         if (now.voidedAt) throw new FinanceStateError('Начисление уже сторнировано');
       },
       async (tx) => {

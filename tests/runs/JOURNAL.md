@@ -99,3 +99,10 @@
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
+| 29.09.2026 00:51 | typecheck | ✅ без ошибок | 31 с | 50a1ff8 | [лог](logs/2026-09-28T19-51-55Z-typecheck-71c0.log) |  |
+| 29.09.2026 00:52 | lint | ✅ без ошибок | 17 с | 50a1ff8 | [лог](logs/2026-09-28T19-52-26Z-lint-d6df.log) |  |
+| 29.09.2026 00:52 | unit | ✅ 2173 из 2176, пропущено 3 | 1 мин 24 с | 50a1ff8 | [лог](logs/2026-09-28T19-52-44Z-unit-a34c.log) |  |
+| 29.09.2026 00:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/availability-gate.spec | ✅ 97 из 97 | 7 мин 8 с | 50a1ff8 | [лог](logs/2026-09-28T19-54-17Z-e2e-45eb.log) |  |
+| 29.09.2026 01:01 | integration | ✅ 114 из 114 | 37 с | 50a1ff8 | [лог](logs/2026-09-28T20-01-42Z-integration-443d.log) |  |
+| 29.09.2026 01:02 | e2e | ❌ упало 5 из 25 | 2 мин 18 с | 50a1ff8 | [лог](logs/2026-09-28T20-02-41Z-e2e-a339.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:06 | e2e (частично: tests/e2e/chessboard-drag.spec.ts tests/e2e/desk-tasks.spec.ts tests/e2e/manual-reservation.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/unit- | ❌ упало 5 из 6 | 1 мин 49 с | e1adee8 | [лог](logs/2026-09-28T20-06-01Z-e2e-c40c.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |

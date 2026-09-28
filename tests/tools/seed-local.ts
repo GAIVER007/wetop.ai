@@ -255,13 +255,14 @@ export async function seedLocal(
   }
   const rates = await db.dailyRate.createMany({ data: rows, skipDuplicates: true });
   // Минимальная вымышленная услуга нужна форме начисления и сквозным тестам finance/full-day.
+  // Цена 500 ₸ — на неё рассчитаны суммы этих спеков («2 × 500 ₸», баланс + 50 000 тиын).
   await db.service.upsert({
     where: { propertyId_code: { propertyId: property.id, code: 'L-LAUNDRY' } },
     create: {
       propertyId: property.id,
       code: 'L-LAUNDRY',
       nameRu: 'Стирка (1 загрузка)',
-      price: 150_000n,
+      price: 50_000n,
       group: 'Стенд',
     },
     update: {},

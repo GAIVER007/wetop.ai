@@ -12,13 +12,17 @@ import { ONBOARDING_LATER_COOKIE, needsOnboardingRedirect } from '../lib/onboard
 export async function OnboardingGate() {
   const path = (await headers()).get('x-wetop-path') ?? '';
   const postponed = Boolean((await cookies()).get(ONBOARDING_LATER_COOKIE)?.value);
-  if (!needsOnboardingRedirect({ path, needsOnboarding: true, postponed })) return null;
+  // Путь, где гейт вообще работает; отложенный онбординг проверяется ниже — объекта может не быть вовсе
+  if (!needsOnboardingRedirect({ path, needsOnboarding: true, postponed: false })) return null;
   // Берём те же настройки, что и шапка объекта (кэшируются на рендер) — отдельного рейса гейт не делает
   const settings = await hotelApi.settings().catch((e: unknown) => {
-    // Не вошёл / объект ещё не настроен — это решают сами страницы, гейт молчит
-    if (e instanceof ApiError) return null;
+    if (e instanceof ApiError) return e;
     throw e;
   });
-  if (settings?.needsOnboarding) redirect('/onboarding');
+  // 404 — у организации нет объекта (после сброса, ADR-118): онбординг его и создаст
+  // (plans/onboarding-without-property-2026-09-28.md). Не вошёл и прочие отказы решают сами страницы.
+  const propertyMissing = settings instanceof ApiError && settings.status === 404;
+  const needsOnboarding = !(settings instanceof ApiError) && Boolean(settings?.needsOnboarding);
+  if (needsOnboardingRedirect({ path, needsOnboarding, postponed, propertyMissing })) redirect('/onboarding');
   return null;
 }

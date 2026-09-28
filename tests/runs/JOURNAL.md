@@ -3770,6 +3770,19 @@
 | 29.09.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts tests/ui/trial-read-only.spec.ts t | ✅ 84 из 84 | 5 мин 28 с | bf5d8f0 | [лог](logs/2026-09-28T19-55-16Z-e2e-1dcc.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
+| 29.09.2026 00:56 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ❌ упало 3 из 16 | 5 с | e1adee8 +2 | [лог](logs/2026-09-28T19-56-16Z-unit-5116.log) | OnboardingService status: у организации нет объекта (после сброса) — онбординг нужен, имя — организации, объект не создаётся |
+| 29.09.2026 00:56 | integration (частично: tests/integration/onboarding-without-property.test.ts) | ❌ упало 1 из 1 | 3 с | e1adee8 +2 | [лог](logs/2026-09-28T19-56-30Z-integration-3f20.log) | онбординг организации без объекта (после сброса) status просит онбординг, provision создаёт объект в цепочке и номера под ним |
+| 29.09.2026 00:57 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ✅ 16 из 16 | 2 с | e1adee8 +8 | [лог](logs/2026-09-28T19-57-36Z-unit-2391.log) |  |
+| 29.09.2026 00:57 | integration (частично: tests/integration/onboarding-without-property.test.ts) | ✅ 1 из 1 | 3 с | e1adee8 +6 | [лог](logs/2026-09-28T19-57-38Z-integration-59ec.log) |  |
+| 29.09.2026 00:57 | typecheck | ✅ без ошибок | 29 с | e1adee8 +9 | [лог](logs/2026-09-28T19-57-41Z-typecheck-21f6.log) |  |
+| 29.09.2026 00:58 | lint | ✅ без ошибок | 16 с | e1adee8 +9 | [лог](logs/2026-09-28T19-58-11Z-lint-821c.log) |  |
+| 29.09.2026 00:58 | unit | ✅ 2171 из 2174, пропущено 3 | 1 мин 13 с | e1adee8 +8 | [лог](logs/2026-09-28T19-58-32Z-unit-e4a1.log) |  |
+| 29.09.2026 00:59 | integration | ✅ 115 из 115 | 31 с | e1adee8 +6 | [лог](logs/2026-09-28T19-59-46Z-integration-e91f.log) |  |
+| 29.09.2026 01:00 | e2e | ❌ упало 5 из 25 | 2 мин 14 с | e1adee8 +8 | [лог](logs/2026-09-28T20-00-54Z-e2e-df2b.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:03 | e2e | ❌ упало 5 из 25 | 2 мин 10 с | e1adee8 +8 | [лог](logs/2026-09-28T20-03-36Z-e2e-f6a5.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:06 | e2e (частично: tests/e2e/chessboard-drag.spec.ts tests/e2e/desk-tasks.spec.ts tests/e2e/manual-reservation.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/unit- | ❌ упало 5 из 6 | 1 мин 44 с | e1adee8 | [лог](logs/2026-09-28T20-06-23Z-e2e-b6f9.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:08 | e2e (частично: tests/e2e/chessboard-drag.spec.ts tests/e2e/desk-tasks.spec.ts tests/e2e/manual-reservation.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/unit- | ✅ 6 из 6 | 22 с | ef976e4 | [лог](logs/2026-09-28T20-08-51Z-e2e-c9a4.log) |  |
+| 29.09.2026 01:09 | e2e (частично: tests/e2e/chessboard-drag.spec.ts tests/e2e/desk-tasks.spec.ts tests/e2e/manual-reservation.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/unit- | ❌ упало 5 из 6 | 1 мин 43 с | 698ae49 | [лог](logs/2026-09-28T20-09-34Z-e2e-6b9f.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
 | 29.09.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ✅ 1 из 1 | 16 с | 262c73b | [лог](logs/2026-09-28T19-55-32Z-e2e-9c53.log) |  |
 | 29.09.2026 00:56 | typecheck | ✅ без ошибок | 32 с | e64ebe4 | [лог](logs/2026-09-28T19-56-58Z-typecheck-0f9e.log) |  |
 | 29.09.2026 00:57 | lint | ✅ без ошибок | 18 с | e64ebe4 | [лог](logs/2026-09-28T19-57-30Z-lint-032f.log) |  |
@@ -3820,6 +3833,20 @@
 | 29.09.2026 01:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts) | ✅ 19 из 19 | 1 мин 34 с | bc27444 +2 | [лог](logs/2026-09-28T20-20-23Z-e2e-5105.log) |  |
 | 29.09.2026 01:22 | integration | ✅ 117 из 117 | 36 с | bc27444 | [лог](logs/2026-09-28T20-22-08Z-integration-1ff3.log) |  |
 | 29.09.2026 01:18 | e2e | ✅ 25 из 25 | 55 с | 749de72 | [лог](logs/2026-09-28T20-18-25Z-e2e-b2ac.log) |  |
+| 29.09.2026 01:20 | typecheck | ✅ без ошибок | 28 с | 15d7ccf | [лог](logs/2026-09-28T20-20-17Z-typecheck-8f3e.log) |  |
+| 29.09.2026 01:20 | lint | ✅ без ошибок | 14 с | 15d7ccf | [лог](logs/2026-09-28T20-20-45Z-lint-5d7e.log) |  |
+| 29.09.2026 01:21 | unit | ✅ 2197 из 2200, пропущено 3 | 1 мин 13 с | 15d7ccf | [лог](logs/2026-09-28T20-21-00Z-unit-e407.log) |  |
+| 29.09.2026 01:22 | integration | ✅ 117 из 117 | 32 с | 15d7ccf | [лог](logs/2026-09-28T20-22-21Z-integration-89fe.log) |  |
+| 29.09.2026 01:23 | e2e | ✅ 25 из 25 | 57 с | 15d7ccf | [лог](logs/2026-09-28T20-23-12Z-e2e-51e9.log) |  |
+| 29.09.2026 01:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/requests.spec.ts tests/ui/ux-retention.spec.ts) | ✅ 39 из 39 | 1 мин 51 с | 15d7ccf | [лог](logs/2026-09-28T20-24-17Z-e2e-322a.log) |  |
+| 29.09.2026 01:27 | typecheck | ✅ без ошибок | 26 с | e169e44 | [лог](logs/2026-09-28T20-27-01Z-typecheck-666c.log) |  |
+| 29.09.2026 01:27 | lint | ✅ без ошибок | 14 с | e169e44 | [лог](logs/2026-09-28T20-27-27Z-lint-2573.log) |  |
+| 29.09.2026 01:27 | unit | ✅ 2219 из 2222, пропущено 3 | 1 мин 12 с | e169e44 | [лог](logs/2026-09-28T20-27-42Z-unit-7252.log) |  |
+| 29.09.2026 01:29 | e2e | ✅ 25 из 25 | 55 с | e169e44 | [лог](logs/2026-09-28T20-29-15Z-e2e-d477.log) |  |
 | 29.09.2026 01:27 | typecheck | ✅ без ошибок | 28 с | 09799da | [лог](logs/2026-09-28T20-27-25Z-typecheck-80c6.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
 | 29.09.2026 01:27 | lint | ✅ без ошибок | 16 с | 09799da | [лог](logs/2026-09-28T20-27-53Z-lint-a1b3.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
 | 29.09.2026 01:28 | unit | ✅ 2216 из 2219, пропущено 3 | 1 мин 14 с | 09799da | [лог](logs/2026-09-28T20-28-10Z-unit-aa0f.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
+| 29.09.2026 01:30 | typecheck | ✅ без ошибок | 26 с | fea4841 | [лог](logs/2026-09-28T20-30-55Z-typecheck-4bc6.log) |  |
+| 29.09.2026 01:31 | lint | ✅ без ошибок | 15 с | fea4841 | [лог](logs/2026-09-28T20-31-21Z-lint-e0d1.log) |  |
+| 29.09.2026 01:31 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ✅ 16 из 16 | 2 с | fea4841 | [лог](logs/2026-09-28T20-31-36Z-unit-1463.log) |  |
+| 29.09.2026 01:31 | integration (частично: tests/integration/onboarding-without-property.test.ts) | ✅ 1 из 1 | 3 с | fea4841 | [лог](logs/2026-09-28T20-31-46Z-integration-a661.log) |  |

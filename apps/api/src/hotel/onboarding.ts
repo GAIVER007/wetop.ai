@@ -12,7 +12,13 @@ import {
   NotFoundException,
   Post,
 } from '@nestjs/common';
-import { AccommodationKind, InventoryUnitKind } from '@pms/database';
+import {
+  AccommodationKind,
+  InventoryUnitKind,
+  NEW_PROPERTY_DEFAULTS,
+  createPropertyInChain,
+  type DbTx,
+} from '@pms/database';
 import { buildHotelSetupPlan, OnboardingError, type HotelSetup } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
@@ -54,6 +60,19 @@ function parseSetup(body: Record<string, unknown>): HotelSetup {
   return { categories, currency: typeof body?.['currency'] === 'string' ? body['currency'] : '' };
 }
 
+/** Объект организации без объекта — с её именем и умолчаниями регистрации, сразу в цепочке (DATA_MODEL v2.6) */
+async function createOrganizationProperty(tx: DbTx, organizationId: string, currency: string) {
+  const organization = await tx.organization.findUniqueOrThrow({
+    where: { id: organizationId },
+    select: { name: true },
+  });
+  return createPropertyInChain(tx, organizationId, {
+    name: organization.name,
+    ...NEW_PROPERTY_DEFAULTS,
+    currency,
+  });
+}
+
 /**
  * Онбординг нового отеля (plans/onboarding-2026-09-21.md): из пустого объекта делает рабочий —
  * заводит номера, тариф и цены одной транзакцией. Пишет ПОД объект своей организации по его id, а
@@ -66,22 +85,39 @@ export class OnboardingService {
     @Inject(forwardRef(() => HotelService)) private readonly hotel: HotelService,
   ) {}
 
-  /** Объект организации вошедшего; служебный ходок сюда не ходит — онбординг только для человека. */
-  private async currentProperty() {
+  /** Организация вошедшего; служебный ходок сюда не ходит — онбординг только для человека. */
+  private organizationId(): string {
     if (!hasSignedInActor()) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
     const organizationId = currentOrganizationId();
     if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-    const property = await this.prisma.db.property.findFirst({
+    return organizationId;
+  }
+
+  /**
+   * Объект организации вошедшего или `null`, если его нет. Объекта нет после сброса платформы (ADR-118): остаются
+   * владелец и членство, а объект, Business и Location удалены — онбординг начинается с пустого места
+   * (plans/onboarding-without-property-2026-09-28.md).
+   */
+  private async findProperty(organizationId: string) {
+    return this.prisma.db.property.findFirst({
       where: { organizationId },
       select: { id: true, name: true, currency: true, timezone: true },
     });
-    if (!property) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
-    return property;
   }
 
   /** Нужен ли онбординг: у объекта ещё нет ни одной категории. Плюс имя и валюта для формы. */
   async status() {
-    const property = await this.currentProperty();
+    const organizationId = this.organizationId();
+    const property = await this.findProperty(organizationId);
+    if (!property) {
+      // Объекта нет — форма открывается с именем организации; объект создаст сохранение, GET ничего не пишет
+      const organization = await this.prisma.db.organization.findUnique({
+        where: { id: organizationId },
+        select: { name: true },
+      });
+      if (!organization) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
+      return { needed: true, name: organization.name, currency: NEW_PROPERTY_DEFAULTS.currency };
+    }
     const categories = await this.prisma.db.accommodationType.count({
       where: { propertyId: property.id },
     });
@@ -89,21 +125,25 @@ export class OnboardingService {
   }
 
   async provision(body: Record<string, unknown>, now = new Date()) {
-    const property = await this.currentProperty();
+    const organizationId = this.organizationId();
+    const existing = await this.findProperty(organizationId);
     const setup = parseSetup(body);
     let plan;
     try {
       plan = buildHotelSetupPlan({
         categories: setup.categories,
-        currency: setup.currency || property.currency,
+        currency: setup.currency || existing?.currency || NEW_PROPERTY_DEFAULTS.currency,
       });
     } catch (e) {
       if (e instanceof OnboardingError) throw new BadRequestException(e.message);
       throw e;
     }
-    const dates = horizon(now, property.timezone, PRICE_HORIZON_DAYS);
+    const dates = horizon(now, existing?.timezone ?? NEW_PROPERTY_DEFAULTS.timezone, PRICE_HORIZON_DAYS);
 
     await this.prisma.db.$transaction(async (tx) => {
+      // Объекта нет (после сброса) — создаётся в этой же транзакции сразу в цепочке, как при регистрации:
+      // номера без объекта не заведутся, а объект без номеров после отказа не останется
+      const property = existing ?? (await createOrganizationProperty(tx, organizationId, plan.ratePlan.currency));
       // Повторный онбординг закрыт: объект с номерами уже настроен, второй прогон плодил бы дубли
       const already = await tx.accommodationType.count({ where: { propertyId: property.id } });
       if (already > 0)

@@ -135,6 +135,11 @@ test('в неделе работают бронь, категории и соз�
   const row = page.getByTestId('unit-row').filter({ has: sundayFree }).first();
   const unitCode = await row.getAttribute('data-unit-code');
   await row.locator(`td[data-date="${sunday}"] [data-testid="free-cell"]`).click();
+  // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
+  await page
+    .getByTestId('free-menu')
+    .getByRole('link', { name: 'Новая бронь', exact: true })
+    .click();
   const form = page.getByTestId('new-reservation-form');
   await expect(form.locator('[name="arrivalDate"]')).toHaveValue(sunday!);
   const monday = new Date(`${sunday}T00:00:00Z`);

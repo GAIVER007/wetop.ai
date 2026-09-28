@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 28.09.2026 23:03 Алматы · vm
+# коммит 17fda46 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-week.spec.ts' '-g' 'создание на воскресенье' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/chessboard-week.spec.ts:114:1 › в неделе работают бронь, категории и создание на воскресенье (45.2s)
+
+
+  1) tests/ui/chessboard-week.spec.ts:114:1 › в неделе работают бронь, категории и создание на воскресенье 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('free-menu').getByRole('link', { name: 'Новая бронь', exact: true })
+
+
+      140 |     .getByTestId('free-menu')
+      141 |     .getByRole('link', { name: 'Новая бронь', exact: true })
+    > 142 |     .click();
+          |      ^
+      143 |   const form = page.getByTestId('new-reservation-form');
+      144 |   await expect(form.locator('[name="arrivalDate"]')).toHaveValue(sunday!);
+      145 |   const monday = new Date(`${sunday}T00:00:00Z`);
+        at /home/user/wetop.ai/tests/ui/chessboard-week.spec.ts:142:6
+
+    Error Context: test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-week-в-неделе-р-f03b2-и-и-создание-на-воскресенье/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-week.spec.ts:114:1 › в неделе работают бронь, категории и создание на воскресенье 
+
+# код выхода 1 · 51 с

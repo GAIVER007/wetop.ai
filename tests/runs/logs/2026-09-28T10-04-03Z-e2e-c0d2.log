@@ -1,9 +1,0 @@
-# Сквозные (e2e) · 28.09.2026 15:04 Алматы · vm
-# коммит a610c33 (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 13
-# npx playwright test --workers=2 --reporter=list,json 'tests/e2e/desk-day.spec.ts' 'tests/e2e/chessboard.spec.ts' 'tests/e2e/web-analytics.spec.ts'
-[WebServer] Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id
-[WebServer]     at ignore-listed frames
-Error: Process from config.webServer was not able to start. Exit code: 1
-
-
-# код выхода 1 · 4 с

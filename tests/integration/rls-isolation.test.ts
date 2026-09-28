@@ -73,7 +73,7 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     await client.query(`ALTER TABLE audit_logs DISABLE TRIGGER audit_logs_immutable`);
     await client.query(`UPDATE audit_logs SET organization_id = $1`, [own]);
     await client.query(`ALTER TABLE audit_logs ENABLE TRIGGER audit_logs_immutable`);
-    // у чужого объекта своя цепочка Business → Location (Platform P1, DATA_MODEL v2.5: location_id NOT NULL)
+    // у чужого объекта своя цепочка Business → Location (Platform P1, DATA_MODEL v2.6: location_id NOT NULL)
     const otherBusiness = randomUUID();
     const otherLocation = randomUUID();
     await client.query(

@@ -140,7 +140,7 @@ Invoice                id, organization_id, subscription_id, number, period_star
 | Кто ходит в API | Как пройдёт замок | Состояние |
 |---|---|---|
 | Стойка (Next) | токен сессии из cookie уходит заголовком; 401 ведёт человека на `/login`, если задан `APP_AUTH_REQUIRED=1` | **готово**, unit 14/14 на клиенте API |
-| Скрипты и задачи (импорт из Exely, сверки, уборка после тестов, восстановление цен, работа с Channex) | заголовок `x-wetop-service-key` из `SERVICE_API_KEY`; без ключа запрос уходит как раньше, а 401 объясняет, чего не хватает | **готово**, `scripts/lib/service-api.ts`, unit 8/8, переведены 11 скриптов |
+| Скрипты и задачи (импорт из архивный источник, сверки, уборка после тестов, восстановление цен, работа с Channex) | заголовок `x-wetop-service-key` из `SERVICE_API_KEY`; без ключа запрос уходит как раньше, а 401 объясняет, чего не хватает | **готово**, `scripts/lib/service-api.ts`, unit 8/8, переведены 11 скриптов |
 | Сторож в API | вызывает свои сервисы внутри процесса, по HTTP в себя не ходит | ключ не нужен |
 | Публичные пути `/a/*`, `/w/*`, webhook Channex | помечены `@Public()` | **готово** |
 | Сквозные тесты `tests/e2e` (23 спека) | прогон `E2E_AUTH=1` поднимает стенд с замком, шаг входа заводит сотрудника автотестов в `pms_test` и кладёт его сессию в cookie стойки, прямые запросы спеков идут со служебным ключом | **готово** (16.09.2026), `tests/e2e/_auth.setup.ts`, `tests/tools/e2e-auth.ts`, сторож конфига `tests/unit/e2e-auth-config.test.ts` red → green. Живого прогона с замком ещё не было: сквозные идут только на машине стойки |
@@ -150,7 +150,7 @@ Invoice                id, organization_id, subscription_id, number, period_star
 1. придумать длинный ключ, вписать `SERVICE_API_KEY` в `.env` — одно значение и для API, и для скриптов;
 2. перезапустить API (`launchctl kickstart -k gui/$(id -u)/kz.luxx.pms.api`);
 3. проверить, что служебные ходоки живы: `npx tsx scripts/reconciliation/src/cli-system-trace.ts` и первый
-   проход `exely-sync` без ошибок, на `/incidents` не появилось новых неисправностей;
+   проход `retired-source-sync` без ошибок, на `/incidents` не появилось новых неисправностей;
 4. вписать `AUTH_REQUIRED=1` (API) и `APP_AUTH_REQUIRED=1` (стойка), перезапустить оба;
 5. проверить стойку с замком: набор `UI_BROWSER_EXECUTABLE=… npm run test:record -- e2e --config
    tests/ui/playwright.auth.config.ts` (свой стенд на 3102/4313, `APP_AUTH_REQUIRED=1`, синтетический API

@@ -8,7 +8,7 @@
 > Reservation / Finance / Inventory / Channels; полный regression для затронутого platform слоя; после
 > этого STOP.»
 
-Модель данных: `DATA_MODEL.md` v2.5, §18.4. Решение — ADR-104 (Platform P1), условие 2 приёмки владельца
+Модель данных: `DATA_MODEL.md` v2.6, §18.4. Решение — ADR-104 (Platform P1), условие 2 приёмки владельца
 от 27.09. Production-миграцию **сам не применяю**, инструкция — в §4.
 
 ## 1. Что сделано
@@ -20,7 +20,7 @@
 имени (`propertyRef(db, name)`) не тронут. В `location-ref.ts` переписан только комментарий: упоминание
 миграционного окна снято, логика прежняя.
 
-**Миграция `20260928000031_platform_p1_location_not_null`.** Сначала проверяет данные, и если нашлось
+**Миграция `20260928000032_platform_p1_location_not_null`.** Сначала проверяет данные, и если нашлось
 что-то из списка ниже, падает с понятным текстом. Вся миграция идёт одной транзакцией, поэтому при
 отказе ничего не меняется:
 - объект без филиала (`location_id IS NULL`);
@@ -111,7 +111,7 @@ Red → green:
    (миграция всё равно откажет сама, но лучше увидеть заранее).
 
 3) npm run migrate:status -w packages/database
-   Ожидание: pending ТОЛЬКО 20260928000031_platform_p1_location_not_null.
+   Ожидание: pending ТОЛЬКО 20260928000032_platform_p1_location_not_null.
    Если в списке есть другие миграции — СТОП, прислать список (их выкатывают по своим инструкциям).
 
 4) MIGRATE: npm run migrate:deploy -w packages/database
@@ -136,8 +136,8 @@ Red → green:
 
 7) ROLLBACK:
    код — вернуть предыдущий main и выложить (новая колонка прежнему коду не мешает);
-   схема, если нужно — psql -f packages/database/prisma/migrations/20260928000031_platform_p1_location_not_null/down.sql
-   и DELETE FROM _prisma_migrations WHERE migration_name = '20260928000031_platform_p1_location_not_null';
+   схема, если нужно — psql -f packages/database/prisma/migrations/20260928000032_platform_p1_location_not_null/down.sql
+   и DELETE FROM _prisma_migrations WHERE migration_name = '20260928000032_platform_p1_location_not_null';
    крайний случай — restore из бэкапа шага 1.
 ```
 

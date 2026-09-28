@@ -1,8 +1,6 @@
 /**
- * Ключ канала продаж (ADR-024). У Exely и Channex имена каналов разные: «Trip.com Group» против канала
- * «Ctrip», «Expedia/Hotels.com» против `A-Expedia`, «Ostrovok.ru (Emerging Travel Group)» против
- * «Emerging Travel Group (Ostrovok)». Чтобы сопоставить перенесённую из Exely бронь с ревизией Channex,
- * оба имени приводятся к одному ключу: нижний регистр, только латинские буквы, затем алиасы.
+ * Ключ канала продаж. Channex и сами площадки используют разные написания одного имени, поэтому
+ * они приводятся к одному ключу: нижний регистр, только латинские буквы, затем алиасы.
  *
  * Значения `ota_name` — только из документации (AGENTS.md §5), `docs/channex/site/api-v.1-documentation/`:
  * - Booking.com — `"Booking.com"` (bookings-collection.md:340) и `"BookingCom"` (:1192, messages-collection.md:71);
@@ -37,8 +35,8 @@ export function otaChannelKey(name: string): string {
 
 /**
  * Имя канала для отчётов (plans/channel-name-canonical-2026-09-22.md). Channex присылает один канал под разными
- * именами (`"Booking.com"` и `"BookingCom"`, `"A-Expedia"` и `"Expedia"`), у перенесённых из Exely броней имя своё
- * («Trip.com Group»). Отчёты группируют брони по имени, поэтому все написания канала объекта сводятся к одному.
+ * именами (`"Booking.com"` и `"BookingCom"`, `"A-Expedia"` и `"Expedia"`). Отчёты группируют брони
+ * по имени, поэтому все написания одного канала сводятся к одному.
  * Канал, которого у объекта нет, показывается как пришёл: имя не придумывается.
  */
 const CHANNEL_LABELS: Readonly<Record<string, string>> = {
@@ -112,22 +110,11 @@ export function channelKey(uniqueId: string, otaName: string): string {
   return (code && CHANNEL_CODE_KEYS[code]) || otaChannelKey(otaName);
 }
 
-/**
- * Каналы, для которых Channex при подключении подтягивает уже существующие будущие брони и присылает их
- * как `booking_new` (`load_future_reservations`; ответ Channex владельцу 11.09.2026,
- * docs/channex/how-channex-works-for-us.md «Что Channex делает сам при подключении канала»). Только для них
- * ревизия ищется среди перенесённых из Exely броней. Agoda, Hostelworld и Ostrovok Channex не подтягивает:
- * их бронь с таким же составом проживаний, как у перенесённой, — новая бронь, а не дубль.
- */
-export const CHANNEX_PULLS_EXISTING_BOOKINGS: ReadonlySet<string> = new Set([
+/** Ключи восьми каналов объекта (OBJECT.md). Неизвестный ключ — имя канала, которого PMS ещё не видела. */
+export const KNOWN_CHANNEL_KEYS: ReadonlySet<string> = new Set([
   'bookingcom',
   'ctrip',
   'expedia',
-]);
-
-/** Ключи восьми каналов объекта (OBJECT.md). Неизвестный ключ — имя канала, которого PMS ещё не видела. */
-export const KNOWN_CHANNEL_KEYS: ReadonlySet<string> = new Set([
-  ...CHANNEX_PULLS_EXISTING_BOOKINGS,
   'agoda',
   'hostelworld',
   'ostrovok',

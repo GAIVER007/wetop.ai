@@ -81,7 +81,7 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
 
 /**
  * Объект организации вошедшего — только по цепочке Organization → Business → Location → Property
- * (Platform P1, ADR-104 §18; DATA_MODEL v2.5). Выборка идёт от организации Business, поэтому чужой
+ * (Platform P1, ADR-104 §18; DATA_MODEL v2.6). Выборка идёт от организации Business, поэтому чужой
  * объект сюда не попадает по построению, а не по проверке после. Фолбэк по `properties.organization_id`
  * был миграционным окном и снят после production backfill (broken_chain = 0, 28.09.2026): объект без
  * цепочки база больше не принимает (`location_id` NOT NULL). Кэш — по организации плюс схема базы (ADR-042).

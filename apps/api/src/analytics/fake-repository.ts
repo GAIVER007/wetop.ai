@@ -26,8 +26,8 @@ export const SITE: SiteRecord = {
   bookingRatePlan: null,
 };
 export const PLANS: RatePlanOption[] = [
-  { id: 'p1', code: 'exely-10157482', name: 'Базовый тариф', active: true },
-  { id: 'p2', code: 'exely-dead', name: 'Мёртвый', active: false },
+  { id: 'p1', code: 'rate-base', name: 'Базовый тариф', active: true },
+  { id: 'p2', code: 'rate-disabled', name: 'Мёртвый', active: false },
 ];
 export const SITE_PAUSED: SiteRecord = {
   ...SITE,

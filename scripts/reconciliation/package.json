@@ -2,7 +2,7 @@
   "name": "@pms/reconciliation",
   "version": "0.0.0",
   "private": true,
-  "description": "Сверка новой PMS с Exely, отчёты для гейтов",
+  "description": "Внутренние проверки целостности и отчёты WETOP",
   "type": "module",
   "types": "./src/index.ts",
   "exports": {
@@ -14,7 +14,6 @@
   "dependencies": {
     "@pms/database": "*",
     "@pms/domain": "*",
-    "@pms/imports": "*",
     "dotenv": "*"
   }
 }

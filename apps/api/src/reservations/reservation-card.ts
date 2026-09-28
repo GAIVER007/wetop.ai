@@ -10,7 +10,7 @@ export interface ReservationCardItem {
   departureDate: string;
   status: string;
   priceMinor: string;
-  /** Тариф проживания (Q-102); null — неизвестен (перенесено из Exely): пересчёт цены требует выбрать тариф */
+  /** Тариф проживания (Q-102); null — неизвестен: пересчёт цены требует выбрать тариф */
   ratePlanCode: string | null;
   ratePlanName: string | null;
   /** Гостей на проживании (Q-102) — правится с карточки */

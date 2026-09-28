@@ -448,7 +448,7 @@ describe('AuthService.register', () => {
     expect(property, 'объект заведён для организации').toBeDefined();
     expect(property!.name).toBe('Хостел на Абая');
     expect(property!.currency).toBe('KZT');
-    // Platform P1 (DATA_MODEL v2.5): объект сразу в цепочке Organization → Business → Location — иначе
+    // Platform P1 (DATA_MODEL v2.6): объект сразу в цепочке Organization → Business → Location — иначе
     // резолвер без фолбэка его не найдёт, а база не примет объект без филиала
     const location = locations.find((l) => l.id === property!.locationId);
     expect(location, 'филиал объекта заведён').toMatchObject({ name: 'Хостел на Абая', timezone: 'Asia/Almaty', currency: 'KZT' });

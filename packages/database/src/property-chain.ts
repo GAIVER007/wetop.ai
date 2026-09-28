@@ -2,7 +2,7 @@ import type { Prisma } from './generated/prisma/client';
 
 /**
  * Новый объект — сразу в цепочке Organization → Business → Location → Property (DATA_MODEL §18,
- * v2.5: `properties.location_id` NOT NULL). Правила те же, что у backfill миграции
+ * v2.6: `properties.location_id` NOT NULL). Правила те же, что у backfill миграции
  * 20260927000030: бизнес организации — самый ранний её Business направления HOSPITALITY, а если его
  * нет, заводится один с именем организации; филиал — копия полей объекта (имя, адрес, контакты,
  * часовой пояс, валюта), по одному на объект.

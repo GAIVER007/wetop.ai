@@ -6,7 +6,7 @@ const good = {
   k: 'pms_5f3c9a1b2d4e',
   arrival: '2026-09-13',
   departure: '2026-09-15',
-  category: 'exely-5074312',
+  category: 'category-single',
   adults: 1,
   guest: {
     firstName: '  Айгерим ',
@@ -65,7 +65,7 @@ describe('запрос брони с сайта (book)', () => {
       siteKey: good.k,
       arrivalDate: '2026-09-13',
       departureDate: '2026-09-15',
-      categoryCode: 'exely-5074312',
+      categoryCode: 'category-single',
       adults: 1,
       guest: {
         firstName: 'Айгерим',

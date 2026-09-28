@@ -197,7 +197,7 @@ describe('служебный контекст и одноимённые объе
 /**
  * Platform P1 (ADR-104 §18, Q-199 вариант Б): объект организации находится ТОЛЬКО по цепочке
  * Organization → Business → Location → Property. Фолбэк по properties.organization_id был миграционным
- * окном и снят после production backfill (broken_chain = 0, 28.09.2026; DATA_MODEL v2.5).
+ * окном и снят после production backfill (broken_chain = 0, 28.09.2026; DATA_MODEL v2.6).
  */
 describe('Platform P1: объект организации только через цепочку Business → Location', () => {
   it('когда цепочка привязана — объект берётся через неё, а не по organizationId', async () => {

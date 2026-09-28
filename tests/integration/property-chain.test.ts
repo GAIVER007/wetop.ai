@@ -10,10 +10,10 @@ const url = process.env.DATABASE_URL;
 class Rollback extends Error {}
 
 /**
- * Platform P1, cleanup (DATA_MODEL v2.5, §18.4): после production backfill объект без филиала больше
+ * Platform P1, cleanup (DATA_MODEL v2.6, §18.4): после production backfill объект без филиала больше
  * не бывает. База сама не принимает `properties.location_id IS NULL`, а новый объект создаётся сразу
  * с цепочкой Organization → Business → Location одной функцией `createPropertyInChain`. На базе без
- * миграции 20260928000031 первый тест красный: вставка без location_id проходит.
+ * миграции 20260928000032 первый тест красный: вставка без location_id проходит.
  */
 describe.skipIf(!url)('Platform P1: объект всегда в цепочке (integration, DATABASE_URL required)', () => {
   let db: Db;

@@ -2,7 +2,7 @@ import type { Db, DbTx } from '@pms/database';
 
 /**
  * Передать объект тестовой базы другой организации — вместе с Business его цепочки (Platform P1,
- * DATA_MODEL v2.5). Объект вошедшего ищется только по цепочке Organization → Business → Location →
+ * DATA_MODEL v2.6). Объект вошедшего ищется только по цепочке Organization → Business → Location →
  * Property, поэтому смена одного `properties.organization_id` оставила бы объект за прежней организацией.
  * Только внутри откатываемой транзакции теста: переносится весь Business со всеми его филиалами.
  */

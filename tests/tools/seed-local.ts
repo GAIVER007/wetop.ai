@@ -8,11 +8,7 @@
  * Запускается только против локальной базы: проверка адреса ниже не даёт задеть dev или боевую.
  */
 import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { LUXX_APARTS_PROPERTY, importServices, parseExelyServices } from '@pms/imports';
-
-const SERVICES_FIXTURE = '../../scripts/imports/src/exely/__fixtures__/spravochniki.md';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 
 /** Локальный стенд — только `localhost` и `127.0.0.1`: чужую базу этим скриптом не тронуть */
 export function isLocalDatabase(url: string): boolean {
@@ -40,7 +36,7 @@ export const LOCAL_PROPERTY = {
 
 /**
  * Форма объекта повторяет настоящую (CLAUDE.md §6): 88 единиц продажи — 16 отдельных номеров и
- * 72 койко-места, пять категорий, нумерация Exely не сплошная (1–4 номера, 5–40 койки, 41–48 номера,
+ * 72 койко-места, пять категорий, нумерация не сплошная (1–4 номера, 5–40 койки, 41–48 номера,
  * 49–84 койки, 85–88 номера). Совпадает только форма: ни одного настоящего гостя, брони или тарифа.
  */
 /**
@@ -67,7 +63,7 @@ export const CATEGORIES = [
 ] as const;
 
 /**
- * Номер Exely → категория и вид единицы; ничего из номера не выводится, таблица задана явно (ADR-003).
+ * Номер единицы → категория и вид единицы; ничего из номера не выводится, таблица задана явно (ADR-003).
  * Отрезки те же, что у объекта: 1–4 номера, 5–40 койки, 41–48 номера, 49–84 койки, 85–88 номера.
  */
 export function unitPlan(): Array<{ number: string; category: string; kind: 'ROOM' | 'BED' }> {
@@ -107,8 +103,8 @@ export async function seedLocal(
   const organization =
     (await db.organization.findFirst({ orderBy: { createdAt: 'asc' }, select: { id: true } })) ??
     (await db.organization.create({ data: { name: LOCAL_PROPERTY.name, status: 'ACTIVE' }, select: { id: true } }));
-  // Platform P1 (DATA_MODEL v2.5): новый объект — сразу в цепочке Organization → Business → Location, той же
-  // функцией, что регистрация и импорт; объект без филиала база не примет (location_id NOT NULL)
+  // Platform P1 (DATA_MODEL v2.6): новый объект — сразу в цепочке Organization → Business → Location, той же
+  // функцией, что регистрация; объект без филиала база не примет (location_id NOT NULL)
   const property =
     (await db.property.findFirst({ where: { name: LOCAL_PROPERTY.name }, select: { id: true } })) ??
     (await db.$transaction((tx) => createPropertyInChain(tx, organization.id, LOCAL_PROPERTY)));
@@ -158,7 +154,7 @@ export async function seedLocal(
   let units = 0;
   for (const u of unitPlan()) {
     const exists = await db.inventoryUnit.findFirst({
-      where: { exelyRoomNumber: u.number },
+      where: { propertyId: property.id, code: `L${u.number}` },
       select: { id: true },
     });
     if (exists) continue;
@@ -184,7 +180,6 @@ export async function seedLocal(
         physicalRoomId: room.id,
         accommodationTypeId: typeIds.get(u.category)!,
         code: `L${u.number}`,
-        exelyRoomNumber: u.number,
         kind: u.kind,
         active: true,
       },
@@ -237,12 +232,18 @@ export async function seedLocal(
         });
   }
   const rates = await db.dailyRate.createMany({ data: rows, skipDuplicates: true });
-  // Услуги — из фикстуры справочника (цены объекта, не ПД): без них форма начисления пуста,
-  // а спеки `finance` и `full-day` начисляют «Стирка (1 загрузка)»
-  const services = parseExelyServices(
-    readFileSync(resolve(import.meta.dirname, SERVICES_FIXTURE), 'utf-8'),
-  );
-  await db.$transaction((tx) => importServices(tx, services, property.id));
+  // Минимальная вымышленная услуга нужна форме начисления и сквозным тестам finance/full-day.
+  await db.service.upsert({
+    where: { propertyId_code: { propertyId: property.id, code: 'L-LAUNDRY' } },
+    create: {
+      propertyId: property.id,
+      code: 'L-LAUNDRY',
+      nameRu: 'Стирка (1 загрузка)',
+      price: 150_000n,
+      group: 'Стенд',
+    },
+    update: {},
+  });
   const stays = await seedStays(db, property.id, plan.id);
   return { propertyId: property.id, units, rates: rates.count, stays };
 }
@@ -290,7 +291,7 @@ async function seedStays(db: Db, propertyId: string, ratePlanId: string): Promis
     });
     if (exists) continue;
     const unit = await db.inventoryUnit.findFirstOrThrow({
-      where: { exelyRoomNumber: w.unit },
+      where: { propertyId, code: `L${w.unit}` },
       select: { id: true, accommodationTypeId: true },
     });
     const nights = BigInt(Math.round((Date.parse(w.to) - Date.parse(w.from)) / 86_400_000));

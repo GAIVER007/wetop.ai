@@ -312,7 +312,7 @@ export class AuthService {
         // Объект новой организации создаётся сразу (мультитенантность, решение владельца 21.09):
         // без него вошедший упирался бы в «объект не настроен для вашей организации» на каждом экране.
         // Часы и валюта — казахстанские по умолчанию, реквизиты человек заполнит в настройках.
-        // Сразу в цепочке Organization → Business → Location (Platform P1, DATA_MODEL v2.5): объект вошедшего
+        // Сразу в цепочке Organization → Business → Location (Platform P1, DATA_MODEL v2.6): объект вошедшего
         // ищется только ею, а объект без филиала база не примет.
         await createPropertyInChain(tx, org.id, {
           name: organizationName,

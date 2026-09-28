@@ -83,7 +83,7 @@ export interface FakeProperty {
   currency: string;
   checkInTime: string;
   checkOutTime: string;
-  /** Platform P1 (DATA_MODEL v2.5): филиал объекта; у объектов, положенных тестом руками, может не быть */
+  /** Platform P1 (DATA_MODEL v2.6): филиал объекта; у объектов, положенных тестом руками, может не быть */
   locationId?: string;
 }
 

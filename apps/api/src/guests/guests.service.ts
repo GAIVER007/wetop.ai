@@ -18,6 +18,7 @@ import {
 } from '@pms/shared';
 import {
   GUESTS_REPOSITORY,
+  type GuestDirectoryFilter,
   type GuestPatch,
   type GuestProfile,
   type GuestsRepository,
@@ -63,6 +64,33 @@ export class GuestsService {
       throw new BadRequestException('q — минимум 2 символа (фамилия, имя, телефон или email)');
     const rows = await this.repo.search(query, 50);
     return rows.map((g) => ({ ...g, citizenship: normalizeCitizenship(g.citizenship) }));
+  }
+
+  /** Справочник «Гости v2»: раздел, поиск, страница. Пустой q — просто список, порог не нужен */
+  async directory(query: { state?: string; q?: string; page?: string; pageSize?: string }) {
+    for (const key of ['state', 'q', 'page', 'pageSize'] as const) {
+      if (query[key] !== undefined && typeof query[key] !== 'string')
+        throw new BadRequestException('Параметры списка должны быть строками');
+    }
+    const state = query.state || 'ALL';
+    if (!['ALL', 'INHOUSE', 'EXPECTED', 'RECENT'].includes(state))
+      throw new BadRequestException('state — ALL, INHOUSE, EXPECTED или RECENT');
+    const q = (query.q || '').trim();
+    if (q.length > 120) throw new BadRequestException('Слишком длинный запрос');
+    const page = Number(query.page || 1);
+    if (!Number.isInteger(page) || page < 1 || page > 10000)
+      throw new BadRequestException('Некорректная страница');
+    const pageSize = query.pageSize === undefined ? 25 : Number(query.pageSize);
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100)
+      throw new BadRequestException('Размер страницы — целое число от 1 до 100');
+    return this.repo.directory({ state: state as GuestDirectoryFilter, q, page, pageSize });
+  }
+
+  /** Предпросмотр панелью (G3): контакты, «сейчас», история, долг из Folio; документов здесь нет */
+  async preview(id: string) {
+    const p = await this.repo.preview(id);
+    if (!p) throw new NotFoundException(`Гость ${id} не найден`);
+    return p;
   }
 
   async card(id: string) {

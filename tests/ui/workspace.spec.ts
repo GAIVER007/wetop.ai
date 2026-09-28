@@ -337,6 +337,8 @@ test('карточка: профиль гостя и заселение прох
   request,
 }) => {
   await page.goto('/guests/ui-guest');
+  // G4: карточка открывается «Обзором», форма профиля — за действием «Редактировать»
+  await page.getByRole('link', { name: 'Редактировать', exact: true }).click();
   await page.getByTestId('guest-form').getByLabel('Отчество').fill('Проверенный');
   await page
     .getByTestId('guest-form')
@@ -684,7 +686,7 @@ test('гости: удаление документа переспрашивае
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest');
+  await page.goto('/guests/ui-guest#guest-profile');
   const form = page.getByTestId('document-form');
   await form.getByLabel('Номер документа').fill('TEST-ONLY-0042');
   await form.getByRole('button', { name: 'Добавить', exact: true }).click();
@@ -933,7 +935,7 @@ test('удаление документа гостя спрашивают: от�
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest');
+  await page.goto('/guests/ui-guest#guest-profile');
   await expect(page.getByTestId('document-row')).toHaveCount(1);
   await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
   const dialog = page.getByTestId('confirm-dialog');
@@ -956,12 +958,12 @@ test('удаление документа гостя спрашивают: от�
 test('гости на сегодня: в списке все, а не первые двадцать пять', async ({ page, request }) => {
   const seeded = await (await request.post(`${fixture}/__test/crowd-seed?n=40`)).json();
   expect(seeded.stays).toBe(40);
-  await page.goto('/guests');
+  // Гости v2: полный дом (до 92 живущих) виден без листания — страница просит потолок API (ТЗ §44)
+  await page.goto('/guests?state=inhouse');
   const rows = page.locator('.dir-table tbody tr');
-  // 40 засеянных плюс брони обычной фикстуры на сегодня; страница в 25 строк дала бы ровно 25
   const shown = await rows.count();
   expect(shown).toBeGreaterThan(40);
-  await expect(page.getByTestId('guests-today-count')).toContainText(`${shown} гост`);
+  await expect(page.getByTestId('guests-meta')).toContainText(`${shown} гост`);
   await expect(page.getByText('показаны гости из первых')).toHaveCount(0);
 });
 
@@ -980,8 +982,9 @@ test('настройки услуг: путь к начислению назва
   await expect(panel).toContainText('«Счета»');
   await expect(panel).not.toContainText('«Финансы»');
   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
-  await expect(page).toHaveURL(/\/guests$/);
-  await expect(page.getByTestId('guests-today-count')).toBeVisible();
+  // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
+  await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
+  await expect(page.getByTestId('guests-meta')).toContainText('проживают');
 });
 
 test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {
@@ -995,9 +998,10 @@ test('кнопки называют своё действие: гость зав
   page,
 }) => {
   // «Добавить гостя» вела в форму брони, «Принять оплату» на «Деньгах» — в список броней:
-  // ни гостя отдельно, ни оплаты по этим кнопкам не заводится (§7.3).
+  // ни гостя отдельно, ни оплаты по этим кнопкам не заводится (§7.3). Гости v2: кнопка — «Новая
+  // бронь» без «с гостем» (ТЗ §5), потому что самостоятельного «Добавить гостя» по-прежнему нет.
   await page.goto('/guests');
-  const newBooking = page.getByRole('main').getByRole('link', { name: 'Новая бронь с гостем' });
+  const newBooking = page.getByRole('main').getByRole('link', { name: 'Новая бронь' });
   await expect(newBooking).toBeVisible();
   await newBooking.click();
   await expect(page).toHaveURL(/\/reservations\/new$/);
@@ -1397,15 +1401,14 @@ test('гости D1: выборка и пустота словами, стату
   const row = main.getByTestId('guests-table').locator('tbody tr').first();
   await expect(row).toContainText('Гость Тестовый');
   await expect(row.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
-  await expect(main.getByRole('link', { name: 'Убрать поиск' })).toBeVisible();
+  await expect(main.getByRole('link', { name: 'Сбросить фильтры' })).toBeVisible();
 
   await page.goto('/guests?q=Нетакого');
   const empty = main.getByTestId('guests-empty');
-  await expect(empty).toContainText('Гостей по запросу «Нетакого» не найдено');
-  await expect(empty.getByRole('link', { name: 'Новая бронь с гостем' })).toBeVisible();
+  await expect(empty).toContainText('Ничего не найдено');
   await empty.getByRole('link', { name: 'Убрать поиск' }).click();
   await expect(page).toHaveURL(/\/guests$/);
-  await expect(main.getByTestId('guests-today-count')).toBeVisible();
+  await expect(main.getByTestId('guests-meta')).toBeVisible();
 
   // длинное имя (вымышленное, ADR-010) — через ту же правку профиля, что делает стойка
   await request.patch(`${fixture}/guests/ui-guest`, {
@@ -1424,22 +1427,30 @@ test('гости D1: выборка и пустота словами, стату
   );
   expect(overflow).toBeLessThanOrEqual(1);
 
-  // карточка: статус пребывания фразой над вкладками, история — с датами и ссылкой на бронь
+  // карточка (G4): «Обзор» — текущее или следующее проживание рамкой, визиты в полосе фактов;
+  // «Проживания» — история с датами и ссылкой на бронь
   await page.goto('/guests/ui-guest');
   await expect(main.getByRole('heading', { level: 1 })).toContainText('Абдрахманова-Сулейменова');
-  await expect(main.getByTestId('guest-stay-now')).toContainText(/ожидается сегодня, R01|живёт/);
+  await expect(
+    main.getByTestId('guest-stay-current').or(main.getByTestId('guest-stay-next')).first(),
+  ).toContainText('R01');
   await expect(main.getByTestId('guest-head')).toContainText('KAZ');
+  await expect(main.getByTestId('guest-visits')).toContainText('ноч');
   overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(1);
   await main.getByRole('tab', { name: 'Проживания', exact: true }).click();
-  const stay = main.getByTestId('guest-stay-row').first();
+  // строки истории есть и на скрытом «Обзоре» — берём видимую вкладку
+  const stays = main.getByRole('tabpanel').getByTestId('guest-stay-row');
+  const stay = stays.first();
   await expect(stay).toContainText('R01');
   await expect(stay.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
-  await expect(stay.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
-  const tableOverflow = await main
-    .getByTestId('guest-stay-row')
+  await expect(stay.getByRole('link').first()).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TESTAA',
+  );
+  const tableOverflow = await stays
     .first()
     .locator('xpath=ancestor::div[contains(@class,"table-scroll")]')
     .evaluate((el) => el.scrollWidth - el.clientWidth);

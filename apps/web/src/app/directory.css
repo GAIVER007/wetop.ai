@@ -501,22 +501,17 @@ a.dir-number:hover {
   }
 }
 
-/* ---------- D1: гости — справочник по шаблону броней, карточка с полосой фактов ---------- */
+/* ---------- Гости v2 (27.09): одна строка — один гость; карточка с полосой фактов ---------- */
 /* длинные имена переносятся, а не режутся и не растягивают таблицу */
-.dir-table--guests td:first-child,
-.dir-table--guests-today td:first-child {
+.dir-table--guests td:first-child {
   white-space: normal;
   max-width: 320px;
 }
-.dir-table--guests td:first-child .dir-guest strong,
-.dir-table--guests-today td:first-child .dir-guest strong {
+.dir-table--guests td:first-child .dir-guest strong {
   overflow-wrap: anywhere;
 }
 .guest-head {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-}
-.guest-head > div:first-child {
-  grid-column: 1 / -1;
 }
 .guest-account-links {
   display: grid;
@@ -530,6 +525,8 @@ a.dir-number:hover {
   flex-wrap: wrap;
 }
 @media (max-width: 600px) {
+  /* Гости v2, карточка строки (ТЗ §46): имя и статус → сейчас/ближайший → последний визит и
+     визиты → контакты. Колонки: 1 гость, 2 контакты, 3 сейчас, 4 последний, 5 визитов, 6 статус */
   .tbl.dir-table--guests,
   .dir-table--guests tbody {
     display: block;
@@ -565,88 +562,32 @@ a.dir-number:hover {
     grid-column: 1;
     grid-row: 1;
   }
-  .dir-table--guests tbody td:nth-child(5) {
+  .dir-table--guests tbody td:nth-child(6) {
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
-    text-align: right;
-  }
-  .dir-table--guests tbody td:nth-child(2) {
-    grid-column: 1;
-    grid-row: 2;
   }
   .dir-table--guests tbody td:nth-child(3) {
-    grid-column: 2;
+    grid-column: 1 / -1;
     grid-row: 2;
-    justify-self: end;
   }
   .dir-table--guests tbody td:nth-child(4) {
     grid-column: 1;
     grid-row: 3;
     color: var(--muted);
   }
-  .dir-table--guests tbody td:nth-child(6) {
+  .dir-table--guests tbody td:nth-child(5) {
     grid-column: 2;
     grid-row: 3;
     justify-self: end;
+    text-align: right;
   }
-  .tbl.dir-table--guests-today,
-  .dir-table--guests-today tbody {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-  .dir-table--guests-today thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .dir-table--guests-today tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 16px;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-  .dir-table--guests-today tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .dir-table--guests-today tbody td,
-  .tbl--nowrap.dir-table--guests-today tbody td {
-    display: block;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-    white-space: normal;
-  }
-  .dir-table--guests-today tbody td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .dir-table--guests-today tbody td:nth-child(5) {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-  }
-  .dir-table--guests-today tbody td:nth-child(4) {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-  .dir-table--guests-today tbody td:nth-child(3) {
-    grid-column: 1;
-    grid-row: 3;
-  }
-  .dir-table--guests-today tbody td:nth-child(2) {
-    grid-column: 2;
-    grid-row: 3;
-    justify-self: end;
-  }
-  .dir-table--guests-today tbody td:nth-child(6) {
+  .dir-table--guests tbody td:nth-child(2) {
     grid-column: 1 / -1;
     grid-row: 4;
   }
+  /* История проживаний гостя (G4): период и статус → место → источник и сумма.
+     Колонки: 1 проживание, 2 место, 3 источник, 4 сумма, 5 статус */
   .tbl.dir-table--history,
   .dir-table--history tbody {
     display: block;
@@ -662,7 +603,7 @@ a.dir-number:hover {
   }
   .dir-table--history tbody tr {
     display: grid;
-    grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
     gap: 4px 16px;
     padding: 8px 16px;
@@ -683,31 +624,25 @@ a.dir-number:hover {
     grid-column: 1;
     grid-row: 1;
   }
-  .dir-table--history tbody td:nth-child(2) {
-    grid-column: 2 / 4;
-    grid-row: 1;
-    color: var(--muted);
-  }
-  .dir-table--history tbody td:nth-child(6) {
-    grid-column: 4;
+  .dir-table--history tbody td:nth-child(5) {
+    grid-column: 2;
     grid-row: 1;
     justify-self: end;
   }
+  .dir-table--history tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
   .dir-table--history tbody td:nth-child(3) {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
+    color: var(--muted);
   }
   .dir-table--history tbody td:nth-child(4) {
     grid-column: 2;
-    grid-row: 2;
-  }
-  .dir-table--history tbody td:nth-child(5) {
-    grid-column: 3;
-    grid-row: 2;
-  }
-  .dir-table--history tbody td:nth-child(4)::after {
-    content: ' →';
-    color: var(--muted);
+    grid-row: 3;
+    justify-self: end;
+    text-align: right;
   }
 }
 

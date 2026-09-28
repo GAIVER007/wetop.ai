@@ -55,6 +55,8 @@ test('заселить → карточка и шахматка показыва
   await expect(page.getByRole('alert').first()).toContainText('гражданство');
   await cardTab(page, 'Обзор');
   await page.getByRole('main').getByTestId('guest-link').click();
+  // G4: карточка гостя открывается «Обзором»; профиль и документы — за «Редактировать»
+  await page.getByRole('main').getByRole('link', { name: 'Редактировать', exact: true }).click();
   await expect(page).toHaveURL(/\/guests\//);
   await page
     .getByRole('main')

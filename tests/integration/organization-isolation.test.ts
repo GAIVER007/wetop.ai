@@ -40,6 +40,7 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         guestId: true,
         reservationItem: {
           select: {
+            id: true,
             folio: { select: { id: true, charges: { select: { id: true }, take: 1 } } },
             reservation: { select: { id: true, propertyId: true } },
           },
@@ -52,14 +53,23 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
     const { propertyId } = stay!.reservationItem.reservation;
     const reservationId = stay!.reservationItem.reservation.id;
     const seen: Record<string, unknown> = {};
+    // Гости v2 (план guests-v2-2026-09-27): справочник ходит тем же замком visible()
+    const dir: Record<string, { total: number; sawGuest: boolean }> = {};
+    // v1.13 §17.1 (ADR-103): guests.organization_id — первый признак; гость без броней виден своей
+    // организации по одной колонке, чужой — нет (указание владельца 27.09, sync с Phase 1).
+    // preview — тем же замком: чужой гость по прямому id отдаёт null, сервис делает из него 404
+    // (стоп-гейт G3 п. 7)
+    const col: Record<string, { directory: boolean; byId: boolean; preview: boolean }> = {};
+    // и единственный: связь через бронь не открывает гостя чужой организации (снятие fallback, 27.09)
+    const chain: Record<string, { directory: boolean; byId: boolean; preview: boolean }> = {};
 
     await expect(
       db.$transaction(async (tx) => {
         const orgA = await tx.organization.create({ data: { name: 'Integration A' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B' }, select: { id: true } });
         await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
-        // NOT NULL v1.13 §17.1 (ADR-103): гость несёт организацию сида — переводится вместе с объектом
-        await tx.guest.update({ where: { id: guestId }, data: { organizationId: orgA.id } });
+        // канон v1.13 §17.1: гости следуют за организацией своих броней — как backfill миграции …027
+        await tx.guest.updateMany({ data: { organizationId: orgA.id } });
         await tx.property.create({
           data: {
             organizationId: orgB.id,
@@ -94,6 +104,61 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         });
         seen['B'] = await look(orgB.id);
         seen['A'] = await look(orgA.id);
+        // в сиде сотни гостей — страница по алфавиту гостя не гарантирует, ищем его по фамилии
+        const guestName = await tx.guest.findUniqueOrThrow({
+          where: { id: guestId },
+          select: { lastName: true },
+        });
+        const dirLook = (organizationId: string) =>
+          as(organizationId, async () => {
+            const d = await guests.directory({
+              state: 'ALL',
+              q: guestName.lastName,
+              page: 1,
+              pageSize: 100,
+            });
+            return { total: d.counts.ALL, sawGuest: d.rows.some((r) => r.id === guestId) };
+          });
+        dir['B'] = await dirLook(orgB.id);
+        dir['A'] = await dirLook(orgA.id);
+        // проштампованный колонкой гость без единой брони (вымышленный, ADR-010)
+        const stamped = await tx.guest.create({
+          data: { firstName: 'Колонкой', lastName: 'Проштампованный', organizationId: orgB.id },
+          select: { id: true },
+        });
+        const colLook = (organizationId: string) =>
+          as(organizationId, async () => ({
+            directory: (
+              await guests.directory({ state: 'ALL', q: 'Проштампованный', page: 1, pageSize: 100 })
+            ).rows.some((r) => r.id === stamped.id),
+            byId: (await guests.byId(stamped.id)) !== null,
+            preview: (await guests.preview(stamped.id)) !== null,
+          }));
+        col['B'] = await colLook(orgB.id);
+        col['A'] = await colLook(orgA.id);
+        // колонка — единственный признак: гость организации B со связью-бронью в объект A
+        // организации A НЕ виден (фильтр шире колонки расходился бы с RLS)
+        const cross = await tx.guest.create({
+          data: { firstName: 'Через', lastName: 'Бронь-Чужой', organizationId: orgB.id },
+          select: { id: true },
+        });
+        await tx.stayGuest.create({
+          data: {
+            reservationItemId: stay!.reservationItem.id,
+            guestId: cross.id,
+            isPrimary: false,
+          },
+        });
+        const crossLook = (organizationId: string) =>
+          as(organizationId, async () => ({
+            directory: (
+              await guests.directory({ state: 'ALL', q: 'Бронь-Чужой', page: 1, pageSize: 100 })
+            ).rows.some((r) => r.id === cross.id),
+            byId: (await guests.byId(cross.id)) !== null,
+            preview: (await guests.preview(cross.id)) !== null,
+          }));
+        chain['A'] = await crossLook(orgA.id);
+        chain['B'] = await crossLook(orgB.id);
         throw new Rollback();
       }),
     ).rejects.toBeInstanceOf(Rollback);
@@ -112,6 +177,15 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
       payment: true,
       audit: 1,
     });
+    // чужой организации справочник пуст — не «отфильтрован», а нулевой, включая счётчики чипов
+    expect(dir['B']).toEqual({ total: 0, sawGuest: false });
+    expect(dir['A']).toMatchObject({ sawGuest: true });
+    // organization_id — первый признак: гость без броней виден своей организации, чужой — нет
+    expect(col['B']).toEqual({ directory: true, byId: true, preview: true });
+    expect(col['A']).toEqual({ directory: false, byId: false, preview: false });
+    // …и единственный: бронь в объекте A не делает гостя организации B видимым для A
+    expect(chain['A']).toEqual({ directory: false, byId: false, preview: false });
+    expect(chain['B']).toEqual({ directory: true, byId: true, preview: true });
   });
 
   /**

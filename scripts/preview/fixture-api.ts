@@ -41,6 +41,8 @@ import {
   type ExtensionStatus,
   type InviteRole,
   type MembershipRole,
+  countGuestNights,
+  summarizeGuestStays,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -194,6 +196,11 @@ const guestSeed: GuestCard = {
       departureDate: add(today, 3),
       status: 'CONFIRMED',
       unitCode: 'R01',
+      source: 'PHONE',
+      channel: null,
+      currency: 'KZT',
+      chargedMinor: null,
+      balanceMinor: null,
     },
   ],
 };
@@ -620,16 +627,30 @@ function getGuest(id: string) {
     ...g,
     stays: allCards()
       .filter((r) => r.primaryGuest?.id === id)
-      .flatMap((r) =>
-        r.items.map((it) => ({
-          confirmationNumber: r.confirmationNumber,
-          accommodationTypeName: it.accommodationTypeName,
-          arrivalDate: it.arrivalDate,
-          departureDate: it.departureDate,
-          status: it.status,
-          unitCode: it.unitCode,
-        })),
-      ),
+      .flatMap((r) => {
+        // счёт проживания — тот же, что показывает карточка брони; у отменённых и незаездов
+        // фикстура счёта не строит (как в предпросмотре): их суммы — null
+        const folios = finance(r).folios;
+        return r.items.map((it) => {
+          const folio =
+            it.status === 'CANCELLED' || it.status === 'NO_SHOW'
+              ? undefined
+              : folios.find((f) => f.reservationItemId === it.id);
+          return {
+            confirmationNumber: r.confirmationNumber,
+            accommodationTypeName: it.accommodationTypeName,
+            arrivalDate: it.arrivalDate,
+            departureDate: it.departureDate,
+            status: it.status,
+            unitCode: it.unitCode,
+            source: r.source,
+            channel: r.channel ?? null,
+            currency: r.currency,
+            chargedMinor: folio?.chargedMinor ?? null,
+            balanceMinor: folio?.balanceMinor ?? null,
+          };
+        });
+      }),
   };
 }
 let rejectCreate = false;
@@ -1979,6 +2000,14 @@ function read(path: string, q: URLSearchParams): unknown {
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units', '/inventory/categories'].includes(path))
       return [];
+    if (path === '/guests/directory')
+      return {
+        total: 0,
+        page: 1,
+        pageSize: 25,
+        counts: { ALL: 0, INHOUSE: 0, EXPECTED: 0, RECENT: 0 },
+        rows: [],
+      };
     if (path === '/inventory/summary')
       return {
         property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -2377,6 +2406,57 @@ function read(path: string, q: URLSearchParams): unknown {
         }
       : found;
   }
+  // Справочник «Гости v2»: гости собираются из карточек броней — «пустая база» остаётся пустой
+  if (path === '/guests/directory') {
+    const state = q.get('state') || 'ALL';
+    const search = (q.get('q') || '').trim().toLocaleLowerCase('ru');
+    const page = Math.max(1, Number(q.get('page') || 1));
+    const pageSize = Math.max(1, Number(q.get('pageSize') || 25));
+    const ids = [...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : [])))];
+    const all = ids
+      .flatMap((id) => {
+        const g = getGuest(id);
+        return g ? [g] : [];
+      })
+      .filter(
+        (g) =>
+          !search ||
+          `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
+            .toLocaleLowerCase('ru')
+            .includes(search),
+      )
+      .sort((a, b) =>
+        `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'ru'),
+      )
+      .map((g) => ({
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        ...summarizeGuestStays(
+          g.stays.map((s) => ({
+            status: s.status,
+            arrivalDate: s.arrivalDate,
+            departureDate: s.departureDate,
+            unitCode: s.unitCode,
+            accommodationTypeName: s.accommodationTypeName,
+          })),
+          today,
+        ),
+      }));
+    const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
+    for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
+    const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
+    return {
+      total: rows.length,
+      page,
+      pageSize,
+      counts,
+      rows: rows.slice((page - 1) * pageSize, page * pageSize),
+    };
+  }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
       .map((g) => getGuest(g.id)!)
@@ -2390,6 +2470,29 @@ function read(path: string, q: URLSearchParams): unknown {
         staysCount: g.stays.length,
         lastStay: g.stays[0]?.arrivalDate ?? null,
       }));
+  // Предпросмотр панелью (G3): история и долг из «счетов» карточек — как в настоящем API из Folio
+  const previewMatch = /^\/guests\/([^/]+)\/preview$/.exec(path);
+  if (previewMatch) {
+    const g = getGuest(decodeURIComponent(previewMatch[1]!));
+    if (!g) return undefined;
+    const cards = allCards().filter((r) => r.primaryGuest?.id === g.id);
+    // у отменённых и незаездов счёт в фикстуре не строится: их «долг» — не долг гостя
+    const billed = cards.filter((r) => r.status !== 'CANCELLED' && r.status !== 'NO_SHOW');
+    const debt = billed.reduce((sum, r) => sum + BigInt(finance(r).balanceMinor), 0n);
+    return {
+      id: g.id,
+      firstName: g.firstName,
+      lastName: g.lastName,
+      middleName: g.middleName,
+      phone: g.phone,
+      email: g.email,
+      ...summarizeGuestStays(g.stays, today),
+      nightsTotal: countGuestNights(g.stays),
+      hasFolios: billed.length > 0,
+      debtMinor: debt.toString(),
+      currency: 'KZT',
+    };
+  }
   if (path.startsWith('/guests/')) return getGuest(decodeURIComponent(path.split('/')[2]!));
   if (path.startsWith('/units/')) {
     const u = units.find((u) => u.code === decodeURIComponent(path.split('/')[2]!));
@@ -2939,6 +3042,66 @@ createServer(async (req, res) => {
     if (path === '/__test/design-seed') {
       seedDesign();
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
+    }
+    // Кейсы «Гостей v2» для визуального согласования G1 (поручение владельца 27.09): несколько
+    // проживаний у одного гостя, только отменённая бронь, давний выезд, живущий с неоплаченным
+    // счётом (задел под панель предпросмотра — в таблице G1 долг не показывается). Включается
+    // только этим вызовом, обычные тесты гостей не видят. Все имена вымышленные (ADR-010).
+    if (path === '/__test/guest-cases') {
+      const put = (
+        n: string,
+        label: string,
+        cases: Array<{
+          status: string;
+          unit: string;
+          from: number;
+          to: number;
+          source?: string;
+          channel?: string | null;
+        }>,
+      ) => {
+        let guestId = '';
+        for (const [i, s] of cases.entries()) {
+          const { r, g } = designCard(
+            {
+              n: `${n}${i}`,
+              label,
+              status: s.status,
+              source: s.source ?? 'DESK',
+              channel: s.channel ?? null,
+              unit: s.unit,
+              from: s.from,
+              to: s.to,
+              price: '1200000',
+            },
+            add(today, s.from),
+            add(today, s.to),
+          );
+          // все брони — одного человека: гость заводится один, карточки ссылаются на него
+          if (i === 0) {
+            guestId = g.id;
+            extraGuests.set(g.id, g);
+          }
+          r.primaryGuest = { ...r.primaryGuest!, id: guestId };
+          extraCards.set(r.confirmationNumber, r);
+        }
+      };
+      // живёт сейчас, до этого приезжал дважды и уже забронировал следующий визит: «Визитов 3»
+      // (будущая бронь — не визит), в карточке (G4) — текущее и следующее проживание и история
+      // из разных источников
+      put('GCRET', 'Возвращающийся Гость', [
+        { status: 'CHECKED_OUT', unit: 'R07', from: -21, to: -18, source: 'OTA', channel: 'Booking.com' },
+        { status: 'CHECKED_OUT', unit: 'M05', from: -9, to: -7, source: 'WEBSITE' },
+        { status: 'CHECKED_IN', unit: 'R08', from: -1, to: 2 },
+        { status: 'CONFIRMED', unit: 'R12', from: 10, to: 13, source: 'WEBSITE' },
+      ]);
+      // только отменённая бронь: статус гостя «—», подпись «бронь на … отменена» (ТЗ §16)
+      put('GCCAN', 'Отменившийся Гость', [{ status: 'CANCELLED', unit: 'R09', from: -3, to: -1 }]);
+      // выехал 40 дней назад: активного проживания нет, в «Недавние» не попадает
+      put('GCOLD', 'Давний Гость', [{ status: 'CHECKED_OUT', unit: 'R10', from: -43, to: -40 }]);
+      // живёт сейчас; его счёт станет виден в панели предпросмотра (следующая ступень)
+      put('GCDEBT', 'Задолжавший Гость', [{ status: 'CHECKED_IN', unit: 'R11', from: -2, to: 3 }]);
+      return send(200, { guests: 4 });
     }
     if (path === '/__test/commands') return send(200, commands);
     if (delayPath && path === delayPath)

@@ -405,6 +405,21 @@ describe('SessionGuard — только чтение после пробного
     await expect(
       guard.canActivate(context({ authorization: 'Bearer t' }, 'POST', '/hotel/reservations').ctx),
     ).rejects.toThrow(/Пробный период закончился/);
+    // Гости v2 без своей trial-логики: список и карточка читаются, правка гостя и документы —
+    // тот же общий запрет записи по методу (поручение владельца 27.09)
+    await expect(
+      guard.canActivate(context({ authorization: 'Bearer t' }, 'GET', '/guests/directory').ctx),
+    ).resolves.toBe(true);
+    for (const [method, url] of [
+      ['PATCH', '/guests/g1'],
+      ['POST', '/guests/g1/documents'],
+      ['DELETE', '/guests/g1/documents/d1'],
+      ['POST', '/reservations'],
+    ] as const) {
+      await expect(
+        guard.canActivate(context({ authorization: 'Bearer t' }, method, url).ctx),
+      ).rejects.toThrow(/Пробный период закончился/);
+    }
   });
 
   it('оплаченная организация пишет', async () => {

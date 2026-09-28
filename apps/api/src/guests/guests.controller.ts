@@ -38,6 +38,18 @@ export class GuestsController {
     return this.service.search(q);
   }
 
+  // объявлен до ':id', иначе «directory» читался бы как идентификатор гостя
+  @Get('directory')
+  directory(@Query() query: { state?: string; q?: string; page?: string; pageSize?: string }) {
+    return this.service.directory(query);
+  }
+
+  // предпросмотр панелью (G3): без документов — показ карточки с ними пишется в журнал, панель нет
+  @Get(':id/preview')
+  preview(@Param('id') id: string) {
+    return this.service.preview(id);
+  }
+
   @Get(':id')
   card(@Param('id') id: string) {
     return this.service.card(id);

@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 29.09.2026 01:00 Алматы · vm
+# коммит 6d7d532 (claude/lucid-edison-cqa1ja)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/workspace.spec.ts' '--grep' 'доступность переносит даты' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (3.4s)
+
+  1 passed (11.6s)
+
+# код выхода 0 · 13 с

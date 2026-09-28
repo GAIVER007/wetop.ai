@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 29.09.2026 00:58 Алматы · vm
+# коммит 6d7d532 (claude/lucid-edison-cqa1ja)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/record-tabs.spec.ts' 'tests/ui/manager-actions.spec.ts' 'tests/ui/chessboard-card.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 20 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (2.7s)
+  ✓   2 tests/ui/chessboard-card.spec.ts:40:1 › двойной клик открывает полную карточку брони (3.3s)
+  ✓   3 tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (2.6s)
+  ✓   4 tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (3.0s)
+  ✓   5 tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (6.5s)
+  ✓   6 tests/ui/chessboard-card.spec.ts:120:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (3.9s)
+  ✓   7 tests/ui/chessboard-card.spec.ts:143:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (3.6s)
+  ✓   8 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.9s)
+  ✓   9 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (4.0s)
+  ✓  10 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (8.6s)
+  ✓  11 tests/ui/manager-actions.spec.ts:204:1 › карточка: предварительная бронь названа словом, место за ней держится (1.3s)
+  ✓  12 tests/ui/manager-actions.spec.ts:223:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.7s)
+  ✓  13 tests/ui/manager-actions.spec.ts:239:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (3.7s)
+  ✓  14 tests/ui/manager-actions.spec.ts:287:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (3.9s)
+  ✓  15 tests/ui/manager-actions.spec.ts:347:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.5s)
+  ✓  16 tests/ui/manager-actions.spec.ts:370:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.7s)
+  ✓  17 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (2.7s)
+  ✓  18 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (2.5s)
+  ✓  19 tests/ui/record-tabs.spec.ts:92:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.8s)
+  ✓  20 tests/ui/record-tabs.spec.ts:107:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (3.1s)
+
+  20 passed (1.3m)
+
+# код выхода 0 · 1 мин 19 с

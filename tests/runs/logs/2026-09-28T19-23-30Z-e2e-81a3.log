@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 29.09.2026 00:23 Алматы · vm
+# коммит a3e30d0 (claude/lucid-edison-cqa1ja), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/record-tabs.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (18.5s)
+  ✓  2 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (3.1s)
+  ✓  3 tests/ui/record-tabs.spec.ts:92:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.7s)
+  ✓  4 tests/ui/record-tabs.spec.ts:107:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (2.6s)
+
+
+  1) tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Разделы карточки брони' }).getByRole('tab', { name: 'Обзор', exact: true })
+    Expected: "true"
+    Received: "false"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('tablist', { name: 'Разделы карточки брони' }).getByRole('tab', { name: 'Обзор', exact: true }) with timeout 15000ms
+      - waiting for getByRole('tablist', { name: 'Разделы карточки брони' }).getByRole('tab', { name: 'Обзор', exact: true })
+        34 × locator resolved to <button role="tab" type="button" tabindex="-1" aria-selected="false" id="_R_5pbn5ritoqqlb_-booking-overview" aria-controls="_R_5pbn5ritoqqlb_-panel-booking-overview">Обзор</button>
+           - unexpected value "false"
+
+
+      69 |   await afterPaint(page);
+      70 |
+    > 71 |   await expect(tab(page, 'Обзор')).toHaveAttribute('aria-selected', 'true');
+         |                                    ^
+      72 |   await expect(
+      73 |     page.getByRole('main').getByTestId('stay-row').first().getByRole('cell').first(),
+      74 |   ).toBeVisible();
+        at /home/user/wetop.ai/tests/ui/record-tabs.spec.ts:71:36
+
+    Error Context: test-results/record-tabs-выбор-вкладки--d04b7-ес-на-перерисовке-с-сервера/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/record-tabs-выбор-вкладки--d04b7-ес-на-перерисовке-с-сервера/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/record-tabs-выбор-вкладки--d04b7-ес-на-перерисовке-с-сервера/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера 
+  3 passed (32.2s)
+
+# код выхода 1 · 33 с

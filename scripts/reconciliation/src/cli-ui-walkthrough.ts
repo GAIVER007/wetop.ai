@@ -14,7 +14,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chromium, type Locator, type Page } from 'playwright';
-import { PERIOD_PRESETS, previousPeriod, resolvePeriod } from '@pms/domain';
+import { previousPeriod, resolvePeriod } from '@pms/domain';
 import { serviceFetch } from '../../lib/service-api';
 import { LOCKED_DETAIL, SIGN_IN_FAILED, deskCredentials, locked } from './desk-auth';
 
@@ -57,7 +57,6 @@ const tenge = (minor: string) => Number((BigInt(minor) + 50n) / 100n);
 // ── Экраны из меню (apps/web/src/lib/navigation.ts) плюс то, что открывается из них ──
 const STATIC = [
   '/today',
-  '/management/dashboard',
   '/chessboard',
   '/reservations',
   '/guests',
@@ -447,24 +446,34 @@ async function submitGetForms(page: Page, route: string) {
   }
 }
 
-// ── Главная: периоды и сверка показателей с API ──
+// ── «Аналитика → Обзор»: периоды и сверка показателей с API ──
+// «Показатели за период» (A1, ADR-103) с AN2 перенаправляют сюда (ADR-114); определения ADR-047 те же
+const OVERVIEW = '/management/analytics';
+/** Готовые отрезки «Обзора» — `ANALYTICS_PRESETS` из `management/analytics/params.ts`; «Этот месяц» — по умолчанию */
+const OVERVIEW_PRESETS = [
+  { id: 'today', label: 'Сегодня' },
+  { id: 'week', label: '7 дней' },
+  { id: 'month', label: 'Этот месяц' },
+  { id: 'last-month', label: 'Прошлый месяц' },
+] as const;
 interface DashboardPeriodApi {
   from: string;
   to: string;
-  occupancy: { percent: number };
-  revenue: { totalMinor: string };
-  payments: { totalMinor: string; count: number };
-  arrivals: { count: number };
+  occupancy: { percent: number; occupiedNights: number };
+  revenue: { accommodationMinor: string };
+  bookings: { total: number };
 }
 async function checkDashboard(page: Page, label: string, from: string, to: string) {
-  // A1 (ADR-103): показатели за период живут на своём экране, определения ADR-047 те же
-  const route = '/management/dashboard';
+  const route = OVERVIEW;
   // Next отдаёт страницу потоком: те же `data-testid` секунду живут в двух копиях — берём первую
-  const kpi = page.getByTestId('kpi-occupancy').first();
-  const err = page.getByTestId('dashboard-error').first();
-  await Promise.race([kpi.waitFor({ timeout: 90_000 }), err.waitFor({ timeout: 90_000 })]).catch(
-    () => undefined,
-  );
+  const kpi = page.getByTestId('pa-kpi-occupancy').first();
+  const err = page.getByTestId('pa-error').first();
+  const empty = page.getByTestId('pa-empty').first();
+  await Promise.race([
+    kpi.waitFor({ timeout: 90_000 }),
+    err.waitFor({ timeout: 90_000 }),
+    empty.waitFor({ timeout: 90_000 }),
+  ]).catch(() => undefined);
   if (await err.count()) {
     note(
       route,
@@ -478,27 +487,33 @@ async function checkDashboard(page: Page, label: string, from: string, to: strin
     `/desk/dashboard?from=${from}&to=${to}`,
   );
   const c = api.current;
+  const caption = (await page.getByTestId('pa-period').first().innerText()).replace(/\s+/g, ' ');
+  if (!(await kpi.count())) {
+    // пустой период — словами; ошибка, если API видит данные
+    const apiEmpty =
+      c.occupancy.occupiedNights === 0 &&
+      c.bookings.total === 0 &&
+      BigInt(c.revenue.accommodationMinor) === 0n;
+    note(
+      route,
+      `показатели «${label}» ${from}…${to}`,
+      (await empty.count()) && apiEmpty ? 'ok' : 'FAIL',
+      `«Недостаточно данных»; API: ночей ${c.occupancy.occupiedNights}, броней ${c.bookings.total}`,
+    );
+    return;
+  }
   const checks: Array<[string, number, number]> = [
     ['Загрузка', num(await kpi.innerText()), Math.round(c.occupancy.percent * 10) / 10],
     [
-      'Выручка',
-      num(await page.getByTestId('kpi-revenue').first().innerText()),
-      tenge(c.revenue.totalMinor),
+      'Выручка проживания',
+      num(await page.getByTestId('pa-kpi-revenue').first().innerText()),
+      tenge(c.revenue.accommodationMinor),
     ],
-    [
-      'Получено оплат',
-      num(await page.getByTestId('kpi-paid').first().innerText()),
-      tenge(c.payments.totalMinor),
-    ],
-    ['Заезды', num(await page.getByTestId('kpi-arrivals').first().innerText()), c.arrivals.count],
+    ['Брони', num(await page.getByTestId('pa-kpi-bookings').first().innerText()), c.bookings.total],
   ];
   const bad = checks.filter(([, screen, expected]) => Math.abs(screen - expected) > 0.051);
-  const caption = (await page.getByTestId('period-caption').first().innerText()).replace(
-    /\s+/g,
-    ' ',
-  );
   const prev = previousPeriod(from, to);
-  const compare = (await page.getByTestId('kpi-compare').first().innerText()).replace(/\s+/g, ' ');
+  const compare = (await page.getByTestId('pa-compare').first().innerText()).replace(/\s+/g, ' ');
   const prevDay = Number(prev.from.slice(8, 10));
   const compareOk = new RegExp(`\\b${prevDay}\\b`).test(compare);
   note(
@@ -512,11 +527,19 @@ async function checkDashboard(page: Page, label: string, from: string, to: strin
 }
 
 async function walkDashboard(page: Page) {
-  const route = '/management/dashboard';
+  const route = OVERVIEW;
+  // прежний адрес «Показателей за период» ведёт на «Обзор» с тем же периодом
+  await open(page, '/management/dashboard?period=week');
+  note(
+    '/management/dashboard',
+    'перенаправление на «Аналитику»',
+    /\/management\/analytics\?period=week$/.test(page.url()) ? 'ok' : 'FAIL',
+    `→ ${page.url().replace(WEB, '')}`,
+  );
   await open(page, route);
-  for (const p of PERIOD_PRESETS) {
+  for (const p of OVERVIEW_PRESETS) {
     const link = page
-      .getByRole('navigation', { name: 'Период показателей' })
+      .getByRole('navigation', { name: 'Период', exact: true })
       .first()
       .getByRole('link', { name: p.label, exact: true });
     if (!(await link.count())) {
@@ -524,10 +547,12 @@ async function walkDashboard(page: Page) {
       continue;
     }
     await link.click();
-    await page.waitForURL(new RegExp(`period=${p.id}`), { timeout: NAV_TIMEOUT });
+    // отрезок по умолчанию в адрес не пишется
+    const target = p.id === 'month' ? /\/management\/analytics$/ : new RegExp(`period=${p.id}`);
+    await page.waitForURL(target, { timeout: NAV_TIMEOUT });
     await page.waitForLoadState('networkidle', { timeout: 30_000 }).catch(() => undefined);
     const current = await page
-      .getByRole('navigation', { name: 'Период показателей' })
+      .getByRole('navigation', { name: 'Период', exact: true })
       .first()
       .getByRole('link', { name: p.label, exact: true })
       .getAttribute('aria-current');
@@ -540,23 +565,28 @@ async function walkDashboard(page: Page) {
     const r = resolvePeriod({ preset: p.id }, today);
     await checkDashboard(page, p.label, r.from, r.to);
   }
-  // свои даты — форма
+  // свои даты — панель «Период»
   const from = monthStart(today);
   const to = addDays(today, -1) >= from ? addDays(today, -1) : today;
+  await page.locator('.pa-range > summary').first().click();
   await page.getByLabel('Период: с').first().fill(from);
   await page.getByLabel('Период: по').first().fill(to);
-  await page.getByTestId('period-form').first().getByRole('button', { name: 'Показать' }).click();
-  await page.waitForURL(/period=custom/, { timeout: NAV_TIMEOUT });
+  await page
+    .getByTestId('pa-range-form')
+    .first()
+    .getByRole('button', { name: 'Применить' })
+    .click();
+  await page.waitForURL(/period=custom|date=/, { timeout: NAV_TIMEOUT });
   await page.waitForLoadState('networkidle', { timeout: 30_000 }).catch(() => undefined);
   note(
     route,
-    'свои даты — «Показать»',
-    /period=custom&from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/.test(page.url()) ? 'ok' : 'FAIL',
+    'свои даты — «Применить»',
+    /period=custom&from=[\d-]{10}&to=[\d-]{10}|date=[\d-]{10}/.test(page.url()) ? 'ok' : 'FAIL',
     `→ ${page.url().replace(WEB, '')}`,
   );
   await checkDashboard(page, `свои даты`, from, to);
   // период длиннее года — отказ словами, не пустые нули
-  await open(page, `/management/dashboard?period=custom&from=${addDays(today, -400)}&to=${today}`);
+  await open(page, `${route}?period=custom&from=${addDays(today, -400)}&to=${today}`);
   const text = (await page.locator('main').first().innerText()).replace(/\s+/g, ' ');
   note(
     route,
@@ -807,6 +837,61 @@ async function walkAnalytics(page: Page) {
     note(
       route,
       `обзор «${fund}» ${from}…${to}`,
+      bad.length ? 'FAIL' : 'ok',
+      bad.length
+        ? bad.map(([n, sc, e]) => `${n}: на экране ${sc}, API ${e}`).join('; ')
+        : `${checks.map(([n, sc]) => `${n} ${sc}`).join(', ')} = API`,
+    );
+  }
+  // «Загрузка» (AN2): сегодняшний день по каждому типу фонда — пять плиток и категории равны ответу API;
+  // знаменатель прежний: занято + свободно + заблокировано = весь фонд
+  const tab = '/management/analytics/occupancy';
+  for (const fund of ['all', 'rooms', 'beds'] as const) {
+    await open(page, fund === 'all' ? tab : `${tab}?fund=${fund}`);
+    const kpi = page.getByTestId('pa-kpi-occupancy').first();
+    const empty = page.getByTestId('pa-empty').first();
+    await Promise.race([
+      kpi.waitFor({ timeout: 90_000 }),
+      empty.waitFor({ timeout: 90_000 }),
+    ]).catch(() => undefined);
+    if (!(await kpi.count())) {
+      note(tab, `загрузка «${fund}»`, (await empty.count()) ? 'ok' : 'FAIL', 'плиток нет');
+      continue;
+    }
+    const api = await json<{
+      current: {
+        occupancy: {
+          percent: number;
+          unitNights: number;
+          occupiedNights: number;
+          freeNights: number;
+          blockedNights: number;
+        };
+        unassigned: number;
+        categories: unknown[];
+      };
+    }>(`/desk/dashboard?from=${today}&to=${today}&fund=${fund}`);
+    const o = api.current.occupancy;
+    const read = async (id: string) =>
+      num(await page.getByTestId(`pa-kpi-${id}`).first().innerText());
+    const rows = await page.getByTestId('statistics-table').first().locator('tbody tr').count();
+    const checks: Array<[string, number, number]> = [
+      ['Загрузка', await read('occupancy'), Math.round(o.percent * 10) / 10],
+      ['Занято', await read('occupied'), o.occupiedNights],
+      ['Свободно', await read('free'), o.freeNights],
+      ['Заблокировано', await read('blocked'), o.blockedNights],
+      ['Без размещения', await read('unassigned'), api.current.unassigned],
+      ['Категорий', rows, api.current.categories.length],
+      [
+        'Фонд = занято + свободно + блок',
+        o.unitNights,
+        o.occupiedNights + o.freeNights + o.blockedNights,
+      ],
+    ];
+    const bad = checks.filter(([, screen, expected]) => Math.abs(screen - expected) > 0.051);
+    note(
+      tab,
+      `загрузка «${fund}» на ${today}`,
       bad.length ? 'FAIL' : 'ok',
       bad.length
         ? bad.map(([n, sc, e]) => `${n}: на экране ${sc}, API ${e}`).join('; ')

@@ -10,7 +10,14 @@ import { Icon } from '../../components/icon';
  */
 const DEBOUNCE_MS = 350;
 
-export function GuestsSearch({ q, state }: { q: string; state: string }) {
+export function GuestsSearch({
+  q,
+  keep,
+}: {
+  q: string;
+  /** отбор, который поиск сам не задаёт (раздел, визит, визиты, порядок, G7) — едет дальше */
+  keep: Record<string, string>;
+}) {
   const router = useRouter();
   const [value, setValue] = useState(q);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -21,16 +28,15 @@ export function GuestsSearch({ q, state }: { q: string; state: string }) {
   useEffect(() => () => clearTimeout(timer.current), []);
   const navigate = (raw: string) => {
     const next = raw.trim();
-    const params = new URLSearchParams({
-      ...(state !== 'ALL' ? { state: state.toLowerCase() } : {}),
-      ...(next ? { q: next } : {}),
-    });
+    const params = new URLSearchParams({ ...keep, ...(next ? { q: next } : {}) });
     const tail = params.toString();
     router.replace(`/guests${tail ? `?${tail}` : ''}`, { scroll: false });
   };
   return (
     <form method="get" role="search" className="guests-toolbar" action="/guests">
-      {state !== 'ALL' && <input type="hidden" name="state" value={state.toLowerCase()} />}
+      {Object.entries(keep).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
       <label className="search-field">
         <Icon name="search" />
         <input

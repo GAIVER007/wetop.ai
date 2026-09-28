@@ -69,7 +69,8 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/amenities', 'Интеграции'],
     ['/management/analytics', 'Аналитика'],
     ['/management/analytics/occupancy', 'Аналитика'],
-    ['/management/dashboard', 'Показатели за период'],
+    // временные «Показатели за период» (A1) с AN2 ведут на «Обзор» (ADR-114)
+    ['/management/dashboard', 'Аналитика'],
     ['/channel-manager', 'Каналы продаж'],
     ['/connections', 'Интеграции'],
   ];
@@ -78,6 +79,7 @@ test('все разделы, карточки и печать открывают
   const redirects: Record<string, RegExp> = {
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
     '/hotel-settings/penalties': /\/rates$/,
+    '/management/dashboard': /\/management\/analytics$/,
     '/hotel-settings/description': /\/hotel-settings$/,
     '/hotel-settings/photos': /\/connections#channex-connection$/,
     '/hotel-settings/amenities': /\/connections#channex-connection$/,
@@ -229,35 +231,35 @@ test('подключения показывают частичный сбой, �
 });
 
 test('показатели за период: готовые отрезки и свои даты; поиск из шапки', async ({ page }) => {
-  // A1 (ADR-103): периодный дашборд живёт на своём экране, состав и определения ADR-047 те же
+  // A1 (ADR-103) вынес периодный дашборд на свой экран; с AN2 (ADR-114) его адрес ведёт на
+  // «Аналитику → Обзор» — состав и определения ADR-047 те же, по умолчанию этот месяц
   await page.goto('/management/dashboard');
-  // по умолчанию — сегодня: один день, загрузка по категориям вместо столбиков по дням
-  await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
-  await expect(page.getByTestId('chart-categories')).toBeVisible();
-  await expect(page.getByTestId('kpi-occupancy')).toContainText('%');
-  await expect(page.getByTestId('kpi-revenue')).toContainText('₸');
-  await page.getByRole('link', { name: 'Этот месяц', exact: true }).click();
-  await expect(page).toHaveURL(/period=month/);
+  await expect(page).toHaveURL(/\/management\/analytics$/);
   await expect(page.getByRole('link', { name: 'Этот месяц', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
   );
-  await expect(page.getByTestId('chart-daily')).toBeVisible();
-  await expect(page.getByTestId('kpi-compare')).toContainText('Сравнение с предыдущим периодом');
-  await expect(page.getByTestId('sources')).toContainText('Booking.com');
-  // свой отрезок — три дня
+  await expect(page.getByTestId('pa-chart-occupancy')).toBeVisible();
+  await expect(page.getByTestId('pa-kpi-occupancy')).toContainText('%');
+  await expect(page.getByTestId('pa-kpi-revenue')).toContainText('₸');
+  await expect(page.getByTestId('pa-compare')).toContainText('Сравнение с');
+  await expect(page.getByTestId('pa-sources')).toContainText('Booking.com');
+  // один день — загрузка по категориям вместо столбиков по дням
+  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
+  await expect(page).toHaveURL(/period=today/);
+  await expect(page.getByTestId('pa-chart-categories')).toBeVisible();
+  // свой отрезок — три дня; старый адрес с периодом переносит его на «Обзор»
+  await page.getByText('Период', { exact: true }).click();
   await page.getByLabel('Период: с').fill('2026-09-01');
   await page.getByLabel('Период: по').fill('2026-09-03');
-  await page.getByTestId('period-form').getByRole('button', { name: 'Показать' }).click();
+  await page.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }).click();
   await expect(page).toHaveURL(/period=custom&from=2026-09-01&to=2026-09-03/);
-  await expect(page.getByTestId('period-caption')).toContainText('3 дня');
+  await expect(page.getByTestId('pa-period')).toContainText('3 дня');
   // неверный отрезок — ошибка на экране, показан сегодняшний день
   await page.goto('/management/dashboard?period=custom&from=2026-09-10&to=2026-09-01');
+  await expect(page).toHaveURL(/\/management\/analytics\?period=custom&from=2026-09-10&to=2026-09-01$/);
   await expect(page.getByRole('main').getByRole('alert')).toContainText('раньше начала');
-  await expect(page.getByRole('main').getByTestId('chart-categories')).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('pa-chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   await page.getByLabel('Запрос', { exact: true }).fill('Тест');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
@@ -712,7 +714,7 @@ test('гости: удаление документа переспрашивае
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest#guest-profile');
+  await page.goto('/guests/ui-guest#guest-documents');
   const form = page.getByTestId('document-form');
   await form.getByLabel('Номер документа').fill('TEST-ONLY-0042');
   await form.getByRole('button', { name: 'Добавить', exact: true }).click();
@@ -948,10 +950,13 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   await expect(page.locator('.desk-stat__value:visible')).toHaveCount(0);
   await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
-  // показатели за период — свой экран (A1): отказ называется там же
-  await page.goto('/management/dashboard');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Показатели за период');
-  await expect(page.getByTestId('dashboard-error')).toBeVisible();
+  // показатели за период — «Аналитика» (A1 → ADR-114): отказ называется на обеих вкладках
+  await page.goto('/management/analytics');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
+  await expect(page.getByTestId('pa-error')).toBeVisible();
+  await page.goto('/management/analytics/occupancy');
+  await expect(page.getByTestId('statistics-error')).toBeVisible();
+  await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
   await page.goto('/connections');
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
   await expect(page.getByTestId('integration-health')).not.toHaveText('Работает');
@@ -997,7 +1002,7 @@ test('удаление документа гостя спрашивают: от�
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest#guest-profile');
+  await page.goto('/guests/ui-guest#guest-documents');
   await expect(page.getByTestId('document-row')).toHaveCount(1);
   await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
   const dialog = page.getByTestId('confirm-dialog');
@@ -1527,8 +1532,14 @@ test('гости D1: выборка и пустота словами, стату
     .locator('xpath=ancestor::div[contains(@class,"table-scroll")]')
     .evaluate((el) => el.scrollWidth - el.clientWidth);
   expect(tableOverflow).toBeLessThanOrEqual(1);
-  await main.getByRole('tab', { name: 'Счета и услуги', exact: true }).click();
-  await expect(main.locator('.guest-account-links a').first()).toContainText('20260913-TESTAA');
+  // G5: «Счета и услуги» стали «Финансами» — строка проживания ведёт в счёт брони
+  await main.getByRole('tab', { name: 'Финансы', exact: true }).click();
+  const financeRow = main.getByRole('tabpanel').getByTestId('guest-finance-row').first();
+  await expect(financeRow).toContainText('20260913-TESTAA');
+  await expect(financeRow.getByRole('link').first()).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TESTAA#booking-finance',
+  );
 });
 
 /**

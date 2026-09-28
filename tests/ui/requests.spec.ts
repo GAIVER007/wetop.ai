@@ -47,7 +47,6 @@ for (const screen of [
   '/rates',
   '/management/analytics',
   '/management/analytics/occupancy',
-  '/management/dashboard',
   '/finance',
   '/channels',
   '/channels/connections',

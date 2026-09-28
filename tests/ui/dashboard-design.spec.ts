@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * «Показатели за период» без повторов (правила 21.09.2026; с A1, ADR-103, экран живёт на
- * `/management/dashboard` — состав показателей и определения ADR-047 не менялись, переехало место).
+ * «Показатели за период» без повторов (правила 21.09.2026). С A1 (ADR-103) блок жил на
+ * `/management/dashboard`, с AN2 (ADR-114) это «Аналитика → Обзор»: состав показателей и определения
+ * ADR-047 не менялись, переехало место; правила ниже держит «Обзор».
  *
  * Было: «нет базы для сравнения» стояло под каждой из шести плиток — шесть одинаковых строк; при периоде
  * в один день загрузка по категориям рисовалась дважды — полосами в «Загрузке по категориям» и той же
@@ -10,25 +11,24 @@ import { expect, test } from '@playwright/test';
  * телефоне таблица «По категориям» из пяти колонок обрезалась прокруткой без признака.
  */
 const fixture = 'http://127.0.0.1:4311';
-const DASHBOARD = '/management/dashboard';
+const OVERVIEW = '/management/analytics';
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек', async ({
+test('показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек', async ({
   page,
 }) => {
   const main = page.getByRole('main');
-  await page.goto(DASHBOARD);
-  await expect(main.getByTestId('chart-categories')).toBeVisible();
+  await page.goto(`${OVERVIEW}?period=today`);
+  await expect(main.getByTestId('pa-chart-categories')).toBeVisible();
 
   // одна видимая фраза о базе сравнения на все плитки; под плитками — «—», а слово остаётся
   // только программе чтения (1 px, за краем)
-  const all = main.getByText('нет базы для сравнения');
   const hidden = main.locator('.kpi-delta .sr-only');
-  await expect(main.getByTestId('kpi-compare')).toContainText('нет базы для сравнения');
-  expect((await all.count()) - (await hidden.count())).toBe(1);
+  await expect(main.getByTestId('pa-compare')).toContainText('в прошлом периоде данных нет');
+  expect(await main.getByText('нет данных для сравнения').count()).toBe(await hidden.count());
   for (const width of await hidden.evaluateAll((els) =>
     els.map((el) => el.getBoundingClientRect().width),
   ))
@@ -36,20 +36,21 @@ test('показатели: «нет базы для сравнения» оди
   await expect(main.locator('.kpi-delta--none').first()).toContainText('—');
 
   // один день: загрузку по категориям показывают полосы, таблица её не повторяет
-  const table = main.getByTestId('categories-table');
+  const table = main.getByTestId('pa-categories');
   await expect(table.getByRole('columnheader', { name: 'Загрузка' })).toHaveCount(0);
-  await expect(table.getByRole('columnheader', { name: 'Ночей продано' })).toBeVisible();
+  await expect(table.getByRole('columnheader', { name: 'Продано ночей' })).toBeVisible();
 
   // подписи плиток и полос — словами через запятую, не « · »
   for (const hint of await main.locator('.kpi__hint').allTextContents())
     expect(hint, `подпись плитки «${hint}» склеена точкой`).not.toContain(' · ');
-  await expect(main.getByTestId('chart-categories')).not.toContainText(' · ');
+  await expect(main.getByTestId('pa-chart-categories')).not.toContainText(' · ');
 
   // период больше дня: полос по категориям нет, и колонка «Загрузка» в таблице нужна
-  await page.goto(`${DASHBOARD}?period=week`);
-  await expect(main.getByTestId('chart-daily')).toBeVisible();
+  await page.goto(`${OVERVIEW}?period=week`);
+  await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
+  await expect(main.getByTestId('pa-chart-categories')).toHaveCount(0);
   await expect(
-    main.getByTestId('categories-table').getByRole('columnheader', { name: 'Загрузка' }),
+    main.getByTestId('pa-categories').getByRole('columnheader', { name: 'Загрузка' }),
   ).toBeVisible();
 });
 
@@ -58,8 +59,8 @@ test('показатели: на телефоне таблица категор�
 }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${DASHBOARD}?period=week`);
-  const table = main.getByTestId('categories-table');
+  await page.goto(`${OVERVIEW}?period=week`);
+  const table = main.getByTestId('pa-categories');
   await expect(table).toBeVisible();
   const clipped = await table.evaluate((el) => {
     const scroller = el.closest('.table-scroll') ?? el.parentElement!;

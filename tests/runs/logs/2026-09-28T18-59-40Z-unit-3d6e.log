@@ -1,0 +1,17 @@
+# Модульные (unit) · 28.09.2026 23:59 Алматы · vm
+# коммит bc75898 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T18-59-40Z-unit-3d6e.json' 'apps/api/src/guests/guests.controller.test.ts' 'apps/web/src/app/guests/filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/guests/filters.test.ts (5 tests) 9ms
+ ✓ |unit| apps/api/src/guests/guests.controller.test.ts (14 tests) 334ms
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  18:59:41
+   Duration  1.78s (transform 55%, import 25%, tests 19%)
+
+JSON report written to /tmp/pms-test-2026-09-28T18-59-40Z-unit-3d6e.json
+
+# код выхода 0 · 3 с

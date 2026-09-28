@@ -156,3 +156,7 @@
 | 29.09.2026 00:57 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 17 с | 6d7d532 | [лог](logs/2026-09-28T19-57-30Z-unit-68ff.log) | PR #135 merged with main e1adee87 |
 | 29.09.2026 00:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts tests/ui/manager-actions.spec.ts tests/ui/chessboard-card.spec.ts --workers=1 | ✅ 20 из 20 | 1 мин 19 с | 6d7d532 | [лог](logs/2026-09-28T19-58-56Z-e2e-3ea1.log) | PR #135 merged with main: card specs |
 | 29.09.2026 01:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --grep доступность переносит даты --workers=1) | ✅ 1 из 1 | 13 с | 6d7d532 | [лог](logs/2026-09-28T20-00-16Z-e2e-fd0d.log) | PR #135 merged with main: workspace:159 |
+| 29.09.2026 01:05 | typecheck | ✅ без ошибок | 33 с | c5b752a | [лог](logs/2026-09-28T20-05-58Z-typecheck-3186.log) | интеграция: main 9248116c + #101 #136 #131 #118 |
+| 29.09.2026 01:06 | lint | ✅ без ошибок | 18 с | c5b752a | [лог](logs/2026-09-28T20-06-32Z-lint-8ad3.log) | интеграция: main 9248116c + #101 #136 #131 #118 |
+| 29.09.2026 01:06 | unit | ❌ упало 1 из 2219, пропущено 3 | 1 мин 21 с | c5b752a | [лог](logs/2026-09-28T20-06-50Z-unit-075d.log) | интеграция: main 9248116c + #101 #136 #131 #118 |
+| 29.09.2026 01:08 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | c5b752a +1 | [лог](logs/2026-09-28T20-08-58Z-unit-1231.log) | интеграция: сторож дизайна после записи примера CSS виджета в снимок |

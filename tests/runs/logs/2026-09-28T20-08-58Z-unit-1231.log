@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 01:08 Алматы · vm
+# коммит c5b752a (claude/amazing-einstein-sow0em), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T20-08-58Z-unit-1231.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 6ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  20:08:59
+   Duration  283ms (transform 51%, import 40%, tests 5%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-28T20-08-58Z-unit-1231.json
+
+# код выхода 0 · 1 с

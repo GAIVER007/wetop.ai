@@ -1,0 +1,34 @@
+# Сквозные (e2e) · 28.09.2026 12:10 Алматы · vm
+# коммит 0eeeb0e (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/finance-f1.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 357ms. If /home/user/wetop.ai/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/ui/finance-f1.spec.ts:51:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (2.9s)
+  ✓   2 tests/ui/finance-f1.spec.ts:104:1 › F1: «Требует внимания» — сумма к сбору и выехавшие со ссылками к списку, возвраты справкой (2.4s)
+  ✓   3 tests/ui/finance-f1.spec.ts:134:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (1.9s)
+  ✓   4 tests/ui/finance-f1.spec.ts:164:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (2.7s)
+  ✓   5 tests/ui/finance-f1.spec.ts:199:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (2.7s)
+  ✓   6 tests/ui/finance-f1.spec.ts:214:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (2.4s)
+  ✓   7 tests/ui/finance-f1.spec.ts:233:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (1.5s)
+  ✓   8 tests/ui/finance-f1.spec.ts:251:3 › F1, стоп-гейт: снимки для владельца, light (2.7s)
+  ✓   9 tests/ui/finance-f1.spec.ts:251:3 › F1, стоп-гейт: снимки для владельца, dark (3.0s)
+  ✓  10 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (3.8s)
+  ✓  11 tests/ui/finance-f2.spec.ts:68:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (2.3s)
+  ✓  12 tests/ui/finance-f2.spec.ts:87:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (3.4s)
+  ✓  13 tests/ui/finance-f2.spec.ts:107:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (2.2s)
+  ✓  14 tests/ui/finance-f2.spec.ts:134:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (2.0s)
+  ✓  15 tests/ui/finance-f2.spec.ts:148:3 › F2, снимки для владельца, light (8.7s)
+  ✓  16 tests/ui/finance-f2.spec.ts:148:3 › F2, снимки для владельца, dark (6.8s)
+
+  16 passed (2.3m)
+
+# код выхода 0 · 2 мин 22 с

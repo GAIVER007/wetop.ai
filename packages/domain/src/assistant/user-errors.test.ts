@@ -28,7 +28,7 @@ describe('userErrorSection — раздел стойки по шаблону м�
     ['/desk/today', 'Главная'],
     ['/units/:code/blocks', 'Номера'],
     ['/inventory/units', 'Номерной фонд'],
-    ['/hotel/settings', 'Настройки гостиницы'],
+    ['/hotel/settings', 'Настройки объекта'],
     ['/hotel/onboarding', 'Настройка отеля'],
     ['/hotel/channel-report', 'Менеджер каналов'],
     ['/channels/channex/mapping', 'Менеджер каналов'],

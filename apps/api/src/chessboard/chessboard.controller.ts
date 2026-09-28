@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
 import { ChessboardService } from './chessboard.service';
+import { Access } from '../auth/access.decorator';
 
+@Access('desk')
 @Controller()
 export class ChessboardController {
   constructor(@Inject(ChessboardService) private readonly service: ChessboardService) {}

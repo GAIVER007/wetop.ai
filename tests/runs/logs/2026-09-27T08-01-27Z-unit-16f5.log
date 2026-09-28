@@ -1,0 +1,153 @@
+# Модульные (unit) · 27.09.2026 13:01 Алматы · vm
+# коммит 4b966af (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T08-01-27Z-unit-16f5.json' 'packages/domain/src/accounts/roles.test.ts' 'packages/domain/src/accounts/permissions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/accounts/permissions.test.ts (0 test)
+ ❯ |unit| packages/domain/src/accounts/roles.test.ts (9 tests | 7 failed) 31ms
+   ❯ роли в организации (9)
+     × три роли словами стойки; «сотрудник» стал «администратором» 17ms
+     × сотрудниками ведают владелец и управляющий, настройки продавца меняют они же 2ms
+     × владелец зовёт управляющих и администраторов, управляющий — только администраторов 1ms
+     × отключает тот, кто вправе позвать с этой ролью; владельца не отключить 1ms
+     × на стойке роль меняет только владелец и только между управляющим и администратором 1ms
+     ✓ в подписи помощника роль строчными — как в эталоне ТЗ (`…|owner|…`) 1ms
+     × роль из команды: owner, manager и staff в любом регистре, остальное — не роль 2ms
+     × роль приглашения: manager или staff; владелец и прочее — не роль приглашения 1ms
+     ✓ последнего владельца организации снять нельзя; второго — можно; сотрудника сделать владельцем — можно 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/permissions.test.ts [ packages/domain/src/accounts/permissions.test.ts ]
+Error: Cannot find module './permissions' imported from /home/user/wetop.ai/packages/domain/src/accounts/permissions.test.ts
+ ❯ packages/domain/src/accounts/permissions.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { PERMISSIONS, accessDeniedMessage, can, permissionsOf, rolesWi…
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts > роли в организации > три роли словами стойки; «сотрудник» стал «администратором»
+AssertionError: expected { OWNER: 'владелец', …(1) } to deeply equal { OWNER: 'владелец', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "MANAGER": "управляющий",
+    "OWNER": "владелец",
+-   "STAFF": "администратор",
++   "STAFF": "сотрудник",
+  }
+
+ ❯ packages/domain/src/accounts/roles.test.ts:22:30
+     20| describe('роли в организации', () => {
+     21|   it('три роли словами стойки; «сотрудник» стал «администратором»', ()…
+     22|     expect(MEMBERSHIP_ROLES).toEqual({
+       |                              ^
+     23|       OWNER: 'владелец',
+     24|       MANAGER: 'управляющий',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts > роли в организации > сотрудниками ведают владелец и управляющий, настройки продавца меняют они же
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/domain/src/accounts/roles.test.ts:31:39
+     29|   it('сотрудниками ведают владелец и управляющий, настройки продавца м…
+     30|     expect(canManageStaff('OWNER')).toBe(true);
+     31|     expect(canManageStaff('MANAGER')).toBe(true);
+       |                                       ^
+     32|     expect(canManageStaff('STAFF')).toBe(false);
+     33|     expect(canConfigureSeller('OWNER')).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts > роли в организации > владелец зовёт управляющих и администраторов, управляющий — только администраторов
+TypeError: invitableRoles is not a function
+ ❯ packages/domain/src/accounts/roles.test.ts:39:12
+     37|
+     38|   it('владелец зовёт управляющих и администраторов, управляющий — толь…
+     39|     expect(invitableRoles('OWNER')).toEqual(['MANAGER', 'STAFF']);
+       |            ^
+     40|     expect(invitableRoles('MANAGER')).toEqual(['STAFF']);
+     41|     expect(invitableRoles('STAFF')).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts > роли в организации > отключает тот, кто вправе позвать с этой ролью; владельца не отключить
+TypeError: canRemoveMember is not a function
+ ❯ packages/domain/src/accounts/roles.test.ts:51:12
+     49|
+     50|   it('отключает тот, кто вправе позвать с этой ролью; владельца не отк…
+     51|     expect(canRemoveMember('OWNER', 'MANAGER')).toBe(true);
+       |            ^
+     52|     expect(canRemoveMember('OWNER', 'STAFF')).toBe(true);
+     53|     expect(canRemoveMember('OWNER', 'OWNER')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts > роли в организации > на стойке роль меняет только владелец и только между управляющим и администратором
+TypeError: canSetRoleAtDesk is not a function
+ ❯ packages/domain/src/accounts/roles.test.ts:60:12
+     58|
+     59|   it('на стойке роль меняет только владелец и только между управляющим…
+     60|     expect(canSetRoleAtDesk('OWNER', 'STAFF', 'MANAGER')).toBe(true);
+       |            ^
+     61|     expect(canSetRoleAtDesk('OWNER', 'MANAGER', 'STAFF')).toBe(true);
+     62|     expect(canSetRoleAtDesk('OWNER', 'STAFF', 'OWNER')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts > роли в организации > роль из команды: owner, manager и staff в любом регистре, остальное — не роль
+AssertionError: expected null to be 'MANAGER' // Object.is equality
+
+- Expected:
+"MANAGER"
+
++ Received:
+null
+
+ ❯ packages/domain/src/accounts/roles.test.ts:76:44
+     74|   it('роль из команды: owner, manager и staff в любом регистре, осталь…
+     75|     expect(parseMembershipRole('owner')).toBe('OWNER');
+     76|     expect(parseMembershipRole('Manager')).toBe('MANAGER');
+       |                                            ^
+     77|     expect(parseMembershipRole(' STAFF ')).toBe('STAFF');
+     78|     for (const raw of ['', 'admin', 'владелец', 'OWNERS']) expect(pars…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |unit| packages/domain/src/accounts/roles.test.ts > роли в организации > роль приглашения: manager или staff; владелец и прочее — не роль приглашения
+TypeError: parseInviteRole is not a function
+ ❯ packages/domain/src/accounts/roles.test.ts:82:12
+     80|
+     81|   it('роль приглашения: manager или staff; владелец и прочее — не роль…
+     82|     expect(parseInviteRole('manager')).toBe('MANAGER');
+       |            ^
+     83|     expect(parseInviteRole(' STAFF ')).toBe('STAFF');
+     84|     for (const raw of ['owner', 'OWNER', '', 'admin', 42, null, undefi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 2 passed (9)
+   Start at  08:01:30
+   Duration  470ms (transform 65%, tests 17%, import 11%, worker 7%)
+
+JSON report written to /tmp/pms-test-2026-09-27T08-01-27Z-unit-16f5.json
+
+# код выхода 1 · 4 с

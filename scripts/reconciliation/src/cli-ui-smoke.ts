@@ -23,11 +23,11 @@ const json = async <T>(path: string): Promise<T> => {
 const STATIC = [
   '/today', '/chessboard', '/guests', '/reservations/new',
   '/rooms', '/rooms/categories', '/rooms/availability', '/inventory', '/rates',
-  '/hotel-settings', '/hotel-settings/check-in', '/hotel-settings/penalties', '/hotel-settings/services',
+  '/hotel-settings', '/hotel-settings/check-in', '/hotel-settings/stay', '/hotel-settings/penalties', '/hotel-settings/services',
   '/hotel-settings/description', '/hotel-settings/photos', '/hotel-settings/amenities',
-  '/management/statistics', '/finance',
+  '/management/analytics', '/management/analytics/occupancy', '/finance',
   '/channel-manager', '/channels', '/connections',
-  // «Сайт и онлайн-бронирование» (ADR-107): четыре вкладки вместо /analytics и /analytics/setup
+  // «Сайт и онлайн-бронирование» (ADR-117): четыре вкладки вместо /analytics и /analytics/setup
   '/website', '/website/booking', '/website/analytics', '/website/settings',
   '/journal', '/incidents',
   // экраны premium UI (PR #2, ADR-035): справочник броней, сообщения, профиль, вход

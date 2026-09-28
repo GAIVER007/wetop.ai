@@ -59,6 +59,10 @@ const ACTION_RU: Record<string, string> = {
   'user.created': 'сотрудник добавлен',
   'user.blocked': 'сотрудник заблокирован',
   'user.unblocked': 'сотрудник разблокирован',
+  // сотрудники и расширения организации (ADR-107, ADR-083): строки пишутся на организацию
+  'membership.removed': 'сотрудник отключён',
+  'membership.role.updated': 'роль сотрудника изменена',
+  'extension.updated': 'расширение изменено',
 };
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   [null, 'все'],
@@ -68,6 +72,7 @@ const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   ['Property', 'объект и каналы'],
   ['TrackedSite', 'сайт'],
   ['user', 'сотрудники'],
+  ['organization', 'организация'],
 ];
 /** Сколько строк просим у API: поиск и отбор идут по всей истории, наружу — не больше этого */
 const LIMIT = 200;

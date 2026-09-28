@@ -1,0 +1,16 @@
+# Модульные (unit) · 28.09.2026 02:10 Алматы · vm
+# коммит b663815 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T21-10-51Z-unit-2c7a.json' 'apps/web/src/app/chessboard/stay-labels.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (9 tests) 8ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  21:10:52
+   Duration  227ms (transform 69%, import 17%, tests 9%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-09-27T21-10-51Z-unit-2c7a.json
+
+# код выхода 0 · 1 с

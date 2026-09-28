@@ -1,0 +1,146 @@
+# Сквозные (e2e) · 28.09.2026 01:56 Алматы · vm
+# коммит a0fa497 (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-f1.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/finance-f1.spec.ts:49:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (18.4s)
+  ✘  2 tests/ui/finance-f1.spec.ts:100:1 › F1: «Требует внимания» — сумма к сбору и выехавшие со ссылками к списку, возвраты справкой (229ms)
+  ✓  3 tests/ui/finance-f1.spec.ts:128:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (1.6s)
+  ✘  4 tests/ui/finance-f1.spec.ts:158:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (170ms)
+  ✓  5 tests/ui/finance-f1.spec.ts:193:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (3.0s)
+  ✓  6 tests/ui/finance-f1.spec.ts:206:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (2.1s)
+  ✘  7 tests/ui/finance-f1.spec.ts:225:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (1.3s)
+  ✓  8 tests/ui/finance-f1.spec.ts:241:3 › F1, стоп-гейт: снимки для владельца, light (2.4s)
+  ✓  9 tests/ui/finance-f1.spec.ts:241:3 › F1, стоп-гейт: снимки для владельца, dark (2.5s)
+
+
+  1) tests/ui/finance-f1.spec.ts:49:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByText('Начисления — по дате услуги, оплаты и возвраты — по дате операции.')
+    Expected: 1
+    Received: 2
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByText('Начисления — по дате услуги, оплаты и возвраты — по дате операции.') with timeout 15000ms
+      - waiting for getByRole('main').getByText('Начисления — по дате услуги, оплаты и возвраты — по дате операции.')
+        34 × locator resolved to 2 elements
+           - unexpected value "2"
+
+
+      72 |   ])
+      73 |     expect(Math.abs((await middle(part)) - line)).toBeLessThanOrEqual(4);
+    > 74 |   await expect(main.getByText('Начисления — по дате услуги, оплаты и возвраты — по дате операции.')).toHaveCount(1);
+         |                                                                                                      ^
+      75 |
+      76 |   // четыре итога: порядок, один ряд, одна высота
+      77 |   const tiles = main.getByTestId('finance-kpis').locator('.stat');
+        at /home/user/wetop.ai/tests/ui/finance-f1.spec.ts:74:102
+
+    Error Context: test-results/finance-f1-F1-заголовок-и--f7a44-й-четыре-итога-одной-высоты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-заголовок-и--f7a44-й-четыре-итога-одной-высоты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-заголовок-и--f7a44-й-четыре-итога-одной-высоты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-f1.spec.ts:100:1 › F1: «Требует внимания» — сумма к сбору и выехавшие со ссылками к списку, возвраты справкой 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      26 | async function debtsOf(request: import('@playwright/test').APIRequestContext): Promise<Debts> {
+      27 |   const res = await request.get(`${fixture}/finance/debts?from=${from}&to=${today}`);
+    > 28 |   expect(res.ok()).toBe(true);
+         |                    ^
+      29 |   return (await res.json()) as Debts;
+      30 | }
+      31 | const money = (text: string) => Number(text.replace(/[^\d]/g, ''));
+        at debtsOf (/home/user/wetop.ai/tests/ui/finance-f1.spec.ts:28:20)
+        at /home/user/wetop.ai/tests/ui/finance-f1.spec.ts:104:17
+
+    Error Context: test-results/finance-f1-F1-«Требует-вни-796ba--к-списку-возвраты-справкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-«Требует-вни-796ba--к-списку-возвраты-справкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-«Требует-вни-796ba--к-списку-возвраты-справкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-f1.spec.ts:158:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      26 | async function debtsOf(request: import('@playwright/test').APIRequestContext): Promise<Debts> {
+      27 |   const res = await request.get(`${fixture}/finance/debts?from=${from}&to=${today}`);
+    > 28 |   expect(res.ok()).toBe(true);
+         |                    ^
+      29 |   return (await res.json()) as Debts;
+      30 | }
+      31 | const money = (text: string) => Number(text.replace(/[^\d]/g, ''));
+        at debtsOf (/home/user/wetop.ai/tests/ui/finance-f1.spec.ts:28:20)
+        at /home/user/wetop.ai/tests/ui/finance-f1.spec.ts:162:17
+
+    Error Context: test-results/finance-f1-F1-брони-с-оста-ab210-оплату»-ведёт-на-счёт-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-брони-с-оста-ab210-оплату»-ведёт-на-счёт-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-брони-с-оста-ab210-оплату»-ведёт-на-счёт-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-f1.spec.ts:225:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      230 |   const main = page.getByRole('main');
+      231 |   await expect(main.getByTestId('debts-table')).toBeVisible();
+    > 232 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+          |                                                                                             ^
+      233 |   const xs = await main
+      234 |     .getByTestId('finance-kpis')
+      235 |     .locator('.stat')
+        at /home/user/wetop.ai/tests/ui/finance-f1.spec.ts:232:93
+
+    Error Context: test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/finance-f1.spec.ts:49:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты 
+    tests/ui/finance-f1.spec.ts:100:1 › F1: «Требует внимания» — сумма к сбору и выехавшие со ссылками к списку, возвраты справкой 
+    tests/ui/finance-f1.spec.ts:158:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони 
+    tests/ui/finance-f1.spec.ts:225:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри 
+  5 passed (41.2s)
+
+# код выхода 1 · 42 с

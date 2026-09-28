@@ -138,7 +138,7 @@ export async function removeDomainAction(id: string, host: string): Promise<Site
   }
 }
 
-/** Все вкладки «Сайта и онлайн-бронирования» (ADR-107): состояние сайта видно на каждой */
+/** Все вкладки «Сайта и онлайн-бронирования» (ADR-117): состояние сайта видно на каждой */
 function refreshSiteViews() {
   for (const path of ['/website', '/website/booking', '/website/analytics', '/website/settings'])
     revalidatePath(path);

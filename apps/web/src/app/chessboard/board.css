@@ -71,7 +71,7 @@
   min-height: var(--control-h);
 }
 .board-bar .board-help summary::before {
-  content: '+';
+  content: '?';
   margin-right: 6px;
 }
 
@@ -168,28 +168,46 @@
   width: var(--space-4);
   height: var(--space-4);
 }
-.board-footer .board-unassigned--empty {
-  margin-left: auto;
-  padding: 0;
-  background: transparent;
-}
 .board-bar .board-help[open] summary::before {
   content: '−';
 }
-.board-unassigned--empty {
-  display: inline-flex;
-  margin: 0;
-  padding: 6px 10px;
-  max-height: none;
-  background: transparent;
-  border: 0;
-  color: var(--muted);
+
+/* «Без ячейки» — одна строка (ТЗ «Шахматка v2» §11): счётчик и «Разместить», список по щелчку.
+   Без таких броней блока нет вовсе; при проданном сверх мест тон critical и блок раскрыт
+   с сервера — на него ведёт якорь из плашки овербукинга (page.tsx). */
+.board-unassigned {
+  display: block;
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1) var(--space-4);
 }
-.board-unassigned--empty .board-unassigned-title {
-  font-weight: 400;
+.board-unassigned > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h);
+  cursor: pointer;
+  list-style: none;
 }
-.board-unassigned--empty svg {
-  color: var(--success);
+.board-unassigned > summary::-webkit-details-marker {
+  display: none;
+}
+.board-unassigned-hint {
+  margin-left: auto;
+  color: var(--primary);
+  font-weight: 500;
+}
+.board-unassigned[data-tone='critical'] {
+  background: var(--danger-soft);
+}
+.board-unassigned > div {
+  display: inline-block;
+  vertical-align: top;
+  margin: var(--space-1) var(--space-6) var(--space-1) 0;
+}
+/* Ссылка «Месяц» в раскрытых «Датах»: текущее состояние — как у сегмента */
+.board-range-form .btn[aria-current='true'] {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* ── фильтры и поиск в одну строку ── */
@@ -271,6 +289,9 @@
 .board-wrap {
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: none;
+  /* фактическая высота шапки дат: по умолчанию токен, точнее — замер из board-grid
+     (ResizeObserver пишет inline-значение на эту же обёртку и перекрывает это) */
+  --board-head-real: var(--board-head-h);
 }
 
 /* ── сетка: больше строк на экране ── */
@@ -306,8 +327,9 @@
 .board thead th {
   height: var(--board-head-h);
   padding: var(--space-2) var(--space-1);
-  /* шапка дат выше липкой колонки ячеек, иначе строки просвечивают сквозь неё при прокрутке */
-  z-index: 6;
+  /* шапка дат выше липкой колонки ячеек и липкой строки категории,
+     иначе строки просвечивают сквозь неё при прокрутке */
+  z-index: 7;
 }
 .board th.board__unit-head {
   z-index: 8;
@@ -429,12 +451,51 @@
   background: color-mix(in srgb, var(--surface-muted) 70%, var(--surface));
 }
 
+/* ТЗ v2 §59 (просьба владельца к стоп-гейту): сегодня — выделенная шапка, очень лёгкий фон
+   колонки и тонкие кромки слева/справа, а не сплошная насыщенная заливка всей высоты
+   (прежний вид — premium.css). Кромки — inset-тенью: она не двигает раскладку таблицы. */
+.board td.is-today {
+  background: color-mix(in srgb, var(--primary-soft) 45%, var(--surface));
+}
+.board th.is-today,
+.board td.is-today {
+  box-shadow:
+    inset 1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+/* §56: наведение различимо — строка места подсвечивается вся, свободные клетки чуть заметнее */
+.board tbody tr:hover td.board__unit {
+  background: var(--row-hover);
+}
+.board tbody tr:not(.board__group):hover td.board__cell {
+  background: color-mix(in srgb, var(--row-hover) 55%, transparent);
+}
+
 /* строка категории: полное название, число мест жирно, свободно на ночь — зелёным, нет — красным */
 .board tr.board__group td,
 .board .board__group td,
 .board .board__group-name {
   height: 30px;
   padding: 4px 8px;
+}
+/* ТЗ v2 §13/§15: строка категории прилипает под шапкой дат. Фон непрозрачный и своим тоном
+   отличается от строк мест (§56); правило стоит после is-we/is-today и потому ровняет их тоже. */
+.board tr.board__group td {
+  position: sticky;
+  /* фактическая высота шапки — замер из board-grid; токен — запас до гидрации */
+  top: var(--board-head-real, var(--board-head-h));
+  z-index: calc(var(--layer-sticky) - 1);
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+}
+/* угловая клетка липнет и влево, и вниз от шапки: выше клеток мест (5), ниже шапки дат (7/8) */
+.board tr.board__group td.board__group-name {
+  z-index: calc(var(--layer-sticky) + 1);
+}
+/* «0 св.» у категории — предупреждение, как «мест нет» в шапке (§15) */
+.board td.board__group-free.is-full {
+  color: var(--danger);
 }
 .board .board-group-toggle {
   min-height: 26px;
@@ -910,32 +971,6 @@
 .board-stay-caption .board-stay-glyph {
   flex: 0 0 12px;
 }
-.board-stay-caption .board-stay-channel {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 45%;
-  font-weight: var(--weight-regular);
-}
-.board-stay-caption[data-span='1'] .board-stay-channel,
-.board-stay-caption[data-span='1'] .board-stay-due {
-  display: none;
-}
-.board-stay-caption[data-span='1'] .board-stay-name {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  font-size: var(--text-xs);
-  line-height: 16px;
-}
-.board--month .board-stay-caption {
-  flex-wrap: nowrap;
-}
-.board--month .board-stay-caption .board-stay-name {
-  flex: 1 1 auto;
-  white-space: nowrap;
-}
 .board td.board__cell {
   height: 44px;
 }
@@ -1070,10 +1105,194 @@
     --board-caption-end: 8px;
   }
 }
-/* Короткая бронь: вся ширина текста достаётся имени, статус остаётся в подсказке карточки. */
-.board-stay-caption[data-span='1'] .board-stay-glyph {
+
+/*
+ * ТЗ «Шахматка v2», PR 3 — карточка брони (§18–22, §58). Подпись — контейнер: уровень содержимого
+ * выбирает её собственная ширина, а не режим сетки, поэтому одна и та же бронь читается и в неделе,
+ * и в 30 днях, и в месяце. Уровни: ≥ 170 px — имя, источник, ночи, долг суммой; 120–169 — имя и
+ * источник, долг точкой; 52–119 — «Имя Ф.» и точка, без глифа статуса (статус — цветом плашки
+ * и словом в подсказке); < 52 — инициалы. Полное имя всегда в подсказке плашки.
+ */
+.board-stay-caption {
+  container: stay-caption / inline-size;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  /* clip, а не hidden: hidden делает подпись областью прокрутки, и липкое имя ниже не работало бы */
+  overflow: clip;
+}
+.board-stay-caption .board-stay-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  /* длинное проживание: при прокрутке вбок имя держится у правого края колонки мест */
+  position: sticky;
+  left: calc(var(--board-unit-real, 190px) + var(--space-1));
+  white-space: nowrap;
+}
+.board-stay-caption .board-stay-name,
+.board-stay-caption .board-stay-name-short {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: var(--weight-semibold);
+  line-height: 18px;
+}
+.board-stay-caption .board-stay-initials {
+  font-weight: var(--weight-semibold);
+  line-height: 18px;
+  letter-spacing: 0.02em;
+}
+.board-stay-name-short,
+.board-stay-initials,
+.board-stay-due-dot,
+.board-stay-caption .board-stay-due {
   display: none;
 }
-.board-stay-caption[data-span='1'] .board-stay-name {
-  flex-basis: 100%;
+.board-stay-line--meta {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  line-height: 16px;
+}
+/* источник — маленький бейдж словом (§21); плашку под канал не красим — цвет занят статусом */
+.board-stay-source {
+  flex: none;
+  padding: 0 var(--space-1);
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 14px;
+}
+.board-stay-today {
+  flex: none;
+  font-weight: var(--weight-semibold);
+}
+/* долг на узкой плашке — точка тоном «к оплате»; сумма — в предпросмотре и на широкой плашке (§22) */
+.board-stay-due-dot {
+  flex: none;
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: 50%;
+  background: var(--danger);
+}
+@container stay-caption (width >= 170px) {
+  .board-stay-caption .board-stay-due {
+    display: inline-flex;
+  }
+}
+@container stay-caption (width < 170px) {
+  .board-stay-due-dot {
+    display: inline-block;
+  }
+  .board-stay-line--meta .board-stay-nights {
+    display: none;
+  }
+}
+@container stay-caption (width < 120px) {
+  /* та же специфичность, что у .board-stay-caption .board-stay-line — иначе строка не прячется */
+  .board-stay-caption .board-stay-line--meta,
+  .board-stay-caption .board-stay-name,
+  .board-stay-caption .board-stay-glyph {
+    display: none;
+  }
+  .board-stay-caption .board-stay-name-short {
+    display: inline;
+    font-size: var(--text-xs);
+  }
+}
+@container stay-caption (width < 52px) {
+  .board-stay-caption .board-stay-name-short {
+    display: none;
+  }
+  .board-stay-initials {
+    display: inline;
+  }
+}
+
+/* Предпросмотр брони (§23): окно верхнего слоя, место считает stay-preview.tsx */
+.stay-preview {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(340px, calc(100vw - var(--space-4)));
+  padding: var(--space-4);
+  background: var(--surface-solid, var(--surface));
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating);
+}
+.stay-preview:focus-visible {
+  outline: var(--focus-ring-w, 2px) solid var(--focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+.stay-preview__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.stay-preview__guest {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.stay-preview__status {
+  margin: var(--space-1) 0 var(--space-2);
+  color: var(--text-2);
+  font-size: var(--text-sm);
+}
+.stay-preview__facts,
+.stay-preview__sums {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+}
+.stay-preview__facts > div,
+.stay-preview__sums > div {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--space-2);
+}
+.stay-preview dt {
+  color: var(--muted);
+}
+.stay-preview dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.stay-preview__sums {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+.stay-preview__sums dd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.stay-preview__sums .is-due dt,
+.stay-preview__sums .is-due dd {
+  color: var(--danger);
+  font-weight: var(--weight-semibold);
+}
+.stay-preview__warn {
+  margin: 0 0 var(--space-2);
+  color: var(--warning);
+  font-size: var(--text-sm);
+}
+.stay-preview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }

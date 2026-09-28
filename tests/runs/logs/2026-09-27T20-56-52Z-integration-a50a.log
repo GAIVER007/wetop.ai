@@ -1,0 +1,42 @@
+# Интеграционные (integration) · 28.09.2026 01:56 Алматы · vm
+# коммит e69e158 (claude/ecstatic-galileo-dm8omt), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T20-56-52Z-integration-a50a.json' 'tests/integration/reservation-directory-filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/reservation-directory-filters.test.ts (1 test | 1 failed) 374ms
+   ❯ каталог броней: отбор на сервере (integration, rolled back) (1)
+     × виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы 292ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/reservation-directory-filters.test.ts > каталог броней: отбор на сервере (integration, rolled back) > виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы
+AssertionError: expected [] to have a length of 3 but got +0
+
+- Expected
++ Received
+
+- 3
++ 0
+
+ ❯ db.$transaction.timeout tests/integration/reservation-directory-filters.test.ts:81:25
+     79|           const rooms = await free('ROOM', 3);
+     80|           const beds = await free('BED', 2);
+     81|           expect(rooms).toHaveLength(3);
+       |                         ^
+     82|           expect(beds).toHaveLength(2);
+     83|           codes = { room: rooms[0]!.accommodationType.code, bed: beds[…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/reservation-directory-filters.test.ts:51:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  20:56:53
+   Duration  2.72s (transform 50%, tests 25%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-09-27T20-56-52Z-integration-a50a.json
+
+# код выхода 1 · 4 с

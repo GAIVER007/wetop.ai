@@ -1,0 +1,93 @@
+# Интеграционный проход 28.09.2026: всё готовое — в один `main`
+
+Поручение владельца 28.09: собрать в `main` всё, что уже реализовано и доказано, прогнать полный регресс на
+итоговом дереве, обновить `main` и подготовить выкладку. Новые этапы не начинать. Ветка слияния —
+`claude/wetop-integration-main-lloj85`, база — `main` на `a0fa497c` (PR #105, «Брони v2» R1).
+
+## 1. Состав
+
+Влито по зависимостям, в таком порядке:
+
+| # | PR / ветка | Что | Миграции |
+|---|---|---|---|
+| 1 | #98 `claude/hopeful-thompson-2v8v8a` | Platform P1: `Organization → Business → Location → Property`, `vertical` только на `Business`, RLS новых таблиц; Phase 1 изоляции | `…030_platform_p1_business_location` |
+| 2 | #104 `claude/cool-hawking-c030jv` | роли «управляющий» и «администратор» (ADR-107), тариф брони по роли (Q-200, Q-201), RLS-правки | `…029_manager_role` |
+| 3 | #103 `claude/eager-noether-1uncrq-a1` | Главная A1 — экран дня; «Показатели за период» на `/management/dashboard` | — |
+| 4 | #101 `claude/admiring-maxwell-vgk7r5` | Шахматка v2: PR1 (раскладка), PR2 (сетка: липкие строки категорий, 30 дней), PR3 (карточка брони, предпросмотр) | — |
+| 5 | #120 `claude/ecstatic-galileo-dm8omt` | «Брони v2» R2: отбор на сервере, быстрые виды, адрес | — |
+| 6 | #106 `claude/youthful-maxwell-t4fbbc` | «Гости v2» G1–G4: каталог, `organization_id` — единственный признак гостя, предпросмотр с долгом, профиль | — |
+| 7 | #112 `claude/modest-pascal-bgu2qe` | «Номерной фонд v2» I1 (ADR-108) | — |
+| 8 | #113 `claude/magical-bohr-uxmglf` | «Категории v2» C1–C2 (ADR-109) | — |
+| 9 | #108 `claude/vigilant-sagan-qk5oqg` | «Свободные места» AV1 (ADR-110) | — |
+| 10 | #114 `claude/amazing-einstein-sow0em` | «Тарифы и цены» RT1 (ADR-111) | — |
+| 11 | #111 `claude/lucid-edison-cqa1ja` | модуль «Каналы продаж»: Обзор / Подключения / Сопоставление / Синхронизация / События (ADR-112) | — |
+| 12 | #117 `claude/peaceful-shannon-7l2r5f` | «Финансы за период» F1–F2 (ADR-113) | — |
+| 13 | #119 `claude/eloquent-edison-f73at4` | «Аналитика v2» AN1 (ADR-114) | — |
+| 14 | #116 `claude/hopeful-fermat-1hyuij` | «Настройки объекта» SET1 (ADR-115) | — |
+| 15 | #115 `claude/integrations-screen-restructure-e51aay` | «Интеграции» INT1 (ADR-116) | — |
+| 16 | #118 `claude/serene-fermat-om5559` | «Сайт и онлайн-бронирование» WEB1 (ADR-117) | — |
+
+Не влито:
+
+- **#109** (`claude/eager-noether-1uncrq`) — прежняя линия Business+Location с временной миграцией
+  `…029_business_location` (`Location.organization_id`, `Location.vertical`). Заменена #98 по решению владельца
+  (Q-199, вариант Б). План P2 (RequestActor/scope) там — только документ, кода нет.
+- **#110** (`claude/festive-cray-5cn5az`) — вторая реализация «Каналов продаж» (CH1, CH2 на `/channel-manager`).
+  Владелец выбрал #111. Обзор CH1 и вкладку сопоставления CH2 можно перенести в модуль #111 отдельной задачей.
+- **AV2** (`47906c6b` на ветке #108) и **WEB2** (`09611703` на ветке #118) — их сессии запушили эти коммиты во время
+  прохода, доказательств на итоговом дереве у них нет. Точка заморозки — до них.
+- Старые ветки без общей истории с `main` (`ai-seller`, `backup/*`, `design/claude-design-sync`, ветки 22.09,
+  PR #9) — содержимое уже в `main` или заморожено.
+
+## 2. Стыки, найденные при слиянии
+
+- `FundEditor` (C1) и `FundEditorDialog` (I1): взята управляемая панель I1, вызовы C1 переведены на неё.
+- A1 и AN1: «Обзор» AN1 — целевое место показателей за период (ADR-114 называет экран A1 временным). Адрес
+  `/management/dashboard` живёт, в боковом меню — «Финансы» и «Аналитика»; `/management/statistics` ведёт на вкладку
+  «Загрузка».
+- SET1 и роли: страница SET1 правит сведения по праву `settings` (владелец и управляющий), администратор видит
+  «Нет доступа».
+- INT1 и модуль каналов: «Настройки» ведут на `/channels/connections#channel-setup`, проблемы сопоставления — на
+  `/channels/mapping`; ссылки на очередь (`/channels?queue=…`) модуль сам ведёт на «Синхронизацию».
+- Права маршрутов (роли): новые `GET /finance/debts`, `GET /finance/operations` — `reports`, как отчёт за период;
+  `GET /guests/directory`, `GET /guests/:id/preview` — `desk`.
+- Сид `pms_test` (`tests/tools/test-seed.ts`) строит цепочку Business → Location, как `seed-local`: на свежем
+  стенде объект был без `location_id` (integration 122/124 → 124/124).
+- `fund.css` (AV1): отступ 12 px → 8 px по шкале DESIGN.md §3.
+
+## 3. Номера решений и вопросов
+
+Номер остаётся у влитого раньше, остальные — следующие по порядку слияния (политика ADR-052). ADR-108…117 и
+Q-200…209 перенумерованы, пометка — под каждым заголовком; сводка — в начале `DECISIONS.md` и в таблице
+`QUESTIONS.md`. ADR-100 «целевая архитектура» помечен как заменённый ADR-104/v3. Отчёт
+`reports/phase2-location-2026-09-27.md` с командами для удалённой `…029` помечен «устарело — не применять».
+
+## 4. Миграции
+
+Порядок в репозитории: `…026_phase1_tenant_scope` (на рабочей базе применена 27.09), `…026_rls_roles`,
+`…027_tenant_columns`, `…028_rls_policies`, `…029_manager_role`, `…030_platform_p1_business_location`.
+`…029_business_location` и `…029_phase2_location` в репозитории нет. Имена применённых миграций не менялись.
+
+`scripts/ops/check-migrations.sh` на чистом PostgreSQL 16 (локальный стенд): вся цепочка ложится, `schema.prisma`
+совпадает с базой, `down.sql` каждой миграции возвращает схему — **RESULT: OK**.
+
+## 5. Регресс на итоговом дереве
+
+| Набор | Результат | Лог |
+|---|---|---|
+| migrations check | RESULT: OK | см. §4 |
+| typecheck | чисто | `2026-09-28T08-12-33Z-typecheck-69a5.log` |
+| lint | чисто | `2026-09-28T08-12-57Z-lint-e99c.log` |
+| unit | 2298/2301 (3 пропуска — только macOS) | `2026-09-28T08-13-20Z-unit-28dc.log` |
+| integration | 124/124 (свежий `db:local reset`) | `2026-09-28T08-17-30Z-integration-34fb.log` |
+| живые e2e | 25/25 | `2026-09-28T08-19-30Z-e2e-5895.log` |
+| e2e со входом, API ролью `wetop_app` | 26/26 | `2026-09-28T08-21-26Z-e2e-bdc4.log` |
+| полный UI, один поток | UI_RESULT | UI_LOG |
+
+Базовая линия: `tests/ui/ai-seller.spec.ts:107` красный на исходном `main` `a0fa497c`
+(`2026-09-28T07-20-45Z-e2e-8e41.log`, `toHaveValue` получает набранный текст с хвостом черновика).
+
+RLS на локальном стенде (схема `pms_test`, роль `wetop_app`, `app.org_id`): своя организация — объект 1, Business 1,
+Location 1, гостей 259, броней 259; чужая — ноль по всем пяти таблицам. У `locations` нет колонок
+`organization_id` и `vertical`, `vertical` есть только у `businesses`, гостей без `organization_id` нет, цепочка
+Organization → Business(HOSPITALITY) → Location → Property сходится.

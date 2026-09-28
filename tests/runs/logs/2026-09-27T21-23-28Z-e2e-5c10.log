@@ -1,0 +1,78 @@
+# Сквозные (e2e) · 28.09.2026 02:23 Алматы · vm
+# коммит 8bcd97a (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/accessibility.spec.ts' 'tests/ui/analytics-v2.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/ui/accessibility.spec.ts:49:5 › доступность всех разделов: light, 1440px (1.1m)
+  ✓   2 tests/ui/accessibility.spec.ts:49:5 › доступность всех разделов: dark, 1440px (1.1m)
+  ✓   3 tests/ui/accessibility.spec.ts:49:5 › доступность всех разделов: light, 390px (58.6s)
+  ✓   4 tests/ui/accessibility.spec.ts:49:5 › доступность всех разделов: dark, 390px (1.0m)
+  ✓   5 tests/ui/accessibility.spec.ts:113:5 › доступность открытых форм и drawer: light, 1440px (9.1s)
+  ✓   6 tests/ui/accessibility.spec.ts:113:5 › доступность открытых форм и drawer: dark, 1440px (6.6s)
+  ✓   7 tests/ui/accessibility.spec.ts:113:5 › доступность открытых форм и drawer: light, 390px (6.2s)
+  ✓   8 tests/ui/accessibility.spec.ts:113:5 › доступность открытых форм и drawer: dark, 390px (6.0s)
+  ✓   9 tests/ui/analytics-v2.spec.ts:28:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (4.2s)
+  ✓  10 tests/ui/analytics-v2.spec.ts:47:1 › обзор за месяц: шесть плиток со сравнением, график загрузки и выручки, категории (1.6s)
+  ✓  11 tests/ui/analytics-v2.spec.ts:85:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (3.0s)
+  ✓  12 tests/ui/analytics-v2.spec.ts:110:1 › рост отмен — красный, падение — зелёный; сравнение выключается (1.9s)
+  ✓  13 tests/ui/analytics-v2.spec.ts:123:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (2.4s)
+  ✓  14 tests/ui/analytics-v2.spec.ts:144:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (2.0s)
+  ✓  15 tests/ui/analytics-v2.spec.ts:161:1 › телефон: без прокрутки вбок, плитки в две колонки (1.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]       <RedirectBoundary>
+[WebServer]         <RedirectErrorBoundary router={{...}}>
+[WebServer]           <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]             <SegmentViewNode type="page" pagePath="management...">
+[WebServer]               <SegmentTrieNode>
+[WebServer]               <OccupancyPage>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     <nav>
+[WebServer]                     <Statistics>
+[WebServer]                       <form method="get" className="row row--l...">
+[WebServer]                         <Field>
+[WebServer]                           <label className="field fiel...">
+[WebServer]                             <DateInput name="date" defaultValue="2026-09-28" required={true}>
+[WebServer]                               <span className="date-field">
+[WebServer]                                 <input
+[WebServer]                                   ref={{current:null}}
+[WebServer]                                   type="date"
+[WebServer]                                   className="inp date-field__input"
+[WebServer]                                   id={undefined}
+[WebServer]                                   name="date"
+[WebServer]                                   defaultValue="2026-09-28"
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]             ...
+[WebServer]           ...
+[WebServer]  
+  ✓  16 tests/ui/analytics-v2.spec.ts:172:1 › снимки для визуального гейта AN1 (23.1s)
+
+  16 passed (5.4m)
+
+# код выхода 0 · 5 мин 23 с

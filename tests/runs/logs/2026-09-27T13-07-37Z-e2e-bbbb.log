@@ -1,0 +1,401 @@
+# Сквозные (e2e) · 27.09.2026 18:07 Алматы · vm
+# коммит 6440f99 (claude/eager-noether-1uncrq-a1), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 16 tests using 1 worker
+
+  ✘   1 tests/ui/dashboard-design.spec.ts:19:1 › показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (63ms)
+  ✘   2 tests/ui/dashboard-design.spec.ts:56:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (65ms)
+  ✘   3 tests/ui/dashboard-design.spec.ts:94:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (62ms)
+  ✘   4 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (54ms)
+  ✘   5 tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (48ms)
+  ✘   6 tests/ui/dashboard-desk.spec.ts:81:1 › 3. блок «Требуют внимания» один и стоит сразу под полосой стойки; сводки-дубля сверху нет (48ms)
+  ✘   7 tests/ui/dashboard-desk.spec.ts:102:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку (49ms)
+  ✘   8 tests/ui/dashboard-desk.spec.ts:142:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» (51ms)
+  ✘   9 tests/ui/dashboard-desk.spec.ts:180:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока (48ms)
+  ✘  10 tests/ui/dashboard-desk.spec.ts:196:1 › 7. строки главной без разделителя « · » (47ms)
+  ✘  11 tests/ui/dashboard-desk.spec.ts:219:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (59ms)
+  ✘  12 tests/ui/dashboard-desk.spec.ts:251:1 › 9. размеры шрифта на главной и показателях за период — из шкалы §6, число плитки 28 px (49ms)
+  ✘  13 tests/ui/dashboard-desk.spec.ts:288:1 › 10. заголовок страницы и панели брони — по шкале §6 (50ms)
+  ✘  14 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (44ms)
+  ✘  15 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (46ms)
+  ✘  16 tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: она их не зовёт (47ms)
+
+
+  1) tests/ui/dashboard-design.spec.ts:19:1 › показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-design-показател-056b0-не-дважды-подписи-без-точек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-056b0-не-дважды-подписи-без-точек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-056b0-не-дважды-подписи-без-точек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-design.spec.ts:56:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-e34d1--а-не-обрезается-прокруткой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/dashboard-design.spec.ts:94:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-design-главная-б-d9646-нимание-разбито-по-причинам/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-главная-б-d9646-нимание-разбито-по-причинам/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-главная-б-d9646-нимание-разбито-по-причинам/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-1-число-на--4f964--это-действие-можно-сделать/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-1-число-на--4f964--это-действие-можно-сделать/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-1-число-на--4f964--это-действие-можно-сделать/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-2-из-окна-в-9ef69-йствия-для-этого-проживания/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/dashboard-desk.spec.ts:81:1 › 3. блок «Требуют внимания» один и стоит сразу под полосой стойки; сводки-дубля сверху нет 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-3-блок-«Тре-0242d-йки-сводки-дубля-сверху-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-3-блок-«Тре-0242d-йки-сводки-дубля-сверху-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-3-блок-«Тре-0242d-йки-сводки-дубля-сверху-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/dashboard-desk.spec.ts:102:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-4-названия--8ea8d-ание-действия-в-одну-строку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-4-названия--8ea8d-ание-действия-в-одну-строку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-4-названия--8ea8d-ание-действия-в-одну-строку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/dashboard-desk.spec.ts:142:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-5-полоса-«Н-bc21d-тся-за-«все-счета-оплачены»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-5-полоса-«Н-bc21d-тся-за-«все-счета-оплачены»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-5-полоса-«Н-bc21d-тся-за-«все-счета-оплачены»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/dashboard-desk.spec.ts:180:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-6-список-«Т-b5e63--не-прячутся-под-край-блока/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-6-список-«Т-b5e63--не-прячутся-под-край-блока/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-6-список-«Т-b5e63--не-прячутся-под-край-блока/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/dashboard-desk.spec.ts:196:1 › 7. строки главной без разделителя « · » ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-7-строки-главной-без-разделителя-«-·-»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-7-строки-главной-без-разделителя-«-·-»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-7-строки-главной-без-разделителя-«-·-»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/dashboard-desk.spec.ts:219:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/dashboard-desk.spec.ts:251:1 › 9. размеры шрифта на главной и показателях за период — из шкалы §6, число плитки 28 px 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-9-размеры-ш-86876-шкалы-§6-число-плитки-28-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-9-размеры-ш-86876-шкалы-§6-число-плитки-28-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-9-размеры-ш-86876-шкалы-§6-число-плитки-28-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/dashboard-desk.spec.ts:288:1 › 10. заголовок страницы и панели брони — по шкале §6 ──
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-10-заголово-6edce--панели-брони-—-по-шкале-§6/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-resilience-показ-02671--выбирается-причина-названа/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-resilience-показ-02671--выбирается-причина-названа/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-resilience-показ-02671--выбирается-причина-названа/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-resilience-перио-3a774-есяц»-открывается-с-числами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-resilience-перио-3a774-есяц»-открывается-с-числами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-resilience-перио-3a774-есяц»-открывается-с-числами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: она их не зовёт 
+
+    Error: browserType.launch: Executable doesn't exist at /opt/pw-browsers/chromium-1243/chrome-linux64/chrome
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/dashboard-resilience-Главн-f573c-ями-периода-она-их-не-зовёт/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-resilience-Главн-f573c-ями-периода-она-их-не-зовёт/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-resilience-Главн-f573c-ями-периода-она-их-не-зовёт/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16 failed
+    tests/ui/dashboard-design.spec.ts:19:1 › показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+    tests/ui/dashboard-design.spec.ts:56:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой 
+    tests/ui/dashboard-design.spec.ts:94:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам 
+    tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать 
+    tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания 
+    tests/ui/dashboard-desk.spec.ts:81:1 › 3. блок «Требуют внимания» один и стоит сразу под полосой стойки; сводки-дубля сверху нет 
+    tests/ui/dashboard-desk.spec.ts:102:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку 
+    tests/ui/dashboard-desk.spec.ts:142:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» 
+    tests/ui/dashboard-desk.spec.ts:180:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока 
+    tests/ui/dashboard-desk.spec.ts:196:1 › 7. строки главной без разделителя « · » ────────────────
+    tests/ui/dashboard-desk.spec.ts:219:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title 
+    tests/ui/dashboard-desk.spec.ts:251:1 › 9. размеры шрифта на главной и показателях за период — из шкалы §6, число плитки 28 px 
+    tests/ui/dashboard-desk.spec.ts:288:1 › 10. заголовок страницы и панели брони — по шкале §6 ────
+    tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа 
+    tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами 
+    tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: она их не зовёт 
+
+# код выхода 1 · 19 с

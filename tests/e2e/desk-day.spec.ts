@@ -15,8 +15,9 @@ const plus = (n: number) => {
 };
 
 /**
- * Главная (срез 14): показатели за период сверху, полоса стойки на дату снизу.
- * Заезд, заведённый на дату, должен попасть в счётчик заездов и в «Требуют внимания» с причиной.
+ * Главная — рабочий экран дня (A1, ADR-103): полоса стойки и задачи; показатели за период — на
+ * `/management/dashboard` (определения ADR-047 те же). Заезд, заведённый на дату, должен попасть
+ * в счётчик заездов и в «Требуют внимания» с причиной.
  */
 test('главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания»', async ({
   page,
@@ -25,13 +26,14 @@ test('главная открывается с корня; заезд на да�
   await page.goto('/');
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
-  // период по умолчанию — сегодня; показатели считаются из живых шахматки и счетов
+  // день по умолчанию — сегодня
   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
   );
-  // Показатели доезжают отдельным потоковым куском: пока он встраивается, та же разметка есть в двух
-  // копиях — читаем только видимую область показателей, как и полосу стойки ниже
+
+  // Показатели за период переехали на свой экран: считаются из живых шахматки и счетов
+  await page.goto('/management/dashboard');
   const kpi = page.getByRole('region', { name: 'Показатели за период' });
   await expect(kpi.getByTestId('kpi-occupancy')).toContainText('%');
   await expect(kpi.getByTestId('kpi-revenue')).toContainText('₸');
@@ -68,20 +70,21 @@ test('главная открывается с корня; заезд на да�
 
   await page.goto(`/today?date=${day}`);
   expect(await card('c-arrivals')).toBe(before + 1);
-  const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
+  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(tasks).toContainText(number);
   // бронь без ячейки — стойка должна видеть причину
   await expect(tasks.getByRole('link', { name: new RegExp(number) })).toContainText('нет ячейки');
-  // полоса стойки — на выбранную дату, и период тот же день
+  // полоса стойки — на выбранную дату; день стоит в полосе дня
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('На стойке');
-  await expect(page.getByRole('main').getByLabel('Период: с')).toHaveValue(day);
+  await expect(page.getByRole('main').getByLabel('День стойки: дата')).toHaveValue(day);
 
   await page.screenshot({ path: 'reports/screenshots/desk-today.png', fullPage: true });
 
-  // на дату из прошлого показатели тоже строятся
+  // на дату из прошлого полоса тоже строится, а показатели за день — на своём экране
   await page.goto('/today?date=2026-08-15');
   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
-  await expect(page.getByRole('main').getByLabel('Период: с')).toHaveValue('2026-08-15');
-  await expect(page.getByRole('main').getByTestId('period-caption')).toContainText('15 августа');
+  await expect(page.getByRole('main').getByLabel('День стойки: дата')).toHaveValue('2026-08-15');
   expect(Number.isInteger(await card('c-arrivals'))).toBe(true);
+  await page.goto('/management/dashboard?date=2026-08-15');
+  await expect(page.getByRole('main').getByTestId('period-caption')).toContainText('15 августа');
 });

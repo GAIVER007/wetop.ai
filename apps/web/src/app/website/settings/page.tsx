@@ -14,7 +14,7 @@ import { WebsiteTabs } from '../parts';
 import '../../directory.css';
 
 /**
- * «Сайт и онлайн-бронирование → Настройки» (ADR-107): бывшие «Настройки сайта» (`/analytics/setup`) без блока
+ * «Сайт и онлайн-бронирование → Настройки» (ADR-117): бывшие «Настройки сайта» (`/analytics/setup`) без блока
  * бронирования — он во вкладке «Бронирование». WEB2 (28.09): домены списком, состояние счётчика словами с одним
  * действием, установка кода — в окне по кнопке. Пауза и удаление — в «Опасной зоне». Постоянный адрес API — Q-112.
  */
@@ -88,7 +88,7 @@ function SiteCard({ card }: { card: TrackedSiteCard }) {
   const clock = propertyClock(site.timezone);
   const state = siteState(card, clock);
   const counter = COUNTER_TEXT[state.counter.state];
-  // Одна плашка состояния вместо пары «Счётчик включён» + «Ожидает первых событий» (ADR-107)
+  // Одна плашка состояния вместо пары «Счётчик включён» + «Ожидает первых событий» (ADR-117)
   const badge = !state.connected
     ? { tone: 'warn' as const, text: 'Адрес не указан' }
     : state.counter.state === 'today'

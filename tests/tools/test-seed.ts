@@ -222,6 +222,30 @@ function buildBookings(stays: Occupancy[], today: string, r: ReturnType<typeof r
   });
 }
 
+/** Объект без Location получает Business HOSPITALITY своей организации и свою Location — как backfill …030 */
+async function linkPlatformChain(tx: DbTx, propertyId: string): Promise<void> {
+  const p = await tx.property.findUniqueOrThrow({
+    where: { id: propertyId },
+    select: { name: true, organizationId: true, locationId: true, timezone: true, currency: true },
+  });
+  if (p.locationId) return;
+  const business =
+    (await tx.business.findFirst({
+      where: { organizationId: p.organizationId },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    })) ??
+    (await tx.business.create({
+      data: { organizationId: p.organizationId, name: p.name, vertical: 'HOSPITALITY' },
+      select: { id: true },
+    }));
+  const location = await tx.location.create({
+    data: { businessId: business.id, name: p.name, timezone: p.timezone, currency: p.currency },
+    select: { id: true },
+  });
+  await tx.property.update({ where: { id: propertyId }, data: { locationId: location.id } });
+}
+
 /** Фонд, тарифы, календарь, услуги и брони — одной транзакцией в схему `schema` */
 export async function seedTestData(url: string, schema: string, log: (line: string) => void = () => undefined): Promise<SeedReport> {
   const inventoryMd = readFileSync(resolve(AUDIT, 'inventory.md'), 'utf-8');
@@ -249,6 +273,9 @@ export async function seedTestData(url: string, schema: string, log: (line: stri
     return await db.$transaction(
       async (tx: DbTx) => {
         const inv = await importInventoryPlan(tx, plan, { ...LUXX_APARTS_PROPERTY });
+        // Platform P1 (ADR-104 §18): сид идёт ПОСЛЕ миграций, и backfill 20260927000030 этот объект не видел —
+        // цепочку Organization → Business → Location строим так же, как seed-local (иначе свежий стенд без location_id)
+        await linkPlatformChain(tx, inv.propertyId);
         const rp = await importRatePlans(
           tx,
           buildRatePlanImportPlan(tariffs, plan.accommodationTypes.map((t) => t.code), 'KZT'),

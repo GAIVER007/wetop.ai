@@ -37,7 +37,7 @@ test('аналитика и статистика: подпись периода 
   });
   expect(tail).toBeLessThanOrEqual(300);
 
-  await page.goto('/management/statistics');
+  await page.goto('/management/analytics/occupancy');
   const stats = main.getByTestId('statistics-meta');
   const lead = await stats.evaluate((el) => {
     const t = el.querySelector('time')!.getBoundingClientRect();
@@ -57,7 +57,7 @@ test('аналитика: нижние таблицы не обрезаются,
   await expect(main.locator('code')).toHaveCount(0);
   const demand = main.getByTestId('an-demand-empty');
   await expect(demand).toContainText('Запросов нет');
-  // инструкция для разработчика — во вкладке «Настройки» модуля сайта (ADR-107)
+  // инструкция для разработчика — во вкладке «Настройки» модуля сайта (ADR-117)
   await expect(demand.getByRole('link', { name: /настройках сайта/i })).toBeVisible();
   await expect(main.getByTestId('an-events-empty')).toContainText('Событий нет');
   // пустые «Устройства», «Браузеры», «ОС» видны целиком, без обрезки в прокрутку

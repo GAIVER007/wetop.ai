@@ -8,6 +8,14 @@
     }
   },
   {
+    "route": "/management/dashboard",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
     "route": "/chessboard",
     "violations": [],
     "layout": {
@@ -136,7 +144,7 @@
     }
   },
   {
-    "route": "/management/statistics",
+    "route": "/management/analytics",
     "violations": [],
     "layout": {
       "viewport": 1440,
@@ -144,7 +152,7 @@
     }
   },
   {
-    "route": "/channel-manager",
+    "route": "/management/analytics/occupancy",
     "violations": [],
     "layout": {
       "viewport": 1440,
@@ -153,6 +161,38 @@
   },
   {
     "route": "/channels",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/channels/connections",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/channels/mapping",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/channels/sync",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/channels/events",
     "violations": [],
     "layout": {
       "viewport": 1440,

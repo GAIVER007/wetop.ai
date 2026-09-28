@@ -206,7 +206,7 @@ async function Services() {
           <h2>Начислить услугу гостю</h2>
           <p>Откройте бронь, вкладку «Счета», и выберите услугу.</p>
         </div>
-        <Link className="btn btn--secondary" href="/guests">
+        <Link className="btn btn--secondary" href="/guests?state=inhouse">
           Найти проживающего гостя
         </Link>
       </Panel>

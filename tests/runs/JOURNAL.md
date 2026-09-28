@@ -246,3 +246,9 @@
 | 29.09.2026 01:04 | unit | ✅ 2178 из 2181, пропущено 3 | 1 мин 12 с | c54312b | [лог](logs/2026-09-28T20-04-26Z-unit-164c.log) | AN2 merged with main (#135) |
 | 29.09.2026 01:04 | typecheck | ✅ без ошибок | 21 с | 40403b9 | [лог](logs/2026-09-28T20-04-59Z-typecheck-d3b8.log) |  |
 | 29.09.2026 01:06 | unit | ✅ 2189 из 2192, пропущено 3 | 1 мин 12 с | 3d15d59 | [лог](logs/2026-09-28T20-06-35Z-unit-b037.log) | AN2 merged with main (#122) right before merging PR #128 |
+| 29.09.2026 01:15 | typecheck | ✅ без ошибок | 28 с | 8c3b3fd | [лог](logs/2026-09-28T20-15-43Z-typecheck-953d.log) | C3–C4a после слияния с main (G5–G7, AN2, #135) |
+| 29.09.2026 01:16 | lint | ✅ без ошибок | 16 с | 8c3b3fd | [лог](logs/2026-09-28T20-16-11Z-lint-a21d.log) | C3–C4a после слияния с main (G5–G7, AN2, #135) |
+| 29.09.2026 01:16 | unit | ✅ 2189 из 2192, пропущено 3 | 1 мин 15 с | 8c3b3fd | [лог](logs/2026-09-28T20-16-28Z-unit-1b93.log) | C3–C4a после слияния с main (G5–G7, AN2, #135) |
+| 29.09.2026 01:17 | integration | ✅ 118 из 118 | 35 с | 8c3b3fd | [лог](logs/2026-09-28T20-17-51Z-integration-26be.log) | C3–C4a после слияния с main (G5–G7, AN2, #135), свежая база |
+| 29.09.2026 01:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/availability-gate.spec.ts tests/ui/categories-screens.spec.ts tests/ui/categories-pre | ✅ 82 из 82 | 5 мин 19 с | 8c3b3fd | [лог](logs/2026-09-28T20-18-35Z-e2e-3905.log) | C3–C4a после слияния с main (G5–G7, AN2, #135): категории, фонд, свободные места, workspace |
+| 29.09.2026 01:24 | e2e | ✅ 25 из 25 | 58 с | 8c3b3fd | [лог](logs/2026-09-28T20-24-18Z-e2e-4866.log) | C3–C4a после слияния с main (G5–G7, AN2, #135): живые e2e, свежий стенд |

@@ -20,9 +20,22 @@ export type HotelSettingsParse =
   | { ok: false; reason: string };
 
 const LOCKED = new Set(['currency', 'timezone']);
-const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TEXT_MAX = 300;
+
+/**
+ * Время суток «как набирают» → ЧЧ:ММ, иначе null (SET2 «Настроек объекта», DESIGN.md §14 — всегда 24 часа). Принимает
+ * «14:00», «9:00», «9.30», «0900»; не принимает 12-часовую запись и «24:00». Одна функция для стойки и API.
+ */
+export function normalizeClockTime(v: unknown): string | null {
+  if (typeof v !== 'string') return null;
+  const m = /^(\d{1,2})[:.](\d{2})$/.exec(v.trim()) ?? /^(\d{2})(\d{2})$/.exec(v.trim());
+  if (!m) return null;
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  if (h > 23 || min > 59) return null;
+  return `${String(h).padStart(2, '0')}:${m[2]}`;
+}
 
 const text = (v: unknown): string | null => {
   if (v === null) return null;
@@ -79,8 +92,8 @@ export function parseHotelSettingsPatch(raw: unknown): HotelSettingsParse {
       }
       case 'checkInTime':
       case 'checkOutTime': {
-        const s = text(value);
-        if (s === null || !TIME.test(s))
+        const s = normalizeClockTime(value);
+        if (s === null)
           return {
             ok: false,
             reason: `Время ${key === 'checkInTime' ? 'заезда' : 'выезда'} — в виде 14:00`,

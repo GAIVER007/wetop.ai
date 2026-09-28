@@ -3470,3 +3470,17 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 13:39 | unit (частично: packages/domain/src/property/services.test.ts apps/api/src/hotel/services-catalog.test.ts) | ❌ упало 6 из 6 | 5 с | 1b187fa +2 | [лог](logs/2026-09-28T08-39-37Z-unit-e2bf.log) | SET2/SET3: красный до правки |
+| 28.09.2026 13:40 | unit (частично: packages/domain/src/property/services.test.ts packages/domain/src/property/settings.test.ts apps/api/src/hotel/services-catalog.test.ts apps/api | ✅ 26 из 26 | 3 с | 1b187fa +6 | [лог](logs/2026-09-28T08-40-55Z-unit-7c6c.log) | SET2/SET3: домен и API после правки |
+| 28.09.2026 13:45 | typecheck | ❌ ошибок: 4 | 35 с | 1b187fa +13 | [лог](logs/2026-09-28T08-45-08Z-typecheck-04eb.log) | SET2/SET3: типы |
+| 28.09.2026 13:45 | typecheck | ✅ без ошибок | 24 с | 1b187fa +13 | [лог](logs/2026-09-28T08-45-59Z-typecheck-0f6b.log) | SET2/SET3: типы после правки |
+| 28.09.2026 13:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings-set2-set3.spec.ts) | ❌ упало 6 из 6 | 3 мин 36 с | 1b187fa +6 | [лог](logs/2026-09-28T08-47-15Z-e2e-8eb4.log) | SET2/SET3: красный на коде main |
+| 28.09.2026 13:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings-set2-set3.spec.ts) | ❌ упало 1 из 6 | 49 с | 1b187fa +14 | [лог](logs/2026-09-28T08-51-00Z-e2e-f1d6.log) | SET2/SET3: зелёный после правки |
+| 28.09.2026 13:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings-set2-set3.spec.ts) | ✅ 6 из 6 | 47 с | 1b187fa +14 | [лог](logs/2026-09-28T08-52-21Z-e2e-fa7a.log) | SET2/SET3: зелёный после правки |
+| 28.09.2026 13:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings-set2-set3.spec.ts) | ✅ 6 из 6 | 48 с | 1b187fa +14 | [лог](logs/2026-09-28T08-54-05Z-e2e-461c.log) | SET2/SET3: телефонная раскладка каталога |
+| 28.09.2026 13:55 | lint | ❌ ошибок: 1 | 18 с | 1b187fa +16 | [лог](logs/2026-09-28T08-55-26Z-lint-51c0.log) | SET2/SET3: линтер |
+| 28.09.2026 13:55 | unit | ❌ упало 1 из 2316, пропущено 3 | 1 мин 36 с | 1b187fa +13 | [лог](logs/2026-09-28T08-55-45Z-unit-5dfb.log) | SET2/SET3: модульные |
+| 28.09.2026 13:57 | lint | ✅ без ошибок | 18 с | 1b187fa +17 | [лог](logs/2026-09-28T08-57-44Z-lint-1a34.log) | SET2/SET3: линтер после правки |
+| 28.09.2026 13:58 | unit | ✅ 2313 из 2316, пропущено 3 | 1 мин 19 с | 1b187fa +14 | [лог](logs/2026-09-28T08-58-02Z-unit-dce7.log) | SET2/SET3: модульные после правки |
+| 28.09.2026 13:59 | typecheck | ✅ без ошибок | 33 с | 1b187fa +17 | [лог](logs/2026-09-28T08-59-31Z-typecheck-9b49.log) | SET2/SET3: типы финал |
+| 28.09.2026 14:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings.spec.ts tests/ui/property-settings-set2-set3.spec.ts tests/ui/setti | ❌ упало 82 из 92 | 3 мин 41 с | 1b187fa +17 | [лог](logs/2026-09-28T09-00-05Z-e2e-8927.log) | SET2/SET3: затронутые спеки настроек |

@@ -40,6 +40,7 @@ import {
   mayAssignPlanWithoutRates,
   parseInviteRole,
   parseHotelSettingsPatch,
+  parseServiceInput,
   type ExtensionStatus,
   type InviteRole,
   type MembershipRole,
@@ -708,6 +709,23 @@ function seedAnalyticsHistory() {
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
 let hotelOverrides: Record<string, string | null> = {};
+/**
+ * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
+ * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
+ */
+type FixtureService = { code: string; name: string; group: string | null; priceMinor: string; active: boolean };
+const serviceSeed: FixtureService[] = [
+  { code: 'LAUNDRY', name: 'Стирка', group: null, priceMinor: '150000', active: true },
+  { code: 'WATER', name: 'Вода 0,5', group: 'Минибар', priceMinor: '70000', active: true },
+  { code: 'BAIKAL', name: 'Байкал в стекле', group: 'Минибар', priceMinor: '70000', active: true },
+  { code: 'TRANSFER-OLD', name: 'Трансфер (старая цена)', group: 'Трансфер', priceMinor: '600000', active: false },
+];
+let serviceCatalog: FixtureService[] = structuredClone(serviceSeed);
+const catalogOrder = (a: FixtureService, b: FixtureService) =>
+  Number(b.active) - Number(a.active) ||
+  (a.group === null ? 1 : 0) - (b.group === null ? 1 : 0) ||
+  (a.group ?? '').localeCompare(b.group ?? '', 'ru') ||
+  a.name.localeCompare(b.name, 'ru');
 /** Бронь создана на стенде после «пустой базы» — для «Первых шагов» (ТЗ ux-retention п. 2.1) */
 let createdReservation = false;
 // Новый отель без фонда: гейт уводит на /onboarding. По умолчанию отель настроен (false),
@@ -2127,6 +2145,7 @@ function read(path: string, q: URLSearchParams): unknown {
     // календарь цен без справочника: экран показывает пустое состояние с причиной (D4)
     if (path === '/rates/options') return { categories: [], ratePlans: [] };
     if (path === '/finance/services') return [];
+    if (path === '/hotel/services') return [];
     if (path === '/hotel/channel-report')
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units', '/inventory/categories'].includes(path))
@@ -2732,7 +2751,10 @@ function read(path: string, q: URLSearchParams): unknown {
     return r ? finance(r) : undefined;
   }
   if (path === '/finance/services')
-    return [{ code: 'LAUNDRY', nameRu: 'Стирка', nameKz: null, priceMinor: '150000', group: null }];
+    return serviceCatalog
+      .filter((x) => x.active)
+      .map((x) => ({ code: x.code, nameRu: x.name, nameKz: null, priceMinor: x.priceMinor, group: x.group }));
+  if (path === '/hotel/services') return [...serviceCatalog].sort(catalogOrder);
   if (path === '/finance/report')
     return {
       ...finance(),
@@ -3228,6 +3250,7 @@ createServer(async (req, res) => {
       noBookings = false;
       createdReservation = false;
       hotelOverrides = {};
+      serviceCatalog = structuredClone(serviceSeed);
       onboardingNeeded = false;
       housekeeping.clear();
       blocks.clear();
@@ -4213,6 +4236,35 @@ createServer(async (req, res) => {
       return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
+    // Каталог услуг (SET3): тот же разбор, что у API, и те же права — владелец и управляющий (`settings`)
+    if (path === '/hotel/services' && req.method === 'POST') {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      const parsed = parseServiceInput(body);
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const v = parsed.value;
+      const row: FixtureService = {
+        code: `svc-${Math.random().toString(16).slice(2, 10).padEnd(8, '0')}`,
+        name: v.name!,
+        group: v.group ?? null,
+        priceMinor: v.priceMinor!.toString(),
+        active: v.active ?? true,
+      };
+      serviceCatalog.push(row);
+      return send(201, row);
+    }
+    if (path.startsWith('/hotel/services/') && req.method === 'PATCH') {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      const row = serviceCatalog.find((x) => x.code === decodeURIComponent(path.split('/')[3]!));
+      if (!row) return send(404, { message: 'Услуга не найдена' });
+      const parsed = parseServiceInput(body, { partial: true });
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const v = parsed.value;
+      if (v.name !== undefined) row.name = v.name;
+      if (v.group !== undefined) row.group = v.group;
+      if (v.priceMinor !== undefined) row.priceMinor = v.priceMinor.toString();
+      if (v.active !== undefined) row.active = v.active;
+      return send(200, row);
+    }
     if (path === '/hotel/settings' && req.method === 'PATCH') {
       // как API: право `settings` — владелец и управляющий (ADR-107)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });

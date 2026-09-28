@@ -147,6 +147,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── настройки, интеграции, сайт, журнал ─────────────────────────────────────────────────
   'POST /hotel/onboarding': 'settings',
   'PATCH /hotel/settings': 'settings',
+  // каталог услуг «Настроек объекта» (SET3): право `settings` включает «услуги»
+  'GET /hotel/services': 'settings',
+  'POST /hotel/services': 'settings',
+  'PATCH /hotel/services/:code': 'settings',
   'GET /system/connection': 'settings',
   'GET /analytics/sites': 'settings',
   'POST /analytics/sites': 'settings',

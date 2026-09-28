@@ -1,0 +1,2580 @@
+# Сквозные (e2e) · 28.09.2026 14:00 Алматы · vm
+# коммит 1b187fa (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/property-settings.spec.ts' 'tests/ui/property-settings-set2-set3.spec.ts' 'tests/ui/settings-simplification.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/ux-retention.spec.ts' 'tests/ui/workspace.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 92 tests using 1 worker
+
+  ✓   1 tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 (4.8s)
+  ✓   2 tests/ui/property-settings-set2-set3.spec.ts:63:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны (2.9s)
+  ✓   3 tests/ui/property-settings-set2-set3.spec.ts:92:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте (6.1s)
+  ✓   4 tests/ui/property-settings-set2-set3.spec.ts:145:1 › «только чтение»: каталог виден, добавить и править нельзя (3.7s)
+  ✓   5 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: light (11.4s)
+  ✓   6 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: dark (11.3s)
+  ✓   7 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (2.6s)
+  ✓   8 tests/ui/property-settings.spec.ts:61:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Exely (5.7s)
+  ✓   9 tests/ui/property-settings.spec.ts:76:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (7.7s)
+  ✓  10 tests/ui/property-settings.spec.ts:126:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (4.6s)
+[WebServer] 
+[WebServer] thread 'tokio-rt-worker' (30189) panicked at turbopack/crates/turbo-tasks-backend/src/backend/operation/aggregation_update.rs:2021:17:
+[WebServer] inner_of_upper_lost_follower is not able to remove follower TaskId 512459 (TaskId { id: 512459 } OutputAssets::concatenate) from TaskId 512457 TaskId { id: 512457 } get_app_client_references_chunks as it doesn't exist as upper or follower edges
+[WebServer] stack backtrace:
+[WebServer] note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+[WebServer] 
+[WebServer] turbo-tasks: an internal panic occurred outside the per-task panic boundary. This is a bug in turbo-tasks/Turbopack — please report it at https://github.com/vercel/next.js/discussions and include the panic message and stack trace above.
+[WebServer] 
+[WebServer] Aborting.
+  ✘  11 tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: light (41.3s)
+  ✘  12 tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: dark (297ms)
+  ✘  13 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (333ms)
+  ✘  14 tests/ui/settings-simplification.spec.ts:35:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (339ms)
+  ✘  15 tests/ui/settings-simplification.spec.ts:56:1 › поиск услуг работает без повторной загрузки каталога (281ms)
+  ✘  16 tests/ui/settings-simplification.spec.ts:75:1 › ошибка каталога сохраняет навигацию и исправляется повтором (289ms)
+  ✘  17 tests/ui/settings-simplification.spec.ts:89:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (273ms)
+  ✘  18 tests/ui/settings-simplification.spec.ts:89:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (310ms)
+  ✘  19 tests/ui/settings-simplification.spec.ts:153:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (303ms)
+  ✘  20 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (297ms)
+  ✘  21 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (303ms)
+  ✘  22 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (292ms)
+  ✘  23 tests/ui/system-screens.spec.ts:251:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (283ms)
+  ✘  24 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (281ms)
+  ✘  25 tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) (272ms)
+  ✘  26 tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Exely» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) (285ms)
+  ✘  27 tests/ui/ux-retention.spec.ts:75:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) (285ms)
+  ✘  28 tests/ui/ux-retention.spec.ts:80:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) (291ms)
+  ✘  29 tests/ui/ux-retention.spec.ts:88:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) (273ms)
+  ✘  30 tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (277ms)
+  ✘  31 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (296ms)
+  ✘  32 tests/ui/workspace.spec.ts:114:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (293ms)
+  ✘  33 tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (293ms)
+  ✘  34 tests/ui/workspace.spec.ts:178:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (342ms)
+  ✘  35 tests/ui/workspace.spec.ts:203:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (357ms)
+  ✘  36 tests/ui/workspace.spec.ts:230:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (351ms)
+  ✘  37 tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (309ms)
+  ✘  38 tests/ui/workspace.spec.ts:308:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (290ms)
+  ✘  39 tests/ui/workspace.spec.ts:328:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (315ms)
+  ✘  40 tests/ui/workspace.spec.ts:360:1 › карточка: профиль гостя и заселение проходят через server actions (357ms)
+  ✘  41 tests/ui/workspace.spec.ts:405:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (322ms)
+  ✘  42 tests/ui/workspace.spec.ts:422:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (297ms)
+  ✘  43 tests/ui/workspace.spec.ts:439:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (311ms)
+  ✘  44 tests/ui/workspace.spec.ts:461:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (298ms)
+  ✘  45 tests/ui/workspace.spec.ts:487:1 › сбой API показывает ошибку, повтор восстанавливает страницу (313ms)
+  ✘  46 tests/ui/workspace.spec.ts:496:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (302ms)
+  ✘  47 tests/ui/workspace.spec.ts:522:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (322ms)
+  ✘  48 tests/ui/workspace.spec.ts:534:1 › неверная дата в ссылке оставляет доступную форму для исправления (313ms)
+  ✘  49 tests/ui/workspace.spec.ts:541:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (291ms)
+  ✘  50 tests/ui/workspace.spec.ts:550:1 › групповая бронь: разные категории сохраняются при конфликте (306ms)
+  ✘  51 tests/ui/workspace.spec.ts:574:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (303ms)
+  ✘  52 tests/ui/workspace.spec.ts:601:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия (307ms)
+  ✘  53 tests/ui/workspace.spec.ts:643:1 › ошибка буфера обмена видна, код остаётся доступен (310ms)
+  ✘  54 tests/ui/workspace.spec.ts:660:1 › финансы: неверные даты можно исправить без падения страницы (292ms)
+  ✘  55 tests/ui/workspace.spec.ts:671:1 › ошибка загрузки тарифов не позволяет включить виджет (319ms)
+  ✘  56 tests/ui/workspace.spec.ts:680:1 › номера: статус уборки, блокировка и снятие сохраняются (334ms)
+  ✘  57 tests/ui/workspace.spec.ts:710:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (329ms)
+  ✘  58 tests/ui/workspace.spec.ts:737:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (309ms)
+  ✘  59 tests/ui/workspace.spec.ts:746:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (293ms)
+  ✘  60 tests/ui/workspace.spec.ts:765:1 › неисправности: когда история обрезана, это написано (328ms)
+  ✘  61 tests/ui/workspace.spec.ts:773:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (305ms)
+  ✘  62 tests/ui/workspace.spec.ts:785:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (285ms)
+  ✘  63 tests/ui/workspace.spec.ts:811:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (281ms)
+  ✘  64 tests/ui/workspace.spec.ts:852:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (297ms)
+  ✘  65 tests/ui/workspace.spec.ts:904:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (297ms)
+  ✘  66 tests/ui/workspace.spec.ts:966:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (268ms)
+  ✘  67 tests/ui/workspace.spec.ts:995:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (312ms)
+  ✘  68 tests/ui/workspace.spec.ts:1019:1 › гости на сегодня: в списке все, а не первые двадцать пять (314ms)
+  ✘  69 tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (318ms)
+  ✘  70 tests/ui/workspace.spec.ts:1051:1 › общие настройки показывают адрес PMS без дублирования контента Channex (319ms)
+  ✘  71 tests/ui/workspace.spec.ts:1058:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (309ms)
+  ✘  72 tests/ui/workspace.spec.ts:1087:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (334ms)
+  ✘  73 tests/ui/workspace.spec.ts:1109:1 › фонд и категории открываются независимо от сбоя шахматки (314ms)
+  ✘  74 tests/ui/workspace.spec.ts:1130:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (291ms)
+  ✘  75 tests/ui/workspace.spec.ts:1148:1 › подключения каналов: время события — по Алматы, а не сырой UTC (322ms)
+  ✘  76 tests/ui/workspace.spec.ts:1167:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (277ms)
+  ✘  77 tests/ui/workspace.spec.ts:1182:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (335ms)
+  ✘  78 tests/ui/workspace.spec.ts:1195:1 › счета: приём оплаты подтверждается суммой на экране (322ms)
+  ✘  79 tests/ui/workspace.spec.ts:1212:1 › деньги за период: период длиннее года объясняется на странице (302ms)
+  ✘  80 tests/ui/workspace.spec.ts:1231:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (320ms)
+  ✘  81 tests/ui/workspace.spec.ts:1250:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (310ms)
+  ✘  82 tests/ui/workspace.spec.ts:1275:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (308ms)
+  ✘  83 tests/ui/workspace.spec.ts:1295:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (309ms)
+  ✘  84 tests/ui/workspace.spec.ts:1311:1 › каналы: входящая бронь ведёт на карточку брони (298ms)
+  ✘  85 tests/ui/workspace.spec.ts:1324:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (300ms)
+  ✘  86 tests/ui/workspace.spec.ts:1343:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (304ms)
+  ✘  87 tests/ui/workspace.spec.ts:1361:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (303ms)
+  ✘  88 tests/ui/workspace.spec.ts:1399:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (289ms)
+  ✘  89 tests/ui/workspace.spec.ts:1461:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (287ms)
+  ✘  90 tests/ui/workspace.spec.ts:1534:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (293ms)
+  ✘  91 tests/ui/workspace.spec.ts:1574:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (301ms)
+  ✘  92 tests/ui/workspace.spec.ts:1601:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (289ms)
+
+
+  1) tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: light ───────────────────
+
+    Error: page.waitForURL: net::ERR_CONNECTION_REFUSED
+    =========================== logs ===========================
+    waiting for navigation to "**/today" until "load"
+    ============================================================
+
+      26 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      27 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 28 |   await page.waitForURL('**/today');
+         |              ^
+      29 | }
+      30 |
+      31 | test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({ page }) => {
+        at signIn (/home/user/wetop.ai/tests/ui/property-settings.spec.ts:28:14)
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:158:5
+
+    Error Context: test-results/property-settings-снимки-SET1-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-снимки-SET1-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-снимки-SET1-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: dark ────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/login
+    Call log:
+      - navigating to "http://127.0.0.1:3100/login", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at signIn (/home/user/wetop.ai/tests/ui/property-settings.spec.ts:24:14)
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:158:11
+
+    Error Context: test-results/property-settings-снимки-SET1-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-снимки-SET1-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-снимки-SET1-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/settings-simplification.spec.ts:13:14
+
+    Error Context: test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-ко-8b231-очими-внутренними-разделами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/settings-simplification.spec.ts:35:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/photos
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/photos", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/settings-simplification.spec.ts:41:16
+
+    Error Context: test-results/settings-simplification-ст-37639--без-чтения-зеркала-Channex/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-ст-37639--без-чтения-зеркала-Channex/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-ст-37639--без-чтения-зеркала-Channex/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/settings-simplification.spec.ts:56:1 › поиск услуг работает без повторной загрузки каталога 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/services
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/settings-simplification.spec.ts:60:14
+
+    Error Context: test-results/settings-simplification-по-3a79d-повторной-загрузки-каталога/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-по-3a79d-повторной-загрузки-каталога/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-по-3a79d-повторной-загрузки-каталога/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/settings-simplification.spec.ts:75:1 › ошибка каталога сохраняет навигацию и исправляется повтором 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/services
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/settings-simplification.spec.ts:77:14
+
+    Error Context: test-results/settings-simplification-ош-b1657-цию-и-исправляется-повтором/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-ош-b1657-цию-и-исправляется-повтором/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-ош-b1657-цию-и-исправляется-повтором/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/settings-simplification.spec.ts:89:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/settings-simplification.spec.ts:105:18
+
+    Error Context: test-results/settings-simplification-на-50173-рывается-с-клавиатуры-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-на-50173-рывается-с-клавиатуры-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-на-50173-рывается-с-клавиатуры-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/settings-simplification.spec.ts:89:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/settings-simplification.spec.ts:105:18
+
+    Error Context: test-results/settings-simplification-на-8422b-крывается-с-клавиатуры-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-на-8422b-крывается-с-клавиатуры-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-на-8422b-крывается-с-клавиатуры-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/settings-simplification.spec.ts:153:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/services
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/settings-simplification.spec.ts:155:14
+
+    Error Context: test-results/settings-simplification-на-0bb6e-менно-без-прокрутки-таблицы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/settings-simplification-на-0bb6e-менно-без-прокрутки-таблицы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/settings-simplification-на-0bb6e-менно-без-прокрутки-таблицы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/journal
+    Call log:
+      - navigating to "http://127.0.0.1:3100/journal", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/system-screens.spec.ts:23:14
+
+    Error Context: test-results/system-screens-журнал-выбо-cb24f-пустой-результат-с-причиной/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-журнал-выбо-cb24f-пустой-результат-с-причиной/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-журнал-выбо-cb24f-пустой-результат-с-причиной/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/incidents
+    Call log:
+      - navigating to "http://127.0.0.1:3100/incidents", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/system-screens.spec.ts:89:14
+
+    Error Context: test-results/system-screens-неисправнос-6503d-яснены-время-в-time-телефон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-неисправнос-6503d-яснены-время-в-time-телефон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-неисправнос-6503d-яснены-время-в-time-телефон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/website/analytics
+    Call log:
+      - navigating to "http://127.0.0.1:3100/website/analytics", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/system-screens.spec.ts:157:14
+
+    Error Context: test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-аналитика-и-bbcce-иод-словами-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/system-screens.spec.ts:251:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/description
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/description", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/system-screens.spec.ts:256:14
+
+    Error Context: test-results/system-screens-настройки-о-5df91--с-причиной-загрузка-словом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-настройки-о-5df91--с-причиной-загрузка-словом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-настройки-о-5df91--с-причиной-загрузка-словом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/login
+    Call log:
+      - navigating to "http://127.0.0.1:3100/login", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/system-screens.spec.ts:310:14
+
+    Error Context: test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/system-screens-вход-и-проф-99d1f-с-повтором-«Доступ»-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/login
+    Call log:
+      - navigating to "http://127.0.0.1:3100/login", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at signIn (/home/user/wetop.ai/tests/ui/ux-retention.spec.ts:18:14)
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:29:9
+
+    Error Context: test-results/ux-retention-пробный-перио-7c3c5-ганизации-строки-нет-п-2-7-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-пробный-перио-7c3c5-ганизации-строки-нет-п-2-7-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-пробный-перио-7c3c5-ганизации-строки-нет-п-2-7-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Exely» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rates
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rates", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:52:14
+
+    Error Context: test-results/ux-retention-пустые-экраны-ef679-ки-на-онбординг-пп-1-2-1-3-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-пустые-экраны-ef679-ки-на-онбординг-пп-1-2-1-3-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-пустые-экраны-ef679-ки-на-онбординг-пп-1-2-1-3-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/ux-retention.spec.ts:75:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/new
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:76:14
+
+    Error Context: test-results/ux-retention-новая-бронь-и-51f8a-на-один-выбор-меньше-п-1-4-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-новая-бронь-и-51f8a-на-один-выбор-меньше-п-1-4-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-новая-бронь-и-51f8a-на-один-выбор-меньше-п-1-4-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/ux-retention.spec.ts:80:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:82:14
+
+    Error Context: test-results/ux-retention-нижняя-панель-fcde9-орядке-бокового-меню-п-1-6-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-нижняя-панель-fcde9-орядке-бокового-меню-п-1-6-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-нижняя-панель-fcde9-орядке-бокового-меню-п-1-6-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/ux-retention.spec.ts:88:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:92:14
+
+    Error Context: test-results/ux-retention-подсказка-пои-e2e87-Ctrl-K»-на-остальных-п-1-7-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-подсказка-пои-e2e87-Ctrl-K»-на-остальных-п-1-7-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-подсказка-пои-e2e87-Ctrl-K»-на-остальных-п-1-7-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/login
+    Call log:
+      - navigating to "http://127.0.0.1:3100/login", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at signIn (/home/user/wetop.ai/tests/ui/ux-retention.spec.ts:18:14)
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:105:9
+
+    Error Context: test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:87:16
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/ui/workspace.spec.ts:114:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:115:14
+
+    Error Context: test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-вложенные-раздел-9af3f-ный-пункт-мобильный-переход/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rooms/availability?arrival=2026-10-01&departure=2026-10-04
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rooms/availability?arrival=2026-10-01&departure=2026-10-04", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:162:14
+
+    Error Context: test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/ui/workspace.spec.ts:178:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/channels?from=2026-09-01&to=2026-09-30
+    Call log:
+      - navigating to "http://127.0.0.1:3100/channels?from=2026-09-01&to=2026-09-30", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:182:14
+
+    Error Context: test-results/workspace-отчёт-по-источни-e4a17-езультат-период-и-отказ-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-отчёт-по-источни-e4a17-езультат-период-и-отказ-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-отчёт-по-источни-e4a17-езультат-период-и-отказ-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/ui/workspace.spec.ts:203:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/connections
+    Call log:
+      - navigating to "http://127.0.0.1:3100/connections", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:210:14
+
+    Error Context: test-results/workspace-подключения-пока-cc3d7-ции-не-имитируют-сохранение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-подключения-пока-cc3d7-ции-не-имитируют-сохранение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-подключения-пока-cc3d7-ции-не-имитируют-сохранение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/ui/workspace.spec.ts:230:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/management/dashboard
+    Call log:
+      - navigating to "http://127.0.0.1:3100/management/dashboard", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:232:14
+
+    Error Context: test-results/workspace-показатели-за-пе-1a2d3--и-свои-даты-поиск-из-шапки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-показатели-за-пе-1a2d3--и-свои-даты-поиск-из-шапки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-показатели-за-пе-1a2d3--и-свои-даты-поиск-из-шапки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:281:14
+
+    Error Context: test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) tests/ui/workspace.spec.ts:308:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:311:14
+
+    Error Context: test-results/workspace-шахматка-подсказ-ae9fb--не-держит-кнопки-под-собой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-подсказ-ae9fb--не-держит-кнопки-под-собой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-подсказ-ae9fb--не-держит-кнопки-под-собой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) tests/ui/workspace.spec.ts:328:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/new?unit=M03
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new?unit=M03", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:333:14
+
+    Error Context: test-results/workspace-ошибка-создания--91a34-ляет-поля-существующего-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-ошибка-создания--91a34-ляет-поля-существующего-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-ошибка-создания--91a34-ляет-поля-существующего-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) tests/ui/workspace.spec.ts:360:1 › карточка: профиль гостя и заселение проходят через server actions 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/guests/ui-guest
+    Call log:
+      - navigating to "http://127.0.0.1:3100/guests/ui-guest", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:364:14
+
+    Error Context: test-results/workspace-карточка-профиль-a77e9-оходят-через-server-actions/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-карточка-профиль-a77e9-оходят-через-server-actions/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-карточка-профиль-a77e9-оходят-через-server-actions/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) tests/ui/workspace.spec.ts:405:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/inventory
+    Call log:
+      - navigating to "http://127.0.0.1:3100/inventory", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:412:14
+
+    Error Context: test-results/workspace-экран-ошибки-раз-f7125--400-404-и-отсутствие-связи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-экран-ошибки-раз-f7125--400-404-и-отсутствие-связи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-экран-ошибки-раз-f7125--400-404-и-отсутствие-связи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) tests/ui/workspace.spec.ts:422:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:426:14
+
+    Error Context: test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) tests/ui/workspace.spec.ts:439:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/website/analytics?from=2025-01-01&to=2026-12-31
+    Call log:
+      - navigating to "http://127.0.0.1:3100/website/analytics?from=2025-01-01&to=2026-12-31", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:443:14
+
+    Error Context: test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-аналитика-период-eb86c--бронирования-предупреждает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  34) tests/ui/workspace.spec.ts:461:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/20260913-TESTAA
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/20260913-TESTAA", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:466:14
+
+    Error Context: test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-карточка-брони-и-97e25-преждение-а-не-экран-ошибки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  35) tests/ui/workspace.spec.ts:487:1 › сбой API показывает ошибку, повтор восстанавливает страницу 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/inventory
+    Call log:
+      - navigating to "http://127.0.0.1:3100/inventory", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:489:14
+
+    Error Context: test-results/workspace-сбой-API-показыв-d022a-ор-восстанавливает-страницу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сбой-API-показыв-d022a-ор-восстанавливает-страницу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сбой-API-показыв-d022a-ор-восстанавливает-страницу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  36) tests/ui/workspace.spec.ts:496:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:499:14
+
+    Error Context: test-results/workspace-неисправности-из-2f431-ие-работают-в-новом-каркасе/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-неисправности-из-2f431-ие-работают-в-новом-каркасе/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-неисправности-из-2f431-ие-работают-в-новом-каркасе/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  37) tests/ui/workspace.spec.ts:522:1 › сбой списка неисправностей не выдаётся за отсутствие проблем 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/incidents
+    Call log:
+      - navigating to "http://127.0.0.1:3100/incidents", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:524:14
+
+    Error Context: test-results/workspace-сбой-списка-неис-88559-аётся-за-отсутствие-проблем/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сбой-списка-неис-88559-аётся-за-отсутствие-проблем/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сбой-списка-неис-88559-аётся-за-отсутствие-проблем/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  38) tests/ui/workspace.spec.ts:534:1 › неверная дата в ссылке оставляет доступную форму для исправления 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/new?arrival=bad-date
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new?arrival=bad-date", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:535:14
+
+    Error Context: test-results/workspace-неверная-дата-в--b5051-упную-форму-для-исправления/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-неверная-дата-в--b5051-упную-форму-для-исправления/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-неверная-дата-в--b5051-упную-форму-для-исправления/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  39) tests/ui/workspace.spec.ts:541:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/MISSING
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/MISSING", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:545:16
+
+    Error Context: test-results/workspace-отсутствующая-бр-66720-ают-404-вместо-сбоя-системы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-отсутствующая-бр-66720-ают-404-вместо-сбоя-системы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-отсутствующая-бр-66720-ают-404-вместо-сбоя-системы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  40) tests/ui/workspace.spec.ts:550:1 › групповая бронь: разные категории сохраняются при конфликте 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/new
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:552:14
+
+    Error Context: test-results/workspace-групповая-бронь--c9581-и-сохраняются-при-конфликте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-групповая-бронь--c9581-и-сохраняются-при-конфликте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-групповая-бронь--c9581-и-сохраняются-при-конфликте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  41) tests/ui/workspace.spec.ts:574:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/20260913-TESTAA
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/20260913-TESTAA", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:579:14
+
+    Error Context: test-results/workspace-общий-платёж-оши-68c7b-ный-повтор-обновляет-баланс/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-общий-платёж-оши-68c7b-ный-повтор-обновляет-баланс/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-общий-платёж-оши-68c7b-ный-повтор-обновляет-баланс/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  42) tests/ui/workspace.spec.ts:601:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/today
+    Call log:
+      - navigating to "http://127.0.0.1:3100/today", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:604:14
+
+    Error Context: test-results/workspace-обзор-задачи-вед-f7cb6-е-экраны-сохраняют-действия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-обзор-задачи-вед-f7cb6-е-экраны-сохраняют-действия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-обзор-задачи-вед-f7cb6-е-экраны-сохраняют-действия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  43) tests/ui/workspace.spec.ts:643:1 › ошибка буфера обмена видна, код остаётся доступен ─────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/website/settings
+    Call log:
+      - navigating to "http://127.0.0.1:3100/website/settings", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:651:14
+
+    Error Context: test-results/workspace-ошибка-буфера-обмена-видна-код-остаётся-доступен/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-ошибка-буфера-обмена-видна-код-остаётся-доступен/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-ошибка-буфера-обмена-видна-код-остаётся-доступен/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  44) tests/ui/workspace.spec.ts:660:1 › финансы: неверные даты можно исправить без падения страницы 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/finance?from=2026-09-30&to=2026-09-01
+    Call log:
+      - navigating to "http://127.0.0.1:3100/finance?from=2026-09-30&to=2026-09-01", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:661:14
+
+    Error Context: test-results/workspace-финансы-неверные-96d33-равить-без-падения-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-финансы-неверные-96d33-равить-без-падения-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-финансы-неверные-96d33-равить-без-падения-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  45) tests/ui/workspace.spec.ts:671:1 › ошибка загрузки тарифов не позволяет включить виджет ──────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/website/booking
+    Call log:
+      - navigating to "http://127.0.0.1:3100/website/booking", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:673:14
+
+    Error Context: test-results/workspace-ошибка-загрузки--82500-е-позволяет-включить-виджет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-ошибка-загрузки--82500-е-позволяет-включить-виджет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-ошибка-загрузки--82500-е-позволяет-включить-виджет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  46) tests/ui/workspace.spec.ts:680:1 › номера: статус уборки, блокировка и снятие сохраняются ────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/units/R01
+    Call log:
+      - navigating to "http://127.0.0.1:3100/units/R01", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:681:14
+
+    Error Context: test-results/workspace-номера-статус-уб-cb6d4-ировка-и-снятие-сохраняются/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-номера-статус-уб-cb6d4-ировка-и-снятие-сохраняются/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-номера-статус-уб-cb6d4-ировка-и-снятие-сохраняются/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  47) tests/ui/workspace.spec.ts:710:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/guests/ui-guest#guest-profile
+    Call log:
+      - navigating to "http://127.0.0.1:3100/guests/ui-guest#guest-profile", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:714:14
+
+    Error Context: test-results/workspace-гости-удаление-д-d81d1-ет-«Отмена»-не-шлёт-команду/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-гости-удаление-д-d81d1-ет-«Отмена»-не-шлёт-команду/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-гости-удаление-д-d81d1-ет-«Отмена»-не-шлёт-команду/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  48) tests/ui/workspace.spec.ts:737:1 › новая бронь: число гостей ограничено вместимостью выбранной категории 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/new?unit=M03
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new?unit=M03", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:738:14
+
+    Error Context: test-results/workspace-новая-бронь-числ-2d5b4-имостью-выбранной-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-новая-бронь-числ-2d5b4-имостью-выбранной-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-новая-бронь-числ-2d5b4-имостью-выбранной-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  49) tests/ui/workspace.spec.ts:746:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rates?month=2026-10&category=MALE
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rates?month=2026-10&category=MALE", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:750:14
+
+    Error Context: test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-тарифы-гостей-в--bd1a1-егория-не-«уходит-в-каналы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  50) tests/ui/workspace.spec.ts:765:1 › неисправности: когда история обрезана, это написано ───────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/incidents
+    Call log:
+      - navigating to "http://127.0.0.1:3100/incidents", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:766:14
+
+    Error Context: test-results/workspace-неисправности-когда-история-обрезана-это-написано/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-неисправности-когда-история-обрезана-это-написано/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-неисправности-когда-история-обрезана-это-написано/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  51) tests/ui/workspace.spec.ts:773:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/services
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:776:14
+
+    Error Context: test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-подска-fc35c-ку-«Счета»-а-не-в-«Финансы»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  52) tests/ui/workspace.spec.ts:785:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rates?month=2026-10
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rates?month=2026-10", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:789:14
+
+    Error Context: test-results/workspace-тарифы-добавить--f4659-цену-отказ-сохраняет-список/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-тарифы-добавить--f4659-цену-отказ-сохраняет-список/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-тарифы-добавить--f4659-цену-отказ-сохраняет-список/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  53) tests/ui/workspace.spec.ts:811:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/website/settings
+    Call log:
+      - navigating to "http://127.0.0.1:3100/website/settings", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:814:14
+
+    Error Context: test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сайты-проверка-д-11a56-и-создание-обновляют-данные/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  54) tests/ui/workspace.spec.ts:852:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/login
+    Call log:
+      - navigating to "http://127.0.0.1:3100/login", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:857:14
+
+    Error Context: test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-кнопки-Channex-о-4200a-ьтат-проверка-только-читает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  55) tests/ui/workspace.spec.ts:904:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/channels
+    Call log:
+      - navigating to "http://127.0.0.1:3100/channels", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:906:14
+
+    Error Context: test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  56) tests/ui/workspace.spec.ts:966:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/units/R01
+    Call log:
+      - navigating to "http://127.0.0.1:3100/units/R01", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:970:14
+
+    Error Context: test-results/workspace-снятие-блокировк-489f5-еняет-подтверждение-снимает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-снятие-блокировк-489f5-еняет-подтверждение-снимает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-снятие-блокировк-489f5-еняет-подтверждение-снимает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  57) tests/ui/workspace.spec.ts:995:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/guests/ui-guest#guest-profile
+    Call log:
+      - navigating to "http://127.0.0.1:3100/guests/ui-guest#guest-profile", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:999:14
+
+    Error Context: test-results/workspace-удаление-докумен-69574-авляет-документ-на-карточке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-удаление-докумен-69574-авляет-документ-на-карточке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-удаление-докумен-69574-авляет-документ-на-карточке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  58) tests/ui/workspace.spec.ts:1019:1 › гости на сегодня: в списке все, а не первые двадцать пять 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/guests?state=inhouse
+    Call log:
+      - navigating to "http://127.0.0.1:3100/guests?state=inhouse", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1023:14
+
+    Error Context: test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-гости-на-сегодня-6f1d9-е-а-не-первые-двадцать-пять/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  59) tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/services
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/services", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1041:14
+
+    Error Context: test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  60) tests/ui/workspace.spec.ts:1051:1 › общие настройки показывают адрес PMS без дублирования контента Channex 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/hotel-settings/description
+    Call log:
+      - navigating to "http://127.0.0.1:3100/hotel-settings/description", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1052:14
+
+    Error Context: test-results/workspace-общие-настройки--b470e-блирования-контента-Channex/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-общие-настройки--b470e-блирования-контента-Channex/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-общие-настройки--b470e-блирования-контента-Channex/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  61) tests/ui/workspace.spec.ts:1058:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/guests
+    Call log:
+      - navigating to "http://127.0.0.1:3100/guests", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1064:14
+
+    Error Context: test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-кнопки-называют--1c351-нью-оплата-—-на-счёте-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  62) tests/ui/workspace.spec.ts:1087:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rooms/availability?arrival=2026-10-01&departure=2027-01-01
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rooms/availability?arrival=2026-10-01&departure=2027-01-01", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1090:14
+
+    Error Context: test-results/workspace-доступность-пери-3dd2d-я-формой-а-не-ошибкой-связи/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-доступность-пери-3dd2d-я-формой-а-не-ошибкой-связи/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-доступность-пери-3dd2d-я-формой-а-не-ошибкой-связи/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  63) tests/ui/workspace.spec.ts:1109:1 › фонд и категории открываются независимо от сбоя шахматки ─
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rooms
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rooms", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1111:14
+
+    Error Context: test-results/workspace-фонд-и-категории-80132-независимо-от-сбоя-шахматки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-фонд-и-категории-80132-независимо-от-сбоя-шахматки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-фонд-и-категории-80132-независимо-от-сбоя-шахматки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  64) tests/ui/workspace.spec.ts:1130:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/website/booking
+    Call log:
+      - navigating to "http://127.0.0.1:3100/website/booking", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1131:14
+
+    Error Context: test-results/workspace-настройка-сайта--78edd-сказано-что-бронь-настоящая/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройка-сайта--78edd-сказано-что-бронь-настоящая/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройка-сайта--78edd-сказано-что-бронь-настоящая/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  65) tests/ui/workspace.spec.ts:1148:1 › подключения каналов: время события — по Алматы, а не сырой UTC 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/channels/events
+    Call log:
+      - navigating to "http://127.0.0.1:3100/channels/events", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1153:14
+
+    Error Context: test-results/workspace-подключения-кана-1ca8e--—-по-Алматы-а-не-сырой-UTC/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-подключения-кана-1ca8e--—-по-Алматы-а-не-сырой-UTC/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-подключения-кана-1ca8e--—-по-Алматы-а-не-сырой-UTC/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  66) tests/ui/workspace.spec.ts:1167:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/channels/mapping
+    Call log:
+      - navigating to "http://127.0.0.1:3100/channels/mapping", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1171:14
+
+    Error Context: test-results/workspace-каналы-сбой-свод-ac871-стой-маппинг-назван-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-каналы-сбой-свод-ac871-стой-маппинг-назван-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-каналы-сбой-свод-ac871-стой-маппинг-назван-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  67) tests/ui/workspace.spec.ts:1182:1 › журнал: время операции — тем же способом, что и везде (по Алматы) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/journal
+    Call log:
+      - navigating to "http://127.0.0.1:3100/journal", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1185:14
+
+    Error Context: test-results/workspace-журнал-время-опе-d7b82-обом-что-и-везде-по-Алматы-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-журнал-время-опе-d7b82-обом-что-и-везде-по-Алматы-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-журнал-время-опе-d7b82-обом-что-и-везде-по-Алматы-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  68) tests/ui/workspace.spec.ts:1195:1 › счета: приём оплаты подтверждается суммой на экране ──────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/20260913-TESTAA
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/20260913-TESTAA", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1196:14
+
+    Error Context: test-results/workspace-счета-приём-оплаты-подтверждается-суммой-на-экране/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-счета-приём-оплаты-подтверждается-суммой-на-экране/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-счета-приём-оплаты-подтверждается-суммой-на-экране/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  69) tests/ui/workspace.spec.ts:1212:1 › деньги за период: период длиннее года объясняется на странице 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/finance?from=2020-01-01&to=2030-12-31
+    Call log:
+      - navigating to "http://127.0.0.1:3100/finance?from=2020-01-01&to=2030-12-31", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1213:14
+
+    Error Context: test-results/workspace-деньги-за-период-229be-ода-объясняется-на-странице/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-деньги-за-период-229be-ода-объясняется-на-странице/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-деньги-за-период-229be-ода-объясняется-на-странице/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  70) tests/ui/workspace.spec.ts:1231:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1232:14
+
+    Error Context: test-results/workspace-шахматка-статус--d174b-олг-плашкой-уборка-в-строке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-статус--d174b-олг-плашкой-уборка-в-строке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-статус--d174b-олг-плашкой-уборка-в-строке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  71) tests/ui/workspace.spec.ts:1250:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1251:14
+
+    Error Context: test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтр--40a93-грязные-ячейки-а-не-пустоту/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  72) tests/ui/workspace.spec.ts:1275:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/chessboard
+    Call log:
+      - navigating to "http://127.0.0.1:3100/chessboard", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1280:14
+
+    Error Context: test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  73) tests/ui/workspace.spec.ts:1295:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/channels/sync
+    Call log:
+      - navigating to "http://127.0.0.1:3100/channels/sync", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1300:14
+
+    Error Context: test-results/workspace-каналы-очередь-п-1d0e5--какие-даты-и-чем-кончилось/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-каналы-очередь-п-1d0e5--какие-даты-и-чем-кончилось/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-каналы-очередь-п-1d0e5--какие-даты-и-чем-кончилось/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  74) tests/ui/workspace.spec.ts:1311:1 › каналы: входящая бронь ведёт на карточку брони ───────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/channels/events
+    Call log:
+      - navigating to "http://127.0.0.1:3100/channels/events", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1313:14
+
+    Error Context: test-results/workspace-каналы-входящая-бронь-ведёт-на-карточку-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-каналы-входящая-бронь-ведёт-на-карточку-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-каналы-входящая-бронь-ведёт-на-карточку-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  75) tests/ui/workspace.spec.ts:1324:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rates
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rates", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1327:14
+
+    Error Context: test-results/workspace-цены-правка-в-яч-83c62-совая-и-говорит-про-очередь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-цены-правка-в-яч-83c62-совая-и-говорит-про-очередь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-цены-правка-в-яч-83c62-совая-и-говорит-про-очередь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  76) tests/ui/workspace.spec.ts:1343:1 › незаезд: окно называет штраф суммой, а не «может начислиться» 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/20260913-TEST1
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/20260913-TEST1", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1344:14
+
+    Error Context: test-results/workspace-незаезд-окно-наз-63123-ой-а-не-«может-начислиться»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-незаезд-окно-наз-63123-ой-а-не-«может-начислиться»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-незаезд-окно-наз-63123-ой-а-не-«может-начислиться»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  77) tests/ui/workspace.spec.ts:1361:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/20260913-TEST1
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/20260913-TEST1", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1365:14
+
+    Error Context: test-results/workspace-«-1-ночь»-спраши-5e005-ночи-отказ-ничего-не-меняет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-«-1-ночь»-спраши-5e005-ночи-отказ-ничего-не-меняет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-«-1-ночь»-спраши-5e005-ночи-отказ-ничего-не-меняет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  78) tests/ui/workspace.spec.ts:1399:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/new
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/new", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1403:14
+
+    Error Context: test-results/workspace-новая-бронь-резю-342aa-при-прокрутке-и-на-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-новая-бронь-резю-342aa-при-прокрутке-и-на-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-новая-бронь-резю-342aa-при-прокрутке-и-на-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  79) tests/ui/workspace.spec.ts:1461:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/guests?q=%D0%A2%D0%B5%D1%81%D1%82
+    Call log:
+      - navigating to "http://127.0.0.1:3100/guests?q=%D0%A2%D0%B5%D1%81%D1%82", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1465:14
+
+    Error Context: test-results/workspace-гости-D1-выборка-00732-е-имя-и-история-на-телефоне/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-гости-D1-выборка-00732-е-имя-и-история-на-телефоне/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-гости-D1-выборка-00732-е-имя-и-история-на-телефоне/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  80) tests/ui/workspace.spec.ts:1534:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/finance?from=2026-09-01&to=2026-09-30
+    Call log:
+      - navigating to "http://127.0.0.1:3100/finance?from=2026-09-01&to=2026-09-30", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1538:14
+
+    Error Context: test-results/workspace-финансы-F1-перио-7f85f-ми-отказ-не-выглядит-нулями/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-финансы-F1-перио-7f85f-ми-отказ-не-выглядит-нулями/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-финансы-F1-перио-7f85f-ми-отказ-не-выглядит-нулями/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  81) tests/ui/workspace.spec.ts:1574:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/rooms
+    Call log:
+      - navigating to "http://127.0.0.1:3100/rooms", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1575:14
+
+    Error Context: test-results/workspace-единый-фонд-стар-6b24e-тров-и-адаптивные-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-единый-фонд-стар-6b24e-тров-и-адаптивные-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-единый-фонд-стар-6b24e-тров-и-адаптивные-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  82) tests/ui/workspace.spec.ts:1601:1 › отмена брони: окно называет, что сторнируется и будет ли штраф 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3100/reservations/20260913-TEST1
+    Call log:
+      - navigating to "http://127.0.0.1:3100/reservations/20260913-TEST1", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/home/user/wetop.ai/tests/ui/fixtures.ts:63:30)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1602:14
+
+    Error Context: test-results/workspace-отмена-брони-окн-2d726-орнируется-и-будет-ли-штраф/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-отмена-брони-окн-2d726-орнируется-и-будет-ли-штраф/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-отмена-брони-окн-2d726-орнируется-и-будет-ли-штраф/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  82 failed
+    tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: light ────────────────────
+    tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: dark ─────────────────────
+    tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами 
+    tests/ui/settings-simplification.spec.ts:35:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex 
+    tests/ui/settings-simplification.spec.ts:56:1 › поиск услуг работает без повторной загрузки каталога 
+    tests/ui/settings-simplification.spec.ts:75:1 › ошибка каталога сохраняет навигацию и исправляется повтором 
+    tests/ui/settings-simplification.spec.ts:89:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light 
+    tests/ui/settings-simplification.spec.ts:89:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark 
+    tests/ui/settings-simplification.spec.ts:153:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы 
+    tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной 
+    tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон 
+    tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом 
+    tests/ui/system-screens.spec.ts:251:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом 
+    tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами 
+    tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) 
+    tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Exely» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) 
+    tests/ui/ux-retention.spec.ts:75:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) 
+    tests/ui/ux-retention.spec.ts:80:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) ─
+    tests/ui/ux-retention.spec.ts:88:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) 
+    tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+    tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+    tests/ui/workspace.spec.ts:114:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход 
+    tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+    tests/ui/workspace.spec.ts:178:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API 
+    tests/ui/workspace.spec.ts:203:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение 
+    tests/ui/workspace.spec.ts:230:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки 
+    tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+    tests/ui/workspace.spec.ts:308:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой 
+    tests/ui/workspace.spec.ts:328:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API 
+    tests/ui/workspace.spec.ts:360:1 › карточка: профиль гостя и заселение проходят через server actions 
+    tests/ui/workspace.spec.ts:405:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи 
+    tests/ui/workspace.spec.ts:422:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь 
+    tests/ui/workspace.spec.ts:439:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает 
+    tests/ui/workspace.spec.ts:461:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки 
+    tests/ui/workspace.spec.ts:487:1 › сбой API показывает ошибку, повтор восстанавливает страницу ─
+    tests/ui/workspace.spec.ts:496:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе 
+    tests/ui/workspace.spec.ts:522:1 › сбой списка неисправностей не выдаётся за отсутствие проблем 
+    tests/ui/workspace.spec.ts:534:1 › неверная дата в ссылке оставляет доступную форму для исправления 
+    tests/ui/workspace.spec.ts:541:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы 
+    tests/ui/workspace.spec.ts:550:1 › групповая бронь: разные категории сохраняются при конфликте ─
+    tests/ui/workspace.spec.ts:574:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс 
+    tests/ui/workspace.spec.ts:601:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия 
+    tests/ui/workspace.spec.ts:643:1 › ошибка буфера обмена видна, код остаётся доступен ───────────
+    tests/ui/workspace.spec.ts:660:1 › финансы: неверные даты можно исправить без падения страницы ─
+    tests/ui/workspace.spec.ts:671:1 › ошибка загрузки тарифов не позволяет включить виджет ────────
+    tests/ui/workspace.spec.ts:680:1 › номера: статус уборки, блокировка и снятие сохраняются ──────
+    tests/ui/workspace.spec.ts:710:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду 
+    tests/ui/workspace.spec.ts:737:1 › новая бронь: число гостей ограничено вместимостью выбранной категории 
+    tests/ui/workspace.spec.ts:746:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» 
+    tests/ui/workspace.spec.ts:765:1 › неисправности: когда история обрезана, это написано ─────────
+    tests/ui/workspace.spec.ts:773:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» 
+    tests/ui/workspace.spec.ts:785:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список 
+    tests/ui/workspace.spec.ts:811:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные 
+    tests/ui/workspace.spec.ts:852:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает 
+    tests/ui/workspace.spec.ts:904:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+    tests/ui/workspace.spec.ts:966:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает 
+    tests/ui/workspace.spec.ts:995:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке 
+    tests/ui/workspace.spec.ts:1019:1 › гости на сегодня: в списке все, а не первые двадцать пять ──
+    tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+    tests/ui/workspace.spec.ts:1051:1 › общие настройки показывают адрес PMS без дублирования контента Channex 
+    tests/ui/workspace.spec.ts:1058:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони 
+    tests/ui/workspace.spec.ts:1087:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи 
+    tests/ui/workspace.spec.ts:1109:1 › фонд и категории открываются независимо от сбоя шахматки ───
+    tests/ui/workspace.spec.ts:1130:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая 
+    tests/ui/workspace.spec.ts:1148:1 › подключения каналов: время события — по Алматы, а не сырой UTC 
+    tests/ui/workspace.spec.ts:1167:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами 
+    tests/ui/workspace.spec.ts:1182:1 › журнал: время операции — тем же способом, что и везде (по Алматы) 
+    tests/ui/workspace.spec.ts:1195:1 › счета: приём оплаты подтверждается суммой на экране ────────
+    tests/ui/workspace.spec.ts:1212:1 › деньги за период: период длиннее года объясняется на странице 
+    tests/ui/workspace.spec.ts:1231:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке 
+    tests/ui/workspace.spec.ts:1250:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту 
+    tests/ui/workspace.spec.ts:1275:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор 
+    tests/ui/workspace.spec.ts:1295:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось 
+    tests/ui/workspace.spec.ts:1311:1 › каналы: входящая бронь ведёт на карточку брони ─────────────
+    tests/ui/workspace.spec.ts:1324:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь 
+    tests/ui/workspace.spec.ts:1343:1 › незаезд: окно называет штраф суммой, а не «может начислиться» 
+    tests/ui/workspace.spec.ts:1361:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет 
+    tests/ui/workspace.spec.ts:1399:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне 
+    tests/ui/workspace.spec.ts:1461:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне 
+    tests/ui/workspace.spec.ts:1534:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями 
+    tests/ui/workspace.spec.ts:1574:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории 
+    tests/ui/workspace.spec.ts:1601:1 › отмена брони: окно называет, что сторнируется и будет ли штраф 
+  10 passed (3.7m)
+
+# код выхода 1 · 3 мин 41 с

@@ -3869,3 +3869,20 @@
 | 29.09.2026 01:47 | lint | ✅ без ошибок | 16 с | 89c43ff +9 | [лог](logs/2026-09-28T20-47-38Z-lint-9b62.log) |  |
 | 29.09.2026 01:47 | unit | ✅ 2225 из 2228, пропущено 3 | 1 мин 12 с | 89c43ff +8 | [лог](logs/2026-09-28T20-47-55Z-unit-40e2.log) |  |
 | 29.09.2026 01:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.t | ✅ 25 из 25 | 1 мин 22 с | 89c43ff +8 | [лог](logs/2026-09-28T20-49-12Z-e2e-ad53.log) | INT2: спеки «Интеграций» и навигации на дереве, слитом с main 6cf509a (онбординг #144) |
+| 29.09.2026 01:36 | unit (частично: apps/api/src/auth/scope.test.ts apps/api/src/auth/author.interceptor.test.ts apps/api/src/database/property-ref.test.ts apps/api/src/auth/me-acc | ❌ упало 8 из 30 | 2 с | 9e20bd4 +5 | [лог](logs/2026-09-28T20-36-19Z-unit-bd5a.log) | AuthorInterceptor — scope запроса (Platform P2, К1) вошедший без указателя — ORGANIZATION, в базу не ходим |
+| 29.09.2026 01:36 | integration (частично: tests/integration/request-scope.test.ts) | ❌ код выхода 1 | 2 с | 9e20bd4 +5 | [лог](logs/2026-09-28T20-36-30Z-integration-d01a.log) | (файл не выполнился) |
+| 29.09.2026 01:37 | unit (частично: apps/api/src/auth/scope.test.ts apps/api/src/auth/author.interceptor.test.ts apps/api/src/database/property-ref.test.ts apps/api/src/auth/me-acc | ✅ 44 из 44 | 2 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-37-47Z-unit-92ae.log) |  |
+| 29.09.2026 01:37 | integration (частично: tests/integration/request-scope.test.ts) | ✅ 1 из 1 | 2 с | 9e20bd4 +11 | [лог](logs/2026-09-28T20-37-50Z-integration-0652.log) |  |
+| 29.09.2026 01:38 | typecheck | ✅ без ошибок | 25 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-38-01Z-typecheck-fa75.log) |  |
+| 29.09.2026 01:38 | lint | ✅ без ошибок | 14 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-38-26Z-lint-3783.log) |  |
+| 29.09.2026 01:38 | unit | ❌ код выхода 1 | 1 мин 12 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-38-40Z-unit-70f1.log) | (файл не выполнился) |
+| 29.09.2026 01:40 | integration | ✅ 121 из 121 | 33 с | 9e20bd4 +11 | [лог](logs/2026-09-28T20-40-00Z-integration-5673.log) |  |
+| 29.09.2026 01:40 | unit | ✅ 2243 из 2246, пропущено 3 | 1 мин 14 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-40-51Z-unit-11a9.log) |  |
+| 29.09.2026 01:42 | typecheck | ✅ без ошибок | 18 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-42-05Z-typecheck-dacf.log) |  |
+| 29.09.2026 01:42 | lint | ✅ без ошибок | 14 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-42-24Z-lint-bc3e.log) |  |
+| 29.09.2026 01:43 | e2e | ✅ 25 из 25 | 54 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-43-08Z-e2e-239a.log) |  |
+| 29.09.2026 01:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/today-operations.spec.ts tests/ui/roles.spec.ts tests/ui/pl | ✅ 58 из 58 | 3 мин 3 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-44-10Z-e2e-7a09.log) |  |
+| 29.09.2026 01:51 | typecheck | ✅ без ошибок | 28 с | a9b06de +14 | [лог](logs/2026-09-28T20-51-24Z-typecheck-9e58.log) |  |
+| 29.09.2026 01:51 | lint | ✅ без ошибок | 15 с | a9b06de +14 | [лог](logs/2026-09-28T20-51-52Z-lint-b334.log) |  |
+| 29.09.2026 01:52 | unit | ✅ 2249 из 2252, пропущено 3 | 1 мин 12 с | a9b06de +13 | [лог](logs/2026-09-28T20-52-08Z-unit-2d80.log) |  |
+| 29.09.2026 01:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.t | ✅ 25 из 25 | 1 мин 24 с | a9b06de +13 | [лог](logs/2026-09-28T20-53-26Z-e2e-2f77.log) | INT2: спеки «Интеграций» и навигации на дереве, слитом с main 5a0473b (K1 #146) |

@@ -3471,3 +3471,10 @@
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
 | 28.09.2026 13:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 516 | 44 мин 54 с | 6d300b0 | [лог](logs/2026-09-28T08-23-04Z-e2e-52bd.log) | integration 28.09: final HEAD, full UI regression single worker |
+| 28.09.2026 14:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.ts tes | ✅ 110 из 110 | 6 мин 48 с | 179b82d | [лог](logs/2026-09-28T09-10-53Z-e2e-f1c1.log) | seam fixes: the 8 red specs of the full run |
+| 28.09.2026 14:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 516 из 516 | 40 мин 59 с | 179b82d | [лог](logs/2026-09-28T09-17-49Z-e2e-861d.log) | integration 28.09: full UI regression single worker after seam fixes (final HEAD) |
+| 28.09.2026 14:59 | typecheck | ✅ без ошибок | 34 с | 179b82d | [лог](logs/2026-09-28T09-59-06Z-typecheck-a87a.log) | integration 28.09: final HEAD after seam fixes |
+| 28.09.2026 14:59 | lint | ✅ без ошибок | 19 с | 179b82d | [лог](logs/2026-09-28T09-59-40Z-lint-e764.log) | integration 28.09: final HEAD after seam fixes |
+| 28.09.2026 15:00 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 19 с | 179b82d | [лог](logs/2026-09-28T10-00-00Z-unit-15e4.log) | integration 28.09: final HEAD after seam fixes |
+| 28.09.2026 15:01 | e2e | ✅ 25 из 25 | 1 мин 2 с | 179b82d | [лог](logs/2026-09-28T10-01-35Z-e2e-6fa0.log) | integration 28.09: final HEAD after seam fixes, live DB e2e |
+| 28.09.2026 15:02 | e2e | ✅ 26 из 26 | 1 мин 11 с | 179b82d | [лог](logs/2026-09-28T10-02-38Z-e2e-4a25.log) | integration 28.09: final HEAD after seam fixes, E2E_AUTH=1, API as wetop_app |

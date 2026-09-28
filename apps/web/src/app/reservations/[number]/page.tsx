@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
 import { hotelToday } from '../../../lib/hotel-api';
 import { Icon } from '../../../components/icon';
-import { AmountChip } from '../../../components/amount-chip';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
@@ -13,6 +12,9 @@ import { Page } from '../../../components/page';
 import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
+import { maskPhone } from './phone-mask';
+import { OpenFullCard } from './open-full-card';
+import { FinanceLine } from '../finance-line';
 import '../../directory.css';
 
 const STATUS_RU: Record<string, string> = {
@@ -38,7 +40,17 @@ const SOURCE_RU: Record<string, string> = {
  * B3 (план владельца 19.09): сверху — гость, даты, место, гостей, стоимость и остаток к оплате одной
  * полосой над вкладками; в «Обзоре» первыми — следующие действия смены; печатные формы — внизу обзора.
  */
-export default async function ReservationPage({ params }: { params: Promise<{ number: string }> }) {
+export default async function ReservationPage({
+  params,
+  preview = false,
+}: {
+  params: Promise<{ number: string }>;
+  /**
+   * Быстрый просмотр в панели над списком (ADR-106, R3): телефон скрытыми цифрами, «Финансы» в «Обзоре»,
+   * «Открыть бронь» — на полную страницу. Полная страница — без этого флага, как была.
+   */
+  preview?: boolean;
+}) {
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
   const today = await hotelToday();
@@ -93,6 +105,11 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
       width="medium"
       crumbs={<Link href="/chessboard">← шахматка</Link>}
       title={`Бронь ${r.confirmationNumber}`}
+      actions={
+        preview ? (
+          <OpenFullCard href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`} />
+        ) : undefined
+      }
       subtitle={
         <>
           <StatusBadge status={r.status} label={STATUS_RU[r.status] ?? r.status} />{' '}
@@ -131,9 +148,18 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
             )}
             {(r.primaryGuest?.phone || guestMessengers) && (
               <span className="booking-head__contacts">
-                {r.primaryGuest?.phone && (
-                  <a href={`tel:${r.primaryGuest.phone}`}>{r.primaryGuest.phone}</a>
-                )}
+                {/* в просмотре номер скрыт (§11, §19): позвонить и написать — кнопками */}
+                {r.primaryGuest?.phone &&
+                  (preview ? (
+                    <>
+                      <span className="mono" data-testid="guest-phone">
+                        {maskPhone(r.primaryGuest.phone)}
+                      </span>
+                      <a href={`tel:${r.primaryGuest.phone}`}>Позвонить</a>
+                    </>
+                  ) : (
+                    <a href={`tel:${r.primaryGuest.phone}`}>{r.primaryGuest.phone}</a>
+                  ))}
                 {guestMessengers && (
                   <>
                     <a href={guestMessengers.whatsapp} target="_blank" rel="noreferrer">
@@ -161,10 +187,9 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           <dt>Место</dt>
           <dd className="mono" data-testid="booking-place">
             {unitCodes.length ? unitCodes.join(', ') : <span className="warn-text">—</span>}
-            {unassigned > 0 && unitCodes.length > 0 && (
-              <small className="warn-text">
-                {pluralRu(unassigned, ['проживание', 'проживания', 'проживаний'])} без ячейки
-              </small>
+            {/* у группы — числом, как в списке (формулировка владельца 27.09) */}
+            {unassigned > 0 && liveItems.length > 1 && (
+              <small className="warn-text">⚠ {unassigned} без размещения</small>
             )}
           </dd>
         </div>
@@ -180,16 +205,22 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
           <dd>{formatMoney(r.totalAmountMinor, r.currency)}</dd>
         </div>
         <div>
-          <dt>К оплате</dt>
+          {/* слова колонки «Финансы» списка: у отменённой брони с деньгами к возврату нет «оплачено» */}
+          <dt>Оплата</dt>
           <dd data-testid="booking-due">
-            {finance && due !== null ? (
-              due > 0n ? (
-                <AmountChip tone="due" minor={finance.balanceMinor} currency={r.currency} />
-              ) : (
-                <AmountChip tone="paid" minor={finance.paidMinor} currency={r.currency} />
-              )
+            {finance ? (
+              <FinanceLine
+                row={{
+                  hasFolios: finance.folios.length > 0,
+                  chargedMinor: finance.chargedMinor,
+                  paidMinor: finance.paidMinor,
+                  refundedMinor: finance.refundedMinor,
+                  balanceMinor: finance.balanceMinor,
+                  currency: r.currency,
+                }}
+              />
             ) : (
-              <span className="muted">—</span>
+              <span className="muted">Финансы временно недоступны</span>
             )}
           </dd>
         </div>
@@ -277,6 +308,37 @@ export default async function ReservationPage({ params }: { params: Promise<{ nu
                   <p className="note note--lg" data-testid="reservation-notes">
                     <b>Заметки:</b> {r.notes}
                   </p>
+                )}
+                {preview && (
+                  // §19: итог по счетам в первом экране панели; подробности — вкладка «Счета»
+                  <>
+                    <SectionTitle id="booking-money">Финансы</SectionTitle>
+                    <dl className="booking-money" data-testid="preview-finance">
+                      {finance ? (
+                        <>
+                          <div>
+                            <dt>Итого</dt>
+                            <dd className="num">{formatMoney(finance.chargedMinor, r.currency)}</dd>
+                          </div>
+                          <div>
+                            <dt>Оплачено</dt>
+                            <dd className="num">{formatMoney(finance.paidMinor, r.currency)}</dd>
+                          </div>
+                          <div>
+                            <dt>Возвращено</dt>
+                            <dd className="num">
+                              {formatMoney(finance.refundedMinor, r.currency)}
+                            </dd>
+                          </div>
+                        </>
+                      ) : (
+                        <div>
+                          <dt>Финансы</dt>
+                          <dd className="muted">временно недоступны</dd>
+                        </div>
+                      )}
+                    </dl>
+                  </>
                 )}
                 <nav className="booking-print" aria-label="Печатные формы">
                   <span className="booking-print__label">Печать</span>

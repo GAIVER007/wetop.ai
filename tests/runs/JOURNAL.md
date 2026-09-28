@@ -2906,3 +2906,14 @@
 | 28.09.2026 02:45 | unit | ✅ 2130 из 2133, пропущено 3 | 1 мин 12 с | 515da92 +6 | [лог](logs/2026-09-27T21-45-09Z-unit-ab07.log) | R2 |
 | 28.09.2026 02:46 | integration | ✅ 108 из 108 | 35 с | 515da92 +1 | [лог](logs/2026-09-27T21-46-25Z-integration-6d22.log) | R2 |
 | 28.09.2026 02:47 | e2e | ✅ 25 из 25 | 58 с | 515da92 +7 | [лог](logs/2026-09-27T21-47-19Z-e2e-b79b.log) | R2 live e2e on local PostgreSQL |
+| 28.09.2026 12:32 | unit (частично: apps/web/src/app/reservations/[number]/phone-mask.test.ts) | ❌ код выхода 1 | 6 с | 8cbd933 +1 | [лог](logs/2026-09-28T07-32-50Z-unit-8eb4.log) | R3 red: phone mask before implementation |
+| 28.09.2026 12:33 | unit (частично: apps/web/src/app/reservations/[number]/phone-mask.test.ts) | ❌ упало 1 из 3 | 1 с | 8cbd933 +2 | [лог](logs/2026-09-28T07-33-05Z-unit-1664.log) | R3 green: phone mask |
+| 28.09.2026 12:33 | unit (частично: apps/web/src/app/reservations/[number]/phone-mask.test.ts) | ✅ 3 из 3 | 1 с | 8cbd933 +2 | [лог](logs/2026-09-28T07-33-21Z-unit-f8e4.log) | R3 green: phone mask, grouped country code |
+| 28.09.2026 12:34 | e2e (частично: tests/ui/reservations-v2-r3.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 5 из 5 | 3 мин 1 с | 8cbd933 +3 | [лог](logs/2026-09-28T07-34-30Z-e2e-c2a6.log) | R3 red: quick preview before implementation |
+| 28.09.2026 12:40 | e2e (частично: tests/ui/reservations-v2-r3.spec.ts tests/ui/manager-actions.spec.ts tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts --confi | ❌ упало 2 из 26 | 6 мин 13 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-40-28Z-e2e-9553.log) | R3: quick preview + neighbours |
+| 28.09.2026 12:47 | e2e (частично: tests/ui/reservations-v2-r3.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 5 из 5 | 47 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-47-09Z-e2e-23ba.log) | R3: spec green incl. stop-gate shots |
+| 28.09.2026 12:48 | typecheck | ✅ без ошибок | 20 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-48-15Z-typecheck-19bf.log) | R3 |
+| 28.09.2026 12:48 | lint | ❌ ошибок: 1 | 19 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-48-36Z-lint-a28b.log) | R3 |
+| 28.09.2026 12:49 | lint | ✅ без ошибок | 14 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-49-02Z-lint-dcb0.log) | R3, unused import removed |
+| 28.09.2026 12:49 | typecheck | ✅ без ошибок | 20 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-49-16Z-typecheck-49bf.log) | R3 |
+| 28.09.2026 12:49 | unit | ✅ 2133 из 2136, пропущено 3 | 1 мин 12 с | 8cbd933 +10 | [лог](logs/2026-09-28T07-49-44Z-unit-e099.log) | R3 |

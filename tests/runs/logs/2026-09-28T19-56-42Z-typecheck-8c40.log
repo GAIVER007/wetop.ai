@@ -1,0 +1,5 @@
+# Типы (typecheck) · 29.09.2026 00:56 Алматы · vm
+# коммит 6d7d532 (claude/lucid-edison-cqa1ja)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+# код выхода 0 · 30 с

@@ -241,7 +241,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'settings',
         label: 'Интеграции',
         icon: 'channels',
-        description: 'Подключение каналов, счётчика и модуля бронирования.',
+        description: 'Внешние сервисы объекта: состояние подключения и где его настроить.',
       },
       {
         href: '/analytics/setup',

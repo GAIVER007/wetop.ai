@@ -60,7 +60,7 @@ export function ChannelButtons({
         </section>
       )}
       {group !== 'exchange' && (
-        <section className="channel-actions" aria-label="Настройка подключения">
+        <section className="channel-actions" id="channel-setup" aria-label="Настройка подключения">
           <h3 className="channel-actions__title">Настройка подключения</h3>
           <Row>
             <Button

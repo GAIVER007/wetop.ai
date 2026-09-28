@@ -202,10 +202,10 @@ test('подключения показывают частичный сбой, �
     data: { failPath: '/channels/channex/webhook/status' },
   });
   await page.goto('/connections');
-  await expect(page.getByRole('main').getByRole('alert')).toContainText(
-    'Не удалось проверить webhook',
-  );
-  await expect(page.getByText('Сайтов в системе: 1')).toBeVisible();
+  // частичный сбой: webhook не проверен — «неизвестно» и причина словами; сайт — модуль WETOP, не интеграция (INT1)
+  await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
+  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить webhook');
+  await expect(page.getByRole('main')).not.toContainText('Сайтов в системе');
   // Контент каналов не дублируется: старые ссылки ведут к подключению Channex.
   for (const section of ['photos', 'amenities']) {
     await page.goto(`/hotel-settings/${section}`);
@@ -840,8 +840,12 @@ test('кнопки Channex отправляют команды один раз �
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
   await page.goto('/connections');
-  await page.getByRole('button', { name: 'Проверить соединение' }).click();
-  await expect(page.getByText('Соединение установлено')).toBeVisible();
+  await page
+    .getByTestId('integration-channex')
+    .getByRole('button', { name: 'Проверить соединение' })
+    .click();
+  await expect(page.getByTestId('integration-health')).toHaveText('Требует внимания');
+  await expect(page.getByTestId('integration-issues')).toContainText('Webhook не включён');
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
@@ -928,10 +932,8 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Показатели за период');
   await expect(page.getByTestId('dashboard-error')).toBeVisible();
   await page.goto('/connections');
-  await expect(
-    page.getByRole('main').getByRole('alert').filter({ hasText: 'Нет связи с рабочим API' }),
-  ).toBeVisible();
-  await expect(page.getByText('Соединение установлено')).toHaveCount(0);
+  await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
+  await expect(page.getByTestId('integration-health')).not.toHaveText('Работает');
 });
 
 /**

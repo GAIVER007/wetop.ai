@@ -1,0 +1,97 @@
+# Сквозные (e2e) · 28.09.2026 01:57 Алматы · vm
+# коммит a0fa497 (claude/integrations-screen-restructure-e51aay), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/integrations.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/integrations.spec.ts:21:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (17.7s)
+  ✓  2 tests/ui/integrations.spec.ts:49:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.5s)
+  ✓  3 tests/ui/integrations.spec.ts:67:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (1.4s)
+  ✓  4 tests/ui/integrations.spec.ts:83:1 › ключ Channex не задан — не подключено, а не «работает» (920ms)
+  ✘  5 tests/ui/integrations.spec.ts:89:1 › только чтение: список и состояние видны, подключение — после оплаты (15.9s)
+  ✓  6 tests/ui/integrations.spec.ts:98:1 › сотрудник смены технических деталей не видит (1.2s)
+  ✓  7 tests/ui/integrations.spec.ts:107:1 › телефон: карточка без прокрутки вбок (919ms)
+  ✓  8 tests/ui/integrations.spec.ts:123:3 › INT1, стоп-гейт: снимки для владельца, light (6.1s)
+  ✓  9 tests/ui/integrations.spec.ts:123:3 › INT1, стоп-гейт: снимки для владельца, dark (5.8s)
+
+
+  1) tests/ui/integrations.spec.ts:21:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByTestId('integration-channex').getByTestId('integration-last-exchange')
+    Expected: "2 мин назад"
+    Received: "1 мин назад"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-channex').getByTestId('integration-last-exchange') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-channex').getByTestId('integration-last-exchange')
+        33 × locator resolved to <dd data-testid="integration-last-exchange">…</dd>
+           - unexpected value "1 мин назад"
+
+
+      28 |   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
+      29 |   await expect(card.getByTestId('integration-issues')).toHaveCount(0);
+    > 30 |   await expect(card.getByTestId('integration-last-exchange')).toHaveText('2 мин назад');
+         |                                                               ^
+      31 |   await expect(card).toContainText('3 категории, 3 тарифа');
+      32 |   await expect(card.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute('href', '/channels');
+      33 |   await expect(card.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', '/channels#channel-setup');
+        at /home/user/wetop.ai/tests/ui/integrations.spec.ts:30:63
+
+    Error Context: test-results/integrations-работает-одна-0fe56-йта-и-списка-зелёных-плашек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-работает-одна-0fe56-йта-и-списка-зелёных-плашек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-работает-одна-0fe56-йта-и-списка-зелёных-плашек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/integrations.spec.ts:89:1 › только чтение: список и состояние видны, подключение — после оплаты 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('read-only-banner')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('read-only-banner') with timeout 15000ms
+      - waiting for getByTestId('read-only-banner')
+
+
+      90 |   await control(page, { channex: 'foreign' satisfies Mode, orgTrialDays: 'ended' });
+      91 |   await page.goto('/connections?tab=available');
+    > 92 |   await expect(page.getByTestId('read-only-banner')).toBeVisible();
+         |                                                      ^
+      93 |   await expect(page.getByRole('main').getByTestId('integration-connect')).toContainText(
+      94 |     'Подключение — после оплаты подписки',
+      95 |   );
+        at /home/user/wetop.ai/tests/ui/integrations.spec.ts:92:54
+
+    Error Context: test-results/integrations-только-чтение-302cd--подключение-—-после-оплаты/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-только-чтение-302cd--подключение-—-после-оплаты/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-только-чтение-302cd--подключение-—-после-оплаты/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/integrations.spec.ts:21:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек 
+    tests/ui/integrations.spec.ts:89:1 › только чтение: список и состояние видны, подключение — после оплаты 
+  7 passed (1.0m)
+
+# код выхода 1 · 1 мин 4 с

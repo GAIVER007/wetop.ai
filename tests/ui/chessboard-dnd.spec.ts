@@ -28,7 +28,9 @@ const add = (date: string, n: number) => {
 
 /** Неделя со вчерашнего дня: ночи брони в середине окна, справа запас на продление */
 async function openWeek(page: Page, request: APIRequestContext): Promise<string> {
-  const stay = (await (await request.get(`${fixture}/reservations/${NUMBER}`, { headers })).json()) as {
+  const stay = (await (
+    await request.get(`${fixture}/reservations/${NUMBER}`, { headers })
+  ).json()) as {
     arrivalDate: string;
   };
   const from = add(stay.arrivalDate, -1);
@@ -58,10 +60,12 @@ async function dragOver(page: Page, source: Locator, target: Locator) {
 }
 
 const commands = async (request: APIRequestContext, tail: string) =>
-  ((await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
-    path: string;
-    body: Record<string, unknown>;
-  }>).filter((c) => c.path.endsWith(tail));
+  (
+    (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+      path: string;
+      body: Record<string, unknown>;
+    }>
+  ).filter((c) => c.path.endsWith(tail));
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -150,7 +154,9 @@ test('другая категория: переезжает всё прожив�
     `[data-testid="stay-cell"][data-date="${add(arrival, 1)}"]`,
   );
   await dragOver(page, second, target.locator(`td[data-date="${add(arrival, 1)}"]`));
-  await expect(target.locator(`td[data-date="${arrival}"]`).getByTestId('drop-ghost')).toBeVisible();
+  await expect(
+    target.locator(`td[data-date="${arrival}"]`).getByTestId('drop-ghost'),
+  ).toBeVisible();
   await page.mouse.up();
 
   const dialog = page.getByTestId('confirm-dialog');

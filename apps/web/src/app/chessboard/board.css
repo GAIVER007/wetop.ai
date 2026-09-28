@@ -1379,3 +1379,23 @@
   color: var(--text-2);
   font-size: var(--text-sm);
 }
+
+/*
+ * ТЗ «Шахматка v2», PR 5 — создание брони выделением (§31–32). Пока тянут по свободным ночам и пока
+ * открыто окошко периода, выделение — тот же призрак, что при переселении, с «N ночей». Окошко —
+ * оболочка предпросмотра брони (.stay-preview): номер, категория, даты, у одной клетки «Свободен».
+ */
+.board .board__free--link {
+  user-select: none;
+}
+.free-menu__dates {
+  margin: 0;
+  color: var(--text);
+  font-weight: var(--weight-semibold);
+}
+.free-menu__state {
+  margin: var(--space-1) 0 0;
+  color: var(--success);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}

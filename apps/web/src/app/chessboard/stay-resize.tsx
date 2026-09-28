@@ -71,7 +71,11 @@ export function StayResize({
   };
 
   useEffect(() => {
-    if (!nights || prices.current.has(nights) || extensionConflict(cells, lastNight, nights, itemId))
+    if (
+      !nights ||
+      prices.current.has(nights) ||
+      extensionConflict(cells, lastNight, nights, itemId)
+    )
       return;
     const asked = nights;
     const timer = setTimeout(() => {

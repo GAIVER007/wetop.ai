@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { unitsApi } from '../../../lib/api';
-import { hotelToday } from '../../../lib/hotel-api';
+import { hotelToday, validDate } from '../../../lib/hotel-api';
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
@@ -16,9 +17,27 @@ const STATUS_RU: Record<string, string> = {
   NO_SHOW: 'незаезд',
 };
 
-/** Карточка ячейки: уборка, блокировки, ближайшие проживания. */
-export default async function UnitPage({ params }: { params: Promise<{ code: string }> }) {
+/**
+ * Карточка ячейки: уборка, блокировки, ближайшие проживания. `?blockFrom=&blockTo=` — период из окошка
+ * шахматки (ТЗ «Шахматка v2» §31–32): форма блокировки открывается с ним; «по» не включается, как у API.
+ */
+export default async function UnitPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ code: string }>;
+  searchParams: Promise<SearchParams>;
+}) {
   const { code } = await params;
+  const q = normalizeSearchParams(await searchParams);
+  const blockPeriod =
+    q.blockFrom &&
+    q.blockTo &&
+    validDate(q.blockFrom) &&
+    validDate(q.blockTo) &&
+    q.blockTo > q.blockFrom
+      ? { dateFrom: q.blockFrom, dateTo: q.blockTo }
+      : undefined;
   const unit = await unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404);
   const today = await hotelToday();
   return (
@@ -28,7 +47,7 @@ export default async function UnitPage({ params }: { params: Promise<{ code: str
       title={`Ячейка ${unit.code}`}
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >
-      <UnitActions unit={unit} today={today} />
+      <UnitActions unit={unit} today={today} blockPeriod={blockPeriod} />
       <SectionTitle>Ближайшие проживания, 60 дней</SectionTitle>
       <Table size="sm" data-testid="unit-stays">
         <thead>

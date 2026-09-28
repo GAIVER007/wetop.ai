@@ -76,7 +76,11 @@ describe('checkDrop: куда можно бросить бронь', () => {
     expect(checkDrop(source, row('B-12', 'DORM', cells)).kind).toBe('ok');
   });
   it('чужая бронь на ночах переезда — drop закрыт, причина с датой словами', () => {
-    const cells = [free(days[0]!), free(days[1]!), { date: days[2]!, state: 'OCCUPIED', itemId: 'x' }];
+    const cells = [
+      free(days[0]!),
+      free(days[1]!),
+      { date: days[2]!, state: 'OCCUPIED', itemId: 'x' },
+    ];
     expect(checkDrop(source, row('B-12', 'DORM', cells))).toEqual({
       kind: 'blocked',
       fromDate: '2026-09-15',
@@ -95,7 +99,11 @@ describe('checkDrop: куда можно бросить бронь', () => {
     expect(verdict.kind === 'blocked' && verdict.reason).toMatch(/^Недоступно с 15 сент\.: /);
   });
   it('та же бронь в целевой строке (прежний переезд) — не конфликт', () => {
-    const cells = [free(days[0]!), { date: days[1]!, state: 'OCCUPIED', itemId: 'item-1' }, free(days[2]!)];
+    const cells = [
+      free(days[0]!),
+      { date: days[1]!, state: 'OCCUPIED', itemId: 'item-1' },
+      free(days[2]!),
+    ];
     expect(checkDrop(source, row('B-12', 'DORM', cells)).kind).toBe('ok');
   });
   it('другая категория — переезжает всё проживание: с первой ночи плашки, а не с взятой клетки', () => {
@@ -107,7 +115,10 @@ describe('checkDrop: куда можно бросить бронь', () => {
     });
   });
   it('другая категория, а заезд раньше окна — drop закрыт: весь срок на экране не проверить', () => {
-    const verdict = checkDrop({ ...source, startsBefore: true }, row('R-01', 'ROOM', days.map(free)));
+    const verdict = checkDrop(
+      { ...source, startsBefore: true },
+      row('R-01', 'ROOM', days.map(free)),
+    );
     expect(verdict.kind).toBe('blocked');
     expect(verdict.kind === 'blocked' && verdict.reason).toContain('заезд раньше');
   });
@@ -118,7 +129,12 @@ describe('checkDrop: куда можно бросить бронь', () => {
  * остаётся в заголовке (DESIGN.md §14: заголовок — вопрос с номером брони), сырых дат нет.
  */
 describe('moveQuestion: окно подтверждения переселения', () => {
-  const same = { kind: 'ok', fromDate: '2026-09-15', toDate: '2026-09-16', changesCategory: false } as const;
+  const same = {
+    kind: 'ok',
+    fromDate: '2026-09-15',
+    toDate: '2026-09-16',
+    changesCategory: false,
+  } as const;
   it('та же категория: «стоимость не изменится», даты отрезком и число ночей', () => {
     const q = moveQuestion(source, 'B-12', same, {
       action: 'move',
@@ -153,17 +169,24 @@ describe('moveQuestion: окно подтверждения переселени
     );
     expect(q.dates).toBe('14 сент. → 17 сент., 3 ночи');
     expect(q.money).toBe('Разница стоимости: +15 000 ₸');
-    expect(q.note).toBe('Проживание станет 27 000 ₸ вместо 12 000 ₸: категория «Двухместный номер».');
+    expect(q.note).toBe(
+      'Проживание станет 27 000 ₸ вместо 12 000 ₸: категория «Двухместный номер».',
+    );
   });
   it('дешевле — минус «−» (U+2212), не дефис', () => {
-    const q = moveQuestion(source, 'R-01', { ...same, changesCategory: true }, {
-      action: 'move',
-      currentPriceMinor: '2700000',
-      currency: 'KZT',
-      changesCategory: true,
-      newPriceMinor: '1200000',
-      differenceMinor: '-1500000',
-    });
+    const q = moveQuestion(
+      source,
+      'R-01',
+      { ...same, changesCategory: true },
+      {
+        action: 'move',
+        currentPriceMinor: '2700000',
+        currency: 'KZT',
+        changesCategory: true,
+        newPriceMinor: '1200000',
+        differenceMinor: '-1500000',
+      },
+    );
     expect(q.money).toBe('Разница стоимости: −15 000 ₸');
   });
   it('проживание идёт дальше окна: выезд не угадываем', () => {

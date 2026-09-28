@@ -52,7 +52,9 @@ for (const theme of ['light', 'dark'] as const) {
     const open = () => page.goto(`/chessboard?from=${add(arrival, -1)}&to=${add(arrival, 5)}`);
     await open();
     await expect(page.getByTestId('unit-row')).toHaveCount(88);
-    const source = unitRow(page, 'R02').locator(`[data-testid="stay-cell"][data-date="${arrival}"]`);
+    const source = unitRow(page, 'R02').locator(
+      `[data-testid="stay-cell"][data-date="${arrival}"]`,
+    );
     const at = (code: string, n = 0) =>
       unitRow(page, code).locator(`td[data-date="${add(arrival, n)}"]`);
     const ghost = page.getByTestId('drop-ghost');

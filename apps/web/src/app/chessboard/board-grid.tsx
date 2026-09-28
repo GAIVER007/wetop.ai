@@ -17,6 +17,9 @@ import { messengerLinks } from '../../lib/format';
 import { guestNames, sourceBadge, stayLabels } from './stay-labels';
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
 import { StayResize } from './stay-resize';
+import { FreeMenuPopover } from './free-menu';
+import { freeMenuModel, selectRange, type FreeMenu } from './range-plan';
+import { pluralRu } from '../../lib/plural';
 import {
   assignUnitAction,
   cancelPreviewAction,
@@ -223,6 +226,100 @@ export function ChessboardGrid({
     });
   }, []);
 
+  /**
+   * ТЗ v2 §31–32: прижал мышь на свободной клетке и протянул по датам — выделены свободные ночи подряд
+   * (`selectRange`: на занятую или закрытую ночь не заходит); отпустил — окошко с «Создать бронь» и
+   * «Заблокировать». Щелчок без протягивания и касание — окошко одной клетки. Команд здесь нет:
+   * окошко ведёт на формы брони и блокировки, уже заполненные.
+   */
+  const [range, setRange] = useState<{ unitCode: string; from: number; to: number } | null>(null);
+  const sweeping = useRef<{ row: ChessboardRow; anchor: number; from: number; to: number } | null>(
+    null,
+  );
+  // pointerup уже открыл окошко: следующий click по той же клетке его не дублирует
+  const swept = useRef(false);
+  const [freeMenu, setFreeMenu] = useState<{
+    menu: FreeMenu;
+    anchor: HTMLElement;
+    unitCode: string;
+    fromDate: string;
+    toDate: string;
+  } | null>(null);
+  const closeFreeMenu = useCallback(() => setFreeMenu(null), []);
+  const openFreeMenu = (row: ChessboardRow, from: number, to: number, anchor: HTMLElement) => {
+    const fromDate = row.cells[from]!.date;
+    const toDate = row.cells[to]!.date;
+    setPreview(null);
+    setFreeMenu({
+      menu: freeMenuModel(
+        {
+          code: row.unit.code,
+          kind: row.unit.kind,
+          categoryName: row.unit.accommodationTypeName,
+        },
+        fromDate,
+        toDate,
+      ),
+      anchor,
+      unitCode: row.unit.code,
+      fromDate,
+      toDate,
+    });
+  };
+  const freeCellHandlers = (row: ChessboardRow, index: number): FreeCellHandlers => ({
+    onPointerDown: (e) => {
+      // касание оставляем прокрутке; с клавишей — ссылка как ссылка (новая вкладка)
+      if (e.button !== 0 || e.pointerType === 'touch') return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      swept.current = false;
+      setFreeMenu(null);
+      setPreview(null);
+      sweeping.current = { row, anchor: index, from: index, to: index };
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setRange({ unitCode: row.unit.code, from: index, to: index });
+    },
+    onPointerMove: (e) => {
+      const s = sweeping.current;
+      if (!s) return;
+      const td = document
+        .elementFromPoint(e.clientX, e.clientY)
+        ?.closest<HTMLTableCellElement>('td[data-date]');
+      if (!td || td.closest('tr') !== e.currentTarget.closest('tr')) return;
+      const hover = s.row.cells.findIndex((c) => c.date === td.dataset.date);
+      const next = hover < 0 ? null : selectRange(s.row.cells, s.anchor, hover);
+      if (!next || (next.from === s.from && next.to === s.to)) return;
+      s.from = next.from;
+      s.to = next.to;
+      setRange({ unitCode: s.row.unit.code, ...next });
+    },
+    onPointerUp: (e) => {
+      const s = sweeping.current;
+      if (!s) return;
+      sweeping.current = null;
+      swept.current = true;
+      setRange(null);
+      const last = s.row.cells[s.to]!.date;
+      const anchor =
+        e.currentTarget.closest('tr')?.querySelector<HTMLElement>(`td[data-date="${last}"]`) ??
+        e.currentTarget;
+      openFreeMenu(s.row, s.from, s.to, anchor);
+    },
+    onPointerCancel: () => {
+      sweeping.current = null;
+      setRange(null);
+    },
+    onClick: (e) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      if (swept.current) {
+        swept.current = false;
+        return;
+      }
+      openFreeMenu(row, index, index, e.currentTarget.closest('td') ?? e.currentTarget);
+    },
+  });
+
   const dropRow = (row: ChessboardRow): DropRow => ({
     unitCode: row.unit.code,
     categoryCode: row.unit.accommodationTypeCode,
@@ -293,7 +390,12 @@ export function ChessboardGrid({
     fd.set('unitCode', unitCode);
     fd.set('fromDate', verdict.fromDate);
     setError(null);
-    setLanding({ unitCode, fromDate: verdict.fromDate, toDate: verdict.toDate, guest: source.guest });
+    setLanding({
+      unitCode,
+      fromDate: verdict.fromDate,
+      toDate: verdict.toDate,
+      guest: source.guest,
+    });
     start(async () => {
       // server action сам делает revalidatePath('/chessboard') — сетка перерисуется с сервера
       const r = await assignUnitAction(source.number, source.itemId, { error: null }, fd);
@@ -490,6 +592,21 @@ export function ChessboardGrid({
     };
     if (landing?.unitCode === row.unit.code)
       return place(landing.fromDate, landing.toDate, 'saving', 'Сохраняем…');
+    // §31: выделяемые ночи — пока тянут и пока открыто окошко периода
+    const nightsText = (n: number) => pluralRu(n, ['ночь', 'ночи', 'ночей']);
+    if (range?.unitCode === row.unit.code)
+      return place(
+        row.cells[range.from]!.date,
+        row.cells[range.to]!.date,
+        'range',
+        nightsText(range.to - range.from + 1),
+      );
+    if (freeMenu?.unitCode === row.unit.code && !freeMenu.menu.single) {
+      const n = row.cells.filter(
+        (c) => c.date >= freeMenu.fromDate && c.date <= freeMenu.toDate,
+      ).length;
+      return place(freeMenu.fromDate, freeMenu.toDate, 'range', nightsText(n));
+    }
     if (!drag || overUnit !== row.unit.code) return null;
     const v = drag.verdicts.get(row.unit.code);
     if (!v || v.kind === 'noop') return null;
@@ -731,64 +848,65 @@ export function ChessboardGrid({
                     const verdict = drag?.verdicts.get(row.unit.code);
                     const ghost = ghostFor(row);
                     return (
-                    <tr
-                      key={row.unit.id}
-                      data-testid="unit-row"
-                      data-unit-code={row.unit.code}
-                      // §26: пока бронь в руке, строка говорит, можно ли на неё бросить
-                      data-drop={verdict && verdict.kind !== 'noop' ? verdict.kind : undefined}
-                      onDragOver={onDragOver(row)}
-                      onDrop={onDrop(row)}
-                      className={overUnit === row.unit.code ? 'is-over' : undefined}
-                    >
-                      <td className="board__unit">
-                        <Link
-                          href={`/units/${encodeURIComponent(row.unit.code)}`}
-                          data-testid="unit-link"
-                          className="unit board-unit-link"
-                          title={unitTitle(row.unit)}
-                        >
-                          <Icon name={row.unit.kind === 'BED' ? 'bed' : 'inventory'} />
-                          {row.unit.code}
-                        </Link>{' '}
-                        <span className="muted-2">
-                          {row.unit.kind === 'BED' ? 'койка' : 'номер'}
-                        </span>
-                        {needsHousekeeping(row.unit.housekeepingStatus) && (
-                          <HousekeepingMenu
-                            code={row.unit.code}
-                            status={row.unit.housekeepingStatus}
+                      <tr
+                        key={row.unit.id}
+                        data-testid="unit-row"
+                        data-unit-code={row.unit.code}
+                        // §26: пока бронь в руке, строка говорит, можно ли на неё бросить
+                        data-drop={verdict && verdict.kind !== 'noop' ? verdict.kind : undefined}
+                        onDragOver={onDragOver(row)}
+                        onDrop={onDrop(row)}
+                        className={overUnit === row.unit.code ? 'is-over' : undefined}
+                      >
+                        <td className="board__unit">
+                          <Link
+                            href={`/units/${encodeURIComponent(row.unit.code)}`}
+                            data-testid="unit-link"
+                            className="unit board-unit-link"
+                            title={unitTitle(row.unit)}
+                          >
+                            <Icon name={row.unit.kind === 'BED' ? 'bed' : 'inventory'} />
+                            {row.unit.code}
+                          </Link>{' '}
+                          <span className="muted-2">
+                            {row.unit.kind === 'BED' ? 'койка' : 'номер'}
+                          </span>
+                          {needsHousekeeping(row.unit.housekeepingStatus) && (
+                            <HousekeepingMenu
+                              code={row.unit.code}
+                              status={row.unit.housekeepingStatus}
+                            />
+                          )}
+                        </td>
+                        {row.cells.map((c, index) => (
+                          <Cell
+                            key={c.date}
+                            cell={c}
+                            label={labels.get(row.unit.id)?.get(index)}
+                            plate={plates.get(row.unit.id)?.get(index)}
+                            rowCells={row.cells}
+                            unit={row.unit}
+                            unitCode={row.unit.code}
+                            today={today}
+                            month={fitMonth}
+                            ghost={ghost?.date === c.date ? ghost : undefined}
+                            free={c.state === 'FREE' ? freeCellHandlers(row, index) : undefined}
+                            lifted={
+                              !!drag &&
+                              drag.source.unitCode === row.unit.code &&
+                              drag.source.itemId === c.itemId
+                            }
+                            onPreview={setPreview}
+                            onOpen={openCard}
+                            onDragStart={onDragStart}
+                            onDragEnd={clearDrag}
+                            onExtend={extendStay}
+                            onRefuse={setError}
+                            pending={pending}
+                            onCancel={cancelStay}
                           />
-                        )}
-                      </td>
-                      {row.cells.map((c, index) => (
-                        <Cell
-                          key={c.date}
-                          cell={c}
-                          label={labels.get(row.unit.id)?.get(index)}
-                          plate={plates.get(row.unit.id)?.get(index)}
-                          rowCells={row.cells}
-                          unit={row.unit}
-                          unitCode={row.unit.code}
-                          today={today}
-                          month={fitMonth}
-                          ghost={ghost?.date === c.date ? ghost : undefined}
-                          lifted={
-                            !!drag &&
-                            drag.source.unitCode === row.unit.code &&
-                            drag.source.itemId === c.itemId
-                          }
-                          onPreview={setPreview}
-                          onOpen={openCard}
-                          onDragStart={onDragStart}
-                          onDragEnd={clearDrag}
-                          onExtend={extendStay}
-                          onRefuse={setError}
-                          pending={pending}
-                          onCancel={cancelStay}
-                        />
-                      ))}
-                    </tr>
+                        ))}
+                      </tr>
                     );
                   })}
               </Fragment>
@@ -811,6 +929,15 @@ export function ChessboardGrid({
           onCommand={(command, t) => void runCommand(command, t)}
         />
       )}
+      {freeMenu && (
+        <FreeMenuPopover
+          key={`${freeMenu.unitCode}:${freeMenu.fromDate}:${freeMenu.toDate}`}
+          menu={freeMenu.menu}
+          anchor={freeMenu.anchor}
+          readOnly={readOnly}
+          onClose={closeFreeMenu}
+        />
+      )}
       {dialog}
     </>
   );
@@ -825,11 +952,19 @@ interface PlateLabel {
   lastDate: string;
   ends: boolean;
 }
+/** Пустая клетка (§31–32): прижать и протянуть — выделение ночей; щелчок — окошко одной клетки */
+interface FreeCellHandlers {
+  onPointerDown: (e: React.PointerEvent<HTMLAnchorElement>) => void;
+  onPointerMove: (e: React.PointerEvent<HTMLAnchorElement>) => void;
+  onPointerUp: (e: React.PointerEvent<HTMLAnchorElement>) => void;
+  onPointerCancel: () => void;
+  onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+}
 /** Призрак брони поверх клеток строки: куда ляжет бронь, почему нельзя или что сохраняется */
 interface Ghost {
   date: string;
   span: number;
-  tone: 'ok' | 'blocked' | 'saving';
+  tone: 'ok' | 'blocked' | 'saving' | 'range';
   text: string;
 }
 
@@ -843,6 +978,7 @@ function Cell({
   today,
   month,
   ghost,
+  free,
   lifted,
   onPreview,
   onOpen,
@@ -862,6 +998,7 @@ function Cell({
   today: string;
   month: boolean;
   ghost: Ghost | undefined;
+  free: FreeCellHandlers | undefined;
   /** Эту бронь сейчас тянут: плашка на старом месте бледнеет */
   lifted: boolean;
   onPreview: (target: PreviewTarget) => void;
@@ -887,7 +1024,7 @@ function Cell({
         }${cell.channel ? ` · ${cell.channel}` : ''}${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
         ? `${blockTypeLabel(cell.blockType)}${cell.blockReason ? `: ${cell.blockReason}` : ''}`
-        : 'Свободно — создать бронь на эту дату';
+        : 'Свободно — щелчок: новая бронь или блокировка; протяните по датам, чтобы выбрать период';
   const radius = `${cell.isArrival ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isLastNight ? 8 : 0}px ${cell.isArrival ? 8 : 0}px`;
   const draggable =
     cell.state === 'OCCUPIED' &&
@@ -1122,9 +1259,11 @@ function Cell({
         </>
       ) : cell.state === 'FREE' ? (
         /*
-         * Пустая клетка — короткий путь «щёлкнул по дате и койке → форма брони с этими датами».
-         * Из обхода по Tab исключена намеренно: таких клеток на доске больше тысячи, и они забили бы
-         * клавиатурную навигацию; то же действие есть кнопкой «+ Новая бронь» в верхней навигации.
+         * Пустая клетка (ТЗ v2 §31–32): щелчок — окошко «Свободен» с «Новая бронь» и «Блокировка»,
+         * прижать и протянуть по датам — выделение ночей. Ссылкой остаётся ради щелчка с клавишей
+         * (новая вкладка с формой брони). Из обхода по Tab исключена намеренно: таких клеток на доске
+         * больше тысячи, и они забили бы клавиатурную навигацию; то же действие есть кнопкой
+         * «+ Новая бронь» в верхней навигации.
          */
         <Link
           href={`/reservations/new?arrival=${cell.date}&departure=${nextDay(cell.date)}&unit=${encodeURIComponent(unitCode)}`}
@@ -1132,6 +1271,7 @@ function Cell({
           data-testid="free-cell"
           tabIndex={-1}
           aria-hidden="true"
+          {...free}
         />
       ) : (
         <Link

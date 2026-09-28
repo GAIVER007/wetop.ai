@@ -153,3 +153,9 @@
 | 29.09.2026 00:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts tests/ui/manager-actions.spec.ts tests/ui/chessboard-card.spec.ts --workers=1 | ✅ 20 из 20 | 1 мин 19 с | 6d7d532 | [лог](logs/2026-09-28T19-58-56Z-e2e-3ea1.log) | PR #135 merged with main: card specs |
 | 29.09.2026 01:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --grep доступность переносит даты --workers=1) | ✅ 1 из 1 | 13 с | 6d7d532 | [лог](logs/2026-09-28T20-00-16Z-e2e-fd0d.log) | PR #135 merged with main: workspace:159 |
 | 29.09.2026 01:04 | typecheck | ✅ без ошибок | 21 с | 40403b9 | [лог](logs/2026-09-28T20-04-59Z-typecheck-d3b8.log) |  |
+| 29.09.2026 01:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G8) | ❌ упало 1 из 1 | 9 с | d0882e1 +1 | [лог](logs/2026-09-28T20-06-15Z-e2e-1bc0.log) | гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) |
+| 29.09.2026 01:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts -g G8) | ✅ 1 из 1 | 10 с | d0882e1 +5 | [лог](logs/2026-09-28T20-06-31Z-e2e-25cf.log) |  |
+| 29.09.2026 01:06 | typecheck | ✅ без ошибок | 24 с | d0882e1 +5 | [лог](logs/2026-09-28T20-06-50Z-typecheck-bc2f.log) |  |
+| 29.09.2026 01:07 | lint | ✅ без ошибок | 16 с | d0882e1 +5 | [лог](logs/2026-09-28T20-07-14Z-lint-e2cc.log) |  |
+| 29.09.2026 01:07 | unit | ✅ 2179 из 2182, пропущено 3 | 1 мин 16 с | d0882e1 +4 | [лог](logs/2026-09-28T20-07-31Z-unit-6082.log) |  |
+| 29.09.2026 01:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ✅ 99 из 99 | 9 мин 37 с | d0882e1 +5 | [лог](logs/2026-09-28T20-08-47Z-e2e-a462.log) |  |

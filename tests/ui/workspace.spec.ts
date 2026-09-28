@@ -62,7 +62,8 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings', 'Настройки объекта'],
     ['/hotel-settings/check-in', 'Настройки объекта'],
     ['/hotel-settings/stay', 'Настройки объекта'],
-    ['/hotel-settings/penalties', 'Цены и ограничения'],
+    // правила отмены живут в тарифах: адрес уводит на /rates, экран с ADR-111 — «Тарифы и цены»
+    ['/hotel-settings/penalties', 'Тарифы и цены'],
     ['/hotel-settings/services', 'Настройки объекта'],
     ['/hotel-settings/description', 'Настройки объекта'],
     ['/hotel-settings/photos', 'Интеграции'],

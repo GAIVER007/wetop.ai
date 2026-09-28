@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 29.09.2026 00:35 Алматы · vm
+# коммит 7df44f9 (claude/amazing-einstein-sow0em)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-range.spec.ts' 'tests/ui/rates-design.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/rates-design.spec.ts:18:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (2.2s)
+  ✓   2 tests/ui/rates-design.spec.ts:64:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (1.9s)
+  ✓   3 tests/ui/rates-design.spec.ts:94:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (2.8s)
+  ✓   4 tests/ui/rates-design.spec.ts:110:1 › фильтры: категория и тариф чипами в одно касание, месяц русским списком — без «Показать» (2.4s)
+  ✓   5 tests/ui/rates-design.spec.ts:139:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (1.5s)
+  ✓   6 tests/ui/rates-range.spec.ts:35:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (2.2s)
+  ✓   7 tests/ui/rates-range.spec.ts:88:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (2.6s)
+  ✓   8 tests/ui/rates-range.spec.ts:135:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (2.3s)
+  ✓   9 tests/ui/rates-range.spec.ts:173:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (1.8s)
+  ✓  10 tests/ui/rates-range.spec.ts:192:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (2.1s)
+  ✓  11 tests/ui/rates-range.spec.ts:212:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (2.9s)
+
+  11 passed (32.2s)
+
+# код выхода 0 · 33 с

@@ -1,0 +1,18 @@
+# Модульные (unit) · 29.09.2026 03:51 Алматы · vm
+# коммит c60fe74 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T22-51-23Z-unit-f1dc.json' 'apps/web/src/app/chessboard/unassigned-plan.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 6ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 36ms
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 9ms
+
+ Test Files  3 passed (3)
+      Tests  33 passed (33)
+   Start at  22:51:24
+   Duration  332ms (transform 64%, import 23%, tests 10%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-28T22-51-23Z-unit-f1dc.json
+
+# код выхода 0 · 1 с

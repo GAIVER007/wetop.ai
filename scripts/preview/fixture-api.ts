@@ -1426,6 +1426,8 @@ function board(from: string, to: string): Chessboard {
         )
         .map((it) => ({
           confirmationNumber: r.confirmationNumber,
+          itemId: it.id,
+          guestLabel: r.primaryGuest?.label ?? '',
           categoryCode: it.accommodationTypeCode,
           categoryName: it.accommodationTypeName,
           arrivalDate: it.arrivalDate,

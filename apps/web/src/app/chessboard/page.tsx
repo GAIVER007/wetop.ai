@@ -1,9 +1,9 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, guardApi, type UnassignedStay } from '../../lib/api';
-import { nightsBetween, pluralRu } from '../../lib/plural';
-import { ResolveMenu } from './resolve-menu';
+import { channelsApi, chessboardApi, guardApi } from '../../lib/api';
+import { pluralRu } from '../../lib/plural';
+import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
 import { Alert, Button, Legend, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
@@ -17,15 +17,6 @@ import { monthPeriod } from './month-period';
 import { deskShell } from '../../lib/desk-shell';
 import { weekPeriod } from './week-period';
 import './board.css';
-
-const STATUS_RU: Record<string, string> = {
-  TENTATIVE: 'предварительная',
-  CONFIRMED: 'подтверждена',
-  CHECKED_IN: 'заселён',
-  CHECKED_OUT: 'выселен',
-  CANCELLED: 'отменена',
-  NO_SHOW: 'незаезд',
-};
 
 /**
  * Slice 2, шаг 2.7: шахматка — 88 ячеек × даты. Страница остаётся server component; сетка вынесена
@@ -204,7 +195,7 @@ export default async function ChessboardPage({
                 брони на эту дату. Перетащите клетку на другую строку — бронь переселится в ту
                 ячейку с даты взятой клетки (в другую категорию — только на всё проживание). Фильтры
                 статусов считаются на {displayDate(board.from)}. Брони без ячейки на сетке не видны
-                — они в списке над сеткой; ячейка назначается с карточки брони.
+                — они в строке над сеткой: «Разместить» показывает свободные места и назначает.
               </p>
             </div>
           </BoardHelp>
@@ -223,7 +214,12 @@ export default async function ChessboardPage({
           автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
         </Alert>
       )}
-      <UnassignedStays stays={board.unassigned ?? []} critical={overbooked.length > 0} />
+      <UnassignedStays
+        stays={board.unassigned ?? []}
+        critical={overbooked.length > 0}
+        categories={categoriesOf(board.rows)}
+        readOnly={shell?.readOnly ?? false}
+      />
       <ChessboardGrid
         board={board}
         today={today}
@@ -256,68 +252,11 @@ export default async function ChessboardPage({
   );
 }
 
-/**
- * Строка «Без ячейки»: проживания в диапазоне доски, у которых
- * нет назначения (бронь канала, которой не хватило места — Q-107, или снятое назначение). Список
- * приходит отсортированным по категории и заезду, здесь только группируется. Гостей не показываем.
- * ТЗ «Шахматка v2» §11: без таких броней блока нет вовсе; плашка — одна строка, список по щелчку;
- * при проданном сверх мест (риск овербукинга) тон critical и список раскрыт — на него ведёт якорь
- * из плашки «Продано сверх мест», а закрытый details по якорю не открывается.
- */
-function UnassignedStays({ stays, critical }: { stays: UnassignedStay[]; critical?: boolean }) {
-  if (!stays.length) return null;
-  const groups: Array<{ code: string; name: string; items: UnassignedStay[] }> = [];
-  for (const s of stays) {
-    const last = groups[groups.length - 1];
-    if (last && last.code === s.categoryCode) last.items.push(s);
-    else groups.push({ code: s.categoryCode, name: s.categoryName, items: [s] });
-  }
-  return (
-    <details
-      id="unassigned-stays"
-      data-testid="unassigned-stays"
-      data-count={stays.length}
-      data-tone={critical ? 'critical' : 'warning'}
-      open={critical || undefined}
-      className="board-unassigned"
-    >
-      <summary className="board-unassigned-title warn-text">
-        <Icon name="incidents" /> Без ячейки: {stays.length}
-        <span className="board-unassigned-hint">Разместить</span>
-      </summary>
-      {groups.map((g) => (
-        <div key={g.code}>
-          <span className="muted-2">{g.name}</span>
-          <ul className="board-unassigned-list">
-            {g.items.map((s) => (
-              <li
-                key={`${s.confirmationNumber}-${s.arrivalDate}`}
-                data-testid="unassigned-stay"
-                data-number={s.confirmationNumber}
-                style={{ lineHeight: '20px' }}
-              >
-                <Link
-                  href={`/reservations/${encodeURIComponent(s.confirmationNumber)}`}
-                  className="mono bold"
-                >
-                  {s.confirmationNumber}
-                </Link>{' '}
-                <span className="muted">
-                  <time dateTime={s.arrivalDate}>{displayDate(s.arrivalDate)}</time> →{' '}
-                  <time dateTime={s.departureDate}>{displayDate(s.departureDate)}</time> ·{' '}
-                  {pluralRu(nightsBetween(s.arrivalDate, s.departureDate), [
-                    'ночь',
-                    'ночи',
-                    'ночей',
-                  ])}{' '}
-                  · {STATUS_RU[s.status] ?? s.status}
-                </span>
-                <ResolveMenu number={s.confirmationNumber} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </details>
-  );
+/** Категории в порядке строк сетки — ящик «Брони без размещения» показывает чужие места в том же порядке */
+function categoriesOf(rows: Array<{ unit: { accommodationTypeCode: string; accommodationTypeName: string } }>) {
+  const seen = new Map<string, string>();
+  for (const r of rows)
+    if (!seen.has(r.unit.accommodationTypeCode))
+      seen.set(r.unit.accommodationTypeCode, r.unit.accommodationTypeName);
+  return [...seen].map(([code, name]) => ({ code, name }));
 }

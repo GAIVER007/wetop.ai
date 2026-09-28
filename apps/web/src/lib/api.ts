@@ -241,9 +241,12 @@ export interface ChessboardRow {
   };
   cells: ChessboardCell[];
 }
-/** Проживание без назначенной ячейки в диапазоне доски. Без гостей — ПД. */
+/** Проживание без назначенной ячейки в диапазоне доски; гость — только имя, как на плашке сетки */
 export interface UnassignedStay {
   confirmationNumber: string;
+  /** id проживания для назначения из ящика «Брони без размещения» (ТЗ «Шахматка v2» §12) */
+  itemId?: string;
+  guestLabel?: string;
   categoryCode: string;
   categoryName: string;
   arrivalDate: string;

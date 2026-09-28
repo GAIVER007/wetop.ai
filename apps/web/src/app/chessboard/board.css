@@ -172,37 +172,29 @@
   content: '−';
 }
 
-/* «Без ячейки» — одна строка (ТЗ «Шахматка v2» §11): счётчик и «Разместить», список по щелчку.
-   Без таких броней блока нет вовсе; при проданном сверх мест тон critical и блок раскрыт
-   с сервера — на него ведёт якорь из плашки овербукинга (page.tsx). */
+/* Брони без ячейки — одна строка (ТЗ «Шахматка v2» §11): «⚠ 2 брони без назначенного места» и
+   «Разместить», открывающее ящик (§12, unassigned-drawer.tsx). Без таких броней строки нет вовсе;
+   тон warning, при проданном сверх мест — critical. */
 .board-unassigned {
-  display: block;
-  margin: 0 0 var(--space-2);
-  padding: var(--space-1) var(--space-4);
-}
-.board-unassigned > summary {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   min-height: var(--control-h);
-  cursor: pointer;
-  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0 var(--space-2) 0 var(--space-4);
+  border-radius: var(--radius);
+  background: var(--warning-soft);
+  color: var(--warning);
 }
-.board-unassigned > summary::-webkit-details-marker {
-  display: none;
-}
-.board-unassigned-hint {
-  margin-left: auto;
-  color: var(--primary);
+.board-unassigned-text {
   font-weight: 500;
+}
+.board-unassigned-open {
+  margin-left: auto;
 }
 .board-unassigned[data-tone='critical'] {
   background: var(--danger-soft);
-}
-.board-unassigned > div {
-  display: inline-block;
-  vertical-align: top;
-  margin: var(--space-1) var(--space-6) var(--space-1) 0;
+  color: var(--danger);
 }
 /* Ссылка «Месяц» в раскрытых «Датах»: текущее состояние — как у сегмента */
 .board-range-form .btn[aria-current='true'] {
@@ -913,9 +905,66 @@
   );
 }
 
-/* «Разрешить» у брони без ячейки (срез 7.3): второй пункт длиннее ширины меню по умолчанию — иначе он обрезается */
-.board-unassigned .action-menu__list {
-  min-width: 280px;
+/* Ящик «Брони без размещения» (ТЗ v2 §12): карточка на проживание — гость, даты, категория,
+   свободные места чипами и «Назначить R07»; выбранная карточка — рамкой `--primary` */
+.unassigned-drawer__lead {
+  margin: 0 0 var(--space-2);
+  color: var(--text-2);
+}
+.unassigned-drawer__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.unassigned-card {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.unassigned-card[data-selected='true'] {
+  border-color: var(--primary);
+}
+.unassigned-card p {
+  margin: 0;
+}
+.unassigned-card__guest {
+  font-size: 16px;
+  font-weight: 600;
+}
+.unassigned-card__dates {
+  font-weight: 600;
+}
+.unassigned-card__meta {
+  color: var(--text-2);
+  font-size: 13px;
+}
+.unassigned-card__free {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.unassigned-card__label {
+  color: var(--text-2);
+  font-size: 13px;
+}
+.unassigned-card__problem {
+  color: var(--warning);
+  font-weight: 500;
+}
+.unassigned-card__units {
+  flex-wrap: wrap;
+}
+.unassigned-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 /* C2: меню действий на плашке — кнопка «⋯» у правого края первой видимой клетки проживания,

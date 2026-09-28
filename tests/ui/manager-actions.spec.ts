@@ -236,7 +236,7 @@ test('карточка: долгое проживание объясняет, п
   );
 });
 
-test('шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки', async ({
+test('шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» открывает ящик броней без места', async ({
   page,
   request,
 }) => {
@@ -255,25 +255,21 @@ test('шахматка: плашки «сверх мест» и «требует
     'data-count',
     '1',
   );
-  // При проданном сверх мест плашка «Без ячейки» раскрыта сразу и тоном critical (ТЗ v2 §11);
-  // без овербукинга она свёрнута в одну строку, список — по щелчку
+  // При проданном сверх мест строка броней без места — тоном critical (ТЗ v2 §11); «Разрешить» у плашки
+  // овербукинга открывает ящик «Брони без размещения» (§12), из карточки ящика — полная бронь
   await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute(
     'data-tone',
     'critical',
   );
-  await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute('open', '');
   await page
     .getByRole('main')
-    .getByTestId('unassigned-stays')
-    .getByRole('button', { name: 'Разрешить' })
+    .getByTestId('overbooked-callout')
+    .getByRole('link', { name: 'Разрешить' })
     .click();
-  const menu = page.getByRole('menu');
-  await expect(menu.getByRole('menuitem')).toHaveText([
-    /Назначить ячейку/,
-    /Переселить в другую категорию/,
-  ]);
-  await menu.getByRole('menuitem', { name: /Назначить ячейку/ }).click();
-  await expect(page).toHaveURL(/\/reservations\/20260913-SHOWUN#booking-actions$/);
+  const drawer = page.getByRole('dialog', { name: 'Брони без размещения' });
+  const card = drawer.getByTestId('unassigned-card').filter({ hasText: '20260913-SHOWUN' });
+  await card.getByRole('link', { name: 'Открыть бронь' }).click();
+  await expect(page).toHaveURL(/\/reservations\/20260913-SHOWUN$/);
   await cardTab(page, 'Действия');
   await expect(page.getByRole('main').getByTestId('assign-form')).toBeVisible();
 });

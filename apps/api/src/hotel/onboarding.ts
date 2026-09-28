@@ -98,8 +98,8 @@ export class OnboardingService {
    * владелец и членство, а объект, Business и Location удалены — онбординг начинается с пустого места
    * (plans/onboarding-without-property-2026-09-28.md).
    */
-  private async findProperty(organizationId: string) {
-    return this.prisma.db.property.findFirst({
+  private async findProperty(organizationId: string, db: Pick<PrismaService['db'], 'property'> = this.prisma.db) {
+    return db.property.findFirst({
       where: { organizationId },
       select: { id: true, name: true, currency: true, timezone: true },
     });
@@ -142,8 +142,14 @@ export class OnboardingService {
 
     await this.prisma.db.$transaction(async (tx) => {
       // Объекта нет (после сброса) — создаётся в этой же транзакции сразу в цепочке, как при регистрации:
-      // номера без объекта не заведутся, а объект без номеров после отказа не останется
-      const property = existing ?? (await createOrganizationProperty(tx, organizationId, plan.ratePlan.currency));
+      // номера без объекта не заведутся, а объект без номеров после отказа не останется.
+      // Строка организации запирается до конца транзакции: два одновременных первых сохранения иначе оба видели
+      // «объекта нет» и заводили по объекту; второе теперь ждёт первое, видит его объект с номерами и получает 409.
+      await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
+      const property =
+        existing ??
+        (await this.findProperty(organizationId, tx)) ??
+        (await createOrganizationProperty(tx, organizationId, plan.ratePlan.currency));
       // Повторный онбординг закрыт: объект с номерами уже настроен, второй прогон плодил бы дубли
       const already = await tx.accommodationType.count({ where: { propertyId: property.id } });
       if (already > 0)

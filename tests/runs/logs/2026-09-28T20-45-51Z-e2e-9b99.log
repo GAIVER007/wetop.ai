@@ -1,0 +1,104 @@
+# Сквозные (e2e) · 29.09.2026 01:45 Алматы · vm
+# коммит 9b5a9c1 (claude/ecstatic-galileo-dm8omt)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts' 'tests/ui/reservations-v2-r3.spec.ts' 'tests/ui/reservations-states.spec.ts' 'tests/ui/manager-actions.spec.ts' 'tests/ui/record-tabs.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 33 tests using 1 worker
+
+  ✓   1 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (5.8s)
+  ✓   2 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (3.5s)
+  ✓   3 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (7.2s)
+  ✓   4 tests/ui/manager-actions.spec.ts:204:1 › карточка: предварительная бронь названа словом, место за ней держится (1.0s)
+  ✓   5 tests/ui/manager-actions.spec.ts:223:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.6s)
+  ✓   6 tests/ui/manager-actions.spec.ts:239:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (3.8s)
+  ✓   7 tests/ui/manager-actions.spec.ts:287:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (4.9s)
+  ✓   8 tests/ui/manager-actions.spec.ts:347:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.6s)
+  ✓   9 tests/ui/manager-actions.spec.ts:370:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.0s)
+  ✓  10 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (2.3s)
+  ✘  11 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (45.1s)
+  ✓  12 tests/ui/record-tabs.spec.ts:92:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.6s)
+  ✓  13 tests/ui/record-tabs.spec.ts:107:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (3.0s)
+  ✓  14 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (1.6s)
+  ✓  15 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (977ms)
+  ✓  16 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (3.4s)
+  ✓  17 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (2.9s)
+  ✓  18 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (4.7s)
+  ✓  19 tests/ui/reservations-v2-r2.spec.ts:137:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (3.9s)
+  ✓  20 tests/ui/reservations-v2-r2.spec.ts:170:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (2.0s)
+  ✓  21 tests/ui/reservations-v2-r2.spec.ts:192:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (2.4s)
+  ✓  22 tests/ui/reservations-v2-r2.spec.ts:219:3 › R2, стоп-гейт: снимки для владельца, light (9.7s)
+  ✓  23 tests/ui/reservations-v2-r2.spec.ts:219:3 › R2, стоп-гейт: снимки для владельца, dark (10.0s)
+  ✓  24 tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список (3.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  25 tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше (3.7s)
+  ✓  26 tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» (5.3s)
+  ✓  27 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light (13.0s)
+  ✓  28 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark (12.6s)
+  ✓  29 tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони (2.1s)
+  ✓  30 tests/ui/reservations-v2.spec.ts:132:1 › R1: плотность строк переключается и переживает перезагрузку (2.5s)
+  ✓  31 tests/ui/reservations-v2.spec.ts:157:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (5.7s)
+  ✓  32 tests/ui/reservations-v2.spec.ts:188:3 › R1, стоп-гейт: снимки для владельца, light (4.4s)
+  ✓  33 tests/ui/reservations-v2.spec.ts:188:3 › R1, стоп-гейт: снимки для владельца, dark (4.6s)
+
+
+  1) tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tablist', { name: 'Разделы карточки гостя' }).getByRole('tab', { name: 'Счета и услуги', exact: true })
+
+
+      82 |     .getByRole('tablist', { name: 'Разделы карточки гостя' })
+      83 |     .getByRole('tab', { name: 'Счета и услуги', exact: true })
+    > 84 |     .click();
+         |      ^
+      85 |   const link = page.getByRole('main').locator(`a[href="/reservations/${BOOKING}#booking-finance"]`);
+      86 |   await link.click();
+      87 |   await expect(page).toHaveURL(new RegExp(`/reservations/${BOOKING}#booking-finance$`));
+        at /home/user/wetop.ai/tests/ui/record-tabs.spec.ts:84:6
+
+    Error Context: test-results/record-tabs-ссылка-с-друго-453d6-дреса-гость-→-«Счета»-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/record-tabs-ссылка-с-друго-453d6-дреса-гость-→-«Счета»-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/record-tabs-ссылка-с-друго-453d6-дреса-гость-→-«Счета»-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони 
+  32 passed (3.3m)
+
+# код выхода 1 · 3 мин 18 с

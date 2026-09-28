@@ -101,6 +101,25 @@
 .integration-card > .note {
   margin: 0;
 }
+.integration-card__missing {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+/* Страница Channex (INT2, ADR-121): подзаголовок с бейджем и две панели рядом на широком экране */
+.integration-subtitle {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.integration-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
 @media (max-width: 600px) {
   .integration-card {
     padding: var(--space-4);

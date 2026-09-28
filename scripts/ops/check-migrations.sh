@@ -37,7 +37,18 @@ if [ "${#MIGS[@]}" -eq 0 ]; then echo "RESULT: FAIL (миграций не на�
 fails=0
 
 snapshot() { # $1 — база; снимок схемы без комментариев и разовых ключей pg_dump
-  "$PG_DUMP" -s "$BASE_URL/$1" | grep -vE '^--|^.restrict |^.unrestrict '
+  # Колонки внутри CREATE TABLE — без порядка и хвостовых запятых: down.sql после DROP COLUMN возвращает колонку
+  # в конец таблицы, поставить её на прежнее место PostgreSQL не умеет (миграция …031, 28.09.2026). Типы, NOT NULL,
+  # умолчания, индексы и ограничения по-прежнему сравниваются строка в строку.
+  "$PG_DUMP" -s "$BASE_URL/$1" | grep -vE '^--|^.restrict |^.unrestrict ' | awk '
+    /^CREATE TABLE .*\($/ { print; inside = 1; n = 0; next }
+    inside && /^\);?$/ {
+      for (i = 1; i <= n; i++) for (j = i + 1; j <= n; j++) if (cols[j] < cols[i]) { t = cols[i]; cols[i] = cols[j]; cols[j] = t }
+      for (i = 1; i <= n; i++) print cols[i]
+      print; inside = 0; next
+    }
+    inside { sub(/,$/, ""); cols[++n] = $0; next }
+    { print }'
 }
 
 drift() { # schema.prisma против базы из всех миграций; иначе следующий `prisma migrate dev` впишет разницу в чужую миграцию

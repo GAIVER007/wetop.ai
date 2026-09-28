@@ -3457,6 +3457,8 @@ createServer(async (req, res) => {
           expiresAt: '2025-06-30',
         },
       ];
+      // G6 (ТЗ §34): телефон набран без пробелов — поиск по цифрам находит гостя, как API
+      extraGuests.get('ui-guest-GCRET0')!.phone = '+77010000042';
       extraGuests.get('ui-guest-GCRET0')!.documents = [
         {
           id: 'ui-doc-gcret',
@@ -4505,11 +4507,25 @@ createServer(async (req, res) => {
     if (path === '/reservations') {
       if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });
       const r = cardSeed();
-      const g = {
-        ...structuredClone(guestSeed),
-        ...(body['guest'] as Record<string, unknown>),
-      } as GuestCard;
-      g.id = `ui-new-guest-${commands.length}`;
+      // G6 (ТЗ «Гости v2» §33): бронь существующему гостю — те же ответы, что у API
+      const existingId = typeof body['guestId'] === 'string' ? body['guestId'] : null;
+      if (existingId && body['guest'] !== undefined)
+        return send(400, {
+          message: 'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
+        });
+      const existing = existingId
+        ? existingId === guest.id
+          ? guest
+          : extraGuests.get(existingId)
+        : undefined;
+      if (existingId && !existing) return send(404, { message: 'Гость не найден' });
+      const g =
+        existing ??
+        ({
+          ...structuredClone(guestSeed),
+          ...(body['guest'] as Record<string, unknown>),
+          id: `ui-new-guest-${commands.length}`,
+        } as GuestCard);
       r.confirmationNumber = `20260913-NEW${commands.length}`;
       r.arrivalDate = String(body['arrivalDate']);
       r.departureDate = String(body['departureDate']);
@@ -4550,7 +4566,7 @@ createServer(async (req, res) => {
       r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
       r.adults = r.items.reduce((sum, it) => sum + it.adults, 0);
       extraCards.set(r.confirmationNumber, r);
-      extraGuests.set(g.id, g);
+      if (!existing) extraGuests.set(g.id, g);
       createdReservation = true;
       return send(201, r);
     }

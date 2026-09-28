@@ -27,6 +27,7 @@ import {
 /** Фальшивка хранит и то, чего в ReservationState нет, но что отдаёт карточка: источник, заметки, гостей */
 type StoredReservation = ReservationState & {
   source?: string;
+  primaryGuestId?: string;
   notes?: string | null;
   channel?: string | null;
   externalId?: string | null;
@@ -117,6 +118,10 @@ function makeFake() {
     guests: 0,
     /** что записано в гости (ADR-072: до переезда базы — псевдоним) */
     createdGuests: [] as Array<Record<string, unknown>>,
+    /** гости организации объекта, которым можно оформить новую бронь (G6, ТЗ «Гости v2» §33) */
+    orgGuests: new Set(['7d6c5b4a-0000-4000-8000-000000000001']),
+    /** кто стал гостем проживания */
+    stayGuests: [] as Array<{ itemId: string; guestId: string; isPrimary: boolean }>,
     seq: 0,
   };
   const blocked: Array<{ unitId: string; from: string; to: string; reason?: string }> = [
@@ -239,6 +244,9 @@ function makeFake() {
           closedToDeparture: r.closedToDeparture,
         }));
     },
+    async guestForBooking(guestId) {
+      return state.orgGuests.has(guestId) ? guestId : null;
+    },
     async createGuest(g) {
       state.guests += 1;
       state.createdGuests.push({ ...g });
@@ -270,6 +278,7 @@ function makeFake() {
         currency: input.currency,
         items,
         source: input.source,
+        primaryGuestId: input.primaryGuestId,
         notes: input.notes,
         adults: input.adults,
         children: input.children,
@@ -278,7 +287,8 @@ function makeFake() {
       });
       return { id, itemIds: items.map((i) => i.id) };
     },
-    async addStayGuest(itemId) {
+    async addStayGuest(itemId, guestId, isPrimary) {
+      state.stayGuests.push({ itemId, guestId, isPrimary });
       for (const r of state.reservations.values())
         for (const it of r.items) if (it.id === itemId) it.guestsCount += 1;
     },
@@ -588,6 +598,44 @@ describe('manual reservation API', () => {
       if (before === undefined) delete process.env.PII_STORAGE;
       else process.env.PII_STORAGE = before;
     }
+  });
+  it('G6 (ТЗ «Гости v2» §33): guestId существующего гостя — бронь на него, нового гостя нет', async () => {
+    const guestId = '7d6c5b4a-0000-4000-8000-000000000001';
+    const group = [
+      {
+        accommodationTypeCode: 'exely-900001',
+        ratePlanCode: 'exely-800001',
+        adults: 1,
+        quantity: 2,
+      },
+    ];
+    const r = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ guest: undefined, guestId, items: group }))
+      .expect(201);
+    expect(fake.state.createdGuests).toEqual([]);
+    expect(fake.state.reservations.get(r.body.confirmationNumber)?.primaryGuestId).toBe(guestId);
+    // групповая бронь: тот же гость главный на каждом проживании, как у только что созданного
+    expect(fake.state.stayGuests).toHaveLength(2);
+    expect(fake.state.stayGuests.every((s) => s.guestId === guestId && s.isPrimary)).toBe(true);
+  });
+  it('G6: гость не своей организации или несуществующий — 404, брони нет', async () => {
+    for (const guestId of ['7d6c5b4a-0000-4000-8000-00000000ffff', 'не-uuid']) {
+      const res = await request(app.getHttpServer())
+        .post('/reservations')
+        .send(body({ guest: undefined, guestId }))
+        .expect(404);
+      expect(res.body.message).toBe('Гость не найден');
+    }
+    expect(fake.state.reservations.size).toBe(0);
+    expect(fake.state.createdGuests).toEqual([]);
+  });
+  it('G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду', async () => {
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ guestId: '7d6c5b4a-0000-4000-8000-000000000001' }))
+      .expect(400);
+    expect(fake.state.reservations.size).toBe(0);
   });
   it('ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем', async () => {
     const ota = (over: Record<string, unknown>) =>

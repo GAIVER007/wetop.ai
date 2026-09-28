@@ -248,6 +248,11 @@ export interface ReservationsRepository {
     from: string,
     toExclusive: string,
   ): Promise<StayRestriction[]>;
+  /**
+   * G6 (ТЗ «Гости v2» §33): существующий гость для новой брони — только организации объекта
+   * (та же колонка, по которой режет RLS). null — такого гостя нет или он чужой.
+   */
+  guestForBooking(guestId: string): Promise<string | null>;
   createGuest(guest: NewGuest): Promise<string>;
   createReservation(input: NewReservation): Promise<{ id: string; itemIds: string[] }>;
   addStayGuest(itemId: string, guestId: string, isPrimary: boolean): Promise<void>;
@@ -639,6 +644,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       },
     });
     return n > 0;
+  }
+  async guestForBooking(guestId: string): Promise<string | null> {
+    const { organizationId } = await this.property();
+    const g = await this.db.guest.findFirst({
+      where: { id: guestId, organizationId },
+      select: { id: true },
+    });
+    return g?.id ?? null;
   }
   async createGuest(guest: NewGuest): Promise<string> {
     // Гость с рождения знает организацию объекта (Phase 1 ADR-100 §17.2 + RLS-1 v1.13 §17.1):

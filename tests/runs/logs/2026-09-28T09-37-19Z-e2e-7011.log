@@ -1,0 +1,89 @@
+# Сквозные (e2e) · 28.09.2026 14:37 Алматы · vm
+# коммит da9df57 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts' 'tests/ui/pii-storage.spec.ts' '-g' 'G6'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/guests-design.spec.ts:334:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (17.4s)
+  ✘  2 tests/ui/pii-storage.spec.ts:37:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет (16.3s)
+
+
+  1) tests/ui/guests-design.spec.ts:334:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/reservations\/new\?guest=ui-guest-GCRET0$/
+    Received string:  "http://127.0.0.1:3100/reservations/new"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/guests/ui-guest-GCRET0"
+        31 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/reservations/new"
+
+
+      349 |   await page.goto('/guests/ui-guest-GCRET0');
+      350 |   await main.getByRole('link', { name: 'Новая бронь', exact: true }).click();
+    > 351 |   await expect(page).toHaveURL(/\/reservations\/new\?guest=ui-guest-GCRET0$/);
+          |                      ^
+      352 |   const form = page.getByTestId('new-reservation-form');
+      353 |   const picked = form.getByTestId('booking-guest');
+      354 |   await expect(picked).toContainText('Возвращающийся Гость');
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:351:22
+
+    Error Context: test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/pii-storage.spec.ts:37:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('new-reservation-form').getByTestId('booking-guest')
+    Expected substring: "Гость Тестовый"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('new-reservation-form').getByTestId('booking-guest') with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByTestId('booking-guest')
+
+
+      42 |   await page.goto('/reservations/new?guest=ui-guest');
+      43 |   const form = page.getByTestId('new-reservation-form');
+    > 44 |   await expect(form.getByTestId('booking-guest')).toContainText('Гость Тестовый');
+         |                                                   ^
+      45 |   await expect(form.getByTestId('guest-pseudonymized')).toHaveCount(0);
+      46 |   await form.locator('[name="source"]').selectOption('PHONE');
+      47 |   await form.getByRole('button', { name: 'Создать бронь' }).click();
+        at /home/user/wetop.ai/tests/ui/pii-storage.spec.ts:44:51
+
+    Error Context: test-results/pii-storage-бронь-существу-c8e7b-казан-нового-псевдонима-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/pii-storage-бронь-существу-c8e7b-казан-нового-псевдонима-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/pii-storage-бронь-существу-c8e7b-казан-нового-псевдонима-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/guests-design.spec.ts:334:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+    tests/ui/pii-storage.spec.ts:37:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет 
+
+# код выхода 1 · 43 с

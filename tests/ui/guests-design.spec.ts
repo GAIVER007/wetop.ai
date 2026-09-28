@@ -330,3 +330,82 @@ test('гости: автопоиск без кнопки «Найти», имя 
     .analyze();
   expect(audit.violations).toEqual([]);
 });
+
+test('гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6)', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/guest-cases`);
+  const main = page.getByRole('main');
+  const lastCreate = async () => {
+    const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+      path: string;
+      body: Record<string, unknown>;
+    }>;
+    return commands.filter((c) => c.path === '/reservations').at(-1)?.body ?? {};
+  };
+
+  // §33: «Новая бронь» в карточке — форма уже с этим гостем, полей нового гостя нет
+  await page.goto('/guests/ui-guest-GCRET0');
+  await main.getByRole('link', { name: 'Новая бронь', exact: true }).click();
+  await expect(page).toHaveURL(/\/reservations\/new\?guest=ui-guest-GCRET0$/);
+  const form = page.getByTestId('new-reservation-form');
+  const picked = form.getByTestId('booking-guest');
+  await expect(picked).toContainText('Возвращающийся Гость');
+  await expect(picked).toContainText('+77010000042');
+  await expect(picked).toContainText('3 визита');
+  for (const name of ['firstName', 'lastName', 'middleName', 'email', 'phone'])
+    await expect(form.locator(`[name="${name}"]`)).toHaveCount(0);
+  await expect(form.getByTestId('booking-summary')).toContainText('Возвращающийся Гость');
+  const audit = await new AxeBuilder({ page })
+    .include('[data-testid="new-reservation-form"]')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+  await form.locator('[name="source"]').selectOption('PHONE');
+  await form.getByRole('button', { name: 'Создать бронь' }).click();
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+  const created = await lastCreate();
+  expect(created['guestId']).toBe('ui-guest-GCRET0');
+  expect(created).not.toHaveProperty('guest');
+  // у того же человека стало пять проживаний — новый гость не появился
+  await page.goto('/guests/ui-guest-GCRET0#guest-stays');
+  await expect(main.getByRole('tabpanel').getByTestId('guest-stay-row')).toHaveCount(5);
+  await page.goto('/guests?q=Возвращающийся');
+  await expect(main.getByTestId('guests-table').getByRole('row')).toHaveCount(2);
+
+  // «Другой гость» — та же форма без выбора и без перехода; адрес больше не несёт гостя
+  await page.goto('/reservations/new?guest=ui-guest-GCRET0');
+  await form.getByRole('button', { name: 'Другой гость', exact: true }).click();
+  await expect(page).not.toHaveURL(/guest=/);
+  await expect(page.getByTestId('new-reservation-form')).toHaveCount(1);
+  await expect(form.getByTestId('booking-guest')).toHaveCount(0);
+  await expect(form.locator('[name="lastName"]')).toBeVisible();
+
+  // §34: набран полный телефон — сначала известный гость; «Выбрать» переключает шаг «Гость»
+  await form.locator('[name="phone"]').fill('+7 701 000 00');
+  await expect(form.getByTestId('guest-matches')).toHaveCount(0);
+  await form.locator('[name="phone"]').fill('+77010000042');
+  const matches = form.getByTestId('guest-matches');
+  await expect(matches.getByTestId('guest-match')).toHaveCount(1);
+  await expect(matches).toContainText('Возвращающийся Гость');
+  // визиты — состоявшиеся проживания: только что созданная бронь визитом ещё не стала
+  await expect(matches).toContainText('3 визита');
+  await matches.getByRole('button', { name: 'Выбрать', exact: true }).click();
+  await expect(form.getByTestId('booking-guest')).toContainText('Возвращающийся Гость');
+  await expect(form.locator('[name="phone"]')).toHaveCount(0);
+  // смена дат перезагружает страницу — выбранный гость едет адресом и остаётся выбранным
+  await page.getByRole('button', { name: 'Проверить доступность', exact: true }).click();
+  await expect(page).toHaveURL(/guest=ui-guest-GCRET0/);
+  await expect(form.getByTestId('booking-guest')).toContainText('Возвращающийся Гость');
+  // передумал — снова поля нового гостя
+  await form.getByRole('button', { name: 'Другой гость', exact: true }).click();
+  await expect(form.locator('[name="lastName"]')).toBeVisible();
+  await expect(form.locator('[name="phone"]')).toHaveValue('');
+  await expect(form.getByTestId('guest-matches')).toHaveCount(0);
+
+  // ссылка на гостя, которого нет: предупреждение и обычная форма
+  await page.goto('/reservations/new?guest=ui-guest-missing');
+  await expect(page.getByTestId('booking-guest-missing')).toContainText('не найден');
+  await expect(form.locator('[name="lastName"]')).toBeVisible();
+});

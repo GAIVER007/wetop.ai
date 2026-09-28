@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 28.09.2026 14:36 Алматы · vm
+# коммит da9df57 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T09-36-37Z-integration-f710.json' 'tests/integration/booking-existing-guest.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:11778) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/booking-existing-guest.test.ts (1 test | 1 failed) 388ms
+   ❯ бронь существующему гостю (integration, rolled back) (1)
+     × вторая бронь по guestId — тот же гость, новых строк в guests нет; чужой гость — 404 354ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/booking-existing-guest.test.ts > бронь существующему гостю (integration, rolled back) > вторая бронь по guestId — тот же гость, новых строк в guests нет; чужой гость — 404
+AssertionError: expected UnprocessableEntityException: Нет цены на… { …(4) } to be an instance of Rollback
+ ❯ tests/integration/booking-existing-guest.test.ts:167:6
+    165|         { timeout: 180_000, maxWait: 30_000 },
+    166|       ),
+    167|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    168|
+    169|     expect(seen['primary']).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:36:38
+   Duration  2.89s (transform 56%, tests 24%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-09-28T09-36-37Z-integration-f710.json
+
+# код выхода 1 · 4 с

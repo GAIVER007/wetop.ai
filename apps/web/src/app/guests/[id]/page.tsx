@@ -93,10 +93,7 @@ function StaysTable({ stays }: { stays: Stay[] }) {
               )}
             </td>
             <td>
-              <StatusBadge
-                status={s.status}
-                label={reservationStatusWords[s.status] ?? s.status}
-              />
+              <StatusBadge status={s.status} label={reservationStatusWords[s.status] ?? s.status} />
             </td>
           </tr>
         ))}
@@ -145,7 +142,10 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
         Счёт открывается на проживание: здесь появятся счета по броням гостя.
       </EmptyState>
     );
-  const totals = new Map<string, { charged: bigint; paid: bigint; refunded: bigint; balance: bigint }>();
+  const totals = new Map<
+    string,
+    { charged: bigint; paid: bigint; refunded: bigint; balance: bigint }
+  >();
   for (const s of billed) {
     const t = totals.get(s.currency) ?? { charged: 0n, paid: 0n, refunded: 0n, balance: 0n };
     t.charged += BigInt(s.chargedMinor!);
@@ -182,7 +182,12 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
               {t.balance > 0n ? (
                 <AmountChip tone="due" minor={t.balance} currency={currency} />
               ) : t.balance < 0n ? (
-                <AmountChip tone="refund" label="к возврату" minor={-t.balance} currency={currency} />
+                <AmountChip
+                  tone="refund"
+                  label="к возврату"
+                  minor={-t.balance}
+                  currency={currency}
+                />
               ) : (
                 <span className="dir-paid">оплачено</span>
               )}
@@ -367,8 +372,8 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
             <a className="btn btn--secondary" href="#guest-profile">
               Редактировать
             </a>
-            {/* предзаполнение гостя в форме брони — ступень G6 */}
-            <Link className="btn" href="/reservations/new">
+            {/* G6 (ТЗ §33): форма брони сразу с этим гостем — второго гостя бронь не заведёт */}
+            <Link className="btn" href={`/reservations/new?guest=${encodeURIComponent(g.id)}`}>
               <Icon name="plus" />
               Новая бронь
             </Link>

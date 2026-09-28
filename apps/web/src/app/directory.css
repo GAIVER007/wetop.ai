@@ -253,6 +253,47 @@ a.dir-number:hover {
 .booking-summary__line {
   display: block;
 }
+/* G6 («Гости v2» §33–34): выбранный гость брони и найденные по телефону — строка «кто + действие» */
+.booking-guest,
+.booking-matches {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.booking-guest__who,
+.booking-matches__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.booking-guest__hint,
+.booking-matches .hint,
+.booking-matches__title {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.booking-matches__title {
+  font-size: var(--text-sm);
+}
+.booking-matches ul {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.booking-matches li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
 .booking-footer__actions {
   display: flex;
   flex: none;

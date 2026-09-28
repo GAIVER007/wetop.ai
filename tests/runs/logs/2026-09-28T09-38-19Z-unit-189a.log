@@ -1,0 +1,24 @@
+# Модульные (unit) · 28.09.2026 14:38 Алматы · vm
+# коммит da9df57 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T09-38-19Z-unit-189a.json' 'apps/api/src/reservations/reservations.controller.test.ts' 'apps/web/src/app/reservations/actions.test.ts' 'apps/api/src/channels/inbound.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (7 tests) 73ms
+[Nest] 12592  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+[Nest] 12599  - 09/28/2026, 9:38:22 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 12599  - 09/28/2026, 9:38:22 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 12599  - 09/28/2026, 9:38:22 AM   ERROR [InboundBookingsService] Ревизия rev-ceiling: бронь BDC-CEIL, комната 1: сумма «1e3» не десятичное число
+[Nest] 12599  - 09/28/2026, 9:38:22 AM   ERROR [InboundBookingsService] Ревизия rev-fail-pii: Invalid value for notes: call <телефон>, write <почта>
+[Nest] 12599  - 09/28/2026, 9:38:22 AM   ERROR [InboundBookingsService] Ревизия rev-bad: бронь BDC-BAD, комната 1: сумма «1e3» не десятичное число
+ ✓ |unit| apps/api/src/channels/inbound.controller.test.ts (30 tests) 359ms
+ ✓ |unit| apps/api/src/reservations/reservations.controller.test.ts (39 tests) 622ms
+
+ Test Files  3 passed (3)
+      Tests  76 passed (76)
+   Start at  09:38:20
+   Duration  2.65s (transform 57%, import 22%, tests 20%)
+
+JSON report written to /tmp/pms-test-2026-09-28T09-38-19Z-unit-189a.json
+
+# код выхода 0 · 4 с

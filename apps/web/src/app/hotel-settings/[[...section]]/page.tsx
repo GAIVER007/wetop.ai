@@ -206,7 +206,8 @@ async function Services() {
           <h2>Начислить услугу гостю</h2>
           <p>Откройте бронь, вкладку «Счета», и выберите услугу.</p>
         </div>
-        <Link className="btn btn--secondary" href="/guests">
+        {/* «Гости v2»: сразу раздел «Проживают» — услугу начисляют живущему (ТЗ §31) */}
+        <Link className="btn btn--secondary" href="/guests?state=inhouse">
           Найти проживающего гостя
         </Link>
       </Panel>

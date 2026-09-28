@@ -1,6 +1,10 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { can, type MembershipRole, type Permission } from '@pms/domain';
 
+/** Рабочая область запроса (Platform P2, К1; план P2 §3–§4, ADR-120): вычисляется API, снаружи не приходит */
+export type RequestScope = 'ORGANIZATION' | 'BUSINESS' | 'LOCATION';
+export type BusinessVertical = 'HOSPITALITY' | 'BEAUTY';
+
 /**
  * Кто делает текущий запрос — чтобы `audit_logs.user_id` заполнялся сам, а не в каждом репозитории руками
  * (ADR-023: «когда появится вход по пользователям, к записи добавится, кто именно»).
@@ -29,6 +33,17 @@ interface RequestActor {
    * читает все организации. Кто автор — не меняется; меняется только роль базы.
    */
   serviceDatabase?: boolean;
+  /**
+   * Scope вошедшего (Platform P2, К1): `auth/scope.ts` вычисляет его из указателя `X-Wetop-Scope` и проверяет на каждом
+   * запросе. Нет указателя или он не прошёл — ORGANIZATION. У служебного ходока scope нет.
+   */
+  scope?: RequestScope;
+  /** Business выбора — только после проверки: принадлежит организации вошедшего и не в архиве */
+  businessId?: string;
+  /** Филиал выбора — только после проверки: принадлежит этому Business и не в архиве */
+  locationId?: string;
+  /** Направление — из строки Business, никогда не приходит снаружи */
+  vertical?: BusinessVertical;
 }
 
 const storage = new AsyncLocalStorage<RequestActor>();
@@ -150,4 +165,36 @@ export function actorMay(permission: Permission): boolean {
 /** Главный администратор платформы — только вошедший с отметкой: служебные ключи раздел «Платформа» не открывают */
 export function actorIsPlatformAdmin(): boolean {
   return hasSignedInActor() && storage.getStore()?.platformAdmin === true;
+}
+
+/** Scope текущего запроса. `null` — за запросом нет человека (служебный ходок) или запрос вне контекста. */
+export function currentScope(): RequestScope | null {
+  const store = storage.getStore();
+  if (!store || !hasSignedInActor()) return null;
+  return store.scope ?? 'ORGANIZATION';
+}
+
+/** Проверенный Business выбора; `null` — scope организации или служебный ходок */
+export function currentBusinessId(): string | null {
+  return hasSignedInActor() ? (storage.getStore()?.businessId ?? null) : null;
+}
+
+/** Проверенный филиал выбора; `null` — scope организации или Business, служебный ходок */
+export function currentLocationId(): string | null {
+  return hasSignedInActor() ? (storage.getStore()?.locationId ?? null) : null;
+}
+
+/** Направление выбранного Business; `null`, пока Business не выбран */
+export function currentVertical(): BusinessVertical | null {
+  return hasSignedInActor() ? (storage.getStore()?.vertical ?? null) : null;
+}
+
+/** Фактический scope для ответа стойке (`GET /auth/me`, план P2 §4б) */
+export function scopeView() {
+  return {
+    scope: currentScope() ?? 'ORGANIZATION',
+    businessId: currentBusinessId(),
+    locationId: currentLocationId(),
+    vertical: currentVertical(),
+  };
 }

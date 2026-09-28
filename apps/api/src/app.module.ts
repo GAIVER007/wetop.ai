@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { SessionGuard } from './auth/auth.guard';
 import { RoleGuard } from './auth/role.guard';
 import { AuthorInterceptor } from './auth/author.interceptor';
+import { PrismaService } from './database/prisma.provider';
 import { AuditModule } from './audit/audit.module';
 import { ChannelsModule } from './channels/channels.module';
 import { ChessboardModule } from './chessboard/chessboard.module';
@@ -67,7 +68,9 @@ import { DataConnectionModule } from './database/connection';
     { provide: APP_GUARD, useClass: SessionGuard },
     // Замок ролей — сразу за ним: право маршрута (@Access) против роли вошедшего (ADR-107, DATA_MODEL §16.5)
     { provide: APP_GUARD, useClass: RoleGuard },
-    // автор действия в журнале берётся из сессии (request-context.ts)
+    // автор действия в журнале берётся из сессии (request-context.ts); там же — scope запроса (Platform P2, К1),
+    // ему нужна база: пул один на процесс, лишнего подключения нет
+    PrismaService,
     { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
   ],
 })

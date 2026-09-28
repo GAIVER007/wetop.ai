@@ -22,6 +22,7 @@ import { tokenFromHeaders } from './auth.guard';
 import { Public } from './public.decorator';
 import { visitorKey } from './attempt-limits';
 import { Access } from './access.decorator';
+import { scopeView } from './request-context';
 
 const text = (value: unknown, field: string, max = 200): string => {
   if (typeof value !== 'string' || value.trim() === '')
@@ -165,6 +166,8 @@ export class AuthController {
     return {
       ...signedIn,
       access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
+      // фактический scope запроса (Platform P2, К1; план P2 §4б): по нему переключатель P3 покажет, что выбрано
+      context: scopeView(),
     };
   }
 

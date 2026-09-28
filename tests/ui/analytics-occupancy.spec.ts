@@ -83,7 +83,8 @@ test('знаменатель прежний: заблокированное ме
   ).find((r) => r.unit.accommodationTypeCode === 'FEMALE' && r.cells[0]!.state === 'FREE')!;
   const blocked = await page.request.post(`${fixture}/units/${free.unit.code}/blocks`, {
     ...asClient,
-    data: { dateFrom: today, dateTo: today, type: 'MAINTENANCE', reason: 'проверка знаменателя' },
+    // «по» не включается, как у API: одна ночь сегодня — dateTo завтра
+    data: { dateFrom: today, dateTo: add(1), type: 'MAINTENANCE', reason: 'проверка знаменателя' },
   });
   expect(blocked.ok()).toBe(true);
 

@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 28.09.2026 23:06 Алматы · vm
+# коммит 17fda46 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/workspace.spec.ts' '-g' 'протянул|выделение не|щелчок по свободной|только чтение|создание на воскресенье|в месяце открываются|выбранная койка' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-month.spec.ts:117:1 › в месяце открываются брони, свободные даты и группы номеров (10.0s)
+  ✓  2 tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (3.6s)
+  ✓  3 tests/ui/chessboard-range.spec.ts:85:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (4.2s)
+  ✓  4 tests/ui/chessboard-range.spec.ts:127:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (2.5s)
+  ✓  5 tests/ui/chessboard-range.spec.ts:150:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (2.9s)
+  ✓  6 tests/ui/chessboard-week.spec.ts:114:1 › в неделе работают бронь, категории и создание на воскресенье (4.5s)
+  ✓  7 tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.2s)
+
+  7 passed (35.8s)
+
+# код выхода 0 · 37 с

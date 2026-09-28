@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 02:07 Алматы · vm
+# коммит 37fc796 (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T21-07-23Z-unit-d498.json' 'apps/api/src/hotel/onboarding.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (9 tests) 19ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  21:07:24
+   Duration  1.65s (transform 77%, import 21%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T21-07-23Z-unit-d498.json
+
+# код выхода 0 · 3 с

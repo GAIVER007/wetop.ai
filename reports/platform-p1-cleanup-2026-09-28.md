@@ -91,52 +91,66 @@ ADR-061) остаётся, миграция требует его совпаде
    и миграция NOT NULL на нём честно отказала. Раньше e2e на нём были зелёными только за счёт фолбэка.
 2. Стенд отдавал web из устаревшей сборки `apps/web/.next`. Записано в `TESTING.md` (грабли 28.09).
 
-## 4. Инструкция владельцу — применение на рабочей базе (сам НЕ применяю)
+## 4. Инструкция владельцу — выкатка 032 на рабочей базе (сам НЕ применяю)
+
+Порядок владельца от 28.09: влить PR #143 → выкатить 032 → smoke → закрыть cleanup → потом P2.
+Выкладка серверная, через ветку `release` (`docs/deploy.md` §1д): автовыкладка сама откажет на вершине с новой
+миграцией и напишет в Telegram, какие миграции ждут. Их применяете вы, затем запускаете `--migrations-applied`.
 
 ```
-0) Mac, папка WETOP, main после влития PR: git pull; npm ci --no-audit --no-fund
+0) Вершина: коммит main после влития PR #143 (V). release перематывается на V после зелёных наборов
+   (docs/deploy.md §1д, AGENTS.md §18):  git push origin <V>:release
+   Автовыкладка откажет: «в обновлении новые миграции» — это ожидаемо.
 
-1) BACKUP: штатная полная копия базы, убедиться, что она читается.
+1) BACKUP: свежая копия рабочей базы (docs/ops/backups.md), убедиться, что она читается.
 
-2) ПРОВЕРКА ДО: scripts/ops/platform-p1-report.sql в SQL Editor (вставить целиком, один запрос).
-   Ожидание: without_location = 0 и broken_chain = 0.
-   - если сброс ADR-118 уже выполнен — объектов нет: properties 0/0/0;
-   - если ещё нет — как 28.09: properties 1/1/0.
-   Если without_location или broken_chain не 0 — СТОП, прислать результат сюда
-   (миграция всё равно откажет сама, но лучше увидеть заранее).
+2) ПРОВЕРКА ДО — scripts/ops/platform-p1-report.sql (SQL Editor, вставить целиком, один запрос).
+   Обязательно: without_location = 0 и broken_chain = 0.
+   - после сброса ADR-118 объектов может не быть вовсе: properties 0/0/0 — это тоже «0 и 0»;
+   - иначе как 28.09: properties 1/1/0.
+   Не 0 — СТОП, прислать результат сюда (миграция всё равно откажет сама и ничего не изменит).
 
-3) npm run migrate:status -w packages/database
-   Ожидание: pending — 20260928000032_platform_p1_location_not_null, и, если выкатка ADR-118 ещё
-   не дошла до базы, 20260928000031_remove_legacy_pms_fields перед ней.
-   031 выкатывается по плану ADR-118 (plans/remove-legacy-pms-and-reset-2026-09-28.md), не по этой
-   инструкции: если она в списке — сначала довести ADR-118. Любая другая pending-миграция — СТОП, прислать список.
+3) На сервере, в веб-терминале — миграции из вершины V (docs/deploy.md §1д, «Миграции без Node на сервере»):
+   cd /root/wetop && V=<вершина из отказа автовыкладки>
+   rm -rf /tmp/wetop-mig && mkdir -p /tmp/wetop-mig && git archive "$V" packages/database/prisma | tar -x -C /tmp/wetop-mig
+   mig() { ...как в docs/deploy.md §1д... }
+   mig status   # ждём: не применена 20260928000032_platform_p1_location_not_null
+                # (и 20260928000031_remove_legacy_pms_fields, если выкатка ADR-118 её ещё не применила — тогда
+                #  сначала её по плану ADR-118). Любая другая — СТОП, прислать список.
+   mig deploy   # ошибка «platform_p1_location_not_null: …» = ничего не изменилось; прислать текст сюда
+   mig status   # ждём: Database schema is up to date
 
-4) MIGRATE: npm run migrate:deploy -w packages/database
-   Ожидание: «All migrations have been successfully applied».
-   Если ошибка «platform_p1_location_not_null: …» — ничего не изменилось; прислать текст сюда.
+4) ПРОВЕРКА ПОСЛЕ МИГРАЦИИ (SQL Editor):
+   SELECT is_nullable FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'properties' AND column_name = 'location_id';   -- → NO
+   platform-p1-report.sql ещё раз → broken_chain 0, without_location 0.
 
-5) DEPLOY кода — обычным порядком (docs/deploy.md).
-   Порядок 4→5 безопасен: прежний код читает NOT NULL-колонку без изменений; объект он создаёт
-   только регистрацией, а она закрыта (REGISTRATION_OPEN=0).
+5) DEPLOY: /usr/local/sbin/wetop-auto-deploy --migrations-applied "$V"
+   (скрипт сверит V с origin/release, соберёт api/web, сам проверит /health, /login, /today, /chessboard,
+    /reservations и при неудаче откатит образ).
 
-6) ПРОВЕРКИ ПОСЛЕ:
-   a) SQL Editor:
-      SELECT is_nullable FROM information_schema.columns
-       WHERE table_schema = 'public' AND table_name = 'properties' AND column_name = 'location_id';
-      → NO
-   b) platform-p1-report.sql ещё раз → те же числа, broken_chain 0.
-   c) если объект есть: APP_API_URL=http://127.0.0.1:3001 npm run reconcile:selfcheck — сутки в ноль;
-      стойка глазами под своим входом (/today, /chessboard, /reservations, /guests, /hotel-settings) —
-      как до выкладки. Вошедший теперь получает объект только цепочкой; если вместо экрана
-      «объект не настроен» — откат шага 7 (код) и сообщение сюда.
-      если объекта нет (после сброса ADR-118): вход владельца работает, экран — как до выкладки.
+6) STATUS: docker compose ps — api и web healthy; tail /var/log/wetop-deploy.log — выкладка V без отката;
+   SHA клона = V.
 
-7) ROLLBACK:
-   код — вернуть предыдущий main и выложить (новая колонка прежнему коду не мешает);
-   схема, если нужно — psql -f packages/database/prisma/migrations/20260928000032_platform_p1_location_not_null/down.sql
+7) SMOKE:
+   - /health API → ok; /login стойки → 200; /auth/options → registrationEnabled: false (регистрация закрыта);
+   - вход владельца под своей учёткой:
+     • объект есть — /today, /chessboard, /reservations, /guests, /hotel-settings открываются как до выкладки;
+     • объекта нет (после сброса ADR-118) — стойка ведёт на /onboarding; первый онбординг заводит объект
+       (после этого platform-p1-report: properties 1/1/0, broken_chain 0).
+
+8) SELFCHECK: если объект с бронями есть — суточная самопроверка (reconcile:selfcheck, как 28.09) → OK;
+   пустой объект после сброса самопроверять нечем — достаточно шагов 4 и 7.
+
+9) ROLLBACK:
+   код — ручной откат по docs/deploy.md §4 (прежний образ pms-lux:rollback-<коммит>);
+   схема, если нужно — mig-путём выполнить down.sql из 20260928000032_platform_p1_location_not_null
    и DELETE FROM _prisma_migrations WHERE migration_name = '20260928000032_platform_p1_location_not_null';
-   крайний случай — restore из копии шага 1.
+   крайний случай — restore из копии шага 1. Прежний код с NOT NULL-колонкой работает.
 ```
+
+Всё зелёное — cleanup Platform P1 закрывается отдельной записью (CLAUDE.md §2 и §8 этого отчёта).
+Platform P2 — только по отдельной команде владельца.
 
 ## 5. Риски
 
@@ -149,7 +163,7 @@ ADR-061) остаётся, миграция требует его совпаде
 - **RLS-gate не меняется:** публичная регистрация и первый внешний Partner — только после `DATABASE_APP_URL`
   в API, isolation-smoke под `wetop_app` и замера производительности (`docs/ops/rls.md`).
 
-## 5а. Находки в коде `main` (не этой правки, не исправлял — решает владелец или сессия ADR-118)
+## 5а. Находки в коде `main` (закрыты 28.09 вечером по поручению владельца — §7)
 
 1. **После сброса ADR-118 объект существующей организации никто не создаёт.** Объект заводит только
    регистрация (теперь через `createPropertyInChain`). Онбординг (`apps/api/src/hotel/onboarding.ts`)
@@ -170,3 +184,46 @@ ADR-061) остаётся, миграция требует его совпаде
 
 Cleanup готов, дальше не иду. Platform P2 (RequestActor/scope) — только по отдельной команде владельца.
 Switcher, onboarding и Partners UI — не раньше закрытия P2.
+
+## 7. Доводка до зелёной базы перед выкаткой 032 (28.09.2026, вечер)
+
+Поручение владельца: «Cleanup Platform P1 по направлению принимаю. Platform P2 пока не начинать. Перед production
+rollout миграции `032` нужно закрыть три найденных проблемы `main`». Порядок владельца: онбординг → зелёные
+тесты → проверка миграций → выкатка 032 → стоп → P2 отдельно.
+
+Первые два пункта параллельно сделала и влила в `main` другая сессия, пока эта гоняла полный UI-набор. Дубли
+этой ветки (свой онбординг, гейт, код услуги стенда, правка выбора ячейки) отброшены в пользу `main`.
+
+**1. Онбординг заводит объект существующей организации** — в `main` PR #144
+(`plans/onboarding-without-property-2026-09-28.md`, тест `tests/integration/onboarding-without-property.test.ts`):
+- `GET /hotel/onboarding` без объекта просит онбординг;
+- `POST` создаёт объект через `createPropertyInChain` в транзакции онбординга;
+- гейт web ведёт на `/onboarding` при 404 «объекта нет», даже если онбординг отложен.
+
+**Добавлено этой веткой — запирание от двойного объекта.** Два одновременных первых сохранения (двойной щелчок,
+две вкладки) оба видели «объекта нет» и оба заводили объект: у организации оказывалось два объекта с номерами.
+Теперь `provision` запирает строку организации (`SELECT … FOR UPDATE`) и ищет объект заново внутри транзакции:
+второе сохранение ждёт первое, видит его объект с номерами и получает 409 «отель уже настроен».
+- Red → green: `tests/integration/onboarding-concurrency.test.ts` на `main` 37fc7963 — «expected 2 to be 1»,
+  то есть два объекта; после правки — один объект, одно сохранение прошло, второе — `ConflictException`.
+- Под ролью `wetop_app` (RLS) запирание своей организации и вставка Business, Location и Property проходят
+  политики (проверено в откатываемой транзакции).
+
+**2. Зелёная база e2e** — в `main`:
+- услуга выбирается помощником `tests/e2e/pick-service.ts`: по тексту пункта, затем по его значению;
+- ячейка — помощником `tests/e2e/unit-options.ts`: без пустого варианта и без `@auto` (PR #141).
+
+Та же поломка `@auto` после AV3 была найдена и здесь: пять живых спеков красные на чистом `main` e1adee87.
+На дереве этой ветки до слияния живой e2e был 25/25, ролью `wetop_app` — 26/26, полный UI-набор в один поток —
+**531/531** (прежний известный красный `ai-seller.spec.ts:107` тоже зелёный).
+
+**3. `check-migrations`.** Коммит `f14be25b` сравнивает колонки внутри `CREATE TABLE` как набор. PostgreSQL не
+умеет вернуть колонку на прежнее место, поэтому отката 031 с тем же порядком колонок не бывает. Тип, NOT NULL,
+умолчания, индексы и ограничения по-прежнему сравниваются построчно. Проверено в обе стороны:
+- вся цепочка, включая 031 и 032, — **RESULT: OK**;
+- намеренно испорченный откат 031 — **FAIL** в каждом случае: неверный тип колонки, не возвращённая колонка,
+  не возвращённый индекс. Настоящую ошибку проверка не прячет.
+
+После влития — выкатка 032 по §4. Перед `migrate:deploy`: `without_location = 0` и `broken_chain = 0`.
+После: `properties.location_id` `is_nullable = NO`, `broken_chain = 0`. Cleanup считается завершённым только
+после зелёной выкатки.

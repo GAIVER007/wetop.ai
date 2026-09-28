@@ -1,0 +1,265 @@
+# Модульные (unit) · 28.09.2026 12:09 Алматы · vm
+# коммит cdd83aa (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T07-09-27Z-unit-95f6.json' 'apps/web/src/app/chessboard/drag-plan.test.ts' 'apps/web/src/app/chessboard/extend-plan.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests | 6 failed) 18ms
+   ✓ продление за правый край (2)
+     ✓ добавляет ночи до выбранной последней ночи, включая границу месяца 3ms
+     ✓ не сокращает проживание и не принимает неверные даты или более 30 ночей 1ms
+   ❯ extensionConflict: новые ночи свободны? (4)
+     × свободная ночь — конфликта нет 5ms
+     × первая занятая ночь называется датой словами 2ms
+     × блокировка — «недоступно» и тип 1ms
+     × ночи за краем окна здесь не видны — решает сервер 1ms
+   ❯ extendLabel: подпись во время продления (2)
+     × до какой даты, сколько ночей и сколько денег (§29) 1ms
+     × пока сумма считается — без неё, сумму не выдумываем 2ms
+ ❯ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests | 12 failed) 25ms
+   ✓ drag-plan: перетаскивание брони по шахматке (3)
+     ✓ тип данных свой — чужой drop (файл, текст, ссылка) не читается как бронь 2ms
+     ✓ payload проходит через dataTransfer без потерь 1ms
+     ✓ битый или чужой payload не превращается в переселение 1ms
+   ❯ checkDrop: куда можно бросить бронь (8)
+     × своя строка — не действие: ни подсветки, ни вопроса, ни вызова API 6ms
+     × та же категория, ночи свободны — переселение с даты взятой клетки до конца плашки 1ms
+     × ночь до даты переезда может быть занята: гость переезжает только с этой даты 1ms
+     × чужая бронь на ночах переезда — drop закрыт, причина с датой словами 1ms
+     × блокировка — drop закрыт, в причине тип блокировки 1ms
+     × та же бронь в целевой строке (прежний переезд) — не конфликт 2ms
+     × другая категория — переезжает всё проживание: с первой ночи плашки, а не с взятой клетки 1ms
+     × другая категория, а заезд раньше окна — drop закрыт: весь срок на экране не проверить 1ms
+   ❯ moveQuestion: окно подтверждения переселения (4)
+     × та же категория: «стоимость не изменится», даты отрезком и число ночей 1ms
+     × другая категория дороже: «+», сумма целиком, что станет с ценой 1ms
+     × дешевле — минус «−» (U+2212), не дефис 1ms
+     × проживание идёт дальше окна: выезд не угадываем 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > своя строка — не действие: ни подсветки, ни вопроса, ни вызова API
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:61:12
+     59| describe('checkDrop: куда можно бросить бронь', () => {
+     60|   it('своя строка — не действие: ни подсветки, ни вопроса, ни вызова A…
+     61|     expect(checkDrop(source, row('B-07', 'DORM', days.map(free)))).toE…
+       |            ^
+     62|   });
+     63|   it('та же категория, ночи свободны — переселение с даты взятой клетк…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > та же категория, ночи свободны — переселение с даты взятой клетки до конца плашки
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:64:12
+     62|   });
+     63|   it('та же категория, ночи свободны — переселение с даты взятой клетк…
+     64|     expect(checkDrop(source, row('B-12', 'DORM', days.map(free)))).toE…
+       |            ^
+     65|       kind: 'ok',
+     66|       fromDate: '2026-09-15',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > ночь до даты переезда может быть занята: гость переезжает только с этой даты
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:76:12
+     74|       ...days.slice(1).map(free),
+     75|     ];
+     76|     expect(checkDrop(source, row('B-12', 'DORM', cells)).kind).toBe('o…
+       |            ^
+     77|   });
+     78|   it('чужая бронь на ночах переезда — drop закрыт, причина с датой сло…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > чужая бронь на ночах переезда — drop закрыт, причина с датой словами
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:80:12
+     78|   it('чужая бронь на ночах переезда — drop закрыт, причина с датой сло…
+     79|     const cells = [free(days[0]!), free(days[1]!), { date: days[2]!, s…
+     80|     expect(checkDrop(source, row('B-12', 'DORM', cells))).toEqual({
+       |            ^
+     81|       kind: 'blocked',
+     82|       fromDate: '2026-09-15',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > блокировка — drop закрыт, в причине тип блокировки
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:93:21
+     91|       free(days[2]!),
+     92|     ];
+     93|     const verdict = checkDrop(source, row('B-12', 'DORM', cells));
+       |                     ^
+     94|     expect(verdict.kind).toBe('blocked');
+     95|     expect(verdict.kind === 'blocked' && verdict.reason).toMatch(/^Нед…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > та же бронь в целевой строке (прежний переезд) — не конфликт
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:99:12
+     97|   it('та же бронь в целевой строке (прежний переезд) — не конфликт', (…
+     98|     const cells = [free(days[0]!), { date: days[1]!, state: 'OCCUPIED'…
+     99|     expect(checkDrop(source, row('B-12', 'DORM', cells)).kind).toBe('o…
+       |            ^
+    100|   });
+    101|   it('другая категория — переезжает всё проживание: с первой ночи плаш…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > другая категория — переезжает всё проживание: с первой ночи плашки, а не с взятой клетки
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:102:12
+    100|   });
+    101|   it('другая категория — переезжает всё проживание: с первой ночи плаш…
+    102|     expect(checkDrop(source, row('R-01', 'ROOM', days.map(free)))).toE…
+       |            ^
+    103|       kind: 'ok',
+    104|       fromDate: '2026-09-14',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > checkDrop: куда можно бросить бронь > другая категория, а заезд раньше окна — drop закрыт: весь срок на экране не проверить
+TypeError: checkDrop is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:110:21
+    108|   });
+    109|   it('другая категория, а заезд раньше окна — drop закрыт: весь срок н…
+    110|     const verdict = checkDrop({ ...source, startsBefore: true }, row('…
+       |                     ^
+    111|     expect(verdict.kind).toBe('blocked');
+    112|     expect(verdict.kind === 'blocked' && verdict.reason).toContain('за…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > moveQuestion: окно подтверждения переселения > та же категория: «стоимость не изменится», даты отрезком и число ночей
+TypeError: moveQuestion is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:123:15
+    121|   const same = { kind: 'ok', fromDate: '2026-09-15', toDate: '2026-09-…
+    122|   it('та же категория: «стоимость не изменится», даты отрезком и число…
+    123|     const q = moveQuestion(source, 'B-12', same, {
+       |               ^
+    124|       action: 'move',
+    125|       currentPriceMinor: '1200000',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > moveQuestion: окно подтверждения переселения > другая категория дороже: «+», сумма целиком, что станет с ценой
+TypeError: moveQuestion is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:140:15
+    138|   });
+    139|   it('другая категория дороже: «+», сумма целиком, что станет с ценой'…
+    140|     const q = moveQuestion(
+       |               ^
+    141|       source,
+    142|       'R-01',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > moveQuestion: окно подтверждения переселения > дешевле — минус «−» (U+2212), не дефис
+TypeError: moveQuestion is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:159:15
+    157|   });
+    158|   it('дешевле — минус «−» (U+2212), не дефис', () => {
+    159|     const q = moveQuestion(source, 'R-01', { ...same, changesCategory:…
+       |               ^
+    160|       action: 'move',
+    161|       currentPriceMinor: '2700000',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/drag-plan.test.ts > moveQuestion: окно подтверждения переселения > проживание идёт дальше окна: выезд не угадываем
+TypeError: moveQuestion is not a function
+ ❯ apps/web/src/app/chessboard/drag-plan.test.ts:170:15
+    168|   });
+    169|   it('проживание идёт дальше окна: выезд не угадываем', () => {
+    170|     const q = moveQuestion({ ...source, endsAfter: true }, 'B-12', sam…
+       |               ^
+    171|     expect(q.dates).toBe('с 15 сент. до выезда');
+    172|     // предпросмотр не ответил: действие не запрещаем, но о деньгах не…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/extend-plan.test.ts > extensionConflict: новые ночи свободны? > свободная ночь — конфликта нет
+TypeError: extensionConflict is not a function
+ ❯ apps/web/src/app/chessboard/extend-plan.test.ts:29:12
+     27|   ];
+     28|   it('свободная ночь — конфликта нет', () => {
+     29|     expect(extensionConflict(cells, '2026-09-23', 1, 'item-1')).toBeNu…
+       |            ^
+     30|   });
+     31|   it('первая занятая ночь называется датой словами', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/extend-plan.test.ts > extensionConflict: новые ночи свободны? > первая занятая ночь называется датой словами
+TypeError: extensionConflict is not a function
+ ❯ apps/web/src/app/chessboard/extend-plan.test.ts:32:12
+     30|   });
+     31|   it('первая занятая ночь называется датой словами', () => {
+     32|     expect(extensionConflict(cells, '2026-09-23', 3, 'item-1')).toBe('…
+       |            ^
+     33|   });
+     34|   it('блокировка — «недоступно» и тип', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/extend-plan.test.ts > extensionConflict: новые ночи свободны? > блокировка — «недоступно» и тип
+TypeError: extensionConflict is not a function
+ ❯ apps/web/src/app/chessboard/extend-plan.test.ts:36:7
+     34|   it('блокировка — «недоступно» и тип', () => {
+     35|     expect(
+     36|       extensionConflict([cells[0]!, { ...cells[3]!, date: '2026-09-24'…
+       |       ^
+     37|     ).toMatch(/^Недоступно с 24 сент\.: /);
+     38|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/extend-plan.test.ts > extensionConflict: новые ночи свободны? > ночи за краем окна здесь не видны — решает сервер
+TypeError: extensionConflict is not a function
+ ❯ apps/web/src/app/chessboard/extend-plan.test.ts:40:12
+     38|   });
+     39|   it('ночи за краем окна здесь не видны — решает сервер', () => {
+     40|     expect(extensionConflict(cells.slice(0, 2), '2026-09-23', 5, 'item…
+       |            ^
+     41|   });
+     42| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/extend-plan.test.ts > extendLabel: подпись во время продления > до какой даты, сколько ночей и сколько денег (§29)
+TypeError: extendLabel is not a function
+ ❯ apps/web/src/app/chessboard/extend-plan.test.ts:46:12
+     44| describe('extendLabel: подпись во время продления', () => {
+     45|   it('до какой даты, сколько ночей и сколько денег (§29)', () => {
+     46|     expect(extendLabel('2026-09-23', 3, { addedMinor: '7500000', curre…
+       |            ^
+     47|       'До 27 сент., +3 ночи, +75 000 ₸',
+     48|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/extend-plan.test.ts > extendLabel: подпись во время продления > пока сумма считается — без неё, сумму не выдумываем
+TypeError: extendLabel is not a function
+ ❯ apps/web/src/app/chessboard/extend-plan.test.ts:51:12
+     49|   });
+     50|   it('пока сумма считается — без неё, сумму не выдумываем', () => {
+     51|     expect(extendLabel('2026-09-23', 1, undefined)).toBe('До 25 сент.,…
+       |            ^
+     52|   });
+     53| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  18 failed | 5 passed (23)
+   Start at  07:09:28
+   Duration  638ms (transform 72%, import 16%, tests 10%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-28T07-09-27Z-unit-95f6.json
+
+# код выхода 1 · 2 с

@@ -3175,6 +3175,29 @@
 | 27.09.2026 22:52 | integration | ❌ упало 1 из 107 | 36 с | b400685 | [лог](logs/2026-09-27T17-52-42Z-integration-fb0e.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
 | 27.09.2026 22:54 | integration | ✅ 107 из 107 | 35 с | b400685 | [лог](logs/2026-09-27T17-54-53Z-integration-41fa.log) |  |
 | 27.09.2026 22:56 | e2e | ✅ 25 из 25 | 1 мин 6 с | b400685 +1 | [лог](logs/2026-09-27T17-56-08Z-e2e-cf2a.log) |  |
+| 27.09.2026 21:15 | typecheck | ✅ без ошибок | 30 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-15-48Z-typecheck-df3e.log) |  |
+| 27.09.2026 21:16 | lint | ❌ ошибок: 1 | 18 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-16-24Z-lint-4f11.log) | react-hooks/exhaustive-deps |
+| 27.09.2026 21:17 | lint | ✅ без ошибок | 17 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-17-20Z-lint-7c89.log) |  |
+| 27.09.2026 21:17 | unit | ❌ упало 1 из 2108, пропущено 3 | 1 мин 34 с | 74d8b1c +7 | [лог](logs/2026-09-27T16-17-43Z-unit-91c5.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 27.09.2026 21:20 | unit | ❌ упало 1 из 2108, пропущено 3 | 1 мин 12 с | 74d8b1c +7 | [лог](logs/2026-09-27T16-20-02Z-unit-80f0.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 27.09.2026 21:21 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 74d8b1c +7 | [лог](logs/2026-09-27T16-21-43Z-unit-e1b4.log) |  |
+| 27.09.2026 21:23 | integration | ❌ упало 1 из 107 | 33 с | 74d8b1c +3 | [лог](logs/2026-09-27T16-23-25Z-integration-0f79.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
+| 27.09.2026 21:25 | integration | ✅ 107 из 107 | 33 с | 74d8b1c +3 | [лог](logs/2026-09-27T16-25-44Z-integration-fc2b.log) |  |
+| 27.09.2026 21:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts) | ❌ упало 1 из 3 | 1 мин 16 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-27-11Z-e2e-dcb2.log) | C1 категории: задетый спек |
+| 27.09.2026 21:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts) | ✅ 3 из 3 | 30 с | 74d8b1c +9 | [лог](logs/2026-09-27T16-28-52Z-e2e-5f99.log) | C1 категории: задетый спек, searchbox |
+| 27.09.2026 21:30 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ❌ упало 1 из 1 | 23 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-30-32Z-e2e-eb5b.log) | C1 категории: снимки §48 |
+| 27.09.2026 21:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 11 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-31-45Z-e2e-8992.log) | C1 категории: снимки §48 |
+| 27.09.2026 21:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/categories-screens.spec.ts) | ✅ 1 из 1 | 12 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-34-40Z-e2e-53e7.log) | C1 категории: снимки §48, без dev-оверлея |
+| 27.09.2026 21:35 | e2e (частично: --config tests/ui/playwright.config.ts) | ❌ упало 33 из 402 | 24 мин 35 с | 74d8b1c +10 | [лог](logs/2026-09-27T16-35-16Z-e2e-094f.log) | C1 категории: полный UI-набор |
+| 27.09.2026 22:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 402 | 32 мин 37 с | 283105f | [лог](logs/2026-09-27T17-00-51Z-e2e-bdde.log) | C1 категории: полный UI-набор, один поток |
+| 27.09.2026 22:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/categories-screens.spec.ts) | ✅ 9 из 9 | 4 мин 49 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-34-42Z-e2e-e660.log) | C1: цели 44px у ссылок карточки на 390 |
+| 27.09.2026 22:39 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-39-46Z-unit-fe2a.log) |  |
+| 27.09.2026 22:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 402 | 32 мин 13 с | 6ca7f2a +1 | [лог](logs/2026-09-27T17-41-06Z-e2e-d532.log) | C1 категории: полный UI-набор, один поток, цели 44px |
+| 28.09.2026 01:52 | typecheck | ✅ без ошибок | 29 с | ba8f884 | [лог](logs/2026-09-27T20-52-56Z-typecheck-4ac5.log) |  |
+| 28.09.2026 01:53 | lint | ✅ без ошибок | 17 с | ba8f884 | [лог](logs/2026-09-27T20-53-26Z-lint-1666.log) |  |
+| 28.09.2026 01:54 | e2e | ❌ упало 19 из 25, пропущено 3 | 38 мин 23 с | ba8f884 | [лог](logs/2026-09-27T20-54-29Z-e2e-9e01.log) | C1 категории: сквозные на финальном коде |
+| 28.09.2026 02:33 | e2e | ❌ упало 19 из 25, пропущено 3 | 38 мин 20 с | 3f948f9 | [лог](logs/2026-09-27T21-33-15Z-e2e-14d1.log) | C1 категории: сквозные на финальном коде, сид формы Luxx |
+| 28.09.2026 03:12 | e2e (частично: --workers=1 tests/e2e/inventory.spec.ts tests/e2e/check-in-out.spec.ts) | ❌ упало 3 из 4 | 5 мин 14 с | 8b3522e +7 | [лог](logs/2026-09-27T22-12-42Z-e2e-f6b1.log) | БАЗА 74d8b1c без C1: те же спеки для сравнения |
 | 27.09.2026 21:03 | typecheck | ✅ без ошибок | 32 с | 309ff27 | [лог](logs/2026-09-27T16-03-06Z-typecheck-5660.log) |  |
 | 27.09.2026 21:03 | lint | ✅ без ошибок | 18 с | 309ff27 | [лог](logs/2026-09-27T16-03-39Z-lint-cad3.log) |  |
 | 27.09.2026 21:03 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 15 с | 309ff27 | [лог](logs/2026-09-27T16-03-57Z-unit-4d9f.log) |  |
@@ -3277,3 +3300,14 @@
 | 28.09.2026 02:28 | lint | ✅ без ошибок | 16 с | f305833 +5 | [лог](logs/2026-09-27T21-28-23Z-lint-e82c.log) |  |
 | 28.09.2026 02:28 | unit | ✅ 2116 из 2119, пропущено 3 | 1 мин 12 с | f305833 +4 | [лог](logs/2026-09-27T21-28-40Z-unit-c201.log) |  |
 | 28.09.2026 02:30 | e2e | ✅ 25 из 25 | 58 с | de8d2df | [лог](logs/2026-09-27T21-30-55Z-e2e-904c.log) |  |
+| 28.09.2026 05:22 | typecheck | ✅ без ошибок | 27 с | 25384fb +20 | [лог](logs/2026-09-28T00-22-11Z-typecheck-03c1.log) |  |
+| 28.09.2026 05:22 | lint | ✅ без ошибок | 16 с | 25384fb +20 | [лог](logs/2026-09-28T00-22-39Z-lint-bc36.log) |  |
+| 28.09.2026 05:22 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 12 с | 25384fb +15 | [лог](logs/2026-09-28T00-22-58Z-unit-d5b0.log) |  |
+| 28.09.2026 05:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 1 с | 25384fb +19 | [лог](logs/2026-09-28T00-24-17Z-e2e-647f.log) | C1 после слияния с main: полный UI-набор, один поток |
+| 28.09.2026 05:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 407 | 31 мин 2 с | a011657 | [лог](logs/2026-09-28T00-24-54Z-e2e-1b06.log) | C1 после слияния с main: полный UI-набор, один поток |
+| 28.09.2026 12:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts) | ❌ упало 1 из 1 | 2 мин 11 с | 99291ca +1 | [лог](logs/2026-09-28T07-01-33Z-e2e-9b87.log) | C2 red: превью ещё нет |
+| 28.09.2026 12:05 | typecheck | ✅ без ошибок | 31 с | 99291ca +10 | [лог](logs/2026-09-28T07-05-57Z-typecheck-672a.log) |  |
+| 28.09.2026 12:06 | lint | ✅ без ошибок | 20 с | 99291ca +10 | [лог](logs/2026-09-28T07-06-29Z-lint-8dec.log) |  |
+| 28.09.2026 12:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts tests/ui/categories-screens.spec.ts tests/ui/fund-workspac | ✅ 5 из 5 | 56 с | 99291ca +9 | [лог](logs/2026-09-28T07-06-55Z-e2e-cf22.log) | C2 green: превью, карточки; C1-спеки |
+| 28.09.2026 12:08 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 16 с | 99291ca +7 | [лог](logs/2026-09-28T07-08-39Z-unit-8597.log) |  |
+| 28.09.2026 12:10 | integration | ✅ 107 из 107 | 33 с | 99291ca +3 | [лог](logs/2026-09-28T07-10-23Z-integration-52bc.log) |  |

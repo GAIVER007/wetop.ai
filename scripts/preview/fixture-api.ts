@@ -129,7 +129,16 @@ const dates = (from: string, to: string) => {
   for (let d = from; d <= to && result.length < 366; d = add(d, 1)) result.push(d);
   return result;
 };
-const categorySeed = [
+const categorySeed: {
+  code: string;
+  name: string;
+  count: number;
+  prefix: string;
+  capacityAdults: number;
+  /** У созданных через POST: тип из формы и число тарифов (ТЗ «Категории v2», ADR-109) */
+  kind?: string;
+  ratePlans?: number;
+}[] = [
   { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
   { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
@@ -2180,10 +2189,15 @@ function read(path: string, q: URLSearchParams): unknown {
     return categories.map((c) => ({
       code: c.code,
       name: c.name,
-      kind: units.some((u) => u.accommodationTypeCode === c.code && u.kind === 'BED')
-        ? 'DORM_BED'
-        : 'PRIVATE_ROOM',
+      kind:
+        c.kind ??
+        (units.some((u) => u.accommodationTypeCode === c.code && u.kind === 'BED')
+          ? 'DORM_BED'
+          : 'PRIVATE_ROOM'),
       capacityAdults: c.capacityAdults,
+      active: true,
+      ratePlans: c.ratePlans ?? 1,
+      ratePlanNames: (c.ratePlans ?? 1) ? [plans[0]!.name] : [],
     }));
   if (path === '/inventory/summary')
     return {
@@ -3986,7 +4000,11 @@ createServer(async (req, res) => {
         name: String(body.name),
         capacityAdults: Number(body.capacityAdults),
         count: 0,
-      } as (typeof categories)[number]);
+        prefix: 'T',
+        kind: body.kind ? String(body.kind) : 'PRIVATE_ROOM',
+        // как на настоящем API: тариф при создании обязателен и связывается сразу (ADR-077)
+        ratePlans: body.ratePlanCode || body.newRatePlanName ? 1 : 0,
+      });
       return send(201, { code });
     }
     if (path.startsWith('/inventory/categories/') && req.method === 'PATCH') {

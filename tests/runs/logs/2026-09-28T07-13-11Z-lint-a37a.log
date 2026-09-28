@@ -1,0 +1,11 @@
+# Линтер (lint) · 28.09.2026 12:13 Алматы · vm
+# коммит 0eeeb0e (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 15
+# npx eslint .
+
+/home/user/wetop.ai/apps/web/src/app/finance/operations-csv.ts
+  42:11  error  Irregular whitespace not allowed  no-irregular-whitespace
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 18 с

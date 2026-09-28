@@ -1807,6 +1807,18 @@ function read(path: string, q: URLSearchParams): unknown {
       const prev = previousPeriod(from, to);
       return { current: zero(from, to), previous: zero(prev.from, prev.to) };
     }
+    if (path === '/finance/operations')
+      return {
+        from: q.get('from'),
+        to: q.get('to'),
+        currency: 'KZT',
+        total: 0,
+        paidMinor: '0',
+        refundedMinor: '0',
+        methods: [],
+        rows: [],
+        truncated: false,
+      };
     if (path === '/finance/debts')
       return {
         from: q.get('from'),
@@ -2240,6 +2252,88 @@ function read(path: string, q: URLSearchParams): unknown {
         { category: 'Двухместный номер', count: 3, amountMinor: '2400000' },
       ],
     };
+  if (path === '/finance/operations') {
+    // Как у API (ADR-107, F2): оплаты и возвраты из счетов броней, день и время — по часам объекта (UTC+5),
+    // новыми первыми; отбор по типу и способу — к строкам и суммам, числа способов — без отбора по способу
+    const from = q.get('from') || today;
+    const to = q.get('to') || from;
+    const type = q.get('type');
+    const method = q.get('method');
+    const limit = Number(q.get('limit') || 50);
+    const local = (iso: string) =>
+      new Date(Date.parse(iso) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' ');
+    type Op = {
+      kind: 'PAYMENT' | 'REFUND';
+      id: string;
+      at: string;
+      localAt: string;
+      method: string;
+      amountMinor: string;
+      status: 'COMPLETED' | 'VOIDED';
+      confirmationNumber: string | null;
+      reservations: number;
+      guestLabel: string | null;
+    };
+    const ops = new Map<string, Op>();
+    for (const r of allCards())
+      for (const f of finance(r).folios) {
+        const base = {
+          confirmationNumber: r.confirmationNumber,
+          guestLabel: r.primaryGuest?.label ?? null,
+        };
+        for (const p of f.payments) {
+          const known = ops.get(p.paymentId);
+          if (known) {
+            if (known.confirmationNumber !== r.confirmationNumber) known.reservations += 1;
+            continue;
+          }
+          ops.set(p.paymentId, {
+            kind: 'PAYMENT',
+            id: p.paymentId,
+            at: p.paidAt,
+            localAt: local(p.paidAt),
+            method: p.method,
+            amountMinor: p.paymentAmountMinor,
+            status: p.status,
+            reservations: 1,
+            ...base,
+          });
+        }
+        for (const x of f.refunds)
+          ops.set(x.id, {
+            kind: 'REFUND',
+            id: x.id,
+            at: x.createdAt,
+            localAt: local(x.createdAt),
+            method: f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH',
+            amountMinor: x.amountMinor,
+            status: 'COMPLETED',
+            reservations: 1,
+            ...base,
+          });
+      }
+    const inPeriod = [...ops.values()]
+      .filter((o) => o.localAt.slice(0, 10) >= from && o.localAt.slice(0, 10) <= to)
+      .filter((o) => !type || o.kind === type)
+      .sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id));
+    const counts = new Map<string, number>();
+    for (const o of inPeriod) counts.set(o.method, (counts.get(o.method) ?? 0) + 1);
+    const picked = inPeriod.filter((o) => !method || o.method === method);
+    const sum = (xs: Op[]) => xs.reduce((acc, o) => acc + BigInt(o.amountMinor), 0n).toString();
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      total: picked.length,
+      paidMinor: sum(picked.filter((o) => o.kind === 'PAYMENT' && o.status === 'COMPLETED')),
+      refundedMinor: sum(picked.filter((o) => o.kind === 'REFUND')),
+      methods: [...counts]
+        .map(([m, count]) => ({ method: m, count }))
+        .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
+      rows: picked.slice(0, limit),
+      truncated: picked.length > limit,
+    };
+  }
   if (path === '/finance/debts') {
     // Как у API (ADR-107): бронь с начислением в периоде — проживание начисляется датой заезда; остаток — по всему
     // счёту брони, в список только > 0, крупные первыми, равные — по дате заезда

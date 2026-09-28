@@ -127,6 +127,33 @@ export interface PeriodDebtsView {
   /** строк больше, чем отдаёт ответ (`MAX_DEBT_ROWS`) */
   truncated: boolean;
 }
+/** Оплата или возврат за период (ADR-107, F2) — строка списка «Оплаты и возвраты» и выгрузки */
+export interface OperationView {
+  kind: 'PAYMENT' | 'REFUND';
+  id: string;
+  at: string;
+  localAt: string;
+  method: PaymentMethod;
+  amountMinor: string;
+  status: 'COMPLETED' | 'VOIDED';
+  confirmationNumber: string | null;
+  reservations: number;
+  guestLabel: string | null;
+}
+export interface PeriodOperationsView {
+  from: string;
+  to: string;
+  currency: string;
+  /** строк по отбору — всех, не только отданных */
+  total: number;
+  /** по отбору: проведённые оплаты и возвраты; аннулированные оплаты не входят */
+  paidMinor: string;
+  refundedMinor: string;
+  /** способы периода с числом операций — внутри отбора по типу, без отбора по способу */
+  methods: Array<{ method: PaymentMethod; count: number }>;
+  rows: OperationView[];
+  truncated: boolean;
+}
 export interface ServiceView {
   code: string;
   nameRu: string;
@@ -141,6 +168,10 @@ const MAX_PERIOD_DAYS = 366;
 const s = (x: bigint) => x.toString();
 /** Потолок строк списка долгов: экран показывает 20 и «все»; за год должников больше не бывает (88 мест) */
 const MAX_DEBT_ROWS = 500;
+/** Строк операций за запрос: экран берёт 20 или все, выгрузка — до этого предела (год Luxx — около 12 000) */
+const DEFAULT_OPERATION_ROWS = 50;
+const MAX_OPERATION_ROWS = 20_000;
+const OPERATION_TYPES = ['PAYMENT', 'REFUND'] as const;
 /** Период отчёта: обе даты, по порядку, не длиннее `MAX_PERIOD_DAYS` */
 function checkedPeriod(from?: string, to?: string): { from: string; to: string } {
   if (!from || !ISO.test(from) || !to || !ISO.test(to))
@@ -374,6 +405,55 @@ export class FinanceService {
         balanceMinor: s(r.balance),
       })),
       truncated: debts.length > MAX_DEBT_ROWS,
+    };
+  }
+
+  /**
+   * Оплаты и возвраты за период (ADR-107, F2). Отбор по типу и способу применяется к строкам и суммам; числа на
+   * чипах способов считаются без отбора по способу, чтобы соседний способ было видно. «Оплачено» по списку без
+   * отборов равно «Оплачено» в сводке: те же проведённые платежи по дате оплаты.
+   */
+  async periodOperations(
+    fromParam?: string,
+    toParam?: string,
+    query: { type?: string; method?: string; limit?: string } = {},
+  ): Promise<PeriodOperationsView> {
+    const { from, to } = checkedPeriod(fromParam, toParam);
+    const type = query.type || undefined;
+    const method = query.method || undefined;
+    if (type !== undefined && !(OPERATION_TYPES as readonly string[]).includes(type))
+      throw new BadRequestException('type — PAYMENT или REFUND');
+    if (method !== undefined && !PAYMENT_METHODS.includes(method as PaymentMethod))
+      throw new BadRequestException(`method — один из: ${PAYMENT_METHODS.join(', ')}`);
+    const limit =
+      query.limit === undefined || query.limit === ''
+        ? DEFAULT_OPERATION_ROWS
+        : Number(query.limit);
+    if (!Number.isInteger(limit) || limit < 1 || limit > MAX_OPERATION_ROWS)
+      throw new BadRequestException(`limit — целое от 1 до ${MAX_OPERATION_ROWS}`);
+    const r = await this.repo.periodOperations(from, to, {
+      ...(type ? { type: type as 'PAYMENT' | 'REFUND' } : {}),
+      ...(method ? { method: method as PaymentMethod } : {}),
+      limit,
+    });
+    const ofType = r.summary.filter((x) => !type || x.kind === type);
+    const picked = ofType.filter((x) => !method || x.method === method);
+    const sum = (xs: typeof picked) => xs.reduce((a, x) => a + x.amountMinor, 0n);
+    const counts = new Map<PaymentMethod, number>();
+    for (const x of ofType) counts.set(x.method, (counts.get(x.method) ?? 0) + x.count);
+    const total = picked.reduce((a, x) => a + x.count, 0);
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      total,
+      paidMinor: s(sum(picked.filter((x) => x.kind === 'PAYMENT' && x.status === 'COMPLETED'))),
+      refundedMinor: s(sum(picked.filter((x) => x.kind === 'REFUND'))),
+      methods: [...counts]
+        .map(([m, count]) => ({ method: m, count }))
+        .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
+      rows: r.rows.map((x) => ({ ...x, amountMinor: s(x.amountMinor) })),
+      truncated: total > r.rows.length,
     };
   }
 

@@ -265,3 +265,28 @@
   background: transparent;
   text-align: left;
 }
+
+/* ---------- F2: оплаты и возвраты — отбор по типу и способу, таблица операций (ADR-107) */
+.finance-ops {
+  margin-bottom: var(--space-6);
+  scroll-margin-top: var(--space-16);
+}
+#charges {
+  scroll-margin-top: var(--space-16);
+}
+.finance-ops__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-2);
+}
+.finance-ops .table-scroll {
+  position: relative;
+}
+.finance-block .table-scroll > .finance-ops__table {
+  min-width: 760px;
+}
+.finance-ops__table td {
+  vertical-align: middle;
+}

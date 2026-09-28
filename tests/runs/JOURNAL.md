@@ -2905,3 +2905,18 @@
 | 28.09.2026 02:43 | e2e | ❌ упало 1 из 25 | 1 мин 12 с | 37f5b9e | [лог](logs/2026-09-27T21-43-18Z-e2e-0c25.log) | live e2e after F1 |
 | 28.09.2026 02:44 | e2e (частично: tests/e2e/desk-tasks.spec.ts) | ✅ 2 из 2 | 13 с | 37f5b9e | [лог](logs/2026-09-27T21-44-45Z-e2e-8e12.log) | re-check desk-tasks after F1 |
 | 28.09.2026 02:45 | e2e | ✅ 25 из 25 | 1 мин 1 с | 37f5b9e | [лог](logs/2026-09-27T21-45-05Z-e2e-0035.log) | live e2e after F1, second full run |
+| 28.09.2026 12:03 | unit (частично: apps/api/src/finance/finance.controller.test.ts) | ❌ упало 1 из 13 | 6 с | 0eeeb0e +1 | [лог](logs/2026-09-28T07-03-11Z-unit-2447.log) | red: ADR-107 F2 operations endpoint missing |
+| 28.09.2026 12:05 | integration (частично: tests/integration/finance-operations.test.ts) | ❌ упало 2 из 2 | 4 с | 0eeeb0e +4 | [лог](logs/2026-09-28T07-05-27Z-integration-5519.log) | red: ADR-107 F2 repository periodOperations missing |
+| 28.09.2026 12:05 | integration (частично: tests/integration/finance-operations.test.ts) | ✅ 2 из 2 | 4 с | 0eeeb0e +5 | [лог](logs/2026-09-28T07-05-31Z-integration-2ae5.log) | green: ADR-107 F2 repository periodOperations |
+| 28.09.2026 12:07 | unit (частично: apps/web/src/app/finance/operations-csv.test.ts) | ❌ код выхода 1 | 1 с | 0eeeb0e +7 | [лог](logs/2026-09-28T07-07-27Z-unit-cd22.log) | red: ADR-107 F2 CSV builder missing |
+| 28.09.2026 12:07 | unit (частично: apps/web/src/app/finance/operations-csv.test.ts) | ✅ 4 из 4 | 1 с | 0eeeb0e +9 | [лог](logs/2026-09-28T07-07-45Z-unit-9b5d.log) | green: ADR-107 F2 CSV builder |
+| 28.09.2026 12:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f2.spec.ts tests/ui/finance-f1.spec.ts --workers=1) | ✅ 16 из 16 | 2 мин 22 с | 0eeeb0e +14 | [лог](logs/2026-09-28T07-10-02Z-e2e-276e.log) | F2 finance operations spec + F1 |
+| 28.09.2026 12:12 | typecheck | ✅ без ошибок | 32 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-12-39Z-typecheck-2964.log) |  |
+| 28.09.2026 12:13 | lint | ❌ ошибок: 1 | 18 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-13-11Z-lint-a37a.log) | no-irregular-whitespace |
+| 28.09.2026 12:13 | unit | ✅ 2119 из 2122, пропущено 3 | 1 мин 12 с | 0eeeb0e +13 | [лог](logs/2026-09-28T07-13-30Z-unit-a21c.log) |  |
+| 28.09.2026 12:14 | integration | ✅ 110 из 110 | 35 с | 0eeeb0e +6 | [лог](logs/2026-09-28T07-14-42Z-integration-12f5.log) |  |
+| 28.09.2026 12:15 | lint | ✅ без ошибок | 17 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-15-39Z-lint-112d.log) |  |
+| 28.09.2026 12:15 | unit (частично: apps/web/src/app/finance/operations-csv.test.ts) | ✅ 4 из 4 | 1 с | 0eeeb0e +13 | [лог](logs/2026-09-28T07-15-57Z-unit-1b64.log) | CSV builder after BOM escape fix |
+| 28.09.2026 12:16 | typecheck | ✅ без ошибок | 23 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-16-15Z-typecheck-8adf.log) |  |
+| 28.09.2026 12:16 | lint | ✅ без ошибок | 17 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-16-38Z-lint-3d29.log) |  |
+| 28.09.2026 12:16 | unit | ✅ 2119 из 2122, пропущено 3 | 1 мин 12 с | 0eeeb0e +13 | [лог](logs/2026-09-28T07-16-55Z-unit-355a.log) |  |

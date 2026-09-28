@@ -1,0 +1,178 @@
+/*
+ * «Аналитика» (ADR-114, срез AN1). Плитки, графики, источники и таблица — общие классы Главной
+ * (`.kpi*`, `.bars*`, `.dash-*`, `.sources` в today/dashboard.css) и вкладки `.settings-tabs`; здесь только
+ * то, чего у них нет: полоса периода с типом фонда, шесть плиток в ряд, скелетон.
+ */
+.pa-toolbar {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+.pa-toolbar__caption {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.pa-toolbar__caption strong {
+  color: var(--text);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+.pa-toolbar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+.pa-range {
+  position: relative;
+}
+.pa-range > summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+.pa-range > summary::-webkit-details-marker {
+  display: none;
+}
+.pa-range > summary.is-on {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.pa-range[open] > .pa-range__form {
+  display: flex;
+}
+/* свой период — всплывающая панель над страницей (ТЗ §18: редкие настройки — в popover), тень по §5 */
+.pa-range__form {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: var(--layer-overlay);
+  align-items: end;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-floating);
+}
+.pa-range__form label {
+  display: grid;
+  gap: var(--space-1);
+  width: 160px;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.pa-compare {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h);
+  font-size: var(--text-sm);
+  color: var(--text-2);
+  text-decoration: none;
+}
+.pa-compare:hover {
+  color: var(--text);
+}
+.pa-compare__box {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-xs);
+  color: var(--on-primary);
+}
+.pa-compare.is-on .pa-compare__box {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* шесть плиток ТЗ §5 в один ряд на широком экране */
+.pa-kpis {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-bottom: var(--space-4);
+}
+.pa-kpis .kpi {
+  padding: var(--space-4);
+}
+.pa-kpis .kpi__value {
+  font-size: var(--text-3xl);
+}
+.pa-kpis .kpi--revenue .kpi__value,
+.pa-kpis .kpi--average .kpi__value {
+  font-size: var(--text-2xl);
+}
+.pa-secondary {
+  margin: 0 0 var(--space-4);
+  padding-top: 0;
+}
+.pa-note {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+.pa-single {
+  margin: var(--space-4) 0;
+}
+.pa-single strong {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Полоска загрузки в таблице категорий: общий стиль (`management/hotel.css`) красит заливку тем же
+ * `--success-soft`, что и дорожку, и доля не видна. Здесь заливка — акцентом, как столбики графика.
+ */
+.pa-categories .occupancy-meter meter::-webkit-meter-optimum-value {
+  background: var(--primary);
+}
+.pa-categories .occupancy-meter meter::-moz-meter-bar {
+  background: var(--primary);
+}
+.pa-categories .occupancy-meter meter::-webkit-meter-bar,
+.pa-categories .occupancy-meter meter {
+  background: var(--primary-soft);
+}
+
+.pa-skeleton {
+  display: grid;
+  gap: var(--space-4);
+}
+.pa-skeleton__chart {
+  height: 240px;
+}
+
+@media (max-width: 1279px) {
+  .pa-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .pa-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pa-kpis .kpi__value,
+  .pa-kpis .kpi--revenue .kpi__value,
+  .pa-kpis .kpi--average .kpi__value {
+    font-size: var(--text-xl);
+  }
+  .pa-toolbar__row {
+    align-items: stretch;
+  }
+  .pa-range__form {
+    flex-wrap: wrap;
+    width: min(360px, calc(100vw - var(--space-8)));
+  }
+}
+
+/* ссылка внутри поясняющего текста отличается от текста не только цветом (WCAG 1.4.1, axe link-in-text-block) */
+.pa-note a,
+.pa-note-links a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

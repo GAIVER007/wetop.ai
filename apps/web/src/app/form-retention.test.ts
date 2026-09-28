@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { ApiError, analyticsApi, guestsApi, unitsApi } from '../lib/api';
 import { addDocumentAction, updateGuestAction } from './guests/[id]/actions';
 import { blockUnitAction } from './units/[code]/actions';
-import { createSiteAction } from './analytics/actions';
+import { createSiteAction } from './website/actions';
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 afterEach(() => vi.restoreAllMocks());

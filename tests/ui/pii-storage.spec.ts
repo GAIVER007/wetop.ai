@@ -39,7 +39,7 @@ test('карточка гостя: меняются только граждан�
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { piiStorage: 'pseudonymized' } });
-  await page.goto('/guests/ui-guest');
+  await page.goto('/guests/ui-guest#guest-profile');
   const form = page.getByTestId('guest-form');
   await expect(form.getByTestId('guest-pseudonymized')).toContainText('не в Казахстане');
   for (const name of [

@@ -28,12 +28,33 @@ test('пробный срок вышел — полоса «оплатите п�
   await expect(page.getByTestId('read-only-banner')).toHaveCount(0);
 
   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 'ended' } });
-  for (const path of ['/today', '/chessboard', '/reservations']) {
+  for (const path of ['/today', '/chessboard', '/reservations', '/guests']) {
     await page.goto(path);
     const banner = page.getByTestId('read-only-banner');
     await expect(banner).toContainText('Пробный период закончился — оплатите подписку');
     await expect(banner).toContainText('Данные доступны для просмотра');
   }
+  // «Гости» после срока читаются целиком: список со счётчиками, поиск, карточка и документы;
+  // запись держит общий запрет API по методу (auth.guard.test.ts) — своей trial-логики у гостей нет
+  await page.goto('/guests');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('guests-meta')).toBeVisible();
+  await expect(main.getByLabel('Поиск гостей')).toBeVisible();
+  // ТЗ §40: бронь после срока не создать — действие не рисуется (общий флаг оболочки, как на «Бронях»)
+  await expect(main.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
+  // G3: щелчок открывает предпросмотр (чтение), из него — полная карточка
+  await main.getByTestId('guests-table').getByRole('link').first().click();
+  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+  await expect(drawer.getByTestId('guest-preview')).toBeVisible();
+  await expect(drawer.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
+  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+  await expect(page).toHaveURL(/\/guests\//);
+  await expect(main.getByTestId('guest-head')).toBeVisible();
+  // G4: карточка читается целиком — история проживаний на месте; «Редактировать» и «Новая бронь» не рисуются
+  await expect(main.getByRole('link', { name: 'Редактировать', exact: true })).toHaveCount(0);
+  await expect(main.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
+  await main.getByRole('tab', { name: 'Проживания', exact: true }).click();
+  await expect(main.getByRole('tabpanel').getByTestId('guest-stay-row').first()).toBeVisible();
   await page.goto('/today');
   await page.screenshot({ path: 'test-results/trial-read-only-banner.png' });
 });

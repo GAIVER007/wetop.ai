@@ -9,14 +9,9 @@ import pg from 'pg';
  * меняется, а запрос организации мимо резолвера объекта всё равно упирается в базу.
  */
 
-/**
- * Таблицы под RLS — политика `rls_tenant` на каждой (миграция `20260927000028_rls_policies`;
- * `businesses`/`locations` — фаза Business+Location, миграция `20260927000029_business_location`)
- */
+/** Таблицы под RLS — политика `rls_tenant` на каждой (миграция `20260927000028_rls_policies`) */
 export const RLS_TENANT_TABLES: readonly string[] = [
   'organizations',
-  'businesses',
-  'locations',
   'memberships',
   'sessions',
   'invites',
@@ -57,6 +52,10 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'web_events',
   'wizard_jobs',
   'wizard_messages',
+  // Platform P1 (ADR-104 §18): бизнес — организация в строке; филиал — через родителя-Business.
+  // Политики — в миграции 20260927000030_platform_p1_business_location
+  'businesses',
+  'locations',
 ];
 
 /**

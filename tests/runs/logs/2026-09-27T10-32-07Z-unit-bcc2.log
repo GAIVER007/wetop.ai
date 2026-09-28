@@ -1,0 +1,88 @@
+# Модульные (unit) · 27.09.2026 15:32 Алматы · vm
+# коммит f4294cf (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T10-32-07Z-unit-bcc2.json' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/desk-shell.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests | 1 failed) 518ms
+   ❯ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 508ms
+     ✓ вошедший управляющий — его роль 1ms
+     × `/auth/me` не ответил — меню как у администратора, «Платформы» нет, а роль помечена неизвестной 8ms
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (13 tests | 2 failed) 14ms
+   ✓ меню по ролям (5)
+     ✓ у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 2ms
+     ✓ администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности 1ms
+     ✓ управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 1ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 0ms
+     ✓ пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 0ms
+   ✓ страница по адресу: какое право её открывает (4)
+     ✓ разделы меню и их вложенные адреса 1ms
+     ✓ адреса вне меню: настройки продавца и его агенты 0ms
+     ✓ первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает 0ms
+     ✓ карточка ячейки и брони — работа смены, отдельного права нет 1ms
+   ❯ право вошедшего (4)
+     ✓ по роли; никто не вошёл — открыто, как в API без человека за запросом 0ms
+     × роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора 4ms
+     × страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа» 1ms
+     ✓ роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-shell.test.ts > оболочка стойки: кто вошёл > `/auth/me` не ответил — меню как у администратора, «Платформы» нет, а роль помечена неизвестной
+AssertionError: expected { aiSeller: false, …(2) } to deeply equal { aiSeller: false, …(3) }
+
+- Expected
++ Received
+
+  {
+    "aiSeller": false,
+    "platform": false,
+    "role": "STAFF",
+-   "unknown": true,
+  }
+
+ ❯ apps/web/src/lib/desk-shell.test.ts:34:40
+     32|     me.mockRejectedValue(new ApiError(504, 'API не ответил'));
+     33|     const { deskShell } = await import('./desk-shell');
+     34|     expect((await deskShell()).access).toEqual({
+       |                                        ^
+     35|       aiSeller: false,
+     36|       platform: false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > право вошедшего > роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора
+TypeError: Cannot read properties of undefined (reading 'role')
+ ❯ mayAccess apps/web/src/lib/navigation.ts:326:17
+    324| /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступ…
+    325| export function mayAccess(access: NavigationAccess, permission: Permis…
+    326|   return access.role === null || can(access.role, permission);
+       |                 ^
+    327| }
+    328|
+ ❯ apps/web/src/lib/navigation-roles.test.ts:106:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > право вошедшего > страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа»
+TypeError: pageOpen is not a function
+ ❯ apps/web/src/lib/navigation-roles.test.ts:112:12
+    110|
+    111|   it('страница по адресу: нет права — закрыта; роль не узнали — открыт…
+    112|     expect(pageOpen(access('MANAGER'), 'settings')).toBe(true);
+       |            ^
+    113|     expect(pageOpen(access('STAFF'), 'settings')).toBe(false);
+    114|     expect(pageOpen(PENDING_ACCESS, 'settings')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 13 passed (16)
+   Start at  10:32:07
+   Duration  814ms (transform 52%, tests 40%, import 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T10-32-07Z-unit-bcc2.json
+
+# код выхода 1 · 2 с

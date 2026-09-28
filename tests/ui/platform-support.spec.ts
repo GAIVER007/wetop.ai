@@ -93,7 +93,8 @@ test('главный администратор: сводка, отбор, ка�
     'href',
     '/platform?org=ui-org',
   );
-  await expect(who).toContainText('сотрудник');
+  // роль словом стойки: «сотрудник» стал «администратором» (ADR-107)
+  await expect(who).toContainText('администратор');
   await expect(card).toContainText('Не сохраняется бронь');
   await shot(page, 'support-dialog');
 
@@ -162,7 +163,15 @@ test('настройка помощника: правила и модель со
   await page.goto('/platform/support/settings');
   const rules = main.getByTestId('support-prompt-text');
   await expect(rules).toHaveValue(/Отвечай на «вы»/);
-  await rules.fill('Ты — ИИ-помощник WETOP. Отвечай на «ты», коротко.');
+  // Поле приходит потоком: под нагрузкой полного набора fill() выделял текст в уходящей копии,
+  // а ввод попадал в новую — правила сохранялись склеенными, 59 + 49 = 108 знаков
+  // (лог 2026-09-27T21-12-06Z-e2e-50e9.log, TESTING.md «две копии страницы»). Повторяем, пока в поле
+  // не окажется ровно новый текст.
+  const informal = 'Ты — ИИ-помощник WETOP. Отвечай на «ты», коротко.';
+  await expect(async () => {
+    await rules.fill(informal);
+    await expect(rules).toHaveValue(informal, { timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
   await main.getByTestId('support-prompt-save').click();
   await expect(main.getByTestId('support-prompt-result')).toContainText('Сохранено: 49 знаков');
   await page.reload();

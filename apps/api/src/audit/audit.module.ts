@@ -5,6 +5,7 @@ import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
+import { Access } from '../auth/access.decorator';
 
 export interface AuditRow {
   id: string;
@@ -141,10 +142,12 @@ async function ownAuditRows(db: PrismaService['db']): Promise<Prisma.Sql> {
       WHERE r."property_id" = ${p}))
     OR (a."entity_type" = 'user' AND a."entity_id" IN (
       SELECT m."user_id"::text FROM "memberships" m WHERE m."organization_id" = ${organizationId}::uuid))
+    OR (a."entity_type" = 'organization' AND a."entity_id" = ${organizationId}::text)
     ))
   )`;
 }
 
+@Access('journal')
 @Controller('audit')
 export class AuditController {
   constructor(@Inject(AuditService) private readonly service: AuditService) {}

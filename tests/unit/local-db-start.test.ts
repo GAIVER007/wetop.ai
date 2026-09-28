@@ -19,6 +19,7 @@ it('local-db start does not add a second set of stays to the populated test sche
   executable('psql', 'echo 1');
   executable('npm', `case "$*" in *test:schema*) touch "$AUDIT_DIR/test-schema-populated";; esac`);
   executable('npx', [
+    'case "$*" in *local-app-login*) touch "$AUDIT_DIR/app-login"; exit 0;; esac',
     'if [ "${DATABASE_SCHEMA:-}" = pms_test ] && [ -f "$AUDIT_DIR/test-schema-populated" ]; then',
     '  echo "23P01: second seed overlaps existing stays" >&2',
     '  exit 1',
@@ -40,6 +41,8 @@ it('local-db start does not add a second set of stays to the populated test sche
     expect(result.status, result.stdout + result.stderr).toBe(0);
     expect(readFileSync(join(dir, 'seeded-schemas'), 'utf8').trim()).toBe('public');
     expect(readFileSync(join(dir, 'test-schema-populated'), 'utf8')).toBe('');
+    // вход wetop_app включается на каждом старте стенда (TESTING.md §4)
+    expect(readFileSync(join(dir, 'app-login'), 'utf8')).toBe('');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

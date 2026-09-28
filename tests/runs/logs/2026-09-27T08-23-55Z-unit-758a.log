@@ -1,0 +1,196 @@
+# Модульные (unit) · 27.09.2026 13:23 Алматы · vm
+# коммит 2110faf (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T08-23-55Z-unit-758a.json' 'apps/web/src/lib/navigation-roles.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (10 tests | 8 failed) 20ms
+   ❯ меню по ролям (5)
+     × у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 9ms
+     × администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности 2ms
+     ✓ управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 1ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 0ms
+     × пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 2ms
+   ❯ страница по адресу: какое право её открывает (3)
+     × разделы меню и их вложенные адреса 1ms
+     × адреса вне меню: настройки продавца, его агенты, первичная настройка 0ms
+     × карточка ячейки и брони — работа смены, отдельного права нет 0ms
+   ❯ право вошедшего (2)
+     × по роли; никто не вошёл — открыто, как в API без человека за запросом 1ms
+     × роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > у каждого пункта меню записано право — пункта «для всех по умолчанию» нет
+AssertionError: expected [ '/today', '/chessboard', …(20) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "/today",
++   "/chessboard",
++   "/reservations",
++   "/guests",
++   "/rooms",
++   "/inventory",
++   "/rooms/categories",
++   "/rooms/availability",
++   "/rates",
++   "/management/statistics",
++   "/finance",
++   "/channel-manager",
++   "/channels",
++   "/ai-seller",
++   "/analytics",
++   "/hotel-settings",
++   "/hotel-settings/penalties",
++   "/hotel-settings/services",
++   "/connections",
++   "/analytics/setup",
++   "/incidents",
++   "/journal",
++ ]
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:28:75
+     26| describe('меню по ролям', () => {
+     27|   it('у каждого пункта меню записано право — пункта «для всех по умолч…
+     28|     expect(navigationItems.filter((i) => !i.requires).map((i) => i.hre…
+       |                                                                           ^
+     29|   });
+     30|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности
+AssertionError: expected [ '/today', '/chessboard', …(17) ] to deeply equal [ '/today', '/chessboard', …(6) ]
+
+- Expected
++ Received
+
+  [
+    "/today",
+    "/chessboard",
+    "/reservations",
+    "/guests",
++   "/inventory",
++   "/rooms/categories",
++   "/rooms/availability",
++   "/rates",
++   "/channel-manager",
++   "/channels",
+    "/ai-seller",
++   "/analytics",
+    "/finance",
+    "/management/statistics",
++   "/hotel-settings",
++   "/connections",
++   "/analytics/setup",
+    "/incidents",
++   "/journal",
+  ]
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:32:36
+     30|
+     31|   it('администратор: работа с гостями, продавец (диалоги), оплаты и ст…
+     32|     expect(hrefs(access('STAFF'))).toEqual([
+       |                                    ^
+     33|       '/today',
+     34|       '/chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего
+TypeError: Cannot read properties of undefined (reading 'platform')
+ ❯ allowedItem apps/web/src/lib/navigation.ts:284:28
+    282| /** Открыт ли пункт этому вошедшему */
+    283| export function allowedItem(item: NavigationItem, access: NavigationAc…
+    284|   return !item.requires || access[item.requires];
+       |                            ^
+    285| }
+    286|
+ ❯ apps/web/src/lib/navigation.ts:292:45
+ ❯ apps/web/src/lib/navigation.ts:292:28
+ ❯ sidebarSectionsFor apps/web/src/lib/navigation.ts:290:6
+ ❯ hrefs apps/web/src/lib/navigation-roles.test.ts:23:40
+ ❯ apps/web/src/lib/navigation-roles.test.ts:62:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > страница по адресу: какое право её открывает > разделы меню и их вложенные адреса
+TypeError: routeRule is not a function
+ ❯ apps/web/src/lib/navigation-roles.test.ts:68:12
+     66| describe('страница по адресу: какое право её открывает', () => {
+     67|   it('разделы меню и их вложенные адреса', () => {
+     68|     expect(routeRule('/rates')?.requires).toBe('rates');
+       |            ^
+     69|     expect(routeRule('/channels/events/rev-1')?.requires).toBe('channe…
+     70|     expect(routeRule('/hotel-settings/penalties')?.requires).toBe('set…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > страница по адресу: какое право её открывает > адреса вне меню: настройки продавца, его агенты, первичная настройка
+TypeError: routeRule is not a function
+ ❯ apps/web/src/lib/navigation-roles.test.ts:77:12
+     75|
+     76|   it('адреса вне меню: настройки продавца, его агенты, первичная настр…
+     77|     expect(routeRule('/ai-seller/knowledge')?.requires).toBe('seller');
+       |            ^
+     78|     expect(routeRule('/ai-seller/connections')?.requires).toBe('seller…
+     79|     expect(routeRule('/ai-seller/agents/new')?.requires).toBe('seller'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > страница по адресу: какое право её открывает > карточка ячейки и брони — работа смены, отдельного права нет
+TypeError: routeRule is not a function
+ ❯ apps/web/src/lib/navigation-roles.test.ts:84:12
+     82|
+     83|   it('карточка ячейки и брони — работа смены, отдельного права нет', (…
+     84|     expect(routeRule('/units/R01')).toBeUndefined();
+       |            ^
+     85|     expect(routeRule('/reservations/20260927-ABC123')?.requires).toBe(…
+     86|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > право вошедшего > по роли; никто не вошёл — открыто, как в API без человека за запросом
+TypeError: mayAccess is not a function
+ ❯ apps/web/src/lib/navigation-roles.test.ts:91:12
+     89| describe('право вошедшего', () => {
+     90|   it('по роли; никто не вошёл — открыто, как в API без человека за зап…
+     91|     expect(mayAccess(access('STAFF'), 'refunds')).toBe(false);
+       |            ^
+     92|     expect(mayAccess(access('MANAGER'), 'refunds')).toBe(true);
+     93|     expect(mayAccess(access('MANAGER'), 'owner')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > право вошедшего > роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет
+AssertionError: expected undefined to be 'MANAGER' // Object.is equality
+
+- Expected:
+"MANAGER"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:98:62
+     96|
+     97|   it('роль из `/auth/me`: незнакомая — администратор; никто не вошёл —…
+     98|     expect(deskAccessOf({ user: { role: 'MANAGER' } }).role).toBe('MAN…
+       |                                                              ^
+     99|     expect(deskAccessOf({ user: { role: 'ADMIN' } }).role).toBe('STAFF…
+    100|     expect(deskAccessOf({ user: {} }).role).toBe('STAFF');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 2 passed (10)
+   Start at  08:23:56
+   Duration  345ms (transform 73%, tests 14%, import 10%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-27T08-23-55Z-unit-758a.json
+
+# код выхода 1 · 1 с

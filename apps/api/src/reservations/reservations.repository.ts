@@ -84,7 +84,7 @@ export interface ItemState {
   ratePlanId: string | null;
   adults: number;
   children: number;
-  /** Политика штрафа тарифа; без тарифа — умолчание объекта (правило Exely «первые сутки») */
+  /** Политика штрафа тарифа; без тарифа — `DEFAULT_CANCELLATION_PENALTY` (штрафа нет, Q-103) */
   cancellationPenalty: CancellationPenalty;
   allocations: AllocationState[];
 }

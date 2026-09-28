@@ -1,4 +1,11 @@
-import { ApiError, authApi, type AuthInvite, type AuthSessionRow } from '../../lib/api';
+import { canManageStaff, parseMembershipRole } from '@pms/domain';
+import {
+  ApiError,
+  authApi,
+  type AuthInvite,
+  type AuthMember,
+  type AuthSessionRow,
+} from '../../lib/api';
 import { clientInfo, sessionToken } from '../../lib/session';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { LoginForm, type LoginMode } from './login-form';
@@ -10,6 +17,18 @@ async function pendingInvites(): Promise<AuthInvite[]> {
   if (!token) return [];
   try {
     return await authApi.invites(token, await clientInfo());
+  } catch (e) {
+    if (e instanceof ApiError) return [];
+    throw e;
+  }
+}
+
+/** Сотрудники своей организации (ADR-107) — владельцу и управляющему; сбой списка экран входа не роняет. */
+async function teamMembers(): Promise<AuthMember[]> {
+  const token = await sessionToken();
+  if (!token) return [];
+  try {
+    return await authApi.members(token, await clientInfo());
   } catch (e) {
     if (e instanceof ApiError) return [];
     throw e;
@@ -37,11 +56,15 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const [user, registrationEnabled] = await Promise.all([signedInUser(), registrationAvailable()]);
   // `?mode=register` открывает регистрацию сразу — с неё ведёт ссылка «Попробовать бесплатно» с сайта.
   const mode: LoginMode = q.mode === 'register' ? 'register' : 'password';
+  // приглашениями и сотрудниками ведают владелец и управляющий (ADR-107): администратору их и не запрашиваем
+  const role = user?.role ? parseMembershipRole(user.role) : null;
+  const team = !!user?.organization && !!role && canManageStaff(role);
   return (
     <LoginForm
       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
       user={user}
-      invites={user?.organization ? await pendingInvites() : []}
+      invites={team ? await pendingInvites() : []}
+      members={team ? await teamMembers() : []}
       // «Где я вошёл» — любому вошедшему, каким бы входом он ни пришёл (Q-146: API узнаёт оба)
       sessions={user ? await activeSessions() : []}
       initialEmail={q.email ?? ''}

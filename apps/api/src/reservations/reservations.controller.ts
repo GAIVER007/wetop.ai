@@ -8,8 +8,10 @@ import {
   type UpdateItemDto,
   type UpdateReservationDto,
 } from './reservations.service';
+import { Access } from '../auth/access.decorator';
 
 /** Команды ручной брони (стойка). Чтение — в ChessboardController (GET /reservations/:number). */
+@Access('desk')
 @Controller('reservations')
 export class ReservationsController {
   constructor(@Inject(ReservationsService) private readonly service: ReservationsService) {}
@@ -133,6 +135,7 @@ export class ReservationsController {
 }
 
 /** Справочник активных тарифов для формы брони. Отдельный префикс: /reservations/:number занят чтением карточки. */
+@Access('desk')
 @Controller('rate-plans')
 export class RatePlansController {
   constructor(@Inject(ReservationsService) private readonly service: ReservationsService) {}

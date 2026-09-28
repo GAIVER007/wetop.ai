@@ -116,7 +116,7 @@ test('аналитика: бронь связана с сессией счётч
       { timeout: 20_000 },
     )
     .toBe(1);
-  await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);
+  await page.goto(`/website/analytics?site=${siteId}&from=${today}&to=${today}`);
   await expect(page.getByRole('main').getByTestId('an-bookings')).toHaveText('1');
   await expect(page.getByRole('main').getByTestId('an-source-bookings').first()).toHaveText('1');
   // поиск дат из виджета попал в календарь спроса

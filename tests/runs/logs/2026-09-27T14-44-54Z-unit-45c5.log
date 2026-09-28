@@ -1,0 +1,43 @@
+# Модульные (unit) · 27.09.2026 19:44 Алматы · vm
+# коммит aa14a85 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T14-44-54Z-unit-45c5.json' 'packages/domain/src/accounts/permissions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/accounts/permissions.test.ts (10 tests | 1 failed) 22ms
+   ✓ права ролей (9)
+     ✓ двенадцать прав и своё; у каждого — название 7ms
+     ✓ владельцу — всё 1ms
+     ✓ управляющему — всё, кроме владельческого 0ms
+     ✓ администратору — своё, работа с гостями, диалоги продавца и отчёты на просмотр 0ms
+     ✓ возврат и сторно — владелец и управляющий, не администратор (Q-024) 1ms
+     ✓ администратор не видит тарифы, каналы, настройки, журнал, сотрудников и настройки продавца 1ms
+     ✓ неизвестная роль не открывает ничего — даже своё 2ms
+     ✓ у кого право — по порядку ролей 1ms
+     ✓ отказ называет раздел и у кого доступ 1ms
+   ❯ тариф брони без тарифа у администратора (Q-198) (1)
+     × назначить можно тариф со штрафом «первые сутки» или «всё проживание», без штрафа — нет 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/permissions.test.ts > тариф брони без тарифа у администратора (Q-198) > назначить можно тариф со штрафом «первые сутки» или «всё проживание», без штрафа — нет
+TypeError: mayAssignPlanWithoutRates is not a function
+ ❯ packages/domain/src/accounts/permissions.test.ts:102:12
+    100| describe('тариф брони без тарифа у администратора (Q-198)', () => {
+    101|   it('назначить можно тариф со штрафом «первые сутки» или «всё прожива…
+    102|     expect(mayAssignPlanWithoutRates('FIRST_NIGHT')).toBe(true);
+       |            ^
+    103|     expect(mayAssignPlanWithoutRates('FULL_STAY')).toBe(true);
+    104|     expect(mayAssignPlanWithoutRates('NONE')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  14:45:00
+   Duration  862ms (transform 80%, worker 11%, import 5%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-09-27T14-44-54Z-unit-45c5.json
+
+# код выхода 1 · 7 с

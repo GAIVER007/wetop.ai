@@ -2,12 +2,15 @@ import 'reflect-metadata';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import {
+  RATE_PLAN_CHANGE_MESSAGE,
+  RATE_PLAN_SOFT_MESSAGE,
   RESERVATION_SOURCES,
   ReservationRuleError,
   RestrictionViolationError,
@@ -27,15 +30,18 @@ import {
   penaltyDue,
   assertCanExtend,
   hasCitizenship,
+  mayAssignPlanWithoutRates,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
+import { actorMay } from '../auth/request-context';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
 import type { ReservationCard } from './reservation-card';
 import {
   AllocationOverlapError,
   RESERVATIONS_UOW,
   type ItemState,
+  type RatePlanRef,
   type ReservationsRepository,
   type UnitOfWork,
   type UnitRef,
@@ -292,13 +298,25 @@ export class ReservationsService {
     });
   }
 
-  /** Активные тарифы (справочник для формы). Без транзакции: занятый пул не превращает справочник в 500. */
-  ratePlans(): Promise<Array<{ code: string; name: string; currency: string }>> {
+  /**
+   * Активные тарифы (справочник для формы). Без транзакции: занятый пул не превращает справочник в 500.
+   * Правило штрафа — чтобы стойка показала администратору только тарифы, которые он может назначить брони без
+   * тарифа (Q-201).
+   */
+  ratePlans(): Promise<
+    Array<{
+      code: string;
+      name: string;
+      currency: string;
+      cancellationPenalty: RatePlanRef['cancellationPenalty'];
+    }>
+  > {
     return this.uow.read(async (repo) =>
       (await repo.activeRatePlans()).map((p) => ({
         code: p.code,
         name: p.name,
         currency: p.currency,
+        cancellationPenalty: p.cancellationPenalty,
       })),
     );
   }
@@ -534,6 +552,9 @@ export class ReservationsService {
           throw new UnprocessableEntityException(
             `Тариф в ${plan.currency}, бронь в ${state.currency}`,
           );
+        // до первой записи: у каждого проживания тариф остаётся прежним, если менять его нельзя (Q-200, Q-201)
+        for (const item of state.items)
+          if (item.status !== 'CANCELLED') this.assertPlanKept(item, plan);
         let total = 0n;
         for (const item of state.items) {
           if (item.status === 'CANCELLED') continue;
@@ -675,13 +696,7 @@ export class ReservationsService {
         if (!Number.isInteger(nights) || nights < 1 || nights > 30)
           throw new BadRequestException('nights — целое от 1 до 30');
         const departureDate = addDays(item.departureDate, nights);
-        const planId = q.ratePlanCode
-          ? (await repo.ratePlanByCode(q.ratePlanCode))?.id
-          : item.ratePlanId;
-        if (!planId)
-          throw new BadRequestException(
-            'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
-          );
+        const planId = await this.resolvePlanId(repo, item, q.ratePlanCode);
         // Как и само продление: считаются только добавленные ночи, проданные не переоцениваются
         const rates = await repo.nightRates(
           item.accommodationTypeId,
@@ -720,13 +735,7 @@ export class ReservationsService {
       const target = await repo.categoryById(unit.accommodationTypeId);
       if (!target || !target.active)
         throw new UnprocessableEntityException(`Категория ячейки ${q.unitCode} неактивна`);
-      const planId = q.ratePlanCode
-        ? (await repo.ratePlanByCode(q.ratePlanCode))?.id
-        : item.ratePlanId;
-      if (!planId)
-        throw new BadRequestException(
-          'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
-        );
+      const planId = await this.resolvePlanId(repo, item, q.ratePlanCode);
       if (!(await repo.ratePlanCoversType(planId, target.id)))
         throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
       const rates = await repo.nightRates(target.id, planId, item.arrivalDate, item.departureDate);
@@ -802,7 +811,12 @@ export class ReservationsService {
             throw new ConflictException(`Ячейка ${last.unitCode} занята на новые ночи`);
           await repo.replaceAllocationDates(last.id, last.startDate, departureDate);
         }
-        await repo.updateItem(item.id, { departureDate, priceMinor: price.totalMinor });
+        // У брони без тарифа (из Exely) выбранный тариф записывается: дальше в нём продлевают, штраф — его (Q-201)
+        await repo.updateItem(item.id, {
+          departureDate,
+          priceMinor: price.totalMinor,
+          ...(item.ratePlanId ? {} : { ratePlanId: planId }),
+        });
         const fresh = await this.load(repo, number);
         const active = fresh.items.filter((i) => i.status !== 'CANCELLED');
         await repo.updateReservation(state.id, {
@@ -1143,18 +1157,45 @@ export class ReservationsService {
     };
   }
 
-  /** Тариф для пересчёта: явный код или тариф проживания; у перенесённых из Exely его нет (Б8) */
+  /**
+   * Тариф для пересчёта: явный код или тариф проживания; у перенесённых из Exely его нет (Б8). Выбрать другой тариф
+   * может только тот, кому открыты тарифы (Q-200); брони без тарифа администратор назначает тариф со штрафом (Q-201).
+   */
   private async resolvePlanId(
     repo: ReservationsRepository,
     item: ItemState,
     ratePlanCode: string | undefined,
   ): Promise<string> {
-    const planId = ratePlanCode ? (await repo.ratePlanByCode(ratePlanCode))?.id : item.ratePlanId;
-    if (!planId)
+    if (!ratePlanCode) {
+      if (!item.ratePlanId)
+        throw new BadRequestException(
+          'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+        );
+      return item.ratePlanId;
+    }
+    const plan = await repo.ratePlanByCode(ratePlanCode);
+    if (!plan)
       throw new BadRequestException(
         'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
       );
-    return planId;
+    this.assertPlanKept(item, plan);
+    return plan.id;
+  }
+
+  /**
+   * Тариф — цена и правило штрафа брони. Q-200 (ответ владельца 27.09.2026 — «нет не могут»): у существующей брони его
+   * меняют владелец и управляющий (право `rates`); администратор меняет даты, продлевает и переселяет в том же тарифе.
+   * Q-201 («Да, разрешить»): брони без тарифа (из Exely) администратор назначает тариф один раз, со штрафом не мягче
+   * «первых суток»; тариф записывается в бронь, дальше — Q-200. Без человека за запросом — как раньше.
+   */
+  private assertPlanKept(
+    item: { ratePlanId: string | null },
+    plan: Pick<RatePlanRef, 'id' | 'cancellationPenalty'>,
+  ): void {
+    if (plan.id === item.ratePlanId || actorMay('rates')) return;
+    if (item.ratePlanId) throw new ForbiddenException(RATE_PLAN_CHANGE_MESSAGE);
+    if (!mayAssignPlanWithoutRates(plan.cancellationPenalty))
+      throw new ForbiddenException(RATE_PLAN_SOFT_MESSAGE);
   }
 
   /** Цена добавленных ночей по календарю тарифа — только их, проданные ночи не переоцениваются */

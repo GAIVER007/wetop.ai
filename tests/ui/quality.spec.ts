@@ -82,19 +82,27 @@ test('ошибочные даты шахматки и месяца тарифо�
     '/chessboard?from=wrong&to=2026-09-20',
   ]) {
     await page.goto(route);
-    await expect(page.getByRole('heading', { name: /Цены и ограничения|Шахматка/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Тарифы и цены|Шахматка/ })).toBeVisible();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(/период|месяц/i);
-    await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
+    // форма исправления: у тарифов с 27.09 (ADR-111) кнопки нет — месяц перезагружает данные сам
+    if (route.startsWith('/rates'))
+      await expect(page.getByRole('main').getByLabel('Месяц', { exact: true })).toBeEnabled();
+    else
+      await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
   }
 });
 
 test('список гостей и вторая бронь открывают собственные карточки', async ({ page }) => {
   await page.goto('/guests');
   // столько же гостей, сколько броней в фикстуре: добавился «не заехал вовремя» (20260913-TEST8)
-  await expect(page.locator('.directory-guest')).toHaveCount(9);
-  const link = page.locator('.directory-guest').nth(1);
+  await expect(page.locator('.dir-guest')).toHaveCount(9);
+  const link = page.locator('.dir-guest').nth(1);
   const label = await link.locator('strong').innerText();
+  // G3: щелчок по гостю — панель предпросмотра, полная карточка — из неё
   await link.click();
+  const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+  await expect(drawer).toContainText(label);
+  await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText(label);
   await page.goto('/reservations/20260913-TEST1');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('20260913-TEST1');
@@ -138,9 +146,11 @@ test('изменение уборки относится только к выб�
 });
 
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
-  await page.goto('/analytics/setup');
+  // Код счётчика и виджета лежат в свёртках своих вкладок (ADR-117): раскрываем их, как это делает пользователь
+  await page.goto('/website/settings');
+  await page.locator('summary').getByText('Установка счётчика', { exact: true }).click();
   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
-  // После упрощения настроек код виджета лежит в свёртке: раскрываем её, как это делает пользователь
+  await page.goto('/website/booking');
   await page
     .locator('summary')
     .getByText('Установка виджета бронирования', { exact: true })
@@ -152,14 +162,14 @@ test('неподключённые внешние демо не ведут на 
 for (const scenario of [
   {
     name: 'профиль гостя',
-    path: '/guests/ui-guest',
+    path: '/guests/ui-guest#guest-profile',
     form: 'guest-form',
     button: 'Сохранить',
     fields: { firstName: 'Synthetic', notes: 'Сохранить заметку' },
   },
   {
     name: 'документ гостя',
-    path: '/guests/ui-guest',
+    path: '/guests/ui-guest#guest-profile',
     form: 'document-form',
     button: 'Добавить',
     fields: { number: 'TEST-ONLY', issueCountry: 'KAZ' },
@@ -173,7 +183,7 @@ for (const scenario of [
   },
   {
     name: 'сайт аналитики',
-    path: '/analytics/setup',
+    path: '/website/settings',
     form: 'site-form',
     button: 'Добавить сайт',
     fields: { name: 'Тестовый сайт', hosts: 'example.invalid' },

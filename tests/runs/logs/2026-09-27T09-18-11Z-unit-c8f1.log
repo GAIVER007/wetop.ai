@@ -1,0 +1,22 @@
+# Модульные (unit) · 27.09.2026 14:18 Алматы · vm
+# коммит d54e800 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T09-18-11Z-unit-c8f1.json' 'apps/api/src/guard/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 22545  - 09/27/2026, 9:18:15 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+[Nest] 22545  - 09/27/2026, 9:18:15 AM     LOG [GuardService] база данных снова отвечает (не отвечала с 02:00 Алматы)
+[Nest] 22545  - 09/27/2026, 9:18:15 AM   ERROR [GuardService] база данных не отвечает: P1001: Can't reach database server
+ ✓ |unit| apps/api/src/guard/guard.controller.test.ts (3 tests) 16ms
+ ✓ |unit| apps/api/src/guard/guard.service.test.ts (32 tests) 60ms
+ ✓ |unit| apps/api/src/guard/backup-status.test.ts (3 tests) 7ms
+ ✓ |unit| apps/api/src/guard/api-error.filter.test.ts (9 tests) 431ms
+
+ Test Files  4 passed (4)
+      Tests  47 passed (47)
+   Start at  09:18:12
+   Duration  2.88s (transform 60%, import 32%, tests 8%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T09-18-11Z-unit-c8f1.json
+
+# код выхода 0 · 4 с

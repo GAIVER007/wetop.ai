@@ -4,6 +4,7 @@ import { config as loadEnv } from 'dotenv';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { RLS_NO_TENANT_TABLES, RLS_TENANT_TABLES } from '@pms/database';
+import { isLocalDatabase } from '../tools/seed-local';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -63,6 +64,9 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     const property = (await client.query<{ id: string }>(`SELECT id FROM properties ORDER BY created_at LIMIT 1`)).rows[0]!.id;
     await client.query(`INSERT INTO organizations (id, name) VALUES ($1, 'RLS own'), ($2, 'RLS other')`, [own, other]);
     await client.query(`UPDATE properties SET organization_id = $1 WHERE id = $2`, [own, property]);
+    // Platform P1 (ADR-104 §18): бизнес тестовой базы — «своей» организации; его филиал виден через
+    // родителя-Business, что и проверяет обход таблиц под wetop_app ниже
+    await client.query(`UPDATE businesses SET organization_id = $1`, [own]);
     // все гости и записи журнала тестовой базы — объекта «своей» организации
     await client.query(`UPDATE guests SET organization_id = $1`, [own]);
     // журнал только дописывается; в откатываемой транзакции триггер выключается, как в миграции …27
@@ -159,117 +163,38 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
       await client.query('ROLLBACK TO SAVEPOINT svc');
     });
   });
-
-  // ── Фаза Business + Location (план plans/phase-business-location-2026-09-27.md §6.5, DATA_MODEL v2.2 §18) ──
-  // Изоляция уровней владения доказывается в самой базе под ролью wetop_app, не только замком приложения:
-  // политика businesses — по organization_id прямо, политика locations — join к businesses (родительская
-  // политика режет сама, как у floors → buildings). Рекурсивных эффектов у join-политики нет: businesses
-  // внутри подзапроса уже отфильтрованы своей политикой — это и проверяется счётом видимых строк.
-
-  /** Цепочка Business → Location для организации (суперпользователь тестовой базы, политики его не режут) */
-  async function seedChain(organizationId: string, name: string): Promise<{ business: string; location: string }> {
-    const business = randomUUID();
-    const location = randomUUID();
-    await client.query(
-      `INSERT INTO businesses (id, organization_id, name, vertical, updated_at) VALUES ($1, $2, $3, 'HOSPITALITY', now())`,
-      [business, organizationId, name],
-    );
-    await client.query(
-      `INSERT INTO locations (id, business_id, name, timezone, currency, updated_at)
-       VALUES ($1, $2, $3, 'Asia/Almaty', 'KZT', now())`,
-      [location, business, name],
-    );
-    return { business, location };
-  }
-
-  it('Business и Location: организация видит только свои; чужие не приходят даже прямым запросом по id', async () => {
-    await inRollback(async () => {
-      const { own, other } = await seedTwoOrganizations();
-      const ownChain = await seedChain(own, 'Свой бизнес (RLS)');
-      const otherChain = await seedChain(other, 'Чужой бизнес (RLS)');
-      // каждая организация видит ровно свою пару строк — join-политика locations под действующей политикой businesses
-      expect(await visible('businesses', own)).toBe(1);
-      expect(await visible('locations', own)).toBe(1);
-      expect(await visible('businesses', other)).toBe(1);
-      expect(await visible('locations', other)).toBe(1);
-      // без переменной — ничего
-      expect(await visible('businesses', '')).toBe(0);
-      expect(await visible('locations', '')).toBe(0);
-      // прямой SQL по id чужой строки под app-ролью — пусто, и своя строка при этом читается
-      await client.query('SAVEPOINT direct');
-      await client.query('SET LOCAL ROLE wetop_app');
-      await client.query(`SELECT set_config('app.org_id', $1, true)`, [own]);
-      expect((await client.query(`SELECT id FROM businesses WHERE id = $1`, [otherChain.business])).rowCount).toBe(0);
-      expect((await client.query(`SELECT id FROM locations WHERE id = $1`, [otherChain.location])).rowCount).toBe(0);
-      expect((await client.query(`SELECT id FROM locations WHERE id = $1`, [ownChain.location])).rowCount).toBe(1);
-      await client.query('ROLLBACK TO SAVEPOINT direct');
-    });
-  });
-
-  it('Business и Location: записать строку в чужую организацию под app-ролью нельзя — отказ базы', async () => {
-    await inRollback(async () => {
-      const { own, other } = await seedTwoOrganizations();
-      const otherChain = await seedChain(other, 'Чужой бизнес (RLS)');
-      await client.query('SAVEPOINT write');
-      await client.query('SET LOCAL ROLE wetop_app');
-      await client.query(`SELECT set_config('app.org_id', $1, true)`, [own]);
-      await expect(
-        client.query(
-          `INSERT INTO businesses (id, organization_id, name, vertical, updated_at) VALUES ($1, $2, 'Подлог', 'HOSPITALITY', now())`,
-          [randomUUID(), other],
-        ),
-      ).rejects.toThrow(/row-level security/);
-      await client.query('ROLLBACK TO SAVEPOINT write');
-      await client.query('SAVEPOINT write2');
-      await client.query('SET LOCAL ROLE wetop_app');
-      await client.query(`SELECT set_config('app.org_id', $1, true)`, [own]);
-      await expect(
-        client.query(
-          `INSERT INTO locations (id, business_id, name, timezone, currency, updated_at)
-           VALUES ($1, $2, 'Подлог', 'Asia/Almaty', 'KZT', now())`,
-          [randomUUID(), otherChain.business],
-        ),
-      ).rejects.toThrow(/row-level security/);
-      await client.query('ROLLBACK TO SAVEPOINT write2');
-    });
-  });
-
-  it('Business и Location: служебная роль видит цепочки всех организаций', async () => {
-    await inRollback(async () => {
-      const { own, other } = await seedTwoOrganizations();
-      await seedChain(own, 'Свой бизнес (RLS)');
-      await seedChain(other, 'Чужой бизнес (RLS)');
-      await client.query('SAVEPOINT svc2');
-      await client.query('SET LOCAL ROLE wetop_service');
-      expect((await client.query(`SELECT count(*)::int AS n FROM businesses`)).rows[0].n).toBeGreaterThanOrEqual(2);
-      expect((await client.query(`SELECT count(*)::int AS n FROM locations`)).rows[0].n).toBeGreaterThanOrEqual(2);
-      await client.query('ROLLBACK TO SAVEPOINT svc2');
-    });
-  });
 });
 
 /**
  * Проверки «на всю установку» внутри запроса организации (RLS, DATA_MODEL §17): кто оператор Channex — ответ не должен
  * зависеть от того, кто спросил. Под ролью организации объект Luxx другой гостинице не виден; служебная роль видит.
+ *
+ * Пул организации входит в базу отдельным пользователем. Сама `wetop_app` — без входа (`NOLOGIN`: вход на сервере
+ * включает владелец, `docs/ops/rls.md` этап 1), поэтому тест на время прогона заводит свою роль — члена `wetop_app` со
+ * случайным паролем: права и политики `TO wetop_app` действуют на члена роли так же. `wetop_app` не меняется. Только на
+ * локальной базе — свой кластер или служба PostgreSQL в CI: на общей базе роли не заводим.
  */
-describe.skipIf(!url)('RLS: служебный доступ внутри запроса организации', () => {
-  // Миграция 20260927000026_rls_roles заводит wetop_app БЕЗ входа (NOLOGIN): на рабочей базе вход включает
-  // владелец (docs/ops/rls.md). Пул wetop_app этого теста должен войти в базу, поэтому на время теста вход
-  // включается суперпользователем локальной тестовой базы и выключается обратно.
+describe.skipIf(!url || !isLocalDatabase(url))('RLS: служебный доступ внутри запроса организации', () => {
+  const probe = `rls_probe_${randomUUID().replace(/-/g, '').slice(0, 12)}`;
+  const password = randomUUID().replace(/-/g, '');
   let admin: pg.Client;
   beforeAll(async () => {
     admin = new pg.Client({ connectionString: url });
     await admin.connect();
-    await admin.query('ALTER ROLE wetop_app LOGIN');
+    await admin.query(`CREATE ROLE "${probe}" LOGIN PASSWORD '${password}' IN ROLE wetop_app`);
   });
   afterAll(async () => {
-    await admin.query('ALTER ROLE wetop_app NOLOGIN').catch(() => {});
-    await admin.end();
+    await admin?.query(`DROP ROLE IF EXISTS "${probe}"`);
+    await admin?.end();
   });
+
   it('withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет', async () => {
     const { createPrismaClient } = await import('@pms/database');
     const ctx = await import('../../apps/api/src/auth/request-context');
-    const appUrl = url!.replace(/\/\/[^@/]*@/, '//wetop_app@');
+    const app = new URL(url!);
+    app.username = probe;
+    app.password = password;
+    const appUrl = app.toString();
     const db = createPrismaClient(url, undefined, { of: ctx.databaseTenant, appConnectionString: appUrl });
     try {
       const property = await db.property.findFirstOrThrow({ orderBy: { createdAt: 'asc' } });

@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * «Цены и ограничения» без каши (21.09.2026, продолжение правки).
+ * «Тарифы и цены» v2 (27.09.2026, ТЗ владельца, ADR-111, RT1).
  *
- * Найдено на стенде: восемь колонок, из которых четыре («Макс. ночей», «Стоп-продажа», «Закрыт
- * заезд», «Закрыт выезд») на обычный месяц — 120 прочерков подряд; последняя колонка на 1440 px
- * уходила в прокрутку панели без признака (таблица 861 px в обёртке 743); строка 57 px при норме
- * §4 «38–42» — месяц в 1 700 px; на телефоне видны были только дата и цены, ограничения — за краем;
- * в массовом изменении «вс» переносилось на отдельную строку, а кнопка говорила «Сохранить (0)».
+ * Было: цены месяца вертикальным списком, справа постоянно висела форма «Массовое изменение» на
+ * треть экрана — картину месяца (где дорого, где закрыто, где min stay) не увидеть. Стало: сетка
+ * месяца пн–вс с ценой и ограничениями словами в ячейке дня; форма массовой правки — та же, но в
+ * выдвижной панели за кнопкой «Изменить цены»; фильтры перезагружают данные сами, кнопки «Показать»
+ * нет. Поля и testid'ы формы не менялись — их водит запись сертификации Channex.
  */
 const fixture = 'http://127.0.0.1:4311';
 
@@ -15,62 +15,140 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
-test('цены: ограничения одной колонкой словами, строка по шкале, таблица помещается в панель', async ({
+test('календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет', async ({
   page,
   request,
 }) => {
-  // витрина: две закрытые ночи в месяце — ограничение должно быть названо словами в строке
+  // витрина: закрытые ночи, CTA/CTD, «мин. 2» и ночь без цены — ограничение названо в ячейке дня
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/rates?month=2026-10');
-  const table = main.getByTestId('rates-table');
-  await expect(table).toBeVisible();
-  await expect(table.locator('thead th')).toHaveText([
-    'Дата',
-    'Цена за 1 гостя',
-    'Цена за 2 гостей',
-    'Мин. ночей',
-    'Ограничения',
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
+  const cal = main.getByTestId('rates-calendar');
+  await expect(cal).toBeVisible();
+  // семь колонок недели, день октября на месте
+  await expect(cal.locator('.rate-cal__weekdays span')).toHaveText([
+    'пн',
+    'вт',
+    'ср',
+    'чт',
+    'пт',
+    'сб',
+    'вс',
   ]);
-  // у ночи без ограничений — один прочерк, а не четыре
-  const rows = table.locator('tbody tr');
-  const n = await rows.count();
-  expect(n).toBeGreaterThan(20);
-  expect(await table.locator('tbody td', { hasText: /^—$/ }).count()).toBeLessThanOrEqual(n);
-  // закрытая ночь названа словами (слово «закрыто» держит запись сертификации Channex)
-  await expect(table.locator('tbody tr.is-stop').first()).toContainText('закрыто (стоп-продажа)');
-  await expect(main.getByTestId('rate-row-2026-10-01')).toContainText('1 ночь');
-  // последняя колонка не уходит в прокрутку обёртки без признака
-  const clipped = await table.evaluate((el) => {
-    const scroller = el.closest('.table-scroll') ?? el.parentElement!;
-    return scroller.scrollWidth - scroller.clientWidth;
-  });
-  expect(clipped, 'таблица цен обрезана прокруткой').toBeLessThanOrEqual(1);
-  // строка по шкале §4 (38–42 px), а не 57
-  const height = await rows.first().evaluate((el) => el.getBoundingClientRect().height);
-  expect(height).toBeGreaterThanOrEqual(34);
-  expect(height).toBeLessThanOrEqual(44);
+  const day1 = main.getByTestId('rate-row-2026-10-01');
+  await expect(day1.locator('time')).toHaveAttribute('datetime', '2026-10-01');
+  // главная информация — цена за полную вместимость, вторая цена мельче со словом (§6, §10 ТЗ)
+  await expect(day1.getByTestId('price-2026-10-01-2')).toContainText('10 000 ₸');
+  await expect(day1.getByTestId('price-2026-10-01-1')).toContainText('1 гость');
+  // стоп-продажа: тон плюс слово сертификации «закрыто» (§9 DESIGN, §22 ТЗ)
+  const stop = cal.locator('.rate-cal__day.is-stop').first();
+  await expect(stop).toContainText('закрыто (стоп-продажа)');
+  // CTA/CTD и min stay — словами, «мин. 1» шумом не показывается (§23–24 ТЗ)
+  await expect(main.getByTestId('rate-row-2026-10-09')).toContainText('закрыт заезд');
+  await expect(main.getByTestId('rate-row-2026-10-10')).toContainText('закрыт выезд');
+  await expect(main.getByTestId('rate-row-2026-10-16')).toContainText('мин. 2 ночи');
+  await expect(day1).not.toContainText('мин. 1');
+  // ночь без цены — словами, не прочерком (§21 ТЗ)
+  await expect(main.getByTestId('rate-row-2026-10-21')).toContainText('Нет цены');
+  // постоянной правой формы больше нет: форма — только за кнопкой «Изменить цены»
+  await expect(main.getByTestId('bulk-editor')).toHaveCount(0);
+  await expect(main.getByRole('button', { name: 'Показать' })).toHaveCount(0);
+  // сетка помещается в окно без прокрутки вбок
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
 });
 
-test('цены: на телефоне строка складывается в карточку, цена по-прежнему правится в ячейке', async ({
+test('изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений', async ({
+  page,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/rates?month=2026-10');
+  await main.getByTestId('rates-edit-open').click();
+  const editor = main.getByTestId('bulk-editor');
+  await expect(editor).toBeVisible();
+  await expect(page.getByRole('dialog')).toContainText('Изменить цены и ограничения');
+  const tops = await editor
+    .locator('input[name^="day-"]')
+    .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+  expect(tops).toHaveLength(7);
+  expect(new Set(tops).size, 'дни недели разъехались на две строки').toBe(1);
+  const save = editor.getByTestId('apply-changes');
+  await expect(save).toHaveText('Сохранить');
+  await expect(save).toBeDisabled();
+  await editor.getByLabel('Цена за ночь').fill('9100');
+  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
+  await expect(save).toHaveText('Сохранить 1 изменение');
+  await expect(save).toBeEnabled();
+  // Escape закрывает панель и возвращает фокус кнопке (§12 DESIGN)
+  await page.keyboard.press('Escape');
+  await expect(main.getByTestId('bulk-editor')).toHaveCount(0);
+  await expect(main.getByTestId('rates-edit-open')).toBeFocused();
+});
+
+// Аудит 26.09, С-48: сняв все дни недели, администратор получал правку «на все дни» — форма просто не передавала
+// список, и стоп-продажа уходила на весь период во все каналы.
+test('массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему', async ({
+  page,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/rates?month=2026-10');
+  await main.getByTestId('rates-edit-open').click();
+  const editor = main.getByTestId('bulk-editor');
+  await expect(editor).toBeVisible();
+  for (const box of await editor.locator('input[name^="day-"]').all()) await box.uncheck();
+  await editor.getByLabel('Цена за ночь').fill('9100');
+  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
+  await expect(editor.getByText('Отметьте хотя бы один день недели')).toBeVisible();
+  await expect(editor.getByTestId('apply-changes')).toHaveText('Сохранить');
+});
+
+test('фильтры: категория и тариф чипами в одно касание, месяц русским списком — без «Показать»', async ({
+  page,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/rates?month=2026-10');
+  const filters = main.getByTestId('rates-filters');
+  // категория — чип-ссылка (правка владельца по снимкам RT1: выбор в одно касание)
+  await filters
+    .getByRole('navigation', { name: 'Категория' })
+    .getByRole('link', { name: 'Мужской общий номер' })
+    .click();
+  await expect(page).toHaveURL(/category=MALE/);
+  await expect(
+    filters.getByRole('navigation', { name: 'Категория' }).getByRole('link', {
+      name: 'Мужской общий номер',
+    }),
+  ).toHaveAttribute('aria-current', 'true');
+  // категория на одного гостя — в ячейке одна цена, без слова «гость»
+  await expect(main.getByTestId('price-2026-10-01-1')).toBeVisible();
+  await expect(main.getByTestId('rate-row-2026-10-01')).not.toContainText('гост');
+  // месяц — русским списком, смена перезагружает данные сама
+  const monthSelect = filters.getByLabel('Месяц', { exact: true });
+  await expect(monthSelect.locator('option', { hasText: 'октябрь 2026' })).toHaveCount(1);
+  await monthSelect.selectOption('2026-11');
+  await expect(page).toHaveURL(/month=2026-11/);
+  await expect(main.getByTestId('rate-row-2026-11-01')).toBeVisible();
+});
+
+test('на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке', async ({
   page,
 }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/rates?month=2026-10');
-  const table = main.getByTestId('rates-table');
-  await expect(table).toBeVisible();
-  const clipped = await table.evaluate((el) => {
-    const scroller = el.closest('.table-scroll') ?? el.parentElement!;
-    return scroller.scrollWidth - scroller.clientWidth;
-  });
-  expect(clipped, 'таблица цен уезжает в прокрутку вбок').toBeLessThanOrEqual(1);
+  const cal = main.getByTestId('rates-calendar');
+  await expect(cal).toBeVisible();
   const row = main.getByTestId('rate-row-2026-10-01');
-  // в сложенной строке слово стоит у числа: «1 гость 8 000 ₸», «2 гостя 10 000 ₸», «мин. 1 ночь»
+  // в сложенной строке дата словами и слово у числа: «1 окт. чт», «1 гость 8 000 ₸»
+  await expect(row).toContainText('1 окт. чт');
   await expect(row).toContainText('1 гость');
-  await expect(row).toContainText('2 гостя');
-  await expect(row).toContainText('мин. 1 ночь');
+  await expect(row).toContainText('8 000 ₸');
   const right = await row
     .getByTestId('price-2026-10-01-2')
     .evaluate((el) => el.getBoundingClientRect().right);
@@ -86,43 +164,4 @@ test('цены: на телефоне строка складывается в �
   expect(editor!.x, 'окно правки цены за левым краем экрана').toBeGreaterThanOrEqual(0);
   expect(editor!.x + editor!.width, 'окно правки цены за правым краем').toBeLessThanOrEqual(390);
   await expect(page.getByRole('button', { name: 'Сохранить цену' })).toBeInViewport();
-});
-
-test('массовое изменение: дни недели одной строкой, кнопка называет число изменений', async ({
-  page,
-}) => {
-  const main = page.getByRole('main');
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/rates?month=2026-10');
-  const editor = main.getByTestId('bulk-editor');
-  await expect(editor).toBeVisible();
-  const tops = await editor
-    .locator('input[name^="day-"]')
-    .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
-  expect(tops).toHaveLength(7);
-  expect(new Set(tops).size, 'дни недели разъехались на две строки').toBe(1);
-  const save = editor.getByTestId('apply-changes');
-  await expect(save).toHaveText('Сохранить');
-  await expect(save).toBeDisabled();
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await expect(save).toHaveText('Сохранить 1 изменение');
-  await expect(save).toBeEnabled();
-});
-
-// Аудит 26.09, С-48: сняв все дни недели, администратор получал правку «на все дни» — форма просто не передавала
-// список, и стоп-продажа уходила на весь период во все каналы.
-test('массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему', async ({
-  page,
-}) => {
-  const main = page.getByRole('main');
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/rates?month=2026-10');
-  const editor = main.getByTestId('bulk-editor');
-  await expect(editor).toBeVisible();
-  for (const box of await editor.locator('input[name^="day-"]').all()) await box.uncheck();
-  await editor.getByLabel('Цена за ночь').fill('9100');
-  await editor.getByRole('button', { name: '+ Добавить в список', exact: true }).click();
-  await expect(editor.getByText('Отметьте хотя бы один день недели')).toBeVisible();
-  await expect(editor.getByTestId('apply-changes')).toHaveText('Сохранить');
 });

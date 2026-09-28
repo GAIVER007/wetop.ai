@@ -1,0 +1,19 @@
+# Модульные (unit) · 27.09.2026 13:15 Алматы · vm
+# коммит 4b966af (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 56
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T08-15-16Z-unit-04ce.json' 'apps/api/src/finance/finance.controller.test.ts' 'apps/api/src/ai-seller/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 42ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 16ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (50 tests) 413ms
+ ✓ |unit| apps/api/src/finance/finance.controller.test.ts (14 tests) 400ms
+
+ Test Files  4 passed (4)
+      Tests  91 passed (91)
+   Start at  08:15:17
+   Duration  2.52s (transform 49%, import 36%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-09-27T08-15-16Z-unit-04ce.json
+
+# код выхода 0 · 3 с

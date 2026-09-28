@@ -32,7 +32,12 @@ describe('ReservationsService.ratePlans', () => {
     const service = new ReservationsService(uow, {} as AriPublisher);
 
     await expect(service.ratePlans()).resolves.toEqual([
-      { code: 'exely-10157482', name: 'Базовый тариф', currency: 'KZT' },
+      {
+        code: 'exely-10157482',
+        name: 'Базовый тариф',
+        currency: 'KZT',
+        cancellationPenalty: 'NONE',
+      },
     ]);
   });
 });

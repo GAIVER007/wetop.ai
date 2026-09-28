@@ -55,12 +55,6 @@
   align-self: center;
   padding-top: var(--space-6);
 }
-.fund-category-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-.fund-category,
 .fund-availability article {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -68,45 +62,140 @@
   padding: 24px;
   min-width: 0;
 }
-.fund-category-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-.fund-category h2 {
-  font-size: 18px;
-  line-height: 1.4;
-  margin: 8px 0;
-}
 .fund-type {
   font-size: 12px;
   color: var(--muted);
 }
-.fund-facts {
+/* Таблица категорий (ТЗ «Категории v2» C1, ADR-109) */
+.fund-toolbar .chips {
+  margin: 0;
+}
+/* Название — кнопка панели категории (C2): читается как название, а не как кнопка */
+.fund-cat-open {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  min-height: 24px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.fund-cat-open:hover {
+  text-decoration: underline;
+}
+.fund-cat-table tbody tr {
+  cursor: pointer;
+}
+.fund-view {
+  margin-left: auto;
+}
+.fund-cat-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: var(--space-4);
+}
+.fund-cat-card {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.fund-cat-card:hover {
+  background: var(--row-hover);
+}
+.fund-cat-card-top,
+.fund-cat-card-facts {
   display: flex;
-  gap: 32px;
-  margin: 24px 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
-.fund-facts dt {
-  font-size: 12px;
+.fund-cat-card-top {
+  align-items: flex-start;
+}
+.fund-cat-card-facts {
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+/* Панель категории (C2, ТЗ §9) */
+.fund-preview {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  justify-items: start;
+}
+.fund-preview section {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-soft);
+}
+.fund-preview h3 {
+  margin: 0;
+  font-size: var(--text-sm);
   color: var(--muted);
-  margin-bottom: var(--space-2);
 }
-.fund-facts dd {
+.fund-preview p {
+  margin: 0;
+}
+.fund-preview .fund-members {
+  padding-top: 0;
+}
+.fund-preview-facts {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+.fund-preview-facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.fund-preview-facts dt {
+  color: var(--muted);
+}
+.fund-preview-facts dd {
   margin: 0;
   font-weight: 600;
-  font-size: 18px;
+  text-align: right;
 }
-.fund-category-actions {
+.fund-preview-rates {
+  margin: 0;
+  padding-left: var(--space-6);
+}
+.fund-preview-actions,
+.fund-preview-footer {
   display: flex;
-  gap: var(--space-4);
   flex-wrap: wrap;
   align-items: center;
-  margin-top: var(--space-6);
+  gap: var(--space-4);
 }
-.fund-category-actions .btn {
-  font-size: 13px;
+.fund-preview-footer {
+  width: 100%;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-soft);
+}
+.fund-cat-kind {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.fund-cat-capacity {
+  white-space: nowrap;
+}
+.fund-cat-kind svg {
+  vertical-align: -3px;
+  margin-right: var(--space-2);
 }
 .fund-members {
   display: flex;
@@ -158,7 +247,6 @@
 .fund-form p {
   line-height: 1.6;
 }
-.fund-category summary,
 .fund-availability summary {
   cursor: pointer;
   padding: var(--space-4) 0;
@@ -183,19 +271,13 @@
   font-size: 24px;
   margin-right: 8px;
 }
-.fund-checkbox {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-height: 44px;
-}
-.fund-checkbox input {
-  width: 18px;
-  height: 18px;
-}
 .fund-availability {
   display: grid;
   gap: var(--space-4);
+}
+/* Компактные строки категорий вместо больших карточек (ADR-110, AV1) */
+.fund-availability article {
+  padding: 8px 16px;
 }
 .fund-available-row {
   display: flex;
@@ -204,8 +286,8 @@
   align-items: center;
 }
 .fund-available-row h3 {
-  font-size: 18px;
-  margin: 8px 0;
+  font-size: 15px;
+  margin: 4px 0;
 }
 .fund-available-count {
   display: grid;
@@ -214,8 +296,12 @@
   white-space: nowrap;
 }
 .fund-available-count b {
-  font-size: 28px;
+  font-size: 20px;
   color: var(--primary);
+}
+.fund-row-note {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
 }
 .fund-available-count span {
   color: var(--muted);
@@ -245,12 +331,6 @@
   padding-bottom: var(--space-4);
 }
 @media (max-width: 900px) {
-  .fund-category-list {
-    grid-template-columns: 1fr;
-  }
-  .fund-category-top {
-    flex-wrap: wrap;
-  }
   .fund-counts {
     gap: 16px;
   }
@@ -279,12 +359,84 @@
     padding-top: 0;
     flex-wrap: wrap;
   }
-  .fund-category,
   .fund-availability article {
     padding: 16px;
   }
-  .fund-form {
+  .fund-form,
+  .fund-preview {
     padding: 16px;
+  }
+  /* Строка таблицы категорий складывается в карточку (приём .dir-table, DESIGN.md §8) */
+  .tbl.fund-cat-table,
+  .fund-cat-table tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .fund-cat-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .fund-cat-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .fund-cat-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .fund-cat-table tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .fund-cat-table tbody td.fund-cat-name {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+  /* ссылки и название сложенной карточки — цель нажатия 44 px (§11; axe target-size на 390) */
+  .fund-cat-open,
+  .fund-cat-table tbody td.fund-cat-units a,
+  .fund-cat-table tbody td.fund-cat-rates a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target);
+  }
+  .fund-cat-table tbody td.fund-cat-actions {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .fund-cat-table tbody td.fund-cat-kind {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .fund-cat-table tbody td.fund-cat-units {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .fund-cat-table tbody td.fund-cat-capacity {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    color: var(--muted);
+  }
+  .fund-cat-table tbody td.fund-cat-rates {
+    grid-column: 1;
+    grid-row: 4;
+  }
+  .fund-cat-table tbody td.fund-cat-status {
+    grid-column: 2;
+    grid-row: 4;
+    justify-self: end;
   }
   .fund-form-row {
     grid-template-columns: 1fr;

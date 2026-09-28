@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createPrismaClient, type Db } from '@pms/database';
+import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
+import { deleteOrganizationChain } from '../tools/property-owner';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { PrismaSellerOrgsRepository } from '../../apps/api/src/ai-seller/seller.repository';
 
@@ -40,16 +41,13 @@ describe.skipIf(!url)('гостиницы продавца (integration, DATABAS
         { organizationId: orgB, extension: 'AI_SELLER', status: 'OFF', updatedAt: now },
       ],
     });
-    await db.property.create({
-      data: {
-        id: propertyId,
-        organizationId: orgA,
-        name: `TEST seller orgs ${mark}`,
-        timezone: 'Asia/Almaty',
-        currency: 'KZT',
-        checkInTime: '14:00',
-        checkOutTime: '12:00',
-      },
+    await createPropertyInChain(db, orgA, {
+      id: propertyId,
+      name: `TEST seller orgs ${mark}`,
+      timezone: 'Asia/Almaty',
+      currency: 'KZT',
+      checkInTime: '14:00',
+      checkOutTime: '12:00',
     });
     await db.trackedSite.createMany({
       data: [
@@ -84,6 +82,7 @@ describe.skipIf(!url)('гостиницы продавца (integration, DATABAS
     if (!db) return;
     await db.trackedSite.deleteMany({ where: { propertyId } });
     await db.property.deleteMany({ where: { id: propertyId } });
+    await deleteOrganizationChain(db, [orgA]);
     await db.organizationExtension.deleteMany({
       where: { organizationId: { in: [orgA, orgB, orgNoExt] } },
     });

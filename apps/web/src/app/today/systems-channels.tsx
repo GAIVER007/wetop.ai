@@ -12,7 +12,7 @@ const minutesSince = (iso: string) => Math.max(0, Math.round((Date.now() - Date.
  * Строка Channex в «Системах» (A2): данные — общий опрос свежести оболочки, тот же, что значок в шапке.
  * Своего запроса нет. Пока опрос не ответил или каналы не подключены (`channex = null`) — строки нет.
  */
-export function ChannexSystemRow() {
+export function ChannelsSystemRow() {
   const { data } = useFreshness();
   const c = data?.channex;
   if (!c) return null;

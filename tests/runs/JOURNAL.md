@@ -3483,3 +3483,8 @@
 | 28.09.2026 14:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 10 из 523 | 41 мин 45 с | 6818af0 +3 | [лог](logs/2026-09-28T09-19-26Z-e2e-97ba.log) | подключения каналов: настройка подключения только владельцу |
 | 28.09.2026 15:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts:107 tests/ui/integrations.spec.ts:112 tests/ui/navigation.spe | ❌ упало 8 из 8 | 3 мин 17 с | 1b187fa | [лог](logs/2026-09-28T10-03-32Z-e2e-da1d.log) | подключения каналов: настройка подключения только владельцу |
 | 28.09.2026 15:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-operations.spec.ts tests/ui/requests.spec.ts tests/ui/loading-performance.spec. | ✅ 57 из 57 | 2 мин 18 с | 2973587 +9 | [лог](logs/2026-09-28T10-08-55Z-e2e-1115.log) |  |
+| 28.09.2026 15:11 | typecheck | ✅ без ошибок | 22 с | 2b85d55 | [лог](logs/2026-09-28T10-11-36Z-typecheck-d419.log) |  |
+| 28.09.2026 15:11 | lint | ❌ ошибок: 1 | 16 с | 2b85d55 | [лог](logs/2026-09-28T10-11-58Z-lint-78dc.log) | no-restricted-imports |
+| 28.09.2026 15:12 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 14 с | 2b85d55 | [лог](logs/2026-09-28T10-12-15Z-unit-2f42.log) |  |
+| 28.09.2026 15:13 | lint | ✅ без ошибок | 16 с | 2b85d55 +2 | [лог](logs/2026-09-28T10-13-42Z-lint-f10a.log) |  |
+| 28.09.2026 15:13 | typecheck | ✅ без ошибок | 22 с | 2b85d55 +2 | [лог](logs/2026-09-28T10-13-59Z-typecheck-e805.log) |  |

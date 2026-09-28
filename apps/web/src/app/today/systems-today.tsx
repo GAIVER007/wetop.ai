@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { guardApi, sellerApi, type GuardStatus, type SellerStatus } from '../../lib/api';
 import { Panel, type BadgeTone } from '../../components/ui';
-import { ChannexSystemRow } from './systems-channex';
+import { ChannelsSystemRow } from './systems-channels';
 import { SystemRow } from './systems-row';
 
 /** Строка, которая не ответила или закрыта для роли, просто не рисуется: остальные на месте */
@@ -17,7 +17,7 @@ export async function SystemsToday() {
   return (
     <Panel title="Системы" aria-label="Системы" className="fund-panel">
       <ul className="systems-list">
-        <ChannexSystemRow />
+        <ChannelsSystemRow />
         {seller && (
           <SystemRow name="ИИ-продавец" testId="systems-seller" href="/ai-seller" {...sellerState(seller)} />
         )}

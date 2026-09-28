@@ -3850,3 +3850,16 @@
 | 29.09.2026 01:31 | lint | ✅ без ошибок | 15 с | fea4841 | [лог](logs/2026-09-28T20-31-21Z-lint-e0d1.log) |  |
 | 29.09.2026 01:31 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ✅ 16 из 16 | 2 с | fea4841 | [лог](logs/2026-09-28T20-31-36Z-unit-1463.log) |  |
 | 29.09.2026 01:31 | integration (частично: tests/integration/onboarding-without-property.test.ts) | ✅ 1 из 1 | 3 с | fea4841 | [лог](logs/2026-09-28T20-31-46Z-integration-a661.log) |  |
+| 29.09.2026 01:36 | unit (частично: apps/api/src/auth/scope.test.ts apps/api/src/auth/author.interceptor.test.ts apps/api/src/database/property-ref.test.ts apps/api/src/auth/me-acc | ❌ упало 8 из 30 | 2 с | 9e20bd4 +5 | [лог](logs/2026-09-28T20-36-19Z-unit-bd5a.log) | AuthorInterceptor — scope запроса (Platform P2, К1) вошедший без указателя — ORGANIZATION, в базу не ходим |
+| 29.09.2026 01:36 | integration (частично: tests/integration/request-scope.test.ts) | ❌ код выхода 1 | 2 с | 9e20bd4 +5 | [лог](logs/2026-09-28T20-36-30Z-integration-d01a.log) | (файл не выполнился) |
+| 29.09.2026 01:37 | unit (частично: apps/api/src/auth/scope.test.ts apps/api/src/auth/author.interceptor.test.ts apps/api/src/database/property-ref.test.ts apps/api/src/auth/me-acc | ✅ 44 из 44 | 2 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-37-47Z-unit-92ae.log) |  |
+| 29.09.2026 01:37 | integration (частично: tests/integration/request-scope.test.ts) | ✅ 1 из 1 | 2 с | 9e20bd4 +11 | [лог](logs/2026-09-28T20-37-50Z-integration-0652.log) |  |
+| 29.09.2026 01:38 | typecheck | ✅ без ошибок | 25 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-38-01Z-typecheck-fa75.log) |  |
+| 29.09.2026 01:38 | lint | ✅ без ошибок | 14 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-38-26Z-lint-3783.log) |  |
+| 29.09.2026 01:38 | unit | ❌ код выхода 1 | 1 мин 12 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-38-40Z-unit-70f1.log) | (файл не выполнился) |
+| 29.09.2026 01:40 | integration | ✅ 121 из 121 | 33 с | 9e20bd4 +11 | [лог](logs/2026-09-28T20-40-00Z-integration-5673.log) |  |
+| 29.09.2026 01:40 | unit | ✅ 2243 из 2246, пропущено 3 | 1 мин 14 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-40-51Z-unit-11a9.log) |  |
+| 29.09.2026 01:42 | typecheck | ✅ без ошибок | 18 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-42-05Z-typecheck-dacf.log) |  |
+| 29.09.2026 01:42 | lint | ✅ без ошибок | 14 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-42-24Z-lint-bc3e.log) |  |
+| 29.09.2026 01:43 | e2e | ✅ 25 из 25 | 54 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-43-08Z-e2e-239a.log) |  |
+| 29.09.2026 01:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/today-operations.spec.ts tests/ui/roles.spec.ts tests/ui/pl | ✅ 58 из 58 | 3 мин 3 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-44-10Z-e2e-7a09.log) |  |

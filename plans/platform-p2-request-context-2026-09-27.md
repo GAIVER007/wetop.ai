@@ -1,4 +1,4 @@
-# Platform P2 — RequestActor / scope (27.09.2026) — принят владельцем; контракт утверждён 28.09, К1 в работе
+# Platform P2 — RequestActor / scope (27.09.2026) — принят владельцем; контракт утверждён 28.09, К1 сделан 28.09
 
 > Именование этапов: **Platform P1** — Business + Location (в `main`: миграция
 > `20260927000030_platform_p1_business_location`, отчёт `reports/platform-p1-business-location-2026-09-27.md`);

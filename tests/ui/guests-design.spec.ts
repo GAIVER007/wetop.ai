@@ -234,6 +234,58 @@ test('гости: полная карточка — обзор, вся исто�
   await expect(page).toHaveURL(/#guest-profile$/);
 });
 
+test('гости: документы и финансовый свод гостя (G5)', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/guest-cases`);
+  const main = page.getByRole('main');
+
+  // документы — своя вкладка: тип, номер маской, страна и даты словами
+  await page.goto('/guests/ui-guest-GCRET0#guest-documents');
+  const docs = main.getByRole('tabpanel').getByTestId('document-row');
+  await expect(docs).toHaveCount(1);
+  await expect(docs).toContainText('удостоверение личности');
+  await expect(docs).toContainText('•••• 1234');
+  await expect(docs).toContainText('действителен до 15.03.2032');
+  await expect(docs.getByText('просрочен', { exact: true })).toHaveCount(0);
+  // полного номера, ИИН и расшифровки в карточке нет — только маска
+  await expect(main.getByRole('tabpanel')).not.toContainText(/\d{6,}/);
+
+  // финансы (ТЗ §24): свод по счетам всех проживаний и разбивка по проживаниям
+  await main.getByRole('tab', { name: 'Финансы', exact: true }).click();
+  const summary = main.getByTestId('guest-finance-summary');
+  await expect(summary).toContainText('Начислено');
+  await expect(summary).toContainText('48 000 ₸');
+  await expect(summary).toContainText('Оплачено');
+  await expect(summary).toContainText('32 000 ₸');
+  await expect(summary).toContainText('к оплате');
+  await expect(summary).toContainText('16 000 ₸');
+  // состав суммы назван честно, пока владелец не решил, что из неё долг (Q-199)
+  await expect(main.getByRole('tabpanel')).toContainText('включая будущие брони');
+  const rows = main.getByRole('tabpanel').getByTestId('guest-finance-row');
+  await expect(rows).toHaveCount(4);
+  await expect(rows.first()).toContainText('подтверждена');
+  await expect(rows.first()).toContainText('к оплате');
+  await expect(rows.first().getByRole('link').first()).toHaveAttribute(
+    'href',
+    '/reservations/20260916-GCRET3#booking-finance',
+  );
+  const audit = await new AxeBuilder({ page })
+    .include('main')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+
+  // истёкший документ помечен словом: без него гостя не заселить
+  await page.goto('/guests/ui-guest-GCOLD0#guest-documents');
+  const old = main.getByRole('tabpanel').getByTestId('document-row');
+  await expect(old).toContainText('•••• 7788');
+  await expect(old.getByText('просрочен', { exact: true })).toBeVisible();
+
+  // только отменённая бронь: счетов нет — пустое состояние словами, без нулевого свода
+  await page.goto('/guests/ui-guest-GCCAN0#guest-finance');
+  await expect(main.getByRole('tabpanel')).toContainText('Счетов пока нет');
+  await expect(main.getByTestId('guest-finance-summary')).toHaveCount(0);
+});
+
 test('гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами', async ({
   page,
   request,

@@ -2955,3 +2955,17 @@
 | 28.09.2026 12:26 | typecheck | ✅ без ошибок | 23 с | 6571cb1 +20 | [лог](logs/2026-09-28T07-26-06Z-typecheck-ae4c.log) |  |
 | 28.09.2026 12:26 | lint | ✅ без ошибок | 16 с | 6571cb1 +20 | [лог](logs/2026-09-28T07-26-30Z-lint-ee9d.log) |  |
 | 28.09.2026 12:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 409 | 32 мин 59 с | 80bd7ea | [лог](logs/2026-09-28T07-27-14Z-e2e-ea5c.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 28.09.2026 13:13 | integration (частично: tests/integration/guest-card.test.ts) | ❌ упало 1 из 2 | 4 с | 9397e39 +1 | [лог](logs/2026-09-28T08-13-55Z-integration-a75b.log) | G5 red: у проживания карточки нет оплачено и возвращено |
+| 28.09.2026 13:14 | integration (частично: tests/integration/guest-card.test.ts) | ✅ 2 из 2 | 3 с | 9397e39 +4 | [лог](logs/2026-09-28T08-14-11Z-integration-5003.log) | G5 green: оплачено и возвращено по счёту проживания |
+| 28.09.2026 13:17 | typecheck | ✅ без ошибок | 22 с | 9397e39 +17 | [лог](logs/2026-09-28T08-17-37Z-typecheck-07dd.log) |  |
+| 28.09.2026 13:18 | lint | ✅ без ошибок | 17 с | 9397e39 +17 | [лог](logs/2026-09-28T08-18-00Z-lint-682b.log) |  |
+| 28.09.2026 13:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts --grep G5\|пробный срок вышел) | ❌ упало 2 из 2 | 1 мин 21 с | 9397e39 +13 | [лог](logs/2026-09-28T08-18-33Z-e2e-8311.log) | G5 red: карточка G4 без вкладок документов и финансов |
+| 28.09.2026 13:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/quality.spec.ts tests | ❌ упало 1 из 87 | 5 мин 27 с | 9397e39 +15 | [лог](logs/2026-09-28T08-20-03Z-e2e-538b.log) | G5: карточка гостя и затронутые сценарии |
+| 28.09.2026 13:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/pii-storage.spec.ts) | ✅ 3 из 3 | 15 с | 9397e39 +15 | [лог](logs/2026-09-28T08-25-44Z-e2e-9a0e.log) | G5: ПД — возврат на вкладку профиля после документов |
+| 28.09.2026 13:26 | unit | ❌ упало 1 из 2123, пропущено 3 | 1 мин 12 с | 9397e39 +8 | [лог](logs/2026-09-28T08-26-07Z-unit-337d.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 28.09.2026 13:27 | integration | ✅ 109 из 109 | 34 с | 9397e39 +4 | [лог](logs/2026-09-28T08-27-19Z-integration-81f3.log) |  |
+| 28.09.2026 13:28 | e2e | ✅ 25 из 25 | 1 мин 2 с | 9397e39 +15 | [лог](logs/2026-09-28T08-28-08Z-e2e-fa54.log) |  |
+| 28.09.2026 13:29 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 9397e39 +8 | [лог](logs/2026-09-28T08-29-32Z-unit-7bb7.log) | G5: снимок сторожа — в документах гостя больше нет разделителей «·» |
+| 28.09.2026 13:29 | unit | ✅ 2120 из 2123, пропущено 3 | 1 мин 12 с | 9397e39 +9 | [лог](logs/2026-09-28T08-29-33Z-unit-74a3.log) |  |
+| 28.09.2026 13:32 | typecheck | ✅ без ошибок | 23 с | 9397e39 +18 | [лог](logs/2026-09-28T08-32-42Z-typecheck-93d5.log) |  |
+| 28.09.2026 13:33 | lint | ✅ без ошибок | 16 с | 9397e39 +18 | [лог](logs/2026-09-28T08-33-06Z-lint-f4e5.log) |  |

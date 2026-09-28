@@ -955,8 +955,10 @@ export interface GuestCard {
     source: string;
     channel: string | null;
     currency: string;
-    /** Начислено и остаток по счёту проживания (из Folio); null — счёта нет */
+    /** Начислено, оплачено, возвращено и остаток по счёту проживания (из Folio); null — счёта нет */
     chargedMinor: string | null;
+    paidMinor: string | null;
+    refundedMinor: string | null;
     balanceMinor: string | null;
   }>;
 }

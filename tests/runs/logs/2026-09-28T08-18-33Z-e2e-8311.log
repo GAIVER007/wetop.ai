@@ -1,0 +1,84 @@
+# Сквозные (e2e) · 28.09.2026 13:18 Алматы · vm
+# коммит 9397e39 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts' 'tests/ui/trial-read-only.spec.ts' '--grep' 'G5|пробный срок вышел'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/ui/guests-design.spec.ts:237:1 › гости: документы и финансовый свод гостя (G5) (17.4s)
+  ✘  2 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (45.4s)
+
+
+  1) tests/ui/guests-design.spec.ts:237:1 › гости: документы и финансовый свод гостя (G5) ──────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByRole('tabpanel').getByTestId('document-row')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByRole('tabpanel').getByTestId('document-row') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('tabpanel').getByTestId('document-row')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      242 |   await page.goto('/guests/ui-guest-GCRET0#guest-documents');
+      243 |   const docs = main.getByRole('tabpanel').getByTestId('document-row');
+    > 244 |   await expect(docs).toHaveCount(1);
+          |                      ^
+      245 |   await expect(docs).toContainText('удостоверение личности');
+      246 |   await expect(docs).toContainText('•••• 1234');
+      247 |   await expect(docs).toContainText('действителен до 15.03.2032');
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:244:22
+
+    Error Context: test-results/guests-design-гости-документы-и-финансовый-свод-гостя-G5-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-документы-и-финансовый-свод-гостя-G5-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-документы-и-финансовый-свод-гостя-G5-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('tab', { name: 'Документы', exact: true })
+
+
+      57 |   await expect(main.getByRole('tabpanel').getByTestId('guest-stay-row').first()).toBeVisible();
+      58 |   // G5 (ТЗ §40): документы и финансы читаются; добавить и удалить документ, сохранить профиль — нельзя
+    > 59 |   await main.getByRole('tab', { name: 'Документы', exact: true }).click();
+         |                                                                   ^
+      60 |   await expect(main.getByRole('tabpanel').getByTestId('document-row').first()).toBeVisible();
+      61 |   await expect(main.getByTestId('document-form')).toHaveCount(0);
+      62 |   await expect(main.getByRole('button', { name: 'удалить', exact: true })).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/trial-read-only.spec.ts:59:67
+
+    Error Context: test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/guests-design.spec.ts:237:1 › гости: документы и финансовый свод гостя (G5) ───────────
+    tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет 
+
+# код выхода 1 · 1 мин 21 с

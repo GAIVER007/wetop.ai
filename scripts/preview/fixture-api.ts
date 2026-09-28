@@ -161,6 +161,8 @@ const guestSeed: GuestCard = {
       channel: null,
       currency: 'KZT',
       chargedMinor: null,
+      paidMinor: null,
+      refundedMinor: null,
       balanceMinor: null,
     },
   ],
@@ -593,6 +595,8 @@ function getGuest(id: string) {
             channel: r.channel ?? null,
             currency: r.currency,
             chargedMinor: folio?.chargedMinor ?? null,
+            paidMinor: folio?.paidMinor ?? null,
+            refundedMinor: folio?.refundedMinor ?? null,
             balanceMinor: folio?.balanceMinor ?? null,
           };
         });
@@ -2857,6 +2861,27 @@ createServer(async (req, res) => {
       put('GCOLD', 'Давний Гость', [{ status: 'CHECKED_OUT', unit: 'R10', from: -43, to: -40 }]);
       // живёт сейчас; его счёт станет виден в панели предпросмотра (следующая ступень)
       put('GCDEBT', 'Задолжавший Гость', [{ status: 'CHECKED_IN', unit: 'R11', from: -2, to: 3 }]);
+      // документы (G5): у давнего гостя паспорт просрочен, у возвращающегося — удостоверение с датами
+      extraGuests.get('ui-guest-GCOLD0')!.documents = [
+        {
+          id: 'ui-doc-gcold',
+          type: 'PASSPORT',
+          numberMasked: '•••• 7788',
+          issueCountry: 'KAZ',
+          issuedAt: '2015-06-30',
+          expiresAt: '2025-06-30',
+        },
+      ];
+      extraGuests.get('ui-guest-GCRET0')!.documents = [
+        {
+          id: 'ui-doc-gcret',
+          type: 'ID_CARD',
+          numberMasked: '•••• 1234',
+          issueCountry: 'KAZ',
+          issuedAt: '2022-03-15',
+          expiresAt: '2032-03-15',
+        },
+      ];
       return send(200, { guests: 4 });
     }
     if (path === '/__test/commands') return send(200, commands);

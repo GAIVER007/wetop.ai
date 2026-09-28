@@ -1,0 +1,49 @@
+# Интеграционные (integration) · 28.09.2026 13:13 Алматы · vm
+# коммит 9397e39 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-13-55Z-integration-a75b.json' 'tests/integration/guest-card.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/guest-card.test.ts (2 tests | 1 failed) 469ms
+   ❯ карточка гостя: источник и счёт каждого проживания (integration, DATABASE_URL required) (2)
+     × проживание со счётом: источник и канал брони, валюта, начислено и остаток — из счёта 383ms
+     ✓ проживание без счёта: сумм нет — null, а не ноль 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/guest-card.test.ts > карточка гостя: источник и счёт каждого проживания (integration, DATABASE_URL required) > проживание со счётом: источник и канал брони, валюта, начислено и остаток — из счёта
+AssertionError: expected { …(11) } to match object { source: 'OTA', …(6) }
+(6 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "balanceMinor": "0",
+    "channel": "ostrovok",
+    "chargedMinor": "1620000",
+    "currency": "KZT",
+-   "paidMinor": "1620000",
+-   "refundedMinor": "0",
+    "source": "OTA",
+  }
+
+ ❯ tests/integration/guest-card.test.ts:62:17
+     60|         s.arrivalDate === arrivalDate.toISOString().slice(0, 10),
+     61|     );
+     62|     expect(row).toMatchObject({
+       |                 ^
+     63|       source: reservation.source,
+     64|       channel: reservation.channel,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  08:13:56
+   Duration  2.80s (transform 40%, import 30%, tests 29%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-13-55Z-integration-a75b.json
+
+# код выхода 1 · 4 с

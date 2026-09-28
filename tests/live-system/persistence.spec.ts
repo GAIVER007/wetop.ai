@@ -108,6 +108,8 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
         .toBe('Проверено');
       await page.reload();
       await expect(form.locator('[name="firstName"]')).toHaveValue('Проверено');
+      // G5: документы — своя вкладка карточки гостя
+      await page.getByRole('tab', { name: 'Документы', exact: true }).click();
       const document = page.getByTestId('document-form');
       const syntheticDocument = `TEST-${marker.slice(-12)}`;
       await document.locator('[name="number"]').fill(syntheticDocument);
@@ -233,8 +235,13 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
           saved.refunds.reduce((sum, r) => sum + r.amount, 0n),
       ).toBe(0n);
       await page.goto(`/guests/${guestId}`);
-      await page.getByRole('tab', { name: 'Счета и услуги', exact: true }).click();
-      const accountLink = page.locator('.guest-account-links a').filter({ hasText: number });
+      // G5: «Счета и услуги» стали «Финансами» — строка проживания ведёт в счёт брони
+      await page.getByRole('tab', { name: 'Финансы', exact: true }).click();
+      const accountLink = page
+        .getByTestId('guest-finance-row')
+        .filter({ hasText: number })
+        .getByRole('link')
+        .first();
       await expect(accountLink).toHaveAttribute('href', `/reservations/${number}#booking-finance`);
       await page.goto(`/reservations/${number}#booking-finance`);
       await expect(page.getByRole('tab', { name: 'Счета', exact: true })).toHaveAttribute(

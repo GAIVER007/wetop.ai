@@ -52,8 +52,11 @@ test('карточка гостя: меняются только граждан�
     'notes',
   ])
     await expect(form.locator(`[name="${name}"]`)).toHaveCount(0);
+  // G5: документы — своя вкладка карточки
+  await page.getByRole('tab', { name: 'Документы', exact: true }).click();
   await expect(page.getByTestId('document-form')).toHaveCount(0);
   await expect(page.getByTestId('documents-pseudonymized')).toBeVisible();
+  await page.getByRole('tab', { name: 'Данные гостя', exact: true }).click();
   await form.locator('[name="citizenship"]').fill('KAZ');
   await form.getByRole('button', { name: 'Сохранить' }).click();
   await expect

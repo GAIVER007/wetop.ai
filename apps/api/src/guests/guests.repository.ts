@@ -57,8 +57,11 @@ export interface GuestProfile {
     source: string;
     channel: string | null;
     currency: string;
-    /** Начислено и остаток по счёту проживания (ТЗ §24: из Folio); null — счёта у проживания нет */
+    /** Начислено, оплачено, возвращено и остаток по счёту проживания (ТЗ §24: из Folio);
+     *  null — счёта у проживания нет */
     chargedMinor: string | null;
+    paidMinor: string | null;
+    refundedMinor: string | null;
     balanceMinor: string | null;
   }>;
 }
@@ -486,6 +489,8 @@ export class PrismaGuestsRepository implements GuestsRepository {
             channel: reservation.channel,
             currency: reservation.currency,
             chargedMinor: balance ? balance.chargedMinor.toString() : null,
+            paidMinor: balance ? balance.paidMinor.toString() : null,
+            refundedMinor: balance ? balance.refundedMinor.toString() : null,
             balanceMinor: balance ? balance.balanceMinor.toString() : null,
           };
         })

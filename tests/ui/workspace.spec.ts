@@ -161,17 +161,21 @@ test('вложенные разделы: раскрытие, один актив
 test('доступность переносит даты и свободное место в создание брони; неверный период виден', async ({
   page,
 }) => {
-  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04');
+  // Даты — от «сегодня» стенда (Алматы), а не числом: проживания фикстуры на R01–R05 идут «с сегодня на три
+  // ночи», и вшитые 01–04.10 с полуночи 29.09 попадали на них — первым свободным становился R04 (TESTING.md §4)
+  const day = (n: number) =>
+    new Date(Date.now() + 5 * 3600_000 + n * 86_400_000).toISOString().slice(0, 10);
+  const [arrival, departure] = [day(5), day(8)];
+  await page.goto(`/rooms/availability?arrival=${arrival}&departure=${departure}`);
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
-  // первый свободный номер решает дата прогона: проживание стенда на R01 идёт «с сегодня» (TESTING.md)
-  await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R\d+/);
+  await expect(page).toHaveURL(new RegExp(`arrival=${arrival}&departure=${departure}&unit=R01`));
   await expect(
     page
       .getByRole('dialog', { name: 'Новая бронь', exact: true })
       .getByRole('heading', { level: 1 }),
   ).toHaveText('Новая бронь');
-  await page.goto('/rooms/availability?arrival=2026-10-04&departure=2026-10-01');
+  await page.goto(`/rooms/availability?arrival=${departure}&departure=${arrival}`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Выезд должен быть позже заезда',
   );

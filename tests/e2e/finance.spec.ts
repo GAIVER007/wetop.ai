@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
+import { selectService } from './pick-service';
 
 /**
  * Финансы (DATA_MODEL §6, ADR-014): счёт создаётся вместе с проживанием, начисление = цене;
@@ -74,7 +75,7 @@ test('счёт на проживание: начисления, оплата, в
   // услуга из справочника × 2 (стирка 500 ₸)
   cf = panel.getByTestId('charge-form');
   await cf.locator('select[name="kind"]').selectOption('SERVICE');
-  await cf.locator('select[name="serviceCode"]').selectOption('Стирка (1 загрузка)');
+  await selectService(cf, 'Стирка (1 загрузка)');
   await cf.locator('input[name="quantity"]').fill('2');
   await cf.getByRole('button', { name: 'Начислить' }).click();
   await expect(panel.getByTestId('charge-row')).toHaveCount(3);

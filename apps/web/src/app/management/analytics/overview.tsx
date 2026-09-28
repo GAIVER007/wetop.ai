@@ -3,85 +3,15 @@ import type { DashboardPeriod } from '@pms/domain';
 import { ApiError, dashboardApi } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
 import { LoadError } from '../../../components/load-error';
-import { EmptyState, Panel, Skeleton, Table, cx } from '../../../components/ui';
+import { EmptyState, Panel, Skeleton, Table } from '../../../components/ui';
 import { DayBars } from '../../../components/day-bars';
-import {
-  deltaPercent,
-  deltaPoints,
-  formatInt,
-  formatPercent,
-  sourceLabel,
-  wholeTenge,
-  type Delta,
-} from '../../../lib/dashboard-format';
+import { formatInt, formatPercent, sourceLabel, wholeTenge } from '../../../lib/dashboard-format';
 import { displayDate } from '../../../lib/display-date';
 import { pluralRu } from '../../../lib/plural';
 import { analyticsHref, type AnalyticsQuery } from './params';
+import { Tile, countDelta, moneyDelta, pointsDelta } from './tiles';
 
-const NO_BASE: Delta = { direction: null, text: 'нет данных для сравнения' };
 const b = (v: string) => BigInt(v);
-
-/**
- * Сравнение честное (ТЗ §16–17, §27): база — прошлое количество. Ноль в прошлом отрезке — «нет данных для
- * сравнения», а не «+100 %» и не красные «−100 %». Доли сравниваются в процентных пунктах.
- */
-function pointsDelta(current: number, previous: number, base: number): Delta {
-  return base > 0 ? deltaPoints(current, previous) : NO_BASE;
-}
-function moneyDelta(current: string | null, previous: string | null): Delta {
-  return current !== null && previous !== null ? deltaPercent(b(current), b(previous)) : NO_BASE;
-}
-
-function DeltaMark({ delta, inverse }: { delta: Delta; inverse?: boolean }) {
-  if (!delta.direction)
-    return (
-      <span className="kpi-delta kpi-delta--none">
-        —<span className="sr-only"> {delta.text}</span>
-      </span>
-    );
-  // у отмен рост — плохо: цвет переворачивается, стрелка — нет
-  const tone =
-    delta.direction === 'flat' ? 'flat' : (delta.direction === 'up') !== !!inverse ? 'up' : 'down';
-  return (
-    <span className={cx('kpi-delta', `kpi-delta--${tone}`)}>
-      {delta.direction === 'up' ? '▲' : delta.direction === 'down' ? '▼' : '•'}{' '}
-      {delta.text.replace(/^[+−]/, '')}
-    </span>
-  );
-}
-
-function Tile({
-  id,
-  label,
-  value,
-  hint,
-  delta,
-  inverse,
-  compare,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  hint: string;
-  delta: Delta;
-  inverse?: boolean;
-  compare: boolean;
-}) {
-  return (
-    <article className={`kpi kpi--${id}`}>
-      <div className="kpi__top">
-        <span>{label}</span>
-      </div>
-      <div className="kpi__body">
-        <strong className="kpi__value" data-testid={`pa-kpi-${id}`}>
-          {value}
-        </strong>
-      </div>
-      <div className="kpi__hint">{hint}</div>
-      {compare && <DeltaMark delta={delta} {...(inverse ? { inverse } : {})} />}
-    </article>
-  );
-}
 
 /** Шесть плиток ТЗ §5: загрузка, выручка проживания, продано ночей, брони, отмены, средний чек */
 function KpiRow({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null }) {
@@ -119,15 +49,15 @@ function KpiRow({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null }) {
         label="Продано ночей"
         value={formatInt(c.occupancy.occupiedNights)}
         hint={`из ${formatInt(c.occupancy.unitNights)} ночей фонда`}
-        delta={deltaPercent(c.occupancy.occupiedNights, prev.occupancy.occupiedNights)}
+        delta={countDelta(c.occupancy.occupiedNights, prev.occupancy.occupiedNights)}
         compare={compare}
       />
       <Tile
         id="bookings"
         label="Брони"
         value={formatInt(c.bookings.total)}
-        hint={`с заездом в периоде, к заезду ${formatInt(c.bookings.active)}`}
-        delta={deltaPercent(c.bookings.total, prev.bookings.total)}
+        hint={`с заездом в периоде; к заезду ${formatInt(c.bookings.active)}, размещений ${formatInt(c.bookings.stays)}`}
+        delta={countDelta(c.bookings.total, prev.bookings.total)}
         compare={compare}
       />
       <Tile
@@ -261,7 +191,7 @@ function RevenuePanel({ c, today }: { c: DashboardPeriod; today: string }) {
   // высота — доля от самого денежного дня; тысячные доли целочисленно, без float над деньгами
   const height = (v: string) => (max > 0n ? Number((b(v) * 1000n) / max) / 10 : 0);
   return (
-    <Panel title="Выручка проживания по дням" className="dash-panel">
+    <Panel title="Выручка по заездам" className="dash-panel">
       {c.nights === 1 ? (
         <p className="pa-single">
           <strong data-testid="pa-revenue-day">{wholeTenge(c.revenue.accommodationMinor)}</strong>{' '}
@@ -281,7 +211,7 @@ function RevenuePanel({ c, today }: { c: DashboardPeriod; today: string }) {
       <p className="muted dash-note pa-note-links">
         Начисление за проживание датировано днём заезда
         {c.nights > 1
-          ? ': столбик — стоимость заехавших в этот день проживаний, а не проданные в этот день ночи.'
+          ? ': столбик — стоимость проживаний, заехавших в этот день, а не проданные в этот день ночи.'
           : ', а не проданными ночами.'}{' '}
         Оплаты и долги — в разделе <Link href={`/finance?from=${c.from}&to=${c.to}`}>«Оплаты»</Link>
         .
@@ -320,18 +250,23 @@ function SourcesPanel({ c }: { c: DashboardPeriod }) {
   );
 }
 
+/**
+ * Таблица категорий. На одном дне колонки «Загрузка» нет: её уже рисуют полосы «Загрузки по категориям»
+ * выше — одно число дважды на экране (правило «Плиток главной» 21.09, DESIGN.md §8).
+ */
 function CategoriesPanel({ c }: { c: DashboardPeriod }) {
+  const withOccupancy = c.nights > 1;
   return (
     <Panel title="Категории" className="dash-panel dash-panel--table">
       <Table
-        className="dash-table dash-table--categories has-occupancy pa-categories"
+        className="dash-table dash-table--categories pa-categories"
         nowrap
         data-testid="pa-categories"
       >
         <thead>
           <tr>
             <th>Категория</th>
-            <th>Загрузка</th>
+            {withOccupancy && <th>Загрузка</th>}
             <th className="num">Продано ночей</th>
             <th className="num">Выручка</th>
             <th className="num">Ср. цена за ночь</th>
@@ -348,17 +283,19 @@ function CategoriesPanel({ c }: { c: DashboardPeriod }) {
                     : pluralRu(cat.units, ['номер', 'номера', 'номеров'])}
                 </div>
               </td>
-              <td className="dash-table__occupancy">
-                <span className="occupancy-meter">
-                  <meter
-                    min="0"
-                    max="100"
-                    value={cat.percent}
-                    aria-label={`Загрузка ${formatPercent(cat.percent)}`}
-                  />
-                  <span>{formatPercent(cat.percent)}</span>
-                </span>
-              </td>
+              {withOccupancy && (
+                <td className="dash-table__occupancy">
+                  <span className="occupancy-meter">
+                    <meter
+                      min="0"
+                      max="100"
+                      value={cat.percent}
+                      aria-label={`Загрузка ${formatPercent(cat.percent)}`}
+                    />
+                    <span>{formatPercent(cat.percent)}</span>
+                  </span>
+                </td>
+              )}
               <td className="num">
                 <span className="dash-cell-word">ночей </span>
                 {formatInt(cat.occupiedNights)}

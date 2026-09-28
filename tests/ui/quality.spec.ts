@@ -168,7 +168,7 @@ for (const scenario of [
   },
   {
     name: 'документ гостя',
-    path: '/guests/ui-guest#guest-profile',
+    path: '/guests/ui-guest#guest-documents',
     form: 'document-form',
     button: 'Добавить',
     fields: { number: 'TEST-ONLY', issueCountry: 'KAZ' },

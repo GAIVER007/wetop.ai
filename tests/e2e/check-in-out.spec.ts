@@ -71,6 +71,8 @@ test('заселить → карточка и шахматка показыва
   await expect(
     page.getByRole('main').getByTestId('guest-form').locator('input[name="citizenship"]'),
   ).toHaveValue('KAZ');
+  // G5: документы — своя вкладка карточки гостя
+  await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();
   const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000001');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');

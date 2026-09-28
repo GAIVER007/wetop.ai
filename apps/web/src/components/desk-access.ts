@@ -28,6 +28,13 @@ export function useDeskAccess(): NavigationAccess {
   return desk ? use(desk).access : CLOSED_ACCESS;
 }
 
+/** То же, но ответа `/auth/me` ждёт, только когда проверка нужна: `use` можно звать по условию, `useContext` — нет */
+export function useDeskAccessWhen(needed: boolean): NavigationAccess | null {
+  const desk = useContext(DeskAccess);
+  if (!needed) return null;
+  return desk ? use(desk).access : CLOSED_ACCESS;
+}
+
 /** Есть ли у вошедшего право (DATA_MODEL §16.5) */
 export function useMay(permission: Permission): boolean {
   return mayAccess(useDeskAccess(), permission);

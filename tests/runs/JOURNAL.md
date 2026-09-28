@@ -3485,3 +3485,8 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 13:42 | typecheck | ✅ без ошибок | 23 с | 6041561 | [лог](logs/2026-09-28T08-42-54Z-typecheck-0ec4.log) |  |
+| 28.09.2026 13:43 | lint | ✅ без ошибок | 18 с | 6041561 | [лог](logs/2026-09-28T08-43-18Z-lint-0364.log) |  |
+| 28.09.2026 13:43 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 18 с | 6041561 | [лог](logs/2026-09-28T08-43-37Z-unit-4003.log) |  |
+| 28.09.2026 13:45 | integration | ✅ 124 из 124 | 39 с | 6041561 | [лог](logs/2026-09-28T08-45-17Z-integration-fb01.log) |  |
+| 28.09.2026 13:46 | e2e | ✅ 25 из 25 | 1 мин 4 с | 6041561 | [лог](logs/2026-09-28T08-46-22Z-e2e-d766.log) |  |

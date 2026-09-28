@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Связь рабочей папки с репозиторием GAIVER007/wetop.ai. Одна команда отвечает: та ли это папка, отстала ли
-# она от GitHub, в ТОЙ ли папке launchd держит API, стойку и синхронизацию Exely, на месте ли .env,
+# она от GitHub, в ТОЙ ли папке launchd держит API и стойку, на месте ли .env,
 # зависимости и сборка стойки — и чинит то, что чинится без человека.
 #
 # 16.09.2026: папка проекта на Mac переименована («Pms Lux» → «WETOP»). Путь к папке вшит в каждый plist
@@ -12,7 +12,7 @@
 #   scripts/ops/repo-sync.sh --pull             подтянуть origin/main: только fast-forward и только чистое дерево
 #   scripts/ops/repo-sync.sh --relink           перевести службы launchd на ЭТУ папку (uninstall.sh + install.sh)
 #   scripts/ops/repo-sync.sh --from "<папка>"   перенести из старой папки то, чего нет в git: .env,
-#                                               project-input/*, design/reference/exely, .claude/settings.local.json;
+#                                               project-input/* и .claude/settings.local.json;
 #                                               то, что здесь уже есть, не перезаписывается
 #   scripts/ops/repo-sync.sh --fix              = --pull --relink, плюс: npm install / npm ci и клиент Prisma, если
 #                                               зависимости устарели или нативные модули не той платформы; пересборка
@@ -196,7 +196,7 @@ for d in "$parent"/*/; do
   case "$(lower "$(git -C "$d" remote get-url origin 2>/dev/null || true)")" in
     *"$expect_lc"*)
       bad "ещё одна копия репозитория рядом: $d ($(git -C "$d" log -1 --format='%h от %cd' --date=short 2>/dev/null || echo 'без коммитов'))"
-      need "оставить одну папку: службы launchd, .env, тесты и синхронизация Exely живут в одной (AGENTS.md §17)" ;;
+      need "оставить одну папку: службы launchd, .env и тесты живут в одной (AGENTS.md §17)" ;;
   esac
 done
 
@@ -295,7 +295,7 @@ plist_workdir() {
   sed -n 's#.*<key>WorkingDirectory</key><string>\([^<]*\)</string>.*#\1#p' "$1" | head -1 |
     sed -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g'
 }
-for n in api web tunnel domain awake exely-sync; do
+for n in api web tunnel domain awake; do
   f="$AGENTS/kz.luxx.pms.$n.plist"
   [ -f "$f" ] || continue
   any=1
@@ -303,20 +303,6 @@ for n in api web tunnel domain awake exely-sync; do
   loaded=""
   launchctl print "gui/$UID_N/kz.luxx.pms.$n" >/dev/null 2>&1 && loaded=" (загружена)"
   [ "$n" = domain ] && domain_installed=1
-  # Служба exely-sync снята 19.09.2026 вместе с автосинхронизацией из Exely (ADR-052), и install.sh такого
-  # имени больше не знает. На машинах, где она стояла, plist остаётся лежать. Прогон 20.09.2026: он попадал
-  # в список на перевод, install.sh падал на неизвестном имени — и вместе с ним не переводились api и web,
-  # а значит не перезапускался API. Поэтому такой plist не переводим, а снимаем.
-  if [ "$n" = exely-sync ]; then
-    if [ "$RELINK" -eq 1 ]; then
-      bash "$ROOT/scripts/ops/launchd/uninstall.sh" exely-sync 2>&1 | sed 's/^/      /'
-      ok "служба exely-sync снята: автосинхронизации из Exely больше нет (ADR-052)"
-    else
-      bad "служба exely-sync$loaded осталась от снятой автосинхронизации Exely (ADR-052)"
-      need "снять: scripts/ops/launchd/uninstall.sh exely-sync (--relink снимет сам)"
-    fi
-    continue
-  fi
   # Быстрый туннель не запускается ни на одной машине, пока в Channex стоит постоянный адрес (отчёт 77c8085,
   # 16.09.2026): он уводит webhook на одноразовый адрес, который умирает вместе с ним. Вечером 16.09 --relink
   # переустановил его на втором компьютере разработчика, где wetop.yml нет, и адрес снова был перебит.
@@ -374,7 +360,7 @@ if [ "$pulled" -eq 1 ] && [ ${#here[@]} -gt 0 ] && [ "$FIX" -eq 0 ]; then
 fi
 
 # ---------- 5. То, чего нет в git: .env, выгрузки, личные настройки ----------
-LOCAL_ONLY=".env .claude/settings.local.json project-input/exely project-input/exely-screens project-input/forms project-input/interviews design/reference/exely"
+LOCAL_ONLY=".env .claude/settings.local.json project-input/forms project-input/interviews"
 if [ -n "$FROM" ]; then
   if [ ! -d "$FROM" ]; then
     bad "--from: нет папки $FROM"
@@ -410,15 +396,9 @@ fi
 if [ -f "$ROOT/.env" ]; then
   ok ".env на месте (содержимое не читаю; проверка ключей — npx tsx scripts/imports/src/cli-check-env.ts)"
 else
-  bad ".env нет — без ключей не работают API, синхронизация Exely и Channex"
+  bad ".env нет — без ключей не работают API и Channex"
   need "вписать ключи по .env.example (владелец) или перенести из старой папки: scripts/ops/repo-sync.sh --from \"<папка>\""
 fi
-for rel in project-input/exely project-input/exely-screens design/reference/exely; do
-  [ -d "$ROOT/$rel" ] || continue
-  cnt="$(find "$ROOT/$rel" -type f ! -name README.md ! -name .gitkeep ! -name .DS_Store | wc -l | tr -d ' ')"
-  if [ "$cnt" -gt 0 ]; then info "$rel: файлов $cnt (не в git)"; else info "$rel: пусто (не в git; --from перенесёт из старой папки)"; fi
-done
-
 # ---------- 6. Зависимости, клиент Prisma, сборка стойки ----------
 install_deps() {
   if (cd "$ROOT" && npm install --no-audit --no-fund); then ok "npm install выполнен"; restart_api=1; else need "npm install упал — смотреть вывод"; fi

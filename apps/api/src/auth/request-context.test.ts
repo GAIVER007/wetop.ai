@@ -55,8 +55,8 @@ describe('attachAuthor — подстановка автора в запись �
   });
 
   it('без вошедшего оставляет запись как была: это действие сторожа или импорта', () => {
-    expect(attachAuthor({ data: { action: 'exely.sync' } }, null)).toEqual({
-      data: { action: 'exely.sync' },
+    expect(attachAuthor({ data: { action: 'system.health' } }, null)).toEqual({
+      data: { action: 'system.health' },
     });
   });
 
@@ -74,8 +74,8 @@ describe('attachAuthor — подстановка автора в запись �
 
   it('не перебивает организацию, указанную явно', () => {
     expect(
-      attachAuthor({ data: { action: 'exely.sync', organizationId: 'org-9' } }, null, 'org-1'),
-    ).toEqual({ data: { action: 'exely.sync', organizationId: 'org-9' } });
+      attachAuthor({ data: { action: 'system.health', organizationId: 'org-9' } }, null, 'org-1'),
+    ).toEqual({ data: { action: 'system.health', organizationId: 'org-9' } });
   });
 
   it('организацию ставит и без автора: публичный путь сайта действует от имени организации', () => {

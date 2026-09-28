@@ -1,11 +1,11 @@
 /* Список броней v2, срез R1 (ADR-106): компактная панель в две строки, иерархия таблицы,
    единая колонка «Финансы», плотность строк, липкая шапка. Общие словари и деньги — как раньше. */
 .page:has(> .reservations-controls) > .page__head {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
 }
 .reservations-controls {
-  padding: var(--space-4);
-  margin-bottom: var(--space-6);
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-2);
   background: var(--glass-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -79,7 +79,7 @@
 }
 /* Строка 2: статусы с числами. Статус, которого в периоде нет, остаётся на месте, но не зовёт нажать */
 .reservations-statuses {
-  margin-top: var(--space-2);
+  margin-top: var(--space-1);
 }
 .reservations-controls .directory-filters a.reservations-chip--zero {
   color: var(--muted);
@@ -101,7 +101,7 @@
 }
 /* Срез R2: ряд быстрых видов над панелью — те же чипы, что статусы; отбор видом, а не периодом */
 .reservations-views {
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 /* Вторая строка формы — списки отбора и «Показать»; перенос явный, а не по ширине экрана */
 .reservations-break {

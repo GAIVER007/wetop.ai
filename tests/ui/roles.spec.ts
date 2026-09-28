@@ -158,7 +158,7 @@ test('администратор меняет даты и продлевает �
   await expect(main.getByLabel('Тариф для пересчёта')).toHaveCount(0);
   await expect(main.getByText('Тариф при смене категории')).toHaveCount(0);
 
-  // бронь из Exely без тарифа: администратор назначает её тариф, но только со штрафом за отмену (Q-201) —
+  // бронь из Legacy без тарифа: администратор назначает её тариф, но только со штрафом за отмену (Q-201) —
   // «Гибкий без штрафа» в списках нет
   await request.post(`${API}/__test/control`, {
     data: { role: 'STAFF', withoutRatePlan: true, softPlan: true },

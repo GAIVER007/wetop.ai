@@ -14,7 +14,7 @@
  *  6. `.env` не в корне клона — хост (prisma, cli-check-env) и compose читают разные файлы (18.09.2026);
  *  7. боевая миграция, вписанная в команду службы, — её делает владелец (AGENTS.md §15);
  *  8. сторож проверяет стойку по 127.0.0.1 — в контейнере это он сам, и дежурного будят впустую (21.09.2026);
- *  9. сторож ждёт синхронизации из Exely, которого с 19.09 нет вовсе (ADR-052), — тот же будильник впустую;
+ *  9. сторож ждёт синхронизации из Legacy, которого с 19.09 нет вовсе (ADR-052), — тот же будильник впустую;
  * 10. сторож читает отчёты и журнал тестов из слепка образа и повторяет день сборки как сегодняшнее.
  */
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
@@ -106,16 +106,16 @@ describe('deploy/compose.yml', () => {
     for (const s of services) expect(COMPOSE).toContain(`  ${s}`);
   });
 
-  it('службы синхронизации с Exely нет: Exely перестал быть источником (ADR-052, 19.09.2026)', () => {
+  it('службы синхронизации с Legacy нет: Legacy перестал быть источником (ADR-052, 19.09.2026)', () => {
     // Не косметика: пока служба была в compose, `up -d` поднимал её вместе со всеми и она тянула
     // брони из системы, от которой отказались, — поверх ручных правок смены.
-    expect(withoutComments(COMPOSE)).not.toContain('exely-sync');
+    expect(withoutComments(COMPOSE)).not.toContain('legacy-sync');
     expect(withoutComments(COMPOSE)).not.toContain('cli-sync-day');
   });
 
   it('API и стойка идут из одного образа — иначе сборка стойки и клиент базы разъезжаются', () => {
     expect(COMPOSE).toContain('image: pms-lux:latest');
-    // api и web; у cloudflared свой образ провайдера. Было три, пока в compose жил exely-sync (ADR-052)
+    // api и web; у cloudflared свой образ провайдера. Было три, пока в compose жил legacy-sync (ADR-052)
     expect(COMPOSE.match(/<<: \*app/g)?.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -171,9 +171,9 @@ describe('deploy/compose.yml', () => {
     expect(service('web')).toMatch(/APP_API_URL:\s*http:\/\/api:3001/);
   });
 
-  it('проверки синхронизации из Exely у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073)', () => {
-    // С 19.09 Exely не источник (ADR-052), 23.09 проверку сняли из кода: выключатель стал бы мёртвой строкой.
-    expect(service('api')).not.toMatch(/GUARD_EXELY_SYNC/);
+  it('проверки синхронизации из Legacy у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073)', () => {
+    // С 19.09 Legacy не источник (ADR-052), 23.09 проверку сняли из кода: выключатель стал бы мёртвой строкой.
+    expect(service('api')).not.toMatch(/GUARD_LEGACY_SYNC/);
   });
 
   it('выключателя GUARD_LOCAL_FILES в compose больше нет: возраст файлов сторож судит сам', () => {

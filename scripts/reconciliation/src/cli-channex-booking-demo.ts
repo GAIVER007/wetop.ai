@@ -223,7 +223,7 @@ if (command === 'cancel') {
 
 if (command !== 'create') throw new Error(`Неизвестная команда: ${command}`);
 
-const category = process.argv[3] ?? 'exely-5074688';
+const category = process.argv[3] ?? 'category-dorm';
 const m = (await get<Mapping[]>('/channels/channex/mapping')).find(
   (x) => x.localAccommodationTypeCode === category && x.providerRoomTypeId && x.providerRatePlanId,
 );

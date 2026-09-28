@@ -47,7 +47,7 @@ const GATE: SessionRow[] = [
   }),
 ];
 
-describe('сводка (определения GA4 / Exely)', () => {
+describe('сводка (определения GA4 / Legacy)', () => {
   it('гейт: 3 сессии, 2 посетителя, 4 просмотра, 1,33 страниц/сессию, 33 % мобильных, 1 отказ', () => {
     expect(summarize(GATE)).toEqual({
       sessions: 3,

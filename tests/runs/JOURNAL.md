@@ -3482,3 +3482,4 @@
 | 28.09.2026 13:43 | typecheck | ✅ без ошибок | 34 с | 33215f2 +50 | [лог](logs/2026-09-28T08-43-21Z-typecheck-9dc9.log) |  |
 | 28.09.2026 13:43 | lint | ✅ без ошибок | 18 с | 33215f2 +50 | [лог](logs/2026-09-28T08-43-56Z-lint-6dbc.log) |  |
 | 28.09.2026 13:44 | unit | ✅ 2312 из 2315, пропущено 3 | 1 мин 12 с | 33215f2 +50 | [лог](logs/2026-09-28T08-44-20Z-unit-bdeb.log) |  |
+| 28.09.2026 13:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 9 из 519 | 45 мин 15 с | 33215f2 +50 | [лог](logs/2026-09-28T08-45-51Z-e2e-a413.log) | categories C2: quick preview from row, menu and card; cards view; light/dark/mobile |

@@ -3820,3 +3820,6 @@
 | 29.09.2026 01:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts) | ✅ 19 из 19 | 1 мин 34 с | bc27444 +2 | [лог](logs/2026-09-28T20-20-23Z-e2e-5105.log) |  |
 | 29.09.2026 01:22 | integration | ✅ 117 из 117 | 36 с | bc27444 | [лог](logs/2026-09-28T20-22-08Z-integration-1ff3.log) |  |
 | 29.09.2026 01:18 | e2e | ✅ 25 из 25 | 55 с | 749de72 | [лог](logs/2026-09-28T20-18-25Z-e2e-b2ac.log) |  |
+| 29.09.2026 01:27 | typecheck | ✅ без ошибок | 28 с | 09799da | [лог](logs/2026-09-28T20-27-25Z-typecheck-80c6.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
+| 29.09.2026 01:27 | lint | ✅ без ошибок | 16 с | 09799da | [лог](logs/2026-09-28T20-27-53Z-lint-a1b3.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
+| 29.09.2026 01:28 | unit | ✅ 2216 из 2219, пропущено 3 | 1 мин 14 с | 09799da | [лог](logs/2026-09-28T20-28-10Z-unit-aa0f.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |

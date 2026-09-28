@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 28.09.2026 14:35 Алматы · vm
+# коммит 1b187fa (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/workspace.spec.ts:1038'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (17.2s)
+
+
+  1) tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests\?state=inhouse$/
+    Received string:  "http://127.0.0.1:3100/guests"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/hotel-settings/services"
+        31 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/guests"
+
+
+      1045 |   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
+      1046 |   // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
+    > 1047 |   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
+           |                      ^
+      1048 |   await expect(page.getByTestId('guests-meta')).toContainText('проживают');
+      1049 | });
+      1050 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1047:22
+
+    Error Context: test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+# код выхода 1 · 24 с

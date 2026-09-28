@@ -3483,3 +3483,6 @@
 | 28.09.2026 13:43 | lint | ✅ без ошибок | 18 с | 33215f2 +50 | [лог](logs/2026-09-28T08-43-56Z-lint-6dbc.log) |  |
 | 28.09.2026 13:44 | unit | ✅ 2312 из 2315, пропущено 3 | 1 мин 12 с | 33215f2 +50 | [лог](logs/2026-09-28T08-44-20Z-unit-bdeb.log) |  |
 | 28.09.2026 13:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 9 из 519 | 45 мин 15 с | 33215f2 +50 | [лог](logs/2026-09-28T08-45-51Z-e2e-a413.log) | categories C2: quick preview from row, menu and card; cards view; light/dark/mobile |
+| 28.09.2026 14:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts:15 tests/ui/channex-screens.spec.ts:107 tests/ui/integrati | ❌ упало 7 из 8 | 3 мин 13 с | 1b187fa | [лог](logs/2026-09-28T09-31-53Z-e2e-08f9.log) | подключения каналов: настройка подключения только владельцу |
+| 28.09.2026 14:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:1038) | ❌ упало 1 из 1 | 24 с | 1b187fa | [лог](logs/2026-09-28T09-35-22Z-e2e-448e.log) | настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей |
+| 28.09.2026 14:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts) | ✅ 1 из 1 | 16 с | 8d99beb | [лог](logs/2026-09-28T09-36-08Z-e2e-71cb.log) |  |

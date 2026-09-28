@@ -3500,3 +3500,6 @@
 | 28.09.2026 15:05 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 20 с | b5bbd54 | [лог](logs/2026-09-28T10-05-02Z-unit-7164.log) | integration 28.09: final HEAD after merging main (auto-deploy test) |
 | 28.09.2026 15:06 | typecheck | ✅ без ошибок | 24 с | b5bbd54 | [лог](logs/2026-09-28T10-06-41Z-typecheck-dfb9.log) | integration 28.09: final HEAD after merging main |
 | 28.09.2026 15:07 | lint | ✅ без ошибок | 18 с | b5bbd54 | [лог](logs/2026-09-28T10-07-05Z-lint-2273.log) | integration 28.09: final HEAD after merging main |
+| 28.09.2026 15:22 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 26 с | 6fcdd5e | [лог](logs/2026-09-28T10-22-24Z-unit-51c5.log) | INT2 after merging main |
+| 28.09.2026 15:23 | typecheck | ✅ без ошибок | 32 с | 6fcdd5e | [лог](logs/2026-09-28T10-23-51Z-typecheck-dbb0.log) | INT2 after merging main |
+| 28.09.2026 15:24 | lint | ✅ без ошибок | 17 с | 6fcdd5e | [лог](logs/2026-09-28T10-24-23Z-lint-338c.log) | INT2 after merging main |

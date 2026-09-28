@@ -1,7 +1,13 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import type { Db } from '@pms/database';
 import { todayAt } from '@pms/domain';
-import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
+import {
+  actsForOrganization,
+  currentBusinessId,
+  currentLocationId,
+  currentOrganizationId,
+  currentScope,
+} from '../auth/request-context';
 
 /**
  * Идентификатор объекта: один запрос на процесс, а не на каждый рейс в базу.
@@ -90,11 +96,24 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const organizationId = currentOrganizationId();
   // Вошедший без организации (членства нет) не видит ни одного объекта — как и должен.
   if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-  const key = `${schema()}|org|${organizationId}`;
+  // Scope запроса (Platform P2, К1; план P2 §4а) уже проверен `auth/scope.ts`: LOCATION — объект этого филиала,
+  // BUSINESS — самый ранний объект этого Business, ORGANIZATION — самый ранний объект организации, как раньше.
+  // Организация Business в выборке остаётся и при scope: чужой объект сюда не попадает по построению.
+  const scope = currentScope();
+  const businessId = currentBusinessId();
+  const locationId = currentLocationId();
+  const key = `${schema()}|org|${organizationId}|${scope ?? 'ORGANIZATION'}|${businessId ?? ''}|${locationId ?? ''}`;
   const known = cache.get(key);
   if (known) return known;
+  const chain = { business: { organizationId } };
+  const where =
+    scope === 'LOCATION' && locationId
+      ? { locationId, location: chain }
+      : scope === 'BUSINESS' && businessId
+        ? { location: { businessId, ...chain } }
+        : { location: chain };
   const found = await db.property.findFirst({
-    where: { location: { business: { organizationId } } },
+    where,
     orderBy: { createdAt: 'asc' },
     select: { id: true, name: true, organizationId: true, timezone: true },
   });

@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { ApiError, type ChannelConnection, type OutboxSummary, type WebhookStatus } from './api';
+import {
+  ApiError,
+  type ChannelConnection,
+  type ChannelMappingRow,
+  type OutboxSummary,
+  type WebhookStatus,
+} from './api';
 import { propertyClock } from './property-time';
-import { channexCard, exchangeLine, type Settled } from './integrations';
+import {
+  categoryCoverage,
+  channexCard,
+  exchangeLine,
+  type CategoryCoverage,
+  type Settled,
+} from './integrations';
 
 const NOW = new Date('2026-09-27T14:00:00Z'); // 19:00 по Алматы
 const ok = <T>(value: T): Settled<T> => ({ ok: true, value });
@@ -47,7 +59,23 @@ const card = (
   c: Settled<ChannelConnection>,
   w: Settled<WebhookStatus> = ok(webhook()),
   o: Settled<OutboxSummary> = ok(outbox()),
-) => channexCard({ connection: c, webhook: w, outbox: o, now: NOW });
+  coverage: CategoryCoverage | null = null,
+) => channexCard({ connection: c, webhook: w, outbox: o, coverage, now: NOW });
+
+const row = (code: string | null, roomType: string | null, ratePlan: string | null = null): ChannelMappingRow => ({
+  id: `${code}-${ratePlan}`,
+  localAccommodationTypeCode: code,
+  localRatePlanId: null,
+  localRatePlanCode: null,
+  providerPropertyId: 'channex-property',
+  providerRoomTypeId: roomType,
+  providerRatePlanId: ratePlan,
+});
+const CATEGORIES = [
+  { code: 'ROOM', name: 'Двухместный номер' },
+  { code: 'MALE', name: 'Мужской общий номер' },
+  { code: 'FEMALE', name: 'Женский общий номер' },
+];
 
 describe('channexCard — состояние по настоящим сигналам', () => {
   it('объект доступен, webhook включён, очередь пуста — «работает», без списка успехов', () => {
@@ -103,7 +131,7 @@ describe('channexCard — состояние по настоящим сигна�
   it('ошибки отправки и застой очереди — внимание со ссылкой в «Каналы продаж»', () => {
     const failed = card(ok(connection()), ok(webhook()), ok(outbox({ failed: 2 })));
     expect(failed.health).toBe('attention');
-    expect(failed.issues[0]).toMatchObject({ text: 'Ошибок отправки в каналы: 2', href: '/channels?queue=FAILED' });
+    expect(failed.issues[0]).toMatchObject({ text: 'Ошибок отправки в каналы: 2', href: '/channels/sync?queue=FAILED' });
     const stalled = card(
       ok(connection()),
       ok(webhook()),
@@ -135,5 +163,65 @@ describe('exchangeLine — время обмена словами', () => {
     expect(exchangeLine('2026-09-26T14:46:00Z', clock, NOW)).toBe('вчера, 19:46');
     expect(exchangeLine('2026-09-20T11:50:00Z', clock, NOW)).toBe(clock.when('2026-09-20T11:50:00Z'));
     expect(exchangeLine(null, clock, NOW)).toBe('—');
+  });
+});
+
+describe('categoryCoverage — сопоставлены ли все категории объекта (INT2)', () => {
+  it('категория считается сопоставленной, если у неё есть категория в Channex; строка объекта не в счёт', () => {
+    const mapping = [
+      row(null, null),
+      row('ROOM', 'rt-room', 'rp-1'),
+      row('ROOM', 'rt-room', 'rp-2'),
+      row('MALE', 'rt-male', 'rp-1'),
+      row('FEMALE', null),
+    ];
+    expect(categoryCoverage(mapping, CATEGORIES)).toEqual({
+      mapped: 2,
+      total: 3,
+      missing: ['Женский общий номер'],
+    });
+  });
+
+  it('всё сопоставлено — пропусков нет', () => {
+    const mapping = CATEGORIES.map((c) => row(c.code, `rt-${c.code}`, 'rp-1'));
+    expect(categoryCoverage(mapping, CATEGORIES)).toEqual({ mapped: 3, total: 3, missing: [] });
+  });
+
+  it('не все категории сопоставлены — внимание со ссылкой на сопоставление', () => {
+    const c = card(ok(connection()), ok(webhook()), ok(outbox()), {
+      mapped: 2,
+      total: 3,
+      missing: ['Женский общий номер'],
+    });
+    expect(c.health).toBe('attention');
+    expect(c.issues[0]).toMatchObject({
+      text: 'Не сопоставлено категорий: 1 из 3',
+      href: '/channels/mapping',
+    });
+  });
+
+  it('полное сопоставление и живые сигналы — «работает»', () => {
+    expect(card(ok(connection()), ok(webhook()), ok(outbox()), { mapped: 3, total: 3, missing: [] }).health).toBe(
+      'ok',
+    );
+  });
+
+  it('сопоставление не сошлось со счётчиком API — внимания из-за сопоставления нет', () => {
+    // строки сопоставления и счётчик API читаются из одной таблицы; расхождение — признак сбоя чтения, а не пропуска
+    const c = card(ok(connection({ mappedCategories: 3 })), ok(webhook()), ok(outbox()), {
+      mapped: 0,
+      total: 3,
+      missing: CATEGORIES.map((x) => x.name),
+    });
+    expect(c.health).toBe('ok');
+  });
+
+  it('ни одной — прежняя причина «Категории не сопоставлены», а не «3 из 3»', () => {
+    const c = card(ok(connection({ mappedCategories: 0 })), ok(webhook()), ok(outbox()), {
+      mapped: 0,
+      total: 3,
+      missing: CATEGORIES.map((x) => x.name),
+    });
+    expect(c.issues.map((i) => i.text)).toEqual(['Категории не сопоставлены']);
   });
 });

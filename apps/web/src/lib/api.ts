@@ -13,6 +13,7 @@ import type {
   MembershipRole,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import { requestScopeHeader } from './scope-pointer';
 export interface CategorySummary {
   code: string;
   name: string;
@@ -73,6 +74,8 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
       headers: {
         ...options.headers,
         ...(await sessionHeader()),
+        // указатель выбора Business и филиала (Platform P2, К1): проверяет API, стойка только пересылает
+        ...(await requestScopeHeader()),
         ...(testing ? { 'x-wetop-test-client': '1' } : {}),
         ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
       },

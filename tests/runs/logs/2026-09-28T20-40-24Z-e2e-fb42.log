@@ -1,0 +1,35 @@
+# Сквозные (e2e) · 29.09.2026 01:40 Алматы · vm
+# коммит 9b5a9c1 (claude/ecstatic-galileo-dm8omt)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/reservations-v2.spec.ts' 'tests/ui/reservations-v2-r2.spec.ts' 'tests/ui/reservations-v2-r3.spec.ts' 'tests/ui/reservations-states.spec.ts' 'tests/ui/manager-actions.spec.ts' 'tests/ui/record-tabs.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 33 tests using 1 worker
+
+  ✓   1 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.9s)
+  ✓   2 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (3.4s)
+  ✓   3 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (7.5s)
+  ✓   4 tests/ui/manager-actions.spec.ts:204:1 › карточка: предварительная бронь названа словом, место за ней держится (1.1s)
+  ✓   5 tests/ui/manager-actions.spec.ts:223:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.6s)
+  ✓   6 tests/ui/manager-actions.spec.ts:239:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (3.4s)
+  ✓   7 tests/ui/manager-actions.spec.ts:287:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (4.0s)
+  ✓   8 tests/ui/manager-actions.spec.ts:347:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.6s)
+  ✓   9 tests/ui/manager-actions.spec.ts:370:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.0s)
+  ✓  10 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (2.2s)
+  ✘  11 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (45.1s)
+  ✓  12 tests/ui/record-tabs.spec.ts:92:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.7s)
+  ✓  13 tests/ui/record-tabs.spec.ts:107:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (2.4s)
+  ✓  14 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (1.7s)
+  ✓  15 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (1.0s)
+  ✓  16 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (3.0s)
+  ✓  17 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (2.8s)
+  ✓  18 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (4.8s)
+  ✓  19 tests/ui/reservations-v2-r2.spec.ts:137:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (4.0s)
+  ✓  20 tests/ui/reservations-v2-r2.spec.ts:170:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (2.1s)
+  ✓  21 tests/ui/reservations-v2-r2.spec.ts:192:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (2.5s)
+
+# код выхода —, сигнал SIGTERM · 2 мин 1 с

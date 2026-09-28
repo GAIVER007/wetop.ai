@@ -2,7 +2,7 @@ import type { ChannelConnection, OutboxSummary, WebhookStatus } from './api';
 import type { PropertyClock } from './property-time';
 
 /**
- * «Интеграции» (INT1, ADR-107): состояние внешнего подключения по настоящим сигналам, а не зелёным по умолчанию.
+ * «Интеграции» (INT1, ADR-116): состояние внешнего подключения по настоящим сигналам, а не зелёным по умолчанию.
  * Сигналы Channex — те, что API уже отдаёт: живая проверка объекта (`/channels/channex/connection`), webhook и
  * сводка очереди. Порог застоя очереди — тот же, что у «Каналов продаж» (10 минут).
  */

@@ -3530,3 +3530,5 @@
 | 29.09.2026 00:35 | lint | ✅ без ошибок | 17 с | c9f81e0 | [лог](logs/2026-09-28T19-35-08Z-lint-6653.log) |  |
 | 29.09.2026 00:35 | unit | ✅ 2163 из 2166, пропущено 3 | 1 мин 17 с | c9f81e0 | [лог](logs/2026-09-28T19-35-25Z-unit-f8ff.log) |  |
 | 29.09.2026 00:36 | integration | ✅ 114 из 114 | 34 с | c9f81e0 | [лог](logs/2026-09-28T19-36-42Z-integration-066b.log) |  |
+| 29.09.2026 00:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-design.spec.ts tests/ui/empty-base.spec.ts t | ❌ упало 1 из 179 | 17 мин 9 с | c9f81e0 | [лог](logs/2026-09-28T19-37-31Z-e2e-f73f.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |
+| 29.09.2026 00:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 24 с | 60a0b6b | [лог](logs/2026-09-28T19-54-55Z-e2e-9f8d.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |

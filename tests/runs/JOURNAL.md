@@ -78,3 +78,13 @@
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
+| 29.09.2026 00:56 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ❌ упало 3 из 16 | 5 с | e1adee8 +2 | [лог](logs/2026-09-28T19-56-16Z-unit-5116.log) | OnboardingService status: у организации нет объекта (после сброса) — онбординг нужен, имя — организации, объект не создаётся |
+| 29.09.2026 00:56 | integration (частично: tests/integration/onboarding-without-property.test.ts) | ❌ упало 1 из 1 | 3 с | e1adee8 +2 | [лог](logs/2026-09-28T19-56-30Z-integration-3f20.log) | онбординг организации без объекта (после сброса) status просит онбординг, provision создаёт объект в цепочке и номера под ним |
+| 29.09.2026 00:57 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ✅ 16 из 16 | 2 с | e1adee8 +8 | [лог](logs/2026-09-28T19-57-36Z-unit-2391.log) |  |
+| 29.09.2026 00:57 | integration (частично: tests/integration/onboarding-without-property.test.ts) | ✅ 1 из 1 | 3 с | e1adee8 +6 | [лог](logs/2026-09-28T19-57-38Z-integration-59ec.log) |  |
+| 29.09.2026 00:57 | typecheck | ✅ без ошибок | 29 с | e1adee8 +9 | [лог](logs/2026-09-28T19-57-41Z-typecheck-21f6.log) |  |
+| 29.09.2026 00:58 | lint | ✅ без ошибок | 16 с | e1adee8 +9 | [лог](logs/2026-09-28T19-58-11Z-lint-821c.log) |  |
+| 29.09.2026 00:58 | unit | ✅ 2171 из 2174, пропущено 3 | 1 мин 13 с | e1adee8 +8 | [лог](logs/2026-09-28T19-58-32Z-unit-e4a1.log) |  |
+| 29.09.2026 00:59 | integration | ✅ 115 из 115 | 31 с | e1adee8 +6 | [лог](logs/2026-09-28T19-59-46Z-integration-e91f.log) |  |
+| 29.09.2026 01:00 | e2e | ❌ упало 5 из 25 | 2 мин 14 с | e1adee8 +8 | [лог](logs/2026-09-28T20-00-54Z-e2e-df2b.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:03 | e2e | ❌ упало 5 из 25 | 2 мин 10 с | e1adee8 +8 | [лог](logs/2026-09-28T20-03-36Z-e2e-f6a5.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |

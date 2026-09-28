@@ -4055,3 +4055,7 @@
 | 29.09.2026 04:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-gate-pr6.spec.ts tests/ui/chessboard-unassigned.spec.ts) | ✅ 6 из 6 | 34 с | 89098ee +2 | [лог](logs/2026-09-28T23-03-05Z-e2e-66d3.log) | PR6 gate screenshots + drawer spec after route font fix |
 | 29.09.2026 04:04 | typecheck | ✅ без ошибок | 20 с | 89098ee +4 | [лог](logs/2026-09-28T23-04-03Z-typecheck-38f0.log) | PR6 done line |
 | 29.09.2026 04:04 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-unassigned.spec.ts tests/ui/chessboard-gate-pr6.spec.ts) | ✅ 6 из 6 | 34 с | 89098ee +4 | [лог](logs/2026-09-28T23-04-23Z-e2e-1626.log) | PR6: done line in drawer + gate |
+| 29.09.2026 04:05 | unit | ✅ 2299 из 2302, пропущено 3 | 1 мин 15 с | 09039c9 | [лог](logs/2026-09-28T23-05-18Z-unit-05e2.log) | PR6 full unit |
+| 29.09.2026 04:06 | integration | ✅ 123 из 123 | 36 с | 09039c9 | [лог](logs/2026-09-28T23-06-33Z-integration-ec15.log) | PR6 full integration |
+| 29.09.2026 04:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 605 из 605 | 43 мин 52 с | 09039c9 | [лог](logs/2026-09-28T23-07-15Z-e2e-b0e3.log) | PR6: full UI suite on 09039c99 |
+| 29.09.2026 04:51 | e2e | ✅ 25 из 25 | 57 с | 09039c9 | [лог](logs/2026-09-28T23-51-29Z-e2e-09fe.log) | PR6: live e2e on a fresh web build |

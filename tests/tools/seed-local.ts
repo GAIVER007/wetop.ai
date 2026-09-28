@@ -10,6 +10,9 @@
 import { createPrismaClient, type Db } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 
+/** Услуга стенда: код и название совпадают, по нему начисляют сквозные тесты */
+const LAUNDRY = 'Стирка (1 загрузка)';
+
 /** Локальный стенд — только `localhost` и `127.0.0.1`: чужую базу этим скриптом не тронуть */
 export function isLocalDatabase(url: string): boolean {
   try {
@@ -255,13 +258,15 @@ export async function seedLocal(
   }
   const rates = await db.dailyRate.createMany({ data: rows, skipDuplicates: true });
   // Минимальная вымышленная услуга нужна форме начисления и сквозным тестам finance/full-day.
+  // Код равен названию, как у услуг объекта: спеки выбирают её по значению «Стирка (1 загрузка)».
+  // С кодом L-LAUNDRY и ценой 1 500 ₸ оба спека падали: форма ждала несуществующий вариант (28.09.2026)
   await db.service.upsert({
-    where: { propertyId_code: { propertyId: property.id, code: 'L-LAUNDRY' } },
+    where: { propertyId_code: { propertyId: property.id, code: LAUNDRY } },
     create: {
       propertyId: property.id,
-      code: 'L-LAUNDRY',
-      nameRu: 'Стирка (1 загрузка)',
-      price: 150_000n,
+      code: LAUNDRY,
+      nameRu: LAUNDRY,
+      price: 50_000n, // 500 ₸ — суммы в finance.spec и full-day.spec посчитаны от этой цены
       group: 'Стенд',
     },
     update: {},

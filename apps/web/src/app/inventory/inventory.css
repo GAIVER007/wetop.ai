@@ -211,6 +211,7 @@
 .inventory-place,
 .inventory-state {
   display: grid;
+  justify-items: start;
   gap: var(--space-1);
 }
 .inventory-state-note {
@@ -226,6 +227,34 @@
 .inventory-actions {
   text-align: right;
   width: var(--space-12);
+}
+/* Панель и карточка места (ADR-108, срез I2): факты сеткой, ниже — ссылки и блок уборки/блокировок */
+/* RouteDrawer вешает класс панели брони: тот снимает отступ содержимого (у брони он на `.page`) и
+   ставит сеткам одну колонку. Панель места держит свой отступ, факты — в колонки по ширине. */
+.unit-drawer {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+.booking-drawer .unit-drawer .grid-auto {
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--min, 180px), 100%), 1fr));
+}
+.unit-facts {
+  margin-bottom: var(--space-4);
+}
+.unit-drawer .unit-facts {
+  margin-bottom: 0;
+}
+/* «Следующее проживание» — последний факт: даты и гость строкой во всю ширину, не в полколонки */
+.unit-facts .grid-auto > :last-child {
+  grid-column: 1 / -1;
+}
+.unit-stay-line {
+  display: grid;
+  gap: var(--space-1);
+}
+.unit-drawer__links {
+  flex-wrap: wrap;
 }
 .inventory-table th,
 .inventory-table td {

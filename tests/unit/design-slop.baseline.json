@@ -28,7 +28,7 @@
     "apps/web/src/app/management/period/period-bar.tsx": 2,
     "apps/web/src/app/reservations/[number]/finance-panel.tsx": 1,
     "apps/web/src/app/reservations/[number]/page.tsx": 1,
-    "apps/web/src/app/units/[code]/unit-actions.tsx": 4,
+    "apps/web/src/app/units/[code]/unit-actions.tsx": 2,
     "apps/web/src/components/data-freshness.tsx": 1,
     "apps/web/src/components/top-nav.tsx": 1
   },

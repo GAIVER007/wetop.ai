@@ -146,6 +146,10 @@ function makeDb(opts: { property?: typeof PROPERTY | null; typeCount?: number } 
     async $transaction<T>(fn: (tx: unknown) => Promise<T>): Promise<T> {
       return fn(db);
     },
+    // запирание строки организации в provision (два первых сохранения не заводят два объекта)
+    async $executeRaw() {
+      return 1;
+    },
   };
   const hotel = { forget: () => {} };
   return { rec, hotel, service: new OnboardingService({ db } as never, hotel as never) };

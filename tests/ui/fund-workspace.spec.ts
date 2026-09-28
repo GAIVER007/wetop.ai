@@ -63,7 +63,7 @@ test('availability preserves exact unit and dates; responsive category design', 
 });
 
 test('guests filter categories by capacity; toggle shows all; tab renamed', async ({ page }) => {
-  // ТЗ «Свободные места» AV1 (ADR-107): поиск отвечает «нас трое», а не только «есть ли место»
+  // ТЗ «Свободные места» AV1 (ADR-110): поиск отвечает «нас трое», а не только «есть ли место»
   await page.goto('/rooms/availability?arrival=2026-09-24&departure=2026-09-27&guests=3');
   await expect(page.getByText(/3 ночи · 3 гостя/)).toBeVisible();
   const rows = page.locator('.fund-availability article');

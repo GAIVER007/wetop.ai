@@ -152,7 +152,7 @@
     }
   },
   {
-    "route": "/channel-manager",
+    "route": "/channels",
     "violations": [],
     "layout": {
       "viewport": 390,
@@ -160,7 +160,31 @@
     }
   },
   {
-    "route": "/channels",
+    "route": "/channels/connections",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/channels/mapping",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/channels/sync",
+    "violations": [],
+    "layout": {
+      "viewport": 390,
+      "content": 390
+    }
+  },
+  {
+    "route": "/channels/events",
     "violations": [],
     "layout": {
       "viewport": 390,

@@ -17,19 +17,17 @@ export const EVENTS_PAGE = 20;
 /**
  * Входящие события канала (срез 7.2, макет «Integration»): фильтры по статусу и типу, поиск по номеру
  * брони или `unique_id`, постраничность «показано 20 из 312», колонка «Бронь» ведёт на карточку,
- * событие — на страницу приёма брони.
+ * событие — на страницу приёма брони. С 27.09 (ADR-112) живёт на своей вкладке «События» модуля
+ * «Каналы продаж» — фильтр очереди из формы ушёл вместе с общей страницей.
  */
 export async function EventsTable({
   data,
   filter,
   hrefFor,
-  queueFilter,
 }: {
   data: { rows: InboundEvent[]; total: number } | null;
   filter: EventsFilter;
   hrefFor: (f: Partial<EventsFilter>) => string;
-  /** сохраняем фильтр очереди в форме поиска, чтобы GET не сбрасывал вторую таблицу */
-  queueFilter: string;
 }) {
   const clock = await hotelClock();
   const shown = data?.rows.length ?? 0;
@@ -38,8 +36,7 @@ export async function EventsTable({
   const failed = data?.rows.find((e) => e.status === 'FAILED' && e.lastError);
   return (
     <div className="stack stack--sm">
-      <form method="get" action="/channels" className="row row--inline filters" role="search">
-        {queueFilter && <input type="hidden" name="queue" value={queueFilter} />}
+      <form method="get" action="/channels/events" className="row row--inline filters" role="search">
         <Select
           name="status"
           defaultValue={filter.status}

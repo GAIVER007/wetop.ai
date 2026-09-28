@@ -245,7 +245,7 @@ test('шахматка: плашки «сверх мест» и «требует
   );
   await expect(
     page.getByRole('main').getByTestId('review-callout').getByRole('link', { name: 'Разобрать' }),
-  ).toHaveAttribute('href', '/channels');
+  ).toHaveAttribute('href', '/channels/events?status=FAILED');
   await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute(
     'data-count',
     '1',

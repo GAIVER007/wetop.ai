@@ -127,6 +127,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       },
       {
         href: '/management/dashboard',
+        requires: 'reports',
         label: 'Показатели за период',
         icon: 'analytics',
         description: 'Загрузка, выручка, ADR и RevPAR за период со сравнением.',
@@ -151,18 +152,40 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Продажи',
     items: [
       {
-        href: '/channel-manager',
+        // Один модуль вместо «Менеджера каналов» и «Синхронизации каналов» (ADR-112)
+        href: '/channels',
         requires: 'channels',
-        label: 'Менеджер каналов',
+        label: 'Каналы продаж',
         icon: 'channels',
-        description: 'Брони и стоимость по Booking.com, Trip.com и другим источникам.',
+        description: 'Обмен с Booking.com и другими каналами: брони по источникам, цены, остатки.',
         children: [
           {
-            href: '/channels',
+            href: '/channels/connections',
+            requires: 'channels',
+            label: 'Подключения',
+            icon: 'channels',
+            description: 'Подключение Channex и настройка обмена.',
+          },
+          {
+            href: '/channels/mapping',
+            requires: 'channels',
+            label: 'Сопоставление',
+            icon: 'channels',
+            description: 'Категории и тарифы WETOP в Channex.',
+          },
+          {
+            href: '/channels/sync',
             requires: 'channels',
             label: 'Синхронизация',
             icon: 'channels',
-            description: 'Сопоставления, события и очередь Channex.',
+            description: 'Очередь изменений в каналы и её состояние.',
+          },
+          {
+            href: '/channels/events',
+            requires: 'channels',
+            label: 'События',
+            icon: 'channels',
+            description: 'Входящие события каналов: брони, изменения, отмены.',
           },
         ],
       },
@@ -289,13 +312,13 @@ export const sidebarSections: SidebarSection[] = [
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
+    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-продавец, Сайт
     items: [
       menuItem('/rates'),
-      menuItem('/channel-manager'),
-      menuItem('/channels', 'Синхронизация каналов'),
+      menuItem('/channels'),
       // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
       menuItem('/ai-seller'),
-      menuItem('/analytics', 'Аналитика сайта'),
+      menuItem('/analytics', 'Сайт и онлайн-бронирование'),
     ],
   },
   {

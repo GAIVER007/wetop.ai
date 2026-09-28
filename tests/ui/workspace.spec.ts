@@ -46,6 +46,10 @@ test('все разделы, карточки и печать открывают
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
+    ['/channels/connections', 'Подключения'],
+    ['/channels/mapping', 'Сопоставление'],
+    ['/channels/sync', 'Синхронизация'],
+    ['/channels/events', 'События'],
     ['/journal', 'Журнал действий'],
     ['/incidents', 'Неисправности'],
     ['/analytics', 'Аналитика сайта'],
@@ -62,7 +66,7 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/amenities', 'Интеграции'],
     ['/management/statistics', 'Статистика'],
     ['/management/dashboard', 'Показатели за период'],
-    ['/channel-manager', 'Менеджер каналов'],
+    ['/channel-manager', 'Каналы продаж'],
     ['/connections', 'Интеграции'],
   ];
   for (const [route, title] of routes) {
@@ -152,11 +156,11 @@ test('доступность переносит даты и свободное �
   await expect(page.getByRole('link', { name: 'Создать бронь', exact: true })).toHaveCount(0);
 });
 
-test('менеджер каналов: реальные фильтры, пустой результат, период и отказ API', async ({
+test('отчёт по источникам: реальные фильтры, пустой результат, период и отказ API', async ({
   page,
   request,
 }) => {
-  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  await page.goto('/channels?from=2026-09-01&to=2026-09-30');
   await expect(page.getByTestId('channel-bookings')).toHaveText('48');
   await expect(page.getByTestId('channel-report')).toContainText('Booking.com');
   await expect(page.getByTestId('channel-report')).toContainText('Trip.com');
@@ -165,13 +169,13 @@ test('менеджер каналов: реальные фильтры, пуст
   await expect(page).toHaveURL(/status=CANCELLED/);
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
   await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
-  await page.goto('/channel-manager?from=2026-09-30&to=2026-09-01');
+  await page.goto('/channels?from=2026-09-30&to=2026-09-01');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Выберите корректные даты');
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
-  await page.goto('/channel-manager');
+  await page.goto('/channels');
   // D4 (20.09): отказ отчёта не уносит экран — форма и заголовок на месте, вместо чисел сбой словами
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Менеджер каналов',
+    'Каналы продаж',
   );
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.getByTestId('channel-bookings')).toHaveCount(0);
@@ -816,13 +820,29 @@ test('кнопки Channex отправляют команды один раз �
   page,
   request,
 }) => {
+  // «Настройка подключения» видна только вошедшему владельцу (ADR-112): роль читается из /auth/me
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
   await page.goto('/connections');
   await page.getByRole('button', { name: 'Проверить соединение' }).click();
   await expect(page.getByText('Соединение установлено')).toBeVisible();
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
+  // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
-  for (const id of ['channel-pull', 'channel-flush', 'channel-sync', 'channel-setup']) {
+  for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
+    const button = page.getByTestId(id).filter({ visible: true });
+    await expect(button).toHaveCount(1);
+    await button.click();
+    await expect(page.getByTestId('channel-result').filter({ visible: true })).toBeVisible();
+    await expect(button).toBeEnabled();
+    await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+  }
+  await page.goto('/channels/connections');
+  for (const id of ['channel-sync', 'channel-setup']) {
     const button = page.getByTestId(id).filter({ visible: true });
     await expect(button).toHaveCount(1);
     await button.click();
@@ -846,7 +866,7 @@ test('кнопки Channex отправляют команды один раз �
 
 test('пустые ответы дают нули; сбой API не выдаётся за пустую базу', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
-  await page.goto('/channel-manager');
+  await page.goto('/channels');
   await expect(page.getByTestId('channel-bookings')).toHaveText('0');
   await expect(page.getByTestId('channel-report-empty')).toContainText('Нет бронирований');
   await page.goto('/finance');
@@ -863,10 +883,10 @@ test('пустые ответы дают нули; сбой API не выдаё�
     await expect(page.locator('.stat__value:visible')).toHaveCount(0);
     await expect(page.getByTestId('inventory-summary')).toHaveCount(0);
   }
-  // «Менеджер каналов» с D4 (20.09) остаётся на экране: заголовок и форма на месте, вместо чисел — сбой
-  await page.goto('/channel-manager');
+  // «Каналы продаж» с D4 (20.09) остаются на экране: заголовок и форма на месте, вместо чисел — сбой
+  await page.goto('/channels');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Менеджер каналов',
+    'Каналы продаж',
   );
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
@@ -1089,7 +1109,7 @@ test('подключения каналов: время события — по 
   request,
 }) => {
   await request.post(`${fixture}/__test/design-seed`); // лента событий живёт в засеянных данных
-  await page.goto('/channels');
+  await page.goto('/channels/events');
   const rows = page.getByTestId('event-row');
   await expect(rows.first()).toContainText('10:12'); // 05:12 UTC = 10:12 в Алматы
   await expect(rows.first()).not.toContainText('05:12');
@@ -1107,12 +1127,12 @@ test('каналы: сбой сводки фонда не уносит очер�
   page,
   request,
 }) => {
-  await page.goto('/channels');
+  await page.goto('/channels/mapping');
   await expect(page.getByTestId('mapping-empty')).toContainText(/сопоставлений пока нет/i);
 
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/inventory/summary' } });
-  await page.goto('/channels');
-  await expect(page.getByRole('heading', { name: 'Каналы продаж — Channex' })).toBeVisible();
+  await page.goto('/channels/mapping');
+  await expect(page.getByRole('heading', { name: 'Сопоставление' })).toBeVisible();
   // повторный заход на тот же адрес: уходящая страница на миг остаётся в скрытом узле стрима
   await expect(page.getByRole('main').getByTestId('inventory-failed')).toBeVisible();
   await expect(page.getByText('Проверьте подключение')).toHaveCount(0);
@@ -1220,7 +1240,8 @@ test('шахматка: несопоставленные ревизии кана
   const notice = page.getByTestId('review-callout');
   await expect(notice).toContainText('требует разбора');
   await notice.getByRole('link').click();
-  await expect(page).toHaveURL(/\/channels$/);
+  // «Разобрать» ведёт сразу к событиям с ошибкой (модуль «Каналы продаж», ADR-112)
+  await expect(page).toHaveURL(/\/channels\/events\?status=FAILED$/);
 });
 
 /**
@@ -1235,7 +1256,8 @@ test('каналы: очередь показана строками — что 
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
-  await page.goto('/channels');
+  await page.goto('/channels/sync');
+  await page.getByTestId('sync-tech').locator('summary').click();
   const rows = page.getByTestId('outbox-row');
   await expect(rows.first()).toBeVisible();
   // вид сообщения словом, а не кодом перечисления
@@ -1247,7 +1269,7 @@ test('каналы: очередь показана строками — что 
 
 test('каналы: входящая бронь ведёт на карточку брони', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
-  await page.goto('/channels');
+  await page.goto('/channels/events');
   const link = page
     .getByTestId('event-row')
     .getByRole('link', { name: '20260913-SHOWTN', exact: true })

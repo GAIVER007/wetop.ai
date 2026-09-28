@@ -670,6 +670,12 @@ let rejectCreate = false;
 /** ADR-072: режим хранения данных гостей; по умолчанию — как в базе в Казахстане, чтобы прежние экраны не менялись */
 let piiStorage: 'real' | 'pseudonymized' = 'real';
 let failPath = '';
+/** Поля поверх ответов каналов (снимки состояний модуля «Каналы продаж», ADR-112) */
+let channelsOverrides: {
+  connection?: Record<string, unknown>;
+  webhook?: Record<string, unknown>;
+  outbox?: Record<string, unknown>;
+} = {};
 /** Задержка ответа по одному пути: проверка состояния загрузки (B5); 0 — без задержки */
 let delayPath = '';
 let delayMs = 0;
@@ -2655,6 +2661,7 @@ function read(path: string, q: URLSearchParams): unknown {
       lastPullAt: null,
       state: 'READY',
       message: 'Соединение установлено',
+      ...channelsOverrides.connection,
     };
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox')
@@ -2665,8 +2672,9 @@ function read(path: string, q: URLSearchParams): unknown {
           sent: 405,
           lastSentAt: `${today}T09:12:00Z`,
           lastTaskId: 'ui-task-4f2a',
+          ...channelsOverrides.outbox,
         }
-      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
+      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null, ...channelsOverrides.outbox };
   if (path === '/channels/channex/outbox/rows') {
     const st = q.get('status');
     return showcaseOutbox.filter((r) => !st || r.status === st);
@@ -2757,7 +2765,13 @@ function read(path: string, q: URLSearchParams): unknown {
       },
     ];
   if (path === '/channels/channex/webhook/status')
-    return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
+    return {
+      registered: false,
+      active: false,
+      expectedUrl: null,
+      secretConfigured: false,
+      ...channelsOverrides.webhook,
+    };
   if (path === '/audit') {
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');
@@ -2925,6 +2939,7 @@ createServer(async (req, res) => {
       commands = [];
       rejectCreate = false;
       failPath = '';
+      channelsOverrides = {};
       delayPath = '';
       delayMs = 0;
       failStatus = 503;
@@ -2977,6 +2992,12 @@ createServer(async (req, res) => {
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
+      // состояния модуля «Каналы продаж» (ADR-112) для снимков и проверок: поля поверх ответов
+      // connection / webhook/status / outbox; сбрасывается reset или control без поля
+      channelsOverrides =
+        body['channelsOverrides'] && typeof body['channelsOverrides'] === 'object'
+          ? (body['channelsOverrides'] as typeof channelsOverrides)
+          : {};
       // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
       if (body['tentative'] === true) {
         card.status = 'TENTATIVE';

@@ -111,11 +111,14 @@ for (const theme of ['light', 'dark'] as const) {
     );
     await page.setViewportSize({ width: 1440, height: 1000 });
 
-    // журнал интеграции: очередь, события, ревизия с ошибкой
+    // модуль «Каналы продаж» (ADR-112): обзор и журнал событий
     await page.goto('/channels');
-    await expect(main.getByTestId('event-row')).toHaveCount(3);
+    await expect(main.getByTestId('outbox-pending')).toBeVisible();
     await shot(page, 'channels', theme);
     await shot(page, 'channels-full', theme, true);
+    await page.goto('/channels/events');
+    await expect(main.getByTestId('event-row')).toHaveCount(3);
+    await shot(page, 'channels-events', theme);
 
     // список броней и гости — одной строкой (правки 15.09)
     await page.goto('/reservations');

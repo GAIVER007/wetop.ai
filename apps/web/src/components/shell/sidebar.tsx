@@ -36,12 +36,15 @@ export function Sidebar({
   desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
-  // «Категории» и «Доступность» — вкладки «Номерного фонда» (ADR-108): подсвечивается его пункт
+  // Вкладки модулей — не пункты меню: активен их корень («Гостиница», «Номерной фонд» ADR-108,
+  // «Каналы продаж» ADR-112)
   const active = route?.startsWith('/hotel-settings')
     ? '/hotel-settings'
     : route?.startsWith('/rooms')
       ? '/inventory'
-      : route;
+      : route?.startsWith('/channels')
+        ? '/channels'
+        : route;
   const activeSection = sidebarSections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;

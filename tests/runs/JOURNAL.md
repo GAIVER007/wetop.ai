@@ -3488,3 +3488,6 @@
 | 28.09.2026 14:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts) | ✅ 1 из 1 | 16 с | 8d99beb | [лог](logs/2026-09-28T09-36-08Z-e2e-71cb.log) |  |
 | 28.09.2026 22:46 | unit (частично: apps/web/src/lib/website.test.ts) | ❌ упало 1 из 30 | 4 с | f5fc9ac +1 | [лог](logs/2026-09-28T17-46-25Z-unit-7eae.log) | ввод домена (WEB2) пустой ввод и не-адрес названы словами до запроса в API |
 | 28.09.2026 22:46 | unit (частично: apps/web/src/lib/website.test.ts) | ✅ 30 из 30 | 2 с | f5fc9ac +3 | [лог](logs/2026-09-28T17-46-44Z-unit-3e11.log) |  |
+| 28.09.2026 22:47 | typecheck | ✅ без ошибок | 30 с | 3f87ad5 +1 | [лог](logs/2026-09-28T17-47-05Z-typecheck-6040.log) |  |
+| 28.09.2026 22:47 | lint | ✅ без ошибок | 18 с | 3f87ad5 +1 | [лог](logs/2026-09-28T17-47-36Z-lint-c2d6.log) |  |
+| 28.09.2026 22:47 | unit | ✅ 2154 из 2157, пропущено 3 | 1 мин 24 с | 3f87ad5 +1 | [лог](logs/2026-09-28T17-47-58Z-unit-c781.log) |  |

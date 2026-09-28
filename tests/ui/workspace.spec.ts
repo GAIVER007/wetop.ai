@@ -62,7 +62,7 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings', 'Настройки объекта'],
     ['/hotel-settings/check-in', 'Настройки объекта'],
     ['/hotel-settings/stay', 'Настройки объекта'],
-    ['/hotel-settings/penalties', 'Цены и ограничения'],
+    ['/hotel-settings/penalties', 'Тарифы и цены'],
     ['/hotel-settings/services', 'Настройки объекта'],
     ['/hotel-settings/description', 'Настройки объекта'],
     ['/hotel-settings/photos', 'Интеграции'],

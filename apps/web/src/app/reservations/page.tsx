@@ -5,7 +5,6 @@ import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
 import { Alert, Button, Field, Input, Select, StatusBadge, Table } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
-import { AmountChip } from '../../components/amount-chip';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { formatMoney } from '../../lib/money';
@@ -14,7 +13,8 @@ import { nightsBetween, pluralRu } from '../../lib/plural';
 import { DatesToggle } from './dates-toggle';
 import { DensityScope } from './density-toggle';
 import { FiltersToggle } from './filters-toggle';
-import { financeState } from './finance-state';
+import { PreviewRows } from './preview-rows';
+import { FinanceLine } from './finance-line';
 import { deskShell } from '../../lib/desk-shell';
 import { inventoryEditorApi } from '../../lib/api';
 import {
@@ -41,42 +41,7 @@ import {
   sourceNames,
   reservationStatuses,
   reservationStatusWords,
-  type ReservationListRow,
 } from '../../lib/hotel-api';
-
-/** Вторая строка колонки «Финансы» (ADR-106): состояние по счетам, слова из DESIGN.md §14 */
-function FinanceLine({ row }: { row: ReservationListRow }) {
-  const state = financeState(row);
-  switch (state.kind) {
-    case 'unpaid':
-      return <span className="warn-text reservations-fin">не оплачено</span>;
-    case 'due':
-      return (
-        <AmountChip
-          className="reservations-fin"
-          tone="due"
-          minor={state.minor}
-          currency={row.currency}
-        />
-      );
-    case 'refund-due':
-      return (
-        <AmountChip
-          className="reservations-fin"
-          tone="refund"
-          label="к возврату"
-          minor={state.minor}
-          currency={row.currency}
-        />
-      );
-    case 'refunded':
-      return <span className="muted reservations-fin">возвращено</span>;
-    case 'paid':
-      return <span className="dir-paid reservations-fin">оплачено</span>;
-    default:
-      return <span className="muted reservations-fin">—</span>;
-  }
-}
 
 export default async function ReservationsPage({
   searchParams,
@@ -449,7 +414,7 @@ export default async function ReservationsPage({
                     <th>Статус</th>
                   </tr>
                 </thead>
-                <tbody>
+                <PreviewRows>
                   {result.rows.map((r) => {
                     const nights = nightsBetween(r.arrivalDate, r.departureDate);
                     const itemsCount = r.itemsCount ?? (r.unitCodes.length || 1);
@@ -531,7 +496,7 @@ export default async function ReservationsPage({
                       </tr>
                     );
                   })}
-                </tbody>
+                </PreviewRows>
               </Table>
             )}
             {!result.rows.length && (

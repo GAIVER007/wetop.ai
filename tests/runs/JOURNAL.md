@@ -3886,3 +3886,39 @@
 | 29.09.2026 01:51 | lint | ✅ без ошибок | 15 с | a9b06de +14 | [лог](logs/2026-09-28T20-51-52Z-lint-b334.log) |  |
 | 29.09.2026 01:52 | unit | ✅ 2249 из 2252, пропущено 3 | 1 мин 12 с | a9b06de +13 | [лог](logs/2026-09-28T20-52-08Z-unit-2d80.log) |  |
 | 29.09.2026 01:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.t | ✅ 25 из 25 | 1 мин 24 с | a9b06de +13 | [лог](logs/2026-09-28T20-53-26Z-e2e-2f77.log) | INT2: спеки «Интеграций» и навигации на дереве, слитом с main 5a0473b (K1 #146) |
+| 28.09.2026 23:48 | typecheck | ✅ без ошибок | 33 с | 9774342 | [лог](logs/2026-09-28T18-48-59Z-typecheck-30f8.log) | R3 merged with main e0ac75fb |
+| 28.09.2026 23:49 | lint | ✅ без ошибок | 19 с | 9774342 | [лог](logs/2026-09-28T18-49-33Z-lint-16ce.log) | R3 merged with main e0ac75fb |
+| 28.09.2026 23:49 | unit | ✅ 2143 из 2146, пропущено 3 | 1 мин 25 с | 9774342 | [лог](logs/2026-09-28T18-49-55Z-unit-124c.log) | R3 merged with main e0ac75fb |
+| 28.09.2026 23:51 | integration | ✅ 110 из 110 | 32 с | 9774342 | [лог](logs/2026-09-28T18-51-39Z-integration-7fbd.log) | R3 merged with main e0ac75fb |
+| 28.09.2026 23:53 | e2e | ❌ упало 2 из 25 | 4 мин 42 с | 9774342 | [лог](logs/2026-09-28T18-53-01Z-e2e-1f97.log) | live e2e, R3 merged with main e0ac75fb |
+| 28.09.2026 23:58 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ❌ упало 2 из 3 | 4 мин 9 с | e0ac75f | [лог](logs/2026-09-28T18-58-34Z-e2e-01bb.log) | baseline: clean main e0ac75fb, the two reds of the R3 merge |
+| 29.09.2026 00:03 | e2e | ✅ 25 из 25 | 59 с | 9774342 +1 | [лог](logs/2026-09-28T19-03-46Z-e2e-f65d.log) | live e2e, R3 merged with main e0ac75fb + ported #135 seed fix |
+| 29.09.2026 00:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 24 с | e0ac75f | [лог](logs/2026-09-28T19-50-00Z-e2e-b59b.log) | baseline: workspace:159 on clean main e0ac75fb |
+| 29.09.2026 00:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ❌ упало 1 из 98 | 6 мин 40 с | 22c300b | [лог](logs/2026-09-28T19-51-18Z-e2e-260c.log) | UI reservations + manager-actions + workspace on R3 merged tree; full UI log 19-05-26Z-e2e-511d is 520/521, its journal line was lost on a branch switch |
+| 29.09.2026 01:00 | typecheck | ✅ без ошибок | 29 с | 2603702 | [лог](logs/2026-09-28T20-00-39Z-typecheck-9838.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:01 | lint | ✅ без ошибок | 17 с | 2603702 | [лог](logs/2026-09-28T20-01-09Z-lint-94f8.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:01 | unit | ✅ 2171 из 2174, пропущено 3 | 1 мин 17 с | 2603702 | [лог](logs/2026-09-28T20-01-26Z-unit-85f8.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:02 | integration | ✅ 114 из 114 | 33 с | 2603702 | [лог](logs/2026-09-28T20-02-58Z-integration-b374.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:03 | e2e | ❌ упало 5 из 25 | 2 мин 3 с | 2603702 | [лог](logs/2026-09-28T20-03-53Z-e2e-67d4.log) | live e2e, R3 merged with main 262c73b3 |
+| 29.09.2026 01:06 | e2e | ❌ упало 5 из 25 | 2 мин 4 с | 262c73b | [лог](logs/2026-09-28T20-06-42Z-e2e-347a.log) | baseline: live e2e on clean main 262c73b3 |
+| 29.09.2026 01:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ✅ 117 из 117 | 7 мин 48 с | 2603702 | [лог](logs/2026-09-28T20-09-08Z-e2e-b702.log) | UI: reservations R1-R3, B3, workspace, availability, Today on R3 merged with main 262c73b3 |
+| 29.09.2026 01:18 | typecheck | ✅ без ошибок | 30 с | 1f1d7eb | [лог](logs/2026-09-28T20-18-42Z-typecheck-68c6.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:19 | lint | ✅ без ошибок | 16 с | 1f1d7eb | [лог](logs/2026-09-28T20-19-12Z-lint-99e4.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:19 | unit | ✅ 2197 из 2200, пропущено 3 | 1 мин 18 с | 1f1d7eb | [лог](logs/2026-09-28T20-19-28Z-unit-d0c9.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:21 | integration | ✅ 116 из 116 | 35 с | 1f1d7eb | [лог](logs/2026-09-28T20-21-03Z-integration-3e88.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ❌ упало 1 из 141 | 10 мин 16 с | 1f1d7eb | [лог](logs/2026-09-28T20-21-39Z-e2e-661f.log) | UI: reservations R1-R3, B3, tabs, workspace, availability, Today, guests, inventory on R3 merged with main 33b89529 |
+| 29.09.2026 01:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts:77) | ❌ упало 1 из 1 | 51 с | 33b8952 | [лог](logs/2026-09-28T20-32-15Z-e2e-9c04.log) | baseline: record-tabs:77 on clean main 33b89529 |
+| 29.09.2026 01:33 | e2e | ❌ упало 6 из 25 | 2 мин 11 с | 1f1d7eb | [лог](logs/2026-09-28T20-33-38Z-e2e-75b0.log) | live e2e, R3 merged with main 33b89529 |
+| 29.09.2026 01:36 | e2e (частично: tests/e2e/desk-day.spec.ts) | ❌ упало 1 из 2 | 12 с | 33b8952 | [лог](logs/2026-09-28T20-36-19Z-e2e-4e89.log) | baseline: desk-day on clean main 33b89529 |
+| 29.09.2026 01:38 | typecheck | ✅ без ошибок | 29 с | 9b5a9c1 | [лог](logs/2026-09-28T20-38-16Z-typecheck-9cd5.log) | R3 merged with main 6cf509ad |
+| 29.09.2026 01:38 | lint | ✅ без ошибок | 15 с | 9b5a9c1 | [лог](logs/2026-09-28T20-38-46Z-lint-e811.log) | R3 merged with main 6cf509ad |
+| 29.09.2026 01:39 | unit | ✅ 2222 из 2225, пропущено 3 | 1 мин 16 с | 9b5a9c1 | [лог](logs/2026-09-28T20-39-02Z-unit-8e69.log) | R3 merged with main 6cf509ad |
+| 29.09.2026 01:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ⏹ прерван | 2 мин 1 с | 9b5a9c1 | [лог](logs/2026-09-28T20-40-24Z-e2e-fb42.log) | UI: reservations R1-R3, states, B3, tabs on R3 merged with main 6cf509ad |
+| 29.09.2026 01:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ❌ код выхода 1 | 2 мин 9 с | 9b5a9c1 | [лог](logs/2026-09-28T20-43-25Z-e2e-d998.log) | UI: reservations R1-R3, states, B3, tabs on R3 merged with main 6cf509ad (rerun after worker restart) |
+| 29.09.2026 01:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ❌ упало 1 из 33 | 3 мин 18 с | 9b5a9c1 | [лог](logs/2026-09-28T20-45-51Z-e2e-9b99.log) | UI: reservations R1-R3, states, B3, tabs on R3 merged with main 6cf509ad (.next-ui cache cleared) |
+| 29.09.2026 01:50 | typecheck | ✅ без ошибок | 28 с | 529dce6 | [лог](logs/2026-09-28T20-50-24Z-typecheck-cf2f.log) | R3 merged with main 5a0473bb |
+| 29.09.2026 01:50 | lint | ✅ без ошибок | 16 с | 529dce6 | [лог](logs/2026-09-28T20-50-52Z-lint-97f8.log) | R3 merged with main 5a0473bb |
+| 29.09.2026 01:51 | unit | ✅ 2246 из 2249, пропущено 3 | 1 мин 34 с | 529dce6 | [лог](logs/2026-09-28T20-51-09Z-unit-45de.log) | R3 merged with main 5a0473bb |
+| 29.09.2026 01:55 | typecheck | ✅ без ошибок | 21 с | d2381c6 +11 | [лог](logs/2026-09-28T20-55-29Z-typecheck-9409.log) |  |
+| 29.09.2026 01:55 | lint | ✅ без ошибок | 16 с | d2381c6 +11 | [лог](logs/2026-09-28T20-55-50Z-lint-b77c.log) |  |
+| 29.09.2026 01:56 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 12 с | d2381c6 +10 | [лог](logs/2026-09-28T20-56-07Z-unit-c0b1.log) |  |

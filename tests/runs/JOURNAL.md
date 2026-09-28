@@ -26,3 +26,7 @@
 | 29.09.2026 00:18 | lint | ✅ без ошибок | 16 с | 7485e92 +10 | [лог](logs/2026-09-28T19-18-29Z-lint-8c66.log) | C4a |
 | 29.09.2026 00:18 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 14 с | 7485e92 +8 | [лог](logs/2026-09-28T19-18-46Z-unit-6bd5.log) | C4a |
 | 29.09.2026 00:20 | integration | ✅ 112 из 112 | 33 с | 7485e92 +3 | [лог](logs/2026-09-28T19-20-01Z-integration-9e05.log) | C4a: весь набор |
+| 29.09.2026 00:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 130 | 11 мин 32 с | 213dea7 | [лог](logs/2026-09-28T19-21-01Z-e2e-c4da.log) | C4a: полный UI-набор в один поток |
+| 29.09.2026 00:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/empty-base.spec.ts tests/ui/fund-workspace.spec.ts tests/ui/inventory-catalog.spec.ts | ❌ упало 1 из 142 | 8 мин 43 с | 213dea7 | [лог](logs/2026-09-28T19-32-49Z-e2e-83fa.log) | C4a: спеки фонда и соседних экранов (полный прогон остановлен на 89/89 по просьбе влить сейчас) |
+| 29.09.2026 00:42 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts -g доступность переносит даты) | ✅ 1 из 1 | 9 с | 213dea7 +1 | [лог](logs/2026-09-28T19-42-31Z-e2e-03bf.log) | workspace:159 — даты от сегодня стенда вместо вшитых 01–04.10 |
+| 29.09.2026 00:43 | e2e | ✅ 25 из 25 | 57 с | 213dea7 +1 | [лог](logs/2026-09-28T19-43-14Z-e2e-8548.log) | C4a: живые e2e на свежем стенде |

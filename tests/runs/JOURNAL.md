@@ -3730,6 +3730,10 @@
 | 29.09.2026 00:57 | unit | ✅ 2190 из 2193, пропущено 3 | 1 мин 20 с | e64ebe4 | [лог](logs/2026-09-28T19-57-49Z-unit-7b1a.log) |  |
 | 29.09.2026 00:59 | integration | ✅ 115 из 115 | 35 с | e64ebe4 | [лог](logs/2026-09-28T19-59-09Z-integration-7e5f.log) |  |
 | 29.09.2026 00:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-design.spec.ts tests/ui/empty-base.spec.ts t | ✅ 179 из 179 | 16 мин 51 с | e64ebe4 | [лог](logs/2026-09-28T19-59-53Z-e2e-0e8f.log) |  |
+| 29.09.2026 01:13 | e2e (частично: tests/e2e/chessboard-drag.spec.ts tests/e2e/desk-tasks.spec.ts tests/e2e/manual-reservation.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/unit- | ❌ упало 5 из 6 | 1 мин 54 с | e1adee8 | [лог](logs/2026-09-28T20-13-20Z-e2e-5138.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:15 | lint | ✅ без ошибок | 15 с | e1adee8 +9 | [лог](logs/2026-09-28T20-15-19Z-lint-6046.log) |  |
+| 29.09.2026 01:15 | typecheck | ✅ без ошибок | 19 с | e1adee8 +9 | [лог](logs/2026-09-28T20-15-35Z-typecheck-ae76.log) |  |
+| 29.09.2026 01:16 | e2e | ✅ 25 из 25 | 54 с | e1adee8 +9 | [лог](logs/2026-09-28T20-16-03Z-e2e-0d00.log) |  |
 | 29.09.2026 00:51 | typecheck | ✅ без ошибок | 31 с | 50a1ff8 | [лог](logs/2026-09-28T19-51-55Z-typecheck-71c0.log) |  |
 | 29.09.2026 00:52 | lint | ✅ без ошибок | 17 с | 50a1ff8 | [лог](logs/2026-09-28T19-52-26Z-lint-d6df.log) |  |
 | 29.09.2026 00:52 | unit | ✅ 2173 из 2176, пропущено 3 | 1 мин 24 с | 50a1ff8 | [лог](logs/2026-09-28T19-52-44Z-unit-a34c.log) |  |
@@ -3763,3 +3767,4 @@
 | 29.09.2026 01:19 | unit | ✅ 2216 из 2219, пропущено 3 | 1 мин 19 с | bc27444 +2 | [лог](logs/2026-09-28T20-19-03Z-unit-af7d.log) |  |
 | 29.09.2026 01:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts) | ✅ 19 из 19 | 1 мин 34 с | bc27444 +2 | [лог](logs/2026-09-28T20-20-23Z-e2e-5105.log) |  |
 | 29.09.2026 01:22 | integration | ✅ 117 из 117 | 36 с | bc27444 | [лог](logs/2026-09-28T20-22-08Z-integration-1ff3.log) |  |
+| 29.09.2026 01:18 | e2e | ✅ 25 из 25 | 55 с | 749de72 | [лог](logs/2026-09-28T20-18-25Z-e2e-b2ac.log) |  |

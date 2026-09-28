@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { InventorySummary, InventoryUnit, StayOffers, reservationsApi } from '../../lib/api';
 import { Alert, Button, Field, Input, Select, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
+import { bookingHref } from '../../lib/booking-link';
 import { displayDate } from '../../lib/display-date';
 import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
@@ -61,8 +62,6 @@ export function AvailabilityFinder({
   const visible = showAll
     ? matching
     : matching.filter((c) => c.fits && (c.availability?.available ?? 0) > 0);
-  const booking = (unit: string) =>
-    `/reservations/new?${new URLSearchParams({ arrival, departure, unit })}`;
   return (
     <>
       <form className="fund-search" method="get">
@@ -236,21 +235,29 @@ export function AvailabilityFinder({
                             </p>
                           )}
                           <details>
-                            <summary>
-                              Показать{' '}
-                              {pluralRu(
-                                available,
-                                c.bed ? ['место', 'места', 'мест'] : ['номер', 'номера', 'номеров'],
+                            <summary>{c.bed ? 'Показать места' : 'Показать номера'}</summary>
+                            <UnitPicker
+                              name={c.name}
+                              bed={c.bed}
+                              fits={c.fits}
+                              guests={guests}
+                              free={c.availability?.availableUnitCodes ?? []}
+                              units={units.filter(
+                                (u) => u.accommodationTypeCode === c.code && u.active,
                               )}
-                            </summary>
-                            <div className="fund-members">
-                              {c.availability?.availableUnitCodes.map((code) => (
-                                <Link key={code} className="fund-book-unit" href={booking(code)}>
-                                  {c.bed ? 'Койка' : 'Номер'} {code}
-                                  <span>Создать бронь</span>
-                                </Link>
-                              ))}
-                            </div>
+                              housekeeping={arrival === today}
+                              link={(picked, auto) =>
+                                bookingHref({
+                                  arrival,
+                                  departure,
+                                  category: c.code,
+                                  rate: offers?.byCategory[c.code]?.ratePlanCode,
+                                  adults: c.bed ? 1 : guests,
+                                  units: picked,
+                                  auto,
+                                })
+                              }
+                            />
                           </details>
                         </>
                       )}
@@ -274,6 +281,116 @@ export function AvailabilityFinder({
         )
       )}
     </>
+  );
+}
+
+/** Номер ячейки как число (1, 5, 41…), иначе строка — тот же порядок, что у `firstFreeUnit` API */
+const byUnitNumber = (a: string, b: string) => {
+  const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
+  return num(a) - num(b) || a.localeCompare(b);
+};
+
+/**
+ * Места категории компактным списком (ADR-110, AV3). «Выбрать автоматически» — место назначит API по правилу
+ * Q-094 (флаг `autoAssign`, у коек на нескольких гостей — групповая бронь); «Выбрать» — конкретное место.
+ * Койки на N гостей: отмечается до N коек, остальные назначит система. Уборка — только подсказка при заезде
+ * сегодня: продажу она не запрещает.
+ */
+function UnitPicker({
+  name,
+  bed,
+  fits,
+  guests,
+  free,
+  units,
+  housekeeping,
+  link,
+}: {
+  name: string;
+  bed: boolean;
+  fits: boolean;
+  guests: number;
+  free: readonly string[];
+  units: readonly InventoryUnit[];
+  housekeeping: boolean;
+  link: (picked: string[], auto: number) => string;
+}) {
+  const [picked, setPicked] = useState<string[]>([]);
+  const several = bed && guests > 1;
+  const freeSet = new Set(free);
+  const unitByCode = new Map(units.map((u) => [u.code, u]));
+  const codes = [...new Set([...units.map((u) => u.code), ...free])].sort(byUnitNumber);
+  const what = bed ? 'койку' : 'номер';
+  return (
+    <div className="fund-units">
+      {fits && (
+        <div className="fund-units-action">
+          <Link className="btn btn--sm" href={link([], bed ? guests : 1)}>
+            Выбрать автоматически
+          </Link>
+          <span className="muted">
+            {several
+              ? `Система назначит ${pluralRu(guests, ['койку', 'койки', 'коек'])} — первые свободные по номеру`
+              : 'Система назначит первое свободное место по номеру'}
+          </span>
+        </div>
+      )}
+      <ul className="fund-unit-list" aria-label={`Места: ${name}`}>
+        {codes.map((code) => {
+          const isFree = freeSet.has(code);
+          const on = picked.includes(code);
+          const dirty = housekeeping && unitByCode.get(code)?.housekeepingStatus === 'DIRTY';
+          return (
+            <li key={code} className={cx(!isFree && 'is-off')}>
+              <b>{code}</b>
+              <span className={cx(!isFree && 'muted')}>
+                {!isFree ? 'недоступно' : dirty ? 'свободно, нужна уборка' : 'свободно'}
+              </span>
+              {isFree &&
+                fits &&
+                (several ? (
+                  <button
+                    type="button"
+                    className={cx('btn btn--sm', !on && 'btn--secondary')}
+                    aria-pressed={on}
+                    aria-label={`Выбрать ${what} ${code}`}
+                    disabled={!on && picked.length >= guests}
+                    onClick={() =>
+                      setPicked((list) =>
+                        on ? list.filter((item) => item !== code) : [...list, code],
+                      )
+                    }
+                  >
+                    {on ? 'Выбрано' : 'Выбрать'}
+                  </button>
+                ) : (
+                  <Link
+                    className="btn btn--secondary btn--sm fund-book-unit"
+                    href={link([code], 0)}
+                    aria-label={`Выбрать ${what} ${code}`}
+                  >
+                    Выбрать
+                  </Link>
+                ))}
+            </li>
+          );
+        })}
+      </ul>
+      {several && picked.length > 0 && (
+        <div className="fund-units-action" role="status">
+          <Link
+            className="btn btn--sm"
+            href={link([...picked].sort(byUnitNumber), guests - picked.length)}
+          >
+            Создать бронь
+          </Link>
+          <span className="muted">
+            Выбрано {picked.length} из {guests}
+            {picked.length < guests ? ' — остальные назначит система' : ''}
+          </span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -313,7 +430,8 @@ function OfferPrice({
       <b>Итого от {money(offer.totalMinor)}</b>
       <span className="muted">от {money(offer.perNightMinor)} / койка / ночь</span>
       <span className="muted">
-        {pluralRu(guests, ['гость', 'гостя', 'гостей'])}, {pluralRu(nights, ['ночь', 'ночи', 'ночей'])}
+        {pluralRu(guests, ['гость', 'гостя', 'гостей'])},{' '}
+        {pluralRu(nights, ['ночь', 'ночи', 'ночей'])}
       </span>
       {plans}
     </div>

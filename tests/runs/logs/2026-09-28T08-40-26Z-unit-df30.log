@@ -1,0 +1,245 @@
+# Модульные (unit) · 28.09.2026 13:40 Алматы · vm
+# коммит 1b187fa (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-40-26Z-unit-df30.json' 'packages/domain/src/dashboard/metrics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/dashboard/metrics.test.ts (16 tests | 7 failed) 51ms
+   ❯ buildDashboard (8)
+     ✓ загрузка — клетко-ночи шахматки: занято / (единиц × ночей) 6ms
+     ✓ деньги — начислено по видам, оплачено по способам, ADR и RevPAR целочисленно в тиынах 2ms
+     ✓ заезды и выезды по датам периода; отмены и незаезды отдельно; гости — взрослые и дети заехавших 1ms
+     ✓ источники — по заездам без отмен, доля от заездов, канал важнее источника 1ms
+     × категории — свои клетко-ночи, загрузка, выручка за проживание и ADR 16ms
+     ✓ по дням — занятость, заезды/выезды и начисленное за проживание на каждую дату 1ms
+     ✓ пустой период: нули, ADR и RevPAR — null, а не деление на ноль 1ms
+     ✓ число дней должно совпадать с периодом — иначе загрузка врёт 1ms
+   ❯ buildDashboard: брони и тип фонда (4)
+     × брони — все проживания с заездом в периоде; отмены и незаезды долей; средний чек — по действующим 4ms
+     ✓ состав фонда виден при любом типе: номеров и коек сколько есть 3ms
+     ✓ номера: считаются только категории из номеров — койки в среднюю цену номера не попадают 2ms
+     × койки: своя загрузка с блокировками в знаменателе, своя средняя цена и свои отмены 2ms
+   ❯ buildDashboard: бронь — это Reservation, а не место внутри неё (4)
+     × групповая бронь на три койки — одна бронь и три размещения; средний чек — на бронь 3ms
+     × источники считают брони: группа из телефона — одна бронь с суммой за три места 2ms
+     × отменённое место в действующей группе: бронь остаётся, стоимость — без отменённого места 2ms
+     × отменённая групповая бронь — одна отмена, а не три 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/metrics.test.ts > buildDashboard > категории — свои клетко-ночи, загрузка, выручка за проживание и ADR
+AssertionError: expected [ { code: 'ROOM', …(8) }, …(1) ] to deeply equal [ { code: 'ROOM', …(11) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+      "adrMinor": "1000000",
+-     "blockedNights": 0,
+      "code": "ROOM",
+-     "freeNights": 1,
+      "kind": "ROOM",
+      "name": "Двухместная",
+      "occupiedNights": 3,
+      "percent": 75,
+      "revenueMinor": "3000000",
+-     "unassigned": 0,
+      "unitNights": 4,
+      "units": 2,
+    },
+    {
+      "adrMinor": "125000",
+-     "blockedNights": 1,
+      "code": "DORM",
+-     "freeNights": 1,
+      "kind": "BED",
+      "name": "Мужская общая",
+      "occupiedNights": 4,
+      "percent": 66.7,
+      "revenueMinor": "500000",
+-     "unassigned": 1,
+      "unitNights": 6,
+      "units": 3,
+    },
+  ]
+
+ ❯ packages/domain/src/dashboard/metrics.test.ts:187:26
+    185|   it('категории — свои клетко-ночи, загрузка, выручка за проживание и …
+    186|     const d = buildDashboard(input());
+    187|     expect(d.categories).toEqual([
+       |                          ^
+    188|       {
+    189|         code: 'ROOM',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/metrics.test.ts > buildDashboard: брони и тип фонда > брони — все проживания с заездом в периоде; отмены и незаезды долей; средний чек — по действующим
+AssertionError: expected { total: 4, active: 2, …(6) } to deeply equal { total: 4, active: 2, stays: 2, …(6) }
+
+- Expected
++ Received
+
+@@ -3,9 +3,8 @@
+    "averageMinor": "1750000",
+    "cancelled": 1,
+    "cancelledPercent": 25,
+    "noShow": 1,
+    "noShowPercent": 25,
+-   "stays": 2,
+    "total": 4,
+    "valueMinor": "3500000",
+  }
+
+ ❯ packages/domain/src/dashboard/metrics.test.ts:276:24
+    274|   it('брони — все проживания с заездом в периоде; отмены и незаезды до…
+    275|     const d = buildDashboard(input());
+    276|     expect(d.bookings).toEqual({
+       |                        ^
+    277|       total: 4,
+    278|       active: 2,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/metrics.test.ts > buildDashboard: брони и тип фонда > койки: своя загрузка с блокировками в знаменателе, своя средняя цена и свои отмены
+AssertionError: expected { total: 3, active: 1, …(6) } to deeply equal { total: 3, active: 1, stays: 1, …(6) }
+
+- Expected
++ Received
+
+@@ -3,9 +3,8 @@
+    "averageMinor": "500000",
+    "cancelled": 1,
+    "cancelledPercent": 33.3,
+    "noShow": 1,
+    "noShowPercent": 33.3,
+-   "stays": 1,
+    "total": 3,
+    "valueMinor": "500000",
+  }
+
+ ❯ packages/domain/src/dashboard/metrics.test.ts:340:24
+    338|     // 500 000 / 6 клетко-ночей — целочисленно в тиынах
+    339|     expect(d.revparMinor).toBe('83333');
+    340|     expect(d.bookings).toEqual({
+       |                        ^
+    341|       total: 3,
+    342|       active: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/metrics.test.ts > buildDashboard: бронь — это Reservation, а не место внутри неё > групповая бронь на три койки — одна бронь и три размещения; средний чек — на бронь
+AssertionError: expected { total: 7, active: 5, …(6) } to match object { total: 5, active: 3, stays: 5, …(2) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "active": 3,
++   "active": 5,
+    "cancelled": 1,
+    "noShow": 1,
+-   "stays": 5,
+-   "total": 5,
++   "total": 7,
+  }
+
+ ❯ packages/domain/src/dashboard/metrics.test.ts:382:24
+    380|     const d = buildDashboard(withGroup());
+    381|     // брони: R-1, R-2, отменённая R-3, незаезд R-4 и группа G-1 = 5; …
+    382|     expect(d.bookings).toMatchObject({ total: 5, active: 3, stays: 5, …
+       |                        ^
+    383|     expect(d.bookings.cancelledPercent).toBe(20);
+    384|     // 3 000 000 + 500 000 + 3 × 200 000 = 4 100 000 на три брони
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/metrics.test.ts > buildDashboard: бронь — это Reservation, а не место внутри неё > источники считают брони: группа из телефона — одна бронь с суммой за три места
+AssertionError: expected { Object (source, channel, ...) } to deeply equal { Object (source, channel, ...) }
+
+- Expected
++ Received
+
+  {
+    "amountMinor": "600000",
+    "channel": null,
+-   "count": 1,
+-   "share": 33.3,
++   "count": 3,
++   "share": 60,
+    "source": "PHONE",
+  }
+
+ ❯ packages/domain/src/dashboard/metrics.test.ts:391:57
+    389|   it('источники считают брони: группа из телефона — одна бронь с суммо…
+    390|     const d = buildDashboard(withGroup());
+    391|     expect(d.sources.find((x) => x.source === 'PHONE')).toEqual({
+       |                                                         ^
+    392|       source: 'PHONE',
+    393|       channel: null,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/metrics.test.ts > buildDashboard: бронь — это Reservation, а не место внутри неё > отменённое место в действующей группе: бронь остаётся, стоимость — без отменённого места
+AssertionError: expected { total: 7, active: 4, …(6) } to match object { total: 5, active: 3, stays: 4, …(1) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "active": 3,
+-   "cancelled": 1,
+-   "stays": 4,
+-   "total": 5,
++   "active": 4,
++   "cancelled": 2,
++   "total": 7,
+  }
+
+ ❯ packages/domain/src/dashboard/metrics.test.ts:402:24
+    400|   it('отменённое место в действующей группе: бронь остаётся, стоимость…
+    401|     const d = buildDashboard(withGroup(group('CONFIRMED', ['CONFIRMED'…
+    402|     expect(d.bookings).toMatchObject({ total: 5, active: 3, stays: 4, …
+       |                        ^
+    403|     expect(d.bookings.valueMinor).toBe('3900000');
+    404|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| packages/domain/src/dashboard/metrics.test.ts > buildDashboard: бронь — это Reservation, а не место внутри неё > отменённая групповая бронь — одна отмена, а не три
+AssertionError: expected { total: 7, active: 2, …(6) } to match object { total: 5, active: 2, …(2) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "active": 2,
+-   "cancelled": 2,
++   "cancelled": 4,
+    "noShow": 1,
+-   "total": 5,
++   "total": 7,
+  }
+
+ ❯ packages/domain/src/dashboard/metrics.test.ts:410:24
+    408|       withGroup(group('CANCELLED', ['CANCELLED', 'CANCELLED', 'CANCELL…
+    409|     );
+    410|     expect(d.bookings).toMatchObject({ total: 5, active: 2, cancelled:…
+       |                        ^
+    411|     expect(d.bookings.cancelledPercent).toBe(40);
+    412|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 9 passed (16)
+   Start at  08:40:27
+   Duration  591ms (transform 68%, tests 21%, import 8%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-40-26Z-unit-df30.json
+
+# код выхода 1 · 2 с

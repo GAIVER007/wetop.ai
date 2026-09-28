@@ -8,8 +8,8 @@ const nextDay = (iso: string) =>
 
 /**
  * Полоса дня (A1, ADR-103): Главная живёт одним операционным днём — сегодня, завтра или выбранная
- * дата (`?date=`, как раньше). Отрезков здесь больше нет: периоды и сравнение — на
- * «Показателях за период» (`/management/dashboard`). Пресеты — GET-ссылки без JS, как в PeriodBar.
+ * дата (`?date=`, как раньше). Отрезков здесь больше нет: периоды и сравнение — в «Аналитике»
+ * (`/management/analytics`, ADR-114). Пресеты — GET-ссылки без JS.
  */
 export function DayBar({ date, today }: { date: string; today: string }) {
   const tomorrow = nextDay(today);

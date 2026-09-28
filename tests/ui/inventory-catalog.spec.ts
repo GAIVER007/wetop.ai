@@ -44,9 +44,10 @@ test('прямая ссылка на категорию сохраняется, 
     'true',
   );
   await main.getByRole('button', { name: 'Список', exact: true }).click();
+  // место открывается панелью справа поверх фонда (ADR-108, I2), адрес — карточки места
   await main.getByRole('link', { name: 'Открыть номер R01', exact: true }).click();
   await expect(page).toHaveURL(/\/units\/R01/);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('R01');
+  await expect(page.getByRole('dialog', { name: 'Номер R01' })).toBeVisible();
 });
 
 test('таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают', async ({
@@ -70,10 +71,16 @@ test('таблица показывает расположение, состоя
   // строка сама открывает карточку места: клик по обычной ячейке, не по ссылке (ТЗ §12)
   await row('R02').locator('td').nth(1).click();
   await expect(page).toHaveURL(/\/units\/R02/);
+  await expect(page.getByRole('dialog', { name: 'Номер R02' })).toBeVisible();
   await page.goBack();
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
   // кнопок «Редактировать» в строках больше нет — действия в меню «⋯»
   await expect(main.getByRole('button', { name: 'Редактировать', exact: true })).toHaveCount(0);
   await main.getByRole('button', { name: 'Действия: R03', exact: true }).click();
+  // строка открывает панель, меню — полную карточку: пункт назван тем, куда ведёт (I2)
+  await expect(
+    page.getByRole('menuitem', { name: 'Полная карточка', exact: true }),
+  ).toHaveAttribute('href', '/units/R03');
   await page.getByRole('menuitem', { name: 'Переименовать комнату', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Редактировать комнату' })).toBeVisible();
 });
@@ -149,4 +156,99 @@ test('категория и тип пересекаются, фильтр дос
   await main.getByRole('link', { name: 'Открыть номер R01', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/units\/R01/);
+  await expect(page.getByRole('dialog', { name: 'Номер R01' })).toBeVisible();
 });
+
+test('панель места: факты, сейчас и следующее, уборка из панели; Escape возвращает фонд с фильтрами', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/inventory?kind=ROOM');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('unit-row')).toHaveCount(16);
+  await main
+    .getByTestId('unit-row')
+    .filter({ has: page.getByRole('link', { name: 'Открыть номер R09', exact: true }) })
+    .locator('td')
+    .nth(1)
+    .click();
+  const drawer = page.getByRole('dialog', { name: 'Номер R09' });
+  await expect(drawer).toBeVisible();
+  await expect(page).toHaveURL(/\/units\/R09$/);
+  await expect(drawer.getByTestId('unit-category')).toHaveText(
+    'Одноместная комната с окном и балконом',
+  );
+  await expect(drawer.getByTestId('unit-place')).toContainText('Корпус Основной');
+  await expect(drawer.getByTestId('unit-capacity')).toHaveText('2 гостя');
+  await expect(drawer.getByTestId('unit-state')).toContainText('заблокирована');
+  await expect(drawer.getByTestId('unit-state')).toContainText('ремонт: кондиционер');
+  await expect(drawer.getByTestId('unit-now')).toHaveText('свободно');
+  await expect(drawer.getByTestId('unit-next')).toContainText('бронь');
+  // даты блокировки словами, без « · » и сырых 2026-09-28
+  await expect(drawer.getByTestId('block-row').first()).not.toContainText(/\d{4}-\d{2}-\d{2}/);
+  // под панелью фонд с тем же фильтром: список не перерисовался на пустые параметры адреса панели
+  await expect(main.getByTestId('unit-row')).toHaveCount(16);
+  // уборка из панели — тем же блоком, что в карточке
+  await drawer.getByTestId('hk-DIRTY').click();
+  await expect(drawer.getByTestId('unit-hk')).toHaveText('требует уборки');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page).toHaveURL(/\/inventory\?kind=ROOM$/);
+  await expect(
+    main
+      .getByTestId('unit-row')
+      .filter({ has: page.getByRole('link', { name: 'Открыть номер R09', exact: true }) }),
+  ).toContainText('требует уборки');
+  // прямой заход по адресу — полная карточка с теми же фактами, без панели
+  await page.goto('/units/R09');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('R09');
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('unit-facts')).toBeVisible();
+});
+
+test('панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат', async ({
+  page,
+  request,
+}) => {
+  // дизайн-сид: R08 — гость заселён до завтра; R07 — отменённая бронь на сегодня и незаезд со вчера
+  await request.post(`${fixture}/__test/design-seed`);
+  const open = async (code: string) => {
+    await page.goto('/inventory?kind=ROOM');
+    await page
+      .getByRole('main')
+      .getByRole('link', { name: `Открыть номер ${code}`, exact: true })
+      .click();
+    const drawer = page.getByRole('dialog', { name: `Номер ${code}` });
+    await expect(drawer).toBeVisible();
+    return drawer;
+  };
+  const living = await open('R08');
+  await expect(living.getByTestId('unit-now')).toContainText('живёт');
+  await expect(living.getByTestId('unit-now')).toContainText('DSG-DESK');
+  await page.keyboard.press('Escape');
+  // как GET /units/:code — отменённые и незаезды в карточку места не попадают
+  await expect((await open('R07')).getByTestId('unit-now')).toHaveText('свободно');
+});
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`панель места доступна: ${theme}`, async ({ page, request }) => {
+    await request.post(`${fixture}/__test/design-seed`);
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/inventory?kind=ROOM');
+      await page
+        .getByRole('main')
+        .getByRole('link', { name: 'Открыть номер R09', exact: true })
+        .click();
+      await expect(page.getByRole('dialog', { name: 'Номер R09' })).toBeVisible();
+      const audit = await new AxeBuilder({ page })
+        .include('dialog[open]')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze();
+      expect(audit.violations).toEqual([]);
+      await page.keyboard.press('Escape');
+    }
+  });
+}

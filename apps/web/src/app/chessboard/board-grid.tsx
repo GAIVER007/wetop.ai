@@ -126,7 +126,11 @@ export function ChessboardGrid({
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
   const [category, setCategory] = useState(searchParams.get('category') ?? '');
-  const [kind, setKind] = useState('');
+  // тип места из адреса — так «Аналитика → Загрузка» открывает шахматку уже на номерах или койках
+  const [kind, setKind] = useState(() => {
+    const k = searchParams.get('kind');
+    return k === 'ROOM' || k === 'BED' ? k : '';
+  });
   const [state, setState] = useState('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filtersId = useId();

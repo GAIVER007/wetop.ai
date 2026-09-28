@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
@@ -38,7 +39,7 @@ test('сутки гостя целиком: заезд, услуга на счё
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, arrival, departure));
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  const unitCode = await unitOption(unitSelect);
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-сутки');
@@ -70,6 +71,8 @@ test('сутки гостя целиком: заезд, услуга на счё
     .getByTestId('guest-form')
     .getByRole('button', { name: 'Сохранить' })
     .click();
+  // G5: документы — своя вкладка карточки гостя
+  await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();
   const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000777');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');

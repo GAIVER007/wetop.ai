@@ -34,6 +34,27 @@ test('новая бронь без имени и контактов: объяс�
   expect(guest['lastName']).toBeUndefined();
 });
 
+test('бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/control`, { data: { piiStorage: 'pseudonymized' } });
+  await page.goto('/reservations/new?guest=ui-guest');
+  const form = page.getByTestId('new-reservation-form');
+  await expect(form.getByTestId('booking-guest')).toContainText('Гость Тестовый');
+  await expect(form.getByTestId('guest-pseudonymized')).toHaveCount(0);
+  await form.locator('[name="source"]').selectOption('PHONE');
+  await form.getByRole('button', { name: 'Создать бронь' }).click();
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+  const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+    path: string;
+    body: Record<string, unknown>;
+  }>;
+  const body = commands.filter((c) => c.path === '/reservations').at(-1)?.body ?? {};
+  expect(body['guestId']).toBe('ui-guest');
+  expect(body).not.toHaveProperty('guest');
+});
+
 test('карточка гостя: меняются только гражданство и пол, документы не вносятся', async ({
   page,
   request,
@@ -52,8 +73,11 @@ test('карточка гостя: меняются только граждан�
     'notes',
   ])
     await expect(form.locator(`[name="${name}"]`)).toHaveCount(0);
+  // G5: документы — своя вкладка карточки
+  await page.getByRole('tab', { name: 'Документы', exact: true }).click();
   await expect(page.getByTestId('document-form')).toHaveCount(0);
   await expect(page.getByTestId('documents-pseudonymized')).toBeVisible();
+  await page.getByRole('tab', { name: 'Данные гостя', exact: true }).click();
   await form.locator('[name="citizenship"]').fill('KAZ');
   await form.getByRole('button', { name: 'Сохранить' }).click();
   await expect

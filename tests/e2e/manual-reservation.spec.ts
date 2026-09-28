@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 
@@ -21,7 +22,7 @@ test('создать бронь с ячейкой → видна в шахмат
   const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = await unitSelect.locator('option').nth(1).getAttribute('value');
+  const unitCode = await unitOption(unitSelect);
   expect(unitCode).toBeTruthy();
   await unitSelect.selectOption(unitCode!);
   await form.locator('input[name="firstName"]').fill('Гость');

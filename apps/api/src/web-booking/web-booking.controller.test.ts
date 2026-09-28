@@ -55,7 +55,7 @@ const firstPageview = () =>
 const types = [
   {
     id: 't1',
-    code: 'exely-900001',
+    code: 'category-single',
     name: 'Одиночная',
     active: true,
     capacityAdults: 1,
@@ -63,7 +63,7 @@ const types = [
   },
   {
     id: 't2',
-    code: 'exely-900002',
+    code: 'category-twin',
     name: 'Двойная',
     active: true,
     capacityAdults: 2,
@@ -71,7 +71,7 @@ const types = [
   },
   {
     id: 't9',
-    code: 'exely-900009',
+    code: 'legacy-900009',
     name: 'Без тарифа',
     active: true,
     capacityAdults: 1,
@@ -80,7 +80,7 @@ const types = [
 ];
 const plan = {
   id: 'p1',
-  code: 'exely-10157482',
+  code: 'legacy-10157482',
   name: 'Базовый тариф',
   currency: 'KZT',
   active: true,
@@ -148,7 +148,7 @@ const createBooking = async (dto: { arrivalDate: string; departureDate: string }
     items: [
       {
         id: 'i1',
-        accommodationTypeCode: 'exely-900001',
+        accommodationTypeCode: 'category-single',
         accommodationTypeName: 'Одиночная',
         arrivalDate: dto.arrivalDate,
         departureDate: dto.departureDate,
@@ -168,7 +168,7 @@ const booking = () => ({
   k: SITE.publicKey,
   arrival: '2026-09-13',
   departure: '2026-09-15',
-  category: 'exely-900001',
+  category: 'category-single',
   adults: 1,
   guest: {
     firstName: 'Айгерим',
@@ -284,7 +284,7 @@ describe('виджет бронирования /w/*', () => {
     });
     expect(r.body.categories).toEqual([
       {
-        code: 'exely-900001',
+        code: 'category-single',
         name: 'Одиночная',
         capacity: 1,
         fits: true,
@@ -297,7 +297,7 @@ describe('виджет бронирования /w/*', () => {
         ],
       },
       {
-        code: 'exely-900002',
+        code: 'category-twin',
         name: 'Двойная',
         capacity: 2,
         fits: true,
@@ -315,7 +315,7 @@ describe('виджет бронирования /w/*', () => {
     const two = await get(
       `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=2`,
     ).expect(200);
-    expect(two.body.categories[0]).toMatchObject({ code: 'exely-900001', fits: false });
+    expect(two.body.categories[0]).toMatchObject({ code: 'category-single', fits: false });
   });
 
   it.each([
@@ -383,8 +383,8 @@ describe('виджет бронирования /w/*', () => {
       notes: `Бронь с сайта «${SITE.name}». Комментарий гостя: после 20:00`,
       items: [
         {
-          accommodationTypeCode: 'exely-900001',
-          ratePlanCode: 'exely-10157482',
+          accommodationTypeCode: 'category-single',
+          ratePlanCode: 'legacy-10157482',
           adults: 1,
           autoAssign: true,
         },

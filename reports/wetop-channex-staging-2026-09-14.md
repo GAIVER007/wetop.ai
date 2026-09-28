@@ -1,6 +1,6 @@
 # WETOP + Channex staging: живой цикл брони канала (2026-09-14)
 
-Снято 2026-09-14 08:11 UTC. Канал Booking.com (Booking CRS API, staging), категория `exely-5074688`,
+Снято 2026-09-14 08:11 UTC. Канал Booking.com (Booking CRS API, staging), категория `retired-source-5074688`,
 ночь 2026-10-04, код WETOP-MU0YRKY4, бронь PMS `BDC-WETOP-MU0YRKY4`. Гость вымышленный, бронь отменена в конце цикла.
 
 **RESULT: OK** — бронь канала прошла через PMS и экраны WETOP туда и обратно, остаток сходится.

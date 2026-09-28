@@ -47,7 +47,7 @@ const METHODS: Array<[string, string]> = [
   ['BANK_TRANSFER_LEGAL', 'перевод от юрлица'],
   ['DEPOSIT', 'депозит'],
   ['CARD_GUARANTEE', 'гарантия картой'],
-  ['EXTERNAL', 'внешний (канал / Exely)'],
+  ['EXTERNAL', 'внешний канал'],
 ];
 const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
 const INIT: FinanceActionResult = { error: null, ok: 0 };
@@ -404,7 +404,7 @@ function FolioPanel({
                 disabled={busy}
                 title="Услуга на счёт по правилу объекта: доля ночи зависит от времени"
                 onClick={async () => {
-                  // правило объекта из Exely: ранний заезд до 06:00 — вся ночь, 06:00–11:59 — половина,
+                  // правило объекта из внешней системы: ранний заезд до 06:00 — вся ночь, 06:00–11:59 — половина,
                   // с 12:00 бесплатно; поздний выезд 12:01–17:59 — половина, с 18:00 — вся ночь
                   const time = window.prompt(
                     `${label}: во сколько? (ЧЧ:ММ). Пусто — половина ночи`,

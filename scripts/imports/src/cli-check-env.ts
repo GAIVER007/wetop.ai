@@ -13,7 +13,6 @@ loadEnv({ path: resolve(ROOT, '.env'), quiet: true });
 let problems = 0;
 for (const name of [
   'DATABASE_URL',
-  // EXELY_API_KEY убран 20.09.2026: Exely больше не источник (ADR-052), ключ можно отозвать у провайдера
   'CHANNEX_API_KEY',
   'CHANNEX_WEBHOOK_SECRET',
   'PII_ENCRYPTION_KEY',

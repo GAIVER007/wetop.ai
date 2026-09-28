@@ -2,7 +2,7 @@
   "name": "@pms/imports",
   "version": "0.0.0",
   "private": true,
-  "description": "Импорт выгрузок Exely: идемпотентно, транзакционно, с отчётом",
+  "description": "Внутренние инструменты чтения данных WETOP",
   "type": "module",
   "types": "./src/index.ts",
   "exports": {
@@ -15,8 +15,6 @@
     "@pms/database": "*",
     "@pms/domain": "*",
     "@pms/shared": "*",
-    "dotenv": "*",
-    "exceljs": "^4.4.0",
-    "@pms/integrations": "*"
+    "dotenv": "*"
   }
 }

@@ -9,21 +9,21 @@ const base: Omit<ChessboardInput, 'from' | 'to'> = {
       id: 'u1',
       code: '9001',
       kind: 'ROOM',
-      accommodationTypeCode: 'exely-900001',
+      accommodationTypeCode: 'category-single',
       accommodationTypeName: 'Тестовая одиночная',
     },
     {
       id: 'u2',
       code: '9010',
       kind: 'BED',
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       accommodationTypeName: 'Тестовый dorm',
     },
     {
       id: 'u3',
       code: '9011',
       kind: 'BED',
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       accommodationTypeName: 'Тестовый dorm',
     },
   ],
@@ -49,12 +49,12 @@ describe('availableUnitsForStay (заезд from, выезд to — ночи [fr
       arrivalDate: '2026-09-10',
       departureDate: '2026-09-12',
     });
-    expect(r.byCategory['exely-900003']).toEqual({
+    expect(r.byCategory['category-dorm']).toEqual({
       units: 2,
       available: 1,
       availableUnitCodes: ['9011'],
     });
-    expect(r.byCategory['exely-900001']).toEqual({
+    expect(r.byCategory['category-single']).toEqual({
       units: 1,
       available: 1,
       availableUnitCodes: ['9001'],
@@ -65,12 +65,12 @@ describe('availableUnitsForStay (заезд from, выезд to — ночи [fr
     // 12→13: u3 блок 12 → нет; u2 занята 12 → нет; u1 да
     expect(
       availableUnitsForStay({ ...base, arrivalDate: '2026-09-12', departureDate: '2026-09-13' })
-        .byCategory['exely-900003']!.available,
+        .byCategory['category-dorm']!.available,
     ).toBe(0);
     // 13→14: u2 освободилась (выезд 13), u3 свободна → 2
     expect(
       availableUnitsForStay({ ...base, arrivalDate: '2026-09-13', departureDate: '2026-09-14' })
-        .byCategory['exely-900003']!.available,
+        .byCategory['category-dorm']!.available,
     ).toBe(2);
   });
   it('rejects a zero-night or reversed stay', () => {
@@ -89,29 +89,29 @@ describe('capStayAvailability — остаток стойки не больше 
       arrivalDate: '2026-09-20',
       departureDate: '2026-09-22',
     });
-    expect(stay.byCategory['exely-900003']!.available).toBe(2);
+    expect(stay.byCategory['category-dorm']!.available).toBe(2);
     const perNight = categoryAvailability({
       from: '2026-09-20',
       to: '2026-09-21',
       units: [
-        { code: 'exely-900001', active: 1 },
-        { code: 'exely-900003', active: 2 },
+        { code: 'category-single', active: 1 },
+        { code: 'category-dorm', active: 2 },
       ],
       blocks: [],
       // проживание без назначенной ячейки в dorm — для канала оно занято
       items: [
         {
-          accommodationTypeCode: 'exely-900003',
+          accommodationTypeCode: 'category-dorm',
           arrivalDate: '2026-09-21',
           departureDate: '2026-09-22',
         },
       ],
     });
     const capped = capStayAvailability(stay, perNight);
-    expect(capped.byCategory['exely-900003']!.available).toBe(1);
+    expect(capped.byCategory['category-dorm']!.available).toBe(1);
     // список ячеек для размещения не режется: посадить можно на любую из двух
-    expect(capped.byCategory['exely-900003']!.availableUnitCodes).toHaveLength(2);
-    expect(capped.byCategory['exely-900001']!.available).toBe(1);
+    expect(capped.byCategory['category-dorm']!.availableUnitCodes).toHaveLength(2);
+    expect(capped.byCategory['category-single']!.available).toBe(1);
     expect(capped.total.available).toBe(2);
   });
 });

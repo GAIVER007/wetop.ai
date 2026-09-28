@@ -224,7 +224,7 @@ test('подключения показывают частичный сбой, �
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
-  // свежесть данных в боковой панели: Channex · очередь ARI (шаг 4 плана wetop-live-data; Exely снят, ADR-073)
+  // свежесть данных в боковой панели: Channex · очередь ARI (шаг 4 плана wetop-live-data; Legacy снят, ADR-073)
   await expect(page.getByTestId('data-freshness').first()).toContainText('очередь 0');
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
 });

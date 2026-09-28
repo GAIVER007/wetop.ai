@@ -999,7 +999,7 @@ function Cell({
   );
 }
 
-/** Строки в порядке категорий: в Exely нумерация не сплошная, и подряд идут разные категории. */
+/** Строки в порядке категорий: нумерация может быть несплошной, рядом могут идти разные категории. */
 function groupByCategory(rows: ChessboardRow[]) {
   const order: string[] = [];
   const byCode = new Map<string, { code: string; name: string; rows: ChessboardRow[] }>();

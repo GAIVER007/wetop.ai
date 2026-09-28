@@ -29,7 +29,7 @@ function service(opts: {
 const NOW = new Date('2026-09-13T18:30:00Z');
 
 describe('FreshnessService — свежесть данных для шапки стойки', () => {
-  it('последнее событие Channex из webhook или ленты, очередь ARI; строки Exely нет (ADR-073)', async () => {
+  it('последнее событие Channex из webhook или ленты, очередь ARI; строки Legacy нет (ADR-073)', async () => {
     const s = await service({
       webhookAt: '2026-09-13T16:41:38Z',
       pullAt: '2026-09-13T17:02:00Z',

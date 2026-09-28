@@ -286,7 +286,7 @@ test('настройки объекта: сбой с повтором, пуст�
   // пустой справочник услуг — откуда он берётся
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
   await page.goto('/hotel-settings/services');
-  // без Exely: новому клиенту имя прежней системы ничего не говорит (ТЗ ux-retention п. 1.2)
+  // без Legacy: новому клиенту имя прежней системы ничего не говорит (ТЗ ux-retention п. 1.2)
   await expect(main.getByTestId('services-empty')).toHaveText('Услуг в каталоге пока нет.');
   await request.post(`${fixture}/__test/control`, { data: {} });
   // загрузка словом

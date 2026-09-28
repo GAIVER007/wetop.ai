@@ -58,7 +58,7 @@ function makeRepo(rows: Row[] = []) {
         {
           id: 'm1',
           localAccommodationTypeId: 't1',
-          localAccommodationTypeCode: 'exely-900001',
+          localAccommodationTypeCode: 'category-single',
           localRatePlanId: 'p2',
           providerPropertyId: 'P',
           providerRoomTypeId: 'RT1',
@@ -67,7 +67,7 @@ function makeRepo(rows: Row[] = []) {
         {
           id: 'm3',
           localAccommodationTypeId: 't3',
-          localAccommodationTypeCode: 'exely-900003',
+          localAccommodationTypeCode: 'category-dorm',
           localRatePlanId: 'p2',
           providerPropertyId: 'P',
           providerRoomTypeId: 'RT3',
@@ -77,8 +77,8 @@ function makeRepo(rows: Row[] = []) {
     },
     async categoryUnits() {
       return [
-        { code: 'exely-900001', active: 1, capacityAdults: 1 },
-        { code: 'exely-900003', active: 36, capacityAdults: 1 },
+        { code: 'category-single', active: 1, capacityAdults: 1 },
+        { code: 'category-dorm', active: 36, capacityAdults: 1 },
       ];
     },
     async categoryBlocks() {
@@ -87,19 +87,19 @@ function makeRepo(rows: Row[] = []) {
     async soldItems() {
       return [
         {
-          accommodationTypeCode: 'exely-900003',
+          accommodationTypeCode: 'category-dorm',
           arrivalDate: '2026-11-20',
           departureDate: '2026-11-22',
         },
         {
-          accommodationTypeCode: 'exely-900003',
+          accommodationTypeCode: 'category-dorm',
           arrivalDate: '2026-11-21',
           departureDate: '2026-11-22',
         },
       ];
     },
     async ratePlanIdsByCode() {
-      return { 'exely-800002': 'p2', 'exely-800001': 'p1' };
+      return { 'rate-ota': 'p2', 'rate-base': 'p1' };
     },
   } as unknown as ChannelsRepository;
   return { repo, rows };
@@ -128,7 +128,7 @@ describe('OutboxAriPublisher', () => {
     const { repo, rows } = makeRepo();
     const pub = new OutboxAriPublisher(repo);
     await pub.reservationChanged({
-      categoryCodes: ['exely-900003', 'exely-900001'],
+      categoryCodes: ['category-dorm', 'category-single'],
       from: '2026-11-20',
       toExclusive: '2026-11-23',
     });
@@ -170,15 +170,15 @@ describe('OutboxAriPublisher', () => {
     const pub = new OutboxAriPublisher(repo);
     await pub.ratesChanged([
       {
-        accommodationTypeCode: 'exely-900001',
-        ratePlanCode: 'exely-800002',
+        accommodationTypeCode: 'category-single',
+        ratePlanCode: 'rate-ota',
         dateFrom: '2026-11-22',
         dateTo: '2026-11-22',
         priceMinor: 3_330_000n,
       },
       {
-        accommodationTypeCode: 'exely-900003',
-        ratePlanCode: 'exely-800002',
+        accommodationTypeCode: 'category-dorm',
+        ratePlanCode: 'rate-ota',
         dateFrom: '2026-11-01',
         dateTo: '2026-11-10',
         days: ['mo', 'tu'],
@@ -187,8 +187,8 @@ describe('OutboxAriPublisher', () => {
         closedToArrival: true,
       },
       {
-        accommodationTypeCode: 'exely-900001',
-        ratePlanCode: 'exely-800001',
+        accommodationTypeCode: 'category-single',
+        ratePlanCode: 'rate-base',
         dateFrom: '2026-11-22',
         dateTo: '2026-11-22',
         priceMinor: 1n,
@@ -220,8 +220,8 @@ describe('OutboxAriPublisher', () => {
     const { repo, rows } = makeRepo();
     const pub = new OutboxAriPublisher(repo);
     const base = {
-      accommodationTypeCode: 'exely-900001',
-      ratePlanCode: 'exely-800002',
+      accommodationTypeCode: 'category-single',
+      ratePlanCode: 'rate-ota',
       primaryOccupancy: 2,
     };
     await pub.ratesChanged([
@@ -267,8 +267,8 @@ describe('OutboxAriPublisher', () => {
     const pub = new OutboxAriPublisher(repo);
     await pub.ratesChanged([
       {
-        accommodationTypeCode: 'exely-900001',
-        ratePlanCode: 'exely-800002',
+        accommodationTypeCode: 'category-single',
+        ratePlanCode: 'rate-ota',
         dateFrom: '2026-11-22',
         dateTo: '2026-11-22',
         minStay: 0,

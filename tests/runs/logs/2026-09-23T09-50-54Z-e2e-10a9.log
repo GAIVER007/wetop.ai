@@ -1,7 +1,0 @@
-# Сквозные (e2e) · 23.09.2026 14:50 Алматы · vm
-# коммит 96cd197 (claude/zealous-pasteur-kopq66), незакоммиченных файлов набора: 1
-# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
-Error: http://127.0.0.1:3100/today is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
-
-
-# код выхода 1 · 2 с

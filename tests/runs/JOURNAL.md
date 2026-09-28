@@ -3479,3 +3479,6 @@
 | 28.09.2026 14:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.ts tests/ui/roles. | ❌ упало 1 из 110 | 6 мин 35 с | 41f5b8e | [лог](logs/2026-09-28T09-32-20Z-e2e-9a41.log) | fixes for full UI on main |
 | 28.09.2026 14:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/roles.spec.ts --workers=1) | ✅ 13 из 13 | 1 мин 2 с | 41f5b8e +1 | [лог](logs/2026-09-28T09-39-17Z-e2e-ddcd.log) | roles after SET1 heading |
 | 28.09.2026 14:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 516 из 516 | 41 мин 25 с | 1798cbd | [лог](logs/2026-09-28T09-40-31Z-e2e-0ca0.log) | full UI on main + integration fixes |
+| 28.09.2026 15:22 | typecheck | ✅ без ошибок | 33 с | 8f61f31 | [лог](logs/2026-09-28T10-22-26Z-typecheck-fa26.log) |  |
+| 28.09.2026 15:23 | lint | ✅ без ошибок | 18 с | 8f61f31 | [лог](logs/2026-09-28T10-23-00Z-lint-fbe8.log) |  |
+| 28.09.2026 15:23 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 17 с | 8f61f31 | [лог](logs/2026-09-28T10-23-19Z-unit-ba1d.log) |  |

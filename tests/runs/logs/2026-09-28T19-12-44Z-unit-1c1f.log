@@ -1,0 +1,17 @@
+# Модульные (unit) · 29.09.2026 00:12 Алматы · vm
+# коммит 2b09e78 (claude/amazing-einstein-sow0em)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-12-44Z-unit-1c1f.json' 'apps/web/src/lib/hotel-time.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 791ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 766ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  19:12:45
+   Duration  989ms (tests 93%, transform 5%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-12-44Z-unit-1c1f.json
+
+# код выхода 0 · 2 с

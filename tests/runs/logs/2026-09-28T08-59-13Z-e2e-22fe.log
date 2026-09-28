@@ -1,0 +1,202 @@
+# Сквозные (e2e) · 28.09.2026 13:59 Алматы · vm
+# коммит 7889137 (claude/eager-noether-1uncrq-a2), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/today-operations.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/today-operations.spec.ts:37:1 › заезды и выезды дня: строка на проживание, действие ведёт в существующий поток (17.7s)
+  ✘  2 tests/ui/today-operations.spec.ts:85:1 › номерной фонд и уборка: числа шахматки дня, неисправности — блокировки ремонта (207ms)
+  ✘  3 tests/ui/today-operations.spec.ts:115:1 › уборка — только на сегодня: на другой день число «не готово» не выдумывается (225ms)
+  ✘  4 tests/ui/today-operations.spec.ts:124:1 › деньги сегодня: числа отчёта за день, «к оплате» — то же, что плитка; сравнение — владельцу (45.1s)
+  ✘  5 tests/ui/today-operations.spec.ts:158:1 › системы: Channex, продавец и сторож одной строкой каждый; сайта как данных нет (16.0s)
+  ✘  6 tests/ui/today-operations.spec.ts:169:1 › сбой отчёта денег и сторожа: блок говорит о сбое, остальная Главная на месте (16.0s)
+
+
+  1) tests/ui/today-operations.spec.ts:37:1 › заезды и выезды дня: строка на проживание, действие ведёт в существующий поток 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Заезды' })
+    Expected substring: "с 14:00"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'Заезды' }) with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Заезды' })
+
+
+      41 |   const departures = page.getByRole('region', { name: 'Выезды' });
+      42 |   // время — объекта, не брони: у брони его нет (пробел плана §3.1)
+    > 43 |   await expect(arrivals).toContainText('с 14:00');
+         |                          ^
+      44 |   await expect(departures).toContainText('до 12:00');
+      45 |
+      46 |   const pending = d.arrivals.filter((r) => r.status !== 'CHECKED_IN');
+        at /home/user/wetop.ai/tests/ui/today-operations.spec.ts:43:26
+
+    Error Context: test-results/today-operations-заезды-и--ac1a1--ведёт-в-существующий-поток/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-заезды-и--ac1a1--ведёт-в-существующий-поток/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-заезды-и--ac1a1--ведёт-в-существующий-поток/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/today-operations.spec.ts:85:1 › номерной фонд и уборка: числа шахматки дня, неисправности — блокировки ремонта 
+
+    TypeError: Cannot read properties of undefined (reading 'undefined')
+
+      88 |     await page.request.get(`${fixture}/chessboard?from=${d.date}&to=${d.date}`)
+      89 |   ).json();
+    > 90 |   const s = board.summary[d.date]!;
+         |                          ^
+      91 |   await page.goto('/today');
+      92 |   const fund = page.getByRole('region', { name: 'Номерной фонд' });
+      93 |   await expect(fund.getByTestId('fund-occupied')).toHaveText(String(s.occupied));
+        at /home/user/wetop.ai/tests/ui/today-operations.spec.ts:90:26
+
+    Error Context: test-results/today-operations-номерной--bd9bf-вности-—-блокировки-ремонта/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-номерной--bd9bf-вности-—-блокировки-ремонта/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-номерной--bd9bf-вности-—-блокировки-ремонта/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/today-operations.spec.ts:115:1 › уборка — только на сегодня: на другой день число «не готово» не выдумывается 
+
+    RangeError: Invalid time value
+
+      115 | test('уборка — только на сегодня: на другой день число «не готово» не выдумывается', async ({ page }) => {
+      116 |   const d = await day(page);
+    > 117 |   const tomorrow = new Date(Date.parse(`${d.date}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+          |                                                                             ^
+      118 |   await page.goto(`/today?date=${tomorrow}`);
+      119 |   const care = page.getByRole('region', { name: 'Уборка и неисправности' });
+      120 |   await expect(care).toContainText('уборка — только на сегодня');
+        at /home/user/wetop.ai/tests/ui/today-operations.spec.ts:117:77
+
+    Error Context: test-results/today-operations-уборка-—--29d1c-«не-готово»-не-выдумывается/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-уборка-—--29d1c-«не-готово»-не-выдумывается/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-уборка-—--29d1c-«не-готово»-не-выдумывается/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/today-operations.spec.ts:124:1 › деньги сегодня: числа отчёта за день, «к оплате» — то же, что плитка; сравнение — владельцу 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.textContent: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Деньги сегодня' }).getByTestId('money-charged')
+
+
+      132 |   await page.goto('/today');
+      133 |   const money = page.getByRole('region', { name: 'Деньги сегодня' });
+    > 134 |   expect(digits((await money.getByTestId('money-charged').textContent()) ?? '')).toBe(
+          |                                                           ^
+      135 |     tenge(report.chargedMinor),
+      136 |   );
+      137 |   expect(digits((await money.getByTestId('money-paid').textContent()) ?? '')).toBe(
+        at /home/user/wetop.ai/tests/ui/today-operations.spec.ts:134:59
+
+    Error Context: test-results/today-operations-деньги-се-f6db7-литка-сравнение-—-владельцу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-деньги-се-f6db7-литка-сравнение-—-владельцу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-деньги-се-f6db7-литка-сравнение-—-владельцу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/today-operations.spec.ts:158:1 › системы: Channex, продавец и сторож одной строкой каждый; сайта как данных нет 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Системы' }).getByTestId('systems-channex')
+    Expected substring: "очередь 0"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'Системы' }).getByTestId('systems-channex') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Системы' }).getByTestId('systems-channex')
+
+
+      159 |   await page.goto('/today');
+      160 |   const systems = page.getByRole('region', { name: 'Системы' });
+    > 161 |   await expect(systems.getByTestId('systems-channex')).toContainText('очередь 0');
+          |                                                        ^
+      162 |   await expect(systems.getByTestId('systems-seller')).toBeVisible();
+      163 |   // у подставного сторожа проверки копий нет среди проверок — так и сказано, без выдумки
+      164 |   await expect(systems.getByTestId('systems-guard')).toContainText('проверка копий не настроена');
+        at /home/user/wetop.ai/tests/ui/today-operations.spec.ts:161:56
+
+    Error Context: test-results/today-operations-системы-C-e10f7-каждый-сайта-как-данных-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-системы-C-e10f7-каждый-сайта-как-данных-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-системы-C-e10f7-каждый-сайта-как-данных-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/today-operations.spec.ts:169:1 › сбой отчёта денег и сторожа: блок говорит о сбое, остальная Главная на месте 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('money-error')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('money-error') with timeout 15000ms
+      - waiting for getByTestId('money-error')
+
+
+      170 |   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/report' } });
+      171 |   await page.goto('/today');
+    > 172 |   await expect(page.getByTestId('money-error')).toBeVisible();
+          |                                                 ^
+      173 |   await expect(page.getByTestId('c-arrivals')).toBeVisible();
+      174 |   await expect(page.getByRole('region', { name: 'Заезды' })).toBeVisible();
+      175 |
+        at /home/user/wetop.ai/tests/ui/today-operations.spec.ts:172:49
+
+    Error Context: test-results/today-operations-сбой-отчё-3c98b--остальная-Главная-на-месте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-operations-сбой-отчё-3c98b--остальная-Главная-на-месте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-operations-сбой-отчё-3c98b--остальная-Главная-на-месте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/today-operations.spec.ts:37:1 › заезды и выезды дня: строка на проживание, действие ведёт в существующий поток 
+    tests/ui/today-operations.spec.ts:85:1 › номерной фонд и уборка: числа шахматки дня, неисправности — блокировки ремонта 
+    tests/ui/today-operations.spec.ts:115:1 › уборка — только на сегодня: на другой день число «не готово» не выдумывается 
+    tests/ui/today-operations.spec.ts:124:1 › деньги сегодня: числа отчёта за день, «к оплате» — то же, что плитка; сравнение — владельцу 
+    tests/ui/today-operations.spec.ts:158:1 › системы: Channex, продавец и сторож одной строкой каждый; сайта как данных нет 
+    tests/ui/today-operations.spec.ts:169:1 › сбой отчёта денег и сторожа: блок говорит о сбое, остальная Главная на месте 
+
+# код выхода 1 · 3 мин 47 с

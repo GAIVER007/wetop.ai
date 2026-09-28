@@ -33,7 +33,7 @@ const menuLinks = (page: Page) =>
 const shot = (page: Page, name: string) =>
   page.screenshot({ path: `reports/roles-2026-09-27/${name}.png`, fullPage: true });
 
-test('администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности', async ({
+test('администратор: в меню — работа с гостями, оплаты, аналитика, продавец и неисправности', async ({
   page,
   request,
 }) => {
@@ -49,7 +49,8 @@ test('администратор: в меню — работа с гостями
       '/guests',
       '/ai-seller',
       '/finance',
-      '/management/statistics',
+      // «Статистика» с ADR-114 — «Аналитика» (вкладка «Загрузка» — её прежний экран)
+      '/management/analytics',
       '/incidents',
     ]);
   await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Администратор');

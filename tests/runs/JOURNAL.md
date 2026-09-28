@@ -4005,3 +4005,6 @@
 | 29.09.2026 03:01 | integration | ✅ 122 из 122 | 38 с | a4784e3 | [лог](logs/2026-09-28T22-01-02Z-integration-0baa.log) |  |
 | 29.09.2026 03:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/property-settings.spec.ts tests/ui/property-settings-set | ✅ 96 из 96 | 6 мин 45 с | a4784e3 | [лог](logs/2026-09-28T22-01-45Z-e2e-818d.log) |  |
 | 29.09.2026 03:08 | e2e | ✅ 25 из 25 | 1 мин | a4784e3 | [лог](logs/2026-09-28T22-08-40Z-e2e-f4e9.log) |  |
+| 29.09.2026 03:20 | typecheck | ✅ без ошибок | 40 с | 930b727 | [лог](logs/2026-09-28T22-20-24Z-typecheck-8a8b.log) |  |
+| 29.09.2026 03:21 | lint | ✅ без ошибок | 19 с | 930b727 | [лог](logs/2026-09-28T22-21-04Z-lint-465e.log) |  |
+| 29.09.2026 03:21 | unit | ✅ 2267 из 2270, пропущено 3 | 1 мин 50 с | 930b727 | [лог](logs/2026-09-28T22-21-24Z-unit-1fb1.log) | G8 на main 93423b39 |

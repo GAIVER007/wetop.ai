@@ -1,0 +1,30 @@
+# Модульные (unit) · 28.09.2026 12:07 Алматы · vm
+# коммит 0eeeb0e (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T07-07-27Z-unit-cd22.json' 'apps/web/src/app/finance/operations-csv.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/finance/operations-csv.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/finance/operations-csv.test.ts [ apps/web/src/app/finance/operations-csv.test.ts ]
+Error: Cannot find module './operations-csv' imported from /home/user/wetop.ai/apps/web/src/app/finance/operations-csv.test.ts
+ ❯ apps/web/src/app/finance/operations-csv.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { operationsCsv } from './operations-csv';
+       | ^
+      3|
+      4| const op = (over: Partial<Parameters<typeof operationsCsv>[0][number]>…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  07:07:27
+   Duration  212ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-09-28T07-07-27Z-unit-cd22.json
+
+# код выхода 1 · 1 с

@@ -20,6 +20,28 @@ export class FinanceController {
     return this.service.periodReport(from, to);
   }
 
+  /** Брони с остатком к сбору за период — список к «Финансам за период» (ADR-113) */
+  @Get('debts')
+  debts(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.periodDebts(from, to);
+  }
+
+  /** Оплаты и возвраты за период с отборами по типу и способу — «Финансы за период», F2 (ADR-113) */
+  @Get('operations')
+  operations(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('type') type?: string,
+    @Query('method') method?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.periodOperations(from, to, {
+      ...(type !== undefined ? { type } : {}),
+      ...(method !== undefined ? { method } : {}),
+      ...(limit !== undefined ? { limit } : {}),
+    });
+  }
+
   @Get('services')
   services() {
     return this.service.services();

@@ -204,7 +204,7 @@ export function PaymentsPanel({ period }: { period: DashboardPeriod }) {
         </tbody>
       </Table>
       <Link href={`/finance?from=${period.from}&to=${period.to}`} className="dash-panel__link">
-        Деньги за период подробно
+        Финансы за период подробно
       </Link>
     </Panel>
   );

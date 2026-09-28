@@ -3379,3 +3379,36 @@
 | 28.09.2026 03:22 | lint | ✅ без ошибок | 16 с | 7eb6bb8 | [лог](logs/2026-09-27T22-22-32Z-lint-4b24.log) |  |
 | 28.09.2026 03:22 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 12 с | 7eb6bb8 | [лог](logs/2026-09-27T22-22-49Z-unit-776d.log) |  |
 | 28.09.2026 03:24 | e2e | ✅ 25 из 25 | 1 мин 26 с | 7eb6bb8 | [лог](logs/2026-09-27T22-24-12Z-e2e-8b81.log) |  |
+| 27.09.2026 23:06 | unit (частично: apps/api/src/finance/finance.controller.test.ts) | ❌ упало 1 из 12 | 3 с | a0fa497 +1 | [лог](logs/2026-09-27T18-06-23Z-unit-b26c.log) | red: ADR-107 debts endpoint missing |
+| 27.09.2026 23:09 | integration (частично: tests/integration/finance-debts.test.ts) | ❌ упало 1 из 1 | 3 с | a0fa497 +4 | [лог](logs/2026-09-27T18-09-30Z-integration-3453.log) | red: ADR-107 repository periodDebts missing |
+| 27.09.2026 23:09 | integration (частично: tests/integration/finance-debts.test.ts) | ✅ 1 из 1 | 3 с | a0fa497 +5 | [лог](logs/2026-09-27T18-09-38Z-integration-2135.log) | green: ADR-107 repository periodDebts |
+| 28.09.2026 01:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts --workers=1) | ❌ упало 9 из 9 | 31 с | a0fa497 +13 | [лог](logs/2026-09-27T20-55-34Z-e2e-5ed1.log) | F1 finance screen spec, first run |
+| 28.09.2026 01:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts --workers=1) | ❌ упало 4 из 9 | 42 с | a0fa497 +13 | [лог](logs/2026-09-27T20-56-15Z-e2e-79a8.log) | F1 finance screen spec |
+| 28.09.2026 01:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts --workers=1) | ✅ 9 из 9 | 26 с | a0fa497 +13 | [лог](logs/2026-09-27T20-58-33Z-e2e-224b.log) | F1 finance screen spec |
+| 28.09.2026 01:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts tests/ui/finance-units-design.spec.ts tests/ui/workspace.spec.ts tests/ui/empt | ✅ 114 из 114 | 4 мин 50 с | a0fa497 +13 | [лог](logs/2026-09-27T20-59-10Z-e2e-b0e7.log) | F1 finance + affected specs |
+| 28.09.2026 02:04 | typecheck | ✅ без ошибок | 30 с | a0fa497 +14 | [лог](logs/2026-09-27T21-04-08Z-typecheck-cca4.log) |  |
+| 28.09.2026 02:04 | lint | ✅ без ошибок | 18 с | a0fa497 +14 | [лог](logs/2026-09-27T21-04-38Z-lint-ae18.log) |  |
+| 28.09.2026 02:04 | unit | ❌ упало 1 из 2117, пропущено 3 | 1 мин 34 с | a0fa497 +10 | [лог](logs/2026-09-27T21-04-56Z-unit-e97a.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 28.09.2026 02:06 | integration | ❌ код выхода 1 | 2 с | a0fa497 +6 | [лог](logs/2026-09-27T21-06-31Z-integration-6d7b.log) |  |
+| 28.09.2026 02:07 | unit | ✅ 2114 из 2117, пропущено 3 | 1 мин 12 с | a0fa497 +10 | [лог](logs/2026-09-27T21-07-02Z-unit-2b90.log) |  |
+| 28.09.2026 02:08 | integration | ❌ упало 1 из 108 | 33 с | a0fa497 +6 | [лог](logs/2026-09-27T21-08-15Z-integration-5fe2.log) | RLS: служебный доступ внутри запроса организации withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет |
+| 28.09.2026 02:09 | integration | ✅ 108 из 108 | 33 с | a0fa497 +6 | [лог](logs/2026-09-27T21-09-03Z-integration-1ba1.log) |  |
+| 28.09.2026 02:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 415 | 32 мин 45 с | a0fa497 +13 | [лог](logs/2026-09-27T21-09-43Z-e2e-40b1.log) | full UI suite after F1 |
+| 28.09.2026 02:43 | e2e | ❌ упало 1 из 25 | 1 мин 12 с | 37f5b9e | [лог](logs/2026-09-27T21-43-18Z-e2e-0c25.log) | live e2e after F1 |
+| 28.09.2026 02:44 | e2e (частично: tests/e2e/desk-tasks.spec.ts) | ✅ 2 из 2 | 13 с | 37f5b9e | [лог](logs/2026-09-27T21-44-45Z-e2e-8e12.log) | re-check desk-tasks after F1 |
+| 28.09.2026 02:45 | e2e | ✅ 25 из 25 | 1 мин 1 с | 37f5b9e | [лог](logs/2026-09-27T21-45-05Z-e2e-0035.log) | live e2e after F1, second full run |
+| 28.09.2026 12:03 | unit (частично: apps/api/src/finance/finance.controller.test.ts) | ❌ упало 1 из 13 | 6 с | 0eeeb0e +1 | [лог](logs/2026-09-28T07-03-11Z-unit-2447.log) | red: ADR-107 F2 operations endpoint missing |
+| 28.09.2026 12:05 | integration (частично: tests/integration/finance-operations.test.ts) | ❌ упало 2 из 2 | 4 с | 0eeeb0e +4 | [лог](logs/2026-09-28T07-05-27Z-integration-5519.log) | red: ADR-107 F2 repository periodOperations missing |
+| 28.09.2026 12:05 | integration (частично: tests/integration/finance-operations.test.ts) | ✅ 2 из 2 | 4 с | 0eeeb0e +5 | [лог](logs/2026-09-28T07-05-31Z-integration-2ae5.log) | green: ADR-107 F2 repository periodOperations |
+| 28.09.2026 12:07 | unit (частично: apps/web/src/app/finance/operations-csv.test.ts) | ❌ код выхода 1 | 1 с | 0eeeb0e +7 | [лог](logs/2026-09-28T07-07-27Z-unit-cd22.log) | red: ADR-107 F2 CSV builder missing |
+| 28.09.2026 12:07 | unit (частично: apps/web/src/app/finance/operations-csv.test.ts) | ✅ 4 из 4 | 1 с | 0eeeb0e +9 | [лог](logs/2026-09-28T07-07-45Z-unit-9b5d.log) | green: ADR-107 F2 CSV builder |
+| 28.09.2026 12:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f2.spec.ts tests/ui/finance-f1.spec.ts --workers=1) | ✅ 16 из 16 | 2 мин 22 с | 0eeeb0e +14 | [лог](logs/2026-09-28T07-10-02Z-e2e-276e.log) | F2 finance operations spec + F1 |
+| 28.09.2026 12:12 | typecheck | ✅ без ошибок | 32 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-12-39Z-typecheck-2964.log) |  |
+| 28.09.2026 12:13 | lint | ❌ ошибок: 1 | 18 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-13-11Z-lint-a37a.log) | no-irregular-whitespace |
+| 28.09.2026 12:13 | unit | ✅ 2119 из 2122, пропущено 3 | 1 мин 12 с | 0eeeb0e +13 | [лог](logs/2026-09-28T07-13-30Z-unit-a21c.log) |  |
+| 28.09.2026 12:14 | integration | ✅ 110 из 110 | 35 с | 0eeeb0e +6 | [лог](logs/2026-09-28T07-14-42Z-integration-12f5.log) |  |
+| 28.09.2026 12:15 | lint | ✅ без ошибок | 17 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-15-39Z-lint-112d.log) |  |
+| 28.09.2026 12:15 | unit (частично: apps/web/src/app/finance/operations-csv.test.ts) | ✅ 4 из 4 | 1 с | 0eeeb0e +13 | [лог](logs/2026-09-28T07-15-57Z-unit-1b64.log) | CSV builder after BOM escape fix |
+| 28.09.2026 12:16 | typecheck | ✅ без ошибок | 23 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-16-15Z-typecheck-8adf.log) |  |
+| 28.09.2026 12:16 | lint | ✅ без ошибок | 17 с | 0eeeb0e +15 | [лог](logs/2026-09-28T07-16-38Z-lint-3d29.log) |  |
+| 28.09.2026 12:16 | unit | ✅ 2119 из 2122, пропущено 3 | 1 мин 12 с | 0eeeb0e +13 | [лог](logs/2026-09-28T07-16-55Z-unit-355a.log) |  |

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createPrismaClient, type Db, type DbTx } from '@pms/database';
+import { createPrismaClient, createPropertyInChain, type Db, type DbTx } from '@pms/database';
 import { LUXX_APARTS_PROPERTY, shiftDate } from '@pms/domain';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { forgetPropertyRef, propertyToday } from '../../apps/api/src/database/property-ref';
@@ -46,16 +46,13 @@ describe.skipIf(!url)(
               data: { name: 'Integration G7' },
               select: { id: true },
             });
-            const property = await tx.property.create({
-              data: {
-                organizationId: org.id,
-                name: 'Объект G7 (integration)',
-                timezone: 'Asia/Almaty',
-                currency: 'KZT',
-                checkInTime: '14:00',
-                checkOutTime: '12:00',
-              },
-              select: { id: true },
+            // properties.location_id NOT NULL (миграция …032): объект — сразу в цепочке Business → Location
+            const property = await createPropertyInChain(tx, org.id, {
+              name: 'Объект G7 (integration)',
+              timezone: 'Asia/Almaty',
+              currency: 'KZT',
+              checkInTime: '14:00',
+              checkOutTime: '12:00',
             });
             const type = await tx.accommodationType.create({
               data: {

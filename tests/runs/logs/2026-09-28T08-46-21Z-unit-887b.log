@@ -1,0 +1,48 @@
+# Модульные (unit) · 28.09.2026 13:46 Алматы · vm
+# коммит 50551c0 (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-46-21Z-unit-887b.json' 'apps/api/src/dashboard/dashboard.repository.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/dashboard/dashboard.repository.test.ts (5 tests | 1 failed) 23ms
+   ✓ главная: имя канала у проживаний (1)
+     ✓ один канал под двумя именами Channex приходит на «Главную» одним именем 5ms
+   ❯ аналитика: тип категории, без ячейки по категориям, дата начисления (3)
+     ✓ тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории 1ms
+     × групповая бронь на три койки без места — три проживания, даже если период разбит на куски 10ms
+     ✓ начисление несёт дату услуги — по ней строится выручка по дням 2ms
+   ✓ аналитика: проживание знает свою бронь (1)
+     ✓ id и статус брони приходят вместе с проживанием 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.repository.test.ts > аналитика: тип категории, без ячейки по категориям, дата начисления > групповая бронь на три койки без места — три проживания, даже если период разбит на куски
+AssertionError: expected { DRM: 1 } to deeply equal { DRM: 3 }
+
+- Expected
++ Received
+
+  {
+-   "DRM": 3,
++   "DRM": 1,
+  }
+
+ ❯ apps/api/src/dashboard/dashboard.repository.test.ts:126:36
+    124|
+    125|     expect(board.mock.calls.length).toBeGreaterThan(1);
+    126|     expect(b.unassignedByCategory).toEqual({ DRM: 3 });
+       |                                    ^
+    127|   });
+    128|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  08:46:21
+   Duration  1.38s (transform 76%, import 22%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-46-21Z-unit-887b.json
+
+# код выхода 1 · 2 с

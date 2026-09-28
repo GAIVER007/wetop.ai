@@ -32,7 +32,12 @@ export interface DashboardDay {
 export interface DashboardStay {
   arrivalDate: string;
   departureDate: string;
+  /** Статус проживания (места) */
   status: string;
+  /** Бронь, которой принадлежит проживание: одна Reservation — одна бронь (Q-209) */
+  reservationId: string;
+  /** Статус брони целиком — по нему бронь считается отменённой или незаездом */
+  reservationStatus: string;
   adults: number;
   children: number;
   priceMinor: bigint;
@@ -84,6 +89,11 @@ export interface DashboardCategory {
   units: number;
   unitNights: number;
   occupiedNights: number;
+  freeNights: number;
+  /** Закрытые клетко-ночи: входят в фонд категории (знаменатель загрузки) */
+  blockedNights: number;
+  /** Проживаний без ячейки в этой категории, касающихся периода */
+  unassigned: number;
   percent: number;
   /** Начислено за проживание по категории */
   revenueMinor: string;
@@ -100,19 +110,24 @@ export interface DashboardDailyPoint {
   /** Начислено за проживание с датой услуги в этот день — то есть по заездам дня */
   revenueMinor: string;
 }
-/** Брони периода по дате заезда: проживания всех статусов, как «Заезды» ADR-047 вместе с отменами */
+/**
+ * Брони периода по дате заезда (Q-209): одна Reservation — одна бронь, в каком бы числе мест она ни была.
+ * Бронь попадает в период, если хоть одно её проживание выбранного типа фонда заезжает в периоде.
+ */
 export interface DashboardBookings {
   total: number;
-  /** Без отменённых и незаездов */
+  /** Брони без отмены и незаезда */
   active: number;
+  /** Размещения (проживания) действующих броней: групповая бронь на три койки — одна бронь и три размещения */
+  stays: number;
   cancelled: number;
   noShow: number;
   /** Доли от `total`, % с одним знаком */
   cancelledPercent: number;
   noShowPercent: number;
-  /** Стоимость действующих проживаний */
+  /** Стоимость действующих проживаний действующих броней */
   valueMinor: string;
-  /** Средний чек: стоимость / число действующих; null — их нет */
+  /** Средний чек брони: стоимость / число действующих броней; null — их нет */
   averageMinor: string | null;
 }
 export interface DashboardPeriod {
@@ -245,29 +260,47 @@ export function buildDashboard(
     (st) => inPeriod(st.departureDate) && !inactive.has(st.status),
   );
 
+  // Брони периода (Q-209): проживания с заездом в периоде, сгруппированные по Reservation
+  const reservationMap = new Map<string, { status: string; stays: DashboardStay[] }>();
+  for (const st of arrivalsAll) {
+    const r = reservationMap.get(st.reservationId) ?? { status: st.reservationStatus, stays: [] };
+    r.stays.push(st);
+    reservationMap.set(st.reservationId, r);
+  }
+  const reservations = [...reservationMap.values()];
+  const activeReservations = reservations
+    .filter((r) => !inactive.has(r.status))
+    .map((r) => ({ ...r, stays: r.stays.filter((st) => !inactive.has(st.status)) }));
+  const stayValue = (stays: DashboardStay[]) => stays.reduce((a, st) => a + st.priceMinor, 0n);
+
+  // Источники — бронями (Q-209): источник и канал у брони один, сумма — её действующие места
   const sourceMap = new Map<string, DashboardSource & { amount: bigint }>();
-  for (const st of arrivals) {
-    const key = `${st.source}|${st.channel ?? ''}`;
+  for (const r of activeReservations) {
+    const first = r.stays[0];
+    if (!first) continue;
+    const key = `${first.source}|${first.channel ?? ''}`;
     const v = sourceMap.get(key) ?? {
-      source: st.source,
-      channel: st.channel,
+      source: first.source,
+      channel: first.channel,
       count: 0,
       amount: 0n,
       amountMinor: '0',
       share: 0,
     };
-    sourceMap.set(key, { ...v, count: v.count + 1, amount: v.amount + st.priceMinor });
+    sourceMap.set(key, { ...v, count: v.count + 1, amount: v.amount + stayValue(r.stays) });
   }
   const sources = [...sourceMap.values()]
     .sort((a, b) => b.count - a.count || (a.amount === b.amount ? 0 : a.amount > b.amount ? -1 : 1))
     .map(({ amount, ...v }) => ({
       ...v,
       amountMinor: s(amount),
-      share: percent(v.count, arrivals.length),
+      share: percent(v.count, activeReservations.length),
     }));
 
   const categories = input.categories.map((c): DashboardCategory => {
-    const occupied = input.days.reduce((n, d) => n + (d.byCategory[c.code]?.occupied ?? 0), 0);
+    const sumOf = (key: 'occupied' | 'free' | 'blocked') =>
+      input.days.reduce((n, d) => n + (d.byCategory[c.code]?.[key] ?? 0), 0);
+    const occupied = sumOf('occupied');
     const revenue = input.charges
       .filter((ch) => ch.kind === 'ACCOMMODATION' && ch.categoryCode === c.code)
       .reduce((a, ch) => a + ch.amountMinor, 0n);
@@ -279,6 +312,9 @@ export function buildDashboard(
       units: c.units,
       unitNights: catNights,
       occupiedNights: occupied,
+      freeNights: sumOf('free'),
+      blockedNights: sumOf('blocked'),
+      unassigned: input.unassignedByCategory[c.code] ?? 0,
       percent: percent(occupied, catNights),
       revenueMinor: s(revenue),
       adrMinor: divide(revenue, occupied),
@@ -300,9 +336,12 @@ export function buildDashboard(
     revenueMinor: s(revenueByDay.get(d.date) ?? 0n),
   }));
 
-  const cancelled = arrivalsAll.filter((st) => st.status === 'CANCELLED').length;
-  const noShow = arrivalsAll.filter((st) => st.status === 'NO_SHOW').length;
-  const bookingsValue = arrivals.reduce((a, st) => a + st.priceMinor, 0n);
+  const cancelledStays = arrivalsAll.filter((st) => st.status === 'CANCELLED').length;
+  const noShowStays = arrivalsAll.filter((st) => st.status === 'NO_SHOW').length;
+  const cancelled = reservations.filter((r) => r.status === 'CANCELLED').length;
+  const noShow = reservations.filter((r) => r.status === 'NO_SHOW').length;
+  const bookedStays = activeReservations.flatMap((r) => r.stays);
+  const bookingsValue = stayValue(bookedStays);
 
   return {
     from: input.from,
@@ -333,19 +372,20 @@ export function buildDashboard(
     arrivals: {
       count: arrivals.length,
       guests: arrivals.reduce((n, st) => n + st.adults + st.children, 0),
-      cancelled,
-      noShow,
+      cancelled: cancelledStays,
+      noShow: noShowStays,
     },
     departures: { count: departures.length },
     bookings: {
-      total: arrivalsAll.length,
-      active: arrivals.length,
+      total: reservations.length,
+      active: activeReservations.length,
+      stays: bookedStays.length,
       cancelled,
       noShow,
-      cancelledPercent: percent(cancelled, arrivalsAll.length),
-      noShowPercent: percent(noShow, arrivalsAll.length),
+      cancelledPercent: percent(cancelled, reservations.length),
+      noShowPercent: percent(noShow, reservations.length),
       valueMinor: s(bookingsValue),
-      averageMinor: divide(bookingsValue, arrivals.length),
+      averageMinor: divide(bookingsValue, activeReservations.length),
     },
     sources,
     categories,

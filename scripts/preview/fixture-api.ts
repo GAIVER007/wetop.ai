@@ -1414,6 +1414,9 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
           arrivalDate: it.arrivalDate,
           departureDate: it.departureDate,
           status: it.status,
+          // Q-209: бронь — это Reservation (номер брони стенда), статус — её собственный
+          reservationId: r.confirmationNumber,
+          reservationStatus: r.status,
           adults: it.adults,
           children: it.children,
           priceMinor: BigInt(it.priceMinor),

@@ -3492,3 +3492,5 @@
 | 28.09.2026 14:10 | lint | ✅ без ошибок | 17 с | 4ef47d0 | [лог](logs/2026-09-28T09-10-50Z-lint-5915.log) | R3 merged with main |
 | 28.09.2026 14:11 | unit | ✅ 2301 из 2304, пропущено 3 | 1 мин 15 с | 4ef47d0 | [лог](logs/2026-09-28T09-11-13Z-unit-42f1.log) | R3 merged with main |
 | 28.09.2026 14:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 521 | 45 мин 24 с | 4ef47d0 | [лог](logs/2026-09-28T09-12-41Z-e2e-1001.log) | R3 merged with main: full UI suite |
+| 28.09.2026 15:06 | integration | ✅ 124 из 124 | 42 с | 13a60ca | [лог](logs/2026-09-28T10-06-45Z-integration-9843.log) | R3 merged with main |
+| 28.09.2026 15:07 | e2e | ✅ 25 из 25 | 1 мин 4 с | 13a60ca | [лог](logs/2026-09-28T10-07-55Z-e2e-98ab.log) | R3 merged with main: live e2e |

@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 28.09.2026 14:00 Алматы · vm
+# коммит 50551c0 (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/analytics-occupancy.spec.ts' '-g' 'телефон'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/analytics-occupancy.spec.ts:238:1 › телефон: без прокрутки вбок, строка категории — карточкой (2.8s)
+
+
+  1) tests/ui/analytics-occupancy.spec.ts:238:1 › телефон: без прокрутки вбок, строка категории — карточкой 
+
+    Error: полоса загрузки категории в «Обзоре»
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 100
+    Received:   0
+
+      259 |   await page.goto('/management/analytics?period=today');
+      260 |   const bar = page.getByTestId('pa-chart-categories').locator('.hbars__track').first();
+    > 261 |   expect((await bar.boundingBox())!.width, 'полоса загрузки категории в «Обзоре»').toBeGreaterThan(
+          |                                                                                    ^
+      262 |     100,
+      263 |   );
+      264 | });
+        at /home/user/wetop.ai/tests/ui/analytics-occupancy.spec.ts:261:84
+
+    Error Context: test-results/analytics-occupancy-телефо-428d5-трока-категории-—-карточкой/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-occupancy-телефо-428d5-трока-категории-—-карточкой/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-occupancy-телефо-428d5-трока-категории-—-карточкой/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/analytics-occupancy.spec.ts:238:1 › телефон: без прокрутки вбок, строка категории — карточкой 
+
+# код выхода 1 · 9 с

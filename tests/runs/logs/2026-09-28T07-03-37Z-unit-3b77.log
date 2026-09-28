@@ -1,0 +1,185 @@
+# Модульные (unit) · 28.09.2026 12:03 Алматы · vm
+# коммит 67f7d3e (claude/serene-fermat-om5559), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T07-03-37Z-unit-3b77.json' 'apps/web/src/lib/website.test.ts' 'apps/web/src/app/website/actions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/website/actions.test.ts (7 tests | 4 failed) 18ms
+   ✓ обновляет все вкладки «Сайта и онлайн-бронирования» после pause 4ms
+   ✓ обновляет все вкладки «Сайта и онлайн-бронирования» после widget 1ms
+   ✓ обновляет все вкладки «Сайта и онлайн-бронирования» после hosts 2ms
+   × добавление домена читает список заново и убирает заглушку 5ms
+   × неверный адрес не уходит в API 2ms
+   × последний домен не убирается 1ms
+   × убранный домен уходит из списка, остальные на месте 2ms
+ ❯ |unit| apps/web/src/lib/website.test.ts (30 tests | 10 failed) 19ms
+   ✓ домен-заглушка (14)
+     ✓ luxx-aparts.example — не адрес настоящего сайта 2ms
+     ✓ example.invalid — не адрес настоящего сайта 0ms
+     ✓ updated.example.invalid — не адрес настоящего сайта 0ms
+     ✓ example.com — не адрес настоящего сайта 0ms
+     ✓ www.example.org — не адрес настоящего сайта 0ms
+     ✓ example.net — не адрес настоящего сайта 0ms
+     ✓ luxxaparts.kz — адрес, с которого запросы доходят 0ms
+     ✓ luxx-aparts.kz — адрес, с которого запросы доходят 0ms
+     ✓ example.kz — адрес, с которого запросы доходят 1ms
+     ✓ myexample.com — адрес, с которого запросы доходят 0ms
+     ✓ examples.com — адрес, с которого запросы доходят 0ms
+     ✓ test-site.localhost — адрес, с которого запросы доходят 0ms
+     ✓ hotel.test — адрес, с которого запросы доходят 0ms
+     ✓ основной домен — первый настоящий, заглушки пропускаются 0ms
+   ✓ состояние сайта на обзоре (6)
+     ✓ заготовка с доменом-заглушкой не выглядит подключённым сайтом 1ms
+     ✓ событие сегодня — счётчик работает 1ms
+     ✓ событий ещё не было — ждём первое посещение, а не «работает» 0ms
+     ✓ последнее событие было не сегодня — так и сказано, с датой 0ms
+     ✓ пауза сайта останавливает и счётчик, и бронирование (так работает API) 0ms
+     ✓ бронирование: включено с тарифом, выключено, без тарифа 0ms
+   ❯ ввод домена (WEB2) (6)
+     × «https://www.LuxxAparts.kz/rooms?x=1» — это luxxaparts.kz 5ms
+     × «  luxxaparts.kz  » — это luxxaparts.kz 1ms
+     × «luxxaparts.kz:443» — это luxxaparts.kz 0ms
+     × «http://promo.luxxaparts.kz/» — это promo.luxxaparts.kz 0ms
+     × «WWW.luxxaparts.kz.» — это luxxaparts.kz 0ms
+     × пустой ввод и не-адрес названы словами до запроса в API 0ms
+   ❯ список доменов после правки (WEB2) (4)
+     × настоящий домен вытесняет заглушку — так и сказано 0ms
+     × второй домен встаёт в конец, основной не меняется 0ms
+     × домен, который уже есть, не дублируется 0ms
+     × убрать можно любой, кроме последнего 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > ввод домена (WEB2) > «https://www.LuxxAparts.kz/rooms?x=1» — это luxxaparts.kz
+ FAIL  |unit| apps/web/src/lib/website.test.ts > ввод домена (WEB2) > «  luxxaparts.kz  » — это luxxaparts.kz
+ FAIL  |unit| apps/web/src/lib/website.test.ts > ввод домена (WEB2) > «luxxaparts.kz:443» — это luxxaparts.kz
+ FAIL  |unit| apps/web/src/lib/website.test.ts > ввод домена (WEB2) > «http://promo.luxxaparts.kz/» — это promo.luxxaparts.kz
+ FAIL  |unit| apps/web/src/lib/website.test.ts > ввод домена (WEB2) > «WWW.luxxaparts.kz.» — это luxxaparts.kz
+TypeError: parseDomainInput is not a function
+ ❯ apps/web/src/lib/website.test.ts:148:12
+    146|     ['WWW.luxxaparts.kz.', 'luxxaparts.kz'],
+    147|   ])('«%s» — это %s', (raw, host) => {
+    148|     expect(parseDomainInput(raw)).toEqual({ host });
+       |            ^
+    149|   });
+    150|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > ввод домена (WEB2) > пустой ввод и не-адрес названы словами до запроса в API
+TypeError: parseDomainInput is not a function
+ ❯ apps/web/src/lib/website.test.ts:152:12
+    150|
+    151|   it('пустой ввод и не-адрес названы словами до запроса в API', () => {
+    152|     expect(parseDomainInput('   ')).toEqual({ error: 'Впишите адрес са…
+       |            ^
+    153|     for (const raw of ['luxx aparts', 'https://', 'luxx_aparts.kz', '-…
+    154|       expect(parseDomainInput(raw)).toHaveProperty(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > список доменов после правки (WEB2) > настоящий домен вытесняет заглушку — так и сказано
+TypeError: hostsAfterAdd is not a function
+ ❯ apps/web/src/lib/website.test.ts:163:12
+    161| describe('список доменов после правки (WEB2)', () => {
+    162|   it('настоящий домен вытесняет заглушку — так и сказано', () => {
+    163|     expect(hostsAfterAdd(['luxx-aparts.example'], 'luxxaparts.kz')).to…
+       |            ^
+    164|       hosts: ['luxxaparts.kz'],
+    165|       dropped: ['luxx-aparts.example'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > список доменов после правки (WEB2) > второй домен встаёт в конец, основной не меняется
+TypeError: hostsAfterAdd is not a function
+ ❯ apps/web/src/lib/website.test.ts:170:12
+    168|
+    169|   it('второй домен встаёт в конец, основной не меняется', () => {
+    170|     expect(hostsAfterAdd(['luxxaparts.kz'], 'promo.kz')).toEqual({
+       |            ^
+    171|       hosts: ['luxxaparts.kz', 'promo.kz'],
+    172|       dropped: [],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > список доменов после правки (WEB2) > домен, который уже есть, не дублируется
+TypeError: hostsAfterAdd is not a function
+ ❯ apps/web/src/lib/website.test.ts:177:12
+    175|
+    176|   it('домен, который уже есть, не дублируется', () => {
+    177|     expect(hostsAfterAdd(['luxxaparts.kz'], 'luxxaparts.kz')).toEqual({
+       |            ^
+    178|       error: 'luxxaparts.kz уже в списке',
+    179|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > список доменов после правки (WEB2) > убрать можно любой, кроме последнего
+TypeError: hostsAfterRemove is not a function
+ ❯ apps/web/src/lib/website.test.ts:183:12
+    181|
+    182|   it('убрать можно любой, кроме последнего', () => {
+    183|     expect(hostsAfterRemove(['luxxaparts.kz', 'promo.kz'], 'luxxaparts…
+       |            ^
+    184|       hosts: ['promo.kz'],
+    185|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  |unit| apps/web/src/app/website/actions.test.ts > добавление домена читает список заново и убирает заглушку
+TypeError: addDomainAction is not a function
+ ❯ apps/web/src/app/website/actions.test.ts:39:24
+     37|     .spyOn(analyticsApi, 'update')
+     38|     .mockResolvedValue(withHosts(['luxxaparts.kz']));
+     39|   const result = await addDomainAction('site', 'https://www.luxxaparts…
+       |                        ^
+     40|   expect(update).toHaveBeenCalledWith('site', { hosts: ['luxxaparts.kz…
+     41|   expect(result.error).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  |unit| apps/web/src/app/website/actions.test.ts > неверный адрес не уходит в API
+TypeError: addDomainAction is not a function
+ ❯ apps/web/src/app/website/actions.test.ts:48:24
+     46| it('неверный адрес не уходит в API', async () => {
+     47|   const update = vi.spyOn(analyticsApi, 'update');
+     48|   const result = await addDomainAction('site', 'luxx aparts');
+       |                        ^
+     49|   expect(update).not.toHaveBeenCalled();
+     50|   expect(result.error).toContain('Не похоже на адрес сайта');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL  |unit| apps/web/src/app/website/actions.test.ts > последний домен не убирается
+TypeError: removeDomainAction is not a function
+ ❯ apps/web/src/app/website/actions.test.ts:56:24
+     54|   vi.spyOn(analyticsApi, 'card').mockResolvedValue(withHosts(['luxxapa…
+     55|   const update = vi.spyOn(analyticsApi, 'update');
+     56|   const result = await removeDomainAction('site', 'luxxaparts.kz');
+       |                        ^
+     57|   expect(update).not.toHaveBeenCalled();
+     58|   expect(result.error).toContain('хотя бы один адрес');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+ FAIL  |unit| apps/web/src/app/website/actions.test.ts > убранный домен уходит из списка, остальные на месте
+TypeError: removeDomainAction is not a function
+ ❯ apps/web/src/app/website/actions.test.ts:64:24
+     62|   vi.spyOn(analyticsApi, 'card').mockResolvedValue(withHosts(['luxxapa…
+     63|   const update = vi.spyOn(analyticsApi, 'update').mockResolvedValue(wi…
+     64|   const result = await removeDomainAction('site', 'promo.kz');
+       |                        ^
+     65|   expect(update).toHaveBeenCalledWith('site', { hosts: ['luxxaparts.kz…
+     66|   expect(result.message).toContain('promo.kz');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  14 failed | 23 passed (37)
+   Start at  07:03:41
+   Duration  1.37s (transform 86%, import 11%, tests 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T07-03-37Z-unit-3b77.json
+
+# код выхода 1 · 6 с

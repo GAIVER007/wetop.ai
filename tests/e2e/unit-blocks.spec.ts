@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { confirmAction } from './confirm';
 import { roomiestCategory } from './pick-category';
 
@@ -34,12 +35,9 @@ test('заблокировать свободную койку на 2 ночи �
     .getByTestId('new-reservation-form')
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, FROM, TO));
-  const unitCode = (await page
-    .getByRole('main')
-    .getByTestId('new-reservation-form')
-    .locator('select[name="unitCode"] option')
-    .nth(1)
-    .getAttribute('value'))!;
+  const unitCode = await unitOption(
+    page.getByRole('main').getByTestId('new-reservation-form').locator('select[name="unitCode"]'),
+  );
   const freeBefore = Number(
     /свободно (\d+)/.exec(
       (await page.getByRole('main').getByTestId('availability').textContent()) ?? '',

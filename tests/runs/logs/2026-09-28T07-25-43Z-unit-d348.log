@@ -1,0 +1,112 @@
+# Модульные (unit) · 28.09.2026 12:25 Алматы · vm
+# коммит 05fd47f (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T07-25-43Z-unit-d348.json' 'apps/api/src/reservations/stay-offers.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/reservations/stay-offers.test.ts (6 tests | 6 failed) 346ms
+   ❯ GET /availability/offers — цены «от» (Q-199) (6)
+     × номер: самый дешёвый допустимый тариф за весь срок, число тарифов, цена ночи 39ms
+     × койки: итог — на всех гостей запроса (8 000 × 2 × 3 = 48 000), цена ночи — за койку 5ms
+     × номер, который не вмещает всех гостей, цены не получает 4ms
+     × occupancy запроса: для одного гостя берётся цена на одного 4ms
+     × стоп-продажа по тарифу исключает его из «от» 4ms
+     × неверный запрос — 400, а не общая ошибка 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/reservations/stay-offers.test.ts > GET /availability/offers — цены «от» (Q-199) > номер: самый дешёвый допустимый тариф за весь срок, число тарифов, цена ночи
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ apps/api/src/reservations/stay-offers.test.ts:72:24
+     70|   it('номер: самый дешёвый допустимый тариф за весь срок, число тарифо…
+     71|     const res = await get('arrival=2026-10-01&departure=2026-10-04&gue…
+     72|     expect(res.status).toBe(200);
+       |                        ^
+     73|     expect(res.body).toMatchObject({ nights: 3, guests: 2, currency: '…
+     74|     expect(res.body.byCategory.ROOM).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| apps/api/src/reservations/stay-offers.test.ts > GET /availability/offers — цены «от» (Q-199) > койки: итог — на всех гостей запроса (8 000 × 2 × 3 = 48 000), цена ночи — за койку
+TypeError: Cannot read properties of undefined (reading 'BED')
+ ❯ apps/api/src/reservations/stay-offers.test.ts:84:32
+     82|   it('койки: итог — на всех гостей запроса (8 000 × 2 × 3 = 48 000), ц…
+     83|     const res = await get('arrival=2026-10-01&departure=2026-10-04&gue…
+     84|     expect(res.body.byCategory.BED).toEqual({
+       |                                ^
+     85|       plans: 1,
+     86|       totalMinor: '4800000',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| apps/api/src/reservations/stay-offers.test.ts > GET /availability/offers — цены «от» (Q-199) > номер, который не вмещает всех гостей, цены не получает
+TypeError: Cannot read properties of undefined (reading 'ROOM')
+ ❯ apps/api/src/reservations/stay-offers.test.ts:94:32
+     92|   it('номер, который не вмещает всех гостей, цены не получает', async …
+     93|     const res = await get('arrival=2026-10-01&departure=2026-10-04&gue…
+     94|     expect(res.body.byCategory.ROOM).toBeNull();
+       |                                ^
+     95|     expect(res.body.byCategory.BED).toMatchObject({ totalMinor: '72000…
+     96|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| apps/api/src/reservations/stay-offers.test.ts > GET /availability/offers — цены «от» (Q-199) > occupancy запроса: для одного гостя берётся цена на одного
+TypeError: Cannot read properties of undefined (reading 'ROOM')
+ ❯ apps/api/src/reservations/stay-offers.test.ts:100:32
+     98|   it('occupancy запроса: для одного гостя берётся цена на одного', asy…
+     99|     const res = await get('arrival=2026-10-01&departure=2026-10-04&gue…
+    100|     expect(res.body.byCategory.ROOM).toMatchObject({ plans: 1, totalMi…
+       |                                ^
+    101|   });
+    102|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| apps/api/src/reservations/stay-offers.test.ts > GET /availability/offers — цены «от» (Q-199) > стоп-продажа по тарифу исключает его из «от»
+TypeError: Cannot read properties of undefined (reading 'ROOM')
+ ❯ apps/api/src/reservations/stay-offers.test.ts:109:32
+    107|     const res = await get('arrival=2026-10-01&departure=2026-10-04&gue…
+    108|     delete restrictions['promo:room'];
+    109|     expect(res.body.byCategory.ROOM).toMatchObject({ plans: 1, totalMi…
+       |                                ^
+    110|   });
+    111|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| apps/api/src/reservations/stay-offers.test.ts > GET /availability/offers — цены «от» (Q-199) > неверный запрос — 400, а не общая ошибка
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ apps/api/src/reservations/stay-offers.test.ts:113:84
+    111|
+    112|   it('неверный запрос — 400, а не общая ошибка', async () => {
+    113|     expect((await get('arrival=2026-10-04&departure=2026-10-01&guests=…
+       |                                                                                    ^
+    114|     expect((await get('arrival=2026-10-01&departure=2026-10-04&guests=…
+    115|     expect((await get('arrival=2026-10-01&departure=2027-01-01&guests=…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  07:25:44
+   Duration  2.94s (transform 56%, import 31%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-09-28T07-25-43Z-unit-d348.json
+
+# код выхода 1 · 4 с

@@ -1,0 +1,24 @@
+# Интеграционные (integration) · 29.09.2026 00:11 Алматы · vm
+# коммит 7485e92 (claude/magical-bohr-uxmglf), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-11-57Z-integration-45cf.json' 'tests/integration/category-usage.test.ts' 'tests/integration/inventory-editor.test.ts' 'tests/integration/category-rate-plan.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/category-usage.test.ts (1 test) 638ms
+   ✓ category usage for safe editing (1)
+     ✓ counts distinct reservations in history and ahead, and the Channex mapping, per category 636ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 483ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 481ms
+ ✓ |integration| tests/integration/category-rate-plan.test.ts (1 test) 484ms
+   ✓ category without a rate plan, rate plan linked later (1)
+     ✓ requires an explicit choice, creates without a link on «later», links existing and new plans once 482ms
+
+ Test Files  3 passed (3)
+      Tests  3 passed (3)
+   Start at  19:11:58
+   Duration  4.28s (tests 50%, import 33%, transform 17%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-11-57Z-integration-45cf.json
+
+# код выхода 0 · 5 с

@@ -55,6 +55,16 @@ test('пробный срок вышел — полоса «оплатите п�
   await expect(main.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
   await main.getByRole('tab', { name: 'Проживания', exact: true }).click();
   await expect(main.getByRole('tabpanel').getByTestId('guest-stay-row').first()).toBeVisible();
+  // G5 (ТЗ §40): документы и финансы читаются; добавить и удалить документ, сохранить профиль — нельзя
+  await main.getByRole('tab', { name: 'Документы', exact: true }).click();
+  await expect(main.getByRole('tabpanel').getByTestId('document-row').first()).toBeVisible();
+  await expect(main.getByTestId('document-form')).toHaveCount(0);
+  await expect(main.getByRole('button', { name: 'удалить', exact: true })).toHaveCount(0);
+  await main.getByRole('tab', { name: 'Финансы', exact: true }).click();
+  await expect(main.getByRole('tabpanel').getByTestId('guest-finance-summary')).toBeVisible();
+  await main.getByRole('tab', { name: 'Данные гостя', exact: true }).click();
+  await expect(main.getByTestId('guest-form')).toBeVisible();
+  await expect(main.getByRole('button', { name: 'Сохранить', exact: true })).toHaveCount(0);
   await page.goto('/today');
   await page.screenshot({ path: 'test-results/trial-read-only-banner.png' });
 });

@@ -3571,6 +3571,17 @@
 | 28.09.2026 14:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 521 | 45 мин 24 с | 4ef47d0 | [лог](logs/2026-09-28T09-12-41Z-e2e-1001.log) | R3 merged with main: full UI suite |
 | 28.09.2026 15:06 | integration | ✅ 124 из 124 | 42 с | 13a60ca | [лог](logs/2026-09-28T10-06-45Z-integration-9843.log) | R3 merged with main |
 | 28.09.2026 15:07 | e2e | ✅ 25 из 25 | 1 мин 4 с | 13a60ca | [лог](logs/2026-09-28T10-07-55Z-e2e-98ab.log) | R3 merged with main: live e2e |
+| 28.09.2026 13:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts) | ❌ упало 2 из 19 | 3 мин 22 с | 1b187fa +11 | [лог](logs/2026-09-28T08-49-12Z-e2e-c389.log) | INT2: integrations specs |
+| 28.09.2026 13:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts) | ❌ упало 1 из 19 | 1 мин 12 с | 1b187fa +11 | [лог](logs/2026-09-28T08-53-38Z-e2e-3617.log) | INT2: integrations specs, roles per ADR-107 |
+| 28.09.2026 13:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts) | ✅ 19 из 19 | 1 мин 7 с | 1b187fa +11 | [лог](logs/2026-09-28T08-55-12Z-e2e-8e4c.log) | INT2: rerun after Turbopack panic in next dev |
+| 28.09.2026 14:07 | unit | ✅ 2303 из 2306, пропущено 3 | 1 мин 48 с | 1b187fa +9 | [лог](logs/2026-09-28T09-07-39Z-unit-7a47.log) | INT2 |
+| 28.09.2026 14:09 | typecheck | ✅ без ошибок | 39 с | 1b187fa +12 | [лог](logs/2026-09-28T09-09-28Z-typecheck-a81c.log) | INT2 |
+| 28.09.2026 14:10 | lint | ✅ без ошибок | 25 с | 1b187fa +12 | [лог](logs/2026-09-28T09-10-08Z-lint-c3c9.log) | INT2 |
+| 28.09.2026 13:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/requests.spec.ts tests/ui/real-data.spec.ts tests/ui/w | ❌ упало 5 из 151 | 14 мин 20 с | 1b187fa +12 | [лог](logs/2026-09-28T08-56-41Z-e2e-d03d.log) | INT2: specs touching /connections |
+| 28.09.2026 14:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts tests/ui/real-data.spec.ts | ✅ 53 из 53 | 2 мин 5 с | f198ebb | [лог](logs/2026-09-28T09-14-14Z-e2e-98b8.log) | INT2: final code, integrations + affected specs |
+| 28.09.2026 14:16 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 17 с | f198ebb | [лог](logs/2026-09-28T09-16-25Z-unit-2535.log) | INT2 final |
+| 28.09.2026 14:17 | typecheck | ✅ без ошибок | 24 с | f198ebb | [лог](logs/2026-09-28T09-17-43Z-typecheck-d242.log) | INT2 final |
+| 28.09.2026 14:18 | lint | ✅ без ошибок | 17 с | f198ebb | [лог](logs/2026-09-28T09-18-07Z-lint-44ab.log) | INT2 final |
 | 28.09.2026 13:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 516 | 44 мин 54 с | 6d300b0 | [лог](logs/2026-09-28T08-23-04Z-e2e-52bd.log) | integration 28.09: final HEAD, full UI regression single worker |
 | 28.09.2026 14:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.ts tes | ✅ 110 из 110 | 6 мин 48 с | 179b82d | [лог](logs/2026-09-28T09-10-53Z-e2e-f1c1.log) | seam fixes: the 8 red specs of the full run |
 | 28.09.2026 14:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 516 из 516 | 40 мин 59 с | 179b82d | [лог](logs/2026-09-28T09-17-49Z-e2e-861d.log) | integration 28.09: full UI regression single worker after seam fixes (final HEAD) |
@@ -3750,3 +3761,8 @@
 | 28.09.2026 22:52 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | 3ae45d4 | [лог](logs/2026-09-28T17-52-23Z-e2e-22f5.log) | AN2 on main after platform reset: live e2e |
 | 28.09.2026 22:57 | e2e | ❌ упало 2 из 26 | 4 мин 39 с | 3ae45d4 | [лог](logs/2026-09-28T17-57-21Z-e2e-466e.log) | AN2 on main after platform reset: E2E_AUTH=1, API as wetop_app |
 | 28.09.2026 23:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 524 из 524 | 38 мин 18 с | 3ae45d4 | [лог](logs/2026-09-28T18-02-08Z-e2e-dca6.log) | AN2 on main after platform reset: full UI suite, single worker |
+| 28.09.2026 15:22 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 26 с | 6fcdd5e | [лог](logs/2026-09-28T10-22-24Z-unit-51c5.log) | INT2 after merging main |
+| 28.09.2026 15:23 | typecheck | ✅ без ошибок | 32 с | 6fcdd5e | [лог](logs/2026-09-28T10-23-51Z-typecheck-dbb0.log) | INT2 after merging main |
+| 28.09.2026 15:24 | lint | ✅ без ошибок | 17 с | 6fcdd5e | [лог](logs/2026-09-28T10-24-23Z-lint-338c.log) | INT2 after merging main |
+| 28.09.2026 22:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 9 с | 6fcdd5e | [лог](logs/2026-09-28T17-43-39Z-e2e-7569.log) | INT2 merged with main: full UI suite |
+| 28.09.2026 22:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 526 из 526 | 40 мин 3 с | 5b2cc5d | [лог](logs/2026-09-28T17-46-43Z-e2e-df03.log) | INT2 merged with main: full UI suite (rerun after cold webServer start) |

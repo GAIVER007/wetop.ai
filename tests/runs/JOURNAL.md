@@ -2922,3 +2922,5 @@
 | 28.09.2026 13:31 | e2e (частично: tests/ui/reservations-v2-r3.spec.ts --config tests/ui/playwright.config.ts --workers=1 --repeat-each=4) | ✅ 20 из 20 | 2 мин 58 с | 4eccd5c +2 | [лог](logs/2026-09-28T08-31-18Z-e2e-c60c.log) | R3: open-full-card back-then-assign, spec x4 |
 | 28.09.2026 13:34 | typecheck | ✅ без ошибок | 20 с | 4eccd5c +2 | [лог](logs/2026-09-28T08-34-29Z-typecheck-9217.log) | R3 open-full-card |
 | 28.09.2026 13:34 | lint | ✅ без ошибок | 15 с | 4eccd5c +2 | [лог](logs/2026-09-28T08-34-50Z-lint-f7d9.log) | R3 open-full-card |
+| 28.09.2026 13:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 418 | 31 мин 11 с | 0dc355a | [лог](logs/2026-09-28T08-35-15Z-e2e-fa81.log) | R3: full UI suite after history fix |
+| 28.09.2026 14:07 | e2e | ✅ 25 из 25 | 57 с | 0dc355a | [лог](logs/2026-09-28T09-07-02Z-e2e-2bf4.log) | R3 live e2e on local PostgreSQL |

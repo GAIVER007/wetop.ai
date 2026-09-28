@@ -1,20 +1,26 @@
 'use client';
-import { useActionState, useState, useTransition } from 'react';
+import { useActionState, useState, useTransition, type ReactNode } from 'react';
 import {
   Alert,
+  Badge,
   Button,
+  Fact,
   Field,
   Input,
   Notice,
   Row,
   Select,
   Stack,
-  Textarea,
+  Table,
 } from '../../components/ui';
+import { Icon } from '../../components/icon';
+import { Overlay } from '../../components/overlay';
+import { isPlaceholderHost, primaryHost } from '../../lib/website';
 import {
+  addDomainAction,
   bookingSettingsAction,
   createSiteAction,
-  hostsAction,
+  removeDomainAction,
   siteAction,
   type SiteActionResult,
 } from './actions';
@@ -41,19 +47,21 @@ export function CreateSiteForm() {
           data-testid="site-name"
         />
       </Field>
-      <Field label="Домены без https://, через запятую">
-        <Textarea
+      {/* WEB2: один адрес — как его вставляют из браузера; ещё адреса — списком после подключения */}
+      <Field label="Адрес сайта">
+        <Input
           name="hosts"
           defaultValue={state?.values?.hosts ?? ''}
           required
-          rows={2}
-          placeholder={'luxx-aparts.kz\nwww.luxx-aparts.kz'}
+          inputMode="url"
+          autoComplete="off"
+          placeholder="luxxaparts.kz"
           data-testid="site-hosts"
         />
       </Field>
       <div>
         <Button type="submit" disabled={pending} data-testid="site-create">
-          Добавить сайт
+          Подключить сайт
         </Button>
       </div>
       {state?.error && <Alert>{state.error}</Alert>}
@@ -63,7 +71,13 @@ export function CreateSiteForm() {
 }
 
 /** Проверка счётчика: время последнего события и сессии сегодня — тем же запросом, что карточка сайта */
-export function CheckCounterButton({ id }: { id: string }) {
+export function CheckCounterButton({
+  id,
+  label = 'Проверить счётчик',
+}: {
+  id: string;
+  label?: string;
+}) {
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -76,7 +90,7 @@ export function CheckCounterButton({ id }: { id: string }) {
           disabled={pending}
           data-testid="site-check"
         >
-          Проверить счётчик
+          {label}
         </Button>
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}
@@ -200,34 +214,239 @@ export function BookingSettings({
   );
 }
 
-export function HostsForm({ id, hosts }: { id: string; hosts: string[] }) {
-  const [value, setValue] = useState(hosts.join('\n'));
+/**
+ * Домены сайта списком (WEB2, п. 6 ТЗ): основной, заглушка, «Убрать» с подтверждением, «Добавить домен». Список для
+ * сохранения сервер читает заново (`addDomainAction`, `removeDomainAction`), здесь — только то, что видно.
+ */
+export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
+  const primary = primaryHost({ hosts });
+  const [adding, setAdding] = useState(false);
+  const [value, setValue] = useState('');
   const [result, setResult] = useState<SiteActionResult | null>(null);
   const [pending, start] = useTransition();
+  const { ask, dialog } = useConfirm();
+  const add = () =>
+    start(async () => {
+      const next = await addDomainAction(id, value);
+      setResult(next);
+      if (!next.error) {
+        setValue('');
+        setAdding(false);
+      }
+    });
+  const remove = async (host: string) => {
+    const ok = await ask({
+      title: `Убрать ${host}?`,
+      body: `С адреса ${host} и его поддоменов WETOP перестанет принимать посещения и брони: счётчик и виджет на этом сайте замолчат.`,
+      confirmLabel: 'Убрать домен',
+    });
+    if (ok) start(async () => setResult(await removeDomainAction(id, host)));
+  };
   return (
-    <Stack gap="sm" className="form-narrow" data-testid="hosts-form">
-      <Field label="Домены сайта (по одному в строке; поддомены и www подходят сами)">
-        <Textarea
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          rows={2}
-          data-testid="hosts-input"
-        />
-      </Field>
-      <div>
-        <Button
-          type="button"
-          tone="secondary"
-          onClick={() => start(async () => setResult(await hostsAction(id, value)))}
-          disabled={pending}
-          data-testid="hosts-save"
+    <Stack gap="sm" data-testid="domain-list">
+      <Table size="sm" plain aria-label="Домены сайта">
+        <tbody>
+          {hosts.map((host) => (
+            <tr key={host} data-testid="domain-row" data-host={host}>
+              {/* домен и плашки в одной ячейке: на телефоне плашка переносится, а не обрезается */}
+              <td>
+                <span className="row">
+                  <strong className="break-all">{host}</strong>
+                  {host === primary && <Badge tone="ok">Основной</Badge>}
+                  {isPlaceholderHost(host) && <Badge tone="warn">Пример, не сайт</Badge>}
+                </span>
+              </td>
+              <td className="num">
+                {hosts.length > 1 && (
+                  <Button
+                    type="button"
+                    tone="ghost"
+                    onClick={() => remove(host)}
+                    disabled={pending}
+                    aria-label={`Убрать ${host}`}
+                    data-testid="domain-remove"
+                  >
+                    Убрать
+                  </Button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      {adding ? (
+        <form
+          className="row row--end"
+          onSubmit={(e) => {
+            e.preventDefault();
+            add();
+          }}
+          data-testid="domain-add-form"
         >
-          Сохранить домены
-        </Button>
-      </div>
+          <Field label="Новый домен">
+            <Input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              inputMode="url"
+              autoComplete="off"
+              autoFocus
+              placeholder="luxxaparts.kz"
+              data-testid="domain-input"
+            />
+          </Field>
+          <Button type="submit" disabled={pending} data-testid="domain-save">
+            Добавить
+          </Button>
+          <Button
+            type="button"
+            tone="ghost"
+            onClick={() => {
+              setAdding(false);
+              setResult(null);
+            }}
+          >
+            Отмена
+          </Button>
+        </form>
+      ) : (
+        <div>
+          <Button
+            type="button"
+            tone="secondary"
+            onClick={() => setAdding(true)}
+            data-testid="domain-add"
+          >
+            <Icon name="plus" />
+            Добавить домен
+          </Button>
+        </div>
+      )}
+      <p className="hint">
+        www и поддомены подходят сами: {primary ?? 'luxxaparts.kz'} принимает и www, и адреса вида
+        booking.{primary ?? 'luxxaparts.kz'}.
+        {hosts.length === 1 && ' Последний адрес не убирается — сначала добавьте другой.'}
+      </p>
       {result?.error && <Alert>{result.error}</Alert>}
-      {result?.message && <Notice data-testid="hosts-result">{result.message}</Notice>}
+      {result?.message && <Notice data-testid="domain-result">{result.message}</Notice>}
+      {dialog}
     </Stack>
+  );
+}
+
+/**
+ * Окно установки счётчика (WEB2): код в head, Google Tag Manager, конструкторы, проверка и «Дополнительно». Раньше это
+ * была раскрывашка в карточке и отдельная «Инструкция» внизу страницы — теперь одно окно по кнопке.
+ */
+export function InstallCounterButton({
+  code,
+  siteKey,
+  demoUrl,
+}: {
+  code: string;
+  siteKey: string;
+  demoUrl: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const demo = (() => {
+    try {
+      return ['https:', 'http:'].includes(new URL(demoUrl).protocol);
+    } catch {
+      return false;
+    }
+  })();
+  return (
+    <>
+      <Button
+        type="button"
+        tone="secondary"
+        onClick={() => setOpen(true)}
+        data-testid="site-install"
+      >
+        Инструкция по установке
+      </Button>
+      <Overlay drawer open={open} onClose={() => setOpen(false)} title="Установка счётчика WETOP">
+        <Stack data-testid="site-install-drawer">
+          <InstallStep title="Код для сайта">
+            <p className="hint--lg">Вставьте в &lt;head&gt; каждой страницы сайта.</p>
+            <pre data-testid="site-card-snippet" className="code">
+              {code}
+            </pre>
+            <Row className="items-start">
+              <CopyButton text={code} />
+              {demo ? (
+                <a
+                  href={demoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-testid="site-card-demo"
+                  title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
+                >
+                  Открыть демо-страницу счётчика
+                </a>
+              ) : (
+                <Badge>Демо счётчика не подключено</Badge>
+              )}
+            </Row>
+            <Fact label="Публичный ключ сайта" value={siteKey} testId="site-card-key" />
+          </InstallStep>
+          <InstallStep title="Через Google Tag Manager">
+            <ol className="list hint--lg list--gap">
+              <li>Теги → «Создать» → тип тега «Пользовательский HTML».</li>
+              <li>Вставьте код выше целиком.</li>
+              <li>Триггер — «Все страницы» (All Pages).</li>
+              <li>Сохраните тег и опубликуйте контейнер кнопкой «Отправить».</li>
+            </ol>
+          </InstallStep>
+          <InstallStep title="Tilda, WordPress и свой сайт">
+            <ul className="list hint--lg list--gap">
+              <li>Tilda и другие конструкторы: в настройках сайта — поле для HTML-кода в head.</li>
+              <li>WordPress: поле темы или плагина для кода в head.</li>
+              <li>Свой сайт: в общем шаблоне, перед закрывающим &lt;/head&gt;.</li>
+            </ul>
+          </InstallStep>
+          <InstallStep title="Проверка">
+            <p className="hint--lg">
+              Откройте любую страницу сайта и вернитесь сюда: кнопка «Проверить» в карточке покажет
+              время последнего события. Проверить без сайта: откройте демо-страницу с телефона и
+              нажмите кнопки на ней.
+            </p>
+          </InstallStep>
+          <details className="settings-disclosure">
+            <summary>Дополнительно: поиск дат, звонки и согласие</summary>
+            <ol className="list hint--lg list--gap">
+              <li>
+                Счётчик шлёт только: адрес и заголовок страницы, реферер, ширину экрана, язык,
+                часовой пояс и случайные ID посетителя и сессии. Без cookies, без IP, без имён и
+                телефонов.
+              </li>
+              <li>
+                Форма поиска дат на сайте: при поиске вызовите{' '}
+                <code>
+                  pms(&apos;event&apos;, &apos;search&apos;, {'{'}arrival: &apos;2026-10-01&apos;,
+                  departure: &apos;2026-10-03&apos;, adults: 2{'}'})
+                </code>{' '}
+                — так заполняется календарь спроса. Клики по телефону и WhatsApp:{' '}
+                <code>pms(&apos;event&apos;, &apos;phone_click&apos;)</code>,{' '}
+                <code>pms(&apos;event&apos;, &apos;whatsapp_click&apos;)</code>.
+              </li>
+              <li>
+                Нужен баннер согласия — добавьте атрибут <code>data-consent=&quot;wait&quot;</code>{' '}
+                и вызовите <code>pms(&apos;consent&apos;)</code> после согласия.
+              </li>
+            </ol>
+          </details>
+        </Stack>
+      </Overlay>
+    </>
+  );
+}
+
+function InstallStep({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="stack stack--sm">
+      <h3>{title}</h3>
+      {children}
+    </section>
   );
 }
 

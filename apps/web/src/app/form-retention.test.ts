@@ -14,7 +14,8 @@ it.each(['profile', 'document', 'block', 'site'] as const)(
       profile: { firstName: 'Synthetic', lastName: 'Guest', notes: 'Черновик' },
       document: { type: 'OTHER', number: 'TEST-ONLY', issueCountry: 'KAZ' },
       block: { dateFrom: '2026-09-15', dateTo: '2026-09-18', reason: 'Ремонт' },
-      site: { name: 'Тестовый сайт', hosts: 'example.invalid, test.invalid' },
+      // WEB2: форма подключения — один адрес; остальные добавляются списком после подключения
+      site: { name: 'Тестовый сайт', hosts: 'example.invalid' },
     }[kind];
     const fd = new FormData();
     for (const [key, value] of Object.entries(values)) fd.set(key, value);

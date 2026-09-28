@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { TrackedSiteCard } from './api';
 import { propertyClock } from './property-time';
-import { isPlaceholderHost, primaryHost, siteState } from './website';
+import {
+  hostsAfterAdd,
+  hostsAfterRemove,
+  isPlaceholderHost,
+  parseDomainInput,
+  primaryHost,
+  siteState,
+} from './website';
 
 const clock = propertyClock('Asia/Almaty');
 // 27.09.2026 15:00 по Алматы
@@ -127,5 +134,62 @@ describe('состояние сайта на обзоре', () => {
       value: 'Выключено',
     });
     expect(siteState(card({ bookingRatePlan: null }), clock, NOW).booking.state).toBe('blocked');
+  });
+});
+
+describe('ввод домена (WEB2)', () => {
+  it.each([
+    ['https://www.LuxxAparts.kz/rooms?x=1', 'luxxaparts.kz'],
+    ['  luxxaparts.kz  ', 'luxxaparts.kz'],
+    ['luxxaparts.kz:443', 'luxxaparts.kz'],
+    ['http://promo.luxxaparts.kz/', 'promo.luxxaparts.kz'],
+    ['WWW.luxxaparts.kz.', 'luxxaparts.kz'],
+  ])('«%s» — это %s', (raw, host) => {
+    expect(parseDomainInput(raw)).toEqual({ host });
+  });
+
+  it('пустой ввод и не-адрес названы словами до запроса в API', () => {
+    expect(parseDomainInput('   ')).toEqual({
+      error: 'Впишите адрес сайта, например luxxaparts.kz',
+    });
+    for (const raw of ['luxx aparts', 'https://', 'luxx_aparts.kz', '-luxx.kz'])
+      expect(parseDomainInput(raw)).toHaveProperty(
+        'error',
+        'Не похоже на адрес сайта: впишите домен, например luxxaparts.kz',
+      );
+  });
+});
+
+describe('список доменов после правки (WEB2)', () => {
+  it('настоящий домен вытесняет заглушку — так и сказано', () => {
+    expect(hostsAfterAdd(['luxx-aparts.example'], 'luxxaparts.kz')).toEqual({
+      hosts: ['luxxaparts.kz'],
+      dropped: ['luxx-aparts.example'],
+    });
+  });
+
+  it('второй домен встаёт в конец, основной не меняется', () => {
+    expect(hostsAfterAdd(['luxxaparts.kz'], 'promo.kz')).toEqual({
+      hosts: ['luxxaparts.kz', 'promo.kz'],
+      dropped: [],
+    });
+  });
+
+  it('домен, который уже есть, не дублируется', () => {
+    expect(hostsAfterAdd(['luxxaparts.kz'], 'luxxaparts.kz')).toEqual({
+      error: 'luxxaparts.kz уже в списке',
+    });
+  });
+
+  it('убрать можно любой, кроме последнего', () => {
+    expect(hostsAfterRemove(['luxxaparts.kz', 'promo.kz'], 'luxxaparts.kz')).toEqual({
+      hosts: ['promo.kz'],
+    });
+    expect(hostsAfterRemove(['luxxaparts.kz'], 'luxxaparts.kz')).toEqual({
+      error: 'Сайту нужен хотя бы один адрес: сначала добавьте другой',
+    });
+    expect(hostsAfterRemove(['luxxaparts.kz'], 'promo.kz')).toEqual({
+      error: 'promo.kz уже нет в списке',
+    });
   });
 });

@@ -1,22 +1,22 @@
 import { analyticsApi, type TrackedSiteCard } from '../../../lib/api';
 import { propertyClock } from '../../../lib/property-time';
-import { WEBSITE_TITLE, siteState } from '../../../lib/website';
+import { WEBSITE_TITLE, siteState, type SiteState } from '../../../lib/website';
 import { Page } from '../../../components/page';
-import { Alert, Badge, Fact, Help, Panel, Row, SectionTitle, Stack } from '../../../components/ui';
+import { Alert, Badge, Fact, Panel, Row, SectionTitle, Stack } from '../../../components/ui';
 import {
   CheckCounterButton,
-  CopyButton,
   CreateSiteForm,
-  HostsForm,
+  DomainList,
+  InstallCounterButton,
   SiteDangerZone,
 } from '../forms';
 import { WebsiteTabs } from '../parts';
 import '../../directory.css';
 
 /**
- * «Сайт и онлайн-бронирование → Настройки» (ADR-107, WEB1): бывшие «Настройки сайта» (`/analytics/setup`) без блока
- * бронирования — он во вкладке «Бронирование». Домены, счётчик и код; пауза и удаление — в «Опасной зоне».
- * Постоянный публичный адрес API — Q-112. Домены списком и окно установки — WEB2.
+ * «Сайт и онлайн-бронирование → Настройки» (ADR-107): бывшие «Настройки сайта» (`/analytics/setup`) без блока
+ * бронирования — он во вкладке «Бронирование». WEB2 (28.09): домены списком, состояние счётчика словами с одним
+ * действием, установка кода — в окне по кнопке. Пауза и удаление — в «Опасной зоне». Постоянный адрес API — Q-112.
  */
 export default async function WebsiteSettingsPage() {
   const sites = await analyticsApi.sites();
@@ -47,58 +47,47 @@ export default async function WebsiteSettingsPage() {
 
           <Panel size="lg">
             <SectionTitle first>{cards.length ? 'Ещё один сайт' : 'Подключить сайт'}</SectionTitle>
+            <p className="hint block--bottom-xs">
+              Существующий сайт объекта: WETOP будет принимать с него посещения и брони.
+            </p>
             <CreateSiteForm />
           </Panel>
-
-          <Help title="Инструкция по установке">
-            <ol className="list hint--lg list--gap">
-              <li>
-                Вставьте код счётчика в &lt;head&gt; каждой страницы сайта (в Tilda и WordPress —
-                поле «HTML-код в head»).
-              </li>
-              <li>
-                Счётчик шлёт только: адрес и заголовок страницы, реферер, ширину экрана, язык,
-                часовой пояс и случайные ID посетителя и сессии. Без cookies, без IP, без имён и
-                телефонов.
-              </li>
-              <li>
-                Если на сайте есть форма поиска дат, вызовите при поиске{' '}
-                <code>
-                  pms(&apos;event&apos;, &apos;search&apos;, {'{'}arrival: &apos;2026-10-01&apos;,
-                  departure: &apos;2026-10-03&apos;, adults: 2{'}'})
-                </code>{' '}
-                — так заполняется календарь спроса. Клики по телефону и WhatsApp:{' '}
-                <code>pms(&apos;event&apos;, &apos;phone_click&apos;)</code>,{' '}
-                <code>pms(&apos;event&apos;, &apos;whatsapp_click&apos;)</code>.
-              </li>
-              <li>
-                Нужен баннер согласия — добавьте атрибут <code>data-consent=&quot;wait&quot;</code>{' '}
-                и вызовите <code>pms(&apos;consent&apos;)</code> после согласия.
-              </li>
-              <li>
-                Нажмите «Проверить счётчик» после первого захода на сайт — здесь появится время
-                последнего события. Проверить без сайта: откройте демо-страницу из «Установки
-                счётчика» с телефона и нажмите кнопки на ней.
-              </li>
-            </ol>
-          </Help>
         </Stack>
       </div>
     </Page>
   );
 }
 
+/** Состояние счётчика словами (WEB2, п. 5 и 7 ТЗ): одна плашка, одна строка, что делать дальше */
+const COUNTER_TEXT: Record<
+  SiteState['counter']['state'],
+  { tone: 'ok' | 'warn' | 'neutral'; title: string; text: (note: string) => string }
+> = {
+  blocked: {
+    tone: 'warn',
+    title: 'Сначала адрес сайта',
+    text: () => 'Без адреса сайта счётчик не принимает посещения — добавьте домен выше.',
+  },
+  paused: {
+    tone: 'neutral',
+    title: 'Приостановлен',
+    text: () => 'Посещения не записываются. Возобновить — в «Опасной зоне» ниже.',
+  },
+  waiting: {
+    tone: 'warn',
+    title: 'Событий ещё не было',
+    text: () =>
+      'Установите код на сайт и откройте любую его страницу — здесь появится время первого посещения.',
+  },
+  today: { tone: 'ok', title: 'Работает', text: (note) => note },
+  quiet: { tone: 'warn', title: 'Сегодня событий нет', text: (note) => note },
+};
+
 function SiteCard({ card }: { card: TrackedSiteCard }) {
   const { site, status, snippet } = card;
   const clock = propertyClock(site.timezone);
   const state = siteState(card, clock);
-  const previewAvailable = (url: string) => {
-    try {
-      return ['https:', 'http:'].includes(new URL(url).protocol);
-    } catch {
-      return false;
-    }
-  };
+  const counter = COUNTER_TEXT[state.counter.state];
   // Одна плашка состояния вместо пары «Счётчик включён» + «Ожидает первых событий» (ADR-107)
   const badge = !state.connected
     ? { tone: 'warn' as const, text: 'Адрес не указан' }
@@ -128,50 +117,44 @@ function SiteCard({ card }: { card: TrackedSiteCard }) {
           посещения и запросы бронирования.
         </Alert>
       )}
-      <HostsForm id={site.id} hosts={site.hosts} />
+      <DomainList id={site.id} hosts={site.hosts} />
 
-      <div className="divider">
+      <div className="divider" data-testid="counter-state" data-state={state.counter.state}>
         <h3>Счётчик WETOP</h3>
-        <div className="facts">
-          <Fact
-            label="Последнее событие"
-            value={status.lastEventAt ? clock.local(status.lastEventAt) : 'ещё не было'}
-            testId="site-card-last"
-          />
-          <Fact
-            label="Сессий сегодня"
-            value={String(status.sessionsToday)}
-            testId="site-card-today"
-          />
-          <Fact label="Просмотров сегодня" value={String(status.pageviewsToday)} />
-        </div>
-        <CheckCounterButton id={site.id} />
-        <details className="settings-disclosure">
-          <summary>Установка счётчика</summary>
-          <div>
-            <Fact label="Публичный ключ сайта" value={site.publicKey} testId="site-card-key" />
-            <p className="settings-note">Вставьте код в &lt;head&gt; страниц сайта.</p>
-            <pre data-testid="site-card-snippet" className="code">
-              {snippet.code}
-            </pre>
-            <Row className="items-start">
-              <CopyButton text={snippet.code} />
-              {previewAvailable(snippet.demoUrl) ? (
-                <a
-                  href={snippet.demoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  data-testid="site-card-demo"
-                  title="Страница со счётчиком на адресе API: открыть с телефона и нажать кнопки"
-                >
-                  Открыть демо-страницу счётчика
-                </a>
-              ) : (
-                <Badge>Демо счётчика не подключено</Badge>
-              )}
-            </Row>
+        <p className="hint--lg">
+          <Badge tone={counter.tone} data-testid="counter-title">
+            {counter.title}
+          </Badge>{' '}
+          <span data-testid="counter-text">{counter.text(state.counter.note)}</span>
+        </p>
+        {status.lastEventAt && (
+          <div className="facts">
+            <Fact
+              label="Последнее событие"
+              value={clock.local(status.lastEventAt)}
+              testId="site-card-last"
+            />
+            <Fact
+              label="Сессий сегодня"
+              value={String(status.sessionsToday)}
+              testId="site-card-today"
+            />
+            <Fact label="Просмотров сегодня" value={String(status.pageviewsToday)} />
           </div>
-        </details>
+        )}
+        <Row className="items-start">
+          <InstallCounterButton
+            code={snippet.code}
+            siteKey={site.publicKey}
+            demoUrl={snippet.demoUrl}
+          />
+          {state.counter.state !== 'blocked' && (
+            <CheckCounterButton
+              id={site.id}
+              label={state.counter.state === 'waiting' ? 'Проверить установку' : 'Проверить'}
+            />
+          )}
+        </Row>
       </div>
 
       <section className="panel panel--danger block--top" data-testid="site-danger">

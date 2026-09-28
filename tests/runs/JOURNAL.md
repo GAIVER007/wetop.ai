@@ -2896,3 +2896,11 @@
 | 28.09.2026 02:58 | unit | ✅ 2138 из 2141, пропущено 3 | 1 мин 34 с | ae5b6a9 | [лог](logs/2026-09-27T21-58-11Z-unit-13af.log) | WEB1: модуль сайта |
 | 28.09.2026 02:59 | typecheck | ✅ без ошибок | 30 с | ae5b6a9 +1 | [лог](logs/2026-09-27T21-59-45Z-typecheck-728b.log) | WEB1: модуль сайта |
 | 28.09.2026 03:00 | lint | ✅ без ошибок | 17 с | ae5b6a9 +1 | [лог](logs/2026-09-27T22-00-15Z-lint-4478.log) | WEB1: модуль сайта |
+| 28.09.2026 12:03 | unit (частично: apps/web/src/lib/website.test.ts apps/web/src/app/website/actions.test.ts) | ❌ упало 14 из 37 | 6 с | 67f7d3e +2 | [лог](logs/2026-09-28T07-03-37Z-unit-3b77.log) | WEB2 red: домены списком ещё не сделаны |
+| 28.09.2026 12:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts) | ✅ 11 из 11 | 2 мин 43 с | 67f7d3e +11 | [лог](logs/2026-09-28T07-07-36Z-e2e-ac58.log) | WEB2: домены списком, счётчик, окно установки |
+| 28.09.2026 12:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts tests/ui/workspace.spec.ts tests/ui/settings-simplification.spec.ts tests/ui/qual | ❌ упало 2 из 102 | 7 мин 51 с | 67f7d3e +11 | [лог](logs/2026-09-28T07-11-04Z-e2e-7ab7.log) | WEB2: затронутые спеки после правки строки домена |
+| 28.09.2026 12:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts tests/ui/workspace.spec.ts tests/ui/settings-simplification.spec.ts t | ✅ 102 из 102 | 10 мин 31 с | 67f7d3e +11 | [лог](logs/2026-09-28T07-19-25Z-e2e-2d5f.log) | WEB2: затронутые спеки, один поток |
+| 28.09.2026 12:30 | unit | ❌ упало 1 из 2155, пропущено 3 | 1 мин 12 с | 67f7d3e +6 | [лог](logs/2026-09-28T07-30-17Z-unit-4069.log) | WEB2: домены и счётчик |
+| 28.09.2026 12:31 | typecheck | ✅ без ошибок | 22 с | 67f7d3e +11 | [лог](logs/2026-09-28T07-31-30Z-typecheck-523b.log) | WEB2: домены и счётчик |
+| 28.09.2026 12:31 | lint | ✅ без ошибок | 16 с | 67f7d3e +11 | [лог](logs/2026-09-28T07-31-52Z-lint-84cc.log) | WEB2: домены и счётчик |
+| 28.09.2026 12:32 | unit | ✅ 2152 из 2155, пропущено 3 | 1 мин 12 с | 67f7d3e +7 | [лог](logs/2026-09-28T07-32-28Z-unit-521f.log) | WEB2: домены и счётчик, после правки теста формы |

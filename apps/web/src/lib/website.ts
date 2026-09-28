@@ -137,3 +137,50 @@ export function siteState(
 
   return { connected: !!host, host, overall, counter, booking };
 }
+
+/** Та же проверка, что у API (`parseHosts`): латиница, цифры, дефис, точки между частями */
+const HOST_RE = /^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/;
+const DOMAIN_EXAMPLE = 'luxxaparts.kz';
+
+/**
+ * Адрес сайта из того, что вставил человек (WEB2): схема, путь, порт, `www` и точка в конце снимаются —
+ * `https://www.luxxaparts.kz/rooms` → `luxxaparts.kz`. Неверный ввод — словами до запроса в API.
+ */
+export function parseDomainInput(raw: string): { host: string } | { error: string } {
+  const text = raw.trim();
+  if (!text) return { error: `Впишите адрес сайта, например ${DOMAIN_EXAMPLE}` };
+  const host = text
+    .toLowerCase()
+    .replace(/^[a-z][a-z0-9+.-]*:\/\//, '')
+    .replace(/[/?#].*$/, '')
+    .replace(/:\d+$/, '')
+    .replace(/\.$/, '')
+    .replace(/^www\./, '');
+  if (!HOST_RE.test(host))
+    return { error: `Не похоже на адрес сайта: впишите домен, например ${DOMAIN_EXAMPLE}` };
+  return { host };
+}
+
+/**
+ * Список доменов после «Добавить домен»: новый — в конец, основной не меняется. Настоящий домен вытесняет заглушки —
+ * так просила инструкция установки 12.09 («замените заглушку на настоящий адрес»); что убрано — в `dropped`.
+ */
+export function hostsAfterAdd(
+  current: readonly string[],
+  host: string,
+): { hosts: string[]; dropped: string[] } | { error: string } {
+  if (current.includes(host)) return { error: `${host} уже в списке` };
+  const dropped = isPlaceholderHost(host) ? [] : current.filter(isPlaceholderHost);
+  return { hosts: [...current.filter((h) => !dropped.includes(h)), host], dropped };
+}
+
+/** Список доменов после «Убрать»: API требует хотя бы один адрес — последний не убирается */
+export function hostsAfterRemove(
+  current: readonly string[],
+  host: string,
+): { hosts: string[] } | { error: string } {
+  if (!current.includes(host)) return { error: `${host} уже нет в списке` };
+  const hosts = current.filter((h) => h !== host);
+  if (!hosts.length) return { error: 'Сайту нужен хотя бы один адрес: сначала добавьте другой' };
+  return { hosts };
+}

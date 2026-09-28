@@ -1,17 +1,14 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
-import { resolvePeriod } from '@pms/domain';
 import { ApiError } from '../../lib/api';
 import { hotelApi, hotelToday, validDate } from '../../lib/hotel-api';
 import { FALLBACK_TIMEZONE } from '../../lib/property-time';
 import { Page } from '../../components/page';
-import { Alert } from '../../components/ui';
-import Link from 'next/link';
 import { Icon } from '../../components/icon';
 import { HotelClock } from './dashboard-widgets';
-import { PeriodBar } from './period-bar';
-import { DashboardSection, DashboardSkeleton } from './dashboard-section';
-import { AttentionSection, DeskSection, DeskSkeleton } from './desk-section';
+import { DayBar } from './day-bar';
+import { DeskSection, DeskSkeleton } from './desk-section';
 import { FirstSteps } from './first-steps';
 
 async function loadHotel() {
@@ -32,24 +29,17 @@ async function PropertyClock() {
 }
 
 /**
- * Главная собственника и управляющего (срез 14, plans/slice-14-dashboard-2026-09-16.md):
- * показатели за период из шахматки и счетов, ниже — что происходит на стойке сегодня.
- * Ничего не оценивается и не прогнозируется: сравнение — только с предыдущим отрезком той же длины.
- *
- * Экран открывается сразу: заголовок и выбор периода не ждут данных, а каждый блок приходит своим
- * куском (`Suspense`). Раньше страница ждала все четыре вызова разом и при отказе любого не
- * открывалась вовсе — замечание владельца 16.09.2026 «выбираю период и нифига не открывает».
+ * Главная — рабочий экран дня (A1, ADR-103; ТЗ `plans/tz-today-2026-09-27.md`): полоса дня,
+ * операционные показатели «На стойке», «Требуют внимания» рядом с быстрыми действиями. Экран живёт
+ * одним днём; показатели за период с их пресетами переехали на `/management/dashboard` — `?period=`
+ * Главная больше не читает. Каждый блок приходит своим куском (`Suspense`), как и раньше: отказ
+ * одного вызова не прячет экран целиком (замечание владельца 16.09.2026).
  */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
-  const period = resolvePeriod(
-    { preset: sp.period, from: sp.from, to: sp.to, date: sp.date },
-    today,
-  );
-  // Полоса стойки: явная ?date=, иначе выбранный день, иначе сегодня объекта
-  const deskDate =
-    sp.date && validDate(sp.date) ? sp.date : period.from === period.to ? period.from : today;
+  // Полоса стойки: явная ?date=, иначе сегодня объекта
+  const deskDate = sp.date && validDate(sp.date) ? sp.date : today;
   return (
     <Page
       title="Главная"
@@ -60,7 +50,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           </Suspense>
         </span>
       }
-      subtitle="Загрузка, деньги и задачи вашего объекта."
       actions={
         <>
           <Link href="/chessboard" className="btn btn--secondary">
@@ -76,10 +65,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       <Suspense fallback={null}>
         <FirstSteps />
       </Suspense>
-      <div className="dashboard-day">
-        <Suspense fallback={<span className="muted">Загружаем задачи дня…</span>}>
-          <AttentionSection date={deskDate} />
-        </Suspense>
+      <div className="day-bar-row">
+        <DayBar date={deskDate} today={today} />
         <Suspense
           fallback={
             <span className="hotel-clock">
@@ -90,14 +77,21 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           <PropertyClock />
         </Suspense>
       </div>
-      <PeriodBar period={period} today={today} />
-      {period.error && <Alert boxed>{period.error}. Показан сегодняшний день.</Alert>}
-      <Suspense fallback={<DashboardSkeleton />}>
-        <DashboardSection period={period} today={today} />
-      </Suspense>
       <Suspense fallback={<DeskSkeleton />}>
         <DeskSection date={deskDate} today={today} />
       </Suspense>
+      {/* Ссылки на модули (ТЗ §4 п. 8): аналитика и финансы живут в своих разделах, не на Главной */}
+      <nav className="today-links" aria-label="Отчёты и финансы">
+        <Link className="btn btn--secondary" href="/management/dashboard">
+          Показатели за период
+        </Link>
+        <Link className="btn btn--secondary" href={`/finance?from=${deskDate}&to=${deskDate}`}>
+          Оплаты
+        </Link>
+        <Link className="btn btn--secondary" href={`/management/statistics?date=${deskDate}`}>
+          Статистика
+        </Link>
+      </nav>
     </Page>
   );
 }

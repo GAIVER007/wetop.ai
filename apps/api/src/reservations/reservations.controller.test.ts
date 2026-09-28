@@ -7,7 +7,14 @@ import { ARI_PUBLISHER, type AriPublisher } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY } from '../channels/channels.repository';
 import { PrismaService } from '../database/prisma.provider';
 import { ReservationsModule } from './reservations.module';
-import type { StayRestriction } from '@pms/domain';
+import { ReservationsService } from './reservations.service';
+import { withSignedInUser } from '../auth/request-context';
+import {
+  RATE_PLAN_CHANGE_MESSAGE,
+  RATE_PLAN_SOFT_MESSAGE,
+  type MembershipRole,
+  type StayRestriction,
+} from '@pms/domain';
 import {
   type RatePlanRef,
   AllocationOverlapError,
@@ -76,6 +83,8 @@ function makeFake() {
     { id: 'u5', code: '9005', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
     { id: 'u4', code: '9004', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
   ];
+  /** Какие тарифы действуют на обе категории; второй тариф тест добавляет сам (Q-200) */
+  const covers = new Set(['p1']);
   const rates: Record<string, bigint> = {};
   for (const d of ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']) {
     rates[`t1|p1|${d}|1`] = 1_100_000n;
@@ -166,7 +175,7 @@ function makeFake() {
       return plans.filter((p) => p.active);
     },
     async ratePlanCoversType(planId, typeId) {
-      return planId === 'p1' && ['t1', 't2'].includes(typeId);
+      return covers.has(planId) && ['t1', 't2'].includes(typeId);
     },
     async nightRates(typeId, planId, from, toExclusive) {
       return Object.entries(rates)
@@ -399,7 +408,7 @@ function makeFake() {
     },
   };
   const uow: UnitOfWork = { run: (fn) => fn(repo), read: (fn) => fn(repo) };
-  return { uow, state, penalties, blocked, units };
+  return { uow, state, penalties, blocked, units, plans, rates, covers };
 }
 
 const body = (over: Record<string, unknown> = {}) => ({
@@ -1501,9 +1510,135 @@ describe('manual reservation API', () => {
     ]);
   });
 
+  /**
+   * Q-200 (ответ владельца 27.09.2026 — «нет не могут»): тариф — цена и правило штрафа брони, у существующей брони его
+   * меняют владелец и управляющий (право `rates`). Администратор меняет даты, продлевает и переселяет в том же тарифе.
+   * Брони из Exely без тарифа тариф назначают они же — до ответа на Q-201.
+   */
+  describe('тариф брони по роли (Q-200, ADR-107)', () => {
+    const secondPlan = () => {
+      fake.plans.push({
+        id: 'p2',
+        code: 'exely-800002',
+        name: 'Тестовый без штрафа',
+        currency: 'KZT',
+        active: true,
+        cancellationPenalty: 'NONE',
+      });
+      fake.covers.add('p2');
+      for (const d of ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']) {
+        fake.rates[`t1|p2|${d}|1`] = 900_000n;
+        fake.rates[`t2|p2|${d}|1`] = 1_200_000n;
+      }
+    };
+    const as = <T>(role: MembershipRole, fn: () => Promise<T>) =>
+      withSignedInUser({ userId: `user-${role}`, organizationId: 'org-test', role }, fn);
+    const service = () => app.get(ReservationsService);
+    const book = async () => {
+      const res = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+      return { n: res.body.confirmationNumber as string, itemId: res.body.items[0].id as string };
+    };
+    const planOf = (n: string) => fake.state.reservations.get(n)!.items[0]!.ratePlanId;
+    const stay = { arrivalDate: '2026-09-15', departureDate: '2026-09-18' };
+
+    it('администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута', async () => {
+      secondPlan();
+      const { n } = await book();
+      await expect(
+        as('STAFF', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+      expect(planOf(n)).toBe('p1');
+      expect(fake.state.reservations.get(n)!.departureDate).toBe('2026-09-17');
+
+      const kept = await as('STAFF', () => service().changeDates(n, stay));
+      expect(kept.departureDate).toBe('2026-09-18');
+      expect(planOf(n)).toBe('p1');
+    });
+
+    it('управляющий тариф меняет', async () => {
+      secondPlan();
+      const { n } = await book();
+      await as('MANAGER', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' }));
+      expect(planOf(n)).toBe('p2');
+    });
+
+    it('продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ', async () => {
+      secondPlan();
+      const { n, itemId } = await book();
+      await expect(
+        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+      await as('STAFF', () => service().extend(n, itemId, { nights: 1 }));
+      await expect(
+        as('STAFF', () => service().assign(n, itemId, { unitCode: '9002', ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+      const moved = await as('STAFF', () => service().assign(n, itemId, { unitCode: '9002' }));
+      expect(moved.items[0]!.unitCode).toBe('9002');
+      expect(planOf(n)).toBe('p1');
+    });
+
+    /**
+     * Q-201 (ответ владельца 27.09.2026 — «Да, разрешить»): брони из Exely без тарифа администратор назначает тариф один
+     * раз, со штрафом не мягче «первых суток»; тариф записывается в бронь и дальше меняется только владельцем и
+     * управляющим. В фальшивке p1 — «первые сутки», p2 — без штрафа.
+     */
+    it('бронь из Exely без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201)', async () => {
+      secondPlan();
+      const plain = await book();
+      fake.state.reservations.get(plain.n)!.items[0]!.ratePlanId = null;
+      // без выбора пересчитать не по чему — стойка просит выбрать тариф, как у всех
+      await expect(as('STAFF', () => service().changeDates(plain.n, stay))).rejects.toThrow(
+        /ratePlanCode обязателен/,
+      );
+      const preview = await as('STAFF', () =>
+        service().previewExtend(plain.n, plain.itemId, { nights: 1 }),
+      );
+      expect(preview.ratePlanRequired).toBe(true);
+      await expect(
+        as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_SOFT_MESSAGE);
+      expect(planOf(plain.n)).toBeNull();
+      await as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800001' }));
+      expect(planOf(plain.n)).toBe('p1');
+      // записанный тариф администратор уже не меняет (Q-200)
+      await expect(
+        as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+    });
+
+    it('продление брони без тарифа записывает выбранный тариф: второе продление — уже в нём (Q-201)', async () => {
+      secondPlan();
+      const { n, itemId } = await book();
+      fake.state.reservations.get(n)!.items[0]!.ratePlanId = null;
+      await expect(
+        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800002' })),
+      ).rejects.toThrow(RATE_PLAN_SOFT_MESSAGE);
+      await as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800001' }));
+      expect(planOf(n)).toBe('p1');
+      await as('STAFF', () => service().extend(n, itemId, { nights: 1 }));
+      expect(fake.state.reservations.get(n)!.items[0]!.departureDate).toBe('2026-09-19');
+    });
+
+    it('управляющий назначает брони без тарифа любой тариф, и без штрафа тоже', async () => {
+      secondPlan();
+      const { n } = await book();
+      fake.state.reservations.get(n)!.items[0]!.ratePlanId = null;
+      await as('MANAGER', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' }));
+      expect(planOf(n)).toBe('p2');
+    });
+  });
+
   it('GET /rate-plans lists only active tariffs', async () => {
     const res = await request(app.getHttpServer()).get('/rate-plans').expect(200);
-    expect(res.body).toEqual([{ code: 'exely-800001', name: 'Тестовый базовый', currency: 'KZT' }]);
+    // правило штрафа — чтобы стойка показала администратору только тарифы, которые ему можно назначить (Q-201)
+    expect(res.body).toEqual([
+      {
+        code: 'exely-800001',
+        name: 'Тестовый базовый',
+        currency: 'KZT',
+        cancellationPenalty: 'FIRST_NIGHT',
+      },
+    ]);
   });
 
   it('check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation', async () => {

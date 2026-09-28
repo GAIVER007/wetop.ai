@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { NightRate, StayRestriction } from '../reservations/reservations';
 import { stayOffer, type PlanForStay } from './stay-offer';
 
-/** Правило «от» на экране «Свободные места» — закрытый Q-199 (ADR-107). Вымышленные тарифы и цены. */
+/** Правило «от» на экране «Свободные места» — закрытый Q-204 (ADR-110). Вымышленные тарифы и цены. */
 const nights = ['2026-10-01', '2026-10-02', '2026-10-03'];
 const rates = (occupancy: number, prices: number[]): NightRate[] =>
   nights.map((date, i) => ({ date, occupancy, priceMinor: BigInt(prices[i]!) }));
@@ -28,7 +28,7 @@ const stay = {
   currency: 'KZT',
 };
 
-describe('stayOffer — цена «от» (Q-199)', () => {
+describe('stayOffer — цена «от» (Q-204)', () => {
   it('номер: полная стоимость по самому дешёвому допустимому тарифу, число тарифов и цена ночи', () => {
     const offer = stayOffer({
       ...stay,

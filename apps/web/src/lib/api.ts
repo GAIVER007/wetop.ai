@@ -5,7 +5,13 @@ export type { ActionPreview } from './action-preview';
  * Клиент API стойки. Адрес — APP_API_URL (по умолчанию локальный API на 3001).
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
-import type { DashboardPeriod } from '@pms/domain';
+import type {
+  CancellationPenaltyPolicy,
+  DashboardFund,
+  DashboardPeriod,
+  InviteRole,
+  MembershipRole,
+} from '@pms/domain';
 import { ApiError } from './api-error';
 export interface CategorySummary {
   code: string;
@@ -36,6 +42,12 @@ export interface InventoryUnit {
   roomNumber: string;
   roomCapacity: number;
   isDorm: boolean;
+  /** Расположение и живое состояние для списка фонда (ADR-108) */
+  buildingName: string | null;
+  floorName: string | null;
+  housekeepingStatus: 'DIRTY' | 'CLEAN' | 'INSPECTED';
+  active: boolean;
+  block: { dateTo: string; type: string; reason: string | null } | null;
 }
 
 /** Пути, 401 от которых не уводит на экран входа (см. backendFetch) */
@@ -311,6 +323,8 @@ export interface RatePlanOption {
   code: string;
   name: string;
   currency: string;
+  /** Правило штрафа тарифа: администратор назначает брони без тарифа только тариф со штрафом (Q-201) */
+  cancellationPenalty?: CancellationPenaltyPolicy;
 }
 /** Ошибка API с текстом из ответа NestJS (400/404/409/422) — показывается администратору как есть. */
 export { ApiError, apiErrorDigest, apiErrorStatus } from './api-error';
@@ -354,10 +368,10 @@ export interface SignedIn {
   /** Имя, состояние и пробный период организации (ADR-046) — их показывает экран входа */
   organization?: SignedInOrganization | null;
   /**
-   * Роль в организации сессии (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет (ADR-023): владельцу — сотрудники,
-   * приглашения и настройки ИИ-продавца. Старый API роли не присылает — тогда считаем сотрудником
+   * Роль в организации сессии (DATA_MODEL §16.1): владелец, управляющий или администратор; права ролей — §16.5, ADR-107.
+   * Старый API роли не присылает — тогда считаем администратором
    */
-  role?: 'OWNER' | 'STAFF';
+  role?: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа» */
   platformAdmin?: boolean;
 }
@@ -471,15 +485,60 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite[];
   },
-  /** 201 с приглашением; 400 с текстом про почту или «уже в организации»; 401 — сессии нет. */
-  invite: async (token: string, email: string, info: AuthClientInfo): Promise<AuthInvite> => {
+  /**
+   * 201 с приглашением; 400 с текстом про почту, роль или «уже в организации»; 403 — звать с этой ролью нельзя
+   * (управляющих зовёт только владелец, ADR-107); 401 — сессии нет.
+   */
+  invite: async (
+    token: string,
+    email: string,
+    role: InviteRole,
+    info: AuthClientInfo,
+  ): Promise<AuthInvite> => {
     const res = await backendFetch('/auth/invites', {
       method: 'POST',
       headers: authHeaders(info, token),
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, role }),
     });
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
+  },
+  /** Отозвать ожидающее приглашение (аудит 26.09, С-10): 404 — его нет или оно не по роли вошедшего */
+  revokeInvite: async (token: string, id: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: authHeaders(info, token),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  // ── Сотрудники (ADR-107, DATA_MODEL §16.1 v1.14) ──────────────────────────────────────────────
+  /** Люди своей организации с ролями — владельцу и управляющему; 403 — администратору */
+  members: async (token: string, info: AuthClientInfo): Promise<AuthMember[]> => {
+    const res = await backendFetch('/auth/members', { headers: authHeaders(info, token) });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as AuthMember[];
+  },
+  /** Отключить: членство удаляется, его сессии гаснут; 403 со словами, если нельзя */
+  removeMember: async (token: string, userId: string, info: AuthClientInfo): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+      headers: authHeaders(info, token),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+  },
+  /** Роль между управляющим и администратором — только владелец */
+  setMemberRole: async (
+    token: string,
+    userId: string,
+    role: InviteRole,
+    info: AuthClientInfo,
+  ): Promise<void> => {
+    const res = await backendFetch(`/auth/members/${encodeURIComponent(userId)}`, {
+      method: 'PATCH',
+      headers: authHeaders(info, token),
+      body: JSON.stringify({ role }),
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
   },
   /** Кто зовёт и кого — по ключу из ссылки. `null` на любую мёртвую ссылку (404). */
   inviteByToken: async (
@@ -571,7 +630,7 @@ export const reservationsApi = {
     getJson<StayAvailability>(
       `/availability?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`,
     ),
-  /** Цены «от» для «Свободных мест» (ADR-107, AV2): правило закрытого Q-199 считает API */
+  /** Цены «от» для «Свободных мест» (ADR-110, AV2): правило закрытого Q-204 считает API */
   offers: (arrival: string, departure: string, guests: number) =>
     getJson<StayOffers>(`/availability/offers${query({ arrival, departure, guests })}`),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
@@ -972,10 +1031,65 @@ export interface GuestCard {
     departureDate: string;
     status: string;
     unitCode: string | null;
+    source: string;
+    channel: string | null;
+    currency: string;
+    /** Начислено и остаток по счёту проживания (из Folio); null — счёта нет */
+    chargedMinor: string | null;
+    balanceMinor: string | null;
   }>;
+}
+/** Справочник «Гости v2» (план guests-v2-2026-09-27): состояние гостя вычислено, статус брони наружу не идёт */
+export type GuestDirectoryState = 'INHOUSE' | 'EXPECTED' | 'RECENT' | 'NONE';
+export interface GuestDirectoryRow {
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName: string | null;
+  phone: string | null;
+  email: string | null;
+  staysCount: number;
+  state: GuestDirectoryState;
+  current: {
+    unitCode: string | null;
+    accommodationTypeName: string;
+    departureDate: string;
+    confirmationNumber: string | null;
+  } | null;
+  next: {
+    arrivalDate: string;
+    departureDate: string;
+    accommodationTypeName: string;
+    confirmationNumber: string | null;
+  } | null;
+  last: {
+    arrivalDate: string;
+    departureDate: string;
+    unitCode: string | null;
+    confirmationNumber: string | null;
+  } | null;
+  lastCancelledAt: string | null;
+}
+/** Предпросмотр гостя панелью (G3, ТЗ §17): контакты, «сейчас», история, долг из Folio */
+export interface GuestPreview extends Omit<GuestDirectoryRow, 'id'> {
+  id: string;
+  nightsTotal: number;
+  hasFolios: boolean;
+  debtMinor: string;
+  currency: string;
+}
+export interface GuestDirectoryResult {
+  total: number;
+  page: number;
+  pageSize: number;
+  counts: { ALL: number; INHOUSE: number; EXPECTED: number; RECENT: number };
+  rows: GuestDirectoryRow[];
 }
 export const guestsApi = {
   search: (q: string) => getJson<GuestSummary[]>(`/guests?q=${encodeURIComponent(q)}`),
+  directory: (query: Record<string, string>) =>
+    getJson<GuestDirectoryResult>(`/guests/directory?${new URLSearchParams(query)}`),
+  preview: (id: string) => getJson<GuestPreview>(`/guests/${encodeURIComponent(id)}/preview`),
   card: (id: string) => getJson<GuestCard>(`/guests/${encodeURIComponent(id)}`),
   update: (id: string, body: unknown) =>
     sendJson<GuestCard>('PATCH', `/guests/${encodeURIComponent(id)}`, body),
@@ -1066,10 +1180,69 @@ export interface PeriodReport {
   refundedMinor: string;
   balanceMinor: string;
 }
+/** «Брони с остатком к сбору» за период (ADR-113): остаток — по всему счёту брони, как на карточке */
+export interface PeriodDebts {
+  from: string;
+  to: string;
+  currency: string;
+  count: number;
+  balanceMinor: string;
+  checkedOut: { count: number; balanceMinor: string };
+  rows: Array<{
+    confirmationNumber: string;
+    status: string;
+    arrivalDate: string;
+    departureDate: string;
+    guestLabel: string | null;
+    chargedMinor: string;
+    paidMinor: string;
+    refundedMinor: string;
+    balanceMinor: string;
+  }>;
+  truncated: boolean;
+}
+/** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
+export interface PeriodOperations {
+  from: string;
+  to: string;
+  currency: string;
+  total: number;
+  paidMinor: string;
+  refundedMinor: string;
+  methods: Array<{ method: string; count: number }>;
+  rows: Array<{
+    kind: 'PAYMENT' | 'REFUND';
+    id: string;
+    at: string;
+    localAt: string;
+    method: string;
+    amountMinor: string;
+    status: 'COMPLETED' | 'VOIDED';
+    confirmationNumber: string | null;
+    reservations: number;
+    guestLabel: string | null;
+  }>;
+  truncated: boolean;
+}
 export const financeApi = {
+  operations: (
+    from: string,
+    to: string,
+    filter: { type?: string | undefined; method?: string | undefined; limit?: number } = {},
+  ) => {
+    const qs = new URLSearchParams({ from, to });
+    if (filter.type) qs.set('type', filter.type);
+    if (filter.method) qs.set('method', filter.method);
+    if (filter.limit) qs.set('limit', String(filter.limit));
+    return getJson<PeriodOperations>(`/finance/operations?${qs}`);
+  },
   report: (from: string, to: string) =>
     getJson<PeriodReport>(
       `/finance/report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+  debts: (from: string, to: string) =>
+    getJson<PeriodDebts>(
+      `/finance/debts?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     ),
   reservation: (number: string) =>
     getJson<ReservationFinance>(`/finance/reservations/${encodeURIComponent(number)}`),
@@ -1154,8 +1327,11 @@ export interface DashboardView {
   previous: DashboardPeriod;
 }
 export const dashboardApi = {
-  period: (from: string, to: string) =>
-    getJson<DashboardView>(`/desk/dashboard?${new URLSearchParams({ from, to })}`),
+  /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
+  period: (from: string, to: string, fund: DashboardFund = 'all') =>
+    getJson<DashboardView>(
+      `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+    ),
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────
@@ -1369,7 +1545,7 @@ export interface SellerStatus {
   extension?: ExtensionAccessView | null;
   /** Подключён ли продавец, какое бы ни было расширение: читать диалоги после срока можно, только если он есть */
   connection?: 'not-configured' | 'ready';
-  /** Может ли вошедший менять настройки: владелец организации при действующем расширении */
+  /** Может ли вошедший менять настройки: владелец или управляющий (ADR-107) при действующем расширении */
   canConfigure?: boolean;
 }
 
@@ -1588,7 +1764,7 @@ export interface SupportPlatformUser {
   email: string | null;
   organizationId: string | null;
   organizationName: string | null;
-  role: 'owner' | 'staff' | null;
+  role: 'owner' | 'manager' | 'staff' | null;
 }
 
 export type SupportConversationCard = SellerConversationCard & {
@@ -1679,6 +1855,22 @@ export interface AuthInvite {
   expiresAt: string;
   acceptedAt: string | null;
   createdAt: string;
+  /** С какой ролью войдёт (ADR-107); старый API роли не присылает — администратор */
+  role?: InviteRole;
+  /** Может ли вошедший его отозвать: тот, кто вправе позвать с этой ролью */
+  revocable?: boolean;
+}
+
+/** Человек своей организации в блоке «Сотрудники» (ADR-107) */
+export interface AuthMember {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: string;
+  you: boolean;
+  removable: boolean;
+  roleEditable: boolean;
 }
 
 export interface AuthInvitePreview {
@@ -1694,6 +1886,11 @@ export interface InventoryCategory {
   name: string;
   kind: 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT';
   capacityAdults: number;
+  active: boolean;
+  /** Число действующих тарифов категории — сигнал «настроено ли для продаж» (ADR-109) */
+  ratePlans: number;
+  /** Имена тех же тарифов — для панели категории (C2), цены здесь нет: она своя на каждую дату */
+  ratePlanNames: string[];
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),

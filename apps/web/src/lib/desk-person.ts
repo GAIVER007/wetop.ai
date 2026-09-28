@@ -1,5 +1,11 @@
-import { MEMBERSHIP_ROLES, canWrite, daysLeft, type OrganizationStatus } from '@pms/domain';
-import { CLOSED_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
+import {
+  MEMBERSHIP_ROLES,
+  canWrite,
+  daysLeft,
+  parseMembershipRole,
+  type OrganizationStatus,
+} from '@pms/domain';
+import { CLOSED_ACCESS, UNKNOWN_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
 import { tourKeyOf } from '../components/shell/tour-steps';
 
 /** Кто на смене — подпись в меню вместо «Администратор» (ADR-083): имя, роль и буквы для кружка */
@@ -52,6 +58,20 @@ export function trialLine(org: TrialOrganization | null | undefined, now: Date):
   return left === 0 ? 'Пробный период закончился' : `Пробный период: ещё ${left} дн.`;
 }
 
+/**
+ * `/auth/me` не ответил (сбой, тайм-аут) — это не «никто не вошёл»: вошедшим может быть администратор, и меню с кнопками —
+ * как у него (ADR-107). Роль `null` («не прятать») — только когда API ответил, что никто не вошёл. Страницы по адресу
+ * при этом не закрываются (`pageOpen`): роль неизвестна, решает API.
+ */
+export const UNKNOWN_SHELL: DeskShell = {
+  access: UNKNOWN_ACCESS,
+  person: null,
+  trial: null,
+  tourKey: null,
+  // статус организации тоже неизвестен: полосу «только чтение» не обещаем, запись закроет API (ADR-102)
+  readOnly: false,
+};
+
 type MeLike = Parameters<typeof deskAccessOf>[0] & {
   user: {
     email: string;
@@ -67,8 +87,8 @@ const capital = (text: string) => text.charAt(0).toLocaleUpperCase('ru') + text.
 /** Подпись вошедшего: имя (или почта), роль словом; главный администратор — ещё и это */
 export function deskPerson(user: NonNullable<MeLike['user']>): DeskPerson {
   const name = user.name?.trim() || user.email;
-  // старый API роли не присылает — показываем сотрудником: подпись не должна обещать прав, которых нет
-  const role = user.role === 'OWNER' ? MEMBERSHIP_ROLES.OWNER : MEMBERSHIP_ROLES.STAFF;
+  // роли нет (старый API) или она незнакома — администратор: подпись не должна обещать прав, которых нет
+  const role = MEMBERSHIP_ROLES[(user.role && parseMembershipRole(user.role)) || 'STAFF'];
   const caption = capital(role) + (user.platformAdmin === true ? ' · главный администратор' : '');
   const words = (user.name?.trim() || user.email.split('@')[0] || '?')
     .split(/[\s._-]+/)

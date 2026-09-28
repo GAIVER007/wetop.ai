@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { describe, expect, it, vi } from 'vitest';
+import { accessDeniedMessage, type MembershipRole } from '@pms/domain';
 import { HotelService } from './hotel.module';
 import { withSignedInUser } from '../auth/request-context';
 import type { PrismaService } from '../database/prisma.provider';
@@ -8,8 +9,8 @@ import type { PrismaService } from '../database/prisma.provider';
 const FAKE_BIN = Array.from({ length: 12 }, (_, i) => (i + 1) % 10).join('');
 
 /**
- * «Настройки гостиницы → Общие» правит владелец организации (ТЗ ux-retention п. 3.1, UQ-1 — «да» владельца 26.09.2026).
- * Сотрудник — только смотрит (ADR-083). Название объекта Luxx служебные пути ищут по имени — его не переименовать.
+ * «Настройки гостиницы → Общие» правит владелец организации (ТЗ ux-retention п. 3.1, UQ-1 — «да» владельца 26.09.2026)
+ * и управляющий: ему «всё, кроме владельческого», настройки гостиницы в том числе (ADR-107). Администратор — нет. Название объекта Luxx служебные пути ищут по имени — его не переименовать.
  * Чужое название занять нельзя — как при регистрации (ADR-099). Каждая правка — в журнал «было/стало».
  */
 function setup(
@@ -50,7 +51,7 @@ function setup(
   } as unknown as PrismaService);
   return { service, update, orgUpdate, audit };
 }
-const as = <T>(role: 'OWNER' | 'STAFF', fn: () => Promise<T>) =>
+const as = <T>(role: MembershipRole, fn: () => Promise<T>) =>
   withSignedInUser({ userId: 'u1', organizationId: 'org-a', role }, fn);
 
 describe('правка сведений гостиницы', () => {
@@ -81,11 +82,20 @@ describe('правка сведений гостиницы', () => {
     expect(orgUpdate).toHaveBeenCalledWith({ where: { id: 'org-a' }, data: { name: 'Хостел Б' } });
   });
 
-  it('сотрудник получает отказ, ничего не записано', async () => {
+  it('управляющий меняет сведения так же, как владелец (ADR-107)', async () => {
+    const { service, update } = setup();
+    await as('MANAGER', () => service.updateSettings({ phone: '+7 700 111 22 33' }));
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'prop-a' },
+      data: { phone: '+7 700 111 22 33' },
+    });
+  });
+
+  it('администратор получает отказ словами о разделе, ничего не записано', async () => {
     const { service, update } = setup();
     await expect(
       as('STAFF', () => service.updateSettings({ phone: '+77001112233' })),
-    ).rejects.toThrow(/владелец организации/);
+    ).rejects.toThrow(accessDeniedMessage('settings'));
     expect(update).not.toHaveBeenCalled();
   });
 

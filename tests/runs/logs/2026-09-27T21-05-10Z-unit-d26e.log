@@ -1,0 +1,30 @@
+# Модульные (unit) · 28.09.2026 02:05 Алматы · vm
+# коммит 515da92 (claude/ecstatic-galileo-dm8omt), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T21-05-10Z-unit-d26e.json' 'apps/web/src/app/reservations/filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/reservations/filters.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/filters.test.ts [ apps/web/src/app/reservations/filters.test.ts ]
+Error: Cannot find module './filters' imported from /home/user/wetop.ai/apps/web/src/app/reservations/filters.test.ts
+ ❯ apps/web/src/app/reservations/filters.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { apiQuery, filtersHref, needsCleanup, readFilters, sourceLabel…
+       | ^
+      3|
+      4| const TODAY = '2026-09-27';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  21:05:11
+   Duration  277ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-09-27T21-05-10Z-unit-d26e.json
+
+# код выхода 1 · 1 с

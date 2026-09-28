@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 28.09.2026 00:18 Алматы · vm
+# коммит 5c0cebe (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/manager-actions.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (4.5s)
+  ✓  2 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (4.4s)
+  ✓  3 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (8.7s)
+  ✓  4 tests/ui/manager-actions.spec.ts:199:1 › карточка: предварительная бронь названа словом, место за ней держится (1.3s)
+  ✓  5 tests/ui/manager-actions.spec.ts:218:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.7s)
+  ✓  6 tests/ui/manager-actions.spec.ts:234:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (3.4s)
+  ✓  7 tests/ui/manager-actions.spec.ts:275:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (4.6s)
+  ✓  8 tests/ui/manager-actions.spec.ts:335:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.6s)
+  ✓  9 tests/ui/manager-actions.spec.ts:358:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.3s)
+
+  9 passed (39.5s)
+
+# код выхода 0 · 41 с

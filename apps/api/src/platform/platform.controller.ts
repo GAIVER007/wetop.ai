@@ -21,6 +21,7 @@ import {
   type OrganizationSummary,
 } from './extensions.repository';
 import { ExtensionsService, aiSellerView } from './extensions.service';
+import { Access } from '../auth/access.decorator';
 
 export { PLATFORM_ADMIN_ONLY } from './admin';
 export const PLATFORM_NO_ORGANIZATION = 'Такой организации нет';
@@ -31,6 +32,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * вошедшему с отметкой `platform_admins`: служебные ключи и выключенный замок (`AUTH_REQUIRED=0`) его не открывают.
  * Брони, гости, счета и переписка чужих гостиниц отсюда не видны — в ответе их нет по построению.
  */
+@Access('platform')
 // RLS (DATA_MODEL §17): главный администратор читает все организации — служебной ролью базы
 @UseInterceptors(ServiceDatabaseInterceptor)
 @Controller('platform')

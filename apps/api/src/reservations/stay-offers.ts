@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { MAX_CHESSBOARD_DAYS, daySpan, stayOffer } from '@pms/domain';
+import { Access } from '../auth/access.decorator';
 import { RESERVATIONS_UOW, type UnitOfWork } from './reservations.repository';
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -35,7 +36,7 @@ export interface StayOffers {
 }
 
 /**
- * Цены «от» для экрана «Свободные места» (ADR-107, шаг AV2; правило — закрытый Q-199). Только чтение:
+ * Цены «от» для экрана «Свободные места» (ADR-110, шаг AV2; правило — закрытый Q-204). Только чтение:
  * те же тарифы, цены и ограничения, по которым стойка потом создаст бронь, и тот же расчёт (`stayOffer`
  * поверх `priceStay` и `assertRestrictionsAllow`). Места сюда не входят — их отдаёт `GET /availability`.
  */
@@ -115,6 +116,7 @@ export class StayOffersService {
   }
 }
 
+@Access('desk')
 @Controller('availability')
 export class StayOffersController {
   constructor(@Inject(StayOffersService) private readonly service: StayOffersService) {}

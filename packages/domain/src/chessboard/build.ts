@@ -19,6 +19,11 @@ export interface ChessboardUnit {
   accommodationTypeName: string;
   /** Убрана ли ячейка (срез 7.1): приём из Exely «значок уборки у номера»; без значения бейджа нет */
   housekeepingStatus?: HousekeepingStatus;
+  /**
+   * Номер физической комнаты места (ТЗ «Шахматка v2» §17, подготовка к Q-095). Пока комнаты
+   * импортированы 1:1 с местами, UI по ним не группирует — уровень «комната → одна койка» пуст.
+   */
+  physicalRoomNumber?: string;
 }
 export interface ChessboardAllocation {
   unitId: string;

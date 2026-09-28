@@ -23,16 +23,18 @@ const SCREENS: Array<{ route: string; title: RegExp; says?: RegExp }> = [
   { route: '/rooms', title: /номер/i },
   { route: '/rooms/categories', title: /Категории/ },
   { route: '/rooms/availability', title: /Свободные места/ },
-  { route: '/rates', title: /Цены/ },
-  { route: '/finance', title: /Деньги/ },
-  { route: '/management/statistics', title: /Статистика/ },
+  { route: '/rates', title: /Тарифы/ },
+  { route: '/finance', title: /Финансы/ },
+  { route: '/management/analytics', title: /Аналитика/, says: /Недостаточно данных/ },
+  { route: '/management/analytics/occupancy', title: /Аналитика/ },
   { route: '/journal', title: /Журнал/ },
   { route: '/incidents', title: /Неисправност/ },
   { route: '/channels', title: /Подключени|Channex|Каналы/ },
   { route: '/connections', title: /Интеграции/ },
-  { route: '/analytics', title: /Аналитика/ },
+  { route: '/website', title: /Сайт и онлайн-бронирование/ },
+  { route: '/website/analytics', title: /Сайт и онлайн-бронирование/ },
   { route: '/hotel-settings', title: /Объект|Настройки|гостиниц/i },
-  { route: '/channel-manager', title: /Менеджер каналов|Каналы/ },
+  { route: '/channels/mapping', title: /Сопоставление/ },
 ];
 
 for (const screen of SCREENS) {
@@ -53,8 +55,8 @@ test('пустая база: шахматка показывает все мес
   const main = page.getByRole('main');
   await expect(main.getByTestId('unit-row').first()).toBeVisible();
   await expect(main.getByTestId('stay-cell')).toHaveCount(0);
-  // «без ячейки» при пустой базе — ноль, и это короткая строка, а не предупреждение
-  await expect(main.getByTestId('unassigned-stays')).toHaveAttribute('data-count', '0');
+  // «без ячейки» при пустой базе — блока нет вовсе (ТЗ «Шахматка v2» §11)
+  await expect(main.getByTestId('unassigned-stays')).toHaveCount(0);
 });
 
 test('пустая база: главная говорит про ноль словами, а не пустыми плитками', async ({ page }) => {

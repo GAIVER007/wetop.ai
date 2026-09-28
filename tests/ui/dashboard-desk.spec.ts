@@ -78,20 +78,25 @@ test('2. из окна выбора карточка открывается на
   }
 });
 
-test('3. сводка сверху называет причины и дату, без двойной точки', async ({ page }) => {
+test('3. блок «Требуют внимания» один и стоит сразу под полосой стойки; сводки-дубля сверху нет', async ({
+  page,
+}) => {
+  // A1 (ADR-103): малую сводку сверху сняли — блок один, с разбивкой по причинам
   await page.goto('/today');
-  const summary = page.getByTestId('attention-summary');
-  await expect(summary).toContainText('Требуют внимания: 2');
-  await expect(summary).toContainText('просроченные заезды 1');
-  await expect(summary).toContainText('долги уезжающих 1');
-  // ноль в сводку не выносим — его видно в разбивке блока
-  await expect(summary).not.toContainText('карточки гостей');
-  await expect(summary).not.toContainText('..');
-  // день без дел — одна фраза с датой
+  await expect(page.getByTestId('attention-summary')).toHaveCount(0);
+  const blocks = page.locator('#day-attention');
+  await expect(blocks).toHaveCount(1);
+  await expect(blocks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
+  // порядок: полоса «На стойке» выше блока задач
+  const stripY = (await page
+    .getByRole('region', { name: 'Сегодня на стойке' })
+    .boundingBox())!.y;
+  const attentionY = (await blocks.boundingBox())!.y;
+  expect(stripY).toBeLessThan(attentionY);
+  // день без дел — блок говорит «Всё в порядке», дубля тоже нет
   await page.goto('/today?date=2027-06-01');
-  await expect(summary).toContainText('1 июн.');
-  await expect(summary).toContainText('всё в порядке');
-  await expect(summary).not.toContainText('..');
+  await expect(page.getByTestId('attention-summary')).toHaveCount(0);
+  await expect(page.locator('#day-attention')).toContainText('Всё в порядке');
 });
 
 test('4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку', async ({
@@ -142,8 +147,13 @@ test('5. полоса «На стойке»: числа без цвета ста
   const color = (id: string) =>
     strip.getByTestId(id).evaluate((el) => getComputedStyle(el).color);
   const neutral = await color('c-inhouse');
-  // §9: зелёный — «заселён», жёлтый — «внимание», синий — «подтверждена»; счётчик дня ни то, ни другое
-  for (const id of ['c-arrivals', 'c-departures', 'c-free']) expect(await color(id)).toBe(neutral);
+  // §9: зелёный — «заселён», жёлтый — «внимание», синий — «подтверждена»; счётчик дня ни то, ни другое.
+  // С A1 число — ссылка в раздел, но цвет по-прежнему наследуется, а не «синий ссылки»
+  for (const id of ['c-arrivals', 'c-departures', 'c-free', 'c-occupancy'])
+    expect(await color(id)).toBe(neutral);
+  // шесть плиток дня: Проживают · Заезды · Выезды · Свободно · Загрузка · К оплате (A1, ADR-103)
+  await expect(strip.locator('.desk-stat')).toHaveCount(6);
+  await expect(strip.getByTestId('c-occupancy')).toContainText('%');
   // у живущих долга нет (значение — из API как есть), но TEST4 выехал сегодня с долгом 16 000 ₸
   await expect(strip.getByTestId('c-debt')).toHaveText('0 ₸');
   await expect(strip).not.toContainText('все счета оплачены');
@@ -184,16 +194,18 @@ test('6. список «Требуют внимания» без своей пр
 });
 
 test('7. строки главной без разделителя « · »', async ({ page }) => {
-  await page.goto('/today?period=month');
+  await page.goto('/today');
   const main = page.getByRole('main');
   const texts = [
     await main.getByRole('region', { name: 'Сегодня на стойке' }).locator('h2').innerText(),
     ...(await main.locator('#day-attention .attention-item').allInnerTexts()),
-    await main.getByTestId('period-caption').innerText(),
   ];
+  for (const text of texts) expect(text, text).not.toContain(' · ');
   // подпись отрезка «1 сент. — 30 сент. · 30 дней» §14 разрешает — её точку не считаем
-  for (const text of texts)
-    expect(text.replace(/ · \d+ (?:день|дня|дней)/, ''), text).not.toContain(' · ');
+  await page.goto('/management/dashboard?period=month');
+  const caption = await main.getByTestId('period-caption').innerText();
+  expect(caption.replace(/ · \d+ (?:день|дня|дней)/, ''), caption).not.toContain(' · ');
+  await page.goto('/today');
   await quick(page)
     .getByRole('button', { name: /Выселить гостя/ })
     .click();
@@ -207,7 +219,7 @@ test('7. строки главной без разделителя « · »', as
 test('8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title', async ({
   page,
 }) => {
-  await page.goto('/today?period=week');
+  await page.goto('/management/dashboard?period=week');
   const main = page.getByRole('main');
   const chart = main.getByTestId('chart-daily');
   await expect(chart).toBeVisible();
@@ -236,15 +248,12 @@ test('8. подробности дня на графике без наведен
   await expect(table.locator('tbody tr').first()).toContainText(' из ');
 });
 
-test('9. размеры шрифта на главной — из шкалы §6, число плитки 28 px', async ({ page }) => {
+test('9. размеры шрифта на главной и показателях за период — из шкалы §6, число плитки 28 px', async ({
+  page,
+}) => {
   const scale = ['12px', '13px', '14px', '16px', '18px', '20px', '24px', '28px'];
-  for (const width of [1440, 390]) {
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto('/today?period=week');
-    const main = page.getByRole('main');
-    await expect(main.getByTestId('chart-daily')).toBeVisible();
-    await expect(main.getByRole('region', { name: 'Быстрые действия' })).toBeVisible();
-    const off = await main.evaluate((root, allowed) => {
+  const offScale = (main: import('@playwright/test').Locator) =>
+    main.evaluate((root, allowed) => {
       const seen = new Map<string, string>();
       for (const el of root.querySelectorAll('*')) {
         // закрытое окно и скрытая подпись в DOM есть, но на экране их нет — считаем то, что видно
@@ -256,7 +265,18 @@ test('9. размеры шрифта на главной — из шкалы §6
       }
       return [...seen].map(([size, where]) => `${size} ${where}`);
     }, scale);
-    expect(off, `ширина ${width}`).toEqual([]);
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/today');
+    const main = page.getByRole('main');
+    await expect(main.getByRole('region', { name: 'Сегодня на стойке' })).toBeVisible();
+    await expect(main.getByRole('region', { name: 'Быстрые действия' })).toBeVisible();
+    expect(await offScale(main), `главная, ширина ${width}`).toEqual([]);
+    // число плитки дня — 24 px (--text-3xl), как и до A1
+    if (width === 1440) expect(await fontSize(main.getByTestId('c-inhouse'))).toBe('24px');
+    await page.goto('/management/dashboard?period=week');
+    await expect(main.getByTestId('chart-daily')).toBeVisible();
+    expect(await offScale(main), `показатели, ширина ${width}`).toEqual([]);
     if (width === 1440) expect(await fontSize(main.getByTestId('kpi-occupancy'))).toBe('28px');
   }
 });

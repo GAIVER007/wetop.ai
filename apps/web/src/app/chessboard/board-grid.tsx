@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import {
   Fragment,
+  useCallback,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -12,7 +14,8 @@ import {
 import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
 import { Alert, Input, Select, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
-import { stayLabels } from './stay-labels';
+import { guestNames, sourceBadge, stayLabels } from './stay-labels';
+import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
 import { StayResize } from './stay-resize';
 import {
   assignUnitAction,
@@ -20,10 +23,12 @@ import {
   cancelReservationAction,
   extendStayAction,
   previewAction,
+  stayAction,
 } from '../reservations/actions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ActionMenu } from '../../components/action-menu';
 import { HousekeepingMenu } from './housekeeping-menu';
+import { HOUSEKEEPING_RU } from '@pms/domain';
 import { penaltyText } from '../../lib/penalty-text';
 import { previewLine } from '../../lib/action-preview';
 import { DRAG_MIME, decodeDrag, encodeDrag, planMove, type DragPayload } from './drag-plan';
@@ -49,6 +54,23 @@ const STATUS_RU: Record<string, string> = {
  */
 const needsHousekeeping = (status?: string): status is 'DIRTY' | 'CLEAN' =>
   status === 'DIRTY' || status === 'CLEAN';
+
+/** Свёрнутые категории помнятся на пользователя браузера (ТЗ v2 §15); ключ localStorage */
+const COLLAPSED_KEY = 'chessboard.collapsed-categories';
+
+/** Подсказка колонки места (ТЗ v2 §16): вид, код и состояние уборки словами */
+function unitTitle(unit: ChessboardRow['unit']): string {
+  const bed = unit.kind === 'BED';
+  const state =
+    unit.housekeepingStatus === 'DIRTY'
+      ? 'требует уборки'
+      : unit.housekeepingStatus === 'CLEAN'
+        ? 'убрано, ждёт проверки'
+        : bed
+          ? 'готова к заселению'
+          : 'готов к заселению';
+  return `${bed ? 'Койка' : 'Номер'} ${unit.code} — ${state}`;
+}
 
 /** Что нужно меню плашки (C2): номер, проживание, ячейка, имя для заголовка окна и статус для доступности пунктов */
 interface StayMenuPayload {
@@ -93,10 +115,13 @@ export function ChessboardGrid({
   board,
   today,
   fitMonth = false,
+  readOnly = false,
 }: {
   board: Chessboard;
   today: string;
   fitMonth?: boolean;
+  /** «Только чтение» (ADR-102): предпросмотр показывает брони, но не предлагает изменений (ТЗ §47) */
+  readOnly?: boolean;
 }) {
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
@@ -107,6 +132,28 @@ export function ChessboardGrid({
   const filtersId = useId();
   const activeFilters = Number(!!category) + Number(!!kind) + Number(state !== 'all');
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  // Память свёрнутости читается после гидрации: чтение в useState разошлось бы с SSR-разметкой
+  useEffect(() => {
+    try {
+      const saved: unknown = JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? '[]');
+      if (Array.isArray(saved) && saved.length)
+        setCollapsed(new Set(saved.filter((x): x is string => typeof x === 'string')));
+    } catch {
+      // повреждённое значение равно отсутствию памяти
+    }
+  }, []);
+  const toggleGroup = (code: string) =>
+    setCollapsed((old) => {
+      const next = new Set(old);
+      if (next.has(code)) next.delete(code);
+      else next.add(code);
+      try {
+        localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...next]));
+      } catch {
+        // приватное окно без localStorage — сворачивание работает, память нет
+      }
+      return next;
+    });
   const [error, setError] = useState<string | null>(null);
   const [overUnit, setOverUnit] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -115,6 +162,42 @@ export function ChessboardGrid({
   const fitWeek = board.dates.length === 7;
   // Во время dragover браузер не даёт читать данные — держим их и в ref, чтобы подсвечивать строку
   const dragging = useRef<DragPayload | null>(null);
+  /**
+   * Липкой строке категории нужен отступ, равный фактической высоте шапки дат: токен
+   * --board-head-h — минимум, на узких экранах шапка выше (перенос метрик). Замер пишется
+   * в --board-head-real на обёртке; CSS берёт var(--board-head-real, var(--board-head-h)).
+   * Так же меряется колонка мест (--board-unit-real): к её правому краю прилипает имя длинного
+   * проживания при прокрутке вбок (ТЗ v2 §58).
+   */
+  const wrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const head = wrap?.querySelector('thead');
+    const unitHead = wrap?.querySelector('th.board__unit-head');
+    if (!wrap || !head || !unitHead) return;
+    const apply = () => {
+      wrap.style.setProperty('--board-head-real', `${head.getBoundingClientRect().height}px`);
+      wrap.style.setProperty('--board-unit-real', `${unitHead.getBoundingClientRect().width}px`);
+    };
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(head);
+    observer.observe(unitHead);
+    return () => observer.disconnect();
+  }, []);
+
+  // Быстрый предпросмотр (ТЗ §23–25): одинарный клик — окно, двойной — полная карточка
+  const [preview, setPreview] = useState<PreviewTarget | null>(null);
+  const openCard = (href: string) => {
+    setPreview(null);
+    router.push(href);
+  };
+  const closePreview = useCallback((restoreFocus: boolean) => {
+    setPreview((current) => {
+      if (restoreFocus) current?.anchor.focus({ preventScroll: true });
+      return null;
+    });
+  }, []);
 
   const onDragStart = (payload: DragPayload) => (e: React.DragEvent) => {
     e.dataTransfer.setData(DRAG_MIME, encodeDrag(payload));
@@ -230,6 +313,62 @@ export function ChessboardGrid({
     });
   };
 
+  /**
+   * Команды из предпросмотра — те же, что у карточки брони (reservations/[number]/actions-panel.tsx):
+   * заселение в непроверенную ячейку только после подтверждения (Q-156, ADR-068); выселение с долгом
+   * — второй попыткой после ответа сервера и подтверждения (T3). Своих правил здесь нет.
+   */
+  const busy = useRef(false);
+  const runCommand = async (command: PreviewCommand, t: PreviewTarget) => {
+    setPreview(null);
+    const stay: StayMenuPayload = {
+      number: t.number,
+      itemId: t.itemId,
+      unitCode: t.unitCode,
+      guest: t.guest,
+      status: t.status,
+    };
+    if (command === 'extend') return extendStay(stay);
+    if (busy.current) return;
+    busy.current = true;
+    setError(null);
+    try {
+      if (command === 'check-in') {
+        const hk = t.housekeeping as keyof typeof HOUSEKEEPING_RU | undefined;
+        if (hk && hk !== 'INSPECTED') {
+          const ok = await ask({
+            title: `Ячейка ${t.unitCode} ещё не проверена. Заселить?`,
+            body: `Сейчас ${HOUSEKEEPING_RU[hk]}. Гость заезжает в проверенную ячейку; заселение не запрещено, но нужно ваше подтверждение.`,
+            confirmLabel: 'Заселить всё равно',
+            tone: 'primary',
+          });
+          if (!ok) return;
+        }
+        const r = await stayAction(t.number, t.itemId, 'check-in');
+        setError(r.error);
+        if (!r.error) toast({ text: `Гость заселён, ${t.unitCode}`, tone: 'success' });
+        return;
+      }
+      const r = await stayAction(t.number, t.itemId, 'check-out');
+      if (r.error && r.error.includes('долг')) {
+        const ok = await ask({
+          title: 'Выселить с долгом?',
+          body: `Долг останется на счёте. ${r.error}`,
+          confirmLabel: 'Выселить с долгом',
+        });
+        if (!ok) return;
+        const again = await stayAction(t.number, t.itemId, 'check-out', true);
+        setError(again.error);
+        if (!again.error) toast({ text: `Гость выселен, ${t.unitCode}`, tone: 'success' });
+        return;
+      }
+      setError(r.error);
+      if (!r.error) toast({ text: `Гость выселен, ${t.unitCode}`, tone: 'success' });
+    } finally {
+      busy.current = false;
+    }
+  };
+
   const allGroups = groupByCategory(board.rows);
   const housekeepingCount = board.rows.filter((r) =>
     needsHousekeeping(r.unit.housekeepingStatus),
@@ -261,14 +400,20 @@ export function ChessboardGrid({
           new Map(
             stayLabels(r.cells).map((l) => [
               l.index,
-              { ...l, lastDate: r.cells[l.index + l.span - 1]!.date },
+              {
+                ...l,
+                lastDate: r.cells[l.index + l.span - 1]!.date,
+                ends: !!r.cells[l.index + l.span - 1]!.isLastNight,
+              },
             ]),
           ),
         ]),
       ),
     [board.rows],
   );
-  const dayWidth = board.dates.length > 14 ? 64 : 104;
+  // 30 дней: день не уже 72 px — читаемость ценой горизонтальной прокрутки внутри сетки
+  // (условие владельца к PR 2; ТЗ §44). Календарный месяц вписывается в окно отдельным режимом.
+  const dayWidth = board.dates.length > 14 ? 72 : 104;
   return (
     <>
       <div className="board-toolbar" data-filters-open={filtersOpen}>
@@ -378,6 +523,7 @@ export function ChessboardGrid({
         </div>
       )}
       <div
+        ref={wrapRef}
         className="tbl-wrap board-wrap"
         role="region"
         aria-label="Шахматка по дням"
@@ -469,14 +615,7 @@ export function ChessboardGrid({
                       type="button"
                       className="board-group-toggle"
                       aria-expanded={!collapsed.has(g.code)}
-                      onClick={() =>
-                        setCollapsed((old) => {
-                          const next = new Set(old);
-                          if (next.has(g.code)) next.delete(g.code);
-                          else next.add(g.code);
-                          return next;
-                        })
-                      }
+                      onClick={() => toggleGroup(g.code)}
                     >
                       <span aria-hidden="true">{collapsed.has(g.code) ? '›' : '⌄'}</span>
                       <span className="board-group-name-text" title={g.name}>
@@ -518,6 +657,7 @@ export function ChessboardGrid({
                           href={`/units/${encodeURIComponent(row.unit.code)}`}
                           data-testid="unit-link"
                           className="unit board-unit-link"
+                          title={unitTitle(row.unit)}
                         >
                           <Icon name={row.unit.kind === 'BED' ? 'bed' : 'inventory'} />
                           {row.unit.code}
@@ -537,8 +677,12 @@ export function ChessboardGrid({
                           key={c.date}
                           cell={c}
                           label={labels.get(row.unit.id)?.get(index)}
+                          unit={row.unit}
                           unitCode={row.unit.code}
                           today={today}
+                          month={fitMonth}
+                          onPreview={setPreview}
+                          onOpen={openCard}
                           onDragStart={onDragStart}
                           onDragEnd={onDragEnd}
                           onExtend={extendStay}
@@ -559,6 +703,15 @@ export function ChessboardGrid({
         </p>
       )}
       {error && <Alert data-testid="drag-error">{error}</Alert>}
+      {preview && (
+        <StayPreview
+          key={`${preview.number}:${preview.itemId}`}
+          target={preview}
+          readOnly={readOnly}
+          onClose={closePreview}
+          onCommand={(command, t) => void runCommand(command, t)}
+        />
+      )}
       {dialog}
     </>
   );
@@ -567,8 +720,12 @@ export function ChessboardGrid({
 function Cell({
   cell,
   label,
+  unit,
   unitCode,
   today,
+  month,
+  onPreview,
+  onOpen,
   onDragStart,
   onDragEnd,
   onExtend,
@@ -576,9 +733,13 @@ function Cell({
   pending,
 }: {
   cell: ChessboardCell;
-  label: { span: number; continues: boolean; lastDate: string } | undefined;
+  label: { span: number; continues: boolean; lastDate: string; ends: boolean } | undefined;
+  unit: ChessboardRow['unit'];
   unitCode: string;
   today: string;
+  month: boolean;
+  onPreview: (target: PreviewTarget) => void;
+  onOpen: (href: string) => void;
   onDragStart: (payload: DragPayload) => (e: React.DragEvent) => void;
   onDragEnd: () => void;
   onExtend: (payload: StayMenuPayload, nights?: number) => void;
@@ -606,6 +767,36 @@ function Cell({
     !!cell.confirmationNumber &&
     !!cell.itemId &&
     DRAGGABLE.has(cell.itemStatus ?? '');
+  const names = guestNames(cell.guestLabel ?? '');
+  const badge = sourceBadge(cell.source, cell.channel);
+  const hasDebt = !!cell.balanceMinor && BigInt(cell.balanceMinor) > 0n;
+  const arrivalToday = !!label && !label.continues && cell.date === today;
+  const departureToday = !!label && label.ends && nextDay(label.lastDate) === today;
+  // Однодневная плашка: «⋯» уступает место имени — те же действия в предпросмотре по щелчку (ТЗ §58).
+  // Ручка продления остаётся (это перетаскивание, PR 4): ей нужно место, если последняя ночь в окне.
+  const withMenu = !!label && label.span > 1;
+  const withResize = !!label && label.ends && DRAGGABLE.has(cell.itemStatus ?? '') && !month;
+  const captionEnd = withMenu
+    ? 'var(--board-caption-end, 40px)'
+    : withResize
+      ? 'calc(var(--space-6) + var(--space-2))'
+      : 'var(--space-2)';
+  const card = `/reservations/${encodeURIComponent(cell.confirmationNumber ?? '')}`;
+  const openPreview = (anchor: HTMLElement) =>
+    onPreview({
+      number: cell.confirmationNumber!,
+      itemId: cell.itemId!,
+      guest: names.full || cell.confirmationNumber!,
+      status: cell.itemStatus ?? '',
+      unitCode,
+      unitKind: unit.kind,
+      categoryName: unit.accommodationTypeName,
+      housekeeping: unit.housekeepingStatus,
+      sourceName: badge?.name ?? null,
+      arrivalToday,
+      departureToday,
+      anchor,
+    });
   return (
     <td
       className={cx(
@@ -621,7 +812,7 @@ function Cell({
       {cell.state === 'OCCUPIED' ? (
         <>
           <Link
-            href={`/reservations/${encodeURIComponent(cell.confirmationNumber!)}`}
+            href={card}
             data-testid="stay-cell"
             data-number={cell.confirmationNumber}
             data-item-id={cell.itemId}
@@ -639,6 +830,24 @@ function Cell({
                 : undefined
             }
             onDragEnd={onDragEnd}
+            onClick={(event) => {
+              // новая вкладка и прочие жесты с клавишей — как у обычной ссылки
+              if (
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+              )
+                return;
+              event.preventDefault();
+              openPreview(event.currentTarget);
+            }}
+            onDoubleClick={(event) => {
+              event.preventDefault();
+              onOpen(card);
+            }}
+            aria-haspopup="dialog"
             className="board__stay"
             aria-label={title}
             style={{
@@ -649,39 +858,67 @@ function Cell({
             }}
           >
             {label && (
+              /*
+               * Подпись по ширине плашки (ТЗ v2 §18–22, §58): container queries в board.css выбирают
+               * уровень — полное имя и вторая строка (источник, заезд/выезд сегодня, ночи, долг
+               * суммой) → «Имя Ф.» и точка долга → инициалы. Полное всегда в подсказке плашки.
+               */
               <span
                 className="board-stay-caption"
                 data-span={label.span}
-                style={{ width: `calc(${label.span * 100}% - var(--board-caption-end, 40px))` }}
+                style={{
+                  width: `calc(${label.span * 100}% - ${captionEnd})`,
+                }}
               >
-                <b className="board-stay-glyph" aria-hidden="true">
-                  {label.continues ? '←' : (STATUS_GLYPH[cell.itemStatus ?? ''] ?? '')}
-                </b>
-                <span className="board-stay-name">
-                  {cell.guestLabel || cell.confirmationNumber}
-                </span>
-                {/* Канал — словом: цвет на плашке уже занят статусом брони (DESIGN.md §9) */}
-                {cell.channel && (
-                  <span className="board-stay-channel" data-testid="cell-channel">
-                    {cell.channel}
+                <span className="board-stay-line">
+                  <b className="board-stay-glyph" aria-hidden="true">
+                    {label.continues ? '←' : (STATUS_GLYPH[cell.itemStatus ?? ''] ?? '')}
+                  </b>
+                  <span className="board-stay-name">{names.full || cell.confirmationNumber}</span>
+                  <span className="board-stay-name-short">
+                    {names.short || cell.confirmationNumber}
                   </span>
-                )}
-                {cell.balanceMinor && BigInt(cell.balanceMinor) > 0n && (
-                  <AmountChip
-                    minor={cell.balanceMinor}
-                    tone="due"
-                    className="board-stay-due"
-                    data-testid="cell-due"
-                  />
-                )}
-                {label.span >= 2 && (
-                  <span className="board-stay-nights">{nights(label.span, label.continues)}</span>
-                )}
+                  <span className="board-stay-initials">{names.initials || '•'}</span>
+                  {hasDebt && (
+                    <span
+                      className="board-stay-due-dot"
+                      data-testid="cell-due-dot"
+                      aria-hidden="true"
+                    />
+                  )}
+                </span>
+                <span className="board-stay-line board-stay-line--meta">
+                  {/* Источник — маленьким бейджем: цвет плашки уже занят статусом брони (DESIGN.md §9) */}
+                  {badge && (
+                    <span className="board-stay-source" data-testid="cell-channel">
+                      {badge.code}
+                    </span>
+                  )}
+                  {(arrivalToday || departureToday) && (
+                    <span className="board-stay-today">
+                      {arrivalToday ? 'заезд сегодня' : 'выезд сегодня'}
+                    </span>
+                  )}
+                  {label.span >= 2 && (
+                    <span className="board-stay-nights">
+                      {/* «+»: проживание начато до окна или идёт дальше его — видимых ночей меньше */}
+                      {nights(label.span, label.continues || !label.ends)}
+                    </span>
+                  )}
+                  {hasDebt && (
+                    <AmountChip
+                      minor={cell.balanceMinor!}
+                      tone="due"
+                      className="board-stay-due"
+                      data-testid="cell-due"
+                    />
+                  )}
+                </span>
               </span>
             )}
           </Link>
           {/* C2: меню действий — брат ссылки, а не её потомок: клик по плашке и перетаскивание не задеты */}
-          {label && cell.confirmationNumber && cell.itemId && (
+          {label && withMenu && cell.confirmationNumber && cell.itemId && (
             <ActionMenu
               className="board-stay-menu"
               size="sm"

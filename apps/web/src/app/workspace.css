@@ -842,10 +842,6 @@ dialog::backdrop {
   max-height: 160px;
   overflow: auto;
 }
-.board-unassigned[data-count='0'] {
-  background: var(--success-soft);
-  border-color: var(--border);
-}
 .board-unassigned-title {
   display: flex;
   align-items: center;

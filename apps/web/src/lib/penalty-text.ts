@@ -2,6 +2,16 @@ import type { CancelPreview } from './api';
 import { formatMoney } from './money';
 
 /**
+ * Правило отмены тарифа словами (`RatePlan.cancellationPenalty`, Q-103). Показывается на «Ценах» у выбранного
+ * тарифа: правило — свойство тарифного плана, из «Настроек объекта» оно ушло (ADR-115).
+ */
+export const cancellationRuleText: Record<string, string> = {
+  NONE: 'без штрафа',
+  FIRST_NIGHT: 'стоимость первой ночи',
+  FULL_STAY: 'стоимость всего проживания',
+};
+
+/**
  * Слово о штрафе для окна подтверждения (DESIGN.md §8, Д5): сумму считает сервер тем же кодом, что и
  * начисление; здесь — только формулировка. `undefined` — предпросмотр ещё идёт, `null` — не загрузился.
  */

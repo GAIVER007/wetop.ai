@@ -2,11 +2,12 @@ import { notFound, redirect } from 'next/navigation';
 import { api, inventoryEditorApi, reservationsApi } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { hotelToday, nextDay, validDate } from '../../../lib/hotel-api';
-import { nightsBetween } from '../../../lib/plural';
+import { nightsBetween, pluralRu } from '../../../lib/plural';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { Page } from '../../../components/page';
 import { FundTabs } from '../../inventory/fund-tabs';
 import { CategoryCatalog } from '../../inventory/category-catalog';
+import { FundEditor } from '../../inventory/fund-editor';
 import { AvailabilityFinder } from '../availability-finder';
 import '../../inventory/inventory.css';
 import '../../inventory/fund.css';
@@ -26,10 +27,25 @@ export default async function RoomsPage({
       inventoryEditorApi.categories(),
       api.inventoryUnits(),
     ]);
+    const rooms = units.filter((u) => u.kind === 'ROOM').length;
+    const beds = units.length - rooms;
+    // разделитель — запятая, а не точка-разделитель: сторож ИИ-слопа, DESIGN.md §14
+    const summary = [
+      pluralRu(types.length, ['категория', 'категории', 'категорий']),
+      rooms ? pluralRu(rooms, ['номер', 'номера', 'номеров']) : '',
+      beds ? pluralRu(beds, ['койко-место', 'койко-места', 'койко-мест']) : '',
+    ]
+      .filter(Boolean)
+      .join(', ');
     return (
       <Page
         title="Категории номеров"
-        subtitle="Категория объединяет номера или койки с одинаковым типом размещения и вместимостью."
+        subtitle={
+          types.length
+            ? summary
+            : 'Категория объединяет номера или койки с одинаковым типом размещения и вместимостью.'
+        }
+        actions={<FundEditor categories={types} mode="category" />}
       >
         <FundTabs active="categories" />
         <CategoryCatalog categories={types} units={units} />

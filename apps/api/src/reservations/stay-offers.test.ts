@@ -15,7 +15,7 @@ import {
   type ReservationsRepository,
 } from './reservations.repository';
 
-/** «Свободные места», AV2 (ADR-107): цены «от» по правилу закрытого Q-199. Вымышленный фонд и тарифы. */
+/** «Свободные места», AV2 (ADR-110): цены «от» по правилу закрытого Q-204. Вымышленный фонд и тарифы. */
 const categories: CategoryRef[] = [
   { id: 'room', code: 'ROOM', name: 'Тестовый двухместный', active: true, capacityAdults: 2, capacityChildren: 0, kind: 'PRIVATE_ROOM' },
   { id: 'bed', code: 'BED', name: 'Тестовая общая', active: true, capacityAdults: 1, capacityChildren: 0, kind: 'DORM_BED' },
@@ -66,7 +66,7 @@ afterAll(() => app?.close());
 
 const get = (q: string) => request(app.getHttpServer()).get(`/availability/offers?${q}`);
 
-describe('GET /availability/offers — цены «от» (Q-199)', () => {
+describe('GET /availability/offers — цены «от» (Q-204)', () => {
   it('номер: самый дешёвый допустимый тариф за весь срок, число тарифов, цена ночи', async () => {
     const res = await get('arrival=2026-10-01&departure=2026-10-04&guests=2');
     expect(res.status).toBe(200);

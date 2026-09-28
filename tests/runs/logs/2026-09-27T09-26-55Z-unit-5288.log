@@ -1,0 +1,21 @@
+# Модульные (unit) · 27.09.2026 14:26 Алматы · vm
+# коммит d54e800 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T09-26-55Z-unit-5288.json' 'apps/api/src/accounts/' 'apps/api/src/guard/guard.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/accounts/invites.controller.test.ts (11 tests) 364ms
+ ✓ |unit| apps/api/src/accounts/members.controller.test.ts (22 tests) 375ms
+ ✓ |unit| apps/api/src/accounts/sessions.controller.test.ts (6 tests) 400ms
+ ✓ |unit| apps/api/src/accounts/actor.test.ts (5 tests) 52ms
+ ✓ |unit| apps/api/src/accounts/cookie.test.ts (10 tests) 52ms
+ ✓ |unit| apps/api/src/guard/guard.controller.test.ts (3 tests) 8ms
+
+ Test Files  6 passed (6)
+      Tests  57 passed (57)
+   Start at  09:26:56
+   Duration  3.86s (transform 45%, import 41%, tests 14%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T09-26-55Z-unit-5288.json
+
+# код выхода 0 · 5 с

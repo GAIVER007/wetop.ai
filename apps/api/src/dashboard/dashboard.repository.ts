@@ -1,6 +1,12 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
-import type { DashboardCharge, DashboardDay, DashboardPayment, DashboardStay } from '@pms/domain';
+import type {
+  DashboardCharge,
+  DashboardDay,
+  DashboardPayment,
+  DashboardStay,
+  DashboardUnitKind,
+} from '@pms/domain';
 import { LUXX_APARTS_PROPERTY, zonedStartOfDay } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
@@ -8,9 +14,11 @@ import { ChessboardService } from '../chessboard/chessboard.service';
 import { propertyIdRef, propertyRef } from '../database/property-ref';
 
 export interface DashboardBoard {
-  categories: Array<{ code: string; name: string; units: number }>;
+  /** Тип категории — по её единицам в шахматке: номер или койка (Аналитика v2, тип фонда) */
+  categories: Array<{ code: string; name: string; units: number; kind: DashboardUnitKind }>;
   days: DashboardDay[];
-  unassigned: number;
+  /** Проживания без ячейки по коду категории — одно проживание считается один раз */
+  unassignedByCategory: Record<string, number>;
 }
 /** Что нужно дашборду за период: шахматка, проживания, начисления, платежи, возвраты. */
 export interface DashboardRepository {
@@ -54,15 +62,24 @@ export class PrismaDashboardRepository implements DashboardRepository {
   /** Та же шахматка, что на экране, кусками по 62 дня (её потолок за запрос) */
   async board(from: string, to: string): Promise<DashboardBoard> {
     const days: DashboardDay[] = [];
-    const categories = new Map<string, { code: string; name: string; units: number }>();
-    const unassigned = new Set<string>();
+    const categories = new Map<
+      string,
+      { code: string; name: string; units: number; kind: DashboardUnitKind }
+    >();
+    const unassigned = new Map<string, string>();
     for (let start = from; start <= to; start = plusDays(start, BOARD_CHUNK_DAYS)) {
       const end = [plusDays(start, BOARD_CHUNK_DAYS - 1), to].sort()[0]!;
       const b = await this.chessboard.board(start, end);
       if (!categories.size)
         for (const r of b.rows) {
           const code = r.unit.accommodationTypeCode;
-          const c = categories.get(code) ?? { code, name: r.unit.accommodationTypeName, units: 0 };
+          // категория однородна (номера или койки); тип — по первой её единице
+          const c = categories.get(code) ?? {
+            code,
+            name: r.unit.accommodationTypeName,
+            units: 0,
+            kind: r.unit.kind,
+          };
           categories.set(code, { ...c, units: c.units + 1 });
         }
       for (const date of b.dates)
@@ -72,9 +89,15 @@ export class PrismaDashboardRepository implements DashboardRepository {
           byCategory: b.byCategory[date] ?? {},
         });
       for (const u of b.unassigned)
-        unassigned.add(`${u.confirmationNumber}|${u.categoryCode}|${u.arrivalDate}`);
+        unassigned.set(
+          `${u.confirmationNumber}|${u.categoryCode}|${u.arrivalDate}`,
+          u.categoryCode,
+        );
     }
-    return { categories: [...categories.values()], days, unassigned: unassigned.size };
+    const unassignedByCategory: Record<string, number> = {};
+    for (const code of unassigned.values())
+      unassignedByCategory[code] = (unassignedByCategory[code] ?? 0) + 1;
+    return { categories: [...categories.values()], days, unassignedByCategory };
   }
 
   async stays(from: string, to: string): Promise<DashboardStay[]> {
@@ -105,7 +128,8 @@ export class PrismaDashboardRepository implements DashboardRepository {
       priceMinor: r.price,
       source: r.reservation.source,
       // Один канал Channex присылает под разными именами — на «Главной» он один (plans/channel-name-canonical-2026-09-22.md)
-      channel: r.reservation.channel === null ? null : channex.otaChannelLabel(r.reservation.channel),
+      channel:
+        r.reservation.channel === null ? null : channex.otaChannelLabel(r.reservation.channel),
       categoryCode: r.accommodationType.code,
     }));
   }
@@ -121,6 +145,7 @@ export class PrismaDashboardRepository implements DashboardRepository {
       select: {
         kind: true,
         amount: true,
+        serviceDate: true,
         folio: {
           select: {
             reservationItem: { select: { accommodationType: { select: { code: true } } } },
@@ -132,6 +157,8 @@ export class PrismaDashboardRepository implements DashboardRepository {
       kind: c.kind,
       amountMinor: c.amount,
       categoryCode: c.folio.reservationItem.accommodationType.code,
+      // выборка отобрана по дате услуги в периоде — пустой она здесь не бывает
+      serviceDate: (c.serviceDate ?? asDate(from)).toISOString().slice(0, 10),
     }));
   }
 

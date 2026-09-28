@@ -1,11 +1,25 @@
 'use client';
 import { useId, useState } from 'react';
+import Link from 'next/link';
 import { Button } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import { Icon } from '../../components/icon';
 
-/** Ручной период раскрывается по запросу, чтобы оставлять место календарю. */
-export function BoardDateRange({ from, to }: { from: string; to: string }) {
+/**
+ * Ручной период раскрывается по запросу, чтобы оставлять место календарю.
+ * Календарный месяц живёт здесь же (ТЗ «Шахматка v2» §7): в сегменте видов — rolling 7/14/30.
+ */
+export function BoardDateRange({
+  from,
+  to,
+  monthHref,
+  monthCurrent,
+}: {
+  from: string;
+  to: string;
+  monthHref?: string;
+  monthCurrent?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const id = useId();
   return (
@@ -33,6 +47,15 @@ export function BoardDateRange({ from, to }: { from: string; to: string }) {
         <Button tone="secondary" type="submit">
           Применить
         </Button>
+        {monthHref && (
+          <Link
+            href={monthHref}
+            className="btn btn--secondary"
+            aria-current={monthCurrent ? 'true' : undefined}
+          >
+            Месяц
+          </Link>
+        )}
       </form>
     </div>
   );

@@ -79,7 +79,7 @@ describe.skipIf(!url)('manual reservation against the database (integration, rol
           await importInventoryPlan(tx, inventory, TEST_PROPERTY);
           const property = await tx.property.findFirstOrThrow({
             where: { name: TEST_PROPERTY.name },
-            select: { id: true },
+            select: { id: true, organizationId: true },
           });
           const types = await tx.accommodationType.findMany({
             where: { propertyId: property.id },
@@ -136,6 +136,15 @@ describe.skipIf(!url)('manual reservation against the database (integration, rol
           expect(first.status).toBe('CONFIRMED');
           expect(first.totalAmountMinor).toBe('2200000');
           expect(first.items[0]!.unitCode).toBe('9001');
+          // v1.13 §17.1 (ADR-103): гость штампуется организацией объекта при создании брони.
+          // Тот же repo.createGuest зовут канал (inbound.service) и сайт (web-booking →
+          // ReservationsService.create) — доказательство одно на все три пути. Гостя ищем через
+          // бронь: вне РК личные поля обезличены (ADR-072), по фамилии его не найти.
+          const withGuest = await tx.reservation.findFirstOrThrow({
+            where: { propertyId: property.id, confirmationNumber: first.confirmationNumber },
+            select: { primaryGuest: { select: { organizationId: true } } },
+          });
+          expect(withGuest.primaryGuest!.organizationId).toBe(property.organizationId);
 
           await expectInsideTx(
             tx,

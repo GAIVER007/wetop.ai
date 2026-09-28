@@ -3473,3 +3473,4 @@
 | 28.09.2026 13:40 | typecheck | ✅ без ошибок | 39 с | 1b187fa | [лог](logs/2026-09-28T08-40-59Z-typecheck-954b.log) | deploy proof: main 1b187fa5 |
 | 28.09.2026 13:41 | lint | ✅ без ошибок | 20 с | 1b187fa | [лог](logs/2026-09-28T08-41-38Z-lint-ae8d.log) | deploy proof: main 1b187fa5 |
 | 28.09.2026 13:41 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 21 с | 1b187fa | [лог](logs/2026-09-28T08-41-59Z-unit-32d6.log) | deploy proof: main 1b187fa5 |
+| 28.09.2026 13:43 | integration | ✅ 124 из 124 | 38 с | 1705a66 | [лог](logs/2026-09-28T08-43-33Z-integration-fc37.log) | deploy proof: main 1b187fa5 |

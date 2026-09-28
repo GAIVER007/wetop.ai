@@ -89,7 +89,7 @@ function makeFakes() {
           };
     },
     async periodDebts(from, to) {
-      // ADR-107: брони с начислением в периоде и суммы по всем их счетам. Октябрь — пять броней:
+      // ADR-113: брони с начислением в периоде и суммы по всем их счетам. Октябрь — пять броней:
       // долг, долг побольше, ровно оплачено, переплата у отменённой, долг после возврата
       if (from <= '2026-11-01' && to >= '2026-11-01')
         // ноябрь — 501 должник: ответ держит не больше 500 строк
@@ -130,7 +130,7 @@ function makeFakes() {
       ];
     },
     async periodOperations(from, to, filter) {
-      // ADR-107 F2: октябрь — две оплаты, аннулированная оплата, возврат; итоги — по всему периоду без отборов
+      // ADR-113 F2: октябрь — две оплаты, аннулированная оплата, возврат; итоги — по всему периоду без отборов
       if (!(from <= '2026-10-05' && to >= '2026-10-02')) return { rows: [], summary: [] };
       const op = (
         kind: 'PAYMENT' | 'REFUND',
@@ -423,7 +423,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(empty.body).toMatchObject({ chargedMinor: '0', paidMinor: '0', balanceMinor: '0' });
   });
 
-  it('ADR-107: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, выехавшие отдельно; неверный период → 400', async () => {
+  it('ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, выехавшие отдельно; неверный период → 400', async () => {
     const debts = (qs: string) => request(app.getHttpServer()).get(`/finance/debts${qs}`);
     await debts('').expect(400);
     await debts('?from=2026-10-31&to=2026-10-01').expect(400);
@@ -472,7 +472,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
   });
 
-  it('ADR-107 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400', async () => {
+  it('ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400', async () => {
     const ops = (qs: string) => request(app.getHttpServer()).get(`/finance/operations${qs}`);
     await ops('').expect(400);
     await ops('?from=2026-10-31&to=2026-10-01').expect(400);

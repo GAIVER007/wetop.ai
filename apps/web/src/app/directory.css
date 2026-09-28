@@ -711,7 +711,7 @@ a.dir-number:hover {
   }
 }
 
-/* ---------- Финансы за период: панель блока и её таблицы (раскладка экрана — finance/finance.css, ADR-107) ---------- */
+/* ---------- Финансы за период: панель блока и её таблицы (раскладка экрана — finance/finance.css, ADR-113) ---------- */
 .finance-block {
   padding: 16px;
   background: var(--glass-panel);

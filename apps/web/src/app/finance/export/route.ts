@@ -11,7 +11,7 @@ const text = (status: number, body: string) =>
   new Response(body, { status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
 
 /**
- * Выгрузка «Оплаты и возвраты» за период в CSV (ADR-107, F2): те же операции и те же отборы, что на экране. Браузер к
+ * Выгрузка «Оплаты и возвраты» за период в CSV (ADR-113, F2): те же операции и те же отборы, что на экране. Браузер к
  * API напрямую не ходит — стойка берёт ответ с сессией вошедшего и отдаёт файл.
  */
 export async function GET(request: Request) {

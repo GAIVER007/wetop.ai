@@ -864,7 +864,7 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.getByRole('main').getByTestId('channel-report-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   // «Финансы за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
-  // (и у итогов, и у списка долгов — ADR-107)
+  // (и у итогов, и у списка долгов — ADR-113)
   await page.goto('/finance');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
     'Финансы за период',
@@ -1000,7 +1000,7 @@ test('кнопки называют своё действие: гость зав
   await newBooking.click();
   await expect(page).toHaveURL(/\/reservations\/new$/);
 
-  // С F1 (ADR-107) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
+  // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();

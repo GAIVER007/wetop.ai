@@ -15,7 +15,7 @@ const op = (over: Partial<Parameters<typeof operationsCsv>[0][number]> = {}) => 
   ...over,
 });
 
-describe('выгрузка «Оплаты и возвраты» в CSV (ADR-107, F2)', () => {
+describe('выгрузка «Оплаты и возвраты» в CSV (ADR-113, F2)', () => {
   it('Excel в русской раскладке: BOM, «;», сумма с запятой без пробелов, дата ДД.ММ.ГГГГ и время по часам объекта', () => {
     const csv = operationsCsv([op()]);
     expect(csv.startsWith('\uFEFF')).toBe(true);

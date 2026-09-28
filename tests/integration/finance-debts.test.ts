@@ -10,11 +10,11 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * ADR-107: список «Брони с остатком к сбору» читает брони одним SQL-запросом, а не через Prisma — за год это тысячи
+ * ADR-113: список «Брони с остатком к сбору» читает брони одним SQL-запросом, а не через Prisma — за год это тысячи
  * броней. Запрос проверяется здесь, на настоящей схеме: какие брони попадают в период, что считается в суммах.
  * Брони теста — в марте 2031, вымышленные (ADR-010), удаляются в конце.
  */
-describe.skipIf(!url)('брони с остатком к сбору — запрос по счетам (integration, ADR-107)', () => {
+describe.skipIf(!url)('брони с остатком к сбору — запрос по счетам (integration, ADR-113)', () => {
   let db: Db;
   let repo: PrismaFinanceRepository;
   let propertyId = '';

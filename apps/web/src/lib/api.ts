@@ -1046,7 +1046,7 @@ export interface PeriodReport {
   refundedMinor: string;
   balanceMinor: string;
 }
-/** «Брони с остатком к сбору» за период (ADR-107): остаток — по всему счёту брони, как на карточке */
+/** «Брони с остатком к сбору» за период (ADR-113): остаток — по всему счёту брони, как на карточке */
 export interface PeriodDebts {
   from: string;
   to: string;
@@ -1067,7 +1067,7 @@ export interface PeriodDebts {
   }>;
   truncated: boolean;
 }
-/** Оплаты и возвраты за период (ADR-107, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
+/** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
 export interface PeriodOperations {
   from: string;
   to: string;

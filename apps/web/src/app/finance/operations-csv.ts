@@ -14,7 +14,7 @@ function tenge(minor: string, negative: boolean): string {
 const field = (s: string) => (/[;"\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
 
 /**
- * Оплаты и возвраты за период для бухгалтера (ADR-107, F2): «;», UTF-8 с BOM, строки через CRLF. Дата и время —
+ * Оплаты и возвраты за период для бухгалтера (ADR-113, F2): «;», UTF-8 с BOM, строки через CRLF. Дата и время —
  * по часам объекта, возврат — с минусом. Имён гостей нет: файл уходит из системы, а бронь находится по номеру.
  */
 export function operationsCsv(rows: Operation[]): string {

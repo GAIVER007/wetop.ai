@@ -1416,7 +1416,11 @@ test('новая бронь: резюме выбора обновляется п
     '',
   );
   const unitSelect = first.getByLabel('Ячейка');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  // первая настоящая ячейка: до неё «назначить позже» и «Автоматически» (AV3, ADR-110)
+  const unitCode = (await unitSelect
+    .locator('option:not([value=""]):not([value="@auto"])')
+    .first()
+    .getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
   await expect(summary).toContainText(`ячейка ${unitCode}`);

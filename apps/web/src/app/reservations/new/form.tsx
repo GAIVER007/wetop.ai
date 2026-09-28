@@ -10,6 +10,7 @@ import {
   Select,
   Textarea,
 } from '../../../components/ui';
+import { AUTO_UNIT, type PlacementPrefill } from '../../../lib/booking-link';
 import { displayDate } from '../../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
 import {
@@ -21,7 +22,8 @@ import {
 import { CHANNELS, SOURCES } from '../sources';
 
 export function NewReservationForm(props: {
-  selectedUnit: string;
+  /** Размещения из адресной строки: «Свободные места» (AV3, ADR-110) или ячейка из шахматки */
+  prefill: PlacementPrefill[];
   canSubmit: boolean;
   arrival: string;
   departure: string;
@@ -45,8 +47,18 @@ export function NewReservationForm(props: {
   // выбранный гость живёт вне формы с ключом попытки: отказ API не сбрасывает выбор
   const [picked, setPicked] = useState<BookingGuest | null>(props.guest);
   const [phone, setPhone] = useState('');
-  const [placementIds, setPlacementIds] = useState(['0']);
-  const nextPlacement = useRef(1);
+  const [placementIds, setPlacementIds] = useState(() =>
+    props.prefill.length ? props.prefill.map((_, index) => String(index)) : ['0'],
+  );
+  const nextPlacement = useRef(Math.max(1, props.prefill.length));
+  const unavailable = props.prefill
+    .map((p) => p.unit)
+    .filter(
+      (unit) =>
+        unit &&
+        unit !== AUTO_UNIT &&
+        !props.categories.some((c) => c.availableUnitCodes.includes(unit)),
+    );
   // Резюме выбора (B2): читается из самих полей формы, без второго источника правды и без цен —
   // цену и доступность считает сервер при создании (правило «нет клиентских финансовых расчётов»)
   const formRef = useRef<HTMLFormElement>(null);
@@ -83,13 +95,14 @@ export function NewReservationForm(props: {
           <h2>Размещение</h2>
         </div>
       </div>
-      {props.selectedUnit &&
-        !props.categories.some((c) => c.availableUnitCodes.includes(props.selectedUnit)) && (
-          <Alert tone="warning">
-            Выбранная ячейка {props.selectedUnit} недоступна на этот период. Выберите другое
-            размещение.
-          </Alert>
-        )}
+      {unavailable.length > 0 && (
+        <Alert tone="warning">
+          {unavailable.length === 1
+            ? `Выбранная ячейка ${unavailable[0]} недоступна`
+            : `Выбранные ячейки ${unavailable.join(', ')} недоступны`}{' '}
+          на этот период. Выберите другое размещение.
+        </Alert>
+      )}
       <Grid>
         <Field label="Источник *">
           <Select name="source" required defaultValue={kept['source'] ?? SOURCES[0]![0]}>
@@ -144,7 +157,7 @@ export function NewReservationForm(props: {
             kept={kept}
             categories={props.categories}
             ratePlans={props.ratePlans}
-            selectedUnit={id === '0' ? props.selectedUnit : ''}
+            initial={props.prefill[Number(id)]}
           />
           {id !== '0' && (
             <Button
@@ -284,9 +297,11 @@ function summarize(
     const where =
       quantity > 1
         ? `${pluralRu(quantity, ['место', 'места', 'мест'])}, ячейки назначит система`
-        : unit
-          ? `ячейка ${unit}`
-          : 'ячейка назначается позже';
+        : unit === AUTO_UNIT
+          ? 'ячейку назначит система'
+          : unit
+            ? `ячейка ${unit}`
+            : 'ячейка назначается позже';
     return `${category?.name ?? dash}, ${where}, ${pluralRu(adults, ['гость', 'гостя', 'гостей'])}`;
   });
   return {
@@ -420,7 +435,7 @@ function PlacementFields({
   kept,
   categories,
   ratePlans,
-  selectedUnit,
+  initial,
 }: {
   id: string;
   kept: Record<string, string>;
@@ -431,16 +446,20 @@ function PlacementFields({
     availableUnitCodes: string[];
   }>;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
-  selectedUnit: string;
+  initial: PlacementPrefill | undefined;
 }) {
   const field = (name: string) => (id === '0' ? name : `item.${id}.${name}`);
+  const selectedUnit = initial?.unit ?? '';
   const [category, setCategory] = useState(
     kept[field('accommodationTypeCode')] ??
+      categories.find((c) => c.code === initial?.category)?.code ??
       categories.find((c) => c.availableUnitCodes.includes(selectedUnit))?.code ??
       categories[0]?.code ??
       '',
   );
-  const [quantity, setQuantity] = useState(kept[field('quantity')] ?? '1');
+  const [quantity, setQuantity] = useState(
+    kept[field('quantity')] ?? String(initial?.quantity ?? 1),
+  );
   const units = categories.find((c) => c.code === category)?.availableUnitCodes ?? [];
   // Предел гостей — вместимость единицы выбранной категории (койка — 1), а не «2» для всех
   const capacity = Math.max(1, categories.find((c) => c.code === category)?.capacityAdults ?? 1);
@@ -464,7 +483,14 @@ function PlacementFields({
         </Select>
       </Field>
       <Field label="Тариф *">
-        <Select name={field('ratePlanCode')} required defaultValue={kept[field('ratePlanCode')]}>
+        <Select
+          name={field('ratePlanCode')}
+          required
+          defaultValue={
+            kept[field('ratePlanCode')] ??
+            (ratePlans.some((p) => p.code === initial?.rate) ? initial?.rate : undefined)
+          }
+        >
           {ratePlans.map((p) => (
             <option key={p.code} value={p.code}>
               {p.name} ({p.currency})
@@ -478,7 +504,7 @@ function PlacementFields({
           name={field('adults')}
           min={1}
           max={capacity}
-          defaultValue={kept[field('adults')] ?? 1}
+          defaultValue={kept[field('adults')] ?? initial?.adults ?? 1}
         />
       </Field>
       <Field label="Количество мест">
@@ -503,10 +529,14 @@ function PlacementFields({
             name={field('unitCode')}
             key={category}
             defaultValue={
-              kept[field('unitCode')] ?? (units.includes(selectedUnit) ? selectedUnit : '')
+              kept[field('unitCode')] ??
+              (selectedUnit === AUTO_UNIT || units.includes(selectedUnit) ? selectedUnit : '')
             }
           >
             <option value="">— назначить позже —</option>
+            {units.length > 0 && (
+              <option value={AUTO_UNIT}>Автоматически — первая свободная</option>
+            )}
             {units.map((u) => (
               <option key={u} value={u}>
                 {u}

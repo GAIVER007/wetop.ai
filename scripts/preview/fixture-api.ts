@@ -2407,6 +2407,36 @@ function read(path: string, q: URLSearchParams): unknown {
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return ratePlanList();
+  // «Свободные места», AV2 (ADR-110): один тариф BASE по синтетическим ценам ночи; койки — на каждого гостя
+  if (path === '/availability/offers') {
+    const arrival = q.get('arrival') || today,
+      departure = q.get('departure') || add(arrival, 1),
+      guests = Number(q.get('guests') || '1');
+    const nights = BigInt(nightsOf({ arrivalDate: arrival, departureDate: departure }));
+    return {
+      arrivalDate: arrival,
+      departureDate: departure,
+      nights: Number(nights),
+      guests,
+      currency: 'KZT',
+      byCategory: Object.fromEntries(
+        categories.map((c) => {
+          const bed = c.code !== 'ROOM';
+          if (!bed && guests > c.capacityAdults) return [c.code, null];
+          const night = nightly(c.code);
+          return [
+            c.code,
+            {
+              plans: 1,
+              totalMinor: (night * nights * BigInt(bed ? guests : 1)).toString(),
+              perNightMinor: night.toString(),
+              ratePlanCode: 'BASE',
+            },
+          ];
+        }),
+      ),
+    };
+  }
   if (path === '/availability') {
     const arrival = q.get('arrival') || today,
       departure = q.get('departure') || add(arrival, 1);

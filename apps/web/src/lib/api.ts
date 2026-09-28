@@ -294,6 +294,23 @@ export const chessboardApi = {
 // formatMinor и messengerLinks переехали в ./format — их берут и клиентские компоненты (см. там же)
 export { formatMinor, messengerLinks } from './format';
 
+export interface StayOffer {
+  /** Сколько тарифов допустимо для проживания */
+  plans: number;
+  /** Весь срок на всех гостей запроса по самому дешёвому тарифу, тиыны строкой */
+  totalMinor: string;
+  /** Самая низкая цена ночи за номер целиком или за одну койку */
+  perNightMinor: string;
+  ratePlanCode: string;
+}
+export interface StayOffers {
+  arrivalDate: string;
+  departureDate: string;
+  nights: number;
+  guests: number;
+  currency: string;
+  byCategory: Record<string, StayOffer | null>;
+}
 export interface StayAvailability {
   arrivalDate: string;
   departureDate: string;
@@ -612,6 +629,9 @@ export const reservationsApi = {
     getJson<StayAvailability>(
       `/availability?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`,
     ),
+  /** Цены «от» для «Свободных мест» (ADR-110, AV2): правило закрытого Q-204 считает API */
+  offers: (arrival: string, departure: string, guests: number) =>
+    getJson<StayOffers>(`/availability/offers${query({ arrival, departure, guests })}`),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),

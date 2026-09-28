@@ -110,6 +110,100 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   );
 });
 
+test('AV2: price «from» — rooms for the whole stay, beds for every guest', async ({
+  page,
+  request,
+}) => {
+  // ТЗ «Свободные места» §4 (ADR-110, закрытый Q-204); подставной API: номер 8 000 ₸, койка 4 000 ₸ за ночь
+  await request.post('http://127.0.0.1:4311/__test/reset');
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2');
+  const rows = page.locator('.fund-availability article');
+  const room = rows.filter({ hasText: 'Двухместный номер' });
+  await expect(room.getByText('от 24 000 ₸ за проживание')).toBeVisible();
+  await expect(room.getByText('от 8 000 ₸ / ночь')).toBeVisible();
+  // корректировка владельца: итог коек — на всех гостей запроса (4 000 × 2 гостя × 3 ночи)
+  const bed = rows.filter({ hasText: 'Мужской общий номер' });
+  await expect(bed.getByText('Итого от 24 000 ₸')).toBeVisible();
+  await expect(bed.getByText('от 4 000 ₸ / койка / ночь')).toBeVisible();
+  await expect(bed.getByText('2 гостя, 3 ночи')).toBeVisible();
+});
+
+test('AV3: places as a compact list; automatic choice and picked beds prefill the booking', async ({
+  page,
+  request,
+}) => {
+  // ТЗ «Свободные места» §5–§6 (ADR-110): место назначает API по правилу Q-094, повторно ничего не вводится
+  const fixture = 'http://127.0.0.1:4311';
+  await request.post(`${fixture}/__test/reset`);
+  const search = '/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2';
+  await page.goto(search);
+  const rows = page.locator('.fund-availability article');
+  const room = rows.filter({ hasText: 'Двухместный номер' });
+  await room.getByText('Показать номера', { exact: true }).click();
+  const roomList = room.getByRole('list', { name: 'Места: Двухместный номер' });
+  await expect(roomList.getByRole('listitem').first()).toContainText('R01');
+  await expect(roomList.getByRole('link', { name: 'Выбрать номер R01' })).toHaveAttribute(
+    'href',
+    /unit=R01&category=ROOM&rate=BASE&adults=2$/,
+  );
+  await room.getByRole('link', { name: 'Выбрать автоматически', exact: true }).click();
+  const form = page.getByTestId('new-reservation-form');
+  await expect(form.locator('[name="accommodationTypeCode"]')).toHaveValue('ROOM');
+  await expect(form.locator('[name="ratePlanCode"]')).toHaveValue('BASE');
+  await expect(form.locator('[name="adults"]')).toHaveValue('2');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
+  await expect(form.getByTestId('booking-summary')).toContainText('ячейку назначит система');
+  await form.locator('[name="source"]').selectOption('PHONE');
+  await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
+  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByRole('button', { name: 'Создать бронь' }).click();
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+  const created = async () =>
+    (
+      (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+        path: string;
+        body: Record<string, unknown>;
+      }>
+    )
+      .filter((c) => c.path === '/reservations')
+      .at(-1)?.body;
+  expect(await created()).toMatchObject({
+    arrivalDate: '2026-10-01',
+    departureDate: '2026-10-04',
+    items: [
+      {
+        accommodationTypeCode: 'ROOM',
+        ratePlanCode: 'BASE',
+        adults: 2,
+        quantity: 1,
+        unitCode: null,
+        autoAssign: true,
+      },
+    ],
+  });
+
+  // койки на двоих: одну выбрали вручную, вторую назначит система
+  await page.goto(search);
+  const bed = rows.filter({ hasText: 'Мужской общий номер' });
+  await bed.getByText('Показать места', { exact: true }).click();
+  const pick = bed.getByRole('button', { name: /^Выбрать койку / }).first();
+  const code = (await pick.getAttribute('aria-label'))!.replace('Выбрать койку ', '');
+  await pick.click();
+  await expect(bed.getByRole('button', { name: `Выбрать койку ${code}` })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(bed.getByRole('status')).toHaveText(/Выбрано 1 из 2 — остальные назначит система/);
+  await bed.getByRole('link', { name: 'Создать бронь', exact: true }).click();
+  const placements = form.getByTestId('placement-fields');
+  await expect(placements).toHaveCount(2);
+  await expect(form.locator('[name="accommodationTypeCode"]')).toHaveValue('MALE');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue(code);
+  await expect(form.locator('[name="item.1.accommodationTypeCode"]')).toHaveValue('MALE');
+  await expect(form.locator('[name="item.1.adults"]')).toHaveValue('1');
+  await expect(form.locator('[name="item.1.unitCode"]')).toHaveValue('@auto');
+});
+
 test('dark categories and availability; invalid dates and empty onboarding', async ({
   page,
   request,

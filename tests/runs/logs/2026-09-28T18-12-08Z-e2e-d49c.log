@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 28.09.2026 23:12 Алматы · vm
+# коммит 908b109 (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/workspace.spec.ts' '--grep' 'новая бронь: резюме выбора' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/workspace.spec.ts:1399:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.8s)
+
+  1 passed (7.8s)
+
+# код выхода 0 · 9 с

@@ -48,7 +48,7 @@ export interface ChannexCard {
   lastExchangeAt: string | null;
 }
 
-/** Сколько категорий объекта сопоставлено с Channex (INT2, ADR-118): «N из M» и названия пропущенных */
+/** Сколько категорий объекта сопоставлено с Channex (INT2, ADR-120): «N из M» и названия пропущенных */
 export interface CategoryCoverage {
   mapped: number;
   total: number;

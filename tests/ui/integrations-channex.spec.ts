@@ -144,8 +144,8 @@ test('управляющий: без технических деталей и б
   // раздел «Интеграции» — владельцу и управляющему (ADR-107); страница Channex под тем же правилом
   await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
   await page.goto('/connections/channex');
+  await expect(main.getByTestId('no-access')).toBeVisible();
   await expect(main.getByTestId('channex-settings')).toHaveCount(0);
-  await expect(main).toContainText('Нет доступа');
 });
 
 test('телефон: страница без прокрутки вбок', async ({ page }) => {

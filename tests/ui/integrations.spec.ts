@@ -109,9 +109,8 @@ test('только чтение: список и состояние видны, 
   );
 });
 
-test('управляющий видит состояние, но не технические детали; сотруднику смены раздел закрыт (ADR-107)', async ({
-  page,
-}) => {
+test('не владелец технических деталей не видит; администратору раздел закрыт', async ({ page }) => {
+  // Роли (ADR-107): «Интеграции» — право `settings`, у управляющего оно есть, технические детали — только владельцу
   await control(page, { channex: 'ok' satisfies Mode, role: 'MANAGER' });
   await signIn(page);
   await page.goto('/connections');
@@ -121,8 +120,8 @@ test('управляющий видит состояние, но не техни
   await expect(card).not.toContainText('ui-property');
   await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
   await page.goto('/connections');
+  await expect(page.getByRole('main').getByTestId('no-access')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('integration-channex')).toHaveCount(0);
-  await expect(page.getByRole('main')).toContainText('Нет доступа');
 });
 
 test('телефон: карточка без прокрутки вбок', async ({ page }) => {

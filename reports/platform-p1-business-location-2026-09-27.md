@@ -123,3 +123,35 @@ day self-check 0 → RLS smoke`. Ни один Hospitality ID/FK не меняе
 - **Platform P2 — RequestActor / scope** — следующий этап, только по отдельной команде владельца.
 - **Switcher / onboarding / Partners UI — НЕ начинать до закрытия P2** (прямое указание владельца).
 - RLS-gate (§2а условие 3) держится до полного ввода RLS в строй по `docs/ops/rls.md`.
+
+## 6. Production rollout и закрытие — Platform P1 ЗАКРЫТА (28.09.2026)
+
+Владелец выполнил rollout по утверждённой формуле: `backup → migrate 026_rls_roles/027/028/030 → deploy`
+(27.09, `npm run migrate:deploy` — «All migrations have been successfully applied»; миграции `…029` в списке
+не было), затем 28.09 снял post-deploy проверки:
+
+| Проверка | Ожидание | Факт |
+|---|---|---|
+| Службы (`status.sh`, curl) | api/web running, 200/200 | api running, web running; 3001 → 200, 3000 → 200 |
+| `platform-p1-report.sql`: businesses | 1 / 1 / 1 | **1 / 1 / 1** |
+| locations | 1 / 1 | **1 / 1** |
+| properties (total / linked / without_location) | 1 / 1 / 0 | **1 / 1 / 0** |
+| broken_chain | 0 | **0** |
+| reporting_currency (orgs / confirmed / UNRESOLVED) | Luxx confirmed KZT; UNRESOLVED только у организаций без объектов | **2 / 1 / 1** — Luxx подтверждена по валюте объекта (KZT); одна организация без объектов — `UNRESOLVED` («нет объектов, DEFAULT KZT не подтверждён»), по условию 1 допустимо |
+| RLS smoke: роли | wetop_app / wetop_service без входа | `wetop_app` bypassrls=f login=f; `wetop_service` bypassrls=t login=f |
+| RLS smoke: политики `rls_tenant` | 43 | **43** (41 ADR-103 + 2 Platform P1) |
+| RLS smoke: видимость текущей роли | 1 / 1 | businesses 1, locations 1 — текущее подключение политиками не режется |
+| Фонд `cli-inventory` | 88/88, расхождение 0 | **RESULT: OK — расхождение 0 по всем строкам** (88/88, 16/16, 72/72, 92/92) |
+| Сутки `cli-day-selfcheck` | в ноль | **RESULT: OK — сутки внутри PMS сходятся** |
+
+Итог для Luxx: **1 Organization → 1 Business (HOSPITALITY) → 1 Location → существующий Property**;
+ни один Hospitality ID/FK не изменён. Все условия закрытия выполнены — **Platform P1 закрыта 28.09.2026.**
+
+Остаётся в силе:
+- **RLS-gate** (§2а условие 3): публичная регистрация и первый внешний Partner на общей базе — только после
+  включения входа `wetop_app` и `DATABASE_APP_URL` в API, зелёного isolation-smoke под `wetop_app` и замера
+  производительности (`docs/ops/rls.md`).
+- **Снятие фолбэка резолвера** (§2а условие 2): `broken_chain = 0` на рабочей базе зафиксирован — снятие пути по
+  `properties.organization_id` идёт отдельным маленьким PR по команде владельца.
+- **Platform P2 (RequestActor/scope)** — не начинается без отдельной команды; Switcher/onboarding/Partners UI —
+  не раньше закрытия P2.

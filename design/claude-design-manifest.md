@@ -29,7 +29,7 @@
 
 ## Что не загружается
 
-- `design/reference/exely/` — скриншоты Exely (даже с закрашенными фамилиями): что загружено, то
+- `design/reference/retired-source/` — скриншоты архивный источник (даже с закрашенными фамилиями): что загружено, то
   попадёт в каждый макет;
 - `.git`, `node_modules`, `.env`, `secrets/`, `project-input/`;
 - `reports/`, `tests/runs/`, данные объекта, `DECISIONS.md`, `QUESTIONS.md` (там финансы и контакты);

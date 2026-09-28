@@ -42,7 +42,7 @@ test('пробный период виден в меню на рабочих э�
   await expect(line).toHaveText('Пробный период закончился');
 });
 
-test('пустые экраны без «Exely» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3)', async ({
+test('пустые экраны без «Legacy» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3)', async ({
   page,
   request,
 }) => {
@@ -52,7 +52,7 @@ test('пустые экраны без «Exely» и «импорта», с де�
   await page.goto('/rates');
   const rates = main.getByTestId('rates-empty');
   await expect(rates).toContainText('Категорий ещё нет');
-  await expect(rates).not.toContainText(/Exely|импорт/);
+  await expect(rates).not.toContainText(/Legacy|импорт/);
   await expect(rates.getByRole('link', { name: 'Создать категорию' })).toHaveAttribute(
     'href',
     '/rooms/categories',
@@ -60,16 +60,16 @@ test('пустые экраны без «Exely» и «импорта», с де�
 
   await page.goto('/inventory');
   await expect(main.getByText('Номерной фонд пока пуст')).toBeVisible();
-  await expect(main).not.toContainText(/Exely|загрузки фонда/);
+  await expect(main).not.toContainText(/Legacy|загрузки фонда/);
   await expect(main.locator('a[href="/onboarding"]')).toHaveCount(0);
 
   await page.goto('/management/analytics/occupancy');
   await expect(main.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(main).not.toContainText(/Exely/);
+  await expect(main).not.toContainText(/Legacy/);
 
   await page.goto('/hotel-settings/services');
   await expect(main.getByTestId('services-empty')).toBeVisible();
-  await expect(main.getByTestId('services-empty')).not.toContainText(/Exely|импорт/);
+  await expect(main.getByTestId('services-empty')).not.toContainText(/Legacy|импорт/);
 });
 
 test('новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4)', async ({ page }) => {
@@ -124,8 +124,8 @@ test('владелец и управляющий правят сведения �
   await page.goto('/hotel-settings');
   await expect(form.getByLabel('Телефон')).toBeVisible();
   await form.getByLabel('Телефон').fill('+7 701 555 44 34');
-  await form.getByRole('button', { name: 'Сохранить' }).click();
-  await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+  await save.click();
+  await expect(page.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
 
   await control(request, { role: 'STAFF' });
   await page.goto('/hotel-settings');

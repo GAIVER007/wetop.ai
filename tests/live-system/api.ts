@@ -23,7 +23,7 @@ for (const flag of [
   process.env[flag] = 'off';
 // Do not even supply external credentials to this test process after loading DATABASE_URL.
 for (const key of Object.keys(process.env)) {
-  if (/^(CHANNEX|EXELY|EQONAQ|FISCAL|TELEGRAM|GUARD_HEARTBEAT)_/.test(key)) delete process.env[key];
+  if (/^(CHANNEX|LEGACY|EQONAQ|FISCAL|TELEGRAM|GUARD_HEARTBEAT)_/.test(key)) delete process.env[key];
 }
 const module = await Test.createTestingModule({ imports: [AppModule] })
   .overrideProvider(ARI_PUBLISHER)

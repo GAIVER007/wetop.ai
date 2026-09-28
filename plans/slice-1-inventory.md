@@ -16,21 +16,21 @@
 Максимум гостей               92
 Физических комнат             88   (1:1 до списка Q-095; см. §5)
 
-Одноместная с окном            4   Exely 5074312   вместимость 1
-Одноместная без окон           8   Exely 5074686   вместимость 1
-Двухместная                    4   Exely 5074687   вместимость 2
-Общая мужская (койка)         36   Exely 5074688   вместимость 1
-Общая женская (койка)         36   Exely 5074689   вместимость 1
+Одноместная с окном            4   архивный источник 5074312   вместимость 1
+Одноместная без окон           8   архивный источник 5074686   вместимость 1
+Двухместная                    4   архивный источник 5074687   вместимость 2
+Общая мужская (койка)         36   архивный источник 5074688   вместимость 1
+Общая женская (койка)         36   архивный источник 5074689   вместимость 1
 Здание 1 («Основной»), этаж 1 («2»)
 Блокировок 0
 ```
 
 ## 2. Источник данных
 
-`project-input/exely/audit-2026-09-07/inventory.md` — таблица «Единицы продажи», 88 строк:
-`№ комнаты в Exely | Категория | Тип | Вместимость`. Персональных данных нет, файл в git.
+`project-input/retired-source/audit-2026-09-07/inventory.md` — таблица «Единицы продажи», 88 строк:
+`№ комнаты в архивный источник | Категория | Тип | Вместимость`. Персональных данных нет, файл в git.
 ID категорий — `spravochniki.md` и `OBJECT.md` §2. Кодов замков, комментариев, статусов
-уборки в выгрузке нет (в Exely статусы есть, но снимаются отдельно; в Slice 1 все единицы
+уборки в выгрузке нет (в архивный источник статусы есть, но снимаются отдельно; в Slice 1 все единицы
 импортируются со статусом `DIRTY`, как факт на 07.09.2026 для 85 из 88 — уточнение
 по трём «Проверено» отложено, в отчёт сверки уборка не входит).
 
@@ -51,7 +51,7 @@ apps/api            NestJS + TypeScript   — GET /inventory/units, GET /invento
 packages/database   Prisma schema + миграции + PrismaClient
 packages/domain     типы и правила инвентаря (без Prisma, без Nest)
 packages/shared     общие утилиты (Result, id, даты)
-scripts/imports     exely-inventory: parse → validate → upsert
+scripts/imports     retired-source-inventory: parse → validate → upsert
 scripts/reconciliation  inventory: БД vs контрольные числа → отчёт .md
 tests/unit, tests/integration, tests/e2e
 ```
@@ -63,7 +63,7 @@ Vitest выбран как стандарт для TS-монорепо; если
 
 Сущности Prisma в Slice 1: `Property`, `Building`, `Floor`, `AccommodationType`,
 `PhysicalRoom`, `InventoryUnit`, `InventoryBlock`, `HousekeepingEvent`, `AuditLog`.
-Внешние ID Exely хранятся как поля `exely_id` / `exely_room_number` (ADR-003: ссылка,
+Внешние ID архивный источник хранятся как поля `retired-source_id` / `retired-source_room_number` (ADR-003: ссылка,
 не замена ключа). Ничего не выводится из номера единицы (принцип 7).
 
 ## 5. Шаги и доказательства
@@ -75,7 +75,7 @@ Vitest выбран как стандарт для TS-монорепо; если
 | 3 | ✅ 07.09.2026 Парсер `inventory.md` + `spravochniki.md` → план импорта (`@pms/imports`, `@pms/domain`). Red: 5 файлов тестов упали без реализации → green: 16 тестов | фикстура: 3 вымышленные категории, 7 единиц; прогон на реальной выгрузке дал 88 / 16 / 72 / 92 и 4-8-4-36-36 без расхождений |
 | 4 | ✅ 08.09.2026 доказано на Supabase: integration-тест прошёл (2 запуска фикстуры → 7 единиц, 0 дублей, откат); реальный импорт: 1-й запуск 88 создано / 0 обновлено, 2-й запуск 0 создано / 88 обновлено. Код 07.09.2026: `importInventoryPlan(tx, plan, property)` — одна транзакция, upsert по бизнес-ключам (Property.name, code категории, `InventoryUnit.code`), `PhysicalRoom` 1:1, проверка «в БД = в плане» с откатом, запись в `AuditLog`. CLI `scripts/imports/src/cli-import-inventory.ts` | integration-тест `tests/integration/inventory-import.test.ts` (2 запуска на фикстуре 9xxx → 7 единиц, 0 дублей, откат) **пропускается без `DATABASE_URL`** — доказательство ждёт строку подключения |
 | 5 | ✅ 08.09.2026 `reports/inventory-2026-09-08.md`: RESULT OK, diff 0 по всем 11 строкам. Код 07.09.2026: `compareInventory` + `renderInventoryReport` (red → green, 3 теста), CLI `scripts/reconciliation/src/cli-inventory.ts` пишет `reports/inventory-YYYY-MM-DD.md`, код выхода 1 при diff ≠ 0 | отчёт по реальной БД — после миграции и импорта |
-| 6 | ✅ 08.09.2026 живой запуск на реальной БД: `/inventory/summary` → 88/16/72/92 и 5 категорий, `/inventory/units` → 88, `?category=exely-5074687` → 88, 4, 44, 48. Код 07.09.2026: `apps/api` NestJS 12 — `GET /inventory/summary`, `GET /inventory/units?category=`; порт `InventoryRepository` (Prisma-реализация через `readInventoryPlanFromDb`), сервис поверх `summarizeInventoryPlan`; слушает 127.0.0.1:3001 | контрактный тест с фальшивым репозиторием: red (модулей нет) → green, 4 теста; живой запуск на реальной БД — после `DATABASE_URL` |
+| 6 | ✅ 08.09.2026 живой запуск на реальной БД: `/inventory/summary` → 88/16/72/92 и 5 категорий, `/inventory/units` → 88, `?category=retired-source-5074687` → 88, 4, 44, 48. Код 07.09.2026: `apps/api` NestJS 12 — `GET /inventory/summary`, `GET /inventory/units?category=`; порт `InventoryRepository` (Prisma-реализация через `readInventoryPlanFromDb`), сервис поверх `summarizeInventoryPlan`; слушает 127.0.0.1:3001 | контрактный тест с фальшивым репозиторием: red (модулей нет) → green, 4 теста; живой запуск на реальной БД — после `DATABASE_URL` |
 | 7 | ✅ 08.09.2026 `apps/web` Next.js 16 / React 19: `/inventory` — сводка 88/16/72/92/0, таблица категорий, таблица 88 единиц с фильтром `?category=`. Playwright: red против заглушки (0 строк) → green | `reports/screenshots/inventory-2026-09-08.png`; e2e 2 теста: «88 строк + сводка», «фильтр → 4 двухместных». `npm run e2e` |
 
 Порядок именно такой: сначала данные и сверка, интерфейс последним. Красный тест

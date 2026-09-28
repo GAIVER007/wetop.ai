@@ -27,12 +27,12 @@ const ORG = '44444444-4444-4444-8444-444444444444';
 const TODAY = new Date('2026-09-12T06:00:00Z'); // 11:00 Алматы
 
 const types = [
-  { id: 't1', code: 'exely-900001', name: 'Одиночная', active: true, capacityAdults: 1, capacityChildren: 0 },
-  { id: 't2', code: 'exely-900002', name: 'Двойная', active: true, capacityAdults: 2, capacityChildren: 0 },
+  { id: 't1', code: 'category-single', name: 'Одиночная', active: true, capacityAdults: 1, capacityChildren: 0 },
+  { id: 't2', code: 'category-twin', name: 'Двойная', active: true, capacityAdults: 2, capacityChildren: 0 },
 ];
 const plan = {
   id: 'p1',
-  code: 'exely-10157482',
+  code: 'legacy-10157482',
   name: 'Базовый тариф',
   currency: 'KZT',
   active: true,
@@ -168,7 +168,7 @@ describe('котировка продавца /bot/availability', () => {
       adults: 2,
       currency: 'KZT',
     });
-    const double = res.body.categories.find((c: { code: string }) => c.code === 'exely-900002');
+    const double = res.body.categories.find((c: { code: string }) => c.code === 'category-twin');
     expect(double).toMatchObject({ fits: true, available: 1, closed: false, totalMinor: '3000000' });
     // Origin не присылался и не требовался: запрос серверный, дверь держит ключ
   });

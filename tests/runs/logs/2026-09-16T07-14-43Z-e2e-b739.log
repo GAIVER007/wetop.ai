@@ -1,6 +1,0 @@
-# Сквозные (e2e) · 16.09.2026 12:14 Алматы · MacBook-Air-Urij.local
-# коммит f936676 (main), незакоммиченных файлов набора: 18
-# npx playwright test --workers=2 --reporter=list,json '--workers=1'
-[e2e] не в прогоне — жёсткий адрес рабочего стенда: web-booking.spec.ts
-
-# код выхода —, сигнал SIGTERM · 38 мин 24 с

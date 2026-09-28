@@ -12,9 +12,9 @@ import { confirmDialog } from './confirm';
  * ID задач Channex собираются в reports/channex-certification-tasks.json для формы сертификации.
  * Даты — ноябрь 2026, как в документе; категории — наши (одиночные, двухместная, dorm), тариф — ОТА.
  */
-const OTA = 'exely-10158310';
-const SINGLE = 'exely-5074312'; // Одноместная с окном (аналог Twin Room)
-const DOUBLE = 'exely-5074687'; // Двухместная (аналог Double Room)
+const OTA = 'rate-ota';
+const SINGLE = 'category-single'; // Одноместная с окном (аналог Twin Room)
+const DOUBLE = 'category-double'; // Двухместная (аналог Double Room)
 const tasks: Array<{ scenario: string; taskId: string; sent: string }> = [];
 
 async function addChange(
@@ -100,7 +100,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     // Сертификация намеренно пишет в календарь тестовые цены (333, 241, 456…). Если их не убрать,
     // они останутся ценой продажи и уедут в каналы: после прогона 09.09 так и вышло — 486 строк
     // тарифа ОТА за ноябрь 2026 — май 2027 стояли по 241–456 ₸. Календарь восстанавливается из
-    // снимка Exely, и сверка цен пересчитывается, чтобы расхождение было названо сразу.
+    // снимка Legacy, и сверка цен пересчитывается, чтобы расхождение было названо сразу.
     for (const script of [
       'scripts/imports/src/cli-import-price-calendar.ts',
       'scripts/reconciliation/src/cli-rates.ts',

@@ -31,6 +31,13 @@ export const metadata = {
   description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
 };
 
+/** Public entry screens must never start authenticated hotel requests from the workspace shell. */
+function isPublicEntryPath(path: string): boolean {
+  return ['/create', '/login', '/register', '/invite'].some(
+    (entry) => path === entry || path.startsWith(`${entry}/`),
+  );
+}
+
 async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
   const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
@@ -49,12 +56,23 @@ export default async function RootLayout({
   children: ReactNode;
   drawer: ReactNode;
 }) {
-  // Public creation does not fetch hotel data or start the authenticated desk shell.
-  if ((await headers()).get('x-wetop-path') === '/create') {
-    return <html lang="ru" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
-      <body><ThemeProvider><ToastProvider>{children}</ToastProvider></ThemeProvider></body>
-    </html>;
+  const path = (await headers()).get('x-wetop-path') ?? '';
+  // Вход, регистрация, ссылки из писем и приглашения доступны без сессии.
+  // Защищённая оболочка здесь не нужна: её запросы `/hotel/settings` и `/auth/me`
+  // при включённом замке уводят на `/login` раньше, чем токен подтверждения дойдёт до API.
+  if (isPublicEntryPath(path)) {
+    return (
+      <html lang="ru" suppressHydrationWarning>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        </head>
+        <body>
+          <ThemeProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    );
   }
   // Кто вошёл и что ему открыто (ADR-083): меню получает обещание и не задерживает страницу
   const desk = deskShell();

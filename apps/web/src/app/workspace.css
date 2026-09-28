@@ -172,7 +172,7 @@ svg {
   color: var(--muted);
   font-size: var(--text-xs);
 }
-/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */
+/* Свежесть данных Channex и очереди ARI. */
 .sidebar-freshness {
   padding: 0 4px 10px;
   font-size: 12px;

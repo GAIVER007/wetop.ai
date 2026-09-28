@@ -8,7 +8,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 // сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
   '/today',
-  '/management/dashboard',
   '/chessboard',
   '/reservations',
   '/reservations/new?unit=M03',

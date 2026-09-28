@@ -1,0 +1,126 @@
+# Сквозные (e2e) · 29.09.2026 00:21 Алматы · vm
+# коммит c5e7511 (claude/serene-fermat-om5559), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/website.spec.ts' '-g' 'WEB4 ·|обзор подключённого'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/ui/website.spec.ts:94:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (17.6s)
+  ✘  2 tests/ui/website.spec.ts:466:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором (16.3s)
+  ✘  3 tests/ui/website.spec.ts:488:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия (16.3s)
+
+
+  1) tests/ui/website.spec.ts:94:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('website-bookings')
+    Expected substring: "14"
+    Received string:    "Брони с сайта12в этом месяце"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('website-bookings') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('website-bookings')
+        34 × locator resolved to <div data-testid="website-bookings">…</div>
+           - unexpected value "Брони с сайта12в этом месяце"
+
+
+      106 |   await expect(main.getByTestId('website-booking')).toContainText('Тариф «Стандартный»');
+      107 |   // WEB4: брони с сайта за месяц — все брони с источником «Сайт» (Q-212), не только сессии со счётчиком
+    > 108 |   await expect(main.getByTestId('website-bookings')).toContainText('14');
+          |                                                      ^
+      109 |   // событие сегодня — «Работает»; счётчик и виджет на паузе — «Приостановлен» и «Остановлено»
+      110 |   await request.post(`${API}/__test/control`, {
+      111 |     data: { siteLastEventAt: new Date(Date.now() - 2 * 60_000).toISOString() },
+        at /home/user/wetop.ai/tests/ui/website.spec.ts:108:54
+
+    Error Context: test-results/website-обзор-подключённог-6161f-бронирование-брони-за-месяц/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-обзор-подключённог-6161f-бронирование-брони-за-месяц/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/website-обзор-подключённог-6161f-бронирование-брони-за-месяц/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/website.spec.ts:466:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('an-site-reservations').getByTestId('an-site-reservations-count')
+    Expected: "14"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('an-site-reservations').getByTestId('an-site-reservations-count') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('an-site-reservations').getByTestId('an-site-reservations-count')
+
+
+      470 |   const main = page.getByRole('main');
+      471 |   const block = main.getByTestId('an-site-reservations');
+    > 472 |   await expect(block.getByTestId('an-site-reservations-count')).toHaveText('14');
+          |                                                                 ^
+      473 |   await expect(block).toContainText('отменено 1');
+      474 |   await expect(block).toContainText('не заехали 1');
+      475 |   await expect(block.getByTestId('an-site-reservations-charged')).toHaveText('1 420 000 ₸');
+        at /home/user/wetop.ai/tests/ui/website.spec.ts:472:65
+
+    Error Context: test-results/website-WEB4-·-брони-с-сай-77def--в-«Брони»-с-тем-же-отбором/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-WEB4-·-брони-с-сай-77def--в-«Брони»-с-тем-же-отбором/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/website-WEB4-·-брони-с-сай-77def--в-«Брони»-с-тем-же-отбором/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/website.spec.ts:488:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('an-funnel').getByTestId('an-funnel-step')
+    Expected: 4
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('an-funnel').getByTestId('an-funnel-step') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('an-funnel').getByTestId('an-funnel-step')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      492 |   const funnel = page.getByRole('main').getByTestId('an-funnel');
+      493 |   const steps = funnel.getByTestId('an-funnel-step');
+    > 494 |   await expect(steps).toHaveCount(4);
+          |                       ^
+      495 |   await expect(steps.nth(0)).toContainText('Посещения');
+      496 |   await expect(steps.nth(0)).toContainText('125');
+      497 |   await expect(steps.nth(1)).toContainText('Поиск дат');
+        at /home/user/wetop.ai/tests/ui/website.spec.ts:494:23
+
+    Error Context: test-results/website-WEB4-·-воронка-шаг-fce87--предыдущего-шага-конверсия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/website-WEB4-·-воронка-шаг-fce87--предыдущего-шага-конверсия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/website-WEB4-·-воронка-шаг-fce87--предыдущего-шага-конверсия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/website.spec.ts:94:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц 
+    tests/ui/website.spec.ts:466:1 › WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором 
+    tests/ui/website.spec.ts:488:1 › WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия 
+
+# код выхода 1 · 2 мин 3 с

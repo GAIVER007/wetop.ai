@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 29.09.2026 00:57 Алматы · vm
+# коммит e1adee8 (claude/eager-noether-1uncrq-onboarding), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-57-38Z-integration-59ec.json' 'tests/integration/onboarding-without-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 776ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 775ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  19:57:39
+   Duration  2.22s (tests 49%, transform 33%, import 17%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-57-38Z-integration-59ec.json
+
+# код выхода 0 · 3 с

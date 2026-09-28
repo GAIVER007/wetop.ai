@@ -1,0 +1,99 @@
+# Интеграционные (integration) · 28.09.2026 22:50 Алматы · vm
+# коммит 3ae45d4 (claude/eloquent-edison-f73at4)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T17-50-16Z-integration-08a8.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:13283) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-directory-filters.test.ts (1 test) 3756ms
+   ✓ каталог броней: отбор на сервере (integration, rolled back) (1)
+     ✓ виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы 3720ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 777ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 557ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 776ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 497ms
+(node:13409) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (7 tests) 1128ms
+   ✓ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 794ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 623ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 60 сохранений в одной сессии — отказ 373ms
+(node:13431) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 570ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 435ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 708ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 707ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 544ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 409ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 330ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 350ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 379ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 324ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 323ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 316ms
+ ✓ |integration| tests/integration/manager-role.test.ts (6 tests) 304ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 272ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 233ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (1 test) 258ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 247ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 235ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 234ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 212ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 214ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 209ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 216ms
+(node:13609) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 207ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 210ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 213ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 191ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 202ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 168ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 204ms
+[Nest] 13668  - 09/28/2026, 5:50:44 PM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 176ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 173ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 190ms
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 194ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 175ms
+ ✓ |integration| tests/integration/guest-card.test.ts (2 tests) 175ms
+ ❯ |integration| tests/integration/overbooking-guard.test.ts (1 test | 1 failed) 141ms
+   ❯ DB-level overbooking guard (integration) (1)
+     × rejects a second allocation overlapping the same unit with an exclusion violation (23P01) 111ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 170ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 151ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 106ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/overbooking-guard.test.ts > DB-level overbooking guard (integration) > rejects a second allocation overlapping the same unit with an exclusion violation (23P01)
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/overbooking-guard.test.ts:81:6
+     79|         { timeout: 120_000, maxWait: 30_000 },
+     80|       ),
+     81|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+     82|   }, 180_000);
+     83| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 40 passed (41)
+      Tests  1 failed | 109 passed (110)
+   Start at  17:50:16
+   Duration  31.55s (tests 62%, import 31%, transform 6%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T17-50-16Z-integration-08a8.json
+
+# код выхода 1 · 32 с

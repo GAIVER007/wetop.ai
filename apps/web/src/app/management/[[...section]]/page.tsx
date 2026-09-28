@@ -1,19 +1,19 @@
-import { Suspense } from 'react';
-import { resolvePeriod } from '@pms/domain';
-import { hotelToday } from '../../../lib/hotel-api';
-import { navigationItems } from '../../../lib/navigation';
-import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
-import { Page } from '../../../components/page';
-import { Alert } from '../../../components/ui';
-import { PeriodBar } from '../period/period-bar';
-import { DashboardSection, DashboardSkeleton } from '../period/dashboard-section';
 import { notFound, redirect } from 'next/navigation';
+import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
+
+/** Какие параметры периода переносятся на новый адрес: остальное старые экраны не читали */
+const carry = (sp: Record<string, string | undefined>, keys: readonly string[]) => {
+  const q = new URLSearchParams();
+  for (const k of keys) if (sp[k]) q.set(k, sp[k]!);
+  const s = q.toString();
+  return s ? `?${s}` : '';
+};
 
 /**
- * Хаба «Управление» нет с 15.09.2026. «Статистика» стала вкладкой «Загрузка» модуля «Аналитика»
- * (ADR-114): старые адреса и закладки ведут туда с той же датой. «Показатели за период» — блок,
- * переехавший с Главной в A1 (ADR-105); по плану AN1 это временный экран до «Аналитики», поэтому
- * адрес живёт, а в боковом меню его нет — там «Аналитика».
+ * Хаба «Управление» нет с 15.09.2026; старые адреса и закладки ведут в «Аналитику» (ADR-114).
+ * «Статистика» — вкладка «Загрузка» с той же датой. «Показатели за период» (A1, ADR-105) — временный экран
+ * до «Аналитики»: со среза AN2 он перенаправляет на «Обзор» с тем же периодом, двух экранов показателей
+ * нет (поручение владельца 28.09). «Оплаты по способам» и «Получено оплат» живут в «Оплатах».
  */
 export default async function ManagementPage({
   params,
@@ -25,42 +25,9 @@ export default async function ManagementPage({
   const { section = [] } = await params;
   if (!section.length) redirect('/management/analytics');
   const sp = normalizeSearchParams(await searchParams);
-  if (section.length === 1 && section[0] === 'statistics') {
-    const { date } = sp;
-    redirect(`/management/analytics/occupancy${date ? `?${new URLSearchParams({ date })}` : ''}`);
-  }
-  if (section.length === 1 && section[0] === 'dashboard') {
-    const item = navigationItems.find((item) => item.href === '/management/dashboard');
-    if (!item) notFound();
-    return (
-      <Page title={item.label}>
-        <PeriodDashboard period={sp.period} from={sp.from} to={sp.to} date={sp.date} />
-      </Page>
-    );
-  }
+  if (section.length === 1 && section[0] === 'statistics')
+    redirect(`/management/analytics/occupancy${carry(sp, ['date'])}`);
+  if (section.length === 1 && section[0] === 'dashboard')
+    redirect(`/management/analytics${carry(sp, ['period', 'from', 'to', 'date'])}`);
   notFound();
-}
-
-/**
- * Показатели за период — блок, до A1 (ADR-105) стоявший на Главной: те же компоненты, тот же
- * `GET /desk/dashboard`, определения ADR-047 не менялись. Ожидание и отказ — как было на Главной:
- * полоса периода открывается сразу, числа приходят своим куском (`Suspense`).
- */
-async function PeriodDashboard(sp: {
-  period?: string | undefined;
-  from?: string | undefined;
-  to?: string | undefined;
-  date?: string | undefined;
-}) {
-  const today = await hotelToday();
-  const period = resolvePeriod({ preset: sp.period, from: sp.from, to: sp.to, date: sp.date }, today);
-  return (
-    <>
-      <PeriodBar period={period} today={today} />
-      {period.error && <Alert boxed>{period.error}. Показан сегодняшний день.</Alert>}
-      <Suspense fallback={<DashboardSkeleton />}>
-        <DashboardSection period={period} today={today} />
-      </Suspense>
-    </>
-  );
 }

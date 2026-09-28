@@ -1,0 +1,767 @@
+# Сквозные (e2e) · 29.09.2026 01:18 Алматы · vm
+# коммит 8c3b3fd (claude/magical-bohr-uxmglf)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/availability-gate.spec.ts' 'tests/ui/categories-screens.spec.ts' 'tests/ui/categories-preview.spec.ts' 'tests/ui/categories-create.spec.ts' 'tests/ui/categories-safe-edit.spec.ts' 'tests/ui/fund-workspace.spec.ts' 'tests/ui/inventory-catalog.spec.ts' 'tests/ui/workspace.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 82 tests using 1 worker
+
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="new/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url={"/reserva..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="reservatio...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <NewReservationPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <section className="panel pane..." aria-labelledby="booking-da...">
+[WebServer]                             <div>
+[WebServer]                             <form method="get" id="booking-da..." className="row row--e...">
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="category"
+[WebServer]                                 value="MALE"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="rate"
+[WebServer]                                 value="BASE"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="adults"
+[WebServer]                                 value="1"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="unit"
+[WebServer]                                 value="M03"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="auto"
+[WebServer]                                 value="1"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="arrival" defaultValue="2026-10-01">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="arrival"
+[WebServer]                                         defaultValue="2026-10-01"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="departure"
+[WebServer]                                         defaultValue="2026-10-04"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                           <NewReservationForm prefill={[...]} canSubmit={true} arrival="2026-10-01" ...>
+[WebServer]                             <form ref={{current:null}} action={function bound dispatchActionState} ...>
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="arrivalDate"
+[WebServer]                                 value="2026-10-01"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="departureDate"
+[WebServer]                                 value="2026-10-04"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <div>
+[WebServer]                               <Grid>
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="placementIds"
+[WebServer]                                 value="0,1"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               ...
+[WebServer]                                 <div className="grid-auto" style={{}}>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field label="Гостей в п...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="adults" min={1} max={1} defaultValue={1}>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="adults"
+[WebServer]                                           min={1}
+[WebServer]                                           max={1}
+[WebServer]                                           defaultValue={1}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Количество...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="quantity" min={1} max={34} value="1" ...>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="quantity"
+[WebServer]                                           min={1}
+[WebServer]                                           max={34}
+[WebServer]                                           value="1"
+[WebServer]                                           onChange={function onChange}
+[WebServer]                                           title="свободно 34 в категории; при 2 и больше ячейки назначит система"
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   ...
+[WebServer]                               ...
+[WebServer]                                 <div className="grid-auto" style={{}}>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field label="Гостей в п...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="item.1.adults" min={1} max={1} defaultValue={1}>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="item.1.adults"
+[WebServer]                                           min={1}
+[WebServer]                                           max={1}
+[WebServer]                                           defaultValue={1}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Количество...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="item.1.qua..." min={1} max={34} value="1" ...>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="item.1.quantity"
+[WebServer]                                           min={1}
+[WebServer]                                           max={34}
+[WebServer]                                           value="1"
+[WebServer]                                           onChange={function onChange}
+[WebServer]                                           title="свободно 34 в категории; при 2 и больше ячейки назначит система"
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   ...
+[WebServer]                               <Button>
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               ...
+[WebServer]                                 <div className="grid-auto" style={{}}>
+[WebServer]                                   <Field label="Имя *">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input name="firstName" required={true} defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="firstName"
+[WebServer]                                           required={true}
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Фамилия *">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input name="lastName" required={true} defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="lastName"
+[WebServer]                                           required={true}
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Отчество">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input name="middleName" defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="middleName"
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Email">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="email" name="email" defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="email"
+[WebServer]                                           name="email"
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Телефон">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="tel" name="phone" defaultValue="" onChange={function onChange}>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="tel"
+[WebServer]                                           name="phone"
+[WebServer]                                           defaultValue=""
+[WebServer]                                           onChange={function onChange}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                               <Field label="Заметки">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="notes" rows={3} defaultValue="" placeholder="Пожелания ...">
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="notes"
+[WebServer]                                       rows={3}
+[WebServer]                                       defaultValue=""
+[WebServer]                                       placeholder="Пожелания гостя и информация для смены"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓   1 tests/ui/availability-gate.spec.ts:16:3 › витрина AV3: light (5.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="new/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url={"/reserva..."} tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="reservatio...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <NewReservationPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                           <div>
+[WebServer]                           <header>
+[WebServer]                           <section className="panel pane..." aria-labelledby="booking-da...">
+[WebServer]                             <div>
+[WebServer]                             <form method="get" id="booking-da..." className="row row--e...">
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="category"
+[WebServer]                                 value="MALE"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="rate"
+[WebServer]                                 value="BASE"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="adults"
+[WebServer]                                 value="1"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="unit"
+[WebServer]                                 value="M03"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="auto"
+[WebServer]                                 value="1"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="arrival" defaultValue="2026-10-01">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="arrival"
+[WebServer]                                         defaultValue="2026-10-01"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               <Field>
+[WebServer]                                 <label className="field">
+[WebServer]                                   <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="departure"
+[WebServer]                                         defaultValue="2026-10-04"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                           <NewReservationForm prefill={[...]} canSubmit={true} arrival="2026-10-01" ...>
+[WebServer]                             <form ref={{current:null}} action={function bound dispatchActionState} ...>
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="arrivalDate"
+[WebServer]                                 value="2026-10-01"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="departureDate"
+[WebServer]                                 value="2026-10-04"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <div>
+[WebServer]                               <Grid>
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="placementIds"
+[WebServer]                                 value="0,1"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               ...
+[WebServer]                                 <div className="grid-auto" style={{}}>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field label="Гостей в п...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="adults" min={1} max={1} defaultValue={1}>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="adults"
+[WebServer]                                           min={1}
+[WebServer]                                           max={1}
+[WebServer]                                           defaultValue={1}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Количество...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="quantity" min={1} max={34} value="1" ...>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="quantity"
+[WebServer]                                           min={1}
+[WebServer]                                           max={34}
+[WebServer]                                           value="1"
+[WebServer]                                           onChange={function onChange}
+[WebServer]                                           title="свободно 34 в категории; при 2 и больше ячейки назначит система"
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   ...
+[WebServer]                               ...
+[WebServer]                                 <div className="grid-auto" style={{}}>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field>
+[WebServer]                                   <Field label="Гостей в п...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="item.1.adults" min={1} max={1} defaultValue={1}>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="item.1.adults"
+[WebServer]                                           min={1}
+[WebServer]                                           max={1}
+[WebServer]                                           defaultValue={1}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Количество...">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="number" name="item.1.qua..." min={1} max={34} value="1" ...>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="number"
+[WebServer]                                           name="item.1.quantity"
+[WebServer]                                           min={1}
+[WebServer]                                           max={34}
+[WebServer]                                           value="1"
+[WebServer]                                           onChange={function onChange}
+[WebServer]                                           title="свободно 34 в категории; при 2 и больше ячейки назначит система"
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   ...
+[WebServer]                               <Button>
+[WebServer]                               <p>
+[WebServer]                               <div>
+[WebServer]                               ...
+[WebServer]                                 <div className="grid-auto" style={{}}>
+[WebServer]                                   <Field label="Имя *">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input name="firstName" required={true} defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="firstName"
+[WebServer]                                           required={true}
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Фамилия *">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input name="lastName" required={true} defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="lastName"
+[WebServer]                                           required={true}
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Отчество">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input name="middleName" defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           name="middleName"
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Email">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="email" name="email" defaultValue="">
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="email"
+[WebServer]                                           name="email"
+[WebServer]                                           defaultValue=""
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                                   <Field label="Телефон">
+[WebServer]                                     <label className="field">
+[WebServer]                                       <Input type="tel" name="phone" defaultValue="" onChange={function onChange}>
+[WebServer]                                         <input
+[WebServer]                                           className="inp"
+[WebServer]                                           type="tel"
+[WebServer]                                           name="phone"
+[WebServer]                                           defaultValue=""
+[WebServer]                                           onChange={function onChange}
+[WebServer] -                                         style={{caret-color:"transparent"}}
+[WebServer]                                         >
+[WebServer]                               <Field label="Заметки">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="notes" rows={3} defaultValue="" placeholder="Пожелания ...">
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="notes"
+[WebServer]                                       rows={3}
+[WebServer]                                       defaultValue=""
+[WebServer]                                       placeholder="Пожелания гостя и информация для смены"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                               ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓   2 tests/ui/availability-gate.spec.ts:16:3 › витрина AV3: dark (5.0s)
+  ✓   3 tests/ui/categories-create.spec.ts:18:1 › categories C3: create without a rate plan, set it later; create with one now; validation; themes and phone (12.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="categories/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/rooms/cat..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <RoomsPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                         <header>
+[WebServer]                         <nav>
+[WebServer]                         <CategoryCatalog categories={[...]} units={[...]}>
+[WebServer]                           <div className="fund-toolbar">
+[WebServer]                             <Input type="search" aria-label="Поиск кате..." placeholder="Найти кате..." value="" ...>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 aria-label="Поиск категории"
+[WebServer]                                 placeholder="Найти категорию"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]     ...
+[WebServer]  
+  ✓   4 tests/ui/categories-preview.spec.ts:15:1 › categories C2: quick preview from row, menu and card; cards view; light/dark/mobile (6.4s)
+  ✓   5 tests/ui/categories-safe-edit.spec.ts:18:1 › categories C4: edit shows what uses the category, type as a fact, Channex rename note; preview shows bookings (8.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="categories/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/rooms/cat..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <RoomsPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                         <header>
+[WebServer]                         <nav>
+[WebServer]                         <CategoryCatalog categories={[...]} units={[...]}>
+[WebServer]                           <div className="fund-toolbar">
+[WebServer]                             <Input type="search" aria-label="Поиск кате..." placeholder="Найти кате..." value="" ...>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 aria-label="Поиск категории"
+[WebServer]                                 placeholder="Найти категорию"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]     ...
+[WebServer]  
+  ✓   6 tests/ui/categories-screens.spec.ts:10:1 › categories C1: five Luxx-shaped rows, filters, row menu, long name — light/dark/mobile (4.3s)
+  ✓   7 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (5.5s)
+  ✓   8 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (8.3s)
+  ✓   9 tests/ui/fund-workspace.spec.ts:81:1 › guests filter categories by capacity; toggle shows all; tab renamed (1.5s)
+  ✓  10 tests/ui/fund-workspace.spec.ts:113:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (1.1s)
+  ✓  11 tests/ui/fund-workspace.spec.ts:131:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (4.9s)
+  ✓  12 tests/ui/fund-workspace.spec.ts:210:1 › dark categories and availability; invalid dates and empty onboarding (6.2s)
+  ✓  13 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (3.3s)
+  ✓  14 tests/ui/inventory-catalog.spec.ts:32:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (3.4s)
+  ✓  15 tests/ui/inventory-catalog.spec.ts:52:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (2.9s)
+  ✓  16 tests/ui/inventory-catalog.spec.ts:81:1 › пустой поиск объясняется, сброс возвращает фонд (1.7s)
+  ✓  17 tests/ui/inventory-catalog.spec.ts:92:3 › каталог адаптивен и доступен: light (13.7s)
+  ✓  18 tests/ui/inventory-catalog.spec.ts:92:3 › каталог адаптивен и доступен: dark (14.0s)
+  ✓  19 tests/ui/inventory-catalog.spec.ts:125:1 › пустой фонд отличается от пустого поиска (1.1s)
+  ✓  20 tests/ui/inventory-catalog.spec.ts:133:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (2.2s)
+  ✓  21 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (42.1s)
+  ✓  22 tests/ui/workspace.spec.ts:116:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (4.9s)
+  ✓  23 tests/ui/workspace.spec.ts:161:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (2.6s)
+  ✓  24 tests/ui/workspace.spec.ts:185:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (3.7s)
+  ✓  25 tests/ui/workspace.spec.ts:210:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.1s)
+  ✓  26 tests/ui/workspace.spec.ts:237:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (6.3s)
+  ✓  27 tests/ui/workspace.spec.ts:287:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.2s)
+  ✓  28 tests/ui/workspace.spec.ts:315:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (2.2s)
+  ✓  29 tests/ui/workspace.spec.ts:335:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.1s)
+  ✓  30 tests/ui/workspace.spec.ts:367:1 › карточка: профиль гостя и заселение проходят через server actions (3.6s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:141:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   139 |         /* тело не JSON */
+[WebServer]   140 |       }
+[WebServer] > 141 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   142 |   }
+[WebServer]   143 |   return (await res.json()) as T;
+[WebServer]   144 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:141:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   139 |         /* тело не JSON */
+[WebServer]   140 |       }
+[WebServer] > 141 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   142 |   }
+[WebServer]   143 |   return (await res.json()) as T;
+[WebServer]   144 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  31 tests/ui/workspace.spec.ts:412:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (1.9s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:141:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:45:13)
+[WebServer]   139 |         /* тело не JSON */
+[WebServer]   140 |       }
+[WebServer] > 141 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   142 |   }
+[WebServer]   143 |   return (await res.json()) as T;
+[WebServer]   144 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  32 tests/ui/workspace.spec.ts:429:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.1s)
+  ✓  33 tests/ui/workspace.spec.ts:446:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.1s)
+  ✓  34 tests/ui/workspace.spec.ts:468:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.4s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:141:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   139 |         /* тело не JSON */
+[WebServer]   140 |       }
+[WebServer] > 141 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   142 |   }
+[WebServer]   143 |   return (await res.json()) as T;
+[WebServer]   144 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  35 tests/ui/workspace.spec.ts:494:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.1s)
+  ✓  36 tests/ui/workspace.spec.ts:503:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.5s)
+  ✓  37 tests/ui/workspace.spec.ts:529:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (814ms)
+  ✓  38 tests/ui/workspace.spec.ts:541:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.0s)
+  ✓  39 tests/ui/workspace.spec.ts:548:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.0s)
+  ✓  40 tests/ui/workspace.spec.ts:557:1 › групповая бронь: разные категории сохраняются при конфликте (1.8s)
+  ✓  41 tests/ui/workspace.spec.ts:581:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.5s)
+  ✓  42 tests/ui/workspace.spec.ts:608:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия (3.1s)
+  ✓  43 tests/ui/workspace.spec.ts:650:1 › ошибка буфера обмена видна, код остаётся доступен (1.4s)
+  ✓  44 tests/ui/workspace.spec.ts:667:1 › финансы: неверные даты можно исправить без падения страницы (1.7s)
+  ✓  45 tests/ui/workspace.spec.ts:678:1 › ошибка загрузки тарифов не позволяет включить виджет (996ms)
+  ✓  46 tests/ui/workspace.spec.ts:687:1 › номера: статус уборки, блокировка и снятие сохраняются (2.9s)
+  ✓  47 tests/ui/workspace.spec.ts:717:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.6s)
+  ✓  48 tests/ui/workspace.spec.ts:744:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.3s)
+  ✓  49 tests/ui/workspace.spec.ts:753:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.0s)
+  ✓  50 tests/ui/workspace.spec.ts:772:1 › неисправности: когда история обрезана, это написано (2.0s)
+  ✓  51 tests/ui/workspace.spec.ts:780:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.5s)
+  ✓  52 tests/ui/workspace.spec.ts:792:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (2.6s)
+  ✓  53 tests/ui/workspace.spec.ts:818:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (5.4s)
+  ✓  54 tests/ui/workspace.spec.ts:859:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (5.7s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-28&to=2026-10-04: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:141:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:77:45)
+[WebServer]   139 |         /* тело не JSON */
+[WebServer]   140 |       }
+[WebServer] > 141 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   142 |   }
+[WebServer]   143 |   return (await res.json()) as T;
+[WebServer]   144 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:141:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   139 |         /* тело не JSON */
+[WebServer]   140 |       }
+[WebServer] > 141 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   142 |   }
+[WebServer]   143 |   return (await res.json()) as T;
+[WebServer]   144 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  55 tests/ui/workspace.spec.ts:911:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (7.8s)
+  ✓  56 tests/ui/workspace.spec.ts:976:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.4s)
+  ✓  57 tests/ui/workspace.spec.ts:1005:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (2.0s)
+  ✓  58 tests/ui/workspace.spec.ts:1029:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.5s)
+  ✓  59 tests/ui/workspace.spec.ts:1048:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.7s)
+  ✓  60 tests/ui/workspace.spec.ts:1061:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.8s)
+  ✓  61 tests/ui/workspace.spec.ts:1068:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (3.2s)
+  ✓  62 tests/ui/workspace.spec.ts:1097:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.7s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:141:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:26:28)
+[WebServer]   139 |         /* тело не JSON */
+[WebServer]   140 |       }
+[WebServer] > 141 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   142 |   }
+[WebServer]   143 |   return (await res.json()) as T;
+[WebServer]   144 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  63 tests/ui/workspace.spec.ts:1119:1 › фонд и категории открываются независимо от сбоя шахматки (3.8s)
+  ✓  64 tests/ui/workspace.spec.ts:1140:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.2s)
+  ✓  65 tests/ui/workspace.spec.ts:1158:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.1s)
+  ✓  66 tests/ui/workspace.spec.ts:1177:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (1.7s)
+  ✓  67 tests/ui/workspace.spec.ts:1192:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (852ms)
+  ✓  68 tests/ui/workspace.spec.ts:1205:1 › счета: приём оплаты подтверждается суммой на экране (2.0s)
+  ✓  69 tests/ui/workspace.spec.ts:1222:1 › деньги за период: период длиннее года объясняется на странице (1.2s)
+  ✓  70 tests/ui/workspace.spec.ts:1241:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.7s)
+  ✓  71 tests/ui/workspace.spec.ts:1260:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.8s)
+  ✓  72 tests/ui/workspace.spec.ts:1285:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.6s)
+  ✓  73 tests/ui/workspace.spec.ts:1305:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.4s)
+  ✓  74 tests/ui/workspace.spec.ts:1321:1 › каналы: входящая бронь ведёт на карточку брони (1.9s)
+  ✓  75 tests/ui/workspace.spec.ts:1334:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (1.7s)
+  ✓  76 tests/ui/workspace.spec.ts:1353:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.0s)
+  ✓  77 tests/ui/workspace.spec.ts:1371:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.2s)
+  ✓  78 tests/ui/workspace.spec.ts:1409:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.5s)
+  ✓  79 tests/ui/workspace.spec.ts:1475:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (3.9s)
+  ✓  80 tests/ui/workspace.spec.ts:1554:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (3.1s)
+  ✓  81 tests/ui/workspace.spec.ts:1602:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (4.5s)
+  ✓  82 tests/ui/workspace.spec.ts:1629:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.6s)
+
+  82 passed (5.3m)
+
+# код выхода 0 · 5 мин 19 с

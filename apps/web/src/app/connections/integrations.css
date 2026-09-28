@@ -107,7 +107,7 @@
   color: var(--muted);
   font-size: var(--text-sm);
 }
-/* Страница Channex (INT2, ADR-119): подзаголовок с бейджем и две панели рядом на широком экране */
+/* Страница Channex (INT2, ADR-121): подзаголовок с бейджем и две панели рядом на широком экране */
 .integration-subtitle {
   display: inline-flex;
   flex-wrap: wrap;

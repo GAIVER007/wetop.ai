@@ -101,8 +101,8 @@ describe('идентификатор объекта', () => {
  */
 describe('вошедший получает объект своей организации, не чужой', () => {
   const two = [
-    { id: 'p1', name: 'Luxx', organizationId: 'org-luxx' },
-    { id: 'p2', name: 'Второй хостел', organizationId: 'org-b' },
+    { id: 'p1', name: 'Luxx', organizationId: 'org-luxx', chainOrganizationId: 'org-luxx' },
+    { id: 'p2', name: 'Второй хостел', organizationId: 'org-b', chainOrganizationId: 'org-b' },
   ];
 
   it('служебный ходок проходит по имени: за ним нет человека — скрипт, сторож, импорт', async () => {
@@ -132,9 +132,7 @@ describe('вошедший получает объект своей органи
     await withSignedInUser({ userId: 'u-2', organizationId: 'org-b' }, async () => {
       expect(await propertyIdRef(db, 'Luxx')).toBe('p2'); // своя память, не org-luxx
     });
-    // Platform P1: у объектов фейка нет цепочки, путь через неё даёт по пустому рейсу перед фолбэком;
-    // после применения миграции (location_id заполнен) рейс снова один — первый же запрос попадает
-    expect(f.calls(), 'по два рейса на организацию (Location-путь + фолбэк), из памяти — ноль').toBe(4);
+    expect(f.calls(), 'по одному рейсу на организацию, из памяти — ноль').toBe(2);
   });
 
   it('у чьей организации ещё нет объекта — «создайте в настройках», а не чужой объект', async () => {
@@ -197,11 +195,11 @@ describe('служебный контекст и одноимённые объе
 });
 
 /**
- * Platform P1 (ADR-104 §18, Q-199 вариант Б): объект организации находится по финальной цепочке
- * Organization → Business → Location → Property; пока миграция не применена (у объекта нет location_id) —
- * прежний путь по properties.organization_id, поведение то же.
+ * Platform P1 (ADR-104 §18, Q-199 вариант Б): объект организации находится ТОЛЬКО по цепочке
+ * Organization → Business → Location → Property. Фолбэк по properties.organization_id был миграционным
+ * окном и снят после production backfill (broken_chain = 0, 28.09.2026; DATA_MODEL v2.6).
  */
-describe('Platform P1: объект организации через цепочку Business → Location', () => {
+describe('Platform P1: объект организации только через цепочку Business → Location', () => {
   it('когда цепочка привязана — объект берётся через неё, а не по organizationId', async () => {
     const db = fakeDb([
       { id: 'старый-путь', name: 'Luxx', organizationId: 'org-luxx' },
@@ -212,12 +210,12 @@ describe('Platform P1: объект организации через цепоч
     });
   });
 
-  it('пока цепочки нет (миграция не применена) — прежний путь по organizationId, два рейса', async () => {
+  it('объект без цепочки (только properties.organization_id) не находится: обходного пути нет, один рейс', async () => {
     const f = fakeDb([{ id: 'p1', name: 'Luxx', organizationId: 'org-luxx' }]);
     const db = f.db as never;
     await withSignedInUser({ userId: 'u-1', organizationId: 'org-luxx' }, async () => {
-      expect(await propertyIdRef(db, 'Luxx')).toBe('p1');
+      await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/ещё нет объекта/);
     });
-    expect(f.calls()).toBe(2);
+    expect(f.calls()).toBe(1);
   });
 });

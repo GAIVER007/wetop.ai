@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Витрина AV1 для визуального стопа владельца (ТЗ «Свободные места» — ADR-107,
+ * Витрина шагов «Свободных мест» для визуального подтверждения владельца (ТЗ — ADR-107,
  * `plans/tz-availability-2026-09-27.md` §10): light/dark снимки экрана на подставном API.
- * Снимки — `reports/availability-av1-2026-09-27/`; AV2 стартует только после подтверждения.
+ * AV1 — `reports/availability-av1-2026-09-27/` (подтверждён 28.09); AV2 (цены «от») — папка ниже.
  */
-const DIR = 'reports/availability-av1-2026-09-27';
+const DIR = 'reports/availability-av2-2026-09-28';
 const URL = '/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2';
 
 // Даты в полях — как на машине владельца (ru), а не en-US хрома CI
 test.use({ locale: 'ru-RU' });
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`витрина AV1: ${theme}`, async ({ page, request }) => {
+  test(`витрина AV2: ${theme}`, async ({ page, request }) => {
     await request.post('http://127.0.0.1:4311/__test/reset');
     await page.addInitScript((t) => localStorage.setItem('wetop.theme', t), theme);
     // Оверлей next dev («N Issues») — шум дев-сборки, к экрану не относится

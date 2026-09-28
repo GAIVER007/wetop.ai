@@ -43,6 +43,8 @@ export interface CategoryRef {
   capacityAdults: number;
   /** На объекте у всех 0: детское размещение выключено — гостей-детей на проживании быть не может */
   capacityChildren: number;
+  /** Вид размещения; читает только `activeCategories` — «Свободные места» считают койки по гостю (ADR-107) */
+  kind?: 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT';
 }
 export type CancellationPenalty = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
 /**
@@ -433,6 +435,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         active: true,
         capacityAdults: true,
         capacityChildren: true,
+        kind: true,
       },
     });
   }

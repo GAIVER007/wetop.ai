@@ -94,6 +94,24 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   );
 });
 
+test('AV2: price «from» — rooms for the whole stay, beds for every guest', async ({
+  page,
+  request,
+}) => {
+  // ТЗ «Свободные места» §4 (ADR-107, закрытый Q-199); подставной API: номер 8 000 ₸, койка 4 000 ₸ за ночь
+  await request.post('http://127.0.0.1:4311/__test/reset');
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2');
+  const rows = page.locator('.fund-availability article');
+  const room = rows.filter({ hasText: 'Двухместный номер' });
+  await expect(room.getByText('от 24 000 ₸ за проживание')).toBeVisible();
+  await expect(room.getByText('от 8 000 ₸ / ночь')).toBeVisible();
+  // корректировка владельца: итог коек — на всех гостей запроса (4 000 × 2 гостя × 3 ночи)
+  const bed = rows.filter({ hasText: 'Мужской общий номер' });
+  await expect(bed.getByText('Итого от 24 000 ₸')).toBeVisible();
+  await expect(bed.getByText('от 4 000 ₸ / койка / ночь')).toBeVisible();
+  await expect(bed.getByText('2 гостя, 3 ночи')).toBeVisible();
+});
+
 test('dark categories and availability; invalid dates and empty onboarding', async ({
   page,
   request,

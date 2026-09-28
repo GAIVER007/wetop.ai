@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import Link from 'next/link';
-import type { InventorySummary, InventoryUnit, reservationsApi } from '../../lib/api';
+import type { InventorySummary, InventoryUnit, StayOffers, reservationsApi } from '../../lib/api';
 import { Alert, Button, Field, Input, Select, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import { displayDate } from '../../lib/display-date';
+import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 const plusDays = (date: string, n: number) =>
   new Date(Date.parse(`${date}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
@@ -14,6 +15,7 @@ export function AvailabilityFinder({
   arrival,
   departure,
   guests,
+  offers,
   result,
   error,
   summary,
@@ -24,6 +26,8 @@ export function AvailabilityFinder({
   arrival: string;
   departure: string;
   guests: number;
+  /** Цены «от» (AV2); null — не загрузились или период неверный */
+  offers: StayOffers | null;
   result: Availability | null;
   error: string | null;
   summary: InventorySummary;
@@ -125,6 +129,11 @@ export function AvailabilityFinder({
                 </span>
               </div>
             </div>
+            {!offers && (
+              <p className="fund-row-note muted" role="status">
+                Цены не загрузились — места показаны без цен. Обновите страницу.
+              </p>
+            )}
             <div className="fund-toolbar">
               <Select
                 aria-label="Категория"
@@ -201,6 +210,15 @@ export function AvailabilityFinder({
                             {c.bed ? 'койко-место' : 'номер'}
                           </span>
                         </div>
+                        {available > 0 && c.fits && (
+                          <OfferPrice
+                            offer={offers ? offers.byCategory[c.code] : undefined}
+                            currency={offers?.currency}
+                            bed={c.bed}
+                            guests={guests}
+                            nights={result.nights}
+                          />
+                        )}
                         <div className="fund-available-count">
                           <b>{available}</b>
                           <span>свободно из {c.availability?.units ?? c.units}</span>
@@ -256,5 +274,54 @@ export function AvailabilityFinder({
         )
       )}
     </>
+  );
+}
+
+/**
+ * Цена «от» в строке категории (ADR-107, AV2; правило — закрытый Q-199). Итог — весь срок на всех гостей
+ * запроса, вторая строка — цена ночи за номер или за одну койку. `undefined` — цены не загрузились
+ * (сказано над списком), `null` — ни один тариф не прошёл правило.
+ */
+function OfferPrice({
+  offer,
+  currency,
+  bed,
+  guests,
+  nights,
+}: {
+  offer: StayOffers['byCategory'][string] | undefined;
+  currency: string | undefined;
+  bed: boolean;
+  guests: number;
+  nights: number;
+}) {
+  if (offer === undefined) return null;
+  if (offer === null)
+    return (
+      <div className="fund-price">
+        <span className="muted">Нет цены на эти даты</span>
+        <Link href="/rates">Тарифы</Link>
+      </div>
+    );
+  const money = (minor: string) => formatMoney(minor, currency);
+  const plans =
+    offer.plans > 1 ? (
+      <span className="muted">{pluralRu(offer.plans, ['тариф', 'тарифа', 'тарифов'])}</span>
+    ) : null;
+  return bed ? (
+    <div className="fund-price">
+      <b>Итого от {money(offer.totalMinor)}</b>
+      <span className="muted">от {money(offer.perNightMinor)} / койка / ночь</span>
+      <span className="muted">
+        {pluralRu(guests, ['гость', 'гостя', 'гостей'])}, {pluralRu(nights, ['ночь', 'ночи', 'ночей'])}
+      </span>
+      {plans}
+    </div>
+  ) : (
+    <div className="fund-price">
+      <b>от {money(offer.totalMinor)} за проживание</b>
+      <span className="muted">от {money(offer.perNightMinor)} / ночь</span>
+      {plans}
+    </div>
   );
 }

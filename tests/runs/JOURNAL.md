@@ -2900,3 +2900,17 @@
 | 28.09.2026 01:53 | typecheck | ✅ без ошибок | 27 с | 6ffa358 | [лог](logs/2026-09-27T20-53-30Z-typecheck-950a.log) |  |
 | 28.09.2026 01:53 | lint | ✅ без ошибок | 18 с | 6ffa358 | [лог](logs/2026-09-27T20-53-57Z-lint-8e8c.log) |  |
 | 28.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/availability-gate.spec.ts tests/ui/empty-base.spec.ts --workers=1 | ✅ 25 из 25 | 2 мин 12 с | 6ffa358 | [лог](logs/2026-09-27T20-54-22Z-e2e-2b7d.log) | AV1 после слияния main (ADR-107): свободные места + пустая база |
+| 28.09.2026 12:23 | unit (частично: packages/domain/src/availability/stay-offer.test.ts) | ❌ код выхода 1 | 4 с | 05fd47f +1 | [лог](logs/2026-09-28T07-23-42Z-unit-5ea9.log) | AV2 red: правило «от» (Q-199) до реализации |
+| 28.09.2026 12:24 | unit (частично: packages/domain/src/availability/stay-offer.test.ts) | ✅ 7 из 7 | 1 с | 05fd47f +3 | [лог](logs/2026-09-28T07-24-08Z-unit-401c.log) | AV2 green: правило «от» (Q-199) |
+| 28.09.2026 12:25 | unit (частично: apps/api/src/reservations/stay-offers.test.ts) | ❌ упало 6 из 6 | 4 с | 05fd47f +5 | [лог](logs/2026-09-28T07-25-43Z-unit-d348.log) | AV2 red: эндпоинт цен «от» до реализации |
+| 28.09.2026 12:25 | unit (частично: apps/api/src/reservations/stay-offers.test.ts) | ✅ 6 из 6 | 3 с | 05fd47f +7 | [лог](logs/2026-09-28T07-25-53Z-unit-fd03.log) | AV2 green: эндпоинт цен «от» |
+| 28.09.2026 12:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1 -g AV2) | ❌ упало 1 из 1 | 36 с | 05fd47f +11 | [лог](logs/2026-09-28T07-28-09Z-e2e-01f8.log) | AV2 red: цены «от» на экране до реализации |
+| 28.09.2026 12:28 | typecheck | ✅ без ошибок | 28 с | 05fd47f +13 | [лог](logs/2026-09-28T07-28-52Z-typecheck-45a4.log) |  |
+| 28.09.2026 12:29 | lint | ✅ без ошибок | 16 с | 05fd47f +13 | [лог](logs/2026-09-28T07-29-25Z-lint-4c02.log) |  |
+| 28.09.2026 12:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/requests.spec.ts tests/ui/empty-base.spec.ts tests/ui/accessibili | ✅ 53 из 53 | 6 мин 5 с | 05fd47f +13 | [лог](logs/2026-09-28T07-29-48Z-e2e-2ff9.log) | AV2 green: цены «от» + бюджет запросов, пустая база, доступность |
+| 28.09.2026 12:36 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ✅ 2 из 2 | 19 с | 05fd47f +14 | [лог](logs/2026-09-28T07-36-15Z-e2e-62f1.log) | AV2: витрина цен «от» для визуального стопа |
+| 28.09.2026 12:36 | unit | ❌ упало 2 из 2129, пропущено 3 | 1 мин 40 с | 05fd47f +12 | [лог](logs/2026-09-28T07-36-09Z-unit-36ba.log) | AV2: полный unit после эндпоинта цен и stayOffer |
+| 28.09.2026 12:38 | unit | ✅ 2126 из 2129, пропущено 3 | 1 мин 12 с | 05fd47f +12 | [лог](logs/2026-09-28T07-38-59Z-unit-8559.log) | AV2: полный unit после правки под сторож дизайна |
+| 28.09.2026 12:40 | lint | ✅ без ошибок | 16 с | 05fd47f +14 | [лог](logs/2026-09-28T07-40-12Z-lint-f8c9.log) |  |
+| 28.09.2026 12:40 | typecheck | ✅ без ошибок | 22 с | 05fd47f +14 | [лог](logs/2026-09-28T07-40-29Z-typecheck-5ed7.log) |  |
+| 28.09.2026 12:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/availability-gate.spec.ts tests/ui/requests.spec.ts tests/ui/empt | ✅ 55 из 55 | 6 мин 5 с | 05fd47f +14 | [лог](logs/2026-09-28T07-40-58Z-e2e-79cd.log) | AV2 после правки под сторож дизайна: фонд, витрина, бюджет запросов, пустая база, доступность |

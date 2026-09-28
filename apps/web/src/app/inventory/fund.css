@@ -189,7 +189,7 @@
 }
 /* Компактные строки категорий вместо больших карточек (ADR-107, AV1) */
 .fund-availability article {
-  padding: 12px 16px;
+  padding: var(--space-2) var(--space-4);
 }
 .fund-available-row {
   display: flex;
@@ -213,6 +213,19 @@
 }
 .fund-row-note {
   margin: var(--space-2) 0 0;
+  font-size: 13px;
+}
+/* Цена «от» (ADR-107, AV2): итог за весь срок крупнее, цена ночи — подписью */
+.fund-price {
+  display: grid;
+  gap: var(--space-1);
+  margin-left: auto;
+  text-align: right;
+}
+.fund-price b {
+  font-size: 15px;
+}
+.fund-price span {
   font-size: 13px;
 }
 .fund-available-count span {
@@ -289,6 +302,13 @@
   }
   .fund-available-row {
     align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .fund-price {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    text-align: left;
   }
   .fund-available-row h3 {
     font-size: 16px;

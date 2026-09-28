@@ -222,6 +222,9 @@ function makeFakes() {
       const busy = allocations.some((x) => x.unitId === 'u-9001' && x.start < to && x.end > from);
       return busy ? null : { id: 'u-9001', code: '9001', accommodationTypeId, active: true };
     },
+    async guestForBooking() {
+      return null;
+    },
     async createGuest(g) {
       guests.push(g);
       return id('g');

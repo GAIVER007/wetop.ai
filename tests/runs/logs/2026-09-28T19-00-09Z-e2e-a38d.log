@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 29.09.2026 00:00 Алматы · vm
+# коммит bc75898 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts' '-g' 'G7'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/guests-design.spec.ts:415:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (45.2s)
+
+
+  1) tests/ui/guests-design.spec.ts:415:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('guests-filters').getByLabel('Последний визит', { exact: true })
+
+
+      434 |   // последний визит за 30 дней и 2–5 визитов: остаётся тот, кто приезжал трижды
+      435 |   await page.goto('/guests');
+    > 436 |   await filters.getByLabel('Последний визит', { exact: true }).selectOption('30d');
+          |                                                                ^
+      437 |   await filters.getByLabel('Визитов', { exact: true }).selectOption('2-5');
+      438 |   await filters.getByRole('button', { name: 'Показать', exact: true }).click();
+      439 |   await expect(page).toHaveURL(/\/guests\?last=30d&visits=2-5$/);
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:436:64
+
+    Error Context: test-results/guests-design-гости-отборы-5982d-ов-порядок-всё-в-адресе-G7-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-отборы-5982d-ов-порядок-всё-в-адресе-G7-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-отборы-5982d-ов-порядок-всё-в-адресе-G7-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/guests-design.spec.ts:415:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) 
+
+# код выхода 1 · 52 с

@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 29.09.2026 00:50 Алматы · vm
+# коммит d814724 (claude/modest-pascal-bgu2qe), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/inventory-catalog.spec.ts' '-g' 'одна заглушка и один main'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/inventory-catalog.spec.ts:210:1 › пока фонд грузится — одна заглушка и один main: слот панели места её не повторяет (7.7s)
+
+  1 passed (12.9s)
+
+# код выхода 0 · 14 с

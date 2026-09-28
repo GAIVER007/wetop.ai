@@ -9,15 +9,22 @@ export function RecordTabs({
 }) {
   const [active, setActive] = useState(tabs[0]!.id);
   const prefix = useId();
+  // Вкладку из адреса берём при появлении карточки, по `hashchange` и при смене набора вкладок — но не на каждой
+  // перерисовке с сервера: массив `tabs` после server action всегда новый, а адрес в этот миг может быть старым.
+  // Ответ действия, пришедший во время клика по другой вкладке, роутер Next применяет с адресом, с которым действие
+  // стартовало, и карточка возвращалась на «Действия» (полный UI-набор 28.09.2026, tests/ui/record-tabs.spec.ts).
+  // Переход на другую бронь даёт новый экземпляр: сегмент `[number]` роутер монтирует заново.
+  const ids = tabs.map((t) => t.id).join(' ');
   useEffect(() => {
+    const known = ids.split(' ');
     const sync = () => {
       const id = location.hash.slice(1);
-      if (tabs.some((t) => t.id === id)) setActive(id);
+      if (known.includes(id)) setActive(id);
     };
     sync();
     window.addEventListener('hashchange', sync);
     return () => window.removeEventListener('hashchange', sync);
-  }, [tabs]);
+  }, [ids]);
   const select = (id: string) => {
     setActive(id);
     // Next copies its internal state and synchronizes the router when data is null.

@@ -950,6 +950,10 @@ export interface UnitCard {
   accommodationTypeCode: string;
   accommodationTypeName: string;
   roomNumber: string;
+  /** Расположение и вместимость для панели места (ADR-108, срез I2) */
+  buildingName: string;
+  floorName: string;
+  capacity: number;
   blocks: Array<{
     id: string;
     dateFrom: string;
@@ -1033,8 +1037,10 @@ export interface GuestCard {
     source: string;
     channel: string | null;
     currency: string;
-    /** Начислено и остаток по счёту проживания (из Folio); null — счёта нет */
+    /** Начислено, оплачено, возвращено и остаток по счёту проживания (из Folio); null — счёта нет */
     chargedMinor: string | null;
+    paidMinor: string | null;
+    refundedMinor: string | null;
     balanceMinor: string | null;
   }>;
 }
@@ -1081,7 +1087,14 @@ export interface GuestDirectoryResult {
   total: number;
   page: number;
   pageSize: number;
-  counts: { ALL: number; INHOUSE: number; EXPECTED: number; RECENT: number };
+  counts: {
+    ALL: number;
+    INHOUSE: number;
+    EXPECTED: number;
+    RECENT: number;
+    /** G7: без активного проживания — не живёт, не ожидается и не выезжал за 30 дней */
+    NONE: number;
+  };
   rows: GuestDirectoryRow[];
 }
 export const guestsApi = {

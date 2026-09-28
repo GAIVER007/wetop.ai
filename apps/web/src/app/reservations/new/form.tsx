@@ -13,7 +13,12 @@ import {
 import { AUTO_UNIT, type PlacementPrefill } from '../../../lib/booking-link';
 import { displayDate } from '../../../lib/display-date';
 import { nightsBetween, pluralRu } from '../../../lib/plural';
-import { createReservationAction, type ActionResult } from '../actions';
+import {
+  createReservationAction,
+  findGuestsByPhoneAction,
+  type ActionResult,
+  type BookingGuest,
+} from '../actions';
 import { CHANNELS, SOURCES } from '../sources';
 
 export function NewReservationForm(props: {
@@ -31,12 +36,17 @@ export function NewReservationForm(props: {
   ratePlans: Array<{ code: string; name: string; currency: string }>;
   /** ADR-072: `pseudonymized` — база не в Казахстане, имя и контакты гостя форма не спрашивает */
   piiStorage: 'real' | 'pseudonymized';
+  /** G6 (ТЗ «Гости v2» §33): гость из карточки (`?guest=`) — бронь на него, без нового гостя */
+  guest: BookingGuest | null;
 }) {
   const [state, action, pending] = useActionState<ActionResult, FormData>(createReservationAction, {
     error: null,
   });
   // отказ (например, койку заняли из соседнего окна) не должен стирать введённое
   const kept = state.values ?? {};
+  // выбранный гость живёт вне формы с ключом попытки: отказ API не сбрасывает выбор
+  const [picked, setPicked] = useState<BookingGuest | null>(props.guest);
+  const [phone, setPhone] = useState('');
   const [placementIds, setPlacementIds] = useState(() =>
     props.prefill.length ? props.prefill.map((_, index) => String(index)) : ['0'],
   );
@@ -61,7 +71,7 @@ export function NewReservationForm(props: {
     setSnapshot(next);
   }, []);
   useEffect(refresh, [refresh, state.attempt, placementIds]);
-  const facts = summarize(props, placementIds, snapshot);
+  const facts = summarize(props, placementIds, snapshot, picked);
   return (
     <form
       // React сбрасывает поля формы после server action, и управляемый select остаётся на первом
@@ -182,24 +192,48 @@ export function NewReservationForm(props: {
           <h2>Гость</h2>
         </div>
       </div>
-      {props.piiStorage === 'real' ? (
-        <Grid>
-          <Field label="Имя *">
-            <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
-          </Field>
-          <Field label="Фамилия *">
-            <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
-          </Field>
-          <Field label="Отчество">
-            <Input name="middleName" defaultValue={kept['middleName'] ?? ''} />
-          </Field>
-          <Field label="Email">
-            <Input type="email" name="email" defaultValue={kept['email'] ?? ''} />
-          </Field>
-          <Field label="Телефон">
-            <Input type="tel" name="phone" defaultValue={kept['phone'] ?? ''} />
-          </Field>
-        </Grid>
+      {picked ? (
+        <PickedGuest
+          guest={picked}
+          onChange={() => {
+            // поля нового гостя появятся пустыми — подсказка по прежнему телефону не нужна
+            setPhone('');
+            setPicked(null);
+            // гость из карточки пришёл адресом: без `guest` обновление страницы не вернёт его.
+            // Переход здесь не нужен — перехват открыл бы вторую форму панелью поверх этой
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('guest')) {
+              url.searchParams.delete('guest');
+              window.history.replaceState(null, '', `${url.pathname}${url.search}`);
+            }
+          }}
+        />
+      ) : props.piiStorage === 'real' ? (
+        <>
+          <Grid>
+            <Field label="Имя *">
+              <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
+            </Field>
+            <Field label="Фамилия *">
+              <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
+            </Field>
+            <Field label="Отчество">
+              <Input name="middleName" defaultValue={kept['middleName'] ?? ''} />
+            </Field>
+            <Field label="Email">
+              <Input type="email" name="email" defaultValue={kept['email'] ?? ''} />
+            </Field>
+            <Field label="Телефон">
+              <Input
+                type="tel"
+                name="phone"
+                defaultValue={kept['phone'] ?? ''}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </Field>
+          </Grid>
+          <GuestMatches phone={phone} onPick={setPicked} />
+        </>
       ) : (
         <Notice data-testid="guest-pseudonymized">
           Пока база WETOP не в Казахстане, имена, телефоны и документы гостей в ней не хранятся.
@@ -248,6 +282,7 @@ function summarize(
   },
   placementIds: string[],
   snapshot: Record<string, string>,
+  picked: BookingGuest | null,
 ) {
   const dash = '—';
   const nights = nightsBetween(props.arrival, props.departure);
@@ -279,11 +314,89 @@ function summarize(
         : dash,
     placements,
     source: SOURCES.find(([value]) => value === snapshot['source'])?.[1] ?? dash,
-    guest:
-      props.piiStorage === 'real'
+    guest: picked
+      ? picked.name
+      : props.piiStorage === 'real'
         ? [snapshot['lastName'], snapshot['firstName']].filter(Boolean).join(' ').trim() || dash
         : 'без имени — база не в Казахстане',
   };
+}
+
+/**
+ * Выбранный гость (G6, ТЗ «Гости v2» §33): бронь запишется на него, новый гость не создаётся.
+ * Контакты здесь не правятся — форма брони не переписывает карточку гостя молча.
+ */
+function PickedGuest({ guest, onChange }: { guest: BookingGuest; onChange: () => void }) {
+  const facts = [
+    guest.phone,
+    guest.email,
+    pluralRu(guest.visits, ['визит', 'визита', 'визитов']),
+  ].filter(Boolean);
+  return (
+    <div className="booking-guest" data-testid="booking-guest">
+      <input type="hidden" name="guestId" value={guest.id} />
+      {/* в форме дат (шаг 01): «Проверить доступность» перезагружает страницу — выбор едет адресом */}
+      <input type="hidden" name="guest" value={guest.id} form="booking-dates-form" />
+      <div className="booking-guest__who">
+        <strong>{guest.name}</strong>
+        <span className="dir-sub">{facts.join(', ')}</span>
+      </div>
+      <Button type="button" tone="secondary" size="sm" onClick={onChange}>
+        Другой гость
+      </Button>
+      <p className="hint booking-guest__hint">
+        Бронь запишется на этого гостя, нового не появится. Телефон и почту меняют в карточке гостя.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * ТЗ «Гости v2» §34: набран полный телефон — сначала известные гости с ним. «Выбрать» переключает
+ * шаг «Гость» на найденного; не выбрал — бронь заведёт нового гостя, как раньше.
+ */
+function GuestMatches({ phone, onPick }: { phone: string; onPick: (guest: BookingGuest) => void }) {
+  const [matches, setMatches] = useState<BookingGuest[]>([]);
+  const digits = phone.replace(/\D/g, '');
+  useEffect(() => {
+    if (digits.length < 10) {
+      setMatches([]);
+      return;
+    }
+    let live = true;
+    // пауза, чтобы не спрашивать API на каждую цифру; ответ устаревшего набора отбрасывается
+    const timer = window.setTimeout(() => {
+      void findGuestsByPhoneAction(digits).then((found) => {
+        if (live) setMatches(found);
+      });
+    }, 350);
+    return () => {
+      live = false;
+      window.clearTimeout(timer);
+    };
+  }, [digits]);
+  if (matches.length === 0) return null;
+  return (
+    <div className="booking-matches" data-testid="guest-matches" role="status">
+      <b className="booking-matches__title">
+        {matches.length === 1 ? 'Найден гость с этим телефоном' : 'Найдены гости с этим телефоном'}
+      </b>
+      <ul>
+        {matches.map((m) => (
+          <li key={m.id} data-testid="guest-match">
+            <span className="booking-matches__who">
+              <strong>{m.name}</strong>
+              <span className="dir-sub">{pluralRu(m.visits, ['визит', 'визита', 'визитов'])}</span>
+            </span>
+            <Button type="button" tone="secondary" size="sm" onClick={() => onPick(m)}>
+              Выбрать
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <p className="hint">Не тот человек — заполните дальше, и бронь заведёт нового гостя.</p>
+    </div>
+  );
 }
 
 function BookingSummary({ facts }: { facts: ReturnType<typeof summarize> }) {

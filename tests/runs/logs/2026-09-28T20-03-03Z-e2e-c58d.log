@@ -1,0 +1,28 @@
+# Сквозные (e2e) · 29.09.2026 01:03 Алматы · vm
+# коммит 26976cb (claude/youthful-maxwell-t4fbbc)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts' 'tests/ui/pii-storage.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/guests-design.spec.ts:22:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (3.7s)
+  ✓   2 tests/ui/guests-design.spec.ts:67:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (1.5s)
+  ✓   3 tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (7.5s)
+  ✓   4 tests/ui/guests-design.spec.ts:166:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (5.3s)
+  ✓   5 tests/ui/guests-design.spec.ts:238:1 › гости: документы и финансовый свод гостя (G5) (5.8s)
+  ✓   6 tests/ui/guests-design.spec.ts:290:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (3.8s)
+  ✓   7 tests/ui/guests-design.spec.ts:336:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (9.8s)
+  ✓   8 tests/ui/guests-design.spec.ts:415:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (9.8s)
+  ✓   9 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (2.3s)
+  ✓  10 tests/ui/pii-storage.spec.ts:37:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет (1.9s)
+  ✓  11 tests/ui/pii-storage.spec.ts:58:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (2.0s)
+  ✓  12 tests/ui/pii-storage.spec.ts:98:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (3.0s)
+
+  12 passed (1.0m)
+
+# код выхода 0 · 1 мин 3 с

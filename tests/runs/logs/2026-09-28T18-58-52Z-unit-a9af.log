@@ -1,0 +1,68 @@
+# Модульные (unit) · 28.09.2026 23:58 Алматы · vm
+# коммит bc75898 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T18-58-52Z-unit-a9af.json' 'apps/api/src/guests/guests.controller.test.ts' 'apps/web/src/app/guests/filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/guests/filters.test.ts (0 test)
+ ❯ |unit| apps/api/src/guests/guests.controller.test.ts (14 tests | 1 failed) 305ms
+   ❯ guests API (14)
+     ✓ search by last name or phone digits; too short query → 400 33ms
+     ✓ directory: одна строка — один гость, состояние вычислено, счётчики разделов и раздел-фильтр 12ms
+     ✓ preview (G3): контакты, состояние, ночи, номер брони и долг; без документов и журнала; 404 чужому 6ms
+     ✓ directory: границы параметров — 400 словами 12ms
+     × directory G7: отборы визита, числа визитов, порядок и раздел NONE доходят до выборки 4ms
+     ✓ update validates citizenship as alpha-3, audits field names only 16ms
+     ✓ citizenship is trimmed: spaces around the code are dropped, blank-only is null on save and on read 8ms
+     ✓ text fields: blank-only is null for optional ones and 400 for required names — never an empty string 7ms
+     ✓ documents: stored encrypted, shown masked; 503 without the encryption key; delete 14ms
+     ✓ SECURITY.md §1: каждый просмотр карточки с документом пишется в журнал; без документов — нет 6ms
+     ✓ пока база не в Казахстане (PII_STORAGE не real, ADR-072) (4)
+       ✓ новое имя, телефон, почта, дата рождения и заметки — 422 с объяснением; ничего не записано 21ms
+       ✓ гражданство и пол меняются; тот же профиль целиком и стирание контакта — тоже 4ms
+       ✓ документ не принимается — 422, номер никуда не записан; удалить старый можно 2ms
+       ✓ GET /system/pii-storage говорит стойке режим заранее 4ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/guests/filters.test.ts [ apps/web/src/app/guests/filters.test.ts ]
+Error: Cannot find module './filters' imported from /home/user/wetop.ai/apps/web/src/app/guests/filters.test.ts
+ ❯ apps/web/src/app/guests/filters.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   activeSelects,
+      4|   describeFilters,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/guests/guests.controller.test.ts > guests API > directory G7: отборы визита, числа визитов, порядок и раздел NONE доходят до выборки
+Error: expected 200 "OK", got 400 "Bad Request"
+ ❯ apps/api/src/guests/guests.controller.test.ts:287:8
+    285|     await request(app.getHttpServer())
+    286|       .get('/guests/directory?state=NONE&last=7d&visits=2-5&sort=next')
+    287|       .expect(200);
+       |        ^
+    288|     expect(fakes.directoryQueries.at(-1)).toMatchObject({
+    289|       state: 'NONE',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 13 passed (14)
+   Start at  18:58:54
+   Duration  1.91s (transform 52%, import 31%, tests 17%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T18-58-52Z-unit-a9af.json
+
+# код выхода 1 · 3 с

@@ -34,6 +34,9 @@ function makeFakes() {
     accommodationTypeCode: 'category-single',
     accommodationTypeName: 'Одиночная',
     roomNumber: '9001',
+    buildingName: 'Тестовый',
+    floorName: '1',
+    capacity: 1,
     blocks: blocks.map((b) => ({
       id: b.id,
       dateFrom: b.dateFrom,

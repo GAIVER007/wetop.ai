@@ -24,7 +24,7 @@ export default async function AnalyticsPage({
   const query = parseAnalyticsQuery(sp, today);
   return (
     <Page title="Аналитика" subtitle="Как работал объект за период и что изменилось.">
-      <AnalyticsTabs current="overview" />
+      <AnalyticsTabs current="overview" fund={query.fund} />
       <AnalyticsToolbar query={query} today={today} />
       {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
       <Suspense

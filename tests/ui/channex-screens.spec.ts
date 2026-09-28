@@ -103,7 +103,11 @@ test('обзор каналов: полоса состояния, вкладки
   await expect(tech.getByTestId('outbox-last-task')).toHaveText('ui-task-4f2a');
 });
 
-/** «Подключения»: состояние Channex и webhook; опасные кнопки — владельцу, сотруднику — словами */
+/**
+ * «Подключения»: состояние Channex и webhook; опасные кнопки — только владельцу (ADR-112, «OWNER / технический
+ * специалист»). С тремя ролями ADR-107 модуль каналов открыт владельцу и управляющему: управляющий видит экран, но
+ * вместо кнопок — причину словами; администратору модуль закрыт целиком.
+ */
 test('подключения каналов: настройка подключения только владельцу', async ({ page, request }) => {
   const main = page.getByRole('main');
   await signIn(page);
@@ -115,14 +119,20 @@ test('подключения каналов: настройка подключе
   for (const id of ['channel-setup', 'channel-webhook-register', 'channel-webhook-test', 'channel-sync'])
     await expect(main.getByTestId(id)).toBeVisible();
   await expect(main.getByTestId('channel-flush')).toHaveCount(0);
-  // сотруднику кнопки не показываются, причина — словами
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
+  // управляющему кнопки не показываются, причина — словами
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'MANAGER' } });
   await page.goto('/channels/connections');
   await expect(main.getByTestId('channel-setup-owner-only')).toHaveText(
     'Настройку подключения меняет владелец организации.',
   );
   await expect(main.getByTestId('channel-setup')).toHaveCount(0);
   await expect(main.getByTestId('channel-sync')).toHaveCount(0);
+  // администратору модуль закрыт целиком (ADR-107): ни кнопок, ни данных Channex
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
+  await page.goto('/channels/connections');
+  await expect(main.getByRole('heading', { name: 'Нет доступа' })).toBeVisible();
+  await expect(main.getByTestId('channel-setup')).toHaveCount(0);
+  await expect(main.getByTestId('webhook-state')).toHaveCount(0);
 });
 
 test('цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит', async ({

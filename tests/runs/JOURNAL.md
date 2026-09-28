@@ -2915,3 +2915,9 @@
 | 28.09.2026 05:22 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 12 с | 25384fb +15 | [лог](logs/2026-09-28T00-22-58Z-unit-d5b0.log) |  |
 | 28.09.2026 05:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 1 с | 25384fb +19 | [лог](logs/2026-09-28T00-24-17Z-e2e-647f.log) | C1 после слияния с main: полный UI-набор, один поток |
 | 28.09.2026 05:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 407 | 31 мин 2 с | a011657 | [лог](logs/2026-09-28T00-24-54Z-e2e-1b06.log) | C1 после слияния с main: полный UI-набор, один поток |
+| 28.09.2026 12:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts) | ❌ упало 1 из 1 | 2 мин 11 с | 99291ca +1 | [лог](logs/2026-09-28T07-01-33Z-e2e-9b87.log) | C2 red: превью ещё нет |
+| 28.09.2026 12:05 | typecheck | ✅ без ошибок | 31 с | 99291ca +10 | [лог](logs/2026-09-28T07-05-57Z-typecheck-672a.log) |  |
+| 28.09.2026 12:06 | lint | ✅ без ошибок | 20 с | 99291ca +10 | [лог](logs/2026-09-28T07-06-29Z-lint-8dec.log) |  |
+| 28.09.2026 12:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts tests/ui/categories-screens.spec.ts tests/ui/fund-workspac | ✅ 5 из 5 | 56 с | 99291ca +9 | [лог](logs/2026-09-28T07-06-55Z-e2e-cf22.log) | C2 green: превью, карточки; C1-спеки |
+| 28.09.2026 12:08 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 16 с | 99291ca +7 | [лог](logs/2026-09-28T07-08-39Z-unit-8597.log) |  |
+| 28.09.2026 12:10 | integration | ✅ 107 из 107 | 33 с | 99291ca +3 | [лог](logs/2026-09-28T07-10-23Z-integration-52bc.log) |  |

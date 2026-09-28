@@ -1677,6 +1677,8 @@ export interface InventoryCategory {
   active: boolean;
   /** Число действующих тарифов категории — сигнал «настроено ли для продаж» (ADR-107) */
   ratePlans: number;
+  /** Имена тех же тарифов — для панели категории (C2), цены здесь нет: она своя на каждую дату */
+  ratePlanNames: string[];
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),

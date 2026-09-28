@@ -69,7 +69,7 @@ test('categories C1: five Luxx-shaped rows, filters, row menu, long name — lig
   await expect(
     page.getByRole('menuitem', { name: 'Добавить комнату с койками', exact: true }),
   ).toBeVisible();
-  await expect(page.getByRole('menuitem', { name: 'Открыть состав', exact: true })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: 'Открыть', exact: true })).toBeVisible();
   await page.screenshot({ path: `${shots}/categories-row-menu.png` });
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Действия с категорией Двухместный номер' }).click();

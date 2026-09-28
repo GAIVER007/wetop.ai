@@ -1,29 +1,32 @@
 'use client';
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import type { InventoryCategory, InventoryUnit } from '../../lib/api';
 import { Badge, EmptyState, Input, Table } from '../../components/ui';
-import { ActionMenu } from '../../components/action-menu';
+import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { FundEditor } from './fund-editor';
+import { CategoryPreview } from './category-preview';
 import { pluralRu } from '../../lib/plural';
+import { KIND_WORD, addWord, capacityShort, compositionHref, unitWord } from './category-words';
 
-const KIND_WORD: Record<InventoryCategory['kind'], string> = {
-  PRIVATE_ROOM: 'Номер целиком',
-  DORM_BED: 'Койко-место',
-  APARTMENT: 'Апартаменты',
-};
 const KIND_FILTERS: [InventoryCategory['kind'], string][] = [
   ['PRIVATE_ROOM', 'Номера'],
   ['DORM_BED', 'Койко-места'],
   ['APARTMENT', 'Апартаменты'],
 ];
-const unitWord = (kind: InventoryCategory['kind'], n: number) =>
-  pluralRu(n, kind === 'DORM_BED' ? ['койка', 'койки', 'коек'] : ['номер', 'номера', 'номеров']);
+
+/** Щелчок по строке или карточке открывает панель, если он не пришёлся на ссылку, кнопку или меню */
+const onSurface = (e: MouseEvent, open: () => void) => {
+  if ((e.target as HTMLElement).closest('a, button, [role="menu"]')) return;
+  open();
+};
 
 /**
- * Таблица категорий (ТЗ «Категории v2» C1, ADR-107): одна строка на категорию, действия — в меню
- * строки, состав не разворачивается на месте — число единиц ведёт в «Номера и койки».
+ * Категории (ТЗ «Категории v2», ADR-107): C1 — таблица, одна строка на категорию, действия в меню
+ * строки; C2 — панель категории по щелчку и режим «Карточки». Состав не разворачивается на месте —
+ * число единиц ведёт в «Номера и койки».
  */
 export function CategoryCatalog({
   categories,
@@ -32,8 +35,11 @@ export function CategoryCatalog({
   categories: InventoryCategory[];
   units: InventoryUnit[];
 }) {
+  const search = useSearchParams();
+  const view = search.get('view') === 'cards' ? 'cards' : 'list';
   const [q, setQ] = useState('');
   const [kind, setKind] = useState<'' | InventoryCategory['kind']>('');
+  const [preview, setPreview] = useState<InventoryCategory | null>(null);
   const [editing, setEditing] = useState<InventoryCategory | null>(null);
   const [adding, setAdding] = useState<InventoryCategory | null>(null);
   const query = q.trim().toLocaleLowerCase('ru');
@@ -42,7 +48,52 @@ export function CategoryCatalog({
   );
   const memberCount = (c: InventoryCategory) =>
     units.filter((u) => u.accommodationTypeCode === c.code).length;
-  const composition = (c: InventoryCategory) => `/inventory?category=${encodeURIComponent(c.code)}`;
+  const setView = (next: 'list' | 'cards') =>
+    window.history.replaceState(
+      null,
+      '',
+      next === 'cards' ? '/rooms/categories?view=cards' : '/rooms/categories',
+    );
+  const menu = (c: InventoryCategory): ActionMenuItem[] => [
+    { label: 'Открыть', onSelect: () => setPreview(c) },
+    { label: 'Редактировать', onSelect: () => setEditing(c) },
+    { label: addWord(c), onSelect: () => setAdding(c) },
+    { label: 'Настроить тарифы', href: `/rates?category=${encodeURIComponent(c.code)}` },
+    { label: 'Показать на шахматке', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
+    { label: 'Доступность', href: '/rooms/availability' },
+  ];
+  const fund = (c: InventoryCategory) => {
+    const count = memberCount(c);
+    return count ? (
+      <Link href={compositionHref(c)} prefetch={false}>
+        {unitWord(c.kind, count)}
+      </Link>
+    ) : (
+      <Badge tone="warn">не добавлен</Badge>
+    );
+  };
+  const rates = (c: InventoryCategory) =>
+    c.ratePlans ? (
+      <Link href={`/rates?category=${encodeURIComponent(c.code)}`} prefetch={false}>
+        {pluralRu(c.ratePlans, ['тариф', 'тарифа', 'тарифов'])}
+      </Link>
+    ) : (
+      <Badge tone="warn">нет тарифа</Badge>
+    );
+  const status = (c: InventoryCategory) => (
+    <Badge tone={c.active ? 'ok' : 'neutral'}>{c.active ? 'Активна' : 'В архиве'}</Badge>
+  );
+  const open = (c: InventoryCategory) => (
+    <button type="button" className="fund-cat-open" onClick={() => setPreview(c)}>
+      {c.name}
+    </button>
+  );
+  const kindCell = (c: InventoryCategory) => (
+    <>
+      <Icon name={c.kind === 'DORM_BED' ? 'bed' : 'inventory'} width={16} height={16} />
+      {KIND_WORD[c.kind]}
+    </>
+  );
   if (!categories.length)
     return (
       <section className="fund-empty">
@@ -89,11 +140,46 @@ export function CategoryCatalog({
             Показано {filtered.length} из {categories.length}
           </span>
         )}
+        <div className="chips fund-view" role="group" aria-label="Вид списка категорий">
+          <button type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}>
+            <Icon name="menu" width={16} height={16} />
+            Список
+          </button>
+          <button type="button" aria-pressed={view === 'cards'} onClick={() => setView('cards')}>
+            <Icon name="today" width={16} height={16} />
+            Карточки
+          </button>
+        </div>
       </div>
       {!filtered.length ? (
         <EmptyState icon={<Icon name="inventory" />} title="Категории не найдены">
           Измените поиск или сбросьте фильтр типа.
         </EmptyState>
+      ) : view === 'cards' ? (
+        <ul className="fund-cat-cards" aria-label="Категории размещения">
+          {filtered.map((c) => (
+            <li
+              key={c.code}
+              className="fund-cat-card"
+              data-testid="fund-category-card"
+              onClick={(e) => onSurface(e, () => setPreview(c))}
+            >
+              <div className="fund-cat-card-top">
+                {open(c)}
+                <ActionMenu size="sm" label={`Действия с категорией ${c.name}`} items={menu(c)} />
+              </div>
+              <span className="fund-cat-kind">{kindCell(c)}</span>
+              <div className="fund-cat-card-facts">
+                {fund(c)}
+                <span>{capacityShort(c)}</span>
+              </div>
+              <div className="fund-cat-card-facts">
+                <span>Тарифы: {rates(c)}</span>
+                {status(c)}
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : (
         <Table className="fund-cat-table" aria-label="Категории размещения">
           <thead>
@@ -108,76 +194,45 @@ export function CategoryCatalog({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c) => {
-              const count = memberCount(c);
-              return (
-                <tr key={c.code} data-testid="fund-category-row">
-                  <td className="fund-cat-name">
-                    <Link href={composition(c)} prefetch={false}>
-                      {c.name}
-                    </Link>
-                  </td>
-                  <td className="fund-cat-kind">
-                    <Icon name={c.kind === 'DORM_BED' ? 'bed' : 'inventory'} width={16} height={16} />
-                    {KIND_WORD[c.kind]}
-                  </td>
-                  <td className="fund-cat-units">
-                    {count ? (
-                      <Link href={composition(c)} prefetch={false}>
-                        {unitWord(c.kind, count)}
-                      </Link>
-                    ) : (
-                      <Badge tone="warn">не добавлен</Badge>
-                    )}
-                  </td>
-                  <td className="fund-cat-capacity">
-                    {c.kind === 'DORM_BED'
-                      ? '1 гость / койка'
-                      : pluralRu(c.capacityAdults, ['гость', 'гостя', 'гостей'])}
-                  </td>
-                  <td className="fund-cat-rates">
-                    {c.ratePlans ? (
-                      <Link href={`/rates?category=${encodeURIComponent(c.code)}`} prefetch={false}>
-                        {pluralRu(c.ratePlans, ['тариф', 'тарифа', 'тарифов'])}
-                      </Link>
-                    ) : (
-                      <Badge tone="warn">нет тарифа</Badge>
-                    )}
-                  </td>
-                  <td className="fund-cat-status">
-                    <Badge tone={c.active ? 'ok' : 'neutral'}>
-                      {c.active ? 'Активна' : 'В архиве'}
-                    </Badge>
-                  </td>
-                  <td className="fund-cat-actions">
-                    <ActionMenu
-                      size="sm"
-                      label={`Действия с категорией ${c.name}`}
-                      items={[
-                        { label: 'Открыть состав', href: composition(c) },
-                        { label: 'Редактировать', onSelect: () => setEditing(c) },
-                        {
-                          label:
-                            c.kind === 'DORM_BED' ? 'Добавить комнату с койками' : 'Добавить номер',
-                          onSelect: () => setAdding(c),
-                        },
-                        {
-                          label: 'Настроить тарифы',
-                          href: `/rates?category=${encodeURIComponent(c.code)}`,
-                        },
-                        {
-                          label: 'Показать на шахматке',
-                          href: `/chessboard?category=${encodeURIComponent(c.code)}`,
-                        },
-                        { label: 'Доступность', href: '/rooms/availability' },
-                      ]}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
+            {filtered.map((c) => (
+              <tr
+                key={c.code}
+                data-testid="fund-category-row"
+                onClick={(e) => onSurface(e, () => setPreview(c))}
+              >
+                <td className="fund-cat-name">{open(c)}</td>
+                <td className="fund-cat-kind">{kindCell(c)}</td>
+                <td className="fund-cat-units">{fund(c)}</td>
+                <td className="fund-cat-capacity">{capacityShort(c)}</td>
+                <td className="fund-cat-rates">{rates(c)}</td>
+                <td className="fund-cat-status">{status(c)}</td>
+                <td className="fund-cat-actions">
+                  <ActionMenu
+                    size="sm"
+                    label={`Действия с категорией ${c.name}`}
+                    items={menu(c)}
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </Table>
+      )}
+      {preview && (
+        <CategoryPreview
+          key={`preview-${preview.code}`}
+          category={preview}
+          units={units}
+          onClose={() => setPreview(null)}
+          onEdit={() => {
+            setPreview(null);
+            setEditing(preview);
+          }}
+          onAdd={() => {
+            setPreview(null);
+            setAdding(preview);
+          }}
+        />
       )}
       {editing && (
         <FundEditor

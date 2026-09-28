@@ -78,6 +78,7 @@ describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and is
             // сигнал «настроено для продаж» в списке категорий (ТЗ «Категории v2», ADR-107)
             expect(res.body[0].active).toBe(true);
             expect(res.body[0].ratePlans).toBe(1);
+            expect(res.body[0].ratePlanNames).toEqual(['Тестовый тариф']);
           });
         const linked = await db.ratePlanAccommodationType.count({
           where: { accommodationType: { propertyId: property.id } },

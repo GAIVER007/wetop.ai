@@ -1957,6 +1957,7 @@ function read(path: string, q: URLSearchParams): unknown {
       capacityAdults: c.capacityAdults,
       active: true,
       ratePlans: c.ratePlans ?? 1,
+      ratePlanNames: (c.ratePlans ?? 1) ? [plans[0]!.name] : [],
     }));
   if (path === '/inventory/summary')
     return {

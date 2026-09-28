@@ -28,7 +28,7 @@ export class InventoryEditor {
   private property() {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
-  /** Список для стойки: `ratePlans` — число действующих тарифов категории (ТЗ «Категории v2», ADR-107). */
+  /** Список для стойки: действующие тарифы категории — числом и по именам (ТЗ «Категории v2», ADR-107). */
   async categories() {
     const propertyId = await this.property();
     const rows = await this.prisma.db.accommodationType.findMany({
@@ -39,11 +39,19 @@ export class InventoryEditor {
         kind: true,
         capacityAdults: true,
         active: true,
-        _count: { select: { ratePlanLinks: { where: { ratePlan: { active: true } } } } },
+        ratePlanLinks: {
+          where: { ratePlan: { active: true } },
+          select: { ratePlan: { select: { name: true } } },
+          orderBy: { ratePlan: { name: 'asc' } },
+        },
       },
       orderBy: { createdAt: 'asc' },
     });
-    return rows.map(({ _count, ...row }) => ({ ...row, ratePlans: _count.ratePlanLinks }));
+    return rows.map(({ ratePlanLinks, ...row }) => ({
+      ...row,
+      ratePlans: ratePlanLinks.length,
+      ratePlanNames: ratePlanLinks.map((link) => link.ratePlan.name),
+    }));
   }
   async createCategory(body: Record<string, unknown>) {
     const data = categoryInput(body),

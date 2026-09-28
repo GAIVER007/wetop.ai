@@ -70,8 +70,121 @@
 .fund-toolbar .chips {
   margin: 0;
 }
-.fund-cat-name a {
+/* Название — кнопка панели категории (C2): читается как название, а не как кнопка */
+.fund-cat-open {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  min-height: 24px;
+  font: inherit;
   font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.fund-cat-open:hover {
+  text-decoration: underline;
+}
+.fund-cat-table tbody tr {
+  cursor: pointer;
+}
+.fund-view {
+  margin-left: auto;
+}
+.fund-cat-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: var(--space-4);
+}
+.fund-cat-card {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.fund-cat-card:hover {
+  background: var(--row-hover);
+}
+.fund-cat-card-top,
+.fund-cat-card-facts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.fund-cat-card-top {
+  align-items: flex-start;
+}
+.fund-cat-card-facts {
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+/* Панель категории (C2, ТЗ §9) */
+.fund-preview {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  justify-items: start;
+}
+.fund-preview section {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-soft);
+}
+.fund-preview h3 {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.fund-preview p {
+  margin: 0;
+}
+.fund-preview .fund-members {
+  padding-top: 0;
+}
+.fund-preview-facts {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+.fund-preview-facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.fund-preview-facts dt {
+  color: var(--muted);
+}
+.fund-preview-facts dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+.fund-preview-rates {
+  margin: 0;
+  padding-left: var(--space-6);
+}
+.fund-preview-actions,
+.fund-preview-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+.fund-preview-footer {
+  width: 100%;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-soft);
 }
 .fund-cat-kind {
   color: var(--muted);
@@ -251,7 +364,8 @@
   .fund-availability article {
     padding: 16px;
   }
-  .fund-form {
+  .fund-form,
+  .fund-preview {
     padding: 16px;
   }
   /* Строка таблицы категорий складывается в карточку (приём .dir-table, DESIGN.md §8) */
@@ -290,8 +404,8 @@
     grid-row: 1;
     align-self: center;
   }
-  /* ссылки сложенной карточки — цель нажатия 44 px (§11; axe target-size на 390) */
-  .fund-cat-table tbody td.fund-cat-name a,
+  /* ссылки и название сложенной карточки — цель нажатия 44 px (§11; axe target-size на 390) */
+  .fund-cat-open,
   .fund-cat-table tbody td.fund-cat-units a,
   .fund-cat-table tbody td.fund-cat-rates a {
     display: inline-flex;

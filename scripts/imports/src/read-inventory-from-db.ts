@@ -35,7 +35,6 @@ export async function readInventoryPlanFromDb(
     .flatMap(({ b, f, room }) =>
       room.units.map((u) => ({
         code: u.code,
-        exelyRoomNumber: u.exelyRoomNumber,
         kind: u.kind,
         accommodationTypeCode:
           property.accommodationTypes.find((t) => t.id === u.accommodationTypeId)?.code ?? '?',
@@ -46,7 +45,7 @@ export async function readInventoryPlanFromDb(
         floorName: f.name,
       })),
     );
-  // Блокировки считаем ДЕЙСТВУЮЩИЕ на контрольную дату: Exely в сверке даёт «заблокировано на дату»,
+  // Блокировки считаем ДЕЙСТВУЮЩИЕ на контрольную дату,
   // а не «сколько записей о блокировках было за всю историю» (иначе Gate 1 сломается после первой блокировки)
   const blocks = await countActiveBlocks(db, property.id, blocksOnDate);
   return {
@@ -65,7 +64,6 @@ export async function readInventoryPlanFromDb(
         kind: t.kind,
         capacityAdults: t.capacityAdults,
         capacityChildren: t.capacityChildren,
-        exelyId: t.exelyId,
       })),
       units,
     },

@@ -14,7 +14,6 @@ export interface InventorySummaryDto extends InventorySummary {
 
 export interface InventoryUnitDto {
   code: string;
-  exelyRoomNumber: string | null;
   kind: 'ROOM' | 'BED';
   accommodationTypeCode: string;
   accommodationTypeName: string;
@@ -62,7 +61,6 @@ export class InventoryService {
         const state = states.get(u.code);
         return {
           code: u.code,
-          exelyRoomNumber: u.exelyRoomNumber,
           kind: u.kind,
           accommodationTypeCode: u.accommodationTypeCode,
           accommodationTypeName: nameByCode.get(u.accommodationTypeCode) ?? u.accommodationTypeCode,

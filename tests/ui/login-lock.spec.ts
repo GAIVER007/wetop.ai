@@ -43,3 +43,18 @@ test('после входа рабочее место открывается, «
   await page.goto('/today');
   await expect(page).toHaveURL(/\/login/);
 });
+
+test('ссылка из письма подтверждает почту при включённом замке', async ({ page }) => {
+  await page.goto('/register');
+  const main = page.getByRole('main');
+  await main.getByLabel('Email').fill('novyj@example.com');
+  await main.getByLabel('Имя').fill('Вячеслав Петров');
+  await main.getByLabel('Название отеля').fill('Хостел на Абая');
+  await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+  await main.getByRole('button', { name: 'Создать организацию' }).click();
+  await page.waitForURL('**/login/check-email**');
+
+  await page.goto('/login/verify?token=ui-verify-1');
+  await expect(page).toHaveURL(/\/today/);
+  await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
+});

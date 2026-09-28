@@ -214,7 +214,7 @@ function makeFakes() {
         categories: [
           {
             id: 't1',
-            code: 'exely-900001',
+            code: 'category-single',
             name: 'Одиночная',
             kind: 'PRIVATE_ROOM',
             capacityAdults: 1,
@@ -222,14 +222,14 @@ function makeFakes() {
           },
           {
             id: 't3',
-            code: 'exely-900003',
+            code: 'category-dorm',
             name: 'Dorm',
             kind: 'DORM_BED',
             capacityAdults: 1,
             units: 2,
           },
         ],
-        ratePlan: { id: 'p2', code: 'exely-800002', name: 'ОТА', currency: 'KZT' },
+        ratePlan: { id: 'p2', code: 'rate-ota', name: 'ОТА', currency: 'KZT' },
       };
     },
     async mappings() {
@@ -252,7 +252,7 @@ function makeFakes() {
         id: id('m'),
         localAccommodationTypeId: row.localAccommodationTypeId,
         localAccommodationTypeCode:
-          row.localAccommodationTypeId === 't1' ? 'exely-900001' : 'exely-900003',
+          row.localAccommodationTypeId === 't1' ? 'category-single' : 'category-dorm',
         localRatePlanId: row.localRatePlanId,
         localRatePlanCode: null,
         providerPropertyId: row.providerPropertyId,
@@ -264,14 +264,14 @@ function makeFakes() {
       return [0, 1, 2].flatMap((k) => [
         {
           date: d(k),
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           ratePlanId: 'p2',
           occupancy: 1,
           priceMinor: 1_540_000n,
         },
         {
           date: d(k),
-          accommodationTypeCode: 'exely-900003',
+          accommodationTypeCode: 'category-dorm',
           ratePlanId: 'p2',
           occupancy: 1,
           priceMinor: 900_000n,
@@ -286,8 +286,8 @@ function makeFakes() {
     },
     async categoryUnits() {
       return [
-        { code: 'exely-900001', active: 1, capacityAdults: 1 },
-        { code: 'exely-900003', active: 2, capacityAdults: 1 },
+        { code: 'category-single', active: 1, capacityAdults: 1 },
+        { code: 'category-dorm', active: 2, capacityAdults: 1 },
       ];
     },
     async categoryBlocks() {
@@ -295,10 +295,10 @@ function makeFakes() {
     },
     async soldItems() {
       // одно проданное проживание в dorm на ночь d(1) — с ячейкой или без, для канала это занято
-      return [{ accommodationTypeCode: 'exely-900003', arrivalDate: d(1), departureDate: d(2) }];
+      return [{ accommodationTypeCode: 'category-dorm', arrivalDate: d(1), departureDate: d(2) }];
     },
     async ratePlanIdsByCode() {
-      return { 'exely-800002': 'p2' };
+      return { 'rate-ota': 'p2' };
     },
     async enqueueOutbox(_p, kind, payload) {
       outbox.push({
@@ -410,7 +410,7 @@ function makeFakes() {
           items: [
             {
               id: 'i-77',
-              accommodationTypeCode: 'exely-900001',
+              accommodationTypeCode: 'category-single',
               accommodationTypeName: 'Одиночная',
               arrivalDate: d(1),
               departureDate: d(3),
@@ -469,21 +469,21 @@ function makeFakes() {
           id: 'u1',
           code: '9001',
           kind: 'ROOM',
-          accommodationTypeCode: 'exely-900001',
+          accommodationTypeCode: 'category-single',
           accommodationTypeName: 'Одиночная',
         },
         {
           id: 'u2',
           code: '9010',
           kind: 'BED',
-          accommodationTypeCode: 'exely-900003',
+          accommodationTypeCode: 'category-dorm',
           accommodationTypeName: 'Dorm',
         },
         {
           id: 'u3',
           code: '9011',
           kind: 'BED',
-          accommodationTypeCode: 'exely-900003',
+          accommodationTypeCode: 'category-dorm',
           accommodationTypeName: 'Dorm',
         },
       ];
@@ -560,8 +560,8 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     const first = await request(app.getHttpServer()).post('/channels/channex/setup').expect(200);
     expect(first.body.created).toEqual({ property: true, roomTypes: 2, ratePlans: 2 });
     expect(first.body.roomTypes).toEqual([
-      { categoryCode: 'exely-900001', providerRoomTypeId: 'rt-2', providerRatePlanId: 'rp-3' },
-      { categoryCode: 'exely-900003', providerRoomTypeId: 'rt-4', providerRatePlanId: 'rp-5' },
+      { categoryCode: 'category-single', providerRoomTypeId: 'rt-2', providerRatePlanId: 'rp-3' },
+      { categoryCode: 'category-dorm', providerRoomTypeId: 'rt-4', providerRatePlanId: 'rp-5' },
     ]);
     expect(fakes.calls.map((c) => c.op)).toEqual([
       'createProperty',
@@ -657,7 +657,7 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     await request(app.getHttpServer()).post('/channels/channex/setup').expect(200);
     await request(app.getHttpServer())
       .post('/channels/channex/availability/changed')
-      .send({ categoryCodes: ['exely-900003'], from: fakes.today, toExclusive: fakes.d(3) })
+      .send({ categoryCodes: ['category-dorm'], from: fakes.today, toExclusive: fakes.d(3) })
       .expect(200, { accepted: true });
     expect(fakes.outbox.map((o) => o.kind)).toEqual(['AVAILABILITY']);
     expect(fakes.outbox[0]!.payload).toEqual([
@@ -687,9 +687,9 @@ describe('Channex setup and full sync (contract on fakes)', () => {
       {},
       { categoryCodes: [], from: fakes.today, toExclusive: fakes.d(1) },
       { categoryCodes: [''], from: fakes.today, toExclusive: fakes.d(1) },
-      { categoryCodes: ['exely-900003'], from: '13.09.2026', toExclusive: fakes.d(1) },
-      { categoryCodes: ['exely-900003'], from: fakes.d(2), toExclusive: fakes.d(2) },
-      { categoryCodes: ['exely-900003'], from: fakes.today, toExclusive: '2099-01-01' },
+      { categoryCodes: ['category-dorm'], from: '13.09.2026', toExclusive: fakes.d(1) },
+      { categoryCodes: ['category-dorm'], from: fakes.d(2), toExclusive: fakes.d(2) },
+      { categoryCodes: ['category-dorm'], from: fakes.today, toExclusive: '2099-01-01' },
     ];
     for (const body of bad)
       await request(app.getHttpServer())
@@ -800,7 +800,7 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     await request(app.getHttpServer()).post('/channels/channex/setup').expect(200);
     await request(app.getHttpServer())
       .post('/channels/channex/availability/changed')
-      .send({ categoryCodes: ['exely-900001'], from: fakes.today, toExclusive: fakes.d(3) })
+      .send({ categoryCodes: ['category-single'], from: fakes.today, toExclusive: fakes.d(3) })
       .expect(200);
     const q = await request(app.getHttpServer())
       .get('/channels/channex/outbox/messages?limit=5')
@@ -857,7 +857,7 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     expect(JSON.stringify(res.body)).not.toContain('+70000000009');
     expect(res.body.reservation.confirmationNumber).toBe('B-77');
     expect(res.body.balances).toEqual({ 'i-77': '0' });
-    expect(Object.values(res.body.categoryByRoomType)).toContain('exely-900001');
+    expect(Object.values(res.body.categoryByRoomType)).toContain('category-single');
     await request(app.getHttpServer()).get('/channels/channex/events/nope').expect(404);
   });
 
@@ -869,7 +869,7 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     // полная выгрузка идёт в Channex напрямую; в очередь пишет дельта остатков (ADR-032)
     await request(app.getHttpServer())
       .post('/channels/channex/availability/changed')
-      .send({ categoryCodes: ['exely-900001'], from: fakes.today, toExclusive: fakes.d(2) })
+      .send({ categoryCodes: ['category-single'], from: fakes.today, toExclusive: fakes.d(2) })
       .expect(200);
     await request(app.getHttpServer()).post('/channels/channex/outbox/flush').expect(200);
     const rows = await request(app.getHttpServer())
@@ -879,7 +879,7 @@ describe('Channex setup and full sync (contract on fakes)', () => {
     const avail = rows.body.find((r: { kind: string }) => r.kind === 'AVAILABILITY');
     expect(avail).toMatchObject({ status: 'SENT', messages: expect.any(Number) });
     expect(avail.dateFrom <= avail.dateTo).toBe(true);
-    expect(avail.roomTypes).toContain('exely-900001'); // код категории по маппингу, имя подставит экран
+    expect(avail.roomTypes).toContain('category-single'); // код категории по маппингу, имя подставит экран
     const pending = await request(app.getHttpServer())
       .get('/channels/channex/outbox/rows?status=PENDING')
       .expect(200);

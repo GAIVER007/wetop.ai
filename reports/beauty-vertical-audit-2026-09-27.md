@@ -9,7 +9,7 @@
 
 ## A. Executive Summary
 
-1. **Монорепо, 4 приложения + 4 пакета.** `apps/web` (Next.js 16 + React 19, стойка), `apps/api` (NestJS/Express, REST), `apps/site` (Next.js, статический маркетинг), `apps/ai-seller` (Python/FastAPI, отдельный сервис). `packages/database` (Prisma), `packages/domain` (чистая бизнес-логика), `packages/integrations` (Channex/Exely/eQonaq/fiscal/mail/telegram), `packages/shared`. Границы держатся npm workspaces + ESLint-правилом (ADR-004), не сетевой изоляцией.
+1. **Монорепо, 4 приложения + 4 пакета.** `apps/web` (Next.js 16 + React 19, стойка), `apps/api` (NestJS/Express, REST), `apps/site` (Next.js, статический маркетинг), `apps/ai-seller` (Python/FastAPI, отдельный сервис). `packages/database` (Prisma), `packages/domain` (чистая бизнес-логика), `packages/integrations` (Channex/архивный источник/eQonaq/fiscal/mail/telegram), `packages/shared`. Границы держатся npm workspaces + ESLint-правилом (ADR-004), не сетевой изоляцией.
 2. **Organization ≠ Property, но де-факто 1:1.** Схема разрешает `Organization.properties: Property[]` (1:N), но во всём коде — только `property.findFirst`, никогда `findMany`; ни один UI/API-путь не показывает список объектов организации. Сегодня «организация» и «объект» — синонимы на практике.
 3. **Мультитенантность — недоделанная миграция, а не отсутствующая архитектура.** С 15.09 по 26.09.2026 (10 из 27 миграций) добавлены `organizations`, `memberships.role`, `properties.organization_id`, `platform_admins`, `organization_extensions`, per-property уникальность кода юнита. Это целенаправленный, документированный (ADR-046/055/060/061/083) переход от single-tenant к multi-tenant, который **не завершён**.
 4. **Изоляции на уровне БД нет вообще.** Grep по всем 27 миграциям на `ROW LEVEL SECURITY`/`POLICY` — ноль совпадений. Вся изоляция держится на одном application-level замке (`apps/api/src/database/property-ref.ts`) и дисциплине разработчиков, а не на СУБД.
@@ -24,7 +24,7 @@
 13. **Дизайн-система — единственный по-настоящему reuse-ready UI-слой.** `design/tokens.json` + `apps/web/src/components/ui.tsx` — vertical-neutral. Страницы (шахматка/брони/номера/сегодня) типизированы вплотную к hotel API-контрактам.
 14. **Онбординг упирается стеной для Beauty.** Регистрация собирает только `hotelName`; `AuthService.register()` безусловно создаёт `Property{timezone:'Asia/Almaty', currency:'KZT', checkInTime:'14:00', checkOutTime:'12:00'}` для КАЖДОЙ новой организации; обязательный шаг `/onboarding` немедленно требует Room/Bed/Apartment категории.
 15. **Контраст: подсистема «ИИ-продавец» уже построена vertical-agnostic.** `apps/api/src/wizard`, `apps/web/src/app/create`, `apps/ai-seller`'s `providers.py` (Protocol-интерфейсы `AvailabilityProvider`/`LeadSink`) — поля `businessName`/`niche`/`botType`, ни одного упоминания room/guest. Это прямое доказательство: команда умеет строить мультивертикально, когда решает это делать. PMS-ядро строилось иначе, потому что скоуп с первого дня был «один хостел» (ADR-001).
-16. **`packages/integrations` корректно изолирует vendor-код (ADR-004 выполняется).** Channex/Exely/eQonaq — чисто hospitality и не текут в `apps/web`/бизнес-логику `apps/api`. `mail`/`telegram`/`assistant`-транспорт/`fiscal`-порт уже platform-generic.
+16. **`packages/integrations` корректно изолирует vendor-код (ADR-004 выполняется).** Channex/архивный источник/eQonaq — чисто hospitality и не текут в `apps/web`/бизнес-логику `apps/api`. `mail`/`telegram`/`assistant`-транспорт/`fiscal`-порт уже platform-generic.
 17. **Тесты — хорошая защитная сетка.** Все критичные потоки (create/move/extend reservation, availability, check-in/out, OTA webhook, org isolation) покрыты и зелёные на последнем прогоне (unit 2012/2015, integration 99/99, e2e 25/25, UI-only 387/387, 27.09.2026). Оплата — PARTIAL (нет платёжного гейтвея, только folio-бухгалтерия).
 18. **Второй реальный гостиничный объект сегодня технически возможен для людей, но не готов операционно.** Ключи Channex/почты — per-install `.env`, не per-org; сайт бронирования жёстко отказывает второму объекту (`assertServingProperty`, `apps/api/src/web-booking/web-booking.service.ts:399-404`); ~16-20 файлов сервис-путей резолвят объект по имени.
 19. **Открытые вопросы владельца прямо блокируют стратегию.** Q-157 (что обещает публичный сайт — заявка или регистрация) и Q-152 (доизоляция Guest/AuditLog) определяют, идёт ли WETOP по пути «одна установка = один клиент» (ADR-056) или «SaaS с разделением по организациям» (ADR-061) — сейчас в силе одновременно два противоречащих решения.
@@ -49,7 +49,7 @@
 Web (Next.js)  ──REST──▶  API (NestJS)  ──Prisma──▶  Database (Postgres)
                               │
                               ├──▶ packages/domain   (чистая бизнес-логика, без БД/HTTP)
-                              ├──▶ packages/integrations (Channex/Exely/eQonaq/fiscal/mail/telegram)
+                              ├──▶ packages/integrations (Channex/архивный источник/eQonaq/fiscal/mail/telegram)
                               └──▶ apps/ai-seller (по узким service-key через внутреннюю сеть)
 
 apps/ai-seller ──HTTP (x-wetop-service-key)──▶ GET /bot/availability, POST /w/book  (apps/api)
@@ -64,7 +64,7 @@ apps/site      ──iframe/widget──▶  apps/api /w/*  (публичный 
 |---|---|---|
 | `packages/database` | Prisma schema, миграции | Миграции только после утверждения `DATA_MODEL.md` |
 | `packages/domain` | availability, reservations, folio, pricing — «не знает про Channex/eQonaq/HTTP/Prisma» (`packages/domain/src/index.ts:1-17`) | Чистые функции |
-| `packages/integrations` | Адаптеры Channex, Exely, eQonaq, fiscal, mail, telegram, assistant-транспорт | **Единственное место**, где допустим vendor SDK/vendor ID (ADR-004); проверено — соблюдается |
+| `packages/integrations` | Адаптеры Channex, архивный источник, eQonaq, fiscal, mail, telegram, assistant-транспорт | **Единственное место**, где допустим vendor SDK/vendor ID (ADR-004); проверено — соблюдается |
 | `packages/shared` | Money, даты, ошибки | Money — integer minor units (ADR-008) |
 
 ### B.3 Frontend ↔ Backend
@@ -75,7 +75,7 @@ apps/site      ──iframe/widget──▶  apps/api /w/*  (публичный 
 
 - **Расчёты и правила** (ценообразование, статус-guards, штрафы, availability-математика, оверлап-детект) — по большей части в `packages/domain` (чистые функции без Prisma/HTTP).
 - **Оркестрация и транзакции** — в `apps/api/src/*` (сервисы вызывают domain-функции, потом пишут в БД одной Prisma-транзакцией). Но `ReservationsService.create()` (`apps/api/src/reservations/reservations.service.ts:312-506`) содержит существенную hotel-операционную логику прямо в API-слое (порядок блокировки категории, авто-назначение первого свободного юнита, групповое бронирование, проверка ёмкости против OTA-паритета) — это **не** тонкий CRUD-шим, а реальные бизнес-правила вне `packages/domain`.
-- **Интеграционная логика** — целиком в `packages/integrations` (клиенты Channex/Exely) плюс тонкие сервисы-обёртки в `apps/api/src/channels`.
+- **Интеграционная логика** — целиком в `packages/integrations` (клиенты Channex/архивный источник) плюс тонкие сервисы-обёртки в `apps/api/src/channels`.
 - **БД-логика** — Prisma-репозитории в каждом модуле `apps/api/src/*/*.repository.ts`, плюс несколько raw-SQL правил прямо в миграциях (GiST-исключение на пересечение allocations — `20260909000003`; append-only триггер аудита — `20260925000022`; уникальность `(property_id, external_id)` для дедупа OTA — `20260925000022`).
 
 ### B.5 Сильно связанные части vs хорошо изолированные
@@ -117,7 +117,7 @@ apps/site      ──iframe/widget──▶  apps/api /w/*  (публичный 
 
 | Таблица | Строка | Ключевые поля |
 |---|---|---|
-| `AccommodationType` (enum `PRIVATE_ROOM/DORM_BED/APARTMENT`) | `:93,99` | `code`, `kind`, `capacityAdults/Children`, `exelyId` |
+| `AccommodationType` (enum `PRIVATE_ROOM/DORM_BED/APARTMENT`) | `:93,99` | `code`, `kind`, `capacityAdults/Children`, `retired-sourceId` |
 | `InventoryUnit` (enum `ROOM/BED`) | `:146,160` | «Единица продажи = ячейка»; `propertyId` (добавлен миграцией `20260926000025`), `housekeepingStatus` |
 | `HousekeepingEvent` | `:380` | Лог смены статуса уборки |
 | `InventoryBlock` (enum `MAINTENANCE/MANAGEMENT/OUT_OF_ORDER/OTHER`) | `:395,404` | Блокировка диапазона дат — единственный «источник правды» недоступности; сам механизм generic |
@@ -289,7 +289,7 @@ apps/site      ──iframe/widget──▶  apps/api /w/*  (публичный 
 - `AccommodationType`/`InventoryUnit`/`PhysicalRoom`/`Building`/`Floor` и весь `apps/api/src/inventory`.
 - `HousekeepingEvent`/`packages/domain/src/housekeeping/flow.ts` — уборка номера, нет аналога в Beauty.
 - `RatePlan`/`DailyRate`/`Restriction` — календарь цены по ночам/occupancy.
-- `ChannelMapping`/`ExternalEvent`/`ChannelOutbox`/весь `apps/api/src/channels`, `packages/integrations/src/{channex,exely,eqonaq}` — OTA/channel-manager/миграция-Exely/eQonaq.
+- `ChannelMapping`/`ExternalEvent`/`ChannelOutbox`/весь `apps/api/src/channels`, `packages/integrations/src/{channex,retired-source,eqonaq}` — OTA/channel-manager/миграция-архивный источник/eQonaq.
 - Шахматка целиком (`apps/web/src/app/chessboard`, `apps/api/src/chessboard`) как готовый UI-продукт (сам generic-движок внутри — см. G.3).
 - `packages/domain/src/guests/citizenship.ts` — казахстанское требование по гражданству.
 - `packages/domain/src/onboarding/plan.ts` — генератор номерного фонда и occupancy-based тарифа.
@@ -381,12 +381,12 @@ apps/site      ──iframe/widget──▶  apps/api /w/*  (публичный 
 
 **P3 — косметический/архитектурный долг:**
 - Тестовые фикстуры с «Luxx» повсюду (не риск, но затрудняет чтение диффов).
-- `packages/domain/src/reservations/cutover-match.ts` — одноразовый Exely-миграционный хелпер, мёртвый груз после завершения миграции.
+- `packages/domain/src/reservations/cutover-match.ts` — одноразовый архивный источник-миграционный хелпер, мёртвый груз после завершения миграции.
 - Два параллельных механизма логина (email-код и пароль) — «пока владелец не выбрал (Q-146)».
 
 ### I.2 Риски универсализации (что нельзя просто «обобщить»)
 
-- **`Room → Resource`**: технически `Allocation` уже похож на generic resource-booking, GiST-constraint не заботится о семантике ресурса — переименование безопасно на уровне БД. Но всё, что *вокруг* (`AccommodationType.kind`, DATE-only гранулярность, `DailyRate`/`Restriction` календарь) придётся менять реальной логикой, а не переименованием — риск задеть Channex (ARI полностью построен на room-type/rate-plan), шахматку (типы `ChessboardUnit`), availability (сигнатуры функций), pricing (occupancy-модель), Exely-сверку (историческая привязка к `accommodationTypeId`), живые бронирования (production data).
+- **`Room → Resource`**: технически `Allocation` уже похож на generic resource-booking, GiST-constraint не заботится о семантике ресурса — переименование безопасно на уровне БД. Но всё, что *вокруг* (`AccommodationType.kind`, DATE-only гранулярность, `DailyRate`/`Restriction` календарь) придётся менять реальной логикой, а не переименованием — риск задеть Channex (ARI полностью построен на room-type/rate-plan), шахматку (типы `ChessboardUnit`), availability (сигнатуры функций), pricing (occupancy-модель), архивный источник-сверку (историческая привязка к `accommodationTypeId`), живые бронирования (production data).
 - **Итог:** обобщение возможно и безопасно только *в изоляции* от текущего hospitality-контура — то есть Beauty должен получить свой параллельный набор таблиц/типов, а не расширение существующих enum. Попытка «просто добавить значение в enum» (например, `InventoryUnitKind = ROOM|BED|CHAIR`) моментально сломает всю цепочку Channex→ARI→шахматка→availability→pricing, которая ожидает ровно эти два значения и hotel-семантику вокруг них.
 
 ---
@@ -419,7 +419,7 @@ apps/site      ──iframe/widget──▶  apps/api /w/*  (публичный 
 
 ### K.2 Нужен ли общий Resource Core?
 
-**Архитектурно — да как концепция, но не как немедленный рефакторинг.** `Allocation` структурно уже «ресурс+диапазон». Правильный путь — не переименовывать `InventoryUnit` в `Resource` (это сломает Channex/ARI/шахматку/availability/pricing/Exely-сверку, все завязанные на текущую hotel-семантику), а:
+**Архитектурно — да как концепция, но не как немедленный рефакторинг.** `Allocation` структурно уже «ресурс+диапазон». Правильный путь — не переименовывать `InventoryUnit` в `Resource` (это сломает Channex/ARI/шахматку/availability/pricing/архивный источник-сверку, все завязанные на текущую hotel-семантику), а:
 1. Оставить `InventoryUnit`/`Room`/`Bed` как специализацию Hospitality.
 2. Завести отдельную generic-таблицу/интерфейс `Resource` только на уровне будущего Beauty-модуля (`Master`/`Chair`/`Cabinet`), реализующую тот же паттерн «ресурс забронирован на диапазон» (по образцу `Allocation`+GiST exclusion), но без наследования от `InventoryUnit`.
 3. Если через несколько кварталов появится третья вертикаль — тогда имеет смысл вынести общий интерфейс `BookableResource`, которому оба конкретных типа (`InventoryUnit`, `Master`) соответствуют по контракту (TypeScript interface / Prisma abstract pattern), но это отдельное решение, не блокирующее запуск Beauty.
@@ -443,7 +443,7 @@ HOSPITALITY (существующий, не трогаем)
 ├── RatePlan / DailyRate / Restriction
 ├── Housekeeping
 ├── Chessboard (UI + hotel-типизированные интерфейсы)
-├── ChannelMapping / ExternalEvent / ChannelOutbox + Channex/Exely/eQonaq
+├── ChannelMapping / ExternalEvent / ChannelOutbox + Channex/архивный источник/eQonaq
 └── Onboarding-мастер номерного фонда
 
 BEAUTY — требуется построить

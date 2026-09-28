@@ -2,11 +2,11 @@
 
 CONTROL DATE: 2026-09-08
 
-Источник EXELY: аудит 07.09.2026 (`project-input/exely/audit-2026-09-07/`). Допуск: 0.
+Источник RETIRED_SOURCE: аудит 07.09.2026 (`project-input/retired-source/audit-2026-09-07/`). Допуск: 0.
 
 ## TOTALS
 
-| Metric | PMS | EXELY | DIFF |
+| Metric | PMS | RETIRED_SOURCE | DIFF |
 |---|---:|---:|---:|
 | units total | 88 | 88 | 0 |
 | rooms | 16 | 16 | 0 |
@@ -17,7 +17,7 @@ CONTROL DATE: 2026-09-08
 
 ## BY ACCOMMODATION TYPE
 
-| Metric | PMS | EXELY | DIFF |
+| Metric | PMS | RETIRED_SOURCE | DIFF |
 |---|---:|---:|---:|
 | Одноместная комната с окном | 4 | 4 | 0 |
 | Одноместная комната без окон | 8 | 8 | 0 |

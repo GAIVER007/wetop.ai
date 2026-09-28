@@ -78,3 +78,7 @@
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
+| 29.09.2026 01:13 | e2e (частично: tests/e2e/chessboard-drag.spec.ts tests/e2e/desk-tasks.spec.ts tests/e2e/manual-reservation.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/unit- | ❌ упало 5 из 6 | 1 мин 54 с | e1adee8 | [лог](logs/2026-09-28T20-13-20Z-e2e-5138.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:15 | lint | ✅ без ошибок | 15 с | e1adee8 +9 | [лог](logs/2026-09-28T20-15-19Z-lint-6046.log) |  |
+| 29.09.2026 01:15 | typecheck | ✅ без ошибок | 19 с | e1adee8 +9 | [лог](logs/2026-09-28T20-15-35Z-typecheck-ae76.log) |  |
+| 29.09.2026 01:16 | e2e | ✅ 25 из 25 | 54 с | e1adee8 +9 | [лог](logs/2026-09-28T20-16-03Z-e2e-0d00.log) |  |

@@ -6,6 +6,7 @@ import { QuickActions } from './dashboard-widgets';
 import { DeskStrip } from './desk-strip';
 import { DayEvents } from './day-events';
 import { CarePanel, FundPanel } from './fund-care';
+import { loadGuardStatus } from './guard-status';
 
 /**
  * Операционная часть Главной (A1, ADR-103): полоса «На стойке» — верхний ряд показателей дня,
@@ -31,6 +32,8 @@ export async function DeskSection({ date, today }: { date: string; today: string
       if (error instanceof ApiError) return null;
       throw error;
     }),
+    // инциденты сторожа — в очередь «Требуют внимания» (A3); тот же закэшированный запрос, что у «Систем»
+    loadGuardStatus(),
   ]).catch((error: unknown) => {
     if (error instanceof ApiError) return error;
     throw error;
@@ -42,13 +45,13 @@ export async function DeskSection({ date, today }: { date: string; today: string
         Стойка на {date} не загрузилась: {result.message} Обновите страницу.
       </Alert>
     );
-  const [day, board] = result;
+  const [day, board, guard] = result;
   const isToday = date === today;
   return (
     <>
       <DeskStrip day={day} board={board} today={today} />
       <div className="dash-grid dash-grid--desk">
-        <DayAttention day={day} />
+        <DayAttention day={day} board={board} guard={guard} isToday={isToday} />
         <QuickActions day={day} />
       </div>
       {/* A2 (план `plans/today-a2-2026-09-28.md`): день уже загружен — новых вызовов у этих блоков нет */}

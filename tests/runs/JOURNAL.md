@@ -3863,3 +3863,9 @@
 | 29.09.2026 01:42 | lint | ✅ без ошибок | 14 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-42-24Z-lint-bc3e.log) |  |
 | 29.09.2026 01:43 | e2e | ✅ 25 из 25 | 54 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-43-08Z-e2e-239a.log) |  |
 | 29.09.2026 01:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/today-operations.spec.ts tests/ui/roles.spec.ts tests/ui/pl | ✅ 58 из 58 | 3 мин 3 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-44-10Z-e2e-7a09.log) |  |
+| 29.09.2026 01:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts) | ❌ упало 3 из 4 | 1 мин 2 с | fda1acf +1 | [лог](logs/2026-09-28T20-51-49Z-e2e-5457.log) | очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info |
+| 29.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts) | ✅ 4 из 4 | 14 с | fda1acf +6 | [лог](logs/2026-09-28T20-54-03Z-e2e-f5f1.log) |  |
+| 29.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/design-refresh.spec | ❌ упало 2 из 125 | 6 мин 31 с | fda1acf +6 | [лог](logs/2026-09-28T20-54-24Z-e2e-e97b.log) | главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам |
+| 29.09.2026 02:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/workspace.spec.ts:606) | ✅ 4 из 4 | 14 с | fda1acf +8 | [лог](logs/2026-09-28T21-01-23Z-e2e-bd1f.log) |  |
+| 29.09.2026 02:04 | typecheck | ✅ без ошибок | 23 с | fda1acf +9 | [лог](logs/2026-09-28T21-04-40Z-typecheck-857a.log) |  |
+| 29.09.2026 02:05 | lint | ✅ без ошибок | 12 с | fda1acf +9 | [лог](logs/2026-09-28T21-05-04Z-lint-a49b.log) |  |

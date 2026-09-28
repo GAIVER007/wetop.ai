@@ -3931,3 +3931,10 @@
 | 29.09.2026 02:10 | integration | ✅ 122 из 122 | 41 с | 37fc796 +3 | [лог](logs/2026-09-28T21-10-37Z-integration-8946.log) | main 37fc7963 + запирание онбординга |
 | 29.09.2026 02:11 | e2e | ✅ 25 из 25 | 1 мин 4 с | 37fc796 +2 | [лог](logs/2026-09-28T21-11-50Z-e2e-86fa.log) | main 37fc7963 + запирание онбординга: живой e2e |
 | 29.09.2026 02:12 | e2e | ✅ 26 из 26 | 1 мин 13 с | 37fc796 +2 | [лог](logs/2026-09-28T21-12-55Z-e2e-8638.log) | main 37fc7963 + запирание: E2E_AUTH=1, API ролью wetop_app |
+| 29.09.2026 01:30 | integration | ✅ 119 из 119 | 33 с | 5ca8f84 | [лог](logs/2026-09-28T20-30-38Z-integration-f9a1.log) | main 4f233a68 после вливания PR #124 |
+| 29.09.2026 01:31 | e2e | ✅ 25 из 25 | 56 с | 5ca8f84 | [лог](logs/2026-09-28T20-31-36Z-e2e-5e4a.log) | main 4f233a68 после вливания PR #124: живые e2e, свежий стенд |
+| 29.09.2026 01:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 564 | 42 мин 27 с | 5ca8f84 | [лог](logs/2026-09-28T20-32-39Z-e2e-d7e2.log) | main 4f233a68 после вливания PR #124: полный UI-набор в один поток |
+| 29.09.2026 02:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts) | ✅ 4 из 4 | 17 с | 5ca8f84 +1 | [лог](logs/2026-09-28T21-15-57Z-e2e-905f.log) | record-tabs: вкладка гостя «Финансы» (G5) вместо «Счета и услуги» |
+| 29.09.2026 02:17 | typecheck | ✅ без ошибок | 30 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-01Z-typecheck-3ed3.log) | record-tabs на main 5ff088c0 |
+| 29.09.2026 02:17 | lint | ✅ без ошибок | 16 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-32Z-lint-7011.log) | record-tabs на main 5ff088c0 |
+| 29.09.2026 02:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/categories-safe-edit.spec.ts tests/ui/categories-create. | ✅ 6 из 6 | 41 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-48Z-e2e-00c2.log) | main 5ff088c0: record-tabs с «Финансами», категории C3–C4a |

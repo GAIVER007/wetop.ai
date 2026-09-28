@@ -78,9 +78,10 @@ test('ссылка с другой страницы открывает вкла�
   page,
 }) => {
   await page.goto('/guests/ui-guest');
+  // вкладка карточки гостя со счетами проживаний — «Финансы» с G5 (PR #122), до неё звалась «Счета и услуги»
   await page
     .getByRole('tablist', { name: 'Разделы карточки гостя' })
-    .getByRole('tab', { name: 'Счета и услуги', exact: true })
+    .getByRole('tab', { name: 'Финансы', exact: true })
     .click();
   const link = page.getByRole('main').locator(`a[href="/reservations/${BOOKING}#booking-finance"]`);
   await link.click();

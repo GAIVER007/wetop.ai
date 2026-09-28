@@ -201,7 +201,7 @@ test('продление за край: «до даты, +ночи, +сумма�
 }) => {
   const arrival = await openWeek(page, request);
   // последняя ночь — третья; ночь через одну после неё закрыта: +1 ночь можно, +2 — нет
-  expect((await block(request, 'R02', add(arrival, 4), add(arrival, 4))).ok()).toBe(true);
+  expect((await block(request, 'R02', add(arrival, 4), add(arrival, 5))).ok()).toBe(true);
   await page.reload();
   const row = unitRow(page, 'R02');
   const handle = row.locator('.board-stay-resize');

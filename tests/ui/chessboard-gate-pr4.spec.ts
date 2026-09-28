@@ -41,7 +41,7 @@ for (const theme of ['light', 'dark'] as const) {
     // закрытые ночи: R06 на время брони, R02 — через ночь после выезда (конфликт продления)
     for (const [unit, from, to] of [
       ['R06', arrival, add(arrival, 3)],
-      ['R02', add(arrival, 4), add(arrival, 4)],
+      ['R02', add(arrival, 4), add(arrival, 5)],
     ] as const)
       await request.post(`${fixture}/units/${unit}/blocks`, {
         headers,

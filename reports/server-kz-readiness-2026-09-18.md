@@ -14,7 +14,7 @@
 | Что упоминает документ | Состояние |
 |---|---|
 | `deploy/compose.yml` | **нет.** Папки `deploy/` нет ни в рабочей копии, ни в истории: `git log --all --diff-filter=A -- 'deploy/*'` пуст |
-| `Dockerfile` для api / web / exely-sync | **нет.** В дереве один Dockerfile — `scripts/ops/watch/Dockerfile` (сторож на Hostinger, срез 12), к PMS отношения не имеет |
+| `Dockerfile` для api / web / retired-source-sync | **нет.** В дереве один Dockerfile — `scripts/ops/watch/Dockerfile` (сторож на Hostinger, срез 12), к PMS отношения не имеет |
 | `tests/unit/deploy-server.test.ts` (строка «это ловит…» в таблице §7) | **нет** |
 | `plans/server-kz-2026-09-17.md` — план, продолжением которого объявлен документ | **нет.** Есть только разбор площадок `docs/ops/server-kz-2026-09-16.md` |
 | `deploy/cloudflared/` | **нет** |
@@ -83,11 +83,11 @@ gui/$(id -u)/kz.luxx.pms.api`, `lsof -nP -tiTCP`, `ps eww`. На Ubuntu в ко�
 §5 предупреждает «в выгрузке настоящие ПД гостей». На деле dev-БД в Supabase анонимизирована
 (ADR-018, `CLAUDE.md`: «только анонимизированные ПД»), `PII_STORAGE` там пуст, гости каналов записаны
 псевдонимами. Значит копия даст новой базе те же псевдонимы, и после §6 всё равно понадобится
-полный импорт из Exely с `PII_STORAGE=real` на базе в РК — иначе условие допуска №3 `CUTOVER.md`
+полный импорт из архивный источник с `PII_STORAGE=real` на базе в РК — иначе условие допуска №3 `CUTOVER.md`
 формально выполнено, а настоящих имён в базе нет.
 
 Это меняет порядок шагов: либо (а) копируем dev как есть, ставим `PII_STORAGE=real` и переливаем
-данные импортом из Exely заново, либо (б) не копируем вовсе, а разворачиваем базу миграциями и
+данные импортом из архивный источник заново, либо (б) не копируем вовсе, а разворачиваем базу миграциями и
 наполняем импортом. Развилка для владельца — в коде она ничего не требует.
 
 Что в §5 верно и проверено: схему действительно нужно ставить миграциями, а не дампом. Сериалов и
@@ -113,7 +113,7 @@ gui/$(id -u)/kz.luxx.pms.api`, `lsof -nP -tiTCP`, `ps eww`. На Ubuntu в ко�
 - **Стойка (`web`).** В `apps/web/next.config.ts` нет `output: 'standalone'`, значит образ тянет
   весь `node_modules` монорепозитория. Работать будет, собираться долго; на машине с 4 ГБ сборка
   Next может не уложиться в память — это проверяется только на настоящем сервере.
-- **`exely-sync`.** Сегодня это задача launchd (`scripts/ops/launchd/install.sh exely-sync`,
+- **`retired-source-sync`.** Сегодня это задача launchd (`scripts/ops/launchd/install.sh retired-source-sync`,
   ADR-032) раз в 15 минут. В compose ей нужен свой контейнер с расписанием и `DATABASE_POOL_MAX=1`.
   Как именно — не описано.
 - **Сторож (срез 11)** живёт внутри API и раз в минуту дёргает `launchctl kickstart` для класса А
@@ -127,7 +127,7 @@ gui/$(id -u)/kz.luxx.pms.api`, `lsof -nP -tiTCP`, `ps eww`. На Ubuntu в ко�
 
 1. Записать ответ владельца на Q-070а в `QUESTIONS.md` и `CUTOVER.md` (условие допуска №1).
 2. Сделать «шаг 0» настоящим: план `plans/server-kz-2026-09-17.md`, папка `deploy/`
-   (Dockerfile api / web, compose с `api`, `web`, `exely-sync`, местом под `cloudflared`),
+   (Dockerfile api / web, compose с `api`, `web`, `retired-source-sync`, местом под `cloudflared`),
    тест `tests/unit/deploy-server.test.ts` на манифесты рабочих пакетов в образе.
 3. Три правки кода, каждая с тестом red → green: настоящий `GET /health`; настраиваемый адрес
    прослушивания API; серверный вариант выключателя ARI.

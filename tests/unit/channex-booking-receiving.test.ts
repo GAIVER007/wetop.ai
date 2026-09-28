@@ -20,11 +20,7 @@ import { describe, expect, it } from 'vitest';
 const ROOT = resolve(import.meta.dirname, '../..');
 const DIRS = ['apps/api/src', 'packages/integrations/src', 'scripts'];
 
-/** Исключения — с причиной. Это не путь приёма брони; на объекте сертификации во время проверки не запускать. */
-const ALLOWED_LIST: Record<string, string> = {
-  'scripts/reconciliation/src/cli-rollback-window.ts':
-    'сверка окна отката (CUTOVER.md, шаг 6): нужны и подтверждённые ревизии за окно, а лента отдаёт только неподтверждённые',
-};
+const ALLOWED_LIST: Record<string, string> = {};
 
 /** Только исполняемое: в пояснениях те же пути стоят намеренно. `https://` не комментарий. */
 const withoutComments = (src: string): string =>

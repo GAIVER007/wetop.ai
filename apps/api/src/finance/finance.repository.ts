@@ -23,7 +23,7 @@ export type PaymentMethod =
   | 'DEPOSIT'
   | 'HALYK'
   | 'KASPI';
-/** 9 способов оплаты из справочника Exely (DATA_MODEL §6) */
+/** Поддерживаемые способы оплаты (DATA_MODEL §6). */
 export const PAYMENT_METHODS: readonly PaymentMethod[] = [
   'CASH',
   'CARD_TERMINAL',

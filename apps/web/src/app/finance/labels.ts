@@ -8,7 +8,7 @@ export const METHOD_RU: Record<string, string> = {
   BANK_TRANSFER_LEGAL: 'Перевод от юрлица',
   DEPOSIT: 'Депозит',
   CARD_GUARANTEE: 'Гарантия картой',
-  EXTERNAL: 'Внешний (канал / Exely)',
+  EXTERNAL: 'Внешний канал',
 };
 
 /** Тип и статус операции словами: «оплата» — она, «возврат» — он */

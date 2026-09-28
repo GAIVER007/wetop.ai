@@ -19,14 +19,14 @@ const fakeRepo: ChessboardRepository = {
         id: 'u1',
         code: '9001',
         kind: 'ROOM',
-        accommodationTypeCode: 'exely-900001',
+        accommodationTypeCode: 'category-single',
         accommodationTypeName: 'Тестовая одиночная',
       },
       {
         id: 'u2',
         code: '9010',
         kind: 'BED',
-        accommodationTypeCode: 'exely-900003',
+        accommodationTypeCode: 'category-dorm',
         accommodationTypeName: 'Тестовый dorm',
       },
     ];
@@ -54,7 +54,7 @@ const fakeRepo: ChessboardRepository = {
     return from <= '2026-09-20' && toExclusive > '2026-09-20'
       ? [
           {
-            accommodationTypeCode: 'exely-900003',
+            accommodationTypeCode: 'category-dorm',
             arrivalDate: '2026-09-20',
             departureDate: '2026-09-21',
           },
@@ -67,7 +67,7 @@ const fakeRepo: ChessboardRepository = {
       ? [
           {
             confirmationNumber: 'U-1',
-            categoryCode: 'exely-900003',
+            categoryCode: 'category-dorm',
             categoryName: 'Тестовый dorm',
             arrivalDate: '2026-09-20',
             departureDate: '2026-09-21',
@@ -99,7 +99,7 @@ const fakeRepo: ChessboardRepository = {
       items: [
         {
           id: 'i1',
-          accommodationTypeCode: 'exely-900003',
+          accommodationTypeCode: 'category-dorm',
           accommodationTypeName: 'Тестовый dorm',
           arrivalDate: '2026-09-10',
           departureDate: '2026-09-12',
@@ -139,8 +139,8 @@ describe('GET /chessboard, GET /reservations/:number', () => {
       .expect(200);
     // в dorm две койки физически свободны, но одно проживание без ячейки уже продано
     // в фальшивке у dorm одна койка (u2), она свободна на 20.09, но проживание без ячейки уже продано
-    expect(res.body.byCategory['exely-900003']).toMatchObject({ units: 1, available: 0 });
-    expect(res.body.byCategory['exely-900003'].availableUnitCodes).toHaveLength(1);
+    expect(res.body.byCategory['category-dorm']).toMatchObject({ units: 1, available: 0 });
+    expect(res.body.byCategory['category-dorm'].availableUnitCodes).toHaveLength(1);
   });
 
   it('returns rows × dates with states and per-day summary', async () => {
@@ -163,7 +163,7 @@ describe('GET /chessboard, GET /reservations/:number', () => {
     expect(res.body.unassigned).toEqual([
       {
         confirmationNumber: 'U-1',
-        categoryCode: 'exely-900003',
+        categoryCode: 'category-dorm',
         categoryName: 'Тестовый dorm',
         arrivalDate: '2026-09-20',
         departureDate: '2026-09-21',
@@ -192,12 +192,12 @@ describe('GET /chessboard, GET /reservations/:number', () => {
       .get('/availability?arrival=2026-09-10&departure=2026-09-12')
       .expect(200);
     expect(a.body.nights).toBe(2);
-    expect(a.body.byCategory['exely-900003']).toEqual({
+    expect(a.body.byCategory['category-dorm']).toEqual({
       units: 1,
       available: 0,
       availableUnitCodes: [],
     });
-    expect(a.body.byCategory['exely-900001']).toEqual({
+    expect(a.body.byCategory['category-single']).toEqual({
       units: 1,
       available: 1,
       availableUnitCodes: ['9001'],

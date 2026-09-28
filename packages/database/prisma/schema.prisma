@@ -6,7 +6,7 @@
 //
 // Соглашения: имена таблиц и колонок — snake_case через @map; id — uuid;
 // события — timestamptz (UTC); stay dates — DATE в timezone объекта (AGENTS.md §13).
-// Внешние ID Exely хранятся как ссылки (exely_*), не как собственные ключи (ADR-003).
+// Внешние ID действующих каналов хранятся как ссылки, не как собственные ключи (ADR-003, ADR-118).
 
 generator client {
   provider = "prisma-client"
@@ -174,8 +174,6 @@ model AccommodationType {
   /// На объекте у всех 0: детское размещение выключено
   capacityChildren Int               @default(0) @map("capacity_children")
   active           Boolean           @default(true)
-  /// ID категории в Exely (например 5074312) — внешняя ссылка, ADR-003
-  exelyId          String?           @map("exely_id")
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -188,7 +186,6 @@ model AccommodationType {
   channelMappings ChannelMapping[]
 
   @@unique([propertyId, code])
-  @@unique([propertyId, exelyId])
   @@map("accommodation_types")
 }
 
@@ -216,7 +213,7 @@ enum InventoryUnitKind {
   BED
 }
 
-/// Статус уборки по Exely: «Грязно», «Убрано», «Проверено». Ремонт/вывод из продажи — InventoryBlock.
+/// Рабочий статус уборки. Ремонт/вывод из продажи — InventoryBlock.
 enum HousekeepingStatus {
   DIRTY
   CLEAN
@@ -236,8 +233,6 @@ model InventoryUnit {
   code                String
   housekeepingStatus  HousekeepingStatus @default(DIRTY) @map("housekeeping_status")
   active              Boolean            @default(true)
-  /// «№ комнаты в Exely» (1…88) — внешняя ссылка, ADR-003. Из него ничего не выводится.
-  exelyRoomNumber     String?            @unique @map("exely_room_number")
   createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -277,8 +272,7 @@ enum ReservationStatus {
 }
 
 /// Шапка брони (коммерческая бронь). Статус — производный от проживаний (v0.3), хранится для выборок.
-/// `confirmationNumber` у перенесённых броней = номер брони в Exely (20260802-513903-…): один
-/// бизнес-ключ для идемпотентного импорта (ADR-003, ADR-007).
+/// `confirmationNumber` — бизнес-ключ брони внутри объекта (ADR-003, ADR-007).
 model Reservation {
   id                 String            @id @default(uuid()) @db.Uuid
   propertyId         String            @map("property_id") @db.Uuid
@@ -318,7 +312,7 @@ model Reservation {
 }
 
 /// Проживание (room stay): одна ячейка на весь период (ADR-013; `quantity` убран, v0.3).
-/// Статус ведётся здесь: no-show, переселение и счёт в Exely — на уровне проживания.
+/// Статус ведётся здесь: no-show, переселение и счёт — на уровне проживания.
 model ReservationItem {
   id                  String            @id @default(uuid()) @db.Uuid
   reservationId       String            @map("reservation_id") @db.Uuid
@@ -328,13 +322,11 @@ model ReservationItem {
   /// integer minor units (тиын), ADR-008
   price               BigInt
   status              ReservationStatus
-  /// Тариф проживания (Q-102); null — перенесено из Exely, где тариф на проживании не отдаётся
+  /// Тариф проживания (Q-102); null — тариф ещё не назначен
   ratePlanId          String?           @map("rate_plan_id") @db.Uuid
   /// Гостей на проживании (Q-102): occupancy для цены и штрафа
   adults              Int               @default(1)
   children            Int               @default(0)
-  /// pmsRoomStayId в Exely — внешняя ссылка для идемпотентного импорта (ADR-003)
-  exelyRoomStayId     String?           @unique @map("exely_room_stay_id")
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -410,8 +402,6 @@ model Guest {
   phone         String?
   email         String?
   notes         String?
-  /// pmsPersonId в Exely — внешняя ссылка (ADR-003)
-  exelyPersonId String?   @unique @map("exely_person_id")
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -501,11 +491,9 @@ model RatePlan {
   currency            String              @db.Char(3)
   mealPlan            String?             @map("meal_plan")
   active              Boolean             @default(true)
-  /// ID тарифа в Exely (например 10157482) — внешняя ссылка, ADR-003
-  exelyId             String?             @map("exely_id")
-  /// Пометка импорта: каналы, к которым тариф привязан в Exely (справочно, не бизнес-логика)
+  /// Служебная заметка тарифа; не участвует в расчётах
   note                String?
-  /// Штраф при отмене/незаезде (Q-103); умолчание — правило Exely «стоимость первых суток»
+  /// Штраф при отмене/незаезде (Q-103); умолчание — стоимость первых суток
   cancellationPenalty CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
   createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -519,7 +507,6 @@ model RatePlan {
   trackedSites    TrackedSite[]
 
   @@unique([propertyId, code])
-  @@unique([propertyId, exelyId])
   @@map("rate_plans")
 }
 
@@ -711,7 +698,7 @@ model ChannelOutbox {
 
 // ───────────────────────── §6 Folio (финансы) ─────────────────────────
 
-/// Штраф при отмене и незаезде — политика тарифа (Q-103): правило Exely «первые сутки» для всех тарифов
+/// Штраф при отмене и незаезде — политика тарифа (Q-103): «первые сутки» по умолчанию
 enum CancellationPenalty {
   NONE
   FIRST_NIGHT
@@ -730,7 +717,7 @@ enum ChargeKind {
   ADJUSTMENT
 }
 
-/// 9 способов оплаты из справочника Exely (spravochniki.md §9); дубль «Наличными через кассу» сведён в CASH (Q-083).
+/// Способы оплаты WETOP; «Наличными через кассу» сведено в CASH (Q-083).
 enum PaymentMethod {
   CASH
   CARD_TERMINAL
@@ -818,7 +805,7 @@ model Payment {
   amount            BigInt
   currency          String        @db.Char(3)
   status            PaymentStatus @default(COMPLETED)
-  /// exely:<roomStayId> для перенесённых платежей; ссылка банка/канала для живых
+  /// Ссылка банка/канала для внешних платежей
   externalReference String?       @map("external_reference")
   note              String?
   paidAt            DateTime      @default(now()) @map("paid_at") @db.Timestamptz(6)

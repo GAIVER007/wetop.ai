@@ -1489,7 +1489,7 @@ Backend выполняет бизнес-операцию транзакцион�
 17. Ошибки backend показываются человеческим текстом.
 18. Все изменения продолжают аудитироваться.
 19. Existing Hospitality tests остаются зелёными.
-20. Channex/Exely reconciliation не меняется.
+20. Channex/архивный источник reconciliation не меняется.
 21. Существующие Reservation/Allocation ID не меняются.
 22. Light/dark theme не ломаются.
 23. При refresh не сбрасывается рабочий контекст пользователя.

@@ -92,8 +92,12 @@ exit 0
     '#!/usr/bin/env bash\necho "curl $*" >> "$FAKE_CALLS.curl"\n' +
       'if [[ " $* " == *" --config - "* ]]; then cat >> "$FAKE_CALLS.curl.stdin"; fi\nexit 0\n',
   );
+  // auto-deploy runs on Linux, where util-linux provides flock. The test suite also runs on macOS,
+  // so keep the server dependency inside the fake PATH instead of silently skipping every scenario.
+  writeFileSync(join(bin, 'flock'), '#!/usr/bin/env bash\nexit 0\n');
   chmodSync(join(bin, 'docker'), 0o755);
   chmodSync(join(bin, 'curl'), 0o755);
+  chmodSync(join(bin, 'flock'), 0o755);
 });
 
 afterEach(() => rmSync(dir, { recursive: true, force: true }));

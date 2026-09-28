@@ -1,34 +1,23 @@
 import Link from 'next/link';
-import { ApiError, financeApi, type PeriodReport } from '../../lib/api';
-import { deskShell } from '../../lib/desk-shell';
+import { ApiError, financeApi } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
 import { Alert, Fact, Grid, Panel } from '../../components/ui';
 import { loadDeskDay } from './desk-section';
 
-function shift(date: string, days: number): string {
-  return new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
-}
-
-const report = (from: string) =>
-  financeApi.report(from, from).catch((error: unknown) => {
-    if (error instanceof ApiError) return error;
-    throw error;
-  });
-
 /**
  * Деньги дня (A2, план `plans/today-a2-2026-09-28.md` §3.4): отчёт финансов за один день — тот же расчёт,
  * что на «Финансах», своих формул нет. «К оплате» — `debtMinor` стойки, то же число, что плитка полосы
- * «На стойке» (день уже загружен — `loadDeskDay` из кэша отрисовки). Сравнение с прошлыми днями — только
- * владельцу: оно про выручку, а не про работу смены.
+ * «На стойке» (день уже загружен — `loadDeskDay` из кэша отрисовки). Сравнения с прошлыми днями здесь нет:
+ * два отчёта за D−1 и D−7 не помещаются в бюджет экрана (десять рейсов, `tests/ui/requests.spec.ts`) —
+ * пробел плана §3.4, сравнение периодов живёт на «Показателях за период».
  */
 export async function MoneyToday({ date }: { date: string }) {
-  const { access } = await deskShell();
-  const owner = access.role === 'OWNER' || access.role === null;
-  const [today, yesterday, weekAgo, day] = await Promise.all([
-    report(date),
-    owner ? report(shift(date, -1)) : null,
-    owner ? report(shift(date, -7)) : null,
+  const [today, day] = await Promise.all([
+    financeApi.report(date, date).catch((error: unknown) => {
+      if (error instanceof ApiError) return error;
+      throw error;
+    }),
     loadDeskDay(date),
   ]);
   if (today instanceof ApiError)
@@ -40,12 +29,6 @@ export async function MoneyToday({ date }: { date: string }) {
       </Panel>
     );
   const money = (minor: string) => formatMoney(minor, today.currency);
-  const paid = (r: PeriodReport | ApiError | null) =>
-    r && !(r instanceof ApiError) ? money(r.paidMinor) : null;
-  const compare = [
-    { label: 'вчера', value: paid(yesterday) },
-    { label: 'неделю назад', value: paid(weekAgo) },
-  ].filter((c): c is { label: string; value: string } => c.value !== null);
   return (
     <Panel title="Деньги сегодня" aria-label="Деньги сегодня" className="fund-panel">
       <Grid min={120} gap="sm">
@@ -59,16 +42,6 @@ export async function MoneyToday({ date }: { date: string }) {
         />
       </Grid>
       <p className="fund-note">проживание начисляется в день заезда целиком</p>
-      {compare.length > 0 && (
-        <p className="money-compare" data-testid="money-compare">
-          <span>Оплачено</span>
-          {compare.map((c) => (
-            <span key={c.label}>
-              {c.label} {c.value}
-            </span>
-          ))}
-        </p>
-      )}
       <div className="fund-footer">
         <Link className="card-heading__link" href={`/finance?from=${date}&to=${date}`}>
           Финансы

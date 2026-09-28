@@ -27,7 +27,7 @@ const asClient = { headers: { 'x-wetop-test-client': '1' } };
 const digits = (text: string) => text.replace(/\D/g, '');
 const tenge = (minor: string) => String(BigInt(minor) / 100n);
 
-/** Сравнение денег видит владелец; сотрудником стенд делает только вошедшего (`/auth/me` без входа — роли нет) */
+/** Сотрудником стенд делает только вошедшего: `/auth/me` без входа — роли нет */
 async function signIn(page: Page) {
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
@@ -131,7 +131,7 @@ test('уборка — только на сегодня: на другой де�
   await expect(care.getByTestId('housekeeping-dirty')).toHaveCount(0);
 });
 
-test('деньги сегодня: числа отчёта за день, «к оплате» — то же, что плитка; сравнение — владельцу', async ({
+test('деньги сегодня: числа отчёта за день, «к оплате» — то же, что плитка; видно и сотруднику', async ({
   page,
   request,
 }) => {
@@ -158,12 +158,12 @@ test('деньги сегодня: числа отчёта за день, «к �
     'href',
     `/finance?from=${d.date}&to=${d.date}`,
   );
-  await expect(money.getByTestId('money-compare')).toContainText('вчера');
+  // сравнения с D−1 и D−7 нет: два отчёта сверх бюджета экрана (план §3.4, requests.spec) — не выдумываем
+  await expect(money).not.toContainText('вчера');
 
   await request.post(`${fixture}/__test/control`, { data: { role: 'STAFF' } });
   await page.goto('/today');
   await expect(page.getByRole('region', { name: 'Деньги сегодня' }).getByTestId('money-paid')).toBeVisible();
-  await expect(page.getByTestId('money-compare')).toHaveCount(0);
 });
 
 test('системы: Channex, продавец и сторож одной строкой каждый; сайта как данных нет', async ({ page }) => {

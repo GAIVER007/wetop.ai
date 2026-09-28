@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
-import { type DeskDay, type DeskRow } from '../../lib/api';
+import { ApiError, type DeskDay, type DeskRow } from '../../lib/api';
+import { hotelApi } from '../../lib/hotel-api';
 import { formatMoney } from '../../lib/money';
 import { Icon } from '../../components/icon';
 import { Panel, PanelTitle } from '../../components/ui';
@@ -9,18 +11,30 @@ const ROWS = 6;
 
 const waiting = (r: DeskRow) => r.status === 'CONFIRMED' || r.status === 'TENTATIVE';
 
-export interface HotelHours {
-  checkIn: string;
-  checkOut: string;
+/**
+ * Часы заезда и выезда объекта в заголовке колонки. Свой кусок: строки дня не ждут настроек гостиницы
+ * (`tests/ui/loading-performance.spec.ts`); запрос тот же закэшированный, что у шапки, — нового рейса нет.
+ */
+async function HotelHour({ kind }: { kind: 'in' | 'out' }) {
+  const hotel = await hotelApi.settings().catch((error: unknown) => {
+    if (error instanceof ApiError) return null;
+    throw error;
+  });
+  if (!hotel) return null;
+  return (
+    <span className="day-events__time">
+      {kind === 'in' ? `с ${hotel.property.checkInTime}` : `до ${hotel.property.checkOutTime}`}
+    </span>
+  );
 }
 
 /**
  * Заезды и выезды дня (A2, ТЗ `plans/tz-today-2026-09-27.md` §4, план `plans/today-a2-2026-09-28.md` §3.1).
  * Только то, что уже пришло с `/desk/today`: новых вызовов нет. Действие — ссылка в существующий поток
  * (шахматка, карточка брони); заселения из строки в A2 нет — это вопрос владельцу (план §8).
- * Времени у брони нет — в заголовке часы объекта, строки идут в порядке API.
+ * Времени у брони нет — в заголовке часы объекта (свой кусок), строки идут в порядке API.
  */
-export function DayEvents({ day, hours }: { day: DeskDay; hours: HotelHours | null }) {
+export function DayEvents({ day }: { day: DeskDay }) {
   const arrivals = day.arrivals.filter(waiting);
   const settled = day.arrivals.length - arrivals.length;
   const leaving = day.departures.filter((r) => r.status === 'CHECKED_IN');
@@ -37,7 +51,9 @@ export function DayEvents({ day, hours }: { day: DeskDay; hours: HotelHours | nu
           <span className="day-events__title">
             <Icon name="arrival" width={16} />
             Заезды
-            {hours ? <span className="day-events__time">с {hours.checkIn}</span> : null}
+            <Suspense fallback={null}>
+              <HotelHour kind="in" />
+            </Suspense>
           </span>
         </PanelTitle>
         <EventList
@@ -69,7 +85,9 @@ export function DayEvents({ day, hours }: { day: DeskDay; hours: HotelHours | nu
           <span className="day-events__title">
             <Icon name="departure" width={16} />
             Выезды
-            {hours ? <span className="day-events__time">до {hours.checkOut}</span> : null}
+            <Suspense fallback={null}>
+              <HotelHour kind="out" />
+            </Suspense>
           </span>
         </PanelTitle>
         <EventList

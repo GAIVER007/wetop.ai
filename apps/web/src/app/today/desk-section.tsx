@@ -1,6 +1,5 @@
 import { cache } from 'react';
 import { ApiError, chessboardApi, deskApi } from '../../lib/api';
-import { hotelApi } from '../../lib/hotel-api';
 import { Alert, Panel } from '../../components/ui';
 import { DayAttention } from './day-attention';
 import { QuickActions } from './dashboard-widgets';
@@ -32,11 +31,6 @@ export async function DeskSection({ date, today }: { date: string; today: string
       if (error instanceof ApiError) return null;
       throw error;
     }),
-    // Часы заезда и выезда объекта для заголовков «Заезды» и «Выезды»: тот же закэшированный запрос, что у шапки
-    hotelApi.settings().catch((error: unknown) => {
-      if (error instanceof ApiError) return null;
-      throw error;
-    }),
   ]).catch((error: unknown) => {
     if (error instanceof ApiError) return error;
     throw error;
@@ -48,10 +42,7 @@ export async function DeskSection({ date, today }: { date: string; today: string
         Стойка на {date} не загрузилась: {result.message} Обновите страницу.
       </Alert>
     );
-  const [day, board, hotel] = result;
-  const hours = hotel
-    ? { checkIn: hotel.property.checkInTime, checkOut: hotel.property.checkOutTime }
-    : null;
+  const [day, board] = result;
   const isToday = date === today;
   return (
     <>
@@ -61,7 +52,7 @@ export async function DeskSection({ date, today }: { date: string; today: string
         <QuickActions day={day} />
       </div>
       {/* A2 (план `plans/today-a2-2026-09-28.md`): день уже загружен — новых вызовов у этих блоков нет */}
-      <DayEvents day={day} hours={hours} />
+      <DayEvents day={day} />
       <div className="dash-grid dash-grid--events">
         <FundPanel day={day} board={board} isToday={isToday} />
         <CarePanel date={date} board={board} isToday={isToday} />

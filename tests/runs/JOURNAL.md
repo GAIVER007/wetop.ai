@@ -44,3 +44,8 @@
 | 28.09.2026 22:56 | e2e | ❌ упало 2 из 25 | 4 мин 42 с | cca172c | [лог](logs/2026-09-28T17-56-12Z-e2e-9bda.log) | cleanup P1: слитое дерево с main e0ac75f (ADR-118), свежая сборка web |
 | 28.09.2026 23:01 | e2e | ❌ упало 2 из 26 | 4 мин 43 с | cca172c | [лог](logs/2026-09-28T18-01-36Z-e2e-865b.log) | cleanup P1: слитое дерево (ADR-118), E2E_AUTH=1, API ролью wetop_app |
 | 28.09.2026 23:06 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ❌ упало 2 из 3 | 4 мин 9 с | e0ac75f | [лог](logs/2026-09-28T18-06-31Z-e2e-0e49.log) | контроль: чистый main e0ac75f — finance и full-day без правки cleanup |
+| 29.09.2026 00:32 | typecheck | ✅ без ошибок | 23 с | b26c218 | [лог](logs/2026-09-28T19-32-12Z-typecheck-5f2e.log) | AN2 merged with main #132, before merging PR #128 |
+| 29.09.2026 00:32 | lint | ✅ без ошибок | 16 с | b26c218 | [лог](logs/2026-09-28T19-32-35Z-lint-a107.log) | AN2 merged with main #132 |
+| 29.09.2026 00:32 | unit | ✅ 2151 из 2154, пропущено 3 | 1 мин 16 с | b26c218 | [лог](logs/2026-09-28T19-32-52Z-unit-531b.log) | AN2 merged with main #132 |
+| 29.09.2026 00:34 | integration | ✅ 113 из 113 | 31 с | b26c218 | [лог](logs/2026-09-28T19-34-22Z-integration-d05a.log) | AN2 merged with main #132, fresh stand |
+| 29.09.2026 00:35 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | b26c218 | [лог](logs/2026-09-28T19-35-07Z-e2e-e57c.log) | AN2 merged with main #132: live e2e |

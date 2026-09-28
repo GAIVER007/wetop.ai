@@ -481,8 +481,9 @@ function SiteBookings({ report }: { report: SiteReport }) {
     <div data-testid="an-site-reservations">
       <SectionTitle first>Брони с сайта</SectionTitle>
       <Stats min={180}>
+        {/* Q-209 (правило владельца): одна Reservation — одна бронь; «Новые брони» — по дате создания */}
         <Stat
-          label="Брони"
+          label="Новые брони"
           value={String(r.count)}
           hint={lost.length ? `из них ${lost.join(', ')}` : undefined}
           testId="an-site-reservations-count"

@@ -82,7 +82,7 @@ async function SiteOverview({ card }: { card: TrackedSiteCard }) {
         value={report ? String(report.siteReservations.count) : '—'}
         data-testid="website-bookings"
       >
-        {report ? 'в этом месяце' : 'отчёт не загрузился'}
+        {report ? 'новые в этом месяце' : 'отчёт не загрузился'}
       </StateFact>
     </StateBar>
   );

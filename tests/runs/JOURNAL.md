@@ -3758,3 +3758,8 @@
 | 29.09.2026 01:09 | unit | ✅ 2194 из 2197, пропущено 3 | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-09-40Z-unit-60ae.log) |  |
 | 29.09.2026 01:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ⏹ прерван | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-11-14Z-e2e-bf11.log) |  |
 | 29.09.2026 01:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ✅ 31 из 31 | 2 мин 41 с | db0cb5b | [лог](logs/2026-09-28T20-13-03Z-e2e-1abd.log) |  |
+| 29.09.2026 01:18 | typecheck | ✅ без ошибок | 30 с | bc27444 +2 | [лог](logs/2026-09-28T20-18-16Z-typecheck-1262.log) |  |
+| 29.09.2026 01:18 | lint | ✅ без ошибок | 17 с | bc27444 +2 | [лог](logs/2026-09-28T20-18-46Z-lint-bff2.log) |  |
+| 29.09.2026 01:19 | unit | ✅ 2216 из 2219, пропущено 3 | 1 мин 19 с | bc27444 +2 | [лог](logs/2026-09-28T20-19-03Z-unit-af7d.log) |  |
+| 29.09.2026 01:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts) | ✅ 19 из 19 | 1 мин 34 с | bc27444 +2 | [лог](logs/2026-09-28T20-20-23Z-e2e-5105.log) |  |
+| 29.09.2026 01:22 | integration | ✅ 117 из 117 | 36 с | bc27444 | [лог](logs/2026-09-28T20-22-08Z-integration-1ff3.log) |  |

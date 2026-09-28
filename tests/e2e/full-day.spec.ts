@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
@@ -38,7 +39,7 @@ test('сутки гостя целиком: заезд, услуга на счё
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, arrival, departure));
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  const unitCode = await unitOption(unitSelect);
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-сутки');

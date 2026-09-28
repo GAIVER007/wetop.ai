@@ -205,6 +205,10 @@
 | 29.09.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts tests/ui/trial-read-only.spec.ts t | ✅ 84 из 84 | 5 мин 28 с | bf5d8f0 | [лог](logs/2026-09-28T19-55-16Z-e2e-1dcc.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
+| 29.09.2026 01:13 | e2e (частично: tests/e2e/chessboard-drag.spec.ts tests/e2e/desk-tasks.spec.ts tests/e2e/manual-reservation.spec.ts tests/e2e/stay-extras.spec.ts tests/e2e/unit- | ❌ упало 5 из 6 | 1 мин 54 с | e1adee8 | [лог](logs/2026-09-28T20-13-20Z-e2e-5138.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 01:15 | lint | ✅ без ошибок | 15 с | e1adee8 +9 | [лог](logs/2026-09-28T20-15-19Z-lint-6046.log) |  |
+| 29.09.2026 01:15 | typecheck | ✅ без ошибок | 19 с | e1adee8 +9 | [лог](logs/2026-09-28T20-15-35Z-typecheck-ae76.log) |  |
+| 29.09.2026 01:16 | e2e | ✅ 25 из 25 | 54 с | e1adee8 +9 | [лог](logs/2026-09-28T20-16-03Z-e2e-0d00.log) |  |
 | 29.09.2026 00:51 | typecheck | ✅ без ошибок | 31 с | 50a1ff8 | [лог](logs/2026-09-28T19-51-55Z-typecheck-71c0.log) |  |
 | 29.09.2026 00:52 | lint | ✅ без ошибок | 17 с | 50a1ff8 | [лог](logs/2026-09-28T19-52-26Z-lint-d6df.log) |  |
 | 29.09.2026 00:52 | unit | ✅ 2173 из 2176, пропущено 3 | 1 мин 24 с | 50a1ff8 | [лог](logs/2026-09-28T19-52-44Z-unit-a34c.log) |  |
@@ -233,3 +237,4 @@
 | 29.09.2026 01:09 | unit | ✅ 2194 из 2197, пропущено 3 | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-09-40Z-unit-60ae.log) |  |
 | 29.09.2026 01:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ⏹ прерван | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-11-14Z-e2e-bf11.log) |  |
 | 29.09.2026 01:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ✅ 31 из 31 | 2 мин 41 с | db0cb5b | [лог](logs/2026-09-28T20-13-03Z-e2e-1abd.log) |  |
+| 29.09.2026 01:18 | e2e | ✅ 25 из 25 | 55 с | 749de72 | [лог](logs/2026-09-28T20-18-25Z-e2e-b2ac.log) |  |

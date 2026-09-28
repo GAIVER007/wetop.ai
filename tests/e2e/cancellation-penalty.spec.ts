@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
@@ -74,7 +75,7 @@ test('отмена заранее — без штрафа, незаезд — с
     .locator('select[name="ratePlanCode"]')
     .selectOption(await ratePlanWithPenalty(request, 'FIRST_NIGHT'));
   const unit = f2.locator('select[name="unitCode"]');
-  await unit.selectOption((await unit.locator('option').nth(1).getAttribute('value'))!);
+  await unit.selectOption(await unitOption(unit));
   await f2.locator('input[name="firstName"]').fill('Гость');
   await f2.locator('input[name="lastName"]').fill('Тест-незаезд-штраф');
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты

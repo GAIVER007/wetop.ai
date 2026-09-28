@@ -249,3 +249,11 @@
 | 29.09.2026 01:09 | unit | ✅ 2194 из 2197, пропущено 3 | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-09-40Z-unit-60ae.log) |  |
 | 29.09.2026 01:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ⏹ прерван | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-11-14Z-e2e-bf11.log) |  |
 | 29.09.2026 01:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ✅ 31 из 31 | 2 мин 41 с | db0cb5b | [лог](logs/2026-09-28T20-13-03Z-e2e-1abd.log) |  |
+| 29.09.2026 01:18 | typecheck | ✅ без ошибок | 30 с | 1f1d7eb | [лог](logs/2026-09-28T20-18-42Z-typecheck-68c6.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:19 | lint | ✅ без ошибок | 16 с | 1f1d7eb | [лог](logs/2026-09-28T20-19-12Z-lint-99e4.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:19 | unit | ✅ 2197 из 2200, пропущено 3 | 1 мин 18 с | 1f1d7eb | [лог](logs/2026-09-28T20-19-28Z-unit-d0c9.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:21 | integration | ✅ 116 из 116 | 35 с | 1f1d7eb | [лог](logs/2026-09-28T20-21-03Z-integration-3e88.log) | R3 merged with main 33b89529 |
+| 29.09.2026 01:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ❌ упало 1 из 141 | 10 мин 16 с | 1f1d7eb | [лог](logs/2026-09-28T20-21-39Z-e2e-661f.log) | UI: reservations R1-R3, B3, tabs, workspace, availability, Today, guests, inventory on R3 merged with main 33b89529 |
+| 29.09.2026 01:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts:77) | ❌ упало 1 из 1 | 51 с | 33b8952 | [лог](logs/2026-09-28T20-32-15Z-e2e-9c04.log) | baseline: record-tabs:77 on clean main 33b89529 |
+| 29.09.2026 01:33 | e2e | ❌ упало 6 из 25 | 2 мин 11 с | 1f1d7eb | [лог](logs/2026-09-28T20-33-38Z-e2e-75b0.log) | live e2e, R3 merged with main 33b89529 |
+| 29.09.2026 01:36 | e2e (частично: tests/e2e/desk-day.spec.ts) | ❌ упало 1 из 2 | 12 с | 33b8952 | [лог](logs/2026-09-28T20-36-19Z-e2e-4e89.log) | baseline: desk-day on clean main 33b89529 |

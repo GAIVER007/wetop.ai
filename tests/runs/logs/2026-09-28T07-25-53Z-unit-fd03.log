@@ -1,0 +1,16 @@
+# Модульные (unit) · 28.09.2026 12:25 Алматы · vm
+# коммит 05fd47f (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T07-25-53Z-unit-fd03.json' 'apps/api/src/reservations/stay-offers.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/reservations/stay-offers.test.ts (6 tests) 267ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  07:25:54
+   Duration  2.42s (transform 66%, import 22%, tests 12%)
+
+JSON report written to /tmp/pms-test-2026-09-28T07-25-53Z-unit-fd03.json
+
+# код выхода 0 · 3 с

@@ -162,7 +162,8 @@ test('доступность переносит даты и свободное �
   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04');
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
-  await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
+  // первый свободный номер решает дата прогона: проживание стенда на R01 идёт «с сегодня» (TESTING.md)
+  await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R\d+/);
   await expect(
     page
       .getByRole('dialog', { name: 'Новая бронь', exact: true })
@@ -1414,7 +1415,11 @@ test('новая бронь: резюме выбора обновляется п
     '',
   );
   const unitSelect = first.getByLabel('Ячейка');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  // первая настоящая ячейка: до неё «назначить позже» и «Автоматически» (AV3, ADR-110)
+  const unitCode = (await unitSelect
+    .locator('option:not([value=""]):not([value="@auto"])')
+    .first()
+    .getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
   await expect(summary).toContainText(`ячейка ${unitCode}`);

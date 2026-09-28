@@ -248,7 +248,7 @@ test('аналитика и статистика: пустое состояни�
  * Настройки объекта: ошибки с повтором не скрывают навигацию; пустые значения — «—»,
  * справочники объясняют источник, загрузка обозначена текстом. Контент каналов не дублируется.
  */
-test('настройки гостиницы: сбой с повтором, пустые справочники с причиной, загрузка словом', async ({
+test('настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом', async ({
   page,
   request,
 }) => {
@@ -257,15 +257,16 @@ test('настройки гостиницы: сбой с повтором, пу�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // штрафы: подпись тарифа без « · »
+  // правила отмены ушли к тарифам (ADR-115): старый адрес — «Цены» со строкой правила, без кода тарифа
   await page.goto('/hotel-settings/penalties');
-  await expect(main.getByTestId('rate-plans-table')).toContainText('BASE, KZT');
-  await expect(main.getByTestId('rate-plans-table')).not.toContainText(' · ');
+  await expect(page).toHaveURL(/\/rates$/);
+  await expect(main.getByTestId('rate-plan-cancellation')).toContainText('стоимость первой ночи');
+  await expect(main.getByTestId('rate-plan-cancellation')).not.toContainText('BASE');
   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
   await page.goto('/hotel-settings');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки гостиницы');
-  await expect(main.getByRole('navigation', { name: 'Настройки гостиницы' })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
+  await expect(main.getByRole('navigation', { name: 'Настройки объекта' })).toBeVisible();
   const failure = main.getByTestId('settings-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
   await request.post(`${fixture}/__test/control`, { data: {} });
@@ -275,7 +276,7 @@ test('настройки гостиницы: сбой с повтором, пу�
   // отказ настроек на «Услугах»: сбой с повтором вместо общего экрана
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/services' } });
   await page.goto('/hotel-settings/services');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Услуги');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
   await expect(main.getByTestId('services-error')).toContainText(
     'Проверьте подключение и повторите запрос',
   );

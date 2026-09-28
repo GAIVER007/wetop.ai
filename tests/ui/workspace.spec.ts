@@ -57,11 +57,12 @@ test('все разделы, карточки и печать открывают
     ['/rooms', 'Номерной фонд'],
     ['/rooms/categories', 'Категории номеров'],
     ['/rooms/availability', 'Свободные места'],
-    ['/hotel-settings', 'Настройки гостиницы'],
-    ['/hotel-settings/check-in', 'Настройки гостиницы'],
-    ['/hotel-settings/penalties', 'Правила отмены'],
-    ['/hotel-settings/services', 'Услуги'],
-    ['/hotel-settings/description', 'Настройки гостиницы'],
+    ['/hotel-settings', 'Настройки объекта'],
+    ['/hotel-settings/check-in', 'Настройки объекта'],
+    ['/hotel-settings/stay', 'Настройки объекта'],
+    ['/hotel-settings/penalties', 'Цены и ограничения'],
+    ['/hotel-settings/services', 'Настройки объекта'],
+    ['/hotel-settings/description', 'Настройки объекта'],
     ['/hotel-settings/photos', 'Интеграции'],
     ['/hotel-settings/amenities', 'Интеграции'],
     ['/management/analytics', 'Аналитика'],
@@ -70,9 +71,19 @@ test('все разделы, карточки и печать открывают
     ['/channel-manager', 'Каналы продаж'],
     ['/connections', 'Интеграции'],
   ];
+  // Старые адреса — redirect(): у экрана загрузки «Настроек объекта» тот же заголовок, что у цели (ADR-115), поэтому
+  // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
+  const redirects: Record<string, RegExp> = {
+    '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
+    '/hotel-settings/penalties': /\/rates$/,
+    '/hotel-settings/description': /\/hotel-settings$/,
+    '/hotel-settings/photos': /\/connections#channex-connection$/,
+    '/hotel-settings/amenities': /\/connections#channex-connection$/,
+  };
   for (const [route, title] of routes) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(route!);
+    if (redirects[route!]) await expect(page).toHaveURL(redirects[route!]!);
     await expect(page.getByRole('heading', { level: 1 })).toContainText(title!);
     await noPageOverflow(page);
     if (
@@ -128,12 +139,13 @@ test('вложенные разделы: раскрытие, один актив
     'aria-expanded',
     'true',
   );
-  await menu.getByRole('link', { name: 'Гостиница', exact: true }).click();
+  await menu.getByRole('link', { name: 'Объект', exact: true }).click();
   await page
-    .getByRole('navigation', { name: 'Настройки гостиницы' })
+    .getByRole('navigation', { name: 'Настройки объекта' })
     .getByRole('link', { name: 'Услуги', exact: true })
     .click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Услуги');
+  await expect(page.getByTestId('services-table')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
   await expect(menu).not.toBeVisible();
   await noPageOverflow(page);
 });
@@ -760,7 +772,7 @@ test('настройки: подсказка про услуги ведёт во
   await expect(page.getByText('«Финансы»')).toHaveCount(0);
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toContainText('Сведения гостиницы в PMS');
+  await expect(page.getByTestId('stored-property')).toContainText('Основная информация');
   await expect(page.getByTestId('content-description')).toHaveCount(0);
 });
 
@@ -1017,7 +1029,7 @@ test('настройки услуг: путь к начислению назва
 test('общие настройки показывают адрес PMS без дублирования контента Channex', async ({ page }) => {
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
-  await expect(page.getByTestId('stored-property')).toContainText('Адрес в PMS');
+  await expect(page.getByTestId('stored-property')).toContainText('Тестовый адрес, 1');
   await expect(page.getByText('Адрес в Channex')).toHaveCount(0);
 });
 

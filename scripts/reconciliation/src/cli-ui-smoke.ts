@@ -23,7 +23,7 @@ const json = async <T>(path: string): Promise<T> => {
 const STATIC = [
   '/today', '/chessboard', '/guests', '/reservations/new',
   '/rooms', '/rooms/categories', '/rooms/availability', '/inventory', '/rates',
-  '/hotel-settings', '/hotel-settings/check-in', '/hotel-settings/penalties', '/hotel-settings/services',
+  '/hotel-settings', '/hotel-settings/check-in', '/hotel-settings/stay', '/hotel-settings/penalties', '/hotel-settings/services',
   '/hotel-settings/description', '/hotel-settings/photos', '/hotel-settings/amenities',
   '/management/analytics', '/management/analytics/occupancy', '/finance',
   '/channel-manager', '/channels', '/connections', '/analytics', '/analytics/setup',

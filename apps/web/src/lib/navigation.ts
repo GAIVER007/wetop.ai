@@ -214,17 +214,18 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/hotel-settings',
         requires: 'settings',
-        label: 'Настройки гостиницы',
-        shortLabel: 'Гостиница',
+        label: 'Настройки объекта',
+        shortLabel: 'Объект',
         icon: 'settings',
-        description: 'Правила проживания, услуги и информация об объекте.',
+        description: 'Сведения об объекте, часы заезда и выезда, услуги.',
+        // правила отмены — свойство тарифа, их место в «Тарифах» (ADR-115)
         children: [
           {
-            href: '/hotel-settings/penalties',
+            href: '/hotel-settings/stay',
             requires: 'settings',
-            label: 'Правила отмены',
-            icon: 'journal',
-            description: 'Политика отмены для каждого тарифного плана.',
+            label: 'Проживание',
+            icon: 'clock',
+            description: 'Время заезда и выезда.',
           },
           {
             href: '/hotel-settings/services',
@@ -335,7 +336,7 @@ export const sidebarSections: SidebarSection[] = [
     label: 'Настройки',
     icon: 'settings',
     items: [
-      menuItem('/hotel-settings', 'Гостиница'),
+      menuItem('/hotel-settings', 'Объект'),
       menuItem('/connections'),
       menuItem('/analytics/setup', 'Сайт'),
     ],

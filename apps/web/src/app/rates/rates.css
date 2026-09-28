@@ -330,3 +330,9 @@
 .rates-channel-hint--warn {
   color: var(--warning);
 }
+/* правило отмены выбранного тарифа (ADR-115) — подпись под фильтром, до «Тарифных планов» */
+.rates-rule {
+  margin: 0 0 var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}

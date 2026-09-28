@@ -2,8 +2,8 @@ import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-// Старые адреса /hotel-settings/{check-in,description,photos,amenities} — это redirect(), а не экраны:
-// их получатели («Настройки гостиницы», «Интеграции») в списке есть, а разбор переадресации живёт в
+// Старые адреса /hotel-settings/{check-in,description,penalties,photos,amenities} — это redirect(), а не экраны:
+// их получатели («Настройки объекта», «Цены», «Интеграции») в списке есть, а разбор переадресации живёт в
 // tests/ui/settings-simplification.spec.ts. Аудит на них ломался: докрутка к якорю после перехода
 // сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
@@ -24,7 +24,7 @@ const routes = [
   '/rates',
   '/finance',
   '/hotel-settings',
-  '/hotel-settings/penalties',
+  '/hotel-settings/stay',
   '/hotel-settings/services',
   '/management/analytics',
   '/management/analytics/occupancy',

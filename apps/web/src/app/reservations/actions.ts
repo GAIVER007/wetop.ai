@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import {
   ApiError,
+  guestsApi,
   reservationsApi,
   type CancelPreview,
   type ExtendPreview,
@@ -39,6 +40,7 @@ const KEPT = [
   'phone',
   'notes',
   'placementIds',
+  'guestId',
 ];
 const kept = (fd: FormData): Record<string, string> =>
   Object.fromEntries(
@@ -98,13 +100,18 @@ export async function createReservationAction(
       arrivalDate: str(fd, 'arrivalDate'),
       departureDate: str(fd, 'departureDate'),
       notes: str(fd, 'notes') ?? null,
-      guest: {
-        firstName: str(fd, 'firstName'),
-        lastName: str(fd, 'lastName'),
-        middleName: str(fd, 'middleName') ?? null,
-        email: str(fd, 'email') ?? null,
-        phone: str(fd, 'phone') ?? null,
-      },
+      // G6 (ТЗ «Гости v2» §33): выбран существующий гость — бронь на него, полей нового нет
+      ...(str(fd, 'guestId')
+        ? { guestId: str(fd, 'guestId') }
+        : {
+            guest: {
+              firstName: str(fd, 'firstName'),
+              lastName: str(fd, 'lastName'),
+              middleName: str(fd, 'middleName') ?? null,
+              email: str(fd, 'email') ?? null,
+              phone: str(fd, 'phone') ?? null,
+            },
+          }),
       items,
     });
     number = card.confirmationNumber;
@@ -113,6 +120,38 @@ export async function createReservationAction(
   }
   revalidatePath('/chessboard');
   redirect(`/reservations/${encodeURIComponent(number)}`);
+}
+
+/** Гость, которого форма брони предлагает выбрать (G6, ТЗ «Гости v2» §33–34) */
+export interface BookingGuest {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  /** визиты — проживания с заездом, как в списке гостей */
+  visits: number;
+}
+
+/**
+ * ТЗ «Гости v2» §34: набран полный телефон — сначала показать уже известных гостей, а не заводить
+ * нового. Поиск — тот же, что в списке гостей (своя организация, телефон по цифрам); выбирает
+ * человек, сам WETOP гостей не связывает. Сбой поиска — пустой список: бронь от него не зависит.
+ */
+export async function findGuestsByPhoneAction(phone: string): Promise<BookingGuest[]> {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 10) return [];
+  try {
+    const found = await guestsApi.directory({ q: digits, page: '1', pageSize: '3' });
+    return found.rows.map((g) => ({
+      id: g.id,
+      name: [g.lastName, g.firstName, g.middleName].filter(Boolean).join(' '),
+      phone: g.phone,
+      email: g.email,
+      visits: g.staysCount,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 /** Правка готовой брони: заметки и источник. Пустая заметка стирает прежнюю. */

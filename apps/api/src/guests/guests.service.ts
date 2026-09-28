@@ -19,7 +19,10 @@ import {
 import {
   GUESTS_REPOSITORY,
   type GuestDirectoryFilter,
+  type GuestDirectorySort,
+  type GuestLastVisitWindow,
   type GuestPatch,
+  type GuestVisitsFilter,
   type GuestProfile,
   type GuestsRepository,
 } from './guests.repository';
@@ -54,6 +57,25 @@ export interface GuestDocumentView {
 }
 
 /** Карточка гостя: профиль, история, документы (номер только шифрованный, наружу — маска). */
+const isDay = (v: string) =>
+  ISO.test(v) && new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v;
+
+/** G7 (ТЗ §28): «Последний визит» — сегодня, 7 или 30 дней, либо период с–по (обе даты включительно) */
+function lastVisitWindow(
+  last: string | undefined,
+  from: string | undefined,
+  to: string | undefined,
+): GuestLastVisitWindow | null {
+  if (!last) return null;
+  if (last === 'today') return { days: 0 };
+  if (last === '7d') return { days: 7 };
+  if (last === '30d') return { days: 30 };
+  if (last !== 'period') throw new BadRequestException('last — today, 7d, 30d или period');
+  if (!from || !to || !isDay(from) || !isDay(to) || from > to)
+    throw new BadRequestException('Период последнего визита: даты YYYY-MM-DD, «с» не позже «по»');
+  return { from, to };
+}
+
 @Injectable()
 export class GuestsService {
   constructor(@Inject(GUESTS_REPOSITORY) private readonly repo: GuestsRepository) {}
@@ -66,15 +88,39 @@ export class GuestsService {
     return rows.map((g) => ({ ...g, citizenship: normalizeCitizenship(g.citizenship) }));
   }
 
-  /** Справочник «Гости v2»: раздел, поиск, страница. Пустой q — просто список, порог не нужен */
-  async directory(query: { state?: string; q?: string; page?: string; pageSize?: string }) {
-    for (const key of ['state', 'q', 'page', 'pageSize'] as const) {
+  /**
+   * Справочник «Гости v2»: раздел, поиск, отборы G7 (последний визит, число визитов), порядок,
+   * страница. Пустой q — просто список, порог не нужен. Неизвестное значение — 400 словами, а не
+   * молча весь список: ссылку с опечаткой в адресе видно сразу.
+   */
+  async directory(query: {
+    state?: string;
+    q?: string;
+    page?: string;
+    pageSize?: string;
+    last?: string;
+    from?: string;
+    to?: string;
+    visits?: string;
+    sort?: string;
+  }) {
+    for (const key of [
+      'state',
+      'q',
+      'page',
+      'pageSize',
+      'last',
+      'from',
+      'to',
+      'visits',
+      'sort',
+    ] as const) {
       if (query[key] !== undefined && typeof query[key] !== 'string')
         throw new BadRequestException('Параметры списка должны быть строками');
     }
     const state = query.state || 'ALL';
-    if (!['ALL', 'INHOUSE', 'EXPECTED', 'RECENT'].includes(state))
-      throw new BadRequestException('state — ALL, INHOUSE, EXPECTED или RECENT');
+    if (!['ALL', 'INHOUSE', 'EXPECTED', 'RECENT', 'NONE'].includes(state))
+      throw new BadRequestException('state — ALL, INHOUSE, EXPECTED, RECENT или NONE');
     const q = (query.q || '').trim();
     if (q.length > 120) throw new BadRequestException('Слишком длинный запрос');
     const page = Number(query.page || 1);
@@ -83,7 +129,22 @@ export class GuestsService {
     const pageSize = query.pageSize === undefined ? 25 : Number(query.pageSize);
     if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100)
       throw new BadRequestException('Размер страницы — целое число от 1 до 100');
-    return this.repo.directory({ state: state as GuestDirectoryFilter, q, page, pageSize });
+    const lastVisit = lastVisitWindow(query.last, query.from, query.to);
+    const visits = query.visits || null;
+    if (visits !== null && !['1', '2-5', '6+'].includes(visits))
+      throw new BadRequestException('visits — 1, 2-5 или 6+');
+    const sort = query.sort || 'name';
+    if (!['name', 'next', 'last', 'visits'].includes(sort))
+      throw new BadRequestException('sort — name, next, last или visits');
+    return this.repo.directory({
+      state: state as GuestDirectoryFilter,
+      q,
+      page,
+      pageSize,
+      lastVisit,
+      visits: visits as GuestVisitsFilter | null,
+      sort: sort as GuestDirectorySort,
+    });
   }
 
   /** Предпросмотр панелью (G3): контакты, «сейчас», история, долг из Folio; документов здесь нет */

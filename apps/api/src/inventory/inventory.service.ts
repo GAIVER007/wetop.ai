@@ -21,7 +21,7 @@ export interface InventoryUnitDto {
   roomNumber: string;
   roomCapacity: number;
   isDorm: boolean;
-  /** Расположение и живое состояние для списка фонда (ADR-107) */
+  /** Расположение и живое состояние для списка фонда (ADR-108) */
   buildingName: string | null;
   floorName: string | null;
   housekeepingStatus: 'DIRTY' | 'CLEAN' | 'INSPECTED';

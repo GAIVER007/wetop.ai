@@ -201,7 +201,7 @@ export interface SidebarSection {
   label: string;
   icon: IconName;
   items: NavigationItem[];
-  /** Раздел из одного пункта: в меню — прямая ссылка без раскрывашки (ADR-107) */
+  /** Раздел из одного пункта: в меню — прямая ссылка без раскрывашки (ADR-108) */
   direct?: boolean;
 }
 
@@ -221,7 +221,7 @@ export const sidebarSections: SidebarSection[] = [
     items: ['/today', '/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
   },
   {
-    // Один пункт вместо трёх (ADR-107): «Категории» и «Доступность» — вкладки внутри страницы,
+    // Один пункт вместо трёх (ADR-108): «Категории» и «Доступность» — вкладки внутри страницы,
     // их адреса живут (deep links), а меню не дублирует навигацию экрана
     id: 'inventory',
     label: 'Номерной фонд',

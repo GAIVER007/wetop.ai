@@ -1,4 +1,4 @@
-/* Каталог фонда (ADR-107, I1): только семантические токены DESIGN.md, без влияния на соседние экраны. */
+/* Каталог фонда (ADR-108, I1): только семантические токены DESIGN.md, без влияния на соседние экраны. */
 .inventory-summary {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

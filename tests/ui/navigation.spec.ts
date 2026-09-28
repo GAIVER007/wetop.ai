@@ -101,7 +101,7 @@ test('компактная панель открывает выбранную г
     'aria-expanded',
     'true',
   );
-  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-107): один пункт вместо трёх
+  // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108): один пункт вместо трёх
   await sidebar.getByRole('link', { name: 'Номерной фонд', exact: true }).click();
   await expect(page).toHaveURL(/\/inventory$/);
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
@@ -119,7 +119,7 @@ test('все пункты меню открывают существующие �
   for (let i = 0; i < (await sections.count()); i++) {
     const section = sections.nth(i);
     const toggle = section.getByRole('button');
-    // раздел из одного пункта — прямая ссылка без кнопки-раскрывашки (ADR-107)
+    // раздел из одного пункта — прямая ссылка без кнопки-раскрывашки (ADR-108)
     if (
       (await toggle.count()) > 0 &&
       (await toggle.getAttribute('aria-expanded')) !== 'true'

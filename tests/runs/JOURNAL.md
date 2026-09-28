@@ -89,3 +89,9 @@
 | 29.09.2026 00:42 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/channel-booking-number.spec.ts tests/ui/requests.spec.ts --worker | ✅ 35 из 35 | 1 мин 25 с | 79a0bd4 +9 | [лог](logs/2026-09-28T19-42-24Z-e2e-23e3.log) | AV2–AV3 перед вливанием: фонд, форма брони, бюджет запросов на дереве с RT2 |
 | 29.09.2026 00:41 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ✅ 3 из 3 | 14 с | 4de2d98 | [лог](logs/2026-09-28T19-41-12Z-e2e-c5d2.log) |  |
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
+| 29.09.2026 00:49 | typecheck | ✅ без ошибок | 20 с | bf5d8f0 | [лог](logs/2026-09-28T19-49-44Z-typecheck-022b.log) |  |
+| 29.09.2026 00:50 | lint | ✅ без ошибок | 16 с | bf5d8f0 | [лог](logs/2026-09-28T19-50-05Z-lint-0016.log) |  |
+| 29.09.2026 00:50 | unit | ✅ 2179 из 2182, пропущено 3 | 1 мин 16 с | bf5d8f0 | [лог](logs/2026-09-28T19-50-21Z-unit-2723.log) |  |
+| 29.09.2026 00:51 | integration | ✅ 115 из 115 | 33 с | bf5d8f0 | [лог](logs/2026-09-28T19-51-38Z-integration-9101.log) |  |
+| 29.09.2026 00:52 | e2e | ❌ упало 5 из 25 | 2 мин 13 с | bf5d8f0 | [лог](logs/2026-09-28T19-52-33Z-e2e-85f6.log) | перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки |
+| 29.09.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts tests/ui/trial-read-only.spec.ts t | ✅ 84 из 84 | 5 мин 28 с | bf5d8f0 | [лог](logs/2026-09-28T19-55-16Z-e2e-1dcc.log) |  |

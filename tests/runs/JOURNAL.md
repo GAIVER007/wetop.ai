@@ -3505,3 +3505,9 @@
 | 28.09.2026 15:05 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 20 с | b5bbd54 | [лог](logs/2026-09-28T10-05-02Z-unit-7164.log) | integration 28.09: final HEAD after merging main (auto-deploy test) |
 | 28.09.2026 15:06 | typecheck | ✅ без ошибок | 24 с | b5bbd54 | [лог](logs/2026-09-28T10-06-41Z-typecheck-dfb9.log) | integration 28.09: final HEAD after merging main |
 | 28.09.2026 15:07 | lint | ✅ без ошибок | 18 с | b5bbd54 | [лог](logs/2026-09-28T10-07-05Z-lint-2273.log) | integration 28.09: final HEAD after merging main |
+| 28.09.2026 15:10 | typecheck | ✅ без ошибок | 33 с | c680e8f | [лог](logs/2026-09-28T10-10-50Z-typecheck-1265.log) | cleanup P1: слитое дерево с main ce78e65 |
+| 28.09.2026 15:11 | lint | ✅ без ошибок | 18 с | c680e8f | [лог](logs/2026-09-28T10-11-23Z-lint-4239.log) | cleanup P1: слитое дерево с main ce78e65 |
+| 28.09.2026 15:11 | unit | ✅ 2299 из 2302, пропущено 3 | 1 мин 20 с | c680e8f | [лог](logs/2026-09-28T10-11-41Z-unit-3817.log) | cleanup P1: слитое дерево с main ce78e65 |
+| 28.09.2026 15:13 | integration | ✅ 127 из 127 | 38 с | c680e8f | [лог](logs/2026-09-28T10-13-02Z-integration-b818.log) | cleanup P1: слитое дерево с main ce78e65 |
+| 28.09.2026 15:13 | e2e | ✅ 25 из 25 | 1 мин 4 с | c680e8f | [лог](logs/2026-09-28T10-13-54Z-e2e-b810.log) | cleanup P1: слитое дерево с main ce78e65, свежая сборка web |
+| 28.09.2026 15:15 | e2e | ✅ 26 из 26 | 1 мин 15 с | c680e8f | [лог](logs/2026-09-28T10-15-05Z-e2e-27d9.log) | cleanup P1: слитое дерево, E2E_AUTH=1, API ролью wetop_app |

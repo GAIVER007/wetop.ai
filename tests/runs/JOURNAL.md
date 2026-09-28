@@ -2917,3 +2917,8 @@
 | 28.09.2026 12:49 | lint | ✅ без ошибок | 14 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-49-02Z-lint-dcb0.log) | R3, unused import removed |
 | 28.09.2026 12:49 | typecheck | ✅ без ошибок | 20 с | 8cbd933 +11 | [лог](logs/2026-09-28T07-49-16Z-typecheck-49bf.log) | R3 |
 | 28.09.2026 12:49 | unit | ✅ 2133 из 2136, пропущено 3 | 1 мин 12 с | 8cbd933 +10 | [лог](logs/2026-09-28T07-49-44Z-unit-e099.log) | R3 |
+| 28.09.2026 12:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 418 | 31 мин 41 с | 4eccd5c | [лог](logs/2026-09-28T07-51-16Z-e2e-5626.log) | R3: full UI suite |
+| 28.09.2026 13:24 | e2e (частично: tests/ui/reservations-v2-r3.spec.ts --config tests/ui/playwright.config.ts --workers=1 --repeat-each=4 --grep Открыть бронь\|двойной) | ❌ упало 3 из 8 | 1 мин 30 с | 4eccd5c +1 | [лог](logs/2026-09-28T08-24-46Z-e2e-0061.log) | R3: open-full-card via reload, repeated 4x |
+| 28.09.2026 13:31 | e2e (частично: tests/ui/reservations-v2-r3.spec.ts --config tests/ui/playwright.config.ts --workers=1 --repeat-each=4) | ✅ 20 из 20 | 2 мин 58 с | 4eccd5c +2 | [лог](logs/2026-09-28T08-31-18Z-e2e-c60c.log) | R3: open-full-card back-then-assign, spec x4 |
+| 28.09.2026 13:34 | typecheck | ✅ без ошибок | 20 с | 4eccd5c +2 | [лог](logs/2026-09-28T08-34-29Z-typecheck-9217.log) | R3 open-full-card |
+| 28.09.2026 13:34 | lint | ✅ без ошибок | 15 с | 4eccd5c +2 | [лог](logs/2026-09-28T08-34-50Z-lint-f7d9.log) | R3 open-full-card |

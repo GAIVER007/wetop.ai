@@ -92,7 +92,7 @@ test('R3: щелчок по любой ячейке открывает прос�
   await expect(page.getByRole('main').getByTestId('booking-head')).toContainText(
     '+7 701 000 00 12',
   );
-  // запись истории заменена: «Назад» ведёт в тот же отобранный список, а не в пустую панель
+  // в истории «список → бронь»: «Назад» ведёт в тот же отобранный список, а не в панель и не снова в бронь
   await page.goBack();
   await expect(page).toHaveURL(listUrl);
   await expect(page.getByTestId('reservations-table')).toBeVisible();

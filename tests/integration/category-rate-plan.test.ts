@@ -3,13 +3,14 @@ import request from 'supertest';
 import { randomUUID } from 'node:crypto';
 import { config } from 'dotenv';
 import { describe, it, expect } from 'vitest';
-import { createPrismaClient } from '@pms/database';
+import { createPrismaClient, createPropertyInChain } from '@pms/database';
 import { InventoryModule } from '../../apps/api/src/inventory/inventory.module';
 import { InventoryEditor } from '../../apps/api/src/inventory/inventory-editor';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { forgetPropertyRef } from '../../apps/api/src/database/property-ref';
 import { purgeAuditRows } from '../tools/audit-purge';
+import { deleteOrganizationChain } from '../tools/property-owner';
 config({ quiet: true });
 
 /**
@@ -22,15 +23,12 @@ describe.skipIf(!process.env.DATABASE_URL)('category without a rate plan, rate p
       marker = randomUUID();
     const org = await db.organization.create({ data: { name: `TEST c3 ${marker}` } });
     const user = await db.user.create({ data: { email: `c3-${marker}@example.invalid` } });
-    const property = await db.property.create({
-      data: {
-        organizationId: org.id,
-        name: `TEST c3 ${marker}`,
-        timezone: 'Asia/Almaty',
-        currency: 'KZT',
-        checkInTime: '14:00',
-        checkOutTime: '12:00',
-      },
+    const property = await createPropertyInChain(db, org.id, {
+      name: `TEST c3 ${marker}`,
+      timezone: 'Asia/Almaty',
+      currency: 'KZT',
+      checkInTime: '14:00',
+      checkOutTime: '12:00',
     });
     const provider = { db } as PrismaService;
     const module = await Test.createTestingModule({ imports: [InventoryModule] })
@@ -137,6 +135,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category without a rate plan, rate p
       await db.ratePlan.deleteMany({ where: { propertyId: property.id } });
       await db.accommodationType.deleteMany({ where: { propertyId: property.id } });
       await db.property.delete({ where: { id: property.id } });
+      await deleteOrganizationChain(db, [org.id]);
       await db.user.delete({ where: { id: user.id } });
       await db.organization.delete({ where: { id: org.id } });
       forgetPropertyRef();

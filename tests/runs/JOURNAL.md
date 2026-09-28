@@ -65,3 +65,14 @@
 | 29.09.2026 00:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-range.spec.ts tests/ui/rates-design.spec.ts --workers=1) | ✅ 11 из 11 | 33 с | 7df44f9 | [лог](logs/2026-09-28T19-35-30Z-e2e-9c8a.log) | RT2 после слияния main 4f5bc769: спеки тарифов |
 | 29.09.2026 00:41 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ✅ 3 из 3 | 14 с | 4de2d98 | [лог](logs/2026-09-28T19-41-12Z-e2e-c5d2.log) |  |
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
+| 29.09.2026 00:46 | typecheck | ❌ ошибок: 2 | 28 с | d56b7dd | [лог](logs/2026-09-28T19-46-47Z-typecheck-e4b3.log) | C3–C4a после слияния с main (P2, A2, RT2, P1 cleanup) |
+| 29.09.2026 00:47 | typecheck | ✅ без ошибок | 19 с | d56b7dd +2 | [лог](logs/2026-09-28T19-47-45Z-typecheck-b7f7.log) | C3–C4a после слияния: тесты категорий создают объект в цепочке |
+| 29.09.2026 00:48 | lint | ✅ без ошибок | 14 с | d56b7dd +2 | [лог](logs/2026-09-28T19-48-05Z-lint-852b.log) | C3–C4a после слияния |
+| 29.09.2026 00:48 | unit | ✅ 2149 из 2152, пропущено 3 | 1 мин 13 с | d56b7dd | [лог](logs/2026-09-28T19-48-20Z-unit-221c.log) | C3–C4a после слияния |
+| 29.09.2026 00:49 | integration | ✅ 115 из 115 | 32 с | d56b7dd +2 | [лог](logs/2026-09-28T19-49-42Z-integration-25e2.log) | C3–C4a после слияния, свежая база |
+| 29.09.2026 00:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-screens.spec.ts tests/ui/categories-preview.spec.ts tests/ui/categories-cr | ✅ 78 из 78 | 5 мин 5 с | d56b7dd | [лог](logs/2026-09-28T19-50-23Z-e2e-6d9f.log) | C3–C4a после слияния с main: спеки категорий, фонда и workspace |
+| 29.09.2026 00:55 | e2e | ❌ упало 1 из 25 | 1 мин 12 с | d56b7dd | [лог](logs/2026-09-28T19-55-50Z-e2e-8c13.log) | C3–C4a после слияния с main: живые e2e, свежий стенд |
+| 29.09.2026 00:57 | e2e (частично: tests/e2e/full-day.spec.ts) | ✅ 2 из 2 | 13 с | d56b7dd | [лог](logs/2026-09-28T19-57-17Z-e2e-1cdd.log) | повтор full-day: вкладка «Обзор» не выбралась после выезда |
+| 29.09.2026 00:57 | typecheck | ✅ без ошибок | 19 с | d56b7dd +3 | [лог](logs/2026-09-28T19-57-47Z-typecheck-c8e0.log) | card-tabs: щелчок повторяется |
+| 29.09.2026 00:58 | lint | ✅ без ошибок | 15 с | d56b7dd +3 | [лог](logs/2026-09-28T19-58-07Z-lint-bfb0.log) | card-tabs |
+| 29.09.2026 00:58 | e2e | ✅ 25 из 25 | 57 с | d56b7dd +1 | [лог](logs/2026-09-28T19-58-23Z-e2e-fa5d.log) | C3–C4a после слияния: живые e2e целиком, card-tabs щёлкает до открытия вкладки |

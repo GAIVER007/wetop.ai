@@ -3,13 +3,14 @@ import request from 'supertest';
 import { randomUUID } from 'node:crypto';
 import { config } from 'dotenv';
 import { describe, it, expect } from 'vitest';
-import { createPrismaClient } from '@pms/database';
+import { createPrismaClient, createPropertyInChain } from '@pms/database';
 import { todayAt } from '@pms/domain';
 import { InventoryModule } from '../../apps/api/src/inventory/inventory.module';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { forgetPropertyRef } from '../../apps/api/src/database/property-ref';
 import { purgeAuditRows } from '../tools/audit-purge';
+import { deleteOrganizationChain } from '../tools/property-owner';
 config({ quiet: true });
 
 const day = 86_400_000;
@@ -19,7 +20,6 @@ const shift = (iso: string, days: number) =>
 /**
  * «Категории v2» C4 (ТЗ §17): «Эту категорию используют» — брони в истории (разные брони, а не проживания),
  * брони впереди (не отменённые и не закрытые, выезд сегодня или позже) и сопоставление с Channex.
- * Считается по своему объекту: брони чужого объекта в счёт не идут.
  */
 describe.skipIf(!process.env.DATABASE_URL)('category usage for safe editing', () => {
   it('counts distinct reservations in history and ahead, and the Channex mapping, per category', async () => {
@@ -27,15 +27,12 @@ describe.skipIf(!process.env.DATABASE_URL)('category usage for safe editing', ()
       marker = randomUUID();
     const org = await db.organization.create({ data: { name: `TEST c4 ${marker}` } });
     const user = await db.user.create({ data: { email: `c4-${marker}@example.invalid` } });
-    const property = await db.property.create({
-      data: {
-        organizationId: org.id,
-        name: `TEST c4 ${marker}`,
-        timezone: 'Asia/Almaty',
-        currency: 'KZT',
-        checkInTime: '14:00',
-        checkOutTime: '12:00',
-      },
+    const property = await createPropertyInChain(db, org.id, {
+      name: `TEST c4 ${marker}`,
+      timezone: 'Asia/Almaty',
+      currency: 'KZT',
+      checkInTime: '14:00',
+      checkOutTime: '12:00',
     });
     const provider = { db } as PrismaService;
     const module = await Test.createTestingModule({ imports: [InventoryModule] })
@@ -139,6 +136,7 @@ describe.skipIf(!process.env.DATABASE_URL)('category usage for safe editing', ()
       await db.reservation.deleteMany({ where: { propertyId: property.id } });
       await db.accommodationType.deleteMany({ where: { propertyId: property.id } });
       await db.property.delete({ where: { id: property.id } });
+      await deleteOrganizationChain(db, [org.id]);
       await db.user.delete({ where: { id: user.id } });
       await db.organization.delete({ where: { id: org.id } });
       forgetPropertyRef();

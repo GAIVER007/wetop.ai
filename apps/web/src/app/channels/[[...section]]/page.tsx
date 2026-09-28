@@ -6,6 +6,7 @@ import {
   type OutboxSummary,
   api,
   channelsApi,
+  ratesApi,
 } from '../../../lib/api';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { Page } from '../../../components/page';
@@ -13,6 +14,7 @@ import { RefreshButton } from '../../../components/refresh-button';
 import {
   Alert,
   Badge,
+  EmptyState,
   Fact,
   Grid,
   Panel,
@@ -31,6 +33,8 @@ import type { PropertyClock } from '../../../lib/property-time';
 import { currentMe } from '../../../lib/desk-shell';
 import { eventTime } from '../format';
 import { ChannelReport } from '../report';
+import { categoryMappings, planMappings } from '../mapping';
+import { Icon } from '../../../components/icon';
 import '../../directory.css';
 
 /**
@@ -487,56 +491,208 @@ async function Connections() {
 
 /* ── Сопоставление: категории и тарифы WETOP ↔ Channex ── */
 
+/**
+ * Категории и тарифы раздельно, по названиям (`plans/channels-mapping-port-2026-09-28.md`):
+ * в таблицах — название номера в кабинете Channex и статус словом, id — за «Техническими деталями».
+ * Правила «что ошибка, а что нет» — в `../mapping.ts`.
+ */
 async function Mapping() {
-  const [loadedMapping, summary] = await Promise.all([
+  const [loadedMapping, summary, loadedOptions, names] = await Promise.all([
     settle(channelsApi.mapping()),
-    // сводка фонда нужна только для названий категорий: без неё страница остаётся, категории — кодами
+    // сводка фонда — список категорий: без неё страница остаётся, категории — кодами
     api.inventorySummary().catch(() => null),
+    // тарифы WETOP: не загрузились — категории остаются, сбой тарифов назван отдельно
+    settle(ratesApi.options()),
+    // названия номеров в кабинете Channex: не пришли — вместо названия слова, а не id
+    channelsApi.channexNames().catch(() => null),
   ]);
-  const mapping = loadedMapping.ok ? loadedMapping.r : [];
-  const byCode = new Map((summary?.byCategory ?? []).map((c) => [c.code, c.name]));
-  const categoryName = (code: string) => byCode.get(code) ?? code;
+  if (!loadedMapping.ok)
+    return (
+      <div className="stack">
+        {!summary && <InventoryFailed />}
+        <LoadError testId="mapping-error" {...loadErrorProps(loadedMapping.e)} />
+      </div>
+    );
+  const mapping = loadedMapping.r;
   const mapped = mapping.filter((m) => m.providerRoomTypeId);
+  if (mapped.length === 0)
+    return (
+      <div className="stack">
+        {!summary && <InventoryFailed />}
+        <EmptyState
+          icon={<Icon name="channels" />}
+          title="Сопоставлений пока нет"
+          data-testid="mapping-empty"
+          actions={
+            <Link href="/channels/connections" className="btn btn--secondary">
+              Открыть подключения
+            </Link>
+          }
+        >
+          Категории и тарифы появятся здесь, когда владелец организации нажмёт «Создать объект и
+          категории» на вкладке «Подключения». Пока их нет, цены и остатки в каналы не уходят.
+        </EmptyState>
+      </div>
+    );
+  // без сводки фонда несопоставленных не видно: остаются сопоставленные, подписанные кодами
+  const fund =
+    summary?.byCategory.map((c) => ({ code: c.code, name: c.name })) ??
+    [...new Set(mapped.map((m) => m.localAccommodationTypeCode ?? ''))].map((code) => ({
+      code,
+      name: code,
+    }));
+  const categories = categoryMappings(fund, mapping, names?.roomTypes ?? {});
+  const unmapped = categories.filter((c) => !c.roomTypeId);
+  const plans = loadedOptions.ok
+    ? planMappings(
+        loadedOptions.r.ratePlans,
+        categories.map((c) => c.code),
+        mapping,
+      )
+    : null;
   return (
     <div className="stack">
-      {!summary && (
-        <Alert boxed tone="warning" data-testid="inventory-failed">
-          Сводка фонда не загрузилась: категории ниже подписаны кодами. Сопоставления читаются
-          отдельно и верны.
+      {!summary && <InventoryFailed />}
+      {unmapped.length > 0 && (
+        <Alert boxed tone="warning" data-testid="mapping-warning">
+          Без сопоставления: {unmapped.map((c) => c.name).join(', ')}. Остатки и цены по{' '}
+          {unmapped.length === 1 ? 'этой категории' : 'этим категориям'} в каналы не уходят.
+          Недостающее создаёт владелец организации кнопкой «Создать объект и категории» на вкладке{' '}
+          <Link href="/channels/connections">«Подключения»</Link>; уже сопоставленное повтор не
+          трогает.
         </Alert>
       )}
-      {loadedMapping.ok ? (
-        <Table size="sm" className="dir-table dir-table--mapping">
+      <section className="stack stack--sm" aria-labelledby="mapping-categories-title">
+        <SectionTitle id="mapping-categories-title">Категории</SectionTitle>
+        <Table
+          size="sm"
+          className="dir-table dir-table--mapping"
+          data-testid="mapping-categories"
+          aria-label="Сопоставление категорий"
+        >
           <thead>
             <tr>
-              {['Категория', 'Категория в Channex', 'Тариф в Channex'].map((h) => (
-                <th key={h}>{h}</th>
-              ))}
+              <th>Категория WETOP</th>
+              <th>Номер в Channex</th>
+              <th>Статус</th>
             </tr>
           </thead>
           <tbody>
-            {mapped.length === 0 && (
-              <tr>
-                <td colSpan={3} className="empty-state" data-testid="mapping-empty">
-                  Сопоставлений пока нет: категории и тарифы появятся здесь после «Создать объект и
-                  категории» на вкладке <Link href="/channels/connections">«Подключения»</Link>.
-                  Пока их нет, цены и остатки в каналы не уходят.
+            {categories.map((c) => (
+              <tr key={c.code}>
+                <td>
+                  <strong>{c.name}</strong>
                 </td>
-              </tr>
-            )}
-            {mapped.map((m) => (
-              <tr key={m.id} data-testid="mapping-row">
-                <td>{categoryName(m.localAccommodationTypeCode ?? '')}</td>
-                <td className="mono">{m.providerRoomTypeId}</td>
-                <td className="mono">{m.providerRatePlanId}</td>
+                <td>
+                  {c.roomTypeId ? (
+                    (c.channexName ?? (
+                      <span className="cell-sub">название в Channex недоступно</span>
+                    ))
+                  ) : (
+                    <span className="cell-sub">—</span>
+                  )}
+                </td>
+                <td>
+                  <Badge tone={c.roomTypeId ? 'ok' : 'warn'}>
+                    {c.roomTypeId ? 'Сопоставлена' : 'Не сопоставлена'}
+                  </Badge>
+                </td>
               </tr>
             ))}
           </tbody>
         </Table>
-      ) : (
-        <LoadError testId="mapping-error" {...loadErrorProps(loadedMapping.e)} />
-      )}
+      </section>
+      <section className="stack stack--sm" aria-labelledby="mapping-rate-plans-title">
+        <SectionTitle id="mapping-rate-plans-title">Тарифы</SectionTitle>
+        {plans ? (
+          <Table
+            size="sm"
+            className="dir-table dir-table--mapping"
+            data-testid="mapping-rate-plans"
+            aria-label="Сопоставление тарифов"
+          >
+            <thead>
+              <tr>
+                <th>Тариф WETOP</th>
+                <th>Сопоставлен в категориях</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plans.map((p) => (
+                <tr key={p.code}>
+                  <td>
+                    <strong>{p.name}</strong>
+                    <div className="cell-sub">
+                      {p.currency}
+                      {p.active ? '' : ', не действует'}
+                    </div>
+                  </td>
+                  <td className="num">
+                    {p.mappedIn} из {categories.length}
+                  </td>
+                  <td>
+                    <Badge
+                      tone={p.status === 'none' ? 'neutral' : p.status === 'full' ? 'ok' : 'warn'}
+                    >
+                      {PLAN_STATUS[p.status]}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          !loadedOptions.ok && (
+            <LoadError testId="mapping-plans-error" {...loadErrorProps(loadedOptions.e)} />
+          )
+        )}
+        <p className="note">
+          В каналы уходит один тариф: он сопоставлен с каждой категорией объекта. Остальные тарифы
+          работают только в WETOP — это не ошибка.
+        </p>
+      </section>
+      <details className="context-help" data-testid="mapping-tech">
+        <summary>Технические детали</summary>
+        <div>
+          <Table size="sm" className="dir-table dir-table--mapping">
+            <thead>
+              <tr>
+                {['Категория', 'Номер в Channex', 'Тариф в Channex'].map((h) => (
+                  <th key={h}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {categories
+                .filter((c) => c.roomTypeId)
+                .map((c) => (
+                  <tr key={c.code} data-testid="mapping-row">
+                    <td>{c.name}</td>
+                    <td className="mono">{c.roomTypeId}</td>
+                    <td className="mono">{c.ratePlanId}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </Table>
+        </div>
+      </details>
     </div>
+  );
+}
+
+const PLAN_STATUS = {
+  full: 'Выгружается',
+  partial: 'Не во всех категориях',
+  none: 'В каналы не выгружается',
+} as const;
+
+function InventoryFailed() {
+  return (
+    <Alert boxed tone="warning" data-testid="inventory-failed">
+      Сводка фонда не загрузилась: категории ниже подписаны кодами, несопоставленные не видны.
+      Сопоставления читаются отдельно и верны.
+    </Alert>
   );
 }
 

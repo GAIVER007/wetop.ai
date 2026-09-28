@@ -1,0 +1,220 @@
+# Сквозные (e2e) · 28.09.2026 13:47 Алматы · vm
+# коммит 1b187fa (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/property-settings-set2-set3.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 (20.8s)
+  ✘  2 tests/ui/property-settings-set2-set3.spec.ts:59:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны (17.4s)
+  ✘  3 tests/ui/property-settings-set2-set3.spec.ts:84:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте (45.2s)
+  ✘  4 tests/ui/property-settings-set2-set3.spec.ts:127:1 › «только чтение»: каталог виден, добавить и править нельзя (18.4s)
+  ✘  5 tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: light (2.4s)
+  ✘  6 tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: dark (2.6s)
+
+
+  1) tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('main').getByLabel('Заезд с')
+    Expected: "numeric"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').getByLabel('Заезд с') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Заезд с')
+        34 × locator resolved to <input class="inp" type="time" required="" value="14:00" name="checkInTime"/>
+           - unexpected value "null"
+
+
+      36 |   const save = main.getByRole('button', { name: 'Сохранить изменения' });
+      37 |   await expect(checkIn).toHaveValue('14:00');
+    > 38 |   await expect(checkIn).toHaveAttribute('inputmode', 'numeric');
+         |                         ^
+      39 |   await expect(main.getByLabel('Выезд до')).toHaveValue('12:00');
+      40 |
+      41 |   await checkIn.fill('2 PM');
+        at /home/user/wetop.ai/tests/ui/property-settings-set2-set3.spec.ts:38:25
+
+    Error Context: test-results/property-settings-set2-set-be959-9-00»-сохраняется-как-09-00/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-set2-set-be959-9-00»-сохраняется-как-09-00/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-set2-set-be959-9-00»-сохраняется-как-09-00/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/property-settings-set2-set3.spec.ts:59:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').locator('.page__actions').getByRole('button', { name: 'Добавить услугу' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').locator('.page__actions').getByRole('button', { name: 'Добавить услугу' }) with timeout 15000ms
+      - waiting for getByRole('main').locator('.page__actions').getByRole('button', { name: 'Добавить услугу' })
+
+
+      62 |   const main = page.getByRole('main');
+      63 |   const table = main.getByTestId('services-table');
+    > 64 |   await expect(main.locator('.page__actions').getByRole('button', { name: 'Добавить услугу' })).toBeVisible();
+         |                                                                                                 ^
+      65 |   await expect(table.locator('tbody tr')).toHaveCount(3);
+      66 |   await expect(main.getByTestId('services-count')).toHaveText('3 услуги');
+      67 |   await expect(table).not.toContainText('Трансфер (старая цена)');
+        at /home/user/wetop.ai/tests/ui/property-settings-set2-set3.spec.ts:64:97
+
+    Error Context: test-results/property-settings-set2-set-bc36f-ппе-и-статусу-коды-не-видны/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-set2-set-bc36f-ппе-и-статусу-коды-не-видны/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-set2-set-bc36f-ппе-и-статусу-коды-не-видны/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/property-settings-set2-set3.spec.ts:84:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Добавить услугу' })
+
+
+      88 |   const table = main.getByTestId('services-table');
+      89 |
+    > 90 |   await main.getByRole('button', { name: 'Добавить услугу' }).click();
+         |                                                               ^
+      91 |   const drawer = page.getByRole('dialog', { name: 'Новая услуга' });
+      92 |   await drawer.getByRole('button', { name: 'Создать' }).click();
+      93 |   await expect(drawer.getByLabel('Название')).toHaveAttribute('aria-invalid', 'true');
+        at /home/user/wetop.ai/tests/ui/property-settings-set2-set3.spec.ts:90:63
+
+    Error Context: test-results/property-settings-set2-set-d893d-ет-услугу-из-выбора-в-счёте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-set2-set-d893d-ет-услугу-из-выбора-в-счёте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-set2-set-d893d-ет-услугу-из-выбора-в-счёте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/property-settings-set2-set3.spec.ts:127:1 › «только чтение»: каталог виден, добавить и править нельзя 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByTestId('services-table').locator('tbody tr')
+    Expected: 3
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByTestId('services-table').locator('tbody tr') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('services-table').locator('tbody tr')
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      131 |   const main = page.getByRole('main');
+      132 |   await expect(page.getByTestId('read-only-banner')).toBeVisible();
+    > 133 |   await expect(main.getByTestId('services-table').locator('tbody tr')).toHaveCount(3);
+          |                                                                        ^
+      134 |   await expect(main.getByRole('button', { name: 'Добавить услугу' })).toHaveCount(0);
+      135 |   await expect(main.getByTestId('services-table').getByRole('button')).toHaveCount(0);
+      136 |   await page.goto('/hotel-settings/stay');
+        at /home/user/wetop.ai/tests/ui/property-settings-set2-set3.spec.ts:133:72
+
+    Error Context: test-results/property-settings-set2-set-77615-н-добавить-и-править-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-set2-set-77615-н-добавить-и-править-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-set2-set-77615-н-добавить-и-править-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: light ────
+
+    Error: locator.fill: Error: Malformed value
+    Call log:
+      - waiting for getByRole('main').getByLabel('Заезд с')
+        - locator resolved to <input class="inp" type="time" required="" value="14:00" name="checkInTime"/>
+        - fill("25:00")
+      - attempting fill action
+        - waiting for element to be visible, enabled and editable
+
+
+      165 |
+      166 |     await page.goto('/hotel-settings/stay');
+    > 167 |     await main.getByLabel('Заезд с').fill('25:00');
+          |                                      ^
+      168 |     await main.getByLabel('Заезд с').blur();
+      169 |     await expect(main.getByTestId('stay-settings').getByRole('alert')).toBeVisible();
+      170 |     await axe();
+        at /home/user/wetop.ai/tests/ui/property-settings-set2-set3.spec.ts:167:38
+
+    Error Context: test-results/property-settings-set2-set-bda86-T2-SET3-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-set2-set-bda86-T2-SET3-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-set2-set-bda86-T2-SET3-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: dark ─────
+
+    Error: locator.fill: Error: Malformed value
+    Call log:
+      - waiting for getByRole('main').getByLabel('Заезд с')
+        - locator resolved to <input class="inp" type="time" required="" value="14:00" name="checkInTime"/>
+        - fill("25:00")
+      - attempting fill action
+        - waiting for element to be visible, enabled and editable
+
+
+      165 |
+      166 |     await page.goto('/hotel-settings/stay');
+    > 167 |     await main.getByLabel('Заезд с').fill('25:00');
+          |                                      ^
+      168 |     await main.getByLabel('Заезд с').blur();
+      169 |     await expect(main.getByTestId('stay-settings').getByRole('alert')).toBeVisible();
+      170 |     await axe();
+        at /home/user/wetop.ai/tests/ui/property-settings-set2-set3.spec.ts:167:38
+
+    Error Context: test-results/property-settings-set2-set-9c090-ET2-SET3-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-set2-set-9c090-ET2-SET3-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-set2-set-9c090-ET2-SET3-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 
+    tests/ui/property-settings-set2-set3.spec.ts:59:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны 
+    tests/ui/property-settings-set2-set3.spec.ts:84:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте 
+    tests/ui/property-settings-set2-set3.spec.ts:127:1 › «только чтение»: каталог виден, добавить и править нельзя 
+    tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: light ─────
+    tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: dark ──────
+
+# код выхода 1 · 3 мин 36 с

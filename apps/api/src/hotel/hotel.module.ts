@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { randomUUID } from 'node:crypto';
 import { ReservationDirectory, ReservationDirectoryController } from './reservation-directory';
 import { OnboardingController, OnboardingService } from './onboarding';
 import {
@@ -11,7 +12,9 @@ import {
   Injectable,
   Module,
   NotFoundException,
+  Param,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import { ReservationStatus } from '@pms/database';
@@ -20,7 +23,9 @@ import {
   REGISTRATION_NAME_TAKEN_MESSAGE,
   accessDeniedMessage,
   parseHotelSettingsPatch,
+  parseServiceInput,
   type HotelSettingsPatch,
+  type ServiceInput,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { actorMay, currentOrganizationId, hasSignedInActor } from '../auth/request-context';
@@ -196,6 +201,109 @@ export class HotelService {
     return this.settings();
   }
 
+  /**
+   * Каталог услуг для «Настроек объекта» (SET3, `plans/property-settings-set2-set3-2026-09-28.md`): весь, с архивными.
+   * Выбор услуги в счёте (`GET /finance/services`) по-прежнему видит только активные. Право `settings` — владелец и
+   * управляющий: оно по таблице ролей включает «услуги» (ADR-107); администратору раздел закрыт.
+   */
+  async serviceCatalog() {
+    this.mayEditSettings();
+    const property = await this.property();
+    const rows = await this.prisma.db.service.findMany({
+      where: { propertyId: property.id },
+      orderBy: [{ active: 'desc' }, { group: 'asc' }, { nameRu: 'asc' }],
+    });
+    return rows.map(serviceView);
+  }
+
+  /** Новая услуга: код даёт система (пользователю он не нужен), статус по умолчанию — активна. Журнал — «стало». */
+  async createService(raw: unknown) {
+    this.mayEditSettings();
+    const parsed = parseServiceInput(raw);
+    if (!parsed.ok) throw new BadRequestException(parsed.reason);
+    const input = parsed.value as Required<ServiceInput>;
+    const property = await this.property();
+    const code = `svc-${randomUUID().replace(/-/g, '').slice(0, 8)}`;
+    const row = await this.prisma.db.$transaction(async (tx) => {
+      const created = await tx.service.create({
+        data: {
+          propertyId: property.id,
+          code,
+          nameRu: input.name,
+          group: input.group,
+          price: input.priceMinor,
+          active: input.active,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          entityType: 'Service',
+          entityId: created.id,
+          action: 'hotel.service.created',
+          after: serviceView(created),
+        },
+      });
+      return created;
+    });
+    return serviceView(row);
+  }
+
+  /**
+   * Правка услуги: название, группа, цена, статус. Удаления нет — начисления ссылаются на услугу; архив — `active = false`.
+   * Прошлые начисления не меняются: они хранят свою цену и название. Пишем только изменённое, журнал — «было/стало».
+   */
+  async updateService(code: string, raw: unknown) {
+    this.mayEditSettings();
+    const parsed = parseServiceInput(raw, { partial: true });
+    if (!parsed.ok) throw new BadRequestException(parsed.reason);
+    const property = await this.property();
+    const current = await this.prisma.db.service.findFirst({
+      where: { propertyId: property.id, code },
+    });
+    if (!current) throw new NotFoundException('Услуга не найдена');
+    const was = serviceView(current);
+    const next = { ...was };
+    const data: { nameRu?: string; group?: string | null; price?: bigint; active?: boolean } = {};
+    const p = parsed.value;
+    if (p.name !== undefined && p.name !== current.nameRu) {
+      data.nameRu = p.name;
+      next.name = p.name;
+    }
+    if (p.group !== undefined && p.group !== current.group) {
+      data.group = p.group;
+      next.group = p.group;
+    }
+    if (p.priceMinor !== undefined && p.priceMinor !== current.price) {
+      data.price = p.priceMinor;
+      next.priceMinor = p.priceMinor.toString();
+    }
+    if (p.active !== undefined && p.active !== current.active) {
+      data.active = p.active;
+      next.active = p.active;
+    }
+    const keys = (Object.keys(was) as Array<keyof typeof was>).filter((k) => was[k] !== next[k]);
+    if (keys.length === 0) return was;
+    const pick = (v: typeof was) => Object.fromEntries(keys.map((k) => [k, v[k]]));
+    await this.prisma.db.$transaction(async (tx) => {
+      await tx.service.update({ where: { id: current.id }, data });
+      await tx.auditLog.create({
+        data: {
+          entityType: 'Service',
+          entityId: current.id,
+          action: 'hotel.service.updated',
+          before: pick(was),
+          after: pick(next),
+        },
+      });
+    });
+    return next;
+  }
+
+  private mayEditSettings(): void {
+    if (!hasSignedInActor() || !actorMay('settings'))
+      throw new ForbiddenException(accessDeniedMessage('settings'));
+  }
+
   /** Сбросить кэш настроек (после онбординга: у объекта появились номера, гейт больше не нужен). */
   forget(): void {
     this.cachedSettings.clear();
@@ -284,6 +392,23 @@ export class HotelService {
   }
 }
 
+/** Услуга каталога наружу: код — ссылка для правки, цена — строка тиынов (деньги не float, ADR-008) */
+function serviceView(s: {
+  code: string;
+  nameRu: string;
+  group: string | null;
+  price: bigint;
+  active: boolean;
+}) {
+  return {
+    code: s.code,
+    name: s.nameRu,
+    group: s.group,
+    priceMinor: s.price.toString(),
+    active: s.active,
+  };
+}
+
 @Access('desk')
 @Controller('hotel')
 export class HotelController {
@@ -296,6 +421,22 @@ export class HotelController {
   @Patch('settings')
   updateSettings(@Body() body: unknown) {
     return this.service.updateSettings(body);
+  }
+  // Каталог услуг «Настроек объекта» (SET3): владелец и управляющий — право `settings` включает «услуги» (ADR-107)
+  @Access('settings')
+  @Get('services')
+  services() {
+    return this.service.serviceCatalog();
+  }
+  @Access('settings')
+  @Post('services')
+  createService(@Body() body: unknown) {
+    return this.service.createService(body);
+  }
+  @Access('settings')
+  @Patch('services/:code')
+  updateService(@Param('code') code: string, @Body() body: unknown) {
+    return this.service.updateService(code, body);
   }
   @Get('first-steps') firstSteps() {
     return this.service.firstSteps();

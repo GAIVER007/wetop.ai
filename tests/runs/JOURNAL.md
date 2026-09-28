@@ -3499,3 +3499,23 @@
 | 28.09.2026 23:42 | lint | ✅ без ошибок | 17 с | c39c55e +11 | [лог](logs/2026-09-28T18-42-58Z-lint-4e6d.log) |  |
 | 28.09.2026 23:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB3 ·) | ❌ упало 4 из 4 | 1 мин 48 с | c39c55e +7 | [лог](logs/2026-09-28T18-43-24Z-e2e-188a.log) | WEB3 · бронирование: состояние, демо только у работающего, что увидит гость |
 | 28.09.2026 23:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts tests/ui/workspace.spec.ts tests/ui/quality.spec.ts tests/ui/settings | ✅ 107 из 107 | 12 мин 38 с | c39c55e +11 | [лог](logs/2026-09-28T18-45-18Z-e2e-f73c.log) |  |
+| 29.09.2026 00:17 | unit (частично: packages/domain/src/web-analytics/metrics.test.ts) | ❌ упало 5 из 18 | 3 с | c5e7511 +1 | [лог](logs/2026-09-28T19-17-24Z-unit-1dfe.log) | воронка сайта (WEB4) сессии по шагам: посещение → поиск → начали бронь → бронь, проценты от предыдущего шага |
+| 29.09.2026 00:17 | unit (частично: packages/domain/src/web-analytics/metrics.test.ts) | ✅ 18 из 18 | 2 с | c5e7511 +2 | [лог](logs/2026-09-28T19-17-45Z-unit-43a7.log) |  |
+| 29.09.2026 00:18 | unit (частично: apps/api/src/analytics/analytics.controller.test.ts) | ❌ упало 2 из 12 | 4 с | c5e7511 +4 | [лог](logs/2026-09-28T19-18-22Z-unit-fc71.log) | сайты и отчёты /analytics отчёт за период — контрольные числа гейта |
+| 29.09.2026 00:18 | unit (частично: apps/api/src/analytics) | ✅ 33 из 33 | 4 с | c5e7511 +6 | [лог](logs/2026-09-28T19-18-54Z-unit-6960.log) |  |
+| 29.09.2026 00:20 | integration (частично: tests/integration/website-reservations.test.ts) | ❌ упало 1 из 1 | 3 с | c5e7511 +6 | [лог](logs/2026-09-28T19-20-02Z-integration-ddee.log) | брони с сайта для отчёта сайта (integration, rolled back) источник «Сайт», сутки создания по поясу объекта, начислено без аннулированного |
+| 29.09.2026 00:20 | integration (частично: tests/integration/website-reservations.test.ts) | ✅ 1 из 1 | 3 с | c5e7511 +7 | [лог](logs/2026-09-28T19-20-10Z-integration-f3c2.log) |  |
+| 29.09.2026 00:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB4 ·\|обзор подключённого) | ❌ упало 3 из 3 | 2 мин 3 с | c5e7511 +8 | [лог](logs/2026-09-28T19-21-09Z-e2e-91e9.log) | обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц |
+| 29.09.2026 00:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB4\|обзор подключённого) | ✅ 4 из 4 | 18 с | c5e7511 +11 | [лог](logs/2026-09-28T19-24-34Z-e2e-8842.log) |  |
+| 29.09.2026 00:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB4) | ✅ 3 из 3 | 16 с | c5e7511 +11 | [лог](logs/2026-09-28T19-25-27Z-e2e-31cf.log) |  |
+| 29.09.2026 00:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB4) | ✅ 3 из 3 | 15 с | c5e7511 +11 | [лог](logs/2026-09-28T19-26-18Z-e2e-8b71.log) |  |
+| 29.09.2026 00:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB4) | ✅ 3 из 3 | 16 с | c5e7511 +12 | [лог](logs/2026-09-28T19-27-02Z-e2e-5ee1.log) |  |
+| 29.09.2026 00:27 | typecheck | ✅ без ошибок | 22 с | c5e7511 +13 | [лог](logs/2026-09-28T19-27-27Z-typecheck-6194.log) |  |
+| 29.09.2026 00:27 | lint | ✅ без ошибок | 17 с | c5e7511 +13 | [лог](logs/2026-09-28T19-27-49Z-lint-0c90.log) |  |
+| 29.09.2026 00:28 | unit | ❌ упало 2 из 2165, пропущено 3 | 1 мин 21 с | c5e7511 +11 | [лог](logs/2026-09-28T19-28-07Z-unit-4d54.log) | design: сторож ИИ-слопа (DESIGN.md §15) color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css |
+| 29.09.2026 00:29 | unit (частично: tests/unit/design-slop.test.ts) | ❌ упало 1 из 11 | 1 с | c5e7511 +12 | [лог](logs/2026-09-28T19-29-55Z-unit-46e1.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 29.09.2026 00:30 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | c5e7511 +12 | [лог](logs/2026-09-28T19-30-05Z-unit-db63.log) |  |
+| 29.09.2026 00:30 | unit | ✅ 2162 из 2165, пропущено 3 | 1 мин 19 с | c5e7511 +12 | [лог](logs/2026-09-28T19-30-12Z-unit-ff54.log) |  |
+| 29.09.2026 00:31 | integration | ✅ 111 из 111 | 35 с | c5e7511 +8 | [лог](logs/2026-09-28T19-31-32Z-integration-87e2.log) |  |
+| 29.09.2026 00:32 | typecheck | ✅ без ошибок | 24 с | c5e7511 +14 | [лог](logs/2026-09-28T19-32-24Z-typecheck-7bf2.log) |  |
+| 29.09.2026 00:32 | lint | ✅ без ошибок | 17 с | c5e7511 +14 | [лог](logs/2026-09-28T19-32-49Z-lint-0554.log) |  |

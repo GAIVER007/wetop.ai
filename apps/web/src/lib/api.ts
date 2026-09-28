@@ -1380,6 +1380,15 @@ export interface SiteReport {
     browsers: Array<{ key: string | null; sessions: number; share: number }>;
     os: Array<{ key: string | null; sessions: number; share: number }>;
   };
+  /** Воронка по сессиям периода (WEB4): сессия, дошедшая дальше, засчитана и на шагах до этого */
+  funnel: { visits: number; searches: number; started: number; booked: number; conversion: number };
+  /** Брони с источником «Сайт», созданные за период, — по объекту; начислено по их счетам (WEB4, Q-212) */
+  siteReservations: {
+    count: number;
+    cancelled: number;
+    noShow: number;
+    charged: Array<{ currency: string; chargedMinor: string }>;
+  };
 }
 export const analyticsApi = {
   sites: () => getJson<TrackedSite[]>('/analytics/sites'),

@@ -43,7 +43,7 @@ export default async function WebsiteOverviewPage() {
 
 async function SiteOverview({ card }: { card: TrackedSiteCard }) {
   const state = siteState(card, propertyClock(card.site.timezone));
-  // «Брони с сайта» за этот месяц — то же число, что плитка отчёта во вкладке «Аналитика»
+  // «Брони с сайта» за этот месяц — то же число, что блок «Брони с сайта» во вкладке «Аналитика» (WEB4, Q-212)
   const report = await analyticsApi.report(card.site.id).catch(() => null);
   return (
     <StateBar
@@ -79,7 +79,7 @@ async function SiteOverview({ card }: { card: TrackedSiteCard }) {
       </StateFact>
       <StateFact
         label="Брони с сайта"
-        value={report ? String(report.summary.bookings) : '—'}
+        value={report ? String(report.siteReservations.count) : '—'}
         data-testid="website-bookings"
       >
         {report ? 'в этом месяце' : 'отчёт не загрузился'}

@@ -486,7 +486,7 @@ export function InstallWidgetButton({ code, demoUrl }: { code: string; demoUrl: 
               <li>
                 Цвет кнопок и рамки фокуса — в стилях сайта:{' '}
                 <code>
-                  .pmsw {'{'} --pmsw-accent: #0a7c59; {'}'}
+                  .pmsw {'{'} --pmsw-accent: &lt;цвет сайта&gt;; {'}'}
                 </code>
                 . Подпись кнопок и язык формы пока не настраиваются.
               </li>

@@ -1612,6 +1612,14 @@ function report(): SiteReport {
     demand: [],
     events: [],
     devices: { devices: [], browsers: [], os: [] },
+    // WEB4: воронка по сессиям и брони с сайта (Q-212) — числа учебные, сверяются в tests/ui/website.spec.ts
+    funnel: { visits: 125, searches: 40, started: 18, booked: 12, conversion: 0.096 },
+    siteReservations: {
+      count: 14,
+      cancelled: 1,
+      noShow: 1,
+      charged: [{ currency: 'KZT', chargedMinor: '142000000' }],
+    },
   };
 }
 

@@ -12,6 +12,7 @@ const API = 'http://127.0.0.1:4311';
 const TEST_CLIENT = { 'x-wetop-test-client': '1' };
 const SHOTS = 'reports/website-web2-2026-09-28';
 const SHOTS_WEB3 = 'reports/website-web3-2026-09-28';
+const SHOTS_WEB4 = 'reports/website-web4-2026-09-28';
 const TITLE = 'Сайт и онлайн-бронирование';
 
 test.beforeEach(async ({ request }) => {
@@ -103,7 +104,8 @@ test('обзор подключённого сайта: домен, счётчи
   await expect(main.getByTestId('website-open')).toHaveAttribute('href', 'https://luxxaparts.kz');
   await expect(main.getByTestId('website-booking')).toContainText('Включено');
   await expect(main.getByTestId('website-booking')).toContainText('Тариф «Стандартный»');
-  await expect(main.getByTestId('website-bookings')).toContainText('12');
+  // WEB4: брони с сайта за месяц — все брони с источником «Сайт» (Q-212), не только сессии со счётчиком
+  await expect(main.getByTestId('website-bookings')).toContainText('14');
   // событие сегодня — «Работает»; счётчик и виджет на паузе — «Приостановлен» и «Остановлено»
   await request.post(`${API}/__test/control`, {
     data: { siteLastEventAt: new Date(Date.now() - 2 * 60_000).toISOString() },
@@ -457,6 +459,79 @@ test('снимки WEB3', async ({ page, request }) => {
     await page.reload();
     await expect(page.getByTestId('website-booking-state')).toHaveAttribute('data-state', 'off');
     await shot(page, `booking-off-${theme}`);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('WEB4 · брони с сайта: число, отменённые, начислено и ссылка в «Брони» с тем же отбором', async ({
+  page,
+}) => {
+  await page.goto('/website/analytics');
+  const main = page.getByRole('main');
+  const block = main.getByTestId('an-site-reservations');
+  await expect(block.getByTestId('an-site-reservations-count')).toHaveText('14');
+  await expect(block).toContainText('отменено 1');
+  await expect(block).toContainText('не заехали 1');
+  await expect(block.getByTestId('an-site-reservations-charged')).toHaveText('1 420 000 ₸');
+  // ссылка — тот же период, что у отчёта, по дате создания и источнику «Сайт»: числа сверяются в «Бронях»
+  const from = await main.getByTestId('an-period').locator('time').first().getAttribute('datetime');
+  const to = await main.getByTestId('an-period').locator('time').last().getAttribute('datetime');
+  await expect(block.getByRole('link', { name: 'Открыть в «Бронях»' })).toHaveAttribute(
+    'href',
+    `/reservations?from=${from}&to=${to}&date=created&source=WEBSITE`,
+  );
+  // плитка счётчика больше не называется так же, как блок броней
+  const tile = main.getByTestId('an-bookings').locator('xpath=..');
+  await expect(tile).toContainText('Сессий с бронью');
+  await expect(tile).not.toContainText('Брони с сайта');
+});
+
+test('WEB4 · воронка: шаги по сессиям, проценты от предыдущего шага, конверсия', async ({
+  page,
+}) => {
+  await page.goto('/website/analytics');
+  const funnel = page.getByRole('main').getByTestId('an-funnel');
+  const steps = funnel.getByTestId('an-funnel-step');
+  await expect(steps).toHaveCount(4);
+  await expect(steps.nth(0)).toContainText('Посещения');
+  await expect(steps.nth(0)).toContainText('125');
+  await expect(steps.nth(1)).toContainText('Поиск дат');
+  await expect(steps.nth(1)).toContainText('40');
+  await expect(steps.nth(1)).toContainText('32 % от посещений');
+  await expect(steps.nth(2)).toContainText('Начали бронь');
+  await expect(steps.nth(2)).toContainText('18');
+  await expect(steps.nth(2)).toContainText('45 % от поиска');
+  await expect(steps.nth(3)).toContainText('Бронь');
+  await expect(steps.nth(3)).toContainText('12');
+  await expect(steps.nth(3)).toContainText('67 % от начатых');
+  await expect(funnel.getByTestId('an-funnel-conversion')).toHaveText('9,6 %');
+});
+
+/** Снимки для визуального «да» владельца (стоп-гейт WEB4): вкладка «Аналитика» в двух темах и на телефоне */
+test('снимки WEB4', async ({ page }) => {
+  mkdirSync(SHOTS_WEB4, { recursive: true });
+  const errors: string[] = [];
+  page.on('pageerror', (error) => {
+    if (!devNoise.test(error.message)) errors.push(`${page.url()}: ${error.message}`);
+  });
+  const shot = async (p: Page, name: string) => {
+    await p.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
+    await p.screenshot({
+      path: `${SHOTS_WEB4}/${name}.png`,
+      fullPage: true,
+      animations: 'disabled',
+    });
+  };
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/website/analytics');
+    await expect(page.getByTestId('an-funnel')).toBeVisible();
+    await shot(page, `analytics-${theme}`);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    await expect(page.getByTestId('an-funnel')).toBeVisible();
+    await shot(page, `analytics-${theme}-390`);
   }
   expect(errors).toEqual([]);
 });

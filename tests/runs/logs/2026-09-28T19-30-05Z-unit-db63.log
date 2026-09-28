@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 00:30 Алматы · vm
+# коммит c5e7511 (claude/serene-fermat-om5559), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-30-05Z-unit-db63.json' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 9ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  19:30:06
+   Duration  261ms (import 46%, transform 43%, tests 8%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-30-05Z-unit-db63.json
+
+# код выхода 0 · 1 с

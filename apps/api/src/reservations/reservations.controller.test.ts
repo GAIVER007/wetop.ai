@@ -83,7 +83,7 @@ function makeFake() {
     { id: 'u5', code: '9005', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
     { id: 'u4', code: '9004', accommodationTypeId: 't1', active: true, housekeepingStatus: hk },
   ];
-  /** Какие тарифы действуют на обе категории; второй тариф тест добавляет сам (Q-199) */
+  /** Какие тарифы действуют на обе категории; второй тариф тест добавляет сам (Q-200) */
   const covers = new Set(['p1']);
   const rates: Record<string, bigint> = {};
   for (const d of ['2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18']) {
@@ -1511,11 +1511,11 @@ describe('manual reservation API', () => {
   });
 
   /**
-   * Q-199 (ответ владельца 27.09.2026 — «нет не могут»): тариф — цена и правило штрафа брони, у существующей брони его
+   * Q-200 (ответ владельца 27.09.2026 — «нет не могут»): тариф — цена и правило штрафа брони, у существующей брони его
    * меняют владелец и управляющий (право `rates`). Администратор меняет даты, продлевает и переселяет в том же тарифе.
-   * Брони из Exely без тарифа тариф назначают они же — до ответа на Q-200.
+   * Брони из Exely без тарифа тариф назначают они же — до ответа на Q-201.
    */
-  describe('тариф брони по роли (Q-199, ADR-107)', () => {
+  describe('тариф брони по роли (Q-200, ADR-107)', () => {
     const secondPlan = () => {
       fake.plans.push({
         id: 'p2',
@@ -1578,11 +1578,11 @@ describe('manual reservation API', () => {
     });
 
     /**
-     * Q-200 (ответ владельца 27.09.2026 — «Да, разрешить»): брони из Exely без тарифа администратор назначает тариф один
+     * Q-201 (ответ владельца 27.09.2026 — «Да, разрешить»): брони из Exely без тарифа администратор назначает тариф один
      * раз, со штрафом не мягче «первых суток»; тариф записывается в бронь и дальше меняется только владельцем и
      * управляющим. В фальшивке p1 — «первые сутки», p2 — без штрафа.
      */
-    it('бронь из Exely без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-200)', async () => {
+    it('бронь из Exely без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201)', async () => {
       secondPlan();
       const plain = await book();
       fake.state.reservations.get(plain.n)!.items[0]!.ratePlanId = null;
@@ -1600,13 +1600,13 @@ describe('manual reservation API', () => {
       expect(planOf(plain.n)).toBeNull();
       await as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800001' }));
       expect(planOf(plain.n)).toBe('p1');
-      // записанный тариф администратор уже не меняет (Q-199)
+      // записанный тариф администратор уже не меняет (Q-200)
       await expect(
         as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800002' })),
       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
     });
 
-    it('продление брони без тарифа записывает выбранный тариф: второе продление — уже в нём (Q-200)', async () => {
+    it('продление брони без тарифа записывает выбранный тариф: второе продление — уже в нём (Q-201)', async () => {
       secondPlan();
       const { n, itemId } = await book();
       fake.state.reservations.get(n)!.items[0]!.ratePlanId = null;
@@ -1630,7 +1630,7 @@ describe('manual reservation API', () => {
 
   it('GET /rate-plans lists only active tariffs', async () => {
     const res = await request(app.getHttpServer()).get('/rate-plans').expect(200);
-    // правило штрафа — чтобы стойка показала администратору только тарифы, которые ему можно назначить (Q-200)
+    // правило штрафа — чтобы стойка показала администратору только тарифы, которые ему можно назначить (Q-201)
     expect(res.body).toEqual([
       {
         code: 'exely-800001',

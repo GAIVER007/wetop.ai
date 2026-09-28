@@ -153,7 +153,7 @@ const plans = [
     cancellationPenalty: 'FIRST_NIGHT' as const,
   },
 ];
-/** Тариф без штрафа за отмену — `POST /__test/control { softPlan: true }`, сбрасывается `reset` (Q-200) */
+/** Тариф без штрафа за отмену — `POST /__test/control { softPlan: true }`, сбрасывается `reset` (Q-201) */
 const softPlanSeed = {
   code: 'FLEX',
   name: 'Гибкий без штрафа',
@@ -1471,8 +1471,8 @@ const uiSessions = new Map<string, UiUser>();
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
 let uiRole: MembershipRole = 'OWNER';
 /**
- * Тариф брони у роли стенда — как в API: администратор пересчитывает только в тарифе брони (Q-199); брони без тарифа
- * (из Exely) назначает тариф со штрафом не мягче «первых суток» (Q-200). `null` — можно.
+ * Тариф брони у роли стенда — как в API: администратор пересчитывает только в тарифе брони (Q-200); брони без тарифа
+ * (из Exely) назначает тариф со штрафом не мягче «первых суток» (Q-201). `null` — можно.
  */
 function planRefusal(current: string | null | undefined, requested: unknown): string | null {
   if (can(uiRole, 'rates') || typeof requested !== 'string' || !requested) return null;
@@ -1482,7 +1482,7 @@ function planRefusal(current: string | null | undefined, requested: unknown): st
     ? RATE_PLAN_SOFT_MESSAGE
     : null;
 }
-/** Бронь без тарифа получает выбранный тариф — как в API: дальше пересчёт в нём (Q-200) */
+/** Бронь без тарифа получает выбранный тариф — как в API: дальше пересчёт в нём (Q-201) */
 function recordPlan(
   item: { ratePlanCode?: string | null; ratePlanName?: string | null },
   requested: unknown,

@@ -14,7 +14,8 @@ const maxNights = (n: number) => `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'но�
  * Сетка месяца (ТЗ v2 §6–§8, §21–§24, ADR-111): главное в ячейке — цена за полную вместимость,
  * цена за меньшее число гостей — мельче со словом; ограничения — словами внизу; выходные — лёгкий
  * фон, сегодня — рамка акцента. Правка цены — прежний `PriceCell` (срез 7.2). На телефоне сетка
- * складывается в список дней — разметка та же, складывает CSS (`rates.css`).
+ * складывается в список дней — разметка та же, складывает CSS (`rates.css`). С RT2 число дня — кнопка
+ * выбора даты (`aria-pressed`); выбор держит `RatesCalendar`.
  */
 export function MonthGrid({
   days,
@@ -23,6 +24,8 @@ export function MonthGrid({
   category,
   ratePlan,
   today,
+  selection,
+  onPick,
 }: {
   days: RateCalendarDay[];
   currency: string;
@@ -30,6 +33,8 @@ export function MonthGrid({
   category: string;
   ratePlan: string;
   today: string;
+  selection: { from: string; to: string } | null;
+  onPick: (date: string) => void;
 }) {
   const first = days[0]!;
   const lead = (new Date(`${first.date}T00:00:00Z`).getUTCDay() + 6) % 7;
@@ -57,6 +62,7 @@ export function MonthGrid({
             d.minStay != null && d.minStay >= 2 ? `мин. ${nights(d.minStay)}` : '',
             d.maxStay != null ? `до ${maxNights(d.maxStay)}` : '',
           ].filter(Boolean);
+          const selected = !!selection && d.date >= selection.from && d.date <= selection.to;
           return (
             <li
               key={d.date}
@@ -66,16 +72,30 @@ export function MonthGrid({
                 d.stopSell && 'is-stop',
                 !d.stopSell && weekend && 'is-weekend',
                 d.date === today && 'is-today',
+                selected && 'is-selected',
               )}
             >
-              <time dateTime={d.date} className="rate-cal__date">
-                <span className="rate-cal__num" aria-hidden>
-                  {Number(d.date.slice(8, 10))}
-                </span>
-                <span className="rate-cal__full">
-                  {displayDate(d.date)} {WD[wd]}
-                </span>
-              </time>
+              <button
+                type="button"
+                className="rate-cal__pick"
+                aria-pressed={selected}
+                aria-label={`Выбрать ${displayDate(d.date)} ${WD[wd]}`}
+                onClick={() => onPick(d.date)}
+              >
+                <time dateTime={d.date} className="rate-cal__date">
+                  <span className="rate-cal__num" aria-hidden>
+                    {Number(d.date.slice(8, 10))}
+                  </span>
+                  <span className="rate-cal__full">
+                    {displayDate(d.date)} {WD[wd]}
+                  </span>
+                </time>
+                {selected && (
+                  <span className="rate-cal__check" aria-hidden>
+                    ✓
+                  </span>
+                )}
+              </button>
               <div className="rate-cal__price" data-testid={`price-${d.date}-${capacityAdults}`}>
                 {capacityAdults > 1 && (
                   <span className="rate-cal__word">

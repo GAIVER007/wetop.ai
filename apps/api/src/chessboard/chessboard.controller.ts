@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
 import { ChessboardService } from './chessboard.service';
+import { Access } from '../auth/access.decorator';
 
+@Access('desk')
 @Controller()
 export class ChessboardController {
   constructor(@Inject(ChessboardService) private readonly service: ChessboardService) {}
@@ -18,7 +20,7 @@ export class ChessboardController {
     return this.service.availability(arrival || undefined, departure || undefined);
   }
 
-  /** Карточка брони по номеру подтверждения (для перенесённых — номер Exely). */
+  /** Карточка брони по номеру подтверждения. */
   @Get('reservations/:number')
   reservation(@Param('number') number: string) {
     return this.service.reservation(number);

@@ -6,8 +6,8 @@ const input = (): DashboardInput => ({
   from: '2026-10-05',
   to: '2026-10-06',
   categories: [
-    { code: 'ROOM', name: 'Двухместная', units: 2 },
-    { code: 'DORM', name: 'Мужская общая', units: 3 },
+    { code: 'ROOM', name: 'Двухместная', units: 2, kind: 'ROOM' },
+    { code: 'DORM', name: 'Мужская общая', units: 3, kind: 'BED' },
   ],
   days: [
     {
@@ -31,7 +31,7 @@ const input = (): DashboardInput => ({
       },
     },
   ],
-  unassigned: 1,
+  unassignedByCategory: { DORM: 1 },
   stays: [
     // заезд в периоде, канал
     {
@@ -95,11 +95,22 @@ const input = (): DashboardInput => ({
     },
   ],
   charges: [
-    { kind: 'ACCOMMODATION', amountMinor: 3_000_000n, categoryCode: 'ROOM' },
-    { kind: 'ACCOMMODATION', amountMinor: 500_000n, categoryCode: 'DORM' },
-    { kind: 'SERVICE', amountMinor: 150_000n, categoryCode: 'ROOM' },
-    { kind: 'PENALTY', amountMinor: 400_000n, categoryCode: 'DORM' },
-    { kind: 'ADJUSTMENT', amountMinor: -50_000n, categoryCode: 'ROOM' },
+    // проживание датировано днём заезда — одно начисление на проживание
+    {
+      kind: 'ACCOMMODATION',
+      amountMinor: 3_000_000n,
+      categoryCode: 'ROOM',
+      serviceDate: '2026-10-05',
+    },
+    {
+      kind: 'ACCOMMODATION',
+      amountMinor: 500_000n,
+      categoryCode: 'DORM',
+      serviceDate: '2026-10-06',
+    },
+    { kind: 'SERVICE', amountMinor: 150_000n, categoryCode: 'ROOM', serviceDate: '2026-10-05' },
+    { kind: 'PENALTY', amountMinor: 400_000n, categoryCode: 'DORM', serviceDate: '2026-10-06' },
+    { kind: 'ADJUSTMENT', amountMinor: -50_000n, categoryCode: 'ROOM', serviceDate: '2026-10-06' },
   ],
   payments: [
     { method: 'CASH', amountMinor: 1_000_000n },
@@ -167,6 +178,7 @@ describe('buildDashboard', () => {
       {
         code: 'ROOM',
         name: 'Двухместная',
+        kind: 'ROOM',
         units: 2,
         unitNights: 4,
         occupiedNights: 3,
@@ -177,6 +189,7 @@ describe('buildDashboard', () => {
       {
         code: 'DORM',
         name: 'Мужская общая',
+        kind: 'BED',
         units: 3,
         unitNights: 6,
         occupiedNights: 4,
@@ -187,11 +200,29 @@ describe('buildDashboard', () => {
     ]);
   });
 
-  it('по дням — занятость и заезды/выезды на каждую дату', () => {
+  it('по дням — занятость, заезды/выезды и начисленное за проживание на каждую дату', () => {
     const d = buildDashboard(input());
     expect(d.daily).toEqual([
-      { date: '2026-10-05', occupied: 3, free: 2, blocked: 0, percent: 60, arrivals: 1, departures: 1 },
-      { date: '2026-10-06', occupied: 4, free: 0, blocked: 1, percent: 80, arrivals: 1, departures: 0 },
+      {
+        date: '2026-10-05',
+        occupied: 3,
+        free: 2,
+        blocked: 0,
+        percent: 60,
+        arrivals: 1,
+        departures: 1,
+        revenueMinor: '3000000',
+      },
+      {
+        date: '2026-10-06',
+        occupied: 4,
+        free: 0,
+        blocked: 1,
+        percent: 80,
+        arrivals: 1,
+        departures: 0,
+        revenueMinor: '500000',
+      },
     ]);
   });
 
@@ -201,7 +232,7 @@ describe('buildDashboard', () => {
       to: '2026-10-05',
       categories: [],
       days: [{ date: '2026-10-05', occupied: 0, free: 0, blocked: 0, byCategory: {} }],
-      unassigned: 0,
+      unassignedByCategory: {},
       stays: [],
       charges: [],
       payments: [],
@@ -211,11 +242,94 @@ describe('buildDashboard', () => {
     expect(d.adrMinor).toBeNull();
     expect(d.revparMinor).toBeNull();
     expect(d.sources).toEqual([]);
+    expect(d.bookings.averageMinor).toBeNull();
+    expect(d.bookings.cancelledPercent).toBe(0);
   });
 
   it('число дней должно совпадать с периодом — иначе загрузка врёт', () => {
     const bad = input();
     bad.days = bad.days.slice(0, 1);
     expect(() => buildDashboard(bad)).toThrow(/дней/);
+  });
+});
+
+/** Аналитика v2, срез AN1 (plans/analytics-v2-an1-2026-09-27.md): брони, выручка по дням, тип фонда. */
+describe('buildDashboard: брони и тип фонда', () => {
+  it('брони — все проживания с заездом в периоде; отмены и незаезды долей; средний чек — по действующим', () => {
+    const d = buildDashboard(input());
+    expect(d.bookings).toEqual({
+      total: 4,
+      active: 2,
+      cancelled: 1,
+      noShow: 1,
+      cancelledPercent: 25,
+      noShowPercent: 25,
+      valueMinor: '3500000',
+      averageMinor: '1750000',
+    });
+  });
+
+  it('состав фонда виден при любом типе: номеров и коек сколько есть', () => {
+    expect(buildDashboard(input()).funds).toEqual({ rooms: 2, beds: 3 });
+    expect(buildDashboard(input(), 'beds').funds).toEqual({ rooms: 2, beds: 3 });
+    expect(buildDashboard(input()).fund).toBe('all');
+  });
+
+  it('номера: считаются только категории из номеров — койки в среднюю цену номера не попадают', () => {
+    const d = buildDashboard(input(), 'rooms');
+    expect(d.fund).toBe('rooms');
+    expect(d.units).toBe(2);
+    expect(d.occupancy).toEqual({
+      unitNights: 4,
+      occupiedNights: 3,
+      blockedNights: 0,
+      freeNights: 1,
+      percent: 75,
+    });
+    expect(d.revenue.accommodationMinor).toBe('3000000');
+    // 3 000 000 / 3 проданные ночи номеров; / (2 номера × 2 ночи)
+    expect(d.adrMinor).toBe('1000000');
+    expect(d.revparMinor).toBe('750000');
+    expect(d.bookings).toMatchObject({
+      total: 1,
+      active: 1,
+      cancelled: 0,
+      averageMinor: '3000000',
+    });
+    expect(d.sources).toEqual([
+      { source: 'OTA', channel: 'Booking.com', count: 1, amountMinor: '3000000', share: 100 },
+    ]);
+    expect(d.categories.map((c) => c.code)).toEqual(['ROOM']);
+    expect(d.unassigned).toBe(0);
+    expect(d.daily.map((p) => [p.occupied, p.free, p.blocked, p.percent, p.revenueMinor])).toEqual([
+      [1, 1, 0, 50, '3000000'],
+      [2, 0, 0, 100, '0'],
+    ]);
+  });
+
+  it('койки: своя загрузка с блокировками в знаменателе, своя средняя цена и свои отмены', () => {
+    const d = buildDashboard(input(), 'beds');
+    expect(d.units).toBe(3);
+    expect(d.occupancy).toEqual({
+      unitNights: 6,
+      occupiedNights: 4,
+      blockedNights: 1,
+      freeNights: 1,
+      percent: 66.7,
+    });
+    expect(d.adrMinor).toBe('125000');
+    // 500 000 / 6 клетко-ночей — целочисленно в тиынах
+    expect(d.revparMinor).toBe('83333');
+    expect(d.bookings).toEqual({
+      total: 3,
+      active: 1,
+      cancelled: 1,
+      noShow: 1,
+      cancelledPercent: 33.3,
+      noShowPercent: 33.3,
+      valueMinor: '500000',
+      averageMinor: '500000',
+    });
+    expect(d.unassigned).toBe(1);
   });
 });

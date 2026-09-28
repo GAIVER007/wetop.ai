@@ -70,5 +70,5 @@ export const METHOD_RU: Record<string, string> = {
   BANK_TRANSFER_LEGAL: 'Перевод от юрлица',
   DEPOSIT: 'Депозит',
   CARD_GUARANTEE: 'Гарантия картой',
-  EXTERNAL: 'Канал / Exely',
+  EXTERNAL: 'Внешний канал',
 };

@@ -4,7 +4,7 @@ import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
- * Строка «Без ячейки» на шахматке — паритет со строкой «Без номера» в Exely: проживание без назначения
+ * Строка «Без ячейки» на шахматке — паритет со строкой «Без номера» в Legacy: проживание без назначения
  * не занимает клетку сетки, но стойка обязана видеть его на доске, а не только с карточки.
  * Путь через интерфейс: в форме новой брони ячейка «— назначить позже —». Проверяется то, что видит
  * стойка: блок над сеткой с числом, категорией, номером-ссылкой, датами и статусом; на сетке клетки
@@ -61,6 +61,9 @@ test('бронь без ячейки видна в блоке «Без ячей�
   const count = Number(await block.getAttribute('data-count'));
   expect(count).toBeGreaterThanOrEqual(1);
   await expect(block).toContainText(`Без ячейки: ${count}`);
+  // Плашка свёрнута в одну строку (ТЗ «Шахматка v2» §11) — список раскрывается по щелчку;
+  // при проданном сверх мест она раскрыта сразу, тогда щёлкать нечего
+  if ((await block.getAttribute('open')) === null) await block.locator('summary').click();
   await expect(block).toContainText(categoryName);
   const item = block.locator(`[data-testid="unassigned-stay"][data-number="${number}"]`);
   await expect(item).toHaveCount(1);

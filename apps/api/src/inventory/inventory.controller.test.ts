@@ -14,46 +14,41 @@ const plan: InventoryImportPlan = {
   floorName: '1',
   accommodationTypes: [
     {
-      code: 'exely-900001',
+      code: 'category-single',
       name: 'Тестовая одиночная',
       kind: 'PRIVATE_ROOM',
       capacityAdults: 1,
       capacityChildren: 0,
-      exelyId: '900001',
     },
     {
-      code: 'exely-900003',
+      code: 'category-dorm',
       name: 'Тестовый dorm',
       kind: 'DORM_BED',
       capacityAdults: 1,
       capacityChildren: 0,
-      exelyId: '900003',
     },
   ],
   units: [
     {
       code: '9001',
-      exelyRoomNumber: '9001',
       kind: 'ROOM',
-      accommodationTypeCode: 'exely-900001',
+      accommodationTypeCode: 'category-single',
       roomNumber: '9001',
       roomCapacity: 1,
       isDorm: false,
     },
     {
       code: '9010',
-      exelyRoomNumber: '9010',
       kind: 'BED',
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       roomNumber: '9010',
       roomCapacity: 1,
       isDorm: true,
     },
     {
       code: '9011',
-      exelyRoomNumber: '9011',
       kind: 'BED',
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       roomNumber: '9011',
       roomCapacity: 1,
       isDorm: true,
@@ -67,6 +62,19 @@ const fakeRepo: InventoryRepository = {
       plan,
       blocks: 0,
     };
+  },
+  // Живое состояние (ADR-108): у 9010 действующая блокировка, 9011 в состояниях не найден —
+  // сервис подставляет безопасное умолчание (грязно, в продаже, без блокировки)
+  async states() {
+    return [
+      { code: '9001', housekeepingStatus: 'INSPECTED' as const, active: true, block: null },
+      {
+        code: '9010',
+        housekeepingStatus: 'DIRTY' as const,
+        active: true,
+        block: { dateTo: '2026-10-01', type: 'MAINTENANCE', reason: 'ремонт: тестовый кран' },
+      },
+    ];
   },
 };
 
@@ -98,35 +106,46 @@ describe('GET /inventory', () => {
       blocks: 0,
       byCategory: [
         {
-          code: 'exely-900001',
+          code: 'category-single',
           name: 'Тестовая одиночная',
           units: 1,
           maxGuests: 1,
           capacityAdults: 1,
         },
-        { code: 'exely-900003', name: 'Тестовый dorm', units: 2, maxGuests: 2, capacityAdults: 1 },
+        { code: 'category-dorm', name: 'Тестовый dorm', units: 2, maxGuests: 2, capacityAdults: 1 },
       ],
     });
   });
 
-  it('/inventory/units lists every unit with its category name', async () => {
+  it('/inventory/units lists every unit with its category name and live state', async () => {
     const res = await request(app.getHttpServer()).get('/inventory/units').expect(200);
     expect(res.body).toHaveLength(3);
     expect(res.body[1]).toEqual({
       code: '9010',
-      exelyRoomNumber: '9010',
       kind: 'BED',
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       accommodationTypeName: 'Тестовый dorm',
       roomNumber: '9010',
       roomCapacity: 1,
       isDorm: true,
+      buildingName: null,
+      floorName: null,
+      housekeepingStatus: 'DIRTY',
+      active: true,
+      block: { dateTo: '2026-10-01', type: 'MAINTENANCE', reason: 'ремонт: тестовый кран' },
+    });
+    // место без строки состояния получает безопасное умолчание, а не 500
+    expect(res.body[2]).toMatchObject({
+      code: '9011',
+      housekeepingStatus: 'DIRTY',
+      active: true,
+      block: null,
     });
   });
 
   it('/inventory/units?category= filters by accommodation type code', async () => {
     const res = await request(app.getHttpServer())
-      .get('/inventory/units?category=exely-900003')
+      .get('/inventory/units?category=category-dorm')
       .expect(200);
     expect(res.body.map((u: { code: string }) => u.code)).toEqual(['9010', '9011']);
   });

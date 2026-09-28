@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Suspense, use, useEffect, useId, useState, type ReactNode } from 'react';
 import {
   CLOSED_ACCESS,
+  PENDING_ACCESS,
+  allowedItem,
   sidebarSections,
   sidebarSectionsFor,
   activeNavigation,
@@ -34,18 +36,15 @@ export function Sidebar({
   desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
-  // вкладка без своей строки в панели (/channel-manager/mapping, /analytics/sources) — подсвечен родитель
-  const inPanel = (href: string) =>
-    sidebarSections.some((s) => s.items.some((i) => i.href === href));
-  const parent = sidebarSections
-    .flatMap((s) => s.items.map((i) => i.href))
-    .filter((href) => path.startsWith(`${href}/`))
-    .sort((a, b) => b.length - a.length)[0];
+  // Вкладки модулей — не пункты меню: активен их корень («Гостиница», «Номерной фонд» ADR-108,
+  // «Каналы продаж» ADR-112)
   const active = route?.startsWith('/hotel-settings')
     ? '/hotel-settings'
-    : route && !inPanel(route) && parent
-      ? parent
-      : route;
+    : route?.startsWith('/rooms')
+      ? '/inventory'
+      : route?.startsWith('/channels')
+        ? '/channels'
+        : route;
   const activeSection = sidebarSections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;
@@ -88,19 +87,13 @@ export function Sidebar({
           </button>
         )}
       </div>
-      <Link href="/hotel-settings" className="workspace-property" onClick={() => close?.()}>
-        <span className="property-mark">
-          <Icon name="inventory" />
-        </span>
-        <div>
-          <strong>{property?.name ?? 'Объект не загружен'}</strong>
-          <span>{property?.address ?? 'Настройки гостиницы'}</span>
-        </div>
-        <Icon name="chevron" width={14} />
-      </Link>
+      <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
+        <GrantedProperty desk={desk} property={property} close={close} />
+      </Suspense>
       <nav className="workspace-links" aria-label="Разделы">
+        {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-107) */}
         <Suspense
-          fallback={<SectionLinks sections={sidebarSectionsFor(CLOSED_ACCESS)} {...links} />}
+          fallback={<SectionLinks sections={sidebarSectionsFor(PENDING_ACCESS)} {...links} />}
         >
           <GrantedSectionLinks desk={desk} {...links} />
         </Suspense>
@@ -109,7 +102,7 @@ export function Sidebar({
         <Suspense fallback={null}>
           <GrantedTrial desk={desk} />
         </Suspense>
-        {/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */}
+        {/* Свежесть данных Channex и очереди ARI. */}
         <div className="sidebar-freshness">
           <DataFreshness />
         </div>
@@ -160,6 +153,25 @@ function SectionLinks({
         const open = !collapsed && expanded === section.id;
         const selected = activeSection === section.id;
         const panelId = `${id}-${section.id}`;
+        // Раздел из одного пункта (ADR-108): прямая ссылка вместо раскрывашки с единственной строкой
+        const single = section.direct ? section.items[0] : undefined;
+        if (single)
+          return (
+            <div className="sidebar-section" key={section.id}>
+              <Link
+                href={single.href}
+                prefetch={false}
+                onClick={() => close?.()}
+                data-tour={`section-${section.id}`}
+                title={collapsed ? section.label : undefined}
+                className={cx('sidebar-section-toggle', selected && 'has-current-page')}
+                aria-current={single.href === active ? 'page' : undefined}
+              >
+                <Icon name={section.icon} />
+                <span>{section.label}</span>
+              </Link>
+            </div>
+          );
         return (
           <div className="sidebar-section" key={section.id}>
             <button
@@ -199,6 +211,50 @@ function SectionLinks({
         );
       })}{' '}
     </>
+  );
+}
+
+/** Объект вверху панели ведёт в настройки гостиницы — тем, кому они открыты (ADR-107) */
+function GrantedProperty({
+  desk,
+  ...props
+}: {
+  desk: Promise<DeskShell> | undefined;
+  property?: PropertyIdentity | null | undefined;
+  close: (() => void) | undefined;
+}) {
+  const shell = desk ? use(desk) : null;
+  const settings = allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS);
+  return <PropertyBlock {...props} settings={settings} />;
+}
+
+function PropertyBlock({
+  property,
+  settings,
+  close,
+}: {
+  property?: PropertyIdentity | null | undefined;
+  settings: boolean;
+  close: (() => void) | undefined;
+}) {
+  const identity = (
+    <>
+      <span className="property-mark">
+        <Icon name="inventory" />
+      </span>
+      <div>
+        <strong>{property?.name ?? 'Объект не загружен'}</strong>
+        <span>{property?.address ?? 'Настройки объекта'}</span>
+      </div>
+    </>
+  );
+  return settings ? (
+    <Link href="/hotel-settings" className="workspace-property" onClick={() => close?.()}>
+      {identity}
+      <Icon name="chevron" width={14} />
+    </Link>
+  ) : (
+    <div className="workspace-property">{identity}</div>
   );
 }
 

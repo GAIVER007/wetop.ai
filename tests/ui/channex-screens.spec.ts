@@ -1,9 +1,10 @@
 import { expect, test } from './fixtures';
 
 /**
- * Срез 7.2 «Три экрана Channex» (plans/slice-7-2-channex-screens.md) на синтетическом API с витриной:
- * правка цены в ячейке (Enter / Escape / ноль), таблица очереди с фильтром, входящие события с фильтрами,
- * поиском и постраничностью, страница приёма брони без персональных данных.
+ * Срез 7.2 «Три экрана Channex» (plans/slice-7-2-channex-screens.md) на синтетическом API с витриной,
+ * с 27.09.2026 — в модуле «Каналы продаж» (ADR-112): отчёт по источникам на «Обзоре», очередь на
+ * «Синхронизации» за «Техническими деталями», журнал входящих — на «Событиях», страница приёма брони
+ * без персональных данных.
  */
 const fixture = 'http://127.0.0.1:4311';
 
@@ -12,35 +13,37 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
 });
 
+/** Роль читается из `/auth/me`, а без входа его нет: «Настройка подключения» видна только вошедшему владельцу */
+async function signIn(page: import('@playwright/test').Page) {
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+}
+
 /**
- * Отчёт по источникам (21.09.2026, продолжение правки «чтобы каши не было»; с 27.09 — CH1 ADR-107:
- * отчёт живёт в «Аналитика → Источники продаж», а «Менеджер каналов» стал обзором состояния).
+ * Отчёт по источникам (21.09.2026, продолжение правки «чтобы каши не было»; с 27.09 — на «Обзоре»).
  *
  * Было: ряд из четырёх плиток, где четвёртая — «Источников продаж 4» — повторяла число строк таблицы
- * под ней; следом панель «Стоимость выбранных броней» высотой ~230 px ради одного числа, и до таблицы
- * оставалось 690 px экрана; у каждой строки — кружок-монограмма с первой буквой канала, хотя в
- * справочниках от аватаров отказались (DESIGN.md §8) и логотипы каналов не вставляем (§7); пустой отчёт
- * рисовался ячейкой внутри таблицы с шапкой из шести колонок.
+ * под ней; следом панель «Стоимость выбранных броней» высотой ~230 px ради одного числа; у каждой
+ * строки — кружок-монограмма с первой буквой канала, хотя в справочниках от аватаров отказались
+ * (DESIGN.md §8) и логотипы каналов не вставляем (§7); пустой отчёт рисовался ячейкой внутри таблицы
+ * с шапкой из шести колонок.
  */
-test('источники продаж: стоимость — плитка в ряду, без дубля числа источников и без монограмм', async ({
+test('обзор каналов: отчёт по источникам без дубля числа источников и без монограмм', async ({
   page,
   request,
 }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/analytics/sources');
+  await page.goto('/channels');
 
   // стоимость стоит рядом с остальными числами, отдельной панели под неё нет
   await expect(main.getByTestId('channel-amount')).toContainText('1 920 000');
   await expect(main.locator('.channel-value-panel')).toHaveCount(0);
   // плитка «Источников продаж» повторяла число строк таблицы — снята
   await expect(main.getByText('Источников продаж')).toHaveCount(0);
-
-  // таблица видна сразу, а не после 690 px сводки
-  const top = await main
-    .getByTestId('channel-report')
-    .evaluate((el) => el.getBoundingClientRect().top);
-  expect(top, 'таблица каналов начинается слишком низко').toBeLessThanOrEqual(560);
 
   // строка называет канал словами: кружков с буквой нет
   await expect(main.locator('.channel-monogram')).toHaveCount(0);
@@ -51,175 +54,79 @@ test('источники продаж: стоимость — плитка в р
 
   // пустой отчёт — общее пустое состояние, шапки из шести колонок над ним нет
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
-  await page.goto('/analytics/sources');
+  await page.goto('/channels');
   await expect(main.getByTestId('channel-report-empty')).toBeVisible();
-  await expect(main.getByRole('columnheader')).toHaveCount(0);
+  // шапки нет у отчёта; таблица «Каналы» рядом живёт по событиям, а не по броням
+  const report = main.getByRole('region', { name: 'Брони по источникам' });
+  await expect(report.getByRole('columnheader')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: {} });
 });
 
-/**
- * CH1 «Каналы продаж v2» (ADR-107, plans/tz-channels-2026-09-27.md §3, §22): «Менеджер каналов» —
- * обзор состояния интеграции без аналитического фильтра периода. Витрина: очередь 2, ошибка
- * отправки 1, событие FAILED, сопоставлений нет — обзор называет проблемы и ведёт туда, где чинят.
- */
-test('каналы продаж: обзор состояния вместо отчёта — счётчики, «Требует внимания», карточка Channex', async ({
+/** Обзор — вход модуля: состояние обмена словом, очередь и ошибки числами, вкладки на месте (ADR-112) */
+test('обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой', async ({
   page,
-  request,
 }) => {
   const main = page.getByRole('main');
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/channel-manager');
+  await page.goto('/channels');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
-  // аналитического фильтра периода на обзоре нет (ТЗ §22) — период живёт в аналитике
-  await expect(main.getByTestId('channel-period-form')).toHaveCount(0);
-  await expect(main.getByLabel('Заезд с')).toHaveCount(0);
-  // полоса здоровья и счётчики: витрина даёт очередь 2 и ошибку отправки 1 — «Есть ошибки»
-  await expect(main.getByTestId('overview-health')).toHaveText('Есть ошибки');
-  await expect(main.getByTestId('overview-pending')).toHaveText('2');
-  await expect(main.getByTestId('overview-failed')).toHaveText('1');
-  await expect(main.getByTestId('overview-inbox')).toHaveText('1');
-  await expect(main.getByTestId('overview-unmapped')).toHaveText('3');
-  // «Требует внимания»: у каждой строки — ссылка туда, где проблему чинят
-  const troubles = main.getByTestId('overview-troubles');
-  await expect(troubles.getByRole('link', { name: 'Открыть очередь' })).toHaveAttribute(
-    'href',
-    '/channels?queue=FAILED',
-  );
-  await expect(troubles.getByRole('link', { name: 'Разобрать' })).toHaveAttribute(
-    'href',
-    '/channels?status=FAILED',
-  );
-  // карточка подключения: среда словами; property id и ключи не показываются (ТЗ §26)
-  const card = main.getByTestId('overview-connection');
-  await expect(card).toContainText('Channex');
-  await expect(card).toContainText('Тестовая');
-  await expect(card).not.toContainText('ui-property');
-  await expect(card.getByRole('link', { name: 'Открыть синхронизацию' })).toHaveAttribute(
-    'href',
-    '/channels',
-  );
-  // источники за 30 дней — компактно, по числу броней, со ссылкой в аналитику
-  const sources = main.getByTestId('overview-sources');
-  await expect(sources).toContainText('Booking.com');
-  await expect(sources).toContainText('50%');
-  await sources.getByRole('link', { name: /Подробнее в аналитике/ }).click();
-  await expect(page).toHaveURL(/\/analytics\/sources\?/);
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Источники продаж');
-  await expect(main.getByTestId('channel-report')).toBeVisible();
-  // D4: отказ отчёта не уносит обзор — сбой только в блоке источников, счётчики на месте
-  await request.post(`${fixture}/__test/control`, {
-    data: { showcase: true, failPath: '/hotel/channel-report' },
-  });
-  await page.goto('/channel-manager');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
-  await expect(main.getByTestId('sources-summary-error')).toBeVisible();
-  await expect(main.getByTestId('overview-pending')).toHaveText('2');
-  // телефон: обзор читается без прокрутки вбок
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/channel-manager');
-  await expect(main.getByTestId('overview-health')).toBeVisible();
-  const layout = await page.evaluate(() => {
-    const w = globalThis as unknown as {
-      innerWidth: number;
-      document: { documentElement: { scrollWidth: number } };
-    };
-    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
-  });
-  expect(layout.content, 'обзор шире экрана телефона').toBeLessThanOrEqual(layout.viewport + 1);
+  // вкладки модуля — как у «Настроек гостиницы»
+  const nav = page.getByRole('navigation', { name: 'Каналы продаж' });
+  await expect(nav.getByRole('link')).toHaveText([
+    'Обзор',
+    'Подключения',
+    'Сопоставление',
+    'Синхронизация',
+    'События',
+  ]);
+  await expect(nav.getByRole('link', { name: 'Обзор' })).toHaveAttribute('aria-current', 'page');
+  // полоса состояния: очередь и ошибки числами, webhook словом
+  await expect(main.getByTestId('outbox-pending')).toHaveText('2');
+  await expect(main.getByTestId('channels-errors')).toHaveText('2');
+  // webhook стенда не настроен (registered=false без PUBLIC_API_URL) — слово честное, не «выключен»
+  await expect(main.getByTestId('webhook-status')).toHaveText('нет PUBLIC_API_URL');
+  // наблюдаемые каналы (Q-205 закрыт владельцем, дополнение к ADR-112): факты из событий,
+  // без зелёного health — формулировка «Booking.com — работает» запрещена
+  const observedTable = main.getByTestId('channels-observed');
+  await expect(observedTable.getByTestId('observed-row').first()).toContainText('Booking.com');
+  await expect(observedTable).not.toContainText('работает');
+  await expect(main.getByTestId('mapping-note')).toContainText('категорий 3 из 3');
+  // ежедневные кнопки обмена — здесь; настройка подключения — на «Подключениях»
+  await expect(main.getByTestId('channel-flush')).toBeVisible();
+  await expect(main.getByTestId('channel-pull')).toBeVisible();
+  await expect(main.getByTestId('channel-setup')).toHaveCount(0);
+  await expect(main.getByTestId('channel-sync')).toHaveCount(0);
+  // технические значения спрятаны раскрывашкой и открываются
+  const tech = main.getByTestId('channels-tech');
+  await expect(tech.getByTestId('outbox-last-task')).not.toBeVisible();
+  await tech.locator('summary').click();
+  await expect(tech.getByTestId('outbox-last-task')).toBeVisible();
+  await expect(tech.getByTestId('outbox-last-task')).toHaveText('ui-task-4f2a');
 });
 
-/**
- * CH2 «Каналы продаж v2» (ADR-107, plans/ch2-channels-mapping-2026-09-28.md): вкладка «Сопоставление» —
- * категории и тарифы раздельно, по названиям, без идентификаторов Channex. Фикстура: объект создан, две
- * категории из трёх сопоставлены с тарифом BASE, «Женский общий номер» — нет.
- */
-test('каналы продаж: сопоставление категорий и тарифов по названиям, предупреждение о несопоставленной категории', async ({
-  page,
-  request,
-}) => {
+/** «Подключения»: состояние Channex и webhook; опасные кнопки — владельцу, сотруднику — словами */
+test('подключения каналов: настройка подключения только владельцу', async ({ page, request }) => {
   const main = page.getByRole('main');
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
-  // с обзора: «Без сопоставления» ведёт на вкладку, вкладки видны на обоих экранах
-  await page.goto('/channel-manager');
-  const tabs = main.getByRole('navigation', { name: 'Каналы продаж' });
-  await expect(tabs.getByRole('link', { name: 'Обзор' })).toHaveAttribute('aria-current', 'page');
-  await expect(main.getByTestId('overview-unmapped')).toHaveText('1');
-  await main
-    .getByTestId('overview-troubles')
-    .getByRole('link', { name: 'Открыть сопоставление' })
-    .click();
-  await expect(page).toHaveURL(/\/channel-manager\/mapping$/);
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
-  await expect(tabs.getByRole('link', { name: 'Сопоставление' })).toHaveAttribute(
-    'aria-current',
-    'page',
+  await signIn(page);
+  await page.goto('/channels/connections');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
+  await expect(main).toContainText('Тестовая');
+  await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');
+  // владелец видит группу «Настройка подключения» с прежними командами в прежнем порядке
+  for (const id of ['channel-setup', 'channel-webhook-register', 'channel-webhook-test', 'channel-sync'])
+    await expect(main.getByTestId(id)).toBeVisible();
+  await expect(main.getByTestId('channel-flush')).toHaveCount(0);
+  // управляющему (право «Каналы», но не владелец) кнопки не показываются, причина — словами (ADR-107, ADR-112)
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'MANAGER' } });
+  await page.goto('/channels/connections');
+  await expect(main.getByTestId('channel-setup-owner-only')).toHaveText(
+    'Настройку подключения меняет владелец организации.',
   );
-  // категории: название в Channex вместо id, статус словом
-  const categoriesTable = main.getByTestId('mapping-categories');
-  const room = categoriesTable.getByRole('row', { name: /Двухместный номер/ });
-  await expect(room).toContainText('Double Room');
-  await expect(room).toContainText('Сопоставлена');
-  const female = categoriesTable.getByRole('row', { name: /Женский общий номер/ });
-  await expect(female).toContainText('Не сопоставлена');
-  // предупреждение называет категорию, последствие и ведёт туда, где сопоставляют
-  const warning = main.getByTestId('mapping-warning');
-  await expect(warning).toContainText('Женский общий номер');
-  await expect(warning).toContainText(/остатки и цены/i);
-  await expect(warning.getByRole('link', { name: 'Открыть синхронизацию' })).toHaveAttribute(
-    'href',
-    '/channels',
-  );
-  // тарифы: считаются по данным, не во всех категориях — это видно
-  const plansTable = main.getByTestId('mapping-rate-plans');
-  const base = plansTable.getByRole('row', { name: /Стандартный/ });
-  await expect(base).toContainText('2 из 3');
-  await expect(base).toContainText('Не во всех категориях');
-  // идентификаторы Channex на вкладке не показываются (ТЗ §26) — они остаются на «Синхронизации»
-  await expect(main).not.toContainText('ui-rt-room');
-  await expect(main).not.toContainText('ui-property');
-  // названия Channex не пришли: статусы на месте, вместо названия — слова, не id и не сбой экрана
-  await request.post(`${fixture}/__test/control`, {
-    data: { channelMapping: 'partial', failPath: '/channels/channex/content/names' },
-  });
-  await page.goto('/channel-manager/mapping');
-  await expect(
-    main.getByTestId('mapping-categories').getByRole('row', { name: /Двухместный номер/ }),
-  ).toContainText('название в Channex недоступно');
-  await expect(main.getByTestId('mapping-error')).toHaveCount(0);
-  // сопоставления не загрузились — сбой словами, заголовок и вкладки на месте
-  await request.post(`${fixture}/__test/control`, {
-    data: { failPath: '/channels/channex/mapping' },
-  });
-  await page.goto('/channel-manager/mapping');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
-  await expect(main.getByTestId('mapping-error')).toBeVisible();
-  await expect(main.getByTestId('mapping-categories')).toHaveCount(0);
-  // объект в Channex не создан — пустое состояние со ссылкой на «Синхронизацию»
-  await request.post(`${fixture}/__test/control`, { data: {} });
-  await page.goto('/channel-manager/mapping');
-  const none = main.getByTestId('mapping-no-property');
-  await expect(none).toContainText('Объект в Channex не создан');
-  await expect(none.getByRole('link', { name: 'Открыть синхронизацию' })).toHaveAttribute(
-    'href',
-    '/channels',
-  );
-  // телефон: таблицы без прокрутки вбок
-  await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/channel-manager/mapping');
-  await expect(main.getByTestId('mapping-categories')).toBeVisible();
-  const layout = await page.evaluate(() => {
-    const w = globalThis as unknown as {
-      innerWidth: number;
-      document: { documentElement: { scrollWidth: number } };
-    };
-    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
-  });
-  expect(layout.content, 'сопоставление шире экрана телефона').toBeLessThanOrEqual(
-    layout.viewport + 1,
-  );
+  await expect(main.getByTestId('channel-setup')).toHaveCount(0);
+  await expect(main.getByTestId('channel-sync')).toHaveCount(0);  // администратору модуль закрыт целиком
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
+  await page.goto('/channels/connections');
+  await expect(main.getByTestId('no-access')).toBeVisible();
+  await expect(main.getByTestId('channel-setup')).toHaveCount(0);
 });
 
 test('цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит', async ({
@@ -227,7 +134,7 @@ test('цены: правка в ячейке — Enter сохраняет и у�
   request,
 }) => {
   await page.goto('/rates?month=2026-10');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
   // Формат §14: дата «1 окт. чт», деньги без «,00», стоп-продажа словом
   await expect(page.getByRole('main').getByTestId('rate-row-2026-10-01')).toContainText(
     '1 окт. чт',
@@ -238,7 +145,7 @@ test('цены: правка в ячейке — Enter сохраняет и у�
   const cell = page.getByRole('main').getByTestId('price-2026-10-02-1');
   await expect(cell).toContainText('8 000 ₸');
   await expect(cell).not.toContainText(',00');
-  await expect(page.locator('.tbl tr.is-stop').first()).toContainText('закрыто');
+  await expect(page.locator('.rate-cal__day.is-stop').first()).toContainText('закрыто');
   // Escape — ничего не ушло
   await cell.getByTestId('price-cell-edit').click();
   const input = cell.getByRole('textbox');
@@ -286,10 +193,12 @@ test('цены: месяц листается кнопками со значка
   page,
 }) => {
   await page.goto('/rates?month=2026-10');
-  await expect(page.locator('.page__subtitle')).toContainText('октябрь 2026');
+  const monthSelect = page.getByRole('main').getByLabel('Месяц', { exact: true });
+  await expect(monthSelect).toHaveValue('2026-10');
   await page.getByLabel('Следующий месяц', { exact: true }).click();
   await expect(page).toHaveURL(/month=2026-11/);
-  await expect(page.locator('.page__subtitle')).toContainText('ноябрь 2026');
+  await expect(monthSelect).toHaveValue('2026-11');
+  await page.getByRole('main').getByTestId('rates-edit-open').click();
   const editor = page.getByRole('main').getByTestId('bulk-editor');
   await editor.getByLabel('Цена за ночь').fill('9100');
   await editor.getByLabel('Мин. ночей', { exact: true }).fill('3');
@@ -299,74 +208,84 @@ test('цены: месяц листается кнопками со значка
   await expect(pending).not.toContainText(' · ');
 });
 
-test('каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью', async ({
+test('синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями»', async ({
   page,
 }) => {
-  await page.goto('/channels');
-  const outbox = page.getByRole('main').getByTestId('outbox-table');
+  const main = page.getByRole('main');
+  await page.goto('/channels/sync');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Синхронизация');
+  await expect(main.getByTestId('sync-pending')).toHaveText('2');
+  // строки видов обмена словами: остатки, цены и ограничения, брони из каналов
+  const kinds = main.getByTestId('sync-kinds');
+  await expect(kinds.getByTestId('sync-kind-AVAILABILITY')).toContainText('Остатки');
+  await expect(kinds.getByTestId('sync-kind-RESTRICTIONS')).toContainText('Цены и ограничения');
+  await expect(kinds.getByTestId('sync-kind-BOOKINGS')).toContainText('требуют разбора: 1');
+  // очередь спрятана за раскрывашкой
+  const outbox = main.getByTestId('outbox-table');
+  await expect(outbox).not.toBeVisible();
+  await main.getByTestId('sync-tech').locator('summary').click();
   await expect(outbox.getByTestId('outbox-row')).toHaveCount(4);
   await expect(outbox).toContainText('цены и ограничения');
   await expect(outbox).toContainText('Двухместный номер');
   await expect(outbox).toContainText('ui-task-4f2a');
   await expect(outbox).toContainText('rate plan not found');
-  await page.getByRole('main').getByTestId('outbox-filter-FAILED').click();
-  await expect(page).toHaveURL(/queue=FAILED/);
-  await expect(page.getByRole('main').getByTestId('outbox-filter-FAILED')).toHaveAttribute(
-    'aria-current',
-    'true',
-  );
-  await expect(
-    page.getByRole('main').getByTestId('outbox-table').getByTestId('outbox-row'),
-  ).toHaveCount(1);
-  await expect(page.getByRole('main').getByTestId('outbox-table')).toContainText('ошибка');
+  await main.getByTestId('outbox-filter-FAILED').click();
+  await expect(page).toHaveURL(/\/channels\/sync\?queue=FAILED/);
+  // фильтр в адресе — раскрывашка открыта сама, отбор отмечен
+  await expect(main.getByTestId('outbox-filter-FAILED')).toHaveAttribute('aria-current', 'true');
+  await expect(main.getByTestId('outbox-table').getByTestId('outbox-row')).toHaveCount(1);
+  await expect(main.getByTestId('outbox-table')).toContainText('ошибка');
+});
+
+test('события: фильтры, поиск и постраничность на своей вкладке', async ({ page }) => {
+  const main = page.getByRole('main');
+  await page.goto('/channels/events');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('События');
   // События: страница из 20, всего 33 (в витрине есть и проверка webhook с двоеточиями в номере)
-  const events = page.getByRole('main').getByTestId('events-table');
+  const events = main.getByTestId('events-table');
   await expect(events.getByTestId('event-row')).toHaveCount(20);
-  await expect(page.getByRole('main').getByTestId('events-pager')).toContainText(
-    'показано 20 из 33',
-  );
-  await expect(page.getByRole('main').getByTestId('events-callout')).toContainText(
-    'Входящая бронь требует разбора',
-  );
+  await expect(main.getByTestId('events-pager')).toContainText('показано 20 из 33');
+  await expect(main.getByTestId('events-callout')).toContainText('Входящая бронь требует разбора');
   await expect(events.getByRole('link', { name: '20260913-SHOWTN' }).first()).toHaveAttribute(
     'href',
     '/reservations/20260913-SHOWTN',
   );
   await page.getByRole('link', { name: 'Дальше' }).click();
-  await expect(page).toHaveURL(/page=2/);
-  await expect(page).toHaveURL(/queue=FAILED/); // фильтр очереди не сброшен
+  await expect(page).toHaveURL(/\/channels\/events\?.*page=2/);
   await expect(
-    page.getByRole('main').getByTestId('events-table').getByTestId('event-row'),
+    main.getByTestId('events-table').getByTestId('event-row'),
   ).toHaveCount(13);
-  await expect(page.getByRole('main').getByTestId('events-pager')).toContainText(
-    'показано 13 из 33',
-  );
+  await expect(main.getByTestId('events-pager')).toContainText('показано 13 из 33');
   // Фильтр по статусу + поиск по unique_id
-  await page.getByRole('main').getByLabel('Статус события').selectOption('FAILED');
+  await main.getByLabel('Статус события').selectOption('FAILED');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
-  await expect(
-    page.getByRole('main').getByTestId('events-table').getByTestId('event-row'),
-  ).toHaveCount(1);
-  await expect(page.getByRole('main').getByTestId('events-table')).toContainText('BDC-4821-7731');
-  await page.getByRole('main').getByLabel('Статус события').selectOption('');
-  await page.getByRole('main').getByTestId('events-search').fill('exp-90210');
+  await expect(main.getByTestId('events-table').getByTestId('event-row')).toHaveCount(1);
+  await expect(main.getByTestId('events-table')).toContainText('BDC-4821-7731');
+  await main.getByLabel('Статус события').selectOption('');
+  await main.getByTestId('events-search').fill('exp-90210');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
-  await expect(
-    page.getByRole('main').getByTestId('events-table').getByTestId('event-row'),
-  ).toHaveCount(1);
-  await expect(page.getByRole('main').getByTestId('events-table')).toContainText('20260913-SHOWCX');
-  await expect(page.getByRole('main').getByTestId('events-pager')).toContainText('показано 1 из 1');
-  await page.getByRole('main').getByTestId('events-search').fill('нет-такого');
+  await expect(main.getByTestId('events-table').getByTestId('event-row')).toHaveCount(1);
+  await expect(main.getByTestId('events-table')).toContainText('20260913-SHOWCX');
+  await expect(main.getByTestId('events-pager')).toContainText('показано 1 из 1');
+  await main.getByTestId('events-search').fill('нет-такого');
   await page.getByRole('button', { name: 'Найти', exact: true }).click();
-  await expect(page.getByRole('main').getByTestId('events-table')).toContainText(
-    'ничего не найдено',
-  );
+  await expect(main.getByTestId('events-table')).toContainText('ничего не найдено');
+});
+
+/** Старые адреса пульта ведут на свои вкладки: queue — на «Синхронизацию», type — на «События» */
+test('старые адреса /channels с параметрами пульта открывают нужную вкладку', async ({ page }) => {
+  await page.goto('/channels?queue=FAILED');
+  await expect(page).toHaveURL(/\/channels\/sync\?queue=FAILED/);
+  await page.goto('/channels?status=RECEIVED&type=booking_cancellation&q=abc');
+  await expect(page).toHaveURL(/\/channels\/events\?/);
+  await page.goto('/channel-manager?from=2026-09-01&to=2026-09-30');
+  await expect(page).toHaveURL(/\/channels\?from=2026-09-01&to=2026-09-30/);
 });
 
 test('приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404', async ({
   page,
 }) => {
-  await page.goto('/channels');
+  await page.goto('/channels/events');
   await page.getByRole('link', { name: 'ui-rev-new-2' }).click();
   await expect(page).toHaveURL(/\/channels\/events\/ui-rev-new-2$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Приём брони из канала');
@@ -451,36 +370,38 @@ test('цены: сбой календаря оставляет форму и м�
   request,
 }) => {
   const main = page.getByRole('main');
-  // заголовки словами, ограничения словами, одна пара кнопок месяца
+  // ограничения словами в ячейке дня, одна пара кнопок месяца
   await page.goto('/rates?month=2026-10');
-  const table = main.getByTestId('rates-table');
-  await expect(table.locator('th').nth(1)).toHaveText('Цена за 1 гостя');
-  await expect(table.locator('th').nth(2)).toHaveText('Цена за 2 гостей');
-  await expect(main.getByTestId('rate-row-2026-10-01')).toContainText('1 ночь');
+  await expect(main.getByTestId('rates-calendar')).toBeVisible();
+  await expect(main.getByTestId('rate-row-2026-10-16')).toContainText('мин. 2 ночи');
+  await expect(main.getByTestId('rate-row-2026-10-19')).toContainText('до 4 ночей');
   await expect(main.getByRole('link', { name: 'Следующий месяц', exact: true })).toHaveCount(1);
   await expect(main.getByRole('link', { name: 'Предыдущий месяц', exact: true })).toHaveCount(1);
-  // сбой календаря: форма, подпись и массовое изменение на месте, таблицы нет, повтор возвращает её
+  // сбой календаря: фильтры и правка на месте, сетки нет, повтор возвращает её
   await request.post(`${fixture}/__test/control`, { data: { showcase: true, failPath: '/rates' } });
   await page.goto('/rates?month=2026-10');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
-  await expect(main.getByLabel('Категория').first()).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
+  await expect(main.getByRole('navigation', { name: 'Категория' })).toBeVisible();
+  await main.getByTestId('rates-edit-open').click();
   await expect(main.getByTestId('bulk-editor')).toBeVisible();
+  await page.keyboard.press('Escape');
   const failure = main.getByTestId('rates-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
-  await expect(main.getByTestId('rates-table')).toHaveCount(0);
+  await expect(main.getByTestId('rates-calendar')).toHaveCount(0);
   await expect(main.getByTestId('rates-empty')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
-  await expect(main.getByTestId('rates-table')).toBeVisible();
+  await expect(main.getByTestId('rates-calendar')).toBeVisible();
   await expect(main.getByTestId('rates-error')).toHaveCount(0);
   await expect(page).toHaveURL(/month=2026-10/);
-  // сбой справочника: заголовок и повтор, без формы (заполнять нечего)
+  // сбой справочника: заголовок и повтор, без правки (заполнять нечего)
   await request.post(`${fixture}/__test/control`, {
     data: { showcase: true, failPath: '/rates/options' },
   });
   await page.goto('/rates?month=2026-10');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Цены и ограничения');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
   await expect(main.getByTestId('rates-error')).toBeVisible();
+  await expect(main.getByTestId('rates-edit-open')).toHaveCount(0);
   await expect(main.getByTestId('bulk-editor')).toHaveCount(0);
   // пустой справочник — не сбой и не нули: причина и куда идти
   await request.post(`${fixture}/__test/control`, { data: { empty: true } });
@@ -502,65 +423,75 @@ test('цены: сбой календаря оставляет форму и м�
   const loading = main.getByTestId('rates-loading');
   await expect(loading).toBeVisible();
   await expect(loading).toContainText('Загружаем категории, тарифы и календарь цен');
-  await expect(main.getByTestId('rates-table')).toBeVisible({ timeout: 15_000 });
+  await expect(main.getByTestId('rates-calendar')).toBeVisible({ timeout: 15_000 });
   await expect(main.getByTestId('rates-loading')).toHaveCount(0);
 });
 
 /**
  * D4 «Каналы и состояние соединений»: отказ сводки очереди или сопоставлений не уносит экран — webhook,
- * кнопки, строки очереди и события читаются отдельно, на месте пропавшего — сбой с «Повторить загрузку»;
- * пустая очередь и пустые события называют причину и следующий шаг; загрузка — словом; на телефоне
- * строки очереди и событий читаются без прокрутки вбок.
+ * кнопки, строки очереди и события читаются на своих вкладках отдельно, на месте пропавшего — сбой с
+ * «Повторить загрузку»; пустая очередь и пустые события называют причину и следующий шаг; загрузка —
+ * словом; на телефоне строки очереди и событий читаются без прокрутки вбок.
  */
 test('каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом', async ({
   page,
   request,
 }) => {
   const main = page.getByRole('main');
-  // сбой сводки очереди: плиток нет и нули не выдуманы, webhook и строки очереди на месте
+  // сбой сводки очереди на «Обзоре»: числа не выдуманы, webhook на месте
   await request.post(`${fixture}/__test/control`, {
     data: { showcase: true, failPath: '/channels/channex/outbox' },
   });
   await page.goto('/channels');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж — Channex');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
   const failure = main.getByTestId('outbox-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
   await expect(main.getByTestId('outbox-pending')).toHaveCount(0);
   await expect(main.getByTestId('webhook-status')).toBeVisible();
-  await expect(main.getByTestId('outbox-table').getByTestId('outbox-row')).toHaveCount(4);
-  await expect(main.getByTestId('events-table').getByTestId('event-row').first()).toBeVisible();
   await expect(main.getByTestId('outbox-last-task')).toHaveText('не загрузилось');
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   await failure.getByRole('button', { name: 'Повторить загрузку' }).click();
   await expect(main.getByTestId('outbox-pending')).toHaveText('2');
   await expect(main.getByTestId('outbox-error')).toHaveCount(0);
-  // сбой сопоставлений: таблицы маппинга нет, всё остальное на месте
+  // сбой сопоставлений: таблицы маппинга нет, сбой назван
   await request.post(`${fixture}/__test/control`, {
     data: { showcase: true, failPath: '/channels/channex/mapping' },
   });
-  await page.goto('/channels');
+  await page.goto('/channels/mapping');
   await expect(main.getByTestId('mapping-error')).toBeVisible();
   await expect(main.getByTestId('mapping-empty')).toHaveCount(0);
-  await expect(main.getByTestId('outbox-pending')).toHaveText('2');
   // пустая очередь и фильтр без строк — причина и шаг, а не «таких строк нет»
   // (`control` витрину не снимает — строки очереди живут до `reset`)
   await request.post(`${fixture}/__test/reset`);
-  await page.goto('/channels?queue=FAILED');
+  await page.goto('/channels/sync?queue=FAILED');
   const emptyQueue = main.getByTestId('outbox-empty');
   await expect(emptyQueue).toContainText('Строк со статусом «ошибка» нет');
   await emptyQueue.getByRole('link', { name: 'Показать все строки' }).click();
-  await expect(page).toHaveURL(/\/channels$/);
+  await expect(page).toHaveURL(/\/channels\/sync$/);
+  await main.getByTestId('sync-tech').locator('summary').click();
   await expect(main.getByTestId('outbox-empty')).toContainText('Очередь пуста');
   // события: по условиям ничего — сброс фильтров возвращает ленту
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
-  await page.goto('/channels?status=RECEIVED&type=booking_cancellation&q=нет-такого');
+  await page.goto('/channels/events?status=RECEIVED&type=booking_cancellation&q=нет-такого');
   const emptyEvents = main.getByTestId('events-empty');
   await expect(emptyEvents).toContainText('ничего не найдено');
   await emptyEvents.getByRole('link', { name: 'Сбросить фильтры событий' }).click();
   await expect(main.getByTestId('events-table').getByTestId('event-row').first()).toBeVisible();
-  // телефон: строки очереди и событий видны без прокрутки вбок, статус в той же строке
+  // телефон: обзор и очередь без прокрутки вбок, статус строки очереди в той же строке
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/channels');
+  const layoutRoot = await page.evaluate(() => {
+    const w = globalThis as unknown as {
+      innerWidth: number;
+      document: { documentElement: { scrollWidth: number } };
+    };
+    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+  });
+  expect(layoutRoot.content, 'обзор каналов шире экрана телефона').toBeLessThanOrEqual(
+    layoutRoot.viewport + 1,
+  );
+  await page.goto('/channels/sync');
+  await main.getByTestId('sync-tech').locator('summary').click();
   const layout = await page.evaluate(() => {
     const w = globalThis as unknown as {
       innerWidth: number;
@@ -568,7 +499,9 @@ test('каналы: сбой сводки очереди и сопоставле
     };
     return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
   });
-  expect(layout.content, 'каналы шире экрана телефона').toBeLessThanOrEqual(layout.viewport + 1);
+  expect(layout.content, 'синхронизация шире экрана телефона').toBeLessThanOrEqual(
+    layout.viewport + 1,
+  );
   const row = main.getByTestId('outbox-table').getByTestId('outbox-row').first();
   const box = await row.boundingBox();
   const status = await row.locator('td').nth(3).boundingBox();
@@ -579,34 +512,33 @@ test('каналы: сбой сводки очереди и сопоставле
   await request.post(`${fixture}/__test/control`, {
     data: { showcase: true, delayPath: '/channels/channex/outbox', delayMs: 2500 },
   });
-  await page.goto('/channels', { waitUntil: 'commit' });
+  await page.goto('/channels/sync', { waitUntil: 'commit' });
   const loading = main.getByTestId('channels-loading');
   await expect(loading).toBeVisible();
-  await expect(loading).toContainText('Загружаем очередь, webhook и события Channex');
-  await expect(main.getByTestId('outbox-pending')).toBeVisible({ timeout: 15_000 });
+  await expect(loading).toContainText('Загружаем состояние обмена с каналами');
+  await expect(main.getByTestId('sync-pending')).toBeVisible({ timeout: 15_000 });
 });
 
 /**
  * D4 «Каналы и состояние соединений», часть 2: отчёт по источникам называет период словами, отказ отчёта
  * оставляет форму (сбой вместо чисел, повтор с теми же условиями), пустой отчёт называет условие и путь к
- * «все статусы», строка источника без « · », на телефоне строки читаются без прокрутки вбок; «Подключения»
- * называют сопоставления словами и пустое время «—». С 27.09 (CH1, ADR-107) отчёт живёт в
- * «Аналитика → Источники продаж».
+ * «все статусы», строка источника без « · », на телефоне строки читаются без прокрутки вбок; «Интеграции»
+ * называют сопоставления словами и пустое время «—».
  */
-test('источники продаж и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон', async ({
+test('отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон', async ({
   page,
   request,
 }) => {
   const main = page.getByRole('main');
-  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30');
+  await page.goto('/channels?from=2026-09-01&to=2026-09-30');
   // 21.09: подпись периода без двоеточия — «Брони с заездом …» (§14)
-  await expect(main.locator('.page__subtitle')).toHaveText(
+  await expect(main.getByTestId('channel-period')).toHaveText(
     'Брони с заездом 1 сент. → 30 сент., 30 дней, все статусы',
   );
   await expect(main.getByTestId('channel-report')).not.toContainText(' · ');
   await expect(main.getByTestId('channel-report')).toContainText('Канал продаж, KZT');
   // пустой отчёт по статусу — условие и ссылка на все статусы
-  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30&status=NO_SHOW');
+  await page.goto('/channels?from=2026-09-01&to=2026-09-30&status=NO_SHOW');
   const empty = main.getByTestId('channel-report-empty');
   await expect(empty).toContainText(
     'Нет бронирований с заездом 1 сент. → 30 сент. со статусом «Незаезды»',
@@ -616,8 +548,8 @@ test('источники продаж и подключения: период с
   await expect(main.getByTestId('channel-bookings')).toHaveText('48');
   // отказ отчёта: заголовок, подпись и форма на месте, повтор возвращает числа с теми же условиями
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/channel-report' } });
-  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30&status=CONFIRMED');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Источники продаж');
+  await page.goto('/channels?from=2026-09-01&to=2026-09-30&status=CONFIRMED');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
   await expect(main.getByLabel('Статус брони')).toHaveValue('CONFIRMED');
   const failure = main.getByTestId('channel-report-error');
   await expect(failure).toContainText('Проверьте подключение и повторите запрос');
@@ -629,7 +561,7 @@ test('источники продаж и подключения: период с
   await expect(page).toHaveURL(/status=CONFIRMED/);
   // телефон: строки отчёта карточкой, без прокрутки вбок
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/analytics/sources?from=2026-09-01&to=2026-09-30');
+  await page.goto('/channels?from=2026-09-01&to=2026-09-30');
   const layout = await page.evaluate(() => {
     const w = globalThis as unknown as {
       innerWidth: number;
@@ -641,19 +573,19 @@ test('источники продаж и подключения: период с
   const row = main.getByTestId('channel-report').locator('tbody tr').first();
   await expect(row.locator('td').nth(1)).toHaveCSS('grid-column-start', '2');
   await page.setViewportSize({ width: 1440, height: 1000 });
-  // подключения: сопоставления словами, пустое время — «—», без « · »
+  // интеграции: сопоставления словами, пустое время — «—», без « · »
   await page.goto('/connections');
   await expect(main).toContainText('3 категории, 3 тарифа');
   await expect(main).not.toContainText(' · ');
-  await expect(main.getByText('Последний webhook, по Алматы')).toBeVisible();
+  await expect(main.getByText('Последний обмен')).toBeVisible();
   await expect(main).not.toContainText('Нет событий');
   // загрузка словом, пока отчёт идёт
   await request.post(`${fixture}/__test/control`, {
     data: { delayPath: '/hotel/channel-report', delayMs: 2500 },
   });
-  await page.goto('/analytics/sources', { waitUntil: 'commit' });
-  const loading = main.getByTestId('sources-loading');
+  await page.goto('/channels', { waitUntil: 'commit' });
+  const loading = main.getByTestId('channels-loading');
   await expect(loading).toBeVisible();
-  await expect(loading).toContainText('Загружаем отчёт по источникам');
+  await expect(loading).toContainText('Загружаем состояние обмена с каналами');
   await expect(main.getByTestId('channel-bookings')).toBeVisible({ timeout: 15_000 });
 });

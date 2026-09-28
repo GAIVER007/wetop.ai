@@ -9,13 +9,18 @@ import { cardTab } from '../e2e/card-tabs';
  */
 const fixture = 'http://127.0.0.1:4311';
 const BOOKING = '20260913-TESTAA';
-const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+/**
+ * «Сегодня» объекта — дата стенда: он считает её при каждом сбросе (Asia/Almaty). Своя дата, посчитанная при загрузке
+ * файла, отставала на день, когда долгий прогон переходил полночь Алматы — 19:00 UTC (TESTING.md §4).
+ */
+let today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const plus = (n: number) =>
   new Date(Date.parse(`${today}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
 const dd = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
 
 test.beforeEach(async ({ request }) => {
-  await request.post(`${fixture}/__test/reset`);
+  const reset = await request.post(`${fixture}/__test/reset`);
+  today = ((await reset.json()) as { today: string }).today;
 });
 
 const commands = async (page: Page) =>
@@ -240,11 +245,18 @@ test('шахматка: плашки «сверх мест» и «требует
   );
   await expect(
     page.getByRole('main').getByTestId('review-callout').getByRole('link', { name: 'Разобрать' }),
-  ).toHaveAttribute('href', '/channels');
+  ).toHaveAttribute('href', '/channels/events?status=FAILED');
   await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute(
     'data-count',
     '1',
   );
+  // При проданном сверх мест плашка «Без ячейки» раскрыта сразу и тоном critical (ТЗ v2 §11);
+  // без овербукинга она свёрнута в одну строку, список — по щелчку
+  await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute(
+    'data-tone',
+    'critical',
+  );
+  await expect(page.getByRole('main').getByTestId('unassigned-stays')).toHaveAttribute('open', '');
   await page
     .getByRole('main')
     .getByTestId('unassigned-stays')

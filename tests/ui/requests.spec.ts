@@ -7,17 +7,15 @@ import { expect, test } from './fixtures';
  *
  * Правило: одинаковый GET с теми же параметрами не повторяется. Открытые неисправности и история —
  * разные выборки, хотя pathname общий. Прежний бюджет десять запросов сохранён для прежних экранов.
- * Впервые добавленный /channels имеет восемь отдельных источников и четыре запроса оболочки в dev:
- * его исходный бюджет 12. Это не основание удалять нужные проверки Channex ради числа в тесте.
- * Обзор /channel-manager (CH1, ADR-107) — той же природы экран состояния: девять отдельных источников
- * (подключение, сопоставления, очередь, webhook, события FAILED, категории, сводка источников, настройки
- * объекта, /auth/me) плюс опрос свежести — бюджет тот же, 12.
+ * У «Обзора» /channels восемь источников данных (с наблюдаемыми каналами по Q-205), у «Синхронизации»
+ * шесть, плюс четыре запроса оболочки в dev: их бюджет 12. Это не основание удалять нужные проверки
+ * Channex ради числа в тесте.
  * Два пути исключены намеренно: `/system/freshness` браузер опрашивает сам раз в минуту, а `/auth/me`
  * рисуется в двух местах оболочки (панель и меню профиля); плюс стенд работает на `next dev`, где React
  * умышленно вызывает эффекты и рендер по два раза — это шум разработки, а не рейсы живой стойки.
  *
- * Старые адреса `/hotel-settings/{check-in,description,photos,amenities}` здесь не считаются: это не
- * экраны, а redirect() на «Настройки гостиницы» и «Интеграции». Переадресация по определению проходит
+ * Старые адреса `/hotel-settings/{check-in,description,penalties,photos,amenities}` здесь не считаются: это не
+ * экраны, а redirect() на «Настройки объекта», «Цены» и «Интеграции». Переадресация по определению проходит
  * оболочку дважды — уходящий рендер и целевой, — и удвоение видно даже там, где экран берёт данные
  * один раз. Сами экраны-получатели в списке есть, а сама переадресация проверена в
  * tests/ui/settings-simplification.spec.ts (разбор 21.09.2026).
@@ -47,18 +45,23 @@ for (const screen of [
   '/rooms/categories',
   '/rooms/availability',
   '/rates',
-  '/management/statistics',
+  '/management/analytics',
+  '/management/analytics/occupancy',
+  '/management/dashboard',
   '/finance',
-  '/channel-manager',
-  '/channel-manager/mapping',
   '/channels',
-  '/analytics',
-  '/analytics/sources',
+  '/channels/connections',
+  '/channels/mapping',
+  '/channels/sync',
+  '/channels/events',
+  '/website',
+  '/website/booking',
+  '/website/analytics',
   '/hotel-settings',
-  '/hotel-settings/penalties',
+  '/hotel-settings/stay',
   '/hotel-settings/services',
   '/connections',
-  '/analytics/setup',
+  '/website/settings',
   '/incidents',
   '/journal',
   '/reservations/new?unit=M03',
@@ -74,7 +77,7 @@ for (const screen of [
     );
     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
-      screen === '/channels' || screen === '/channel-manager' ? 12 : 10,
+      ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
     );
   });
 }

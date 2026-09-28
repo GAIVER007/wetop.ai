@@ -13,11 +13,13 @@ import {
 } from '@nestjs/common';
 import { piiStorageMode } from '@pms/shared';
 import { GuestsService } from './guests.service';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Где лежат данные гостей (ADR-072): `real` — база в Казахстане, введённое хранится как есть; `pseudonymized` —
  * нет, и формы стойки не спрашивают имя, контакты и документы. Стойка читает режим заранее, а не узнаёт отказом.
  */
+@Access('desk')
 @Controller('system')
 export class PiiStorageController {
   @Get('pii-storage')
@@ -26,6 +28,7 @@ export class PiiStorageController {
   }
 }
 
+@Access('desk')
 @Controller('guests')
 export class GuestsController {
   constructor(@Inject(GuestsService) private readonly service: GuestsService) {}
@@ -33,6 +36,18 @@ export class GuestsController {
   @Get()
   search(@Query('q') q?: string) {
     return this.service.search(q);
+  }
+
+  // объявлен до ':id', иначе «directory» читался бы как идентификатор гостя
+  @Get('directory')
+  directory(@Query() query: { state?: string; q?: string; page?: string; pageSize?: string }) {
+    return this.service.directory(query);
+  }
+
+  // предпросмотр панелью (G3): без документов — показ карточки с ними пишется в журнал, панель нет
+  @Get(':id/preview')
+  preview(@Param('id') id: string) {
+    return this.service.preview(id);
   }
 
   @Get(':id')

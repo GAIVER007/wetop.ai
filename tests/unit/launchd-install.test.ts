@@ -111,12 +111,12 @@ describe('launchd install.sh', () => {
     return readFileSync(file!, 'utf8');
   };
 
-  it('задачи exely-sync больше нет: Exely перестал быть источником (ADR-052)', () => {
+  it('задачи legacy-sync больше нет: Legacy перестал быть источником (ADR-052)', () => {
     // Пока задача принималась, её легко было поставить обратно одной командой — и она снова начала бы
     // тянуть брони из системы, от которой отказались, поверх ручных правок смены.
-    const { out, code } = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), ['--dry', 'exely-sync']);
+    const { out, code } = install(sandbox({ nodeDelaySec: 0, releaseSec: 0 }), ['--dry', 'legacy-sync']);
     expect(code, `install.sh принял снятую задачу:\n${out}`).not.toBe(0);
-    expect(out).toContain('неизвестно: exely-sync');
+    expect(out).toContain('неизвестно: legacy-sync');
   });
 
   it('службам пул не урезаем: у API он свой', () => {

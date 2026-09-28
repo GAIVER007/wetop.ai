@@ -5,7 +5,9 @@ import {
   type InventorySummaryDto,
   type InventoryUnitDto,
 } from './inventory.service';
+import { Access } from '../auth/access.decorator';
 
+@Access('desk')
 @Controller('inventory')
 export class InventoryController {
   constructor(@Inject(InventoryService) private readonly service: InventoryService) {}

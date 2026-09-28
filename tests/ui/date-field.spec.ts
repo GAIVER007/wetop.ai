@@ -17,11 +17,11 @@ test.beforeEach(async ({ request }) => {
 const field = (page: import('@playwright/test').Page, label: string) =>
   page.getByRole('main').locator('.date-field', { has: page.getByLabel(label, { exact: true }) });
 
-test('главная: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает', async ({
+test('показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/today?period=custom&from=2026-09-01&to=2026-09-21');
+  await page.goto('/management/dashboard?period=custom&from=2026-09-01&to=2026-09-21');
   const from = field(page, 'Период: с');
   const open = from.getByRole('button', { name: 'Открыть календарь' });
   await open.click();
@@ -48,11 +48,11 @@ test('главная: календарь открывается кнопкой, 
   await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-03');
 });
 
-test('главная: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности', async ({
+test('показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/today?period=custom&from=2026-09-10&to=2026-09-21');
+  await page.goto('/management/dashboard?period=custom&from=2026-09-10&to=2026-09-21');
   const to = field(page, 'Период: по');
   await to.getByRole('button', { name: 'Открыть календарь' }).click();
   const dialog = page.getByRole('dialog', { name: 'Календарь' });
@@ -73,7 +73,7 @@ test('главная: у поля «По» календарь показывае
 
 test('телефон: кнопки календаря нет, родное поле остаётся', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today?period=custom&from=2026-09-01&to=2026-09-21');
+  await page.goto('/management/dashboard?period=custom&from=2026-09-01&to=2026-09-21');
   const from = field(page, 'Период: с');
   await expect(from.getByRole('button', { name: 'Открыть календарь' })).toBeHidden();
   await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();
@@ -84,7 +84,7 @@ test('панель брони: календарь открывается пов�
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/chessboard');
-  await page.getByTestId('stay-cell').first().click();
+  await page.getByTestId('stay-cell').first().dblclick();
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer).toBeVisible();
   await drawer.getByRole('tab', { name: 'Действия', exact: true }).click();

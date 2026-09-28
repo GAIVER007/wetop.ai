@@ -85,18 +85,18 @@ export async function retryEventAction(revisionId: string): Promise<ChannelActio
 
 function refreshChannelViews() {
   for (const path of [
-    '/channels',
     '/chessboard',
-    '/channel-manager',
-    '/analytics/sources',
     '/today',
-    '/management/statistics',
+    '/management/analytics',
+    '/management/analytics/occupancy',
     '/rooms/availability',
     '/finance',
     '/guests',
     '/connections',
   ])
     revalidatePath(path);
+  // все вкладки модуля «Каналы продаж» разом (ADR-112): обзор, подключения, синхронизация, события
+  revalidatePath('/channels', 'layout');
   revalidatePath('/reservations/[number]', 'page');
   revalidatePath('/guests/[id]', 'page');
 }

@@ -1,0 +1,8 @@
+today: /reservations?view=today
+future: /reservations?view=future
+attention: /reservations?view=attention
+debt: /reservations?payment=due&sort=debt
+unassigned: /reservations?allocation=missing
+combo (после «Показать»): /reservations?view=today&source=WHATSAPP&payment=due&sort=arrival
+empty: /reservations?view=inhouse&source=Hostelworld&payment=refunded
+390-debt: /reservations?payment=due

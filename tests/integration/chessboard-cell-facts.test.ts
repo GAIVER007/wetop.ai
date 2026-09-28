@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaChessboardRepository } from '../../apps/api/src/chessboard/chessboard.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 
@@ -141,7 +141,17 @@ describe.skipIf(!url)('шахматка: канал, долг и уборка и
             // статус уборки известен у каждой ячейки — по нему работает фильтр «Уборка»
             housekeepingKnown:
               units.length > 0 &&
-              units.every((u) => ['DIRTY', 'CLEAN', 'INSPECTED'].includes(u.housekeepingStatus ?? '')),
+              units.every((u) =>
+                ['DIRTY', 'CLEAN', 'INSPECTED'].includes(u.housekeepingStatus ?? ''),
+              ),
+            // физическая комната у каждого места (ТЗ v2 §17, подготовка к Q-095): пока 1:1, UI не группирует
+            physicalRoomKnown:
+              units.length > 0 &&
+              units.every(
+                (u) =>
+                  typeof (u as { physicalRoomNumber?: unknown }).physicalRoomNumber === 'string' &&
+                  ((u as { physicalRoomNumber?: string }).physicalRoomNumber ?? '') !== '',
+              ),
           };
           throw new Rollback();
         },
@@ -157,6 +167,7 @@ describe.skipIf(!url)('шахматка: канал, долг и уборка и
       source: 'OTA',
       balanceMinor: '750000',
       housekeepingKnown: true,
+      physicalRoomKnown: true,
     });
     expect(await db.reservation.findFirst({ where: { confirmationNumber: number } })).toBeNull();
   });

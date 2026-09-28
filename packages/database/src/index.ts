@@ -85,5 +85,4 @@ export {
   ensureFolioWithAccommodation,
   ensureSingleActiveCharge,
   recordExternalPayment,
-  recordImportedPayment,
 } from './folio';

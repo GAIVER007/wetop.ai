@@ -18,9 +18,20 @@ export interface InventoryReadModel {
   blocks: number;
 }
 
+/** Живое состояние места для списка фонда (ADR-108): уборка, действующая блокировка, участие в продаже */
+export interface InventoryUnitState {
+  code: string;
+  housekeepingStatus: 'DIRTY' | 'CLEAN' | 'INSPECTED';
+  active: boolean;
+  /** Блокировка, действующая сегодня (правило countActiveBlocks); нет — место в продаже */
+  block: { dateTo: string; type: string; reason: string | null } | null;
+}
+
 /** Порт чтения фонда. В тестах подменяется фальшивкой без БД. */
 export interface InventoryRepository {
   read(): Promise<InventoryReadModel | null>;
+  /** Уборка и блокировки живые — читаются на каждый запрос, в кэш дерева не попадают */
+  states(): Promise<InventoryUnitState[]>;
   invalidate?(propertyId: string): void;
 }
 
@@ -45,6 +56,38 @@ export class PrismaInventoryRepository implements InventoryRepository {
 
   invalidate(propertyId: string): void {
     this.cached.delete(propertyId);
+  }
+
+  async states(): Promise<InventoryUnitState[]> {
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const onDate = new Date(`${today}T00:00:00Z`);
+    const rows = await this.prisma.db.inventoryUnit.findMany({
+      where: { propertyId },
+      select: {
+        code: true,
+        housekeepingStatus: true,
+        active: true,
+        blocks: {
+          where: { dateFrom: { lte: onDate }, dateTo: { gt: onDate } },
+          orderBy: { dateTo: 'desc' },
+          take: 1,
+          select: { dateTo: true, type: true, reason: true },
+        },
+      },
+    });
+    return rows.map((row) => ({
+      code: row.code,
+      housekeepingStatus: row.housekeepingStatus,
+      active: row.active,
+      block: row.blocks[0]
+        ? {
+            dateTo: row.blocks[0].dateTo.toISOString().slice(0, 10),
+            type: row.blocks[0].type,
+            reason: row.blocks[0].reason,
+          }
+        : null,
+    }));
   }
 
   async read(): Promise<InventoryReadModel | null> {

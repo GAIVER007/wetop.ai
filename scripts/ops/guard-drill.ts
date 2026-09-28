@@ -90,7 +90,7 @@ try {
         payloadHash: 'guard-drill',
         status: 'FAILED',
         attemptCount: 6,
-        lastError: `${MARK}: Бронь BDC-DRILL (Booking.com): перенесённых из Exely броней с таким же составом проживаний несколько — PMS не выбирает сама (ADR-024)`,
+        lastError: `${MARK}: Бронь BDC-DRILL (Booking.com): перенесённых из Legacy броней с таким же составом проживаний несколько — PMS не выбирает сама (ADR-024)`,
       },
     });
     console.log(`1. подброшена отклонённая бронь канала, ревизия ${id}`);

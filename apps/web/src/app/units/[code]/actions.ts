@@ -20,7 +20,8 @@ const done = (code: string) => {
     '/chessboard',
     '/inventory',
     '/rooms/availability',
-    '/management/statistics',
+    '/management/analytics',
+    '/management/analytics/occupancy',
     '/today',
   ])
     revalidatePath(path);

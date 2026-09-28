@@ -46,7 +46,7 @@ export interface CategoryRef {
 }
 export type CancellationPenalty = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
 /**
- * Без тарифа политику взять неоткуда — не штрафуем (Q-103). Так у всех перенесённых из Exely броней,
+ * Без тарифа политику взять неоткуда — не штрафуем (Q-103). Так у всех перенесённых из внешней системы броней,
  * где тариф проживания API не отдаёт: молча выставить им штраф значило бы придумать долг.
  */
 export const DEFAULT_CANCELLATION_PENALTY: CancellationPenalty = 'NONE';
@@ -80,11 +80,11 @@ export interface ItemState {
   status: ReservationStatus;
   priceMinor: bigint;
   guestsCount: number;
-  /** Тариф проживания (Q-102); null у перенесённых из Exely — там тариф на проживании не отдаётся */
+  /** Тариф проживания (Q-102); null у перенесённых из внешней системы — там тариф на проживании не отдаётся */
   ratePlanId: string | null;
   adults: number;
   children: number;
-  /** Политика штрафа тарифа; без тарифа — умолчание объекта (правило Exely «первые сутки») */
+  /** Политика штрафа тарифа; без тарифа — `DEFAULT_CANCELLATION_PENALTY` (штрафа нет, Q-103) */
   cancellationPenalty: CancellationPenalty;
   allocations: AllocationState[];
 }
@@ -97,20 +97,6 @@ export interface ReservationState {
   departureDate: string;
   currency: string;
   items: ItemState[];
-}
-/** Перенесённая из Exely бронь канала без внешнего ID — кандидат на сопоставление (ADR-024) */
-export interface ImportedOtaCandidate {
-  id: string;
-  confirmationNumber: string;
-  /** Канал как его назвал Exely (например «Trip.com Group») */
-  channel: string | null;
-  notes: string | null;
-  items: Array<{
-    accommodationTypeId: string;
-    arrivalDate: string;
-    departureDate: string;
-    status: ReservationStatus;
-  }>;
 }
 export interface NewGuest {
   firstName: string;
@@ -137,7 +123,7 @@ export interface NewReservation {
   notes: string | null;
   items: Array<{
     accommodationTypeId: string;
-    /** Тариф проживания (Q-102); null — неизвестен (перенос из Exely) */
+    /** Тариф проживания (Q-102); null — неизвестен (перенос из внешней системы) */
     ratePlanId?: string | null;
     adults?: number;
     children?: number;
@@ -291,17 +277,6 @@ export interface ReservationsRepository {
   replaceAllocationDates(id: string, startDate: string, endDate: string): Promise<void>;
   /** Бронь канала по внешнему ID (unique_id Channex) */
   reservationByExternalId(externalId: string): Promise<ReservationState | null>;
-  /**
-   * ADR-024 (Q-034): перенесённые из Exely брони каналов — кандидаты на сопоставление с подтянутой
-   * channel manager'ом ревизией: источник OTA, внешнего ID нет (Exely номер брони канала не отдаёт),
-   * бронь не отменена, хотя бы одно живое проживание пересекает [from, toExclusive). Проживания
-   * отдаются все, со статусом — живые считает вызывающий. Фильтр по каналу тоже у вызывающего:
-   * имена каналов у Exely и channel manager'а разные, и их нормализация здесь неизвестна.
-   */
-  importedOtaCandidates(input: {
-    from: string;
-    toExclusive: string;
-  }): Promise<ImportedOtaCandidate[]>;
   /** Добавить проживание к существующей брони (модификация OTA-брони) */
   addReservationItem(reservationId: string, item: NewReservation['items'][number]): Promise<string>;
   /** Штраф при отмене/незаезде на счёт проживания (Q-103, DATA_MODEL §6) */
@@ -641,7 +616,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     return n > 0;
   }
   async createGuest(guest: NewGuest): Promise<string> {
-    // Гость принадлежит организации объекта (DATA_MODEL v1.13 §17.1, RLS-1): и у стойки, и у брони из канала
+    // Гость с рождения знает организацию объекта (Phase 1 ADR-100 §17.2 + RLS-1 v1.13 §17.1):
+    // и от стойки (вошедший), и от канала/виджета (служебный путь и organizationScope дают тот же объект).
     const { organizationId } = await this.property();
     const g = await this.db.guest.create({
       data: {
@@ -931,55 +907,6 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { confirmationNumber: true },
     });
     return r ? this.reservationByNumber(r.confirmationNumber) : null;
-  }
-  async importedOtaCandidates(input: {
-    from: string;
-    toExclusive: string;
-  }): Promise<ImportedOtaCandidate[]> {
-    const { id: propertyId } = await this.property();
-    const rows = await this.db.reservation.findMany({
-      where: {
-        propertyId,
-        source: 'OTA',
-        OR: [{ externalId: null }, { externalId: '' }],
-        status: { not: 'CANCELLED' },
-        items: {
-          some: {
-            status: { not: 'CANCELLED' },
-            arrivalDate: { lt: asDate(input.toExclusive) },
-            departureDate: { gt: asDate(input.from) },
-          },
-        },
-      },
-      orderBy: { createdAt: 'asc' },
-      select: {
-        id: true,
-        confirmationNumber: true,
-        channel: true,
-        notes: true,
-        items: {
-          orderBy: { createdAt: 'asc' },
-          select: {
-            accommodationTypeId: true,
-            arrivalDate: true,
-            departureDate: true,
-            status: true,
-          },
-        },
-      },
-    });
-    return rows.map((r) => ({
-      id: r.id,
-      confirmationNumber: r.confirmationNumber,
-      channel: r.channel,
-      notes: r.notes,
-      items: r.items.map((it) => ({
-        accommodationTypeId: it.accommodationTypeId,
-        arrivalDate: iso(it.arrivalDate),
-        departureDate: iso(it.departureDate),
-        status: it.status,
-      })),
-    }));
   }
   async recordChannelPrepayment(
     itemId: string,
@@ -1280,6 +1207,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       select: { id: true, status: true, attemptCount: true, lastError: true },
     });
     if (existing) return { ...existing, isNew: false };
+    // Phase 1 изоляции (ADR-100 §17.2): событие канала с рождения знает объект обработки
+    const { id: propertyId } = await this.property();
     const created = await this.db.externalEvent.create({
       data: {
         provider: event.provider,
@@ -1287,6 +1216,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         type: event.type,
         payloadHash: event.payloadHash,
         payload: json(event.payload),
+        propertyId,
         ...(event.receivedVia ? { receivedVia: event.receivedVia } : {}),
       },
       select: { id: true, status: true, attemptCount: true, lastError: true },
@@ -1324,9 +1254,13 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     // ключами, и в свободном тексте (заметка, комментарий, причина) контакты под маской: журнал только дописывается
     const forJournal = (v: unknown) =>
       isReservationCard(v) ? maskAuditFreeText(cardForAudit(v)) : withoutGuestIdentity(v);
+    // Phase 1 изоляции (ADR-100 §17.2): служебные записи (синхронизация, вебхук) тоже несут
+    // организацию объекта — иначе они копили бы NULL-остаток, который уже разбирал backfill
+    const { organizationId } = await this.property();
     await this.db.auditLog.create({
       data: {
         userId: auditUserId(),
+        organizationId,
         entityType: entry.entityType,
         entityId: entry.entityId,
         action: entry.action,

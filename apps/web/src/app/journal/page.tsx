@@ -47,11 +47,10 @@ const ACTION_RU: Record<string, string> = {
   'guest.update': 'карточка гостя изменена',
   'guest.document.add': 'документ гостя добавлен',
   'guest.document.delete': 'документ гостя удалён',
-  'reservations.import': 'импорт броней из Exely',
+  'reservations.import': 'импорт броней',
   'analytics.site.create': 'сайт со счётчиком добавлен',
   'analytics.site.update': 'сайт со счётчиком изменён',
   'analytics.site.delete': 'сайт со счётчиком удалён',
-  'exely.sync': 'синхронизация с Exely',
   'user.login': 'вход в систему',
   'user.logout': 'выход из системы',
   'user.password.changed': 'пароль изменён',
@@ -59,6 +58,10 @@ const ACTION_RU: Record<string, string> = {
   'user.created': 'сотрудник добавлен',
   'user.blocked': 'сотрудник заблокирован',
   'user.unblocked': 'сотрудник разблокирован',
+  // сотрудники и расширения организации (ADR-107, ADR-083): строки пишутся на организацию
+  'membership.removed': 'сотрудник отключён',
+  'membership.role.updated': 'роль сотрудника изменена',
+  'extension.updated': 'расширение изменено',
 };
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   [null, 'все'],
@@ -68,6 +71,7 @@ const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
   ['Property', 'объект и каналы'],
   ['TrackedSite', 'сайт'],
   ['user', 'сотрудники'],
+  ['organization', 'организация'],
 ];
 /** Сколько строк просим у API: поиск и отбор идут по всей истории, наружу — не больше этого */
 const LIMIT = 200;
@@ -86,8 +90,7 @@ export default async function JournalPage({
   const { type, q, system } = normalizeSearchParams(await searchParams);
   const showSystem = system === '1';
   const needle = q?.trim() ?? '';
-  // Поиск и фильтр — в API по всей истории: синхронизация Exely пишет строку каждые 5 минут, и 200 последних
-  // строк покрывали меньше суток — «История» брони была пустой (волна 3)
+  // Поиск и фильтр выполняются в API по всей истории, наружу возвращается ограниченная выборка.
   const query = new URLSearchParams({
     limit: String(LIMIT),
     ...(type ? { entityType: type } : {}),

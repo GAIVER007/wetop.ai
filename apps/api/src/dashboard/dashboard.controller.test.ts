@@ -9,21 +9,30 @@ import { ChessboardService } from '../chessboard/chessboard.service';
 import { DashboardModule } from './dashboard.module';
 import { DASHBOARD_REPOSITORY, type DashboardRepository } from './dashboard.repository';
 
-/** Подставной репозиторий: 2 единицы, по одной занятой клетке в день, один заезд 05.10 на 300 000 тиын. */
+/**
+ * Подставной репозиторий: 2 номера, по одному занятому в день, один заезд 05.10 на 300 000 тиын;
+ * рядом 3 свободные койки — чтобы тип фонда (Аналитика v2, AN1) было что делить.
+ */
 const calls: string[] = [];
 const repo: DashboardRepository = {
   async board(from, to) {
     calls.push(`board ${from}..${to}`);
     return {
-      categories: [{ code: 'ROOM', name: 'Двухместная', units: 2 }],
+      categories: [
+        { code: 'ROOM', name: 'Двухместная', units: 2, kind: 'ROOM' },
+        { code: 'DORM', name: 'Мужская общая', units: 3, kind: 'BED' },
+      ],
       days: dateRange(from, to).map((date) => ({
         date,
         occupied: 1,
-        free: 1,
+        free: 4,
         blocked: 0,
-        byCategory: { ROOM: { units: 2, occupied: 1, free: 1, blocked: 0 } },
+        byCategory: {
+          ROOM: { units: 2, occupied: 1, free: 1, blocked: 0 },
+          DORM: { units: 3, occupied: 0, free: 3, blocked: 0 },
+        },
       })),
-      unassigned: 0,
+      unassignedByCategory: {},
     };
   },
   async stays(from, to) {
@@ -45,7 +54,14 @@ const repo: DashboardRepository = {
   },
   async charges(from, to) {
     return from <= '2026-10-05' && to >= '2026-10-05'
-      ? [{ kind: 'ACCOMMODATION', amountMinor: 300_000n, categoryCode: 'ROOM' }]
+      ? [
+          {
+            kind: 'ACCOMMODATION',
+            amountMinor: 300_000n,
+            categoryCode: 'ROOM',
+            serviceDate: '2026-10-05',
+          },
+        ]
       : [];
   },
   async payments() {
@@ -76,7 +92,7 @@ describe('desk dashboard API', () => {
 
   it('период и предыдущий отрезок той же длины; загрузка из шахматки, деньги из счетов', async () => {
     const r = await request(app.getHttpServer())
-      .get('/desk/dashboard?from=2026-10-05&to=2026-10-06')
+      .get('/desk/dashboard?from=2026-10-05&to=2026-10-06&fund=rooms')
       .expect(200);
     expect(r.body.current).toMatchObject({
       from: '2026-10-05',
@@ -91,6 +107,7 @@ describe('desk dashboard API', () => {
       sources: [{ source: 'OTA', channel: 'Booking.com', count: 1, share: 100 }],
     });
     expect(r.body.previous).toMatchObject({
+      fund: 'rooms',
       from: '2026-10-03',
       to: '2026-10-04',
       revenue: { totalMinor: '0' },
@@ -99,6 +116,37 @@ describe('desk dashboard API', () => {
       arrivals: { count: 0 },
     });
     expect(calls).toEqual(['board 2026-10-05..2026-10-06', 'board 2026-10-03..2026-10-04']);
+  });
+
+  it('тип фонда: по умолчанию весь фонд, койки — отдельно; оба периода считаются одним типом', async () => {
+    const all = await request(app.getHttpServer())
+      .get('/desk/dashboard?from=2026-10-05&to=2026-10-06')
+      .expect(200);
+    expect(all.body.current).toMatchObject({
+      fund: 'all',
+      funds: { rooms: 2, beds: 3 },
+      units: 5,
+      occupancy: { unitNights: 10, occupiedNights: 2, percent: 20 },
+      bookings: { total: 1, active: 1, averageMinor: '300000' },
+    });
+    expect(all.body.current.daily[0]).toMatchObject({ date: '2026-10-05', revenueMinor: '300000' });
+    const beds = await request(app.getHttpServer())
+      .get('/desk/dashboard?from=2026-10-05&to=2026-10-06&fund=beds')
+      .expect(200);
+    expect(beds.body.current).toMatchObject({
+      fund: 'beds',
+      units: 3,
+      occupancy: { unitNights: 6, occupiedNights: 0, percent: 0 },
+      revenue: { accommodationMinor: '0' },
+      bookings: { total: 0, averageMinor: null },
+    });
+    expect(beds.body.previous).toMatchObject({ fund: 'beds', units: 3 });
+  });
+
+  it('неизвестный тип фонда — 400, а не молча весь фонд', async () => {
+    await request(app.getHttpServer())
+      .get('/desk/dashboard?from=2026-10-05&to=2026-10-06&fund=apartments')
+      .expect(400);
   });
 
   it('без дат — 400; to раньше from — 400; больше 366 дней — 400', async () => {

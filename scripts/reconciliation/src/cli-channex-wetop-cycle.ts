@@ -20,7 +20,7 @@ const baseUrl = process.env.CHANNEX_API_BASE_URL?.trim() || 'https://staging.cha
 if (!baseUrl.includes('staging')) throw new Error(`Только staging: ${baseUrl}`);
 const API = process.env.APP_API_URL ?? 'http://127.0.0.1:3001';
 const WEB = process.env.WEB_URL ?? 'http://127.0.0.1:3000';
-const category = process.argv[2] ?? 'exely-5074688';
+const category = process.argv[2] ?? 'category-dorm';
 const OTA_NAME = 'Booking.com';
 
 const get = async <T>(path: string): Promise<T> => {
@@ -212,8 +212,8 @@ if (number) {
     (h) => h.includes(encodeURIComponent(n)) || h.includes(n),
   );
   checkPage(
-    'WETOP: «Источники продаж» видят канал',
-    await page(`/analytics/sources?from=${ARRIVAL}&to=${ARRIVAL}&status=ALL`),
+    'WETOP: «Менеджер каналов» видит канал',
+    await page(`/channel-manager?from=${ARRIVAL}&to=${ARRIVAL}&status=ALL`),
     (h) => h.includes(card.channel ?? OTA_NAME),
   );
   const afterCreate = await availabilityMatches();

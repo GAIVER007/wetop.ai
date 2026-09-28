@@ -42,7 +42,7 @@
 | `fix/report-fallback` | 2026-09-20 | 1 | 0 | #48 слит | удалить: содержимое в `main` (squash), patch-id пуст |
 | `plans/demo-recording` | 2026-09-20 | 1 | 0 | #52 слит | удалить: содержимое в `main` (squash), patch-id пуст |
 
-Ветки, целиком в истории `main` (можно удалить): `chore/journal-2026-09-17`, `claude/blissful-meitner-ipoauv`, `claude/dreamy-faraday-vxjpj9`, `claude/epic-goldberg-743uda`, `claude/gifted-planck-5o1ymi`, `claude/inspiring-pasteur-urrgr8`, `claude/practical-bardeen-pu5luq`, `claude/relaxed-carson-ekb1gc`, `claude/server-kz-parallel`, `claude/trusting-ramanujan-gi6uzl`, `codex/current-release-acceptance`, `codex/hostel-frontend`, `codex/premium-ui-system`, `codex/settings-simplification`, `feat/design-slop`, `feat/duty-and-guard-server`, `feat/login-password-register`, `fix/compose-server-run`, `fix/guard-exely-alarm`, `merge/exely-off-into-main`, `merge/settings-simplification`.
+Ветки, целиком в истории `main` (можно удалить): `chore/journal-2026-09-17`, `claude/blissful-meitner-ipoauv`, `claude/dreamy-faraday-vxjpj9`, `claude/epic-goldberg-743uda`, `claude/gifted-planck-5o1ymi`, `claude/inspiring-pasteur-urrgr8`, `claude/practical-bardeen-pu5luq`, `claude/relaxed-carson-ekb1gc`, `claude/server-kz-parallel`, `claude/trusting-ramanujan-gi6uzl`, `codex/current-release-acceptance`, `codex/hostel-frontend`, `codex/premium-ui-system`, `codex/settings-simplification`, `feat/design-slop`, `feat/duty-and-guard-server`, `feat/login-password-register`, `fix/compose-server-run`, `fix/guard-retired-source-alarm`, `merge/retired-source-off-into-main`, `merge/settings-simplification`.
 
 Резервные копии (оставить): `backup/pms-lux-2026-09-14`, `backup/second-merge-2026-09-20`.
 
@@ -89,9 +89,9 @@ git push origin --delete feat/org-isolation
 git push origin --delete fix/audit-findings
 git push origin --delete fix/compose-server-run
 git push origin --delete fix/cycle-robust
-git push origin --delete fix/guard-exely-alarm
+git push origin --delete fix/guard-retired-source-alarm
 git push origin --delete fix/report-fallback
-git push origin --delete merge/exely-off-into-main
+git push origin --delete merge/retired-source-off-into-main
 git push origin --delete merge/settings-simplification
 git push origin --delete plans/demo-recording
 ```
@@ -179,14 +179,14 @@ git push origin --delete plans/demo-recording
 3. ~~Слить ветку `claude/dazzling-newton-xmmsjf` в `main`; влить PR #57; удалить ветки командами выше~~ — сделано 22.09 (ветка — fast-forward `6a461b41`, PR #57 — `7d12c063`, 39 веток удалены владельцем). Осталось: закрыть PR #9 после решения по плану.
 4. Ответить: Q-157 (что обещает сайт), Q-158…Q-161 (приём броней Channex — четыре живых дефекта до первого канала), Q-162…Q-165 (повторный импорт дампа).
 5. Из отчёта 21.09 без изменений: дамп 19.09 в одной копии на том же сервере, восстановление не проверено; пять условий допуска ждут человека.
-6. Семь открытых вопросов спрашивают про данные Exely, которых после очистки базы 19.09 (ADR-052) нет (из разбора 21.09,
+6. Семь открытых вопросов спрашивают про данные архивный источник, которых после очистки базы 19.09 (ADR-052) нет (из разбора 21.09,
    `reports/project-status-2026-09-21.md` §5). Ответить на них нельзя и не нужно, но они держат сводку открытых и прячут
-   вопросы живой смены. Предлагаемая формулировка закрытия, одна на все: «Снят 22.09.2026 вместе с Exely (ADR-052): данных,
+   вопросы живой смены. Предлагаемая формулировка закрытия, одна на все: «Снят 22.09.2026 вместе с архивный источник (ADR-052): данных,
    о которых вопрос, в PMS больше нет; вернётся только с повторным импортом дампа 19.09». Закрыть может только владелец — одним словом «закрой»:
-- **Q-101** — Тарифы Островка («Стандартный», «Невозвратный −10%», «В2В») имеют цены только до **31.12.2026**. Продлевать на 2027 (в Exely сейчас или уже в новой…
+- **Q-101** — Тарифы Островка («Стандартный», «Невозвратный −10%», «В2В») имеют цены только до **31.12.2026**. Продлевать на 2027 (в архивный источник сейчас или уже в новой…
 - **Q-109** — Будущие брони каналов, неотличимые по каналу, категории и датам (на 12.09 — 16 в 8 группах, на 13.09 уже 25 в 12 группах: список живой, считается к…
-- **Q-110** — При связывании подтянутой брони предоплата канала (`payment_collect = ota`) не записывается, если по счёту уже что-то оплачено из Exely (на 11.09 —…
+- **Q-110** — При связывании подтянутой брони предоплата канала (`payment_collect = ota`) не записывается, если по счёту уже что-то оплачено из архивный источник (на 11.09 —…
 - **Q-119** — Мужской дом продан сверх вместимости на ночь 12.09.2026: 37 проживаний на 36 коек, обе спорные брони заселены. Что делает стойка — доселяет гостя в…
-- **Q-134** — Платежи, перенесённые из Exely (`EXTERNAL exely:<roomStayId>`), датированы днём переноса, а не днём оплаты в Exely: «Получено оплат» на главной и в…
-- **Q-147** — Проживание исчезло из карточки Exely (ADR-050), но у него на счёте есть оплата (платёж `EXTERNAL exely:<stay>`) или гость заселён. Что делать с ден…
-- **Q-148** — Проверить на настоящем возврате в Exely, что означает `toRefundAmount` после исполненного возврата: обнуляется ли оплата (`amount − toPay`)? От это…
+- **Q-134** — Платежи, перенесённые из архивный источник (`EXTERNAL retired-source:<roomStayId>`), датированы днём переноса, а не днём оплаты в архивный источник: «Получено оплат» на главной и в…
+- **Q-147** — Проживание исчезло из карточки архивный источник (ADR-050), но у него на счёте есть оплата (платёж `EXTERNAL retired-source:<stay>`) или гость заселён. Что делать с ден…
+- **Q-148** — Проверить на настоящем возврате в архивный источник, что означает `toRefundAmount` после исполненного возврата: обнуляется ли оплата (`amount − toPay`)? От это…

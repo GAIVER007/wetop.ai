@@ -10,12 +10,12 @@
 Один полный операционный день проходит в новой PMS.
 
 Все arrivals, departures, in-house guests, new reservations, modifications,
-cancellations, room moves, payments, services, OTA reservations — совпадают с Exely.
+cancellations, room moves, payments, services, OTA reservations — совпадают с архивный источник.
 
 **Ни одна бронь не потеряна.**
 
 Система считается готовой не тогда, когда написан код, а когда данные новой PMS
-полностью сходятся с Exely на реальном объекте и операционный день проходит
+полностью сходятся с архивный источник на реальном объекте и операционный день проходит
 без возврата сотрудников в старую PMS.
 
 ---
@@ -159,8 +159,8 @@ MVP готов только при одновременном выполнени
   возвращается в DoD после подачи заявки
 - ~~fiscal workflow works~~ — **снято владельцем 12.09.2026** (Q-050: касса не нужна)
 - ~~RU/KZ forms work~~ — **снято владельцем 12.09.2026** (печатные формы не делаются)
-- parallel day matches Exely
+- parallel day matches архивный источник
 - rollback verified
-- staff can run a shift without opening Exely
+- staff can run a shift without opening архивный источник
 
 Только после этого можно говорить о SaaS, AI, втором объекте и остальных продуктах.

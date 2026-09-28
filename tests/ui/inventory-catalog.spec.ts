@@ -21,29 +21,61 @@ test('каталог: поиск, тип, категория, сброс и со
   await expect(main.getByRole('searchbox')).toHaveValue('M01');
   await main.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
   await expect(main.getByTestId('unit-row')).toHaveCount(88);
-  await main.getByTestId('category-row').filter({ hasText: 'Мужской' }).click();
+  // категория — фильтр в toolbar (ADR-108), постоянной левой панели больше нет
+  await main.getByRole('combobox', { name: 'Категория размещения' }).selectOption('MALE');
   await expect(main.getByTestId('unit-row')).toHaveCount(36);
   await expect(page).toHaveURL(/category=MALE/);
   await page.goBack();
   await expect(main.getByTestId('unit-row')).toHaveCount(88);
 });
 
-test('прямая ссылка на категорию и вид списка сохраняются, карточка открывается', async ({
+test('прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается', async ({
   page,
 }) => {
   await page.goto('/inventory?category=ROOM');
   const main = page.getByRole('main');
   await expect(main.getByTestId('unit-row')).toHaveCount(16);
-  await main.getByRole('button', { name: 'Список', exact: true }).click();
   await expect(main.getByRole('table', { name: 'Номера и койко-места' })).toBeVisible();
+  await main.getByRole('button', { name: 'Карточки', exact: true }).click();
+  await expect(main.getByRole('table', { name: 'Номера и койко-места' })).toHaveCount(0);
   await page.reload();
-  await expect(main.getByRole('button', { name: 'Список', exact: true })).toHaveAttribute(
+  await expect(main.getByRole('button', { name: 'Карточки', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
+  await main.getByRole('button', { name: 'Список', exact: true }).click();
   await main.getByRole('link', { name: 'Открыть номер R01', exact: true }).click();
   await expect(page).toHaveURL(/\/units\/R01/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('R01');
+});
+
+test('таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают', async ({
+  page,
+  request,
+}) => {
+  // дизайн-сид фикстуры даёт блокировки с причиной и статусы уборки (тот же, что у /design-system)
+  await request.post(`${fixture}/__test/design-seed`);
+  await page.goto('/inventory');
+  const main = page.getByRole('main');
+  const row = (code: string) =>
+    main
+      .getByTestId('unit-row')
+      .filter({ has: page.getByRole('link', { name: `Открыть номер ${code}`, exact: true }) });
+  await expect(row('R09')).toContainText('заблокирована');
+  await expect(row('R09')).toContainText('ремонт: кондиционер');
+  await expect(row('R01')).toContainText('требует уборки');
+  await expect(row('R01')).toContainText('Корпус Основной');
+  await expect(row('R02')).toContainText('в продаже');
+  await expect(row('R02')).toContainText('проверено');
+  // строка сама открывает карточку места: клик по обычной ячейке, не по ссылке (ТЗ §12)
+  await row('R02').locator('td').nth(1).click();
+  await expect(page).toHaveURL(/\/units\/R02/);
+  await page.goBack();
+  // кнопок «Редактировать» в строках больше нет — действия в меню «⋯»
+  await expect(main.getByRole('button', { name: 'Редактировать', exact: true })).toHaveCount(0);
+  await main.getByRole('button', { name: 'Действия: R03', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Переименовать комнату', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Редактировать комнату' })).toBeVisible();
 });
 
 test('пустой поиск объясняется, сброс возвращает фонд', async ({ page }) => {

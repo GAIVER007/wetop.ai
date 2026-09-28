@@ -44,6 +44,20 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Роли принадлежат всему кластеру PostgreSQL и поэтому не входят в dump одной схемы. Начиная с RLS-миграций,
+# политики public ссылаются на них по имени; на чистом сервере pg_restore иначе останавливается до первой таблицы.
+# Если роли уже есть (например, npm run db:local), их свойства не меняем.
+if ! psql "$admin" -Atqv ON_ERROR_STOP=1 -c "SELECT 1 FROM pg_roles WHERE rolname = 'wetop_app'" | grep -qx 1; then
+  psql "$admin" -qv ON_ERROR_STOP=1 -c 'CREATE ROLE wetop_app NOLOGIN NOBYPASSRLS' >/dev/null 2>"$errors" ||
+    { mask <"$errors" >&2; fail "не удалось создать роль wetop_app для пробы" 2; }
+fi
+if ! psql "$admin" -Atqv ON_ERROR_STOP=1 -c "SELECT 1 FROM pg_roles WHERE rolname = 'wetop_service'" | grep -qx 1; then
+  if ! psql "$admin" -qv ON_ERROR_STOP=1 -c 'CREATE ROLE wetop_service NOLOGIN BYPASSRLS' >/dev/null 2>"$errors"; then
+    psql "$admin" -qv ON_ERROR_STOP=1 -c 'CREATE ROLE wetop_service NOLOGIN' >/dev/null 2>"$errors" ||
+      { mask <"$errors" >&2; fail "не удалось создать роль wetop_service для пробы" 2; }
+  fi
+fi
+
 psql "$admin" -qv ON_ERROR_STOP=1 -c "CREATE DATABASE $db" >/dev/null 2>"$errors" ||
   { mask <"$errors" >&2; fail "не удалось создать базу для пробы" 2; }
 psql "$target" -qv ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS btree_gist' >/dev/null 2>"$errors" ||

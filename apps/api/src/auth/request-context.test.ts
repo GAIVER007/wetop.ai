@@ -55,8 +55,8 @@ describe('attachAuthor — подстановка автора в запись �
   });
 
   it('без вошедшего оставляет запись как была: это действие сторожа или импорта', () => {
-    expect(attachAuthor({ data: { action: 'exely.sync' } }, null)).toEqual({
-      data: { action: 'exely.sync' },
+    expect(attachAuthor({ data: { action: 'system.health' } }, null)).toEqual({
+      data: { action: 'system.health' },
     });
   });
 
@@ -64,6 +64,24 @@ describe('attachAuthor — подстановка автора в запись �
     expect(
       attachAuthor({ data: [{ action: 'a' }, { action: 'b', userId: 'u-9' }] }, 'u-1'),
     ).toEqual({ data: [{ action: 'a', userId: 'u-1' }, { action: 'b', userId: 'u-9' }] });
+  });
+
+  it('ставит организацию вошедшего тем же механизмом, что автора (Phase 1, ADR-100 §17.2)', () => {
+    expect(attachAuthor({ data: { action: 'reservation.checkIn' } }, 'u-1', 'org-1')).toEqual({
+      data: { action: 'reservation.checkIn', userId: 'u-1', organizationId: 'org-1' },
+    });
+  });
+
+  it('не перебивает организацию, указанную явно', () => {
+    expect(
+      attachAuthor({ data: { action: 'system.health', organizationId: 'org-9' } }, null, 'org-1'),
+    ).toEqual({ data: { action: 'system.health', organizationId: 'org-9' } });
+  });
+
+  it('организацию ставит и без автора: публичный путь сайта действует от имени организации', () => {
+    expect(attachAuthor({ data: { action: 'web.book' } }, null, 'org-1')).toEqual({
+      data: { action: 'web.book', organizationId: 'org-1' },
+    });
   });
 
   it('чужую форму аргументов не ломает', () => {

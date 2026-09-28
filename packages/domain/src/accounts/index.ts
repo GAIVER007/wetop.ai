@@ -13,4 +13,6 @@ export * from './session';
 export * from './registration';
 export * from './invite';
 export * from './roles';
+export * from './permissions';
+export * from './members';
 export * from './extensions';

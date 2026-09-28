@@ -55,7 +55,10 @@ export class PrismaChessboardRepository implements ChessboardRepository {
     const propertyId = await this.propertyId();
     const rows = await this.prisma.db.inventoryUnit.findMany({
       where: { accommodationType: { propertyId }, active: true },
-      include: { accommodationType: { select: { code: true, name: true } } },
+      include: {
+        accommodationType: { select: { code: true, name: true } },
+        physicalRoom: { select: { roomNumber: true } },
+      },
     });
     return rows
       .sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }))
@@ -65,8 +68,10 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         kind: u.kind,
         accommodationTypeCode: u.accommodationType.code,
         accommodationTypeName: u.accommodationType.name,
-        // Срез 7.1: убрана ли ячейка — значок в строке, как в Exely у номера
+        // Срез 7.1: убрана ли ячейка — значок в строке, по правилу объекта у номера
         housekeepingStatus: u.housekeepingStatus,
+        // ТЗ v2 §17 (подготовка к Q-095): пока комнаты 1:1, UI по ним не группирует
+        physicalRoomNumber: u.physicalRoom.roomNumber,
       }));
   }
 

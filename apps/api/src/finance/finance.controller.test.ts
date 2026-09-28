@@ -2,7 +2,13 @@ import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { ConflictException, type INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ADJUSTMENT_DOWN_MESSAGE, accessDeniedMessage, type MembershipRole } from '@pms/domain';
+import { SessionGuard } from '../auth/auth.guard';
+import { AuthService } from '../auth/auth.service';
+import { AuthorInterceptor } from '../auth/author.interceptor';
+import { RoleGuard } from '../auth/role.guard';
 import { PrismaService } from '../database/prisma.provider';
 import { UnitsService } from '../units/units.service';
 import { FinanceModule } from './finance.module';
@@ -87,6 +93,89 @@ function makeFakes() {
             refunds: { count: 0, amountMinor: 0n },
             accommodationByCategory: [],
           };
+    },
+    async periodDebts(from, to) {
+      // ADR-113: брони с начислением в периоде и суммы по всем их счетам. Октябрь — пять броней:
+      // долг, долг побольше, ровно оплачено, переплата у отменённой, долг после возврата
+      if (from <= '2026-11-01' && to >= '2026-11-01')
+        // ноябрь — 501 должник: ответ держит не больше 500 строк
+        return Array.from({ length: 501 }, (_, i) => ({
+          confirmationNumber: `N-${String(i).padStart(3, '0')}`,
+          status: 'CONFIRMED',
+          arrivalDate: '2026-11-01',
+          departureDate: '2026-11-02',
+          guestLabel: null,
+          chargedMinor: 1_000n + BigInt(i),
+          paidMinor: 0n,
+          refundedMinor: 0n,
+        }));
+      if (!(from <= '2026-10-02' && to >= '2026-10-02')) return [];
+      const row = (
+        n: string,
+        status: string,
+        arrivalDate: string,
+        charged: bigint,
+        paid: bigint,
+        refunded: bigint,
+      ) => ({
+        confirmationNumber: n,
+        status,
+        arrivalDate,
+        departureDate: '2026-10-09',
+        guestLabel: `Гость ${n}`,
+        chargedMinor: charged,
+        paidMinor: paid,
+        refundedMinor: refunded,
+      });
+      return [
+        row('B-10', 'CHECKED_OUT', '2026-09-28', 500_000n, 200_000n, 0n),
+        row('B-11', 'CONFIRMED', '2026-10-06', 1_000_000n, 0n, 0n),
+        row('B-12', 'CHECKED_IN', '2026-10-01', 400_000n, 400_000n, 0n),
+        row('B-13', 'CANCELLED', '2026-10-02', 100_000n, 300_000n, 100_000n),
+        row('B-14', 'CHECKED_IN', '2026-10-05', 300_000n, 100_000n, 100_000n),
+      ];
+    },
+    async periodOperations(from, to, filter) {
+      // ADR-113 F2: октябрь — две оплаты, аннулированная оплата, возврат; итоги — по всему периоду без отборов
+      if (!(from <= '2026-10-05' && to >= '2026-10-02')) return { rows: [], summary: [] };
+      const op = (
+        kind: 'PAYMENT' | 'REFUND',
+        id: string,
+        day: string,
+        method: 'CASH' | 'KASPI',
+        amount: bigint,
+        status: 'COMPLETED' | 'VOIDED',
+        booking: string,
+      ) => ({
+        kind,
+        id,
+        at: `${day}T05:00:00.000Z`,
+        localAt: `${day} 10:00`,
+        method,
+        amountMinor: amount,
+        status,
+        confirmationNumber: booking,
+        reservations: 1,
+        guestLabel: `Гость ${booking}`,
+      });
+      const all = [
+        op('PAYMENT', 'P1', '2026-10-05', 'CASH', 1_500_000n, 'COMPLETED', 'B-1'),
+        op('REFUND', 'R1', '2026-10-04', 'KASPI', 50_000n, 'COMPLETED', 'B-2'),
+        op('PAYMENT', 'P2', '2026-10-03', 'KASPI', 200_000n, 'COMPLETED', 'B-2'),
+        op('PAYMENT', 'P3', '2026-10-02', 'CASH', 300_000n, 'VOIDED', 'B-1'),
+      ];
+      const summary = all.map((x) => ({
+        kind: x.kind,
+        method: x.method,
+        status: x.status,
+        count: 1,
+        amountMinor: x.amountMinor,
+      }));
+      const rows = all
+        .filter((x) => !filter.type || x.kind === filter.type)
+        .filter((x) => !filter.method || x.method === filter.method)
+        .slice(0, filter.limit);
+      return { rows, summary };
     },
     async services() {
       return [
@@ -340,6 +429,120 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(empty.body).toMatchObject({ chargedMinor: '0', paidMinor: '0', balanceMinor: '0' });
   });
 
+  it('ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, выехавшие отдельно; неверный период → 400', async () => {
+    const debts = (qs: string) => request(app.getHttpServer()).get(`/finance/debts${qs}`);
+    await debts('').expect(400);
+    await debts('?from=2026-10-31&to=2026-10-01').expect(400);
+    await debts('?from=2020-01-01&to=2030-12-31').expect(400);
+
+    const r = await debts('?from=2026-10-01&to=2026-10-31').expect(200);
+    expect(r.body).toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-31',
+      currency: 'KZT',
+      count: 3,
+      balanceMinor: '1600000',
+      checkedOut: { count: 1, balanceMinor: '300000' },
+      truncated: false,
+    });
+    // ровно оплаченная B-12 и переплата B-13 в список к сбору не входят; равные остатки — по дате заезда
+    expect(r.body.rows.map((x: { confirmationNumber: string }) => x.confirmationNumber)).toEqual([
+      'B-11',
+      'B-10',
+      'B-14',
+    ]);
+    expect(r.body.rows[2]).toEqual({
+      confirmationNumber: 'B-14',
+      status: 'CHECKED_IN',
+      arrivalDate: '2026-10-05',
+      departureDate: '2026-10-09',
+      guestLabel: 'Гость B-14',
+      chargedMinor: '300000',
+      paidMinor: '100000',
+      refundedMinor: '100000',
+      balanceMinor: '300000', // начислено − оплачено + возвращено
+    });
+
+    const many = await debts('?from=2026-11-01&to=2026-11-30').expect(200);
+    expect(many.body).toMatchObject({ count: 501, truncated: true });
+    expect(many.body.rows).toHaveLength(500);
+    expect(many.body.rows[0].confirmationNumber).toBe('N-500');
+
+    const empty = await debts('?from=2026-01-01&to=2026-01-31').expect(200);
+    expect(empty.body).toMatchObject({
+      count: 0,
+      balanceMinor: '0',
+      checkedOut: { count: 0, balanceMinor: '0' },
+      rows: [],
+      truncated: false,
+    });
+  });
+
+  it('ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400', async () => {
+    const ops = (qs: string) => request(app.getHttpServer()).get(`/finance/operations${qs}`);
+    await ops('').expect(400);
+    await ops('?from=2026-10-31&to=2026-10-01').expect(400);
+    await ops('?from=2026-10-01&to=2026-10-31&type=FOO').expect(400);
+    await ops('?from=2026-10-01&to=2026-10-31&method=BTC').expect(400);
+    for (const limit of ['0', '20001', 'abc'])
+      await ops(`?from=2026-10-01&to=2026-10-31&limit=${limit}`).expect(400);
+
+    const all = await ops('?from=2026-10-01&to=2026-10-31').expect(200);
+    expect(all.body).toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-31',
+      currency: 'KZT',
+      total: 4,
+      paidMinor: '1700000', // аннулированная оплата в «оплачено» не входит — как в итогах периода
+      refundedMinor: '50000',
+      truncated: false,
+    });
+    expect(all.body.methods).toEqual([
+      { method: 'CASH', count: 2 },
+      { method: 'KASPI', count: 2 },
+    ]);
+    expect(all.body.rows.map((x: { id: string }) => x.id)).toEqual(['P1', 'R1', 'P2', 'P3']);
+    expect(all.body.rows[1]).toEqual({
+      kind: 'REFUND',
+      id: 'R1',
+      at: '2026-10-04T05:00:00.000Z',
+      localAt: '2026-10-04 10:00',
+      method: 'KASPI',
+      amountMinor: '50000',
+      status: 'COMPLETED',
+      confirmationNumber: 'B-2',
+      reservations: 1,
+      guestLabel: 'Гость B-2',
+    });
+
+    const payments = await ops('?from=2026-10-01&to=2026-10-31&type=PAYMENT').expect(200);
+    expect(payments.body).toMatchObject({ total: 3, paidMinor: '1700000', refundedMinor: '0' });
+    // числа на чипах способов — внутри отбора по типу, но без отбора по способу
+    expect(payments.body.methods).toEqual([
+      { method: 'CASH', count: 2 },
+      { method: 'KASPI', count: 1 },
+    ]);
+
+    const kaspi = await ops('?from=2026-10-01&to=2026-10-31&method=KASPI').expect(200);
+    expect(kaspi.body).toMatchObject({ total: 2, paidMinor: '200000', refundedMinor: '50000' });
+    expect(kaspi.body.rows.map((x: { id: string }) => x.id)).toEqual(['R1', 'P2']);
+    expect(kaspi.body.methods).toHaveLength(2);
+
+    const one = await ops('?from=2026-10-01&to=2026-10-31&limit=1').expect(200);
+    expect(one.body).toMatchObject({ total: 4, truncated: true });
+    expect(one.body.rows).toHaveLength(1);
+
+    const empty = await ops('?from=2026-01-01&to=2026-01-31').expect(200);
+    expect(empty.body).toMatchObject({
+      total: 0,
+      paidMinor: '0',
+      refundedMinor: '0',
+      methods: [],
+      rows: [],
+      truncated: false,
+    });
+  });
+
   it('charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price', async () => {
     const post = (body: object) =>
       request(app.getHttpServer()).post('/finance/folios/f1/charges').send(body);
@@ -438,7 +641,11 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     try {
       const charge = await request(app.getHttpServer())
         .post('/finance/folios/f1/charges')
-        .send({ kind: 'ADJUSTMENT', description: 'Скидка по звонку +7 701 234 56 78', unitPrice: '-100' })
+        .send({
+          kind: 'ADJUSTMENT',
+          description: 'Скидка по звонку +7 701 234 56 78',
+          unitPrice: '-100',
+        })
         .expect(201);
       const pay = await request(app.getHttpServer())
         .post('/finance/payments')
@@ -455,7 +662,8 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
         .send({ folioId: 'f1', amount: '500', reason: 'вернуть на 8 777 123 45 67' })
         .expect(201);
       const all = JSON.stringify([charge.body, pay.body, refund.body]);
-      for (const raw of ['701 234 56 78', 'guest.test@example.com', '777 123 45 67']) expect(all).not.toContain(raw);
+      for (const raw of ['701 234 56 78', 'guest.test@example.com', '777 123 45 67'])
+        expect(all).not.toContain(raw);
       // и в журнал причина возврата уходит с той же маской: раньше туда писался сырой текст (аудит 26.09, С-39)
       expect(JSON.stringify(fakes.auditAfter)).not.toContain('777 123 45 67');
       expect(JSON.stringify(fakes.auditAfter)).toContain('<телефон>');
@@ -571,7 +779,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       .expect(400);
   });
 
-  it('ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Exely; занятая койка — отказ без начисления', async () => {
+  it('ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления', async () => {
     // счёт f1: проживание 01→03.10 в ячейке 9001 (фальшивка stayUnitCode)
     fakes.blocks.length = 0;
     await request(app.getHttpServer())
@@ -651,5 +859,136 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
     await request(app.getHttpServer()).post(`/finance/charges/${chargeId}/void`).expect(200);
     expect(fakes.blocks.map((b) => b.reason)).toEqual(['ремонт']);
+  });
+});
+
+/**
+ * Роли в деньгах (ADR-107, Q-024): администратор принимает оплаты и начисляет услуги, а возврат, сторно и корректировку
+ * счёта на уменьшение делают владелец и управляющий. Приложение собрано с настоящими замками входа и ролей.
+ */
+describe('роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107)', () => {
+  let app: INestApplication;
+  let fakes = makeFakes();
+  const users: Record<string, MembershipRole> = {
+    'session-owner': 'OWNER',
+    'session-manager': 'MANAGER',
+    'session-admin': 'STAFF',
+  };
+  beforeEach(() => {
+    fakes = makeFakes();
+    vi.stubEnv('AUTH_REQUIRED', '1');
+  });
+  afterEach(() => vi.unstubAllEnvs());
+  beforeAll(async () => {
+    const proxy = (get: () => object) =>
+      new Proxy({}, { get: (_t, k) => (get() as Record<string, unknown>)[k as string] });
+    const auth = {
+      whoami: async (token: string) =>
+        users[token]
+          ? {
+              user: {
+                id: `u-${token}`,
+                email: 'desk@example.invalid',
+                name: null,
+                organizationId: 'org-1',
+                role: users[token],
+                platformAdmin: false,
+              },
+              organization: null,
+              expiresAt: '2026-10-01T00:00:00.000Z',
+            }
+          : null,
+    };
+    const m = await Test.createTestingModule({
+      imports: [FinanceModule],
+      providers: [
+        { provide: AuthService, useValue: auth },
+        { provide: APP_GUARD, useClass: SessionGuard },
+        { provide: APP_GUARD, useClass: RoleGuard },
+        { provide: APP_INTERCEPTOR, useClass: AuthorInterceptor },
+      ],
+    })
+      .overrideProvider(FINANCE_REPOSITORY)
+      .useFactory({ factory: () => proxy(() => fakes.repo) })
+      .overrideProvider(UnitsService)
+      .useFactory({ factory: () => proxy(() => fakes.units) })
+      .overrideProvider(PrismaService)
+      .useValue({})
+      .compile();
+    app = m.createNestApplication();
+    await app.init();
+  });
+  afterAll(async () => {
+    await app.close();
+  });
+  const as = (session: string) => ({ 'x-wetop-session': session });
+  const charge = (session: string, body: Record<string, unknown>) =>
+    request(app.getHttpServer()).post('/finance/folios/f1/charges').set(as(session)).send(body);
+  const pay = (session: string) =>
+    request(app.getHttpServer())
+      .post('/finance/payments')
+      .set(as(session))
+      .send({ method: 'CASH', amount: '1000', allocations: [{ folioId: 'f1', amount: '1000' }] });
+
+  /** Ручное начисление, созданное этим ответом: его id — для сторно (проживание сторнирует только система) */
+  const manualChargeId = (body: { folios: Array<{ charges: Array<{ id: string; kind: string }> }> }) =>
+    body.folios[0]!.charges.find((c) => c.kind !== 'ACCOMMODATION')!.id;
+
+  it('администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт', async () => {
+    const up = await charge('session-admin', {
+      kind: 'ADJUSTMENT',
+      description: 'Доплата',
+      unitPrice: '100',
+    }).expect(201);
+    const down = await charge('session-admin', {
+      kind: 'ADJUSTMENT',
+      description: 'Скидка',
+      unitPrice: '-100',
+    });
+    expect(down.status).toBe(403);
+    expect(down.body.message).toBe(ADJUSTMENT_DOWN_MESSAGE);
+
+    const paid = await pay('session-admin').expect(201);
+    const paymentId: string = paid.body.folios[0].payments[0].paymentId;
+    const refund = await request(app.getHttpServer())
+      .post(`/finance/payments/${paymentId}/refunds`)
+      .set(as('session-admin'))
+      .send({ folioId: 'f1', amount: '500', reason: 'ошибся суммой' });
+    expect(refund.status).toBe(403);
+    expect(refund.body.message).toBe(accessDeniedMessage('refunds'));
+    const voided = await request(app.getHttpServer())
+      .post(`/finance/charges/${manualChargeId(up.body)}/void`)
+      .set(as('session-admin'));
+    expect(voided.status).toBe(403);
+    expect(fakes.audits).toEqual(['finance.charge', 'finance.payment']);
+  });
+
+  it('управляющий и владелец возвращают, сторнируют и уменьшают счёт', async () => {
+    for (const session of ['session-manager', 'session-owner']) {
+      fakes = makeFakes();
+      const down = await charge(session, {
+        kind: 'ADJUSTMENT',
+        description: 'Скидка',
+        unitPrice: '-100',
+      }).expect(201);
+      const paid = await pay(session).expect(201);
+      const paymentId: string = paid.body.folios[0].payments[0].paymentId;
+      await request(app.getHttpServer())
+        .post(`/finance/payments/${paymentId}/refunds`)
+        .set(as(session))
+        .send({ folioId: 'f1', amount: '500', reason: 'ошибся суммой' })
+        .expect(201);
+      await request(app.getHttpServer())
+        .post(`/finance/charges/${manualChargeId(down.body)}/void`)
+        .set(as(session))
+        .expect(200);
+    }
+  });
+
+  it('отчёт за период администратор смотрит', async () => {
+    await request(app.getHttpServer())
+      .get('/finance/report?from=2026-10-01&to=2026-10-31')
+      .set(as('session-admin'))
+      .expect(200);
   });
 });

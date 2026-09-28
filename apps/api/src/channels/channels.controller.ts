@@ -35,6 +35,7 @@ import { Public } from '../auth/public.decorator';
 import { isAriStopped } from './ari-switch';
 import { outboxRowSummary } from './outbox-rows';
 import { revisionFacts } from './revision-facts';
+import { Access } from '../auth/access.decorator';
 
 /** Ответ или отказ за отведённое время: запрос к провайдеру идёт дальше, но страница его не ждёт */
 function within<T>(work: Promise<T>, ms: number, message: string): Promise<T> {
@@ -46,6 +47,7 @@ function within<T>(work: Promise<T>, ms: number, message: string): Promise<T> {
 }
 
 /** Channex: настройка объекта на staging и полная выгрузка ARI. Только localhost (роли — Q-061…064). */
+@Access('channels')
 @UseGuards(IntegrationOwnerGuard)
 @Controller('channels/channex')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
@@ -88,7 +90,7 @@ export class ChannelsController {
   }
 
   /**
-   * Остатки изменились мимо команд PMS — автосинхронизация из Exely (ADR-032). Пересчитать доступность
+   * Остатки изменились мимо команд PMS — автосинхронизация из внешней системы (ADR-032). Пересчитать доступность
    * названных категорий на ночах [from, toExclusive) и поставить дельтой в очередь, как для брони со стойки.
    * Полная выгрузка по такому событию не делается (сертификация Channex, п. 13: только дельты).
    */

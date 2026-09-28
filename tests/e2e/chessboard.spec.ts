@@ -4,8 +4,8 @@ import { almatyToday, plusDays } from './dates';
 /**
  * Gate 2 (шахматка): сетка на 88 ячеек, и число занятых на экране совпадает с данными API,
  * а занято + свободно + заблокировано всегда равно 88.
- * Сверка ИМЕННО С EXELY по числам — в датированных отчётах `reports/double-entry-*.md`
- * (скрипт `cli-double-entry.ts` читает Exely живьём). Жёсткое число здесь не зашивается:
+ * Сверка ИМЕННО С LEGACY по числам — в датированных отчётах `reports/double-entry-*.md`
+ * (скрипт `cli-double-entry.ts` читает Legacy живьём). Жёсткое число здесь не зашивается:
  * оно меняется с каждой новой бронью и делало бы тест ложно-красным. Дата — сегодняшняя в Алматы, а не
  * 08.09.2026: и рабочая копия, и сид автотестов (`tests/tools/test-seed.ts`) держат занятость вокруг «сегодня».
  */
@@ -33,13 +33,20 @@ test('шахматка показывает 88 ячеек, и занятость
   await page.screenshot({ path: 'reports/screenshots/chessboard-today.png', fullPage: false });
 });
 
-test('клик по занятой клетке открывает карточку брони с проживаниями', async ({ page }) => {
+test('щелчок по занятой клетке — предпросмотр, двойной — карточка брони с проживаниями', async ({
+  page,
+}) => {
   await page.goto(`/chessboard?from=${TODAY}&to=${plusDays(TODAY, 2)}`);
-  const first = page.locator('td[data-state="OCCUPIED"] a').first();
+  const first = page.locator('td[data-state="OCCUPIED"] [data-testid="stay-cell"]').first();
   const number = (await first.getAttribute('href'))!.split('/').pop()!;
   // С 24.09 (PR #64, ADR-076) правую часть плашки занимают «⋯» и ручка продления: в узкой колонке (103 px на
-  // 1280) они накрывают центр. Человек открывает карточку щелчком по имени гостя — слева, туда и жмём.
+  // 1280) они накрывают центр. Человек щёлкает по имени гостя — слева, туда и жмём.
+  // Шахматка v2 (ТЗ §23–24): одинарный щелчок — быстрый предпросмотр на месте, двойной — полная карточка.
   await first.click({ position: { x: 12, y: 12 } });
+  await expect(page.getByTestId('stay-preview')).toBeVisible();
+  await expect(page).toHaveURL(/\/chessboard/);
+  await page.keyboard.press('Escape');
+  await first.dblclick({ position: { x: 12, y: 12 } });
   await expect(page).toHaveURL(new RegExp(`/reservations/${number}`));
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toBeVisible();

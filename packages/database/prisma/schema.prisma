@@ -6,7 +6,7 @@
 //
 // Соглашения: имена таблиц и колонок — snake_case через @map; id — uuid;
 // события — timestamptz (UTC); stay dates — DATE в timezone объекта (AGENTS.md §13).
-// Внешние ID Exely хранятся как ссылки (exely_*), не как собственные ключи (ADR-003).
+// Внешние ID действующих каналов хранятся как ссылки, не как собственные ключи (ADR-003, ADR-118).
 
 generator client {
   provider = "prisma-client"
@@ -21,6 +21,67 @@ datasource db {
 // ───────────────────────── §1 Объект и физическая структура ─────────────────────────
 
 /// Объект размещения. В MVP одна запись (ADR-001), но все запросы фильтруются по property_id.
+/// Вертикаль направления бизнеса (Platform P1, ADR-104, DATA_MODEL §18.1): canonical vertical живёт
+/// ТОЛЬКО здесь — не на организации и не на филиале (Q-199, вариант Б).
+enum BusinessVertical {
+  HOSPITALITY
+  BEAUTY
+}
+
+/// Удаления строк нет, как во всём §13 — только архив.
+enum BusinessStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum LocationStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+/// Направление/бренд партнёра (Platform P1, ADR-104, DATA_MODEL §18.1): «Luxx Hotels», «Alma Beauty».
+/// У организации N бизнесов; вертикаль — здесь. Тёзки внутри организации допустимы (§18.1).
+model Business {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  name           String           @db.VarChar(200)
+  vertical       BusinessVertical
+  status         BusinessStatus   @default(ACTIVE)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  locations    Location[]
+
+  @@index([organizationId])
+  @@map("businesses")
+}
+
+/// Филиал бизнеса (Platform P1, ADR-104, DATA_MODEL §18.2): «Luxx Aparts», «Marina». Принадлежит одному
+/// Business; БЕЗ organization_id (выводится через business_id — §18.3) и БЕЗ vertical (только у Business).
+/// Правило дат AGENTS.md §13 отсчитывается от timezone филиала.
+model Location {
+  id         String         @id @default(uuid()) @db.Uuid
+  businessId String         @map("business_id") @db.Uuid
+  name       String         @db.VarChar(200)
+  address    String?        @db.VarChar(500)
+  phone      String?
+  email      String?
+  /// IANA, «Asia/Almaty»
+  timezone   String         @db.VarChar(50)
+  /// операционная валюта филиала (KZT, AED, …)
+  currency   String         @db.VarChar(3)
+  status     LocationStatus @default(ACTIVE)
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business Business  @relation(fields: [businessId], references: [id])
+  property Property?
+
+  @@index([businessId])
+  @@map("locations")
+}
+
 model Property {
   id           String   @id @default(uuid()) @db.Uuid
   /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
@@ -41,12 +102,18 @@ model Property {
   checkInTime  String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
   checkOutTime String   @map("check_out_time")
+  /// Platform P1 (ADR-104, DATA_MODEL §18.4): родитель объекта — филиал (1:1). NULL — только на
+  /// миграционное окно (NOT NULL — отдельной миграцией после backfill); organization_id остаётся,
+  /// пока замок ADR-061 не переведён на цепочку Location → Business.
+  locationId   String?  @unique @map("location_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
   organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  /// Location удалить, пока на ней объект, нельзя (RESTRICT): объект не остаётся без точки молча.
+  location           Location?           @relation(fields: [locationId], references: [id], onDelete: Restrict)
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
@@ -107,8 +174,6 @@ model AccommodationType {
   /// На объекте у всех 0: детское размещение выключено
   capacityChildren Int               @default(0) @map("capacity_children")
   active           Boolean           @default(true)
-  /// ID категории в Exely (например 5074312) — внешняя ссылка, ADR-003
-  exelyId          String?           @map("exely_id")
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -121,7 +186,6 @@ model AccommodationType {
   channelMappings ChannelMapping[]
 
   @@unique([propertyId, code])
-  @@unique([propertyId, exelyId])
   @@map("accommodation_types")
 }
 
@@ -149,7 +213,7 @@ enum InventoryUnitKind {
   BED
 }
 
-/// Статус уборки по Exely: «Грязно», «Убрано», «Проверено». Ремонт/вывод из продажи — InventoryBlock.
+/// Рабочий статус уборки. Ремонт/вывод из продажи — InventoryBlock.
 enum HousekeepingStatus {
   DIRTY
   CLEAN
@@ -169,8 +233,6 @@ model InventoryUnit {
   code                String
   housekeepingStatus  HousekeepingStatus @default(DIRTY) @map("housekeeping_status")
   active              Boolean            @default(true)
-  /// «№ комнаты в Exely» (1…88) — внешняя ссылка, ADR-003. Из него ничего не выводится.
-  exelyRoomNumber     String?            @unique @map("exely_room_number")
   createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -210,8 +272,7 @@ enum ReservationStatus {
 }
 
 /// Шапка брони (коммерческая бронь). Статус — производный от проживаний (v0.3), хранится для выборок.
-/// `confirmationNumber` у перенесённых броней = номер брони в Exely (20260802-513903-…): один
-/// бизнес-ключ для идемпотентного импорта (ADR-003, ADR-007).
+/// `confirmationNumber` — бизнес-ключ брони внутри объекта (ADR-003, ADR-007).
 model Reservation {
   id                 String            @id @default(uuid()) @db.Uuid
   propertyId         String            @map("property_id") @db.Uuid
@@ -251,7 +312,7 @@ model Reservation {
 }
 
 /// Проживание (room stay): одна ячейка на весь период (ADR-013; `quantity` убран, v0.3).
-/// Статус ведётся здесь: no-show, переселение и счёт в Exely — на уровне проживания.
+/// Статус ведётся здесь: no-show, переселение и счёт — на уровне проживания.
 model ReservationItem {
   id                  String            @id @default(uuid()) @db.Uuid
   reservationId       String            @map("reservation_id") @db.Uuid
@@ -261,13 +322,11 @@ model ReservationItem {
   /// integer minor units (тиын), ADR-008
   price               BigInt
   status              ReservationStatus
-  /// Тариф проживания (Q-102); null — перенесено из Exely, где тариф на проживании не отдаётся
+  /// Тариф проживания (Q-102); null — тариф ещё не назначен
   ratePlanId          String?           @map("rate_plan_id") @db.Uuid
   /// Гостей на проживании (Q-102): occupancy для цены и штрафа
   adults              Int               @default(1)
   children            Int               @default(0)
-  /// pmsRoomStayId в Exely — внешняя ссылка для идемпотентного импорта (ADR-003)
-  exelyRoomStayId     String?           @unique @map("exely_room_stay_id")
   createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -328,6 +387,9 @@ enum Gender {
 /// В dev-БД только анонимизированные значения (ADR-018).
 model Guest {
   id            String    @id @default(uuid()) @db.Uuid
+  /// Гость принадлежит своей организации (v1.13 RLS-1, ADR-103; колонку nullable завела Phase 1 ADR-100 §17.2,
+  /// NOT NULL и DEFAULT app_current_org() — миграция 20260927000027). Служебный путь передаёт организацию объекта сам.
+  organizationId String   @default(dbgenerated("app_current_org()")) @map("organization_id") @db.Uuid
   firstName     String    @map("first_name")
   lastName      String    @map("last_name")
   middleName    String?   @map("middle_name")
@@ -340,21 +402,15 @@ model Guest {
   phone         String?
   email         String?
   notes         String?
-  /// pmsPersonId в Exely — внешняя ссылка (ADR-003)
-  exelyPersonId String?   @unique @map("exely_person_id")
-  /// Гость принадлежит своей организации (v1.13, RLS-1, ADR-103). В базе DEFAULT app_current_org() — запрос
-  /// организации может не передавать; служебный путь передаёт организацию объекта сам.
-  organizationId String   @default(dbgenerated("app_current_org()")) @map("organization_id") @db.Uuid
-  organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  organization        Organization    @relation(fields: [organizationId], references: [id])
   documents           GuestDocument[]
   stays               StayGuest[]
   primaryReservations Reservation[]   @relation("primaryGuest")
 
   @@index([organizationId])
-
   @@index([lastName, firstName])
   @@index([phone])
   @@map("guests")
@@ -435,11 +491,9 @@ model RatePlan {
   currency            String              @db.Char(3)
   mealPlan            String?             @map("meal_plan")
   active              Boolean             @default(true)
-  /// ID тарифа в Exely (например 10157482) — внешняя ссылка, ADR-003
-  exelyId             String?             @map("exely_id")
-  /// Пометка импорта: каналы, к которым тариф привязан в Exely (справочно, не бизнес-логика)
+  /// Служебная заметка тарифа; не участвует в расчётах
   note                String?
-  /// Штраф при отмене/незаезде (Q-103); умолчание — правило Exely «стоимость первых суток»
+  /// Штраф при отмене/незаезде (Q-103); умолчание — стоимость первых суток
   cancellationPenalty CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
   createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -453,7 +507,6 @@ model RatePlan {
   trackedSites    TrackedSite[]
 
   @@unique([propertyId, code])
-  @@unique([propertyId, exelyId])
   @@map("rate_plans")
 }
 
@@ -521,9 +574,9 @@ model AuditLog {
   before     Json?
   after      Json?
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  /// Чья запись (v1.13, ADR-103). Заполняет триггер audit_logs_organization: организация запроса, иначе — по
-  /// сущности. NULL — платформа и система без организации.
-  organizationId String? @map("organization_id") @db.Uuid
+  /// Чья запись (v1.13 ADR-103 + Phase 1 ADR-100 §17.2). Пишет код из контекста запроса (attachAuthor), добирает
+  /// триггер audit_logs_organization (организация запроса, иначе — по сущности). NULL — платформа/система.
+  organizationId String?       @map("organization_id") @db.Uuid
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
   @@index([organizationId, createdAt])
@@ -578,8 +631,9 @@ enum ExternalEventStatus {
 /// идемпотентность обязательна (ADR-007): сначала записано, потом обработано, повтор безопасен.
 model ExternalEvent {
   id              String              @id @default(uuid()) @db.Uuid
-  /// Объект события (миграция 20260927000026_phase1_tenant_scope, применена владельцем 27.09.2026). NULL — не выведен
-  /// при заполнении. Таблица без RLS (DATA_MODEL §17.3): её читает служебный путь; код колонку пока не пишет.
+  /// Чей это объект (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1): scope по объекту — событие канала
+  /// принадлежит гостинице, не организации. NULL — принадлежность не выведена при backfill (отчёт 20260927000026).
+  /// Таблица без RLS (DATA_MODEL §17.3): читает и служебный путь; чтения стойки фильтрует код (Phase 1).
   propertyId      String?             @map("property_id") @db.Uuid
   property        Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider        String
@@ -622,7 +676,8 @@ enum ChannelOutboxStatus {
 /// Очередь исходящих изменений ARI (DATA_MODEL §7, ChannelOutbox). Не бизнес-данные.
 model ChannelOutbox {
   id            String              @id @default(uuid()) @db.Uuid
-  /// Объект изменения (миграция 20260927000026_phase1_tenant_scope). NULL — не выведен; код колонку пока не пишет.
+  /// Чей это объект (Phase 1 изоляции, ADR-100 §17.2, DATA_MODEL v2.1). NULL — backfill не вывел однозначно.
+  /// Таблица без RLS (DATA_MODEL §17.3): читает и служебный путь; чтения стойки фильтрует код (Phase 1).
   propertyId    String?             @map("property_id") @db.Uuid
   property      Property?           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   provider      String
@@ -643,7 +698,7 @@ model ChannelOutbox {
 
 // ───────────────────────── §6 Folio (финансы) ─────────────────────────
 
-/// Штраф при отмене и незаезде — политика тарифа (Q-103): правило Exely «первые сутки» для всех тарифов
+/// Штраф при отмене и незаезде — политика тарифа (Q-103): «первые сутки» по умолчанию
 enum CancellationPenalty {
   NONE
   FIRST_NIGHT
@@ -662,7 +717,7 @@ enum ChargeKind {
   ADJUSTMENT
 }
 
-/// 9 способов оплаты из справочника Exely (spravochniki.md §9); дубль «Наличными через кассу» сведён в CASH (Q-083).
+/// Способы оплаты WETOP; «Наличными через кассу» сведено в CASH (Q-083).
 enum PaymentMethod {
   CASH
   CARD_TERMINAL
@@ -750,7 +805,7 @@ model Payment {
   amount            BigInt
   currency          String        @db.Char(3)
   status            PaymentStatus @default(COMPLETED)
-  /// exely:<roomStayId> для перенесённых платежей; ссылка банка/канала для живых
+  /// Ссылка банка/канала для внешних платежей
   externalReference String?       @map("external_reference")
   note              String?
   paidAt            DateTime      @default(now()) @map("paid_at") @db.Timestamptz(6)
@@ -988,6 +1043,9 @@ model Organization {
   id          String             @id @default(uuid()) @db.Uuid
   name        String             @db.VarChar(200)
   status      OrganizationStatus @default(TRIAL)
+  /// Отчётная валюта партнёра (Platform P1, ADR-104, DATA_MODEL §18.4): в неё сводится аналитика филиалов
+  /// с разными операционными валютами. Backfill — из фактической валюты Property, где она однозначна.
+  reportingCurrency String       @default("KZT") @map("reporting_currency") @db.VarChar(3)
   trialEndsAt DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
   createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -995,6 +1053,7 @@ model Organization {
   sessions    Session[]
   invites     Invite[]
   properties  Property[]
+  businesses  Business[]
   userErrors  UserError[]
   sellerProfile SellerProfile?
   agents SellerAgent[]
@@ -1073,10 +1132,11 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
-/// Роль в организации (DATA_MODEL §16.1, ADR-083). На стойке прав не меняет — ADR-023 там в силе; владельцу —
-/// сотрудники, приглашения и настройки ИИ-продавца.
+/// Роль в организации (DATA_MODEL §16.1, ADR-083). MANAGER — управляющий (v1.14, ADR-107); STAFF на экране —
+/// «администратор». Роль — готовый набор прав (§16.5, `packages/domain/src/accounts/permissions.ts`).
 enum MembershipRole {
   OWNER
+  MANAGER
   STAFF
 }
 
@@ -1122,6 +1182,8 @@ model Invite {
   id             String    @id @default(uuid()) @db.Uuid
   organizationId String    @map("organization_id") @db.Uuid
   email          String    @db.VarChar(320)
+  /// С какой ролью человек войдёт (v1.14, ADR-107): MANAGER или STAFF; CHECK invites_role_not_owner — не OWNER
+  role           MembershipRole @default(STAFF)
   tokenHash      String    @unique @map("token_hash") @db.VarChar(64)
   expiresAt      DateTime  @map("expires_at") @db.Timestamptz(6)
   acceptedAt     DateTime? @map("accepted_at") @db.Timestamptz(6)

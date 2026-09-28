@@ -30,21 +30,22 @@ export async function readInventoryPlanFromDb(
   // или этажом, невидима и для экрана фонда, и для сверки Gate 1 — а отчёт всё равно печатает
   // «88 / 88 / 0», потому что обе стороны считаются одной и той же функцией.
   const units = property.buildings
-    .flatMap((b) => b.floors)
-    .flatMap((f) => f.physicalRooms)
-    .flatMap((room) =>
+    .flatMap((b) => b.floors.map((f) => ({ b, f })))
+    .flatMap(({ b, f }) => f.physicalRooms.map((room) => ({ b, f, room })))
+    .flatMap(({ b, f, room }) =>
       room.units.map((u) => ({
         code: u.code,
-        exelyRoomNumber: u.exelyRoomNumber,
         kind: u.kind,
         accommodationTypeCode:
           property.accommodationTypes.find((t) => t.id === u.accommodationTypeId)?.code ?? '?',
         roomNumber: room.roomNumber,
         roomCapacity: room.capacity,
         isDorm: room.isDorm,
+        buildingName: b.name,
+        floorName: f.name,
       })),
     );
-  // Блокировки считаем ДЕЙСТВУЮЩИЕ на контрольную дату: Exely в сверке даёт «заблокировано на дату»,
+  // Блокировки считаем ДЕЙСТВУЮЩИЕ на контрольную дату,
   // а не «сколько записей о блокировках было за всю историю» (иначе Gate 1 сломается после первой блокировки)
   const blocks = await countActiveBlocks(db, property.id, blocksOnDate);
   return {
@@ -63,7 +64,6 @@ export async function readInventoryPlanFromDb(
         kind: t.kind,
         capacityAdults: t.capacityAdults,
         capacityChildren: t.capacityChildren,
-        exelyId: t.exelyId,
       })),
       units,
     },

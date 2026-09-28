@@ -28,6 +28,7 @@ import {
   stayExtraAction,
 } from './finance-actions';
 import { usePropertyClock } from '../../../components/property-time';
+import { useMay } from '../../../components/desk-access';
 import { displayDate } from '../../../lib/display-date';
 import { useConfirm } from '../../../components/use-confirm';
 
@@ -46,7 +47,7 @@ const METHODS: Array<[string, string]> = [
   ['BANK_TRANSFER_LEGAL', 'перевод от юрлица'],
   ['DEPOSIT', 'депозит'],
   ['CARD_GUARANTEE', 'гарантия картой'],
-  ['EXTERNAL', 'внешний (канал / Exely)'],
+  ['EXTERNAL', 'внешний канал'],
 ];
 const methodRu = (m: string) => METHODS.find(([k]) => k === m)?.[1] ?? m;
 const INIT: FinanceActionResult = { error: null, ok: 0 };
@@ -124,6 +125,8 @@ function FolioPanel({
 }) {
   // Дата оплаты и возврата — день по часам объекта, а не срез UTC-строки (волна 3, С-13)
   const clock = usePropertyClock();
+  // возврат и сторно (снятие штрафа — тоже сторно) — владелец и управляющий (ADR-107, Q-024); API откажет и так
+  const reverse = useMay('refunds');
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
     INIT,
@@ -205,7 +208,7 @@ function FolioPanel({
               </td>
               <td className="num">{formatMoney(c.amountMinor, folio.currency)}</td>
               <td>
-                {open && !c.voidedAt && c.kind !== 'ACCOMMODATION' && (
+                {open && reverse && !c.voidedAt && c.kind !== 'ACCOMMODATION' && (
                   <Button
                     type="button"
                     tone="secondary"
@@ -229,7 +232,13 @@ function FolioPanel({
         <Table plain>
           <thead>
             <tr>
-              {['Платёж', 'Когда', 'На этот счёт', 'Возвращено', 'Возврат'].map((h) => (
+              {[
+                'Платёж',
+                'Когда',
+                'На этот счёт',
+                'Возвращено',
+                ...(reverse ? ['Возврат'] : []),
+              ].map((h) => (
                 <th
                   key={h}
                   className={h === 'На этот счёт' || h === 'Возвращено' ? 'num' : undefined}
@@ -251,18 +260,20 @@ function FolioPanel({
                 <td>{clock.date(p.paidAt)}</td>
                 <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
                 <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
-                <td>
-                  {open &&
-                    p.status === 'COMPLETED' &&
-                    BigInt(p.allocatedMinor) > BigInt(p.refundedMinor) && (
-                      <RefundForm
-                        number={number}
-                        paymentId={p.paymentId}
-                        folioId={folio.id}
-                        onResult={setOther}
-                      />
-                    )}
-                </td>
+                {reverse && (
+                  <td>
+                    {open &&
+                      p.status === 'COMPLETED' &&
+                      BigInt(p.allocatedMinor) > BigInt(p.refundedMinor) && (
+                        <RefundForm
+                          number={number}
+                          paymentId={p.paymentId}
+                          folioId={folio.id}
+                          onResult={setOther}
+                        />
+                      )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -348,7 +359,8 @@ function FolioPanel({
                       name="unitPrice"
                       aria-label="Цена за единицу"
                       defaultValue={chargeState.values?.unitPrice ?? ''}
-                      placeholder={kind === 'ADJUSTMENT' ? 'сумма (можно −)' : 'сумма'}
+                      // на уменьшение — владелец и управляющий (ADR-107): администратору минус не подсказываем
+                      placeholder={kind === 'ADJUSTMENT' && reverse ? 'сумма (можно −)' : 'сумма'}
                       required
                       className="inp--w120"
                     />
@@ -392,7 +404,7 @@ function FolioPanel({
                 disabled={busy}
                 title="Услуга на счёт по правилу объекта: доля ночи зависит от времени"
                 onClick={async () => {
-                  // правило объекта из Exely: ранний заезд до 06:00 — вся ночь, 06:00–11:59 — половина,
+                  // правило объекта из внешней системы: ранний заезд до 06:00 — вся ночь, 06:00–11:59 — половина,
                   // с 12:00 бесплатно; поздний выезд 12:01–17:59 — половина, с 18:00 — вся ночь
                   const time = window.prompt(
                     `${label}: во сколько? (ЧЧ:ММ). Пусто — половина ночи`,

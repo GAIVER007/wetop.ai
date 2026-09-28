@@ -7,7 +7,7 @@
 
 Перед шагом с простоем выяснилось, что простоя нет и не было. На Mac не нашлось ни системной службы
 `cloudflared` (`launchctl bootout` → «No such process»), ни задачи `domain` в списке launchd — только
-`awake`, `api`, `web`, `exely-sync`. `cloudflared tunnel info wetop` с сервера подтвердил:
+`awake`, `api`, `web`, `retired-source-sync`. `cloudflared tunnel info wetop` с сервера подтвердил:
 **«does not have any active connection»**.
 
 То, что `app.wetop.ai` «отвечал», ничего не доказывало: это страница входа Cloudflare Access, её рисует
@@ -51,7 +51,7 @@ Channex не мог доставить ни одной брони, и они д�
 посещений PMS. За боевым адресом стоит сервер.
 
 Сервер переведён из режима зеркала в рабочий: пул 5, фоновые задачи включены, `deploy/ari.env` удалён
-(ARI отправляет, `ariStopped: false`), `exely-sync` поднят. На Mac сняты `api`, `web`, `exely-sync`
+(ARI отправляет, `ariStopped: false`), `retired-source-sync` поднят. На Mac сняты `api`, `web`, `retired-source-sync`
 (осталась только `awake`). Сторож на сервере жив: `running: true`, `autofix: true`, будильник Telegram
 настроен, база отвечает.
 

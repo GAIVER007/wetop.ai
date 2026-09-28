@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   // Стойка на app.wetop.ai за туннелем Cloudflare (plans/wetop-domain-2026-09-14.md, Д5): версия сервера наружу не нужна
   poweredByHeader: false,
+  // ADR-117: сайт объекта собран в «Сайт и онлайн-бронирование». Старые адреса из закладок и документов ведут туда же
+  // вместе с параметрами (?site, ?from, ?to). Временная (307), а не постоянная: браузер запоминает 308 навсегда, а
+  // `/analytics` может понадобиться общей аналитике (ADR-105 переносит туда показатели за период с Главной).
+  async redirects() {
+    return [
+      { source: '/analytics', destination: '/website/analytics', permanent: false },
+      { source: '/analytics/setup', destination: '/website/settings', permanent: false },
+    ];
+  },
   experimental: {
     serverActions: {
       // Next сверяет Origin серверного действия с Host. cloudflared передаёт Host как есть, так что совпадёт и без

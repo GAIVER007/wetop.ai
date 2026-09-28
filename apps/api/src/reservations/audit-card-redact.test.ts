@@ -33,7 +33,7 @@ const CARD: ReservationCard = {
   items: [
     {
       id: 'i-1',
-      accommodationTypeCode: 'exely-900001',
+      accommodationTypeCode: 'category-single',
       accommodationTypeName: 'Одиночная',
       arrivalDate: '2026-09-26',
       departureDate: '2026-09-28',
@@ -60,6 +60,12 @@ function capture() {
       async create(args: { data: Record<string, unknown> }) {
         rows.push(args);
         return args.data;
+      },
+    },
+    // Phase 1 (ADR-100 §17.2): audit() штампует организацию объекта — фейку нужен property
+    property: {
+      async findFirstOrThrow() {
+        return { id: 'p-1', currency: 'KZT', timezone: 'Asia/Almaty', organizationId: 'org-1' };
       },
     },
   } as unknown as Db;

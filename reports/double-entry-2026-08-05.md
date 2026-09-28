@@ -1,8 +1,8 @@
 # Double entry — 2026-08-05
 
-CONTROL: 2026-09-10T11:22 UTC · Exely активных броней за сутки: 96 (только чтение, без ПД)
+CONTROL: 2026-09-10T11:22 UTC · архивный источник активных броней за сутки: 96 (только чтение, без ПД)
 
-| Metric | PMS | EXELY | DIFF |
+| Metric | PMS | RETIRED_SOURCE | DIFF |
 |---|---:|---:|---:|
 | arrivals | 37 | 37 | 0 |
 | departures | 32 | 32 | 0 |

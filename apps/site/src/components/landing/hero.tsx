@@ -1,6 +1,5 @@
 import { getDictionary } from '../../i18n';
 import { loginLink, registerLink } from '../../lib/site';
-import { ChessboardMockup } from '../chessboard-mockup';
 import { Icon } from '../icon';
 import { typo } from '../typo';
 
@@ -21,17 +20,20 @@ export function Hero() {
                 <span>{typo(t.hero.badge)}</span>
               </p>
               <h1 id="hero-title" className="hero__title">
-                <span className="hero__word">{t.hero.word}</span>
                 <span className="hero__title-line">{typo(t.hero.title)}</span>
               </h1>
               <p className="hero__lead">{typo(t.hero.lead)}</p>
               <div className="hero__actions">
-                <a className="btn btn--primary btn--lg" href={registerLink().href} data-auth="register">
+                <a
+                  className="btn btn--primary btn--lg"
+                  href={registerLink().href}
+                  data-auth="register"
+                >
                   {t.nav.register}
                   <Icon name="arrowRight" size={18} />
                 </a>
-                <a className="btn btn--secondary btn--lg" href={loginLink().href} data-auth="login">
-                  {t.nav.login}
+                <a className="btn btn--secondary btn--lg" href="#product">
+                  Посмотреть возможности
                 </a>
               </div>
               <p className="hero__note">{typo(t.hero.note)}</p>
@@ -43,52 +45,13 @@ export function Hero() {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="hero__visual">
-              <p className="hero__available">
-                <span className="hero__available-dot" aria-hidden="true" />
-                <span>{t.hero.available}</span>
-              </p>
-              <ChessboardMockup />
-              <HeroSeal text={t.hero.seal} />
+              <a className="hero__login" href={loginLink().href} data-auth="login">
+                {t.nav.login}
+              </a>
             </div>
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-/*
- * Круглый знак с надписью по кругу. `textLength` растягивает строку ровно на длину окружности (2πr при r=40),
- * поэтому надпись замыкается сама, какой бы длины ни была в словаре. Знак декоративный — скрыт от скринридера.
- */
-function HeroSeal({ text }: { text: string }) {
-  return (
-    <span className="hero__seal" aria-hidden="true">
-      <svg className="hero__seal-ring" viewBox="0 0 112 112" focusable="false">
-        <defs>
-          <path id="hero-seal-path" d="M56 16a40 40 0 1 1 0 80 40 40 0 1 1 0-80" fill="none" />
-        </defs>
-        <text>
-          <textPath href="#hero-seal-path" textLength="251" lengthAdjust="spacing">
-            {`${text} ✦`}
-          </textPath>
-        </text>
-      </svg>
-      <svg
-        className="hero__seal-star"
-        width="26"
-        height="26"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-        focusable="false"
-      >
-        <path d="M12 3.5c.9 4.2 2.3 5.6 6.5 6.5-4.2.9-5.6 2.3-6.5 6.5-.9-4.2-2.3-5.6-6.5-6.5 4.2-.9 5.6-2.3 6.5-6.5Z" />
-      </svg>
-    </span>
   );
 }

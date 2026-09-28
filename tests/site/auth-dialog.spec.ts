@@ -14,7 +14,12 @@ type Calls = { path: string; body: unknown; credentials: boolean }[];
 
 async function mockDesk(
   page: Page,
-  handlers: Partial<Record<'options' | 'login' | 'register' | 'resend', (body: unknown) => { status: number; body: unknown }>>,
+  handlers: Partial<
+    Record<
+      'options' | 'login' | 'register' | 'resend',
+      (body: unknown) => { status: number; body: unknown }
+    >
+  >,
 ): Promise<Calls> {
   const calls: Calls = [];
   await page.route(`${APP}/api/site-auth/*`, async (route: Route) => {
@@ -35,7 +40,11 @@ async function mockDesk(
   });
   // Переход в стойку после входа — страница-заглушка вместо настоящей стойки
   await page.route(`${APP}/today`, (route) =>
-    route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: '<h1>Стойка: Главная</h1>' }),
+    route.fulfill({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: '<h1>Стойка: Главная</h1>',
+    }),
   );
   return calls;
 }
@@ -87,7 +96,9 @@ test('неверный пароль — текст стойки в окне, ч�
   await expect(page).toHaveURL(`${SITE_ORIGIN}/`);
 });
 
-test('стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу', async ({ page }) => {
+test('стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу', async ({
+  page,
+}) => {
   await page.route(`${APP}/api/site-auth/*`, (route) => route.abort('connectionrefused'));
   await page.goto('/');
   await page.locator('.site-header').getByRole('link', { name: 'Войти', exact: true }).click();
@@ -103,7 +114,9 @@ test('стойка недоступна — окно говорит об это�
   );
 });
 
-test('«Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма', async ({ page }) => {
+test('«Попробовать бесплатно» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма', async ({
+  page,
+}) => {
   const calls = await mockDesk(page, {
     options: () => ({ status: 200, body: { registrationEnabled: true } }),
     register: (body) => ({
@@ -113,7 +126,10 @@ test('«Получить доступ» при открытой регистра
     resend: () => ({ status: 200, body: { ok: true } }),
   });
   await page.goto('/');
-  await page.locator('.hero').getByRole('link', { name: /Получить доступ/ }).click();
+  await page
+    .locator('.hero')
+    .getByRole('link', { name: /Попробовать бесплатно/ })
+    .click();
 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
@@ -143,7 +159,9 @@ test('«Получить доступ» при открытой регистра
   await page.screenshot({ path: 'test-results/site-auth-3-sent.png' });
 });
 
-test('регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает', async ({ page }) => {
+test('регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает', async ({
+  page,
+}) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: false } }) });
   await page.goto('/#register');
   const dialog = page.getByRole('dialog');
@@ -151,7 +169,9 @@ test('регистрация закрыта (до RLS, ADR-102) — окно з�
   await expect(dialog.getByLabel('Пароль', { exact: true })).toHaveCount(0);
 });
 
-test('#login в адресе открывает окно; Escape закрывает и убирает метку из адреса', async ({ page }) => {
+test('#login в адресе открывает окно; Escape закрывает и убирает метку из адреса', async ({
+  page,
+}) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
   await page.goto('/#login');
   const dialog = page.getByRole('dialog');
@@ -166,7 +186,10 @@ test('на телефоне окно открывается из меню и н�
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
   await page.goto('/');
   await page.getByRole('button', { name: 'Меню' }).click();
-  await page.locator('#mobile-menu-panel').getByRole('link', { name: 'Получить доступ' }).click();
+  await page
+    .locator('#mobile-menu-panel')
+    .getByRole('link', { name: 'Попробовать бесплатно' })
+    .click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
   const box = await dialog.boundingBox();

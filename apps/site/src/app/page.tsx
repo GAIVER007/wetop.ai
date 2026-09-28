@@ -1,13 +1,21 @@
 import type { Metadata } from 'next';
 import { Audience } from '../components/landing/audience';
-import { Company } from '../components/landing/company';
 import { Features } from '../components/landing/features';
 import { Hero } from '../components/landing/hero';
-import { LatestPosts } from '../components/landing/latest-posts';
+import {
+  AiSeller,
+  CoreTasks,
+  DirectBooking,
+  FinalCta,
+  Finance,
+  Integrations,
+  Migration,
+  Pricing,
+  WhyWetop,
+} from '../components/landing/product-sections';
 import { Showcase } from '../components/landing/showcase';
 import { Start } from '../components/landing/start';
 import { Stats } from '../components/landing/stats';
-import { Toolkit } from '../components/landing/toolkit';
 import { pageMetadata } from '../lib/metadata';
 
 export const metadata: Metadata = pageMetadata({ path: '/' });
@@ -21,13 +29,19 @@ export default function HomePage() {
     <>
       <Hero />
       <Stats />
+      <CoreTasks />
       <Showcase />
       <Audience />
       <Features />
-      <Toolkit />
+      <Integrations />
+      <DirectBooking />
+      <AiSeller />
+      <Finance />
+      <WhyWetop />
+      <Migration />
       <Start />
-      <Company />
-      <LatestPosts />
+      <Pricing />
+      <FinalCta />
     </>
   );
 }

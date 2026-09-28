@@ -92,18 +92,18 @@ test('в sitemap.xml только живые адреса, robots.txt на не�
  * (страница `/blog/` остаётся по адресу); подсказка «Новая бронь» на макете не выходит за карточку на 1440 px;
  * в текстах сайта нет « · » (тот же голос, что у стойки, §14).
  */
-test('главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · »', async ({
+test('главная: безопасные вход и trial, блог скрыт без статей, подсказка макета внутри карточки', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  const body = await page.locator('body').innerText();
-  expect(body).not.toContain(' · ');
   const start = page.locator('#start');
   await expect(start.getByRole('heading', { level: 3 })).toHaveText([
-    /^Доступ$/, // ручное подключение пилотных партнёров до RLS (ADR-102)
-    /^Номера и цены$/, // `typo()` может ставить неразрывные пробелы — regex их пропускает
-    /^Работа$/,
+    /^Создаём объект$/,
+    /^Настраиваем фонд и тарифы$/,
+    /^Переносим данные$/,
+    /^Подключаем продажи$/,
+    /^Начинаете работу$/,
     /./, // заголовок призыва
   ]);
   await expect(start).toContainText(/14\sдней/);
@@ -115,18 +115,17 @@ test('главная: «Войти» и «Регистрация», шаги п�
     'href',
     'https://app.wetop.ai/login',
   );
-  await expect(header.getByRole('link', { name: 'Получить доступ', exact: true })).toHaveAttribute(
-    'href',
-    'https://app.wetop.ai/register',
-  );
+  await expect(
+    header.getByRole('link', { name: 'Попробовать бесплатно', exact: true }),
+  ).toHaveAttribute('href', 'https://app.wetop.ai/register');
   const hero = page.locator('.hero');
-  await expect(hero.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
+  await expect(hero.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
   await expect(hero.getByRole('link', { name: 'Войти', exact: true })).toBeVisible();
   await expect(hero).toContainText(/14\sдней бесплатно/);
-  await expect(start.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
+  await expect(start.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
@@ -149,4 +148,84 @@ test('главная: «Войти» и «Регистрация», шаги п�
   const toast = await page.locator('.mockup__toast').boundingBox();
   expect(card && toast && toast.x + toast.width <= card.x + card.width + 1).toBe(true);
   expect(card && toast && toast.y + toast.height <= card.y + card.height + 1).toBe(true);
+});
+
+test('главная: B2B-позиционирование, честные обещания и утверждённая структура', async ({
+  page,
+}) => {
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Управляйте отелем из одного окна',
+  );
+  await expect(page.locator('.hero')).toContainText(
+    'Брони, гости, номерной фонд, продажи, финансы и аналитика',
+  );
+
+  const navigation = page.getByRole('navigation', { name: 'Основная навигация' });
+  await expect(navigation.getByRole('link')).toHaveText([
+    'Продукт',
+    'Возможности',
+    'Для кого',
+    'Интеграции',
+    'Тарифы',
+  ]);
+
+  const headings = await page.locator('main h2').allTextContents();
+  expect(headings).toEqual([
+    'Вся смена перед глазами',
+    'Всё, что нужно для ежедневной работы',
+    'Рабочие экраны WETOP',
+    'Подходит разным форматам размещения',
+    'Всё необходимое для работы объекта',
+    'Работает с каналами, которыми вы уже пользуетесь',
+    'Принимайте больше прямых бронирований',
+    'AI-продавец WETOP',
+    'Понимайте не только загрузку, но и деньги',
+    'Почему WETOP',
+    'Поможем перейти с другой PMS',
+    'Запустить WETOP можно за несколько шагов',
+    'Простой тариф для всей команды',
+    'Управляйте объектом из одной системы',
+  ]);
+
+  await expect(page.locator('#showcase').getByRole('heading', { level: 3 })).toHaveText([
+    'Сегодня',
+    'Шахматка',
+    'Брони',
+  ]);
+  await expect(page.locator('#integrations')).toContainText('через Channex');
+  await expect(page.locator('#pricing')).toContainText('49 900 ₸');
+  await expect(page.locator('#pricing')).toContainText('Более 100 единиц — индивидуальные условия');
+  await expect(page.getByRole('link', { name: 'Попробовать бесплатно' }).first()).toHaveAttribute(
+    'href',
+    'https://app.wetop.ai/register',
+  );
+
+  const body = await page.locator('body').innerText();
+  expect(body).not.toMatch(/за секунды|всегда мгновенно|Сторож системы/i);
+});
+
+test('главная: 375 px без горизонтального скролла, mobile menu работает с клавиатуры', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  expect(
+    await page.evaluate('document.documentElement.scrollWidth - window.innerWidth'),
+  ).toBeLessThanOrEqual(1);
+
+  const menu = page.getByRole('button', { name: 'Меню' });
+  await menu.focus();
+  await page.keyboard.press('Enter');
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  await expect(menu).toBeFocused();
+});
+
+test('главная: prefers-reduced-motion убирает декоративные анимации', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  expect(await page.evaluate('document.getAnimations().length')).toBe(0);
 });

@@ -1,6 +1,8 @@
 import { getDictionary } from '../../i18n';
 import { Icon } from '../icon';
 import { typo } from '../typo';
+import { ChessboardMockup } from '../chessboard-mockup';
+import { SectionHeading } from '../section-heading';
 
 /*
  * Полоса чисел под первым экраном. Числа — только те, что есть в продукте и названы на этой же странице
@@ -9,23 +11,33 @@ import { typo } from '../typo';
 export function Stats() {
   const { stats } = getDictionary();
   return (
-    <section className="stats" aria-label="Система в числах">
+    <section className="section operations" aria-labelledby="operations-title">
       <div className="container">
-        <div className="stats__panel glass glass--quiet">
-          {stats.items.map((item) => (
-            <div key={item.label} className="stat">
-              <span className="stat__icon">
-                <Icon name={item.icon} size={20} />
-              </span>
-              <p className="stat__value">{item.value}</p>
-              <p className="stat__label">{typo(item.label)}</p>
-              <p className="stat__note">{typo(item.note)}</p>
+        <SectionHeading
+          id="operations-title"
+          eyebrow={stats.eyebrow}
+          title={stats.title}
+          lead={stats.lead}
+        />
+        <div className="operations__grid">
+          <div className="operations__summary glass">
+            <div className="operations__stats">
+              {stats.items.map((item) => (
+                <div key={item.label} className="stat">
+                  <span className="stat__icon">
+                    <Icon name={item.icon} size={20} />
+                  </span>
+                  <p className="stat__value">{item.value}</p>
+                  <p className="stat__label">{typo(item.label)}</p>
+                  <p className="stat__note">{typo(item.note)}</p>
+                </div>
+              ))}
             </div>
-          ))}
-          <blockquote className="stats__quote">
-            <p>{typo(stats.quote)}</p>
-            <cite>{stats.quoteSource}</cite>
-          </blockquote>
+            <p className="demo-label">Демонстрационные данные интерфейса</p>
+          </div>
+          <div className="operations__board">
+            <ChessboardMockup />
+          </div>
         </div>
       </div>
     </section>

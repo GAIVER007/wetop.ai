@@ -190,3 +190,36 @@ test('сбой отчёта денег и сторожа: блок говори�
   await expect(page.getByRole('region', { name: 'Системы' }).getByTestId('systems-channex')).toBeVisible();
   await expect(page.getByTestId('systems-guard')).toHaveCount(0);
 });
+
+/**
+ * Снимки для визуального STOP после A2 (план §7): светлая и тёмная 1440, телефон 390, светлый и тёмный.
+ * Высокое окно вместо склейки страницы: закреплённые меню и шапка на склейке «плывут» посреди снимка.
+ * Данные — подставного API; на реальных данных Luxx снимает владелец на своём стенде (ADR-018).
+ */
+test('снимки Главной после A2', async ({ page }) => {
+  const dir = 'reports/today-a2-2026-09-28';
+  await signIn(page);
+  for (const width of [1440, 390]) {
+    for (const theme of ['light', 'dark'] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await page.goto('/today');
+      const systems = page.getByRole('region', { name: 'Системы' });
+      await expect(systems.getByTestId('systems-guard')).toBeVisible();
+      await expect(page.getByTestId('money-paid')).toBeVisible();
+      // окно ровно в высоту страницы: без пустого хвоста и без склейки
+      const height = await page.evaluate(() => document.documentElement.scrollHeight);
+      await page.setViewportSize({ width, height });
+      await page.screenshot({ path: `${dir}/today-${width}-${theme}.png` });
+      if (width === 390) {
+        // на телефоне страница длинная: блоки A2 отдельным снимком в натуральную величину
+        const top = (await page.getByRole('region', { name: 'Заезды' }).boundingBox())!.y - 8;
+        const box = (await systems.boundingBox())!;
+        await page.screenshot({
+          path: `${dir}/today-390-${theme}-a2.png`,
+          clip: { x: 0, y: top, width, height: box.y + box.height + 8 - top },
+        });
+      }
+    }
+  }
+});

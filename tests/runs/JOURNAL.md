@@ -3473,3 +3473,10 @@
 | 28.09.2026 13:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-operations.spec.ts) | ❌ упало 6 из 6 | 3 мин 47 с | 7889137 +1 | [лог](logs/2026-09-28T08-59-13Z-e2e-22fe.log) | red: A2 operational blocks before code |
 | 28.09.2026 14:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-operations.spec.ts) | ❌ упало 1 из 6 | 32 с | 7889137 +9 | [лог](logs/2026-09-28T09-11-34Z-e2e-3e08.log) | деньги сегодня: числа отчёта за день, «к оплате» — то же, что плитка; сравнение — владельцу |
 | 28.09.2026 14:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-operations.spec.ts) | ✅ 6 из 6 | 17 с | 7889137 +9 | [лог](logs/2026-09-28T09-12-35Z-e2e-1f2a.log) |  |
+| 28.09.2026 14:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-operations.spec.ts) | ✅ 7 из 7 | 24 с | 6818af0 +1 | [лог](logs/2026-09-28T09-13-43Z-e2e-9ce6.log) |  |
+| 28.09.2026 14:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-operations.spec.ts) | ✅ 7 из 7 | 25 с | 6818af0 +2 | [лог](logs/2026-09-28T09-14-45Z-e2e-3818.log) |  |
+| 28.09.2026 14:15 | typecheck | ❌ ошибок: 7 | 22 с | 6818af0 +2 | [лог](logs/2026-09-28T09-15-18Z-typecheck-f144.log) | TS2322 |
+| 28.09.2026 14:15 | lint | ✅ без ошибок | 17 с | 6818af0 +2 | [лог](logs/2026-09-28T09-15-41Z-lint-9ccb.log) |  |
+| 28.09.2026 14:16 | typecheck | ✅ без ошибок | 21 с | 6818af0 +2 | [лог](logs/2026-09-28T09-16-12Z-typecheck-2444.log) |  |
+| 28.09.2026 14:16 | unit | ❌ упало 1 из 2301, пропущено 3 | 1 мин 17 с | 6818af0 +1 | [лог](logs/2026-09-28T09-16-37Z-unit-2831.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 28.09.2026 14:18 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 12 с | 6818af0 +2 | [лог](logs/2026-09-28T09-18-06Z-unit-9cc5.log) |  |

@@ -16,6 +16,9 @@ const REPAIR_ROWS = 3;
  */
 const TODAY_ONLY = 'уборка — только на сегодня';
 
+/** Слова домена пишутся со строчной — в подписи факта первая буква заглавная, как у соседних */
+const capital = (word: string) => word.charAt(0).toLocaleUpperCase('ru') + word.slice(1);
+
 function BoardFailed({ testId }: { testId: string }) {
   return (
     <Alert tone="warning" boxed data-testid={testId}>
@@ -119,9 +122,10 @@ export function CarePanel({
     <Panel title="Уборка и неисправности" aria-label="Уборка и неисправности" className="fund-panel">
       {isToday ? (
         <Grid min={96} gap="sm">
-          <Fact label={HOUSEKEEPING_RU.DIRTY} value={count('DIRTY')} testId="housekeeping-dirty" />
-          <Fact label={HOUSEKEEPING_RU.CLEAN} value={count('CLEAN')} testId="housekeeping-clean" />
-          <Fact label="проверено" value={count('INSPECTED')} testId="housekeeping-inspected" />
+          <Fact label={capital(HOUSEKEEPING_RU.DIRTY)} value={count('DIRTY')} testId="housekeeping-dirty" />
+          <Fact label={capital(HOUSEKEEPING_RU.CLEAN)} value={count('CLEAN')} testId="housekeeping-clean" />
+          {/* «проверено, доступна» домена — о ячейке; у числа ячеек хватает первого слова */}
+          <Fact label="Проверено" value={count('INSPECTED')} testId="housekeeping-inspected" />
         </Grid>
       ) : (
         <p className="fund-note">{TODAY_ONLY}</p>

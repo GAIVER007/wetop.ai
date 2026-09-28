@@ -32,7 +32,7 @@ export async function DeskSection({ date, today }: { date: string; today: string
       if (error instanceof ApiError) return null;
       throw error;
     }),
-    // Часы заезда и выезда объекта для «Заезды · с 14:00»: тот же закэшированный запрос, что у шапки
+    // Часы заезда и выезда объекта для заголовков «Заезды» и «Выезды»: тот же закэшированный запрос, что у шапки
     hotelApi.settings().catch((error: unknown) => {
       if (error instanceof ApiError) return null;
       throw error;

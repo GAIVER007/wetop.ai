@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 29.09.2026 00:16 Алматы · vm
+# коммит 7485e92 (claude/magical-bohr-uxmglf), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/categories-safe-edit.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/categories-safe-edit.spec.ts:18:1 › categories C4: edit shows what uses the category, type as a fact, Channex rename note; preview shows bookings (10.3s)
+
+  1 passed (19.2s)
+
+# код выхода 0 · 20 с

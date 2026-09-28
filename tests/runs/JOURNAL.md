@@ -18,3 +18,11 @@
 | 28.09.2026 23:07 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 14 с | 81f0ada +1 | [лог](logs/2026-09-28T18-07-26Z-unit-317f.log) | живые e2e: услуга стенда 500 ₸ и выбор по названию |
 | 28.09.2026 23:08 | e2e | ✅ 25 из 25 | 1 мин | 81f0ada +3 | [лог](logs/2026-09-28T18-08-56Z-e2e-2714.log) | C3 после слияния с main: живые e2e на свежем стенде; услуга стенда 500 ₸, выбор по названию |
 | 28.09.2026 23:10 | integration | ✅ 111 из 111 | 33 с | 81f0ada | [лог](logs/2026-09-28T18-10-04Z-integration-4ec2.log) | после правки услуги стенда (500 ₸) |
+| 29.09.2026 00:11 | integration (частично: tests/integration/category-usage.test.ts) | ❌ упало 1 из 1 | 4 с | 7485e92 +1 | [лог](logs/2026-09-28T19-11-28Z-integration-4c12.log) | C4: счётчики использования категории — красный до кода |
+| 29.09.2026 00:11 | integration (частично: tests/integration/category-usage.test.ts tests/integration/inventory-editor.test.ts tests/integration/category-rate-plan.test.ts) | ✅ 3 из 3 | 5 с | 7485e92 +2 | [лог](logs/2026-09-28T19-11-57Z-integration-45cf.log) | C4: счётчики использования категории — зелёный |
+| 29.09.2026 00:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-safe-edit.spec.ts) | ❌ упало 1 из 1 | 1 мин 14 с | 7485e92 +4 | [лог](logs/2026-09-28T19-13-28Z-e2e-3bda.log) | C4: правка показывает использование — красный до кода стойки |
+| 29.09.2026 00:16 | typecheck | ✅ без ошибок | 29 с | 7485e92 +10 | [лог](logs/2026-09-28T19-16-02Z-typecheck-6db1.log) | C4: использование категории в правке и панели |
+| 29.09.2026 00:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-safe-edit.spec.ts) | ✅ 1 из 1 | 20 с | 7485e92 +9 | [лог](logs/2026-09-28T19-16-31Z-e2e-2bef.log) | C4: правка показывает использование — зелёный |
+| 29.09.2026 00:18 | lint | ✅ без ошибок | 16 с | 7485e92 +10 | [лог](logs/2026-09-28T19-18-29Z-lint-8c66.log) | C4a |
+| 29.09.2026 00:18 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 14 с | 7485e92 +8 | [лог](logs/2026-09-28T19-18-46Z-unit-6bd5.log) | C4a |
+| 29.09.2026 00:20 | integration | ✅ 112 из 112 | 33 с | 7485e92 +3 | [лог](logs/2026-09-28T19-20-01Z-integration-9e05.log) | C4a: весь набор |

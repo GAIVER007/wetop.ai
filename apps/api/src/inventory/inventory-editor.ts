@@ -12,10 +12,10 @@ import {
   Post,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { DbTx } from '@pms/database';
+import { Prisma, type DbTx } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyIdRef } from '../database/property-ref';
+import { propertyIdRef, propertyToday } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 import { INVENTORY_REPOSITORY, type InventoryRepository } from './inventory.repository';
 import {
@@ -36,29 +36,53 @@ export class InventoryEditor {
   private property() {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
-  /** Список для стойки: действующие тарифы категории — числом и по именам (ТЗ «Категории v2», ADR-109). */
+  /**
+   * Список для стойки: действующие тарифы категории — числом и по именам (ТЗ «Категории v2», ADR-109) и что её
+   * использует (C4, ТЗ §17): брони в истории — разные брони, а не проживания; брони впереди — не отменённые
+   * и не закрытые, с выездом сегодня или позже по часам объекта; сопоставление с Channex.
+   */
   async categories() {
     const propertyId = await this.property();
-    const rows = await this.prisma.db.accommodationType.findMany({
-      where: { propertyId },
-      select: {
-        code: true,
-        name: true,
-        kind: true,
-        capacityAdults: true,
-        active: true,
-        ratePlanLinks: {
-          where: { ratePlan: { active: true } },
-          select: { ratePlan: { select: { name: true } } },
-          orderBy: { ratePlan: { name: 'asc' } },
+    const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const [rows, bookings] = await Promise.all([
+      this.prisma.db.accommodationType.findMany({
+        where: { propertyId },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          kind: true,
+          capacityAdults: true,
+          active: true,
+          ratePlanLinks: {
+            where: { ratePlan: { active: true } },
+            select: { ratePlan: { select: { name: true } } },
+            orderBy: { ratePlan: { name: 'asc' } },
+          },
+          _count: { select: { channelMappings: { where: { providerRoomTypeId: { not: null } } } } },
         },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-    return rows.map(({ ratePlanLinks, ...row }) => ({
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.db.$queryRaw<Array<{ id: string; total: number; upcoming: number }>>(Prisma.sql`
+        SELECT i."accommodation_type_id"::text AS "id",
+          COUNT(DISTINCT i."reservation_id")::int AS "total",
+          (COUNT(DISTINCT i."reservation_id") FILTER (
+            WHERE i."status" IN ('TENTATIVE', 'CONFIRMED', 'CHECKED_IN')
+              AND i."departure_date" >= ${today}::date
+          ))::int AS "upcoming"
+        FROM "reservation_items" i
+        JOIN "reservations" r ON r."id" = i."reservation_id"
+        WHERE r."property_id" = ${propertyId}::uuid
+        GROUP BY i."accommodation_type_id"`),
+    ]);
+    const byType = new Map(bookings.map((b) => [b.id, b]));
+    return rows.map(({ id, ratePlanLinks, _count, ...row }) => ({
       ...row,
       ratePlans: ratePlanLinks.length,
       ratePlanNames: ratePlanLinks.map((link) => link.ratePlan.name),
+      reservations: byType.get(id)?.total ?? 0,
+      upcomingReservations: byType.get(id)?.upcoming ?? 0,
+      channexMapped: _count.channelMappings > 0,
     }));
   }
   /** Существующий тариф объекта или новый с названием человека; «позже» — без тарифа (ADR-119) */

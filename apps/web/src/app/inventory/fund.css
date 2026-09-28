@@ -169,6 +169,20 @@
   align-items: center;
   gap: var(--space-4);
 }
+/* «Эту категорию используют» в правке категории (C4, ТЗ §17): подзаголовок как в панели, список с маркерами */
+.fund-usage {
+  display: grid;
+  gap: var(--space-2);
+}
+.fund-usage h3 {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.fund-usage ul {
+  margin: 0;
+  padding-left: var(--space-6);
+}
 /* Панель категории (C2, ТЗ §9) */
 .fund-preview {
   display: grid;

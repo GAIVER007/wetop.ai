@@ -6,6 +6,7 @@ import { Badge, Button } from '../../components/ui';
 import {
   KIND_WORD,
   addWord,
+  bookingsLine,
   capacityLong,
   compositionHref,
   unitWord,
@@ -118,6 +119,13 @@ export function CategoryPreview({
               </Button>
             )}
           </div>
+        </section>
+        <section aria-label="Брони и каналы">
+          <h3>Брони и каналы</h3>
+          <p>{c.reservations ? bookingsLine(c) : 'Броней пока нет'}</p>
+          <p className="muted">
+            {c.channexMapped ? 'Сопоставлена с Channex' : 'С Channex не сопоставлена'}
+          </p>
         </section>
         <div className="fund-preview-footer">
           <Link className="btn btn--secondary" href={`/chessboard?category=${code}`} prefetch={false}>

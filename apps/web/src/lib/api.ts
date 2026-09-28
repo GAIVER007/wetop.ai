@@ -1870,6 +1870,12 @@ export interface InventoryCategory {
   ratePlans: number;
   /** Имена тех же тарифов — для панели категории (C2), цены здесь нет: она своя на каждую дату */
   ratePlanNames: string[];
+  /** Что использует категорию (C4, ТЗ §17): брони в истории — разные брони, не проживания */
+  reservations: number;
+  /** Из них впереди: не отменены и не закрыты, выезд сегодня или позже */
+  upcomingReservations: number;
+  /** Категория сопоставлена с типом номера в Channex */
+  channexMapped: boolean;
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),

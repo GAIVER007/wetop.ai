@@ -3,10 +3,10 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import Link from 'next/link';
-import { Alert, Badge, Button, Field, Input, Select } from '../../components/ui';
+import { Alert, Badge, Button, Field, Input, Notice, Select } from '../../components/ui';
 import type { InventoryCategory } from '../../lib/api';
 import { saveInventory } from './actions';
-import { KIND_WORD } from './category-words';
+import { KIND_WORD, capacityLong, usageLines } from './category-words';
 import {
   CategoryRatePlanForm,
   NEW_PLAN,
@@ -30,6 +30,7 @@ export function FundEditorDialog({
   category,
   room,
   preferKind,
+  unitCount = 0,
   open,
   onClose,
 }: {
@@ -39,6 +40,8 @@ export function FundEditorDialog({
   room?: { code: string; roomNumber: string };
   /** «Номер» предвыбирает категорию номеров, «Комнату с койками» — койко-мест */
   preferKind?: InventoryCategory['kind'];
+  /** Мест в правимой категории — для «Эту категорию используют» (C4) */
+  unitCount?: number;
   open: boolean;
   onClose: () => void;
 }) {
@@ -339,10 +342,7 @@ export function FundEditorDialog({
                   )}
                 </>
               ) : (
-                <p className="muted">
-                  Меняется название. Тип размещения и вместимость сохраняются для существующих
-                  броней.
-                </p>
+                category && <CategoryUsage category={category} units={unitCount} />
               )}
             </>
           ) : room && view !== 'room' ? (
@@ -412,6 +412,49 @@ export function FundEditorDialog({
         </form>
       )}
     </Overlay>
+  );
+}
+
+/**
+ * Правка категории (C4, ТЗ §17–§18): тип продажи и вместимость — фактами, не полями: на них держатся места, цены
+ * и брони, а правила их смены ждут решения владельца (Q-173). Что использует категорию — списком; у сопоставленной
+ * с Channex — что переименование туда не уходит (тип номера там создаётся с названием один раз, при настройке).
+ */
+function CategoryUsage({ category: c, units }: { category: InventoryCategory; units: number }) {
+  const lines = usageLines(c, units);
+  return (
+    <>
+      <dl className="fund-preview-facts">
+        <div>
+          <dt>Тип продажи</dt>
+          <dd>{KIND_WORD[c.kind]}</dd>
+        </div>
+        <div>
+          <dt>Вместимость</dt>
+          <dd>{capacityLong(c)}</dd>
+        </div>
+      </dl>
+      <Notice tone="muted">
+        Тип продажи и вместимость после создания не меняются: на них держатся места, цены и брони.
+      </Notice>
+      {lines.length ? (
+        <div className="fund-usage">
+          <h3 id={`usage-${c.code}`}>Эту категорию используют</h3>
+          <ul aria-labelledby={`usage-${c.code}`}>
+            {lines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p className="muted">Категорию пока ничего не использует.</p>
+      )}
+      {c.channexMapped && (
+        <Notice tone="muted">
+          В Channex тип номера сохранит прежнее название: там оно меняется отдельно.
+        </Notice>
+      )}
+    </>
   );
 }
 

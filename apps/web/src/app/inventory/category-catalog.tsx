@@ -254,6 +254,7 @@ export function CategoryCatalog({
           categories={categories}
           mode="category"
           category={editing}
+          unitCount={memberCount(editing)}
           open
           onClose={() => setEditing(null)}
         />

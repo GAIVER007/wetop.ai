@@ -140,10 +140,33 @@ const categorySeed: {
   /** У созданных через POST: тип из формы и привязанные тарифы по именам (ТЗ «Категории v2», ADR-109, ADR-119) */
   kind?: string;
   rateNames?: string[];
+  /** Что использует категорию (C4): у засеянных — брони и Channex, у созданных через POST — ничего */
+  usage?: { reservations: number; upcomingReservations: number; channexMapped: boolean };
 }[] = [
-  { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
-  { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
-  { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
+  {
+    code: 'ROOM',
+    name: 'Двухместный номер',
+    count: 16,
+    prefix: 'R',
+    capacityAdults: 2,
+    usage: { reservations: 123, upcomingReservations: 5, channexMapped: true },
+  },
+  {
+    code: 'MALE',
+    name: 'Мужской общий номер',
+    count: 36,
+    prefix: 'M',
+    capacityAdults: 1,
+    usage: { reservations: 312, upcomingReservations: 14, channexMapped: true },
+  },
+  {
+    code: 'FEMALE',
+    name: 'Женский общий номер',
+    count: 36,
+    prefix: 'F',
+    capacityAdults: 1,
+    usage: { reservations: 287, upcomingReservations: 11, channexMapped: true },
+  },
 ];
 const categories = structuredClone(categorySeed);
 /** Структура места; живое состояние (уборка, блокировка) подставляется на каждый запрос */
@@ -2363,6 +2386,7 @@ function read(path: string, q: URLSearchParams): unknown {
       active: true,
       ratePlans: (c.rateNames ?? [plans[0]!.name]).length,
       ratePlanNames: c.rateNames ?? [plans[0]!.name],
+      ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
   if (path === '/inventory/summary')
     return {

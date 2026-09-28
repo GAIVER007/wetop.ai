@@ -72,6 +72,8 @@ test('сутки гостя целиком: заезд, услуга на счё
     .getByTestId('guest-form')
     .getByRole('button', { name: 'Сохранить' })
     .click();
+  // G5: документы — своя вкладка карточки гостя
+  await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();
   const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000777');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');

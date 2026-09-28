@@ -262,6 +262,8 @@ const guestSeed: GuestCard = {
       channel: null,
       currency: 'KZT',
       chargedMinor: null,
+      paidMinor: null,
+      refundedMinor: null,
       balanceMinor: null,
     },
   ],
@@ -790,6 +792,8 @@ function getGuest(id: string) {
             channel: r.channel ?? null,
             currency: r.currency,
             chargedMinor: folio?.chargedMinor ?? null,
+            paidMinor: folio?.paidMinor ?? null,
+            refundedMinor: folio?.refundedMinor ?? null,
             balanceMinor: folio?.balanceMinor ?? null,
           };
         });
@@ -1433,6 +1437,9 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
           arrivalDate: it.arrivalDate,
           departureDate: it.departureDate,
           status: it.status,
+          // Q-209: бронь — это Reservation (номер брони стенда), статус — её собственный
+          reservationId: r.confirmationNumber,
+          reservationStatus: r.status,
           adults: it.adults,
           children: it.children,
           priceMinor: BigInt(it.priceMinor),
@@ -2727,9 +2734,44 @@ function read(path: string, q: URLSearchParams): unknown {
           today,
         ),
       }));
-    const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
-    for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
-    const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
+    // G7: отборы и порядок — те же правила, что SQL настоящего API (последний визит — выезд
+    // последнего состоявшегося визита; визиты — заселён или выехал)
+    const last = q.get('last') || '';
+    const window: [string, string] | null =
+      last === 'today'
+        ? [today, today]
+        : last === '7d'
+          ? [add(today, -7), today]
+          : last === '30d'
+            ? [add(today, -30), today]
+            : last === 'period'
+              ? [q.get('from') || '', q.get('to') || '']
+              : null;
+    const visits = q.get('visits') || '';
+    const filtered = all.filter(
+      (g) =>
+        (!window ||
+          (g.last !== null &&
+            g.last.departureDate >= window[0] &&
+            g.last.departureDate <= window[1])) &&
+        (visits === '1'
+          ? g.staysCount === 1
+          : visits === '2-5'
+            ? g.staysCount >= 2 && g.staysCount <= 5
+            : visits === '6+'
+              ? g.staysCount >= 6
+              : true),
+    );
+    const sort = q.get('sort') || 'name';
+    const tail = '9999-12-31';
+    if (sort === 'next')
+      filtered.sort((a, b) => (a.next?.arrivalDate ?? tail).localeCompare(b.next?.arrivalDate ?? tail));
+    else if (sort === 'last')
+      filtered.sort((a, b) => (b.last?.departureDate ?? '').localeCompare(a.last?.departureDate ?? ''));
+    else if (sort === 'visits') filtered.sort((a, b) => b.staysCount - a.staysCount);
+    const counts = { ALL: filtered.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
+    for (const g of filtered) counts[g.state] += 1;
+    const rows = state === 'ALL' ? filtered : filtered.filter((g) => g.state === state);
     return {
       total: rows.length,
       page,
@@ -3593,6 +3635,29 @@ createServer(async (req, res) => {
       put('GCOLD', 'Давний Гость', [{ status: 'CHECKED_OUT', unit: 'R10', from: -43, to: -40 }]);
       // живёт сейчас; его счёт станет виден в панели предпросмотра (следующая ступень)
       put('GCDEBT', 'Задолжавший Гость', [{ status: 'CHECKED_IN', unit: 'R11', from: -2, to: 3 }]);
+      // документы (G5): у давнего гостя паспорт просрочен, у возвращающегося — удостоверение с датами
+      extraGuests.get('ui-guest-GCOLD0')!.documents = [
+        {
+          id: 'ui-doc-gcold',
+          type: 'PASSPORT',
+          numberMasked: '•••• 7788',
+          issueCountry: 'KAZ',
+          issuedAt: '2015-06-30',
+          expiresAt: '2025-06-30',
+        },
+      ];
+      // G6 (ТЗ §34): телефон набран без пробелов — поиск по цифрам находит гостя, как API
+      extraGuests.get('ui-guest-GCRET0')!.phone = '+77010000042';
+      extraGuests.get('ui-guest-GCRET0')!.documents = [
+        {
+          id: 'ui-doc-gcret',
+          type: 'ID_CARD',
+          numberMasked: '•••• 1234',
+          issueCountry: 'KAZ',
+          issuedAt: '2022-03-15',
+          expiresAt: '2032-03-15',
+        },
+      ];
       return send(200, { guests: 4 });
     }
     if (path === '/__test/commands') return send(200, commands);
@@ -4654,11 +4719,25 @@ createServer(async (req, res) => {
     if (path === '/reservations') {
       if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });
       const r = cardSeed();
-      const g = {
-        ...structuredClone(guestSeed),
-        ...(body['guest'] as Record<string, unknown>),
-      } as GuestCard;
-      g.id = `ui-new-guest-${commands.length}`;
+      // G6 (ТЗ «Гости v2» §33): бронь существующему гостю — те же ответы, что у API
+      const existingId = typeof body['guestId'] === 'string' ? body['guestId'] : null;
+      if (existingId && body['guest'] !== undefined)
+        return send(400, {
+          message: 'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
+        });
+      const existing = existingId
+        ? existingId === guest.id
+          ? guest
+          : extraGuests.get(existingId)
+        : undefined;
+      if (existingId && !existing) return send(404, { message: 'Гость не найден' });
+      const g =
+        existing ??
+        ({
+          ...structuredClone(guestSeed),
+          ...(body['guest'] as Record<string, unknown>),
+          id: `ui-new-guest-${commands.length}`,
+        } as GuestCard);
       r.confirmationNumber = `20260913-NEW${commands.length}`;
       r.arrivalDate = String(body['arrivalDate']);
       r.departureDate = String(body['departureDate']);
@@ -4699,7 +4778,7 @@ createServer(async (req, res) => {
       r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
       r.adults = r.items.reduce((sum, it) => sum + it.adults, 0);
       extraCards.set(r.confirmationNumber, r);
-      extraGuests.set(g.id, g);
+      if (!existing) extraGuests.set(g.id, g);
       createdReservation = true;
       return send(201, r);
     }

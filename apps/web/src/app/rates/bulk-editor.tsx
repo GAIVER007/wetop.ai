@@ -108,7 +108,7 @@ export function BulkEditor(props: {
     });
   const name = (code: string, list: Array<{ code: string; name: string }>) =>
     list.find((x) => x.code === code)?.name ?? code;
-  // Без Panel: с 27.09 (ADR-107) форма живёт в выдвижной панели, заголовок даёт она
+  // Без Panel: с 27.09 (ADR-111) форма живёт в выдвижной панели, заголовок даёт она
   return (
     <div className="stack" data-testid="bulk-editor">
       <form onSubmit={add} className="stack stack--sm">

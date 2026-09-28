@@ -33,7 +33,7 @@ async function addChange(
   },
 ) {
   const main = page.getByRole('main');
-  // С 27.09 (ADR-107, RT1) форма массового изменения живёт в выдвижной панели за кнопкой
+  // С 27.09 (ADR-111, RT1) форма массового изменения живёт в выдвижной панели за кнопкой
   // «Изменить цены»; поля, testid'ы и порядок команд — прежние
   if (!(await main.getByTestId('bulk-editor').isVisible().catch(() => false)))
     await main.getByTestId('rates-edit-open').click();

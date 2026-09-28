@@ -714,7 +714,7 @@ async function walkPeriodPages(page: Page) {
       `экран ${screen}, API ${rep.summary.sessions}`,
     );
   } else note('/analytics', 'сверка за период', 'skip', 'сайтов в базе нет');
-  // Тарифы — листание месяца (с 27.09, ADR-107: подзаголовок постоянный, месяц читается по ячейкам)
+  // Тарифы — листание месяца (с 27.09, ADR-111: подзаголовок постоянный, месяц читается по ячейкам)
   await open(page, '/rates');
   const firstDay = await page
     .locator('[data-testid^="rate-row-"]')

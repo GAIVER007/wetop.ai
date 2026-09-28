@@ -2209,7 +2209,7 @@ function read(path: string, q: URLSearchParams): unknown {
             (showcase && idx >= 15 && idx <= 17 ? 2 : 1),
           maxStay: showcase && idx === 18 ? 4 : null,
           // Витрина: две закрытые ночи, как на макете «Rates» — слово «закрыто» и подсветка ячейки;
-          // с 27.09 (ADR-107) ещё CTA/CTD, «мин. 2» и «до 4 ночей» — для календаря месяца и снимков RT1
+          // с 27.09 (ADR-111) ещё CTA/CTD, «мин. 2» и «до 4 ночей» — для календаря месяца и снимков RT1
           stopSell: stop ?? (showcase && (idx === 5 || idx === 11)),
           closedToArrival: showcase && idx === 8,
           closedToDeparture: showcase && idx === 9,

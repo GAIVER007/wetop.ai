@@ -3476,3 +3476,5 @@
 | 28.09.2026 13:43 | integration | ✅ 124 из 124 | 38 с | 1705a66 | [лог](logs/2026-09-28T08-43-33Z-integration-fc37.log) | deploy proof: main 1b187fa5 |
 | 28.09.2026 13:44 | e2e | ✅ 25 из 25 | 1 мин 31 с | b937df1 | [лог](logs/2026-09-28T08-44-47Z-e2e-a0ba.log) | deploy proof: main 1b187fa5 |
 | 28.09.2026 13:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 516 | 45 мин 20 с | b937df1 | [лог](logs/2026-09-28T08-46-19Z-e2e-6e99.log) | deploy proof: main 1b187fa5, full UI |
+| 28.09.2026 14:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.ts tests/ui/roles. | ❌ упало 1 из 110 | 6 мин 35 с | 41f5b8e | [лог](logs/2026-09-28T09-32-20Z-e2e-9a41.log) | fixes for full UI on main |
+| 28.09.2026 14:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/roles.spec.ts --workers=1) | ✅ 13 из 13 | 1 мин 2 с | 41f5b8e +1 | [лог](logs/2026-09-28T09-39-17Z-e2e-ddcd.log) | roles after SET1 heading |

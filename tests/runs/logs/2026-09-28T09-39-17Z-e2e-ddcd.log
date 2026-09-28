@@ -1,0 +1,29 @@
+# Сквозные (e2e) · 28.09.2026 14:39 Алматы · vm
+# коммит 41f5b8e (claude/lucid-edison-cqa1ja), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/roles.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, аналитика, продавец и неисправности (2.6s)
+  ✓   2 tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (8.2s)
+  ✓   3 tests/ui/roles.spec.ts:102:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.5s)
+  ✓   4 tests/ui/roles.spec.ts:119:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.4s)
+  ✓   5 tests/ui/roles.spec.ts:147:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (7.0s)
+  ✓   6 tests/ui/roles.spec.ts:209:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (3.7s)
+  ✓   7 tests/ui/roles.spec.ts:260:1 › владелец: зовёт управляющего и администратора, меняет роль (2.4s)
+  ✓   8 tests/ui/roles.spec.ts:287:1 › администратор: в «Первых шагах» нет приглашения сотрудников — зовут владелец и управляющий (2.8s)
+  ✓   9 tests/ui/roles.spec.ts:305:1 › администратор: сотрудниками ведают владелец и управляющий (1.7s)
+  ✓  10 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, light, 1440px (4.6s)
+  ✓  11 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, dark, 1440px (4.6s)
+  ✓  12 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, light, 390px (4.6s)
+  ✓  13 tests/ui/roles.spec.ts:317:5 › доступность: сотрудники и отказ по роли, dark, 390px (4.6s)
+
+  13 passed (1.0m)
+
+# код выхода 0 · 1 мин 2 с

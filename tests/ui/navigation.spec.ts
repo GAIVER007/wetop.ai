@@ -111,6 +111,25 @@ test('компактная панель открывает выбранную г
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
+/*
+ * Вкладки внутри раздела (ADR-107): «Сопоставление» и «Источники продаж» — дочерние пункты каталога без
+ * своей строки в боковой панели. Панель подсвечивает раздел-родитель, а не теряет место.
+ */
+test('вложенная страница раздела подсвечивает родителя в боковой панели', async ({ page }) => {
+  const sidebar = page.locator('.workspace-sidebar');
+  for (const [route, parent] of [
+    ['/channel-manager/mapping', 'Менеджер каналов'],
+    ['/analytics/sources', 'Аналитика сайта'],
+  ] as const) {
+    await page.goto(route);
+    await expect(sidebar.getByRole('button', { name: 'Продажи', exact: true })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    await expect(sidebar.locator('[aria-current="page"]')).toHaveText(parent);
+  }
+});
+
 test('все пункты меню открывают существующие страницы', async ({ page }) => {
   test.setTimeout(180_000);
   await page.goto('/today');

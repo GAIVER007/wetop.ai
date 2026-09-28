@@ -34,7 +34,18 @@ export function Sidebar({
   desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
-  const active = route?.startsWith('/hotel-settings') ? '/hotel-settings' : route;
+  // вкладка без своей строки в панели (/channel-manager/mapping, /analytics/sources) — подсвечен родитель
+  const inPanel = (href: string) =>
+    sidebarSections.some((s) => s.items.some((i) => i.href === href));
+  const parent = sidebarSections
+    .flatMap((s) => s.items.map((i) => i.href))
+    .filter((href) => path.startsWith(`${href}/`))
+    .sort((a, b) => b.length - a.length)[0];
+  const active = route?.startsWith('/hotel-settings')
+    ? '/hotel-settings'
+    : route && !inPanel(route) && parent
+      ? parent
+      : route;
   const activeSection = sidebarSections.find((section) =>
     section.items.some((item) => item.href === active),
   )?.id;

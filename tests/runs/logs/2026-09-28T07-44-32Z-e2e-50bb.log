@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 28.09.2026 12:44 Алматы · vm
+# коммит 081f931 (claude/festive-cray-5cn5az), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' '-g' 'подсвечивает родителя' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/navigation.spec.ts:118:1 › вложенная страница раздела подсвечивает родителя в боковой панели (16.1s)
+
+
+  1) tests/ui/navigation.spec.ts:118:1 › вложенная страница раздела подсвечивает родителя в боковой панели 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.workspace-sidebar').getByRole('button', { name: 'Продажи', exact: true })
+    Expected: "true"
+    Received: "false"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.workspace-sidebar').getByRole('button', { name: 'Продажи', exact: true }) with timeout 15000ms
+      - waiting for locator('.workspace-sidebar').getByRole('button', { name: 'Продажи', exact: true })
+        33 × locator resolved to <button type="button" aria-label="Продажи" aria-expanded="false" data-tour="section-sales" class="sidebar-section-toggle" aria-controls="_R_iqlb_-sales">…</button>
+           - unexpected value "false"
+
+
+      123 |   ] as const) {
+      124 |     await page.goto(route);
+    > 125 |     await expect(sidebar.getByRole('button', { name: 'Продажи', exact: true })).toHaveAttribute(
+          |                                                                                 ^
+      126 |       'aria-expanded',
+      127 |       'true',
+      128 |     );
+        at /home/user/wetop.ai/tests/ui/navigation.spec.ts:125:81
+
+    Error Context: test-results/navigation-вложенная-стран-b8b24-т-родителя-в-боковой-панели/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-вложенная-стран-b8b24-т-родителя-в-боковой-панели/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-вложенная-стран-b8b24-т-родителя-в-боковой-панели/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/navigation.spec.ts:118:1 › вложенная страница раздела подсвечивает родителя в боковой панели 
+
+# код выхода 1 · 23 с

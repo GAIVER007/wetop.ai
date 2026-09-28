@@ -103,7 +103,7 @@ test('владелец правит сведения гостиницы; отк�
 }) => {
   await signIn(page);
   await page.goto('/hotel-settings');
-  // «Настройки объекта» SET1 (ADR-107): часы заезда — на вкладке «Проживание», сохранение — в шапке
+  // «Настройки объекта» SET1 (ADR-115): часы заезда — на вкладке «Проживание», сохранение — в шапке
   const form = page.getByTestId('hotel-settings-form');
   const save = page.getByRole('main').getByRole('button', { name: 'Сохранить изменения' });
   await expect(form.getByLabel('Название объекта', { exact: true })).toHaveValue('Luxx Aparts');

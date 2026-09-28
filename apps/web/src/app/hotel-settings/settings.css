@@ -21,7 +21,7 @@
   background: var(--primary-soft);
   color: var(--primary);
 }
-/* «Настройки объекта» (SET1, ADR-107): блоки одной колонкой, поля по две в ряд */
+/* «Настройки объекта» (SET1, ADR-115): блоки одной колонкой, поля по две в ряд */
 .settings-stack,
 .settings-form {
   display: grid;

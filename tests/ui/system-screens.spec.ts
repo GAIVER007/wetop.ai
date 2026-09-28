@@ -255,7 +255,7 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // правила отмены ушли к тарифам (ADR-107): старый адрес — «Цены» со строкой правила, без кода тарифа
+  // правила отмены ушли к тарифам (ADR-115): старый адрес — «Цены» со строкой правила, без кода тарифа
   await page.goto('/hotel-settings/penalties');
   await expect(page).toHaveURL(/\/rates$/);
   await expect(main.getByTestId('rate-plan-cancellation')).toContainText('стоимость первой ночи');

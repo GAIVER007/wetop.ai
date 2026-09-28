@@ -117,7 +117,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
   };
   const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
   const planName = options.ratePlans.find((p) => p.code === ratePlan)?.name ?? ratePlan;
-  // Правило отмены выбранного тарифа (ADR-107): до «Тарифных планов» (SET4) — одной строкой здесь. Настройки уже
+  // Правило отмены выбранного тарифа (ADR-115): до «Тарифных планов» (SET4) — одной строкой здесь. Настройки уже
   // прочитал макет; не ответили — строки просто нет, экран цен от неё не зависит (D4)
   const settings = await settle(hotelApi.settings());
   const penalty = settings.ok

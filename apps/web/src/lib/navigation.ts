@@ -143,7 +143,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         shortLabel: 'Объект',
         icon: 'settings',
         description: 'Сведения об объекте, часы заезда и выезда, услуги.',
-        // правила отмены — свойство тарифа, их место в «Тарифах» (ADR-107)
+        // правила отмены — свойство тарифа, их место в «Тарифах» (ADR-115)
         children: [
           {
             href: '/hotel-settings/stay',

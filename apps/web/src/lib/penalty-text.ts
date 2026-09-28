@@ -3,7 +3,7 @@ import { formatMoney } from './money';
 
 /**
  * Правило отмены тарифа словами (`RatePlan.cancellationPenalty`, Q-103). Показывается на «Ценах» у выбранного
- * тарифа: правило — свойство тарифного плана, из «Настроек объекта» оно ушло (ADR-107).
+ * тарифа: правило — свойство тарифного плана, из «Настроек объекта» оно ушло (ADR-115).
  */
 export const cancellationRuleText: Record<string, string> = {
   NONE: 'без штрафа',

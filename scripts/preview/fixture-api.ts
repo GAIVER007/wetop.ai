@@ -137,13 +137,36 @@ const categorySeed: {
   count: number;
   prefix: string;
   capacityAdults: number;
-  /** У созданных через POST: тип из формы и число тарифов (ТЗ «Категории v2», ADR-109) */
+  /** У созданных через POST: тип из формы и привязанные тарифы по именам (ТЗ «Категории v2», ADR-109, ADR-119) */
   kind?: string;
-  ratePlans?: number;
+  rateNames?: string[];
+  /** Что использует категорию (C4): у засеянных — брони и Channex, у созданных через POST — ничего */
+  usage?: { reservations: number; upcomingReservations: number; channexMapped: boolean };
 }[] = [
-  { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
-  { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
-  { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
+  {
+    code: 'ROOM',
+    name: 'Двухместный номер',
+    count: 16,
+    prefix: 'R',
+    capacityAdults: 2,
+    usage: { reservations: 123, upcomingReservations: 5, channexMapped: true },
+  },
+  {
+    code: 'MALE',
+    name: 'Мужской общий номер',
+    count: 36,
+    prefix: 'M',
+    capacityAdults: 1,
+    usage: { reservations: 312, upcomingReservations: 14, channexMapped: true },
+  },
+  {
+    code: 'FEMALE',
+    name: 'Женский общий номер',
+    count: 36,
+    prefix: 'F',
+    capacityAdults: 1,
+    usage: { reservations: 287, upcomingReservations: 11, channexMapped: true },
+  },
 ];
 const categories = structuredClone(categorySeed);
 /** Структура места; живое состояние (уборка, блокировка) подставляется на каждый запрос */
@@ -179,7 +202,32 @@ const softPlanSeed = {
   cancellationPenalty: 'NONE' as const,
 };
 let softPlan = false;
-const ratePlanList = () => (softPlan ? [...plans, softPlanSeed] : plans);
+/** Тарифы, названные в «Категориях» (ADR-119): живут до `reset` */
+const extraPlans: {
+  code: string;
+  name: string;
+  currency: string;
+  active: boolean;
+  cancellationPenalty: 'FIRST_NIGHT' | 'NONE';
+}[] = [];
+const ratePlanList = () => [...plans, ...(softPlan ? [softPlanSeed] : []), ...extraPlans];
+/** Выбор тарифа из тела запроса: undefined — не выбран, null — такого кода нет; новый тариф заводится */
+function fixturePlanChoice(body: Record<string, unknown>) {
+  if (body.ratePlanCode) return ratePlanList().find((p) => p.code === body.ratePlanCode) ?? null;
+  if (typeof body.newRatePlanName === 'string' && body.newRatePlanName.trim()) {
+    const plan = {
+      code: `rate-${extraPlans.length + 1}`,
+      name: body.newRatePlanName.trim(),
+      currency: 'KZT',
+      active: true,
+      // как умолчание схемы у RatePlan
+      cancellationPenalty: 'FIRST_NIGHT' as const,
+    };
+    extraPlans.push(plan);
+    return plan;
+  }
+  return undefined;
+}
 const guestSeed: GuestCard = {
   id: 'ui-guest',
   firstName: 'Тестовый',
@@ -2381,8 +2429,9 @@ function read(path: string, q: URLSearchParams): unknown {
           : 'PRIVATE_ROOM'),
       capacityAdults: c.capacityAdults,
       active: true,
-      ratePlans: c.ratePlans ?? 1,
-      ratePlanNames: (c.ratePlans ?? 1) ? [plans[0]!.name] : [],
+      ratePlans: (c.rateNames ?? [plans[0]!.name]).length,
+      ratePlanNames: c.rateNames ?? [plans[0]!.name],
+      ...(c.usage ?? { reservations: 0, upcomingReservations: 0, channexMapped: false }),
     }));
   if (path === '/inventory/summary')
     return {
@@ -3350,6 +3399,7 @@ createServer(async (req, res) => {
       today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
       units.splice(88);
       categories.splice(0, categories.length, ...structuredClone(categorySeed));
+      extraPlans.splice(0, extraPlans.length);
       for (const unit of units)
         unit.accommodationTypeName = categories.find(
           (c) => c.code === unit.accommodationTypeCode,
@@ -4504,6 +4554,11 @@ createServer(async (req, res) => {
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {
+      // как на настоящем API (ADR-119): тариф — существующий, новый с названием или явно «позже»
+      const rate = fixturePlanChoice(body);
+      if (rate === undefined && body.ratePlanLater !== true)
+        return send(400, { message: 'Выберите тариф или «Настроить позже»' });
+      if (rate === null) return send(404, { message: 'Тариф не найден' });
       const code = `test-category-${categories.length}`;
       categories.push({
         code,
@@ -4512,10 +4567,20 @@ createServer(async (req, res) => {
         count: 0,
         prefix: 'T',
         kind: body.kind ? String(body.kind) : 'PRIVATE_ROOM',
-        // как на настоящем API: тариф при создании обязателен и связывается сразу (ADR-077)
-        ratePlans: body.ratePlanCode || body.newRatePlanName ? 1 : 0,
+        rateNames: rate ? [rate.name] : [],
       });
       return send(201, { code });
+    }
+    if (path.startsWith('/inventory/categories/') && path.endsWith('/rate-plan') && req.method === 'POST') {
+      const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-2)!));
+      if (!c) return send(404, { message: 'Категория не найдена' });
+      const rate = fixturePlanChoice(body);
+      if (rate === undefined) return send(400, { message: 'Выберите тариф или назовите новый' });
+      if (rate === null) return send(404, { message: 'Тариф не найден' });
+      const names = c.rateNames ?? [plans[0]!.name];
+      if (names.includes(rate.name)) return send(201, { code: c.code, linked: false });
+      c.rateNames = [...names, rate.name];
+      return send(201, { code: c.code, linked: true });
     }
     if (path.startsWith('/inventory/categories/') && req.method === 'PATCH') {
       const c = categories.find((c) => c.code === decodeURIComponent(path.split('/').at(-1)!));

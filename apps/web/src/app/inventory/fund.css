@@ -127,6 +127,62 @@
   font-size: var(--text-sm);
   color: var(--text-2);
 }
+/* Форма категории (C3, ADR-119): тип и тариф — варианты рамкой, выбранный — рамка --primary */
+.fund-choice {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.fund-choice legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-2);
+}
+.fund-choice__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.fund-choice__option:has(input:checked) {
+  border-color: var(--primary);
+}
+.fund-choice__option span {
+  display: grid;
+  gap: var(--space-1);
+}
+.fund-choice__option small {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.fund-created-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+/* «Эту категорию используют» в правке категории (C4, ТЗ §17): подзаголовок как в панели, список с маркерами */
+.fund-usage {
+  display: grid;
+  gap: var(--space-2);
+}
+.fund-usage h3 {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.fund-usage ul {
+  margin: 0;
+  padding-left: var(--space-6);
+}
 /* Панель категории (C2, ТЗ §9) */
 .fund-preview {
   display: grid;
@@ -378,6 +434,9 @@
   .fund-form,
   .fund-preview {
     padding: 16px;
+  }
+  .fund-choice__option {
+    min-height: var(--touch-target);
   }
   /* Строка таблицы категорий складывается в карточку (приём .dir-table, DESIGN.md §8) */
   .tbl.fund-cat-table,

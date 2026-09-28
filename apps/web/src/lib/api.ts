@@ -1914,13 +1914,26 @@ export interface InventoryCategory {
   ratePlans: number;
   /** Имена тех же тарифов — для панели категории (C2), цены здесь нет: она своя на каждую дату */
   ratePlanNames: string[];
+  /** Что использует категорию (C4, ТЗ §17): брони в истории — разные брони, не проживания */
+  reservations: number;
+  /** Из них впереди: не отменены и не закрыты, выезд сегодня или позже */
+  upcomingReservations: number;
+  /** Категория сопоставлена с типом номера в Channex */
+  channexMapped: boolean;
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
-    sendJson(
+    sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
+      body,
+    ),
+  /** «Настроить тариф» (ADR-119): существующий `ratePlanCode` или новый `newRatePlanName` */
+  linkRatePlan: (code: string, body: Record<string, unknown>) =>
+    sendJson<{ linked: boolean }>(
+      'POST',
+      `/inventory/categories/${encodeURIComponent(code)}/rate-plan`,
       body,
     ),
 };

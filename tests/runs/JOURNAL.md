@@ -3870,3 +3870,4 @@
 | 29.09.2026 02:04 | typecheck | ✅ без ошибок | 23 с | fda1acf +9 | [лог](logs/2026-09-28T21-04-40Z-typecheck-857a.log) |  |
 | 29.09.2026 02:05 | lint | ✅ без ошибок | 12 с | fda1acf +9 | [лог](logs/2026-09-28T21-05-04Z-lint-a49b.log) |  |
 | 29.09.2026 02:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 10 мин 3 с | e93a871 | [лог](logs/2026-09-28T21-05-33Z-e2e-7189.log) |  |
+| 29.09.2026 02:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 8 с | aaeeb83 | [лог](logs/2026-09-28T21-18-09Z-e2e-188c.log) | (ошибка вне тестов) |

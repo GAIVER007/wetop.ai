@@ -27,12 +27,12 @@ import {
 
 export const PROVIDER = 'channex';
 /** Тариф, который продаётся в OTA (plans/slice-4-channex.md, умолчание): «Тариф для ОТА +35%» */
-export const DEFAULT_OTA_RATE_PLAN_CODE = 'exely-10158310';
+export const DEFAULT_OTA_RATE_PLAN_CODE = 'rate-ota';
 /*
  * Глубина полной выгрузки. 500 суток — требование сертификации Channex («Full sync means you should send
  * 500 days of Availability, rates and restrictions», pms-certification-tests.md §1), и оно же разумно для
  * продажи: канал не продаст дальше, чем мы отдали остатки. Цены сейчас заведены на 361 день вперёд
- * (календарь Exely до 2027-09-09), поэтому за этой границей уходят остатки без цены — так и указано в форме.
+ * Если цены за границей календаря отсутствуют, уходят только остатки — так и указано в форме.
  */
 const DEFAULT_SYNC_DAYS = 500;
 /** Входящий endpoint PMS (channels.controller) — Channex шлёт сюда POST с нашим секретом в заголовке */
@@ -146,7 +146,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
   /**
    * Полная выгрузка раз в сутки после CHANNEX_FULL_SYNC_HOUR (по умолчанию 03:00 Алматы), если сегодня её ещё
    * не было (по журналу аудита `channex.fullSync` — ручной прогон тоже считается). Нужна, потому что дельты
-   * уходят только по событиям PMS, а импорт из Exely и правки в базе остатки в канале не обновляют.
+   * уходят только по событиям PMS, а фоновая задача и правки в базе остатки в канале не обновляют.
    */
   async runScheduledFullSyncIfDue(now = new Date(), force = false): Promise<ScheduledSyncResult> {
     const raw = Number(process.env.CHANNEX_FULL_SYNC_HOUR ?? DEFAULT_FULL_SYNC_HOUR);

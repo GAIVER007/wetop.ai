@@ -32,7 +32,7 @@ describe.skipIf(!url)('журнал действий: список (integration,
       data: [
         { id: randomUUID(), entityType: 'Reservation', entityId: mark, action: 'reservation.create', after: bigSnapshot },
         { id: randomUUID(), entityType: 'InventoryUnit', entityId: mark, action: 'unit.block', before: { code: `${mark}-B07` } },
-        { id: randomUUID(), entityType: 'Property', entityId: mark, action: 'exely.sync', after: { ok: true } },
+        { id: randomUUID(), entityType: 'Property', entityId: mark, action: 'system.health', after: { ok: true } },
       ],
     });
   });
@@ -72,10 +72,10 @@ describe.skipIf(!url)('журнал действий: список (integration,
     expect(byUnit.map((r) => r.subject)).toContain(`${mark}-B07`);
   });
 
-  it('служебные строки синхронизации Exely по умолчанию скрыты', async () => {
+  it('служебные строки служебная проверка системы по умолчанию скрыты', async () => {
     const withSystem = await service.list({ limit: 500, system: true });
     const without = await service.list({ limit: 500 });
-    expect(withSystem.filter((r) => r.entityId === mark && r.action === 'exely.sync')).toHaveLength(1);
-    expect(without.filter((r) => r.entityId === mark && r.action === 'exely.sync')).toHaveLength(0);
+    expect(withSystem.filter((r) => r.entityId === mark && r.action === 'system.health')).toHaveLength(1);
+    expect(without.filter((r) => r.entityId === mark && r.action === 'system.health')).toHaveLength(0);
   });
 });

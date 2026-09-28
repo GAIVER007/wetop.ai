@@ -24,14 +24,14 @@ function makeFakes() {
   const blockAudits: unknown[] = [];
   const separateAudits: string[] = [];
   let hk: 'DIRTY' | 'CLEAN' | 'INSPECTED' = 'DIRTY';
-  const unit = { id: 'u1', code: '9001', accommodationTypeId: 'type-1', accommodationTypeCode: 'exely-900001' };
+  const unit = { id: 'u1', code: '9001', accommodationTypeId: 'type-1', accommodationTypeCode: 'category-single' };
   const card = (): UnitCard => ({
     id: 'u1',
     code: '9001',
     kind: 'ROOM',
     active: true,
     housekeepingStatus: hk,
-    accommodationTypeCode: 'exely-900001',
+    accommodationTypeCode: 'category-single',
     accommodationTypeName: 'Одиночная',
     roomNumber: '9001',
     blocks: blocks.map((b) => ({
@@ -193,7 +193,7 @@ describe('units API: blocks and housekeeping', () => {
       },
     ]);
     expect(fakes.published).toEqual([
-      { categoryCodes: ['exely-900001'], from: '2026-10-08', toExclusive: '2026-10-10' },
+      { categoryCodes: ['category-single'], from: '2026-10-08', toExclusive: '2026-10-10' },
     ]);
     await request(app.getHttpServer()).delete('/units/9001/blocks/blk1').expect(200);
 

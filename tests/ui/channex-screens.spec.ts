@@ -115,14 +115,18 @@ test('подключения каналов: настройка подключе
   for (const id of ['channel-setup', 'channel-webhook-register', 'channel-webhook-test', 'channel-sync'])
     await expect(main.getByTestId(id)).toBeVisible();
   await expect(main.getByTestId('channel-flush')).toHaveCount(0);
-  // сотруднику кнопки не показываются, причина — словами
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
+  // управляющему (право «Каналы», но не владелец) кнопки не показываются, причина — словами (ADR-107, ADR-112)
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'MANAGER' } });
   await page.goto('/channels/connections');
   await expect(main.getByTestId('channel-setup-owner-only')).toHaveText(
     'Настройку подключения меняет владелец организации.',
   );
   await expect(main.getByTestId('channel-setup')).toHaveCount(0);
-  await expect(main.getByTestId('channel-sync')).toHaveCount(0);
+  await expect(main.getByTestId('channel-sync')).toHaveCount(0);  // администратору модуль закрыт целиком
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
+  await page.goto('/channels/connections');
+  await expect(main.getByTestId('no-access')).toBeVisible();
+  await expect(main.getByTestId('channel-setup')).toHaveCount(0);
 });
 
 test('цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит', async ({

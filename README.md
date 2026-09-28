@@ -1,146 +1,331 @@
-# WETOP · PMS хостела
+# WETOP.AI
 
-Собственная PMS для действующего объекта размещения в Алматы. Цель — заменить Exely
-на реальном объекте и прожить в новой системе полный операционный день так, чтобы ни одна
-бронь не потерялась и все цифры сошлись со старой системой с расхождением **0**.
+**WETOP.AI** — multi-tenant B2B-платформа для управления сервисным бизнесом.
 
-## Объект
+Платформа объединяет ежедневные операции, клиентов, расписание, продажи, финансы,
+аналитику, автоматизацию и интеграции в одном рабочем пространстве. Одна компания
+может управлять несколькими бизнесами и филиалами разных отраслей.
 
-**Luxx Aparts**, Алматы. Хостел: **88 единиц продажи = 16 отдельных номеров + 72 койко-места**,
-максимум 92 гостя. Загрузка августа 2026 — 80,8 % (2 203 из 2 728 единице-суток), 1 044 заезда
-в месяц, оборот проживания 15,7 млн ₸. Восемь каналов OTA, прямые продажи — 37,4 % заездов.
+Первый рабочий vertical — **Hospitality**. Следующий vertical — **Beauty**: его модель
+утверждена, но реализация ещё не начата.
 
-Полная фактура: [OBJECT.md](OBJECT.md). Что из неё следует: [FINDINGS.md](FINDINGS.md).
+```text
+WETOP Platform
+└── Partner / Organization
+    └── Business
+        └── Location
+            └── Vertical Domain
+```
 
-## Что уже построено и работает (25.09.2026)
+Сайт продукта: [wetop.ai](https://wetop.ai)
 
-- **Стойка** (Next.js): «Сегодня», шахматка с продлением мышью, брони и группы, гости и документы,
-  счета и платежи в тиынах, тарифы и ограничения, номерной фонд, каналы, журнал действий,
-  неисправности, аналитика сайта, печатные формы RU/KZ. Единая дизайн-система с токенами
-  ([DESIGN.md](DESIGN.md), витрина `/design-system`).
-- **Двойной ввод против Exely в ноль**: заезды, выезды, занятость и балансы сходятся до тиына
-  (1 449/1 449) — отчёты в `reports/double-entry-*.md`, `reports/balances-*.md`.
-- **Channex** живьём в обе стороны по шести каналам: бронь из канала на шахматке за секунды,
-  остатки обратно; лента ревизий, очередь ARI с полной выгрузкой, сторож webhook.
-  Приём брони устойчив к потере webhook (опрос ленты). Сертификация — в процессе (за владельцем).
-- **Сайт**: свой счётчик посещений без сбора ПД и виджет бронирования; бронь с сайта попадает
-  в PMS как канал.
-- **Сторож системы** (ADR-028): раз в минуту проверяет базу, webhook, ленту, очередь ARI, овербукинг,
-  стойку, свежесть ночного бэкапа; технику чинит сам с лимитами, людей будит по правилам дня и ночи.
-- **Учётные записи**: вход по почте и паролю (хеши scrypt), подтверждение почты, организации;
-  регистрация закрыта переключателем до готовности изоляции.
-- **ИИ-агент** (`apps/ai-seller`, Python в поддереве, в образ стойки не входит): один образ — два экземпляра.
-  Продавец отвечает гостям гостиниц в чате сайта и в WhatsApp, называет наличие и цены из PMS, настраивается
-  в разделе «ИИ-продавец» стойки; помощник — техподдержка платформы («Платформа → Техподдержка»). Как он связан
-  с API и стойкой — `apps/README.md`, контракт и включение — `docs/assistant/README.md`.
+## Product vision
 
-Текущий статус по дням — [CLAUDE.md](CLAUDE.md) §2, хроника — `docs/history.md`.
-Условия допуска к переключению каналов — [CUTOVER.md](CUTOVER.md) (пока не выполнено условие
-о базе с ПД в Казахстане, настоящие каналы не подключаются — гости каналов пишутся псевдонимами).
+WETOP превращает разрозненные инструменты сервисного бизнеса в одну платформу:
+сотрудник работает с конкретным филиалом, управляющий видит бизнес целиком,
+владелец — всю компанию, а Platform Admin управляет партнёрами и общими сервисами.
 
-## Чем это доказано
+Принципы платформы:
 
-Правило проекта — **red before green**: тест, который не был красным, доказательством не считается
-([AGENTS.md](AGENTS.md) §6). Прогоны идут только через `npm run test:record -- <набор>` и пишутся
-в журнал `tests/runs/` вместе с логами — что уже доказано на текущем коде, показывает
-`npm run test:status` ([TESTING.md](TESTING.md)).
+- tenant — `Organization`, внутри которого могут жить разные бизнесы;
+- vertical определяется на уровне `Business`;
+- ежедневная работа выполняется на уровне `Location`;
+- Hospitality и Beauty используют общий Platform Core, но остаются независимыми
+  bounded contexts;
+- PostgreSQL — источник правды, деньги хранятся в integer minor units, даты
+  проживания отделены от UTC timestamps;
+- внешние события идемпотентны и имеют состояние обработки, ошибки, повторы и аудит;
+- возможность не считается готовой без проверяемого доказательства.
 
-Последнее зелёное дерево `main` (`afe82ab9`): unit **1753/1756** (3 пропущено), integration **64/64**,
-живые сквозные **25/25**, полный UI **356/356**. Сверки с Exely — в `reports/` (инвентарь 88/88,
-цены 8 640, балансы 1 449/1 449, расхождение 0).
+Утверждённая модель описана в [ARCHITECTURE.md](ARCHITECTURE.md).
 
-CI (`.github/workflows/checks.yml`) гоняет те же наборы на каждый PR и пуш в `main`; сейчас он стоит —
-у аккаунта закончились минуты Actions, а свой раннер не зарегистрирован (`scripts/ops/ci-runner`).
-До его возврата доказательства — журнал `tests/runs` с логами на каждый коммит.
+## Platform architecture
 
-## Безопасность
+| Уровень | Назначение |
+|---|---|
+| **WETOP Platform** | Партнёры, доступ, расширения, поддержка и platform administration |
+| **Partner / Organization** | Компания-клиент и tenant: пользователи, бизнесы и расширения |
+| **Business** | Направление или бренд; хранит `vertical = HOSPITALITY | BEAUTY` |
+| **Location** | Конкретный филиал или физический объект |
+| **Vertical Domain** | Отраслевая операционная модель |
 
-Правила и классификация данных — [SECURITY.md](SECURITY.md). Что фактически стоит:
+Platform P1 уже реализует цепочку:
 
-- **Замок включён по умолчанию**: непубличные маршруты API отвечают 401 без сессии
-  (`AUTH_REQUIRED` выключается только явно), стойка уводит на вход; регистрация закрыта
-  (`REGISTRATION_OPEN=0`). Туннель наружу пропускает ровно шесть публичных путей.
-- **ПД гостей**: пока база не в Казахстане, гости каналов и сайта пишутся детерминированными
-  псевдонимами (ADR-018, ADR-072); почта и телефоны в свободном тексте маскируются (ADR-074);
-  ревизии Channex сохраняются по разрешённому списку полей, карты не хранятся вовсе.
-- **Изоляция организаций**: гости, журнал, счета и платежи читаются только через связь
-  с организацией сессии.
-- **Журнал действий**: цены, ограничения, деньги, документы гостей и их просмотр — с `before/after`.
-- **Секреты только в env**: в дереве и во всей истории (989 коммитов, проверка 24.09.2026) живых
-  секретов нет; `.gitignore` закрывает `secrets/`, ключ туннеля и env-файлы; агентам чтение
-  секретов запрещено на уровне настроек.
-- **Бэкапы**: ночной `pg_dump` в 23:30 UTC с проверкой копии и ротацией, пробное восстановление
-  сверено с рабочей базой в ноль, сторож поднимает неисправность, если свежей копии нет 26 часов
-  (ADR-078) — `docs/ops/backups.md`.
-- В тестах только вымышленные гости (ADR-010).
+```text
+Organization → Business → Location → Property
+```
 
-## Развёртывание
+`Property` остаётся Hospitality-специфичной сущностью. Существующие брони,
+размещения, тарифы, платежи и channel mappings не переименовываются и не переносятся.
+Следующий этап — контекст запроса со scope
+`ORGANIZATION | BUSINESS | LOCATION`; он утверждён, но ещё не завершён.
 
-Боевой контур — Docker Compose (`deploy/`): API (NestJS), стойка (Next.js), туннель Cloudflare;
-порты наружу не публикуются, снаружи объект виден только через туннель. Выкладка автоматическая:
-сервер раз в две минуты забирает ветку `release` (её перематывают только на коммит, прошедший все
-наборы), после сборки проверяет `/health` и страницы, при сбое откатывается на прежний образ
-(ADR-080, `docs/deploy.md` §1д). Миграции применяет только владелец (AGENTS.md §15), у каждой
-есть `down.sql`. Порядок «бэкап → миграция → проверка → откат» — `docs/ops/backups.md`.
+## Verticals
 
-## Запуск локально
+### Hospitality
+
+Hospitality — первый рабочий vertical и основной реализованный продуктовый контур.
+
+**Operations**
+
+- Today — операционный центр смены;
+- шахматка, бронирования, группы и гости;
+- заселение, выселение, продление и переселение;
+- housekeeping, блокировки, неисправности и журнал действий.
+
+**Inventory**
+
+- объекты размещения, категории и физические комнаты;
+- номера и койко-места как `InventoryUnit`;
+- доступность, назначения (`Allocation`) и защита от пересечений;
+- управление фондом и статусами уборки.
+
+**Sales**
+
+- тарифные планы, цены и ограничения продаж;
+- Channel Manager через адаптер Channex;
+- OTA-брони, сайт и виджет бронирования;
+- AI seller для сайта и WhatsApp.
+
+**Finance and analytics**
+
+- folio, начисления, услуги, оплаты, возвраты и долги;
+- occupancy, revenue, sold nights, бронирования, отмены, источники и категории;
+- аналитика сайта без хранения лишних персональных данных;
+- decimal-safe расчёты без JavaScript `float` для денег.
+
+### Beauty
+
+Beauty — следующий vertical. Его целевая модель утверждена в
+[DATA_MODEL.md](DATA_MODEL.md) и [ARCHITECTURE.md](ARCHITECTURE.md), но код домена и
+пользовательские сценарии ещё не реализованы.
+
+Целевая модель включает:
+
+- `Customer` и связь клиента с Business;
+- `Employee`, `EmployeeLocation` и `EmployeeService`;
+- `BeautyService` и `LocationService`;
+- `WorkingHours`, `TimeOff`, `Appointment` и расписание.
+
+Beauty не переиспользует гостиничные `Reservation`, `InventoryUnit` или
+`Property`. Общими остаются Platform Core, tenant isolation, доступ, аудит,
+расширения и инфраструктура.
+
+## Platform administration
+
+В репозитории уже есть отдельный platform layer:
+
+- `platform_admins` и защищённый раздел «Платформа»;
+- организации-партнёры, состояния и роли;
+- расширения, включая entitlement `AI_SELLER`;
+- управление ИИ-продавцом;
+- техническая поддержка и аудит административных действий.
+
+Полная целевая зона Platform Admin — партнёры, планы, подписки, platform billing,
+расширения, поддержка, system health и журнал платформы. Не все блоки реализованы;
+фактический статус фиксируется в [CLAUDE.md](CLAUDE.md) и отчётах.
+
+## Multi-tenancy and security
+
+Tenant WETOP — `Organization`. `Business` и `Location` — уровни владения внутри
+tenant, а не отдельные арендаторы.
+
+Контур безопасности включает:
+
+- контекст пользователя и организации;
+- роли `OWNER`, `MANAGER`, `STAFF` и отдельный Platform Admin;
+- tenant columns и проверки видимости;
+- PostgreSQL RLS, роли `wetop_app` / `wetop_service` и tenant policies;
+- audit log для критичных действий;
+- закрытую регистрацию до прохождения RLS-gate для внешних партнёров;
+- секреты только в environment / secret storage;
+- минимизацию ПД, backup и rollback procedures.
+
+RLS-схема и политики реализованы; включение прикладной роли на production выполняется
+по отдельному проверяемому runbook. Подробности:
+[SECURITY.md](SECURITY.md) и [docs/ops/rls.md](docs/ops/rls.md).
+
+## Integrations
+
+Интеграции изолированы от доменной логики адаптерами в `packages/integrations`.
+
+| Интеграция | Назначение | Статус |
+|---|---|---|
+| **Channex** | OTA-брони, изменения, отмены и ARI | Рабочий Hospitality-контур; cutover управляется отдельными гейтами |
+| **Email** | Подтверждение почты и системные письма | Реализовано |
+| **Telegram** | Операционные уведомления и сторож | Реализовано |
+| **WhatsApp** | Канал AI seller | Поддержан сервисом и включается для организации |
+| **eQonaq** | Уведомления о гостях | Отложено; порт не равен production-интеграции |
+| **Fiscal provider** | Фискальные чеки | Не выбран и не реализован; исключён из текущего MVP |
+
+Vendor API используются только по документации в `docs/`; production API остаются
+read-only до соответствующего cutover approval.
+
+## AI
+
+`apps/ai-seller` — отдельный Python/FastAPI-сервис в двух ролях:
+
+- **Seller** отвечает гостям в чате сайта и WhatsApp через узкий API наличия и цены;
+- **Support** помогает пользователям платформы и получает только разрешённый
+  технический контекст.
+
+Сервис не входит в образ стойки и не читает базу напрямую. Связь идёт через
+ограниченные API и service keys; организация передаётся явно. Подробнее:
+[apps/README.md](apps/README.md) и
+[docs/assistant/README.md](docs/assistant/README.md).
+
+## Finance and analytics
+
+Hospitality finance построен вокруг `Folio`, `Charge`, `Payment`,
+`PaymentAllocation` и `Refund`. Деньги хранятся в minor units и защищены
+доменными инвариантами и ограничениями базы.
+
+Операционная аналитика использует бронирования, загрузку, продажи, категории, каналы
+и сайт. Консолидированная модель Location → Business → Organization, расходы,
+прибыль и валютная консолидация входят в целевую архитектуру, но пока не выдаются
+за завершённый модуль.
+
+## Technology stack
+
+- **Frontend:** Next.js 16, React 19, TypeScript;
+- **Backend:** NestJS 12, TypeScript, modular monolith;
+- **AI service:** Python, FastAPI;
+- **Database:** PostgreSQL, Prisma, SQL migrations with rollback;
+- **Testing:** Vitest, Playwright, Supertest, axe-core;
+- **Infrastructure:** Docker Compose, Cloudflare Tunnel, Cloudflare Pages;
+- **Monorepo:** npm workspaces, Node.js 24 via `.nvmrc`.
+
+## Repository structure
+
+```text
+apps/
+  web/              Hospitality workspace и Platform Admin
+  api/              API платформы, вертикали и интеграционных дверей
+  site/             публичный сайт wetop.ai
+  ai-seller/        AI seller и support agent
+packages/
+  domain/           бизнес-правила без HTTP и vendor SDK
+  database/         Prisma schema, миграции, RLS и PostgreSQL
+  integrations/     внешние адаптеры
+  shared/           общие типы, money, даты и ошибки
+scripts/
+  imports/          импорт и исторические сверки
+  reconciliation/   контрольные отчёты
+  ops/              backup, deploy, guard и обслуживание
+  preview/          локальные preview и demo-контуры
+tests/               unit, integration, e2e, UI и журнал доказательств
+deploy/              Docker Compose production-контура
+design/              токены и источники дизайн-системы
+docs/                runbooks и vendor-документация
+plans/               утверждённые планы
+reports/             результаты проверок и приёмки
+```
+
+Карты приложений и пакетов: [apps/README.md](apps/README.md) и
+[packages/README.md](packages/README.md).
+
+## Local development
+
+Требования: Node.js 24, npm и локальный PostgreSQL для integration/e2e. Секреты
+заполняются владельцем по `.env.example`; проверки не печатают их значения.
 
 ```bash
-scripts/ops/repo-sync.sh                      # та ли папка: remote, отставание, службы; --fix чинит
-npm install                                   # Node 24 (.nvmrc); ключи владелец вписывает в .env по .env.example
-npx tsx scripts/imports/src/cli-check-env.ts  # секреты на месте (значений не печатает)
-npm run dev -w apps/api                       # API на 127.0.0.1:3001
-npm run dev -w apps/web                       # стойка на 127.0.0.1:3000
-npm run db:local                              # локальная PostgreSQL для integration и e2e (16, порт 55432)
-npm run test:status                           # что уже доказано на текущем коде
-npm run test:record -- unit                   # прогон с записью в журнал; так же integration / e2e / typecheck / lint
+scripts/ops/repo-sync.sh
+npm install
+npx tsx scripts/imports/src/cli-check-env.ts
+
+npm run db:local
+npm run dev -w apps/api
+npm run dev -w apps/web
 ```
 
-Integration и e2e ходят только на локальную базу (`npm run db:local`); нелокальная требует явного
-`PMS_TEST_REMOTE_DB=1` (ADR-074). Стойку без API можно посмотреть на вымышленных данных:
-`npm run dev:demo` (в production запрещён).
+Адреса: web — `127.0.0.1:3000`, API — `127.0.0.1:3001`, публичный сайт —
+`127.0.0.1:3002` (`npm run dev -w apps/site`).
 
-## Навигация по документам
+Безопасный UI-preview на вымышленных данных:
 
-Порядок чтения для новой сессии закреплён в [CLAUDE.md](CLAUDE.md) §1. Коротко:
+```bash
+npm run dev:demo
+```
 
-| Файл | Что внутри |
+Demo mode запрещён в production. См. [ONBOARDING.md](ONBOARDING.md).
+
+## Testing philosophy
+
+Проект следует правилу **red → green**: bugfix или business rule сначала фиксируется
+падающим тестом, затем исправляется и подтверждается зелёным прогоном.
+
+Проверки включают typecheck, lint, unit, integration, database e2e, UI regression,
+browser acceptance, accessibility и reconciliation reports.
+
+```bash
+npm run test:status
+npm run test:record -- typecheck
+npm run test:record -- lint
+npm run test:record -- unit
+npm run test:record -- integration
+npm run test:record -- e2e
+```
+
+Актуальные результаты находятся в `tests/runs/` и `reports/`, правила — в
+[TESTING.md](TESTING.md). README намеренно не фиксирует количество тестов или SHA.
+
+## Deployment
+
+Production использует Docker Compose, PostgreSQL с контролируемыми миграциями,
+Cloudflare Tunnel, Cloudflare Pages, health checks, backup и rollback.
+
+Миграции применяются только с backup, validation и rollback procedure. Push или
+успешная сборка сами по себе не считаются deployment. Runbooks:
+[docs/deploy.md](docs/deploy.md) и [docs/ops/backups.md](docs/ops/backups.md).
+
+## Current status
+
+- **работает:** Hospitality, Platform P1
+  (`Organization → Business → Location → Property`), учётные записи и роли,
+  Platform Admin foundation, AI seller/support, integration и deployment;
+- **реализовано, но включается отдельным gate:** production RLS application role и
+  внешний self-service tenant onboarding;
+- **утверждено, но не завершено:** RequestActor/scope, полноценный multi-business /
+  multi-location switcher, управленческая аналитика;
+- **целевая модель:** Beauty;
+- **не заявляется готовым:** cutover каналов или новый внешний партнёр без гейтов.
+
+Оперативный статус — [CLAUDE.md](CLAUDE.md) §2, история —
+[docs/history.md](docs/history.md), доказательства — `tests/runs/` и `reports/`.
+
+## Roadmap
+
+1. Завершить production-gates tenant isolation и RLS.
+2. Развить platform context до Business / Location scope.
+3. Добавить переключение бизнесов и филиалов.
+4. Расширить Platform Admin, subscriptions и platform billing.
+5. Реализовать Beauty отдельными проверяемыми фазами.
+6. Развивать управленческие финансы и агрегированную аналитику.
+
+Изменения данных, денег, бронирований, availability или production-интеграций
+проходят через `DATA_MODEL.md`, `DECISIONS.md` и при необходимости
+`QUESTIONS.md`.
+
+## Documentation map
+
+| Документ | Назначение |
 |---|---|
-| [AGENTS.md](AGENTS.md) | 16 правил работы. Читать первым |
-| [SPEC.md](SPEC.md) | Что строим и что **не** строим |
-| [OBJECT.md](OBJECT.md) / [FINDINGS.md](FINDINGS.md) | Паспорт объекта и находки аудита Exely |
-| [DATA_MODEL.md](DATA_MODEL.md) | Модель данных: v1.7 утверждена 25.09.2026 (ADR-082), v1.8 (ИИ-продавец) — 24.09 (ADR-081) |
-| [DECISIONS.md](DECISIONS.md) | ADR-001…082 — все архитектурные решения с датами |
-| [QUESTIONS.md](QUESTIONS.md) | Открытые вопросы; гадать запрещено |
-| [PLAN.md](PLAN.md) / [CUTOVER.md](CUTOVER.md) | Гейты MVP и переезд каналов с условиями допуска |
-| [SECURITY.md](SECURITY.md) | ПД, секреты, доступы, бэкапы |
-| [DESIGN.md](DESIGN.md) | Правила интерфейса, токены, дизайн-система |
-| [TESTING.md](TESTING.md) | Журнал прогонов и грабли |
-| [GLOSSARY.md](GLOSSARY.md) · [ONBOARDING.md](ONBOARDING.md) · [HANDOFF.md](HANDOFF.md) | Термины · с чего начать · передача проекта |
+| [AGENTS.md](AGENTS.md) | Обязательные правила работы |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Архитектура платформы |
+| [SPEC.md](SPEC.md) | Scope и DoD Hospitality MVP |
+| [DATA_MODEL.md](DATA_MODEL.md) | Контролируемая модель данных |
+| [DECISIONS.md](DECISIONS.md) | Архитектурные решения |
+| [QUESTIONS.md](QUESTIONS.md) | Открытые развилки |
+| [SECURITY.md](SECURITY.md) | Доступ, tenant isolation и секреты |
+| [DESIGN.md](DESIGN.md) | Дизайн-система |
+| [TESTING.md](TESTING.md) | Модель доказательств |
+| [CLAUDE.md](CLAUDE.md) | Оперативный статус |
+| [ONBOARDING.md](ONBOARDING.md) | Локальный запуск |
+| [HANDOFF.md](HANDOFF.md) | Передача проекта |
+| [GLOSSARY.md](GLOSSARY.md) | Термины |
+| [docs/deploy.md](docs/deploy.md) | Deployment и rollback |
+| [docs/README.md](docs/README.md) | Карта документации |
 
-## Каталоги
-
-```
-apps/web               Next.js стойка (экраны, печать RU/KZ, дизайн-система)
-apps/api               NestJS API: inventory, chessboard, reservations, guests, desk, finance,
-                       rates, channels, analytics, audit, guard, accounts
-apps/site              главная wetop.ai
-apps/ai-seller         ИИ-агент: продавец и помощник на Python, свой compose (связи — apps/README.md)
-packages/domain        бизнес-правила: доступность, ограничения, финансы, шахматка, неисправности
-packages/database      Prisma: схема и 20 миграций, все с down.sql
-packages/integrations  Channex, импорт из Exely, Telegram, почта; домен про них не знает (ADR-004)
-packages/shared        общие типы и утилиты
-scripts/imports        импорт и синхронизация из Exely (исторический источник)
-scripts/reconciliation сверки с Exely и Channex, утренний отчёт, уборка данных автотестов
-scripts/ops            бэкапы, автовыкладка, туннель, раннер CI, обслуживание
-tests/                 unit / integration / e2e / ui + журнал прогонов tests/runs (доказательства)
-deploy/                Docker Compose боевого контура
-design/ + ds-bundle/   токены и выгрузка дизайн-системы для сборки экранов
-docs/                  vendor-документация (Channex, Exely API), операции, хроника проекта
-plans/ + reports/      планы срезов и отчёты-доказательства (сверки, скриншоты, разборы)
-```
-
-## Definition of Done всего MVP
-
-См. хвост [SPEC.md](SPEC.md). Коротко: сотрудник отрабатывает смену, ни разу не открыв Exely,
-и все цифры сходятся с Exely с расхождением **0**. Не 99,5 %. Ноль.
+README описывает продукт и устойчивые границы. Ежедневные результаты, SHA, временные
+CI-проблемы и состояние PR хранятся в журналах, планах и отчётах.

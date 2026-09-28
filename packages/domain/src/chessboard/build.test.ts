@@ -14,21 +14,21 @@ const input: ChessboardInput = {
       id: 'u1',
       code: '9001',
       kind: 'ROOM',
-      accommodationTypeCode: 'exely-900001',
+      accommodationTypeCode: 'category-single',
       accommodationTypeName: 'Тестовая одиночная',
     },
     {
       id: 'u2',
       code: '9010',
       kind: 'BED',
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       accommodationTypeName: 'Тестовый dorm',
     },
     {
       id: 'u3',
       code: '9011',
       kind: 'BED',
-      accommodationTypeCode: 'exely-900003',
+      accommodationTypeCode: 'category-dorm',
       accommodationTypeName: 'Тестовый dorm',
     },
   ],
@@ -135,7 +135,7 @@ describe('buildChessboard', () => {
     const b = buildChessboard(input);
     expect(b.summary['2026-09-11']).toEqual({ occupied: 1, blocked: 0, free: 2 });
     expect(b.summary['2026-09-12']).toEqual({ occupied: 1, blocked: 1, free: 1 });
-    expect(b.byCategory['2026-09-12']!['exely-900003']).toEqual({
+    expect(b.byCategory['2026-09-12']!['category-dorm']).toEqual({
       units: 2,
       occupied: 1,
       blocked: 1,
@@ -165,7 +165,7 @@ describe('buildChessboard', () => {
   });
 });
 
-describe('buildChessboard: проживания без ячейки (паритет со строкой «Без номера» в Exely)', () => {
+describe('buildChessboard: проживания без ячейки', () => {
   it('без входного списка на доске пустой список — не undefined', () => {
     expect(buildChessboard(input).unassigned).toEqual([]);
   });
@@ -175,7 +175,7 @@ describe('buildChessboard: проживания без ячейки (парит�
       unassigned: [
         {
           confirmationNumber: 'U-3',
-          categoryCode: 'exely-900003',
+          categoryCode: 'category-dorm',
           categoryName: 'Тестовый dorm',
           arrivalDate: '2026-09-12',
           departureDate: '2026-09-13',
@@ -183,7 +183,7 @@ describe('buildChessboard: проживания без ячейки (парит�
         },
         {
           confirmationNumber: 'U-1',
-          categoryCode: 'exely-900001',
+          categoryCode: 'category-single',
           categoryName: 'Тестовая одиночная',
           arrivalDate: '2026-09-11',
           departureDate: '2026-09-12',
@@ -191,7 +191,7 @@ describe('buildChessboard: проживания без ячейки (парит�
         },
         {
           confirmationNumber: 'U-2',
-          categoryCode: 'exely-900003',
+          categoryCode: 'category-dorm',
           categoryName: 'Тестовый dorm',
           arrivalDate: '2026-09-10',
           departureDate: '2026-09-11',
@@ -199,14 +199,14 @@ describe('buildChessboard: проживания без ячейки (парит�
         },
       ],
     });
-    expect(b.unassigned.map((u) => u.confirmationNumber)).toEqual(['U-1', 'U-2', 'U-3']);
+    expect(b.unassigned.map((u) => u.confirmationNumber)).toEqual(['U-2', 'U-3', 'U-1']);
     expect(b.unassigned[0]).toEqual({
-      confirmationNumber: 'U-1',
-      categoryCode: 'exely-900001',
-      categoryName: 'Тестовая одиночная',
-      arrivalDate: '2026-09-11',
-      departureDate: '2026-09-12',
-      status: 'TENTATIVE',
+      confirmationNumber: 'U-2',
+      categoryCode: 'category-dorm',
+      categoryName: 'Тестовый dorm',
+      arrivalDate: '2026-09-10',
+      departureDate: '2026-09-11',
+      status: 'CONFIRMED',
     });
     // сетка и сводка от броней без ячейки не меняются: ячейки они не занимают
     expect(b.summary['2026-09-11']).toEqual({ occupied: 1, blocked: 0, free: 2 });
@@ -216,7 +216,7 @@ describe('buildChessboard: проживания без ячейки (парит�
 /**
  * Срез 7.1: на клетке видно то, ради чего администратор сейчас открывает карточку — из какого канала
  * бронь, сколько по ней не заплачено и убрана ли ячейка. Всё три факта уже есть в базе; шахматка их
- * только передаёт. Документ ментора 14.09 берёт это из Exely: бейдж канала и красная плашка суммы на
+ * только передаёт. Документ ментора 14.09 берёт это из Legacy: бейдж канала и красная плашка суммы на
  * полосе брони, значок уборки у номера.
  */
 describe('buildChessboard: канал, долг и уборка', () => {

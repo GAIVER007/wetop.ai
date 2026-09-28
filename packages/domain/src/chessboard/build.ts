@@ -17,7 +17,7 @@ export interface ChessboardUnit {
   kind: InventoryUnitKind;
   accommodationTypeCode: string;
   accommodationTypeName: string;
-  /** Убрана ли ячейка (срез 7.1): приём из Exely «значок уборки у номера»; без значения бейджа нет */
+  /** Убрана ли ячейка (срез 7.1): приём из внешней системы «значок уборки у номера»; без значения бейджа нет */
   housekeepingStatus?: HousekeepingStatus;
   /**
    * Номер физической комнаты места (ТЗ «Шахматка v2» §17, подготовка к Q-095). Пока комнаты
@@ -48,7 +48,7 @@ export interface ChessboardBlock {
 }
 /**
  * Проживание без ячейки в диапазоне доски: бронь канала, которой не хватило места (Q-107), или бронь,
- * у которой назначение сняли. В Exely это строка «Без номера» под категорией. Гостей здесь нет — ПД.
+ * у которой назначение сняли. Гостей здесь нет — ПД.
  */
 export interface UnassignedStay {
   confirmationNumber: string;

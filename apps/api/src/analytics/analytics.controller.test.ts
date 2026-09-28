@@ -155,7 +155,7 @@ describe('сайты и отчёты /analytics', () => {
       .expect(200);
     expect(on.body.site.bookingEnabled).toBe(true);
     expect(on.body.site.bookingRatePlan).toMatchObject({
-      code: 'exely-10157482',
+      code: 'rate-base',
       name: 'Базовый тариф',
     });
     expect(on.body.snippet.bookingCode).toContain('/w/widget.js');
@@ -164,7 +164,7 @@ describe('сайты и отчёты /analytics', () => {
     expect(on.body.snippet.bookingDemoUrl).toBe(`http://127.0.0.1:3001/w/demo?k=${SITE.publicKey}`);
     await request(app.getHttpServer())
       .patch(`/analytics/sites/${SITE.id}`)
-      .send({ bookingRatePlanCode: 'exely-dead' })
+      .send({ bookingRatePlanCode: 'rate-disabled' })
       .expect(400);
     await request(app.getHttpServer())
       .patch(`/analytics/sites/${SITE.id}`)

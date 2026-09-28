@@ -256,7 +256,7 @@ model MembershipScope {
 
 ## 6. Hospitality Bounded Context — без изменений
 
-Всё как в v1 §E: `Property`/`AccommodationType`/`InventoryUnit`/`PhysicalRoom`/`Reservation`/`ReservationItem`/`Allocation`/`RatePlan`/`DailyRate`/`Restriction`/Housekeeping/`ChannelMapping`/Channex/Exely/eQonaq/Chessboard — не переписываются, не расширяются новыми enum-значениями. Единственное дополнение: `Property` теперь на два шага глубже от Organization (`Organization → Business → Location → Property`), но это прозрачно тем же образом, что и в v1 (§2.2 — резолвер меняется внутри, внешний контракт `PropertyRef` нет).
+Всё как в v1 §E: `Property`/`AccommodationType`/`InventoryUnit`/`PhysicalRoom`/`Reservation`/`ReservationItem`/`Allocation`/`RatePlan`/`DailyRate`/`Restriction`/Housekeeping/`ChannelMapping`/Channex/архивный источник/eQonaq/Chessboard — не переписываются, не расширяются новыми enum-значениями. Единственное дополнение: `Property` теперь на два шага глубже от Organization (`Organization → Business → Location → Property`), но это прозрачно тем же образом, что и в v1 (§2.2 — резолвер меняется внутри, внешний контракт `PropertyRef` нет).
 
 ---
 

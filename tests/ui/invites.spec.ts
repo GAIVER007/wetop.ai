@@ -25,7 +25,7 @@ test('вошедший видит ожидающие приглашения и �
   await login(page);
   await page.goto('/login');
   const main = page.getByRole('main');
-  await expect(main).toContainText('Пригласить администратора');
+  await expect(main.getByRole('heading', { name: 'Сотрудники' })).toBeVisible();
   await expect(main).not.toContainText('войдёт по коду');
   const list = main.getByTestId('invite-list');
   await expect(list).toContainText('zhdet@example.com');
@@ -46,7 +46,7 @@ test('без сессии формы приглашения нет', async ({ pa
   await page.goto('/login');
   const main = page.getByRole('main');
   await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
-  await expect(main).not.toContainText('Пригласить администратора');
+  await expect(main.getByTestId('team')).toHaveCount(0);
 });
 
 test('ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им', async ({

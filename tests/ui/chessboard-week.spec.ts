@@ -36,7 +36,7 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       main.getByLabel('Шахматка: по', { exact: true }),
       main.getByRole('button', { name: 'Применить', exact: true }),
       main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
-      main.getByRole('link', { name: 'Неделя', exact: true }),
+      main.getByRole('link', { name: '7 дней', exact: true }),
       main.getByRole('button', { name: 'Свободные', exact: true }),
     ]) {
       await expect(control).toBeVisible();
@@ -63,8 +63,10 @@ test('C1: подсказка не выходит за экран, последн
   page,
 }) => {
   await page.goto('/chessboard');
-  await page.getByText('Как работать с шахматкой', { exact: true }).click();
+  // Помощь свёрнута в короткую кнопку «Помощь» (ТЗ «Шахматка v2» §5), инструкция внутри
+  await page.getByText('Помощь', { exact: true }).click();
   const help = page.locator('.board-help-content');
+  await expect(help).toContainText('Как работать с шахматкой');
   await expect(help).toBeVisible();
   for (const width of [1440, 1024, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -72,7 +74,7 @@ test('C1: подсказка не выходит за экран, последн
     expect(helpBox!.x).toBeGreaterThanOrEqual(0);
     expect(helpBox!.x + helpBox!.width).toBeLessThanOrEqual(width);
   }
-  await page.getByText('Как работать с шахматкой', { exact: true }).click();
+  await page.getByText('Помощь', { exact: true }).click();
   await page.setViewportSize({ width: 320, height: 844 });
   // Scroll the grid to its bottom, then the page as a touch user would.
   // scrollIntoView alone would conceal overflow:hidden by scrolling it programmatically.
@@ -113,7 +115,8 @@ test('в неделе работают бронь, категории и соз�
   await page.goto('/chessboard');
   const stay = page.getByTestId('stay-cell').first();
   const number = await stay.getAttribute('data-number');
-  await stay.click();
+  // одинарный клик — предпросмотр, полная карточка — двойным (ТЗ «Шахматка v2» §24)
+  await stay.dblclick();
   const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
   await expect(drawer.getByRole('heading', { level: 1 })).toContainText(number!);
   await page.keyboard.press('Escape');
@@ -194,7 +197,7 @@ test('по умолчанию видна текущая неделя с поне
   );
   await expect(page.getByTestId('date-col').first().locator('.board__wd')).toHaveText('пн');
   await expect(page.getByTestId('date-col').last().locator('.board__wd')).toHaveText('вс');
-  await expect(page.getByRole('link', { name: 'Неделя', exact: true })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
     'aria-current',
     'true',
   );

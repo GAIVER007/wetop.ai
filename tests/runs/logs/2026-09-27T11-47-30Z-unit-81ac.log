@@ -1,0 +1,196 @@
+# Модульные (unit) · 27.09.2026 16:47 Алматы · vm
+# коммит 9c67ff7 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T11-47-30Z-unit-81ac.json' 'apps/api/src/reservations/reservations.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 1513  - 09/10/2026, 6:00:00 AM   ERROR [AriPublisher] Дельта доступности не встала в очередь после записи команды (exely-900001 2026-09-15 → 2026-09-17): channel_outbox insert failed
+ ❯ |unit| apps/api/src/reservations/reservations.controller.test.ts (34 tests | 3 failed) 948ms
+   ❯ manual reservation API (34)
+     ✓ ADR-021: отмена брони снимает блоки соседних ночей от раннего заезда и позднего выезда 86ms
+     ✓ Q-107: ячейка физически свободна, но категория продана бронями без ячейки → 409, как для канала 5ms
+     ✓ Б6: бронь записана, а дельта каналов не встала в очередь — ответ 201 с карточкой, не 500: иначе повтор создаст дубль 6ms
+     ✓ POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit 8ms
+     ✓ ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно 12ms
+     ✓ ADR-072: база в Казахстане (PII_STORAGE=real) — гость как введён, имя и фамилия обязательны 17ms
+     ✓ ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем 26ms
+     ✓ ADR-071: номер брони в канале второй раз не заводится — ни вручную, ни когда бронь уже пришла из Channex 13ms
+     ✓ ADR-071: номер брони в канале можно вписать и поправить на готовой брони OTA; у другой — 400 11ms
+     ✓ rejects a missing/unknown source with 400 — no default (Q-089) 5ms
+     ✓ 422 when a night has no price, the tariff is inactive or the unit belongs to another category 8ms
+     ✓ 409 when the unit is blocked or already allocated for an overlapping night 10ms
+     ✓ PATCH dates reprices and moves the allocation; cancel frees the unit; both audited 18ms
+     ✓ отмена и незаезд берут замок брони раньше, чем читают её состояние 11ms
+     ✓ предпросмотр действия замок брони не берёт — только читает 10ms
+     ✓ Q-103: отмена заранее штрафа не даёт, незаезд даёт; даты меняются без повторного тарифа (Q-102) 22ms
+     ✓ assign moves the guest to another unit from a date (переселение), 404 for unknown booking/item 14ms
+     ✓ T1: переселение в другую категорию пересчитывает цену по её календарю и шлёт дельту по обеим категориям; частичное — запрещено 7ms
+     ✓ предпросмотр называет цену переселения и продления, штраф отмены, и ничего не пишет 15ms
+     ✓ T2: «+1 ночь» сдвигает выезд, пересчитывает цену и продлевает назначение; занятая ячейка — 409, выселенного продлить нельзя 19ms
+     ✓ Д5 (срез 7.3): сумма в окне = начисление — предпросмотр переселения, продления, отмены и незаезда 40ms
+     ✓ T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал 14ms
+     ✓ ADR-020: ограничения продаж действуют на стойке — стоп-продажа, закрытый заезд/выезд, срок → 409 с датой и категорией; канал и другая категория не задеты 28ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в заметке брони маскируются — и при создании, и при правке 15ms
+     ✓ Q-169: база в Казахстане (PII_STORAGE=real) — заметка как введена 3ms
+     ✓ правка готовой брони: PATCH заметки и источник, PATCH гостей на проживании с проверкой вместимости; всё в журнале 22ms
+     ✓ групповая бронь: quantity=3 → 3 проживания на трёх разных свободных ячейках по номеру; свободных меньше → 409 «свободно только K» 10ms
+     ❯ тариф брони по роли (Q-197, ADR-100) (4)
+       × администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута 14ms
+       ✓ управляющий тариф меняет 4ms
+       × продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ 5ms
+       × бронь из Exely без тарифа: администратору пересчитать не по чему — тариф назначают владелец и управляющий (Q-198) 9ms
+     ✓ GET /rate-plans lists only active tariffs 3ms
+     ✓ check-in needs an assigned unit; check-out frees the unit on early departure; no-show drops the allocation 25ms
+     ✓ заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > тариф брони по роли (Q-197, ADR-100) > администратор меняет даты в том же тарифе; другой тариф — отказ словами, бронь не тронута
+AssertionError: promise resolved "{ …(13) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "adults": 1,
++   "arrivalDate": "2026-09-15",
++   "channel": null,
++   "children": 0,
++   "confirmationNumber": "20260910-X3T8T5",
++   "currency": "KZT",
++   "departureDate": "2026-09-18",
++   "items": [
++     {
++       "accommodationTypeCode": "exely-900001",
++       "accommodationTypeName": "Тестовая одиночная",
++       "adults": 1,
++       "arrivalDate": "2026-09-15",
++       "children": 0,
++       "departureDate": "2026-09-18",
++       "guests": [
++         {
++           "id": "g-1",
++           "isPrimary": true,
++           "label": "Гость Тестовый",
++         },
++       ],
++       "id": "r1-i1",
++       "priceMinor": "2700000",
++       "ratePlanCode": null,
++       "ratePlanName": null,
++       "status": "CONFIRMED",
++       "unitCode": "9001",
++       "unitHousekeepingStatus": "INSPECTED",
++     },
++   ],
++   "notes": null,
++   "primaryGuest": {
++     "citizenship": "KAZ",
++     "id": "g1",
++     "label": "Гость Тестовый",
++     "phone": "<телефон>",
++   },
++   "source": "PHONE",
++   "status": "CONFIRMED",
++   "totalAmountMinor": "2700000",
+  }
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1549:8
+    1547|       await expect(
+    1548|         as('STAFF', () => service().changeDates(n, { ...stay, ratePlan…
+    1549|       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+       |        ^
+    1550|       expect(planOf(n)).toBe('p1');
+    1551|       expect(fake.state.reservations.get(n)!.departureDate).toBe('2026…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > тариф брони по роли (Q-197, ADR-100) > продление и переселение в другую категорию — в тарифе брони; с другим тарифом — отказ
+AssertionError: promise resolved "{ …(13) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "adults": 1,
++   "arrivalDate": "2026-09-15",
++   "channel": null,
++   "children": 0,
++   "confirmationNumber": "20260910-2CN2CH",
++   "currency": "KZT",
++   "departureDate": "2026-09-18",
++   "items": [
++     {
++       "accommodationTypeCode": "exely-900001",
++       "accommodationTypeName": "Тестовая одиночная",
++       "adults": 1,
++       "arrivalDate": "2026-09-15",
++       "children": 0,
++       "departureDate": "2026-09-18",
++       "guests": [
++         {
++           "id": "g-1",
++           "isPrimary": true,
++           "label": "Гость Тестовый",
++         },
++       ],
++       "id": "r1-i1",
++       "priceMinor": "3100000",
++       "ratePlanCode": null,
++       "ratePlanName": null,
++       "status": "CONFIRMED",
++       "unitCode": "9001",
++       "unitHousekeepingStatus": "INSPECTED",
++     },
++   ],
++   "notes": null,
++   "primaryGuest": {
++     "citizenship": "KAZ",
++     "id": "g1",
++     "label": "Гость Тестовый",
++     "phone": "<телефон>",
++   },
++   "source": "PHONE",
++   "status": "CONFIRMED",
++   "totalAmountMinor": "3100000",
+  }
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1570:8
+    1568|       await expect(
+    1569|         as('STAFF', () => service().extend(n, itemId, { nights: 1, rat…
+    1570|       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
+       |        ^
+    1571|       await as('STAFF', () => service().extend(n, itemId, { nights: 1 …
+    1572|       await expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/reservations/reservations.controller.test.ts > manual reservation API > тариф брони по роли (Q-197, ADR-100) > бронь из Exely без тарифа: администратору пересчитать не по чему — тариф назначают владелец и управляющий (Q-198)
+AssertionError: expected [Function] to throw error including 'У брони нет тарифа (перенесена из Exe…' but got 'ratePlanCode обязателен: тариф на про…'
+
+Expected: "У брони нет тарифа (перенесена из Exely): назначить его могут владелец и управляющий."
+Received: "ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)"
+
+ ❯ apps/api/src/reservations/reservations.controller.test.ts:1583:70
+    1581|       const { n, itemId } = await book();
+    1582|       fake.state.reservations.get(n)!.items[0]!.ratePlanId = null;
+    1583|       await expect(as('STAFF', () => service().changeDates(n, stay))).…
+       |                                                                      ^
+    1584|         RATE_PLAN_UNKNOWN_MESSAGE,
+    1585|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 31 passed (34)
+   Start at  11:47:36
+   Duration  7.41s (import 48%, transform 37%, tests 14%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T11-47-30Z-unit-81ac.json
+
+# код выхода 1 · 14 с

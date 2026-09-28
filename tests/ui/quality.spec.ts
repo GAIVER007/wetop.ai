@@ -82,9 +82,13 @@ test('ошибочные даты шахматки и месяца тарифо�
     '/chessboard?from=wrong&to=2026-09-20',
   ]) {
     await page.goto(route);
-    await expect(page.getByRole('heading', { name: /Цены и ограничения|Шахматка/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Тарифы и цены|Шахматка/ })).toBeVisible();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(/период|месяц/i);
-    await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
+    // форма исправления: у тарифов с 27.09 (ADR-111) кнопки нет — месяц перезагружает данные сам
+    if (route.startsWith('/rates'))
+      await expect(page.getByRole('main').getByLabel('Месяц', { exact: true })).toBeEnabled();
+    else
+      await expect(page.getByRole('button', { name: /Показать|Применить/ }).first()).toBeEnabled();
   }
 });
 
@@ -142,9 +146,11 @@ test('изменение уборки относится только к выб�
 });
 
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
-  await page.goto('/analytics/setup');
+  // Код счётчика и виджета лежат в свёртках своих вкладок (ADR-117): раскрываем их, как это делает пользователь
+  await page.goto('/website/settings');
+  await page.locator('summary').getByText('Установка счётчика', { exact: true }).click();
   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
-  // После упрощения настроек код виджета лежит в свёртке: раскрываем её, как это делает пользователь
+  await page.goto('/website/booking');
   await page
     .locator('summary')
     .getByText('Установка виджета бронирования', { exact: true })
@@ -177,7 +183,7 @@ for (const scenario of [
   },
   {
     name: 'сайт аналитики',
-    path: '/analytics/setup',
+    path: '/website/settings',
     form: 'site-form',
     button: 'Добавить сайт',
     fields: { name: 'Тестовый сайт', hosts: 'example.invalid' },

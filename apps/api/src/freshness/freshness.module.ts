@@ -3,6 +3,7 @@ import { Controller, Get, Inject, Injectable, Module, Req } from '@nestjs/common
 import { ChannelsModule } from '../channels/channels.module';
 import { PROVIDER } from '../channels/ari-publisher';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from '../channels/channels.repository';
+import { Access } from '../auth/access.decorator';
 import { isIntegrationActor } from '../channels/integration-owner';
 import { PrismaService } from '../database/prisma.provider';
 
@@ -52,6 +53,7 @@ export class FreshnessService {
   }
 }
 
+@Access('desk')
 @Controller('system')
 export class FreshnessController {
   constructor(

@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
 import { UnitsService } from './units.service';
+import { Access } from '../auth/access.decorator';
 
 /** Ячейка: карточка, блокировки, статус уборки. */
+@Access('desk')
 @Controller('units')
 export class UnitsController {
   constructor(@Inject(UnitsService) private readonly service: UnitsService) {}

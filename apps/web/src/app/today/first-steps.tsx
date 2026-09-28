@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { ApiError } from '../../lib/api';
+import { deskShell } from '../../lib/desk-shell';
 import { hotelApi } from '../../lib/hotel-api';
+import { mayAccess } from '../../lib/navigation';
 import { Badge, Panel } from '../../components/ui';
 import { firstStepsFor, type Step } from './first-steps-list';
 
@@ -17,7 +19,7 @@ const STATE: Record<Step['state'], { label: string; tone: 'ok' | 'info' | 'neutr
  * из-за подсказки.
  */
 export async function FirstSteps() {
-  const [state, settings] = await Promise.all([
+  const [state, settings, desk] = await Promise.all([
     hotelApi.firstSteps().catch((error: unknown) => {
       if (error instanceof ApiError) return null;
       throw error;
@@ -27,9 +29,13 @@ export async function FirstSteps() {
       if (error instanceof ApiError) return null;
       throw error;
     }),
+    deskShell(),
   ]);
   if (!state || state.hasReservations) return null;
-  const steps = firstStepsFor(settings?.needsOnboarding === true);
+  // шаг — тому, у кого есть право (ADR-107): администратор отеля не настраивает и сотрудников не зовёт
+  const steps = firstStepsFor(settings?.needsOnboarding === true).filter(
+    (step) => !step.requires || mayAccess(desk.access, step.requires),
+  );
   return (
     <Panel className="first-steps" data-testid="first-steps" aria-labelledby="first-steps-title">
       <h2 id="first-steps-title" className="first-steps__title">

@@ -1,19 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { useActionState, useState, useTransition } from 'react';
+import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
-import type { AuthInvite, AuthSessionRow, SignedIn } from '../../lib/api';
-import {
-  inviteAction,
-  logoutAllAction,
-  registerAction,
-  signIn,
-  signOut,
-  type LoginState,
-} from './actions';
+import type { AuthInvite, AuthMember, AuthSessionRow, SignedIn } from '../../lib/api';
+import { logoutAllAction, registerAction, signIn, signOut, type LoginState } from './actions';
 import { trialLine } from '../../lib/desk-person';
 import { displayDate } from '../../lib/display-date';
+import { TeamSection } from './team-section';
 import './login.css';
 
 /**
@@ -32,6 +27,7 @@ export function LoginForm({
   mode: initialMode = 'password',
   registrationEnabled = false,
   invites = [],
+  members = [],
   sessions = [],
   initialEmail = '',
 }: {
@@ -42,8 +38,10 @@ export function LoginForm({
   mode?: LoginMode;
   /** Серверное состояние API. До получения настройки форму регистрации не показываем. */
   registrationEnabled?: boolean;
-  /** Ожидающие приглашения своей организации (этап 7) — показываются только вошедшему. */
+  /** Ожидающие приглашения своей организации (этап 7) — владельцу и управляющему (ADR-107). */
   invites?: AuthInvite[];
+  /** Люди своей организации с ролями (ADR-107) — владельцу и управляющему. */
+  members?: AuthMember[];
   /** «Где я вошёл» (§13.5): живые сессии вошедшего, устройство словами, своя помечена. */
   sessions?: AuthSessionRow[];
   /** Почта, подставленная в поле: приходит из ссылки (`?email=`). Заголовок Access не читается — Access снят (ADR-053) */
@@ -61,22 +59,8 @@ export function LoginForm({
   const [error, setError] = useState('');
   const [registerPending, startTransition] = useTransition();
   const { setTheme } = useTheme();
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteError, setInviteError] = useState('');
-  const [invited, setInvited] = useState<string[]>([]);
-
-  /** Приглашение по почте: строка «отправлено» добавляется к списку без перезагрузки страницы. */
-  function submitInvite() {
-    setInviteError('');
-    startTransition(async () => {
-      const r = await inviteAction(inviteEmail);
-      if (r.error) setInviteError(r.error);
-      else {
-        setInvited((list) => [r.email!, ...list]);
-        setInviteEmail('');
-      }
-    });
-  }
+  // роль вошедшего: сотрудниками ведают владелец и управляющий (ADR-107); незнакомая — как у администратора
+  const role = user?.role ? parseMembershipRole(user.role) : null;
 
   const switchTo = (next: LoginMode) => {
     setError('');
@@ -148,74 +132,15 @@ export function LoginForm({
                 <span>Смена закончена?</span>
                 <button type="submit">Выйти</button>
               </form>
-              {/* Приглашения (срез 13, этап 7): зовёт владелец организации (ADR-083); сотруднику — кто это делает */}
-              {user.role === 'STAFF' ? (
-                <section className="login-invites" aria-labelledby="invite-heading">
-                  <h3 id="invite-heading">Пригласить администратора</h3>
-                  <p className="muted" data-testid="invite-owner-only">
-                    Приглашать сотрудников может только владелец организации.
-                  </p>
-                </section>
+              {/* Сотрудники и приглашения (срез 13, этап 7; роли — ADR-107): владельцу и управляющему */}
+              {user.organization && role && canManageStaff(role) ? (
+                <TeamSection role={role} invites={invites} members={members} />
               ) : (
                 <section className="login-invites" aria-labelledby="invite-heading">
-                  <h3 id="invite-heading">Пригласить администратора</h3>
-                  <p className="muted">
-                    Ссылка действует 7 дней. По ней сотрудник присоединится к вашей организации.
+                  <h3 id="invite-heading">Сотрудники</h3>
+                  <p className="muted" data-testid="invite-not-allowed">
+                    Приглашать сотрудников могут владелец и управляющий.
                   </p>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      submitInvite();
-                    }}
-                  >
-                    <label className="field">
-                      Почта приглашённого
-                      <input
-                        className="inp"
-                        type="email"
-                        name="inviteEmail"
-                        autoComplete="off"
-                        placeholder="admin@hotel.com"
-                        required
-                        value={inviteEmail}
-                        onChange={(e) => setInviteEmail(e.target.value)}
-                      />
-                    </label>
-                    {inviteError && (
-                      <p className="alert" role="alert">
-                        {inviteError}
-                      </p>
-                    )}
-                    <button className="btn btn--secondary" type="submit" disabled={registerPending}>
-                      Отправить приглашение
-                    </button>
-                  </form>
-                  {invited.length + invites.length > 0 ? (
-                    <ul className="login-invite-list" data-testid="invite-list">
-                      {invited.map((e) => (
-                        <li key={`new-${e}`}>
-                          <b>{e}</b> <span className="muted">приглашение отправлено</span>
-                        </li>
-                      ))}
-                      {invites
-                        .filter((i) => !invited.includes(i.email))
-                        .map((i) => (
-                          <li key={i.id}>
-                            <b>{i.email}</b>{' '}
-                            <span className="muted">
-                              ждёт ответа до{' '}
-                              <time dateTime={i.expiresAt}>
-                                {displayDate(i.expiresAt.slice(0, 10))}
-                              </time>
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-                  ) : (
-                    <p className="muted" data-testid="invite-empty">
-                      Ожидающих приглашений нет.
-                    </p>
-                  )}
                 </section>
               )}
               {/* «Где я вошёл» и «выйти везде» (§13.5): отзыв гасит все ключи человека, включая этот */}

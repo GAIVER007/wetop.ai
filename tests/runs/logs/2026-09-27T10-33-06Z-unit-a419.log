@@ -1,0 +1,78 @@
+# Модульные (unit) · 27.09.2026 15:33 Алматы · vm
+# коммит f4294cf (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T10-33-06Z-unit-a419.json' 'apps/web' 'apps/api/src/auth' 'apps/api/src/hotel'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 792ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 787ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (13 tests) 10ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (7 tests) 21ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 46ms
+ ✓ |unit| apps/api/src/auth/registration-access.test.ts (10 tests) 1280ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 3598ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 1926ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 1654ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 300ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 207ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (14 tests) 1155ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 145ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (45 tests) 5595ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 370ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 428ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (15 tests) 131ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 113ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 82ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (2 tests) 171ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 65ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (5 tests) 54ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 64ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 28ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (9 tests) 22ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (33 tests) 25ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (5 tests) 23ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (11 tests) 16ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (6 tests) 17ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (7 tests) 14ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (8 tests) 16ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (26 tests) 13ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 8ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 12ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (14 tests) 10ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 11ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 9ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (6 tests) 8ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 8ms
+ ✓ |unit| apps/web/src/app/guests/[id]/stay-now.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/app/analytics/actions.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 3ms
+
+ Test Files  55 passed (55)
+      Tests  423 passed (423)
+   Start at  10:33:07
+   Duration  11.89s (tests 52%, import 30%, transform 17%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T10-33-06Z-unit-a419.json
+
+# код выхода 0 · 13 с

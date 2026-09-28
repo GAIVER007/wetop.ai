@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@pms/database';
 import {
   GUEST_RECENT_DAYS,
@@ -498,8 +498,10 @@ export class PrismaGuestsRepository implements GuestsRepository {
     };
   }
   async update(id: string, p: GuestPatch): Promise<void> {
-    await this.prisma.db.guest.update({
-      where: { id },
+    // Phase 1 изоляции (ADR-100 §17.2): правка по прямому id — только гостя своей организации.
+    // Сервис уже проверяет byId, это второй замок на уровне репозитория: чужой id — «не найден».
+    const updated = await this.prisma.db.guest.updateMany({
+      where: { AND: [{ id }, await this.visible()] },
       data: {
         ...(p.firstName !== undefined ? { firstName: p.firstName } : {}),
         ...(p.lastName !== undefined ? { lastName: p.lastName } : {}),
@@ -514,6 +516,7 @@ export class PrismaGuestsRepository implements GuestsRepository {
         ...(p.notes !== undefined ? { notes: p.notes } : {}),
       },
     });
+    if (updated.count === 0) throw new NotFoundException(`Гость ${id} не найден`);
   }
   async addDocument(
     guestId: string,
@@ -525,6 +528,12 @@ export class PrismaGuestsRepository implements GuestsRepository {
       expiresAtEncrypted: string | null;
     },
   ): Promise<string> {
+    // Phase 1 изоляции (ADR-100 §17.2): документ по прямому id гостя — только гостю своей организации
+    const guest = await this.prisma.db.guest.findFirst({
+      where: { AND: [{ id: guestId }, await this.visible()] },
+      select: { id: true },
+    });
+    if (!guest) throw new NotFoundException(`Гость ${guestId} не найден`);
     const row = await this.prisma.db.guestDocument.create({
       data: {
         guestId,
@@ -540,13 +549,14 @@ export class PrismaGuestsRepository implements GuestsRepository {
     return row.id;
   }
   async deleteDocument(guestId: string, documentId: string): Promise<{ type: string } | null> {
+    // Phase 1 изоляции (ADR-100 §17.2): и поиск, и удаление — только внутри гостей своей организации
     const doc = await this.prisma.db.guestDocument.findFirst({
-      where: { id: documentId, guestId },
+      where: { id: documentId, guestId, guest: await this.visible() },
       select: { type: true },
     });
     if (!doc) return null;
     const res = await this.prisma.db.guestDocument.deleteMany({
-      where: { id: documentId, guestId },
+      where: { id: documentId, guestId, guest: await this.visible() },
     });
     return res.count > 0 ? doc : null;
   }

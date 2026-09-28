@@ -190,7 +190,7 @@ function GuestFinance({ stays }: { stays: Stay[] }) {
           </div>
         </dl>
       ))}
-      {/* Q-199: что из остатка — долг, решает владелец; до ответа честно называем состав суммы */}
+      {/* Q-202: что из остатка — долг, решает владелец; до ответа честно называем состав суммы */}
       <p className="sub guest-finance-note">
         Сумма по счетам всех проживаний гостя, включая будущие брони. Оплата и возвраты — в счёте
         брони.
@@ -316,7 +316,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
               )}
               <span className="dir-sub">{next.accommodationTypeName}</span>
             </p>
-            {/* у будущей брони важно, подтверждена ли она; долг здесь не показывается (Q-199) */}
+            {/* у будущей брони важно, подтверждена ли она; долг здесь не показывается (Q-202) */}
             <StatusBadge
               status={next.status}
               label={reservationStatusWords[next.status] ?? next.status}

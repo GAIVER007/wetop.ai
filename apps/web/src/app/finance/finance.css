@@ -1,0 +1,292 @@
+/* Финансы за период, срез F1 (ADR-113): период одной строкой, четыре итога в ряд, «Требует внимания»,
+   структура денег в две колонки, список долгов. Панели и таблицы — `.finance-block` из directory.css. */
+
+/* ---------- период: одна строка без своей панели (ТЗ: «компактной одной строкой, а не огромной панелью») */
+.finance-controls {
+  margin-bottom: var(--space-6);
+}
+.finance-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+.finance-toolbar .field {
+  margin: 0;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.finance-toolbar .field--inline .inp {
+  width: 148px;
+  font-size: var(--text-sm);
+}
+/* Готовые отрезки — компактные чипы 30 px, как на «Бронях» (ADR-106) */
+.finance-controls .directory-filters {
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  border: 0;
+  overflow: visible;
+}
+.finance-controls .directory-filters a,
+.finance-chips a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h-sm);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-control);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-2);
+}
+.finance-controls .directory-filters a:hover,
+.finance-chips a:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+  text-decoration: none;
+}
+.finance-controls .directory-filters a.is-active,
+.finance-chips a.is-active {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.finance-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* ---------- четыре итога одним рядом и одной высоты; на узком экране — по два, на телефоне — столбиком */
+.finance-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.finance-kpis > .stat,
+.finance-kpi-link > .stat {
+  height: 100%;
+  padding: var(--space-4);
+}
+.finance-kpis .stat__value {
+  white-space: nowrap;
+}
+/* «К сбору» — ссылка к списку долгов: вся плитка нажимается, текст остаётся текстом */
+.finance-kpi-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius);
+}
+.finance-kpi-link:hover {
+  text-decoration: none;
+}
+.finance-kpi-link:hover > .stat {
+  background: var(--row-hover);
+}
+.finance-kpi-link--due > .stat {
+  border-color: var(--warning-border);
+}
+@media (max-width: 1100px) {
+  .finance-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .finance-kpis {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+}
+
+/* ---------- «Требует внимания»: строка на дело, цвет — только у полосы слева и значка */
+.finance-attention {
+  margin-bottom: var(--space-6);
+}
+.finance-attention__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+.finance-attention__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.finance-attention__list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--info);
+  border-radius: var(--radius-control);
+  background: var(--glass-panel);
+  font-size: var(--text-sm);
+}
+.finance-attention__list li[data-tone='warn'] {
+  border-left-color: var(--warning);
+}
+.finance-attention__list li[data-tone='danger'] {
+  border-left-color: var(--danger);
+}
+.finance-attention__list li[data-tone='warn'] > .icon {
+  color: var(--warning);
+}
+.finance-attention__list li[data-tone='danger'] > .icon {
+  color: var(--danger);
+}
+.finance-attention__list li[data-tone='info'] > .icon {
+  color: var(--muted);
+}
+.finance-attention__list a {
+  color: inherit;
+}
+.finance-attention__empty,
+.finance-debts__empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.finance-attention__empty > .icon,
+.finance-debts__empty > .icon {
+  color: var(--success);
+}
+
+/* ---------- структура денег: две колонки, на узком экране одна */
+.finance-structure {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+  margin-bottom: var(--space-6);
+}
+@media (max-width: 960px) {
+  .finance-structure {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.finance-block .finance-row--zero td {
+  color: var(--muted);
+}
+.finance-block .finance-row--total th,
+.finance-block .finance-row--total td {
+  font-weight: var(--weight-semibold);
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- список долгов: восемь колонок, на узком экране прокрутка внутри таблицы (§4) */
+.finance-debts {
+  margin-bottom: var(--space-6);
+  scroll-margin-top: var(--space-16);
+}
+.finance-debts__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.finance-debts__head .section-title {
+  margin: 0;
+}
+.finance-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  border: 0;
+}
+.finance-chips__count {
+  margin-left: var(--space-2);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.finance-chips a.is-active .finance-chips__count {
+  color: inherit;
+}
+.finance-debts__meta,
+.finance-debts__note {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.finance-debts__note {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+/* скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки и растягивает страницу на телефоне */
+.finance-debts .table-scroll {
+  position: relative;
+}
+.finance-block .table-scroll > .finance-debts__table {
+  min-width: 880px;
+}
+.finance-debts__table td {
+  vertical-align: middle;
+}
+.finance-debts__stay {
+  white-space: nowrap;
+}
+.finance-debts__stay small {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.finance-debts__actions {
+  white-space: nowrap;
+  text-align: right;
+}
+.finance-debts__actions .btn + .btn {
+  margin-left: var(--space-1);
+}
+.finance-debts__more {
+  display: inline-block;
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+/* заголовок панели — у верхнего края, без общего отступа раздела; «Итого» — одной строкой без фона шапки */
+.finance-block > .section-title--first,
+.finance-debts__head > .section-title--first {
+  margin-top: 0;
+  padding-top: 0;
+}
+.finance-block .finance-row--total th {
+  background: transparent;
+  text-align: left;
+}
+
+/* ---------- F2: оплаты и возвраты — отбор по типу и способу, таблица операций (ADR-113) */
+.finance-ops {
+  margin-bottom: var(--space-6);
+  scroll-margin-top: var(--space-16);
+}
+#charges {
+  scroll-margin-top: var(--space-16);
+}
+.finance-ops__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-2);
+}
+.finance-ops .table-scroll {
+  position: relative;
+}
+.finance-block .table-scroll > .finance-ops__table {
+  min-width: 760px;
+}
+.finance-ops__table td {
+  vertical-align: middle;
+}

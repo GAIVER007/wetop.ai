@@ -52,6 +52,10 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'web_events',
   'wizard_jobs',
   'wizard_messages',
+  // Platform P1 (ADR-104 §18): бизнес — организация в строке; филиал — через родителя-Business.
+  // Политики — в миграции 20260927000030_platform_p1_business_location
+  'businesses',
+  'locations',
 ];
 
 /**

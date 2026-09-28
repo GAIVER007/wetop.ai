@@ -184,7 +184,7 @@ test('гости: полная карточка — обзор, вся исто�
     'href',
     '/reservations/20260916-GCRET2',
   );
-  // следующий визит говорит, подтверждена ли бронь; долг будущей брони здесь не показан (Q-199)
+  // следующий визит говорит, подтверждена ли бронь; долг будущей брони здесь не показан (Q-202)
   const next = main.getByTestId('guest-stay-next');
   await expect(next).toContainText('R12');
   await expect(next).toContainText('подтверждена');
@@ -258,7 +258,7 @@ test('гости: документы и финансовый свод гостя
   await expect(summary).toContainText('32 000 ₸');
   await expect(summary).toContainText('к оплате');
   await expect(summary).toContainText('16 000 ₸');
-  // состав суммы назван честно, пока владелец не решил, что из неё долг (Q-199)
+  // состав суммы назван честно, пока владелец не решил, что из неё долг (Q-202)
   await expect(main.getByRole('tabpanel')).toContainText('включая будущие брони');
   const rows = main.getByRole('tabpanel').getByTestId('guest-finance-row');
   await expect(rows).toHaveCount(4);

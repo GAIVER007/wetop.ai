@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 28.09.2026 13:54 Алматы · vm
+# коммит 1b187fa (claude/amazing-einstein-sow0em), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rates-range.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/rates-range.spec.ts:35:1 › один день: выбор, панель с фактами, предпросмотр, одна отправка, календарь обновлён и выбор сброшен (3.0s)
+  ✓  2 tests/ui/rates-range.spec.ts:88:1 › отрезок: второе касание задаёт отрезок, третье начинает заново, то же касание снимает выбор (3.0s)
+  ✓  3 tests/ui/rates-range.spec.ts:135:1 › разные исходные цены: «отличаются» с наименьшей и наибольшей, в предпросмотре — только новая цена (2.6s)
+  ✓  4 tests/ui/rates-range.spec.ts:173:1 › щелчок по цене — прежняя правка ячейки, выбор дат он не трогает; смена месяца выбор сбрасывает (2.0s)
+  ✓  5 tests/ui/rates-range.spec.ts:192:1 › отказ API: причина в панели, панель, введённая цена и выбор остаются (2.5s)
+  ✓  6 tests/ui/rates-range.spec.ts:212:1 › «только чтение»: выбор и предпросмотр доступны, сохранить нельзя — общая фраза, запроса нет (3.4s)
+
+  6 passed (21.5s)
+
+# код выхода 0 · 23 с

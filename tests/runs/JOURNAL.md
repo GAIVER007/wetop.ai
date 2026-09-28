@@ -3470,3 +3470,13 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 13:43 | unit (частично: apps/web/src/app/rates/range-summary.test.ts) | ❌ код выхода 1 | 5 с | 1b187fa +1 | [лог](logs/2026-09-28T08-43-52Z-unit-8f77.log) | RT2 red: сводки отрезка ещё нет |
+| 28.09.2026 13:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-range.spec.ts --workers=1) | ❌ код выхода 1 | 2 мин 4 с | 1b187fa +2 | [лог](logs/2026-09-28T08-44-16Z-e2e-9793.log) | RT2 red: выбора дат и панели ещё нет |
+| 28.09.2026 13:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-range.spec.ts --workers=1) | ❌ упало 6 из 6 | 4 мин 6 с | 1b187fa +2 | [лог](logs/2026-09-28T08-46-40Z-e2e-ca0c.log) | RT2 red: выбора дат и панели ещё нет (повтор после холодной сборки) |
+| 28.09.2026 13:54 | unit (частично: apps/web/src/app/rates/range-summary.test.ts) | ✅ 8 из 8 | 1 с | 1b187fa +7 | [лог](logs/2026-09-28T08-54-09Z-unit-a6fd.log) | RT2 green: сводка отрезка |
+| 28.09.2026 13:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-range.spec.ts --workers=1) | ✅ 6 из 6 | 23 с | 1b187fa +8 | [лог](logs/2026-09-28T08-54-16Z-e2e-9fc0.log) | RT2 green: выбор дат и панель с предпросмотром |
+| 28.09.2026 13:54 | typecheck | ✅ без ошибок | 24 с | 1b187fa +8 | [лог](logs/2026-09-28T08-54-48Z-typecheck-cf57.log) |  |
+| 28.09.2026 13:55 | lint | ✅ без ошибок | 20 с | 1b187fa +8 | [лог](logs/2026-09-28T08-55-12Z-lint-bc46.log) |  |
+| 28.09.2026 13:55 | unit | ✅ 2306 из 2309, пропущено 3 | 1 мин 19 с | 1b187fa +7 | [лог](logs/2026-09-28T08-55-33Z-unit-0ffa.log) |  |
+| 28.09.2026 13:57 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 12 мин 35 с | 1b187fa +8 | [лог](logs/2026-09-28T08-57-11Z-e2e-3e14.log) | RT2 тарифы: полный UI-набор одним потоком |
+| 28.09.2026 14:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 10 из 522 | 47 мин 22 с | 1b187fa +8 | [лог](logs/2026-09-28T09-10-27Z-e2e-0193.log) | RT2 тарифы: полный UI-набор одним потоком (повтор: прошлый стенд убила паника Turbopack, кэш .next-ui стёрт) |

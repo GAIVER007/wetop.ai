@@ -54,3 +54,9 @@
 | 29.09.2026 00:33 | lint | ✅ без ошибок | 16 с | 7df44f9 | [лог](logs/2026-09-28T19-33-50Z-lint-9594.log) | RT2 после слияния main 4f5bc769 (#109, #132) |
 | 29.09.2026 00:34 | unit | ✅ 2149 из 2152, пропущено 3 | 1 мин 16 с | 7df44f9 | [лог](logs/2026-09-28T19-34-13Z-unit-244e.log) | RT2 после слияния main 4f5bc769 (#109, #132) |
 | 29.09.2026 00:35 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-range.spec.ts tests/ui/rates-design.spec.ts --workers=1) | ✅ 11 из 11 | 33 с | 7df44f9 | [лог](logs/2026-09-28T19-35-30Z-e2e-9c8a.log) | RT2 после слияния main 4f5bc769: спеки тарифов |
+| 29.09.2026 00:41 | typecheck | ✅ без ошибок | 24 с | d814724 | [лог](logs/2026-09-28T19-41-13Z-typecheck-5a39.log) |  |
+| 29.09.2026 00:41 | lint | ✅ без ошибок | 17 с | d814724 | [лог](logs/2026-09-28T19-41-37Z-lint-5394.log) |  |
+| 29.09.2026 00:41 | unit | ✅ 2154 из 2157, пропущено 3 | 1 мин 25 с | d814724 | [лог](logs/2026-09-28T19-41-55Z-unit-b977.log) |  |
+| 29.09.2026 00:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/roles.spec.ts tests/ui/navigation.spec.ts tests/ui | ❌ упало 1 из 54 | 4 мин 21 с | d814724 | [лог](logs/2026-09-28T19-43-27Z-e2e-95cf.log) | компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел |
+| 29.09.2026 00:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts) | ✅ 6 из 6 | 35 с | d814724 | [лог](logs/2026-09-28T19-49-01Z-e2e-a068.log) |  |
+| 29.09.2026 00:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts -g одна заглушка и один main) | ✅ 1 из 1 | 14 с | d814724 +1 | [лог](logs/2026-09-28T19-50-16Z-e2e-5f17.log) |  |

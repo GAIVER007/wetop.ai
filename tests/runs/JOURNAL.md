@@ -253,3 +253,6 @@
 | 29.09.2026 01:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ⏹ прерван | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-11-14Z-e2e-bf11.log) |  |
 | 29.09.2026 01:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ✅ 31 из 31 | 2 мин 41 с | db0cb5b | [лог](logs/2026-09-28T20-13-03Z-e2e-1abd.log) |  |
 | 29.09.2026 01:18 | e2e | ✅ 25 из 25 | 55 с | 749de72 | [лог](logs/2026-09-28T20-18-25Z-e2e-b2ac.log) |  |
+| 29.09.2026 01:23 | typecheck | ✅ без ошибок | 30 с | fb7f67f | [лог](logs/2026-09-28T20-23-18Z-typecheck-eb9d.log) |  |
+| 29.09.2026 01:23 | lint | ✅ без ошибок | 34 с | fb7f67f | [лог](logs/2026-09-28T20-23-49Z-lint-b57d.log) |  |
+| 29.09.2026 01:24 | unit | ✅ 2199 из 2202, пропущено 3 | 1 мин 56 с | fb7f67f | [лог](logs/2026-09-28T20-24-24Z-unit-49b6.log) |  |

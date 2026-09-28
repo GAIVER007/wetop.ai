@@ -4065,3 +4065,4 @@
 | 29.09.2026 04:26 | typecheck | ✅ без ошибок | 24 с | c93810b | [лог](logs/2026-09-28T23-26-16Z-typecheck-440c.log) |  |
 | 29.09.2026 04:26 | lint | ✅ без ошибок | 17 с | c93810b | [лог](logs/2026-09-28T23-26-41Z-lint-cfd8.log) |  |
 | 29.09.2026 04:26 | unit | ✅ 2291 из 2294, пропущено 3 | 1 мин 20 с | c93810b | [лог](logs/2026-09-28T23-26-58Z-unit-1c9c.log) | G8 на main c60fe746 |
+| 29.09.2026 04:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/workspace.spec.ts tes | ✅ 91 из 91 | 5 мин 27 с | c93810b | [лог](logs/2026-09-28T23-28-45Z-e2e-e450.log) | G8 на main c60fe746, чистый кэш .next-ui |

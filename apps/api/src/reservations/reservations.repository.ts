@@ -43,6 +43,8 @@ export interface CategoryRef {
   capacityAdults: number;
   /** На объекте у всех 0: детское размещение выключено — гостей-детей на проживании быть не может */
   capacityChildren: number;
+  /** Вид размещения; читает только `activeCategories` — «Свободные места» считают койки по гостю (ADR-110) */
+  kind?: 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT';
 }
 export type CancellationPenalty = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
 /**
@@ -234,6 +236,11 @@ export interface ReservationsRepository {
     from: string,
     toExclusive: string,
   ): Promise<StayRestriction[]>;
+  /**
+   * G6 (ТЗ «Гости v2» §33): существующий гость для новой брони — только организации объекта
+   * (та же колонка, по которой режет RLS). null — такого гостя нет или он чужой.
+   */
+  guestForBooking(guestId: string): Promise<string | null>;
   createGuest(guest: NewGuest): Promise<string>;
   createReservation(input: NewReservation): Promise<{ id: string; itemIds: string[] }>;
   addStayGuest(itemId: string, guestId: string, isPrimary: boolean): Promise<void>;
@@ -408,6 +415,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         active: true,
         capacityAdults: true,
         capacityChildren: true,
+        kind: true,
       },
     });
   }
@@ -614,6 +622,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
       },
     });
     return n > 0;
+  }
+  async guestForBooking(guestId: string): Promise<string | null> {
+    const { organizationId } = await this.property();
+    const g = await this.db.guest.findFirst({
+      where: { id: guestId, organizationId },
+      select: { id: true },
+    });
+    return g?.id ?? null;
   }
   async createGuest(guest: NewGuest): Promise<string> {
     // Гость с рождения знает организацию объекта (Phase 1 ADR-100 §17.2 + RLS-1 v1.13 §17.1):

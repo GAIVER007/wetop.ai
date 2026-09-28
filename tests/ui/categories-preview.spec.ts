@@ -34,7 +34,12 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
   });
   await request.post(`${fixture}/inventory/categories`, {
     ...asClient,
-    data: { name: 'Одноместная комната без окон', kind: 'PRIVATE_ROOM', capacityAdults: 1 },
+    data: {
+      name: 'Одноместная комната без окон',
+      kind: 'PRIVATE_ROOM',
+      capacityAdults: 1,
+      ratePlanLater: true,
+    },
   });
 
   await page.goto('/rooms/categories');
@@ -91,7 +96,7 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
   await page.getByRole('menuitem', { name: 'Открыть', exact: true }).click();
   const bare = page.getByRole('dialog', { name: 'Одноместная комната без окон' });
   await expect(bare).toContainText('Номерной фонд ещё не добавлен');
-  await expect(bare).toContainText('Тариф не назначен');
+  await expect(bare).toContainText('Тариф не настроен');
   // «Добавить номер» из панели открывает прежнюю форму с этой категорией
   await bare.getByRole('button', { name: 'Добавить номер' }).click();
   const add = page.getByRole('dialog', { name: 'Добавить размещение' });

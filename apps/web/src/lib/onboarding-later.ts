@@ -16,9 +16,12 @@ export function needsOnboardingRedirect(input: {
   path: string;
   needsOnboarding: boolean;
   postponed: boolean;
+  /** У организации нет объекта (после сброса, ADR-118): рабочие экраны пусты, «позже» не помогает */
+  propertyMissing?: boolean;
 }): boolean {
   const { path } = input;
   if (SKIP.some((p) => path === p || path.startsWith(`${p}/`))) return false;
   if (path.includes('/print')) return false;
+  if (input.propertyMissing) return true;
   return input.needsOnboarding && !input.postponed;
 }

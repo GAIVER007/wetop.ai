@@ -1,0 +1,36 @@
+# Интеграционные (integration) · 29.09.2026 00:56 Алматы · vm
+# коммит e1adee8 (claude/eager-noether-1uncrq-onboarding), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-56-30Z-integration-3f20.json' 'tests/integration/onboarding-without-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/onboarding-without-property.test.ts (1 test | 1 failed) 354ms
+   ❯ онбординг организации без объекта (после сброса) (1)
+     × status просит онбординг, provision создаёт объект в цепочке и номера под ним 353ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/onboarding-without-property.test.ts > онбординг организации без объекта (после сброса) > status просит онбординг, provision создаёт объект в цепочке и номера под ним
+NotFoundException: У вашей организации ещё нет объекта. Создайте его в настройках.
+ ❯ OnboardingService.currentProperty apps/api/src/hotel/onboarding.ts:78:26
+     76|       select: { id: true, name: true, currency: true, timezone: true },
+     77|     });
+     78|     if (!property) throw new NotFoundException(PROPERTY_NOT_SET_UP_MES…
+       |                          ^
+     79|     return property;
+     80|   }
+ ❯ OnboardingService.status apps/api/src/hotel/onboarding.ts:84:22
+ ❯ apps/api/src/auth/request-context.ts:41:41
+ ❯ tests/integration/onboarding-without-property.test.ts:29:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  19:56:30
+   Duration  2.02s (transform 46%, tests 29%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-56-30Z-integration-3f20.json
+
+# код выхода 1 · 3 с

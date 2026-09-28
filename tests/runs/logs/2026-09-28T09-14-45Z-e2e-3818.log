@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 28.09.2026 14:14 Алматы · vm
+# коммит 6818af0 (claude/eager-noether-1uncrq-a2), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/today-operations.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/today-operations.spec.ts:47:1 › заезды и выезды дня: строка на проживание, действие ведёт в существующий поток (1.6s)
+  ✓  2 tests/ui/today-operations.spec.ts:95:1 › номерной фонд и уборка: числа шахматки дня, неисправности — блокировки ремонта (1.5s)
+  ✓  3 tests/ui/today-operations.spec.ts:125:1 › уборка — только на сегодня: на другой день число «не готово» не выдумывается (1.1s)
+  ✓  4 tests/ui/today-operations.spec.ts:134:1 › деньги сегодня: числа отчёта за день, «к оплате» — то же, что плитка; сравнение — владельцу (3.5s)
+  ✓  5 tests/ui/today-operations.spec.ts:169:1 › системы: Channex, продавец и сторож одной строкой каждый; сайта как данных нет (1.4s)
+  ✓  6 tests/ui/today-operations.spec.ts:180:1 › сбой отчёта денег и сторожа: блок говорит о сбое, остальная Главная на месте (2.1s)
+  ✓  7 tests/ui/today-operations.spec.ts:199:1 › снимки Главной после A2 (7.7s)
+
+  7 passed (23.9s)
+
+# код выхода 0 · 25 с

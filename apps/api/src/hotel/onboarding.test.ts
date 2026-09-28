@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
-  NotFoundException,
 } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 import { withSignedInUser } from '../auth/request-context';
@@ -18,8 +17,11 @@ const PROPERTY = {
 };
 
 function makeDb(opts: { property?: typeof PROPERTY | null; typeCount?: number } = {}) {
-  const property = opts.property === undefined ? PROPERTY : opts.property;
+  let property: Record<string, unknown> | null = opts.property === undefined ? PROPERTY : opts.property;
   const rec = {
+    businesses: [] as { id: string; organizationId: string; name: string; vertical: string }[],
+    locations: [] as { id: string; businessId: string; name: string; timezone: string; currency: string }[],
+    properties: [] as Record<string, unknown>[],
     buildings: [] as unknown[],
     floors: [] as unknown[],
     types: [] as { id: string; propertyId: string; code: string; name: string }[],
@@ -33,9 +35,44 @@ function makeDb(opts: { property?: typeof PROPERTY | null; typeCount?: number } 
   let seq = 0;
   const id = (p: string) => `${p}-${(seq += 1)}`;
   const db = {
+    organization: {
+      async findUnique() {
+        return { name: 'Гостиница Пример' };
+      },
+      async findUniqueOrThrow() {
+        return { name: 'Гостиница Пример' };
+      },
+    },
+    business: {
+      async findFirst() {
+        return null;
+      },
+      async create({ data }: { data: { organizationId: string; name: string; vertical: string } }) {
+        const row = { id: id('biz'), ...data };
+        rec.businesses.push(row);
+        return { id: row.id };
+      },
+    },
+    location: {
+      async create({
+        data,
+      }: {
+        data: { businessId: string; name: string; timezone: string; currency: string };
+      }) {
+        const row = { id: id('loc'), ...data };
+        rec.locations.push(row);
+        return { id: row.id };
+      },
+    },
     property: {
       async findFirst() {
         return property ? { ...property } : null;
+      },
+      async create({ data }: { data: Record<string, unknown> }) {
+        const row = { id: id('prop'), ...data };
+        rec.properties.push(row);
+        property = row;
+        return row;
       },
     },
     accommodationType: {
@@ -214,8 +251,38 @@ describe('OnboardingService', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
-  it('у организации нет объекта — 404 (при регистрации объект создаётся, это редкость)', async () => {
-    const { service } = makeDb({ property: null });
-    await expect(asUser(() => service.status())).rejects.toBeInstanceOf(NotFoundException);
+  /*
+   * После сброса платформы (ADR-118) у организации остаются владелец и членство, а объекта нет: онбординг должен
+   * начинаться с пустого места, а не отвечать «объекта нет» (plans/onboarding-without-property-2026-09-28.md).
+   */
+  it('status: у организации нет объекта (после сброса) — онбординг нужен, имя — организации, объект не создаётся', async () => {
+    const { service, rec } = makeDb({ property: null });
+    const s = await asUser(() => service.status());
+    expect(s).toEqual({ needed: true, name: 'Гостиница Пример', currency: 'KZT' });
+    expect(rec.properties).toHaveLength(0);
+  });
+
+  it('provision: у организации нет объекта — создаёт его в цепочке и заводит номера под ним', async () => {
+    const { service, rec } = makeDb({ property: null });
+    const res = await asUser(() => service.provision(SETUP, NOW));
+    expect(res).toMatchObject({ ok: true, categories: 2, units: 11 });
+    expect(rec.businesses).toEqual([
+      expect.objectContaining({ organizationId: 'org-1', vertical: 'HOSPITALITY' }),
+    ]);
+    expect(rec.locations).toHaveLength(1);
+    expect(rec.properties).toEqual([
+      expect.objectContaining({
+        organizationId: 'org-1',
+        locationId: rec.locations[0]!.id,
+        name: 'Гостиница Пример',
+        timezone: 'Asia/Almaty',
+        currency: 'KZT',
+        checkInTime: '14:00',
+        checkOutTime: '12:00',
+      }),
+    ]);
+    const propertyId = rec.properties[0]!['id'];
+    expect(rec.types.every((t) => t.propertyId === propertyId)).toBe(true);
+    expect(rec.audits).toEqual([expect.objectContaining({ action: 'hotel.onboarding', entityId: propertyId })]);
   });
 });

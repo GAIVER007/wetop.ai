@@ -1,0 +1,67 @@
+# Сквозные (e2e) · 28.09.2026 15:20 Алматы · vm
+# коммит bcc3007 (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 13 tests using 1 worker
+
+  ✓   1 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, аналитика, продавец и неисправности (2.8s)
+  ✘   2 tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (19.6s)
+  ✓   3 tests/ui/roles.spec.ts:100:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.3s)
+  ✓   4 tests/ui/roles.spec.ts:117:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.1s)
+  ✓   5 tests/ui/roles.spec.ts:145:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (6.7s)
+  ✓   6 tests/ui/roles.spec.ts:207:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.1s)
+  ✓   7 tests/ui/roles.spec.ts:258:1 › владелец: зовёт управляющего и администратора, меняет роль (2.7s)
+  ✓   8 tests/ui/roles.spec.ts:285:1 › администратор: в «Первых шагах» нет приглашения сотрудников — зовут владелец и управляющий (3.0s)
+  ✓   9 tests/ui/roles.spec.ts:303:1 › администратор: сотрудниками ведают владелец и управляющий (1.9s)
+  ✓  10 tests/ui/roles.spec.ts:315:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.1s)
+  ✓  11 tests/ui/roles.spec.ts:315:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.0s)
+  ✓  12 tests/ui/roles.spec.ts:315:5 › доступность: сотрудники и отказ по роли, light, 390px (4.7s)
+  ✓  13 tests/ui/roles.spec.ts:315:5 › доступность: сотрудники и отказ по роли, dark, 390px (4.7s)
+
+
+  1) tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Синхронизация"
+    Received: "Каналы продаж"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Каналы продаж</h1>
+           - unexpected value "Каналы продаж"
+
+
+      87 |     await expect(refusal).toContainText('Ваша роль — администратор');
+      88 |     // заголовок — раздела, а не самой страницы: её содержимого на экране нет
+    > 89 |     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
+         |                                                           ^
+      90 |     if (route === '/rates') await shot(page, 'no-access-administrator');
+      91 |   }
+      92 |
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:89:59
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+  12 passed (1.3m)
+
+# код выхода 1 · 1 мин 19 с

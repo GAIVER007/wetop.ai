@@ -1554,8 +1554,16 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(kpis.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(kpis.getByTestId('paid')).toHaveText('8 000 ₸');
   await expect(kpis).toContainText('возвратов за период не было');
-  await expect(kpis.getByTestId('balance')).toHaveText('16 000 ₸');
-  await expect(kpis).toContainText('начислено − оплачено + возвращено');
+  // Q-206: «К сбору» — полный остаток броней периода, то же число, что итог списка долгов, а не разность итогов
+  const debts = (await (
+    await request.get(`${fixture}/finance/debts?from=2026-09-01&to=2026-09-30`, {
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json()) as { balanceMinor: string };
+  await expect(kpis.getByTestId('balance')).toContainText('₸');
+  const due = Number((await kpis.getByTestId('balance').innerText()).replace(/[^\d]/g, ''));
+  expect(due * 100).toBe(Number(debts.balanceMinor));
+  await expect(kpis).toContainText('остаток по броням периода');
   await expect(main.getByTestId('finance-charges')).toContainText('По видам начислений');
   // готовые отрезки: ссылка ведёт на период в адресе, активный отмечен
   await main.getByRole('link', { name: 'Сегодня', exact: true }).click();

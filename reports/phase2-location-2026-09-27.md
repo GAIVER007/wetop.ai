@@ -1,5 +1,10 @@
 # Phase 2 — Location foundation (ADR-100 §17.1), 27.09.2026
 
+> **УСТАРЕЛО — НЕ ПРИМЕНЯТЬ (пометка интеграционного слияния 28.09.2026).** Линия Phase 2 ADR-100 отменена владельцем
+> (Q-199, вариант Б): миграции `20260927000029_phase2_location` в репозитории нет, `Location.organization_id` и
+> `Location.vertical` не возвращаются. Действующая реализация — Platform P1, миграция
+> `20260927000030_platform_p1_business_location` (`reports/platform-p1-business-location-2026-09-27.md`).
+
 Поручение владельца 27.09.2026: «Начинай Phase 2 — Location foundation. Строго по замороженной ADR-100».
 Содержание фазы — v1 §D.3/§L Фаза 2 и v2 §12 (`reports/hospitality-beauty-target-architecture{,-v2}-2026-09-27.md`);
 спецификация таблиц утверждённым порядком §17 — `DATA_MODEL.md` §17.6 (v2.2).

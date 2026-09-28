@@ -115,3 +115,6 @@
 | 29.09.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts tests/ui/trial-read-only.spec.ts t | ✅ 84 из 84 | 5 мин 28 с | bf5d8f0 | [лог](logs/2026-09-28T19-55-16Z-e2e-1dcc.log) |  |
 | 29.09.2026 00:46 | typecheck | ✅ без ошибок | 28 с | a553ee0 | [лог](logs/2026-09-28T19-46-18Z-typecheck-650c.log) | main 698ae492 + #123 |
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
+| 29.09.2026 01:01 | typecheck | ✅ без ошибок | 28 с | 26976cb | [лог](logs/2026-09-28T20-01-17Z-typecheck-4518.log) |  |
+| 29.09.2026 01:01 | unit | ✅ 2179 из 2182, пропущено 3 | 1 мин 16 с | 26976cb | [лог](logs/2026-09-28T20-01-46Z-unit-a9a4.log) |  |
+| 29.09.2026 01:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts) | ✅ 12 из 12 | 1 мин 3 с | 26976cb | [лог](logs/2026-09-28T20-03-03Z-e2e-c58d.log) |  |

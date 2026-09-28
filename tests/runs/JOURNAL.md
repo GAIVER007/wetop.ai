@@ -29,6 +29,35 @@
 | 29.09.2026 00:04 | unit | ✅ 2151 из 2154, пропущено 3 | 1 мин 16 с | bc75898 +11 | [лог](logs/2026-09-28T19-04-00Z-unit-cc6b.log) |  |
 | 29.09.2026 00:05 | integration | ✅ 112 из 112 | 34 с | bc75898 +6 | [лог](logs/2026-09-28T19-05-16Z-integration-a55d.log) |  |
 | 29.09.2026 00:06 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | bc75898 +12 | [лог](logs/2026-09-28T19-06-10Z-e2e-7fb2.log) | счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс |
+| 28.09.2026 22:48 | typecheck | ✅ без ошибок | 30 с | e0ac75f | [лог](logs/2026-09-28T17-48-22Z-typecheck-6ec2.log) | release e0ac75fb verification |
+| 28.09.2026 22:48 | lint | ✅ без ошибок | 17 с | e0ac75f | [лог](logs/2026-09-28T17-48-52Z-lint-d614.log) | release e0ac75fb verification |
+| 28.09.2026 22:49 | unit | ❌ упало 2 из 2143, пропущено 3 | 1 мин 36 с | e0ac75f | [лог](logs/2026-09-28T17-49-10Z-unit-d242.log) | release e0ac75fb verification |
+| 28.09.2026 22:51 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 17 с | e0ac75f | [лог](logs/2026-09-28T17-51-03Z-unit-4564.log) | release e0ac75fb verification (named branch) |
+| 28.09.2026 22:52 | integration | ✅ 110 из 110 | 33 с | e0ac75f | [лог](logs/2026-09-28T17-52-34Z-integration-cbc4.log) | release e0ac75fb verification |
+| 28.09.2026 22:53 | e2e | ❌ упало 2 из 25 | 4 мин 44 с | e0ac75f | [лог](logs/2026-09-28T17-53-13Z-e2e-1c89.log) | release e0ac75fb verification |
+| 28.09.2026 22:59 | e2e | ❌ упало 2 из 25 | 1 мин 11 с | e0ac75f | [лог](logs/2026-09-28T17-59-19Z-e2e-7b79.log) | seed laundry code = name; release e0ac75fb |
+| 28.09.2026 23:01 | e2e | ✅ 25 из 25 | 1 мин 1 с | e0ac75f | [лог](logs/2026-09-28T18-01-05Z-e2e-2018.log) | seed laundry: code = name, 500 ₸; release e0ac75fb |
+| 28.09.2026 23:02 | typecheck | ✅ без ошибок | 20 с | e0ac75f +1 | [лог](logs/2026-09-28T18-02-19Z-typecheck-41cd.log) | seed laundry fix |
+| 28.09.2026 23:02 | lint | ✅ без ошибок | 16 с | e0ac75f +1 | [лог](logs/2026-09-28T18-02-40Z-lint-db8d.log) | seed laundry fix |
+| 28.09.2026 23:02 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 16 с | e0ac75f +1 | [лог](logs/2026-09-28T18-02-57Z-unit-758e.log) | seed laundry fix |
+| 28.09.2026 23:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 2 с | b27de05 | [лог](logs/2026-09-28T18-05-38Z-e2e-3206.log) | full UI on release e0ac75fb + seed fix |
+| 28.09.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 516 | 41 мин 48 с | 1d58d9a | [лог](logs/2026-09-28T18-08-55Z-e2e-4673.log) | full UI on release e0ac75fb + seed fix (retry after cold-start timeout) |
+| 28.09.2026 23:50 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts --workers=1 --repeat-each=3 --grep отмена, незаезд) | ✅ 3 из 3 | 34 с | 6d878c9 | [лог](logs/2026-09-28T18-50-57Z-e2e-b8da.log) | repro no-show tab race before fix |
+| 28.09.2026 23:51 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts --workers=1 --grep отмена, незаезд) | ✅ 1 из 1 | 29 с | 6d878c9 +1 | [лог](logs/2026-09-28T18-51-47Z-e2e-b525.log) | repro: 2 s server action delay, before fix |
+| 28.09.2026 23:53 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/manager-actions.spec.ts --workers=1 --repeat-each=5) | ✅ 45 из 45 | 2 мин 54 с | 6d878c9 +1 | [лог](logs/2026-09-28T18-53-49Z-e2e-f24c.log) | no-show step waits for the action before switching tab |
+| 28.09.2026 23:56 | typecheck | ✅ без ошибок | 31 с | 6d878c9 +1 | [лог](logs/2026-09-28T18-56-50Z-typecheck-7ed7.log) | manager-actions wait |
+| 28.09.2026 23:57 | lint | ✅ без ошибок | 16 с | 6d878c9 +1 | [лог](logs/2026-09-28T18-57-21Z-lint-3a92.log) | manager-actions wait |
+| 29.09.2026 00:10 | e2e | ✅ 25 из 25 | 1 мин 2 с | 8d276c7 | [лог](logs/2026-09-28T19-10-22Z-e2e-a6b5.log) | PR #135 head |
+| 29.09.2026 00:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts --workers=1) | ❌ упало 2 из 4 | 35 с | a3e30d0 +1 | [лог](logs/2026-09-28T19-21-18Z-e2e-4865.log) | record-tabs: red before fix |
+| 29.09.2026 00:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts --workers=1) | ❌ упало 2 из 4 | 33 с | a3e30d0 +1 | [лог](logs/2026-09-28T19-22-03Z-e2e-567f.log) | record-tabs: before fix, heading scoped to main |
+| 29.09.2026 00:23 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts --workers=1) | ❌ упало 1 из 4 | 33 с | a3e30d0 +1 | [лог](logs/2026-09-28T19-23-30Z-e2e-81a3.log) | record-tabs: before fix (drawer-scoped) |
+| 29.09.2026 00:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts --workers=1 --repeat-each=3) | ✅ 12 из 12 | 36 с | a3e30d0 +2 | [лог](logs/2026-09-28T19-24-29Z-e2e-10b3.log) | record-tabs: after fix (sync on mount, hashchange, tab set) |
+| 29.09.2026 00:25 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts tests/ui/manager-actions.spec.ts tests/ui/workspace.spec.ts tests/ui/guest-wi | ❌ упало 15 из 136 | 14 мин 28 с | a3e30d0 +2 | [лог](logs/2026-09-28T19-25-43Z-e2e-2050.log) | RecordTabs fix: tabs, card, guest, profile, design-system specs |
+| 29.09.2026 00:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-card.spec.ts tests/ui/record-tabs.spec.ts --workers=1) | ✅ 11 из 11 | 43 с | a3e30d0 +2 | [лог](logs/2026-09-28T19-40-45Z-e2e-5205.log) | drawer check with fix |
+| 29.09.2026 00:42 | typecheck | ✅ без ошибок | 31 с | a3e30d0 +2 | [лог](logs/2026-09-28T19-42-03Z-typecheck-3b0e.log) | RecordTabs fix |
+| 29.09.2026 00:42 | lint | ✅ без ошибок | 17 с | a3e30d0 +2 | [лог](logs/2026-09-28T19-42-34Z-lint-2c62.log) | RecordTabs fix |
+| 29.09.2026 00:42 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 16 с | a3e30d0 +1 | [лог](logs/2026-09-28T19-42-51Z-unit-67cd.log) | RecordTabs fix |
+| 29.09.2026 00:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts tests/ui/manager-actions.spec.ts tests/ui/workspace.spec.ts tests/ui/guest-wi | ❌ упало 1 из 136 | 11 мин 16 с | a3e30d0 +2 | [лог](logs/2026-09-28T19-44-16Z-e2e-ad61.log) | RecordTabs fix: affected specs, second run |
 | 28.09.2026 22:47 | unit (частично: packages/domain/src/availability apps/api/src/reservations/stay-offers.test.ts apps/api/src/auth/route-access.test.ts tests/unit/design-slop.tes | ✅ 31 из 31 | 8 с | 1caae4a +50 | [лог](logs/2026-09-28T17-47-47Z-unit-42d8.log) | AV2 после слияния main (сброс платформы) |
 | 28.09.2026 22:52 | unit (частично: apps/web/src/lib/booking-link.test.ts) | ❌ код выхода 1 | 1 с | c4d62c8 +1 | [лог](logs/2026-09-28T17-52-16Z-unit-3519.log) | AV3 red: разбора ссылки в форму брони ещё нет |
 | 28.09.2026 22:52 | unit (частично: apps/web/src/lib/booking-link.test.ts) | ✅ 5 из 5 | 1 с | c4d62c8 +2 | [лог](logs/2026-09-28T17-52-44Z-unit-2e61.log) | AV3 green: разбор и сборка ссылки в форму брони |
@@ -118,3 +147,8 @@
 | 29.09.2026 01:01 | typecheck | ✅ без ошибок | 28 с | 26976cb | [лог](logs/2026-09-28T20-01-17Z-typecheck-4518.log) |  |
 | 29.09.2026 01:01 | unit | ✅ 2179 из 2182, пропущено 3 | 1 мин 16 с | 26976cb | [лог](logs/2026-09-28T20-01-46Z-unit-a9a4.log) |  |
 | 29.09.2026 01:03 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/pii-storage.spec.ts) | ✅ 12 из 12 | 1 мин 3 с | 26976cb | [лог](logs/2026-09-28T20-03-03Z-e2e-c58d.log) |  |
+| 29.09.2026 00:56 | typecheck | ✅ без ошибок | 30 с | 6d7d532 | [лог](logs/2026-09-28T19-56-42Z-typecheck-8c40.log) | PR #135 merged with main e1adee87 |
+| 29.09.2026 00:57 | lint | ✅ без ошибок | 17 с | 6d7d532 | [лог](logs/2026-09-28T19-57-12Z-lint-ec08.log) | PR #135 merged with main e1adee87 |
+| 29.09.2026 00:57 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 17 с | 6d7d532 | [лог](logs/2026-09-28T19-57-30Z-unit-68ff.log) | PR #135 merged with main e1adee87 |
+| 29.09.2026 00:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/record-tabs.spec.ts tests/ui/manager-actions.spec.ts tests/ui/chessboard-card.spec.ts --workers=1 | ✅ 20 из 20 | 1 мин 19 с | 6d7d532 | [лог](logs/2026-09-28T19-58-56Z-e2e-3ea1.log) | PR #135 merged with main: card specs |
+| 29.09.2026 01:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts --grep доступность переносит даты --workers=1) | ✅ 1 из 1 | 13 с | 6d7d532 | [лог](logs/2026-09-28T20-00-16Z-e2e-fd0d.log) | PR #135 merged with main: workspace:159 |

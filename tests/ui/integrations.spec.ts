@@ -109,14 +109,20 @@ test('только чтение: список и состояние видны, 
   );
 });
 
+// Три роли ADR-107: управляющему «Интеграции» открыты, но технические детали — только владельцу и главному
+// администратору; администратору раздел закрыт целиком («Нет доступа»)
 test('сотрудник смены технических деталей не видит', async ({ page }) => {
-  await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
+  await control(page, { channex: 'ok' satisfies Mode, role: 'MANAGER' });
   await signIn(page);
   await page.goto('/connections');
   const card = page.getByRole('main').getByTestId('integration-channex');
   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
   await expect(card.getByTestId('integration-tech')).toHaveCount(0);
   await expect(card).not.toContainText('ui-property');
+  await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
+  await page.goto('/connections');
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Нет доступа' })).toBeVisible();
+  await expect(page.getByRole('main').getByTestId('integration-channex')).toHaveCount(0);
 });
 
 test('телефон: карточка без прокрутки вбок', async ({ page }) => {

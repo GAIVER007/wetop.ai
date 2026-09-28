@@ -36,3 +36,4 @@
 | 28.09.2026 22:51 | integration | ✅ 110 из 110 | 29 с | 3ae45d4 | [лог](logs/2026-09-28T17-51-13Z-integration-b5ed.log) | AN2 on main after platform reset, fresh local stand |
 | 28.09.2026 22:52 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | 3ae45d4 | [лог](logs/2026-09-28T17-52-23Z-e2e-22f5.log) | AN2 on main after platform reset: live e2e |
 | 28.09.2026 22:57 | e2e | ❌ упало 2 из 26 | 4 мин 39 с | 3ae45d4 | [лог](logs/2026-09-28T17-57-21Z-e2e-466e.log) | AN2 on main after platform reset: E2E_AUTH=1, API as wetop_app |
+| 28.09.2026 23:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 524 из 524 | 38 мин 18 с | 3ae45d4 | [лог](logs/2026-09-28T18-02-08Z-e2e-dca6.log) | AN2 on main after platform reset: full UI suite, single worker |

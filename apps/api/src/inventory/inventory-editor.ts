@@ -12,12 +12,19 @@ import {
   Post,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import type { DbTx } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 import { INVENTORY_REPOSITORY, type InventoryRepository } from './inventory.repository';
-import { categoryInput, inventoryText, roomInput } from './inventory-input';
+import {
+  categoryInput,
+  inventoryText,
+  ratePlanChoice,
+  roomInput,
+  type RatePlanChoice,
+} from './inventory-input';
 import { Access } from '../auth/access.decorator';
 
 @Injectable()
@@ -54,45 +61,88 @@ export class InventoryEditor {
       ratePlanNames: ratePlanLinks.map((link) => link.ratePlan.name),
     }));
   }
+  /** Существующий тариф объекта или новый с названием человека; «позже» — без тарифа (ADR-118) */
+  private async resolvePlan(tx: DbTx, propertyId: string, choice: RatePlanChoice) {
+    if (choice.kind === 'later') return null;
+    if (choice.kind === 'existing') {
+      const found = await tx.ratePlan.findFirst({
+        where: { propertyId, code: choice.code, active: true },
+      });
+      if (!found) throw new NotFoundException('Тариф не найден');
+      return found;
+    }
+    const property = await tx.property.findUniqueOrThrow({
+      where: { id: propertyId },
+      select: { currency: true },
+    });
+    return tx.ratePlan.create({
+      data: {
+        propertyId,
+        code: `rate-${randomUUID()}`,
+        name: choice.name,
+        currency: property.currency,
+      },
+    });
+  }
   async createCategory(body: Record<string, unknown>) {
     const data = categoryInput(body),
+      choice = ratePlanChoice(body, true),
       propertyId = await this.property();
-    const rateCode = body.ratePlanCode ? inventoryText(body.ratePlanCode, 'Тариф') : null;
-    const newRateName = rateCode
-      ? null
-      : inventoryText(body.newRatePlanName, 'Название нового тарифа');
     const result = await this.prisma.db.$transaction(async (tx) => {
-      const property = await tx.property.findUniqueOrThrow({
-        where: { id: propertyId },
-        select: { currency: true },
-      });
-      const rate = rateCode
-        ? await tx.ratePlan.findFirst({ where: { propertyId, code: rateCode, active: true } })
-        : await tx.ratePlan.create({
-            data: {
-              propertyId,
-              code: `rate-${randomUUID()}`,
-              name: newRateName!,
-              currency: property.currency,
-            },
-          });
-      if (!rate) throw new NotFoundException('Тариф не найден');
+      const rate = await this.resolvePlan(tx, propertyId, choice);
       const category = await tx.accommodationType.create({
         data: { ...data, propertyId, code: `category-${randomUUID()}` },
       });
-      await tx.ratePlanAccommodationType.create({
-        data: { ratePlanId: rate.id, accommodationTypeId: category.id },
-      });
+      if (rate)
+        await tx.ratePlanAccommodationType.create({
+          data: { ratePlanId: rate.id, accommodationTypeId: category.id },
+        });
       await tx.auditLog.create({
         data: {
           userId: auditUserId(),
           action: 'inventory.category.created',
           entityType: 'accommodation_type',
           entityId: category.id,
-          after: { ...data, propertyId, ratePlanCode: rate.code, createdRate: !rateCode },
+          after: {
+            ...data,
+            propertyId,
+            ratePlanCode: rate?.code ?? null,
+            createdRate: choice.kind === 'new',
+          },
         },
       });
       return { code: category.code };
+    });
+    this.reader.invalidate?.(propertyId);
+    return result;
+  }
+  /** «Настроить тариф» (ADR-118): привязать тариф к категории; повтор той же пары — без дубля и без записи */
+  async linkRatePlan(code: string, body: Record<string, unknown>) {
+    const choice = ratePlanChoice(body, false),
+      propertyId = await this.property();
+    const result = await this.prisma.db.$transaction(async (tx) => {
+      const category = await tx.accommodationType.findFirst({ where: { propertyId, code } });
+      if (!category) throw new NotFoundException('Категория не найдена');
+      const rate = (await this.resolvePlan(tx, propertyId, choice))!;
+      const exists = await tx.ratePlanAccommodationType.findUnique({
+        where: {
+          ratePlanId_accommodationTypeId: { ratePlanId: rate.id, accommodationTypeId: category.id },
+        },
+      });
+      if (exists) return { code, ratePlanCode: rate.code, linked: false };
+      await tx.ratePlanAccommodationType.create({
+        data: { ratePlanId: rate.id, accommodationTypeId: category.id },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: auditUserId(),
+          action: 'inventory.category.rate_plan_linked',
+          entityType: 'accommodation_type',
+          entityId: category.id,
+          after: { propertyId, ratePlanCode: rate.code, createdRate: choice.kind === 'new' },
+        },
+      });
+      return { code, ratePlanCode: rate.code, linked: true };
     });
     this.reader.invalidate?.(propertyId);
     return result;
@@ -226,6 +276,12 @@ export class InventoryEditorController {
     @Body() body: Record<string, unknown>,
   ) {
     return this.editor.renameCategory(code, body ?? {});
+  }
+  @Post('categories/:code/rate-plan') linkRatePlan(
+    @Param('code') code: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.editor.linkRatePlan(code, body ?? {});
   }
   @Post('rooms') createRoom(@Body() body: Record<string, unknown>) {
     return this.editor.createRoom(body ?? {});

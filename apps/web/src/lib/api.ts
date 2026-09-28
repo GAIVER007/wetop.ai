@@ -1875,9 +1875,16 @@ export interface InventoryCategory {
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
-    sendJson(
+    sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
+      body,
+    ),
+  /** «Настроить тариф» (ADR-118): существующий `ratePlanCode` или новый `newRatePlanName` */
+  linkRatePlan: (code: string, body: Record<string, unknown>) =>
+    sendJson<{ linked: boolean }>(
+      'POST',
+      `/inventory/categories/${encodeURIComponent(code)}/rate-plan`,
       body,
     ),
 };

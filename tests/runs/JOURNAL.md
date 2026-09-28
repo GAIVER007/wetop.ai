@@ -3787,3 +3787,7 @@
 | 29.09.2026 01:22 | integration | ✅ 117 из 117 | 32 с | 15d7ccf | [лог](logs/2026-09-28T20-22-21Z-integration-89fe.log) |  |
 | 29.09.2026 01:23 | e2e | ✅ 25 из 25 | 57 с | 15d7ccf | [лог](logs/2026-09-28T20-23-12Z-e2e-51e9.log) |  |
 | 29.09.2026 01:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/requests.spec.ts tests/ui/ux-retention.spec.ts) | ✅ 39 из 39 | 1 мин 51 с | 15d7ccf | [лог](logs/2026-09-28T20-24-17Z-e2e-322a.log) |  |
+| 29.09.2026 01:27 | typecheck | ✅ без ошибок | 26 с | e169e44 | [лог](logs/2026-09-28T20-27-01Z-typecheck-666c.log) |  |
+| 29.09.2026 01:27 | lint | ✅ без ошибок | 14 с | e169e44 | [лог](logs/2026-09-28T20-27-27Z-lint-2573.log) |  |
+| 29.09.2026 01:27 | unit | ✅ 2219 из 2222, пропущено 3 | 1 мин 12 с | e169e44 | [лог](logs/2026-09-28T20-27-42Z-unit-7252.log) |  |
+| 29.09.2026 01:29 | e2e | ✅ 25 из 25 | 55 с | e169e44 | [лог](logs/2026-09-28T20-29-15Z-e2e-d477.log) |  |

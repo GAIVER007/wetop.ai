@@ -3477,3 +3477,7 @@
 | 28.09.2026 14:09 | typecheck | ✅ без ошибок | 39 с | 1b187fa +12 | [лог](logs/2026-09-28T09-09-28Z-typecheck-a81c.log) | INT2 |
 | 28.09.2026 14:10 | lint | ✅ без ошибок | 25 с | 1b187fa +12 | [лог](logs/2026-09-28T09-10-08Z-lint-c3c9.log) | INT2 |
 | 28.09.2026 13:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/requests.spec.ts tests/ui/real-data.spec.ts tests/ui/w | ❌ упало 5 из 151 | 14 мин 20 с | 1b187fa +12 | [лог](logs/2026-09-28T08-56-41Z-e2e-d03d.log) | INT2: specs touching /connections |
+| 28.09.2026 14:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts tests/ui/real-data.spec.ts | ✅ 53 из 53 | 2 мин 5 с | f198ebb | [лог](logs/2026-09-28T09-14-14Z-e2e-98b8.log) | INT2: final code, integrations + affected specs |
+| 28.09.2026 14:16 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 17 с | f198ebb | [лог](logs/2026-09-28T09-16-25Z-unit-2535.log) | INT2 final |
+| 28.09.2026 14:17 | typecheck | ✅ без ошибок | 24 с | f198ebb | [лог](logs/2026-09-28T09-17-43Z-typecheck-d242.log) | INT2 final |
+| 28.09.2026 14:18 | lint | ✅ без ошибок | 17 с | f198ebb | [лог](logs/2026-09-28T09-18-07Z-lint-44ab.log) | INT2 final |

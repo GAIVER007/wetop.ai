@@ -7267,3 +7267,7 @@
 | 28.09.2026 23:42 | lint | ✅ без ошибок | 17 с | c39c55e +11 | [лог](logs/2026-09-28T18-42-58Z-lint-4e6d.log) |  |
 | 28.09.2026 23:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB3 ·) | ❌ упало 4 из 4 | 1 мин 48 с | c39c55e +7 | [лог](logs/2026-09-28T18-43-24Z-e2e-188a.log) | WEB3 · бронирование: состояние, демо только у работающего, что увидит гость |
 | 28.09.2026 23:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts tests/ui/workspace.spec.ts tests/ui/quality.spec.ts tests/ui/settings | ✅ 107 из 107 | 12 мин 38 с | c39c55e +11 | [лог](logs/2026-09-28T18-45-18Z-e2e-f73c.log) |  |
+| 29.09.2026 00:42 | typecheck | ✅ без ошибок | 23 с | 2c7a6fd | [лог](logs/2026-09-28T19-42-43Z-typecheck-4e9a.log) | integration wave 2, 28.09 |
+| 29.09.2026 00:43 | lint | ✅ без ошибок | 19 с | 2c7a6fd | [лог](logs/2026-09-28T19-43-07Z-lint-f51d.log) | integration wave 2, 28.09 |
+| 29.09.2026 00:43 | unit | ❌ упало 2 из 2246, пропущено 3 | 1 мин 33 с | 2c7a6fd | [лог](logs/2026-09-28T19-43-26Z-unit-4149.log) | integration wave 2, 28.09 |
+| 29.09.2026 00:46 | unit | ✅ 2243 из 2246, пропущено 3 | 1 мин 23 с | 2c7a6fd +2 | [лог](logs/2026-09-28T19-46-59Z-unit-d916.log) | integration wave 2: after design-audit baseline and hotel-time timer fix |

@@ -1,5 +1,7 @@
 {
-  "color-literal": {},
+  "color-literal": {
+    "apps/web/src/app/website/forms.tsx": 1
+  },
   "space-off-scale": {
     "apps/web/src/app/chessboard/board.css": 12,
     "apps/web/src/app/directory.css": 11,

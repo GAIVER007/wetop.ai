@@ -32,7 +32,9 @@ const settings = (timezone: string) =>
 const NOW = new Date('2026-09-30T19:30:00Z');
 
 it('«сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5', async () => {
-  vi.useFakeTimers({ now: NOW, toFake: ['Date'] });
+  // Таймер предела ожидания тоже подделан: под нагрузкой полного unit-прогона настоящая секунда успевала истечь раньше
+  // ответа подставного fetch, и выигрывал пояс платформы (красный на интеграции 28.09, …19-43-26Z-unit-4149.log)
+  vi.useFakeTimers({ now: NOW, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
   // новый ответ на каждый вызов: вне RSC `cache` не запоминает, и тело одного Response читается один раз
   vi.stubGlobal(
     'fetch',

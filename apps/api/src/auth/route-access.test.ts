@@ -75,6 +75,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /reservations/:number/items/:itemId/assign': 'desk',
   'GET /guests': 'desk',
   'GET /guests/:id': 'desk',
+  // «Гости v2» (G1–G3): каталог и предпросмотр гостя — работа смены
+  'GET /guests/directory': 'desk',
+  'GET /guests/:id/preview': 'desk',
   'PATCH /guests/:id': 'desk',
   'POST /guests/:id/documents': 'desk',
   'DELETE /guests/:id/documents/:documentId': 'desk',
@@ -104,6 +107,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/charges/:id/void': 'refunds',
   'POST /finance/payments/:id/refunds': 'refunds',
   'GET /finance/report': 'reports',
+  // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
+  'GET /finance/debts': 'reports',
+  'GET /finance/operations': 'reports',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',

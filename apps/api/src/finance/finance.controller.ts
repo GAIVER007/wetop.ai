@@ -21,12 +21,14 @@ export class FinanceController {
   }
 
   /** Брони с остатком к сбору за период — список к «Финансам за период» (ADR-113) */
+  @Access('reports')
   @Get('debts')
   debts(@Query('from') from?: string, @Query('to') to?: string) {
     return this.service.periodDebts(from, to);
   }
 
   /** Оплаты и возвраты за период с отборами по типу и способу — «Финансы за период», F2 (ADR-113) */
+  @Access('reports')
   @Get('operations')
   operations(
     @Query('from') from?: string,

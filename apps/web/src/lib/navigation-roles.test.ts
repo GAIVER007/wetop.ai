@@ -41,7 +41,7 @@ describe('меню по ролям', () => {
       '/guests',
       '/ai-seller',
       '/finance',
-      '/management/statistics',
+      '/management/analytics',
       '/incidents',
     ]);
     expect(sidebarSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([

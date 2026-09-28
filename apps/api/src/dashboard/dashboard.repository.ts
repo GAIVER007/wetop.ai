@@ -66,7 +66,8 @@ export class PrismaDashboardRepository implements DashboardRepository {
       string,
       { code: string; name: string; units: number; kind: DashboardUnitKind }
     >();
-    const unassigned = new Map<string, string>();
+    // ключ → { категория, сколько таких проживаний }; одинаковые проживания группы различаются только числом
+    const unassigned = new Map<string, { code: string; count: number }>();
     for (let start = from; start <= to; start = plusDays(start, BOARD_CHUNK_DAYS)) {
       const end = [plusDays(start, BOARD_CHUNK_DAYS - 1), to].sort()[0]!;
       const b = await this.chessboard.board(start, end);
@@ -88,15 +89,22 @@ export class PrismaDashboardRepository implements DashboardRepository {
           ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
           byCategory: b.byCategory[date] ?? {},
         });
-      for (const u of b.unassigned)
-        unassigned.set(
-          `${u.confirmationNumber}|${u.categoryCode}|${u.arrivalDate}`,
-          u.categoryCode,
-        );
+      // Проживание, задевающее два куска, приходит в обоих — считается один раз. Групповая бронь на три
+      // койки без места — три одинаковых проживания в каждом куске: берётся их число в куске, а по
+      // кускам — наибольшее, а не сумма (одинаковые проживания задевают одни и те же куски).
+      const chunk = new Map<string, { code: string; count: number }>();
+      for (const u of b.unassigned) {
+        const key = `${u.confirmationNumber}|${u.categoryCode}|${u.arrivalDate}|${u.departureDate}`;
+        const c = chunk.get(key) ?? { code: u.categoryCode, count: 0 };
+        c.count += 1;
+        chunk.set(key, c);
+      }
+      for (const [key, c] of chunk)
+        if ((unassigned.get(key)?.count ?? 0) < c.count) unassigned.set(key, c);
     }
     const unassignedByCategory: Record<string, number> = {};
-    for (const code of unassigned.values())
-      unassignedByCategory[code] = (unassignedByCategory[code] ?? 0) + 1;
+    for (const { code, count } of unassigned.values())
+      unassignedByCategory[code] = (unassignedByCategory[code] ?? 0) + count;
     return { categories: [...categories.values()], days, unassignedByCategory };
   }
 

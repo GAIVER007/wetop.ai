@@ -5,7 +5,13 @@ import { DateInput } from '../../../components/date-field';
 import { Icon } from '../../../components/icon';
 import { displayDate } from '../../../lib/display-date';
 import { pluralRu } from '../../../lib/plural';
-import { ANALYTICS_PRESETS, FUND_LABELS, analyticsHref, type AnalyticsQuery } from './params';
+import {
+  ANALYTICS_PRESETS,
+  FUND_LABELS,
+  analyticsHref,
+  dayPeriod,
+  type AnalyticsQuery,
+} from './params';
 
 const days = (from: string, to: string) =>
   Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
@@ -20,20 +26,44 @@ export function rangeCaption(from: string, to: string): string {
 }
 
 /**
- * Полоса «Обзора» (ТЗ §4, §18): готовые отрезки и тип фонда — ссылки, применяются сразу; свой период —
- * родной `<details>` с двумя датами и «Применить» (без JavaScript); сравнение — переключатель-ссылка.
+ * Полоса вкладок «Обзор» и «Загрузка» (ТЗ §4, §18): готовые отрезки и тип фонда — ссылки, применяются сразу;
+ * свой период — родной `<details>` с двумя датами и «Применить» (без JavaScript); сравнение —
+ * переключатель-ссылка. У одного дня — стрелки на соседние дни (AN2: «Статистика» смотрела день за днём).
  * Большой кнопки «Показать» нет.
  */
 export function AnalyticsToolbar({ query, today }: { query: AnalyticsQuery; today: string }) {
   const { period, fund, compare } = query;
   const prev = previousPeriod(period.from, period.to);
   const custom = period.preset === 'custom';
+  const single = period.from === period.to;
   return (
     <section className="pa-toolbar" aria-label="Период и отбор" data-testid="pa-toolbar">
-      <p className="pa-toolbar__caption" data-testid="pa-period">
-        <strong>{rangeCaption(period.from, period.to)}</strong>
-        {period.to > today && <span>, будущие дни — по броням</span>}
-      </p>
+      <div className="pa-toolbar__head">
+        {single && (
+          <Link
+            href={analyticsHref(query, { period: dayPeriod(period.from, -1, today) })}
+            className="btn btn--secondary btn--sm pa-day-step pa-day-step--prev"
+            aria-label="Предыдущий день"
+            data-testid="pa-day-prev"
+          >
+            <Icon name="chevron" width={16} height={16} />
+          </Link>
+        )}
+        <p className="pa-toolbar__caption" data-testid="pa-period">
+          <strong>{rangeCaption(period.from, period.to)}</strong>
+          {period.to > today && <span>{single ? ', по броням' : ', будущие дни — по броням'}</span>}
+        </p>
+        {single && (
+          <Link
+            href={analyticsHref(query, { period: dayPeriod(period.from, 1, today) })}
+            className="btn btn--secondary btn--sm pa-day-step"
+            aria-label="Следующий день"
+            data-testid="pa-day-next"
+          >
+            <Icon name="chevron" width={16} height={16} />
+          </Link>
+        )}
+      </div>
       <div className="pa-toolbar__row">
         <nav className="seg period-presets" aria-label="Период">
           {ANALYTICS_PRESETS.map((p) => (

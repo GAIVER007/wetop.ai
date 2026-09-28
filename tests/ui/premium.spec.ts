@@ -138,7 +138,6 @@ test('новые страницы и обе темы: адаптивность �
     '/website/analytics',
     '/management/analytics',
     '/management/analytics/occupancy',
-    '/management/dashboard',
     '/hotel-settings/services',
   ];
   for (const width of [320, 390, 768, 1280, 1440, 1920]) {

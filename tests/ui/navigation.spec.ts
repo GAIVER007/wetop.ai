@@ -15,7 +15,6 @@ const routes = [
   '/rates',
   '/channels',
   '/website',
-  '/management/dashboard',
   '/finance',
   '/management/analytics',
   '/hotel-settings',

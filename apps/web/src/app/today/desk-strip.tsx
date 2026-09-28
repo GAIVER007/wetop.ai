@@ -33,7 +33,7 @@ export function DeskStrip({
   const notArrived = outside.length - left;
   const summary = board?.summary[day.date];
   const free = summary ? String(summary.free) : '—';
-  // Загрузка дня: занято / (занято + свободно + заблокировано) — как метр на /management/statistics
+  // Загрузка дня: занято / (занято + свободно + заблокировано) — как «Аналитика → Загрузка» (блок — в фонде)
   const units = summary ? summary.occupied + summary.free + summary.blocked : 0;
   const occupancy = summary && units > 0 ? Math.round((summary.occupied / units) * 100) : null;
   const d = day.date;
@@ -93,8 +93,8 @@ export function DeskStrip({
           {value(
             'c-occupancy',
             occupancy === null ? '—' : `${occupancy}%`,
-            `/management/statistics?date=${d}`,
-            'Загрузка — статистика дня',
+            `/management/analytics/occupancy?date=${d}`,
+            'Загрузка дня по категориям',
           )}
           <span className="desk-stat__hint">
             {summary ? `занято ${summary.occupied} из ${units}` : 'шахматка не загрузилась'}

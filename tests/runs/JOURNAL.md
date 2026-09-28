@@ -3504,3 +3504,4 @@
 | 28.09.2026 15:23 | typecheck | ✅ без ошибок | 32 с | 6fcdd5e | [лог](logs/2026-09-28T10-23-51Z-typecheck-dbb0.log) | INT2 after merging main |
 | 28.09.2026 15:24 | lint | ✅ без ошибок | 17 с | 6fcdd5e | [лог](logs/2026-09-28T10-24-23Z-lint-338c.log) | INT2 after merging main |
 | 28.09.2026 22:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 9 с | 6fcdd5e | [лог](logs/2026-09-28T17-43-39Z-e2e-7569.log) | INT2 merged with main: full UI suite |
+| 28.09.2026 22:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 526 из 526 | 40 мин 3 с | 5b2cc5d | [лог](logs/2026-09-28T17-46-43Z-e2e-df03.log) | INT2 merged with main: full UI suite (rerun after cold webServer start) |

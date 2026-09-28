@@ -153,6 +153,11 @@ export interface DebtCandidate {
   /** только проведённые платежи (`COMPLETED`) — как `folioBalance` на карточке */
   paidMinor: bigint;
   refundedMinor: bigint;
+  /**
+   * Q-207: время выезда уже прошло — гость выехал (`CHECKED_OUT`) или наступили дата выезда и час выезда объекта по
+   * его поясу. Отменённые и незаезды не просрочиваются: срока оплаты у них нет, пока нет политики оплаты.
+   */
+  overdue: boolean;
 }
 
 /**
@@ -522,6 +527,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
         charged: bigint;
         paid: bigint;
         refunded: bigint;
+        overdue: boolean;
       }>
     >`
       WITH period_reservations AS (
@@ -550,11 +556,18 @@ export class PrismaFinanceRepository implements FinanceRepository {
       SELECT r.confirmation_number, r.status::text AS status, r.arrival_date, r.departure_date,
              g.first_name, g.last_name,
              SUM(s.charged)::bigint AS charged, SUM(s.paid)::bigint AS paid,
-             SUM(s.refunded)::bigint AS refunded
+             SUM(s.refunded)::bigint AS refunded,
+             COALESCE(
+               r.status::text NOT IN ('CANCELLED', 'NO_SHOW')
+               AND (r.status::text = 'CHECKED_OUT'
+                    OR ((r.departure_date + NULLIF(pr.check_out_time, '')::time)
+                          AT TIME ZONE pr.timezone) <= now()),
+               false) AS overdue
         FROM folio_sums s
         JOIN reservations r ON r.id = s.reservation_id
+        JOIN properties pr ON pr.id = r.property_id
         LEFT JOIN guests g ON g.id = r.primary_guest_id
-       GROUP BY r.id, g.id`;
+       GROUP BY r.id, g.id, pr.id`;
     const day = (d: Date) => d.toISOString().slice(0, 10);
     return rows.map((r) => ({
       confirmationNumber: r.confirmation_number,
@@ -566,6 +579,7 @@ export class PrismaFinanceRepository implements FinanceRepository {
       chargedMinor: BigInt(r.charged),
       paidMinor: BigInt(r.paid),
       refundedMinor: BigInt(r.refunded),
+      overdue: r.overdue,
     }));
   }
   /**

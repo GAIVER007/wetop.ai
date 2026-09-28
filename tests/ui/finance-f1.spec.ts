@@ -6,7 +6,7 @@ import { expect, test, type Page } from './fixtures';
  * снимает стоп-гейт для владельца: шапка и период одной строкой, четыре итога одной высоты в ряд, «Требует
  * внимания», структура денег с «Итого», список «Брони с остатком к сбору» с отбором и действиями, «только
  * чтение», сбой одного запроса. Брони подставного API — вымышленные (ADR-010): 20260913-TESTAA и TEST1…8,
- * из них TEST4 уже выехала с остатком.
+ * из них TEST4 уже выехала с остатком — её долг просрочен (Q-207). «К сбору» — сумма строк списка (Q-206).
  */
 const fixture = 'http://127.0.0.1:4311';
 const report = 'reports/finance-f1-2026-09-27';
@@ -19,8 +19,9 @@ const url = `/finance?from=${from}&to=${today}`;
 
 interface Debts {
   count: number;
-  checkedOut: { count: number };
-  rows: Array<{ confirmationNumber: string; status: string }>;
+  balanceMinor: string;
+  overdue: { count: number; balanceMinor: string };
+  rows: Array<{ confirmationNumber: string; status: string; overdue: boolean }>;
 }
 
 async function debtsOf(request: import('@playwright/test').APIRequestContext): Promise<Debts> {
@@ -101,34 +102,48 @@ test('F1: заголовок и период в подзаголовке, пер
   await expect(main.locator('#debts')).toBeInViewport();
 });
 
-test('F1: «Требует внимания» — сумма к сбору и выехавшие со ссылками к списку, возвраты справкой', async ({
+test('F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой', async ({
   page,
   request,
 }) => {
   const debts = await debtsOf(request);
   expect(debts.count, 'в фикстуре нужны должники').toBeGreaterThan(1);
-  expect(debts.checkedOut.count, 'в фикстуре нужен выехавший с долгом').toBeGreaterThan(0);
+  expect(debts.overdue.count, 'в фикстуре нужен просроченный долг').toBeGreaterThan(0);
+  expect(debts.overdue.count, 'и долг, который ещё не просрочен').toBeLessThan(debts.count);
   await page.goto(url);
   const main = page.getByRole('main');
   const attention = main.getByTestId('finance-attention');
   await expect(attention.getByRole('heading', { level: 2 })).toHaveText('Требует внимания');
   await expect(attention.getByTestId('attention-due')).toContainText('к сбору');
   await expect(attention.getByTestId('attention-due')).toContainText(`${debts.count} брон`);
-  await expect(attention.getByTestId('attention-left')).toContainText('гость уже выехал');
+  await expect(attention.getByTestId('attention-overdue')).toContainText('с просроченным долгом');
+  await expect(attention.getByTestId('attention-overdue')).toContainText('время выезда прошло');
   // возвратов в фикстуре нет — строки о них тоже нет, «проблем не найдено» не пишется при долгах
   await expect(attention.getByTestId('attention-refunds')).toHaveCount(0);
   await expect(attention).not.toContainText('проблем не найдено');
+  // Q-207: «наличных на проверку» нет, пока нет отметки проверки
+  await expect(attention).not.toContainText('налич');
 
-  await attention.getByTestId('attention-left').getByRole('link').click();
-  await expect(page).toHaveURL(/debts=left#debts$/);
+  await attention.getByTestId('attention-overdue').getByRole('link').click();
+  await expect(page).toHaveURL(/debts=overdue#debts$/);
   const rows = main.getByTestId('debt-row');
-  await expect(rows).toHaveCount(debts.checkedOut.count);
-  for (const row of await rows.all()) await expect(row).toContainText('завершена');
+  await expect(rows).toHaveCount(debts.overdue.count);
+  for (const row of await rows.all()) await expect(row.getByTestId('debt-overdue')).toHaveText('просрочено');
+  // сумма отобранных строк — та, что названа в «Требует внимания»
+  const sum = (await rows.getByTestId('debt-balance').allInnerTexts())
+    .map(money)
+    .reduce((a, b) => a + b, 0);
+  expect(sum * 100).toBe(Number(debts.overdue.balanceMinor));
   await expect(
-    main
-      .getByRole('navigation', { name: 'Отбор долгов' })
-      .getByRole('link', { name: /Гость выехал/ }),
+    main.getByRole('navigation', { name: 'Отбор долгов' }).getByRole('link', { name: /Просрочено/ }),
   ).toHaveAttribute('aria-current', 'page');
+
+  // в полном списке отметка стоит только у просроченных
+  await main.getByRole('navigation', { name: 'Отбор долгов' }).getByRole('link', { name: /Все/ }).click();
+  await expect(main.getByTestId('debt-row')).toHaveCount(Math.min(debts.count, 20));
+  await expect(main.getByTestId('debt-overdue')).toHaveCount(
+    debts.rows.slice(0, 20).filter((x) => x.overdue).length,
+  );
 });
 
 test('F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440', async ({
@@ -183,10 +198,14 @@ test('F1: брони с остатком — колонки, крупные до
   const balances = (await main.getByTestId('debt-balance').allInnerTexts()).map(money);
   expect(balances).toEqual([...balances].sort((a, b) => b - a));
   expect(balances.every((x) => x > 0)).toBe(true);
-  // итог списка назван словами; если он расходится с плиткой «К сбору» — сказано почему
+  // итог списка назван словами; Q-206: плитка «К сбору» — ровно сумма строк списка, пояснения о расхождении нет
   await expect(main.getByTestId('debts-meta')).toContainText(`${debts.count} брон`);
-  if (money(await main.getByTestId('balance').innerText()) !== balances.reduce((a, b) => a + b, 0))
-    await expect(main.getByTestId('debts-differs')).toContainText('только деньги этого периода');
+  expect(money(await main.getByTestId('balance').innerText()) * 100).toBe(Number(debts.balanceMinor));
+  if (debts.count <= 20)
+    expect(money(await main.getByTestId('balance').innerText())).toBe(
+      balances.reduce((a, b) => a + b, 0),
+    );
+  await expect(main.getByTestId('debts-differs')).toHaveCount(0);
 
   const first = debts.rows[0]!.confirmationNumber;
   const row = main.getByTestId('debt-row').first();

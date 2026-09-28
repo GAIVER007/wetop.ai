@@ -120,8 +120,9 @@ export default async function FinanceReportPage({
   const period = `/finance?from=${from}&to=${to}`;
   const preset = (p: { from: string; to: string }) => `/finance?from=${p.from}&to=${p.to}`;
   const isPreset = (p: { from: string; to: string }) => p.from === from && p.to === to;
-  const due = r ? BigInt(r.balanceMinor) : 0n;
-  const onlyLeft = sp.debts === 'left';
+  // Q-206: «К сбору» — сумма того же списка долгов, куда ведёт плитка: число сверху всегда равно сумме строк
+  const due = debts ? BigInt(debts.balanceMinor) : 0n;
+  const onlyOverdue = sp.debts === 'overdue';
   /** Ссылка на операции с отбором: плитки, способы в таблице и «Требует внимания» ведут сюда (drill-down, F2) */
   const opsHref = (o: { op?: 'payment' | 'refund'; method?: string; all?: boolean }) => {
     const q = new URLSearchParams({ from, to });
@@ -252,10 +253,12 @@ export default async function FinanceReportPage({
           >
             <Stat
               label="К сбору"
-              value={formatMoney(r.balanceMinor, cur)}
+              value={debts ? formatMoney(debts.balanceMinor, cur) : '—'}
               testId="balance"
               tone={due > 0n ? 'warn' : undefined}
-              hint="начислено − оплачено + возвращено"
+              hint={
+                debtsError !== null ? 'список долгов не загрузился' : 'остаток по броням периода'
+              }
             />
           </a>
         </section>
@@ -332,18 +335,18 @@ export default async function FinanceReportPage({
               <nav className="directory-filters finance-chips" aria-label="Отбор долгов">
                 <Link
                   href={`${period}#debts`}
-                  className={onlyLeft ? '' : 'is-active'}
-                  aria-current={onlyLeft ? undefined : 'page'}
+                  className={onlyOverdue ? '' : 'is-active'}
+                  aria-current={onlyOverdue ? undefined : 'page'}
                 >
                   Все<span className="finance-chips__count">{debts.count}</span>
                 </Link>
                 <Link
-                  href={`${period}&debts=left#debts`}
-                  className={onlyLeft ? 'is-active' : ''}
-                  aria-current={onlyLeft ? 'page' : undefined}
+                  href={`${period}&debts=overdue#debts`}
+                  className={onlyOverdue ? 'is-active' : ''}
+                  aria-current={onlyOverdue ? 'page' : undefined}
                 >
-                  Гость выехал
-                  <span className="finance-chips__count">{debts.checkedOut.count}</span>
+                  Просрочено
+                  <span className="finance-chips__count">{debts.overdue.count}</span>
                 </Link>
               </nav>
             )}
@@ -354,8 +357,7 @@ export default async function FinanceReportPage({
           {debts && (
             <DebtList
               debts={debts}
-              report={r}
-              onlyLeft={onlyLeft}
+              onlyOverdue={onlyOverdue}
               showAll={sp.more === '1'}
               period={period}
               canPay={!shell.readOnly}
@@ -406,9 +408,12 @@ export default async function FinanceReportPage({
           Аннулированная оплата остаётся в списке со своим статусом, но в «Оплачено» не входит.
         </p>
         <p>
-          «К сбору» в итогах — деньги только этого периода: начислено − оплачено + возвращено за эти
-          даты. Список «Брони с остатком к сбору» — брони с начислениями за период и полный остаток
-          каждой по её счёту, как в карточке брони.
+          «К сбору» — полный текущий остаток по броням, у которых есть начисления за период, как в
+          карточке брони. Это та же сумма, что в списке «Брони с остатком к сбору».
+        </p>
+        <p>
+          «Просрочено» — остаток не оплачен, а время выезда по часам объекта уже прошло или гость
+          уже выехал. У отменённых броней и незаездов срока нет: их остаток — просто к сбору.
         </p>
         <p>
           У броней, перенесённых из Exely, могут отсутствовать оплаты, полученные площадкой.
@@ -421,8 +426,9 @@ export default async function FinanceReportPage({
 
 /**
  * «Требует внимания»: только то, что можно посчитать по данным, и со ссылкой туда, где с этим работают.
- * «Просроченного долга» и «наличных на проверку» здесь нет: у брони нет срока оплаты, у наличных — отметки
- * проверки (Q-207). Возвраты — справкой со ссылкой на их список (F2).
+ * «Просроченный долг» — остаток, у которого время выезда по часам объекта прошло (Q-207). «Наличных на проверку»
+ * нет: у наличных нет отметки проверки, до отдельного решения о кассе строки не будет. Возвраты — справкой
+ * со ссылкой на их список (F2).
  */
 function Attention({
   report,
@@ -450,14 +456,16 @@ function Attention({
         </Link>
       ),
     });
-  if (debts && debts.checkedOut.count > 0)
+  if (debts && debts.overdue.count > 0)
     items.push({
-      key: 'left',
+      key: 'overdue',
       tone: 'danger',
       body: (
-        <Link href={`${period}&debts=left#debts`}>
-          <strong>{pluralRu(debts.checkedOut.count, ['бронь', 'брони', 'броней'])}</strong>: гость
-          уже выехал, остаток {formatMoney(debts.checkedOut.balanceMinor, cur)}
+        <Link href={`${period}&debts=overdue#debts`}>
+          <strong>
+            {pluralRu(debts.overdue.count, ['бронь', 'брони', 'броней'])} с просроченным долгом
+          </strong>{' '}
+          — {formatMoney(debts.overdue.balanceMinor, cur)}, время выезда прошло
         </Link>
       ),
     });
@@ -508,23 +516,21 @@ function Attention({
 
 function DebtList({
   debts,
-  report,
-  onlyLeft,
+  onlyOverdue,
   showAll,
   period,
   canPay,
 }: {
   debts: PeriodDebts;
-  report: PeriodReport | null;
-  onlyLeft: boolean;
+  onlyOverdue: boolean;
   showAll: boolean;
   period: string;
   canPay: boolean;
 }) {
   const cur = debts.currency;
-  const rows = onlyLeft ? debts.rows.filter((x) => x.status === 'CHECKED_OUT') : debts.rows;
+  const rows = onlyOverdue ? debts.rows.filter((x) => x.overdue) : debts.rows;
   const shown = showAll ? rows : rows.slice(0, DEBTS_SHOWN);
-  const total = onlyLeft ? debts.checkedOut : debts;
+  const total = onlyOverdue ? debts.overdue : debts;
   if (debts.count === 0)
     return (
       <p className="finance-debts__empty" data-testid="debts-empty">
@@ -532,25 +538,16 @@ function DebtList({
         Все брони с начислениями за период оплачены.
       </p>
     );
-  // Плитка считает деньги периода, список — полный остаток брони: когда они расходятся, сказать почему
-  const differs = report !== null && !onlyLeft && report.balanceMinor !== debts.balanceMinor;
   return (
     <>
       <p className="finance-debts__meta" data-testid="debts-meta">
         {pluralRu(total.count, ['бронь', 'брони', 'броней'])}
-        {onlyLeft ? ', гость уже выехал' : ''}, остаток{' '}
+        {onlyOverdue ? ' с просроченным долгом' : ''}, остаток{' '}
         <strong>{formatMoney(total.balanceMinor, cur)}</strong>. Остаток — по всему счёту брони, как
         в карточке; «Оплачено» — за вычетом возвратов.
       </p>
-      {differs && (
-        <p className="finance-debts__note" data-testid="debts-differs">
-          «К сбору» в итогах — {formatMoney(report.balanceMinor, cur)}: там только деньги этого
-          периода. Список показывает полный остаток брони, поэтому суммы расходятся, когда бронь
-          оплатили в другом периоде или часть её начислений лежит вне периода.
-        </p>
-      )}
       {rows.length === 0 ? (
-        <p className="finance-debts__empty">Среди должников периода выехавших нет.</p>
+        <p className="finance-debts__empty">Просроченных долгов за период нет.</p>
       ) : (
         <Table size="sm" className="finance-debts__table" data-testid="debts-table">
           <thead>
@@ -590,6 +587,11 @@ function DebtList({
                   </td>
                   <td className="num">
                     <strong data-testid="debt-balance">{formatMoney(x.balanceMinor, cur)}</strong>
+                    {x.overdue && (
+                      <small className="finance-debts__overdue" data-testid="debt-overdue">
+                        просрочено
+                      </small>
+                    )}
                   </td>
                   <td>
                     <StatusBadge
@@ -615,7 +617,7 @@ function DebtList({
       )}
       {shown.length < rows.length && (
         <Link
-          href={`${period}${onlyLeft ? '&debts=left' : ''}&more=1#debts`}
+          href={`${period}${onlyOverdue ? '&debts=overdue' : ''}&more=1#debts`}
           className="finance-debts__more"
           data-testid="debts-more"
         >

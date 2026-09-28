@@ -1,0 +1,93 @@
+# Интеграционные (integration) · 28.09.2026 13:39 Алматы · vm
+# коммит 1b187fa (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-39-23Z-integration-1006.json' 'tests/integration/finance-debts.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/finance-debts.test.ts (2 tests | 2 failed) 400ms
+   ❯ брони с остатком к сбору — запрос по счетам (integration, ADR-113) (2)
+     × брони с действующим начислением в периоде; суммы — по всем счетам брони и за всё время 23ms
+     × Q-207: просроченный долг — время выезда по часам объекта прошло; отменённые и незаезды не просрочиваются 58ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/finance-debts.test.ts > брони с остатком к сбору — запрос по счетам (integration, ADR-113) > брони с действующим начислением в периоде; суммы — по всем счетам брони и за всё время
+AssertionError: expected [ { …(8) }, { …(8) } ] to deeply equal [ { …(9) }, { …(9) } ]
+
+- Expected
++ Received
+
+@@ -3,22 +3,20 @@
+      "arrivalDate": "2031-03-10",
+      "chargedMinor": 105000n,
+      "confirmationNumber": "IT-DEBT-A",
+      "departureDate": "2031-03-12",
+      "guestLabel": "Тестов Долгов",
+-     "overdue": false,
+      "paidMinor": 30000n,
+      "refundedMinor": 10000n,
+      "status": "CONFIRMED",
+    },
+    {
+      "arrivalDate": "2031-03-10",
+      "chargedMinor": 80000n,
+      "confirmationNumber": "IT-DEBT-D",
+      "departureDate": "2031-03-12",
+      "guestLabel": null,
+-     "overdue": false,
+      "paidMinor": 40000n,
+      "refundedMinor": 0n,
+      "status": "CONFIRMED",
+    },
+  ]
+
+ ❯ tests/integration/finance-debts.test.ts:194:18
+    192|       .filter((r) => r.confirmationNumber.startsWith(PREFIX))
+    193|       .sort((a, b) => a.confirmationNumber.localeCompare(b.confirmatio…
+    194|     expect(rows).toEqual([
+       |                  ^
+    195|       {
+    196|         confirmationNumber: `${PREFIX}A`,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/finance-debts.test.ts > брони с остатком к сбору — запрос по счетам (integration, ADR-113) > Q-207: просроченный долг — время выезда по часам объекта прошло; отменённые и незаезды не просрочиваются
+AssertionError: expected { 'Q-CANC': undefined, …(5) } to deeply equal { 'Q-PAST': true, …(5) }
+
+- Expected
++ Received
+
+  {
+-   "Q-AHEAD": false,
+-   "Q-CANC": false,
+-   "Q-LEFT": true,
+-   "Q-NOSH": false,
+-   "Q-PAST": true,
+-   "Q-TODAY": true,
++   "Q-AHEAD": undefined,
++   "Q-CANC": undefined,
++   "Q-LEFT": undefined,
++   "Q-NOSH": undefined,
++   "Q-PAST": undefined,
++   "Q-TODAY": undefined,
+  }
+
+ ❯ tests/integration/finance-debts.test.ts:265:21
+    263|       rows.map((r) => [r.confirmationNumber.slice(PREFIX.length), r.ov…
+    264|     );
+    265|     expect(overdue).toEqual({
+       |                     ^
+    266|       'Q-PAST': true,
+    267|       'Q-AHEAD': false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  08:39:24
+   Duration  2.63s (transform 49%, tests 30%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-39-23Z-integration-1006.json
+
+# код выхода 1 · 4 с

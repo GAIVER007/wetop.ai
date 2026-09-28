@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 28.09.2026 13:39 Алматы · vm
+# коммит 1b187fa (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-39-27Z-integration-c08b.json' 'tests/integration/finance-debts.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/finance-debts.test.ts (2 tests) 387ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  08:39:28
+   Duration  2.23s (transform 47%, tests 31%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-39-27Z-integration-c08b.json
+
+# код выхода 0 · 3 с

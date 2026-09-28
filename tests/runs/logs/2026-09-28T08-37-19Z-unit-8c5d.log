@@ -1,0 +1,67 @@
+# Модульные (unit) · 28.09.2026 13:37 Алматы · vm
+# коммит 1b187fa (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-37-19Z-unit-8c5d.json' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (16 tests | 1 failed) 653ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (13)
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 44ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 26ms
+     × ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400 27ms
+     ✓ ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 35ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 58ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 17ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 9ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 14ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 24ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 13ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Exely; занятая койка — отказ без начисления 12ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 11ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 5ms
+   ✓ роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) (3)
+     ✓ администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт 37ms
+     ✓ управляющий и владелец возвращают, сторнируют и уменьшают счёт 22ms
+     ✓ отчёт за период администратор смотрит 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400
+AssertionError: expected { from: '2026-10-01', …(7) } to match object { from: '2026-10-01', …(6) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "balanceMinor": "1600000",
+    "count": 3,
+    "currency": "KZT",
+    "from": "2026-10-01",
+-   "overdue": {
+-     "balanceMinor": "600000",
+-     "count": 2,
+-   },
+    "to": "2026-10-31",
+    "truncated": false,
+  }
+
+ ❯ apps/api/src/finance/finance.controller.test.ts:443:20
+    441|
+    442|     const r = await debts('?from=2026-10-01&to=2026-10-31').expect(200…
+    443|     expect(r.body).toMatchObject({
+       |                    ^
+    444|       from: '2026-10-01',
+    445|       to: '2026-10-31',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  08:37:21
+   Duration  3.67s (transform 53%, import 29%, tests 19%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-37-19Z-unit-8c5d.json
+
+# код выхода 1 · 6 с

@@ -3470,3 +3470,4 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 13:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 516 | 44 мин 54 с | 6d300b0 | [лог](logs/2026-09-28T08-23-04Z-e2e-52bd.log) | integration 28.09: final HEAD, full UI regression single worker |

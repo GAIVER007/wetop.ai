@@ -1,0 +1,1872 @@
+# Сквозные (e2e) · 28.09.2026 13:58 Алматы · vm
+# коммит 1b187fa (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 516 tests using 1 worker
+
+  ✓    1 tests/ui/accessibility.spec.ts:56:5 › доступность всех разделов: light, 1440px (1.5m)
+  ✓    2 tests/ui/accessibility.spec.ts:56:5 › доступность всех разделов: dark, 1440px (1.4m)
+  ✓    3 tests/ui/accessibility.spec.ts:56:5 › доступность всех разделов: light, 390px (1.2m)
+  ✓    4 tests/ui/accessibility.spec.ts:56:5 › доступность всех разделов: dark, 390px (1.2m)
+  ✓    5 tests/ui/accessibility.spec.ts:120:5 › доступность открытых форм и drawer: light, 1440px (8.4s)
+  ✓    6 tests/ui/accessibility.spec.ts:120:5 › доступность открытых форм и drawer: dark, 1440px (8.1s)
+  ✓    7 tests/ui/accessibility.spec.ts:120:5 › доступность открытых форм и drawer: light, 390px (6.4s)
+  ✓    8 tests/ui/accessibility.spec.ts:120:5 › доступность открытых форм и drawer: dark, 390px (6.1s)
+  ✓    9 tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (3.3s)
+  ✓   10 tests/ui/ai-seller.spec.ts:70:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (2.9s)
+  ✓   11 tests/ui/ai-seller.spec.ts:97:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.4s)
+  ✓   12 tests/ui/ai-seller.spec.ts:122:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (2.4s)
+  ✓   13 tests/ui/ai-seller.spec.ts:137:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (4.6s)
+  ✓   14 tests/ui/ai-seller.spec.ts:165:1 › продавец недоступен — метка, причина и обещание повтора (1.3s)
+  ✓   15 tests/ui/ai-seller.spec.ts:176:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.5s)
+  ✓   16 tests/ui/ai-seller.spec.ts:191:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (7.7s)
+  ✓   17 tests/ui/ai-seller.spec.ts:205:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (2.1s)
+  ✓   18 tests/ui/ai-seller.spec.ts:236:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (2.9s)
+  ✓   19 tests/ui/ai-seller.spec.ts:270:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.2s)
+  ✓   20 tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (5.3s)
+  ✓   21 tests/ui/ai-seller.spec.ts:304:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (3.8s)
+  ✓   22 tests/ui/ai-seller.spec.ts:318:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (2.1s)
+  ✓   23 tests/ui/ai-seller.spec.ts:335:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (3.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <AiSellerPage>
+[WebServer]       <Page>
+[WebServer]         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]           <header>
+[WebServer]           ...
+[WebServer]             <SellerScreen>
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   <ConnectionsView>
+[WebServer]                     <Stack>
+[WebServer]                       <div className="stack">
+[WebServer]                         ...
+[WebServer]                           <form className="stack stac...">
+[WebServer]                             <Field label="API-ключ м...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="key" type="password" maxLength={200} autoComplete="off" placeholder="sk-…" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="key"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={200}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="sk-…"
+[WebServer]                                     data-testid="seller-llm-key-input"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         <section>
+[WebServer]                         ...
+[WebServer]                           <form className="stack stac...">
+[WebServer]                             <Field label="phone_numb...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="phoneNumberId" inputMode="numeric" maxLength={64} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="phoneNumberId"
+[WebServer]                                     inputMode="numeric"
+[WebServer]                                     maxLength={64}
+[WebServer]                                     placeholder="из консоли Meta, только цифры"
+[WebServer]                                     data-testid="seller-whatsapp-phone-id"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Постоянный...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="token" type="password" maxLength={512} autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="token"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={512}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="EAAG…"
+[WebServer]                                     data-testid="seller-whatsapp-token"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Секрет при...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="appSecret" type="password" maxLength={200} autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="appSecret"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={200}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     data-testid="seller-whatsapp-secret"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+  ✓   24 tests/ui/ai-seller.spec.ts:364:1 › снимки экранов раздела (5.4s)
+  ✓   25 tests/ui/analytics-design.spec.ts:19:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (2.1s)
+  ✓   26 tests/ui/analytics-design.spec.ts:49:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (1.6s)
+  ✓   27 tests/ui/analytics-v2.spec.ts:28:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (3.9s)
+  ✓   28 tests/ui/analytics-v2.spec.ts:47:1 › обзор за месяц: шесть плиток со сравнением, график загрузки и выручки, категории (1.8s)
+  ✓   29 tests/ui/analytics-v2.spec.ts:85:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (3.8s)
+  ✓   30 tests/ui/analytics-v2.spec.ts:110:1 › рост отмен — красный, падение — зелёный; сравнение выключается (1.9s)
+  ✓   31 tests/ui/analytics-v2.spec.ts:123:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (2.9s)
+  ✓   32 tests/ui/analytics-v2.spec.ts:144:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (2.8s)
+  ✓   33 tests/ui/analytics-v2.spec.ts:161:1 › телефон: без прокрутки вбок, плитки в две колонки (1.3s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]       <RedirectBoundary>
+[WebServer]         <RedirectErrorBoundary router={{...}}>
+[WebServer]           <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]             <SegmentViewNode type="page" pagePath="management...">
+[WebServer]               <SegmentTrieNode>
+[WebServer]               <OccupancyPage>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <header>
+[WebServer]                     <nav>
+[WebServer]                     <Statistics>
+[WebServer]                       <form method="get" className="row row--l...">
+[WebServer]                         <Field>
+[WebServer]                           <label className="field fiel...">
+[WebServer]                             <DateInput name="date" defaultValue="2026-09-28" required={true}>
+[WebServer]                               <span className="date-field">
+[WebServer]                                 <input
+[WebServer]                                   ref={{current:null}}
+[WebServer]                                   type="date"
+[WebServer]                                   className="inp date-field__input"
+[WebServer]                                   id={undefined}
+[WebServer]                                   name="date"
+[WebServer]                                   defaultValue="2026-09-28"
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]             ...
+[WebServer]           ...
+[WebServer]  
+  ✓   34 tests/ui/analytics-v2.spec.ts:172:1 › снимки для визуального гейта AN1 (25.6s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-28" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-28" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   35 tests/ui/availability-gate.spec.ts:15:3 › витрина AV1: light (4.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-28" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-28" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓   36 tests/ui/availability-gate.spec.ts:15:3 › витрина AV1: dark (5.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="categories/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/rooms/cat..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <RoomsPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                         <header>
+[WebServer]                         <nav>
+[WebServer]                         <CategoryCatalog categories={[...]} units={[...]}>
+[WebServer]                           <div className="fund-toolbar">
+[WebServer]                             <Input type="search" aria-label="Поиск кате..." placeholder="Найти кате..." value="" ...>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 aria-label="Поиск категории"
+[WebServer]                                 placeholder="Найти категорию"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]     ...
+[WebServer]  
+  ✓   37 tests/ui/categories-preview.spec.ts:15:1 › categories C2: quick preview from row, menu and card; cards view; light/dark/mobile (8.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="categories/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/rooms/cat..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <RoomsPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                         <header>
+[WebServer]                         <nav>
+[WebServer]                         <CategoryCatalog categories={[...]} units={[...]}>
+[WebServer]                           <div className="fund-toolbar">
+[WebServer]                             <Input type="search" aria-label="Поиск кате..." placeholder="Найти кате..." value="" ...>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 aria-label="Поиск категории"
+[WebServer]                                 placeholder="Найти категорию"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]       <LoadingBoundary name="categories/" loading={null}>
+[WebServer]         <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]           <RedirectBoundary>
+[WebServer]             <RedirectErrorBoundary router={{...}}>
+[WebServer]               <InnerLayoutRouter url="/rooms/cat..." tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                 <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                   <SegmentTrieNode>
+[WebServer]                   <RoomsPage>
+[WebServer]                     <Page>
+[WebServer]                       <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                         <header>
+[WebServer]                         <nav>
+[WebServer]                         <CategoryCatalog categories={[...]} units={[...]}>
+[WebServer]                           <div className="fund-toolbar">
+[WebServer]                             <Input type="search" aria-label="Поиск кате..." placeholder="Найти кате..." value="" ...>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 aria-label="Поиск категории"
+[WebServer]                                 placeholder="Найти категорию"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                 ...
+[WebServer]               ...
+[WebServer]     ...
+[WebServer]  
+  ✓   38 tests/ui/categories-screens.spec.ts:10:1 › categories C1: five Luxx-shaped rows, filters, row menu, long name — light/dark/mobile (6.3s)
+  ✓   39 tests/ui/channel-booking-number.spec.ts:9:1 › новая бронь OTA: канал и номер брони в канале обязательны и уходят в API (2.8s)
+  ✓   40 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (3.5s)
+  ✓   41 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (2.2s)
+  ✘   42 tests/ui/channex-screens.spec.ts:107:1 › подключения каналов: настройка подключения только владельцу (19.4s)
+  ✓   43 tests/ui/channex-screens.spec.ts:128:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (3.7s)
+  ✓   44 tests/ui/channex-screens.spec.ts:188:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (3.7s)
+  ✓   45 tests/ui/channex-screens.spec.ts:207:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (3.4s)
+  ✓   46 tests/ui/channex-screens.spec.ts:236:1 › события: фильтры, поиск и постраничность на своей вкладке (7.4s)
+  ✓   47 tests/ui/channex-screens.spec.ts:272:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (6.4s)
+  ✓   48 tests/ui/channex-screens.spec.ts:281:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (5.6s)
+  ✓   49 tests/ui/channex-screens.spec.ts:330:1 › приём брони: ревизия с двоеточиями в номере открывается (1.2s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   50 tests/ui/channex-screens.spec.ts:344:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.5s)
+  ✓   51 tests/ui/channex-screens.spec.ts:364:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (8.6s)
+  ✓   52 tests/ui/channex-screens.spec.ts:432:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (11.8s)
+  ✓   53 tests/ui/channex-screens.spec.ts:524:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (10.7s)
+  ✓   54 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (4.1s)
+  ✓   55 tests/ui/chessboard-card.spec.ts:15:1 › одинарный клик — предпросмотр без ухода со страницы; Esc закрывает и возвращает фокус (2.9s)
+  ✓   56 tests/ui/chessboard-card.spec.ts:40:1 › двойной клик открывает полную карточку брони (3.6s)
+  ✓   57 tests/ui/chessboard-card.spec.ts:46:1 › действия по статусу: подтверждённой — заселить, заселённому — выселить (2.8s)
+  ✓   58 tests/ui/chessboard-card.spec.ts:68:1 › «Заселить» из предпросмотра выполняет существующую команду и меняет статус (3.4s)
+  ✓   59 tests/ui/chessboard-card.spec.ts:87:1 › подпись подстраивается под ширину: полное имя → «Имя Ф.» → инициалы; долг точкой на узкой (6.8s)
+  ✓   60 tests/ui/chessboard-card.spec.ts:120:1 › длинное проживание: имя не уезжает при горизонтальной прокрутке (4.3s)
+  ✓   61 tests/ui/chessboard-card.spec.ts:143:1 › узкая плашка: вторая строка (источник, ночи) спрятана целиком, имя не теснится (4.7s)
+  ✓   62 tests/ui/chessboard-design.spec.ts:9:1 › статусы шахматки понятны без открытия инструкции (3.4s)
+  ✓   63 tests/ui/chessboard-design.spec.ts:34:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (6.9s)
+  ✓   64 tests/ui/chessboard-design.spec.ts:55:3 › дизайн шахматки: light, компактное управление и доступная сетка (17.5s)
+  ✓   65 tests/ui/chessboard-design.spec.ts:55:3 › дизайн шахматки: dark, компактное управление и доступная сетка (17.9s)
+  ✓   66 tests/ui/chessboard-extend.spec.ts:24:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (3.1s)
+  ✓   67 tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (6.4s)
+  ✓   68 tests/ui/chessboard-extend.spec.ts:79:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (5.4s)
+  ✓   69 tests/ui/chessboard-extend.spec.ts:112:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (3.6s)
+  ✓   70 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: light (8.1s)
+  ✓   71 tests/ui/chessboard-gate-pr3.spec.ts:16:3 › гейт PR 3: dark (8.0s)
+  ✓   72 tests/ui/chessboard-gate.spec.ts:22:1 › гейт: светлая тема — полный экран, верх, элементы управления, «Без ячейки», сегодня (5.0s)
+  ✓   73 tests/ui/chessboard-gate.spec.ts:71:1 › гейт: тёмная тема — полный экран и верх (5.3s)
+  ✓   74 tests/ui/chessboard-gate.spec.ts:94:1 › гейт: овербукинг (critical), режим 30 дней и включённый фильтр (7.8s)
+  ✓   75 tests/ui/chessboard-grid.spec.ts:12:1 › колонка места объясняет себя подсказкой: вид, код и состояние уборки (1.6s)
+  ✓   76 tests/ui/chessboard-grid.spec.ts:23:1 › свёрнутая категория переживает перезагрузку страницы (5.1s)
+  ✓   77 tests/ui/chessboard-grid.spec.ts:39:1 › строка категории прилипает под шапкой дат при вертикальной прокрутке (2.8s)
+  ✓   78 tests/ui/chessboard-grid.spec.ts:58:1 › 30 дней: день не уже 72 px, сетка прокручивается вбок, а не сжимается (3.3s)
+  ✓   79 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (4.3s)
+  ✓   80 tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна (5.9s)
+  ✓   81 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (6.2s)
+  ✓   82 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (5.8s)
+  ✓   83 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (6.0s)
+  ✓   84 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (6.5s)
+  ✓   85 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (7.0s)
+  ✓   86 tests/ui/chessboard-month.spec.ts:93:1 › 30 дней: окно от сегодня, «Месяц» ушёл из сегмента в «Даты» (5.3s)
+  ✓   87 tests/ui/chessboard-month.spec.ts:117:1 › в месяце открываются брони, свободные даты и группы номеров (10.6s)
+  ✓   88 tests/ui/chessboard-month.spec.ts:156:3 › месячная сетка: light, читаемость и адаптивность (34.7s)
+  ✓   89 tests/ui/chessboard-month.spec.ts:156:3 › месячная сетка: dark, читаемость и адаптивность (34.3s)
+  ✓   90 tests/ui/chessboard-week.spec.ts:9:1 › C1: сетка начинается до 350 px, фильтры объясняют дату статуса (2.6s)
+  ✓   91 tests/ui/chessboard-week.spec.ts:22:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (6.5s)
+  ✓   92 tests/ui/chessboard-week.spec.ts:62:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (3.3s)
+  ✓   93 tests/ui/chessboard-week.spec.ts:94:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (4.3s)
+  ✓   94 tests/ui/chessboard-week.spec.ts:94:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (4.2s)
+  ✓   95 tests/ui/chessboard-week.spec.ts:94:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (5.0s)
+  ✓   96 tests/ui/chessboard-week.spec.ts:114:1 › в неделе работают бронь, категории и создание на воскресенье (4.9s)
+  ✓   97 tests/ui/chessboard-week.spec.ts:149:3 › неделя помещается на экране: light, обе панели и телефон (19.3s)
+  ✓   98 tests/ui/chessboard-week.spec.ts:149:3 › неделя помещается на экране: dark, обе панели и телефон (19.9s)
+  ✓   99 tests/ui/chessboard-week.spec.ts:185:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (2.0s)
+  ✓  100 tests/ui/control-design.spec.ts:10:1 › контроль: поиск и чипы открытых неисправностей не меняют сводку и не повторяют API (1.9s)
+  ✓  101 tests/ui/control-design.spec.ts:34:1 › контроль: принятие с ошибкой и повтором, закрытие и история сохраняются после reload (3.4s)
+  ✓  102 tests/ui/control-design.spec.ts:57:1 › журнал: дни группами, время без года, объект одной подписью, чипы разделов (2.3s)
+CONTROL_JOURNAL_CONTROLS_MS 458
+  ✓  103 tests/ui/control-design.spec.ts:105:1 › контроль: поиск журнала и переходы доступны до окончания медленного запроса (7.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  104 tests/ui/control-design.spec.ts:131:3 › контроль: мобильный вид, клавиатура и доступность light (6.4s)
+  ✓  105 tests/ui/control-design.spec.ts:131:3 › контроль: мобильный вид, клавиатура и доступность dark (5.9s)
+  ✓  106 tests/ui/dashboard-design.spec.ts:19:1 › показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (2.5s)
+  ✓  107 tests/ui/dashboard-design.spec.ts:56:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.4s)
+  ✓  108 tests/ui/dashboard-design.spec.ts:94:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (2.8s)
+  ✓  109 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (2.5s)
+  ✓  110 tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (7.7s)
+  ✓  111 tests/ui/dashboard-desk.spec.ts:81:1 › 3. блок «Требуют внимания» один и стоит сразу под полосой стойки; сводки-дубля сверху нет (2.1s)
+  ✓  112 tests/ui/dashboard-desk.spec.ts:102:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку (6.8s)
+  ✓  113 tests/ui/dashboard-desk.spec.ts:142:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» (1.5s)
+  ✓  114 tests/ui/dashboard-desk.spec.ts:180:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока (2.4s)
+  ✓  115 tests/ui/dashboard-desk.spec.ts:196:1 › 7. строки главной без разделителя « · » (3.8s)
+  ✓  116 tests/ui/dashboard-desk.spec.ts:219:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (1.9s)
+  ✓  117 tests/ui/dashboard-desk.spec.ts:251:1 › 9. размеры шрифта на главной и показателях за период — из шкалы §6, число плитки 28 px (4.2s)
+  ✓  118 tests/ui/dashboard-desk.spec.ts:288:1 › 10. заголовок страницы и панели брони — по шкале §6 (4.6s)
+  ✓  119 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (1.2s)
+  ✓  120 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (1.3s)
+  ✓  121 tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: она их не зовёт (1.2s)
+  ✓  122 tests/ui/date-field.spec.ts:20:1 › показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (2.1s)
+  ✓  123 tests/ui/date-field.spec.ts:51:1 › показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (3.3s)
+  ✓  124 tests/ui/date-field.spec.ts:74:1 › телефон: кнопки календаря нет, родное поле остаётся (1.0s)
+  ✓  125 tests/ui/date-field.spec.ts:82:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (5.1s)
+  ✓  126 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (32.7s)
+  ✓  127 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (31.8s)
+  ✓  128 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и полоса стойки доступны на первом экране (3.1s)
+  ✓  129 tests/ui/design-refresh.spec.ts:25:1 › полоса дня на телефоне и период на «Показателях»: подписанные поля и цели не меньше 44 px (2.4s)
+  ✓  130 tests/ui/design-refresh.spec.ts:58:1 › главная живёт одним днём, месячные показатели — на своём экране (2.2s)
+  ✓  131 tests/ui/design-refresh.spec.ts:74:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (12.3s)
+  ✓  132 tests/ui/design-refresh.spec.ts:74:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (10.5s)
+  ✓  133 tests/ui/design-refresh.spec.ts:74:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (11.0s)
+  ✓  134 tests/ui/design-refresh.spec.ts:74:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (10.3s)
+  ✓  135 tests/ui/design-system.spec.ts:20:1 › обе темы на одной странице, у интерактивных компонентов восемь состояний (2.7s)
+  ✓  136 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: light (11.5s)
+  ✓  137 tests/ui/design-system.spec.ts:46:3 › axe и эталонные снимки секций: dark (11.2s)
+  ✓  138 tests/ui/design-system.spec.ts:73:1 › масштаб 200 %: нет горизонтальной прокрутки (1.7s)
+  ✓  139 tests/ui/design-system.spec.ts:94:1 › меню действий: стрелки, Enter, Escape возвращает фокус на кнопку (2.5s)
+  ✓  140 tests/ui/design-system.spec.ts:116:1 › окно подтверждения: фокус внутри, Escape — отказ, действие названо (3.3s)
+  ✓  141 tests/ui/design-system.spec.ts:131:1 › уведомление появляется в живой области и закрывается (2.6s)
+  ✓  142 tests/ui/design-system.spec.ts:143:1 › подсказка открывается фокусом и закрывается Escape (2.4s)
+  ✓  143 tests/ui/design-system.spec.ts:156:1 › состояния: пусто говорит что сделать, загрузка помечена словом, сбой различает связь и адрес (2.4s)
+  ✓  144 tests/ui/empty-base.spec.ts:41:3 › пустая база: /today открывается и объясняет пустоту (1.2s)
+  ✓  145 tests/ui/empty-base.spec.ts:41:3 › пустая база: /chessboard открывается и объясняет пустоту (1.5s)
+  ✓  146 tests/ui/empty-base.spec.ts:41:3 › пустая база: /reservations открывается и объясняет пустоту (1.6s)
+  ✓  147 tests/ui/empty-base.spec.ts:41:3 › пустая база: /guests открывается и объясняет пустоту (1.2s)
+  ✓  148 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms открывается и объясняет пустоту (1.2s)
+  ✓  149 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.2s)
+  ✓  150 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.3s)
+  ✓  151 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rates открывается и объясняет пустоту (1.2s)
+  ✓  152 tests/ui/empty-base.spec.ts:41:3 › пустая база: /finance открывается и объясняет пустоту (1.1s)
+  ✓  153 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics открывается и объясняет пустоту (1.1s)
+  ✓  154 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (1.1s)
+  ✓  155 tests/ui/empty-base.spec.ts:41:3 › пустая база: /journal открывается и объясняет пустоту (1.4s)
+  ✓  156 tests/ui/empty-base.spec.ts:41:3 › пустая база: /incidents открывается и объясняет пустоту (1.3s)
+  ✓  157 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels открывается и объясняет пустоту (1.5s)
+  ✓  158 tests/ui/empty-base.spec.ts:41:3 › пустая база: /connections открывается и объясняет пустоту (1.2s)
+  ✓  159 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website открывается и объясняет пустоту (1.1s)
+  ✓  160 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website/analytics открывается и объясняет пустоту (1.2s)
+  ✓  161 tests/ui/empty-base.spec.ts:41:3 › пустая база: /hotel-settings открывается и объясняет пустоту (1.1s)
+  ✓  162 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.1s)
+  ✓  163 tests/ui/empty-base.spec.ts:51:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.5s)
+  ✓  164 tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (1.1s)
+  ✓  165 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (1.8s)
+  ✓  166 tests/ui/finance-f1.spec.ts:105:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (2.5s)
+  ✓  167 tests/ui/finance-f1.spec.ts:149:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (1.7s)
+  ✓  168 tests/ui/finance-f1.spec.ts:179:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (2.7s)
+  ✓  169 tests/ui/finance-f1.spec.ts:218:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (2.9s)
+  ✓  170 tests/ui/finance-f1.spec.ts:233:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (2.2s)
+  ✓  171 tests/ui/finance-f1.spec.ts:252:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (1.4s)
+  ✓  172 tests/ui/finance-f1.spec.ts:270:3 › F1, стоп-гейт: снимки для владельца, light (2.8s)
+  ✓  173 tests/ui/finance-f1.spec.ts:270:3 › F1, стоп-гейт: снимки для владельца, dark (2.7s)
+  ✓  174 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (3.9s)
+  ✓  175 tests/ui/finance-f2.spec.ts:68:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (2.3s)
+  ✓  176 tests/ui/finance-f2.spec.ts:87:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (3.2s)
+  ✓  177 tests/ui/finance-f2.spec.ts:107:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (1.7s)
+  ✓  178 tests/ui/finance-f2.spec.ts:134:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (2.3s)
+  ✓  179 tests/ui/finance-f2.spec.ts:148:3 › F2, снимки для владельца, light (6.1s)
+  ✓  180 tests/ui/finance-f2.spec.ts:148:3 › F2, снимки для владельца, dark (5.9s)
+  ✓  181 tests/ui/finance-units-design.spec.ts:22:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (1440) (1.8s)
+  ✓  182 tests/ui/finance-units-design.spec.ts:22:3 › деньги за период: колонка «Сумма» видна без прокрутки вбок (телефон) (1.7s)
+  ✓  183 tests/ui/finance-units-design.spec.ts:62:1 › карточка ячейки: подзаголовок словами, даты проживаний в <time>, заголовок без скобок (1.5s)
+  ✓  184 tests/ui/fixture-isolation.spec.ts:7:1 › сброс после дизайн-сценария восстанавливает названия категорий и ячеек (18ms)
+  ✓  185 tests/ui/fixture-isolation.spec.ts:19:1 › сумма продления в подтверждении совпадает с подсказкой и записанным проживанием (16ms)
+  ✓  186 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (6.5s)
+  ✓  187 tests/ui/fund-workspace.spec.ts:43:1 › availability preserves exact unit and dates; responsive category design (9.7s)
+  ✓  188 tests/ui/fund-workspace.spec.ts:75:1 › guests filter categories by capacity; toggle shows all; tab renamed (1.6s)
+  ✓  189 tests/ui/fund-workspace.spec.ts:107:1 › dark categories and availability; invalid dates and empty onboarding (6.9s)
+  ✓  190 tests/ui/guest-wizard.spec.ts:3:1 › гостевой мастер: ручной ввод, живое превью, восстановление после перезагрузки (2.5s)
+  ✓  191 tests/ui/guest-wizard.spec.ts:54:1 › отказ сохранения не теряет ввод и не показывает успешный результат (863ms)
+  ✓  192 tests/ui/guest-wizard.spec.ts:79:1 › истёкшая сессия: явный новый черновик вместо бесконечного повтора (1.8s)
+  ✓  193 tests/ui/guests-design.spec.ts:22:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (3.3s)
+  ✓  194 tests/ui/guests-design.spec.ts:67:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (1.5s)
+  ✓  195 tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (7.8s)
+  ✓  196 tests/ui/guests-design.spec.ts:165:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (4.7s)
+  ✓  197 tests/ui/guests-design.spec.ts:237:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (4.8s)
+  ✓  198 tests/ui/housekeeping.spec.ts:20:1 › шахматка: цикл в строке — требует уборки → убрано, ждёт проверки → проверено, доступна (4.8s)
+  ✓  199 tests/ui/housekeeping.spec.ts:76:1 › шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено (3.0s)
+  ✓  200 tests/ui/housekeeping.spec.ts:105:1 › шахматка: легенда называет значки уборки и что значит их отсутствие (1.5s)
+  ✓  201 tests/ui/housekeeping.spec.ts:113:1 › карточка ячейки: цикл словами, кнопки — только следующий шаг и возврат в уборку (2.9s)
+  ✓  202 tests/ui/housekeeping.spec.ts:153:1 › карточка брони: заселение в непроверенную ячейку предупреждает, но не запрещает (Q-156) (2.7s)
+  ✓  203 tests/ui/housekeeping.spec.ts:180:1 › выезд сам переводит ячейку в «требует уборки», и цикл начинается заново (Q-155) (6.4s)
+  ✓  204 tests/ui/incidents-design.spec.ts:19:1 › неисправности: срочное сверху, вся выборка без прокрутки, время и ответственный словами (1.5s)
+  ✓  205 tests/ui/incidents-design.spec.ts:57:1 › неисправности: чипы со счётчиками вместо двух списков, поиск и сброс (1.7s)
+  ✓  206 tests/ui/incidents-design.spec.ts:81:1 › неисправности: закрытые за сутки убраны под раскрывашку и открываются по щелчку (1.5s)
+  ✓  207 tests/ui/incidents-design.spec.ts:96:1 › неисправности: телефон — карточка, цели 44 px, без прокрутки вбок, доступность (6.8s)
+  ✓  208 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (2.8s)
+  ✓  209 tests/ui/integrations.spec.ts:62:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.2s)
+  ✓  210 tests/ui/integrations.spec.ts:80:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (1.6s)
+  ✓  211 tests/ui/integrations.spec.ts:96:1 › ключ Channex не задан — не подключено, а не «работает» (997ms)
+  ✓  212 tests/ui/integrations.spec.ts:102:1 › только чтение: список и состояние видны, подключение — после оплаты (2.2s)
+  ✘  213 tests/ui/integrations.spec.ts:112:1 › сотрудник смены технических деталей не видит (17.0s)
+  ✓  214 tests/ui/integrations.spec.ts:122:1 › телефон: карточка без прокрутки вбок (1.1s)
+  ✓  215 tests/ui/integrations.spec.ts:138:3 › INT1, стоп-гейт: снимки для владельца, light (8.2s)
+  ✓  216 tests/ui/integrations.spec.ts:138:3 › INT1, стоп-гейт: снимки для владельца, dark (8.7s)
+  ✓  217 tests/ui/inventory-catalog.spec.ts:10:1 › каталог: поиск, тип, категория, сброс и сохранение фильтров (4.1s)
+  ✓  218 tests/ui/inventory-catalog.spec.ts:32:1 › прямая ссылка на категорию сохраняется, список — вид по умолчанию, карточка открывается (3.4s)
+  ✓  219 tests/ui/inventory-catalog.spec.ts:52:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (3.4s)
+  ✓  220 tests/ui/inventory-catalog.spec.ts:81:1 › пустой поиск объясняется, сброс возвращает фонд (1.7s)
+  ✓  221 tests/ui/inventory-catalog.spec.ts:92:3 › каталог адаптивен и доступен: light (16.9s)
+  ✓  222 tests/ui/inventory-catalog.spec.ts:92:3 › каталог адаптивен и доступен: dark (16.5s)
+  ✓  223 tests/ui/inventory-catalog.spec.ts:125:1 › пустой фонд отличается от пустого поиска (1.1s)
+  ✓  224 tests/ui/inventory-catalog.spec.ts:133:1 › категория и тип пересекаются, фильтр доступен с клавиатуры без запроса страницы (2.5s)
+  ✓  225 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (2.7s)
+  ✓  226 tests/ui/invites.spec.ts:45:1 › без сессии формы приглашения нет (882ms)
+  ✓  227 tests/ui/invites.spec.ts:52:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (3.7s)
+  ✓  228 tests/ui/invites.spec.ts:71:1 › мёртвая ссылка — один текст и путь на форму входа (1.2s)
+  ✓  229 tests/ui/loading-performance.spec.ts:11:1 › ошибка стойки показывается сразу, даже если шахматка ещё грузится (1.8s)
+  ✓  230 tests/ui/loading-performance.spec.ts:27:1 › Главная показывает блоки, пока настройки гостиницы ещё загружаются (2.5s)
+  ✓  231 tests/ui/loading-performance.spec.ts:48:1 › стойка и её шахматка запрашиваются параллельно (6.7s)
+  ✓  232 tests/ui/loading-performance.spec.ts:73:1 › мобильное меню использует уже загруженную свежесть без второго опроса (1.8s)
+TODAY_LOADING_MS [{"heading":1487,"strip":1488,"desk":1491},{"heading":1839,"strip":1842,"desk":1846},{"heading":1431,"strip":1447,"desk":1447}]
+  ✓  233 tests/ui/loading-performance.spec.ts:97:1 › замер: блоки Главной при задержке настроек 2000 мс (7.6s)
+  ✓  234 tests/ui/loading-performance.spec.ts:127:1 › фоновый опрос не перекрывается и восстанавливается после отказа (2.1s)
+  ✓  235 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (1.0s)
+  ✓  236 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (2.0s)
+  ✓  237 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (1.1s)
+  ✓  238 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (945ms)
+  ✓  239 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (1.6s)
+  ✓  240 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (1.5s)
+  ✓  241 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (9.2s)
+  ✓  242 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (9.5s)
+  ✓  243 tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль (910ms)
+  ✓  244 tests/ui/login-access.spec.ts:200:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (2.1s)
+  ✓  245 tests/ui/login-access.spec.ts:224:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (965ms)
+  ✓  246 tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (1.0s)
+  ✓  247 tests/ui/login-access.spec.ts:250:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (884ms)
+  ✓  248 tests/ui/login-access.spec.ts:257:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (2.5s)
+  ✓  249 tests/ui/login-access.spec.ts:277:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (2.8s)
+  ✓  250 tests/ui/login-access.spec.ts:300:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (1.3s)
+  ✓  251 tests/ui/login-access.spec.ts:307:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (1.2s)
+  ✓  252 tests/ui/manager-actions.spec.ts:32:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.6s)
+  ✓  253 tests/ui/manager-actions.spec.ts:74:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (3.9s)
+  ✓  254 tests/ui/manager-actions.spec.ts:138:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (8.7s)
+  ✓  255 tests/ui/manager-actions.spec.ts:199:1 › карточка: предварительная бронь названа словом, место за ней держится (1.3s)
+  ✓  256 tests/ui/manager-actions.spec.ts:218:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.8s)
+  ✓  257 tests/ui/manager-actions.spec.ts:234:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (3.9s)
+  ✓  258 tests/ui/manager-actions.spec.ts:282:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (4.1s)
+  ✓  259 tests/ui/manager-actions.spec.ts:342:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.7s)
+  ✓  260 tests/ui/manager-actions.spec.ts:365:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (5.6s)
+  ✓  261 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (1.9s)
+  ✘  262 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (1.4s)
+  ✓  263 tests/ui/navigation.spec.ts:86:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.0s)
+  ✓  264 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (11.6s)
+  ✓  265 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: light (4.7s)
+  ✓  266 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: dark (4.5s)
+  ✓  267 tests/ui/onboarding.spec.ts:20:1 › пустой отель: рабочий экран уводит на онбординг, форма запускает отель (3.0s)
+  ✓  268 tests/ui/onboarding.spec.ts:42:1 › администратор в ненастроенном отеле: не тупик «Нет доступа», а кто настраивает (ADR-107) (2.6s)
+  ✓  269 tests/ui/onboarding.spec.ts:67:1 › пустая категория без цены — форма просит добавить, отель не создаётся (1.3s)
+  ✓  270 tests/ui/onboarding.spec.ts:80:1 › после запуска отеля — «Первые шаги» ведут к первой брони, после неё панель уходит (5.3s)
+  ✓  271 tests/ui/onboarding.spec.ts:111:1 › у работающего отеля с бронями «Первых шагов» нет (1.4s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="onboarding/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/onboarding" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="onboarding...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OnboardingPage>
+[WebServer]                   <OnboardingForm hotelName="Luxx Aparts" currency="KZT">
+[WebServer]                     <main className="onboarding" id="main-content">
+[WebServer]                       <header>
+[WebServer]                       <section className="onboarding..." aria-label="Отель">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding...">
+[WebServer]                           <Field label="Название">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input value="Luxx Aparts" readOnly={true} aria-readonly="true">
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="Luxx Aparts"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           <Field label="Валюта">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input value="KZT" readOnly={true} aria-readonly="true">
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   value="KZT"
+[WebServer]                                   readOnly={true}
+[WebServer]                                   aria-readonly="true"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                         ...
+[WebServer]                       <section className="onboarding..." aria-label="Номера и цены">
+[WebServer]                         <h2>
+[WebServer]                         <div className="onboarding..." role="list">
+[WebServer]                           <div className="onboarding..." role="listitem">
+[WebServer]                             <Field label="Название к...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input value="" placeholder="Двухместны..." maxLength={100} onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="Двухместный номер"
+[WebServer]                                     maxLength={100}
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field>
+[WebServer]                             <Field label="Гостей на ...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="number" min={1} max={20} value="2" onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={20}
+[WebServer]                                     value="2"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Сколько мест">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="number" min={1} max={500} value="1" onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={1}
+[WebServer]                                     max={500}
+[WebServer]                                     value="1"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Цена за но...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="number" min={0} value="" placeholder="21000" onChange={function onChange}>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="number"
+[WebServer]                                     min={0}
+[WebServer]                                     value=""
+[WebServer]                                     placeholder="21000"
+[WebServer]                                     onChange={function onChange}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  272 tests/ui/onboarding.spec.ts:122:1 › «Заполнить позже»: стойка открывается, Главная ведёт настроить номера и цены (4.3s)
+  ✓  273 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (2.0s)
+  ✓  274 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (2.1s)
+  ✓  275 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (2.7s)
+  ✓  276 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (1.5s)
+  ✓  277 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (1.5s)
+  ✓  278 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (1.4s)
+  ✓  279 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (1.0s)
+  ✓  280 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (1.1s)
+  ✓  281 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (997ms)
+  ✓  282 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта сохраняет введённые сумму и примечание (2.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  283 tests/ui/payment-draft.spec.ts:10:3 › обновление счёта обновляет сумму, если её ещё не вводили (2.6s)
+  ✓  284 tests/ui/payment-draft.spec.ts:62:1 › оплата D3: строка сути называет сумму, способ, счёт и бронь; не число не уходит (2.1s)
+  ✓  285 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (2.6s)
+  ✓  286 tests/ui/pii-storage.spec.ts:37:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (2.0s)
+  ✓  287 tests/ui/pii-storage.spec.ts:74:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (3.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  288 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-продавец» — всегда (ADR-090), «Платформа» — у главного администратора (4.3s)
+  ✓  289 tests/ui/platform-access.spec.ts:77:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.9s)
+  ✓  290 tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (5.0s)
+  ✓  291 tests/ui/platform-access.spec.ts:131:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (4.9s)
+  ✓  292 tests/ui/platform-access.spec.ts:158:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     ...
+[WebServer]                       <h2>
+[WebServer]                       <p>
+[WebServer]                       <KnowledgeUploadForm>
+[WebServer]                         <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                           <Field label="Документ: ...">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="file"
+[WebServer]                                   name="file"
+[WebServer]                                   accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                   required={true}
+[WebServer]                                   data-testid="knowledge-file"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  293 tests/ui/platform-access.spec.ts:171:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.9s)
+  ✓  294 tests/ui/platform-access.spec.ts:194:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (7.4s)
+  ✓  295 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, light, 1440px (12.8s)
+  ✓  296 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, dark, 1440px (13.2s)
+  ✓  297 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, light, 390px (12.6s)
+  ✓  298 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, dark, 390px (13.2s)
+  ✓  299 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (4.5s)
+  ✓  300 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, отбор, карточка — кто пишет; перехват, ответ, возврат (8.4s)
+  ✓  301 tests/ui/platform-support.spec.ts:124:1 › знания помощника: список и загрузка документа (4.2s)
+  ✓  302 tests/ui/platform-support.spec.ts:144:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (11.1s)
+  ✓  303 tests/ui/platform-support.spec.ts:196:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.9s)
+  ✓  304 tests/ui/platform-support.spec.ts:213:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.7s)
+  ✓  305 tests/ui/platform-support.spec.ts:223:5 › доступность «Техподдержки»: light, 1440px (12.2s)
+  ✓  306 tests/ui/platform-support.spec.ts:223:5 › доступность «Техподдержки»: dark, 1440px (13.0s)
+  ✓  307 tests/ui/platform-support.spec.ts:223:5 › доступность «Техподдержки»: light, 390px (10.7s)
+  ✓  308 tests/ui/platform-support.spec.ts:223:5 › доступность «Техподдержки»: dark, 390px (10.9s)
+  ✓  309 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (3.6s)
+  ✓  310 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск (4.3s)
+  ✓  311 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (7.6s)
+  ✓  312 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (8.1s)
+  ✓  313 tests/ui/premium.spec.ts:113:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (2.1m)
+  ✓  314 tests/ui/premium.spec.ts:172:1 › вход не пускает с чужой почтой и чужим паролем (1.1s)
+  ✓  315 tests/ui/premium.spec.ts:189:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (4.7s)
+  ✓  316 tests/ui/product-tour.spec.ts:27:1 › первый вход: обучение открывается само, идёт по шагам и больше само не открывается (6.6s)
+  ✓  317 tests/ui/product-tour.spec.ts:71:1 › последний шаг — профиль, «Начать работу» закрывает обучение (5.1s)
+  ✓  318 tests/ui/product-tour.spec.ts:87:1 › на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край (4.1s)
+  ✓  319 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (2.6s)
+  ✓  320 tests/ui/property-settings.spec.ts:61:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Exely (5.5s)
+  ✓  321 tests/ui/property-settings.spec.ts:76:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (7.3s)
+  ✓  322 tests/ui/property-settings.spec.ts:126:1 › администратор и «только чтение» видят сведения без формы и без кнопки сохранения (4.2s)
+  ✓  323 tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: light (13.1s)
+  ✓  324 tests/ui/property-settings.spec.ts:151:3 › снимки SET1 и доступность: dark (13.9s)
+  ✓  325 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (2.8s)
+  ✓  326 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (1.1s)
+  ✓  327 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.8s)
+  ✓  328 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (2.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  329 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (2.6s)
+  ✓  330 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (2.6s)
+  ✓  331 tests/ui/quality.spec.ts:95:1 › список гостей и вторая бронь открывают собственные карточки (3.7s)
+  ✓  332 tests/ui/quality.spec.ts:111:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (2.0s)
+  ✓  333 tests/ui/quality.spec.ts:134:1 › изменение уборки относится только к выбранному номеру (2.5s)
+  ✓  334 tests/ui/quality.spec.ts:148:1 › неподключённые внешние демо не ведут на несуществующие страницы (2.3s)
+  ✓  335 tests/ui/quality.spec.ts:192:3 › отказ API сохраняет поля: профиль гостя (2.1s)
+  ✓  336 tests/ui/quality.spec.ts:192:3 › отказ API сохраняет поля: документ гостя (2.5s)
+  ✓  337 tests/ui/quality.spec.ts:192:3 › отказ API сохраняет поля: блокировка номера (2.1s)
+  ✓  338 tests/ui/quality.spec.ts:192:3 › отказ API сохраняет поля: сайт аналитики (1.9s)
+  ✓  339 tests/ui/rates-design.spec.ts:18:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (1.9s)
+  ✓  340 tests/ui/rates-design.spec.ts:64:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (3.1s)
+  ✓  341 tests/ui/rates-design.spec.ts:94:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (4.2s)
+  ✓  342 tests/ui/rates-design.spec.ts:110:1 › фильтры: категория и тариф чипами в одно касание, месяц русским списком — без «Показать» (2.5s)
+  ✓  343 tests/ui/rates-design.spec.ts:139:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (1.7s)
+  ✓  344 tests/ui/real-data.spec.ts:21:1 › источник и агрегаты проекта видны главному администратору в «Платформе», а не на «Интеграциях» (3.2s)
+  ✓  345 tests/ui/real-data.spec.ts:40:1 › ошибка базы не превращается в нулевые показатели; повтор обновляет состояние (3.0s)
+  ✓  346 tests/ui/real-data.spec.ts:59:1 › название гостиницы в каркасе и обзоре поступает из backend (1.5s)
+  ✓  347 tests/ui/real-data.spec.ts:70:1 › недоступный API не скрывается за демо или выдуманным объектом (1.2s)
+  ✓  348 tests/ui/real-data.spec.ts:82:1 › поздняя загрузка гостиницы сохраняет ввод формы и открытое меню (2.9s)
+  ✓  349 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login оставляет вход сотрудников (1.3s)
+  ✓  350 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /register оставляет вход сотрудников (1.1s)
+  ✓  351 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login?mode=register оставляет вход сотрудников (1.0s)
+  ✓  352 tests/ui/registration-closed.spec.ts:27:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (951ms)
+  ✓  353 tests/ui/registration-closed.spec.ts:39:1 › ранее открытая форма получает отказ через server action без новой сессии (1.3s)
+  ✓  354 tests/ui/requests.spec.ts:69:3 › экран /today: данные берутся одним запросом на путь (1.7s)
+  ✓  355 tests/ui/requests.spec.ts:69:3 › экран /chessboard: данные берутся одним запросом на путь (2.0s)
+  ✓  356 tests/ui/requests.spec.ts:69:3 › экран /reservations: данные берутся одним запросом на путь (1.8s)
+  ✓  357 tests/ui/requests.spec.ts:69:3 › экран /guests: данные берутся одним запросом на путь (1.6s)
+  ✓  358 tests/ui/requests.spec.ts:69:3 › экран /inventory: данные берутся одним запросом на путь (2.0s)
+  ✓  359 tests/ui/requests.spec.ts:69:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.7s)
+  ✓  360 tests/ui/requests.spec.ts:69:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.8s)
+  ✓  361 tests/ui/requests.spec.ts:69:3 › экран /rates: данные берутся одним запросом на путь (1.7s)
+  ✓  362 tests/ui/requests.spec.ts:69:3 › экран /management/analytics: данные берутся одним запросом на путь (1.7s)
+  ✓  363 tests/ui/requests.spec.ts:69:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (1.6s)
+  ✓  364 tests/ui/requests.spec.ts:69:3 › экран /management/dashboard: данные берутся одним запросом на путь (2.0s)
+  ✓  365 tests/ui/requests.spec.ts:69:3 › экран /finance: данные берутся одним запросом на путь (1.8s)
+  ✓  366 tests/ui/requests.spec.ts:69:3 › экран /channels: данные берутся одним запросом на путь (1.9s)
+  ✓  367 tests/ui/requests.spec.ts:69:3 › экран /channels/connections: данные берутся одним запросом на путь (2.1s)
+  ✓  368 tests/ui/requests.spec.ts:69:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.9s)
+  ✓  369 tests/ui/requests.spec.ts:69:3 › экран /channels/sync: данные берутся одним запросом на путь (1.8s)
+  ✓  370 tests/ui/requests.spec.ts:69:3 › экран /channels/events: данные берутся одним запросом на путь (1.7s)
+  ✓  371 tests/ui/requests.spec.ts:69:3 › экран /website: данные берутся одним запросом на путь (1.5s)
+  ✓  372 tests/ui/requests.spec.ts:69:3 › экран /website/booking: данные берутся одним запросом на путь (1.6s)
+  ✓  373 tests/ui/requests.spec.ts:69:3 › экран /website/analytics: данные берутся одним запросом на путь (1.7s)
+  ✓  374 tests/ui/requests.spec.ts:69:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.6s)
+  ✓  375 tests/ui/requests.spec.ts:69:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.6s)
+  ✓  376 tests/ui/requests.spec.ts:69:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.6s)
+  ✓  377 tests/ui/requests.spec.ts:69:3 › экран /connections: данные берутся одним запросом на путь (1.5s)
+  ✓  378 tests/ui/requests.spec.ts:69:3 › экран /website/settings: данные берутся одним запросом на путь (1.5s)
+  ✓  379 tests/ui/requests.spec.ts:69:3 › экран /incidents: данные берутся одним запросом на путь (1.5s)
+  ✓  380 tests/ui/requests.spec.ts:69:3 › экран /journal: данные берутся одним запросом на путь (1.5s)
+  ✓  381 tests/ui/requests.spec.ts:69:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.6s)
+  ✓  382 tests/ui/reservation-tariff.spec.ts:23:1 › смена дат по умолчанию сохраняет текущий тариф брони (2.0s)
+  ✓  383 tests/ui/reservation-tariff.spec.ts:44:1 › у брони без тарифа смена дат и «+1 ночь» просят выбрать тариф (2.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  384 tests/ui/reservation-tariff.spec.ts:64:1 › справочник тарифов не загрузился — карточка брони остаётся с предупреждением, а не экран ошибки (2.1s)
+  ✓  385 tests/ui/reservations-design.spec.ts:10:1 › выбранный статус броней доступен с клавиатуры и объявлен текущим (2.2s)
+  ✓  386 tests/ui/reservations-design.spec.ts:35:1 › мобильный статус и поиск сохраняются в URL, карточка открывается из списка (4.6s)
+  ✓  387 tests/ui/reservations-design.spec.ts:57:3 › Брони: light, читаемый список на пяти ширинах (9.0s)
+  ✓  388 tests/ui/reservations-design.spec.ts:57:3 › Брони: dark, читаемый список на пяти ширинах (9.1s)
+  ✓  389 tests/ui/reservations-states.spec.ts:15:1 › отказ API: заголовок и фильтры на месте, повтор возвращает список с теми же условиями (1.8s)
+  ✓  390 tests/ui/reservations-states.spec.ts:41:1 › отклонённый запрос: код и совет проверить адрес, без ссылки на подключения (1.2s)
+  ✓  391 tests/ui/reservations-states.spec.ts:55:1 › пока список идёт — скелетон с подписью словом, затем таблица (3.1s)
+  ✓  392 tests/ui/reservations-v2-r2.spec.ts:58:1 › R2: быстрые виды отбирают на сервере и живут в адресе (3.7s)
+  ✓  393 tests/ui/reservations-v2-r2.spec.ts:105:1 › R2: сочетание условий через форму — чистый адрес, форма восстанавливается из адреса (8.1s)
+  ✓  394 tests/ui/reservations-v2-r2.spec.ts:137:1 › R2: ссылки Главной — заезды, выезды, к оплате, без размещения — и прежний ?date=день (5.5s)
+  ✓  395 tests/ui/reservations-v2-r2.spec.ts:170:1 › R2: пустой отбор объясняет условия и предлагает их убрать; неизвестное условие — ошибка (2.9s)
+  ✓  396 tests/ui/reservations-v2-r2.spec.ts:192:1 › R2: телефон — списки отбора за «Фильтрами», таблица в первом экране (3.1s)
+  ✓  397 tests/ui/reservations-v2-r2.spec.ts:219:3 › R2, стоп-гейт: снимки для владельца, light (13.1s)
+  ✓  398 tests/ui/reservations-v2-r2.spec.ts:219:3 › R2, стоп-гейт: снимки для владельца, dark (12.4s)
+  ✓  399 tests/ui/reservations-v2.spec.ts:71:1 › R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони (2.3s)
+  ✓  400 tests/ui/reservations-v2.spec.ts:132:1 › R1: плотность строк переключается и переживает перезагрузку (3.3s)
+  ✓  401 tests/ui/reservations-v2.spec.ts:157:1 › R1: «только чтение» — список, поиск и карточка доступны, «Новой брони» нет, полоса на месте (7.0s)
+  ✓  402 tests/ui/reservations-v2.spec.ts:188:3 › R1, стоп-гейт: снимки для владельца, light (5.8s)
+  ✓  403 tests/ui/reservations-v2.spec.ts:188:3 › R1, стоп-гейт: снимки для владельца, dark (5.9s)
+  ✘  404 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (16.6s)
+  ✘  405 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (19.6s)
+  ✓  406 tests/ui/roles.spec.ts:99:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (6.9s)
+  ✓  407 tests/ui/roles.spec.ts:116:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (7.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  408 tests/ui/roles.spec.ts:144:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (9.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  409 tests/ui/roles.spec.ts:206:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.6s)
+  ✓  410 tests/ui/roles.spec.ts:257:1 › владелец: зовёт управляющего и администратора, меняет роль (4.6s)
+  ✓  411 tests/ui/roles.spec.ts:284:1 › администратор: в «Первых шагах» нет приглашения сотрудников — зовут владелец и управляющий (3.8s)
+  ✓  412 tests/ui/roles.spec.ts:302:1 › администратор: сотрудниками ведают владелец и управляющий (2.4s)
+  ✓  413 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.8s)
+  ✓  414 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.8s)
+  ✓  415 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, light, 390px (5.4s)
+  ✓  416 tests/ui/roles.spec.ts:314:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.8s)
+  ✓  417 tests/ui/seller-agent-editor.spec.ts:3:1 › агент из списка: редактирование, сохранение и повторное открытие (5.6s)
+  ✓  418 tests/ui/seller-agent-editor.spec.ts:25:1 › выключенный каталог объясняет состояние и не предлагает неработающее создание (1.3s)
+  ✓  419 tests/ui/seller-workspace.spec.ts:11:1 › окно инструкции и проверка: светлая и тёмная темы, 1440–320, без горизонтального скролла (7.3s)
+  ✓  420 tests/ui/seller-workspace.spec.ts:26:1 › широкий экран — проверка рядом с окном, телефон — под ним; подписи вкладок не сжаты (2.8s)
+  ✓  421 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (2.2s)
+  ✓  422 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (2.4s)
+  ✓  423 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (3.5s)
+  ✓  424 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (925ms)
+  ✓  425 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (933ms)
+  ✓  426 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (3.6s)
+  ✓  427 tests/ui/settings-simplification.spec.ts:10:1 › короткое меню настроек ведёт в единый объект с рабочими внутренними разделами (3.0s)
+  ✓  428 tests/ui/settings-simplification.spec.ts:35:1 › старые страницы контента ведут в интеграции без чтения зеркала Channex (7.4s)
+  ✓  429 tests/ui/settings-simplification.spec.ts:56:1 › поиск услуг работает без повторной загрузки каталога (1.6s)
+  ✓  430 tests/ui/settings-simplification.spec.ts:74:1 › ошибка каталога сохраняет навигацию и исправляется повтором (1.8s)
+  ✓  431 tests/ui/settings-simplification.spec.ts:88:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: light (8.2s)
+  ✓  432 tests/ui/settings-simplification.spec.ts:88:3 › настройки адаптивны и доступны; установка кода открывается с клавиатуры: dark (8.3s)
+  ✓  433 tests/ui/settings-simplification.spec.ts:152:1 › на телефоне услуга и цена видны одновременно без прокрутки таблицы (1.4s)
+  ✓  434 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (8.6s)
+  ✓  435 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (8.5s)
+  ✓  436 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (13.6s)
+  ✓  437 tests/ui/system-screens.spec.ts:251:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (10.6s)
+  ✓  438 tests/ui/system-screens.spec.ts:305:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (7.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]       <RedirectBoundary>
+[WebServer]         <RedirectErrorBoundary router={{...}}>
+[WebServer]           <InnerLayoutRouter url="/today" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]             <SegmentViewNode type="page" pagePath="today/page...">
+[WebServer]               <SegmentTrieNode>
+[WebServer]               <TodayPage>
+[WebServer]                 <Page>
+[WebServer]                   <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                     <div>
+[WebServer]                     <header>
+[WebServer]                     <Suspense>
+[WebServer]                     <div className="day-bar-row">
+[WebServer]                       <DayBar>
+[WebServer]                         <nav className="day-bar" aria-label="День стойки">
+[WebServer]                           <div>
+[WebServer]                           <form method="get" className="day-custom" data-testid="day-form">
+[WebServer]                             <label>
+[WebServer]                               <DateInput name="date" defaultValue="2026-09-28" aria-label="День стойк...">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="date"
+[WebServer]                                     defaultValue="2026-09-28"
+[WebServer]                                     aria-label="День стойки: дата"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]                     ...
+[WebServer]             ...
+[WebServer]           ...
+[WebServer]  
+  ✓  439 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (11.1s)
+  ✓  440 tests/ui/trial-read-only.spec.ts:62:1 › главный администратор: «Оплата получена» — организация работает; «Только чтение» — обратно (4.2s)
+  ✓  441 tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) (5.8s)
+  ✓  442 tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Exely» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) (3.9s)
+  ✓  443 tests/ui/ux-retention.spec.ts:75:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) (1.1s)
+  ✓  444 tests/ui/ux-retention.spec.ts:80:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) (1.1s)
+  ✓  445 tests/ui/ux-retention.spec.ts:88:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) (2.0s)
+  ✘  446 tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (45.5s)
+  ✓  447 tests/ui/website.spec.ts:27:1 › старые адреса ведут во вкладки модуля и сохраняют период (2.6s)
+  ✓  448 tests/ui/website.spec.ts:38:1 › одна точка входа в меню и четыре вкладки со своим адресом (2.8s)
+  ✓  449 tests/ui/website.spec.ts:69:1 › домен-заглушка — «Сайт ещё не подключён», а не зелёный сайт (2.9s)
+  ✓  450 tests/ui/website.spec.ts:92:1 › обзор подключённого сайта: домен, счётчик, бронирование, брони за месяц (3.2s)
+  ✓  451 tests/ui/website.spec.ts:122:1 › «Интеграции» больше не показывают сайт (1.3s)
+  ✓  452 tests/ui/website.spec.ts:130:1 › настройки: пауза и удаление — в «Опасной зоне», с подтверждением (1.5s)
+  ✓  453 tests/ui/website.spec.ts:143:1 › четыре вкладки: доступность в двух темах, телефон без прокрутки вбок (25.8s)
+  ✓  454 tests/ui/website.spec.ts:175:1 › снимки WEB1 (20.4s)
+  ✘  455 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (52.3s)
+  ✓  456 tests/ui/workspace.spec.ts:114:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (6.0s)
+  ✓  457 tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (2.9s)
+  ✓  458 tests/ui/workspace.spec.ts:178:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (4.7s)
+  ✓  459 tests/ui/workspace.spec.ts:203:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.7s)
+  ✓  460 tests/ui/workspace.spec.ts:230:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (5.2s)
+  ✓  461 tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.7s)
+  ✓  462 tests/ui/workspace.spec.ts:308:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (3.5s)
+  ✓  463 tests/ui/workspace.spec.ts:328:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (3.1s)
+  ✓  464 tests/ui/workspace.spec.ts:360:1 › карточка: профиль гостя и заселение проходят через server actions (4.6s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  465 tests/ui/workspace.spec.ts:405:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.4s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:45:13)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  466 tests/ui/workspace.spec.ts:422:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.2s)
+  ✓  467 tests/ui/workspace.spec.ts:439:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.6s)
+  ✓  468 tests/ui/workspace.spec.ts:461:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.7s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  469 tests/ui/workspace.spec.ts:487:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.9s)
+  ✓  470 tests/ui/workspace.spec.ts:496:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.4s)
+  ✓  471 tests/ui/workspace.spec.ts:522:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.0s)
+  ✓  472 tests/ui/workspace.spec.ts:534:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.2s)
+  ✓  473 tests/ui/workspace.spec.ts:541:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.4s)
+  ✓  474 tests/ui/workspace.spec.ts:550:1 › групповая бронь: разные категории сохраняются при конфликте (2.1s)
+  ✓  475 tests/ui/workspace.spec.ts:574:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.9s)
+  ✓  476 tests/ui/workspace.spec.ts:601:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия (2.9s)
+  ✓  477 tests/ui/workspace.spec.ts:643:1 › ошибка буфера обмена видна, код остаётся доступен (2.2s)
+  ✓  478 tests/ui/workspace.spec.ts:660:1 › финансы: неверные даты можно исправить без падения страницы (3.6s)
+  ✓  479 tests/ui/workspace.spec.ts:671:1 › ошибка загрузки тарифов не позволяет включить виджет (1.2s)
+  ✓  480 tests/ui/workspace.spec.ts:680:1 › номера: статус уборки, блокировка и снятие сохраняются (4.0s)
+  ✓  481 tests/ui/workspace.spec.ts:710:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (3.0s)
+  ✓  482 tests/ui/workspace.spec.ts:737:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.5s)
+  ✓  483 tests/ui/workspace.spec.ts:746:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.6s)
+  ✓  484 tests/ui/workspace.spec.ts:765:1 › неисправности: когда история обрезана, это написано (2.5s)
+  ✓  485 tests/ui/workspace.spec.ts:773:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (3.1s)
+  ✓  486 tests/ui/workspace.spec.ts:785:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (3.2s)
+  ✓  487 tests/ui/workspace.spec.ts:811:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (5.9s)
+  ✓  488 tests/ui/workspace.spec.ts:852:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (6.3s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-28&to=2026-10-04: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:77:45)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  489 tests/ui/workspace.spec.ts:904:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (9.4s)
+  ✓  490 tests/ui/workspace.spec.ts:966:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.7s)
+  ✓  491 tests/ui/workspace.spec.ts:995:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (3.1s)
+  ✓  492 tests/ui/workspace.spec.ts:1019:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.8s)
+  ✘  493 tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (16.6s)
+  ✓  494 tests/ui/workspace.spec.ts:1051:1 › общие настройки показывают адрес PMS без дублирования контента Channex (2.2s)
+  ✓  495 tests/ui/workspace.spec.ts:1058:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (3.4s)
+  ✓  496 tests/ui/workspace.spec.ts:1087:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (2.0s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:26:28)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  497 tests/ui/workspace.spec.ts:1109:1 › фонд и категории открываются независимо от сбоя шахматки (5.0s)
+  ✓  498 tests/ui/workspace.spec.ts:1130:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.3s)
+  ✓  499 tests/ui/workspace.spec.ts:1148:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.2s)
+  ✓  500 tests/ui/workspace.spec.ts:1167:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (2.0s)
+  ✓  501 tests/ui/workspace.spec.ts:1182:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (991ms)
+  ✓  502 tests/ui/workspace.spec.ts:1195:1 › счета: приём оплаты подтверждается суммой на экране (2.3s)
+  ✓  503 tests/ui/workspace.spec.ts:1212:1 › деньги за период: период длиннее года объясняется на странице (1.3s)
+  ✓  504 tests/ui/workspace.spec.ts:1231:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.9s)
+  ✓  505 tests/ui/workspace.spec.ts:1250:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.9s)
+  ✓  506 tests/ui/workspace.spec.ts:1275:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.9s)
+  ✓  507 tests/ui/workspace.spec.ts:1295:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.6s)
+  ✓  508 tests/ui/workspace.spec.ts:1311:1 › каналы: входящая бронь ведёт на карточку брони (2.2s)
+  ✓  509 tests/ui/workspace.spec.ts:1324:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (1.9s)
+  ✓  510 tests/ui/workspace.spec.ts:1343:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (4.8s)
+  ✓  511 tests/ui/workspace.spec.ts:1361:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (3.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  512 tests/ui/workspace.spec.ts:1399:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.8s)
+  ✓  513 tests/ui/workspace.spec.ts:1461:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (4.2s)
+  ✓  514 tests/ui/workspace.spec.ts:1534:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (3.9s)
+  ✓  515 tests/ui/workspace.spec.ts:1582:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (5.6s)
+  ✓  516 tests/ui/workspace.spec.ts:1609:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (2.0s)
+
+
+  1) tests/ui/channex-screens.spec.ts:107:1 › подключения каналов: настройка подключения только владельцу 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('channel-setup-owner-only')
+    Expected: "Настройку подключения меняет владелец организации."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('channel-setup-owner-only') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('channel-setup-owner-only')
+
+
+      119 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
+      120 |   await page.goto('/channels/connections');
+    > 121 |   await expect(main.getByTestId('channel-setup-owner-only')).toHaveText(
+          |                                                              ^
+      122 |     'Настройку подключения меняет владелец организации.',
+      123 |   );
+      124 |   await expect(main.getByTestId('channel-setup')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:121:62
+
+    Error Context: test-results/channex-screens-подключени-18423-одключения-только-владельцу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/integrations.spec.ts:112:1 › сотрудник смены технических деталей не видит ────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+    Expected: "Работает"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-channex').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+
+
+      115 |   await page.goto('/connections');
+      116 |   const card = page.getByRole('main').getByTestId('integration-channex');
+    > 117 |   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
+          |                                                        ^
+      118 |   await expect(card.getByTestId('integration-tech')).toHaveCount(0);
+      119 |   await expect(card).not.toContainText('ui-property');
+      120 | });
+        at /home/user/wetop.ai/tests/ui/integrations.spec.ts:117:56
+
+    Error Context: test-results/integrations-сотрудник-смены-технических-деталей-не-видит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-сотрудник-смены-технических-деталей-не-видит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-сотрудник-смены-технических-деталей-не-видит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -8,11 +8,10 @@
+        "/hotel-settings",
+        "/incidents",
+        "/inventory",
+        "/journal",
+        "/management/analytics",
+    -   "/management/dashboard",
+        "/rates",
+        "/reservations",
+        "/today",
+        "/website",
+      ]
+
+      58 |     .locator('.workspace-links a')
+      59 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+    > 60 |   expect(links.sort()).toEqual([...routes].sort());
+         |                        ^
+      61 |   expect(new Set(links).size).toBe(links.length);
+      62 |   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
+      63 |   // /today стримится, а панель — клиентский компонент: до гидрации у кнопки нет обработчика, и Space
+        at /home/user/wetop.ai/tests/ui/navigation.spec.ts:60:24
+
+    Error Context: test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -3,8 +3,8 @@
+        "/chessboard",
+        "/reservations",
+        "/guests",
+        "/ai-seller",
+        "/finance",
+    -   "/management/statistics",
+    +   "/management/analytics",
+        "/incidents",
+      ]
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      43 |   await expect
+      44 |     .poll(() => menuLinks(page))
+    > 45 |     .toEqual([
+         |      ^
+      46 |       '/today',
+      47 |       '/chessboard',
+      48 |       '/reservations',
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:45:6
+
+    Error Context: test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Синхронизация"
+    Received: "Каналы продаж"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Каналы продаж</h1>
+           - unexpected value "Каналы продаж"
+
+
+      86 |     await expect(refusal).toContainText('Ваша роль — администратор');
+      87 |     // заголовок — раздела, а не самой страницы: её содержимого на экране нет
+    > 88 |     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
+         |                                                           ^
+      89 |     if (route === '/rates') await shot(page, 'no-access-administrator');
+      90 |   }
+      91 |
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:88:59
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('hotel-settings-form').getByRole('button', { name: 'Сохранить' })
+
+
+      125 |   await expect(form.getByLabel('Телефон')).toBeVisible();
+      126 |   await form.getByLabel('Телефон').fill('<телефон>');
+    > 127 |   await form.getByRole('button', { name: 'Сохранить' }).click();
+          |                                                         ^
+      128 |   await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+      129 |
+      130 |   await control(request, { role: 'STAFF' });
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:127:57
+
+    Error Context: test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected substring: "Цены и ограничения"
+    Received string:    "Тарифы и цены"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Тарифы и цены</h1>
+           - unexpected value "Тарифы и цены"
+
+
+      87 |     await page.goto(route!);
+      88 |     if (redirects[route!]) await expect(page).toHaveURL(redirects[route!]!);
+    > 89 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(title!);
+         |                                                           ^
+      90 |     await noPageOverflow(page);
+      91 |     if (
+      92 |       ['/today', '/chessboard', '/rooms', '/hotel-settings', '/channel-manager'].includes(route!)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:89:59
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests\?state=inhouse$/
+    Received string:  "http://127.0.0.1:3100/guests"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/hotel-settings/services"
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/guests"
+
+
+      1045 |   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
+      1046 |   // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
+    > 1047 |   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
+           |                      ^
+      1048 |   await expect(page.getByTestId('guests-meta')).toContainText('проживают');
+      1049 | });
+      1050 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1047:22
+
+    Error Context: test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/accessibility.spec.ts (5.7m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  8 failed
+    tests/ui/channex-screens.spec.ts:107:1 › подключения каналов: настройка подключения только владельцу 
+    tests/ui/integrations.spec.ts:112:1 › сотрудник смены технических деталей не видит ─────────────
+    tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры 
+    tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+    tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+    tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+    tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+    tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+  508 passed (46.9m)
+
+# код выхода 1 · 46 мин 54 с

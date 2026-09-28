@@ -30,3 +30,21 @@ describe('needsOnboardingRedirect', () => {
     expect(ONBOARDING_LATER_COOKIE).toBe('wetop_onboarding_later');
   });
 });
+
+/*
+ * После сброса платформы (ADR-118) у организации нет объекта: рабочие экраны пусты, «Заполнить позже» ничего не даёт —
+ * гейт ведёт на онбординг и тогда (plans/onboarding-without-property-2026-09-28.md). Сам онбординг и вход не трогает.
+ */
+describe('гейт: у организации нет объекта', () => {
+  it('ведёт на онбординг, даже если онбординг отложен', () => {
+    expect(
+      needsOnboardingRedirect({ path: '/today', needsOnboarding: false, postponed: true, propertyMissing: true }),
+    ).toBe(true);
+  });
+  it('на онбординге, входе и печати — не ведёт: иначе цикл', () => {
+    for (const path of ['/onboarding', '/login', '/reservations/R1/print'])
+      expect(
+        needsOnboardingRedirect({ path, needsOnboarding: false, postponed: false, propertyMissing: true }),
+      ).toBe(false);
+  });
+});

@@ -3486,3 +3486,11 @@
 | 28.09.2026 13:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 516 | 46 мин 54 с | 1b187fa +9 | [лог](logs/2026-09-28T08-58-06Z-e2e-7445.log) | Q-206/Q-207: полный UI-набор в один поток |
 | 28.09.2026 14:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts:107 tests/ui/integrations.spec.ts:112 tests/ui/navigation.spec.ts:45 test | ❌ упало 6 из 6 | 2 мин 13 с | 587b14e +4 | [лог](logs/2026-09-28T09-45-28Z-e2e-13a9.log) | контроль: шесть красных полного набора на коде main 1b187fa5 (финансовые файлы из main) |
 | 28.09.2026 14:48 | e2e | ✅ 25 из 25 | 1 мин 6 с | 587b14e | [лог](logs/2026-09-28T09-48-22Z-e2e-1956.log) | Q-206/Q-207: живые e2e с базой стенда |
+| 28.09.2026 14:37 | typecheck | ❌ ошибок: 42 | 11 с | a610c33 | [лог](logs/2026-09-28T09-37-24Z-typecheck-4c97.log) | TS2322 |
+| 28.09.2026 14:37 | typecheck | ✅ без ошибок | 8 с | a610c33 | [лог](logs/2026-09-28T09-37-49Z-typecheck-9ace.log) |  |
+| 28.09.2026 14:38 | lint | ✅ без ошибок | 25 с | a610c33 | [лог](logs/2026-09-28T09-38-04Z-lint-e4e4.log) |  |
+| 28.09.2026 14:38 | unit | ❌ упало 12 из 2301, пропущено 3 | 1 мин 12 с | a610c33 | [лог](logs/2026-09-28T09-38-37Z-unit-45a5.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
+| 28.09.2026 14:40 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 12 из 12 | 14 с | a610c33 +1 | [лог](logs/2026-09-28T09-40-19Z-unit-9235.log) | green: server flock dependency is stubbed on macOS |
+| 28.09.2026 14:40 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 12 с | a610c33 +1 | [лог](logs/2026-09-28T09-40-42Z-unit-d951.log) |  |
+| 28.09.2026 14:42 | typecheck | ✅ без ошибок | 10 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-08Z-typecheck-01f7.log) |  |
+| 28.09.2026 14:42 | lint | ✅ без ошибок | 21 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-24Z-lint-e533.log) |  |

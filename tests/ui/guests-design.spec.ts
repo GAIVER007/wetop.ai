@@ -184,7 +184,7 @@ test('гости: полная карточка — обзор, вся исто�
     'href',
     '/reservations/20260916-GCRET2',
   );
-  // следующий визит говорит, подтверждена ли бронь; долг будущей брони здесь не показан (Q-199)
+  // следующий визит говорит, подтверждена ли бронь; долг будущей брони здесь не показан (Q-202)
   const next = main.getByTestId('guest-stay-next');
   await expect(next).toContainText('R12');
   await expect(next).toContainText('подтверждена');

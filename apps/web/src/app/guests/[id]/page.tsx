@@ -184,7 +184,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
               )}
               <span className="dir-sub">{next.accommodationTypeName}</span>
             </p>
-            {/* у будущей брони важно, подтверждена ли она; долг здесь не показывается (Q-199) */}
+            {/* у будущей брони важно, подтверждена ли она; долг здесь не показывается (Q-202) */}
             <StatusBadge
               status={next.status}
               label={reservationStatusWords[next.status] ?? next.status}

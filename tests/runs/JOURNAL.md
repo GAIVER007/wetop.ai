@@ -3472,3 +3472,4 @@
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
 | 28.09.2026 13:40 | typecheck | ✅ без ошибок | 39 с | 1b187fa | [лог](logs/2026-09-28T08-40-59Z-typecheck-954b.log) | deploy proof: main 1b187fa5 |
 | 28.09.2026 13:41 | lint | ✅ без ошибок | 20 с | 1b187fa | [лог](logs/2026-09-28T08-41-38Z-lint-ae8d.log) | deploy proof: main 1b187fa5 |
+| 28.09.2026 13:41 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 21 с | 1b187fa | [лог](logs/2026-09-28T08-41-59Z-unit-32d6.log) | deploy proof: main 1b187fa5 |

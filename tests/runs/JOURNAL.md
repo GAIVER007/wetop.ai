@@ -3486,3 +3486,6 @@
 | 28.09.2026 14:40 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 12 с | a610c33 +1 | [лог](logs/2026-09-28T09-40-42Z-unit-d951.log) |  |
 | 28.09.2026 14:42 | typecheck | ✅ без ошибок | 10 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-08Z-typecheck-01f7.log) |  |
 | 28.09.2026 14:42 | lint | ✅ без ошибок | 21 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-24Z-lint-e533.log) |  |
+| 28.09.2026 15:05 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 20 с | b5bbd54 | [лог](logs/2026-09-28T10-05-02Z-unit-7164.log) | integration 28.09: final HEAD after merging main (auto-deploy test) |
+| 28.09.2026 15:06 | typecheck | ✅ без ошибок | 24 с | b5bbd54 | [лог](logs/2026-09-28T10-06-41Z-typecheck-dfb9.log) | integration 28.09: final HEAD after merging main |
+| 28.09.2026 15:07 | lint | ✅ без ошибок | 18 с | b5bbd54 | [лог](logs/2026-09-28T10-07-05Z-lint-2273.log) | integration 28.09: final HEAD after merging main |

@@ -46,7 +46,7 @@ test('поздний выезд и ранний заезд начисляютс�
   );
   const half = Math.floor(price / 2 / 2);
 
-  // диалог спрашивает время: 19:00 → вся ночь по правилу объекта из Exely
+  // диалог спрашивает время: 19:00 → вся ночь по правилу объекта из Legacy
   page.once('dialog', (d) => void d.accept('19:00'));
   await cardTab(page, 'Счета');
   await page.getByRole('main').locator('[data-testid^="late-check-out-"]').click();
@@ -73,7 +73,7 @@ test('поздний выезд и ранний заезд начисляютс�
     price + 3 * half,
   );
 
-  // соседние ночи на этой койке заблокированы, как «выделять доступность» в Exely
+  // соседние ночи на этой койке заблокированы, как «выделять доступность» в Legacy
   const number = page.url().split('/').pop()!;
   await page.goto(`/chessboard?from=${plus(11)}&to=${plus(14)}`);
   const unitRow = page

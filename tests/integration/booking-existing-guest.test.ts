@@ -1,39 +1,17 @@
 import 'reflect-metadata';
-import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { NotFoundException } from '@nestjs/common';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, type Db } from '@pms/database';
-import {
-  buildInventoryImportPlan,
-  buildRatePlanImportPlan,
-  importInventoryPlan,
-  importPriceCalendar,
-  importRatePlans,
-  parseExelyAccommodationTypes,
-  parseExelyInventory,
-  parseExelyPriceCalendar,
-  parseExelyRatePlans,
-} from '@pms/imports';
 import { PrismaReservationsRepository } from '../../apps/api/src/reservations/reservations.repository';
 import { ReservationsService } from '../../apps/api/src/reservations/reservations.service';
 import { NoopAriPublisher } from '../../apps/api/src/channels/ari-publisher';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
-const FIXTURES = resolve(import.meta.dirname, '../../scripts/imports/src/exely/__fixtures__');
-/** Вымышленный объект; репозиторию имя передаётся явно. Всё откатывается. */
-const TEST_PROPERTY = {
-  name: 'Тестовый хостел (integration G6)',
-  legalName: 'ИП «Тест»',
-  bin: '000000000000',
-  address: 'нигде',
-  timezone: 'Asia/Almaty',
-  currency: 'KZT',
-  checkInTime: '14:00',
-  checkOutTime: '12:00',
-};
+/** Даты от сегодняшнего дня: цены сида лежат на 400 дней вперёд от засева (tests/tools/seed-local.ts) */
+const day = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
 class Rollback extends Error {}
 
 /**
@@ -51,56 +29,35 @@ describe.skipIf(!url)('бронь существующему гостю (integra
 
   it('вторая бронь по guestId — тот же гость, новых строк в guests нет; чужой гость — 404', async () => {
     const seen: Record<string, unknown> = {};
-    const spravochniki = readFileSync(resolve(FIXTURES, 'spravochniki.md'), 'utf-8');
-    const inventory = buildInventoryImportPlan(
-      parseExelyInventory(readFileSync(resolve(FIXTURES, 'inventory.md'), 'utf-8')),
-      parseExelyAccommodationTypes(spravochniki),
-    );
-    const calendar = parseExelyPriceCalendar(
-      JSON.parse(readFileSync(resolve(FIXTURES, 'price-calendar.json'), 'utf-8')),
-    );
     await expect(
       db.$transaction(
         async (tx) => {
-          await importInventoryPlan(tx, inventory, TEST_PROPERTY);
+          // засеянный объект стенда (seed-local): служебный путь находит его по имени, как репозиторий по умолчанию
           const property = await tx.property.findFirstOrThrow({
-            where: { name: TEST_PROPERTY.name },
-            select: { id: true, organizationId: true },
+            where: { inventoryUnits: { some: { code: 'L1' } } },
+            select: { id: true, name: true, organizationId: true },
           });
-          const types = await tx.accommodationType.findMany({
-            where: { propertyId: property.id },
-            select: { code: true },
-          });
-          await importRatePlans(
-            tx,
-            buildRatePlanImportPlan(
-              parseExelyRatePlans(spravochniki),
-              types.map((t) => t.code),
-              'KZT',
-            ),
-            property.id,
-          );
-          await importPriceCalendar(tx, calendar, property.id);
           const service = new ReservationsService(
             {
-              run: (fn) => fn(new PrismaReservationsRepository(tx, TEST_PROPERTY.name)),
-              read: (fn) => fn(new PrismaReservationsRepository(tx, TEST_PROPERTY.name)),
+              run: (fn) => fn(new PrismaReservationsRepository(tx, property.name)),
+              read: (fn) => fn(new PrismaReservationsRepository(tx, property.name)),
             },
             new NoopAriPublisher(),
           );
+          // без ячейки: засеянные брони стенда не мешают, отказ может дать только гость
           const item = {
-            accommodationTypeCode: 'exely-900001',
-            ratePlanCode: 'exely-800001',
+            accommodationTypeCode: 'L-DOUBLE',
+            ratePlanCode: 'L-BASE',
             adults: 1,
-            unitCode: '9001',
+            unitCode: null,
           };
           const guestsOfOrg = () =>
             tx.guest.count({ where: { organizationId: property.organizationId } });
 
           const first = await service.create({
             source: 'WALK_IN',
-            arrivalDate: '2026-01-01',
-            departureDate: '2026-01-03',
+            arrivalDate: day(200),
+            departureDate: day(202),
             guest: { firstName: 'Гость', lastName: 'Тест-G6' },
             items: [item],
           });
@@ -111,11 +68,10 @@ describe.skipIf(!url)('бронь существующему гостю (integra
           if (!guestId) throw new Error('у первой брони нет главного гостя');
           const before = await guestsOfOrg();
 
-          // в ценовом календаре фикстуры пять ночей (01.01–05.01): вторая бронь — сразу после первой
           const second = await service.create({
             source: 'PHONE',
-            arrivalDate: '2026-01-03',
-            departureDate: '2026-01-05',
+            arrivalDate: day(202),
+            departureDate: day(204),
             guestId,
             items: [item],
           });
@@ -148,11 +104,10 @@ describe.skipIf(!url)('бронь существующему гостю (integra
           seen['foreign'] = await service
             .create({
               source: 'PHONE',
-              arrivalDate: '2026-01-03',
-              departureDate: '2026-01-04',
+              arrivalDate: day(204),
+              departureDate: day(205),
               guestId: foreign.id,
-              // без ячейки: отказ может дать только гость, не занятая ячейка
-              items: [{ ...item, unitCode: null }],
+              items: [item],
             })
             .then(
               () => 'created',

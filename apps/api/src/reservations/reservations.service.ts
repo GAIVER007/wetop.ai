@@ -563,7 +563,7 @@ export class ReservationsService {
   /**
    * Изменить даты всей брони. Тариф берётся с проживания (Q-102: `ReservationItem.rate_plan_id`);
    * `ratePlanCode` в запросе переопределяет его и обязателен, если тариф на проживании неизвестен
-   * (перенесённые из Exely брони).
+   * (созданная ранее брони).
    */
   async changeDates(number: string, dto: ChangeDatesDto): Promise<ReservationCard> {
     const dates = requireStayDates(dto.arrivalDate, dto.departureDate);
@@ -576,7 +576,7 @@ export class ReservationsService {
         )?.ratePlanId;
         if (!dto.ratePlanCode && !ownPlanId)
           throw new BadRequestException(
-            'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+            'ratePlanCode обязателен: тариф на проживании неизвестен',
           );
         const plan = dto.ratePlanCode
           ? await repo.ratePlanByCode(dto.ratePlanCode)
@@ -848,7 +848,7 @@ export class ReservationsService {
             throw new ConflictException(`Ячейка ${last.unitCode} занята на новые ночи`);
           await repo.replaceAllocationDates(last.id, last.startDate, departureDate);
         }
-        // У брони без тарифа (из Exely) выбранный тариф записывается: дальше в нём продлевают, штраф — его (Q-201)
+        // У брони без тарифа выбранный тариф записывается: дальше в нём продлевают, штраф — его (Q-201)
         await repo.updateItem(item.id, {
           departureDate,
           priceMinor: price.totalMinor,
@@ -1135,7 +1135,7 @@ export class ReservationsService {
 
   /**
    * Штраф при отмене и незаезде (Q-103) по политике тарифа проживания: начисление за проживание
-   * сторнируется автоматически, вместо него ставится `PENALTY`. Умолчание тарифов — правило Exely
+   * сторнируется автоматически, вместо него ставится `PENALTY`. Умолчание тарифов — правило Legacy
    * «стоимость первых суток»; сумма первой ночи берётся из календаря цен, иначе средняя ночь.
    * Штраф — обычное начисление: стойка сторнирует его с карточки, если решила не взыскивать.
    */
@@ -1195,7 +1195,7 @@ export class ReservationsService {
   }
 
   /**
-   * Тариф для пересчёта: явный код или тариф проживания; у перенесённых из Exely его нет (Б8). Выбрать другой тариф
+   * Тариф для пересчёта: явный код или тариф проживания; у созданная ранее его нет (Б8). Выбрать другой тариф
    * может только тот, кому открыты тарифы (Q-200); брони без тарифа администратор назначает тариф со штрафом (Q-201).
    */
   private async resolvePlanId(
@@ -1206,14 +1206,14 @@ export class ReservationsService {
     if (!ratePlanCode) {
       if (!item.ratePlanId)
         throw new BadRequestException(
-          'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+          'ratePlanCode обязателен: тариф на проживании неизвестен',
         );
       return item.ratePlanId;
     }
     const plan = await repo.ratePlanByCode(ratePlanCode);
     if (!plan)
       throw new BadRequestException(
-        'ratePlanCode обязателен: тариф на проживании неизвестен (бронь перенесена из Exely)',
+        'ratePlanCode обязателен: тариф на проживании неизвестен',
       );
     this.assertPlanKept(item, plan);
     return plan.id;
@@ -1222,7 +1222,7 @@ export class ReservationsService {
   /**
    * Тариф — цена и правило штрафа брони. Q-200 (ответ владельца 27.09.2026 — «нет не могут»): у существующей брони его
    * меняют владелец и управляющий (право `rates`); администратор меняет даты, продлевает и переселяет в том же тарифе.
-   * Q-201 («Да, разрешить»): брони без тарифа (из Exely) администратор назначает тариф один раз, со штрафом не мягче
+   * Q-201 («Да, разрешить»): брони без тарифа администратор назначает тариф один раз, со штрафом не мягче
    * «первых суток»; тариф записывается в бронь, дальше — Q-200. Без человека за запросом — как раньше.
    */
   private assertPlanKept(

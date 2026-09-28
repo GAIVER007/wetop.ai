@@ -15,7 +15,7 @@ if (!apiKey) throw new Error('CHANNEX_API_KEY пуст');
 const baseUrl = process.env.CHANNEX_API_BASE_URL?.trim() || 'https://staging.channex.io/api/v1';
 if (!baseUrl.includes('staging')) throw new Error(`Только staging: ${baseUrl}`);
 
-const category = process.argv[2] ?? 'exely-5074688';
+const category = process.argv[2] ?? 'category-dorm';
 const nights = Number(process.argv[3] ?? 1);
 const api = process.env.APP_API_URL ?? 'http://localhost:3001';
 const mapping = (await (await serviceFetch(`${api}/channels/channex/mapping`)).json()) as Array<{

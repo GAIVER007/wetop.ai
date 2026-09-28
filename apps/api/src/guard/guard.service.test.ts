@@ -311,7 +311,7 @@ describe('GuardService.tick', () => {
           attempts: 6,
           receivedAt: NIGHT,
           lastError:
-            'Бронь BDC-1: перенесённых из Exely броней с таким же составом несколько — PMS не выбирает сама (ADR-024)',
+            'Бронь BDC-1: перенесённых из Legacy броней с таким же составом несколько — PMS не выбирает сама (ADR-024)',
         },
       ],
     });
@@ -392,7 +392,7 @@ describe('GuardService.tick', () => {
     expect(t.repo.rows[0]!.status).toBe('ESCALATED');
   });
 
-  it('овербукинг: к человеку без починки; пока объект на Exely — предупреждение, ночью не будит', async () => {
+  it('овербукинг: к человеку без починки; пока объект на Legacy — предупреждение, ночью не будит', async () => {
     const t = setup({
       stays: {
         units: [{ code: 'MALE', active: 1 }],

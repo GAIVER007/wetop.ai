@@ -11,7 +11,6 @@ const plan: InventoryImportPlan = {
       kind: 'PRIVATE_ROOM',
       capacityAdults: 1,
       capacityChildren: 0,
-      exelyId: '1',
     },
     {
       code: 'b',
@@ -19,7 +18,6 @@ const plan: InventoryImportPlan = {
       kind: 'PRIVATE_ROOM',
       capacityAdults: 2,
       capacityChildren: 0,
-      exelyId: '2',
     },
     {
       code: 'd',
@@ -27,13 +25,11 @@ const plan: InventoryImportPlan = {
       kind: 'DORM_BED',
       capacityAdults: 1,
       capacityChildren: 0,
-      exelyId: '3',
     },
   ],
   units: [
     {
       code: '1',
-      exelyRoomNumber: '1',
       kind: 'ROOM',
       accommodationTypeCode: 'a',
       roomNumber: '1',
@@ -42,7 +38,6 @@ const plan: InventoryImportPlan = {
     },
     {
       code: '2',
-      exelyRoomNumber: '2',
       kind: 'ROOM',
       accommodationTypeCode: 'b',
       roomNumber: '2',
@@ -51,7 +46,6 @@ const plan: InventoryImportPlan = {
     },
     {
       code: '10',
-      exelyRoomNumber: '10',
       kind: 'BED',
       accommodationTypeCode: 'd',
       roomNumber: '10',
@@ -60,7 +54,6 @@ const plan: InventoryImportPlan = {
     },
     {
       code: '11',
-      exelyRoomNumber: '11',
       kind: 'BED',
       accommodationTypeCode: 'd',
       roomNumber: '11',

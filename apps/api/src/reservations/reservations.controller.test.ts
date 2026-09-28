@@ -40,7 +40,7 @@ function makeFake() {
   const types = [
     {
       id: 't1',
-      code: 'exely-900001',
+      code: 'category-single',
       name: 'Тестовая одиночная',
       active: true,
       capacityAdults: 1,
@@ -48,7 +48,7 @@ function makeFake() {
     },
     {
       id: 't2',
-      code: 'exely-900002',
+      code: 'category-twin',
       name: 'Тестовая двойная',
       active: true,
       capacityAdults: 2,
@@ -58,15 +58,15 @@ function makeFake() {
   const plans: RatePlanRef[] = [
     {
       id: 'p1',
-      code: 'exely-800001',
+      code: 'rate-base',
       name: 'Тестовый базовый',
       currency: 'KZT',
       active: true,
-      cancellationPenalty: 'FIRST_NIGHT', // правило Exely «первые сутки» (Q-103)
+      cancellationPenalty: 'FIRST_NIGHT', // правило Legacy «первые сутки» (Q-103)
     },
     {
       id: 'p3',
-      code: 'exely-800003',
+      code: 'legacy-800003',
       name: 'Мёртвый',
       currency: 'KZT',
       active: false,
@@ -350,9 +350,6 @@ function makeFake() {
       const r = [...state.reservations.values()].find((x) => x.externalId === externalId);
       return r ? this.reservationByNumber(r.confirmationNumber) : null;
     },
-    async importedOtaCandidates() {
-      return [];
-    },
     async addReservationItem() {
       return 'x';
     },
@@ -428,8 +425,8 @@ const body = (over: Record<string, unknown> = {}) => ({
   guest: { firstName: 'Гость', lastName: 'Тестовый', phone: '+70000000000' },
   items: [
     {
-      accommodationTypeCode: 'exely-900001',
-      ratePlanCode: 'exely-800001',
+      accommodationTypeCode: 'category-single',
+      ratePlanCode: 'rate-base',
       adults: 1,
       unitCode: '9001',
     },
@@ -538,7 +535,7 @@ describe('manual reservation API', () => {
     ]);
     // после коммита в каналы уходит дельта доступности по категории и ночам брони
     expect(published).toEqual([
-      { categoryCodes: ['exely-900001'], from: '2026-09-15', toExclusive: '2026-09-17' },
+      { categoryCodes: ['category-single'], from: '2026-09-15', toExclusive: '2026-09-17' },
     ]);
   });
   it('ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно', async () => {
@@ -603,8 +600,8 @@ describe('manual reservation API', () => {
     const guestId = '7d6c5b4a-0000-4000-8000-000000000001';
     const group = [
       {
-        accommodationTypeCode: 'exely-900001',
-        ratePlanCode: 'exely-800001',
+        accommodationTypeCode: 'category-single',
+        ratePlanCode: 'rate-base',
         adults: 1,
         quantity: 2,
       },
@@ -675,7 +672,7 @@ describe('manual reservation API', () => {
         source: 'OTA',
         arrivalDate: `2026-09-${day}`,
         departureDate: `2026-09-${String(Number(day) + 1)}`,
-        items: [{ accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800001', adults: 1 }],
+        items: [{ accommodationTypeCode: 'category-single', ratePlanCode: 'rate-base', adults: 1 }],
         ...over,
       });
     const first = await request(app.getHttpServer())
@@ -744,7 +741,7 @@ describe('manual reservation API', () => {
       .send(
         body({
           items: [
-            { accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800003', adults: 1 },
+            { accommodationTypeCode: 'category-single', ratePlanCode: 'legacy-800003', adults: 1 },
           ],
         }),
       )
@@ -755,8 +752,8 @@ describe('manual reservation API', () => {
         body({
           items: [
             {
-              accommodationTypeCode: 'exely-900001',
-              ratePlanCode: 'exely-800001',
+              accommodationTypeCode: 'category-single',
+              ratePlanCode: 'rate-base',
               adults: 1,
               unitCode: '9002',
             },
@@ -772,8 +769,8 @@ describe('manual reservation API', () => {
         body({
           items: [
             {
-              accommodationTypeCode: 'exely-900001',
-              ratePlanCode: 'exely-800001',
+              accommodationTypeCode: 'category-single',
+              ratePlanCode: 'rate-base',
               adults: 1,
               unitCode: '9003',
             },
@@ -803,7 +800,7 @@ describe('manual reservation API', () => {
       .send({
         arrivalDate: '2026-09-16',
         departureDate: '2026-09-19',
-        ratePlanCode: 'exely-800001',
+        ratePlanCode: 'rate-base',
       })
       .expect(200);
     expect(moved.body.arrivalDate).toBe('2026-09-16');
@@ -916,7 +913,7 @@ describe('manual reservation API', () => {
           arrivalDate: '2026-09-15',
           departureDate: '2026-09-18',
           items: [
-            { accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800001', adults: 1 },
+            { accommodationTypeCode: 'category-single', ratePlanCode: 'rate-base', adults: 1 },
           ],
         }),
       )
@@ -972,14 +969,14 @@ describe('manual reservation API', () => {
       .expect(200);
     expect(moved.body.items[0]).toMatchObject({
       unitCode: '9002',
-      accommodationTypeCode: 'exely-900002',
+      accommodationTypeCode: 'category-twin',
       priceMinor: '3000000', // 2 ночи × 1 500 000 в двойной
     });
     expect(moved.body.totalAmountMinor).toBe('3000000');
     // канал должен узнать: в одиночной освободилось, в двойной занялось
     expect(published).toEqual([
       {
-        categoryCodes: ['exely-900001', 'exely-900002'],
+        categoryCodes: ['category-single', 'category-twin'],
         from: '2026-09-15',
         toExclusive: '2026-09-17',
       },
@@ -1121,8 +1118,8 @@ describe('manual reservation API', () => {
     expect(mv.body).toEqual({
       unitCode: '9002',
       changesCategory: true,
-      fromCategory: { code: 'exely-900001', name: 'Тестовая одиночная' },
-      toCategory: { code: 'exely-900002', name: 'Тестовая двойная' },
+      fromCategory: { code: 'category-single', name: 'Тестовая одиночная' },
+      toCategory: { code: 'category-twin', name: 'Тестовая двойная' },
       nights: 2,
       currentMinor: '2200000',
       newMinor: '3000000',
@@ -1144,8 +1141,8 @@ describe('manual reservation API', () => {
         departureDate: '2026-09-16',
         items: [
           {
-            accommodationTypeCode: 'exely-900002',
-            ratePlanCode: 'exely-800001',
+            accommodationTypeCode: 'category-twin',
+            ratePlanCode: 'rate-base',
             adults: 1,
             unitCode: '9002',
           },
@@ -1157,7 +1154,7 @@ describe('manual reservation API', () => {
     ).expect(200);
     expect(busyOther.body).toMatchObject({
       changesCategory: true,
-      toCategory: { code: 'exely-900002', name: 'Тестовая двойная' },
+      toCategory: { code: 'category-twin', name: 'Тестовая двойная' },
       newMinor: null,
     });
     expect(busyOther.body.problem).toContain('занята');
@@ -1217,8 +1214,8 @@ describe('manual reservation API', () => {
         departureDate: '2026-09-19',
         items: [
           {
-            accommodationTypeCode: 'exely-900002',
-            ratePlanCode: 'exely-800001',
+            accommodationTypeCode: 'category-twin',
+            ratePlanCode: 'rate-base',
             adults: 1,
             unitCode: '9002',
           },
@@ -1309,8 +1306,8 @@ describe('manual reservation API', () => {
       body({
         items: [
           {
-            accommodationTypeCode: 'exely-900002',
-            ratePlanCode: 'exely-800001',
+            accommodationTypeCode: 'category-twin',
+            ratePlanCode: 'rate-base',
             adults: 1,
             unitCode: '9002',
           },
@@ -1367,7 +1364,7 @@ describe('manual reservation API', () => {
     fake.state.restrictions.push(rule('2026-09-15', { minStay: 3 }));
     const min = await post(
       body({
-        items: [{ accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800001', adults: 1 }],
+        items: [{ accommodationTypeCode: 'category-single', ratePlanCode: 'rate-base', adults: 1 }],
       }),
     ).expect(409);
     expect(min.body.message).toBe(
@@ -1472,8 +1469,8 @@ describe('manual reservation API', () => {
         body({
           items: [
             {
-              accommodationTypeCode: 'exely-900002',
-              ratePlanCode: 'exely-800001',
+              accommodationTypeCode: 'category-twin',
+              ratePlanCode: 'rate-base',
               adults: 1,
               unitCode: '9002',
             },
@@ -1505,8 +1502,8 @@ describe('manual reservation API', () => {
       body({
         items: [
           {
-            accommodationTypeCode: 'exely-900001',
-            ratePlanCode: 'exely-800001',
+            accommodationTypeCode: 'category-single',
+            ratePlanCode: 'rate-base',
             adults: 1,
             quantity,
           },
@@ -1518,8 +1515,8 @@ describe('manual reservation API', () => {
       body({
         items: [
           {
-            accommodationTypeCode: 'exely-900001',
-            ratePlanCode: 'exely-800001',
+            accommodationTypeCode: 'category-single',
+            ratePlanCode: 'rate-base',
             adults: 1,
             quantity: 2,
             unitCode: '9001',
@@ -1561,13 +1558,13 @@ describe('manual reservation API', () => {
   /**
    * Q-200 (ответ владельца 27.09.2026 — «нет не могут»): тариф — цена и правило штрафа брони, у существующей брони его
    * меняют владелец и управляющий (право `rates`). Администратор меняет даты, продлевает и переселяет в том же тарифе.
-   * Брони из Exely без тарифа тариф назначают они же — до ответа на Q-201.
+   * Брони из Legacy без тарифа тариф назначают они же — до ответа на Q-201.
    */
   describe('тариф брони по роли (Q-200, ADR-107)', () => {
     const secondPlan = () => {
       fake.plans.push({
         id: 'p2',
-        code: 'exely-800002',
+        code: 'rate-ota',
         name: 'Тестовый без штрафа',
         currency: 'KZT',
         active: true,
@@ -1593,7 +1590,7 @@ describe('manual reservation API', () => {
       secondPlan();
       const { n } = await book();
       await expect(
-        as('STAFF', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' })),
+        as('STAFF', () => service().changeDates(n, { ...stay, ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
       expect(planOf(n)).toBe('p1');
       expect(fake.state.reservations.get(n)!.departureDate).toBe('2026-09-17');
@@ -1606,7 +1603,7 @@ describe('manual reservation API', () => {
     it('управляющий тариф меняет', async () => {
       secondPlan();
       const { n } = await book();
-      await as('MANAGER', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' }));
+      await as('MANAGER', () => service().changeDates(n, { ...stay, ratePlanCode: 'rate-ota' }));
       expect(planOf(n)).toBe('p2');
     });
 
@@ -1614,11 +1611,11 @@ describe('manual reservation API', () => {
       secondPlan();
       const { n, itemId } = await book();
       await expect(
-        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800002' })),
+        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
       await as('STAFF', () => service().extend(n, itemId, { nights: 1 }));
       await expect(
-        as('STAFF', () => service().assign(n, itemId, { unitCode: '9002', ratePlanCode: 'exely-800002' })),
+        as('STAFF', () => service().assign(n, itemId, { unitCode: '9002', ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
       const moved = await as('STAFF', () => service().assign(n, itemId, { unitCode: '9002' }));
       expect(moved.items[0]!.unitCode).toBe('9002');
@@ -1626,11 +1623,11 @@ describe('manual reservation API', () => {
     });
 
     /**
-     * Q-201 (ответ владельца 27.09.2026 — «Да, разрешить»): брони из Exely без тарифа администратор назначает тариф один
+     * Q-201 (ответ владельца 27.09.2026 — «Да, разрешить»): брони из Legacy без тарифа администратор назначает тариф один
      * раз, со штрафом не мягче «первых суток»; тариф записывается в бронь и дальше меняется только владельцем и
      * управляющим. В фальшивке p1 — «первые сутки», p2 — без штрафа.
      */
-    it('бронь из Exely без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201)', async () => {
+    it('бронь из Legacy без тарифа: администратор назначает тариф со штрафом, без штрафа — отказ; тариф записывается (Q-201)', async () => {
       secondPlan();
       const plain = await book();
       fake.state.reservations.get(plain.n)!.items[0]!.ratePlanId = null;
@@ -1643,14 +1640,14 @@ describe('manual reservation API', () => {
       );
       expect(preview.ratePlanRequired).toBe(true);
       await expect(
-        as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800002' })),
+        as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_SOFT_MESSAGE);
       expect(planOf(plain.n)).toBeNull();
-      await as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800001' }));
+      await as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'rate-base' }));
       expect(planOf(plain.n)).toBe('p1');
       // записанный тариф администратор уже не меняет (Q-200)
       await expect(
-        as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'exely-800002' })),
+        as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
     });
 
@@ -1659,9 +1656,9 @@ describe('manual reservation API', () => {
       const { n, itemId } = await book();
       fake.state.reservations.get(n)!.items[0]!.ratePlanId = null;
       await expect(
-        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800002' })),
+        as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_SOFT_MESSAGE);
-      await as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'exely-800001' }));
+      await as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'rate-base' }));
       expect(planOf(n)).toBe('p1');
       await as('STAFF', () => service().extend(n, itemId, { nights: 1 }));
       expect(fake.state.reservations.get(n)!.items[0]!.departureDate).toBe('2026-09-19');
@@ -1671,7 +1668,7 @@ describe('manual reservation API', () => {
       secondPlan();
       const { n } = await book();
       fake.state.reservations.get(n)!.items[0]!.ratePlanId = null;
-      await as('MANAGER', () => service().changeDates(n, { ...stay, ratePlanCode: 'exely-800002' }));
+      await as('MANAGER', () => service().changeDates(n, { ...stay, ratePlanCode: 'rate-ota' }));
       expect(planOf(n)).toBe('p2');
     });
   });
@@ -1681,7 +1678,7 @@ describe('manual reservation API', () => {
     // правило штрафа — чтобы стойка показала администратору только тарифы, которые ему можно назначить (Q-201)
     expect(res.body).toEqual([
       {
-        code: 'exely-800001',
+        code: 'rate-base',
         name: 'Тестовый базовый',
         currency: 'KZT',
         cancellationPenalty: 'FIRST_NIGHT',
@@ -1697,7 +1694,7 @@ describe('manual reservation API', () => {
           arrivalDate: '2026-09-15',
           departureDate: '2026-09-18',
           items: [
-            { accommodationTypeCode: 'exely-900001', ratePlanCode: 'exely-800001', adults: 1 },
+            { accommodationTypeCode: 'category-single', ratePlanCode: 'rate-base', adults: 1 },
           ],
         }),
       )
@@ -1743,8 +1740,8 @@ describe('manual reservation API', () => {
           departureDate: '2026-09-16',
           items: [
             {
-              accommodationTypeCode: 'exely-900001',
-              ratePlanCode: 'exely-800001',
+              accommodationTypeCode: 'category-single',
+              ratePlanCode: 'rate-base',
               adults: 1,
               unitCode: '9003',
             },

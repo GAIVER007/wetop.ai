@@ -102,7 +102,7 @@ export function Sidebar({
         <Suspense fallback={null}>
           <GrantedTrial desk={desk} />
         </Suspense>
-        {/* Свежесть данных: Exely · Channex · очередь ARI (план wetop-live-data, шаг 4) */}
+        {/* Свежесть данных Channex и очереди ARI. */}
         <div className="sidebar-freshness">
           <DataFreshness />
         </div>

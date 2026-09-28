@@ -1,0 +1,21 @@
+# Интеграционные (integration) · 29.09.2026 02:07 Алматы · vm
+# коммит 37fc796 (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T21-07-27Z-integration-b13d.json' 'tests/integration/onboarding-concurrency.test.ts' 'tests/integration/onboarding-without-property.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/onboarding-without-property.test.ts (1 test) 504ms
+   ✓ онбординг организации без объекта (после сброса) (1)
+     ✓ status просит онбординг, provision создаёт объект в цепочке и номера под ним 502ms
+ ✓ |integration| tests/integration/onboarding-concurrency.test.ts (1 test) 438ms
+   ✓ онбординг без объекта: два одновременных сохранения (1)
+     ✓ объект один, одно сохранение проходит, второе — «отель уже настроен» 437ms
+
+ Test Files  2 passed (2)
+      Tests  2 passed (2)
+   Start at  21:07:27
+   Duration  3.18s (tests 43%, transform 32%, import 26%)
+
+JSON report written to /tmp/pms-test-2026-09-28T21-07-27Z-integration-b13d.json
+
+# код выхода 0 · 4 с

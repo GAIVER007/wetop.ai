@@ -3959,3 +3959,19 @@
 | 29.09.2026 02:04 | lint | ✅ без ошибок | 15 с | 5e52b8b | [лог](logs/2026-09-28T21-04-15Z-lint-4d47.log) | PR #101 merged with main 37fc7963 (5e52b8be) |
 | 29.09.2026 02:04 | unit | ✅ 2276 из 2279, пропущено 3 | 1 мин 18 с | 5e52b8b | [лог](logs/2026-09-28T21-04-30Z-unit-960c.log) | PR #101 merged with main 37fc7963 (5e52b8be) |
 | 29.09.2026 02:05 | integration | ✅ 121 из 121 | 37 с | 5e52b8b | [лог](logs/2026-09-28T21-05-57Z-integration-03e2.log) | PR #101 merged with main 37fc7963 (5e52b8be) |
+| 29.09.2026 02:07 | integration (частично: tests/integration/onboarding-concurrency.test.ts) | ❌ упало 1 из 1 | 4 с | 37fc796 +1 | [лог](logs/2026-09-28T21-07-00Z-integration-3372.log) | онбординг без объекта: гонка двух сохранений — red на main 37fc7963 |
+| 29.09.2026 02:07 | unit (частично: apps/api/src/hotel/onboarding.test.ts) | ✅ 9 из 9 | 3 с | 37fc796 +2 | [лог](logs/2026-09-28T21-07-23Z-unit-d498.log) | онбординг: запирание организации |
+| 29.09.2026 02:07 | integration (частично: tests/integration/onboarding-concurrency.test.ts tests/integration/onboarding-without-property.test.ts) | ✅ 2 из 2 | 4 с | 37fc796 +3 | [лог](logs/2026-09-28T21-07-27Z-integration-b13d.log) | онбординг без объекта: гонка — green после запирания строки организации |
+| 29.09.2026 02:08 | typecheck | ✅ без ошибок | 32 с | 37fc796 +3 | [лог](logs/2026-09-28T21-08-10Z-typecheck-e0ac.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:08 | lint | ✅ без ошибок | 18 с | 37fc796 +3 | [лог](logs/2026-09-28T21-08-42Z-lint-17bd.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:09 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 35 с | 37fc796 +2 | [лог](logs/2026-09-28T21-09-00Z-unit-4c5c.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:10 | integration | ✅ 122 из 122 | 41 с | 37fc796 +3 | [лог](logs/2026-09-28T21-10-37Z-integration-8946.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:11 | e2e | ✅ 25 из 25 | 1 мин 4 с | 37fc796 +2 | [лог](logs/2026-09-28T21-11-50Z-e2e-86fa.log) | main 37fc7963 + запирание онбординга: живой e2e |
+| 29.09.2026 02:12 | e2e | ✅ 26 из 26 | 1 мин 13 с | 37fc796 +2 | [лог](logs/2026-09-28T21-12-55Z-e2e-8638.log) | main 37fc7963 + запирание: E2E_AUTH=1, API ролью wetop_app |
+| 29.09.2026 01:30 | integration | ✅ 119 из 119 | 33 с | 5ca8f84 | [лог](logs/2026-09-28T20-30-38Z-integration-f9a1.log) | main 4f233a68 после вливания PR #124 |
+| 29.09.2026 01:31 | e2e | ✅ 25 из 25 | 56 с | 5ca8f84 | [лог](logs/2026-09-28T20-31-36Z-e2e-5e4a.log) | main 4f233a68 после вливания PR #124: живые e2e, свежий стенд |
+| 29.09.2026 01:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 564 | 42 мин 27 с | 5ca8f84 | [лог](logs/2026-09-28T20-32-39Z-e2e-d7e2.log) | main 4f233a68 после вливания PR #124: полный UI-набор в один поток |
+| 29.09.2026 02:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts) | ✅ 4 из 4 | 17 с | 5ca8f84 +1 | [лог](logs/2026-09-28T21-15-57Z-e2e-905f.log) | record-tabs: вкладка гостя «Финансы» (G5) вместо «Счета и услуги» |
+| 29.09.2026 02:17 | typecheck | ✅ без ошибок | 30 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-01Z-typecheck-3ed3.log) | record-tabs на main 5ff088c0 |
+| 29.09.2026 02:17 | lint | ✅ без ошибок | 16 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-32Z-lint-7011.log) | record-tabs на main 5ff088c0 |
+| 29.09.2026 02:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/categories-safe-edit.spec.ts tests/ui/categories-create. | ✅ 6 из 6 | 41 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-48Z-e2e-00c2.log) | main 5ff088c0: record-tabs с «Финансами», категории C3–C4a |

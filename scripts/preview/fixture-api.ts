@@ -112,7 +112,7 @@ const categorySeed: {
   count: number;
   prefix: string;
   capacityAdults: number;
-  /** У созданных через POST: тип из формы и число тарифов (ТЗ «Категории v2», ADR-107) */
+  /** У созданных через POST: тип из формы и число тарифов (ТЗ «Категории v2», ADR-109) */
   kind?: string;
   ratePlans?: number;
 }[] = [

@@ -1,7 +1,7 @@
 import type { InventoryCategory } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
 
-/** Подписи категорий — одни и те же в таблице, карточках и панели (ТЗ «Категории v2», ADR-107). */
+/** Подписи категорий — одни и те же в таблице, карточках и панели (ТЗ «Категории v2», ADR-109). */
 export const KIND_WORD: Record<InventoryCategory['kind'], string> = {
   PRIVATE_ROOM: 'Номер целиком',
   DORM_BED: 'Койко-место',

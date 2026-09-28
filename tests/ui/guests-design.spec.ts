@@ -483,3 +483,44 @@ test('гости: отборы по визиту и числу визитов, �
   await main.getByRole('link', { name: 'Сбросить фильтры' }).first().click();
   await expect(page).toHaveURL(/\/guests$/);
 });
+
+test('гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8)', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/guest-cases`);
+  const main = page.getByRole('main');
+
+  // §47: поиск и отборы — одна строка над таблицей; лупа стоит внутри поля, по его середине
+  await page.goto('/guests');
+  const search = main.getByRole('searchbox', { name: 'Поиск гостей' });
+  const show = main.getByTestId('guests-filters').getByRole('button', { name: 'Показать' });
+  const [s, b] = [(await search.boundingBox())!, (await show.boundingBox())!];
+  expect(Math.abs(s.y + s.height / 2 - (b.y + b.height / 2))).toBeLessThanOrEqual(4);
+  const icon = (await main.locator('.guests-toolbar .search-field > svg').boundingBox())!;
+  expect(icon.y).toBeGreaterThanOrEqual(s.y);
+  expect(icon.y + icon.height).toBeLessThanOrEqual(s.y + s.height);
+  // итог выдачи — живая область: автопоиск меняет его без перехода фокуса
+  await expect(main.getByTestId('guests-meta')).toHaveAttribute('role', 'status');
+
+  // §43: сбой API — что не загрузилось и «Повторить», разделы и поиск остаются
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/guests/directory' } });
+  await page.goto('/guests');
+  const error = main.getByTestId('guests-error');
+  await expect(error).toContainText('Не удалось загрузить гостей');
+  await expect(error.getByRole('button', { name: 'Повторить загрузку' })).toBeVisible();
+  await expect(main.getByRole('searchbox', { name: 'Поиск гостей' })).toBeVisible();
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await request.post(`${fixture}/__test/guest-cases`);
+
+  // §46: на телефоне строка — карточка, визиты словом, а не «визитов 3»
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/guests?q=Возвращающийся');
+  const card = main.getByTestId('guests-table').getByRole('row').nth(1);
+  await expect(card).toContainText('3 визита');
+  await expect(card).not.toContainText('визитов 3');
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+});

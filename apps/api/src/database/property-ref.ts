@@ -80,8 +80,11 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
 }
 
 /**
- * Объект организации вошедшего. Выборка идёт прямо по `organizationId`, поэтому чужой объект сюда
- * не попадает по построению, а не по проверке после. Кэш — по организации плюс схема базы (ADR-042).
+ * Объект организации вошедшего — только по цепочке Organization → Business → Location → Property
+ * (Platform P1, ADR-104 §18; DATA_MODEL v2.6). Выборка идёт от организации Business, поэтому чужой
+ * объект сюда не попадает по построению, а не по проверке после. Фолбэк по `properties.organization_id`
+ * был миграционным окном и снят после production backfill (broken_chain = 0, 28.09.2026): объект без
+ * цепочки база больше не принимает (`location_id` NOT NULL). Кэш — по организации плюс схема базы (ADR-042).
  */
 async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const organizationId = currentOrganizationId();
@@ -90,18 +93,11 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const key = `${schema()}|org|${organizationId}`;
   const known = cache.get(key);
   if (known) return known;
-  // Platform P1 (ADR-104 §18, Q-199 вариант Б): путь к объекту идёт по финальной цепочке
-  // Organization → Business → Location → Property; внешний контракт PropertyRef не меняется.
-  // Фолбэк по properties.organization_id — ТОЛЬКО миграционное окно (приёмка владельца 27.09.2026,
-  // отчёт Platform P1 §5): после production backfill и broken_chain = 0 он снимается в следующей
-  // platform-фазе — окончательный переход на цепочку, новых зависимостей от фолбэка не заводить.
-  const select = { id: true, name: true, organizationId: true, timezone: true };
-  const found =
-    (await db.property.findFirst({
-      where: { location: { business: { organizationId } } },
-      orderBy: { createdAt: 'asc' },
-      select,
-    })) ?? (await db.property.findFirst({ where: { organizationId }, select }));
+  const found = await db.property.findFirst({
+    where: { location: { business: { organizationId } } },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, name: true, organizationId: true, timezone: true },
+  });
   if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
   cache.set(key, found);
   return found;

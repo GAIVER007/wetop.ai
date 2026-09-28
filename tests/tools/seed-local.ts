@@ -232,14 +232,15 @@ export async function seedLocal(
         });
   }
   const rates = await db.dailyRate.createMany({ data: rows, skipDuplicates: true });
-  // Минимальная вымышленная услуга нужна форме начисления и сквозным тестам finance/full-day.
+  // Минимальная вымышленная услуга нужна форме начисления и сквозным тестам finance/full-day: они выбирают её
+  // по коду (value в списке услуг) и сверяют баланс по цене 500 ₸ — код и цену не менять без этих спеков.
   await db.service.upsert({
-    where: { propertyId_code: { propertyId: property.id, code: 'L-LAUNDRY' } },
+    where: { propertyId_code: { propertyId: property.id, code: 'Стирка (1 загрузка)' } },
     create: {
       propertyId: property.id,
-      code: 'L-LAUNDRY',
+      code: 'Стирка (1 загрузка)',
       nameRu: 'Стирка (1 загрузка)',
-      price: 150_000n,
+      price: 50_000n,
       group: 'Стенд',
     },
     update: {},

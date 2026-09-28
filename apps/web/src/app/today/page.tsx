@@ -10,6 +10,9 @@ import { HotelClock } from './dashboard-widgets';
 import { DayBar } from './day-bar';
 import { DeskSection, DeskSkeleton } from './desk-section';
 import { FirstSteps } from './first-steps';
+import { MoneyToday } from './money-today';
+import { SystemsToday } from './systems-today';
+import { Panel } from '../../components/ui';
 
 async function loadHotel() {
   return hotelApi.settings().catch((error: unknown) => {
@@ -26,6 +29,14 @@ async function PropertyName() {
 async function PropertyClock() {
   const hotel = await loadHotel();
   return <HotelClock timezone={hotel?.property.timezone ?? FALLBACK_TIMEZONE} />;
+}
+
+function BlockSkeleton({ title }: { title: string }) {
+  return (
+    <Panel title={title}>
+      <p className="muted">Загружаем…</p>
+    </Panel>
+  );
 }
 
 /**
@@ -80,6 +91,15 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       <Suspense fallback={<DeskSkeleton />}>
         <DeskSection date={deskDate} today={today} />
       </Suspense>
+      {/* A2: у денег и систем свои запросы — свои куски, сбой одного не прячет остальное */}
+      <div className="dash-grid dash-grid--events">
+        <Suspense fallback={<BlockSkeleton title="Деньги сегодня" />}>
+          <MoneyToday date={deskDate} />
+        </Suspense>
+        <Suspense fallback={<BlockSkeleton title="Системы" />}>
+          <SystemsToday />
+        </Suspense>
+      </div>
       {/* Ссылки на модули (ТЗ §4 п. 8): аналитика и финансы живут в своих разделах, не на Главной */}
       <nav className="today-links" aria-label="Отчёты и финансы">
         <Link className="btn btn--secondary" href="/management/analytics">

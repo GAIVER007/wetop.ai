@@ -437,3 +437,175 @@
     justify-self: start;
   }
 }
+
+/*
+ * ---------- A2: заезды и выезды, фонд, уборка, деньги, системы ----------
+ * План `plans/today-a2-2026-09-28.md`, строки DESIGN.md §8 от 28.09. Строка события — приём
+ * «Требуют внимания» (имя 14 px и номер брони моноширинным одной строкой, подробности 13 px ниже),
+ * но без значка слева: действие справа — кнопка второго тона. Метки идут отдельными словами без « · » (§14).
+ */
+.day-events {
+  align-content: start;
+}
+.day-events__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.day-events__title svg {
+  color: var(--muted);
+}
+.day-events__time {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+}
+.day-events__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.day-event {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}
+.day-event + .day-event {
+  border-top: 1px solid var(--border-soft);
+}
+.day-event strong {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+.day-event .booking-number {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+}
+.day-event__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.day-event__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.day-event__unit {
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  line-height: inherit;
+}
+.day-event__warn,
+.day-event__reason {
+  color: var(--warning);
+  font-size: var(--text-sm);
+}
+.day-event__debt {
+  color: var(--danger);
+}
+.day-event__action {
+  flex: none;
+}
+.day-events__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.day-events__footer,
+.fund-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.day-events__footer .card-heading__link,
+.fund-footer .card-heading__link {
+  margin-left: auto;
+}
+
+.fund-panel {
+  align-content: start;
+}
+.fund-prepare {
+  margin: 0;
+  color: var(--warning);
+  font-size: var(--text-sm);
+}
+.fund-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.fund-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+.fund-repairs {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+.fund-repairs ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fund-repairs li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+}
+.fund-repairs__reason {
+  color: var(--muted);
+}
+
+.systems-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.systems-row {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+}
+.systems-row + .systems-row {
+  border-top: 1px solid var(--border-soft);
+}
+.systems-row__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.systems-row__name {
+  color: var(--text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+}
+.systems-row__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}

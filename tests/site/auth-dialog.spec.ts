@@ -147,7 +147,8 @@ test('регистрация закрыта (до RLS, ADR-102) — окно з�
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: false } }) });
   await page.goto('/#register');
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading', { name: 'Подключаем партнёров вручную' })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: 'Регистрация временно недоступна' })).toBeVisible();
+  await expect(dialog).not.toContainText(/14\sдней|заведём аккаунт/i);
   await expect(dialog.getByLabel('Пароль', { exact: true })).toHaveCount(0);
 });
 

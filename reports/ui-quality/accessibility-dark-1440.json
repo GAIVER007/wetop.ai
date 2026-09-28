@@ -128,7 +128,7 @@
     }
   },
   {
-    "route": "/hotel-settings/penalties",
+    "route": "/hotel-settings/stay",
     "violations": [],
     "layout": {
       "viewport": 1440,
@@ -208,7 +208,7 @@
     }
   },
   {
-    "route": "/analytics",
+    "route": "/website",
     "violations": [],
     "layout": {
       "viewport": 1440,
@@ -216,7 +216,23 @@
     }
   },
   {
-    "route": "/analytics/setup",
+    "route": "/website/booking",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/website/analytics",
+    "violations": [],
+    "layout": {
+      "viewport": 1440,
+      "content": 1440
+    }
+  },
+  {
+    "route": "/website/settings",
     "violations": [],
     "layout": {
       "viewport": 1440,

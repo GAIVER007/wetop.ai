@@ -33,7 +33,7 @@ const CARD: ReservationCard = {
   items: [
     {
       id: 'i-1',
-      accommodationTypeCode: 'exely-900001',
+      accommodationTypeCode: 'category-single',
       accommodationTypeName: 'Одиночная',
       arrivalDate: '2026-09-26',
       departureDate: '2026-09-28',

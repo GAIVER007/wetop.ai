@@ -201,9 +201,7 @@ for n in "${NAMES[@]}"; do
     kill $pids 2>/dev/null; sleep 3
   fi
   command_for "$n"
-  # Все оставшиеся службы держатся постоянно. Задача по расписанию была одна — exely-sync, снята
-  # 20.09.2026 вместе с самой синхронизацией (ADR-052); StartInterval и EXTRA_ENV оставлены на случай
-  # следующей такой задачи, write_plist их понимает.
+  # Все службы держатся постоянно; StartInterval и EXTRA_ENV поддерживают будущие задачи по расписанию.
   START_INTERVAL=""; keep=true; EXTRA_ENV=""
   write_plist "$AGENTS/$label.plist" "$label" "$LOGS/$n.log" "$keep" "${CMD[@]}"
   if [ "$DRY" -eq 1 ]; then echo "  $AGENTS/$label.plist собран и проверен (plutil), не загружен"; continue; fi

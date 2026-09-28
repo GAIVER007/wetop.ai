@@ -162,6 +162,78 @@ test('гости: панель предпросмотра — сейчас, ис
   await expect(main.getByTestId('guest-head')).toBeVisible();
 });
 
+test('гости: полная карточка — обзор, вся история, «Редактировать» (G4)', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/guest-cases`);
+  const main = page.getByRole('main');
+
+  // живёт, приезжал дважды и уже забронировал следующий визит: «Обзор» открыт первым
+  await page.goto('/guests/ui-guest-GCRET0');
+  await expect(main.getByRole('tab', { name: 'Обзор', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  // визиты — состоявшиеся проживания: будущая бронь визитом не считается (ТЗ §19)
+  await expect(main.getByTestId('guest-visits')).toHaveText('3 визита · 8 ночей');
+  const now = main.getByTestId('guest-stay-current');
+  await expect(now).toContainText('R08');
+  await expect(now).toContainText('к оплате');
+  await expect(now.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+    'href',
+    '/reservations/20260916-GCRET2',
+  );
+  // следующий визит говорит, подтверждена ли бронь; долг будущей брони здесь не показан (Q-199)
+  const next = main.getByTestId('guest-stay-next');
+  await expect(next).toContainText('R12');
+  await expect(next).toContainText('подтверждена');
+  await expect(next).not.toContainText('к оплате');
+  await expect(next.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+    'href',
+    '/reservations/20260916-GCRET3',
+  );
+  // на «Обзоре» — три свежих проживания и путь ко всей истории
+  await expect(main.getByRole('tabpanel').getByTestId('guest-stay-row')).toHaveCount(3);
+  const audit = await new AxeBuilder({ page })
+    .include('main')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+  await main.getByRole('link', { name: 'Все проживания (4)', exact: true }).click();
+  await expect(main.getByRole('tab', { name: 'Проживания', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  // история (ТЗ §21): свежие сверху; источник брони, сумма по счёту и слово о брони
+  const rows = main.getByRole('tabpanel').getByTestId('guest-stay-row');
+  await expect(rows).toHaveCount(4);
+  await expect(rows.nth(0)).toContainText('подтверждена');
+  await expect(rows.nth(1)).toContainText('проживает');
+  await expect(rows.nth(2)).toContainText('Сайт');
+  await expect(rows.nth(3)).toContainText('Booking.com');
+  await expect(rows.nth(3)).toContainText('завершена');
+  await expect(rows.nth(3)).toContainText('12 000 ₸');
+  // строка ведёт в бронь
+  await rows.nth(3).getByRole('link').first().click();
+  await expect(page).toHaveURL(/\/reservations\/20260916-GCRET0$/);
+
+  // только отменённая бронь: ни «сейчас», ни «следующего»; в истории — бронь словом, суммы нет
+  await page.goto('/guests/ui-guest-GCCAN0');
+  await expect(main.getByTestId('guest-stay-current')).toHaveCount(0);
+  await expect(main.getByTestId('guest-stay-next')).toHaveCount(0);
+  await expect(main.getByTestId('guest-visits')).toHaveText('0 визитов · 0 ночей');
+  const cancelled = main.getByRole('tabpanel').getByTestId('guest-stay-row');
+  await expect(cancelled).toHaveCount(1);
+  await expect(cancelled).toContainText('отменена');
+  await expect(cancelled.locator('td').nth(3)).toHaveText('—');
+
+  // «Редактировать» — профиль и документы на вкладке «Данные гостя», адрес помнит вкладку
+  await main.getByRole('link', { name: 'Редактировать', exact: true }).click();
+  await expect(main.getByTestId('guest-form')).toBeVisible();
+  await expect(page).toHaveURL(/#guest-profile$/);
+});
+
 test('гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами', async ({
   page,
   request,

@@ -53,6 +53,13 @@ export interface GuestProfile {
     departureDate: string;
     status: string;
     unitCode: string | null;
+    /** Откуда бронь (G4, ТЗ §21): стойка, сайт, канал продаж — и название канала, если есть */
+    source: string;
+    channel: string | null;
+    currency: string;
+    /** Начислено и остаток по счёту проживания (ТЗ §24: из Folio); null — счёта у проживания нет */
+    chargedMinor: string | null;
+    balanceMinor: string | null;
   }>;
 }
 /** Разделы справочника «Гости v2»: бейдж строки равен фильтру, суммы чипов сходятся с «Все» */
@@ -412,12 +419,25 @@ export class PrismaGuestsRepository implements GuestsRepository {
           include: {
             reservationItem: {
               include: {
-                reservation: { select: { confirmationNumber: true } },
+                reservation: {
+                  select: { confirmationNumber: true, source: true, channel: true, currency: true },
+                },
                 accommodationType: { select: { name: true } },
                 allocations: {
                   orderBy: { startDate: 'desc' },
                   take: 1,
                   include: { inventoryUnit: { select: { code: true } } },
+                },
+                // счёт проживания — тем же отбором, что список броней и предпросмотр (folioBalance)
+                folio: {
+                  select: {
+                    charges: { where: { voidedAt: null }, select: { amount: true } },
+                    allocations: {
+                      where: { payment: { status: 'COMPLETED' } },
+                      select: { amount: true },
+                    },
+                    refunds: { select: { amount: true } },
+                  },
                 },
               },
             },
@@ -446,14 +466,29 @@ export class PrismaGuestsRepository implements GuestsRepository {
         expiresAtEncrypted: d.expiresAtEncrypted,
       })),
       stays: g.stays
-        .map((s) => ({
-          confirmationNumber: s.reservationItem.reservation.confirmationNumber,
-          accommodationTypeName: s.reservationItem.accommodationType.name,
-          arrivalDate: iso(s.reservationItem.arrivalDate)!,
-          departureDate: iso(s.reservationItem.departureDate)!,
-          status: s.reservationItem.status,
-          unitCode: s.reservationItem.allocations[0]?.inventoryUnit.code ?? null,
-        }))
+        .map((s) => {
+          const { reservation, folio } = s.reservationItem;
+          const balance = folio
+            ? folioBalance({
+                charges: folio.charges.map((c) => ({ amountMinor: c.amount, voided: false })),
+                allocations: folio.allocations.map((a) => ({ amountMinor: a.amount })),
+                refunds: folio.refunds.map((r) => ({ amountMinor: r.amount })),
+              })
+            : null;
+          return {
+            confirmationNumber: reservation.confirmationNumber,
+            accommodationTypeName: s.reservationItem.accommodationType.name,
+            arrivalDate: iso(s.reservationItem.arrivalDate)!,
+            departureDate: iso(s.reservationItem.departureDate)!,
+            status: s.reservationItem.status,
+            unitCode: s.reservationItem.allocations[0]?.inventoryUnit.code ?? null,
+            source: reservation.source,
+            channel: reservation.channel,
+            currency: reservation.currency,
+            chargedMinor: balance ? balance.chargedMinor.toString() : null,
+            balanceMinor: balance ? balance.balanceMinor.toString() : null,
+          };
+        })
         .sort((a, b) => (a.arrivalDate < b.arrivalDate ? 1 : -1)),
     };
   }

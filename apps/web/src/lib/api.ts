@@ -952,6 +952,12 @@ export interface GuestCard {
     departureDate: string;
     status: string;
     unitCode: string | null;
+    source: string;
+    channel: string | null;
+    currency: string;
+    /** Начислено и остаток по счёту проживания (из Folio); null — счёта нет */
+    chargedMinor: string | null;
+    balanceMinor: string | null;
   }>;
 }
 /** Справочник «Гости v2» (план guests-v2-2026-09-27): состояние гостя вычислено, статус брони наружу не идёт */

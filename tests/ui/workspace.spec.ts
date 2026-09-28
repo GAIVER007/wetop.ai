@@ -337,6 +337,8 @@ test('карточка: профиль гостя и заселение прох
   request,
 }) => {
   await page.goto('/guests/ui-guest');
+  // G4: карточка открывается «Обзором», форма профиля — за действием «Редактировать»
+  await page.getByRole('link', { name: 'Редактировать', exact: true }).click();
   await page.getByTestId('guest-form').getByLabel('Отчество').fill('Проверенный');
   await page
     .getByTestId('guest-form')
@@ -683,7 +685,7 @@ test('гости: удаление документа переспрашивае
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest');
+  await page.goto('/guests/ui-guest#guest-profile');
   const form = page.getByTestId('document-form');
   await form.getByLabel('Номер документа').fill('TEST-ONLY-0042');
   await form.getByRole('button', { name: 'Добавить', exact: true }).click();
@@ -929,7 +931,7 @@ test('удаление документа гостя спрашивают: от�
   page,
   request,
 }) => {
-  await page.goto('/guests/ui-guest');
+  await page.goto('/guests/ui-guest#guest-profile');
   await expect(page.getByTestId('document-row')).toHaveCount(1);
   await page.getByTestId('document-row').getByRole('button', { name: 'удалить' }).click();
   const dialog = page.getByTestId('confirm-dialog');
@@ -1421,22 +1423,30 @@ test('гости D1: выборка и пустота словами, стату
   );
   expect(overflow).toBeLessThanOrEqual(1);
 
-  // карточка: статус пребывания фразой над вкладками, история — с датами и ссылкой на бронь
+  // карточка (G4): «Обзор» — текущее или следующее проживание рамкой, визиты в полосе фактов;
+  // «Проживания» — история с датами и ссылкой на бронь
   await page.goto('/guests/ui-guest');
   await expect(main.getByRole('heading', { level: 1 })).toContainText('Абдрахманова-Сулейменова');
-  await expect(main.getByTestId('guest-stay-now')).toContainText(/ожидается сегодня, R01|живёт/);
+  await expect(
+    main.getByTestId('guest-stay-current').or(main.getByTestId('guest-stay-next')).first(),
+  ).toContainText('R01');
   await expect(main.getByTestId('guest-head')).toContainText('KAZ');
+  await expect(main.getByTestId('guest-visits')).toContainText('ноч');
   overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(1);
   await main.getByRole('tab', { name: 'Проживания', exact: true }).click();
-  const stay = main.getByTestId('guest-stay-row').first();
+  // строки истории есть и на скрытом «Обзоре» — берём видимую вкладку
+  const stays = main.getByRole('tabpanel').getByTestId('guest-stay-row');
+  const stay = stays.first();
   await expect(stay).toContainText('R01');
   await expect(stay.locator('time').first()).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
-  await expect(stay.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' })).toBeVisible();
-  const tableOverflow = await main
-    .getByTestId('guest-stay-row')
+  await expect(stay.getByRole('link').first()).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TESTAA',
+  );
+  const tableOverflow = await stays
     .first()
     .locator('xpath=ancestor::div[contains(@class,"table-scroll")]')
     .evaluate((el) => el.scrollWidth - el.clientWidth);

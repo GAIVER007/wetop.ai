@@ -2942,3 +2942,15 @@
 | 28.09.2026 01:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/quality.spec.ts) | ✅ 20 из 20 | 2 мин 44 с | 2c985d4 | [лог](logs/2026-09-27T20-58-35Z-e2e-a1ce.log) | G3 стоп-гейт: гости, только чтение, качество |
 | 28.09.2026 02:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 408 | 30 мин 56 с | 2c985d4 | [лог](logs/2026-09-27T21-01-27Z-e2e-eab2.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
 | 28.09.2026 02:35 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/quality.spec.ts) | ✅ 20 из 20 | 1 мин 4 с | b41192b +1 | [лог](logs/2026-09-27T21-35-12Z-e2e-9ff3.log) | G3: сплошная панель и перенос подписи отмены |
+| 28.09.2026 12:05 | integration (частично: tests/integration/guest-card.test.ts) | ❌ упало 1 из 2 | 4 с | 6571cb1 +1 | [лог](logs/2026-09-28T07-05-11Z-integration-14f9.log) | G4 red: у проживаний карточки нет источника и сумм счёта |
+| 28.09.2026 12:05 | integration (частично: tests/integration/guest-card.test.ts) | ✅ 2 из 2 | 3 с | 6571cb1 +3 | [лог](logs/2026-09-28T07-05-56Z-integration-2f37.log) | G4 green: источник и счёт проживания в карточке гостя |
+| 28.09.2026 12:11 | typecheck | ❌ ошибок: 1 | 23 с | 6571cb1 +20 | [лог](logs/2026-09-28T07-11-55Z-typecheck-383e.log) | TS2739 |
+| 28.09.2026 12:12 | lint | ✅ без ошибок | 18 с | 6571cb1 +20 | [лог](logs/2026-09-28T07-12-19Z-lint-ceaa.log) |  |
+| 28.09.2026 12:12 | typecheck | ✅ без ошибок | 22 с | 6571cb1 +20 | [лог](logs/2026-09-28T07-12-54Z-typecheck-15b2.log) |  |
+| 28.09.2026 12:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts --grep G4\|пробный срок вышел) | ❌ упало 2 из 2 | 1 мин 5 с | 6571cb1 +16 | [лог](logs/2026-09-28T07-13-32Z-e2e-500b.log) | G4 red: прежняя карточка, список и панель без флага только чтения |
+| 28.09.2026 12:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/quality.spec.ts tests | ✅ 86 из 86 | 4 мин 47 с | 6571cb1 +18 | [лог](logs/2026-09-28T07-14-51Z-e2e-abf8.log) | G4: карточка гостя и затронутые сценарии |
+| 28.09.2026 12:19 | unit | ✅ 2120 из 2123, пропущено 3 | 1 мин 12 с | 6571cb1 +11 | [лог](logs/2026-09-28T07-19-48Z-unit-84de.log) |  |
+| 28.09.2026 12:21 | integration | ✅ 109 из 109 | 34 с | 6571cb1 +4 | [лог](logs/2026-09-28T07-21-00Z-integration-b4e2.log) |  |
+| 28.09.2026 12:21 | e2e | ✅ 25 из 25 | 1 мин | 6571cb1 +18 | [лог](logs/2026-09-28T07-21-57Z-e2e-2ff1.log) |  |
+| 28.09.2026 12:26 | typecheck | ✅ без ошибок | 23 с | 6571cb1 +20 | [лог](logs/2026-09-28T07-26-06Z-typecheck-ae4c.log) |  |
+| 28.09.2026 12:26 | lint | ✅ без ошибок | 16 с | 6571cb1 +20 | [лог](logs/2026-09-28T07-26-30Z-lint-ee9d.log) |  |

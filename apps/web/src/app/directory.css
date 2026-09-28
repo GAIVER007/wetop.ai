@@ -513,9 +513,6 @@ a.dir-number:hover {
 .guest-head {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
-.guest-head > div:first-child {
-  grid-column: 1 / -1;
-}
 .guest-account-links {
   display: grid;
   gap: 8px;
@@ -589,6 +586,8 @@ a.dir-number:hover {
     grid-column: 1 / -1;
     grid-row: 4;
   }
+  /* История проживаний гостя (G4): период и статус → место → источник и сумма.
+     Колонки: 1 проживание, 2 место, 3 источник, 4 сумма, 5 статус */
   .tbl.dir-table--history,
   .dir-table--history tbody {
     display: block;
@@ -604,7 +603,7 @@ a.dir-number:hover {
   }
   .dir-table--history tbody tr {
     display: grid;
-    grid-template-columns: max-content max-content minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
     gap: 4px 16px;
     padding: 8px 16px;
@@ -625,31 +624,25 @@ a.dir-number:hover {
     grid-column: 1;
     grid-row: 1;
   }
-  .dir-table--history tbody td:nth-child(2) {
-    grid-column: 2 / 4;
-    grid-row: 1;
-    color: var(--muted);
-  }
-  .dir-table--history tbody td:nth-child(6) {
-    grid-column: 4;
+  .dir-table--history tbody td:nth-child(5) {
+    grid-column: 2;
     grid-row: 1;
     justify-self: end;
   }
+  .dir-table--history tbody td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
   .dir-table--history tbody td:nth-child(3) {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
+    color: var(--muted);
   }
   .dir-table--history tbody td:nth-child(4) {
     grid-column: 2;
-    grid-row: 2;
-  }
-  .dir-table--history tbody td:nth-child(5) {
-    grid-column: 3;
-    grid-row: 2;
-  }
-  .dir-table--history tbody td:nth-child(4)::after {
-    content: ' →';
-    color: var(--muted);
+    grid-row: 3;
+    justify-self: end;
+    text-align: right;
   }
 }
 

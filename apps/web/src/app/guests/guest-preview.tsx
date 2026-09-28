@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { guestsApi, messengerLinks } from '../../lib/api';
 import { notFoundOn404 } from '../../lib/page-error';
 import { hotelToday } from '../../lib/hotel-api';
+import { deskShell } from '../../lib/desk-shell';
 import { Badge, SectionTitle } from '../../components/ui';
 import { AmountChip } from '../../components/amount-chip';
 import { Icon } from '../../components/icon';
@@ -15,9 +16,10 @@ import './guests.css';
  * Документов здесь нет — их показ пишется в журнал и живёт на карточке; «Открыть гостя» ведёт туда.
  */
 export async function GuestPreview({ id }: { id: string }) {
-  const [g, today] = await Promise.all([
+  const [g, today, { readOnly }] = await Promise.all([
     guestsApi.preview(id).catch(notFoundOn404),
     hotelToday(),
+    deskShell(),
   ]);
   const messengers = messengerLinks(g.phone);
   const badge = STATE_BADGE[g.state];
@@ -148,11 +150,14 @@ export async function GuestPreview({ id }: { id: string }) {
         <Link className="btn btn--secondary" href={`/guests/${encodeURIComponent(g.id)}`}>
           Открыть гостя
         </Link>
-        {/* предзаполнение гостя в форме — ступень G6, пока обычная новая бронь */}
-        <Link className="btn" href="/reservations/new">
-          <Icon name="plus" />
-          Новая бронь
-        </Link>
+        {/* предзаполнение гостя в форме — ступень G6, пока обычная новая бронь; «только чтение»
+            (ADR-102) — действие не рисуется */}
+        {!readOnly && (
+          <Link className="btn" href="/reservations/new">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        )}
       </div>
     </div>
   );

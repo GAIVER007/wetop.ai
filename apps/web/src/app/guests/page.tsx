@@ -6,6 +6,7 @@ import { Alert, Badge, EmptyState, Table } from '../../components/ui';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { guestsApi, messengerLinks } from '../../lib/api';
+import { deskShell } from '../../lib/desk-shell';
 import { hotelToday } from '../../lib/hotel-api';
 import { displayDate } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
@@ -57,7 +58,7 @@ export default async function GuestsPage({
         : null;
   const state = error ? 'ALL' : stateRaw;
   const searching = q.length >= 2;
-  const today = await hotelToday();
+  const [today, { readOnly }] = await Promise.all([hotelToday(), deskShell()]);
   // Отказ API не выглядит как пустая база (B5): заголовок, разделы и поиск остаются
   const loaded = !error
     ? await guestsApi
@@ -96,12 +97,15 @@ export default async function GuestsPage({
     <Page
       title="Гости"
       subtitle="База гостей объекта и история проживаний"
-      // Гость заводится вместе с бронью: отдельного «Добавить гостя» нет, пока база не в РК (ADR-072)
+      // Гость заводится вместе с бронью: отдельного «Добавить гостя» нет, пока база не в РК (ADR-072).
+      // «Только чтение» (ADR-102, ТЗ §40): бронь создать нельзя — действие не рисуется, как на «Бронях»
       actions={
-        <Link className="btn" href="/reservations/new">
-          <Icon name="plus" />
-          Новая бронь
-        </Link>
+        readOnly ? undefined : (
+          <Link className="btn" href="/reservations/new">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        )
       }
     >
       <nav className="chips" aria-label="Гости по состоянию">
@@ -345,9 +349,11 @@ export default async function GuestsPage({
           icon={<Icon name="guests" />}
           title="Гостей пока нет"
           actions={
-            <Link href="/reservations/new" className="btn btn--secondary">
-              Новая бронь
-            </Link>
+            readOnly ? undefined : (
+              <Link href="/reservations/new" className="btn btn--secondary">
+                Новая бронь
+              </Link>
+            )
           }
         >
           Гости появятся после первой брони: гость заводится вместе с ней.

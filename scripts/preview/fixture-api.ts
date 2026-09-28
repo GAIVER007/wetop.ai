@@ -157,6 +157,11 @@ const guestSeed: GuestCard = {
       departureDate: add(today, 3),
       status: 'CONFIRMED',
       unitCode: 'R01',
+      source: 'PHONE',
+      channel: null,
+      currency: 'KZT',
+      chargedMinor: null,
+      balanceMinor: null,
     },
   ],
 };
@@ -568,16 +573,30 @@ function getGuest(id: string) {
     ...g,
     stays: allCards()
       .filter((r) => r.primaryGuest?.id === id)
-      .flatMap((r) =>
-        r.items.map((it) => ({
-          confirmationNumber: r.confirmationNumber,
-          accommodationTypeName: it.accommodationTypeName,
-          arrivalDate: it.arrivalDate,
-          departureDate: it.departureDate,
-          status: it.status,
-          unitCode: it.unitCode,
-        })),
-      ),
+      .flatMap((r) => {
+        // счёт проживания — тот же, что показывает карточка брони; у отменённых и незаездов
+        // фикстура счёта не строит (как в предпросмотре): их суммы — null
+        const folios = finance(r).folios;
+        return r.items.map((it) => {
+          const folio =
+            it.status === 'CANCELLED' || it.status === 'NO_SHOW'
+              ? undefined
+              : folios.find((f) => f.reservationItemId === it.id);
+          return {
+            confirmationNumber: r.confirmationNumber,
+            accommodationTypeName: it.accommodationTypeName,
+            arrivalDate: it.arrivalDate,
+            departureDate: it.departureDate,
+            status: it.status,
+            unitCode: it.unitCode,
+            source: r.source,
+            channel: r.channel ?? null,
+            currency: r.currency,
+            chargedMinor: folio?.chargedMinor ?? null,
+            balanceMinor: folio?.balanceMinor ?? null,
+          };
+        });
+      }),
   };
 }
 let rejectCreate = false;
@@ -2788,7 +2807,14 @@ createServer(async (req, res) => {
       const put = (
         n: string,
         label: string,
-        cases: Array<{ status: string; unit: string; from: number; to: number }>,
+        cases: Array<{
+          status: string;
+          unit: string;
+          from: number;
+          to: number;
+          source?: string;
+          channel?: string | null;
+        }>,
       ) => {
         let guestId = '';
         for (const [i, s] of cases.entries()) {
@@ -2797,8 +2823,8 @@ createServer(async (req, res) => {
               n: `${n}${i}`,
               label,
               status: s.status,
-              source: 'DESK',
-              channel: null,
+              source: s.source ?? 'DESK',
+              channel: s.channel ?? null,
               unit: s.unit,
               from: s.from,
               to: s.to,
@@ -2816,11 +2842,14 @@ createServer(async (req, res) => {
           extraCards.set(r.confirmationNumber, r);
         }
       };
-      // живёт сейчас, а до этого приезжал дважды: «Визитов 3», последний визит заполнен
+      // живёт сейчас, до этого приезжал дважды и уже забронировал следующий визит: «Визитов 3»
+      // (будущая бронь — не визит), в карточке (G4) — текущее и следующее проживание и история
+      // из разных источников
       put('GCRET', 'Возвращающийся Гость', [
-        { status: 'CHECKED_OUT', unit: 'R07', from: -21, to: -18 },
-        { status: 'CHECKED_OUT', unit: 'M05', from: -9, to: -7 },
+        { status: 'CHECKED_OUT', unit: 'R07', from: -21, to: -18, source: 'OTA', channel: 'Booking.com' },
+        { status: 'CHECKED_OUT', unit: 'M05', from: -9, to: -7, source: 'WEBSITE' },
         { status: 'CHECKED_IN', unit: 'R08', from: -1, to: 2 },
+        { status: 'CONFIRMED', unit: 'R12', from: 10, to: 13, source: 'WEBSITE' },
       ]);
       // только отменённая бронь: статус гостя «—», подпись «бронь на … отменена» (ТЗ §16)
       put('GCCAN', 'Отменившийся Гость', [{ status: 'CANCELLED', unit: 'R09', from: -3, to: -1 }]);

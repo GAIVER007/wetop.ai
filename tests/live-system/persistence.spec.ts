@@ -96,6 +96,8 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
 
     await test.step('редактирование гостя обновляет Supabase, бронь, историю и шахматку', async () => {
       await page.getByTestId('guest-link').click();
+      // G4: карточка открывается «Обзором»; профиль и документы — за «Редактировать»
+      await page.getByRole('link', { name: 'Редактировать', exact: true }).click();
       const form = page.getByTestId('guest-form');
       await form.locator('[name="firstName"]').fill('Проверено');
       await form.locator('[name="notes"]').fill(marker);

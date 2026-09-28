@@ -117,3 +117,54 @@
   padding-top: var(--space-4);
   border-top: 1px solid var(--border-soft);
 }
+
+/*
+ * Карточка гостя, G4 (ТЗ §19–§21): текущее и следующее проживание — строкой-рамкой на «Обзоре»:
+ * когда, где, долг или слово о брони и «Открыть бронь». Рамка — общая `.panel`, здесь только ритм.
+ */
+.guest-stay-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-2);
+}
+.guest-stay-card p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+.guest-stay-card__when {
+  font-weight: var(--weight-semibold);
+}
+.guest-stay-card .dir-sub {
+  margin-top: 0;
+}
+.guest-stay-card .btn {
+  margin-left: auto;
+}
+.guest-overview-more {
+  margin: var(--space-2) 0 0;
+}
+.guest-notes {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+/* период проживания — одной строкой: «8 окт. → 11 окт. 2026» не разрывается на даты и стрелку */
+.stay-period {
+  white-space: nowrap;
+}
+/* строка истории ведёт в бронь: период — ссылка цветом текста, как имя гостя в списке (21.09) */
+a.dir-period {
+  color: inherit;
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+a.dir-period:hover,
+a.dir-period:focus-visible {
+  color: var(--primary);
+  text-decoration: underline;
+}

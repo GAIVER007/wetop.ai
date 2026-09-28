@@ -156,14 +156,14 @@ test('неподключённые внешние демо не ведут на 
 for (const scenario of [
   {
     name: 'профиль гостя',
-    path: '/guests/ui-guest',
+    path: '/guests/ui-guest#guest-profile',
     form: 'guest-form',
     button: 'Сохранить',
     fields: { firstName: 'Synthetic', notes: 'Сохранить заметку' },
   },
   {
     name: 'документ гостя',
-    path: '/guests/ui-guest',
+    path: '/guests/ui-guest#guest-profile',
     form: 'document-form',
     button: 'Добавить',
     fields: { number: 'TEST-ONLY', issueCountry: 'KAZ' },

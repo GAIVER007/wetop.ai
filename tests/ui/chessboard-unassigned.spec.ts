@@ -100,7 +100,10 @@ test('две брони без места: строка над сеткой, я�
   await expect(options.nth(1)).toHaveAttribute('aria-pressed', 'true');
   await card1.getByRole('button', { name: `Назначить ${unit}`, exact: true }).click();
 
-  await expect(page.getByText(`Бронь ${first} размещена: ${unit}`)).toBeVisible();
+  // уведомление в углу закрыто модальным ящиком — итог назван строкой в самом ящике
+  await expect(drawerOf(page).getByTestId('unassigned-done')).toHaveText(
+    `✓ Бронь ${first} размещена: ${unit}`,
+  );
   await expect(strip).toContainText('1 бронь без назначенного места');
   await expect(cards).toHaveCount(1);
   await expect(

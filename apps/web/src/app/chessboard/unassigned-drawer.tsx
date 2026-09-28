@@ -49,6 +49,8 @@ export function UnassignedStays({
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [free, setFree] = useState<Record<string, Loaded>>({});
+  // что только что размещено: уведомление в углу лежит под модальным ящиком, поэтому итог — и здесь
+  const [done, setDone] = useState<string | null>(null);
   // одно окно подтверждения на весь ящик, а не в каждой карточке
   const { ask, dialog } = useConfirm();
   const cards = stays.map(unassignedCard);
@@ -64,6 +66,7 @@ export function UnassignedStays({
 
   const close = useCallback(() => {
     setOpen(false);
+    setDone(null);
     // якорь снимаем: иначе повторный щелчок по «Разрешить» не даст hashchange и ящик не откроется
     if (window.location.hash === HASH)
       window.history.replaceState(
@@ -154,6 +157,11 @@ export function UnassignedStays({
           {summary.text}
           {summary.detail && <span className="muted">, {summary.detail}</span>}
         </p>
+        {done && (
+          <p className="unassigned-drawer__done" role="status" data-testid="unassigned-done">
+            ✓ {done}
+          </p>
+        )}
         <ul className="unassigned-drawer__list">
           {cards.map((card) => (
             <UnassignedCardView
@@ -166,7 +174,8 @@ export function UnassignedStays({
               ask={ask}
               onPick={() => pick(card)}
               onRetry={() => void load(card, true)}
-              onAssigned={() => {
+              onAssigned={(text) => {
+                setDone(text);
                 // место занято — прежние списки свободных мест устарели для всех карточек
                 generation.current += 1;
                 remember({});
@@ -200,7 +209,7 @@ function UnassignedCardView({
   ask: ReturnType<typeof useConfirm>['ask'];
   onPick: () => void;
   onRetry: () => void;
-  onAssigned: () => void;
+  onAssigned: (text: string) => void;
 }) {
   const [chosen, setChosen] = useState<{ unit: string; category: Category } | null>(null);
   const [others, setOthers] = useState(false);
@@ -243,8 +252,9 @@ function UnassignedCardView({
           setError(`Не удалось назначить: ${r.error}`);
           return;
         }
-        toast({ text: `Бронь ${card.number} размещена: ${unit}`, tone: 'success' });
-        onAssigned();
+        const text = `Бронь ${card.number} размещена: ${unit}`;
+        toast({ text, tone: 'success' });
+        onAssigned(text);
       });
     });
   };
@@ -355,7 +365,8 @@ function QuestionBody({ question: q }: { question: CrossCategoryQuestion }) {
   return (
     <div className="move-question">
       <p className="move-question__guest">{q.guest}</p>
-      <p className="move-question__route">{q.route}</p>
+      {/* названия категорий — обычным шрифтом: моноширинный у переселения для кодов мест */}
+      <p>{q.route}</p>
       <p>{q.dates}</p>
       <p className="move-question__money">{q.money}</p>
       <p className="move-question__note">{q.note}</p>

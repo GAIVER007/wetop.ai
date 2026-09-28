@@ -3947,3 +3947,6 @@
 | 29.09.2026 02:17 | typecheck | ✅ без ошибок | 30 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-01Z-typecheck-3ed3.log) | record-tabs на main 5ff088c0 |
 | 29.09.2026 02:17 | lint | ✅ без ошибок | 16 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-32Z-lint-7011.log) | record-tabs на main 5ff088c0 |
 | 29.09.2026 02:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/categories-safe-edit.spec.ts tests/ui/categories-create. | ✅ 6 из 6 | 41 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-48Z-e2e-00c2.log) | main 5ff088c0: record-tabs с «Финансами», категории C3–C4a |
+| 29.09.2026 03:08 | typecheck | ✅ без ошибок | 26 с | 0753281 | [лог](logs/2026-09-28T22-08-36Z-typecheck-ab9d.log) |  |
+| 29.09.2026 03:09 | lint | ✅ без ошибок | 18 с | 0753281 | [лог](logs/2026-09-28T22-09-02Z-lint-dd22.log) |  |
+| 29.09.2026 03:09 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 38 с | 0753281 | [лог](logs/2026-09-28T22-09-24Z-unit-6f39.log) |  |

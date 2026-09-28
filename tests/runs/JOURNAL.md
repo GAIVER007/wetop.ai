@@ -3960,3 +3960,4 @@
 | 29.09.2026 02:26 | typecheck | ✅ без ошибок | 29 с | 18d644c | [лог](logs/2026-09-28T21-26-03Z-typecheck-8543.log) |  |
 | 29.09.2026 02:26 | lint | ✅ без ошибок | 17 с | 18d644c | [лог](logs/2026-09-28T21-26-32Z-lint-0157.log) |  |
 | 29.09.2026 02:26 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 38 с | 18d644c | [лог](logs/2026-09-28T21-26-50Z-unit-e543.log) | G8 на main 633cd78d |
+| 29.09.2026 02:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ✅ 108 из 108 | 10 мин 47 с | 18d644c | [лог](logs/2026-09-28T21-29-07Z-e2e-f0fd.log) | G8 на main 633cd78d, чистый кэш .next-ui |

@@ -38,6 +38,8 @@ const input = (): DashboardInput => ({
       arrivalDate: '2026-10-05',
       departureDate: '2026-10-08',
       status: 'CHECKED_IN',
+      reservationId: 'R-1',
+      reservationStatus: 'CHECKED_IN',
       adults: 2,
       children: 0,
       priceMinor: 3_000_000n,
@@ -50,6 +52,8 @@ const input = (): DashboardInput => ({
       arrivalDate: '2026-10-06',
       departureDate: '2026-10-07',
       status: 'CONFIRMED',
+      reservationId: 'R-2',
+      reservationStatus: 'CONFIRMED',
       adults: 1,
       children: 1,
       priceMinor: 500_000n,
@@ -62,6 +66,8 @@ const input = (): DashboardInput => ({
       arrivalDate: '2026-10-05',
       departureDate: '2026-10-06',
       status: 'CANCELLED',
+      reservationId: 'R-3',
+      reservationStatus: 'CANCELLED',
       adults: 1,
       children: 0,
       priceMinor: 400_000n,
@@ -74,6 +80,8 @@ const input = (): DashboardInput => ({
       arrivalDate: '2026-10-06',
       departureDate: '2026-10-07',
       status: 'NO_SHOW',
+      reservationId: 'R-4',
+      reservationStatus: 'NO_SHOW',
       adults: 1,
       children: 0,
       priceMinor: 400_000n,
@@ -86,6 +94,8 @@ const input = (): DashboardInput => ({
       arrivalDate: '2026-10-01',
       departureDate: '2026-10-05',
       status: 'CHECKED_OUT',
+      reservationId: 'R-5',
+      reservationStatus: 'CHECKED_OUT',
       adults: 1,
       children: 0,
       priceMinor: 1_600_000n,
@@ -182,6 +192,9 @@ describe('buildDashboard', () => {
         units: 2,
         unitNights: 4,
         occupiedNights: 3,
+        freeNights: 1,
+        blockedNights: 0,
+        unassigned: 0,
         percent: 75,
         revenueMinor: '3000000',
         adrMinor: '1000000',
@@ -193,6 +206,9 @@ describe('buildDashboard', () => {
         units: 3,
         unitNights: 6,
         occupiedNights: 4,
+        freeNights: 1,
+        blockedNights: 1,
+        unassigned: 1,
         percent: 66.7,
         revenueMinor: '500000',
         adrMinor: '125000',
@@ -260,6 +276,7 @@ describe('buildDashboard: брони и тип фонда', () => {
     expect(d.bookings).toEqual({
       total: 4,
       active: 2,
+      stays: 2,
       cancelled: 1,
       noShow: 1,
       cancelledPercent: 25,
@@ -323,6 +340,7 @@ describe('buildDashboard: брони и тип фонда', () => {
     expect(d.bookings).toEqual({
       total: 3,
       active: 1,
+      stays: 1,
       cancelled: 1,
       noShow: 1,
       cancelledPercent: 33.3,
@@ -331,5 +349,67 @@ describe('buildDashboard: брони и тип фонда', () => {
       averageMinor: '500000',
     });
     expect(d.unassigned).toBe(1);
+  });
+});
+
+/**
+ * Q-209 (решение владельца 28.09.2026): одна Reservation — одна бронь. Групповая бронь на три койки —
+ * «Брони: 1, размещений: 3»; отмены, средний чек и источники считаются бронями, а не койками.
+ */
+describe('buildDashboard: бронь — это Reservation, а не место внутри неё', () => {
+  const group = (status = 'CONFIRMED', itemStatuses = ['CONFIRMED', 'CONFIRMED', 'CONFIRMED']) =>
+    itemStatuses.map((itemStatus) => ({
+      arrivalDate: '2026-10-06',
+      departureDate: '2026-10-08',
+      status: itemStatus,
+      reservationId: 'G-1',
+      reservationStatus: status,
+      adults: 1,
+      children: 0,
+      priceMinor: 200_000n,
+      source: 'PHONE',
+      channel: null,
+      categoryCode: 'DORM',
+    }));
+  const withGroup = (stays = group()): DashboardInput => {
+    const base = input();
+    return { ...base, stays: [...base.stays, ...stays] };
+  };
+
+  it('групповая бронь на три койки — одна бронь и три размещения; средний чек — на бронь', () => {
+    const d = buildDashboard(withGroup());
+    // брони: R-1, R-2, отменённая R-3, незаезд R-4 и группа G-1 = 5; к заезду — R-1, R-2, G-1
+    expect(d.bookings).toMatchObject({ total: 5, active: 3, stays: 5, cancelled: 1, noShow: 1 });
+    expect(d.bookings.cancelledPercent).toBe(20);
+    // 3 000 000 + 500 000 + 3 × 200 000 = 4 100 000 на три брони
+    expect(d.bookings.valueMinor).toBe('4100000');
+    expect(d.bookings.averageMinor).toBe('1366666');
+  });
+
+  it('источники считают брони: группа из телефона — одна бронь с суммой за три места', () => {
+    const d = buildDashboard(withGroup());
+    expect(d.sources.find((x) => x.source === 'PHONE')).toEqual({
+      source: 'PHONE',
+      channel: null,
+      count: 1,
+      amountMinor: '600000',
+      share: 33.3,
+    });
+  });
+
+  it('отменённое место в действующей группе: бронь остаётся, стоимость — без отменённого места', () => {
+    const d = buildDashboard(
+      withGroup(group('CONFIRMED', ['CONFIRMED', 'CONFIRMED', 'CANCELLED'])),
+    );
+    expect(d.bookings).toMatchObject({ total: 5, active: 3, stays: 4, cancelled: 1 });
+    expect(d.bookings.valueMinor).toBe('3900000');
+  });
+
+  it('отменённая групповая бронь — одна отмена, а не три', () => {
+    const d = buildDashboard(
+      withGroup(group('CANCELLED', ['CANCELLED', 'CANCELLED', 'CANCELLED'])),
+    );
+    expect(d.bookings).toMatchObject({ total: 5, active: 2, cancelled: 2, noShow: 1 });
+    expect(d.bookings.cancelledPercent).toBe(40);
   });
 });

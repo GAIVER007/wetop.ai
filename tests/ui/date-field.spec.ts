@@ -16,12 +16,16 @@ test.beforeEach(async ({ request }) => {
 
 const field = (page: import('@playwright/test').Page, label: string) =>
   page.getByRole('main').locator('.date-field', { has: page.getByLabel(label, { exact: true }) });
+/** Свой период «Аналитики» (ADR-114; до AN2 — «Показатели за период») — во всплывающей панели «Период» */
+const openRange = (page: import('@playwright/test').Page) =>
+  page.getByRole('main').locator('.pa-range > summary').click();
 
 test('показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/management/dashboard?period=custom&from=2026-09-01&to=2026-09-21');
+  await page.goto('/management/analytics?period=custom&from=2026-09-01&to=2026-09-21');
+  await openRange(page);
   const from = field(page, 'Период: с');
   const open = from.getByRole('button', { name: 'Открыть календарь' });
   await open.click();
@@ -52,7 +56,8 @@ test('показатели за период: у поля «По» календ�
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/management/dashboard?period=custom&from=2026-09-10&to=2026-09-21');
+  await page.goto('/management/analytics?period=custom&from=2026-09-10&to=2026-09-21');
+  await openRange(page);
   const to = field(page, 'Период: по');
   await to.getByRole('button', { name: 'Открыть календарь' }).click();
   const dialog = page.getByRole('dialog', { name: 'Календарь' });
@@ -73,7 +78,8 @@ test('показатели за период: у поля «По» календ�
 
 test('телефон: кнопки календаря нет, родное поле остаётся', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/management/dashboard?period=custom&from=2026-09-01&to=2026-09-21');
+  await page.goto('/management/analytics?period=custom&from=2026-09-01&to=2026-09-21');
+  await openRange(page);
   const from = field(page, 'Период: с');
   await expect(from.getByRole('button', { name: 'Открыть календарь' })).toBeHidden();
   await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();

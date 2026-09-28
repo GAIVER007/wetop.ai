@@ -40,7 +40,20 @@ export class GuestsController {
 
   // объявлен до ':id', иначе «directory» читался бы как идентификатор гостя
   @Get('directory')
-  directory(@Query() query: { state?: string; q?: string; page?: string; pageSize?: string }) {
+  directory(
+    @Query()
+    query: {
+      state?: string;
+      q?: string;
+      page?: string;
+      pageSize?: string;
+      last?: string;
+      from?: string;
+      to?: string;
+      visits?: string;
+      sort?: string;
+    },
+  ) {
     return this.service.directory(query);
   }
 

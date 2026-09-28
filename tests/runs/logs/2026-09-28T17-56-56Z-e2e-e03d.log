@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 28.09.2026 22:56 Алматы · vm
+# коммит c4d62c8 (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/fund-workspace.spec.ts' '--grep' 'AV3' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/fund-workspace.spec.ts:125:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (45.1s)
+
+
+  1) tests/ui/fund-workspace.spec.ts:125:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }).getByText('Показать номера', { exact: true })
+
+
+      134 |   const rows = page.locator('.fund-availability article');
+      135 |   const room = rows.filter({ hasText: 'Двухместный номер' });
+    > 136 |   await room.getByText('Показать номера', { exact: true }).click();
+          |                                                            ^
+      137 |   const roomList = room.getByRole('list', { name: 'Места: Двухместный номер' });
+      138 |   await expect(roomList.getByRole('listitem').first()).toContainText('R01');
+      139 |   await expect(roomList.getByRole('link', { name: 'Выбрать номер R01' })).toHaveAttribute(
+        at /home/user/wetop.ai/tests/ui/fund-workspace.spec.ts:136:60
+
+    Error Context: test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-AV3-places--b4eb5-ed-beds-prefill-the-booking/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/fund-workspace.spec.ts:125:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking 
+
+# код выхода 1 · 2 мин 52 с

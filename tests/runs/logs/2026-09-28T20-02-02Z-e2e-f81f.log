@@ -1,0 +1,108 @@
+# Сквозные (e2e) · 29.09.2026 01:02 Алматы · vm
+# коммит ed07369 (claude/eloquent-edison-f73at4)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/analytics-occupancy.spec.ts' 'tests/ui/analytics-v2.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+  ✓   1 tests/ui/analytics-occupancy.spec.ts:34:1 › по умолчанию — сегодняшний день: пять плиток, категории и шахматка на этот день (1.6s)
+  ✓   2 tests/ui/analytics-occupancy.spec.ts:72:1 › знаменатель прежний: заблокированное место остаётся в фонде загрузки (1.4s)
+  ✓   3 tests/ui/analytics-occupancy.spec.ts:113:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить (1.1s)
+  ✓   4 tests/ui/analytics-occupancy.spec.ts:146:1 › номера и койки: свои категории, своя средняя, шахматка открывается на том же типе (2.5s)
+  ✓   5 tests/ui/analytics-occupancy.spec.ts:181:1 › период: ночи вместо мест, стрелки дня, сравнение выключается (2.8s)
+  ✓   6 tests/ui/analytics-occupancy.spec.ts:209:1 › старые адреса: «Статистика» с датой и некорректная дата (2.7s)
+  ✓   7 tests/ui/analytics-occupancy.spec.ts:222:1 › сбой API не уносит полосу периода и повторяет тот же день (1.5s)
+  ✓   8 tests/ui/analytics-occupancy.spec.ts:238:1 › телефон: без прокрутки вбок, строка категории — карточкой (2.1s)
+[WebServer] [browser] Encountered two children with the same key, `20260913-NEW2-2026-09-29`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+[WebServer] [browser] Encountered two children with the same key, `20260913-NEW2-2026-09-29`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. 
+  ✓   9 tests/ui/analytics-occupancy.spec.ts:267:1 › снимки для визуального гейта AN2 (20.2s)
+  ✓  10 tests/ui/analytics-v2.spec.ts:28:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (2.8s)
+  ✓  11 tests/ui/analytics-v2.spec.ts:47:1 › обзор за месяц: шесть плиток со сравнением, график загрузки и выручки, категории (1.4s)
+  ✓  12 tests/ui/analytics-v2.spec.ts:85:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (2.8s)
+  ✓  13 tests/ui/analytics-v2.spec.ts:110:1 › рост отмен — красный, падение — зелёный; сравнение выключается (1.7s)
+  ✓  14 tests/ui/analytics-v2.spec.ts:123:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (2.0s)
+  ✓  15 tests/ui/analytics-v2.spec.ts:144:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (1.8s)
+  ✓  16 tests/ui/analytics-v2.spec.ts:161:1 › телефон: без прокрутки вбок, плитки в две колонки (958ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <Suspense name="occupancy/" fallback={<Fragment>}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OccupancyPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AnalyticsToolbar>
+[WebServer]                         <section className="pa-toolbar" aria-label="Период и о..." data-testid="pa-toolbar">
+[WebServer]                           <div>
+[WebServer]                           <div className="pa-toolbar...">
+[WebServer]                             <nav>
+[WebServer]                             <details className="pa-range">
+[WebServer]                               <summary>
+[WebServer]                               <form method="get" className="pa-range__..." data-testid="pa-range-form">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="from" defaultValue="2026-09-29" aria-label="Период: с">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-09-29"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-09-29" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-09-29"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  17 tests/ui/analytics-v2.spec.ts:172:1 › снимки для визуального гейта AN1 (20.6s)
+
+  17 passed (1.3m)
+
+# код выхода 0 · 1 мин 18 с

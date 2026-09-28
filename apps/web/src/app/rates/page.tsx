@@ -9,7 +9,8 @@ import { loadErrorProps } from '../../lib/load-error';
 import { Alert, EmptyState } from '../../components/ui';
 import { RatesFilters } from './filters';
 import { RatesEditDrawer } from './edit-drawer';
-import { MonthGrid } from './month-grid';
+import { RatesCalendar } from './rates-calendar';
+import { deskShell } from '../../lib/desk-shell';
 import './rates.css';
 
 const monthRange = (ym: string) => {
@@ -108,6 +109,9 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
   const cal = loadedCal?.ok ? loadedCal.r : null;
   const calError: unknown = loadedCal && !loadedCal.ok ? loadedCal.e : null;
   const planName = options.ratePlans.find((p) => p.code === ratePlan)?.name ?? ratePlan;
+  const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
+  // «Только чтение» (ADR-102) — общий флаг оболочки: выбор и предпросмотр доступны, «Применить» выключена
+  const { readOnly } = await deskShell();
   // Правило отмены выбранного тарифа (ADR-115): до «Тарифных планов» (SET4) — одной строкой здесь. Настройки уже
   // прочитал макет; не ответили — строки просто нет, экран цен от неё не зависит (D4)
   const settings = await settle(hotelApi.settings());
@@ -174,13 +178,19 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
           )}
           {calError !== null && <LoadError testId="rates-error" {...loadErrorProps(calError)} />}
           {cal && cal.days.length > 0 && (
-            <MonthGrid
+            <RatesCalendar
+              // свой ключ, не как у шапки: соседи с одинаковым ключом React сверяет вслепую, и после перехода
+              // старая шапка оставалась рядом с новой — два ряда чипов и два списка «Месяц»
+              key={`calendar|${category}|${ratePlan}|${month}`}
               days={cal.days}
               currency={cal.currency}
               capacityAdults={cal.capacityAdults}
               category={category}
               ratePlan={ratePlan}
+              categoryName={categoryName}
+              planName={planName}
               today={today}
+              readOnly={readOnly}
             />
           )}
           {cal && !cal.days.length && (

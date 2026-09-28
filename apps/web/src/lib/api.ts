@@ -294,6 +294,23 @@ export const chessboardApi = {
 // formatMinor и messengerLinks переехали в ./format — их берут и клиентские компоненты (см. там же)
 export { formatMinor, messengerLinks } from './format';
 
+export interface StayOffer {
+  /** Сколько тарифов допустимо для проживания */
+  plans: number;
+  /** Весь срок на всех гостей запроса по самому дешёвому тарифу, тиыны строкой */
+  totalMinor: string;
+  /** Самая низкая цена ночи за номер целиком или за одну койку */
+  perNightMinor: string;
+  ratePlanCode: string;
+}
+export interface StayOffers {
+  arrivalDate: string;
+  departureDate: string;
+  nights: number;
+  guests: number;
+  currency: string;
+  byCategory: Record<string, StayOffer | null>;
+}
 export interface StayAvailability {
   arrivalDate: string;
   departureDate: string;
@@ -612,6 +629,9 @@ export const reservationsApi = {
     getJson<StayAvailability>(
       `/availability?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`,
     ),
+  /** Цены «от» для «Свободных мест» (ADR-110, AV2): правило закрытого Q-204 считает API */
+  offers: (arrival: string, departure: string, guests: number) =>
+    getJson<StayOffers>(`/availability/offers${query({ arrival, departure, guests })}`),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
@@ -930,6 +950,10 @@ export interface UnitCard {
   accommodationTypeCode: string;
   accommodationTypeName: string;
   roomNumber: string;
+  /** Расположение и вместимость для панели места (ADR-108, срез I2) */
+  buildingName: string;
+  floorName: string;
+  capacity: number;
   blocks: Array<{
     id: string;
     dateFrom: string;
@@ -1013,8 +1037,10 @@ export interface GuestCard {
     source: string;
     channel: string | null;
     currency: string;
-    /** Начислено и остаток по счёту проживания (из Folio); null — счёта нет */
+    /** Начислено, оплачено, возвращено и остаток по счёту проживания (из Folio); null — счёта нет */
     chargedMinor: string | null;
+    paidMinor: string | null;
+    refundedMinor: string | null;
     balanceMinor: string | null;
   }>;
 }
@@ -1061,7 +1087,14 @@ export interface GuestDirectoryResult {
   total: number;
   page: number;
   pageSize: number;
-  counts: { ALL: number; INHOUSE: number; EXPECTED: number; RECENT: number };
+  counts: {
+    ALL: number;
+    INHOUSE: number;
+    EXPECTED: number;
+    RECENT: number;
+    /** G7: без активного проживания — не живёт, не ожидается и не выезжал за 30 дней */
+    NONE: number;
+  };
   rows: GuestDirectoryRow[];
 }
 export const guestsApi = {
@@ -1166,7 +1199,8 @@ export interface PeriodDebts {
   currency: string;
   count: number;
   balanceMinor: string;
-  checkedOut: { count: number; balanceMinor: string };
+  /** Q-207: просроченный долг — время выезда по часам объекта прошло, остаток не оплачен */
+  overdue: { count: number; balanceMinor: string };
   rows: Array<{
     confirmationNumber: string;
     status: string;
@@ -1177,6 +1211,7 @@ export interface PeriodDebts {
     paidMinor: string;
     refundedMinor: string;
     balanceMinor: string;
+    overdue: boolean;
   }>;
   truncated: boolean;
 }

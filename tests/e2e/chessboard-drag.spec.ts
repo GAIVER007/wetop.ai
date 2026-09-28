@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
@@ -38,8 +39,8 @@ test('перетаскивание клетки брони на свободну
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitA = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
-  const unitB = (await unitSelect.locator('option').nth(2).getAttribute('value'))!;
+  const unitA = await unitOption(unitSelect);
+  const unitB = await unitOption(unitSelect, 1);
   expect(unitB).not.toBe(unitA);
   await unitSelect.selectOption(unitA);
   await form.locator('input[name="firstName"]').fill('Гость');

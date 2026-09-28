@@ -214,6 +214,8 @@ const guestSeed: GuestCard = {
       channel: null,
       currency: 'KZT',
       chargedMinor: null,
+      paidMinor: null,
+      refundedMinor: null,
       balanceMinor: null,
     },
   ],
@@ -742,6 +744,8 @@ function getGuest(id: string) {
             channel: r.channel ?? null,
             currency: r.currency,
             chargedMinor: folio?.chargedMinor ?? null,
+            paidMinor: folio?.paidMinor ?? null,
+            refundedMinor: folio?.refundedMinor ?? null,
             balanceMinor: folio?.balanceMinor ?? null,
           };
         });
@@ -1368,51 +1372,57 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
   const unassignedByCategory: Record<string, number> = {};
   for (const u of b.unassigned)
     unassignedByCategory[u.categoryCode] = (unassignedByCategory[u.categoryCode] ?? 0) + 1;
-  return buildDashboard({
-    from,
-    to,
-    // тип категории — по её единицам, как в API (Аналитика v2, тип фонда)
-    categories: categories.map((c) => ({
-      code: c.code,
-      name: c.name,
-      units: c.count,
-      kind: units.find((u) => u.accommodationTypeCode === c.code)?.kind ?? 'ROOM',
-    })),
-    days: b.dates.map((date) => ({
-      date,
-      ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
-      byCategory: b.byCategory[date] ?? {},
-    })),
-    unassignedByCategory,
-    stays: allCards().flatMap((r) =>
-      r.items.map((it) => ({
-        arrivalDate: it.arrivalDate,
-        departureDate: it.departureDate,
-        status: it.status,
-        adults: it.adults,
-        children: it.children,
-        priceMinor: BigInt(it.priceMinor),
-        source: r.source,
-        channel: r.channel,
-        categoryCode: it.accommodationTypeCode,
+  return buildDashboard(
+    {
+      from,
+      to,
+      // тип категории — по её единицам, как в API (Аналитика v2, тип фонда)
+      categories: categories.map((c) => ({
+        code: c.code,
+        name: c.name,
+        units: c.count,
+        kind: units.find((u) => u.accommodationTypeCode === c.code)?.kind ?? 'ROOM',
       })),
-    ),
-    charges: allCards().flatMap((r) =>
-      r.items
-        .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
-        .map((it) => ({
-          kind: 'ACCOMMODATION' as const,
-          amountMinor: BigInt(it.priceMinor),
+      days: b.dates.map((date) => ({
+        date,
+        ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
+        byCategory: b.byCategory[date] ?? {},
+      })),
+      unassignedByCategory,
+      stays: allCards().flatMap((r) =>
+        r.items.map((it) => ({
+          arrivalDate: it.arrivalDate,
+          departureDate: it.departureDate,
+          status: it.status,
+          // Q-209: бронь — это Reservation (номер брони стенда), статус — её собственный
+          reservationId: r.confirmationNumber,
+          reservationStatus: r.status,
+          adults: it.adults,
+          children: it.children,
+          priceMinor: BigInt(it.priceMinor),
+          source: r.source,
+          channel: r.channel,
           categoryCode: it.accommodationTypeCode,
-          serviceDate: it.arrivalDate,
         })),
-    ),
-    payments:
-      from <= today && today <= to
-        ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
-        : [],
-    refundsMinor: 0n,
-  }, fund);
+      ),
+      charges: allCards().flatMap((r) =>
+        r.items
+          .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
+          .map((it) => ({
+            kind: 'ACCOMMODATION' as const,
+            amountMinor: BigInt(it.priceMinor),
+            categoryCode: it.accommodationTypeCode,
+            serviceDate: it.arrivalDate,
+          })),
+      ),
+      payments:
+        from <= today && today <= to
+          ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
+          : [],
+      refundsMinor: 0n,
+    },
+    fund,
+  );
 }
 function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
   const prev = previousPeriod(from, to);
@@ -1686,8 +1696,20 @@ let uiTeam: FixtureMember[] = [];
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
   uiTeam = [
-    { userId: 'ui-manager', email: 'marat@example.invalid', name: 'Марат Тестов', role: 'MANAGER', joinedAt: '2026-09-02T09:00:00.000Z' },
-    { userId: 'ui-admin', email: 'urij@example.com', name: 'Юрий Тестов', role: 'STAFF', joinedAt: '2026-09-03T09:00:00.000Z' },
+    {
+      userId: 'ui-manager',
+      email: 'marat@example.invalid',
+      name: 'Марат Тестов',
+      role: 'MANAGER',
+      joinedAt: '2026-09-02T09:00:00.000Z',
+    },
+    {
+      userId: 'ui-admin',
+      email: 'urij@example.com',
+      name: 'Юрий Тестов',
+      role: 'STAFF',
+      joinedAt: '2026-09-03T09:00:00.000Z',
+    },
   ];
   uiInvites = [
     {
@@ -1710,19 +1732,29 @@ resetTeam();
 /** Люди организации глазами вошедшего: он сам с ролью `uiRole` и что он может с каждым */
 function teamView(me: UiUser) {
   const people: FixtureMember[] = [
-    { userId: me.id, email: me.email, name: me.name, role: uiRole, joinedAt: '2026-09-01T09:00:00.000Z' },
+    {
+      userId: me.id,
+      email: me.email,
+      name: me.name,
+      role: uiRole,
+      joinedAt: '2026-09-01T09:00:00.000Z',
+    },
     ...uiTeam,
   ];
   const order: MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
   return people
-    .sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.joinedAt.localeCompare(b.joinedAt))
+    .sort(
+      (a, b) =>
+        order.indexOf(a.role) - order.indexOf(b.role) || a.joinedAt.localeCompare(b.joinedAt),
+    )
     .map((m) => {
       const you = m.userId === me.id;
       return {
         ...m,
         you,
         removable: !you && canRemoveMember(uiRole, m.role),
-        roleEditable: !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        roleEditable:
+          !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
       };
     });
 }
@@ -2197,7 +2229,7 @@ function read(path: string, q: URLSearchParams): unknown {
         currency: 'KZT',
         count: 0,
         balanceMinor: '0',
-        checkedOut: { count: 0, balanceMinor: '0' },
+        overdue: { count: 0, balanceMinor: '0' },
         rows: [],
         truncated: false,
       };
@@ -2378,11 +2410,42 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/desk/dashboard') {
     const fund = q.get('fund') || 'all';
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
-    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund)) throw new Error('fund — all, rooms или beds');
+    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
+      throw new Error('fund — all, rooms или beds');
     return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
   if (path === '/rate-plans') return ratePlanList();
+  // «Свободные места», AV2 (ADR-110): один тариф BASE по синтетическим ценам ночи; койки — на каждого гостя
+  if (path === '/availability/offers') {
+    const arrival = q.get('arrival') || today,
+      departure = q.get('departure') || add(arrival, 1),
+      guests = Number(q.get('guests') || '1');
+    const nights = BigInt(nightsOf({ arrivalDate: arrival, departureDate: departure }));
+    return {
+      arrivalDate: arrival,
+      departureDate: departure,
+      nights: Number(nights),
+      guests,
+      currency: 'KZT',
+      byCategory: Object.fromEntries(
+        categories.map((c) => {
+          const bed = c.code !== 'ROOM';
+          if (!bed && guests > c.capacityAdults) return [c.code, null];
+          const night = nightly(c.code);
+          return [
+            c.code,
+            {
+              plans: 1,
+              totalMinor: (night * nights * BigInt(bed ? guests : 1)).toString(),
+              perNightMinor: night.toString(),
+              ratePlanCode: 'BASE',
+            },
+          ];
+        }),
+      ),
+    };
+  }
   if (path === '/availability') {
     const arrival = q.get('arrival') || today,
       departure = q.get('departure') || add(arrival, 1);
@@ -2591,7 +2654,9 @@ function read(path: string, q: URLSearchParams): unknown {
     const search = (q.get('q') || '').trim().toLocaleLowerCase('ru');
     const page = Math.max(1, Number(q.get('page') || 1));
     const pageSize = Math.max(1, Number(q.get('pageSize') || 25));
-    const ids = [...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : [])))];
+    const ids = [
+      ...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : []))),
+    ];
     const all = ids
       .flatMap((id) => {
         const g = getGuest(id);
@@ -2625,9 +2690,44 @@ function read(path: string, q: URLSearchParams): unknown {
           today,
         ),
       }));
-    const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
-    for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
-    const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
+    // G7: отборы и порядок — те же правила, что SQL настоящего API (последний визит — выезд
+    // последнего состоявшегося визита; визиты — заселён или выехал)
+    const last = q.get('last') || '';
+    const window: [string, string] | null =
+      last === 'today'
+        ? [today, today]
+        : last === '7d'
+          ? [add(today, -7), today]
+          : last === '30d'
+            ? [add(today, -30), today]
+            : last === 'period'
+              ? [q.get('from') || '', q.get('to') || '']
+              : null;
+    const visits = q.get('visits') || '';
+    const filtered = all.filter(
+      (g) =>
+        (!window ||
+          (g.last !== null &&
+            g.last.departureDate >= window[0] &&
+            g.last.departureDate <= window[1])) &&
+        (visits === '1'
+          ? g.staysCount === 1
+          : visits === '2-5'
+            ? g.staysCount >= 2 && g.staysCount <= 5
+            : visits === '6+'
+              ? g.staysCount >= 6
+              : true),
+    );
+    const sort = q.get('sort') || 'name';
+    const tail = '9999-12-31';
+    if (sort === 'next')
+      filtered.sort((a, b) => (a.next?.arrivalDate ?? tail).localeCompare(b.next?.arrivalDate ?? tail));
+    else if (sort === 'last')
+      filtered.sort((a, b) => (b.last?.departureDate ?? '').localeCompare(a.last?.departureDate ?? ''));
+    else if (sort === 'visits') filtered.sort((a, b) => b.staysCount - a.staysCount);
+    const counts = { ALL: filtered.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
+    for (const g of filtered) counts[g.state] += 1;
+    const rows = state === 'ALL' ? filtered : filtered.filter((g) => g.state === state);
     return {
       total: rows.length,
       page,
@@ -2679,12 +2779,16 @@ function read(path: string, q: URLSearchParams): unknown {
     return {
       ...u,
       id: u.code,
+      buildingName: u.buildingName ?? '',
+      floorName: u.floorName ?? '',
+      capacity: u.kind === 'BED' ? 1 : u.roomCapacity,
       active: true,
       housekeepingStatus: housekeepingOf(u.code),
       blocks: blocksFor(u.code),
       stays: allCards().flatMap((r) =>
         r.items
-          .filter((it) => it.unitCode === u.code)
+          // как PrismaUnitsRepository.card: отменённые и незаезды место не держат
+          .filter((it) => it.unitCode === u.code && !['CANCELLED', 'NO_SHOW'].includes(it.status))
           .map((it) => ({
             confirmationNumber: r.confirmationNumber,
             startDate: it.arrivalDate,
@@ -2717,8 +2821,7 @@ function read(path: string, q: URLSearchParams): unknown {
         return {
           date,
           // Витрина: ночь без цены (idx 20) — календарь называет её словами «Нет цены» (ТЗ v2 §21)
-          prices:
-            showcase && idx === 20 ? {} : { '1': price(1, '8000'), '2': price(2, '10000') },
+          prices: showcase && idx === 20 ? {} : { '1': price(1, '8000'), '2': price(2, '10000') },
           minStay:
             forDay.find((c) => c.minStay !== undefined)?.minStay ??
             (showcase && idx >= 15 && idx <= 17 ? 2 : 1),
@@ -2848,14 +2951,23 @@ function read(path: string, q: URLSearchParams): unknown {
       );
     const sum = (xs: typeof debts) =>
       xs.reduce((acc, x) => acc + BigInt(x.money.balanceMinor), 0n).toString();
-    const left = debts.filter(({ r }) => r.status === 'CHECKED_OUT');
+    // Q-207, как у API: гость выехал или дата выезда и час выезда объекта (12:00, UTC+5) уже прошли;
+    // отменённые и незаезды не просрочиваются
+    const nowLocal = new Date(Date.now() + 5 * 3600_000)
+      .toISOString()
+      .slice(0, 16)
+      .replace('T', ' ');
+    const overdue = (r: ReservationCard) =>
+      !['CANCELLED', 'NO_SHOW'].includes(r.status) &&
+      (r.status === 'CHECKED_OUT' || `${r.departureDate} 12:00` <= nowLocal);
+    const late = debts.filter(({ r }) => overdue(r));
     return {
       from,
       to,
       currency: 'KZT',
       count: debts.length,
       balanceMinor: sum(debts),
-      checkedOut: { count: left.length, balanceMinor: sum(left) },
+      overdue: { count: late.length, balanceMinor: sum(late) },
       rows: debts.map(({ r, money }) => ({
         confirmationNumber: r.confirmationNumber,
         status: r.status,
@@ -2866,6 +2978,7 @@ function read(path: string, q: URLSearchParams): unknown {
         paidMinor: money.paidMinor,
         refundedMinor: money.refundedMinor,
         balanceMinor: money.balanceMinor,
+        overdue: overdue(r),
       })),
       truncated: false,
     };
@@ -2931,9 +3044,16 @@ function read(path: string, q: URLSearchParams): unknown {
       ...channelsOverrides.connection,
     };
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
-    if (channexMode === 'attention') return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+    if (channexMode === 'attention')
+      return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
     if (channexMode === 'no-key')
-      return { ...base, apiConfigured: false, propertyAccessible: false, state: 'NO_KEY', message: 'Не задан ключ Channex' };
+      return {
+        ...base,
+        apiConfigured: false,
+        propertyAccessible: false,
+        state: 'NO_KEY',
+        message: 'Не задан ключ Channex',
+      };
     return base;
   }
   if (path === '/channels/channex/mapping')
@@ -2977,9 +3097,21 @@ function read(path: string, q: URLSearchParams): unknown {
         }
       : { roomTypes: {}, ratePlans: {} };
   if (path === '/channels/channex/outbox' && channexMode === 'attention')
-    return { pending: 0, failed: 2, sent: 405, lastSentAt: new Date(Date.now() - 150 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
+    return {
+      pending: 0,
+      failed: 2,
+      sent: 405,
+      lastSentAt: new Date(Date.now() - 150 * 60_000).toISOString(),
+      lastTaskId: 'ui-task-4f2a',
+    };
   if (path === '/channels/channex/outbox' && channexMode === 'ok')
-    return { pending: 0, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 20 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
+    return {
+      pending: 0,
+      failed: 0,
+      sent: 405,
+      lastSentAt: new Date(Date.now() - 20 * 60_000).toISOString(),
+      lastTaskId: 'ui-task-4f2a',
+    };
   if (path === '/channels/channex/outbox')
     return showcase
       ? {
@@ -2990,7 +3122,14 @@ function read(path: string, q: URLSearchParams): unknown {
           lastTaskId: 'ui-task-4f2a',
           ...channelsOverrides.outbox,
         }
-      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null, ...channelsOverrides.outbox };
+      : {
+          pending: 0,
+          failed: 0,
+          sent: 16,
+          lastSentAt: null,
+          lastTaskId: null,
+          ...channelsOverrides.outbox,
+        };
   if (path === '/channels/channex/outbox/rows') {
     const st = q.get('status');
     return showcaseOutbox.filter((r) => !st || r.status === st);
@@ -3326,7 +3465,8 @@ createServer(async (req, res) => {
         body['channelsOverrides'] && typeof body['channelsOverrides'] === 'object'
           ? (body['channelsOverrides'] as typeof channelsOverrides)
           : {};
-      siteLastEventAt = typeof body['siteLastEventAt'] === 'string' ? body['siteLastEventAt'] : null;
+      siteLastEventAt =
+        typeof body['siteLastEventAt'] === 'string' ? body['siteLastEventAt'] : null;
       // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
       if (body['tentative'] === true) {
         card.status = 'TENTATIVE';
@@ -3386,7 +3526,8 @@ createServer(async (req, res) => {
         typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
-      uiRole = body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
+      uiRole =
+        body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
       setSellerExtension(
         body['sellerExtension'],
@@ -3477,7 +3618,14 @@ createServer(async (req, res) => {
       // (будущая бронь — не визит), в карточке (G4) — текущее и следующее проживание и история
       // из разных источников
       put('GCRET', 'Возвращающийся Гость', [
-        { status: 'CHECKED_OUT', unit: 'R07', from: -21, to: -18, source: 'OTA', channel: 'Booking.com' },
+        {
+          status: 'CHECKED_OUT',
+          unit: 'R07',
+          from: -21,
+          to: -18,
+          source: 'OTA',
+          channel: 'Booking.com',
+        },
         { status: 'CHECKED_OUT', unit: 'M05', from: -9, to: -7, source: 'WEBSITE' },
         { status: 'CHECKED_IN', unit: 'R08', from: -1, to: 2 },
         { status: 'CONFIRMED', unit: 'R12', from: 10, to: 13, source: 'WEBSITE' },
@@ -3488,6 +3636,29 @@ createServer(async (req, res) => {
       put('GCOLD', 'Давний Гость', [{ status: 'CHECKED_OUT', unit: 'R10', from: -43, to: -40 }]);
       // живёт сейчас; его счёт станет виден в панели предпросмотра (следующая ступень)
       put('GCDEBT', 'Задолжавший Гость', [{ status: 'CHECKED_IN', unit: 'R11', from: -2, to: 3 }]);
+      // документы (G5): у давнего гостя паспорт просрочен, у возвращающегося — удостоверение с датами
+      extraGuests.get('ui-guest-GCOLD0')!.documents = [
+        {
+          id: 'ui-doc-gcold',
+          type: 'PASSPORT',
+          numberMasked: '•••• 7788',
+          issueCountry: 'KAZ',
+          issuedAt: '2015-06-30',
+          expiresAt: '2025-06-30',
+        },
+      ];
+      // G6 (ТЗ §34): телефон набран без пробелов — поиск по цифрам находит гостя, как API
+      extraGuests.get('ui-guest-GCRET0')!.phone = '+77010000042';
+      extraGuests.get('ui-guest-GCRET0')!.documents = [
+        {
+          id: 'ui-doc-gcret',
+          type: 'ID_CARD',
+          numberMasked: '•••• 1234',
+          issueCountry: 'KAZ',
+          issuedAt: '2022-03-15',
+          expiresAt: '2032-03-15',
+        },
+      ];
       return send(200, { guests: 4 });
     }
     if (path === '/__test/commands') return send(200, commands);
@@ -3663,12 +3834,18 @@ createServer(async (req, res) => {
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
       // зовут владелец и управляющий (ADR-107) — и список ожидающих тоже их
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
-      const view = (i: FixtureInvite) => ({ ...i, acceptedAt: null, revocable: canInvite(uiRole, i.role) });
+      const view = (i: FixtureInvite) => ({
+        ...i,
+        acceptedAt: null,
+        revocable: canInvite(uiRole, i.role),
+      });
       if (req.method === 'POST') {
         const raw = body['role'];
-        const role = raw === undefined || raw === null || raw === '' ? 'STAFF' : parseInviteRole(raw);
+        const role =
+          raw === undefined || raw === null || raw === '' ? 'STAFF' : parseInviteRole(raw);
         if (!role) return send(400, { message: INVITE_ROLE_MESSAGE });
-        if (!canInvite(uiRole, role)) return send(403, { message: INVITE_MANAGER_OWNER_ONLY_MESSAGE });
+        if (!canInvite(uiRole, role))
+          return send(403, { message: INVITE_MANAGER_OWNER_ONLY_MESSAGE });
         const email = String(body['email'] ?? '')
           .trim()
           .toLowerCase();
@@ -3693,10 +3870,12 @@ createServer(async (req, res) => {
     const revokeMatch = /^\/auth\/invites\/([^/]+)$/.exec(path);
     if (revokeMatch && req.method === 'DELETE') {
       const token = sessionOf(req as never);
-      if (!token || !uiSessions.has(token)) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       const at = uiInvites.findIndex((i) => i.id === revokeMatch[1] && canInvite(uiRole, i.role));
-      if (at < 0) return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      if (at < 0)
+        return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
       uiInvites.splice(at, 1);
       return send(200, { ok: true });
     }
@@ -3716,7 +3895,8 @@ createServer(async (req, res) => {
         if (!role) return send(400, { message: MEMBER_ROLE_MESSAGE });
         if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
         if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
-        if (!canSetRoleAtDesk(uiRole, target.role, role)) return send(403, { message: MEMBER_OWNER_MESSAGE });
+        if (!canSetRoleAtDesk(uiRole, target.role, role))
+          return send(403, { message: MEMBER_OWNER_MESSAGE });
         uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role } : m));
         return send(200, { userId: target.userId, role });
       }
@@ -4525,11 +4705,25 @@ createServer(async (req, res) => {
     if (path === '/reservations') {
       if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });
       const r = cardSeed();
-      const g = {
-        ...structuredClone(guestSeed),
-        ...(body['guest'] as Record<string, unknown>),
-      } as GuestCard;
-      g.id = `ui-new-guest-${commands.length}`;
+      // G6 (ТЗ «Гости v2» §33): бронь существующему гостю — те же ответы, что у API
+      const existingId = typeof body['guestId'] === 'string' ? body['guestId'] : null;
+      if (existingId && body['guest'] !== undefined)
+        return send(400, {
+          message: 'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
+        });
+      const existing = existingId
+        ? existingId === guest.id
+          ? guest
+          : extraGuests.get(existingId)
+        : undefined;
+      if (existingId && !existing) return send(404, { message: 'Гость не найден' });
+      const g =
+        existing ??
+        ({
+          ...structuredClone(guestSeed),
+          ...(body['guest'] as Record<string, unknown>),
+          id: `ui-new-guest-${commands.length}`,
+        } as GuestCard);
       r.confirmationNumber = `20260913-NEW${commands.length}`;
       r.arrivalDate = String(body['arrivalDate']);
       r.departureDate = String(body['departureDate']);
@@ -4570,7 +4764,7 @@ createServer(async (req, res) => {
       r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
       r.adults = r.items.reduce((sum, it) => sum + it.adults, 0);
       extraCards.set(r.confirmationNumber, r);
-      extraGuests.set(g.id, g);
+      if (!existing) extraGuests.set(g.id, g);
       createdReservation = true;
       return send(201, r);
     }

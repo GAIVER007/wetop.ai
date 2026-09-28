@@ -124,6 +124,10 @@
 .reservations-results {
   min-width: 0;
 }
+/* R3: строка открывает быстрый просмотр щелчком по любой ячейке — курсор это обещает */
+.reservations-results .dir-table--reservations tbody tr {
+  cursor: pointer;
+}
 /* Выборка словами слева, плотность строк справа — одна строка над таблицей */
 .reservations-meta-row {
   display: flex;

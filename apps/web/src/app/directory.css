@@ -319,6 +319,25 @@ a.dir-number:hover {
 .booking-head__sub.warn-text {
   color: var(--warning);
 }
+/* R3 «Броней v2»: «Финансы» быстрого просмотра — итог по счетам строками «подпись — сумма» (§19) */
+.booking-money {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+.booking-money > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.booking-money dt {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.booking-money dd {
+  margin: 0;
+  font-weight: 600;
+}
 /* гость — во всю ширину: имя, гражданство и связь читаются одной строкой */
 .booking-head__guest {
   grid-column: 1 / -1;

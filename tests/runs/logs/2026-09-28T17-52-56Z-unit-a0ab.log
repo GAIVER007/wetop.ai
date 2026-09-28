@@ -1,0 +1,52 @@
+# Модульные (unit) · 28.09.2026 22:52 Алматы · vm
+# коммит c4d62c8 (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T17-52-56Z-unit-a0ab.json' 'apps/web/src/app/reservations/actions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/reservations/actions.test.ts (6 tests | 1 failed) 59ms
+   ❯ поля существующего API из форм стойки (5)
+     ✓ создаёт группу из разных категорий и сохраняет все позиции после отказа 47ms
+     × «Автоматически» в поле ячейки — autoAssign API (Q-094), без кода ячейки 8ms
+     ✓ передаёт email и отчество, сохраняя их при отказе вместе с заметкой 1ms
+     ✓ передаёт выбранный тариф при переселении в другую категорию 1ms
+     ✓ сохраняет число детей по поддержанному UpdateItemDto 1ms
+   ✓ возвращает заметку и источник при отказе редактирования брони 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/actions.test.ts > поля существующего API из форм стойки > «Автоматически» в поле ячейки — autoAssign API (Q-094), без кода ячейки
+AssertionError: expected { accommodationTypeCode: 'ROOM', …(4) } to deeply equal { accommodationTypeCode: 'ROOM', …(5) }
+
+- Expected
++ Received
+
+  {
+    "accommodationTypeCode": "ROOM",
+    "adults": 2,
+-   "autoAssign": true,
+    "quantity": 1,
+    "ratePlanCode": "BASE",
+-   "unitCode": null,
++   "unitCode": "@auto",
+  }
+
+ ❯ apps/web/src/app/reservations/actions.test.ts:63:22
+     61|     );
+     62|     const items = (create.mock.calls[0]?.[0] as { items: Array<Record<…
+     63|     expect(items[0]).toEqual({
+       |                      ^
+     64|       accommodationTypeCode: 'ROOM',
+     65|       ratePlanCode: 'BASE',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  17:52:57
+   Duration  457ms (transform 70%, tests 19%, import 11%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T17-52-56Z-unit-a0ab.json
+
+# код выхода 1 · 1 с

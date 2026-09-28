@@ -38,6 +38,41 @@ describe('поля существующего API из форм стойки', (
     });
     expect(result.values).toMatchObject({ placementIds: '0,1', 'item.1.quantity': '4' });
   });
+  it('«Автоматически» в поле ячейки — autoAssign API (Q-094), без кода ячейки', async () => {
+    // ТЗ «Свободные места» AV3 (ADR-110): стойка просит то же назначение, что виджет сайта и канал
+    const create = vi
+      .spyOn(reservationsApi, 'create')
+      .mockRejectedValue(new ApiError(409, 'Конфликт'));
+    const result = await createReservationAction(
+      { error: null },
+      form({
+        placementIds: '0,1',
+        accommodationTypeCode: 'ROOM',
+        ratePlanCode: 'BASE',
+        adults: '2',
+        quantity: '1',
+        unitCode: '@auto',
+        'item.1.accommodationTypeCode': 'ROOM',
+        'item.1.ratePlanCode': 'BASE',
+        'item.1.adults': '1',
+        'item.1.quantity': '1',
+        'item.1.unitCode': 'R02',
+      }),
+    );
+    const items = (create.mock.calls[0]?.[0] as { items: Array<Record<string, unknown>> }).items;
+    expect(items[0]).toEqual({
+      accommodationTypeCode: 'ROOM',
+      ratePlanCode: 'BASE',
+      adults: 2,
+      quantity: 1,
+      unitCode: null,
+      autoAssign: true,
+    });
+    expect(items[1]).not.toHaveProperty('autoAssign');
+    expect(items[1]).toMatchObject({ unitCode: 'R02' });
+    // после отказа поле остаётся «Автоматически»
+    expect(result.values).toMatchObject({ unitCode: '@auto' });
+  });
   it('передаёт email и отчество, сохраняя их при отказе вместе с заметкой', async () => {
     const create = vi
       .spyOn(reservationsApi, 'create')

@@ -33,7 +33,15 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
       charges: Array<{ amount: bigint; date: string; voided?: boolean }>;
       payments?: Array<{ amount: bigint; voided?: boolean; refund?: bigint }>;
     }>,
+    stay: {
+      status?: 'CONFIRMED' | 'CHECKED_IN' | 'CHECKED_OUT' | 'CANCELLED' | 'NO_SHOW';
+      arrival?: string;
+      departure?: string;
+    } = {},
   ) {
+    const status = stay.status ?? 'CONFIRMED';
+    const arrival = day(stay.arrival ?? '2031-03-10');
+    const departure = day(stay.departure ?? '2031-03-12');
     const primaryGuest = guest
       ? await db.guest.create({
           data: { firstName: guest.split(' ')[0]!, lastName: guest.split(' ')[1]!, organizationId },
@@ -44,9 +52,9 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
         propertyId,
         confirmationNumber: `${PREFIX}${suffix}`,
         source: 'DESK',
-        status: 'CONFIRMED',
-        arrivalDate: day('2031-03-10'),
-        departureDate: day('2031-03-12'),
+        status,
+        arrivalDate: arrival,
+        departureDate: departure,
         adults: 1,
         currency: 'KZT',
         totalAmount: 0n,
@@ -58,13 +66,15 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
         data: {
           reservationId: r.id,
           accommodationTypeId,
-          arrivalDate: day('2031-03-10'),
-          departureDate: day('2031-03-12'),
+          arrivalDate: arrival,
+          departureDate: departure,
           price: 0n,
-          status: 'CONFIRMED',
+          status,
         },
       });
-      const folio = await db.folio.create({ data: { reservationItemId: item.id, currency: 'KZT' } });
+      const folio = await db.folio.create({
+        data: { reservationItemId: item.id, currency: 'KZT' },
+      });
       for (const c of f.charges)
         await db.charge.create({
           data: {
@@ -135,7 +145,10 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
     expect(property, 'в тестовой базе нужен объект').toBeTruthy();
     propertyId = property!.id;
     organizationId = property!.organizationId;
-    const type = await db.accommodationType.findFirst({ where: { propertyId }, select: { id: true } });
+    const type = await db.accommodationType.findFirst({
+      where: { propertyId },
+      select: { id: true },
+    });
     expect(type, 'в тестовой базе нужна категория').toBeTruthy();
     accommodationTypeId = type!.id;
     await cleanup();
@@ -149,7 +162,10 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
           { amount: 5_000n, date: '2031-02-20' },
           { amount: 999_000n, date: '2031-03-11', voided: true },
         ],
-        payments: [{ amount: 30_000n, refund: 10_000n }, { amount: 50_000n, voided: true }],
+        payments: [
+          { amount: 30_000n, refund: 10_000n },
+          { amount: 50_000n, voided: true },
+        ],
       },
     ]);
     // B: начисление только в апреле — в март не попадает
@@ -185,6 +201,7 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
         chargedMinor: 105_000n,
         paidMinor: 30_000n,
         refundedMinor: 10_000n,
+        overdue: false, // выезд в 2031 — впереди
       },
       {
         confirmationNumber: `${PREFIX}D`,
@@ -195,6 +212,7 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
         chargedMinor: 80_000n,
         paidMinor: 40_000n,
         refundedMinor: 0n,
+        overdue: false,
       },
     ]);
     // апрельская B видна в апреле: отбор идёт по дате услуги, а не по датам проживания
@@ -202,5 +220,55 @@ describe.skipIf(!url)('брони с остатком к сбору — запр
       r.confirmationNumber.startsWith(PREFIX),
     );
     expect(april.map((r) => r.confirmationNumber)).toEqual([`${PREFIX}B`]);
+  });
+  it('Q-207: просроченный долг — время выезда по часам объекта прошло; отменённые и незаезды не просрочиваются', async () => {
+    const charge = [{ charges: [{ amount: 10_000n, date: '2031-06-05' }] }];
+    await reservation('Q-PAST', null, charge, { arrival: '2019-12-30', departure: '2020-01-02' });
+    await reservation('Q-AHEAD', null, charge, {
+      status: 'CHECKED_IN',
+      arrival: '2031-06-01',
+      departure: '2099-01-02',
+    });
+    // выехал раньше срока — фактический выезд уже был
+    await reservation('Q-LEFT', null, charge, {
+      status: 'CHECKED_OUT',
+      arrival: '2031-06-01',
+      departure: '2099-01-02',
+    });
+    await reservation('Q-CANC', null, charge, {
+      status: 'CANCELLED',
+      arrival: '2019-12-30',
+      departure: '2020-01-02',
+    });
+    await reservation('Q-NOSH', null, charge, {
+      status: 'NO_SHOW',
+      arrival: '2019-12-30',
+      departure: '2020-01-02',
+    });
+    // выезд сегодня по часам объекта: просрочен, только если час выезда уже наступил — «сейчас» берём у базы
+    const [clock] = await db.$queryRaw<Array<{ today: string; now: string; checkout: string }>>`
+      SELECT to_char(now() AT TIME ZONE p.timezone, 'YYYY-MM-DD') AS today,
+             to_char(now() AT TIME ZONE p.timezone, 'HH24:MI') AS now,
+             to_char(p.check_out_time::time, 'HH24:MI') AS checkout
+        FROM properties p WHERE p.id = ${propertyId}::uuid`;
+    await reservation('Q-TODAY', null, charge, {
+      status: 'CHECKED_IN',
+      arrival: '2031-06-01',
+      departure: clock!.today,
+    });
+    const rows = (await repo.periodDebts('2031-06-01', '2031-06-30')).filter((r) =>
+      r.confirmationNumber.startsWith(`${PREFIX}Q-`),
+    );
+    const overdue = Object.fromEntries(
+      rows.map((r) => [r.confirmationNumber.slice(PREFIX.length), r.overdue]),
+    );
+    expect(overdue).toEqual({
+      'Q-PAST': true,
+      'Q-AHEAD': false,
+      'Q-LEFT': true,
+      'Q-CANC': false,
+      'Q-NOSH': false,
+      'Q-TODAY': clock!.now >= clock!.checkout,
+    });
   });
 });

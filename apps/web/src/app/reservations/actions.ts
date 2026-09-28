@@ -9,6 +9,7 @@ import {
   type MovePreview,
 } from '../../lib/api';
 import type { ActionPreview } from '../../lib/api';
+import { AUTO_UNIT } from '../../lib/booking-link';
 
 export interface ActionResult {
   error: string | null;
@@ -78,12 +79,15 @@ export async function createReservationAction(
       const prefix = id === '0' ? '' : `item.${id}.`;
       const value = (name: string) => str(fd, `${prefix}${name}`);
       const quantity = Number(value('quantity') ?? '1');
+      // «Автоматически» (AV3, ADR-110): место назначит API, как виджету сайта и каналу (Q-094)
+      const auto = quantity === 1 && value('unitCode') === AUTO_UNIT;
       return {
         accommodationTypeCode: value('accommodationTypeCode'),
         ratePlanCode: value('ratePlanCode'),
         adults: Number(value('adults') ?? '1'),
         quantity,
-        unitCode: quantity > 1 ? null : (value('unitCode') ?? null),
+        unitCode: quantity > 1 || auto ? null : (value('unitCode') ?? null),
+        ...(auto ? { autoAssign: true } : {}),
       };
     });
     const card = await reservationsApi.create({

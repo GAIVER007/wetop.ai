@@ -49,3 +49,6 @@
 | 29.09.2026 00:44 | typecheck | ✅ без ошибок | 22 с | 743f7f4 +50 | [лог](logs/2026-09-28T19-44-45Z-typecheck-f2d3.log) |  |
 | 29.09.2026 00:45 | lint | ✅ без ошибок | 17 с | 743f7f4 +50 | [лог](logs/2026-09-28T19-45-07Z-lint-7712.log) |  |
 | 29.09.2026 00:45 | unit | ✅ 2155 из 2158, пропущено 3 | 1 мин 12 с | 743f7f4 +39 | [лог](logs/2026-09-28T19-45-28Z-unit-76d9.log) |  |
+| 29.09.2026 00:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 539 | 40 мин 40 с | 743f7f4 +41 | [лог](logs/2026-09-28T19-47-19Z-e2e-f0bd.log) | INT2: полный UI-набор в один поток на дереве, слитом с main ef976e4 (перед вливанием в main по команде владельца) |
+| 29.09.2026 01:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 23 с | e2f675d | [лог](logs/2026-09-28T20-28-18Z-e2e-86cb.log) | INT2: одиночный повтор красного workspace:159 из полного прогона …19-47-19Z |
+| 29.09.2026 01:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts) | ✅ 19 из 19 | 59 с | e2f675d | [лог](logs/2026-09-28T20-29-28Z-e2e-a599.log) | INT2: спеки «Интеграций» и снимки стоп-гейта на дереве, слитом с main ef976e4 |

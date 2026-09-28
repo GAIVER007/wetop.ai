@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createPrismaClient, type Db } from '@pms/database';
+import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
+import { deleteOrganizationChain } from '../tools/property-owner';
 import { DEFAULT_SELLER_PROFILE } from '@pms/domain';
 import {
   PrismaSellerFactsRepository,
@@ -44,16 +45,13 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
         { id: emptyOrg, name: `Тест продавца без объекта ${mark}` },
       ],
     });
-    const property = await db.property.create({
-      data: {
-        organizationId: org,
-        name: `Хостел продавца ${mark}`,
-        address: 'Алматы, ул. Вымышленная, 1',
-        timezone: 'Asia/Almaty',
-        currency: 'KZT',
-        checkInTime: '14:00',
-        checkOutTime: '12:00',
-      },
+    const property = await createPropertyInChain(db, org, {
+      name: `Хостел продавца ${mark}`,
+      address: 'Алматы, ул. Вымышленная, 1',
+      timezone: 'Asia/Almaty',
+      currency: 'KZT',
+      checkInTime: '14:00',
+      checkOutTime: '12:00',
     });
     propertyId = property.id;
     const building = await db.building.create({ data: { propertyId, name: 'Корпус' } });
@@ -123,6 +121,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     await db.floor.deleteMany({ where: { building: { propertyId } } });
     await db.building.deleteMany({ where: { propertyId } });
     await db.property.deleteMany({ where: { id: propertyId } });
+    await deleteOrganizationChain(db, [org]);
     await db.organization.deleteMany({ where: { id: { in: [org, emptyOrg] } } });
     await db.$disconnect();
   });

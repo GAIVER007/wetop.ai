@@ -1,9 +1,0 @@
-# Типы (typecheck) · 20.09.2026 17:29 Алматы · vm
-# коммит 7bdd0e7 (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 5
-# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
-apps/web/src/app/reservations/[number]/actions-panel.tsx(382,9): error TS2375: Type '{ action: "extend"; currency: string; nights: number; departureDate: string; differenceMinor: string; newPriceMinor: string | undefined; currentPriceMinor: string; }' is not assignable to type 'ActionPreview' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
-  Types of property 'newPriceMinor' are incompatible.
-    Type 'string | undefined' is not assignable to type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
-
-# код выхода 1 · 16 с

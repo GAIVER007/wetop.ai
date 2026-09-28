@@ -151,7 +151,6 @@ type SeedUnit = Omit<InventoryUnit, 'housekeepingStatus' | 'active' | 'block'>;
 const units: SeedUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
-    exelyRoomNumber: null,
     kind: c.code === 'ROOM' ? 'ROOM' : 'BED',
     accommodationTypeCode: c.code,
     accommodationTypeName: c.name,
@@ -282,7 +281,7 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    // i = 2 — перенесённая из Exely бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
+    // i = 2 — перенесённая из внешней системы бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
     // Смена должна видеть это на клетке словом, не только жёлтым цветом.
     r.status =
       i === 2
@@ -768,7 +767,7 @@ let failStatus = 503;
  * Состояние Channex для «Интеграций» (INT1, ADR-116): '' — прежний ответ; 'ok' — объект доступен, webhook включён и
  * отвечает, обмен минуты назад; 'attention' — webhook не отвечает, ошибки отправки, обмен два часа назад;
  * 'foreign' — интеграция установки у другой организации (403, ADR-095); 'no-key' — ключ не задан.
- * INT2 (ADR-118): 'stale' — очередь в каналы стоит 40 мин, обмен три часа назад, webhook в порядке; 'webhook' — адрес
+ * INT2 (ADR-119): 'stale' — очередь в каналы стоит 40 мин, обмен три часа назад, webhook в порядке; 'webhook' — адрес
  * webhook не отвечает, остальное в порядке. Во всех режимах с подключением все три категории сопоставлены
  */
 type ChannexMode = '' | 'ok' | 'attention' | 'stale' | 'webhook' | 'foreign' | 'no-key';
@@ -1651,7 +1650,7 @@ const uiSessions = new Map<string, UiUser>();
 let uiRole: MembershipRole = 'OWNER';
 /**
  * Тариф брони у роли стенда — как в API: администратор пересчитывает только в тарифе брони (Q-200); брони без тарифа
- * (из Exely) назначает тариф со штрафом не мягче «первых суток» (Q-201). `null` — можно.
+ * (из внешней системы) назначает тариф со штрафом не мягче «первых суток» (Q-201). `null` — можно.
  */
 function planRefusal(current: string | null | undefined, requested: unknown): string | null {
   if (can(uiRole, 'rates') || typeof requested !== 'string' || !requested) return null;
@@ -3358,7 +3357,7 @@ createServer(async (req, res) => {
         card.departureDate = add(today, 90);
         card.items[0]!.departureDate = card.departureDate;
       }
-      // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
+      // бронь, перенесённая из внешней системы: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       if (body['softPlan'] === true) softPlan = true;
@@ -4369,7 +4368,6 @@ createServer(async (req, res) => {
       for (const code of codes)
         units.push({
           code,
-          exelyRoomNumber: null,
           kind: 'ROOM',
           accommodationTypeCode: c.code,
           accommodationTypeName: c.name,

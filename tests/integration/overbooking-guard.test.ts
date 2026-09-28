@@ -27,7 +27,7 @@ describe.skipIf(!url)('DB-level overbooking guard (integration)', () => {
         async (tx) => {
           const property = await tx.property.findFirstOrThrow({ select: { id: true } });
           const unit = await tx.inventoryUnit.findFirstOrThrow({
-            where: { exelyRoomNumber: '1' },
+            where: { code: 'L1' },
             select: { id: true, accommodationTypeId: true },
           });
           const mk = async (n: string, from: string, to: string) => {

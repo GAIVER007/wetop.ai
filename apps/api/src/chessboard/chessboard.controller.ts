@@ -20,7 +20,7 @@ export class ChessboardController {
     return this.service.availability(arrival || undefined, departure || undefined);
   }
 
-  /** Карточка брони по номеру подтверждения (для перенесённых — номер Exely). */
+  /** Карточка брони по номеру подтверждения. */
   @Get('reservations/:number')
   reservation(@Param('number') number: string) {
     return this.service.reservation(number);

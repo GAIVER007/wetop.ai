@@ -41,7 +41,7 @@ describe('reservationsToCancel', () => {
   it('свежую бронь не трогает: её, возможно, прямо сейчас использует тест другой сессии', () => {
     expect(reservationsToCancel([res({ createdAt: minutesAgo(1) })], now)).toHaveLength(0);
   });
-  it('бронь из Exely с настоящим номером не трогает ни в каком возрасте', () => {
+  it('бронь из Legacy с настоящим номером не трогает ни в каком возрасте', () => {
     expect(
       reservationsToCancel(
         [res({ confirmationNumber: '20260913-513903-1263592109', notes: null })],

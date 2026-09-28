@@ -37,7 +37,7 @@ PLATFORM_BODY = {
     "ratePlan": "Базовый тариф",
     "categories": [
         {
-            "code": "exely-900002",
+            "code": "category-twin",
             "name": "Двойная",
             "capacity": 2,
             "fits": True,
@@ -47,7 +47,7 @@ PLATFORM_BODY = {
             "perNight": [{"date": ARRIVAL.isoformat(), "priceMinor": "1500000"}],
         },
         {
-            "code": "exely-900001",
+            "code": "category-single",
             "name": "Одиночная",
             "capacity": 1,
             "fits": False,
@@ -57,7 +57,7 @@ PLATFORM_BODY = {
             "perNight": [],
         },
         {
-            "code": "exely-900003",
+            "code": "category-dorm",
             "name": "Закрытая",
             "capacity": 2,
             "fits": True,

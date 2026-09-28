@@ -3,7 +3,7 @@ import { Badge } from '../../components/ui';
 import { HEALTH_LABEL, HEALTH_TONE, type ChannexCard } from '../../lib/integrations';
 import type { PropertyClock } from '../../lib/property-time';
 
-/** Общие куски карточки «Интеграций» и страницы Channex (INT1 — ADR-116, INT2 — ADR-118) */
+/** Общие куски карточки «Интеграций» и страницы Channex (INT1 — ADR-116, INT2 — ADR-119) */
 
 export const CHANNEX_ABOUT =
   'Цены, остатки, ограничения и брони из Booking.com, Trip.com и других каналов.';

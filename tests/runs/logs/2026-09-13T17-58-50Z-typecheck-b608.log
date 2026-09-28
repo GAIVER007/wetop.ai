@@ -1,5 +1,0 @@
-# Типы (typecheck) · 13.09.2026 22:58 Алматы · Noutbuk-Vyacheslav.local
-# коммит e4299ea (main), незакоммиченных файлов набора: 27
-# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
-
-# код выхода 0 · 7 с

@@ -34,7 +34,7 @@ const routes = [
   '/channels/sync',
   '/channels/events',
   '/connections',
-  // страница настроек Channex (INT2, ADR-118)
+  // страница настроек Channex (INT2, ADR-119)
   '/connections/channex',
   // «Сайт и онлайн-бронирование» (ADR-117): четыре вкладки вместо «Аналитики сайта» и «Настроек сайта»
   '/website',

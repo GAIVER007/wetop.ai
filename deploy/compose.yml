@@ -143,5 +143,4 @@ services:
       api: { condition: service_healthy }
       web: { condition: service_healthy }
 
-# Службы exely-sync здесь больше нет: Exely перестал быть источником данных 19.09.2026 (ADR-052).
-# Брони приходят из Channex webhook'ом и заводятся на стойке; синхронизировать нечего.
+# Брони приходят из Channex webhook'ом или заводятся на стойке.

@@ -106,7 +106,7 @@ export interface AnalyticsRepository {
   siteBookingsSince(siteId: string, since: Date): Promise<number>;
   /** Тариф для виджета по коду (срез 9) */
   ratePlanByCode(code: string): Promise<RatePlanOption | null>;
-  /** Тариф сайта по умолчанию: «Базовый тариф» Exely (10157482), иначе первый активный */
+  /** Первый активный тариф объекта по стабильной сортировке */
   defaultBookingRatePlan(): Promise<RatePlanOption | null>;
   /** Связать сессию счётчика с бронью виджета; false — сессии нет */
   linkSessionReservation(
@@ -424,17 +424,11 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const select = { id: true, code: true, name: true, active: true } as const;
     // тариф своего объекта: без этого сайт чужой организации включал бронирование по тарифу Luxx
     const propertyId = await this.propertyId();
-    return (
-      (await this.prisma.db.ratePlan.findFirst({
-        where: { propertyId, active: true, exelyId: '10157482' },
-        select,
-      })) ??
-      this.prisma.db.ratePlan.findFirst({
-        where: { propertyId, active: true },
-        orderBy: { name: 'asc' },
-        select,
-      })
-    );
+    return this.prisma.db.ratePlan.findFirst({
+      where: { propertyId, active: true },
+      orderBy: [{ name: 'asc' }, { code: 'asc' }],
+      select,
+    });
   }
   async linkSessionReservation(
     siteId: string,

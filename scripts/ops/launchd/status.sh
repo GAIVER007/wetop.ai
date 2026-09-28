@@ -8,7 +8,7 @@
 # сам адрес и ищем живой cloudflared, кем бы он ни был запущен.
 UID_N="$(id -u)"
 TUNNEL_LOADED=0
-for n in api web tunnel domain awake exely-sync; do
+for n in api web tunnel domain awake; do
   label="kz.luxx.pms.$n"
   if out=$(launchctl print "gui/$UID_N/$label" 2>/dev/null); then
     state=$(printf '%s\n' "$out" | awk -F'= ' '/^\tstate = /{print $2; exit}')

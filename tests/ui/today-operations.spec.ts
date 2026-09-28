@@ -206,6 +206,8 @@ test('снимки Главной после A2', async ({ page }) => {
       await page.goto('/today');
       const systems = page.getByRole('region', { name: 'Системы' });
       await expect(systems.getByTestId('systems-guard')).toBeVisible();
+      // строка Channex рисуется в браузере по опросу оболочки — после неё высота страницы окончательная
+      await expect(systems.getByTestId('systems-channex')).toBeVisible();
       await expect(page.getByTestId('money-paid')).toBeVisible();
       // окно ровно в высоту страницы: без пустого хвоста и без склейки
       const height = await page.evaluate(() => document.documentElement.scrollHeight);

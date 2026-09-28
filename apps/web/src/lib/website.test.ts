@@ -150,12 +150,12 @@ describe('ввод домена (WEB2)', () => {
 
   it('пустой ввод и не-адрес названы словами до запроса в API', () => {
     expect(parseDomainInput('   ')).toEqual({
-      error: 'Впишите адрес сайта, например luxxaparts.kz',
+      error: 'Впишите адрес сайта, например myhotel.kz',
     });
     for (const raw of ['luxx aparts', 'https://', 'luxx_aparts.kz', '-luxx.kz'])
       expect(parseDomainInput(raw)).toHaveProperty(
         'error',
-        'Не похоже на адрес сайта: впишите домен, например luxxaparts.kz',
+        'Не похоже на адрес сайта: впишите домен, например myhotel.kz',
       );
   });
 });

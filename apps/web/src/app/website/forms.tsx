@@ -15,7 +15,7 @@ import {
 } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
-import { isPlaceholderHost, primaryHost } from '../../lib/website';
+import { DOMAIN_EXAMPLE, isPlaceholderHost, primaryHost } from '../../lib/website';
 import {
   addDomainAction,
   bookingSettingsAction,
@@ -55,7 +55,7 @@ export function CreateSiteForm() {
           required
           inputMode="url"
           autoComplete="off"
-          placeholder="luxxaparts.kz"
+          placeholder={DOMAIN_EXAMPLE}
           data-testid="site-hosts"
         />
       </Field>
@@ -290,7 +290,7 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
               inputMode="url"
               autoComplete="off"
               autoFocus
-              placeholder="luxxaparts.kz"
+              placeholder={DOMAIN_EXAMPLE}
               data-testid="domain-input"
             />
           </Field>
@@ -322,8 +322,8 @@ export function DomainList({ id, hosts }: { id: string; hosts: string[] }) {
         </div>
       )}
       <p className="hint">
-        www и поддомены подходят сами: {primary ?? 'luxxaparts.kz'} принимает и www, и адреса вида
-        booking.{primary ?? 'luxxaparts.kz'}.
+        www и поддомены подходят сами: {primary ?? DOMAIN_EXAMPLE} принимает и www, и адреса вида
+        booking.{primary ?? DOMAIN_EXAMPLE}.
         {hosts.length === 1 && ' Последний адрес не убирается — сначала добавьте другой.'}
       </p>
       {result?.error && <Alert>{result.error}</Alert>}

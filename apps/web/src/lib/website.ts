@@ -27,8 +27,8 @@ const RESERVED_TLD = ['example', 'invalid'];
 const RESERVED_DOMAINS = ['example.com', 'example.net', 'example.org'];
 
 /**
- * Домен-заглушка. У боевого «Сайта Luxx Aparts» с 12.09 стоит `luxx-aparts.example` — адреса сайта не было (Q-111),
- * а форма требует хотя бы один домен. С заглушкой приёмник и виджет отбрасывают всё: сайт не подключён.
+ * Домен-заглушка. У боевого сайта первого партнёра с 12.09 до очистки 28.09 (ADR-118) стоял `*.example` — адреса
+ * сайта не было (Q-111), а форма требует хотя бы один домен. С заглушкой приёмник и виджет отбрасывают всё: сайт не подключён.
  */
 export function isPlaceholderHost(host: string): boolean {
   const h = host.trim().toLowerCase().replace(/\.$/, '');
@@ -140,11 +140,12 @@ export function siteState(
 
 /** Та же проверка, что у API (`parseHosts`): латиница, цифры, дефис, точки между частями */
 const HOST_RE = /^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/;
-const DOMAIN_EXAMPLE = 'luxxaparts.kz';
+/** Пример адреса в подсказках и ошибках: стойка у каждого партнёра своя, домен конкретного отеля здесь не к месту */
+export const DOMAIN_EXAMPLE = 'myhotel.kz';
 
 /**
  * Адрес сайта из того, что вставил человек (WEB2): схема, путь, порт, `www` и точка в конце снимаются —
- * `https://www.luxxaparts.kz/rooms` → `luxxaparts.kz`. Неверный ввод — словами до запроса в API.
+ * `https://www.myhotel.kz/rooms` → `myhotel.kz`. Неверный ввод — словами до запроса в API.
  */
 export function parseDomainInput(raw: string): { host: string } | { error: string } {
   const text = raw.trim();

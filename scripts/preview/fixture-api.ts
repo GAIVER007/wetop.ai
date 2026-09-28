@@ -1363,51 +1363,54 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
   const unassignedByCategory: Record<string, number> = {};
   for (const u of b.unassigned)
     unassignedByCategory[u.categoryCode] = (unassignedByCategory[u.categoryCode] ?? 0) + 1;
-  return buildDashboard({
-    from,
-    to,
-    // тип категории — по её единицам, как в API (Аналитика v2, тип фонда)
-    categories: categories.map((c) => ({
-      code: c.code,
-      name: c.name,
-      units: c.count,
-      kind: units.find((u) => u.accommodationTypeCode === c.code)?.kind ?? 'ROOM',
-    })),
-    days: b.dates.map((date) => ({
-      date,
-      ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
-      byCategory: b.byCategory[date] ?? {},
-    })),
-    unassignedByCategory,
-    stays: allCards().flatMap((r) =>
-      r.items.map((it) => ({
-        arrivalDate: it.arrivalDate,
-        departureDate: it.departureDate,
-        status: it.status,
-        adults: it.adults,
-        children: it.children,
-        priceMinor: BigInt(it.priceMinor),
-        source: r.source,
-        channel: r.channel,
-        categoryCode: it.accommodationTypeCode,
+  return buildDashboard(
+    {
+      from,
+      to,
+      // тип категории — по её единицам, как в API (Аналитика v2, тип фонда)
+      categories: categories.map((c) => ({
+        code: c.code,
+        name: c.name,
+        units: c.count,
+        kind: units.find((u) => u.accommodationTypeCode === c.code)?.kind ?? 'ROOM',
       })),
-    ),
-    charges: allCards().flatMap((r) =>
-      r.items
-        .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
-        .map((it) => ({
-          kind: 'ACCOMMODATION' as const,
-          amountMinor: BigInt(it.priceMinor),
+      days: b.dates.map((date) => ({
+        date,
+        ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
+        byCategory: b.byCategory[date] ?? {},
+      })),
+      unassignedByCategory,
+      stays: allCards().flatMap((r) =>
+        r.items.map((it) => ({
+          arrivalDate: it.arrivalDate,
+          departureDate: it.departureDate,
+          status: it.status,
+          adults: it.adults,
+          children: it.children,
+          priceMinor: BigInt(it.priceMinor),
+          source: r.source,
+          channel: r.channel,
           categoryCode: it.accommodationTypeCode,
-          serviceDate: it.arrivalDate,
         })),
-    ),
-    payments:
-      from <= today && today <= to
-        ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
-        : [],
-    refundsMinor: 0n,
-  }, fund);
+      ),
+      charges: allCards().flatMap((r) =>
+        r.items
+          .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
+          .map((it) => ({
+            kind: 'ACCOMMODATION' as const,
+            amountMinor: BigInt(it.priceMinor),
+            categoryCode: it.accommodationTypeCode,
+            serviceDate: it.arrivalDate,
+          })),
+      ),
+      payments:
+        from <= today && today <= to
+          ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
+          : [],
+      refundsMinor: 0n,
+    },
+    fund,
+  );
 }
 function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
   const prev = previousPeriod(from, to);
@@ -1681,8 +1684,20 @@ let uiTeam: FixtureMember[] = [];
 let uiInvites: FixtureInvite[] = [];
 function resetTeam() {
   uiTeam = [
-    { userId: 'ui-manager', email: 'marat@example.invalid', name: 'Марат Тестов', role: 'MANAGER', joinedAt: '2026-09-02T09:00:00.000Z' },
-    { userId: 'ui-admin', email: 'urij@example.com', name: 'Юрий Тестов', role: 'STAFF', joinedAt: '2026-09-03T09:00:00.000Z' },
+    {
+      userId: 'ui-manager',
+      email: 'marat@example.invalid',
+      name: 'Марат Тестов',
+      role: 'MANAGER',
+      joinedAt: '2026-09-02T09:00:00.000Z',
+    },
+    {
+      userId: 'ui-admin',
+      email: 'urij@example.com',
+      name: 'Юрий Тестов',
+      role: 'STAFF',
+      joinedAt: '2026-09-03T09:00:00.000Z',
+    },
   ];
   uiInvites = [
     {
@@ -1705,19 +1720,29 @@ resetTeam();
 /** Люди организации глазами вошедшего: он сам с ролью `uiRole` и что он может с каждым */
 function teamView(me: UiUser) {
   const people: FixtureMember[] = [
-    { userId: me.id, email: me.email, name: me.name, role: uiRole, joinedAt: '2026-09-01T09:00:00.000Z' },
+    {
+      userId: me.id,
+      email: me.email,
+      name: me.name,
+      role: uiRole,
+      joinedAt: '2026-09-01T09:00:00.000Z',
+    },
     ...uiTeam,
   ];
   const order: MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
   return people
-    .sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.joinedAt.localeCompare(b.joinedAt))
+    .sort(
+      (a, b) =>
+        order.indexOf(a.role) - order.indexOf(b.role) || a.joinedAt.localeCompare(b.joinedAt),
+    )
     .map((m) => {
       const you = m.userId === me.id;
       return {
         ...m,
         you,
         removable: !you && canRemoveMember(uiRole, m.role),
-        roleEditable: !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        roleEditable:
+          !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
       };
     });
 }
@@ -2192,7 +2217,7 @@ function read(path: string, q: URLSearchParams): unknown {
         currency: 'KZT',
         count: 0,
         balanceMinor: '0',
-        checkedOut: { count: 0, balanceMinor: '0' },
+        overdue: { count: 0, balanceMinor: '0' },
         rows: [],
         truncated: false,
       };
@@ -2373,7 +2398,8 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/desk/dashboard') {
     const fund = q.get('fund') || 'all';
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
-    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund)) throw new Error('fund — all, rooms или beds');
+    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
+      throw new Error('fund — all, rooms или beds');
     return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
   }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
@@ -2616,7 +2642,9 @@ function read(path: string, q: URLSearchParams): unknown {
     const search = (q.get('q') || '').trim().toLocaleLowerCase('ru');
     const page = Math.max(1, Number(q.get('page') || 1));
     const pageSize = Math.max(1, Number(q.get('pageSize') || 25));
-    const ids = [...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : [])))];
+    const ids = [
+      ...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : []))),
+    ];
     const all = ids
       .flatMap((id) => {
         const g = getGuest(id);
@@ -2742,8 +2770,7 @@ function read(path: string, q: URLSearchParams): unknown {
         return {
           date,
           // Витрина: ночь без цены (idx 20) — календарь называет её словами «Нет цены» (ТЗ v2 §21)
-          prices:
-            showcase && idx === 20 ? {} : { '1': price(1, '8000'), '2': price(2, '10000') },
+          prices: showcase && idx === 20 ? {} : { '1': price(1, '8000'), '2': price(2, '10000') },
           minStay:
             forDay.find((c) => c.minStay !== undefined)?.minStay ??
             (showcase && idx >= 15 && idx <= 17 ? 2 : 1),
@@ -2873,14 +2900,23 @@ function read(path: string, q: URLSearchParams): unknown {
       );
     const sum = (xs: typeof debts) =>
       xs.reduce((acc, x) => acc + BigInt(x.money.balanceMinor), 0n).toString();
-    const left = debts.filter(({ r }) => r.status === 'CHECKED_OUT');
+    // Q-207, как у API: гость выехал или дата выезда и час выезда объекта (12:00, UTC+5) уже прошли;
+    // отменённые и незаезды не просрочиваются
+    const nowLocal = new Date(Date.now() + 5 * 3600_000)
+      .toISOString()
+      .slice(0, 16)
+      .replace('T', ' ');
+    const overdue = (r: ReservationCard) =>
+      !['CANCELLED', 'NO_SHOW'].includes(r.status) &&
+      (r.status === 'CHECKED_OUT' || `${r.departureDate} 12:00` <= nowLocal);
+    const late = debts.filter(({ r }) => overdue(r));
     return {
       from,
       to,
       currency: 'KZT',
       count: debts.length,
       balanceMinor: sum(debts),
-      checkedOut: { count: left.length, balanceMinor: sum(left) },
+      overdue: { count: late.length, balanceMinor: sum(late) },
       rows: debts.map(({ r, money }) => ({
         confirmationNumber: r.confirmationNumber,
         status: r.status,
@@ -2891,6 +2927,7 @@ function read(path: string, q: URLSearchParams): unknown {
         paidMinor: money.paidMinor,
         refundedMinor: money.refundedMinor,
         balanceMinor: money.balanceMinor,
+        overdue: overdue(r),
       })),
       truncated: false,
     };
@@ -2955,16 +2992,35 @@ function read(path: string, q: URLSearchParams): unknown {
       ...channelsOverrides.connection,
     };
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
-    if (channexMode === 'attention') return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+    if (channexMode === 'attention')
+      return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
     if (channexMode === 'no-key')
-      return { ...base, apiConfigured: false, propertyAccessible: false, state: 'NO_KEY', message: 'Не задан ключ Channex' };
+      return {
+        ...base,
+        apiConfigured: false,
+        propertyAccessible: false,
+        state: 'NO_KEY',
+        message: 'Не задан ключ Channex',
+      };
     return base;
   }
   if (path === '/channels/channex/mapping') return [];
   if (path === '/channels/channex/outbox' && channexMode === 'attention')
-    return { pending: 0, failed: 2, sent: 405, lastSentAt: new Date(Date.now() - 150 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
+    return {
+      pending: 0,
+      failed: 2,
+      sent: 405,
+      lastSentAt: new Date(Date.now() - 150 * 60_000).toISOString(),
+      lastTaskId: 'ui-task-4f2a',
+    };
   if (path === '/channels/channex/outbox' && channexMode === 'ok')
-    return { pending: 0, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 20 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
+    return {
+      pending: 0,
+      failed: 0,
+      sent: 405,
+      lastSentAt: new Date(Date.now() - 20 * 60_000).toISOString(),
+      lastTaskId: 'ui-task-4f2a',
+    };
   if (path === '/channels/channex/outbox')
     return showcase
       ? {
@@ -2975,7 +3031,14 @@ function read(path: string, q: URLSearchParams): unknown {
           lastTaskId: 'ui-task-4f2a',
           ...channelsOverrides.outbox,
         }
-      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null, ...channelsOverrides.outbox };
+      : {
+          pending: 0,
+          failed: 0,
+          sent: 16,
+          lastSentAt: null,
+          lastTaskId: null,
+          ...channelsOverrides.outbox,
+        };
   if (path === '/channels/channex/outbox/rows') {
     const st = q.get('status');
     return showcaseOutbox.filter((r) => !st || r.status === st);
@@ -3309,7 +3372,8 @@ createServer(async (req, res) => {
         body['channelsOverrides'] && typeof body['channelsOverrides'] === 'object'
           ? (body['channelsOverrides'] as typeof channelsOverrides)
           : {};
-      siteLastEventAt = typeof body['siteLastEventAt'] === 'string' ? body['siteLastEventAt'] : null;
+      siteLastEventAt =
+        typeof body['siteLastEventAt'] === 'string' ? body['siteLastEventAt'] : null;
       // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
       if (body['tentative'] === true) {
         card.status = 'TENTATIVE';
@@ -3369,7 +3433,8 @@ createServer(async (req, res) => {
         typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
-      uiRole = body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
+      uiRole =
+        body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
       setSellerExtension(
         body['sellerExtension'],
@@ -3460,7 +3525,14 @@ createServer(async (req, res) => {
       // (будущая бронь — не визит), в карточке (G4) — текущее и следующее проживание и история
       // из разных источников
       put('GCRET', 'Возвращающийся Гость', [
-        { status: 'CHECKED_OUT', unit: 'R07', from: -21, to: -18, source: 'OTA', channel: 'Booking.com' },
+        {
+          status: 'CHECKED_OUT',
+          unit: 'R07',
+          from: -21,
+          to: -18,
+          source: 'OTA',
+          channel: 'Booking.com',
+        },
         { status: 'CHECKED_OUT', unit: 'M05', from: -9, to: -7, source: 'WEBSITE' },
         { status: 'CHECKED_IN', unit: 'R08', from: -1, to: 2 },
         { status: 'CONFIRMED', unit: 'R12', from: 10, to: 13, source: 'WEBSITE' },
@@ -3646,12 +3718,18 @@ createServer(async (req, res) => {
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
       // зовут владелец и управляющий (ADR-107) — и список ожидающих тоже их
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
-      const view = (i: FixtureInvite) => ({ ...i, acceptedAt: null, revocable: canInvite(uiRole, i.role) });
+      const view = (i: FixtureInvite) => ({
+        ...i,
+        acceptedAt: null,
+        revocable: canInvite(uiRole, i.role),
+      });
       if (req.method === 'POST') {
         const raw = body['role'];
-        const role = raw === undefined || raw === null || raw === '' ? 'STAFF' : parseInviteRole(raw);
+        const role =
+          raw === undefined || raw === null || raw === '' ? 'STAFF' : parseInviteRole(raw);
         if (!role) return send(400, { message: INVITE_ROLE_MESSAGE });
-        if (!canInvite(uiRole, role)) return send(403, { message: INVITE_MANAGER_OWNER_ONLY_MESSAGE });
+        if (!canInvite(uiRole, role))
+          return send(403, { message: INVITE_MANAGER_OWNER_ONLY_MESSAGE });
         const email = String(body['email'] ?? '')
           .trim()
           .toLowerCase();
@@ -3676,10 +3754,12 @@ createServer(async (req, res) => {
     const revokeMatch = /^\/auth\/invites\/([^/]+)$/.exec(path);
     if (revokeMatch && req.method === 'DELETE') {
       const token = sessionOf(req as never);
-      if (!token || !uiSessions.has(token)) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!token || !uiSessions.has(token))
+        return send(401, { message: 'Сеанс закончился. Войдите заново.' });
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
       const at = uiInvites.findIndex((i) => i.id === revokeMatch[1] && canInvite(uiRole, i.role));
-      if (at < 0) return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      if (at < 0)
+        return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
       uiInvites.splice(at, 1);
       return send(200, { ok: true });
     }
@@ -3699,7 +3779,8 @@ createServer(async (req, res) => {
         if (!role) return send(400, { message: MEMBER_ROLE_MESSAGE });
         if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
         if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
-        if (!canSetRoleAtDesk(uiRole, target.role, role)) return send(403, { message: MEMBER_OWNER_MESSAGE });
+        if (!canSetRoleAtDesk(uiRole, target.role, role))
+          return send(403, { message: MEMBER_OWNER_MESSAGE });
         uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role } : m));
         return send(200, { userId: target.userId, role });
       }

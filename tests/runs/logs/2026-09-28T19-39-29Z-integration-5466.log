@@ -1,0 +1,83 @@
+# Интеграционные (integration) · 29.09.2026 00:39 Алматы · vm
+# коммит 321a58b (claude/hopeful-thompson-2v8v8a)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-39-29Z-integration-5466.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:24916) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (7 tests) 797ms
+   ✓ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     ✓ чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 448ms
+(node:24929) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-directory-filters.test.ts (1 test) 750ms
+   ✓ каталог броней: отбор на сервере (integration, rolled back) (1)
+     ✓ виды, даты, источник, оплата, размещение, категория и сортировка — по данным базы 719ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 405ms
+ ✓ |integration| tests/integration/manager-role.test.ts (6 tests) 377ms
+ ✓ |integration| tests/integration/rls-isolation.test.ts (6 tests) 332ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (2 tests) 344ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 296ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 790ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 491ms
+ ✓ |integration| tests/integration/finance-operations.test.ts (2 tests) 283ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 247ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 286ms
+(node:25030) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 224ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 548ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 547ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 455ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 475ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 353ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 315ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 218ms
+ ✓ |integration| tests/integration/property-chain.test.ts (3 tests) 230ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 252ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 238ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 370ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 368ms
+ ✓ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests) 186ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 816ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 619ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 219ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 175ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 253ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 242ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 183ms
+ ✓ |integration| tests/integration/guest-card.test.ts (2 tests) 210ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 199ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 823ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 60 сохранений в одной сессии — отказ 526ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 240ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 213ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 250ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 197ms
+(node:25343) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 598ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 441ms
+[Nest] 25353  - 09/28/2026, 7:39:59 PM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 225ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 233ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 174ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 553ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 412ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 125ms
+
+ Test Files  42 passed (42)
+      Tests  114 passed (114)
+   Start at  19:39:29
+   Duration  32.40s (tests 56%, import 36%, transform 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-39-29Z-integration-5466.json
+
+# код выхода 0 · 33 с

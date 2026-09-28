@@ -1296,3 +1296,86 @@
   gap: var(--space-2);
   margin-top: var(--space-2);
 }
+
+/*
+ * ТЗ «Шахматка v2», PR 4 — перетаскивание и продление (§26–29, §49).
+ * Пока бронь в руке: у строки, куда можно бросить, акцентная черта у колонки мест; строка, куда
+ * нельзя, приглушена. Над строкой под курсором — призрак: имя гостя пунктиром акцента или причина
+ * тоном опасности; после подтверждения — «Сохраняем…», пока сервер не ответил. Плашка на старом
+ * месте бледнеет. Продление поверх занятой ночи — рамка и подпись тоном опасности.
+ */
+.board tr[data-drop='ok'] > td.board__unit {
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+.board tr[data-drop='blocked'] > td.board__unit {
+  color: var(--muted);
+}
+/* прежняя заливка строки под курсором цветом статуса (globals.css) — лишняя рядом с призраком */
+.board tr[data-drop].is-over,
+.board tr[data-drop].is-over td.board__unit {
+  background: var(--surface);
+}
+.board .board__stay.is-lifted {
+  opacity: 0.45;
+}
+.board-drop-ghost {
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  height: 36px;
+  z-index: 4; /* slop-allow: z-index-literal — шкала сетки 1–8 (§13): призрак над плашками, под закреплённой колонкой (5), как рамка продления */
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  border: 2px dashed var(--primary);
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.board-drop-ghost[data-tone='blocked'] {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.board-drop-ghost[data-tone='saving'] {
+  border-style: solid;
+}
+.board-resize-range[data-conflict='true'] {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+.board-resize-preview[data-conflict='true'] {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Окно переселения (§27): гость главным, маршрут кодами ячеек, деньги отдельной строкой */
+.move-question {
+  display: grid;
+  gap: var(--space-1);
+}
+.move-question p {
+  margin: 0;
+}
+.move-question__guest {
+  color: var(--text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+.move-question__route {
+  font-family: var(--font-mono);
+}
+.move-question__money {
+  color: var(--text);
+  font-weight: var(--weight-semibold);
+}
+.move-question__note {
+  color: var(--text-2);
+  font-size: var(--text-sm);
+}

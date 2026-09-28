@@ -1,0 +1,106 @@
+# Модульные (unit) · 29.09.2026 00:17 Алматы · vm
+# коммит c5e7511 (claude/serene-fermat-om5559), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-17-24Z-unit-1dfe.json' 'packages/domain/src/web-analytics/metrics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/web-analytics/metrics.test.ts (18 tests | 5 failed) 66ms
+   ✓ сводка (определения GA4 / Legacy) (2)
+     ✓ гейт: 3 сессии, 2 посетителя, 4 просмотра, 1,33 страниц/сессию, 33 % мобильных, 1 отказ 4ms
+     ✓ пусто — нули, без деления на ноль 1ms
+   ✓ даты в часовом поясе объекта (3)
+     ✓ localDate переводит UTC в дату Алматы 35ms
+     ✓ periodBoundsUtc — полуинтервал [начало from, начало дня после to) в UTC 1ms
+     ✓ monthPeriod — первый и последний день месяца 0ms
+   ✓ по дням (1)
+     ✓ каждый день периода, включая нулевые; посетители уникальны внутри дня 1ms
+   ✓ источники (2)
+     ✓ гейт: DIRECT 1, SOCIAL/instagram 1, SEARCH/google 1; доля и среднее время 2ms
+     ✓ сортировка — по сессиям убыванию, при равенстве по виду и источнику 0ms
+   ✓ страницы и спрос (2)
+     ✓ topPages считает просмотры по пути и долю 2ms
+     ✓ demandCalendar — запросов на дату заезда, только валидные даты 1ms
+   ✓ события и устройства (2)
+     ✓ eventsBreakdown — число событий и сессий по имени, по убыванию 1ms
+     ✓ devicesBreakdown — устройства, браузеры и ОС с долями; неизвестное — null 2ms
+   ✓ брони с сайта (срез 9) (1)
+     ✓ summary.bookings и bookings по источникам считают сессии с бронью 1ms
+   ❯ воронка сайта (WEB4) (3)
+     × сессии по шагам: посещение → поиск → начали бронь → бронь, проценты от предыдущего шага 7ms
+     × дошёл дальше — засчитан и на шагах до этого; события чужих сессий не считаются 1ms
+     × пустой период — нули, конверсия 0 1ms
+   ❯ брони с сайта (WEB4) (2)
+     × число, отменённые и незаезды, начислено по действующим начислениям — по валютам 1ms
+     × нет броней — нули и пустой список сумм 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/web-analytics/metrics.test.ts > воронка сайта (WEB4) > сессии по шагам: посещение → поиск → начали бронь → бронь, проценты от предыдущего шага
+TypeError: bookingFunnel is not a function
+ ❯ packages/domain/src/web-analytics/metrics.test.ts:247:15
+    245|
+    246|   it('сессии по шагам: посещение → поиск → начали бронь → бронь, проце…
+    247|     const f = bookingFunnel(
+       |               ^
+    248|       [s('a'), s('b'), s('c'), s('d', { reservationId: 'r1' })],
+    249|       [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| packages/domain/src/web-analytics/metrics.test.ts > воронка сайта (WEB4) > дошёл дальше — засчитан и на шагах до этого; события чужих сессий не считаются
+TypeError: bookingFunnel is not a function
+ ❯ packages/domain/src/web-analytics/metrics.test.ts:271:15
+    269|   it('дошёл дальше — засчитан и на шагах до этого; события чужих сесси…
+    270|     // поиск был накануне — вне периода, а бронь сессии периода есть: …
+    271|     const f = bookingFunnel(
+       |               ^
+    272|       [s('a', { reservationId: 'r1' }), s('b')],
+    273|       [ev('booking_step', 'b', 'guest'), ev('search', 'чужая'), ev('bo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| packages/domain/src/web-analytics/metrics.test.ts > воронка сайта (WEB4) > пустой период — нули, конверсия 0
+TypeError: bookingFunnel is not a function
+ ❯ packages/domain/src/web-analytics/metrics.test.ts:279:12
+    277|
+    278|   it('пустой период — нули, конверсия 0', () => {
+    279|     expect(bookingFunnel([], [])).toEqual({
+       |            ^
+    280|       visits: 0,
+    281|       searches: 0,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| packages/domain/src/web-analytics/metrics.test.ts > брони с сайта (WEB4) > число, отменённые и незаезды, начислено по действующим начислениям — по валютам
+TypeError: siteReservations is not a function
+ ❯ packages/domain/src/web-analytics/metrics.test.ts:298:7
+    296|   it('число, отменённые и незаезды, начислено по действующим начислени…
+    297|     expect(
+    298|       siteReservations([
+       |       ^
+    299|         r('CONFIRMED', 'KZT', [45_000_00, false]),
+    300|         r('CHECKED_OUT', 'KZT', [30_000_00, false], [5_000_00, false]),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| packages/domain/src/web-analytics/metrics.test.ts > брони с сайта (WEB4) > нет броней — нули и пустой список сумм
+TypeError: siteReservations is not a function
+ ❯ packages/domain/src/web-analytics/metrics.test.ts:318:12
+    316|
+    317|   it('нет броней — нули и пустой список сумм', () => {
+    318|     expect(siteReservations([])).toEqual({ count: 0, cancelled: 0, noS…
+       |            ^
+    319|   });
+    320| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 13 passed (18)
+   Start at  19:17:26
+   Duration  647ms (transform 68%, tests 22%, import 8%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-17-24Z-unit-1dfe.json
+
+# код выхода 1 · 3 с

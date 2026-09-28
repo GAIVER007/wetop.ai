@@ -52,7 +52,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     // карточка брони панелью поверх шахматки, четыре вкладки
     await page.goto('/chessboard');
-    await main.getByTestId('stay-cell').first().click();
+    await main.getByTestId('stay-cell').first().dblclick();
     const drawer = page.getByRole('dialog', { name: 'Бронирование', exact: true });
     await expect(drawer).toBeVisible();
     await shot(page, 'reservation-drawer-overview', theme);

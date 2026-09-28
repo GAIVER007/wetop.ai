@@ -162,7 +162,8 @@ test('доступность переносит даты и свободное �
   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04');
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
-  await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
+  // первый свободный номер решает дата прогона: проживание стенда на R01 идёт «с сегодня» (TESTING.md)
+  await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R\d+/);
   await expect(
     page
       .getByRole('dialog', { name: 'Новая бронь', exact: true })
@@ -1415,7 +1416,11 @@ test('новая бронь: резюме выбора обновляется п
     '',
   );
   const unitSelect = first.getByLabel('Ячейка');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  // первая настоящая ячейка: до неё «назначить позже» и «Автоматически» (AV3, ADR-110)
+  const unitCode = (await unitSelect
+    .locator('option:not([value=""]):not([value="@auto"])')
+    .first()
+    .getAttribute('value'))!;
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
   await expect(summary).toContainText(`ячейка ${unitCode}`);
@@ -1543,8 +1548,16 @@ test('финансы F1: период в подзаголовке, четыре 
   await expect(kpis.getByTestId('charged')).toHaveText('24 000 ₸');
   await expect(kpis.getByTestId('paid')).toHaveText('8 000 ₸');
   await expect(kpis).toContainText('возвратов за период не было');
-  await expect(kpis.getByTestId('balance')).toHaveText('16 000 ₸');
-  await expect(kpis).toContainText('начислено − оплачено + возвращено');
+  // Q-206: «К сбору» — полный остаток броней периода, то же число, что итог списка долгов, а не разность итогов
+  const debts = (await (
+    await request.get(`${fixture}/finance/debts?from=2026-09-01&to=2026-09-30`, {
+      headers: { 'x-wetop-test-client': '1' },
+    })
+  ).json()) as { balanceMinor: string };
+  await expect(kpis.getByTestId('balance')).toContainText('₸');
+  const due = Number((await kpis.getByTestId('balance').innerText()).replace(/[^\d]/g, ''));
+  expect(due * 100).toBe(Number(debts.balanceMinor));
+  await expect(kpis).toContainText('остаток по броням периода');
   await expect(main.getByTestId('finance-charges')).toContainText('По видам начислений');
   // готовые отрезки: ссылка ведёт на период в адресе, активный отмечен
   await main.getByRole('link', { name: 'Сегодня', exact: true }).click();

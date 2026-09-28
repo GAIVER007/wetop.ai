@@ -3948,3 +3948,4 @@
 | 29.09.2026 02:13 | lint | ✅ без ошибок | 39 с | d55218e | [лог](logs/2026-09-28T21-13-35Z-lint-a493.log) |  |
 | 29.09.2026 02:14 | unit | ✅ 2257 из 2260, пропущено 3 | 1 мин 53 с | d55218e | [лог](logs/2026-09-28T21-14-15Z-unit-cd8b.log) |  |
 | 29.09.2026 02:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 21 мин 46 с | c97f4c8 | [лог](logs/2026-09-28T21-16-23Z-e2e-87c5.log) |  |
+| 29.09.2026 02:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/manager-actions.spec.ts tests/ui/navigation.spec.ts tests/ui/onboarding.spec.ts tests | ❌ упало 2 из 298 | 23 мин 29 с | 62def81 | [лог](logs/2026-09-28T21-40-21Z-e2e-2bb7.log) | компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел |

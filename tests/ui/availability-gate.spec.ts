@@ -38,13 +38,19 @@ for (const theme of ['light', 'dark'] as const) {
       .click();
     await expect(bed.getByRole('status')).toBeVisible();
     await page.screenshot({ path: `${DIR}/beds-picked-${theme}.png`, fullPage: true });
-    // форма брони открывается заполненной
-    await bed.getByRole('link', { name: 'Создать бронь', exact: true }).click();
+    // форма брони открывается заполненной; снимок — страницей по той же ссылке (панель поверх экрана
+    // целиком не снимается)
+    const href = await bed
+      .getByRole('link', { name: 'Создать бронь', exact: true })
+      .getAttribute('href');
+    await page.goto(href!);
     await expect(page.getByTestId('placement-fields')).toHaveCount(2);
     await page.screenshot({ path: `${DIR}/booking-prefilled-${theme}.png`, fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(URL);
     await rows.filter({ hasText: 'Мужской общий номер' }).getByText('Показать места').click();
+    // снимок всей страницы — от начала: после прокрутки шапка и нижнее меню встают посреди кадра
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: `${DIR}/mobile-${theme}.png`, fullPage: true });
   });
 }

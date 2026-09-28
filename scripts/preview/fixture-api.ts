@@ -2774,12 +2774,16 @@ function read(path: string, q: URLSearchParams): unknown {
     return {
       ...u,
       id: u.code,
+      buildingName: u.buildingName ?? '',
+      floorName: u.floorName ?? '',
+      capacity: u.kind === 'BED' ? 1 : u.roomCapacity,
       active: true,
       housekeepingStatus: housekeepingOf(u.code),
       blocks: blocksFor(u.code),
       stays: allCards().flatMap((r) =>
         r.items
-          .filter((it) => it.unitCode === u.code)
+          // как PrismaUnitsRepository.card: отменённые и незаезды место не держат
+          .filter((it) => it.unitCode === u.code && !['CANCELLED', 'NO_SHOW'].includes(it.status))
           .map((it) => ({
             confirmationNumber: r.confirmationNumber,
             startDate: it.arrivalDate,

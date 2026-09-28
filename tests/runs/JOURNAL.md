@@ -6,6 +6,11 @@
 
 | Когда | Набор | Итог | Длительность | Коммит | Лог | Заметка или первое падение |
 |---|---|---|---|---|---|---|
+| 29.09.2026 00:14 | typecheck | ✅ без ошибок | 31 с | 58aa571 +50 | [лог](logs/2026-09-28T19-14-26Z-typecheck-ed4e.log) |  |
+| 29.09.2026 00:14 | lint | ✅ без ошибок | 18 с | 58aa571 +50 | [лог](logs/2026-09-28T19-14-58Z-lint-b780.log) |  |
+| 29.09.2026 00:15 | unit | ✅ 2146 из 2149, пропущено 3 | 1 мин 18 с | 58aa571 +50 | [лог](logs/2026-09-28T19-15-19Z-unit-09cd.log) |  |
+| 29.09.2026 00:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 2 с | 58aa571 +50 | [лог](logs/2026-09-28T19-17-14Z-e2e-e524.log) | INT2: полный UI-набор в один поток на дереве, слитом с main e0ac75f (сброс платформы) |
+| 29.09.2026 00:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 22 мин 13 с | 58aa571 +50 | [лог](logs/2026-09-28T19-20-10Z-e2e-804b.log) | INT2: полный UI-набор в один поток на дереве, слитом с main e0ac75f; повтор после холодного next dev (…19-17-14Z) |
 | 28.09.2026 22:10 | typecheck | ✅ без ошибок | 33 с | 5d8e743 +50 | [лог](logs/2026-09-28T17-10-34Z-typecheck-bafb.log) | C3 после слияния с main (очистка наследия, ADR-118): typecheck |
 | 28.09.2026 22:11 | lint | ✅ без ошибок | 19 с | 9d08a98 | [лог](logs/2026-09-28T17-11-42Z-lint-1b05.log) | C3 после слияния с main (очистка наследия, ADR-118): lint |
 | 28.09.2026 22:12 | unit | ✅ 2140 из 2143, пропущено 3 | 1 мин 27 с | 9d08a98 | [лог](logs/2026-09-28T17-12-01Z-unit-9957.log) | C3 после слияния с main (очистка наследия, ADR-118): unit |
@@ -3740,6 +3745,12 @@
 | 29.09.2026 00:42 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/channel-booking-number.spec.ts tests/ui/requests.spec.ts --worker | ✅ 35 из 35 | 1 мин 25 с | 79a0bd4 +9 | [лог](logs/2026-09-28T19-42-24Z-e2e-23e3.log) | AV2–AV3 перед вливанием: фонд, форма брони, бюджет запросов на дереве с RT2 |
 | 29.09.2026 00:41 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ✅ 3 из 3 | 14 с | 4de2d98 | [лог](logs/2026-09-28T19-41-12Z-e2e-c5d2.log) |  |
 | 29.09.2026 00:41 | e2e | ✅ 25 из 25 | 55 с | 4de2d98 | [лог](logs/2026-09-28T19-41-32Z-e2e-1cc5.log) |  |
+| 29.09.2026 00:44 | typecheck | ✅ без ошибок | 22 с | 743f7f4 +50 | [лог](logs/2026-09-28T19-44-45Z-typecheck-f2d3.log) |  |
+| 29.09.2026 00:45 | lint | ✅ без ошибок | 17 с | 743f7f4 +50 | [лог](logs/2026-09-28T19-45-07Z-lint-7712.log) |  |
+| 29.09.2026 00:45 | unit | ✅ 2155 из 2158, пропущено 3 | 1 мин 12 с | 743f7f4 +39 | [лог](logs/2026-09-28T19-45-28Z-unit-76d9.log) |  |
+| 29.09.2026 00:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 539 | 40 мин 40 с | 743f7f4 +41 | [лог](logs/2026-09-28T19-47-19Z-e2e-f0bd.log) | INT2: полный UI-набор в один поток на дереве, слитом с main ef976e4 (перед вливанием в main по команде владельца) |
+| 29.09.2026 01:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 23 с | e2f675d | [лог](logs/2026-09-28T20-28-18Z-e2e-86cb.log) | INT2: одиночный повтор красного workspace:159 из полного прогона …19-47-19Z |
+| 29.09.2026 01:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts) | ✅ 19 из 19 | 59 с | e2f675d | [лог](logs/2026-09-28T20-29-28Z-e2e-a599.log) | INT2: спеки «Интеграций» и снимки стоп-гейта на дереве, слитом с main ef976e4 |
 | 29.09.2026 00:46 | typecheck | ❌ ошибок: 2 | 28 с | d56b7dd | [лог](logs/2026-09-28T19-46-47Z-typecheck-e4b3.log) | C3–C4a после слияния с main (P2, A2, RT2, P1 cleanup) |
 | 29.09.2026 00:47 | typecheck | ✅ без ошибок | 19 с | d56b7dd +2 | [лог](logs/2026-09-28T19-47-45Z-typecheck-b7f7.log) | C3–C4a после слияния: тесты категорий создают объект в цепочке |
 | 29.09.2026 00:48 | lint | ✅ без ошибок | 14 с | d56b7dd +2 | [лог](logs/2026-09-28T19-48-05Z-lint-852b.log) | C3–C4a после слияния |
@@ -3852,6 +3863,10 @@
 | 29.09.2026 01:27 | typecheck | ✅ без ошибок | 28 с | 09799da | [лог](logs/2026-09-28T20-27-25Z-typecheck-80c6.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
 | 29.09.2026 01:27 | lint | ✅ без ошибок | 16 с | 09799da | [лог](logs/2026-09-28T20-27-53Z-lint-a1b3.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
 | 29.09.2026 01:28 | unit | ✅ 2216 из 2219, пропущено 3 | 1 мин 14 с | 09799da | [лог](logs/2026-09-28T20-28-10Z-unit-aa0f.log) | C3–C4a после слияния с main 95f9b9fe (WEB2–WEB4) |
+| 29.09.2026 01:32 | typecheck | ✅ без ошибок | 28 с | f8cd956 +50 | [лог](logs/2026-09-28T20-32-50Z-typecheck-e4ac.log) |  |
+| 29.09.2026 01:33 | lint | ✅ без ошибок | 15 с | f8cd956 +50 | [лог](logs/2026-09-28T20-33-19Z-lint-9d64.log) |  |
+| 29.09.2026 01:33 | unit | ✅ 2222 из 2225, пропущено 3 | 1 мин 12 с | f8cd956 +50 | [лог](logs/2026-09-28T20-33-35Z-unit-91b2.log) |  |
+| 29.09.2026 01:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/channex-screens.spec.ts tests/ui/integrations-channex. | ✅ 141 из 141 | 11 мин 27 с | f8cd956 +50 | [лог](logs/2026-09-28T20-34-56Z-e2e-88c5.log) | INT2: спеки «Интеграций», каналов, workspace, доступности и навигации на дереве, слитом с main 4f233a6 |
 | 29.09.2026 01:30 | typecheck | ✅ без ошибок | 26 с | fea4841 | [лог](logs/2026-09-28T20-30-55Z-typecheck-4bc6.log) |  |
 | 29.09.2026 01:31 | lint | ✅ без ошибок | 15 с | fea4841 | [лог](logs/2026-09-28T20-31-21Z-lint-e0d1.log) |  |
 | 29.09.2026 01:31 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ✅ 16 из 16 | 2 с | fea4841 | [лог](logs/2026-09-28T20-31-36Z-unit-1463.log) |  |
@@ -3863,6 +3878,10 @@
 | 29.09.2026 01:40 | unit (частично: apps/web/src/lib/hotel-time.test.ts) | ✅ 3 из 3 | 4 с | d42c150 +1 | [лог](logs/2026-09-28T20-40-28Z-unit-71f1.log) | green: тот же медленный ответ настроек, таймер предела поддельный |
 | 29.09.2026 01:40 | unit | ✅ 2219 из 2222, пропущено 3 | 1 мин 14 с | d42c150 +1 | [лог](logs/2026-09-28T20-40-42Z-unit-8fa9.log) | G8 на main 6cf509ad; hotel-time с поддельным таймером предела |
 | 29.09.2026 01:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ✅ 99 из 99 | 10 мин 24 с | d42c150 +1 | [лог](logs/2026-09-28T20-46-08Z-e2e-1be6.log) | G8 на main 6cf509ad |
+| 29.09.2026 01:47 | typecheck | ✅ без ошибок | 20 с | 89c43ff +9 | [лог](logs/2026-09-28T20-47-17Z-typecheck-c5ac.log) |  |
+| 29.09.2026 01:47 | lint | ✅ без ошибок | 16 с | 89c43ff +9 | [лог](logs/2026-09-28T20-47-38Z-lint-9b62.log) |  |
+| 29.09.2026 01:47 | unit | ✅ 2225 из 2228, пропущено 3 | 1 мин 12 с | 89c43ff +8 | [лог](logs/2026-09-28T20-47-55Z-unit-40e2.log) |  |
+| 29.09.2026 01:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.t | ✅ 25 из 25 | 1 мин 22 с | 89c43ff +8 | [лог](logs/2026-09-28T20-49-12Z-e2e-ad53.log) | INT2: спеки «Интеграций» и навигации на дереве, слитом с main 6cf509a (онбординг #144) |
 | 29.09.2026 01:36 | unit (частично: apps/api/src/auth/scope.test.ts apps/api/src/auth/author.interceptor.test.ts apps/api/src/database/property-ref.test.ts apps/api/src/auth/me-acc | ❌ упало 8 из 30 | 2 с | 9e20bd4 +5 | [лог](logs/2026-09-28T20-36-19Z-unit-bd5a.log) | AuthorInterceptor — scope запроса (Platform P2, К1) вошедший без указателя — ORGANIZATION, в базу не ходим |
 | 29.09.2026 01:36 | integration (частично: tests/integration/request-scope.test.ts) | ❌ код выхода 1 | 2 с | 9e20bd4 +5 | [лог](logs/2026-09-28T20-36-30Z-integration-d01a.log) | (файл не выполнился) |
 | 29.09.2026 01:37 | unit (частично: apps/api/src/auth/scope.test.ts apps/api/src/auth/author.interceptor.test.ts apps/api/src/database/property-ref.test.ts apps/api/src/auth/me-acc | ✅ 44 из 44 | 2 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-37-47Z-unit-92ae.log) |  |
@@ -3876,6 +3895,10 @@
 | 29.09.2026 01:42 | lint | ✅ без ошибок | 14 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-42-24Z-lint-bc3e.log) |  |
 | 29.09.2026 01:43 | e2e | ✅ 25 из 25 | 54 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-43-08Z-e2e-239a.log) |  |
 | 29.09.2026 01:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/today-operations.spec.ts tests/ui/roles.spec.ts tests/ui/pl | ✅ 58 из 58 | 3 мин 3 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-44-10Z-e2e-7a09.log) |  |
+| 29.09.2026 01:51 | typecheck | ✅ без ошибок | 28 с | a9b06de +14 | [лог](logs/2026-09-28T20-51-24Z-typecheck-9e58.log) |  |
+| 29.09.2026 01:51 | lint | ✅ без ошибок | 15 с | a9b06de +14 | [лог](logs/2026-09-28T20-51-52Z-lint-b334.log) |  |
+| 29.09.2026 01:52 | unit | ✅ 2249 из 2252, пропущено 3 | 1 мин 12 с | a9b06de +13 | [лог](logs/2026-09-28T20-52-08Z-unit-2d80.log) |  |
+| 29.09.2026 01:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.t | ✅ 25 из 25 | 1 мин 24 с | a9b06de +13 | [лог](logs/2026-09-28T20-53-26Z-e2e-2f77.log) | INT2: спеки «Интеграций» и навигации на дереве, слитом с main 5a0473b (K1 #146) |
 | 28.09.2026 23:48 | typecheck | ✅ без ошибок | 33 с | 9774342 | [лог](logs/2026-09-28T18-48-59Z-typecheck-30f8.log) | R3 merged with main e0ac75fb |
 | 28.09.2026 23:49 | lint | ✅ без ошибок | 19 с | 9774342 | [лог](logs/2026-09-28T18-49-33Z-lint-16ce.log) | R3 merged with main e0ac75fb |
 | 28.09.2026 23:49 | unit | ✅ 2143 из 2146, пропущено 3 | 1 мин 25 с | 9774342 | [лог](logs/2026-09-28T18-49-55Z-unit-124c.log) | R3 merged with main e0ac75fb |
@@ -3915,3 +3938,22 @@
 | 29.09.2026 02:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ❌ упало 19 из 104 | 14 мин 41 с | 4750694 | [лог](logs/2026-09-28T21-00-13Z-e2e-39df.log) | G8 на main 4bc16b33 (+ спек R3 броней) |
 | 29.09.2026 02:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2-r3.spec.ts tests/ui/guests-design.spec.ts -g R3: щелчок\|G3) | ✅ 2 из 2 | 23 с | 9b8afb4 | [лог](logs/2026-09-28T21-15-57Z-e2e-0889.log) | повтор на чистом кэше .next-ui: панели брони и гостя |
 | 29.09.2026 02:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ⏹ прерван | 8 мин 5 с | 9b8afb4 | [лог](logs/2026-09-28T21-16-27Z-e2e-3439.log) | G8 на main 4bc16b33 (+ спек R3), чистый кэш .next-ui |
+| 29.09.2026 01:55 | typecheck | ✅ без ошибок | 21 с | d2381c6 +11 | [лог](logs/2026-09-28T20-55-29Z-typecheck-9409.log) |  |
+| 29.09.2026 01:55 | lint | ✅ без ошибок | 16 с | d2381c6 +11 | [лог](logs/2026-09-28T20-55-50Z-lint-b77c.log) |  |
+| 29.09.2026 01:56 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 12 с | d2381c6 +10 | [лог](logs/2026-09-28T20-56-07Z-unit-c0b1.log) |  |
+| 29.09.2026 02:07 | integration (частично: tests/integration/onboarding-concurrency.test.ts) | ❌ упало 1 из 1 | 4 с | 37fc796 +1 | [лог](logs/2026-09-28T21-07-00Z-integration-3372.log) | онбординг без объекта: гонка двух сохранений — red на main 37fc7963 |
+| 29.09.2026 02:07 | unit (частично: apps/api/src/hotel/onboarding.test.ts) | ✅ 9 из 9 | 3 с | 37fc796 +2 | [лог](logs/2026-09-28T21-07-23Z-unit-d498.log) | онбординг: запирание организации |
+| 29.09.2026 02:07 | integration (частично: tests/integration/onboarding-concurrency.test.ts tests/integration/onboarding-without-property.test.ts) | ✅ 2 из 2 | 4 с | 37fc796 +3 | [лог](logs/2026-09-28T21-07-27Z-integration-b13d.log) | онбординг без объекта: гонка — green после запирания строки организации |
+| 29.09.2026 02:08 | typecheck | ✅ без ошибок | 32 с | 37fc796 +3 | [лог](logs/2026-09-28T21-08-10Z-typecheck-e0ac.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:08 | lint | ✅ без ошибок | 18 с | 37fc796 +3 | [лог](logs/2026-09-28T21-08-42Z-lint-17bd.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:09 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 35 с | 37fc796 +2 | [лог](logs/2026-09-28T21-09-00Z-unit-4c5c.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:10 | integration | ✅ 122 из 122 | 41 с | 37fc796 +3 | [лог](logs/2026-09-28T21-10-37Z-integration-8946.log) | main 37fc7963 + запирание онбординга |
+| 29.09.2026 02:11 | e2e | ✅ 25 из 25 | 1 мин 4 с | 37fc796 +2 | [лог](logs/2026-09-28T21-11-50Z-e2e-86fa.log) | main 37fc7963 + запирание онбординга: живой e2e |
+| 29.09.2026 02:12 | e2e | ✅ 26 из 26 | 1 мин 13 с | 37fc796 +2 | [лог](logs/2026-09-28T21-12-55Z-e2e-8638.log) | main 37fc7963 + запирание: E2E_AUTH=1, API ролью wetop_app |
+| 29.09.2026 01:30 | integration | ✅ 119 из 119 | 33 с | 5ca8f84 | [лог](logs/2026-09-28T20-30-38Z-integration-f9a1.log) | main 4f233a68 после вливания PR #124 |
+| 29.09.2026 01:31 | e2e | ✅ 25 из 25 | 56 с | 5ca8f84 | [лог](logs/2026-09-28T20-31-36Z-e2e-5e4a.log) | main 4f233a68 после вливания PR #124: живые e2e, свежий стенд |
+| 29.09.2026 01:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 564 | 42 мин 27 с | 5ca8f84 | [лог](logs/2026-09-28T20-32-39Z-e2e-d7e2.log) | main 4f233a68 после вливания PR #124: полный UI-набор в один поток |
+| 29.09.2026 02:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts) | ✅ 4 из 4 | 17 с | 5ca8f84 +1 | [лог](logs/2026-09-28T21-15-57Z-e2e-905f.log) | record-tabs: вкладка гостя «Финансы» (G5) вместо «Счета и услуги» |
+| 29.09.2026 02:17 | typecheck | ✅ без ошибок | 30 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-01Z-typecheck-3ed3.log) | record-tabs на main 5ff088c0 |
+| 29.09.2026 02:17 | lint | ✅ без ошибок | 16 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-32Z-lint-7011.log) | record-tabs на main 5ff088c0 |
+| 29.09.2026 02:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/categories-safe-edit.spec.ts tests/ui/categories-create. | ✅ 6 из 6 | 41 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-48Z-e2e-00c2.log) | main 5ff088c0: record-tabs с «Финансами», категории C3–C4a |

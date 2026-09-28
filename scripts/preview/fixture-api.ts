@@ -818,13 +818,24 @@ let failStatus = 503;
 /**
  * Состояние Channex для «Интеграций» (INT1, ADR-116): '' — прежний ответ; 'ok' — объект доступен, webhook включён и
  * отвечает, обмен минуты назад; 'attention' — webhook не отвечает, ошибки отправки, обмен два часа назад;
- * 'foreign' — интеграция установки у другой организации (403, ADR-095); 'no-key' — ключ не задан
+ * 'foreign' — интеграция установки у другой организации (403, ADR-095); 'no-key' — ключ не задан.
+ * INT2 (ADR-121): 'stale' — очередь в каналы стоит 40 мин, обмен три часа назад, webhook в порядке; 'webhook' — адрес
+ * webhook не отвечает, остальное в порядке. Во всех режимах с подключением все три категории сопоставлены
  */
-let channexMode: '' | 'ok' | 'attention' | 'foreign' | 'no-key' = '';
+type ChannexMode = '' | 'ok' | 'attention' | 'stale' | 'webhook' | 'foreign' | 'no-key';
+const CHANNEX_MODES: ChannexMode[] = ['ok', 'attention', 'stale', 'webhook', 'foreign', 'no-key'];
+let channexMode: ChannexMode = '';
+/** Режимы, где Channex подключён и отвечает: у них webhook включён и категории сопоставлены */
+const channexLive = () =>
+  channexMode === 'ok' ||
+  channexMode === 'attention' ||
+  channexMode === 'stale' ||
+  channexMode === 'webhook';
 const CHANNEX_FOREIGN = new Set([
   '/channels/channex/connection',
   '/channels/channex/webhook/status',
   '/channels/channex/outbox',
+  '/channels/channex/mapping',
 ]);
 let emptyFixture = false;
 /** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
@@ -3102,6 +3113,8 @@ function read(path: string, q: URLSearchParams): unknown {
     if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
     if (channexMode === 'attention')
       return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+    if (channexMode === 'stale') return { ...base, lastWebhookAt: ago(185), lastPullAt: ago(240) };
+    if (channexMode === 'webhook') return { ...base, lastWebhookAt: ago(130), lastPullAt: ago(12) };
     if (channexMode === 'no-key')
       return {
         ...base,
@@ -3112,7 +3125,25 @@ function read(path: string, q: URLSearchParams): unknown {
       };
     return base;
   }
-  if (path === '/channels/channex/mapping') return [];
+  if (path === '/channels/channex/mapping')
+    return channexLive()
+      ? [
+          { id: 'ui-map-property', localAccommodationTypeCode: null, localRatePlanId: null, localRatePlanCode: null, providerPropertyId: 'ui-property', providerRoomTypeId: null, providerRatePlanId: null },
+          ...categories.slice(0, 3).map((c) => ({
+            id: `ui-map-${c.code}`,
+            localAccommodationTypeCode: c.code,
+            localRatePlanId: null,
+            localRatePlanCode: 'BAR',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: `ui-rt-${c.code.toLowerCase()}`,
+            providerRatePlanId: `ui-rp-${c.code.toLowerCase()}`,
+          })),
+        ]
+      : [];
+  if (path === '/channels/channex/outbox' && channexMode === 'stale')
+    return { pending: 5, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 200 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a', oldestPendingAt: new Date(Date.now() - 40 * 60_000).toISOString() };
+  if (path === '/channels/channex/outbox' && channexMode === 'webhook')
+    return { pending: 0, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 12 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
   if (path === '/channels/channex/outbox' && channexMode === 'attention')
     return {
       pending: 0,
@@ -3238,13 +3269,13 @@ function read(path: string, q: URLSearchParams): unknown {
     ];
   if (path === '/channels/channex/webhook/status') {
     const base =
-      channexMode === 'ok' || channexMode === 'attention'
+      channexLive()
         ? {
             registered: true,
             active: true,
             expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
             secretConfigured: true,
-            callbackReachable: channexMode === 'ok',
+            callbackReachable: channexMode !== 'attention' && channexMode !== 'webhook',
             callbackCheckedAt: new Date().toISOString(),
           }
         : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
@@ -3515,8 +3546,8 @@ createServer(async (req, res) => {
         applyChannelShowcase();
       }
       failStatus = Number(body['failStatus']) || 503;
-      channexMode = ['ok', 'attention', 'foreign', 'no-key'].includes(String(body['channex']))
-        ? (body['channex'] as typeof channexMode)
+      channexMode = CHANNEX_MODES.includes(String(body['channex']) as ChannexMode)
+        ? (body['channex'] as ChannexMode)
         : '';
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;

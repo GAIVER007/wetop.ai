@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createPrismaClient, type Db } from '@pms/database';
+import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
 import { hashSessionToken } from '@pms/domain';
 import { newSessionToken } from '@pms/shared';
 import { PrismaAccountsRepository } from '../../apps/api/src/accounts/accounts.prisma-repository';
@@ -61,15 +61,12 @@ describe.skipIf(!url)(
 
     /** Объект организации: журнал стойки открывает только организацию с объектом (ADR-061) */
     async function property(tx: Db, organizationId: string): Promise<void> {
-      await tx.property.create({
-        data: {
-          organizationId,
-          name: `Объект ${organizationId.slice(0, 8)} (integration)`,
-          timezone: 'Asia/Almaty',
-          currency: 'KZT',
-          checkInTime: '14:00',
-          checkOutTime: '12:00',
-        },
+      await createPropertyInChain(tx, organizationId, {
+        name: `Объект ${organizationId.slice(0, 8)} (integration)`,
+        timezone: 'Asia/Almaty',
+        currency: 'KZT',
+        checkInTime: '14:00',
+        checkOutTime: '12:00',
       });
     }
 

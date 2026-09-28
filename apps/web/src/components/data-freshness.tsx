@@ -59,6 +59,14 @@ export function DataFreshnessProvider({ children }: { children: ReactNode }) {
   return <FreshnessContext.Provider value={{ data, failed }}>{children}</FreshnessContext.Provider>;
 }
 
+/**
+ * Тот же результат для блоков страницы (строка Channex в «Системах» Главной, A2): свой запрос к
+ * `/system/freshness` стоил бы рейс сверх бюджета экрана (`tests/ui/requests.spec.ts`).
+ */
+export function useFreshness() {
+  return useContext(FreshnessContext);
+}
+
 /** Строка состояния читает общий результат, не заводя собственный таймер. */
 export function DataFreshness() {
   const { data, failed } = useContext(FreshnessContext);

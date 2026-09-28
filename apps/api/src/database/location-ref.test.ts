@@ -1,8 +1,8 @@
 /**
  * Platform P1 (ADR-104, DATA_MODEL §18; Q-199 — вариант Б): Location — филиал бизнеса, цепочка
  * Organization → Business → Location. Резолвер повторяет устройство property-ref: один рейс в базу
- * на процесс, ключ памяти — организация плюс схема базы (ADR-042), отказ не запоминается (цепочки
- * могло ещё не быть: до применения миграции Platform P1 таблицы пусты, стойка живёт прежним путём).
+ * на процесс, ключ памяти — организация плюс схема базы (ADR-042), отказ не запоминается (у организации,
+ * заведённой без объекта, филиала ещё нет — появится позже).
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { forgetLocationRef, organizationLocationRef } from './location-ref';
@@ -89,7 +89,7 @@ describe('филиал организации через Business (Platform P1)'
     expect(f.calls()).toBe(2);
   });
 
-  it('отсутствие цепочки не запоминается: миграция могла ещё не пройти — спросим снова', async () => {
+  it('отсутствие филиала не запоминается: организация без объекта заведёт его позже — спросим снова', async () => {
     const rows: Array<typeof LUXX> = [];
     const f = fakeDb(rows);
     const db = f.db as never;

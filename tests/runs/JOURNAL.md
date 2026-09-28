@@ -29,3 +29,10 @@
 | 28.09.2026 15:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/roles.spec.ts) | ❌ упало 1 из 13 | 1 мин 19 с | bcc3007 +1 | [лог](logs/2026-09-28T10-20-18Z-e2e-3a2d.log) | AN2: roles menu expects /management/analytics (red in full run 09-34-40Z) |
 | 28.09.2026 22:44 | typecheck | ✅ без ошибок | 39 с | 9e0e447 | [лог](logs/2026-09-28T17-44-05Z-typecheck-5034.log) | AN2 after merging main (seam fixes) |
 | 28.09.2026 22:44 | lint | ✅ без ошибок | 19 с | 9e0e447 | [лог](logs/2026-09-28T17-44-44Z-lint-cef1.log) | AN2 after merging main (seam fixes) |
+| 28.09.2026 22:47 | typecheck | ✅ без ошибок | 18 с | 3ae45d4 | [лог](logs/2026-09-28T17-47-54Z-typecheck-370b.log) | AN2 on main after platform reset |
+| 28.09.2026 22:48 | lint | ✅ без ошибок | 14 с | 3ae45d4 | [лог](logs/2026-09-28T17-48-13Z-lint-98a3.log) | AN2 on main after platform reset |
+| 28.09.2026 22:48 | unit | ✅ 2150 из 2153, пропущено 3 | 1 мин 24 с | 3ae45d4 | [лог](logs/2026-09-28T17-48-28Z-unit-4799.log) | AN2 on main after platform reset |
+| 28.09.2026 22:50 | integration | ❌ упало 1 из 110 | 32 с | 3ae45d4 | [лог](logs/2026-09-28T17-50-16Z-integration-08a8.log) | AN2 on main after platform reset |
+| 28.09.2026 22:51 | integration | ✅ 110 из 110 | 29 с | 3ae45d4 | [лог](logs/2026-09-28T17-51-13Z-integration-b5ed.log) | AN2 on main after platform reset, fresh local stand |
+| 28.09.2026 22:52 | e2e | ❌ упало 2 из 25 | 4 мин 38 с | 3ae45d4 | [лог](logs/2026-09-28T17-52-23Z-e2e-22f5.log) | AN2 on main after platform reset: live e2e |
+| 28.09.2026 22:57 | e2e | ❌ упало 2 из 26 | 4 мин 39 с | 3ae45d4 | [лог](logs/2026-09-28T17-57-21Z-e2e-466e.log) | AN2 on main after platform reset: E2E_AUTH=1, API as wetop_app |

@@ -3876,3 +3876,8 @@
 | 29.09.2026 01:31 | lint | ✅ без ошибок | 15 с | fea4841 | [лог](logs/2026-09-28T20-31-21Z-lint-e0d1.log) |  |
 | 29.09.2026 01:31 | unit (частично: apps/api/src/hotel/onboarding.test.ts apps/web/src/lib/onboarding-later.test.ts) | ✅ 16 из 16 | 2 с | fea4841 | [лог](logs/2026-09-28T20-31-36Z-unit-1463.log) |  |
 | 29.09.2026 01:31 | integration (частично: tests/integration/onboarding-without-property.test.ts) | ✅ 1 из 1 | 3 с | fea4841 | [лог](logs/2026-09-28T20-31-46Z-integration-a661.log) |  |
+| 29.09.2026 01:42 | typecheck | ✅ без ошибок | 33 с | 51b543d | [лог](logs/2026-09-28T20-42-20Z-typecheck-8cf2.log) |  |
+| 29.09.2026 01:42 | lint | ✅ без ошибок | 19 с | 51b543d | [лог](logs/2026-09-28T20-42-53Z-lint-562f.log) |  |
+| 29.09.2026 01:43 | unit | ✅ 2234 из 2237, пропущено 3 | 1 мин 21 с | 51b543d | [лог](logs/2026-09-28T20-43-16Z-unit-37c0.log) |  |
+| 29.09.2026 01:44 | integration | ✅ 120 из 120 | 39 с | 51b543d | [лог](logs/2026-09-28T20-44-38Z-integration-9ff2.log) |  |
+| 29.09.2026 01:45 | e2e | ✅ 25 из 25 | 1 мин 6 с | 51b543d | [лог](logs/2026-09-28T20-45-43Z-e2e-226e.log) |  |

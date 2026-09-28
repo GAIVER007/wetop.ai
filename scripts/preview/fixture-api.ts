@@ -600,12 +600,12 @@ function seedDesign() {
     extraCards.set(r.confirmationNumber, r);
     extraGuests.set(g.id, g);
   });
-  // блокировки с причиной и три статуса уборки
+  // блокировки с причиной и три статуса уборки; «по» не включается, как у API (с 28.09.2026)
   blocks.set('R09', [
     {
       id: 'dsg-block-1',
       dateFrom: today,
-      dateTo: add(today, 3),
+      dateTo: add(today, 4),
       type: 'MAINTENANCE',
       reason: 'ремонт: кондиционер',
     },
@@ -614,7 +614,7 @@ function seedDesign() {
     {
       id: 'dsg-block-2',
       dateFrom: add(today, -1),
-      dateTo: add(today, 1),
+      dateTo: add(today, 2),
       type: 'OUT_OF_ORDER',
       reason: 'нет матраса',
     },
@@ -623,7 +623,7 @@ function seedDesign() {
     {
       id: 'dsg-block-3',
       dateFrom: add(today, 1),
-      dateTo: add(today, 5),
+      dateTo: add(today, 6),
       type: 'MANAGEMENT',
       reason: 'резерв владельца',
     },
@@ -1335,7 +1335,8 @@ function board(from: string, to: string): Chessboard {
   const rows = units.map((u) => ({
     unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
-      const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
+      // как настоящий API: «по» не включается — ночь dateTo свободна (build.ts, units.service.ts)
+      const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date < b.dateTo);
       if (block)
         return {
           date,
@@ -1521,7 +1522,7 @@ const unitBusy = (code: string, from: string, to: string, except?: { id: string 
         x.arrivalDate < to &&
         x.departureDate > from,
     ),
-  ) || blocksFor(code).some((b) => b.dateFrom < to && b.dateTo >= from);
+  ) || blocksFor(code).some((b) => b.dateFrom < to && b.dateTo > from);
 const retotal = (r: ReservationCard) => {
   r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
 };
@@ -2546,7 +2547,7 @@ function read(path: string, q: URLSearchParams): unknown {
               it.arrivalDate < departure &&
               it.departureDate > arrival,
           ),
-        ) && !blocksFor(u.code).some((b) => b.dateFrom < departure && b.dateTo >= arrival),
+        ) && !blocksFor(u.code).some((b) => b.dateFrom < departure && b.dateTo > arrival),
     );
     return {
       arrivalDate: arrival,
@@ -4714,7 +4715,15 @@ createServer(async (req, res) => {
           code!,
           blocksFor(code!).filter((b) => b.id !== blockId),
         );
-      else if (command === 'blocks')
+      else if (command === 'blocks') {
+        const from = String(body['dateFrom'] ?? '');
+        const to = String(body['dateTo'] ?? '');
+        const iso = /^\d{4}-\d{2}-\d{2}$/;
+        // как настоящий API (units.service.ts): пустой или перевёрнутый период — 400
+        if (!iso.test(from) || !iso.test(to) || to <= from)
+          return send(400, {
+            message: 'dateFrom/dateTo — даты YYYY-MM-DD, dateTo > dateFrom (ночь выезда не блокируется)',
+          });
         blocks.set(code!, [
           ...blocksFor(code!),
           {
@@ -4725,7 +4734,7 @@ createServer(async (req, res) => {
             reason: String(body['reason'] ?? ''),
           },
         ]);
-      else return send(404, { message: 'Операция не найдена' });
+      } else return send(404, { message: 'Операция не найдена' });
       return send(200, read(`/units/${code}`, url.searchParams));
     }
     if (path === '/rates/bulk') {

@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 29.09.2026 00:54 Алматы · vm
+# коммит 1332e2f (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-month.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-month.spec.ts:9:1 › месяц: с первого по последнее число, включая прошлые дни (4.1s)
+  ✓   2 tests/ui/chessboard-month.spec.ts:28:1 › все 31 день помещаются по ширине окна (4.6s)
+  ✓   3 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-10-01 → 2026-09-01 (5.2s)
+  ✓   4 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2026-12-01 → 2027-01-01 (5.1s)
+  ✓   5 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2027-03-01 → 2027-02-01 (5.4s)
+  ✓   6 tests/ui/chessboard-month.spec.ts:52:3 › переключение целого месяца: 2028-01-01 → 2028-02-01 (5.3s)
+  ✓   7 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (6.3s)
+  ✓   8 tests/ui/chessboard-month.spec.ts:93:1 › 30 дней: окно от сегодня, «Месяц» ушёл из сегмента в «Даты» (4.1s)
+  ✓   9 tests/ui/chessboard-month.spec.ts:117:1 › в месяце открываются брони, свободные даты и группы номеров (10.1s)
+  ✓  10 tests/ui/chessboard-month.spec.ts:161:3 › месячная сетка: light, читаемость и адаптивность (29.6s)
+  ✓  11 tests/ui/chessboard-month.spec.ts:161:3 › месячная сетка: dark, читаемость и адаптивность (30.3s)
+
+  11 passed (1.9m)
+
+# код выхода 0 · 1 мин 56 с

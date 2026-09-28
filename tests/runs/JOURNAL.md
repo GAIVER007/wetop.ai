@@ -3950,3 +3950,5 @@
 | 29.09.2026 03:08 | typecheck | ✅ без ошибок | 26 с | 0753281 | [лог](logs/2026-09-28T22-08-36Z-typecheck-ab9d.log) |  |
 | 29.09.2026 03:09 | lint | ✅ без ошибок | 18 с | 0753281 | [лог](logs/2026-09-28T22-09-02Z-lint-dd22.log) |  |
 | 29.09.2026 03:09 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 38 с | 0753281 | [лог](logs/2026-09-28T22-09-24Z-unit-6f39.log) |  |
+| 29.09.2026 03:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-desk.spe | ✅ 150 из 150 | 9 мин 36 с | 0753281 | [лог](logs/2026-09-28T22-11-11Z-e2e-58e4.log) |  |
+| 29.09.2026 03:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts) | ✅ 8 из 8 | 29 с | 1d62e8a +1 | [лог](logs/2026-09-28T22-21-38Z-e2e-c711.log) |  |

@@ -368,11 +368,6 @@
     border-top: 1px solid var(--border-soft);
   }
 }
-@media (max-width: 600px) {
-  .attention-tally {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
 /* «Первые шаги» (DESIGN.md §8, ТЗ ux-retention п. 2.1): пока в объекте нет броней. Номер шага — как у шагов
    ИИ-продавца и формы брони; одна залитая кнопка — у следующего шага. */
@@ -629,12 +624,17 @@
   align-items: center;
   gap: var(--space-1) var(--space-2);
 }
+/* текст строки не сжимается в узкую колонку между словом важности и действием: на телефоне действие уходит
+   своей строкой вправо, а текст берёт всю ширину */
 .attention-event__text {
-  flex: 1;
+  flex: 1 1 224px;
   min-width: 0;
   color: var(--text);
   font-size: var(--text-md);
   font-weight: var(--weight-medium);
+}
+.attention-event__head > a {
+  margin-left: auto;
 }
 .attention-event__more {
   padding-left: var(--space-2);
@@ -650,8 +650,17 @@
 .attention-item--warning small {
   color: var(--warning);
 }
+.attention-tally [data-severity='critical'][data-state='on'] {
+  border-color: var(--danger-border);
+  background: var(--danger-soft);
+}
 .attention-tally [data-severity='critical'][data-state='on'] strong {
   color: var(--danger);
+}
+/* «К сведению» — не тревога: плитка остаётся спокойной, выделено только число */
+.attention-tally [data-severity='info'][data-state='on'] {
+  border-color: var(--border-soft);
+  background: var(--surface-muted);
 }
 .attention-tally [data-severity='warning'][data-state='on'] strong {
   color: var(--warning);

@@ -1,0 +1,30 @@
+# Модульные (unit) · 28.09.2026 22:52 Алматы · vm
+# коммит c4d62c8 (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T17-52-16Z-unit-3519.json' 'apps/web/src/lib/booking-link.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/booking-link.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/booking-link.test.ts [ apps/web/src/lib/booking-link.test.ts ]
+Error: Cannot find module './booking-link' imported from /home/user/wetop.ai/apps/web/src/lib/booking-link.test.ts
+ ❯ apps/web/src/lib/booking-link.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { AUTO_UNIT, bookingHref, bookingPrefill } from './booking-link…
+       | ^
+      3|
+      4| // ТЗ «Свободные места» AV3 (ADR-110): форма брони открывается с тем, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  17:52:17
+   Duration  193ms (worker 92%, environment 8%)
+
+JSON report written to /tmp/pms-test-2026-09-28T17-52-16Z-unit-3519.json
+
+# код выхода 1 · 1 с

@@ -290,3 +290,11 @@
 .finance-ops__table td {
   vertical-align: middle;
 }
+
+/* Q-207: просроченный долг — словом под суммой, цветом долга (§9: красный — «долг») */
+.finance-debts__overdue {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--danger);
+}

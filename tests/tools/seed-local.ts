@@ -7,11 +7,8 @@
  *
  * Запускается только против локальной базы: проверка адреса ниже не даёт задеть dev или боевую.
  */
-import { createPrismaClient, type Db } from '@pms/database';
+import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
-
-/** Услуга стенда: код и название совпадают, по нему начисляют сквозные тесты */
-const LAUNDRY = 'Стирка (1 загрузка)';
 
 /** Локальный стенд — только `localhost` и `127.0.0.1`: чужую базу этим скриптом не тронуть */
 export function isLocalDatabase(url: string): boolean {
@@ -106,33 +103,11 @@ export async function seedLocal(
   const organization =
     (await db.organization.findFirst({ orderBy: { createdAt: 'asc' }, select: { id: true } })) ??
     (await db.organization.create({ data: { name: LOCAL_PROPERTY.name, status: 'ACTIVE' }, select: { id: true } }));
+  // Platform P1 (DATA_MODEL v2.6): новый объект — сразу в цепочке Organization → Business → Location, той же
+  // функцией, что регистрация; объект без филиала база не примет (location_id NOT NULL)
   const property =
     (await db.property.findFirst({ where: { name: LOCAL_PROPERTY.name }, select: { id: true } })) ??
-    (await db.property.create({ data: { ...LOCAL_PROPERTY, organizationId: organization.id }, select: { id: true } }));
-  // Platform P1 (ADR-104 §18): сид идёт ПОСЛЕ миграций, поэтому цепочку Organization → Business → Location
-  // строит сам — так же, как backfill миграции 20260927000030 строит её на живых данных
-  const linked = await db.property.findUniqueOrThrow({
-    where: { id: property.id },
-    select: { locationId: true, timezone: true, currency: true },
-  });
-  if (!linked.locationId) {
-    const business =
-      (await db.business.findFirst({ where: { organizationId: organization.id }, orderBy: { createdAt: 'asc' }, select: { id: true } })) ??
-      (await db.business.create({
-        data: { organizationId: organization.id, name: LOCAL_PROPERTY.name, vertical: 'HOSPITALITY' },
-        select: { id: true },
-      }));
-    const location = await db.location.create({
-      data: {
-        businessId: business.id,
-        name: LOCAL_PROPERTY.name,
-        timezone: linked.timezone,
-        currency: linked.currency,
-      },
-      select: { id: true },
-    });
-    await db.property.update({ where: { id: property.id }, data: { locationId: location.id } });
-  }
+    (await db.$transaction((tx) => createPropertyInChain(tx, organization.id, LOCAL_PROPERTY)));
 
   const typeIds = new Map<string, string>();
   for (const c of CATEGORIES) {
@@ -257,16 +232,15 @@ export async function seedLocal(
         });
   }
   const rates = await db.dailyRate.createMany({ data: rows, skipDuplicates: true });
-  // Минимальная вымышленная услуга нужна форме начисления и сквозным тестам finance/full-day.
-  // Код равен названию, как у услуг объекта: спеки выбирают её по значению «Стирка (1 загрузка)».
-  // С кодом L-LAUNDRY и ценой 1 500 ₸ оба спека падали: форма ждала несуществующий вариант (28.09.2026)
+  // Минимальная вымышленная услуга нужна форме начисления и сквозным тестам finance/full-day: они выбирают её
+  // по коду (value в списке услуг) и сверяют баланс по цене 500 ₸ — код и цену не менять без этих спеков.
   await db.service.upsert({
-    where: { propertyId_code: { propertyId: property.id, code: LAUNDRY } },
+    where: { propertyId_code: { propertyId: property.id, code: 'Стирка (1 загрузка)' } },
     create: {
       propertyId: property.id,
-      code: LAUNDRY,
-      nameRu: LAUNDRY,
-      price: 50_000n, // 500 ₸ — суммы в finance.spec и full-day.spec посчитаны от этой цены
+      code: 'Стирка (1 загрузка)',
+      nameRu: 'Стирка (1 загрузка)',
+      price: 50_000n,
       group: 'Стенд',
     },
     update: {},

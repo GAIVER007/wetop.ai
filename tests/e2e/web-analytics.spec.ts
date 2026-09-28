@@ -149,7 +149,7 @@ test('три сессии двух посетителей доходят до п
     });
 
   // экран PMS
-  await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);
+  await page.goto(`/website/analytics?site=${siteId}&from=${today}&to=${today}`);
   await expect(page.getByRole('main').getByTestId('an-site-name')).toHaveText('E2E-АВТОТЕСТ сайт');
   await expect(page.getByRole('main').getByTestId('an-sessions')).toHaveText('3');
   await expect(page.getByRole('main').getByTestId('an-visitors')).toHaveText('2');
@@ -181,8 +181,8 @@ test('три сессии двух посетителей доходят до п
   await page.screenshot({ path: 'reports/screenshots/web-analytics-report.png', fullPage: true });
 });
 
-test('страница подключения: код с ключом, «Проверить счётчик» видит события', async ({ page }) => {
-  await page.goto('/analytics/setup');
+test('настройки сайта: код с ключом, «Проверить счётчик» видит события', async ({ page }) => {
+  await page.goto('/website/settings');
   const card = page.getByRole('main').locator(`[data-testid="site-card"][data-key="${key}"]`);
   await expect(card).toBeVisible();
   await expect(card.getByTestId('site-card-snippet')).toContainText(`data-site="${key}"`);
@@ -233,7 +233,7 @@ test('демо-страница на адресе API: просмотры и к�
       ],
     });
 
-  await page.goto(`/analytics?site=${siteId}&from=${today}&to=${today}`);
+  await page.goto(`/website/analytics?site=${siteId}&from=${today}&to=${today}`);
   await expect(page.getByRole('main').getByTestId('an-sessions')).toHaveText('4');
   const phone = page
     .getByRole('main')

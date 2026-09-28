@@ -5,7 +5,7 @@ import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
-import { propertyToday, propertyIdRef } from '../database/property-ref';
+import { propertyToday, propertyIdRef, propertyRef } from '../database/property-ref';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { stayFacts } from '../chessboard/stay-facts';
 import type { LocalDailyRate, LocalRestriction } from './ari';
@@ -339,10 +339,12 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     }));
   }
   async audit(action: string, after: unknown): Promise<void> {
-    const p = { id: await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name) };
+    // Phase 1 изоляции (ADR-100 §17.2): служебная запись каналов несёт организацию объекта
+    const p = await propertyRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     await this.prisma.db.auditLog.create({
       data: {
         userId: auditUserId(),
+        organizationId: p.organizationId,
         entityType: 'Property',
         entityId: p.id,
         action,
@@ -402,8 +404,10 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     }));
   }
   async enqueueOutbox(provider: string, kind: OutboxKind, payload: unknown[]): Promise<string> {
+    // Phase 1 изоляции (ADR-100 §17.2): сообщение очереди с рождения знает объект
+    const propertyId = await this.scopedPropertyId();
     const row = await this.prisma.db.channelOutbox.create({
-      data: { provider, kind, payload: JSON.parse(JSON.stringify(payload)) },
+      data: { provider, kind, payload: JSON.parse(JSON.stringify(payload)), propertyId },
       select: { id: true },
     });
     return row.id;
@@ -594,8 +598,11 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         })
       : [];
     const externalIds = byNumber.map((r) => r.externalId).filter((x): x is string => !!x);
+    // Phase 1 изоляции (ADR-100 §17.2): события — только своего объекта. Существующие строки
+    // привязаны backfill-ом миграции 20260927000026; новые пишутся с объектом с рождения.
     const where = {
       provider,
+      propertyId,
       ...(q.status
         ? { status: q.status as 'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED' }
         : {}),
@@ -673,6 +680,8 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       where: { provider_externalEventId: { provider, externalEventId: revisionId } },
     });
     if (!r) return null;
+    // Phase 1 изоляции (ADR-100 §17.2): чужая ревизия по прямому id не отдаётся — как не найдена
+    if (r.propertyId !== (await this.scopedPropertyId())) return null;
     return {
       externalEventId: r.externalEventId,
       type: r.type,
@@ -720,8 +729,13 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     provider: string,
     q: { status?: OutboxStatus | undefined; limit: number },
   ): Promise<OutboxListRow[]> {
+    // Phase 1 изоляции (ADR-100 §17.2): очередь — только своего объекта (backfill 20260927000026)
     const rows = await this.prisma.db.channelOutbox.findMany({
-      where: { provider, ...(q.status ? { status: q.status } : {}) },
+      where: {
+        provider,
+        propertyId: await this.scopedPropertyId(),
+        ...(q.status ? { status: q.status } : {}),
+      },
       orderBy: { createdAt: 'desc' },
       take: q.limit,
     });
@@ -738,17 +752,19 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     }));
   }
   async outboxSummary(provider: string) {
+    // Phase 1 изоляции (ADR-100 §17.2): сводка очереди — только своего объекта
+    const propertyId = await this.scopedPropertyId();
     const [pending, failed, sent, last, oldest] = await Promise.all([
-      this.prisma.db.channelOutbox.count({ where: { provider, status: 'PENDING' } }),
-      this.prisma.db.channelOutbox.count({ where: { provider, status: 'FAILED' } }),
-      this.prisma.db.channelOutbox.count({ where: { provider, status: 'SENT' } }),
+      this.prisma.db.channelOutbox.count({ where: { provider, propertyId, status: 'PENDING' } }),
+      this.prisma.db.channelOutbox.count({ where: { provider, propertyId, status: 'FAILED' } }),
+      this.prisma.db.channelOutbox.count({ where: { provider, propertyId, status: 'SENT' } }),
       this.prisma.db.channelOutbox.findFirst({
-        where: { provider, status: 'SENT' },
+        where: { provider, propertyId, status: 'SENT' },
         orderBy: { sentAt: 'desc' },
         select: { sentAt: true, taskId: true },
       }),
       this.prisma.db.channelOutbox.findFirst({
-        where: { provider, status: 'PENDING' },
+        where: { provider, propertyId, status: 'PENDING' },
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true },
       }),

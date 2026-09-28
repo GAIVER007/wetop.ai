@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { KNOWLEDGE_MAX_BYTES, SellerService } from './seller.service';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Раздел «ИИ-продавец» (ТЗ ред. 1 П5, П7, П8; ADR-079; контракт с ботом — docs/assistant/README.md §4).
@@ -22,10 +23,12 @@ import { KNOWLEDGE_MAX_BYTES, SellerService } from './seller.service';
  * Явный список маршрутов, а не «всё под `/ai-seller/*`»: платформа зовёт продавца ровно тем, что нужно экранам
  * раздела. Адрес и ключ продавца живут только в окружении API; в ответах их нет.
  */
+@Access('seller')
 @Controller('ai-seller')
 export class AiSellerController {
   constructor(@Inject(SellerService) private readonly seller: SellerService) {}
 
+  @Access('dialogs')
   @Get('status')
   @Header('Cache-Control', 'no-store')
   status() {
@@ -110,30 +113,35 @@ export class AiSellerController {
     return this.seller.factsPreview();
   }
 
+  @Access('dialogs')
   @Get('conversations')
   @Header('Cache-Control', 'no-store')
   conversations(@Query('mode') mode?: string, @Query('limit') limit?: string) {
     return this.seller.conversations({ mode, limit });
   }
 
+  @Access('dialogs')
   @Get('conversations/:id')
   @Header('Cache-Control', 'no-store')
   conversation(@Param('id') id: string) {
     return this.seller.conversation(id);
   }
 
+  @Access('dialogs')
   @Post('conversations/:id/takeover')
   @HttpCode(200)
   takeover(@Param('id') id: string) {
     return this.seller.switchMode(id, 'takeover');
   }
 
+  @Access('dialogs')
   @Post('conversations/:id/release')
   @HttpCode(200)
   release(@Param('id') id: string) {
     return this.seller.switchMode(id, 'release');
   }
 
+  @Access('dialogs')
   @Post('conversations/:id/reply')
   @HttpCode(200)
   reply(@Param('id') id: string, @Body() body: { text?: unknown } | undefined) {
@@ -160,6 +168,7 @@ export class AiSellerController {
     return this.seller.uploadKnowledge(file);
   }
 
+  @Access('dialogs')
   @Get('summary')
   @Header('Cache-Control', 'no-store')
   summary() {

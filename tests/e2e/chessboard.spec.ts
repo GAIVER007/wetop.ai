@@ -33,13 +33,20 @@ test('шахматка показывает 88 ячеек, и занятость
   await page.screenshot({ path: 'reports/screenshots/chessboard-today.png', fullPage: false });
 });
 
-test('клик по занятой клетке открывает карточку брони с проживаниями', async ({ page }) => {
+test('щелчок по занятой клетке — предпросмотр, двойной — карточка брони с проживаниями', async ({
+  page,
+}) => {
   await page.goto(`/chessboard?from=${TODAY}&to=${plusDays(TODAY, 2)}`);
-  const first = page.locator('td[data-state="OCCUPIED"] a').first();
+  const first = page.locator('td[data-state="OCCUPIED"] [data-testid="stay-cell"]').first();
   const number = (await first.getAttribute('href'))!.split('/').pop()!;
   // С 24.09 (PR #64, ADR-076) правую часть плашки занимают «⋯» и ручка продления: в узкой колонке (103 px на
-  // 1280) они накрывают центр. Человек открывает карточку щелчком по имени гостя — слева, туда и жмём.
+  // 1280) они накрывают центр. Человек щёлкает по имени гостя — слева, туда и жмём.
+  // Шахматка v2 (ТЗ §23–24): одинарный щелчок — быстрый предпросмотр на месте, двойной — полная карточка.
   await first.click({ position: { x: 12, y: 12 } });
+  await expect(page.getByTestId('stay-preview')).toBeVisible();
+  await expect(page).toHaveURL(/\/chessboard/);
+  await page.keyboard.press('Escape');
+  await first.dblclick({ position: { x: 12, y: 12 } });
   await expect(page).toHaveURL(new RegExp(`/reservations/${number}`));
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toBeVisible();

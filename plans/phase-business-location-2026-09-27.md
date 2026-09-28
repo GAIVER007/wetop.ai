@@ -1,4 +1,14 @@
-# План фазы Business + Location (27.09.2026) — ЖДЁТ ПОДТВЕРЖДЕНИЯ ВЛАДЕЛЬЦА
+# План фазы Business + Location (27.09.2026) — ПОДТВЕРЖДЁН ВЛАДЕЛЬЦЕМ 27.09.2026 (Q-199, вариант Б)
+
+> **Подтверждение и уточнения владельца (27.09.2026, вечер; передано через ветку PR #98):** «Q-199 — вариант Б.
+> Идём строго по ADR-104 / Target Architecture v3. Business + Location создаём вместе одной additive-фазой».
+> Имя фазы — **Platform P1 — Business + Location foundation** (нумерация Phase 2/2.5 отменена; Phase 1
+> tenant isolation остаётся security-фазой). Уточнения к §1–§2: Business для организации с объектами —
+> один, `name` — имя организации («Business: Luxx Aparts»); `organizations.reporting_currency` добавляется
+> этой же фазой, backfill — из фактической валюты Property там, где она однозначна (ложных валютных данных
+> молча не создавать); RLS сразу под финальную цепочку и проверяется под `wetop_app`. Временная миграция
+> `20260927000029_phase2_location` линии ADR-100 удалена до применения куда-либо. Реализация — эта же ветка
+> (PR #98), отчёт — `reports/platform-p1-business-location-2026-09-27.md`; production применяет владелец.
 
 > Следующая schema-фаза по замороженной архитектуре (`ARCHITECTURE.md`, ADR-104; `DATA_MODEL.md` v2.0
 > §18; freeze-сводка второй линии — `ARCHITECTURE.md` ветки `claude/hopeful-thompson-2v8v8a`, ADR-100

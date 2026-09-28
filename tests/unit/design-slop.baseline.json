@@ -1,13 +1,12 @@
 {
   "color-literal": {},
   "space-off-scale": {
-    "apps/web/src/app/chessboard/board.css": 14,
+    "apps/web/src/app/chessboard/board.css": 12,
     "apps/web/src/app/directory.css": 11,
     "apps/web/src/app/globals.css": 74,
     "apps/web/src/app/login/login.css": 1,
     "apps/web/src/app/management/hotel.css": 19,
     "apps/web/src/app/premium.css": 132,
-    "apps/web/src/app/rooms/rooms.css": 17,
     "apps/web/src/app/today/dashboard.css": 21,
     "apps/web/src/app/workspace.css": 84
   },
@@ -27,10 +26,9 @@
     "apps/web/src/app/chessboard/page.tsx": 1,
     "apps/web/src/app/guests/[id]/guest-forms.tsx": 3,
     "apps/web/src/app/layout.tsx": 1,
+    "apps/web/src/app/management/period/period-bar.tsx": 2,
     "apps/web/src/app/reservations/[number]/finance-panel.tsx": 1,
     "apps/web/src/app/reservations/[number]/page.tsx": 1,
-    "apps/web/src/app/rooms/room-grid.tsx": 1,
-    "apps/web/src/app/today/period-bar.tsx": 2,
     "apps/web/src/app/units/[code]/unit-actions.tsx": 4,
     "apps/web/src/components/data-freshness.tsx": 1,
     "apps/web/src/components/shell/sidebar.tsx": 2,
@@ -44,7 +42,6 @@
     "apps/web/src/app/globals.css": 4,
     "apps/web/src/app/management/hotel.css": 4,
     "apps/web/src/app/premium.css": 25,
-    "apps/web/src/app/rooms/rooms.css": 2,
     "apps/web/src/app/today/dashboard.css": 5,
     "apps/web/src/app/workspace.css": 20
   },

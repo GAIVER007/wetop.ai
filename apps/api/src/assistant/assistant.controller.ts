@@ -18,6 +18,7 @@ import { serviceKeyKind } from '../auth/auth.guard';
 import type { SignedInUser } from '../auth/auth.service';
 import { ExtensionsService } from '../platform/extensions.service';
 import { USER_ERRORS_REPOSITORY, type UserErrorsRepository } from './user-errors.repository';
+import { Access } from '../auth/access.decorator';
 
 export const IDENTITY_SIGNED_IN_ONLY = 'Подпись помощника выдаётся только вошедшему';
 export const IDENTITY_NOT_CONFIGURED = 'Подпись помощника не настроена';
@@ -60,6 +61,7 @@ export class AssistantController {
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
   ) {}
 
+  @Access('self')
   @Get('identity')
   @Header('Cache-Control', 'no-store')
   identity(@Req() request: { user?: SignedInUser }): { token: string; expiresAt: string } {
@@ -88,6 +90,7 @@ export class AssistantController {
    * проходит его своей сессией — и, подставив чужой `userId`, прочёл бы чужие ошибки. Пускаются ключ помощника
    * и служебный ключ владельца; `userId` и `organizationId` — из подписи, которую помощник проверил сам.
    */
+  @Access('service')
   @Get('errors')
   @Header('Cache-Control', 'no-store')
   async errors(
@@ -134,6 +137,7 @@ export class AssistantController {
    * без почт, денег и гостей. Второй адрес узкого ключа помощника (`ASSISTANT_READ_ALLOWED`); ключ
    * сверяется и здесь — по той же причине, что у `GET /assistant/errors`.
    */
+  @Access('service')
   @Get('organization')
   @Header('Cache-Control', 'no-store')
   async organization(

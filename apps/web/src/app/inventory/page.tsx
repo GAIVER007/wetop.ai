@@ -1,10 +1,11 @@
 import { FundTabs } from './fund-tabs';
-import { FundEditor } from './fund-editor';
 import './fund.css';
 import Link from 'next/link';
 import { api, inventoryEditorApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
+import { pluralRu } from '../../lib/plural';
+import { AddMenu } from './add-menu';
 import { InventoryCatalog } from './inventory-catalog';
 import './inventory.css';
 
@@ -18,15 +19,15 @@ export default async function InventoryPage() {
   return (
     <Page
       title="Номерной фонд"
-      subtitle={summary.property.name}
+      subtitle={
+        summary.totalUnits
+          ? `${summary.property.name}, ${pluralRu(summary.totalUnits, ['место', 'места', 'мест'])}`
+          : summary.property.name
+      }
       actions={
         <>
-          <FundEditor categories={categories} mode="category" />
-          <FundEditor categories={categories} />
-          <Link href="/rooms/availability" className="btn btn--secondary">
-            Доступность
-          </Link>
-          <Link href="/chessboard" className="btn">
+          <AddMenu categories={categories} />
+          <Link href="/chessboard" className="btn btn--secondary">
             <Icon name="board" />
             Шахматка
           </Link>
@@ -46,11 +47,11 @@ export default async function InventoryPage() {
       )}
       <dl className="inventory-summary" data-testid="inventory-summary">
         {[
-          ['В фонде', summary.totalUnits, 'total-units'],
+          ['Единиц продажи', summary.totalUnits, 'total-units'],
           ['Номеров', summary.rooms, 'rooms'],
           ['Койко-мест', summary.beds, 'beds'],
-          ['Максимум гостей', summary.maxGuests, 'max-guests'],
-          ['Блокировок', summary.blocks, 'blocks'],
+          ['Вместимость', summary.maxGuests, 'max-guests'],
+          ['Недоступно', summary.blocks, 'blocks'],
         ].map(([label, value, id]) => (
           <div key={id}>
             <dt>{label}</dt>

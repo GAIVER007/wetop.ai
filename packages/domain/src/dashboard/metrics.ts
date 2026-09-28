@@ -5,6 +5,16 @@
  */
 import { dateRange } from '../chessboard/build';
 
+/** Тип фонда (Аналитика v2, AN1): номер и койку в одну среднюю цену не смешиваем (ТЗ §6) */
+export type DashboardFund = 'all' | 'rooms' | 'beds';
+export const DASHBOARD_FUNDS: readonly DashboardFund[] = ['all', 'rooms', 'beds'];
+/** Единица продажи категории — как `InventoryUnit.kind`: номер или койка (ADR-013) */
+export type DashboardUnitKind = 'ROOM' | 'BED';
+const FUND_KIND: Record<Exclude<DashboardFund, 'all'>, DashboardUnitKind> = {
+  rooms: 'ROOM',
+  beds: 'BED',
+};
+
 export interface DashboardCategoryDay {
   units: number;
   occupied: number;
@@ -35,6 +45,8 @@ export interface DashboardCharge {
   kind: DashboardChargeKind;
   amountMinor: bigint;
   categoryCode: string;
+  /** Дата услуги; у начисления за проживание — день заезда (одно начисление на проживание) */
+  serviceDate: string;
 }
 export interface DashboardPayment {
   method: string;
@@ -43,16 +55,16 @@ export interface DashboardPayment {
 export interface DashboardInput {
   from: string;
   to: string;
-  categories: Array<{ code: string; name: string; units: number }>;
+  categories: Array<{ code: string; name: string; units: number; kind: DashboardUnitKind }>;
   /** По одной записи на каждую дату периода, в порядке дат */
   days: DashboardDay[];
-  /** Проживаний без ячейки, касающихся периода: в загрузку не входят (Q-107) */
-  unassigned: number;
+  /** Проживаний без ячейки, касающихся периода, по коду категории: в загрузку не входят (Q-107) */
+  unassignedByCategory: Record<string, number>;
   /** Проживания, у которых заезд или выезд попадает в период */
   stays: DashboardStay[];
   /** Начисления без сторно с `service_date` в периоде */
   charges: DashboardCharge[];
-  /** Платежи COMPLETED, проведённые в периоде (сутки объекта) */
+  /** Платежи COMPLETED, проведённые в периоде (сутки объекта). Типом фонда не делятся — это деньги объекта */
   payments: DashboardPayment[];
   refundsMinor: bigint;
 }
@@ -68,6 +80,7 @@ export interface DashboardSource {
 export interface DashboardCategory {
   code: string;
   name: string;
+  kind: DashboardUnitKind;
   units: number;
   unitNights: number;
   occupiedNights: number;
@@ -84,10 +97,31 @@ export interface DashboardDailyPoint {
   percent: number;
   arrivals: number;
   departures: number;
+  /** Начислено за проживание с датой услуги в этот день — то есть по заездам дня */
+  revenueMinor: string;
+}
+/** Брони периода по дате заезда: проживания всех статусов, как «Заезды» ADR-047 вместе с отменами */
+export interface DashboardBookings {
+  total: number;
+  /** Без отменённых и незаездов */
+  active: number;
+  cancelled: number;
+  noShow: number;
+  /** Доли от `total`, % с одним знаком */
+  cancelledPercent: number;
+  noShowPercent: number;
+  /** Стоимость действующих проживаний */
+  valueMinor: string;
+  /** Средний чек: стоимость / число действующих; null — их нет */
+  averageMinor: string | null;
 }
 export interface DashboardPeriod {
   from: string;
   to: string;
+  /** Какие категории вошли в расчёт; платежи и возвраты — всегда по объекту */
+  fund: DashboardFund;
+  /** Сколько номеров и коек во всём фонде — при любом `fund`, чтобы экран знал, есть ли что делить */
+  funds: { rooms: number; beds: number };
   nights: number;
   units: number;
   occupancy: {
@@ -117,6 +151,7 @@ export interface DashboardPeriod {
   revparMinor: string | null;
   arrivals: { count: number; guests: number; cancelled: number; noShow: number };
   departures: { count: number };
+  bookings: DashboardBookings;
   sources: DashboardSource[];
   categories: DashboardCategory[];
   daily: DashboardDailyPoint[];
@@ -127,9 +162,52 @@ const s = (v: bigint) => v.toString();
 /** Проценты с одним знаком после запятой, без float-накопления: считаем в десятых долях */
 const percent = (part: number, whole: number) =>
   whole > 0 ? Math.round((part * 1000) / whole) / 10 : 0;
-const divide = (amount: bigint, by: number): string | null => (by > 0 ? s(amount / BigInt(by)) : null);
+const divide = (amount: bigint, by: number): string | null =>
+  by > 0 ? s(amount / BigInt(by)) : null;
 
-export function buildDashboard(input: DashboardInput): DashboardPeriod {
+/**
+ * Оставляет только категории одного типа фонда: дни пересобираются из `byCategory`, проживания,
+ * начисления и «без ячейки» — по коду категории. Платежи и возвраты не трогаются (см. `DashboardInput`).
+ */
+function restrictToFund(input: DashboardInput, fund: DashboardFund): DashboardInput {
+  if (fund === 'all') return input;
+  const kind = FUND_KIND[fund];
+  const categories = input.categories.filter((c) => c.kind === kind);
+  const codes = new Set(categories.map((c) => c.code));
+  const days = input.days.map((d) => {
+    const byCategory = Object.fromEntries(
+      Object.entries(d.byCategory).filter(([code]) => codes.has(code)),
+    );
+    const sum = (key: 'occupied' | 'free' | 'blocked') =>
+      Object.values(byCategory).reduce((n, c) => n + c[key], 0);
+    return {
+      date: d.date,
+      occupied: sum('occupied'),
+      free: sum('free'),
+      blocked: sum('blocked'),
+      byCategory,
+    };
+  });
+  return {
+    ...input,
+    categories,
+    days,
+    unassignedByCategory: Object.fromEntries(
+      Object.entries(input.unassignedByCategory).filter(([code]) => codes.has(code)),
+    ),
+    stays: input.stays.filter((st) => codes.has(st.categoryCode)),
+    charges: input.charges.filter((ch) => codes.has(ch.categoryCode)),
+  };
+}
+
+export function buildDashboard(
+  whole: DashboardInput,
+  fund: DashboardFund = 'all',
+): DashboardPeriod {
+  const fundUnits = (kind: DashboardUnitKind) =>
+    whole.categories.filter((c) => c.kind === kind).reduce((n, c) => n + c.units, 0);
+  const funds = { rooms: fundUnits('ROOM'), beds: fundUnits('BED') };
+  const input = restrictToFund(whole, fund);
   const dates = dateRange(input.from, input.to);
   if (input.days.length !== dates.length || input.days.some((d, i) => d.date !== dates[i]))
     throw new Error(
@@ -197,6 +275,7 @@ export function buildDashboard(input: DashboardInput): DashboardPeriod {
     return {
       code: c.code,
       name: c.name,
+      kind: c.kind,
       units: c.units,
       unitNights: catNights,
       occupiedNights: occupied,
@@ -206,6 +285,10 @@ export function buildDashboard(input: DashboardInput): DashboardPeriod {
     };
   });
 
+  const revenueByDay = new Map<string, bigint>();
+  for (const ch of input.charges)
+    if (ch.kind === 'ACCOMMODATION')
+      revenueByDay.set(ch.serviceDate, (revenueByDay.get(ch.serviceDate) ?? 0n) + ch.amountMinor);
   const daily = input.days.map((d) => ({
     date: d.date,
     occupied: d.occupied,
@@ -214,11 +297,18 @@ export function buildDashboard(input: DashboardInput): DashboardPeriod {
     percent: percent(d.occupied, units),
     arrivals: arrivals.filter((st) => st.arrivalDate === d.date).length,
     departures: departures.filter((st) => st.departureDate === d.date).length,
+    revenueMinor: s(revenueByDay.get(d.date) ?? 0n),
   }));
+
+  const cancelled = arrivalsAll.filter((st) => st.status === 'CANCELLED').length;
+  const noShow = arrivalsAll.filter((st) => st.status === 'NO_SHOW').length;
+  const bookingsValue = arrivals.reduce((a, st) => a + st.priceMinor, 0n);
 
   return {
     from: input.from,
     to: input.to,
+    fund,
+    funds,
     nights,
     units,
     occupancy: {
@@ -228,7 +318,7 @@ export function buildDashboard(input: DashboardInput): DashboardPeriod {
       freeNights,
       percent: percent(occupiedNights, unitNights),
     },
-    unassigned: input.unassigned,
+    unassigned: Object.values(input.unassignedByCategory).reduce((n, v) => n + v, 0),
     revenue: {
       accommodationMinor: s(accommodation),
       servicesMinor: s(services),
@@ -243,10 +333,20 @@ export function buildDashboard(input: DashboardInput): DashboardPeriod {
     arrivals: {
       count: arrivals.length,
       guests: arrivals.reduce((n, st) => n + st.adults + st.children, 0),
-      cancelled: arrivalsAll.filter((st) => st.status === 'CANCELLED').length,
-      noShow: arrivalsAll.filter((st) => st.status === 'NO_SHOW').length,
+      cancelled,
+      noShow,
     },
     departures: { count: departures.length },
+    bookings: {
+      total: arrivalsAll.length,
+      active: arrivals.length,
+      cancelled,
+      noShow,
+      cancelledPercent: percent(cancelled, arrivalsAll.length),
+      noShowPercent: percent(noShow, arrivalsAll.length),
+      valueMinor: s(bookingsValue),
+      averageMinor: divide(bookingsValue, arrivals.length),
+    },
     sources,
     categories,
     daily,

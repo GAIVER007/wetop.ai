@@ -1,0 +1,268 @@
+# Сквозные (e2e) · 27.09.2026 21:32 Алматы · vm
+# коммит 74d8b1c (claude/lucid-edison-cqa1ja), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/empty-base.spec.ts' 'tests/ui/manager-actions.spec.ts' 'tests/ui/premium.spec.ts' 'tests/ui/design-reference.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 123 tests using 1 worker
+
+  ✓    1 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: light (31.9s)
+  ✓    2 tests/ui/design-reference.spec.ts:19:3 › экраны для дизайн-системы: dark (27.2s)
+  ✓    3 tests/ui/empty-base.spec.ts:39:3 › пустая база: /today открывается и объясняет пустоту (1.3s)
+  ✓    4 tests/ui/empty-base.spec.ts:39:3 › пустая база: /chessboard открывается и объясняет пустоту (1.4s)
+  ✓    5 tests/ui/empty-base.spec.ts:39:3 › пустая база: /reservations открывается и объясняет пустоту (1.0s)
+  ✓    6 tests/ui/empty-base.spec.ts:39:3 › пустая база: /guests открывается и объясняет пустоту (1.0s)
+  ✓    7 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms открывается и объясняет пустоту (1.1s)
+  ✓    8 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.3s)
+  ✓    9 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.3s)
+  ✓   10 tests/ui/empty-base.spec.ts:39:3 › пустая база: /rates открывается и объясняет пустоту (1.4s)
+  ✓   11 tests/ui/empty-base.spec.ts:39:3 › пустая база: /finance открывается и объясняет пустоту (1.2s)
+  ✓   12 tests/ui/empty-base.spec.ts:39:3 › пустая база: /management/statistics открывается и объясняет пустоту (1.6s)
+  ✓   13 tests/ui/empty-base.spec.ts:39:3 › пустая база: /journal открывается и объясняет пустоту (1.0s)
+  ✓   14 tests/ui/empty-base.spec.ts:39:3 › пустая база: /incidents открывается и объясняет пустоту (1.0s)
+  ✓   15 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels открывается и объясняет пустоту (1.4s)
+  ✓   16 tests/ui/empty-base.spec.ts:39:3 › пустая база: /connections открывается и объясняет пустоту (1.1s)
+  ✓   17 tests/ui/empty-base.spec.ts:39:3 › пустая база: /analytics открывается и объясняет пустоту (1.2s)
+  ✓   18 tests/ui/empty-base.spec.ts:39:3 › пустая база: /hotel-settings открывается и объясняет пустоту (1.5s)
+  ✓   19 tests/ui/empty-base.spec.ts:39:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.3s)
+  ✓   20 tests/ui/empty-base.spec.ts:49:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.7s)
+  ✓   21 tests/ui/empty-base.spec.ts:60:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (1.3s)
+  ✓   22 tests/ui/manager-actions.spec.ts:27:1 › карточка: переселение в другую категорию — окно с новой суммой; внутри категории — сразу (3.4s)
+  ✓   23 tests/ui/manager-actions.spec.ts:69:1 › карточка: «Продлить на ночь» знает сумму заранее; занятая ячейка отключает кнопку с причиной (3.9s)
+  ✓   24 tests/ui/manager-actions.spec.ts:133:1 › карточка: отмена, незаезд и выселение с долгом — окно с суммой вместо window.confirm (8.4s)
+  ✓   25 tests/ui/manager-actions.spec.ts:194:1 › карточка: предварительная бронь названа словом, место за ней держится (1.2s)
+  ✓   26 tests/ui/manager-actions.spec.ts:213:1 › карточка: долгое проживание объясняет, почему свободных ячеек нет, а не зовёт обновить (1.6s)
+  ✓   27 tests/ui/manager-actions.spec.ts:229:1 › шахматка: плашки «сверх мест» и «требует разбора», «Разрешить» у строки без ячейки (3.5s)
+  ✓   28 tests/ui/manager-actions.spec.ts:270:1 › карточка B3: полоса фактов над вкладками, следующее действие, отмена названа, Escape возвращает фокус (4.1s)
+  ✓   29 tests/ui/manager-actions.spec.ts:330:1 › карточка B3 на телефоне: полоса и проживания без прокрутки вбок (1.6s)
+  ✓   30 tests/ui/manager-actions.spec.ts:353:1 › шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag (4.3s)
+  ✓   31 tests/ui/premium.spec.ts:9:1 › темы: system, мгновенное переключение, сохранение после перезагрузки (4.8s)
+  ✓   32 tests/ui/premium.spec.ts:26:1 › shell: панель, меню профиля, поиск (4.2s)
+  ✓   33 tests/ui/premium.spec.ts:44:1 › drawer: бронь открывается поверх доски, вкладки доступны клавиатурой, Escape возвращает контекст (7.4s)
+  ✓   34 tests/ui/premium.spec.ts:77:1 › новые фильтры шахматки, список броней и карточки номеров используют данные (7.7s)
+  ✓   35 tests/ui/premium.spec.ts:113:1 › новые страницы и обе темы: адаптивность и отсутствие ошибок браузера (1.7m)
+  ✓   36 tests/ui/premium.spec.ts:169:1 › вход не пускает с чужой почтой и чужим паролем (1.0s)
+  ✓   37 tests/ui/premium.spec.ts:186:1 › список броней: выборка названа, пустой результат предлагает поправку, телефон без прокрутки вбок (4.4s)
+  ✓   38 tests/ui/requests.spec.ts:64:3 › экран /today: данные берутся одним запросом на путь (1.8s)
+  ✓   39 tests/ui/requests.spec.ts:64:3 › экран /chessboard: данные берутся одним запросом на путь (2.8s)
+  ✓   40 tests/ui/requests.spec.ts:64:3 › экран /reservations: данные берутся одним запросом на путь (1.8s)
+  ✓   41 tests/ui/requests.spec.ts:64:3 › экран /guests: данные берутся одним запросом на путь (1.7s)
+  ✓   42 tests/ui/requests.spec.ts:64:3 › экран /inventory: данные берутся одним запросом на путь (1.7s)
+  ✓   43 tests/ui/requests.spec.ts:64:3 › экран /rooms/categories: данные берутся одним запросом на путь (1.7s)
+  ✓   44 tests/ui/requests.spec.ts:64:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.7s)
+  ✓   45 tests/ui/requests.spec.ts:64:3 › экран /rates: данные берутся одним запросом на путь (1.7s)
+  ✓   46 tests/ui/requests.spec.ts:64:3 › экран /management/statistics: данные берутся одним запросом на путь (1.6s)
+  ✓   47 tests/ui/requests.spec.ts:64:3 › экран /finance: данные берутся одним запросом на путь (1.5s)
+  ✓   48 tests/ui/requests.spec.ts:64:3 › экран /channels: данные берутся одним запросом на путь (1.8s)
+  ✓   49 tests/ui/requests.spec.ts:64:3 › экран /channels/connections: данные берутся одним запросом на путь (1.7s)
+  ✓   50 tests/ui/requests.spec.ts:64:3 › экран /channels/mapping: данные берутся одним запросом на путь (1.6s)
+  ✓   51 tests/ui/requests.spec.ts:64:3 › экран /channels/sync: данные берутся одним запросом на путь (1.7s)
+  ✓   52 tests/ui/requests.spec.ts:64:3 › экран /channels/events: данные берутся одним запросом на путь (1.7s)
+  ✓   53 tests/ui/requests.spec.ts:64:3 › экран /analytics: данные берутся одним запросом на путь (1.6s)
+  ✓   54 tests/ui/requests.spec.ts:64:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.6s)
+  ✓   55 tests/ui/requests.spec.ts:64:3 › экран /hotel-settings/penalties: данные берутся одним запросом на путь (1.6s)
+  ✓   56 tests/ui/requests.spec.ts:64:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.5s)
+  ✓   57 tests/ui/requests.spec.ts:64:3 › экран /connections: данные берутся одним запросом на путь (1.5s)
+  ✓   58 tests/ui/requests.spec.ts:64:3 › экран /analytics/setup: данные берутся одним запросом на путь (1.6s)
+  ✓   59 tests/ui/requests.spec.ts:64:3 › экран /incidents: данные берутся одним запросом на путь (1.5s)
+  ✓   60 tests/ui/requests.spec.ts:64:3 › экран /journal: данные берутся одним запросом на путь (1.5s)
+  ✓   61 tests/ui/requests.spec.ts:64:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (1.5s)
+  ✓   62 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (40.2s)
+  ✓   63 tests/ui/workspace.spec.ts:99:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (3.9s)
+  ✓   64 tests/ui/workspace.spec.ts:137:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (3.5s)
+  ✓   65 tests/ui/workspace.spec.ts:156:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (4.4s)
+  ✓   66 tests/ui/workspace.spec.ts:181:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.5s)
+  ✓   67 tests/ui/workspace.spec.ts:208:1 › главная: период готовыми отрезками и своими датами; мобильное меню и возврат фокуса (5.0s)
+  ✓   68 tests/ui/workspace.spec.ts:259:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.4s)
+  ✓   69 tests/ui/workspace.spec.ts:287:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (2.4s)
+  ✓   70 tests/ui/workspace.spec.ts:307:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (3.7s)
+  ✓   71 tests/ui/workspace.spec.ts:339:1 › карточка: профиль гостя и заселение проходят через server actions (4.3s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   72 tests/ui/workspace.spec.ts:382:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.3s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:43:13)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   73 tests/ui/workspace.spec.ts:399:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.6s)
+  ✓   74 tests/ui/workspace.spec.ts:416:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (3.0s)
+  ✓   75 tests/ui/workspace.spec.ts:438:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.8s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   76 tests/ui/workspace.spec.ts:464:1 › сбой API показывает ошибку, повтор восстанавливает страницу (1.8s)
+  ✓   77 tests/ui/workspace.spec.ts:473:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.6s)
+  ✓   78 tests/ui/workspace.spec.ts:499:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.1s)
+  ✓   79 tests/ui/workspace.spec.ts:511:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.3s)
+  ✓   80 tests/ui/workspace.spec.ts:518:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.6s)
+  ✓   81 tests/ui/workspace.spec.ts:527:1 › групповая бронь: разные категории сохраняются при конфликте (1.8s)
+  ✓   82 tests/ui/workspace.spec.ts:551:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.8s)
+  ✓   83 tests/ui/workspace.spec.ts:578:1 › обзор: задачи ведут к счетам, период не меняет полосу стойки, узкие экраны сохраняют действия (3.1s)
+  ✓   84 tests/ui/workspace.spec.ts:619:1 › ошибка буфера обмена видна, код остаётся доступен (1.5s)
+  ✓   85 tests/ui/workspace.spec.ts:636:1 › финансы: неверные даты можно исправить без падения страницы (2.0s)
+  ✓   86 tests/ui/workspace.spec.ts:647:1 › ошибка загрузки тарифов не позволяет включить виджет (1.2s)
+  ✓   87 tests/ui/workspace.spec.ts:656:1 › номера: статус уборки, блокировка и снятие сохраняются (3.0s)
+  ✓   88 tests/ui/workspace.spec.ts:686:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.9s)
+  ✓   89 tests/ui/workspace.spec.ts:713:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.5s)
+  ✓   90 tests/ui/workspace.spec.ts:722:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.1s)
+  ✓   91 tests/ui/workspace.spec.ts:740:1 › неисправности: когда история обрезана, это написано (2.2s)
+  ✓   92 tests/ui/workspace.spec.ts:748:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.7s)
+  ✓   93 tests/ui/workspace.spec.ts:760:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (2.7s)
+  ✓   94 tests/ui/workspace.spec.ts:785:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (4.9s)
+  ✓   95 tests/ui/workspace.spec.ts:812:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (6.1s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-21&to=2026-09-27: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:76:38)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:13:40)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   96 tests/ui/workspace.spec.ts:860:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (8.8s)
+  ✓   97 tests/ui/workspace.spec.ts:919:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.7s)
+  ✓   98 tests/ui/workspace.spec.ts:948:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (2.1s)
+  ✓   99 tests/ui/workspace.spec.ts:972:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.8s)
+  ✓  100 tests/ui/workspace.spec.ts:991:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.6s)
+  ✓  101 tests/ui/workspace.spec.ts:1003:1 › общие настройки показывают адрес PMS без дублирования контента Channex (2.0s)
+  ✓  102 tests/ui/workspace.spec.ts:1010:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (3.0s)
+  ✓  103 tests/ui/workspace.spec.ts:1034:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.7s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:25:28)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  104 tests/ui/workspace.spec.ts:1056:1 › фонд и категории открываются независимо от сбоя шахматки (4.6s)
+  ✓  105 tests/ui/workspace.spec.ts:1077:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.5s)
+  ✓  106 tests/ui/workspace.spec.ts:1095:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.4s)
+  ✓  107 tests/ui/workspace.spec.ts:1114:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (2.2s)
+  ✓  108 tests/ui/workspace.spec.ts:1129:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (1.1s)
+  ✓  109 tests/ui/workspace.spec.ts:1142:1 › счета: приём оплаты подтверждается суммой на экране (2.2s)
+  ✓  110 tests/ui/workspace.spec.ts:1159:1 › деньги за период: период длиннее года объясняется на странице (1.3s)
+  ✓  111 tests/ui/workspace.spec.ts:1178:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.8s)
+  ✓  112 tests/ui/workspace.spec.ts:1197:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.8s)
+  ✘  113 tests/ui/workspace.spec.ts:1222:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (17.1s)
+  ✓  114 tests/ui/workspace.spec.ts:1241:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (2.0s)
+  ✓  115 tests/ui/workspace.spec.ts:1257:1 › каналы: входящая бронь ведёт на карточку брони (2.5s)
+  ✓  116 tests/ui/workspace.spec.ts:1270:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (2.1s)
+  ✓  117 tests/ui/workspace.spec.ts:1289:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.2s)
+  ✓  118 tests/ui/workspace.spec.ts:1307:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.6s)
+  ✓  119 tests/ui/workspace.spec.ts:1345:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.8s)
+  ✓  120 tests/ui/workspace.spec.ts:1407:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (4.4s)
+  ✓  121 tests/ui/workspace.spec.ts:1473:1 › деньги D2: период словами, три блока с пояснениями, отказ не выглядит нулями (3.5s)
+  ✓  122 tests/ui/workspace.spec.ts:1514:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (5.0s)
+  ✓  123 tests/ui/workspace.spec.ts:1539:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.9s)
+
+
+  1) tests/ui/workspace.spec.ts:1222:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/channels$/
+    Received string:  "http://127.0.0.1:3100/channels/events?status=FAILED"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        2 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/chessboard"
+        31 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/channels/events?status=FAILED"
+
+
+      1229 |   await expect(notice).toContainText('требует разбора');
+      1230 |   await notice.getByRole('link').click();
+    > 1231 |   await expect(page).toHaveURL(/\/channels$/);
+           |                      ^
+      1232 | });
+      1233 |
+      1234 | /**
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1231:22
+
+    Error Context: test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-несопос-4d834-лашкой-со-ссылкой-на-разбор/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:1222:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор 
+  122 passed (8.7m)
+
+# код выхода 1 · 8 мин 42 с

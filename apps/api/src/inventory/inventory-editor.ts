@@ -18,6 +18,7 @@ import { propertyIdRef } from '../database/property-ref';
 import { auditUserId } from '../accounts/actor';
 import { INVENTORY_REPOSITORY, type InventoryRepository } from './inventory.repository';
 import { categoryInput, inventoryText, roomInput } from './inventory-input';
+import { Access } from '../auth/access.decorator';
 
 @Injectable()
 export class InventoryEditor {
@@ -28,13 +29,30 @@ export class InventoryEditor {
   private property() {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
+  /** Список для стойки: действующие тарифы категории — числом и по именам (ТЗ «Категории v2», ADR-109). */
   async categories() {
     const propertyId = await this.property();
-    return this.prisma.db.accommodationType.findMany({
+    const rows = await this.prisma.db.accommodationType.findMany({
       where: { propertyId },
-      select: { code: true, name: true, kind: true, capacityAdults: true },
+      select: {
+        code: true,
+        name: true,
+        kind: true,
+        capacityAdults: true,
+        active: true,
+        ratePlanLinks: {
+          where: { ratePlan: { active: true } },
+          select: { ratePlan: { select: { name: true } } },
+          orderBy: { ratePlan: { name: 'asc' } },
+        },
+      },
       orderBy: { createdAt: 'asc' },
     });
+    return rows.map(({ ratePlanLinks, ...row }) => ({
+      ...row,
+      ratePlans: ratePlanLinks.length,
+      ratePlanNames: ratePlanLinks.map((link) => link.ratePlan.name),
+    }));
   }
   async createCategory(body: Record<string, unknown>) {
     const data = categoryInput(body),
@@ -193,6 +211,7 @@ export class InventoryEditor {
     }
   }
 }
+@Access('property')
 @Controller('inventory')
 export class InventoryEditorController {
   constructor(@Inject(InventoryEditor) private readonly editor: InventoryEditor) {}

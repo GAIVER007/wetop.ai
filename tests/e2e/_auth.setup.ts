@@ -59,11 +59,13 @@ test('вход сотрудника автотестов: замок включ�
     await db.membership.deleteMany({
       where: { userId: user.id, organizationId: { not: organization.id } },
     });
-    const membership = await db.membership.findFirst({
-      where: { userId: user.id, organizationId: organization.id },
+    // Владелец тестовой организации: спеки проходят всю стойку — тарифы, каналы, возвраты, журнал, а у администратора
+    // их нет (роли — ADR-107, DATA_MODEL §16.5). Раньше членство заводилось без роли, то есть администратором
+    await db.membership.upsert({
+      where: { userId_organizationId: { userId: user.id, organizationId: organization.id } },
+      create: { userId: user.id, organizationId: organization.id, role: 'OWNER' },
+      update: { role: 'OWNER' },
     });
-    if (!membership)
-      await db.membership.create({ data: { userId: user.id, organizationId: organization.id } });
   } finally {
     await db.$disconnect();
   }

@@ -1,0 +1,52 @@
+# Модульные (unit) · 27.09.2026 20:19 Алматы · vm
+# коммит 48e88e4 (merge-prep), незакоммиченных файлов набора: 42
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T15-19-52Z-unit-a668.json' 'apps/web/src/lib/desk-person.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-user-wetop-ai/133dc0ac-8da6-5490-b9e0-b2a07de3d53e/scratchpad/merge-wt
+
+ ❯ |unit| apps/web/src/lib/desk-person.test.ts (11 tests | 1 failed) 24ms
+   ✓ меню и подпись по тому, кто вошёл (ADR-083) (3)
+     ✓ «ИИ-продавец» — при действующем расширении и после срока; «Платформа» — главному администратору 5ms
+     ✓ продавец виден для знакомства, а раздел «Платформа» без прав скрыт 2ms
+     ✓ подпись: имя и роль; без имени — почта; главный администратор — отдельно 1ms
+   ✓ строка пробного периода в меню (4)
+     ✓ пробный — сколько дней осталось; кончился — так и сказано 3ms
+     ✓ у оплаченной организации, без срока и без организации строки нет 0ms
+     ✓ оболочка несёт строку вошедшего; без вошедшего — пусто 1ms
+     ✓ обучение (ADR-100): ключ отметки — у вошедшего, без почты в ключе; без вошедшего — нет 1ms
+   ❯ deskShellOf — только чтение (4)
+     ✓ пробный срок вышел — полоса есть 0ms
+     ✓ переведена в «только чтение» руками — полоса есть 1ms
+     ✓ в срок, после оплаты и без организации в ответе — полосы нет 0ms
+     × сбой ответа о вошедшем — полосы нет 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > deskShellOf — только чтение > сбой ответа о вошедшем — полосы нет
+AssertionError: expected undefined to be false // Object.is equality
+
+- Expected:
+false
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/desk-person.test.ts:135:36
+    133|   // /auth/me не ответил: статус организации неизвестен — полосу не об…
+    134|   it('сбой ответа о вошедшем — полосы нет', () => {
+    135|     expect(UNKNOWN_SHELL.readOnly).toBe(false);
+       |                                    ^
+    136|   });
+    137| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  15:19:53
+   Duration  1.25s (transform 87%, import 10%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-09-27T15-19-52Z-unit-a668.json
+
+# код выхода 1 · 2 с

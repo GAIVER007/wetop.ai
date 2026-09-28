@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Body, Param, Patch, Controller, Get, Header, Headers, Inject, Post } from '@nestjs/common';
 import { SellerAgentsService } from './seller-agents.service';
+import { Access } from '../auth/access.decorator';
 
 /** Deliberately not @Public: uses the existing authenticated request actor. */
+@Access('seller')
 @Controller('seller-agents')
 export class SellerAgentsController {
   constructor(@Inject(SellerAgentsService) private readonly agents: SellerAgentsService) {}

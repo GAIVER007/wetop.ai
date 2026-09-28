@@ -1,0 +1,33 @@
+# Интеграционные (integration) · 27.09.2026 23:09 Алматы · vm
+# коммит a0fa497 (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T18-09-30Z-integration-3453.json' 'tests/integration/finance-debts.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/finance-debts.test.ts (1 test | 1 failed) 306ms
+   ❯ брони с остатком к сбору — запрос по счетам (integration, ADR-107) (1)
+     × брони с действующим начислением в периоде; суммы — по всем счетам брони и за всё время 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/finance-debts.test.ts > брони с остатком к сбору — запрос по счетам (integration, ADR-107) > брони с действующим начислением в периоде; суммы — по всем счетам брони и за всё время
+TypeError: repo.periodDebts is not a function
+ ❯ tests/integration/finance-debts.test.ts:175:30
+    173|
+    174|   it('брони с действующим начислением в периоде; суммы — по всем счета…
+    175|     const rows = (await repo.periodDebts(FROM, TO))
+       |                              ^
+    176|       .filter((r) => r.confirmationNumber.startsWith(PREFIX))
+    177|       .sort((a, b) => a.confirmationNumber.localeCompare(b.confirmatio…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  18:09:31
+   Duration  2.31s (transform 51%, tests 26%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-09-27T18-09-30Z-integration-3453.json
+
+# код выхода 1 · 3 с

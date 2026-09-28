@@ -1,0 +1,52 @@
+# Интеграционные (integration) · 28.09.2026 01:56 Алматы · vm
+# коммит 2c985d4 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T20-56-38Z-integration-8f41.json' 'tests/integration/organization-isolation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:13790) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/organization-isolation.test.ts (5 tests | 1 failed) 575ms
+   ❯ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     × чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 379ms
+     ✓ чужая организация не находит место объекта по коду и не видит, не меняет и не удаляет его сайты 32ms
+     ✓ чужая организация не получает сопоставления Channex и продажи объекта 18ms
+   ✓ изоляция организаций: ячейки и сайты (integration, DATABASE_URL required) (1)
+     ✓ чужая организация не видит ячейку, её блокировку и сайт объекта; своя — видит 65ms
+   ✓ организация подключённого к Channex объекта (integration, DATABASE_URL required) (1)
+     ✓ по сопоставлению Channex — организация объекта с сопоставлениями 22ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) > чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит
+AssertionError: expected { directory: false, byId: false, …(1) } to deeply equal { directory: false, byId: false, …(1) }
+
+- Expected
++ Received
+
+  {
+    "byId": false,
+    "directory": false,
+-   "preview": false,
++   "preview": true,
+  }
+
+ ❯ tests/integration/organization-isolation.test.ts:184:22
+    182|     // organization_id — первый признак: гость без броней виден своей …
+    183|     expect(col['B']).toEqual({ directory: true, byId: true, preview: t…
+    184|     expect(col['A']).toEqual({ directory: false, byId: false, preview:…
+       |                      ^
+    185|     // …и единственный: бронь в объекте A не делает гостя организации …
+    186|     expect(chain['A']).toEqual({ directory: false, byId: false, previe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  20:56:39
+   Duration  2.71s (transform 42%, tests 35%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-09-27T20-56-38Z-integration-8f41.json
+
+# код выхода 1 · 4 с

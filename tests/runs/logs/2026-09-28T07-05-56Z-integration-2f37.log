@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 28.09.2026 12:05 Алматы · vm
+# коммит 6571cb1 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 3
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T07-05-56Z-integration-2f37.json' 'tests/integration/guest-card.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/guest-card.test.ts (2 tests) 396ms
+   ✓ карточка гостя: источник и счёт каждого проживания (integration, DATABASE_URL required) (2)
+     ✓ проживание со счётом: источник и канал брони, валюта, начислено и остаток — из счёта 333ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  07:05:57
+   Duration  2.30s (transform 42%, tests 36%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-09-28T07-05-56Z-integration-2f37.json
+
+# код выхода 0 · 3 с

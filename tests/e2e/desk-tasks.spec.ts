@@ -96,6 +96,10 @@ test('стойка: занятую койку не продать дважды, 
   await expect(ask).toContainText('Новая ночь');
   await expect(ask).toContainText('₸');
   await confirmAction(page, 'Продлить');
+  // вкладку — после ответа: щелчок во время серверного действия откатывается его ответом (как в check-in-out, 26.09)
+  await expect(page.getByRole('main').locator('[data-testid^="done-extend-"]')).toContainText(
+    'Проживание продлено',
+  );
   await cardTab(page, 'Обзор');
   await expect(row.locator('time').nth(1)).toHaveAttribute('datetime', plus(10));
   const priceAfter = money(await row.locator('td').nth(5).innerText());

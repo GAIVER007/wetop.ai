@@ -5,6 +5,7 @@ import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
+import { Access } from '../auth/access.decorator';
 
 export interface AuditRow {
   id: string;
@@ -100,14 +101,19 @@ export class AuditService {
 }
 
 /**
- * Строки журнала своей организации. У `audit_logs` нет объекта: принадлежность выводится по типу сущности через её
- * таблицу. Незнакомый тип вошедшему не показывается — лучше не показать своё, чем показать чужое.
+ * Строки журнала своей организации. Первое условие — собственная колонка `organization_id`
+ * (Phase 1 изоляции, ADR-100 §17.2: новые записи несут её с рождения, старые привязаны backfill-ом
+ * миграции 20260927000026). Для строк, которым backfill организацию не вывел (NULL), остаётся прежний
+ * вывод по типу сущности через её таблицу. Незнакомый тип с пустой организацией вошедшему не
+ * показывается — лучше не показать своё, чем показать чужое.
  */
 async function ownAuditRows(db: PrismaService['db']): Promise<Prisma.Sql> {
   const propertyId = await propertyIdRef(db, LUXX_APARTS_PROPERTY.name);
   const organizationId = currentOrganizationId();
   const p = Prisma.sql`${propertyId}::uuid`;
   return Prisma.sql`(
+    (a."organization_id" IS NOT NULL AND a."organization_id" = ${organizationId}::uuid)
+    OR (a."organization_id" IS NULL AND (
     (a."entity_type" = 'Property' AND a."entity_id" = ${propertyId})
     OR (a."entity_type" = 'Reservation' AND a."entity_id" IN (
       SELECT r."id"::text FROM "reservations" r WHERE r."property_id" = ${p}))
@@ -136,9 +142,12 @@ async function ownAuditRows(db: PrismaService['db']): Promise<Prisma.Sql> {
       WHERE r."property_id" = ${p}))
     OR (a."entity_type" = 'user' AND a."entity_id" IN (
       SELECT m."user_id"::text FROM "memberships" m WHERE m."organization_id" = ${organizationId}::uuid))
+    OR (a."entity_type" = 'organization' AND a."entity_id" = ${organizationId}::text)
+    ))
   )`;
 }
 
+@Access('journal')
 @Controller('audit')
 export class AuditController {
   constructor(@Inject(AuditService) private readonly service: AuditService) {}

@@ -4008,3 +4008,4 @@
 | 29.09.2026 03:20 | typecheck | ✅ без ошибок | 40 с | 930b727 | [лог](logs/2026-09-28T22-20-24Z-typecheck-8a8b.log) |  |
 | 29.09.2026 03:21 | lint | ✅ без ошибок | 19 с | 930b727 | [лог](logs/2026-09-28T22-21-04Z-lint-465e.log) |  |
 | 29.09.2026 03:21 | unit | ✅ 2267 из 2270, пропущено 3 | 1 мин 50 с | 930b727 | [лог](logs/2026-09-28T22-21-24Z-unit-1fb1.log) | G8 на main 93423b39 |
+| 29.09.2026 03:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/workspace.spec.ts tes | ✅ 100 из 100 | 6 мин 29 с | 930b727 | [лог](logs/2026-09-28T22-23-47Z-e2e-4d88.log) | G8 на main 93423b39, чистый кэш .next-ui |

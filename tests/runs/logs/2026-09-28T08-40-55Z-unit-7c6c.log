@@ -1,0 +1,19 @@
+# Модульные (unit) · 28.09.2026 13:40 Алматы · vm
+# коммит 1b187fa (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-40-55Z-unit-7c6c.json' 'packages/domain/src/property/services.test.ts' 'packages/domain/src/property/settings.test.ts' 'apps/api/src/hotel/services-catalog.test.ts' 'apps/api/src/hotel/settings-update.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/property/services.test.ts (9 tests) 15ms
+ ✓ |unit| packages/domain/src/property/settings.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (7 tests) 16ms
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 16ms
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+   Start at  08:40:55
+   Duration  1.85s (transform 75%, import 23%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-40-55Z-unit-7c6c.json
+
+# код выхода 0 · 3 с

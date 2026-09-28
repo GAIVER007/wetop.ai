@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 28.09.2026 13:52 Алматы · vm
+# коммит 1b187fa (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/property-settings-set2-set3.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 (4.8s)
+  ✓  2 tests/ui/property-settings-set2-set3.spec.ts:63:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны (3.0s)
+  ✓  3 tests/ui/property-settings-set2-set3.spec.ts:92:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте (5.8s)
+  ✓  4 tests/ui/property-settings-set2-set3.spec.ts:145:1 › «только чтение»: каталог виден, добавить и править нельзя (3.5s)
+  ✓  5 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: light (11.3s)
+  ✓  6 tests/ui/property-settings-set2-set3.spec.ts:159:3 › снимки SET2/SET3 и доступность: dark (11.4s)
+
+  6 passed (45.4s)
+
+# код выхода 0 · 47 с

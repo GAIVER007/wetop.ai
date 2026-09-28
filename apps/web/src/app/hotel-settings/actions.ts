@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, hotelSettingsApi } from '../../lib/api';
+import { ApiError, hotelSettingsApi, serviceCatalogApi, type CatalogService } from '../../lib/api';
+import { parseServiceInput, type ServiceInputField } from '@pms/domain';
 import { formValues } from '../../lib/form-values';
 
 export interface SettingsActionResult {
@@ -49,5 +50,50 @@ export async function saveHotelSettings(
       values: formValues(form, present),
       attempt: (prev?.attempt ?? 0) + 1,
     };
+  }
+}
+
+export interface ServiceActionResult {
+  error: string | null;
+  /** Поле, к которому относится ошибка: стойка подсвечивает его и пишет причину под ним */
+  field?: ServiceInputField | undefined;
+  saved?: CatalogService;
+  values?: Record<string, string>;
+  attempt?: number;
+}
+
+const SERVICE_FIELDS = ['code', 'name', 'group', 'price', 'active'] as const;
+
+/**
+ * Сохранить услугу каталога (SET3): без `code` — новая, с `code` — правка. Проверка — той же функцией домена, что у
+ * API, поэтому причина одна; API проверяет ещё раз (право `settings`, «только чтение»). Прошлые начисления не меняются.
+ */
+export async function saveService(
+  prev: ServiceActionResult | null,
+  form: FormData,
+): Promise<ServiceActionResult> {
+  const code = String(form.get('code') ?? '').trim();
+  const input = {
+    name: String(form.get('name') ?? ''),
+    group: String(form.get('group') ?? '').trim() || null,
+    price: String(form.get('price') ?? ''),
+    active: String(form.get('active') ?? 'true') === 'true',
+  };
+  const fail = (error: string, field?: ServiceInputField): ServiceActionResult => ({
+    error,
+    field,
+    values: formValues(form, SERVICE_FIELDS),
+    attempt: (prev?.attempt ?? 0) + 1,
+  });
+  const parsed = parseServiceInput(input);
+  if (!parsed.ok) return fail(parsed.reason, parsed.field);
+  try {
+    const saved = code
+      ? await serviceCatalogApi.update(code, input)
+      : await serviceCatalogApi.create(input);
+    revalidatePath('/hotel-settings/services');
+    return { error: null, saved };
+  } catch (e) {
+    return fail(e instanceof ApiError || e instanceof Error ? e.message : String(e));
   }
 }

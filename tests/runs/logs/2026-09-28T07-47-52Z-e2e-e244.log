@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 28.09.2026 12:47 Алматы · vm
+# коммит db62904 (claude/modest-pascal-bgu2qe), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/inventory-catalog.spec.ts' '-g' 'незаезд место не держат'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/inventory-catalog.spec.ts:206:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат (19.4s)
+
+
+  1) tests/ui/inventory-catalog.spec.ts:206:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Номер R07' }).getByTestId('unit-now')
+    Expected: "свободно"
+    Received: "ждём Посетитель Отменённый, выезд 30.09.2026бронь 20260916-DSG-CANC"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Номер R07' }).getByTestId('unit-now') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Номер R07' }).getByTestId('unit-now')
+        33 × locator resolved to <div class="fact__value" data-testid="unit-now">…</div>
+           - unexpected value "ждём Посетитель Отменённый, выезд 30.09.2026бронь 20260916-DSG-CANC"
+
+
+      225 |   await page.keyboard.press('Escape');
+      226 |   // как GET /units/:code — отменённые и незаезды в карточку места не попадают
+    > 227 |   await expect((await open('R07')).getByTestId('unit-now')).toHaveText('свободно');
+          |                                                             ^
+      228 | });
+      229 |
+      230 | for (const theme of ['light', 'dark'] as const) {
+        at /home/user/wetop.ai/tests/ui/inventory-catalog.spec.ts:227:61
+
+    Error Context: test-results/inventory-catalog-панель-м-9ac95-ь-и-незаезд-место-не-держат/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-catalog-панель-м-9ac95-ь-и-незаезд-место-не-держат/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-catalog-панель-м-9ac95-ь-и-незаезд-место-не-держат/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/inventory-catalog.spec.ts:206:1 › панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат 
+
+# код выхода 1 · 26 с

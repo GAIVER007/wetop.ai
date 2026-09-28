@@ -1,0 +1,44 @@
+# Сквозные (e2e) · 28.09.2026 13:41 Алматы · vm
+# коммит db62904 (claude/modest-pascal-bgu2qe), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json
+[pms_test] миграций применено 0 из 30; данные от 2026-09-28T08:39:42.224Z (сид)
+
+Running 25 tests using 2 workers
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (54ms)
+[WebServer] (node:7524) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   2 [isolated] › tests/e2e/cancellation-penalty.spec.ts:26:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (7.0s)
+  ✓   3 [isolated] › tests/e2e/check-in-out.spec.ts:20:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (12.5s)
+  ✓   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (5.9s)
+  ✓   6 [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (1.9s)
+  ✓   7 [isolated] › tests/e2e/chessboard.spec.ts:36:1 › клик по занятой клетке открывает карточку брони с проживаниями (2.5s)
+  ✓   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:28:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (6.3s)
+  ✓   8 [isolated] › tests/e2e/desk-day.spec.ts:21:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (5.0s)
+  ✓   9 [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (7.6s)
+  ✓  10 [isolated] › tests/e2e/desk-tasks.spec.ts:27:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (6.9s)
+  ✓  11 [isolated] › tests/e2e/finance.spec.ts:29:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (4.7s)
+  ✓  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (1.4s)
+  ✓  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (2.5s)
+  ✓  12 [isolated] › tests/e2e/full-day.spec.ts:25:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (6.1s)
+  ✓  15 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (1.4s)
+  ✓  17 [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (2.9s)
+  ✓  16 [isolated] › tests/e2e/manual-reservation.spec.ts:12:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (4.8s)
+  ✓  18 [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (5.4s)
+  ✓  19 [isolated] › tests/e2e/stay-extras.spec.ts:24:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (5.7s)
+  ✓  21 [isolated] › tests/e2e/web-analytics.spec.ts:72:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (3.1s)
+  ✓  20 [isolated] › tests/e2e/unit-blocks.spec.ts:27:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (5.1s)
+  ✓  22 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › страница подключения: код с ключом, «Проверить счётчик» видит события (1.4s)
+  ✓  24 [isolated] › tests/e2e/web-analytics.spec.ts:196:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (1.6s)
+  ✓  23 [isolated] › tests/e2e/web-booking.spec.ts:48:1 › виджет: цены на завтра, бронь одноместной, номер, карточка в PMS с источником «сайт» (2.1s)
+  ✓  25 [isolated] › tests/e2e/web-booking.spec.ts:103:1 › аналитика: бронь связана с сессией счётчика — «брони с сайта» 1 (527ms)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 222)
+  свежих, моложе 15 мин, оставлено: 4 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+  25 passed (1.0m)
+
+# код выхода 0 · 1 мин 2 с

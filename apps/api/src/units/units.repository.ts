@@ -16,6 +16,10 @@ export interface UnitCard {
   accommodationTypeCode: string;
   accommodationTypeName: string;
   roomNumber: string;
+  /** Расположение и вместимость для панели места (ADR-107, срез I2); вместимость — как в сводке фонда */
+  buildingName: string;
+  floorName: string;
+  capacity: number;
   blocks: Array<{
     id: string;
     dateFrom: string;
@@ -117,7 +121,13 @@ export class PrismaUnitsRepository implements UnitsRepository {
       where: await this.unitKey(code),
       include: {
         accommodationType: { select: { code: true, name: true } },
-        physicalRoom: { select: { roomNumber: true } },
+        physicalRoom: {
+          select: {
+            roomNumber: true,
+            capacity: true,
+            floor: { select: { name: true, building: { select: { name: true } } } },
+          },
+        },
         blocks: { where: { dateTo: { gt: asDate(from) } }, orderBy: { dateFrom: 'asc' } },
         allocations: {
           where: {
@@ -149,6 +159,10 @@ export class PrismaUnitsRepository implements UnitsRepository {
       accommodationTypeCode: u.accommodationType.code,
       accommodationTypeName: u.accommodationType.name,
       roomNumber: u.physicalRoom.roomNumber,
+      buildingName: u.physicalRoom.floor.building.name,
+      floorName: u.physicalRoom.floor.name,
+      // как summarizeInventoryPlan: койка — одно место, номер — вместимость комнаты
+      capacity: u.kind === 'BED' ? 1 : u.physicalRoom.capacity,
       blocks: u.blocks.map((b) => ({
         id: b.id,
         dateFrom: iso(b.dateFrom),

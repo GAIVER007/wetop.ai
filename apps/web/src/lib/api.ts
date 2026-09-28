@@ -878,6 +878,10 @@ export interface UnitCard {
   accommodationTypeCode: string;
   accommodationTypeName: string;
   roomNumber: string;
+  /** Расположение и вместимость для панели места (ADR-107, срез I2) */
+  buildingName: string;
+  floorName: string;
+  capacity: number;
   blocks: Array<{
     id: string;
     dateFrom: string;

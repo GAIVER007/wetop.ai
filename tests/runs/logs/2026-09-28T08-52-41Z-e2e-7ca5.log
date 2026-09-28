@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 28.09.2026 13:52 Алматы · vm
+# коммит db62904 (claude/modest-pascal-bgu2qe), незакоммиченных файлов набора: 18
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/inventory-catalog.spec.ts' '-g' 'меню «⋯» работают'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают (19.2s)
+
+
+  1) tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('menuitem', { name: 'Полная карточка', exact: true })
+    Expected: "/units/R03"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('menuitem', { name: 'Полная карточка', exact: true }) with timeout 15000ms
+      - waiting for getByRole('menuitem', { name: 'Полная карточка', exact: true })
+
+
+      81 |   await expect(
+      82 |     page.getByRole('menuitem', { name: 'Полная карточка', exact: true }),
+    > 83 |   ).toHaveAttribute('href', '/units/R03');
+         |     ^
+      84 |   await page.getByRole('menuitem', { name: 'Переименовать комнату', exact: true }).click();
+      85 |   await expect(page.getByRole('dialog', { name: 'Редактировать комнату' })).toBeVisible();
+      86 | });
+        at /home/user/wetop.ai/tests/ui/inventory-catalog.spec.ts:83:5
+
+    Error Context: test-results/inventory-catalog-таблица--90706--строка-и-меню-«⋯»-работают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inventory-catalog-таблица--90706--строка-и-меню-«⋯»-работают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inventory-catalog-таблица--90706--строка-и-меню-«⋯»-работают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/inventory-catalog.spec.ts:53:1 › таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают 
+
+# код выхода 1 · 27 с

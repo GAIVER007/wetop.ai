@@ -1,61 +1,23 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { CategorySummary, InventoryUnit, InventoryCategory } from '../../lib/api';
 import { Badge, Button, EmptyState, Input, Select, Table, cx } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
-import { displayDate } from '../../lib/display-date';
-import { blockTypeLabel } from '../../lib/block-types';
 import { pluralRu } from '../../lib/plural';
 import { FundEditorDialog } from './fund-editor';
+import { HousekeepingBadge, UnitStateBadge, floorRoomText } from './unit-state';
 
 /**
  * Каталог фонда (ADR-107, срез I1): toolbar с фильтрами вместо постоянной левой панели,
  * таблица со структурой и живым состоянием места вместо 88 кнопок «Редактировать».
  * Фильтры живут в URL и не перезагружают данные.
  */
-const HK_LABEL = {
-  DIRTY: 'требует уборки',
-  CLEAN: 'убрано',
-  INSPECTED: 'проверено',
-} as const;
-const HK_TONE = { DIRTY: 'warn', CLEAN: 'neutral', INSPECTED: 'ok' } as const;
-const HK_ICON = { DIRTY: 'dirty', CLEAN: 'clean', INSPECTED: 'inspected' } as const;
-
-function StateCell({ unit }: { unit: InventoryUnit }) {
-  if (!unit.active) return <Badge>в архиве</Badge>;
-  if (unit.block)
-    return (
-      <span className="inventory-state">
-        <Badge tone="danger">заблокирована</Badge>
-        <span className="inventory-state-note">
-          до <time dateTime={unit.block.dateTo}>{displayDate(unit.block.dateTo, 'numeric')}</time>
-          {`, ${unit.block.reason || blockTypeLabel(unit.block.type)}`}
-        </span>
-      </span>
-    );
-  return <Badge tone="ok">в продаже</Badge>;
-}
-
-function HousekeepingCell({ unit }: { unit: InventoryUnit }) {
-  return (
-    <Badge tone={HK_TONE[unit.housekeepingStatus]} className="inventory-hk">
-      <Icon name={HK_ICON[unit.housekeepingStatus]} width={14} height={14} />
-      {HK_LABEL[unit.housekeepingStatus]}
-    </Badge>
-  );
-}
-
 /** Корпус и этаж строками, комната — только когда она не повторяет код места (ТЗ §11) */
 function PlaceCell({ unit }: { unit: InventoryUnit }) {
-  const floorRoom = [
-    unit.floorName ? `этаж ${unit.floorName}` : '',
-    unit.roomNumber && unit.roomNumber !== unit.code ? `комната ${unit.roomNumber}` : '',
-  ]
-    .filter(Boolean)
-    .join(', ');
+  const floorRoom = floorRoomText(unit);
   if (!unit.buildingName && !floorRoom) return <>—</>;
   return (
     <span className="inventory-place">
@@ -74,7 +36,13 @@ export function InventoryCatalog({
   categories: CategorySummary[];
   editorCategories: InventoryCategory[];
 }) {
-  const search = useSearchParams();
+  // Пока открыта панель места (адрес `/units/<код>`), список под ней держит фильтры фонда, а не пустые
+  // параметры адреса панели — иначе он перерисовывался бы целиком и терял место прокрутки (ADR-107, I2)
+  const live = useSearchParams();
+  const pathname = usePathname();
+  const kept = useRef(live);
+  if (pathname === '/inventory') kept.current = live;
+  const search = kept.current;
   const router = useRouter();
   const [editRoom, setEditRoom] = useState<InventoryUnit | null>(null);
   const category = search.get('category') ?? '';
@@ -251,7 +219,7 @@ export function InventoryCatalog({
                         <span className="inventory-card-room">Комната {unit.roomNumber}</span>
                       )}
                       <span className="inventory-card-state">
-                        <HousekeepingCell unit={unit} />
+                        <HousekeepingBadge status={unit.housekeepingStatus} />
                         {unit.block && <Badge tone="danger">заблокирована</Badge>}
                       </span>
                     </Link>
@@ -305,17 +273,18 @@ export function InventoryCatalog({
                 </td>
                 <td>{guests(unit)}</td>
                 <td>
-                  <StateCell unit={unit} />
+                  <UnitStateBadge active={unit.active} block={unit.block} />
                 </td>
                 <td>
-                  <HousekeepingCell unit={unit} />
+                  <HousekeepingBadge status={unit.housekeepingStatus} />
                 </td>
                 <td className="inventory-actions">
                   <ActionMenu
                     size="sm"
                     label={`Действия: ${unit.code}`}
                     items={[
-                      { label: 'Открыть', href: `/units/${encodeURIComponent(unit.code)}` },
+                      // строка и ссылка открывают панель места; меню ведёт на полную карточку (ADR-107, I2)
+                      { label: 'Полная карточка', href: `/units/${encodeURIComponent(unit.code)}` },
                       {
                         label: 'Показать на шахматке',
                         href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,

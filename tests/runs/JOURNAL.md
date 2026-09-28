@@ -2912,3 +2912,25 @@
 | 28.09.2026 02:28 | lint | ✅ без ошибок | 16 с | f305833 +5 | [лог](logs/2026-09-27T21-28-23Z-lint-e82c.log) |  |
 | 28.09.2026 02:28 | unit | ✅ 2116 из 2119, пропущено 3 | 1 мин 12 с | f305833 +4 | [лог](logs/2026-09-27T21-28-40Z-unit-c201.log) |  |
 | 28.09.2026 02:30 | e2e | ✅ 25 из 25 | 58 с | de8d2df | [лог](logs/2026-09-27T21-30-55Z-e2e-904c.log) |  |
+| 28.09.2026 12:25 | typecheck | ✅ без ошибок | 37 с | db62904 +16 | [лог](logs/2026-09-28T07-25-57Z-typecheck-f570.log) |  |
+| 28.09.2026 12:26 | lint | ✅ без ошибок | 19 с | db62904 +16 | [лог](logs/2026-09-28T07-26-40Z-lint-7701.log) |  |
+| 28.09.2026 12:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/workspace.spec.ts test | ✅ 96 из 96 | 5 мин 39 с | db62904 +18 | [лог](logs/2026-09-28T07-31-19Z-e2e-c660.log) | I2: панель места — затронутые спеки |
+| 28.09.2026 12:37 | unit | ❌ упало 1 из 2124, пропущено 3 | 1 мин 18 с | db62904 +17 | [лог](logs/2026-09-28T07-37-08Z-unit-ffe7.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 28.09.2026 12:40 | unit | ✅ 2121 из 2124, пропущено 3 | 1 мин 14 с | db62904 +18 | [лог](logs/2026-09-28T07-40-09Z-unit-a1ba.log) |  |
+| 28.09.2026 12:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 57 с | db62904 +18 | [лог](logs/2026-09-28T07-41-32Z-e2e-7822.log) |  |
+| 28.09.2026 12:43 | typecheck | ✅ без ошибок | 29 с | db62904 +19 | [лог](logs/2026-09-28T07-43-07Z-typecheck-a4d7.log) |  |
+| 28.09.2026 12:43 | lint | ✅ без ошибок | 17 с | db62904 +19 | [лог](logs/2026-09-28T07-43-37Z-lint-e704.log) |  |
+| 28.09.2026 12:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 3 мин 8 с | db62904 +18 | [лог](logs/2026-09-28T07-44-00Z-e2e-0d02.log) |  |
+| 28.09.2026 12:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts -g незаезд место не держат) | ❌ упало 1 из 1 | 26 с | db62904 +18 | [лог](logs/2026-09-28T07-47-52Z-e2e-e244.log) | панель места: живущий гость — «живёт», отменённая бронь и незаезд место не держат |
+| 28.09.2026 12:48 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts -g незаезд место не держат) | ✅ 1 из 1 | 11 с | db62904 +18 | [лог](logs/2026-09-28T07-48-55Z-e2e-f326.log) |  |
+| 28.09.2026 12:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 411 | 32 мин 58 с | db62904 +18 | [лог](logs/2026-09-28T07-49-12Z-e2e-d17d.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 28.09.2026 13:25 | unit | ✅ 2121 из 2124, пропущено 3 | 1 мин 13 с | db62904 +18 | [лог](logs/2026-09-28T08-25-49Z-unit-c0b5.log) |  |
+| 28.09.2026 13:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/workspace.spec.ts tests/ui/accessibility.spec.ts t | ✅ 122 из 122 | 11 мин 12 с | db62904 +18 | [лог](logs/2026-09-28T08-27-09Z-e2e-f883.log) |  |
+| 28.09.2026 13:38 | typecheck | ✅ без ошибок | 25 с | db62904 +19 | [лог](logs/2026-09-28T08-38-42Z-typecheck-3c55.log) |  |
+| 28.09.2026 13:39 | lint | ✅ без ошибок | 20 с | db62904 +19 | [лог](logs/2026-09-28T08-39-08Z-lint-15af.log) |  |
+| 28.09.2026 13:40 | integration | ✅ 107 из 107 | 34 с | db62904 +3 | [лог](logs/2026-09-28T08-40-01Z-integration-fea5.log) |  |
+| 28.09.2026 13:41 | e2e | ✅ 25 из 25 | 1 мин 2 с | db62904 +18 | [лог](logs/2026-09-28T08-41-10Z-e2e-a931.log) |  |
+| 28.09.2026 13:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts -g меню «⋯» работают) | ❌ упало 1 из 1 | 27 с | db62904 +18 | [лог](logs/2026-09-28T08-52-41Z-e2e-7ca5.log) | таблица показывает расположение, состояние и уборку; строка и меню «⋯» работают |
+| 28.09.2026 13:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts) | ✅ 12 из 12 | 1 мин 14 с | db62904 +18 | [лог](logs/2026-09-28T08-53-14Z-e2e-c973.log) |  |
+| 28.09.2026 13:54 | typecheck | ✅ без ошибок | 23 с | db62904 +19 | [лог](logs/2026-09-28T08-54-41Z-typecheck-e75b.log) |  |
+| 28.09.2026 13:55 | lint | ✅ без ошибок | 17 с | db62904 +19 | [лог](logs/2026-09-28T08-55-04Z-lint-95a8.log) |  |

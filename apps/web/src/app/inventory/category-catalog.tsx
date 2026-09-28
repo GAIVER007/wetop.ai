@@ -8,6 +8,7 @@ import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
 import { FundEditor, FundEditorDialog } from './fund-editor';
 import { CategoryPreview } from './category-preview';
+import { CategoryRatePlanDialog } from './rate-plan-choice';
 import { pluralRu } from '../../lib/plural';
 import { KIND_WORD, addWord, capacityShort, compositionHref, unitWord } from './category-words';
 
@@ -42,6 +43,7 @@ export function CategoryCatalog({
   const [preview, setPreview] = useState<InventoryCategory | null>(null);
   const [editing, setEditing] = useState<InventoryCategory | null>(null);
   const [adding, setAdding] = useState<InventoryCategory | null>(null);
+  const [rating, setRating] = useState<InventoryCategory | null>(null);
   const query = q.trim().toLocaleLowerCase('ru');
   const filtered = categories.filter(
     (c) => (!kind || c.kind === kind) && c.name.toLocaleLowerCase('ru').includes(query),
@@ -58,7 +60,9 @@ export function CategoryCatalog({
     { label: 'Открыть', onSelect: () => setPreview(c) },
     { label: 'Редактировать', onSelect: () => setEditing(c) },
     { label: addWord(c), onSelect: () => setAdding(c) },
-    { label: 'Настроить тарифы', href: `/rates?category=${encodeURIComponent(c.code)}` },
+    c.ratePlans
+      ? { label: 'Настроить тарифы', href: `/rates?category=${encodeURIComponent(c.code)}` }
+      : { label: 'Настроить тариф', onSelect: () => setRating(c) },
     { label: 'Показать на шахматке', href: `/chessboard?category=${encodeURIComponent(c.code)}` },
     { label: 'Свободные места', href: '/rooms/availability' },
   ];
@@ -78,11 +82,17 @@ export function CategoryCatalog({
         {pluralRu(c.ratePlans, ['тариф', 'тарифа', 'тарифов'])}
       </Link>
     ) : (
-      <Badge tone="warn">нет тарифа</Badge>
+      <Badge tone="warn">тариф не настроен</Badge>
     );
-  const status = (c: InventoryCategory) => (
-    <Badge tone={c.active ? 'ok' : 'neutral'}>{c.active ? 'Активна' : 'В архиве'}</Badge>
-  );
+  /** Без мест или без тарифа категорию не продать — так и говорим (ADR-119) */
+  const status = (c: InventoryCategory) =>
+    !c.active ? (
+      <Badge tone="neutral">В архиве</Badge>
+    ) : memberCount(c) && c.ratePlans ? (
+      <Badge tone="ok">Активна</Badge>
+    ) : (
+      <Badge tone="warn">Не готова к продаже</Badge>
+    );
   const open = (c: InventoryCategory) => (
     <button type="button" className="fund-cat-open" onClick={() => setPreview(c)}>
       {c.name}
@@ -232,6 +242,10 @@ export function CategoryCatalog({
             setPreview(null);
             setAdding(preview);
           }}
+          onSetRate={() => {
+            setPreview(null);
+            setRating(preview);
+          }}
         />
       )}
       {editing && (
@@ -251,6 +265,13 @@ export function CategoryCatalog({
           category={adding}
           open
           onClose={() => setAdding(null)}
+        />
+      )}
+      {rating && (
+        <CategoryRatePlanDialog
+          key={`rate-${rating.code}`}
+          category={rating}
+          onClose={() => setRating(null)}
         />
       )}
     </>

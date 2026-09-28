@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
+import { selectService } from './pick-service';
 
 /**
  * Срез 5 целиком одной цепочкой: «сутки можно прожить руками».
@@ -101,7 +102,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   const charge = panel.getByTestId('charge-form');
   await cardTab(page, 'Счета');
   await charge.locator('select[name="kind"]').selectOption('SERVICE');
-  await charge.locator('select[name="serviceCode"]').selectOption('Стирка (1 загрузка)');
+  await selectService(charge, 'Стирка (1 загрузка)');
   await charge.getByRole('button', { name: 'Начислить' }).click();
   await expect(panel.getByTestId('charge-row')).toHaveCount(2);
   const withService = await balance();

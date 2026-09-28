@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createPrismaClient, type Db } from '@pms/database';
+import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
+import { moveProperty } from '../tools/property-owner';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { AuditService } from '../../apps/api/src/audit/audit.module';
 import { PrismaFinanceRepository } from '../../apps/api/src/finance/finance.repository';
@@ -67,18 +68,15 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
       db.$transaction(async (tx) => {
         const orgA = await tx.organization.create({ data: { name: 'Integration A' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B' }, select: { id: true } });
-        await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
+        await moveProperty(tx, propertyId, orgA.id);
         // канон v1.13 §17.1: гости следуют за организацией своих броней — как backfill миграции …027
         await tx.guest.updateMany({ data: { organizationId: orgA.id } });
-        await tx.property.create({
-          data: {
-            organizationId: orgB.id,
-            name: 'Чужой объект (integration)',
-            timezone: 'Asia/Almaty',
-            currency: 'KZT',
-            checkInTime: '14:00',
-            checkOutTime: '12:00',
-          },
+        await createPropertyInChain(tx, orgB.id, {
+          name: 'Чужой объект (integration)',
+          timezone: 'Asia/Almaty',
+          currency: 'KZT',
+          checkInTime: '14:00',
+          checkOutTime: '12:00',
         });
         const payment = await tx.payment.create({
           data: { propertyId, method: 'CASH', status: 'COMPLETED', amount: 100n, currency: 'KZT', paidAt: new Date() },
@@ -205,17 +203,13 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         forgetPropertyRef();
         const orgA = await tx.organization.create({ data: { name: 'Integration A2' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B2' }, select: { id: true } });
-        await tx.property.update({ where: { id: unit!.propertyId }, data: { organizationId: orgA.id } });
-        const propB = await tx.property.create({
-          data: {
-            organizationId: orgB.id,
-            name: 'Чужой объект 2 (integration)',
-            timezone: 'Asia/Almaty',
-            currency: 'KZT',
-            checkInTime: '14:00',
-            checkOutTime: '12:00',
-          },
-          select: { id: true },
+        await moveProperty(tx, unit!.propertyId, orgA.id);
+        const propB = await createPropertyInChain(tx, orgB.id, {
+          name: 'Чужой объект 2 (integration)',
+          timezone: 'Asia/Almaty',
+          currency: 'KZT',
+          checkInTime: '14:00',
+          checkOutTime: '12:00',
         });
         const typeB = await tx.accommodationType.create({
           data: { propertyId: propB.id, code: 'cat-1', name: 'Номер B', kind: 'PRIVATE_ROOM', capacityAdults: 2 },
@@ -286,16 +280,13 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         const propertyId = item!.reservation.propertyId;
         const orgA = await tx.organization.create({ data: { name: 'Integration A3' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B3' }, select: { id: true } });
-        await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
-        await tx.property.create({
-          data: {
-            organizationId: orgB.id,
-            name: 'Чужой объект 3 (integration)',
-            timezone: 'Asia/Almaty',
-            currency: 'KZT',
-            checkInTime: '14:00',
-            checkOutTime: '12:00',
-          },
+        await moveProperty(tx, propertyId, orgA.id);
+        await createPropertyInChain(tx, orgB.id, {
+          name: 'Чужой объект 3 (integration)',
+          timezone: 'Asia/Almaty',
+          currency: 'KZT',
+          checkInTime: '14:00',
+          checkOutTime: '12:00',
         });
         await tx.channelMapping.create({
           data: { propertyId, provider: 'channex', providerPropertyId: 'integration-channex-property' },
@@ -346,16 +337,13 @@ describe.skipIf(!url)('изоляция организаций: ячейки и 
       db.$transaction(async (tx) => {
         const orgA = await tx.organization.create({ data: { name: 'Integration A' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B' }, select: { id: true } });
-        await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
-        await tx.property.create({
-          data: {
-            organizationId: orgB.id,
-            name: 'Чужой объект (integration)',
-            timezone: 'Asia/Almaty',
-            currency: 'KZT',
-            checkInTime: '14:00',
-            checkOutTime: '12:00',
-          },
+        await moveProperty(tx, propertyId, orgA.id);
+        await createPropertyInChain(tx, orgB.id, {
+          name: 'Чужой объект (integration)',
+          timezone: 'Asia/Almaty',
+          currency: 'KZT',
+          checkInTime: '14:00',
+          checkOutTime: '12:00',
         });
         const block = await tx.inventoryBlock.create({
           data: {
@@ -439,7 +427,7 @@ describe.skipIf(!url)('организация подключённого к Chan
     await expect(
       db.$transaction(async (tx) => {
         const org = await tx.organization.create({ data: { name: 'Integration Channex' }, select: { id: true } });
-        await tx.property.update({ where: { id: propertyId }, data: { organizationId: org.id } });
+        await moveProperty(tx, propertyId, org.id);
         await tx.channelMapping.deleteMany({ where: { provider: 'channex' } });
         await tx.channelMapping.create({
           data: { propertyId, provider: 'channex', providerPropertyId: `integration-${randomUUID()}` },
@@ -486,18 +474,15 @@ describe.skipIf(!url)('Phase 1: tenant-scope гостей, журнала, со�
         forgetPropertyRef();
         const orgA = await tx.organization.create({ data: { name: 'Integration A4' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B4' }, select: { id: true } });
-        await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
+        await moveProperty(tx, propertyId, orgA.id);
         // NOT NULL v1.13 §17.1 (ADR-103): гость несёт организацию сида — переводится вместе с объектом
         await tx.guest.update({ where: { id: guestId }, data: { organizationId: orgA.id } });
-        await tx.property.create({
-          data: {
-            organizationId: orgB.id,
-            name: 'Чужой объект 4 (integration)',
-            timezone: 'Asia/Almaty',
-            currency: 'KZT',
-            checkInTime: '14:00',
-            checkOutTime: '12:00',
-          },
+        await createPropertyInChain(tx, orgB.id, {
+          name: 'Чужой объект 4 (integration)',
+          timezone: 'Asia/Almaty',
+          currency: 'KZT',
+          checkInTime: '14:00',
+          checkOutTime: '12:00',
         });
         const doc = await tx.guestDocument.create({
           data: { guestId, type: 'PASSPORT', numberEncrypted: 'enc-phase1-test' },
@@ -584,16 +569,13 @@ describe.skipIf(!url)('Phase 1: tenant-scope гостей, журнала, со�
         forgetPropertyRef();
         const orgA = await tx.organization.create({ data: { name: 'Integration A5' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B5' }, select: { id: true } });
-        await tx.property.update({ where: { id: anyProperty!.id }, data: { organizationId: orgA.id } });
-        await tx.property.create({
-          data: {
-            organizationId: orgB.id,
-            name: 'Чужой объект 5 (integration)',
-            timezone: 'Asia/Almaty',
-            currency: 'KZT',
-            checkInTime: '14:00',
-            checkOutTime: '12:00',
-          },
+        await moveProperty(tx, anyProperty!.id, orgA.id);
+        await createPropertyInChain(tx, orgB.id, {
+          name: 'Чужой объект 5 (integration)',
+          timezone: 'Asia/Almaty',
+          currency: 'KZT',
+          checkInTime: '14:00',
+          checkOutTime: '12:00',
         });
         const as = <T>(organizationId: string, fn: () => Promise<T>) =>
           withSignedInUser({ userId: randomUUID(), organizationId }, fn);

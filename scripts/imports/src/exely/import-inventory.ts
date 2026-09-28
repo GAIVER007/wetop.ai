@@ -1,4 +1,4 @@
-import type { DbTx } from '@pms/database';
+import { createPropertyInChain, type DbTx } from '@pms/database';
 import type { InventoryImportPlan } from '@pms/domain';
 import type { PropertySpec } from './property';
 
@@ -54,7 +54,8 @@ export async function importInventoryPlan(
       (await tx.organization.create({ data: { name: property.name, status: 'ACTIVE' }, select: { id: true } })).id);
   const prop = existingProperty
     ? await tx.property.update({ where: { id: existingProperty.id }, data: property })
-    : await tx.property.create({ data: { ...property, organizationId } });
+    : // новый объект — сразу в цепочке Organization → Business → Location (DATA_MODEL v2.5, §18.4)
+      await createPropertyInChain(tx, organizationId, property);
   if (existingProperty) report.property.updated += 1;
   else report.property.created += 1;
   report.propertyId = prop.id;

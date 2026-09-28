@@ -7,7 +7,7 @@
  *
  * Запускается только против локальной базы: проверка адреса ниже не даёт задеть dev или боевую.
  */
-import { createPrismaClient, type Db } from '@pms/database';
+import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { LUXX_APARTS_PROPERTY, importServices, parseExelyServices } from '@pms/imports';
@@ -107,33 +107,11 @@ export async function seedLocal(
   const organization =
     (await db.organization.findFirst({ orderBy: { createdAt: 'asc' }, select: { id: true } })) ??
     (await db.organization.create({ data: { name: LOCAL_PROPERTY.name, status: 'ACTIVE' }, select: { id: true } }));
+  // Platform P1 (DATA_MODEL v2.5): новый объект — сразу в цепочке Organization → Business → Location, той же
+  // функцией, что регистрация и импорт; объект без филиала база не примет (location_id NOT NULL)
   const property =
     (await db.property.findFirst({ where: { name: LOCAL_PROPERTY.name }, select: { id: true } })) ??
-    (await db.property.create({ data: { ...LOCAL_PROPERTY, organizationId: organization.id }, select: { id: true } }));
-  // Platform P1 (ADR-104 §18): сид идёт ПОСЛЕ миграций, поэтому цепочку Organization → Business → Location
-  // строит сам — так же, как backfill миграции 20260927000030 строит её на живых данных
-  const linked = await db.property.findUniqueOrThrow({
-    where: { id: property.id },
-    select: { locationId: true, timezone: true, currency: true },
-  });
-  if (!linked.locationId) {
-    const business =
-      (await db.business.findFirst({ where: { organizationId: organization.id }, orderBy: { createdAt: 'asc' }, select: { id: true } })) ??
-      (await db.business.create({
-        data: { organizationId: organization.id, name: LOCAL_PROPERTY.name, vertical: 'HOSPITALITY' },
-        select: { id: true },
-      }));
-    const location = await db.location.create({
-      data: {
-        businessId: business.id,
-        name: LOCAL_PROPERTY.name,
-        timezone: linked.timezone,
-        currency: linked.currency,
-      },
-      select: { id: true },
-    });
-    await db.property.update({ where: { id: property.id }, data: { locationId: location.id } });
-  }
+    (await db.$transaction((tx) => createPropertyInChain(tx, organization.id, LOCAL_PROPERTY)));
 
   const typeIds = new Map<string, string>();
   for (const c of CATEGORIES) {

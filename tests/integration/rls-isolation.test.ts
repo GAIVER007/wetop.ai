@@ -73,10 +73,22 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     await client.query(`ALTER TABLE audit_logs DISABLE TRIGGER audit_logs_immutable`);
     await client.query(`UPDATE audit_logs SET organization_id = $1`, [own]);
     await client.query(`ALTER TABLE audit_logs ENABLE TRIGGER audit_logs_immutable`);
+    // у чужого объекта своя цепочка Business → Location (Platform P1, DATA_MODEL v2.5: location_id NOT NULL)
+    const otherBusiness = randomUUID();
+    const otherLocation = randomUUID();
     await client.query(
-      `INSERT INTO properties (id, organization_id, name, timezone, currency, check_in_time, check_out_time, updated_at)
-       VALUES ($1, $2, 'Чужой объект (RLS)', 'Asia/Almaty', 'KZT', '14:00', '12:00', now())`,
-      [randomUUID(), other],
+      `INSERT INTO businesses (id, organization_id, name, vertical, updated_at) VALUES ($1, $2, 'RLS other', 'HOSPITALITY', now())`,
+      [otherBusiness, other],
+    );
+    await client.query(
+      `INSERT INTO locations (id, business_id, name, timezone, currency, updated_at)
+       VALUES ($1, $2, 'Чужой объект (RLS)', 'Asia/Almaty', 'KZT', now())`,
+      [otherLocation, otherBusiness],
+    );
+    await client.query(
+      `INSERT INTO properties (id, organization_id, location_id, name, timezone, currency, check_in_time, check_out_time, updated_at)
+       VALUES ($1, $2, $3, 'Чужой объект (RLS)', 'Asia/Almaty', 'KZT', '14:00', '12:00', now())`,
+      [randomUUID(), other, otherLocation],
     );
     const otherGuest = randomUUID();
     await client.query(
@@ -109,8 +121,8 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
         const all = Number((await client.query(`SELECT count(*) FROM "${table}"`)).rows[0].count);
         const asOther = await visible(table, other);
         const asOwn = await visible(table, own);
-        // у «чужой» — только её объект, её организация, её гость; строки тестовой базы ей не видны
-        const otherOwn = table === 'organizations' || table === 'properties' || table === 'guests' ? 1 : 0;
+        // у «чужой» — только её организация, её бизнес, филиал, объект и гость; строки тестовой базы ей не видны
+        const otherOwn = ['organizations', 'businesses', 'locations', 'properties', 'guests'].includes(table) ? 1 : 0;
         if (asOther !== otherOwn) leaks.push(`${table}: чужой видно ${asOther} из ${all}`);
         if (asOwn > 0) ownSeen += 1;
       }

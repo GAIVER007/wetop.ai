@@ -1,0 +1,21 @@
+# Модульные (unit) · 28.09.2026 14:36 Алматы · vm
+# коммит a610c33 (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T09-36-51Z-unit-6eda.json' 'apps/api/src/database/property-ref.test.ts' 'apps/api/src/database/location-ref.test.ts' 'apps/api/src/auth/auth.service.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/database/location-ref.test.ts (4 tests) 5ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (13 tests) 13ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (45 tests) 5186ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 354ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 370ms
+
+ Test Files  3 passed (3)
+      Tests  62 passed (62)
+   Start at  09:36:52
+   Duration  6.44s (tests 73%, transform 19%, import 8%)
+
+JSON report written to /tmp/pms-test-2026-09-28T09-36-51Z-unit-6eda.json
+
+# код выхода 0 · 7 с

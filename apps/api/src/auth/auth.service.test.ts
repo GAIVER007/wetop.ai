@@ -418,7 +418,7 @@ describe('AuthService.register', () => {
   });
 
   it('заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена', async () => {
-    const { auth, users, sessions, memberships, organizations, properties, audit, letters } =
+    const { auth, users, sessions, memberships, organizations, properties, businesses, locations, audit, letters } =
       service();
     const result = await auth.register(NEW, NOW);
 
@@ -448,6 +448,15 @@ describe('AuthService.register', () => {
     expect(property, 'объект заведён для организации').toBeDefined();
     expect(property!.name).toBe('Хостел на Абая');
     expect(property!.currency).toBe('KZT');
+    // Platform P1 (DATA_MODEL v2.5): объект сразу в цепочке Organization → Business → Location — иначе
+    // резолвер без фолбэка его не найдёт, а база не примет объект без филиала
+    const location = locations.find((l) => l.id === property!.locationId);
+    expect(location, 'филиал объекта заведён').toMatchObject({ name: 'Хостел на Абая', timezone: 'Asia/Almaty', currency: 'KZT' });
+    expect(businesses.find((b) => b.id === location!.businessId)).toMatchObject({
+      organizationId: org!.id,
+      name: 'Хостел на Абая',
+      vertical: 'HOSPITALITY',
+    });
 
     // сессии нет ни одной: пока не подтверждена почта, входа нет
     expect(sessions.filter((x) => x.userId === created!.id)).toHaveLength(0);

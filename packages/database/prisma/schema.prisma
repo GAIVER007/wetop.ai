@@ -102,10 +102,10 @@ model Property {
   checkInTime  String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
   checkOutTime String   @map("check_out_time")
-  /// Platform P1 (ADR-104, DATA_MODEL §18.4): родитель объекта — филиал (1:1). NULL — только на
-  /// миграционное окно (NOT NULL — отдельной миграцией после backfill); organization_id остаётся,
-  /// пока замок ADR-061 не переведён на цепочку Location → Business.
-  locationId   String?  @unique @map("location_id") @db.Uuid
+  /// Platform P1 (ADR-104, DATA_MODEL §18.4, v2.5): родитель объекта — филиал (1:1), NOT NULL с миграции
+  /// 20260928000031; новый объект — через createPropertyInChain. organization_id остаётся, пока замок
+  /// ADR-061 не переведён на цепочку Location → Business, и совпадает с организацией Business.
+  locationId   String   @unique @map("location_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -113,7 +113,7 @@ model Property {
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
   organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   /// Location удалить, пока на ней объект, нельзя (RESTRICT): объект не остаётся без точки молча.
-  location           Location?           @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  location           Location            @relation(fields: [locationId], references: [id], onDelete: Restrict)
   buildings          Building[]
   accommodationTypes AccommodationType[]
   reservations       Reservation[]

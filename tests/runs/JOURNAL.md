@@ -6,6 +6,28 @@
 
 | Когда | Набор | Итог | Длительность | Коммит | Лог | Заметка или первое падение |
 |---|---|---|---|---|---|---|
+| 28.09.2026 22:46 | typecheck | ✅ без ошибок | 33 с | 44e4e57 +50 | [лог](logs/2026-09-28T17-46-31Z-typecheck-ab66.log) | merge main into chessboard-v2 (PR4 head) |
+| 28.09.2026 22:47 | lint | ✅ без ошибок | 19 с | 44e4e57 +50 | [лог](logs/2026-09-28T17-47-09Z-lint-30b2.log) | merge main into chessboard-v2 (PR4 head) |
+| 28.09.2026 22:47 | unit | ✅ 2156 из 2159, пропущено 3 | 1 мин 19 с | 44e4e57 +50 | [лог](logs/2026-09-28T17-47-29Z-unit-3120.log) | merge main into chessboard-v2 (PR4 head) |
+| 28.09.2026 22:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-blocks.spec.ts tests/ui/chessboard-card.spec.ts tests/ui/chessboard-design.spec.ts tes | ✅ 46 из 46 | 6 мин 52 с | 44e4e57 +50 | [лог](logs/2026-09-28T17-49-00Z-e2e-18a6.log) | merged tree: chessboard UI specs (PR1-4) |
+| 28.09.2026 22:59 | unit (частично: apps/web/src/app/chessboard/range-plan.test.ts) | ❌ код выхода 1 | 1 с | 17fda46 +5 | [лог](logs/2026-09-28T17-59-55Z-unit-ca47.log) | RED PR5: selectRange/freeMenuModel not yet implemented |
+| 28.09.2026 23:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-range.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts tests | ❌ упало 6 из 6 | 2 мин 53 с | 17fda46 +11 | [лог](logs/2026-09-28T18-00-04Z-e2e-dc2c.log) | RED PR5: range selection, free-cell menu, adapted free-cell paths — on current code |
+| 28.09.2026 23:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-week.spec.ts -g создание на воскресенье --workers=1) | ❌ упало 1 из 1 | 51 с | 17fda46 +11 | [лог](logs/2026-09-28T18-03-09Z-e2e-3d40.log) | RED PR5: week free-cell path via free menu — on current code |
+| 28.09.2026 23:06 | unit (частично: apps/web/src/app/chessboard/range-plan.test.ts apps/web/src/app/chessboard/drag-plan.test.ts apps/web/src/app/chessboard/extend-plan.test.ts tes | ✅ 56 из 56 | 1 с | 17fda46 +11 | [лог](logs/2026-09-28T18-06-45Z-unit-99d1.log) | GREEN PR5: range-plan + design guards |
+| 28.09.2026 23:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-range.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts tests | ✅ 7 из 7 | 37 с | 17fda46 +17 | [лог](logs/2026-09-28T18-06-53Z-e2e-148d.log) | GREEN PR5 attempt 1: range selection, free menu, adapted paths |
+| 28.09.2026 23:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-gate-pr5.spec.ts --workers=1) | ✅ 2 из 2 | 25 с | 17fda46 +18 | [лог](logs/2026-09-28T18-07-57Z-e2e-ad33.log) | PR5 gate screenshots (light/dark) |
+| 28.09.2026 23:09 | typecheck | ✅ без ошибок | 29 с | 17fda46 +18 | [лог](logs/2026-09-28T18-09-12Z-typecheck-70dc.log) | PR5 final code |
+| 28.09.2026 23:09 | lint | ✅ без ошибок | 15 с | 17fda46 +18 | [лог](logs/2026-09-28T18-09-42Z-lint-e3d0.log) | PR5 final code |
+| 28.09.2026 23:09 | unit | ✅ 2164 из 2167, пропущено 3 | 1 мин 13 с | 17fda46 +11 | [лог](logs/2026-09-28T18-09-57Z-unit-7513.log) | PR5 final code |
+| 28.09.2026 23:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 529 из 529 | 40 мин 24 с | 17fda46 +18 | [лог](logs/2026-09-28T18-11-16Z-e2e-9163.log) | PR5 final code: full UI suite (merged tree) |
+| 28.09.2026 23:52 | e2e | ❌ упало 5 из 25, пропущено 2 | 5 мин 39 с | 17fda46 +18 | [лог](logs/2026-09-28T18-52-04Z-e2e-2f7f.log) | PR5 final code: full e2e on local PostgreSQL (merged tree) |
+| 28.09.2026 23:58 | e2e (частично: tests/e2e/desk-day.spec.ts tests/e2e/check-in-out.spec.ts tests/e2e/web-analytics.spec.ts tests/e2e/full-day.spec.ts tests/e2e/web-booking.spec.t | ❌ упало 5 из 9, пропущено 2 | 5 мин 15 с | 17fda46 +18 | [лог](logs/2026-09-28T18-58-37Z-e2e-b778.log) | BASE CHECK: same 5 live e2e specs with app code = origin/main (PR4/PR5 app files swapped to main versions) |
+| 29.09.2026 00:09 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-blocks.spec.ts --workers=1) | ❌ упало 1 из 2 | 10 с | 1332e2f +1 | [лог](logs/2026-09-28T19-09-37Z-e2e-0de8.log) | RED fixture blocks: dateTo exclusive like the API, empty period rejected — on current fixture |
+| 29.09.2026 00:09 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-blocks.spec.ts -g одну ночь --workers=1) | ❌ упало 1 из 1 | 23 с | 1332e2f +1 | [лог](logs/2026-09-28T19-09-58Z-e2e-f493.log) | RED fixture blocks (grid check first): night dateTo must stay FREE — on current fixture |
+| 29.09.2026 00:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/chessboard-blocks.spec.ts tests/ui/chessboard-dnd.spec.ts tests/ui/chessboard-range.spec.ts --wor | ✅ 11 из 11 | 44 с | 1332e2f +4 | [лог](logs/2026-09-28T19-11-12Z-e2e-5c7e.log) | GREEN fixture blocks: dateTo exclusive + 400 on empty period; dnd/range specs |
+| 29.09.2026 00:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 530 | 41 мин 8 с | 1332e2f +4 | [лог](logs/2026-09-28T19-12-06Z-e2e-44e8.log) | fixture blocks dateTo exclusive: full UI suite |
+| 29.09.2026 00:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-month.spec.ts:72 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 2 | 30 с | 1332e2f +3 | [лог](logs/2026-09-28T19-53-54Z-e2e-21cc.log) | A/B: two reds of the full run, on the fixture WITHOUT the dateTo fix (HEAD), after Almaty midnight 29.09 |
+| 29.09.2026 00:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-month.spec.ts) | ✅ 11 из 11 | 1 мин 56 с | 1332e2f +4 | [лог](logs/2026-09-28T19-54-31Z-e2e-451a.log) | A/B: month spec on the fixture WITH the dateTo fix, alone |
 | 29.09.2026 00:14 | typecheck | ✅ без ошибок | 31 с | 58aa571 +50 | [лог](logs/2026-09-28T19-14-26Z-typecheck-ed4e.log) |  |
 | 29.09.2026 00:14 | lint | ✅ без ошибок | 18 с | 58aa571 +50 | [лог](logs/2026-09-28T19-14-58Z-lint-b780.log) |  |
 | 29.09.2026 00:15 | unit | ✅ 2146 из 2149, пропущено 3 | 1 мин 18 с | 58aa571 +50 | [лог](logs/2026-09-28T19-15-19Z-unit-09cd.log) |  |
@@ -3684,6 +3706,17 @@
 | 28.09.2026 22:56 | e2e | ❌ упало 2 из 25 | 4 мин 42 с | cca172c | [лог](logs/2026-09-28T17-56-12Z-e2e-9bda.log) | cleanup P1: слитое дерево с main e0ac75f (ADR-118), свежая сборка web |
 | 28.09.2026 23:01 | e2e | ❌ упало 2 из 26 | 4 мин 43 с | cca172c | [лог](logs/2026-09-28T18-01-36Z-e2e-865b.log) | cleanup P1: слитое дерево (ADR-118), E2E_AUTH=1, API ролью wetop_app |
 | 28.09.2026 23:06 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ❌ упало 2 из 3 | 4 мин 9 с | e0ac75f | [лог](logs/2026-09-28T18-06-31Z-e2e-0e49.log) | контроль: чистый main e0ac75f — finance и full-day без правки cleanup |
+| 29.09.2026 00:57 | typecheck | ✅ без ошибок | 20 с | faf91fe +1 | [лог](logs/2026-09-28T19-57-29Z-typecheck-66dc.log) | PR #101 merged with main faf91fe0 |
+| 29.09.2026 00:57 | lint | ✅ без ошибок | 15 с | faf91fe +1 | [лог](logs/2026-09-28T19-57-50Z-lint-2ce9.log) | PR #101 merged with main faf91fe0 |
+| 29.09.2026 00:58 | unit | ✅ 2165 из 2168, пропущено 3 | 1 мин 15 с | faf91fe +1 | [лог](logs/2026-09-28T19-58-11Z-unit-1510.log) | PR #101 merged with main faf91fe0 |
+| 29.09.2026 00:59 | integration | ✅ 0 из 113, пропущено 113 | 18 с | faf91fe +1 | [лог](logs/2026-09-28T19-59-39Z-integration-8b71.log) | PR #101 merged with main faf91fe0 |
+| 29.09.2026 01:00 | integration | ✅ 113 из 113 | 33 с | faf91fe | [лог](logs/2026-09-28T20-00-07Z-integration-395b.log) | PR #101 merged with main faf91fe0 |
+| 29.09.2026 01:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 530 | 40 мин 19 с | faf91fe | [лог](logs/2026-09-28T20-00-48Z-e2e-e974.log) | PR #101 merged with main faf91fe0: full UI suite |
+| 29.09.2026 01:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 24 с | faf91fe +1 | [лог](logs/2026-09-28T20-41-31Z-e2e-4095.log) | workspace.spec.ts:159 takes the clicked unit instead of pinned R01 (red since 29.09 in e974) |
+| 29.09.2026 01:42 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ✅ 1 из 1 | 9 с | faf91fe +1 | [лог](logs/2026-09-28T20-42-06Z-e2e-f279.log) | workspace.spec.ts:159 takes the clicked unit code instead of pinned R01 |
+| 29.09.2026 01:42 | e2e | ❌ упало 8 из 25, пропущено 2 | 7 мин 6 с | faf91fe +1 | [лог](logs/2026-09-28T20-42-23Z-e2e-75b6.log) | PR #101 merged with main faf91fe0: live e2e on local PostgreSQL |
+| 29.09.2026 01:50 | e2e | ❌ упало 5 из 25, пропущено 2 | 5 мин 37 с | faf91fe +1 | [лог](logs/2026-09-28T20-50-17Z-e2e-74ee.log) | PR #101 merged with main faf91fe0: live e2e after db:local reset (seed windows are relative to seeding day) |
+| 29.09.2026 01:56 | e2e (частично: tests/e2e/check-in-out.spec.ts tests/e2e/desk-day.spec.ts tests/e2e/full-day.spec.ts tests/e2e/web-analytics.spec.ts tests/e2e/web-booking.spec.t | ❌ упало 5 из 9, пропущено 2 | 5 мин 15 с | faf91fe +16 | [лог](logs/2026-09-28T20-56-27Z-e2e-6fed.log) | A/B: the 5 live e2e reds on app code exactly as origin/main 6bf4337f (branch chessboard/unit/fixture files swapped to main) |
 | 29.09.2026 00:35 | typecheck | ❌ ошибок: 4 | 45 с | 10b7bd4 | [лог](logs/2026-09-28T19-35-01Z-typecheck-c9a6.log) | TS2531 |
 | 29.09.2026 00:35 | lint | ✅ без ошибок | 21 с | 10b7bd4 | [лог](logs/2026-09-28T19-35-46Z-lint-abc8.log) |  |
 | 29.09.2026 00:36 | typecheck | ✅ без ошибок | 22 с | 10b7bd4 | [лог](logs/2026-09-28T19-36-33Z-typecheck-3524.log) |  |
@@ -3954,6 +3987,10 @@
 | 29.09.2026 01:55 | typecheck | ✅ без ошибок | 21 с | d2381c6 +11 | [лог](logs/2026-09-28T20-55-29Z-typecheck-9409.log) |  |
 | 29.09.2026 01:55 | lint | ✅ без ошибок | 16 с | d2381c6 +11 | [лог](logs/2026-09-28T20-55-50Z-lint-b77c.log) |  |
 | 29.09.2026 01:56 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 12 с | d2381c6 +10 | [лог](logs/2026-09-28T20-56-07Z-unit-c0b1.log) |  |
+| 29.09.2026 02:03 | typecheck | ✅ без ошибок | 28 с | 5e52b8b | [лог](logs/2026-09-28T21-03-46Z-typecheck-3945.log) | PR #101 merged with main 37fc7963 (5e52b8be) |
+| 29.09.2026 02:04 | lint | ✅ без ошибок | 15 с | 5e52b8b | [лог](logs/2026-09-28T21-04-15Z-lint-4d47.log) | PR #101 merged with main 37fc7963 (5e52b8be) |
+| 29.09.2026 02:04 | unit | ✅ 2276 из 2279, пропущено 3 | 1 мин 18 с | 5e52b8b | [лог](logs/2026-09-28T21-04-30Z-unit-960c.log) | PR #101 merged with main 37fc7963 (5e52b8be) |
+| 29.09.2026 02:05 | integration | ✅ 121 из 121 | 37 с | 5e52b8b | [лог](logs/2026-09-28T21-05-57Z-integration-03e2.log) | PR #101 merged with main 37fc7963 (5e52b8be) |
 | 29.09.2026 02:05 | typecheck | ✅ без ошибок | 37 с | 9ccdbff +1 | [лог](logs/2026-09-28T21-05-28Z-typecheck-2235.log) |  |
 | 29.09.2026 02:06 | lint | ✅ без ошибок | 21 с | 9ccdbff +1 | [лог](logs/2026-09-28T21-06-06Z-lint-fd15.log) |  |
 | 29.09.2026 02:06 | unit | ✅ 2267 из 2270, пропущено 3 | 1 мин 39 с | 9ccdbff +1 | [лог](logs/2026-09-28T21-06-32Z-unit-8b39.log) |  |
@@ -3976,9 +4013,25 @@
 | 29.09.2026 02:17 | typecheck | ✅ без ошибок | 30 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-01Z-typecheck-3ed3.log) | record-tabs на main 5ff088c0 |
 | 29.09.2026 02:17 | lint | ✅ без ошибок | 16 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-32Z-lint-7011.log) | record-tabs на main 5ff088c0 |
 | 29.09.2026 02:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/categories-safe-edit.spec.ts tests/ui/categories-create. | ✅ 6 из 6 | 41 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-48Z-e2e-00c2.log) | main 5ff088c0: record-tabs с «Финансами», категории C3–C4a |
+| 29.09.2026 02:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-occupancy.spec.ts:72) | ❌ упало 1 из 1 | 1 мин 40 с | f1eca94 | [лог](logs/2026-09-28T21-26-25Z-e2e-3224.log) | RED: analytics-occupancy posts an empty block (dateTo = dateFrom); the fixture now answers 400 like the API |
+| 29.09.2026 02:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-occupancy.spec.ts) | ✅ 9 из 9 | 48 с | f1eca94 +1 | [лог](logs/2026-09-28T21-28-12Z-e2e-26cd.log) | GREEN: analytics-occupancy blocks tonight as today..tomorrow (dateTo exclusive, like the API) |
+| 29.09.2026 02:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 593 | 44 мин 46 с | b5bfb75 | [лог](logs/2026-09-28T21-29-20Z-e2e-dd64.log) | PR #101 merged with main 633cd78d: full UI suite |
+| 29.09.2026 03:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts) | ✅ 62 из 62 | 3 мин 23 с | b5bfb75 +1 | [лог](logs/2026-09-28T22-14-31Z-e2e-9503.log) | workspace.spec.ts: PR 5 free-menu step restored after taking main's file in the merge (red :287 in dd64) |
+| 29.09.2026 03:18 | typecheck | ✅ без ошибок | 33 с | b5bfb75 +1 | [лог](logs/2026-09-28T22-18-03Z-typecheck-69e8.log) | PR #101 merged with main 633cd78d (b5bfb75c+) |
+| 29.09.2026 03:18 | lint | ✅ без ошибок | 18 с | b5bfb75 +1 | [лог](logs/2026-09-28T22-18-37Z-lint-74c3.log) | PR #101 merged with main 633cd78d (b5bfb75c+) |
+| 29.09.2026 03:18 | unit | ✅ 2276 из 2279, пропущено 3 | 1 мин 30 с | b5bfb75 | [лог](logs/2026-09-28T22-18-56Z-unit-c08a.log) | PR #101 merged with main 633cd78d (b5bfb75c+) |
+| 29.09.2026 03:20 | integration | ✅ 122 из 122 | 37 с | b5bfb75 | [лог](logs/2026-09-28T22-20-36Z-integration-49ee.log) | PR #101 merged with main 633cd78d (b5bfb75c+) |
+| 29.09.2026 03:21 | e2e | ❌ упало 5 из 25, пропущено 2 | 5 мин 37 с | b5bfb75 +1 | [лог](logs/2026-09-28T22-21-17Z-e2e-35ed.log) | PR #101 merged with main 633cd78d: live e2e on local PostgreSQL |
+| 29.09.2026 03:28 | e2e | ✅ 25 из 25 | 56 с | b5bfb75 +1 | [лог](logs/2026-09-28T22-28-00Z-e2e-1bfa.log) | PR #101 merged with main 633cd78d: live e2e after npm run build -w apps/web (the .next build was from 27.09) |
 | 29.09.2026 02:58 | typecheck | ✅ без ошибок | 31 с | a4784e3 | [лог](logs/2026-09-28T21-58-55Z-typecheck-9dca.log) |  |
 | 29.09.2026 02:59 | lint | ✅ без ошибок | 16 с | a4784e3 | [лог](logs/2026-09-28T21-59-27Z-lint-e4be.log) |  |
 | 29.09.2026 02:59 | unit | ✅ 2267 из 2270, пропущено 3 | 1 мин 18 с | a4784e3 | [лог](logs/2026-09-28T21-59-43Z-unit-2f14.log) |  |
 | 29.09.2026 03:01 | integration | ✅ 122 из 122 | 38 с | a4784e3 | [лог](logs/2026-09-28T22-01-02Z-integration-0baa.log) |  |
 | 29.09.2026 03:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/property-settings.spec.ts tests/ui/property-settings-set | ✅ 96 из 96 | 6 мин 45 с | a4784e3 | [лог](logs/2026-09-28T22-01-45Z-e2e-818d.log) |  |
 | 29.09.2026 03:08 | e2e | ✅ 25 из 25 | 1 мин | a4784e3 | [лог](logs/2026-09-28T22-08-40Z-e2e-f4e9.log) |  |
+| 29.09.2026 03:29 | typecheck | ✅ без ошибок | 29 с | b8cf953 | [лог](logs/2026-09-28T22-29-54Z-typecheck-5566.log) | PR #101 merged with main 93423b39 (b8cf9535) |
+| 29.09.2026 03:30 | lint | ✅ без ошибок | 15 с | b8cf953 | [лог](logs/2026-09-28T22-30-23Z-lint-ccfc.log) | PR #101 merged with main 93423b39 (b8cf9535) |
+| 29.09.2026 03:30 | unit | ✅ 2291 из 2294, пропущено 3 | 1 мин 16 с | b8cf953 | [лог](logs/2026-09-28T22-30-39Z-unit-4645.log) | PR #101 merged with main 93423b39 (b8cf9535) |
+| 29.09.2026 03:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings-set2-set3.spec.ts tests/ui/settings-simplification.spec.ts tests/ui | ✅ 38 из 38 | 3 мин 3 с | b8cf953 | [лог](logs/2026-09-28T22-32-00Z-e2e-81d5.log) | PR #101 merged with main 93423b39 (b8cf9535): specs main touched + chessboard/blocks |
+| 29.09.2026 03:35 | integration | ✅ 122 из 122 | 36 с | b8cf953 | [лог](logs/2026-09-28T22-35-14Z-integration-c917.log) | PR #101 merged with main 93423b39 (b8cf9535) |
+| 29.09.2026 03:36 | e2e | ✅ 25 из 25 | 57 с | b8cf953 | [лог](logs/2026-09-28T22-36-10Z-e2e-de75.log) | PR #101 merged with main 93423b39 (b8cf9535): live e2e on a fresh web build |

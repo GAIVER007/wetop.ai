@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 29.09.2026 02:28 Алматы · vm
+# коммит f1eca94 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/analytics-occupancy.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/ui/analytics-occupancy.spec.ts:34:1 › по умолчанию — сегодняшний день: пять плиток, категории и шахматка на этот день (2.4s)
+  ✓  2 tests/ui/analytics-occupancy.spec.ts:72:1 › знаменатель прежний: заблокированное место остаётся в фонде загрузки (1.5s)
+  ✓  3 tests/ui/analytics-occupancy.spec.ts:114:1 › без размещения: групповая бронь на три койки без места — три проживания и ссылка разместить (1.2s)
+  ✓  4 tests/ui/analytics-occupancy.spec.ts:147:1 › номера и койки: свои категории, своя средняя, шахматка открывается на том же типе (2.7s)
+  ✓  5 tests/ui/analytics-occupancy.spec.ts:182:1 › период: ночи вместо мест, стрелки дня, сравнение выключается (3.0s)
+  ✓  6 tests/ui/analytics-occupancy.spec.ts:210:1 › старые адреса: «Статистика» с датой и некорректная дата (5.3s)
+  ✓  7 tests/ui/analytics-occupancy.spec.ts:223:1 › сбой API не уносит полосу периода и повторяет тот же день (1.6s)
+  ✓  8 tests/ui/analytics-occupancy.spec.ts:239:1 › телефон: без прокрутки вбок, строка категории — карточкой (2.0s)
+  ✓  9 tests/ui/analytics-occupancy.spec.ts:268:1 › снимки для визуального гейта AN2 (21.5s)
+
+  9 passed (47.1s)
+
+# код выхода 0 · 48 с

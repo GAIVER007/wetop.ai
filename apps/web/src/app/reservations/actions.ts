@@ -313,9 +313,11 @@ export async function extendPreviewAction(
   number: string,
   itemId: string,
   ratePlanCode?: string,
+  /** Шахматка при продлении за край спрашивает сумму на выбранное число ночей (ТЗ v2 §29) */
+  nights = 1,
 ): Promise<ExtendPreview | null> {
   try {
-    return await reservationsApi.extendPreview(number, itemId, 1, ratePlanCode);
+    return await reservationsApi.extendPreview(number, itemId, nights, ratePlanCode);
   } catch {
     return null;
   }

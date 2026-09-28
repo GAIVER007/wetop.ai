@@ -248,7 +248,9 @@ export default async function ChessboardPage({
             ]}
           />
         </details>
-        <span className="board-gesture-hint">Плашка — переселить, правый край — продлить</span>
+        <span className="board-gesture-hint">
+          Плашка — переселить, правый край — продлить, пустые клетки — протянуть и создать бронь
+        </span>
       </div>
     </Page>
   );

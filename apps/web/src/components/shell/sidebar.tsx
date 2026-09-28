@@ -34,7 +34,7 @@ export function Sidebar({
   desk?: Promise<DeskShell> | undefined;
 }) {
   const route = activeNavigation(path)?.href;
-  // Вкладки модулей — не пункты меню: активен их корень («Гостиница», «Каналы продаж», ADR-107)
+  // Вкладки модулей — не пункты меню: активен их корень («Гостиница», «Каналы продаж», ADR-112)
   const active = route?.startsWith('/hotel-settings')
     ? '/hotel-settings'
     : route?.startsWith('/channels')

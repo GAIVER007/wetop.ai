@@ -107,7 +107,7 @@ for (const theme of ['light', 'dark'] as const) {
     );
     await page.setViewportSize({ width: 1440, height: 1000 });
 
-    // модуль «Каналы продаж» (ADR-107): обзор и журнал событий
+    // модуль «Каналы продаж» (ADR-112): обзор и журнал событий
     await page.goto('/channels');
     await expect(main.getByTestId('outbox-pending')).toBeVisible();
     await shot(page, 'channels', theme);

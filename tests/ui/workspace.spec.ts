@@ -813,7 +813,7 @@ test('кнопки Channex отправляют команды один раз �
   page,
   request,
 }) => {
-  // «Настройка подключения» видна только вошедшему владельцу (ADR-107): роль читается из /auth/me
+  // «Настройка подключения» видна только вошедшему владельцу (ADR-112): роль читается из /auth/me
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -823,7 +823,7 @@ test('кнопки Channex отправляют команды один раз �
   await page.getByRole('button', { name: 'Проверить соединение' }).click();
   await expect(page.getByText('Соединение установлено')).toBeVisible();
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
-  // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-107)
+  // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
   for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
@@ -1228,7 +1228,7 @@ test('шахматка: несопоставленные ревизии кана
   const notice = page.getByTestId('review-callout');
   await expect(notice).toContainText('требует разбора');
   await notice.getByRole('link').click();
-  // «Разобрать» ведёт сразу к событиям с ошибкой (модуль «Каналы продаж», ADR-107)
+  // «Разобрать» ведёт сразу к событиям с ошибкой (модуль «Каналы продаж», ADR-112)
   await expect(page).toHaveURL(/\/channels\/events\?status=FAILED$/);
 });
 

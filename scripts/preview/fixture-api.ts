@@ -582,7 +582,7 @@ let rejectCreate = false;
 /** ADR-072: режим хранения данных гостей; по умолчанию — как в базе в Казахстане, чтобы прежние экраны не менялись */
 let piiStorage: 'real' | 'pseudonymized' = 'real';
 let failPath = '';
-/** Поля поверх ответов каналов (снимки состояний модуля «Каналы продаж», ADR-107) */
+/** Поля поверх ответов каналов (снимки состояний модуля «Каналы продаж», ADR-112) */
 let channelsOverrides: {
   connection?: Record<string, unknown>;
   webhook?: Record<string, unknown>;
@@ -2617,7 +2617,7 @@ createServer(async (req, res) => {
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
-      // состояния модуля «Каналы продаж» (ADR-107) для снимков и проверок: поля поверх ответов
+      // состояния модуля «Каналы продаж» (ADR-112) для снимков и проверок: поля поверх ответов
       // connection / webhook/status / outbox; сбрасывается reset или control без поля
       channelsOverrides =
         body['channelsOverrides'] && typeof body['channelsOverrides'] === 'object'

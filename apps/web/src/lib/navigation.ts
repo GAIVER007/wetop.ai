@@ -106,7 +106,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
     label: 'Продажи',
     items: [
       {
-        // Один модуль вместо «Менеджера каналов» и «Синхронизации каналов» (ADR-107)
+        // Один модуль вместо «Менеджера каналов» и «Синхронизации каналов» (ADR-112)
         href: '/channels',
         label: 'Каналы продаж',
         icon: 'channels',
@@ -251,7 +251,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
-    // Состав группы — поручение владельца 27.09 (ADR-107): Тарифы, Каналы продаж, ИИ-продавец, Сайт
+    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-продавец, Сайт
     items: [
       menuItem('/rates'),
       menuItem('/channels'),

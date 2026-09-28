@@ -94,7 +94,7 @@ function refreshChannelViews() {
     '/connections',
   ])
     revalidatePath(path);
-  // все вкладки модуля «Каналы продаж» разом (ADR-107): обзор, подключения, синхронизация, события
+  // все вкладки модуля «Каналы продаж» разом (ADR-112): обзор, подключения, синхронизация, события
   revalidatePath('/channels', 'layout');
   revalidatePath('/reservations/[number]', 'page');
   revalidatePath('/guests/[id]', 'page');

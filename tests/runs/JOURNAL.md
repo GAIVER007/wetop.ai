@@ -256,3 +256,6 @@
 | 29.09.2026 01:23 | typecheck | ✅ без ошибок | 30 с | fb7f67f | [лог](logs/2026-09-28T20-23-18Z-typecheck-eb9d.log) |  |
 | 29.09.2026 01:23 | lint | ✅ без ошибок | 34 с | fb7f67f | [лог](logs/2026-09-28T20-23-49Z-lint-b57d.log) |  |
 | 29.09.2026 01:24 | unit | ✅ 2199 из 2202, пропущено 3 | 1 мин 56 с | fb7f67f | [лог](logs/2026-09-28T20-24-24Z-unit-49b6.log) |  |
+| 29.09.2026 01:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 36 мин 50 с | fb7f67f | [лог](logs/2026-09-28T20-26-26Z-e2e-a156.log) |  |
+| 29.09.2026 02:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/record-tabs.spec.ts) | ❌ код выхода 1 | 2 мин 8 с | fd9b479 | [лог](logs/2026-09-28T21-05-37Z-e2e-a0c9.log) | (ошибка вне тестов) |
+| 29.09.2026 02:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/record-tabs.spec.ts) | ❌ упало 1 из 10 | 1 мин 30 с | fd9b479 | [лог](logs/2026-09-28T21-08-37Z-e2e-e281.log) | ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони |

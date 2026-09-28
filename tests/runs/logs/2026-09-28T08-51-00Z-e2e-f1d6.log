@@ -1,0 +1,132 @@
+# Сквозные (e2e) · 28.09.2026 13:51 Алматы · vm
+# коммит 1b187fa (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/property-settings-set2-set3.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/property-settings-set2-set3.spec.ts:31:1 › «Проживание»: время в 24 часах, ошибка у поля, «9:00» сохраняется как 09:00 (4.9s)
+  ✓  2 tests/ui/property-settings-set2-set3.spec.ts:59:1 › «Услуги»: активные по умолчанию, отбор по группе и статусу, коды не видны (2.9s)
+  ✘  3 tests/ui/property-settings-set2-set3.spec.ts:84:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте (6.6s)
+  ✓  4 tests/ui/property-settings-set2-set3.spec.ts:127:1 › «только чтение»: каталог виден, добавить и править нельзя (3.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="hotel-sett...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <HotelSettingsPage>
+[WebServer]         <SettingsSave>
+[WebServer]           ...
+[WebServer]             <Page>
+[WebServer]               <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                 <header>
+[WebServer]                 <nav>
+[WebServer]                 <Suspense fallback={<section>}>
+[WebServer]                   <p>
+[WebServer]                   <ServicesCatalog services={[...]} currency="KZT" editable={false}>
+[WebServer]                     <section className="settings-c..." aria-label="Каталог услуг">
+[WebServer]                       <div className="settings-t...">
+[WebServer]                         <Field label="Найти услугу">
+[WebServer]                           <label className="field">
+[WebServer]                             <Input type="search" placeholder="Название и..." value="" onChange={function onChange}>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 placeholder="Название или группа"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                   ...
+[WebServer]  
+  ✓  5 tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: light (11.9s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="hotel-sett...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <HotelSettingsPage>
+[WebServer]         <SettingsSave>
+[WebServer]           ...
+[WebServer]             <Page>
+[WebServer]               <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                 <header>
+[WebServer]                 <nav>
+[WebServer]                 <Suspense fallback={<section>}>
+[WebServer]                   <p>
+[WebServer]                   <ServicesCatalog services={[...]} currency="KZT" editable={false}>
+[WebServer]                     <section className="settings-c..." aria-label="Каталог услуг">
+[WebServer]                       <div className="settings-t...">
+[WebServer]                         <Field label="Найти услугу">
+[WebServer]                           <label className="field">
+[WebServer]                             <Input type="search" placeholder="Название и..." value="" onChange={function onChange}>
+[WebServer]                               <input
+[WebServer]                                 className="inp"
+[WebServer]                                 type="search"
+[WebServer]                                 placeholder="Название или группа"
+[WebServer]                                 value=""
+[WebServer]                                 onChange={function onChange}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]                   ...
+[WebServer]  
+  ✓  6 tests/ui/property-settings-set2-set3.spec.ts:141:3 › снимки SET2/SET3 и доступность: dark (11.1s)
+
+
+  1) tests/ui/property-settings-set2-set3.spec.ts:84:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте 
+
+    TypeError: forCharge.map is not a function
+
+      121 |   // в счёте гостя услугу из архива не выбрать: выбор берёт только активные
+      122 |   const forCharge = (await (await request.get(`${API}/finance/services`)).json()) as Array<{ code: string }>;
+    > 123 |   expect(forCharge.map((s) => s.code)).not.toContain('WATER');
+          |                    ^
+      124 |   expect(forCharge[0]?.code).toBe('LAUNDRY');
+      125 | });
+      126 |
+        at /home/user/wetop.ai/tests/ui/property-settings-set2-set3.spec.ts:123:20
+
+    Error Context: test-results/property-settings-set2-set-d893d-ет-услугу-из-выбора-в-счёте/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-set2-set-d893d-ет-услугу-из-выбора-в-счёте/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-set2-set-d893d-ет-услугу-из-выбора-в-счёте/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/property-settings-set2-set3.spec.ts:84:1 › новая услуга и правка — панелью; архив убирает услугу из выбора в счёте 
+  5 passed (48.1s)
+
+# код выхода 1 · 49 с

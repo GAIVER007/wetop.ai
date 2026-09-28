@@ -3912,3 +3912,5 @@
 | 29.09.2026 01:57 | typecheck | ✅ без ошибок | 29 с | 4750694 | [лог](logs/2026-09-28T20-57-59Z-typecheck-14b2.log) |  |
 | 29.09.2026 01:58 | lint | ✅ без ошибок | 16 с | 4750694 | [лог](logs/2026-09-28T20-58-29Z-lint-8b9c.log) |  |
 | 29.09.2026 01:58 | unit | ✅ 2246 из 2249, пропущено 3 | 1 мин 15 с | 4750694 | [лог](logs/2026-09-28T20-58-50Z-unit-202c.log) | G8 на main 4bc16b33 |
+| 29.09.2026 02:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ❌ упало 19 из 104 | 14 мин 41 с | 4750694 | [лог](logs/2026-09-28T21-00-13Z-e2e-39df.log) | G8 на main 4bc16b33 (+ спек R3 броней) |
+| 29.09.2026 02:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2-r3.spec.ts tests/ui/guests-design.spec.ts -g R3: щелчок\|G3) | ✅ 2 из 2 | 23 с | 9b8afb4 | [лог](logs/2026-09-28T21-15-57Z-e2e-0889.log) | повтор на чистом кэше .next-ui: панели брони и гостя |

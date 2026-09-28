@@ -3470,3 +3470,5 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 13:41 | e2e (частично: --workers=1 tests/e2e/inventory.spec.ts tests/e2e/check-in-out.spec.ts) | ✅ 4 из 4 | 25 с | 1b187fa | [лог](logs/2026-09-28T08-41-59Z-e2e-fdfd.log) | разбор 104/92: свежий стенд на main 1b187fa |
+| 28.09.2026 13:45 | e2e | ✅ 25 из 25 | 1 мин 3 с | 1b187fa | [лог](logs/2026-09-28T08-45-34Z-e2e-5057.log) | разбор 104/92: полный живой набор на main 1b187fa, свежий стенд |

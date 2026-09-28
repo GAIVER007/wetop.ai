@@ -1,0 +1,23 @@
+# Сквозные (e2e) · 28.09.2026 13:41 Алматы · vm
+# коммит 1b187fa (claude/magical-bohr-uxmglf)
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' 'tests/e2e/inventory.spec.ts' 'tests/e2e/check-in-out.spec.ts'
+[pms_test] миграций применено 0 из 32; данные от 2026-09-28T08:41:20.134Z (сид)
+
+Running 4 tests using 1 worker
+
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (77ms)
+[WebServer] (node:1491) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 [isolated] › tests/e2e/check-in-out.spec.ts:20:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (10.2s)
+  ✓  3 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (2.5s)
+  ✓  4 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (791ms)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 219)
+  свежих, моложе 15 мин, оставлено: 1 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+  4 passed (23.4s)
+
+# код выхода 0 · 25 с

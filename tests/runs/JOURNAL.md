@@ -3470,3 +3470,6 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 13:40 | unit (частично: packages/domain/src/dashboard/metrics.test.ts) | ❌ упало 7 из 16 | 2 с | 1b187fa +1 | [лог](logs/2026-09-28T08-40-26Z-unit-df30.log) | AN2 red: Q-209 bookings by Reservation, category free/blocked/unassigned |
+| 28.09.2026 13:41 | unit (частично: apps/api/src/dashboard/) | ❌ упало 1 из 9 | 3 с | 1b187fa +4 | [лог](logs/2026-09-28T08-41-21Z-unit-ed43.log) | AN2 red: stays carry reservation id and status (Q-209) |
+| 28.09.2026 13:45 | unit (частично: packages/domain/src/dashboard/ apps/api/src/dashboard/) | ✅ 29 из 29 | 3 с | 1b187fa +6 | [лог](logs/2026-09-28T08-45-18Z-unit-a1d6.log) | AN2 green: Q-209 bookings by Reservation, category free/blocked/unassigned |

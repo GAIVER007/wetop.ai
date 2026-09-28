@@ -115,14 +115,18 @@ export class PrismaDashboardRepository implements DashboardRepository {
         adults: true,
         children: true,
         price: true,
+        reservationId: true,
         accommodationType: { select: { code: true } },
-        reservation: { select: { source: true, channel: true } },
+        reservation: { select: { source: true, channel: true, status: true } },
       },
     });
     return rows.map((r) => ({
       arrivalDate: r.arrivalDate.toISOString().slice(0, 10),
       departureDate: r.departureDate.toISOString().slice(0, 10),
       status: r.status,
+      // Q-209: бронь — это Reservation; статус брони решает, отменена она или нет
+      reservationId: r.reservationId,
+      reservationStatus: r.reservation.status,
       adults: r.adults,
       children: r.children,
       priceMinor: r.price,

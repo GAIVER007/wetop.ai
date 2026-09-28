@@ -124,3 +124,47 @@ describe('аналитика: тип категории, без ячейки п�
     expect(findMany.mock.calls[0]![0].select).toMatchObject({ serviceDate: true });
   });
 });
+
+/** Q-209: бронь — это Reservation; проживание несёт её id и статус, чтобы «Аналитика» считала брони, а не места */
+describe('аналитика: проживание знает свою бронь', () => {
+  afterEach(() => forgetPropertyRef());
+
+  it('id и статус брони приходят вместе с проживанием', async () => {
+    const findMany = vi.fn().mockResolvedValue([
+      {
+        arrivalDate: new Date('2026-10-10T00:00:00Z'),
+        departureDate: new Date('2026-10-12T00:00:00Z'),
+        status: 'CANCELLED',
+        adults: 1,
+        children: 0,
+        price: 1000n,
+        reservationId: 'res-1',
+        accommodationType: { code: 'M' },
+        reservation: { source: 'DESK', channel: null, status: 'CONFIRMED' },
+      },
+    ]);
+    const prisma = {
+      db: {
+        property: {
+          findFirst: vi
+            .fn()
+            .mockResolvedValue({ id: 'p1', name: 'Luxx Aparts', organizationId: null }),
+        },
+        reservationItem: { findMany },
+      },
+    } as unknown as PrismaService;
+    const repo = new PrismaDashboardRepository(prisma, {} as ChessboardService);
+
+    const [stay] = await repo.stays('2026-10-01', '2026-10-31');
+
+    expect(stay).toMatchObject({
+      status: 'CANCELLED',
+      reservationId: 'res-1',
+      reservationStatus: 'CONFIRMED',
+    });
+    expect(findMany.mock.calls[0]![0].select).toMatchObject({
+      reservationId: true,
+      reservation: { select: { status: true } },
+    });
+  });
+});

@@ -185,8 +185,11 @@ test('настройки сайта: код с ключом, «Проверит�
   await page.goto('/website/settings');
   const card = page.getByRole('main').locator(`[data-testid="site-card"][data-key="${key}"]`);
   await expect(card).toBeVisible();
+  // WEB2: код счётчика — в окне установки
+  await card.getByTestId('site-install').click();
   await expect(card.getByTestId('site-card-snippet')).toContainText(`data-site="${key}"`);
   await expect(card.getByTestId('site-card-snippet')).toContainText('/a/pms.js');
+  await page.keyboard.press('Escape');
   await expect(card.getByTestId('site-card-today')).toHaveText('3');
   await card.getByTestId('site-check').click();
   await expect(card.getByTestId('site-check-result')).toContainText('Счётчик жив');

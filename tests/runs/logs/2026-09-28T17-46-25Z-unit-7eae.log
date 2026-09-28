@@ -1,0 +1,74 @@
+# Модульные (unit) · 28.09.2026 22:46 Алматы · vm
+# коммит f5fc9ac (claude/serene-fermat-om5559), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T17-46-25Z-unit-7eae.json' 'apps/web/src/lib/website.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/website.test.ts (30 tests | 1 failed) 19ms
+   ✓ домен-заглушка (14)
+     ✓ luxx-aparts.example — не адрес настоящего сайта 2ms
+     ✓ example.invalid — не адрес настоящего сайта 0ms
+     ✓ updated.example.invalid — не адрес настоящего сайта 0ms
+     ✓ example.com — не адрес настоящего сайта 0ms
+     ✓ www.example.org — не адрес настоящего сайта 0ms
+     ✓ example.net — не адрес настоящего сайта 0ms
+     ✓ luxxaparts.kz — адрес, с которого запросы доходят 0ms
+     ✓ luxx-aparts.kz — адрес, с которого запросы доходят 0ms
+     ✓ example.kz — адрес, с которого запросы доходят 0ms
+     ✓ myexample.com — адрес, с которого запросы доходят 0ms
+     ✓ examples.com — адрес, с которого запросы доходят 0ms
+     ✓ test-site.localhost — адрес, с которого запросы доходят 0ms
+     ✓ hotel.test — адрес, с которого запросы доходят 0ms
+     ✓ основной домен — первый настоящий, заглушки пропускаются 0ms
+   ✓ состояние сайта на обзоре (6)
+     ✓ заготовка с доменом-заглушкой не выглядит подключённым сайтом 1ms
+     ✓ событие сегодня — счётчик работает 1ms
+     ✓ событий ещё не было — ждём первое посещение, а не «работает» 0ms
+     ✓ последнее событие было не сегодня — так и сказано, с датой 0ms
+     ✓ пауза сайта останавливает и счётчик, и бронирование (так работает API) 0ms
+     ✓ бронирование: включено с тарифом, выключено, без тарифа 0ms
+   ❯ ввод домена (WEB2) (6)
+     ✓ «https://www.LuxxAparts.kz/rooms?x=1» — это luxxaparts.kz 0ms
+     ✓ «  luxxaparts.kz  » — это luxxaparts.kz 0ms
+     ✓ «luxxaparts.kz:443» — это luxxaparts.kz 0ms
+     ✓ «http://promo.luxxaparts.kz/» — это promo.luxxaparts.kz 0ms
+     ✓ «WWW.luxxaparts.kz.» — это luxxaparts.kz 0ms
+     × пустой ввод и не-адрес названы словами до запроса в API 8ms
+   ✓ список доменов после правки (WEB2) (4)
+     ✓ настоящий домен вытесняет заглушку — так и сказано 0ms
+     ✓ второй домен встаёт в конец, основной не меняется 0ms
+     ✓ домен, который уже есть, не дублируется 0ms
+     ✓ убрать можно любой, кроме последнего 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > ввод домена (WEB2) > пустой ввод и не-адрес названы словами до запроса в API
+AssertionError: expected { Object (error) } to deeply equal { Object (error) }
+
+- Expected
++ Received
+
+  {
+-   "error": "Впишите адрес сайта, например myhotel.kz",
++   "error": "Впишите адрес сайта, например luxxaparts.kz",
+  }
+
+ ❯ apps/web/src/lib/website.test.ts:152:37
+    150|
+    151|   it('пустой ввод и не-адрес названы словами до запроса в API', () => {
+    152|     expect(parseDomainInput('   ')).toEqual({
+       |                                     ^
+    153|       error: 'Впишите адрес сайта, например myhotel.kz',
+    154|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 29 passed (30)
+   Start at  17:46:28
+   Duration  1.07s (transform 83%, import 14%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T17-46-25Z-unit-7eae.json
+
+# код выхода 1 · 4 с

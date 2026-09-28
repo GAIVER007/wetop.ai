@@ -454,10 +454,8 @@ test('аналитика: период дольше года и отклонён
   await expect(page.getByRole('main').getByRole('alert')).not.toContainText('HTTP 400');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/website/booking');
-  await page
-    .locator('summary')
-    .getByText('Установка виджета бронирования', { exact: true })
-    .click();
+  // WEB3: код виджета — в окне «Установка виджета»
+  await page.getByTestId('booking-install').click();
   await expect(page.getByTestId('booking-demo-warning')).toBeVisible();
   await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
 });
@@ -653,7 +651,8 @@ test('ошибка буфера обмена видна, код остаётся
     });
   });
   await page.goto('/website/settings');
-  await page.locator('summary').getByText('Установка счётчика', { exact: true }).click();
+  // WEB2: код счётчика — в окне установки
+  await page.getByTestId('site-install').click();
   await page.getByRole('button', { name: 'Скопировать код' }).first().click();
   await expect(
     page.getByRole('main').getByRole('alert').filter({ hasText: 'Не удалось скопировать' }),
@@ -819,13 +818,17 @@ test('сайты: проверка, домены, пауза, виджет, уд
   // у учебного сайта домен-заглушка: состояние «адрес не указан», а не зелёный «счётчик включён» (ADR-117)
   await expect(page.getByTestId('site-card-status')).toHaveText('Адрес не указан');
   await expect(page.getByTestId('site-domain-missing')).toContainText('Основной домен не настроен');
-  await page.getByTestId('site-check').click();
-  await expect(page.getByTestId('site-check-result')).toBeVisible();
-  await page.getByTestId('hosts-input').fill('luxxaparts.kz');
-  await page.getByTestId('hosts-save').click();
-  await expect(page.getByTestId('hosts-result')).toContainText('luxxaparts.kz');
+  // WEB2: домен добавляется списком; адрес из браузера чистится, настоящий домен вытесняет заглушку
+  await page.getByTestId('domain-add').click();
+  await page.getByTestId('domain-input').fill('https://www.luxxaparts.kz/rooms');
+  await page.getByTestId('domain-save').click();
+  await expect(page.getByTestId('domain-result')).toContainText('luxxaparts.kz');
+  await expect(page.getByTestId('domain-result')).toContainText('example.invalid');
+  await expect(page.getByTestId('domain-row')).toHaveCount(1);
   await expect(page.getByTestId('site-card-status')).toHaveText('Ждём первое посещение');
   await expect(page.getByTestId('site-domain-missing')).toHaveCount(0);
+  await page.getByTestId('site-check').click();
+  await expect(page.getByTestId('site-check-result')).toBeVisible();
   // пауза — через подтверждение, и окно говорит, что остановятся и посещения, и брони
   await page.getByTestId('site-toggle').click();
   const confirm = page.getByRole('dialog');
@@ -848,7 +851,7 @@ test('сайты: проверка, домены, пауза, виджет, уд
   await page.getByRole('dialog').getByRole('button', { name: 'Удалить подключение' }).click();
   await expect(main.getByTestId('site-card')).toHaveCount(0);
   await main.getByTestId('site-name').fill('Новый тестовый сайт');
-  await main.getByTestId('site-hosts').fill('new.example.invalid');
+  await main.getByTestId('site-hosts').fill('https://new.example.invalid/');
   await main.getByTestId('site-create').click();
   await expect(main.getByTestId('site-card-name')).toHaveText('Новый тестовый сайт');
 });
@@ -1136,14 +1139,12 @@ test('фонд и категории открываются независимо
  */
 test('настройка сайта: у демо бронирования сказано, что бронь настоящая', async ({ page }) => {
   await page.goto('/website/booking');
-  await page
-    .locator('summary')
-    .getByText('Установка виджета бронирования', { exact: true })
-    .click();
+  // WEB3: код виджета — в окне «Установка виджета»
+  await page.getByTestId('booking-install').click();
   await expect(page.getByTestId('booking-demo-warning')).toBeVisible();
   await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
   // DESIGN.md §14: стрелок в конце текста ссылок нет
-  await expect(page.getByTestId('site-card')).not.toContainText('↗');
+  await expect(page.getByRole('main')).not.toContainText('↗');
 });
 
 /**

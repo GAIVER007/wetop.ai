@@ -27,8 +27,8 @@ const RESERVED_TLD = ['example', 'invalid'];
 const RESERVED_DOMAINS = ['example.com', 'example.net', 'example.org'];
 
 /**
- * Домен-заглушка. У боевого «Сайта Luxx Aparts» с 12.09 стоит `luxx-aparts.example` — адреса сайта не было (Q-111),
- * а форма требует хотя бы один домен. С заглушкой приёмник и виджет отбрасывают всё: сайт не подключён.
+ * Домен-заглушка. У боевого сайта первого партнёра с 12.09 до очистки 28.09 (ADR-118) стоял `*.example` — адреса
+ * сайта не было (Q-111), а форма требует хотя бы один домен. С заглушкой приёмник и виджет отбрасывают всё: сайт не подключён.
  */
 export function isPlaceholderHost(host: string): boolean {
   const h = host.trim().toLowerCase().replace(/\.$/, '');
@@ -113,7 +113,8 @@ export function siteState(
     ? {
         state: 'off',
         value: 'Выключено',
-        note: 'Виджет на сайте говорит, что бронирование недоступно',
+        // выключенный виджет ничего не объявляет: форма остаётся, на «Показать цены» гость получает отказ
+        note: 'Форма на сайте цены не покажет',
         tone: 'warn',
       }
     : !host
@@ -136,4 +137,61 @@ export function siteState(
       : { value: counter.value, tone: counter.tone };
 
   return { connected: !!host, host, overall, counter, booking };
+}
+
+/** Та же проверка, что у API (`parseHosts`): латиница, цифры, дефис, точки между частями */
+const HOST_RE = /^(?!-)[a-z0-9-]{1,63}(?<!-)(\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/;
+/** Пример адреса в подсказках и ошибках: стойка у каждого партнёра своя, домен конкретного отеля здесь не к месту */
+export const DOMAIN_EXAMPLE = 'myhotel.kz';
+
+/**
+ * Адрес сайта из того, что вставил человек (WEB2): схема, путь, порт, `www` и точка в конце снимаются —
+ * `https://www.myhotel.kz/rooms` → `myhotel.kz`. Неверный ввод — словами до запроса в API.
+ */
+export function parseDomainInput(raw: string): { host: string } | { error: string } {
+  const text = raw.trim();
+  if (!text) return { error: `Впишите адрес сайта, например ${DOMAIN_EXAMPLE}` };
+  const host = text
+    .toLowerCase()
+    .replace(/^[a-z][a-z0-9+.-]*:\/\//, '')
+    .replace(/[/?#].*$/, '')
+    .replace(/:\d+$/, '')
+    .replace(/\.$/, '')
+    .replace(/^www\./, '');
+  if (!HOST_RE.test(host))
+    return { error: `Не похоже на адрес сайта: впишите домен, например ${DOMAIN_EXAMPLE}` };
+  return { host };
+}
+
+/**
+ * Список доменов после «Добавить домен»: новый — в конец, основной не меняется. Настоящий домен вытесняет заглушки —
+ * так просила инструкция установки 12.09 («замените заглушку на настоящий адрес»); что убрано — в `dropped`.
+ */
+export function hostsAfterAdd(
+  current: readonly string[],
+  host: string,
+): { hosts: string[]; dropped: string[] } | { error: string } {
+  if (current.includes(host)) return { error: `${host} уже в списке` };
+  const dropped = isPlaceholderHost(host) ? [] : current.filter(isPlaceholderHost);
+  return { hosts: [...current.filter((h) => !dropped.includes(h)), host], dropped };
+}
+
+/** Список доменов после «Убрать»: API требует хотя бы один адрес — последний не убирается */
+export function hostsAfterRemove(
+  current: readonly string[],
+  host: string,
+): { hosts: string[] } | { error: string } {
+  if (!current.includes(host)) return { error: `${host} уже нет в списке` };
+  const hosts = current.filter((h) => h !== host);
+  if (!hosts.length) return { error: 'Сайту нужен хотя бы один адрес: сначала добавьте другой' };
+  return { hosts };
+}
+
+/** Адрес, который можно открыть в новой вкладке (демо виджета): только http и https, не относительный путь */
+export function isOpenableUrl(url: string): boolean {
+  try {
+    return ['https:', 'http:'].includes(new URL(url).protocol);
+  } catch {
+    return false;
+  }
 }

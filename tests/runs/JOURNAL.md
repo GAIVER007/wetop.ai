@@ -3463,3 +3463,8 @@
 | 28.09.2026 12:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 408 | 32 мин 36 с | 966ad96 | [лог](logs/2026-09-28T07-11-32Z-e2e-26e3.log) | C2: полный UI-набор, один поток |
 | 28.09.2026 12:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 422 | 33 мин 41 с | 0eeeb0e +14 | [лог](logs/2026-09-28T07-18-14Z-e2e-6863.log) | full UI suite after F2 |
 | 28.09.2026 12:52 | e2e | ✅ 25 из 25 | 1 мин 4 с | 4de5db4 | [лог](logs/2026-09-28T07-52-34Z-e2e-43a0.log) | live e2e after F2 |
+| 28.09.2026 13:12 | typecheck | ✅ без ошибок | 23 с | a05ab76 | [лог](logs/2026-09-28T08-12-33Z-typecheck-69a5.log) | integration 28.09: final HEAD |
+| 28.09.2026 13:12 | lint | ✅ без ошибок | 17 с | a05ab76 | [лог](logs/2026-09-28T08-12-57Z-lint-e99c.log) | integration 28.09: final HEAD |
+| 28.09.2026 13:13 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 16 с | a05ab76 | [лог](logs/2026-09-28T08-13-20Z-unit-28dc.log) | integration 28.09: final HEAD |
+| 28.09.2026 13:14 | integration | ❌ упало 2 из 124 | 41 с | a05ab76 | [лог](logs/2026-09-28T08-14-43Z-integration-39e4.log) | integration 28.09: final HEAD, fresh db:local reset |
+| 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |

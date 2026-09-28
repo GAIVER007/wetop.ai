@@ -1,4 +1,4 @@
-import type { ChannelConnection, OutboxSummary, WebhookStatus } from './api';
+import type { ChannelConnection, ChannelMappingRow, OutboxSummary, WebhookStatus } from './api';
 import type { PropertyClock } from './property-time';
 
 /**
@@ -43,7 +43,34 @@ export interface ChannexCard {
   issues: HealthIssue[];
   connection: ChannelConnection | null;
   webhook: WebhookStatus | null;
+  /** Сводка очереди в каналы: время последней отправки — для технических деталей страницы Channex */
+  outbox: OutboxSummary | null;
   lastExchangeAt: string | null;
+}
+
+/** Сколько категорий объекта сопоставлено с Channex (INT2, ADR-118): «N из M» и названия пропущенных */
+export interface CategoryCoverage {
+  mapped: number;
+  total: number;
+  missing: string[];
+}
+
+/**
+ * Категория сопоставлена, если хотя бы у одной строки сопоставления с её кодом есть категория в Channex; строка объекта
+ * (без кода категории) не считается. Все категории — из сводки фонда. Знаменатель у тарифов не считаем: тариф
+ * сопоставляется парой «категория × тариф», а тарифы без продаж сопоставлять не нужно.
+ */
+export function categoryCoverage(
+  mapping: ChannelMappingRow[],
+  categories: Array<{ code: string; name: string }>,
+): CategoryCoverage {
+  const mappedCodes = new Set(
+    mapping
+      .filter((m) => m.localAccommodationTypeCode && m.providerRoomTypeId)
+      .map((m) => m.localAccommodationTypeCode),
+  );
+  const missing = categories.filter((c) => !mappedCodes.has(c.code)).map((c) => c.name);
+  return { mapped: categories.length - missing.length, total: categories.length, missing };
 }
 
 export const STALL_MINUTES = 10;
@@ -66,6 +93,8 @@ export function channexCard(input: {
   connection: Settled<ChannelConnection>;
   webhook: Settled<WebhookStatus>;
   outbox: Settled<OutboxSummary>;
+  /** Сопоставление категорий; не загрузилось — остаётся прежнее правило «ни одной категории» */
+  coverage?: CategoryCoverage | null;
   now: Date;
 }): ChannexCard {
   const webhook = input.webhook.ok ? input.webhook.value : null;
@@ -73,12 +102,20 @@ export function channexCard(input: {
   if (!input.connection.ok) {
     // 403 — интеграция установки подключена к объекту другой организации (ADR-095): для этой — не подключено
     if (statusOf(input.connection.error) === 403)
-      return { health: 'off', issues: [], connection: null, webhook: null, lastExchangeAt: null };
+      return {
+        health: 'off',
+        issues: [],
+        connection: null,
+        webhook: null,
+        outbox: null,
+        lastExchangeAt: null,
+      };
     return {
       health: 'unknown',
       issues: [{ text: 'Не удалось проверить Channex. Повторите проверку.' }],
       connection: null,
       webhook,
+      outbox,
       lastExchangeAt: null,
     };
   }
@@ -88,7 +125,7 @@ export function channexCard(input: {
     connection.lastPullAt,
     outbox?.lastSentAt,
   );
-  const base = { connection, webhook, lastExchangeAt };
+  const base = { connection, webhook, outbox, lastExchangeAt };
   if (connection.state === 'NO_KEY') return { ...base, health: 'off', issues: [] };
 
   const problems: HealthIssue[] = [];
@@ -104,6 +141,18 @@ export function channexCard(input: {
   } else if (connection.mappedCategories === 0) {
     problems.push({
       text: 'Категории не сопоставлены',
+      href: `${CHANNELS}/mapping`,
+      action: 'Открыть сопоставление',
+    });
+  } else if (
+    input.coverage &&
+    input.coverage.mapped > 0 &&
+    input.coverage.mapped < input.coverage.total
+  ) {
+    // «ни одной» решает счётчик самого API: он и сопоставление читаются из одних строк
+    // «mapping incomplete» из ТЗ INT1 §14: непроданная в каналах категория — то, что владелец должен увидеть
+    problems.push({
+      text: `Не сопоставлено категорий: ${input.coverage.total - input.coverage.mapped} из ${input.coverage.total}`,
       href: `${CHANNELS}/mapping`,
       action: 'Открыть сопоставление',
     });
@@ -124,13 +173,13 @@ export function channexCard(input: {
     if (outbox.failed > 0)
       problems.push({
         text: `Ошибок отправки в каналы: ${outbox.failed}`,
-        href: `${CHANNELS}?queue=FAILED`,
+        href: `${CHANNELS}/sync?queue=FAILED`,
         action: 'Открыть очередь',
       });
     else if (outbox.pending > 0 && stalled >= STALL_MINUTES)
       problems.push({
         text: `Очередь в каналы стоит ${stalled} мин`,
-        href: `${CHANNELS}?queue=PENDING`,
+        href: `${CHANNELS}/sync?queue=PENDING`,
         action: 'Открыть очередь',
       });
   }

@@ -3470,3 +3470,10 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 13:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts) | ❌ упало 2 из 19 | 3 мин 22 с | 1b187fa +11 | [лог](logs/2026-09-28T08-49-12Z-e2e-c389.log) | INT2: integrations specs |
+| 28.09.2026 13:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts) | ❌ упало 1 из 19 | 1 мин 12 с | 1b187fa +11 | [лог](logs/2026-09-28T08-53-38Z-e2e-3617.log) | INT2: integrations specs, roles per ADR-107 |
+| 28.09.2026 13:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations.spec.ts tests/ui/integrations-channex.spec.ts) | ✅ 19 из 19 | 1 мин 7 с | 1b187fa +11 | [лог](logs/2026-09-28T08-55-12Z-e2e-8e4c.log) | INT2: rerun after Turbopack panic in next dev |
+| 28.09.2026 14:07 | unit | ✅ 2303 из 2306, пропущено 3 | 1 мин 48 с | 1b187fa +9 | [лог](logs/2026-09-28T09-07-39Z-unit-7a47.log) | INT2 |
+| 28.09.2026 14:09 | typecheck | ✅ без ошибок | 39 с | 1b187fa +12 | [лог](logs/2026-09-28T09-09-28Z-typecheck-a81c.log) | INT2 |
+| 28.09.2026 14:10 | lint | ✅ без ошибок | 25 с | 1b187fa +12 | [лог](logs/2026-09-28T09-10-08Z-lint-c3c9.log) | INT2 |
+| 28.09.2026 13:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/requests.spec.ts tests/ui/real-data.spec.ts tests/ui/w | ❌ упало 5 из 151 | 14 мин 20 с | 1b187fa +12 | [лог](logs/2026-09-28T08-56-41Z-e2e-d03d.log) | INT2: specs touching /connections |

@@ -1,0 +1,40 @@
+# Сквозные (e2e) · 28.09.2026 13:55 Алматы · vm
+# коммит 1b187fa (claude/integrations-screen-restructure-e51aay), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/integrations.spec.ts' 'tests/ui/integrations-channex.spec.ts'
+[WebServer] ⚠ Turbopack's filesystem cache has been deleted because we previously detected an internal error in Turbopack. Builds or page loads may be slower as a result.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 19 tests using 1 worker
+
+  ✓   1 tests/ui/integrations-channex.spec.ts:34:1 › работает: соединение и состояние без очереди, событий, ключей и лишних кнопок (4.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   2 tests/ui/integrations-channex.spec.ts:77:1 › устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад (2.3s)
+  ✓   3 tests/ui/integrations-channex.spec.ts:95:1 › webhook не отвечает: причина словами и тот же вывод на карточке (1.0s)
+  ✓   4 tests/ui/integrations-channex.spec.ts:104:1 › не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния (1.3s)
+  ✓   5 tests/ui/integrations-channex.spec.ts:115:1 › ключ не задан — тоже «не подключено» (893ms)
+  ✓   6 tests/ui/integrations-channex.spec.ts:121:1 › только чтение: состояние и проверка доступны, изменения — после оплаты (2.2s)
+  ✓   7 tests/ui/integrations-channex.spec.ts:133:1 › управляющий: без технических деталей и без ссылки на настройку владельца; сотруднику закрыто (2.7s)
+  ✓   8 tests/ui/integrations-channex.spec.ts:151:1 › телефон: страница без прокрутки вбок (952ms)
+  ✓   9 tests/ui/integrations-channex.spec.ts:167:3 › INT2, стоп-гейт: снимки для владельца, light (7.5s)
+  ✓  10 tests/ui/integrations-channex.spec.ts:167:3 › INT2, стоп-гейт: снимки для владельца, dark (7.7s)
+  ✓  11 tests/ui/integrations.spec.ts:33:1 › работает: одна карточка Channex, без базы, сайта и списка зелёных плашек (2.4s)
+  ✓  12 tests/ui/integrations.spec.ts:62:1 › требует внимания: причины словами и ссылки прямо к месту исправления (1.2s)
+  ✓  13 tests/ui/integrations.spec.ts:80:1 › интеграция у другой организации: «Подключённые» пусты, Channex — в «Доступных» без ложной кнопки (1.6s)
+  ✓  14 tests/ui/integrations.spec.ts:96:1 › ключ Channex не задан — не подключено, а не «работает» (889ms)
+  ✓  15 tests/ui/integrations.spec.ts:102:1 › только чтение: список и состояние видны, подключение — после оплаты (2.1s)
+  ✓  16 tests/ui/integrations.spec.ts:112:1 › управляющий видит состояние, но не технические детали; сотруднику смены раздел закрыт (ADR-107) (2.8s)
+  ✓  17 tests/ui/integrations.spec.ts:128:1 › телефон: карточка без прокрутки вбок (1.1s)
+  ✓  18 tests/ui/integrations.spec.ts:144:3 › INT1, стоп-гейт: снимки для владельца, light (7.3s)
+  ✓  19 tests/ui/integrations.spec.ts:144:3 › INT1, стоп-гейт: снимки для владельца, dark (7.1s)
+
+  19 passed (1.1m)
+
+# код выхода 0 · 1 мин 7 с

@@ -43,7 +43,7 @@ test('работает: одна карточка Channex, без базы, са
   await expect(card.getByTestId('integration-last-exchange')).toHaveText(/^[12] мин назад$/);
   await expect(card).toContainText('3 категории, 3 тарифа');
   await expect(card.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute('href', '/channels');
-  await expect(card.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', '/channels/connections#channel-setup');
+  await expect(card.getByRole('link', { name: 'Настройки' })).toHaveAttribute('href', '/connections/channex');
   // внутреннее и чужие модули сюда не попадают (§2, §13, §26 ТЗ)
   for (const text of ['Данные проекта', 'Supabase', 'База проекта', 'Сайт и бронирования', 'Бронирования'])
     await expect(main).not.toContainText(text);
@@ -69,7 +69,7 @@ test('требует внимания: причины словами и ссыл
   await expect(issues).toContainText('Ошибок отправки в каналы: 2');
   await expect(issues.getByRole('link', { name: 'Открыть очередь' })).toHaveAttribute(
     'href',
-    '/channels?queue=FAILED',
+    '/channels/sync?queue=FAILED',
   );
   // обмен два часа назад — словом дня и временем объекта, не минутами
   await expect(card.getByTestId('integration-last-exchange')).toHaveText(
@@ -109,14 +109,20 @@ test('только чтение: список и состояние видны, 
   );
 });
 
-test('сотрудник смены технических деталей не видит', async ({ page }) => {
-  await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
+test('управляющий видит состояние, но не технические детали; сотруднику смены раздел закрыт (ADR-107)', async ({
+  page,
+}) => {
+  await control(page, { channex: 'ok' satisfies Mode, role: 'MANAGER' });
   await signIn(page);
   await page.goto('/connections');
   const card = page.getByRole('main').getByTestId('integration-channex');
   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
   await expect(card.getByTestId('integration-tech')).toHaveCount(0);
   await expect(card).not.toContainText('ui-property');
+  await control(page, { channex: 'ok' satisfies Mode, role: 'STAFF' });
+  await page.goto('/connections');
+  await expect(page.getByRole('main').getByTestId('integration-channex')).toHaveCount(0);
+  await expect(page.getByRole('main')).toContainText('Нет доступа');
 });
 
 test('телефон: карточка без прокрутки вбок', async ({ page }) => {

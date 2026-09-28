@@ -3474,3 +3474,4 @@
 | 28.09.2026 13:41 | lint | ✅ без ошибок | 20 с | 1b187fa | [лог](logs/2026-09-28T08-41-38Z-lint-ae8d.log) | deploy proof: main 1b187fa5 |
 | 28.09.2026 13:41 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 21 с | 1b187fa | [лог](logs/2026-09-28T08-41-59Z-unit-32d6.log) | deploy proof: main 1b187fa5 |
 | 28.09.2026 13:43 | integration | ✅ 124 из 124 | 38 с | 1705a66 | [лог](logs/2026-09-28T08-43-33Z-integration-fc37.log) | deploy proof: main 1b187fa5 |
+| 28.09.2026 13:44 | e2e | ✅ 25 из 25 | 1 мин 31 с | b937df1 | [лог](logs/2026-09-28T08-44-47Z-e2e-a0ba.log) | deploy proof: main 1b187fa5 |

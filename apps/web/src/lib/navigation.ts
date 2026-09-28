@@ -126,13 +126,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/management/dashboard',
-        requires: 'reports',
-        label: 'Показатели за период',
-        icon: 'analytics',
-        description: 'Загрузка, выручка, ADR и RevPAR за период со сравнением.',
-      },
-      {
         // «Статистика» стала вкладкой «Загрузка» этого модуля (ТЗ «Аналитика v2», ADR-114)
         href: '/management/analytics',
         requires: 'reports',
@@ -321,7 +314,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'finance',
     label: 'Финансы и отчёты',
     icon: 'money',
-    // «Показатели за период» (A1, ADR-105) — временный экран до «Аналитики» (ADR-114): адрес живёт, в меню — «Аналитика»
+    // «Показатели за период» (A1, ADR-105) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114)
     items: [menuItem('/finance'), menuItem('/management/analytics')],
   },
   {

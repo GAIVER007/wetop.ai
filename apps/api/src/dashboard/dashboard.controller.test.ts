@@ -42,6 +42,8 @@ const repo: DashboardRepository = {
             arrivalDate: '2026-10-05',
             departureDate: '2026-10-06',
             status: 'CONFIRMED',
+            reservationId: 'res-1',
+            reservationStatus: 'CONFIRMED',
             adults: 1,
             children: 0,
             priceMinor: 300_000n,

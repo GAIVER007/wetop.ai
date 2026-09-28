@@ -21,49 +21,65 @@
   background: var(--primary-soft);
   color: var(--primary);
 }
-.settings-overview {
+/* «Настройки объекта» (SET1, ADR-115): блоки одной колонкой, поля по две в ряд */
+.settings-stack,
+.settings-form {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
   gap: var(--space-4);
-  align-items: start;
-}
-.settings-overview > .panel {
+  max-width: 880px;
   min-width: 0;
+}
+.settings-block {
   margin: 0;
+  min-width: 0;
   padding: var(--space-6);
+  gap: 0;
 }
-.settings-section-heading {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+.settings-block > h2 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-lg);
+}
+.settings-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
 }
-.settings-section-heading > div {
-  flex: 1;
-  min-width: 120px;
+.settings-fields .field {
+  margin: 0;
+  min-width: 0;
 }
-.settings-section-heading h2,
+.settings-fields__wide {
+  grid-column: 1 / -1;
+}
+.settings-fields--times {
+  grid-template-columns: repeat(2, minmax(0, 200px));
+  margin-bottom: var(--space-4);
+}
+.settings-block .settings-facts {
+  margin: 0 0 var(--space-4);
+}
+.settings-block .settings-facts > div:last-child {
+  border-bottom: 0;
+}
+.settings-block > :last-child {
+  margin-bottom: 0;
+}
+.settings-save-state {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.settings-save-state--saved {
+  color: var(--success-2);
+}
 .settings-service-help h2 {
   font-size: var(--text-xl);
   margin: 0;
   overflow-wrap: anywhere;
 }
-.settings-section-heading p,
 .settings-service-help p {
   margin: var(--space-1) 0 0;
   color: var(--muted);
   font-size: var(--text-sm);
-}
-.settings-mark {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  background: var(--primary-soft);
-  color: var(--primary);
-  border-radius: var(--radius-control);
 }
 .settings-facts {
   margin: 0 0 var(--space-6);
@@ -83,27 +99,12 @@
   font-weight: var(--weight-medium);
   overflow-wrap: anywhere;
 }
-.settings-times {
-  padding: var(--space-4);
-  border-radius: var(--radius);
-  background: var(--surface-muted);
-  margin-bottom: var(--space-4);
-}
-.settings-times .fact__value {
-  font-size: var(--text-3xl);
-  font-weight: var(--weight-semibold);
-  font-variant-numeric: tabular-nums;
-}
 .settings-note {
   color: var(--muted);
   font-size: var(--text-sm);
   margin: 0 0 var(--space-4);
   line-height: 1.6;
 }
-.settings-property .settings-note {
-  margin: 0;
-}
-.settings-stay,
 #channex-connection {
   scroll-margin-top: calc(var(--header-h) + var(--space-4));
 }
@@ -214,11 +215,6 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-@media (max-width: 960px) {
-  .settings-overview {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 @media (max-width: 600px) {
   .settings-tabs {
     gap: var(--space-1);
@@ -227,7 +223,7 @@
     min-height: 44px;
     padding: var(--space-2);
   }
-  .settings-overview > .panel,
+  .settings-block,
   .settings-connections .panel,
   .settings-site .site-settings-card {
     padding: var(--space-4);
@@ -235,6 +231,10 @@
   .settings-facts > div {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-1);
+  }
+  .settings-fields,
+  .settings-fields--times {
+    grid-template-columns: minmax(0, 1fr);
   }
   .settings-toolbar {
     gap: var(--space-2);

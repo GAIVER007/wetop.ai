@@ -1,4 +1,4 @@
-/* Каталог фонда: только семантические токены DESIGN.md, без влияния на соседние экраны. */
+/* Каталог фонда (ADR-108, I1): только семантические токены DESIGN.md, без влияния на соседние экраны. */
 .inventory-summary {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -27,87 +27,6 @@
   font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
 }
-.inventory-layout {
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  gap: var(--space-6);
-  align-items: start;
-}
-.inventory-categories {
-  padding: var(--space-4);
-  background: var(--glass-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-.inventory-categories-title,
-.inventory-group-heading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-.inventory-categories-title h2,
-.inventory-group-heading h2 {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-base);
-}
-.inventory-categories-title > span,
-.inventory-group-heading > span {
-  color: var(--text-2);
-  font-size: var(--text-sm);
-  font-variant-numeric: tabular-nums;
-}
-.inventory-category-buttons {
-  display: grid;
-  gap: var(--space-1);
-}
-.inventory-category {
-  display: grid;
-  grid-template-columns: 16px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  min-height: 44px;
-  padding: var(--space-2);
-  border: 1px solid transparent;
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--text-2);
-  font: inherit;
-  font-size: var(--text-sm);
-  line-height: var(--leading-base);
-  text-align: left;
-  cursor: pointer;
-}
-.inventory-category > svg {
-  width: 16px;
-  height: 16px;
-}
-.inventory-category b {
-  font-weight: var(--weight-medium);
-  font-variant-numeric: tabular-nums;
-}
-.inventory-category:hover {
-  background: var(--row-hover);
-}
-.inventory-category.is-selected {
-  color: var(--primary);
-  background: var(--primary-soft);
-  border-color: var(--primary);
-}
-.inventory-help {
-  color: var(--text-2);
-  font-size: var(--text-xs);
-  line-height: var(--leading-relaxed);
-  margin: var(--space-4) 0 0;
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
-}
-.inventory-category-select {
-  display: none;
-}
 .inventory-content {
   min-width: 0;
 }
@@ -135,6 +54,10 @@
 .inventory-search .inp {
   padding-left: var(--space-10);
   width: 100%;
+}
+.inventory-category-filter {
+  flex-shrink: 0;
+  max-width: 280px;
 }
 .inventory-toolbar .seg {
   flex-shrink: 0;
@@ -193,7 +116,21 @@
   margin-bottom: var(--space-6);
 }
 .inventory-group-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin-bottom: var(--space-2);
+}
+.inventory-group-heading h2 {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-base);
+}
+.inventory-group-heading > span {
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
 }
 .inventory-cards {
   display: grid;
@@ -250,16 +187,45 @@
   margin-top: 0;
   overflow-wrap: anywhere;
 }
-.inventory-table td:first-child a {
+.inventory-card-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+/* Строка сама открывает карточку места — 88 кнопок «Редактировать» больше нет (ТЗ §12) */
+.inventory-row {
+  cursor: pointer;
+}
+.inventory-unit-link {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   min-height: 28px;
 }
-.inventory-table td:first-child a span {
+.inventory-unit-link span {
   font-size: var(--text-xs);
   color: var(--text-2);
+}
+.inventory-place,
+.inventory-state {
+  display: grid;
+  gap: var(--space-1);
+}
+.inventory-state-note {
+  color: var(--text-2);
+  font-size: var(--text-xs);
+  line-height: var(--leading-base);
+}
+.inventory-hk {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.inventory-actions {
+  text-align: right;
+  width: var(--space-12);
 }
 .inventory-table th,
 .inventory-table td {
@@ -269,10 +235,6 @@
   font-size: var(--text-sm);
 }
 @media (max-width: 1100px) {
-  .inventory-layout {
-    grid-template-columns: 208px minmax(0, 1fr);
-    gap: var(--space-4);
-  }
   .inventory-summary > div {
     padding: 0 var(--space-4);
   }
@@ -286,31 +248,16 @@
   .inventory-summary > div {
     border: 0;
   }
-  .inventory-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .inventory-category-buttons,
-  .inventory-help,
-  .inventory-categories-title {
-    display: none;
-  }
-  .inventory-category-select {
-    display: block;
-  }
-  .inventory-categories {
-    padding: 0;
-    border: 0;
-    background: transparent;
-  }
-  .inventory-category-select .inp {
-    width: 100%;
-  }
   .inventory-toolbar {
     flex-wrap: wrap;
     gap: var(--space-2);
   }
   .inventory-search {
     flex-basis: 100%;
+  }
+  .inventory-category-filter {
+    flex: 1;
+    max-width: none;
   }
   .inventory-kind button,
   .inventory-toolbar .segment-button {
@@ -325,7 +272,7 @@
   .inventory-card {
     padding: var(--space-4);
   }
-  .inventory-table td:first-child a {
+  .inventory-unit-link {
     min-height: 44px;
   }
 }

@@ -1,0 +1,121 @@
+# Интеграционные (integration) · 28.09.2026 02:08 Алматы · vm
+# коммит a0fa497 (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T21-08-15Z-integration-5fe2.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/reservations-import.test.ts (6 tests) 1057ms
+   ✓ importReservations (integration, DATABASE_URL required) (6)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 459ms
+(node:31545) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (5 tests) 468ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 374ms
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 290ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ каждая таблица схемы названа: арендаторская под RLS или осознанно без него 9ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 87ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 7ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 5ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 3ms
+   ❯ RLS: служебный доступ внутри запроса организации (1)
+     × withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 162ms
+ ✓ |integration| tests/integration/exely-reimport-rules.test.ts (3 tests) 536ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 307ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 767ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 494ms
+ ✓ |integration| tests/integration/finance-debts.test.ts (1 test) 298ms
+(node:31620) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/manual-reservation.test.ts (1 test) 499ms
+   ✓ manual reservation against the database (integration, rolled back) (1)
+     ✓ creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 468ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 234ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 270ms
+(node:31648) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 224ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 396ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 528ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 527ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 414ms
+(node:31684) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-capacity.test.ts (1 test) 501ms
+   ✓ category capacity across the places of one booking (integration, rolled back) (1)
+     ✓ refuses more places without a unit than the category has, counting all places of the booking together 469ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 295ms
+ ✓ |integration| tests/integration/price-calendar-import.test.ts (2 tests) 412ms
+   ✓ importPriceCalendar (integration, DATABASE_URL required) (2)
+     ✓ writes daily_rates and restrictions idempotently, sets the tariff currency from the calendar, all rolled back 309ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 281ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 206ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 208ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 243ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 356ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 355ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 881ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 577ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 218ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 192ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 254ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 210ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 182ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 200ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 719ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 60 сохранений в одной сессии — отказ 427ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 231ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 209ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 242ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 198ms
+ ✓ |integration| tests/integration/inventory-import.test.ts (1 test) 318ms
+(node:31950) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 591ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 439ms
+[Nest] 31961  - 09/27/2026, 9:08:45 PM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 211ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 255ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 186ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 553ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 411ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 133ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: служебный доступ внутри запроса организации > withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет
+PrismaClientKnownRequestError: 
+Invalid `prisma.property.findFirst()` invocation:
+
+
+User was denied access on the database `(not available)`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/auth/request-context.ts:41:41
+     39|  */
+     40| function runAwaited<T>(value: RequestActor, fn: () => Promise<T>): Pro…
+     41|   return storage.run(value, async () => await fn());
+       |                                         ^
+     42| }
+     43|
+ ❯ tests/integration/rls-isolation.test.ts:178:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 41 passed (42)
+      Tests  1 failed | 107 passed (108)
+   Start at  21:08:15
+   Duration  32.45s (tests 58%, import 35%, transform 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T21-08-15Z-integration-5fe2.json
+
+# код выхода 1 · 33 с

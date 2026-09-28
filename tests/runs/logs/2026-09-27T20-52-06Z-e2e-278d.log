@@ -1,0 +1,243 @@
+# Сквозные (e2e) · 28.09.2026 01:52 Алматы · vm
+# коммит a0fa497 (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/property-settings.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов (17.8s)
+  ✘  2 tests/ui/property-settings.spec.ts:61:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Exely (16.2s)
+  ✘  3 tests/ui/property-settings.spec.ts:76:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку (17.9s)
+  ✘  4 tests/ui/property-settings.spec.ts:126:1 › сотрудник и «только чтение» видят сведения без формы и без кнопки сохранения (18.7s)
+  ✘  5 tests/ui/property-settings.spec.ts:149:3 › снимки SET1 и доступность: light (17.1s)
+  ✘  6 tests/ui/property-settings.spec.ts:149:3 › снимки SET1 и доступность: dark (17.1s)
+
+
+  1) tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByRole('navigation', { name: 'Настройки объекта', exact: true }).getByRole('link')
+    Timeout: 15000ms
+    - Expected  - 5
+    + Received  + 1
+
+    - Array [
+    -   "Основное",
+    -   "Проживание",
+    -   "Услуги",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('navigation', { name: 'Настройки объекта', exact: true }).getByRole('link') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('navigation', { name: 'Настройки объекта', exact: true }).getByRole('link')
+        33 × locator resolved to 0 elements
+
+
+      33 |   await page.goto('/hotel-settings');
+      34 |   const tabs = main.getByRole('navigation', { name: 'Настройки объекта', exact: true });
+    > 35 |   await expect(tabs.getByRole('link')).toHaveText(['Основное', 'Проживание', 'Услуги']);
+         |                                        ^
+      36 |   for (const [tab, check] of [
+      37 |     ['Основное', 'stored-property'],
+      38 |     ['Проживание', 'stay-settings'],
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:35:40
+
+    Error Context: test-results/property-settings-один-заг-08692-и-без-второй-карточки-часов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-один-заг-08692-и-без-второй-карточки-часов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-один-заг-08692-и-без-второй-карточки-часов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/property-settings.spec.ts:61:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Exely 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/hotel-settings\/stay$/
+    Received string:  "http://127.0.0.1:3100/hotel-settings#stay-settings"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        5 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/hotel-settings/check-in"
+        28 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/hotel-settings#stay-settings"
+
+
+      62 |   const main = page.getByRole('main');
+      63 |   await page.goto('/hotel-settings/check-in');
+    > 64 |   await expect(page).toHaveURL(/\/hotel-settings\/stay$/);
+         |                      ^
+      65 |   await expect(main.getByTestId('stay-settings')).toContainText('14:00');
+      66 |   await page.goto('/hotel-settings/description');
+      67 |   await expect(page).toHaveURL(/\/hotel-settings$/);
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:64:22
+
+    Error Context: test-results/property-settings-старые-а-1768e--—-к-тарифам-без-кода-Exely/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-старые-а-1768e--—-к-тарифам-без-кода-Exely/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-старые-а-1768e--—-к-тарифам-без-кода-Exely/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/property-settings.spec.ts:76:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('main').locator('.page__actions').getByRole('button', { name: 'Сохранить изменения' })
+    Expected: disabled
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('main').locator('.page__actions').getByRole('button', { name: 'Сохранить изменения' }) with timeout 15000ms
+      - waiting for getByRole('main').locator('.page__actions').getByRole('button', { name: 'Сохранить изменения' })
+
+
+      83 |   const state = main.getByTestId('settings-save-state');
+      84 |   const form = main.getByTestId('hotel-settings-form');
+    > 85 |   await expect(save).toBeDisabled();
+         |                      ^
+      86 |   await expect(state).toHaveText('');
+      87 |   await expect(form.getByLabel('Название объекта')).toHaveValue('Luxx Aparts');
+      88 |   await expect(form.getByLabel('Валюта')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:85:22
+
+    Error Context: test-results/property-settings-владелец-49a31-нения»-«сохранено»-и-ошибку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-владелец-49a31-нения»-«сохранено»-и-ошибку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-владелец-49a31-нения»-«сохранено»-и-ошибку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/property-settings.spec.ts:126:1 › сотрудник и «только чтение» видят сведения без формы и без кнопки сохранения 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').locator('input')
+    Expected: 0
+    Received: 12
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').locator('input') with timeout 15000ms
+      - waiting for getByRole('main').locator('input')
+        34 × locator resolved to 12 elements
+           - unexpected value "12"
+
+
+      141 |     await expect(page.getByTestId('read-only-banner')).toBeVisible();
+      142 |     await expect(main.getByRole('button', { name: 'Сохранить изменения' })).toHaveCount(0);
+    > 143 |     await expect(main.locator('input')).toHaveCount(0);
+          |                                         ^
+      144 |   }
+      145 |   await expect(main.getByTestId('stay-settings')).toContainText('12:00');
+      146 | });
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:143:41
+
+    Error Context: test-results/property-settings-сотрудни-f0905-рмы-и-без-кнопки-сохранения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-сотрудни-f0905-рмы-и-без-кнопки-сохранения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-сотрудни-f0905-рмы-и-без-кнопки-сохранения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/property-settings.spec.ts:149:3 › снимки SET1 и доступность: light ───────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Настройки объекта"
+    Received: "Настройки гостиницы"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Настройки гостиницы</h1>
+           - unexpected value "Настройки гостиницы"
+
+
+      171 |     ] as const) {
+      172 |       await page.goto(route);
+    > 173 |       await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
+          |                                                             ^
+      174 |       await expect(main.locator('[data-testid$="loading"]')).toHaveCount(0);
+      175 |       const audit = await new AxeBuilder({ page })
+      176 |         .include('main')
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:173:61
+
+    Error Context: test-results/property-settings-снимки-SET1-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-снимки-SET1-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-снимки-SET1-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/property-settings.spec.ts:149:3 › снимки SET1 и доступность: dark ────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByRole('heading', { level: 1 })
+    Expected: "Настройки объекта"
+    Received: "Настройки гостиницы"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Настройки гостиницы</h1>
+           - unexpected value "Настройки гостиницы"
+
+
+      171 |     ] as const) {
+      172 |       await page.goto(route);
+    > 173 |       await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
+          |                                                             ^
+      174 |       await expect(main.locator('[data-testid$="loading"]')).toHaveCount(0);
+      175 |       const audit = await new AxeBuilder({ page })
+      176 |         .include('main')
+        at /home/user/wetop.ai/tests/ui/property-settings.spec.ts:173:61
+
+    Error Context: test-results/property-settings-снимки-SET1-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/property-settings-снимки-SET1-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/property-settings-снимки-SET1-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/property-settings.spec.ts:31:1 › один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов 
+    tests/ui/property-settings.spec.ts:61:1 › старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Exely 
+    tests/ui/property-settings.spec.ts:76:1 › владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку 
+    tests/ui/property-settings.spec.ts:126:1 › сотрудник и «только чтение» видят сведения без формы и без кнопки сохранения 
+    tests/ui/property-settings.spec.ts:149:3 › снимки SET1 и доступность: light ────────────────────
+    tests/ui/property-settings.spec.ts:149:3 › снимки SET1 и доступность: dark ─────────────────────
+
+# код выхода 1 · 2 мин 20 с

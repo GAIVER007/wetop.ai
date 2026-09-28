@@ -1,0 +1,51 @@
+# Модульные (unit) · 28.09.2026 12:03 Алматы · vm
+# коммит 0eeeb0e (claude/peaceful-shannon-7l2r5f), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T07-03-11Z-unit-2447.json' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (13 tests | 1 failed) 602ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (13)
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 59ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 24ms
+     ✓ ADR-107: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, выехавшие отдельно; неверный период → 400 22ms
+     × ADR-107 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 8ms
+     ✓ charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 51ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 15ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 8ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 14ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 38ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 14ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Exely; занятая койка — отказ без начисления 12ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 11ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > ADR-107 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/finance/finance.controller.test.ts:477:19
+    475|   it('ADR-107 F2: оплаты и возвраты за период — новыми первыми, отборы…
+    476|     const ops = (qs: string) => request(app.getHttpServer()).get(`/fin…
+    477|     await ops('').expect(400);
+       |                   ^
+    478|     await ops('?from=2026-10-31&to=2026-10-01').expect(400);
+    479|     await ops('?from=2026-10-01&to=2026-10-31&type=FOO').expect(400);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  07:03:14
+   Duration  3.59s (transform 50%, import 31%, tests 18%)
+
+JSON report written to /tmp/pms-test-2026-09-28T07-03-11Z-unit-2447.json
+
+# код выхода 1 · 6 с

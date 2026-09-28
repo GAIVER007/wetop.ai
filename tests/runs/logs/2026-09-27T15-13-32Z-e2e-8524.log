@@ -1,0 +1,136 @@
+# Сквозные (e2e) · 27.09.2026 20:13 Алматы · vm
+# коммит 7b4db94 (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 40
+# npx playwright test --workers=2 --reporter=list,json
+[WebServer] [Nest] 20151  - 09/27/2026, 3:13:43 PM   ERROR [ExceptionsHandler] Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+[WebServer]     at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]     at async TenantPool.checkout (/home/user/wetop.ai/packages/database/src/rls.ts:116:21)
+[WebServer]     at async run (/home/user/wetop.ai/packages/database/src/rls.ts:147:22)
+[WebServer]     at async PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+[WebServer]     at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]     at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]     at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+[WebServer]     at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+[WebServer]     at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 500
+[WebServer]     at g (.next/server/chunks/ssr/apps_web_src_lib_api_ts_04k3wxg._.js:1:1660)
+[WebServer]     at async j (.next/server/chunks/ssr/apps_web_src_app_inventory_12kl8xk._.js:1:1551) {
+[WebServer]   status: 500,
+[WebServer]   digest: 'API_500'
+[WebServer] }
+[WebServer] [Nest] 20151  - 09/27/2026, 3:13:43 PM   ERROR [ExceptionsHandler] Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+[WebServer]     at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]     at async TenantPool.checkout (/home/user/wetop.ai/packages/database/src/rls.ts:116:21)
+[WebServer]     at async run (/home/user/wetop.ai/packages/database/src/rls.ts:147:22)
+[WebServer]     at async PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+[WebServer]     at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]     at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]     at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+[WebServer]     at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+[WebServer]     at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] [Nest] 20151  - 09/27/2026, 3:13:43 PM   ERROR [ExceptionsHandler] Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+[WebServer]     at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]     at async TenantPool.checkout (/home/user/wetop.ai/packages/database/src/rls.ts:116:21)
+[WebServer]     at async run (/home/user/wetop.ai/packages/database/src/rls.ts:147:22)
+[WebServer]     at async PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+[WebServer]     at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]     at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]     at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+[WebServer]     at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+[WebServer]     at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+[WebServer] [Nest] 20151  - 09/27/2026, 3:13:43 PM   ERROR [ExceptionsHandler] Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+[WebServer]     at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[WebServer]     at async TenantPool.checkout (/home/user/wetop.ai/packages/database/src/rls.ts:116:21)
+[WebServer]     at async run (/home/user/wetop.ai/packages/database/src/rls.ts:147:22)
+[WebServer]     at async PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+[WebServer]     at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+[WebServer]     at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+[WebServer]     at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+[WebServer]     at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+[WebServer]     at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22) {
+[WebServer]   clientVersion: '7.10.0'
+[WebServer] }
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+
+   at ../tools/test-schema.ts:56
+
+  54 |   const log = opts.log ?? (() => undefined);
+  55 |   const pool = new pg.Pool({ connectionString: connectionString(), max: 1 });
+> 56 |   const client = await pool.connect();
+     |                  ^
+  57 |   try {
+  58 |     const existed =
+  59 |       (await client.query('SELECT 1 FROM pg_namespace WHERE nspname = $1', [TEST_SCHEMA])).rowCount === 1;
+    at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+    at ensureTestSchema (/home/user/wetop.ai/tests/tools/test-schema.ts:56:18)
+    at globalSetup (/home/user/wetop.ai/tests/e2e-setup.ts:14:18)
+/home/user/wetop.ai/node_modules/pg-pool/index.js:45
+    Error.captureStackTrace(err)
+          ^
+
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+    at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+    at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+    at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+    at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+    at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+    at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22)
+    at async Object.singleLoader (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:113:26)
+    at async vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:150:14) {
+  clientVersion: '7.10.0'
+}
+
+Node.js v22.22.2
+[уборка e2e] не выполнена: Command failed: npx tsx /home/user/wetop.ai/scripts/reconciliation/src/cli-e2e-cleanup.ts
+/home/user/wetop.ai/node_modules/pg-pool/index.js:45
+    Error.captureStackTrace(err)
+          ^
+
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+    at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+    at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+    at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+    at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+    at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+    at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22)
+    at async Object.singleLoader (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:113:26)
+    at async vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:150:14) {
+  clientVersion: '7.10.0'
+}
+
+Node.js v22.22.2
+ — /home/user/wetop.ai/node_modules/pg-pool/index.js:45
+    Error.captureStackTrace(err)
+          ^
+
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+    at /home/user/wetop.ai/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async PrismaPgAdapter.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:645:22)
+    at async PrismaPgAdapter.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+    at async <anonymous> (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:200:28)
+    at async e.run (/home/user/wetop.ai/node_modules/@prisma/client-engine-runtime/src/interpreter/query-interpreter.ts:115:40)
+    at async e.execute (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/LocalExecutor.ts:81:12)
+    at async yr.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:510:22)
+    at async Object.singleLoader (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:113:26)
+    at async vn.request (/home/user/wetop.ai/node_modules/@prisma/client/src/runtime/RequestHandler.ts:150:14) {
+  clientVersion: '7.10.0'
+}
+
+Node.js v22.22.2; код 1
+
+
+# код выхода 1 · 14 с

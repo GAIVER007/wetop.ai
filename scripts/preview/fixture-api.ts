@@ -1,11 +1,13 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
-import {agentFixture,resetAgentFixture} from './fixture-agents';
+import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
   assertAllocationsMatch,
   buildDashboard,
+  DASHBOARD_FUNDS,
   previousPeriod,
+  type DashboardFund,
   type DashboardPeriod,
   housekeepingRefusal,
   DEFAULT_SELLER_PROFILE,
@@ -18,9 +20,31 @@ import {
   extensionDaysLeft,
   identityRole,
   parseExtensionChange,
-  INVITE_OWNER_ONLY_MESSAGE,
-  type ExtensionStatus,
+  INVITE_STAFF_ONLY_MESSAGE,
+  INVITE_MANAGER_OWNER_ONLY_MESSAGE,
+  INVITE_ROLE_MESSAGE,
+  MEMBER_MANAGER_REMOVES_STAFF_MESSAGE,
+  MEMBER_NOT_FOUND_MESSAGE,
+  MEMBER_OWNER_MESSAGE,
+  MEMBER_ROLE_MESSAGE,
+  MEMBER_ROLE_OWNER_ONLY_MESSAGE,
+  MEMBER_SELF_MESSAGE,
+  RATE_PLAN_CHANGE_MESSAGE,
+  RATE_PLAN_SOFT_MESSAGE,
+  accessDeniedMessage,
+  can,
+  canInvite,
+  canManageStaff,
+  canRemoveMember,
+  canSetRoleAtDesk,
+  mayAssignPlanWithoutRates,
+  parseInviteRole,
   parseHotelSettingsPatch,
+  type ExtensionStatus,
+  type InviteRole,
+  type MembershipRole,
+  countGuestNights,
+  summarizeGuestStays,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -107,13 +131,24 @@ const dates = (from: string, to: string) => {
   for (let d = from; d <= to && result.length < 366; d = add(d, 1)) result.push(d);
   return result;
 };
-const categorySeed = [
+const categorySeed: {
+  code: string;
+  name: string;
+  count: number;
+  prefix: string;
+  capacityAdults: number;
+  /** У созданных через POST: тип из формы и число тарифов (ТЗ «Категории v2», ADR-109) */
+  kind?: string;
+  ratePlans?: number;
+}[] = [
   { code: 'ROOM', name: 'Двухместный номер', count: 16, prefix: 'R', capacityAdults: 2 },
   { code: 'MALE', name: 'Мужской общий номер', count: 36, prefix: 'M', capacityAdults: 1 },
   { code: 'FEMALE', name: 'Женский общий номер', count: 36, prefix: 'F', capacityAdults: 1 },
 ];
 const categories = structuredClone(categorySeed);
-const units: InventoryUnit[] = categories.flatMap((c) =>
+/** Структура места; живое состояние (уборка, блокировка) подставляется на каждый запрос */
+type SeedUnit = Omit<InventoryUnit, 'housekeepingStatus' | 'active' | 'block'>;
+const units: SeedUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
     exelyRoomNumber: null,
@@ -123,9 +158,29 @@ const units: InventoryUnit[] = categories.flatMap((c) =>
     roomNumber: `${c.prefix}${Math.floor(i / 6) + 1}`,
     roomCapacity: c.code === 'ROOM' ? 2 : 6,
     isDorm: c.code !== 'ROOM',
+    buildingName: 'Основной',
+    floorName: `${Math.floor(i / 24) + 1}`,
   })),
 );
-const plans = [{ code: 'BASE', name: 'Стандартный', currency: 'KZT', active: true }];
+const plans = [
+  {
+    code: 'BASE',
+    name: 'Стандартный',
+    currency: 'KZT',
+    active: true,
+    cancellationPenalty: 'FIRST_NIGHT' as const,
+  },
+];
+/** Тариф без штрафа за отмену — `POST /__test/control { softPlan: true }`, сбрасывается `reset` (Q-201) */
+const softPlanSeed = {
+  code: 'FLEX',
+  name: 'Гибкий без штрафа',
+  currency: 'KZT',
+  active: true,
+  cancellationPenalty: 'NONE' as const,
+};
+let softPlan = false;
+const ratePlanList = () => (softPlan ? [...plans, softPlanSeed] : plans);
 const guestSeed: GuestCard = {
   id: 'ui-guest',
   firstName: 'Тестовый',
@@ -156,6 +211,11 @@ const guestSeed: GuestCard = {
       departureDate: add(today, 3),
       status: 'CONFIRMED',
       unitCode: 'R01',
+      source: 'PHONE',
+      channel: null,
+      currency: 'KZT',
+      chargedMinor: null,
+      balanceMinor: null,
     },
   ],
 };
@@ -360,6 +420,18 @@ const DESIGN_STAYS: Array<{
     to: 1,
     price: '1600000',
   },
+  // оплачено полностью (ТЗ «Шахматка v2» §22): 800 000 тиын — ровно предоплата finance(), остаток 0
+  {
+    n: 'DSG-PAID',
+    label: 'Гость Оплаченный',
+    status: 'CONFIRMED',
+    source: 'OTA',
+    channel: 'Agoda',
+    unit: 'R05',
+    from: 1,
+    to: 3,
+    price: '800000',
+  },
   // проживание без ячейки — строка «Без ячейки» над сеткой (Д3)
   {
     n: 'DSG-UNAS',
@@ -548,6 +620,87 @@ function seedDesign() {
   ];
 }
 /**
+ * История для «Аналитики» (ADR-114, срез AN1): вымышленные проживания (ADR-010) с начала позапрошлого
+ * месяца до конца текущего, чтобы у «Обзора» была база сравнения. Номера в этом месяце загружены плотнее,
+ * чем в прошлом, койки — слабее: на одном экране видны и рост, и падение. Детерминированно; только по флагу
+ * `analyticsHistory` — по умолчанию стенд прежний.
+ */
+let analyticsHistory = false;
+function seedAnalyticsHistory() {
+  analyticsHistory = true;
+  const monthStart = (shift: number) => {
+    const [y, m] = today.split('-').map(Number) as [number, number];
+    return new Date(Date.UTC(y, m - 1 + shift, 1)).toISOString().slice(0, 10);
+  };
+  const start = monthStart(-2);
+  const end = monthStart(1);
+  let seed = 7;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  // ячейки броней стенда около сегодняшнего дня — история на них кончается раньше
+  const busy = new Set(['R01', 'R02', 'R03', 'R04', 'R05', 'M01', 'M02', 'F01', 'F03']);
+  const sources: Array<[string, string | null]> = [
+    ['OTA', 'Booking.com'],
+    ['DESK', null],
+    ['OTA', 'Booking.com'],
+    ['WEBSITE', null],
+    ['OTA', 'Agoda'],
+    ['WHATSAPP', null],
+    ['PHONE', null],
+  ];
+  const labels = ['Гость Учебный', 'Клиент Пример', 'Посетитель Демо'];
+  let n = 0;
+  for (const u of units) {
+    const room = u.kind === 'ROOM';
+    let d = add(start, Math.floor(rnd() * 3));
+    while (d < end) {
+      const shift = d < monthStart(-1) ? 0 : d < monthStart(0) ? 1 : 2;
+      const fill = room ? [0.5, 0.6, 0.8][shift]! : [0.75, 0.7, 0.55][shift]!;
+      const nights = 1 + Math.floor(rnd() * 4);
+      const dep = add(d, nights);
+      const roll = rnd();
+      const free = busy.has(u.code) && dep > add(today, -3);
+      const stay = roll < fill && !free;
+      const lost = !stay && !free && roll > 0.93;
+      if (stay || lost) {
+        n += 1;
+        const r = cardSeed();
+        const [source, channel] = sources[n % sources.length]!;
+        const status = stay
+          ? dep <= today
+            ? 'CHECKED_OUT'
+            : d <= today
+              ? 'CHECKED_IN'
+              : 'CONFIRMED'
+          : d < today && n % 4 === 0
+            ? 'NO_SHOW'
+            : 'CANCELLED';
+        const price = (room ? 800000n : 400000n) * BigInt(nights);
+        r.confirmationNumber = `20260900-HIST${String(n).padStart(4, '0')}`;
+        r.source = source;
+        r.channel = channel;
+        r.status = status;
+        r.arrivalDate = d;
+        r.departureDate = dep;
+        r.totalAmountMinor = price.toString();
+        r.notes = null;
+        r.primaryGuest = { id: 'ui-guest', label: labels[n % 3]!, citizenship: 'KAZ', phone: null };
+        const item = r.items[0]!;
+        item.id = `hist-item-${n}`;
+        item.accommodationTypeCode = u.accommodationTypeCode;
+        item.accommodationTypeName = u.accommodationTypeName;
+        item.arrivalDate = d;
+        item.departureDate = dep;
+        item.status = status;
+        item.priceMinor = price.toString();
+        item.unitCode = stay ? u.code : null;
+        item.guests = [{ label: labels[n % 3]!, isPrimary: true }];
+        extraCards.set(r.confirmationNumber, r);
+      }
+      d = dep;
+    }
+  }
+}
+/**
  * Стенд без единой брони, но с фондом, категориями и ценами — это состояние боевой базы после
  * очистки 19.09.2026 (ADR-052) и до первой живой смены. Экраны обязаны в нём открываться и
  * говорить, что броней нет, а не выглядеть сломанными.
@@ -570,27 +723,58 @@ function getGuest(id: string) {
     ...g,
     stays: allCards()
       .filter((r) => r.primaryGuest?.id === id)
-      .flatMap((r) =>
-        r.items.map((it) => ({
-          confirmationNumber: r.confirmationNumber,
-          accommodationTypeName: it.accommodationTypeName,
-          arrivalDate: it.arrivalDate,
-          departureDate: it.departureDate,
-          status: it.status,
-          unitCode: it.unitCode,
-        })),
-      ),
+      .flatMap((r) => {
+        // счёт проживания — тот же, что показывает карточка брони; у отменённых и незаездов
+        // фикстура счёта не строит (как в предпросмотре): их суммы — null
+        const folios = finance(r).folios;
+        return r.items.map((it) => {
+          const folio =
+            it.status === 'CANCELLED' || it.status === 'NO_SHOW'
+              ? undefined
+              : folios.find((f) => f.reservationItemId === it.id);
+          return {
+            confirmationNumber: r.confirmationNumber,
+            accommodationTypeName: it.accommodationTypeName,
+            arrivalDate: it.arrivalDate,
+            departureDate: it.departureDate,
+            status: it.status,
+            unitCode: it.unitCode,
+            source: r.source,
+            channel: r.channel ?? null,
+            currency: r.currency,
+            chargedMinor: folio?.chargedMinor ?? null,
+            balanceMinor: folio?.balanceMinor ?? null,
+          };
+        });
+      }),
   };
 }
 let rejectCreate = false;
 /** ADR-072: режим хранения данных гостей; по умолчанию — как в базе в Казахстане, чтобы прежние экраны не менялись */
 let piiStorage: 'real' | 'pseudonymized' = 'real';
 let failPath = '';
+/** Поля поверх ответов каналов (снимки состояний модуля «Каналы продаж», ADR-112) */
+let channelsOverrides: {
+  connection?: Record<string, unknown>;
+  webhook?: Record<string, unknown>;
+  outbox?: Record<string, unknown>;
+} = {};
 /** Задержка ответа по одному пути: проверка состояния загрузки (B5); 0 — без задержки */
 let delayPath = '';
 let delayMs = 0;
 /** Код ответа для failPath: 503 (сбой) по умолчанию, 400/404 — отклонённый запрос */
 let failStatus = 503;
+/**
+ * Состояние Channex для «Интеграций» (INT1, ADR-116): '' — прежний ответ; 'ok' — объект доступен, webhook включён и
+ * отвечает, обмен минуты назад; 'attention' — webhook не отвечает, ошибки отправки, обмен два часа назад;
+ * 'foreign' — интеграция установки у другой организации (403, ADR-095); 'no-key' — ключ не задан
+ */
+let channexMode: '' | 'ok' | 'attention' | 'foreign' | 'no-key' = '';
+const CHANNEX_FOREIGN = new Set([
+  '/channels/channex/connection',
+  '/channels/channex/webhook/status',
+  '/channels/channex/outbox',
+]);
 let emptyFixture = false;
 /** Несопоставленная с Channex категория: /rates/bulk сохраняет, но в очередь ничего не ставит */
 let ratesUnmapped = false;
@@ -1083,7 +1267,10 @@ function board(from: string, to: string): Chessboard {
         const it = r.items.find(
           (it) =>
             it.unitCode === u.code &&
-            !['CANCELLED', 'NO_SHOW', 'CHECKED_OUT'].includes(it.status) &&
+            // выехавшие занимают прошлые ночи, как в API; стенд по умолчанию их не рисует (прежние снимки)
+            !['CANCELLED', 'NO_SHOW', ...(analyticsHistory ? [] : ['CHECKED_OUT'])].includes(
+              it.status,
+            ) &&
             it.arrivalDate <= date &&
             it.departureDate > date,
         );
@@ -1171,19 +1358,28 @@ function board(from: string, to: string): Chessboard {
  * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
  * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
  */
-function dashboardPeriod(from: string, to: string): DashboardPeriod {
+function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
+  const unassignedByCategory: Record<string, number> = {};
+  for (const u of b.unassigned)
+    unassignedByCategory[u.categoryCode] = (unassignedByCategory[u.categoryCode] ?? 0) + 1;
   return buildDashboard({
     from,
     to,
-    categories: categories.map((c) => ({ code: c.code, name: c.name, units: c.count })),
+    // тип категории — по её единицам, как в API (Аналитика v2, тип фонда)
+    categories: categories.map((c) => ({
+      code: c.code,
+      name: c.name,
+      units: c.count,
+      kind: units.find((u) => u.accommodationTypeCode === c.code)?.kind ?? 'ROOM',
+    })),
     days: b.dates.map((date) => ({
       date,
       ...(b.summary[date] ?? { occupied: 0, free: 0, blocked: 0 }),
       byCategory: b.byCategory[date] ?? {},
     })),
-    unassigned: b.unassigned.length,
+    unassignedByCategory,
     stays: allCards().flatMap((r) =>
       r.items.map((it) => ({
         arrivalDate: it.arrivalDate,
@@ -1204,6 +1400,7 @@ function dashboardPeriod(from: string, to: string): DashboardPeriod {
           kind: 'ACCOMMODATION' as const,
           amountMinor: BigInt(it.priceMinor),
           categoryCode: it.accommodationTypeCode,
+          serviceDate: it.arrivalDate,
         })),
     ),
     payments:
@@ -1211,11 +1408,14 @@ function dashboardPeriod(from: string, to: string): DashboardPeriod {
         ? paymentLines.map((p) => ({ method: p.method, amountMinor: BigInt(p.amountMinor) }))
         : [],
     refundsMinor: 0n,
-  });
+  }, fund);
 }
-function dashboard(from: string, to: string) {
+function dashboard(from: string, to: string, fund: DashboardFund = 'all') {
   const prev = previousPeriod(from, to);
-  return { current: dashboardPeriod(from, to), previous: dashboardPeriod(prev.from, prev.to) };
+  return {
+    current: dashboardPeriod(from, to, fund),
+    previous: dashboardPeriod(prev.from, prev.to, fund),
+  };
 }
 /** Синтетические цены за ночь (срез 7.3): номер 8 000 ₸, койка 4 000 ₸ — как в карточке 20260913-TESTAA */
 const nightly = (categoryCode: string) => (categoryCode === 'ROOM' ? 800000n : 400000n);
@@ -1367,6 +1567,8 @@ const siteSeed: TrackedSite = {
   bookingRatePlan: { id: 'ui-rate', code: 'BASE', name: 'Стандартный' },
 };
 let site = structuredClone(siteSeed);
+/** Последнее событие счётчика — `POST /__test/control { siteLastEventAt }`: состояние «Работает» на обзоре сайта */
+let siteLastEventAt: string | null = null;
 function report(): SiteReport {
   return {
     site: { id: site.id, name: site.name },
@@ -1435,8 +1637,91 @@ const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 const uiSessions = new Map<string, UiUser>();
 // ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
-let uiRole: 'OWNER' | 'STAFF' = 'OWNER';
+let uiRole: MembershipRole = 'OWNER';
+/**
+ * Тариф брони у роли стенда — как в API: администратор пересчитывает только в тарифе брони (Q-200); брони без тарифа
+ * (из Exely) назначает тариф со штрафом не мягче «первых суток» (Q-201). `null` — можно.
+ */
+function planRefusal(current: string | null | undefined, requested: unknown): string | null {
+  if (can(uiRole, 'rates') || typeof requested !== 'string' || !requested) return null;
+  if (current) return requested !== current ? RATE_PLAN_CHANGE_MESSAGE : null;
+  const plan = ratePlanList().find((p) => p.code === requested);
+  return plan && !mayAssignPlanWithoutRates(plan.cancellationPenalty)
+    ? RATE_PLAN_SOFT_MESSAGE
+    : null;
+}
+/** Бронь без тарифа получает выбранный тариф — как в API: дальше пересчёт в нём (Q-201) */
+function recordPlan(
+  item: { ratePlanCode?: string | null; ratePlanName?: string | null },
+  requested: unknown,
+) {
+  const plan = ratePlanList().find((p) => p.code === requested);
+  if (plan && (!item.ratePlanCode || can(uiRole, 'rates')))
+    Object.assign(item, { ratePlanCode: plan.code, ratePlanName: plan.name });
+}
 let uiPlatformAdmin = false;
+/**
+ * Люди вымышленной организации и её ожидающие приглашения (ADR-107): вошедшая Дана — с ролью `uiRole`, остальные —
+ * как в базе после приглашений. Вымышленные (ADR-010), сбрасываются `reset`.
+ */
+interface FixtureMember {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: string;
+}
+interface FixtureInvite {
+  id: string;
+  email: string;
+  role: InviteRole;
+  expiresAt: string;
+  createdAt: string;
+}
+let uiTeam: FixtureMember[] = [];
+let uiInvites: FixtureInvite[] = [];
+function resetTeam() {
+  uiTeam = [
+    { userId: 'ui-manager', email: 'marat@example.invalid', name: 'Марат Тестов', role: 'MANAGER', joinedAt: '2026-09-02T09:00:00.000Z' },
+    { userId: 'ui-admin', email: 'urij@example.com', name: 'Юрий Тестов', role: 'STAFF', joinedAt: '2026-09-03T09:00:00.000Z' },
+  ];
+  uiInvites = [
+    {
+      id: 'inv-fixture',
+      email: 'zhdet@example.com',
+      role: 'STAFF',
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(Date.now() - 3600_000).toISOString(),
+    },
+    {
+      id: 'inv-fixture-manager',
+      email: 'boss@example.com',
+      role: 'MANAGER',
+      expiresAt: new Date(Date.now() + 6 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(Date.now() - 7200_000).toISOString(),
+    },
+  ];
+}
+resetTeam();
+/** Люди организации глазами вошедшего: он сам с ролью `uiRole` и что он может с каждым */
+function teamView(me: UiUser) {
+  const people: FixtureMember[] = [
+    { userId: me.id, email: me.email, name: me.name, role: uiRole, joinedAt: '2026-09-01T09:00:00.000Z' },
+    ...uiTeam,
+  ];
+  const order: MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
+  return people
+    .sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.joinedAt.localeCompare(b.joinedAt))
+    .map((m) => {
+      const you = m.userId === me.id;
+      return {
+        ...m,
+        you,
+        removable: !you && canRemoveMember(uiRole, m.role),
+        roleEditable: !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+      };
+    });
+}
 interface FixtureExtension {
   status: ExtensionStatus;
   activeUntil: Date | null;
@@ -1451,13 +1736,22 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
   const now = Date.now();
   if (state === 'off') platformExtensions.delete('ui-org');
   else if (state === 'expired')
-    platformExtensions.set('ui-org', { status, activeUntil: new Date(now - DAY_MS), note: null, updatedAt: new Date() });
+    platformExtensions.set('ui-org', {
+      status,
+      activeUntil: new Date(now - DAY_MS),
+      note: null,
+      updatedAt: new Date(),
+    });
   else
     platformExtensions.set('ui-org', {
       status,
       // «осталось N дней»: конец срока чуть раньше N полных суток — неполный день считается днём
       activeUntil:
-        typeof days === 'number' ? new Date(now + days * DAY_MS - 3_600_000) : trial ? new Date(now + 7 * DAY_MS) : null,
+        typeof days === 'number'
+          ? new Date(now + days * DAY_MS - 3_600_000)
+          : trial
+            ? new Date(now + 7 * DAY_MS)
+            : null,
       note: null,
       updatedAt: new Date(),
     });
@@ -1469,14 +1763,23 @@ function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
     days === 'ended'
-      ? { ...uiUser.organization, status: 'TRIAL', trialEndsAt: new Date(now - DAY_MS).toISOString() }
+      ? {
+          ...uiUser.organization,
+          status: 'TRIAL',
+          trialEndsAt: new Date(now - DAY_MS).toISOString(),
+        }
       : typeof days === 'number'
-        ? { ...uiUser.organization, status: 'TRIAL', trialEndsAt: new Date(now + days * DAY_MS - 3_600_000).toISOString() }
+        ? {
+            ...uiUser.organization,
+            status: 'TRIAL',
+            trialEndsAt: new Date(now + days * DAY_MS - 3_600_000).toISOString(),
+          }
         : { ...uiUser.organization, status: 'ACTIVE', trialEndsAt: null };
 }
 function resetAccess() {
   setOrgTrial(null);
   uiRole = 'OWNER';
+  resetTeam();
   uiPlatformAdmin = false;
   platformExtensions.clear();
   platformStatuses.clear();
@@ -1537,8 +1840,18 @@ const supportDialogSeed = () => [
       role: 'staff' as 'owner' | 'staff' | null,
     },
     messages: [
-      { role: 'user', text: 'Не сохраняется бронь: пишет «Нет связи с API».', at: new Date(Date.now() - 20 * 60_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Вижу ошибку в журнале. Позову человека.', at: new Date(Date.now() - 19 * 60_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Не сохраняется бронь: пишет «Нет связи с API».',
+        at: new Date(Date.now() - 20 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Вижу ошибку в журнале. Позову человека.',
+        at: new Date(Date.now() - 19 * 60_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
   {
@@ -1551,8 +1864,18 @@ const supportDialogSeed = () => [
     hasContact: false,
     platformUser: null,
     messages: [
-      { role: 'user', text: 'Сколько стоит WETOP для хостела?', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Расскажу о тарифах: оставьте почту — ответит менеджер.', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Сколько стоит WETOP для хостела?',
+        at: new Date(Date.now() - 2 * 3600_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Расскажу о тарифах: оставьте почту — ответит менеджер.',
+        at: new Date(Date.now() - 2 * 3600_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
 ];
@@ -1633,7 +1956,13 @@ const sellerDialogSeed = () => [
     stage: 'closing',
     lastActivityAt: new Date(Date.now() - 20 * 60_000).toISOString(),
     hasContact: true,
-    contact: { name: 'Алия Тестова', phone: '+7 700 000 00 01', email: null, channel: 'widget', externalId: 'ui-a' },
+    contact: {
+      name: 'Алия Тестова',
+      phone: '+7 700 000 00 01',
+      email: null,
+      channel: 'widget',
+      externalId: 'ui-a',
+    },
     // как `LeadFields` бота: ядро (имя, телефон, интерес, сроки) и свободная сумка `extra`
     leadData: {
       name: 'Алия Тестова',
@@ -1643,8 +1972,18 @@ const sellerDialogSeed = () => [
       extra: { guests: 2 },
     },
     messages: [
-      { role: 'user', text: 'Здравствуйте, есть двухместный на 1–3 октября?', at: new Date(Date.now() - 25 * 60_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Здравствуйте! Уточню у администратора и вернусь.', at: new Date(Date.now() - 24 * 60_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Здравствуйте, есть двухместный на 1–3 октября?',
+        at: new Date(Date.now() - 25 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Здравствуйте! Уточню у администратора и вернусь.',
+        at: new Date(Date.now() - 24 * 60_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
   {
@@ -1655,11 +1994,27 @@ const sellerDialogSeed = () => [
     stage: 'new',
     lastActivityAt: new Date(Date.now() - 3 * 3600_000).toISOString(),
     hasContact: false,
-    contact: { name: null as string | null, phone: null, email: null, channel: 'widget', externalId: 'ui-b' },
+    contact: {
+      name: null as string | null,
+      phone: null,
+      email: null,
+      channel: 'widget',
+      externalId: 'ui-b',
+    },
     leadData: {},
     messages: [
-      { role: 'user', text: 'Во сколько заезд?', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Заезд с 14:00, выезд до 12:00.', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Во сколько заезд?',
+        at: new Date(Date.now() - 3 * 3600_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Заезд с 14:00, выезд до 12:00.',
+        at: new Date(Date.now() - 3 * 3600_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
 ];
@@ -1776,6 +2131,14 @@ function read(path: string, q: URLSearchParams): unknown {
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units', '/inventory/categories'].includes(path))
       return [];
+    if (path === '/guests/directory')
+      return {
+        total: 0,
+        page: 1,
+        pageSize: 25,
+        counts: { ALL: 0, INHOUSE: 0, EXPECTED: 0, RECENT: 0 },
+        rows: [],
+      };
     if (path === '/inventory/summary')
       return {
         property: { name: 'Luxx Aparts', timezone: 'Asia/Almaty', currency: 'KZT' },
@@ -1802,7 +2165,7 @@ function read(path: string, q: URLSearchParams): unknown {
             blocked: 0,
             byCategory: {},
           })),
-          unassigned: 0,
+          unassignedByCategory: {},
           stays: [],
           charges: [],
           payments: [],
@@ -1811,6 +2174,29 @@ function read(path: string, q: URLSearchParams): unknown {
       const prev = previousPeriod(from, to);
       return { current: zero(from, to), previous: zero(prev.from, prev.to) };
     }
+    if (path === '/finance/operations')
+      return {
+        from: q.get('from'),
+        to: q.get('to'),
+        currency: 'KZT',
+        total: 0,
+        paidMinor: '0',
+        refundedMinor: '0',
+        methods: [],
+        rows: [],
+        truncated: false,
+      };
+    if (path === '/finance/debts')
+      return {
+        from: q.get('from'),
+        to: q.get('to'),
+        currency: 'KZT',
+        count: 0,
+        balanceMinor: '0',
+        checkedOut: { count: 0, balanceMinor: '0' },
+        rows: [],
+        truncated: false,
+      };
     if (path === '/finance/report')
       return {
         currency: 'KZT',
@@ -1883,7 +2269,7 @@ function read(path: string, q: URLSearchParams): unknown {
         checkOutTime: '12:00',
         ...hotelOverrides,
       },
-      ratePlans: plans.map((p) => ({ ...p, active: true, cancellationPenalty: 'FIRST_NIGHT' })),
+      ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
     };
   if (path === '/hotel/onboarding')
@@ -1944,10 +2330,15 @@ function read(path: string, q: URLSearchParams): unknown {
     return categories.map((c) => ({
       code: c.code,
       name: c.name,
-      kind: units.some((u) => u.accommodationTypeCode === c.code && u.kind === 'BED')
-        ? 'DORM_BED'
-        : 'PRIVATE_ROOM',
+      kind:
+        c.kind ??
+        (units.some((u) => u.accommodationTypeCode === c.code && u.kind === 'BED')
+          ? 'DORM_BED'
+          : 'PRIVATE_ROOM'),
       capacityAdults: c.capacityAdults,
+      active: true,
+      ratePlans: c.ratePlans ?? 1,
+      ratePlanNames: (c.ratePlans ?? 1) ? [plans[0]!.name] : [],
     }));
   if (path === '/inventory/summary')
     return {
@@ -1967,11 +2358,27 @@ function read(path: string, q: URLSearchParams): unknown {
       })),
     };
   if (path === '/inventory/units')
-    return units.filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode);
+    return units
+      .filter((u) => !q.get('category') || q.get('category') === u.accommodationTypeCode)
+      .map((u) => {
+        // как countActiveBlocks: действует блокировка, у которой dateFrom <= сегодня < dateTo
+        const block = blocksFor(u.code).find((b) => b.dateFrom <= today && today < b.dateTo);
+        return {
+          ...u,
+          housekeepingStatus: housekeepingOf(u.code),
+          active: true,
+          block: block ? { dateTo: block.dateTo, type: block.type, reason: block.reason } : null,
+        } satisfies InventoryUnit;
+      });
   if (path === '/desk/today') return desk(q.get('date') || today);
-  if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
+  if (path === '/desk/dashboard') {
+    const fund = q.get('fund') || 'all';
+    // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
+    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund)) throw new Error('fund — all, rooms или beds');
+    return dashboard(q.get('from') || today, q.get('to') || today, fund as DashboardFund);
+  }
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
-  if (path === '/rate-plans') return plans;
+  if (path === '/rate-plans') return ratePlanList();
   if (path === '/availability') {
     const arrival = q.get('arrival') || today,
       departure = q.get('departure') || add(arrival, 1);
@@ -2105,6 +2512,19 @@ function read(path: string, q: URLSearchParams): unknown {
         };
       const to = categories.find((c) => c.code === unit.accommodationTypeCode)!;
       const changes = to.code !== item.accommodationTypeCode;
+      const refused = changes ? planRefusal(item.ratePlanCode, q.get('ratePlanCode')) : null;
+      if (refused)
+        return {
+          unitCode: unit.code,
+          changesCategory: true,
+          fromCategory: from && { code: from.code, name: from.name },
+          toCategory: { code: to.code, name: to.name },
+          nights,
+          currentMinor: item.priceMinor,
+          newMinor: null,
+          ratePlanRequired: false,
+          problem: refused,
+        };
       return {
         unitCode: unit.code,
         changesCategory: changes,
@@ -2121,6 +2541,19 @@ function read(path: string, q: URLSearchParams): unknown {
       const n = Math.max(1, Number(q.get('nights') || 1));
       const departure = add(item.departureDate, n);
       const added = nightly(item.accommodationTypeCode) * BigInt(n);
+      const refused = planRefusal(item.ratePlanCode, q.get('ratePlanCode'));
+      if (refused)
+        return {
+          nights: n,
+          departureDate: departure,
+          unitCode: item.unitCode,
+          addedMinor: null,
+          newMinor: null,
+          ratePlanRequired: false,
+          nextNightsFree:
+            !item.unitCode || !unitBusy(item.unitCode, item.departureDate, departure, item),
+          problem: refused,
+        };
       return {
         nights: n,
         departureDate: departure,
@@ -2148,6 +2581,57 @@ function read(path: string, q: URLSearchParams): unknown {
         }
       : found;
   }
+  // Справочник «Гости v2»: гости собираются из карточек броней — «пустая база» остаётся пустой
+  if (path === '/guests/directory') {
+    const state = q.get('state') || 'ALL';
+    const search = (q.get('q') || '').trim().toLocaleLowerCase('ru');
+    const page = Math.max(1, Number(q.get('page') || 1));
+    const pageSize = Math.max(1, Number(q.get('pageSize') || 25));
+    const ids = [...new Set(allCards().flatMap((r) => (r.primaryGuest ? [r.primaryGuest.id] : [])))];
+    const all = ids
+      .flatMap((id) => {
+        const g = getGuest(id);
+        return g ? [g] : [];
+      })
+      .filter(
+        (g) =>
+          !search ||
+          `${g.lastName} ${g.firstName} ${g.phone ?? ''} ${g.email ?? ''}`
+            .toLocaleLowerCase('ru')
+            .includes(search),
+      )
+      .sort((a, b) =>
+        `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'ru'),
+      )
+      .map((g) => ({
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        ...summarizeGuestStays(
+          g.stays.map((s) => ({
+            status: s.status,
+            arrivalDate: s.arrivalDate,
+            departureDate: s.departureDate,
+            unitCode: s.unitCode,
+            accommodationTypeName: s.accommodationTypeName,
+          })),
+          today,
+        ),
+      }));
+    const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
+    for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
+    const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
+    return {
+      total: rows.length,
+      page,
+      pageSize,
+      counts,
+      rows: rows.slice((page - 1) * pageSize, page * pageSize),
+    };
+  }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
       .map((g) => getGuest(g.id)!)
@@ -2161,6 +2645,29 @@ function read(path: string, q: URLSearchParams): unknown {
         staysCount: g.stays.length,
         lastStay: g.stays[0]?.arrivalDate ?? null,
       }));
+  // Предпросмотр панелью (G3): история и долг из «счетов» карточек — как в настоящем API из Folio
+  const previewMatch = /^\/guests\/([^/]+)\/preview$/.exec(path);
+  if (previewMatch) {
+    const g = getGuest(decodeURIComponent(previewMatch[1]!));
+    if (!g) return undefined;
+    const cards = allCards().filter((r) => r.primaryGuest?.id === g.id);
+    // у отменённых и незаездов счёт в фикстуре не строится: их «долг» — не долг гостя
+    const billed = cards.filter((r) => r.status !== 'CANCELLED' && r.status !== 'NO_SHOW');
+    const debt = billed.reduce((sum, r) => sum + BigInt(finance(r).balanceMinor), 0n);
+    return {
+      id: g.id,
+      firstName: g.firstName,
+      lastName: g.lastName,
+      middleName: g.middleName,
+      phone: g.phone,
+      email: g.email,
+      ...summarizeGuestStays(g.stays, today),
+      nightsTotal: countGuestNights(g.stays),
+      hasFolios: billed.length > 0,
+      debtMinor: debt.toString(),
+      currency: 'KZT',
+    };
+  }
   if (path.startsWith('/guests/')) return getGuest(decodeURIComponent(path.split('/')[2]!));
   if (path.startsWith('/units/')) {
     const u = units.find((u) => u.code === decodeURIComponent(path.split('/')[2]!));
@@ -2205,13 +2712,18 @@ function read(path: string, q: URLSearchParams): unknown {
         const stop = forDay.find((c) => c.stopSell !== undefined)?.stopSell;
         return {
           date,
-          prices: { '1': price(1, '8000'), '2': price(2, '10000') },
-          minStay: forDay.find((c) => c.minStay !== undefined)?.minStay ?? 1,
-          maxStay: null,
-          // Витрина: две закрытые ночи, как на макете «Rates» — слово «закрыто» и подсветка строки
+          // Витрина: ночь без цены (idx 20) — календарь называет её словами «Нет цены» (ТЗ v2 §21)
+          prices:
+            showcase && idx === 20 ? {} : { '1': price(1, '8000'), '2': price(2, '10000') },
+          minStay:
+            forDay.find((c) => c.minStay !== undefined)?.minStay ??
+            (showcase && idx >= 15 && idx <= 17 ? 2 : 1),
+          maxStay: showcase && idx === 18 ? 4 : null,
+          // Витрина: две закрытые ночи, как на макете «Rates» — слово «закрыто» и подсветка ячейки;
+          // с 27.09 (ADR-111) ещё CTA/CTD, «мин. 2» и «до 4 ночей» — для календаря месяца и снимков RT1
           stopSell: stop ?? (showcase && (idx === 5 || idx === 11)),
-          closedToArrival: false,
-          closedToDeparture: false,
+          closedToArrival: showcase && idx === 8,
+          closedToDeparture: showcase && idx === 9,
         };
       }),
     };
@@ -2233,6 +2745,127 @@ function read(path: string, q: URLSearchParams): unknown {
         { category: 'Двухместный номер', count: 3, amountMinor: '2400000' },
       ],
     };
+  if (path === '/finance/operations') {
+    // Как у API (ADR-113, F2): оплаты и возвраты из счетов броней, день и время — по часам объекта (UTC+5),
+    // новыми первыми; отбор по типу и способу — к строкам и суммам, числа способов — без отбора по способу
+    const from = q.get('from') || today;
+    const to = q.get('to') || from;
+    const type = q.get('type');
+    const method = q.get('method');
+    const limit = Number(q.get('limit') || 50);
+    const local = (iso: string) =>
+      new Date(Date.parse(iso) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' ');
+    type Op = {
+      kind: 'PAYMENT' | 'REFUND';
+      id: string;
+      at: string;
+      localAt: string;
+      method: string;
+      amountMinor: string;
+      status: 'COMPLETED' | 'VOIDED';
+      confirmationNumber: string | null;
+      reservations: number;
+      guestLabel: string | null;
+    };
+    const ops = new Map<string, Op>();
+    for (const r of allCards())
+      for (const f of finance(r).folios) {
+        const base = {
+          confirmationNumber: r.confirmationNumber,
+          guestLabel: r.primaryGuest?.label ?? null,
+        };
+        for (const p of f.payments) {
+          const known = ops.get(p.paymentId);
+          if (known) {
+            if (known.confirmationNumber !== r.confirmationNumber) known.reservations += 1;
+            continue;
+          }
+          ops.set(p.paymentId, {
+            kind: 'PAYMENT',
+            id: p.paymentId,
+            at: p.paidAt,
+            localAt: local(p.paidAt),
+            method: p.method,
+            amountMinor: p.paymentAmountMinor,
+            status: p.status,
+            reservations: 1,
+            ...base,
+          });
+        }
+        for (const x of f.refunds)
+          ops.set(x.id, {
+            kind: 'REFUND',
+            id: x.id,
+            at: x.createdAt,
+            localAt: local(x.createdAt),
+            method: f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH',
+            amountMinor: x.amountMinor,
+            status: 'COMPLETED',
+            reservations: 1,
+            ...base,
+          });
+      }
+    const inPeriod = [...ops.values()]
+      .filter((o) => o.localAt.slice(0, 10) >= from && o.localAt.slice(0, 10) <= to)
+      .filter((o) => !type || o.kind === type)
+      .sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id));
+    const counts = new Map<string, number>();
+    for (const o of inPeriod) counts.set(o.method, (counts.get(o.method) ?? 0) + 1);
+    const picked = inPeriod.filter((o) => !method || o.method === method);
+    const sum = (xs: Op[]) => xs.reduce((acc, o) => acc + BigInt(o.amountMinor), 0n).toString();
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      total: picked.length,
+      paidMinor: sum(picked.filter((o) => o.kind === 'PAYMENT' && o.status === 'COMPLETED')),
+      refundedMinor: sum(picked.filter((o) => o.kind === 'REFUND')),
+      methods: [...counts]
+        .map(([m, count]) => ({ method: m, count }))
+        .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
+      rows: picked.slice(0, limit),
+      truncated: picked.length > limit,
+    };
+  }
+  if (path === '/finance/debts') {
+    // Как у API (ADR-113): бронь с начислением в периоде — проживание начисляется датой заезда; остаток — по всему
+    // счёту брони, в список только > 0, крупные первыми, равные — по дате заезда
+    const from = q.get('from') || today;
+    const to = q.get('to') || from;
+    const debts = allCards()
+      .filter((r) => r.arrivalDate >= from && r.arrivalDate <= to)
+      .map((r) => ({ r, money: finance(r) }))
+      .filter(({ money }) => BigInt(money.balanceMinor) > 0n)
+      .sort(
+        (a, b) =>
+          Number(BigInt(b.money.balanceMinor) - BigInt(a.money.balanceMinor)) ||
+          a.r.arrivalDate.localeCompare(b.r.arrivalDate) ||
+          a.r.confirmationNumber.localeCompare(b.r.confirmationNumber),
+      );
+    const sum = (xs: typeof debts) =>
+      xs.reduce((acc, x) => acc + BigInt(x.money.balanceMinor), 0n).toString();
+    const left = debts.filter(({ r }) => r.status === 'CHECKED_OUT');
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      count: debts.length,
+      balanceMinor: sum(debts),
+      checkedOut: { count: left.length, balanceMinor: sum(left) },
+      rows: debts.map(({ r, money }) => ({
+        confirmationNumber: r.confirmationNumber,
+        status: r.status,
+        arrivalDate: r.arrivalDate,
+        departureDate: r.departureDate,
+        guestLabel: r.primaryGuest?.label ?? null,
+        chargedMinor: money.chargedMinor,
+        paidMinor: money.paidMinor,
+        refundedMinor: money.refundedMinor,
+        balanceMinor: money.balanceMinor,
+      })),
+      truncated: false,
+    };
+  }
   // Свежесть данных и контент объекта из Channex (план wetop-live-data: шаг 4, ADR-033)
   if (path === '/system/pii-storage') return { storage: piiStorage };
   if (path === '/system/freshness')
@@ -2276,8 +2909,9 @@ function read(path: string, q: URLSearchParams): unknown {
         },
       ],
     };
-  if (path === '/channels/channex/connection')
-    return {
+  if (path === '/channels/channex/connection') {
+    const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+    const base = {
       checkedAt: new Date().toISOString(),
       environment: 'staging',
       apiConfigured: true,
@@ -2285,12 +2919,23 @@ function read(path: string, q: URLSearchParams): unknown {
       propertyAccessible: true,
       mappedCategories: 3,
       mappedRatePlans: 3,
-      lastWebhookAt: null,
-      lastPullAt: null,
+      lastWebhookAt: null as string | null,
+      lastPullAt: null as string | null,
       state: 'READY',
       message: 'Соединение установлено',
+      ...channelsOverrides.connection,
     };
+    if (channexMode === 'ok') return { ...base, lastWebhookAt: ago(2), lastPullAt: ago(95) };
+    if (channexMode === 'attention') return { ...base, lastWebhookAt: ago(125), lastPullAt: ago(180) };
+    if (channexMode === 'no-key')
+      return { ...base, apiConfigured: false, propertyAccessible: false, state: 'NO_KEY', message: 'Не задан ключ Channex' };
+    return base;
+  }
   if (path === '/channels/channex/mapping') return [];
+  if (path === '/channels/channex/outbox' && channexMode === 'attention')
+    return { pending: 0, failed: 2, sent: 405, lastSentAt: new Date(Date.now() - 150 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
+  if (path === '/channels/channex/outbox' && channexMode === 'ok')
+    return { pending: 0, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 20 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a' };
   if (path === '/channels/channex/outbox')
     return showcase
       ? {
@@ -2299,8 +2944,9 @@ function read(path: string, q: URLSearchParams): unknown {
           sent: 405,
           lastSentAt: `${today}T09:12:00Z`,
           lastTaskId: 'ui-task-4f2a',
+          ...channelsOverrides.outbox,
         }
-      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null };
+      : { pending: 0, failed: 0, sent: 16, lastSentAt: null, lastTaskId: null, ...channelsOverrides.outbox };
   if (path === '/channels/channex/outbox/rows') {
     const st = q.get('status');
     return showcaseOutbox.filter((r) => !st || r.status === st);
@@ -2390,8 +3036,20 @@ function read(path: string, q: URLSearchParams): unknown {
         ratePlanIds: [],
       },
     ];
-  if (path === '/channels/channex/webhook/status')
-    return { registered: false, active: false, expectedUrl: null, secretConfigured: false };
+  if (path === '/channels/channex/webhook/status') {
+    const base =
+      channexMode === 'ok' || channexMode === 'attention'
+        ? {
+            registered: true,
+            active: true,
+            expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
+            secretConfigured: true,
+            callbackReachable: channexMode === 'ok',
+            callbackCheckedAt: new Date().toISOString(),
+          }
+        : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
+    return { ...base, ...channelsOverrides.webhook };
+  }
   if (path === '/audit') {
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');
@@ -2472,7 +3130,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/analytics/sites/ui-site')
     return {
       site,
-      status: { lastEventAt: null, sessionsToday: 20, pageviewsToday: 38 },
+      status: { lastEventAt: siteLastEventAt, sessionsToday: 20, pageviewsToday: 38 },
       snippet: {
         key: site.publicKey,
         scriptUrl: '/w/tracker.js',
@@ -2523,7 +3181,10 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
     }
-    if (!demo) { const agentResponse=agentFixture(path,req.method??'GET',body); if(agentResponse) return send(agentResponse.status,agentResponse.data); }
+    if (!demo) {
+      const agentResponse = agentFixture(path, req.method ?? 'GET', body);
+      if (agentResponse) return send(agentResponse.status, agentResponse.data);
+    }
     if (path === '/__test/reset') {
       resetAgentFixture();
       hits.clear();
@@ -2556,9 +3217,11 @@ createServer(async (req, res) => {
       commands = [];
       rejectCreate = false;
       failPath = '';
+      channelsOverrides = {};
       delayPath = '';
       delayMs = 0;
       failStatus = 503;
+      channexMode = '';
       ratesUnmapped = false;
       incidentHistory = 0;
       emptyFixture = false;
@@ -2577,12 +3240,16 @@ createServer(async (req, res) => {
       showcaseRevisions.clear();
       site = structuredClone(siteSeed);
       siteDeleted = false;
+      siteLastEventAt = null;
       groupFixture = false;
+      analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
       piiStorage = 'real';
+      softPlan = false;
       resetSeller();
-      return send(200, {});
+      // «сегодня» стенда: тест берёт дату отсюда, а не считает сам — долгий прогон переходит полночь Алматы
+      return send(200, { today });
     }
     if (path === '/__test/control') {
       if (typeof body['registrationEnabled'] === 'boolean')
@@ -2601,11 +3268,19 @@ createServer(async (req, res) => {
         onboardingNeeded = body['onboardingNeeded'];
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
+      if (body['analyticsHistory'] === true) seedAnalyticsHistory();
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
+      // состояния модуля «Каналы продаж» (ADR-112) для снимков и проверок: поля поверх ответов
+      // connection / webhook/status / outbox; сбрасывается reset или control без поля
+      channelsOverrides =
+        body['channelsOverrides'] && typeof body['channelsOverrides'] === 'object'
+          ? (body['channelsOverrides'] as typeof channelsOverrides)
+          : {};
+      siteLastEventAt = typeof body['siteLastEventAt'] === 'string' ? body['siteLastEventAt'] : null;
       // предварительная бронь (срез 7.3, Д4): статус TENTATIVE у брони и проживания
       if (body['tentative'] === true) {
         card.status = 'TENTATIVE';
@@ -2637,6 +3312,9 @@ createServer(async (req, res) => {
         applyChannelShowcase();
       }
       failStatus = Number(body['failStatus']) || 503;
+      channexMode = ['ok', 'attention', 'foreign', 'no-key'].includes(String(body['channex']))
+        ? (body['channex'] as typeof channexMode)
+        : '';
       ratesUnmapped = body['ratesUnmapped'] === true;
       incidentHistory = Number(body['incidents']) || 0;
       journalHistory = body['journalHistory'] === true;
@@ -2652,17 +3330,23 @@ createServer(async (req, res) => {
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
+      if (body['softPlan'] === true) softPlan = true;
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
         ? (body['sellerHosts'] as string[]).map(String)
         : ['hotel-a.example.invalid'];
-      sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
+      sellerLastError =
+        typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
-      uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
+      uiRole = body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
-      setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
+      setSellerExtension(
+        body['sellerExtension'],
+        body['sellerDaysLeft'],
+        body['sellerTrial'] === true,
+      );
       setOrgTrial(body['orgTrialDays']);
       supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
       // правил у помощника нет — файла промпта на томе ещё не завели (ADR-084)
@@ -2700,9 +3384,73 @@ createServer(async (req, res) => {
       seedDesign();
       return send(200, { stays: DESIGN_STAYS.length, fullMonthUnits: units.length });
     }
+    // Кейсы «Гостей v2» для визуального согласования G1 (поручение владельца 27.09): несколько
+    // проживаний у одного гостя, только отменённая бронь, давний выезд, живущий с неоплаченным
+    // счётом (задел под панель предпросмотра — в таблице G1 долг не показывается). Включается
+    // только этим вызовом, обычные тесты гостей не видят. Все имена вымышленные (ADR-010).
+    if (path === '/__test/guest-cases') {
+      const put = (
+        n: string,
+        label: string,
+        cases: Array<{
+          status: string;
+          unit: string;
+          from: number;
+          to: number;
+          source?: string;
+          channel?: string | null;
+        }>,
+      ) => {
+        let guestId = '';
+        for (const [i, s] of cases.entries()) {
+          const { r, g } = designCard(
+            {
+              n: `${n}${i}`,
+              label,
+              status: s.status,
+              source: s.source ?? 'DESK',
+              channel: s.channel ?? null,
+              unit: s.unit,
+              from: s.from,
+              to: s.to,
+              price: '1200000',
+            },
+            add(today, s.from),
+            add(today, s.to),
+          );
+          // все брони — одного человека: гость заводится один, карточки ссылаются на него
+          if (i === 0) {
+            guestId = g.id;
+            extraGuests.set(g.id, g);
+          }
+          r.primaryGuest = { ...r.primaryGuest!, id: guestId };
+          extraCards.set(r.confirmationNumber, r);
+        }
+      };
+      // живёт сейчас, до этого приезжал дважды и уже забронировал следующий визит: «Визитов 3»
+      // (будущая бронь — не визит), в карточке (G4) — текущее и следующее проживание и история
+      // из разных источников
+      put('GCRET', 'Возвращающийся Гость', [
+        { status: 'CHECKED_OUT', unit: 'R07', from: -21, to: -18, source: 'OTA', channel: 'Booking.com' },
+        { status: 'CHECKED_OUT', unit: 'M05', from: -9, to: -7, source: 'WEBSITE' },
+        { status: 'CHECKED_IN', unit: 'R08', from: -1, to: 2 },
+        { status: 'CONFIRMED', unit: 'R12', from: 10, to: 13, source: 'WEBSITE' },
+      ]);
+      // только отменённая бронь: статус гостя «—», подпись «бронь на … отменена» (ТЗ §16)
+      put('GCCAN', 'Отменившийся Гость', [{ status: 'CANCELLED', unit: 'R09', from: -3, to: -1 }]);
+      // выехал 40 дней назад: активного проживания нет, в «Недавние» не попадает
+      put('GCOLD', 'Давний Гость', [{ status: 'CHECKED_OUT', unit: 'R10', from: -43, to: -40 }]);
+      // живёт сейчас; его счёт станет виден в панели предпросмотра (следующая ступень)
+      put('GCDEBT', 'Задолжавший Гость', [{ status: 'CHECKED_IN', unit: 'R11', from: -2, to: 3 }]);
+      return send(200, { guests: 4 });
+    }
     if (path === '/__test/commands') return send(200, commands);
     if (delayPath && path === delayPath)
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+    if (channexMode === 'foreign' && CHANNEX_FOREIGN.has(path))
+      return send(403, {
+        message: 'Каналы продаж, обмен с Channex и сторож системы ведёт поддержка WETOP.',
+      });
     if (path === failPath || failPath === '*')
       return send(
         failStatus,
@@ -2867,34 +3615,74 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : null;
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
-      // зовёт только владелец организации (ADR-083) — и список ожидающих тоже его
-      if (uiRole !== 'OWNER') return send(403, { message: INVITE_OWNER_ONLY_MESSAGE });
+      // зовут владелец и управляющий (ADR-107) — и список ожидающих тоже их
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const view = (i: FixtureInvite) => ({ ...i, acceptedAt: null, revocable: canInvite(uiRole, i.role) });
       if (req.method === 'POST') {
+        const raw = body['role'];
+        const role = raw === undefined || raw === null || raw === '' ? 'STAFF' : parseInviteRole(raw);
+        if (!role) return send(400, { message: INVITE_ROLE_MESSAGE });
+        if (!canInvite(uiRole, role)) return send(403, { message: INVITE_MANAGER_OWNER_ONLY_MESSAGE });
         const email = String(body['email'] ?? '')
           .trim()
           .toLowerCase();
         if (!email.includes('@'))
           return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
         // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
-        if (email === who.email || uiMembers.has(email))
+        if (email === who.email || uiMembers.has(email) || uiTeam.some((m) => m.email === email))
           return send(400, { message: 'Этот человек уже в организации.' });
-        return send(201, {
+        const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
+          role,
           expiresAt: invitePreview.expiresAt,
-          acceptedAt: null,
           createdAt: new Date().toISOString(),
-        });
+        };
+        uiInvites.unshift(invite);
+        return send(201, view(invite));
       }
-      return send(200, [
-        {
-          id: 'inv-fixture',
-          email: 'zhdet@example.com',
-          expiresAt: invitePreview.expiresAt,
-          acceptedAt: null,
-          createdAt: new Date(Date.now() - 3600_000).toISOString(),
-        },
-      ]);
+      return send(200, uiInvites.map(view));
+    }
+    // отозвать приглашение (С-10): тот, кто вправе позвать с этой ролью; иначе — «не найдено», как API
+    const revokeMatch = /^\/auth\/invites\/([^/]+)$/.exec(path);
+    if (revokeMatch && req.method === 'DELETE') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const at = uiInvites.findIndex((i) => i.id === revokeMatch[1] && canInvite(uiRole, i.role));
+      if (at < 0) return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      uiInvites.splice(at, 1);
+      return send(200, { ok: true });
+    }
+    // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
+    const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
+    if (memberMatch) {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      if (!memberMatch[1]) return send(200, teamView(who));
+      const target = teamView(who).find((m) => m.userId === memberMatch[1]);
+      if (req.method === 'PATCH') {
+        if (!canSetRoleAtDesk(uiRole, 'STAFF', 'MANAGER'))
+          return send(403, { message: MEMBER_ROLE_OWNER_ONLY_MESSAGE });
+        const role = parseInviteRole(body['role']);
+        if (!role) return send(400, { message: MEMBER_ROLE_MESSAGE });
+        if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+        if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+        if (!canSetRoleAtDesk(uiRole, target.role, role)) return send(403, { message: MEMBER_OWNER_MESSAGE });
+        uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role } : m));
+        return send(200, { userId: target.userId, role });
+      }
+      if (req.method === 'DELETE') {
+        if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+        if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+        if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+        if (!canRemoveMember(uiRole, target.role))
+          return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+        uiTeam = uiTeam.filter((m) => m.userId !== target.userId);
+        return send(200, { ok: true });
+      }
     }
     const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
     if (inviteMatch) {
@@ -2916,14 +3704,19 @@ createServer(async (req, res) => {
       const who = token ? uiSessions.get(token) : undefined;
       if (!who) return send(200, { user: null });
       // что открыто организации — пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083)
-      return send(200, { user: signedInView(who), access: { aiSeller: aiSellerView(who.organizationId) } });
+      return send(200, {
+        user: signedInView(who),
+        access: { aiSeller: aiSellerView(who.organizationId) },
+      });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : undefined;
       if (!who || !uiPlatformAdmin)
-        return send(403, { message: 'Раздел «Платформа» — только для главного администратора платформы' });
+        return send(403, {
+          message: 'Раздел «Платформа» — только для главного администратора платформы',
+        });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
       const change = /^\/platform\/organizations\/([^/]+)\/extensions\/ai-seller$/.exec(path);
@@ -2942,15 +3735,24 @@ createServer(async (req, res) => {
         if (!org) return send(404, { message: 'Такой организации нет' });
         const next = body['status'];
         if (next !== 'ACTIVE' && next !== 'READ_ONLY')
-          return send(400, { message: 'Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)' });
+          return send(400, {
+            message: 'Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)',
+          });
         platformStatuses.set(org.id, next);
-        return send(200, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
+        return send(
+          200,
+          platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
+        );
       }
       if (path.startsWith('/platform/support/')) {
-        if (path === '/platform/support/status' && req.method === 'GET') return send(200, { state: supportState });
+        if (path === '/platform/support/status' && req.method === 'GET')
+          return send(200, { state: supportState });
         if (supportState === 'not-configured')
-          return send(503, { message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа' });
-        const dialog = /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/.exec(path);
+          return send(503, {
+            message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа',
+          });
+        const dialog =
+          /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/.exec(path);
         if (path === '/platform/support/conversations' && req.method === 'GET') {
           const mode = url.searchParams.get('mode');
           return send(200, {
@@ -2977,14 +3779,25 @@ createServer(async (req, res) => {
               mode: d.mode,
               stage: d.stage,
               leadData: {},
-              contact: { name: d.platformUser?.email ?? null, phone: null, email: null, channel: d.channel, externalId: null },
+              contact: {
+                name: d.platformUser?.email ?? null,
+                phone: null,
+                email: null,
+                channel: d.channel,
+                externalId: null,
+              },
               messages: d.messages,
               platformUser: d.platformUser,
             });
           if (dialog[2] === 'reply' && req.method === 'POST') {
             const text = String(body['text'] ?? '').trim();
             if (!text) return send(400, { message: 'Ответ: пустое сообщение' });
-            d.messages.push({ role: 'operator', text, at: new Date().toISOString(), sentByUs: true });
+            d.messages.push({
+              role: 'operator',
+              text,
+              at: new Date().toISOString(),
+              sentByUs: true,
+            });
             return send(200, { ok: true });
           }
           if (dialog[2] && req.method === 'POST') {
@@ -2993,17 +3806,28 @@ createServer(async (req, res) => {
             return send(200, { mode: d.mode, previousMode });
           }
         }
-        if (path === '/platform/support/knowledge' && req.method === 'GET') return send(200, { items: supportKnowledge });
+        if (path === '/platform/support/knowledge' && req.method === 'GET')
+          return send(200, { items: supportKnowledge });
         if (path === '/platform/support/knowledge' && req.method === 'POST') {
           const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
           if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
             return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
-          supportKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...supportKnowledge];
+          supportKnowledge = [
+            { source: name, chunks: 1, createdAt: new Date().toISOString() },
+            ...supportKnowledge,
+          ];
           return send(201, { source: name, created: true, chunks: 1 });
         }
         if (path === '/platform/support/summary' && req.method === 'GET')
-          return send(200, { hours: 24, dialogs: supportDialogs.length, replies: 3, leads: 0, slaBreaches: 1 });
-        if (path === '/platform/support/prompt' && req.method === 'GET') return send(200, { text: supportPrompt });
+          return send(200, {
+            hours: 24,
+            dialogs: supportDialogs.length,
+            replies: 3,
+            leads: 0,
+            slaBreaches: 1,
+          });
+        if (path === '/platform/support/prompt' && req.method === 'GET')
+          return send(200, { text: supportPrompt });
         if (path === '/platform/support/prompt' && req.method === 'PUT') {
           const text = String(body['text'] ?? '').trim();
           if (!text) return send(400, { message: 'Правила: пустой текст' });
@@ -3021,7 +3845,8 @@ createServer(async (req, res) => {
           return send(200, { model, previous });
         }
         if (path === '/platform/support/sandbox' && req.method === 'POST') {
-          if (!String(body['text'] ?? '').trim()) return send(400, { message: 'Проверка: пустое сообщение' });
+          if (!String(body['text'] ?? '').trim())
+            return send(400, { message: 'Проверка: пустое сообщение' });
           const informal = supportPrompt.includes('на «ты»');
           return send(200, {
             reply: informal ? 'Привет! Чем помочь?' : 'Здравствуйте! Чем помочь?',
@@ -3053,8 +3878,8 @@ createServer(async (req, res) => {
     // ИИ-продавец (ТЗ П5–П8): раздел стойки говорит с этим подставным продавцом через «API»
     if (path.startsWith('/ai-seller/')) {
       const sellerToken = sessionOf(req as never);
-      // служебный ходок (без сессии) для API — владелец; вошедший сотрудник — нет (ADR-083)
-      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole === 'OWNER';
+      // служебный ходок (без сессии) для API — владелец; вошедший — по роли: настройки у владельца и управляющего (ADR-107)
+      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole !== 'STAFF';
       const extension = aiSellerView('ui-org');
       const sellerUse =
         req.method === 'GET'
@@ -3063,14 +3888,18 @@ createServer(async (req, res) => {
             : path === '/ai-seller/llm-key' || path === '/ai-seller/whatsapp'
               ? 'configure'
               : 'read'
-          : path === '/ai-seller/profile' || path === '/ai-seller/prompt' || path === '/ai-seller/apply' ||
+          : path === '/ai-seller/profile' ||
+              path === '/ai-seller/prompt' ||
+              path === '/ai-seller/apply' ||
               path === '/ai-seller/knowledge' ||
-              path === '/ai-seller/extract' || path.startsWith('/ai-seller/llm-key') || path.startsWith('/ai-seller/whatsapp')
+              path === '/ai-seller/extract' ||
+              path.startsWith('/ai-seller/llm-key') ||
+              path.startsWith('/ai-seller/whatsapp')
             ? 'configure'
             : 'act';
       if (path !== '/ai-seller/status') {
         if (sellerUse === 'configure' && !sellerOwner)
-          return send(403, { message: 'Настройки продавца меняет владелец организации' });
+          return send(403, { message: 'Настройки продавца меняют владелец и управляющий' });
         if (extension.access === 'off')
           return send(403, {
             message:
@@ -3078,7 +3907,8 @@ createServer(async (req, res) => {
           });
         if (extension.access === 'expired' && sellerUse !== 'read')
           return send(403, {
-            message: 'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP',
+            message:
+              'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP',
           });
       }
       const sellerView = () => ({
@@ -3087,7 +3917,9 @@ createServer(async (req, res) => {
         updatedAt: sellerUpdatedAt,
         applied: sellerApplied,
       });
-      const dialog = path.match(/^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/);
+      const dialog = path.match(
+        /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/,
+      );
       if (req.method === 'GET') {
         if (path === '/ai-seller/status')
           return send(200, {
@@ -3158,7 +3990,13 @@ createServer(async (req, res) => {
         }
         if (path === '/ai-seller/knowledge') return send(200, { items: sellerKnowledge });
         if (path === '/ai-seller/summary')
-          return send(200, { hours: 24, dialogs: sellerDialogs.length, replies: 5, leads: 1, slaBreaches: 0 });
+          return send(200, {
+            hours: 24,
+            dialogs: sellerDialogs.length,
+            replies: 5,
+            leads: 1,
+            slaBreaches: 0,
+          });
         if (path === '/ai-seller/embed')
           // Э4: тег с публичным ключом гостиницы (выводимый, не секрет) и домены её сайтов
           return send(200, {
@@ -3183,7 +4021,8 @@ createServer(async (req, res) => {
         // те же отказы, что у API: пустой и длиннее 20 000 знаков
         const text = typeof body['text'] === 'string' ? body['text'].trim() : '';
         if (!text) return send(400, { message: 'Инструкция: пустой текст' });
-        if (text.length > 20_000) return send(400, { message: 'Инструкция: не длиннее 20000 знаков' });
+        if (text.length > 20_000)
+          return send(400, { message: 'Инструкция: не длиннее 20000 знаков' });
         sellerPrompt = text;
         sellerSaved = true;
         sellerApplied = false;
@@ -3208,10 +4047,14 @@ createServer(async (req, res) => {
       if (path === '/ai-seller/whatsapp/check' && req.method === 'POST') {
         const phoneId = String(body['phoneNumberId'] ?? '').trim();
         const token = String(body['token'] ?? '').trim();
-        if (phoneId === '' || token === '') return send(400, { message: 'Нужны phone_number_id и токен' });
-        return send(200, token.includes('valid')
-          ? { valid: true, phone: '+7 701 000-00-00', reason: null }
-          : { valid: false, phone: null, reason: 'Meta не приняла номер или токен' });
+        if (phoneId === '' || token === '')
+          return send(400, { message: 'Нужны phone_number_id и токен' });
+        return send(
+          200,
+          token.includes('valid')
+            ? { valid: true, phone: '+7 701 000-00-00', reason: null }
+            : { valid: false, phone: null, reason: 'Meta не приняла номер или токен' },
+        );
       }
       if (path === '/ai-seller/llm-key' && req.method === 'GET')
         return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
@@ -3224,9 +4067,12 @@ createServer(async (req, res) => {
         const key = String(body['key'] ?? '').trim();
         if (key === '') return send(400, { message: 'Нечего проверять: ключ пуст' });
         // подставной роутер: «valid» в ключе — действителен, иначе отказ словами
-        return send(200, key.includes('valid')
-          ? { valid: true, reason: null }
-          : { valid: false, reason: 'Роутер не принял ключ' });
+        return send(
+          200,
+          key.includes('valid')
+            ? { valid: true, reason: null }
+            : { valid: false, reason: 'Роутер не принял ключ' },
+        );
       }
       if (path === '/ai-seller/extract' && req.method === 'POST') {
         // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)
@@ -3269,7 +4115,9 @@ createServer(async (req, res) => {
             address: 'Алматы, ул. Вымышленная, 1',
             checkIn: '14:00',
             checkOut: '12:00',
-            categories: [{ name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 }],
+            categories: [
+              { name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 },
+            ],
           },
           profile: sellerView(),
         });
@@ -3277,7 +4125,9 @@ createServer(async (req, res) => {
       if (path === '/ai-seller/apply' && req.method === 'POST') {
         if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });
         if (sellerState === 'not-configured')
-          return send(503, { message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца' });
+          return send(503, {
+            message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца',
+          });
         // слой 9 продавца: скрытая инструкция в тексте — отказ по содержанию, причина остаётся в разделе
         if (sellerPrompt !== null && /игнорируй (все )?предыдущие/i.test(sellerPrompt)) {
           sellerLastError = 'В тексте найдены инструкции для модели';
@@ -3306,7 +4156,10 @@ createServer(async (req, res) => {
         const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
         if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
           return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
-        sellerKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...sellerKnowledge];
+        sellerKnowledge = [
+          { source: name, chunks: 1, createdAt: new Date().toISOString() },
+          ...sellerKnowledge,
+        ];
         return send(201, { source: name, created: true, chunks: 1 });
       }
       if (path === '/ai-seller/sandbox' && req.method === 'POST') {
@@ -3361,8 +4214,8 @@ createServer(async (req, res) => {
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/hotel/settings' && req.method === 'PATCH') {
-      if (uiRole !== 'OWNER')
-        return send(403, { message: 'Сведения гостиницы меняет владелец организации' });
+      // как API: право `settings` — владелец и управляющий (ADR-107)
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
       hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
@@ -3463,7 +4316,11 @@ createServer(async (req, res) => {
         name: String(body.name),
         capacityAdults: Number(body.capacityAdults),
         count: 0,
-      } as (typeof categories)[number]);
+        prefix: 'T',
+        kind: body.kind ? String(body.kind) : 'PRIVATE_ROOM',
+        // как на настоящем API: тариф при создании обязателен и связывается сразу (ADR-077)
+        ratePlans: body.ratePlanCode || body.newRatePlanName ? 1 : 0,
+      });
       return send(201, { code });
     }
     if (path.startsWith('/inventory/categories/') && req.method === 'PATCH') {
@@ -3488,6 +4345,8 @@ createServer(async (req, res) => {
           roomNumber: String(body.roomNumber),
           roomCapacity: c.capacityAdults,
           isDorm: false,
+          buildingName: String(body.building ?? '') || null,
+          floorName: String(body.floor ?? '') || null,
         });
       c.count += codes.length;
       return send(201, { codes });
@@ -3740,11 +4599,14 @@ createServer(async (req, res) => {
       }
       if (item && action === 'extend') {
         const n = Math.max(1, Number(body['nights'] ?? 1));
+        const refused = planRefusal(item.ratePlanCode, body['ratePlanCode']);
+        if (refused) return send(403, { message: refused });
         if (!item.ratePlanCode && !body['ratePlanCode'])
           return send(400, { message: 'У проживания нет тарифа: выберите тариф для новой ночи' });
         const departure = add(item.departureDate, n);
         if (item.unitCode && unitBusy(item.unitCode, item.departureDate, departure, item))
           return send(409, { message: `Ячейка ${item.unitCode} занята: сначала переселите` });
+        if (!item.ratePlanCode) recordPlan(item, body['ratePlanCode']);
         item.priceMinor = (
           BigInt(item.priceMinor) +
           nightly(item.accommodationTypeCode) * BigInt(n)
@@ -3759,7 +4621,13 @@ createServer(async (req, res) => {
         if (!unit) return send(404, { message: 'Ячейка не найдена' });
         if (unitBusy(unit.code, item.arrivalDate, item.departureDate, item))
           return send(409, { message: `Ячейка ${unit.code} уже занята` });
+        const refused =
+          unit.accommodationTypeCode !== item.accommodationTypeCode
+            ? planRefusal(item.ratePlanCode, body['ratePlanCode'])
+            : null;
+        if (refused) return send(403, { message: refused });
         if (unit.accommodationTypeCode !== item.accommodationTypeCode) {
+          recordPlan(item, body['ratePlanCode']);
           item.accommodationTypeCode = unit.accommodationTypeCode;
           item.accommodationTypeName = unit.accommodationTypeName;
           item.priceMinor = (

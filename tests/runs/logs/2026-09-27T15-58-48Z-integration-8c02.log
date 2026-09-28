@@ -1,0 +1,920 @@
+# Интеграционные (integration) · 27.09.2026 20:58 Алматы · vm
+# коммит f43815a (claude/hopeful-thompson-2v8v8a), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T15-58-48Z-integration-8c02.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/reservations-import.test.ts (6 tests | 6 failed) 217ms
+   ❯ importReservations (integration, DATABASE_URL required) (6)
+     × imports bookings idempotently with anonymized guests and allocations on real units; rolled back 142ms
+     × проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется 6ms
+     × Q-127 / Q-128 (ADR-050, ADR-051): проживание, исчезнувшее из карточки Exely, отменяется; удержанная в Exely оплата — начислением 10ms
+     × Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет 4ms
+     × ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет 4ms
+     × Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом 4ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 888ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 20 открытий сессии с одного адреса — отказ, другой адрес открывает как прежде 309ms
+     ✓ после 60 сохранений в одной сессии — отказ 574ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 786ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 596ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 820ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 506ms
+ ❯ |integration| tests/integration/organization-isolation.test.ts (7 tests | 7 failed) 359ms
+   ❯ изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) (3)
+     × чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит 163ms
+     × чужая организация не находит место объекта по коду и не видит, не меняет и не удаляет его сайты 8ms
+     × чужая организация не получает сопоставления Channex и продажи объекта 15ms
+   ❯ изоляция организаций: ячейки и сайты (integration, DATABASE_URL required) (1)
+     × чужая организация не видит ячейку, её блокировку и сайт объекта; своя — видит 34ms
+   ❯ организация подключённого к Channex объекта (integration, DATABASE_URL required) (1)
+     × по сопоставлению Channex — организация объекта с сопоставлениями 24ms
+   ❯ Phase 1: tenant-scope гостей, журнала, событий и очереди (integration, DATABASE_URL required) (2)
+     × чужая организация не меняет гостя и документы по прямому id; новый гость и запись журнала несут организацию 21ms
+     × чужая организация не видит события канала и очередь ARI; ревизия по прямому id чужому не отдаётся 7ms
+ ❯ |integration| tests/integration/exely-reimport-rules.test.ts (3 tests | 3 failed) 190ms
+   ❯ повторный импорт Exely → PMS: Q-162 и Q-164 (integration, rolled back) (3)
+     × Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не возвращает в «ждём» и койку не занимает 143ms
+     × Q-162: статус, изменённый не стойкой (записи человека в журнале нет), импорт по-прежнему приводит к Exely 8ms
+     × Q-164: ручная посадка следует за новыми датами из Exely, а если на новые ночи ячейка занята — снимается 11ms
+(node:24335) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 599ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 446ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 555ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 412ms
+stderr | tests/integration/manual-reservation.test.ts > manual reservation against the database (integration, rolled back) > creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign
+НЕ ОТКАТ: PrismaClientKnownRequestError: 
+Invalid `prisma.property.findFirst()` invocation:
+
+
+The column `properties.location_id` does not exist in the current database.
+    at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at a (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at importInventoryPlan (/home/user/wetop.ai/scripts/imports/src/exely/import-inventory.ts:48:28)
+    at db.$transaction.timeout (/home/user/wetop.ai/tests/integration/manual-reservation.test.ts:79:11)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at /home/user/wetop.ai/tests/integration/manual-reservation.test.ts:76:5
+    at file:///home/user/wetop.ai/node_modules/vitest/dist/chunks/run.CQOUYP-x.js:2783:20 {
+  code: 'P2022',
+  meta: {
+    modelName: 'Property',
+    driverAdapterError: DriverAdapterError: ColumnNotFound
+        at PgTransaction.onError (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at PgTransaction.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.run (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:11:69220)
+        at execute (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:58:2425)
+        at Object.singleLoader (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:6920) {
+      cause: [Object]
+    }
+  },
+  clientVersion: '7.10.0'
+}
+
+ ❯ |integration| tests/integration/manual-reservation.test.ts (1 test | 1 failed) 194ms
+   ❯ manual reservation against the database (integration, rolled back) (1)
+     × creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 156ms
+ ❯ |integration| tests/integration/inventory-editor.test.ts (1 test | 1 failed) 151ms
+   ❯ inventory editing persistence and isolation (1)
+     × commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 150ms
+stderr | tests/integration/reservation-capacity.test.ts > category capacity across the places of one booking (integration, rolled back) > refuses more places without a unit than the category has, counting all places of the booking together
+НЕ ОТКАТ: PrismaClientKnownRequestError: 
+Invalid `prisma.property.findFirst()` invocation:
+
+
+The column `properties.location_id` does not exist in the current database.
+    at vn.handleRequestError (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:8643)
+    at vn.handleAndLogRequestError (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:7932)
+    at vn.request (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:7639)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at a (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:6935)
+    at importInventoryPlan (/home/user/wetop.ai/scripts/imports/src/exely/import-inventory.ts:48:28)
+    at db.$transaction.timeout (/home/user/wetop.ai/tests/integration/reservation-capacity.test.ts:78:13)
+    at Proxy._transactionWithCallback (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:99:4868)
+    at /home/user/wetop.ai/tests/integration/reservation-capacity.test.ts:75:7
+    at file:///home/user/wetop.ai/node_modules/vitest/dist/chunks/run.CQOUYP-x.js:2783:20 {
+  code: 'P2022',
+  meta: {
+    modelName: 'Property',
+    driverAdapterError: DriverAdapterError: ColumnNotFound
+        at PgTransaction.onError (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:666:11)
+        at PgTransaction.performIO (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:661:12)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at PgTransaction.queryRaw (file:///home/user/wetop.ai/node_modules/@prisma/adapter-pg/dist/index.mjs:595:30)
+        at /home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:11:70479
+        at e.run (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:11:69220)
+        at execute (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:57:815)
+        at yr.request (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:58:2425)
+        at Object.singleLoader (/home/user/wetop.ai/node_modules/@prisma/client/runtime/client.js:65:6920) {
+      cause: [Object]
+    }
+  },
+  clientVersion: '7.10.0'
+}
+
+ ❯ |integration| tests/integration/reservation-capacity.test.ts (1 test | 1 failed) 192ms
+   ❯ category capacity across the places of one booking (integration, rolled back) (1)
+     × refuses more places without a unit than the category has, counting all places of the booking together 158ms
+ ❯ |integration| tests/integration/seller-profiles.test.ts (7 tests | 7 skipped) 214ms
+   ❯ seller_profiles и факты объекта (integration, DATABASE_URL required) (7)
+     ↓ первая правка заводит строку организации и пишет журнал: до — пусто, после — поля
+     ↓ отметки доставки и ошибки продавца
+     ↓ языков от одного до шести — правило самой базы
+     ↓ запретов и «когда звать человека» — не больше 30 строк; перечисления — только значения бота
+     ↓ факты: активные категории с числом активных мест, тариф сайта, его цены в окне
+     ↓ у организации нет объекта — фактов нет
+     ↓ инструкция одним текстом (ADR-097): в строку организации, поля прежних шагов целы, в журнал — только длина
+ ❯ |integration| tests/integration/price-calendar-import.test.ts (2 tests | 2 failed) 186ms
+   ❯ importPriceCalendar (integration, DATABASE_URL required) (2)
+     × writes daily_rates and restrictions idempotently, sets the tariff currency from the calendar, all rolled back 136ms
+     × refuses a calendar whose tariff is unknown in the database 9ms
+ ❯ |integration| tests/integration/password-login-columns.test.ts (4 tests | 1 failed) 326ms
+   ❯ password login columns (integration, DATABASE_URL required) (4)
+     ✓ пароль по умолчанию пустой: человек, заведённый без пароля, по паролю не войдёт 33ms
+     ✓ один и тот же токен сессии дважды не запишется 55ms
+     × удаление сотрудника уносит сессии и ссылки, но оставляет его записи в журнале 55ms
+     ✓ одна и та же ссылка на пароль дважды не запишется, и без сотрудника её нет 53ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 431ms
+ ❯ |integration| tests/integration/wizard-claim.test.ts (1 test | 1 failed) 177ms
+   × claim is idempotent, owner-only and isolated across organizations 176ms
+ ❯ |integration| tests/integration/inventory-import.test.ts (1 test | 1 failed) 174ms
+   ❯ importInventoryPlan (integration, DATABASE_URL required) (1)
+     × imports the synthetic plan idempotently: second run creates nothing, count stays 7 132ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 316ms
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 1 failed) 312ms
+   ✓ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ каждая таблица схемы названа: арендаторская под RLS или осознанно без него 8ms
+     ✓ чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 106ms
+     ✓ гость чужой организации не виден своей; без переменной не видно ничего 11ms
+     ✓ записать бронь в объект чужой организации нельзя — отказ базы 8ms
+     ✓ служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 3ms
+   ❯ RLS: служебный доступ внутри запроса организации (1)
+     × withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 150ms
+ ❯ |integration| tests/integration/invites.test.ts (4 tests | 4 skipped) 178ms
+   ❯ invites repository (integration, DATABASE_URL required) (4)
+     ↓ создание → поиск по отпечатку → принятие → список без принятых и просроченных
+     ↓ вступление: новый человек заведён с членством; повторное вступление не падает и не дублирует
+     ↓ второе приглашение с тем же отпечатком база отвергает
+     ↓ отзыв гасит только живое приглашение своей организации; счётчик за сутки считает созданные
+ ❯ |integration| tests/integration/platform-extensions.test.ts (3 tests | 3 skipped) 184ms
+   ❯ расширения организаций (integration, DATABASE_URL required) (3)
+     ↓ изменение и журнал — одной транзакцией: было, стало, кто
+     ↓ отказ базы — ни изменения, ни записи в журнале
+     ↓ список организаций: люди, почты владельцев и расширение — без броней и гостей
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 251ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 281ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 239ms
+(node:24497) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 231ms
+ ❯ |integration| tests/integration/user-errors.test.ts (4 tests | 4 skipped) 162ms
+   ❯ user_errors (integration, DATABASE_URL required) (4)
+     ↓ выборка помощника: только этот человек в этой организации, с даты, новые сверху
+     ↓ код ответа вне 400…599 база не принимает
+     ↓ времени строки база не ставит: без него строки нет
+     ↓ уборка удаляет строки старше границы и не трогает свежие
+ ❯ |integration| tests/integration/access-extensions.test.ts (3 tests | 3 skipped) 200ms
+   ❯ роли, главный администратор и расширения (integration, DATABASE_URL required) (3)
+     ↓ новое членство — сотрудник; миграция делает владельцем самого раннего участника, и ровно одного
+     ↓ пробное расширение — только со сроком; оплаченное может быть бессрочным
+     ↓ главный администратор — только существующий человек, одна строка на человека
+ ❯ |integration| tests/integration/seller-orgs.test.ts (3 tests | 3 skipped) 178ms
+   ❯ гостиницы продавца (integration, DATABASE_URL required) (3)
+     ↓ withExtension: организации со строкой расширения любым статусом; без строки — не в списке
+     ↓ one: организация по идентификатору, чужой — null
+     ↓ hosts: домены действующих сайтов организации, без дублей; приостановленный сайт не считается
+ ❯ |integration| tests/integration/platform-p1-backfill.test.ts (3 tests | 3 failed) 180ms
+   ❯ Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) (3)
+     × каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business 129ms
+     × reporting_currency организации совпадает с однозначной фактической валютой её объектов 14ms
+     × вошедший получает тот же объект по цепочке, что и прежним путём; резолвер филиала его видит 10ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 259ms
+ ❯ |integration| tests/integration/sessions.test.ts (2 tests | 2 skipped) 171ms
+   ❯ sessions repository (integration, DATABASE_URL required) (2)
+     ↓ в списке только живые сессии этого человека, новые сверху, с агентом
+     ↓ «выйти везде» отзывает все строки человека, чужие живы; повтор — ноль строк
+[Nest] 24559  - 09/27/2026, 3:59:14 PM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 217ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 204ms
+ ❯ |integration| tests/integration/citizenship-column.test.ts (3 tests | 3 skipped) 150ms
+   ❯ guests.citizenship column (integration, DATABASE_URL required) (3)
+     ↓ код alpha-3 сохраняется как есть, без дописанных пробелов; NULL допустим
+     ↓ база отвергает пустое, пробелы, нижний регистр и короткий код
+     ↓ страна выдачи документа живёт по тому же правилу
+ ❯ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests | 3 skipped) 187ms
+   ❯ guest_documents dates encrypted (integration, DATABASE_URL required) (3)
+     ↓ открытых колонок дат в таблице нет
+     ↓ в строке — шифртекст, не ISO-дата; расшифровка возвращает дату
+     ↓ контакты объекта: колонки phone и email у properties есть и допускают NULL
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 238ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 193ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 166ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 194ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 205ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 210ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 123ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/access-extensions.test.ts > роли, главный администратор и расширения (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.createMany()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/access-extensions.test.ts:44:5
+     42|   beforeAll(async () => {
+     43|     db = createPrismaClient(url);
+     44|     await db.organization.createMany({
+       |     ^
+     45|       data: [
+     46|         { id: orgA, name: `Тест ролей ${mark}` },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/39]⎯
+
+ FAIL  |integration| tests/integration/citizenship-column.test.ts > guests.citizenship column (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.findFirstOrThrow()` invocation:
+
+
+The column `organizations.reporting_currency` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/citizenship-column.test.ts:23:23
+     21|   beforeAll(async () => {
+     22|     db = createPrismaClient(url);
+     23|     organizationId = (await db.organization.findFirstOrThrow({ orderBy…
+       |                       ^
+     24|     const rows = await db.$queryRaw<Array<{ conname: string }>>`
+     25|       SELECT conname FROM pg_constraint WHERE conname = 'guests_citize…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/39]⎯
+
+ FAIL  |integration| tests/integration/document-dates-encrypted.test.ts > guest_documents dates encrypted (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.findFirstOrThrow()` invocation:
+
+
+The column `organizations.reporting_currency` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/document-dates-encrypted.test.ts:28:23
+     26|     db = createPrismaClient(url);
+     27|     // гость принадлежит организации (DATA_MODEL v1.13, RLS-1)
+     28|     organizationId = (await db.organization.findFirstOrThrow({ orderBy…
+       |                       ^
+     29|     const rows = await db.$queryRaw<Array<{ column_name: string }>>`
+     30|       SELECT column_name FROM information_schema.columns
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/39]⎯
+
+ FAIL  |integration| tests/integration/invites.test.ts > invites repository (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.create()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/accounts/accounts.prisma-repository.ts:72:21
+     70|     try {
+     71|       return await this.prisma.db.$transaction(async (tx) => {
+     72|         const org = await tx.organization.create({
+       |                     ^
+     73|           data: { name: input.organizationName, status: 'TRIAL', trial…
+     74|           select: { id: true, name: true, status: true, trialEndsAt: t…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ PrismaAccountsRepository.createAccount apps/api/src/accounts/accounts.prisma-repository.ts:71:14
+ ❯ tests/integration/invites.test.ts:33:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/39]⎯
+
+ FAIL  |integration| tests/integration/invites.test.ts > invites repository (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.invite.deleteMany()` invocation:
+
+
+Invalid input value: invalid input syntax for type uuid: ""
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/invites.test.ts:45:5
+     43|   afterAll(async () => {
+     44|     if (!db) return;
+     45|     await db.invite.deleteMany({ where: { organizationId } });
+       |     ^
+     46|     await db.session.deleteMany({ where: { organizationId } });
+     47|     await db.membership.deleteMany({ where: { organizationId } });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/39]⎯
+
+ FAIL  |integration| tests/integration/platform-extensions.test.ts > расширения организаций (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.createMany()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/platform-extensions.test.ts:40:5
+     38|     db = createPrismaClient(url);
+     39|     repo = new PrismaExtensionsRepository({ db } as PrismaService);
+     40|     await db.organization.createMany({
+       |     ^
+     41|       data: [
+     42|         { id: orgA, name: `Тест расширений ${mark}` },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/39]⎯
+
+ FAIL  |integration| tests/integration/seller-orgs.test.ts > гостиницы продавца (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.createMany()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/seller-orgs.test.ts:29:5
+     27|     db = createPrismaClient(url);
+     28|     repo = new PrismaSellerOrgsRepository({ db } as PrismaService);
+     29|     await db.organization.createMany({
+       |     ^
+     30|       data: [
+     31|         { id: orgA, name: `Продавец-гостиница А ${mark}` },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/39]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.createMany()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/seller-profiles.test.ts:41:5
+     39|     factsRepo = new PrismaSellerFactsRepository(prisma);
+     40|
+     41|     await db.organization.createMany({
+       |     ^
+     42|       data: [
+     43|         { id: org, name: `Тест продавца ${mark}` },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/39]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required)
+PrismaClientValidationError: 
+Invalid `prisma.dailyRate.deleteMany()` invocation:
+
+{
+  where: {
+    ratePlanId: {
+      in: [
+        undefined,
+        ~~~~~~~~~
+        undefined
+      ]
+    }
+  }
+}
+
+Invalid value for argument `in[0]`: Can not use `undefined` value within array. Use `null` or filter out `undefined` values.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:458:5
+ ❯ _c node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:395:15
+ ❯ serializeArgumentsArray node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:310:12
+ ❯ serializeArgumentsValue node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:374:21
+ ❯ serializeArgumentsObject node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:340:12
+ ❯ serializeArgumentsValue node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:374:21
+ ❯ serializeArgumentsObject node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:340:12
+ ❯ serializeArgumentsValue node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:374:21
+ ❯ serializeArgumentsObject node_modules/@prisma/client/src/runtime/core/jsonProtocol/serializeJsonQuery.ts:127:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/39]⎯
+
+ FAIL  |integration| tests/integration/sessions.test.ts > sessions repository (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.create()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/accounts/accounts.prisma-repository.ts:72:21
+     70|     try {
+     71|       return await this.prisma.db.$transaction(async (tx) => {
+     72|         const org = await tx.organization.create({
+       |                     ^
+     73|           data: { name: input.organizationName, status: 'TRIAL', trial…
+     74|           select: { id: true, name: true, status: true, trialEndsAt: t…
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ PrismaAccountsRepository.createAccount apps/api/src/accounts/accounts.prisma-repository.ts:71:14
+ ❯ tests/integration/sessions.test.ts:50:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/39]⎯
+
+ FAIL  |integration| tests/integration/user-errors.test.ts > user_errors (integration, DATABASE_URL required)
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.createMany()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/user-errors.test.ts:42:5
+     40|     db = createPrismaClient(url);
+     41|     repo = new PrismaUserErrorsRepository({ db } as PrismaService);
+     42|     await db.organization.createMany({
+       |     ^
+     43|       data: [
+     44|         { id: orgA, name: `Тест журнала ошибок A ${mark}` },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/39]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 28 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/exely-reimport-rules.test.ts > повторный импорт Exely → PMS: Q-162 и Q-164 (integration, rolled back) > Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не возвращает в «ждём» и койку не занимает
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ withProperty tests/integration/exely-reimport-rules.test.ts:114:6
+    112|         { timeout: 120_000, maxWait: 30_000 },
+    113|       ),
+    114|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    115|
+    116|   it('Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не …
+ ❯ tests/integration/exely-reimport-rules.test.ts:117:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/39]⎯
+
+ FAIL  |integration| tests/integration/exely-reimport-rules.test.ts > повторный импорт Exely → PMS: Q-162 и Q-164 (integration, rolled back) > Q-162: статус, изменённый не стойкой (записи человека в журнале нет), импорт по-прежнему приводит к Exely
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ withProperty tests/integration/exely-reimport-rules.test.ts:114:6
+    112|         { timeout: 120_000, maxWait: 30_000 },
+    113|       ),
+    114|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    115|
+    116|   it('Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не …
+ ❯ tests/integration/exely-reimport-rules.test.ts:160:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/39]⎯
+
+ FAIL  |integration| tests/integration/exely-reimport-rules.test.ts > повторный импорт Exely → PMS: Q-162 и Q-164 (integration, rolled back) > Q-164: ручная посадка следует за новыми датами из Exely, а если на новые ночи ячейка занята — снимается
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ withProperty tests/integration/exely-reimport-rules.test.ts:114:6
+    112|         { timeout: 120_000, maxWait: 30_000 },
+    113|       ),
+    114|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    115|
+    116|   it('Q-162: незаезд, поставленный стойкой в PMS, повторный импорт не …
+ ❯ tests/integration/exely-reimport-rules.test.ts:179:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/39]⎯
+
+ FAIL  |integration| tests/integration/inventory-editor.test.ts > inventory editing persistence and isolation > commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.create()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/inventory-editor.test.ts:23:17
+     21|     const db = createPrismaClient(),
+     22|       marker = randomUUID();
+     23|     const org = await db.organization.create({ data: { name: `TEST inv…
+       |                 ^
+     24|     const user = await db.user.create({ data: { email: `inventory-${ma…
+     25|     const property = await db.property.create({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/39]⎯
+
+ FAIL  |integration| tests/integration/inventory-import.test.ts > importInventoryPlan (integration, DATABASE_URL required) > imports the synthetic plan idempotently: second run creates nothing, count stays 7
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/inventory-import.test.ts:77:6
+     75|         { timeout: 120_000, maxWait: 30_000 },
+     76|       ),
+     77|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+     78|
+     79|     // после отката тестового объекта в БД нет
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/39]⎯
+
+ FAIL  |integration| tests/integration/manual-reservation.test.ts > manual reservation against the database (integration, rolled back) > creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign
+Error: expect(received).toSatisfy()
+
+Expected value to satisfy:
+[Function anonymous]
+
+Received:
+[PrismaClientKnownRequestError:·
+Invalid `prisma.property.findFirst()` invocation:··
+The column `properties.location_id` does not exist in the current database.]
+ ❯ tests/integration/manual-reservation.test.ts:225:6
+    223|         { timeout: 180_000, maxWait: 30_000 },
+    224|       ),
+    225|     ).rejects.toSatisfy((e: unknown) => {
+       |      ^
+    226|       if (!(e instanceof Rollback)) console.error('НЕ ОТКАТ:', e);
+    227|       return e instanceof Rollback;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/39]⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) > чужая организация не видит гостя, журнал, счёт, начисление и платёж объекта; своя — видит
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:99:6
+     97|         throw new Rollback();
+     98|       }),
+     99|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    100|
+    101|     expect(seen['B']).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/39]⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) > чужая организация не находит место объекта по коду и не видит, не меняет и не удаляет его сайты
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:183:6
+    181|         throw new Rollback();
+    182|       }),
+    183|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    184|     forgetPropertyRef();
+    185|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/39]⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > изоляция организаций: гости, журнал, счета (integration, DATABASE_URL required) > чужая организация не получает сопоставления Channex и продажи объекта
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:242:6
+    240|         throw new Rollback();
+    241|       }),
+    242|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    243|     forgetPropertyRef();
+    244|     expect(seen['B']).toEqual({ mappings: 0, sold: 0 });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/39]⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > изоляция организаций: ячейки и сайты (integration, DATABASE_URL required) > чужая организация не видит ячейку, её блокировку и сайт объекта; своя — видит
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:322:6
+    320|         throw new Rollback();
+    321|       }),
+    322|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    323|
+    324|     expect(seen['B']).toEqual({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/39]⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > организация подключённого к Channex объекта (integration, DATABASE_URL required) > по сопоставлению Channex — организация объекта с сопоставлениями
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:377:6
+    375|         throw new Rollback();
+    376|       }),
+    377|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    378|     expect(seen).not.toBe('не спрашивали');
+    379|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/39]⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > Phase 1: tenant-scope гостей, журнала, событий и очереди (integration, DATABASE_URL required) > чужая организация не меняет гостя и документы по прямому id; новый гость и запись журнала несут организацию
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:489:6
+    487|         throw new Rollback();
+    488|       }),
+    489|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    490|     forgetPropertyRef();
+    491|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/39]⎯
+
+ FAIL  |integration| tests/integration/organization-isolation.test.ts > Phase 1: tenant-scope гостей, журнала, событий и очереди (integration, DATABASE_URL required) > чужая организация не видит события канала и очередь ARI; ревизия по прямому id чужому не отдаётся
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/organization-isolation.test.ts:561:6
+    559|         throw new Rollback();
+    560|       }),
+    561|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    562|     forgetPropertyRef();
+    563|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/39]⎯
+
+ FAIL  |integration| tests/integration/password-login-columns.test.ts > password login columns (integration, DATABASE_URL required) > удаление сотрудника уносит сессии и ссылки, но оставляет его записи в журнале
+AssertionError: expected error to be instance of Rollback
+
+- Expected:
+[Function Rollback]
+
++ Received:
+PrismaClientKnownRequestError {
+  "message": "
+Invalid `prisma.organization.create()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.",
+  "code": "P2022",
+  "meta": {
+    "driverAdapterError": DriverAdapterError {
+      "message": "ColumnNotFound",
+      "cause": {
+        "column": "reporting_currency of relation organizations",
+        "kind": "ColumnNotFound",
+        "originalCode": "42703",
+        "originalMessage": "column \"reporting_currency\" of relation \"organizations\" does not exist",
+      },
+      "name": "DriverAdapterError",
+    },
+    "modelName": "Organization",
+  },
+  "clientVersion": "7.10.0",
+  "name": "PrismaClientKnownRequestError",
+}
+
+ ❯ tests/integration/password-login-columns.test.ts:118:6
+    116|         throw new Rollback();
+    117|       }),
+    118|     ).rejects.toThrow(Rollback);
+       |      ^
+    119|   });
+    120|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/39]⎯
+
+ FAIL  |integration| tests/integration/platform-p1-backfill.test.ts > Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) > каждый объект привязан к Location своего Business своей организации; поля скопированы; вертикаль — HOSPITALITY на Business
+PrismaClientKnownRequestError: 
+Invalid `prisma.property.findMany()` invocation:
+
+
+The column `properties.location_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/platform-p1-backfill.test.ts:30:24
+     28|
+     29|   it('каждый объект привязан к Location своего Business своей организа…
+     30|     const properties = await db.property.findMany({
+       |                        ^
+     31|       select: {
+     32|         id: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/39]⎯
+
+ FAIL  |integration| tests/integration/platform-p1-backfill.test.ts > Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) > reporting_currency организации совпадает с однозначной фактической валютой её объектов
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.findMany()` invocation:
+
+
+The column `organizations.reporting_currency` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/platform-p1-backfill.test.ts:70:18
+     68|
+     69|   it('reporting_currency организации совпадает с однозначной фактическ…
+     70|     const orgs = await db.organization.findMany({
+       |                  ^
+     71|       where: { properties: { some: {} } },
+     72|       select: { id: true, reportingCurrency: true, properties: { selec…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/39]⎯
+
+ FAIL  |integration| tests/integration/platform-p1-backfill.test.ts > Platform P1: цепочка Organization → Business → Location → Property (integration, DATABASE_URL required) > вошедший получает тот же объект по цепочке, что и прежним путём; резолвер филиала его видит
+PrismaClientKnownRequestError: 
+Invalid `prisma.property.findFirstOrThrow()` invocation:
+
+
+The column `properties.location_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/platform-p1-backfill.test.ts:84:22
+     82|     forgetPropertyRef();
+     83|     forgetLocationRef();
+     84|     const property = await db.property.findFirstOrThrow({
+       |                      ^
+     85|       orderBy: { createdAt: 'asc' },
+     86|       select: { id: true, organizationId: true, locationId: true },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/39]⎯
+
+ FAIL  |integration| tests/integration/price-calendar-import.test.ts > importPriceCalendar (integration, DATABASE_URL required) > writes daily_rates and restrictions idempotently, sets the tariff currency from the calendar, all rolled back
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/price-calendar-import.test.ts:115:6
+    113|         { timeout: 120_000, maxWait: 30_000 },
+    114|       ),
+    115|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    116|     expect(await db.property.count({ where: { name: TEST_PROPERTY.name…
+    117|   }, 180_000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/39]⎯
+
+ FAIL  |integration| tests/integration/price-calendar-import.test.ts > importPriceCalendar (integration, DATABASE_URL required) > refuses a calendar whose tariff is unknown in the database
+AssertionError: expected [Function] to throw error matching /800001/ but got '\nInvalid `prisma.property.findFirst(…'
+
+- Expected:
+/800001/
+
++ Received:
+"
+Invalid `prisma.property.findFirst()` invocation:
+
+
+The column `properties.location_id` does not exist in the current database."
+
+ ❯ tests/integration/price-calendar-import.test.ts:141:6
+    139|         { timeout: 120_000, maxWait: 30_000 },
+    140|       ),
+    141|     ).rejects.toThrow(/800001/);
+       |      ^
+    142|   }, 180_000);
+    143| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/39]⎯
+
+ FAIL  |integration| tests/integration/reservation-capacity.test.ts > category capacity across the places of one booking (integration, rolled back) > refuses more places without a unit than the category has, counting all places of the booking together
+Error: expect(received).toSatisfy()
+
+Expected value to satisfy:
+[Function anonymous]
+
+Received:
+[PrismaClientKnownRequestError:·
+Invalid `prisma.property.findFirst()` invocation:··
+The column `properties.location_id` does not exist in the current database.]
+ ❯ tests/integration/reservation-capacity.test.ts:138:8
+    136|           { timeout: 180_000, maxWait: 30_000 },
+    137|         ),
+    138|       ).rejects.toSatisfy((e: unknown) => {
+       |        ^
+    139|         if (!(e instanceof Rollback)) console.error('НЕ ОТКАТ:', e);
+    140|         return e instanceof Rollback;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/39]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > imports bookings idempotently with anonymized guests and allocations on real units; rolled back
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:215:6
+    213|         { timeout: 120_000, maxWait: 30_000 },
+    214|       ),
+    215|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    216|   }, 180_000);
+    217|   it('проживание сменило категорию в Exely — прежняя пересадка в старо…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/39]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > проживание сменило категорию в Exely — прежняя пересадка в старой категории не сохраняется
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:282:6
+    280|         { timeout: 120_000, maxWait: 30_000 },
+    281|       ),
+    282|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    283|   }, 180_000);
+    284|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/39]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > Q-127 / Q-128 (ADR-050, ADR-051): проживание, исчезнувшее из карточки Exely, отменяется; удержанная в Exely оплата — начислением
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:384:6
+    382|         { timeout: 120_000, maxWait: 30_000 },
+    383|       ),
+    384|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    385|   }, 180_000);
+    386|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/39]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > Q-118: повторный импорт не стирает гражданство, введённое на стойке; пустое — заполняет
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:429:6
+    427|         { timeout: 120_000, maxWait: 30_000 },
+    428|       ),
+    429|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    430|   }, 180_000);
+    431|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/39]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > ADR-044: гость переехал посреди проживания — до переезда своя койка, дальше койка из Exely; повтор ничего не меняет
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:492:6
+    490|         { timeout: 120_000, maxWait: 30_000 },
+    491|       ),
+    492|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    493|   }, 180_000);
+    494|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/39]⎯
+
+ FAIL  |integration| tests/integration/reservations-import.test.ts > importReservations (integration, DATABASE_URL required) > Q-120: одной свободной койки на весь срок нет, а каждую ночь есть — две койки с одним переездом
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ tests/integration/reservations-import.test.ts:527:6
+    525|         { timeout: 120_000, maxWait: 30_000 },
+    526|       ),
+    527|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    528|   }, 180_000);
+    529| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/39]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: служебный доступ внутри запроса организации > withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет
+PrismaClientKnownRequestError: 
+Invalid `prisma.property.findFirstOrThrow()` invocation:
+
+
+The column `properties.location_id` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/rls-isolation.test.ts:188:24
+    186|     const db = createPrismaClient(url, undefined, { of: ctx.databaseTe…
+    187|     try {
+    188|       const property = await db.property.findFirstOrThrow({ orderBy: {…
+       |                        ^
+    189|       const stranger = '9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00';
+    190|       const actor = { userId: 'u', organizationId: stranger };
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/39]⎯
+
+ FAIL  |integration| tests/integration/wizard-claim.test.ts > claim is idempotent, owner-only and isolated across organizations
+PrismaClientKnownRequestError: 
+Invalid `prisma.organization.create()` invocation:
+
+
+The column `reporting_currency of relation organizations` does not exist in the current database.
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/wizard-claim.test.ts:24:7
+     22|     const actor = { userId: user, organizationId: org, role: 'OWNER' a…
+     23|     try {
+     24|       await db.organization.create({
+       |       ^
+     25|         data: { id: org, name: 'Synthetic claim', status: 'ACTIVE' },
+     26|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/39]⎯
+
+
+ Test Files  21 failed | 21 passed (42)
+      Tests  28 failed | 52 passed | 32 skipped (112)
+   Start at  15:58:48
+   Duration  30.51s (tests 51%, import 39%, transform 9%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T15-58-48Z-integration-8c02.json
+
+# код выхода 1 · 31 с

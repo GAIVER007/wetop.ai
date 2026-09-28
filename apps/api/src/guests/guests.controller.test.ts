@@ -4,11 +4,14 @@ import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { decryptPii } from '@pms/shared';
+import { countGuestNights, summarizeGuestStays } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { GuestsModule } from './guests.module';
 import { GUESTS_REPOSITORY, type GuestProfile, type GuestsRepository } from './guests.repository';
 
 const KEY = 'c'.repeat(64);
+/** «Сегодня» подделки: состояние гостя вычисляется, дата в тесте не должна зависеть от прогона */
+const FAKE_TODAY = '2026-10-01';
 function makeFakes() {
   const guests = new Map<string, GuestProfile>([
     [
@@ -33,6 +36,42 @@ function makeFakes() {
             departureDate: '2026-10-02',
             status: 'CONFIRMED',
             unitCode: '9001',
+            source: 'DESK',
+            channel: null,
+            currency: 'KZT',
+            chargedMinor: null,
+            balanceMinor: null,
+          },
+        ],
+      },
+    ],
+    [
+      'g2',
+      {
+        id: 'g2',
+        firstName: 'Живущий',
+        lastName: 'Постоялец',
+        middleName: null,
+        birthDate: null,
+        citizenship: 'KAZ',
+        gender: 'UNKNOWN',
+        phone: '+71112223344',
+        email: null,
+        notes: null,
+        documents: [],
+        stays: [
+          {
+            confirmationNumber: 'B-2',
+            accommodationTypeName: 'Одиночная',
+            arrivalDate: '2026-09-29',
+            departureDate: '2026-10-03',
+            status: 'CHECKED_IN',
+            unitCode: '9002',
+            source: 'DESK',
+            channel: null,
+            currency: 'KZT',
+            chargedMinor: null,
+            balanceMinor: null,
           },
         ],
       },
@@ -43,11 +82,13 @@ function makeFakes() {
   const auditDetails: Array<{ action: string; details?: Record<string, unknown> }> = [];
   const repo: GuestsRepository = {
     async search(q) {
+      // как настоящий репозиторий: телефон ищется только от 4 цифр — пустые цифры матчили всех
+      const digits = q.replace(/\D/g, '');
       return [...guests.values()]
         .filter(
           (g) =>
             g.lastName.toLowerCase().includes(q.toLowerCase()) ||
-            (g.phone ?? '').includes(q.replace(/\D/g, '')),
+            (digits.length >= 4 && (g.phone ?? '').includes(digits)),
         )
         .map((g) => ({
           id: g.id,
@@ -61,9 +102,56 @@ function makeFakes() {
           lastStay: g.stays[0]?.arrivalDate ?? null,
         }));
     },
+    async directory({ state, q, page, pageSize }) {
+      const digits = q.replace(/\D/g, '');
+      const all = [...guests.values()]
+        .filter(
+          (g) =>
+            !q ||
+            `${g.lastName} ${g.firstName}`.toLowerCase().includes(q.toLowerCase()) ||
+            (digits.length >= 4 && (g.phone ?? '').includes(digits)),
+        )
+        .sort((a, b) => a.lastName.localeCompare(b.lastName))
+        .map((g) => ({
+          id: g.id,
+          firstName: g.firstName,
+          lastName: g.lastName,
+          middleName: g.middleName,
+          phone: g.phone,
+          email: g.email,
+          ...summarizeGuestStays(g.stays, FAKE_TODAY),
+        }));
+      const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
+      for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
+      const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
+      return {
+        total: rows.length,
+        page,
+        pageSize,
+        counts,
+        rows: rows.slice((page - 1) * pageSize, page * pageSize),
+      };
+    },
     async byId(id) {
       const g = guests.get(id);
       return g ? structuredClone(g) : null;
+    },
+    async preview(id) {
+      const g = guests.get(id);
+      if (!g) return null;
+      return {
+        id: g.id,
+        firstName: g.firstName,
+        lastName: g.lastName,
+        middleName: g.middleName,
+        phone: g.phone,
+        email: g.email,
+        ...summarizeGuestStays(g.stays, FAKE_TODAY),
+        nightsTotal: countGuestNights(g.stays),
+        hasFolios: id === 'g2',
+        debtMinor: id === 'g2' ? '4000000' : '0',
+        currency: 'KZT',
+      };
     },
     async update(id, patch) {
       Object.assign(guests.get(id)!, patch);
@@ -126,6 +214,60 @@ describe('guests API', () => {
     ).toHaveLength(1);
     await request(app.getHttpServer()).get('/guests?q=т').expect(400);
   });
+  it('directory: одна строка — один гость, состояние вычислено, счётчики разделов и раздел-фильтр', async () => {
+    const r = (await request(app.getHttpServer()).get('/guests/directory').expect(200)).body;
+    expect(r.counts).toEqual({ ALL: 2, INHOUSE: 1, EXPECTED: 1, RECENT: 0 });
+    expect(r.total).toBe(2);
+    const living = r.rows.find((x: { id: string }) => x.id === 'g2');
+    expect(living).toMatchObject({
+      state: 'INHOUSE',
+      staysCount: 1,
+      current: { unitCode: '9002', departureDate: '2026-10-03' },
+    });
+    const expected = r.rows.find((x: { id: string }) => x.id === 'g1');
+    expect(expected).toMatchObject({
+      state: 'EXPECTED',
+      staysCount: 0,
+      next: { arrivalDate: '2026-10-01' },
+    });
+    const inh = (
+      await request(app.getHttpServer()).get('/guests/directory?state=INHOUSE').expect(200)
+    ).body;
+    expect(inh.rows.map((x: { id: string }) => x.id)).toEqual(['g2']);
+    expect(inh.total).toBe(1);
+    // поиск сужает и строки, и счётчики — как на «Бронях»
+    const found = (
+      await request(app.getHttpServer()).get('/guests/directory?q=Постоялец').expect(200)
+    ).body;
+    expect(found.counts.ALL).toBe(1);
+    expect(found.rows.map((x: { id: string }) => x.id)).toEqual(['g2']);
+  });
+
+  it('preview (G3): контакты, состояние, ночи, номер брони и долг; без документов и журнала; 404 чужому', async () => {
+    const p = (await request(app.getHttpServer()).get('/guests/g2/preview').expect(200)).body;
+    expect(p).toMatchObject({
+      state: 'INHOUSE',
+      staysCount: 1,
+      nightsTotal: 4,
+      hasFolios: true,
+      debtMinor: '4000000',
+      current: { unitCode: '9002', confirmationNumber: 'B-2' },
+    });
+    expect(p.documents).toBeUndefined();
+    expect(fakes.audits).toEqual([]);
+    await request(app.getHttpServer()).get('/guests/nope/preview').expect(404);
+  });
+
+  it('directory: границы параметров — 400 словами', async () => {
+    await request(app.getHttpServer()).get('/guests/directory?state=WRONG').expect(400);
+    await request(app.getHttpServer()).get('/guests/directory?page=0').expect(400);
+    await request(app.getHttpServer()).get('/guests/directory?page=abc').expect(400);
+    await request(app.getHttpServer()).get('/guests/directory?pageSize=1000').expect(400);
+    await request(app.getHttpServer())
+      .get(`/guests/directory?q=${'а'.repeat(121)}`)
+      .expect(400);
+  });
+
   it('update validates citizenship as alpha-3, audits field names only', async () => {
     await request(app.getHttpServer())
       .patch('/guests/g1')

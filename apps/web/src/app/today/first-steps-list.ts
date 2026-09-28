@@ -2,11 +2,15 @@
  * Шаги панели «Первые шаги» на Главной (ТЗ `plans/ux-retention-2026-09-26.md` п. 2.1; «Заполнить позже» — ADR-100).
  * Отдельно от разметки, чтобы список проверялся тестом без сервера.
  */
+import type { Permission } from '@pms/domain';
+
 export type Step = {
   title: string;
   state: 'done' | 'next' | 'optional';
   hint: string;
   action?: { href: string; label: string };
+  /** Шаг — тому, у кого есть право (ADR-107): администратор отель не настраивает и сотрудников не зовёт */
+  requires?: Permission;
 };
 
 const READY_STEPS: Step[] = [
@@ -27,6 +31,7 @@ const READY_STEPS: Step[] = [
     state: 'optional',
     hint: 'Каждый получит свою почту для входа и задаст пароль сам.',
     action: { href: '/login', label: 'Пригласить' },
+    requires: 'staff',
   },
 ];
 
@@ -36,6 +41,7 @@ const SETUP_STEP: Step = {
   state: 'next',
   hint: 'Категории, сколько в них мест и цена за ночь — шахматка и тариф заведутся сами.',
   action: { href: '/onboarding', label: 'Настроить отель' },
+  requires: 'settings',
 };
 
 /** Шаги панели: пока номеров нет, первая бронь ждёт настройки — её шаг становится «по желанию» без кнопки. */

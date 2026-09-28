@@ -45,7 +45,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: 'section-sales',
     title: 'Продажи',
-    text: 'Тарифы и цены по дням, каналы продаж, ИИ-продавец на сайте и аналитика сайта.',
+    text: 'Тарифы и цены по дням, каналы продаж, сайт с онлайн-бронированием и ИИ-продавец.',
   },
   {
     target: 'section-finance',
@@ -55,7 +55,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: 'section-settings',
     title: 'Настройки',
-    text: 'Сведения о гостинице, правила отмены, услуги, интеграции и сайт.',
+    text: 'Сведения о гостинице, правила отмены, услуги и интеграции.',
   },
   {
     target: 'trial',

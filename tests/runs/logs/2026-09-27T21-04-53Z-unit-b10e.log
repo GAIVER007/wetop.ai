@@ -1,0 +1,17 @@
+# Модульные (unit) · 28.09.2026 02:04 Алматы · vm
+# коммит a0fa497 (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 18
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T21-04-53Z-unit-b10e.json' 'tests/unit/desk-glass.test.ts' 'tests/unit/site-design.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/site-design.test.ts (6 tests) 15ms
+ ✓ |unit| tests/unit/desk-glass.test.ts (5 tests) 6ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  21:04:54
+   Duration  286ms (transform 66%, import 19%, tests 10%, worker 5%)
+
+JSON report written to /tmp/pms-test-2026-09-27T21-04-53Z-unit-b10e.json
+
+# код выхода 0 · 1 с

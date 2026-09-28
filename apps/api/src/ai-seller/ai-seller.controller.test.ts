@@ -27,7 +27,7 @@ import {
   SELLER_EXTENSION_EXPIRED,
   SELLER_EXTENSION_OFF,
   SELLER_NO_PROPERTY,
-  SELLER_OWNER_ONLY,
+  SELLER_CONFIGURE_ONLY,
   SellerService,
 } from './seller.service';
 
@@ -42,6 +42,7 @@ const ORG_B = '7a1c2b3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const USER_A = '0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11';
 const USER_B = '1c7d4d2f-5a5f-4b64-8c8f-3a2e8b0d1b22';
 const USER_STAFF = '2d8e5e3a-6b6a-4c75-9d9a-4b3f9c1e2c33';
+const USER_MANAGER = '3e9f6f4b-7c7b-4d86-8e0b-5c4a0d2f3d44';
 const CONV = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
 const KEY = 'seller-service-key-for-run-0123456789';
 
@@ -94,10 +95,15 @@ let app: INestApplication;
 
 beforeAll(async () => {
   // владельцы своих организаций и сотрудник организации A (DATA_MODEL §16.1, ADR-083)
-  const users: Record<string, { id: string; organizationId: string; role: 'OWNER' | 'STAFF' }> = {
+  const users: Record<
+    string,
+    { id: string; organizationId: string; role: 'OWNER' | 'MANAGER' | 'STAFF' }
+  > = {
     'session-a': { id: USER_A, organizationId: ORG_A, role: 'OWNER' },
     'session-b': { id: USER_B, organizationId: ORG_B, role: 'OWNER' },
     'session-staff': { id: USER_STAFF, organizationId: ORG_A, role: 'STAFF' },
+    // управляющий организации A (ADR-107): настройки продавца — наравне с владельцем
+    'session-manager': { id: USER_MANAGER, organizationId: ORG_A, role: 'MANAGER' },
   };
   const auth = {
     whoami: vi.fn(async (token: string) => {
@@ -634,7 +640,7 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
     const status = await api().get('/ai-seller/status').set(as('session-staff')).expect(200);
     expect(status.body.canConfigure).toBe(false);
     const saved = await api().put('/ai-seller/profile').set(as('session-staff')).send(profile).expect(403);
-    expect(saved.body.message).toBe(SELLER_OWNER_ONLY);
+    expect(saved.body.message).toBe(SELLER_CONFIGURE_ONLY);
     await api().post('/ai-seller/apply').set(as('session-staff')).expect(403);
     await api()
       .post('/ai-seller/knowledge')
@@ -651,6 +657,13 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
 
     const owner = await api().get('/ai-seller/status').set(as('session-a')).expect(200);
     expect(owner.body.canConfigure).toBe(true);
+  });
+
+  it('управляющий настраивает продавца наравне с владельцем (ADR-107)', async () => {
+    const status = await api().get('/ai-seller/status').set(as('session-manager')).expect(200);
+    expect(status.body.canConfigure).toBe(true);
+    await api().put('/ai-seller/profile').set(as('session-manager')).send(profile).expect(200);
+    expect(profiles.rows.size).toBe(1);
   });
 });
 
@@ -733,7 +746,7 @@ describe('рассказ владельца → поля мастера (С1, п
   it('настройка — владельцу с действующим расширением', async () => {
     connection.seller.replies.extractProfile = botAnswer;
     const staff = await extract('session-staff', STORY).expect(403);
-    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    expect(staff.body.message).toBe(SELLER_CONFIGURE_ONLY);
     extensions.access = 'expired';
     const expired = await extract('session-a', STORY).expect(403);
     expect(expired.body.message).toBe(SELLER_EXTENSION_EXPIRED);
@@ -796,7 +809,7 @@ describe('ключ модели партнёра (С2, Q-186; план `plans/se
       .set(as('session-staff'))
       .send({ key: 'sk-x-12345678' })
       .expect(403);
-    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    expect(staff.body.message).toBe(SELLER_CONFIGURE_ONLY);
     extensions.access = 'expired';
     await api().get('/ai-seller/llm-key').set(as('session-a')).expect(403);
     extensions.access = 'active';
@@ -869,7 +882,7 @@ describe('подключение WhatsApp (С3, Q-185 (а); план `plans/sell
       .set(as('session-staff'))
       .send({ phoneNumberId: '1', token: 'EAAG-token-16chars-min', appSecret: 's' })
       .expect(403);
-    expect(staff.body.message).toBe(SELLER_OWNER_ONLY);
+    expect(staff.body.message).toBe(SELLER_CONFIGURE_ONLY);
     extensions.access = 'expired';
     await api().get('/ai-seller/whatsapp').set(as('session-a')).expect(403);
     extensions.access = 'active';

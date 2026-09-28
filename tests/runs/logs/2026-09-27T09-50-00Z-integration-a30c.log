@@ -1,0 +1,110 @@
+# Интеграционные (integration) · 27.09.2026 14:50 Алматы · vm
+# коммит 625eb85 (claude/cool-hawking-c030jv)
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T09-50-00Z-integration-a30c.json'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/reservations-import.test.ts (6 tests) 1016ms
+   ✓ importReservations (integration, DATABASE_URL required) (6)
+     ✓ imports bookings idempotently with anonymized guests and allocations on real units; rolled back 457ms
+ ✓ |integration| tests/integration/wizard-rate-limit.test.ts (2 tests) 749ms
+   ✓ гостевой мастер: пределы по адресу и по сессии (2)
+     ✓ после 20 открытий сессии с одного адреса — отказ, другой адрес открывает как прежде 303ms
+     ✓ после 60 сохранений в одной сессии — отказ 445ms
+ ✓ |integration| tests/integration/integrity-guards.test.ts (5 tests) 761ms
+   ✓ предохранители базы: UNIQUE external_id, CHECK деньги, журнал, блокировка (integration) (5)
+     ✓ блокировка ждёт категорийный замок брони, а не пролезает мимо него 493ms
+ ✓ |integration| tests/integration/db-backup-restore.test.ts (2 tests) 705ms
+   ✓ db-backup.sh и db-restore-check.sh на настоящей PostgreSQL (2)
+     ✓ копия снимается и встаёт в новую базу: обе таблицы, все строки, ограничение на btree_gist 525ms
+(node:16427) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/checkout-folio-lock.test.ts (1 test) 604ms
+   ✓ долг при выезде — под блокировкой счёта (integration, DATABASE_URL required) (1)
+     ✓ чтение долга для выезда ждёт начисление, которое пишется сейчас, и видит его 442ms
+ ✓ |integration| tests/integration/reservation-lock.test.ts (1 test) 553ms
+   ✓ замок брони (integration, DATABASE_URL required) (1)
+     ✓ вторая транзакция по той же брони ждёт первую 411ms
+ ✓ |integration| tests/integration/exely-reimport-rules.test.ts (3 tests) 540ms
+ ✓ |integration| tests/integration/inventory-editor.test.ts (1 test) 501ms
+   ✓ inventory editing persistence and isolation (1)
+     ✓ commits categories and beds, reads without stale cache, rejects foreign category and duplicate atomically 500ms
+(node:16467) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/manual-reservation.test.ts (1 test) 476ms
+   ✓ manual reservation against the database (integration, rolled back) (1)
+     ✓ creates, refuses a second booking on the same unit (DB exclusion), frees on cancel, moves on assign 447ms
+ ✓ |integration| tests/integration/password-login-columns.test.ts (4 tests) 378ms
+(node:16483) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/reservation-capacity.test.ts (1 test) 400ms
+   ✓ category capacity across the places of one booking (integration, rolled back) (1)
+     ✓ refuses more places without a unit than the category has, counting all places of the booking together 367ms
+(node:16491) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/organization-isolation.test.ts (3 tests) 409ms
+ ✓ |integration| tests/integration/seller-profiles.test.ts (7 tests) 370ms
+ ✓ |integration| tests/integration/audit-author.test.ts (3 tests) 440ms
+ ✓ |integration| tests/integration/price-calendar-import.test.ts (2 tests) 374ms
+ ✓ |integration| tests/integration/wizard-claim.test.ts (1 test) 335ms
+   ✓ claim is idempotent, owner-only and isolated across organizations 331ms
+ ✓ |integration| tests/integration/web-analytics.test.ts (4 tests) 319ms
+ ✓ |integration| tests/integration/inventory-import.test.ts (1 test) 309ms
+ ❯ |integration| tests/integration/manager-role.test.ts (6 tests | 1 failed) 342ms
+   ❯ роли управляющего и администратора (integration, DATABASE_URL required) (6)
+     ✓ в типе роли три значения — владелец, управляющий, администратор 112ms
+     ✓ приглашение хранит роль, по умолчанию — администратор; владельца база не примет 52ms
+     × сессия знает, заблокирован ли человек и есть ли ещё членство (С-4, С-10) 19ms
+     ✓ хранилище: приглашение с ролью, отзыв по роли, вступление с ролью из приглашения 65ms
+     ✓ сотрудники по порядку ролей; отключение и смена роли — вместе с записью в журнале организации 46ms
+     ✓ агенты продавца: управляющему — можно, администратору — нет (ADR-098) 18ms
+ ✓ |integration| tests/integration/invites.test.ts (4 tests) 291ms
+ ✓ |integration| tests/integration/finance-locks.test.ts (3 tests) 281ms
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 271ms
+ ✓ |integration| tests/integration/folio-system-audit.test.ts (1 test) 226ms
+ ✓ |integration| tests/integration/user-errors.test.ts (4 tests) 264ms
+ ✓ |integration| tests/integration/wizard-drafts.test.ts (1 test) 250ms
+ ✓ |integration| tests/integration/refund-race.test.ts (3 tests) 237ms
+ ✓ |integration| tests/integration/system-incidents.test.ts (3 tests) 206ms
+(node:16640) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ |integration| tests/integration/chessboard-cell-facts.test.ts (1 test) 234ms
+ ✓ |integration| tests/integration/sessions.test.ts (2 tests) 226ms
+ ✓ |integration| tests/integration/access-extensions.test.ts (3 tests) 242ms
+ ✓ |integration| tests/integration/rates-audit-before.test.ts (1 test) 226ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 211ms
+[Nest] 16684  - 09/27/2026, 9:50:29 AM     LOG [WizardRetentionService] мастер: удалено истёкших сессий 1
+ ✓ |integration| tests/integration/wizard-retention.test.ts (1 test) 221ms
+ ✓ |integration| tests/integration/channels-journal.test.ts (2 tests) 197ms
+ ✓ |integration| tests/integration/overbooking-guard.test.ts (1 test) 188ms
+ ✓ |integration| tests/integration/audit-list.test.ts (3 tests) 195ms
+ ✓ |integration| tests/integration/citizenship-column.test.ts (3 tests) 191ms
+ ✓ |integration| tests/integration/document-dates-encrypted.test.ts (3 tests) 183ms
+ ✓ |integration| tests/integration/audit-guest-identity.test.ts (1 test) 174ms
+ ✓ |integration| tests/integration/accounts-schema.test.ts (4 tests) 184ms
+ ✓ |integration| tests/integration/test-schema.test.ts (1 test) 123ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/manager-role.test.ts > роли управляющего и администратора (integration, DATABASE_URL required) > сессия знает, заблокирован ли человек и есть ли ещё членство (С-4, С-10)
+AssertionError: expected PrismaClientKnownRequestError{ …(7) } to be an instance of Rollback
+ ❯ rolledBack tests/integration/manager-role.test.ts:39:8
+     37|           throw new Rollback();
+     38|         }),
+     39|       ).rejects.toBeInstanceOf(Rollback);
+       |        ^
+     40|     }
+     41|
+ ❯ tests/integration/manager-role.test.ts:114:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 40 passed (41)
+      Tests  1 failed | 104 passed (105)
+   Start at  09:50:01
+   Duration  32.00s (tests 57%, import 36%, transform 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-27T09-50-00Z-integration-a30c.json
+
+# код выхода 1 · 33 с

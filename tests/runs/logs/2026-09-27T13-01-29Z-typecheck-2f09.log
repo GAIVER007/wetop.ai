@@ -1,0 +1,21 @@
+# Типы (typecheck) · 27.09.2026 18:01 Алматы · vm
+# коммит 6440f99 (claude/eager-noether-1uncrq-a1), незакоммиченных файлов набора: 26
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/management/[[...section]]/page.tsx(37,10): error TS2375: Type '{ period: string | undefined; from: string | undefined; to: string | undefined; date: string | undefined; }' is not assignable to type '{ period?: string; from?: string; to?: string; date?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'period' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+# код выхода 1 · 29 с

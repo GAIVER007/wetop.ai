@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { RecordTabs } from '../../../components/record-tabs';
 import { hotelToday } from '../../../lib/hotel-api';
+import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import { Icon } from '../../../components/icon';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
@@ -65,6 +67,8 @@ export default async function ReservationPage({
   const longPeriods = [...periods.values()].filter(tooLong).length;
   // Справочники тарифов и фонда нужны только формам действий: без них карточка остаётся, а формы
   // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
+  // журнал — владельцу и управляющему (ADR-107): администратору ссылки туда не даём; тот же `/auth/me`, что у меню
+  const access = deskShell();
   const [ratePlans, finance, services, summary, periodResults, piiStorage] = await Promise.all([
     reservationsApi.ratePlans().catch(() => null),
     financeApi.reservation(r.confirmationNumber).catch(() => null),
@@ -80,6 +84,7 @@ export default async function ReservationPage({
     // Q-169: подсказка у заметки зависит от того, где лежит база (ADR-072)
     api.piiStorage(),
   ]);
+  const desk = await access;
   const availabilityByPeriod = new Map(
     [...periods.keys()].map((key, i) => [key, periodResults[i]]),
   );
@@ -477,13 +482,19 @@ export default async function ReservationPage({
                 <p className="muted">
                   Операции и изменения по бронированию {r.confirmationNumber}.
                 </p>
-                <Link
-                  className="btn btn--secondary"
-                  href={`/journal?q=${encodeURIComponent(r.confirmationNumber)}`}
-                >
-                  <Icon name="journal" />
-                  Открыть журнал
-                </Link>
+                {mayAccess(desk.access, 'journal') ? (
+                  <Link
+                    className="btn btn--secondary"
+                    href={`/journal?q=${encodeURIComponent(r.confirmationNumber)}`}
+                  >
+                    <Icon name="journal" />
+                    Открыть журнал
+                  </Link>
+                ) : (
+                  <p className="muted" data-testid="journal-closed">
+                    Журнал действий открыт владельцу и управляющему.
+                  </p>
+                )}
               </section>
             ),
           },

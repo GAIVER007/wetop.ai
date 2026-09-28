@@ -58,6 +58,8 @@ test('сутки гостя целиком: заезд, услуга на счё
   // 2. Гость: гражданство и документ — без них заселение запрещено
   await cardTab(page, 'Обзор');
   await page.getByRole('main').getByTestId('guest-link').click();
+  // G4: карточка гостя открывается «Обзором»; профиль и документы — за «Редактировать»
+  await page.getByRole('main').getByRole('link', { name: 'Редактировать', exact: true }).click();
   await page
     .getByRole('main')
     .getByTestId('guest-form')

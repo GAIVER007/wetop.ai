@@ -90,7 +90,7 @@ export default async function RevisionPageView({
       width="wide"
       title="Приём брони из канала"
       subtitle="Входящая ревизия → бронь → назначенная койка, время объекта (Алматы)"
-      crumbs={<Link href="/channels">← каналы продаж</Link>}
+      crumbs={<Link href="/channels/events">← события каналов</Link>}
     >
       <div className="chain" data-testid="revision-chain">
         <section className="chain__card" aria-labelledby="chain-revision">

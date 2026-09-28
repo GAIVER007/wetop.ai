@@ -1,0 +1,22 @@
+# Типы (typecheck) · 27.09.2026 19:54 Алматы · vm
+# коммит aa14a85 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 10
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+packages/domain/src/accounts/permissions.test.ts(136,29): error TS2353: Object literal may only specify known properties, and 'code' does not exist in type '{ cancellationPenalty?: CancellationPenaltyPolicy; }'.
+scripts/preview/fixture-api.ts(3764,44): error TS2345: Argument of type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: string; priceMinor: string; ratePlanCode?: string | null; ratePlanName?: string | null; ... 4 more ...; guests: { ...; }[]; }' is not assignable to parameter of type '{ ratePlanCode: string | null; ratePlanName: string | null; }'.
+  Property 'ratePlanCode' is optional in type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: string; priceMinor: string; ratePlanCode?: string | null; ratePlanName?: string | null; ... 4 more ...; guests: { ...; }[]; }' but required in type '{ ratePlanCode: string | null; ratePlanName: string | null; }'.
+scripts/preview/fixture-api.ts(3785,22): error TS2345: Argument of type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: string; priceMinor: string; ratePlanCode?: string | null; ratePlanName?: string | null; ... 4 more ...; guests: { ...; }[]; }' is not assignable to parameter of type '{ ratePlanCode: string | null; ratePlanName: string | null; }'.
+  Property 'ratePlanCode' is optional in type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; arrivalDate: string; departureDate: string; status: string; priceMinor: string; ratePlanCode?: string | null; ratePlanName?: string | null; ... 4 more ...; guests: { ...; }[]; }' but required in type '{ ratePlanCode: string | null; ratePlanName: string | null; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 34 с

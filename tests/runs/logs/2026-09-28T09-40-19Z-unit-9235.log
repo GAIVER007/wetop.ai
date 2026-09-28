@@ -1,0 +1,29 @@
+# Модульные (unit) · 28.09.2026 14:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит a610c33 (codex/readme-platform), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-28T09-40-19Z-unit-9235.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (12 tests) 13292ms
+   ✓ scripts/ops/auto-deploy.sh (12)
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 838ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 1186ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 735ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 1187ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 826ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 686ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 1032ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 937ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 1098ms
+     ✓ локальные правки в клоне — не затирает их 659ms
+     ✓ историю ветки переписали — не выкладывает поверх 1081ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 3026ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  02:40:20
+   Duration  13.39s (tests 100%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-09-28T09-40-19Z-unit-9235.json
+
+# код выхода 0 · 14 с

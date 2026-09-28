@@ -4062,3 +4062,6 @@
 | 29.09.2026 03:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings-set2-set3.spec.ts tests/ui/settings-simplification.spec.ts tests/ui | ✅ 38 из 38 | 3 мин 3 с | b8cf953 | [лог](logs/2026-09-28T22-32-00Z-e2e-81d5.log) | PR #101 merged with main 93423b39 (b8cf9535): specs main touched + chessboard/blocks |
 | 29.09.2026 03:35 | integration | ✅ 122 из 122 | 36 с | b8cf953 | [лог](logs/2026-09-28T22-35-14Z-integration-c917.log) | PR #101 merged with main 93423b39 (b8cf9535) |
 | 29.09.2026 03:36 | e2e | ✅ 25 из 25 | 57 с | b8cf953 | [лог](logs/2026-09-28T22-36-10Z-e2e-de75.log) | PR #101 merged with main 93423b39 (b8cf9535): live e2e on a fresh web build |
+| 29.09.2026 04:26 | typecheck | ✅ без ошибок | 24 с | c93810b | [лог](logs/2026-09-28T23-26-16Z-typecheck-440c.log) |  |
+| 29.09.2026 04:26 | lint | ✅ без ошибок | 17 с | c93810b | [лог](logs/2026-09-28T23-26-41Z-lint-cfd8.log) |  |
+| 29.09.2026 04:26 | unit | ✅ 2291 из 2294, пропущено 3 | 1 мин 20 с | c93810b | [лог](logs/2026-09-28T23-26-58Z-unit-1c9c.log) | G8 на main c60fe746 |

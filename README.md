@@ -152,7 +152,6 @@ RLS-схема и политики реализованы; включение п
 | Интеграция | Назначение | Статус |
 |---|---|---|
 | **Channex** | OTA-брони, изменения, отмены и ARI | Рабочий Hospitality-контур; cutover управляется отдельными гейтами |
-| **Exely** | Исторический импорт и сверки | Не является текущим источником правды |
 | **Email** | Подтверждение почты и системные письма | Реализовано |
 | **Telegram** | Операционные уведомления и сторож | Реализовано |
 | **WhatsApp** | Канал AI seller | Поддержан сервисом и включается для организации |
@@ -294,23 +293,6 @@ Cloudflare Tunnel, Cloudflare Pages, health checks, backup и rollback.
 
 Оперативный статус — [CLAUDE.md](CLAUDE.md) §2, история —
 [docs/history.md](docs/history.md), доказательства — `tests/runs/` и `reports/`.
-
-## First production pilot — Luxx Aparts
-
-Первый реальный Hospitality-объект — **Luxx Aparts, Алматы**.
-
-- 16 отдельных номеров;
-- 72 койко-места;
-- 88 sale units;
-- до 92 гостей.
-
-В модели это один Partner / Organization, один Business с
-`vertical = HOSPITALITY`, одна Location и существующий Property. Luxx — production
-pilot: система должна выдержать операционный день без потери броней, а критичные
-цифры — сходиться с контрольными источниками без расхождения.
-
-См. [OBJECT.md](OBJECT.md), [FINDINGS.md](FINDINGS.md) и
-[CUTOVER.md](CUTOVER.md).
 
 ## Roadmap
 

@@ -7,7 +7,12 @@ import { decryptPii } from '@pms/shared';
 import { countGuestNights, summarizeGuestStays } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { GuestsModule } from './guests.module';
-import { GUESTS_REPOSITORY, type GuestProfile, type GuestsRepository } from './guests.repository';
+import {
+  GUESTS_REPOSITORY,
+  type GuestDirectoryQuery,
+  type GuestProfile,
+  type GuestsRepository,
+} from './guests.repository';
 
 const KEY = 'c'.repeat(64);
 /** «Сегодня» подделки: состояние гостя вычисляется, дата в тесте не должна зависеть от прогона */
@@ -40,6 +45,8 @@ function makeFakes() {
             channel: null,
             currency: 'KZT',
             chargedMinor: null,
+            paidMinor: null,
+            refundedMinor: null,
             balanceMinor: null,
           },
         ],
@@ -71,6 +78,8 @@ function makeFakes() {
             channel: null,
             currency: 'KZT',
             chargedMinor: null,
+            paidMinor: null,
+            refundedMinor: null,
             balanceMinor: null,
           },
         ],
@@ -78,6 +87,8 @@ function makeFakes() {
     ],
   ]);
   const audits: string[] = [];
+  /** что сервис передал в выборку справочника (G7: отборы и порядок) */
+  const directoryQueries: GuestDirectoryQuery[] = [];
   /** Записи журнала целиком: какой документ добавлен, удалён, показан (SECURITY.md §1, §6) */
   const auditDetails: Array<{ action: string; details?: Record<string, unknown> }> = [];
   const repo: GuestsRepository = {
@@ -102,7 +113,9 @@ function makeFakes() {
           lastStay: g.stays[0]?.arrivalDate ?? null,
         }));
     },
-    async directory({ state, q, page, pageSize }) {
+    async directory(query) {
+      directoryQueries.push(query);
+      const { state, q, page, pageSize } = query;
       const digits = q.replace(/\D/g, '');
       const all = [...guests.values()]
         .filter(
@@ -121,8 +134,8 @@ function makeFakes() {
           email: g.email,
           ...summarizeGuestStays(g.stays, FAKE_TODAY),
         }));
-      const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
-      for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
+      const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
+      for (const g of all) counts[g.state] += 1;
       const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
       return {
         total: rows.length,
@@ -173,7 +186,7 @@ function makeFakes() {
       auditDetails.push({ action, ...(details ? { details } : {}) });
     },
   };
-  return { repo, guests, audits, auditDetails };
+  return { repo, guests, audits, auditDetails, directoryQueries };
 }
 
 describe('guests API', () => {
@@ -216,7 +229,7 @@ describe('guests API', () => {
   });
   it('directory: одна строка — один гость, состояние вычислено, счётчики разделов и раздел-фильтр', async () => {
     const r = (await request(app.getHttpServer()).get('/guests/directory').expect(200)).body;
-    expect(r.counts).toEqual({ ALL: 2, INHOUSE: 1, EXPECTED: 1, RECENT: 0 });
+    expect(r.counts).toEqual({ ALL: 2, INHOUSE: 1, EXPECTED: 1, RECENT: 0, NONE: 0 });
     expect(r.total).toBe(2);
     const living = r.rows.find((x: { id: string }) => x.id === 'g2');
     expect(living).toMatchObject({
@@ -266,6 +279,38 @@ describe('guests API', () => {
     await request(app.getHttpServer())
       .get(`/guests/directory?q=${'а'.repeat(121)}`)
       .expect(400);
+  });
+
+  it('directory G7: отборы визита, числа визитов, порядок и раздел NONE доходят до выборки', async () => {
+    await request(app.getHttpServer())
+      .get('/guests/directory?state=NONE&last=7d&visits=2-5&sort=next')
+      .expect(200);
+    expect(fakes.directoryQueries.at(-1)).toMatchObject({
+      state: 'NONE',
+      lastVisit: { days: 7 },
+      visits: '2-5',
+      sort: 'next',
+    });
+    await request(app.getHttpServer())
+      .get('/guests/directory?last=period&from=2026-09-01&to=2026-09-10')
+      .expect(200);
+    expect(fakes.directoryQueries.at(-1)).toMatchObject({
+      lastVisit: { from: '2026-09-01', to: '2026-09-10' },
+      visits: null,
+      sort: 'name',
+    });
+    await request(app.getHttpServer()).get('/guests/directory?last=today').expect(200);
+    expect(fakes.directoryQueries.at(-1)?.lastVisit).toEqual({ days: 0 });
+    // опечатка в адресе — отказ словами, а не молча весь список
+    for (const bad of [
+      'last=week',
+      'last=period',
+      'last=period&from=2026-09-10&to=2026-09-01',
+      'last=period&from=2026-02-30&to=2026-03-01',
+      'visits=5%2B',
+      'sort=debt',
+    ])
+      await request(app.getHttpServer()).get(`/guests/directory?${bad}`).expect(400);
   });
 
   it('update validates citizenship as alpha-3, audits field names only', async () => {

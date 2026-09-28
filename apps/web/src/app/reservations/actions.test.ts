@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { assignUnitAction, createReservationAction, updateStayGuestsAction } from './actions';
-import { ApiError, reservationsApi } from '../../lib/api';
+import {
+  assignUnitAction,
+  createReservationAction,
+  findGuestsByPhoneAction,
+  updateStayGuestsAction,
+} from './actions';
+import { ApiError, guestsApi, reservationsApi, type GuestDirectoryResult } from '../../lib/api';
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('next/navigation', () => ({ redirect: vi.fn() }));
 afterEach(() => vi.restoreAllMocks());
@@ -61,6 +66,41 @@ describe('поля существующего API из форм стойки', (
       notes: 'Синтетический тест',
     });
     expect(result.error).toBe('Место занято');
+  });
+  it('G6: выбранный гость уходит guestId без полей нового гостя и переживает отказ', async () => {
+    const create = vi
+      .spyOn(reservationsApi, 'create')
+      .mockRejectedValue(new ApiError(409, 'Место занято'));
+    const result = await createReservationAction(
+      { error: null },
+      form({ guestId: 'guest-1', accommodationTypeCode: 'ROOM', ratePlanCode: 'BASE' }),
+    );
+    const body = create.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(body['guestId']).toBe('guest-1');
+    expect(body).not.toHaveProperty('guest');
+    expect(result.values).toMatchObject({ guestId: 'guest-1' });
+  });
+  it('G6, §34: гостей по телефону ищет от 10 цифр, по цифрам, до трёх; сбой — пусто', async () => {
+    const row = {
+      id: 'guest-1',
+      firstName: 'Тест',
+      lastName: 'Пример',
+      middleName: null,
+      phone: '+7 700 000 00 01',
+      email: null,
+      staysCount: 4,
+    };
+    const directory = vi
+      .spyOn(guestsApi, 'directory')
+      .mockResolvedValue({ rows: [row] } as unknown as GuestDirectoryResult);
+    expect(await findGuestsByPhoneAction('+7 700 000')).toEqual([]);
+    expect(directory).not.toHaveBeenCalled();
+    expect(await findGuestsByPhoneAction('+7 (700) 000-00-01')).toEqual([
+      { id: 'guest-1', name: 'Пример Тест', phone: '+7 700 000 00 01', email: null, visits: 4 },
+    ]);
+    expect(directory.mock.calls[0]?.[0]).toEqual({ q: '77000000001', page: '1', pageSize: '3' });
+    directory.mockRejectedValue(new ApiError(500, 'сбой'));
+    expect(await findGuestsByPhoneAction('+7 700 000 00 01')).toEqual([]);
   });
   it('передаёт выбранный тариф при переселении в другую категорию', async () => {
     const assign = vi

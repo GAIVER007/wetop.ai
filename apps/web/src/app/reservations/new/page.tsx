@@ -1,12 +1,13 @@
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import Link from 'next/link';
-import { api, reservationsApi } from '../../../lib/api';
+import { api, guestsApi, reservationsApi } from '../../../lib/api';
 import { hotelToday } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Alert, Button, Field } from '../../../components/ui';
 import { DateInput } from '../../../components/date-field';
 import { pluralRu } from '../../../lib/plural';
 import { NewReservationForm } from './form';
+import type { BookingGuest } from '../actions';
 import '../../directory.css';
 
 const plusDays = (iso: string, n: number) => {
@@ -32,12 +33,21 @@ export default async function NewReservationPage({
   const departure = q.departure ?? (isDate(arrival) ? plusDays(arrival, 1) : '');
   const validDates = isDate(arrival) && isDate(departure) && departure > arrival;
   // Без справочника фонда или тарифов бронь не создать — но это предупреждение на месте, не экран ошибки
-  const [summary, ratePlans, availability, piiStorage] = await Promise.all([
+  const [summary, ratePlans, availability, piiStorage, found] = await Promise.all([
     api.inventorySummary().catch(() => null),
     reservationsApi.ratePlans().catch(() => null),
     validDates ? reservationsApi.availability(arrival, departure) : Promise.resolve(null),
     api.piiStorage(),
+    // G6 (ТЗ «Гости v2» §33): «Новая бронь» из карточки гостя приходит с `?guest=` — бронь на него
+    q.guest ? guestsApi.preview(q.guest).catch(() => null) : Promise.resolve(null),
   ]);
+  const guest: BookingGuest | null = found && {
+    id: found.id,
+    name: [found.lastName, found.firstName, found.middleName].filter(Boolean).join(' '),
+    phone: found.phone,
+    email: found.email,
+    visits: found.staysCount,
+  };
   return (
     <Page width="narrow" crumbs={<Link href="/chessboard">← шахматка</Link>} title="Новая бронь">
       {/* Шаг 01 — даты: отдельная GET-форма (доступность считается сервером на эти даты), но в
@@ -49,7 +59,12 @@ export default async function NewReservationPage({
             <h2 id="booking-dates-title">Даты</h2>
           </div>
         </div>
-        <form method="get" className="row row--end row--lg booking-dates__form">
+        {/* id — для скрытого поля выбранного гостя из формы ниже (`form=`): смена дат его не теряет */}
+        <form
+          method="get"
+          id="booking-dates-form"
+          className="row row--end row--lg booking-dates__form"
+        >
           {q.unit && <input type="hidden" name="unit" value={q.unit} />}
           <Field label="Заезд">
             <DateInput name="arrival" defaultValue={arrival} />
@@ -81,6 +96,12 @@ export default async function NewReservationPage({
           Справочник тарифов не загрузился: без тарифа бронь не создать. Обновите страницу.
         </Alert>
       )}
+      {q.guest && !guest && (
+        <Alert boxed tone="warning" data-testid="booking-guest-missing">
+          Гость из ссылки не найден. Бронь заведёт нового гостя — или откройте её из карточки гостя
+          ещё раз.
+        </Alert>
+      )}
       {summary === null && (
         <Alert boxed tone="warning">
           Сводка фонда не загрузилась: без категорий бронь не создать. Обновите страницу.
@@ -88,7 +109,7 @@ export default async function NewReservationPage({
       )}
       {summary !== null && ratePlans !== null && (
         <NewReservationForm
-          key={`${arrival}-${departure}-${q.unit ?? ''}`}
+          key={`${arrival}-${departure}-${q.unit ?? ''}-${guest?.id ?? ''}`}
           selectedUnit={q.unit ?? ''}
           canSubmit={availability !== null}
           arrival={arrival}
@@ -101,6 +122,7 @@ export default async function NewReservationPage({
           }))}
           ratePlans={ratePlans}
           piiStorage={piiStorage}
+          guest={guest}
         />
       )}
     </Page>

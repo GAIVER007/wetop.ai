@@ -48,7 +48,9 @@ describe.skipIf(!url)('карточка гостя: источник и счёт
     const { reservation, folio, arrivalDate } = stay!.reservationItem;
     const sum = (xs: Array<{ amount: bigint }>) => xs.reduce((s, x) => s + x.amount, 0n);
     const charged = sum(folio!.charges);
-    const balance = charged - sum(folio!.allocations) + sum(folio!.refunds);
+    const paid = sum(folio!.allocations);
+    const refunded = sum(folio!.refunds);
+    const balance = charged - paid + refunded;
 
     const guests = new PrismaGuestsRepository({ db } as unknown as PrismaService);
     const card = await guests.byId(stay!.guestId);
@@ -62,6 +64,9 @@ describe.skipIf(!url)('карточка гостя: источник и счёт
       channel: reservation.channel,
       currency: reservation.currency,
       chargedMinor: charged.toString(),
+      // G5 (ТЗ §24): финансовый свод гостя складывается из счетов его проживаний
+      paidMinor: paid.toString(),
+      refundedMinor: refunded.toString(),
       balanceMinor: balance.toString(),
     });
   });
@@ -85,6 +90,11 @@ describe.skipIf(!url)('карточка гостя: источник и счёт
         s.confirmationNumber === stay.reservationItem.reservation.confirmationNumber &&
         s.arrivalDate === stay.reservationItem.arrivalDate.toISOString().slice(0, 10),
     );
-    expect(row).toMatchObject({ chargedMinor: null, balanceMinor: null });
+    expect(row).toMatchObject({
+      chargedMinor: null,
+      paidMinor: null,
+      refundedMinor: null,
+      balanceMinor: null,
+    });
   });
 });

@@ -3491,3 +3491,12 @@
 | 28.09.2026 22:56 | e2e | ❌ упало 2 из 25 | 4 мин 42 с | cca172c | [лог](logs/2026-09-28T17-56-12Z-e2e-9bda.log) | cleanup P1: слитое дерево с main e0ac75f (ADR-118), свежая сборка web |
 | 28.09.2026 23:01 | e2e | ❌ упало 2 из 26 | 4 мин 43 с | cca172c | [лог](logs/2026-09-28T18-01-36Z-e2e-865b.log) | cleanup P1: слитое дерево (ADR-118), E2E_AUTH=1, API ролью wetop_app |
 | 28.09.2026 23:06 | e2e (частично: tests/e2e/finance.spec.ts tests/e2e/full-day.spec.ts) | ❌ упало 2 из 3 | 4 мин 9 с | e0ac75f | [лог](logs/2026-09-28T18-06-31Z-e2e-0e49.log) | контроль: чистый main e0ac75f — finance и full-day без правки cleanup |
+| 29.09.2026 00:35 | typecheck | ❌ ошибок: 4 | 45 с | 10b7bd4 | [лог](logs/2026-09-28T19-35-01Z-typecheck-c9a6.log) | TS2531 |
+| 29.09.2026 00:35 | lint | ✅ без ошибок | 21 с | 10b7bd4 | [лог](logs/2026-09-28T19-35-46Z-lint-abc8.log) |  |
+| 29.09.2026 00:36 | typecheck | ✅ без ошибок | 22 с | 10b7bd4 | [лог](logs/2026-09-28T19-36-33Z-typecheck-3524.log) |  |
+| 29.09.2026 00:36 | unit | ✅ 2156 из 2159, пропущено 3 | 1 мин 29 с | 10b7bd4 | [лог](logs/2026-09-28T19-36-59Z-unit-627c.log) |  |
+| 29.09.2026 00:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings.spec.ts tests/ui/property-settings-set2-set3.spec.ts tests/ui/setti | ❌ упало 1 из 92 | 7 мин 40 с | 10b7bd4 | [лог](logs/2026-09-28T19-38-34Z-e2e-c6d2.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |
+| 29.09.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 24 с | 10b7bd4 | [лог](logs/2026-09-28T19-46-25Z-e2e-460a.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |
+| 29.09.2026 00:48 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 26 с | 10b7bd4 +1 | [лог](logs/2026-09-28T19-48-30Z-e2e-7b04.log) | доступность переносит даты и свободное место в создание брони; неверный период виден |
+| 29.09.2026 00:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ✅ 1 из 1 | 10 с | 10b7bd4 +1 | [лог](logs/2026-09-28T19-49-05Z-e2e-91d6.log) |  |
+| 29.09.2026 00:49 | integration | ✅ 113 из 113 | 35 с | 10b7bd4 | [лог](logs/2026-09-28T19-49-34Z-integration-8416.log) |  |

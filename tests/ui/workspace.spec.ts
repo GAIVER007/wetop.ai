@@ -161,8 +161,14 @@ test('доступность переносит даты и свободное �
 }) => {
   await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04');
   await page.locator('.fund-availability summary').first().click();
-  await page.locator('.fund-book-unit').first().click();
-  await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
+  // первая свободная единица зависит от «сегодня» стенда (брони стенда отсчитываются от него) — код берём с самой ссылки
+  const firstFree = page.locator('.fund-book-unit').first();
+  const unit = /(?:Номер|Койка) ([A-Za-z0-9-]+)/.exec((await firstFree.textContent()) ?? '')?.[1];
+  expect(unit).toBeTruthy();
+  await firstFree.click();
+  await expect(page).toHaveURL(
+    new RegExp(`arrival=2026-10-01&departure=2026-10-04&unit=${unit}(?:&|$)`),
+  );
   await expect(
     page
       .getByRole('dialog', { name: 'Новая бронь', exact: true })

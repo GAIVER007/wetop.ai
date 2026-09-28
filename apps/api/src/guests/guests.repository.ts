@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { Prisma } from '@pms/database';
+import { Prisma } from '@pms/database';
 import {
   GUEST_RECENT_DAYS,
   LUXX_APARTS_PROPERTY,
@@ -66,7 +66,13 @@ export interface GuestProfile {
   }>;
 }
 /** Разделы справочника «Гости v2»: бейдж строки равен фильтру, суммы чипов сходятся с «Все» */
-export type GuestDirectoryFilter = 'ALL' | 'INHOUSE' | 'EXPECTED' | 'RECENT';
+export type GuestDirectoryFilter = 'ALL' | 'INHOUSE' | 'EXPECTED' | 'RECENT' | 'NONE';
+/** G7 (ТЗ §28): окно последнего визита — `days` дней назад по сегодня (0 — сегодня) или период */
+export type GuestLastVisitWindow = { days: number } | { from: string; to: string };
+/** G7 (ТЗ §28): число состоявшихся визитов */
+export type GuestVisitsFilter = '1' | '2-5' | '6+';
+/** G7 (ТЗ §30): порядок справочника; «Долг» — после Q-202 */
+export type GuestDirectorySort = 'name' | 'next' | 'last' | 'visits';
 export interface GuestDirectoryRow extends GuestStaySummary {
   id: string;
   firstName: string;
@@ -109,15 +115,19 @@ export interface GuestPatch {
   email?: string | null;
   notes?: string | null;
 }
+export interface GuestDirectoryQuery {
+  state: GuestDirectoryFilter;
+  q: string;
+  page: number;
+  pageSize: number;
+  lastVisit?: GuestLastVisitWindow | null;
+  visits?: GuestVisitsFilter | null;
+  sort?: GuestDirectorySort;
+}
 export interface GuestsRepository {
   search(q: string, limit: number): Promise<GuestSummary[]>;
   /** Справочник «Гости v2»: одна строка — один гость, состояние вычисляется из его проживаний */
-  directory(query: {
-    state: GuestDirectoryFilter;
-    q: string;
-    page: number;
-    pageSize: number;
-  }): Promise<GuestDirectoryResult>;
+  directory(query: GuestDirectoryQuery): Promise<GuestDirectoryResult>;
   byId(id: string): Promise<GuestProfile | null>;
   /** Предпросмотр панелью (G3): null — гость не найден или не этой организации */
   preview(id: string): Promise<GuestPreview | null>;
@@ -209,105 +219,129 @@ export class PrismaGuestsRepository implements GuestsRepository {
    * CONFIRMED/TENTATIVE с выездом не раньше сегодня; недавние — не первые два и выехал за 30 дней.
    * Числа чипов считаются тем же отбором без раздела — видно до нажатия, как на «Бронях».
    */
-  async directory(query: {
-    state: GuestDirectoryFilter;
-    q: string;
-    page: number;
-    pageSize: number;
-  }): Promise<GuestDirectoryResult> {
+  async directory(query: GuestDirectoryQuery): Promise<GuestDirectoryResult> {
+    // замок организаций до любого запроса: вошедший без организации не видит никого (как `visible()`)
+    const scope = this.visible();
+    const organizationId = 'organizationId' in scope ? (scope.organizationId as string) : null;
     const today = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name);
-    const inhouse: Prisma.GuestWhereInput = {
-      stays: { some: { reservationItem: { status: 'CHECKED_IN' } } },
-    };
-    const expectedSome: Prisma.GuestWhereInput = {
-      stays: {
-        some: {
-          reservationItem: {
-            status: { in: ['CONFIRMED', 'TENTATIVE'] },
-            departureDate: { gte: asDate(today) },
-          },
-        },
-      },
-    };
-    const recentSome: Prisma.GuestWhereInput = {
-      stays: {
-        some: {
-          reservationItem: {
-            status: 'CHECKED_OUT',
-            departureDate: { gte: asDate(shiftDate(today, -GUEST_RECENT_DAYS)) },
-          },
-        },
-      },
-    };
-    const byState: Record<Exclude<GuestDirectoryFilter, 'ALL'>, Prisma.GuestWhereInput> = {
-      INHOUSE: inhouse,
-      EXPECTED: { AND: [expectedSome, { NOT: inhouse }] },
-      RECENT: { AND: [recentSome, { NOT: inhouse }, { NOT: expectedSome }] },
-    };
+    const recentFrom = shiftDate(today, -GUEST_RECENT_DAYS);
+    const like = (text: string) => `%${text.replace(/[\\%_]/g, '\\$&')}%`;
     const q = query.q;
     const digits = q.replace(/\D/g, '');
-    const search: Prisma.GuestWhereInput = q
-      ? {
-          OR: [
-            { lastName: { contains: q, mode: 'insensitive' } },
-            { firstName: { contains: q, mode: 'insensitive' } },
-            { email: { contains: q, mode: 'insensitive' } },
-            ...(digits.length >= 4 ? [{ phone: { contains: digits } }] : []),
-            // человека можно найти и по номеру его брони (ТЗ §6)
-            {
-              stays: {
-                some: {
-                  reservationItem: {
-                    reservation: { confirmationNumber: { contains: q, mode: 'insensitive' } },
+    // Факты гостя — те же, что считает `summarizeGuestStays` для колонок таблицы (G2): визит —
+    // заселён или выехал; «последний визит» — самый поздний выезд; «ближайший» — подтверждённая или
+    // неподтверждённая бронь, чей выезд не прошёл. SQL нужен G7: отбор и порядок по этим фактам
+    // Prisma не выражает. Схема не названа — `search_path` и RLS действуют, как у «Броней» (R2).
+    const guestWhere: Prisma.Sql[] = [];
+    if (organizationId) guestWhere.push(Prisma.sql`g."organization_id" = ${organizationId}::uuid`);
+    if (q)
+      guestWhere.push(Prisma.sql`(
+        g."last_name" ILIKE ${like(q)}
+        OR g."first_name" ILIKE ${like(q)}
+        OR g."email" ILIKE ${like(q)}
+        ${digits.length >= 4 ? Prisma.sql`OR g."phone" LIKE ${like(digits)}` : Prisma.empty}
+        OR EXISTS (
+          SELECT 1 FROM "stay_guests" qs
+          JOIN "reservation_items" qi ON qi."id" = qs."reservation_item_id"
+          JOIN "reservations" qr ON qr."id" = qi."reservation_id"
+          WHERE qs."guest_id" = g."id" AND qr."confirmation_number" ILIKE ${like(q)}))`);
+    const facts = Prisma.sql`
+      WITH f AS (
+        SELECT g."id", g."last_name", g."first_name",
+          COUNT(ri."id") FILTER (WHERE ri."status"::text IN ('CHECKED_IN', 'CHECKED_OUT'))::int AS "visits",
+          COALESCE(BOOL_OR(ri."status"::text = 'CHECKED_IN'), false) AS "inhouse",
+          COALESCE(BOOL_OR(ri."status"::text IN ('CONFIRMED', 'TENTATIVE')
+            AND ri."departure_date" >= ${today}::date), false) AS "expected",
+          MAX(ri."departure_date") FILTER (WHERE ri."status"::text = 'CHECKED_OUT') AS "last_departure",
+          MIN(ri."arrival_date") FILTER (WHERE ri."status"::text IN ('CONFIRMED', 'TENTATIVE')
+            AND ri."departure_date" >= ${today}::date) AS "next_arrival"
+        FROM "guests" g
+        LEFT JOIN "stay_guests" sg ON sg."guest_id" = g."id"
+        LEFT JOIN "reservation_items" ri ON ri."id" = sg."reservation_item_id"
+        WHERE ${guestWhere.length ? Prisma.join(guestWhere, ' AND ') : Prisma.sql`TRUE`}
+        GROUP BY g."id"
+      ), s AS (
+        SELECT f.*, CASE
+          WHEN f."inhouse" THEN 'INHOUSE'
+          WHEN f."expected" THEN 'EXPECTED'
+          WHEN f."last_departure" >= ${recentFrom}::date THEN 'RECENT'
+          ELSE 'NONE' END AS "state"
+        FROM f
+      )`;
+    const filters: Prisma.Sql[] = [Prisma.sql`TRUE`];
+    const w = query.lastVisit;
+    if (w && 'days' in w)
+      filters.push(
+        Prisma.sql`s."last_departure" BETWEEN ${shiftDate(today, -w.days)}::date AND ${today}::date`,
+      );
+    else if (w)
+      filters.push(Prisma.sql`s."last_departure" BETWEEN ${w.from}::date AND ${w.to}::date`);
+    if (query.visits === '1') filters.push(Prisma.sql`s."visits" = 1`);
+    else if (query.visits === '2-5') filters.push(Prisma.sql`s."visits" BETWEEN 2 AND 5`);
+    else if (query.visits === '6+') filters.push(Prisma.sql`s."visits" >= 6`);
+    const filtered = Prisma.join(filters, ' AND ');
+    const byName = Prisma.sql`s."last_name" ASC, s."first_name" ASC, s."id" ASC`;
+    const orderBy =
+      query.sort === 'next'
+        ? Prisma.sql`s."next_arrival" ASC NULLS LAST, ${byName}`
+        : query.sort === 'last'
+          ? Prisma.sql`s."last_departure" DESC NULLS LAST, ${byName}`
+          : query.sort === 'visits'
+            ? Prisma.sql`s."visits" DESC, ${byName}`
+            : byName;
+    const inState =
+      query.state === 'ALL' ? Prisma.sql`TRUE` : Prisma.sql`s."state" = ${query.state}`;
+    // числа чипов — тем же отбором без раздела: видно до нажатия, сколько найдётся (как на «Бронях»)
+    const [countRows, page] = await Promise.all([
+      this.prisma.db.$queryRaw<Array<Record<GuestDirectoryFilter, number>>>(Prisma.sql`${facts}
+        SELECT COUNT(*)::int AS "ALL",
+          COUNT(*) FILTER (WHERE s."state" = 'INHOUSE')::int AS "INHOUSE",
+          COUNT(*) FILTER (WHERE s."state" = 'EXPECTED')::int AS "EXPECTED",
+          COUNT(*) FILTER (WHERE s."state" = 'RECENT')::int AS "RECENT",
+          COUNT(*) FILTER (WHERE s."state" = 'NONE')::int AS "NONE"
+        FROM s WHERE ${filtered}`),
+      this.prisma.db.$queryRaw<Array<{ id: string }>>(Prisma.sql`${facts}
+        SELECT s."id"::text AS "id" FROM s
+        WHERE ${filtered} AND ${inState}
+        ORDER BY ${orderBy}
+        LIMIT ${query.pageSize} OFFSET ${(query.page - 1) * query.pageSize}`),
+    ]);
+    const counts = countRows[0] ?? { ALL: 0, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
+    const ids = page.map((p) => p.id);
+    const found = ids.length
+      ? await this.prisma.db.guest.findMany({
+          where: { id: { in: ids } },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            middleName: true,
+            phone: true,
+            email: true,
+            // одним запросом на страницу, без рейса на каждого гостя (ТЗ §45)
+            stays: {
+              select: {
+                reservationItem: {
+                  select: {
+                    status: true,
+                    arrivalDate: true,
+                    departureDate: true,
+                    accommodationType: { select: { name: true } },
+                    allocations: {
+                      orderBy: { startDate: 'desc' },
+                      take: 1,
+                      select: { inventoryUnit: { select: { code: true } } },
+                    },
                   },
                 },
               },
             },
-          ],
-        }
-      : {};
-    const base: Prisma.GuestWhereInput = { AND: [this.visible(), search] };
-    const whereFor = (f: GuestDirectoryFilter): Prisma.GuestWhereInput =>
-      f === 'ALL' ? base : { AND: [base, byState[f]] };
-    const [all, inh, exp, rec] = await Promise.all([
-      this.prisma.db.guest.count({ where: whereFor('ALL') }),
-      this.prisma.db.guest.count({ where: whereFor('INHOUSE') }),
-      this.prisma.db.guest.count({ where: whereFor('EXPECTED') }),
-      this.prisma.db.guest.count({ where: whereFor('RECENT') }),
-    ]);
-    const counts = { ALL: all, INHOUSE: inh, EXPECTED: exp, RECENT: rec };
-    const rows = await this.prisma.db.guest.findMany({
-      where: whereFor(query.state),
-      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }, { id: 'asc' }],
-      skip: (query.page - 1) * query.pageSize,
-      take: query.pageSize,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        middleName: true,
-        phone: true,
-        email: true,
-        // одним запросом на страницу, без рейса на каждого гостя (ТЗ §45)
-        stays: {
-          select: {
-            reservationItem: {
-              select: {
-                status: true,
-                arrivalDate: true,
-                departureDate: true,
-                accommodationType: { select: { name: true } },
-                allocations: {
-                  orderBy: { startDate: 'desc' },
-                  take: 1,
-                  select: { inventoryUnit: { select: { code: true } } },
-                },
-              },
-            },
           },
-        },
-      },
-    });
+        })
+      : [];
+    // порядок страницы — порядок SQL; строки дочитываются одной выборкой, без рейса на гостя (ТЗ §45)
+    const byId = new Map(found.map((g) => [g.id, g]));
+    const rows = ids.flatMap((id) => byId.get(id) ?? []);
     return {
       total: counts[query.state],
       page: query.page,

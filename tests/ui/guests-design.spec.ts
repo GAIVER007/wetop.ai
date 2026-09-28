@@ -322,8 +322,9 @@ test('гости: автопоиск без кнопки «Найти», имя 
   await request.post(`${fixture}/__test/control`, { data: { noBookings: true } });
   await page.goto('/guests');
   await expect(main.getByTestId('guests-none')).toContainText('Гостей пока нет');
-  await expect(main.getByTestId('guests-none').getByRole('link', { name: 'Новая бронь' }))
-    .toBeVisible();
+  await expect(
+    main.getByTestId('guests-none').getByRole('link', { name: 'Новая бронь' }),
+  ).toBeVisible();
 
   const audit = await new AxeBuilder({ page })
     .include('main')
@@ -409,4 +410,76 @@ test('гости: новая бронь этому же гостю — из ка
   await page.goto('/reservations/new?guest=ui-guest-missing');
   await expect(page.getByTestId('booking-guest-missing')).toContainText('не найден');
   await expect(form.locator('[name="lastName"]')).toBeVisible();
+});
+
+test('гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7)', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${fixture}/__test/guest-cases`);
+  const main = page.getByRole('main');
+  const table = main.getByTestId('guests-table');
+  const filters = main.getByTestId('guests-filters');
+
+  // четвёртый раздел: не живёт, не ожидается и не выезжал за 30 дней — число видно до нажатия
+  await page.goto('/guests');
+  const none = main.getByRole('link', { name: /Без активного проживания/ });
+  await expect(none.locator('.chips__count')).not.toHaveText('0');
+  await none.click();
+  await expect(page).toHaveURL(/\/guests\?state=none$/);
+  await expect(table).toContainText('Отменившийся');
+  await expect(table).toContainText('Давний');
+  await expect(table).not.toContainText('Возвращающийся');
+
+  // последний визит за 30 дней и 2–5 визитов: остаётся тот, кто приезжал трижды
+  await page.goto('/guests');
+  await filters.getByRole('combobox', { name: 'Последний визит', exact: true }).selectOption('30d');
+  await filters.getByRole('combobox', { name: 'Визитов', exact: true }).selectOption('2-5');
+  await filters.getByRole('button', { name: 'Показать', exact: true }).click();
+  await expect(page).toHaveURL(/\/guests\?last=30d&visits=2-5$/);
+  await expect(table.getByRole('row')).toHaveCount(2);
+  await expect(table).toContainText('Возвращающийся');
+  await expect(main.getByTestId('guests-meta')).toContainText(
+    'последний визит за 30 дней, 2–5 визитов',
+  );
+  const audit = await new AxeBuilder({ page })
+    .include('main')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+
+  // смена раздела и поиск уносят отбор с собой; «Назад» возвращает прежний вид
+  await main.getByRole('link', { name: /Проживают/ }).click();
+  await expect(page).toHaveURL(/\/guests\?state=inhouse&last=30d&visits=2-5$/);
+  await main.getByRole('searchbox', { name: 'Поиск гостей' }).fill('Возвр');
+  await expect(page).toHaveURL(/state=inhouse&last=30d&visits=2-5&q=/);
+  await expect(table).toContainText('Возвращающийся');
+  // поиск заменяет запись истории, а не копит её: «Назад» — к виду до смены раздела
+  await page.goBack();
+  await expect(page).toHaveURL(/\/guests\?last=30d&visits=2-5$/);
+  await expect(table).toContainText('Возвращающийся');
+
+  // порядок: больше визитов — выше
+  await page.goto('/guests?sort=visits');
+  await expect(table.getByRole('row').nth(1)).toContainText('Возвращающийся');
+  await expect(filters.getByRole('combobox', { name: 'Порядок', exact: true })).toHaveValue(
+    'visits',
+  );
+
+  // период с–по виден, когда выбран «период»; даты едут в адрес
+  await page.goto('/guests');
+  await expect(filters.getByLabel('Последний визит: с', { exact: true })).toBeHidden();
+  await filters
+    .getByRole('combobox', { name: 'Последний визит', exact: true })
+    .selectOption('period');
+  await expect(filters.getByLabel('Последний визит: с', { exact: true })).toBeVisible();
+  await page.goto('/guests?last=period&from=2020-01-01&to=2020-01-31');
+  await expect(main.getByTestId('guests-empty')).toContainText('Ничего не найдено');
+  await expect(main.getByTestId('guests-meta')).toContainText('последний визит 01.01 → 31.01.2020');
+
+  // опечатка в адресе — слово об ошибке и полный список, а не молча другой отбор
+  await page.goto('/guests?visits=5%2B');
+  await expect(main.getByRole('alert')).toContainText('Неизвестный отбор по числу визитов');
+  await main.getByRole('link', { name: 'Сбросить фильтры' }).first().click();
+  await expect(page).toHaveURL(/\/guests$/);
 });

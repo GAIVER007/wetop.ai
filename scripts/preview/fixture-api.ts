@@ -2624,9 +2624,44 @@ function read(path: string, q: URLSearchParams): unknown {
           today,
         ),
       }));
-    const counts = { ALL: all.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0 };
-    for (const g of all) if (g.state !== 'NONE') counts[g.state] += 1;
-    const rows = state === 'ALL' ? all : all.filter((g) => g.state === state);
+    // G7: отборы и порядок — те же правила, что SQL настоящего API (последний визит — выезд
+    // последнего состоявшегося визита; визиты — заселён или выехал)
+    const last = q.get('last') || '';
+    const window: [string, string] | null =
+      last === 'today'
+        ? [today, today]
+        : last === '7d'
+          ? [add(today, -7), today]
+          : last === '30d'
+            ? [add(today, -30), today]
+            : last === 'period'
+              ? [q.get('from') || '', q.get('to') || '']
+              : null;
+    const visits = q.get('visits') || '';
+    const filtered = all.filter(
+      (g) =>
+        (!window ||
+          (g.last !== null &&
+            g.last.departureDate >= window[0] &&
+            g.last.departureDate <= window[1])) &&
+        (visits === '1'
+          ? g.staysCount === 1
+          : visits === '2-5'
+            ? g.staysCount >= 2 && g.staysCount <= 5
+            : visits === '6+'
+              ? g.staysCount >= 6
+              : true),
+    );
+    const sort = q.get('sort') || 'name';
+    const tail = '9999-12-31';
+    if (sort === 'next')
+      filtered.sort((a, b) => (a.next?.arrivalDate ?? tail).localeCompare(b.next?.arrivalDate ?? tail));
+    else if (sort === 'last')
+      filtered.sort((a, b) => (b.last?.departureDate ?? '').localeCompare(a.last?.departureDate ?? ''));
+    else if (sort === 'visits') filtered.sort((a, b) => b.staysCount - a.staysCount);
+    const counts = { ALL: filtered.length, INHOUSE: 0, EXPECTED: 0, RECENT: 0, NONE: 0 };
+    for (const g of filtered) counts[g.state] += 1;
+    const rows = state === 'ALL' ? filtered : filtered.filter((g) => g.state === state);
     return {
       total: rows.length,
       page,

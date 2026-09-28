@@ -13,6 +13,30 @@
 .guests-reset {
   white-space: nowrap;
 }
+/* G7: отборы под поиском — одна строка списков и «Показать», как вторая строка панели «Броней» (R2) */
+.guests-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+}
+.guests-filters .field {
+  margin: 0;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.guests-filters .inp {
+  font-size: var(--text-sm);
+}
+/* «С / По» нужны только периоду: видны, когда в «Последнем визите» выбран «период» */
+.guests-period {
+  display: none;
+  gap: var(--space-2);
+}
+.guests-filters:has(select[name='last'] option[value='period']:checked) .guests-period {
+  display: inline-flex;
+}
 /* вторая строка ячейки: почта под телефоном, «до 30 сент.» под ячейкой, категория под датой заезда */
 .dir-sub {
   display: block;

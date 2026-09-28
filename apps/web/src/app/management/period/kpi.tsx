@@ -1,6 +1,6 @@
 import type { DashboardPeriod } from '@pms/domain';
-import { Icon, type IconName } from '../../components/icon';
-import { cx } from '../../components/ui';
+import { Icon, type IconName } from '../../../components/icon';
+import { cx } from '../../../components/ui';
 import {
   deltaPercent,
   deltaPoints,
@@ -8,9 +8,9 @@ import {
   formatPercent,
   wholeTenge,
   type Delta,
-} from '../../lib/dashboard-format';
-import { displayDate } from '../../lib/display-date';
-import { pluralRu } from '../../lib/plural';
+} from '../../../lib/dashboard-format';
+import { displayDate } from '../../../lib/display-date';
+import { pluralRu } from '../../../lib/plural';
 
 function DeltaMark({ delta }: { delta: Delta }) {
   // 21.09: «нет базы для сравнения» стояло под каждой из шести плиток — шесть одинаковых строк.

@@ -57,6 +57,7 @@ const tenge = (minor: string) => Number((BigInt(minor) + 50n) / 100n);
 // ── Экраны из меню (apps/web/src/lib/navigation.ts) плюс то, что открывается из них ──
 const STATIC = [
   '/today',
+  '/management/dashboard',
   '/chessboard',
   '/reservations',
   '/guests',
@@ -452,7 +453,8 @@ interface DashboardPeriodApi {
   arrivals: { count: number };
 }
 async function checkDashboard(page: Page, label: string, from: string, to: string) {
-  const route = '/today';
+  // A1 (ADR-103): показатели за период живут на своём экране, определения ADR-047 те же
+  const route = '/management/dashboard';
   // Next отдаёт страницу потоком: те же `data-testid` секунду живут в двух копиях — берём первую
   const kpi = page.getByTestId('kpi-occupancy').first();
   const err = page.getByTestId('dashboard-error').first();
@@ -506,7 +508,7 @@ async function checkDashboard(page: Page, label: string, from: string, to: strin
 }
 
 async function walkDashboard(page: Page) {
-  const route = '/today';
+  const route = '/management/dashboard';
   await open(page, route);
   for (const p of PERIOD_PRESETS) {
     const link = page
@@ -550,7 +552,7 @@ async function walkDashboard(page: Page) {
   );
   await checkDashboard(page, `свои даты`, from, to);
   // период длиннее года — отказ словами, не пустые нули
-  await open(page, `/today?period=custom&from=${addDays(today, -400)}&to=${today}`);
+  await open(page, `/management/dashboard?period=custom&from=${addDays(today, -400)}&to=${today}`);
   const text = (await page.locator('main').first().innerText()).replace(/\s+/g, ' ');
   note(
     route,
@@ -558,7 +560,7 @@ async function walkDashboard(page: Page) {
     /не больше 366/.test(text) ? 'ok' : 'FAIL',
     /не больше 366/.test(text) ? 'сказано словами' : 'предупреждения нет',
   );
-  // ?date= — полоса стойки на выбранный день
+  // ?date= — полоса стойки на выбранный день (Главная)
   const y = addDays(today, -1);
   await open(page, `/today?date=${y}`);
   await page.getByTestId('c-arrivals').first().waitFor({ timeout: 60_000 });
@@ -576,7 +578,7 @@ async function walkDashboard(page: Page) {
   ];
   const badStrip = strip.filter(([, s, e]) => s !== e);
   note(
-    route,
+    '/today',
     `полоса «На стойке» за ${y}`,
     badStrip.length ? 'FAIL' : 'ok',
     badStrip.length

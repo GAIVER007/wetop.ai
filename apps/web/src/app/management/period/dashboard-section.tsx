@@ -1,5 +1,5 @@
-import { ApiError, dashboardApi } from '../../lib/api';
-import { Alert, Panel } from '../../components/ui';
+import { ApiError, dashboardApi } from '../../../lib/api';
+import { Alert, Panel } from '../../../components/ui';
 import { KpiGrid } from './kpi';
 import { CategoriesPanel, OccupancyChart, PaymentsPanel, SourcesPanel } from './dashboard-panels';
 import type { ResolvedPeriod } from '@pms/domain';
@@ -27,8 +27,8 @@ export async function DashboardSection({
   if (view instanceof ApiError)
     return (
       <Alert tone="warning" boxed data-testid="dashboard-error">
-        Показатели за период не загрузились: {view.message} Стойка ниже работает как обычно; можно
-        выбрать период короче или обновить страницу.
+        Показатели за период не загрузились: {view.message} Можно выбрать период короче или обновить
+        страницу.
       </Alert>
     );
 

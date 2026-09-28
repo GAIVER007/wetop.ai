@@ -6,27 +6,40 @@ test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
 });
 
-test('главная: новая бронь и резюме внимания доступны на первом экране', async ({ page }) => {
+test('главная: новая бронь и полоса стойки доступны на первом экране', async ({ page }) => {
+  // A1 (ADR-103): операционная часть — первый экран; резюме-дубля внимания сверху больше нет
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/today');
     const create = page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true });
     await expect(create).toBeInViewport({ ratio: 1 });
-    const attention = page.getByRole('link', { name: /Требуют внимания: / });
-    await expect(attention).toBeInViewport({ ratio: 1 });
-    // Ссылка и её цель приходят разными потоковыми кусками (`Suspense`): пока секция «Требуют
-    // внимания» не в DOM, переход по якорю прокрутить некуда — на медленном раннере CI щелчок
-    // успевал раньше секции, и заголовок оставался за краем экрана (20.09.2026).
+    const strip = page.getByRole('region', { name: 'Сегодня на стойке' });
+    await expect(strip).toBeInViewport();
+    // Блок задач стоит сразу под полосой и приходит тем же потоковым куском
     const heading = page.getByRole('heading', { name: 'Требуют внимания', exact: true });
     await expect(heading).toBeAttached();
-    await attention.click();
-    await expect(heading).toBeInViewport();
+    if (width === 1440) await expect(heading).toBeInViewport();
   }
 });
 
-test('период на телефоне: подписанные поля и цели не меньше 44 px', async ({ page }) => {
+test('полоса дня на телефоне и период на «Показателях»: подписанные поля и цели не меньше 44 px', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today');
+  for (const control of [
+    page.getByLabel('День стойки: дата'),
+    page.getByTestId('day-form').getByRole('button', { name: 'Показать' }),
+    page
+      .getByRole('navigation', { name: 'День стойки' })
+      .getByRole('link', { name: 'Сегодня', exact: true }),
+  ]) {
+    const box = await control.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+    expect(box!.width).toBeGreaterThanOrEqual(44);
+  }
+  await page.goto('/management/dashboard');
   for (const control of [
     page.getByLabel('Период: с'),
     page.getByLabel('Период: по'),
@@ -42,10 +55,15 @@ test('период на телефоне: подписанные поля и ц�
   }
 });
 
-test('месячные показатели и задачи конкретного дня подписаны отдельно', async ({ page }) => {
+test('главная живёт одним днём, месячные показатели — на своём экране', async ({ page }) => {
+  // день стойки задаёт ?date=, ?period= Главная больше не читает (A1, ADR-103)
   await page.goto('/today?period=month&date=2026-09-17');
+  await expect(
+    page.getByRole('region', { name: 'Сегодня на стойке' }).locator('.desk-strip__date'),
+  ).toHaveAttribute('datetime', '2026-09-17');
+  await expect(page.getByTestId('period-caption')).toHaveCount(0);
+  await page.goto('/management/dashboard?period=month');
   await expect(page.getByTestId('period-caption')).toContainText('30 дней');
-  await expect(page.getByTestId('attention-summary')).toContainText('17 сент.');
   for (const id of ['occupancy', 'revenue', 'paid', 'adr', 'revpar', 'arrivals']) {
     await expect(page.getByTestId(`kpi-${id}`)).toBeVisible();
   }

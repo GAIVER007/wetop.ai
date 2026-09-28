@@ -5,14 +5,15 @@ import { Icon } from '../../components/icon';
 import { displayDate } from '../../lib/display-date';
 
 /**
- * Полоса «На стойке»: то, что раньше было пятью карточками «Обзора дня». `data-testid` c-* не менять —
- * их читает сквозная сверка `scripts/reconciliation/src/cli-system-trace.ts` (Exely ↔ Supabase ↔ API ↔ экран).
+ * Полоса «На стойке» — операционный ряд Главной (A1, ADR-103): проживают, заезды, выезды,
+ * свободно, загрузка, к оплате. `data-testid` c-* не менять — их читает сквозная сверка
+ * `scripts/reconciliation/src/cli-system-trace.ts` (Exely ↔ Supabase ↔ API ↔ экран).
  *
- * Разбор 23.09.2026: числа дня стоят без цвета статуса — зелёный заездов, жёлтый выездов и синий
- * «свободно» ничего не значили по §9 (жёлтый горел каждый день, даже при нуле выездов); цвет остался
- * только у долга. И «долг уезжающих» из API — это долг тех, кто ещё живёт: гость, выселенный сегодня
- * с долгом, в него не входит, и полоса писала «все счета оплачены» рядом с задачей «К оплате» в
- * «Требуют внимания». Теперь такие гости названы числом и ведут к списку.
+ * Число каждой плитки — ссылка в раздел с этим списком (ТЗ §4): новых фильтров и расчётов A1 не
+ * добавляет. «Загрузка» — то же деление, что метр «Статистики»: занято / весь фонд дня, включая
+ * блокировки; считается из уже загруженной шахматки. «К оплате» — прежний `debtMinor` (долг
+ * уезжающих, которые ещё живут); выехавшие и не заехавшие с остатком названы отдельными ссылками,
+ * как раньше (разбор 23.09.2026). Цвет — только у долга (§9).
  */
 export function DeskStrip({
   day,
@@ -30,7 +31,22 @@ export function DeskStrip({
   );
   const left = outside.filter((r) => r.status === 'CHECKED_OUT').length;
   const notArrived = outside.length - left;
-  const free = board ? String(board.summary[day.date]?.free ?? 0) : '—';
+  const summary = board?.summary[day.date];
+  const free = summary ? String(summary.free) : '—';
+  // Загрузка дня: занято / (занято + свободно + заблокировано) — как метр на /management/statistics
+  const units = summary ? summary.occupied + summary.free + summary.blocked : 0;
+  const occupancy = summary && units > 0 ? Math.round((summary.occupied / units) * 100) : null;
+  const d = day.date;
+  const value = (testId: string, text: string, href: string, name: string, money = false) => (
+    <Link className="desk-stat__link" href={href} aria-label={name}>
+      <strong
+        className={money ? 'desk-stat__value desk-stat__value--money' : 'desk-stat__value'}
+        data-testid={testId}
+      >
+        {text}
+      </strong>
+    </Link>
+  );
   return (
     <section className="desk-strip" aria-label="Сегодня на стойке">
       <div className="desk-strip__head">
@@ -50,43 +66,51 @@ export function DeskStrip({
       <div className="desk-strip__stats">
         <div className="desk-stat">
           <span className="desk-stat__label">Проживают</span>
-          <strong className="desk-stat__value" data-testid="c-inhouse">
-            {day.counts.inHouse}
-          </strong>
+          {value('c-inhouse', String(day.counts.inHouse), `/reservations?date=${d}`, 'Проживают — брони дня')}
           <span className="desk-stat__hint">активных размещений</span>
         </div>
         <div className="desk-stat">
           <span className="desk-stat__label">Заезды</span>
-          <strong className="desk-stat__value" data-testid="c-arrivals">
-            {day.counts.arrivals}
-          </strong>
+          {value('c-arrivals', String(day.counts.arrivals), `/reservations?date=${d}`, 'Заезды — брони дня')}
           <span className="desk-stat__hint">
             <b data-testid="c-tocheckin">{day.counts.toCheckIn}</b> ожидают заселения
           </span>
         </div>
         <div className="desk-stat">
           <span className="desk-stat__label">Выезды</span>
-          <strong className="desk-stat__value" data-testid="c-departures">
-            {day.counts.departures}
-          </strong>
+          {value('c-departures', String(day.counts.departures), `/reservations?date=${d}`, 'Выезды — брони дня')}
           <span className="desk-stat__hint">
             <b data-testid="c-tocheckout">{day.counts.toCheckOut}</b> ожидают выезда
           </span>
         </div>
         <div className="desk-stat">
           <span className="desk-stat__label">Свободно</span>
-          <strong className="desk-stat__value" data-testid="c-free">
-            {free}
-          </strong>
+          {value('c-free', free, `/chessboard?from=${d}&to=${d}`, 'Свободно — шахматка дня')}
           <span className="desk-stat__hint">номеров и койко-мест</span>
         </div>
+        <div className="desk-stat">
+          <span className="desk-stat__label">Загрузка</span>
+          {value(
+            'c-occupancy',
+            occupancy === null ? '—' : `${occupancy}%`,
+            `/management/statistics?date=${d}`,
+            'Загрузка — статистика дня',
+          )}
+          <span className="desk-stat__hint">
+            {summary ? `занято ${summary.occupied} из ${units}` : 'шахматка не загрузилась'}
+          </span>
+        </div>
         <div className={debt ? 'desk-stat desk-stat--debt' : 'desk-stat desk-stat--paid'}>
-          <span className="desk-stat__label">Долг уезжающих</span>
-          <strong className="desk-stat__value desk-stat__value--money" data-testid="c-debt">
-            {formatMoney(day.debtMinor)}
-          </strong>
+          <span className="desk-stat__label">К оплате</span>
+          {value(
+            'c-debt',
+            formatMoney(day.debtMinor),
+            `/finance?from=${d}&to=${d}`,
+            'К оплате — деньги за день',
+            true,
+          )}
           {debt ? (
-            <span className="desk-stat__hint">проверьте расчёт перед выездом</span>
+            <span className="desk-stat__hint">долг уезжающих — проверьте расчёт перед выездом</span>
           ) : outside.length === 0 ? (
             <span className="desk-stat__hint desk-stat__hint--ok">все счета оплачены</span>
           ) : null}

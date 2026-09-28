@@ -61,6 +61,7 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/photos', 'Интеграции'],
     ['/hotel-settings/amenities', 'Интеграции'],
     ['/management/statistics', 'Статистика'],
+    ['/management/dashboard', 'Показатели за период'],
     ['/channel-manager', 'Менеджер каналов'],
     ['/connections', 'Интеграции'],
   ];
@@ -201,10 +202,9 @@ test('подключения показывают частичный сбой, �
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
 });
 
-test('главная: период готовыми отрезками и своими датами; мобильное меню и возврат фокуса', async ({
-  page,
-}) => {
-  await page.goto('/today');
+test('показатели за период: готовые отрезки и свои даты; поиск из шапки', async ({ page }) => {
+  // A1 (ADR-103): периодный дашборд живёт на своём экране, состав и определения ADR-047 те же
+  await page.goto('/management/dashboard');
   // по умолчанию — сегодня: один день, загрузка по категориям вместо столбиков по дням
   await expect(page.getByRole('link', { name: 'Сегодня', exact: true })).toHaveAttribute(
     'aria-current',
@@ -229,7 +229,7 @@ test('главная: период готовыми отрезками и сво
   await expect(page).toHaveURL(/period=custom&from=2026-09-01&to=2026-09-03/);
   await expect(page.getByTestId('period-caption')).toContainText('3 дня');
   // неверный отрезок — ошибка на экране, показан сегодняшний день
-  await page.goto('/today?period=custom&from=2026-09-10&to=2026-09-01');
+  await page.goto('/management/dashboard?period=custom&from=2026-09-10&to=2026-09-01');
   await expect(page.getByRole('main').getByRole('alert')).toContainText('раньше начала');
   await expect(page.getByRole('main').getByTestId('chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
@@ -571,11 +571,11 @@ test('общий платёж: ошибка не стирает распреде
   expect(result.balanceMinor).toBe('3000000');
 });
 
-test('обзор: задачи ведут к счетам, период не меняет полосу стойки, узкие экраны сохраняют действия', async ({
+test('обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия', async ({
   page,
 }) => {
   await page.goto('/today');
-  const tasks = page.getByRole('complementary', { name: 'Задачи и размещение' });
+  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
   // долг уезжающего плюс «не заехал вовремя»: подтверждён, заезд был раньше, ни в одном списке дня его нет
   await expect(tasks.locator('.attention-count')).toHaveText('2');
@@ -587,13 +587,14 @@ test('обзор: задачи ведут к счетам, период не м�
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
-  const debt = await page.getByTestId('c-debt').innerText();
-  const arrivals = await page.getByTestId('c-arrivals').innerText();
-  // полоса стойки — всегда про сегодня, какой бы период ни был выбран сверху
-  await page.getByRole('link', { name: 'Прошлый месяц', exact: true }).click();
-  await expect(page).toHaveURL(/period=last-month/);
-  await expect(page.getByTestId('c-debt')).toHaveText(debt);
-  await expect(page.getByTestId('c-arrivals')).toHaveText(arrivals);
+  // A1 (ADR-103): Главная живёт одним днём — «Завтра» меняет и полосу, и задачи на тот день
+  await page.getByRole('navigation', { name: 'День стойки' }).getByRole('link', { name: 'Завтра' }).click();
+  await expect(page).toHaveURL(/date=\d{4}-\d{2}-\d{2}/);
+  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).not.toContainText('сейчас');
+  await page
+    .getByRole('navigation', { name: 'День стойки' })
+    .getByRole('link', { name: 'Сегодня' })
+    .click();
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
   await expect(tasks.locator('.attention-count')).toHaveText('2');
   await expect(
@@ -877,11 +878,14 @@ test('пустые ответы дают нули; сбой API не выдаё�
    */
   await page.goto('/today');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Главная');
-  await expect(page.getByTestId('dashboard-error')).toBeVisible();
   await expect(page.getByTestId('desk-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   await expect(page.locator('.desk-stat__value:visible')).toHaveCount(0);
   await expect(page.getByTestId('kpi-occupancy')).toHaveCount(0);
+  // показатели за период — свой экран (A1): отказ называется там же
+  await page.goto('/management/dashboard');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Показатели за период');
+  await expect(page.getByTestId('dashboard-error')).toBeVisible();
   await page.goto('/connections');
   await expect(
     page.getByRole('main').getByRole('alert').filter({ hasText: 'Нет связи с рабочим API' }),

@@ -59,7 +59,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'desk',
         label: 'Главная',
         icon: 'today',
-        description: 'Загрузка, деньги за период и задачи дня.',
+        description: 'Рабочий экран дня: стойка, задачи и быстрые действия.',
       },
       {
         href: '/chessboard',
@@ -124,6 +124,12 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             description: 'Календарь цен, ограничения и массовое редактирование.',
           },
         ],
+      },
+      {
+        href: '/management/dashboard',
+        label: 'Показатели за период',
+        icon: 'analytics',
+        description: 'Загрузка, выручка, ADR и RevPAR за период со сравнением.',
       },
       {
         href: '/management/statistics',
@@ -295,7 +301,12 @@ export const sidebarSections: SidebarSection[] = [
     id: 'finance',
     label: 'Финансы и отчёты',
     icon: 'money',
-    items: [menuItem('/finance'), menuItem('/management/statistics')],
+    // «Показатели за период» — блок, переехавший с Главной (ADR-103): периоды живут здесь
+    items: [
+      menuItem('/management/dashboard'),
+      menuItem('/finance'),
+      menuItem('/management/statistics'),
+    ],
   },
   {
     id: 'settings',

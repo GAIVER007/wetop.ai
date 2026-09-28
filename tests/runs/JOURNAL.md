@@ -2963,6 +2963,23 @@
 | 27.09.2026 20:04 | integration | ✅ 107 из 107 | 36 с | aa14a85 +7 | [лог](logs/2026-09-27T15-04-14Z-integration-d966.log) | Q-198: тариф брони без тарифа у администратора |
 | 27.09.2026 20:05 | e2e | ✅ 25 из 25 | 1 мин 9 с | aa14a85 +10 | [лог](logs/2026-09-27T15-05-01Z-e2e-a10e.log) | Q-198: тариф брони без тарифа у администратора |
 | 27.09.2026 20:06 | e2e | ✅ 26 из 26 | 1 мин 13 с | aa14a85 +10 | [лог](logs/2026-09-27T15-06-15Z-e2e-3949.log) | Q-198: тариф брони без тарифа у администратора, со входом |
+| 27.09.2026 18:01 | typecheck | ❌ ошибок: 1 | 29 с | 6440f99 +26 | [лог](logs/2026-09-27T13-01-29Z-typecheck-2f09.log) | TS2375 |
+| 27.09.2026 18:02 | typecheck | ✅ без ошибок | 21 с | 6440f99 +26 | [лог](logs/2026-09-27T13-02-13Z-typecheck-70c9.log) |  |
+| 27.09.2026 18:02 | lint | ✅ без ошибок | 16 с | 6440f99 +26 | [лог](logs/2026-09-27T13-02-35Z-lint-f804.log) |  |
+| 27.09.2026 18:02 | unit | ❌ упало 2 из 2078, пропущено 3 | 1 мин 33 с | 6440f99 +14 | [лог](logs/2026-09-27T13-02-57Z-unit-e176.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 27.09.2026 18:05 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | 6440f99 +15 | [лог](logs/2026-09-27T13-05-32Z-unit-9084.log) |  |
+| 27.09.2026 18:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts -- | ❌ упало 16 из 16 | 22 с | 6440f99 +26 | [лог](logs/2026-09-27T13-06-54Z-e2e-3d27.log) | показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек |
+| 27.09.2026 18:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts -- | ❌ упало 16 из 16 | 19 с | 6440f99 +26 | [лог](logs/2026-09-27T13-07-37Z-e2e-bbbb.log) | показатели: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек |
+| 27.09.2026 18:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts -- | ✅ 16 из 16 | 1 мин 14 с | 6440f99 +26 | [лог](logs/2026-09-27T13-08-16Z-e2e-f748.log) |  |
+| 27.09.2026 18:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 401 | 32 мин 4 с | 6440f99 +26 | [лог](logs/2026-09-27T13-09-43Z-e2e-5dbf.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 18:42 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-refresh.spec.ts --workers=1) | ❌ упало 1 из 7 | 54 с | c8a3a8a +1 | [лог](logs/2026-09-27T13-42-41Z-e2e-8969.log) | полоса дня на телефоне и период на «Показателях»: подписанные поля и цели не меньше 44 px |
+| 27.09.2026 18:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/design-refresh.spec.ts tests/ui/dashboard-desk.spec.ts --workers=1) | ✅ 17 из 17 | 1 мин 30 с | c8a3a8a +1 | [лог](logs/2026-09-27T13-45-08Z-e2e-0dae.log) |  |
+| 27.09.2026 18:47 | typecheck | ✅ без ошибок | 30 с | c8a3a8a +1 | [лог](logs/2026-09-27T13-47-01Z-typecheck-7962.log) |  |
+| 27.09.2026 18:47 | lint | ✅ без ошибок | 16 с | c8a3a8a +1 | [лог](logs/2026-09-27T13-47-32Z-lint-c7d8.log) |  |
+| 27.09.2026 18:47 | unit | ✅ 2075 из 2078, пропущено 3 | 1 мин 12 с | c8a3a8a +1 | [лог](logs/2026-09-27T13-47-49Z-unit-146b.log) |  |
+| 27.09.2026 18:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 401 | 31 мин 40 с | c8a3a8a +1 | [лог](logs/2026-09-27T13-49-07Z-e2e-9275.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 19:22 | integration | ✅ 101 из 101 | 33 с | 99e8c2d | [лог](logs/2026-09-27T14-22-12Z-integration-77d1.log) |  |
+| 27.09.2026 19:23 | e2e | ✅ 25 из 25 | 1 мин 4 с | 99e8c2d | [лог](logs/2026-09-27T14-23-19Z-e2e-a69d.log) |  |
 | 27.09.2026 19:04 | unit | ✅ 2083 из 2086, пропущено 3 | 1 мин 35 с | 6440f99 +11 | [лог](logs/2026-09-27T14-04-08Z-unit-3390.log) |  |
 | 27.09.2026 19:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 4 из 11 | 49 с | 6440f99 +14 | [лог](logs/2026-09-27T14-06-12Z-e2e-e2b8.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
 | 27.09.2026 19:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-design.spec.ts tests/ui/reservations-st | ❌ упало 1 из 11 | 1 мин 6 с | 6440f99 +14 | [лог](logs/2026-09-27T14-08-30Z-e2e-5b7b.log) | R1: панель в две строки, таблица в первом экране, финансы и статус словами о брони |
@@ -3066,6 +3083,11 @@
 | 27.09.2026 20:57 | e2e | ✅ 25 из 25 | 1 мин 2 с | a93ecdd | [лог](logs/2026-09-27T15-57-56Z-e2e-c024.log) | итоговое дерево a93ecdd3 |
 | 27.09.2026 20:58 | e2e | ✅ 26 из 26 | 1 мин 11 с | a93ecdd | [лог](logs/2026-09-27T15-58-59Z-e2e-a82f.log) | итоговое дерево a93ecdd3, со входом |
 | 27.09.2026 21:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 416 из 416 | 32 мин 26 с | fbb3ff4 | [лог](logs/2026-09-27T16-01-54Z-e2e-18db.log) | полный UI на итоговом дереве fbb3ff4f: роли ADR-106 (Q-199, Q-200) + main (архитектура v3, RLS, пробный период) |
+| 27.09.2026 21:02 | typecheck | ✅ без ошибок | 29 с | af1bad1 | [лог](logs/2026-09-27T16-02-55Z-typecheck-f8a6.log) |  |
+| 27.09.2026 21:03 | lint | ✅ без ошибок | 15 с | af1bad1 | [лог](logs/2026-09-27T16-03-25Z-lint-e975.log) |  |
+| 27.09.2026 21:03 | unit | ✅ 2105 из 2108, пропущено 3 | 1 мин 12 с | af1bad1 | [лог](logs/2026-09-27T16-03-41Z-unit-e4f4.log) |  |
+| 27.09.2026 21:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 403 | 32 мин 16 с | af1bad1 | [лог](logs/2026-09-27T16-05-14Z-e2e-9d71.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 27.09.2026 21:38 | e2e | ✅ 25 из 25 | 1 мин 2 с | fef9de9 | [лог](logs/2026-09-27T16-38-18Z-e2e-cddb.log) | A1 merged with main: live stand on a bundle rebuilt from this tree |
 | 27.09.2026 21:03 | typecheck | ✅ без ошибок | 32 с | 309ff27 | [лог](logs/2026-09-27T16-03-06Z-typecheck-5660.log) |  |
 | 27.09.2026 21:03 | lint | ✅ без ошибок | 18 с | 309ff27 | [лог](logs/2026-09-27T16-03-39Z-lint-cad3.log) |  |
 | 27.09.2026 21:03 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 15 с | 309ff27 | [лог](logs/2026-09-27T16-03-57Z-unit-4d9f.log) |  |
@@ -3089,3 +3111,8 @@
 | 27.09.2026 23:42 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 421 | 34 мин 16 с | 5c0cebe | [лог](logs/2026-09-27T18-42-02Z-e2e-add5.log) | полный UI после шестого слияния 5c0cebe4: роли ADR-107 + Брони v2 R1 |
 | 28.09.2026 00:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/manager-actions.spec.ts) | ✅ 9 из 9 | 41 с | 5c0cebe +2 | [лог](logs/2026-09-27T19-18-49Z-e2e-ba2d.log) | manager-actions: дата стенда из ответа /__test/reset (прогон через полночь Алматы) |
 | 28.09.2026 00:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 421 из 421 | 32 мин 59 с | 8b141bb | [лог](logs/2026-09-27T19-19-46Z-e2e-5254.log) | полный UI на 8b141bba: роли ADR-107 + Брони v2 R1, дата стенда в manager-actions |
+| 27.09.2026 23:08 | typecheck | ✅ без ошибок | 30 с | a76af3c | [лог](logs/2026-09-27T18-08-13Z-typecheck-89b5.log) |  |
+| 27.09.2026 23:08 | lint | ✅ без ошибок | 17 с | a76af3c | [лог](logs/2026-09-27T18-08-44Z-lint-53f0.log) |  |
+| 27.09.2026 23:09 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 12 с | a76af3c | [лог](logs/2026-09-27T18-09-01Z-unit-3552.log) |  |
+| 27.09.2026 23:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 408 | 32 мин 37 с | a76af3c | [лог](logs/2026-09-27T18-10-20Z-e2e-e111.log) | скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) |
+| 28.09.2026 01:53 | e2e | ✅ 25 из 25 | 1 мин 2 с | 7922a1b | [лог](logs/2026-09-27T20-53-10Z-e2e-f65c.log) | A1 merged with Reservations v2 R1: live stand on a bundle rebuilt from this tree |

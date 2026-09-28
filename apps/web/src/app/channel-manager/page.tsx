@@ -18,6 +18,7 @@ import {
 } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { pluralRu } from '../../lib/plural';
+import { ChannelTabs } from './tabs';
 import '../directory.css';
 
 /** Окно компактной сводки источников: последние 30 дней по дате заезда (ТЗ §2, §21) */
@@ -140,8 +141,8 @@ export default async function ChannelOverviewPage() {
       key: 'unmapped',
       tone: 'warn',
       text: `Без сопоставления ${pluralRu(unmapped, ['категория', 'категории', 'категорий'])} — их продажи в каналы не синхронизируются.`,
-      href: '/channels',
-      action: 'Сопоставить',
+      href: '/channel-manager/mapping',
+      action: 'Открыть сопоставление',
     });
   const webhookTrouble = !webhook
     ? null
@@ -205,6 +206,7 @@ export default async function ChannelOverviewPage() {
 
   return (
     <Page title="Каналы продаж" subtitle="Состояние подключений, сопоставлений и синхронизации.">
+      <ChannelTabs current="overview" />
       {/* один блок сбоя на экран: при отказе всего API два одинаковых «Повторить» подряд сдвигали полосу вниз */}
       {(!loadedOutbox.ok || !loadedMapping.ok) && (
         <LoadError

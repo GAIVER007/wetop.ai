@@ -75,6 +75,7 @@ const STATIC = [
   '/management/statistics',
   '/finance',
   '/channel-manager',
+  '/channel-manager/mapping',
   '/channels',
   '/analytics',
   '/analytics/sources',

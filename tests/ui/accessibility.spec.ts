@@ -27,6 +27,7 @@ const routes = [
   '/hotel-settings/services',
   '/management/statistics',
   '/channel-manager',
+  '/channel-manager/mapping',
   '/channels',
   '/connections',
   '/analytics',

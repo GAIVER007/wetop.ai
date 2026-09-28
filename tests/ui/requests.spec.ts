@@ -50,6 +50,7 @@ for (const screen of [
   '/management/statistics',
   '/finance',
   '/channel-manager',
+  '/channel-manager/mapping',
   '/channels',
   '/analytics',
   '/analytics/sources',

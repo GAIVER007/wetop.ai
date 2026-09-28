@@ -131,6 +131,7 @@ test('новые страницы и обе темы: адаптивность �
     '/connections',
     '/hotel-settings',
     '/channel-manager',
+    '/channel-manager/mapping',
     '/channels',
     '/journal',
     '/incidents',

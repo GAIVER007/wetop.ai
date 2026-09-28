@@ -112,6 +112,12 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Состояние подключений, сопоставления и синхронизация с каналами.',
         children: [
           {
+            href: '/channel-manager/mapping',
+            label: 'Сопоставление',
+            icon: 'channels',
+            description: 'Какие категории и тарифы связаны с Channex.',
+          },
+          {
             href: '/channels',
             label: 'Синхронизация',
             icon: 'channels',

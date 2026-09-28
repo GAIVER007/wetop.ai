@@ -1,0 +1,79 @@
+# Сквозные (e2e) · 28.09.2026 12:06 Алматы · vm
+# коммит 070a66f (claude/festive-cray-5cn5az), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/ui/channex-screens.spec.ts:25:1 › источники продаж: стоимость — плитка в ряду, без дубля числа источников и без монограмм (3.0s)
+  ✓   2 tests/ui/channex-screens.spec.ts:65:1 › каналы продаж: обзор состояния вместо отчёта — счётчики, «Требует внимания», карточка Channex (3.7s)
+  ✘   3 tests/ui/channex-screens.spec.ts:137:1 › каналы продаж: сопоставление категорий и тарифов по названиям, предупреждение о несопоставленной категории (18.0s)
+  ✓   4 tests/ui/channex-screens.spec.ts:225:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (2.8s)
+  ✓   5 tests/ui/channex-screens.spec.ts:285:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (2.1s)
+  ✓   6 tests/ui/channex-screens.spec.ts:302:1 › каналы: очередь с фильтром по статусу, события с фильтрами, поиском и постраничностью (5.4s)
+  ✓   7 tests/ui/channex-screens.spec.ts:366:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (4.6s)
+  ✓   8 tests/ui/channex-screens.spec.ts:415:1 › приём брони: ревизия с двоеточиями в номере открывается (1.1s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:130:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   128 |         /* тело не JSON */
+[WebServer]   129 |       }
+[WebServer] > 130 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   131 |   }
+[WebServer]   132 |   return (await res.json()) as T;
+[WebServer]   133 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   9 tests/ui/channex-screens.spec.ts:429:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.5s)
+  ✓  10 tests/ui/channex-screens.spec.ts:449:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (7.7s)
+  ✓  11 tests/ui/channex-screens.spec.ts:515:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (9.6s)
+  ✓  12 tests/ui/channex-screens.spec.ts:596:1 › источники продаж и подключения: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (8.4s)
+
+
+  1) tests/ui/channex-screens.spec.ts:137:1 › каналы продаж: сопоставление категорий и тарифов по названиям, предупреждение о несопоставленной категории 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('mapping-warning')
+    Expected substring: "остатки и цены"
+    Received string:    "Без сопоставления: Женский общий номер. Остатки и цены по этой категории в каналы не уходят. Недостающее создаёт «Создать объект в Channex» на экране «Синхронизация», уже сопоставленное повтор не трогает.Открыть синхронизацию"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('mapping-warning') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('mapping-warning')
+        34 × locator resolved to <div role="alert" data-testid="mapping-warning" class="alert alert--warning alert--boxed overview-trouble">…</div>
+           - unexpected value "Без сопоставления: Женский общий номер. Остатки и цены по этой категории в каналы не уходят. Недостающее создаёт «Создать объект в Channex» на экране «Синхронизация», уже сопоставленное повтор не трогает.Открыть синхронизацию"
+
+
+      167 |   const warning = main.getByTestId('mapping-warning');
+      168 |   await expect(warning).toContainText('Женский общий номер');
+    > 169 |   await expect(warning).toContainText('остатки и цены');
+          |                         ^
+      170 |   await expect(warning.getByRole('link', { name: 'Открыть синхронизацию' })).toHaveAttribute(
+      171 |     'href',
+      172 |     '/channels',
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:169:25
+
+    Error Context: test-results/channex-screens-каналы-про-512d6--несопоставленной-категории/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-каналы-про-512d6--несопоставленной-категории/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-каналы-про-512d6--несопоставленной-категории/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/channex-screens.spec.ts:137:1 › каналы продаж: сопоставление категорий и тарифов по названиям, предупреждение о несопоставленной категории 
+  11 passed (1.3m)
+
+# код выхода 1 · 1 мин 20 с

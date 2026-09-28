@@ -1,5 +1,5 @@
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
-import {agentFixture,resetAgentFixture} from './fixture-agents';
+import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
@@ -617,6 +617,11 @@ let priceChanges: Array<{
  * в `POST /__test/control` вместе с витриной конфликтов среза 7.3. Все брони и гости вымышленные (ADR-010).
  */
 let showcase = false;
+/**
+ * Сопоставления Channex для вкладки «Сопоставление» (CH2, ADR-107): по умолчанию их нет, как у стенда без
+ * `setup`; 'partial' — объект создан, две категории из трёх сопоставлены с тарифом BASE, третья нет.
+ */
+let channelMapping: 'none' | 'partial' = 'none';
 let showcaseEvents: InboundEvent[] = [];
 const showcaseRevisions = new Map<string, RevisionFacts>();
 let showcaseOutbox: OutboxRow[] = [];
@@ -1447,13 +1452,22 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
   const now = Date.now();
   if (state === 'off') platformExtensions.delete('ui-org');
   else if (state === 'expired')
-    platformExtensions.set('ui-org', { status, activeUntil: new Date(now - DAY_MS), note: null, updatedAt: new Date() });
+    platformExtensions.set('ui-org', {
+      status,
+      activeUntil: new Date(now - DAY_MS),
+      note: null,
+      updatedAt: new Date(),
+    });
   else
     platformExtensions.set('ui-org', {
       status,
       // «осталось N дней»: конец срока чуть раньше N полных суток — неполный день считается днём
       activeUntil:
-        typeof days === 'number' ? new Date(now + days * DAY_MS - 3_600_000) : trial ? new Date(now + 7 * DAY_MS) : null,
+        typeof days === 'number'
+          ? new Date(now + days * DAY_MS - 3_600_000)
+          : trial
+            ? new Date(now + 7 * DAY_MS)
+            : null,
       note: null,
       updatedAt: new Date(),
     });
@@ -1465,9 +1479,17 @@ function setOrgTrial(days: unknown) {
   const now = Date.now();
   uiUser.organization =
     days === 'ended'
-      ? { ...uiUser.organization, status: 'TRIAL', trialEndsAt: new Date(now - DAY_MS).toISOString() }
+      ? {
+          ...uiUser.organization,
+          status: 'TRIAL',
+          trialEndsAt: new Date(now - DAY_MS).toISOString(),
+        }
       : typeof days === 'number'
-        ? { ...uiUser.organization, status: 'TRIAL', trialEndsAt: new Date(now + days * DAY_MS - 3_600_000).toISOString() }
+        ? {
+            ...uiUser.organization,
+            status: 'TRIAL',
+            trialEndsAt: new Date(now + days * DAY_MS - 3_600_000).toISOString(),
+          }
         : { ...uiUser.organization, status: 'ACTIVE', trialEndsAt: null };
 }
 function resetAccess() {
@@ -1533,8 +1555,18 @@ const supportDialogSeed = () => [
       role: 'staff' as 'owner' | 'staff' | null,
     },
     messages: [
-      { role: 'user', text: 'Не сохраняется бронь: пишет «Нет связи с API».', at: new Date(Date.now() - 20 * 60_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Вижу ошибку в журнале. Позову человека.', at: new Date(Date.now() - 19 * 60_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Не сохраняется бронь: пишет «Нет связи с API».',
+        at: new Date(Date.now() - 20 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Вижу ошибку в журнале. Позову человека.',
+        at: new Date(Date.now() - 19 * 60_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
   {
@@ -1547,8 +1579,18 @@ const supportDialogSeed = () => [
     hasContact: false,
     platformUser: null,
     messages: [
-      { role: 'user', text: 'Сколько стоит WETOP для хостела?', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Расскажу о тарифах: оставьте почту — ответит менеджер.', at: new Date(Date.now() - 2 * 3600_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Сколько стоит WETOP для хостела?',
+        at: new Date(Date.now() - 2 * 3600_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Расскажу о тарифах: оставьте почту — ответит менеджер.',
+        at: new Date(Date.now() - 2 * 3600_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
 ];
@@ -1629,7 +1671,13 @@ const sellerDialogSeed = () => [
     stage: 'closing',
     lastActivityAt: new Date(Date.now() - 20 * 60_000).toISOString(),
     hasContact: true,
-    contact: { name: 'Алия Тестова', phone: '+7 700 000 00 01', email: null, channel: 'widget', externalId: 'ui-a' },
+    contact: {
+      name: 'Алия Тестова',
+      phone: '+7 700 000 00 01',
+      email: null,
+      channel: 'widget',
+      externalId: 'ui-a',
+    },
     // как `LeadFields` бота: ядро (имя, телефон, интерес, сроки) и свободная сумка `extra`
     leadData: {
       name: 'Алия Тестова',
@@ -1639,8 +1687,18 @@ const sellerDialogSeed = () => [
       extra: { guests: 2 },
     },
     messages: [
-      { role: 'user', text: 'Здравствуйте, есть двухместный на 1–3 октября?', at: new Date(Date.now() - 25 * 60_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Здравствуйте! Уточню у администратора и вернусь.', at: new Date(Date.now() - 24 * 60_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Здравствуйте, есть двухместный на 1–3 октября?',
+        at: new Date(Date.now() - 25 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Здравствуйте! Уточню у администратора и вернусь.',
+        at: new Date(Date.now() - 24 * 60_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
   {
@@ -1651,11 +1709,27 @@ const sellerDialogSeed = () => [
     stage: 'new',
     lastActivityAt: new Date(Date.now() - 3 * 3600_000).toISOString(),
     hasContact: false,
-    contact: { name: null as string | null, phone: null, email: null, channel: 'widget', externalId: 'ui-b' },
+    contact: {
+      name: null as string | null,
+      phone: null,
+      email: null,
+      channel: 'widget',
+      externalId: 'ui-b',
+    },
     leadData: {},
     messages: [
-      { role: 'user', text: 'Во сколько заезд?', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: false },
-      { role: 'assistant', text: 'Заезд с 14:00, выезд до 12:00.', at: new Date(Date.now() - 3 * 3600_000).toISOString(), sentByUs: true },
+      {
+        role: 'user',
+        text: 'Во сколько заезд?',
+        at: new Date(Date.now() - 3 * 3600_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'Заезд с 14:00, выезд до 12:00.',
+        at: new Date(Date.now() - 3 * 3600_000).toISOString(),
+        sentByUs: true,
+      },
     ],
   },
 ];
@@ -2286,7 +2360,46 @@ function read(path: string, q: URLSearchParams): unknown {
       state: 'READY',
       message: 'Соединение установлено',
     };
-  if (path === '/channels/channex/mapping') return [];
+  if (path === '/channels/channex/mapping')
+    return channelMapping === 'partial'
+      ? [
+          {
+            id: 'ui-map-property',
+            localAccommodationTypeCode: null,
+            localRatePlanId: null,
+            localRatePlanCode: null,
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: null,
+            providerRatePlanId: null,
+          },
+          {
+            id: 'ui-map-room',
+            localAccommodationTypeCode: 'ROOM',
+            localRatePlanId: 'ui-plan-base',
+            localRatePlanCode: 'BASE',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: 'ui-rt-room',
+            providerRatePlanId: 'ui-rp-room',
+          },
+          {
+            id: 'ui-map-male',
+            localAccommodationTypeCode: 'MALE',
+            localRatePlanId: 'ui-plan-base',
+            localRatePlanCode: 'BASE',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: 'ui-rt-male',
+            providerRatePlanId: 'ui-rp-male',
+          },
+        ]
+      : [];
+  // названия номеров и тарифов Channex (как GET content/names): только когда объект «создан»
+  if (path === '/channels/channex/content/names')
+    return channelMapping === 'partial'
+      ? {
+          roomTypes: { 'ui-rt-room': 'Double Room', 'ui-rt-male': 'Male Dorm Bed' },
+          ratePlans: { 'ui-rp-room': 'OTA Rate · Double', 'ui-rp-male': 'OTA Rate · Male Dorm' },
+        }
+      : { roomTypes: {}, ratePlans: {} };
   if (path === '/channels/channex/outbox')
     return showcase
       ? {
@@ -2519,7 +2632,10 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
     }
-    if (!demo) { const agentResponse=agentFixture(path,req.method??'GET',body); if(agentResponse) return send(agentResponse.status,agentResponse.data); }
+    if (!demo) {
+      const agentResponse = agentFixture(path, req.method ?? 'GET', body);
+      if (agentResponse) return send(agentResponse.status, agentResponse.data);
+    }
     if (path === '/__test/reset') {
       resetAgentFixture();
       hits.clear();
@@ -2557,6 +2673,7 @@ createServer(async (req, res) => {
       failStatus = 503;
       ratesUnmapped = false;
       incidentHistory = 0;
+      channelMapping = 'none';
       emptyFixture = false;
       noBookings = false;
       createdReservation = false;
@@ -2599,6 +2716,7 @@ createServer(async (req, res) => {
       groupFixture = body['group'] === true;
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
+      channelMapping = body['channelMapping'] === 'partial' ? 'partial' : 'none';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -2653,12 +2771,17 @@ createServer(async (req, res) => {
       sellerHosts = Array.isArray(body['sellerHosts'])
         ? (body['sellerHosts'] as string[]).map(String)
         : ['hotel-a.example.invalid'];
-      sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
+      sellerLastError =
+        typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
       uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
-      setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
+      setSellerExtension(
+        body['sellerExtension'],
+        body['sellerDaysLeft'],
+        body['sellerTrial'] === true,
+      );
       setOrgTrial(body['orgTrialDays']);
       supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
       // правил у помощника нет — файла промпта на томе ещё не завели (ADR-084)
@@ -2818,14 +2941,19 @@ createServer(async (req, res) => {
       const who = token ? uiSessions.get(token) : undefined;
       if (!who) return send(200, { user: null });
       // что открыто организации — пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083)
-      return send(200, { user: signedInView(who), access: { aiSeller: aiSellerView(who.organizationId) } });
+      return send(200, {
+        user: signedInView(who),
+        access: { aiSeller: aiSellerView(who.organizationId) },
+      });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : undefined;
       if (!who || !uiPlatformAdmin)
-        return send(403, { message: 'Раздел «Платформа» — только для главного администратора платформы' });
+        return send(403, {
+          message: 'Раздел «Платформа» — только для главного администратора платформы',
+        });
       if (path === '/platform/organizations' && req.method === 'GET')
         return send(200, { items: platformOrganizations().map(platformOrganizationJson) });
       const change = /^\/platform\/organizations\/([^/]+)\/extensions\/ai-seller$/.exec(path);
@@ -2844,15 +2972,24 @@ createServer(async (req, res) => {
         if (!org) return send(404, { message: 'Такой организации нет' });
         const next = body['status'];
         if (next !== 'ACTIVE' && next !== 'READ_ONLY')
-          return send(400, { message: 'Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)' });
+          return send(400, {
+            message: 'Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)',
+          });
         platformStatuses.set(org.id, next);
-        return send(200, platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!));
+        return send(
+          200,
+          platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),
+        );
       }
       if (path.startsWith('/platform/support/')) {
-        if (path === '/platform/support/status' && req.method === 'GET') return send(200, { state: supportState });
+        if (path === '/platform/support/status' && req.method === 'GET')
+          return send(200, { state: supportState });
         if (supportState === 'not-configured')
-          return send(503, { message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа' });
-        const dialog = /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/.exec(path);
+          return send(503, {
+            message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа',
+          });
+        const dialog =
+          /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/.exec(path);
         if (path === '/platform/support/conversations' && req.method === 'GET') {
           const mode = url.searchParams.get('mode');
           return send(200, {
@@ -2879,14 +3016,25 @@ createServer(async (req, res) => {
               mode: d.mode,
               stage: d.stage,
               leadData: {},
-              contact: { name: d.platformUser?.email ?? null, phone: null, email: null, channel: d.channel, externalId: null },
+              contact: {
+                name: d.platformUser?.email ?? null,
+                phone: null,
+                email: null,
+                channel: d.channel,
+                externalId: null,
+              },
               messages: d.messages,
               platformUser: d.platformUser,
             });
           if (dialog[2] === 'reply' && req.method === 'POST') {
             const text = String(body['text'] ?? '').trim();
             if (!text) return send(400, { message: 'Ответ: пустое сообщение' });
-            d.messages.push({ role: 'operator', text, at: new Date().toISOString(), sentByUs: true });
+            d.messages.push({
+              role: 'operator',
+              text,
+              at: new Date().toISOString(),
+              sentByUs: true,
+            });
             return send(200, { ok: true });
           }
           if (dialog[2] && req.method === 'POST') {
@@ -2895,17 +3043,28 @@ createServer(async (req, res) => {
             return send(200, { mode: d.mode, previousMode });
           }
         }
-        if (path === '/platform/support/knowledge' && req.method === 'GET') return send(200, { items: supportKnowledge });
+        if (path === '/platform/support/knowledge' && req.method === 'GET')
+          return send(200, { items: supportKnowledge });
         if (path === '/platform/support/knowledge' && req.method === 'POST') {
           const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
           if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
             return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
-          supportKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...supportKnowledge];
+          supportKnowledge = [
+            { source: name, chunks: 1, createdAt: new Date().toISOString() },
+            ...supportKnowledge,
+          ];
           return send(201, { source: name, created: true, chunks: 1 });
         }
         if (path === '/platform/support/summary' && req.method === 'GET')
-          return send(200, { hours: 24, dialogs: supportDialogs.length, replies: 3, leads: 0, slaBreaches: 1 });
-        if (path === '/platform/support/prompt' && req.method === 'GET') return send(200, { text: supportPrompt });
+          return send(200, {
+            hours: 24,
+            dialogs: supportDialogs.length,
+            replies: 3,
+            leads: 0,
+            slaBreaches: 1,
+          });
+        if (path === '/platform/support/prompt' && req.method === 'GET')
+          return send(200, { text: supportPrompt });
         if (path === '/platform/support/prompt' && req.method === 'PUT') {
           const text = String(body['text'] ?? '').trim();
           if (!text) return send(400, { message: 'Правила: пустой текст' });
@@ -2923,7 +3082,8 @@ createServer(async (req, res) => {
           return send(200, { model, previous });
         }
         if (path === '/platform/support/sandbox' && req.method === 'POST') {
-          if (!String(body['text'] ?? '').trim()) return send(400, { message: 'Проверка: пустое сообщение' });
+          if (!String(body['text'] ?? '').trim())
+            return send(400, { message: 'Проверка: пустое сообщение' });
           const informal = supportPrompt.includes('на «ты»');
           return send(200, {
             reply: informal ? 'Привет! Чем помочь?' : 'Здравствуйте! Чем помочь?',
@@ -2965,9 +3125,13 @@ createServer(async (req, res) => {
             : path === '/ai-seller/llm-key' || path === '/ai-seller/whatsapp'
               ? 'configure'
               : 'read'
-          : path === '/ai-seller/profile' || path === '/ai-seller/prompt' || path === '/ai-seller/apply' ||
+          : path === '/ai-seller/profile' ||
+              path === '/ai-seller/prompt' ||
+              path === '/ai-seller/apply' ||
               path === '/ai-seller/knowledge' ||
-              path === '/ai-seller/extract' || path.startsWith('/ai-seller/llm-key') || path.startsWith('/ai-seller/whatsapp')
+              path === '/ai-seller/extract' ||
+              path.startsWith('/ai-seller/llm-key') ||
+              path.startsWith('/ai-seller/whatsapp')
             ? 'configure'
             : 'act';
       if (path !== '/ai-seller/status') {
@@ -2980,7 +3144,8 @@ createServer(async (req, res) => {
           });
         if (extension.access === 'expired' && sellerUse !== 'read')
           return send(403, {
-            message: 'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP',
+            message:
+              'Срок расширения «ИИ-продавец» вышел: раздел только для чтения. Продлевает администратор WETOP',
           });
       }
       const sellerView = () => ({
@@ -2989,7 +3154,9 @@ createServer(async (req, res) => {
         updatedAt: sellerUpdatedAt,
         applied: sellerApplied,
       });
-      const dialog = path.match(/^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/);
+      const dialog = path.match(
+        /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/,
+      );
       if (req.method === 'GET') {
         if (path === '/ai-seller/status')
           return send(200, {
@@ -3060,7 +3227,13 @@ createServer(async (req, res) => {
         }
         if (path === '/ai-seller/knowledge') return send(200, { items: sellerKnowledge });
         if (path === '/ai-seller/summary')
-          return send(200, { hours: 24, dialogs: sellerDialogs.length, replies: 5, leads: 1, slaBreaches: 0 });
+          return send(200, {
+            hours: 24,
+            dialogs: sellerDialogs.length,
+            replies: 5,
+            leads: 1,
+            slaBreaches: 0,
+          });
         if (path === '/ai-seller/embed')
           // Э4: тег с публичным ключом гостиницы (выводимый, не секрет) и домены её сайтов
           return send(200, {
@@ -3085,7 +3258,8 @@ createServer(async (req, res) => {
         // те же отказы, что у API: пустой и длиннее 20 000 знаков
         const text = typeof body['text'] === 'string' ? body['text'].trim() : '';
         if (!text) return send(400, { message: 'Инструкция: пустой текст' });
-        if (text.length > 20_000) return send(400, { message: 'Инструкция: не длиннее 20000 знаков' });
+        if (text.length > 20_000)
+          return send(400, { message: 'Инструкция: не длиннее 20000 знаков' });
         sellerPrompt = text;
         sellerSaved = true;
         sellerApplied = false;
@@ -3110,10 +3284,14 @@ createServer(async (req, res) => {
       if (path === '/ai-seller/whatsapp/check' && req.method === 'POST') {
         const phoneId = String(body['phoneNumberId'] ?? '').trim();
         const token = String(body['token'] ?? '').trim();
-        if (phoneId === '' || token === '') return send(400, { message: 'Нужны phone_number_id и токен' });
-        return send(200, token.includes('valid')
-          ? { valid: true, phone: '+7 701 000-00-00', reason: null }
-          : { valid: false, phone: null, reason: 'Meta не приняла номер или токен' });
+        if (phoneId === '' || token === '')
+          return send(400, { message: 'Нужны phone_number_id и токен' });
+        return send(
+          200,
+          token.includes('valid')
+            ? { valid: true, phone: '+7 701 000-00-00', reason: null }
+            : { valid: false, phone: null, reason: 'Meta не приняла номер или токен' },
+        );
       }
       if (path === '/ai-seller/llm-key' && req.method === 'GET')
         return send(200, { set: sellerLlmKey !== null, last4: sellerLlmKey });
@@ -3126,9 +3304,12 @@ createServer(async (req, res) => {
         const key = String(body['key'] ?? '').trim();
         if (key === '') return send(400, { message: 'Нечего проверять: ключ пуст' });
         // подставной роутер: «valid» в ключе — действителен, иначе отказ словами
-        return send(200, key.includes('valid')
-          ? { valid: true, reason: null }
-          : { valid: false, reason: 'Роутер не принял ключ' });
+        return send(
+          200,
+          key.includes('valid')
+            ? { valid: true, reason: null }
+            : { valid: false, reason: 'Роутер не принял ключ' },
+        );
       }
       if (path === '/ai-seller/extract' && req.method === 'POST') {
         // подставной бот «разобрал» рассказ: как у API — только в пустые поля черновика (С1)
@@ -3171,7 +3352,9 @@ createServer(async (req, res) => {
             address: 'Алматы, ул. Вымышленная, 1',
             checkIn: '14:00',
             checkOut: '12:00',
-            categories: [{ name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 }],
+            categories: [
+              { name: 'Койка в общем номере', kind: 'bed', capacity: 1, priceMinor: 800000 },
+            ],
           },
           profile: sellerView(),
         });
@@ -3179,7 +3362,9 @@ createServer(async (req, res) => {
       if (path === '/ai-seller/apply' && req.method === 'POST') {
         if (!sellerSaved) return send(409, { message: 'Сначала сохраните настройки продавца' });
         if (sellerState === 'not-configured')
-          return send(503, { message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца' });
+          return send(503, {
+            message: 'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца',
+          });
         // слой 9 продавца: скрытая инструкция в тексте — отказ по содержанию, причина остаётся в разделе
         if (sellerPrompt !== null && /игнорируй (все )?предыдущие/i.test(sellerPrompt)) {
           sellerLastError = 'В тексте найдены инструкции для модели';
@@ -3208,7 +3393,10 @@ createServer(async (req, res) => {
         const name = /filename="([^"]+)"/.exec(raw.toString('utf8'))?.[1] ?? 'документ';
         if (!/\.(md|txt|pdf|docx|xlsx)$/i.test(name))
           return send(415, { message: 'Знания: md, txt, pdf, docx или xlsx' });
-        sellerKnowledge = [{ source: name, chunks: 1, createdAt: new Date().toISOString() }, ...sellerKnowledge];
+        sellerKnowledge = [
+          { source: name, chunks: 1, createdAt: new Date().toISOString() },
+          ...sellerKnowledge,
+        ];
         return send(201, { source: name, created: true, chunks: 1 });
       }
       if (path === '/ai-seller/sandbox' && req.method === 'POST') {

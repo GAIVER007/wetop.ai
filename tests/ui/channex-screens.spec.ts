@@ -129,6 +129,99 @@ test('каналы продаж: обзор состояния вместо от
   expect(layout.content, 'обзор шире экрана телефона').toBeLessThanOrEqual(layout.viewport + 1);
 });
 
+/**
+ * CH2 «Каналы продаж v2» (ADR-107, plans/ch2-channels-mapping-2026-09-28.md): вкладка «Сопоставление» —
+ * категории и тарифы раздельно, по названиям, без идентификаторов Channex. Фикстура: объект создан, две
+ * категории из трёх сопоставлены с тарифом BASE, «Женский общий номер» — нет.
+ */
+test('каналы продаж: сопоставление категорий и тарифов по названиям, предупреждение о несопоставленной категории', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
+  // с обзора: «Без сопоставления» ведёт на вкладку, вкладки видны на обоих экранах
+  await page.goto('/channel-manager');
+  const tabs = main.getByRole('navigation', { name: 'Каналы продаж' });
+  await expect(tabs.getByRole('link', { name: 'Обзор' })).toHaveAttribute('aria-current', 'page');
+  await expect(main.getByTestId('overview-unmapped')).toHaveText('1');
+  await main
+    .getByTestId('overview-troubles')
+    .getByRole('link', { name: 'Открыть сопоставление' })
+    .click();
+  await expect(page).toHaveURL(/\/channel-manager\/mapping$/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
+  await expect(tabs.getByRole('link', { name: 'Сопоставление' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  // категории: название в Channex вместо id, статус словом
+  const categoriesTable = main.getByTestId('mapping-categories');
+  const room = categoriesTable.getByRole('row', { name: /Двухместный номер/ });
+  await expect(room).toContainText('Double Room');
+  await expect(room).toContainText('Сопоставлена');
+  const female = categoriesTable.getByRole('row', { name: /Женский общий номер/ });
+  await expect(female).toContainText('Не сопоставлена');
+  // предупреждение называет категорию, последствие и ведёт туда, где сопоставляют
+  const warning = main.getByTestId('mapping-warning');
+  await expect(warning).toContainText('Женский общий номер');
+  await expect(warning).toContainText(/остатки и цены/i);
+  await expect(warning.getByRole('link', { name: 'Открыть синхронизацию' })).toHaveAttribute(
+    'href',
+    '/channels',
+  );
+  // тарифы: считаются по данным, не во всех категориях — это видно
+  const plansTable = main.getByTestId('mapping-rate-plans');
+  const base = plansTable.getByRole('row', { name: /Стандартный/ });
+  await expect(base).toContainText('2 из 3');
+  await expect(base).toContainText('Не во всех категориях');
+  // идентификаторы Channex на вкладке не показываются (ТЗ §26) — они остаются на «Синхронизации»
+  await expect(main).not.toContainText('ui-rt-room');
+  await expect(main).not.toContainText('ui-property');
+  // названия Channex не пришли: статусы на месте, вместо названия — слова, не id и не сбой экрана
+  await request.post(`${fixture}/__test/control`, {
+    data: { channelMapping: 'partial', failPath: '/channels/channex/content/names' },
+  });
+  await page.goto('/channel-manager/mapping');
+  await expect(
+    main.getByTestId('mapping-categories').getByRole('row', { name: /Двухместный номер/ }),
+  ).toContainText('название в Channex недоступно');
+  await expect(main.getByTestId('mapping-error')).toHaveCount(0);
+  // сопоставления не загрузились — сбой словами, заголовок и вкладки на месте
+  await request.post(`${fixture}/__test/control`, {
+    data: { failPath: '/channels/channex/mapping' },
+  });
+  await page.goto('/channel-manager/mapping');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
+  await expect(main.getByTestId('mapping-error')).toBeVisible();
+  await expect(main.getByTestId('mapping-categories')).toHaveCount(0);
+  // объект в Channex не создан — пустое состояние со ссылкой на «Синхронизацию»
+  await request.post(`${fixture}/__test/control`, { data: {} });
+  await page.goto('/channel-manager/mapping');
+  const none = main.getByTestId('mapping-no-property');
+  await expect(none).toContainText('Объект в Channex не создан');
+  await expect(none.getByRole('link', { name: 'Открыть синхронизацию' })).toHaveAttribute(
+    'href',
+    '/channels',
+  );
+  // телефон: таблицы без прокрутки вбок
+  await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/channel-manager/mapping');
+  await expect(main.getByTestId('mapping-categories')).toBeVisible();
+  const layout = await page.evaluate(() => {
+    const w = globalThis as unknown as {
+      innerWidth: number;
+      document: { documentElement: { scrollWidth: number } };
+    };
+    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+  });
+  expect(layout.content, 'сопоставление шире экрана телефона').toBeLessThanOrEqual(
+    layout.viewport + 1,
+  );
+});
+
 test('цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит', async ({
   page,
   request,

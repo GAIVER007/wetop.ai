@@ -112,9 +112,9 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
           {
             href: '/rooms/availability',
             requires: 'property',
-            label: 'Доступность номеров',
+            label: 'Свободные места',
             icon: 'board',
-            description: 'Свободные номера и койки на весь срок проживания.',
+            description: 'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
           },
           {
             href: '/rates',

@@ -6,7 +6,7 @@ export function FundTabs({ active }: { active: 'inventory' | 'categories' | 'ava
         [
           ['inventory', '/inventory', 'Номера и койки'],
           ['categories', '/rooms/categories', 'Категории'],
-          ['availability', '/rooms/availability', 'Доступность'],
+          ['availability', '/rooms/availability', 'Свободные места'],
         ] as const
       ).map(([key, href, label]) => (
         <Link key={key} href={href} aria-current={active === key ? 'page' : undefined}>

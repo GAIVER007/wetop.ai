@@ -3198,6 +3198,16 @@
 | 28.09.2026 01:54 | e2e | ❌ упало 19 из 25, пропущено 3 | 38 мин 23 с | ba8f884 | [лог](logs/2026-09-27T20-54-29Z-e2e-9e01.log) | C1 категории: сквозные на финальном коде |
 | 28.09.2026 02:33 | e2e | ❌ упало 19 из 25, пропущено 3 | 38 мин 20 с | 3f948f9 | [лог](logs/2026-09-27T21-33-15Z-e2e-14d1.log) | C1 категории: сквозные на финальном коде, сид формы Luxx |
 | 28.09.2026 03:12 | e2e (частично: --workers=1 tests/e2e/inventory.spec.ts tests/e2e/check-in-out.spec.ts) | ❌ упало 3 из 4 | 5 мин 14 с | 8b3522e +7 | [лог](logs/2026-09-27T22-12-42Z-e2e-f6b1.log) | БАЗА 74d8b1c без C1: те же спеки для сравнения |
+| 27.09.2026 22:01 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1 -g guests filter\|availability preserves) | ❌ упало 2 из 2 | 48 с | db59b8d +3 | [лог](logs/2026-09-27T17-01-38Z-e2e-a4f3.log) | AV1 red: обновлённая спека на старом коде (ADR-106) |
+| 27.09.2026 22:02 | typecheck | ✅ без ошибок | 29 с | db59b8d +9 | [лог](logs/2026-09-27T17-02-34Z-typecheck-b715.log) |  |
+| 27.09.2026 22:03 | lint | ✅ без ошибок | 16 с | db59b8d +9 | [лог](logs/2026-09-27T17-03-10Z-lint-454e.log) |  |
+| 27.09.2026 22:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ❌ упало 1 из 4 | 35 с | db59b8d +9 | [лог](logs/2026-09-27T17-03-34Z-e2e-ab3c.log) | AV1 green: свободные места — гости, компакт, переключатель (ADR-106) |
+| 27.09.2026 22:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts --workers=1) | ✅ 4 из 4 | 32 с | db59b8d +9 | [лог](logs/2026-09-27T17-04-33Z-e2e-1bd3.log) | AV1 green: свободные места — гости, компакт, переключатель (ADR-106) |
+| 27.09.2026 22:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/workspace.spec.ts tests/ui/empty-base.spec.ts tests/ui/navigation.spec.ts tests/ui/accessibility. | ✅ 116 из 116 | 9 мин 27 с | db59b8d +9 | [лог](logs/2026-09-27T17-05-41Z-e2e-ccf0.log) | AV1: спеки, задетые переименованием раздела (ADR-106) |
+| 27.09.2026 22:15 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ✅ 2 из 2 | 16 с | db59b8d +10 | [лог](logs/2026-09-27T17-15-55Z-e2e-ef16.log) | AV1: витрина для визуального стопа (ADR-106) |
+| 27.09.2026 22:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ❌ код выхода 1 | 1 с | db59b8d +10 | [лог](logs/2026-09-27T17-20-56Z-e2e-7fe0.log) | AV1: витрина, ru-локаль, без dev-оверлея (ADR-106) |
+| 27.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ❌ код выхода 1 | 3 с | db59b8d +10 | [лог](logs/2026-09-27T17-21-20Z-e2e-6fbe.log) | AV1: витрина, ru-локаль, без dev-оверлея (ADR-106) |
+| 27.09.2026 22:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/availability-gate.spec.ts --workers=1) | ✅ 2 из 2 | 16 с | db59b8d +10 | [лог](logs/2026-09-27T17-21-37Z-e2e-9653.log) | AV1: витрина, ru-локаль, без dev-оверлея (ADR-106) |
 | 27.09.2026 21:03 | typecheck | ✅ без ошибок | 32 с | 309ff27 | [лог](logs/2026-09-27T16-03-06Z-typecheck-5660.log) |  |
 | 27.09.2026 21:03 | lint | ✅ без ошибок | 18 с | 309ff27 | [лог](logs/2026-09-27T16-03-39Z-lint-cad3.log) |  |
 | 27.09.2026 21:03 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 15 с | 309ff27 | [лог](logs/2026-09-27T16-03-57Z-unit-4d9f.log) |  |
@@ -3311,3 +3321,6 @@
 | 28.09.2026 12:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts tests/ui/categories-screens.spec.ts tests/ui/fund-workspac | ✅ 5 из 5 | 56 с | 99291ca +9 | [лог](logs/2026-09-28T07-06-55Z-e2e-cf22.log) | C2 green: превью, карточки; C1-спеки |
 | 28.09.2026 12:08 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 16 с | 99291ca +7 | [лог](logs/2026-09-28T07-08-39Z-unit-8597.log) |  |
 | 28.09.2026 12:10 | integration | ✅ 107 из 107 | 33 с | 99291ca +3 | [лог](logs/2026-09-28T07-10-23Z-integration-52bc.log) |  |
+| 28.09.2026 01:53 | typecheck | ✅ без ошибок | 27 с | 6ffa358 | [лог](logs/2026-09-27T20-53-30Z-typecheck-950a.log) |  |
+| 28.09.2026 01:53 | lint | ✅ без ошибок | 18 с | 6ffa358 | [лог](logs/2026-09-27T20-53-57Z-lint-8e8c.log) |  |
+| 28.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fund-workspace.spec.ts tests/ui/availability-gate.spec.ts tests/ui/empty-base.spec.ts --workers=1 | ✅ 25 из 25 | 2 мин 12 с | 6ffa358 | [лог](logs/2026-09-27T20-54-22Z-e2e-2b7d.log) | AV1 после слияния main (ADR-107): свободные места + пустая база |

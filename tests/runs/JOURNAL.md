@@ -4062,3 +4062,7 @@
 | 29.09.2026 03:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/property-settings-set2-set3.spec.ts tests/ui/settings-simplification.spec.ts tests/ui | ✅ 38 из 38 | 3 мин 3 с | b8cf953 | [лог](logs/2026-09-28T22-32-00Z-e2e-81d5.log) | PR #101 merged with main 93423b39 (b8cf9535): specs main touched + chessboard/blocks |
 | 29.09.2026 03:35 | integration | ✅ 122 из 122 | 36 с | b8cf953 | [лог](logs/2026-09-28T22-35-14Z-integration-c917.log) | PR #101 merged with main 93423b39 (b8cf9535) |
 | 29.09.2026 03:36 | e2e | ✅ 25 из 25 | 57 с | b8cf953 | [лог](logs/2026-09-28T22-36-10Z-e2e-de75.log) | PR #101 merged with main 93423b39 (b8cf9535): live e2e on a fresh web build |
+| 29.09.2026 04:20 | typecheck | ✅ без ошибок | 37 с | 673d352 | [лог](logs/2026-09-28T23-20-42Z-typecheck-b742.log) |  |
+| 29.09.2026 04:21 | lint | ✅ без ошибок | 44 с | 673d352 | [лог](logs/2026-09-28T23-21-19Z-lint-64cb.log) |  |
+| 29.09.2026 04:22 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин 10 с | 673d352 | [лог](logs/2026-09-28T23-22-03Z-unit-a636.log) |  |
+| 29.09.2026 04:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/workspace.spec.ts tests/ui/requests.spec.ts tests/ui | ✅ 134 из 134 | 6 мин 41 с | 673d352 | [лог](logs/2026-09-28T23-24-20Z-e2e-ebdb.log) |  |

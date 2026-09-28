@@ -3036,7 +3036,7 @@ function read(path: string, q: URLSearchParams): unknown {
         ratePlanIds: [],
       },
     ];
-  if (path === '/channels/channex/webhook/status')
+  if (path === '/channels/channex/webhook/status') {
     const base =
       channexMode === 'ok' || channexMode === 'attention'
         ? {
@@ -3049,6 +3049,7 @@ function read(path: string, q: URLSearchParams): unknown {
           }
         : { registered: false, active: false, expectedUrl: null, secretConfigured: false };
     return { ...base, ...channelsOverrides.webhook };
+  }
   if (path === '/audit') {
     // фильтр по типу объекта фикстура уважает так же, как настоящий API: иначе проверка отбора ничего не проверяет
     const type = q.get('entityType');

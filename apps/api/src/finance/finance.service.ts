@@ -600,7 +600,7 @@ export class FinanceService {
     const accommodation = folio.charges
       .filter((c) => c.kind === 'ACCOMMODATION' && c.voidedAt === null)
       .reduce((sum, c) => sum + c.amountMinor, 0n);
-    // Правило объекта из Exely: доля ночи зависит от времени; без времени — половина ночи
+    // Правило объекта из внешней системы: доля ночи зависит от времени; без времени — половина ночи
     let percent: 0 | 50 | 100 = 50;
     if (dto.time !== undefined) {
       try {
@@ -621,7 +621,7 @@ export class FinanceService {
         'Сумма должна быть больше нуля: у проживания нет цены, задайте сумму услуги',
       );
     const serviceDate = spec.date(folio.stay);
-    // Как в Exely («выделять доступность: да»): соседняя ночь на этой койке не продаётся. Блок ставится
+    // Соседняя ночь на этой койке не продаётся. Блок ставится
     // командой ячейки — она сама откажет, если на ту ночь уже есть проживание, и разошлёт остаток в канал.
     const unit = await this.repo.stayUnitCode(folio.reservationItemId);
     if (unit) {

@@ -3,7 +3,7 @@
  *
  * 16.09.2026: папка проекта на Mac переименована из «Pms Lux» в «WETOP», а в plist служб launchd путь
  * вшит абсолютно (install.sh пишет `WorkingDirectory` = папка на момент установки). После переименования
- * launchd не может сделать chdir и не поднимает ни API, ни стойку, ни синхронизацию Exely — молча,
+ * launchd не может сделать chdir и не поднимает ни API, ни стойку, ни синхронизацию Legacy — молча,
  * раз в 15 с. Раньше та же беда была с отставанием рабочей копии от `main` на 62 коммита (15.09):
  * API работал на старом коде. Скрипт делает обе проверки одной командой и умеет чинить.
  *
@@ -126,7 +126,7 @@ function sandbox(): Sandbox {
   writeFileSync(join(seed, 'README.md'), '# sandbox\n\nвторой коммит\n');
   git(seed, 'commit', '-q', '-am', 'second');
   git(seed, 'push', '-q', 'origin', 'main');
-  for (const n of ['api', 'web', 'exely-sync']) {
+  for (const n of ['api', 'web']) {
     writeFileSync(join(agents, `kz.luxx.pms.${n}.plist`), plist(n, oldDir));
     writeFileSync(join(state, `loaded-kz.luxx.pms.${n}`), '');
   }
@@ -232,7 +232,6 @@ describe('repo-sync.sh: связь папки с репозиторием', { ti
     expect(out).toMatch(/отстаёт от origin\/main на 1/);
     expect(out).toContain('Pms Lux');
     expect(out).toMatch(/api/);
-    expect(out).toMatch(/exely-sync/);
     expect(out).toContain('--relink');
     expect(code).toBe(1);
   });
@@ -281,14 +280,6 @@ describe('repo-sync.sh: связь папки с репозиторием', { ti
         realpathSync(sb.newDir),
       );
     }
-    // exely-sync снята вместе с автосинхронизацией Exely (ADR-052): install.sh такого имени не знает.
-    // Пока её plist попадал в перевод, install.sh падал на неизвестном имени и не переводил api и web
-    // (прогон 20.09.2026, три красные проверки). Теперь --relink снимает её, а не переустанавливает.
-    expect(
-      existsSync(join(agents, 'kz.luxx.pms.exely-sync.plist')),
-      'exely-sync: plist снят, а не переустановлен',
-    ).toBe(false);
-    expect(calls).not.toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.exely-sync\.plist/);
     expect(calls).toMatch(/bootout \S*kz\.luxx\.pms\.api/);
     expect(calls).toMatch(/bootstrap \S+ \S*kz\.luxx\.pms\.api\.plist/);
     expect(out).not.toContain('нет доступа к папке проекта');
@@ -301,21 +292,21 @@ describe('repo-sync.sh: связь папки с репозиторием', { ti
   it('--from переносит то, чего нет в git (.env, выгрузки), и не перезаписывает существующее', () => {
     const sb = sandbox();
     const old = join(sb.dir, 'old-copy');
-    mkdirSync(join(old, 'project-input', 'exely'), { recursive: true });
-    writeFileSync(join(old, '.env'), 'EXELY_API_KEY=из-старой-папки\n');
-    writeFileSync(join(old, 'project-input', 'exely', 'export.csv'), 'a;b\n');
+    mkdirSync(join(old, 'project-input', 'forms'), { recursive: true });
+    writeFileSync(join(old, '.env'), 'CHANNEX_API_KEY=из-старой-папки\n');
+    writeFileSync(join(old, 'project-input', 'forms', 'form.txt'), 'тест\n');
     expect(existsSync(join(sb.newDir, '.env'))).toBe(false);
 
     const first = run(sb, ['--from', old]);
-    expect(readFileSync(join(sb.newDir, '.env'), 'utf8')).toBe('EXELY_API_KEY=из-старой-папки\n');
-    expect(readFileSync(join(sb.newDir, 'project-input/exely/export.csv'), 'utf8')).toBe('a;b\n');
+    expect(readFileSync(join(sb.newDir, '.env'), 'utf8')).toBe('CHANNEX_API_KEY=из-старой-папки\n');
+    expect(readFileSync(join(sb.newDir, 'project-input/forms/form.txt'), 'utf8')).toBe('тест\n');
     expect(first.out).toMatch(/\.env/);
     // значения ключей в вывод не попадают
     expect(first.out).not.toContain('из-старой-папки');
 
-    writeFileSync(join(sb.newDir, '.env'), 'EXELY_API_KEY=уже-вписан-здесь\n');
+    writeFileSync(join(sb.newDir, '.env'), 'CHANNEX_API_KEY=уже-вписан-здесь\n');
     run(sb, ['--from', old]);
-    expect(readFileSync(join(sb.newDir, '.env'), 'utf8')).toBe('EXELY_API_KEY=уже-вписан-здесь\n');
+    expect(readFileSync(join(sb.newDir, '.env'), 'utf8')).toBe('CHANNEX_API_KEY=уже-вписан-здесь\n');
   });
 
   it('без .env говорит, что его нет, но содержимое не читает и не печатает', () => {

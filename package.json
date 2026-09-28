@@ -2,7 +2,7 @@
   "name": "pms-lux",
   "version": "0.0.0",
   "private": true,
-  "description": "PMS MVP for Luxx Aparts (Almaty). Replaces Exely. Modular monolith (ADR-002).",
+  "description": "WETOP hospitality operations platform. Modular monolith (ADR-002).",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -35,12 +35,7 @@
     "mail:check": "tsx scripts/ops/mail-check.ts",
     "e2e:cleanup": "tsx scripts/reconciliation/src/cli-e2e-cleanup.ts",
     "analytics:retention": "tsx scripts/reconciliation/src/cli-analytics-retention.ts",
-    "cutover:channel": "tsx scripts/reconciliation/src/cli-cutover-channel.ts",
-    "cutover:ambiguous": "tsx scripts/reconciliation/src/cli-cutover-ambiguous.ts",
-    "reconcile:day": "tsx scripts/reconciliation/src/cli-double-entry.ts",
     "reconcile:selfcheck": "DATABASE_POOL_MAX=1 tsx scripts/reconciliation/src/cli-day-selfcheck.ts",
-    "reconcile:cancellations": "tsx scripts/reconciliation/src/cli-cancellations.ts",
-    "citizenship:audit": "tsx scripts/reconciliation/src/cli-citizenship-audit.ts",
     "slow": "tsx scripts/ops/cli-slow.ts",
     "ui:walkthrough": "tsx scripts/reconciliation/src/cli-ui-walkthrough.ts",
     "accounts": "DATABASE_POOL_MAX=1 tsx scripts/ops/cli-accounts.ts",

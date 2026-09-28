@@ -13,7 +13,6 @@ function fakePrisma() {
   let blocks = 0;
   const unit = (code: string) => ({
     code,
-    exelyRoomNumber: null,
     kind: 'BED',
     accommodationTypeId: 't1',
   });
@@ -34,7 +33,6 @@ function fakePrisma() {
               kind: 'BED',
               capacityAdults: 1,
               capacityChildren: 0,
-              exelyId: null,
             },
           ],
           buildings: [

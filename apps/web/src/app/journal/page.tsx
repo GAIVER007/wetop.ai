@@ -47,11 +47,10 @@ const ACTION_RU: Record<string, string> = {
   'guest.update': 'карточка гостя изменена',
   'guest.document.add': 'документ гостя добавлен',
   'guest.document.delete': 'документ гостя удалён',
-  'reservations.import': 'импорт броней из Exely',
+  'reservations.import': 'импорт броней',
   'analytics.site.create': 'сайт со счётчиком добавлен',
   'analytics.site.update': 'сайт со счётчиком изменён',
   'analytics.site.delete': 'сайт со счётчиком удалён',
-  'exely.sync': 'синхронизация с Exely',
   'user.login': 'вход в систему',
   'user.logout': 'выход из системы',
   'user.password.changed': 'пароль изменён',
@@ -91,8 +90,7 @@ export default async function JournalPage({
   const { type, q, system } = normalizeSearchParams(await searchParams);
   const showSystem = system === '1';
   const needle = q?.trim() ?? '';
-  // Поиск и фильтр — в API по всей истории: синхронизация Exely пишет строку каждые 5 минут, и 200 последних
-  // строк покрывали меньше суток — «История» брони была пустой (волна 3)
+  // Поиск и фильтр выполняются в API по всей истории, наружу возвращается ограниченная выборка.
   const query = new URLSearchParams({
     limit: String(LIMIT),
     ...(type ? { entityType: type } : {}),

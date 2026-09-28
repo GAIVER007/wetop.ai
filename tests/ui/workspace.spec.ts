@@ -62,7 +62,7 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings', 'Настройки объекта'],
     ['/hotel-settings/check-in', 'Настройки объекта'],
     ['/hotel-settings/stay', 'Настройки объекта'],
-    ['/hotel-settings/penalties', 'Цены и ограничения'],
+    ['/hotel-settings/penalties', 'Тарифы и цены'],
     ['/hotel-settings/services', 'Настройки объекта'],
     ['/hotel-settings/description', 'Настройки объекта'],
     ['/hotel-settings/photos', 'Интеграции'],
@@ -222,7 +222,7 @@ test('подключения показывают частичный сбой, �
   await page.goto('/hotel-settings/description');
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(page.getByRole('main').getByTestId('stored-property')).toBeVisible();
-  // свежесть данных в боковой панели: Channex · очередь ARI (шаг 4 плана wetop-live-data; Exely снят, ADR-073)
+  // свежесть данных в боковой панели: Channex · очередь ARI (шаг 4 плана wetop-live-data; Legacy снят, ADR-073)
   await expect(page.getByTestId('data-freshness').first()).toContainText('очередь 0');
   await expect(page.getByRole('button', { name: /Сохранить|Создать|Загрузить/ })).toHaveCount(0);
 });

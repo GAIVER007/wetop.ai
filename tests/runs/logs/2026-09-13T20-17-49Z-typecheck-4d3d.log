@@ -1,5 +1,0 @@
-# Типы (typecheck) · 14.09.2026 01:17 Алматы · Noutbuk-Vyacheslav.local
-# коммит b748448 (main)
-# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
-
-# код выхода 0 · 6 с

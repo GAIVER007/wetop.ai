@@ -58,7 +58,7 @@ test('один заголовок на трёх вкладках, без «Об�
   await expect(tabs.getByRole('link', { name: 'Правила отмены' })).toHaveCount(0);
 });
 
-test('старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Exely', async ({ page }) => {
+test('старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy', async ({ page }) => {
   const main = page.getByRole('main');
   await page.goto('/hotel-settings/check-in');
   await expect(page).toHaveURL(/\/hotel-settings\/stay$/);

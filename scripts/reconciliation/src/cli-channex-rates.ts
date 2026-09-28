@@ -11,7 +11,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { createPrismaClient } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/imports';
+import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { channex } from '@pms/integrations';
 
 const ROOT = resolve(import.meta.dirname, '../../..');

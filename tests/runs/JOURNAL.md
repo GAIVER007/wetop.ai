@@ -3602,3 +3602,4 @@
 | 29.09.2026 00:57 | lint | ✅ без ошибок | 18 с | e64ebe4 | [лог](logs/2026-09-28T19-57-30Z-lint-032f.log) |  |
 | 29.09.2026 00:57 | unit | ✅ 2190 из 2193, пропущено 3 | 1 мин 20 с | e64ebe4 | [лог](logs/2026-09-28T19-57-49Z-unit-7b1a.log) |  |
 | 29.09.2026 00:59 | integration | ✅ 115 из 115 | 35 с | e64ebe4 | [лог](logs/2026-09-28T19-59-09Z-integration-7e5f.log) |  |
+| 29.09.2026 00:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-design.spec.ts tests/ui/empty-base.spec.ts t | ✅ 179 из 179 | 16 мин 51 с | e64ebe4 | [лог](logs/2026-09-28T19-59-53Z-e2e-0e8f.log) |  |

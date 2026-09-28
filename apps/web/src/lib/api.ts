@@ -1166,7 +1166,8 @@ export interface PeriodDebts {
   currency: string;
   count: number;
   balanceMinor: string;
-  checkedOut: { count: number; balanceMinor: string };
+  /** Q-207: просроченный долг — время выезда по часам объекта прошло, остаток не оплачен */
+  overdue: { count: number; balanceMinor: string };
   rows: Array<{
     confirmationNumber: string;
     status: string;
@@ -1177,6 +1178,7 @@ export interface PeriodDebts {
     paidMinor: string;
     refundedMinor: string;
     balanceMinor: string;
+    overdue: boolean;
   }>;
   truncated: boolean;
 }

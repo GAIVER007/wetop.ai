@@ -40,6 +40,7 @@ import {
 } from '../../../lib/ai-seller';
 import { hotelClock } from '../../../lib/hotel-api';
 import { deskShell } from '../../../lib/desk-shell';
+import { mayAccess } from '../../../lib/navigation';
 import { displayPeriod } from '../../../lib/display-date';
 import { sellerApi, type SellerFactsView, type SellerStatus } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
@@ -62,7 +63,7 @@ import '../ai-seller.css';
  * модель, код для сайта и WhatsApp. Всё — через API платформы: адреса и ключа продавца стойка не знает.
  *
  * Раздел работает у организации с расширением «ИИ-продавец» (ADR-083): без него — объяснение вместо экранов; срок
- * вышел — всё видно, но менять и отвечать гостям нельзя (Q-183); настройки меняет владелец организации.
+ * вышел — всё видно, но менять и отвечать гостям нельзя (Q-183); настройки меняют владелец и управляющий (ADR-107).
  */
 
 const settle = <T,>(promise: Promise<T>) =>
@@ -98,9 +99,14 @@ export default async function AiSellerPage({
   if (legacy !== undefined) redirect(legacy ? `/ai-seller/${legacy}` : '/ai-seller');
   const view = (section[0] ?? '') as SellerView;
   if (!SELLER_TABS.some((item) => item.view === view)) notFound();
+  // администратору раздел — это диалоги с гостями (ADR-107): настройку, знания и подключения ведут владелец и
+  // управляющий; напоминание о продлении платного расширения — только владельцу
+  const { access } = await deskShell();
+  const configure = mayAccess(access, 'seller');
+  if (!configure && view === '') redirect('/ai-seller/dialogs');
+  const tabs = SELLER_TABS.filter((item) => configure || item.view === 'dialogs');
   const query = await searchParams;
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
-  const { access } = await deskShell();
   return (
     <Page
       title="ИИ-продавец"
@@ -110,9 +116,11 @@ export default async function AiSellerPage({
         </Suspense>
       }
       actions={
-        <Link className="btn btn--secondary" href="/ai-seller/agents">
-          Все агенты
-        </Link>
+        configure ? (
+          <Link className="btn btn--secondary" href="/ai-seller/agents">
+            Все агенты
+          </Link>
+        ) : undefined
       }
     >
       {access.platform && (
@@ -126,7 +134,7 @@ export default async function AiSellerPage({
         </nav>
       )}
       <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">
-        {SELLER_TABS.map((item) => (
+        {tabs.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -138,7 +146,12 @@ export default async function AiSellerPage({
         ))}
       </nav>
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем продавца…" />}>
-        <SellerScreen view={view} mode={one(query.mode)} id={one(query.id)} />
+        <SellerScreen
+          view={view}
+          mode={one(query.mode)}
+          id={one(query.id)}
+          owner={mayAccess(access, 'owner')}
+        />
       </Suspense>
     </Page>
   );
@@ -159,13 +172,24 @@ async function SellerStatePill() {
   );
 }
 
-async function SellerScreen({ view, mode, id }: { view: SellerView; mode: string; id: string }) {
+async function SellerScreen({
+  view,
+  mode,
+  id,
+  owner,
+}: {
+  view: SellerView;
+  mode: string;
+  id: string;
+  /** Платные расширения — владельческое (ADR-107): напоминание о продлении только ему */
+  owner: boolean;
+}) {
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
   if (status.value.state === 'extension-off') return <ExtensionOff status={status.value} />;
-  // напоминание — тому, кто продлевает: владельцу организации (Q-183)
+  // напоминание — тому, кто продлевает: владельцу организации (Q-183, ADR-107)
   const reminder =
-    status.value.canConfigure === false ? null : extensionReminder(status.value.extension);
+    owner && status.value.canConfigure !== false ? extensionReminder(status.value.extension) : null;
   return (
     <Stack>
       {reminder && (

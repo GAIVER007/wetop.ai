@@ -21,6 +21,7 @@ import { EmailVerificationService } from './email-verification.service';
 import { tokenFromHeaders } from './auth.guard';
 import { Public } from './public.decorator';
 import { visitorKey } from './attempt-limits';
+import { Access } from './access.decorator';
 
 const text = (value: unknown, field: string, max = 200): string => {
   if (typeof value !== 'string' || value.trim() === '')
@@ -154,6 +155,7 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Access('self')
   @Get('me')
   async me(@Headers() headers: Record<string, string>) {
     const token = tokenFromHeaders(headers);
@@ -206,6 +208,7 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Access('self')
   @Post('password')
   async password(
     @Headers() headers: Record<string, string>,

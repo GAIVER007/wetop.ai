@@ -3,11 +3,13 @@ import { UnitsService } from '../units/units.service';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import {
+  ADJUSTMENT_DOWN_MESSAGE,
   FinanceRuleError,
   assertAllocationsMatch,
   assertRefundWithin,
@@ -18,6 +20,7 @@ import {
   adjacentNight,
 } from '@pms/domain';
 import { freeTextForStorage, maskContacts } from '@pms/shared';
+import { actorMay } from '../auth/request-context';
 import {
   FINANCE_REPOSITORY,
   FolioBalanceError,
@@ -391,6 +394,9 @@ export class FinanceService {
           ? 'Корректировка не может быть нулевой'
           : 'Цена должна быть больше нуля',
       );
+    // уменьшить счёт — то же, что вернуть деньги или снять штраф: владелец и управляющий (ADR-107, Q-024)
+    if (kind === 'ADJUSTMENT' && unitPriceMinor < 0n && !actorMay('refunds'))
+      throw new ForbiddenException(ADJUSTMENT_DOWN_MESSAGE);
     const amountMinor = unitPriceMinor * BigInt(quantity);
     await lockedWrite(
       this.repo.addCharge(

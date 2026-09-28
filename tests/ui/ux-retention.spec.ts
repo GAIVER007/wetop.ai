@@ -94,10 +94,11 @@ test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на ос�
 });
 
 /**
- * П. 3.1 (UQ-1 — «да» владельца 26.09.2026): «Общие» настройки правит владелец организации, сотрудник только смотрит.
- * Отказ API не стирает ввод. Валюта и часовой пояс остаются только для просмотра.
+ * П. 3.1 (UQ-1 — «да» владельца 26.09.2026): «Общие» настройки правит владелец организации, и управляющий — тоже: ему
+ * «всё, кроме владельческого» (ADR-107). Администратору раздел закрыт целиком. Отказ API не стирает ввод. Валюта и
+ * часовой пояс остаются только для просмотра.
  */
-test('владелец правит сведения гостиницы; отказ сохраняет ввод; сотрудник только смотрит (п. 3.1)', async ({
+test('владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1)', async ({
   page,
   request,
 }) => {
@@ -119,8 +120,18 @@ test('владелец правит сведения гостиницы; отк�
   await expect(form.getByRole('alert')).toContainText('Почта — в виде name@example.kz');
   await expect(form.getByLabel('Почта')).toHaveValue('не почта');
 
+  await control(request, { role: 'MANAGER' });
+  await page.goto('/hotel-settings');
+  await expect(form.getByLabel('Телефон')).toBeVisible();
+  await form.getByLabel('Телефон').fill('+7 701 555 44 34');
+  await form.getByRole('button', { name: 'Сохранить' }).click();
+  await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+
   await control(request, { role: 'STAFF' });
   await page.goto('/hotel-settings');
   await expect(page.getByTestId('hotel-settings-form')).toHaveCount(0);
-  await expect(page.getByTestId('stored-property')).toContainText('Сведения меняет владелец организации');
+  await expect(page.getByTestId('stored-property')).toHaveCount(0);
+  await expect(page.getByRole('main').getByTestId('no-access')).toContainText(
+    '«Настройки гостиницы»: доступ есть у владельца и управляющего.',
+  );
 });

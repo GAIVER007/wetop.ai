@@ -4,6 +4,7 @@ import { config as loadEnv } from 'dotenv';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { RLS_NO_TENANT_TABLES, RLS_TENANT_TABLES } from '@pms/database';
+import { isLocalDatabase } from '../tools/seed-local';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -167,25 +168,33 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
 /**
  * Проверки «на всю установку» внутри запроса организации (RLS, DATA_MODEL §17): кто оператор Channex — ответ не должен
  * зависеть от того, кто спросил. Под ролью организации объект Luxx другой гостинице не виден; служебная роль видит.
+ *
+ * Пул организации входит в базу отдельным пользователем. Сама `wetop_app` — без входа (`NOLOGIN`: вход на сервере
+ * включает владелец, `docs/ops/rls.md` этап 1), поэтому тест на время прогона заводит свою роль — члена `wetop_app` со
+ * случайным паролем: права и политики `TO wetop_app` действуют на члена роли так же. `wetop_app` не меняется. Только на
+ * локальной базе — свой кластер или служба PostgreSQL в CI: на общей базе роли не заводим.
  */
-describe.skipIf(!url)('RLS: служебный доступ внутри запроса организации', () => {
-  // Миграция 20260927000026_rls_roles заводит wetop_app БЕЗ входа (NOLOGIN): на рабочей базе вход включает
-  // владелец (docs/ops/rls.md). Пул wetop_app этого теста должен войти в базу, поэтому на время теста вход
-  // включается суперпользователем локальной тестовой базы и выключается обратно.
+describe.skipIf(!url || !isLocalDatabase(url))('RLS: служебный доступ внутри запроса организации', () => {
+  const probe = `rls_probe_${randomUUID().replace(/-/g, '').slice(0, 12)}`;
+  const password = randomUUID().replace(/-/g, '');
   let admin: pg.Client;
   beforeAll(async () => {
     admin = new pg.Client({ connectionString: url });
     await admin.connect();
-    await admin.query('ALTER ROLE wetop_app LOGIN');
+    await admin.query(`CREATE ROLE "${probe}" LOGIN PASSWORD '${password}' IN ROLE wetop_app`);
   });
   afterAll(async () => {
-    await admin.query('ALTER ROLE wetop_app NOLOGIN').catch(() => {});
-    await admin.end();
+    await admin?.query(`DROP ROLE IF EXISTS "${probe}"`);
+    await admin?.end();
   });
+
   it('withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет', async () => {
     const { createPrismaClient } = await import('@pms/database');
     const ctx = await import('../../apps/api/src/auth/request-context');
-    const appUrl = url!.replace(/\/\/[^@/]*@/, '//wetop_app@');
+    const app = new URL(url!);
+    app.username = probe;
+    app.password = password;
+    const appUrl = app.toString();
     const db = createPrismaClient(url, undefined, { of: ctx.databaseTenant, appConnectionString: appUrl });
     try {
       const property = await db.property.findFirstOrThrow({ orderBy: { createdAt: 'asc' } });

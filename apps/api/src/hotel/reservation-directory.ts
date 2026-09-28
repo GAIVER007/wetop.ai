@@ -13,6 +13,7 @@ import { folioBalance } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef, propertyToday } from '../database/property-ref';
+import { Access } from '../auth/access.decorator';
 export interface DirectoryQuery {
   from?: string;
   to?: string;
@@ -191,6 +192,7 @@ export class ReservationDirectory {
     };
   }
 }
+@Access('desk')
 @Controller('hotel/reservations')
 export class ReservationDirectoryController {
   constructor(@Inject(ReservationDirectory) private readonly service: ReservationDirectory) {}

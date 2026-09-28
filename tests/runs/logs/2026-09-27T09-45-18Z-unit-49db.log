@@ -1,0 +1,55 @@
+# Модульные (unit) · 27.09.2026 14:45 Алматы · vm
+# коммит 9604e5f (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T09-45-18Z-unit-49db.json' 'apps/web'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 160ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (15 tests) 152ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 77ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 770ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 766ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 862ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 836ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/finance-actions.test.ts (3 tests) 77ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 85ms
+ ✓ |unit| apps/web/src/app/form-retention.test.ts (4 tests) 88ms
+ ✓ |unit| apps/web/src/app/reservations/actions.test.ts (5 tests) 53ms
+ ✓ |unit| apps/web/src/app/reservations/[number]/print/forms.test.ts (7 tests) 13ms
+ ✓ |unit| apps/web/src/components/property-time.test.ts (2 tests) 30ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (11 tests) 9ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 7ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (26 tests) 12ms
+ ✓ |unit| apps/web/src/app/incidents/incident-view.test.ts (14 tests) 9ms
+ ✓ |unit| apps/web/src/app/login/signed-in.test.ts (8 tests) 10ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/app/guests/[id]/stay-now.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (3 tests) 9ms
+ ✓ |unit| apps/web/src/app/analytics/actions.test.ts (3 tests) 8ms
+ ✓ |unit| apps/web/src/app/journal/journal-view.test.ts (7 tests) 7ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 9ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/app/channels/actions.test.ts (2 tests) 6ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 5ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 3ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 5ms
+
+ Test Files  37 passed (37)
+      Tests  221 passed (221)
+   Start at  09:45:19
+   Duration  3.60s (tests 50%, import 26%, transform 21%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-27T09-45-18Z-unit-49db.json
+
+# код выхода 0 · 5 с

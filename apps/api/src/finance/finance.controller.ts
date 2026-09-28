@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query } from '@nestjs/common';
 import { FinanceService } from './finance.service';
+import { Access } from '../auth/access.decorator';
 
 /** Счета гостя: начисления, платежи, возвраты (DATA_MODEL §6). Суммы в теле — десятичные строки, наружу — minor units. */
+@Access('desk')
 @Controller('finance')
 export class FinanceController {
   constructor(@Inject(FinanceService) private readonly service: FinanceService) {}
@@ -12,6 +14,7 @@ export class FinanceController {
     return this.service.reservation(number);
   }
 
+  @Access('reports')
   @Get('report')
   report(@Query('from') from?: string, @Query('to') to?: string) {
     return this.service.periodReport(from, to);
@@ -41,6 +44,7 @@ export class FinanceController {
     return this.service.closeFolio(id);
   }
 
+  @Access('refunds')
   @Post('charges/:id/void')
   @HttpCode(200)
   voidCharge(@Param('id') id: string) {
@@ -52,6 +56,7 @@ export class FinanceController {
     return this.service.createPayment(dto ?? {});
   }
 
+  @Access('refunds')
   @Post('payments/:id/refunds')
   refund(@Param('id') id: string, @Body() dto: Parameters<FinanceService['refund']>[1]) {
     return this.service.refund(id, dto ?? {});

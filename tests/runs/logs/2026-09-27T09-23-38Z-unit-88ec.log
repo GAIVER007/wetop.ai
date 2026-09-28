@@ -1,0 +1,58 @@
+# Модульные (unit) · 27.09.2026 14:23 Алматы · vm
+# коммит d54e800 (claude/cool-hawking-c030jv), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-27T09-23-38Z-unit-88ec.json' 'apps/web/src/lib/desk-shell.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests | 1 failed) 947ms
+   ❯ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 929ms
+     ✓ вошедший управляющий — его роль 1ms
+     × `/auth/me` не ответил — меню как у администратора, «Платформы» нет 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-shell.test.ts > оболочка стойки: кто вошёл > `/auth/me` не ответил — меню как у администратора, «Платформы» нет
+AssertionError: expected { aiSeller: false, …(2) } to deeply equal { aiSeller: false, …(2) }
+
+- Expected
++ Received
+
+  {
+    "aiSeller": false,
+    "platform": false,
+-   "role": "STAFF",
++   "role": null,
+  }
+
+ ❯ apps/web/src/lib/desk-shell.test.ts:30:40
+     28|     me.mockRejectedValue(new ApiError(504, 'API не ответил'));
+     29|     const { deskShell } = await import('./desk-shell');
+     30|     expect((await deskShell()).access).toEqual({ aiSeller: false, plat…
+       |                                        ^
+     31|   });
+     32| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-shell.test.ts > оболочка стойки: кто вошёл > `/auth/me` не ответил — меню как у администратора, «Платформы» нет
+Error: API не ответил
+ ❯ apps/web/src/lib/desk-shell.test.ts:28:26
+     26|
+     27|   it('`/auth/me` не ответил — меню как у администратора, «Платформы» н…
+     28|     me.mockRejectedValue(new ApiError(504, 'API не ответил'));
+       |                          ^
+     29|     const { deskShell } = await import('./desk-shell');
+     30|     expect((await deskShell()).access).toEqual({ aiSeller: false, plat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  09:23:39
+   Duration  1.21s (tests 91%, transform 5%, import 4%)
+
+JSON report written to /tmp/pms-test-2026-09-27T09-23-38Z-unit-88ec.json
+
+# код выхода 1 · 2 с

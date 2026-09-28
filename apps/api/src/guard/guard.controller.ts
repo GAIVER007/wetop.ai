@@ -3,6 +3,7 @@ import { UseGuards } from '@nestjs/common';
 import { IntegrationOwnerGuard } from '../channels/integration-owner';
 import {
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   Inject,
@@ -11,18 +12,22 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  Req,
   UseInterceptors,
 } from '@nestjs/common';
 import { ChannelOperatorInterceptor } from '../channels/operator-access';
-import { formatAlert } from '@pms/domain';
+import { accessDeniedMessage, can, formatAlert } from '@pms/domain';
+import type { SignedInUser } from '../auth/auth.service';
 import { INCIDENTS_REPOSITORY, type IncidentsRepository } from './incidents.repository';
 import { ALERT_NOTIFIER, type AlertNotifier } from './guard.ports';
 import { GuardService } from './guard.service';
+import { Access } from '../auth/access.decorator';
 
 /**
  * Сторож системы (срез 11): экран «Неисправности» стойки и дежурный агент читают отсюда.
  * «Принято» — человек в курсе, будить больше не надо; «Решено» — закрыть руками то, что проверка не перепроверит.
  */
+@Access('desk')
 @UseGuards(IntegrationOwnerGuard)
 @Controller('guard')
 // только организация подключённого объекта и главный администратор (аудит 26.09, В-2 и С-3; ADR-095)
@@ -80,11 +85,18 @@ export class GuardController {
   /** Проход сторожа прямо сейчас — для учений и дежурного агента; `?all=1` — и редкие проверки (сверка с каналом) */
   @Post('tick')
   @HttpCode(200)
-  tick(@Query('all') all?: string) {
-    return this.guard.tick(new Date(), { all: all === '1' || all === 'true' });
+  async tick(@Query('all') all?: string, @Req() request?: { user?: SignedInUser }) {
+    const full = all === '1' || all === 'true';
+    // полная сверка с Channex и починка полной выгрузкой — дело каналов (ADR-107): администратору — обычная проверка.
+    // Роль — из `request.user`: обработчик идёт в служебном контексте ChannelOperatorInterceptor
+    const user = request?.user;
+    if (full && user && !can(user.role, 'channels'))
+      throw new ForbiddenException(accessDeniedMessage('channels'));
+    return this.guard.tick(new Date(), { all: full });
   }
 
   /** Пробное сообщение будильника: проверить токен и чат, не дожидаясь аварии */
+  @Access('settings')
   @Post('alert/test')
   @HttpCode(200)
   async alertTest() {

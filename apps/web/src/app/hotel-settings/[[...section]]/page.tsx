@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { can, parseMembershipRole } from '@pms/domain';
 import { notFound, redirect } from 'next/navigation';
 import { financeApi } from '../../../lib/api';
 import { hotelApi } from '../../../lib/hotel-api';
@@ -76,10 +77,14 @@ export default async function HotelSettingsPage({
   );
 }
 
-/** Правит «Общие» владелец организации (ТЗ ux-retention п. 3.1); не ответил вход — только просмотр */
-async function isOwner(): Promise<boolean> {
+/**
+ * Правят «Общие» владелец и управляющий (ТЗ ux-retention п. 3.1, ADR-107); администратору раздел закрыт целиком
+ * (`AccessGate`). Никто не вошёл или вход не ответил — только просмотр: API без человека сведений не меняет.
+ */
+async function mayEditSettings(): Promise<boolean> {
   const me = await settle(currentMe());
-  return me.ok && me.value.user?.role === 'OWNER';
+  const role = me.ok && me.value.user?.role ? parseMembershipRole(me.value.user.role) : null;
+  return role !== null && can(role, 'settings');
 }
 
 async function StoredSettings({ view }: { view: string }) {
@@ -98,7 +103,7 @@ async function StoredSettings({ view }: { view: string }) {
         </Link>
       </>
     );
-  const owner = await isOwner();
+  const editor = await mayEditSettings();
   return (
     <div className="settings-overview">
       <Panel className="settings-property" data-testid="stored-property">
@@ -110,9 +115,9 @@ async function StoredSettings({ view }: { view: string }) {
             <h2>{p.name}</h2>
             <p>Сведения гостиницы в PMS</p>
           </div>
-          {!owner && <Badge>Только просмотр</Badge>}
+          {!editor && <Badge>Только просмотр</Badge>}
         </div>
-        {owner ? (
+        {editor ? (
           <HotelSettingsForm property={p} />
         ) : (
           <>
@@ -147,7 +152,7 @@ async function StoredSettings({ view }: { view: string }) {
               </div>
             </dl>
             <p className="settings-note">
-              Используются на стойке, в счетах и отчётах. Сведения меняет владелец организации.
+              Используются на стойке, в счетах и отчётах. Сведения меняют владелец и управляющий.
             </p>
           </>
         )}
@@ -167,9 +172,9 @@ async function StoredSettings({ view }: { view: string }) {
           <Fact label="Выезд до" value={p.checkOutTime} />
         </Grid>
         <p className="settings-note">
-          {owner
+          {editor
             ? 'Меняются в сведениях гостиницы выше.'
-            : 'Расчётные часы меняет владелец организации.'}
+            : 'Расчётные часы меняют владелец и управляющий.'}
         </p>
         <Link href="/today" className="btn btn--secondary">
           Заезды и выезды сегодня

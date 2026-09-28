@@ -18,9 +18,29 @@ import {
   extensionDaysLeft,
   identityRole,
   parseExtensionChange,
-  INVITE_OWNER_ONLY_MESSAGE,
-  type ExtensionStatus,
+  INVITE_STAFF_ONLY_MESSAGE,
+  INVITE_MANAGER_OWNER_ONLY_MESSAGE,
+  INVITE_ROLE_MESSAGE,
+  MEMBER_MANAGER_REMOVES_STAFF_MESSAGE,
+  MEMBER_NOT_FOUND_MESSAGE,
+  MEMBER_OWNER_MESSAGE,
+  MEMBER_ROLE_MESSAGE,
+  MEMBER_ROLE_OWNER_ONLY_MESSAGE,
+  MEMBER_SELF_MESSAGE,
+  RATE_PLAN_CHANGE_MESSAGE,
+  RATE_PLAN_SOFT_MESSAGE,
+  accessDeniedMessage,
+  can,
+  canInvite,
+  canManageStaff,
+  canRemoveMember,
+  canSetRoleAtDesk,
+  mayAssignPlanWithoutRates,
+  parseInviteRole,
   parseHotelSettingsPatch,
+  type ExtensionStatus,
+  type InviteRole,
+  type MembershipRole,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { assistant } from '@pms/integrations';
@@ -124,7 +144,25 @@ const units: InventoryUnit[] = categories.flatMap((c) =>
     isDorm: c.code !== 'ROOM',
   })),
 );
-const plans = [{ code: 'BASE', name: 'Стандартный', currency: 'KZT', active: true }];
+const plans = [
+  {
+    code: 'BASE',
+    name: 'Стандартный',
+    currency: 'KZT',
+    active: true,
+    cancellationPenalty: 'FIRST_NIGHT' as const,
+  },
+];
+/** Тариф без штрафа за отмену — `POST /__test/control { softPlan: true }`, сбрасывается `reset` (Q-201) */
+const softPlanSeed = {
+  code: 'FLEX',
+  name: 'Гибкий без штрафа',
+  currency: 'KZT',
+  active: true,
+  cancellationPenalty: 'NONE' as const,
+};
+let softPlan = false;
+const ratePlanList = () => (softPlan ? [...plans, softPlanSeed] : plans);
 const guestSeed: GuestCard = {
   id: 'ui-guest',
   firstName: 'Тестовый',
@@ -1431,8 +1469,91 @@ const uiMembers = new Set(['admin@wetop.test', 'urij@example.com']);
 const uiSessions = new Map<string, UiUser>();
 // ── Роли, главный администратор и расширение «ИИ-продавец» (ADR-083) — как отвечает API. Меняются через
 // `POST /__test/control { role, platformAdmin, sellerExtension, sellerDaysLeft, sellerTrial }`, сбрасываются `reset`.
-let uiRole: 'OWNER' | 'STAFF' = 'OWNER';
+let uiRole: MembershipRole = 'OWNER';
+/**
+ * Тариф брони у роли стенда — как в API: администратор пересчитывает только в тарифе брони (Q-200); брони без тарифа
+ * (из Exely) назначает тариф со штрафом не мягче «первых суток» (Q-201). `null` — можно.
+ */
+function planRefusal(current: string | null | undefined, requested: unknown): string | null {
+  if (can(uiRole, 'rates') || typeof requested !== 'string' || !requested) return null;
+  if (current) return requested !== current ? RATE_PLAN_CHANGE_MESSAGE : null;
+  const plan = ratePlanList().find((p) => p.code === requested);
+  return plan && !mayAssignPlanWithoutRates(plan.cancellationPenalty)
+    ? RATE_PLAN_SOFT_MESSAGE
+    : null;
+}
+/** Бронь без тарифа получает выбранный тариф — как в API: дальше пересчёт в нём (Q-201) */
+function recordPlan(
+  item: { ratePlanCode?: string | null; ratePlanName?: string | null },
+  requested: unknown,
+) {
+  const plan = ratePlanList().find((p) => p.code === requested);
+  if (plan && (!item.ratePlanCode || can(uiRole, 'rates')))
+    Object.assign(item, { ratePlanCode: plan.code, ratePlanName: plan.name });
+}
 let uiPlatformAdmin = false;
+/**
+ * Люди вымышленной организации и её ожидающие приглашения (ADR-107): вошедшая Дана — с ролью `uiRole`, остальные —
+ * как в базе после приглашений. Вымышленные (ADR-010), сбрасываются `reset`.
+ */
+interface FixtureMember {
+  userId: string;
+  email: string;
+  name: string | null;
+  role: MembershipRole;
+  joinedAt: string;
+}
+interface FixtureInvite {
+  id: string;
+  email: string;
+  role: InviteRole;
+  expiresAt: string;
+  createdAt: string;
+}
+let uiTeam: FixtureMember[] = [];
+let uiInvites: FixtureInvite[] = [];
+function resetTeam() {
+  uiTeam = [
+    { userId: 'ui-manager', email: 'marat@example.invalid', name: 'Марат Тестов', role: 'MANAGER', joinedAt: '2026-09-02T09:00:00.000Z' },
+    { userId: 'ui-admin', email: 'urij@example.com', name: 'Юрий Тестов', role: 'STAFF', joinedAt: '2026-09-03T09:00:00.000Z' },
+  ];
+  uiInvites = [
+    {
+      id: 'inv-fixture',
+      email: 'zhdet@example.com',
+      role: 'STAFF',
+      expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(Date.now() - 3600_000).toISOString(),
+    },
+    {
+      id: 'inv-fixture-manager',
+      email: 'boss@example.com',
+      role: 'MANAGER',
+      expiresAt: new Date(Date.now() + 6 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(Date.now() - 7200_000).toISOString(),
+    },
+  ];
+}
+resetTeam();
+/** Люди организации глазами вошедшего: он сам с ролью `uiRole` и что он может с каждым */
+function teamView(me: UiUser) {
+  const people: FixtureMember[] = [
+    { userId: me.id, email: me.email, name: me.name, role: uiRole, joinedAt: '2026-09-01T09:00:00.000Z' },
+    ...uiTeam,
+  ];
+  const order: MembershipRole[] = ['OWNER', 'MANAGER', 'STAFF'];
+  return people
+    .sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role) || a.joinedAt.localeCompare(b.joinedAt))
+    .map((m) => {
+      const you = m.userId === me.id;
+      return {
+        ...m,
+        you,
+        removable: !you && canRemoveMember(uiRole, m.role),
+        roleEditable: !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+      };
+    });
+}
 interface FixtureExtension {
   status: ExtensionStatus;
   activeUntil: Date | null;
@@ -1473,6 +1594,7 @@ function setOrgTrial(days: unknown) {
 function resetAccess() {
   setOrgTrial(null);
   uiRole = 'OWNER';
+  resetTeam();
   uiPlatformAdmin = false;
   platformExtensions.clear();
   platformStatuses.clear();
@@ -1879,7 +2001,7 @@ function read(path: string, q: URLSearchParams): unknown {
         checkOutTime: '12:00',
         ...hotelOverrides,
       },
-      ratePlans: plans.map((p) => ({ ...p, active: true, cancellationPenalty: 'FIRST_NIGHT' })),
+      ratePlans: plans.map((p) => ({ ...p, active: true })),
       needsOnboarding: onboardingNeeded,
     };
   if (path === '/hotel/onboarding')
@@ -1967,7 +2089,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (path === '/desk/today') return desk(q.get('date') || today);
   if (path === '/desk/dashboard') return dashboard(q.get('from') || today, q.get('to') || today);
   if (path === '/chessboard') return board(q.get('from') || today, q.get('to') || add(today, 13));
-  if (path === '/rate-plans') return plans;
+  if (path === '/rate-plans') return ratePlanList();
   if (path === '/availability') {
     const arrival = q.get('arrival') || today,
       departure = q.get('departure') || add(arrival, 1);
@@ -2101,6 +2223,19 @@ function read(path: string, q: URLSearchParams): unknown {
         };
       const to = categories.find((c) => c.code === unit.accommodationTypeCode)!;
       const changes = to.code !== item.accommodationTypeCode;
+      const refused = changes ? planRefusal(item.ratePlanCode, q.get('ratePlanCode')) : null;
+      if (refused)
+        return {
+          unitCode: unit.code,
+          changesCategory: true,
+          fromCategory: from && { code: from.code, name: from.name },
+          toCategory: { code: to.code, name: to.name },
+          nights,
+          currentMinor: item.priceMinor,
+          newMinor: null,
+          ratePlanRequired: false,
+          problem: refused,
+        };
       return {
         unitCode: unit.code,
         changesCategory: changes,
@@ -2117,6 +2252,19 @@ function read(path: string, q: URLSearchParams): unknown {
       const n = Math.max(1, Number(q.get('nights') || 1));
       const departure = add(item.departureDate, n);
       const added = nightly(item.accommodationTypeCode) * BigInt(n);
+      const refused = planRefusal(item.ratePlanCode, q.get('ratePlanCode'));
+      if (refused)
+        return {
+          nights: n,
+          departureDate: departure,
+          unitCode: item.unitCode,
+          addedMinor: null,
+          newMinor: null,
+          ratePlanRequired: false,
+          nextNightsFree:
+            !item.unitCode || !unitBusy(item.unitCode, item.departureDate, departure, item),
+          problem: refused,
+        };
       return {
         nights: n,
         departureDate: departure,
@@ -2577,8 +2725,10 @@ createServer(async (req, res) => {
       paid = new Map();
       paymentLines = [];
       piiStorage = 'real';
+      softPlan = false;
       resetSeller();
-      return send(200, {});
+      // «сегодня» стенда: тест берёт дату отсюда, а не считает сам — долгий прогон переходит полночь Алматы
+      return send(200, { today });
     }
     if (path === '/__test/control') {
       if (typeof body['registrationEnabled'] === 'boolean')
@@ -2648,6 +2798,7 @@ createServer(async (req, res) => {
       // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
+      if (body['softPlan'] === true) softPlan = true;
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
@@ -2656,7 +2807,7 @@ createServer(async (req, res) => {
       sellerLastError = typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
-      uiRole = body['role'] === 'STAFF' ? 'STAFF' : 'OWNER';
+      uiRole = body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
       setSellerExtension(body['sellerExtension'], body['sellerDaysLeft'], body['sellerTrial'] === true);
       setOrgTrial(body['orgTrialDays']);
@@ -2769,34 +2920,74 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : null;
       if (!who?.organization) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
-      // зовёт только владелец организации (ADR-083) — и список ожидающих тоже его
-      if (uiRole !== 'OWNER') return send(403, { message: INVITE_OWNER_ONLY_MESSAGE });
+      // зовут владелец и управляющий (ADR-107) — и список ожидающих тоже их
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const view = (i: FixtureInvite) => ({ ...i, acceptedAt: null, revocable: canInvite(uiRole, i.role) });
       if (req.method === 'POST') {
+        const raw = body['role'];
+        const role = raw === undefined || raw === null || raw === '' ? 'STAFF' : parseInviteRole(raw);
+        if (!role) return send(400, { message: INVITE_ROLE_MESSAGE });
+        if (!canInvite(uiRole, role)) return send(403, { message: INVITE_MANAGER_OWNER_ONLY_MESSAGE });
         const email = String(body['email'] ?? '')
           .trim()
           .toLowerCase();
         if (!email.includes('@'))
           return send(400, { message: 'Укажите почту человека, которого приглашаете.' });
         // Члены вымышленной организации: вошедший и сотрудник, заведённый входом по коду (urij@…)
-        if (email === who.email || uiMembers.has(email))
+        if (email === who.email || uiMembers.has(email) || uiTeam.some((m) => m.email === email))
           return send(400, { message: 'Этот человек уже в организации.' });
-        return send(201, {
+        const invite: FixtureInvite = {
           id: `inv-${Date.now()}`,
           email,
+          role,
           expiresAt: invitePreview.expiresAt,
-          acceptedAt: null,
           createdAt: new Date().toISOString(),
-        });
+        };
+        uiInvites.unshift(invite);
+        return send(201, view(invite));
       }
-      return send(200, [
-        {
-          id: 'inv-fixture',
-          email: 'zhdet@example.com',
-          expiresAt: invitePreview.expiresAt,
-          acceptedAt: null,
-          createdAt: new Date(Date.now() - 3600_000).toISOString(),
-        },
-      ]);
+      return send(200, uiInvites.map(view));
+    }
+    // отозвать приглашение (С-10): тот, кто вправе позвать с этой ролью; иначе — «не найдено», как API
+    const revokeMatch = /^\/auth\/invites\/([^/]+)$/.exec(path);
+    if (revokeMatch && req.method === 'DELETE') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const at = uiInvites.findIndex((i) => i.id === revokeMatch[1] && canInvite(uiRole, i.role));
+      if (at < 0) return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      uiInvites.splice(at, 1);
+      return send(200, { ok: true });
+    }
+    // Сотрудники (ADR-107): список, отключение, смена роли — по тем же правилам, что у API
+    const memberMatch = /^\/auth\/members(?:\/([^/]+))?$/.exec(path);
+    if (memberMatch) {
+      const token = sessionOf(req as never);
+      const who = token ? uiSessions.get(token) : undefined;
+      if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      if (!memberMatch[1]) return send(200, teamView(who));
+      const target = teamView(who).find((m) => m.userId === memberMatch[1]);
+      if (req.method === 'PATCH') {
+        if (!canSetRoleAtDesk(uiRole, 'STAFF', 'MANAGER'))
+          return send(403, { message: MEMBER_ROLE_OWNER_ONLY_MESSAGE });
+        const role = parseInviteRole(body['role']);
+        if (!role) return send(400, { message: MEMBER_ROLE_MESSAGE });
+        if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+        if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+        if (!canSetRoleAtDesk(uiRole, target.role, role)) return send(403, { message: MEMBER_OWNER_MESSAGE });
+        uiTeam = uiTeam.map((m) => (m.userId === target.userId ? { ...m, role } : m));
+        return send(200, { userId: target.userId, role });
+      }
+      if (req.method === 'DELETE') {
+        if (!target) return send(404, { message: MEMBER_NOT_FOUND_MESSAGE });
+        if (target.you) return send(403, { message: MEMBER_SELF_MESSAGE });
+        if (target.role === 'OWNER') return send(403, { message: MEMBER_OWNER_MESSAGE });
+        if (!canRemoveMember(uiRole, target.role))
+          return send(403, { message: MEMBER_MANAGER_REMOVES_STAFF_MESSAGE });
+        uiTeam = uiTeam.filter((m) => m.userId !== target.userId);
+        return send(200, { ok: true });
+      }
     }
     const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
     if (inviteMatch) {
@@ -2955,8 +3146,8 @@ createServer(async (req, res) => {
     // ИИ-продавец (ТЗ П5–П8): раздел стойки говорит с этим подставным продавцом через «API»
     if (path.startsWith('/ai-seller/')) {
       const sellerToken = sessionOf(req as never);
-      // служебный ходок (без сессии) для API — владелец; вошедший сотрудник — нет (ADR-083)
-      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole === 'OWNER';
+      // служебный ходок (без сессии) для API — владелец; вошедший — по роли: настройки у владельца и управляющего (ADR-107)
+      const sellerOwner = !(sellerToken && uiSessions.has(sellerToken)) || uiRole !== 'STAFF';
       const extension = aiSellerView('ui-org');
       const sellerUse =
         req.method === 'GET'
@@ -2972,7 +3163,7 @@ createServer(async (req, res) => {
             : 'act';
       if (path !== '/ai-seller/status') {
         if (sellerUse === 'configure' && !sellerOwner)
-          return send(403, { message: 'Настройки продавца меняет владелец организации' });
+          return send(403, { message: 'Настройки продавца меняют владелец и управляющий' });
         if (extension.access === 'off')
           return send(403, {
             message:
@@ -3263,8 +3454,8 @@ createServer(async (req, res) => {
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
     if (path === '/hotel/settings' && req.method === 'PATCH') {
-      if (uiRole !== 'OWNER')
-        return send(403, { message: 'Сведения гостиницы меняет владелец организации' });
+      // как API: право `settings` — владелец и управляющий (ADR-107)
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       const parsed = parseHotelSettingsPatch(body);
       if (!parsed.ok) return send(400, { message: parsed.reason });
       hotelOverrides = { ...hotelOverrides, ...(parsed.value as Record<string, string | null>) };
@@ -3642,11 +3833,14 @@ createServer(async (req, res) => {
       }
       if (item && action === 'extend') {
         const n = Math.max(1, Number(body['nights'] ?? 1));
+        const refused = planRefusal(item.ratePlanCode, body['ratePlanCode']);
+        if (refused) return send(403, { message: refused });
         if (!item.ratePlanCode && !body['ratePlanCode'])
           return send(400, { message: 'У проживания нет тарифа: выберите тариф для новой ночи' });
         const departure = add(item.departureDate, n);
         if (item.unitCode && unitBusy(item.unitCode, item.departureDate, departure, item))
           return send(409, { message: `Ячейка ${item.unitCode} занята: сначала переселите` });
+        if (!item.ratePlanCode) recordPlan(item, body['ratePlanCode']);
         item.priceMinor = (
           BigInt(item.priceMinor) +
           nightly(item.accommodationTypeCode) * BigInt(n)
@@ -3661,7 +3855,13 @@ createServer(async (req, res) => {
         if (!unit) return send(404, { message: 'Ячейка не найдена' });
         if (unitBusy(unit.code, item.arrivalDate, item.departureDate, item))
           return send(409, { message: `Ячейка ${unit.code} уже занята` });
+        const refused =
+          unit.accommodationTypeCode !== item.accommodationTypeCode
+            ? planRefusal(item.ratePlanCode, body['ratePlanCode'])
+            : null;
+        if (refused) return send(403, { message: refused });
         if (unit.accommodationTypeCode !== item.accommodationTypeCode) {
+          recordPlan(item, body['ratePlanCode']);
           item.accommodationTypeCode = unit.accommodationTypeCode;
           item.accommodationTypeName = unit.accommodationTypeName;
           item.priceMinor = (

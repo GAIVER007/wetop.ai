@@ -450,10 +450,8 @@ test('аналитика: период дольше года и отклонён
   await expect(page.getByRole('main').getByRole('alert')).not.toContainText('HTTP 400');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/website/booking');
-  await page
-    .locator('summary')
-    .getByText('Установка виджета бронирования', { exact: true })
-    .click();
+  // WEB3: код виджета — в окне «Установка виджета»
+  await page.getByTestId('booking-install').click();
   await expect(page.getByTestId('booking-demo-warning')).toBeVisible();
   await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
 });
@@ -1134,14 +1132,12 @@ test('фонд и категории открываются независимо
  */
 test('настройка сайта: у демо бронирования сказано, что бронь настоящая', async ({ page }) => {
   await page.goto('/website/booking');
-  await page
-    .locator('summary')
-    .getByText('Установка виджета бронирования', { exact: true })
-    .click();
+  // WEB3: код виджета — в окне «Установка виджета»
+  await page.getByTestId('booking-install').click();
   await expect(page.getByTestId('booking-demo-warning')).toBeVisible();
   await expect(page.getByTestId('booking-demo-warning')).toContainText('настоящая');
   // DESIGN.md §14: стрелок в конце текста ссылок нет
-  await expect(page.getByTestId('site-card')).not.toContainText('↗');
+  await expect(page.getByRole('main')).not.toContainText('↗');
 });
 
 /**

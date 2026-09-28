@@ -91,8 +91,8 @@ export async function bookingSettingsAction(
     return {
       error: null,
       message: card.site.bookingEnabled
-        ? `Бронирование с сайта включено, тариф «${card.site.bookingRatePlan?.name ?? '—'}». Вставьте второй код на сайт`
-        : 'Бронирование с сайта выключено: виджет на сайте покажет, что бронирование недоступно',
+        ? `Бронирование с сайта включено, тариф «${card.site.bookingRatePlan?.name ?? '—'}». Код для сайта — в «Установке виджета»`
+        : 'Бронирование с сайта выключено: форма на сайте останется, но цены и брони не покажет',
       card,
     };
   } catch (e) {

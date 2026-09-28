@@ -63,3 +63,19 @@ it('убранный домен уходит из списка, остальны
   expect(update).toHaveBeenCalledWith('site', { hosts: ['luxxaparts.kz'] });
   expect(result.message).toContain('promo.kz');
 });
+
+it('сообщения о бронировании говорят, что увидит гость и где код (WEB3)', async () => {
+  const plan = { id: 'p', code: 'BASE', name: 'Стандартный' };
+  vi.spyOn(analyticsApi, 'update').mockResolvedValueOnce({
+    site: { id: 'site', hosts: ['myhotel.kz'], bookingEnabled: true, bookingRatePlan: plan },
+  } as unknown as TrackedSiteCard);
+  const on = await bookingSettingsAction('site', { enabled: true, ratePlanCode: 'BASE' });
+  expect(on.message).toBe(
+    'Бронирование с сайта включено, тариф «Стандартный». Код для сайта — в «Установке виджета»',
+  );
+  vi.spyOn(analyticsApi, 'update').mockResolvedValueOnce(withHosts(['myhotel.kz']));
+  const off = await bookingSettingsAction('site', { enabled: false, ratePlanCode: '' });
+  expect(off.message).toBe(
+    'Бронирование с сайта выключено: форма на сайте останется, но цены и брони не покажет',
+  );
+});

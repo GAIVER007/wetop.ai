@@ -15,7 +15,7 @@ import {
 } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
-import { DOMAIN_EXAMPLE, isPlaceholderHost, primaryHost } from '../../lib/website';
+import { DOMAIN_EXAMPLE, isOpenableUrl, isPlaceholderHost, primaryHost } from '../../lib/website';
 import {
   addDomainAction,
   bookingSettingsAction,
@@ -207,6 +207,9 @@ export function BookingSettings({
           Сохранить
         </Button>
       </Row>
+      <p className="hint">
+        Виджет показывает категории этого тарифа и его цены; отмена — по правилам тарифа.
+      </p>
       {result?.error && <Alert>{result.error}</Alert>}
       {on && !plans.length && <Alert>Нет доступных тарифов для виджета.</Alert>}
       {result?.message && <Notice data-testid="booking-result">{result.message}</Notice>}
@@ -347,13 +350,7 @@ export function InstallCounterButton({
   demoUrl: string;
 }) {
   const [open, setOpen] = useState(false);
-  const demo = (() => {
-    try {
-      return ['https:', 'http:'].includes(new URL(demoUrl).protocol);
-    } catch {
-      return false;
-    }
-  })();
+  const demo = isOpenableUrl(demoUrl);
   return (
     <>
       <Button
@@ -435,6 +432,77 @@ export function InstallCounterButton({
               </li>
             </ol>
           </details>
+        </Stack>
+      </Overlay>
+    </>
+  );
+}
+
+/**
+ * Окно установки виджета бронирования (WEB3): код, куда поставить форму, цвет стилями сайта, проверка через демо.
+ * Подписи, языка и промокода в модели нет — окно их не обещает (п. 10 ТЗ); цвет меняет сам сайт переменной
+ * `--pmsw-accent`, стойка его не хранит.
+ */
+export function InstallWidgetButton({ code, demoUrl }: { code: string; demoUrl: string }) {
+  const [open, setOpen] = useState(false);
+  const demo = isOpenableUrl(demoUrl);
+  return (
+    <>
+      <Button
+        type="button"
+        tone="secondary"
+        onClick={() => setOpen(true)}
+        data-testid="booking-install"
+      >
+        Установка виджета
+      </Button>
+      <Overlay
+        drawer
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Установка виджета бронирования"
+      >
+        <Stack data-testid="booking-install-drawer">
+          <InstallStep title="Код для сайта">
+            <p className="hint--lg">
+              Вставьте туда, где на странице должна быть форма бронирования, — обычно на страницу
+              «Номера» или «Бронирование». Счётчик для этого не нужен, но с ним поиск и бронь
+              попадут в аналитику.
+            </p>
+            <pre data-testid="site-card-booking-snippet" className="code">
+              {code}
+            </pre>
+            <Row className="items-start">
+              <CopyButton text={code} />
+              {!demo && <Badge>Демо виджета не подключено</Badge>}
+            </Row>
+          </InstallStep>
+          <InstallStep title="Место и цвет">
+            <ul className="list hint--lg list--gap">
+              <li>
+                Форма встаёт в блок <code>&lt;div id=&quot;pms-booking&quot;&gt;</code>. Другое
+                место — атрибут <code>data-target=&quot;#ваш-блок&quot;</code> у тега script.
+              </li>
+              <li>
+                Цвет кнопок и рамки фокуса — в стилях сайта:{' '}
+                <code>
+                  .pmsw {'{'} --pmsw-accent: #0a7c59; {'}'}
+                </code>
+                . Подпись кнопок и язык формы пока не настраиваются.
+              </li>
+            </ul>
+          </InstallStep>
+          <InstallStep title="Проверка">
+            <p className="hint--lg">
+              Откройте страницу сайта с формой, выберите даты и нажмите «Показать цены»: должны
+              появиться свободные категории с ценой. Без сайта — кнопка «Открыть демо» на вкладке.
+            </p>
+            {/* Демо работает на живом API: бронь с него — обычная бронь PMS, а не примерка (§7.3) */}
+            <p className="note" data-testid="booking-demo-warning">
+              Бронь с сайта и с демо-страницы настоящая: она попадёт в PMS, займёт место и откроет
+              счёт. После проверки отмените её на карточке брони.
+            </p>
+          </InstallStep>
         </Stack>
       </Overlay>
     </>

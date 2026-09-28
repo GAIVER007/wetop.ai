@@ -4,6 +4,7 @@ import { propertyClock } from './property-time';
 import {
   hostsAfterAdd,
   hostsAfterRemove,
+  isOpenableUrl,
   isPlaceholderHost,
   parseDomainInput,
   primaryHost,
@@ -129,9 +130,11 @@ describe('состояние сайта на обзоре', () => {
       value: 'Включено',
       note: 'Тариф «Базовый тариф»',
     });
+    // WEB3: выключенный виджет ничего не объявляет — форма остаётся, а «Показать цены» гость получает отказ
     expect(siteState(card({ bookingEnabled: false }), clock, NOW).booking).toMatchObject({
       state: 'off',
       value: 'Выключено',
+      note: 'Форма на сайте цены не покажет',
     });
     expect(siteState(card({ bookingRatePlan: null }), clock, NOW).booking.state).toBe('blocked');
   });
@@ -191,5 +194,14 @@ describe('список доменов после правки (WEB2)', () => {
     expect(hostsAfterRemove(['luxxaparts.kz'], 'promo.kz')).toEqual({
       error: 'promo.kz уже нет в списке',
     });
+  });
+});
+
+describe('адрес демо виджета (WEB3)', () => {
+  it('открываем только настоящий адрес http или https', () => {
+    expect(isOpenableUrl('https://api.wetop.ai/w/demo?k=pms_1')).toBe(true);
+    expect(isOpenableUrl('http://127.0.0.1:3001/w/demo?k=pms_1')).toBe(true);
+    for (const url of ['/demo-booking', '', 'javascript:alert(1)', 'ftp://x.kz/demo'])
+      expect(isOpenableUrl(url)).toBe(false);
   });
 });

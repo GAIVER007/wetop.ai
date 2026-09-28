@@ -1,0 +1,116 @@
+# Модульные (unit) · 28.09.2026 23:39 Алматы · vm
+# коммит c39c55e (claude/serene-fermat-om5559), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T18-39-06Z-unit-4fbd.json' 'apps/web/src/lib/website.test.ts' 'apps/web/src/app/website/actions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/website/actions.test.ts (8 tests | 1 failed) 19ms
+   ✓ обновляет все вкладки «Сайта и онлайн-бронирования» после pause 4ms
+   ✓ обновляет все вкладки «Сайта и онлайн-бронирования» после widget 1ms
+   ✓ обновляет все вкладки «Сайта и онлайн-бронирования» после domain 2ms
+   ✓ добавление домена читает список заново и убирает заглушку 1ms
+   ✓ неверный адрес не уходит в API 1ms
+   ✓ последний домен не убирается 1ms
+   ✓ убранный домен уходит из списка, остальные на месте 0ms
+   × сообщения о бронировании говорят, что увидит гость и где код (WEB3) 7ms
+ ❯ |unit| apps/web/src/lib/website.test.ts (31 tests | 2 failed) 24ms
+   ✓ домен-заглушка (14)
+     ✓ luxx-aparts.example — не адрес настоящего сайта 2ms
+     ✓ example.invalid — не адрес настоящего сайта 0ms
+     ✓ updated.example.invalid — не адрес настоящего сайта 0ms
+     ✓ example.com — не адрес настоящего сайта 0ms
+     ✓ www.example.org — не адрес настоящего сайта 0ms
+     ✓ example.net — не адрес настоящего сайта 0ms
+     ✓ luxxaparts.kz — адрес, с которого запросы доходят 0ms
+     ✓ luxx-aparts.kz — адрес, с которого запросы доходят 0ms
+     ✓ example.kz — адрес, с которого запросы доходят 1ms
+     ✓ myexample.com — адрес, с которого запросы доходят 0ms
+     ✓ examples.com — адрес, с которого запросы доходят 0ms
+     ✓ test-site.localhost — адрес, с которого запросы доходят 0ms
+     ✓ hotel.test — адрес, с которого запросы доходят 0ms
+     ✓ основной домен — первый настоящий, заглушки пропускаются 0ms
+   ❯ состояние сайта на обзоре (6)
+     ✓ заготовка с доменом-заглушкой не выглядит подключённым сайтом 1ms
+     ✓ событие сегодня — счётчик работает 1ms
+     ✓ событий ещё не было — ждём первое посещение, а не «работает» 0ms
+     ✓ последнее событие было не сегодня — так и сказано, с датой 0ms
+     ✓ пауза сайта останавливает и счётчик, и бронирование (так работает API) 0ms
+     × бронирование: включено с тарифом, выключено, без тарифа 10ms
+   ✓ ввод домена (WEB2) (6)
+     ✓ «https://www.LuxxAparts.kz/rooms?x=1» — это luxxaparts.kz 0ms
+     ✓ «  luxxaparts.kz  » — это luxxaparts.kz 0ms
+     ✓ «luxxaparts.kz:443» — это luxxaparts.kz 0ms
+     ✓ «http://promo.luxxaparts.kz/» — это promo.luxxaparts.kz 0ms
+     ✓ «WWW.luxxaparts.kz.» — это luxxaparts.kz 0ms
+     ✓ пустой ввод и не-адрес названы словами до запроса в API 1ms
+   ✓ список доменов после правки (WEB2) (4)
+     ✓ настоящий домен вытесняет заглушку — так и сказано 0ms
+     ✓ второй домен встаёт в конец, основной не меняется 0ms
+     ✓ домен, который уже есть, не дублируется 0ms
+     ✓ убрать можно любой, кроме последнего 0ms
+   ❯ адрес демо виджета (WEB3) (1)
+     × открываем только настоящий адрес http или https 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > состояние сайта на обзоре > бронирование: включено с тарифом, выключено, без тарифа
+AssertionError: expected { state: 'off', …(3) } to match object { state: 'off', …(2) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "note": "Форма на сайте цены не покажет",
++   "note": "Виджет на сайте говорит, что бронирование недоступно",
+    "state": "off",
+    "value": "Выключено",
+  }
+
+ ❯ apps/web/src/lib/website.test.ts:134:76
+    132|     });
+    133|     // WEB3: выключенный виджет ничего не объявляет — форма остаётся, …
+    134|     expect(siteState(card({ bookingEnabled: false }), clock, NOW).book…
+       |                                                                            ^
+    135|       state: 'off',
+    136|       value: 'Выключено',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/web/src/lib/website.test.ts > адрес демо виджета (WEB3) > открываем только настоящий адрес http или https
+TypeError: isOpenableUrl is not a function
+ ❯ apps/web/src/lib/website.test.ts:202:12
+    200| describe('адрес демо виджета (WEB3)', () => {
+    201|   it('открываем только настоящий адрес http или https', () => {
+    202|     expect(isOpenableUrl('https://api.wetop.ai/w/demo?k=pms_1')).toBe(…
+       |            ^
+    203|     expect(isOpenableUrl('http://127.0.0.1:3001/w/demo?k=pms_1')).toBe…
+    204|     for (const url of ['/demo-booking', '', 'javascript:alert(1)', 'ft…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/web/src/app/website/actions.test.ts > сообщения о бронировании говорят, что увидит гость и где код (WEB3)
+AssertionError: expected 'Бронирование с сайта включено, тариф …' to be 'Бронирование с сайта включено, тариф …' // Object.is equality
+
+Expected: "Бронирование с сайта включено, тариф «Стандартный». Код для сайта — в «Установке виджета»"
+Received: "Бронирование с сайта включено, тариф «Стандартный». Вставьте второй код на сайт"
+
+ ❯ apps/web/src/app/website/actions.test.ts:73:22
+     71|   } as unknown as TrackedSiteCard);
+     72|   const on = await bookingSettingsAction('site', { enabled: true, rate…
+     73|   expect(on.message).toBe(
+       |                      ^
+     74|     'Бронирование с сайта включено, тариф «Стандартный». Код для сайта…
+     75|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 36 passed (39)
+   Start at  18:39:07
+   Duration  974ms (transform 84%, import 12%, tests 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T18-39-06Z-unit-4fbd.json
+
+# код выхода 1 · 2 с

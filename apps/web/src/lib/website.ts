@@ -113,7 +113,8 @@ export function siteState(
     ? {
         state: 'off',
         value: 'Выключено',
-        note: 'Виджет на сайте говорит, что бронирование недоступно',
+        // выключенный виджет ничего не объявляет: форма остаётся, на «Показать цены» гость получает отказ
+        note: 'Форма на сайте цены не покажет',
         tone: 'warn',
       }
     : !host
@@ -184,4 +185,13 @@ export function hostsAfterRemove(
   const hosts = current.filter((h) => h !== host);
   if (!hosts.length) return { error: 'Сайту нужен хотя бы один адрес: сначала добавьте другой' };
   return { hosts };
+}
+
+/** Адрес, который можно открыть в новой вкладке (демо виджета): только http и https, не относительный путь */
+export function isOpenableUrl(url: string): boolean {
+  try {
+    return ['https:', 'http:'].includes(new URL(url).protocol);
+  } catch {
+    return false;
+  }
 }

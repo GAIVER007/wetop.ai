@@ -139,14 +139,15 @@ for (const theme of ['light', 'dark'] as const) {
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('site-card-snippet')).toHaveCount(0);
     await expect(installer).toBeFocused();
-    // код виджета — во вкладке «Бронирование» модуля сайта (ADR-117)
+    // код виджета — в окне «Установка виджета» вкладки «Бронирование» (ADR-117, WEB3), тоже с клавиатуры
     await page.goto('/website/booking');
-    const widget = page
-      .locator('summary')
-      .getByText('Установка виджета бронирования', { exact: true });
+    const widget = page.getByTestId('booking-install');
     await widget.focus();
-    await page.keyboard.press('Space');
+    await page.keyboard.press('Enter');
     await expect(page.getByTestId('booking-demo-warning')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('booking-demo-warning')).toHaveCount(0);
+    await expect(widget).toBeFocused();
     expect(errors).toEqual([]);
   });
 }

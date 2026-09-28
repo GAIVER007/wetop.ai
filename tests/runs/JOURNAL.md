@@ -3493,3 +3493,8 @@
 | 28.09.2026 22:47 | unit | ✅ 2154 из 2157, пропущено 3 | 1 мин 24 с | 3f87ad5 +1 | [лог](logs/2026-09-28T17-47-58Z-unit-c781.log) |  |
 | 28.09.2026 22:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 2 с | 3f87ad5 +1 | [лог](logs/2026-09-28T17-49-29Z-e2e-ddbb.log) | (ошибка вне тестов) |
 | 28.09.2026 22:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 519 из 519 | 45 мин 7 с | f6f30c0 | [лог](logs/2026-09-28T17-51-44Z-e2e-0876.log) |  |
+| 28.09.2026 23:39 | unit (частично: apps/web/src/lib/website.test.ts apps/web/src/app/website/actions.test.ts) | ❌ упало 3 из 39 | 2 с | c39c55e +2 | [лог](logs/2026-09-28T18-39-06Z-unit-4fbd.log) | состояние сайта на обзоре бронирование: включено с тарифом, выключено, без тарифа |
+| 28.09.2026 23:39 | unit (частично: apps/web/src/lib/website.test.ts apps/web/src/app/website/actions.test.ts) | ✅ 39 из 39 | 2 с | c39c55e +4 | [лог](logs/2026-09-28T18-39-21Z-unit-98fc.log) |  |
+| 28.09.2026 23:42 | typecheck | ✅ без ошибок | 23 с | c39c55e +11 | [лог](logs/2026-09-28T18-42-35Z-typecheck-e947.log) |  |
+| 28.09.2026 23:42 | lint | ✅ без ошибок | 17 с | c39c55e +11 | [лог](logs/2026-09-28T18-42-58Z-lint-4e6d.log) |  |
+| 28.09.2026 23:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB3 ·) | ❌ упало 4 из 4 | 1 мин 48 с | c39c55e +7 | [лог](logs/2026-09-28T18-43-24Z-e2e-188a.log) | WEB3 · бронирование: состояние, демо только у работающего, что увидит гость |

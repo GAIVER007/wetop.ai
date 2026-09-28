@@ -11,6 +11,7 @@ const API = 'http://127.0.0.1:4311';
 // запись в подставной API — только от прогона тестов
 const TEST_CLIENT = { 'x-wetop-test-client': '1' };
 const SHOTS = 'reports/website-web2-2026-09-28';
+const SHOTS_WEB3 = 'reports/website-web3-2026-09-28';
 const TITLE = 'Сайт и онлайн-бронирование';
 
 test.beforeEach(async ({ request }) => {
@@ -317,6 +318,145 @@ test('снимки WEB2', async ({ page, request }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/website/settings');
     await shot(page, `settings-working-${theme}-390`);
+  }
+  expect(errors).toEqual([]);
+});
+
+/** Настоящий адрес демо, как у API на сервере (`${PUBLIC_API_URL}/w/demo?k=…`); у фикстуры по умолчанию — относительный */
+const DEMO_URL = 'http://127.0.0.1:4311/w/demo?k=public-ui-fixture';
+
+test('WEB3 · бронирование: состояние, демо только у работающего, что увидит гость', async ({
+  page,
+  request,
+}) => {
+  await realDomain(request);
+  await request.post(`${API}/__test/control`, { data: { bookingDemoUrl: DEMO_URL } });
+  await page.goto('/website/booking');
+  const main = page.getByRole('main');
+  const state = main.getByTestId('website-booking-state');
+  await expect(state).toHaveAttribute('data-state', 'on');
+  await expect(state).toContainText('Бронь сразу в PMS, оплата при заселении');
+  await expect(main.getByTestId('site-card-booking-demo')).toHaveAttribute('href', DEMO_URL);
+  await expect(main.getByTestId('site-card-booking-demo')).toHaveAttribute('target', '_blank');
+  await expect(main.getByTestId('booking-guest-plan')).toContainText('«Стандартный»');
+  await expect(main.getByTestId('booking-guest-plan')).toContainText('KZT');
+  await expect(main.getByTestId('booking-guest-limits')).toContainText('предоплату');
+  // выключили — строка говорит правду: форма на сайте останется, но цен не покажет; демо и кода нет
+  await main.getByTestId('booking-enabled').uncheck();
+  await main.getByTestId('booking-save').click();
+  await expect(main.getByTestId('booking-result')).toHaveText(
+    'Бронирование с сайта выключено: форма на сайте останется, но цены и брони не покажет',
+  );
+  await page.reload();
+  await expect(state).toHaveAttribute('data-state', 'off');
+  await expect(state).toContainText('Форма на сайте цены не покажет');
+  await expect(main.getByTestId('booking-actions')).toHaveCount(0);
+  await expect(main.getByTestId('site-card-booking-demo')).toHaveCount(0);
+});
+
+test('WEB3 · без адреса сайта демо не предлагается, код виджета — есть', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, { data: { bookingDemoUrl: DEMO_URL } });
+  await page.goto('/website/booking');
+  const main = page.getByRole('main');
+  await expect(main.getByTestId('website-booking-state')).toHaveAttribute('data-state', 'blocked');
+  await expect(main.getByTestId('website-booking-state')).toContainText('Нет адреса сайта');
+  await expect(main.getByTestId('booking-domain-missing')).toBeVisible();
+  await expect(main.getByTestId('site-card-booking-demo')).toHaveCount(0);
+  await expect(main.getByTestId('booking-install')).toBeVisible();
+});
+
+test('WEB3 · тариф сайта: смена видна в состоянии и в «Что увидит гость»', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, { data: { softPlan: true } });
+  await realDomain(request);
+  await page.goto('/website/booking');
+  const main = page.getByRole('main');
+  await main.getByTestId('booking-rate-plan').selectOption('FLEX');
+  await main.getByTestId('booking-save').click();
+  await expect(main.getByTestId('booking-result')).toContainText('тариф «Гибкий без штрафа»');
+  await expect(main.getByTestId('booking-result')).toContainText('«Установке виджета»');
+  await page.reload();
+  await expect(main.getByTestId('website-booking-state')).toContainText('Гибкий без штрафа');
+  await expect(main.getByTestId('booking-guest-plan')).toContainText('«Гибкий без штрафа»');
+  await expect(main.getByTestId('booking-rate-plan')).toHaveValue('FLEX');
+});
+
+test('WEB3 · окно установки виджета: код, место и цвет, проверка; доступно, закрывается Escape', async ({
+  page,
+}) => {
+  await page.goto('/website/booking');
+  const button = page.getByTestId('booking-install');
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    await button.click();
+    const drawer = page.getByRole('dialog', { name: 'Установка виджета бронирования' });
+    await expect(drawer.getByTestId('site-card-booking-snippet')).toContainText('data-booking');
+    await expect(drawer).toContainText('data-target');
+    await expect(drawer).toContainText('--pmsw-accent');
+    await expect(drawer.getByTestId('booking-demo-warning')).toContainText('настоящая');
+    await expect(drawer.getByRole('button', { name: 'Скопировать код' })).toBeVisible();
+    const audit = await new AxeBuilder({ page })
+      .include('dialog[open]')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+      .analyze();
+    expect(audit.violations, theme).toEqual([]);
+    await page.keyboard.press('Escape');
+    await expect(drawer).toHaveCount(0);
+    await expect(button).toBeFocused();
+  }
+});
+
+/** Снимки для визуального «да» владельца (стоп-гейт WEB3): работает, окно установки, выключено, без адреса, телефон */
+test('снимки WEB3', async ({ page, request }) => {
+  mkdirSync(SHOTS_WEB3, { recursive: true });
+  const errors: string[] = [];
+  page.on('pageerror', (error) => {
+    if (!devNoise.test(error.message)) errors.push(`${page.url()}: ${error.message}`);
+  });
+  const shot = async (p: Page, name: string, full = true) => {
+    await p.addStyleTag({ content: 'nextjs-portal { display: none !important; }' });
+    await p.screenshot({
+      path: `${SHOTS_WEB3}/${name}.png`,
+      fullPage: full,
+      animations: 'disabled',
+    });
+  };
+  for (const theme of ['light', 'dark'] as const) {
+    await request.post(`${API}/__test/reset`);
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/website/booking');
+    await expect(page.getByTestId('website-booking-state')).toHaveAttribute(
+      'data-state',
+      'blocked',
+    );
+    await shot(page, `booking-placeholder-${theme}`);
+    await realDomain(request);
+    await request.post(`${API}/__test/control`, { data: { bookingDemoUrl: DEMO_URL } });
+    await page.reload();
+    await expect(page.getByTestId('website-booking-state')).toHaveAttribute('data-state', 'on');
+    await shot(page, `booking-on-${theme}`);
+    await page.getByTestId('booking-install').click();
+    await expect(
+      page.getByRole('dialog', { name: 'Установка виджета бронирования' }),
+    ).toBeVisible();
+    await shot(page, `booking-install-${theme}`, false);
+    await page.keyboard.press('Escape');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    await shot(page, `booking-on-${theme}-390`);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.getByTestId('booking-enabled').uncheck();
+    await page.getByTestId('booking-save').click();
+    await expect(page.getByTestId('booking-result')).toBeVisible();
+    await page.reload();
+    await expect(page.getByTestId('website-booking-state')).toHaveAttribute('data-state', 'off');
+    await shot(page, `booking-off-${theme}`);
   }
   expect(errors).toEqual([]);
 });

@@ -146,17 +146,15 @@ test('изменение уборки относится только к выб�
 });
 
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
-  // Код счётчика — в окне установки, код виджета — в свёртке «Бронирования» (ADR-117): открываем их, как пользователь
+  // Код счётчика и код виджета — в окнах установки своих вкладок (ADR-117): открываем их, как пользователь
   await page.goto('/website/settings');
   await page.getByTestId('site-install').click();
   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await page.goto('/website/booking');
-  await page
-    .locator('summary')
-    .getByText('Установка виджета бронирования', { exact: true })
-    .click();
+  await page.getByTestId('booking-install').click();
   await expect(page.getByText('Демо виджета не подключено', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('site-card-booking-demo')).toHaveCount(0);
   await expect(page.locator('a[href="/demo"], a[href="/demo-booking"]')).toHaveCount(0);
 });
 

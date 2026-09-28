@@ -99,6 +99,28 @@
 .reservations-controls .reservations-status-mobile {
   display: none;
 }
+/* Срез R2: ряд быстрых видов над панелью — те же чипы, что статусы; отбор видом, а не периодом */
+.reservations-views {
+  margin-bottom: var(--space-2);
+}
+/* Вторая строка формы — списки отбора и «Показать»; перенос явный, а не по ширине экрана */
+.reservations-break {
+  flex-basis: 100%;
+  height: 0;
+}
+.reservations-selects,
+.reservations-selects__fields {
+  display: contents;
+}
+.reservations-selects__toggle {
+  display: none;
+}
+.reservations-selects__fields .inp {
+  width: auto;
+  max-width: 220px;
+  min-height: var(--control-h-sm);
+  font-size: var(--text-sm);
+}
 .reservations-results {
   min-width: 0;
 }
@@ -410,6 +432,46 @@
   .reservations-toolbar > .btn {
     flex: 1 1 auto;
     align-self: end;
+    min-height: var(--touch-target);
+  }
+  /* Виды — одной строкой с прокруткой вбок: страница вбок не едет, таблица остаётся в первом экране */
+  .reservations-controls .reservations-views {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .reservations-views a {
+    flex: 0 0 auto;
+  }
+  .reservations-break {
+    display: none;
+  }
+  /* Свёрнутые «Даты» делят строку со статусом: раскрытые — во всю ширину, как в R1 */
+  .reservations-dates[data-open='false'] {
+    flex: 1 1 40%;
+    align-self: end;
+  }
+  .reservations-dates[data-open='false'] .reservations-dates__toggle {
+    width: 100%;
+  }
+  .reservations-selects__toggle {
+    display: inline-flex;
+    flex: 1 1 40%;
+    align-self: end;
+    min-height: var(--touch-target);
+  }
+  .reservations-selects[data-open='true'] .reservations-selects__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-basis: 100%;
+    gap: var(--space-2);
+  }
+  .reservations-selects[data-open='false'] .reservations-selects__fields {
+    display: none;
+  }
+  .reservations-selects__fields .inp {
+    width: 100%;
+    max-width: none;
     min-height: var(--touch-target);
   }
   /* Телефон: ряды чипов убраны, как и было. Период и статус задают «Даты» и выпадающий список,

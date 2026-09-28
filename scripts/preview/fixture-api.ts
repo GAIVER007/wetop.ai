@@ -43,6 +43,7 @@ import {
   type MembershipRole,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
+import { financeState } from '../../apps/web/src/app/reservations/finance-state';
 import { assistant } from '@pms/integrations';
 import type {
   Chessboard,
@@ -235,8 +236,11 @@ let card = cardSeed();
 let guest = structuredClone(guestSeed);
 const extraCards = new Map<string, ReservationCard>();
 const extraGuests = new Map<string, GuestCard>();
+/** Порядок появления карточек — «новые брони» (R2): у карточек подставного API нет момента создания */
+const cardSeen = new Map<string, number>();
 function initializeRecords() {
   extraCards.clear();
+  cardSeen.clear();
   extraGuests.clear();
   if (demo) {
     const [firstName, lastName] = names[0]!.split(' ');
@@ -2949,44 +2953,138 @@ createServer(async (req, res) => {
     if (path === '/hotel/settings' && holdHotel)
       await new Promise<void>((resolve) => hotelWaiters.add(resolve));
     if (path === '/hotel/reservations' && req.method === 'GET') {
-      const from = url.searchParams.get('from') || today,
-        to = url.searchParams.get('to') || from;
-      const status = url.searchParams.get('status') || 'ALL';
-      const q = (url.searchParams.get('q') || '').toLocaleLowerCase('ru');
-      const inPeriod = allCards().filter(
-        (r) =>
-          r.arrivalDate <= to &&
-          r.departureDate >= from &&
-          `${r.primaryGuest?.label} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q),
-      );
+      // Те же параметры, что GET /hotel/reservations API (ADR-106, срез R2): отбор до страницы
+      const p = (name: string) => url.searchParams.get(name) || '';
+      const view = p('view') || 'all';
+      const dateBase = p('date') || 'stay';
+      const from = view === 'today' ? today : p('from') || today,
+        to = view === 'today' ? today : p('to') || from;
+      const status = p('status') || 'ALL';
+      const q = p('q').toLocaleLowerCase('ru');
+      const sourceText = p('source').trim();
+      const payment = p('payment');
+      const allocation = p('allocation');
+      const category = p('category');
+      const sort = p('sort') || (view === 'today' ? 'arrival' : '');
+      for (const r of allCards())
+        if (!cardSeen.has(r.confirmationNumber)) cardSeen.set(r.confirmationNumber, cardSeen.size);
+      const kindOf = (code: string | null) => units.find((u) => u.code === code)?.kind ?? null;
+      const withoutUnit = (r: ReservationCard) => r.items.some((it) => !it.unitCode);
+      const active = (r: ReservationCard) =>
+        ['TENTATIVE', 'CONFIRMED', 'CHECKED_IN'].includes(r.status);
+      const moneyOf = (r: ReservationCard) => {
+        const money = finance(r);
+        return {
+          money,
+          state: financeState({ ...money, hasFolios: true }).kind,
+          balance: BigInt(money.balanceMinor),
+        };
+      };
+      const inPeriod = allCards().filter((r) => {
+        if (!`${r.primaryGuest?.label} ${r.confirmationNumber}`.toLocaleLowerCase('ru').includes(q))
+          return false;
+        const { state, balance } = moneyOf(r);
+        if (view === 'future' && !(r.arrivalDate > today && r.status !== 'CANCELLED')) return false;
+        if (view === 'inhouse' && r.status !== 'CHECKED_IN') return false;
+        if (
+          view === 'attention' &&
+          !(
+            (active(r) && withoutUnit(r)) ||
+            (['TENTATIVE', 'CONFIRMED'].includes(r.status) && r.arrivalDate < today) ||
+            (balance > 0n && ['CHECKED_IN', 'CHECKED_OUT'].includes(r.status)) ||
+            balance < 0n
+          )
+        )
+          return false;
+        if (view === 'all' || view === 'today') {
+          if (dateBase === 'arrival' && !(r.arrivalDate >= from && r.arrivalDate <= to))
+            return false;
+          if (dateBase === 'departure' && !(r.departureDate >= from && r.departureDate <= to))
+            return false;
+          if (dateBase === 'created' && !(today >= from && today <= to)) return false;
+          if (dateBase === 'stay' && !(r.arrivalDate <= to && r.departureDate >= from))
+            return false;
+        }
+        if (sourceText) {
+          const enumSource = sourceText.toUpperCase();
+          const bySource = [
+            'DESK',
+            'PHONE',
+            'WHATSAPP',
+            'WALK_IN',
+            'INSTAGRAM',
+            'OTA',
+            'WEBSITE',
+          ].includes(enumSource);
+          if (
+            bySource
+              ? r.source !== enumSource
+              : !(r.channel ?? '').toLowerCase().includes(sourceText.toLowerCase())
+          )
+            return false;
+        }
+        if (payment === 'paid' && state !== 'paid') return false;
+        if (payment === 'partial' && state !== 'due') return false;
+        if (payment === 'unpaid' && state !== 'unpaid') return false;
+        if (payment === 'due' && state !== 'due' && state !== 'unpaid') return false;
+        if (payment === 'refund' && state !== 'refund-due') return false;
+        if (payment === 'refunded' && state !== 'refunded') return false;
+        if (allocation === 'assigned' && withoutUnit(r)) return false;
+        if (allocation === 'missing' && !(active(r) && withoutUnit(r))) return false;
+        if (allocation === 'room' && !r.items.some((it) => kindOf(it.unitCode) === 'ROOM'))
+          return false;
+        if (allocation === 'bed' && !r.items.some((it) => kindOf(it.unitCode) === 'BED'))
+          return false;
+        if (category && !r.items.some((it) => it.accommodationTypeCode === category)) return false;
+        return true;
+      });
       // Числа на чипах статусов — как в API: по отбору без самого статуса
       const counts: Record<string, number> = { ALL: emptyFixture ? 0 : inPeriod.length };
       if (!emptyFixture) for (const r of inPeriod) counts[r.status] = (counts[r.status] ?? 0) + 1;
-      const rows = inPeriod
+      const key = (r: ReservationCard): Array<string | number | bigint> =>
+        sort === 'arrival'
+          ? [r.arrivalDate]
+          : sort === 'departure'
+            ? [r.departureDate]
+            : sort === 'new'
+              ? [-(cardSeen.get(r.confirmationNumber) ?? 0)]
+              : sort === 'amount'
+                ? [-BigInt(r.totalAmountMinor)]
+                : sort === 'debt'
+                  ? [-moneyOf(r).balance]
+                  : [];
+      const ordered = inPeriod
         .filter((r) => status === 'ALL' || r.status === status)
-        .map((r) => {
-          const money = finance(r);
-          return {
-            confirmationNumber: r.confirmationNumber,
-            status: r.status,
-            source: r.source,
-            channel: r.channel,
-            arrivalDate: r.arrivalDate,
-            departureDate: r.departureDate,
-            currency: r.currency,
-            totalAmountMinor: r.totalAmountMinor,
-            chargedMinor: money.chargedMinor,
-            paidMinor: money.paidMinor,
-            refundedMinor: money.refundedMinor,
-            balanceMinor: money.balanceMinor,
-            hasFolios: true,
-            unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
-            itemsCount: r.items.length,
-            primaryGuest: r.primaryGuest
-              ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
-              : null,
-          };
+        .sort((a, b) => {
+          const [ka, kb] = [key(a)[0], key(b)[0]];
+          if (ka !== undefined && kb !== undefined && ka !== kb) return ka < kb ? -1 : 1;
+          if (ka === undefined && a.arrivalDate !== b.arrivalDate)
+            return a.arrivalDate < b.arrivalDate ? 1 : -1;
+          return 0;
         });
+      const rows = ordered.map((r) => {
+        const { money } = moneyOf(r);
+        return {
+          confirmationNumber: r.confirmationNumber,
+          status: r.status,
+          source: r.source,
+          channel: r.channel,
+          arrivalDate: r.arrivalDate,
+          departureDate: r.departureDate,
+          currency: r.currency,
+          totalAmountMinor: r.totalAmountMinor,
+          chargedMinor: money.chargedMinor,
+          paidMinor: money.paidMinor,
+          refundedMinor: money.refundedMinor,
+          balanceMinor: money.balanceMinor,
+          hasFolios: true,
+          unitCodes: r.items.flatMap((it) => (it.unitCode ? [it.unitCode] : [])),
+          itemsCount: r.items.length,
+          primaryGuest: r.primaryGuest
+            ? { ...r.primaryGuest, email: getGuest(r.primaryGuest.id)?.email ?? null }
+            : null,
+        };
+      });
       const pageSize = Number(url.searchParams.get('pageSize') || 25);
       const page = Number(url.searchParams.get('page') || 1);
       return send(200, {

@@ -2921,3 +2921,4 @@
 | 28.09.2026 12:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-preview.spec.ts tests/ui/categories-screens.spec.ts tests/ui/fund-workspac | ✅ 5 из 5 | 56 с | 99291ca +9 | [лог](logs/2026-09-28T07-06-55Z-e2e-cf22.log) | C2 green: превью, карточки; C1-спеки |
 | 28.09.2026 12:08 | unit | ✅ 2113 из 2116, пропущено 3 | 1 мин 16 с | 99291ca +7 | [лог](logs/2026-09-28T07-08-39Z-unit-8597.log) |  |
 | 28.09.2026 12:10 | integration | ✅ 107 из 107 | 33 с | 99291ca +3 | [лог](logs/2026-09-28T07-10-23Z-integration-52bc.log) |  |
+| 28.09.2026 12:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 408 | 32 мин 36 с | 966ad96 | [лог](logs/2026-09-28T07-11-32Z-e2e-26e3.log) | C2: полный UI-набор, один поток |

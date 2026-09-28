@@ -3526,3 +3526,10 @@
 | 28.09.2026 15:05 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 20 с | b5bbd54 | [лог](logs/2026-09-28T10-05-02Z-unit-7164.log) | integration 28.09: final HEAD after merging main (auto-deploy test) |
 | 28.09.2026 15:06 | typecheck | ✅ без ошибок | 24 с | b5bbd54 | [лог](logs/2026-09-28T10-06-41Z-typecheck-dfb9.log) | integration 28.09: final HEAD after merging main |
 | 28.09.2026 15:07 | lint | ✅ без ошибок | 18 с | b5bbd54 | [лог](logs/2026-09-28T10-07-05Z-lint-2273.log) | integration 28.09: final HEAD after merging main |
+| 28.09.2026 15:15 | typecheck | ✅ без ошибок | 34 с | c878da4 | [лог](logs/2026-09-28T10-15-05Z-typecheck-29bc.log) |  |
+| 28.09.2026 15:15 | lint | ✅ без ошибок | 18 с | c878da4 | [лог](logs/2026-09-28T10-15-39Z-lint-14e4.log) |  |
+| 28.09.2026 15:15 | unit | ✅ 2303 из 2306, пропущено 3 | 1 мин 20 с | c878da4 | [лог](logs/2026-09-28T10-15-58Z-unit-2075.log) |  |
+| 28.09.2026 15:17 | integration | ✅ 125 из 125 | 44 с | c878da4 | [лог](logs/2026-09-28T10-17-19Z-integration-7102.log) |  |
+| 28.09.2026 15:18 | e2e | ❌ упало 1 из 25 | 1 мин 15 с | c878da4 | [лог](logs/2026-09-28T10-18-16Z-e2e-3f22.log) | стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом |
+| 28.09.2026 15:20 | e2e (частично: tests/e2e/desk-tasks.spec.ts) | ✅ 2 из 2 | 14 с | c878da4 | [лог](logs/2026-09-28T10-20-01Z-e2e-4c31.log) |  |
+| 28.09.2026 15:20 | e2e | ✅ 25 из 25 | 1 мин 4 с | c878da4 | [лог](logs/2026-09-28T10-20-25Z-e2e-1ded.log) |  |

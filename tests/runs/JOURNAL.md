@@ -3498,3 +3498,4 @@
 | 28.09.2026 23:42 | typecheck | ✅ без ошибок | 23 с | c39c55e +11 | [лог](logs/2026-09-28T18-42-35Z-typecheck-e947.log) |  |
 | 28.09.2026 23:42 | lint | ✅ без ошибок | 17 с | c39c55e +11 | [лог](logs/2026-09-28T18-42-58Z-lint-4e6d.log) |  |
 | 28.09.2026 23:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts -g WEB3 ·) | ❌ упало 4 из 4 | 1 мин 48 с | c39c55e +7 | [лог](logs/2026-09-28T18-43-24Z-e2e-188a.log) | WEB3 · бронирование: состояние, демо только у работающего, что увидит гость |
+| 28.09.2026 23:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/website.spec.ts tests/ui/workspace.spec.ts tests/ui/quality.spec.ts tests/ui/settings | ✅ 107 из 107 | 12 мин 38 с | c39c55e +11 | [лог](logs/2026-09-28T18-45-18Z-e2e-f73c.log) |  |

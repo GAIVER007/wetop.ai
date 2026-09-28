@@ -251,3 +251,9 @@
 | 29.09.2026 01:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ⏹ прерван | 1 мин 26 с | db0cb5b | [лог](logs/2026-09-28T20-11-14Z-e2e-bf11.log) |  |
 | 29.09.2026 01:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/inventory-catalog.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts) | ✅ 31 из 31 | 2 мин 41 с | db0cb5b | [лог](logs/2026-09-28T20-13-03Z-e2e-1abd.log) |  |
 | 29.09.2026 01:18 | e2e | ✅ 25 из 25 | 55 с | 749de72 | [лог](logs/2026-09-28T20-18-25Z-e2e-b2ac.log) |  |
+| 29.09.2026 01:20 | typecheck | ✅ без ошибок | 28 с | 15d7ccf | [лог](logs/2026-09-28T20-20-17Z-typecheck-8f3e.log) |  |
+| 29.09.2026 01:20 | lint | ✅ без ошибок | 14 с | 15d7ccf | [лог](logs/2026-09-28T20-20-45Z-lint-5d7e.log) |  |
+| 29.09.2026 01:21 | unit | ✅ 2197 из 2200, пропущено 3 | 1 мин 13 с | 15d7ccf | [лог](logs/2026-09-28T20-21-00Z-unit-e407.log) |  |
+| 29.09.2026 01:22 | integration | ✅ 117 из 117 | 32 с | 15d7ccf | [лог](logs/2026-09-28T20-22-21Z-integration-89fe.log) |  |
+| 29.09.2026 01:23 | e2e | ✅ 25 из 25 | 57 с | 15d7ccf | [лог](logs/2026-09-28T20-23-12Z-e2e-51e9.log) |  |
+| 29.09.2026 01:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/requests.spec.ts tests/ui/ux-retention.spec.ts) | ✅ 39 из 39 | 1 мин 51 с | 15d7ccf | [лог](logs/2026-09-28T20-24-17Z-e2e-322a.log) |  |

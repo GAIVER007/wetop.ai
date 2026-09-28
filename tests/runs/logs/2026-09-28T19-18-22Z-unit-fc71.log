@@ -1,0 +1,86 @@
+# Модульные (unit) · 29.09.2026 00:18 Алматы · vm
+# коммит c5e7511 (claude/serene-fermat-om5559), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T19-18-22Z-unit-fc71.json' 'apps/api/src/analytics/analytics.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/analytics/analytics.controller.test.ts (12 tests | 2 failed) 268ms
+   ❯ сайты и отчёты /analytics (12)
+     ✓ создание сайта: ключ pms_ + 12 hex, домены нормализованы, код для вставки содержит ключ 49ms
+     ✓ отказ 400: без имени 10ms
+     ✓ отказ 400: без доменов 6ms
+     ✓ отказ 400: домен с пробелом внутри 5ms
+     ✓ отказ 400: домен со схемой 6ms
+     ✓ список сайтов и карточка со статусом счётчика 16ms
+     × отчёт за период — контрольные числа гейта 26ms
+     × брони с сайта в отчёте: число, отменённые, начислено по счетам (WEB4, Q-212) 6ms
+     ✓ без дат — текущий месяц по поясу объекта; кривые даты — 400 10ms
+     ✓ период длиннее предела — 400 с внятным текстом, ровно по пределу — считается 7ms
+     ✓ бронирование с сайта: включение подставляет тариф по умолчанию, код виджета содержит ключ 13ms
+     ✓ правка и удаление сайта попадают в журнал 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/analytics/analytics.controller.test.ts > сайты и отчёты /analytics > отчёт за период — контрольные числа гейта
+AssertionError: expected undefined to deeply equal { visits: 3, searches: 1, …(3) }
+
+- Expected:
+{
+  "booked": 0,
+  "conversion": 0,
+  "searches": 1,
+  "started": 0,
+  "visits": 3,
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/analytics/analytics.controller.test.ts:121:27
+    119|     });
+    120|     // WEB4: воронка по сессиям периода, брони с сайта — за тот же пол…
+    121|     expect(r.body.funnel).toEqual({
+       |                           ^
+    122|       visits: 3,
+    123|       searches: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/analytics/analytics.controller.test.ts > сайты и отчёты /analytics > брони с сайта в отчёте: число, отменённые, начислено по счетам (WEB4, Q-212)
+AssertionError: expected undefined to deeply equal { count: 2, cancelled: 1, …(2) }
+
+- Expected:
+{
+  "cancelled": 1,
+  "charged": [
+    {
+      "chargedMinor": "5500000",
+      "currency": "KZT",
+    },
+  ],
+  "count": 2,
+  "noShow": 0,
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/analytics/analytics.controller.test.ts:151:37
+    149|       .get(`/analytics/sites/${SITE.id}/report?from=2026-09-11&to=2026…
+    150|       .expect(200);
+    151|     expect(r.body.siteReservations).toEqual({
+       |                                     ^
+    152|       count: 2,
+    153|       cancelled: 1,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 passed (12)
+   Start at  19:18:23
+   Duration  2.93s (transform 51%, import 39%, tests 10%)
+
+JSON report written to /tmp/pms-test-2026-09-28T19-18-22Z-unit-fc71.json
+
+# код выхода 1 · 4 с

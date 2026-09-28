@@ -1578,6 +1578,11 @@ const siteSeed: TrackedSite = {
 let site = structuredClone(siteSeed);
 /** Последнее событие счётчика — `POST /__test/control { siteLastEventAt }`: состояние «Работает» на обзоре сайта */
 let siteLastEventAt: string | null = null;
+/**
+ * Адрес демо виджета. По умолчанию относительный — стойка пишет «Демо виджета не подключено»; настоящий, как у API
+ * на сервере, — `POST /__test/control { bookingDemoUrl }` (WEB3), сбрасывается `reset`
+ */
+let siteBookingDemoUrl = '/demo-booking';
 function report(): SiteReport {
   return {
     site: { id: site.id, name: site.name },
@@ -1617,6 +1622,14 @@ function report(): SiteReport {
     demand: [],
     events: [],
     devices: { devices: [], browsers: [], os: [] },
+    // WEB4: воронка по сессиям и брони с сайта (Q-212) — числа учебные, сверяются в tests/ui/website.spec.ts
+    funnel: { visits: 125, searches: 40, started: 18, booked: 12, conversion: 0.096 },
+    siteReservations: {
+      count: 14,
+      cancelled: 1,
+      noShow: 1,
+      charged: [{ currency: 'KZT', chargedMinor: '142000000' }],
+    },
   };
 }
 
@@ -3275,7 +3288,7 @@ function read(path: string, q: URLSearchParams): unknown {
         code: '<script data-site="public-ui-fixture"></script>',
         demoUrl: '/demo',
         bookingCode: '<div data-booking></div>',
-        bookingDemoUrl: '/demo-booking',
+        bookingDemoUrl: siteBookingDemoUrl,
       },
     };
   return undefined;
@@ -3379,6 +3392,7 @@ createServer(async (req, res) => {
       site = structuredClone(siteSeed);
       siteDeleted = false;
       siteLastEventAt = null;
+      siteBookingDemoUrl = '/demo-booking';
       groupFixture = false;
       analyticsHistory = false;
       paid = new Map();
@@ -3470,6 +3484,7 @@ createServer(async (req, res) => {
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       if (body['softPlan'] === true) softPlan = true;
+      if (typeof body['bookingDemoUrl'] === 'string') siteBookingDemoUrl = body['bookingDemoUrl'];
       // ИИ-продавец: не подключён, последний отказ (приёмка ТЗ §4.4 «продавец недоступен»)
       sellerState = body['sellerState'] === 'not-configured' ? 'not-configured' : 'ready';
       sellerHosts = Array.isArray(body['sellerHosts'])
@@ -4586,7 +4601,22 @@ createServer(async (req, res) => {
         siteDeleted = true;
         return send(200, { deleted: true });
       }
-      site = { ...site, ...body };
+      // тариф сайта — по коду из списка тарифов, как у API (`AnalyticsService.update`): неизвестный — 400 (WEB3)
+      const { bookingRatePlanCode, ...rest } = body as Record<string, unknown> & {
+        bookingRatePlanCode?: string | null;
+      };
+      if (typeof bookingRatePlanCode === 'string' && bookingRatePlanCode) {
+        const plan = ratePlanList().find((p) => p.code === bookingRatePlanCode && p.active);
+        if (!plan)
+          return send(400, { message: `тариф ${bookingRatePlanCode} не найден или неактивен` });
+        site = {
+          ...site,
+          bookingRatePlan: { id: `ui-rate-${plan.code}`, code: plan.code, name: plan.name },
+        };
+      } else if (bookingRatePlanCode === null || bookingRatePlanCode === '') {
+        site = { ...site, bookingRatePlan: null };
+      }
+      site = { ...site, ...rest };
       return send(200, read(path, url.searchParams));
     }
     if (path === '/channels/channex/pull')

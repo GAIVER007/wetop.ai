@@ -763,6 +763,11 @@ a.dir-number:hover {
   white-space: nowrap;
 }
 
+/* Воронка сайта (WEB4): две колонки — общий `min-width: 520px` уводил «Сессий» на телефоне в прокрутку */
+.an-funnel .table-scroll > .tbl {
+  min-width: 0;
+}
+
 /* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */
 .folio-forms {
   display: grid;

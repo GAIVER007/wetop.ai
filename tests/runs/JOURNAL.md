@@ -259,3 +259,4 @@
 | 29.09.2026 01:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 36 мин 50 с | fb7f67f | [лог](logs/2026-09-28T20-26-26Z-e2e-a156.log) |  |
 | 29.09.2026 02:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/record-tabs.spec.ts) | ❌ код выхода 1 | 2 мин 8 с | fd9b479 | [лог](logs/2026-09-28T21-05-37Z-e2e-a0c9.log) | (ошибка вне тестов) |
 | 29.09.2026 02:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/record-tabs.spec.ts) | ❌ упало 1 из 10 | 1 мин 30 с | fd9b479 | [лог](logs/2026-09-28T21-08-37Z-e2e-e281.log) | ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони |
+| 29.09.2026 02:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 22 с | f2ffe70 | [лог](logs/2026-09-28T21-11-20Z-e2e-9f24.log) |  |

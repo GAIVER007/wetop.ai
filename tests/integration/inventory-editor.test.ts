@@ -4,7 +4,8 @@ import { InventoryModule } from '../../apps/api/src/inventory/inventory.module';
 import { randomUUID } from 'node:crypto';
 import { config } from 'dotenv';
 import { describe, it, expect } from 'vitest';
-import { createPrismaClient } from '@pms/database';
+import { createPrismaClient, createPropertyInChain } from '@pms/database';
+import { deleteOrganizationChain } from '../tools/property-owner';
 import { InventoryEditor } from '../../apps/api/src/inventory/inventory-editor';
 import {
   PrismaInventoryRepository,
@@ -22,15 +23,12 @@ describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and is
       marker = randomUUID();
     const org = await db.organization.create({ data: { name: `TEST inventory ${marker}` } });
     const user = await db.user.create({ data: { email: `inventory-${marker}@example.invalid` } });
-    const property = await db.property.create({
-      data: {
-        organizationId: org.id,
-        name: `TEST inventory ${marker}`,
-        timezone: 'Asia/Almaty',
-        currency: 'KZT',
-        checkInTime: '14:00',
-        checkOutTime: '12:00',
-      },
+    const property = await createPropertyInChain(db, org.id, {
+      name: `TEST inventory ${marker}`,
+      timezone: 'Asia/Almaty',
+      currency: 'KZT',
+      checkInTime: '14:00',
+      checkOutTime: '12:00',
     });
     const provider = { db } as PrismaService;
     const module = await Test.createTestingModule({ imports: [InventoryModule] })
@@ -151,6 +149,7 @@ describe.skipIf(!process.env.DATABASE_URL)('inventory editing persistence and is
       await db.ratePlan.deleteMany({ where: { propertyId: property.id } });
       await db.accommodationType.deleteMany({ where: { propertyId: property.id } });
       await db.property.delete({ where: { id: property.id } });
+      await deleteOrganizationChain(db, [org.id]);
       await db.user.delete({ where: { id: user.id } });
       await db.organization.delete({ where: { id: org.id } });
       forgetPropertyRef();

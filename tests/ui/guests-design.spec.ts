@@ -129,7 +129,8 @@ test('гости: панель предпросмотра — сейчас, ис
   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
 
   // история одного человека: три визита, восемь ночей; «Назад» браузера — тоже возврат к отбору
-  await main.getByRole('link', { name: /Возвращающийся/ }).click();
+  // точное имя: у гостя есть телефон (G6), и рядом с именем стоит ссылка «WhatsApp: …»
+  await main.getByRole('link', { name: 'Возвращающийся Гость', exact: true }).click();
   const history = drawer.getByTestId('guest-preview-history');
   await expect(history).toContainText('Визитов');
   await expect(history).toContainText('3');

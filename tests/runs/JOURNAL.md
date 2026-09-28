@@ -3533,3 +3533,7 @@
 | 28.09.2026 15:18 | e2e | ❌ упало 1 из 25 | 1 мин 15 с | c878da4 | [лог](logs/2026-09-28T10-18-16Z-e2e-3f22.log) | стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом |
 | 28.09.2026 15:20 | e2e (частично: tests/e2e/desk-tasks.spec.ts) | ✅ 2 из 2 | 14 с | c878da4 | [лог](logs/2026-09-28T10-20-01Z-e2e-4c31.log) |  |
 | 28.09.2026 15:20 | e2e | ✅ 25 из 25 | 1 мин 4 с | c878da4 | [лог](logs/2026-09-28T10-20-25Z-e2e-1ded.log) |  |
+| 28.09.2026 15:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 519 | 42 мин 26 с | 7092e53 | [лог](logs/2026-09-28T10-21-56Z-e2e-c31f.log) | гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) |
+| 28.09.2026 22:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts) | ❌ код выхода 1 | 2 мин 8 с | 7092e53 +1 | [лог](logs/2026-09-28T17-45-56Z-e2e-b26a.log) | (ошибка вне тестов) |
+| 28.09.2026 22:48 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts) | ❌ код выхода 1 | 2 мин 2 с | 7092e53 +1 | [лог](logs/2026-09-28T17-48-19Z-e2e-f3f6.log) | (ошибка вне тестов) |
+| 28.09.2026 22:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts) | ✅ 7 из 7 | 54 с | 7092e53 +1 | [лог](logs/2026-09-28T17-51-51Z-e2e-a7bd.log) |  |

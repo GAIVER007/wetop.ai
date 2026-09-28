@@ -1,0 +1,15 @@
+# Сквозные (e2e) · 28.09.2026 22:45 Алматы · vm
+# коммит 7092e53 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 296ms. If /home/user/wetop.ai/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Error: Timed out waiting 120000ms from config.webServer.
+
+
+# код выхода 1 · 2 мин 8 с

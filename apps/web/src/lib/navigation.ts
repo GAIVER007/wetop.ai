@@ -89,7 +89,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        // «Статистика» стала вкладкой «Загрузка» этого модуля (ТЗ «Аналитика v2», ADR-108)
+        // «Статистика» стала вкладкой «Загрузка» этого модуля (ТЗ «Аналитика v2», ADR-114)
         href: '/management/analytics',
         label: 'Аналитика',
         icon: 'analytics',

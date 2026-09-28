@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 
 /**
  * Хаба «Управление» нет с 15.09.2026. «Статистика» стала вкладкой «Загрузка» модуля «Аналитика»
- * (ADR-108): старые адреса и закладки ведут туда с той же датой.
+ * (ADR-114): старые адреса и закладки ведут туда с той же датой.
  */
 export default async function ManagementPage({
   params,

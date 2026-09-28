@@ -1134,7 +1134,7 @@ export interface DashboardView {
   previous: DashboardPeriod;
 }
 export const dashboardApi = {
-  /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-108); по умолчанию весь фонд */
+  /** `fund` — тип фонда «Аналитики»: номера и койки считаются раздельно (ADR-114); по умолчанию весь фонд */
   period: (from: string, to: string, fund: DashboardFund = 'all') =>
     getJson<DashboardView>(
       `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,

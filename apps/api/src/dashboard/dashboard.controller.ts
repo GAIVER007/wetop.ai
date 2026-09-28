@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 
-/** Показатели за период: «Аналитика → Обзор» (ADR-105, ADR-108) и до переезда — Главная. */
+/** Показатели за период: «Аналитика → Обзор» (ADR-105, ADR-114) и до переезда — Главная. */
 @Controller('desk')
 export class DashboardController {
   constructor(@Inject(DashboardService) private readonly service: DashboardService) {}

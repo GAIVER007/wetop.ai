@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ANALYTICS_PATH } from './params';
 
 /**
- * Вкладки модуля «Аналитика» (ADR-108): ссылки с `aria-current`, приём «Настроек гостиницы» (`.settings-tabs`).
+ * Вкладки модуля «Аналитика» (ADR-114): ссылки с `aria-current`, приём «Настроек гостиницы» (`.settings-tabs`).
  * «Брони», «Продажи» и «Категории» появятся срезами AN3–AN5 — пустых заглушек нет.
  */
 export function AnalyticsTabs({ current }: { current: 'overview' | 'occupancy' }) {

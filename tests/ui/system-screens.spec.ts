@@ -193,7 +193,7 @@ test('аналитика и статистика: пустое состояни�
     '/analytics/setup',
   );
   await request.post(`${fixture}/__test/control`, { data: {} });
-  // статистика (с ADR-108 — «Аналитика → Загрузка»): старый адрес ведёт на вкладку с той же датой;
+  // статистика (с ADR-114 — «Аналитика → Загрузка»): старый адрес ведёт на вкладку с той же датой;
   // подпись даты словами; отказ шахматки оставляет форму и дату
   await page.goto('/management/statistics?date=2026-09-25');
   await expect(page).toHaveURL(/\/management\/analytics\/occupancy\?date=2026-09-25$/);

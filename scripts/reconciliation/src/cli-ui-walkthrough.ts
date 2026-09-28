@@ -736,7 +736,7 @@ async function walkPeriodPages(page: Page) {
     sub !== sub2 && rows >= 28 ? 'ok' : 'FAIL',
     `«${sub}» → «${sub2}», строк ${rows}`,
   );
-  // Статистика на дату — с ADR-108 вкладка «Аналитика → Загрузка»
+  // Статистика на дату — с ADR-114 вкладка «Аналитика → Загрузка»
   await open(page, `/management/analytics/occupancy?date=${addDays(today, -1)}`);
   const stText = (await page.locator('main').first().innerText()).replace(/\s+/g, ' ');
   note(
@@ -747,7 +747,7 @@ async function walkPeriodPages(page: Page) {
   );
 }
 
-/** «Аналитика → Обзор» (ADR-108): этот месяц по каждому типу фонда — плитки равны ответу API */
+/** «Аналитика → Обзор» (ADR-114): этот месяц по каждому типу фонда — плитки равны ответу API */
 async function walkAnalytics(page: Page) {
   const route = '/management/analytics';
   const from = `${today.slice(0, 7)}-01`;

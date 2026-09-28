@@ -388,7 +388,7 @@ const hasData = (c: DashboardPeriod) =>
   c.occupancy.occupiedNights > 0 || c.bookings.total > 0 || b(c.revenue.accommodationMinor) !== 0n;
 
 /**
- * «Обзор» за период (ADR-108, срез AN1): одна выборка `GET /desk/dashboard` за текущий и предыдущий отрезок
+ * «Обзор» за период (ADR-114, срез AN1): одна выборка `GET /desk/dashboard` за текущий и предыдущий отрезок
  * той же длины. Отказ называет себя словами и не уносит полосу периода — она на странице, вне `Suspense`.
  */
 export async function Overview({ query, today }: { query: AnalyticsQuery; today: string }) {

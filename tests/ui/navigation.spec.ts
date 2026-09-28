@@ -15,7 +15,8 @@ const routes = [
   '/rates',
   '/channels',
   '/website',
-  '/management/dashboard',
+  // «Показатели за период» (/management/dashboard) в меню нет: временный экран до «Аналитики» (ADR-114),
+  // адрес живёт, пункт меню — «Аналитика» (lib/navigation.ts)
   '/finance',
   '/management/analytics',
   '/hotel-settings',

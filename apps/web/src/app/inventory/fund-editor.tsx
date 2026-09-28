@@ -326,7 +326,14 @@ export function FundEditorDialog({
                       plans={plans}
                       loading={loadingRates}
                       value={pick}
-                      onChange={setPick}
+                      onChange={(next) => {
+                        setPick(next);
+                        setErrors((e) => {
+                          const next = { ...e };
+                          delete next.plan;
+                          return next;
+                        });
+                      }}
                       error={errors.plan ?? ratesError ?? undefined}
                     />
                   )}

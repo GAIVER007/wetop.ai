@@ -140,7 +140,10 @@ export function CategoryRatePlanForm({
         plans={plans}
         loading={loading}
         value={pick}
-        onChange={setPick}
+        onChange={(next) => {
+          setPick(next);
+          setError(null);
+        }}
         error={error ?? loadError ?? undefined}
       />
       <div className="fund-form-actions">

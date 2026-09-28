@@ -79,6 +79,8 @@ test('categories C3: create without a rate plan, set it later; create with one n
   await form.getByRole('button', { name: 'Создать', exact: true }).click();
   await expect(form.getByText('Назовите новый тариф или выберите существующий')).toBeVisible();
   await form.getByRole('combobox', { name: /^Тариф/ }).selectOption({ label: 'Стандартный' });
+  // выбор исправлен — старое сообщение об ошибке не висит
+  await expect(form.getByText('Назовите новый тариф или выберите существующий')).toHaveCount(0);
   await page.screenshot({ path: `${shots}/create-bed-now-light-1440.png` });
   await form.getByRole('button', { name: 'Создать', exact: true }).click();
   await expect(done).toContainText('Общая женская, тест');

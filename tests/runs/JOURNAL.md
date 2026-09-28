@@ -3486,3 +3486,11 @@
 | 28.09.2026 14:12 | integration | ✅ 125 из 125 | 43 с | f1f08a5 | [лог](logs/2026-09-28T09-12-49Z-integration-43dc.log) |  |
 | 28.09.2026 14:14 | e2e | ✅ 25 из 25 | 1 мин 2 с | f1f08a5 | [лог](logs/2026-09-28T09-14-00Z-e2e-0614.log) | C3: живые e2e, свежий стенд |
 | 28.09.2026 14:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 517 | 44 мин 59 с | f1f08a5 | [лог](logs/2026-09-28T09-15-10Z-e2e-5d8f.log) | C3: полный UI-набор, один поток |
+| 28.09.2026 15:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-create.spec.ts) | ❌ упало 1 из 1 | 30 с | 506aaf1 +1 | [лог](logs/2026-09-28T10-13-12Z-e2e-6288.log) | C3 red: ошибка тарифа не гаснет после исправления |
+| 28.09.2026 15:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-create.spec.ts tests/ui/fund-workspace.spec.ts) | ✅ 5 из 5 | 45 с | 506aaf1 +3 | [лог](logs/2026-09-28T10-13-53Z-e2e-9073.log) | C3 green: ошибка тарифа гаснет при новом выборе |
+| 28.09.2026 15:14 | typecheck | ❌ ошибок: 1 | 24 с | 506aaf1 +3 | [лог](logs/2026-09-28T10-14-38Z-typecheck-b7ea.log) | TS2345 |
+| 28.09.2026 15:15 | lint | ✅ без ошибок | 18 с | 506aaf1 +3 | [лог](logs/2026-09-28T10-15-03Z-lint-4db0.log) |  |
+| 28.09.2026 15:15 | typecheck | ✅ без ошибок | 25 с | 506aaf1 +3 | [лог](logs/2026-09-28T10-15-37Z-typecheck-3ce8.log) |  |
+| 28.09.2026 15:16 | lint | ✅ без ошибок | 20 с | 506aaf1 +3 | [лог](logs/2026-09-28T10-16-02Z-lint-4bae.log) |  |
+| 28.09.2026 15:16 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/categories-create.spec.ts tests/ui/categories-preview.spec.ts tests/ui/categories-scr | ✅ 7 из 7 | 58 с | 506aaf1 +3 | [лог](logs/2026-09-28T10-16-22Z-e2e-0099.log) | C3: спеки категорий и фонда после правки ошибки тарифа |
+| 28.09.2026 15:17 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 19 с | 506aaf1 +2 | [лог](logs/2026-09-28T10-17-21Z-unit-782b.log) |  |

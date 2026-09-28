@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures';
 import { confirmAction } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { unitCodes } from './pick-unit';
 
 /** Срез 5, B2: блокировка ячейки видна в шахматке и уменьшает доступность; снятие возвращает; статус уборки меняется. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -34,12 +35,11 @@ test('заблокировать свободную койку на 2 ночи �
     .getByTestId('new-reservation-form')
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, FROM, TO));
-  const unitCode = (await page
-    .getByRole('main')
-    .getByTestId('new-reservation-form')
-    .locator('select[name="unitCode"] option')
-    .nth(1)
-    .getAttribute('value'))!;
+  const unitCode = (
+    await unitCodes(
+      page.getByRole('main').getByTestId('new-reservation-form').locator('select[name="unitCode"]'),
+    )
+  )[0]!;
   const freeBefore = Number(
     /свободно (\d+)/.exec(
       (await page.getByRole('main').getByTestId('availability').textContent()) ?? '',

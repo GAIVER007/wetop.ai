@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { unitCodes } from './pick-unit';
 
 /**
  * ADR-021: ранний заезд и поздний выезд — платные услуги на счёте одной кнопкой, половина цены ночи
@@ -32,7 +33,7 @@ test('поздний выезд и ранний заезд начисляютс�
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(12), plus(14)));
-  const unit = (await form.locator('select[name="unitCode"] option').nth(1).getAttribute('value'))!;
+  const unit = (await unitCodes(form.locator('select[name="unitCode"]')))[0]!;
   await form.locator('select[name="unitCode"]').selectOption(unit);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-поздний-выезд');

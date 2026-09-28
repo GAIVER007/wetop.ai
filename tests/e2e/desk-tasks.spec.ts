@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { unitCodes } from './pick-unit';
 
 /**
  * Задачи стойки T1, T2 и овербукинг из интерфейса (plans/plan-2026-09-10-desk-tasks.md).
@@ -56,10 +57,7 @@ test('стойка: занятую койку не продать дважды, 
   // работаем с видимой первой, как и на других экранах
   const firstForm = page.getByTestId('new-reservation-form').first();
   await firstForm.locator('select[name="accommodationTypeCode"]').first().selectOption(DORM);
-  const unit = (await firstForm
-    .locator('select[name="unitCode"] option')
-    .nth(1)
-    .getAttribute('value'))!;
+  const unit = (await unitCodes(firstForm.locator('select[name="unitCode"]')))[0]!;
   // вторая вкладка выбирает ту же койку: её список составлен до создания первой брони
   const secondForm = second.getByRole('main').getByTestId('new-reservation-form');
   await secondForm.locator('select[name="accommodationTypeCode"]').selectOption(DORM);

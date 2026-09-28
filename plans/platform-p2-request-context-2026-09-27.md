@@ -8,12 +8,10 @@
 >
 > **Статус:** план принят владельцем 27.09.2026 («План RequestActor / scope принимаю как следующий этап, но код
 > пока не начинай»). **Гейт старта К1:** канонический Platform P1 `Organization → Business → Location → Property`
-> — (а) в `main` ✅ с 28.09 (интеграционный PR #121); (б) на рабочей базе — **DEPLOYED, PENDING POST-DEPLOY
-> VERIFICATION** (28.09: владелец применил `026_rls_roles`, `027`, `028`, `030_platform_p1_business_location`,
-> временной `029_business_location` нет; код собран, api/web перезапущены). P1 закрывается после пяти зелёных
-> результатов: (1) status + HTTP smoke; (2) `scripts/ops/platform-p1-report.sql`; (3) RLS smoke; (4) inventory
-> 88/88; (5) day self-check = 0 — затем отчёт P1 и `CLAUDE.md` обновляются, фолбэк резолвера по
-> `properties.organization_id` снимается отдельным маленьким cleanup PR, и только после закрытия P1 — К1.
+> — (а) в `main` ✅ с 28.09 (интеграционный PR #121); (б) на рабочей базе ✅ — **P1 закрыта 28.09.2026**
+> (`026_rls_roles`, `027`, `028`, `030`; post-deploy: `platform-p1-report` 1/1/1, 1/1, 1/1/0, broken_chain 0,
+> Luxx — подтверждённый KZT; RLS smoke 43 политики; фонд 88/88; сутки в ноль — отчёт P1 §6). Дальше по
+> командам владельца: фолбэк резолвера по `properties.organization_id` снимается отдельным маленьким cleanup PR;
 > **Перед кодом К1 — финальный контракт RequestActor, точное
 > правило разрешения scope и validation matrix владельцу** (черновик — §3–§5 ниже; финализируется на коде `main`,
 > где резолвер уже идёт цепочкой `location-ref.ts` с фолбэком по `properties.organization_id` — условие приёмки

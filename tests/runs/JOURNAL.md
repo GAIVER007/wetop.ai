@@ -3500,3 +3500,11 @@
 | 28.09.2026 13:17 | integration | ✅ 124 из 124 | 38 с | a05ab76 | [лог](logs/2026-09-28T08-17-30Z-integration-34fb.log) | integration 28.09: final HEAD after test-seed builds the Platform P1 chain |
 | 28.09.2026 13:19 | e2e | ✅ 25 из 25 | 1 мин 6 с | 6d300b0 | [лог](logs/2026-09-28T08-19-30Z-e2e-5895.log) | integration 28.09: final HEAD, DB e2e on fresh local stand |
 | 28.09.2026 13:21 | e2e | ✅ 26 из 26 | 1 мин 9 с | 6d300b0 | [лог](logs/2026-09-28T08-21-26Z-e2e-bdc4.log) | integration 28.09: final HEAD, E2E_AUTH=1, API as wetop_app (RLS) |
+| 28.09.2026 14:37 | typecheck | ❌ ошибок: 42 | 11 с | a610c33 | [лог](logs/2026-09-28T09-37-24Z-typecheck-4c97.log) | TS2322 |
+| 28.09.2026 14:37 | typecheck | ✅ без ошибок | 8 с | a610c33 | [лог](logs/2026-09-28T09-37-49Z-typecheck-9ace.log) |  |
+| 28.09.2026 14:38 | lint | ✅ без ошибок | 25 с | a610c33 | [лог](logs/2026-09-28T09-38-04Z-lint-e4e4.log) |  |
+| 28.09.2026 14:38 | unit | ❌ упало 12 из 2301, пропущено 3 | 1 мин 12 с | a610c33 | [лог](logs/2026-09-28T09-38-37Z-unit-45a5.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
+| 28.09.2026 14:40 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 12 из 12 | 14 с | a610c33 +1 | [лог](logs/2026-09-28T09-40-19Z-unit-9235.log) | green: server flock dependency is stubbed on macOS |
+| 28.09.2026 14:40 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 12 с | a610c33 +1 | [лог](logs/2026-09-28T09-40-42Z-unit-d951.log) |  |
+| 28.09.2026 14:42 | typecheck | ✅ без ошибок | 10 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-08Z-typecheck-01f7.log) |  |
+| 28.09.2026 14:42 | lint | ✅ без ошибок | 21 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-24Z-lint-e533.log) |  |

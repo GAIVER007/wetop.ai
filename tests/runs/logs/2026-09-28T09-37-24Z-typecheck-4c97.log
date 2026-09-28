@@ -1,0 +1,81 @@
+# Типы (typecheck) · 28.09.2026 14:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит a610c33 (codex/readme-platform)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(266,74): error TS2322: Type 'import("/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/domain/src/accounts/roles").MembershipRole' is not assignable to type 'import("/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/enums").MembershipRole'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole'.
+apps/api/src/accounts/accounts.prisma-repository.ts(354,56): error TS2322: Type 'MembershipRole' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+apps/api/src/channels/channels.repository.ts(684,11): error TS2339: Property 'propertyId' does not exist on type '{ id: string; status: ExternalEventStatus; type: string; provider: string; externalEventId: string; receivedAt: Date; payloadHash: string; payload: JsonValue; attemptCount: number; lastError: string | null; receivedVia: ExternalEventVia; processedAt: Date | null; }'.
+apps/api/src/database/location-ref.ts(37,26): error TS2551: Property 'location' does not exist on type 'Db'. Did you mean 'allocation'?
+apps/api/src/database/property-ref.ts(101,16): error TS2353: Object literal may only specify known properties, and 'location' does not exist in type 'PropertyWhereInput'.
+apps/api/src/guests/guests.repository.ts(165,14): error TS2353: Object literal may only specify known properties, and 'organizationId' does not exist in type 'GuestWhereInput'.
+apps/api/src/reservations/reservations.repository.ts(407,9): error TS2322: Type '{ organizationId: string | null; id: string; currency: string; timezone: string; }' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+apps/api/src/reservations/reservations.repository.ts(415,9): error TS2322: Type '{ organizationId: string | null; id: string; currency: string; timezone: string; }' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+apps/api/src/reservations/reservations.repository.ts(418,5): error TS2322: Type '{ id: string; currency: string; timezone: string; organizationId: string; } | null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Type 'null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+tests/integration/finance-debts.test.ts(137,5): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+tests/integration/finance-operations.test.ts(123,5): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+tests/integration/manager-role.test.ts(56,87): error TS2322: Type '"OWNER" | "MANAGER" | "STAFF"' is not assignable to type 'MembershipRole'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole'.
+tests/integration/manager-role.test.ts(97,22): error TS2339: Property 'role' does not exist on type '{ organizationId: string; id: string; createdBy: string; createdAt: Date; email: string; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+tests/integration/manager-role.test.ts(106,24): error TS2339: Property 'role' does not exist on type '{ organizationId: string; id: string; createdBy: string; createdAt: Date; email: string; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+tests/integration/manual-reservation.test.ts(145,49): error TS2353: Object literal may only specify known properties, and 'organizationId' does not exist in type 'GuestSelect<DefaultArgs>'.
+tests/integration/manual-reservation.test.ts(147,28): error TS2551: Property 'primaryGuest' does not exist on type '{ id: string; createdAt: Date; status: ReservationStatus; currency: string; propertyId: string; source: ReservationSource; channel: string | null; ... 10 more ...; primaryGuestId: string | null; }'. Did you mean 'primaryGuestId'?
+tests/integration/platform-p1-backfill.test.ts(54,18): error TS2339: Property 'name' does not exist on type 'never'.
+tests/integration/platform-p1-backfill.test.ts(55,18): error TS2339: Property 'timezone' does not exist on type 'never'.
+tests/integration/platform-p1-backfill.test.ts(56,18): error TS2339: Property 'currency' does not exist on type 'never'.
+tests/integration/platform-p1-backfill.test.ts(57,18): error TS2339: Property 'status' does not exist on type 'never'.
+tests/integration/platform-p1-backfill.test.ts(58,18): error TS2339: Property 'business' does not exist on type 'never'.
+tests/integration/platform-p1-backfill.test.ts(59,18): error TS2339: Property 'business' does not exist on type 'never'.
+tests/integration/platform-p1-backfill.test.ts(61,18): error TS2339: Property 'business' does not exist on type 'never'.
+tests/integration/platform-p1-backfill.test.ts(64,21): error TS2551: Property 'location' does not exist on type 'Db'. Did you mean 'allocation'?
+tests/integration/platform-p1-backfill.test.ts(66,21): error TS2339: Property 'business' does not exist on type 'Db'.
+tests/integration/platform-p1-backfill.test.ts(93,51): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+tests/integration/reservations-import.test.ts(197,20): error TS2339: Property 'organizationId' does not exist on type '{ id: string; createdAt: Date; phone: string | null; email: string | null; firstName: string; lastName: string; notes: string | null; citizenship: string | null; middleName: string | null; updatedAt: Date; exelyPersonId: string | null; birthDate: Date | null; gender: Gender; }'.
+tests/tools/seed-local.ts(121,17): error TS2339: Property 'business' does not exist on type 'Db'.
+tests/tools/seed-local.ts(122,17): error TS2339: Property 'business' does not exist on type 'Db'.
+tests/tools/seed-local.ts(126,31): error TS2551: Property 'location' does not exist on type 'Db'. Did you mean 'allocation'?
+tests/tools/test-seed.ts(233,15): error TS2339: Property 'business' does not exist on type 'TransactionClient'.
+tests/tools/test-seed.ts(238,15): error TS2339: Property 'business' does not exist on type 'TransactionClient'.
+tests/tools/test-seed.ts(242,29): error TS2551: Property 'location' does not exist on type 'TransactionClient'. Did you mean 'allocation'?
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(266,74): error TS2322: Type 'import("/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/domain/src/accounts/roles").MembershipRole' is not assignable to type 'import("/Users/vyacheslav/Desktop/\u041F\u0440\u043E\u0435\u043A\u0442\u044B/WETOP/packages/database/src/generated/prisma/enums").MembershipRole'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole'.
+apps/api/src/accounts/accounts.prisma-repository.ts(354,56): error TS2322: Type 'MembershipRole' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+apps/api/src/channels/channels.repository.ts(684,11): error TS2339: Property 'propertyId' does not exist on type '{ id: string; status: ExternalEventStatus; payload: JsonValue; type: string; provider: string; lastError: string | null; externalEventId: string; receivedAt: Date; payloadHash: string; attemptCount: number; receivedVia: ExternalEventVia; processedAt: Date | null; }'.
+apps/api/src/database/location-ref.ts(37,26): error TS2551: Property 'location' does not exist on type 'Db'. Did you mean 'allocation'?
+apps/api/src/database/property-ref.ts(101,16): error TS2353: Object literal may only specify known properties, and 'location' does not exist in type 'PropertyWhereInput'.
+apps/api/src/guests/guests.repository.ts(165,14): error TS2353: Object literal may only specify known properties, and 'organizationId' does not exist in type 'GuestWhereInput'.
+apps/api/src/reservations/reservations.repository.ts(407,9): error TS2322: Type '{ organizationId: string | null; id: string; currency: string; timezone: string; }' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+apps/api/src/reservations/reservations.repository.ts(415,9): error TS2322: Type '{ organizationId: string | null; id: string; currency: string; timezone: string; }' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Types of property 'organizationId' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+apps/api/src/reservations/reservations.repository.ts(418,5): error TS2322: Type '{ id: string; currency: string; timezone: string; organizationId: string; } | null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+  Type 'null' is not assignable to type '{ id: string; currency: string; timezone: string; organizationId: string; }'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 11 с

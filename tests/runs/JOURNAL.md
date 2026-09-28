@@ -3507,3 +3507,22 @@
 | 28.09.2026 14:44 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | da9df57 +13 | [лог](logs/2026-09-28T09-44-27Z-unit-1075.log) |  |
 | 28.09.2026 14:44 | unit | ✅ 2303 из 2306, пропущено 3 | 1 мин 19 с | da9df57 +13 | [лог](logs/2026-09-28T09-44-38Z-unit-cd78.log) |  |
 | 28.09.2026 14:46 | e2e | ✅ 25 из 25 | 1 мин 2 с | da9df57 +15 | [лог](logs/2026-09-28T09-46-14Z-e2e-0b3d.log) |  |
+| 28.09.2026 13:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 8 из 516 | 44 мин 54 с | 6d300b0 | [лог](logs/2026-09-28T08-23-04Z-e2e-52bd.log) | integration 28.09: final HEAD, full UI regression single worker |
+| 28.09.2026 14:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/integrations.spec.ts tests/ui/navigation.spec.ts tes | ✅ 110 из 110 | 6 мин 48 с | 179b82d | [лог](logs/2026-09-28T09-10-53Z-e2e-f1c1.log) | seam fixes: the 8 red specs of the full run |
+| 28.09.2026 14:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 516 из 516 | 40 мин 59 с | 179b82d | [лог](logs/2026-09-28T09-17-49Z-e2e-861d.log) | integration 28.09: full UI regression single worker after seam fixes (final HEAD) |
+| 28.09.2026 14:59 | typecheck | ✅ без ошибок | 34 с | 179b82d | [лог](logs/2026-09-28T09-59-06Z-typecheck-a87a.log) | integration 28.09: final HEAD after seam fixes |
+| 28.09.2026 14:59 | lint | ✅ без ошибок | 19 с | 179b82d | [лог](logs/2026-09-28T09-59-40Z-lint-e764.log) | integration 28.09: final HEAD after seam fixes |
+| 28.09.2026 15:00 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 19 с | 179b82d | [лог](logs/2026-09-28T10-00-00Z-unit-15e4.log) | integration 28.09: final HEAD after seam fixes |
+| 28.09.2026 15:01 | e2e | ✅ 25 из 25 | 1 мин 2 с | 179b82d | [лог](logs/2026-09-28T10-01-35Z-e2e-6fa0.log) | integration 28.09: final HEAD after seam fixes, live DB e2e |
+| 28.09.2026 15:02 | e2e | ✅ 26 из 26 | 1 мин 11 с | 179b82d | [лог](logs/2026-09-28T10-02-38Z-e2e-4a25.log) | integration 28.09: final HEAD after seam fixes, E2E_AUTH=1, API as wetop_app |
+| 28.09.2026 14:37 | typecheck | ❌ ошибок: 42 | 11 с | a610c33 | [лог](logs/2026-09-28T09-37-24Z-typecheck-4c97.log) | TS2322 |
+| 28.09.2026 14:37 | typecheck | ✅ без ошибок | 8 с | a610c33 | [лог](logs/2026-09-28T09-37-49Z-typecheck-9ace.log) |  |
+| 28.09.2026 14:38 | lint | ✅ без ошибок | 25 с | a610c33 | [лог](logs/2026-09-28T09-38-04Z-lint-e4e4.log) |  |
+| 28.09.2026 14:38 | unit | ❌ упало 12 из 2301, пропущено 3 | 1 мин 12 с | a610c33 | [лог](logs/2026-09-28T09-38-37Z-unit-45a5.log) | scripts/ops/auto-deploy.sh ветка не ушла вперёд — ничего не делает и молчит |
+| 28.09.2026 14:40 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 12 из 12 | 14 с | a610c33 +1 | [лог](logs/2026-09-28T09-40-19Z-unit-9235.log) | green: server flock dependency is stubbed on macOS |
+| 28.09.2026 14:40 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 12 с | a610c33 +1 | [лог](logs/2026-09-28T09-40-42Z-unit-d951.log) |  |
+| 28.09.2026 14:42 | typecheck | ✅ без ошибок | 10 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-08Z-typecheck-01f7.log) |  |
+| 28.09.2026 14:42 | lint | ✅ без ошибок | 21 с | 7834c53 +1 | [лог](logs/2026-09-28T09-42-24Z-lint-e533.log) |  |
+| 28.09.2026 15:05 | unit | ✅ 2298 из 2301, пропущено 3 | 1 мин 20 с | b5bbd54 | [лог](logs/2026-09-28T10-05-02Z-unit-7164.log) | integration 28.09: final HEAD after merging main (auto-deploy test) |
+| 28.09.2026 15:06 | typecheck | ✅ без ошибок | 24 с | b5bbd54 | [лог](logs/2026-09-28T10-06-41Z-typecheck-dfb9.log) | integration 28.09: final HEAD after merging main |
+| 28.09.2026 15:07 | lint | ✅ без ошибок | 18 с | b5bbd54 | [лог](logs/2026-09-28T10-07-05Z-lint-2273.log) | integration 28.09: final HEAD after merging main |

@@ -124,8 +124,8 @@ test('владелец и управляющий правят сведения �
   await page.goto('/hotel-settings');
   await expect(form.getByLabel('Телефон')).toBeVisible();
   await form.getByLabel('Телефон').fill('+7 701 555 44 34');
-  await form.getByRole('button', { name: 'Сохранить' }).click();
-  await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+  await save.click();
+  await expect(page.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
 
   await control(request, { role: 'STAFF' });
   await page.goto('/hotel-settings');

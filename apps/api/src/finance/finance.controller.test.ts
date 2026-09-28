@@ -108,6 +108,7 @@ function makeFakes() {
           chargedMinor: 1_000n + BigInt(i),
           paidMinor: 0n,
           refundedMinor: 0n,
+          overdue: false,
         }));
       if (!(from <= '2026-10-02' && to >= '2026-10-02')) return [];
       const row = (
@@ -117,6 +118,7 @@ function makeFakes() {
         charged: bigint,
         paid: bigint,
         refunded: bigint,
+        overdue = false,
       ) => ({
         confirmationNumber: n,
         status,
@@ -126,13 +128,15 @@ function makeFakes() {
         chargedMinor: charged,
         paidMinor: paid,
         refundedMinor: refunded,
+        // Q-207: признак просрочки считает запрос (время выезда по часам объекта прошло) — здесь он задан
+        overdue,
       });
       return [
-        row('B-10', 'CHECKED_OUT', '2026-09-28', 500_000n, 200_000n, 0n),
+        row('B-10', 'CHECKED_OUT', '2026-09-28', 500_000n, 200_000n, 0n, true),
         row('B-11', 'CONFIRMED', '2026-10-06', 1_000_000n, 0n, 0n),
-        row('B-12', 'CHECKED_IN', '2026-10-01', 400_000n, 400_000n, 0n),
+        row('B-12', 'CHECKED_IN', '2026-10-01', 400_000n, 400_000n, 0n, true),
         row('B-13', 'CANCELLED', '2026-10-02', 100_000n, 300_000n, 100_000n),
-        row('B-14', 'CHECKED_IN', '2026-10-05', 300_000n, 100_000n, 100_000n),
+        row('B-14', 'CHECKED_IN', '2026-10-05', 300_000n, 100_000n, 100_000n, true),
       ];
     },
     async periodOperations(from, to, filter) {
@@ -429,7 +433,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(empty.body).toMatchObject({ chargedMinor: '0', paidMinor: '0', balanceMinor: '0' });
   });
 
-  it('ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, выехавшие отдельно; неверный период → 400', async () => {
+  it('ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400', async () => {
     const debts = (qs: string) => request(app.getHttpServer()).get(`/finance/debts${qs}`);
     await debts('').expect(400);
     await debts('?from=2026-10-31&to=2026-10-01').expect(400);
@@ -442,9 +446,11 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       currency: 'KZT',
       count: 3,
       balanceMinor: '1600000',
-      checkedOut: { count: 1, balanceMinor: '300000' },
+      // Q-207: просроченный долг — только брони с остатком > 0; ровно оплаченная B-12 не считается, хоть и «просрочена»
+      overdue: { count: 2, balanceMinor: '600000' },
       truncated: false,
     });
+    expect(r.body).not.toHaveProperty('checkedOut');
     // ровно оплаченная B-12 и переплата B-13 в список к сбору не входят; равные остатки — по дате заезда
     expect(r.body.rows.map((x: { confirmationNumber: string }) => x.confirmationNumber)).toEqual([
       'B-11',
@@ -461,7 +467,9 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       paidMinor: '100000',
       refundedMinor: '100000',
       balanceMinor: '300000', // начислено − оплачено + возвращено
+      overdue: true,
     });
+    expect(r.body.rows[0]).toMatchObject({ confirmationNumber: 'B-11', overdue: false });
 
     const many = await debts('?from=2026-11-01&to=2026-11-30').expect(200);
     expect(many.body).toMatchObject({ count: 501, truncated: true });
@@ -472,7 +480,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(empty.body).toMatchObject({
       count: 0,
       balanceMinor: '0',
-      checkedOut: { count: 0, balanceMinor: '0' },
+      overdue: { count: 0, balanceMinor: '0' },
       rows: [],
       truncated: false,
     });

@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
-import { unitCodes } from './pick-unit';
 
 /**
  * Gate 3 живьём: бронь со стойки появляется в шахматке и уменьшает доступность, отмена возвращает всё назад.
@@ -22,7 +22,7 @@ test('создать бронь с ячейкой → видна в шахмат
   const form = page.getByRole('main').getByTestId('new-reservation-form');
   await form.locator('select[name="source"]').selectOption('PHONE');
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitCodes(unitSelect))[0] ?? null;
+  const unitCode = await unitOption(unitSelect);
   expect(unitCode).toBeTruthy();
   await unitSelect.selectOption(unitCode!);
   await form.locator('input[name="firstName"]').fill('Гость');

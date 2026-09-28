@@ -117,6 +117,43 @@ describe('сайты и отчёты /analytics', () => {
       startUtc: '2026-09-10T19:00:00.000Z',
       endUtcExclusive: '2026-09-13T19:00:00.000Z',
     });
+    // WEB4: воронка по сессиям периода, брони с сайта — за тот же полуинтервал
+    expect(r.body.funnel).toEqual({
+      visits: 3,
+      searches: 1,
+      started: 0,
+      booked: 0,
+      conversion: 0,
+    });
+    expect(r.body.siteReservations).toEqual({ count: 0, cancelled: 0, noShow: 0, charged: [] });
+    expect(repo.lastReservationsRange).toEqual(repo.lastRange);
+  });
+
+  it('брони с сайта в отчёте: число, отменённые, начислено по счетам (WEB4, Q-212)', async () => {
+    repo.reservationRows = [
+      {
+        status: 'CONFIRMED',
+        currency: 'KZT',
+        charges: [{ amountMinor: 45_000_00n, voided: false }],
+      },
+      {
+        status: 'CANCELLED',
+        currency: 'KZT',
+        charges: [
+          { amountMinor: 20_000_00n, voided: true },
+          { amountMinor: 10_000_00n, voided: false },
+        ],
+      },
+    ];
+    const r = await request(app.getHttpServer())
+      .get(`/analytics/sites/${SITE.id}/report?from=2026-09-11&to=2026-09-13`)
+      .expect(200);
+    expect(r.body.siteReservations).toEqual({
+      count: 2,
+      cancelled: 1,
+      noShow: 0,
+      charged: [{ currency: 'KZT', chargedMinor: '5500000' }],
+    });
   });
 
   it('без дат — текущий месяц по поясу объекта; кривые даты — 400', async () => {

@@ -950,6 +950,10 @@ export interface UnitCard {
   accommodationTypeCode: string;
   accommodationTypeName: string;
   roomNumber: string;
+  /** Расположение и вместимость для панели места (ADR-108, срез I2) */
+  buildingName: string;
+  floorName: string;
+  capacity: number;
   blocks: Array<{
     id: string;
     dateFrom: string;
@@ -1410,6 +1414,15 @@ export interface SiteReport {
     devices: Array<{ key: string | null; sessions: number; share: number }>;
     browsers: Array<{ key: string | null; sessions: number; share: number }>;
     os: Array<{ key: string | null; sessions: number; share: number }>;
+  };
+  /** Воронка по сессиям периода (WEB4): сессия, дошедшая дальше, засчитана и на шагах до этого */
+  funnel: { visits: number; searches: number; started: number; booked: number; conversion: number };
+  /** Брони с источником «Сайт», созданные за период, — по объекту; начислено по их счетам (WEB4, Q-212) */
+  siteReservations: {
+    count: number;
+    cancelled: number;
+    noShow: number;
+    charged: Array<{ currency: string; chargedMinor: string }>;
   };
 }
 export const analyticsApi = {

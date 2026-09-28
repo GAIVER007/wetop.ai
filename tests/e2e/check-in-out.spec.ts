@@ -1,8 +1,8 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
-import { unitCodes } from './pick-unit';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -31,7 +31,7 @@ test('заселить → карточка и шахматка показыва
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(3), plus(4)));
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitCodes(unitSelect))[0]!;
+  const unitCode = await unitOption(unitSelect);
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-заезд');
@@ -137,7 +137,7 @@ test('заселить → карточка и шахматка показыва
     .selectOption(await roomiestCategory(request, plus(5), plus(6)));
   const freeUnit = f2.locator('select[name="unitCode"]');
   await expect(freeUnit.locator('option')).not.toHaveCount(1); // есть хотя бы одна свободная койка
-  await freeUnit.selectOption((await unitCodes(freeUnit))[0]!);
+  await freeUnit.selectOption(await unitOption(freeUnit));
   await f2.locator('input[name="firstName"]').fill('Гость');
   await f2.locator('input[name="lastName"]').fill('Тест-незаезд');
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты

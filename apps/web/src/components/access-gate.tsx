@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, type ReactNode } from 'react';
 import { MEMBERSHIP_ROLES, accessDeniedMessage, type Permission } from '@pms/domain';
-import { useDeskAccess } from './desk-access';
+import { useDeskAccessWhen } from './desk-access';
 import { Icon } from './icon';
 import { Page } from './page';
 import { EmptyState, LoadingState } from './ui';
@@ -18,29 +18,30 @@ import { openToEveryRole, pageOpen, routeRule } from '../lib/navigation';
  */
 export function AccessGate({ children }: { children: ReactNode }) {
   const rule = routeRule(usePathname() ?? '/');
-  if (!rule?.requires || rule.requires === 'platform' || openToEveryRole(rule.requires))
-    return children;
+  const check =
+    rule?.requires && rule.requires !== 'platform' && !openToEveryRole(rule.requires)
+      ? { label: rule.label, requires: rule.requires }
+      : null;
+  // Форма дерева одна на любом адресе. Панель поверх страницы (место в «Номерном фонде», ADR-108) меняет адрес, а
+  // страницу под собой — нет; будь здесь `children` то голым, то в обёртке, React пересоздавал бы страницу под
+  // панелью при переходе между адресами с проверкой и без, и она теряла бы фильтры и прокрутку.
   return (
-    <Suspense fallback={<LoadingState label="Проверяем доступ…" />}>
-      <RoleCheck label={rule.label} requires={rule.requires}>
-        {children}
-      </RoleCheck>
+    <Suspense fallback={check ? <LoadingState label="Проверяем доступ…" /> : null}>
+      <RoleCheck check={check}>{children}</RoleCheck>
     </Suspense>
   );
 }
 
 function RoleCheck({
-  label,
-  requires,
+  check,
   children,
 }: {
-  label: string;
-  requires: Permission;
+  check: { label: string; requires: Permission } | null;
   children: ReactNode;
 }) {
-  const access = useDeskAccess();
-  if (pageOpen(access, requires)) return children;
-  return <NoAccess label={label} requires={requires} role={access.role} />;
+  const access = useDeskAccessWhen(check !== null);
+  if (!check || !access || pageOpen(access, check.requires)) return children;
+  return <NoAccess label={check.label} requires={check.requires} role={access.role} />;
 }
 
 export function NoAccess({

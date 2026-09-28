@@ -1,9 +1,8 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
-import { selectService } from './pick-service';
-import { unitCodes } from './pick-unit';
 
 /**
  * Срез 5 целиком одной цепочкой: «сутки можно прожить руками».
@@ -40,7 +39,7 @@ test('сутки гостя целиком: заезд, услуга на счё
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, arrival, departure));
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitCodes(unitSelect))[0]!;
+  const unitCode = await unitOption(unitSelect);
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-сутки');
@@ -103,7 +102,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   const charge = panel.getByTestId('charge-form');
   await cardTab(page, 'Счета');
   await charge.locator('select[name="kind"]').selectOption('SERVICE');
-  await selectService(charge, 'Стирка (1 загрузка)');
+  await charge.locator('select[name="serviceCode"]').selectOption('Стирка (1 загрузка)');
   await charge.getByRole('button', { name: 'Начислить' }).click();
   await expect(panel.getByTestId('charge-row')).toHaveCount(2);
   const withService = await balance();

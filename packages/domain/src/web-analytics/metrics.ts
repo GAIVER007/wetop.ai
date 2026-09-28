@@ -2,11 +2,14 @@
  * Метрики сайта по определениям GA4.
  * (`docs/legacy/analytics-2026-09-12.md`). Считаются по сессиям периода; даты — в часовом поясе объекта.
  */
+import { folioBalance } from '../finance/finance';
 import type { DeviceKind } from './device';
 import type { SourceKind } from './source';
 
 export interface SessionRow {
   visitorKey: string;
+  /** Ключ сессии счётчика — по нему события сессии попадают в воронку (WEB4) */
+  sessionKey?: string;
   startedAt: Date;
   pageviews: number;
   durationSeconds: number;
@@ -351,5 +354,85 @@ export function devicesBreakdown(rows: readonly SessionRow[]): DevicesBreakdown 
     devices: shareRows(rows, (r) => r.device, 3),
     browsers: shareRows(rows, (r) => r.browser ?? null, 8),
     os: shareRows(rows, (r) => r.os ?? null, 8),
+  };
+}
+
+export interface Funnel {
+  /** Сессии периода */
+  visits: number;
+  /** Сессии, где искали даты (`search`) */
+  searches: number;
+  /** Сессии, где открыли форму гостя (`booking_step: guest`) */
+  started: number;
+  /** Сессии, связанные с бронью виджета */
+  booked: number;
+  /** Брони к посещениям, 0–1 */
+  conversion: number;
+}
+
+/**
+ * Воронка сайта (WEB4): сколько сессий периода дошло до поиска, до формы гостя и до брони. Порядка событий база не
+ * хранит, но виджет ведёт гостя строго по шагам, поэтому сессия, дошедшая дальше, засчитывается и на шагах до этого:
+ * поиск накануне, а бронь сегодня — воронка не «растёт» на границе периода. События сессий вне периода не считаются.
+ */
+export function bookingFunnel(
+  rows: readonly SessionRow[],
+  events: ReadonlyArray<{ name: string; sessionKey: string; props?: unknown }>,
+): Funnel {
+  const reached = new Map<string, number>();
+  for (const r of rows) if (r.sessionKey) reached.set(r.sessionKey, r.reservationId ? 3 : 0);
+  for (const e of events) {
+    const at = reached.get(e.sessionKey);
+    if (at === undefined) continue;
+    const step =
+      e.name === 'search'
+        ? 1
+        : e.name === 'booking_step' && (e.props as { step?: unknown } | null)?.step === 'guest'
+          ? 2
+          : 0;
+    if (step > at) reached.set(e.sessionKey, step);
+  }
+  const atLeast = (step: number) => [...reached.values()].filter((v) => v >= step).length;
+  // сессия без ключа (старые строки) — посещение без шагов
+  const visits = rows.length;
+  const booked = rows.filter((r) => !!r.reservationId).length;
+  return {
+    visits,
+    searches: atLeast(1),
+    started: atLeast(2),
+    booked,
+    conversion: visits === 0 ? 0 : Math.round((booked / visits) * 10_000) / 10_000,
+  };
+}
+
+export interface SiteReservations {
+  /** Брони с источником «Сайт», созданные за период, все статусы */
+  count: number;
+  cancelled: number;
+  noShow: number;
+  /** Действующие начисления по их счетам — то же, что колонка «Финансы» в «Бронях» (`folioBalance`) */
+  charged: Array<{ currency: string; chargedMinor: string }>;
+}
+
+/** Брони с сайта за период (WEB4, Q-212): число, отменённые и незаезды, начислено по валютам. */
+export function siteReservations(
+  rows: ReadonlyArray<{
+    status: string;
+    currency: string;
+    charges: Array<{ amountMinor: bigint; voided: boolean }>;
+  }>,
+): SiteReservations {
+  const byCurrency = new Map<string, bigint>();
+  for (const r of rows) {
+    const { chargedMinor } = folioBalance({ charges: r.charges, allocations: [], refunds: [] });
+    byCurrency.set(r.currency, (byCurrency.get(r.currency) ?? 0n) + chargedMinor);
+  }
+  return {
+    count: rows.length,
+    cancelled: rows.filter((r) => r.status === 'CANCELLED').length,
+    noShow: rows.filter((r) => r.status === 'NO_SHOW').length,
+    charged: [...byCurrency.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([currency, minor]) => ({ currency, chargedMinor: minor.toString() })),
   };
 }

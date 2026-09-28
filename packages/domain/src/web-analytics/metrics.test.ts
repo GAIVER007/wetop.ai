@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bookingFunnel,
   dailyBreakdown,
   demandCalendar,
   devicesBreakdown,
@@ -7,6 +8,7 @@ import {
   localDate,
   monthPeriod,
   periodBoundsUtc,
+  siteReservations,
   sourcesBreakdown,
   summarize,
   topPages,
@@ -230,5 +232,93 @@ describe('брони с сайта (срез 9)', () => {
       ['google', 2, 1],
       [null, 1, 1],
     ]);
+  });
+});
+
+describe('воронка сайта (WEB4)', () => {
+  const s = (key: string, over: Partial<SessionRow> = {}) => row({ sessionKey: key, ...over });
+  const ev = (name: string, sessionKey: string, step?: string) => ({
+    name,
+    sessionKey,
+    props: step ? { step } : null,
+  });
+
+  it('сессии по шагам: посещение → поиск → начали бронь → бронь, проценты от предыдущего шага', () => {
+    const f = bookingFunnel(
+      [s('a'), s('b'), s('c'), s('d', { reservationId: 'r1' })],
+      [
+        ev('search', 'a'),
+        ev('search', 'a'),
+        ev('search', 'b'),
+        ev('booking_step', 'b', 'guest'),
+        ev('search', 'd'),
+        ev('booking_step', 'd', 'guest'),
+        ev('booking_step', 'd', 'done'),
+        ev('phone_click', 'c'),
+      ],
+    );
+    expect(f).toEqual({
+      visits: 4,
+      searches: 3,
+      started: 2,
+      booked: 1,
+      conversion: 0.25,
+    });
+  });
+
+  it('дошёл дальше — засчитан и на шагах до этого; события чужих сессий не считаются', () => {
+    // поиск был накануне — вне периода, а бронь сессии периода есть: воронка не «растёт» к концу
+    const f = bookingFunnel(
+      [s('a', { reservationId: 'r1' }), s('b')],
+      [
+        ev('booking_step', 'b', 'guest'),
+        ev('search', 'чужая'),
+        ev('booking_step', 'чужая', 'guest'),
+      ],
+    );
+    expect(f).toMatchObject({ visits: 2, searches: 2, started: 2, booked: 1 });
+  });
+
+  it('пустой период — нули, конверсия 0', () => {
+    expect(bookingFunnel([], [])).toEqual({
+      visits: 0,
+      searches: 0,
+      started: 0,
+      booked: 0,
+      conversion: 0,
+    });
+  });
+});
+
+describe('брони с сайта (WEB4)', () => {
+  const r = (status: string, currency: string, ...charges: Array<[number, boolean]>) => ({
+    status,
+    currency,
+    charges: charges.map(([amount, voided]) => ({ amountMinor: BigInt(amount), voided })),
+  });
+
+  it('число, отменённые и незаезды, начислено по действующим начислениям — по валютам', () => {
+    expect(
+      siteReservations([
+        r('CONFIRMED', 'KZT', [45_000_00, false]),
+        r('CHECKED_OUT', 'KZT', [30_000_00, false], [5_000_00, false]),
+        // отменена: проживание аннулировано, штраф остался
+        r('CANCELLED', 'KZT', [20_000_00, true], [10_000_00, false]),
+        r('NO_SHOW', 'KZT', [15_000_00, true]),
+        r('CONFIRMED', 'USD', [100_00, false]),
+      ]),
+    ).toEqual({
+      count: 5,
+      cancelled: 1,
+      noShow: 1,
+      charged: [
+        { currency: 'KZT', chargedMinor: '9000000' },
+        { currency: 'USD', chargedMinor: '10000' },
+      ],
+    });
+  });
+
+  it('нет броней — нули и пустой список сумм', () => {
+    expect(siteReservations([])).toEqual({ count: 0, cancelled: 0, noShow: 0, charged: [] });
   });
 });

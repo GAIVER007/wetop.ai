@@ -1,8 +1,0 @@
-# Сквозные (e2e) · 17.09.2026 22:36 Алматы · vm
-# коммит a6434dd (claude/blissful-meitner-ipoauv), незакоммиченных файлов набора: 10
-# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
-
-Running 116 tests using 1 worker
-
-
-# код выхода —, сигнал SIGTERM · 45 с

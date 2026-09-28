@@ -8,7 +8,6 @@ export function assertNever(value: never, context = 'assertNever'): never {
   throw new Error(`${context}: unexpected value ${JSON.stringify(value)}`);
 }
 
-export { findMarkdownTable, parseMarkdownTable, type MarkdownTable } from './markdown-table';
 export { blankToNull } from './text';
 export type { DataConnection } from './data-connection';
 export { encryptPii, decryptPii, maskNumber, PiiKeyMissingError } from './pii-crypto';

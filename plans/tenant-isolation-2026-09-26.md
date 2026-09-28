@@ -25,7 +25,7 @@
 (перенумерована при объединении веток 27.09.2026 — номер `20260926000024` заняла миграция `seller_prompt_text` с той же соседней ветки):
 добавить колонку, заполнить из `accommodation_types.property_id`, `NOT NULL`, снять `inventory_units_code_key`,
 поставить `UNIQUE (property_id, code)`; `down.sql` — обратно (при дублях кодов между объектами откат отказывает
-словами). `exely_room_number` остаётся глобально уникальным: он есть только у Luxx, у новых объектов NULL.
+словами). `retired-source_room_number` остаётся глобально уникальным: он есть только у Luxx, у новых объектов NULL.
 Проверка на рабочей базе перед применением: `SELECT count(*) FROM inventory_units u JOIN accommodation_types t ON
 t.id = u.accommodation_type_id WHERE t.property_id IS NULL` → 0.
 

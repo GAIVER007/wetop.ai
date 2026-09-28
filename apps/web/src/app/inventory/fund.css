@@ -144,7 +144,7 @@
 .fund-preview h3 {
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--muted);
+  color: var(--text-2);
 }
 .fund-preview p {
   margin: 0;
@@ -163,7 +163,7 @@
   gap: var(--space-4);
 }
 .fund-preview-facts dt {
-  color: var(--muted);
+  color: var(--text-2);
 }
 .fund-preview-facts dd {
   margin: 0;

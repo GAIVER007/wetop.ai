@@ -63,6 +63,9 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
     const property = (await client.query<{ id: string }>(`SELECT id FROM properties ORDER BY created_at LIMIT 1`)).rows[0]!.id;
     await client.query(`INSERT INTO organizations (id, name) VALUES ($1, 'RLS own'), ($2, 'RLS other')`, [own, other]);
     await client.query(`UPDATE properties SET organization_id = $1 WHERE id = $2`, [own, property]);
+    // Platform P1 (ADR-104 §18): бизнес тестовой базы — «своей» организации; его филиал виден через
+    // родителя-Business, что и проверяет обход таблиц под wetop_app ниже
+    await client.query(`UPDATE businesses SET organization_id = $1`, [own]);
     // все гости и записи журнала тестовой базы — объекта «своей» организации
     await client.query(`UPDATE guests SET organization_id = $1`, [own]);
     // журнал только дописывается; в откатываемой транзакции триггер выключается, как в миграции …27
@@ -166,6 +169,19 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
  * зависеть от того, кто спросил. Под ролью организации объект Luxx другой гостинице не виден; служебная роль видит.
  */
 describe.skipIf(!url)('RLS: служебный доступ внутри запроса организации', () => {
+  // Миграция 20260927000026_rls_roles заводит wetop_app БЕЗ входа (NOLOGIN): на рабочей базе вход включает
+  // владелец (docs/ops/rls.md). Пул wetop_app этого теста должен войти в базу, поэтому на время теста вход
+  // включается суперпользователем локальной тестовой базы и выключается обратно.
+  let admin: pg.Client;
+  beforeAll(async () => {
+    admin = new pg.Client({ connectionString: url });
+    await admin.connect();
+    await admin.query('ALTER ROLE wetop_app LOGIN');
+  });
+  afterAll(async () => {
+    await admin.query('ALTER ROLE wetop_app NOLOGIN').catch(() => {});
+    await admin.end();
+  });
   it('withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет', async () => {
     const { createPrismaClient } = await import('@pms/database');
     const ctx = await import('../../apps/api/src/auth/request-context');

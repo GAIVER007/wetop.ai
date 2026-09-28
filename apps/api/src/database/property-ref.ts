@@ -90,10 +90,18 @@ async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const key = `${schema()}|org|${organizationId}`;
   const known = cache.get(key);
   if (known) return known;
-  const found = await db.property.findFirst({
-    where: { organizationId },
-    select: { id: true, name: true, organizationId: true, timezone: true },
-  });
+  // Platform P1 (ADR-104 §18, Q-199 вариант Б): путь к объекту идёт по финальной цепочке
+  // Organization → Business → Location → Property; внешний контракт PropertyRef не меняется.
+  // Фолбэк по properties.organization_id — ТОЛЬКО миграционное окно (приёмка владельца 27.09.2026,
+  // отчёт Platform P1 §5): после production backfill и broken_chain = 0 он снимается в следующей
+  // platform-фазе — окончательный переход на цепочку, новых зависимостей от фолбэка не заводить.
+  const select = { id: true, name: true, organizationId: true, timezone: true };
+  const found =
+    (await db.property.findFirst({
+      where: { location: { business: { organizationId } } },
+      orderBy: { createdAt: 'asc' },
+      select,
+    })) ?? (await db.property.findFirst({ where: { organizationId }, select }));
   if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
   cache.set(key, found);
   return found;

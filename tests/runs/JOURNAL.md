@@ -87,3 +87,10 @@
 | 29.09.2026 00:46 | unit | ✅ 2168 из 2171, пропущено 3 | 1 мин 34 с | a553ee0 | [лог](logs/2026-09-28T19-46-46Z-unit-9efd.log) | main 698ae492 + #123 |
 | 29.09.2026 00:50 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts:159) | ❌ упало 1 из 1 | 24 с | e0ac75f | [лог](logs/2026-09-28T19-50-00Z-e2e-b59b.log) | baseline: workspace:159 on clean main e0ac75fb |
 | 29.09.2026 00:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ❌ упало 1 из 98 | 6 мин 40 с | 22c300b | [лог](logs/2026-09-28T19-51-18Z-e2e-260c.log) | UI reservations + manager-actions + workspace on R3 merged tree; full UI log 19-05-26Z-e2e-511d is 520/521, its journal line was lost on a branch switch |
+| 29.09.2026 01:00 | typecheck | ✅ без ошибок | 29 с | 2603702 | [лог](logs/2026-09-28T20-00-39Z-typecheck-9838.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:01 | lint | ✅ без ошибок | 17 с | 2603702 | [лог](logs/2026-09-28T20-01-09Z-lint-94f8.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:01 | unit | ✅ 2171 из 2174, пропущено 3 | 1 мин 17 с | 2603702 | [лог](logs/2026-09-28T20-01-26Z-unit-85f8.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:02 | integration | ✅ 114 из 114 | 33 с | 2603702 | [лог](logs/2026-09-28T20-02-58Z-integration-b374.log) | R3 merged with main 262c73b3 |
+| 29.09.2026 01:03 | e2e | ❌ упало 5 из 25 | 2 мин 3 с | 2603702 | [лог](logs/2026-09-28T20-03-53Z-e2e-67d4.log) | live e2e, R3 merged with main 262c73b3 |
+| 29.09.2026 01:06 | e2e | ❌ упало 5 из 25 | 2 мин 4 с | 262c73b | [лог](logs/2026-09-28T20-06-42Z-e2e-347a.log) | baseline: live e2e on clean main 262c73b3 |
+| 29.09.2026 01:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-v2- | ✅ 117 из 117 | 7 мин 48 с | 2603702 | [лог](logs/2026-09-28T20-09-08Z-e2e-b702.log) | UI: reservations R1-R3, B3, workspace, availability, Today on R3 merged with main 262c73b3 |

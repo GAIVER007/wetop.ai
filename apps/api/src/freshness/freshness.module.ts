@@ -28,8 +28,7 @@ const latest = (...dates: Array<Date | null | undefined>) => {
 
 /**
  * Насколько свежи данные на экране стойки (план wetop-live-data, шаг 4). Только чтение БД, без обращений к
- * Channex, чтобы строку можно было обновлять раз в минуту. Строки Exely здесь больше нет: объект в Exely не
- * работает (ADR-052, ADR-073).
+ * Channex, чтобы строку можно было обновлять раз в минуту.
  */
 @Injectable()
 export class FreshnessService {

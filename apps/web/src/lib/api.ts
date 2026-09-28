@@ -35,7 +35,6 @@ export interface InventorySummary {
 
 export interface InventoryUnit {
   code: string;
-  exelyRoomNumber: string | null;
   kind: 'ROOM' | 'BED';
   accommodationTypeCode: string;
   accommodationTypeName: string;
@@ -218,7 +217,7 @@ export interface ChessboardRow {
   };
   cells: ChessboardCell[];
 }
-/** Проживание без ячейки в диапазоне доски (строка «Без ячейки», паритет с «Без номера» в Exely). Без гостей — ПД. */
+/** Проживание без назначенной ячейки в диапазоне доски. Без гостей — ПД. */
 export interface UnassignedStay {
   confirmationNumber: string;
   categoryCode: string;
@@ -269,7 +268,7 @@ export interface ReservationCard {
     departureDate: string;
     status: string;
     priceMinor: string;
-    /** Тариф проживания; null — неизвестен (перенесено из Exely), пересчёт цены требует выбрать тариф */
+    /** Тариф проживания; null — неизвестен, пересчёт цены требует выбрать тариф */
     ratePlanCode?: string | null;
     ratePlanName?: string | null;
     /** Гостей на проживании — правится с карточки */
@@ -1880,7 +1879,7 @@ export const inventoryEditorApi = {
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
       body,
     ),
-  /** «Настроить тариф» (ADR-118): существующий `ratePlanCode` или новый `newRatePlanName` */
+  /** «Настроить тариф» (ADR-119): существующий `ratePlanCode` или новый `newRatePlanName` */
   linkRatePlan: (code: string, body: Record<string, unknown>) =>
     sendJson<{ linked: boolean }>(
       'POST',

@@ -15,7 +15,7 @@ const FUND_PATHS = [
 const failure = (e: unknown) =>
   e instanceof ApiError ? e.message : 'Не удалось сохранить. Проверьте результат перед повтором.';
 
-/** `code` — код созданной категории: форма ведёт к следующему шагу с ней (ADR-118) */
+/** `code` — код созданной категории: форма ведёт к следующему шагу с ней (ADR-119) */
 export async function saveInventory(
   resource: 'categories' | 'rooms',
   body: Record<string, unknown>,
@@ -31,7 +31,7 @@ export async function saveInventory(
   return { error: null, ...(saved?.code ? { code: saved.code } : {}) };
 }
 
-/** «Настроить тариф» (ADR-118): привязать существующий или новый тариф к категории */
+/** «Настроить тариф» (ADR-119): привязать существующий или новый тариф к категории */
 export async function linkCategoryRatePlan(code: string, body: Record<string, unknown>) {
   try {
     await inventoryEditorApi.linkRatePlan(code, body);

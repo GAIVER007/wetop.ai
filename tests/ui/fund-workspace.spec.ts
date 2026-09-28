@@ -4,7 +4,7 @@ test('category creation, rename, room creation and reload', async ({ page }) => 
   await page.goto('/rooms/categories');
   await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
   await page.getByLabel('Название категории').fill('Тестовая новая категория');
-  // тариф — явным «Настроить сейчас» (ADR-118: по умолчанию «позже»)
+  // тариф — явным «Настроить сейчас» (ADR-119: по умолчанию «позже»)
   await page.getByRole('radio', { name: 'Настроить сейчас' }).check();
   await expect(page.getByRole('combobox', { name: /^Тариф/ })).toBeEnabled();
   await page.getByRole('button', { name: 'Создать', exact: true }).click();

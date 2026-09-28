@@ -5,7 +5,7 @@ import { AuditService } from './audit.module';
 
 /**
  * Журнал действий (волна 3, plans/wetop-domain-2026-09-14.md §7.3). Поиск шёл в браузере по последним 200 строкам, а
- * синхронизация Exely пишет `exely.sync` каждые 5 минут — это ~17 часов, и вкладка «История» брони была пустой.
+ * служебная проверка системы пишет `system.health` каждые 5 минут — это ~17 часов, и вкладка «История» брони была пустой.
  *
  * Волна 4: список не тянет снимки брони. Из них берут одну короткую строку («номер брони»), а на массовой
  * правке цен и на импорте снимок весит мегабайты — 200 строк уезжали целиком через пулер в Сингапур.
@@ -70,12 +70,12 @@ describe('AuditService.list', () => {
     expect(values).toContain('%20260914-513903-1263744450%');
   });
 
-  it('служебные строки синхронизации Exely по умолчанию скрыты, по запросу — показаны', async () => {
+  it('служебные строки служебная проверка системы по умолчанию скрыты, по запросу — показаны', async () => {
     const { service, queries } = fakePrisma();
     await service.list({ limit: 200 });
-    expect(JSON.stringify(queries[0]!.values)).toContain('exely.sync');
+    expect(JSON.stringify(queries[0]!.values)).toContain('system.health');
     await service.list({ limit: 200, system: true });
-    expect(JSON.stringify(queries[1]!.values)).not.toContain('exely.sync');
+    expect(JSON.stringify(queries[1]!.values)).not.toContain('system.health');
   });
 
   it('снимки брони наружу не едут: в выборке только короткие поля и сводка', async () => {
@@ -111,8 +111,8 @@ describe('AuditService.list — кто сделал', () => {
     expect(entry).toMatchObject({ action: 'reservation.checkIn', author: 'Айгуль Сеитова' });
   });
 
-  it('действие без автора — это система: импорт, сторож, скрипт сверки', async () => {
-    const { service } = fakePrisma([row({ action: 'exely.sync', author: null })]);
+  it('действие без автора — это система: фоновая задача или системный процесс', async () => {
+    const { service } = fakePrisma([row({ action: 'system.health', author: null })]);
     const [entry] = await service.list({ limit: 10, system: true });
     expect(entry!.author).toBeNull();
   });

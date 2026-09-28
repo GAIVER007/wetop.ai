@@ -55,10 +55,10 @@
 
 ## Миграция — обязательна до второго живого отеля (владелец применяет руками, AGENTS §14–15)
 
-`inventory_units.code` и `inventory_units.exely_room_number` сейчас **глобально уникальны** (MVP на
+`inventory_units.code` и `inventory_units.retired-source_room_number` сейчас **глобально уникальны** (MVP на
 один объект). Для двух отелей коды «101» столкнутся. Нужна миграция: уникальность кода — в пределах
 объекта, не глобально (денормализовать `property_id` в `inventory_units` либо уникальность через
-`physical_room → floor → building → property`), `exely_room_number` — снять глобальную уникальность
+`physical_room → floor → building → property`), `retired-source_room_number` — снять глобальную уникальность
 (новым отелям он не нужен, null). С backup/validation/rollback по §14. До миграции живой отель один
 (Luxx), столкновений нет; новые регистрации пойдут только после выкатки — миграцию применить раньше.
 

@@ -127,7 +127,7 @@
   font-size: var(--text-sm);
   color: var(--text-2);
 }
-/* Форма категории (C3, ADR-118): тип и тариф — варианты рамкой, выбранный — рамка --primary */
+/* Форма категории (C3, ADR-119): тип и тариф — варианты рамкой, выбранный — рамка --primary */
 .fund-choice {
   display: grid;
   gap: var(--space-2);
@@ -186,7 +186,7 @@
 .fund-preview h3 {
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--muted);
+  color: var(--text-2);
 }
 .fund-preview p {
   margin: 0;
@@ -205,7 +205,7 @@
   gap: var(--space-4);
 }
 .fund-preview-facts dt {
-  color: var(--muted);
+  color: var(--text-2);
 }
 .fund-preview-facts dd {
   margin: 0;

@@ -14,7 +14,7 @@ Hello,
 We are currently developing a PMS for our own hospitality property and would like to
 integrate Channex as the channel connectivity layer.
 
-The PMS is currently being prepared for a live migration from Exely.
+The PMS is currently being prepared for a live migration from архивный источник.
 
 Could you please clarify the following before we begin the integration:
 

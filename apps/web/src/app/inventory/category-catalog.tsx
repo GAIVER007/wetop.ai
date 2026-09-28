@@ -84,7 +84,7 @@ export function CategoryCatalog({
     ) : (
       <Badge tone="warn">тариф не настроен</Badge>
     );
-  /** Без мест или без тарифа категорию не продать — так и говорим (ADR-118) */
+  /** Без мест или без тарифа категорию не продать — так и говорим (ADR-119) */
   const status = (c: InventoryCategory) =>
     !c.active ? (
       <Badge tone="neutral">В архиве</Badge>

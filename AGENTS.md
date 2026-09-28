@@ -53,7 +53,7 @@
 
 ## 5. External APIs only from project documentation
 
-Для Channex, eQonaq, Smart Bridge, fiscal provider, Exely — использовать документацию в `/docs`.
+Для Channex, eQonaq, Smart Bridge, fiscal provider, архивный источник — использовать документацию в `/docs`.
 Не писать integration code по памяти модели.
 
 Если документация отсутствует или противоречит API — **STOP**, создать вопрос.
@@ -92,7 +92,7 @@ Secrets — только через environment variables / secret storage. См
 
 До отдельного разрешения:
 
-- Exely production не изменять;
+- архивный источник production не изменять;
 - OTA production не изменять;
 - Channex production ARI не отправлять;
 - eQonaq production submissions не отправлять;
@@ -104,7 +104,7 @@ Secrets — только через environment variables / secret storage. См
 
 Задача не закрывается словом "done". Нужно одно из:
 passing test, screenshot, reconciliation report, API request/response из sandbox,
-сравнение с Exely.
+сравнение с архивный источник.
 
 ---
 

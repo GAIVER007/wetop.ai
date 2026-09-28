@@ -27,12 +27,12 @@ function makeFakes() {
   const repo: RatesRepository = {
     async categories() {
       return [
-        { id: 't1', code: 'exely-900001', name: 'Одиночная', capacityAdults: 1 },
-        { id: 't2', code: 'exely-900002', name: 'Двойная', capacityAdults: 2 },
+        { id: 't1', code: 'category-single', name: 'Одиночная', capacityAdults: 1 },
+        { id: 't2', code: 'category-twin', name: 'Двойная', capacityAdults: 2 },
       ];
     },
     async ratePlans() {
-      return [{ id: 'p2', code: 'exely-800002', name: 'ОТА', currency: 'KZT', active: true }];
+      return [{ id: 'p2', code: 'rate-ota', name: 'ОТА', currency: 'KZT', active: true }];
     },
     async calendar(_t, _p, from, to) {
       return expandDates(from, to).map((date) => ({
@@ -69,7 +69,7 @@ function makeFakes() {
     async ratesChanged(changes) {
       published.push(changes);
       // как настоящий: в очередь идут только те изменения, которые канал продаёт
-      return changes.filter((c) => c.accommodationTypeCode !== 'exely-900001').length;
+      return changes.filter((c) => c.accommodationTypeCode !== 'category-single').length;
     },
   };
   return { repo, publisher, applied, published, audits, auditBefore, history };
@@ -109,20 +109,20 @@ describe('rates API', () => {
   it('GET /rates returns the calendar for a category × tariff', async () => {
     const res = await request(app.getHttpServer())
       .get(
-        '/rates?accommodationTypeCode=exely-900001&ratePlanCode=exely-800002&from=2026-11-01&to=2026-11-03',
+        '/rates?accommodationTypeCode=category-single&ratePlanCode=rate-ota&from=2026-11-01&to=2026-11-03',
       )
       .expect(200);
     expect(res.body.days).toHaveLength(3);
     expect(res.body.days[0]).toMatchObject({ date: '2026-11-01', prices: { '1': '1540000' } });
     await request(app.getHttpServer())
       .get(
-        '/rates?accommodationTypeCode=exely-900001&ratePlanCode=nope&from=2026-11-01&to=2026-11-03',
+        '/rates?accommodationTypeCode=category-single&ratePlanCode=nope&from=2026-11-01&to=2026-11-03',
       )
       .expect(422);
     // Волна 4: календарь цен без предела строил хоть десять лет по дню на строку
     await request(app.getHttpServer())
       .get(
-        '/rates?accommodationTypeCode=exely-900001&ratePlanCode=exely-800002&from=2020-01-01&to=2030-12-31',
+        '/rates?accommodationTypeCode=category-single&ratePlanCode=rate-ota&from=2020-01-01&to=2030-12-31',
       )
       .expect(400);
   });
@@ -138,8 +138,8 @@ describe('rates API', () => {
       .send({
         changes: [
           {
-            accommodationTypeCode: 'exely-900001',
-            ratePlanCode: 'exely-800002',
+            accommodationTypeCode: 'category-single',
+            ratePlanCode: 'rate-ota',
             dateFrom: '2026-11-21',
             dateTo: '2026-11-21',
             price: '333',
@@ -156,15 +156,15 @@ describe('rates API', () => {
       .send({
         changes: [
           {
-            accommodationTypeCode: 'exely-900001',
-            ratePlanCode: 'exely-800002',
+            accommodationTypeCode: 'category-single',
+            ratePlanCode: 'rate-ota',
             dateFrom: '2026-11-21',
             dateTo: '2026-11-21',
             price: '333',
           },
           {
-            accommodationTypeCode: 'exely-900002',
-            ratePlanCode: 'exely-800002',
+            accommodationTypeCode: 'category-twin',
+            ratePlanCode: 'rate-ota',
             dateFrom: '2026-11-01',
             dateTo: '2026-11-10',
             days: ['mo', 'tu'],
@@ -173,8 +173,8 @@ describe('rates API', () => {
             closedToArrival: true,
           },
           {
-            accommodationTypeCode: 'exely-900002',
-            ratePlanCode: 'exely-800002',
+            accommodationTypeCode: 'category-twin',
+            ratePlanCode: 'rate-ota',
             dateFrom: '2026-11-16',
             dateTo: '2026-11-16',
             stopSell: true,
@@ -195,16 +195,16 @@ describe('rates API', () => {
     expect(fakes.published).toHaveLength(1);
     expect(fakes.published[0]).toEqual([
       {
-        accommodationTypeCode: 'exely-900001',
-        ratePlanCode: 'exely-800002',
+        accommodationTypeCode: 'category-single',
+        ratePlanCode: 'rate-ota',
         dateFrom: '2026-11-21',
         dateTo: '2026-11-21',
         priceMinor: 33300n,
         primaryOccupancy: 1,
       },
       {
-        accommodationTypeCode: 'exely-900002',
-        ratePlanCode: 'exely-800002',
+        accommodationTypeCode: 'category-twin',
+        ratePlanCode: 'rate-ota',
         dateFrom: '2026-11-01',
         dateTo: '2026-11-10',
         days: ['mo', 'tu'],
@@ -214,8 +214,8 @@ describe('rates API', () => {
         closedToArrival: true,
       },
       {
-        accommodationTypeCode: 'exely-900002',
-        ratePlanCode: 'exely-800002',
+        accommodationTypeCode: 'category-twin',
+        ratePlanCode: 'rate-ota',
         dateFrom: '2026-11-16',
         dateTo: '2026-11-16',
         stopSell: true,
@@ -228,8 +228,8 @@ describe('rates API', () => {
 
   it('rejects bad input with 400: no changes, bad date, nothing to change, occupancy above capacity', async () => {
     const base = {
-      accommodationTypeCode: 'exely-900001',
-      ratePlanCode: 'exely-800002',
+      accommodationTypeCode: 'category-single',
+      ratePlanCode: 'rate-ota',
       dateFrom: '2026-11-01',
       dateTo: '2026-11-02',
     };
@@ -258,8 +258,8 @@ describe('rates API', () => {
   // «все дни», и стоп-продажа уходила на весь период во все каналы.
   it('отказывает до работы с базой: период длиннее года, больше 200 строк, пустой список дней', async () => {
     const base = {
-      accommodationTypeCode: 'exely-900001',
-      ratePlanCode: 'exely-800002',
+      accommodationTypeCode: 'category-single',
+      ratePlanCode: 'rate-ota',
       dateFrom: '2026-11-01',
       dateTo: '2026-11-02',
       price: '1000',
@@ -282,8 +282,8 @@ describe('rates API', () => {
   });
 
   const one = {
-    accommodationTypeCode: 'exely-900002',
-    ratePlanCode: 'exely-800002',
+    accommodationTypeCode: 'category-twin',
+    ratePlanCode: 'rate-ota',
     dateFrom: '2026-11-01',
     dateTo: '2026-11-02',
   };

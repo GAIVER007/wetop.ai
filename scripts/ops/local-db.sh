@@ -98,6 +98,10 @@ start() {
   if [ -x "$b/psql" ]; then
     "$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DBNAME'" \
       | grep -q 1 || "$b/createdb" -h 127.0.0.1 -p "$PORT" -U postgres "$DBNAME"
+    # Абсолютные события Prisma пишет в timestamptz. Локальный сервер не должен наследовать пояс машины:
+    # иначе один и тот же Date на Mac и CI попадает в базу с разным сдвигом до первой SQL-сверки.
+    "$b/psql" -h 127.0.0.1 -p "$PORT" -U postgres -d postgres \
+      -c "ALTER DATABASE \"$DBNAME\" SET timezone TO 'UTC'" >/dev/null
   else
   ( cd "$ROOT" && node -e '
     const { Client } = require("pg");
@@ -107,6 +111,7 @@ start() {
       await c.connect();
       const r = await c.query("SELECT 1 FROM pg_database WHERE datname = $1", [name]);
       if (!r.rowCount) await c.query(`CREATE DATABASE "${name}"`);
+      await c.query(`ALTER DATABASE "${name}" SET timezone TO 'UTC'`);
       await c.end();
     })().catch((e) => { console.error("local-db: база не создалась —", e.message); process.exit(1); });
   ' "postgresql://postgres@127.0.0.1:$PORT/postgres" "$DBNAME" )

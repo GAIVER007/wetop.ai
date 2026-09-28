@@ -48,7 +48,7 @@ export function FundEditorDialog({
     (preferKind && categories.find((c) => c.kind === preferKind)?.code) ?? categories[0]?.code ?? '';
   const [selected, setSelected] = useState(category?.code ?? preferred);
   const [kind, setKind] = useState<InventoryCategory['kind']>(category?.kind ?? 'PRIVATE_ROOM');
-  /** Создание категории (C3, ADR-118): форма → «Категория создана» → номер или тариф */
+  /** Создание категории (C3, ADR-119): форма → «Категория создана» → номер или тариф */
   const [view, setView] = useState<'form' | 'created' | 'rate' | 'room'>('form');
   const [created, setCreated] = useState<Created | null>(null);
   const [planMode, setPlanMode] = useState<'later' | 'now'>('later');

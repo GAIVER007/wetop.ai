@@ -16,6 +16,7 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
   page,
   request,
 }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await request.post(`${fixture}/__test/reset`);
   const withWindow = await request.post(`${fixture}/inventory/categories`, {
     ...asClient,

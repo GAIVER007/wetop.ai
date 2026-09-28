@@ -1,6 +1,6 @@
 /**
- * Счёт на проживание (DATA_MODEL §6, ADR-014). Общие операции для импорта и API: создать счёт вместе
- * с проживанием, держать ровно одно активное начисление «проживание» равным цене, перенести оплату из Exely.
+ * Счёт на проживание (DATA_MODEL §6, ADR-014). Общие операции API: создать счёт вместе
+ * с проживанием и держать ровно одно активное начисление «проживание» равным цене.
  */
 import type { Prisma } from './generated/prisma/client';
 
@@ -98,7 +98,7 @@ export async function ensureFolioWithAccommodation(
 }
 
 /**
- * Платёж EXTERNAL: деньги, полученные вне кассы PMS — перенос из Exely или предоплата, собранная каналом.
+ * Платёж EXTERNAL: деньги, полученные вне кассы PMS, например предоплата, собранная каналом.
  * Ключ идемпотентности — `externalReference` в пределах объекта: повтор не создаёт дубль, а поправит сумму.
  */
 export async function recordExternalPayment(
@@ -140,25 +140,4 @@ export async function recordExternalPayment(
     },
   });
   return 'created';
-}
-
-/** Оплаченная в Exely часть проживания → платёж EXTERNAL со ссылкой exely:<roomStayId>. */
-export async function recordImportedPayment(
-  tx: Tx,
-  input: {
-    propertyId: string;
-    folioId: string;
-    roomStayId: string;
-    paidMinor: bigint;
-    currency: string;
-  },
-): Promise<'created' | 'updated' | 'skipped'> {
-  return recordExternalPayment(tx, {
-    propertyId: input.propertyId,
-    folioId: input.folioId,
-    externalReference: `exely:${input.roomStayId}`,
-    amountMinor: input.paidMinor,
-    currency: input.currency,
-    note: 'Перенос из Exely: оплачено на момент миграции',
-  });
 }

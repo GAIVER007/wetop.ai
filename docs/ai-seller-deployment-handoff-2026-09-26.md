@@ -47,7 +47,7 @@
 
 На исходном Mac WIZARD_ENABLED=1 записан только в игнорируемую .env; API перезапущен. На сервер автоматически это НЕ передаётся. После проверки схемы установить WIZARD_ENABLED=1 в серверном environment API и убедиться, что фактический compose/container получает его. Секреты не копировать из чата, не печатать docker compose config или всю .env: там ключи. При диагностике показывать только значения несекретных флагов и признаки наличия секретов.
 
-WIZARD_SESSION_TTL_SECONDS не задан намеренно: гостевой мастер не публикуем как готовый. Не менять пароли, AUTH_REQUIRED, права пользователей, доступность Data API, Channex/Exely workers, ARI, фискализацию. SECURITY.md §12: Data API отключён владельцем, но default grants anon/authenticated в Supabase остались. Не включать Data API; иначе новые таблицы могут стать доступны в обход backend.
+WIZARD_SESSION_TTL_SECONDS не задан намеренно: гостевой мастер не публикуем как готовый. Не менять пароли, AUTH_REQUIRED, права пользователей, доступность Data API, Channex/архивный источник workers, ARI, фискализацию. SECURITY.md §12: Data API отключён владельцем, но default grants anon/authenticated в Supabase остались. Не включать Data API; иначе новые таблицы могут стать доступны в обход backend.
 
 ## Проверки перед main/release
 

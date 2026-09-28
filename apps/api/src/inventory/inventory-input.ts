@@ -44,7 +44,7 @@ export function roomInput(body: Record<string, unknown>) {
   };
 }
 
-/** Выбор тарифа категории (ADR-118): существующий, новый с названием или — только при создании — «настроить позже» */
+/** Выбор тарифа категории (ADR-119): существующий, новый с названием или — только при создании — «настроить позже» */
 export type RatePlanChoice =
   | { kind: 'existing'; code: string }
   | { kind: 'new'; name: string }

@@ -114,7 +114,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
   'POST /inventory/categories': 'property',
-  // «Настроить тариф» категории (ADR-118): как создание категории, которое тоже привязывает тариф
+  // «Настроить тариф» категории (ADR-119): как создание категории, которое тоже привязывает тариф
   'POST /inventory/categories/:code/rate-plan': 'property',
   'PATCH /inventory/categories/:code': 'property',
   'POST /inventory/rooms': 'property',

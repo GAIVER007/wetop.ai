@@ -137,7 +137,7 @@ const categorySeed: {
   count: number;
   prefix: string;
   capacityAdults: number;
-  /** У созданных через POST: тип из формы и привязанные тарифы по именам (ТЗ «Категории v2», ADR-109, ADR-118) */
+  /** У созданных через POST: тип из формы и привязанные тарифы по именам (ТЗ «Категории v2», ADR-109, ADR-119) */
   kind?: string;
   rateNames?: string[];
 }[] = [
@@ -151,7 +151,6 @@ type SeedUnit = Omit<InventoryUnit, 'housekeepingStatus' | 'active' | 'block'>;
 const units: SeedUnit[] = categories.flatMap((c) =>
   Array.from({ length: c.count }, (_, i) => ({
     code: `${c.prefix}${String(i + 1).padStart(2, '0')}`,
-    exelyRoomNumber: null,
     kind: c.code === 'ROOM' ? 'ROOM' : 'BED',
     accommodationTypeCode: c.code,
     accommodationTypeName: c.name,
@@ -180,7 +179,7 @@ const softPlanSeed = {
   cancellationPenalty: 'NONE' as const,
 };
 let softPlan = false;
-/** Тарифы, названные в «Категориях» (ADR-118): живут до `reset` */
+/** Тарифы, названные в «Категориях» (ADR-119): живут до `reset` */
 const extraPlans: {
   code: string;
   name: string;
@@ -307,7 +306,7 @@ function initializeRecords() {
     g.firstName = words.slice(1).join(' ');
     g.lastName = words[0]!;
     r.confirmationNumber = `20260913-TEST${i}`;
-    // i = 2 — перенесённая из Exely бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
+    // i = 2 — перенесённая из внешней системы бронь канала: `TENTATIVE`, то есть «не подтверждена» (Q-135).
     // Смена должна видеть это на клетке словом, не только жёлтым цветом.
     r.status =
       i === 2
@@ -1665,7 +1664,7 @@ const uiSessions = new Map<string, UiUser>();
 let uiRole: MembershipRole = 'OWNER';
 /**
  * Тариф брони у роли стенда — как в API: администратор пересчитывает только в тарифе брони (Q-200); брони без тарифа
- * (из Exely) назначает тариф со штрафом не мягче «первых суток» (Q-201). `null` — можно.
+ * (из внешней системы) назначает тариф со штрафом не мягче «первых суток» (Q-201). `null` — можно.
  */
 function planRefusal(current: string | null | undefined, requested: unknown): string | null {
   if (can(uiRole, 'rates') || typeof requested !== 'string' || !requested) return null;
@@ -3353,7 +3352,7 @@ createServer(async (req, res) => {
         card.departureDate = add(today, 90);
         card.items[0]!.departureDate = card.departureDate;
       }
-      // бронь, перенесённая из Exely: у проживаний нет тарифа (Б1, Б8)
+      // бронь, перенесённая из внешней системы: у проживаний нет тарифа (Б1, Б8)
       if (body['withoutRatePlan'] === true)
         for (const it of card.items) Object.assign(it, { ratePlanCode: null, ratePlanName: null });
       if (body['softPlan'] === true) softPlan = true;
@@ -4336,7 +4335,7 @@ createServer(async (req, res) => {
     }
 
     if (path === '/inventory/categories' && req.method === 'POST') {
-      // как на настоящем API (ADR-118): тариф — существующий, новый с названием или явно «позже»
+      // как на настоящем API (ADR-119): тариф — существующий, новый с названием или явно «позже»
       const rate = fixturePlanChoice(body);
       if (rate === undefined && body.ratePlanLater !== true)
         return send(400, { message: 'Выберите тариф или «Настроить позже»' });
@@ -4379,7 +4378,6 @@ createServer(async (req, res) => {
       for (const code of codes)
         units.push({
           code,
-          exelyRoomNumber: null,
           kind: 'ROOM',
           accommodationTypeCode: c.code,
           accommodationTypeName: c.name,

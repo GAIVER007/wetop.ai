@@ -61,7 +61,7 @@ export class InventoryEditor {
       ratePlanNames: ratePlanLinks.map((link) => link.ratePlan.name),
     }));
   }
-  /** Существующий тариф объекта или новый с названием человека; «позже» — без тарифа (ADR-118) */
+  /** Существующий тариф объекта или новый с названием человека; «позже» — без тарифа (ADR-119) */
   private async resolvePlan(tx: DbTx, propertyId: string, choice: RatePlanChoice) {
     if (choice.kind === 'later') return null;
     if (choice.kind === 'existing') {
@@ -116,7 +116,7 @@ export class InventoryEditor {
     this.reader.invalidate?.(propertyId);
     return result;
   }
-  /** «Настроить тариф» (ADR-118): привязать тариф к категории; повтор той же пары — без дубля и без записи */
+  /** «Настроить тариф» (ADR-119): привязать тариф к категории; повтор той же пары — без дубля и без записи */
   async linkRatePlan(code: string, body: Record<string, unknown>) {
     const choice = ratePlanChoice(body, false),
       propertyId = await this.property();

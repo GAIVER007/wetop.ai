@@ -56,6 +56,11 @@ export interface CreateReservationDto {
   arrivalDate?: string;
   departureDate?: string;
   notes?: string | null;
+  /**
+   * G6 (ТЗ «Гости v2» §33): бронь существующему гостю — только своей организации, без полей `guest`.
+   * Нового гостя тогда не создаётся: бронь и все её проживания получают этого гостя главным.
+   */
+  guestId?: string | null;
   guest?: {
     firstName?: string;
     lastName?: string;
@@ -277,6 +282,32 @@ function requireStayDates(
   return { arrivalDate: arrival, departureDate: departure };
 }
 
+const GUEST_NOT_FOUND = 'Гость не найден';
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * G6 (ТЗ «Гости v2» §33): `guestId` — бронь существующему гостю вместо нового. Вместе с полями `guest`
+ * не принимается: непонятно, кого имели в виду. Сайт своего гостя приносит всегда (`guestPrepared`),
+ * чужой `guestId` на этом пути — ошибка вызывающего. Не uuid — такого гостя нет, как и чужого.
+ */
+function existingGuest(
+  dto: CreateReservationDto,
+  opts: { guestPrepared?: boolean },
+): string | null {
+  if (dto.guestId === undefined || dto.guestId === null) return null;
+  if (opts.guestPrepared)
+    throw new BadRequestException('guestId: бронь с сайта заводит своего гостя');
+  if (typeof dto.guestId !== 'string' || dto.guestId.trim() === '')
+    throw new BadRequestException('guestId — идентификатор гостя строкой');
+  if (dto.guest !== undefined && dto.guest !== null)
+    throw new BadRequestException(
+      'Укажите либо guestId существующего гостя, либо поля guest нового — не оба сразу',
+    );
+  const id = dto.guestId.trim();
+  if (!UUID.test(id)) throw new NotFoundException(GUEST_NOT_FOUND);
+  return id;
+}
+
 @Injectable()
 export class ReservationsService {
   constructor(
@@ -336,16 +367,19 @@ export class ReservationsService {
     const source = dto.source as ReservationSource;
     const booking = channelBooking(source, dto, true);
     const dates = requireStayDates(dto.arrivalDate, dto.departureDate);
-    const guest = opts.guestPrepared
-      ? {
-          firstName: (dto.guest?.firstName ?? '').trim(),
-          lastName: (dto.guest?.lastName ?? '').trim(),
-          middleName: dto.guest?.middleName ?? null,
-          phone: dto.guest?.phone ?? null,
-          email: dto.guest?.email ?? null,
-        }
-      : deskGuestForStorage(dto.guest ?? {});
-    if (!guest.firstName || !guest.lastName)
+    const existingGuestId = existingGuest(dto, opts);
+    const guest = existingGuestId
+      ? null
+      : opts.guestPrepared
+        ? {
+            firstName: (dto.guest?.firstName ?? '').trim(),
+            lastName: (dto.guest?.lastName ?? '').trim(),
+            middleName: dto.guest?.middleName ?? null,
+            phone: dto.guest?.phone ?? null,
+            email: dto.guest?.email ?? null,
+          }
+        : deskGuestForStorage(dto.guest ?? {});
+    if (guest && (!guest.firstName || !guest.lastName))
       throw new BadRequestException('guest.firstName и guest.lastName обязательны');
     if (!Array.isArray(dto.items) || dto.items.length === 0)
       throw new BadRequestException('items: хотя бы одно проживание');
@@ -476,7 +510,10 @@ export class ReservationsService {
             unitId,
           });
         }
-        const guestId = await repo.createGuest(guest);
+        const guestId = guest
+          ? await repo.createGuest(guest)
+          : await repo.guestForBooking(existingGuestId!);
+        if (!guestId) throw new NotFoundException(GUEST_NOT_FOUND);
         if (booking.externalId)
           await this.assertChannelBookingFree(repo, booking.channel ?? null, booking.externalId);
         const number = confirmationNumber(new Date());

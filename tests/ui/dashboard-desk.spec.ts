@@ -201,10 +201,10 @@ test('7. строки главной без разделителя « · »', as
     ...(await main.locator('#day-attention .attention-item').allInnerTexts()),
   ];
   for (const text of texts) expect(text, text).not.toContain(' · ');
-  // подпись отрезка «1 сент. — 30 сент. · 30 дней» §14 разрешает — её точку не считаем
-  await page.goto('/management/dashboard?period=month');
-  const caption = await main.getByTestId('period-caption').innerText();
-  expect(caption.replace(/ · \d+ (?:день|дня|дней)/, ''), caption).not.toContain(' · ');
+  // подпись отрезка «Аналитики» — через запятую: «1 сент. — 30 сент., 30 дней» (ADR-114)
+  await page.goto('/management/analytics?period=month');
+  const caption = await main.getByTestId('pa-period').innerText();
+  expect(caption, caption).not.toContain(' · ');
   await page.goto('/today');
   await quick(page)
     .getByRole('button', { name: /Выселить гостя/ })
@@ -219,18 +219,20 @@ test('7. строки главной без разделителя « · »', as
 test('8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title', async ({
   page,
 }) => {
-  await page.goto('/management/dashboard?period=week');
+  // с AN2 график по дням — «Аналитика → Обзор» (ADR-114): у загрузки и у выручки свои подписи дня
+  await page.goto('/management/analytics?period=week');
   const main = page.getByRole('main');
-  const chart = main.getByTestId('chart-daily');
+  const chart = main.getByTestId('pa-chart-occupancy');
   await expect(chart).toBeVisible();
   await expect(chart.locator('[title]')).toHaveCount(0);
-  const day = main.getByTestId('chart-day');
+  const day = main.getByTestId('pa-chart-occupancy-day');
   // по умолчанию — сегодняшний день, подробности видны без наведения
   await expect(day).toContainText('занято');
-  await expect(day).toContainText('заезды');
+  await expect(main.getByTestId('pa-chart-revenue-day')).toContainText('заездов');
   const todayText = await day.innerText();
-  const prev = main.getByRole('button', { name: 'Предыдущий день' });
-  const next = main.getByRole('button', { name: 'Следующий день' });
+  const panel = main.locator('.dash-panel').filter({ has: page.getByTestId('pa-chart-occupancy') });
+  const prev = panel.getByRole('button', { name: 'Предыдущий день' });
+  const next = panel.getByRole('button', { name: 'Следующий день' });
   await expect(next).toBeDisabled();
   // с клавиатуры: Enter на кнопке листает дни
   await prev.focus();
@@ -243,12 +245,12 @@ test('8. подробности дня на графике без наведен
   await expect(prev).toBeDisabled();
   await expect(day).not.toHaveText(todayText);
   // таблица по категориям: «из N возможных» видно в ячейке, а не в title
-  const table = main.getByTestId('categories-table');
+  const table = main.getByTestId('pa-categories');
   await expect(table.locator('[title]')).toHaveCount(0);
   await expect(table.locator('tbody tr').first()).toContainText(' из ');
 });
 
-test('9. размеры шрифта на главной и показателях за период — из шкалы §6, число плитки 28 px', async ({
+test('9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 24 px', async ({
   page,
 }) => {
   const scale = ['12px', '13px', '14px', '16px', '18px', '20px', '24px', '28px'];
@@ -274,10 +276,14 @@ test('9. размеры шрифта на главной и показателя
     expect(await offScale(main), `главная, ширина ${width}`).toEqual([]);
     // число плитки дня — 24 px (--text-3xl), как и до A1
     if (width === 1440) expect(await fontSize(main.getByTestId('c-inhouse'))).toBe('24px');
-    await page.goto('/management/dashboard?period=week');
-    await expect(main.getByTestId('chart-daily')).toBeVisible();
-    expect(await offScale(main), `показатели, ширина ${width}`).toEqual([]);
-    if (width === 1440) expect(await fontSize(main.getByTestId('kpi-occupancy'))).toBe('28px');
+    // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число 24 px (--text-3xl)
+    await page.goto('/management/analytics?period=week');
+    await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
+    expect(await offScale(main), `аналитика, обзор, ширина ${width}`).toEqual([]);
+    if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('24px');
+    await page.goto('/management/analytics/occupancy');
+    await expect(main.getByTestId('statistics-table')).toBeVisible();
+    expect(await offScale(main), `аналитика, загрузка, ширина ${width}`).toEqual([]);
   }
 });
 

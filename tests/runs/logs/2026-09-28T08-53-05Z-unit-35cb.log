@@ -1,0 +1,43 @@
+# Модульные (unit) · 28.09.2026 13:53 Алматы · vm
+# коммит 47906c6 (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 277
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-53-05Z-unit-35cb.json' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 45ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 43ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: маршруты без @Access и без @Public: expected [ 'GET /availability/offers' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "GET /availability/offers",
++ ]
+
+ ❯ apps/api/src/auth/route-access.test.ts:267:63
+    265|       .filter(([, access]) => access === undefined)
+    266|       .map(([key]) => key);
+    267|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+       |                                                               ^
+    268|     expect(actual).toEqual(EXPECTED);
+    269|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  08:53:06
+   Duration  3.97s (transform 64%, import 35%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-53-05Z-unit-35cb.json
+
+# код выхода 1 · 6 с

@@ -116,6 +116,8 @@ export interface DebtRowView {
   paidMinor: string;
   refundedMinor: string;
   balanceMinor: string;
+  /** Q-207: время выезда по часам объекта прошло, остаток не оплачен */
+  overdue: boolean;
 }
 export interface PeriodDebtsView {
   from: string;
@@ -124,8 +126,8 @@ export interface PeriodDebtsView {
   /** броней с остатком > 0 и сумма их остатков — по всем, не только по строкам ниже */
   count: number;
   balanceMinor: string;
-  /** из них гость уже выехал, а остаток не оплачен */
-  checkedOut: { count: number; balanceMinor: string };
+  /** из них просроченный долг (Q-207): время выезда прошло, остаток не оплачен */
+  overdue: { count: number; balanceMinor: string };
   rows: DebtRowView[];
   /** строк больше, чем отдаёт ответ (`MAX_DEBT_ROWS`) */
   truncated: boolean;
@@ -388,14 +390,14 @@ export class FinanceService {
           a.confirmationNumber.localeCompare(b.confirmationNumber),
       );
     const total = (xs: typeof debts) => xs.reduce((a, x) => a + x.balance, 0n);
-    const left = debts.filter((r) => r.status === 'CHECKED_OUT');
+    const overdue = debts.filter((r) => r.overdue);
     return {
       from,
       to,
       currency: 'KZT',
       count: debts.length,
       balanceMinor: s(total(debts)),
-      checkedOut: { count: left.length, balanceMinor: s(total(left)) },
+      overdue: { count: overdue.length, balanceMinor: s(total(overdue)) },
       rows: debts.slice(0, MAX_DEBT_ROWS).map((r) => ({
         confirmationNumber: r.confirmationNumber,
         status: r.status,
@@ -406,6 +408,7 @@ export class FinanceService {
         paidMinor: s(r.paidMinor),
         refundedMinor: s(r.refundedMinor),
         balanceMinor: s(r.balance),
+        overdue: r.overdue,
       })),
       truncated: debts.length > MAX_DEBT_ROWS,
     };

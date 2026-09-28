@@ -43,3 +43,20 @@ export function roomInput(body: Record<string, unknown>) {
     codes,
   };
 }
+
+/** Выбор тарифа категории (ADR-119): существующий, новый с названием или — только при создании — «настроить позже» */
+export type RatePlanChoice =
+  | { kind: 'existing'; code: string }
+  | { kind: 'new'; name: string }
+  | { kind: 'later' };
+export function ratePlanChoice(body: Record<string, unknown>, allowLater: boolean): RatePlanChoice {
+  if (body.ratePlanCode) return { kind: 'existing', code: inventoryText(body.ratePlanCode, 'Тариф') };
+  if (body.newRatePlanName !== undefined && body.newRatePlanName !== '')
+    return { kind: 'new', name: inventoryText(body.newRatePlanName, 'Название нового тарифа') };
+  if (allowLater && body.ratePlanLater === true) return { kind: 'later' };
+  throw new BadRequestException(
+    allowLater
+      ? 'Выберите тариф или «Настроить позже»'
+      : 'Выберите тариф или назовите новый',
+  );
+}

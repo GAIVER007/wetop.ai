@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
@@ -30,7 +31,7 @@ test('заселить → карточка и шахматка показыва
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(3), plus(4)));
   const unitSelect = form.locator('select[name="unitCode"]');
-  const unitCode = (await unitSelect.locator('option').nth(1).getAttribute('value'))!;
+  const unitCode = await unitOption(unitSelect);
   await unitSelect.selectOption(unitCode);
   await form.locator('input[name="firstName"]').fill('Гость');
   await form.locator('input[name="lastName"]').fill('Тест-заезд');
@@ -71,6 +72,8 @@ test('заселить → карточка и шахматка показыва
   await expect(
     page.getByRole('main').getByTestId('guest-form').locator('input[name="citizenship"]'),
   ).toHaveValue('KAZ');
+  // G5: документы — своя вкладка карточки гостя
+  await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();
   const doc = page.getByRole('main').getByTestId('document-form');
   await doc.locator('input[name="number"]').fill('N 0000001');
   await doc.locator('input[name="issueCountry"]').fill('KAZ');
@@ -134,7 +137,7 @@ test('заселить → карточка и шахматка показыва
     .selectOption(await roomiestCategory(request, plus(5), plus(6)));
   const freeUnit = f2.locator('select[name="unitCode"]');
   await expect(freeUnit.locator('option')).not.toHaveCount(1); // есть хотя бы одна свободная койка
-  await freeUnit.selectOption((await freeUnit.locator('option').nth(1).getAttribute('value'))!);
+  await freeUnit.selectOption(await unitOption(freeUnit));
   await f2.locator('input[name="firstName"]').fill('Гость');
   await f2.locator('input[name="lastName"]').fill('Тест-незаезд');
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты

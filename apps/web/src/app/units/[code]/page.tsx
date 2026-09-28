@@ -7,6 +7,8 @@ import { displayDate } from '../../../lib/display-date';
 import { Page } from '../../../components/page';
 import { SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { UnitActions } from './unit-actions';
+import { UnitFacts } from './unit-facts';
+import '../../inventory/inventory.css';
 
 const STATUS_RU: Record<string, string> = {
   TENTATIVE: 'предварительная',
@@ -47,6 +49,7 @@ export default async function UnitPage({
       title={`Ячейка ${unit.code}`}
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >
+      <UnitFacts unit={unit} today={today} />
       <UnitActions unit={unit} today={today} blockPeriod={blockPeriod} />
       <SectionTitle>Ближайшие проживания, 60 дней</SectionTitle>
       <Table size="sm" data-testid="unit-stays">

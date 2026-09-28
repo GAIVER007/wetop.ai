@@ -253,6 +253,47 @@ a.dir-number:hover {
 .booking-summary__line {
   display: block;
 }
+/* G6 («Гости v2» §33–34): выбранный гость брони и найденные по телефону — строка «кто + действие» */
+.booking-guest,
+.booking-matches {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.booking-guest__who,
+.booking-matches__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.booking-guest__hint,
+.booking-matches .hint,
+.booking-matches__title {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.booking-matches__title {
+  font-size: var(--text-sm);
+}
+.booking-matches ul {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.booking-matches li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
 .booking-footer__actions {
   display: flex;
   flex: none;
@@ -318,6 +359,25 @@ a.dir-number:hover {
 .booking-head dd small.warn-text,
 .booking-head__sub.warn-text {
   color: var(--warning);
+}
+/* R3 «Броней v2»: «Финансы» быстрого просмотра — итог по счетам строками «подпись — сумма» (§19) */
+.booking-money {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+.booking-money > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.booking-money dt {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.booking-money dd {
+  margin: 0;
+  font-weight: 600;
 }
 /* гость — во всю ширину: имя, гражданство и связь читаются одной строкой */
 .booking-head__guest {
@@ -513,17 +573,6 @@ a.dir-number:hover {
 .guest-head {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
-.guest-account-links {
-  display: grid;
-  gap: 8px;
-}
-.guest-account-links > a {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px 16px;
-  flex-wrap: wrap;
-}
 @media (max-width: 600px) {
   /* Гости v2, карточка строки (ТЗ §46): имя и статус → сейчас/ближайший → последний визит и
      визиты → контакты. Колонки: 1 гость, 2 контакты, 3 сейчас, 4 последний, 5 визитов, 6 статус */
@@ -644,6 +693,71 @@ a.dir-number:hover {
     justify-self: end;
     text-align: right;
   }
+  /* Финансы гостя (G5): период и статус → начислено и оплачено → слово о деньгах.
+     Колонки: 1 проживание, 2 статус, 3 начислено, 4 оплачено, 5 финансы */
+  .tbl.dir-table--guest-finance,
+  .dir-table--guest-finance tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .dir-table--guest-finance thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .dir-table--guest-finance tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 4px 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .dir-table--guest-finance tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dir-table--guest-finance tbody td,
+  .tbl--nowrap.dir-table--guest-finance tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+    white-space: normal;
+  }
+  .dir-table--guest-finance tbody td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dir-table--guest-finance tbody td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .dir-table--guest-finance tbody td:nth-child(3)::before {
+    content: 'начислено ';
+    color: var(--muted);
+  }
+  .dir-table--guest-finance tbody td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+    text-align: left;
+  }
+  .dir-table--guest-finance tbody td:nth-child(4)::before {
+    content: 'оплачено ';
+    color: var(--muted);
+  }
+  .dir-table--guest-finance tbody td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+  }
+  .dir-table--guest-finance tbody td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
 }
 
 /* ---------- Финансы за период: панель блока и её таблицы (раскладка экрана — finance/finance.css, ADR-113) ---------- */
@@ -666,6 +780,11 @@ a.dir-number:hover {
 .finance-block .tbl td.num,
 .finance-block .tbl th.num {
   white-space: nowrap;
+}
+
+/* Воронка сайта (WEB4): две колонки — общий `min-width: 520px` уводил «Сессий» на телефоне в прокрутку */
+.an-funnel .table-scroll > .tbl {
+  min-width: 0;
 }
 
 /* ---------- D3: счёт брони — начисление и оплата двумя подписанными группами ---------- */

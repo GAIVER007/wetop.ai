@@ -105,8 +105,11 @@ export function UnitActions({
         {unit.blocks.map((b) => (
           <Row key={b.id} data-testid="block-row" className="hint--lg">
             <span>
-              {b.dateFrom} → {b.dateTo} · {TYPES.find(([k]) => k === b.type)?.[1] ?? b.type}
-              {b.reason ? ` · ${b.reason}` : ''}
+              <time dateTime={b.dateFrom}>{displayDate(b.dateFrom, 'numeric')}</time>
+              {' → '}
+              <time dateTime={b.dateTo}>{displayDate(b.dateTo, 'numeric')}</time>
+              {`, ${TYPES.find(([k]) => k === b.type)?.[1] ?? b.type}`}
+              {b.reason ? `, ${b.reason}` : ''}
             </span>
             <Button
               type="button"

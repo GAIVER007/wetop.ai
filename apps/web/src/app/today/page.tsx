@@ -10,6 +10,9 @@ import { HotelClock } from './dashboard-widgets';
 import { DayBar } from './day-bar';
 import { DeskSection, DeskSkeleton } from './desk-section';
 import { FirstSteps } from './first-steps';
+import { MoneyToday } from './money-today';
+import { SystemsToday } from './systems-today';
+import { Panel } from '../../components/ui';
 
 async function loadHotel() {
   return hotelApi.settings().catch((error: unknown) => {
@@ -28,12 +31,20 @@ async function PropertyClock() {
   return <HotelClock timezone={hotel?.property.timezone ?? FALLBACK_TIMEZONE} />;
 }
 
+function BlockSkeleton({ title }: { title: string }) {
+  return (
+    <Panel title={title}>
+      <p className="muted">Загружаем…</p>
+    </Panel>
+  );
+}
+
 /**
  * Главная — рабочий экран дня (A1, ADR-103; ТЗ `plans/tz-today-2026-09-27.md`): полоса дня,
  * операционные показатели «На стойке», «Требуют внимания» рядом с быстрыми действиями. Экран живёт
- * одним днём; показатели за период с их пресетами переехали на `/management/dashboard` — `?period=`
- * Главная больше не читает. Каждый блок приходит своим куском (`Suspense`), как и раньше: отказ
- * одного вызова не прячет экран целиком (замечание владельца 16.09.2026).
+ * одним днём; показатели за период с их пресетами — в «Аналитике» (`/management/analytics`,
+ * ADR-114), `?period=` Главная больше не читает. Каждый блок приходит своим куском (`Suspense`),
+ * как и раньше: отказ одного вызова не прячет экран целиком (замечание владельца 16.09.2026).
  */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
@@ -80,16 +91,28 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       <Suspense fallback={<DeskSkeleton />}>
         <DeskSection date={deskDate} today={today} />
       </Suspense>
+      {/* A2: у денег и систем свои запросы — свои куски, сбой одного не прячет остальное */}
+      <div className="dash-grid dash-grid--events">
+        <Suspense fallback={<BlockSkeleton title="Деньги сегодня" />}>
+          <MoneyToday date={deskDate} />
+        </Suspense>
+        <Suspense fallback={<BlockSkeleton title="Системы" />}>
+          <SystemsToday />
+        </Suspense>
+      </div>
       {/* Ссылки на модули (ТЗ §4 п. 8): аналитика и финансы живут в своих разделах, не на Главной */}
       <nav className="today-links" aria-label="Отчёты и финансы">
-        <Link className="btn btn--secondary" href="/management/dashboard">
-          Показатели за период
+        <Link className="btn btn--secondary" href="/management/analytics">
+          Аналитика
         </Link>
         <Link className="btn btn--secondary" href={`/finance?from=${deskDate}&to=${deskDate}`}>
           Оплаты
         </Link>
-        <Link className="btn btn--secondary" href={`/management/statistics?date=${deskDate}`}>
-          Статистика
+        <Link
+          className="btn btn--secondary"
+          href={`/management/analytics/occupancy?date=${deskDate}`}
+        >
+          Загрузка на этот день
         </Link>
       </nav>
     </Page>

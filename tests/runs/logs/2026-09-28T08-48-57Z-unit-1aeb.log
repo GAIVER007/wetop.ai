@@ -1,0 +1,115 @@
+# Модульные (unit) · 28.09.2026 13:48 Алматы · vm
+# коммит 50551c0 (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-48-57Z-unit-1aeb.json' 'apps/web/src/app/management/analytics/params.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/management/analytics/params.test.ts (7 tests | 4 failed) 19ms
+   ✓ адрес «Аналитики → Обзор» (3)
+     ✓ по умолчанию — этот месяц целиком, весь фонд, со сравнением 3ms
+     ✓ тип фонда и сравнение переживают смену периода; неизвестный тип — весь фонд 1ms
+     ✓ свой период — с датами в адресе; даты без пресета читаются как свой период 1ms
+   ❯ адрес «Аналитики → Загрузка» (4)
+     × по умолчанию — сегодняшний день, весь фонд, со сравнением 9ms
+     × одна дата — `?date=`: так ссылаются Главная, обход стойки и старый адрес «Статистики» 2ms
+     × некорректная дата — сегодняшний день и слова об ошибке 1ms
+     × соседний день — для стрелок «‹ ›» у одного дня 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/params.test.ts > адрес «Аналитики → Загрузка» > по умолчанию — сегодняшний день, весь фонд, со сравнением
+AssertionError: expected { preset: 'month', …(2) } to match object { preset: 'today', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "from": "2026-09-28",
+-   "preset": "today",
+-   "to": "2026-09-28",
++   "from": "2026-09-01",
++   "preset": "month",
++   "to": "2026-09-30",
+  }
+
+ ❯ apps/web/src/app/management/analytics/params.test.ts:40:22
+     38|   it('по умолчанию — сегодняшний день, весь фонд, со сравнением', () =…
+     39|     const q = parseAnalyticsQuery({}, today, 'occupancy');
+     40|     expect(q.period).toMatchObject({ preset: 'today', from: today, to:…
+       |                      ^
+     41|     expect(q.tab).toBe('occupancy');
+     42|     expect(analyticsHref(q)).toBe('/management/analytics/occupancy');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/params.test.ts > адрес «Аналитики → Загрузка» > одна дата — `?date=`: так ссылаются Главная, обход стойки и старый адрес «Статистики»
+AssertionError: expected { preset: 'month', …(2) } to match object { preset: 'custom', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "from": "2026-09-25",
+-   "preset": "custom",
+-   "to": "2026-09-25",
++   "from": "2026-09-01",
++   "preset": "month",
++   "to": "2026-09-30",
+  }
+
+ ❯ apps/web/src/app/management/analytics/params.test.ts:54:22
+     52|   it('одна дата — `?date=`: так ссылаются Главная, обход стойки и стар…
+     53|     const q = parseAnalyticsQuery({ date: '2026-09-25' }, today, 'occu…
+     54|     expect(q.period).toMatchObject({ preset: 'custom', from: '2026-09-…
+       |                      ^
+     55|     expect(analyticsHref(q, { fund: 'beds' })).toBe(
+     56|       '/management/analytics/occupancy?date=2026-09-25&fund=beds',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/params.test.ts > адрес «Аналитики → Загрузка» > некорректная дата — сегодняшний день и слова об ошибке
+AssertionError: expected { preset: 'month', …(2) } to match object { preset: 'today', …(2) }
+
+- Expected
++ Received
+
+  {
+-   "from": "2026-09-28",
+-   "preset": "today",
+-   "to": "2026-09-28",
++   "from": "2026-09-01",
++   "preset": "month",
++   "to": "2026-09-30",
+  }
+
+ ❯ apps/web/src/app/management/analytics/params.test.ts:71:22
+     69|   it('некорректная дата — сегодняшний день и слова об ошибке', () => {
+     70|     const q = parseAnalyticsQuery({ date: '2026-13-45' }, today, 'occu…
+     71|     expect(q.period).toMatchObject({ preset: 'today', from: today, to:…
+       |                      ^
+     72|     expect(q.period.error).toBe('Некорректная дата');
+     73|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/app/management/analytics/params.test.ts > адрес «Аналитики → Загрузка» > соседний день — для стрелок «‹ ›» у одного дня
+TypeError: dayPeriod is not a function
+ ❯ apps/web/src/app/management/analytics/params.test.ts:77:39
+     75|   it('соседний день — для стрелок «‹ ›» у одного дня', () => {
+     76|     const q = parseAnalyticsQuery({ date: '2026-09-01' }, today, 'occu…
+     77|     expect(analyticsHref(q, { period: dayPeriod('2026-09-01', -1, toda…
+       |                                       ^
+     78|       '/management/analytics/occupancy?date=2026-08-31',
+     79|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+   Start at  08:48:58
+   Duration  798ms (transform 85%, import 11%, tests 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-48-57Z-unit-1aeb.json
+
+# код выхода 1 · 2 с

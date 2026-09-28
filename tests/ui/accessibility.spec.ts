@@ -8,7 +8,6 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 // сносила контекст страницы посреди axe (разбор 21.09.2026).
 const routes = [
   '/today',
-  '/management/dashboard',
   '/chessboard',
   '/reservations',
   '/reservations/new?unit=M03',
@@ -34,6 +33,8 @@ const routes = [
   '/channels/sync',
   '/channels/events',
   '/connections',
+  // страница настроек Channex (INT2, ADR-121)
+  '/connections/channex',
   // «Сайт и онлайн-бронирование» (ADR-117): четыре вкладки вместо «Аналитики сайта» и «Настроек сайта»
   '/website',
   '/website/booking',

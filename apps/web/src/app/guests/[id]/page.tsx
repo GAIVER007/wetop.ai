@@ -12,7 +12,8 @@ import { Page } from '../../../components/page';
 import { AmountChip } from '../../../components/amount-chip';
 import { EmptyState, SectionTitle, StatusBadge, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
-import { GuestForms } from './guest-forms';
+import { GuestDocuments, GuestProfileForm } from './guest-forms';
+import { financeState } from '../../reservations/finance-state';
 import '../../directory.css';
 import '../guests.css';
 
@@ -92,10 +93,7 @@ function StaysTable({ stays }: { stays: Stay[] }) {
               )}
             </td>
             <td>
-              <StatusBadge
-                status={s.status}
-                label={reservationStatusWords[s.status] ?? s.status}
-              />
+              <StatusBadge status={s.status} label={reservationStatusWords[s.status] ?? s.status} />
             </td>
           </tr>
         ))}
@@ -104,11 +102,150 @@ function StaysTable({ stays }: { stays: Stay[] }) {
   );
 }
 
+/** Слово о деньгах проживания — те же состояния, что колонка «Финансы» на «Бронях» (ADR-106) */
+function StayFinance({ stay }: { stay: Stay }) {
+  const state = financeState({
+    hasFolios: stay.chargedMinor !== null,
+    chargedMinor: stay.chargedMinor ?? '0',
+    paidMinor: stay.paidMinor ?? '0',
+    refundedMinor: stay.refundedMinor ?? '0',
+    balanceMinor: stay.balanceMinor ?? '0',
+  });
+  switch (state.kind) {
+    case 'unpaid':
+      return <span className="warn-text">не оплачено</span>;
+    case 'due':
+      return <AmountChip tone="due" minor={state.minor} currency={stay.currency} />;
+    case 'refund-due':
+      return (
+        <AmountChip tone="refund" label="к возврату" minor={state.minor} currency={stay.currency} />
+      );
+    case 'refunded':
+      return <span className="muted">возвращено</span>;
+    case 'paid':
+      return <span className="dir-paid">оплачено</span>;
+    default:
+      return <span className="muted">—</span>;
+  }
+}
+
+/**
+ * Финансы гостя (G5, ТЗ §24): свод по счетам его проживаний и разбивка по проживаниям. Своих
+ * «денег гостя» нет — источник правды Folio каждой брони, сюда приходит только их сумма. Свод
+ * считается по валюте: у Luxx она одна, но складывать тенге с долларами было бы неправдой.
+ */
+function GuestFinance({ stays }: { stays: Stay[] }) {
+  const billed = stays.filter((s) => s.chargedMinor !== null);
+  if (billed.length === 0)
+    return (
+      <EmptyState icon={<Icon name="booking" />} title="Счетов пока нет">
+        Счёт открывается на проживание: здесь появятся счета по броням гостя.
+      </EmptyState>
+    );
+  const totals = new Map<
+    string,
+    { charged: bigint; paid: bigint; refunded: bigint; balance: bigint }
+  >();
+  for (const s of billed) {
+    const t = totals.get(s.currency) ?? { charged: 0n, paid: 0n, refunded: 0n, balance: 0n };
+    t.charged += BigInt(s.chargedMinor!);
+    t.paid += BigInt(s.paidMinor ?? '0');
+    t.refunded += BigInt(s.refundedMinor ?? '0');
+    t.balance += BigInt(s.balanceMinor ?? '0');
+    totals.set(s.currency, t);
+  }
+  return (
+    <>
+      {[...totals].map(([currency, t]) => (
+        <dl
+          key={currency}
+          className="booking-head guest-finance-summary"
+          data-testid="guest-finance-summary"
+        >
+          <div>
+            <dt>Начислено</dt>
+            <dd>{formatMoney(t.charged, currency)}</dd>
+          </div>
+          <div>
+            <dt>Оплачено</dt>
+            <dd>{formatMoney(t.paid, currency)}</dd>
+          </div>
+          {t.refunded > 0n && (
+            <div>
+              <dt>Возвращено</dt>
+              <dd>{formatMoney(t.refunded, currency)}</dd>
+            </div>
+          )}
+          <div>
+            <dt>Остаток</dt>
+            <dd>
+              {t.balance > 0n ? (
+                <AmountChip tone="due" minor={t.balance} currency={currency} />
+              ) : t.balance < 0n ? (
+                <AmountChip
+                  tone="refund"
+                  label="к возврату"
+                  minor={-t.balance}
+                  currency={currency}
+                />
+              ) : (
+                <span className="dir-paid">оплачено</span>
+              )}
+            </dd>
+          </div>
+        </dl>
+      ))}
+      {/* Q-202: что из остатка — долг, решает владелец; до ответа честно называем состав суммы */}
+      <p className="sub guest-finance-note">
+        Сумма по счетам всех проживаний гостя, включая будущие брони. Оплата и возвраты — в счёте
+        брони.
+      </p>
+      <SectionTitle>По проживаниям</SectionTitle>
+      <Table className="dir-table dir-table--guest-finance" nowrap>
+        <thead>
+          <tr>
+            <th>Проживание</th>
+            <th>Статус</th>
+            <th className="num">Начислено</th>
+            <th className="num">Оплачено</th>
+            <th>Финансы</th>
+          </tr>
+        </thead>
+        <tbody>
+          {billed.map((s) => (
+            <tr key={`${s.confirmationNumber}-${s.arrivalDate}`} data-testid="guest-finance-row">
+              <td>
+                <Link
+                  className="dir-period"
+                  href={`/reservations/${encodeURIComponent(s.confirmationNumber)}#booking-finance`}
+                >
+                  <StayPeriod stay={s} />
+                </Link>
+                <span className="dir-sub mono">{s.confirmationNumber}</span>
+              </td>
+              <td>
+                <StatusBadge
+                  status={s.status}
+                  label={reservationStatusWords[s.status] ?? s.status}
+                />
+              </td>
+              <td className="num">{formatMoney(s.chargedMinor!, s.currency)}</td>
+              <td className="num">{formatMoney(s.paidMinor ?? '0', s.currency)}</td>
+              <td>
+                <StayFinance stay={s} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </>
+  );
+}
+
 /**
  * Карточка гостя «Гости v2», G4 (ТЗ §18–§21): человек, где он сейчас, что впереди и вся его история.
- * Вкладки: «Обзор» (текущее и следующее проживание, последние визиты), «Проживания» (вся история),
- * «Данные гостя» (профиль и документы — прежняя форма) и «Счета и услуги». Документы и финансовый
- * свод перестраивает G5; здесь их логика не тронута.
+ * Вкладки (§18): «Обзор» (текущее и следующее проживание, последние визиты), «Проживания» (вся
+ * история), «Документы» и «Финансы» (G5, §22–§24) и «Данные гостя» — профиль для правки.
  */
 export default async function GuestPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -235,8 +372,8 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
             <a className="btn btn--secondary" href="#guest-profile">
               Редактировать
             </a>
-            {/* предзаполнение гостя в форме брони — ступень G6 */}
-            <Link className="btn" href="/reservations/new">
+            {/* G6 (ТЗ §33): форма брони сразу с этим гостем — второго гостя бронь не заведёт */}
+            <Link className="btn" href={`/reservations/new?guest=${encodeURIComponent(g.id)}`}>
               <Icon name="plus" />
               Новая бронь
             </Link>
@@ -295,37 +432,17 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
               ),
           },
           {
+            id: 'guest-documents',
+            label: 'Документы',
+            content: (
+              <GuestDocuments guest={g} piiStorage={piiStorage} readOnly={readOnly} today={today} />
+            ),
+          },
+          { id: 'guest-finance', label: 'Финансы', content: <GuestFinance stays={stays} /> },
+          {
             id: 'guest-profile',
             label: 'Данные гостя',
-            content: <GuestForms guest={g} piiStorage={piiStorage} />,
-          },
-          {
-            id: 'guest-accounts',
-            label: 'Счета и услуги',
-            content: (
-              <div className="guest-account-links">
-                {stays.map((stay) => (
-                  <Link
-                    className="panel"
-                    key={`${stay.confirmationNumber}-${stay.arrivalDate}`}
-                    href={`/reservations/${encodeURIComponent(stay.confirmationNumber)}#booking-finance`}
-                  >
-                    <strong>{stay.confirmationNumber}</strong>
-                    <span className="muted">
-                      <time dateTime={stay.arrivalDate}>{displayDate(stay.arrivalDate)}</time>
-                      {' → '}
-                      <time dateTime={stay.departureDate}>{displayDate(stay.departureDate)}</time>
-                    </span>
-                    <span>Счёт и дополнительные услуги</span>
-                  </Link>
-                ))}
-                {!stays.length && (
-                  <EmptyState title="Счетов пока нет">
-                    Счёт открывается на проживание: здесь появятся счета по броням гостя.
-                  </EmptyState>
-                )}
-              </div>
-            ),
+            content: <GuestProfileForm guest={g} piiStorage={piiStorage} readOnly={readOnly} />,
           },
         ]}
       />

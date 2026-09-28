@@ -1,0 +1,237 @@
+# Модульные (unit) · 29.09.2026 01:36 Алматы · vm
+# коммит 9e20bd4 (claude/eager-noether-1uncrq-k1), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T20-36-19Z-unit-bd5a.json' 'apps/api/src/auth/scope.test.ts' 'apps/api/src/auth/author.interceptor.test.ts' 'apps/api/src/database/property-ref.test.ts' 'apps/api/src/auth/me-access.test.ts' 'apps/web/src/lib/scope-pointer.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/scope.test.ts (0 test)
+ ❯ |unit| apps/api/src/auth/author.interceptor.test.ts (10 tests | 4 failed) 17ms
+   ✓ AuthorInterceptor — автор виден всему, что делает обработчик (5)
+     ✓ внутри обработчика виден вошедший 4ms
+     ✓ без вошедшего автора нет: так ходят сторож, импорт и скрипты 0ms
+     ✓ внутри обработчика видна организация вошедшего: по ней открывается его объект (ADR-061) 0ms
+     ✓ у служебного ходока организации нет — и объект ему не ограничивают 0ms
+     ✓ пустой ответ обработчика не роняет запрос 1ms
+   ✓ AuthorInterceptor — роль и отметка главного администратора (ADR-083) (1)
+     ✓ внутри обработчика видны роль вошедшего и его отметка 1ms
+   ❯ AuthorInterceptor — scope запроса (Platform P2, К1) (4)
+     × вошедший без указателя — ORGANIZATION, в базу не ходим 5ms
+     × вошедший со своим Business и филиалом — LOCATION виден обработчику 1ms
+     × чужой указатель — тихо ORGANIZATION, обработчик выполняется 1ms
+     × служебный ходок: указатель не учитывается и в базу не ходим 1ms
+ ❯ |unit| apps/api/src/database/property-ref.test.ts (17 tests | 3 failed) 22ms
+   ✓ идентификатор объекта (4)
+     ✓ второй запрос берётся из памяти: в базу ходим один раз 2ms
+     ✓ у каждой схемы свой ответ: прогон в pms_test не подсовывает id рабочих данных 0ms
+     ✓ разные объекты не путаются (пригодится, когда объектов станет много) 0ms
+     ✓ отказ не запоминается: база ещё не настроена — спросим снова 2ms
+   ✓ вошедший получает объект своей организации, не чужой (6)
+     ✓ служебный ходок проходит по имени: за ним нет человека — скрипт, сторож, импорт 0ms
+     ✓ вошедший получает объект своей организации, даже когда репозиторий просит по чужому имени 1ms
+     ✓ память одной организации не отдаётся другой 0ms
+     ✓ у чьей организации ещё нет объекта — «создайте в настройках», а не чужой объект 1ms
+     ✓ путь от имени организации без человека получает объект этой организации, а не объект по имени 1ms
+     ✓ вошедший без организации (нет членства) не видит ни одного объекта 1ms
+   ✓ служебный контекст и одноимённые объекты (1)
+     ✓ из двух объектов с одним именем берётся заведённый раньше, в каком бы порядке их ни отдала база 0ms
+   ✓ Platform P1: объект организации только через цепочку Business → Location (2)
+     ✓ когда цепочка привязана — объект берётся через неё, а не по organizationId 0ms
+     ✓ объект без цепочки (только properties.organization_id) не находится: обходного пути нет, один рейс 1ms
+   ❯ Platform P2, К1: объект по scope запроса (4)
+     ✓ ORGANIZATION — самый ранний объект организации, как до P2 0ms
+     × BUSINESS — самый ранний объект этого Business 7ms
+     × LOCATION — объект этого филиала 1ms
+     × память — по scope: переключение не отдаёт объект прежнего scope 1ms
+ ❯ |unit| apps/web/src/lib/scope-pointer.test.ts (0 test)
+ ❯ |unit| apps/api/src/auth/me-access.test.ts (3 tests | 1 failed) 146ms
+   ❯ GET /auth/me — что открыто организации вошедшего (3)
+     ✓ роль, отметка главного администратора и «ИИ-продавец» организации сессии 22ms
+     × контекст запроса: без указателя — ORGANIZATION 7ms
+     ✓ без сессии — никто и ни слова о расширениях 3ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/scope.test.ts [ apps/api/src/auth/scope.test.ts ]
+Error: Cannot find module './scope' imported from /home/user/wetop.ai/apps/api/src/auth/scope.test.ts
+ ❯ apps/api/src/auth/scope.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { parseScopePointer, resolveScope } from './scope';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| apps/web/src/lib/scope-pointer.test.ts [ apps/web/src/lib/scope-pointer.test.ts ]
+Error: Cannot find module './scope-pointer' imported from /home/user/wetop.ai/apps/web/src/lib/scope-pointer.test.ts
+ ❯ apps/web/src/lib/scope-pointer.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { SCOPE_COOKIE, scopeHeader } from './scope-pointer';
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/author.interceptor.test.ts > AuthorInterceptor — scope запроса (Platform P2, К1) > вошедший без указателя — ORGANIZATION, в базу не ходим
+TypeError: currentScope is not a function
+ ❯ Object.handle apps/api/src/auth/author.interceptor.test.ts:141:25
+    139|     const next = {
+    140|       handle: () => {
+    141|         seen = { scope: currentScope(), business: currentBusinessId(),…
+       |                         ^
+    142|         return of('ответ');
+    143|       },
+ ❯ apps/api/src/auth/author.interceptor.ts:29:26
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ AuthorInterceptor.intercept apps/api/src/auth/author.interceptor.ts:28:25
+ ❯ apps/api/src/auth/author.interceptor.test.ts:151:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| apps/api/src/auth/author.interceptor.test.ts > AuthorInterceptor — scope запроса (Platform P2, К1) > вошедший со своим Business и филиалом — LOCATION виден обработчику
+TypeError: currentScope is not a function
+ ❯ Object.handle apps/api/src/auth/author.interceptor.test.ts:141:25
+    139|     const next = {
+    140|       handle: () => {
+    141|         seen = { scope: currentScope(), business: currentBusinessId(),…
+       |                         ^
+    142|         return of('ответ');
+    143|       },
+ ❯ apps/api/src/auth/author.interceptor.ts:29:26
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ AuthorInterceptor.intercept apps/api/src/auth/author.interceptor.ts:28:25
+ ❯ apps/api/src/auth/author.interceptor.test.ts:159:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| apps/api/src/auth/author.interceptor.test.ts > AuthorInterceptor — scope запроса (Platform P2, К1) > чужой указатель — тихо ORGANIZATION, обработчик выполняется
+TypeError: currentScope is not a function
+ ❯ Object.handle apps/api/src/auth/author.interceptor.test.ts:141:25
+    139|     const next = {
+    140|       handle: () => {
+    141|         seen = { scope: currentScope(), business: currentBusinessId(),…
+       |                         ^
+    142|         return of('ответ');
+    143|       },
+ ❯ apps/api/src/auth/author.interceptor.ts:29:26
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ AuthorInterceptor.intercept apps/api/src/auth/author.interceptor.ts:28:25
+ ❯ apps/api/src/auth/author.interceptor.test.ts:169:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| apps/api/src/auth/author.interceptor.test.ts > AuthorInterceptor — scope запроса (Platform P2, К1) > служебный ходок: указатель не учитывается и в базу не ходим
+TypeError: currentScope is not a function
+ ❯ Object.handle apps/api/src/auth/author.interceptor.test.ts:141:25
+    139|     const next = {
+    140|       handle: () => {
+    141|         seen = { scope: currentScope(), business: currentBusinessId(),…
+       |                         ^
+    142|         return of('ответ');
+    143|       },
+ ❯ apps/api/src/auth/author.interceptor.ts:29:26
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ AuthorInterceptor.intercept apps/api/src/auth/author.interceptor.ts:28:25
+ ❯ apps/api/src/auth/author.interceptor.test.ts:179:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| apps/api/src/auth/me-access.test.ts > GET /auth/me — что открыто организации вошедшего > контекст запроса: без указателя — ORGANIZATION
+AssertionError: expected undefined to deeply equal { scope: 'ORGANIZATION', …(3) }
+
+- Expected:
+{
+  "businessId": null,
+  "locationId": null,
+  "scope": "ORGANIZATION",
+  "vertical": null,
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/auth/me-access.test.ts:75:30
+     73|   it('контекст запроса: без указателя — ORGANIZATION', async () => {
+     74|     const res = await request(app.getHttpServer()).get('/auth/me').set…
+     75|     expect(res.body.context).toEqual({
+       |                              ^
+     76|       scope: 'ORGANIZATION',
+     77|       businessId: null,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| apps/api/src/database/property-ref.test.ts > Platform P2, К1: объект по scope запроса > BUSINESS — самый ранний объект этого Business
+AssertionError: expected 'p-first' to be 'p-second' // Object.is equality
+
+Expected: "p-second"
+Received: "p-first"
+
+ ❯ apps/api/src/database/property-ref.test.ts:256:47
+    254|     const db = fakeDb(rows).db as never;
+    255|     await withSignedInUser(as({ scope: 'BUSINESS', businessId: 'b-2' }…
+    256|       expect(await propertyIdRef(db, 'Luxx')).toBe('p-second');
+       |                                               ^
+    257|     });
+    258|   });
+ ❯ apps/api/src/auth/request-context.ts:41:41
+ ❯ apps/api/src/database/property-ref.test.ts:255:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| apps/api/src/database/property-ref.test.ts > Platform P2, К1: объект по scope запроса > LOCATION — объект этого филиала
+AssertionError: expected 'p-first' to be 'p-third' // Object.is equality
+
+Expected: "p-third"
+Received: "p-first"
+
+ ❯ apps/api/src/database/property-ref.test.ts:263:47
+    261|     const db = fakeDb(rows).db as never;
+    262|     await withSignedInUser(as({ scope: 'LOCATION', businessId: 'b-2', …
+    263|       expect(await propertyIdRef(db, 'Luxx')).toBe('p-third');
+       |                                               ^
+    264|     });
+    265|   });
+ ❯ apps/api/src/auth/request-context.ts:41:41
+ ❯ apps/api/src/database/property-ref.test.ts:262:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| apps/api/src/database/property-ref.test.ts > Platform P2, К1: объект по scope запроса > память — по scope: переключение не отдаёт объект прежнего scope
+AssertionError: expected 'p-first' to be 'p-third' // Object.is equality
+
+Expected: "p-third"
+Received: "p-first"
+
+ ❯ apps/api/src/database/property-ref.test.ts:274:47
+    272|     });
+    273|     await withSignedInUser(as({ scope: 'LOCATION', businessId: 'b-2', …
+    274|       expect(await propertyIdRef(db, 'Luxx')).toBe('p-third');
+       |                                               ^
+    275|     });
+    276|     await withSignedInUser(as({ scope: 'ORGANIZATION' }) as never, asy…
+ ❯ apps/api/src/auth/request-context.ts:41:41
+ ❯ apps/api/src/database/property-ref.test.ts:273:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  5 failed (5)
+      Tests  8 failed | 22 passed (30)
+   Start at  20:36:20
+   Duration  1.42s (transform 58%, import 34%, tests 7%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T20-36-19Z-unit-bd5a.json
+
+# код выхода 1 · 2 с

@@ -8,20 +8,9 @@ import { expect, test } from '@playwright/test';
  * прячут блоки, и это проверяется отдельно — «TODO» на странице быть не должно ни в каком виде.
  */
 const PAGES = ['/', '/blog/'];
-/** Адрес ИИ-помощника (Q-180, ADR-081) — `assistantUrl` в `apps/site/src/site.config.ts` */
-const ASSISTANT = 'https://assistant.wetop.ai';
-
-// Скрипт чата — чужой: тесты главной его не грузят, чтобы проверять страницу, а не бота и его доступность
-test.beforeEach(async ({ page }) => {
-  await page.route(`${ASSISTANT}/**`, (route) => route.abort());
-});
-
-test('чат ИИ-помощника: анонимный тег по адресу помощника (ТЗ П2, ADR-081)', async ({ page }) => {
+test('чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён', async ({ page }) => {
   await page.goto('/');
-  const tag = page.locator(`script[src="${ASSISTANT}/widget/widget.js"]`);
-  await expect(tag).toHaveCount(1);
-  // на главной человек не вошёл: подписи в теге нет
-  expect(await tag.getAttribute('data-identity')).toBeNull();
+  await expect(page.locator('script[src*="/widget/widget.js"]')).toHaveCount(0);
 });
 
 for (const path of PAGES) {

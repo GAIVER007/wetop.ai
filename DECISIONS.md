@@ -3930,7 +3930,11 @@ INT4 владение по Organization/Business/Location после отдел�
 **Решения владельца.**
 
 1. **Гейт старта P2 (К1):** канонический P1 `Organization → Business → Location → Property` в `main` **и применён на
-   рабочей базе** с backfill Luxx и проверкой в ноль (формула владельца из отчёта P1 §3). Перед кодом К1 владельцу
+   рабочей базе** с backfill Luxx и проверкой в ноль (формула владельца из отчёта P1 §3). **Статус 28.09.2026:**
+   P1 — DEPLOYED, PENDING POST-DEPLOY VERIFICATION (применены `026_rls_roles`, `027`, `028`,
+   `030_platform_p1_business_location`, временной `029` нет; код собран, api/web перезапущены). P1 закрывается пятью
+   зелёными результатами: status + HTTP smoke; `platform-p1-report.sql`; RLS smoke; inventory 88/88; day self-check
+   = 0 — затем отчёт P1 и `CLAUDE.md`, фолбэк резолвера — отдельным cleanup PR, и только потом К1. Перед кодом К1 владельцу
    приносится финальный контракт `RequestActor { userId, organizationId, businessId?, locationId?, vertical?, scope,
    role, platformAdmin }`, точное правило разрешения scope и validation matrix (черновик — план P2 §3–§5).
    Platform P3 (переключатель, онбординг цепочки, «Партнёры») — не раньше завершения К1.

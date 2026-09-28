@@ -69,6 +69,17 @@ describe('GET /auth/me — что открыто организации воше
     expect(asked).toEqual([ORG]);
   });
 
+  // Platform P2, К1 (план P2 §4б): стойка видит фактический scope запроса; без указателя — организация целиком
+  it('контекст запроса: без указателя — ORGANIZATION', async () => {
+    const res = await request(app.getHttpServer()).get('/auth/me').set('x-wetop-session', 'good').expect(200);
+    expect(res.body.context).toEqual({
+      scope: 'ORGANIZATION',
+      businessId: null,
+      locationId: null,
+      vertical: null,
+    });
+  });
+
   it('без сессии — никто и ни слова о расширениях', async () => {
     const res = await request(app.getHttpServer()).get('/auth/me').expect(200);
     expect(res.body).toEqual({ user: null });

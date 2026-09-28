@@ -1,0 +1,31 @@
+# Интеграционные (integration) · 29.09.2026 01:36 Алматы · vm
+# коммит 9e20bd4 (claude/eager-noether-1uncrq-k1), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T20-36-30Z-integration-d01a.json' 'tests/integration/request-scope.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/request-scope.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/request-scope.test.ts [ tests/integration/request-scope.test.ts ]
+Error: Cannot find module '../../apps/api/src/auth/scope' imported from /home/user/wetop.ai/tests/integration/request-scope.test.ts
+ ❯ tests/integration/request-scope.test.ts:5:1
+      3| import { describe, expect, it } from 'vitest';
+      4| import { createPrismaClient, createPropertyInChain } from '@pms/databa…
+      5| import { resolveScope } from '../../apps/api/src/auth/scope';
+       | ^
+      6| import { withSignedInUser } from '../../apps/api/src/auth/request-cont…
+      7| import { forgetPropertyRef, propertyIdRef } from '../../apps/api/src/d…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  20:36:31
+   Duration  1.11s (worker 94%, environment 6%)
+
+JSON report written to /tmp/pms-test-2026-09-28T20-36-30Z-integration-d01a.json
+
+# код выхода 1 · 2 с

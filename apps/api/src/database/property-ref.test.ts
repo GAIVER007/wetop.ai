@@ -13,7 +13,14 @@ import { forgetPropertyRef, propertyIdRef } from './property-ref';
  * Location → Business у объекта (Platform P1, ADR-104).
  */
 function fakeDb(
-  rows: Array<{ id: string; name: string; organizationId?: string | null; chainOrganizationId?: string }>,
+  rows: Array<{
+    id: string;
+    name: string;
+    organizationId?: string | null;
+    chainOrganizationId?: string;
+    businessId?: string;
+    locationId?: string;
+  }>,
 ) {
   let calls = 0;
   return {
@@ -26,7 +33,8 @@ function fakeDb(
           where: {
             name?: string;
             organizationId?: string | null;
-            location?: { business?: { organizationId?: string } };
+            locationId?: string;
+            location?: { businessId?: string; business?: { organizationId?: string } };
           };
         }) => {
           calls += 1;
@@ -36,7 +44,9 @@ function fakeDb(
               (where.organizationId === undefined ||
                 (r.organizationId ?? null) === where.organizationId) &&
               (where.location === undefined ||
-                r.chainOrganizationId === where.location.business?.organizationId),
+                r.chainOrganizationId === where.location.business?.organizationId) &&
+              (where.locationId === undefined || r.locationId === where.locationId) &&
+              (where.location?.businessId === undefined || r.businessId === where.location.businessId),
           );
           return row ? { organizationId: null, ...row } : null;
         },
@@ -217,5 +227,55 @@ describe('Platform P1: объект организации только чере
       await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/ещё нет объекта/);
     });
     expect(f.calls()).toBe(1);
+  });
+});
+
+/**
+ * Platform P2, К1 (план P2 §4а, ADR-120): объект открывается по scope запроса. ORGANIZATION — как раньше, самый ранний
+ * объект цепочки; BUSINESS — самый ранний объект этого Business; LOCATION — объект этого филиала. Scope приходит уже
+ * проверенным (`auth/scope.ts`); здесь только выбор и память по scope.
+ */
+describe('Platform P2, К1: объект по scope запроса', () => {
+  const rows = [
+    { id: 'p-first', name: 'Первый', organizationId: 'org-a', chainOrganizationId: 'org-a', businessId: 'b-1', locationId: 'l-1' },
+    { id: 'p-second', name: 'Второй', organizationId: 'org-a', chainOrganizationId: 'org-a', businessId: 'b-2', locationId: 'l-2' },
+    { id: 'p-third', name: 'Третий', organizationId: 'org-a', chainOrganizationId: 'org-a', businessId: 'b-2', locationId: 'l-3' },
+  ];
+  const as = (scope: Record<string, string>) => ({ userId: 'u-1', organizationId: 'org-a', ...scope });
+
+  it('ORGANIZATION — самый ранний объект организации, как до P2', async () => {
+    const db = fakeDb(rows).db as never;
+    await withSignedInUser(as({ scope: 'ORGANIZATION' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-first');
+    });
+  });
+
+  it('BUSINESS — самый ранний объект этого Business', async () => {
+    const db = fakeDb(rows).db as never;
+    await withSignedInUser(as({ scope: 'BUSINESS', businessId: 'b-2' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-second');
+    });
+  });
+
+  it('LOCATION — объект этого филиала', async () => {
+    const db = fakeDb(rows).db as never;
+    await withSignedInUser(as({ scope: 'LOCATION', businessId: 'b-2', locationId: 'l-3' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-third');
+    });
+  });
+
+  it('память — по scope: переключение не отдаёт объект прежнего scope', async () => {
+    const f = fakeDb(rows);
+    const db = f.db as never;
+    await withSignedInUser(as({ scope: 'ORGANIZATION' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-first');
+    });
+    await withSignedInUser(as({ scope: 'LOCATION', businessId: 'b-2', locationId: 'l-3' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-third');
+    });
+    await withSignedInUser(as({ scope: 'ORGANIZATION' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-first');
+    });
+    expect(f.calls(), 'по рейсу на scope, повтор — из памяти').toBe(2);
   });
 });

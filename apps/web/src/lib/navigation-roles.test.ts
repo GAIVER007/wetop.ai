@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CLOSED_ACCESS,
+  allowedItem,
   activeNavigation,
   PENDING_ACCESS,
   UNKNOWN_ACCESS,
@@ -139,5 +140,15 @@ describe('«ИИ-агенты» (S0)', () => {
     expect(activeNavigation('/ai-seller/dialogs')?.href).toBe('/ai-agents');
     expect(routeRule('/ai-seller')?.requires).toBe('dialogs');
     expect(routeRule('/ai-agents')?.requires).toBe('dialogs');
+  });
+
+  it('каталог не открывает продавца тем, у кого его не было: вкладки требуют расширение, карточка WETOP Support — только платформу', () => {
+    for (const path of ['/ai-seller/knowledge', '/ai-seller/connections', '/ai-seller/agents']) {
+      expect(routeRule(path)?.requires).toBe('seller');
+    }
+    expect(allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER' } }))).toBe(false);
+    expect(
+      allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER', platformAdmin: true } })),
+    ).toBe(true);
   });
 });

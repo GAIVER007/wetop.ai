@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 29.09.2026 18:24 Алматы · vm
+# коммит fb0cc71 (claude/epic-cerf-4f7rkp)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/support-queue.spec.ts' '--workers=2'
+Error: http://127.0.0.1:4311/__test/health is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 1 с

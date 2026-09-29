@@ -18,6 +18,9 @@ const NEW = {
   name: 'Тестовый сотрудник',
   hotelName: 'Тестовый хостел',
   password: 'test-password-2026',
+  phoneCountry: 'KZ',
+  phone: '+7 701 000 00 00',
+  privacyAccepted: true,
 };
 
 describe('единая настройка самостоятельной регистрации (ADR-055)', () => {

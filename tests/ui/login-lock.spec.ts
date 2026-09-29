@@ -50,7 +50,9 @@ test('ссылка из письма подтверждает почту при 
   await main.getByLabel('Email').fill('novyj@example.com');
   await main.getByLabel('Имя').fill('Вячеслав Петров');
   await main.getByLabel('Название отеля').fill('Хостел на Абая');
+  await main.getByLabel('Телефон').fill('701 555 44 33');
   await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+  await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
   await main.getByRole('button', { name: 'Создать организацию' }).click();
   await page.waitForURL('**/login/check-email**');
 

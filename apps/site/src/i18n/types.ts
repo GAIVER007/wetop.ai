@@ -26,16 +26,13 @@ export type Dictionary = {
     register: string;
   };
   hero: {
-    /** Слово-знак металлом на первом экране. */
-    word: string;
-    badge: string;
-    /** Плашка «регистрация открыта» у макета. */
-    available: string;
+    /** Плашка над заголовком: регистрация открыта (ADR-098). */
+    status: string;
+    /** Заголовок первого экрана; `titleAccent` идёт следом металлом (ADR-070). */
     title: string;
+    titleAccent: string;
     lead: string;
-    points: string[];
-    /** Надпись по кругу на знаке первого экрана. */
-    seal: string;
+    points: Array<{ icon: IconName; text: string }>;
     /** Строка под кнопками первого экрана: срок пробного периода (ADR-098). */
     note: string;
   };
@@ -83,9 +80,10 @@ export type Dictionary = {
   /** Общий операционный экран «Сегодня» на первом экране: без номеров, коек и каналов OTA (29.09.2026). */
   operations: {
     label: string;
+    /** Разделы бокового меню макета; первый выбран. */
+    rail: string[];
     title: string;
-    /** Переключатель филиалов в шапке макета; выбран второй. */
-    branches: string[];
+    branch: string;
     kpis: Array<{ label: string; value: string; note: string; tone?: 'up' | 'warn' }>;
     clientsTitle: string;
     clients: Array<{
@@ -102,9 +100,9 @@ export type Dictionary = {
     financeBars: number[];
     financeValue: string;
     financeNote: string;
-    toastTitle: string;
-    toastText: string;
+    event: { title: string; text: string; time: string };
   };
+
   /** Раздел «Направления»: Hospitality работает, следующее направление — отдельной карточкой. */
   audience: {
     eyebrow: string;
@@ -179,6 +177,9 @@ export type Dictionary = {
       submit: string;
       pending: string;
       terms: string;
+      consentBefore: string;
+      consentLink: string;
+      consentAfter: string;
       haveAccount: string;
     };
     closed: { title: string; text: string; action: string };
@@ -205,6 +206,9 @@ export type Dictionary = {
       namePlaceholder: string;
       hotel: string;
       hotelPlaceholder: string;
+      phone: string;
+      phoneCountry: string;
+      phonePlaceholder: string;
       show: string;
       hide: string;
       showLabel: string;
@@ -212,6 +216,7 @@ export type Dictionary = {
     };
     errors: {
       required: string;
+      privacy: string;
       network: string;
       /** Ссылка на ту же форму на отдельной странице стойки — на случай сбоя окна. */
       fallback: string;

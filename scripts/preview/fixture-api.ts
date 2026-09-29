@@ -46,6 +46,9 @@ import {
   type MembershipRole,
   countGuestNights,
   summarizeGuestStays,
+  REGISTRATION_PHONE_MESSAGE,
+  REGISTRATION_PRIVACY_MESSAGE,
+  registrationPhone,
   parseCancellationPenalty,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
@@ -5038,6 +5041,10 @@ createServer(async (req, res) => {
       if (!hotelName) return send(400, { message: 'Укажите название организации, до 200 знаков.' });
       if (password.trim().length < 10)
         return send(400, { message: 'Пароль не годится: пароль короче 10 символов' });
+      // телефон и согласие — те же правила домена, что у настоящего API (форма 29.09.2026)
+      if (!registrationPhone(String(body['phoneCountry'] ?? ''), String(body['phone'] ?? '')))
+        return send(400, { message: REGISTRATION_PHONE_MESSAGE });
+      if (body['privacyAccepted'] !== true) return send(400, { message: REGISTRATION_PRIVACY_MESSAGE });
       if (email.toLowerCase() === uiUser.email)
         return send(400, {
           message:

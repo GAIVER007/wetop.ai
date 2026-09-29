@@ -44,6 +44,10 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
           name: field(body, 'name').trim(),
           hotelName: field(body, 'hotelName').trim(),
           password: field(body, 'password'),
+          phoneCountry: field(body, 'phoneCountry').trim(),
+          phone: field(body, 'phone').trim(),
+          // окно на главной шлёт JSON: согласие — только настоящее `true`
+          privacyAccepted: (body as Record<string, unknown> | null)?.['privacyAccepted'] === true,
         },
         info,
       );

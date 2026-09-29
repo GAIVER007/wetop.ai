@@ -24,6 +24,10 @@ import {
   newSessionToken,
   normalizeOrganizationName,
   normalizePersonName,
+  PRIVACY_POLICY_VERSION,
+  REGISTRATION_PHONE_MESSAGE,
+  REGISTRATION_PRIVACY_MESSAGE,
+  registrationPhone,
   trialEndsAt,
   validEmail,
   sessionExpiry,
@@ -275,7 +279,16 @@ export class AuthService {
    * осознанная: форме регистрации иначе нечего ответить человеку, который уже регистрировался.
    */
   async register(
-    input: { email: string; name: string; hotelName: string; password: string },
+    input: {
+      email: string;
+      name: string;
+      hotelName: string;
+      password: string;
+      /** Страна кода телефона (ISO), номер как введён и согласие с политикой — форма 29.09.2026 */
+      phoneCountry: string;
+      phone: string;
+      privacyAccepted: boolean;
+    },
     now = new Date(),
   ): Promise<RegisterResult> {
     this.assertRegistrationOpen();
@@ -291,6 +304,10 @@ export class AuthService {
     }
     const strength = checkPassword(input.password);
     if (!strength.ok) throw new BadRequestException(`Пароль не годится: ${strength.reason}`);
+    // Телефон — контакт нового объекта (и его филиала): колонка `properties.phone` уже есть, модель не менялась
+    const phone = registrationPhone(input.phoneCountry, input.phone);
+    if (!phone) throw new BadRequestException(REGISTRATION_PHONE_MESSAGE);
+    if (input.privacyAccepted !== true) throw new BadRequestException(REGISTRATION_PRIVACY_MESSAGE);
 
     const name = normalizePersonName(input.name);
     const organizationName = normalizeOrganizationName(input.hotelName);
@@ -314,7 +331,7 @@ export class AuthService {
         // Часы и валюта — казахстанские по умолчанию, реквизиты человек заполнит в настройках.
         // Сразу в цепочке Organization → Business → Location (Platform P1, DATA_MODEL v2.6): объект вошедшего
         // ищется только ею, а объект без филиала база не примет.
-        await createPropertyInChain(tx, org.id, { name: organizationName, ...NEW_PROPERTY_DEFAULTS });
+        await createPropertyInChain(tx, org.id, { name: organizationName, phone, ...NEW_PROPERTY_DEFAULTS });
         const user = await tx.user.create({
           data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now },
           select: { id: true },
@@ -332,7 +349,12 @@ export class AuthService {
       throw e;
     }
 
-    await this.record(created.userId, 'user.register', { via: 'password', verified: false });
+    // Согласие с политикой — в журнал с версией текста (журнал только дописывается); телефон туда не пишем
+    await this.record(created.userId, 'user.register', {
+      via: 'password',
+      verified: false,
+      privacy: { version: PRIVACY_POLICY_VERSION },
+    });
 
     const sent = await this.verification.sendFor({ userId: created.userId, email, name }, now);
     return { pendingVerification: true, email, name, sent };

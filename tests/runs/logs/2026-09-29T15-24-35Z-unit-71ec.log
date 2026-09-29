@@ -1,0 +1,136 @@
+# Модульные (unit) · 29.09.2026 20:24 Алматы · vm
+# коммит 707c2e0 (claude/smotriподкл-lbc8je), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T15-24-35Z-unit-71ec.json' 'apps/api/src/auth/auth.controller.test.ts' 'apps/api/src/analytics/analytics.controller.test.ts' 'apps/api/src/finance/finance.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests | 2 failed) 27ms
+   ✓ AuthController: лимиты попыток по адресу (С-5) (5)
+     ✓ вход: после 30 попыток с одного адреса — «попробуйте позже», сервис не зовётся 8ms
+     ✓ заголовку CF-Connecting-IP верим только от туннеля: с публичного сокета он адрес не выбирает 4ms
+     ✓ без адреса (юнит-тесты, локальные вызовы) лимит не мешает 3ms
+     ✓ свои службы с туннеля без заголовка — не «посетитель 127.0.0.1»: стойку одним ведром не запереть 3ms
+     ✓ регистрация, «забыли пароль» и «выслать письмо заново» — свои лимиты по адресу 1ms
+   ❯ AuthController: смена пароля — лимиты попыток (2)
+     × с одного адреса — не больше undefined попыток в час, дальше «попробуйте позже» без вызова сервиса 7ms
+     × одной сессией — не больше undefined попыток в час, с любых адресов и без адреса 1ms
+ ❯ |unit| apps/api/src/analytics/analytics.controller.test.ts (13 tests | 1 failed) 243ms
+   ❯ сайты и отчёты /analytics (13)
+     ✓ создание сайта: ключ pms_ + 12 hex, домены нормализованы, код для вставки содержит ключ 54ms
+     ✓ отказ 400: без имени 8ms
+     ✓ отказ 400: без доменов 6ms
+     ✓ отказ 400: домен с пробелом внутри 5ms
+     ✓ отказ 400: домен со схемой 5ms
+     ✓ список сайтов и карточка со статусом счётчика 13ms
+     × идентификатор сайта в адресе не UUID — 400, а не 500 из базы (аудит 29.09, SEC-4) 7ms
+     ✓ отчёт за период — контрольные числа гейта 8ms
+     ✓ брони с сайта в отчёте: число, отменённые, начислено по счетам (WEB4, Q-212) 8ms
+     ✓ без дат — текущий месяц по поясу объекта; кривые даты — 400 8ms
+     ✓ период длиннее предела — 400 с внятным текстом, ровно по пределу — считается 6ms
+     ✓ бронирование с сайта: включение подставляет тариф по умолчанию, код виджета содержит ключ 10ms
+     ✓ правка и удаление сайта попадают в журнал 8ms
+ ❯ |unit| apps/api/src/finance/finance.controller.test.ts (16 tests | 1 failed) 426ms
+   ❯ finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) (13)
+     ✓ GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking 38ms
+     ✓ T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400 17ms
+     ✓ ADR-113: брони с остатком к сбору — начисление в периоде, остаток по всему счёту > 0, крупные первыми, просроченные отдельно (Q-207); неверный период → 400 17ms
+     ✓ ADR-113 F2: оплаты и возвраты за период — новыми первыми, отборы по типу и способу, суммы без аннулированных; неверное → 400 28ms
+     × charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price 24ms
+     ✓ payment: 9 methods, allocations must sum to the amount, folios must exist and share the currency 14ms
+     ✓ Q-169: пока база не в РК, почта и телефоны в назначении начисления, заметке платежа и причине возврата маскируются 7ms
+     ✓ refund: only from a payment that was allocated to this folio, not more than allocated − refunded 11ms
+     ✓ ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей 18ms
+     ✓ ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать 12ms
+     ✓ ADR-021: доплата за соседнюю ночь блокирует койку на эту ночь, как в Legacy; занятая койка — отказ без начисления 9ms
+     ✓ void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand 9ms
+     ✓ Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся 4ms
+   ✓ роли в деньгах: возврат, сторно и уменьшение счёта — владелец и управляющий (ADR-107) (3)
+     ✓ администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт 31ms
+     ✓ управляющий и владелец возвращают, сторнируют и уменьшают счёт 18ms
+     ✓ отчёт за период администратор смотрит 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/analytics/analytics.controller.test.ts > сайты и отчёты /analytics > идентификатор сайта в адресе не UUID — 400, а не 500 из базы (аудит 29.09, SEC-4)
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/analytics/analytics.controller.test.ts:70:47
+     68|   it('идентификатор сайта в адресе не UUID — 400, а не 500 из базы (ау…
+     69|     const http = () => request(app.getHttpServer());
+     70|     await http().get('/analytics/sites/nope').expect(400);
+       |                                               ^
+     71|     await http().get('/analytics/sites/nope/report?from=2026-09-11&to=…
+     72|     await http().patch('/analytics/sites/nope').send({ name: 'x' }).ex…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.controller.test.ts > AuthController: смена пароля — лимиты попыток > с одного адреса — не больше undefined попыток в час, дальше «попробуйте позже» без вызова сервиса
+AssertionError: expected [Function] to throw error matching /попробуйте позже/ but got 'Неверный текущий пароль'
+
+- Expected:
+/попробуйте позже/
+
++ Received:
+"Неверный текущий пароль"
+
+ ❯ apps/api/src/auth/auth.controller.test.ts:158:6
+    156|     await expect(
+    157|       controller.password(session(9999), PASSWORDS, ATTACKER),
+    158|     ).rejects.toThrow(/попробуйте позже/);
+       |      ^
+    159|     expect(calls.password).toBe(AUTH_IP_LIMITS.passwordPerHour);
+    160|     // другой адрес нападающим не задет
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/api/src/auth/auth.controller.test.ts > AuthController: смена пароля — лимиты попыток > одной сессией — не больше undefined попыток в час, с любых адресов и без адреса
+AssertionError: expected [Function] to throw error matching /попробуйте позже/ but got 'Неверный текущий пароль'
+
+- Expected:
+/попробуйте позже/
+
++ Received:
+"Неверный текущий пароль"
+
+ ❯ apps/api/src/auth/auth.controller.test.ts:173:61
+    171|       );
+    172|     }
+    173|     await expect(controller.password(session(1), PASSWORDS)).rejects.t…
+       |                                                             ^
+    174|     await expect(controller.password(session(1), PASSWORDS, OTHER)).re…
+    175|       /попробуйте позже/,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-014) > charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price
+Error: expected 400 "Bad Request", got 201 "Created"
+ ❯ apps/api/src/finance/finance.controller.test.ts:565:94
+    563|     );
+    564|     // потолок количества (аудит 29.09, SEC-4): огромное значение дава…
+    565|     await post({ kind: 'PENALTY', description: 'Штраф', unitPrice: '10…
+       |                                                                                              ^
+    566|       400,
+    567|     );
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  4 failed | 32 passed (36)
+   Start at  15:24:36
+   Duration  6.28s (import 68%, transform 28%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T15-24-35Z-unit-71ec.json
+
+# код выхода 1 · 7 с

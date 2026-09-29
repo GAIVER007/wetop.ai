@@ -4081,3 +4081,7 @@
 | 29.09.2026 04:21 | lint | ✅ без ошибок | 44 с | 673d352 | [лог](logs/2026-09-28T23-21-19Z-lint-64cb.log) |  |
 | 29.09.2026 04:22 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин 10 с | 673d352 | [лог](logs/2026-09-28T23-22-03Z-unit-a636.log) |  |
 | 29.09.2026 04:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/workspace.spec.ts tests/ui/requests.spec.ts tests/ui | ✅ 134 из 134 | 6 мин 41 с | 673d352 | [лог](logs/2026-09-28T23-24-20Z-e2e-ebdb.log) |  |
+| 29.09.2026 12:24 | typecheck | ✅ без ошибок | 39 с | 360bc52 | [лог](logs/2026-09-29T07-24-49Z-typecheck-5aad.log) |  |
+| 29.09.2026 12:25 | lint | ✅ без ошибок | 19 с | 360bc52 | [лог](logs/2026-09-29T07-25-29Z-lint-e5fc.log) |  |
+| 29.09.2026 12:25 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин | 360bc52 | [лог](logs/2026-09-29T07-25-49Z-unit-d389.log) |  |
+| 29.09.2026 12:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-desk.spe | ✅ 125 из 125 | 7 мин 4 с | 360bc52 | [лог](logs/2026-09-29T07-27-55Z-e2e-482a.log) |  |

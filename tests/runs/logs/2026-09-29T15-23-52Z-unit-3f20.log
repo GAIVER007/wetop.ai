@@ -1,0 +1,49 @@
+# Модульные (unit) · 29.09.2026 20:23 Алматы · vm
+# коммит 707c2e0 (claude/smotriподкл-lbc8je), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T15-23-52Z-unit-3f20.json' 'apps/web/src/lib'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/invite-token.test.ts (3 tests) 6ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (7 tests) 16ms
+ ✓ |unit| apps/web/src/lib/bounded-body.test.ts (6 tests) 84ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (15 tests) 2819ms
+   ✓ сохраняет HTTP-статус, чтобы отличить отсутствующую бронь от сбоя API 2760ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 3128ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 3056ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 3093ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 3087ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 72ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 102ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 89ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 17ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 19ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (26 tests) 13ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 13ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (16 tests) 10ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 10ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 7ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 8ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 7ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 6ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (6 tests) 7ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (5 tests) 8ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 8ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (7 tests) 8ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 4ms
+
+ Test Files  30 passed (30)
+      Tests  242 passed (242)
+   Start at  15:23:53
+   Duration  5.86s (tests 79%, import 10%, transform 10%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T15-23-52Z-unit-3f20.json
+
+# код выхода 0 · 7 с

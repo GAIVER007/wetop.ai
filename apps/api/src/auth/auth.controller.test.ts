@@ -1,6 +1,10 @@
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
-import { AUTH_IP_LIMITS, AuthController } from './auth.controller';
+import {
+  AUTH_IP_LIMITS,
+  AuthController,
+  PASSWORD_CHANGE_PER_SESSION_PER_HOUR,
+} from './auth.controller';
 
 /**
  * С-5 из ТЗ аудита 25.09.2026, вторая половина: на login/register/reset/resend не было лимитов
@@ -14,11 +18,15 @@ const OTHER = '198.51.100.4';
 const BODY = { email: 'guest@example.invalid', password: 'не тот' };
 
 function make() {
-  const calls = { login: 0, register: 0, reset: 0, resend: 0 };
+  const calls = { login: 0, register: 0, reset: 0, resend: 0, password: 0 };
   const auth = {
     async login() {
       calls.login += 1;
       throw new Error('Неверная почта или пароль');
+    },
+    async changePassword() {
+      calls.password += 1;
+      throw new Error('Неверный текущий пароль');
     },
     assertRegistrationOpen() {},
     async register() {
@@ -125,6 +133,51 @@ describe('AuthController: лимиты попыток по адресу (С-5)',
     // лимиты раздельные: вход с этого адреса всё ещё отвечает по существу
     await expect(controller.login(BODY, undefined, ATTACKER)).rejects.toThrow(
       'Неверная почта или пароль',
+    );
+  });
+});
+
+/**
+ * Аудит 29.09.2026, SEC-4: `POST /auth/password` (для вошедшего) не считал неверные текущие пароли. Перебор из
+ * украденной сессии не ограничивался, а каждая попытка занимала общую очередь scrypt — у остальных вход отвечал 429.
+ */
+describe('AuthController: смена пароля — лимиты попыток', () => {
+  const PASSWORDS = { currentPassword: 'не тот', newPassword: 'Новый-пароль-2026' };
+  const session = (n: number) => ({ 'x-wetop-session': `session-${n}` });
+
+  it(`с одного адреса — не больше ${AUTH_IP_LIMITS.passwordPerHour} попыток в час, дальше «попробуйте позже» без вызова сервиса`, async () => {
+    const { controller, calls } = make();
+    // каждая попытка — другой сессией: лимит по адресу не зависит от сессии
+    for (let i = 0; i < AUTH_IP_LIMITS.passwordPerHour; i += 1) {
+      await expect(controller.password(session(i), PASSWORDS, ATTACKER)).rejects.toThrow(
+        'Неверный текущий пароль',
+      );
+    }
+    await expect(controller.password(session(9999), PASSWORDS, ATTACKER)).rejects.toThrow(
+      /попробуйте позже/,
+    );
+    expect(calls.password).toBe(AUTH_IP_LIMITS.passwordPerHour);
+    // другой адрес нападающим не задет
+    await expect(controller.password(session(9999), PASSWORDS, OTHER)).rejects.toThrow(
+      'Неверный текущий пароль',
+    );
+  });
+
+  it(`одной сессией — не больше ${PASSWORD_CHANGE_PER_SESSION_PER_HOUR} попыток в час, с любых адресов и без адреса`, async () => {
+    const { controller, calls } = make();
+    for (let i = 0; i < PASSWORD_CHANGE_PER_SESSION_PER_HOUR; i += 1) {
+      await expect(controller.password(session(1), PASSWORDS)).rejects.toThrow(
+        'Неверный текущий пароль',
+      );
+    }
+    await expect(controller.password(session(1), PASSWORDS)).rejects.toThrow(/попробуйте позже/);
+    await expect(controller.password(session(1), PASSWORDS, OTHER)).rejects.toThrow(
+      /попробуйте позже/,
+    );
+    expect(calls.password).toBe(PASSWORD_CHANGE_PER_SESSION_PER_HOUR);
+    // соседняя сессия не задета
+    await expect(controller.password(session(2), PASSWORDS)).rejects.toThrow(
+      'Неверный текущий пароль',
     );
   });
 });

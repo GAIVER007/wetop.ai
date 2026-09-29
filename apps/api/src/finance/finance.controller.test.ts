@@ -561,6 +561,16 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     await post({ kind: 'PENALTY', description: 'Штраф', unitPrice: '1000', quantity: 0 }).expect(
       400,
     );
+    // потолок количества (аудит 29.09, SEC-4): огромное значение давало переполнение в базе и 500
+    await post({ kind: 'PENALTY', description: 'Штраф', unitPrice: '1000', quantity: 1001 }).expect(
+      400,
+    );
+    await post({
+      kind: 'PENALTY',
+      description: 'Штраф',
+      unitPrice: '1000',
+      quantity: '9999999999999999999',
+    }).expect(400);
     await post({ kind: 'PENALTY', description: 'Штраф', unitPrice: 'abc' }).expect(400);
     await post({ kind: 'PENALTY', description: 'Штраф', unitPrice: '-10' }).expect(400);
     await post({ kind: 'ADJUSTMENT', description: 'Скидка', unitPrice: '0' }).expect(400);

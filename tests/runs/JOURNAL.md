@@ -4156,3 +4156,7 @@
 | 29.09.2026 12:36 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 20 с | db97edc | [лог](logs/2026-09-29T07-36-58Z-unit-5008.log) | PR #149 merged with main 44f401e0 (db97edc2) |
 | 29.09.2026 12:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-unassigned.spec.ts tests/ui/today-attention.spec.ts tests/ui/today-operati | ✅ 81 из 81 | 5 мин 7 с | db97edc | [лог](logs/2026-09-29T07-38-23Z-e2e-7a1f.log) | PR #149 merged with main 44f401e0 (db97edc2): PR6 + Главная A3 specs |
 | 29.09.2026 12:43 | e2e | ✅ 25 из 25 | 1 мин 2 с | db97edc | [лог](logs/2026-09-29T07-43-45Z-e2e-9e6e.log) | PR #149 merged with main 44f401e0 (db97edc2): live e2e on a fresh web build |
+| 29.09.2026 13:06 | typecheck | ✅ без ошибок | 23 с | 7fe6163 | [лог](logs/2026-09-29T08-06-12Z-typecheck-462e.log) |  |
+| 29.09.2026 13:06 | lint | ✅ без ошибок | 19 с | 7fe6163 | [лог](logs/2026-09-29T08-06-36Z-lint-8dbb.log) |  |
+| 29.09.2026 13:06 | unit | ❌ упало 3 из 2307, пропущено 3 | 1 мин 27 с | 7fe6163 | [лог](logs/2026-09-29T08-06-55Z-unit-5fcc.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 13:09 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 25 с | 7fe6163 +1 | [лог](logs/2026-09-29T08-09-40Z-unit-314b.log) |  |

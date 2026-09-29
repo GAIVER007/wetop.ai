@@ -1888,18 +1888,19 @@ button {
 .core-grid,
 .why-grid {
   display: grid;
-  gap: 1px;
   overflow: hidden;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  background: var(--glass-border);
+  background: var(--surface-elevated);
 }
+/* разделители клеток — тень в 1 px вместо зазора: отступы идут только по лестнице §19.3 */
 .core-card,
 .why-grid li {
   display: flex;
-  gap: 18px;
-  padding: clamp(22px, 3vw, 32px);
+  gap: 16px;
+  padding: clamp(24px, 3vw, 32px);
   background: var(--surface-elevated);
+  box-shadow: 0 0 0 1px var(--glass-border);
 }
 .core-card h3,
 .why-grid h3 {
@@ -1925,21 +1926,19 @@ button {
 .section-note {
   display: flex;
   gap: 10px;
-  margin: 22px 0;
+  margin: 24px 0;
   color: var(--text-2);
   font-size: 0.875rem;
 }
 .section-note .icon {
   flex: none;
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--primary);
 }
 .integration-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
   overflow: hidden;
-  padding: 1px;
 }
 .integration-grid li {
   display: flex;
@@ -1948,6 +1947,7 @@ button {
   min-height: 84px;
   padding: 16px;
   background: var(--glass-bg-dim);
+  box-shadow: 0 0 0 1px var(--glass-border-dim);
 }
 .integration-grid li span {
   display: grid;
@@ -1955,7 +1955,7 @@ button {
   width: 40px;
   height: 40px;
   place-items: center;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--accent-grad-soft);
   color: var(--primary);
   font-family: var(--font-head);
@@ -2008,19 +2008,19 @@ button {
 .ai-chat__label--ai {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   color: var(--primary);
 }
 .ai-chat__bubble {
   max-width: 88%;
   padding: 14px 16px;
-  border-radius: 18px 18px 18px 4px;
+  border-radius: var(--radius) var(--radius) var(--radius) var(--radius-xs);
   background: var(--surface-solid);
   color: var(--text-2);
 }
 .ai-chat__bubble--ai {
   margin-left: auto;
-  border-radius: 18px 18px 4px;
+  border-radius: var(--radius) var(--radius) var(--radius-xs);
   background: var(--accent-grad-soft);
   color: var(--text);
 }
@@ -2030,7 +2030,7 @@ button {
   gap: 8px;
 }
 .mini-list li {
-  padding: 7px 12px;
+  padding: 6px 12px;
   border: 1px solid var(--glass-border-dim);
   border-radius: 999px;
   color: var(--text-2);
@@ -2042,7 +2042,7 @@ button {
   padding: clamp(28px, 5vw, 56px);
 }
 .metric-grid li {
-  padding: 18px;
+  padding: 16px;
   border: 1px solid var(--glass-border-dim);
   border-radius: var(--radius);
   background: var(--glass-bg-dim);

@@ -885,6 +885,11 @@ let priceChanges: Array<{
  * в `POST /__test/control` вместе с витриной конфликтов среза 7.3. Все брони и гости вымышленные (ADR-010).
  */
 let showcase = false;
+/**
+ * Сопоставления Channex для вкладки «Сопоставление» (ADR-112): по умолчанию их нет, как у стенда без
+ * `setup`; 'partial' — объект создан, две категории из трёх сопоставлены с тарифом BASE, третья нет.
+ */
+let channelMapping: 'none' | 'partial' = 'none';
 let showcaseEvents: InboundEvent[] = [];
 const showcaseRevisions = new Map<string, RevisionFacts>();
 let showcaseOutbox: OutboxRow[] = [];
@@ -3127,8 +3132,9 @@ function read(path: string, q: URLSearchParams): unknown {
       apiConfigured: true,
       propertyId: 'ui-property',
       propertyAccessible: true,
-      mappedCategories: 3,
-      mappedRatePlans: 3,
+      // частичное сопоставление: две категории из трёх — как строки `/channels/channex/mapping`
+      mappedCategories: channelMapping === 'partial' ? 2 : 3,
+      mappedRatePlans: channelMapping === 'partial' ? 2 : 3,
       lastWebhookAt: null as string | null,
       lastPullAt: null as string | null,
       state: 'READY',
@@ -3151,7 +3157,37 @@ function read(path: string, q: URLSearchParams): unknown {
     return base;
   }
   if (path === '/channels/channex/mapping')
-    return channexLive()
+    return channelMapping === 'partial'
+      ? [
+          {
+            id: 'ui-map-property',
+            localAccommodationTypeCode: null,
+            localRatePlanId: null,
+            localRatePlanCode: null,
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: null,
+            providerRatePlanId: null,
+          },
+          {
+            id: 'ui-map-room',
+            localAccommodationTypeCode: 'ROOM',
+            localRatePlanId: 'ui-plan-base',
+            localRatePlanCode: 'BASE',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: 'ui-rt-room',
+            providerRatePlanId: 'ui-rp-room',
+          },
+          {
+            id: 'ui-map-male',
+            localAccommodationTypeCode: 'MALE',
+            localRatePlanId: 'ui-plan-base',
+            localRatePlanCode: 'BASE',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: 'ui-rt-male',
+            providerRatePlanId: 'ui-rp-male',
+          },
+        ]
+      : channexLive()
       ? [
           { id: 'ui-map-property', localAccommodationTypeCode: null, localRatePlanId: null, localRatePlanCode: null, providerPropertyId: 'ui-property', providerRoomTypeId: null, providerRatePlanId: null },
           ...categories.slice(0, 3).map((c) => ({
@@ -3165,6 +3201,14 @@ function read(path: string, q: URLSearchParams): unknown {
           })),
         ]
       : [];
+  // названия номеров и тарифов Channex (как GET content/names): только когда объект «создан»
+  if (path === '/channels/channex/content/names')
+    return channelMapping === 'partial'
+      ? {
+          roomTypes: { 'ui-rt-room': 'Double Room', 'ui-rt-male': 'Male Dorm Bed' },
+          ratePlans: { 'ui-rp-room': 'OTA Rate · Double', 'ui-rp-male': 'OTA Rate · Male Dorm' },
+        }
+      : { roomTypes: {}, ratePlans: {} };
   if (path === '/channels/channex/outbox' && channexMode === 'stale')
     return { pending: 5, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 200 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a', oldestPendingAt: new Date(Date.now() - 40 * 60_000).toISOString() };
   if (path === '/channels/channex/outbox' && channexMode === 'webhook')
@@ -3481,6 +3525,7 @@ createServer(async (req, res) => {
       channexMode = '';
       ratesUnmapped = false;
       incidentHistory = 0;
+      channelMapping = 'none';
       emptyFixture = false;
       noBookings = false;
       createdReservation = false;
@@ -3530,6 +3575,7 @@ createServer(async (req, res) => {
       if (body['analyticsHistory'] === true) seedAnalyticsHistory();
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
+      channelMapping = body['channelMapping'] === 'partial' ? 'partial' : 'none';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);

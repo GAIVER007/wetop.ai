@@ -129,6 +129,82 @@ test('подключения каналов: настройка подключе
   await expect(main.getByTestId('channel-setup')).toHaveCount(0);
 });
 
+/**
+ * «Сопоставление» модуля ADR-112 (`plans/channels-mapping-port-2026-09-28.md`):
+ * категории и тарифы раздельно; в главной колонке — название номера в Channex, а не его id (id — за
+ * «Техническими деталями»); несопоставленная категория названа вместе с последствием; тариф считается по
+ * данным — «K из N». Фикстура: объект создан, две категории из трёх сопоставлены с тарифом BASE,
+ * «Женский общий номер» — нет.
+ */
+test('сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N»', async ({
+  page,
+  request,
+}) => {
+  const main = page.getByRole('main');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
+  // с обзора: разрыв сопоставления ведёт на вкладку
+  await page.goto('/channels');
+  await main.getByTestId('mapping-gap').getByRole('link', { name: '«Сопоставление»' }).click();
+  await expect(page).toHaveURL(/\/channels\/mapping$/);
+  // категории: название номера в Channex, статус словом
+  const categoriesTable = main.getByTestId('mapping-categories');
+  const room = categoriesTable.getByRole('row', { name: /Двухместный номер/ });
+  await expect(room).toContainText('Double Room');
+  await expect(room).toContainText('Сопоставлена');
+  const female = categoriesTable.getByRole('row', { name: /Женский общий номер/ });
+  await expect(female).toContainText('Не сопоставлена');
+  // предупреждение называет категорию, последствие и ведёт туда, где сопоставляют
+  const warning = main.getByTestId('mapping-warning');
+  await expect(warning).toContainText('Женский общий номер');
+  await expect(warning).toContainText(/остатки и цены/i);
+  await expect(warning.getByRole('link', { name: '«Подключения»' })).toHaveAttribute(
+    'href',
+    '/channels/connections',
+  );
+  // тарифы: считаются по данным, «не во всех категориях» видно
+  const base = main.getByTestId('mapping-rate-plans').getByRole('row', { name: /Стандартный/ });
+  await expect(base).toContainText('2 из 3');
+  await expect(base).toContainText('Не во всех категориях');
+  // id Channex в таблицах не показываются — только раскрывашкой «Технические детали»
+  await expect(categoriesTable).not.toContainText('ui-rt-room');
+  const tech = main.getByTestId('mapping-tech');
+  await expect(tech.getByText('ui-rt-room')).not.toBeVisible();
+  await tech.locator('summary').click();
+  await expect(tech.getByText('ui-rt-room')).toBeVisible();
+  // названия Channex не пришли: статусы на месте, вместо названия — слова, не id и не сбой экрана
+  await request.post(`${fixture}/__test/control`, {
+    data: { channelMapping: 'partial', failPath: '/channels/channex/content/names' },
+  });
+  await page.goto('/channels/mapping');
+  await expect(
+    main.getByTestId('mapping-categories').getByRole('row', { name: /Двухместный номер/ }),
+  ).toContainText('название в Channex недоступно');
+  await expect(main.getByTestId('mapping-error')).toHaveCount(0);
+  // тарифы не загрузились: категории остаются, сбой тарифов назван отдельно
+  await request.post(`${fixture}/__test/control`, {
+    data: { channelMapping: 'partial', failPath: '/rates/options' },
+  });
+  await page.goto('/channels/mapping');
+  await expect(main.getByTestId('mapping-categories')).toBeVisible();
+  await expect(main.getByTestId('mapping-plans-error')).toBeVisible();
+  // телефон: таблицы без прокрутки вбок
+  await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/channels/mapping');
+  await expect(main.getByTestId('mapping-categories')).toBeVisible();
+  const layout = await page.evaluate(() => {
+    const w = globalThis as unknown as {
+      innerWidth: number;
+      document: { documentElement: { scrollWidth: number } };
+    };
+    return { viewport: w.innerWidth, content: w.document.documentElement.scrollWidth };
+  });
+  expect(layout.content, 'сопоставление шире экрана телефона').toBeLessThanOrEqual(
+    layout.viewport + 1,
+  );
+});
+
 test('цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит', async ({
   page,
   request,

@@ -1,0 +1,19 @@
+# Сквозные (e2e) · 28.09.2026 22:53 Алматы · vm
+# коммит e0ac75f (HEAD), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'сопоставление: названия Channex|сбой сводки фонда не уносит|сбой сводки очереди и сопоставлений'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/ui/channex-screens.spec.ts:139:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (5.9s)
+  ✓  2 tests/ui/channex-screens.spec.ts:512:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (9.7s)
+  ✓  3 tests/ui/workspace.spec.ts:1167:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (1.8s)
+
+  3 passed (22.4s)
+
+# код выхода 0 · 24 с

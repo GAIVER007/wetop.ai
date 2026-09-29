@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-const script = readFileSync('apps/ai-seller/src/site/widget.js', 'utf8');
+const script = readFileSync(
+  process.env.WIDGET_TEST_SCRIPT || 'apps/ai-seller/src/site/widget.js',
+  'utf8',
+);
 let sent: unknown[];
 test.beforeEach(async ({ page }) => {
   sent = [];
@@ -93,4 +96,11 @@ test('successful send, deduplication, safe message rendering and Escape', async 
   await expect(page.locator('.pmsw-empty')).toBeHidden();
   await input.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
+});
+
+test('regression: failed request preserves original draft', async ({ page }) => {
+  await page.locator('.pmsw-i').fill('Синтетический черновик');
+  await page.locator('.pmsw-f .pmsw-s').click();
+  await expect(page.locator('.pmsw-chip')).toContainText('Не отправилось');
+  await expect(page.locator('.pmsw-i')).toHaveValue('Синтетический черновик');
 });

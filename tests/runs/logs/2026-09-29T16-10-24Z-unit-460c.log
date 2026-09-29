@@ -1,0 +1,113 @@
+# Модульные (unit) · 29.09.2026 21:10 Алматы · MacBook-Air-Urij.local
+# коммит bfd4160 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-29T16-10-24Z-unit-460c.json' 'apps/web/src/lib/assistant-widget.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests | 4 failed) 60ms
+   ❯ assistantScriptSrc — адрес скрипта по ASSISTANT_URL (4)
+     ✓ без настройки тега нет 1ms
+     × скрипт лежит у помощника по /widget/widget.js; слеш в конце адреса не удваивается 3ms
+     × путь в адресе сохраняется 0ms
+     ✓ не http(s) и не адрес вовсе — тега нет, а не скрипт с чужой схемой 0ms
+   ❯ assistantScriptProps — атрибуты тега (3)
+     × вошедшему — подпись в data-identity 2ms
+     × невошедшему атрибута data-identity нет совсем, а не пустой 0ms
+     ✓ без адреса помощника тега нет, даже с подписью 0ms
+   ✓ смена вошедшего без перезагрузки страницы (4)
+     ✓ ключ хозяина виджета — от сессии: одна сессия — один ключ, другая — другой 0ms
+     ✓ ключ не совпадает с отпечатком сессии в базе и не выдаёт её ключ 0ms
+     ✓ первая отрисовка запоминает хозяина и страницу не трогает 0ms
+     ✓ тот же хозяин — ничего; вход, выход, другой человек — перезагрузка 0ms
+   ✓ assistantApi.identity — подпись с сервера стойки (4)
+     ✓ отдаёт подпись и срок 50ms
+     ✓ 401 — чат анонимный, и на вход не уводит: макет рисуется и на самом экране входа 1ms
+     ✓ подпись не настроена (503) или API молчит — чат анонимный, страница не падает 0ms
+     ✓ кривой ответ не превращается в подпись 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/assistant-widget.test.ts > assistantScriptSrc — адрес скрипта по ASSISTANT_URL > скрипт лежит у помощника по /widget/widget.js; слеш в конце адреса не удваивается
+AssertionError: expected 'https://assistant.wetop.ai/widget/wid…' to be 'https://assistant.wetop.ai/widget/wid…' // Object.is equality
+
+Expected: "https://assistant.wetop.ai/widget/widget.js?v=20260929"
+Received: "https://assistant.wetop.ai/widget/widget.js"
+
+ ❯ apps/web/src/lib/assistant-widget.test.ts:32:62
+     30|
+     31|   it('скрипт лежит у помощника по /widget/widget.js; слеш в конце адре…
+     32|     expect(assistantScriptSrc('https://assistant.wetop.ai')).toBe(
+       |                                                              ^
+     33|       'https://assistant.wetop.ai/widget/widget.js?v=20260929',
+     34|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/assistant-widget.test.ts > assistantScriptSrc — адрес скрипта по ASSISTANT_URL > путь в адресе сохраняется
+AssertionError: expected 'http://127.0.0.1:8000/bot/widget/widg…' to be 'http://127.0.0.1:8000/bot/widget/widg…' // Object.is equality
+
+Expected: "http://127.0.0.1:8000/bot/widget/widget.js?v=20260929"
+Received: "http://127.0.0.1:8000/bot/widget/widget.js"
+
+ ❯ apps/web/src/lib/assistant-widget.test.ts:41:61
+     39|
+     40|   it('путь в адресе сохраняется', () => {
+     41|     expect(assistantScriptSrc('http://127.0.0.1:8000/bot')).toBe(
+       |                                                             ^
+     42|       'http://127.0.0.1:8000/bot/widget/widget.js?v=20260929',
+     43|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/assistant-widget.test.ts > assistantScriptProps — атрибуты тега > вошедшему — подпись в data-identity
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "data-identity": "abc.def",
+-   "src": "https://assistant.wetop.ai/widget/widget.js?v=20260929",
++   "src": "https://assistant.wetop.ai/widget/widget.js",
+  }
+
+ ❯ apps/web/src/lib/assistant-widget.test.ts:55:75
+     53| describe('assistantScriptProps — атрибуты тега', () => {
+     54|   it('вошедшему — подпись в data-identity', () => {
+     55|     expect(assistantScriptProps('https://assistant.wetop.ai', 'abc.def…
+       |                                                                           ^
+     56|       src: 'https://assistant.wetop.ai/widget/widget.js?v=20260929',
+     57|       'data-identity': 'abc.def',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| apps/web/src/lib/assistant-widget.test.ts > assistantScriptProps — атрибуты тега > невошедшему атрибута data-identity нет совсем, а не пустой
+AssertionError: expected { Object (src) } to deeply equal { Object (src) }
+
+- Expected
++ Received
+
+  {
+-   "src": "https://assistant.wetop.ai/widget/widget.js?v=20260929",
++   "src": "https://assistant.wetop.ai/widget/widget.js",
+  }
+
+ ❯ apps/web/src/lib/assistant-widget.test.ts:63:19
+     61|   it('невошедшему атрибута data-identity нет совсем, а не пустой', () …
+     62|     const props = assistantScriptProps('https://assistant.wetop.ai', n…
+     63|     expect(props).toEqual({ src: 'https://assistant.wetop.ai/widget/wi…
+       |                   ^
+     64|     expect(props && 'data-identity' in props).toBe(false);
+     65|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 11 passed (15)
+   Start at  20:10:26
+   Duration  232ms (tests 43%, transform 43%, import 13%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-29T16-10-24Z-unit-460c.json
+
+# код выхода 1 · 2 с

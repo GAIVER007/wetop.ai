@@ -26,12 +26,17 @@ import {
   type RatePlanChoice,
 } from './inventory-input';
 import { Access } from '../auth/access.decorator';
+import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from '../channels/ari-publisher';
+
+/** Глубина остатков, которую держит канал: как у полной выгрузки (сертификация Channex) */
+const ARI_HORIZON_DAYS = 500;
 
 @Injectable()
 export class InventoryEditor {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(INVENTORY_REPOSITORY) private readonly reader: InventoryRepository,
+    @Inject(ARI_PUBLISHER) private readonly ari: AriPublisher,
   ) {}
   private property() {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
@@ -244,6 +249,15 @@ export class InventoryEditor {
         return { codes: input.codes };
       });
       this.reader.invalidate?.(propertyId);
+      // Новые места меняют остаток категории: без дельты канал узнал бы о них только ночной выгрузкой
+      const from = await propertyToday(this.prisma.db, LUXX_APARTS_PROPERTY.name),
+        end = new Date(`${from}T00:00:00Z`);
+      end.setUTCDate(end.getUTCDate() + ARI_HORIZON_DAYS);
+      await publishAfterCommit(this.ari, {
+        categoryCodes: [input.categoryCode],
+        from,
+        toExclusive: end.toISOString().slice(0, 10),
+      });
       return result;
     } catch (e) {
       if (typeof e === 'object' && e !== null && 'code' in e && e.code === 'P2002')

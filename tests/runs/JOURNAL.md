@@ -4220,6 +4220,9 @@
 | 29.09.2026 13:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | d9dce04 | [лог](logs/2026-09-29T08-35-49Z-e2e-e2f4.log) |  |
 | 29.09.2026 13:36 | e2e | ✅ 26 из 26 | 1 мин 15 с | d9dce04 | [лог](logs/2026-09-29T08-36-52Z-e2e-ece4.log) |  |
 | 29.09.2026 13:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 612 из 612 | 53 мин 9 с | d9dce04 | [лог](logs/2026-09-29T08-38-08Z-e2e-f49e.log) |  |
+| 29.09.2026 17:12 | unit | ✅ 2319 из 2322, пропущено 3 | 2 мин 8 с | 6ab9541 +3 | [лог](logs/2026-09-29T12-12-06Z-unit-9d3e.log) |  |
+| 29.09.2026 17:22 | unit | ✅ 2319 из 2322, пропущено 3 | 1 мин 14 с | 642f18c +2 | [лог](logs/2026-09-29T12-22-52Z-unit-dd95.log) |  |
+| 29.09.2026 17:24 | integration | ✅ 124 из 124 | 38 с | 642f18c +3 | [лог](logs/2026-09-29T12-24-06Z-integration-3a10.log) |  |
 | 29.09.2026 16:51 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ❌ код выхода 1 | 8 с | 6ab9541 +1 | [лог](logs/2026-09-29T11-51-34Z-unit-00c2.log) | (файл не выполнился) |
 | 29.09.2026 16:52 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ❌ упало 1 из 10 | 1 с | 6ab9541 +3 | [лог](logs/2026-09-29T11-52-07Z-unit-be19.log) | registrationPhone Казахстан: код +7 и десять цифр номера |
 | 29.09.2026 16:52 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ✅ 10 из 10 | 1 с | 6ab9541 +3 | [лог](logs/2026-09-29T11-52-17Z-unit-0c6d.log) |  |
@@ -4293,6 +4296,9 @@
 | 29.09.2026 18:08 | unit | ❌ упало 4 из 2362, пропущено 3 | 1 мин 23 с | 56427c4 +20 | [лог](logs/2026-09-29T13-08-24Z-unit-3427.log) | S4: полный unit |
 | 29.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 634 | 55 мин 26 с | 7d27564 | [лог](logs/2026-09-29T11-45-45Z-e2e-e376.log) | после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке |
 | 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/workspace.spec.ts:24) | ✅ 7 из 7 | 1 мин 25 с | 368c37f +1 | [лог](logs/2026-09-29T12-41-37Z-e2e-a05c.log) |  |
+| 29.09.2026 18:11 | unit | ❌ упало 4 из 2340, пропущено 3 | 1 мин 18 с | 00cb705 | [лог](logs/2026-09-29T13-11-01Z-unit-b6eb.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 18:12 | integration | ❌ код выхода 1 | 1 с | 00cb705 | [лог](logs/2026-09-29T13-12-19Z-integration-0d88.log) |  |
+| 29.09.2026 18:12 | integration | ✅ 125 из 125 | 40 с | 00cb705 | [лог](logs/2026-09-29T13-12-39Z-integration-6ffc.log) |  |
 | 29.09.2026 18:15 | typecheck | ✅ без ошибок | 42 с | 1b26b0c | [лог](logs/2026-09-29T13-15-04Z-typecheck-df15.log) |  |
 | 29.09.2026 18:15 | lint | ✅ без ошибок | 24 с | 1b26b0c | [лог](logs/2026-09-29T13-15-47Z-lint-1c07.log) |  |
 | 29.09.2026 18:16 | unit | ❌ упало 5 из 2362, пропущено 3 | 1 мин 30 с | 1b26b0c | [лог](logs/2026-09-29T13-16-11Z-unit-5473.log) | S4: перед merge, после слияния main |
@@ -4381,10 +4387,18 @@
 | 29.09.2026 21:01 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 3 из 3 | 55 с | 98a2da2 +4 | [лог](logs/2026-09-29T16-01-32Z-e2e-3273.log) | RED chat UX after fixture charset correction |
 | 29.09.2026 21:04 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 1 из 3 | 15 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-04-16Z-e2e-95bd.log) | GREEN chat design and retained drafts; synthetic network only |
 | 29.09.2026 21:05 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ✅ 4 из 4 | 12 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-05-01Z-e2e-15f2.log) | Chat browser QA: theme, keyboard, attachments, failed drafts, XSS, duplicate sends |
+| 29.09.2026 21:09 | e2e (частично: --config tests/ui/playwright.widget.config.ts --grep regression:) | ❌ упало 1 из 1 | 13 с | bfd4160 +3 | [лог](logs/2026-09-29T16-09-06Z-e2e-33f6.log) | RED original draft loss reproduced using immutable pre-change widget |
+| 29.09.2026 21:09 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ✅ 5 из 5 | 9 с | bfd4160 +3 | [лог](logs/2026-09-29T16-09-41Z-e2e-fa58.log) | Final chat QA including confirmed draft-loss regression |
+| 29.09.2026 21:10 | unit (частично: apps/web/src/lib/assistant-widget.test.ts) | ❌ упало 4 из 15 | 2 с | bfd4160 +1 | [лог](logs/2026-09-29T16-10-24Z-unit-460c.log) | RED assistant cache version required after verified stale CDN response |
+| 29.09.2026 21:10 | unit (частично: apps/web/src/lib/assistant-widget.test.ts) | ✅ 15 из 15 | 3 с | bfd4160 +2 | [лог](logs/2026-09-29T16-10-43Z-unit-3921.log) | GREEN versioned widget URL preserves signed identity and owner isolation |
+| 29.09.2026 21:11 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ❌ упало 2 из 4 | 3 мин 7 с | bfd4160 +7 | [лог](logs/2026-09-29T16-11-03Z-e2e-8223.log) | Versioned assistant script integration: login identity and mobile placement |
+| 29.09.2026 21:14 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1 --grep после «Выйти») | ❌ упало 1 из 1 | 35 с | bfd4160 +7 | [лог](logs/2026-09-29T16-14-32Z-e2e-dc26.log) | RED old signed widget survives logout on public login screen |
+| 29.09.2026 21:15 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 1 мин 15 с | bfd4160 +9 | [лог](logs/2026-09-29T16-15-28Z-e2e-3c3d.log) | GREEN versioned widget, public entry isolation, logout disposal, mobile placement |
 | 29.09.2026 21:08 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 22 с | 113fd18 | [лог](logs/2026-09-29T16-08-17Z-e2e-317f.log) |  |
 | 29.09.2026 21:13 | typecheck | ✅ без ошибок | 35 с | 61bc328 | [лог](logs/2026-09-29T16-13-18Z-typecheck-5784.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | lint | ✅ без ошибок | 21 с | 61bc328 | [лог](logs/2026-09-29T16-14-02Z-lint-4ca6.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 27 с | 61bc328 | [лог](logs/2026-09-29T16-14-23Z-unit-f790.log) | SEC-4 после слияния main: полный unit |
+| 29.09.2026 21:18 | unit (частично: apps/web/src/lib/assistant-widget.test.ts apps/web/src/lib/security-headers.test.ts apps/api/src/security-headers.test.ts) | ✅ 21 из 21 | 5 с | 7ee096d | [лог](logs/2026-09-29T16-18-18Z-unit-73d0.log) | Post-merge chat and newly merged security header contracts |
 | 29.09.2026 21:16 | typecheck | ✅ без ошибок | 25 с | d9eb3bd | [лог](logs/2026-09-29T16-16-29Z-typecheck-b304.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | lint | ✅ без ошибок | 23 с | d9eb3bd | [лог](logs/2026-09-29T16-17-04Z-lint-78ae.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | unit | ❌ упало 1 из 2425, пропущено 3 | 1 мин 28 с | d9eb3bd | [лог](logs/2026-09-29T16-17-28Z-unit-904c.log) | SEC-1a после слияния main: полный unit |
@@ -4397,3 +4411,6 @@
 | 29.09.2026 21:41 | lint | ✅ без ошибок | 26 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-41-52Z-lint-0ed0.log) | SEC-1b |
 | 29.09.2026 21:42 | integration | ✅ 138 из 138 | 46 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-42-19Z-integration-8c8f.log) | SEC-1b: полный integration на свежей локальной базе |
 | 29.09.2026 21:43 | unit | ❌ упало 1 из 2429, пропущено 3 | 1 мин 27 с | fbc3e20 +5 | [лог](logs/2026-09-29T16-43-08Z-unit-1897.log) | SEC-1b: полный unit |
+| 29.09.2026 21:28 | unit | ❌ упало 1 из 2428, пропущено 3 | 1 мин 43 с | 27beec3 | [лог](logs/2026-09-29T16-28-48Z-unit-470d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 29.09.2026 21:30 | integration | ❌ код выхода 1 | 1 с | 27beec3 | [лог](logs/2026-09-29T16-30-32Z-integration-5dbf.log) |  |
+| 29.09.2026 21:31 | integration | ✅ 131 из 131 | 44 с | 27beec3 | [лог](logs/2026-09-29T16-31-00Z-integration-4b22.log) |  |

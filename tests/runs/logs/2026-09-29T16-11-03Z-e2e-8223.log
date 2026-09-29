@@ -1,0 +1,112 @@
+# Сквозные (e2e) · 29.09.2026 21:11 Алматы · MacBook-Air-Urij.local
+# коммит bfd4160 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.assistant.config.ts' '--workers=1'
+[WebServer] (node:37297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+(node:37559) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/assistant-widget.spec.ts:37:1 › невошедший видит чат анонимно: тег есть, data-identity нет (38.6s)
+(node:38122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/assistant-widget.spec.ts:45:1 › после входа виджет загружен с подписью вошедшего; переходы по стойке его не перезагружают (25.1s)
+  ✘  3 tests/ui/assistant-widget.spec.ts:72:1 › после «Выйти» виджет прежнего человека на странице не остаётся (28.5s)
+(node:38325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/assistant-widget.spec.ts:85:1 › на телефоне пузырь чата стоит над нижней навигацией, а не на ней (19.7s)
+
+
+  1) tests/ui/assistant-widget.spec.ts:37:1 › невошедший видит чат анонимно: тег есть, data-identity нет 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('script[src="http://127.0.0.1:4315/widget/widget.js?v=20260929"]')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('script[src="http://127.0.0.1:4315/widget/widget.js?v=20260929"]') with timeout 15000ms
+      - waiting for locator('script[src="http://127.0.0.1:4315/widget/widget.js?v=20260929"]')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      38 |   await page.goto('/login');
+      39 |   const tag = page.locator(`script[src="${WIDGET_SRC}"]`);
+    > 40 |   await expect(tag).toHaveCount(1);
+         |                     ^
+      41 |   expect(await tag.getAttribute('data-identity')).toBeNull();
+      42 |   expect(await widgetIdentity(page)).toBe('');
+      43 | });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/assistant-widget.spec.ts:40:21
+
+    Error Context: test-results/assistant-widget-невошедши-b570e--тег-есть-data-identity-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/assistant-widget-невошедши-b570e--тег-есть-data-identity-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/assistant-widget-невошедши-b570e--тег-есть-data-identity-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/assistant-widget.spec.ts:72:1 › после «Выйти» виджет прежнего человека на странице не остаётся 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: ""
+    Received: "dWktdXNlcnxhZG1pbkB3ZXRvcC50ZXN0fHVpLW9yZ3xvd25lcnwxNzkwNjk4Mzkx.e53f19c7db8ef590c4c608935a458cdb3497adbdfa8ea10e91f5e83bbb95be65"
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      77 |   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
+      78 |   await expect(page).toHaveURL(/\/login/);
+    > 79 |   await expect.poll(() => widgetIdentity(page)).toBe('');
+         |                                                 ^
+      80 |   expect(
+      81 |     await page.locator(`script[src="${WIDGET_SRC}"]`).getAttribute('data-identity'),
+      82 |   ).toBeNull();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/assistant-widget.spec.ts:79:49
+
+    Error Context: test-results/assistant-widget-после-«Вы-19b59-ека-на-странице-не-остаётся/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/assistant-widget-после-«Вы-19b59-ека-на-странице-не-остаётся/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/assistant-widget-после-«Вы-19b59-ека-на-странице-не-остаётся/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/assistant-widget.spec.ts:37:1 › невошедший видит чат анонимно: тег есть, data-identity нет 
+    tests/ui/assistant-widget.spec.ts:72:1 › после «Выйти» виджет прежнего человека на странице не остаётся 
+  2 passed (3.1m)
+
+# код выхода 1 · 3 мин 7 с

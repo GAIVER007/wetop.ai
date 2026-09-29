@@ -12,17 +12,20 @@ export function LoadError({
   status,
   message,
   testId,
+  title,
 }: {
   status: number | undefined;
   message: string;
   testId: string;
+  /** заголовок ошибки для экрана (передаётся в `ErrorState`) */
+  title?: string;
 }) {
   const router = useRouter();
   const error: Error & { digest?: string } = new Error(message);
   if (status) error.digest = `API_${status}`;
   return (
     <div data-testid={testId}>
-      <ErrorState error={error} retry={() => router.refresh()} />
+      <ErrorState error={error} retry={() => router.refresh()} title={title} />
     </div>
   );
 }

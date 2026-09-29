@@ -131,14 +131,11 @@ test('главная: «Войти» и «Регистрация», шаги п�
     page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
-  // подсказка на макете первого экрана — внутри карточки (после анимации появления: она сдвигает на 14 px)
-  await hero
-    .locator('.mockup__toast')
-    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+  // событие «Новая продажа» — строкой внутри окна макета, а не плавающей подсказкой
   const card = await hero.locator('.mockup__window').boundingBox();
-  const toast = await hero.locator('.mockup__toast').boundingBox();
-  expect(card && toast && toast.x + toast.width <= card.x + card.width + 1).toBe(true);
-  expect(card && toast && toast.y + toast.height <= card.y + card.height + 1).toBe(true);
+  const event = await hero.locator('.ops__event').boundingBox();
+  expect(card && event && event.x + event.width <= card.x + card.width + 1).toBe(true);
+  expect(card && event && event.y + event.height <= card.y + card.height + 1).toBe(true);
 });
 
 /**
@@ -165,6 +162,22 @@ test('первый экран — центр управления сервисн
   const screen = hero.getByRole('img', { name: /Сегодня/ });
   await expect(screen).toBeVisible();
   const screenLabel = (await screen.getAttribute('aria-label')) ?? '';
+  // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
+  // одна плашка, без круглой печати; в макете боковое меню разделов объясняет, что внутри
+  await expect(hero.locator('.hero__seal')).toHaveCount(0);
+  await expect(hero.locator('.hero__word')).toHaveCount(0);
+  await expect(hero.locator('.hero__status')).toHaveText(/Регистрация открыта/);
+  for (const section of [
+    'Сегодня',
+    'Клиенты',
+    'Расписание',
+    'Продажи',
+    'Команда',
+    'Финансы',
+    'Аналитика',
+  ]) {
+    await expect(hero.locator('.ops__rail')).toContainText(section);
+  }
   for (const word of [/клиент/i, /филиал/i, /задач/i, /продаж/i, /финанс/i]) {
     expect(screenLabel, `подпись экрана «Сегодня» без ${word}`).toMatch(word);
   }
@@ -177,8 +190,8 @@ test('первый экран — центр управления сервисн
   await expect(beauty).toContainText(/Следующее направление/);
   await expect(beauty).toContainText(/пока нельзя/);
   // Первый экран идёт раньше разделов про гостиницу
-  const order = await page.locator('main > section').evaluateAll((els) =>
-    els.map((el) => el.getAttribute('id') ?? el.className),
-  );
+  const order = await page
+    .locator('main > section')
+    .evaluateAll((els) => els.map((el) => el.getAttribute('id') ?? el.className));
   expect(order.indexOf('audience')).toBe(1);
 });

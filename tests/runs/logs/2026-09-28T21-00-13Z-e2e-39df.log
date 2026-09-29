@@ -1,0 +1,878 @@
+# Сквозные (e2e) · 29.09.2026 02:00 Алматы · vm
+# коммит 4750694 (claude/youthful-maxwell-t4fbbc)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts' 'tests/ui/trial-read-only.spec.ts' 'tests/ui/pii-storage.spec.ts' 'tests/ui/workspace.spec.ts' 'tests/ui/quality.spec.ts' 'tests/ui/accessibility.spec.ts' 'tests/ui/reservations-v2-r3.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 104 tests using 1 worker
+
+  ✓    1 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: light, 1440px (1.2m)
+  ✓    2 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: dark, 1440px (1.1m)
+  ✓    3 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: light, 390px (1.0m)
+  ✓    4 tests/ui/accessibility.spec.ts:55:5 › доступность всех разделов: dark, 390px (1.1m)
+  ✘    5 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 1440px (16.6s)
+  ✘    6 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 1440px (16.7s)
+  ✘    7 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 390px (16.8s)
+  ✘    8 tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 390px (16.7s)
+  ✓    9 tests/ui/guests-design.spec.ts:22:1 › гости: одна строка — один гость, разделы-чипы со счётчиками, состояние — слово о госте (3.6s)
+  ✓   10 tests/ui/guests-design.spec.ts:67:1 › гости: кейсы владельца — несколько проживаний, только отменённая бронь, давний выезд (1.5s)
+  ✘   11 tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) (16.5s)
+  ✓   12 tests/ui/guests-design.spec.ts:166:1 › гости: полная карточка — обзор, вся история, «Редактировать» (G4) (4.5s)
+  ✓   13 tests/ui/guests-design.spec.ts:238:1 › гости: документы и финансовый свод гостя (G5) (5.4s)
+  ✓   14 tests/ui/guests-design.spec.ts:290:1 › гости: автопоиск без кнопки «Найти», имя — ссылка, пустые состояния словами (4.0s)
+  ✘   15 tests/ui/guests-design.spec.ts:336:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) (17.2s)
+  ✓   16 tests/ui/guests-design.spec.ts:415:1 › гости: отборы по визиту и числу визитов, порядок, всё в адресе (G7) (10.3s)
+  ✓   17 tests/ui/guests-design.spec.ts:487:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (2.8s)
+  ✓   18 tests/ui/pii-storage.spec.ts:14:1 › новая бронь без имени и контактов: объяснение на месте, бронь создаётся (2.0s)
+  ✓   19 tests/ui/pii-storage.spec.ts:37:1 › бронь существующему гостю (G6) — без имён: гость показан, нового псевдонима нет (1.9s)
+  ✓   20 tests/ui/pii-storage.spec.ts:58:1 › карточка гостя: меняются только гражданство и пол, документы не вносятся (2.0s)
+  ✓   21 tests/ui/pii-storage.spec.ts:98:1 › Q-169: у заметки на карточке брони — подсказка без имён и телефонов; база в РК — без неё (3.4s)
+  ✓   22 tests/ui/quality.spec.ts:7:1 › неверные параметры списка броней оставляют доступные фильтры и понятную ошибку (2.8s)
+  ✓   23 tests/ui/quality.spec.ts:18:1 › короткий поиск гостей объясняет минимум символов (996ms)
+  ✓   24 tests/ui/quality.spec.ts:23:1 › повторяющиеся параметры поиска не обрушивают гости и журнал (1.6s)
+  ✓   25 tests/ui/quality.spec.ts:30:1 › операция проживания блокирует повторное нажатие до ответа сервера (2.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   26 tests/ui/quality.spec.ts:57:1 › отказ оплаты сохраняет введённую сумму, способ и примечание (3.7s)
+  ✓   27 tests/ui/quality.spec.ts:78:1 › ошибочные даты шахматки и месяца тарифов оставляют форму исправления (2.4s)
+  ✘   28 tests/ui/quality.spec.ts:95:1 › список гостей и вторая бронь открывают собственные карточки (16.5s)
+  ✓   29 tests/ui/quality.spec.ts:111:1 › медленная финансовая команда блокирует повтор и соседнюю оплату (1.9s)
+  ✓   30 tests/ui/quality.spec.ts:134:1 › изменение уборки относится только к выбранному номеру (2.4s)
+  ✓   31 tests/ui/quality.spec.ts:148:1 › неподключённые внешние демо не ведут на несуществующие страницы (2.2s)
+  ✓   32 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: профиль гостя (2.0s)
+  ✓   33 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: документ гостя (2.0s)
+  ✓   34 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: блокировка номера (2.0s)
+  ✓   35 tests/ui/quality.spec.ts:191:3 › отказ API сохраняет поля: сайт аналитики (1.8s)
+  ✘   36 tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список (16.6s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✘   37 tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше (18.9s)
+  ✘   38 tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» (16.6s)
+  ✘   39 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light (16.8s)
+  ✘   40 tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark (16.8s)
+  ✘   41 tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет (22.4s)
+  ✓   42 tests/ui/trial-read-only.spec.ts:72:1 › главный администратор: «Оплата получена» — организация работает; «Только чтение» — обратно (3.5s)
+  ✘   43 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (52.2s)
+  ✓   44 tests/ui/workspace.spec.ts:116:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (5.4s)
+  ✘   45 tests/ui/workspace.spec.ts:161:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (16.9s)
+  ✓   46 tests/ui/workspace.spec.ts:185:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (4.2s)
+  ✓   47 tests/ui/workspace.spec.ts:210:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.0s)
+  ✓   48 tests/ui/workspace.spec.ts:237:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (6.6s)
+  ✘   49 tests/ui/workspace.spec.ts:287:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (18.3s)
+  ✓   50 tests/ui/workspace.spec.ts:315:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (2.5s)
+  ✓   51 tests/ui/workspace.spec.ts:335:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.3s)
+  ✓   52 tests/ui/workspace.spec.ts:367:1 › карточка: профиль гостя и заселение проходят через server actions (3.6s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:144:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   142 |         /* тело не JSON */
+[WebServer]   143 |       }
+[WebServer] > 144 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   145 |   }
+[WebServer]   146 |   return (await res.json()) as T;
+[WebServer]   147 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:144:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   142 |         /* тело не JSON */
+[WebServer]   143 |       }
+[WebServer] > 144 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   145 |   }
+[WebServer]   146 |   return (await res.json()) as T;
+[WebServer]   147 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   53 tests/ui/workspace.spec.ts:412:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.1s)
+  ✘   54 tests/ui/workspace.spec.ts:429:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (16.5s)
+  ✓   55 tests/ui/workspace.spec.ts:446:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.7s)
+  ✓   56 tests/ui/workspace.spec.ts:466:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.5s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:144:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   142 |         /* тело не JSON */
+[WebServer]   143 |       }
+[WebServer] > 144 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   145 |   }
+[WebServer]   146 |   return (await res.json()) as T;
+[WebServer]   147 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   57 tests/ui/workspace.spec.ts:492:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.9s)
+  ✓   58 tests/ui/workspace.spec.ts:501:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.4s)
+  ✓   59 tests/ui/workspace.spec.ts:527:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (990ms)
+  ✓   60 tests/ui/workspace.spec.ts:539:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.1s)
+  ✓   61 tests/ui/workspace.spec.ts:546:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.0s)
+  ✓   62 tests/ui/workspace.spec.ts:555:1 › групповая бронь: разные категории сохраняются при конфликте (1.8s)
+  ✓   63 tests/ui/workspace.spec.ts:579:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.9s)
+  ✘   64 tests/ui/workspace.spec.ts:606:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия (17.8s)
+  ✓   65 tests/ui/workspace.spec.ts:648:1 › ошибка буфера обмена видна, код остаётся доступен (1.7s)
+  ✓   66 tests/ui/workspace.spec.ts:666:1 › финансы: неверные даты можно исправить без падения страницы (1.6s)
+  ✓   67 tests/ui/workspace.spec.ts:677:1 › ошибка загрузки тарифов не позволяет включить виджет (954ms)
+  ✓   68 tests/ui/workspace.spec.ts:686:1 › номера: статус уборки, блокировка и снятие сохраняются (3.1s)
+  ✓   69 tests/ui/workspace.spec.ts:716:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.5s)
+  ✓   70 tests/ui/workspace.spec.ts:743:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.5s)
+  ✓   71 tests/ui/workspace.spec.ts:752:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.2s)
+  ✓   72 tests/ui/workspace.spec.ts:771:1 › неисправности: когда история обрезана, это написано (2.0s)
+  ✓   73 tests/ui/workspace.spec.ts:779:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.4s)
+  ✓   74 tests/ui/workspace.spec.ts:791:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (3.2s)
+  ✓   75 tests/ui/workspace.spec.ts:817:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (5.3s)
+  ✓   76 tests/ui/workspace.spec.ts:862:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (5.6s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-28&to=2026-10-04: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:144:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:77:45)
+[WebServer]   142 |         /* тело не JSON */
+[WebServer]   143 |       }
+[WebServer] > 144 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   145 |   }
+[WebServer]   146 |   return (await res.json()) as T;
+[WebServer]   147 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:144:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   142 |         /* тело не JSON */
+[WebServer]   143 |       }
+[WebServer] > 144 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   145 |   }
+[WebServer]   146 |   return (await res.json()) as T;
+[WebServer]   147 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✘   77 tests/ui/workspace.spec.ts:914:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (22.8s)
+  ✓   78 tests/ui/workspace.spec.ts:979:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.7s)
+  ✓   79 tests/ui/workspace.spec.ts:1008:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (2.1s)
+  ✓   80 tests/ui/workspace.spec.ts:1032:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.5s)
+  ✓   81 tests/ui/workspace.spec.ts:1051:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (1.5s)
+  ✓   82 tests/ui/workspace.spec.ts:1064:1 › общие настройки показывают адрес PMS без дублирования контента Channex (1.8s)
+  ✓   83 tests/ui/workspace.spec.ts:1071:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (3.1s)
+  ✓   84 tests/ui/workspace.spec.ts:1100:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.7s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:144:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:26:28)
+[WebServer]   142 |         /* тело не JSON */
+[WebServer]   143 |       }
+[WebServer] > 144 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   145 |   }
+[WebServer]   146 |   return (await res.json()) as T;
+[WebServer]   147 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   85 tests/ui/workspace.spec.ts:1122:1 › фонд и категории открываются независимо от сбоя шахматки (3.7s)
+  ✓   86 tests/ui/workspace.spec.ts:1143:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.2s)
+  ✓   87 tests/ui/workspace.spec.ts:1159:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.1s)
+  ✓   88 tests/ui/workspace.spec.ts:1178:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (1.8s)
+  ✓   89 tests/ui/workspace.spec.ts:1193:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (975ms)
+  ✓   90 tests/ui/workspace.spec.ts:1206:1 › счета: приём оплаты подтверждается суммой на экране (1.9s)
+  ✓   91 tests/ui/workspace.spec.ts:1223:1 › деньги за период: период длиннее года объясняется на странице (1.2s)
+  ✓   92 tests/ui/workspace.spec.ts:1242:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.6s)
+  ✓   93 tests/ui/workspace.spec.ts:1261:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.6s)
+  ✓   94 tests/ui/workspace.spec.ts:1286:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.6s)
+  ✓   95 tests/ui/workspace.spec.ts:1306:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.4s)
+  ✓   96 tests/ui/workspace.spec.ts:1322:1 › каналы: входящая бронь ведёт на карточку брони (1.6s)
+  ✓   97 tests/ui/workspace.spec.ts:1335:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (1.6s)
+  ✓   98 tests/ui/workspace.spec.ts:1354:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.0s)
+  ✓   99 tests/ui/workspace.spec.ts:1372:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.3s)
+  ✓  100 tests/ui/workspace.spec.ts:1410:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.4s)
+  ✓  101 tests/ui/workspace.spec.ts:1476:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (4.0s)
+  ✓  102 tests/ui/workspace.spec.ts:1555:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (3.1s)
+  ✓  103 tests/ui/workspace.spec.ts:1603:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (4.6s)
+  ✓  104 tests/ui/workspace.spec.ts:1630:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.8s)
+
+
+  1) tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 1440px ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      125 |       await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+      126 |       const dialog = page.getByRole('dialog');
+    > 127 |       await expect(dialog).toBeVisible();
+          |                            ^
+      128 |       const report = [];
+      129 |       for (const tab of ['Обзор', 'Счета', 'Действия', 'История']) {
+      130 |         await dialog.getByRole('tab', { name: tab, exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/accessibility.spec.ts:127:28
+
+    Error Context: test-results/accessibility-доступность--bdc48--форм-и-drawer-light-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность--bdc48--форм-и-drawer-light-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность--bdc48--форм-и-drawer-light-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 1440px ───────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      125 |       await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+      126 |       const dialog = page.getByRole('dialog');
+    > 127 |       await expect(dialog).toBeVisible();
+          |                            ^
+      128 |       const report = [];
+      129 |       for (const tab of ['Обзор', 'Счета', 'Действия', 'История']) {
+      130 |         await dialog.getByRole('tab', { name: tab, exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/accessibility.spec.ts:127:28
+
+    Error Context: test-results/accessibility-доступность-открытых-форм-и-drawer-dark-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-открытых-форм-и-drawer-dark-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-открытых-форм-и-drawer-dark-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 390px ───────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      125 |       await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+      126 |       const dialog = page.getByRole('dialog');
+    > 127 |       await expect(dialog).toBeVisible();
+          |                            ^
+      128 |       const report = [];
+      129 |       for (const tab of ['Обзор', 'Счета', 'Действия', 'История']) {
+      130 |         await dialog.getByRole('tab', { name: tab, exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/accessibility.spec.ts:127:28
+
+    Error Context: test-results/accessibility-доступность-открытых-форм-и-drawer-light-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-открытых-форм-и-drawer-light-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-открытых-форм-и-drawer-light-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 390px ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      125 |       await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+      126 |       const dialog = page.getByRole('dialog');
+    > 127 |       await expect(dialog).toBeVisible();
+          |                            ^
+      128 |       const report = [];
+      129 |       for (const tab of ['Обзор', 'Счета', 'Действия', 'История']) {
+      130 |         await dialog.getByRole('tab', { name: tab, exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/accessibility.spec.ts:127:28
+
+    Error Context: test-results/accessibility-доступность-открытых-форм-и-drawer-dark-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-доступность-открытых-форм-и-drawer-dark-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-доступность-открытых-форм-и-drawer-dark-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Гость', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Гость', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Гость', exact: true })
+
+
+      106 |   await main.getByRole('link', { name: /Задолжавший/ }).click();
+      107 |   const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+    > 108 |   await expect(drawer).toBeVisible();
+          |                        ^
+      109 |   await expect(drawer.locator('.guest-preview__name')).toContainText('живёт');
+      110 |   await expect(drawer.getByTestId('guest-preview-now')).toContainText('R11');
+      111 |   await expect(drawer.getByTestId('guest-preview-now')).toContainText('до');
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:108:24
+
+    Error Context: test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-панель-15700-четов-переходы-и-Escape-G3-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/guests-design.spec.ts:336:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('new-reservation-form').getByTestId('booking-guest')
+    Expected substring: "Возвращающийся Гость"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('new-reservation-form').getByTestId('booking-guest') with timeout 15000ms
+      - waiting for getByTestId('new-reservation-form').getByTestId('booking-guest')
+
+
+      354 |   const form = page.getByTestId('new-reservation-form');
+      355 |   const picked = form.getByTestId('booking-guest');
+    > 356 |   await expect(picked).toContainText('Возвращающийся Гость');
+          |                        ^
+      357 |   await expect(picked).toContainText('<телефон>');
+      358 |   await expect(picked).toContainText('3 визита');
+      359 |   for (const name of ['firstName', 'lastName', 'middleName', 'email', 'phone'])
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:356:24
+
+    Error Context: test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-новая--0a72b-ефону-второго-гостя-нет-G6-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/quality.spec.ts:95:1 › список гостей и вторая бронь открывают собственные карточки ───
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Гость', exact: true })
+    Expected substring: "Гость Учебный"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Гость', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Гость', exact: true })
+
+
+      102 |   await link.click();
+      103 |   const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+    > 104 |   await expect(drawer).toContainText(label);
+          |                        ^
+      105 |   await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+      106 |   await expect(page.getByRole('heading', { level: 1 })).toContainText(label);
+      107 |   await page.goto('/reservations/20260913-TEST1');
+        at /home/user/wetop.ai/tests/ui/quality.spec.ts:104:24
+
+    Error Context: test-results/quality-список-гостей-и-вт-66ee9-рывают-собственные-карточки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/quality-список-гостей-и-вт-66ee9-рывают-собственные-карточки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/quality-список-гостей-и-вт-66ee9-рывают-собственные-карточки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Бронирование', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true })
+
+
+      66 |   await rowOf(page, created.unpaid).locator('.reservations-fin').click();
+      67 |   const drawer = drawerOf(page);
+    > 68 |   await expect(drawer).toBeVisible();
+         |                        ^
+      69 |   await expect(page).toHaveURL(new RegExp(`/reservations/${created.unpaid}$`));
+      70 |   const head = drawer.getByTestId('booking-head');
+      71 |   await expect(head).toContainText('+7 *** *** ** 12');
+        at /home/user/wetop.ai/tests/ui/reservations-v2-r3.spec.ts:68:24
+
+    Error Context: test-results/reservations-v2-r3-R3-щелч-0a2f3-нь»-«Назад»-в-тот-же-список/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-щелч-0a2f3-нь»-«Назад»-в-тот-же-список/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-щелч-0a2f3-нь»-«Назад»-в-тот-же-список/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Бронирование', exact: true }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true })
+
+
+      114 |   await opener.focus();
+      115 |   await page.keyboard.press('Enter');
+    > 116 |   await expect(drawerOf(page)).toBeVisible();
+          |                                ^
+      117 |   await page.keyboard.press('Escape');
+      118 |   await expect(drawerOf(page)).toHaveCount(0);
+      119 |   await expect(page).toHaveURL(/\/reservations\?view=today$/);
+        at /home/user/wetop.ai/tests/ui/reservations-v2-r3.spec.ts:116:32
+
+    Error Context: test-results/reservations-v2-r3-R3-двой-15f80-и-и-Esc-работают-как-раньше/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-двой-15f80-и-и-Esc-работают-как-раньше/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-двой-15f80-и-и-Esc-работают-как-раньше/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-due')
+    Expected substring: "к возврату"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-due') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-due')
+
+
+      128 |   await page.goto('/reservations?status=CANCELLED');
+      129 |   await rowOf(page, 'DSG-RFND').locator('.reservations-fin').click();
+    > 130 |   await expect(drawerOf(page).getByTestId('booking-due')).toContainText('к возврату');
+          |                                                           ^
+      131 |   await page.keyboard.press('Escape');
+      132 |   await rowOf(page, 'DSG-RETD').locator('.reservations-fin').click();
+      133 |   await expect(drawerOf(page).getByTestId('booking-due')).toHaveText('возвращено');
+        at /home/user/wetop.ai/tests/ui/reservations-v2-r3.spec.ts:130:59
+
+    Error Context: test-results/reservations-v2-r3-R3-отме-13c98-уппа-—-«⚠-1-без-размещения»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-отме-13c98-уппа-—-«⚠-1-без-размещения»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-отме-13c98-уппа-—-«⚠-1-без-размещения»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light ───────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-head')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-head') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-head')
+
+
+      152 |       await page.goto(list);
+      153 |       await rowOf(page, number).locator(cell).click();
+    > 154 |       await expect(drawerOf(page).getByTestId('booking-head')).toBeVisible();
+          |                                                                ^
+      155 |       await page.mouse.move(0, 0);
+      156 |       await page.screenshot({ path: `${report}/${theme}-${name}.png`, caret: 'initial' });
+      157 |     };
+        at shot (/home/user/wetop.ai/tests/ui/reservations-v2-r3.spec.ts:154:64)
+        at /home/user/wetop.ai/tests/ui/reservations-v2-r3.spec.ts:158:5
+
+    Error Context: test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-head')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-head') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Бронирование', exact: true }).getByTestId('booking-head')
+
+
+      152 |       await page.goto(list);
+      153 |       await rowOf(page, number).locator(cell).click();
+    > 154 |       await expect(drawerOf(page).getByTestId('booking-head')).toBeVisible();
+          |                                                                ^
+      155 |       await page.mouse.move(0, 0);
+      156 |       await page.screenshot({ path: `${report}/${theme}-${name}.png`, caret: 'initial' });
+      157 |     };
+        at shot (/home/user/wetop.ai/tests/ui/reservations-v2-r3.spec.ts:154:64)
+        at /home/user/wetop.ai/tests/ui/reservations-v2-r3.spec.ts:158:5
+
+    Error Context: test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-v2-r3-R3-стоп-гейт-снимки-для-владельца-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Гость', exact: true }).getByTestId('guest-preview')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Гость', exact: true }).getByTestId('guest-preview') with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Гость', exact: true }).getByTestId('guest-preview')
+
+
+      46 |   await main.getByTestId('guests-table').getByRole('link').first().click();
+      47 |   const drawer = page.getByRole('dialog', { name: 'Гость', exact: true });
+    > 48 |   await expect(drawer.getByTestId('guest-preview')).toBeVisible();
+         |                                                     ^
+      49 |   await expect(drawer.getByRole('link', { name: 'Новая бронь' })).toHaveCount(0);
+      50 |   await drawer.getByRole('link', { name: 'Открыть гостя', exact: true }).click();
+      51 |   await expect(page).toHaveURL(/\/guests\//);
+        at /home/user/wetop.ai/tests/ui/trial-read-only.spec.ts:48:53
+
+    Error Context: test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/trial-read-only-пробный-ср-652b7-бочих-экранах-в-срок-её-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected substring: "Аналитика"
+    Received string:    "Страница не найдена"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Страница не найдена</h1>
+           - unexpected value "Страница не найдена"
+
+
+      89 |     await page.goto(route!);
+      90 |     if (redirects[route!]) await expect(page).toHaveURL(redirects[route!]!);
+    > 91 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(title!);
+         |                                                           ^
+      92 |     await noPageOverflow(page);
+      93 |     if (
+      94 |       ['/today', '/chessboard', '/rooms', '/hotel-settings', '/channel-manager'].includes(route!)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:91:59
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/ui/workspace.spec.ts:161:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Новая бронь', exact: true }).getByRole('heading', { level: 1 })
+    Expected: "Новая бронь"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Новая бронь', exact: true }).getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Новая бронь', exact: true }).getByRole('heading', { level: 1 })
+
+
+      175 |       .getByRole('dialog', { name: 'Новая бронь', exact: true })
+      176 |       .getByRole('heading', { level: 1 }),
+    > 177 |   ).toHaveText('Новая бронь');
+          |     ^
+      178 |   await page.goto(`/rooms/availability?arrival=${departure}&departure=${arrival}`);
+      179 |   await expect(page.getByRole('main').getByRole('alert')).toContainText(
+      180 |     'Выезд должен быть позже заезда',
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:177:5
+
+    Error Context: test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/ui/workspace.spec.ts:287:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: locator('select[name="accommodationTypeCode"]')
+    Expected: "MALE"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" locator('select[name="accommodationTypeCode"]') with timeout 15000ms
+      - waiting for locator('select[name="accommodationTypeCode"]')
+
+
+      305 |   await page.getByTestId('free-cell').first().click();
+      306 |   await expect(page).toHaveURL(/unit=M03/);
+    > 307 |   await expect(page.locator('select[name="accommodationTypeCode"]')).toHaveValue('MALE');
+          |                                                                      ^
+      308 |   await expect(page.locator('select[name="unitCode"]')).toHaveValue('M03');
+      309 | });
+      310 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:307:70
+
+    Error Context: test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/ui/workspace.spec.ts:429:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog')
+    Expected substring: "Не удалось загрузить данные"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog') with timeout 15000ms
+      - waiting for getByRole('dialog')
+
+
+      437 |   await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA' }).click();
+      438 |   const dialog = page.getByRole('dialog');
+    > 439 |   await expect(dialog).toContainText('Не удалось загрузить данные');
+          |                        ^
+      440 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Брони');
+      441 |   await request.post(`${fixture}/__test/control`, { data: {} });
+      442 |   await dialog.getByRole('button', { name: 'Повторить загрузку' }).click();
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:439:24
+
+    Error Context: test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-сбой-карточки-бр-0fe78-очки-повтор-открывает-бронь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/ui/workspace.spec.ts:606:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator: locator('#booking-finance')
+    Expected: in viewport
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeInViewport" locator('#booking-finance') with timeout 15000ms
+      - waiting for locator('#booking-finance')
+
+
+      643 |   await tasks.getByRole('link', { name: /К оплате/ }).click();
+      644 |   await expect(page).toHaveURL(/#booking-finance$/);
+    > 645 |   await expect(page.locator('#booking-finance')).toBeInViewport();
+          |                                                  ^
+      646 | });
+      647 |
+      648 | test('ошибка буфера обмена видна, код остаётся доступен', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:645:50
+
+    Error Context: test-results/workspace-обзор-задачи-вед-f7cb6-е-экраны-сохраняют-действия/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-обзор-задачи-вед-f7cb6-е-экраны-сохраняют-действия/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-обзор-задачи-вед-f7cb6-е-экраны-сохраняют-действия/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/ui/workspace.spec.ts:914:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('statistics-error')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('statistics-error') with timeout 15000ms
+      - waiting for getByTestId('statistics-error')
+
+
+      963 |   await expect(page.getByTestId('pa-error')).toBeVisible();
+      964 |   await page.goto('/management/analytics/occupancy');
+    > 965 |   await expect(page.getByTestId('statistics-error')).toBeVisible();
+          |                                                      ^
+      966 |   await expect(page.locator('.kpi__value:visible')).toHaveCount(0);
+      967 |   await page.goto('/connections');
+      968 |   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:965:54
+
+    Error Context: test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-пустые-ответы-да-c4cf2--не-выдаётся-за-пустую-базу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19 failed
+    tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 1440px ───────
+    tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 1440px ────────
+    tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: light, 390px ────────
+    tests/ui/accessibility.spec.ts:119:5 › доступность открытых форм и drawer: dark, 390px ─────────
+    tests/ui/guests-design.spec.ts:96:1 › гости: панель предпросмотра — сейчас, история и долг из счетов, переходы и Escape (G3) 
+    tests/ui/guests-design.spec.ts:336:1 › гости: новая бронь этому же гостю — из карточки и по телефону, второго гостя нет (G6) 
+    tests/ui/quality.spec.ts:95:1 › список гостей и вторая бронь открывают собственные карточки ────
+    tests/ui/reservations-v2-r3.spec.ts:58:1 › R3: щелчок по любой ячейке открывает просмотр — телефон скрыт, финансы, «Открыть бронь», «Назад» в тот же список 
+    tests/ui/reservations-v2-r3.spec.ts:101:1 › R3: двойной щелчок — полная страница; ссылка первой ячейки и Esc работают как раньше 
+    tests/ui/reservations-v2-r3.spec.ts:123:1 › R3: отменённая — «к возврату» и «возвращено», а не «оплачено»; группа — «⚠ 1 без размещения» 
+    tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, light ─────────
+    tests/ui/reservations-v2-r3.spec.ts:144:3 › R3, стоп-гейт: снимки для владельца, dark ──────────
+    tests/ui/trial-read-only.spec.ts:25:1 › пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет 
+    tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+    tests/ui/workspace.spec.ts:161:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+    tests/ui/workspace.spec.ts:287:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+    tests/ui/workspace.spec.ts:429:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь 
+    tests/ui/workspace.spec.ts:606:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия 
+    tests/ui/workspace.spec.ts:914:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу 
+  85 passed (14.7m)
+
+# код выхода 1 · 14 мин 41 с

@@ -4374,3 +4374,6 @@
 | 29.09.2026 21:04 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 1 из 3 | 15 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-04-16Z-e2e-95bd.log) | GREEN chat design and retained drafts; synthetic network only |
 | 29.09.2026 21:05 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ✅ 4 из 4 | 12 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-05-01Z-e2e-15f2.log) | Chat browser QA: theme, keyboard, attachments, failed drafts, XSS, duplicate sends |
 | 29.09.2026 21:08 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 22 с | 113fd18 | [лог](logs/2026-09-29T16-08-17Z-e2e-317f.log) |  |
+| 29.09.2026 21:13 | typecheck | ✅ без ошибок | 35 с | 61bc328 | [лог](logs/2026-09-29T16-13-18Z-typecheck-5784.log) | SEC-4 после слияния main |
+| 29.09.2026 21:14 | lint | ✅ без ошибок | 21 с | 61bc328 | [лог](logs/2026-09-29T16-14-02Z-lint-4ca6.log) | SEC-4 после слияния main |
+| 29.09.2026 21:14 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 27 с | 61bc328 | [лог](logs/2026-09-29T16-14-23Z-unit-f790.log) | SEC-4 после слияния main: полный unit |

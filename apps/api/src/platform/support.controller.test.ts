@@ -23,6 +23,7 @@ import {
   type SupportPort,
 } from './support.connection';
 import { SupportController } from './support.controller';
+import { SupportKnowledgeService } from './support-kb.service';
 import { SUPPORT_NOT_CONNECTED, SUPPORT_PROMPT_MAX, SupportService } from './support.service';
 
 /**
@@ -101,6 +102,7 @@ beforeAll(async () => {
     controllers: [SupportController],
     providers: [
       SupportService,
+      SupportKnowledgeService,
       { provide: SUPPORT_CONNECTION, useValue: connection },
       { provide: EXTENSIONS_REPOSITORY, useValue: organizations },
       { provide: SUPPORT_AUDIT, useFactory: () => audit },

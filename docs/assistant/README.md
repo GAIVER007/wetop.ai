@@ -91,6 +91,22 @@ SELECT message, status, count(*) AS n
 `my_subscription` для вошедших берёт организацию из подписи (ничего называть не нужно), обращению
 без подписи нужен ID — точным совпадением (рекомендация Q-187).
 
+### `GET /assistant/requester` (S4)
+
+Контекст обратившегося для помощника поддержки: роль, организация, бизнесы и филиалы, состояние аккаунта
+(`ACTIVE`/`TRIAL`/`READ_ONLY`/`SUSPENDED`, можно ли менять данные, причина, срок пробного периода), права роли.
+Параметры `userId` и `organizationId` — из подписи посетителя, которую бот проверил сам; API сверяет пару с членством
+(чужая организация — 404). Ответа без почты, телефона, имени и внутренних id. Третий адрес узкого ключа помощника.
+
+### База знаний WETOP Support (S3, только помощник, только служебный ключ)
+
+Панель бота: `GET/POST /support-knowledge`, `GET/PUT /support-knowledge/{id}`, `POST /support-knowledge/{id}/publish`
+(`approved_by` обязателен), `POST /support-knowledge/{id}/status` (`DRAFT`/`OUTDATED`/`ARCHIVED`; `ACTIVE` ставит только
+публикация), `GET /conversations/{id}/knowledge` (на каких знаниях строились ответы), `POST
+/conversations/{id}/knowledge-draft` (пустой черновик из закрытого обращения). Платформа: `platform/support/kb…` — только
+главный администратор; `by` и `approved_by` ставит сервер из сессии. Таблицы бота — миграция `0006`. Правила состояния
+и видимости — `plans/ai-agents-s3-knowledge-2026-09-29.md`.
+
 ### `GET /guard/status`
 
 Состояние системы — то же, что видит экран «Неисправности»: `{ …, dbDownSince, open: { total, critical, escalated, byClass } }`.

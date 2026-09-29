@@ -2,12 +2,13 @@ import 'reflect-metadata';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   MAX_CHESSBOARD_DAYS,
-  availableUnitsForStay,
-  capStayAvailability,
-  categoryAvailability,
+  NEAREST_DAYS_DEFAULT,
   buildChessboard,
   daySpan,
+  nearestAvailability,
+  sellableStay,
   type Chessboard,
+  type NearestStay,
   type StayAvailability,
 } from '@pms/domain';
 import {
@@ -78,30 +79,80 @@ export class ChessboardService {
       this.repo.blocks(arrival, lastNight),
       this.repo.soldStays(arrival, departure),
     ]);
-    const stay = availableUnitsForStay({
+    // Q-107: остаток стойки не больше остатка канала — проживания без ячейки уже проданы
+    return sellableStay({
       arrivalDate: arrival,
       departureDate: departure,
       units,
       allocations,
       blocks,
+      sold,
     });
-    // Q-107: остаток стойки не больше остатка канала — проживания без ячейки уже проданы
-    const unitCategory = new Map(units.map((u) => [u.id, u.accommodationTypeCode]));
-    const byCategory = new Map<string, number>();
-    for (const u of units)
-      byCategory.set(u.accommodationTypeCode, (byCategory.get(u.accommodationTypeCode) ?? 0) + 1);
-    const perNight = categoryAvailability({
-      from: arrival,
-      to: lastNight,
-      units: [...byCategory].map(([code, active]) => ({ code, active })),
-      blocks: blocks.map((b) => ({
-        accommodationTypeCode: unitCategory.get(b.unitId) ?? '',
-        dateFrom: b.dateFrom,
-        dateTo: b.dateTo,
-      })),
-      items: sold,
-    });
-    return capStayAvailability(stay, perNight);
+  }
+
+  /**
+   * Ближайшая доступность (ADR-110, ТЗ «Свободные места» §7, AV4): для каждой категории — первое окно того же
+   * срока с заездом от `arrival` до `arrival + days`, где продать можно на весь запрос (номер — один на всех,
+   * койки — по одной на гостя). Каждое окно считается как `GET /availability`; данные читаются один раз.
+   */
+  async nearest(
+    arrival?: string,
+    departure?: string,
+    guestsRaw?: string,
+    daysRaw?: string,
+  ): Promise<{
+    arrivalDate: string;
+    departureDate: string;
+    guests: number;
+    days: number;
+    byCategory: Record<string, NearestStay>;
+  }> {
+    if (
+      !arrival ||
+      !departure ||
+      !ISO.test(arrival) ||
+      !ISO.test(departure) ||
+      Number.isNaN(Date.parse(arrival)) ||
+      Number.isNaN(Date.parse(departure)) ||
+      departure <= arrival
+    )
+      throw new BadRequestException(
+        'arrival/departure должны быть датами YYYY-MM-DD, departure > arrival',
+      );
+    const lastNight = plusDays(departure, -1);
+    if (daySpan(arrival, lastNight) > MAX_CHESSBOARD_DAYS)
+      throw new BadRequestException(`Максимум ${MAX_CHESSBOARD_DAYS} ночей`);
+    const guests = Number(guestsRaw ?? '1');
+    if (!Number.isInteger(guests) || guests < 1 || guests > 99)
+      throw new BadRequestException('guests — целое от 1 до 99');
+    // глубина — параметр экрана, не правило продажи (ТЗ §7); предел — чтобы запрос оставался дешёвым
+    const days = Number(daysRaw ?? NEAREST_DAYS_DEFAULT);
+    if (!Number.isInteger(days) || days < 1 || days > 31)
+      throw new BadRequestException('days — целое от 1 до 31');
+    const [units, allocations, blocks, sold] = await Promise.all([
+      this.repo.units(),
+      this.repo.allocations(arrival, plusDays(lastNight, days)),
+      this.repo.blocks(arrival, plusDays(lastNight, days)),
+      this.repo.soldStays(arrival, plusDays(departure, days)),
+    ]);
+    const need: Record<string, number> = {};
+    for (const u of units) need[u.accommodationTypeCode] = u.kind === 'BED' ? guests : 1;
+    return {
+      arrivalDate: arrival,
+      departureDate: departure,
+      guests,
+      days,
+      byCategory: nearestAvailability({
+        arrivalDate: arrival,
+        departureDate: departure,
+        days,
+        need,
+        units,
+        allocations,
+        blocks,
+        sold,
+      }),
+    };
   }
 
   async reservation(number: string): Promise<ReservationCard> {

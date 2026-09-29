@@ -1,0 +1,22 @@
+{
+  "results": [
+    {
+      "url": "https://wetop.ai/",
+      "status": 200,
+      "h1": "Весь бизнес.\nВ одном ритме.",
+      "aiTab": true
+    },
+    {
+      "url": "https://www.wetop.ai/",
+      "status": 200,
+      "h1": "Весь бизнес.\nВ одном ритме.",
+      "aiTab": true
+    }
+  ],
+  "pageErrors": [],
+  "mobileOverflow": 0,
+  "savedTheme": "light",
+  "faqOpen": true,
+  "deployment": "c3a58971",
+  "sha": "70cdb2b6"
+}

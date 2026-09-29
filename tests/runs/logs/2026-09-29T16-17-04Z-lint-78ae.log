@@ -1,0 +1,5 @@
+# Линтер (lint) · 29.09.2026 21:17 Алматы · vm
+# коммит d9eb3bd (claude/sec1a-rls-fail-closed)
+# npx eslint .
+
+# код выхода 0 · 23 с

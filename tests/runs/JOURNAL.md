@@ -4350,6 +4350,14 @@
 | 29.09.2026 20:29 | typecheck | ✅ без ошибок | 24 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-29-41Z-typecheck-5a4f.log) | SEC-4 финал |
 | 29.09.2026 20:30 | lint | ✅ без ошибок | 21 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-30-15Z-lint-2d4b.log) | SEC-4 финал |
 | 29.09.2026 20:30 | unit | ❌ упало 4 из 2378, пропущено 3 | 1 мин 24 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-30-36Z-unit-ef65.log) | SEC-4 финал: полный unit |
+| 29.09.2026 21:03 | unit (частично: packages/database/src/rls-startup.test.ts) | ❌ код выхода 1 | 2 с | 586e3de +1 | [лог](logs/2026-09-29T16-03-28Z-unit-b967.log) | SEC-1a red: fail-closed RLS |
+| 29.09.2026 21:03 | unit (частично: packages/database) | ✅ 29 из 29 | 6 с | 586e3de +4 | [лог](logs/2026-09-29T16-03-49Z-unit-437e.log) | SEC-1a green: fail-closed RLS |
+| 29.09.2026 21:04 | typecheck | ✅ без ошибок | 26 с | 586e3de +4 | [лог](logs/2026-09-29T16-04-08Z-typecheck-ae18.log) | SEC-1a |
+| 29.09.2026 21:04 | lint | ❌ ошибок: 1 | 22 с | 586e3de +4 | [лог](logs/2026-09-29T16-04-44Z-lint-7c18.log) | SEC-1a |
+| 29.09.2026 21:05 | unit | ❌ упало 4 из 2388, пропущено 3 | 1 мин 27 с | 586e3de +4 | [лог](logs/2026-09-29T16-05-07Z-unit-e9ff.log) | SEC-1a: полный unit |
+| 29.09.2026 21:06 | lint | ✅ без ошибок | 21 с | 586e3de +4 | [лог](logs/2026-09-29T16-06-49Z-lint-265f.log) | SEC-1a финал |
+| 29.09.2026 21:07 | typecheck | ✅ без ошибок | 24 с | 586e3de +4 | [лог](logs/2026-09-29T16-07-11Z-typecheck-d4d4.log) | SEC-1a финал |
+| 29.09.2026 21:07 | unit | ❌ упало 4 из 2388, пропущено 3 | 1 мин 22 с | 586e3de +4 | [лог](logs/2026-09-29T16-07-44Z-unit-ebbe.log) | SEC-1a финал: полный unit |
 | 29.09.2026 19:12 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 17 | 1 мин 29 с | 707c2e0 | [лог](logs/2026-09-29T14-12-33Z-e2e-78f3.log) | главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » |
 | 29.09.2026 19:15 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 22 с | 707c2e0 +5 | [лог](logs/2026-09-29T14-15-36Z-e2e-d06e.log) |  |
 | 29.09.2026 19:18 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 20 с | 707c2e0 +5 | [лог](logs/2026-09-29T14-18-01Z-e2e-17ef.log) |  |
@@ -4385,3 +4393,6 @@
 | 29.09.2026 21:14 | lint | ✅ без ошибок | 21 с | 61bc328 | [лог](logs/2026-09-29T16-14-02Z-lint-4ca6.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 27 с | 61bc328 | [лог](logs/2026-09-29T16-14-23Z-unit-f790.log) | SEC-4 после слияния main: полный unit |
 | 29.09.2026 21:18 | unit (частично: apps/web/src/lib/assistant-widget.test.ts apps/web/src/lib/security-headers.test.ts apps/api/src/security-headers.test.ts) | ✅ 21 из 21 | 5 с | 7ee096d | [лог](logs/2026-09-29T16-18-18Z-unit-73d0.log) | Post-merge chat and newly merged security header contracts |
+| 29.09.2026 21:16 | typecheck | ✅ без ошибок | 25 с | d9eb3bd | [лог](logs/2026-09-29T16-16-29Z-typecheck-b304.log) | SEC-1a после слияния main |
+| 29.09.2026 21:17 | lint | ✅ без ошибок | 23 с | d9eb3bd | [лог](logs/2026-09-29T16-17-04Z-lint-78ae.log) | SEC-1a после слияния main |
+| 29.09.2026 21:17 | unit | ❌ упало 1 из 2425, пропущено 3 | 1 мин 28 с | d9eb3bd | [лог](logs/2026-09-29T16-17-28Z-unit-904c.log) | SEC-1a после слияния main: полный unit |

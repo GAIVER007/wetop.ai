@@ -4168,3 +4168,4 @@
 | 29.09.2026 13:48 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 1 из 18 | 18 с | 02ee07e | [лог](logs/2026-09-29T08-48-41Z-e2e-f429.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 13:50 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 1 из 18 | 18 с | 02ee07e | [лог](logs/2026-09-29T08-50-44Z-e2e-d726.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 13:52 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 18 из 18 | 18 с | 02ee07e | [лог](logs/2026-09-29T08-52-28Z-e2e-bcba.log) |  |
+| 29.09.2026 13:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 612 из 612 | 52 мин 59 с | fed7a66 | [лог](logs/2026-09-29T08-53-04Z-e2e-e28d.log) |  |

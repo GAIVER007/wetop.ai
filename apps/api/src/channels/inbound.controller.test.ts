@@ -14,9 +14,34 @@ import {
   type ReservationsRepository,
 } from '../reservations/reservations.repository';
 import { ChannelsModule } from './channels.module';
-import { ARI_PUBLISHER, NoopAriPublisher } from './ari-publisher';
+import { ARI_PUBLISHER } from './ari-publisher';
 import { CHANNELS_REPOSITORY, CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
 import { InboundBookingsService, decimalToMinor, sanitizeRevision } from './inbound.service';
+
+/** Что вернёт снятие блоков соседних ночей при отмене (ADR-021); тест задаёт, сброс — в beforeEach */
+let releasedBlocks: Array<{ categoryCode: string; from: string; toExclusive: string }> = [];
+/** Дельты доступности, поставленные в очередь; inTx — шла ли в этот момент транзакция разбора ревизии */
+const published: Array<{
+  categoryCodes: string[];
+  from: string;
+  toExclusive: string;
+  inTx: boolean;
+}> = [];
+const deltaLostLog: string[] = [];
+let inTx = false;
+let publishFails = false;
+const recordingPublisher = {
+  async reservationChanged(c: { categoryCodes: string[]; from: string; toExclusive: string }) {
+    if (publishFails) throw new Error('очередь недоступна');
+    published.push({ ...c, inTx });
+  },
+  async ratesChanged() {
+    return 0;
+  },
+  async deltaLost(_c: unknown, error: string) {
+    deltaLostLog.push(error);
+  },
+};
 
 /** Ревизия по примеру bookings-collection.md (Booking.com), гость вымышленный. */
 function revision(
@@ -153,7 +178,7 @@ function makeFakes() {
       prepayments.push({ itemId, amountMinor, externalReference });
     },
     async releaseStayExtraBlocks() {
-      return [];
+      return releasedBlocks;
     },
     async settleChannelPrepaymentAfterCancel(itemId) {
       // как в Prisma: остаётся ровно сумма штрафов проживания, без штрафа предоплата снимается
@@ -232,7 +257,9 @@ function makeFakes() {
     async createReservation(input) {
       // ошибка записи с данными гостя в тексте — как у Prisma, которая печатает аргументы (SECURITY.md §7)
       if (input.confirmationNumber === 'BDC-FAIL-PII')
-        throw new Error('Invalid value for notes: call +7 700 000 00 00, write test.guest@example.com');
+        throw new Error(
+          'Invalid value for notes: call +7 700 000 00 00, write test.guest@example.com',
+        );
       const rid = id('r');
       const items = input.items.map((it) => ({
         id: id('i'),
@@ -456,6 +483,10 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
   let fakes = makeFakes();
   beforeEach(() => {
     fakes = makeFakes();
+    releasedBlocks = [];
+    published.length = 0;
+    deltaLostLog.length = 0;
+    publishFails = false;
     process.env.CHANNEX_WEBHOOK_SECRET = 'test-webhook-secret';
     // ADR-018: без соли гость канала не запишется вовсе — режим хранения ПД задаётся окружением
     process.env.ANONYMIZE_SALT = 'test-salt';
@@ -470,14 +501,21 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       .overrideProvider(RESERVATIONS_UOW)
       .useFactory({
         factory: () => ({
-          run: (fn: (r: ReservationsRepository) => Promise<unknown>) => fn(fakes.repo),
+          run: async (fn: (r: ReservationsRepository) => Promise<unknown>) => {
+            inTx = true;
+            try {
+              return await fn(fakes.repo);
+            } finally {
+              inTx = false;
+            }
+          },
           read: (fn: (r: ReservationsRepository) => Promise<unknown>) => fn(fakes.repo),
         }),
       })
       .overrideProvider(CHANNELS_REPOSITORY)
       .useValue({})
       .overrideProvider(ARI_PUBLISHER)
-      .useValue(new NoopAriPublisher())
+      .useValue(recordingPublisher)
       .overrideProvider(CHESSBOARD_REPOSITORY)
       .useValue({})
       .overrideProvider(PrismaService)
@@ -603,8 +641,68 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     const cancelled = fakes.auditEntries.find((e) => e.action === 'channex.booking.cancelled');
     expect(cancelled).toMatchObject({
       before: { confirmationNumber: 'BDC-9996013801', status: 'CONFIRMED' },
-      after: { confirmationNumber: 'BDC-9996013801', status: 'CANCELLED', uniqueId: 'BDC-9996013801' },
+      after: {
+        confirmationNumber: 'BDC-9996013801',
+        status: 'CANCELLED',
+        uniqueId: 'BDC-9996013801',
+      },
     });
+  });
+
+  it('дельта доступности: новая, изменённая и отменённая ревизия ставят её после коммита; отмена — ещё и по снятым блокам соседних ночей', async () => {
+    fakes.setFeed([revision()]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(published).toEqual([
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-11-10',
+        toExclusive: '2026-11-12',
+        inTx: false,
+      },
+    ]);
+
+    published.length = 0;
+    fakes.setFeed([
+      revision({
+        id: 'rev-2',
+        status: 'modified',
+        arrival_date: '2026-11-11',
+        departure_date: '2026-11-13',
+        rooms: [
+          {
+            ...revision().attributes.rooms[0]!,
+            checkin_date: '2026-11-11',
+            checkout_date: '2026-11-13',
+          },
+        ],
+      }),
+    ]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(published).toHaveLength(1);
+    expect(published[0]).toMatchObject({
+      from: '2026-11-10',
+      toExclusive: '2026-11-13',
+      inTx: false,
+    });
+
+    published.length = 0;
+    releasedBlocks = [
+      { categoryCode: 'category-single', from: '2026-11-13', toExclusive: '2026-11-14' },
+    ];
+    fakes.setFeed([revision({ id: 'rev-3', status: 'cancelled' })]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    // остаток считается по базе после коммита: до него блок соседней ночи ещё стоит и ночь выглядела бы занятой
+    expect(published.map((p) => p.inTx)).toEqual([false, false]);
+    expect(published.map((p) => `${p.from}→${p.toExclusive}`)).toContain('2026-11-13→2026-11-14');
+  });
+
+  it('сбой постановки дельты после ACK не рвёт разбор ревизии и оставляет след для сторожа', async () => {
+    publishFails = true;
+    fakes.setFeed([revision()]);
+    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(res.body.outcomes[0]).toMatchObject({ result: 'created' });
+    expect(fakes.acks).toEqual(['rev-1']);
+    expect(deltaLostLog).toEqual(['очередь недоступна']);
   });
 
   it('перенесённая из Legacy бронь канала опознаётся по номеру брони OTA: модификация не создаёт дубль, отмена освобождает ячейку', async () => {
@@ -745,7 +843,6 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     return seeded;
   };
 
-
   it('предупреждения разбора не теряются: записываются в журнал события (PROCESSED + текст) — и при webhook, где результат никто не читает', async () => {
     // ячейка u-9001 занята перенесённой броней Agoda: её Channex не подтягивает, бронь Booking.com новая,
     // а свободной ячейки для неё нет — предупреждение «без ячейки»
@@ -830,7 +927,12 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
   it('ADR-018: в журнале события ревизия без заказчика, гостей, заметки и карты — пока база не в РК', async () => {
     // Проверка по SECURITY.md 24.09.2026: гостя обезличивали, а ревизию целиком клали в external_events.payload
     fakes.setFeed([
-      revision({ id: 'rev-pii-payload', unique_id: 'BDC-PII-P', raw_message: 'RAW-OTA-MESSAGE', agent: 'AGENT-X' }),
+      revision({
+        id: 'rev-pii-payload',
+        unique_id: 'BDC-PII-P',
+        raw_message: 'RAW-OTA-MESSAGE',
+        agent: 'AGENT-X',
+      }),
     ]);
     await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
     const ev = [...fakes.events.values()].find((e) => e.id.endsWith('rev-pii-payload'))!;
@@ -865,7 +967,9 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
   it('PII_STORAGE=real (база в РК): ревизия хранится целиком, кроме карты', async () => {
     process.env.PII_STORAGE = 'real';
     try {
-      fakes.setFeed([revision({ id: 'rev-real', unique_id: 'BDC-REAL', raw_message: 'RAW-OTA-MESSAGE' })]);
+      fakes.setFeed([
+        revision({ id: 'rev-real', unique_id: 'BDC-REAL', raw_message: 'RAW-OTA-MESSAGE' }),
+      ]);
       await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
       const ev = [...fakes.events.values()].find((e) => e.id.endsWith('rev-real'))!;
       const customer = revision().attributes.customer!;
@@ -894,7 +998,9 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
         },
       })
       .expect(200);
-    await vi.waitFor(() => expect([...fakes.events.values()].some((e) => e.type === 'message')).toBe(true));
+    await vi.waitFor(() =>
+      expect([...fakes.events.values()].some((e) => e.type === 'message')).toBe(true),
+    );
     const ev = [...fakes.events.values()].find((e) => e.type === 'message')!;
     expect(JSON.stringify(ev.payload)).not.toContain('Позвоните');
     expect(ev.payload).toMatchObject({ booking_id: 'bk-1', message_thread_id: 'thread-1' });
@@ -909,7 +1015,9 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       }),
     ]);
     await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect([...fakes.reservations.values()][0]!.notes).toBe('Late arrival, call <телефон> or mail <почта>');
+    expect([...fakes.reservations.values()][0]!.notes).toBe(
+      'Late arrival, call <телефон> or mail <почта>',
+    );
   });
 
   it('SECURITY.md §7: текст ошибки разбора ревизии пишется в last_error без почты и телефонов', async () => {

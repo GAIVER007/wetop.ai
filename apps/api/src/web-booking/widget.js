@@ -195,6 +195,14 @@
         return el('option', { value: String(n), text: String(n) });
       }),
     );
+    // Промокод (D4): необязательный; скидку считает сервер, виджет только передаёт код и показывает ответ
+    var promo = el('input', {
+      type: 'text',
+      name: 'promo',
+      maxlength: '32',
+      autocomplete: 'off',
+      'data-pmsw': 'promo',
+    });
     var quoteBtn = el('button', { type: 'button', text: 'Показать цены', 'data-pmsw': 'quote' });
     var list = el('div', { 'data-pmsw': 'list' });
     var msg = el('div', { class: 'msg', 'data-pmsw': 'msg' });
@@ -215,6 +223,7 @@
           el('label', { text: 'Заезд' }, [arrival]),
           el('label', { text: 'Выезд' }, [departure]),
           el('label', { text: 'Гостей' }, [adults]),
+          el('label', { text: 'Промокод' }, [promo]),
           quoteBtn,
         ]),
       ]),
@@ -251,7 +260,8 @@
           '&departure=' +
           q.departure +
           '&adults=' +
-          q.adults,
+          q.adults +
+          (promo.value.trim() ? '&promo=' + encodeURIComponent(promo.value.trim()) : ''),
       )
         .then(function (r) {
           renderQuote(r);
@@ -283,6 +293,19 @@
           '.',
       });
       list.appendChild(head);
+      if (r.promo)
+        list.appendChild(
+          el('div', {
+            class: 'found',
+            'data-pmsw': 'promo-applied',
+            text:
+              'Промокод ' +
+              r.promo.code +
+              ': скидка ' +
+              r.promo.discountPercent +
+              '%. Если у тарифа уже есть скидка, действует большая.',
+          }),
+        );
       var any = false;
       r.categories.forEach(function (c) {
         var can = c.fits && !c.closed && c.available > 0 && c.totalMinor !== null;
@@ -423,6 +446,7 @@
           departure: r.departureDate,
           category: c.code,
           adults: r.adults,
+          promo: r.promo ? r.promo.code : '',
           guest: {
             firstName: first.value,
             lastName: last.value,

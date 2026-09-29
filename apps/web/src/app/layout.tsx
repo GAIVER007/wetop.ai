@@ -5,6 +5,7 @@ import { ToastProvider } from '../components/toast';
 import { TopNav } from '../components/top-nav';
 import { AccountMenu } from '../components/shell/account-menu';
 import { AssistantWidget } from '../components/shell/assistant-widget';
+import { ClearAssistantOnPublicEntry } from '../components/shell/assistant-widget-script';
 import { OnboardingGate } from './onboarding-gate';
 import { PropertyTimeProvider } from '../components/property-time';
 import { DeskAccessProvider } from '../components/desk-access';
@@ -67,6 +68,7 @@ export default async function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         </head>
         <body>
+          <ClearAssistantOnPublicEntry />
           <ThemeProvider>
             <ToastProvider>{children}</ToastProvider>
           </ThemeProvider>

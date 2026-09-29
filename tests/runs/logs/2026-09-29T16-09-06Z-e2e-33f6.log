@@ -1,0 +1,41 @@
+# Сквозные (e2e) · 29.09.2026 21:09 Алматы · MacBook-Air-Urij.local
+# коммит bfd4160 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.widget.config.ts' '--grep' 'regression:'
+
+Running 1 test using 1 worker
+
+(node:35715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/widget-design.spec.ts:98:1 › regression: failed request preserves original draft (6.5s)
+
+
+  1) tests/ui/widget-design.spec.ts:98:1 › regression: failed request preserves original draft ─────
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('.pmsw-i')
+    Expected: "Синтетический черновик"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" locator('.pmsw-i') with timeout 5000ms
+      - waiting for locator('.pmsw-i')
+        14 × locator resolved to <input type="text" class="pmsw-i" placeholder="Ваш вопрос"/>
+           - unexpected value ""
+
+
+      100 |   await page.locator('.pmsw-f .pmsw-s').click();
+      101 |   await expect(page.locator('.pmsw-chip')).toContainText('Не отправилось');
+    > 102 |   await expect(page.locator('.pmsw-i')).toHaveValue('Синтетический черновик');
+          |                                         ^
+      103 | });
+      104 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:102:41
+
+    Error Context: test-results/widget-design-regression-f-af892-st-preserves-original-draft/error-context.md
+
+  1 failed
+    tests/ui/widget-design.spec.ts:98:1 › regression: failed request preserves original draft ──────
+
+# код выхода 1 · 13 с

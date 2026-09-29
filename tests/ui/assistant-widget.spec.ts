@@ -7,7 +7,7 @@ import { expect, test, type Page } from './fixtures';
  * Сотрудник и пароль — вымышленные, из фикстуры интерфейса (ADR-010).
  */
 const API = 'http://127.0.0.1:4314';
-const WIDGET_SRC = 'http://127.0.0.1:4315/widget/widget.js';
+const WIDGET_SRC = 'http://127.0.0.1:4315/widget/widget.js?v=20260929';
 const EMAIL = 'admin@wetop.test';
 const PASSWORD = 'ui-test-parol';
 
@@ -34,12 +34,10 @@ async function signIn(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/today/);
 }
 
-test('невошедший видит чат анонимно: тег есть, data-identity нет', async ({ page }) => {
+test('на публичном экране входа виджет не загружается', async ({ page }) => {
   await page.goto('/login');
-  const tag = page.locator(`script[src="${WIDGET_SRC}"]`);
-  await expect(tag).toHaveCount(1);
-  expect(await tag.getAttribute('data-identity')).toBeNull();
-  expect(await widgetIdentity(page)).toBe('');
+  await expect(page.locator(`script[src="${WIDGET_SRC}"]`)).toHaveCount(0);
+  await expect(page.locator('.pmsw')).toHaveCount(0);
 });
 
 test('после входа виджет загружен с подписью вошедшего; переходы по стойке его не перезагружают', async ({
@@ -76,10 +74,9 @@ test('после «Выйти» виджет прежнего человека �
   await page.getByRole('button', { name: 'Меню администратора' }).click();
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(/\/login/);
-  await expect.poll(() => widgetIdentity(page)).toBe('');
-  expect(
-    await page.locator(`script[src="${WIDGET_SRC}"]`).getAttribute('data-identity'),
-  ).toBeNull();
+  await expect(page.locator('.pmsw')).toHaveCount(0);
+  await expect(page.locator(`script[src="${WIDGET_SRC}"]`)).toHaveCount(0);
+  await expect.poll(() => page.evaluate('typeof window.__assistantWidget')).toBe('undefined');
 });
 
 test('на телефоне пузырь чата стоит над нижней навигацией, а не на ней', async ({ page }) => {

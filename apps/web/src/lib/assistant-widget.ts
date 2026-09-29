@@ -5,7 +5,8 @@
  * Без зависимостей от сервера: этим же файлом пользуется клиентский сторож смены вошедшего.
  */
 
-const WIDGET_PATH = '/widget/widget.js';
+// Bump when shipping widget UI: CDN and browser caches otherwise keep the old script.
+const WIDGET_PATH = '/widget/widget.js?v=20260929';
 
 /** Адрес скрипта по `ASSISTANT_URL`. Пусто или не http(s) — `null`: тега нет, а не скрипт с чужой схемой */
 export function assistantScriptSrc(base: string | undefined | null): string | null {

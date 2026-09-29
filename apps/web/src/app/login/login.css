@@ -52,7 +52,7 @@
 .login-page--entry .login-form .inp {
   min-height: 48px;
   height: 48px;
-  font-size: 16px;
+  font-size: var(--text-lg);
   padding: 8px 16px;
 }
 .login-page--entry .login-form form > .btn {
@@ -120,7 +120,7 @@
 }
 .login-page--entry .login-message p {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--text-lg);
   line-height: var(--leading-relaxed);
 }
 .login-features {

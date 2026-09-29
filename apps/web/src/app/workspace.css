@@ -31,7 +31,7 @@ svg {
 }
 .placement-fields legend {
   color: var(--text-2);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   padding: 0 6px;
 }
@@ -113,7 +113,7 @@ svg {
 }
 .workspace-property strong {
   display: block;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 .workspace-property div > span {
@@ -134,7 +134,7 @@ svg {
   margin: 3px 0;
   border-radius: 7px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 400;
 }
 .workspace-link svg {
@@ -161,7 +161,7 @@ svg {
   margin-top: auto;
   padding: 24px 8px 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .workspace-footer strong {
   font-weight: 500;
@@ -175,7 +175,7 @@ svg {
 /* Свежесть данных Channex и очереди ARI. */
 .sidebar-freshness {
   padding: 0 4px 10px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.4;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -212,7 +212,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -232,7 +232,7 @@ svg {
   background: none;
   color: var(--muted);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--text-xs);
   margin-left: auto;
 }
 .workspace-search kbd {
@@ -274,7 +274,7 @@ svg {
   overflow-wrap: anywhere;
 }
 .page__subtitle {
-  font-size: 14px;
+  font-size: var(--text-md);
   margin-top: 8px;
 }
 .page__actions {
@@ -295,7 +295,7 @@ svg {
   border-color: var(--border);
 }
 .stat__label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   margin-bottom: 10px;
 }
 .stat__value {
@@ -320,7 +320,7 @@ svg {
 }
 .section-title {
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--text-lg);
   margin-top: 26px;
   margin-bottom: 12px;
 }
@@ -333,7 +333,7 @@ svg {
 .tbl td {
   padding: 14px 16px;
   vertical-align: middle;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .tbl th:first-child {
   border-top-left-radius: 9px;
@@ -367,7 +367,7 @@ svg {
 .btn {
   gap: 8px;
   border-radius: 7px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   min-height: 40px;
   padding: 8px 14px;
@@ -388,12 +388,12 @@ svg {
   padding: 8px 11px;
   border-color: var(--border);
   background: var(--surface);
-  font-size: 13px;
+  font-size: var(--text-sm);
   max-width: 100%;
   border-radius: 7px;
 }
 .field {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   gap: 7px;
 }
@@ -418,13 +418,13 @@ svg {
   margin-bottom: 6px;
 }
 .fact__value {
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 .seg {
   border-radius: 7px;
 }
 .seg a {
-  font-size: 12px;
+  font-size: var(--text-xs);
   padding: 7px 12px;
 }
 .split {
@@ -469,11 +469,11 @@ dialog::backdrop {
   gap: 16px;
 }
 .dialog-heading h2 {
-  font-size: 20px;
+  font-size: var(--text-2xl);
   margin: 0;
 }
 .search-dialog > p {
-  font-size: 13px;
+  font-size: var(--text-sm);
   margin: 14px 0 24px;
 }
 .mobile-navigation {
@@ -748,18 +748,18 @@ dialog::backdrop {
   width: 32px;
   height: 32px;
   color: var(--primary);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   background: var(--primary-soft);
   border-radius: 8px;
 }
 .form-section-title h2 {
-  font-size: 16px;
+  font-size: var(--text-lg);
   margin: 0;
   font-weight: 600;
 }
 .form-section-title p {
-  font-size: 12px;
+  font-size: var(--text-xs);
   margin: 4px 0 0;
   color: var(--muted);
 }
@@ -838,7 +838,7 @@ dialog::backdrop {
   background: var(--warning-soft);
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   max-height: 160px;
   overflow: auto;
 }
@@ -862,7 +862,7 @@ dialog::backdrop {
 }
 .board-help {
   margin-top: 16px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 .board-help summary {
@@ -892,7 +892,7 @@ dialog::backdrop {
 .board .board__d {
   display: inline-grid;
   place-items: center;
-  font-size: 18px;
+  font-size: var(--text-xl);
   height: 28px;
   width: 28px;
   border-radius: 7px;
@@ -967,11 +967,11 @@ dialog::backdrop {
 }
 .board .board__unit-head {
   padding-left: 16px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .board-group-toggle > span:first-child {
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--text-md);
 }
 @media (max-width: 700px) {
   .board-period {

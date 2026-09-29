@@ -199,7 +199,7 @@ button {
   margin: 0;
   color: var(--muted);
   font-family: var(--font-head);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -249,7 +249,7 @@ button {
   border: 1px solid transparent;
   border-radius: 999px;
   font-family: var(--font-head);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-decoration: none;
@@ -266,7 +266,7 @@ button {
 }
 .btn--sm {
   padding: 8px 16px;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 .btn--lg {
   padding: 16px 28px;
@@ -323,7 +323,7 @@ button {
   border-radius: 999px;
   color: var(--primary);
   font-family: var(--font-head);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   text-decoration: none;
   transition:
@@ -339,7 +339,7 @@ button {
   align-items: center;
   gap: 8px;
   color: var(--muted);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
 }
@@ -424,7 +424,7 @@ button {
   border-radius: 999px;
   color: var(--text-2);
   font-family: var(--font-head);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -576,7 +576,7 @@ button {
   border-radius: 999px;
   background: var(--glass-bg-strong);
   color: var(--text-2);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   box-shadow: var(--glass-inset);
 }
@@ -649,7 +649,7 @@ button {
 .hero__note {
   margin-top: 14px;
   color: var(--muted);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 .hero__points {
   display: flex;
@@ -664,7 +664,7 @@ button {
   align-items: center;
   gap: 8px;
   color: var(--text-2);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -1019,13 +1019,13 @@ button {
 }
 .stat__label {
   color: var(--text-2);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.3;
 }
 .stat__note {
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
 }
 .stats__quote {
   display: flex;
@@ -1041,13 +1041,13 @@ button {
 .stats__quote p {
   color: var(--text);
   font-family: var(--font-head);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.45;
 }
 .stats__quote cite {
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-style: normal;
 }
 
@@ -1101,7 +1101,7 @@ button {
 }
 .showcase-card__text {
   color: var(--text-2);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 .showcase-card .tag-list {
   margin-top: 8px;
@@ -1124,7 +1124,7 @@ button {
   z-index: 2;
   color: var(--text);
   font-family: var(--font-head);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   opacity: 0.75;
@@ -1263,7 +1263,7 @@ button {
 }
 .card__text {
   color: var(--text-2);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 .card__text + .tag-list {
   margin-top: auto;
@@ -1281,7 +1281,7 @@ button {
   border-radius: 999px;
   background: var(--chip-bg);
   color: var(--chip-fg);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1304,7 +1304,7 @@ button {
   border-radius: var(--radius-lg);
 }
 .panel__title {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 
 /* модули: строка «что входит» с отметкой */
@@ -1320,7 +1320,7 @@ button {
 }
 .modules__name {
   color: var(--text);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 .modules__state {
@@ -1328,7 +1328,7 @@ button {
   align-items: center;
   gap: 6px;
   color: var(--success);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1388,7 +1388,7 @@ button {
 }
 .channel-tile__name {
   color: var(--text-2);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1.2;
   overflow-wrap: anywhere;
@@ -1531,7 +1531,7 @@ button {
 .connect__label {
   color: var(--muted);
   font-family: var(--font-head);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1546,7 +1546,7 @@ button {
   gap: 12px;
   min-width: 0;
   color: var(--text-2);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 .contact-list .icon {
   color: var(--primary);
@@ -1585,11 +1585,11 @@ button {
 }
 .connect__text {
   color: var(--text-2);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 .connect__link {
   font-family: var(--font-head);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
@@ -1627,7 +1627,7 @@ button {
 }
 .company__facts dt {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1684,7 +1684,7 @@ button {
 .post-card__date {
   order: -1;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-variant-numeric: tabular-nums;
 }
 .post-card__title {
@@ -1775,7 +1775,7 @@ button {
   display: block;
   margin-top: 20px;
   color: var(--muted);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 
 .prose {
@@ -1971,7 +1971,7 @@ button {
 }
 .site-footer__brand p {
   color: var(--text-2);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 .site-footer__links {
   display: flex;
@@ -1990,7 +1990,7 @@ button {
   border-radius: 999px;
   color: var(--text-2);
   font-family: var(--font-head);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2012,7 +2012,7 @@ button {
   padding-top: 20px;
   border-top: 1px solid var(--border-soft);
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.06em;
   text-align: center;
 }
@@ -2106,7 +2106,7 @@ button {
 .auth-dialog__lead {
   margin: 0;
   color: var(--text-2);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.55;
 }
 .auth-dialog__status {
@@ -2115,7 +2115,7 @@ button {
   border-radius: var(--radius-sm);
   background: var(--success-soft);
   color: var(--success);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 .auth-dialog__alert {
   display: grid;
@@ -2124,7 +2124,7 @@ button {
   border-radius: var(--radius-sm);
   background: var(--danger-soft);
   color: var(--danger);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 .auth-dialog__alert a {
   color: inherit;
@@ -2174,7 +2174,7 @@ button {
   background: transparent;
   color: var(--text-2);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -2197,7 +2197,7 @@ button {
   gap: 6px;
 }
 .auth-field__label {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
 }
 .auth-field__input {
@@ -2262,7 +2262,7 @@ button {
   background: transparent;
   color: var(--text-2);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -2280,7 +2280,7 @@ button {
   align-items: flex-start;
   gap: 10px;
   min-height: 44px;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   line-height: 1.5;
 }
 .auth-consent input {
@@ -2296,7 +2296,7 @@ button {
 .auth-form__hint {
   margin: -4px 0 0;
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 .auth-form__submit {
@@ -2313,7 +2313,7 @@ button {
   justify-content: space-between;
   gap: 8px 16px;
   color: var(--text-2);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 .auth-form__foot a {
   color: var(--primary);
@@ -2352,7 +2352,7 @@ button {
 }
 .legal__meta {
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 /*
@@ -2688,7 +2688,7 @@ button {
   background: var(--glass-bg-strong);
   color: var(--text-2);
   font-family: var(--font-head);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

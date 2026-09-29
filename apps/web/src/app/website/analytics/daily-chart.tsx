@@ -71,7 +71,7 @@ export function DailyChart({
               x={padL - 6}
               y={y(t) + 4}
               textAnchor="end"
-              fontSize={11}
+              fontSize={13}
               fill="var(--muted-2)"
               className="chart__tick"
             >
@@ -108,7 +108,7 @@ export function DailyChart({
                   x={x + barW / 2}
                   y={H - 6}
                   textAnchor="middle"
-                  fontSize={11}
+                  fontSize={13}
                   fill="var(--muted-2)"
                 >
                   {Number(r.date.slice(8, 10))}

@@ -13,13 +13,30 @@
 .guests-reset {
   white-space: nowrap;
 }
-/* G7: отборы под поиском — одна строка списков и «Показать», как вторая строка панели «Броней» (R2) */
+/* G8 (§47): поиск и отборы одной строкой над таблицей; не помещаются — переносятся, а не сжимаются */
+.guests-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.guests-bar .guests-toolbar {
+  flex: 1 1 280px;
+  max-width: 400px;
+  margin: 0;
+}
+/* поле поиска — блок, а не строчный label: иначе лупа (absolute) считается от строки текста и съезжает */
+.guests-bar .search-field {
+  display: block;
+}
+/* G7: отборы — списки и «Показать», как вторая строка панели «Броней» (R2) */
 .guests-filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  margin: 0 0 var(--space-4);
+  margin: 0;
 }
 .guests-filters .field {
   margin: 0;
@@ -53,8 +70,17 @@
   max-width: 220px;
 }
 @media (max-width: 600px) {
-  .guests-toolbar {
+  .guests-toolbar,
+  .guests-bar .guests-toolbar {
+    flex-basis: 100%;
     max-width: none;
+  }
+  .guests-filters {
+    flex: 1 1 100%;
+  }
+  /* в карточке телефона визиты словом («3 визита»), число без подписи не читается */
+  .guests-visits__num {
+    display: none;
   }
   .dir-contacts .dir-sub,
   .dir-now .dir-sub {

@@ -1,0 +1,17 @@
+# Модульные (unit) · 29.09.2026 01:40 Алматы · vm
+# коммит d42c150 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T20-40-28Z-unit-71f1.json' 'apps/web/src/lib/hotel-time.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 3225ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 3198ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  20:40:29
+   Duration  3.40s (tests 99%, transform 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T20-40-28Z-unit-71f1.json
+
+# код выхода 0 · 4 с

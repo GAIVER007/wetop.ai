@@ -51,7 +51,7 @@ test('раздел в меню «Продажи», четыре вкладки, 
     'aria-expanded',
     'true',
   );
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-продавец');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-агенты');
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
   await expect(tabs).toHaveText(['Настройка', 'Диалоги', 'Знания', 'Подключения']);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CLOSED_ACCESS,
+  activeNavigation,
   PENDING_ACCESS,
   UNKNOWN_ACCESS,
   deskAccessOf,
@@ -39,7 +40,7 @@ describe('меню по ролям', () => {
       '/chessboard',
       '/reservations',
       '/guests',
-      '/ai-seller',
+      '/ai-agents',
       '/finance',
       '/management/analytics',
       '/incidents',
@@ -123,5 +124,20 @@ describe('право вошедшего', () => {
     expect(deskAccessOf({ user: {} }).role).toBe('STAFF');
     expect(deskAccessOf({ user: null })).toBe(CLOSED_ACCESS);
     expect(deskAccessOf(null)).toBe(CLOSED_ACCESS);
+  });
+});
+
+describe('«ИИ-агенты» (S0)', () => {
+  it('пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела', () => {
+    const item = navigationItems.find((i) => i.href === '/ai-agents');
+    expect(item?.label).toBe('ИИ-агенты');
+    expect(navigationItems.some((i) => i.href === '/ai-seller')).toBe(false);
+  });
+
+  it('страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее', () => {
+    expect(activeNavigation('/ai-seller')?.href).toBe('/ai-agents');
+    expect(activeNavigation('/ai-seller/dialogs')?.href).toBe('/ai-agents');
+    expect(routeRule('/ai-seller')?.requires).toBe('dialogs');
+    expect(routeRule('/ai-agents')?.requires).toBe('dialogs');
   });
 });

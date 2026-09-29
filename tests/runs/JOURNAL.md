@@ -4156,3 +4156,6 @@
 | 29.09.2026 12:36 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 20 с | db97edc | [лог](logs/2026-09-29T07-36-58Z-unit-5008.log) | PR #149 merged with main 44f401e0 (db97edc2) |
 | 29.09.2026 12:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-unassigned.spec.ts tests/ui/today-attention.spec.ts tests/ui/today-operati | ✅ 81 из 81 | 5 мин 7 с | db97edc | [лог](logs/2026-09-29T07-38-23Z-e2e-7a1f.log) | PR #149 merged with main 44f401e0 (db97edc2): PR6 + Главная A3 specs |
 | 29.09.2026 12:43 | e2e | ✅ 25 из 25 | 1 мин 2 с | db97edc | [лог](logs/2026-09-29T07-43-45Z-e2e-9e6e.log) | PR #149 merged with main 44f401e0 (db97edc2): live e2e on a fresh web build |
+| 29.09.2026 13:09 | typecheck | ✅ без ошибок | 31 с | 44b6810 | [лог](logs/2026-09-29T08-09-35Z-typecheck-8b99.log) |  |
+| 29.09.2026 13:10 | lint | ✅ без ошибок | 17 с | 44b6810 | [лог](logs/2026-09-29T08-10-07Z-lint-c752.log) |  |
+| 29.09.2026 13:10 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 23 с | 44b6810 | [лог](logs/2026-09-29T08-10-25Z-unit-1247.log) | G8 на main 844ecb9c, перед вливанием |

@@ -1,0 +1,354 @@
+# Сквозные (e2e) · 29.09.2026 18:37 Алматы · vm
+# коммит 183c470 (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/support-kb.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 11 tests using 1 worker
+
+  ✘   1 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (18.3s)
+  ✘   2 tests/ui/support-kb.spec.ts:61:1 › не главный администратор: раздела нет, данных базы знаний не видно (17.8s)
+  ✘   3 tests/ui/support-kb.spec.ts:69:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (45.3s)
+  ✘   4 tests/ui/support-kb.spec.ts:93:1 › публикация отменяется: без «да» запись остаётся черновиком (45.2s)
+  ✘   5 tests/ui/support-kb.spec.ts:103:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (45.2s)
+  ✘   6 tests/ui/support-kb.spec.ts:117:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (17.7s)
+  ✓   7 tests/ui/support-kb.spec.ts:135:1 › у открытого обращения кнопки «Создать знание» нет (2.8s)
+  ✘   8 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 1440 (17.8s)
+  ✘   9 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 390 (17.7s)
+  ✘  10 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 1440 (18.3s)
+  ✘  11 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 390 (17.8s)
+
+
+  1) tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('navigation', { name: 'Техподдержка' }).getByRole('link', { name: 'База знаний' })
+    Expected: "page"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('navigation', { name: 'Техподдержка' }).getByRole('link', { name: 'База знаний' }) with timeout 15000ms
+      - waiting for getByRole('navigation', { name: 'Техподдержка' }).getByRole('link', { name: 'База знаний' })
+
+
+      45 |   await admin(page, request);
+      46 |   await page.goto('/platform/support/base');
+    > 47 |   await expect(page.getByRole('navigation', { name: 'Техподдержка' }).getByRole('link', { name: 'База знаний' })).toHaveAttribute('aria-current', 'page');
+         |                                                                                                                   ^
+      48 |   const rows = catalog(page).getByRole('row');
+      49 |   await expect(rows).toHaveCount(4); // шапка + три записи стенда
+      50 |   await expect(catalog(page)).toContainText('Как изменить время заезда');
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:47:115
+
+    Error Context: test-results/support-kb-каталог-чипы-ст-e683e-ью-версией-отбор-по-статусу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-каталог-чипы-ст-e683e-ью-версией-отбор-по-статусу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-каталог-чипы-ст-e683e-ью-версией-отбор-по-статусу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/support-kb.spec.ts:61:1 › не главный администратор: раздела нет, данных базы знаний не видно 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('support-forbidden')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('support-forbidden') with timeout 15000ms
+      - waiting for getByTestId('support-forbidden')
+
+
+      63 |   await signIn(page);
+      64 |   await page.goto('/platform/support/base');
+    > 65 |   await expect(page.getByTestId('support-forbidden')).toBeVisible();
+         |                                                       ^
+      66 |   await expect(page.getByTestId('kb-catalog')).toHaveCount(0);
+      67 | });
+      68 |
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:65:55
+
+    Error Context: test-results/support-kb-не-главный-адми-56fb6-данных-базы-знаний-не-видно/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-не-главный-адми-56fb6-данных-базы-знаний-не-видно/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-не-главный-адми-56fb6-данных-базы-знаний-не-видно/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/support-kb.spec.ts:69:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('kb-catalog').getByRole('link', { name: 'Как изменить время заезда' })
+
+
+      70 |   await admin(page, request);
+      71 |   await page.goto('/platform/support/base?status=ACTIVE');
+    > 72 |   await catalog(page).getByRole('link', { name: 'Как изменить время заезда' }).click();
+         |                                                                                ^
+      73 |   const panel = page.getByTestId('kb-entry');
+      74 |   await expect(panel).toContainText('Версия 2');
+      75 |   await expect(panel).toContainText('Отвечает');
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:72:80
+
+    Error Context: test-results/support-kb-запись-правка-а-50af8-ждением-и-автором-из-сессии/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-запись-правка-а-50af8-ждением-и-автором-из-сессии/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-запись-правка-а-50af8-ждением-и-автором-из-сессии/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/support-kb.spec.ts:93:1 › публикация отменяется: без «да» запись остаётся черновиком ─
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('kb-catalog').getByRole('link', { name: /только чтение/ })
+
+
+      94 |   await admin(page, request);
+      95 |   await page.goto('/platform/support/base?status=DRAFT');
+    > 96 |   await catalog(page).getByRole('link', { name: /только чтение/ }).click();
+         |                                                                    ^
+      97 |   const panel = page.getByTestId('kb-entry');
+      98 |   await panel.getByRole('button', { name: 'Опубликовать' }).click();
+      99 |   await page.getByRole('dialog').getByRole('button', { name: 'Не публиковать' }).click();
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:96:68
+
+    Error Context: test-results/support-kb-публикация-отме-166e7--запись-остаётся-черновиком/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-публикация-отме-166e7--запись-остаётся-черновиком/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-публикация-отме-166e7--запись-остаётся-черновиком/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/support-kb.spec.ts:103:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('kb-entry').getByLabel('Текст знания')
+
+
+      105 |   await page.goto('/platform/support/base?new=1');
+      106 |   const form = page.getByTestId('kb-entry');
+    > 107 |   await form.getByLabel('Текст знания').fill('Симптом: …');
+          |                                         ^
+      108 |   await form.getByRole('button', { name: 'Сохранить' }).click();
+      109 |   await expect(page.getByTestId('kb-error')).toBeVisible();
+      110 |   await expect(form.getByLabel('Текст знания')).toHaveValue('Симптом: …');
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:107:41
+
+    Error Context: test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-создание-записи-7ab3d--остаётся-верное-—-черновик/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/support-kb.spec.ts:117:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('kb-sources')
+    Expected substring: "На основании"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('kb-sources') with timeout 15000ms
+      - waiting for getByTestId('kb-sources')
+
+
+      119 |   await page.goto(`/platform/support?id=${SIGNED}`);
+      120 |   const sources = page.getByTestId('kb-sources');
+    > 121 |   await expect(sources).toContainText('На основании');
+          |                         ^
+      122 |   await expect(sources).toContainText('Как изменить время заезда');
+      123 |   await expect(sources).toContainText('версия 2');
+      124 |
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:121:25
+
+    Error Context: test-results/support-kb-«На-основании»--4ca09-обращения-—-черновик-знания/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-«На-основании»--4ca09-обращения-—-черновик-знания/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-«На-основании»--4ca09-обращения-—-черновик-знания/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 1440 ───────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('kb-catalog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('kb-catalog') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('kb-catalog')
+
+
+      146 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      147 |       await page.goto('/platform/support/base');
+    > 148 |       await expect(catalog(page)).toBeVisible();
+          |                                   ^
+      149 |       expect((await new AxeBuilder({ page }).analyze()).violations.map((v) => v.id)).toEqual([]);
+      150 |       await shot(page, `catalog-${theme}-${width}`);
+      151 |       await page.getByRole('main').getByTestId('kb-catalog').getByRole('link').first().click();
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:148:35
+
+    Error Context: test-results/support-kb-каталог-и-запись-axe-и-снимок-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-каталог-и-запись-axe-и-снимок-light-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-каталог-и-запись-axe-и-снимок-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 390 ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('kb-catalog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('kb-catalog') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('kb-catalog')
+
+
+      146 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      147 |       await page.goto('/platform/support/base');
+    > 148 |       await expect(catalog(page)).toBeVisible();
+          |                                   ^
+      149 |       expect((await new AxeBuilder({ page }).analyze()).violations.map((v) => v.id)).toEqual([]);
+      150 |       await shot(page, `catalog-${theme}-${width}`);
+      151 |       await page.getByRole('main').getByTestId('kb-catalog').getByRole('link').first().click();
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:148:35
+
+    Error Context: test-results/support-kb-каталог-и-запись-axe-и-снимок-light-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-каталог-и-запись-axe-и-снимок-light-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-каталог-и-запись-axe-и-снимок-light-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 1440 ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('kb-catalog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('kb-catalog') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('kb-catalog')
+
+
+      146 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      147 |       await page.goto('/platform/support/base');
+    > 148 |       await expect(catalog(page)).toBeVisible();
+          |                                   ^
+      149 |       expect((await new AxeBuilder({ page }).analyze()).violations.map((v) => v.id)).toEqual([]);
+      150 |       await shot(page, `catalog-${theme}-${width}`);
+      151 |       await page.getByRole('main').getByTestId('kb-catalog').getByRole('link').first().click();
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:148:35
+
+    Error Context: test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 390 ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('kb-catalog')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('kb-catalog') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('kb-catalog')
+
+
+      146 |       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      147 |       await page.goto('/platform/support/base');
+    > 148 |       await expect(catalog(page)).toBeVisible();
+          |                                   ^
+      149 |       expect((await new AxeBuilder({ page }).analyze()).violations.map((v) => v.id)).toEqual([]);
+      150 |       await shot(page, `catalog-${theme}-${width}`);
+      151 |       await page.getByRole('main').getByTestId('kb-catalog').getByRole('link').first().click();
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:148:35
+
+    Error Context: test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-каталог-и-запись-axe-и-снимок-dark-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу 
+    tests/ui/support-kb.spec.ts:61:1 › не главный администратор: раздела нет, данных базы знаний не видно 
+    tests/ui/support-kb.spec.ts:69:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии 
+    tests/ui/support-kb.spec.ts:93:1 › публикация отменяется: без «да» запись остаётся черновиком ──
+    tests/ui/support-kb.spec.ts:103:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик 
+    tests/ui/support-kb.spec.ts:117:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания 
+    tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 1440 ────────────────
+    tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 390 ─────────────────
+    tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 1440 ─────────────────
+    tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 390 ──────────────────
+  1 passed (4.7m)
+
+# код выхода 1 · 4 мин 43 с

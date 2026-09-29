@@ -1,0 +1,386 @@
+# Сквозные (e2e) · 29.09.2026 18:18 Алматы · vm
+# коммит f5b58b3 (claude/epic-lamport-3il4q0)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ai-agents.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/seller-workspace.spec.ts' 'tests/ui/seller-agent-editor.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 68 tests using 1 worker
+
+  ✓   1 tests/ui/ai-agents.spec.ts:26:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (4.1s)
+  ✓   2 tests/ui/ai-agents.spec.ts:49:1 › главный администратор: рядом с продавцом карточка WETOP Support (4.5s)
+  ✓   3 tests/ui/ai-agents.spec.ts:61:1 › расширение не подключено: карточка не зовёт в настройки, а объясняет (3.3s)
+  ✓   4 tests/ui/ai-agents.spec.ts:72:1 › срок расширения вышел: раздел открывается, карточка не прячется (2.8s)
+  ✓   5 tests/ui/ai-agents.spec.ts:80:1 › старый адрес /ai-seller работает (3.3s)
+  ✓   6 tests/ui/ai-agents.spec.ts:88:5 › вход в раздел: axe и снимок, light, 1440 (3.8s)
+  ✓   7 tests/ui/ai-agents.spec.ts:88:5 › вход в раздел: axe и снимок, light, 390 (3.2s)
+  ✓   8 tests/ui/ai-agents.spec.ts:88:5 › вход в раздел: axe и снимок, dark, 1440 (3.4s)
+  ✓   9 tests/ui/ai-agents.spec.ts:88:5 › вход в раздел: axe и снимок, dark, 390 (2.9s)
+  ✓  10 tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (3.0s)
+  ✓  11 tests/ui/ai-seller.spec.ts:70:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (2.9s)
+  ✓  12 tests/ui/ai-seller.spec.ts:97:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.5s)
+  ✓  13 tests/ui/ai-seller.spec.ts:122:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (2.2s)
+  ✓  14 tests/ui/ai-seller.spec.ts:137:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (4.9s)
+  ✓  15 tests/ui/ai-seller.spec.ts:165:1 › продавец недоступен — метка, причина и обещание повтора (1.4s)
+  ✓  16 tests/ui/ai-seller.spec.ts:176:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.5s)
+  ✓  17 tests/ui/ai-seller.spec.ts:191:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (8.9s)
+  ✓  18 tests/ui/ai-seller.spec.ts:205:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (2.3s)
+  ✓  19 tests/ui/ai-seller.spec.ts:236:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (3.2s)
+  ✓  20 tests/ui/ai-seller.spec.ts:270:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.4s)
+  ✓  21 tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (5.3s)
+  ✓  22 tests/ui/ai-seller.spec.ts:304:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (3.7s)
+  ✓  23 tests/ui/ai-seller.spec.ts:318:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (2.4s)
+  ✓  24 tests/ui/ai-seller.spec.ts:335:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (3.6s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <AiSellerPage>
+[WebServer]       <Page>
+[WebServer]         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]           <header>
+[WebServer]           ...
+[WebServer]             <SellerScreen>
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   <ConnectionsView>
+[WebServer]                     <Stack>
+[WebServer]                       <div className="stack">
+[WebServer]                         ...
+[WebServer]                           <form className="stack stac...">
+[WebServer]                             <Field label="API-ключ м...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="key" type="password" maxLength={200} autoComplete="off" placeholder="sk-…" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="key"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={200}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="sk-…"
+[WebServer]                                     data-testid="seller-llm-key-input"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         <section>
+[WebServer]                         ...
+[WebServer]                           <form className="stack stac...">
+[WebServer]                             <Field label="phone_numb...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="phoneNumberId" inputMode="numeric" maxLength={64} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="phoneNumberId"
+[WebServer]                                     inputMode="numeric"
+[WebServer]                                     maxLength={64}
+[WebServer]                                     placeholder="из консоли Meta, только цифры"
+[WebServer]                                     data-testid="seller-whatsapp-phone-id"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Постоянный...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="token" type="password" maxLength={512} autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="token"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={512}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="EAAG…"
+[WebServer]                                     data-testid="seller-whatsapp-token"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Секрет при...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="appSecret" type="password" maxLength={200} autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="appSecret"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={200}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     data-testid="seller-whatsapp-secret"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]  
+  ✓  25 tests/ui/ai-seller.spec.ts:364:1 › снимки экранов раздела (6.0s)
+  ✓  26 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (3.3s)
+  ✓  27 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.1s)
+  ✓  28 tests/ui/navigation.spec.ts:86:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.7s)
+  ✓  29 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (10.4s)
+  ✓  30 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: light (5.3s)
+  ✓  31 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: dark (4.9s)
+  ✓  32 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (4.6s)
+  ✓  33 tests/ui/platform-access.spec.ts:77:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.6s)
+  ✓  34 tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (5.3s)
+  ✓  35 tests/ui/platform-access.spec.ts:131:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (5.0s)
+  ✓  36 tests/ui/platform-access.spec.ts:158:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.4s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     ...
+[WebServer]                       <h2>
+[WebServer]                       <p>
+[WebServer]                       <KnowledgeUploadForm>
+[WebServer]                         <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                           <Field label="Документ: ...">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="file"
+[WebServer]                                   name="file"
+[WebServer]                                   accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                   required={true}
+[WebServer]                                   data-testid="knowledge-file"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  37 tests/ui/platform-access.spec.ts:171:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (5.1s)
+  ✓  38 tests/ui/platform-access.spec.ts:194:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (8.7s)
+  ✓  39 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, light, 1440px (15.7s)
+  ✓  40 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, dark, 1440px (12.4s)
+  ✓  41 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, light, 390px (11.4s)
+  ✓  42 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, dark, 390px (11.9s)
+  ✘  43 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (15.9s)
+  ✓  44 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (6.0s)
+  ✓  45 tests/ui/platform-support.spec.ts:103:1 › знания помощника: список и загрузка документа (4.7s)
+  ✓  46 tests/ui/platform-support.spec.ts:123:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (10.1s)
+  ✓  47 tests/ui/platform-support.spec.ts:175:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.8s)
+  ✓  48 tests/ui/platform-support.spec.ts:192:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.3s)
+  ✓  49 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 1440px (15.1s)
+  ✓  50 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 1440px (14.8s)
+  ✓  51 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 390px (14.0s)
+  ✓  52 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 390px (13.8s)
+  ✓  53 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (3.7s)
+  ✓  54 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (7.8s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  55 tests/ui/roles.spec.ts:99:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.3s)
+  ✓  56 tests/ui/roles.spec.ts:116:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.1s)
+  ✓  57 tests/ui/roles.spec.ts:144:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (8.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  58 tests/ui/roles.spec.ts:206:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (6.2s)
+  ✓  59 tests/ui/roles.spec.ts:257:1 › владелец: зовёт управляющего и администратора, меняет роль (3.2s)
+  ✓  60 tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий (2.2s)
+  ✓  61 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.3s)
+  ✓  62 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.3s)
+  ✓  63 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 390px (5.2s)
+  ✓  64 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.0s)
+  ✓  65 tests/ui/seller-agent-editor.spec.ts:3:1 › агент из списка: редактирование, сохранение и повторное открытие (5.1s)
+  ✓  66 tests/ui/seller-agent-editor.spec.ts:25:1 › выключенный каталог объясняет состояние и не предлагает неработающее создание (1.4s)
+  ✓  67 tests/ui/seller-workspace.spec.ts:11:1 › окно инструкции и проверка: светлая и тёмная темы, 1440–320, без горизонтального скролла (7.2s)
+  ✓  68 tests/ui/seller-workspace.spec.ts:26:1 › широкий экран — проверка рядом с окном, телефон — под ним; подписи вкладок не сжаты (2.7s)
+
+
+  1) tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected value: "/ai-seller"
+    Received array: ["/today", "/chessboard", "/reservations", "/guests", "/inventory", "/rates", "/channels", "/website", "/ai-agents", "/finance", …]
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      48 | }) => {
+      49 |   await signIn(page);
+    > 50 |   await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
+         |                                            ^
+      51 |   expect(await menuLinks(page)).not.toContain('/platform/support');
+      52 |   // Техподдержка переехала под переключатель агентов на «ИИ-продавце» — не главному администратору его не видно
+      53 |   await page.goto('/ai-seller');
+        at /home/user/wetop.ai/tests/ui/platform-support.spec.ts:50:44
+
+    Error Context: test-results/platform-support-не-главны-de863-ница-говорит-чей-это-раздел/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/platform-support-не-главны-de863-ница-говорит-чей-это-раздел/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/platform-support-не-главны-de863-ница-говорит-чей-это-раздел/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел 
+  67 passed (6.6m)
+
+# код выхода 1 · 6 мин 35 с

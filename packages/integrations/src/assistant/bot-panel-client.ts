@@ -179,6 +179,45 @@ export class BotPanelClient {
     return this.json('GET', `/conversations/${encodeURIComponent(id)}`);
   }
 
+  // ── база знаний WETOP Support (S3): только помощник; автора и утверждающего называет платформа ──────────────────
+
+  kbList(query: { status?: string; category?: string; visibility?: string; q?: string }): Promise<Json> {
+    const params = new URLSearchParams();
+    for (const [name, value] of Object.entries(query)) if (value) params.set(name, value);
+    const qs = params.toString();
+    return this.json('GET', `/support-knowledge${qs ? `?${qs}` : ''}`);
+  }
+
+  kbCreate(body: Json): Promise<Json> {
+    return this.json('POST', '/support-knowledge', body);
+  }
+
+  kbRead(id: string): Promise<Json> {
+    return this.json('GET', `/support-knowledge/${encodeURIComponent(id)}`);
+  }
+
+  kbUpdate(id: string, body: Json): Promise<Json> {
+    return this.json('PUT', `/support-knowledge/${encodeURIComponent(id)}`, body);
+  }
+
+  kbPublish(id: string, approvedBy: string): Promise<Json> {
+    return this.json('POST', `/support-knowledge/${encodeURIComponent(id)}/publish`, { approved_by: approvedBy });
+  }
+
+  kbStatus(id: string, status: string, by: string | null): Promise<Json> {
+    return this.json('POST', `/support-knowledge/${encodeURIComponent(id)}/status`, { status, by });
+  }
+
+  /** На каких знаниях строились ответы в диалоге — оператору в кабинете */
+  conversationKnowledge(id: string): Promise<Json> {
+    return this.json('GET', `/conversations/${encodeURIComponent(id)}/knowledge`);
+  }
+
+  /** Пустой черновик знания из закрытого обращения; переписка не копируется */
+  knowledgeDraft(id: string, by: string | null): Promise<Json> {
+    return this.json('POST', `/conversations/${encodeURIComponent(id)}/knowledge-draft`, { by });
+  }
+
   takeover(id: string): Promise<Json> {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/takeover`);
   }

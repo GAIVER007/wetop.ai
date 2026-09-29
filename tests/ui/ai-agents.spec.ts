@@ -58,6 +58,25 @@ test('главный администратор: рядом с продавцо�
   await expect(page).toHaveURL(/\/platform\/support/);
 });
 
+test('расширение не подключено: карточка не зовёт в настройки, а объясняет', async ({ page, request }) => {
+  await request.post(`${API}/__test/control`, { data: { sellerExtension: 'off' } });
+  await signIn(page);
+  await page.goto('/ai-agents');
+  const seller = page.getByTestId('agent-seller');
+  await expect(page.getByTestId('agent-seller-off')).toContainText('не подключено');
+  await expect(seller.getByRole('link', { name: 'Открыть' })).toHaveCount(0);
+  await seller.getByRole('link', { name: 'Подробнее' }).click();
+  await expect(page.getByTestId('seller-extension-off')).toBeVisible();
+});
+
+test('срок расширения вышел: раздел открывается, карточка не прячется', async ({ page, request }) => {
+  await request.post(`${API}/__test/control`, { data: { sellerExtension: 'expired' } });
+  await signIn(page);
+  await page.goto('/ai-agents');
+  await expect(page.getByTestId('agent-seller-off')).toHaveCount(0);
+  await expect(page.getByTestId('agent-seller').getByRole('link', { name: 'Открыть' })).toBeVisible();
+});
+
 test('старый адрес /ai-seller работает', async ({ page }) => {
   await signIn(page);
   await page.goto('/ai-seller');

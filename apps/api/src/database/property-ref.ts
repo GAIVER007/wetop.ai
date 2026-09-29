@@ -1,6 +1,7 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import type { Db } from '@pms/database';
 import { todayAt } from '@pms/domain';
+import { integrationIdSetting } from './integration-property-id';
 import {
   actsForOrganization,
   currentBusinessId,
@@ -66,6 +67,23 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
   // что имя больше не участвует в выборке для человека. Служебный ходок (сторож, скрипт, импорт,
   // публичный виджет) человека за собой не имеет и по-прежнему берёт объект по имени.
   if (actsForOrganization()) return organizationPropertyRef(db);
+
+  // SEC-2 (аудит 29.09.2026): объект установки задан явно — название на выбор не влияет
+  const setting = integrationIdSetting(process.env);
+  if (setting.kind === 'invalid')
+    throw new Error('INTEGRATION_PROPERTY_ID задан не UUID: объект установки не определить');
+  if (setting.kind === 'id') {
+    const idKey = `${schema()}|id|${setting.id}`;
+    const cached = cache.get(idKey);
+    if (cached) return cached;
+    const byId = await db.property.findUnique({
+      where: { id: setting.id },
+      select: { id: true, name: true, organizationId: true, timezone: true },
+    });
+    if (!byId) throw new Error('Объект INTEGRATION_PROPERTY_ID не найден: проверьте настройку');
+    cache.set(idKey, byId);
+    return byId;
+  }
 
   const key = `${schema()}|name|${name}`;
   const known = cache.get(key);

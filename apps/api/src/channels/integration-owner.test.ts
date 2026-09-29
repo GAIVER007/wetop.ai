@@ -14,10 +14,16 @@ import { IntegrationOwnerGuard, isIntegrationActor } from './integration-owner';
  * выгрузка, очередь, журнал событий) и сторож системы — общие на платформу. Их видит и меняет организация, к объекту
  * которой подключён Channex (Luxx), главный администратор и служебный ключ; вошедший из другой гостиницы — нет.
  */
-function setup(integrationOrg: string | null) {
+function setup(integrationOrg: string | null, mappingOrg: string | null = null) {
   const findFirst = vi.fn().mockResolvedValue({ organizationId: integrationOrg });
-  const prisma = { db: { property: { findFirst } } } as unknown as PrismaService;
-  return { guard: new IntegrationOwnerGuard(prisma), prisma, findFirst };
+  // SEC-2: объект интеграции — по сопоставлениям Channex раньше названия (как у `ChannelOperatorInterceptor`)
+  const mappingFirst = vi
+    .fn()
+    .mockResolvedValue(mappingOrg ? { property: { id: 'p-map', organizationId: mappingOrg } } : null);
+  const prisma = {
+    db: { property: { findFirst, findUnique: vi.fn() }, channelMapping: { findFirst: mappingFirst } },
+  } as unknown as PrismaService;
+  return { guard: new IntegrationOwnerGuard(prisma), prisma, findFirst, mappingFirst };
 }
 const ctx = (user?: { organizationId: string; platformAdmin?: boolean }) =>
   ({ switchToHttp: () => ({ getRequest: () => ({ user }) }) }) as unknown as ExecutionContext;
@@ -51,6 +57,38 @@ describe('разделы интеграции и сторожа — только
     expect(findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ orderBy: { createdAt: 'asc' } }),
     );
+  });
+
+  it('SEC-2: есть сопоставления Channex — оператор по ним, а не по названию; одноимённая организация не проходит', async () => {
+    const { guard, findFirst } = setup('org-namesake', 'org-luxx');
+    await expect(guard.canActivate(ctx({ organizationId: 'org-luxx' }))).resolves.toBe(true);
+    await expect(guard.canActivate(ctx({ organizationId: 'org-namesake' }))).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(findFirst).not.toHaveBeenCalled();
+  });
+
+  it('SEC-2: задан INTEGRATION_PROPERTY_ID — оператор по нему; ни сопоставления, ни название не спрашиваются', async () => {
+    const id = '67646baa-d066-4977-8afc-67f48398842f';
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', id);
+    try {
+      const { guard, prisma, findFirst, mappingFirst } = setup('org-namesake', 'org-mapped');
+      (prisma.db.property.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        id,
+        organizationId: 'org-luxx',
+      });
+      await expect(guard.canActivate(ctx({ organizationId: 'org-luxx' }))).resolves.toBe(true);
+      await expect(guard.canActivate(ctx({ organizationId: 'org-namesake' }))).rejects.toBeInstanceOf(
+        ForbiddenException,
+      );
+      await expect(guard.canActivate(ctx({ organizationId: 'org-mapped' }))).rejects.toBeInstanceOf(
+        ForbiddenException,
+      );
+      expect(findFirst).not.toHaveBeenCalled();
+      expect(mappingFirst).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('гард стоит на всех контроллерах Channex и сторожа', () => {

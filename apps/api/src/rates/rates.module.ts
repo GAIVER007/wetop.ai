@@ -5,6 +5,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { RatesController } from './rates.controller';
 import { PrismaRatesRepository, RATES_REPOSITORY } from './rates.repository';
 import { RatesService } from './rates.service';
+import { RatePlansService } from './rate-plans';
 
 @Module({
   imports: [ChannelsModule],
@@ -12,6 +13,7 @@ import { RatesService } from './rates.service';
   providers: [
     PrismaService,
     RatesService,
+    RatePlansService,
     { provide: RATES_REPOSITORY, useClass: PrismaRatesRepository },
   ],
 })

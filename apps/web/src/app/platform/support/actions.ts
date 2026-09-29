@@ -22,10 +22,21 @@ export async function supportModeAction(
       error: null,
       message:
         action === 'takeover'
-          ? 'Диалог ваш: помощник молчит, пока вы не вернёте его боту.'
+          ? 'Диалог ваш: помощник молчит, пока вы не вернёте его ИИ.'
           : 'Диалог вернули помощнику.',
       attempt: 0,
     };
+  } catch (e) {
+    return { error: describe(e), message: null, attempt: 0 };
+  }
+}
+
+/** «Закрыть обращение»: диалог уходит в «Закрытые»; следующее сообщение того же человека откроет новый */
+export async function supportCloseAction(id: string): Promise<SimpleResult> {
+  try {
+    await supportApi.close(id);
+    revalidatePath('/platform/support');
+    return { error: null, message: 'Обращение закрыто.', attempt: 0 };
   } catch (e) {
     return { error: describe(e), message: null, attempt: 0 };
   }

@@ -6,6 +6,7 @@ import {
   folioBalance,
   penaltyAmount,
   penaltyDue,
+  parseCancellationPenalty,
   parseMoney,
   stayExtraDefaultMinor,
   channelPrepaymentToKeep,
@@ -170,5 +171,17 @@ describe('соседняя ночь для раннего заезда и поз
   });
   it('граница месяца и года считается по календарю', () => {
     expect(adjacentNight('EARLY_CHECK_IN', '2027-01-01', '2027-01-03').from).toBe('2026-12-31');
+  });
+});
+
+describe('parseCancellationPenalty (SET4, ADR-115)', () => {
+  it('принимает три правила тарифа как есть', () => {
+    expect(parseCancellationPenalty('NONE')).toBe('NONE');
+    expect(parseCancellationPenalty('FIRST_NIGHT')).toBe('FIRST_NIGHT');
+    expect(parseCancellationPenalty('FULL_STAY')).toBe('FULL_STAY');
+  });
+  it('другое значение, регистр, пустое и не строка — null', () => {
+    for (const v of ['first_night', 'HALF', '', ' NONE', null, undefined, 1, true, {}])
+      expect(parseCancellationPenalty(v)).toBeNull();
   });
 });

@@ -1,0 +1,474 @@
+# Сквозные (e2e) · 29.09.2026 12:51 Алматы · vm
+# коммит 44f401e (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 14
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/availability-gate.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-29" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-29" arrival="2026-10-01" departure="2026-10-04" guests={40} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={40} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={40}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-29" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  1 tests/ui/availability-gate.spec.ts:17:3 › витрина AV4: light (4.4s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-29" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-29" arrival="2026-10-01" departure="2026-10-04" guests={40} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={40} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={40}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="availability/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url={"/rooms/a..."} tree={[...]} params={{section:[...]}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="rooms/[[.....">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <RoomsPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AvailabilityFinder today="2026-09-29" arrival="2026-10-01" departure="2026-10-04" guests={2} ...>
+[WebServer]                         <form className="fund-search" method="get">
+[WebServer]                           <Field label="Заезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="arrival" defaultValue="2026-10-01" required={true}>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="arrival"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Выезд">
+[WebServer]                             <label className="field">
+[WebServer]                               <DateInput name="departure" rangeFromName="arrival" defaultValue="2026-10-04" ...>
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="departure"
+[WebServer]                                     defaultValue="2026-10-04"
+[WebServer]                                     max="2026-12-02"
+[WebServer]                                     required={true}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field label="Гостей">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="number" name="guests" min={1} max={99} defaultValue={2} required={true}>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="number"
+[WebServer]                                   name="guests"
+[WebServer]                                   min={1}
+[WebServer]                                   max={99}
+[WebServer]                                   defaultValue={2}
+[WebServer]                                   required={true}
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  2 tests/ui/availability-gate.spec.ts:17:3 › витрина AV4: dark (4.0s)
+
+  2 passed (13.5s)
+
+# код выхода 0 · 15 с

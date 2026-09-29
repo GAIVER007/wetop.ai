@@ -29,6 +29,14 @@ import { requirePlatformAdmin } from './admin';
 import { EXTENSIONS_REPOSITORY, type ExtensionsRepository } from './extensions.repository';
 import { SUPPORT_AUDIT, type SupportAudit } from './support.audit';
 import { SUPPORT_CONNECTION, type SupportConnection, type SupportPort } from './support.connection';
+import {
+  OPEN_REQUEST,
+  queueCounts,
+  queueItems,
+  queueRequest,
+  sortQueue,
+  supportQueue,
+} from './support.queue';
 
 export const SUPPORT_NOT_CONNECTED =
   'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа';
@@ -84,12 +92,46 @@ export class SupportService {
     return conversationsView(await call(() => client.listConversations(wanted)));
   }
 
+  /**
+   * Очередь кабинета (S1): без пустых диалогов, открытые или закрытые, отбор — у помощника в SQL. Числа очереди — из
+   * одной выборки открытых; «все открытые» отдаются из неё же, без второго вызова.
+   */
+  async queue(rawQueue: unknown) {
+    requirePlatformAdmin();
+    const queue = supportQueue(rawQueue);
+    const client = this.client();
+    const open = queueItems(await call(() => client.listConversations(OPEN_REQUEST)));
+    const wanted = queueRequest(queue);
+    const items = wanted ? queueItems(await call(() => client.listConversations(wanted))) : open;
+    return { queue, items: sortQueue(items), counts: queueCounts(open) };
+  }
+
   async conversation(rawId: string) {
     requirePlatformAdmin();
     const id = conversationId(rawId);
     const client = this.client();
-    const card = conversationView(await call(() => client.conversation(id)), id);
-    return { ...card, platformUser: await this.platformUser(card.leadData) };
+    const raw = await call(() => client.conversation(id));
+    const card = conversationView(raw, id);
+    return {
+      ...card,
+      closed: obj(raw).closed === true,
+      platformUser: await this.platformUser(card.leadData),
+    };
+  }
+
+  /** «Закрыть обращение»: диалог уходит в «Закрытые» с перепиской; следующее сообщение откроет новый */
+  async close(rawId: string) {
+    requirePlatformAdmin();
+    const id = conversationId(rawId);
+    const client = this.client();
+    await call(() => client.close(id));
+    await this.audit.record({
+      entityType: 'SupportConversation',
+      entityId: id,
+      action: 'support.conversation.close',
+      after: { closed: true },
+    });
+    return { closed: true };
   }
 
   async switchMode(rawId: string, action: 'takeover' | 'release') {

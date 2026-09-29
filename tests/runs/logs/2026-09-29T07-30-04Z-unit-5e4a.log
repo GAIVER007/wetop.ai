@@ -1,0 +1,74 @@
+# Модульные (unit) · 29.09.2026 12:30 Алматы · vm
+# коммит 85e1bcd (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T07-30-04Z-unit-5e4a.json' 'packages/domain/src/finance/finance.test.ts' 'apps/api/src/rates/rate-plans.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/rates/rates.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (19 tests) 20ms
+ ❯ |unit| apps/api/src/rates/rate-plans.test.ts (4 tests | 1 failed) 37ms
+   ❯ «Тарифные планы»: правило отмены (4)
+     ✓ список: правило, категории по названию и брони, которые правка заденет 8ms
+     × правка: новое правило, журнал «было/стало» с числом затронутых броней 18ms
+     ✓ то же правило — без записи и без журнала 5ms
+     ✓ неизвестное правило или лишнее поле — 400 словами, неизвестный тариф — 404 4ms
+[Nest] 1637  - 09/29/2026, 7:30:08 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 434ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 66ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: правило отмены > правка: новое правило, журнал «было/стало» с числом затронутых броней
+AssertionError: expected "vi.fn()" to be called with arguments: [ { data: ObjectContaining{…} } ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -1,15 +1,15 @@
+  [
+    {
+-     "data": ObjectContaining {
++     "data": {
+        "action": "rate_plan.cancellation_penalty.updated",
+        "after": {
+          "cancellationPenalty": "FULL_STAY",
+          "upcomingReservations": 3,
+        },
+        "before": {
+-         "cancellationPenalty": "FIRST_NIGHT",
++         "cancellationPenalty": "FULL_STAY",
+        },
+        "entityId": "plan-base",
+        "entityType": "RatePlan",
+        "userId": "u1",
+      },
+
+
+Number of calls: 1
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:129:32
+    127|       }),
+    128|     );
+    129|     expect(db.auditLog.create).toHaveBeenCalledWith({
+       |                                ^
+    130|       data: expect.objectContaining({
+    131|         userId: 'u1',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 34 passed (35)
+   Start at  07:30:05
+   Duration  3.31s (transform 59%, import 33%, tests 8%)
+
+JSON report written to /tmp/pms-test-2026-09-29T07-30-04Z-unit-5e4a.json
+
+# код выхода 1 · 4 с

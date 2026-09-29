@@ -1,8 +1,7 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { ratesApi, channelsApi } from '../../lib/api';
-import { hotelApi, hotelClock } from '../../lib/hotel-api';
-import { cancellationRuleText } from '../../lib/penalty-text';
+import { hotelClock } from '../../lib/hotel-api';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -10,6 +9,7 @@ import { Alert, EmptyState } from '../../components/ui';
 import { RatesFilters } from './filters';
 import { RatesEditDrawer } from './edit-drawer';
 import { RatesCalendar } from './rates-calendar';
+import { RatesTabs } from './tabs';
 import { deskShell } from '../../lib/desk-shell';
 import './rates.css';
 
@@ -56,6 +56,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
     // Без справочника категорий и тарифов заполнять нечего: заголовок и месяц на месте, дальше — повтор
     return (
       <Page width="wide" title="Тарифы и цены" subtitle="Управление ценами и ограничениями продаж">
+        <RatesTabs current="prices" />
         <LoadError testId="rates-error" {...loadErrorProps(loadedOptions.e)} />
       </Page>
     );
@@ -112,13 +113,6 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
   const categoryName = options.categories.find((c) => c.code === category)?.name ?? category;
   // «Только чтение» (ADR-102) — общий флаг оболочки: выбор и предпросмотр доступны, «Применить» выключена
   const { readOnly } = await deskShell();
-  // Правило отмены выбранного тарифа (ADR-115): до «Тарифных планов» (SET4) — одной строкой здесь. Настройки уже
-  // прочитал макет; не ответили — строки просто нет, экран цен от неё не зависит (D4)
-  const settings = await settle(hotelApi.settings());
-  const penalty = settings.ok
-    ? settings.r.ratePlans.find((p) => p.code === ratePlan)?.cancellationPenalty
-    : undefined;
-  const cancellationRule = penalty ? (cancellationRuleText[penalty] ?? null) : null;
   return (
     <Page
       width="wide"
@@ -140,6 +134,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
         ) : undefined
       }
     >
+      <RatesTabs current="prices" />
       {noDirectory ? (
         <EmptyState
           data-testid="rates-empty"
@@ -166,11 +161,6 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
             currentMonth={clock.month()}
             validMonth={validMonth}
           />
-          {!error && cancellationRule && (
-            <p className="rates-rule" data-testid="rate-plan-cancellation">
-              При отмене по тарифу «{planName}»: {cancellationRule}.
-            </p>
-          )}
           {error && (
             <Alert boxed>
               {error} <Link href="/rates">Сбросить фильтры</Link>

@@ -1,0 +1,9 @@
+# Сквозные (e2e) · 29.09.2026 16:41 Алматы · vm
+# коммит a44aa23 (integ-check), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '-g' 'сервисным бизнесом'
+[WebServer] Failed to type check.
+[WebServer] 
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 11 с

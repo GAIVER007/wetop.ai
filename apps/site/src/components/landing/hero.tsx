@@ -1,12 +1,13 @@
 import { getDictionary } from '../../i18n';
 import { loginLink, registerLink } from '../../lib/site';
-import { ChessboardMockup } from '../chessboard-mockup';
 import { Icon } from '../icon';
+import { OperationsMockup } from '../operations-mockup';
 import { typo } from '../typo';
 
 /*
- * Первый экран: стеклянная панель, слева слово-знак металлом и текст, справа — макет шахматки.
- * Портрета человека здесь нет намеренно: показываем экран продукта, а не лицо.
+ * Первый экран: стеклянная панель, слева слово-знак металлом и текст, справа — общий операционный экран «Сегодня».
+ * С 29.09.2026 первый экран говорит о платформе для сервисного бизнеса (ADR-104): шахматка и каналы — ниже,
+ * в разделе Hospitality. Портрета человека здесь нет намеренно: показываем экран продукта, а не лицо.
  */
 export function Hero() {
   const t = getDictionary();
@@ -49,7 +50,7 @@ export function Hero() {
                 <span className="hero__available-dot" aria-hidden="true" />
                 <span>{t.hero.available}</span>
               </p>
-              <ChessboardMockup />
+              <OperationsMockup />
               <HeroSeal text={t.hero.seal} />
             </div>
           </div>

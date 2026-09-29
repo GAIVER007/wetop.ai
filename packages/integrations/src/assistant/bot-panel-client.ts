@@ -85,6 +85,15 @@ export interface BotKnowledgeFile {
 
 type Json = Record<string, unknown>;
 
+/** Отбор списка диалогов панели бота; всё необязательно — без отбора прежний ответ */
+export interface ConversationListQuery {
+  mode?: string;
+  limit?: number;
+  queue?: 'new' | 'waiting';
+  nonempty?: boolean;
+  closed?: boolean;
+}
+
 /**
  * Причина отказа из ответа FastAPI: `detail` строкой, списком проверок `{ msg }` или объектом `{ message, fields }`
  * (Б6: поля, в которых слой 9 нашёл инструкции для модели). 401 у панели бота — «сессия истекла»: для служебного
@@ -149,12 +158,21 @@ export class BotPanelClient {
     this.fetchFn = config.fetch ?? fetch;
   }
 
-  listConversations(query: { mode?: string; limit?: number } = {}): Promise<Json> {
+  /** Отбор: режим; очередь техподдержки (`new` — за сутки, `waiting` — ждёт ответа), без пустых, открытые или закрытые */
+  listConversations(query: ConversationListQuery = {}): Promise<Json> {
     const params = new URLSearchParams();
     if (query.mode) params.set('mode', query.mode);
     if (query.limit !== undefined) params.set('limit', String(query.limit));
+    if (query.queue) params.set('queue', query.queue);
+    if (query.nonempty) params.set('nonempty', 'true');
+    if (query.closed !== undefined) params.set('closed', String(query.closed));
     const qs = params.toString();
     return this.json('GET', `/conversations${qs ? `?${qs}` : ''}`);
+  }
+
+  /** Закрыть обращение: следующее сообщение того же человека откроет новый диалог */
+  close(id: string): Promise<Json> {
+    return this.json('POST', `/conversations/${encodeURIComponent(id)}/close`);
   }
 
   conversation(id: string): Promise<Json> {

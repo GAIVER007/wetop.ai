@@ -215,5 +215,17 @@ test('снимки окна регистрации: светлая и тёмна
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/privacy/');
   await expect(page.getByRole('heading', { level: 1, name: 'Политика конфиденциальности' })).toBeVisible();
+  // Разделы, которых требует закон РК «О персональных данных и их защите»: кто оператор, где хранятся данные и
+  // трансграничная передача, данные гостей по поручению гостиницы, права субъекта и куда жаловаться, cookie.
+  for (const section of [
+    'Кто обрабатывает данные',
+    'Трансграничная передача',
+    'Данные гостей гостиницы',
+    'Как мы защищаем данные',
+    'Ваши права',
+    'Cookie',
+  ])
+    await expect(page.getByRole('heading', { level: 2, name: new RegExp(section) })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'zapoinov@bk.ru' }).first()).toBeVisible();
   await page.screenshot({ path: `${report}/site-privacy-light-1440.png`, fullPage: true, caret: 'initial' });
 });

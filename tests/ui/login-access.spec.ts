@@ -242,6 +242,13 @@ test.describe('регистрация доступна по умолчанию',
     await expect(main.getByLabel('Имя')).toBeVisible();
     await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
     await expect(main).not.toContainText('Название организации');
+    // форма 29.09.2026: телефон с кодом страны и согласие с политикой
+    await expect(main.getByLabel('Телефон')).toBeVisible();
+    await expect(main.getByLabel('Код страны')).toBeVisible();
+    await expect(main.getByRole('link', { name: 'политикой конфиденциальности' })).toHaveAttribute(
+      'href',
+      'https://wetop.ai/privacy/',
+    );
 
     await main.getByRole('button', { name: 'Войти по паролю' }).click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
@@ -264,7 +271,9 @@ test.describe('регистрация доступна по умолчанию',
     await main.getByLabel('Email').fill('novyj@example.com');
     await main.getByLabel('Имя').fill('Вячеслав Петров');
     await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    await main.getByLabel('Телефон').fill('701 555 44 33');
     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await page.waitForURL('**/login/check-email**');
     await expect(page.getByRole('heading', { level: 2 })).toHaveText('Проверьте почту');
@@ -283,7 +292,9 @@ test.describe('регистрация доступна по умолчанию',
     await main.getByLabel('Email').fill('novyj@example.com');
     await main.getByLabel('Имя').fill('Вячеслав Петров');
     await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    await main.getByLabel('Телефон').fill('701 555 44 33');
     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await page.waitForURL('**/login/check-email**');
 
@@ -304,6 +315,29 @@ test.describe('регистрация доступна по умолчанию',
     await expect(page.getByRole('button', { name: 'Подтвердить ещё раз' })).toBeVisible();
   });
 
+  test('регистрация: без согласия с политикой форма не уходит, неверный телефон — отказ словами', async ({
+    page,
+  }) => {
+    await page.goto('/register');
+    const main = page.getByRole('main');
+    await main.getByLabel('Email').fill('novyj@example.com');
+    await main.getByLabel('Имя').fill('Вячеслав Петров');
+    await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    await main.getByLabel('Телефон').fill('701 555 44 33');
+    await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    // галочка обязательна: браузер не отправит форму, страница та же
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await expect(page).toHaveURL(/\/register/);
+    await expect(main.getByRole('checkbox', { name: /политикой конфиденциальности/ })).not.toBeChecked();
+
+    // номер из шести знаков API не примет — текст отказа на месте, со страницы не уводит
+    await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
+    await main.getByLabel('Телефон').fill('70155');
+    await main.getByRole('button', { name: 'Создать организацию' }).click();
+    await expect(main.getByRole('alert')).toContainText('Проверьте телефон');
+    await expect(page).toHaveURL(/\/register/);
+  });
+
   test('регистрация: ошибки формы приходят текстом из API и не уводят со страницы', async ({
     page,
   }) => {
@@ -314,7 +348,9 @@ test.describe('регистрация доступна по умолчанию',
     await main.getByLabel('Email').fill(EMAIL);
     await main.getByLabel('Имя').fill('Вячеслав Петров');
     await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    await main.getByLabel('Телефон').fill('701 555 44 33');
     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+    await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await expect(main.getByRole('alert')).toContainText('уже зарегистрирован');
     await expect(page).toHaveURL(/\/register/);
@@ -325,4 +361,26 @@ test.describe('регистрация доступна по умолчанию',
     await main.getByRole('button', { name: 'Создать организацию' }).click();
     await expect(page).toHaveURL(/\/register/);
   });
+});
+
+/** Снимки формы регистрации 29.09.2026 для визуального «да» владельца — `reports/registration-v2-2026-09-29/` */
+test('снимки формы регистрации: светлая и тёмная, 1440 и 390', async ({ page }) => {
+  test.setTimeout(120_000);
+  const report = 'reports/registration-v2-2026-09-29';
+  mkdirSync(report, { recursive: true });
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      await page.goto('/register');
+      const main = page.getByRole('main');
+      await main.getByLabel('Email').fill('dana@example.invalid');
+      await main.getByLabel('Имя').fill('Дана Тестова');
+      await main.getByLabel('Название отеля').fill('Хостел «Тест»');
+      await main.getByLabel('Код страны').selectOption('KZ');
+      await main.getByLabel('Телефон').fill('701 555 44 33');
+      await page.waitForTimeout(200);
+      await page.screenshot({ path: `${report}/app-register-${theme}-${width}.png`, fullPage: true, caret: 'initial' });
+    }
+  }
 });

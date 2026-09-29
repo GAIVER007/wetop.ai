@@ -1,0 +1,49 @@
+# Модульные (unit) · 29.09.2026 16:52 Алматы · vm
+# коммит 6ab9541 (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T11-52-07Z-unit-be19.json' 'packages/domain/src/accounts/registration-contact.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/accounts/registration-contact.test.ts (10 tests | 1 failed) 19ms
+   ❯ registrationPhone (5)
+     × Казахстан: код +7 и десять цифр номера 10ms
+     ✓ лишняя 8 или 7 в начале казахстанского номера снимается 1ms
+     ✓ номер, уже начатый кодом выбранной страны, код не удваивает 0ms
+     ✓ короткий, длинный и пустой номер не принимаются 1ms
+     ✓ незнакомая страна — отказ, а не угаданный код 0ms
+   ✓ defaultPhoneCountry (3)
+     ✓ пояс Казахстана — Казахстан, даже при английском языке браузера 1ms
+     ✓ незнакомый пояс — страна из языка браузера, если она в списке 1ms
+     ✓ ни пояс, ни язык не подсказали — Казахстан 1ms
+   ✓ PHONE_COUNTRIES (1)
+     ✓ Казахстан первым, коды уникальны по стране 2ms
+   ✓ политика конфиденциальности (1)
+     ✓ адрес на главной и версия-дата 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/registration-contact.test.ts > registrationPhone > Казахстан: код +7 и десять цифр номера
+AssertionError: expected '+7015554433' to be '<телефон>' // Object.is equality
+
+Expected: "<телефон>"
+Received: "+7015554433"
+
+ ❯ packages/domain/src/accounts/registration-contact.test.ts:12:54
+     10| describe('registrationPhone', () => {
+     11|   it('Казахстан: код +7 и десять цифр номера', () => {
+     12|     expect(registrationPhone('KZ', '701 555 44 33')).toBe('+7701555443…
+       |                                                      ^
+     13|   });
+     14|   it('лишняя 8 или 7 в начале казахстанского номера снимается', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  11:52:08
+   Duration  350ms (transform 63%, tests 18%, import 15%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T11-52-07Z-unit-be19.json
+
+# код выхода 1 · 1 с

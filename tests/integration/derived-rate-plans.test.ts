@@ -6,7 +6,7 @@ import { deleteOrganizationChain } from '../tools/property-owner';
 config({ quiet: true });
 
 /**
- * Производный тариф и промокод на уровне базы (DATA_MODEL §20, ADR-123, срез D4): то, что доказывает сама база —
+ * Производный тариф и промокод на уровне базы (DATA_MODEL §20, ADR-124, срез D4): то, что доказывает сама база —
  * форма правила, «родитель — обычный тариф того же объекта и валюты», уникальность и формат промокода.
  */
 describe.skipIf(!process.env.DATABASE_URL)('derived rate plans and promo codes: database guards', () => {

@@ -316,7 +316,7 @@ model Reservation {
   @@map("reservations")
 }
 
-/// Промокод объекта (DATA_MODEL §20, ADR-123): процент скидки, период проживания, предел использований.
+/// Промокод объекта (DATA_MODEL §20, ADR-124): процент скидки, период проживания, предел использований.
 /// Не удаляется: выключается (`active`), чтобы броням оставался след.
 model PromoCode {
   id              String   @id @default(uuid()) @db.Uuid
@@ -522,7 +522,7 @@ model RatePlan {
   note                String?
   /// Штраф при отмене/незаезде (Q-103); умолчание — стоимость первых суток
   cancellationPenalty CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
-  /// Производный тариф (DATA_MODEL §20, ADR-123): родитель и процент скидки; NULL — обычный тариф
+  /// Производный тариф (DATA_MODEL §20, ADR-124): родитель и процент скидки; NULL — обычный тариф
   parentRatePlanId     String? @map("parent_rate_plan_id") @db.Uuid
   discountPercent      Int?    @map("discount_percent")
   /// Окно продаж: заезд не раньше чем через N дней (раннее бронирование) и не позже чем через N дней (last minute)

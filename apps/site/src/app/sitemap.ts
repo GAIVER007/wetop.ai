@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const latest = posts[0]?.date;
   return [
     { url: absoluteUrl('/'), changeFrequency: 'weekly', priority: 1 },
+    { url: absoluteUrl('/privacy/'), changeFrequency: 'yearly', priority: 0.2 },
     {
       url: absoluteUrl('/blog/'),
       changeFrequency: 'weekly',

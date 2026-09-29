@@ -37,12 +37,12 @@ describe('меню и подпись по тому, кто вошёл (ADR-083)'
   });
 
   it('продавец виден для знакомства, а раздел «Платформа» без прав скрыт', () => {
-    expect(hrefs({ aiSeller: false, platform: false })).toContain('/ai-seller');
+    expect(hrefs({ aiSeller: false, platform: false })).toContain('/ai-agents');
     expect(hrefs({ aiSeller: false, platform: false })).not.toContain('/platform');
     expect(
       sidebarSectionsFor({ aiSeller: false, platform: false, role: null }).map((s) => s.id),
     ).not.toContain('platform');
-    expect(hrefs({ aiSeller: true, platform: false })).toContain('/ai-seller');
+    expect(hrefs({ aiSeller: true, platform: false })).toContain('/ai-agents');
     expect(hrefs({ aiSeller: false, platform: true })).toContain('/platform');
     // «Техподдержка» переехала под «ИИ-продавец» (переключатель агентов на странице раздела) — своего
     // пункта меню у неё больше нет, маршрут /platform/support остаётся, но не в sidebarSections

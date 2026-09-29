@@ -13,7 +13,7 @@ import { deleteOrganizationChain } from '../tools/property-owner';
 config({ quiet: true });
 
 /**
- * Производные тарифы и промокоды через API (DATA_MODEL §20, ADR-123, срез D4): создание и правка производного,
+ * Производные тарифы и промокоды через API (DATA_MODEL §20, ADR-124, срез D4): создание и правка производного,
  * создание, список и правка промокода; отказы словами, журнал, неизменность процента промокода.
  */
 describe.skipIf(!process.env.DATABASE_URL)('derived rate plans and promo codes API', () => {

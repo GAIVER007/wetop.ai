@@ -93,7 +93,10 @@ test('после запуска отеля Главная без «Первых 
   await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await expect(page.getByText('Первые шаги')).toHaveCount(0);
-  await expect(main.getByRole('link', { name: 'Новая бронь' })).toHaveAttribute('href', '/reservations/new');
+  await expect(main.getByRole('link', { name: 'Новая бронь', exact: true })).toHaveAttribute(
+    'href',
+    '/reservations/new',
+  );
 });
 
 test('у работающего отеля с бронями «Первых шагов» нет', async ({ page, request }) => {
@@ -107,7 +110,10 @@ test('у работающего отеля с бронями «Первых ша
  * «Заполнить позже» (plans/site-auth-dialog-tour-2026-09-27.md, Д3, ADR-100): после подтверждения почты человек может
  * не заводить номера сразу. Стойка открывается, гейт больше не уводит; настройка по-прежнему открывается по адресу.
  */
-test('«Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу', async ({ page, request }) => {
+test('«Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу', async ({
+  page,
+  request,
+}) => {
   await request.post(`${fixture}/__test/control`, {
     data: { onboardingNeeded: true, noBookings: true },
   });
@@ -129,5 +135,7 @@ test('«Заполнить позже»: стойка открывается, г
   await expect(page).toHaveURL(/\/reservations/);
   // а ссылка ведёт обратно в настройку
   await page.goto('/onboarding');
-  await expect(page.getByRole('main').getByRole('heading', { name: 'Настройте отель', level: 1 })).toBeVisible();
+  await expect(
+    page.getByRole('main').getByRole('heading', { name: 'Настройте отель', level: 1 }),
+  ).toBeVisible();
 });

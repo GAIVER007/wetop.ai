@@ -1,0 +1,158 @@
+# Модульные (unit) · 29.09.2026 18:42 Алматы · vm
+# коммит b8c2794 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-42-31Z-unit-622e.json' 'apps/api/src/web-booking' 'packages/domain/src/web-booking' 'apps/api/src/rates'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+[Nest] 21651  - 09/29/2026, 1:42:34 PM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 223ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 13ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (7 tests) 399ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (20 tests) 512ms
+ ✓ |unit| apps/api/src/rates/rate-history.test.ts (3 tests) 19ms
+ ❯ |unit| packages/domain/src/web-booking/request.test.ts (21 tests | 2 failed) 17ms
+   ❯ запрос цен с сайта (quote) (10)
+     × принимает даты в окне и гостей 9ms
+     ✓ отклоняет: заезд вчера 0ms
+     ✓ отклоняет: выезд не позже заезда 0ms
+     ✓ отклоняет: дальше окна 0ms
+     ✓ отклоняет: слишком долго 0ms
+     ✓ отклоняет: кривая дата 0ms
+     ✓ отклоняет: гостей 0 0ms
+     ✓ отклоняет: гостей 9 0ms
+     ✓ отклоняет: ключ не по форме 0ms
+     ✓ заезд сегодня допустим; окно — 365 дней и 30 ночей 0ms
+   ❯ запрос брони с сайта (book) (11)
+     × нормализует гостя: обрезает пробелы, телефон в +7…, почту в нижний регистр 2ms
+     ✓ телефон 8 701… становится +7 701…; почта необязательна; комментарий обрезается до 500 1ms
+     ✓ отклоняет: honeypot заполнен (бот) 0ms
+     ✓ отклоняет: нет имени 0ms
+     ✓ отклоняет: нет фамилии 0ms
+     ✓ отклоняет: телефон короткий 0ms
+     ✓ отклоняет: телефон с буквами 0ms
+     ✓ отклоняет: почта кривая 0ms
+     ✓ отклоняет: нет категории 0ms
+     ✓ отклоняет: имя длиннее 80 0ms
+     ✓ ключи счётчика необязательны и должны быть по форме 0ms
+ ❯ |unit| apps/api/src/rates/rate-plans.test.ts (4 tests | 1 failed) 22ms
+   ❯ «Тарифные планы»: правило отмены (4)
+     × список: правило, категории по названию и брони, которые правка заденет 14ms
+     ✓ правка: новое правило, журнал «было/стало» с числом затронутых броней 3ms
+     ✓ то же правило — без записи и без журнала 1ms
+     ✓ неизвестное правило или лишнее поле — 400 словами, неизвестный тариф — 404 2ms
+ ✓ |unit| apps/api/src/rates/restriction-merge.test.ts (5 tests) 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts > «Тарифные планы»: правило отмены > список: правило, категории по названию и брони, которые правка заденет
+AssertionError: expected [ { code: 'rate-base', …(7) }, …(1) ] to deeply equal [ { code: 'rate-base', …(6) }, …(1) ]
+
+- Expected
++ Received
+
+@@ -6,18 +6,20 @@
+        "Двухместный",
+        "Койка",
+      ],
+      "code": "rate-base",
+      "currency": "KZT",
++     "derived": null,
+      "name": "Базовый",
+      "upcomingReservations": 3,
+    },
+    {
+      "active": true,
+      "cancellationPenalty": "NONE",
+      "categories": [],
+      "code": "rate-flex",
+      "currency": "KZT",
++     "derived": null,
+      "name": "Гибкий",
+      "upcomingReservations": 0,
+    },
+  ]
+
+ ❯ apps/api/src/rates/rate-plans.test.ts:91:18
+     89|     const { service } = setup([base, flex], { 'plan-base': 3 });
+     90|     const list = await asManager(() => service.list());
+     91|     expect(list).toEqual([
+       |                  ^
+     92|       {
+     93|         code: 'rate-base',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > запрос цен с сайта (quote) > принимает даты в окне и гостей
+AssertionError: expected { ok: true, value: { …(5) } } to deeply equal { ok: true, value: { …(4) } }
+
+- Expected
++ Received
+
+@@ -2,8 +2,9 @@
+    "ok": true,
+    "value": {
+      "adults": 2,
+      "arrivalDate": "2026-09-13",
+      "departureDate": "2026-09-15",
++     "promoCode": null,
+      "siteKey": "pms_5f3c9a1b2d4e",
+    },
+  }
+
+ ❯ packages/domain/src/web-booking/request.test.ts:29:15
+     27|       today,
+     28|     );
+     29|     expect(r).toEqual({
+       |               ^
+     30|       ok: true,
+     31|       value: { siteKey: good.k, arrivalDate: '2026-09-13', departureDa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| packages/domain/src/web-booking/request.test.ts > запрос брони с сайта (book) > нормализует гостя: обрезает пробелы, телефон в +7…, почту в нижний регистр
+AssertionError: expected { siteKey: 'pms_5f3c9a1b2d4e', …(9) } to deeply equal { siteKey: 'pms_5f3c9a1b2d4e', …(8) }
+
+- Expected
++ Received
+
+@@ -8,9 +8,10 @@
+      "email": "<email>",
+      "firstName": "Айгерим",
+      "lastName": "Тестова",
+      "phone": "<телефон>",
+    },
++   "promoCode": null,
+    "sessionKey": "session-0001",
+    "siteKey": "pms_5f3c9a1b2d4e",
+    "visitorKey": "visitor-0001",
+  }
+
+ ❯ packages/domain/src/web-booking/request.test.ts:64:21
+     62|     expect(r.ok).toBe(true);
+     63|     if (!r.ok) return;
+     64|     expect(r.value).toEqual({
+       |                     ^
+     65|       siteKey: good.k,
+     66|       arrivalDate: '2026-09-13',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  3 failed | 71 passed (74)
+   Start at  13:42:32
+   Duration  2.98s (transform 52%, import 32%, tests 16%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-42-31Z-unit-622e.json
+
+# код выхода 1 · 4 с

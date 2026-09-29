@@ -4278,3 +4278,19 @@
 | 29.09.2026 18:38 | integration (частично: tests/integration/derived-rates-booking.test.ts) | ❌ упало 1 из 1 | 3 с | 48a25ef +3 | [лог](logs/2026-09-29T13-38-35Z-integration-6d06.log) | derived rate plans and promo codes in a booking (integration, rolled back) prices by parent rates with the larger of plan and promo discount, enforces rules, ke |
 | 29.09.2026 18:38 | integration (частично: tests/integration/derived-rates-booking.test.ts) | ✅ 1 из 1 | 3 с | 48a25ef +5 | [лог](logs/2026-09-29T13-38-39Z-integration-5faa.log) |  |
 | 29.09.2026 18:38 | unit | ✅ 2357 из 2360, пропущено 3 | 1 мин 23 с | 48a25ef +4 | [лог](logs/2026-09-29T13-38-46Z-unit-a885.log) |  |
+| 29.09.2026 18:40 | integration (частично: tests/integration/rates-derived-api.test.ts) | ❌ упало 1 из 1 | 4 с | b8c2794 +1 | [лог](logs/2026-09-29T13-40-53Z-integration-5797.log) | derived rate plans and promo codes API creates and edits a derived plan and a promo code with validation and audit |
+| 29.09.2026 18:41 | integration (частично: tests/integration/rates-derived-api.test.ts) | ✅ 1 из 1 | 4 с | b8c2794 +5 | [лог](logs/2026-09-29T13-41-46Z-integration-91c7.log) |  |
+| 29.09.2026 18:42 | unit (частично: apps/api/src/web-booking packages/domain/src/web-booking apps/api/src/rates) | ❌ упало 3 из 74 | 4 с | b8c2794 +6 | [лог](logs/2026-09-29T13-42-31Z-unit-622e.log) | «Тарифные планы»: правило отмены список: правило, категории по названию и брони, которые правка заденет |
+| 29.09.2026 18:42 | unit (частично: apps/api/src/web-booking packages/domain/src/web-booking apps/api/src/rates) | ✅ 77 из 77 | 4 с | b8c2794 +8 | [лог](logs/2026-09-29T13-42-46Z-unit-98e6.log) |  |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/web-booking) | ✅ 33 из 33 | 4 с | b8c2794 +9 | [лог](logs/2026-09-29T13-43-16Z-unit-f0f3.log) |  |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/web-booking) | ❌ упало 2 из 33 | 4 с | b8c2794 +7 | [лог](logs/2026-09-29T13-43-24Z-unit-873b.log) | виджет бронирования /w/* промокод: цены со скидкой, ответ называет код; неверный, выключенный и не на эти даты — 400 словами; в бронь уходит код |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/web-booking) | ✅ 33 из 33 | 4 с | b8c2794 +9 | [лог](logs/2026-09-29T13-43-29Z-unit-cb37.log) |  |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/reservations/stay-offers.test.ts) | ❌ упало 1 из 7 | 3 с | b8c2794 +10 | [лог](logs/2026-09-29T13-43-51Z-unit-cc93.log) | GET /availability/offers — производный тариф (DATA_MODEL §20) тариф, которому правило продажи запрещает эти даты, в цену «от» не попадает |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/reservations/stay-offers.test.ts) | ✅ 7 из 7 | 3 с | b8c2794 +11 | [лог](logs/2026-09-29T13-43-55Z-unit-3acc.log) |  |
+| 29.09.2026 18:44 | typecheck | ✅ без ошибок | 32 с | b8c2794 +12 | [лог](logs/2026-09-29T13-44-02Z-typecheck-6342.log) |  |
+| 29.09.2026 18:44 | lint | ❌ ошибок: 1 | 17 с | b8c2794 +12 | [лог](logs/2026-09-29T13-44-35Z-lint-779a.log) | no-irregular-whitespace |
+| 29.09.2026 18:44 | unit | ❌ упало 1 из 2366, пропущено 3 | 1 мин 19 с | b8c2794 +11 | [лог](logs/2026-09-29T13-44-52Z-unit-84c9.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 29.09.2026 18:46 | integration | ❌ упало 1 из 127 | 48 с | b8c2794 +12 | [лог](logs/2026-09-29T13-46-12Z-integration-1c09.log) | RLS: организации разделены в самой базе (integration, DATABASE_URL required) каждая таблица схемы названа: арендаторская под RLS или осознанно без него |
+| 29.09.2026 18:47 | lint | ✅ без ошибок | 19 с | b8c2794 +15 | [лог](logs/2026-09-29T13-47-22Z-lint-430f.log) |  |
+| 29.09.2026 18:47 | unit | ✅ 2363 из 2366, пропущено 3 | 1 мин 21 с | b8c2794 +14 | [лог](logs/2026-09-29T13-47-42Z-unit-7c12.log) |  |
+| 29.09.2026 18:49 | integration | ✅ 127 из 127 | 51 с | b8c2794 +14 | [лог](logs/2026-09-29T13-49-04Z-integration-9942.log) |  |

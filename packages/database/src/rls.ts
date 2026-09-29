@@ -32,6 +32,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'services',
   'payments',
   'tracked_sites',
+  'promo_codes',
   'floors',
   'physical_rooms',
   'reservation_items',

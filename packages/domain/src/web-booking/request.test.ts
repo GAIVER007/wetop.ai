@@ -28,7 +28,13 @@ describe('запрос цен с сайта (quote)', () => {
     );
     expect(r).toEqual({
       ok: true,
-      value: { siteKey: good.k, arrivalDate: '2026-09-13', departureDate: '2026-09-15', adults: 2 },
+      value: {
+        siteKey: good.k,
+        arrivalDate: '2026-09-13',
+        departureDate: '2026-09-15',
+        adults: 2,
+        promoCode: null,
+      },
     });
   });
   it.each([
@@ -67,6 +73,7 @@ describe('запрос брони с сайта (book)', () => {
       departureDate: '2026-09-15',
       categoryCode: 'category-single',
       adults: 1,
+      promoCode: null,
       guest: {
         firstName: 'Айгерим',
         lastName: 'Тестова',
@@ -112,5 +119,25 @@ describe('запрос брони с сайта (book)', () => {
     if (!r.ok) return;
     expect(r.value.visitorKey).toBeNull();
     expect(r.value.sessionKey).toBeNull();
+  });
+});
+
+describe('промокод в запросе виджета (DATA_MODEL §20)', () => {
+  const base = { k: good.k, arrival: '2026-09-13', departure: '2026-09-15', adults: 2 };
+  it('приводит к верхнему регистру и обрезает пробелы', () => {
+    const r = parseQuoteRequest({ ...base, promo: '  summer-10 ' }, today);
+    expect(r.ok && r.value.promoCode).toBe('SUMMER-10');
+  });
+  it('пустой и отсутствующий — без промокода', () => {
+    const r = parseQuoteRequest({ ...base, promo: '   ' }, today);
+    expect(r.ok && r.value.promoCode).toBeNull();
+    const r2 = parseQuoteRequest(base, today);
+    expect(r2.ok && r2.value.promoCode).toBeNull();
+  });
+  it('введённый неверно — отказ словами, а не «без скидки»', () => {
+    for (const promo of ['ab', 'лето', 'a b', 'x'.repeat(33)]) {
+      const r = parseQuoteRequest({ ...base, promo }, today);
+      expect(r).toEqual({ ok: false, reason: 'промокод записан неверно' });
+    }
   });
 });

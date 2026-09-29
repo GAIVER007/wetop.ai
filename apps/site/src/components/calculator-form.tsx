@@ -9,7 +9,7 @@ type Props = { t: Dictionary['calculator'] };
 type Key = 'nights' | 'adr' | 'commission' | 'shift';
 
 const FORMAT = new Intl.NumberFormat('ru-RU');
-const money = (value: number) => `${FORMAT.format(value)} ₸`;
+const money = (value: number) => `${FORMAT.format(value)}\u00a0₸`;
 
 /*
  * Форма калькулятора (клиентский код: сайт статический, считает браузер). Ошибка показывается только у непустого

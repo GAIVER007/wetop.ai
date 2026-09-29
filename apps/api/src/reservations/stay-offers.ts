@@ -7,7 +7,13 @@ import {
   Injectable,
   Query,
 } from '@nestjs/common';
-import { MAX_CHESSBOARD_DAYS, daySpan, stayOffer } from '@pms/domain';
+import {
+  MAX_CHESSBOARD_DAYS,
+  ReservationRuleError,
+  assertDerivedRuleAllows,
+  daySpan,
+  stayOffer,
+} from '@pms/domain';
 import { Access } from '../auth/access.decorator';
 import { RESERVATIONS_UOW, type UnitOfWork } from './reservations.repository';
 
@@ -70,6 +76,25 @@ export class StayOffersService {
         repo.activeRatePlans(),
         repo.activeCategories(),
       ]);
+      // Производному тарифу (DATA_MODEL §20) окно продаж и минимум ночей могут запретить эти даты — такой тариф
+      // в цену «от» не входит, иначе стойка показала бы цену, по которой бронь потом откажут
+      let todayIso: string | null = null;
+      const sellable = async (plan: (typeof plans)[number]): Promise<boolean> => {
+        if (!plan.derivedRule) return true;
+        todayIso ??= await repo.today();
+        try {
+          assertDerivedRuleAllows(plan.derivedRule, {
+            planName: plan.name,
+            today: todayIso,
+            arrivalDate: arrival,
+            nights,
+          });
+          return true;
+        } catch (e) {
+          if (e instanceof ReservationRuleError) return false;
+          throw e;
+        }
+      };
       const byCategory: StayOffers['byCategory'] = {};
       for (const cat of categories) {
         const bed = cat.kind === 'DORM_BED';
@@ -79,7 +104,8 @@ export class StayOffersService {
         }
         const covering = [];
         for (const plan of plans)
-          if (await repo.ratePlanCoversType(plan.id, cat.id)) covering.push(plan);
+          if ((await repo.ratePlanCoversType(plan.id, cat.id)) && (await sellable(plan)))
+            covering.push(plan);
         const forStay = await Promise.all(
           covering.map(async (plan) => ({
             code: plan.code,

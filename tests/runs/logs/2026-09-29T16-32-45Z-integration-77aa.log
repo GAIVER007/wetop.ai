@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 29.09.2026 21:32 Алматы · vm
+# коммит fbc3e20 (claude/sec1b-credential-grants), незакоммиченных файлов набора: 6
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-32-45Z-integration-77aa.json' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/rls-credential-grants.test.ts (8 tests) 61ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  16:32:46
+   Duration  1.33s (tests 53%, import 33%, transform 10%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-32-45Z-integration-77aa.json
+
+# код выхода 0 · 2 с

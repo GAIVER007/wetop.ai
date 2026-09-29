@@ -42,6 +42,7 @@ v2.3 (27.09.2026, вечер; **Q-199 закрыт владельцем — ва
 v2.4 (27.09.2026, поздний вечер; **Platform P1 утверждена владельцем** с тремя условиями приёмки): (1) `reporting_currency` — DEFAULT не подтверждённая валюта, неоднозначное в отчёте `UNRESOLVED` (§18.4, отчёт `scripts/ops/platform-p1-report.sql`); (2) фолбэк резолвера по `properties.organization_id` — только миграционное окно, снять в следующей platform-фазе после production backfill и `broken_chain = 0`; (3) RLS-gate: политики можно применять сейчас, но публичная регистрация и первый внешний Partner на общей базе — только после ролей на production, `DATABASE_APP_URL` в API, зелёного isolation-smoke под `wetop_app` и замера производительности. После успешного rollout Platform P1 закрывается; следующий этап — Platform P2 (RequestActor/scope); Switcher/onboarding/Partners UI — не раньше закрытия P2
 v2.5 (28.09.2026; **утверждено владельцем 28.09.2026 ответом «да» на план полной очистки** — ADR-118, `plans/remove-retired-source-and-reset-2026-09-28.md`): WETOP больше не хранит vendor-specific идентификаторы прежней PMS. Удаляются `accommodation_types.retired-source_id`, `inventory_units.retired-source_room_number`, `reservation_items.retired-source_room_stay_id`, `guests.retired-source_person_id`, `rate_plans.retired-source_id` и их уникальные индексы. Универсальные `reservations.external_id`, `external_events.external_event_id` и финансовые `external_reference` остаются: это нейтральные ключи действующих каналов и платежей. Production очищается до onboarding-состояния: сохраняются учётная запись владельца, её организация, membership/platform-admin и активная сессия; гостиничные, финансовые, гостевые, канальные, аналитические и демонстрационные данные удаляются после проверенной резервной копии. Старые применённые migration-файлы и Git-история не переписываются.
 v2.6 (28.09.2026; **поручение владельца после закрытия Platform P1** — «убрать compatibility fallback … `Property.location_id` перевести в `NOT NULL` отдельной безопасной миграцией, раз production уже подтвердил `without_location = 0`»): §18.4 — `properties.location_id` **NOT NULL**. Миграция `20260928000032_platform_p1_location_not_null` сначала проверяет данные и падает, ничего не меняя, если есть объект без филиала или объект, чей Business принадлежит другой организации (то же условие, что `broken_chain` в `scripts/ops/platform-p1-report.sql`); затем `SET NOT NULL`. `down.sql` снимает только NOT NULL. Фолбэк резолвера по `properties.organization_id` снят: объект вошедшего ищется только цепочкой Organization → Business → Location → Property. Новые объекты (регистрация, сиды) создаются сразу с цепочкой одной общей функцией `createPropertyInChain` (`packages/database`), теми же правилами, что backfill миграции 030. `properties.organization_id` остаётся (замок ADR-061), и миграция требует, чтобы он совпадал с организацией Business. Таблицы броней, финансов, фонда и каналов не меняются. Номер v2.6 и миграции 032 — после v2.5/ADR-118 (`20260928000031_remove_legacy_pms_fields`) из параллельной сессии; на рабочей базе после сброса ADR-118 объектов нет, проверка данных проходит на пустой таблице. **На рабочей базе применяет владелец**
+v2.7 (29.09.2026; **SEC-1b, стадия A — по слову владельца «давай делай» на план аудита 29.09.2026**, ADR-124, `plans/sec1b-credential-grants-2026-09-29.md`): §17.2–17.3 — права роли `wetop_app` на десять таблиц без RLS приведены к замыслу §17.3 «только `wetop_service` читает по делу». Миграция `20260929000033_rls_credential_grants` отзывает у `wetop_app` всё на `password_resets`, `email_verifications`, `wizard_sessions`, `wizard_events`, `wizard_surveys`; на `users` оставляет только чтение колонок `id`, `email`, `name`, `status`, `email_verified_at`; на `platform_admins` — только чтение `user_id`, `revoked_at`. Таблицы, колонки, связи и политики не меняются; `external_events`, `channel_outbox`, `system_incidents` не тронуты (стадия B). `down.sql` возвращает полный доступ. **На рабочей базе применяет владелец — после выкладки кода**
 
 > **Примечание о двойном §17 (27.09.2026, слияние параллельных сессий):** файл содержит ДВА раздела §17 —
 > «Целевая архитектура двух вертикалей» (v2.0, ADR-100) и «Row Level Security» (v1.13, ADR-103). Как и с
@@ -1662,6 +1663,7 @@ MVP вводится вручную и используется всеми Busin
 
 - `wetop_app` — `NOBYPASSRLS`, не владелец таблиц; права `SELECT/INSERT/UPDATE/DELETE` на таблицы схемы, `USAGE` на
   последовательности. Ею ходит API, когда за запросом стоит организация: вошедший человек или публичный путь её сайта.
+  **v2.7 (SEC-1b, ADR-124):** кроме таблиц из последней строки §17.3 — на них права ограничены (см. там).
 - `wetop_service` — `BYPASSRLS`, те же права: фоновые циклы, вебхуки, служебные ключи, вход и регистрация (до
   организации), раздел «Платформа», скрипты.
 - Роли создаёт миграция без входа (`NOLOGIN`); вход и пароль включает владелец (`ALTER ROLE … LOGIN PASSWORD`), пароль —
@@ -1687,6 +1689,20 @@ MVP вводится вручную и используется всеми Busin
 | без RLS, только `wetop_service` читает по делу | `users`, `password_resets`, `email_verifications`, `platform_admins`, `wizard_sessions`, `wizard_surveys`, `wizard_events`, `external_events`, `channel_outbox`, `system_incidents` |
 
 `users` без RLS намеренно: вошедшему нужны имена авторов журнала и коллег; почты чужих организаций API наружу не отдаёт.
+
+**Права `wetop_app` на эти таблицы (v2.7, SEC-1b стадия A, ADR-124).** До v2.7 миграция `…026` выдала ей полный доступ ко
+всем таблицам схемы, и «только `wetop_service`» держалось на коде. Теперь держится и на базе:
+
+| Таблица | Права `wetop_app` |
+|---|---|
+| `password_resets`, `email_verifications`, `wizard_sessions`, `wizard_events`, `wizard_surveys` | никаких |
+| `users` | `SELECT (id, email, name, status, email_verified_at)`; хеш пароля, счётчик попыток, блокировка и любая запись — нет |
+| `platform_admins` | `SELECT (user_id, revoked_at)`; запись — нет |
+| `external_events`, `channel_outbox`, `system_incidents` | как раньше (полный) — стадия B: интеграционные маршруты оператора пока идут под `wetop_app` |
+
+Внешние ключи на `users` (`audit_logs.user_id`, `memberships`, `sessions` и др.) проверяются от владельца таблицы и прав на
+`users` не требуют. Чтение и запись `users` и `platform_admins` в запросах вошедшего (`/auth/me`, смена пароля) идёт
+служебной ролью базы (`withServiceDatabase`).
 
 ---
 

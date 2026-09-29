@@ -4388,3 +4388,12 @@
 | 29.09.2026 21:16 | typecheck | ✅ без ошибок | 25 с | d9eb3bd | [лог](logs/2026-09-29T16-16-29Z-typecheck-b304.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | lint | ✅ без ошибок | 23 с | d9eb3bd | [лог](logs/2026-09-29T16-17-04Z-lint-78ae.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | unit | ❌ упало 1 из 2425, пропущено 3 | 1 мин 28 с | d9eb3bd | [лог](logs/2026-09-29T16-17-28Z-unit-904c.log) | SEC-1a после слияния main: полный unit |
+| 29.09.2026 21:30 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ❌ упало 7 из 8 | 2 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-30-30Z-integration-1cb5.log) | SEC-1b red: гранты wetop_app |
+| 29.09.2026 21:31 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 50 | 9 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-31-17Z-unit-ceed.log) | SEC-1b red: whoami и changePassword служебной ролью |
+| 29.09.2026 21:31 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 50 | 9 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-31-28Z-unit-5c9a.log) | SEC-1b red: whoami и changePassword служебной ролью |
+| 29.09.2026 21:32 | unit (частично: apps/api/src/auth apps/api/src/wizard) | ✅ 189 из 189 | 10 с | fbc3e20 +3 | [лог](logs/2026-09-29T16-32-06Z-unit-036c.log) | SEC-1b green: AuthService и seller-agents |
+| 29.09.2026 21:32 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ✅ 8 из 8 | 2 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-32-45Z-integration-77aa.log) | SEC-1b green: гранты wetop_app |
+| 29.09.2026 21:41 | typecheck | ✅ без ошибок | 26 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-41-15Z-typecheck-137e.log) | SEC-1b |
+| 29.09.2026 21:41 | lint | ✅ без ошибок | 26 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-41-52Z-lint-0ed0.log) | SEC-1b |
+| 29.09.2026 21:42 | integration | ✅ 138 из 138 | 46 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-42-19Z-integration-8c8f.log) | SEC-1b: полный integration на свежей локальной базе |
+| 29.09.2026 21:43 | unit | ❌ упало 1 из 2429, пропущено 3 | 1 мин 27 с | fbc3e20 +5 | [лог](logs/2026-09-29T16-43-08Z-unit-1897.log) | SEC-1b: полный unit |

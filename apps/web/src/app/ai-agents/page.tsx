@@ -6,7 +6,8 @@ import { deskShell } from '../../lib/desk-shell';
 /**
  * Вход в раздел «ИИ-агенты» (S0, `plans/ai-agents-wetop-support-2026-09-29.md`; решение владельца 29.09, Q-A2).
  * Только навигация: у каждого агента свой экран и свои права. Партнёр видит агентов своего бизнеса — сейчас это
- * AI-продавец. WETOP Support — агент платформы: его карточку видит главный администратор, а обычный пользователь
+ * AI-продавец — и только по действующему расширению организации (ADR-083, ADR-090): без него карточка ведёт не в
+ * настройки, а на страницу с объяснением, доступ проверяет сам раздел. WETOP Support — агент платформы: его карточку видит главный администратор, а обычный пользователь
  * говорит с ним через «Техподдержка → Написать в поддержку».
  */
 export default async function AiAgentsPage() {
@@ -24,9 +25,18 @@ export default async function AiAgentsPage() {
               <Badge>Hospitality</Badge>
             </Row>
             <div>Отвечает гостям в чате на сайте, называет цены по тарифу и зовёт человека.</div>
+            {!access.aiSeller && (
+              <div data-testid="agent-seller-off" className="muted">
+                Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по счёту.
+              </div>
+            )}
             <div>
-              <Link className="btn" href="/ai-seller" aria-label="Открыть: AI-продавец">
-                Открыть
+              <Link
+                className={access.aiSeller ? 'btn' : 'btn btn--secondary'}
+                href="/ai-seller"
+                aria-label={access.aiSeller ? 'Открыть: AI-продавец' : 'Подробнее: AI-продавец'}
+              >
+                {access.aiSeller ? 'Открыть' : 'Подробнее'}
               </Link>
             </div>
           </Stack>

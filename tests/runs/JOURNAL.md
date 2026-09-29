@@ -4182,3 +4182,10 @@
 | 29.09.2026 13:51 | integration | ✅ 123 из 123 | 40 с | 2b6ae04 | [лог](logs/2026-09-29T08-51-59Z-integration-51b3.log) | PR7 on main 95f5c0f3 |
 | 29.09.2026 13:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 622 из 622 | 50 мин 15 с | 2b6ae04 | [лог](logs/2026-09-29T08-52-44Z-e2e-ab5b.log) | PR7 full UI on main 95f5c0f3 |
 | 29.09.2026 14:44 | e2e | ✅ 25 из 25 | 1 мин | 8c090d2 | [лог](logs/2026-09-29T09-44-20Z-e2e-8ddf.log) | PR7 live e2e on fresh build, main 95f5c0f3 |
+| 29.09.2026 13:32 | typecheck | ✅ без ошибок | 43 с | d9dce04 | [лог](logs/2026-09-29T08-32-06Z-typecheck-19ae.log) |  |
+| 29.09.2026 13:32 | lint | ✅ без ошибок | 23 с | d9dce04 | [лог](logs/2026-09-29T08-32-49Z-lint-98af.log) |  |
+| 29.09.2026 13:33 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 36 с | d9dce04 | [лог](logs/2026-09-29T08-33-13Z-unit-44aa.log) |  |
+| 29.09.2026 13:34 | integration | ✅ 123 из 123 | 42 с | d9dce04 | [лог](logs/2026-09-29T08-34-50Z-integration-146a.log) |  |
+| 29.09.2026 13:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | d9dce04 | [лог](logs/2026-09-29T08-35-49Z-e2e-e2f4.log) |  |
+| 29.09.2026 13:36 | e2e | ✅ 26 из 26 | 1 мин 15 с | d9dce04 | [лог](logs/2026-09-29T08-36-52Z-e2e-ece4.log) |  |
+| 29.09.2026 13:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 612 из 612 | 53 мин 9 с | d9dce04 | [лог](logs/2026-09-29T08-38-08Z-e2e-f49e.log) |  |

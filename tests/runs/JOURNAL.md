@@ -4268,3 +4268,8 @@
 | 29.09.2026 17:41 | unit (частично: tests/unit/site-calculator.test.ts tests/unit/site-design.test.ts) | ✅ 12 из 12 | 1 с | efff031 +10 | [лог](logs/2026-09-29T12-41-02Z-unit-11ac.log) |  |
 | 29.09.2026 17:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 30 из 30 | 49 с | efff031 +9 | [лог](logs/2026-09-29T12-41-06Z-e2e-5f98.log) |  |
 | 29.09.2026 17:42 | e2e (частично: --config tests/site/playwright.config.ts tests/site/calculator.spec.ts) | ❌ упало 2 из 2 | 1 мин 21 с | efff031 +8 | [лог](logs/2026-09-29T12-42-02Z-e2e-abc6.log) | калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год |
+| 29.09.2026 18:27 | unit (частично: packages/domain/src/rates/discounts.test.ts) | ❌ код выхода 1 | 2 с | 9283bec +1 | [лог](logs/2026-09-29T13-27-21Z-unit-5460.log) | (файл не выполнился) |
+| 29.09.2026 18:27 | unit (частично: packages/domain/src/rates/discounts.test.ts) | ✅ 16 из 16 | 1 с | 9283bec +4 | [лог](logs/2026-09-29T13-27-39Z-unit-4037.log) |  |
+| 29.09.2026 18:34 | integration (частично: tests/integration/derived-rate-plans.test.ts) | ✅ 1 из 1 | 3 с | 9283bec +8 | [лог](logs/2026-09-29T13-34-25Z-integration-7b81.log) |  |
+| 29.09.2026 18:34 | integration (частично: tests/integration/derived-rate-plans.test.ts) | ❌ упало 1 из 1 | 3 с | 9283bec +6 | [лог](logs/2026-09-29T13-34-44Z-integration-8bd0.log) | derived rate plans and promo codes: database guards accepts a valid derived plan and rejects every broken shape |
+| 29.09.2026 18:34 | integration (частично: tests/integration/derived-rate-plans.test.ts) | ✅ 1 из 1 | 3 с | 9283bec +8 | [лог](logs/2026-09-29T13-34-58Z-integration-7e11.log) |  |

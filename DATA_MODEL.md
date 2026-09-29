@@ -1857,7 +1857,7 @@ id
 property_id               → Property
 code                      строка, верхний регистр, уникальна в объекте
 discount_percent          integer, 1…90
-stay_from, stay_to        date, NULL          ← проживание целиком внутри периода; NULL — без границы
+stay_from, stay_to        date, NULL          ← первая и последняя ночь проживания, включительно; NULL — без границы
 max_uses                  integer, NULL       ← NULL — без предела
 active                    boolean
 created_at

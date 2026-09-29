@@ -4099,3 +4099,7 @@
 | 29.09.2026 12:25 | lint | ✅ без ошибок | 19 с | 360bc52 | [лог](logs/2026-09-29T07-25-29Z-lint-e5fc.log) |  |
 | 29.09.2026 12:25 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин | 360bc52 | [лог](logs/2026-09-29T07-25-49Z-unit-d389.log) |  |
 | 29.09.2026 12:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-desk.spe | ✅ 125 из 125 | 7 мин 4 с | 360bc52 | [лог](logs/2026-09-29T07-27-55Z-e2e-482a.log) |  |
+| 29.09.2026 13:07 | typecheck | ✅ без ошибок | 32 с | 1e07d6a | [лог](logs/2026-09-29T08-07-31Z-typecheck-ad10.log) |  |
+| 29.09.2026 13:08 | lint | ✅ без ошибок | 17 с | 1e07d6a | [лог](logs/2026-09-29T08-08-04Z-lint-d48b.log) |  |
+| 29.09.2026 13:08 | unit | ✅ 2302 из 2305, пропущено 3 | 1 мин 22 с | 1e07d6a | [лог](logs/2026-09-29T08-08-22Z-unit-7a4d.log) |  |
+| 29.09.2026 13:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts tests/ui/workspace.spec.ts tests/ui/today-attention.spec.ts tests/ | ✅ 114 из 114 | 7 мин 6 с | 1e07d6a | [лог](logs/2026-09-29T08-09-51Z-e2e-517b.log) |  |

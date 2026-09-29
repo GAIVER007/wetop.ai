@@ -56,6 +56,7 @@ import {
 import { supportReplyAction, supportSandboxAction, supportUploadAction } from '../actions';
 import { SupportDialogActions } from '../dialog-actions';
 import { SupportModelForm, SupportPromptForm } from '../forms';
+import { KbSources, KbView } from '../kb-view';
 // «Проверка» и «Знания» — те же формы, что у «ИИ-продавца» (DESIGN.md §8)
 import '../../../ai-seller/ai-seller.css';
 import '../support.css';
@@ -71,7 +72,8 @@ const platformClock = propertyClock(PLATFORM_TIMEZONE);
 
 const TABS = [
   { view: '', href: '/platform/support', label: 'Диалоги' },
-  { view: 'knowledge', href: '/platform/support/knowledge', label: 'Знания' },
+  { view: 'base', href: '/platform/support/base', label: 'База знаний' },
+  { view: 'knowledge', href: '/platform/support/knowledge', label: 'Документы' },
   { view: 'settings', href: '/platform/support/settings', label: 'Настройки' },
   { view: 'check', href: '/platform/support/check', label: 'Проверка' },
 ] as const;
@@ -145,7 +147,12 @@ export default async function SupportPage({
         ))}
       </nav>
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем помощника…" />}>
-        <SupportScreen view={view} queue={one(query.queue)} id={one(query.id)} />
+        <SupportScreen
+          view={view}
+          queue={one(query.queue)}
+          id={one(query.id)}
+          kbQuery={Object.fromEntries(Object.entries(query).map(([k, v]) => [k, one(v)]))}
+        />
       </Suspense>
     </Page>
   );
@@ -155,10 +162,12 @@ async function SupportScreen({
   view,
   queue,
   id,
+  kbQuery,
 }: {
   view: SupportView;
   queue: string;
   id: string;
+  kbQuery: Record<string, string>;
 }) {
   const status = await settle(supportApi.status());
   if (!status.ok) {
@@ -187,6 +196,7 @@ async function SupportScreen({
         вписывает владелец.
       </EmptyState>
     );
+  if (view === 'base') return <KbView query={kbQuery} />;
   if (view === 'knowledge') return <KnowledgeView />;
   if (view === 'settings') return <SettingsView />;
   if (view === 'check') return <CheckView />;
@@ -470,6 +480,9 @@ function DialogCard({ card, back }: { card: SupportConversationCard; back: strin
           </li>
         ))}
       </ol>
+      <Suspense fallback={null}>
+        <KbSources conversationId={card.id} closed={closed} />
+      </Suspense>
       {closed ? (
         <Notice tone="muted" data-testid="support-dialog-closed">
           Обращение закрыто. Если человек напишет снова, откроется новое обращение.

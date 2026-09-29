@@ -2133,6 +2133,81 @@ const supportKnowledgeSeed = () => [
   { source: 'справочник-ошибок.md', chunks: 5, createdAt: '2026-09-24T06:00:00.000Z' },
 ];
 let supportKnowledge = supportKnowledgeSeed();
+/** Управляемая база знаний WETOP Support (S3): как отдаёт API — camelCase */
+interface KbFixture {
+  id: string;
+  title: string;
+  category: string;
+  visibility: string;
+  status: string;
+  version: number;
+  source: string;
+  content: string;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  versions: Array<{ version: number; title: string; content: string; savedAt: string }>;
+}
+const KB_CATEGORIES_UI = ['PRODUCT', 'HOW_TO', 'TROUBLESHOOTING', 'BILLING', 'INTEGRATIONS', 'SECURITY', 'KNOWN_ISSUE', 'RUNBOOK'];
+const KB_VISIBILITIES_UI = ['PUBLIC_SUPPORT', 'INTERNAL_SUPPORT', 'PLATFORM_ADMIN_ONLY'];
+const KB_ADMIN_ID = '0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11';
+const KB_ENTRY_A = '11111111-aaaa-4aaa-8aaa-000000000001';
+const supportKbSeed = (): KbFixture[] => [
+  {
+    id: KB_ENTRY_A,
+    title: 'Как изменить время заезда',
+    category: 'HOW_TO',
+    visibility: 'PUBLIC_SUPPORT',
+    status: 'ACTIVE',
+    version: 2,
+    source: 'manual',
+    content: 'Настройки объекта → Проживание: время заезда и выезда.',
+    approvedBy: KB_ADMIN_ID,
+    approvedAt: '2026-09-28T10:00:00.000Z',
+    createdAt: '2026-09-27T10:00:00.000Z',
+    updatedAt: '2026-09-28T10:00:00.000Z',
+    versions: [
+      { version: 2, title: 'Как изменить время заезда', content: 'Настройки объекта → Проживание: время заезда и выезда.', savedAt: '2026-09-28T10:00:00.000Z' },
+      { version: 1, title: 'Как изменить время заезда', content: 'Настройки объекта.', savedAt: '2026-09-27T10:00:00.000Z' },
+    ],
+  },
+  {
+    id: '11111111-aaaa-4aaa-8aaa-000000000002',
+    title: 'Режим «только чтение»',
+    category: 'BILLING',
+    visibility: 'INTERNAL_SUPPORT',
+    status: 'DRAFT',
+    version: 1,
+    source: 'manual',
+    content: 'Симптом: нельзя создать бронь.\n\nПричина: пробный период закончился.\n\nЧто делать: оплатить счёт.',
+    approvedBy: null,
+    approvedAt: null,
+    createdAt: '2026-09-29T08:00:00.000Z',
+    updatedAt: '2026-09-29T08:00:00.000Z',
+    versions: [{ version: 1, title: 'Режим «только чтение»', content: 'Симптом…', savedAt: '2026-09-29T08:00:00.000Z' }],
+  },
+  {
+    id: '11111111-aaaa-4aaa-8aaa-000000000003',
+    title: 'Восстановление базы после сбоя',
+    category: 'RUNBOOK',
+    visibility: 'PLATFORM_ADMIN_ONLY',
+    status: 'ACTIVE',
+    version: 1,
+    source: 'manual',
+    content: 'Закрытый регламент.',
+    approvedBy: KB_ADMIN_ID,
+    approvedAt: '2026-09-26T10:00:00.000Z',
+    createdAt: '2026-09-26T10:00:00.000Z',
+    updatedAt: '2026-09-26T10:00:00.000Z',
+    versions: [{ version: 1, title: 'Восстановление базы после сбоя', content: 'Закрытый регламент.', savedAt: '2026-09-26T10:00:00.000Z' }],
+  },
+];
+let supportKb = supportKbSeed();
+const kbView = (e: KbFixture, full: boolean) => {
+  const { content, versions, ...head } = e;
+  return full ? { ...head, content, versions } : { ...head, excerpt: content.slice(0, 160) };
+};
 /** Подключена ли панель помощника — `POST /__test/control { supportState: 'not-configured' }` */
 let supportState: 'ready' | 'not-configured' | 'unavailable' = 'ready';
 /** Правила и модель помощника (ADR-084): песочница отвечает по сохранённым правилам — так видно, что они дошли */
@@ -2143,6 +2218,7 @@ let supportModel = SUPPORT_MODELS[0]!;
 function resetSupport() {
   supportDialogs = supportDialogSeed();
   supportKnowledge = supportKnowledgeSeed();
+  supportKb = supportKbSeed();
   supportState = 'ready';
   supportPrompt = SUPPORT_PROMPT_SEED;
   supportModel = SUPPORT_MODELS[0]!;
@@ -4258,6 +4334,94 @@ createServer(async (req, res) => {
         // адрес и ключ есть, а сам помощник не отвечает — так API пересказывает сбой связи (`panelHttpError`)
         if (supportState === 'unavailable')
           return send(503, { message: 'ИИ-помощник недоступен: нет ответа' });
+        // ── управляемая база знаний (S3) ─────────────────────────────────────────────────────────────
+        const kbRoute = /^\/platform\/support\/kb(?:\/([^/]+?)(?:\/(publish|status))?)?$/.exec(path);
+        if (kbRoute) {
+          const [, kbId, action] = kbRoute;
+          if (!kbId && req.method === 'GET') {
+            const q = url.searchParams;
+            const status = q.get('status');
+            const category = q.get('category');
+            const visibility = q.get('visibility');
+            const text = (q.get('q') ?? '').toLowerCase();
+            if (status && !['DRAFT', 'ACTIVE', 'OUTDATED', 'ARCHIVED'].includes(status)) return send(400, { message: 'status: недопустимо' });
+            const items = supportKb
+              .filter((e) => (!status || e.status === status) && (!category || e.category === category) && (!visibility || e.visibility === visibility))
+              .filter((e) => !text || `${e.title} ${e.content}`.toLowerCase().includes(text))
+              .map((e) => kbView(e, false));
+            const counts = Object.fromEntries(['DRAFT', 'ACTIVE', 'OUTDATED', 'ARCHIVED'].map((st) => [st, supportKb.filter((e) => e.status === st).length]));
+            return send(200, { items, counts });
+          }
+          if (!kbId && req.method === 'POST') {
+            const title = String(body['title'] ?? '').trim();
+            if (!title) return send(400, { message: 'title: нужен текст' });
+            if (!KB_CATEGORIES_UI.includes(String(body['category']))) return send(400, { message: 'category: недопустимо' });
+            if (!KB_VISIBILITIES_UI.includes(String(body['visibility']))) return send(400, { message: 'visibility: недопустимо' });
+            const content = String(body['content'] ?? '').trim();
+            if (!content) return send(400, { message: 'content: нужен текст' });
+            const now = new Date().toISOString();
+            const created: KbFixture = {
+              id: `11111111-aaaa-4aaa-8aaa-${String(supportKb.length + 1).padStart(12, '0')}`,
+              title, category: String(body['category']), visibility: String(body['visibility']), status: 'DRAFT', version: 1,
+              source: 'manual', content, approvedBy: null, approvedAt: null, createdAt: now, updatedAt: now,
+              versions: [{ version: 1, title, content, savedAt: now }],
+            };
+            supportKb = [created, ...supportKb];
+            return send(200, kbView(created, true));
+          }
+          const entry = kbId ? supportKb.find((e) => e.id === kbId) : undefined;
+          if (kbId && !entry) return send(404, { message: 'Запись не найдена' });
+          if (entry && !action && req.method === 'GET') return send(200, kbView(entry, true));
+          if (entry && !action && req.method === 'PUT') {
+            const now = new Date().toISOString();
+            if (typeof body['title'] === 'string') entry.title = body['title'];
+            if (typeof body['content'] === 'string') entry.content = body['content'];
+            if (typeof body['category'] === 'string') entry.category = body['category'];
+            if (typeof body['visibility'] === 'string') entry.visibility = body['visibility'];
+            entry.version += 1;
+            entry.updatedAt = now;
+            if (entry.status === 'ACTIVE') Object.assign(entry, { status: 'DRAFT', approvedBy: null, approvedAt: null });
+            entry.versions = [{ version: entry.version, title: entry.title, content: entry.content, savedAt: now }, ...entry.versions];
+            return send(200, kbView(entry, true));
+          }
+          if (entry && action === 'publish' && req.method === 'POST') {
+            if (entry.status !== 'DRAFT') return send(400, { message: 'Опубликовать можно только черновик' });
+            Object.assign(entry, { status: 'ACTIVE', approvedBy: KB_ADMIN_ID, approvedAt: new Date().toISOString() });
+            return send(200, kbView(entry, true));
+          }
+          if (entry && action === 'status' && req.method === 'POST') {
+            const next = String(body['status'] ?? '');
+            if (!['DRAFT', 'OUTDATED', 'ARCHIVED'].includes(next)) return send(400, { message: 'status: ACTIVE ставит только публикация' });
+            entry.status = next;
+            if (next === 'DRAFT') Object.assign(entry, { approvedBy: null, approvedAt: null });
+            return send(200, kbView(entry, true));
+          }
+        }
+        const kbConv = /^\/platform\/support\/conversations\/([^/]+)\/(knowledge|knowledge-draft)$/.exec(path);
+        if (kbConv) {
+          const d = supportDialogs.find((x) => x.id === kbConv[1]);
+          if (!d) return send(404, { message: 'диалог не найден' });
+          if (kbConv[2] === 'knowledge' && req.method === 'GET')
+            return send(200, {
+              items:
+                d.id === SUPPORT_DIALOG_A
+                  ? [{ knowledgeId: KB_ENTRY_A, title: 'Как изменить время заезда', version: 2, visibility: 'PUBLIC_SUPPORT', score: 0.91, usedAt: new Date().toISOString() }]
+                  : [],
+            });
+          if (kbConv[2] === 'knowledge-draft' && req.method === 'POST') {
+            if (!d.closed) return send(409, { message: 'Знание создаётся из закрытого обращения' });
+            const now = new Date().toISOString();
+            const created: KbFixture = {
+              id: `11111111-aaaa-4aaa-8aaa-${String(supportKb.length + 1).padStart(12, '0')}`,
+              title: 'Знание из обращения от 29.09.2026', category: 'TROUBLESHOOTING', visibility: 'INTERNAL_SUPPORT', status: 'DRAFT', version: 1,
+              source: `conversation:${d.id}`, content: 'Симптом:\n\nПричина:\n\nЧто делать:\n', approvedBy: null, approvedAt: null,
+              createdAt: now, updatedAt: now,
+              versions: [{ version: 1, title: 'Знание из обращения от 29.09.2026', content: 'Симптом:', savedAt: now }],
+            };
+            supportKb = [created, ...supportKb];
+            return send(200, kbView(created, false));
+          }
+        }
         const dialog =
           /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply|close))?$/.exec(path);
         if (path === '/platform/support/conversations' && req.method === 'GET') {

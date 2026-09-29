@@ -34,6 +34,15 @@ export interface SupportPort {
   settings(): Promise<unknown>;
   putModel(model: string): Promise<unknown>;
   sandbox(input: { externalId: string; text: string }): Promise<unknown>;
+  // управляемая база знаний (S3)
+  kbList(query: { status?: string; category?: string; visibility?: string; q?: string }): Promise<unknown>;
+  kbCreate(body: Record<string, unknown>): Promise<unknown>;
+  kbRead(id: string): Promise<unknown>;
+  kbUpdate(id: string, body: Record<string, unknown>): Promise<unknown>;
+  kbPublish(id: string, approvedBy: string): Promise<unknown>;
+  kbStatus(id: string, status: string, by: string | null): Promise<unknown>;
+  conversationKnowledge(id: string): Promise<unknown>;
+  knowledgeDraft(id: string, by: string | null): Promise<unknown>;
 }
 
 export interface SupportConnection {

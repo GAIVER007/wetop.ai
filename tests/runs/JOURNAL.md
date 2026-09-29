@@ -4402,6 +4402,15 @@
 | 29.09.2026 21:16 | typecheck | ✅ без ошибок | 25 с | d9eb3bd | [лог](logs/2026-09-29T16-16-29Z-typecheck-b304.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | lint | ✅ без ошибок | 23 с | d9eb3bd | [лог](logs/2026-09-29T16-17-04Z-lint-78ae.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | unit | ❌ упало 1 из 2425, пропущено 3 | 1 мин 28 с | d9eb3bd | [лог](logs/2026-09-29T16-17-28Z-unit-904c.log) | SEC-1a после слияния main: полный unit |
+| 29.09.2026 21:30 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ❌ упало 7 из 8 | 2 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-30-30Z-integration-1cb5.log) | SEC-1b red: гранты wetop_app |
+| 29.09.2026 21:31 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 50 | 9 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-31-17Z-unit-ceed.log) | SEC-1b red: whoami и changePassword служебной ролью |
+| 29.09.2026 21:31 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 50 | 9 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-31-28Z-unit-5c9a.log) | SEC-1b red: whoami и changePassword служебной ролью |
+| 29.09.2026 21:32 | unit (частично: apps/api/src/auth apps/api/src/wizard) | ✅ 189 из 189 | 10 с | fbc3e20 +3 | [лог](logs/2026-09-29T16-32-06Z-unit-036c.log) | SEC-1b green: AuthService и seller-agents |
+| 29.09.2026 21:32 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ✅ 8 из 8 | 2 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-32-45Z-integration-77aa.log) | SEC-1b green: гранты wetop_app |
+| 29.09.2026 21:41 | typecheck | ✅ без ошибок | 26 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-41-15Z-typecheck-137e.log) | SEC-1b |
+| 29.09.2026 21:41 | lint | ✅ без ошибок | 26 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-41-52Z-lint-0ed0.log) | SEC-1b |
+| 29.09.2026 21:42 | integration | ✅ 138 из 138 | 46 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-42-19Z-integration-8c8f.log) | SEC-1b: полный integration на свежей локальной базе |
+| 29.09.2026 21:43 | unit | ❌ упало 1 из 2429, пропущено 3 | 1 мин 27 с | fbc3e20 +5 | [лог](logs/2026-09-29T16-43-08Z-unit-1897.log) | SEC-1b: полный unit |
 | 29.09.2026 21:31 | e2e (частично: --config tests/site/playwright.config.ts --grep product tour\|FAQ and) | ❌ упало 2 из 2 | 2 мин 32 с | d373efe +2 | [лог](logs/2026-09-29T16-31-56Z-e2e-fc8b.log) | RED new homepage product tour, FAQ and persistent theme |
 | 29.09.2026 21:40 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 3 из 22 | 2 мин 51 с | d373efe +12 | [лог](logs/2026-09-29T16-40-38Z-e2e-f789.log) | GREEN public product story redesign and authentication regression |
 | 29.09.2026 21:44 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 22 из 22 | 31 с | d373efe +12 | [лог](logs/2026-09-29T16-44-02Z-e2e-d3c4.log) | Public site final: product tabs, FAQ, themes, mobile layout, authentication and accessibility |
@@ -4409,3 +4418,10 @@
 | 29.09.2026 21:28 | unit | ❌ упало 1 из 2428, пропущено 3 | 1 мин 43 с | 27beec3 | [лог](logs/2026-09-29T16-28-48Z-unit-470d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 29.09.2026 21:30 | integration | ❌ код выхода 1 | 1 с | 27beec3 | [лог](logs/2026-09-29T16-30-32Z-integration-5dbf.log) |  |
 | 29.09.2026 21:31 | integration | ✅ 131 из 131 | 44 с | 27beec3 | [лог](logs/2026-09-29T16-31-00Z-integration-4b22.log) |  |
+| 29.09.2026 21:45 | typecheck | ✅ без ошибок | 25 с | 9febe17 | [лог](logs/2026-09-29T16-45-08Z-typecheck-89dd.log) | SEC-1b после слияния main |
+| 29.09.2026 21:45 | lint | ✅ без ошибок | 21 с | 9febe17 | [лог](logs/2026-09-29T16-45-42Z-lint-a742.log) | SEC-1b после слияния main |
+| 29.09.2026 21:46 | unit | ❌ упало 1 из 2432, пропущено 3 | 1 мин 26 с | 9febe17 | [лог](logs/2026-09-29T16-46-04Z-unit-e4aa.log) | SEC-1b после слияния main: полный unit |
+| 29.09.2026 21:47 | integration | ✅ 139 из 139 | 47 с | 9febe17 | [лог](logs/2026-09-29T16-47-35Z-integration-3562.log) | SEC-1b после слияния main: integration |
+| 29.09.2026 21:52 | typecheck | ✅ без ошибок | 26 с | 8601505 | [лог](logs/2026-09-29T16-52-24Z-typecheck-02e1.log) | SEC-1b перед слиянием |
+| 29.09.2026 21:53 | lint | ✅ без ошибок | 21 с | 8601505 | [лог](logs/2026-09-29T16-53-03Z-lint-15be.log) | SEC-1b перед слиянием |
+| 29.09.2026 21:53 | unit | ❌ упало 1 из 2432, пропущено 3 | 1 мин 26 с | 8601505 | [лог](logs/2026-09-29T16-53-25Z-unit-fae0.log) | SEC-1b перед слиянием: полный unit |

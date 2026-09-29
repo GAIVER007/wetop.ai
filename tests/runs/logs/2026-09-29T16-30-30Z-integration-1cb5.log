@@ -1,0 +1,175 @@
+# Интеграционные (integration) · 29.09.2026 21:30 Алматы · vm
+# коммит fbc3e20 (claude/sec1a-rls-fail-closed), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-30-30Z-integration-1cb5.json' 'tests/integration/rls-credential-grants.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/rls-credential-grants.test.ts (8 tests | 7 failed) 53ms
+   ❯ RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) (8)
+     × password_resets: wetop_app не может ни читать, ни писать 12ms
+     × email_verifications: wetop_app не может ни читать, ни писать 2ms
+     × wizard_sessions: wetop_app не может ни читать, ни писать 2ms
+     × wizard_events: wetop_app не может ни читать, ни писать 2ms
+     × wizard_surveys: wetop_app не может ни читать, ни писать 2ms
+     × users: только id, email, name, status и только чтение 7ms
+     × platform_admins: читаются только user_id и revoked_at; писать нельзя — выдать себе права главного администратора нечем 3ms
+     ✓ внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > password_resets: wetop_app не может ни читать, ни писать
+AssertionError: password_resets: SELECT: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/rls-credential-grants.test.ts:76:55
+     74|           [table, privilege],
+     75|         );
+     76|         expect(rows[0]!.ok, `${table}: ${privilege}`).toBe(false);
+       |                                                       ^
+     77|       }
+     78|       const read = await asApp(`SELECT count(*) FROM "${table}"`);
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:34:7
+ ❯ tests/integration/rls-credential-grants.test.ts:70:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > email_verifications: wetop_app не может ни читать, ни писать
+AssertionError: email_verifications: SELECT: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/rls-credential-grants.test.ts:76:55
+     74|           [table, privilege],
+     75|         );
+     76|         expect(rows[0]!.ok, `${table}: ${privilege}`).toBe(false);
+       |                                                       ^
+     77|       }
+     78|       const read = await asApp(`SELECT count(*) FROM "${table}"`);
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:34:7
+ ❯ tests/integration/rls-credential-grants.test.ts:70:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > wizard_sessions: wetop_app не может ни читать, ни писать
+AssertionError: wizard_sessions: SELECT: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/rls-credential-grants.test.ts:76:55
+     74|           [table, privilege],
+     75|         );
+     76|         expect(rows[0]!.ok, `${table}: ${privilege}`).toBe(false);
+       |                                                       ^
+     77|       }
+     78|       const read = await asApp(`SELECT count(*) FROM "${table}"`);
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:34:7
+ ❯ tests/integration/rls-credential-grants.test.ts:70:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > wizard_events: wetop_app не может ни читать, ни писать
+AssertionError: wizard_events: SELECT: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/rls-credential-grants.test.ts:76:55
+     74|           [table, privilege],
+     75|         );
+     76|         expect(rows[0]!.ok, `${table}: ${privilege}`).toBe(false);
+       |                                                       ^
+     77|       }
+     78|       const read = await asApp(`SELECT count(*) FROM "${table}"`);
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:34:7
+ ❯ tests/integration/rls-credential-grants.test.ts:70:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > wizard_surveys: wetop_app не может ни читать, ни писать
+AssertionError: wizard_surveys: SELECT: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/rls-credential-grants.test.ts:76:55
+     74|           [table, privilege],
+     75|         );
+     76|         expect(rows[0]!.ok, `${table}: ${privilege}`).toBe(false);
+       |                                                       ^
+     77|       }
+     78|       const read = await asApp(`SELECT count(*) FROM "${table}"`);
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:34:7
+ ❯ tests/integration/rls-credential-grants.test.ts:70:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > users: только id, email, name, status и только чтение
+AssertionError: SELECT password_hash FROM users: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/rls-credential-grants.test.ts:103:32
+    101|       ]) {
+    102|         const denied = await asApp(sql);
+    103|         expect(denied.ok, sql).toBe(false);
+       |                                ^
+    104|         expect(!denied.ok && denied.message, sql).toMatch(/permission …
+    105|       }
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:34:7
+ ❯ tests/integration/rls-credential-grants.test.ts:85:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > platform_admins: читаются только user_id и revoked_at; писать нельзя — выдать себе права главного администратора нечем
+AssertionError: SELECT * FROM platform_admins: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/integration/rls-credential-grants.test.ts:131:32
+    129|       ]) {
+    130|         const denied = await asApp(sql);
+    131|         expect(denied.ok, sql).toBe(false);
+       |                                ^
+    132|         expect(!denied.ok && denied.message, sql).toMatch(/permission …
+    133|       }
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:34:7
+ ❯ tests/integration/rls-credential-grants.test.ts:121:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 1 passed (8)
+   Start at  16:30:31
+   Duration  1.26s (tests 48%, import 35%, transform 13%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-30-30Z-integration-1cb5.json
+
+# код выхода 1 · 2 с

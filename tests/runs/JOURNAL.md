@@ -4078,3 +4078,5 @@
 | 29.09.2026 12:41 | lint | ✅ без ошибок | 20 с | 85e1bcd +22 | [лог](logs/2026-09-29T07-41-22Z-lint-7d41.log) |  |
 | 29.09.2026 12:41 | unit | ✅ 2302 из 2305, пропущено 3 | 1 мин 39 с | 85e1bcd +17 | [лог](logs/2026-09-29T07-41-42Z-unit-1aec.log) |  |
 | 29.09.2026 12:43 | integration | ✅ 123 из 123 | 40 с | 85e1bcd +9 | [лог](logs/2026-09-29T07-43-21Z-integration-0930.log) |  |
+| 29.09.2026 12:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/ai-seller.spec.ts tests/ui/categories-create.spec.ts t | ✅ 251 из 251 | 20 мин 44 с | a671094 | [лог](logs/2026-09-29T07-44-31Z-e2e-cdc0.log) |  |
+| 29.09.2026 13:06 | e2e | ✅ 25 из 25 | 1 мин 4 с | bb0e747 | [лог](logs/2026-09-29T08-06-06Z-e2e-a080.log) |  |

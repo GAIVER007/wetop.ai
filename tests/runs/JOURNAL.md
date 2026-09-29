@@ -4262,3 +4262,6 @@
 | 29.09.2026 16:45 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 16 из 16 | 19 с | a44aa23 +1 | [лог](logs/2026-09-29T11-45-13Z-e2e-0d2b.log) |  |
 | 29.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 634 | 55 мин 26 с | 7d27564 | [лог](logs/2026-09-29T11-45-45Z-e2e-e376.log) | после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке |
 | 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/workspace.spec.ts:24) | ✅ 7 из 7 | 1 мин 25 с | 368c37f +1 | [лог](logs/2026-09-29T12-41-37Z-e2e-a05c.log) |  |
+| 29.09.2026 18:11 | unit | ❌ упало 4 из 2340, пропущено 3 | 1 мин 18 с | 00cb705 | [лог](logs/2026-09-29T13-11-01Z-unit-b6eb.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 18:12 | integration | ❌ код выхода 1 | 1 с | 00cb705 | [лог](logs/2026-09-29T13-12-19Z-integration-0d88.log) |  |
+| 29.09.2026 18:12 | integration | ✅ 125 из 125 | 40 с | 00cb705 | [лог](logs/2026-09-29T13-12-39Z-integration-6ffc.log) |  |

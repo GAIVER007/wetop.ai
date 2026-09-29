@@ -4341,7 +4341,11 @@
 | 29.09.2026 19:12 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 17 | 1 мин 29 с | 707c2e0 | [лог](logs/2026-09-29T14-12-33Z-e2e-78f3.log) | главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » |
 | 29.09.2026 19:15 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 22 с | 707c2e0 +5 | [лог](logs/2026-09-29T14-15-36Z-e2e-d06e.log) |  |
 | 29.09.2026 19:18 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 20 с | 707c2e0 +5 | [лог](logs/2026-09-29T14-18-01Z-e2e-17ef.log) |  |
+| 29.09.2026 20:27 | unit | ✅ 2351 из 2354, пропущено 3 | 1 мин 35 с | 3c2dd3a +2 | [лог](logs/2026-09-29T15-27-33Z-unit-3601.log) |  |
+| 29.09.2026 20:29 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 30 с | 3c2dd3a +2 | [лог](logs/2026-09-29T15-29-09Z-e2e-a82a.log) |  |
+| 29.09.2026 20:29 | lint | ✅ без ошибок | 20 с | 3c2dd3a +2 | [лог](logs/2026-09-29T15-29-40Z-lint-ac2f.log) |  |
 | 29.09.2026 20:11 | typecheck | ✅ без ошибок | 45 с | 8df70e8 | [лог](logs/2026-09-29T15-11-34Z-typecheck-6a69.log) |  |
 | 29.09.2026 20:12 | lint | ✅ без ошибок | 23 с | 8df70e8 | [лог](logs/2026-09-29T15-12-19Z-lint-c2c2.log) |  |
 | 29.09.2026 20:12 | unit | ❌ упало 4 из 2391, пропущено 3 | 1 мин 27 с | 8df70e8 | [лог](logs/2026-09-29T15-12-42Z-unit-e538.log) | S3+S4 после слияния main (S0 уже в main) |
 | 29.09.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ✅ 54 из 54 | 6 мин 20 с | 8df70e8 | [лог](logs/2026-09-29T15-14-10Z-e2e-c039.log) | S3+S4 после слияния main |
+| 29.09.2026 20:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 34 с | 071cde9 | [лог](logs/2026-09-29T15-41-47Z-e2e-28d1.log) |  |

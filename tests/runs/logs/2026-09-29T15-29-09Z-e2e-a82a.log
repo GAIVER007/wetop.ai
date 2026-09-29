@@ -1,0 +1,27 @@
+# Сквозные (e2e) · 29.09.2026 20:29 Алматы · vm
+# коммит 3c2dd3a (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 17 tests using 2 workers
+
+  ✓   2 tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (560ms)
+  ✓   1 tests/site/auth-dialog.spec.ts:48:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.7s)
+  ✓   3 tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране (1.7s)
+  ✓   5 tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки (332ms)
+  ✓   4 tests/site/auth-dialog.spec.ts:76:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (960ms)
+  ✓   6 tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране (878ms)
+  ✓   7 tests/site/auth-dialog.spec.ts:91:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (968ms)
+  ✓   8 tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки (248ms)
+  ✓  10 tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (691ms)
+  ✓  11 tests/site/landing.spec.ts:63:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (26ms)
+  ✓  12 tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (527ms)
+  ✓  13 tests/site/landing.spec.ts:147:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (554ms)
+  ✓   9 tests/site/auth-dialog.spec.ts:107:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (2.5s)
+  ✓  14 tests/site/auth-dialog.spec.ts:159:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (576ms)
+  ✓  15 tests/site/auth-dialog.spec.ts:168:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (464ms)
+  ✓  16 tests/site/auth-dialog.spec.ts:178:1 › на телефоне окно открывается из меню и не шире экрана (881ms)
+  ✓  17 tests/site/auth-dialog.spec.ts:195:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (3.7s)
+
+  17 passed (28.6s)
+
+# код выхода 0 · 30 с

@@ -36,6 +36,8 @@ COPY --chown=app:app src ./src
 COPY --chown=app:app migrations ./migrations
 COPY --chown=app:app alembic.ini .
 COPY --chown=app:app scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
+# Калибровка порогов поиска по знаниям: запускается на сервере командой из шапки самого файла
+COPY --chown=app:app scripts/kb_calibrate.py ./scripts/kb_calibrate.py
 RUN chmod +x ./scripts/docker-entrypoint.sh
 
 # Тома для данных и журнала. chown здесь не действует на bind-mount с хоста:

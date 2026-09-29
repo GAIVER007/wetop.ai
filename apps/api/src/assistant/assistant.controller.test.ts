@@ -9,6 +9,7 @@ import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AssistantController } from './assistant.controller';
 import { ExtensionsService } from '../platform/extensions.service';
+import { RequesterContextService } from './requester-context.service';
 import {
   USER_ERRORS_REPOSITORY,
   type UserErrorRecord,
@@ -70,6 +71,7 @@ beforeAll(async () => {
       { provide: AuthService, useValue: auth },
       { provide: USER_ERRORS_REPOSITORY, useValue: userErrors },
       { provide: ExtensionsService, useValue: extensions },
+      { provide: RequesterContextService, useValue: {} },
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
   }).compile();

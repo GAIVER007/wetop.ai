@@ -16,42 +16,32 @@
     var all = document.getElementsByTagName('script');
     return all[all.length - 1];
   })();
-  // Адрес бота берётся из адреса самого скрипта: на странице платформы
-  // домен бота другой, и зашивать его в код нельзя.
   var BASE = script.src.replace(/\/widget\.js(\?.*)?$/, '');
-  // Признак пользователя платформы: подписан её ключом, бот проверит подпись.
   var IDENTITY = script.getAttribute('data-identity') || '';
-  // Ключ гостиницы (Э4): публичный, стоит в теге, уходит каждым запросом —
-  // продавец по нему узнаёт гостиницу и сверяет домен страницы.
   var ORG_KEY = script.getAttribute('data-key') || '';
   var STORE_KEY = 'pmsw.visitor';
-  // Срок жизни ключа задаёт настройка бота: он приходит ответом /session
-  // и хранится рядом с ключом. Здесь запас на самый первый заход.
   var DEFAULT_TTL_HOURS = 720;
   var RETRY_MIN_MS = 2000;
   var RETRY_MAX_MS = 20000;
-  // Таймаут больше серверного срока опроса: подвисшее соединение иначе
-  // оставляет виджет немым до перезагрузки страницы.
   var XHR_TIMEOUT_MS = 60000;
-  // Пауза после пустого опроса: нулевой серверный срок иначе крутит цикл
-  // без задержки.
   var IDLE_PAUSE_MS = 700;
 
   var CSS = [
-    '.pmsw-b{position:fixed;right:20px;bottom:20px;width:56px;height:56px;border:0;border-radius:28px;',
-    'background:#1f6feb;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.25);z-index:2147483000}',
-    '.pmsw-p{position:fixed;right:20px;bottom:88px;width:340px;max-width:calc(100vw - 40px);height:480px;',
-    'max-height:calc(100vh - 120px);display:none;flex-direction:column;background:#fff;color:#111;border-radius:12px;',
-    'overflow:hidden;font:14px/1.45 system-ui,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,.28);z-index:2147483000}',
-    '.pmsw-p.pmsw-on{display:flex}.pmsw-h{padding:12px 14px;background:#1f6feb;color:#fff;font-weight:600}',
-    '.pmsw-note{font-weight:400;font-size:12px;opacity:.9}.pmsw-l{flex:1;overflow-y:auto;padding:12px;background:#f6f7f9}',
-    '.pmsw-m{margin:0 0 8px;padding:8px 10px;border-radius:10px;max-width:85%;white-space:pre-wrap;word-wrap:break-word}',
-    '.pmsw-bot{background:#fff;border:1px solid #e3e6ea}.pmsw-own{background:#dbeafe;margin-left:auto}',
-    '.pmsw-op{background:#fff;border:1px solid #f0c36d}.pmsw-chip{padding:0 12px 6px;font-size:12px;color:#555}',
-    '.pmsw-f{display:flex;align-items:center;gap:6px;padding:8px;border-top:1px solid #e3e6ea}',
-    '.pmsw-i{flex:1;min-width:0;padding:8px;border:1px solid #cfd4da;border-radius:8px;font:inherit}',
-    '.pmsw-s,.pmsw-a{border:0;background:#1f6feb;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;font:inherit}',
-    '.pmsw-a{background:#6b7280}'
+    ".pmsw{--cw-bg:#fff;--cw-soft:#f5f7fb;--cw-text:#182438;--cw-muted:#617087;--cw-border:#dfe6ef;--cw-own:#e7f1ff;font:14px/1.5 system-ui,sans-serif}",
+    "[data-theme=dark] .pmsw{--cw-bg:#0e1726;--cw-soft:#111e30;--cw-text:#eff5ff;--cw-muted:#9aaec6;--cw-border:#27384d;--cw-own:#173657;color-scheme:dark}",
+    ".pmsw *{box-sizing:border-box}.pmsw button,.pmsw textarea{font:inherit}.pmsw button{cursor:pointer}.pmsw button:disabled{cursor:default;opacity:.45}.pmsw button:focus-visible,.pmsw textarea:focus-visible{outline:2px solid #419bff;outline-offset:3px}",
+    ".pmsw-b{position:fixed;right:24px;bottom:24px;width:52px;height:52px;border:1px solid #398fff;border-radius:18px;background:#176be0;color:#fff;font-size:24px;box-shadow:0 6px 24px #0003;z-index:2147483000}",
+    ".pmsw-p{position:fixed;right:24px;bottom:88px;width:400px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100dvh - 112px);display:none;flex-direction:column;background:var(--surface,var(--cw-bg));color:var(--text,var(--cw-text));border:1px solid var(--border,var(--cw-border));border-radius:22px;overflow:hidden;box-shadow:0 20px 70px #0004;z-index:2147483000}",
+    ".pmsw-p.pmsw-on{display:flex}.pmsw-h{display:flex;gap:12px;align-items:center;padding:18px;border-bottom:1px solid var(--cw-border)}",
+    ".pmsw-mark{display:grid;place-items:center;width:40px;height:40px;flex-shrink:0;border-radius:14px;background:var(--cw-own);color:var(--primary,#3588ec);font-size:17px;font-weight:700}.pmsw-title{flex:1;font-weight:650;font-size:15px}.pmsw-note{font-size:12px;color:var(--cw-muted);font-weight:400;margin-top:2px}",
+    ".pmsw-close,.pmsw-remove{border:0;background:transparent;color:var(--cw-muted);width:36px;height:36px;border-radius:10px;font-size:24px!important}",
+    ".pmsw-l{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px;background:var(--cw-soft);scrollbar-width:thin}.pmsw-empty{padding:22px 4px}.pmsw-empty h3{font-size:21px;line-height:1.3;margin:16px 0 8px;color:var(--cw-text)}.pmsw-empty p{margin:0 0 20px;color:var(--cw-muted);font-size:14px}",
+    ".pmsw-suggest{display:block;width:100%;margin:8px 0;padding:12px 14px;border:1px solid var(--cw-border);border-radius:12px;background:var(--cw-bg);color:var(--cw-text);text-align:left}.pmsw-suggest:hover{border-color:#419bff}",
+    ".pmsw-m{margin:0 0 12px;padding:11px 14px;border-radius:16px;max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;background:var(--cw-bg);border:1px solid var(--cw-border)}.pmsw-own{background:var(--cw-own);margin-left:auto;border-color:transparent;border-bottom-right-radius:5px}.pmsw-bot,.pmsw-op{border-bottom-left-radius:5px}.pmsw-op{border-left:3px solid #d99d32}",
+    ".pmsw-chip{font-size:12px;color:var(--cw-muted);padding:0 18px}.pmsw-chip:not(:empty){padding-top:10px}.pmsw-file{display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:12px;color:var(--cw-muted)}.pmsw-file:empty{display:none}.pmsw-file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pmsw-remove{flex-shrink:0}",
+    ".pmsw-f{display:flex;align-items:flex-end;gap:8px;padding:12px 14px 8px}.pmsw-i{flex:1;min-width:0;resize:none;max-height:112px;padding:10px 12px;border:1px solid var(--cw-border);border-radius:13px;background:var(--cw-soft);color:var(--cw-text);line-height:22px!important}.pmsw-i::placeholder{color:var(--cw-muted)}",
+    ".pmsw-s,.pmsw-a{display:grid;place-items:center;flex-shrink:0;width:40px;height:44px;border:0;border-radius:12px;background:#176be0;color:#fff;font-size:22px!important}.pmsw-a{background:var(--cw-soft);color:var(--cw-muted)}.pmsw-hint{padding:0 18px 12px;font-size:11px;color:var(--cw-muted)}.pmsw-chip .pmsw-s{width:auto;padding:8px 14px;font-size:14px!important}",
+    "@media(max-width:600px){.pmsw-p{right:12px;width:calc(100vw - 24px);max-width:none;border-radius:18px}.pmsw-b{right:16px}.pmsw-i{font-size:16px!important}.pmsw-hint{display:none}.pmsw-f{padding-bottom:14px}}"
   ].join('');
 
   var root = null, list = null, input = null, panel = null, note = null, chip = null, fileInput = null;
@@ -62,17 +52,14 @@
   var attachmentId = '';
   var retryMs = RETRY_MIN_MS;
   var resetting = false;
-
+  var busy = false, uploading = false, sendButton, attachButton, empty, fileChip;
   function el(tag, cls, text) {
     var node = document.createElement(tag);
     if (cls) { node.className = cls; }
     if (text) { node.textContent = text; }
     return node;
   }
-
   function saved() {
-    // localStorage бывает закрыт настройками приватности — это не повод
-    // ломать виджет: посетитель просто начнёт разговор заново.
     try {
       var raw = window.localStorage.getItem(STORE_KEY);
       if (!raw) { return ''; }
@@ -99,8 +86,6 @@
     if (ORG_KEY) { path += (path.indexOf('?') >= 0 ? '&' : '?') + 'k=' + encodeURIComponent(ORG_KEY); }
     xhr.open(method, BASE + path, true);
     if (!isForm) { xhr.setRequestHeader('Content-Type', 'application/json'); }
-    // Признак и ключ — заголовками: адреса оседают в журналах, а в признаке
-    // почта, в ключе посетителя — пропуск к его переписке.
     if (IDENTITY) { xhr.setRequestHeader('X-Widget-Identity', IDENTITY); }
     if (visitorKey) { xhr.setRequestHeader('X-Widget-Visitor', visitorKey); }
     xhr.timeout = XHR_TIMEOUT_MS;
@@ -123,18 +108,17 @@
     if (msg.role === 'user') { cls += 'pmsw-own'; }
     else if (msg.from_operator) { cls += 'pmsw-op'; }
     else { cls += 'pmsw-bot'; }
-    // 🔴 Только textContent: разметку из текста не строим никогда.
+    empty.style.display = 'none';
     list.appendChild(el('div', cls, msg.text));
     list.scrollTop = list.scrollHeight;
   }
 
   function showMode(mode) {
-    note.textContent = mode && mode !== 'bot_active' ? 'с вами оператор' : '';
+    note.textContent = mode && mode !== 'bot_active' ? 'С вами оператор' : (ORG_KEY ? 'Задайте ваш вопрос' : 'Помощь в работе с платформой');
   }
 
   function poll(mine) {
     if (mine !== generation) { return; }
-    // Ключ платформы предсказуем: опрос тоже требует подписи из заголовка.
     var url = '/messages?after=' + encodeURIComponent(after);
     send('GET', url, null, false, function (data) {
       if (mine !== generation) { return; }  // цикл устарел: был перезапуск
@@ -149,50 +133,58 @@
     }, function (status) {
       if (mine !== generation) { return; }
       if (status === 403) { resetSession(); return; }
-      // Обрыв связи не должен молотить сервер: пауза растёт до предела.
       window.setTimeout(function () { poll(mine); }, retryMs);
       retryMs = Math.min(retryMs * 2, RETRY_MAX_MS);
     });
   }
 
   function restartPoll() {
-    // Свою реплику видно только следующим опросом; старый запрос ещё висит
-    // на сервере, поэтому его ответ помечается устаревшим номером цикла.
     generation += 1;
     poll(generation);
   }
 
+  function controls() {
+    sendButton.disabled = busy || uploading || !visitorKey || !input.value.trim();
+    attachButton.disabled = busy || uploading || !visitorKey;
+    input.readOnly = busy;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 112) + 'px';
+  }
+  function showAttachment(name) {
+    fileChip.textContent = '';
+    if (!attachmentId) { return; }
+    fileChip.appendChild(el('span', '', name));
+    var remove = el('button', 'pmsw-remove', '×');
+    remove.setAttribute('aria-label', 'Убрать вложение');
+    remove.onclick = function () { if (!busy) { attachmentId = ''; fileChip.textContent = ''; } };
+    fileChip.appendChild(remove);
+  }
   function submit() {
     var text = input.value.replace(/^\s+|\s+$/g, '');
-    if (!text || !visitorKey) { return; }
-    input.value = '';
+    if (!text || !visitorKey || busy || uploading) { return; }
+    busy = true; controls(); chip.textContent = 'Отправляем…';
     var body = { visitor_key: visitorKey, text: text, identity: IDENTITY };
     if (attachmentId) { body.attachment_id = attachmentId; }
-    attachmentId = '';
-    chip.textContent = '';
     send('POST', '/message', body, false, function () {
-      restartPoll();
+      busy = false; input.value = ''; attachmentId = ''; fileChip.textContent = ''; chip.textContent = '';
+      controls(); restartPoll(); input.focus();
     }, function (status) {
-      if (status === 403) { resetSession(); return; }
-      chip.textContent = status === 429
-        ? 'Слишком часто. Подождите немного.'
-        : 'Не отправилось, попробуйте ещё раз.';
+      busy = false; controls();
+      chip.textContent = status === 429 ? 'Слишком часто. Подождите немного.' : 'Не отправилось. Текст сохранён — попробуйте ещё раз.';
+      if (status === 403) { resetSession(); }
     });
   }
-
   function attach() {
     var file = fileInput.files && fileInput.files[0];
-    if (!file) { return; }
-    var form = new FormData();
-    form.append('file', file);
-    chip.textContent = 'Загружаю…';
+    if (!file || busy || uploading) { return; }
+    var form = new FormData(); form.append('file', file);
+    uploading = true; controls(); chip.textContent = 'Загружаем снимок…';
     send('POST', '/attachment', form, true, function (data) {
-      attachmentId = data.attachment_id || '';
-      chip.textContent = attachmentId ? 'Снимок прикреплён' : 'Файл не принят';
-      fileInput.value = '';
+      uploading = false; attachmentId = data.attachment_id || '';
+      showAttachment(file.name); chip.textContent = attachmentId ? '' : 'Файл не принят';
+      fileInput.value = ''; controls();
     }, function () {
-      chip.textContent = 'Файл не принят';
-      fileInput.value = '';
+      uploading = false; chip.textContent = 'Файл не принят'; fileInput.value = ''; controls();
     });
   }
 
@@ -207,15 +199,31 @@
     bubble.setAttribute('aria-label', 'Открыть чат');
     panel = el('div', 'pmsw-p');
 
-    var head = el('div', 'pmsw-h', 'Чат');
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Чат с помощником');
+    var head = el('div', 'pmsw-h');
+    head.appendChild(el('span', 'pmsw-mark', 'W'));
+    var title = el('div', 'pmsw-title'); title.appendChild(el('span', '', ORG_KEY ? 'Чат' : 'Помощник WETOP'));
+    var close = el('button', 'pmsw-close', '×'); close.setAttribute('aria-label', 'Закрыть чат');
     note = el('div', 'pmsw-note');
-    head.appendChild(note);
+    title.appendChild(note); head.appendChild(title); head.appendChild(close);
     list = el('div', 'pmsw-l');
-    chip = el('div', 'pmsw-chip');
+    list.setAttribute('role', 'log'); list.setAttribute('aria-live', 'polite');
+    empty = el('div', 'pmsw-empty');
+    empty.appendChild(el('span', 'pmsw-mark', '?'));
+    empty.appendChild(el('h3', '', 'Чем помочь?'));
+    empty.appendChild(el('p', '', ORG_KEY ? 'Напишите ваш вопрос — начнём разговор.' : 'Подскажу, как пользоваться WETOP. Опишите задачу или приложите снимок экрана.'));
+    if (!ORG_KEY) { ['Как создать бронь?', 'Как найти свободный номер?'].forEach(function (text) {
+      var suggestion = el('button', 'pmsw-suggest', text);
+      suggestion.onclick = function () { if (!busy) { input.value = text; controls(); input.focus(); } };
+      empty.appendChild(suggestion);
+    }); }
+    list.appendChild(empty);
+    chip = el('div', 'pmsw-chip'); chip.setAttribute('role', 'status');
+    fileChip = el('div', 'pmsw-file');
 
     var form = el('div', 'pmsw-f');
-    input = el('input', 'pmsw-i');
-    input.setAttribute('type', 'text');
+    input = el('textarea', 'pmsw-i');
+    input.setAttribute('rows', '1'); input.setAttribute('aria-label', 'Сообщение');
     input.setAttribute('placeholder', 'Ваш вопрос');
     fileInput = el('input');
     fileInput.setAttribute('type', 'file');
@@ -224,7 +232,9 @@
     var attachBtn = el('button', 'pmsw-a', '📎');
     attachBtn.setAttribute('type', 'button');
     attachBtn.setAttribute('aria-label', 'Прикрепить снимок экрана');
-    var sendBtn = el('button', 'pmsw-s', 'Отправить');
+    var sendBtn = el('button', 'pmsw-s', '↑');
+    sendBtn.setAttribute('aria-label', 'Отправить сообщение'); sendBtn.setAttribute('title', 'Отправить сообщение');
+    sendButton = sendBtn; attachButton = attachBtn;
     sendBtn.setAttribute('type', 'button');
 
     form.appendChild(input);
@@ -233,26 +243,32 @@
     panel.appendChild(head);
     panel.appendChild(list);
     panel.appendChild(chip);
+    panel.appendChild(fileChip);
     panel.appendChild(form);
+    panel.appendChild(el('div', 'pmsw-hint', 'Enter — отправить · Shift + Enter — новая строка'));
     root.appendChild(panel);
     root.appendChild(bubble);
     document.body.appendChild(root);
 
-    bubble.onclick = function () {
+    function toggle() {
       var on = panel.className.indexOf('pmsw-on') >= 0;
       panel.className = on ? 'pmsw-p' : 'pmsw-p pmsw-on';
-      if (!on) { input.focus(); }
-    };
+      bubble.setAttribute('aria-expanded', String(!on));
+      if (!on) { input.focus(); controls(); } else { bubble.focus(); }
+    }
+    bubble.setAttribute('aria-expanded', 'false');
+    bubble.onclick = toggle; close.onclick = toggle;
+    panel.onkeydown = function (ev) { if (ev.key === 'Escape') { toggle(); } };
     sendBtn.onclick = submit;
     attachBtn.onclick = function () { fileInput.click(); };
     fileInput.onchange = attach;
-    input.onkeydown = function (ev) { if (ev.keyCode === 13) { submit(); } };
+    input.oninput = controls;
+    input.onkeydown = function (ev) { if (ev.keyCode === 13 && !ev.shiftKey && !ev.isComposing) { ev.preventDefault(); submit(); } };
+    controls(); showMode('bot_active');
     panel.appendChild(fileInput);
   }
 
   function askConsent() {
-    // Кнопка согласия (слой 0б). Без неё при включённом гейте бот показывал
-    // бы экран согласия на каждую реплику: записать согласие было бы нечем.
     var btn = el('button', 'pmsw-s', 'Согласен');
     btn.setAttribute('type', 'button');
     btn.onclick = function () {
@@ -272,31 +288,26 @@
       if (!root) { build(); } // с ключом кнопка рисуется после открытой двери
       visitorKey = String(data.visitor_key);
       remember(visitorKey, data.session_ttl_hours);
+      controls();
       restartPoll();
       if (data.consent_required) { askConsent(); }
     }, function () {
       resetting = false;
-      // Дверь закрыта до первой отрисовки (погасшее расширение, чужой
-      // домен) — виджет молча не появляется вовсе (Q-183).
       if (!root) { return; }
       chip.textContent = 'Чат сейчас недоступен.';
     });
   }
 
   function resetSession() {
-    // Признак пользователя протух: сохранённый ключ платформы бот больше
-    // не принимает. Начинаем сессию заново — один раз, чтобы не зациклиться
-    // на закрытой двери.
     if (resetting) { return; }
     resetting = true;
     forget();
-    visitorKey = '';
+    visitorKey = ''; controls();
     generation += 1;
     openSession('');
   }
 
   function start() {
-    // Без ключа (помощник платформы) — как раньше: кнопка рисуется сразу.
     if (!ORG_KEY) { build(); }
     openSession(saved());
   }

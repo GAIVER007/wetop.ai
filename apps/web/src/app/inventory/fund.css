@@ -576,3 +576,14 @@
 .fund-unit-list b {
   font-variant-numeric: tabular-nums;
 }
+/* Категории без мест на эти даты с ближайшей доступностью (ADR-110, AV4) */
+.fund-soldout {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+.fund-soldout h2 {
+  font-size: 15px;
+  margin: 0;
+  color: var(--muted);
+}

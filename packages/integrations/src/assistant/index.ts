@@ -16,6 +16,7 @@ export {
   SellerUnavailableError,
   widgetOrgKey,
   type BotKnowledgeFile,
+  type ConversationListQuery,
   type BotNames,
   type BotOrganization,
   type BotPanelClientConfig,

@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 29.09.2026 12:40 Алматы · vm
+# коммит 85e1bcd (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 21
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/rate-plans.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет (4.7s)
+  ✓  2 tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется (3.4s)
+  ✓  3 tests/ui/rate-plans.spec.ts:90:1 › тариф без будущих броней: панель говорит, что правило коснётся новых (2.2s)
+  ✓  4 tests/ui/rate-plans.spec.ts:108:1 › «только чтение»: тарифы и правила видны, править нельзя (2.1s)
+  ✓  5 tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: light (7.8s)
+  ✓  6 tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: dark (7.2s)
+
+  6 passed (34.9s)
+
+# код выхода 0 · 36 с

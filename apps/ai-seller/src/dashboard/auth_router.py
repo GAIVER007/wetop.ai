@@ -240,6 +240,8 @@ SERVICE_ROUTES = frozenset({
     ("POST", "/conversations/{conv_id}/takeover"),
     ("POST", "/conversations/{conv_id}/release"),
     ("POST", "/conversations/{conv_id}/reply"),
+    # Кабинет техподдержки (S1): «Закрыть обращение».
+    ("POST", "/conversations/{conv_id}/close"),
     ("GET", "/knowledge"),
     ("POST", "/knowledge"),
     ("GET", "/summary"),

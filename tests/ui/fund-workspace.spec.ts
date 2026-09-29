@@ -207,6 +207,51 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   await expect(form.locator('[name="item.1.unitCode"]')).toHaveValue('@auto');
 });
 
+test('AV4: a category without places stays on screen with the nearest availability', async ({
+  page,
+  request,
+}) => {
+  // ТЗ «Свободные места» §7 (ADR-110): «с 1-го нет, но есть с N-го» — вместо того чтобы исчезнуть
+  const fixture = 'http://127.0.0.1:4311';
+  await request.post(`${fixture}/__test/reset`);
+  // все двухместные закрыты на 1–4 октября: категория вмещает двоих, но мест на весь срок нет
+  for (let i = 1; i <= 16; i += 1) {
+    const blocked = await request.post(`${fixture}/units/R${String(i).padStart(2, '0')}/blocks`, {
+      headers: { 'x-wetop-test-client': '1' },
+      data: { dateFrom: '2026-10-01', dateTo: '2026-10-04', type: 'MAINTENANCE', reason: 'AV4' },
+    });
+    expect(blocked.ok()).toBe(true);
+  }
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2');
+  const soldOut = page.getByRole('region', { name: 'Нет мест на эти даты' });
+  const room = soldOut.locator('article').filter({ hasText: 'Двухместный номер' });
+  await expect(room.getByText('Нет мест на весь период')).toBeVisible();
+  await expect(room.getByText('Ближайшая доступность')).toBeVisible();
+  const link = room.getByRole('link', { name: /^Посмотреть варианты: Двухместный номер с / });
+  const next = new URL((await link.getAttribute('href'))!, 'http://x').searchParams;
+  // тот же срок (три ночи) и те же гости, позже запрошенного заезда
+  expect(next.get('guests')).toBe('2');
+  expect(next.get('arrival')! > '2026-10-01').toBe(true);
+  expect((Date.parse(next.get('departure')!) - Date.parse(next.get('arrival')!)) / 86400000).toBe(
+    3,
+  );
+  // номер показан один раз — в блоке «Нет мест на эти даты», а не среди доступных
+  await expect(
+    page.locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }),
+  ).toHaveCount(1);
+  await link.click();
+  await expect(page).toHaveURL(new RegExp(`arrival=${next.get('arrival')}`));
+  await expect(page.getByRole('region', { name: 'Нет мест на эти даты' })).toHaveCount(0);
+  await expect(
+    page.locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }),
+  ).toContainText('Показать номера');
+  // сорок гостей: 36 коек не хватит ни в какой день из четырнадцати — так и сказано
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=40');
+  await expect(soldOut.locator('article').filter({ hasText: 'Мужской общий номер' })).toContainText(
+    'Нет мест в ближайшие 14 дней',
+  );
+});
+
 test('dark categories and availability; invalid dates and empty onboarding', async ({
   page,
   request,

@@ -45,6 +45,18 @@ describe('SellerClient — адреса и ключ', () => {
     expect(calls[0]!.url).not.toContain(KEY);
   });
 
+  it('очередь техподдержки: отбор очереди, непустые, открытые или закрытые; закрыть обращение', async () => {
+    const { calls, seller } = client(() => Response.json({ items: [], status: 'ok' }));
+    await seller.listConversations({ queue: 'waiting', nonempty: true, closed: false, limit: 200 });
+    await seller.listConversations({ closed: true, nonempty: true });
+    await seller.close('c1');
+    expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+      'GET http://seller:8000/panel-x/conversations?limit=200&queue=waiting&nonempty=true&closed=false',
+      'GET http://seller:8000/panel-x/conversations?nonempty=true&closed=true',
+      'POST http://seller:8000/panel-x/conversations/c1/close',
+    ]);
+  });
+
   it('карточка, перехват, возврат, ответ — по id диалога, id экранируется', async () => {
     const { calls, seller } = client(() => Response.json({ status: 'ok' }));
     await seller.conversation('a b');

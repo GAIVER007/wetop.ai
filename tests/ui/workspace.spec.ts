@@ -78,7 +78,7 @@ test('все разделы, карточки и печать открывают
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
   const redirects: Record<string, RegExp> = {
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
-    '/hotel-settings/penalties': /\/rates$/,
+    '/hotel-settings/penalties': /\/rates\/plans$/,
     '/management/dashboard': /\/management\/analytics$/,
     '/hotel-settings/description': /\/hotel-settings$/,
     '/hotel-settings/photos': /\/connections#channex-connection$/,

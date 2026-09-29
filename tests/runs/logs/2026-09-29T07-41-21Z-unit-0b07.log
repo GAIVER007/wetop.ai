@@ -1,0 +1,79 @@
+# Модульные (unit) · 29.09.2026 12:41 Алматы · vm
+# коммит 44f401e (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T07-41-21Z-unit-0b07.json' 'apps/api/src/chessboard/chessboard.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/chessboard/chessboard.controller.test.ts (8 tests | 1 failed) 583ms
+   ❯ GET /chessboard, GET /reservations/:number (8)
+     ✓ Q-107: остаток категории на стойке учитывает брони без ячейки — как канал 33ms
+     ✓ returns rows × dates with states and per-day summary 7ms
+     ✓ шахматка отдаёт проживания без ячейки в диапазоне доски отдельным списком (строка «Без ячейки») 11ms
+     ✓ defaults to today + 14 days when no range is given 6ms
+     ✓ rejects a bad or too long range with 400 8ms
+     ✓ /availability counts units free on every night of the stay, per category 16ms
+     × /availability/nearest: first window of the same stay with enough places; beds need every guest 6ms
+     ✓ returns a reservation card by confirmation number, 404 when unknown 7ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 54ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 51ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(181) } to deeply equal { …(183) }
+
+- Expected
++ Received
+
+@@ -29,11 +29,10 @@
+    "GET /auth/me": "self",
+    "GET /auth/members": "staff",
+    "GET /auth/options": "public",
+    "GET /auth/sessions": "self",
+    "GET /availability": "desk",
+-   "GET /availability/nearest": "desk",
+    "GET /availability/offers": "desk",
+    "GET /bot/availability": "public",
+    "GET /channels/channex/connection": "channels",
+    "GET /channels/channex/content": "channels",
+    "GET /channels/channex/content/names": "channels",
+
+ ❯ apps/api/src/auth/route-access.test.ts:275:20
+    273|       .map(([key]) => key);
+    274|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    275|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    276|   });
+    277|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/chessboard/chessboard.controller.test.ts > GET /chessboard, GET /reservations/:number > /availability/nearest: first window of the same stay with enough places; beds need every guest
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/chessboard/chessboard.controller.test.ts:217:8
+    215|     const one = await request(app.getHttpServer())
+    216|       .get('/availability/nearest?arrival=2026-09-10&departure=2026-09…
+    217|       .expect(200);
+       |        ^
+    218|     expect(one.body).toEqual({
+    219|       arrivalDate: '2026-09-10',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 8 passed (10)
+   Start at  07:41:22
+   Duration  6.34s (import 60%, transform 34%, tests 6%)
+
+JSON report written to /tmp/pms-test-2026-09-29T07-41-21Z-unit-0b07.json
+
+# код выхода 1 · 7 с

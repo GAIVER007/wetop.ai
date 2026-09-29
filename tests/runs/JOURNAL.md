@@ -4505,3 +4505,7 @@
 | 30.09.2026 00:19 | typecheck | ✅ без ошибок | 39 с | 8825509 | [лог](logs/2026-09-29T19-19-55Z-typecheck-7252.log) | S5+S6 после слияния main f0fedbeb |
 | 30.09.2026 00:20 | lint | ✅ без ошибок | 24 с | 8825509 | [лог](logs/2026-09-29T19-20-35Z-lint-aa90.log) | S5+S6 после слияния main |
 | 30.09.2026 00:21 | unit (частично: apps/api/src/assistant apps/api/src/platform apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 144 из 144 | 10 с | 8825509 | [лог](logs/2026-09-29T19-21-00Z-unit-64b8.log) | S5+S6 после слияния main: помощник, платформа, права, домен |
+| 30.09.2026 01:20 | typecheck | ✅ без ошибок | 35 с | 34525e7 | [лог](logs/2026-09-29T20-20-31Z-typecheck-516c.log) |  |
+| 30.09.2026 01:21 | lint | ✅ без ошибок | 20 с | 34525e7 | [лог](logs/2026-09-29T20-21-06Z-lint-9f31.log) |  |
+| 30.09.2026 01:21 | unit | ✅ 2505 из 2508, пропущено 3 | 1 мин 24 с | 34525e7 | [лог](logs/2026-09-29T20-21-27Z-unit-31a8.log) |  |
+| 30.09.2026 01:22 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 27 из 27 | 1 мин 36 с | 34525e7 | [лог](logs/2026-09-29T20-22-52Z-e2e-e97a.log) | SA1 после слияния main (S5, S6) |

@@ -1,7 +1,7 @@
 # RELEASE MANIFEST — 29.09.2026
 
 Мастер-проход владельца от 29.09: собрать только готовое, один полный регресс, `main`, `release`, выкладка по
-`docs/deploy.md`. Облачная сессия, ветка `release/wetop-final-2026-09-29`.
+`docs/deploy.md`. Облачная сессия, ветка `release-final-2026-09-29` (имя `release/…` на GitHub занято веткой `release`: git не даёт завести `release/x` рядом с `release`).
 
 ```
 FREEZE_TIME           = 2026-09-29T07:58:18Z

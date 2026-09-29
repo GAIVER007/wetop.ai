@@ -855,7 +855,7 @@ export class SellerService {
 }
 
 /** Продавец принял текущую версию профиля */
-function profileApplied(row: SellerProfileRow): boolean {
+export function profileApplied(row: SellerProfileRow): boolean {
   return row.profileAppliedAt !== null && row.profileAppliedAt.getTime() >= row.updatedAt.getTime();
 }
 

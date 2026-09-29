@@ -19,6 +19,7 @@ export const SELLER_PROFILES = Symbol('SELLER_PROFILES');
 export const SELLER_FACTS = Symbol('SELLER_FACTS');
 export const SELLER_AUDIT = Symbol('SELLER_AUDIT');
 export const SELLER_ORGS = Symbol('SELLER_ORGS');
+export const SELLER_CATALOG = Symbol('SELLER_CATALOG');
 
 /** Организация для заведения у продавца (Э4) */
 export interface SellerOrganizationRow {
@@ -77,6 +78,32 @@ export interface SellerProfilesRepository {
 export interface SellerFactsRepository {
   /** Факты объекта организации; `null` — объекта у организации нет */
   load(organizationId: string, now: Date): Promise<SellerFactsSource | null>;
+}
+
+/**
+ * Что каталог «ИИ-агентов» (SA1) читает у организации вошедшего. Только чтение; чужих строк здесь нет: организация —
+ * из сессии, и таблицы под RLS (DATA_MODEL §17).
+ */
+export interface SellerCatalogPlacement {
+  business: { id: string; name: string };
+  location: { id: string; name: string };
+}
+
+export interface SellerCatalogDraft {
+  id: string;
+  name: string;
+  updatedAt: Date;
+}
+
+export interface SellerCatalogRepository {
+  /**
+   * Business и Location объекта, которым сегодня пользуется продавец: самый ранний объект организации — то же правило,
+   * что у фактов (`PrismaSellerFactsRepository`) и котировки. Это не выбор партнёра: выбор появится с агентом на
+   * Location (SA1.5). `null` — у организации нет объекта.
+   */
+  placement(organizationId: string): Promise<SellerCatalogPlacement | null>;
+  /** Черновики гостевого мастера (`seller_agents`): продавца они не запускают */
+  drafts(organizationId: string, limit: number): Promise<SellerCatalogDraft[]>;
 }
 
 /** Действия сотрудника в разделе, которые продавец сам записать не может: он видит только ключ платформы */
@@ -384,3 +411,35 @@ export class PrismaSellerOrgsRepository implements SellerOrgsRepository {
 
 /** Запись журнала раздела — общая для обоих ботов (`bots/audit.ts`) */
 export { PrismaBotAudit as PrismaSellerAudit } from '../bots/audit';
+
+@Injectable()
+export class PrismaSellerCatalogRepository implements SellerCatalogRepository {
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async placement(organizationId: string): Promise<SellerCatalogPlacement | null> {
+    const property = await this.prisma.db.property.findFirst({
+      where: { organizationId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        location: {
+          select: { id: true, name: true, business: { select: { id: true, name: true } } },
+        },
+      },
+    });
+    const location = property?.location;
+    if (!location) return null;
+    return {
+      business: { id: location.business.id, name: location.business.name },
+      location: { id: location.id, name: location.name },
+    };
+  }
+
+  async drafts(organizationId: string, limit: number): Promise<SellerCatalogDraft[]> {
+    return this.prisma.db.sellerAgent.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: { id: true, name: true, updatedAt: true },
+    });
+  }
+}

@@ -4,6 +4,9 @@ import type { ExtensionAccess, SellerFactsSource, SellerProfileInput } from '@pm
 import type { SellerConfig, SellerConnection, SellerPort } from './seller.connection';
 import type {
   SellerAudit,
+  SellerCatalogDraft,
+  SellerCatalogPlacement,
+  SellerCatalogRepository,
   SellerFactsRepository,
   SellerOrganizationRow,
   SellerOrgsRepository,
@@ -281,5 +284,19 @@ export class FakeSellerExtensions {
       activeUntil: null,
       daysLeft: this.daysLeft,
     };
+  }
+}
+
+/** Каталог агентов (SA1): расположение объекта и черновики по организациям */
+export class FakeCatalog implements SellerCatalogRepository {
+  placements = new Map<string, SellerCatalogPlacement>();
+  draftRows = new Map<string, SellerCatalogDraft[]>();
+  asked: string[] = [];
+  async placement(organizationId: string): Promise<SellerCatalogPlacement | null> {
+    this.asked.push(organizationId);
+    return this.placements.get(organizationId) ?? null;
+  }
+  async drafts(organizationId: string, limit: number): Promise<SellerCatalogDraft[]> {
+    return (this.draftRows.get(organizationId) ?? []).slice(0, limit);
   }
 }

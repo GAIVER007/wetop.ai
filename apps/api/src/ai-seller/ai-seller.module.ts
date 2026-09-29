@@ -6,14 +6,17 @@ import { AiSellerController } from './ai-seller.controller';
 import { EnvSellerConnection, SELLER_CONNECTION } from './seller.connection';
 import {
   PrismaSellerAudit,
+  PrismaSellerCatalogRepository,
   PrismaSellerFactsRepository,
   PrismaSellerOrgsRepository,
   PrismaSellerProfilesRepository,
   SELLER_AUDIT,
+  SELLER_CATALOG,
   SELLER_FACTS,
   SELLER_ORGS,
   SELLER_PROFILES,
 } from './seller.repository';
+import { SellerCatalogService } from './seller-catalog.service';
 import { SellerService } from './seller.service';
 import { SellerSyncService } from './seller-sync.service';
 
@@ -31,7 +34,9 @@ import { SellerSyncService } from './seller-sync.service';
     { provide: SELLER_FACTS, useClass: PrismaSellerFactsRepository },
     { provide: SELLER_AUDIT, useClass: PrismaSellerAudit },
     { provide: SELLER_ORGS, useClass: PrismaSellerOrgsRepository },
+    { provide: SELLER_CATALOG, useClass: PrismaSellerCatalogRepository },
     SellerService,
+    SellerCatalogService,
     SellerSyncService,
   ],
 })

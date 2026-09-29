@@ -60,6 +60,8 @@ for (const screen of [
   '/hotel-settings/stay',
   '/hotel-settings/services',
   '/connections',
+  // каталог «ИИ-агентов» (SA1): один запрос каталога, бот и объект API опрашивает сам
+  '/ai-agents',
   '/website/settings',
   '/incidents',
   '/journal',

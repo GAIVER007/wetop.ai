@@ -2379,7 +2379,15 @@ let sellerState: 'ready' | 'not-configured' = 'ready';
 let sellerHosts: string[] = ['hotel-a.example.invalid'];
 let sellerLastError: string | null = null;
 let sellerRetrying = false;
+/** Каталог «ИИ-агентов» (SA1): названия черновиков гостевого мастера и ответ бота о WhatsApp (`unknown` — не ответил) */
+let sellerDrafts: string[] = [];
+let sellerWhatsAppUnknown = false;
+/** Сбой каталога: `POST /__test/control { sellerCatalogFails: true }` — экран «Не удалось загрузить агентов» */
+let sellerCatalogFails = false;
 function resetSeller() {
+  sellerDrafts = [];
+  sellerWhatsAppUnknown = false;
+  sellerCatalogFails = false;
   sellerProfile = structuredClone(sellerProfileSeed);
   sellerAppliedProfile = structuredClone(sellerProfileSeed);
   sellerSaved = false;
@@ -3878,6 +3886,17 @@ createServer(async (req, res) => {
       sellerLastError =
         typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
+      // каталог «ИИ-агентов» (SA1): профиль применён, WhatsApp подключён или бот молчит, черновики мастера
+      if (body['sellerApplied'] === true) {
+        sellerSaved = true;
+        sellerApplied = true;
+        sellerUpdatedAt = new Date().toISOString();
+      }
+      if (body['sellerWhatsApp'] === 'on')
+        sellerWhatsApp = { phoneNumberId: '123456789', verifyToken: 'slovo-dlya-meta-ui' };
+      sellerWhatsAppUnknown = body['sellerWhatsApp'] === 'unknown';
+      sellerCatalogFails = body['sellerCatalogFails'] === true;
+      sellerDrafts = Array.isArray(body['sellerDrafts']) ? (body['sellerDrafts'] as string[]).map(String) : [];
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
@@ -4646,7 +4665,8 @@ createServer(async (req, res) => {
               path.startsWith('/ai-seller/whatsapp')
             ? 'configure'
             : 'act';
-      if (path !== '/ai-seller/status') {
+      // статус и каталог отвечают при любом расширении: страница объясняет, а не падает
+      if (path !== '/ai-seller/status' && path !== '/ai-seller/catalog') {
         if (sellerUse === 'configure' && !sellerOwner)
           return send(403, { message: 'Настройки продавца меняют владелец и управляющий' });
         if (extension.access === 'off')
@@ -4670,6 +4690,54 @@ createServer(async (req, res) => {
         /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/,
       );
       if (req.method === 'GET') {
+        if (path === '/ai-seller/catalog') {
+          if (sellerCatalogFails) return send(500, { message: 'Каталог агентов недоступен' });
+          const access = extension.access;
+          const status =
+            access === 'expired'
+              ? 'SUBSCRIPTION_INACTIVE'
+              : sellerState === 'not-configured'
+                ? 'BOT_OFFLINE'
+                : sellerApplied
+                  ? 'WORKING'
+                  : 'NOT_CONFIGURED';
+          return send(200, {
+            extension,
+            canManage: sellerOwner,
+            canConfigure: sellerOwner && access === 'active',
+            agents:
+              access === 'off'
+                ? []
+                : [
+                    {
+                      id: 'seller',
+                      kind: 'seller',
+                      name: 'AI-продавец',
+                      status,
+                      business: { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Сеть Тест' },
+                      location: { id: 'c0000000-0000-4000-8000-0000000000aa', name: 'Алматы' },
+                      channels: {
+                        site: sellerHosts.length > 0 ? 'ON' : 'OFF',
+                        whatsapp:
+                          sellerState === 'not-configured' || sellerWhatsAppUnknown
+                            ? 'UNKNOWN'
+                            : sellerWhatsApp
+                              ? 'ON'
+                              : 'OFF',
+                      },
+                    },
+                    ...sellerDrafts.map((name, i) => ({
+                      id: `d0000000-0000-4000-8000-00000000000${i}`,
+                      kind: 'draft',
+                      name,
+                      status: 'DRAFT',
+                      business: null,
+                      location: null,
+                      channels: null,
+                    })),
+                  ],
+          });
+        }
         if (path === '/ai-seller/status')
           return send(200, {
             state:

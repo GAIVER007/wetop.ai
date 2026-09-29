@@ -6,7 +6,9 @@ export type { ActionPreview } from './action-preview';
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
 import type {
+  AgentStatus,
   CancellationPenaltyPolicy,
+  ChannelState,
   DashboardFund,
   DashboardPeriod,
   InviteRole,
@@ -1744,8 +1746,32 @@ export interface SellerPromptView {
   applied: boolean;
 }
 
+/**
+ * Карточка каталога «ИИ-агентов» (SA1): рабочий продавец организации или черновик гостевого мастера. Статус и канал —
+ * ключи домена (`AgentStatus`, `ChannelState`); слова к ним даёт `lib/ai-agents.ts`.
+ */
+export interface AgentCardView {
+  id: string;
+  kind: 'seller' | 'draft';
+  name: string;
+  status: AgentStatus;
+  business: { id: string; name: string } | null;
+  location: { id: string; name: string } | null;
+  channels: { site: ChannelState; whatsapp: ChannelState } | null;
+}
+
+export interface AgentCatalogView {
+  extension: ExtensionAccessView | null;
+  /** Владелец и управляющий: им доступны кнопки */
+  canManage: boolean;
+  canConfigure: boolean;
+  agents: AgentCardView[];
+}
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
+  /** Каталог AI-агентов организации (SA1): только чтение, права `dialogs` */
+  catalog: () => getJson<AgentCatalogView>('/ai-seller/catalog'),
   prompt: () => getJson<SellerPromptView>('/ai-seller/prompt'),
   savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */

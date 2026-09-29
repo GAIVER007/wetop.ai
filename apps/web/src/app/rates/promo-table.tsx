@@ -53,7 +53,7 @@ export function PromoTable({ promos, editable }: { promos: PromoCodeRow[]; edita
               <th className="settings-col-wide">Период проживания</th>
               <th className="num">Использований</th>
               <th className="settings-col-wide">Статус</th>
-              {editable && <th aria-label="Действия" />}
+              {editable && <th className="settings-col-wide" aria-label="Действия" />}
             </tr>
           </thead>
           <tbody>
@@ -64,6 +64,7 @@ export function PromoTable({ promos, editable }: { promos: PromoCodeRow[]; edita
                   <span className="cell-sub rates-plans-sub">
                     {promoPeriodText(p.stayFrom, p.stayTo)}
                     <Badge tone={p.active ? 'ok' : 'neutral'}>{p.active ? 'действует' : 'не действует'}</Badge>
+                    {editable && <ToggleForm promo={p} />}
                   </span>
                 </td>
                 <td className="num">{p.discountPercent}%</td>
@@ -72,15 +73,10 @@ export function PromoTable({ promos, editable }: { promos: PromoCodeRow[]; edita
                 <td className="settings-col-wide">
                   <Badge tone={p.active ? 'ok' : 'neutral'}>{p.active ? 'действует' : 'не действует'}</Badge>
                 </td>
+                {/* на телефоне столбец скрыт — та же кнопка стоит в первой ячейке */}
                 {editable && (
-                  <td>
-                    <form action={setPromoActive}>
-                      <input type="hidden" name="code" value={p.code} />
-                      <input type="hidden" name="active" value={p.active ? 'false' : 'true'} />
-                      <Button type="submit" tone="secondary">
-                        {p.active ? 'Выключить' : 'Включить'}
-                      </Button>
-                    </form>
+                  <td className="settings-col-wide">
+                    <ToggleForm promo={p} />
                   </td>
                 )}
               </tr>
@@ -106,6 +102,18 @@ export function PromoTable({ promos, editable }: { promos: PromoCodeRow[]; edita
         </Overlay>
       )}
     </section>
+  );
+}
+
+function ToggleForm({ promo }: { promo: PromoCodeRow }) {
+  return (
+    <form action={setPromoActive}>
+      <input type="hidden" name="code" value={promo.code} />
+      <input type="hidden" name="active" value={promo.active ? 'false' : 'true'} />
+      <Button type="submit" tone="secondary">
+        {promo.active ? 'Выключить' : 'Включить'}
+      </Button>
+    </form>
   );
 }
 

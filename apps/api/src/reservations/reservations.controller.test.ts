@@ -133,6 +133,8 @@ function makeFake() {
     );
   const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
   const repo: ReservationsRepository = {
+    promoByCode: async () => null,
+    lockPromo: async () => undefined,
     async today() {
       // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
       return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);

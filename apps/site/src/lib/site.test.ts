@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { appPath, assistantScriptSrc, loginLink, registerLink, resetLink, siteAuthEndpoint } from './site';
+import {
+  appPath,
+  assistantScriptSrc,
+  loginLink,
+  registerLink,
+  resetLink,
+  siteAuthEndpoint,
+} from './site';
 import type { SiteConfig } from '../site.config';
 
 const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
@@ -36,12 +43,15 @@ describe('loginLink', () => {
 });
 
 /**
- * «Регистрация» (решение владельца 26.09.2026, ADR-098): самостоятельная регистрация в стойке с 7 днями пробного
+ * «Регистрация» (решение владельца 26.09.2026, ADR-098): самостоятельная регистрация в стойке с 14 днями пробного
  * периода. Кнопка ведёт прямо на форму `/register`, а не в раздел «Как начать» и не на заявку по почте.
  */
 describe('registerLink', () => {
   it('ведёт на форму регистрации стойки', () => {
-    expect(registerLink(config())).toEqual({ href: 'https://app.wetop.ai/register', external: true });
+    expect(registerLink(config())).toEqual({
+      href: 'https://app.wetop.ai/register',
+      external: true,
+    });
   });
 
   it('не удваивает слеш, если адрес стойки записан со слешем в конце', () => {

@@ -18,8 +18,11 @@ export type Dictionary = {
     menu: string;
   };
   nav: {
+    product: string;
     audience: string;
     features: string;
+    integrations: string;
+    pricing: string;
     start: string;
     blog: string;
     login: string;
@@ -40,9 +43,10 @@ export type Dictionary = {
     note: string;
   };
   stats: {
+    eyebrow: string;
+    title: string;
+    lead: string;
     items: Array<{ icon: IconName; value: string; label: string; note: string }>;
-    quote: string;
-    quoteSource: string;
   };
   showcase: {
     eyebrow: string;
@@ -51,7 +55,7 @@ export type Dictionary = {
     items: Array<{
       no: string;
       /** Какой мини-экран рисуется в карточке. */
-      screen: 'board' | 'channels' | 'folio';
+      screen: 'today' | 'board' | 'reservations';
       title: string;
       text: string;
       tags: string[];
@@ -91,6 +95,71 @@ export type Dictionary = {
     title: string;
     lead: string;
     items: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
+  };
+  product: {
+    core: {
+      eyebrow: string;
+      title: string;
+      lead: string;
+      items: Array<{ icon: IconName; title: string; text: string }>;
+    };
+    integrations: {
+      eyebrow: string;
+      title: string;
+      lead: string;
+      note: string;
+      cta: string;
+      items: Array<{ mark: string; name: string }>;
+    };
+    direct: {
+      eyebrow: string;
+      title: string;
+      lead: string;
+      items: string[];
+      note: string;
+    };
+    ai: {
+      eyebrow: string;
+      title: string;
+      lead: string;
+      items: string[];
+      guest: string;
+      guestText: string;
+      answer: string;
+      answerText: string;
+      note: string;
+    };
+    finance: {
+      eyebrow: string;
+      title: string;
+      lead: string;
+      metrics: Array<{ label: string; value: string }>;
+      example: string;
+    };
+    why: {
+      eyebrow: string;
+      title: string;
+      items: Array<{ icon: IconName; title: string; text: string }>;
+    };
+    migration: {
+      eyebrow: string;
+      title: string;
+      lead: string;
+      proof: string;
+      note: string;
+    };
+    pricing: {
+      eyebrow: string;
+      title: string;
+      plan: string;
+      price: string;
+      period: string;
+      scope: string;
+      items: string[];
+      overage: string;
+      trial: string;
+    };
+    final: { eyebrow: string; title: string; lead: string; contact: string };
   };
   start: {
     eyebrow: string;

@@ -42,7 +42,7 @@ export function loginLink(config: SiteConfig = siteConfig): SiteLink {
 }
 
 /**
- * «Регистрация»: форма самостоятельной регистрации стойки, 7 дней пробного периода (ADR-098, 26.09.2026).
+ * «Регистрация»: форма самостоятельной регистрации стойки, 14 дней пробного периода (ADR-098, срок — ADR-102).
  * Раньше на её месте была заявка по почте: одна установка обслуживала одну гостиницу (ADR-056).
  */
 export function registerLink(config: SiteConfig = siteConfig): SiteLink {

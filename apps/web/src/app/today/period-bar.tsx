@@ -31,24 +31,27 @@ export function PeriodBar({ period, today }: { period: ResolvedPeriod; today: st
           </Link>
         ))}
       </div>
-      <form method="get" className="period-custom" data-testid="period-form">
-        <input type="hidden" name="period" value="custom" />
-        <label>
-          С<DateInput name="from" defaultValue={period.from} aria-label="Период: с" />
-        </label>
-        <label>
-          По
-          <DateInput
-            name="to"
-            rangeFromName="from"
-            defaultValue={period.to}
-            aria-label="Период: по"
-          />
-        </label>
-        <Button type="submit" tone="secondary">
-          Показать
-        </Button>
-      </form>
+      <details className="period-range" open={period.preset === 'custom'}>
+        <summary>Выбрать даты</summary>
+        <form method="get" className="period-custom" data-testid="period-form">
+          <input type="hidden" name="period" value="custom" />
+          <label>
+            С<DateInput name="from" defaultValue={period.from} aria-label="Период: с" />
+          </label>
+          <label>
+            По
+            <DateInput
+              name="to"
+              rangeFromName="from"
+              defaultValue={period.to}
+              aria-label="Период: по"
+            />
+          </label>
+          <Button type="submit" tone="secondary">
+            Показать
+          </Button>
+        </form>
+      </details>
       <p className="period-caption" data-testid="period-caption">
         <strong>{periodCaption(period)}</strong>
         {/* отдельной фразой, а не хвостом через точку-разделитель (§14): будущие дни посчитаны по броням */}

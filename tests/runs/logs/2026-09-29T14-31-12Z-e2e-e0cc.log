@@ -1,0 +1,36 @@
+# Сквозные (e2e) · 29.09.2026 19:31 Алматы · MacBook-Air-Urij.local
+# коммит 01bce2d (codex/seller-agent-handoff), незакоммиченных файлов набора: 38
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' '--workers=1'
+[WebServer] (node:7247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7389) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+(node:7494) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/dashboard-design.spec.ts:19:1 › главная: «нет базы для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (19.3s)
+  ✓  2 tests/ui/dashboard-design.spec.ts:58:1 › главная: на телефоне таблица категорий складывается, а не обрезается прокруткой (4.9s)
+  ✓  3 tests/ui/dashboard-design.spec.ts:97:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (8.6s)
+  ✓  4 tests/ui/dashboard-design.spec.ts:160:2 › главная: четыре показателя и стойка доступны без раскрытия аналитики (8.3s)
+  ✓  5 tests/ui/dashboard-resilience.spec.ts:15:1 › показатели не пришли — экран открыт, стойка на месте, причина названа (4.8s)
+  ✓  6 tests/ui/dashboard-resilience.spec.ts:30:1 › период выбирается: «этот месяц» открывается с числами (3.8s)
+
+  6 passed (1.3m)
+
+# код выхода 0 · 1 мин 24 с

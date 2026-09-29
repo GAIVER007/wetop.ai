@@ -71,9 +71,11 @@ function Card({
 export function KpiGrid({
   current,
   previous,
+  secondary = false,
 }: {
   current: DashboardPeriod;
   previous: DashboardPeriod;
+  secondary?: boolean;
 }) {
   const c = current;
   const p = previous;
@@ -90,105 +92,111 @@ export function KpiGrid({
     !(c.revparMinor && p.revparMinor);
   return (
     <>
-      <section className="kpi-grid" aria-label="Показатели за период">
-        <Card
-          id="occupancy"
-          icon={
-            <div
-              className="occupancy-ring occupancy-ring--mini"
-              style={{
-                background: `conic-gradient(var(--primary) ${c.occupancy.percent}%, var(--border-soft) 0)`,
-              }}
-              role="img"
-              aria-label={`Занято ${formatPercent(c.occupancy.percent)}`}
-            >
-              <div />
-            </div>
-          }
-          label="Загрузка"
-          value={formatPercent(c.occupancy.percent)}
-          hint={
-            single
-              ? `занято ${c.occupancy.occupiedNights} из ${c.units} мест`
-              : `${formatInt(c.occupancy.occupiedNights)} из ${formatInt(c.occupancy.unitNights)} ночей продано`
-          }
-          delta={deltaPoints(c.occupancy.percent, p.occupancy.percent)}
-        />
-        <Card
-          id="revenue"
-          icon="money"
-          label="Выручка (начислено)"
-          value={wholeTenge(c.revenue.totalMinor)}
-          hint={`проживание ${wholeTenge(c.revenue.accommodationMinor)}${
-            b(c.revenue.servicesMinor) +
-              b(c.revenue.penaltiesMinor) +
-              b(c.revenue.adjustmentsMinor) !==
-            0n
-              ? `, услуги и штрафы ${wholeTenge(
-                  (
-                    b(c.revenue.servicesMinor) +
-                    b(c.revenue.penaltiesMinor) +
-                    b(c.revenue.adjustmentsMinor)
-                  ).toString(),
-                )}`
-              : ''
-          }`}
-          delta={deltaPercent(b(c.revenue.totalMinor), b(p.revenue.totalMinor))}
-        />
-        <Card
-          id="paid"
-          icon="receipt"
-          label="Получено оплат"
-          value={wholeTenge(c.payments.totalMinor)}
-          hint={`${pluralRu(c.payments.count, ['платёж', 'платежа', 'платежей'])}${
-            b(c.refundsMinor) > 0n ? `, возвраты ${wholeTenge(c.refundsMinor)}` : ''
-          }`}
-          delta={deltaPercent(b(c.payments.totalMinor), b(p.payments.totalMinor))}
-        />
-        <Card
-          id="arrivals"
-          icon="arrival"
-          label="Заезды"
-          value={formatInt(c.arrivals.count)}
-          hint={`${pluralRu(c.arrivals.guests, ['гость', 'гостя', 'гостей'])}, выезды ${c.departures.count}${
-            c.arrivals.cancelled ? `, отмен ${c.arrivals.cancelled}` : ''
-          }${c.arrivals.noShow ? `, незаездов ${c.arrivals.noShow}` : ''}`}
-          delta={deltaPercent(c.arrivals.count, p.arrivals.count)}
-        />
-      </section>
-      <section className="kpi-secondary" aria-label="Эффективность продаж за период">
-        <Card
-          id="adr"
-          icon="rates"
-          label="Средняя цена ночи"
-          value={c.adrMinor ? wholeTenge(c.adrMinor) : '—'}
-          hint="начислено за проживание на проданную ночь"
-          delta={
-            c.adrMinor && p.adrMinor
-              ? deltaPercent(b(c.adrMinor), b(p.adrMinor))
-              : { direction: null, text: 'нет базы для сравнения' }
-          }
-        />
-        <Card
-          id="revpar"
-          icon="inventory"
-          label="Доход на место"
-          value={c.revparMinor ? wholeTenge(c.revparMinor) : '—'}
-          hint="за ночь на каждую единицу продажи (RevPAR)"
-          delta={
-            c.revparMinor && p.revparMinor
-              ? deltaPercent(b(c.revparMinor), b(p.revparMinor))
-              : { direction: null, text: 'нет базы для сравнения' }
-          }
-        />
-      </section>
-      <p className="kpi-compare muted" data-testid="kpi-compare">
-        Сравнение с предыдущим периодом: {displayDate(p.from)}
-        {p.from !== p.to && ` — ${displayDate(p.to)}`}
-        {noBase && ' Где стоит «—», нет базы для сравнения: в прошлом периоде там ноль.'}
-        {c.unassigned > 0 &&
-          ` Без ячейки ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
-      </p>
+      {!secondary && (
+        <section className="kpi-grid" aria-label="Показатели за период">
+          <Card
+            id="occupancy"
+            icon={
+              <div
+                className="occupancy-ring occupancy-ring--mini"
+                style={{
+                  background: `conic-gradient(var(--primary) ${c.occupancy.percent}%, var(--border-soft) 0)`,
+                }}
+                role="img"
+                aria-label={`Занято ${formatPercent(c.occupancy.percent)}`}
+              >
+                <div />
+              </div>
+            }
+            label="Загрузка"
+            value={formatPercent(c.occupancy.percent)}
+            hint={
+              single
+                ? `занято ${c.occupancy.occupiedNights} из ${c.units} мест`
+                : `${formatInt(c.occupancy.occupiedNights)} из ${formatInt(c.occupancy.unitNights)} ночей продано`
+            }
+            delta={deltaPoints(c.occupancy.percent, p.occupancy.percent)}
+          />
+          <Card
+            id="revenue"
+            icon="money"
+            label="Выручка (начислено)"
+            value={wholeTenge(c.revenue.totalMinor)}
+            hint={`проживание ${wholeTenge(c.revenue.accommodationMinor)}${
+              b(c.revenue.servicesMinor) +
+                b(c.revenue.penaltiesMinor) +
+                b(c.revenue.adjustmentsMinor) !==
+              0n
+                ? `, услуги и штрафы ${wholeTenge(
+                    (
+                      b(c.revenue.servicesMinor) +
+                      b(c.revenue.penaltiesMinor) +
+                      b(c.revenue.adjustmentsMinor)
+                    ).toString(),
+                  )}`
+                : ''
+            }`}
+            delta={deltaPercent(b(c.revenue.totalMinor), b(p.revenue.totalMinor))}
+          />
+          <Card
+            id="paid"
+            icon="receipt"
+            label="Получено оплат"
+            value={wholeTenge(c.payments.totalMinor)}
+            hint={`${pluralRu(c.payments.count, ['платёж', 'платежа', 'платежей'])}${
+              b(c.refundsMinor) > 0n ? `, возвраты ${wholeTenge(c.refundsMinor)}` : ''
+            }`}
+            delta={deltaPercent(b(c.payments.totalMinor), b(p.payments.totalMinor))}
+          />
+          <Card
+            id="arrivals"
+            icon="arrival"
+            label="Заезды"
+            value={formatInt(c.arrivals.count)}
+            hint={`${pluralRu(c.arrivals.guests, ['гость', 'гостя', 'гостей'])}, выезды ${c.departures.count}${
+              c.arrivals.cancelled ? `, отмен ${c.arrivals.cancelled}` : ''
+            }${c.arrivals.noShow ? `, незаездов ${c.arrivals.noShow}` : ''}`}
+            delta={deltaPercent(c.arrivals.count, p.arrivals.count)}
+          />
+        </section>
+      )}
+      {secondary && (
+        <section className="kpi-secondary" aria-label="Эффективность продаж за период">
+          <Card
+            id="adr"
+            icon="rates"
+            label="Средняя цена ночи"
+            value={c.adrMinor ? wholeTenge(c.adrMinor) : '—'}
+            hint="начислено за проживание на проданную ночь"
+            delta={
+              c.adrMinor && p.adrMinor
+                ? deltaPercent(b(c.adrMinor), b(p.adrMinor))
+                : { direction: null, text: 'нет базы для сравнения' }
+            }
+          />
+          <Card
+            id="revpar"
+            icon="inventory"
+            label="Доход на место"
+            value={c.revparMinor ? wholeTenge(c.revparMinor) : '—'}
+            hint="за ночь на каждую единицу продажи (RevPAR)"
+            delta={
+              c.revparMinor && p.revparMinor
+                ? deltaPercent(b(c.revparMinor), b(p.revparMinor))
+                : { direction: null, text: 'нет базы для сравнения' }
+            }
+          />
+        </section>
+      )}
+      {!secondary && (
+        <p className="kpi-compare muted" data-testid="kpi-compare">
+          Сравнение с предыдущим периодом: {displayDate(p.from)}
+          {p.from !== p.to && ` — ${displayDate(p.to)}`}
+          {noBase && ' «—» — нет базы для сравнения.'}
+          {c.unassigned > 0 &&
+            ` Без ячейки ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
+        </p>
+      )}
     </>
   );
 }

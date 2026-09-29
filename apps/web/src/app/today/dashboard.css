@@ -782,3 +782,39 @@ a.desk-stat__hint--warn {
     display: inline;
   }
 }
+
+/* Главная: стойка выше подробной аналитики. */
+.dashboard-details {
+  margin-top: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.dashboard-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 8px;
+}
+.dashboard-details > summary span {
+  margin-left: 16px;
+  color: var(--text-2);
+  font-weight: 400;
+}
+.dashboard-details[open] > summary {
+  margin-bottom: 24px;
+}
+.period-range > summary {
+  cursor: pointer;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+}
+.period-range[open] .period-custom {
+  margin-top: 16px;
+}
+@media (max-width: 700px) {
+  .dashboard-details > summary span {
+    display: block;
+    margin: 8px 0 0;
+  }
+}

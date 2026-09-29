@@ -2919,3 +2919,5 @@
 | 27.09.2026 23:03 | lint | ❌ ошибок: 1 | 22 с | f05e67f +3 | [лог](logs/2026-09-27T18-03-30Z-lint-f61f.log) | @typescript-eslint/no-unused-vars |
 | 27.09.2026 23:04 | lint | ✅ без ошибок | 18 с | f05e67f +4 | [лог](logs/2026-09-27T18-04-08Z-lint-21d9.log) |  |
 | 27.09.2026 23:04 | unit | ✅ 2115 из 2118, пропущено 3 | 1 мин 12 с | f05e67f +4 | [лог](logs/2026-09-27T18-04-27Z-unit-cdca.log) |  |
+| 29.09.2026 19:28 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts --workers=1) | ❌ код выхода 1 | 1 мин 42 с | 01bce2d +38 | [лог](logs/2026-09-29T14-28-13Z-e2e-9181.log) | Simplified home: four KPIs, desk before details, responsive and error states |
+| 29.09.2026 19:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-resilience.spec.ts --workers=1) | ✅ 6 из 6 | 1 мин 24 с | 01bce2d +38 | [лог](logs/2026-09-29T14-31-12Z-e2e-e0cc.log) | Home layout acceptance |

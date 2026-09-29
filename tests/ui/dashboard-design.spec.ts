@@ -21,6 +21,7 @@ test('главная: «нет базы для сравнения» один р�
 }) => {
   const main = page.getByRole('main');
   await page.goto('/today');
+  await page.locator('.dashboard-details > summary').click();
   await expect(main.getByTestId('chart-categories')).toBeVisible();
 
   // одна видимая фраза о базе сравнения на все плитки; под плитками — «—», а слово остаётся
@@ -47,6 +48,7 @@ test('главная: «нет базы для сравнения» один р�
 
   // период больше дня: полос по категориям нет, и колонка «Загрузка» в таблице нужна
   await page.goto('/today?period=week');
+  await page.locator('.dashboard-details > summary').click();
   await expect(main.getByTestId('chart-daily')).toBeVisible();
   await expect(
     main.getByTestId('categories-table').getByRole('columnheader', { name: 'Загрузка' }),
@@ -59,6 +61,7 @@ test('главная: на телефоне таблица категорий с
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today?period=week');
+  await page.locator('.dashboard-details > summary').click();
   const table = main.getByTestId('categories-table');
   await expect(table).toBeVisible();
   const clipped = await table.evaluate((el) => {
@@ -95,6 +98,7 @@ test('главная: быстрые действия называют числ�
   page,
 }) => {
   await page.goto('/today');
+  await page.locator('.dashboard-details > summary').click();
   const quick = page.getByRole('region', { name: 'Быстрые действия' });
 
   // числа из того же `DeskDay` и равны строкам окна выбора (разбор 23.09.2026, находка 1): заселить —
@@ -111,9 +115,9 @@ test('главная: быстрые действия называют числ�
 
   // разбивка по причинам: просроченный заезд 1, карточки 0, долг 1 — сумма равна счётчику в шапке
   const tally = page.getByTestId('attention-tally');
-  await expect(tally.getByRole('listitem').filter({ hasText: 'Просроченные заезды' })).toContainText(
-    '1',
-  );
+  await expect(
+    tally.getByRole('listitem').filter({ hasText: 'Просроченные заезды' }),
+  ).toContainText('1');
   await expect(tally.getByRole('listitem').filter({ hasText: 'Карточки гостей' })).toContainText(
     '0',
   );
@@ -123,6 +127,7 @@ test('главная: быстрые действия называют числ�
 
   // день без броней: ни одной мёртвой кнопки — каждая ведёт туда, где действие начинается
   await page.goto('/today?date=2027-06-01');
+  await page.locator('.dashboard-details > summary').click();
   const empty = page.getByRole('region', { name: 'Быстрые действия' });
   await expect(empty.locator('button:disabled')).toHaveCount(0);
   const checkIn = empty.getByRole('link', { name: /Заселить гостя/ });
@@ -150,4 +155,15 @@ test('главная: быстрые действия называют числ�
   );
   expect(lines.filter((l) => l.lines > 1)).toEqual([]);
   await expect(empty.getByTestId('attention-tally')).toHaveCount(0);
+});
+
+test('главная: четыре показателя и стойка доступны без раскрытия аналитики', async ({ page }) => {
+  await page.goto('/today');
+  await expect(page.locator('.kpi-grid .kpi')).toHaveCount(4);
+  await expect(page.getByTestId('c-arrivals')).toBeVisible();
+  await expect(page.getByTestId('kpi-adr')).not.toBeVisible();
+  await page.locator('.dashboard-details > summary').click();
+  await expect(page.getByTestId('kpi-adr')).toBeVisible();
+  await page.locator('.dashboard-details > summary').click();
+  await expect(page.getByTestId('kpi-adr')).not.toBeVisible();
 });

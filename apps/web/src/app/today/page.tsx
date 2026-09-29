@@ -60,12 +60,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           </Suspense>
         </span>
       }
-      subtitle="Загрузка, деньги и задачи вашего объекта."
       actions={
         <>
-          <Link href="/chessboard" className="btn btn--secondary">
-            Шахматка
-          </Link>
           <Link href="/reservations/new" className="btn">
             <Icon name="plus" />
             Новая бронь
@@ -97,6 +93,9 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       </Suspense>
       <Suspense fallback={<DeskSkeleton />}>
         <DeskSection date={deskDate} today={today} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <DashboardSection period={period} today={today} details />
       </Suspense>
     </Page>
   );

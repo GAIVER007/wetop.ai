@@ -29,3 +29,12 @@ No paid AI messages or real guest data were used in testing. Full Python/backend
 - Existing integration expectations on login were stale after public-shell separation. Updated test to require no widget on public entry; separately reproduced old signed widget surviving soft logout. Added public-entry lifecycle reset; no auth or identity contract change.
 - Logout regression RED: `2026-09-29T16-14-32Z-e2e-dc26.log` — old `.pmsw` remained after logout. GREEN: `2026-09-29T16-15-28Z-e2e-3c3d.log` — 4/4 platform integration scenarios passed, including no widget on public login and signed session replacement.
 - Assistant runtime updated at 2026-09-29T16:08:49Z; image `sha256:0f66e994fa44ec54fa9f07abfddee77b3891dea81e1a6d08d671e4610cb455ce`. Versioned public script matches repository SHA256 `246b1bbba2b529fbf3a40bd2a9b46619e17ca45cc599c4b5af47a42f26536b8d`; public health `{status:ok}`. Existing DB revision was already at head (0006); no migration files changed.
+
+## Production verification
+
+- Platform code deployed: `7ee096dd07c63f826e20f89d6f34092125a429e9`; API/web both healthy, image `sha256:41ff47fe8bf30e2f8bf6aa1fff98db004c90d4a1b97158a5b7d0976c23b75f92`; Next BUILD_ID `1d_Bm00A9bz4A7x20m_CC`.
+- Production `/today` checked in authenticated browser: versioned script present, visible `Помощник WETOP`, visible multiline `Сообщение`; zero existing chat messages, no message submitted. Visually confirmed dark UI against actual platform styles.
+- Assistant versioned public JS SHA matches source; public health remains `{status:ok}`.
+- Platform backup `/root/backups/wetop-deploy-20260929T161849Z`; assistant backup `/root/backups/wetop-chat-bfd41601` and image `wetop-assistant:before-chat-bfd41601`.
+- Concurrent upstream main changes were merged without overwriting them. Post-merge assistant and security-header tests: 21/21 (`2026-09-29T16-18-18Z-unit-73d0.log`); web typecheck passed. Production build passed.
+- `release` promoted to the verified platform code commit. This report-only follow-up does not require rebuilding runtime images.

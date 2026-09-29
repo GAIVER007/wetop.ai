@@ -4384,3 +4384,4 @@
 | 29.09.2026 21:13 | typecheck | ✅ без ошибок | 35 с | 61bc328 | [лог](logs/2026-09-29T16-13-18Z-typecheck-5784.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | lint | ✅ без ошибок | 21 с | 61bc328 | [лог](logs/2026-09-29T16-14-02Z-lint-4ca6.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 27 с | 61bc328 | [лог](logs/2026-09-29T16-14-23Z-unit-f790.log) | SEC-4 после слияния main: полный unit |
+| 29.09.2026 21:18 | unit (частично: apps/web/src/lib/assistant-widget.test.ts apps/web/src/lib/security-headers.test.ts apps/api/src/security-headers.test.ts) | ✅ 21 из 21 | 5 с | 7ee096d | [лог](logs/2026-09-29T16-18-18Z-unit-73d0.log) | Post-merge chat and newly merged security header contracts |

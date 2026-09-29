@@ -167,7 +167,9 @@ test('«Действия агента» у диалога (S6): выполнен
   await expect(journal).toContainText('Выполнено');
   await expect(journal).toContainText('Возврат оплаты');
   await expect(journal).toContainText('Передано человеку');
-  await shot(page, 'agent-actions-1440');
+  // снимок S6 — в отчёт S6, не S3
+  mkdirSync('reports/ai-agents-s6-2026-09-29', { recursive: true });
+  await page.screenshot({ path: 'reports/ai-agents-s6-2026-09-29/agent-actions-1440.png', fullPage: true });
   await page.goto(`/platform/support?queue=closed&id=${CLOSED}`);
   await expect(page.getByTestId('agent-actions')).toHaveCount(0);
 });

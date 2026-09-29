@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 29.09.2026 22:13 Алматы · vm
+# коммит 66923ec (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 39
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/support-kb.spec.ts' '--workers=1' '-g' 'Действия агента'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/support-kb.spec.ts:161:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (22.0s)
+
+
+  1) tests/ui/support-kb.spec.ts:161:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('agent-actions')
+    Expected substring: "Действия агента"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('agent-actions') with timeout 15000ms
+      - waiting for getByTestId('agent-actions')
+
+
+      163 |   await page.goto(`/platform/support?id=${SIGNED}`);
+      164 |   const journal = page.getByTestId('agent-actions');
+    > 165 |   await expect(journal).toContainText('Действия агента');
+          |                         ^
+      166 |   await expect(journal).toContainText('Подтянуть ленту Channex');
+      167 |   await expect(journal).toContainText('Выполнено');
+      168 |   await expect(journal).toContainText('Возврат оплаты');
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:165:25
+
+    Error Context: test-results/support-kb-«Действия-агент-5f8cc-лога-без-действий-блока-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-«Действия-агент-5f8cc-лога-без-действий-блока-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-«Действия-агент-5f8cc-лога-без-действий-блока-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/support-kb.spec.ts:161:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет 
+
+# код выхода 1 · 36 с

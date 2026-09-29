@@ -1,0 +1,35 @@
+# Модульные (unit) · 29.09.2026 22:12 Алматы · vm
+# коммит 66923ec (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 39
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T17-12-10Z-unit-d8b4.json' 'apps/api/src/platform' 'apps/api/src/assistant' 'apps/api/src/ai-seller' 'packages/integrations'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 199ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (18 tests) 302ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (50 tests) 482ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (12 tests) 217ms
+ ✓ |unit| apps/api/src/assistant/actions.controller.test.ts (8 tests) 192ms
+ ✓ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests) 264ms
+ ✓ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (23 tests) 67ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (18 tests) 114ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 234ms
+ ✓ |unit| packages/integrations/src/mail/resend.test.ts (15 tests) 81ms
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 211ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 83ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 10ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 20ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 35ms
+ ✓ |unit| packages/integrations/src/mail/stub.test.ts (8 tests) 8ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (11 tests) 9ms
+ ✓ |unit| packages/integrations/src/mail/invite-letter.test.ts (5 tests) 5ms
+[Nest] 10723  - 09/29/2026, 5:12:17 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 8ms
+
+ Test Files  19 passed (19)
+      Tests  268 passed (268)
+   Start at  17:12:11
+   Duration  5.76s (import 48%, transform 34%, tests 18%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T17-12-10Z-unit-d8b4.json
+
+# код выхода 0 · 7 с

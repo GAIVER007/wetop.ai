@@ -4452,3 +4452,6 @@
 | 29.09.2026 22:00 | lint | ✅ без ошибок | 22 с | 60449d8 +10 | [лог](logs/2026-09-29T17-00-41Z-lint-7952.log) | SEC-2 |
 | 29.09.2026 22:01 | unit | ❌ упало 1 из 2449, пропущено 3 | 1 мин 28 с | 60449d8 +10 | [лог](logs/2026-09-29T17-01-04Z-unit-1882.log) | SEC-2: полный unit |
 | 29.09.2026 22:02 | integration | ✅ 139 из 139 | 50 с | 60449d8 +10 | [лог](logs/2026-09-29T17-02-33Z-integration-7a94.log) | SEC-2: integration |
+| 29.09.2026 22:07 | typecheck | ✅ без ошибок | 31 с | 49abb6e | [лог](logs/2026-09-29T17-07-45Z-typecheck-308f.log) |  |
+| 29.09.2026 22:08 | lint | ✅ без ошибок | 16 с | 49abb6e | [лог](logs/2026-09-29T17-08-17Z-lint-bcde.log) |  |
+| 29.09.2026 22:08 | unit (частично: apps/api/src/ai-seller apps/api/src/auth packages/domain/src/ai-agents apps/web/src/lib/ai-agents.test.ts) | ✅ 293 из 293 | 9 с | 49abb6e | [лог](logs/2026-09-29T17-08-34Z-unit-cfe4.log) |  |

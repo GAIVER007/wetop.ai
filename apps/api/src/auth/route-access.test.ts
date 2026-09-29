@@ -123,6 +123,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /rates/options': 'rates',
   'GET /rates': 'rates',
   'POST /rates/bulk': 'rates',
+  'GET /rates/plans': 'rates',
+  'PATCH /rates/plans/:code': 'rates',
 
   // ── каналы: webhook Channex приходит снаружи со своим секретом ──────────────────────────
   'GET /channels/channex/mapping': 'channels',

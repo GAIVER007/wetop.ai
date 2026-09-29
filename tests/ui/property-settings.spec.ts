@@ -67,10 +67,10 @@ test('старые адреса: часы — на «Проживание», п�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates$/);
-  const rule = main.getByTestId('rate-plan-cancellation');
-  await expect(rule).toHaveText('При отмене по тарифу «Стандартный»: стоимость первой ночи.');
-  await expect(rule).not.toContainText('BASE');
+  await expect(page).toHaveURL(/\/rates\/plans$/);
+  const row = main.getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ });
+  await expect(row).toContainText('Стоимость первой ночи');
+  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
 });
 
 test('владелец: «Сохранить изменения» ждёт правки, показывает «есть изменения», «сохранено» и ошибку', async ({

@@ -46,6 +46,7 @@ import {
   type MembershipRole,
   countGuestNights,
   summarizeGuestStays,
+  parseCancellationPenalty,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -212,6 +213,30 @@ const extraPlans: {
   cancellationPenalty: 'FIRST_NIGHT' | 'NONE';
 }[] = [];
 const ratePlanList = () => [...plans, ...(softPlan ? [softPlanSeed] : []), ...extraPlans];
+/** Правило отмены, изменённое на «Тарифных планах» (SET4): живёт до `reset` */
+const planPenalty = new Map<string, 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY'>();
+/** Строки «Тарифных планов» как у API: категории по названию и брони, которые задевает правка правила */
+function ratePlanRows() {
+  const cards = [card, ...extraCards.values()];
+  return ratePlanList().map((p) => ({
+    code: p.code,
+    name: p.name,
+    currency: p.currency,
+    active: p.active,
+    cancellationPenalty: planPenalty.get(p.code) ?? p.cancellationPenalty,
+    categories: categories
+      .filter((c) => (c.rateNames ?? [plans[0]!.name]).includes(p.name))
+      .map((c) => c.name),
+    upcomingReservations: cards.filter((r) =>
+      r.items.some(
+        (i) =>
+          i.ratePlanCode === p.code &&
+          (i.status === 'TENTATIVE' || i.status === 'CONFIRMED') &&
+          i.departureDate >= today,
+      ),
+    ).length,
+  }));
+}
 /** Выбор тарифа из тела запроса: undefined — не выбран, null — такого кода нет; новый тариф заводится */
 function fixturePlanChoice(body: Record<string, unknown>) {
   if (body.ratePlanCode) return ratePlanList().find((p) => p.code === body.ratePlanCode) ?? null;
@@ -2350,6 +2375,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (emptyFixture) {
     // календарь цен без справочника: экран показывает пустое состояние с причиной (D4)
     if (path === '/rates/options') return { categories: [], ratePlans: [] };
+    if (path === '/rates/plans') return [];
     if (path === '/finance/services') return [];
     if (path === '/hotel/services') return [];
     if (path === '/hotel/channel-report')
@@ -2991,6 +3017,7 @@ function read(path: string, q: URLSearchParams): unknown {
     } satisfies UnitCard;
   }
   if (path === '/rates/options') return { categories, ratePlans: plans };
+  if (path === '/rates/plans') return ratePlanRows();
   if (path === '/rates')
     return {
       accommodationTypeCode: q.get('accommodationTypeCode'),
@@ -3646,6 +3673,7 @@ createServer(async (req, res) => {
       paymentLines = [];
       piiStorage = 'real';
       softPlan = false;
+      planPenalty.clear();
       resetSeller();
       // «сегодня» стенда: тест берёт дату отсюда, а не считает сам — долгий прогон переходит полночь Алматы
       return send(200, { today });
@@ -4752,6 +4780,22 @@ createServer(async (req, res) => {
       };
       serviceCatalog.push(row);
       return send(201, row);
+    }
+    if (path.startsWith('/rates/plans/') && req.method === 'PATCH') {
+      // как API: право `rates` — владелец и управляющий (ADR-107); правило действует для всех броней тарифа (SET4)
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const code = decodeURIComponent(path.split('/')[3]!);
+      const extra = Object.keys(body).find((k) => k !== 'cancellationPenalty');
+      if (extra) return send(400, { message: `Неизвестное поле: ${extra}` });
+      const next = parseCancellationPenalty(body['cancellationPenalty']);
+      if (!next)
+        return send(400, {
+          message: 'Правило отмены: без штрафа, первая ночь или всё проживание',
+        });
+      if (!ratePlanList().some((p) => p.code === code))
+        return send(404, { message: 'Тариф не найден' });
+      planPenalty.set(code, next);
+      return send(200, ratePlanRows().find((p) => p.code === code));
     }
     if (path.startsWith('/hotel/services/') && req.method === 'PATCH') {
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });

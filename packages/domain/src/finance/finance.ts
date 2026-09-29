@@ -83,6 +83,16 @@ export function parseMoney(value: string): bigint {
 
 export type CancellationPenaltyPolicy = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
 
+const CANCELLATION_PENALTIES: readonly CancellationPenaltyPolicy[] = [
+  'NONE',
+  'FIRST_NIGHT',
+  'FULL_STAY',
+];
+/** Правило отмены из запроса (SET4, «Тарифные планы»): одно из трёх значений как есть, иначе `null` */
+export function parseCancellationPenalty(v: unknown): CancellationPenaltyPolicy | null {
+  return CANCELLATION_PENALTIES.find((p) => p === v) ?? null;
+}
+
 /**
  * Штраф при отмене / незаезде по политике тарифа (Q-103; правило объекта «штраф = стоимость первых суток»
  * привязано ко всем тарифам объекта). FIRST_NIGHT — цена первой ночи по календарю; календаря нет —

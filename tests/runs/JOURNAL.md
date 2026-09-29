@@ -4136,6 +4136,20 @@
 | 29.09.2026 04:21 | lint | ✅ без ошибок | 44 с | 673d352 | [лог](logs/2026-09-28T23-21-19Z-lint-64cb.log) |  |
 | 29.09.2026 04:22 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин 10 с | 673d352 | [лог](logs/2026-09-28T23-22-03Z-unit-a636.log) |  |
 | 29.09.2026 04:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/workspace.spec.ts tests/ui/requests.spec.ts tests/ui | ✅ 134 из 134 | 6 мин 41 с | 673d352 | [лог](logs/2026-09-28T23-24-20Z-e2e-ebdb.log) |  |
+| 29.09.2026 12:29 | unit (частично: packages/domain/src/finance/finance.test.ts apps/api/src/rates/rate-plans.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 3 из 21 | 14 с | 85e1bcd +3 | [лог](logs/2026-09-29T07-29-10Z-unit-76ff.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 29.09.2026 12:30 | unit (частично: packages/domain/src/finance/finance.test.ts apps/api/src/rates/rate-plans.test.ts apps/api/src/auth/route-access.test.ts apps/api/src/rates/rate | ❌ упало 1 из 35 | 4 с | 85e1bcd +7 | [лог](logs/2026-09-29T07-30-04Z-unit-5e4a.log) | «Тарифные планы»: правило отмены правка: новое правило, журнал «было/стало» с числом затронутых броней |
+| 29.09.2026 12:30 | unit (частично: packages/domain/src/finance/finance.test.ts apps/api/src/rates/rate-plans.test.ts apps/api/src/auth/route-access.test.ts apps/api/src/rates/rate | ✅ 35 из 35 | 4 с | 85e1bcd +7 | [лог](logs/2026-09-29T07-30-20Z-unit-9a75.log) |  |
+| 29.09.2026 12:31 | integration (частично: tests/integration/rate-plan-penalty.test.ts) | ❌ код выхода 1 | 3 с | 85e1bcd +7 | [лог](logs/2026-09-29T07-31-38Z-integration-ab36.log) | (файл не выполнился) |
+| 29.09.2026 12:31 | integration (частично: tests/integration/rate-plan-penalty.test.ts) | ✅ 1 из 1 | 3 с | 85e1bcd +8 | [лог](logs/2026-09-29T07-31-42Z-integration-635a.log) |  |
+| 29.09.2026 12:34 | typecheck | ✅ без ошибок | 37 с | 85e1bcd +18 | [лог](logs/2026-09-29T07-34-53Z-typecheck-4a99.log) |  |
+| 29.09.2026 12:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts) | ❌ упало 6 из 6 | 2 мин 41 с | 85e1bcd +10 | [лог](logs/2026-09-29T07-36-47Z-e2e-e2f3.log) | вкладки «Цены \| Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет |
+| 29.09.2026 12:39 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts) | ✅ 6 из 6 | 36 с | 85e1bcd +21 | [лог](logs/2026-09-29T07-39-35Z-e2e-8a93.log) |  |
+| 29.09.2026 12:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts) | ✅ 6 из 6 | 36 с | 85e1bcd +21 | [лог](logs/2026-09-29T07-40-35Z-e2e-73e0.log) |  |
+| 29.09.2026 12:41 | lint | ✅ без ошибок | 20 с | 85e1bcd +22 | [лог](logs/2026-09-29T07-41-22Z-lint-7d41.log) |  |
+| 29.09.2026 12:41 | unit | ✅ 2302 из 2305, пропущено 3 | 1 мин 39 с | 85e1bcd +17 | [лог](logs/2026-09-29T07-41-42Z-unit-1aec.log) |  |
+| 29.09.2026 12:43 | integration | ✅ 123 из 123 | 40 с | 85e1bcd +9 | [лог](logs/2026-09-29T07-43-21Z-integration-0930.log) |  |
+| 29.09.2026 12:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/ai-seller.spec.ts tests/ui/categories-create.spec.ts t | ✅ 251 из 251 | 20 мин 44 с | a671094 | [лог](logs/2026-09-29T07-44-31Z-e2e-cdc0.log) |  |
+| 29.09.2026 13:06 | e2e | ✅ 25 из 25 | 1 мин 4 с | bb0e747 | [лог](logs/2026-09-29T08-06-06Z-e2e-a080.log) |  |
 | 29.09.2026 12:27 | typecheck | ✅ без ошибок | 32 с | 85e1bcd | [лог](logs/2026-09-29T07-27-38Z-typecheck-0cc6.log) |  |
 | 29.09.2026 12:28 | lint | ✅ без ошибок | 19 с | 85e1bcd | [лог](logs/2026-09-29T07-28-11Z-lint-18f7.log) |  |
 | 29.09.2026 12:28 | unit | ✅ 2296 из 2299, пропущено 3 | 1 мин 36 с | 85e1bcd | [лог](logs/2026-09-29T07-28-31Z-unit-f485.log) |  |
@@ -4156,6 +4170,10 @@
 | 29.09.2026 12:25 | lint | ✅ без ошибок | 19 с | 360bc52 | [лог](logs/2026-09-29T07-25-29Z-lint-e5fc.log) |  |
 | 29.09.2026 12:25 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин | 360bc52 | [лог](logs/2026-09-29T07-25-49Z-unit-d389.log) |  |
 | 29.09.2026 12:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-desk.spe | ✅ 125 из 125 | 7 мин 4 с | 360bc52 | [лог](logs/2026-09-29T07-27-55Z-e2e-482a.log) |  |
+| 29.09.2026 13:07 | typecheck | ✅ без ошибок | 32 с | 1e07d6a | [лог](logs/2026-09-29T08-07-31Z-typecheck-ad10.log) |  |
+| 29.09.2026 13:08 | lint | ✅ без ошибок | 17 с | 1e07d6a | [лог](logs/2026-09-29T08-08-04Z-lint-d48b.log) |  |
+| 29.09.2026 13:08 | unit | ✅ 2302 из 2305, пропущено 3 | 1 мин 22 с | 1e07d6a | [лог](logs/2026-09-29T08-08-22Z-unit-7a4d.log) |  |
+| 29.09.2026 13:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts tests/ui/workspace.spec.ts tests/ui/today-attention.spec.ts tests/ | ✅ 114 из 114 | 7 мин 6 с | 1e07d6a | [лог](logs/2026-09-29T08-09-51Z-e2e-517b.log) |  |
 | 29.09.2026 12:43 | typecheck | ✅ без ошибок | 25 с | 40bcaac | [лог](logs/2026-09-29T07-43-03Z-typecheck-d2d3.log) |  |
 | 29.09.2026 12:43 | lint | ✅ без ошибок | 17 с | 40bcaac | [лог](logs/2026-09-29T07-43-28Z-lint-c14c.log) |  |
 | 29.09.2026 12:43 | unit | ✅ 2296 из 2299, пропущено 3 | 1 мин 23 с | 40bcaac | [лог](logs/2026-09-29T07-43-46Z-unit-b860.log) | G8 на main 44f401e0 |
@@ -4208,3 +4226,6 @@
 | 29.09.2026 16:01 | typecheck | ✅ без ошибок | 33 с | 08107fb | [лог](logs/2026-09-29T11-01-51Z-typecheck-98c8.log) | S1 final regression on merged main 6ab9541b |
 | 29.09.2026 16:02 | lint | ✅ без ошибок | 18 с | 08107fb | [лог](logs/2026-09-29T11-02-25Z-lint-addd.log) | S1 final regression on merged main 6ab9541b |
 | 29.09.2026 16:02 | unit | ✅ 2326 из 2329, пропущено 3 | 1 мин 19 с | 08107fb | [лог](logs/2026-09-29T11-02-43Z-unit-1311.log) | S1 final regression on merged main 6ab9541b |
+| 29.09.2026 15:50 | typecheck | ✅ без ошибок | 34 с | f9b6c10 | [лог](logs/2026-09-29T10-50-10Z-typecheck-4244.log) |  |
+| 29.09.2026 15:50 | lint | ✅ без ошибок | 19 с | f9b6c10 | [лог](logs/2026-09-29T10-50-45Z-lint-42c4.log) |  |
+| 29.09.2026 15:51 | unit | ✅ 2310 из 2313, пропущено 3 | 1 мин 28 с | f9b6c10 | [лог](logs/2026-09-29T10-51-05Z-unit-b28f.log) |  |

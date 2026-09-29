@@ -4220,6 +4220,23 @@
 | 29.09.2026 13:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | d9dce04 | [лог](logs/2026-09-29T08-35-49Z-e2e-e2f4.log) |  |
 | 29.09.2026 13:36 | e2e | ✅ 26 из 26 | 1 мин 15 с | d9dce04 | [лог](logs/2026-09-29T08-36-52Z-e2e-ece4.log) |  |
 | 29.09.2026 13:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 612 из 612 | 53 мин 9 с | d9dce04 | [лог](logs/2026-09-29T08-38-08Z-e2e-f49e.log) |  |
+| 29.09.2026 16:51 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ❌ код выхода 1 | 8 с | 6ab9541 +1 | [лог](logs/2026-09-29T11-51-34Z-unit-00c2.log) | (файл не выполнился) |
+| 29.09.2026 16:52 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ❌ упало 1 из 10 | 1 с | 6ab9541 +3 | [лог](logs/2026-09-29T11-52-07Z-unit-be19.log) | registrationPhone Казахстан: код +7 и десять цифр номера |
+| 29.09.2026 16:52 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ✅ 10 из 10 | 1 с | 6ab9541 +3 | [лог](logs/2026-09-29T11-52-17Z-unit-0c6d.log) |  |
+| 29.09.2026 16:52 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 3 из 47 | 12 с | 6ab9541 +5 | [лог](logs/2026-09-29T11-52-56Z-unit-9b93.log) | AuthService.register заводит организацию, человека и членство — но сессию не открывает: почта не подтверждена |
+| 29.09.2026 16:53 | unit (частично: apps/api/src/auth/) | ❌ упало 5 из 184 | 9 с | 6ab9541 +7 | [лог](logs/2026-09-29T11-53-40Z-unit-73db.log) | единая настройка самостоятельной регистрации (ADR-055) настройка undefined: регистрация и повторный вход доступны |
+| 29.09.2026 16:54 | unit (частично: apps/api/src/auth/) | ✅ 184 из 184 | 10 с | 6ab9541 +8 | [лог](logs/2026-09-29T11-54-06Z-unit-ed01.log) |  |
+| 29.09.2026 16:56 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/login-access.spec.ts -g Регистрация\|регистрация) | ❌ упало 5 из 8 | 3 мин 53 с | 6ab9541 +13 | [лог](logs/2026-09-29T11-56-28Z-e2e-0b64.log) | регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю |
+| 29.09.2026 17:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/login-access.spec.ts tests/ui/registration-closed.spec.ts) | ❌ упало 1 из 23 | 1 мин 22 с | 6ab9541 +16 | [лог](logs/2026-09-29T12-00-53Z-e2e-ccff.log) | ранее открытая форма получает отказ через server action без новой сессии |
+| 29.09.2026 17:02 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/registration-closed.spec.ts tests/ui/login-access.spec.ts) | ✅ 23 из 23 | 55 с | 6ab9541 +17 | [лог](logs/2026-09-29T12-02-26Z-e2e-aa68.log) |  |
+| 29.09.2026 17:06 | typecheck | ✅ без ошибок | 31 с | 6ab9541 +26 | [лог](logs/2026-09-29T12-06-57Z-typecheck-a8dc.log) |  |
+| 29.09.2026 17:07 | lint | ✅ без ошибок | 19 с | 6ab9541 +26 | [лог](logs/2026-09-29T12-07-28Z-lint-2155.log) |  |
+| 29.09.2026 17:07 | unit | ❌ упало 3 из 2333, пропущено 3 | 1 мин 41 с | 6ab9541 +22 | [лог](logs/2026-09-29T12-07-52Z-unit-ad7d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 29.09.2026 17:10 | unit (частично: tests/unit/site-design.test.ts tests/unit/design-slop.test.ts) | ✅ 17 из 17 | 1 с | 6ab9541 +22 | [лог](logs/2026-09-29T12-10-07Z-unit-adb3.log) |  |
+| 29.09.2026 17:10 | unit | ✅ 2330 из 2333, пропущено 3 | 1 мин 24 с | 6ab9541 +22 | [лог](logs/2026-09-29T12-10-15Z-unit-43e2.log) |  |
+| 29.09.2026 17:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/login-access.spec.ts tests/ui/registration-closed.spec.ts tests/ui/design-refresh.spe | ✅ 38 из 38 | 7 мин 32 с | 6ab9541 +25 | [лог](logs/2026-09-29T12-11-39Z-e2e-45ab.log) |  |
+| 29.09.2026 17:19 | e2e (частично: --config tests/ui/playwright.auth.config.ts --workers=1) | ✅ 5 из 5 | 18 с | 6ab9541 +25 | [лог](logs/2026-09-29T12-19-17Z-e2e-5bed.log) |  |
+| 29.09.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/login-access.spec.ts) | ✅ 19 из 19 | 50 с | 6ab9541 +25 | [лог](logs/2026-09-29T12-20-32Z-e2e-80d0.log) |  |
 | 29.09.2026 14:52 | unit (частично: packages/integrations/src/assistant/bot-panel-client.test.ts) | ❌ упало 1 из 23 | 1 с | 22557f7 +4 | [лог](logs/2026-09-29T09-52-22Z-unit-d297.log) | S1 red: client queue params and close |
 | 29.09.2026 14:52 | unit (частично: packages/integrations/src/assistant/bot-panel-client.test.ts) | ✅ 23 из 23 | 1 с | 22557f7 +5 | [лог](logs/2026-09-29T09-52-34Z-unit-b068.log) | S1 green: client queue params and close |
 | 29.09.2026 14:53 | unit (частично: apps/api/src/platform/support.controller.test.ts) | ❌ упало 3 из 18 | 4 с | 22557f7 +7 | [лог](logs/2026-09-29T09-53-07Z-unit-3ccc.log) | S1 red: support queue and close |
@@ -4257,5 +4274,13 @@
 | 29.09.2026 16:42 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 16 | 28 с | a44aa23 | [лог](logs/2026-09-29T11-42-30Z-e2e-a954.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:43 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 1 из 16 | 18 с | a44aa23 | [лог](logs/2026-09-29T11-43-36Z-e2e-d992.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:45 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 16 из 16 | 19 с | a44aa23 +1 | [лог](logs/2026-09-29T11-45-13Z-e2e-0d2b.log) |  |
+| 29.09.2026 17:24 | typecheck | ✅ без ошибок | 34 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-24-28Z-typecheck-af46.log) |  |
+| 29.09.2026 17:25 | lint | ✅ без ошибок | 20 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-25-02Z-lint-438f.log) |  |
+| 29.09.2026 17:25 | unit | ❌ упало 4 из 2351, пропущено 3 | 1 мин 26 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-25-23Z-unit-69b3.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 17:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/login-access.spec.ts tests/ui/registration-closed.spec.ts tests/ui/login-lock.spec.ts | ✅ 24 из 24 | 1 мин 1 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-27-09Z-e2e-5e01.log) |  |
+| 29.09.2026 17:28 | e2e (частично: --config tests/ui/playwright.auth.config.ts) | ✅ 5 из 5 | 23 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-28-11Z-e2e-7901.log) |  |
 | 29.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 634 | 55 мин 26 с | 7d27564 | [лог](logs/2026-09-29T11-45-45Z-e2e-e376.log) | после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке |
 | 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/workspace.spec.ts:24) | ✅ 7 из 7 | 1 мин 25 с | 368c37f +1 | [лог](logs/2026-09-29T12-41-37Z-e2e-a05c.log) |  |
+| 29.09.2026 18:31 | e2e (частично: --config tests/site/playwright.config.ts tests/site/auth-dialog.spec.ts) | ❌ упало 1 из 8 | 40 с | 0c5f1a5 | [лог](logs/2026-09-29T13-31-52Z-e2e-b8a9.log) | снимки окна регистрации: светлая и тёмная, 1440 и 390 |
+| 29.09.2026 18:33 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 24 с | 0c5f1a5 +1 | [лог](logs/2026-09-29T13-33-16Z-e2e-485b.log) |  |
+| 29.09.2026 18:33 | lint | ✅ без ошибок | 20 с | 0c5f1a5 +2 | [лог](logs/2026-09-29T13-33-51Z-lint-42ab.log) |  |

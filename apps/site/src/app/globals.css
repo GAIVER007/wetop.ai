@@ -2346,6 +2346,30 @@ button {
 .auth-field__toggle:hover {
   color: var(--text);
 }
+/* Регистрация 29.09.2026: код страны и номер в одной строке, согласие с политикой под полями */
+.auth-phone {
+  display: grid;
+  grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr);
+  gap: 8px;
+}
+.auth-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.auth-consent input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--primary);
+}
+.auth-consent a {
+  color: var(--primary);
+  text-decoration: underline;
+}
 .auth-form__hint {
   margin: -4px 0 0;
   color: var(--muted);
@@ -2382,6 +2406,30 @@ button {
       transform: translateY(8px) scale(0.98);
     }
   }
+}
+
+/* Политика конфиденциальности (29.09.2026) — простая текстовая страница */
+.legal__inner {
+  max-width: 760px;
+  padding-block: 48px 64px;
+}
+.legal h1 {
+  margin: 0 0 8px;
+}
+.legal h2 {
+  margin: 32px 0 8px;
+  font-size: 1.25rem;
+}
+.legal p,
+.legal li {
+  line-height: 1.65;
+}
+.legal ul {
+  padding-left: 1.25rem;
+}
+.legal__meta {
+  color: var(--muted);
+  font-size: 0.875rem;
 }
 
 /*

@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 29.09.2026 17:28 Алматы · vm
+# коммит 34e2b9e (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 67
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/ui/login-lock.spec.ts:22:3 › без входа /today уводит на экран входа (2.1s)
+  ✓  2 tests/ui/login-lock.spec.ts:22:3 › без входа /chessboard уводит на экран входа (2.3s)
+  ✓  3 tests/ui/login-lock.spec.ts:22:3 › без входа /reservations уводит на экран входа (2.1s)
+  ✓  4 tests/ui/login-lock.spec.ts:32:1 › после входа рабочее место открывается, «Выйти» закрывает двери снова (5.0s)
+  ✓  5 tests/ui/login-lock.spec.ts:47:1 › ссылка из письма подтверждает почту при включённом замке (3.3s)
+
+  5 passed (22.0s)
+
+# код выхода 0 · 23 с

@@ -101,7 +101,7 @@ export class AuthController {
   }
 
   /**
-   * Регистрация: почта, имя, пароль. Сессии в ответе нет — сначала письмо и подтверждение почты
+   * Регистрация: почта, имя, название отеля, пароль, телефон и согласие с политикой. Сессии в ответе нет — сначала письмо и подтверждение почты
    * (решение владельца 20.09.2026). Без входа по построению, как и вход.
    */
   @Public()
@@ -118,6 +118,11 @@ export class AuthController {
       name: text(body?.name, 'name'),
       hotelName: text(body?.hotelName, 'hotelName', 200),
       password: text(body?.password, 'password', 200),
+      // пустой или чужой телефон отклонит сервис словами для человека («Проверьте телефон…»)
+      phoneCountry: typeof body?.phoneCountry === 'string' ? body.phoneCountry.slice(0, 2) : '',
+      phone: typeof body?.phone === 'string' ? body.phone.slice(0, 40) : '',
+      // только настоящее `true`: строка «true» или пропуск — не согласие
+      privacyAccepted: body?.privacyAccepted === true,
     });
   }
 

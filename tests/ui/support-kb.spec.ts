@@ -150,6 +150,8 @@ for (const theme of ['light', 'dark'] as const) {
       await shot(page, `catalog-${theme}-${width}`);
       await page.getByRole('main').getByTestId('kb-catalog').getByRole('link').first().click();
       await expect(page.getByTestId('kb-entry')).toBeVisible();
+      // заголовок вкладки ставится после перехода: axe без него видит «document-title»
+      await expect(page).toHaveTitle(/.+/);
       expect((await new AxeBuilder({ page }).analyze()).violations.map((v) => v.id)).toEqual([]);
       await shot(page, `entry-${theme}-${width}`);
     });

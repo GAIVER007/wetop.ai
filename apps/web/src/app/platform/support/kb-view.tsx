@@ -10,6 +10,7 @@ import {
   Input,
   Notice,
   Panel,
+  PanelTitle,
   Row,
   SectionTitle,
   Select,
@@ -258,7 +259,7 @@ export async function KbSources({ conversationId, closed }: { conversationId: st
   const loaded = await settle(supportApi.conversationSources(conversationId));
   return (
     <section aria-label="На основании" data-testid="kb-sources" className="stack stack--sm">
-      <SectionTitle>На основании</SectionTitle>
+      <PanelTitle>На основании</PanelTitle>
       {!loaded.ok ? (
         <p className="settings-note">Не удалось узнать, на каких знаниях строились ответы.</p>
       ) : loaded.value.items.length === 0 ? (

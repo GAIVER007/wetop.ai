@@ -110,16 +110,12 @@ test('главная: быстрые действия называют числ�
     '/reservations',
   );
 
-  // разбивка по причинам: просроченный заезд 1, карточки 0, долг 1 — сумма равна счётчику в шапке
+  // разбивка сверху видна и при нуле (23.09); с A3 — по важности: Критично, Важно, К сведению, и сумма равна счётчику
   const tally = page.getByTestId('attention-tally');
-  await expect(tally.getByRole('listitem').filter({ hasText: 'Просроченные заезды' })).toContainText(
-    '1',
-  );
-  await expect(tally.getByRole('listitem').filter({ hasText: 'Карточки гостей' })).toContainText(
-    '0',
-  );
-  await expect(tally.getByRole('listitem').filter({ hasText: 'Долги уезжающих' })).toContainText(
-    '1',
+  await expect(tally.getByRole('listitem')).toHaveText([/Критично/, /Важно/, /К сведению/]);
+  const numbers = (await tally.locator('strong').allInnerTexts()).map(Number);
+  await expect(page.locator('#day-attention .attention-count')).toHaveText(
+    String(numbers.reduce((a, b) => a + b, 0)),
   );
 
   // день без броней: ни одной мёртвой кнопки — каждая ведёт туда, где действие начинается

@@ -1,0 +1,151 @@
+# Модульные (unit) · 29.09.2026 17:26 Алматы · vm
+# коммит 5f43f69 (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T12-26-26Z-unit-a37e.json' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/desk-person.test.ts' 'apps/web/src/lib/seller-navigation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests | 1 failed) 13ms
+   ❯ ИИ-продавец в меню (2)
+     × остаётся в Продажах до загрузки прав и при выключенном расширении 10ms
+     ✓ не открывает раздел платформы без прав администратора 1ms
+ ❯ |unit| apps/web/src/lib/navigation-roles.test.ts (15 tests | 3 failed) 24ms
+   ❯ меню по ролям (5)
+     ✓ у каждого пункта меню записано право — пункта «для всех по умолчанию» нет 2ms
+     × администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности 9ms
+     ✓ управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора 1ms
+     ✓ никто не вошёл — разделы по ролям не прячутся, «Платформа» — прячется 0ms
+     ✓ пока «кто вошёл» не известен, меню — как у администратора: не обещать лишнего 0ms
+   ✓ страница по адресу: какое право её открывает (4)
+     ✓ разделы меню и их вложенные адреса 1ms
+     ✓ адреса вне меню: настройки продавца и его агенты 0ms
+     ✓ первичная настройка не закрыта: туда гейт ведёт и администратора, страница говорит, кто настраивает 0ms
+     ✓ карточка ячейки и брони — работа смены, отдельного права нет 1ms
+   ✓ право вошедшего (4)
+     ✓ по роли; никто не вошёл — открыто, как в API без человека за запросом 1ms
+     ✓ роль не узнали (сбой `/auth/me`): меню и кнопки — как у администратора 0ms
+     ✓ страница по адресу: нет права — закрыта; роль не узнали — открыта, решает API, а не «нет доступа» 0ms
+     ✓ роль из `/auth/me`: незнакомая — администратор; никто не вошёл — роли нет 0ms
+   ❯ «ИИ-агенты» (S0) (2)
+     × пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела 1ms
+     × страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее 2ms
+ ❯ |unit| apps/web/src/lib/desk-person.test.ts (11 tests | 1 failed) 17ms
+   ❯ меню и подпись по тому, кто вошёл (ADR-083) (3)
+     ✓ «ИИ-продавец» — при действующем расширении и после срока; «Платформа» — главному администратору 4ms
+     × продавец виден для знакомства, а раздел «Платформа» без прав скрыт 7ms
+     ✓ подпись: имя и роль; без имени — почта; главный администратор — отдельно 1ms
+   ✓ строка пробного периода в меню (4)
+     ✓ пробный — сколько дней осталось; кончился — так и сказано 0ms
+     ✓ у оплаченной организации, без срока и без организации строки нет 0ms
+     ✓ оболочка несёт строку вошедшего; без вошедшего — пусто 0ms
+     ✓ обучение (ADR-100): ключ отметки — у вошедшего, без почты в ключе; без вошедшего — нет 0ms
+   ✓ deskShellOf — только чтение (4)
+     ✓ пробный срок вышел — полоса есть 0ms
+     ✓ переведена в «только чтение» руками — полоса есть 1ms
+     ✓ в срок, после оплаты и без организации в ответе — полосы нет 0ms
+     ✓ сбой ответа о вошедшем — полосы нет 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > меню и подпись по тому, кто вошёл (ADR-083) > продавец виден для знакомства, а раздел «Платформа» без прав скрыт
+AssertionError: expected [ '/today', '/chessboard', …(13) ] to include '/ai-agents'
+ ❯ apps/web/src/lib/desk-person.test.ts:40:57
+     38|
+     39|   it('продавец виден для знакомства, а раздел «Платформа» без прав скр…
+     40|     expect(hrefs({ aiSeller: false, platform: false })).toContain('/ai…
+       |                                                         ^
+     41|     expect(hrefs({ aiSeller: false, platform: false })).not.toContain(…
+     42|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > меню по ролям > администратор: работа с гостями, продавец (диалоги), оплаты и статистика, неисправности
+AssertionError: expected [ '/today', '/chessboard', …(6) ] to deeply equal [ '/today', '/chessboard', …(6) ]
+
+- Expected
++ Received
+
+  [
+    "/today",
+    "/chessboard",
+    "/reservations",
+    "/guests",
+-   "/ai-agents",
++   "/ai-seller",
+    "/finance",
+    "/management/analytics",
+    "/incidents",
+  ]
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:38:36
+     36|
+     37|   it('администратор: работа с гостями, продавец (диалоги), оплаты и ст…
+     38|     expect(hrefs(access('STAFF'))).toEqual([
+       |                                    ^
+     39|       '/today',
+     40|       '/chessboard',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > «ИИ-агенты» (S0) > пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела
+AssertionError: expected undefined to be 'ИИ-агенты' // Object.is equality
+
+- Expected:
+"ИИ-агенты"
+
++ Received:
+undefined
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:133:25
+    131|   it('пункт меню зовётся «ИИ-агенты» и ведёт на вход раздела', () => {
+    132|     const item = navigationItems.find((i) => i.href === '/ai-agents');
+    133|     expect(item?.label).toBe('ИИ-агенты');
+       |                         ^
+    134|     expect(navigationItems.some((i) => i.href === '/ai-seller')).toBe(…
+    135|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-roles.test.ts > «ИИ-агенты» (S0) > страницы продавца подсвечивают пункт «ИИ-агенты», право у них прежнее
+AssertionError: expected '/ai-seller' to be '/ai-agents' // Object.is equality
+
+Expected: "/ai-agents"
+Received: "/ai-seller"
+
+ ❯ apps/web/src/lib/navigation-roles.test.ts:138:50
+    136|
+    137|   it('страницы продавца подсвечивают пункт «ИИ-агенты», право у них пр…
+    138|     expect(activeNavigation('/ai-seller')?.href).toBe('/ai-agents');
+       |                                                  ^
+    139|     expect(activeNavigation('/ai-seller/dialogs')?.href).toBe('/ai-age…
+    140|     expect(routeRule('/ai-seller')?.requires).toBe('dialogs');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| apps/web/src/lib/seller-navigation.test.ts > ИИ-продавец в меню > остаётся в Продажах до загрузки прав и при выключенном расширении
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ apps/web/src/lib/seller-navigation.test.ts:7:67
+      5|   it('остаётся в Продажах до загрузки прав и при выключенном расширени…
+      6|     const sales = sidebarSectionsFor(CLOSED_ACCESS).find(section => se…
+      7|     expect(sales?.items.some(item => item.href === '/ai-agents')).toBe…
+       |                                                                   ^
+      8|   });
+      9|   it('не открывает раздел платформы без прав администратора', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  5 failed | 23 passed (28)
+   Start at  12:26:27
+   Duration  1.35s (transform 89%, import 9%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-09-29T12-26-26Z-unit-a37e.json
+
+# код выхода 1 · 3 с

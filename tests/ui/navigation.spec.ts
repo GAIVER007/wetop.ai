@@ -3,10 +3,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
 // Контракт меню: основные разделы доступны ровно по разу, настройки объекта — во внутренних вкладках.
-// «ИИ-продавец» в «Продажах» всегда, доступ проверяет сам раздел (ADR-090); «Платформа» — только по
+// «ИИ-агенты» в «Продажах» всегда, доступ проверяет сам раздел (ADR-090); «Платформа» — только по
 // отметке главного администратора (ADR-083, tests/ui/platform-access.spec.ts).
 const routes = [
-  '/ai-seller',
+  '/ai-agents',
   '/today',
   '/chessboard',
   '/reservations',

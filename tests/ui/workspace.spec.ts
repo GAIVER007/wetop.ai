@@ -303,6 +303,8 @@ test('шахматка: фильтры, продолжение брони, вы�
   await board.getByLabel('Поиск на шахматке').fill('M03');
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
   await page.getByTestId('free-cell').first().click();
+  // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
+  await page.getByTestId('free-menu').getByRole('link', { name: 'Новая бронь', exact: true }).click();
   await expect(page).toHaveURL(/unit=M03/);
   await expect(page.locator('select[name="accommodationTypeCode"]')).toHaveValue('MALE');
   await expect(page.locator('select[name="unitCode"]')).toHaveValue('M03');

@@ -1,5 +1,14 @@
 'use client';
-import { useActionState, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { normalizeClockTime } from '@pms/domain';
 import { Alert, Field, Input, Panel } from '../../components/ui';
 import type { HotelSettings } from '../../lib/hotel-api';
 import { saveHotelSettings, type SettingsActionResult } from './actions';
@@ -7,6 +16,12 @@ import { SETTINGS_FORM_ID, useSaveReport } from './settings-save';
 
 type Property = HotelSettings['property'];
 type FieldName = keyof Property;
+/** Проверка поля до отправки: причина словами или null. Ошибка стоит у поля (DESIGN.md §8: `aria-invalid` + текст под полем) */
+type Validate = (name: FieldName, raw: string) => string | null;
+type Check = (name: FieldName) => {
+  props: { 'aria-invalid'?: true; 'aria-describedby'?: string };
+  error: ReactNode;
+};
 
 /**
  * Одна форма вкладки «Настроек объекта» (ТЗ ux-retention п. 3.1, UQ-1; ТЗ «Настройки объекта» v2, ADR-115). Шлёт
@@ -18,12 +33,14 @@ function SettingsForm({
   property,
   fields,
   testId,
+  validate,
   children,
 }: {
   property: Property;
   fields: readonly FieldName[];
   testId: string;
-  children: (value: (name: FieldName) => string) => ReactNode;
+  validate?: Validate;
+  children: (value: (name: FieldName) => string, check: Check) => ReactNode;
 }) {
   const [state, action, pending] = useActionState<SettingsActionResult | null, FormData>(
     saveHotelSettings,
@@ -43,19 +60,61 @@ function SettingsForm({
   useEffect(recompute, [recompute, state]);
   useSaveReport({ dirty, pending, saved: !!state?.message && !dirty });
   const kept = state?.values;
+  const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
+  const errorPrefix = useId();
+  const checkField = (name: FieldName, raw: string) =>
+    setErrors((was) => {
+      const reason = validate?.(name, raw) ?? null;
+      if ((was[name] ?? null) === reason) return was;
+      const next = { ...was };
+      if (reason) next[name] = reason;
+      else delete next[name];
+      return next;
+    });
+  const fieldOf = (target: EventTarget) =>
+    target instanceof HTMLInputElement && (fields as readonly string[]).includes(target.name)
+      ? (target as HTMLInputElement & { name: FieldName })
+      : null;
+  const check: Check = (name) =>
+    errors[name]
+      ? {
+          props: { 'aria-invalid': true, 'aria-describedby': `${errorPrefix}-${name}` },
+          error: <Alert id={`${errorPrefix}-${name}`}>{errors[name]}</Alert>,
+        }
+      : { props: {}, error: null };
   return (
     <form
       id={SETTINGS_FORM_ID}
       ref={form}
       action={action}
       key={state?.attempt ?? 0}
-      onChange={recompute}
+      onChange={(event) => {
+        recompute();
+        // поле с ошибкой проверяем на ходу — как только ввод исправлен, причина уходит
+        const input = fieldOf(event.target);
+        if (input && errors[input.name]) checkField(input.name, input.value);
+      }}
+      onBlur={(event) => {
+        const input = fieldOf(event.target);
+        if (input && input.value.trim() !== '') checkField(input.name, input.value);
+      }}
+      onSubmit={(event) => {
+        if (!validate) return;
+        const data = new FormData(event.currentTarget);
+        const found: Partial<Record<FieldName, string>> = {};
+        for (const name of fields) {
+          const reason = validate(name, String(data.get(name) ?? ''));
+          if (reason) found[name] = reason;
+        }
+        setErrors(found);
+        if (Object.keys(found).length) event.preventDefault();
+      }}
       data-testid={testId}
       className="settings-form"
       noValidate
     >
       {state?.error && <Alert boxed>{state.error}</Alert>}
-      {children((name) => kept?.[name] ?? stored(name))}
+      {children((name) => kept?.[name] ?? stored(name), check)}
     </form>
   );
 }
@@ -104,19 +163,47 @@ export function GeneralSettingsForm({ property }: { property: Property }) {
   );
 }
 
+/** Время — всегда 24 часа (DESIGN.md §14): не `type="time"`, который рисует «02:00 PM» по языку браузера */
+const validateStay: Validate = (name, raw) =>
+  normalizeClockTime(raw) === null
+    ? `Время ${name === 'checkInTime' ? 'заезда' : 'выезда'} — в виде 14:00`
+    : null;
+
 export function StaySettingsForm({ property }: { property: Property }) {
   return (
-    <SettingsForm property={property} fields={STAY} testId="stay-form">
-      {(value) => (
-        <Panel className="settings-block" aria-labelledby="settings-stay" data-testid="stay-settings">
+    <SettingsForm property={property} fields={STAY} testId="stay-form" validate={validateStay}>
+      {(value, check) => (
+        <Panel
+          className="settings-block"
+          aria-labelledby="settings-stay"
+          data-testid="stay-settings"
+        >
           <h2 id="settings-stay">Заезд и выезд</h2>
           <div className="settings-fields settings-fields--times">
-            <Field label="Заезд с">
-              <Input name="checkInTime" type="time" required defaultValue={value('checkInTime')} />
-            </Field>
-            <Field label="Выезд до">
-              <Input name="checkOutTime" type="time" required defaultValue={value('checkOutTime')} />
-            </Field>
+            {(
+              [
+                ['checkInTime', 'Заезд с', '14:00'],
+                ['checkOutTime', 'Выезд до', '12:00'],
+              ] as const
+            ).map(([name, label, hint]) => {
+              const { props, error } = check(name);
+              return (
+                <Field key={name} label={label}>
+                  <Input
+                    name={name}
+                    required
+                    inputMode="numeric"
+                    autoComplete="off"
+                    maxLength={5}
+                    placeholder={hint}
+                    className="settings-time"
+                    defaultValue={value(name)}
+                    {...props}
+                  />
+                  {error}
+                </Field>
+              );
+            })}
           </div>
           <StayNote timezone={property.timezone} />
         </Panel>

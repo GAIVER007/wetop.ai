@@ -1,0 +1,47 @@
+# Сквозные (e2e) · 29.09.2026 00:09 Алматы · vm
+# коммит 1332e2f (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-blocks.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-blocks.spec.ts:20:1 › клетка блокировки заштрихована и называет тип словом (2.3s)
+  ✘  2 tests/ui/chessboard-blocks.spec.ts:46:1 › блокировка «с X до X+1» закрывает одну ночь X, как API; пустой период стенд отклоняет (164ms)
+
+
+  1) tests/ui/chessboard-blocks.spec.ts:46:1 › блокировка «с X до X+1» закрывает одну ночь X, как API; пустой период стенд отклоняет 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      63 |       data: { dateFrom, dateTo, type: 'MAINTENANCE', reason: 'тест' },
+      64 |     });
+    > 65 |   expect((await post(add(1), add(1))).status()).toBe(400);
+         |                                                 ^
+      66 |   expect((await post(add(1), add(2))).ok()).toBe(true);
+      67 |   await page.goto(`/chessboard?from=${add(-1)}&to=${add(5)}`);
+      68 |   const row = page.locator('[data-testid="unit-row"][data-unit-code="R07"]');
+        at /home/user/wetop.ai/tests/ui/chessboard-blocks.spec.ts:65:49
+
+    Error Context: test-results/chessboard-blocks-блокиров-1f166-стой-период-стенд-отклоняет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-blocks-блокиров-1f166-стой-период-стенд-отклоняет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-blocks-блокиров-1f166-стой-период-стенд-отклоняет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/chessboard-blocks.spec.ts:46:1 › блокировка «с X до X+1» закрывает одну ночь X, как API; пустой период стенд отклоняет 
+  1 passed (8.8s)
+
+# код выхода 1 · 10 с

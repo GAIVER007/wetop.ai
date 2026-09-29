@@ -173,6 +173,27 @@ export const hotelSettingsApi = {
   update: (patch: Record<string, string | null>) => sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 
+/** Услуга каталога «Настроек объекта» (SET3): весь каталог, с архивными; код — ссылка для правки, в стойке не виден */
+export interface CatalogService {
+  code: string;
+  name: string;
+  group: string | null;
+  priceMinor: string;
+  active: boolean;
+}
+export type CatalogServiceInput = {
+  name?: string;
+  group?: string | null;
+  price?: string;
+  active?: boolean;
+};
+export const serviceCatalogApi = {
+  list: () => getJson<CatalogService[]>('/hotel/services'),
+  create: (input: CatalogServiceInput) => sendJson<CatalogService>('POST', '/hotel/services', input),
+  update: (code: string, input: CatalogServiceInput) =>
+    sendJson<CatalogService>('PATCH', `/hotel/services/${encodeURIComponent(code)}`, input),
+};
+
 /** Где лежат данные гостей (ADR-072): `real` — база в Казахстане; `pseudonymized` — имена и контакты не хранятся */
 export type PiiStorage = 'real' | 'pseudonymized';
 

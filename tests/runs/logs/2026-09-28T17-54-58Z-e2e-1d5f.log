@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 28.09.2026 22:54 Алматы · vm
+# коммит e0ac75f (HEAD), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'вложенная страница раздела'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/navigation.spec.ts:120:1 › вложенная страница раздела подсвечивает свой пункт меню (5.5s)
+
+  1 passed (10.8s)
+
+# код выхода 0 · 12 с

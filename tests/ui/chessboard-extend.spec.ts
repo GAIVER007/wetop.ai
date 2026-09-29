@@ -57,7 +57,7 @@ test('мышь: правый край добавляет две ночи тол�
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
   await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 });
-  await expect(page.getByRole('status').filter({ hasText: '+2 ноч.' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '+2 ночи' })).toBeVisible();
   await page.mouse.up();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText('2 ноч');

@@ -22,3 +22,4 @@ export const LUXX_APARTS_PROPERTY = {
 
 export type PropertySpec = { -readonly [K in keyof typeof LUXX_APARTS_PROPERTY]: string };
 export * from './settings';
+export * from './services';

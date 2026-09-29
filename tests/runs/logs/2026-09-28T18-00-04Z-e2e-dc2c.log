@@ -1,0 +1,217 @@
+# Сквозные (e2e) · 28.09.2026 23:00 Алматы · vm
+# коммит 17fda46 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-range.spec.ts' 'tests/ui/chessboard-week.spec.ts' 'tests/ui/chessboard-month.spec.ts' 'tests/ui/workspace.spec.ts' '-g' 'протянул|выделение не|щелчок по свободной|только чтение|неделя, 14 дней|в месяце открываются|выбранная койка' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/chessboard-month.spec.ts:117:1 › в месяце открываются брони, свободные даты и группы номеров (45.5s)
+  ✘  2 tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена (17.1s)
+  ✘  3 tests/ui/chessboard-range.spec.ts:85:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево (18.2s)
+  ✘  4 tests/ui/chessboard-range.spec.ts:127:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом (17.1s)
+  ✘  5 tests/ui/chessboard-range.spec.ts:150:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает (17.9s)
+  ✘  6 tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (45.2s)
+
+
+  1) tests/ui/chessboard-month.spec.ts:117:1 › в месяце открываются брони, свободные даты и группы номеров 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('free-menu').getByRole('link', { name: 'Новая бронь', exact: true })
+
+
+      147 |     .getByTestId('free-menu')
+      148 |     .getByRole('link', { name: 'Новая бронь', exact: true })
+    > 149 |     .click();
+          |      ^
+      150 |   const form = page.getByTestId('new-reservation-form');
+      151 |   await expect(form.locator('[name="arrivalDate"]')).toHaveValue(
+      152 |     expected.searchParams.get('arrival')!,
+        at /home/user/wetop.ai/tests/ui/chessboard-month.spec.ts:149:6
+
+    Error Context: test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-month-в-месяце--4ca2d-одные-даты-и-группы-номеров/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByTestId('drop-ghost')
+    Expected: "range"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByTestId('drop-ghost') with timeout 15000ms
+      - waiting for getByTestId('drop-ghost')
+
+
+      56 |   await sweep(page, cell(page, 'R07', today), cell(page, 'R07', add(today, 2)));
+      57 |   const ghost = page.getByTestId('drop-ghost');
+    > 58 |   await expect(ghost).toHaveAttribute('data-tone', 'range');
+         |                       ^
+      59 |   await expect(ghost).toHaveText('3 ночи');
+      60 |   await page.mouse.up();
+      61 |
+        at /home/user/wetop.ai/tests/ui/chessboard-range.spec.ts:58:23
+
+    Error Context: test-results/chessboard-range-протянул--00ca9-атами-форма-брони-заполнена/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-range-протянул--00ca9-атами-форма-брони-заполнена/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-range-протянул--00ca9-атами-форма-брони-заполнена/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-range.spec.ts:85:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('drop-ghost')
+    Expected: "2 ночи"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('drop-ghost') with timeout 15000ms
+      - waiting for getByTestId('drop-ghost')
+
+
+      104 |   await page.reload();
+      105 |   await sweep(page, cell(page, 'R08', today), cell(page, 'R08', add(today, 4)));
+    > 106 |   await expect(page.getByTestId('drop-ghost')).toHaveText('2 ночи');
+          |                                                ^
+      107 |   await page.mouse.up();
+      108 |   await expect(page.getByTestId('free-menu').getByTestId('free-menu-dates')).toContainText(
+      109 |     '2 ночи',
+        at /home/user/wetop.ai/tests/ui/chessboard-range.spec.ts:106:48
+
+    Error Context: test-results/chessboard-range-выделение-b82de-ю-ночь-—-ни-вправо-ни-влево/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-range-выделение-b82de-ю-ночь-—-ни-вправо-ни-влево/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-range-выделение-b82de-ю-ночь-—-ни-вправо-ни-влево/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-range.spec.ts:127:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('free-menu').getByTestId('free-menu-state')
+    Expected: "Свободен"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('free-menu').getByTestId('free-menu-state') with timeout 15000ms
+      - waiting for getByTestId('free-menu').getByTestId('free-menu-state')
+
+
+      134 |   await expect(page).toHaveURL(/\/chessboard/);
+      135 |   const menu = page.getByTestId('free-menu');
+    > 136 |   await expect(menu.getByTestId('free-menu-state')).toHaveText('Свободен');
+          |                                                     ^
+      137 |   await expect(menu.getByRole('link', { name: 'Новая бронь', exact: true })).toHaveAttribute(
+      138 |     'href',
+      139 |     `/reservations/new?arrival=${night}&departure=${add(night, 1)}&unit=R07`,
+        at /home/user/wetop.ai/tests/ui/chessboard-range.spec.ts:136:53
+
+    Error Context: test-results/chessboard-range-щелчок-по-fb414--карточка-ячейки-с-периодом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-range-щелчок-по-fb414--карточка-ячейки-с-периодом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-range-щелчок-по-fb414--карточка-ячейки-с-периодом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-range.spec.ts:150:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('free-menu').getByTestId('free-menu-state')
+    Expected: "Свободен"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('free-menu').getByTestId('free-menu-state') with timeout 15000ms
+      - waiting for getByTestId('free-menu').getByTestId('free-menu-state')
+
+
+      161 |   await cell(page, 'R07', add(today, 1)).click();
+      162 |   const menu = page.getByTestId('free-menu');
+    > 163 |   await expect(menu.getByTestId('free-menu-state')).toHaveText('Свободен');
+          |                                                     ^
+      164 |   await expect(menu.getByRole('link')).toHaveCount(0);
+      165 |   await request.post(`${fixture}/__test/reset`);
+      166 | });
+        at /home/user/wetop.ai/tests/ui/chessboard-range.spec.ts:163:53
+
+    Error Context: test-results/chessboard-range-«только-ч-8d4f6-о-но-действий-не-предлагает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-range-«только-ч-8d4f6-о-но-действий-не-предлагает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-range-«только-ч-8d4f6-о-но-действий-не-предлагает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('free-menu').getByRole('link', { name: 'Новая бронь', exact: true })
+
+
+      298 |   await page.getByTestId('free-cell').first().click();
+      299 |   // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
+    > 300 |   await page.getByTestId('free-menu').getByRole('link', { name: 'Новая бронь', exact: true }).click();
+          |                                                                                               ^
+      301 |   await expect(page).toHaveURL(/unit=M03/);
+      302 |   await expect(page.locator('select[name="accommodationTypeCode"]')).toHaveValue('MALE');
+      303 |   await expect(page.locator('select[name="unitCode"]')).toHaveValue('M03');
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:300:95
+
+    Error Context: test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-шахматка-фильтры-8d7d7-они-выбранная-койка-в-форме/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/chessboard-month.spec.ts:117:1 › в месяце открываются брони, свободные даты и группы номеров 
+    tests/ui/chessboard-range.spec.ts:51:1 › протянул по свободным ночам: «N ночей» под мышью, окошко с номером и датами, форма брони заполнена 
+    tests/ui/chessboard-range.spec.ts:85:1 › выделение не заходит на занятую или закрытую ночь — ни вправо, ни влево 
+    tests/ui/chessboard-range.spec.ts:127:1 › щелчок по свободной клетке: «Свободен», «Новая бронь», «Блокировка» — карточка ячейки с периодом 
+    tests/ui/chessboard-range.spec.ts:150:1 › «только чтение» (ADR-102): окошко говорит, что свободно, но действий не предлагает 
+    tests/ui/workspace.spec.ts:280:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме 
+
+# код выхода 1 · 2 мин 53 с

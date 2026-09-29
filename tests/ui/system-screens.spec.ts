@@ -276,7 +276,7 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByTestId('settings-error')).toHaveCount(0);
   // отказ настроек на «Услугах»: сбой с повтором вместо общего экрана
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/services' } });
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/services' } });
   await page.goto('/hotel-settings/services');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
   await expect(main.getByTestId('services-error')).toContainText(
@@ -291,7 +291,7 @@ test('настройки объекта: сбой с повтором, пуст�
   await request.post(`${fixture}/__test/control`, { data: {} });
   // загрузка словом
   await request.post(`${fixture}/__test/control`, {
-    data: { delayPath: '/finance/services', delayMs: 2500 },
+    data: { delayPath: '/hotel/services', delayMs: 2500 },
   });
   await page.goto('/hotel-settings/services', { waitUntil: 'commit' });
   await expect(main.getByTestId('settings-loading')).toContainText('Читаем настройки объекта');

@@ -1,0 +1,142 @@
+# Модульные (unit) · 28.09.2026 13:39 Алматы · vm
+# коммит 1b187fa (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T08-39-37Z-unit-e2bf.json' 'packages/domain/src/property/services.test.ts' 'apps/api/src/hotel/services-catalog.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/property/services.test.ts (0 test)
+ ❯ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests | 6 failed) 32ms
+   ❯ каталог услуг в «Настройках объекта» (6)
+     × список — весь каталог, с архивными, цена строкой тиынов 10ms
+     × владелец создаёт услугу: код даёт система, запись — в журнал 2ms
+     × управляющий меняет цену и отправляет в архив — «было/стало» только по изменённому 1ms
+     × без изменений — ни записи, ни строки журнала 1ms
+     × администратор каталог не правит и не читает 12ms
+     × неверный ввод и чужой код — отказ словами 3ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/property/services.test.ts [ packages/domain/src/property/services.test.ts ]
+Error: Cannot find module './services' imported from /home/user/wetop.ai/packages/domain/src/property/services.test.ts
+ ❯ packages/domain/src/property/services.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { normalizeClockTime, parseHotelSettingsPatch } from './setting…
+      3| import { parseServiceInput } from './services';
+       | ^
+      4|
+      5| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/services-catalog.test.ts > каталог услуг в «Настройках объекта» > список — весь каталог, с архивными, цена строкой тиынов
+TypeError: service.serviceCatalog is not a function
+ ❯ apps/api/src/hotel/services-catalog.test.ts:72:52
+     70|   it('список — весь каталог, с архивными, цена строкой тиынов', async …
+     71|     const { service } = setup([water, { ...water, id: 'svc-2', code: '…
+     72|     const list = await as('MANAGER', () => service.serviceCatalog());
+       |                                                    ^
+     73|     expect(list).toEqual([
+     74|       { code: 'WATER', name: 'Вода 0,5', group: 'Минибар', priceMinor:…
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ as apps/api/src/hotel/services-catalog.test.ts:57:3
+ ❯ apps/api/src/hotel/services-catalog.test.ts:72:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| apps/api/src/hotel/services-catalog.test.ts > каталог услуг в «Настройках объекта» > владелец создаёт услугу: код даёт система, запись — в журнал
+TypeError: service.createService is not a function
+ ❯ apps/api/src/hotel/services-catalog.test.ts:82:15
+     80|     const { service, db } = setup();
+     81|     const created = await as('OWNER', () =>
+     82|       service.createService({ name: 'Трансфер', group: 'Трансфер', pri…
+       |               ^
+     83|     );
+     84|     expect(created).toMatchObject({ name: 'Трансфер', priceMinor: '800…
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ as apps/api/src/hotel/services-catalog.test.ts:57:3
+ ❯ apps/api/src/hotel/services-catalog.test.ts:81:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| apps/api/src/hotel/services-catalog.test.ts > каталог услуг в «Настройках объекта» > управляющий меняет цену и отправляет в архив — «было/стало» только по изменённому
+TypeError: service.updateService is not a function
+ ❯ apps/api/src/hotel/services-catalog.test.ts:108:39
+    106|   it('управляющий меняет цену и отправляет в архив — «было/стало» толь…
+    107|     const { service, db } = setup([water]);
+    108|     await as('MANAGER', () => service.updateService('WATER', { price: …
+       |                                       ^
+    109|     expect(db.service.update).toHaveBeenCalledWith({
+    110|       where: { id: 'svc-1' },
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ as apps/api/src/hotel/services-catalog.test.ts:57:3
+ ❯ apps/api/src/hotel/services-catalog.test.ts:108:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| apps/api/src/hotel/services-catalog.test.ts > каталог услуг в «Настройках объекта» > без изменений — ни записи, ни строки журнала
+TypeError: service.updateService is not a function
+ ❯ apps/api/src/hotel/services-catalog.test.ts:126:37
+    124|   it('без изменений — ни записи, ни строки журнала', async () => {
+    125|     const { service, db } = setup([water]);
+    126|     await as('OWNER', () => service.updateService('WATER', { price: '7…
+       |                                     ^
+    127|     expect(db.service.update).not.toHaveBeenCalled();
+    128|     expect(db.auditLog.create).not.toHaveBeenCalled();
+ ❯ apps/api/src/auth/request-context.ts:41:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:41:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:53:10
+ ❯ as apps/api/src/hotel/services-catalog.test.ts:57:3
+ ❯ apps/api/src/hotel/services-catalog.test.ts:126:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| apps/api/src/hotel/services-catalog.test.ts > каталог услуг в «Настройках объекта» > администратор каталог не правит и не читает
+AssertionError: expected [Function] to throw error including '«Настройки гостиницы»: доступ есть у …' but got 'service.createService is not a functi…'
+
+Expected: "«Настройки гостиницы»: доступ есть у владельца и управляющего."
+Received: "service.createService is not a function"
+
+ ❯ apps/api/src/hotel/services-catalog.test.ts:134:91
+    132|     const { service, db } = setup([water]);
+    133|     const denied = accessDeniedMessage('settings');
+    134|     await expect(as('STAFF', () => service.createService({ name: 'Вода…
+       |                                                                                           ^
+    135|     await expect(as('STAFF', () => service.updateService('WATER', { pr…
+    136|     await expect(as('STAFF', () => service.serviceCatalog())).rejects.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| apps/api/src/hotel/services-catalog.test.ts > каталог услуг в «Настройках объекта» > неверный ввод и чужой код — отказ словами
+AssertionError: expected [Function] to throw error including 'Цена — больше нуля, например 700 или …' but got 'service.createService is not a functi…'
+
+Expected: "Цена — больше нуля, например 700 или 700,50"
+Received: "service.createService is not a function"
+
+ ❯ apps/api/src/hotel/services-catalog.test.ts:143:89
+    141|   it('неверный ввод и чужой код — отказ словами', async () => {
+    142|     const { service } = setup([water]);
+    143|     await expect(as('OWNER', () => service.createService({ name: 'Вода…
+       |                                                                                         ^
+    144|       'Цена — больше нуля, например 700 или 700,50',
+    145|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  6 failed (6)
+   Start at  08:39:40
+   Duration  2.18s (transform 74%, import 24%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T08-39-37Z-unit-e2bf.json
+
+# код выхода 1 · 5 с

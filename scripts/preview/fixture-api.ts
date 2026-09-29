@@ -40,6 +40,7 @@ import {
   mayAssignPlanWithoutRates,
   parseInviteRole,
   parseHotelSettingsPatch,
+  parseServiceInput,
   type ExtensionStatus,
   type InviteRole,
   type MembershipRole,
@@ -599,12 +600,12 @@ function seedDesign() {
     extraCards.set(r.confirmationNumber, r);
     extraGuests.set(g.id, g);
   });
-  // блокировки с причиной и три статуса уборки
+  // блокировки с причиной и три статуса уборки; «по» не включается, как у API (с 28.09.2026)
   blocks.set('R09', [
     {
       id: 'dsg-block-1',
       dateFrom: today,
-      dateTo: add(today, 3),
+      dateTo: add(today, 4),
       type: 'MAINTENANCE',
       reason: 'ремонт: кондиционер',
     },
@@ -613,7 +614,7 @@ function seedDesign() {
     {
       id: 'dsg-block-2',
       dateFrom: add(today, -1),
-      dateTo: add(today, 1),
+      dateTo: add(today, 2),
       type: 'OUT_OF_ORDER',
       reason: 'нет матраса',
     },
@@ -622,7 +623,7 @@ function seedDesign() {
     {
       id: 'dsg-block-3',
       dateFrom: add(today, 1),
-      dateTo: add(today, 5),
+      dateTo: add(today, 6),
       type: 'MANAGEMENT',
       reason: 'резерв владельца',
     },
@@ -757,6 +758,23 @@ function seedAnalyticsHistory() {
 let noBookings = false;
 /** Правки «Общих» настроек владельцем (ТЗ ux-retention п. 3.1) поверх сведений стенда */
 let hotelOverrides: Record<string, string | null> = {};
+/**
+ * Каталог услуг «Настроек объекта» (SET3): как `GET /hotel/services` — весь, с архивными. Выбор услуги в счёте
+ * (`/finance/services`) видит только активные и в том же порядке — «Стирка» первой, как было до каталога.
+ */
+type FixtureService = { code: string; name: string; group: string | null; priceMinor: string; active: boolean };
+const serviceSeed: FixtureService[] = [
+  { code: 'LAUNDRY', name: 'Стирка', group: null, priceMinor: '150000', active: true },
+  { code: 'WATER', name: 'Вода 0,5', group: 'Минибар', priceMinor: '70000', active: true },
+  { code: 'BAIKAL', name: 'Байкал в стекле', group: 'Минибар', priceMinor: '70000', active: true },
+  { code: 'TRANSFER-OLD', name: 'Трансфер (старая цена)', group: 'Трансфер', priceMinor: '600000', active: false },
+];
+let serviceCatalog: FixtureService[] = structuredClone(serviceSeed);
+const catalogOrder = (a: FixtureService, b: FixtureService) =>
+  Number(b.active) - Number(a.active) ||
+  (a.group === null ? 1 : 0) - (b.group === null ? 1 : 0) ||
+  (a.group ?? '').localeCompare(b.group ?? '', 'ru') ||
+  a.name.localeCompare(b.name, 'ru');
 /** Бронь создана на стенде после «пустой базы» — для «Первых шагов» (ТЗ ux-retention п. 2.1) */
 let createdReservation = false;
 // Новый отель без фонда: гейт уводит на /onboarding. По умолчанию отель настроен (false),
@@ -867,6 +885,11 @@ let priceChanges: Array<{
  * в `POST /__test/control` вместе с витриной конфликтов среза 7.3. Все брони и гости вымышленные (ADR-010).
  */
 let showcase = false;
+/**
+ * Сопоставления Channex для вкладки «Сопоставление» (ADR-112): по умолчанию их нет, как у стенда без
+ * `setup`; 'partial' — объект создан, две категории из трёх сопоставлены с тарифом BASE, третья нет.
+ */
+let channelMapping: 'none' | 'partial' = 'none';
 let showcaseEvents: InboundEvent[] = [];
 const showcaseRevisions = new Map<string, RevisionFacts>();
 let showcaseOutbox: OutboxRow[] = [];
@@ -1317,7 +1340,8 @@ function board(from: string, to: string): Chessboard {
   const rows = units.map((u) => ({
     unit: { id: u.code, ...u, housekeepingStatus: hk(u.code) },
     cells: days.map((date) => {
-      const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date <= b.dateTo);
+      // как настоящий API: «по» не включается — ночь dateTo свободна (build.ts, units.service.ts)
+      const block = blocksFor(u.code).find((b) => b.dateFrom <= date && date < b.dateTo);
       if (block)
         return {
           date,
@@ -1503,7 +1527,7 @@ const unitBusy = (code: string, from: string, to: string, except?: { id: string 
         x.arrivalDate < to &&
         x.departureDate > from,
     ),
-  ) || blocksFor(code).some((b) => b.dateFrom < to && b.dateTo >= from);
+  ) || blocksFor(code).some((b) => b.dateFrom < to && b.dateTo > from);
 const retotal = (r: ReservationCard) => {
   r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
 };
@@ -2230,6 +2254,7 @@ function read(path: string, q: URLSearchParams): unknown {
     // календарь цен без справочника: экран показывает пустое состояние с причиной (D4)
     if (path === '/rates/options') return { categories: [], ratePlans: [] };
     if (path === '/finance/services') return [];
+    if (path === '/hotel/services') return [];
     if (path === '/hotel/channel-report')
       return { from: q.get('from'), to: q.get('to'), status: q.get('status'), rows: [] };
     if (['/guests', '/analytics/sites', '/inventory/units', '/inventory/categories'].includes(path))
@@ -2527,7 +2552,7 @@ function read(path: string, q: URLSearchParams): unknown {
               it.arrivalDate < departure &&
               it.departureDate > arrival,
           ),
-        ) && !blocksFor(u.code).some((b) => b.dateFrom < departure && b.dateTo >= arrival),
+        ) && !blocksFor(u.code).some((b) => b.dateFrom < departure && b.dateTo > arrival),
     );
     return {
       arrivalDate: arrival,
@@ -2907,7 +2932,10 @@ function read(path: string, q: URLSearchParams): unknown {
     return r ? finance(r) : undefined;
   }
   if (path === '/finance/services')
-    return [{ code: 'LAUNDRY', nameRu: 'Стирка', nameKz: null, priceMinor: '150000', group: null }];
+    return serviceCatalog
+      .filter((x) => x.active)
+      .map((x) => ({ code: x.code, nameRu: x.name, nameKz: null, priceMinor: x.priceMinor, group: x.group }));
+  if (path === '/hotel/services') return [...serviceCatalog].sort(catalogOrder);
   if (path === '/finance/report')
     return {
       ...finance(),
@@ -3102,8 +3130,9 @@ function read(path: string, q: URLSearchParams): unknown {
       apiConfigured: true,
       propertyId: 'ui-property',
       propertyAccessible: true,
-      mappedCategories: 3,
-      mappedRatePlans: 3,
+      // частичное сопоставление: две категории из трёх — как строки `/channels/channex/mapping`
+      mappedCategories: channelMapping === 'partial' ? 2 : 3,
+      mappedRatePlans: channelMapping === 'partial' ? 2 : 3,
       lastWebhookAt: null as string | null,
       lastPullAt: null as string | null,
       state: 'READY',
@@ -3126,7 +3155,37 @@ function read(path: string, q: URLSearchParams): unknown {
     return base;
   }
   if (path === '/channels/channex/mapping')
-    return channexLive()
+    return channelMapping === 'partial'
+      ? [
+          {
+            id: 'ui-map-property',
+            localAccommodationTypeCode: null,
+            localRatePlanId: null,
+            localRatePlanCode: null,
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: null,
+            providerRatePlanId: null,
+          },
+          {
+            id: 'ui-map-room',
+            localAccommodationTypeCode: 'ROOM',
+            localRatePlanId: 'ui-plan-base',
+            localRatePlanCode: 'BASE',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: 'ui-rt-room',
+            providerRatePlanId: 'ui-rp-room',
+          },
+          {
+            id: 'ui-map-male',
+            localAccommodationTypeCode: 'MALE',
+            localRatePlanId: 'ui-plan-base',
+            localRatePlanCode: 'BASE',
+            providerPropertyId: 'ui-property',
+            providerRoomTypeId: 'ui-rt-male',
+            providerRatePlanId: 'ui-rp-male',
+          },
+        ]
+      : channexLive()
       ? [
           { id: 'ui-map-property', localAccommodationTypeCode: null, localRatePlanId: null, localRatePlanCode: null, providerPropertyId: 'ui-property', providerRoomTypeId: null, providerRatePlanId: null },
           ...categories.slice(0, 3).map((c) => ({
@@ -3140,6 +3199,14 @@ function read(path: string, q: URLSearchParams): unknown {
           })),
         ]
       : [];
+  // названия номеров и тарифов Channex (как GET content/names): только когда объект «создан»
+  if (path === '/channels/channex/content/names')
+    return channelMapping === 'partial'
+      ? {
+          roomTypes: { 'ui-rt-room': 'Double Room', 'ui-rt-male': 'Male Dorm Bed' },
+          ratePlans: { 'ui-rp-room': 'OTA Rate · Double', 'ui-rp-male': 'OTA Rate · Male Dorm' },
+        }
+      : { roomTypes: {}, ratePlans: {} };
   if (path === '/channels/channex/outbox' && channexMode === 'stale')
     return { pending: 5, failed: 0, sent: 405, lastSentAt: new Date(Date.now() - 200 * 60_000).toISOString(), lastTaskId: 'ui-task-4f2a', oldestPendingAt: new Date(Date.now() - 40 * 60_000).toISOString() };
   if (path === '/channels/channex/outbox' && channexMode === 'webhook')
@@ -3456,10 +3523,12 @@ createServer(async (req, res) => {
       channexMode = '';
       ratesUnmapped = false;
       incidentHistory = 0;
+      channelMapping = 'none';
       emptyFixture = false;
       noBookings = false;
       createdReservation = false;
       hotelOverrides = {};
+      serviceCatalog = structuredClone(serviceSeed);
       onboardingNeeded = false;
       housekeeping.clear();
       blocks.clear();
@@ -3504,6 +3573,7 @@ createServer(async (req, res) => {
       if (body['analyticsHistory'] === true) seedAnalyticsHistory();
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
+      channelMapping = body['channelMapping'] === 'partial' ? 'partial' : 'none';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -4488,6 +4558,35 @@ createServer(async (req, res) => {
       return send(404, { message: 'Not Found' });
     // Регистрация по паролю (ADR-053, ADR-060): почта, имя, пароль, письмо, подтверждение почты.
     if (path === '/auth/options' && req.method === 'GET') return send(200, { registrationEnabled });
+    // Каталог услуг (SET3): тот же разбор, что у API, и те же права — владелец и управляющий (`settings`)
+    if (path === '/hotel/services' && req.method === 'POST') {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      const parsed = parseServiceInput(body);
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const v = parsed.value;
+      const row: FixtureService = {
+        code: `svc-${Math.random().toString(16).slice(2, 10).padEnd(8, '0')}`,
+        name: v.name!,
+        group: v.group ?? null,
+        priceMinor: v.priceMinor!.toString(),
+        active: v.active ?? true,
+      };
+      serviceCatalog.push(row);
+      return send(201, row);
+    }
+    if (path.startsWith('/hotel/services/') && req.method === 'PATCH') {
+      if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
+      const row = serviceCatalog.find((x) => x.code === decodeURIComponent(path.split('/')[3]!));
+      if (!row) return send(404, { message: 'Услуга не найдена' });
+      const parsed = parseServiceInput(body, { partial: true });
+      if (!parsed.ok) return send(400, { message: parsed.reason });
+      const v = parsed.value;
+      if (v.name !== undefined) row.name = v.name;
+      if (v.group !== undefined) row.group = v.group;
+      if (v.priceMinor !== undefined) row.priceMinor = v.priceMinor.toString();
+      if (v.active !== undefined) row.active = v.active;
+      return send(200, row);
+    }
     if (path === '/hotel/settings' && req.method === 'PATCH') {
       // как API: право `settings` — владелец и управляющий (ADR-107)
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
@@ -4662,7 +4761,15 @@ createServer(async (req, res) => {
           code!,
           blocksFor(code!).filter((b) => b.id !== blockId),
         );
-      else if (command === 'blocks')
+      else if (command === 'blocks') {
+        const from = String(body['dateFrom'] ?? '');
+        const to = String(body['dateTo'] ?? '');
+        const iso = /^\d{4}-\d{2}-\d{2}$/;
+        // как настоящий API (units.service.ts): пустой или перевёрнутый период — 400
+        if (!iso.test(from) || !iso.test(to) || to <= from)
+          return send(400, {
+            message: 'dateFrom/dateTo — даты YYYY-MM-DD, dateTo > dateFrom (ночь выезда не блокируется)',
+          });
         blocks.set(code!, [
           ...blocksFor(code!),
           {
@@ -4673,7 +4780,7 @@ createServer(async (req, res) => {
             reason: String(body['reason'] ?? ''),
           },
         ]);
-      else return send(404, { message: 'Операция не найдена' });
+      } else return send(404, { message: 'Операция не найдена' });
       return send(200, read(`/units/${code}`, url.searchParams));
     }
     if (path === '/rates/bulk') {

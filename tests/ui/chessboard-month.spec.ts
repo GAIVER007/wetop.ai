@@ -142,6 +142,11 @@ test('в месяце открываются брони, свободные да
   const href = await lastFree.getAttribute('href');
   const expected = new URL(href!, 'http://127.0.0.1:3100');
   await lastFree.click();
+  // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
+  await page
+    .getByTestId('free-menu')
+    .getByRole('link', { name: 'Новая бронь', exact: true })
+    .click();
   const form = page.getByTestId('new-reservation-form');
   await expect(form.locator('[name="arrivalDate"]')).toHaveValue(
     expected.searchParams.get('arrival')!,

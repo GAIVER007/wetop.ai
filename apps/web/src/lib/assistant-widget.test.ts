@@ -30,16 +30,16 @@ describe('assistantScriptSrc — адрес скрипта по ASSISTANT_URL', 
 
   it('скрипт лежит у помощника по /widget/widget.js; слеш в конце адреса не удваивается', () => {
     expect(assistantScriptSrc('https://assistant.wetop.ai')).toBe(
-      'https://assistant.wetop.ai/widget/widget.js',
+      'https://assistant.wetop.ai/widget/widget.js?v=20260929',
     );
     expect(assistantScriptSrc('https://assistant.wetop.ai/')).toBe(
-      'https://assistant.wetop.ai/widget/widget.js',
+      'https://assistant.wetop.ai/widget/widget.js?v=20260929',
     );
   });
 
   it('путь в адресе сохраняется', () => {
     expect(assistantScriptSrc('http://127.0.0.1:8000/bot')).toBe(
-      'http://127.0.0.1:8000/bot/widget/widget.js',
+      'http://127.0.0.1:8000/bot/widget/widget.js?v=20260929',
     );
   });
 
@@ -53,14 +53,14 @@ describe('assistantScriptSrc — адрес скрипта по ASSISTANT_URL', 
 describe('assistantScriptProps — атрибуты тега', () => {
   it('вошедшему — подпись в data-identity', () => {
     expect(assistantScriptProps('https://assistant.wetop.ai', 'abc.def')).toEqual({
-      src: 'https://assistant.wetop.ai/widget/widget.js',
+      src: 'https://assistant.wetop.ai/widget/widget.js?v=20260929',
       'data-identity': 'abc.def',
     });
   });
 
   it('невошедшему атрибута data-identity нет совсем, а не пустой', () => {
     const props = assistantScriptProps('https://assistant.wetop.ai', null);
-    expect(props).toEqual({ src: 'https://assistant.wetop.ai/widget/widget.js' });
+    expect(props).toEqual({ src: 'https://assistant.wetop.ai/widget/widget.js?v=20260929' });
     expect(props && 'data-identity' in props).toBe(false);
   });
 

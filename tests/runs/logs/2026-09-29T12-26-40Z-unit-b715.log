@@ -1,0 +1,18 @@
+# Модульные (unit) · 29.09.2026 17:26 Алматы · vm
+# коммит 5f43f69 (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T12-26-40Z-unit-b715.json' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/desk-person.test.ts' 'apps/web/src/lib/seller-navigation.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (15 tests) 9ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 9ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 11ms
+
+ Test Files  3 passed (3)
+      Tests  28 passed (28)
+   Start at  12:26:41
+   Duration  1.12s (transform 88%, import 10%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T12-26-40Z-unit-b715.json
+
+# код выхода 0 · 2 с

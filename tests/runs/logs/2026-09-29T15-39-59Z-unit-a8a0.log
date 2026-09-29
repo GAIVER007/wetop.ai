@@ -1,0 +1,59 @@
+# Модульные (unit) · 29.09.2026 20:39 Алматы · MacBook-Air-Urij.local
+# коммит 3be9b67 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-29T15-39-59Z-unit-a8a0.json' 'apps/web/src/design-rules.test.ts' 'tests/unit/desk-glass.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (5 tests) 4ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 114ms
+ ❯ |unit| apps/web/src/design-rules.test.ts (13 tests | 1 failed) 244ms
+   ❯ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 34ms
+     ✓ шрифта мельче 12 px нет 14ms
+     ✓ начертания только из шкалы 400 / 500 / 600 / 700 16ms
+     ✓ литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт) 6ms
+     × стрелок в конце текста ссылок нет — ссылка названа словом (§14) 75ms
+     ✓ «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола 15ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 26ms
+     ✓ отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09) 7ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 14ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 21ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ «перейти к содержимому» на --primary пишется цветом --on-primary 1ms
+     ✓ на шахматке инлайн-фон клетки — backgroundColor, не сокращение background 1ms
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > стрелок в конце текста ссылок нет — ссылка названа словом (§14)
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/inventory/category-catalog 2.tsx",
++   "app/rooms/availability-finder 2.tsx",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:96:20
+     94|       .filter((f) => /(→|›)\s*<\/(?:Link|a)>/.test(readFileSync(f, 'ut…
+     95|       .map((f) => relative(SRC, f));
+     96|     expect(guilty).toEqual([]);
+       |                    ^
+     97|   });
+     98|   it('«шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradie…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 31 passed (32)
+   Start at  19:40:05
+   Duration  514ms (tests 66%, transform 24%, import 8%, worker 2%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-29T15-39-59Z-unit-a8a0.json
+
+# код выхода 1 · 6 с

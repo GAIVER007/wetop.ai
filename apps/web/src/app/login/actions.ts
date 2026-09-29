@@ -101,19 +101,22 @@ function errorText(e: unknown): string {
 // Вход по коду на почту снят 20.09.2026 (ADR-053): requestCodeAction и verifyAction ушли вместе с ним.
 
 /**
- * Регистрация: почта, имя, пароль (ADR-053, ADR-060). Сессия здесь не открывается: API шлёт письмо,
- * и человек уходит на экран «подтвердите почту». Рабочее пространство называется именем человека:
- * отдельного поля в форме владелец не просил.
+ * Регистрация: почта, имя, название отеля, пароль, телефон и согласие с политикой (ADR-053, ADR-060;
+ * форма 29.09.2026). Сессия здесь не открывается: API шлёт письмо, и человек уходит на экран «подтвердите почту».
  */
-export async function registerAction(
-  email: string,
-  name: string,
-  hotelName: string,
-  password: string,
-): Promise<AuthActionResult> {
+export async function registerAction(input: {
+  email: string;
+  name: string;
+  hotelName: string;
+  password: string;
+  phoneCountry: string;
+  phone: string;
+  privacyAccepted: boolean;
+}): Promise<AuthActionResult> {
+  const { email } = input;
   let sent: boolean;
   try {
-    const result = await authApi.register({ email, name, hotelName, password }, await clientInfo());
+    const result = await authApi.register(input, await clientInfo());
     sent = result.sent;
   } catch (e) {
     return { error: errorText(e) };

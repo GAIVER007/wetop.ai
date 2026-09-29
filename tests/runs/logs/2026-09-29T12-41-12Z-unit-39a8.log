@@ -1,0 +1,47 @@
+# Модульные (unit) · 29.09.2026 17:41 Алматы · vm
+# коммит e8fdd39 (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T12-41-12Z-unit-39a8.json' 'tests/unit/design-slop.test.ts' 'apps/web/src/lib'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 6ms
+ ✓ |unit| apps/web/src/lib/api.test.ts (15 tests) 143ms
+ ✓ |unit| apps/web/src/lib/channels-sync.test.ts (2 tests) 61ms
+ ✓ |unit| apps/web/src/lib/assistant-widget.test.ts (15 tests) 92ms
+ ✓ |unit| apps/web/src/lib/desk-shell.test.ts (3 tests) 738ms
+   ✓ оболочка стойки: кто вошёл (3)
+     ✓ никто не вошёл — роли нет, разделы не прячутся 733ms
+ ✓ |unit| apps/web/src/lib/hotel-time.test.ts (3 tests) 958ms
+   ✓ «сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5 933ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 56ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 15ms
+ ✓ |unit| apps/web/src/lib/integrations.test.ts (18 tests) 11ms
+ ✓ |unit| apps/web/src/lib/desk-person.test.ts (11 tests) 12ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (15 tests) 10ms
+ ✓ |unit| apps/web/src/lib/ai-seller.test.ts (26 tests) 17ms
+ ✓ |unit| apps/web/src/lib/unit-now.test.ts (5 tests) 11ms
+ ✓ |unit| apps/web/src/lib/auth-required.test.ts (7 tests) 4ms
+ ✓ |unit| apps/web/src/lib/platform.test.ts (4 tests) 7ms
+ ✓ |unit| apps/web/src/lib/booking-link.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/website-navigation.test.ts (5 tests) 6ms
+ ✓ |unit| apps/web/src/lib/dashboard-format.test.ts (4 tests) 6ms
+ ✓ |unit| apps/web/src/lib/onboarding-later.test.ts (7 tests) 7ms
+ ✓ |unit| apps/web/src/lib/property-time.test.ts (7 tests) 6ms
+ ✓ |unit| apps/web/src/lib/support-queue.test.ts (6 tests) 5ms
+ ✓ |unit| apps/web/src/lib/money.test.ts (3 tests) 4ms
+ ✓ |unit| apps/web/src/lib/block-types.test.ts (2 tests) 5ms
+ ✓ |unit| apps/web/src/lib/action-preview.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/lib/auth-lock.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/plural.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/route-param.test.ts (3 tests) 3ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (4 tests) 3ms
+ ✓ |unit| apps/web/src/lib/seller-navigation.test.ts (2 tests) 3ms
+
+ Test Files  29 passed (29)
+      Tests  240 passed (240)
+   Start at  12:41:13
+   Duration  2.91s (tests 50%, import 24%, transform 23%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-29T12-41-12Z-unit-39a8.json
+
+# код выхода 0 · 4 с

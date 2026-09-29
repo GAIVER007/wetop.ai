@@ -1,4 +1,5 @@
 import { ApiError, wizardApi, sellerAgentsApi } from '../../../lib/api';
+import { readBoundedText } from '../../../lib/bounded-body';
 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -19,8 +20,10 @@ export async function POST(request: Request) {
   }
   if (request.headers.get('sec-fetch-site') === 'cross-site')
     return json({ message: 'Недопустимый источник запроса' }, 403);
-  const raw = await request.text();
-  if (raw.length > 24000) return json({ message: 'Слишком большой запрос' }, 413);
+  // Потолок до чтения тела (аудит 29.09, SEC-4): 24 000 знаков русского текста — до 48 000 байт
+  const read = await readBoundedText(request, 48_000);
+  if (!read.ok) return json({ message: 'Слишком большой запрос' }, 413);
+  const raw = read.text;
   let body: {
     operation?: unknown;
     token?: unknown;

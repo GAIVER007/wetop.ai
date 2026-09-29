@@ -29,3 +29,14 @@ export function AssistantWidgetScript({
 
   return identity ? <Script src={src} data-identity={identity} /> : <Script src={src} />;
 }
+
+/** Public shell has no widget: stop the previous signed instance, including its polling requests. */
+export function ClearAssistantOnPublicEntry() {
+  useEffect(() => {
+    if (running === null) return;
+    running = null;
+    document.querySelectorAll('.pmsw').forEach((node) => node.remove());
+    window.location.reload();
+  }, []);
+  return null;
+}

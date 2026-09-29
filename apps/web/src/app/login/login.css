@@ -180,3 +180,22 @@
     margin-bottom: 24px;
   }
 }
+
+/* Регистрация 29.09.2026: телефон — код страны и номер в одной строке, согласие с политикой под полями */
+.login-page--entry .phone-control {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  gap: 8px;
+}
+.login-page--entry .login-consent {
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  min-height: 44px;
+}
+.login-page--entry .login-consent input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}

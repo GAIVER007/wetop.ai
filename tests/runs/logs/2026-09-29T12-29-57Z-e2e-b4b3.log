@@ -1,0 +1,265 @@
+# Сквозные (e2e) · 29.09.2026 17:29 Алматы · vm
+# коммит 5f43f69 (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/accessibility.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 53 tests using 2 workers
+
+  ✘   1 tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (20.7s)
+  ✓   3 tests/ui/ai-seller.spec.ts:70:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (4.1s)
+  ✓   4 tests/ui/ai-seller.spec.ts:97:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.9s)
+  ✓   5 tests/ui/ai-seller.spec.ts:122:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (3.4s)
+  ✓   6 tests/ui/ai-seller.spec.ts:137:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (8.0s)
+  ✓   7 tests/ui/ai-seller.spec.ts:165:1 › продавец недоступен — метка, причина и обещание повтора (2.1s)
+  ✓   8 tests/ui/ai-seller.spec.ts:176:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (2.0s)
+  ✓   9 tests/ui/ai-seller.spec.ts:191:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (12.1s)
+  ✓  10 tests/ui/ai-seller.spec.ts:205:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (3.1s)
+  ✓  11 tests/ui/ai-seller.spec.ts:236:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (4.5s)
+  ✓  12 tests/ui/ai-seller.spec.ts:270:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.4s)
+  ✓  13 tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (8.0s)
+  ✓  14 tests/ui/ai-seller.spec.ts:304:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (4.9s)
+  ✓  15 tests/ui/ai-seller.spec.ts:318:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (2.9s)
+  ✓  16 tests/ui/ai-seller.spec.ts:335:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (4.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+  ✓  17 tests/ui/ai-seller.spec.ts:364:1 › снимки экранов раздела (9.2s)
+  ✓  18 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (3.9s)
+  ✓  19 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (3.5s)
+  ✓  20 tests/ui/navigation.spec.ts:86:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (3.6s)
+  ✓  21 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (16.2s)
+  ✓  22 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: light (6.6s)
+  ✓  23 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: dark (9.4s)
+  ✓  24 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (9.4s)
+  ✓   2 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 1440px (2.5m)
+  ✓  25 tests/ui/platform-access.spec.ts:77:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (5.1s)
+  ✓  27 tests/ui/platform-access.spec.ts:99:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (6.5s)
+  ✓  28 tests/ui/platform-access.spec.ts:131:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (7.1s)
+  ✓  29 tests/ui/platform-access.spec.ts:158:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (4.7s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <div>
+[WebServer]                     ...
+[WebServer]                       <h2>
+[WebServer]                       <p>
+[WebServer]                       <KnowledgeUploadForm>
+[WebServer]                         <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                           <Field label="Документ: ...">
+[WebServer]                             <label className="field">
+[WebServer]                               <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                 <input
+[WebServer]                                   className="inp"
+[WebServer]                                   type="file"
+[WebServer]                                   name="file"
+[WebServer]                                   accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                   required={true}
+[WebServer]                                   data-testid="knowledge-file"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                           ...
+[WebServer]     ...
+[WebServer]  
+  ✓  30 tests/ui/platform-access.spec.ts:171:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (7.0s)
+  ✓  31 tests/ui/platform-access.spec.ts:194:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (11.5s)
+  ✓  32 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, light, 1440px (18.7s)
+  ✓  33 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, dark, 1440px (19.2s)
+  ✓  34 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, light, 390px (17.4s)
+  ✓  35 tests/ui/platform-access.spec.ts:251:5 › доступность: «Организации» и состояния расширения, dark, 390px (17.6s)
+  ✓  36 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (5.5s)
+  ✓  26 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px (2.1m)
+  ✘  37 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (24.4s)
+  ✓  39 tests/ui/roles.spec.ts:99:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (6.7s)
+  ✓  40 tests/ui/roles.spec.ts:116:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (8.2s)
+  ✓  41 tests/ui/roles.spec.ts:144:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (11.2s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  42 tests/ui/roles.spec.ts:206:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (7.8s)
+  ✓  43 tests/ui/roles.spec.ts:257:1 › владелец: зовёт управляющего и администратора, меняет роль (4.5s)
+  ✓  44 tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий (3.2s)
+  ✓  45 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 1440px (8.2s)
+  ✓  46 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 1440px (7.6s)
+  ✓  47 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 390px (7.4s)
+  ✓  48 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 390px (8.8s)
+  ✓  38 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 390px (1.8m)
+  ✓  49 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 390px (1.4m)
+  ✓  50 tests/ui/accessibility.spec.ts:122:5 › доступность открытых форм и drawer: light, 1440px (8.7s)
+  ✓  51 tests/ui/accessibility.spec.ts:122:5 › доступность открытых форм и drawer: dark, 1440px (7.7s)
+  ✓  52 tests/ui/accessibility.spec.ts:122:5 › доступность открытых форм и drawer: light, 390px (6.3s)
+  ✓  53 tests/ui/accessibility.spec.ts:122:5 › доступность открытых форм и drawer: dark, 390px (6.3s)
+
+
+  1) tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.workspace-sidebar').locator('[aria-current="page"]')
+    Expected: "ИИ-продавец"
+    Received: "ИИ-агенты"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.workspace-sidebar').locator('[aria-current="page"]') with timeout 15000ms
+      - waiting for locator('.workspace-sidebar').locator('[aria-current="page"]')
+        33 × locator resolved to <a title="ИИ-агенты" href="/ai-agents" aria-current="page" class="workspace-link is-active">…</a>
+           - unexpected value "ИИ-агенты"
+
+
+      52 |     'true',
+      53 |   );
+    > 54 |   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-продавец');
+         |                                                          ^
+      55 |   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
+      56 |   await expect(tabs).toHaveText(['Настройка', 'Диалоги', 'Знания', 'Подключения']);
+      57 |   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:54:58
+
+    Error Context: test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-раздел-в-меню-«П-13f24-я-и-что-осталось-до-запуска/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('no-access')
+    Expected substring: "«Настройки ИИ-продавца»: доступ есть у владельца и управляющего."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('no-access') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('no-access')
+
+
+      83 |     await page.goto(route);
+      84 |     const refusal = main.getByTestId('no-access');
+    > 85 |     await expect(refusal).toContainText(text);
+         |                           ^
+      86 |     await expect(refusal).toContainText('Ваша роль — администратор');
+      87 |     // заголовок — раздела, а не самой страницы: её содержимого на экране нет
+      88 |     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:85:27
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/ui/accessibility.spec.ts (8.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 failed
+    tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска 
+    tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+  51 passed (8.3m)
+
+# код выхода 1 · 8 мин 19 с

@@ -1,0 +1,61 @@
+{
+  "target": "330502c50e25bcca53474ff995c4f6b47a5b4deb",
+  "routes": [
+    {
+      "path": "/login",
+      "http": 200,
+      "seconds": 0.9,
+      "loginOrRedirect": true
+    },
+    {
+      "path": "/today",
+      "http": 200,
+      "seconds": 1.72,
+      "loginOrRedirect": true
+    },
+    {
+      "path": "/chessboard",
+      "http": 200,
+      "seconds": 1.25,
+      "loginOrRedirect": true
+    },
+    {
+      "path": "/reservations",
+      "http": 200,
+      "seconds": 1.13,
+      "loginOrRedirect": true
+    },
+    {
+      "path": "/inventory",
+      "http": 200,
+      "seconds": 1.33,
+      "loginOrRedirect": true
+    },
+    {
+      "path": "/ai-agents",
+      "http": 200,
+      "seconds": 0.71,
+      "loginOrRedirect": true
+    }
+  ],
+  "css": [
+    {
+      "path": "/_next/static/chunks/2y5onsg6_1o6z.css",
+      "http": 200,
+      "sha256": "4a0054b76d8c9bf50d95997220bd9ffc9d2c4f92f34404add35a551de7c07b55",
+      "bytes": 3478
+    },
+    {
+      "path": "/_next/static/chunks/3mbnlg4ymdfx-.css",
+      "http": 200,
+      "sha256": "8ee6dccf15a41277ce64f4bc83f90d6771695a94b37a34ef9180d0cd8813d406",
+      "bytes": 115222
+    },
+    {
+      "path": "/_next/static/chunks/3p_mirorbj9dx.css",
+      "http": 200,
+      "sha256": "c6a0c7c19228aac69a9757ad8de3b6cdf9ff41d1fd1044151c04acabeb9da2a7",
+      "bytes": 3828
+    }
+  ]
+}

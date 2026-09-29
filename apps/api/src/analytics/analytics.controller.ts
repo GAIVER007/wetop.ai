@@ -1,5 +1,16 @@
 import 'reflect-metadata';
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { Access } from '../auth/access.decorator';
 
@@ -20,13 +31,13 @@ export class AnalyticsController {
   }
 
   @Get('sites/:id')
-  card(@Param('id') id: string) {
+  card(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.card(id);
   }
 
   @Patch('sites/:id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body()
     dto: {
       name?: unknown;
@@ -40,12 +51,16 @@ export class AnalyticsController {
   }
 
   @Delete('sites/:id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.delete(id);
   }
 
   @Get('sites/:id/report')
-  report(@Param('id') id: string, @Query('from') from?: string, @Query('to') to?: string) {
+  report(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
     return this.service.report(id, from || undefined, to || undefined);
   }
 }

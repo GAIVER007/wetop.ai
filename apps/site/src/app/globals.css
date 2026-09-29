@@ -524,9 +524,9 @@ button {
 
 /* ---------- первый экран ---------- */
 /*
- * Первый экран — одна стеклянная панель во всю ширину контейнера (снимки направления, оба). Слева слово-знак
- * металлом и текст, справа — макет шахматки в стеклянной раме. Лица и фотографий людей на сайте нет:
- * показываем продукт, а не людей: только экран системы.
+ * Первый экран — одна стеклянная панель во всю ширину контейнера (ADR-070). С 29.09.2026 главная мысль — сам
+ * заголовок: крупно, белым, вторая половина металлом. Справа — операционный экран в стеклянной раме
+ * с мягким отсветом. Лиц и фотографий людей на сайте нет: показываем продукт.
  */
 .hero {
   position: relative;
@@ -536,109 +536,109 @@ button {
 .hero__panel {
   position: relative;
   overflow: hidden;
-  padding: clamp(24px, 4vw, 56px);
+  padding: clamp(24px, 4.5vw, 64px) clamp(20px, 4vw, 56px);
 }
-/* Холодный отсвет в правом верхнем углу панели — там, где на снимках стоит портрет. */
+/* Холодный отсвет за макетом справа */
 .hero__panel::after {
   content: '';
   position: absolute;
-  top: -30%;
-  right: -10%;
-  width: 60%;
-  height: 130%;
+  top: -20%;
+  right: -12%;
+  width: 70%;
+  height: 140%;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(closest-side, var(--glow-accent), transparent 70%);
+  background: radial-gradient(closest-side, var(--glow-accent), transparent 72%);
 }
 .hero__inner {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: clamp(32px, 5vw, 48px);
+  gap: clamp(36px, 5vw, 56px);
   align-items: center;
 }
 @media (min-width: 64rem) {
   .hero__inner {
-    grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
-    gap: clamp(32px, 4vw, 56px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: clamp(40px, 4vw, 64px);
   }
 }
 .hero__copy {
   min-width: 0;
 }
-.hero__badge {
+.hero__status {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 16px;
+  margin: 0;
+  padding: 8px 14px 8px 12px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   background: var(--glass-bg-strong);
   color: var(--text-2);
-  font-family: var(--font-head);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  box-shadow: var(--glass-inset);
 }
-.hero__badge-dot {
+.hero__status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--accent-1);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-1) 22%, transparent);
+  background: var(--success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 22%, transparent);
 }
-
 .hero__title {
   margin-top: 24px;
-  font-size: clamp(2rem, 6.4vw, 3.5rem);
+  color: var(--text);
+  font-size: clamp(2.125rem, 4vw, 3rem);
   font-weight: 800;
-  line-height: 1.06;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 /*
- * Слово-знак металлом: тот же приём, что на снимках направления. Градиент заливает текст,
- * тонкая тень снизу даёт кромку. Где `background-clip: text` не поддержан, остаётся обычный цвет текста.
+ * Вторая половина заголовка металлом — тот же приём, что у прежнего слова-знака (ADR-070): градиент заливает
+ * текст, тонкая тень даёт кромку. Где `background-clip: text` не поддержан, остаётся обычный цвет текста.
  */
-.hero__word {
+.hero__accent {
   display: block;
-  margin-bottom: 8px;
   color: var(--text);
-  font-size: clamp(3.25rem, 13vw, 7.5rem);
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
 }
 @supports (background-clip: text) or (-webkit-background-clip: text) {
-  .hero__word {
+  .hero__accent {
     background-image: linear-gradient(
       177deg,
       var(--chrome-1) 4%,
-      var(--chrome-2) 28%,
-      var(--chrome-3) 48%,
-      var(--chrome-4) 62%,
-      var(--chrome-2) 82%,
+      var(--chrome-2) 30%,
+      var(--chrome-3) 52%,
+      var(--chrome-4) 66%,
+      var(--chrome-2) 86%,
       var(--chrome-1) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: drop-shadow(0 1px 0 var(--chrome-edge)) drop-shadow(0 12px 28px var(--chrome-shadow));
+    filter: drop-shadow(0 1px 0 var(--chrome-edge)) drop-shadow(0 10px 24px var(--chrome-shadow));
+  }
+  /* Светлая тема: металл на светлом стекле читается блёкло — там акцент фирменным синим, без тени */
+  @media (prefers-color-scheme: light) {
+    .hero__accent {
+      background-image: linear-gradient(
+        100deg,
+        var(--primary) 10%,
+        var(--accent-1) 55%,
+        var(--accent-2) 100%
+      );
+      filter: none;
+    }
   }
 }
-.hero__title-line {
-  display: block;
-  color: var(--text-2);
-  font-size: clamp(1.0625rem, 2.6vw, 1.625rem);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-}
 .hero__lead {
-  max-width: 46ch;
-  margin-top: 20px;
+  max-width: 42ch;
+  margin-top: 24px;
   color: var(--text-2);
-  font-size: clamp(1rem, 1.6vw, 1.125rem);
+  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  line-height: 1.55;
 }
 .hero__actions {
   display: flex;
@@ -647,120 +647,43 @@ button {
   margin-top: 32px;
 }
 .hero__note {
-  margin-top: 12px;
+  margin-top: 14px;
   color: var(--muted);
   font-size: 0.9375rem;
 }
 .hero__points {
-  display: grid;
-  gap: 10px;
-  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 40px;
   padding-top: 24px;
   border-top: 1px solid var(--border-soft);
 }
 .hero__points li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--text-2);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
-.hero__points .icon {
-  margin-top: 2px;
-  color: var(--success);
+.hero__point-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent-1) 10%, transparent);
+  color: var(--accent-1);
 }
 
 .hero__visual {
   position: relative;
-  display: flex;
-  flex-direction: column;
   min-width: 0;
 }
-/* Плашка «регистрация открыта» над макетом — как отметка доступности на снимках направления. */
-.hero__available {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  padding: 8px 16px;
-  border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  background: var(--glass-bg-strong);
-  color: var(--text-2);
-  font-family: var(--font-head);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: var(--glass-inset);
-}
-.hero__available-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 22%, transparent);
-}
-@media (min-width: 64rem) {
-  .hero__available {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 3;
-    margin-bottom: 0;
-  }
-  .hero__visual {
-    padding-top: 48px;
-  }
-}
 
-/*
- * Круглый знак с бегущей по кругу надписью — как на обоих снимках направления. Стоит под макетом,
- * а не поверх него: справа внизу карточки живёт подсказка «Новая бронь», а слева — строка «Без ячейки»,
- * и знак поверх сетки закрывал бы данные примера.
- */
-.hero__seal {
-  position: relative;
-  align-self: flex-start;
-  margin-top: 20px;
-  display: none;
-  width: 112px;
-  height: 112px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--glass-border);
-  border-radius: 50%;
-  background: var(--glass-bg-strong);
-  box-shadow: var(--shadow-card), var(--glass-inset);
-}
-@media (min-width: 64rem) {
-  .hero__seal {
-    display: flex;
-  }
-}
-.hero__seal-ring {
-  position: absolute;
-  inset: 0;
-  fill: var(--muted);
-  font-family: var(--font-head);
-  font-size: 9.2px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-.hero__seal-star {
-  color: var(--accent-1);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .hero__seal-ring {
-    animation: seal-spin 26s linear infinite;
-  }
-}
-@keyframes seal-spin {
-  to {
-    rotate: 360deg;
-  }
-}
 /* ---------- макет шахматки ---------- */
 .mockup {
   position: relative;
@@ -865,7 +788,7 @@ button {
 .mockup__day small {
   color: var(--muted);
   font-family: var(--font);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 .mockup__day.is-today {
@@ -1004,7 +927,7 @@ button {
     margin: 0 2px;
     padding: 0 5px;
     border-left-width: 2px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -2346,6 +2269,30 @@ button {
 .auth-field__toggle:hover {
   color: var(--text);
 }
+/* Регистрация 29.09.2026: код страны и номер в одной строке, согласие с политикой под полями */
+.auth-phone {
+  display: grid;
+  grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr);
+  gap: 8px;
+}
+.auth-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.auth-consent input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--primary);
+}
+.auth-consent a {
+  color: var(--primary);
+  text-decoration: underline;
+}
 .auth-form__hint {
   margin: -4px 0 0;
   color: var(--muted);
@@ -2384,27 +2331,108 @@ button {
   }
 }
 
+/* Политика конфиденциальности (29.09.2026) — простая текстовая страница */
+.legal__inner {
+  max-width: 760px;
+  padding-block: 48px 64px;
+}
+.legal h1 {
+  margin: 0 0 8px;
+}
+.legal h2 {
+  margin: 32px 0 8px;
+  font-size: 1.25rem;
+}
+.legal p,
+.legal li {
+  line-height: 1.65;
+}
+.legal ul {
+  padding-left: 1.25rem;
+}
+.legal__meta {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
 /*
- * Общий операционный экран «Сегодня» на первом экране (29.09.2026, ADR-104): три плитки, клиенты по времени,
- * задачи команды и столбики финансов недели. Окно, шапка и подсказка — общие с макетом шахматки (.mockup__*).
+ * Общий операционный экран «Сегодня» на первом экране (29.09.2026, ADR-104): боковое меню разделов, филиал,
+ * три плитки, клиенты по времени, задачи, столбики финансов недели и строка свежего события.
+ * Окно и шапка — общие с макетом шахматки (.mockup__*).
  */
+.mockup--ops {
+  max-width: 680px;
+}
+.mockup--ops .mockup__window {
+  box-shadow:
+    var(--shadow-floating),
+    var(--glass-inset),
+    0 30px 80px -30px color-mix(in srgb, var(--accent-1) 45%, transparent);
+}
+.ops__branch {
+  margin-left: auto;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-solid);
+  color: var(--text-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ops__branch::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+.ops__frame {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+}
+.ops__rail {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: 12px 8px;
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent-1) 4%, var(--surface-solid));
+}
+.ops__rail span {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.ops__rail .is-on {
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
+}
 .ops {
   display: grid;
-  gap: 12px;
-  padding: 14px 16px 76px;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 14px 14px;
   font-size: 0.8125rem;
 }
 .ops__kpis {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 .ops__kpi {
   display: grid;
   gap: 2px;
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--accent-1) 4%, var(--surface-solid));
 }
 .ops__kpi small,
@@ -2434,22 +2462,23 @@ button {
 }
 .ops__cols {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 8px;
 }
 .ops__block {
   display: grid;
   align-content: start;
   gap: 8px;
+  min-width: 0;
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
 }
 .ops__line {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .ops__time {
   color: var(--text-2);
@@ -2470,14 +2499,14 @@ button {
   display: block;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   text-overflow: ellipsis;
 }
 .ops__state {
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -2503,14 +2532,14 @@ button {
   width: 14px;
   height: 14px;
   border: 1.5px solid var(--border-input);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
-.ops__task.is-done i {
+.ops__task--done i {
   border-color: var(--success);
   background: var(--success);
   box-shadow: inset 0 0 0 2px var(--surface-solid);
 }
-.ops__task.is-done > span {
+.ops__task--done > span {
   color: var(--muted);
   text-decoration: line-through;
 }
@@ -2521,22 +2550,22 @@ button {
   gap: 14px;
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
 }
 .ops__finance .ops__block-title {
   align-self: start;
-  max-width: 7.5rem;
+  max-width: 8rem;
 }
 .ops__bars {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  height: 40px;
+  gap: 4px;
+  height: 38px;
 }
 .ops__bars i {
   flex: 1;
-  min-width: 6px;
-  border-radius: 4px 4px 1px 1px;
+  min-width: 5px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
   background: color-mix(in srgb, var(--primary) 30%, transparent);
 }
 .ops__bars i.is-today {
@@ -2559,14 +2588,66 @@ button {
   font-size: 0.75rem;
   font-weight: 600;
 }
+/* Свежее событие — строкой внутри окна, а не плавающей подсказкой поверх данных */
+.ops__event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--success) 35%, var(--border-soft));
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--success) 7%, var(--surface-solid));
+}
+.ops__event-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 4px var(--success-soft);
+}
+.ops__event-text {
+  min-width: 0;
+  flex: 1;
+}
+.ops__event-text strong,
+.ops__event-text small {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ops__event-text strong {
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.ops__event-text small {
+  color: var(--text-2);
+  font-size: 0.75rem;
+}
+.ops__event-time {
+  flex: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
 @media (max-width: 40rem) {
-  .ops {
-    padding-bottom: 14px;
+  .ops__frame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ops__rail {
+    display: flex;
+    gap: 4px;
+    overflow: hidden;
+    padding: 8px 10px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
   }
 }
 @media (max-width: 29.99rem) {
   .ops {
-    padding: 12px 10px;
+    padding: 10px;
   }
   .ops__kpis {
     gap: 6px;
@@ -2581,6 +2662,9 @@ button {
     grid-template-columns: minmax(0, 1fr);
   }
   .ops__finance .ops__block-title {
+    display: none;
+  }
+  .ops__branch {
     display: none;
   }
 }

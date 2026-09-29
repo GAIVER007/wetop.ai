@@ -45,6 +45,7 @@ const routes = [
   '/incidents',
   '/journal',
   // раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097): четыре вкладки и открытая карточка диалога
+  '/ai-agents',
   '/ai-seller',
   '/ai-seller/dialogs',
   '/ai-seller/dialogs?id=3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c',

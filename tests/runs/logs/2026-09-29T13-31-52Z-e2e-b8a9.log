@@ -1,0 +1,46 @@
+# Сквозные (e2e) · 29.09.2026 18:31 Алматы · vm
+# коммит 0c5f1a5 (claude/deploy-main-production-3qoyod)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' 'tests/site/auth-dialog.spec.ts'
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/site/auth-dialog.spec.ts:48:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (2.2s)
+  ✓  2 tests/site/auth-dialog.spec.ts:76:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (1.4s)
+  ✓  3 tests/site/auth-dialog.spec.ts:91:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (936ms)
+  ✓  4 tests/site/auth-dialog.spec.ts:107:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (3.5s)
+  ✓  5 tests/site/auth-dialog.spec.ts:159:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (652ms)
+  ✓  6 tests/site/auth-dialog.spec.ts:168:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (683ms)
+  ✓  7 tests/site/auth-dialog.spec.ts:178:1 › на телефоне окно открывается из меню и не шире экрана (952ms)
+  ✘  8 tests/site/auth-dialog.spec.ts:195:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (13.4s)
+
+
+  1) tests/site/auth-dialog.spec.ts:195:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ──
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /Трансграничная передача/, level: 2 })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /Трансграничная передача/, level: 2 }) with timeout 10000ms
+      - waiting for getByRole('heading', { name: /Трансграничная передача/, level: 2 })
+
+
+      226 |     'Cookie',
+      227 |   ])
+    > 228 |     await expect(page.getByRole('heading', { level: 2, name: new RegExp(section) })).toBeVisible();
+          |                                                                                      ^
+      229 |   await expect(page.getByRole('link', { name: '<email>' }).first()).toBeVisible();
+      230 |   await page.screenshot({ path: `${report}/site-privacy-light-1440.png`, fullPage: true, caret: 'initial' });
+      231 | });
+        at /home/user/wetop.ai/tests/site/auth-dialog.spec.ts:228:86
+
+    Error Context: test-results/auth-dialog-снимки-окна-ре-b53eb-светлая-и-тёмная-1440-и-390/error-context.md
+
+  1 failed
+    tests/site/auth-dialog.spec.ts:195:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 ───
+  7 passed (37.5s)
+
+# код выхода 1 · 40 с

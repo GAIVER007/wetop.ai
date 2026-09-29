@@ -179,6 +179,9 @@ export type Dictionary = {
       submit: string;
       pending: string;
       terms: string;
+      consentBefore: string;
+      consentLink: string;
+      consentAfter: string;
       haveAccount: string;
     };
     closed: { title: string; text: string; action: string };
@@ -205,6 +208,9 @@ export type Dictionary = {
       namePlaceholder: string;
       hotel: string;
       hotelPlaceholder: string;
+      phone: string;
+      phoneCountry: string;
+      phonePlaceholder: string;
       show: string;
       hide: string;
       showLabel: string;
@@ -212,6 +218,7 @@ export type Dictionary = {
     };
     errors: {
       required: string;
+      privacy: string;
       network: string;
       /** Ссылка на ту же форму на отдельной странице стойки — на случай сбоя окна. */
       fallback: string;

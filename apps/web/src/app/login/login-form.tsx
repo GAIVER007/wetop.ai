@@ -1,7 +1,13 @@
 'use client';
 import Link from 'next/link';
-import { useActionState, useState, useTransition } from 'react';
-import { canManageStaff, parseMembershipRole } from '@pms/domain';
+import { useActionState, useEffect, useState, useTransition } from 'react';
+import {
+  PHONE_COUNTRIES,
+  PRIVACY_POLICY_URL,
+  canManageStaff,
+  defaultPhoneCountry,
+  parseMembershipRole,
+} from '@pms/domain';
 import { Icon } from '../../components/icon';
 import { useTheme } from '../../components/theme-provider';
 import type { AuthInvite, AuthMember, AuthSessionRow, SignedIn } from '../../lib/api';
@@ -55,12 +61,23 @@ export function LoginForm({
   const [email, setEmail] = useState(initialEmail);
   const [personName, setPersonName] = useState('');
   const [hotelName, setHotelName] = useState('');
+  const [phoneCountry, setPhoneCountry] = useState('KZ');
+  const [phone, setPhone] = useState('');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [registerPending, startTransition] = useTransition();
   const { setTheme } = useTheme();
   // роль вошедшего: сотрудниками ведают владелец и управляющий (ADR-107); незнакомая — как у администратора
   const role = user?.role ? parseMembershipRole(user.role) : null;
+
+  // Страна кода телефона — по браузеру (решение владельца 29.09.2026), после появления на экране: на сервере
+  // браузера нет, и разная первая отрисовка сломала бы гидратацию. Ничего не подошло — Казахстан.
+  useEffect(() => {
+    setPhoneCountry(
+      defaultPhoneCountry(navigator.languages ?? [], Intl.DateTimeFormat().resolvedOptions().timeZone),
+    );
+  }, []);
 
   const switchTo = (next: LoginMode) => {
     setError('');
@@ -74,7 +91,15 @@ export function LoginForm({
   function submitRegister() {
     setError('');
     startTransition(async () => {
-      const r = await registerAction(email, personName, hotelName, password);
+      const r = await registerAction({
+        email,
+        name: personName,
+        hotelName,
+        password,
+        phoneCountry,
+        phone,
+        privacyAccepted,
+      });
       if (r.error) setError(r.error);
     });
   }
@@ -322,6 +347,37 @@ export function LoginForm({
                     onChange={(e) => setHotelName(e.target.value)}
                   />
                 </label>
+                <div className="field">
+                  <span id="register-phone-label">Телефон</span>
+                  <span className="phone-control">
+                    <select
+                      className="inp"
+                      name="phoneCountry"
+                      aria-label="Код страны"
+                      value={phoneCountry}
+                      onChange={(e) => setPhoneCountry(e.target.value)}
+                    >
+                      {PHONE_COUNTRIES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.name} {c.dial}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      className="inp"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      name="phone"
+                      aria-labelledby="register-phone-label"
+                      placeholder="701 123 45 67"
+                      required
+                      maxLength={40}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </span>
+                </div>
                 <label className="field">
                   Пароль
                   <span className="password-control">
@@ -346,6 +402,22 @@ export function LoginForm({
                     >
                       {show ? 'Скрыть' : 'Показать'}
                     </button>
+                  </span>
+                </label>
+                <label className="check login-consent">
+                  <input
+                    type="checkbox"
+                    name="privacyAccepted"
+                    required
+                    checked={privacyAccepted}
+                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  />
+                  <span>
+                    Я ознакомился с{' '}
+                    <a href={PRIVACY_POLICY_URL} target="_blank" rel="noreferrer">
+                      политикой конфиденциальности
+                    </a>{' '}
+                    и согласен на обработку данных
                   </span>
                 </label>
                 {error && (

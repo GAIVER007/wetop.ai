@@ -1,6 +1,12 @@
 import 'reflect-metadata';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { hashPassword, hashSessionToken, MAX_FAILED_ATTEMPTS, SESSION_HOURS } from '@pms/domain';
+import {
+  hashPassword,
+  hashSessionToken,
+  MAX_FAILED_ATTEMPTS,
+  PRIVACY_POLICY_VERSION,
+  SESSION_HOURS,
+} from '@pms/domain';
 
 import { AuthService } from './auth.service';
 import { EmailVerificationService } from './email-verification.service';
@@ -359,6 +365,9 @@ describe('AuthService.register', () => {
     name: '  Вячеслав  Петров ',
     hotelName: '  Хостел  на Абая ',
     password: PASSWORD,
+    phoneCountry: 'KZ',
+    phone: '8 701 555 44 33',
+    privacyAccepted: true,
   };
 
   // Решение владельца 20.09.2026: регистрация доступна без дополнительных настроек.
@@ -452,6 +461,9 @@ describe('AuthService.register', () => {
     // резолвер без фолбэка его не найдёт, а база не примет объект без филиала
     const location = locations.find((l) => l.id === property!.locationId);
     expect(location, 'филиал объекта заведён').toMatchObject({ name: 'Хостел на Абая', timezone: 'Asia/Almaty', currency: 'KZT' });
+    // телефон из формы (29.09.2026) — контакт объекта и его филиала, одним видом E.164
+    expect(property!.phone).toBe('+77015554433');
+    expect(location!.phone).toBe('+77015554433');
     expect(businesses.find((b) => b.id === location!.businessId)).toMatchObject({
       organizationId: org!.id,
       name: 'Хостел на Абая',
@@ -462,13 +474,34 @@ describe('AuthService.register', () => {
     expect(sessions.filter((x) => x.userId === created!.id)).toHaveLength(0);
     expect(audit.at(-1)).toMatchObject({
       action: 'user.register',
-      after: { via: 'password', verified: false },
+      after: { via: 'password', verified: false, privacy: { version: PRIVACY_POLICY_VERSION } },
     });
+    // телефон — персональные данные, в журнал он не попадает
+    expect(JSON.stringify(audit.at(-1))).not.toContain('7015554433');
 
     // письмо ушло на тот же адрес, и ссылки из него в журнале нет
     expect(letters).toHaveLength(1);
     expect(letters[0]!.to).toBe('novyi@example.invalid');
     expect(letters[0]!.text).toContain('/login/verify?token=');
+  });
+
+  it('без согласия с политикой организация не заводится', async () => {
+    const { auth, users, organizations } = service();
+    const before = { users: users.length, orgs: organizations.length };
+    await expect(auth.register({ ...NEW, privacyAccepted: false }, NOW)).rejects.toThrow(
+      /политикой конфиденциальности/,
+    );
+    expect(users).toHaveLength(before.users);
+    expect(organizations).toHaveLength(before.orgs);
+  });
+
+  it('телефон, не похожий на номер, — отказ словами, без записи в базу', async () => {
+    const { auth, users, organizations } = service();
+    const before = { users: users.length, orgs: organizations.length };
+    await expect(auth.register({ ...NEW, phone: '701 55' }, NOW)).rejects.toThrow(/Проверьте телефон/);
+    await expect(auth.register({ ...NEW, phoneCountry: 'XX' }, NOW)).rejects.toThrow(/Проверьте телефон/);
+    expect(users).toHaveLength(before.users);
+    expect(organizations).toHaveLength(before.orgs);
   });
 
   it('до подтверждения почты вход закрыт — и говорит, что делать', async () => {

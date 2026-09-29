@@ -1,0 +1,30 @@
+# Модульные (unit) · 29.09.2026 16:51 Алматы · vm
+# коммит 6ab9541 (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T11-51-34Z-unit-00c2.json' 'packages/domain/src/accounts/registration-contact.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/accounts/registration-contact.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/accounts/registration-contact.test.ts [ packages/domain/src/accounts/registration-contact.test.ts ]
+Error: Cannot find module './registration-contact' imported from /home/user/wetop.ai/packages/domain/src/accounts/registration-contact.test.ts
+ ❯ packages/domain/src/accounts/registration-contact.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   PHONE_COUNTRIES,
+      4|   PRIVACY_POLICY_URL,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  11:51:42
+   Duration  655ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-09-29T11-51-34Z-unit-00c2.json
+
+# код выхода 1 · 8 с

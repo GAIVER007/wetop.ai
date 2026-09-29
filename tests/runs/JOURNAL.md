@@ -4257,3 +4257,5 @@
 | 29.09.2026 16:42 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 16 | 28 с | a44aa23 | [лог](logs/2026-09-29T11-42-30Z-e2e-a954.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:43 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 1 из 16 | 18 с | a44aa23 | [лог](logs/2026-09-29T11-43-36Z-e2e-d992.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:45 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 16 из 16 | 19 с | a44aa23 +1 | [лог](logs/2026-09-29T11-45-13Z-e2e-0d2b.log) |  |
+| 29.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 634 | 55 мин 26 с | 7d27564 | [лог](logs/2026-09-29T11-45-45Z-e2e-e376.log) | после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке |
+| 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/workspace.spec.ts:24) | ✅ 7 из 7 | 1 мин 25 с | 368c37f +1 | [лог](logs/2026-09-29T12-41-37Z-e2e-a05c.log) |  |

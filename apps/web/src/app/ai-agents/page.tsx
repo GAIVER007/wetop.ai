@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Page } from '../../components/page';
-import { Badge, Grid, Panel, Stack } from '../../components/ui';
+import { Badge, Grid, Panel, Row, Stack } from '../../components/ui';
 import { deskShell } from '../../lib/desk-shell';
 
 /**
@@ -19,7 +19,10 @@ export default async function AiAgentsPage() {
       <Grid min={280}>
         <Panel title="AI-продавец" data-testid="agent-seller">
           <Stack gap="sm">
-            <div className="muted">Продажи · Hospitality</div>
+            <Row>
+              <Badge>Продажи</Badge>
+              <Badge>Hospitality</Badge>
+            </Row>
             <div>Отвечает гостям в чате на сайте, называет цены по тарифу и зовёт человека.</div>
             <div>
               <Link className="btn" href="/ai-seller" aria-label="Открыть: AI-продавец">

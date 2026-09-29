@@ -32,7 +32,8 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
   const seller = page.getByTestId('agent-seller');
   await expect(seller).toContainText('AI-продавец');
-  await expect(seller).toContainText('Продажи · Hospitality');
+  await expect(seller).toContainText('Продажи');
+  await expect(seller).toContainText('Hospitality');
   await expect(page.getByTestId('agent-support')).toHaveCount(0);
   await expect(page.getByText('WETOP Support')).toHaveCount(0);
   await seller.getByRole('link', { name: 'Открыть' }).click();

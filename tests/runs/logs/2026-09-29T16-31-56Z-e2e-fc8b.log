@@ -1,0 +1,79 @@
+# Сквозные (e2e) · 29.09.2026 21:31 Алматы · MacBook-Air-Urij.local
+# коммит d373efe (codex/unified-workspace-20260929), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '--grep' 'product tour|FAQ and'
+[WebServer] (node:45243) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45243) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45322) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:45331) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:45338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/site/product-story.spec.ts:3:1 › product tour changes real content and supports keyboard (1.0m)
+(node:45556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/site/product-story.spec.ts:15:1 › FAQ and explicit theme choice work (1.0m)
+
+
+  1) tests/site/product-story.spec.ts:3:1 › product tour changes real content and supports keyboard 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('tablist', { name: 'Возможности WETOP' }).getByRole('tab', { name: 'ИИ-продавцы' })
+
+
+      4 |   await page.goto('/');
+      5 |   const tabs = page.getByRole('tablist', { name: 'Возможности WETOP' });
+    > 6 |   await tabs.getByRole('tab', { name: 'ИИ-продавцы' }).click();
+        |                                                        ^
+      7 |   await expect(page.getByRole('tabpanel', { name: 'ИИ-продавцы' })).toContainText('Знания вашего бизнеса');
+      8 |   await tabs.getByRole('tab', { name: 'ИИ-продавцы' }).press('Home');
+      9 |   await expect(tabs.getByRole('tab', { name: 'Брони и гости' })).toBeFocused();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/site/product-story.spec.ts:6:56
+
+    Error Context: test-results/product-story-product-tour-7765d-ntent-and-supports-keyboard/error-context.md
+
+  2) tests/site/product-story.spec.ts:15:1 › FAQ and explicit theme choice work ────────────────────
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Переключить тему' })
+
+
+      16 |   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
+      17 |   await page.goto('/');
+    > 18 |   await page.getByRole('button', { name: 'Переключить тему' }).click();
+         |                                                                ^
+      19 |   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+      20 |   await page.reload();
+      21 |   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/site/product-story.spec.ts:18:64
+
+    Error Context: test-results/product-story-FAQ-and-explicit-theme-choice-work/error-context.md
+
+  2 failed
+    tests/site/product-story.spec.ts:3:1 › product tour changes real content and supports keyboard ─
+    tests/site/product-story.spec.ts:15:1 › FAQ and explicit theme choice work ─────────────────────
+
+# код выхода 1 · 2 мин 32 с

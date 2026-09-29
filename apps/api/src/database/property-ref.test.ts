@@ -4,7 +4,7 @@
  * База в Сингапуре, стойка в Алматы — каждый лишний рейс это десятки миллисекунд на пустом месте.
  * Объект один и не переименовывается на ходу, поэтому id держим в памяти процесса.
  */
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { withOrganizationScope, withSignedInUser } from '../auth/request-context';
 import { forgetPropertyRef, propertyIdRef } from './property-ref';
 
@@ -277,5 +277,52 @@ describe('Platform P2, К1: объект по scope запроса', () => {
       expect(await propertyIdRef(db, 'Luxx')).toBe('p-first');
     });
     expect(f.calls(), 'по рейсу на scope, повтор — из памяти').toBe(2);
+  });
+});
+
+/**
+ * SEC-2 (аудит 29.09.2026): служебный ходок (сторож, фоновые циклы, скрипты) брал объект по названию — самому раннему с
+ * этим именем. `INTEGRATION_PROPERTY_ID` задаёт объект установки явно: название на выбор больше не влияет.
+ */
+describe('служебный путь: INTEGRATION_PROPERTY_ID', () => {
+  const ID = '67646baa-d066-4977-8afc-67f48398842f';
+  afterEach(() => vi.unstubAllEnvs());
+
+  function idDb(found: { id: string; name: string; organizationId: string | null; timezone: string } | null) {
+    const findUnique = vi.fn(async () => found);
+    const findFirst = vi.fn(async () => ({ id: 'p-namesake', name: 'Luxx', organizationId: null, timezone: 'Asia/Almaty' }));
+    return { findUnique, findFirst, db: { property: { findUnique, findFirst } } as never };
+  }
+
+  it('идентификатор задан — объект по нему, а не по названию', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', ID);
+    const f = idDb({ id: ID, name: 'Другое имя', organizationId: 'org-luxx', timezone: 'Asia/Almaty' });
+    expect(await propertyIdRef(f.db, 'Luxx')).toBe(ID);
+    expect(f.findFirst).not.toHaveBeenCalled();
+    // второй раз — из памяти
+    expect(await propertyIdRef(f.db, 'Luxx')).toBe(ID);
+    expect(f.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  it('идентификатор задан, объекта нет — понятная ошибка, к названию не откатываемся', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', ID);
+    const f = idDb(null);
+    await expect(propertyIdRef(f.db, 'Luxx')).rejects.toThrow(/INTEGRATION_PROPERTY_ID/);
+    expect(f.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('идентификатор не UUID — понятная ошибка, в базу не ходим', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', 'luxx');
+    const f = idDb(null);
+    await expect(propertyIdRef(f.db, 'Luxx')).rejects.toThrow(/INTEGRATION_PROPERTY_ID/);
+    expect(f.findUnique).not.toHaveBeenCalled();
+    expect(f.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('идентификатора нет — прежний путь по названию', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', '');
+    const f = idDb(null);
+    expect(await propertyIdRef(f.db, 'Luxx')).toBe('p-namesake');
+    expect(f.findUnique).not.toHaveBeenCalled();
   });
 });

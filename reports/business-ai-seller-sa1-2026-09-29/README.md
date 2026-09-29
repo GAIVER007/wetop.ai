@@ -1,6 +1,6 @@
 # Business AI Seller, SA1: каталог «ИИ-агентов» (29.09.2026)
 
-План — `plans/business-ai-seller-v2-2026-09-29.md` §8; решение — ADR-124. Владелец ответил «да» на план, сделан только SA1. **Стоп: SA1.5 и SA2 — только после «да» владельца по снимкам.**
+План — `plans/business-ai-seller-v2-2026-09-29.md` §8; решение — ADR-126. Владелец ответил «да» на план, сделан только SA1. **Стоп: SA1.5 и SA2 — только после «да» владельца по снимкам.**
 
 ## Что сделано
 
@@ -25,7 +25,7 @@
 - API: `GET /ai-seller/catalog` (`@Access('dialogs')`), `seller-catalog.service.ts`, `SellerCatalogRepository` в `seller.repository.ts`, фейки, запись в таблице прав.
 - Веб: `app/ai-agents/page.tsx`, `ai-agents.css`, `lib/ai-agents.ts`, тип и `sellerApi.catalog` в `lib/api.ts`.
 - Стенд и тесты: `scripts/preview/fixture-api.ts` (каталог и управляющие поля `sellerApplied`, `sellerWhatsApp`, `sellerDrafts`, `sellerCatalogFails`), `tests/ui/ai-agents.spec.ts`, `tests/ui/requests.spec.ts`, `tests/integration/seller-catalog.test.ts`.
-- Документы: ADR-124, `QUESTIONS.md` (Q-SA-1…8), строка в `DESIGN.md` §8, запись в `CLAUDE.md`.
+- Документы: ADR-126, `QUESTIONS.md` (Q-SA-1…8), строка в `DESIGN.md` §8, запись в `CLAUDE.md`.
 
 ## Доказательства (красный → зелёный, `tests/runs/`)
 

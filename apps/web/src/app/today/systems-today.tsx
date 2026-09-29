@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { guardApi, sellerApi, type GuardStatus, type SellerStatus } from '../../lib/api';
+import { sellerApi, type GuardStatus, type SellerStatus } from '../../lib/api';
+import { loadGuardStatus } from './guard-status';
 import { Panel, type BadgeTone } from '../../components/ui';
 import { ChannelsSystemRow } from './systems-channels';
 import { SystemRow } from './systems-row';
@@ -13,13 +14,18 @@ const quiet = <T,>(p: Promise<T>): Promise<T | null> => p.catch(() => null);
  * экрана — десять рейсов). Строки «Сайт» нет: данных о здоровье сайта у стойки нет (пробел плана).
  */
 export async function SystemsToday() {
-  const [seller, guard] = await Promise.all([quiet(sellerApi.status()), quiet(guardApi.status())]);
+  const [seller, guard] = await Promise.all([quiet(sellerApi.status()), loadGuardStatus()]);
   return (
     <Panel title="Системы" aria-label="Системы" className="fund-panel">
       <ul className="systems-list">
         <ChannelsSystemRow />
         {seller && (
-          <SystemRow name="ИИ-продавец" testId="systems-seller" href="/ai-seller" {...sellerState(seller)} />
+          <SystemRow
+            name="ИИ-продавец"
+            testId="systems-seller"
+            href="/ai-seller"
+            {...sellerState(seller)}
+          />
         )}
         {guard && (
           <SystemRow

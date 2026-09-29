@@ -47,7 +47,7 @@ test('не главный администратор: пункта нет, а с
   page,
 }) => {
   await signIn(page);
-  await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
+  await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
   expect(await menuLinks(page)).not.toContain('/platform/support');
   // Техподдержка переехала под переключатель агентов на «ИИ-продавце» — не главному администратору его не видно
   await page.goto('/ai-seller');

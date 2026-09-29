@@ -4276,3 +4276,9 @@
 | 29.09.2026 18:08 | unit | ❌ упало 4 из 2362, пропущено 3 | 1 мин 23 с | 56427c4 +20 | [лог](logs/2026-09-29T13-08-24Z-unit-3427.log) | S4: полный unit |
 | 29.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 634 | 55 мин 26 с | 7d27564 | [лог](logs/2026-09-29T11-45-45Z-e2e-e376.log) | после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке |
 | 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/workspace.spec.ts:24) | ✅ 7 из 7 | 1 мин 25 с | 368c37f +1 | [лог](logs/2026-09-29T12-41-37Z-e2e-a05c.log) |  |
+| 29.09.2026 18:15 | typecheck | ✅ без ошибок | 42 с | 1b26b0c | [лог](logs/2026-09-29T13-15-04Z-typecheck-df15.log) |  |
+| 29.09.2026 18:15 | lint | ✅ без ошибок | 24 с | 1b26b0c | [лог](logs/2026-09-29T13-15-47Z-lint-1c07.log) |  |
+| 29.09.2026 18:16 | unit | ❌ упало 5 из 2362, пропущено 3 | 1 мин 30 с | 1b26b0c | [лог](logs/2026-09-29T13-16-11Z-unit-5473.log) | S4: перед merge, после слияния main |
+| 29.09.2026 18:17 | integration | ✅ 130 из 130 | 53 с | f5b58b3 | [лог](logs/2026-09-29T13-17-41Z-integration-dced.log) | S4: перед merge |
+| 29.09.2026 18:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/platform-support.spec.ts tests/ui/navigation.spec.ts tests | ❌ упало 1 из 68 | 6 мин 35 с | f5b58b3 | [лог](logs/2026-09-29T13-18-35Z-e2e-5c23.log) | S0+S4 затронутые UI |
+| 29.09.2026 18:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/platform-support.spec.ts) | ✅ 10 из 10 | 1 мин 41 с | f5b58b3 +1 | [лог](logs/2026-09-29T13-26-24Z-e2e-7cb4.log) | S0: пункт меню ИИ-агенты в спеке поддержки |

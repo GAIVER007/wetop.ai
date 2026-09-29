@@ -60,7 +60,7 @@ export function OperationsMockup() {
               <div className="ops__block">
                 <span className="ops__block-title">{t.tasksTitle}</span>
                 {t.tasks.map((task) => (
-                  <span key={task.text} className={`ops__task${task.done ? ' is-done' : ''}`}>
+                  <span key={task.text} className={`ops__task${task.done ? ' ops__task--done' : ''}`}>
                     <i aria-hidden="true" />
                     <span>
                       {task.text}

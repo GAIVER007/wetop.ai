@@ -4119,3 +4119,4 @@
 | 29.09.2026 12:43 | typecheck | ✅ без ошибок | 25 с | 40bcaac | [лог](logs/2026-09-29T07-43-03Z-typecheck-d2d3.log) |  |
 | 29.09.2026 12:43 | lint | ✅ без ошибок | 17 с | 40bcaac | [лог](logs/2026-09-29T07-43-28Z-lint-c14c.log) |  |
 | 29.09.2026 12:43 | unit | ✅ 2296 из 2299, пропущено 3 | 1 мин 23 с | 40bcaac | [лог](logs/2026-09-29T07-43-46Z-unit-b860.log) | G8 на main 44f401e0 |
+| 29.09.2026 12:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/workspace.spec.ts tes | ✅ 87 из 87 | 5 мин 32 с | 40bcaac | [лог](logs/2026-09-29T07-45-37Z-e2e-af56.log) | G8 на main 44f401e0, чистый кэш .next-ui |

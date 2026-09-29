@@ -4427,3 +4427,4 @@
 | 29.09.2026 21:50 | typecheck | ✅ без ошибок | 25 с | f4cd39b | [лог](logs/2026-09-29T16-50-14Z-typecheck-7ce0.log) | S5 после слияния main 70cdb2b6 |
 | 29.09.2026 21:50 | lint | ✅ без ошибок | 19 с | f4cd39b | [лог](logs/2026-09-29T16-50-39Z-lint-1a2f.log) | S5 после слияния main |
 | 29.09.2026 21:50 | unit (частично: apps/api/src/assistant apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 96 из 96 | 5 с | f4cd39b | [лог](logs/2026-09-29T16-50-59Z-unit-2b46.log) | S5 после слияния main: помощник, права, домен |
+| 29.09.2026 21:51 | unit | ❌ упало 1 из 2451, пропущено 3 | 1 мин 28 с | f4cd39b | [лог](logs/2026-09-29T16-51-05Z-unit-e81e.log) | S5 после слияния main: полный unit |

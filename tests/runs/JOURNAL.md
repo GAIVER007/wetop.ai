@@ -4414,3 +4414,7 @@
 | 29.09.2026 21:28 | unit | ❌ упало 1 из 2428, пропущено 3 | 1 мин 43 с | 27beec3 | [лог](logs/2026-09-29T16-28-48Z-unit-470d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 29.09.2026 21:30 | integration | ❌ код выхода 1 | 1 с | 27beec3 | [лог](logs/2026-09-29T16-30-32Z-integration-5dbf.log) |  |
 | 29.09.2026 21:31 | integration | ✅ 131 из 131 | 44 с | 27beec3 | [лог](logs/2026-09-29T16-31-00Z-integration-4b22.log) |  |
+| 29.09.2026 21:45 | typecheck | ✅ без ошибок | 25 с | 9febe17 | [лог](logs/2026-09-29T16-45-08Z-typecheck-89dd.log) | SEC-1b после слияния main |
+| 29.09.2026 21:45 | lint | ✅ без ошибок | 21 с | 9febe17 | [лог](logs/2026-09-29T16-45-42Z-lint-a742.log) | SEC-1b после слияния main |
+| 29.09.2026 21:46 | unit | ❌ упало 1 из 2432, пропущено 3 | 1 мин 26 с | 9febe17 | [лог](logs/2026-09-29T16-46-04Z-unit-e4aa.log) | SEC-1b после слияния main: полный unit |
+| 29.09.2026 21:47 | integration | ✅ 139 из 139 | 47 с | 9febe17 | [лог](logs/2026-09-29T16-47-35Z-integration-3562.log) | SEC-1b после слияния main: integration |

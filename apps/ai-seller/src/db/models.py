@@ -456,6 +456,28 @@ class SupportKnowledgeUsage(Base):
     used_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
 
 
+ACTION_STATUSES = ("PROPOSED", "CONFIRMED", "DONE", "FAILED", "CANCELLED", "EXPIRED", "REFUSED", "ESCALATED")
+
+
+class SupportAction(Base):
+    """Журнал действий WETOP Support (S6): предложил, подтвердил, выполнил, отказал, передал человеку.
+    `result` — короткая строка без ПД; `args` — только белый список; `user_ref` — псевдоним, не id."""
+
+    __tablename__ = "support_actions"
+    __table_args__ = (sa.Index("idx_support_actions_conv", "conversation_id", "created_at"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    conversation_id: Mapped[str | None] = mapped_column(sa.String(64))
+    user_ref: Mapped[str] = mapped_column(sa.String(32), nullable=False)
+    action: Mapped[str] = mapped_column(sa.String(40), nullable=False)
+    action_class: Mapped[str] = mapped_column(sa.String(16), nullable=False)
+    args: Mapped[dict | None] = mapped_column(sa.JSON())
+    status: Mapped[str] = mapped_column(sa.String(16), nullable=False)
+    result: Mapped[str | None] = mapped_column(sa.String(300))
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    executed_at: Mapped[datetime | None] = mapped_column(TZ)
+
+
 # ─── Исходящие: outbox ───
 
 

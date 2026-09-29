@@ -1945,6 +1945,17 @@ export interface SupportKbSource {
   usedAt: string | null;
 }
 
+/** Строка журнала действий бота в диалоге (S6) */
+export interface SupportAgentAction {
+  id: string | null;
+  action: string | null;
+  actionClass: string | null;
+  status: string | null;
+  result: string | null;
+  createdAt: string | null;
+  executedAt: string | null;
+}
+
 export const supportApi = {
   status: () => getJson<{ state: 'not-configured' | 'ready' }>('/platform/support/status'),
   conversations: (mode?: string) =>
@@ -2014,6 +2025,10 @@ export const supportApi = {
   conversationSources: (id: string) =>
     getJson<{ items: SupportKbSource[] }>(
       `/platform/support/conversations/${encodeURIComponent(id)}/knowledge`,
+    ),
+  conversationActions: (id: string) =>
+    getJson<{ items: SupportAgentAction[] }>(
+      `/platform/support/conversations/${encodeURIComponent(id)}/actions`,
     ),
   knowledgeDraft: (id: string) =>
     sendJson<SupportKbEntry>(

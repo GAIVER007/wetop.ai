@@ -278,6 +278,8 @@ SUPPORT_SERVICE_ROUTES = SERVICE_ROUTES | frozenset({
     ("POST", "/support-knowledge/{knowledge_id}/publish"),
     ("POST", "/support-knowledge/{knowledge_id}/status"),
     ("GET", "/conversations/{conv_id}/knowledge"),
+    # S6: журнал действий бота в диалоге — для кабинета
+    ("GET", "/conversations/{conv_id}/actions"),
     ("POST", "/conversations/{conv_id}/knowledge-draft"),
 })
 

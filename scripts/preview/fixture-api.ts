@@ -4419,6 +4419,22 @@ createServer(async (req, res) => {
             return send(200, kbView(entry, true));
           }
         }
+        // S6: журнал действий бота у диалога — у диалога А две строки, у остальных пусто
+        const actConv = /^\/platform\/support\/conversations\/([^/]+)\/actions$/.exec(path);
+        if (actConv && req.method === 'GET') {
+          const d = supportDialogs.find((x) => x.id === actConv[1]);
+          if (!d) return send(404, { message: 'диалог не найден' });
+          const at = new Date().toISOString();
+          return send(200, {
+            items:
+              d.id === SUPPORT_DIALOG_A
+                ? [
+                    { id: 'a1', action: 'channel_pull', actionClass: 'SAFE', status: 'DONE', result: 'ревизий получено 3, обработано 3, со сбоем 0', createdAt: at, executedAt: at },
+                    { id: 'a2', action: 'refund', actionClass: 'HUMAN_ONLY', status: 'ESCALATED', result: 'гость просит возврат за две ночи', createdAt: at, executedAt: null },
+                  ]
+                : [],
+          });
+        }
         const kbConv = /^\/platform\/support\/conversations\/([^/]+)\/(knowledge|knowledge-draft)$/.exec(path);
         if (kbConv) {
           const d = supportDialogs.find((x) => x.id === kbConv[1]);

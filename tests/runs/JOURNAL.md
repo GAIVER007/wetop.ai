@@ -4383,6 +4383,21 @@
 | 29.09.2026 20:12 | unit | ❌ упало 4 из 2391, пропущено 3 | 1 мин 27 с | 8df70e8 | [лог](logs/2026-09-29T15-12-42Z-unit-e538.log) | S3+S4 после слияния main (S0 уже в main) |
 | 29.09.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ✅ 54 из 54 | 6 мин 20 с | 8df70e8 | [лог](logs/2026-09-29T15-14-10Z-e2e-c039.log) | S3+S4 после слияния main |
 | 29.09.2026 20:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 34 с | 071cde9 | [лог](logs/2026-09-29T15-41-47Z-e2e-28d1.log) |  |
+| 29.09.2026 21:30 | unit (частично: packages/domain/src/assistant/diagnostics.test.ts) | ❌ код выхода 1 | 2 с | 500d24c +1 | [лог](logs/2026-09-29T16-30-22Z-unit-b265.log) | S5 red: диагностики в домене ещё нет |
+| 29.09.2026 21:31 | unit (частично: packages/domain/src/assistant/diagnostics.test.ts) | ✅ 12 из 12 | 2 с | 500d24c +3 | [лог](logs/2026-09-29T16-31-02Z-unit-b855.log) | S5 green: домен диагностики |
+| 29.09.2026 21:33 | unit (частично: apps/api/src/assistant/diagnostics.controller.test.ts) | ❌ упало 9 из 11 | 4 с | 500d24c +9 | [лог](logs/2026-09-29T16-33-47Z-unit-bc24.log) | S5 red: маршрутов диагностики в контроллере нет |
+| 29.09.2026 21:33 | unit (частично: apps/api/src/assistant/diagnostics.controller.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 13 | 4 с | 500d24c +10 | [лог](logs/2026-09-29T16-33-52Z-unit-665f.log) | S5 green: диагностика API и таблица прав |
+| 29.09.2026 21:34 | unit (частично: apps/api/src/assistant/diagnostics.controller.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 13 из 13 | 4 с | 500d24c +10 | [лог](logs/2026-09-29T16-34-38Z-unit-bac8.log) | S5 green: диагностика API и таблица прав |
+| 29.09.2026 21:39 | typecheck | ❌ ошибок: 5 | 39 с | 500d24c +21 | [лог](logs/2026-09-29T16-39-25Z-typecheck-b671.log) | S5 диагностика |
+| 29.09.2026 21:40 | integration (частично: tests/integration/assistant-diagnostics.test.ts) | ❌ код выхода 1 | 6 с | 500d24c +11 | [лог](logs/2026-09-29T16-40-18Z-integration-50ce.log) | S5: диагностика на базе |
+| 29.09.2026 21:40 | lint | ✅ без ошибок | 30 с | 500d24c +21 | [лог](logs/2026-09-29T16-40-04Z-lint-57be.log) | S5 диагностика |
+| 29.09.2026 21:40 | typecheck | ✅ без ошибок | 33 с | 500d24c +21 | [лог](logs/2026-09-29T16-40-41Z-typecheck-4fa2.log) | S5 диагностика, повтор после правки тестов |
+| 29.09.2026 21:41 | integration (частично: tests/integration/assistant-diagnostics.test.ts) | ✅ 4 из 4 | 5 с | 500d24c +11 | [лог](logs/2026-09-29T16-41-14Z-integration-85b2.log) | S5: диагностика на базе |
+| 29.09.2026 21:39 | unit | ❌ упало 1 из 2414, пропущено 34 | 1 мин 40 с | 500d24c +20 | [лог](logs/2026-09-29T16-39-58Z-unit-1f84.log) | S5 диагностика: полный unit |
+| 29.09.2026 21:41 | lint | ✅ без ошибок | 19 с | 500d24c +21 | [лог](logs/2026-09-29T16-41-35Z-lint-6553.log) | S5 диагностика, код устоялся |
+| 29.09.2026 21:42 | unit (частично: apps/api/src/assistant tests/unit/design-slop.test.ts) | ❌ упало 1 из 55, пропущено 19 | 4 с | 500d24c +23 | [лог](logs/2026-09-29T16-42-48Z-unit-9a57.log) | S5: тестовые модули помощника знают DiagnosticsService; сторож дизайна |
+| 29.09.2026 21:43 | unit (частично: apps/api/src/assistant) | ✅ 44 из 44 | 4 с | 500d24c +23 | [лог](logs/2026-09-29T16-43-07Z-unit-d5a1.log) | S5: тестовые модули помощника знают DiagnosticsService |
+| 29.09.2026 21:43 | unit | ❌ упало 1 из 2414, пропущено 3 | 1 мин 18 с | 500d24c +23 | [лог](logs/2026-09-29T16-43-20Z-unit-5d56.log) | S5 диагностика: полный unit на устоявшемся коде |
 | 29.09.2026 20:59 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ⏹ прерван | 1 мин 46 с | 9fbab19 +4 | [лог](logs/2026-09-29T15-59-45Z-e2e-a138.log) | RED chat redesign: theme, composer, retained failed draft |
 | 29.09.2026 21:01 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 3 из 3 | 55 с | 98a2da2 +4 | [лог](logs/2026-09-29T16-01-32Z-e2e-3273.log) | RED chat UX after fixture charset correction |
 | 29.09.2026 21:04 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 1 из 3 | 15 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-04-16Z-e2e-95bd.log) | GREEN chat design and retained drafts; synthetic network only |
@@ -4443,6 +4458,23 @@
 | 29.09.2026 22:03 | lint | ✅ без ошибок | 16 с | 068cf57 +21 | [лог](logs/2026-09-29T17-03-26Z-lint-c1c6.log) |  |
 | 29.09.2026 22:03 | unit | ❌ упало 1 из 2455, пропущено 3 | 1 мин 35 с | 068cf57 +18 | [лог](logs/2026-09-29T17-03-43Z-unit-8dfa.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 29.09.2026 22:05 | integration | ✅ 134 из 134 | 40 с | 068cf57 +14 | [лог](logs/2026-09-29T17-05-18Z-integration-1c63.log) |  |
+| 29.09.2026 21:50 | typecheck | ✅ без ошибок | 25 с | f4cd39b | [лог](logs/2026-09-29T16-50-14Z-typecheck-7ce0.log) | S5 после слияния main 70cdb2b6 |
+| 29.09.2026 21:50 | lint | ✅ без ошибок | 19 с | f4cd39b | [лог](logs/2026-09-29T16-50-39Z-lint-1a2f.log) | S5 после слияния main |
+| 29.09.2026 21:50 | unit (частично: apps/api/src/assistant apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 96 из 96 | 5 с | f4cd39b | [лог](logs/2026-09-29T16-50-59Z-unit-2b46.log) | S5 после слияния main: помощник, права, домен |
+| 29.09.2026 21:51 | unit | ❌ упало 1 из 2451, пропущено 3 | 1 мин 28 с | f4cd39b | [лог](logs/2026-09-29T16-51-05Z-unit-e81e.log) | S5 после слияния main: полный unit |
+| 29.09.2026 22:08 | unit (частично: apps/api/src/assistant/actions.controller.test.ts) | ❌ упало 7 из 8 | 4 с | 66923ec +27 | [лог](logs/2026-09-29T17-08-12Z-unit-3ec2.log) | S6 red: маршрутов действий в контроллере нет |
+| 29.09.2026 22:08 | unit (частично: apps/api/src/assistant apps/api/src/auth/route-access.test.ts) | ✅ 54 из 54 | 5 с | 66923ec +28 | [лог](logs/2026-09-29T17-08-16Z-unit-a70a.log) | S6 green: действия API, ключ действий, таблица прав |
+| 29.09.2026 22:10 | typecheck | ❌ ошибок: 3 | 31 с | 66923ec +39 | [лог](logs/2026-09-29T17-10-25Z-typecheck-1785.log) | S6: действия, кабинет |
+| 29.09.2026 22:10 | unit (частично: apps/api/src/platform apps/api/src/assistant packages/integrations) | ❌ упало 1 из 191 | 6 с | 66923ec +38 | [лог](logs/2026-09-29T17-10-56Z-unit-ca2a.log) | S6: платформа и помощник |
+| 29.09.2026 22:11 | typecheck | ✅ без ошибок | 25 с | 66923ec +40 | [лог](logs/2026-09-29T17-11-45Z-typecheck-001a.log) | S6: действия, кабинет |
+| 29.09.2026 22:12 | unit (частично: apps/api/src/platform apps/api/src/assistant apps/api/src/ai-seller packages/integrations) | ✅ 268 из 268 | 7 с | 66923ec +39 | [лог](logs/2026-09-29T17-12-10Z-unit-d8b4.log) | S6: платформа, помощник, продавец |
+| 29.09.2026 22:12 | e2e (частично: tests/ui/support-kb.spec.ts --workers=1 -g Действия агента) | ❌ код выхода 1 | 3 с | 66923ec +39 | [лог](logs/2026-09-29T17-12-44Z-e2e-d4fe.log) | S6 red: блока в странице нет |
+| 29.09.2026 22:12 | e2e (частично: tests/ui/support-kb.spec.ts tests/ui/platform-support.spec.ts tests/ui/support-queue.spec.ts --workers=1) | ❌ код выхода 1 | 3 с | 66923ec +40 | [лог](logs/2026-09-29T17-12-48Z-e2e-4171.log) | S6 green: кабинет с журналом действий |
+| 29.09.2026 22:12 | lint | ✅ без ошибок | 21 с | 66923ec +40 | [лог](logs/2026-09-29T17-12-54Z-lint-9256.log) | S6: действия, кабинет |
+| 29.09.2026 22:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts --workers=1 -g Действия агента) | ❌ упало 1 из 1 | 36 с | 66923ec +39 | [лог](logs/2026-09-29T17-13-50Z-e2e-98cd.log) | S6 red: блока в странице нет |
+| 29.09.2026 22:14 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts tests/ui/platform-support.spec.ts tests/ui/support-queue.spec.ts --workers=1) | ✅ 28 из 28 | 2 мин 59 с | 66923ec +40 | [лог](logs/2026-09-29T17-14-26Z-e2e-7fcb.log) | S6 green: кабинет с журналом действий |
+| 29.09.2026 22:17 | unit | ❌ упало 2 из 2460, пропущено 3 | 1 мин 24 с | 8a72c95 | [лог](logs/2026-09-29T17-17-41Z-unit-ba28.log) | S6: полный unit |
+| 29.09.2026 22:19 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 4 с | be3e37a +1 | [лог](logs/2026-09-29T17-19-26Z-unit-aa73.log) | S6: проходной маршрут журнала действий в таблице прав |
 | 29.09.2026 22:00 | e2e (частично: --config tests/site/playwright.config.ts --grep full product) | ❌ упало 1 из 1 | 45 с | ee31215 +2 | [лог](logs/2026-09-29T17-00-16Z-e2e-b5ce.log) | RED restore detailed public homepage and WETOP heading |
 | 29.09.2026 22:03 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 32 с | ee31215 +9 | [лог](logs/2026-09-29T17-03-43Z-e2e-35fe.log) | Expanded homepage: restored WETOP heading, full module descriptions and seller onboarding |
 | 29.09.2026 21:45 | typecheck | ✅ без ошибок | 25 с | 9febe17 | [лог](logs/2026-09-29T16-45-08Z-typecheck-89dd.log) | SEC-1b после слияния main |
@@ -4470,3 +4502,6 @@
 | 29.09.2026 22:36 | lint | ✅ без ошибок | 20 с | 834bb52 | [лог](logs/2026-09-29T17-36-17Z-lint-ca73.log) |  |
 | 29.09.2026 22:36 | unit | ✅ 2473 из 2476, пропущено 3 | 1 мин 24 с | 834bb52 | [лог](logs/2026-09-29T17-36-37Z-unit-fba7.log) |  |
 | 29.09.2026 22:38 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 27 из 27 | 3 мин 9 с | 834bb52 | [лог](logs/2026-09-29T17-38-02Z-e2e-9b2c.log) | SA1 после слияния main (шкала шрифтов) |
+| 30.09.2026 00:19 | typecheck | ✅ без ошибок | 39 с | 8825509 | [лог](logs/2026-09-29T19-19-55Z-typecheck-7252.log) | S5+S6 после слияния main f0fedbeb |
+| 30.09.2026 00:20 | lint | ✅ без ошибок | 24 с | 8825509 | [лог](logs/2026-09-29T19-20-35Z-lint-aa90.log) | S5+S6 после слияния main |
+| 30.09.2026 00:21 | unit (частично: apps/api/src/assistant apps/api/src/platform apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 144 из 144 | 10 с | 8825509 | [лог](logs/2026-09-29T19-21-00Z-unit-64b8.log) | S5+S6 после слияния main: помощник, платформа, права, домен |

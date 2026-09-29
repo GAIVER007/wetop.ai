@@ -177,4 +177,23 @@
 ## 12. S3 — сделано 29.09 (база знаний)
 
 Управляемая база знаний, инструмент `search_knowledge`, кабинет «База знаний» и «На основании» у диалога — отчёт
-`reports/ai-agents-s3-2026-09-29/README.md`. **Стоп: S5 без отдельного подтверждения не начинать.**
+`reports/ai-agents-s3-2026-09-29/README.md`. Стоп до S5 снят владельцем 29.09 («давай делай»).
+
+## 13. S5 — сделано 29.09 (диагностика)
+
+План — `plans/ai-agents-s5-diagnostics-2026-09-29.md`. Три инструмента без аргументов области: `get_integration_health`,
+`get_reservation_status(number)`, `get_workspace_health`; два адреса узкого ключа помощника `GET /assistant/integrations`
+и `GET /assistant/reservation`; сборка ответа — домен `packages/domain/src/assistant/diagnostics.ts` по белому списку.
+Журнал ошибок §14 не менялся (Q-S5-1: поля `businessId`/`locationId`/`errorCode` из Q-A3 сейчас нечем заполнить), миграций
+нет. Отчёт — `reports/ai-agents-s5-2026-09-29/README.md`. Стоп до S6 снят владельцем 29.09 («начинай»).
+
+## 14. S6 — сделано 29.09 (действия и матрица возможностей)
+
+План — `plans/ai-agents-s6-actions-2026-09-29.md`. Матрица в коде бота (`support_actions_matrix.py`): `channel_pull`
+SAFE, `channel_sync` CONFIRM, семь видов HUMAN_ONLY. Инструменты `list_capabilities`, `propose_action`, `confirm_action`,
+`cancel_action`, `request_human`; ожидающее предложение — в Redis на 15 минут, журнал — таблица бота `support_actions`
+(миграция `0007`), диалог при передаче человеку → `NEEDS_HUMAN`. Платформа: отдельный ключ `ASSISTANT_ACT_KEY` только
+на `POST /assistant/actions/channel-pull|channel-sync` с проверками членства, права, «только чтения», интеграции, лимита
+и идемпотентности. Кабинет: «Действия агента» у диалога. Модель данных PMS не менялась. Отчёт —
+`reports/ai-agents-s6-2026-09-29/README.md`. **Стоп: S7 (эскалации в Telegram) без отдельного подтверждения не
+начинать.**

@@ -1,0 +1,26 @@
+# Типы (typecheck) · 29.09.2026 21:39 Алматы · vm
+# коммит 500d24c (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 21
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+packages/domain/src/assistant/diagnostics.test.ts(155,65): error TS2322: Type '{ id: string; accommodationTypeCode: string; accommodationTypeName: string; status: string; unitCode: string; unitHousekeepingStatus: "INSPECTED"; guests: { id: string; label: string; isPrimary: boolean; }[]; arrivalDate: string; departureDate: string; } | { ...; } | undefined' is not assignable to type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }'.
+  Type 'undefined' is not assignable to type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }'.
+packages/domain/src/assistant/diagnostics.test.ts(161,48): error TS2322: Type '{ status: string; } | { status: string; id: string; accommodationTypeCode: string; accommodationTypeName: string; unitCode: string; unitHousekeepingStatus: "INSPECTED"; guests: { id: string; label: string; isPrimary: boolean; }[]; arrivalDate: string; departureDate: string; } | { ...; }' is not assignable to type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }'.
+  Type '{ status: string; }' is missing the following properties from type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }': accommodationTypeName, unitCode
+packages/domain/src/assistant/diagnostics.test.ts(169,26): error TS2322: Type '{ unitHousekeepingStatus: "DIRTY"; } | { unitHousekeepingStatus: "DIRTY"; id: string; accommodationTypeCode: string; accommodationTypeName: string; status: string; unitCode: string; guests: { ...; }[]; arrivalDate: string; departureDate: string; } | { ...; }' is not assignable to type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }'.
+  Type '{ unitHousekeepingStatus: "DIRTY"; }' is missing the following properties from type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }': accommodationTypeName, status, unitCode
+packages/domain/src/assistant/diagnostics.test.ts(182,49): error TS2322: Type '{ status: string; } | { status: string; id: string; accommodationTypeCode: string; accommodationTypeName: string; unitCode: string; unitHousekeepingStatus: "INSPECTED"; guests: { id: string; label: string; isPrimary: boolean; }[]; arrivalDate: string; departureDate: string; } | { ...; }' is not assignable to type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }'.
+  Type '{ status: string; }' is missing the following properties from type '{ accommodationTypeName: string; status: string; unitCode: string | null; unitHousekeepingStatus?: "DIRTY" | "CLEAN" | "INSPECTED" | null; }': accommodationTypeName, unitCode
+tests/integration/assistant-diagnostics.test.ts(110,42): error TS2353: Object literal may only specify known properties, and 'propertyId' does not exist in type 'GuestWhereInput'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 39 с

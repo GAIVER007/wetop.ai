@@ -1,0 +1,133 @@
+# Сквозные (e2e) · 29.09.2026 22:14 Алматы · vm
+# коммит 66923ec (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 40
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/support-kb.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/support-queue.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+  ✓   1 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (6.4s)
+  ✓   2 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (7.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SupportScreen>
+[WebServer]                 <KnowledgeView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack">
+[WebServer]                       ...
+[WebServer]                         <KnowledgeUploadForm upload={function supportUploadAction}>
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Документ: ...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="file"
+[WebServer]                                     name="file"
+[WebServer]                                     accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="knowledge-file"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]     ...
+[WebServer]  
+  ✓   3 tests/ui/platform-support.spec.ts:103:1 › знания помощника: список и загрузка документа (4.4s)
+  ✓   4 tests/ui/platform-support.spec.ts:123:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (11.3s)
+  ✓   5 tests/ui/platform-support.spec.ts:175:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.9s)
+  ✓   6 tests/ui/platform-support.spec.ts:192:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.4s)
+  ✓   7 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 1440px (15.8s)
+  ✓   8 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 1440px (15.6s)
+  ✓   9 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 390px (13.4s)
+  ✓  10 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 390px (13.5s)
+  ✓  11 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (3.4s)
+  ✓  12 tests/ui/support-kb.spec.ts:61:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.5s)
+  ✓  13 tests/ui/support-kb.spec.ts:69:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (4.7s)
+  ✓  14 tests/ui/support-kb.spec.ts:93:1 › публикация отменяется: без «да» запись остаётся черновиком (3.0s)
+  ✓  15 tests/ui/support-kb.spec.ts:103:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (4.0s)
+  ✓  16 tests/ui/support-kb.spec.ts:117:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (5.5s)
+  ✓  17 tests/ui/support-kb.spec.ts:135:1 › у открытого обращения кнопки «Создать знание» нет (2.8s)
+  ✓  18 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 1440 (6.4s)
+  ✓  19 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 390 (5.5s)
+  ✓  20 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 1440 (6.0s)
+  ✓  21 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 390 (6.1s)
+  ✓  22 tests/ui/support-kb.spec.ts:161:1 › «Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет (5.4s)
+  ✓  23 tests/ui/support-queue.spec.ts:43:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт (3.4s)
+  ✓  24 tests/ui/support-queue.spec.ts:82:1 › переписка открывается рядом со списком; забрать, ответить, вернуть ИИ (6.2s)
+  ✓  25 tests/ui/support-queue.spec.ts:123:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения (4.3s)
+  ✓  26 tests/ui/support-queue.spec.ts:151:1 › помощник не отвечает — отдельно от «не подключён», с повтором (2.8s)
+  ✓  27 tests/ui/support-queue.spec.ts:161:1 › телефон: список на весь экран, переписка вместо него и «К списку» (3.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SupportScreen>
+[WebServer]                 <DialogsView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack supp...">
+[WebServer]                       <div>
+[WebServer]                       <nav>
+[WebServer]                       ...
+[WebServer]                         <DialogReplyForm id="8c3d4e5f-6..." reply={function supportReplyAction} label="Ответ поль...">
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Ответ поль...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Textarea name="text" rows={3} maxLength={4000} required={true} ...>
+[WebServer]                                   <textarea
+[WebServer]                                     className="inp"
+[WebServer]                                     name="text"
+[WebServer]                                     rows={3}
+[WebServer]                                     maxLength={4000}
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="dialog-reply-text"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]  
+  ✓  28 tests/ui/support-queue.spec.ts:189:1 › снимки для владельца: тёмная тема, компьютер и телефон (4.2s)
+
+  28 passed (3.0m)
+
+# код выхода 0 · 2 мин 59 с

@@ -1,0 +1,192 @@
+# Модульные (unit) · 29.09.2026 21:33 Алматы · vm
+# коммит 500d24c (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-33-47Z-unit-bc24.json' 'apps/api/src/assistant/diagnostics.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests | 9 failed) 415ms
+   ❯ GET /assistant/integrations (S5) (6)
+     × организация с каналами: состояние словом, сопоставления, очередь, webhook — без ключей и адресов 36ms
+     × организация без подключённых каналов — channex: null, а не «всё сломано» 5ms
+     × без ключа Channex в окружении — NO_KEY 3ms
+     ✓ чужая пара «человек, организация» — 404, репозиторий не спрашивается 8ms
+     × чтение идёт от имени организации запроса 4ms
+     × без ключа — 401, чужой ключ — 401, кривые id — 400 3ms
+   ❯ GET /assistant/reservation (S5) (5)
+     × своя бронь: статус, даты, ночи, проживания без ячейки — и ничего личного 4ms
+     × чужая организация или несуществующий номер — 404 без различения 16ms
+     ✓ человека нет в организации — 404 до обращения к броням 4ms
+     × номер брони проверяется: пробелы, пустое, слишком длинное — 400 3ms
+     × без ключа — 401 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/integrations (S5) > организация с каналами: состояние словом, сопоставления, очередь, webhook — без ключей и адресов
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:146:52
+    144| describe('GET /assistant/integrations (S5)', () => {
+    145|   it('организация с каналами: состояние словом, сопоставления, очередь…
+    146|     const res = await integrations(OWNER_A, ORG_A).expect(200);
+       |                                                    ^
+    147|     expect(res.body.channex).toMatchObject({
+    148|       state: 'ATTENTION',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/integrations (S5) > организация без подключённых каналов — channex: null, а не «всё сломано»
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:161:52
+    159|
+    160|   it('организация без подключённых каналов — channex: null, а не «всё …
+    161|     const res = await integrations(OWNER_B, ORG_B).expect(200);
+       |                                                    ^
+    162|     expect(res.body).toEqual({ channex: null });
+    163|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/integrations (S5) > без ключа Channex в окружении — NO_KEY
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:167:52
+    165|   it('без ключа Channex в окружении — NO_KEY', async () => {
+    166|     vi.stubEnv('CHANNEX_API_KEY', '');
+    167|     const res = await integrations(OWNER_A, ORG_A).expect(200);
+       |                                                    ^
+    168|     expect(res.body.channex.state).toBe('NO_KEY');
+    169|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/integrations (S5) > чтение идёт от имени организации запроса
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:178:40
+    176|
+    177|   it('чтение идёт от имени организации запроса', async () => {
+    178|     await integrations(OWNER_A, ORG_A).expect(200);
+       |                                        ^
+    179|     expect(seenTenants).toEqual([ORG_A]);
+    180|   });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/integrations (S5) > без ключа — 401, чужой ключ — 401, кривые id — 400
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:183:46
+    181|
+    182|   it('без ключа — 401, чужой ключ — 401, кривые id — 400', async () =>…
+    183|     await integrations(OWNER_A, ORG_A, null).expect(401);
+       |                                              ^
+    184|     await integrations(OWNER_A, ORG_A, 'another-key').expect(401);
+    185|     await get('/assistant/integrations?userId=1&organizationId=2').exp…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/reservation (S5) > своя бронь: статус, даты, ночи, проживания без ячейки — и ничего личного
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:191:59
+    189| describe('GET /assistant/reservation (S5)', () => {
+    190|   it('своя бронь: статус, даты, ночи, проживания без ячейки — и ничего…
+    191|     const res = await reservation(OWNER_A, ORG_A, 'R-42').expect(200);
+       |                                                           ^
+    192|     expect(res.body).toMatchObject({
+    193|       number: 'R-42',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/reservation (S5) > чужая организация или несуществующий номер — 404 без различения
+AssertionError: expected 'Cannot GET /assistant/reservation?use…' to be 'Cannot GET /assistant/reservation?use…' // Object.is equality
+
+Expected: "Cannot GET /assistant/reservation?userId=0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11&organizationId=5d2f1a9e-8c7b-4e3a-a1f0-6b9c2d4e8f00&number=R-404"
+Received: "Cannot GET /assistant/reservation?userId=33333333-3333-4333-8333-333333333333&organizationId=9f8e7d6c-5b4a-4392-8171-000000000000&number=R-42"
+
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:212:34
+    210|     const foreign = await reservation(OWNER_B, ORG_B, 'R-42').expect(4…
+    211|     const missing = await reservation(OWNER_A, ORG_A, 'R-404').expect(…
+    212|     expect(foreign.body.message).toBe(missing.body.message);
+       |                                  ^
+    213|   });
+    214|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/reservation (S5) > номер брони проверяется: пробелы, пустое, слишком длинное — 400
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:221:47
+    219|
+    220|   it('номер брони проверяется: пробелы, пустое, слишком длинное — 400'…
+    221|     await reservation(OWNER_A, ORG_A, 'R 42').expect(400);
+       |                                               ^
+    222|     await reservation(OWNER_A, ORG_A, '').expect(400);
+    223|     await reservation(OWNER_A, ORG_A, 'x'.repeat(41)).expect(400);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/reservation (S5) > без ключа — 401
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:228:53
+    226|
+    227|   it('без ключа — 401', async () => {
+    228|     await reservation(OWNER_A, ORG_A, 'R-42', null).expect(401);
+       |                                                     ^
+    229|   });
+    230| });
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 2 passed (11)
+   Start at  16:33:48
+   Duration  3.36s (transform 53%, import 33%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-33-47Z-unit-bc24.json
+
+# код выхода 1 · 4 с

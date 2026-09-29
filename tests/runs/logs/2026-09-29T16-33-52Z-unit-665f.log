@@ -1,0 +1,49 @@
+# Модульные (unit) · 29.09.2026 21:33 Алматы · vm
+# коммит 500d24c (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-33-52Z-unit-665f.json' 'apps/api/src/assistant/diagnostics.controller.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests | 1 failed) 339ms
+   ❯ GET /assistant/integrations (S5) (6)
+     ✓ организация с каналами: состояние словом, сопоставления, очередь, webhook — без ключей и адресов 44ms
+     ✓ организация без подключённых каналов — channex: null, а не «всё сломано» 5ms
+     × без ключа Channex в окружении — NO_KEY 7ms
+     ✓ чужая пара «человек, организация» — 404, репозиторий не спрашивается 9ms
+     ✓ чтение идёт от имени организации запроса 4ms
+     ✓ без ключа — 401, чужой ключ — 401, кривые id — 400 12ms
+   ✓ GET /assistant/reservation (S5) (5)
+     ✓ своя бронь: статус, даты, ночи, проживания без ячейки — и ничего личного 6ms
+     ✓ чужая организация или несуществующий номер — 404 без различения 6ms
+     ✓ человека нет в организации — 404 до обращения к броням 4ms
+     ✓ номер брони проверяется: пробелы, пустое, слишком длинное — 400 8ms
+     ✓ без ключа — 401 2ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 46ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/assistant/diagnostics.controller.test.ts > GET /assistant/integrations (S5) > без ключа Channex в окружении — NO_KEY
+AssertionError: expected 'ATTENTION' to be 'NO_KEY' // Object.is equality
+
+Expected: "NO_KEY"
+Received: "ATTENTION"
+
+ ❯ apps/api/src/assistant/diagnostics.controller.test.ts:168:36
+    166|     vi.stubEnv('CHANNEX_API_KEY', '');
+    167|     const res = await integrations(OWNER_A, ORG_A).expect(200);
+    168|     expect(res.body.channex.state).toBe('NO_KEY');
+       |                                    ^
+    169|   });
+    170|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 12 passed (13)
+   Start at  16:33:53
+   Duration  3.09s (transform 60%, import 32%, tests 7%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-33-52Z-unit-665f.json
+
+# код выхода 1 · 4 с

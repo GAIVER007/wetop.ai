@@ -23,6 +23,12 @@ PATH_GUARD_STATUS = "/guard/status"
 PATH_ORGANIZATION = "/assistant/organization"
 # S4: контекст обратившегося — третий адрес узкого ключа помощника.
 PATH_REQUESTER = "/assistant/requester"
+# S5: диагностика — четвёртый и пятый адреса узкого ключа помощника.
+PATH_INTEGRATIONS = "/assistant/integrations"
+PATH_RESERVATION = "/assistant/reservation"
+# S6: действия — отдельным ключом ASSISTANT_ACT_KEY, только POST.
+PATH_ACTION_PULL = "/assistant/actions/channel-pull"
+PATH_ACTION_SYNC = "/assistant/actions/channel-sync"
 
 
 class WetopSupportMixin:
@@ -97,3 +103,54 @@ class WetopSupportMixin:
         if not isinstance(body.get("requester"), dict) or not isinstance(body.get("account"), dict):
             raise ProviderUnavailable("bad_body")
         return body
+
+    async def integration_health(self, *, user_id: str, org_id: str) -> dict | None:
+        """Состояние каналов продаж организации (S5). 404 — обратившегося в организации нет."""
+        try:
+            body = await self._request(
+                "GET", PATH_INTEGRATIONS, params={"userId": user_id, "organizationId": org_id}
+            )
+        except ProviderUnavailable as failure:
+            if str(failure) == "api_error_404":
+                return None
+            raise
+        if "channex" not in body:
+            raise ProviderUnavailable("bad_body")
+        return body
+
+    async def reservation_status(self, *, user_id: str, org_id: str, number: str) -> dict | None:
+        """Бронь по номеру среди объектов организации (S5). 404 — нет такой (чужая или несуществующая — одинаково)."""
+        try:
+            body = await self._request(
+                "GET",
+                PATH_RESERVATION,
+                params={"userId": user_id, "organizationId": org_id, "number": number},
+            )
+        except ProviderUnavailable as failure:
+            if str(failure) == "api_error_404":
+                return None
+            raise
+        if not isinstance(body.get("number"), str) or not isinstance(body.get("items"), list):
+            raise ProviderUnavailable("bad_body")
+        return body
+
+    async def _act(self, path: str, payload: dict) -> dict:
+        """Действие ключом ASSISTANT_ACT_KEY. Ключа нет — «недоступно», бот остаётся читающим."""
+        key = getattr(self, "_act_key", "")
+        if not key:
+            raise ProviderUnavailable("no_act_key")
+        body = await self._request("POST", path, json=payload, key=key)
+        if body.get("ok") is not True:
+            raise ProviderUnavailable("bad_body")
+        return body
+
+    async def channel_pull(self, *, user_id: str, org_id: str, idempotency_key: str) -> dict:
+        return await self._act(
+            PATH_ACTION_PULL, {"userId": user_id, "organizationId": org_id, "idempotencyKey": idempotency_key}
+        )
+
+    async def channel_sync(self, *, user_id: str, org_id: str, idempotency_key: str, days: int) -> dict:
+        return await self._act(
+            PATH_ACTION_SYNC,
+            {"userId": user_id, "organizationId": org_id, "idempotencyKey": idempotency_key, "days": days},
+        )

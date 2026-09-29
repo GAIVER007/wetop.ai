@@ -78,7 +78,7 @@ test('в sitemap.xml только живые адреса, robots.txt на не�
  * (ADR-098; `TRIAL_DAYS` в `packages/domain/src/accounts/trial.ts`): на главной «Войти» и «Регистрация» — в шапке,
  * на первом экране и в призыве «Как начать»; «Регистрация» ведёт прямо на форму стойки `/register`. Кода из письма
  * по-прежнему нет — подтверждение идёт ссылкой. Пункт «Блог» не показывается, пока опубликованных статей нет
- * (страница `/blog/` остаётся по адресу); подсказка «Новая бронь» на макете не выходит за карточку на 1440 px;
+ * (страница `/blog/` остаётся по адресу); подсказка на макете первого экрана не выходит за карточку на 1440 px;
  * в текстах сайта нет « · » (тот же голос, что у стойки, §14).
  */
 test('главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · »', async ({
@@ -131,12 +131,54 @@ test('главная: «Войти» и «Регистрация», шаги п�
     page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
-  // подсказка «Новая бронь» — внутри карточки макета (после анимации появления: она сдвигает на 14 px)
-  await page
+  // подсказка на макете первого экрана — внутри карточки (после анимации появления: она сдвигает на 14 px)
+  await hero
     .locator('.mockup__toast')
     .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
-  const card = await page.locator('.mockup__window').boundingBox();
-  const toast = await page.locator('.mockup__toast').boundingBox();
+  const card = await hero.locator('.mockup__window').boundingBox();
+  const toast = await hero.locator('.mockup__toast').boundingBox();
   expect(card && toast && toast.x + toast.width <= card.x + card.width + 1).toBe(true);
   expect(card && toast && toast.y + toast.height <= card.y + card.height + 1).toBe(true);
+});
+
+/**
+ * Позиционирование 29.09.2026 (решение владельца, ADR-104: WETOP — платформа для сервисного бизнеса).
+ * Первый экран говорит о платформе, а не о гостинице: общий операционный экран «Сегодня» с клиентами, филиалами,
+ * задачами, продажами и финансами; ни номеров, ни койко-мест, ни каналов OTA. Hospitality показан ниже как
+ * работающее направление, Beauty — как следующее, с явной пометкой, что подключить его пока нельзя.
+ */
+test('первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  await expect(page).toHaveTitle(/центр управления сервисным бизнесом/i);
+  const hero = page.locator('.hero');
+  await expect(hero.getByRole('heading', { level: 1 })).toContainText(
+    /Центр управления сервисным бизнесом/,
+  );
+  await expect(hero).toContainText(
+    /Клиенты, расписание, продажи, команда, финансы и аналитика — в\sодном рабочем пространстве/,
+  );
+  const heroText = await hero.innerText();
+  expect(heroText).not.toMatch(/номер|койк|шахматк|Booking|Hostelworld|Agoda|хостел|отел/i);
+  const screen = hero.getByRole('img', { name: /Сегодня/ });
+  await expect(screen).toBeVisible();
+  const screenLabel = (await screen.getAttribute('aria-label')) ?? '';
+  for (const word of [/клиент/i, /филиал/i, /задач/i, /продаж/i, /финанс/i]) {
+    expect(screenLabel, `подпись экрана «Сегодня» без ${word}`).toMatch(word);
+  }
+
+  const verticals = page.locator('#audience');
+  await expect(verticals.getByRole('heading', { level: 2 })).toContainText(/Hospitality/);
+  await expect(verticals).toContainText(/Хостелы/);
+  const beauty = verticals.locator('.vertical-next');
+  await expect(beauty).toContainText(/Beauty/);
+  await expect(beauty).toContainText(/Следующее направление/);
+  await expect(beauty).toContainText(/пока нельзя/);
+  // Первый экран идёт раньше разделов про гостиницу
+  const order = await page.locator('main > section').evaluateAll((els) =>
+    els.map((el) => el.getAttribute('id') ?? el.className),
+  );
+  expect(order.indexOf('audience')).toBe(1);
 });

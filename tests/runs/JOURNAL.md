@@ -4425,3 +4425,10 @@
 | 29.09.2026 21:52 | typecheck | ✅ без ошибок | 26 с | 8601505 | [лог](logs/2026-09-29T16-52-24Z-typecheck-02e1.log) | SEC-1b перед слиянием |
 | 29.09.2026 21:53 | lint | ✅ без ошибок | 21 с | 8601505 | [лог](logs/2026-09-29T16-53-03Z-lint-15be.log) | SEC-1b перед слиянием |
 | 29.09.2026 21:53 | unit | ❌ упало 1 из 2432, пропущено 3 | 1 мин 26 с | 8601505 | [лог](logs/2026-09-29T16-53-25Z-unit-fae0.log) | SEC-1b перед слиянием: полный unit |
+| 29.09.2026 21:57 | unit (частично: apps/api/src/channels/integration-property.test.ts apps/api/src/channels/integration-owner.test.ts apps/api/src/database/property-ref.test.ts) | ❌ упало 5 из 28 | 3 с | 60449d8 +3 | [лог](logs/2026-09-29T16-57-48Z-unit-d667.log) | SEC-2 red: объект интеграции по идентификатору |
+| 29.09.2026 21:58 | unit (частично: apps/api/src/channels apps/api/src/database apps/api/src/freshness apps/api/src/guard) | ❌ упало 2 из 233 | 8 с | 60449d8 +8 | [лог](logs/2026-09-29T16-58-32Z-unit-a511.log) | SEC-2 green: объект интеграции по идентификатору |
+| 29.09.2026 21:59 | unit (частично: apps/api/src/channels apps/api/src/database apps/api/src/freshness apps/api/src/guard) | ✅ 233 из 233 | 8 с | 60449d8 +10 | [лог](logs/2026-09-29T16-59-08Z-unit-2476.log) | SEC-2 green: объект интеграции по идентификатору |
+| 29.09.2026 22:00 | typecheck | ✅ без ошибок | 25 с | 60449d8 +10 | [лог](logs/2026-09-29T17-00-04Z-typecheck-b65a.log) | SEC-2 |
+| 29.09.2026 22:00 | lint | ✅ без ошибок | 22 с | 60449d8 +10 | [лог](logs/2026-09-29T17-00-41Z-lint-7952.log) | SEC-2 |
+| 29.09.2026 22:01 | unit | ❌ упало 1 из 2449, пропущено 3 | 1 мин 28 с | 60449d8 +10 | [лог](logs/2026-09-29T17-01-04Z-unit-1882.log) | SEC-2: полный unit |
+| 29.09.2026 22:02 | integration | ✅ 139 из 139 | 50 с | 60449d8 +10 | [лог](logs/2026-09-29T17-02-33Z-integration-7a94.log) | SEC-2: integration |

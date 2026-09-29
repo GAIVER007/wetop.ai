@@ -10,7 +10,6 @@ import {
 import { Reflector } from '@nestjs/core';
 import { from, lastValueFrom, type Observable } from 'rxjs';
 import type { Db } from '@pms/database';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PUBLIC_ROUTE } from '../auth/public.decorator';
 import {
   actorIsPlatformAdmin,
@@ -20,27 +19,18 @@ import {
   withSignedInUser,
 } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { resolveIntegrationProperty } from './integration-property';
 
 export const CHANNEL_OPERATOR_FOREIGN_MESSAGE =
   'Каналы и сторож этой установки работают с объектом другой организации. Обратитесь в поддержку WETOP.';
 
 /**
- * Организация, чей объект подключён к Channex: по сопоставлениям (`channel_mappings.property_id`), а пока их нет —
- * объект установки по имени, самый ранний (С-2). `null` — объект ничей: такой видят только служебные ходоки.
+ * Организация, чей объект подключён к Channex (SEC-2, аудит 29.09.2026): по `INTEGRATION_PROPERTY_ID`, а пока он не
+ * задан — по сопоставлениям (`channel_mappings.property_id`) и, если их нет, по названию установки (`integration-property.ts`).
+ * `null` — объект ничей: такой видят только служебные ходоки.
  */
 export async function channelOperatorOrganizationId(db: Db): Promise<string | null> {
-  const mapping = await db.channelMapping.findFirst({
-    where: { provider: 'channex' },
-    orderBy: { createdAt: 'asc' },
-    select: { property: { select: { organizationId: true } } },
-  });
-  if (mapping) return mapping.property.organizationId;
-  const property = await db.property.findFirst({
-    where: { name: LUXX_APARTS_PROPERTY.name },
-    orderBy: { createdAt: 'asc' },
-    select: { organizationId: true },
-  });
-  return property?.organizationId ?? null;
+  return (await resolveIntegrationProperty(db))?.organizationId ?? null;
 }
 
 /**

@@ -107,65 +107,68 @@ export default async function GuestsPage({
           </Link>
         ))}
       </nav>
-      <GuestsSearch q={rawQ} keep={keptParams(f, ['q'])} />
-      {/* Отборы G7 (ТЗ §28, §30): как «Брони» (R2) — GET-форма и «Показать», на телефоне — за
-          «Фильтрами». Период с–по виден, когда выбран «период» (CSS :has, без скрипта) */}
-      <form method="get" action="/guests" className="guests-filters" data-testid="guests-filters">
-        {Object.entries(keptParams(f, ['last', 'from', 'to', 'visits', 'sort'])).map(
-          ([name, value]) => (
-            <input key={name} type="hidden" name={name} value={value} />
-          ),
-        )}
-        <FiltersToggle active={activeSelects(f)}>
-          <Field inline label="Последний визит">
-            <Select name="last" key={`last-${f.last}`} defaultValue={f.last}>
-              {LAST_VISIT.map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <span className="guests-period">
-            <Field inline label="С">
-              <DateInput
-                key={`from-${f.from}`}
-                name="from"
-                defaultValue={f.from}
-                aria-label="Последний визит: с"
-              />
+      {/* §47: поиск и отборы — одна строка («🔎 Поиск… [Фильтры]»), таблица сразу под ней */}
+      <div className="guests-bar">
+        <GuestsSearch q={rawQ} keep={keptParams(f, ['q'])} />
+        {/* Отборы G7 (ТЗ §28, §30): как «Брони» (R2) — GET-форма и «Показать», на телефоне — за
+            «Фильтрами». Период с–по виден, когда выбран «период» (CSS :has, без скрипта) */}
+        <form method="get" action="/guests" className="guests-filters" data-testid="guests-filters">
+          {Object.entries(keptParams(f, ['last', 'from', 'to', 'visits', 'sort'])).map(
+            ([name, value]) => (
+              <input key={name} type="hidden" name={name} value={value} />
+            ),
+          )}
+          <FiltersToggle active={activeSelects(f)}>
+            <Field inline label="Последний визит">
+              <Select name="last" key={`last-${f.last}`} defaultValue={f.last}>
+                {LAST_VISIT.map(([id, label]) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
             </Field>
-            <Field inline label="По">
-              <DateInput
-                key={`to-${f.to}`}
-                name="to"
-                rangeFromName="from"
-                defaultValue={f.to}
-                aria-label="Последний визит: по"
-              />
+            <span className="guests-period">
+              <Field inline label="С">
+                <DateInput
+                  key={`from-${f.from}`}
+                  name="from"
+                  defaultValue={f.from}
+                  aria-label="Последний визит: с"
+                />
+              </Field>
+              <Field inline label="По">
+                <DateInput
+                  key={`to-${f.to}`}
+                  name="to"
+                  rangeFromName="from"
+                  defaultValue={f.to}
+                  aria-label="Последний визит: по"
+                />
+              </Field>
+            </span>
+            <Field inline label="Визитов">
+              <Select name="visits" key={`visits-${f.visits}`} defaultValue={f.visits}>
+                {VISITS.map(([id, label]) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
             </Field>
-          </span>
-          <Field inline label="Визитов">
-            <Select name="visits" key={`visits-${f.visits}`} defaultValue={f.visits}>
-              {VISITS.map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field inline label="Порядок">
-            <Select name="sort" key={`sort-${f.sort}`} defaultValue={f.sort}>
-              {SORTS.map(([id, label]) => (
-                <option key={id} value={id}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-        </FiltersToggle>
-        <Button tone="secondary">Показать</Button>
-      </form>
+            <Field inline label="Порядок">
+              <Select name="sort" key={`sort-${f.sort}`} defaultValue={f.sort}>
+                {SORTS.map(([id, label]) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          </FiltersToggle>
+          <Button tone="secondary">Показать</Button>
+        </form>
+      </div>
       {q.length === 1 && (
         <p className="hint" role="status">
           Введите не менее 2 символов для поиска.
@@ -176,10 +179,17 @@ export default async function GuestsPage({
           {error} <Link href="/guests">Сбросить фильтры</Link>
         </Alert>
       )}
-      {loadError !== null && <LoadError testId="guests-error" {...loadErrorProps(loadError)} />}
+      {loadError !== null && (
+        <LoadError
+          testId="guests-error"
+          title="Не удалось загрузить гостей"
+          {...loadErrorProps(loadError)}
+        />
+      )}
       {result && !emptyBase && (
         <section aria-label="Список гостей">
-          <p className="directory-meta" data-testid="guests-meta">
+          {/* итог выдачи меняют автопоиск и отборы — читалка узнаёт его без перехода фокуса */}
+          <p className="directory-meta" data-testid="guests-meta" role="status">
             {pluralRu(result.total, ['гость', 'гостя', 'гостей'])}
             {section.meta ? `, ${section.meta}` : ''}
             {searching ? `, по запросу «${q}»` : ''}
@@ -309,8 +319,11 @@ export default async function GuestsPage({
                         )}
                       </td>
                       <td className="num">
-                        <span className="dir-cell-word">визитов </span>
-                        {g.staysCount}
+                        {/* на широком экране — число под шапкой «Визитов», в карточке телефона — словом */}
+                        <span className="guests-visits__num">{g.staysCount}</span>
+                        <span className="dir-cell-word">
+                          {pluralRu(g.staysCount, ['визит', 'визита', 'визитов'])}
+                        </span>
                       </td>
                       <td>
                         {badge ? (

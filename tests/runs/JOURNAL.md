@@ -4424,3 +4424,6 @@
 | 29.09.2026 21:28 | unit | ❌ упало 1 из 2428, пропущено 3 | 1 мин 43 с | 27beec3 | [лог](logs/2026-09-29T16-28-48Z-unit-470d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 29.09.2026 21:30 | integration | ❌ код выхода 1 | 1 с | 27beec3 | [лог](logs/2026-09-29T16-30-32Z-integration-5dbf.log) |  |
 | 29.09.2026 21:31 | integration | ✅ 131 из 131 | 44 с | 27beec3 | [лог](logs/2026-09-29T16-31-00Z-integration-4b22.log) |  |
+| 29.09.2026 21:50 | typecheck | ✅ без ошибок | 25 с | f4cd39b | [лог](logs/2026-09-29T16-50-14Z-typecheck-7ce0.log) | S5 после слияния main 70cdb2b6 |
+| 29.09.2026 21:50 | lint | ✅ без ошибок | 19 с | f4cd39b | [лог](logs/2026-09-29T16-50-39Z-lint-1a2f.log) | S5 после слияния main |
+| 29.09.2026 21:50 | unit (частично: apps/api/src/assistant apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 96 из 96 | 5 с | f4cd39b | [лог](logs/2026-09-29T16-50-59Z-unit-2b46.log) | S5 после слияния main: помощник, права, домен |

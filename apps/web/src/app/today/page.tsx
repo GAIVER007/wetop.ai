@@ -9,7 +9,6 @@ import { Icon } from '../../components/icon';
 import { HotelClock } from './dashboard-widgets';
 import { DayBar } from './day-bar';
 import { DeskSection, DeskSkeleton } from './desk-section';
-import { FirstSteps } from './first-steps';
 import { MoneyToday } from './money-today';
 import { SystemsToday } from './systems-today';
 import { Panel } from '../../components/ui';
@@ -73,9 +72,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         </>
       }
     >
-      <Suspense fallback={null}>
-        <FirstSteps />
-      </Suspense>
       <div className="day-bar-row">
         <DayBar date={deskDate} today={today} />
         <Suspense

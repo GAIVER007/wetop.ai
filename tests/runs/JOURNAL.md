@@ -4220,6 +4220,9 @@
 | 29.09.2026 13:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | d9dce04 | [лог](logs/2026-09-29T08-35-49Z-e2e-e2f4.log) |  |
 | 29.09.2026 13:36 | e2e | ✅ 26 из 26 | 1 мин 15 с | d9dce04 | [лог](logs/2026-09-29T08-36-52Z-e2e-ece4.log) |  |
 | 29.09.2026 13:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 612 из 612 | 53 мин 9 с | d9dce04 | [лог](logs/2026-09-29T08-38-08Z-e2e-f49e.log) |  |
+| 29.09.2026 17:12 | unit | ✅ 2319 из 2322, пропущено 3 | 2 мин 8 с | 6ab9541 +3 | [лог](logs/2026-09-29T12-12-06Z-unit-9d3e.log) |  |
+| 29.09.2026 17:22 | unit | ✅ 2319 из 2322, пропущено 3 | 1 мин 14 с | 642f18c +2 | [лог](logs/2026-09-29T12-22-52Z-unit-dd95.log) |  |
+| 29.09.2026 17:24 | integration | ✅ 124 из 124 | 38 с | 642f18c +3 | [лог](logs/2026-09-29T12-24-06Z-integration-3a10.log) |  |
 | 29.09.2026 16:51 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ❌ код выхода 1 | 8 с | 6ab9541 +1 | [лог](logs/2026-09-29T11-51-34Z-unit-00c2.log) | (файл не выполнился) |
 | 29.09.2026 16:52 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ❌ упало 1 из 10 | 1 с | 6ab9541 +3 | [лог](logs/2026-09-29T11-52-07Z-unit-be19.log) | registrationPhone Казахстан: код +7 и десять цифр номера |
 | 29.09.2026 16:52 | unit (частично: packages/domain/src/accounts/registration-contact.test.ts) | ✅ 10 из 10 | 1 с | 6ab9541 +3 | [лог](logs/2026-09-29T11-52-17Z-unit-0c6d.log) |  |
@@ -4293,6 +4296,9 @@
 | 29.09.2026 18:08 | unit | ❌ упало 4 из 2362, пропущено 3 | 1 мин 23 с | 56427c4 +20 | [лог](logs/2026-09-29T13-08-24Z-unit-3427.log) | S4: полный unit |
 | 29.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 634 | 55 мин 26 с | 7d27564 | [лог](logs/2026-09-29T11-45-45Z-e2e-e376.log) | после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке |
 | 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/workspace.spec.ts:24) | ✅ 7 из 7 | 1 мин 25 с | 368c37f +1 | [лог](logs/2026-09-29T12-41-37Z-e2e-a05c.log) |  |
+| 29.09.2026 18:11 | unit | ❌ упало 4 из 2340, пропущено 3 | 1 мин 18 с | 00cb705 | [лог](logs/2026-09-29T13-11-01Z-unit-b6eb.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 18:12 | integration | ❌ код выхода 1 | 1 с | 00cb705 | [лог](logs/2026-09-29T13-12-19Z-integration-0d88.log) |  |
+| 29.09.2026 18:12 | integration | ✅ 125 из 125 | 40 с | 00cb705 | [лог](logs/2026-09-29T13-12-39Z-integration-6ffc.log) |  |
 | 29.09.2026 18:15 | typecheck | ✅ без ошибок | 42 с | 1b26b0c | [лог](logs/2026-09-29T13-15-04Z-typecheck-df15.log) |  |
 | 29.09.2026 18:15 | lint | ✅ без ошибок | 24 с | 1b26b0c | [лог](logs/2026-09-29T13-15-47Z-lint-1c07.log) |  |
 | 29.09.2026 18:16 | unit | ❌ упало 5 из 2362, пропущено 3 | 1 мин 30 с | 1b26b0c | [лог](logs/2026-09-29T13-16-11Z-unit-5473.log) | S4: перед merge, после слияния main |
@@ -4400,3 +4406,6 @@
 | 29.09.2026 21:40 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 3 из 22 | 2 мин 51 с | d373efe +12 | [лог](logs/2026-09-29T16-40-38Z-e2e-f789.log) | GREEN public product story redesign and authentication regression |
 | 29.09.2026 21:44 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 22 из 22 | 31 с | d373efe +12 | [лог](logs/2026-09-29T16-44-02Z-e2e-d3c4.log) | Public site final: product tabs, FAQ, themes, mobile layout, authentication and accessibility |
 | 29.09.2026 21:46 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 23 из 23 | 27 с | d373efe +12 | [лог](logs/2026-09-29T16-46-49Z-e2e-c724.log) | Final homepage including dark theme contrast in all five panels |
+| 29.09.2026 21:28 | unit | ❌ упало 1 из 2428, пропущено 3 | 1 мин 43 с | 27beec3 | [лог](logs/2026-09-29T16-28-48Z-unit-470d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 29.09.2026 21:30 | integration | ❌ код выхода 1 | 1 с | 27beec3 | [лог](logs/2026-09-29T16-30-32Z-integration-5dbf.log) |  |
+| 29.09.2026 21:31 | integration | ✅ 131 из 131 | 44 с | 27beec3 | [лог](logs/2026-09-29T16-31-00Z-integration-4b22.log) |  |

@@ -4396,3 +4396,7 @@
 | 29.09.2026 21:16 | typecheck | ✅ без ошибок | 25 с | d9eb3bd | [лог](logs/2026-09-29T16-16-29Z-typecheck-b304.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | lint | ✅ без ошибок | 23 с | d9eb3bd | [лог](logs/2026-09-29T16-17-04Z-lint-78ae.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | unit | ❌ упало 1 из 2425, пропущено 3 | 1 мин 28 с | d9eb3bd | [лог](logs/2026-09-29T16-17-28Z-unit-904c.log) | SEC-1a после слияния main: полный unit |
+| 29.09.2026 21:31 | e2e (частично: --config tests/site/playwright.config.ts --grep product tour\|FAQ and) | ❌ упало 2 из 2 | 2 мин 32 с | d373efe +2 | [лог](logs/2026-09-29T16-31-56Z-e2e-fc8b.log) | RED new homepage product tour, FAQ and persistent theme |
+| 29.09.2026 21:40 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 3 из 22 | 2 мин 51 с | d373efe +12 | [лог](logs/2026-09-29T16-40-38Z-e2e-f789.log) | GREEN public product story redesign and authentication regression |
+| 29.09.2026 21:44 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 22 из 22 | 31 с | d373efe +12 | [лог](logs/2026-09-29T16-44-02Z-e2e-d3c4.log) | Public site final: product tabs, FAQ, themes, mobile layout, authentication and accessibility |
+| 29.09.2026 21:46 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 23 из 23 | 27 с | d373efe +12 | [лог](logs/2026-09-29T16-46-49Z-e2e-c724.log) | Final homepage including dark theme contrast in all five panels |

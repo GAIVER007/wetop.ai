@@ -15,7 +15,12 @@ type Calls = { path: string; body: unknown; credentials: boolean }[];
 
 async function mockDesk(
   page: Page,
-  handlers: Partial<Record<'options' | 'login' | 'register' | 'resend', (body: unknown) => { status: number; body: unknown }>>,
+  handlers: Partial<
+    Record<
+      'options' | 'login' | 'register' | 'resend',
+      (body: unknown) => { status: number; body: unknown }
+    >
+  >,
 ): Promise<Calls> {
   const calls: Calls = [];
   await page.route(`${APP}/api/site-auth/*`, async (route: Route) => {
@@ -36,7 +41,11 @@ async function mockDesk(
   });
   // Переход в стойку после входа — страница-заглушка вместо настоящей стойки
   await page.route(`${APP}/today`, (route) =>
-    route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: '<h1>Стойка: Главная</h1>' }),
+    route.fulfill({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: '<h1>Стойка: Главная</h1>',
+    }),
   );
   return calls;
 }
@@ -79,7 +88,7 @@ test('неверный пароль — текст стойки в окне, ч�
     login: () => ({ status: 401, body: { message: 'Неверная почта или пароль' } }),
   });
   await page.goto('/');
-  await page.locator('.hero').getByRole('link', { name: 'Войти', exact: true }).click();
+  await page.locator('.site-header').getByRole('link', { name: 'Войти', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Почта').fill('dana@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('ne-tot');
@@ -88,7 +97,9 @@ test('неверный пароль — текст стойки в окне, ч�
   await expect(page).toHaveURL(`${SITE_ORIGIN}/`);
 });
 
-test('стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу', async ({ page }) => {
+test('стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу', async ({
+  page,
+}) => {
   await page.route(`${APP}/api/site-auth/*`, (route) => route.abort('connectionrefused'));
   await page.goto('/');
   await page.locator('.site-header').getByRole('link', { name: 'Войти', exact: true }).click();
@@ -104,7 +115,9 @@ test('стойка недоступна — окно говорит об это�
   );
 });
 
-test('«Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма', async ({ page }) => {
+test('«Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма', async ({
+  page,
+}) => {
   const calls = await mockDesk(page, {
     options: () => ({ status: 200, body: { registrationEnabled: true } }),
     register: (body) => ({
@@ -114,7 +127,10 @@ test('«Получить доступ» при открытой регистра
     resend: () => ({ status: 200, body: { ok: true } }),
   });
   await page.goto('/');
-  await page.locator('.hero').getByRole('link', { name: /Получить доступ/ }).click();
+  await page
+    .locator('.hero')
+    .getByRole('link', { name: /Получить доступ/ })
+    .click();
 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
@@ -129,7 +145,10 @@ test('«Получить доступ» при открытой регистра
   await dialog.getByLabel('Телефон').fill('701 555 44 33');
   await dialog.getByLabel('Почта').fill('dana@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('parol-dlya-testa');
-  await expect(dialog.getByRole('link', { name: 'политикой конфиденциальности' })).toHaveAttribute('href', '/privacy/');
+  await expect(dialog.getByRole('link', { name: 'политикой конфиденциальности' })).toHaveAttribute(
+    'href',
+    '/privacy/',
+  );
   // без согласия с политикой форма не уходит и говорит, что отметить
   await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
   await expect(dialog.getByRole('alert')).toContainText('согласие с политикой конфиденциальности');
@@ -156,16 +175,22 @@ test('«Получить доступ» при открытой регистра
   await page.screenshot({ path: 'test-results/site-auth-3-sent.png' });
 });
 
-test('регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает', async ({ page }) => {
+test('регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает', async ({
+  page,
+}) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: false } }) });
   await page.goto('/#register');
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading', { name: 'Регистрация временно недоступна' })).toBeVisible();
+  await expect(
+    dialog.getByRole('heading', { name: 'Регистрация временно недоступна' }),
+  ).toBeVisible();
   await expect(dialog).not.toContainText(/14\sдней|заведём аккаунт/i);
   await expect(dialog.getByLabel('Пароль', { exact: true })).toHaveCount(0);
 });
 
-test('#login в адресе открывает окно; Escape закрывает и убирает метку из адреса', async ({ page }) => {
+test('#login в адресе открывает окно; Escape закрывает и убирает метку из адреса', async ({
+  page,
+}) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
   await page.goto('/#login');
   const dialog = page.getByRole('dialog');
@@ -208,13 +233,18 @@ test('снимки окна регистрации: светлая и тёмна
       await dialog.getByLabel('Код страны').selectOption('KZ');
       await dialog.getByLabel('Телефон').fill('701 555 44 33');
       await page.waitForTimeout(300);
-      await page.screenshot({ path: `${report}/site-register-${theme}-${width}.png`, caret: 'initial' });
+      await page.screenshot({
+        path: `${report}/site-register-${theme}-${width}.png`,
+        caret: 'initial',
+      });
     }
   }
   await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/privacy/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Политика конфиденциальности' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Политика конфиденциальности' }),
+  ).toBeVisible();
   // Разделы, которых требует закон РК «О персональных данных и их защите»: кто оператор, где хранятся данные и
   // трансграничная передача, данные гостей по поручению гостиницы, права субъекта и куда жаловаться, cookie.
   for (const section of [
@@ -227,5 +257,9 @@ test('снимки окна регистрации: светлая и тёмна
   ])
     await expect(page.getByRole('heading', { level: 2, name: new RegExp(section) })).toBeVisible();
   await expect(page.getByRole('link', { name: 'zapoinov@bk.ru' }).first()).toBeVisible();
-  await page.screenshot({ path: `${report}/site-privacy-light-1440.png`, fullPage: true, caret: 'initial' });
+  await page.screenshot({
+    path: `${report}/site-privacy-light-1440.png`,
+    fullPage: true,
+    caret: 'initial',
+  });
 });

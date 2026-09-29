@@ -1,5 +1,5 @@
 import { getDictionary } from '../../i18n';
-import { loginLink, registerLink } from '../../lib/site';
+import { registerLink } from '../../lib/site';
 import { Icon } from '../icon';
 import { OperationsMockup } from '../operations-mockup';
 import { typo } from '../typo';
@@ -36,8 +36,8 @@ export function Hero() {
                   {t.nav.register}
                   <Icon name="arrowRight" size={18} />
                 </a>
-                <a className="btn btn--secondary btn--lg" href={loginLink().href} data-auth="login">
-                  {t.nav.login}
+                <a className="btn btn--secondary btn--lg" href="#features">
+                  Смотреть возможности <Icon name="arrowRight" size={18} />
                 </a>
               </div>
               <p className="hero__note">{typo(t.hero.note)}</p>
@@ -53,6 +53,9 @@ export function Hero() {
               </ul>
             </div>
             <div className="hero__visual">
+              <p className="hero__preview-label">
+                WETOP / Рабочее пространство <span>Пример интерфейса</span>
+              </p>
               <OperationsMockup />
             </div>
           </div>

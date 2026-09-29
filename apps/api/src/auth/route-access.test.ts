@@ -233,6 +233,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /a/hit': 'public',
   'GET /a/demo': 'public',
   'GET /w/widget.js': 'public',
+  'GET /w/config': 'public',
   'GET /w/availability': 'public',
   'POST /w/book': 'public',
   'GET /w/demo': 'public',

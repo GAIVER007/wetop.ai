@@ -4434,3 +4434,17 @@
 | 29.09.2026 22:00 | lint | ✅ без ошибок | 22 с | 60449d8 +10 | [лог](logs/2026-09-29T17-00-41Z-lint-7952.log) | SEC-2 |
 | 29.09.2026 22:01 | unit | ❌ упало 1 из 2449, пропущено 3 | 1 мин 28 с | 60449d8 +10 | [лог](logs/2026-09-29T17-01-04Z-unit-1882.log) | SEC-2: полный unit |
 | 29.09.2026 22:02 | integration | ✅ 139 из 139 | 50 с | 60449d8 +10 | [лог](logs/2026-09-29T17-02-33Z-integration-7a94.log) | SEC-2: integration |
+| 29.09.2026 22:08 | unit (частично: apps/api/src/web-booking/turnstile.test.ts) | ❌ код выхода 1 | 1 с | 38254b5 +1 | [лог](logs/2026-09-29T17-08-26Z-unit-9acf.log) | BOOK-SEC1 red: TurnstileService |
+| 29.09.2026 22:09 | unit (частично: apps/api/src/web-booking/turnstile.test.ts) | ✅ 18 из 18 | 2 с | 38254b5 +2 | [лог](logs/2026-09-29T17-09-03Z-unit-5d66.log) | BOOK-SEC1 green: TurnstileService |
+| 29.09.2026 22:09 | unit (частично: apps/api/src/web-booking/web-booking.controller.test.ts) | ❌ упало 9 из 32 | 4 с | 38254b5 +3 | [лог](logs/2026-09-29T17-09-36Z-unit-b61c.log) | BOOK-SEC1 red: проверка в /w/book и /w/config |
+| 29.09.2026 22:10 | unit (частично: apps/api/src/web-booking apps/api/src/analytics) | ❌ упало 1 из 95 | 5 с | 38254b5 +7 | [лог](logs/2026-09-29T17-10-14Z-unit-3c9d.log) | BOOK-SEC1 green: проверка в /w/book, /w/config |
+| 29.09.2026 22:10 | unit (частично: apps/api/src/web-booking) | ✅ 61 из 61 | 4 с | 38254b5 +8 | [лог](logs/2026-09-29T17-10-42Z-unit-d5f2.log) | BOOK-SEC1 green: виджет |
+| 29.09.2026 22:12 | typecheck | ✅ без ошибок | 25 с | 38254b5 +10 | [лог](logs/2026-09-29T17-12-25Z-typecheck-ef37.log) | BOOK-SEC1 |
+| 29.09.2026 22:13 | lint | ✅ без ошибок | 22 с | 38254b5 +10 | [лог](logs/2026-09-29T17-13-02Z-lint-efed.log) | BOOK-SEC1 |
+| 29.09.2026 22:13 | unit | ❌ упало 2 из 2479, пропущено 3 | 1 мин 30 с | 38254b5 +8 | [лог](logs/2026-09-29T17-13-25Z-unit-e378.log) | BOOK-SEC1: полный unit |
+| 29.09.2026 22:14 | integration | ✅ 139 из 139 | 49 с | 38254b5 +8 | [лог](logs/2026-09-29T17-14-56Z-integration-7605.log) | BOOK-SEC1: integration |
+| 29.09.2026 22:15 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 5 с | 38254b5 +9 | [лог](logs/2026-09-29T17-15-53Z-unit-b6a8.log) | BOOK-SEC1: GET /w/config в таблице прав |
+| 29.09.2026 22:16 | e2e (частично: tests/e2e/web-booking.spec.ts) | ✅ 3 из 3 | 13 с | 38254b5 +11 | [лог](logs/2026-09-29T17-16-47Z-e2e-b682.log) | BOOK-SEC1: живой web-booking, /w/config отдаёт null |
+| 29.09.2026 22:18 | typecheck | ✅ без ошибок | 38 с | 38254b5 +11 | [лог](logs/2026-09-29T17-18-01Z-typecheck-081c.log) | BOOK-SEC1 финал |
+| 29.09.2026 22:18 | lint | ✅ без ошибок | 22 с | 38254b5 +11 | [лог](logs/2026-09-29T17-18-51Z-lint-7186.log) | BOOK-SEC1 финал |
+| 29.09.2026 22:19 | unit | ❌ упало 1 из 2479, пропущено 3 | 1 мин 27 с | 38254b5 +9 | [лог](logs/2026-09-29T17-19-14Z-unit-9a5c.log) | BOOK-SEC1 финал: полный unit |

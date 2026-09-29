@@ -15,6 +15,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { INCIDENTS_REPOSITORY, PrismaIncidentsRepository } from '../guard/incidents.repository';
 import { ReservationsModule } from '../reservations/reservations.module';
 import { BotQuoteController } from './bot-quote.controller';
+import { TurnstileService } from './turnstile';
 import { WebBookingController } from './web-booking.controller';
 import { WebBookingService } from './web-booking.service';
 
@@ -78,6 +79,7 @@ export class WidgetCorsMiddleware implements NestMiddleware {
   providers: [
     PrismaService,
     WebBookingService,
+    TurnstileService,
     WidgetCorsMiddleware,
     // журнал неисправностей для алерта С-7 (booking.flood): своя привязка порта, без всего GuardModule
     { provide: INCIDENTS_REPOSITORY, useClass: PrismaIncidentsRepository },

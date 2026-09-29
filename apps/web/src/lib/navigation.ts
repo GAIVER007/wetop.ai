@@ -184,11 +184,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/ai-seller',
+        // Вход в раздел — список агентов (S0, план ai-agents-wetop-support): AI-продавец живёт по `/ai-seller`,
+        // WETOP Support — по `/platform/support`, карточку видит только главный администратор
+        href: '/ai-agents',
         requires: 'dialogs',
-        label: 'ИИ-продавец',
+        label: 'ИИ-агенты',
         icon: 'chat',
-        description: 'Бот на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
+        description: 'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
         // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
       {
@@ -301,13 +303,13 @@ export const sidebarSections: SidebarSection[] = [
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
-    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-продавец, Сайт
+    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-агенты (бывший ИИ-продавец), Сайт
     items: [
       menuItem('/rates'),
       menuItem('/channels'),
       menuItem('/website'),
       // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
-      menuItem('/ai-seller'),
+      menuItem('/ai-agents'),
     ],
   },
   {
@@ -331,7 +333,7 @@ export const sidebarSections: SidebarSection[] = [
   },
   {
     // только главному администратору (ADR-083): данных чужих гостиниц здесь нет — названия, люди и расширения.
-    // Техподдержка переехала под «ИИ-продавец» — там теперь два агента (переключатель на странице раздела)
+    // Техподдержка — карточка WETOP Support на входе «ИИ-агенты» и переключатель на странице продавца
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
@@ -419,7 +421,13 @@ export function deskAccessOf(
   };
 }
 
+/** Страницы агентов лежат под своими адресами, но в меню это один пункт «ИИ-агенты» */
+const AGENT_PAGES = '/ai-seller';
+
 export function activeNavigation(path: string) {
+  if (path === AGENT_PAGES || path.startsWith(`${AGENT_PAGES}/`)) {
+    return navigationItems.find((item) => item.href === '/ai-agents');
+  }
   return navigationItems
     .filter((item) => path === item.href || path.startsWith(`${item.href}/`))
     .sort((a, b) => b.href.length - a.href.length)[0];

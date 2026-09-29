@@ -85,6 +85,8 @@ export interface FakeProperty {
   checkOutTime: string;
   /** Platform P1 (DATA_MODEL v2.6): филиал объекта; у объектов, положенных тестом руками, может не быть */
   locationId?: string;
+  /** Контакт объекта; регистрация 29.09.2026 кладёт сюда телефон из формы */
+  phone?: string | null;
 }
 
 /** Цепочка Platform P1 (DATA_MODEL §18): бизнес организации и его филиал */
@@ -101,6 +103,7 @@ export interface FakeLocation {
   name: string;
   timezone: string;
   currency: string;
+  phone?: string | null;
 }
 
 export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
@@ -187,6 +190,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
           name: data.name,
           timezone: data.timezone,
           currency: data.currency,
+          phone: data.phone ?? null,
         };
         locations.push(row);
         return { ...row };

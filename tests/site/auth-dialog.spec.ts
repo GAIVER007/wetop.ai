@@ -1,3 +1,4 @@
+import { mkdirSync } from 'node:fs';
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 /**
@@ -123,8 +124,17 @@ test('«Получить доступ» при открытой регистра
 
   await dialog.getByLabel('Имя').fill('Дана Тестова');
   await dialog.getByLabel('Название гостиницы').fill('Хостел «Тест»');
+  // страна кода — явно: иначе она зависит от пояса и языка браузера, на котором гоняют тест
+  await dialog.getByLabel('Код страны').selectOption('KZ');
+  await dialog.getByLabel('Телефон').fill('701 555 44 33');
   await dialog.getByLabel('Почта').fill('dana@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('parol-dlya-testa');
+  await expect(dialog.getByRole('link', { name: 'политикой конфиденциальности' })).toHaveAttribute('href', '/privacy/');
+  // без согласия с политикой форма не уходит и говорит, что отметить
+  await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toContainText('согласие с политикой конфиденциальности');
+  expect(calls.find((c) => c.path === 'register')).toBeUndefined();
+  await dialog.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
   await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
 
   await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
@@ -135,6 +145,9 @@ test('«Получить доступ» при открытой регистра
     name: 'Дана Тестова',
     hotelName: 'Хостел «Тест»',
     password: 'parol-dlya-testa',
+    phoneCountry: 'KZ',
+    phone: '701 555 44 33',
+    privacyAccepted: true,
   });
   // повтор письма — не чаще раза в минуту: сразу после отправки кнопка ждёт
   const resend = dialog.getByRole('button', { name: /Ещё раз — через \d+ с/ });
@@ -176,4 +189,31 @@ test('на телефоне окно открывается из меню и н�
   expect(overflow).toBeLessThanOrEqual(1);
   await page.waitForTimeout(300); // окно появляется за 180 мс
   await page.screenshot({ path: 'test-results/site-auth-4-mobile.png' });
+});
+
+/** Снимки окна регистрации 29.09.2026 для визуального «да» владельца — `reports/registration-v2-2026-09-29/` */
+test('снимки окна регистрации: светлая и тёмная, 1440 и 390', async ({ page }) => {
+  await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
+  const report = 'reports/registration-v2-2026-09-29';
+  mkdirSync(report, { recursive: true });
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      await page.goto('/#register');
+      const dialog = page.getByRole('dialog');
+      await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
+      await dialog.getByLabel('Имя').fill('Дана Тестова');
+      await dialog.getByLabel('Название гостиницы').fill('Хостел «Тест»');
+      await dialog.getByLabel('Код страны').selectOption('KZ');
+      await dialog.getByLabel('Телефон').fill('701 555 44 33');
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: `${report}/site-register-${theme}-${width}.png`, caret: 'initial' });
+    }
+  }
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/privacy/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Политика конфиденциальности' })).toBeVisible();
+  await page.screenshot({ path: `${report}/site-privacy-light-1440.png`, fullPage: true, caret: 'initial' });
 });

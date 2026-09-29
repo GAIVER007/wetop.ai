@@ -288,6 +288,9 @@ export const ru: Dictionary = {
       submit: 'Создать аккаунт',
       pending: 'Создаём…',
       terms: 'Пароль не короче 10 знаков. Сотрудников пригласите потом из стойки — каждый задаст себе пароль сам.',
+      consentBefore: 'Я ознакомился с',
+      consentLink: 'политикой конфиденциальности',
+      consentAfter: 'и согласен на обработку данных',
       haveAccount: 'Уже есть аккаунт?',
     },
     closed: {
@@ -316,6 +319,9 @@ export const ru: Dictionary = {
       namePlaceholder: 'Как к вам обращаться',
       hotel: 'Название гостиницы',
       hotelPlaceholder: 'Так его увидят на стойке и в отчётах',
+      phone: 'Телефон',
+      phoneCountry: 'Код страны',
+      phonePlaceholder: '701 123 45 67',
       show: 'Показать',
       hide: 'Скрыть',
       showLabel: 'Показать пароль',
@@ -323,6 +329,7 @@ export const ru: Dictionary = {
     },
     errors: {
       required: 'Заполните все поля',
+      privacy: 'Отметьте согласие с политикой конфиденциальности',
       network: 'Нет связи с сервером. Попробуйте ещё раз.',
       fallback: 'Открыть на отдельной странице',
     },

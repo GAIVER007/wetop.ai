@@ -1,0 +1,75 @@
+# Сквозные (e2e) · 29.09.2026 17:00 Алматы · vm
+# коммит 6ab9541 (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 16
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/login-access.spec.ts' 'tests/ui/registration-closed.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (1.5s)
+  ✓   2 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (3.5s)
+  ✓   3 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (1.6s)
+  ✓   4 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (1.4s)
+  ✓   5 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (2.7s)
+  ✓   6 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (2.8s)
+  ✓   7 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (13.8s)
+  ✓   8 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (9.0s)
+  ✓   9 tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль (983ms)
+  ✓  10 tests/ui/login-access.spec.ts:200:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (2.0s)
+  ✓  11 tests/ui/login-access.spec.ts:224:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (896ms)
+  ✓  12 tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (997ms)
+  ✓  13 tests/ui/login-access.spec.ts:257:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (828ms)
+  ✓  14 tests/ui/login-access.spec.ts:264:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (2.2s)
+  ✓  15 tests/ui/login-access.spec.ts:286:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (2.4s)
+  ✓  16 tests/ui/login-access.spec.ts:311:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (791ms)
+  ✓  17 tests/ui/login-access.spec.ts:318:3 › регистрация доступна по умолчанию › регистрация: без согласия с политикой форма не уходит, неверный телефон — отказ словами (1.6s)
+  ✓  18 tests/ui/login-access.spec.ts:341:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (1.7s)
+  ✓  19 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login оставляет вход сотрудников (1.0s)
+  ✓  20 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /register оставляет вход сотрудников (1.0s)
+  ✓  21 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login?mode=register оставляет вход сотрудников (896ms)
+  ✓  22 tests/ui/registration-closed.spec.ts:27:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (833ms)
+  ✘  23 tests/ui/registration-closed.spec.ts:39:1 › ранее открытая форма получает отказ через server action без новой сессии (16.6s)
+
+
+  1) tests/ui/registration-closed.spec.ts:39:1 › ранее открытая форма получает отказ через server action без новой сессии 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByRole('alert')
+    Expected substring: "Самостоятельная регистрация закрыта"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByRole('alert') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('alert')
+
+
+      55 |   });
+      56 |   await page.getByRole('button', { name: 'Создать организацию' }).click();
+    > 57 |   await expect(page.getByRole('main').getByRole('alert')).toContainText(
+         |                                                           ^
+      58 |     'Самостоятельная регистрация закрыта',
+      59 |   );
+      60 |   expect((await context.cookies()).some((cookie) => cookie.name === 'wetop_session')).toBe(false);
+        at /home/user/wetop.ai/tests/ui/registration-closed.spec.ts:57:59
+
+    Error Context: test-results/registration-closed-ранее--6e4fe-ver-action-без-новой-сессии/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/registration-closed-ранее--6e4fe-ver-action-без-новой-сессии/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/registration-closed-ранее--6e4fe-ver-action-без-новой-сессии/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/registration-closed.spec.ts:39:1 › ранее открытая форма получает отказ через server action без новой сессии 
+  22 passed (1.3m)
+
+# код выхода 1 · 1 мин 22 с

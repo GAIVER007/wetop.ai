@@ -1,0 +1,73 @@
+# Модульные (unit) · 29.09.2026 16:53 Алматы · vm
+# коммит 6ab9541 (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T11-53-40Z-unit-73db.json' 'apps/api/src/auth/'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/auth/registration-access.test.ts (10 tests | 5 failed) 960ms
+   ❯ единая настройка самостоятельной регистрации (ADR-055) (10)
+     ✓ настройка 0: прямой HTTP-запрос получает 403 без записей 386ms
+     ✓ настройка true: прямой HTTP-запрос получает 403 без записей 67ms
+     ✓ настройка yes: прямой HTTP-запрос получает 403 без записей 64ms
+     ✓ вызов сервиса тоже закрыт: нельзя обойти контроллер 57ms
+     ✓ без сессии можно узнать только доступность регистрации 74ms
+     × настройка undefined: регистрация и повторный вход доступны 70ms
+     × настройка : регистрация и повторный вход доступны 55ms
+     × настройка  : регистрация и повторный вход доступны 63ms
+     × настройка 1: регистрация и повторный вход доступны 58ms
+     × настройка  1 : регистрация и повторный вход доступны 64ms
+ ✓ |unit| apps/api/src/auth/password-reset.service.test.ts (14 tests) 1219ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 184ms
+ ✓ |unit| apps/api/src/auth/attempt-limits.test.ts (9 tests) 3803ms
+   ✓ вход: предел попыток с одного адреса (2)
+     ✓ после 30 попыток с адреса — 429, а соседний адрес входит как прежде 2192ms
+     ✓ адреса IPv6 одной сети /64 делят один предел 1585ms
+ ✓ |unit| apps/api/src/auth/auth.guard.test.ts (37 tests) 27ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (5 tests) 22ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (10 tests) 15ms
+ ✓ |unit| apps/api/src/auth/request-context.test.ts (17 tests) 19ms
+ ✓ |unit| apps/api/src/auth/auth.service.test.ts (47 tests) 5981ms
+   ✓ AuthService.login (14)
+     ✓ после 5 промахов вход заперт, и верный пароль тоже не пускает 410ms
+     ✓ когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6) 393ms
+   ✓ AuthService.changePassword (4)
+     ✓ верный текущий пароль меняет пароль и гасит остальные сессии 301ms
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (11 tests) 19ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 50ms
+ ✓ |unit| apps/api/src/auth/accounts-public-routes.test.ts (10 tests) 11ms
+ ✓ |unit| apps/api/src/auth/role.guard.test.ts (9 tests) 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/registration-access.test.ts > единая настройка самостоятельной регистрации (ADR-055) > настройка undefined: регистрация и повторный вход доступны
+ FAIL  |unit| apps/api/src/auth/registration-access.test.ts > единая настройка самостоятельной регистрации (ADR-055) > настройка : регистрация и повторный вход доступны
+ FAIL  |unit| apps/api/src/auth/registration-access.test.ts > единая настройка самостоятельной регистрации (ADR-055) > настройка  : регистрация и повторный вход доступны
+ FAIL  |unit| apps/api/src/auth/registration-access.test.ts > единая настройка самостоятельной регистрации (ADR-055) > настройка 1: регистрация и повторный вход доступны
+ FAIL  |unit| apps/api/src/auth/registration-access.test.ts > единая настройка самостоятельной регистрации (ADR-055) > настройка  1 : регистрация и повторный вход доступны
+AssertionError: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ apps/api/src/auth/registration-access.test.ts:112:35
+    110|       expect(options.body).toEqual({ registrationEnabled: true });
+    111|       const registration = await request(app.getHttpServer()).post('/a…
+    112|       expect(registration.status).toBe(201);
+       |                                   ^
+    113|       expect(registration.body).toMatchObject({ pendingVerification: t…
+    114|       // Вход до подтверждения почты закрыт — и это не «регистрация не…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+
+ Test Files  1 failed | 12 passed (13)
+      Tests  5 failed | 179 passed (184)
+   Start at  11:53:41
+   Duration  8.61s (tests 52%, import 29%, transform 19%)
+
+JSON report written to /tmp/pms-test-2026-09-29T11-53-40Z-unit-73db.json
+
+# код выхода 1 · 9 с

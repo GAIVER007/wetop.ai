@@ -484,7 +484,15 @@ export const authApi = {
    * и подтверждение почты. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
   register: (
-    body: { email: string; name: string; hotelName: string; password: string },
+    body: {
+      email: string;
+      name: string;
+      hotelName: string;
+      password: string;
+      phoneCountry: string;
+      phone: string;
+      privacyAccepted: boolean;
+    },
     info?: AuthClientInfo,
   ) =>
     sendJson<{ pendingVerification: true; email: string; name: string; sent: boolean }>(

@@ -1,0 +1,39 @@
+# Сквозные (e2e) · 29.09.2026 17:02 Алматы · vm
+# коммит 6ab9541 (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/registration-closed.spec.ts' 'tests/ui/login-access.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:23:1 › форма входа просит почту и пароль (1.1s)
+  ✓   2 tests/ui/login-access.spec.ts:33:1 › верный пароль пускает на рабочее место, «Выйти» возвращает на экран входа (2.7s)
+  ✓   3 tests/ui/login-access.spec.ts:54:1 › неверный пароль не пускает и не говорит, что именно не так (1.2s)
+  ✓   4 tests/ui/login-access.spec.ts:67:1 › форма первой на телефоне: вход и помощь доступны без прокрутки (912ms)
+  ✓   5 tests/ui/login-access.spec.ts:79:1 › сбой API сохраняет почту, повторный вход после восстановления работает (2.2s)
+  ✓   6 tests/ui/login-access.spec.ts:96:1 › клавиатура, видимость пароля и ожидание без повторной отправки (2.4s)
+  ✓   7 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — light (9.3s)
+  ✓   8 tests/ui/login-access.spec.ts:144:3 › вход: доступность, адаптивность и reduced motion — dark (9.2s)
+  ✓   9 tests/ui/login-access.spec.ts:187:1 › заголовок Cloudflare Access ничего не подставляет: Access снят, вход — только почта и пароль (902ms)
+  ✓  10 tests/ui/login-access.spec.ts:200:1 › после входа экран входа показывает, кто вошёл, и даёт открыть рабочее место (2.5s)
+  ✓  11 tests/ui/login-access.spec.ts:224:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (1.1s)
+  ✓  12 tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (1.2s)
+  ✓  13 tests/ui/login-access.spec.ts:257:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (950ms)
+  ✓  14 tests/ui/login-access.spec.ts:264:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (1.4s)
+  ✓  15 tests/ui/login-access.spec.ts:286:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (2.3s)
+  ✓  16 tests/ui/login-access.spec.ts:311:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (812ms)
+  ✓  17 tests/ui/login-access.spec.ts:318:3 › регистрация доступна по умолчанию › регистрация: без согласия с политикой форма не уходит, неверный телефон — отказ словами (1.4s)
+  ✓  18 tests/ui/login-access.spec.ts:341:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (1.4s)
+  ✓  19 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login оставляет вход сотрудников (1.1s)
+  ✓  20 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /register оставляет вход сотрудников (954ms)
+  ✓  21 tests/ui/registration-closed.spec.ts:11:3 › регистрация закрыта: /login?mode=register оставляет вход сотрудников (894ms)
+  ✓  22 tests/ui/registration-closed.spec.ts:27:1 › ошибка настроек API закрывает регистрацию и оставляет форму входа (970ms)
+  ✓  23 tests/ui/registration-closed.spec.ts:39:1 › ранее открытая форма получает отказ через server action без новой сессии (1.4s)
+
+  23 passed (54.1s)
+
+# код выхода 0 · 55 с

@@ -4090,3 +4090,10 @@
 | 29.09.2026 04:21 | lint | ✅ без ошибок | 44 с | 673d352 | [лог](logs/2026-09-28T23-21-19Z-lint-64cb.log) |  |
 | 29.09.2026 04:22 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин 10 с | 673d352 | [лог](logs/2026-09-28T23-22-03Z-unit-a636.log) |  |
 | 29.09.2026 04:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/workspace.spec.ts tests/ui/requests.spec.ts tests/ui | ✅ 134 из 134 | 6 мин 41 с | 673d352 | [лог](logs/2026-09-28T23-24-20Z-e2e-ebdb.log) |  |
+| 29.09.2026 12:24 | typecheck | ✅ без ошибок | 36 с | 55b2585 | [лог](logs/2026-09-29T07-24-51Z-typecheck-b384.log) | PR #149 merged with main 85e1bcd8 (55b2585f) |
+| 29.09.2026 12:25 | lint | ✅ без ошибок | 19 с | 55b2585 | [лог](logs/2026-09-29T07-25-28Z-lint-d449.log) | PR #149 merged with main 85e1bcd8 (55b2585f) |
+| 29.09.2026 12:25 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 54 с | 55b2585 | [лог](logs/2026-09-29T07-25-47Z-unit-f6b1.log) | PR #149 merged with main 85e1bcd8 (55b2585f) |
+| 29.09.2026 12:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-unassigned.spec.ts tests/ui/chessboard-blocks.spec.ts tests/ui/chessboard- | ❌ код выхода 1 | 2 мин 2 с | 55b2585 | [лог](logs/2026-09-29T07-27-47Z-e2e-e49f.log) | PR #149 merged with main 85e1bcd8 (55b2585f): PR6 + specs main touched |
+| 29.09.2026 12:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-unassigned.spec.ts tests/ui/chessboard-blocks.spec.ts tests/ui/chessboard- | ✅ 39 из 39 | 2 мин 43 с | 55b2585 | [лог](logs/2026-09-29T07-30-04Z-e2e-a716.log) | PR #149 merged with main 85e1bcd8 (55b2585f): PR6 + specs main touched (after clearing .next-ui) |
+| 29.09.2026 12:33 | integration | ✅ 123 из 123 | 40 с | 55b2585 | [лог](logs/2026-09-29T07-33-06Z-integration-3479.log) | PR #149 merged with main 85e1bcd8 (55b2585f) |
+| 29.09.2026 12:34 | e2e | ✅ 25 из 25 | 59 с | 55b2585 | [лог](logs/2026-09-29T07-34-13Z-e2e-70ae.log) | PR #149 merged with main 85e1bcd8 (55b2585f): live e2e on a fresh web build |

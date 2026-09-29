@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+from datetime import datetime, timedelta, timezone
 
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -52,28 +53,76 @@ def build_reply_sender(settings: Settings):
     return WidgetSender(redis=dependencies.get_redis())
 
 
+QUEUES = ("new", "waiting")
+# Строка списка — не переписка: хвост последнего сообщения, чтобы понять, о чём речь
+LAST_MESSAGE_MAX = 160
+NEW_WINDOW = timedelta(hours=24)
+
+
+def _utc(value: datetime | str | None) -> datetime | None:
+    """Итог агрегата времени: Postgres отдаёт его с поясом, sqlite тестов — без пояса или строкой.
+    Время в базе ставит приложение и всегда в UTC."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = datetime.fromisoformat(value)
+    return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+
+
+def _preview(text: str) -> str:
+    flat = " ".join(text.split())
+    return flat if len(flat) <= LAST_MESSAGE_MAX else flat[: LAST_MESSAGE_MAX - 1].rstrip() + "…"
+
+
 @router.get("/conversations")
 async def list_conversations(
     mode: str | None = None,
+    queue: str | None = None,
+    nonempty: bool = False,
+    closed: bool | None = None,
     limit: int = 50,
     org: uuid.UUID | None = Depends(request_org),
 ) -> dict:
     """Список диалогов. 🔴 Телефона в ответе нет, имя маскировано.
-    У продавца — только диалоги организации из X-Organization (Э4)."""
+    У продавца — только диалоги организации из X-Organization (Э4).
+
+    Очередь техподдержки (S1): `nonempty` — без диалогов без сообщений, `queue=new` — начатые за сутки,
+    `queue=waiting` — последнее слово за пользователем, `closed` — закрытые (`is_active = false`) или открытые;
+    без параметров ответ прежний — все диалоги."""
     try:
         wanted = ConversationMode(mode) if mode else None
     except ValueError:
         raise HTTPException(status_code=400, detail="неизвестный режим диалога") from None
+    if queue and queue not in QUEUES:
+        raise HTTPException(status_code=400, detail="неизвестная очередь")
 
     counts = (
         sa.select(Message.conversation_id.label("cid"), sa.func.count().label("n"))
         .group_by(Message.conversation_id)
         .subquery()
     )
+    # Последний ответ (бота, человека или системы) — от него считается ожидание
+    answered = (
+        sa.select(Message.conversation_id.label("cid"), sa.func.max(Message.created_at).label("at"))
+        .where(Message.role != MessageRole.USER)
+        .group_by(Message.conversation_id)
+        .subquery()
+    )
+    waiting = (
+        sa.select(Message.conversation_id.label("cid"), sa.func.min(Message.created_at).label("since"))
+        .outerjoin(answered, answered.c.cid == Message.conversation_id)
+        .where(
+            Message.role == MessageRole.USER,
+            sa.or_(answered.c.at.is_(None), Message.created_at > answered.c.at),
+        )
+        .group_by(Message.conversation_id)
+        .subquery()
+    )
     stmt = (
-        sa.select(Conversation, Client, sa.func.coalesce(counts.c.n, 0))
+        sa.select(Conversation, Client, sa.func.coalesce(counts.c.n, 0), waiting.c.since)
         .join(Client, Client.id == Conversation.client_id)
         .outerjoin(counts, counts.c.cid == Conversation.id)
+        .outerjoin(waiting, waiting.c.cid == Conversation.id)
         .order_by(Conversation.last_activity_at.desc())
         # Отбор и предел — в SQL: фильтрация после выборки на живой базе
         # означает, что панель тянет всю таблицу ради двадцати строк.
@@ -83,9 +132,18 @@ async def list_conversations(
         stmt = stmt.where(Conversation.mode == wanted)
     if org is not None:
         stmt = stmt.where(Conversation.organization_id == org)
+    if nonempty:
+        stmt = stmt.where(counts.c.n > 0)
+    if closed is not None:
+        stmt = stmt.where(Conversation.is_active.is_(not closed))
+    if queue == "waiting":
+        stmt = stmt.where(waiting.c.since.is_not(None))
+    elif queue == "new":
+        stmt = stmt.where(Conversation.created_at >= utcnow() - NEW_WINDOW)
 
     async with sessions()() as session:
         rows = (await session.execute(stmt)).all()
+        last = await _last_messages(session, [conv.id for conv, *_ in rows])
     return {
         "items": [
             {
@@ -97,9 +155,41 @@ async def list_conversations(
                 "last_activity_at": iso(conv.last_activity_at),
                 "messages": int(count),
                 "has_contact": bool(client.phone or client.email),
+                "started_at": iso(conv.created_at),
+                "last_message": last.get(conv.id),
+                "waiting_since": iso(_utc(since)),
+                "closed": not conv.is_active,
             }
-            for conv, client, count in rows
+            for conv, client, count, since in rows
         ]
+    }
+
+
+async def _last_messages(session, conversation_ids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
+    """Последнее сообщение каждого диалога страницы — одним запросом, не по запросу на строку."""
+    if not conversation_ids:
+        return {}
+    ranked = (
+        sa.select(
+            Message.conversation_id,
+            Message.role,
+            Message.content,
+            Message.created_at,
+            sa.func.row_number()
+            .over(partition_by=Message.conversation_id, order_by=Message.created_at.desc())
+            .label("rn"),
+        )
+        .where(Message.conversation_id.in_(conversation_ids))
+        .subquery()
+    )
+    result = await session.execute(sa.select(ranked).where(ranked.c.rn == 1))
+    return {
+        row.conversation_id: {
+            "role": row.role.value if hasattr(row.role, "value") else str(row.role),
+            "text": _preview(row.content or ""),
+            "at": iso(row.created_at),
+        }
+        for row in result
     }
 
 
@@ -123,6 +213,7 @@ async def conversation_card(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(
         "id": str(conv.id),
         "mode": conv.mode.value,
         "stage": conv.funnel_stage.value,
+        "closed": not conv.is_active,
         "lead_data": dict(conv.lead_data or {}),
         "contact": {
             "name": client.name,
@@ -163,6 +254,26 @@ async def takeover(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_o
 async def release(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
     """Возврат боту — тоже кнопкой, а не по таймеру."""
     return await _switch_mode(conv_id, ConversationMode.BOT_ACTIVE, "release", org)
+
+
+@router.post("/conversations/{conv_id}/close")
+async def close(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
+    """Закрыть обращение: диалог уходит в «Закрытые» с перепиской, следующее сообщение того же человека
+    откроет новый диалог — движок и виджет ищут диалог клиента по `is_active`."""
+    async with sessions()() as session:
+        conv = await session.get(Conversation, conv_id)
+        if conv is None or _foreign(conv, org):
+            raise HTTPException(status_code=404, detail="диалог не найден")
+        was_active = conv.is_active
+        conv.is_active = False
+        log_action(
+            session,
+            action="close",
+            payload={"mode": conv.mode.value, "was_active": was_active},
+            conversation_id=conv.id,
+        )
+        await session.commit()
+    return {"status": "ok", "closed": True}
 
 
 @router.post("/conversations/{conv_id}/reply")

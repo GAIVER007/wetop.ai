@@ -1,0 +1,58 @@
+# Модульные (unit) · 29.09.2026 14:52 Алматы · vm
+# коммит 22557f7 (claude/adoring-ptolemy-2gicxg), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T09-52-22Z-unit-d297.json' 'packages/integrations/src/assistant/bot-panel-client.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (23 tests | 1 failed) 115ms
+   ❯ SellerClient — адреса и ключ (7)
+     ✓ список диалогов: адрес панели, служебный ключ заголовком, не в адресе 63ms
+     × очередь техподдержки: отбор очереди, непустые, открытые или закрытые; закрыть обращение 8ms
+     ✓ карточка, перехват, возврат, ответ — по id диалога, id экранируется 3ms
+     ✓ знания: список и загрузка файлом в поле file 4ms
+     ✓ сводка, песочница, профиль, факты 3ms
+     ✓ рассказ владельца уходит на /extract-profile под путём панели телом { story } 1ms
+     ✓ панель под длинным путём — песочница всё равно в корне того же адреса 1ms
+   ✓ SellerClient — отказы (10)
+     ✓ нет связи — «недоступен», ключа в тексте нет 1ms
+     ✓ 5xx — «недоступен» с кодом 3ms
+     ✓ тайм-аут — «не ответил вовремя» 1ms
+     ✓ 4xx — «отклонил» с причиной продавца 1ms
+     ✓ проверка полей FastAPI списком — причины через «; » 1ms
+     ✓ 401 и 403 без причины — ключ платформы не принят 2ms
+     ✓ 403 с причиной продавца — его слова: адрес платформы не в списке, маршрут закрыт 1ms
+     ✓ отказ профиля объектом `{ message, fields }` (Б6, слой 9) — причина и имена полей 1ms
+     ✓ песочница ждёт дольше остальных: ход с каскадом моделей длится до минуты 1ms
+     ✓ без адреса или ключа клиент не создаётся 1ms
+   ✓ Э4 — организация в клиенте панели (ADR-083) (3)
+     ✓ X-Organization на каждом вызове панели и organization_id в песочнице 3ms
+     ✓ заведение гостиницы: PUT /seller/organizations/{id} полями бота 1ms
+     ✓ widgetOrgKey: sk_ + 24 hex, свой у каждой организации, из ключа не восстановим 1ms
+   ✓ BotPanelClient — панель помощника (3)
+     ✓ отказы называют помощника, а не продавца 6ms
+     ✓ правила и модель помощника — под путём панели, тем же ключом (ADR-084) 1ms
+     ✓ прежние имена раздела продавца — те же классы: его проверки `instanceof` не меняются 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/integrations/src/assistant/bot-panel-client.test.ts > SellerClient — адреса и ключ > очередь техподдержки: отбор очереди, непустые, открытые или закрытые; закрыть обращение
+TypeError: seller.close is not a function
+ ❯ packages/integrations/src/assistant/bot-panel-client.test.ts:52:18
+     50|     await seller.listConversations({ queue: 'waiting', nonempty: true,…
+     51|     await seller.listConversations({ closed: true, nonempty: true });
+     52|     await seller.close('c1');
+       |                  ^
+     53|     expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+     54|       'GET http://seller:8000/panel-x/conversations?limit=200&queue=wa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 22 passed (23)
+   Start at  09:52:23
+   Duration  464ms (transform 51%, tests 38%, import 10%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-29T09-52-22Z-unit-d297.json
+
+# код выхода 1 · 1 с

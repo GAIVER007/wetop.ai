@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { assistant } from '@pms/integrations';
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
@@ -530,5 +530,121 @@ describe('настройка помощника (ADR-084)', () => {
       .set(as('session-admin'))
       .send({ text: '' })
       .expect(400);
+  });
+});
+
+describe('очередь техподдержки (S1)', () => {
+  const NOW = Date.parse('2026-09-29T10:00:00.000Z');
+  const row = (id: string, extra: Record<string, unknown>) => ({
+    id,
+    channel: 'widget',
+    client_name: '—',
+    mode: 'bot_active',
+    stage: 'new',
+    last_activity_at: '2026-09-29T09:50:00+00:00',
+    started_at: '2026-09-29T09:40:00+00:00',
+    messages: 2,
+    has_contact: false,
+    last_message: { role: 'assistant', text: 'Откройте «Настройки»', at: '2026-09-29T09:50:00+00:00' },
+    waiting_since: null,
+    closed: false,
+    ...extra,
+  });
+  const A = '11111111-1111-4111-8111-111111111111';
+  const B = '22222222-2222-4222-8222-222222222222';
+  const C = '33333333-3333-4333-8333-333333333333';
+
+  beforeEach(() => {
+    vi.useFakeTimers({ now: NOW, toFake: ['Date'] });
+  });
+
+  it('открытые: без пустых, срочные первыми, дольше ждущие раньше; числа очереди из той же выборки', async () => {
+    connection.bot.replies.listConversations = {
+      items: [
+        row(A, {}),
+        row(B, {
+          waiting_since: '2026-09-29T09:55:00+00:00',
+          last_message: { role: 'user', text: 'Алло?', at: '2026-09-29T09:58:00+00:00' },
+        }),
+        row(C, {
+          mode: 'needs_human',
+          started_at: '2026-09-27T09:00:00+00:00',
+          waiting_since: '2026-09-29T09:57:00+00:00',
+          last_message: { role: 'user', text: 'Позовите человека', at: '2026-09-29T09:57:00+00:00' },
+        }),
+      ],
+    };
+    const res = await api().get('/platform/support/queue').set(as('session-admin')).expect(200);
+    expect(connection.bot.calls).toEqual([
+      { op: 'listConversations', args: [{ nonempty: true, closed: false, limit: 200 }] },
+    ]);
+    expect(res.body.items.map((i: { id: string }) => i.id)).toEqual([C, B, A]);
+    expect(res.body.items[0]).toMatchObject({
+      id: C,
+      mode: 'needs_human',
+      priority: 'urgent',
+      waitingSince: '2026-09-29T09:57:00+00:00',
+      lastMessage: { role: 'user', text: 'Позовите человека', at: '2026-09-29T09:57:00+00:00' },
+      closed: false,
+    });
+    expect(res.body.items[1].priority).toBe('waiting');
+    expect(res.body.items[2].priority).toBe('normal');
+    expect(res.body.counts).toEqual({
+      open: 3,
+      new: 2,
+      waiting: 2,
+      needs_human: 1,
+      owner_takeover: 0,
+      bot_active: 2,
+      capped: false,
+    });
+  });
+
+  afterEach(() => vi.useRealTimers());
+
+  it('отбор очереди — у помощника в SQL, числа — из выборки открытых; чужой отбор — 400 без вызова', async () => {
+    connection.bot.replies.listConversations = { items: [] };
+    const admin = as('session-admin');
+    await api().get('/platform/support/queue?queue=waiting').set(admin).expect(200);
+    await api().get('/platform/support/queue?queue=needs_human').set(admin).expect(200);
+    await api().get('/platform/support/queue?queue=closed').set(admin).expect(200);
+    expect(connection.bot.calls.map((c) => c.args[0])).toEqual([
+      { nonempty: true, closed: false, limit: 200 },
+      { nonempty: true, closed: false, limit: 100, queue: 'waiting' },
+      { nonempty: true, closed: false, limit: 200 },
+      { nonempty: true, closed: false, limit: 100, mode: 'needs_human' },
+      { nonempty: true, closed: false, limit: 200 },
+      { nonempty: true, closed: true, limit: 100 },
+    ]);
+    connection.bot.calls = [];
+    await api().get('/platform/support/queue?queue=spam').set(admin).expect(400);
+    expect(connection.bot.calls).toEqual([]);
+    await api().get('/platform/support/queue').set(as('session-owner')).expect(403);
+  });
+
+  it('закрыть обращение — помощнику и в журнал; карточка говорит, закрыт ли диалог', async () => {
+    const admin = as('session-admin');
+    await api().post(`/platform/support/conversations/${CONV}/close`).set(admin).expect(200);
+    expect(connection.bot.calls).toEqual([{ op: 'close', args: [CONV] }]);
+    expect(audit.events.map((e) => [e.entityType, e.action])).toEqual([
+      ['SupportConversation', 'support.conversation.close'],
+    ]);
+    await api().post('/platform/support/conversations/не-id/close').set(admin).expect(400);
+    await api()
+      .post(`/platform/support/conversations/${CONV}/close`)
+      .set(as('session-owner'))
+      .expect(403);
+
+    connection.bot.replies.conversation = {
+      id: CONV,
+      mode: 'bot_active',
+      stage: 'new',
+      closed: true,
+      lead_data: {},
+      contact: {},
+      messages: [],
+    };
+    const card = await api().get(`/platform/support/conversations/${CONV}`).set(admin).expect(200);
+    expect(card.body.closed).toBe(true);
   });
 });

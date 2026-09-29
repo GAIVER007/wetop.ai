@@ -13,6 +13,12 @@ import type {
   MembershipRole,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import type {
+  SupportLastMessage,
+  SupportPriority,
+  SupportQueue,
+  SupportQueueCounts,
+} from './support-queue';
 import { requestScopeHeader } from './scope-pointer';
 export interface CategorySummary {
   code: string;
@@ -1819,7 +1825,25 @@ export interface SupportPlatformUser {
 
 export type SupportConversationCard = SellerConversationCard & {
   platformUser: SupportPlatformUser | null;
+  /** Обращение закрыто: переписка только для чтения */
+  closed?: boolean;
 };
+
+/** Строка очереди техподдержки (S1): отбор, приоритет и порядок считает API */
+export interface SupportQueueItem {
+  id: string;
+  channel: string;
+  clientName: string | null;
+  mode: string;
+  stage: string;
+  startedAt: string | null;
+  lastActivityAt: string | null;
+  messages: number;
+  lastMessage: SupportLastMessage | null;
+  waitingSince: string | null;
+  closed: boolean;
+  priority: SupportPriority;
+}
 
 /**
  * «Платформа → Техподдержка» (ADR-083, план Э3): панель ИИ-помощника через API платформы — адреса и ключа помощника
@@ -1831,8 +1855,18 @@ export const supportApi = {
     getJson<{ items: SellerConversationRow[] }>(
       `/platform/support/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
     ),
+  queue: (queue: SupportQueue) =>
+    getJson<{ queue: SupportQueue; items: SupportQueueItem[]; counts: SupportQueueCounts }>(
+      `/platform/support/queue?queue=${encodeURIComponent(queue)}`,
+    ),
   conversation: (id: string) =>
     getJson<SupportConversationCard>(`/platform/support/conversations/${encodeURIComponent(id)}`),
+  close: (id: string) =>
+    sendJson<{ closed: true }>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/close`,
+      {},
+    ),
   switchMode: (id: string, action: 'takeover' | 'release') =>
     sendJson<{ mode: string | null; previousMode: string | null }>(
       'POST',

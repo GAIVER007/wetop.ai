@@ -4177,3 +4177,18 @@
 | 29.09.2026 13:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | d9dce04 | [лог](logs/2026-09-29T08-35-49Z-e2e-e2f4.log) |  |
 | 29.09.2026 13:36 | e2e | ✅ 26 из 26 | 1 мин 15 с | d9dce04 | [лог](logs/2026-09-29T08-36-52Z-e2e-ece4.log) |  |
 | 29.09.2026 13:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 612 из 612 | 53 мин 9 с | d9dce04 | [лог](logs/2026-09-29T08-38-08Z-e2e-f49e.log) |  |
+| 29.09.2026 14:52 | unit (частично: packages/integrations/src/assistant/bot-panel-client.test.ts) | ❌ упало 1 из 23 | 1 с | 22557f7 +4 | [лог](logs/2026-09-29T09-52-22Z-unit-d297.log) | S1 red: client queue params and close |
+| 29.09.2026 14:52 | unit (частично: packages/integrations/src/assistant/bot-panel-client.test.ts) | ✅ 23 из 23 | 1 с | 22557f7 +5 | [лог](logs/2026-09-29T09-52-34Z-unit-b068.log) | S1 green: client queue params and close |
+| 29.09.2026 14:53 | unit (частично: apps/api/src/platform/support.controller.test.ts) | ❌ упало 3 из 18 | 4 с | 22557f7 +7 | [лог](logs/2026-09-29T09-53-07Z-unit-3ccc.log) | S1 red: support queue and close |
+| 29.09.2026 14:53 | unit (частично: apps/api/src/platform/support.controller.test.ts) | ✅ 18 из 18 | 3 с | 22557f7 +12 | [лог](logs/2026-09-29T09-53-41Z-unit-0945.log) | S1 green: support queue and close |
+| 29.09.2026 14:54 | unit (частично: apps/web/src/lib/support-queue.test.ts) | ❌ код выхода 1 | 1 с | 22557f7 +13 | [лог](logs/2026-09-29T09-54-47Z-unit-0c54.log) | S1 red: support queue words |
+| 29.09.2026 14:55 | unit (частично: apps/web/src/lib/support-queue.test.ts) | ✅ 6 из 6 | 1 с | 22557f7 +14 | [лог](logs/2026-09-29T09-55-07Z-unit-55d5.log) | S1 green: support queue words |
+| 29.09.2026 14:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-queue.spec.ts --workers=1) | ❌ упало 5 из 5 | 15 с | 22557f7 +16 | [лог](logs/2026-09-29T09-56-28Z-e2e-77a8.log) | S1 red: support queue UI on the old screen |
+| 29.09.2026 14:56 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-queue.spec.ts --workers=1) | ❌ упало 5 из 5 | 2 мин 37 с | 22557f7 +16 | [лог](logs/2026-09-29T09-56-48Z-e2e-d4f1.log) | S1 red: support queue UI on the old screen |
+| 29.09.2026 15:01 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-queue.spec.ts --workers=1) | ✅ 5 из 5 | 24 с | 22557f7 +21 | [лог](logs/2026-09-29T10-01-58Z-e2e-760b.log) | S1: support queue UI on the new screen |
+| 29.09.2026 15:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts --workers=1) | ✅ 16 из 16 | 1 мин 47 с | 22557f7 +22 | [лог](logs/2026-09-29T10-03-05Z-e2e-9ec6.log) | S1: support queue and support section specs |
+| 29.09.2026 15:05 | typecheck | ❌ ошибок: 1 | 22 с | 22557f7 +22 | [лог](logs/2026-09-29T10-05-11Z-typecheck-a17b.log) | S1 support queue |
+| 29.09.2026 15:05 | lint | ✅ без ошибок | 18 с | 22557f7 +22 | [лог](logs/2026-09-29T10-05-34Z-lint-26a9.log) | S1 support queue |
+| 29.09.2026 15:06 | typecheck | ✅ без ошибок | 34 с | 22557f7 +22 | [лог](logs/2026-09-29T10-06-03Z-typecheck-463b.log) | S1 support queue |
+| 29.09.2026 15:06 | unit | ❌ упало 1 из 2317, пропущено 3 | 1 мин 50 с | 22557f7 +20 | [лог](logs/2026-09-29T10-06-40Z-unit-9372.log) | S1 support queue |
+| 29.09.2026 15:08 | unit | ✅ 2314 из 2317, пропущено 3 | 1 мин 18 с | 22557f7 +21 | [лог](logs/2026-09-29T10-08-41Z-unit-cc11.log) | S1 support queue |

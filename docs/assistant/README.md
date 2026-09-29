@@ -147,11 +147,12 @@ networks:
 
 | Метод и путь | Зачем | Тело и ответ |
 |---|---|---|
-| `GET /conversations?mode=&limit=` | «Диалоги», список | как у панели сегодня: `{ items: [{ id, channel, client_name, mode, stage, last_activity_at, messages, has_contact }] }` |
+| `GET /conversations?mode=&limit=&queue=&nonempty=&closed=` | «Диалоги», список | как у панели сегодня: `{ items: [{ id, channel, client_name, mode, stage, last_activity_at, messages, has_contact }] }`; с 29.09 (ADR-122) в строке ещё `started_at`, `last_message: { role, text ≤ 160, at }`, `waiting_since` (первое сообщение пользователя после последнего ответа, иначе `null`), `closed`; необязательные отборы в SQL: `nonempty=true` — без пустых, `closed=true/false`, `queue=new` (начат за сутки) или `queue=waiting` (последнее слово за пользователем) |
 | `GET /conversations/{id}` | карточка | `{ id, mode, stage, lead_data, contact, messages: [{ role, text, at, sent_by_us }] }` |
 | `POST /conversations/{id}/takeover` | «Перехватить» | `{ status, mode, previous_mode }` |
 | `POST /conversations/{id}/release` | «Вернуть боту» | то же |
 | `POST /conversations/{id}/reply` | «Ответить» | тело `{ text }`, до 4000 знаков; `{ status }` |
+| `POST /conversations/{id}/close` | «Закрыть обращение» (ADR-122) | `{ status, closed }`; диалог `is_active = false`, запись `close` в журнал бота; следующее сообщение того же человека откроет новый диалог. Карточка отдаёт `closed` |
 | `GET /knowledge` | «Знания», список | `{ items: [{ source, chunks, created_at }] }` |
 | `POST /knowledge` | загрузка документа | `multipart/form-data`, поле `file` (md, txt, pdf, docx, xlsx; платформа пропускает до 10 МБ — как `kb_max_file_mb` продавца, имя в UTF-8); `{ status, source, created, chunks }` |
 | `GET /summary` | сводка за сутки | `{ hours, dialogs, replies, leads, sla_breaches }` |

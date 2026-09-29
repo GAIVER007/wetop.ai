@@ -12,11 +12,13 @@ import {
   Fact,
   Grid,
   LoadingState,
+  Notice,
   Panel,
   Row,
   SectionTitle,
   Stack,
   Table,
+  cx,
 } from '../../../../components/ui';
 import { Icon } from '../../../../components/icon';
 import {
@@ -25,26 +27,38 @@ import {
   conversationStageLabel,
   knowledgeSourceLabel,
 } from '../../../../lib/ai-seller';
+import {
+  QUEUE_CHIPS,
+  chipCount,
+  emptyQueueText,
+  lastMessageLine,
+  priorityBadge,
+  queueOf,
+  speaker,
+  waitingFor,
+  type SupportQueue,
+} from '../../../../lib/support-queue';
 import { propertyClock } from '../../../../lib/property-time';
 import { deskShell } from '../../../../lib/desk-shell';
-import { ApiError, supportApi, type SupportConversationCard } from '../../../../lib/api';
+import {
+  ApiError,
+  supportApi,
+  type SupportConversationCard,
+  type SupportQueueItem,
+} from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
 import {
-  DialogModeButtons,
   DialogReplyForm,
   KnowledgeUploadForm,
   SandboxForm,
   type SandboxWords,
 } from '../../../ai-seller/forms';
-import {
-  supportModeAction,
-  supportReplyAction,
-  supportSandboxAction,
-  supportUploadAction,
-} from '../actions';
+import { supportReplyAction, supportSandboxAction, supportUploadAction } from '../actions';
+import { SupportDialogActions } from '../dialog-actions';
 import { SupportModelForm, SupportPromptForm } from '../forms';
-// переписка — тем же списком строками, что у «ИИ-продавца» (DESIGN.md §8)
+// «Проверка» и «Знания» — те же формы, что у «ИИ-продавца» (DESIGN.md §8)
 import '../../../ai-seller/ai-seller.css';
+import '../support.css';
 
 /** Раздел оператора платформы: время обращений — по поясу платформы, а не отдельной гостиницы (С-13) */
 const platformClock = propertyClock(PLATFORM_TIMEZONE);
@@ -78,21 +92,7 @@ const SUPPORT_SANDBOX_WORDS: SandboxWords = {
 
 type SupportView = (typeof TABS)[number]['view'];
 
-const MODES = [
-  { value: '', label: 'Все' },
-  { value: 'needs_human', label: 'Нужен человек' },
-  { value: 'owner_takeover', label: 'Ведёт человек' },
-  { value: 'bot_active', label: 'Ведёт бот' },
-] as const;
-
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const ROLE: Record<string, string> = {
-  user: 'Пользователь',
-  assistant: 'Помощник',
-  operator: 'Человек',
-  system: 'Система',
-};
 
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
@@ -145,13 +145,21 @@ export default async function SupportPage({
         ))}
       </nav>
       <Suspense key={view} fallback={<LoadingState label="Спрашиваем помощника…" />}>
-        <SupportScreen view={view} mode={one(query.mode)} id={one(query.id)} />
+        <SupportScreen view={view} queue={one(query.queue)} id={one(query.id)} />
       </Suspense>
     </Page>
   );
 }
 
-async function SupportScreen({ view, mode, id }: { view: SupportView; mode: string; id: string }) {
+async function SupportScreen({
+  view,
+  queue,
+  id,
+}: {
+  view: SupportView;
+  queue: string;
+  id: string;
+}) {
   const status = await settle(supportApi.status());
   if (!status.ok) {
     if (status.error instanceof ApiError && status.error.status === 403)
@@ -182,7 +190,7 @@ async function SupportScreen({ view, mode, id }: { view: SupportView; mode: stri
   if (view === 'knowledge') return <KnowledgeView />;
   if (view === 'settings') return <SettingsView />;
   if (view === 'check') return <CheckView />;
-  return <DialogsView mode={mode} id={id} />;
+  return <DialogsView queue={queue} id={id} />;
 }
 
 /**
@@ -246,81 +254,158 @@ function CheckView() {
   );
 }
 
-async function DialogsView({ mode, id }: { mode: string; id: string }) {
-  const selected = MODES.some((m) => m.value === mode) ? mode : '';
-  const [summary, list, card] = await Promise.all([
+/** Помощник не отвечает (адрес и ключ есть, а бот лежит): API пересказывает это 502/503/504 */
+const unreachable = (error: unknown) =>
+  error instanceof ApiError && [502, 503, 504].includes(error.status);
+
+/** Режим словами кабинета: «бот» здесь — ИИ, «человек» — оператор */
+const modeWord = (mode: string) => {
+  const m = conversationModeLabel(mode);
+  if (mode === 'owner_takeover') return { ...m, label: 'ведёт оператор' };
+  if (mode === 'bot_active') return { ...m, label: 'ведёт ИИ' };
+  return m;
+};
+
+/**
+ * «Диалоги» (S1, `plans/support-assistant-v2-2026-09-29.md`): очередь слева, переписка справа — список остаётся на
+ * месте (DESIGN.md §1 п. 5). На телефоне — одно из двух: список или переписка с «К списку».
+ */
+async function DialogsView({ queue: rawQueue, id }: { queue: string; id: string }) {
+  const queue = queueOf(rawQueue);
+  const selected = UUID.test(id) ? id : '';
+  const [summary, loaded, card] = await Promise.all([
     settle(supportApi.summary()),
-    settle(supportApi.conversations(selected || undefined)),
-    UUID.test(id) ? settle(supportApi.conversation(id)) : Promise.resolve(null),
+    settle(supportApi.queue(queue)),
+    selected ? settle(supportApi.conversation(selected)) : Promise.resolve(null),
   ]);
+  if (!loaded.ok && unreachable(loaded.error))
+    return (
+      <Panel data-testid="support-unavailable">
+        <EmptyState icon={<Icon name="chat" width={32} height={32} />} title="ИИ-помощник не отвечает">
+          Платформа подключена к помощнику, но он не ответил. Диалоги появятся, когда он снова будет
+          на связи. Проверьте, запущен ли помощник на сервере, и повторите.
+        </EmptyState>
+        <Row className="support-unavailable__retry">
+          <RefreshButton label="Повторить" />
+        </Row>
+      </Panel>
+    );
+  const href = (next: { queue?: SupportQueue; id?: string }) => {
+    const params = new URLSearchParams();
+    const q = next.queue ?? queue;
+    if (q !== 'open') params.set('queue', q);
+    if (next.id) params.set('id', next.id);
+    const qs = params.toString();
+    return `/platform/support${qs ? `?${qs}` : ''}`;
+  };
+  const now = Date.now();
   return (
-    <Stack>
+    <Stack className={cx('support-view', selected && 'support-view--open')}>
       {summary.ok && (
-        <Grid min={150} data-testid="support-summary">
+        <Grid min={150} className="support-summary" data-testid="support-summary">
           <Fact label="Диалогов за сутки" value={String(summary.value.dialogs)} />
           <Fact label="Ответов" value={String(summary.value.replies)} />
           <Fact label="Ответ опоздал" value={String(summary.value.slaBreaches)} />
         </Grid>
       )}
-      <nav className="chips" aria-label="Отбор диалогов">
-        {MODES.map((m) => (
-          <Link
-            key={m.value}
-            href={m.value ? `/platform/support?mode=${m.value}` : '/platform/support'}
-            aria-current={m.value === selected ? 'page' : undefined}
-          >
-            {m.label}
-          </Link>
-        ))}
+      <nav className="chips support-chips" aria-label="Очередь обращений">
+        {QUEUE_CHIPS.map((chip) => {
+          const count = loaded.ok ? chipCount(chip.queue, loaded.value.counts) : null;
+          return (
+            <Link
+              key={chip.queue}
+              href={href({ queue: chip.queue })}
+              prefetch={false}
+              aria-current={chip.queue === queue ? 'page' : undefined}
+            >
+              {chip.label}
+              {count !== null && <span className="chips__count">{count}</span>}
+            </Link>
+          );
+        })}
       </nav>
-      {card &&
-        (card.ok ? (
-          <DialogCard card={card.value} />
-        ) : (
-          <LoadError testId="support-dialog-error" {...loadErrorProps(card.error)} />
-        ))}
-      {!list.ok ? (
-        <LoadError testId="support-dialogs-error" {...loadErrorProps(list.error)} />
-      ) : list.value.items.length === 0 ? (
-        <EmptyState icon={<Icon name="chat" width={32} height={32} />} title="Диалогов нет">
-          Здесь появятся разговоры помощника с теми, кто пишет из стойки и с wetop.ai.
-        </EmptyState>
-      ) : (
-        <Table aria-label="Диалоги техподдержки" data-testid="support-dialogs">
-          <thead>
-            <tr>
-              <th>Кто пишет</th>
-              <th>Режим</th>
-              <th>Этап</th>
-              <th>Сообщений</th>
-              <th>Последнее</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.value.items.map((c) => {
-              const m = conversationModeLabel(c.mode);
-              return (
-                <tr key={c.id}>
-                  <td>
-                    <Link
-                      href={`/platform/support?${new URLSearchParams({ ...(selected ? { mode: selected } : {}), id: c.id })}`}
-                    >
-                      {c.clientName && c.clientName !== '—' ? c.clientName : 'Без подписи'}
-                    </Link>
-                  </td>
-                  <td>
-                    <Badge tone={m.tone}>{m.label}</Badge>
-                  </td>
-                  <td>{conversationStageLabel(c.stage)}</td>
-                  <td>{c.messages}</td>
-                  <td>{platformClock.moment(c.lastActivityAt)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      )}
+      <div className={cx('support-desk', selected && 'support-desk--open')}>
+        <section className="support-desk__list" aria-label="Обращения">
+          {!loaded.ok ? (
+            <LoadError testId="support-dialogs-error" {...loadErrorProps(loaded.error)} />
+          ) : loaded.value.items.length === 0 ? (
+            <div data-testid="support-queue-empty">
+              <EmptyState
+                icon={<Icon name="chat" width={32} height={32} />}
+                title={emptyQueueText(queue).title}
+              >
+                {emptyQueueText(queue).text}
+              </EmptyState>
+            </div>
+          ) : (
+            <ul className="support-queue" data-testid="support-queue-list">
+              {loaded.value.items.map((item) => (
+                <QueueRow
+                  key={item.id}
+                  item={item}
+                  href={href({ id: item.id })}
+                  current={item.id === selected}
+                  now={now}
+                />
+              ))}
+            </ul>
+          )}
+        </section>
+        <section className="support-desk__dialog" aria-label="Переписка">
+          {!card ? (
+            <p className="support-desk__hint">
+              Выберите обращение в списке — переписка откроется здесь.
+            </p>
+          ) : card.ok ? (
+            <DialogCard card={card.value} back={href({})} />
+          ) : (
+            <LoadError testId="support-dialog-error" {...loadErrorProps(card.error)} />
+          )}
+        </section>
+      </div>
     </Stack>
+  );
+}
+
+function QueueRow({
+  item,
+  href,
+  current,
+  now,
+}: {
+  item: SupportQueueItem;
+  href: string;
+  current: boolean;
+  now: number;
+}) {
+  const badge = priorityBadge(item);
+  const mode = modeWord(item.mode);
+  const waiting = item.closed ? null : waitingFor(item.waitingSince, now);
+  const who = item.clientName && item.clientName !== '—' ? item.clientName : 'Без подписи';
+  return (
+    <li
+      className="support-queue__row"
+      data-id={item.id}
+      data-priority={item.priority}
+      aria-current={current ? 'true' : undefined}
+    >
+      <Link href={href} prefetch={false} className="support-queue__link">
+        <span className="support-queue__head">
+          <span className="support-queue__who">{who}</span>
+          <span className="support-queue__time">
+            {item.lastActivityAt ? platformClock.moment(item.lastActivityAt) : '—'}
+          </span>
+        </span>
+        <span className="support-queue__last">{lastMessageLine(item.lastMessage)}</span>
+        <span className="support-queue__meta">
+          {badge && <Badge tone={badge.tone}>{badge.label}</Badge>}
+          {waiting && <span className="support-queue__wait">{waiting}</span>}
+          <Badge tone={item.closed ? 'neutral' : mode.tone}>
+            {item.closed ? 'закрыто' : mode.label}
+          </Badge>
+        </span>
+      </Link>
+    </li>
   );
 }
 
@@ -330,19 +415,24 @@ const roleWord = (role: string | null) => {
   return known ? MEMBERSHIP_ROLES[known] : '—';
 };
 
-/** Карточка диалога: кто пишет — почта, организация и роль из подписи стойки; переписка; перехват и ответ */
-function DialogCard({ card }: { card: SupportConversationCard }) {
-  const m = conversationModeLabel(card.mode);
+/** Карточка диалога: кто пишет — почта, организация и роль из подписи стойки; переписка; действия оператора */
+function DialogCard({ card, back }: { card: SupportConversationCard; back: string }) {
+  const m = modeWord(card.mode);
   const who = card.platformUser;
+  const closed = card.closed === true;
   return (
-    <Panel data-testid="support-dialog-card">
+    <Panel className="support-dialog" data-testid="support-dialog-card">
+      <Link href={back} prefetch={false} className="support-dialog__back">
+        К списку
+      </Link>
       <Row gap="lg" className="row--baseline">
         <SectionTitle first>{who?.email ?? 'Посетитель без входа'}</SectionTitle>
-        <Badge tone={m.tone} data-testid="support-dialog-mode">
-          {m.label}
+        <Badge tone={closed ? 'neutral' : m.tone} data-testid="support-dialog-mode">
+          {closed ? 'закрыто' : m.label}
         </Badge>
       </Row>
-      <Grid min={180} data-testid="support-dialog-who">
+      {!closed && <SupportDialogActions id={card.id} mode={card.mode} />}
+      <Grid min={160} data-testid="support-dialog-who">
         <Fact
           label="Организация"
           value={
@@ -365,23 +455,28 @@ function DialogCard({ card }: { card: SupportConversationCard }) {
           знает.
         </p>
       )}
-      <ol className="seller-transcript" aria-label="Переписка">
+      <ol className="support-transcript" aria-label="Переписка">
         {card.messages.map((msg, i) => (
-          <li key={i}>
-            <p
-              className={
-                msg.role === 'user' ? 'seller-transcript__guest' : 'seller-transcript__bot'
-              }
-            >
-              <b>{ROLE[msg.role] ?? msg.role}</b>
-              {msg.at ? <span className="sub"> {platformClock.moment(msg.at)}</span> : null}:{' '}
-              {msg.text}
-            </p>
+          <li key={i} className={`support-transcript__msg support-transcript__msg--${msg.role}`}>
+            <span className="support-transcript__who">
+              {speaker(msg.role)}
+              {msg.at ? (
+                <time dateTime={msg.at} className="support-transcript__at">
+                  {platformClock.moment(msg.at)}
+                </time>
+              ) : null}
+            </span>
+            <span className="support-transcript__text">{msg.text}</span>
           </li>
         ))}
       </ol>
-      <DialogModeButtons id={card.id} mode={card.mode} switchMode={supportModeAction} />
-      <DialogReplyForm id={card.id} reply={supportReplyAction} label="Ответ пользователю" />
+      {closed ? (
+        <Notice tone="muted" data-testid="support-dialog-closed">
+          Обращение закрыто. Если человек напишет снова, откроется новое обращение.
+        </Notice>
+      ) : (
+        <DialogReplyForm id={card.id} reply={supportReplyAction} label="Ответ пользователю" />
+      )}
     </Panel>
   );
 }

@@ -1,0 +1,251 @@
+/*
+ * «Платформа → Техподдержка → Диалоги», S1 (plans/support-assistant-v2-2026-09-29.md): очередь слева, переписка справа.
+ * Список остаётся на месте, пока открыта переписка (DESIGN.md §1 п. 5); на узком экране — одно из двух.
+ */
+
+.support-desk {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.support-desk__list,
+.support-desk__dialog {
+  min-width: 0;
+}
+
+/* Список прокручивается сам: переписка справа не уезжает вверх вместе с длинной очередью */
+.support-desk__list {
+  position: sticky;
+  top: calc(var(--header-h) + var(--space-4));
+  max-height: calc(100dvh - var(--header-h) - var(--space-8));
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.support-desk__hint {
+  margin: 0;
+  padding: var(--space-8) var(--space-4);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.support-queue {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.support-queue__row + .support-queue__row {
+  border-top: 1px solid var(--border-soft);
+}
+
+.support-queue__link {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  border-left: 3px solid transparent;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.support-queue__link:hover {
+  background: var(--row-hover);
+  text-decoration: none;
+}
+
+.support-queue__link:focus-visible {
+  outline: var(--focus-ring-w) solid var(--focus);
+  outline-offset: calc(var(--focus-ring-w) * -1);
+}
+
+/* Срочное видно по черте слева и по слову «срочно» в строке — не только цветом (DESIGN.md §1 п. 4) */
+.support-queue__row[data-priority='urgent'] .support-queue__link {
+  border-left-color: var(--danger);
+}
+
+.support-queue__row[data-priority='waiting'] .support-queue__link {
+  border-left-color: var(--warning);
+}
+
+.support-queue__row[aria-current='true'] .support-queue__link {
+  background: var(--primary-soft);
+}
+
+.support-queue__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.support-queue__who {
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.support-queue__time {
+  flex: none;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.support-queue__last {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.support-queue__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.support-queue__wait {
+  color: var(--text-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.support-unavailable__retry {
+  justify-content: center;
+}
+
+/* ── переписка ─────────────────────────────────────────────────────────────────────────────── */
+
+.support-dialog__back {
+  display: none;
+}
+
+/* Заголовок карточки не первый в разметке (перед ним «К списку» для телефона) — общий отступ сверху не нужен */
+.support-dialog .section-title {
+  margin: 0;
+}
+
+.support-transcript {
+  display: grid;
+  gap: var(--space-2);
+  max-height: 55dvh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.support-transcript__msg {
+  display: grid;
+  gap: var(--space-1);
+  max-width: 85%;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+/* Кто пишет — справа, кто отвечает — слева; подпись словом у каждого сообщения, не только сторона */
+.support-transcript__msg--user {
+  justify-self: end;
+  border-color: var(--border);
+  background: var(--surface-muted);
+}
+
+.support-transcript__msg--operator {
+  border-color: var(--primary-soft);
+}
+
+.support-transcript__who {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  color: var(--text-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.support-transcript__at {
+  color: var(--muted);
+  font-weight: var(--weight-regular);
+  font-variant-numeric: tabular-nums;
+}
+
+.support-transcript__text {
+  font-size: var(--text-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.support-dialog__actions {
+  flex-wrap: wrap;
+}
+
+/* ── узкий экран: список или переписка ────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .support-desk {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .support-desk__list {
+    position: static;
+    max-height: none;
+  }
+
+  /* Открыта переписка — сводка и чипы уходят вместе со списком: иначе переписка начинается со второго экрана */
+  .support-view--open .support-summary,
+  .support-view--open .support-chips,
+  .support-desk--open .support-desk__list,
+  .support-desk:not(.support-desk--open) .support-desk__dialog {
+    display: none;
+  }
+
+  .support-dialog__back {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target);
+    margin-bottom: var(--space-2);
+    font-weight: var(--weight-medium);
+  }
+
+  .support-transcript__msg {
+    max-width: 100%;
+  }
+
+  .support-transcript {
+    max-height: none;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Семь чипов в три строки съедали экран — на телефоне они листаются вбок внутри своей полосы */
+  .support-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .support-chips a {
+    flex: none;
+  }
+
+  .support-queue__link {
+    min-height: var(--touch-target);
+    padding: var(--space-2);
+  }
+}

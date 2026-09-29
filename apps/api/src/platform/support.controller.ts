@@ -43,6 +43,12 @@ export class SupportController {
     return this.support.conversations({ mode, limit });
   }
 
+  @Get('queue')
+  @Header('Cache-Control', 'no-store')
+  queue(@Query('queue') queue?: string) {
+    return this.support.queue(queue);
+  }
+
   @Get('conversations/:id')
   @Header('Cache-Control', 'no-store')
   conversation(@Param('id') id: string) {
@@ -59,6 +65,12 @@ export class SupportController {
   @HttpCode(200)
   release(@Param('id') id: string) {
     return this.support.switchMode(id, 'release');
+  }
+
+  @Post('conversations/:id/close')
+  @HttpCode(200)
+  close(@Param('id') id: string) {
+    return this.support.close(id);
   }
 
   @Post('conversations/:id/reply')

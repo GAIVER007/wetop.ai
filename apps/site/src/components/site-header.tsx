@@ -1,3 +1,4 @@
+import { ThemeToggle } from './theme-toggle';
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
 import { loginLink, registerLink } from '../lib/site';
@@ -35,10 +36,19 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="site-header__actions">
-          <a className="btn btn--ghost btn--sm site-header__login" href={login.href} data-auth="login">
+          <ThemeToggle />
+          <a
+            className="btn btn--ghost btn--sm site-header__login"
+            href={login.href}
+            data-auth="login"
+          >
             {t.nav.login}
           </a>
-          <a className="btn btn--primary btn--sm site-header__register" href={register.href} data-auth="register">
+          <a
+            className="btn btn--primary btn--sm site-header__register"
+            href={register.href}
+            data-auth="register"
+          >
             {t.nav.register}
           </a>
           <MobileMenu

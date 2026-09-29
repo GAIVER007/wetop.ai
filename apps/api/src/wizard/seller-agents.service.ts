@@ -35,7 +35,12 @@ export class SellerAgentsService {
       throw new ForbiddenException('Создавать агентов могут владелец и управляющий');
     const membership = await this.prisma.db.membership.findUnique({
       where: { userId_organizationId: { userId, organizationId } },
-      include: { user: true, organization: true },
+      // SEC-1b: пользователь — только нужные колонки (роль запросов организации не читает `users` целиком)
+      select: {
+        role: true,
+        user: { select: { status: true, emailVerifiedAt: true } },
+        organization: { select: { status: true, trialEndsAt: true } },
+      },
     });
     if (
       !membership ||

@@ -1,0 +1,58 @@
+# Сквозные (e2e) · 29.09.2026 22:03 Алматы · MacBook-Air-Urij.local
+# коммит ee31215 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+[WebServer] (node:56599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56689) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56690) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56691) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:56703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 24 tests using 2 workers
+
+(node:56714) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:56715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (1.9s)
+  ✓   1 tests/site/auth-dialog.spec.ts:57:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (3.2s)
+  ✓   4 tests/site/auth-dialog.spec.ts:85:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (1.6s)
+  ✓   3 tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране (3.0s)
+  ✓   6 tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки (1.1s)
+  ✓   5 tests/site/auth-dialog.spec.ts:100:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.3s)
+  ✓   8 tests/site/auth-dialog.spec.ts:118:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (2.5s)
+  ✓   7 tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране (2.6s)
+  ✓  10 tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки (811ms)
+  ✓   9 tests/site/auth-dialog.spec.ts:178:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (1.2s)
+  ✓  11 tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (986ms)
+  ✓  13 tests/site/landing.spec.ts:63:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (122ms)
+  ✓  12 tests/site/auth-dialog.spec.ts:191:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (801ms)
+  ✓  14 tests/site/landing.spec.ts:84:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 14 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (1.2s)
+  ✓  15 tests/site/auth-dialog.spec.ts:203:1 › на телефоне окно открывается из меню и не шире экрана (1.9s)
+  ✓  16 tests/site/landing.spec.ts:147:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (757ms)
+  ✓  18 tests/site/product-story.spec.ts:4:1 › product tour changes real content and supports keyboard (878ms)
+  ✓  19 tests/site/product-story.spec.ts:18:1 › FAQ and explicit theme choice work (972ms)
+  ✓  20 tests/site/product-story.spec.ts:30:3 › complete landing fits 390px (569ms)
+  ✓  21 tests/site/product-story.spec.ts:30:3 › complete landing fits 768px (426ms)
+  ✓  22 tests/site/product-story.spec.ts:30:3 › complete landing fits 1440px (597ms)
+  ✓  17 tests/site/auth-dialog.spec.ts:220:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (4.5s)
+  ✓  23 tests/site/product-story.spec.ts:42:1 › every product panel remains accessible in dark theme (2.6s)
+  ✓  24 tests/site/product-story.spec.ts:64:1 › homepage explains the full product and keeps WETOP positioning (372ms)
+
+  24 passed (30.8s)
+
+# код выхода 0 · 32 с

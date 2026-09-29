@@ -6,9 +6,9 @@ import {
   type CanActivate,
   type ExecutionContext,
 } from '@nestjs/common';
-import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { withServiceDatabase } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
+import { channelOperatorOrganizationId } from './operator-access';
 
 export const INTEGRATION_ONLY =
   'Каналы продаж, обмен с Channex и сторож системы ведёт поддержка WETOP: раздел открыт гостинице, к которой ' +
@@ -17,8 +17,9 @@ export const INTEGRATION_ONLY =
 type Actor = { organizationId: string; platformAdmin?: boolean };
 
 /**
- * Организация объекта, к которому подключена интеграция Channex (Luxx): тот же выбор, что у служебных путей API —
- * самый старый объект с этим именем. Держим минуту: гард стоит на каждом запросе разделов каналов и сторожа.
+ * Организация объекта, к которому подключена интеграция Channex (Luxx): тот же выбор, что у `ChannelOperatorInterceptor` —
+ * `INTEGRATION_PROPERTY_ID`, затем сопоставления Channex, затем самый старый объект с названием установки (SEC-2).
+ * Раньше здесь был только поиск по названию. Держим минуту: гард стоит на каждом запросе разделов каналов и сторожа.
  */
 const known = new WeakMap<PrismaService, { at: number; organizationId: string | null }>();
 async function integrationOrganizationId(prisma: PrismaService): Promise<string | null> {
@@ -26,14 +27,7 @@ async function integrationOrganizationId(prisma: PrismaService): Promise<string 
   if (hit && Date.now() - hit.at < 60_000) return hit.organizationId;
   // Вопрос про всю установку — служебной ролью базы: под ролью организации (RLS, DATA_MODEL §17) объект Luxx
   // другой гостинице не виден, и ответ зависел бы от того, кто спросил
-  const property = await withServiceDatabase(() =>
-    prisma.db.property.findFirst({
-      where: { name: LUXX_APARTS_PROPERTY.name },
-      orderBy: { createdAt: 'asc' },
-      select: { organizationId: true },
-    }),
-  );
-  const organizationId = property?.organizationId ?? null;
+  const organizationId = await withServiceDatabase(() => channelOperatorOrganizationId(prisma.db));
   known.set(prisma, { at: Date.now(), organizationId });
   return organizationId;
 }

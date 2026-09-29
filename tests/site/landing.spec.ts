@@ -74,14 +74,14 @@ test('в sitemap.xml только живые адреса, robots.txt на не�
 
 /**
  * «Как начать» говорит то, что есть на самом деле. 20.09.2026 ADR-056 снял обещания регистрации и пробных дней —
- * тогда их в системе не было. 26.09.2026 владелец открыл самостоятельную регистрацию с 7 днями пробного периода
+ * тогда их в системе не было. 26.09.2026 владелец открыл самостоятельную регистрацию с 14 днями пробного периода
  * (ADR-098; `TRIAL_DAYS` в `packages/domain/src/accounts/trial.ts`): на главной «Войти» и «Регистрация» — в шапке,
  * на первом экране и в призыве «Как начать»; «Регистрация» ведёт прямо на форму стойки `/register`. Кода из письма
  * по-прежнему нет — подтверждение идёт ссылкой. Пункт «Блог» не показывается, пока опубликованных статей нет
  * (страница `/blog/` остаётся по адресу); подсказка на макете первого экрана не выходит за карточку на 1440 px;
  * в текстах сайта нет « · » (тот же голос, что у стойки, §14).
  */
-test('главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · »', async ({
+test('главная: «Войти» и «Регистрация», шаги под регистрацию с 14 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · »', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -95,8 +95,8 @@ test('главная: «Войти» и «Регистрация», шаги п�
     /^Работа$/,
     /./, // заголовок призыва
   ]);
-  await expect(start).toContainText(/7\sдней/);
-  await expect(start).not.toContainText(/14\sдней|подключаем партнёров вручную|заведём аккаунт/i);
+  await expect(start).toContainText(/14\sдней/);
+  await expect(start).not.toContainText(/7\sдней|подключаем партнёров вручную|заведём аккаунт/i);
   await expect(start).not.toContainText(/код из письма/);
   // «Получить доступ» (27.09.2026, ADR-100, ADR-102) без JavaScript — прямо на форму стойки, «Войти» — на экран входа;
   // с JavaScript обе открывают окно поверх главной (tests/site/auth-dialog.spec.ts)
@@ -114,8 +114,8 @@ test('главная: «Войти» и «Регистрация», шаги п�
     'href',
     'https://app.wetop.ai/register',
   );
-  await expect(hero.getByRole('link', { name: 'Войти', exact: true })).toBeVisible();
-  await expect(hero).toContainText(/7\sдней бесплатно/);
+  await expect(hero.getByRole('link', { name: /Смотреть возможности/ })).toBeVisible();
+  await expect(hero).toContainText(/14\sдней бесплатно/);
   await expect(start.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
@@ -193,5 +193,6 @@ test('первый экран — центр управления сервисн
   const order = await page
     .locator('main > section')
     .evaluateAll((els) => els.map((el) => el.getAttribute('id') ?? el.className));
-  expect(order.indexOf('audience')).toBe(1);
+  expect(order.indexOf('workflow')).toBeLessThan(order.indexOf('features'));
+  expect(order.indexOf('features')).toBeLessThan(order.indexOf('audience'));
 });

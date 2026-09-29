@@ -14,6 +14,7 @@ export * from './generated/prisma/client';
 export { databaseSchemaName, resolveDatabaseSchema } from './schema';
 export { DATABASE_POOL_DEFAULTS, databasePoolTimeouts } from './pool';
 export { RLS_NO_TENANT_TABLES, RLS_TENANT_TABLES, TenantPool, applyTenant, type TenantOf } from './rls';
+export { assertRlsAtStartup, rlsRoleProblem, type RlsProbe } from './rls-startup';
 export { NEW_PROPERTY_DEFAULTS, createPropertyInChain, type PropertyInChainData } from './property-chain';
 
 /** Размер пула: `DATABASE_POOL_MAX` для основного, `DATABASE_APP_POOL_MAX` для роли организации (RLS) */

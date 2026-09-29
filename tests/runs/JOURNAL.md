@@ -4066,3 +4066,15 @@
 | 29.09.2026 04:21 | lint | ✅ без ошибок | 44 с | 673d352 | [лог](logs/2026-09-28T23-21-19Z-lint-64cb.log) |  |
 | 29.09.2026 04:22 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин 10 с | 673d352 | [лог](logs/2026-09-28T23-22-03Z-unit-a636.log) |  |
 | 29.09.2026 04:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/workspace.spec.ts tests/ui/requests.spec.ts tests/ui | ✅ 134 из 134 | 6 мин 41 с | 673d352 | [лог](logs/2026-09-28T23-24-20Z-e2e-ebdb.log) |  |
+| 29.09.2026 12:29 | unit (частично: packages/domain/src/finance/finance.test.ts apps/api/src/rates/rate-plans.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 3 из 21 | 14 с | 85e1bcd +3 | [лог](logs/2026-09-29T07-29-10Z-unit-76ff.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 29.09.2026 12:30 | unit (частично: packages/domain/src/finance/finance.test.ts apps/api/src/rates/rate-plans.test.ts apps/api/src/auth/route-access.test.ts apps/api/src/rates/rate | ❌ упало 1 из 35 | 4 с | 85e1bcd +7 | [лог](logs/2026-09-29T07-30-04Z-unit-5e4a.log) | «Тарифные планы»: правило отмены правка: новое правило, журнал «было/стало» с числом затронутых броней |
+| 29.09.2026 12:30 | unit (частично: packages/domain/src/finance/finance.test.ts apps/api/src/rates/rate-plans.test.ts apps/api/src/auth/route-access.test.ts apps/api/src/rates/rate | ✅ 35 из 35 | 4 с | 85e1bcd +7 | [лог](logs/2026-09-29T07-30-20Z-unit-9a75.log) |  |
+| 29.09.2026 12:31 | integration (частично: tests/integration/rate-plan-penalty.test.ts) | ❌ код выхода 1 | 3 с | 85e1bcd +7 | [лог](logs/2026-09-29T07-31-38Z-integration-ab36.log) | (файл не выполнился) |
+| 29.09.2026 12:31 | integration (частично: tests/integration/rate-plan-penalty.test.ts) | ✅ 1 из 1 | 3 с | 85e1bcd +8 | [лог](logs/2026-09-29T07-31-42Z-integration-635a.log) |  |
+| 29.09.2026 12:34 | typecheck | ✅ без ошибок | 37 с | 85e1bcd +18 | [лог](logs/2026-09-29T07-34-53Z-typecheck-4a99.log) |  |
+| 29.09.2026 12:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts) | ❌ упало 6 из 6 | 2 мин 41 с | 85e1bcd +10 | [лог](logs/2026-09-29T07-36-47Z-e2e-e2f3.log) | вкладки «Цены \| Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет |
+| 29.09.2026 12:39 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts) | ✅ 6 из 6 | 36 с | 85e1bcd +21 | [лог](logs/2026-09-29T07-39-35Z-e2e-8a93.log) |  |
+| 29.09.2026 12:40 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rate-plans.spec.ts) | ✅ 6 из 6 | 36 с | 85e1bcd +21 | [лог](logs/2026-09-29T07-40-35Z-e2e-73e0.log) |  |
+| 29.09.2026 12:41 | lint | ✅ без ошибок | 20 с | 85e1bcd +22 | [лог](logs/2026-09-29T07-41-22Z-lint-7d41.log) |  |
+| 29.09.2026 12:41 | unit | ✅ 2302 из 2305, пропущено 3 | 1 мин 39 с | 85e1bcd +17 | [лог](logs/2026-09-29T07-41-42Z-unit-1aec.log) |  |
+| 29.09.2026 12:43 | integration | ✅ 123 из 123 | 40 с | 85e1bcd +9 | [лог](logs/2026-09-29T07-43-21Z-integration-0930.log) |  |

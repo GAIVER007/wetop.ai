@@ -762,7 +762,22 @@ export const ratesApi = {
       '/rates/bulk',
       { changes },
     ),
+  /** «Тарифные планы» (SET4): тарифы с правилом отмены и числом броней, которые его правка заденет */
+  plans: () => getJson<RatePlanRow[]>('/rates/plans'),
+  updatePlan: (code: string, input: { cancellationPenalty: CancellationPenaltyPolicy }) =>
+    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}`, input),
 };
+export interface RatePlanRow {
+  code: string;
+  name: string;
+  currency: string;
+  active: boolean;
+  cancellationPenalty: CancellationPenaltyPolicy;
+  /** Названия категорий, к которым привязан тариф */
+  categories: string[];
+  /** Брони по тарифу, ещё не заехавшие и не отменённые, с выездом сегодня или позже: их задевает правка правила */
+  upcomingReservations: number;
+}
 
 // ── Каналы (Channex) ──
 export interface ChannelMappingRow {

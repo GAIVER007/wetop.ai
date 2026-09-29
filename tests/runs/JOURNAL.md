@@ -4345,3 +4345,8 @@
 | 29.09.2026 18:31 | e2e (частично: --config tests/site/playwright.config.ts tests/site/auth-dialog.spec.ts) | ❌ упало 1 из 8 | 40 с | 0c5f1a5 | [лог](logs/2026-09-29T13-31-52Z-e2e-b8a9.log) | снимки окна регистрации: светлая и тёмная, 1440 и 390 |
 | 29.09.2026 18:33 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 24 с | 0c5f1a5 +1 | [лог](logs/2026-09-29T13-33-16Z-e2e-485b.log) |  |
 | 29.09.2026 18:33 | lint | ✅ без ошибок | 20 с | 0c5f1a5 +2 | [лог](logs/2026-09-29T13-33-51Z-lint-42ab.log) |  |
+| 29.09.2026 19:04 | typecheck | ✅ без ошибок | 35 с | c87ad0a | [лог](logs/2026-09-29T14-04-10Z-typecheck-ed8e.log) |  |
+| 29.09.2026 19:04 | lint | ✅ без ошибок | 18 с | c87ad0a | [лог](logs/2026-09-29T14-04-46Z-lint-e799.log) |  |
+| 29.09.2026 19:05 | unit | ❌ упало 1 из 2387, пропущено 3 | 1 мин 19 с | c87ad0a | [лог](logs/2026-09-29T14-05-04Z-unit-54e2.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 29.09.2026 19:06 | integration | ✅ 127 из 127 | 44 с | c87ad0a | [лог](logs/2026-09-29T14-06-24Z-integration-f373.log) |  |
+| 29.09.2026 19:07 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 14 из 14 | 1 с | c87ad0a +1 | [лог](logs/2026-09-29T14-07-16Z-unit-0e77.log) |  |

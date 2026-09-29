@@ -90,3 +90,9 @@ def test_empty_samples_raise() -> None:
 def test_thresholds_stay_in_unit_interval() -> None:
     r = suggest_thresholds([s("A", "A", 0.999), s(None, "A", 0.5)])
     assert 0.0 <= r.medium <= r.high <= 1.0
+
+
+def test_search_that_found_nothing_refuses_to_suggest_thresholds() -> None:
+    """Пустая база: оценок нет вовсе, «пороги» по ним были бы выдумкой и выключили бы ответы."""
+    with pytest.raises(CalibrationError, match="не нашёл ничего"):
+        suggest_thresholds([s("A", None, None), s(None, None, None)])

@@ -67,3 +67,10 @@ def test_bad_arguments_exit_codes(tmp_path, capsys) -> None:
     bad = tmp_path / "bad.csv"
     bad.write_text("", encoding="utf-8")
     assert script.main(["kb_calibrate.py", str(bad)]) == 1
+
+
+def test_the_image_carries_the_script() -> None:
+    """Образ копирует из scripts/ только перечисленное: без этой строки `docker compose exec app python
+    scripts/kb_calibrate.py` на сервере отвечает «No such file» (29.09.2026)."""
+    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+    assert "scripts/kb_calibrate.py" in dockerfile

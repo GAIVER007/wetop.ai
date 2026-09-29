@@ -4341,6 +4341,10 @@
 | 29.09.2026 19:12 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 17 | 1 мин 29 с | 707c2e0 | [лог](logs/2026-09-29T14-12-33Z-e2e-78f3.log) | главная: «Войти» и «Регистрация», шаги под регистрацию с 7 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » |
 | 29.09.2026 19:15 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 22 с | 707c2e0 +5 | [лог](logs/2026-09-29T14-15-36Z-e2e-d06e.log) |  |
 | 29.09.2026 19:18 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 20 с | 707c2e0 +5 | [лог](logs/2026-09-29T14-18-01Z-e2e-17ef.log) |  |
+| 29.09.2026 21:03 | typecheck | ✅ без ошибок | 42 с | 5bbc63e +1 | [лог](logs/2026-09-29T16-03-42Z-typecheck-13c6.log) |  |
+| 29.09.2026 21:04 | lint | ✅ без ошибок | 22 с | 5bbc63e +1 | [лог](logs/2026-09-29T16-04-25Z-lint-6d7f.log) |  |
+| 29.09.2026 21:04 | unit | ✅ 2351 из 2354, пропущено 3 | 1 мин 58 с | 5bbc63e +1 | [лог](logs/2026-09-29T16-04-48Z-unit-4382.log) |  |
+| 29.09.2026 21:06 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 37 с | 5bbc63e +1 | [лог](logs/2026-09-29T16-06-47Z-e2e-6ed7.log) |  |
 | 29.09.2026 20:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-design.spec.ts tests/ui/reservations-design.spec.ts tests/ui/guests-design.spec.ts test | ❌ упало 3 из 69 | 23 мин 50 с | 3be9b67 +18 | [лог](logs/2026-09-29T15-12-52Z-e2e-f993.log) | Unified UI on current main: workflows and responsive layouts |
 | 29.09.2026 20:37 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts:361 tests/ui/guests-design.spec.ts:415 tests/ui/navigation.spec.ts:32 --w | ✅ 3 из 3 | 1 мин 47 с | 3be9b67 +18 | [лог](logs/2026-09-29T15-37-44Z-e2e-8f29.log) | Isolated rerun of 3 slow UI scenarios, unchanged assertions/timeouts |
 | 29.09.2026 20:39 | unit (частично: apps/web/src/design-rules.test.ts tests/unit/desk-glass.test.ts scripts/design/build-tokens.test.ts) | ❌ упало 1 из 32 | 6 с | 3be9b67 +16 | [лог](logs/2026-09-29T15-39-59Z-unit-a8a0.log) | Shared design rules, tokens and glass layer |
@@ -4364,3 +4368,4 @@
 | 29.09.2026 21:11 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ❌ упало 2 из 4 | 3 мин 7 с | bfd4160 +7 | [лог](logs/2026-09-29T16-11-03Z-e2e-8223.log) | Versioned assistant script integration: login identity and mobile placement |
 | 29.09.2026 21:14 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1 --grep после «Выйти») | ❌ упало 1 из 1 | 35 с | bfd4160 +7 | [лог](logs/2026-09-29T16-14-32Z-e2e-dc26.log) | RED old signed widget survives logout on public login screen |
 | 29.09.2026 21:15 | e2e (частично: --config tests/ui/playwright.assistant.config.ts --workers=1) | ✅ 4 из 4 | 1 мин 15 с | bfd4160 +9 | [лог](logs/2026-09-29T16-15-28Z-e2e-3c3d.log) | GREEN versioned widget, public entry isolation, logout disposal, mobile placement |
+| 29.09.2026 21:08 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 22 с | 113fd18 | [лог](logs/2026-09-29T16-08-17Z-e2e-317f.log) |  |

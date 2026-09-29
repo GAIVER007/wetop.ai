@@ -194,9 +194,6 @@ export function TopNav({
               </div>
             </div>
           </header>
-          <Suspense fallback={null}>
-            <GrantedReadOnly desk={desk} />
-          </Suspense>
           {demo && (
             <div className="demo-banner" role="status">
               Демонстрационный режим{' '}
@@ -266,22 +263,4 @@ function GrantedSearch({
 }) {
   const shell = desk ? use(desk) : null;
   return <GlobalSearch {...props} access={shell?.access} />;
-}
-
-/**
- * Полоса «только чтение» (Q-144 — Б, ADR-102): пробный срок вышел или организация ждёт оплаты. Видна на каждом экране;
- * данные читаются, а изменения API отклоняет теми же словами.
- */
-function GrantedReadOnly({ desk }: { desk: Promise<DeskShell> | undefined }) {
-  const shell = desk ? use(desk) : null;
-  if (!shell?.readOnly) return null;
-  return (
-    <div className="read-only-banner" role="status" data-testid="read-only-banner">
-      <strong>Пробный период закончился — оплатите подписку.</strong>{' '}
-      <span>
-        Данные доступны для просмотра, изменения — после оплаты. Счёт и реквизиты выставит WETOP — напишите в чат
-        помощника справа внизу.
-      </span>
-    </div>
-  );
 }

@@ -58,8 +58,6 @@ describe.skipIf(!url)('изоляция организаций: гости, жу
         const orgA = await tx.organization.create({ data: { name: 'Integration A' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B' }, select: { id: true } });
         await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
-        // NOT NULL v1.13 §17.1 (ADR-103): гость несёт организацию сида — переводится вместе с объектом
-        await tx.guest.update({ where: { id: guestId }, data: { organizationId: orgA.id } });
         await tx.property.create({
           data: {
             organizationId: orgB.id,
@@ -413,8 +411,6 @@ describe.skipIf(!url)('Phase 1: tenant-scope гостей, журнала, со�
         const orgA = await tx.organization.create({ data: { name: 'Integration A4' }, select: { id: true } });
         const orgB = await tx.organization.create({ data: { name: 'Integration B4' }, select: { id: true } });
         await tx.property.update({ where: { id: propertyId }, data: { organizationId: orgA.id } });
-        // NOT NULL v1.13 §17.1 (ADR-103): гость несёт организацию сида — переводится вместе с объектом
-        await tx.guest.update({ where: { id: guestId }, data: { organizationId: orgA.id } });
         await tx.property.create({
           data: {
             organizationId: orgB.id,

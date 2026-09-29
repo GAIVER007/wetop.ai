@@ -92,20 +92,25 @@ const iso = (x: Date | null) => (x ? x.toISOString().slice(0, 10) : null);
 export class PrismaGuestsRepository implements GuestsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
   /**
-   * Замок организаций (ADR-061, Q-152; Phase 1 — ADR-100 §17.2; NOT NULL — v1.13 §17.1, ADR-103).
-   * Гость несёт собственную `guests.organization_id` (backfill 20260927000026, NOT NULL — 20260927000027):
-   * вошедший видит гостей только своей организации. Публичный путь объекта без организации в контексте —
-   * прежняя цепочка через брони объекта. Служебный ходок (сторож, скрипты) — как раньше, без фильтра.
+   * Замок организаций (ADR-061, Q-152; Phase 1 — ADR-100 §17.2). Первое условие — собственная колонка
+   * `guests.organization_id` (backfill 20260927000026, новые гости получают её с рождения); цепочка через
+   * брони объекта остаётся для строк, которым backfill не вывел организацию (NULL — см. отчёт миграции).
+   * Служебный ходок (сторож, скрипты) — как раньше, без фильтра.
    */
   private async visible(): Promise<Prisma.GuestWhereInput> {
     if (!actsForOrganization()) return {};
-    const organizationId = currentOrganizationId();
-    if (organizationId) return { organizationId };
     const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const organizationId = currentOrganizationId();
     return {
       OR: [
-        { primaryReservations: { some: { propertyId } } },
-        { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
+        ...(organizationId ? [{ organizationId }] : []),
+        {
+          organizationId: null,
+          OR: [
+            { primaryReservations: { some: { propertyId } } },
+            { stays: { some: { reservationItem: { reservation: { propertyId } } } } },
+          ],
+        },
       ],
     };
   }

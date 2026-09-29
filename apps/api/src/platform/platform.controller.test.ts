@@ -28,17 +28,6 @@ const SERVICE_KEY = 'platform-test-service-key-0123456789';
 class FakeExtensions implements ExtensionsRepository {
   orgs: OrganizationSummary[] = [];
   saved: Array<{ organizationId: string; change: ExtensionChange; by: string | null }> = [];
-  statuses: Array<{ organizationId: string; status: string; note: string | null; by: string | null }> = [];
-  async saveStatus(input: {
-    organizationId: string;
-    status: 'ACTIVE' | 'READ_ONLY';
-    note: string | null;
-    by: string | null;
-    now: Date;
-  }) {
-    this.statuses.push({ organizationId: input.organizationId, status: input.status, note: input.note, by: input.by });
-    this.orgs.find((o) => o.id === input.organizationId)!.status = input.status;
-  }
   async aiSeller(organizationId: string) {
     return this.orgs.find((o) => o.id === organizationId)?.aiSeller ?? null;
   }
@@ -98,7 +87,6 @@ beforeEach(() => {
   vi.stubEnv('AUTH_REQUIRED', '1');
   vi.stubEnv('SERVICE_API_KEY', SERVICE_KEY);
   repo.saved = [];
-  repo.statuses = [];
   repo.orgs = [
     {
       id: ORG,
@@ -188,48 +176,5 @@ describe('включение «ИИ-продавца» главным админ
       .set(as('session-admin'))
       .send({ status: 'OFF' })
       .expect(400);
-  });
-});
-
-/**
- * Оплата счётом (Q-141 — А, ADR-102): клиент платит по реквизитам, главный администратор вручную подтверждает оплату —
- * организация становится `ACTIVE` и снова пишет; обратно — «только чтение». Изменение идёт в журнал.
- */
-describe('статус организации: подтверждение оплаты', () => {
-  it('главный администратор подтверждает оплату — ACTIVE, с автором и заметкой', async () => {
-    const res = await api()
-      .put(`/platform/organizations/${ORG}/status`)
-      .set(as('session-admin'))
-      .send({ status: 'ACTIVE', note: 'Счёт №12 оплачен' })
-      .expect(200);
-    expect(res.body.status).toBe('ACTIVE');
-    expect(repo.statuses).toEqual([
-      { organizationId: ORG, status: 'ACTIVE', note: 'Счёт №12 оплачен', by: ADMIN },
-    ]);
-  });
-
-  it('и переводит обратно в «только чтение»', async () => {
-    await api().put(`/platform/organizations/${ORG}/status`).set(as('session-admin')).send({ status: 'READ_ONLY' }).expect(200);
-    expect(repo.statuses[0]).toMatchObject({ status: 'READ_ONLY', note: null });
-  });
-
-  it('другие статусы отсюда не ставятся: приостановка и пробный — не оплата', async () => {
-    for (const status of ['SUSPENDED', 'TRIAL', 'active', '']) {
-      await api().put(`/platform/organizations/${ORG}/status`).set(as('session-admin')).send({ status }).expect(400);
-    }
-    expect(repo.statuses).toHaveLength(0);
-  });
-
-  it('владелец организации сам себе оплату не подтверждает — 403', async () => {
-    await api().put(`/platform/organizations/${ORG}/status`).set(as('session-owner')).send({ status: 'ACTIVE' }).expect(403);
-    expect(repo.statuses).toHaveLength(0);
-  });
-
-  it('нет такой организации — 404', async () => {
-    await api()
-      .put('/platform/organizations/9e9e9e9e-8c7b-4e3a-a1f0-6b9c2d4e8f00/status')
-      .set(as('session-admin'))
-      .send({ status: 'ACTIVE' })
-      .expect(404);
   });
 });

@@ -21,11 +21,8 @@ describe.skipIf(!url)('guest_documents dates encrypted (integration, DATABASE_UR
   const guestId = randomUUID();
   const mark = Date.now().toString(36);
 
-  let organizationId = '';
   beforeAll(async () => {
     db = createPrismaClient(url);
-    // гость принадлежит организации (DATA_MODEL v1.13, RLS-1)
-    organizationId = (await db.organization.findFirstOrThrow({ orderBy: { createdAt: 'asc' } })).id;
     const rows = await db.$queryRaw<Array<{ column_name: string }>>`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name = 'guest_documents'
@@ -56,7 +53,7 @@ describe.skipIf(!url)('guest_documents dates encrypted (integration, DATABASE_UR
   it('в строке — шифртекст, не ISO-дата; расшифровка возвращает дату', async (ctx) => {
     if (!migrated) return ctx.skip();
     await db.guest.create({
-      data: { id: guestId, organizationId, firstName: 'Вымышленный', lastName: `Гость-даты-${mark}` },
+      data: { id: guestId, firstName: 'Вымышленный', lastName: `Гость-даты-${mark}` },
     });
     const issued = '2021-03-15';
     const expires = '2031-03-14';

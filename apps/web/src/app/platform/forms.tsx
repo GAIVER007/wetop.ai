@@ -4,12 +4,7 @@ import { EXTENSION_STATUSES } from '@pms/domain';
 import { DateInput } from '../../components/date-field';
 import { Alert, Button, Field, Grid, Input, Notice, Row, Select } from '../../components/ui';
 import type { ExtensionChangeBody } from '../../lib/api';
-import {
-  changeAiSellerAction,
-  changeStatusAction,
-  type ExtensionFormResult,
-  type StatusFormResult,
-} from './actions';
+import { changeAiSellerAction, type ExtensionFormResult } from './actions';
 
 /**
  * Изменение расширения «ИИ-продавец» одной организации (Q-183): статус, последний день и заметка. Пробному нужен срок;
@@ -76,67 +71,6 @@ export function ExtensionForm({
           data-testid="platform-extension-save"
         >
           {pending ? 'Сохраняю…' : 'Сохранить'}
-        </Button>
-      </Row>
-    </form>
-  );
-}
-
-/**
- * Подписка организации (Q-141 — А, ADR-102): клиент оплатил счёт по реквизитам — главный администратор жмёт
- * «Оплата получена», и организация снова может вносить изменения. «Только чтение» — обратно. Заметка — номер счёта.
- */
-export function StatusForm({
-  organizationId,
-  organizationName,
-  status,
-}: {
-  organizationId: string;
-  organizationName: string;
-  status: string;
-}) {
-  const [state, action, pending] = useActionState<StatusFormResult | null, FormData>(
-    changeStatusAction.bind(null, organizationId),
-    null,
-  );
-  return (
-    <form
-      key={state?.attempt ?? 0}
-      action={action}
-      className="stack"
-      aria-label={`Подписка: ${organizationName}`}
-      data-testid="platform-status-form"
-    >
-      <Field label="Заметка — номер счёта">
-        <Input name="note" maxLength={300} placeholder="Счёт № 17 от 25.09.2026, WETOP Core" />
-      </Field>
-      <p className="settings-note">
-        WETOP Core — 49 900 ₸ в месяц за объект до 100 единиц продажи. После оплаты счёта нажмите «Оплата получена»:
-        организация снова сможет вносить изменения. «Только чтение» — данные видны, изменения закрыты. Каждое изменение
-        пишется в журнал.
-      </p>
-      {state?.error && <Alert data-testid="platform-status-error">{state.error}</Alert>}
-      {state?.message && <Notice data-testid="platform-status-result">{state.message}</Notice>}
-      <Row>
-        <Button
-          type="submit"
-          name="status"
-          value="ACTIVE"
-          disabled={pending || status === 'ACTIVE'}
-          aria-busy={pending}
-          data-testid="platform-status-active"
-        >
-          {pending ? 'Сохраняю…' : 'Оплата получена'}
-        </Button>
-        <Button
-          type="submit"
-          name="status"
-          value="READ_ONLY"
-          tone="secondary"
-          disabled={pending || status === 'READ_ONLY'}
-          data-testid="platform-status-readonly"
-        >
-          Только чтение
         </Button>
       </Row>
     </form>

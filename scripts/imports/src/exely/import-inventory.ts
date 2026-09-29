@@ -46,15 +46,9 @@ export async function importInventoryPlan(
 
   // Property — по name (single-property MVP; уникального бизнес-ключа в схеме нет)
   const existingProperty = await tx.property.findFirst({ where: { name: property.name } });
-  // Новый объект — самой старой организации, как привязка в миграции …16; организаций нет — своя по имени объекта
-  // (DATA_MODEL v1.13: у объекта организация обязательна)
-  const organizationId = existingProperty
-    ? existingProperty.organizationId
-    : ((await tx.organization.findFirst({ orderBy: { createdAt: 'asc' }, select: { id: true } }))?.id ??
-      (await tx.organization.create({ data: { name: property.name, status: 'ACTIVE' }, select: { id: true } })).id);
   const prop = existingProperty
     ? await tx.property.update({ where: { id: existingProperty.id }, data: property })
-    : await tx.property.create({ data: { ...property, organizationId } });
+    : await tx.property.create({ data: property });
   if (existingProperty) report.property.updated += 1;
   else report.property.created += 1;
   report.propertyId = prop.id;

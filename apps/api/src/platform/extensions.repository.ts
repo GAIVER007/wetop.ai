@@ -37,17 +37,6 @@ export interface ExtensionsRepository {
     by: string | null;
     now: Date;
   }): Promise<void>;
-  /**
-   * Оплата счётом (Q-141 — А, ADR-102): главный администратор ставит `ACTIVE` («оплата подтверждена») или обратно
-   * `READ_ONLY`. Статус и строка журнала — одной транзакцией.
-   */
-  saveStatus(input: {
-    organizationId: string;
-    status: 'ACTIVE' | 'READ_ONLY';
-    note: string | null;
-    by: string | null;
-    now: Date;
-  }): Promise<void>;
 }
 
 export const EXTENSIONS_REPOSITORY = Symbol('EXTENSIONS_REPOSITORY');
@@ -64,32 +53,6 @@ const trace = (row: Pick<ExtensionRow, 'status' | 'activeUntil' | 'note'>) => ({
 @Injectable()
 export class PrismaExtensionsRepository implements ExtensionsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-
-  async saveStatus(input: {
-    organizationId: string;
-    status: 'ACTIVE' | 'READ_ONLY';
-    note: string | null;
-    by: string | null;
-    now: Date;
-  }): Promise<void> {
-    await this.prisma.db.$transaction(async (tx) => {
-      const before = await tx.organization.findUnique({
-        where: { id: input.organizationId },
-        select: { status: true },
-      });
-      await tx.organization.update({ where: { id: input.organizationId }, data: { status: input.status } });
-      await tx.auditLog.create({
-        data: {
-          userId: input.by,
-          entityType: 'organization',
-          entityId: input.organizationId,
-          action: 'organization.status_changed',
-          ...(before ? { before: { status: before.status } } : {}),
-          after: { status: input.status, note: input.note },
-        },
-      });
-    });
-  }
 
   async aiSeller(organizationId: string): Promise<ExtensionRow | null> {
     return this.prisma.db.organizationExtension.findUnique({

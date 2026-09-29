@@ -103,7 +103,7 @@ test('стойка недоступна — окно говорит об это�
   );
 });
 
-test('«Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма', async ({ page }) => {
+test('«Создать аккаунт» открывает регистрацию, после отправки — «Проверьте почту» и повтор письма', async ({ page }) => {
   const calls = await mockDesk(page, {
     options: () => ({ status: 200, body: { registrationEnabled: true } }),
     register: (body) => ({
@@ -113,7 +113,7 @@ test('«Получить доступ» при открытой регистра
     resend: () => ({ status: 200, body: { ok: true } }),
   });
   await page.goto('/');
-  await page.locator('.hero').getByRole('link', { name: /Получить доступ/ }).click();
+  await page.locator('.hero').getByRole('link', { name: /Создать аккаунт/ }).click();
 
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
@@ -143,11 +143,11 @@ test('«Получить доступ» при открытой регистра
   await page.screenshot({ path: 'test-results/site-auth-3-sent.png' });
 });
 
-test('регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает', async ({ page }) => {
+test('регистрация закрыта — окно говорит это словами, форму не показывает', async ({ page }) => {
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: false } }) });
   await page.goto('/#register');
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading', { name: 'Подключаем партнёров вручную' })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: 'Регистрация временно закрыта' })).toBeVisible();
   await expect(dialog.getByLabel('Пароль', { exact: true })).toHaveCount(0);
 });
 
@@ -166,7 +166,7 @@ test('на телефоне окно открывается из меню и н�
   await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
   await page.goto('/');
   await page.getByRole('button', { name: 'Меню' }).click();
-  await page.locator('#mobile-menu-panel').getByRole('link', { name: 'Получить доступ' }).click();
+  await page.locator('#mobile-menu-panel').getByRole('link', { name: 'Создать аккаунт' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
   const box = await dialog.boundingBox();

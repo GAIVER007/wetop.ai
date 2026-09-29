@@ -4388,3 +4388,6 @@
 | 29.09.2026 21:21 | unit | ✅ 2412 из 2415, пропущено 3 | 1 мин 21 с | 7ee096d +17 | [лог](logs/2026-09-29T16-21-29Z-unit-ae9d.log) |  |
 | 29.09.2026 21:22 | typecheck | ✅ без ошибок | 31 с | 7ee096d +17 | [лог](logs/2026-09-29T16-22-51Z-typecheck-9917.log) |  |
 | 29.09.2026 21:23 | lint | ✅ без ошибок | 18 с | 7ee096d +17 | [лог](logs/2026-09-29T16-23-23Z-lint-f3d5.log) |  |
+| 29.09.2026 21:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 5 из 661 | 55 мин 54 с | 4f7cb0e | [лог](logs/2026-09-29T16-23-57Z-e2e-7fb2.log) | 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку |
+| 29.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-desk.spec.ts tests/ui/design-system.spec.ts) | ✅ 19 из 19 | 1 мин 35 с | 4f7cb0e +1 | [лог](logs/2026-09-29T17-22-05Z-e2e-7084.log) |  |
+| 29.09.2026 22:23 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 24 с | 4f7cb0e +1 | [лог](logs/2026-09-29T17-23-41Z-e2e-ef67.log) |  |

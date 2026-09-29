@@ -177,4 +177,13 @@
 ## 12. S3 — сделано 29.09 (база знаний)
 
 Управляемая база знаний, инструмент `search_knowledge`, кабинет «База знаний» и «На основании» у диалога — отчёт
-`reports/ai-agents-s3-2026-09-29/README.md`. **Стоп: S5 без отдельного подтверждения не начинать.**
+`reports/ai-agents-s3-2026-09-29/README.md`. Стоп до S5 снят владельцем 29.09 («давай делай»).
+
+## 13. S5 — сделано 29.09 (диагностика)
+
+План — `plans/ai-agents-s5-diagnostics-2026-09-29.md`. Три инструмента без аргументов области: `get_integration_health`,
+`get_reservation_status(number)`, `get_workspace_health`; два адреса узкого ключа помощника `GET /assistant/integrations`
+и `GET /assistant/reservation`; сборка ответа — домен `packages/domain/src/assistant/diagnostics.ts` по белому списку.
+Журнал ошибок §14 не менялся (Q-S5-1: поля `businessId`/`locationId`/`errorCode` из Q-A3 сейчас нечем заполнить), миграций
+нет. Отчёт — `reports/ai-agents-s5-2026-09-29/README.md`. **Стоп: S6 (действия SAFE / CONFIRM / HUMAN_ONLY) без
+отдельного подтверждения не начинать.**

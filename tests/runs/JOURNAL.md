@@ -4353,3 +4353,18 @@
 | 29.09.2026 20:12 | unit | ❌ упало 4 из 2391, пропущено 3 | 1 мин 27 с | 8df70e8 | [лог](logs/2026-09-29T15-12-42Z-unit-e538.log) | S3+S4 после слияния main (S0 уже в main) |
 | 29.09.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ✅ 54 из 54 | 6 мин 20 с | 8df70e8 | [лог](logs/2026-09-29T15-14-10Z-e2e-c039.log) | S3+S4 после слияния main |
 | 29.09.2026 20:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 34 с | 071cde9 | [лог](logs/2026-09-29T15-41-47Z-e2e-28d1.log) |  |
+| 29.09.2026 21:30 | unit (частично: packages/domain/src/assistant/diagnostics.test.ts) | ❌ код выхода 1 | 2 с | 500d24c +1 | [лог](logs/2026-09-29T16-30-22Z-unit-b265.log) | S5 red: диагностики в домене ещё нет |
+| 29.09.2026 21:31 | unit (частично: packages/domain/src/assistant/diagnostics.test.ts) | ✅ 12 из 12 | 2 с | 500d24c +3 | [лог](logs/2026-09-29T16-31-02Z-unit-b855.log) | S5 green: домен диагностики |
+| 29.09.2026 21:33 | unit (частично: apps/api/src/assistant/diagnostics.controller.test.ts) | ❌ упало 9 из 11 | 4 с | 500d24c +9 | [лог](logs/2026-09-29T16-33-47Z-unit-bc24.log) | S5 red: маршрутов диагностики в контроллере нет |
+| 29.09.2026 21:33 | unit (частично: apps/api/src/assistant/diagnostics.controller.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 13 | 4 с | 500d24c +10 | [лог](logs/2026-09-29T16-33-52Z-unit-665f.log) | S5 green: диагностика API и таблица прав |
+| 29.09.2026 21:34 | unit (частично: apps/api/src/assistant/diagnostics.controller.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 13 из 13 | 4 с | 500d24c +10 | [лог](logs/2026-09-29T16-34-38Z-unit-bac8.log) | S5 green: диагностика API и таблица прав |
+| 29.09.2026 21:39 | typecheck | ❌ ошибок: 5 | 39 с | 500d24c +21 | [лог](logs/2026-09-29T16-39-25Z-typecheck-b671.log) | S5 диагностика |
+| 29.09.2026 21:40 | integration (частично: tests/integration/assistant-diagnostics.test.ts) | ❌ код выхода 1 | 6 с | 500d24c +11 | [лог](logs/2026-09-29T16-40-18Z-integration-50ce.log) | S5: диагностика на базе |
+| 29.09.2026 21:40 | lint | ✅ без ошибок | 30 с | 500d24c +21 | [лог](logs/2026-09-29T16-40-04Z-lint-57be.log) | S5 диагностика |
+| 29.09.2026 21:40 | typecheck | ✅ без ошибок | 33 с | 500d24c +21 | [лог](logs/2026-09-29T16-40-41Z-typecheck-4fa2.log) | S5 диагностика, повтор после правки тестов |
+| 29.09.2026 21:41 | integration (частично: tests/integration/assistant-diagnostics.test.ts) | ✅ 4 из 4 | 5 с | 500d24c +11 | [лог](logs/2026-09-29T16-41-14Z-integration-85b2.log) | S5: диагностика на базе |
+| 29.09.2026 21:39 | unit | ❌ упало 1 из 2414, пропущено 34 | 1 мин 40 с | 500d24c +20 | [лог](logs/2026-09-29T16-39-58Z-unit-1f84.log) | S5 диагностика: полный unit |
+| 29.09.2026 21:41 | lint | ✅ без ошибок | 19 с | 500d24c +21 | [лог](logs/2026-09-29T16-41-35Z-lint-6553.log) | S5 диагностика, код устоялся |
+| 29.09.2026 21:42 | unit (частично: apps/api/src/assistant tests/unit/design-slop.test.ts) | ❌ упало 1 из 55, пропущено 19 | 4 с | 500d24c +23 | [лог](logs/2026-09-29T16-42-48Z-unit-9a57.log) | S5: тестовые модули помощника знают DiagnosticsService; сторож дизайна |
+| 29.09.2026 21:43 | unit (частично: apps/api/src/assistant) | ✅ 44 из 44 | 4 с | 500d24c +23 | [лог](logs/2026-09-29T16-43-07Z-unit-d5a1.log) | S5: тестовые модули помощника знают DiagnosticsService |
+| 29.09.2026 21:43 | unit | ❌ упало 1 из 2414, пропущено 3 | 1 мин 18 с | 500d24c +23 | [лог](logs/2026-09-29T16-43-20Z-unit-5d56.log) | S5 диагностика: полный unit на устоявшемся коде |

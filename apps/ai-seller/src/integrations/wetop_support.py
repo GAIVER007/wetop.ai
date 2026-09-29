@@ -23,6 +23,9 @@ PATH_GUARD_STATUS = "/guard/status"
 PATH_ORGANIZATION = "/assistant/organization"
 # S4: контекст обратившегося — третий адрес узкого ключа помощника.
 PATH_REQUESTER = "/assistant/requester"
+# S5: диагностика — четвёртый и пятый адреса узкого ключа помощника.
+PATH_INTEGRATIONS = "/assistant/integrations"
+PATH_RESERVATION = "/assistant/reservation"
 
 
 class WetopSupportMixin:
@@ -95,5 +98,35 @@ class WetopSupportMixin:
                 return None
             raise
         if not isinstance(body.get("requester"), dict) or not isinstance(body.get("account"), dict):
+            raise ProviderUnavailable("bad_body")
+        return body
+
+    async def integration_health(self, *, user_id: str, org_id: str) -> dict | None:
+        """Состояние каналов продаж организации (S5). 404 — обратившегося в организации нет."""
+        try:
+            body = await self._request(
+                "GET", PATH_INTEGRATIONS, params={"userId": user_id, "organizationId": org_id}
+            )
+        except ProviderUnavailable as failure:
+            if str(failure) == "api_error_404":
+                return None
+            raise
+        if "channex" not in body:
+            raise ProviderUnavailable("bad_body")
+        return body
+
+    async def reservation_status(self, *, user_id: str, org_id: str, number: str) -> dict | None:
+        """Бронь по номеру среди объектов организации (S5). 404 — нет такой (чужая или несуществующая — одинаково)."""
+        try:
+            body = await self._request(
+                "GET",
+                PATH_RESERVATION,
+                params={"userId": user_id, "organizationId": org_id, "number": number},
+            )
+        except ProviderUnavailable as failure:
+            if str(failure) == "api_error_404":
+                return None
+            raise
+        if not isinstance(body.get("number"), str) or not isinstance(body.get("items"), list):
             raise ProviderUnavailable("bad_body")
         return body

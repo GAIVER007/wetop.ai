@@ -212,6 +212,16 @@ class RequesterContextProvider(Protocol):
     async def requester_context(self, *, user_id: str, org_id: str) -> dict | None: ...
 
 
+class DiagnosticsProvider(Protocol):
+    """Диагностика для техподдержки (S5): состояние каналов продаж и бронь по номеру.
+    Пара (user_id, org_id) — из подписи посетителя; платформа сверяет её с членством.
+    None — обратившегося в организации нет (каналы) или брони с таким номером нет."""
+
+    async def integration_health(self, *, user_id: str, org_id: str) -> dict | None: ...
+
+    async def reservation_status(self, *, user_id: str, org_id: str, number: str) -> dict | None: ...
+
+
 @dataclass
 class Providers:
     """Набор провайдеров для этого запуска. None — такой системы нет:
@@ -231,3 +241,5 @@ class Providers:
     subscriptions: SubscriptionProvider | None = None
     # S4: кто обратился — тем же узким ключом помощника.
     requesters: RequesterContextProvider | None = None
+    # S5: диагностика — каналы и бронь по номеру, тем же узким ключом.
+    diagnostics: DiagnosticsProvider | None = None

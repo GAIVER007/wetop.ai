@@ -84,6 +84,8 @@ def build_providers(
             subscriptions=wetop,
             # S4: кто обратился — роль, организация, состояние аккаунта, права.
             requesters=wetop,
+            # S5: диагностика — каналы и бронь по номеру.
+            diagnostics=wetop,
         )
 
     if mode != MODE_STUB:

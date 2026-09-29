@@ -10,6 +10,9 @@ import {
   REQUESTER_CONTEXT_REPOSITORY,
 } from './requester-context.repository';
 import { RequesterContextService } from './requester-context.service';
+import { ChannelsModule } from '../channels/channels.module';
+import { DIAGNOSTICS_REPOSITORY, PrismaDiagnosticsRepository } from './diagnostics.repository';
+import { DiagnosticsService } from './diagnostics.service';
 
 /**
  * ИИ-помощник в стойке (ТЗ ред. 1, ADR-079): подпись вошедшего для виджета (П1) и уборка журнала ошибок человека
@@ -17,13 +20,16 @@ import { RequesterContextService } from './requester-context.service';
  */
 @Module({
   // PlatformModule — ради ExtensionsService: карточка организации для техподдержки (С5)
-  imports: [UserErrorsModule, PlatformModule],
+  // ChannelsModule — ради снимка сторожа webhook в диагностике (S5); живых вызовов Channex отсюда нет
+  imports: [UserErrorsModule, PlatformModule, ChannelsModule],
   controllers: [AssistantController],
   providers: [
     UserErrorsRetentionService,
     PrismaService,
     { provide: REQUESTER_CONTEXT_REPOSITORY, useClass: PrismaRequesterContextRepository },
     RequesterContextService,
+    { provide: DIAGNOSTICS_REPOSITORY, useClass: PrismaDiagnosticsRepository },
+    DiagnosticsService,
   ],
 })
 export class AssistantModule {}

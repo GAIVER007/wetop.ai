@@ -98,6 +98,25 @@ SELECT message, status, count(*) AS n
 Параметры `userId` и `organizationId` — из подписи посетителя, которую бот проверил сам; API сверяет пару с членством
 (чужая организация — 404). Ответа без почты, телефона, имени и внутренних id. Третий адрес узкого ключа помощника.
 
+### `GET /assistant/integrations` и `GET /assistant/reservation` (S5)
+
+Диагностика для помощника поддержки (`plans/ai-agents-s5-diagnostics-2026-09-29.md`). Параметры `userId` и
+`organizationId` — из подписи посетителя, сверка с членством как у `/assistant/requester` (чужая пара — 404). Четвёртый
+и пятый адреса узкого ключа; живых вызовов Channex нет — только база и снимок сторожа webhook.
+
+- `integrations` → `{ "channex": null }` у организации без подключённых каналов; иначе `channex`: `state`
+  (`READY` / `NO_KEY` / `NO_MAPPING` / `ATTENTION`), `categories { mapped, total }`, `ratePlansMapped`,
+  `lastEventAgeMinutes`, `outbox { pending, failed, oldestPendingMinutes }`, `webhook { suspect, reachable }`,
+  `problems[]` кодами (`CATEGORIES_UNMAPPED`, `WEBHOOK_SUSPECT`, `OUTBOX_STUCK`, `NO_EVENTS_24H`…). Ключей и адресов нет.
+- `reservation?number=` → бронь по номеру среди объектов организации: `status`, даты, `nights`, `source`, `channel`,
+  `guests { adults, children }`, `items[] { category, status, unitAssigned, unitCode, housekeeping }`, `problems[]`
+  (`UNASSIGNED_ITEMS`, `ARRIVAL_PASSED_NOT_CHECKED_IN`, `UNIT_NOT_INSPECTED_BEFORE_ARRIVAL`…). Имени, телефона,
+  заметок и сумм нет по построению; чужая или несуществующая бронь — 404 без различения; `number` — до 40 знаков
+  из букв, цифр, дефиса и подчёркивания, иначе 400.
+
+Инструменты бота: `get_integration_health`, `get_reservation_status(number)`, `get_workspace_health` (сводка:
+аккаунт из S4, `platform_status`, каналы, число своих ошибок за окно `SUPPORT_INCIDENT_WINDOW_HOURS`).
+
 ### База знаний WETOP Support (S3, только помощник, только служебный ключ)
 
 Панель бота: `GET/POST /support-knowledge`, `GET/PUT /support-knowledge/{id}`, `POST /support-knowledge/{id}/publish`

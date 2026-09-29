@@ -66,6 +66,9 @@ const ASSISTANT_READ_ALLOWED = [
   '/guard/status',
   '/assistant/organization',
   '/assistant/requester',
+  // S5: диагностика — состояние каналов и бронь по номеру, только чтение
+  '/assistant/integrations',
+  '/assistant/reservation',
 ];
 
 /**

@@ -47,6 +47,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /assistant/errors': 'service',
   'GET /assistant/organization': 'service',
   'GET /assistant/requester': 'service',
+  'GET /assistant/integrations': 'service',
+  'GET /assistant/reservation': 'service',
   'GET /health': 'public',
 
   // ── работа с гостями ────────────────────────────────────────────────────────────────────

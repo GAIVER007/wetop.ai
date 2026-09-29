@@ -24,17 +24,12 @@ from typing import Any
 
 from src.ai.tools import ToolRegistry, ToolSpec
 from src.ai.support_context import register_context_tools
+from src.ai.support_diagnostics import register_diagnostics_tools
 from src.ai.support_kb_tool import register_kb_tool
 from src.ai.support_subscription import register_subscription_tool
 from src.db.base import utcnow
 from src.integrations.failure_log import log_provider_failure
-from src.knowledge.catalog import (
-    CatalogMissing,
-    ErrorEntry,
-    find_by_code,
-    find_by_text,
-    load_catalog,
-)
+from src.knowledge.catalog import CatalogMissing, ErrorEntry, find_by_code, find_by_text, load_catalog
 
 logger = logging.getLogger(__name__)
 
@@ -295,5 +290,9 @@ def build_registry(
             parameters=dict(_NO_PARAMS),
             handler=platform_status,
         )
+    )
+    register_diagnostics_tools(
+        registry, providers_getter=providers_getter, visitor_getter=visitor_getter,
+        settings_getter=settings_getter, rules=_RULES, unknown=UNKNOWN, not_signed=NOT_SIGNED,
     )
     return registry

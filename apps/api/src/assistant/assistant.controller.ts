@@ -20,14 +20,19 @@ import { ExtensionsService } from '../platform/extensions.service';
 import { USER_ERRORS_REPOSITORY, type UserErrorsRepository } from './user-errors.repository';
 import { Access } from '../auth/access.decorator';
 import { RequesterContextService } from './requester-context.service';
+import { DiagnosticsService } from './diagnostics.service';
 
 export const IDENTITY_SIGNED_IN_ONLY = 'Подпись помощника выдаётся только вошедшему';
 export const IDENTITY_NOT_CONFIGURED = 'Подпись помощника не настроена';
 export const ERRORS_KEY_REQUIRED = 'Ошибки человека читает только помощник по своему ключу';
 export const REQUESTER_KEY_REQUIRED = 'Контекст обратившегося читает только помощник по своему ключу';
 export const ORGANIZATION_KEY_REQUIRED = 'Подписку организации читает только помощник по своему ключу';
+export const DIAGNOSTICS_KEY_REQUIRED = 'Диагностику читает только помощник по своему ключу';
+export const RESERVATION_NOT_FOUND = 'Брони с таким номером у организации нет';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Номер брони, который назвал человек: буквы, цифры, дефис и подчёркивание — ни пробелов, ни подстановок в запрос
+const CONFIRMATION_NUMBER = /^[A-Za-z0-9_-]{1,40}$/;
 const DAY_MS = 86_400_000;
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -62,6 +67,7 @@ export class AssistantController {
     @Inject(USER_ERRORS_REPOSITORY) private readonly userErrors: UserErrorsRepository,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
     @Inject(RequesterContextService) private readonly requester: RequesterContextService,
+    @Inject(DiagnosticsService) private readonly diagnostics: DiagnosticsService,
   ) {}
 
   @Access('self')
@@ -178,5 +184,57 @@ export class AssistantController {
     const context = await this.requester.resolve(userId, organizationId);
     if (!context) throw new NotFoundException('Обратившегося в этой организации нет');
     return context;
+  }
+
+  /**
+   * Состояние каналов продаж для помощника поддержки (S5): сопоставления, последнее событие, очередь ARI, webhook —
+   * без ключей и адресов, без живого вызова Channex. Организации без подключённых каналов — `channex: null`.
+   */
+  @Access('service')
+  @Get('integrations')
+  @Header('Cache-Control', 'no-store')
+  async integrations(
+    @Req() request: { headers: Record<string, unknown>; user?: SignedInUser },
+    @Query() query: Record<string, unknown>,
+  ) {
+    this.assistantKeyOnly(request, DIAGNOSTICS_KEY_REQUIRED);
+    const userId = uuidParam(query.userId, 'userId');
+    const organizationId = uuidParam(query.organizationId, 'organizationId');
+    const answer = await this.diagnostics.integrationHealth(userId, organizationId);
+    if (!answer) throw new NotFoundException('Обратившегося в этой организации нет');
+    return answer;
+  }
+
+  /**
+   * Состояние брони по номеру, который назвал человек (S5): статус, даты, проживания и ячейки, проблемы кодами.
+   * Имени, телефона, заметок и сумм в ответе нет по построению. Чужая или несуществующая бронь — 404 без различения.
+   */
+  @Access('service')
+  @Get('reservation')
+  @Header('Cache-Control', 'no-store')
+  async reservation(
+    @Req() request: { headers: Record<string, unknown>; user?: SignedInUser },
+    @Query() query: Record<string, unknown>,
+  ) {
+    this.assistantKeyOnly(request, DIAGNOSTICS_KEY_REQUIRED);
+    const userId = uuidParam(query.userId, 'userId');
+    const organizationId = uuidParam(query.organizationId, 'organizationId');
+    const number = typeof query.number === 'string' ? query.number.trim() : '';
+    if (!CONFIRMATION_NUMBER.test(number))
+      throw new BadRequestException('number: ожидается номер брони (буквы, цифры, дефис, до 40 знаков)');
+    const view = await this.diagnostics.reservation(userId, organizationId, number);
+    if (view === undefined) throw new NotFoundException('Обратившегося в этой организации нет');
+    if (view === null) throw new NotFoundException(RESERVATION_NOT_FOUND);
+    return view;
+  }
+
+  /** Ключ сверяется и здесь, а не только в замке — по той же причине, что у `GET /assistant/errors` */
+  private assistantKeyOnly(
+    request: { headers: Record<string, unknown>; user?: SignedInUser },
+    message: string,
+  ): void {
+    const key = serviceKeyKind(request.headers);
+    if (key === null && !request.user) throw new UnauthorizedException(message);
+    if (key !== 'assistant-read' && key !== 'service') throw new ForbiddenException(message);
   }
 }

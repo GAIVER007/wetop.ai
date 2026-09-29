@@ -8,6 +8,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AssistantController } from './assistant.controller';
+import { DiagnosticsService } from './diagnostics.service';
 import { ExtensionsService } from '../platform/extensions.service';
 import { RequesterContextService } from './requester-context.service';
 import {
@@ -72,6 +73,8 @@ beforeAll(async () => {
       { provide: USER_ERRORS_REPOSITORY, useValue: userErrors },
       { provide: ExtensionsService, useValue: extensions },
       { provide: RequesterContextService, useValue: {} },
+      // S5: диагностика в этом наборе не зовётся
+      { provide: DiagnosticsService, useValue: {} },
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
   }).compile();

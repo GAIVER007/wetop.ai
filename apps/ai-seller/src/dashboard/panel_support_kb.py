@@ -225,6 +225,15 @@ async def conversation_knowledge(conv_id: str) -> dict:
         return {"items": await kb.conversation_sources(session, str(_uuid(conv_id)))}
 
 
+@router.get("/conversations/{conv_id}/actions")
+async def conversation_actions(conv_id: str) -> dict:
+    """Журнал действий бота в диалоге (S6): для оператора; клиент этого не видит."""
+    from src.ai.support_actions_journal import list_for_conversation
+
+    async with sessions()() as session:
+        return {"items": await list_for_conversation(session, str(_uuid(conv_id)))}
+
+
 @router.post("/conversations/{conv_id}/knowledge-draft")
 async def draft_from_conversation(conv_id: str, body: DraftIn) -> dict:
     """Из закрытого обращения — только пустой черновик; ничего из переписки не копируется."""

@@ -17,7 +17,7 @@ from src.ai.engine_types import IncomingMessage
 from src.channels.sender import Sender, SendResult
 from src.channels.widget_identity import current_visitor
 from src.channels.widget_store import new_flag_key
-from src.config import Settings, normalize_bot_role
+from src.config import Settings, get_settings, normalize_bot_role
 
 logger = logging.getLogger(__name__)
 
@@ -131,6 +131,19 @@ def _knowledge_runtime() -> _KnowledgeRuntime:
     return _KnowledgeRuntime(dependencies.get_sessionmaker(), get_embedder())
 
 
+@dataclass
+class _ActionsRuntime:
+    """Сессия, Redis и настройки для инструментов действий (S6): собираются на вызове."""
+
+    session_factory: Any
+    redis: Any
+    settings: Any
+
+
+def _actions_runtime() -> _ActionsRuntime:
+    return _ActionsRuntime(dependencies.get_sessionmaker(), dependencies.get_redis(), get_settings())
+
+
 def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunner:
     """Боевая сборка канала. Импорты внутри: движок и каскад не нужны тем,
     кто подменяет runner в тестах.
@@ -161,6 +174,8 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
             # S3: управляемая база знаний; диалог для журнала использования — из contextvar движка
             knowledge_getter=_knowledge_runtime,
             conversation_getter=dependencies.conversation_id_var.get,
+            # S6: действия — журнал в базе бота, ожидающие предложения в Redis
+            actions_getter=_actions_runtime,
         )
         lead_hook = None
         # Помощник отвечает по делу: эмодзи в разборе ошибки неуместны.

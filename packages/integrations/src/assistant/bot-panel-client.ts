@@ -213,6 +213,11 @@ export class BotPanelClient {
     return this.json('GET', `/conversations/${encodeURIComponent(id)}/knowledge`);
   }
 
+  /** Журнал действий бота в диалоге (S6): предложил, подтвердил, выполнил, передал человеку */
+  conversationActions(id: string): Promise<Json> {
+    return this.json('GET', `/conversations/${encodeURIComponent(id)}/actions`);
+  }
+
   /** Пустой черновик знания из закрытого обращения; переписка не копируется */
   knowledgeDraft(id: string, by: string | null): Promise<Json> {
     return this.json('POST', `/conversations/${encodeURIComponent(id)}/knowledge-draft`, { by });

@@ -1,0 +1,66 @@
+# Модульные (unit) · 29.09.2026 22:10 Алматы · vm
+# коммит 66923ec (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 38
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T17-10-56Z-unit-ca2a.json' 'apps/api/src/platform' 'apps/api/src/assistant' 'packages/integrations'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (12 tests) 229ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 223ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (18 tests) 336ms
+ ✓ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests) 312ms
+ ✓ |unit| apps/api/src/assistant/actions.controller.test.ts (8 tests) 244ms
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 220ms
+ ✓ |unit| packages/integrations/src/channex/client.test.ts (18 tests) 74ms
+ ✓ |unit| packages/integrations/src/assistant/bot-panel-client.test.ts (23 tests) 78ms
+ ✓ |unit| packages/integrations/src/mail/resend.test.ts (15 tests) 64ms
+ ✓ |unit| packages/integrations/src/telegram/client.test.ts (8 tests) 60ms
+ ✓ |unit| packages/integrations/src/channex/channel-names.test.ts (11 tests) 8ms
+ ✓ |unit| packages/integrations/src/mail/stub.test.ts (8 tests) 8ms
+ ❯ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests | 1 failed) 168ms
+   ✓ база знаний — только главный администратор (1)
+     ✓ владелец организации получает 403 на всё, помощника не спрашиваем 63ms
+   ✓ публикует и правит главный администратор; автора ставит сервер (7)
+     ✓ создание: by — из сессии, а не из тела 13ms
+     ✓ публикация: approved_by — id администратора из сессии, тело игнорируется 5ms
+     ✓ правка и смена статуса несут автора; статус ACTIVE не принимается — только публикация 12ms
+     ✓ значения справочников и идентификаторы проверяются до вызова помощника 15ms
+     ✓ список: отбор передаётся помощнику как есть, лишнее отбрасывается 4ms
+     ✓ источники диалога и черновик из закрытого обращения 7ms
+     ✓ помощник отказал — его причина, помощник не подключён — 503 3ms
+   ❯ ответы помощника пересказываются в camelCase без лишних полей (2)
+     ✓ запись, список и источники диалога 10ms
+     × журнал действий бота у диалога (S6): слова и статусы, результат через маску, только администратору 5ms
+ ✓ |unit| packages/integrations/src/assistant/identity.test.ts (11 tests) 9ms
+ ✓ |unit| packages/integrations/src/mail/invite-letter.test.ts (5 tests) 5ms
+[Nest] 10319  - 09/29/2026, 5:11:02 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/support-kb.controller.test.ts > ответы помощника пересказываются в camelCase без лишних полей > журнал действий бота у диалога (S6): слова и статусы, результат через маску, только администратору
+Error: expected 200 "OK", got 500 "Internal Server Error"
+ ❯ apps/api/src/platform/support-kb.controller.test.ts:194:95
+    192|       items: [{ id: 'a1', action: 'channel_pull', class: 'SAFE', statu…
+    193|     };
+    194|     const res = await api().get(`/platform/support/conversations/${CON…
+       |                                                                                               ^
+    195|     expect(res.body.items[0]).toMatchObject({ id: 'a1', action: 'chann…
+    196|     expect(res.body.items[0].result).not.toContain('1234567');
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 15 passed (16)
+      Tests  1 failed | 190 passed (191)
+   Start at  17:10:57
+   Duration  4.75s (import 43%, transform 38%, tests 18%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T17-10-56Z-unit-ca2a.json
+
+# код выхода 1 · 6 с

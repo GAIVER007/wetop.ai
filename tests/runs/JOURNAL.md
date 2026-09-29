@@ -4302,3 +4302,9 @@
 | 29.09.2026 18:31 | e2e (частично: --config tests/site/playwright.config.ts tests/site/auth-dialog.spec.ts) | ❌ упало 1 из 8 | 40 с | 0c5f1a5 | [лог](logs/2026-09-29T13-31-52Z-e2e-b8a9.log) | снимки окна регистрации: светлая и тёмная, 1440 и 390 |
 | 29.09.2026 18:33 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 24 с | 0c5f1a5 +1 | [лог](logs/2026-09-29T13-33-16Z-e2e-485b.log) |  |
 | 29.09.2026 18:33 | lint | ✅ без ошибок | 20 с | 0c5f1a5 +2 | [лог](logs/2026-09-29T13-33-51Z-lint-42ab.log) |  |
+| 29.09.2026 18:41 | integration (частично: tests/integration/requester-context.test.ts) | ❌ код выхода 1 | 4 с | 357ae02 +11 | [лог](logs/2026-09-29T13-41-40Z-integration-a3e5.log) | (файл не выполнился) |
+| 29.09.2026 18:41 | integration (частично: tests/integration/requester-context.test.ts) | ✅ 2 из 2 | 4 с | 357ae02 +11 | [лог](logs/2026-09-29T13-41-51Z-integration-46a0.log) |  |
+| 29.09.2026 18:53 | typecheck | ✅ без ошибок | 36 с | 859a943 | [лог](logs/2026-09-29T13-53-14Z-typecheck-5539.log) |  |
+| 29.09.2026 18:53 | lint | ✅ без ошибок | 21 с | 859a943 | [лог](logs/2026-09-29T13-53-51Z-lint-4ad0.log) |  |
+| 29.09.2026 18:54 | unit | ❌ упало 4 из 2363, пропущено 3 | 1 мин 24 с | 859a943 | [лог](logs/2026-09-29T13-54-12Z-unit-c064.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 18:55 | integration | ✅ 126 из 126 | 48 с | 859a943 | [лог](logs/2026-09-29T13-55-39Z-integration-31cc.log) |  |

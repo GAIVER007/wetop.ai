@@ -1,0 +1,93 @@
+# Сквозные (e2e) · 29.09.2026 03:51 Алматы · vm
+# коммит c60fe74 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-unassigned.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (17.2s)
+  ✘  2 tests/ui/chessboard-unassigned.spec.ts:112:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (2.9s)
+  ✓  3 tests/ui/chessboard-unassigned.spec.ts:153:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (2.1s)
+  ✓  4 tests/ui/chessboard-unassigned.spec.ts:171:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (3.2s)
+
+
+  1) tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Брони без размещения' }).getByTestId('unassigned-card').filter({ hasText: '20260913-NEW1' })
+    Expected substring: "Тест Первый"
+    Received string:    "Первый Тест29 сент. → 1 окт., 2 ночиДвухместный номер, подтверждена, 20260913-NEW1СвободноR04R05R06R07R08R09R10R11R12R13R14R15R16Назначить R04Открыть бронь"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog', { name: 'Брони без размещения' }).getByTestId('unassigned-card').filter({ hasText: '20260913-NEW1' }) with timeout 15000ms
+      - waiting for getByRole('dialog', { name: 'Брони без размещения' }).getByTestId('unassigned-card').filter({ hasText: '20260913-NEW1' })
+        33 × locator resolved to <li data-selected="true" class="unassigned-card" data-testid="unassigned-card">…</li>
+           - unexpected value "Первый Тест29 сент. → 1 окт., 2 ночиДвухместный номер, подтверждена, 20260913-NEW1СвободноR04R05R06R07R08R09R10R11R12R13R14R15R16Назначить R04Открыть бронь"
+
+
+      74 |   await expect(cards).toHaveCount(2);
+      75 |   const card1 = cards.filter({ hasText: first });
+    > 76 |   await expect(card1).toContainText('Тест Первый');
+         |                       ^
+      77 |   await expect(card1).toContainText('2 ночи');
+      78 |   await expect(card1).toContainText('Двухместный номер');
+      79 |   await expect(card1.getByRole('link', { name: 'Открыть бронь' })).toHaveAttribute(
+        at /home/user/wetop.ai/tests/ui/chessboard-unassigned.spec.ts:76:23
+
+    Error Context: test-results/chessboard-unassigned-две--9370a-анной-брони-назначение-§64-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-unassigned-две--9370a-анной-брони-назначение-§64-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-unassigned-две--9370a-анной-брони-назначение-§64-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-unassigned.spec.ts:112:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('confirm-dialog')
+    Expected substring: "Разместить бронь 20260913-NEW17 в M01?"
+    Error: strict mode violation: getByTestId('confirm-dialog') resolved to 2 elements:
+        1) <dialog class="confirm-dialog" aria-labelledby="_r_0_" data-testid="confirm-dialog"></dialog> aka getByTestId('unassigned-card').getByTestId('confirm-dialog')
+        2) <dialog class="confirm-dialog" data-testid="confirm-dialog" aria-labelledby="_R_4dslritoqqlb_"></dialog> aka getByTestId('confirm-dialog').nth(1)
+
+    Call log:
+      - Expect "toContainText" getByTestId('confirm-dialog') with timeout 15000ms
+      - waiting for getByTestId('confirm-dialog')
+
+
+      143 |
+      144 |   const confirm = page.getByTestId('confirm-dialog');
+    > 145 |   await expect(confirm).toContainText(`Разместить бронь ${number} в ${unit}?`);
+          |                         ^
+      146 |   await expect(confirm).toContainText('Двухместный номер → Мужской общий номер');
+      147 |   await expect(confirm).toContainText(/Разница стоимости: [+−]|Стоимость не изменится/);
+      148 |   await confirm.getByRole('button', { name: 'Разместить', exact: true }).click();
+        at /home/user/wetop.ai/tests/ui/chessboard-unassigned.spec.ts:145:25
+
+    Error Context: test-results/chessboard-unassigned-нет--d9d64-й-стоимости-перед-переездом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-unassigned-нет--d9d64-й-стоимости-перед-переездом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-unassigned-нет--d9d64-й-стоимости-перед-переездом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) 
+    tests/ui/chessboard-unassigned.spec.ts:112:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом 
+  2 passed (32.3s)
+
+# код выхода 1 · 33 с

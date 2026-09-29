@@ -1,5 +1,5 @@
 'use server';
-import { chessboardApi, financeApi } from '../../lib/api';
+import { chessboardApi, financeApi, reservationsApi, type StayAvailability } from '../../lib/api';
 
 /** Что показывает предпросмотр брони на шахматке сверх клетки: точные даты и суммы по счёту проживания */
 export interface StayPreviewData {
@@ -46,6 +46,25 @@ export async function stayPreviewAction(
           }
         : null,
     };
+  } catch {
+    return null;
+  }
+}
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Свободные места на весь срок брони без ячейки (ТЗ «Шахматка v2» §12): ящик «Брони без размещения»
+ * зовёт это по выбранной брони, а не для каждой карточки (условие владельца к PR 6 — без N+1). Тот же
+ * `GET /availability`, что «Свободные места»; `null` — не загрузилось, ящик предложит повторить.
+ */
+export async function stayAvailabilityAction(
+  arrival: string,
+  departure: string,
+): Promise<StayAvailability | null> {
+  if (!ISO_DATE.test(arrival) || !ISO_DATE.test(departure) || departure <= arrival) return null;
+  try {
+    return await reservationsApi.availability(arrival, departure);
   } catch {
     return null;
   }

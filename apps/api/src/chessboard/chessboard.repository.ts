@@ -114,15 +114,23 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         allocations: { none: {} },
       },
       select: {
+        id: true,
         arrivalDate: true,
         departureDate: true,
         status: true,
-        reservation: { select: { confirmationNumber: true } },
+        reservation: {
+          select: {
+            confirmationNumber: true,
+            primaryGuest: { select: { firstName: true, lastName: true } },
+          },
+        },
         accommodationType: { select: { code: true, name: true } },
       },
     });
     return rows.map((r) => ({
       confirmationNumber: r.reservation.confirmationNumber,
+      itemId: r.id,
+      guestLabel: guestLabel(r.reservation.primaryGuest),
       categoryCode: r.accommodationType.code,
       categoryName: r.accommodationType.name,
       arrivalDate: d(r.arrivalDate),

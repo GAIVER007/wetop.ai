@@ -1,0 +1,31 @@
+# Модульные (unit) · 29.09.2026 03:43 Алматы · vm
+# коммит c60fe74 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T22-43-23Z-unit-72ff.json' 'apps/web/src/app/chessboard/unassigned-plan.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts [ apps/web/src/app/chessboard/unassigned-plan.test.ts ]
+Error: Cannot find module './unassigned-plan' imported from /home/user/wetop.ai/apps/web/src/app/chessboard/unassigned-plan.test.ts
+ ❯ apps/web/src/app/chessboard/unassigned-plan.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { StayAvailability, UnassignedStay } from '../../lib/api';
+      3| import {
+       | ^
+      4|   crossCategoryQuestion,
+      5|   freeChoice,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  22:43:24
+   Duration  212ms (worker 95%, environment 5%)
+
+JSON report written to /tmp/pms-test-2026-09-28T22-43-23Z-unit-72ff.json
+
+# код выхода 1 · 1 с

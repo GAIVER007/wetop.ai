@@ -97,6 +97,11 @@ def suggest_thresholds(samples: list[Sample]) -> Suggestion:
     if not samples:
         raise CalibrationError("Нет ни одного вопроса для калибровки")
     scores = sorted({x.top_score for x in samples if x.top_score is not None})
+    if not scores:
+        raise CalibrationError(
+            "Поиск не нашёл ничего ни по одному вопросу: в базе нет опубликованных (ACTIVE) записей, доступных клиенту. "
+            "Опубликуйте записи и запустите снова; пороги по пустому результату не подбираются"
+        )
     covered = [x for x in samples if x.expected is not None]
     uncovered = [x for x in samples if x.expected is None]
     notes: list[str] = []

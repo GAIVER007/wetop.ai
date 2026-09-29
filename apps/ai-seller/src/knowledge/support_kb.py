@@ -204,16 +204,8 @@ def confidence_of(score: float, *, high: float, medium: float) -> str:
     return "LOW"
 
 
-async def search(
-    session: AsyncSession, embedder: "Embedder", query: str, *, audience: str = "client", top_k: int = 3,
-    high: float = 0.85, medium: float = 0.78,
-) -> list[KbHit]:
-    """Ближайшие ACTIVE-записи, видимые аудитории. Одна запись — один результат (лучший её чанк)."""
-    visible = AUDIENCES.get(audience)
-    if visible is None or not query.strip() or top_k <= 0:
-        return []
-    vec = await embedder.embed_query(query)
-    base = (
+def _base_statement(visible):
+    return (
         sa.select(SupportKnowledgeChunk, SupportKnowledge)
         .join(SupportKnowledge, SupportKnowledge.id == SupportKnowledgeChunk.knowledge_id)
         .where(
@@ -223,10 +215,27 @@ async def search(
             SupportKnowledgeChunk.embedding.is_not(None),
         )
     )
+
+
+def pg_search_statement(vec: list[float], visible, *, top_k: int):
+    """Запрос для pgvector: расстояние считается по чанкам знаний, а не по документам помощника."""
+    distance = _cosine_distance(vec, SupportKnowledgeChunk.embedding).label("distance")
+    return _base_statement(visible).add_columns(distance).order_by(distance).limit(top_k * 4)
+
+
+async def search(
+    session: AsyncSession, embedder: "Embedder", query: str, *, audience: str = "client", top_k: int = 3,
+    high: float = 0.85, medium: float = 0.78,
+) -> list[KbHit]:
+    """Ближайшие ACTIVE-записи, видимые аудитории. Одна запись — один результат (лучший её чанк)."""
+    visible = AUDIENCES.get(audience)
+    if visible is None or not query.strip() or top_k <= 0:
+        return []
+    vec = await embedder.embed_query(query)
+    base = _base_statement(visible)
     scored: list[tuple[float, SupportKnowledgeChunk, SupportKnowledge]] = []
     if _dialect_name(session) == "postgresql":
-        distance = _cosine_distance(vec).label("distance")
-        rows = (await session.execute(base.add_columns(distance).order_by(distance).limit(top_k * 4))).all()
+        rows = (await session.execute(pg_search_statement(vec, visible, top_k=top_k))).all()
         scored = [(1.0 - float(dist), chunk, entry) for chunk, entry, dist in rows]
     else:
         rows = (await session.execute(base)).all()

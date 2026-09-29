@@ -37,7 +37,7 @@ def _dialect_name(session: AsyncSession) -> str:
     return bind.dialect.name
 
 
-def _cosine_distance(vec: list[float]) -> sa.ColumnElement[float]:
+def _cosine_distance(vec: list[float], column=None) -> sa.ColumnElement[float]:
     """Косинусное расстояние pgvector (`<=>`) до вектора запроса.
 
     Оператором, а не .cosine_distance(): колонка объявлена через TypeDecorator,
@@ -46,7 +46,9 @@ def _cosine_distance(vec: list[float]) -> sa.ColumnElement[float]:
     pgvector пытается разобрать число float8 как строку «[…]» — падение на
     первом же ответе.
     """
-    return KnowledgeChunk.embedding.op("<=>", return_type=sa.Float())(vec)
+    # column — чужая таблица чанков (управляемая база знаний); по умолчанию документы помощника
+    target = column if column is not None else KnowledgeChunk.embedding
+    return target.op("<=>", return_type=sa.Float())(vec)
 
 
 def _cosine(a: list[float], b: list[float]) -> float:

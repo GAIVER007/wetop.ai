@@ -61,7 +61,12 @@ const GUARD_READ_ALLOWED = ['/guard/status', '/guard/incidents'];
  * которые API отдал человеку (DATA_MODEL §14), и состояние системы — и больше ничего. Неисправности, запись, брони,
  * гости, деньги — отказ. Сам `GET /assistant/errors` сверяет ключ ещё раз: замок молчит без `AUTH_REQUIRED=1`.
  */
-const ASSISTANT_READ_ALLOWED = ['/assistant/errors', '/guard/status', '/assistant/organization'];
+const ASSISTANT_READ_ALLOWED = [
+  '/assistant/errors',
+  '/guard/status',
+  '/assistant/organization',
+  '/assistant/requester',
+];
 
 /**
  * Узкий ключ котировки ИИ-продавца (`SELLER_QUOTE_KEY`, Q-166 в объёме чтения — ADR-085): наличие и цена

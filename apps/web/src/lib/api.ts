@@ -1885,6 +1885,40 @@ export interface SupportQueueItem {
  * «Платформа → Техподдержка» (ADR-083, план Э3): панель ИИ-помощника через API платформы — адреса и ключа помощника
  * стойка не знает. Только главному администратору; остальным API отвечает 403.
  */
+/** Запись управляемой базы знаний WETOP Support (S3); список отдаёт `excerpt`, запись — `content` и `versions` */
+export interface SupportKbEntry {
+  id: string | null;
+  title: string | null;
+  category: string | null;
+  visibility: string | null;
+  status: string | null;
+  version: number;
+  source: string | null;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  excerpt?: string;
+  content?: string;
+  versions?: Array<{
+    version: number;
+    title: string | null;
+    category: string | null;
+    visibility: string | null;
+    content: string | null;
+    savedBy: string | null;
+    savedAt: string | null;
+  }>;
+}
+export interface SupportKbSource {
+  knowledgeId: string | null;
+  title: string | null;
+  version: number;
+  visibility: string | null;
+  score: number;
+  usedAt: string | null;
+}
+
 export const supportApi = {
   status: () => getJson<{ state: 'not-configured' | 'ready' }>('/platform/support/status'),
   conversations: (mode?: string) =>
@@ -1930,6 +1964,37 @@ export const supportApi = {
     return (await res.json()) as { source: string; created: boolean; chunks: number };
   },
   summary: () => getJson<SellerSummary>('/platform/support/summary'),
+  // ── управляемая база знаний (S3) ──
+  kbList: (query: { status?: string; category?: string; visibility?: string; q?: string }) => {
+    const params = new URLSearchParams();
+    for (const [name, value] of Object.entries(query)) if (value) params.set(name, value);
+    const qs = params.toString();
+    return getJson<{ items: SupportKbEntry[]; counts: Record<string, number> }>(
+      `/platform/support/kb${qs ? `?${qs}` : ''}`,
+    );
+  },
+  kbRead: (id: string) =>
+    getJson<SupportKbEntry>(`/platform/support/kb/${encodeURIComponent(id)}`),
+  kbCreate: (body: Record<string, unknown>) =>
+    sendJson<SupportKbEntry>('POST', '/platform/support/kb', body),
+  kbUpdate: (id: string, body: Record<string, unknown>) =>
+    sendJson<SupportKbEntry>('PUT', `/platform/support/kb/${encodeURIComponent(id)}`, body),
+  kbPublish: (id: string) =>
+    sendJson<SupportKbEntry>('POST', `/platform/support/kb/${encodeURIComponent(id)}/publish`, {}),
+  kbStatus: (id: string, status: string) =>
+    sendJson<SupportKbEntry>('POST', `/platform/support/kb/${encodeURIComponent(id)}/status`, {
+      status,
+    }),
+  conversationSources: (id: string) =>
+    getJson<{ items: SupportKbSource[] }>(
+      `/platform/support/conversations/${encodeURIComponent(id)}/knowledge`,
+    ),
+  knowledgeDraft: (id: string) =>
+    sendJson<SupportKbEntry>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/knowledge-draft`,
+      {},
+    ),
   // ── настройка помощника (ADR-084): правила, модель, песочница ──
   prompt: () => getJson<{ text: string }>('/platform/support/prompt'),
   savePrompt: (text: string) =>

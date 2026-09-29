@@ -366,6 +366,96 @@ class KnowledgeChunk(Base):
     document: Mapped["Document"] = relationship(back_populates="chunks")
 
 
+# ─── База знаний WETOP Support (S3, plans/ai-agents-s3-knowledge-2026-09-29.md) ───
+
+KB_CATEGORIES = (
+    "PRODUCT", "HOW_TO", "TROUBLESHOOTING", "BILLING", "INTEGRATIONS", "SECURITY", "KNOWN_ISSUE", "RUNBOOK",
+)
+KB_VISIBILITIES = ("PUBLIC_SUPPORT", "INTERNAL_SUPPORT", "PLATFORM_ADMIN_ONLY")
+KB_STATUSES = ("DRAFT", "ACTIVE", "OUTDATED", "ARCHIVED")
+
+
+def _in(column: str, values: tuple[str, ...]) -> str:
+    return f"{column} IN ({', '.join(repr(v) for v in values)})"
+
+
+class SupportKnowledge(Base):
+    """Запись управляемой базы знаний. Отвечает клиенту только ACTIVE; публикует главный администратор."""
+
+    __tablename__ = "support_knowledge"
+    __table_args__ = (
+        sa.CheckConstraint(_in("category", KB_CATEGORIES), name="ck_support_knowledge_category"),
+        sa.CheckConstraint(_in("visibility", KB_VISIBILITIES), name="ck_support_knowledge_visibility"),
+        sa.CheckConstraint(_in("status", KB_STATUSES), name="ck_support_knowledge_status"),
+        sa.Index("idx_support_knowledge_status", "status"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    title: Mapped[str] = mapped_column(sa.String(200), nullable=False)
+    category: Mapped[str] = mapped_column(sa.String(20), nullable=False)
+    visibility: Mapped[str] = mapped_column(sa.String(24), nullable=False)
+    status: Mapped[str] = mapped_column(sa.String(12), nullable=False)
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=1)
+    source: Mapped[str] = mapped_column(sa.String(200), nullable=False, default="manual")
+    content: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    approved_by: Mapped[str | None] = mapped_column(sa.String(200))
+    approved_at: Mapped[datetime | None] = mapped_column(TZ)
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class SupportKnowledgeVersion(Base):
+    """Снимок записи при каждой смене версии: история для оператора и откат вручную."""
+
+    __tablename__ = "support_knowledge_versions"
+    __table_args__ = (sa.UniqueConstraint("knowledge_id", "version", name="uq_support_knowledge_version"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    knowledge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("support_knowledge.id", ondelete="CASCADE"), nullable=False
+    )
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    title: Mapped[str] = mapped_column(sa.String(200), nullable=False)
+    category: Mapped[str] = mapped_column(sa.String(20), nullable=False)
+    visibility: Mapped[str] = mapped_column(sa.String(24), nullable=False)
+    content: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    saved_by: Mapped[str | None] = mapped_column(sa.String(200))
+    saved_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class SupportKnowledgeChunk(Base):
+    """Чанки и векторы АКТИВНОЙ версии записи. Индекс hnsw — в миграции, только Postgres."""
+
+    __tablename__ = "support_knowledge_chunks"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    knowledge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("support_knowledge.id", ondelete="CASCADE"), nullable=False
+    )
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    chunk_index: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    content: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    embedding: Mapped[list[float] | None] = mapped_column(VectorType(EMBEDDING_DIM))
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class SupportKnowledgeUsage(Base):
+    """Какие знания легли в ответ: оператор видит это в кабинете, клиент — нет."""
+
+    __tablename__ = "support_knowledge_usage"
+    __table_args__ = (sa.Index("idx_support_kb_usage_conv", "conversation_id", "used_at"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    conversation_id: Mapped[str | None] = mapped_column(sa.String(64))
+    knowledge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("support_knowledge.id", ondelete="CASCADE"), nullable=False
+    )
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    visibility: Mapped[str] = mapped_column(sa.String(24), nullable=False)
+    score: Mapped[float] = mapped_column(sa.Float, nullable=False)
+    used_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
 # ─── Исходящие: outbox ───
 
 

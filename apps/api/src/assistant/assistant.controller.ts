@@ -19,10 +19,12 @@ import type { SignedInUser } from '../auth/auth.service';
 import { ExtensionsService } from '../platform/extensions.service';
 import { USER_ERRORS_REPOSITORY, type UserErrorsRepository } from './user-errors.repository';
 import { Access } from '../auth/access.decorator';
+import { RequesterContextService } from './requester-context.service';
 
 export const IDENTITY_SIGNED_IN_ONLY = 'Подпись помощника выдаётся только вошедшему';
 export const IDENTITY_NOT_CONFIGURED = 'Подпись помощника не настроена';
 export const ERRORS_KEY_REQUIRED = 'Ошибки человека читает только помощник по своему ключу';
+export const REQUESTER_KEY_REQUIRED = 'Контекст обратившегося читает только помощник по своему ключу';
 export const ORGANIZATION_KEY_REQUIRED = 'Подписку организации читает только помощник по своему ключу';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -59,6 +61,7 @@ export class AssistantController {
   constructor(
     @Inject(USER_ERRORS_REPOSITORY) private readonly userErrors: UserErrorsRepository,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
+    @Inject(RequesterContextService) private readonly requester: RequesterContextService,
   ) {}
 
   @Access('self')
@@ -152,5 +155,28 @@ export class AssistantController {
     const card = await this.extensions.organizationCard(id);
     if (!card) throw new NotFoundException('Организация с таким ID не найдена');
     return card;
+  }
+
+  /**
+   * Контекст обратившегося для помощника поддержки (S4): кто он, в какой организации, состояние аккаунта и права роли.
+   * `userId` и `organizationId` — из подписи, которую бот проверил сам; модель их не называет. Пара сверяется с
+   * членством: чужая организация — 404, как «нет такого». Почты, телефона, имени и ключей в ответе нет.
+   */
+  @Access('service')
+  @Get('requester')
+  @Header('Cache-Control', 'no-store')
+  async requesterContext(
+    @Req() request: { headers: Record<string, unknown>; user?: SignedInUser },
+    @Query() query: Record<string, unknown>,
+  ) {
+    const key = serviceKeyKind(request.headers);
+    if (key === null && !request.user) throw new UnauthorizedException(REQUESTER_KEY_REQUIRED);
+    if (key !== 'assistant-read' && key !== 'service')
+      throw new ForbiddenException(REQUESTER_KEY_REQUIRED);
+    const userId = uuidParam(query.userId, 'userId');
+    const organizationId = uuidParam(query.organizationId, 'organizationId');
+    const context = await this.requester.resolve(userId, organizationId);
+    if (!context) throw new NotFoundException('Обратившегося в этой организации нет');
+    return context;
   }
 }

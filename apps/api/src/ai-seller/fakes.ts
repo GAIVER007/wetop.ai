@@ -56,6 +56,31 @@ export class FakeSeller implements SellerPort {
   sandbox(input: { externalId: string; text: string }) {
     return this.call('sandbox', input);
   }
+  // база знаний WETOP Support (S3): только у помощника
+  kbList(query: Record<string, unknown>) {
+    return this.call('kbList', query);
+  }
+  kbCreate(body: unknown) {
+    return this.call('kbCreate', body);
+  }
+  kbRead(id: string) {
+    return this.call('kbRead', id);
+  }
+  kbUpdate(id: string, body: unknown) {
+    return this.call('kbUpdate', id, body);
+  }
+  kbPublish(id: string, approvedBy: string) {
+    return this.call('kbPublish', id, approvedBy);
+  }
+  kbStatus(id: string, status: string, by: string | null) {
+    return this.call('kbStatus', id, status, by);
+  }
+  conversationKnowledge(id: string) {
+    return this.call('conversationKnowledge', id);
+  }
+  knowledgeDraft(id: string, by: string | null) {
+    return this.call('knowledgeDraft', id, by);
+  }
   putProfile(payload: unknown) {
     return this.call('putProfile', payload);
   }

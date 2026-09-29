@@ -7,6 +7,7 @@ import { PlatformController } from './platform.controller';
 import { PrismaSupportAudit, SUPPORT_AUDIT } from './support.audit';
 import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
 import { SupportController } from './support.controller';
+import { SupportKnowledgeService } from './support-kb.service';
 import { SupportService } from './support.service';
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
@@ -19,6 +20,7 @@ import { SupportService } from './support.service';
     { provide: SUPPORT_CONNECTION, useClass: EnvSupportConnection },
     { provide: SUPPORT_AUDIT, useClass: PrismaSupportAudit },
     SupportService,
+    SupportKnowledgeService,
   ],
   exports: [ExtensionsService],
 })

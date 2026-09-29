@@ -12,13 +12,22 @@ import 'reflect-metadata';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { NestFactory } from '@nestjs/core';
+import { assertRlsAtStartup } from '@pms/database';
 import { AppModule } from './app.module';
 import { listenHost, listenPort } from './listen-address';
 import { apiSecurityHeaders } from './security-headers';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../../.env'), quiet: true });
 
-const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+// Аудит 29.09.2026, SEC-1a: production без роли с политиками RLS не стартует, а не молча идёт служебной ролью
+try {
+  await assertRlsAtStartup(process.env);
+} catch (e) {
+  console.error(`PMS API не запущен: ${(e as Error).message}`);
+  process.exit(1);
+}
+
+const app =await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
 // Аудит 29.09.2026, SEC-4: версия Express наружу не нужна, ответам — nosniff
 app.getHttpAdapter().getInstance().disable('x-powered-by');
 app.use(apiSecurityHeaders);

@@ -11,6 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { EmailVerificationService } from './email-verification.service';
 import { FAKE_ORG, fakeDb, fakeUser } from './fake-db';
+import { databaseTenant, withSignedInUser } from './request-context';
 
 const PASSWORD = 'luxx-stoika-2026';
 const NOW = new Date('2026-09-15T10:00:00Z');
@@ -681,5 +682,71 @@ describe('AuthService.register', () => {
     await expect(auth.register({ ...NEW, email: 'не-почта' }, NOW)).rejects.toThrow(
       /Укажите почту/,
     );
+  });
+});
+
+/**
+ * SEC-1b, стадия A (аудит 29.09.2026): роль запросов организации `wetop_app` больше не читает хеш пароля и отметки
+ * главного администратора. Поэтому в запросе вошедшего (`/auth/me`, смена пароля) эти чтения идут служебной ролью базы:
+ * `databaseTenant()` там `null`. Подделка базы запоминает, какой ролью её спросили.
+ */
+describe('AuthService: учётные данные читаются служебной ролью базы (SEC-1b)', () => {
+  function watched() {
+    const world = service();
+    const seen: Array<{ call: string; tenant: string | null }> = [];
+    const spy = (table: 'session' | 'user' | 'platformAdmin', method: string) => {
+      const target = world.db as unknown as Record<string, Record<string, (...a: unknown[]) => unknown>>;
+      const original = target[table]![method]!.bind(target[table]);
+      target[table]![method] = (...args: unknown[]) => {
+        seen.push({ call: `${table}.${method}`, tenant: databaseTenant() });
+        return original(...args);
+      };
+    };
+    spy('session', 'findUnique');
+    spy('user', 'findUnique');
+    spy('user', 'update');
+    spy('platformAdmin', 'findUnique');
+    return { ...world, seen };
+  }
+  const asOrganization = <T>(fn: () => Promise<T>) =>
+    withSignedInUser({ userId: 'u-1', organizationId: FAKE_ORG }, fn);
+
+  it('whoami внутри запроса организации: сессия с пользователем и отметка администратора — служебной ролью', async () => {
+    const { auth, seen } = watched();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    seen.length = 0;
+    await expect(asOrganization(() => auth.whoami(token, NOW))).resolves.not.toBeNull();
+    expect(seen.map((s) => s.call)).toEqual(
+      expect.arrayContaining(['session.findUnique', 'platformAdmin.findUnique']),
+    );
+    expect(seen.filter((s) => s.tenant !== null)).toEqual([]);
+  });
+
+  it('смена пароля внутри запроса организации: чтение и запись пользователя — служебной ролью', async () => {
+    const { auth, seen } = watched();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    seen.length = 0;
+    await asOrganization(() =>
+      auth.changePassword(
+        { token, currentPassword: PASSWORD, newPassword: 'ekinshi-parol-2026' },
+        NOW,
+      ),
+    );
+    expect(seen.map((s) => s.call)).toEqual(
+      expect.arrayContaining(['user.findUnique', 'user.update']),
+    );
+    expect(seen.filter((s) => s.tenant !== null)).toEqual([]);
+  });
+
+  it('служебный путь не теряет автора: журнал по-прежнему знает пользователя и организацию запроса', async () => {
+    const { auth, audit } = watched();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    await asOrganization(() =>
+      auth.changePassword(
+        { token, currentPassword: PASSWORD, newPassword: 'ekinshi-parol-2026' },
+        NOW,
+      ),
+    );
+    expect(audit.at(-1)!).toMatchObject({ action: 'user.password.changed', userId: 'u-1' });
   });
 });

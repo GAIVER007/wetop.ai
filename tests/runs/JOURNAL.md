@@ -4066,3 +4066,12 @@
 | 29.09.2026 04:21 | lint | ✅ без ошибок | 44 с | 673d352 | [лог](logs/2026-09-28T23-21-19Z-lint-64cb.log) |  |
 | 29.09.2026 04:22 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин 10 с | 673d352 | [лог](logs/2026-09-28T23-22-03Z-unit-a636.log) |  |
 | 29.09.2026 04:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/channex-screens.spec.ts tests/ui/workspace.spec.ts tests/ui/requests.spec.ts tests/ui | ✅ 134 из 134 | 6 мин 41 с | 673d352 | [лог](logs/2026-09-28T23-24-20Z-e2e-ebdb.log) |  |
+| 29.09.2026 12:27 | typecheck | ✅ без ошибок | 32 с | 85e1bcd | [лог](logs/2026-09-29T07-27-38Z-typecheck-0cc6.log) |  |
+| 29.09.2026 12:28 | lint | ✅ без ошибок | 19 с | 85e1bcd | [лог](logs/2026-09-29T07-28-11Z-lint-18f7.log) |  |
+| 29.09.2026 12:28 | unit | ✅ 2296 из 2299, пропущено 3 | 1 мин 36 с | 85e1bcd | [лог](logs/2026-09-29T07-28-31Z-unit-f485.log) |  |
+| 29.09.2026 12:30 | integration | ✅ 122 из 122 | 41 с | 85e1bcd | [лог](logs/2026-09-29T07-30-08Z-integration-d904.log) |  |
+| 29.09.2026 12:31 | e2e | ✅ 25 из 25 | 1 мин 8 с | 85e1bcd | [лог](logs/2026-09-29T07-31-19Z-e2e-e647.log) |  |
+| 29.09.2026 12:32 | e2e | ✅ 26 из 26 | 1 мин 15 с | 85e1bcd | [лог](logs/2026-09-29T07-32-28Z-e2e-b1ef.log) |  |
+| 29.09.2026 12:33 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 600 | 52 мин 12 с | 85e1bcd | [лог](logs/2026-09-29T07-33-43Z-e2e-7420.log) | 7 дней, 14 дней, произвольный период и возврат к месяцу |
+| 29.09.2026 13:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-month.spec.ts) | ✅ 11 из 11 | 2 мин 9 с | 85e1bcd | [лог](logs/2026-09-29T08-26-18Z-e2e-dabe.log) |  |
+| 29.09.2026 13:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --repeat-each=3 tests/ui/chessboard-month.spec.ts:72) | ✅ 3 из 3 | 29 с | 85e1bcd +1 | [лог](logs/2026-09-29T08-28-48Z-e2e-0c9e.log) |  |

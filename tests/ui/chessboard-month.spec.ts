@@ -80,8 +80,14 @@ test('7 дней, 14 дней, произвольный период и возв
   await page.getByLabel('Шахматка: по', { exact: true }).fill('2028-02-20');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(11);
-  await page.getByRole('button', { name: 'Даты', exact: true }).click();
-  await page.getByRole('link', { name: 'Месяц', exact: true }).click();
+  // После «Применить» страница перерисована: под нагрузкой полного набора клик мог прийти до оживления кнопки,
+  // и панель «Даты» не открывалась (29.09, 599/600) — открываем, пока «Месяц» не станет виден
+  const month = page.getByRole('link', { name: 'Месяц', exact: true });
+  await expect(async () => {
+    if (!(await month.isVisible())) await page.getByRole('button', { name: 'Даты', exact: true }).click();
+    await expect(month).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 15_000 });
+  await month.click();
   await expect(page.getByTestId('date-col')).toHaveCount(29);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', '2028-02-01');
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();

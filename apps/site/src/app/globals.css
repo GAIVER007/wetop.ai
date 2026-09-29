@@ -635,7 +635,7 @@ button {
 }
 .hero__lead {
   max-width: 42ch;
-  margin-top: 20px;
+  margin-top: 24px;
   color: var(--text-2);
   font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
   line-height: 1.55;
@@ -654,7 +654,7 @@ button {
 .hero__points {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 20px;
+  gap: 10px 16px;
   margin-top: 40px;
   padding-top: 24px;
   border-top: 1px solid var(--border-soft);
@@ -788,7 +788,7 @@ button {
 .mockup__day small {
   color: var(--muted);
   font-family: var(--font);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 .mockup__day.is-today {
@@ -927,7 +927,7 @@ button {
     margin: 0 2px;
     padding: 0 5px;
     border-left-width: 2px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -2356,13 +2356,8 @@ button {
 }
 
 /*
-* Общий операционный экран «Сегодня» на первом экране (29.09.2026,
-ADR-104): боковое меню разделов,
-филиал,
-* три плитки,
-клиенты по времени,
-задачи,
-столбики финансов недели и строка свежего события.
+ * Общий операционный экран «Сегодня» на первом экране (29.09.2026, ADR-104): боковое меню разделов, филиал,
+ * три плитки, клиенты по времени, задачи, столбики финансов недели и строка свежего события.
  * Окно и шапка — общие с макетом шахматки (.mockup__*).
  */
 .mockup--ops {
@@ -2374,9 +2369,9 @@ ADR-104): боковое меню разделов,
     var(--glass-inset),
     0 30px 80px -30px color-mix(in srgb, var(--accent-1) 45%, transparent);
 }
-.mockup--ops .ops__branch {
+.ops__branch {
   margin-left: auto;
-  padding: 5px 12px;
+  padding: 4px 12px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface-solid);
@@ -2385,7 +2380,7 @@ ADR-104): боковое меню разделов,
   font-weight: 600;
   white-space: nowrap;
 }
-.mockup--ops .ops__branch::after {
+.ops__branch::after {
   content: '';
   display: inline-block;
   width: 6px;
@@ -2395,11 +2390,11 @@ ADR-104): боковое меню разделов,
   border-bottom: 1.5px solid currentColor;
   transform: translateY(-2px) rotate(45deg);
 }
-.mockup--ops .ops__frame {
+.ops__frame {
   display: grid;
   grid-template-columns: 108px minmax(0, 1fr);
 }
-.mockup--ops .ops__rail {
+.ops__rail {
   display: grid;
   align-content: start;
   gap: 2px;
@@ -2407,46 +2402,46 @@ ADR-104): боковое меню разделов,
   border-right: 1px solid var(--border);
   background: color-mix(in srgb, var(--accent-1) 4%, var(--surface-solid));
 }
-.mockup--ops .ops__rail span {
-  padding: 7px 10px;
-  border-radius: 8px;
+.ops__rail span {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
   color: var(--muted);
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
 }
-.mockup--ops .ops__rail .is-on {
+.ops__rail .is-on {
   background: var(--primary-soft);
   color: var(--primary);
   font-weight: 600;
 }
-.mockup--ops .ops {
+.ops {
   display: grid;
   gap: 10px;
   min-width: 0;
   padding: 12px 14px 14px;
   font-size: 0.8125rem;
 }
-.mockup--ops .ops__kpis {
+.ops__kpis {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
-.mockup--ops .ops__kpi {
+.ops__kpi {
   display: grid;
   gap: 2px;
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--accent-1) 4%, var(--surface-solid));
 }
-.mockup--ops .ops__kpi small,
-.mockup--ops .ops__block-title {
+.ops__kpi small,
+.ops__block-title {
   color: var(--muted);
   font-size: 0.75rem;
   font-weight: 600;
 }
-.mockup--ops .ops__kpi strong {
+.ops__kpi strong {
   color: var(--text);
   font-family: var(--font-head);
   font-size: 1.0625rem;
@@ -2454,44 +2449,44 @@ ADR-104): боковое меню разделов,
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.mockup--ops .ops__trend {
+.ops__trend {
   color: var(--text-2);
   font-size: 0.75rem;
   font-style: normal;
 }
-.mockup--ops .ops__trend--up {
+.ops__trend--up {
   color: var(--success);
 }
-.mockup--ops .ops__trend--warn {
+.ops__trend--warn {
   color: var(--warning);
 }
-.mockup--ops .ops__cols {
+.ops__cols {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 8px;
 }
-.mockup--ops .ops__block {
+.ops__block {
   display: grid;
   align-content: start;
   gap: 8px;
   min-width: 0;
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
 }
-.mockup--ops .ops__line {
+.ops__line {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
 }
-.mockup--ops .ops__time {
+.ops__time {
   color: var(--text-2);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.mockup--ops .ops__who,
-.mockup--ops .ops__task > span {
+.ops__who,
+.ops__task > span {
   min-width: 0;
   overflow: hidden;
   color: var(--text);
@@ -2499,88 +2494,88 @@ ADR-104): боковое меню разделов,
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.mockup--ops .ops__who small,
-.mockup--ops .ops__task small {
+.ops__who small,
+.ops__task small {
   display: block;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   text-overflow: ellipsis;
 }
-.mockup--ops .ops__state {
+.ops__state {
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
 }
-.mockup--ops .ops__state--done {
+.ops__state--done {
   background: var(--st-checked-in);
   color: var(--text);
 }
-.mockup--ops .ops__state--now {
+.ops__state--now {
   background: var(--st-confirmed);
   color: var(--text);
 }
-.mockup--ops .ops__state--new {
+.ops__state--new {
   background: var(--primary-soft);
   color: var(--primary);
 }
-.mockup--ops .ops__task {
+.ops__task {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.mockup--ops .ops__task i {
+.ops__task i {
   flex: none;
   width: 14px;
   height: 14px;
   border: 1.5px solid var(--border-input);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
-.mockup--ops .ops__task.is-done i {
+.ops__task--done i {
   border-color: var(--success);
   background: var(--success);
   box-shadow: inset 0 0 0 2px var(--surface-solid);
 }
-.mockup--ops .ops__task.is-done > span {
+.ops__task--done > span {
   color: var(--muted);
   text-decoration: line-through;
 }
-.mockup--ops .ops__finance {
+.ops__finance {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: end;
   gap: 14px;
   padding: 10px 12px;
   border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
 }
-.mockup--ops .ops__finance .ops__block-title {
+.ops__finance .ops__block-title {
   align-self: start;
   max-width: 8rem;
 }
-.mockup--ops .ops__bars {
+.ops__bars {
   display: flex;
   align-items: flex-end;
-  gap: 5px;
+  gap: 4px;
   height: 38px;
 }
-.mockup--ops .ops__bars i {
+.ops__bars i {
   flex: 1;
   min-width: 5px;
-  border-radius: 4px 4px 1px 1px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
   background: color-mix(in srgb, var(--primary) 30%, transparent);
 }
-.mockup--ops .ops__bars i.is-today {
+.ops__bars i.is-today {
   background: var(--primary);
 }
-.mockup--ops .ops__finance-sum {
+.ops__finance-sum {
   display: grid;
   justify-items: end;
 }
-.mockup--ops .ops__finance-sum strong {
+.ops__finance-sum strong {
   color: var(--text);
   font-family: var(--font-head);
   font-size: 1rem;
@@ -2588,22 +2583,22 @@ ADR-104): боковое меню разделов,
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.mockup--ops .ops__finance-sum small {
+.ops__finance-sum small {
   color: var(--success);
   font-size: 0.75rem;
   font-weight: 600;
 }
 /* Свежее событие — строкой внутри окна, а не плавающей подсказкой поверх данных */
-.mockup--ops .ops__event {
+.ops__event {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
   border: 1px solid color-mix(in srgb, var(--success) 35%, var(--border-soft));
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--success) 7%, var(--surface-solid));
 }
-.mockup--ops .ops__event-dot {
+.ops__event-dot {
   flex: none;
   width: 9px;
   height: 9px;
@@ -2611,37 +2606,37 @@ ADR-104): боковое меню разделов,
   background: var(--success);
   box-shadow: 0 0 0 4px var(--success-soft);
 }
-.mockup--ops .ops__event-text {
+.ops__event-text {
   min-width: 0;
   flex: 1;
 }
-.mockup--ops .ops__event-text strong,
-.mockup--ops .ops__event-text small {
+.ops__event-text strong,
+.ops__event-text small {
   display: block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.mockup--ops .ops__event-text strong {
+.ops__event-text strong {
   color: var(--text);
   font-size: 0.8125rem;
   font-weight: 700;
 }
-.mockup--ops .ops__event-text small {
+.ops__event-text small {
   color: var(--text-2);
   font-size: 0.75rem;
 }
-.mockup--ops .ops__event-time {
+.ops__event-time {
   flex: none;
   color: var(--muted);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 @media (max-width: 40rem) {
-  .mockup--ops .ops__frame {
+  .ops__frame {
     grid-template-columns: minmax(0, 1fr);
   }
-  .mockup--ops .ops__rail {
+  .ops__rail {
     display: flex;
     gap: 4px;
     overflow: hidden;
@@ -2651,25 +2646,25 @@ ADR-104): боковое меню разделов,
   }
 }
 @media (max-width: 29.99rem) {
-  .mockup--ops .ops {
+  .ops {
     padding: 10px;
   }
-  .mockup--ops .ops__kpis {
+  .ops__kpis {
     gap: 6px;
   }
-  .mockup--ops .ops__kpi {
+  .ops__kpi {
     padding: 8px;
   }
-  .mockup--ops .ops__kpi strong {
+  .ops__kpi strong {
     font-size: 0.875rem;
   }
-  .mockup--ops .ops__cols {
+  .ops__cols {
     grid-template-columns: minmax(0, 1fr);
   }
-  .mockup--ops .ops__finance .ops__block-title {
+  .ops__finance .ops__block-title {
     display: none;
   }
-  .mockup--ops .ops__branch {
+  .ops__branch {
     display: none;
   }
 }

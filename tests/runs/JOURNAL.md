@@ -4274,6 +4274,42 @@
 | 29.09.2026 16:42 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 16 | 28 с | a44aa23 | [лог](logs/2026-09-29T11-42-30Z-e2e-a954.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:43 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 1 из 16 | 18 с | a44aa23 | [лог](logs/2026-09-29T11-43-36Z-e2e-d992.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:45 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 16 из 16 | 19 с | a44aa23 +1 | [лог](logs/2026-09-29T11-45-13Z-e2e-0d2b.log) |  |
+| 29.09.2026 17:26 | unit (частично: apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/desk-person.test.ts apps/web/src/lib/seller-navigation.test.ts) | ❌ упало 5 из 28 | 3 с | 5f43f69 +4 | [лог](logs/2026-09-29T12-26-26Z-unit-a37e.log) | S0 red: меню ещё старое |
+| 29.09.2026 17:26 | unit (частично: apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/desk-person.test.ts apps/web/src/lib/seller-navigation.test.ts) | ✅ 28 из 28 | 2 с | 5f43f69 +5 | [лог](logs/2026-09-29T12-26-40Z-unit-b715.log) | S0 green |
+| 29.09.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts) | ❌ упало 7 из 7 | 20 с | 5f43f69 +9 | [лог](logs/2026-09-29T12-26-47Z-e2e-c773.log) | S0 red: страницы входа ещё нет |
+| 29.09.2026 17:27 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts) | ❌ упало 6 из 7 | 2 мин 6 с | 5f43f69 +9 | [лог](logs/2026-09-29T12-27-12Z-e2e-9347.log) | S0 red: страницы входа ещё нет (CHROMIUM_PATH) |
+| 29.09.2026 17:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts) | ✅ 7 из 7 | 32 с | 5f43f69 +10 | [лог](logs/2026-09-29T12-29-21Z-e2e-41a2.log) | S0 green |
+| 29.09.2026 17:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts tests/ui/platform-access.spec.ts tests/ui/ai-seller.spe | ❌ упало 2 из 53 | 8 мин 19 с | 5f43f69 +10 | [лог](logs/2026-09-29T12-29-57Z-e2e-b4b3.log) | S0: затронутые UI-спеки |
+| 29.09.2026 17:38 | typecheck | ✅ без ошибок | 36 с | 5f43f69 +10 | [лог](logs/2026-09-29T12-38-17Z-typecheck-fcd3.log) |  |
+| 29.09.2026 17:38 | lint | ✅ без ошибок | 19 с | 5f43f69 +10 | [лог](logs/2026-09-29T12-38-53Z-lint-f1a7.log) |  |
+| 29.09.2026 17:39 | unit | ❌ упало 5 из 2339, пропущено 3 | 1 мин 36 с | 5f43f69 +5 | [лог](logs/2026-09-29T12-39-13Z-unit-8dc0.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 29.09.2026 17:41 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/lib) | ✅ 240 из 240 | 4 с | e8fdd39 +1 | [лог](logs/2026-09-29T12-41-12Z-unit-39a8.log) |  |
+| 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/roles.spec.ts) | ❌ упало 3 из 35 | 2 мин 9 с | e8fdd39 +3 | [лог](logs/2026-09-29T12-41-16Z-e2e-5348.log) | S0: правка после первого прогона |
+| 29.09.2026 17:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/roles.spec.ts tests/ui/navigati | ✅ 52 из 52 | 4 мин 2 с | e8fdd39 +3 | [лог](logs/2026-09-29T12-43-31Z-e2e-f3c5.log) | S0: в один поток (фикстура общая) |
+| 29.09.2026 18:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts) | ✅ 9 из 9 | 38 с | aafed6b +22 | [лог](logs/2026-09-29T13-06-10Z-e2e-2c0c.log) | S0: карточка уважает расширение |
+| 29.09.2026 18:07 | integration (частично: tests/integration/requester-context.test.ts) | ✅ 6 из 6 | 3 с | 56427c4 +12 | [лог](logs/2026-09-29T13-07-21Z-integration-244d.log) | S4: контекст обратившегося на базе |
+| 29.09.2026 18:07 | typecheck | ✅ без ошибок | 33 с | 56427c4 +21 | [лог](logs/2026-09-29T13-07-29Z-typecheck-2d09.log) |  |
+| 29.09.2026 18:08 | lint | ✅ без ошибок | 20 с | 56427c4 +21 | [лог](logs/2026-09-29T13-08-04Z-lint-2968.log) |  |
+| 29.09.2026 18:08 | unit | ❌ упало 4 из 2362, пропущено 3 | 1 мин 23 с | 56427c4 +20 | [лог](logs/2026-09-29T13-08-24Z-unit-3427.log) | S4: полный unit |
+| 29.09.2026 16:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 2 из 634 | 55 мин 26 с | 7d27564 | [лог](logs/2026-09-29T11-45-45Z-e2e-e376.log) | после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке |
+| 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/onboarding.spec.ts tests/ui/workspace.spec.ts:24) | ✅ 7 из 7 | 1 мин 25 с | 368c37f +1 | [лог](logs/2026-09-29T12-41-37Z-e2e-a05c.log) |  |
+| 29.09.2026 18:15 | typecheck | ✅ без ошибок | 42 с | 1b26b0c | [лог](logs/2026-09-29T13-15-04Z-typecheck-df15.log) |  |
+| 29.09.2026 18:15 | lint | ✅ без ошибок | 24 с | 1b26b0c | [лог](logs/2026-09-29T13-15-47Z-lint-1c07.log) |  |
+| 29.09.2026 18:16 | unit | ❌ упало 5 из 2362, пропущено 3 | 1 мин 30 с | 1b26b0c | [лог](logs/2026-09-29T13-16-11Z-unit-5473.log) | S4: перед merge, после слияния main |
+| 29.09.2026 18:17 | integration | ✅ 130 из 130 | 53 с | f5b58b3 | [лог](logs/2026-09-29T13-17-41Z-integration-dced.log) | S4: перед merge |
+| 29.09.2026 18:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/platform-support.spec.ts tests/ui/navigation.spec.ts tests | ❌ упало 1 из 68 | 6 мин 35 с | f5b58b3 | [лог](logs/2026-09-29T13-18-35Z-e2e-5c23.log) | S0+S4 затронутые UI |
+| 29.09.2026 18:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/platform-support.spec.ts) | ✅ 10 из 10 | 1 мин 41 с | f5b58b3 +1 | [лог](logs/2026-09-29T13-26-24Z-e2e-7cb4.log) | S0: пункт меню ИИ-агенты в спеке поддержки |
+| 29.09.2026 18:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts) | ❌ упало 10 из 11 | 4 мин 43 с | 183c470 +26 | [лог](logs/2026-09-29T13-37-34Z-e2e-7f8f.log) | S3 red: кабинета базы знаний ещё нет |
+| 29.09.2026 18:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts) | ❌ упало 1 из 11 | 1 мин 13 с | 183c470 +32 | [лог](logs/2026-09-29T13-44-22Z-e2e-10a6.log) | S3 green: кабинет базы знаний |
+| 29.09.2026 18:45 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts) | ✅ 11 из 11 | 58 с | 183c470 +32 | [лог](logs/2026-09-29T13-45-42Z-e2e-ce45.log) | S3 green: ключ редактора без версии |
+| 29.09.2026 18:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts) | ✅ 11 из 11 | 1 мин | 183c470 +32 | [лог](logs/2026-09-29T13-46-53Z-e2e-54c0.log) | S3: каталог и запись друг под другом |
+| 29.09.2026 18:48 | typecheck | ✅ без ошибок | 26 с | 183c470 +32 | [лог](logs/2026-09-29T13-48-10Z-typecheck-1b23.log) |  |
+| 29.09.2026 18:48 | lint | ✅ без ошибок | 21 с | 60fabfd | [лог](logs/2026-09-29T13-48-37Z-lint-ca29.log) |  |
+| 29.09.2026 18:48 | unit | ❌ упало 4 из 2376, пропущено 3 | 1 мин 24 с | 60fabfd | [лог](logs/2026-09-29T13-48-58Z-unit-b398.log) | S3: полный unit |
+| 29.09.2026 18:50 | integration | ✅ 130 из 130 | 47 с | 60fabfd | [лог](logs/2026-09-29T13-50-23Z-integration-5a0a.log) | S3: integration |
+| 29.09.2026 18:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ❌ упало 3 из 89 | 13 мин 50 с | 60fabfd | [лог](logs/2026-09-29T13-51-10Z-e2e-957c.log) | S3: затронутые UI |
+| 29.09.2026 19:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ❌ упало 1 из 33 | 3 мин 18 с | 60fabfd +1 | [лог](logs/2026-09-29T14-07-41Z-e2e-5084.log) | S3: заголовок «На основании» без h2; navigation повтор |
+| 29.09.2026 19:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts) | ✅ 11 из 11 | 57 с | 60fabfd +2 | [лог](logs/2026-09-29T14-11-11Z-e2e-20f8.log) | S3: ожидание заголовка перед axe |
 | 29.09.2026 17:24 | typecheck | ✅ без ошибок | 34 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-24-28Z-typecheck-af46.log) |  |
 | 29.09.2026 17:25 | lint | ✅ без ошибок | 20 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-25-02Z-lint-438f.log) |  |
 | 29.09.2026 17:25 | unit | ❌ упало 4 из 2351, пропущено 3 | 1 мин 26 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-25-23Z-unit-69b3.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
@@ -4309,3 +4345,19 @@
 | 29.09.2026 21:04 | lint | ✅ без ошибок | 22 с | 5bbc63e +1 | [лог](logs/2026-09-29T16-04-25Z-lint-6d7f.log) |  |
 | 29.09.2026 21:04 | unit | ✅ 2351 из 2354, пропущено 3 | 1 мин 58 с | 5bbc63e +1 | [лог](logs/2026-09-29T16-04-48Z-unit-4382.log) |  |
 | 29.09.2026 21:06 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 37 с | 5bbc63e +1 | [лог](logs/2026-09-29T16-06-47Z-e2e-6ed7.log) |  |
+| 29.09.2026 20:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/dashboard-design.spec.ts tests/ui/reservations-design.spec.ts tests/ui/guests-design.spec.ts test | ❌ упало 3 из 69 | 23 мин 50 с | 3be9b67 +18 | [лог](logs/2026-09-29T15-12-52Z-e2e-f993.log) | Unified UI on current main: workflows and responsive layouts |
+| 29.09.2026 20:37 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts:361 tests/ui/guests-design.spec.ts:415 tests/ui/navigation.spec.ts:32 --w | ✅ 3 из 3 | 1 мин 47 с | 3be9b67 +18 | [лог](logs/2026-09-29T15-37-44Z-e2e-8f29.log) | Isolated rerun of 3 slow UI scenarios, unchanged assertions/timeouts |
+| 29.09.2026 20:39 | unit (частично: apps/web/src/design-rules.test.ts tests/unit/desk-glass.test.ts scripts/design/build-tokens.test.ts) | ❌ упало 1 из 32 | 6 с | 3be9b67 +16 | [лог](logs/2026-09-29T15-39-59Z-unit-a8a0.log) | Shared design rules, tokens and glass layer |
+| 29.09.2026 20:40 | unit (частично: apps/web/src/design-rules.test.ts tests/unit/desk-glass.test.ts scripts/design/build-tokens.test.ts) | ✅ 32 из 32 | 9 с | 3be9b67 +3 | [лог](logs/2026-09-29T15-40-49Z-unit-c140.log) | Design contract after preserving untracked duplicate sources outside source tree |
+| 29.09.2026 20:27 | unit | ✅ 2351 из 2354, пропущено 3 | 1 мин 35 с | 3c2dd3a +2 | [лог](logs/2026-09-29T15-27-33Z-unit-3601.log) |  |
+| 29.09.2026 20:29 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 30 с | 3c2dd3a +2 | [лог](logs/2026-09-29T15-29-09Z-e2e-a82a.log) |  |
+| 29.09.2026 20:29 | lint | ✅ без ошибок | 20 с | 3c2dd3a +2 | [лог](logs/2026-09-29T15-29-40Z-lint-ac2f.log) |  |
+| 29.09.2026 20:11 | typecheck | ✅ без ошибок | 45 с | 8df70e8 | [лог](logs/2026-09-29T15-11-34Z-typecheck-6a69.log) |  |
+| 29.09.2026 20:12 | lint | ✅ без ошибок | 23 с | 8df70e8 | [лог](logs/2026-09-29T15-12-19Z-lint-c2c2.log) |  |
+| 29.09.2026 20:12 | unit | ❌ упало 4 из 2391, пропущено 3 | 1 мин 27 с | 8df70e8 | [лог](logs/2026-09-29T15-12-42Z-unit-e538.log) | S3+S4 после слияния main (S0 уже в main) |
+| 29.09.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ✅ 54 из 54 | 6 мин 20 с | 8df70e8 | [лог](logs/2026-09-29T15-14-10Z-e2e-c039.log) | S3+S4 после слияния main |
+| 29.09.2026 20:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 34 с | 071cde9 | [лог](logs/2026-09-29T15-41-47Z-e2e-28d1.log) |  |
+| 29.09.2026 20:59 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ⏹ прерван | 1 мин 46 с | 9fbab19 +4 | [лог](logs/2026-09-29T15-59-45Z-e2e-a138.log) | RED chat redesign: theme, composer, retained failed draft |
+| 29.09.2026 21:01 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 3 из 3 | 55 с | 98a2da2 +4 | [лог](logs/2026-09-29T16-01-32Z-e2e-3273.log) | RED chat UX after fixture charset correction |
+| 29.09.2026 21:04 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 1 из 3 | 15 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-04-16Z-e2e-95bd.log) | GREEN chat design and retained drafts; synthetic network only |
+| 29.09.2026 21:05 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ✅ 4 из 4 | 12 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-05-01Z-e2e-15f2.log) | Chat browser QA: theme, keyboard, attachments, failed drafts, XSS, duplicate sends |

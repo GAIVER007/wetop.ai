@@ -270,6 +270,15 @@ SUPPORT_SERVICE_ROUTES = SERVICE_ROUTES | frozenset({
     ("PUT", "/prompt"),
     ("GET", "/settings"),
     ("PUT", "/settings/model"),
+    # S3: управляемая база знаний — публикует главный администратор платформы (approved_by подставляет платформа).
+    ("GET", "/support-knowledge"),
+    ("POST", "/support-knowledge"),
+    ("GET", "/support-knowledge/{knowledge_id}"),
+    ("PUT", "/support-knowledge/{knowledge_id}"),
+    ("POST", "/support-knowledge/{knowledge_id}/publish"),
+    ("POST", "/support-knowledge/{knowledge_id}/status"),
+    ("GET", "/conversations/{conv_id}/knowledge"),
+    ("POST", "/conversations/{conv_id}/knowledge-draft"),
 })
 
 

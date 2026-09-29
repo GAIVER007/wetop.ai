@@ -117,6 +117,20 @@ class WidgetRunner:
             current_visitor.set(None)
 
 
+@dataclass
+class _KnowledgeRuntime:
+    """Сессия и эмбеддер для инструмента знаний: собираются на вызове, а не при сборке реестра."""
+
+    session_factory: Any
+    embedder: Any
+
+
+def _knowledge_runtime() -> _KnowledgeRuntime:
+    from src.knowledge.embedder import get_embedder
+
+    return _KnowledgeRuntime(dependencies.get_sessionmaker(), get_embedder())
+
+
 def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunner:
     """Боевая сборка канала. Импорты внутри: движок и каскад не нужны тем,
     кто подменяет runner в тестах.
@@ -144,6 +158,9 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
             # Посетителя инструменты берут из contextvar: движок про
             # платформу и её пользователей не знает.
             visitor_getter=current_visitor.get,
+            # S3: управляемая база знаний; диалог для журнала использования — из contextvar движка
+            knowledge_getter=_knowledge_runtime,
+            conversation_getter=dependencies.conversation_id_var.get,
         )
         lead_hook = None
         # Помощник отвечает по делу: эмодзи в разборе ошибки неуместны.

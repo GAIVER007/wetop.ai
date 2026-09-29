@@ -1,0 +1,95 @@
+# Сквозные (e2e) · 29.09.2026 21:01 Алматы · MacBook-Air-Urij.local
+# коммит 98a2da2 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.widget.config.ts'
+
+Running 3 tests using 1 worker
+
+(node:32408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return (6.7s)
+(node:32535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends (30.2s)
+(node:32713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout (6.3s)
+
+
+  1) tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Помощник WETOP', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Помощник WETOP', { exact: true }) with timeout 5000ms
+      - waiting for getByText('Помощник WETOP', { exact: true })
+
+
+      18 | });
+      19 | test('welcome, draft suggestions, close and focus return', async ({ page }) => {
+    > 20 |   await expect(page.getByText('Помощник WETOP', { exact: true })).toBeVisible();
+         |                                                                   ^
+      21 |   await page.getByRole('button', { name: 'Как создать бронь?' }).click();
+      22 |   await expect(page.getByRole('textbox', { name: 'Сообщение' })).toHaveValue('Как создать бронь?');
+      23 |   expect(sent).toHaveLength(0);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:20:67
+
+    Error Context: test-results/widget-design-welcome-draf-5e382-ions-close-and-focus-return/error-context.md
+
+  2) tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('textbox', { name: 'Сообщение' })
+
+
+      28 | test('multiline, failure retains draft and attachment, no duplicate sends', async ({ page }) => {
+      29 |   const input = page.getByRole('textbox', { name: 'Сообщение' });
+    > 30 |   await input.fill('Тестовый вопрос');
+         |               ^
+      31 |   await input.press('Shift+Enter');
+      32 |   await expect(input).toHaveValue('Тестовый вопрос\n');
+      33 |   await page.locator('input[type=file]').setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: Buffer.from('synthetic') });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:30:15
+
+    Error Context: test-results/widget-design-multiline-fa-6e996-tachment-no-duplicate-sends/error-context.md
+
+  3) tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout ────────────────────────────────
+
+    Error: expect(locator).toHaveCSS(expected) failed
+
+    Locator:  locator('.pmsw-p')
+    Expected: "rgb(14, 23, 38)"
+    Received: "rgb(255, 255, 255)"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCSS" locator('.pmsw-p') with timeout 5000ms
+      - waiting for locator('.pmsw-p')
+        14 × locator resolved to <div class="pmsw-p pmsw-on">…</div>
+           - unexpected value "rgb(255, 255, 255)"
+
+
+      40 | });
+      41 | test('themes and mobile layout', async ({ page }) => {
+    > 42 |   await expect(page.locator('.pmsw-p')).toHaveCSS('background-color', 'rgb(14, 23, 38)');
+         |                                         ^
+      43 |   await page.evaluate(() => document.documentElement.dataset.theme = 'light');
+      44 |   await expect(page.locator('.pmsw-p')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+      45 |   await page.setViewportSize({ width: 390, height: 680 });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:42:41
+
+    Error Context: test-results/widget-design-themes-and-mobile-layout/error-context.md
+
+  3 failed
+    tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return ───────
+    tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends 
+    tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout ─────────────────────────────────
+
+# код выхода 1 · 55 с

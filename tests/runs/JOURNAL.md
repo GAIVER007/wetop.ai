@@ -4353,3 +4353,7 @@
 | 29.09.2026 20:12 | unit | ❌ упало 4 из 2391, пропущено 3 | 1 мин 27 с | 8df70e8 | [лог](logs/2026-09-29T15-12-42Z-unit-e538.log) | S3+S4 после слияния main (S0 уже в main) |
 | 29.09.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ✅ 54 из 54 | 6 мин 20 с | 8df70e8 | [лог](logs/2026-09-29T15-14-10Z-e2e-c039.log) | S3+S4 после слияния main |
 | 29.09.2026 20:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 34 с | 071cde9 | [лог](logs/2026-09-29T15-41-47Z-e2e-28d1.log) |  |
+| 29.09.2026 20:59 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ⏹ прерван | 1 мин 46 с | 9fbab19 +4 | [лог](logs/2026-09-29T15-59-45Z-e2e-a138.log) | RED chat redesign: theme, composer, retained failed draft |
+| 29.09.2026 21:01 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 3 из 3 | 55 с | 98a2da2 +4 | [лог](logs/2026-09-29T16-01-32Z-e2e-3273.log) | RED chat UX after fixture charset correction |
+| 29.09.2026 21:04 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ❌ упало 1 из 3 | 15 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-04-16Z-e2e-95bd.log) | GREEN chat design and retained drafts; synthetic network only |
+| 29.09.2026 21:05 | e2e (частично: --config tests/ui/playwright.widget.config.ts) | ✅ 4 из 4 | 12 с | 98a2da2 +5 | [лог](logs/2026-09-29T16-05-01Z-e2e-15f2.log) | Chat browser QA: theme, keyboard, attachments, failed drafts, XSS, duplicate sends |

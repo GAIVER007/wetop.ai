@@ -1,0 +1,16 @@
+# Сквозные (e2e) · 29.09.2026 21:05 Алматы · MacBook-Air-Urij.local
+# коммит 98a2da2 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.widget.config.ts'
+
+Running 4 tests using 1 worker
+
+(node:34535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return (1.4s)
+  ✓  2 tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends (1.9s)
+  ✓  3 tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout (4.0s)
+  ✓  4 tests/ui/widget-design.spec.ts:50:1 › successful send, deduplication, safe message rendering and Escape (497ms)
+
+  4 passed (10.5s)
+
+# код выхода 0 · 12 с

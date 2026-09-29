@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { createHash } from 'node:crypto';
 import {
   BadRequestException,
   Body,
@@ -44,7 +45,11 @@ export const AUTH_IP_LIMITS = {
   resendPerHour: 10,
   verifyPerHour: 30,
   resetConfirmPerHour: 10,
+  // смена пароля вошедшего: каждая попытка занимает общую очередь scrypt (SEC-4, аудит 29.09.2026)
+  passwordPerHour: 20,
 } as const;
+/** Попыток смены пароля одной сессией в час: неверный текущий пароль у вошедшего — перебор из украденной сессии */
+export const PASSWORD_CHANGE_PER_SESSION_PER_HOUR = 10;
 const HOUR_MS = 3_600_000;
 
 /**
@@ -221,8 +226,24 @@ export class AuthController {
   async password(
     @Headers() headers: Record<string, string>,
     @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
   ) {
     const token = tokenFromHeaders(headers);
+    this.ipLimit('password', AUTH_IP_LIMITS.passwordPerHour, socketIp, cfConnectingIp);
+    // по сессии: ключ окна — отпечаток ключа сессии, самого ключа в памяти окон нет
+    if (
+      token &&
+      !this.windows.allow(
+        `password-session:${createHash('sha256').update(token).digest('hex')}`,
+        PASSWORD_CHANGE_PER_SESSION_PER_HOUR,
+        new Date(),
+      )
+    )
+      throw new HttpException(
+        'слишком много попыток сменить пароль, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     await this.auth.changePassword({
       token: token ?? '',
       currentPassword: text(body?.currentPassword, 'currentPassword', 200),

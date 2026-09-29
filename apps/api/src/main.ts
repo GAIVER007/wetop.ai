@@ -14,10 +14,14 @@ import { config as loadEnv } from 'dotenv';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { listenHost, listenPort } from './listen-address';
+import { apiSecurityHeaders } from './security-headers';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../../.env'), quiet: true });
 
 const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+// Аудит 29.09.2026, SEC-4: версия Express наружу не нужна, ответам — nosniff
+app.getHttpAdapter().getInstance().disable('x-powered-by');
+app.use(apiSecurityHeaders);
 const port = listenPort();
 const host = listenHost();
 await app.listen(port, host);

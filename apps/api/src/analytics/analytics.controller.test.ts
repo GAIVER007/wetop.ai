@@ -65,6 +65,15 @@ describe('сайты и отчёты /analytics', () => {
       .expect(404);
   });
 
+  it('идентификатор сайта в адресе не UUID — 400, а не 500 из базы (аудит 29.09, SEC-4)', async () => {
+    const http = () => request(app.getHttpServer());
+    await http().get('/analytics/sites/nope').expect(400);
+    await http().get('/analytics/sites/nope/report?from=2026-09-11&to=2026-09-13').expect(400);
+    await http().patch('/analytics/sites/nope').send({ name: 'x' }).expect(400);
+    await http().delete('/analytics/sites/nope').expect(400);
+    await http().get('/analytics/sites/%00').expect(400);
+  });
+
   it('отчёт за период — контрольные числа гейта', async () => {
     const r = await request(app.getHttpServer())
       .get(`/analytics/sites/${SITE.id}/report?from=2026-09-11&to=2026-09-13`)

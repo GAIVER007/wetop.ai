@@ -4302,3 +4302,15 @@
 | 29.09.2026 18:31 | e2e (частично: --config tests/site/playwright.config.ts tests/site/auth-dialog.spec.ts) | ❌ упало 1 из 8 | 40 с | 0c5f1a5 | [лог](logs/2026-09-29T13-31-52Z-e2e-b8a9.log) | снимки окна регистрации: светлая и тёмная, 1440 и 390 |
 | 29.09.2026 18:33 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 24 с | 0c5f1a5 +1 | [лог](logs/2026-09-29T13-33-16Z-e2e-485b.log) |  |
 | 29.09.2026 18:33 | lint | ✅ без ошибок | 20 с | 0c5f1a5 +2 | [лог](logs/2026-09-29T13-33-51Z-lint-42ab.log) |  |
+| 29.09.2026 20:23 | unit (частично: apps/web/src/lib/scope-pointer.test.ts apps/web/src/lib/invite-token.test.ts apps/web/src/lib/bounded-body.test.ts) | ❌ упало 2 из 7 | 8 с | 707c2e0 +3 | [лог](logs/2026-09-29T15-23-19Z-unit-96c7.log) | SEC-4 red: scope, invite, bounded body |
+| 29.09.2026 20:23 | unit (частично: apps/web/src/lib) | ✅ 242 из 242 | 7 с | 707c2e0 +9 | [лог](logs/2026-09-29T15-23-52Z-unit-3f20.log) | SEC-4 green: web lib (scope, invite, bounded body, site-auth) |
+| 29.09.2026 20:24 | unit (частично: apps/api/src/auth/auth.controller.test.ts apps/api/src/analytics/analytics.controller.test.ts apps/api/src/finance/finance.controller.test.ts) | ❌ упало 4 из 36 | 7 с | 707c2e0 +12 | [лог](logs/2026-09-29T15-24-35Z-unit-71ec.log) | SEC-4 red: password limits, analytics uuid, quantity cap |
+| 29.09.2026 20:24 | unit (частично: apps/api/src/auth apps/api/src/analytics apps/api/src/finance) | ✅ 240 из 240 | 11 с | 707c2e0 +15 | [лог](logs/2026-09-29T15-24-57Z-unit-764d.log) | SEC-4 green: password limits, analytics uuid, quantity cap |
+| 29.09.2026 20:25 | unit (частично: apps/web/src/lib/security-headers.test.ts apps/api/src/security-headers.test.ts tests/unit/site-headers.test.ts) | ❌ код выхода 1 | 1 с | 707c2e0 +18 | [лог](logs/2026-09-29T15-25-56Z-unit-2b13.log) | SEC-4 red: security headers |
+| 29.09.2026 20:26 | unit (частично: apps/web/src/lib/security-headers.test.ts apps/api/src/security-headers.test.ts tests/unit/site-headers.test.ts) | ✅ 9 из 9 | 1 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-26-18Z-unit-eef1.log) | SEC-4 green: security headers |
+| 29.09.2026 20:26 | typecheck | ✅ без ошибок | 37 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-26-25Z-typecheck-adc7.log) | SEC-4 итог |
+| 29.09.2026 20:27 | lint | ✅ без ошибок | 23 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-27-14Z-lint-298d.log) | SEC-4 итог |
+| 29.09.2026 20:27 | unit | ❌ упало 4 из 2378, пропущено 3 | 1 мин 27 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-27-40Z-unit-cf7e.log) | SEC-4 итог: полный unit |
+| 29.09.2026 20:29 | typecheck | ✅ без ошибок | 24 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-29-41Z-typecheck-5a4f.log) | SEC-4 финал |
+| 29.09.2026 20:30 | lint | ✅ без ошибок | 21 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-30-15Z-lint-2d4b.log) | SEC-4 финал |
+| 29.09.2026 20:30 | unit | ❌ упало 4 из 2378, пропущено 3 | 1 мин 24 с | 707c2e0 +23 | [лог](logs/2026-09-29T15-30-36Z-unit-ef65.log) | SEC-4 финал: полный unit |

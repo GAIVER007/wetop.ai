@@ -1,0 +1,57 @@
+# Сквозные (e2e) · 29.09.2026 02:08 Алматы · vm
+# коммит fd9b479 (claude/festive-cray-5cn5az)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/navigation.spec.ts' 'tests/ui/record-tabs.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.9s)
+  ✓   2 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (1.7s)
+  ✓   3 tests/ui/navigation.spec.ts:86:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.5s)
+  ✓   4 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (13.3s)
+  ✓   5 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: light (4.6s)
+  ✓   6 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: dark (4.0s)
+  ✓   7 tests/ui/record-tabs.spec.ts:32:1 › выбор вкладки держится, когда роутер пишет старый адрес на перерисовке с сервера (3.3s)
+  ✘   8 tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони (45.1s)
+  ✓   9 tests/ui/record-tabs.spec.ts:92:1 › якорь внутри карточки переключает вкладку: «Продлить или переселить» → «Действия» (1.6s)
+  ✓  10 tests/ui/record-tabs.spec.ts:107:1 › переход между бронями без перезагрузки открывает вкладку из адреса — и из карточки, и внутри панели (3.4s)
+
+
+  1) tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('tablist', { name: 'Разделы карточки гостя' }).getByRole('tab', { name: 'Счета и услуги', exact: true })
+
+
+      82 |     .getByRole('tablist', { name: 'Разделы карточки гостя' })
+      83 |     .getByRole('tab', { name: 'Счета и услуги', exact: true })
+    > 84 |     .click();
+         |      ^
+      85 |   const link = page.getByRole('main').locator(`a[href="/reservations/${BOOKING}#booking-finance"]`);
+      86 |   await link.click();
+      87 |   await expect(page).toHaveURL(new RegExp(`/reservations/${BOOKING}#booking-finance$`));
+        at /home/user/wetop.ai/tests/ui/record-tabs.spec.ts:84:6
+
+    Error Context: test-results/record-tabs-ссылка-с-друго-453d6-дреса-гость-→-«Счета»-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/record-tabs-ссылка-с-друго-453d6-дреса-гость-→-«Счета»-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/record-tabs-ссылка-с-друго-453d6-дреса-гость-→-«Счета»-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/record-tabs.spec.ts:77:1 › ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони 
+  9 passed (1.5m)
+
+# код выхода 1 · 1 мин 30 с

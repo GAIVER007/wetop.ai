@@ -4477,3 +4477,6 @@
 | 29.09.2026 22:25 | typecheck | ✅ без ошибок | 23 с | 3397f85 | [лог](logs/2026-09-29T17-25-53Z-typecheck-abdc.log) |  |
 | 29.09.2026 22:26 | lint | ✅ без ошибок | 19 с | 3397f85 | [лог](logs/2026-09-29T17-26-17Z-lint-cfe4.log) |  |
 | 29.09.2026 22:26 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 27 с | 3397f85 +1 | [лог](logs/2026-09-29T17-26-55Z-e2e-7b48.log) |  |
+| 30.09.2026 00:19 | typecheck | ✅ без ошибок | 39 с | 8825509 | [лог](logs/2026-09-29T19-19-55Z-typecheck-7252.log) | S5+S6 после слияния main f0fedbeb |
+| 30.09.2026 00:20 | lint | ✅ без ошибок | 24 с | 8825509 | [лог](logs/2026-09-29T19-20-35Z-lint-aa90.log) | S5+S6 после слияния main |
+| 30.09.2026 00:21 | unit (частично: apps/api/src/assistant apps/api/src/platform apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 144 из 144 | 10 с | 8825509 | [лог](logs/2026-09-29T19-21-00Z-unit-64b8.log) | S5+S6 после слияния main: помощник, платформа, права, домен |

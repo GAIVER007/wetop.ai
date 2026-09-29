@@ -2,7 +2,13 @@
 import { useState } from 'react';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import Link from 'next/link';
-import type { InventorySummary, InventoryUnit, StayOffers, reservationsApi } from '../../lib/api';
+import type {
+  InventorySummary,
+  InventoryUnit,
+  NearestStays,
+  StayOffers,
+  reservationsApi,
+} from '../../lib/api';
 import { Alert, Button, Field, Input, Select, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import { bookingHref } from '../../lib/booking-link';
@@ -17,6 +23,7 @@ export function AvailabilityFinder({
   departure,
   guests,
   offers,
+  nearest,
   result,
   error,
   summary,
@@ -29,6 +36,8 @@ export function AvailabilityFinder({
   guests: number;
   /** Цены «от» (AV2); null — не загрузились или период неверный */
   offers: StayOffers | null;
+  /** Ближайшая доступность (AV4); null — не нужна (у всех категорий есть места) или не загрузилась */
+  nearest: NearestStays | null;
   result: Availability | null;
   error: string | null;
   summary: InventorySummary;
@@ -49,6 +58,9 @@ export function AvailabilityFinder({
       bed,
       // Койкам нужно по месту на гостя; номер вмещает всех гостей целиком — комбинации категорий не предлагаем (ТЗ §2)
       fits: bed ? (availability?.available ?? 0) >= guests : c.capacityAdults >= guests,
+      // вмещает, но мест на весь запрос нет — строка уходит в «Нет мест на эти даты» с ближайшей датой (AV4)
+      soldOut:
+        (bed || c.capacityAdults >= guests) && (availability?.available ?? 0) < (bed ? guests : 1),
     };
   });
   const found = rows.filter((c) => c.fits && (c.availability?.available ?? 0) > 0);
@@ -60,8 +72,9 @@ export function AvailabilityFinder({
       (!kind || units.some((u) => u.accommodationTypeCode === c.code && u.kind === kind)),
   );
   const visible = showAll
-    ? matching
+    ? matching.filter((c) => !c.soldOut)
     : matching.filter((c) => c.fits && (c.availability?.available ?? 0) > 0);
+  const soldOut = matching.filter((c) => c.soldOut);
   return (
     <>
       <form className="fund-search" method="get">
@@ -174,7 +187,7 @@ export function AvailabilityFinder({
                 ))}
               </div>
             </div>
-            {!visible.length ? (
+            {!visible.length && !soldOut.length ? (
               <section className="fund-empty" role="status">
                 <h2>Нет подходящих вариантов</h2>
                 <p>
@@ -192,7 +205,7 @@ export function AvailabilityFinder({
                   Показать все категории
                 </Button>
               </section>
-            ) : (
+            ) : visible.length > 0 ? (
               <div className="fund-availability">
                 {visible.map((c) => {
                   const available = c.availability?.available ?? 0;
@@ -265,6 +278,9 @@ export function AvailabilityFinder({
                   );
                 })}
               </div>
+            ) : null}
+            {soldOut.length > 0 && (
+              <SoldOutCategories rows={soldOut} guests={guests} nearest={nearest} />
             )}
             <div className="fund-footer">
               <span className="muted">
@@ -281,6 +297,82 @@ export function AvailabilityFinder({
         )
       )}
     </>
+  );
+}
+
+/**
+ * Категории, которые вмещают гостей, но мест на весь срок нет (ADR-110, ТЗ §7, AV4): не прячутся, а отвечают
+ * «с 1-го нет, но есть с 3-го». Дату считает API тем же расчётом, что места (`GET /availability/nearest`);
+ * «Посмотреть варианты» — тот же поиск на найденные даты.
+ */
+function SoldOutCategories({
+  rows,
+  guests,
+  nearest,
+}: {
+  rows: ReadonlyArray<{
+    code: string;
+    name: string;
+    bed: boolean;
+    availability: { available: number; units: number } | undefined;
+    units: number;
+  }>;
+  guests: number;
+  nearest: NearestStays | null;
+}) {
+  return (
+    <section className="fund-soldout" aria-labelledby="fund-soldout-title">
+      <h2 id="fund-soldout-title">Нет мест на эти даты</h2>
+      <div className="fund-availability">
+        {rows.map((c) => {
+          const available = c.availability?.available ?? 0;
+          const next = nearest?.byCategory[c.code];
+          return (
+            <article key={c.code}>
+              <div className="fund-available-row">
+                <div>
+                  <span className="fund-type">{c.bed ? 'Койко-место' : 'Номер целиком'}</span>
+                  <h3>{c.name}</h3>
+                  <span className="muted">
+                    {available > 0
+                      ? `Свободно ${pluralRu(available, ['койка', 'койки', 'коек'])} — меньше, чем гостей`
+                      : 'Нет мест на весь период'}
+                  </span>
+                </div>
+                {next ? (
+                  <div className="fund-price">
+                    <span className="muted">Ближайшая доступность</span>
+                    <b>с {displayDate(next.arrivalDate)}</b>
+                    <Link
+                      href={`/rooms/availability?${new URLSearchParams({
+                        arrival: next.arrivalDate,
+                        departure: next.departureDate,
+                        guests: String(guests),
+                      })}`}
+                      aria-label={`Посмотреть варианты: ${c.name} с ${displayDate(next.arrivalDate)}`}
+                    >
+                      Посмотреть варианты
+                    </Link>
+                  </div>
+                ) : (
+                  next === null && (
+                    <div className="fund-price">
+                      <span className="muted">
+                        Нет мест в ближайшие {pluralRu(nearest!.days, ['день', 'дня', 'дней'])}
+                      </span>
+                    </div>
+                  )
+                )}
+                <div className="fund-available-count">
+                  <b>{available}</b>
+                  <span>свободно из {c.availability?.units ?? c.units}</span>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

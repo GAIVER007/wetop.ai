@@ -2539,6 +2539,36 @@ function read(path: string, q: URLSearchParams): unknown {
       ),
     };
   }
+  // «Свободные места», AV4 (ADR-110): ближайшая доступность — тот же срок, сдвинутый вперёд, по /availability стенда
+  if (path === '/availability/nearest') {
+    const arrival = q.get('arrival') || today,
+      departure = q.get('departure') || add(arrival, 1),
+      guests = Number(q.get('guests') || '1'),
+      days = Number(q.get('days') || '14');
+    const windows = Array.from({ length: days + 1 }, (_, shift) => {
+      const [a, d] = [add(arrival, shift), add(departure, shift)];
+      const stay = read('/availability', new URLSearchParams({ arrival: a, departure: d })) as {
+        byCategory: Record<string, { available: number }>;
+      };
+      return { arrivalDate: a, departureDate: d, byCategory: stay.byCategory };
+    });
+    return {
+      arrivalDate: arrival,
+      departureDate: departure,
+      guests,
+      days,
+      byCategory: Object.fromEntries(
+        categories.map((c) => {
+          const need = c.code === 'ROOM' ? 1 : guests;
+          const hit = windows.find((w) => (w.byCategory[c.code]?.available ?? 0) >= need);
+          return [
+            c.code,
+            hit ? { arrivalDate: hit.arrivalDate, departureDate: hit.departureDate } : null,
+          ];
+        }),
+      ),
+    };
+  }
   if (path === '/availability') {
     const arrival = q.get('arrival') || today,
       departure = q.get('departure') || add(arrival, 1);

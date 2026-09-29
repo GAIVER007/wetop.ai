@@ -54,6 +54,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /chessboard': 'desk',
   'GET /availability': 'desk',
   'GET /availability/offers': 'desk',
+  'GET /availability/nearest': 'desk',
   'GET /reservations/:number': 'desk',
   'GET /hotel/reservations': 'desk',
   'GET /hotel/settings': 'desk',

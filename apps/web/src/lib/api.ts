@@ -335,6 +335,16 @@ export interface StayOffers {
   currency: string;
   byCategory: Record<string, StayOffer | null>;
 }
+/** Ближайшая доступность (ADR-110, AV4): по категории первое окно того же срока, где хватает мест */
+export interface NearestStays {
+  arrivalDate: string;
+  departureDate: string;
+  guests: number;
+  /** Глубина поиска вперёд, дней */
+  days: number;
+  /** null — за `days` дней мест не нашлось */
+  byCategory: Record<string, { arrivalDate: string; departureDate: string } | null>;
+}
 export interface StayAvailability {
   arrivalDate: string;
   departureDate: string;
@@ -656,6 +666,9 @@ export const reservationsApi = {
   /** Цены «от» для «Свободных мест» (ADR-110, AV2): правило закрытого Q-204 считает API */
   offers: (arrival: string, departure: string, guests: number) =>
     getJson<StayOffers>(`/availability/offers${query({ arrival, departure, guests })}`),
+  /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
+  nearest: (arrival: string, departure: string, guests: number) =>
+    getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),

@@ -13,6 +13,12 @@ import type {
   MembershipRole,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import type {
+  SupportLastMessage,
+  SupportPriority,
+  SupportQueue,
+  SupportQueueCounts,
+} from './support-queue';
 import { requestScopeHeader } from './scope-pointer';
 export interface CategorySummary {
   code: string;
@@ -337,6 +343,16 @@ export interface StayOffers {
   guests: number;
   currency: string;
   byCategory: Record<string, StayOffer | null>;
+}
+/** Ближайшая доступность (ADR-110, AV4): по категории первое окно того же срока, где хватает мест */
+export interface NearestStays {
+  arrivalDate: string;
+  departureDate: string;
+  guests: number;
+  /** Глубина поиска вперёд, дней */
+  days: number;
+  /** null — за `days` дней мест не нашлось */
+  byCategory: Record<string, { arrivalDate: string; departureDate: string } | null>;
 }
 export interface StayAvailability {
   arrivalDate: string;
@@ -667,6 +683,9 @@ export const reservationsApi = {
   /** Цены «от» для «Свободных мест» (ADR-110, AV2): правило закрытого Q-204 считает API */
   offers: (arrival: string, departure: string, guests: number) =>
     getJson<StayOffers>(`/availability/offers${query({ arrival, departure, guests })}`),
+  /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
+  nearest: (arrival: string, departure: string, guests: number) =>
+    getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
@@ -773,7 +792,22 @@ export const ratesApi = {
       '/rates/bulk',
       { changes },
     ),
+  /** «Тарифные планы» (SET4): тарифы с правилом отмены и числом броней, которые его правка заденет */
+  plans: () => getJson<RatePlanRow[]>('/rates/plans'),
+  updatePlan: (code: string, input: { cancellationPenalty: CancellationPenaltyPolicy }) =>
+    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}`, input),
 };
+export interface RatePlanRow {
+  code: string;
+  name: string;
+  currency: string;
+  active: boolean;
+  cancellationPenalty: CancellationPenaltyPolicy;
+  /** Названия категорий, к которым привязан тариф */
+  categories: string[];
+  /** Брони по тарифу, ещё не заехавшие и не отменённые, с выездом сегодня или позже: их задевает правка правила */
+  upcomingReservations: number;
+}
 
 // ── Каналы (Channex) ──
 export interface ChannelMappingRow {
@@ -1827,7 +1861,25 @@ export interface SupportPlatformUser {
 
 export type SupportConversationCard = SellerConversationCard & {
   platformUser: SupportPlatformUser | null;
+  /** Обращение закрыто: переписка только для чтения */
+  closed?: boolean;
 };
+
+/** Строка очереди техподдержки (S1): отбор, приоритет и порядок считает API */
+export interface SupportQueueItem {
+  id: string;
+  channel: string;
+  clientName: string | null;
+  mode: string;
+  stage: string;
+  startedAt: string | null;
+  lastActivityAt: string | null;
+  messages: number;
+  lastMessage: SupportLastMessage | null;
+  waitingSince: string | null;
+  closed: boolean;
+  priority: SupportPriority;
+}
 
 /**
  * «Платформа → Техподдержка» (ADR-083, план Э3): панель ИИ-помощника через API платформы — адреса и ключа помощника
@@ -1839,8 +1891,18 @@ export const supportApi = {
     getJson<{ items: SellerConversationRow[] }>(
       `/platform/support/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
     ),
+  queue: (queue: SupportQueue) =>
+    getJson<{ queue: SupportQueue; items: SupportQueueItem[]; counts: SupportQueueCounts }>(
+      `/platform/support/queue?queue=${encodeURIComponent(queue)}`,
+    ),
   conversation: (id: string) =>
     getJson<SupportConversationCard>(`/platform/support/conversations/${encodeURIComponent(id)}`),
+  close: (id: string) =>
+    sendJson<{ closed: true }>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/close`,
+      {},
+    ),
   switchMode: (id: string, action: 'takeover' | 'release') =>
     sendJson<{ mode: string | null; previousMode: string | null }>(
       'POST',

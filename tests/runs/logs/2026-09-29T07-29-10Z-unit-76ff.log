@@ -1,0 +1,133 @@
+# Модульные (unit) · 29.09.2026 12:29 Алматы · vm
+# коммит 85e1bcd (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T07-29-10Z-unit-76ff.json' 'packages/domain/src/finance/finance.test.ts' 'apps/api/src/rates/rate-plans.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/rates/rate-plans.test.ts (0 test)
+ ❯ |unit| packages/domain/src/finance/finance.test.ts (19 tests | 2 failed) 18ms
+   ✓ folioBalance (1)
+     ✓ = active charges − allocated payments + refunds, in minor units 2ms
+   ✓ payment rules (2)
+     ✓ allocations must sum exactly to the payment amount and be positive 2ms
+     ✓ refund cannot exceed what this payment allocated to the folio minus earlier refunds 1ms
+   ✓ parseMoney (1)
+     ✓ parses major-unit strings into minor units without floats 1ms
+   ✓ penaltyAmount (Q-103: правило Legacy «первые сутки») (1)
+     ✓ NONE → 0; FIRST_NIGHT → цена первой ночи из календаря, без календаря — средняя ночь; FULL_STAY → вся цена 1ms
+   ✓ penaltyDue (Q-103: ответ управляющего 10.09.2026 — штраф только в день заезда) (2)
+     ✓ отмена заранее — без штрафа, отмена в день заезда и позже — со штрафом 0ms
+     ✓ незаезд считается всегда: гость не приехал и место простояло 0ms
+   ✓ ранний заезд и поздний выезд — половина ночи по умолчанию (ADR-021) (2)
+     ✓ половина цены одной ночи, округление вниз до целого тенге 0ms
+     ✓ нет ночей или цены — нуль, а не деление на ноль 1ms
+   ✓ предоплата канала после отмены (ADR-022, Q-108) (3)
+     ✓ без штрафа предоплата снимается целиком: деньги гостю возвращает площадка 0ms
+     ✓ со штрафом остаётся ровно штраф, остальное площадка возвращает 0ms
+     ✓ штраф больше предоплаты — остаётся вся предоплата, долг остаётся на счёте 0ms
+   ✓ доля ночи за ранний заезд и поздний выезд по времени — правило объекта из Legacy (ADR-021) (3)
+     ✓ ранний заезд: до 06:00 — вся ночь, 06:00–11:59 — половина, с 12:00 до расчётного часа 14:00 — бесплатно 0ms
+     ✓ поздний выезд: 12:01–17:59 — половина, с 18:00 — вся ночь, до расчётного часа 12:00 — бесплатно 0ms
+     ✓ кривое время — ошибка, а не тихий ноль 0ms
+   ✓ соседняя ночь для раннего заезда и позднего выезда (ADR-021, «выделять доступность» как в Legacy) (2)
+     ✓ ранний заезд занимает ночь перед заездом, поздний выезд — ночь после выезда 1ms
+     ✓ граница месяца и года считается по календарю 0ms
+   ❯ parseCancellationPenalty (SET4, ADR-115) (2)
+     × принимает три правила тарифа как есть 4ms
+     × другое значение, регистр, пустое и не строка — null 1ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 81ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 79ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/rates/rate-plans.test.ts [ apps/api/src/rates/rate-plans.test.ts ]
+Error: Cannot find module './rate-plans' imported from /home/user/wetop.ai/apps/api/src/rates/rate-plans.test.ts
+ ❯ apps/api/src/rates/rate-plans.test.ts:3:1
+      1| import 'reflect-metadata';
+      2| import { beforeEach, describe, expect, it, vi } from 'vitest';
+      3| import { RatePlansService } from './rate-plans';
+       | ^
+      4| import { withSignedInUser } from '../auth/request-context';
+      5| import { forgetPropertyRef } from '../database/property-ref';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(181) } to deeply equal { …(184) }
+
+- Expected
++ Received
+
+@@ -76,11 +76,10 @@
+    "GET /platform/support/status": "platform",
+    "GET /platform/support/summary": "platform",
+    "GET /rate-plans": "desk",
+    "GET /rates": "rates",
+    "GET /rates/options": "rates",
+-   "GET /rates/plans": "rates",
+    "GET /reservations/:number": "desk",
+    "GET /reservations/:number/cancel-preview": "desk",
+    "GET /reservations/:number/items/:itemId/extend-preview": "desk",
+    "GET /reservations/:number/items/:itemId/move-preview": "desk",
+    "GET /reservations/:number/items/:itemId/preview": "desk",
+@@ -100,11 +99,10 @@
+    "PATCH /guests/:id": "desk",
+    "PATCH /hotel/services/:code": "settings",
+    "PATCH /hotel/settings": "settings",
+    "PATCH /inventory/categories/:code": "property",
+    "PATCH /inventory/rooms/:code": "property",
+-   "PATCH /rates/plans/:code": "rates",
+    "PATCH /reservations/:number": "desk",
+    "PATCH /reservations/:number/dates": "desk",
+    "PATCH /reservations/:number/items/:itemId": "desk",
+    "PATCH /seller-agents/:id": "seller",
+    "PATCH /wizard/config": "public",
+
+ ❯ apps/api/src/auth/route-access.test.ts:276:20
+    274|       .map(([key]) => key);
+    275|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    276|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    277|   });
+    278|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > parseCancellationPenalty (SET4, ADR-115) > принимает три правила тарифа как есть
+TypeError: parseCancellationPenalty is not a function
+ ❯ packages/domain/src/finance/finance.test.ts:179:12
+    177| describe('parseCancellationPenalty (SET4, ADR-115)', () => {
+    178|   it('принимает три правила тарифа как есть', () => {
+    179|     expect(parseCancellationPenalty('NONE')).toBe('NONE');
+       |            ^
+    180|     expect(parseCancellationPenalty('FIRST_NIGHT')).toBe('FIRST_NIGHT'…
+    181|     expect(parseCancellationPenalty('FULL_STAY')).toBe('FULL_STAY');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |unit| packages/domain/src/finance/finance.test.ts > parseCancellationPenalty (SET4, ADR-115) > другое значение, регистр, пустое и не строка — null
+TypeError: parseCancellationPenalty is not a function
+ ❯ packages/domain/src/finance/finance.test.ts:185:14
+    183|   it('другое значение, регистр, пустое и не строка — null', () => {
+    184|     for (const v of ['first_night', 'HALF', '', ' NONE', null, undefin…
+    185|       expect(parseCancellationPenalty(v)).toBeNull();
+       |              ^
+    186|   });
+    187| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 18 passed (21)
+   Start at  07:29:17
+   Duration  7.02s (import 60%, transform 38%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T07-29-10Z-unit-76ff.json
+
+# код выхода 1 · 14 с

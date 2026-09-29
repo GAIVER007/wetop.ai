@@ -73,11 +73,10 @@ test('пустая категория без цены — форма проси�
 });
 
 /**
- * Время до первой пользы (ТЗ `plans/ux-retention-2026-09-26.md` пп. 0.2, 2.1, 2.2): после «Запустить отель» Главная
- * показывает «Первые шаги» и ведёт к первой брони; бронь создаётся, и панель уходит сама. Тест считает путь —
- * экраны после онбординга до карточки брони: Главная → форма → карточка (цель ТЗ ≤ 3).
+ * «Первые шаги» сняты с Главной по слову владельца 29.09.2026 («не нравится, убери»): после «Запустить отель» Главная
+ * открывается без панели-подсказки, первая бронь создаётся кнопкой «Новая бронь» в шапке страницы.
  */
-test('после запуска отеля — «Первые шаги» ведут к первой брони, после неё панель уходит', async ({
+test('после запуска отеля Главная без «Первых шагов», «Новая бронь» — в шапке', async ({
   page,
   request,
 }) => {
@@ -91,21 +90,10 @@ test('после запуска отеля — «Первые шаги» вед�
   await main.getByRole('button', { name: 'Запустить отель' }).click();
   await page.waitForURL('**/today');
 
-  const steps = page.getByTestId('first-steps');
-  await expect(steps.getByRole('heading', { name: 'Первые шаги' })).toBeVisible();
-  await expect(steps.getByRole('listitem')).toHaveCount(4);
-  await expect(steps.getByRole('listitem').first()).toContainText('готово');
-  await steps.getByRole('link', { name: 'Создать первую бронь' }).click();
-
-  const form = page.getByTestId('new-reservation-form');
-  await form.getByLabel('Имя *', { exact: true }).fill('Первый');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Гость');
-  await form.getByRole('button', { name: 'Создать бронь' }).click();
-  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
-
-  await page.goto('/today');
   await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
+  await expect(page.getByText('Первые шаги')).toHaveCount(0);
+  await expect(main.getByRole('link', { name: 'Новая бронь' })).toHaveAttribute('href', '/reservations/new');
 });
 
 test('у работающего отеля с бронями «Первых шагов» нет', async ({ page, request }) => {
@@ -117,9 +105,9 @@ test('у работающего отеля с бронями «Первых ша
 
 /**
  * «Заполнить позже» (plans/site-auth-dialog-tour-2026-09-27.md, Д3, ADR-100): после подтверждения почты человек может
- * не заводить номера сразу. Стойка открывается, гейт больше не уводит, а Главная первым шагом ведёт настроить отель.
+ * не заводить номера сразу. Стойка открывается, гейт больше не уводит; настройка по-прежнему открывается по адресу.
  */
-test('«Заполнить позже»: стойка открывается, Главная ведёт настроить номера и цены', async ({ page, request }) => {
+test('«Заполнить позже»: стойка открывается, гейт не уводит, настройка доступна по адресу', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, {
     data: { onboardingNeeded: true, noBookings: true },
   });
@@ -131,9 +119,9 @@ test('«Заполнить позже»: стойка открывается, Г
   await main.getByTestId('onboarding-later').click();
 
   await page.waitForURL('**/today');
-  const steps = page.getByTestId('first-steps');
-  await expect(steps).toContainText('Настройте номера и цены');
-  await expect(steps.getByRole('link', { name: 'Настроить отель' })).toHaveAttribute('href', '/onboarding');
+  await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
+  // «Первые шаги» сняты 29.09.2026 (слово владельца) — подсказки «Настроить отель» на Главной больше нет
+  await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await page.screenshot({ path: 'test-results/onboarding-later-2-today.png' });
 
   // другой рабочий экран тоже не уводит

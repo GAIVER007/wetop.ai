@@ -1,0 +1,222 @@
+# Сквозные (e2e) · 29.09.2026 12:36 Алматы · vm
+# коммит 85e1bcd (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 10
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/rate-plans.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет (19.9s)
+  ✘  2 tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется (45.2s)
+  ✘  3 tests/ui/rate-plans.spec.ts:90:1 › тариф без будущих броней: панель говорит, что правило коснётся новых (17.2s)
+  ✘  4 tests/ui/rate-plans.spec.ts:108:1 › «только чтение»: тарифы и правила видны, править нельзя (17.7s)
+  ✘  5 tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: light (17.2s)
+  ✘  6 tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: dark (17.2s)
+
+
+  1) tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('main').getByRole('navigation', { name: 'Тарифы и цены' }).getByRole('link', { name: 'Цены' })
+    Expected: "page"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').getByRole('navigation', { name: 'Тарифы и цены' }).getByRole('link', { name: 'Цены' }) with timeout 15000ms
+      - waiting for getByRole('main').getByRole('navigation', { name: 'Тарифы и цены' }).getByRole('link', { name: 'Цены' })
+
+
+      39 |   const main = page.getByRole('main');
+      40 |   const tabs = main.getByRole('navigation', { name: 'Тарифы и цены' });
+    > 41 |   await expect(tabs.getByRole('link', { name: 'Цены' })).toHaveAttribute('aria-current', 'page');
+         |                                                          ^
+      42 |   await expect(main).not.toContainText('При отмене по тарифу');
+      43 |
+      44 |   await tabs.getByRole('link', { name: 'Тарифные планы' }).click();
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:41:58
+
+    Error Context: test-results/rate-plans-вкладки-«Цены-Т-7f97c--«Ценах»-строки-правила-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-вкладки-«Цены-Т-7f97c--«Ценах»-строки-правила-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-вкладки-«Цены-Т-7f97c--«Ценах»-строки-правила-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.innerText: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ }).locator('td.num')
+
+
+      61 |   await page.goto('/rates/plans');
+      62 |   const main = page.getByRole('main');
+    > 63 |   const ahead = Number(await planRow(page, 'Стандартный').locator('td.num').innerText());
+         |                                                                             ^
+      64 |   expect(ahead).toBeGreaterThan(0);
+      65 |
+      66 |   await main
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:63:77
+
+    Error Context: test-results/rate-plans-правка-правила--28909--выбора-правило-сохраняется/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-правка-правила--28909--выбора-правило-сохраняется/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-правка-правила--28909--выбора-правило-сохраняется/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/rate-plans.spec.ts:90:1 › тариф без будущих броней: панель говорит, что правило коснётся новых 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('rate-plans-table').getByRole('row', { name: /Гибкий без штрафа/ })
+    Expected substring: "Без штрафа"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('rate-plans-table').getByRole('row', { name: /Гибкий без штрафа/ }) with timeout 15000ms
+      - waiting for getByTestId('rate-plans-table').getByRole('row', { name: /Гибкий без штрафа/ })
+
+
+       96 |   await page.goto('/rates/plans');
+       97 |   const main = page.getByRole('main');
+    >  98 |   await expect(planRow(page, 'Гибкий без штрафа')).toContainText('Без штрафа');
+          |                                                    ^
+       99 |   await main
+      100 |     .getByTestId('rate-plans-table')
+      101 |     .getByRole('button', { name: 'Гибкий без штрафа' })
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:98:52
+
+    Error Context: test-results/rate-plans-тариф-без-будущ-f71f5--что-правило-коснётся-новых/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-тариф-без-будущ-f71f5--что-правило-коснётся-новых/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-тариф-без-будущ-f71f5--что-правило-коснётся-новых/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/rate-plans.spec.ts:108:1 › «только чтение»: тарифы и правила видны, править нельзя ───
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ })
+    Expected substring: "Стоимость первой ночи"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ }) with timeout 15000ms
+      - waiting for getByTestId('rate-plans-table').getByRole('row', { name: /Стандартный/ })
+
+
+      112 |   const main = page.getByRole('main');
+      113 |   await expect(page.getByTestId('read-only-banner')).toBeVisible();
+    > 114 |   await expect(planRow(page, 'Стандартный')).toContainText('Стоимость первой ночи');
+          |                                              ^
+      115 |   await expect(main.getByTestId('rate-plans-table').getByRole('button')).toHaveCount(0);
+      116 | });
+      117 |
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:114:46
+
+    Error Context: test-results/rate-plans-«только-чтение»-3986c-равила-видны-править-нельзя/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-«только-чтение»-3986c-равила-видны-править-нельзя/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-«только-чтение»-3986c-равила-видны-править-нельзя/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: light ──────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('rate-plans-table')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('rate-plans-table') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('rate-plans-table')
+
+
+      146 |
+      147 |     await page.goto('/rates/plans');
+    > 148 |     await expect(main.getByTestId('rate-plans-table')).toBeVisible();
+          |                                                        ^
+      149 |     await axe();
+      150 |     await shot('rate-plans');
+      151 |
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:148:56
+
+    Error Context: test-results/rate-plans-снимки-SET4-и-доступность-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-снимки-SET4-и-доступность-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-снимки-SET4-и-доступность-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: dark ───────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('rate-plans-table')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('rate-plans-table') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('rate-plans-table')
+
+
+      146 |
+      147 |     await page.goto('/rates/plans');
+    > 148 |     await expect(main.getByTestId('rate-plans-table')).toBeVisible();
+          |                                                        ^
+      149 |     await axe();
+      150 |     await shot('rate-plans');
+      151 |
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:148:56
+
+    Error Context: test-results/rate-plans-снимки-SET4-и-доступность-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-снимки-SET4-и-доступность-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-снимки-SET4-и-доступность-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет 
+    tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется 
+    tests/ui/rate-plans.spec.ts:90:1 › тариф без будущих броней: панель говорит, что правило коснётся новых 
+    tests/ui/rate-plans.spec.ts:108:1 › «только чтение»: тарифы и правила видны, править нельзя ────
+    tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: light ───────────────────────────
+    tests/ui/rate-plans.spec.ts:119:3 › снимки SET4 и доступность: dark ────────────────────────────
+
+# код выхода 1 · 2 мин 41 с

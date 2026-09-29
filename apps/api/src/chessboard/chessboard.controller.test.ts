@@ -210,6 +210,38 @@ describe('GET /chessboard, GET /reservations/:number', () => {
       .get('/availability?arrival=2026-09-12&departure=2026-09-12')
       .expect(400);
   });
+  it('/availability/nearest: first window of the same stay with enough places; beds need every guest', async () => {
+    // ТЗ «Свободные места» §7, AV4: u2 (dorm) занята 10–11, выезд 12 → на 10→11 мест нет, ближайшая — с 12-го
+    const one = await request(app.getHttpServer())
+      .get('/availability/nearest?arrival=2026-09-10&departure=2026-09-11&guests=1')
+      .expect(200);
+    expect(one.body).toEqual({
+      arrivalDate: '2026-09-10',
+      departureDate: '2026-09-11',
+      guests: 1,
+      days: 14,
+      byCategory: {
+        'category-dorm': { arrivalDate: '2026-09-12', departureDate: '2026-09-13' },
+        'category-single': { arrivalDate: '2026-09-10', departureDate: '2026-09-11' },
+      },
+    });
+    // двое: в dorm одна койка — не хватит ни в какой день; номер один на всех — свободен
+    const two = await request(app.getHttpServer())
+      .get('/availability/nearest?arrival=2026-09-10&departure=2026-09-11&guests=2&days=3')
+      .expect(200);
+    expect(two.body.days).toBe(3);
+    expect(two.body.byCategory['category-dorm']).toBeNull();
+    expect(two.body.byCategory['category-single']).toEqual({
+      arrivalDate: '2026-09-10',
+      departureDate: '2026-09-11',
+    });
+    for (const bad of [
+      'arrival=2026-09-12&departure=2026-09-12',
+      'arrival=2026-09-10&departure=2026-09-11&guests=0',
+      'arrival=2026-09-10&departure=2026-09-11&days=32',
+    ])
+      await request(app.getHttpServer()).get(`/availability/nearest?${bad}`).expect(400);
+  });
   it('returns a reservation card by confirmation number, 404 when unknown', async () => {
     const res = await request(app.getHttpServer()).get('/reservations/B-1').expect(200);
     expect(res.body).toMatchObject({

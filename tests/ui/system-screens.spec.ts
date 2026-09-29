@@ -259,11 +259,11 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // правила отмены ушли к тарифам (ADR-115): старый адрес — «Цены» со строкой правила, без кода тарифа
+  // правила отмены ушли к тарифам (ADR-115, SET4): старый адрес — «Тарифные планы», правило словами, без кода тарифа
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates$/);
-  await expect(main.getByTestId('rate-plan-cancellation')).toContainText('стоимость первой ночи');
-  await expect(main.getByTestId('rate-plan-cancellation')).not.toContainText('BASE');
+  await expect(page).toHaveURL(/\/rates\/plans$/);
+  await expect(main.getByTestId('rate-plans-table')).toContainText('Стоимость первой ночи');
+  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
   await page.goto('/hotel-settings');

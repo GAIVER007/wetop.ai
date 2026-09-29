@@ -2431,3 +2431,248 @@ button {
   color: var(--muted);
   font-size: 0.875rem;
 }
+
+/*
+ * Общий операционный экран «Сегодня» на первом экране (29.09.2026, ADR-104): три плитки, клиенты по времени,
+ * задачи команды и столбики финансов недели. Окно, шапка и подсказка — общие с макетом шахматки (.mockup__*).
+ */
+.ops {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px 76px;
+  font-size: 0.8125rem;
+}
+.ops__kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.ops__kpi {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent-1) 4%, var(--surface-solid));
+}
+.ops__kpi small,
+.ops__block-title {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.ops__kpi strong {
+  color: var(--text);
+  font-family: var(--font-head);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ops__trend {
+  color: var(--text-2);
+  font-size: 0.75rem;
+  font-style: normal;
+}
+.ops__trend--up {
+  color: var(--success);
+}
+.ops__trend--warn {
+  color: var(--warning);
+}
+.ops__cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.ops__block {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+}
+.ops__line {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.ops__time {
+  color: var(--text-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ops__who,
+.ops__task > span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ops__who small,
+.ops__task small {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+.ops__state {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ops__state--done {
+  background: var(--st-checked-in);
+  color: var(--text);
+}
+.ops__state--now {
+  background: var(--st-confirmed);
+  color: var(--text);
+}
+.ops__state--new {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.ops__task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ops__task i {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--border-input);
+  border-radius: 4px;
+}
+.ops__task.is-done i {
+  border-color: var(--success);
+  background: var(--success);
+  box-shadow: inset 0 0 0 2px var(--surface-solid);
+}
+.ops__task.is-done > span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.ops__finance {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+}
+.ops__finance .ops__block-title {
+  align-self: start;
+  max-width: 7.5rem;
+}
+.ops__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 40px;
+}
+.ops__bars i {
+  flex: 1;
+  min-width: 6px;
+  border-radius: 4px 4px 1px 1px;
+  background: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.ops__bars i.is-today {
+  background: var(--primary);
+}
+.ops__finance-sum {
+  display: grid;
+  justify-items: end;
+}
+.ops__finance-sum strong {
+  color: var(--text);
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ops__finance-sum small {
+  color: var(--success);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+@media (max-width: 40rem) {
+  .ops {
+    padding-bottom: 14px;
+  }
+}
+@media (max-width: 29.99rem) {
+  .ops {
+    padding: 12px 10px;
+  }
+  .ops__kpis {
+    gap: 6px;
+  }
+  .ops__kpi {
+    padding: 8px;
+  }
+  .ops__kpi strong {
+    font-size: 0.875rem;
+  }
+  .ops__cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ops__finance .ops__block-title {
+    display: none;
+  }
+}
+
+/* «Направления»: работающее Hospitality с шахматкой и следующее направление отдельной тихой карточкой */
+.vertical-live {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.vertical-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg-strong);
+  color: var(--text-2);
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.vertical-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.vertical-status--live .vertical-status__dot {
+  background: var(--success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 22%, transparent);
+}
+.vertical-next {
+  margin-top: 16px;
+}
+/* Шахматка в «Направлениях» стоит ниже первого экрана: анимация появления там проигрывается невидимой,
+   а полупрозрачная на её середине плашка валит проверку контраста — макет здесь статичный */
+.vertical-live .mockup__stay--new,
+.vertical-live .mockup__toast {
+  animation: none;
+}

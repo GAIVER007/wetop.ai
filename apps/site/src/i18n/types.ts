@@ -80,11 +80,40 @@ export type Dictionary = {
     toastTitle: string;
     toastText: string;
   };
+  /** Общий операционный экран «Сегодня» на первом экране: без номеров, коек и каналов OTA (29.09.2026). */
+  operations: {
+    label: string;
+    title: string;
+    /** Переключатель филиалов в шапке макета; выбран второй. */
+    branches: string[];
+    kpis: Array<{ label: string; value: string; note: string; tone?: 'up' | 'warn' }>;
+    clientsTitle: string;
+    clients: Array<{
+      time: string;
+      name: string;
+      what: string;
+      state: string;
+      tone: 'done' | 'now' | 'new';
+    }>;
+    tasksTitle: string;
+    tasks: Array<{ text: string; who: string; done?: boolean }>;
+    financeTitle: string;
+    /** Высоты столбиков выручки за неделю, в процентах; последний — сегодня. */
+    financeBars: number[];
+    financeValue: string;
+    financeNote: string;
+    toastTitle: string;
+    toastText: string;
+  };
+  /** Раздел «Направления»: Hospitality работает, следующее направление — отдельной карточкой. */
   audience: {
     eyebrow: string;
     title: string;
     lead: string;
+    /** Плашка у работающего направления. */
+    status: string;
     items: Array<{ icon: IconName; title: string; text: string }>;
+    next: { status: string; title: string; text: string };
   };
   features: {
     eyebrow: string;

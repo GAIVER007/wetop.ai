@@ -1,0 +1,97 @@
+# Модульные (unit) · 29.09.2026 14:53 Алматы · vm
+# коммит 22557f7 (claude/adoring-ptolemy-2gicxg), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T09-53-07Z-unit-3ccc.json' 'apps/api/src/platform/support.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/platform/support.controller.test.ts (18 tests | 3 failed) 315ms
+   ✓ только главный администратор (2)
+     ✓ владелец организации получает 403 на всё, помощника не спрашиваем 157ms
+     ✓ служебный ключ раздел не открывает: он не человек и не главный администратор 3ms
+   ✓ помощник не подключён (2)
+     ✓ состояние так и говорит; остальное — 503 словами, без вызова помощника 7ms
+     ✓ подключён — «ready», и ни адреса, ни ключа помощника в ответе 3ms
+   ✓ диалоги (4)
+     ✓ список: отбор уходит помощнику, ответ — в словах стойки 6ms
+     ✓ карточка: кто пишет — почта, организация названием и роль из подписи стойки 3ms
+     ✓ карточка анонимного посетителя wetop.ai — «кто пишет» пусто, организацию не ищем 5ms
+     ✓ перехват, ответ, возврат — помощнику и в журнал; текста ответа в журнале нет 11ms
+   ✓ знания, сводка и отказы помощника (3)
+     ✓ знания: список и загрузка файлом; не тот формат — 415 без вызова; загрузка — в журнал 12ms
+     ✓ сводка за сутки 3ms
+     ✓ отказ помощника — его словами и с его именем; недоступен — 503; не нашёл — 404 17ms
+   ✓ настройка помощника (ADR-084) (4)
+     ✓ правила: читать и сохранять; пусто или слишком длинно — 400 без вызова; в журнал — длина, не текст 11ms
+     ✓ модель: список и текущая — без прочих настроек бота; смена — в журнал с прежней 13ms
+     ✓ модели не из списка бот отказывает — его словами с именем 5ms
+     ✓ «Проверка»: у главного администратора свой разговор в песочнице помощника 5ms
+   ❯ очередь техподдержки (S1) (3)
+     × открытые: без пустых, срочные первыми, дольше ждущие раньше; числа очереди из той же выборки 6ms
+     × отбор очереди — у помощника в SQL, числа — из выборки открытых; чужой отбор — 400 без вызова 3ms
+     × закрыть обращение — помощнику и в журнал; карточка говорит, закрыт ли диалог 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > очередь техподдержки (S1) > открытые: без пустых, срочные первыми, дольше ждущие раньше; числа очереди из той же выборки
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:577:85
+    575|       ],
+    576|     };
+    577|     const res = await api().get('/platform/support/queue').set(as('ses…
+       |                                                                                     ^
+    578|     expect(connection.bot.calls).toEqual([
+    579|       { op: 'listConversations', args: [{ nonempty: true, closed: fals…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > очередь техподдержки (S1) > отбор очереди — у помощника в SQL, числа — из выборки открытых; чужой отбор — 400 без вызова
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:608:73
+    606|     connection.bot.replies.listConversations = { items: [] };
+    607|     const admin = as('session-admin');
+    608|     await api().get('/platform/support/queue?queue=waiting').set(admin…
+       |                                                                         ^
+    609|     await api().get('/platform/support/queue?queue=needs_human').set(a…
+    610|     await api().get('/platform/support/queue?queue=closed').set(admin)…
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/platform/support.controller.test.ts > очередь техподдержки (S1) > закрыть обращение — помощнику и в журнал; карточка говорит, закрыт ли диалог
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/platform/support.controller.test.ts:627:82
+    625|   it('закрыть обращение — помощнику и в журнал; карточка говорит, закр…
+    626|     const admin = as('session-admin');
+    627|     await api().post(`/platform/support/conversations/${CONV}/close`).…
+       |                                                                                  ^
+    628|     expect(connection.bot.calls).toEqual([{ op: 'close', args: [CONV] …
+    629|     expect(audit.events.map((e) => [e.entityType, e.action])).toEqual([
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 15 passed (18)
+   Start at  09:53:07
+   Duration  2.73s (transform 53%, import 34%, tests 13%)
+
+JSON report written to /tmp/pms-test-2026-09-29T09-53-07Z-unit-3ccc.json
+
+# код выхода 1 · 4 с

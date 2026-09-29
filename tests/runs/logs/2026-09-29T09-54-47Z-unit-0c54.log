@@ -1,0 +1,30 @@
+# Модульные (unit) · 29.09.2026 14:54 Алматы · vm
+# коммит 22557f7 (claude/adoring-ptolemy-2gicxg), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T09-54-47Z-unit-0c54.json' 'apps/web/src/lib/support-queue.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/support-queue.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/support-queue.test.ts [ apps/web/src/lib/support-queue.test.ts ]
+Error: Cannot find module './support-queue' imported from /home/user/wetop.ai/apps/web/src/lib/support-queue.test.ts
+ ❯ apps/web/src/lib/support-queue.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   QUEUE_CHIPS,
+      4|   chipCount,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  09:54:48
+   Duration  200ms (worker 95%, environment 5%)
+
+JSON report written to /tmp/pms-test-2026-09-29T09-54-47Z-unit-0c54.json
+
+# код выхода 1 · 1 с

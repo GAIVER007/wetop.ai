@@ -44,7 +44,7 @@ export default async function HotelSettingsPage({
   const view = section[0] ?? '';
   if (view === 'description') redirect('/hotel-settings');
   if (view === 'check-in') redirect('/hotel-settings/stay');
-  if (view === 'penalties') redirect('/rates');
+  if (view === 'penalties') redirect('/rates/plans');
   if (view === 'photos' || view === 'amenities') redirect('/connections#channex-connection');
   if (!tabs.some((item) => item.view === view)) notFound();
   // настройки уже прочитал макет (кэш на одну отрисовку): название объекта в подзаголовке ничего не стоит

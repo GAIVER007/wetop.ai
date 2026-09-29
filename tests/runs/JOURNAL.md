@@ -4350,3 +4350,4 @@
 | 29.09.2026 19:05 | unit | ❌ упало 1 из 2387, пропущено 3 | 1 мин 19 с | c87ad0a | [лог](logs/2026-09-29T14-05-04Z-unit-54e2.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
 | 29.09.2026 19:06 | integration | ✅ 127 из 127 | 44 с | c87ad0a | [лог](logs/2026-09-29T14-06-24Z-integration-f373.log) |  |
 | 29.09.2026 19:07 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 14 из 14 | 1 с | c87ad0a +1 | [лог](logs/2026-09-29T14-07-16Z-unit-0e77.log) |  |
+| 29.09.2026 19:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts tests/ui/rate-plans.spec.ts tests/ui/rates-design.spec.ts tests/ui/rates-ra | ✅ 47 из 47 | 3 мин 21 с | 3decf17 | [лог](logs/2026-09-29T14-07-22Z-e2e-0c29.log) |  |

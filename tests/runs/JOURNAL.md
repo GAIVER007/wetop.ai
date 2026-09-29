@@ -4263,3 +4263,4 @@
 | 29.09.2026 17:30 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 26 из 26 | 25 с | f6f4369 +5 | [лог](logs/2026-09-29T12-30-42Z-e2e-d0cf.log) |  |
 | 29.09.2026 17:32 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 26 из 26 | 23 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-01Z-e2e-0f64.log) |  |
 | 29.09.2026 17:32 | unit (частично: tests/unit/site-design.test.ts) | ❌ упало 4 из 6 | 1 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-25Z-unit-f80f.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 17:38 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 6 с | e6170d3 +1 | [лог](logs/2026-09-29T12-38-46Z-unit-f7ac.log) |  |

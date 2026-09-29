@@ -3196,3 +3196,196 @@ button {
     gap: 24px;
   }
 }
+
+/* Owner correction: prominent brand and visible, detailed product explanations. */
+.hero__brand {
+  font: 800 clamp(3.5rem, 6vw, 5.5rem)/1 var(--font-head);
+  letter-spacing: -0.06em;
+  margin: 24px 0;
+  color: var(--text);
+}
+.hero__brand span {
+  color: var(--primary);
+}
+.hero__title {
+  font-size: clamp(2rem, 3.3vw, 3rem);
+  line-height: 1.13;
+  letter-spacing: -0.045em;
+}
+.hero__accent {
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+.product-details__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.product-details__card {
+  padding: clamp(24px, 3vw, 40px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-muted);
+}
+.product-details__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.product-details__index {
+  font: 0.875rem var(--mono);
+  color: var(--muted);
+}
+.product-details__card h3 {
+  font: 650 1.5rem/1.3 var(--font-head);
+  letter-spacing: -0.025em;
+  margin: 0 0 16px;
+}
+.product-details__card > p {
+  color: var(--text-2);
+  line-height: 1.7;
+  margin: 0;
+}
+.product-details__card ul {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 24px 0;
+  list-style: none;
+}
+.product-details__card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9375rem;
+}
+.product-details__card li .icon {
+  flex-shrink: 0;
+  color: var(--primary);
+  margin-top: 4px;
+}
+.product-details__card .product-details__result {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.875rem;
+}
+.seller-details__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.seller-details__steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 32px;
+}
+.seller-details__steps li {
+  display: flex;
+  gap: 20px;
+}
+.seller-details__number {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  color: var(--primary);
+  background: var(--primary-soft);
+  font: 0.875rem var(--mono);
+}
+.seller-details__steps h3 {
+  font: 600 1.25rem/1.4 var(--font-head);
+  margin: 0 0 12px;
+}
+.seller-details__steps p {
+  margin: 0;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.seller-details__preview {
+  padding: 32px;
+  background: linear-gradient(145deg, var(--surface), var(--primary-soft));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.seller-details__preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.seller-details__preview-head strong {
+  font: 800 1.5rem var(--font-head);
+  letter-spacing: -0.04em;
+}
+.seller-details__preview-head strong span {
+  color: var(--primary);
+}
+.seller-details__preview-head > span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.seller-details__preview h3 {
+  font-size: 1.25rem;
+  margin: 0 0 24px;
+}
+.seller-details__preview dl {
+  margin: 0;
+}
+.seller-details__preview dl div {
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+.seller-details__preview dt {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.seller-details__preview dd {
+  margin: 8px 0 0;
+  color: var(--text-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.seller-details__note {
+  color: var(--text-2);
+  line-height: 1.6;
+  font-size: 0.875rem;
+  margin: 24px 0;
+}
+.seller-details__sign-in {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  margin: 16px 0 0;
+}
+.panel__connection-note {
+  color: var(--text-2);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 24px 0 0;
+}
+@media (max-width: 48rem) {
+  .product-details__grid,
+  .seller-details__layout {
+    grid-template-columns: 1fr;
+  }
+  .seller-details__layout {
+    gap: 32px;
+  }
+  .seller-details__preview {
+    padding: 24px;
+  }
+  .hero__brand {
+    font-size: clamp(3rem, 14vw, 4.5rem);
+  }
+  .hero__title {
+    font-size: clamp(1.875rem, 7.5vw, 2.75rem);
+  }
+}

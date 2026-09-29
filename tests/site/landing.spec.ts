@@ -152,7 +152,7 @@ test('первый экран — центр управления сервисн
   await expect(page).toHaveTitle(/центр управления сервисным бизнесом/i);
   const hero = page.locator('.hero');
   await expect(hero.getByRole('heading', { level: 1 })).toContainText(
-    /Весь бизнес. В одном ритме./,
+    /Центр управления сервисным бизнесом/,
   );
   await expect(hero).toContainText(
     /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\s—\sв\sодном\sрабочем\sпространстве/,

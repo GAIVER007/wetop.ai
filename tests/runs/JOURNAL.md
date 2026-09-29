@@ -4409,3 +4409,5 @@
 | 29.09.2026 21:28 | unit | ❌ упало 1 из 2428, пропущено 3 | 1 мин 43 с | 27beec3 | [лог](logs/2026-09-29T16-28-48Z-unit-470d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 29.09.2026 21:30 | integration | ❌ код выхода 1 | 1 с | 27beec3 | [лог](logs/2026-09-29T16-30-32Z-integration-5dbf.log) |  |
 | 29.09.2026 21:31 | integration | ✅ 131 из 131 | 44 с | 27beec3 | [лог](logs/2026-09-29T16-31-00Z-integration-4b22.log) |  |
+| 29.09.2026 22:00 | e2e (частично: --config tests/site/playwright.config.ts --grep full product) | ❌ упало 1 из 1 | 45 с | ee31215 +2 | [лог](logs/2026-09-29T17-00-16Z-e2e-b5ce.log) | RED restore detailed public homepage and WETOP heading |
+| 29.09.2026 22:03 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 32 с | ee31215 +9 | [лог](logs/2026-09-29T17-03-43Z-e2e-35fe.log) | Expanded homepage: restored WETOP heading, full module descriptions and seller onboarding |

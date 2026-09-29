@@ -1,0 +1,18 @@
+# Сквозные (e2e) · 29.09.2026 13:44 Алматы · vm
+# коммит 9fc4331 (release-final-2026-09-29)
+# npx playwright test --workers=2 --reporter=list,json
+[pms_test] миграций применено 0 из 34; данные от 2026-09-29T08:44:39.323Z (сид)
+
+Running 26 tests using 2 workers
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (216ms)
+  ✓   2 [auth] › tests/e2e/_auth.setup.ts:18:1 › вход сотрудника автотестов: замок включён, сессия в cookie стойки (451ms)
+[WebServer] (node:31765) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓   4 [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (8.5s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '1304107542'
+[WebServer] }
+
+# код выхода —, сигнал SIGTERM · 22 с

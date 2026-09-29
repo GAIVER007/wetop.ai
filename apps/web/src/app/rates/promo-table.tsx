@@ -117,23 +117,30 @@ function PromoForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: (text
     reported.current = state;
     onSaved(`Промокод ${state.saved.code} добавлен`);
   }, [state, onSaved]);
+  // Поля управляемые: после отказа API форма с серверным действием сбрасывается, а введённое терять нельзя
+  const [v, setV] = useState({ code: '', discountPercent: '', stayFrom: '', stayTo: '', maxUses: '' });
+  const bind = (key: keyof typeof v) => ({
+    name: key,
+    value: v[key],
+    onChange: (e: { target: { value: string } }) => setV((prev) => ({ ...prev, [key]: e.target.value })),
+  });
   return (
     <form action={action} className="settings-service-form" data-testid="promo-form">
       {state?.error && <Alert boxed>{state.error}</Alert>}
       <Field label="Код">
-        <Input name="code" required maxLength={32} autoComplete="off" />
+        <Input {...bind('code')} required maxLength={32} autoComplete="off" />
       </Field>
       <Field label="Скидка, %">
-        <Input name="discountPercent" inputMode="numeric" />
+        <Input {...bind('discountPercent')} inputMode="numeric" />
       </Field>
       <Field label="Проживание с">
-        <Input name="stayFrom" type="date" />
+        <Input {...bind('stayFrom')} type="date" />
       </Field>
       <Field label="Проживание по">
-        <Input name="stayTo" type="date" />
+        <Input {...bind('stayTo')} type="date" />
       </Field>
       <Field label="Использований не больше">
-        <Input name="maxUses" inputMode="numeric" />
+        <Input {...bind('maxUses')} inputMode="numeric" />
       </Field>
       <p className="settings-note">
         Код записывается заглавными латинскими буквами, цифрами, «-» и «_». Даты — первая и последняя ночь проживания,

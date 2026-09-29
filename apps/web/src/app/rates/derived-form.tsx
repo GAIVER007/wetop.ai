@@ -1,5 +1,5 @@
 'use client';
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import type { RatePlanRow } from '../../lib/api';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import { createDerivedPlan, saveDerivedPlan, type DerivedActionResult } from './actions';
@@ -31,6 +31,20 @@ export function DerivedForm({
     onSaved(plan ? `Условия тарифа «${state.saved.name}» сохранены` : `Тариф «${state.saved.name}» добавлен`);
   }, [state, onSaved, plan]);
   const rule = plan?.derived ?? null;
+  // Поля управляемые: после отказа API форма с серверным действием сбрасывается, а введённое терять нельзя
+  const [v, setV] = useState({
+    name: '',
+    parentCode: parents[0]?.code ?? '',
+    discountPercent: String(rule?.discountPercent ?? ''),
+    minDaysBeforeArrival: String(rule?.minDaysBeforeArrival ?? ''),
+    maxDaysBeforeArrival: String(rule?.maxDaysBeforeArrival ?? ''),
+    minNights: String(rule?.minNights ?? ''),
+  });
+  const bind = (key: keyof typeof v) => ({
+    name: key,
+    value: v[key],
+    onChange: (e: { target: { value: string } }) => setV((prev) => ({ ...prev, [key]: e.target.value })),
+  });
   return (
     <form action={action} className="settings-service-form" data-testid="derived-form">
       {plan && <input type="hidden" name="code" value={plan.code} />}
@@ -38,10 +52,10 @@ export function DerivedForm({
       {!plan && (
         <>
           <Field label="Название">
-            <Input name="name" required maxLength={120} />
+            <Input {...bind('name')} required maxLength={120} />
           </Field>
           <Field label="Родительский тариф">
-            <Select name="parentCode" required defaultValue={parents[0]?.code ?? ''}>
+            <Select {...bind('parentCode')} required>
               {parents.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
@@ -52,16 +66,16 @@ export function DerivedForm({
         </>
       )}
       <Field label="Скидка, %">
-        <Input name="discountPercent" inputMode="numeric" defaultValue={rule?.discountPercent ?? ''} />
+        <Input {...bind('discountPercent')} inputMode="numeric" />
       </Field>
       <Field label="Заезд не раньше чем за, дн.">
-        <Input name="minDaysBeforeArrival" inputMode="numeric" defaultValue={rule?.minDaysBeforeArrival ?? ''} />
+        <Input {...bind('minDaysBeforeArrival')} inputMode="numeric" />
       </Field>
       <Field label="Заезд не позже чем за, дн.">
-        <Input name="maxDaysBeforeArrival" inputMode="numeric" defaultValue={rule?.maxDaysBeforeArrival ?? ''} />
+        <Input {...bind('maxDaysBeforeArrival')} inputMode="numeric" />
       </Field>
       <Field label="Минимум ночей">
-        <Input name="minNights" inputMode="numeric" defaultValue={rule?.minNights ?? ''} />
+        <Input {...bind('minNights')} inputMode="numeric" />
       </Field>
       <p className="settings-note">
         Цены берутся у тарифа-родителя со скидкой. Пустое поле — условия нет. Промокод и скидка тарифа не

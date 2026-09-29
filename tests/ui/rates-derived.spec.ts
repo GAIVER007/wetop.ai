@@ -68,7 +68,7 @@ test('промокоды: вкладка, добавить, повтор код�
 
   await main.getByRole('button', { name: 'Добавить промокод' }).click();
   const drawer = page.getByRole('dialog', { name: 'Новый промокод' });
-  await drawer.getByLabel('Код').fill('summer10');
+  await drawer.getByLabel('Код', { exact: true }).fill('summer10');
   await drawer.getByLabel('Скидка, %').fill('10');
   await drawer.getByLabel('Использований не больше').fill('5');
   await drawer.getByRole('button', { name: 'Сохранить' }).click();
@@ -81,7 +81,7 @@ test('промокоды: вкладка, добавить, повтор код�
 
   await main.getByRole('button', { name: 'Добавить промокод' }).click();
   const again = page.getByRole('dialog', { name: 'Новый промокод' });
-  await again.getByLabel('Код').fill('SUMMER10');
+  await again.getByLabel('Код', { exact: true }).fill('SUMMER10');
   await again.getByLabel('Скидка, %').fill('5');
   await again.getByRole('button', { name: 'Сохранить' }).click();
   await expect(again.getByRole('alert')).toContainText('уже есть');
@@ -143,7 +143,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/rates/promo');
     await main.getByRole('button', { name: 'Добавить промокод' }).click();
     const promo = page.getByRole('dialog', { name: 'Новый промокод' });
-    await promo.getByLabel('Код').fill('SUMMER10');
+    await promo.getByLabel('Код', { exact: true }).fill('SUMMER10');
     await promo.getByLabel('Скидка, %').fill('10');
     await promo.getByLabel('Проживание с').fill('2026-11-01');
     await promo.getByLabel('Проживание по').fill('2026-11-30');

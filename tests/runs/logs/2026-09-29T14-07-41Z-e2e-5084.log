@@ -1,0 +1,126 @@
+# Сквозные (e2e) · 29.09.2026 19:07 Алматы · vm
+# коммит 60fabfd (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/support-kb.spec.ts' 'tests/ui/support-queue.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/navigation.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 33 tests using 1 worker
+
+  ✓   1 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (2.3s)
+  ✓   2 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (2.2s)
+  ✓   3 tests/ui/navigation.spec.ts:86:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (2.3s)
+  ✓   4 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (10.9s)
+  ✓   5 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: light (5.2s)
+  ✓   6 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: dark (5.0s)
+  ✓   7 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (4.2s)
+  ✓   8 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (5.9s)
+  ✓   9 tests/ui/platform-support.spec.ts:103:1 › знания помощника: список и загрузка документа (4.8s)
+  ✓  10 tests/ui/platform-support.spec.ts:123:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (8.2s)
+  ✓  11 tests/ui/platform-support.spec.ts:175:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.7s)
+  ✓  12 tests/ui/platform-support.spec.ts:192:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.7s)
+  ✓  13 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 1440px (15.6s)
+  ✓  14 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 1440px (15.0s)
+  ✓  15 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 390px (15.9s)
+  ✓  16 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 390px (13.6s)
+  ✓  17 tests/ui/support-kb.spec.ts:44:1 › каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу (3.4s)
+  ✓  18 tests/ui/support-kb.spec.ts:61:1 › не главный администратор: раздела нет, данных базы знаний не видно (2.6s)
+  ✓  19 tests/ui/support-kb.spec.ts:69:1 › запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии (5.0s)
+  ✓  20 tests/ui/support-kb.spec.ts:93:1 › публикация отменяется: без «да» запись остаётся черновиком (3.3s)
+  ✓  21 tests/ui/support-kb.spec.ts:103:1 › создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик (3.8s)
+  ✓  22 tests/ui/support-kb.spec.ts:117:1 › «На основании» у диалога — для оператора; из закрытого обращения — черновик знания (4.7s)
+  ✓  23 tests/ui/support-kb.spec.ts:135:1 › у открытого обращения кнопки «Создать знание» нет (2.3s)
+  ✘  24 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 1440 (6.0s)
+  ✓  25 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 390 (5.5s)
+  ✓  26 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 1440 (6.1s)
+  ✓  27 tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, dark, 390 (6.0s)
+  ✓  28 tests/ui/support-queue.spec.ts:43:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт (3.5s)
+  ✓  29 tests/ui/support-queue.spec.ts:82:1 › переписка открывается рядом со списком; забрать, ответить, вернуть ИИ (6.0s)
+  ✓  30 tests/ui/support-queue.spec.ts:123:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения (3.9s)
+  ✓  31 tests/ui/support-queue.spec.ts:151:1 › помощник не отвечает — отдельно от «не подключён», с повтором (2.5s)
+  ✓  32 tests/ui/support-queue.spec.ts:161:1 › телефон: список на весь экран, переписка вместо него и «К списку» (3.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SupportScreen>
+[WebServer]                 <DialogsView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack supp...">
+[WebServer]                       <div>
+[WebServer]                       <nav>
+[WebServer]                       ...
+[WebServer]                         <DialogReplyForm id="8c3d4e5f-6..." reply={function supportReplyAction} label="Ответ поль...">
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Ответ поль...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Textarea name="text" rows={3} maxLength={4000} required={true} ...>
+[WebServer]                                   <textarea
+[WebServer]                                     className="inp"
+[WebServer]                                     name="text"
+[WebServer]                                     rows={3}
+[WebServer]                                     maxLength={4000}
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="dialog-reply-text"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]  
+  ✓  33 tests/ui/support-queue.spec.ts:189:1 › снимки для владельца: тёмная тема, компьютер и телефон (4.6s)
+
+
+  1) tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 1440 ───────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "document-title",
+    + ]
+
+      151 |       await page.getByRole('main').getByTestId('kb-catalog').getByRole('link').first().click();
+      152 |       await expect(page.getByTestId('kb-entry')).toBeVisible();
+    > 153 |       expect((await new AxeBuilder({ page }).analyze()).violations.map((v) => v.id)).toEqual([]);
+          |                                                                                      ^
+      154 |       await shot(page, `entry-${theme}-${width}`);
+      155 |     });
+      156 |   }
+        at /home/user/wetop.ai/tests/ui/support-kb.spec.ts:153:86
+
+    Error Context: test-results/support-kb-каталог-и-запись-axe-и-снимок-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/support-kb-каталог-и-запись-axe-и-снимок-light-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/support-kb-каталог-и-запись-axe-и-снимок-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/support-kb.spec.ts:143:5 › каталог и запись: axe и снимок, light, 1440 ────────────────
+  32 passed (3.3m)
+
+# код выхода 1 · 3 мин 18 с

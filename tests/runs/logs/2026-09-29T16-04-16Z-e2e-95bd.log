@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 29.09.2026 21:04 Алматы · MacBook-Air-Urij.local
+# коммит 98a2da2 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.widget.config.ts'
+
+Running 3 tests using 1 worker
+
+(node:33789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return (6.1s)
+(node:33862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/ui/widget-design.spec.ts:28:1 › multiline, failure retains draft and attachment, no duplicate sends (1.2s)
+  ✓  3 tests/ui/widget-design.spec.ts:41:1 › themes and mobile layout (379ms)
+
+
+  1) tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Помощник WETOP', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Помощник WETOP', { exact: true }) with timeout 5000ms
+      - waiting for getByText('Помощник WETOP', { exact: true })
+
+
+      18 | });
+      19 | test('welcome, draft suggestions, close and focus return', async ({ page }) => {
+    > 20 |   await expect(page.getByText('Помощник WETOP', { exact: true })).toBeVisible();
+         |                                                                   ^
+      21 |   await page.getByRole('button', { name: 'Как создать бронь?' }).click();
+      22 |   await expect(page.getByRole('textbox', { name: 'Сообщение' })).toHaveValue('Как создать бронь?');
+      23 |   expect(sent).toHaveLength(0);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:20:67
+
+    Error Context: test-results/widget-design-welcome-draf-5e382-ions-close-and-focus-return/error-context.md
+
+  1 failed
+    tests/ui/widget-design.spec.ts:19:1 › welcome, draft suggestions, close and focus return ───────
+  2 passed (13.1s)
+
+# код выхода 1 · 15 с

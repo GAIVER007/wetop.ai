@@ -211,6 +211,9 @@ class Settings(BaseSettings):
     # Прогрев на старте выключают только тесты.
     kb_embed_warmup: bool = True
     kb_top_k: int = 5
+    # S3: уровни уверенности поиска по знаниям WETOP Support; откалибровать на eval-наборе (S10)
+    support_kb_high: float = 0.85
+    support_kb_medium: float = 0.78
 
     # ─── Внешняя система ───
     # Режим выбирается настройкой, а не правкой кода: stub | wetop.

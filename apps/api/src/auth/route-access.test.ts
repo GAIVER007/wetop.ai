@@ -46,6 +46,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /assistant/identity': 'self',
   'GET /assistant/errors': 'service',
   'GET /assistant/organization': 'service',
+  'GET /assistant/requester': 'service',
   'GET /health': 'public',
 
   // ── работа с гостями ────────────────────────────────────────────────────────────────────
@@ -212,6 +213,14 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /platform/support/conversations/:id/close': 'platform',
   'GET /platform/support/knowledge': 'platform',
   'POST /platform/support/knowledge': 'platform',
+  'GET /platform/support/kb': 'platform',
+  'POST /platform/support/kb': 'platform',
+  'GET /platform/support/kb/:id': 'platform',
+  'PUT /platform/support/kb/:id': 'platform',
+  'POST /platform/support/kb/:id/publish': 'platform',
+  'POST /platform/support/kb/:id/status': 'platform',
+  'GET /platform/support/conversations/:id/knowledge': 'platform',
+  'POST /platform/support/conversations/:id/knowledge-draft': 'platform',
   'GET /platform/support/summary': 'platform',
   'GET /platform/support/prompt': 'platform',
   'PUT /platform/support/prompt': 'platform',

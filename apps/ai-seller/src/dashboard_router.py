@@ -30,6 +30,7 @@ from src.dashboard import (
     panel_whatsapp,
     panel_seller,
     panel_settings,
+    panel_support_kb,
 )
 from src.dashboard.auth_router import current_user
 from src.db.base import utcnow
@@ -49,6 +50,7 @@ panel_router.include_router(panel_extract.router)
 panel_router.include_router(panel_llm_key.router)
 panel_router.include_router(panel_whatsapp.router)
 panel_router.include_router(panel_orgs.router)
+panel_router.include_router(panel_support_kb.router)
 
 SANDBOX_CHANNEL = "sandbox"
 

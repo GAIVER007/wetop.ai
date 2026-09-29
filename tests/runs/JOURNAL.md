@@ -4294,3 +4294,9 @@
 | 29.09.2026 18:47 | lint | ✅ без ошибок | 19 с | b8c2794 +15 | [лог](logs/2026-09-29T13-47-22Z-lint-430f.log) |  |
 | 29.09.2026 18:47 | unit | ✅ 2363 из 2366, пропущено 3 | 1 мин 21 с | b8c2794 +14 | [лог](logs/2026-09-29T13-47-42Z-unit-7c12.log) |  |
 | 29.09.2026 18:49 | integration | ✅ 127 из 127 | 51 с | b8c2794 +14 | [лог](logs/2026-09-29T13-49-04Z-integration-9942.log) |  |
+| 29.09.2026 18:50 | unit (частично: apps/web/src/lib/rate-rule-text.test.ts) | ❌ код выхода 1 | 1 с | fb0dfbc +1 | [лог](logs/2026-09-29T13-50-48Z-unit-8088.log) | (файл не выполнился) |
+| 29.09.2026 18:50 | unit (частично: apps/web/src/lib/rate-rule-text.test.ts) | ✅ 4 из 4 | 1 с | fb0dfbc +2 | [лог](logs/2026-09-29T13-50-50Z-unit-29d3.log) |  |
+| 29.09.2026 18:51 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ❌ код выхода 1 | 1 с | fb0dfbc +3 | [лог](logs/2026-09-29T13-51-19Z-e2e-45af.log) | (ошибка вне тестов) |
+| 29.09.2026 18:51 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ❌ упало 4 из 5 | 7 мин 47 с | fb0dfbc +3 | [лог](logs/2026-09-29T13-51-28Z-e2e-48ca.log) | производный тариф: добавить, условия словами, ошибка у формы, правка процента |
+| 29.09.2026 19:01 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ❌ упало 4 из 5 | 50 с | fb0dfbc +12 | [лог](logs/2026-09-29T14-01-05Z-e2e-08b8.log) | производный тариф: добавить, условия словами, ошибка у формы, правка процента |
+| 29.09.2026 19:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ✅ 5 из 5 | 34 с | 2fbbc6f +3 | [лог](logs/2026-09-29T14-02-41Z-e2e-9e69.log) |  |

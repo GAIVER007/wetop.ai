@@ -49,15 +49,16 @@ test('гейт: светлая тема — полный экран, верх, �
   // строка поиска и фильтров: поиск, категория, тип места, статусы
   await page.locator('.board-toolbar').screenshot({ path: `${DIR}/toolbar.png` });
 
-  // плашка «Без ячейки»: одна строка; список — по щелчку (при овербукинге раскрыта сразу)
+  // брони без места: одна строка над сеткой (ТЗ §11); список — ящиком по «Разместить» (§12, PR 6)
   const strip = page.getByTestId('unassigned-stays');
   await expect(strip).toHaveAttribute('data-count', '1');
-  if ((await strip.getAttribute('open')) === null) {
-    await strip.screenshot({ path: `${DIR}/unassigned-collapsed.png` });
-    await strip.locator('summary').click();
-  }
-  await strip.screenshot({ path: `${DIR}/unassigned-open.png` });
-  await strip.locator('summary').click();
+  await strip.screenshot({ path: `${DIR}/unassigned-collapsed.png` });
+  await strip.getByRole('button', { name: 'Разместить', exact: true }).click();
+  const drawer = page.getByRole('dialog', { name: 'Брони без размещения' });
+  await expect(drawer.getByTestId('unassigned-card')).toHaveCount(1);
+  await page.screenshot({ caret: 'initial', path: `${DIR}/unassigned-open.png` });
+  await page.keyboard.press('Escape');
+  await expect(drawer).toBeHidden();
 
   // колонка сегодняшнего дня: спокойное выделение вместо сплошной синей полосы
   const today = await page.locator('th.is-today').boundingBox();
@@ -99,14 +100,13 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.emulateMedia({ colorScheme: 'light' });
 
-  // продано сверх мест: плашка «Без ячейки» — critical и раскрыта сразу, сверху плашка овербукинга
+  // продано сверх мест: строка броней без места — critical, сверху плашка овербукинга
   await request.post(`${fixture}/__test/reset`);
   await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
   await page.goto('/chessboard');
   await expect(page.getByTestId('overbooked-callout')).toBeVisible();
   const strip = page.getByTestId('unassigned-stays');
   await expect(strip).toHaveAttribute('data-tone', 'critical');
-  await expect(strip).toHaveAttribute('open', '');
   await page.screenshot({ caret: 'initial', path: `${DIR}/overbooking-critical.png` });
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.screenshot({ caret: 'initial', path: `${DIR}/overbooking-critical-dark.png` });

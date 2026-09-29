@@ -1,0 +1,45 @@
+# Сквозные (e2e) · 29.09.2026 01:06 Алматы · vm
+# коммит d0882e1 (claude/youthful-maxwell-t4fbbc), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/guests-design.spec.ts' '-g' 'G8'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/guests-design.spec.ts:487:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) (1.6s)
+
+
+  1) tests/ui/guests-design.spec.ts:487:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 4
+    Received:    54.5
+
+      497 |   const show = main.getByTestId('guests-filters').getByRole('button', { name: 'Показать' });
+      498 |   const [s, b] = [(await search.boundingBox())!, (await show.boundingBox())!];
+    > 499 |   expect(Math.abs(s.y + s.height / 2 - (b.y + b.height / 2))).toBeLessThanOrEqual(4);
+          |                                                               ^
+      500 |   const icon = (await main.locator('.guests-toolbar .search-field > svg').boundingBox())!;
+      501 |   expect(icon.y).toBeGreaterThanOrEqual(s.y);
+      502 |   expect(icon.y + icon.height).toBeLessThanOrEqual(s.y + s.height);
+        at /home/user/wetop.ai/tests/ui/guests-design.spec.ts:499:63
+
+    Error Context: test-results/guests-design-гости-плотна-9d678-зиты-словом-на-телефоне-G8-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-design-гости-плотна-9d678-зиты-словом-на-телефоне-G8-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-design-гости-плотна-9d678-зиты-словом-на-телефоне-G8-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/guests-design.spec.ts:487:1 › гости: плотная строка поиска и отборов, ошибка словами, визиты словом на телефоне (G8) 
+
+# код выхода 1 · 9 с

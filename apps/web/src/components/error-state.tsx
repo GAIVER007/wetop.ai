@@ -10,15 +10,19 @@ import { apiErrorStatus } from '../lib/api-error';
 export function ErrorState({
   error,
   retry,
+  title,
 }: {
   error: Error & { digest?: string };
   retry: () => void;
+  /** Что именно не загрузилось («Не удалось загрузить гостей», ТЗ «Гости v2» §43); без него — как было */
+  title?: string | undefined;
 }) {
   const status = apiErrorStatus(error.digest);
   const rejected = status !== undefined && status >= 400 && status < 500;
   return (
     <section className="empty-state" role="alert">
       <Icon name="channels" width={32} height={32} />
+      {title && <h3 className="empty-state__title">{title}</h3>}
       {rejected ? (
         <p>
           Сервер отклонил запрос (код {status}): проверьте адрес страницы и даты в нём. Повтор с

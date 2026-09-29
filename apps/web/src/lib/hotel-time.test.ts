@@ -32,7 +32,9 @@ const settings = (timezone: string) =>
 const NOW = new Date('2026-09-30T19:30:00Z');
 
 it('«сегодня» стойки — по поясу объекта из /hotel/settings, а не по UTC+5', async () => {
-  vi.useFakeTimers({ now: NOW, toFake: ['Date'] });
+  // таймер предела тоже поддельный: под нагрузкой ответ настроек мог прийти позже секунды настоящего времени,
+  // и тест проигрывал `TIMEZONE_WAIT_MS` (падал 28.09 в полном unit дважды); предел проверяет тест ниже
+  vi.useFakeTimers({ now: NOW, toFake: ['Date', 'setTimeout', 'clearTimeout'] });
   // новый ответ на каждый вызов: вне RSC `cache` не запоминает, и тело одного Response читается один раз
   vi.stubGlobal(
     'fetch',

@@ -1,0 +1,31 @@
+# Модульные (unit) · 29.09.2026 13:13 Алматы · vm
+# коммит 79af898 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T08-13-07Z-unit-83ac.json' 'apps/web/src/app/chessboard/board-filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/chessboard/board-filters.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/board-filters.test.ts [ apps/web/src/app/chessboard/board-filters.test.ts ]
+Error: Cannot find module './board-filters' imported from /home/user/wetop.ai/apps/web/src/app/chessboard/board-filters.test.ts
+ ❯ apps/web/src/app/chessboard/board-filters.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { ChessboardCell, ChessboardRow } from '../../lib/api';
+      3| import {
+       | ^
+      4|   NO_FILTERS,
+      5|   activeFilterCount,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  08:13:09
+   Duration  339ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-09-29T08-13-07Z-unit-83ac.json
+
+# код выхода 1 · 2 с

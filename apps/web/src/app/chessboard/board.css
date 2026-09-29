@@ -202,7 +202,7 @@
   color: var(--primary);
 }
 
-/* ── фильтры и поиск в одну строку ── */
+/* ── поиск, категория, места, «Фильтры», вид в одну строку (ТЗ v2 §8) ── */
 .board-toolbar {
   gap: var(--space-2) var(--space-4);
   padding: var(--space-2) var(--space-4);
@@ -212,23 +212,22 @@
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   flex: none;
 }
-.board-filter-fields {
-  display: contents;
-}
-.board-filter-toggle {
-  display: none;
-}
 .board-toolbar .field {
   margin: 0;
   min-width: 0;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .board-search {
-  flex: 1 1 200px;
+  flex: 1 1 220px;
 }
 .board-category {
   flex: 0 1 260px;
-  order: 1;
+}
+.board-state {
+  flex: 0 1 240px;
+}
+.board-view {
+  flex: 0 0 auto;
 }
 .board-search-label {
   display: none;
@@ -241,42 +240,179 @@
 }
 .board-toolbar .field > span {
   flex: none;
-}
-.board-toolbar .seg {
-  padding: var(--space-1);
-  background: var(--surface-muted);
-  border: 0;
-  border-radius: var(--radius-control);
-  display: inline-flex;
-  order: 2;
-}
-.board-toolbar .segment-button {
-  min-height: 30px;
+  color: var(--muted);
   font-size: var(--text-sm);
-  padding: var(--space-1) var(--space-2);
 }
-.board-toolbar .board-state-filters {
-  display: inline-flex;
-  gap: var(--space-1);
+.board-filters-open {
+  flex: none;
+  gap: var(--space-2);
+}
+/* число заданных условий на кнопке «Фильтры N» */
+.board-filters-count {
+  min-width: var(--space-6);
+  padding: 0 var(--space-1);
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 20px;
+  text-align: center;
+}
+/* вторая строка: условия чипами, «Показано N из M», «Сбросить» — только когда что-то отобрано */
+.board-toolbar-status {
+  display: flex;
+  flex: 1 1 100%;
   flex-wrap: wrap;
   align-items: center;
-  flex: 1 1 540px;
-  order: 3;
+  gap: var(--space-2);
+}
+/* без отбора строка не занимает места, но живая область счётчика остаётся для читалки */
+.board-toolbar-status[data-idle='true'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .board-toolbar .board-result {
-  order: 4;
+  margin-left: auto;
 }
-.board-toolbar > .btn--ghost {
-  order: 5;
+/* снятые условия: чип со словом и крестиком, щелчок убирает условие */
+.board-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
-.board-filter-date {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  margin-right: 8px;
+.board-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 28px;
+  padding: 0 var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
+  border-radius: 9999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
 }
-.board-toolbar .filter-chip {
-  min-height: 30px;
+.board-chip:hover {
+  border-color: var(--primary);
+}
+.board-chip:focus-visible {
+  outline: var(--focus-ring-w, 2px) solid var(--focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+.board-chip svg {
+  width: 14px;
+  height: 14px;
+}
+/* категория и места стоят в строке полями — чипы им нужны только на телефоне */
+.board-chip--narrow {
+  display: none;
+}
+/* ничего не найдено (§37): под строкой фильтров, на месте сетки */
+.board-empty {
+  flex: none;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: var(--glass-panel);
+}
+
+/* окошко «Фильтры» (§9): верхний слой, место считает board-filters-popover.tsx */
+.board-filters-pop {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(420px, calc(100vw - var(--space-4)));
+  max-height: calc(100dvh - var(--space-4));
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: var(--surface-solid, var(--surface));
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating);
+}
+.board-filters-pop:not(:popover-open) {
+  display: none;
+}
+.board-filters-pop:focus-visible {
+  outline: var(--focus-ring-w, 2px) solid var(--focus);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+.board-filters-pop__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border-soft);
+}
+.board-filters-pop__title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+.board-filters-pop__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  overflow-y: auto;
+}
+.board-filters-pop__group .chips {
+  margin: 0;
+}
+/* в окошке пункты — переключатели с рамкой: без неё невыбранный читается как простой текст */
+.board-filters-pop__group .chips button {
   padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border);
+}
+.board-filters-pop__group .chips button[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+.board-filters-pop__group .chips svg {
+  width: 14px;
+  height: 14px;
+}
+.board-filters-pop__label {
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+/* категория и места — в окошке только на телефоне, на широком экране они в строке */
+.board-filters-pop__narrow {
+  display: none;
+}
+.board-filters-pop__unassigned {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text);
+  font-weight: var(--weight-semibold);
+}
+.board-filters-pop__unassigned svg {
+  width: 16px;
+  height: 16px;
+  color: var(--warning);
+}
+.board-filters-pop__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--border-soft);
+}
+.board-filters-pop__preview {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
 }
 .board-wrap {
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
@@ -645,7 +781,7 @@
     gap: var(--space-2);
   }
   .board-toolbar .board-search {
-    flex: 1 1 140px;
+    flex: 1 1 100%;
   }
   .board--week {
     --board-caption-end: 8px;
@@ -669,33 +805,7 @@
   .board-footer .board-unassigned--empty {
     margin-left: 0;
   }
-  .board-filter-toggle {
-    display: inline-flex;
-  }
-  .board-toolbar .board-result {
-    margin-left: auto;
-  }
-  .board-filter-fields {
-    display: none;
-  }
-  .board-toolbar[data-filters-open='true'] .board-filter-fields {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    width: 100%;
-  }
-  .board-toolbar .board-filter-toggle {
-    order: 1;
-  }
-  .board-toolbar .board-result {
-    order: 2;
-  }
-  .board-toolbar .board-filter-fields {
-    order: 3;
-  }
-  .board-toolbar > .btn--ghost {
-    order: 4;
-  }
+
   .board--week .board-stay-nights,
   .board--week .board__free-word {
     display: none;
@@ -769,33 +879,47 @@
     width: var(--touch-target);
     height: var(--touch-target);
   }
-  .board-search,
-  .board-category {
+  /* телефон (§45): в строке поиск, «Фильтры», вид; категория и места — в окошке */
+  .board-search {
     flex: 1 1 100%;
   }
-  .board-toolbar .field > span {
-    width: 76px;
+  .board-toolbar .board-category,
+  .board-toolbar .board-state {
+    display: none;
   }
-  .board-toolbar .seg {
-    width: 100%;
+  .board-view > span {
+    display: none;
   }
-  .board-toolbar .segment-button {
-    flex: 1;
-    min-height: var(--touch-target);
-  }
-  .board-toolbar .board-state-filters {
-    width: 100%;
-    flex: 1 1 auto;
-    gap: 8px;
-    overflow: visible;
-  }
-  .board-filter-date {
-    width: 100%;
-  }
-  .board-toolbar .filter-chip,
+  .board-toolbar .inp,
+  .board-toolbar .btn,
+  .board-chip,
   .board-bar .board-help summary {
     min-height: var(--touch-target);
     min-width: var(--touch-target);
+  }
+  .board-chip--narrow {
+    display: inline-flex;
+  }
+  .board-filters-pop__narrow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .board-filters-pop .inp,
+  .board-filters-pop .btn,
+  .board-filters-pop .icon-button,
+  .board-filters-pop__group .chips button {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
+  .board-filters-pop__foot {
+    flex-wrap: wrap;
+  }
+  .board-filters-pop__preview {
+    flex-basis: 100%;
+  }
+  .board-filters-pop__foot .btn {
+    flex: 1;
   }
 }
 
@@ -1452,4 +1576,80 @@
   color: var(--success);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
+}
+
+/*
+ * §41: поиск и условия по броням. Совпавшая плашка обведена цветом акцента, неподходящие приглушены —
+ * они остаются на месте, чтобы не терять, что место занято. Нашлось само место (код или категория) —
+ * выделена его колонка.
+ */
+.board .board__stay[data-match='dim'] {
+  opacity: 0.35;
+}
+/* рамка — внутренними тенями по краям видимого отрезка: у каждой ночи своя ссылка, и обводка
+   каждой рисовала бы перегородки между ночами */
+.board .board__stay[data-match='hit'] {
+  box-shadow:
+    inset 0 2px 0 var(--primary),
+    inset 0 -2px 0 var(--primary);
+}
+.board .board__stay[data-match='hit'][data-plate-start] {
+  box-shadow:
+    inset 2px 0 0 var(--primary),
+    inset 0 2px 0 var(--primary),
+    inset 0 -2px 0 var(--primary);
+}
+.board .board__stay[data-match='hit'][data-plate-end] {
+  box-shadow:
+    inset -2px 0 0 var(--primary),
+    inset 0 2px 0 var(--primary),
+    inset 0 -2px 0 var(--primary);
+}
+.board .board__stay[data-match='hit'][data-plate-start][data-plate-end] {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+.board td.board__unit[data-match='hit'] {
+  background: var(--primary-soft);
+}
+
+/*
+ * §38: вид строк. «Обычный» — вид, принятый на гейтах PR 2–3, и правил не имеет. «Компактный» — строки
+ * ниже и только имя: больше мест на экране. «Подробный» — строки выше, и вторая строка плашки
+ * (источник, ночи, долг) не прячется на узких плашках.
+ */
+.board-wrap[data-density='compact'] .board td.board__cell,
+.board-wrap[data-density='compact'] .board td.board__unit {
+  height: 32px;
+}
+.board-wrap[data-density='compact'] .board .board__stay,
+.board-wrap[data-density='compact'] .board .board__free {
+  height: 26px;
+  line-height: 26px;
+}
+.board-wrap[data-density='compact'] .board-stay-caption .board-stay-line--meta {
+  display: none;
+}
+/* меню «⋯» — посередине плашки любой высоты */
+.board-wrap[data-density='compact'] .board-stay-menu {
+  top: 4px;
+}
+.board-wrap[data-density='detailed'] .board-stay-menu {
+  top: 16px;
+}
+.board-wrap[data-density='detailed'] .board td.board__cell,
+.board-wrap[data-density='detailed'] .board td.board__unit {
+  height: 56px;
+}
+.board-wrap[data-density='detailed'] .board .board__stay {
+  height: 48px;
+}
+@container stay-caption (width < 170px) {
+  .board-wrap[data-density='detailed'] .board-stay-line--meta .board-stay-nights {
+    display: inline;
+  }
+}
+@container stay-caption (width < 120px) {
+  .board-wrap[data-density='detailed'] .board-stay-caption .board-stay-line--meta {
+    display: flex;
+  }
 }

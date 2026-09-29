@@ -11,10 +11,11 @@ test('C1: сетка начинается до 350 px, фильтры объяс
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   const box = await page.locator('.board-wrap').boundingBox();
   expect(box!.y).toBeLessThanOrEqual(350);
-  await expect(page.getByText('Статус на 14 сент.', { exact: true })).toBeVisible();
+  // состояние мест считается на первую дату окна — подпись поля это говорит (PR 7 «Шахматки v2»)
+  await expect(page.getByText('Места на 14 сент.', { exact: true })).toBeVisible();
   await page.getByLabel('Поиск на шахматке').fill('Несуществующее место');
   await expect(page.getByTestId('unit-row')).toHaveCount(0);
-  await expect(page.getByText(/По вашему запросу ничего не найдено/)).toBeVisible();
+  await expect(page.getByTestId('board-empty')).toContainText('Ничего не найдено');
   await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
 });
@@ -25,11 +26,10 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     await page.goto('/chessboard');
     const main = page.getByRole('main');
     await expect(main.getByTestId('unit-row')).toHaveCount(88);
+    // PR 7 «Шахматки v2»: на телефоне категория и места — в окошке «Фильтры», в строке их нет
     const toggle = main.getByRole('button', { name: 'Фильтры', exact: true });
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await main.getByRole('button', { name: 'Даты', exact: true }).click();
     for (const control of [
       main.getByLabel('Шахматка: с', { exact: true }),
@@ -37,7 +37,8 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
       main.getByRole('button', { name: 'Применить', exact: true }),
       main.getByRole('link', { name: 'Предыдущая неделя', exact: true }),
       main.getByRole('link', { name: '7 дней', exact: true }),
-      main.getByRole('button', { name: 'Свободные', exact: true }),
+      toggle,
+      main.getByLabel('Вид строк шахматки'),
     ]) {
       await expect(control).toBeVisible();
       const box = await control.boundingBox();
@@ -46,10 +47,16 @@ test('C1: мобильные даты, виды и фильтры имеют ц�
     }
     await expect(page.locator('.board-range-form').getByText('С', { exact: true })).toBeVisible();
     await expect(page.locator('.board-range-form').getByText('По', { exact: true })).toBeVisible();
-    await main.getByLabel('Категория на шахматке').selectOption('ROOM');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const filters = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+    await filters.getByRole('combobox', { name: 'Категория', exact: true }).selectOption('ROOM');
+    await filters.getByRole('button', { name: 'Применить', exact: true }).click();
     await expect(main.getByTestId('unit-row')).toHaveCount(16);
-    await main.getByRole('button', { name: 'Фильтры · 1', exact: true }).click();
-    await expect(main.getByLabel('Категория на шахматке')).toBeHidden();
+    // заданная категория — чипом с крестиком: поля категории в строке на телефоне нет
+    const chip = main.getByRole('button', { name: /^Убрать условие: / });
+    await expect(chip).toBeVisible();
+    expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     await main.getByRole('button', { name: 'Сбросить', exact: true }).click();
     await expect(main.getByTestId('unit-row')).toHaveCount(88);
     await expect(main.getByRole('button', { name: 'Фильтры', exact: true })).toHaveAttribute(
@@ -103,7 +110,7 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
     await page.reload();
     await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', expectedFrom);
     // SSR dates arrive before hydration. Exercise a client filter before testing popstate.
-    await page.getByRole('button', { name: 'Номера', exact: true }).click();
+    await page.getByLabel('Категория на шахматке').selectOption('ROOM');
     await expect(page.getByTestId('unit-row')).toHaveCount(16);
     await page.goBack();
     await expect(page).toHaveURL(`/chessboard?from=${from}&to=${to}`);

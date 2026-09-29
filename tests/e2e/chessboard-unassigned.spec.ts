@@ -4,8 +4,9 @@ import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
 
 /**
- * Строка «Без ячейки» на шахматке — паритет со строкой «Без номера» в Legacy: проживание без назначения
- * не занимает клетку сетки, но стойка обязана видеть его на доске, а не только с карточки.
+ * Брони без ячейки на шахматке — паритет со строкой «Без номера» в Legacy: проживание без назначения
+ * не занимает клетку сетки, но стойка обязана видеть его на доске, а не только с карточки. С PR 6
+ * «Шахматки v2» это строка над сеткой и ящик «Брони без размещения» со свободными местами.
  * Путь через интерфейс: в форме новой брони ячейка «— назначить позже —». Проверяется то, что видит
  * стойка: блок над сеткой с числом, категорией, номером-ссылкой, датами и статусом; на сетке клетки
  * нет; доска, не задевающая ночи брони, её не показывает; после отмены бронь из блока исчезает.
@@ -54,24 +55,28 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await cardTab(page, 'Действия');
   await expect(page.getByText('ячейка не назначена').first()).toBeVisible();
 
-  // ── шахматка: блок над сеткой ─────────────────────────────────────────────────────────────
+  // ── шахматка: строка над сеткой и ящик «Брони без размещения» (ТЗ «Шахматка v2» §11–12) ──────
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
   const block = page.getByRole('main').getByTestId('unassigned-stays');
   await expect(block).toBeVisible();
   const count = Number(await block.getAttribute('data-count'));
   expect(count).toBeGreaterThanOrEqual(1);
-  await expect(block).toContainText(`Без ячейки: ${count}`);
-  // Плашка свёрнута в одну строку (ТЗ «Шахматка v2» §11) — список раскрывается по щелчку;
-  // при проданном сверх мест она раскрыта сразу, тогда щёлкать нечего
-  if ((await block.getAttribute('open')) === null) await block.locator('summary').click();
-  await expect(block).toContainText(categoryName);
-  const item = block.locator(`[data-testid="unassigned-stay"][data-number="${number}"]`);
+  await expect(block).toContainText('без назначенного места');
+  await block.getByRole('button', { name: 'Разместить', exact: true }).click();
+  const drawer = page.getByRole('dialog', { name: 'Брони без размещения' });
+  const item = drawer.getByTestId('unassigned-card').filter({ hasText: number });
   await expect(item).toHaveCount(1);
+  await expect(item).toContainText(categoryName);
+  await expect(item).toContainText('Тест-без-ячейки');
   // даты словами (§14), сырые — в datetime
   await expect(item.locator('time').nth(0)).toHaveAttribute('datetime', arrival);
   await expect(item.locator('time').nth(1)).toHaveAttribute('datetime', departure);
   await expect(item).toContainText('подтверждена');
-  await expect(item.getByRole('link', { name: number })).toHaveAttribute(
+  // места на весь срок брони грузятся у выбранной карточки — живым /availability
+  await expect(
+    item.getByRole('button', { name: /^Назначить / }).or(item.getByText('Нет доступных мест')),
+  ).toBeVisible();
+  await expect(item.getByRole('link', { name: 'Открыть бронь' })).toHaveAttribute(
     'href',
     `/reservations/${number}`,
   );
@@ -93,7 +98,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
   ).not.toContain(number);
 
   // ── ссылка ведёт на карточку ──────────────────────────────────────────────────────────────
-  await item.getByRole('link', { name: number }).click();
+  await item.getByRole('link', { name: 'Открыть бронь' }).click();
   await expect(page).toHaveURL(new RegExp(`/reservations/${number}$`));
   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
 
@@ -104,7 +109,15 @@ test('бронь без ячейки видна в блоке «Без ячей�
   await cardTab(page, 'Обзор');
   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText('отменена');
   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
-  await expect(
-    page.getByRole('main').getByTestId('unassigned-stays').locator(`[data-number="${number}"]`),
-  ).toHaveCount(0);
+  // отменённой брони в ящике нет (строки может не быть вовсе, если других броней без места нет)
+  const rest = page.getByRole('main').getByTestId('unassigned-stays');
+  if (await rest.count()) {
+    await rest.getByRole('button', { name: 'Разместить', exact: true }).click();
+    await expect(
+      page
+        .getByRole('dialog', { name: 'Брони без размещения' })
+        .getByTestId('unassigned-card')
+        .filter({ hasText: number }),
+    ).toHaveCount(0);
+  }
 });

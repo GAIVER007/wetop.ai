@@ -3969,6 +3969,15 @@
 | 29.09.2026 01:42 | lint | ✅ без ошибок | 14 с | 9e20bd4 +14 | [лог](logs/2026-09-28T20-42-24Z-lint-bc3e.log) |  |
 | 29.09.2026 01:43 | e2e | ✅ 25 из 25 | 54 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-43-08Z-e2e-239a.log) |  |
 | 29.09.2026 01:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/requests.spec.ts tests/ui/today-operations.spec.ts tests/ui/roles.spec.ts tests/ui/pl | ✅ 58 из 58 | 3 мин 3 с | 9e20bd4 +13 | [лог](logs/2026-09-28T20-44-10Z-e2e-7a09.log) |  |
+| 29.09.2026 01:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts) | ❌ упало 3 из 4 | 1 мин 2 с | fda1acf +1 | [лог](logs/2026-09-28T20-51-49Z-e2e-5457.log) | очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info |
+| 29.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts) | ✅ 4 из 4 | 14 с | fda1acf +6 | [лог](logs/2026-09-28T20-54-03Z-e2e-f5f1.log) |  |
+| 29.09.2026 01:54 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-desk.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/design-refresh.spec | ❌ упало 2 из 125 | 6 мин 31 с | fda1acf +6 | [лог](logs/2026-09-28T20-54-24Z-e2e-e97b.log) | главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам |
+| 29.09.2026 02:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-design.spec.ts tests/ui/workspace.spec.ts:606) | ✅ 4 из 4 | 14 с | fda1acf +8 | [лог](logs/2026-09-28T21-01-23Z-e2e-bd1f.log) |  |
+| 29.09.2026 02:04 | typecheck | ✅ без ошибок | 23 с | fda1acf +9 | [лог](logs/2026-09-28T21-04-40Z-typecheck-857a.log) |  |
+| 29.09.2026 02:05 | lint | ✅ без ошибок | 12 с | fda1acf +9 | [лог](logs/2026-09-28T21-05-04Z-lint-a49b.log) |  |
+| 29.09.2026 02:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ⏹ прерван | 10 мин 3 с | e93a871 | [лог](logs/2026-09-28T21-05-33Z-e2e-7189.log) |  |
+| 29.09.2026 02:18 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ код выхода 1 | 2 мин 8 с | aaeeb83 | [лог](logs/2026-09-28T21-18-09Z-e2e-188c.log) | (ошибка вне тестов) |
+| 29.09.2026 02:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 569 | 47 мин 1 с | aaeeb83 | [лог](logs/2026-09-28T21-20-37Z-e2e-9b2e.log) | ссылка с другой страницы открывает вкладку из адреса: гость → «Счета» брони |
 | 29.09.2026 01:51 | typecheck | ✅ без ошибок | 28 с | a9b06de +14 | [лог](logs/2026-09-28T20-51-24Z-typecheck-9e58.log) |  |
 | 29.09.2026 01:51 | lint | ✅ без ошибок | 15 с | a9b06de +14 | [лог](logs/2026-09-28T20-51-52Z-lint-b334.log) |  |
 | 29.09.2026 01:52 | unit | ✅ 2249 из 2252, пропущено 3 | 1 мин 12 с | a9b06de +13 | [лог](logs/2026-09-28T20-52-08Z-unit-2d80.log) |  |
@@ -4040,6 +4049,12 @@
 | 29.09.2026 02:17 | typecheck | ✅ без ошибок | 30 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-01Z-typecheck-3ed3.log) | record-tabs на main 5ff088c0 |
 | 29.09.2026 02:17 | lint | ✅ без ошибок | 16 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-32Z-lint-7011.log) | record-tabs на main 5ff088c0 |
 | 29.09.2026 02:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/record-tabs.spec.ts tests/ui/categories-safe-edit.spec.ts tests/ui/categories-create. | ✅ 6 из 6 | 41 с | 5ff088c +1 | [лог](logs/2026-09-28T21-17-48Z-e2e-00c2.log) | main 5ff088c0: record-tabs с «Финансами», категории C3–C4a |
+| 29.09.2026 03:08 | typecheck | ✅ без ошибок | 26 с | 0753281 | [лог](logs/2026-09-28T22-08-36Z-typecheck-ab9d.log) |  |
+| 29.09.2026 03:09 | lint | ✅ без ошибок | 18 с | 0753281 | [лог](logs/2026-09-28T22-09-02Z-lint-dd22.log) |  |
+| 29.09.2026 03:09 | unit | ✅ 2252 из 2255, пропущено 3 | 1 мин 38 с | 0753281 | [лог](logs/2026-09-28T22-09-24Z-unit-6f39.log) |  |
+| 29.09.2026 03:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-desk.spe | ✅ 150 из 150 | 9 мин 36 с | 0753281 | [лог](logs/2026-09-28T22-11-11Z-e2e-58e4.log) |  |
+| 29.09.2026 03:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts) | ✅ 8 из 8 | 29 с | 1d62e8a +1 | [лог](logs/2026-09-28T22-21-38Z-e2e-c711.log) |  |
+| 29.09.2026 03:23 | e2e | ✅ 25 из 25 | 1 мин 2 с | 7c1131a | [лог](logs/2026-09-28T22-23-17Z-e2e-69ed.log) |  |
 | 29.09.2026 02:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-occupancy.spec.ts:72) | ❌ упало 1 из 1 | 1 мин 40 с | f1eca94 | [лог](logs/2026-09-28T21-26-25Z-e2e-3224.log) | RED: analytics-occupancy posts an empty block (dateTo = dateFrom); the fixture now answers 400 like the API |
 | 29.09.2026 02:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/analytics-occupancy.spec.ts) | ✅ 9 из 9 | 48 с | f1eca94 +1 | [лог](logs/2026-09-28T21-28-12Z-e2e-26cd.log) | GREEN: analytics-occupancy blocks tonight as today..tomorrow (dateTo exclusive, like the API) |
 | 29.09.2026 02:29 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 1 из 593 | 44 мин 46 с | b5bfb75 | [лог](logs/2026-09-28T21-29-20Z-e2e-dd64.log) | PR #101 merged with main 633cd78d: full UI suite |
@@ -4080,3 +4095,7 @@
 | 29.09.2026 12:43 | integration | ✅ 123 из 123 | 40 с | 85e1bcd +9 | [лог](logs/2026-09-29T07-43-21Z-integration-0930.log) |  |
 | 29.09.2026 12:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/ai-seller.spec.ts tests/ui/categories-create.spec.ts t | ✅ 251 из 251 | 20 мин 44 с | a671094 | [лог](logs/2026-09-29T07-44-31Z-e2e-cdc0.log) |  |
 | 29.09.2026 13:06 | e2e | ✅ 25 из 25 | 1 мин 4 с | bb0e747 | [лог](logs/2026-09-29T08-06-06Z-e2e-a080.log) |  |
+| 29.09.2026 12:24 | typecheck | ✅ без ошибок | 39 с | 360bc52 | [лог](logs/2026-09-29T07-24-49Z-typecheck-5aad.log) |  |
+| 29.09.2026 12:25 | lint | ✅ без ошибок | 19 с | 360bc52 | [лог](logs/2026-09-29T07-25-29Z-lint-e5fc.log) |  |
+| 29.09.2026 12:25 | unit | ✅ 2296 из 2299, пропущено 3 | 2 мин | 360bc52 | [лог](logs/2026-09-29T07-25-49Z-unit-d389.log) |  |
+| 29.09.2026 12:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/today-attention.spec.ts tests/ui/dashboard-design.spec.ts tests/ui/dashboard-desk.spe | ✅ 125 из 125 | 7 мин 4 с | 360bc52 | [лог](logs/2026-09-29T07-27-55Z-e2e-482a.log) |  |

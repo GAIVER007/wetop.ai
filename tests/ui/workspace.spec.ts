@@ -611,12 +611,17 @@ test('обзор: задачи ведут к счетам, полоса стой
   await page.goto('/today');
   const tasks = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
-  // долг уезжающего плюс «не заехал вовремя»: подтверждён, заезд был раньше, ни в одном списке дня его нет
-  await expect(tasks.locator('.attention-count')).toHaveText('2');
-  await expect(tasks.getByRole('link', { name: /К оплате/ })).toHaveAttribute(
-    'href',
-    '/reservations/20260913-TEST4#booking-finance',
-  );
+  // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
+  const queueTotal = async () =>
+    String(
+      (await tasks.getByTestId('attention-event').evaluateAll((els) =>
+        els.map((el) => Number(el.getAttribute('data-count'))),
+      )).reduce((a, b) => a + b, 0),
+    );
+  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
+  const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
+  await expect(departureDebt).toContainText('К оплате');
+  await expect(departureDebt).toHaveAttribute('href', '/reservations/20260913-TEST4#booking-finance');
   const overdue = tasks.getByTestId('overdue-arrival');
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
@@ -630,7 +635,7 @@ test('обзор: задачи ведут к счетам, полоса стой
     .getByRole('link', { name: 'Сегодня' })
     .click();
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
-  await expect(tasks.locator('.attention-count')).toHaveText('2');
+  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
   await expect(
     page
       .getByRole('region', { name: 'Сегодня на стойке' })
@@ -642,7 +647,7 @@ test('обзор: задачи ведут к счетам, полоса стой
     await expect(page.getByRole('link', { name: 'Новая бронь', exact: true })).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await tasks.getByRole('link', { name: /К оплате/ }).click();
+  await departureDebt.click();
   await expect(page).toHaveURL(/#booking-finance$/);
   await expect(page.locator('#booking-finance')).toBeInViewport();
 });

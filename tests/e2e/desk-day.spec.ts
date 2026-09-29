@@ -42,6 +42,13 @@ test('главная открывается с корня; заезд на да�
   const day = plus(6);
   await page.goto(`/today?date=${day}`);
   const before = await card('c-arrivals');
+  // A3: брони без ячейки — одна строка очереди с числом; брони под ней — первые три
+  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
+  const unassigned = tasks.locator('[data-event="unassigned"]');
+  await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
+  const unassignedBefore = (await unassigned.count())
+    ? Number(await unassigned.getAttribute('data-count'))
+    : 0;
 
   await page.goto(`/reservations/new?arrival=${day}&departure=${plus(7)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
@@ -58,10 +65,13 @@ test('главная открывается с корня; заезд на да�
 
   await page.goto(`/today?date=${day}`);
   expect(await card('c-arrivals')).toBe(before + 1);
-  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
-  await expect(tasks).toContainText(number);
-  // бронь без ячейки — стойка должна видеть причину
-  await expect(tasks.getByRole('link', { name: new RegExp(number) })).toContainText('нет ячейки');
+  // бронь без ячейки — в очереди критичным, стойка видит причину
+  await expect(unassigned).toHaveAttribute('data-count', String(unassignedBefore + 1));
+  await expect(unassigned).toHaveAttribute('data-severity', 'critical');
+  if (unassignedBefore < 3)
+    await expect(unassigned.getByRole('link', { name: new RegExp(number) })).toContainText(
+      'нет ячейки',
+    );
   // полоса стойки — на выбранную дату; день стоит в полосе дня
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('На стойке');
   await expect(page.getByRole('main').getByLabel('День стойки: дата')).toHaveValue(day);

@@ -224,6 +224,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /platform/support/kb/:id/publish': 'platform',
   'POST /platform/support/kb/:id/status': 'platform',
   'GET /platform/support/conversations/:id/knowledge': 'platform',
+  'GET /platform/support/conversations/:id/actions': 'platform',
   'POST /platform/support/conversations/:id/knowledge-draft': 'platform',
   'GET /platform/support/summary': 'platform',
   'GET /platform/support/prompt': 'platform',

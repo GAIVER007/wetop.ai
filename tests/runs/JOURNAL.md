@@ -4439,3 +4439,5 @@
 | 29.09.2026 22:12 | lint | ✅ без ошибок | 21 с | 66923ec +40 | [лог](logs/2026-09-29T17-12-54Z-lint-9256.log) | S6: действия, кабинет |
 | 29.09.2026 22:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts --workers=1 -g Действия агента) | ❌ упало 1 из 1 | 36 с | 66923ec +39 | [лог](logs/2026-09-29T17-13-50Z-e2e-98cd.log) | S6 red: блока в странице нет |
 | 29.09.2026 22:14 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts tests/ui/platform-support.spec.ts tests/ui/support-queue.spec.ts --workers=1) | ✅ 28 из 28 | 2 мин 59 с | 66923ec +40 | [лог](logs/2026-09-29T17-14-26Z-e2e-7fcb.log) | S6 green: кабинет с журналом действий |
+| 29.09.2026 22:17 | unit | ❌ упало 2 из 2460, пропущено 3 | 1 мин 24 с | 8a72c95 | [лог](logs/2026-09-29T17-17-41Z-unit-ba28.log) | S6: полный unit |
+| 29.09.2026 22:19 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 4 с | be3e37a +1 | [лог](logs/2026-09-29T17-19-26Z-unit-aa73.log) | S6: проходной маршрут журнала действий в таблице прав |

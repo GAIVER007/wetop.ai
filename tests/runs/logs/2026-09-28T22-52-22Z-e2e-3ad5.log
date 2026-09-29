@@ -1,0 +1,20 @@
+# Сквозные (e2e) · 29.09.2026 03:52 Алматы · vm
+# коммит c60fe74 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-unassigned.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-unassigned.spec.ts:54:1 › две брони без места: строка над сеткой, ящик, места по выбранной брони, назначение (§64) (3.9s)
+  ✓  2 tests/ui/chessboard-unassigned.spec.ts:113:1 › нет мест в категории: другие категории и вопрос с разницей стоимости перед переездом (3.9s)
+  ✓  3 tests/ui/chessboard-unassigned.spec.ts:154:1 › «Разрешить» у «Продано сверх мест» и ссылка с Главной открывают ящик; тон critical (1.9s)
+  ✓  4 tests/ui/chessboard-unassigned.spec.ts:172:1 › «только чтение» (ADR-102): места видны, назначить нельзя, бронь открывается (3.1s)
+
+  4 passed (17.6s)
+
+# код выхода 0 · 19 с

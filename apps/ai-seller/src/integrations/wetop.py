@@ -37,7 +37,12 @@ logger = logging.getLogger(__name__)
 # Заголовок узкого ключа: платформа читает служебные ключи из
 # x-wetop-service-key (auth.guard.ts). Адреса помощника — в wetop_support.py.
 KEY_HEADER = "x-wetop-service-key"
-from src.integrations.wetop_support import PATH_ERRORS, PATH_GUARD_STATUS, PATH_ORGANIZATION  # noqa: E402,F401 — прежние имена импортируют тесты и панель
+from src.integrations.wetop_support import (  # noqa
+    PATH_ERRORS,
+    PATH_GUARD_STATUS,
+    PATH_ORGANIZATION,
+    PATH_REQUESTER_CONTEXT,
+)  # noqa: E402,F401 — прежние имена импортируют тесты и панель
 
 # Дверь котировки продавца (ADR-085, подробности в шапке файла) и бронь.
 PATH_AVAILABILITY = "/bot/availability"

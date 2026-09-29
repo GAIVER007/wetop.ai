@@ -21,6 +21,8 @@ PATH_ERRORS = "/assistant/errors"
 PATH_GUARD_STATUS = "/guard/status"
 # С5: карточка организации — второй адрес узкого ключа помощника.
 PATH_ORGANIZATION = "/assistant/organization"
+# S4: кто спрашивает — третий адрес узкого ключа помощника.
+PATH_REQUESTER_CONTEXT = "/assistant/requester-context"
 
 
 class WetopSupportMixin:
@@ -78,5 +80,23 @@ class WetopSupportMixin:
             raise
         name = pick(body, ("name",))
         if not isinstance(name, str) or not name.strip():
+            raise ProviderUnavailable("bad_body")
+        return body
+
+    async def requester_context(self, *, user_id: str, org_id: str) -> dict | None:
+        """Контекст обратившегося (S4): человек, роль, организация, бизнесы, подписка, права.
+        Спрашиваем только о подписанной паре: роль платформа берёт из членства в своей базе,
+        а не из запроса. 404 — None: такой пары нет, это не сбой платформы."""
+        try:
+            body = await self._request(
+                "GET",
+                PATH_REQUESTER_CONTEXT,
+                params={"userId": user_id, "organizationId": org_id},
+            )
+        except ProviderUnavailable as failure:
+            if str(failure) == "api_error_404":
+                return None
+            raise
+        if not isinstance(body.get("organization"), dict) or not isinstance(body.get("role"), dict):
             raise ProviderUnavailable("bad_body")
         return body

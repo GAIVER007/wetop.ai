@@ -9,6 +9,7 @@ import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AssistantController } from './assistant.controller';
 import { ExtensionsService } from '../platform/extensions.service';
+import { RequesterContextService } from './requester-context.service';
 import {
   USER_ERRORS_REPOSITORY,
   type UserErrorRecord,
@@ -56,6 +57,16 @@ const extensions = {
   organizationCard: async (id: string) => orgCards.get(id) ?? null,
 };
 
+/** Подставной контекст обратившегося (S4): вызовы запоминаем, чтобы видеть, что ушло на сервер */
+const contextCalls: Array<{ userId: string; organizationId: string }> = [];
+const contexts = new Map<string, unknown>();
+const requesterContext = {
+  context: async (userId: string, organizationId: string) => {
+    contextCalls.push({ userId, organizationId });
+    return contexts.get(`${userId}:${organizationId}`) ?? null;
+  },
+};
+
 beforeAll(async () => {
   const auth = {
     whoami: vi.fn(async (token: string) =>
@@ -70,6 +81,7 @@ beforeAll(async () => {
       { provide: AuthService, useValue: auth },
       { provide: USER_ERRORS_REPOSITORY, useValue: userErrors },
       { provide: ExtensionsService, useValue: extensions },
+      { provide: RequesterContextService, useValue: requesterContext },
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
   }).compile();
@@ -86,6 +98,8 @@ afterEach(() => {
   userErrors.queries = [];
   userErrors.rows = [];
   orgCards.clear();
+  contextCalls.length = 0;
+  contexts.clear();
 });
 
 function decode(token: string) {
@@ -366,5 +380,40 @@ describe('GET /assistant/organization — клиент и подписка дл�
     await ask(USER.organizationId, 'guard-key-456').expect(403);
     await ask('hotel-a', 'assistant-key-123').expect(400);
     await ask('9f8e7d6c-5b4a-4392-8171-000000000000', 'assistant-key-123').expect(404);
+  });
+});
+
+describe('GET /assistant/requester-context — кто спрашивает (S4)', () => {
+  const USER_ID = '0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11';
+  const ORG_ID = USER.organizationId;
+  const CONTEXT = { role: { code: 'STAFF' }, organization: { name: 'Гостиница А' } };
+  const ask = (query: Record<string, string>, key?: string) => {
+    let r = request(app.getHttpServer()).get('/assistant/requester-context').query(query);
+    if (key) r = r.set('x-wetop-service-key', key);
+    return r;
+  };
+
+  it('по узкому ключу помощника отдаёт контекст этой пары и ничего больше', async () => {
+    vi.stubEnv('ASSISTANT_READ_KEY', 'assistant-key-123');
+    contexts.set(`${USER_ID}:${ORG_ID}`, CONTEXT);
+    const res = await ask({ userId: USER_ID, organizationId: ORG_ID }, 'assistant-key-123').expect(200);
+    expect(res.body).toEqual(CONTEXT);
+    expect(contextCalls).toEqual([{ userId: USER_ID, organizationId: ORG_ID }]);
+  });
+
+  it('без ключа — 401; чужим узким ключом — 403; кривые id — 400; в сервис ничего не уходит', async () => {
+    vi.stubEnv('ASSISTANT_READ_KEY', 'assistant-key-123');
+    vi.stubEnv('GUARD_READ_KEY', 'guard-key-456');
+    const ids = { userId: USER_ID, organizationId: ORG_ID };
+    await ask(ids).expect(401);
+    await ask(ids, 'guard-key-456').expect(403);
+    await ask({ userId: 'me', organizationId: ORG_ID }, 'assistant-key-123').expect(400);
+    await ask({ userId: USER_ID }, 'assistant-key-123').expect(400);
+    expect(contextCalls).toEqual([]);
+  });
+
+  it('пара без членства — 404: чужой человек или чужая организация контекста не получают', async () => {
+    vi.stubEnv('ASSISTANT_READ_KEY', 'assistant-key-123');
+    await ask({ userId: USER_ID, organizationId: ORG_ID }, 'assistant-key-123').expect(404);
   });
 });

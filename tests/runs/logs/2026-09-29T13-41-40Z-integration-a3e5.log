@@ -1,0 +1,54 @@
+# Интеграционные (integration) · 29.09.2026 18:41 Алматы · vm
+# коммит 357ae02 (claude/s4-requester-context), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-41-40Z-integration-a3e5.json' 'tests/integration/requester-context.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/requester-context.test.ts (2 tests) 236ms
+   ❯ контекст обратившегося (integration) (2)
+     ✓ роль — из членства в базе; бизнес и филиал своей организации, чужих нет 31ms
+     ✓ пара без членства не отвечает: чужой человек в чужой организации и несуществующие id 6ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/requester-context.test.ts > контекст обратившегося (integration)
+PrismaClientValidationError: 
+Invalid `prisma.location.deleteMany()` invocation:
+
+{
+  where: {
+    business: {
+      organizationId: {
+        in: "d972b1a9-8f66-4e32-ac71-08287a56cab8"
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      }
+    }
+  }
+}
+
+Argument `in`: Invalid value provided. Expected String[] or ListStringFieldRefInput, provided String.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ deleteOrganizationChain tests/tools/property-owner.ts:24:3
+     22| /** Убрать цепочку Business → Location тестовых организаций — после уд…
+     23| export async function deleteOrganizationChain(db: Pick<Db, 'location' …
+     24|   await db.location.deleteMany({ where: { business: { organizationId: …
+       |   ^
+     25|   await db.business.deleteMany({ where: { organizationId: { in: organi…
+     26| }
+ ❯ tests/integration/requester-context.test.ts:62:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 passed (2)
+   Start at  13:41:40
+   Duration  2.69s (transform 61%, import 22%, tests 17%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-41-40Z-integration-a3e5.json
+
+# код выхода 1 · 4 с

@@ -204,6 +204,13 @@ class SubscriptionProvider(Protocol):
     async def organization_card(self, organization_id: str) -> dict | None: ...
 
 
+class RequesterContextProvider(Protocol):
+    """Контекст обратившегося (S4): человек, роль, организация, бизнесы, подписка, права.
+    None — платформа такой пары не знает."""
+
+    async def requester_context(self, *, user_id: str, org_id: str) -> dict | None: ...
+
+
 @dataclass
 class Providers:
     """Набор провайдеров для этого запуска. None — такой системы нет:
@@ -221,3 +228,5 @@ class Providers:
     health: PlatformHealthProvider | None = None
     # С5: подписка организации — только у помощника, ключом ASSISTANT_READ_KEY.
     subscriptions: SubscriptionProvider | None = None
+    # S4: кто спрашивает — тем же узким ключом.
+    requesters: RequesterContextProvider | None = None

@@ -23,6 +23,7 @@ from datetime import timedelta
 from typing import Any
 
 from src.ai.tools import ToolRegistry, ToolSpec
+from src.ai.support_context import register_context_tools
 from src.ai.support_subscription import register_subscription_tool
 from src.db.base import utcnow
 from src.integrations.failure_log import log_provider_failure
@@ -270,6 +271,14 @@ def build_registry(
         visitor_getter=visitor_getter,
         rules=_RULES,
         unknown=UNKNOWN,
+    )
+    register_context_tools(
+        registry,
+        providers_getter=providers_getter,
+        visitor_getter=visitor_getter,
+        rules=_RULES,
+        unknown=UNKNOWN,
+        not_signed=NOT_SIGNED,
     )
     registry.register(
         ToolSpec(

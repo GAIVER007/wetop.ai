@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 29.09.2026 18:41 Алматы · vm
+# коммит 357ae02 (claude/s4-requester-context), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-41-51Z-integration-46a0.json' 'tests/integration/requester-context.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/requester-context.test.ts (2 tests) 268ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  13:41:52
+   Duration  2.85s (transform 59%, import 23%, tests 17%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-41-51Z-integration-46a0.json
+
+# код выхода 0 · 4 с

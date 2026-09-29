@@ -84,11 +84,19 @@ test('новые фильтры шахматки, список броней и �
     .toISOString()
     .slice(0, 10);
   await page.goto(`/chessboard?from=${today}&to=${last}`);
-  await page.getByRole('button', { name: 'Номера', exact: true }).click();
+  // тип места — в окошке «Фильтры» (PR 7 «Шахматки v2»), состояние мест — полем в строке
+  const main = page.getByRole('main');
+  const filters = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+  const kind = async (name: string) => {
+    await main.getByRole('button', { name: /^Фильтры( \d+)?$/ }).click();
+    await filters.getByRole('button', { name, exact: true }).click();
+    await filters.getByRole('button', { name: 'Применить', exact: true }).click();
+  };
+  await kind('Номера');
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
-  await page.getByRole('button', { name: 'Койко-места', exact: true }).click();
+  await kind('Койки');
   await expect(page.getByTestId('unit-row')).toHaveCount(72);
-  await page.getByRole('button', { name: 'Свободные', exact: true }).click();
+  await main.getByLabel('Места на шахматке').selectOption('FREE');
   const count = await page.getByTestId('unit-row').count();
   expect(count).toBeGreaterThan(0);
   expect(count).toBeLessThan(72);

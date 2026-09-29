@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Suspense, use, useEffect, useState, type ReactNode } from 'react';
+import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from './icon';
 import { Sidebar, type PropertyIdentity } from './shell/sidebar';
 import { GlobalSearch } from './shell/search';
@@ -44,10 +44,28 @@ export function TopNav({
     }
     if (!/Mac|iPhone|iPad/.test(navigator.platform)) setSearchKey('Ctrl K');
   }, []);
+  // открыт ли общий поиск — для сочетания ниже, без пересоздания обработчика
+  const searchOpen = useRef(false);
+  useEffect(() => {
+    searchOpen.current = search;
+  }, [search]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && !path.includes('/print')) {
         e.preventDefault();
+        // У страницы свой поиск (шахматка, ТЗ «Шахматка v2» §40) — сочетание ставит курсор в него;
+        // курсор уже там — открывается общий поиск
+        const local = document.querySelector<HTMLInputElement>('[data-page-search]');
+        if (
+          !searchOpen.current &&
+          local &&
+          local.offsetParent !== null &&
+          document.activeElement !== local
+        ) {
+          local.focus();
+          local.select();
+          return;
+        }
         setSearch((s) => !s);
       }
       if (e.key === 'Escape') setProfile(false);

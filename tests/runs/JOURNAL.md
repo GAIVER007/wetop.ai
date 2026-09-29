@@ -4165,11 +4165,23 @@
 | 29.09.2026 12:36 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 20 с | db97edc | [лог](logs/2026-09-29T07-36-58Z-unit-5008.log) | PR #149 merged with main 44f401e0 (db97edc2) |
 | 29.09.2026 12:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-unassigned.spec.ts tests/ui/today-attention.spec.ts tests/ui/today-operati | ✅ 81 из 81 | 5 мин 7 с | db97edc | [лог](logs/2026-09-29T07-38-23Z-e2e-7a1f.log) | PR #149 merged with main 44f401e0 (db97edc2): PR6 + Главная A3 specs |
 | 29.09.2026 12:43 | e2e | ✅ 25 из 25 | 1 мин 2 с | db97edc | [лог](logs/2026-09-29T07-43-45Z-e2e-9e6e.log) | PR #149 merged with main 44f401e0 (db97edc2): live e2e on a fresh web build |
+| 29.09.2026 13:13 | unit (частично: apps/web/src/app/chessboard/board-filters.test.ts) | ❌ код выхода 1 | 2 с | 79af898 +1 | [лог](logs/2026-09-29T08-13-07Z-unit-83ac.log) | RED PR7: board-filters module missing |
+| 29.09.2026 13:15 | unit (частично: apps/web/src/app/chessboard/board-filters.test.ts) | ❌ упало 1 из 12 | 1 с | 79af898 +2 | [лог](logs/2026-09-29T08-15-23Z-unit-a158.log) | GREEN PR7: board-filters rules |
+| 29.09.2026 13:15 | unit (частично: apps/web/src/app/chessboard/board-filters.test.ts) | ✅ 12 из 12 | 1 с | 79af898 +2 | [лог](logs/2026-09-29T08-15-31Z-unit-2dc8.log) | GREEN PR7: board-filters rules |
+| 29.09.2026 13:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-filters.spec.ts) | ❌ упало 8 из 8 | 3 мин 49 с | 79af898 +4 | [лог](logs/2026-09-29T08-20-09Z-e2e-124c.log) | RED PR7: filters popover, search highlight, view, keyboard on old toolbar |
+| 29.09.2026 13:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-filters.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/premium.spec.ts  | ❌ упало 1 из 96 | 9 мин 16 с | 79af898 +14 | [лог](logs/2026-09-29T08-38-26Z-e2e-f14d.log) | GREEN PR7: filters popover, search highlight, view, keyboard + adapted toolbar specs |
+| 29.09.2026 13:48 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/housekeeping.spec.ts tests/ui/workspace.spec.ts -g Уборка\|уборк) | ✅ 8 из 8 | 32 с | 79af898 +15 | [лог](logs/2026-09-29T08-48-17Z-e2e-13e8.log) | GREEN PR7: housekeeping count moved into «Места» select |
 | 29.09.2026 13:09 | typecheck | ✅ без ошибок | 31 с | 44b6810 | [лог](logs/2026-09-29T08-09-35Z-typecheck-8b99.log) |  |
 | 29.09.2026 13:10 | lint | ✅ без ошибок | 17 с | 44b6810 | [лог](logs/2026-09-29T08-10-07Z-lint-c752.log) |  |
 | 29.09.2026 13:10 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 23 с | 44b6810 | [лог](logs/2026-09-29T08-10-25Z-unit-1247.log) | G8 на main 844ecb9c, перед вливанием |
 | 29.09.2026 13:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ✅ 103 из 103 | 11 мин 5 с | 44b6810 | [лог](logs/2026-09-29T08-12-19Z-e2e-0372.log) | Гости v2 перед вливанием: main 844ecb9c, чистый кэш .next-ui |
 | 29.09.2026 13:23 | integration | ✅ 123 из 123 | 39 с | 7ff33aa | [лог](logs/2026-09-29T08-23-34Z-integration-ea0c.log) | Гости v2 перед вливанием: main 844ecb9c |
+| 29.09.2026 13:49 | typecheck | ✅ без ошибок | 33 с | 2b6ae04 | [лог](logs/2026-09-29T08-49-30Z-typecheck-d3a6.log) | PR7 on main 95f5c0f3 |
+| 29.09.2026 13:50 | lint | ✅ без ошибок | 17 с | 2b6ae04 | [лог](logs/2026-09-29T08-50-04Z-lint-1e03.log) | PR7 on main 95f5c0f3 |
+| 29.09.2026 13:50 | unit | ✅ 2316 из 2319, пропущено 3 | 1 мин 25 с | 2b6ae04 | [лог](logs/2026-09-29T08-50-21Z-unit-72db.log) | PR7 on main 95f5c0f3 |
+| 29.09.2026 13:51 | integration | ✅ 123 из 123 | 40 с | 2b6ae04 | [лог](logs/2026-09-29T08-51-59Z-integration-51b3.log) | PR7 on main 95f5c0f3 |
+| 29.09.2026 13:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 622 из 622 | 50 мин 15 с | 2b6ae04 | [лог](logs/2026-09-29T08-52-44Z-e2e-ab5b.log) | PR7 full UI on main 95f5c0f3 |
+| 29.09.2026 14:44 | e2e | ✅ 25 из 25 | 1 мин | 8c090d2 | [лог](logs/2026-09-29T09-44-20Z-e2e-8ddf.log) | PR7 live e2e on fresh build, main 95f5c0f3 |
 | 29.09.2026 13:32 | typecheck | ✅ без ошибок | 43 с | d9dce04 | [лог](logs/2026-09-29T08-32-06Z-typecheck-19ae.log) |  |
 | 29.09.2026 13:32 | lint | ✅ без ошибок | 23 с | d9dce04 | [лог](logs/2026-09-29T08-32-49Z-lint-98af.log) |  |
 | 29.09.2026 13:33 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 36 с | d9dce04 | [лог](logs/2026-09-29T08-33-13Z-unit-44aa.log) |  |

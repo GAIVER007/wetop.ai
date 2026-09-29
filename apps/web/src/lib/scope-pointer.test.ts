@@ -28,4 +28,22 @@ describe('указатель выбора: кука → заголовок', () 
     expect(scopeHeader('%E0%A4%A')).toEqual({});
     expect(scopeHeader('x'.repeat(201))).toEqual({});
   });
+
+  it('только бизнес — тоже указатель', () => {
+    expect(scopeHeader(`business=${B}`)).toEqual({ 'x-wetop-scope': `business=${B}` });
+  });
+
+  it('значение, которое fetch не примет в заголовок (перевод строки, не Latin-1), не пересылается: иначе падает каждый запрос стойки', () => {
+    expect(scopeHeader(encodeURIComponent(`business=${B}\r\nx-evil: 1`))).toEqual({});
+    expect(scopeHeader(encodeURIComponent(`business=${B};location=а`))).toEqual({});
+    expect(scopeHeader('%D0%B0')).toEqual({});
+  });
+
+  it('не указатель — заголовка нет: чужой ключ, не UUID, повтор ключа, лишние части', () => {
+    expect(scopeHeader('business=не-uuid')).toEqual({});
+    expect(scopeHeader(`tenant=${B}`)).toEqual({});
+    expect(scopeHeader(`business=${B};business=${B}`)).toEqual({});
+    expect(scopeHeader(`location=${L}`)).toEqual({});
+    expect(scopeHeader(`business=${B};location=${L};x=1`)).toEqual({});
+  });
 });

@@ -3,6 +3,7 @@ import { INVITE_INVALID_MESSAGE } from '@pms/domain';
 import { authApi } from '../../../lib/api';
 import { clientInfo } from '../../../lib/session';
 import { displayDate } from '../../../lib/display-date';
+import { decodeInviteToken } from '../../../lib/invite-token';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { AcceptForm } from './accept-form';
@@ -14,11 +15,14 @@ import { AcceptForm } from './accept-form';
  */
 export default async function InvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const rawToken = decodeURIComponent(token);
-  const loaded = await authApi.inviteByToken(rawToken, await clientInfo()).then(
-    (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
-  );
+  // Битое %-кодирование в адресе — обычная мёртвая ссылка, а не 500
+  const rawToken = decodeInviteToken(token);
+  const loaded = rawToken
+    ? await authApi.inviteByToken(rawToken, await clientInfo()).then(
+        (r) => ({ ok: true as const, r }),
+        (e: unknown) => ({ ok: false as const, e }),
+      )
+    : { ok: true as const, r: null };
   const preview = loaded.ok ? loaded.r : null;
   return (
     <main className="login-page login-page--single" id="main-content">
@@ -43,7 +47,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
                   . После принятия вы сможете войти по паролю.
                 </span>
               </p>
-              <AcceptForm token={rawToken} />
+              <AcceptForm token={rawToken ?? ''} />
             </>
           ) : (
             <>

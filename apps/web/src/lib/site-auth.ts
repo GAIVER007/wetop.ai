@@ -1,5 +1,6 @@
 import { ApiError } from './api-error';
 import type { AuthClientInfo } from './api';
+import { readBoundedText } from './bounded-body';
 import { SESSION_COOKIE, cookieSecure } from './session-cookie';
 
 /**
@@ -96,8 +97,11 @@ export async function handleSiteAuth(request: Request, action: SiteAuthAction, e
     if (!type.toLowerCase().startsWith('application/json')) {
       return json({ message: 'Нужен JSON' }, 415, headers);
     }
+    // Окно входа шлёт несколько коротких полей: потолок до разбора, чтобы чужой запрос не ложился в память (SEC-4)
+    const read = await readBoundedText(request, 16_384);
+    if (!read.ok) return json({ message: 'Слишком большой запрос' }, 413, headers);
     try {
-      body = await request.json();
+      body = JSON.parse(read.text);
     } catch {
       return json({ message: 'Неверный запрос' }, 400, headers);
     }

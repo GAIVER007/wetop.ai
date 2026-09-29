@@ -1,0 +1,9 @@
+# Заголовки wetop.ai на Cloudflare Pages (аудит 29.09.2026, SEC-4). Файл читает Pages при выкладке apps/site/out.
+# Принудительно — запрет встраивания, nosniff, referrer. Полная политика CSP пока report-only: нарушения видны в консоли
+# браузера, страницы не ломаются. HSTS включается в Cloudflare на зоне, а не здесь.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: frame-ancestors 'none'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://assistant.wetop.ai; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://app.wetop.ai https://assistant.wetop.ai; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://app.wetop.ai; object-src 'none'

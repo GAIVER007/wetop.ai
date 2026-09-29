@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { securityHeaders } from './lib/security-headers';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from './lib/session-cookie';
 
 /**
@@ -18,6 +19,11 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-wetop-path', request.nextUrl.pathname);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
+  // Заголовки безопасности (аудит 29.09.2026, SEC-4): запрет фрейма, nosniff, referrer; полная CSP — report-only
+  for (const [name, value] of Object.entries(
+    securityHeaders({ assistantUrl: process.env.ASSISTANT_URL }),
+  ))
+    response.headers.set(name, value);
   if (token)
     response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,

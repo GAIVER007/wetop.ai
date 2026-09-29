@@ -13,30 +13,37 @@ export function Audience() {
   return (
     <section id="audience" className="section" aria-labelledby="audience-title">
       <div className="container">
-        <SectionHeading
-          id="audience-title"
-          eyebrow={audience.eyebrow}
-          title={audience.title}
-          lead={audience.lead}
-        />
-        <div className="vertical-live">
-          <p className="vertical-status vertical-status--live">
-            <span className="vertical-status__dot" aria-hidden="true" />
-            {audience.status}
-          </p>
-          <ChessboardMockup />
+        <div className="vertical-live__layout">
+          <div>
+            <SectionHeading
+              id="audience-title"
+              eyebrow="03 / Уже доступно"
+              title={audience.title}
+              lead={audience.lead}
+            />
+            <ul className="vertical-live__cases">
+              {audience.items.map((item) => (
+                <li key={item.title}>
+                  <span className="icon-tile">
+                    <Icon name={item.icon} />
+                  </span>
+                  <div>
+                    <h3>{typo(item.title)}</h3>
+                    <p>{typo(item.text)}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="vertical-live">
+            <p className="vertical-status vertical-status--live">
+              <span className="vertical-status__dot" aria-hidden="true" />
+              {audience.status}
+            </p>
+            <ChessboardMockup />
+            <p className="vertical-live__caption">Пример шахматки: номера и койки в одной сетке.</p>
+          </div>
         </div>
-        <ul className="card-grid card-grid--3">
-          {audience.items.map((item) => (
-            <li key={item.title} className="card audience-card glass">
-              <span className="icon-tile">
-                <Icon name={item.icon} />
-              </span>
-              <h3 className="card__title">{typo(item.title)}</h3>
-              <p className="card__text">{typo(item.text)}</p>
-            </li>
-          ))}
-        </ul>
         <div className="vertical-next card glass glass--quiet">
           <p className="vertical-status">
             <span className="vertical-status__dot" aria-hidden="true" />

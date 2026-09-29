@@ -1,0 +1,11 @@
+# Линтер (lint) · 29.09.2026 21:04 Алматы · vm
+# коммит 586e3de (claude/sec1a-rls-fail-closed), незакоммиченных файлов набора: 4
+# npx eslint .
+
+/home/user/wetop.ai/packages/database/src/rls-startup.ts
+  73:5  error  There is no `cause` attached to the symptom error being thrown  preserve-caught-error
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 22 с

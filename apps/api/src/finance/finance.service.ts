@@ -168,6 +168,8 @@ export interface ServiceView {
 }
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+/** Больше тысячи единиц одного ручного начисления — опечатка; выше потолка сумма упирается в переполнение базы */
+const MAX_CHARGE_QUANTITY = 1000;
 /** Предел периода сводки: год с запасом, как у отчёта по каналам — дальше это уже выгрузка, не экран */
 const MAX_PERIOD_DAYS = 366;
 const s = (x: bigint) => x.toString();
@@ -527,8 +529,9 @@ export class FinanceService {
       );
     const kind = dto.kind as ChargeKind;
     const quantity = dto.quantity === undefined ? 1 : Number(dto.quantity);
-    if (!Number.isInteger(quantity) || quantity < 1)
-      throw new BadRequestException('quantity — целое число от 1');
+    // потолок (аудит 29.09, SEC-4): без него огромное значение уходило в базу и давало переполнение и 500
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_CHARGE_QUANTITY)
+      throw new BadRequestException(`quantity — целое число от 1 до ${MAX_CHARGE_QUANTITY}`);
     const serviceDate = dto.serviceDate ?? (await this.repo.today());
     if (!ISO.test(serviceDate)) throw new BadRequestException('serviceDate — дата YYYY-MM-DD');
     const folio = await this.openFolio(folioId);

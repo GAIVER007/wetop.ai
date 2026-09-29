@@ -1,0 +1,66 @@
+# Модульные (unit) · 29.09.2026 13:15 Алматы · vm
+# коммит 79af898 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T08-15-23Z-unit-a158.json' 'apps/web/src/app/chessboard/board-filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests | 1 failed) 25ms
+   ✓ stayMatches — условия по броням (5)
+     ✓ без условий подходит любая бронь 2ms
+     ✓ «Заезд сегодня» — первая ночь сегодня; «Выезд сегодня» — последняя ночь вчера 1ms
+     ✓ «Проживают» — заселён; «С долгом» — остаток счёта больше нуля 0ms
+     ✓ внутри группы — «или», между группами — «и» 0ms
+     ✓ источник — канал, а без канала — вид источника 0ms
+   ✓ поиск (§10, §41) (2)
+     ✓ короткий или пустой запрос не ищет; цифры из телефона — от трёх 1ms
+     ✓ бронь находится по имени, номеру брони и телефону 1ms
+   ✓ filterRows — какие строки мест видны (3)
+     ✓ места: категория, тип, состояние на первую дату, уборка 1ms
+     ✓ брони: строка видна, если на ней есть подходящее проживание 1ms
+     ✓ поиск: по коду места, категории и гостю 1ms
+   ❯ варианты и счётчик окошка «Фильтры» (2)
+     × источники и статусы — только те, что есть на сетке, в постоянном порядке 12ms
+     ✓ на кнопке — число заданных условий (поиск не считается) 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/chessboard/board-filters.test.ts > варианты и счётчик окошка «Фильтры» > источники и статусы — только те, что есть на сетке, в постоянном порядке
+AssertionError: expected [ { key: 'TENTATIVE', …(1) }, …(2) ] to deeply equal [ { key: 'TENTATIVE', …(1) }, …(1) ]
+
+- Expected
++ Received
+
+@@ -2,9 +2,13 @@
+    {
+      "key": "TENTATIVE",
+      "label": "Не подтверждена",
+    },
+    {
++     "key": "CONFIRMED",
++     "label": "Подтверждена",
++   },
++   {
+      "key": "CHECKED_IN",
+      "label": "Заселён",
+    },
+  ]
+
+ ❯ apps/web/src/app/chessboard/board-filters.test.ts:155:33
+    153|       { key: 'PHONE', label: 'Телефон' },
+    154|     ]);
+    155|     expect(statusOptions(rows)).toEqual([
+       |                                 ^
+    156|       { key: 'TENTATIVE', label: 'Не подтверждена' },
+    157|       { key: 'CHECKED_IN', label: 'Заселён' },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  08:15:24
+   Duration  359ms (transform 67%, tests 18%, import 12%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-29T08-15-23Z-unit-a158.json
+
+# код выхода 1 · 1 с

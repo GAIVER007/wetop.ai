@@ -321,8 +321,11 @@ test('шахматка: подсказка закрывается щелчком
   const help = page.locator('details.board-help');
   await help.locator('summary').click();
   await expect(help).toHaveAttribute('open', '');
-  await page.getByRole('button', { name: 'Номера', exact: true }).click();
+  // щелчок по строке поиска под подсказкой закрывает её; «Сбросить» появляется, когда есть отбор
+  const search = page.getByRole('main').getByLabel('Поиск на шахматке');
+  await search.click();
   await expect(help).not.toHaveAttribute('open', '');
+  await search.fill('R0');
   const reset = page.getByRole('button', { name: 'Сбросить', exact: true });
   await expect(reset).toBeVisible();
   await reset.click({ timeout: 5000 });
@@ -1268,8 +1271,10 @@ test('шахматка: статус словом, канал бейджем, д
 test('шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту', async ({ page }) => {
   await page.goto('/chessboard');
   const all = await page.getByTestId('unit-row').count();
-  // чип уборки теперь со счётчиком: «Уборка 2» (21.09)
-  await page.getByRole('button', { name: /^Уборка \d+$/ }).click();
+  // уборка со счётчиком: «Уборка 2» (21.09); с PR 7 «Шахматки v2» — пункт поля «Места»
+  const places = page.getByRole('main').getByLabel('Места на шахматке');
+  await expect(places.locator('option[value="cleaning"]')).toHaveText(/^Уборка \d+$/);
+  await places.selectOption('cleaning');
   const dirty = await page.getByTestId('unit-row').count();
   expect(dirty).toBeGreaterThan(0);
   expect(dirty).toBeLessThan(all);

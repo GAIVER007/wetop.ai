@@ -170,10 +170,10 @@ test('номера и койки: свои категории, своя сред
   );
   await main.getByTestId('pa-open-chessboard').click();
   await expect(page).toHaveURL(new RegExp(`/chessboard\\?from=${today}&to=${today}&kind=BED$`));
-  await expect(page.getByRole('button', { name: 'Койко-места' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
+  // тип места с PR 7 «Шахматки v2» — в окошке «Фильтры»; заданный из адреса виден чипом
+  await expect(
+    page.getByRole('main').getByRole('button', { name: 'Убрать условие: Койки', exact: true }),
+  ).toBeVisible();
   // на шахматке остались только койки: номеров (R…) нет
   await expect(page.locator('[data-testid="unit-row"][data-unit-code^="R"]')).toHaveCount(0);
   await expect(page.locator('[data-testid="unit-row"][data-unit-code^="M"]').first()).toBeVisible();

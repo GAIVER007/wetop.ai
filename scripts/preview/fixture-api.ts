@@ -1367,6 +1367,8 @@ function board(from: string, to: string): Chessboard {
             itemId: it.id,
             confirmationNumber: r.confirmationNumber,
             guestLabel: r.primaryGuest?.label ?? 'Гость',
+            // телефон главного гостя — как у API (chessboard.repository): по нему ищет поиск шахматки
+            guestPhone: r.primaryGuest?.phone ?? null,
             itemStatus: it.status,
             isArrival: date === it.arrivalDate,
             isLastNight: date === add(it.departureDate, -1),

@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 13:15 Алматы · vm
+# коммит 79af898 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T08-15-31Z-unit-2dc8.json' 'apps/web/src/app/chessboard/board-filters.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/chessboard/board-filters.test.ts (12 tests) 21ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  08:15:32
+   Duration  431ms (transform 74%, tests 12%, import 11%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-29T08-15-31Z-unit-2dc8.json
+
+# код выхода 0 · 1 с

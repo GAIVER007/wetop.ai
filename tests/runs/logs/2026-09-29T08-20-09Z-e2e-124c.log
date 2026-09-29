@@ -1,0 +1,285 @@
+# Сквозные (e2e) · 29.09.2026 13:20 Алматы · vm
+# коммит 79af898 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-filters.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» (18.5s)
+  ✘  2 tests/ui/chessboard-filters.spec.ts:141:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места (45.3s)
+  ✘  3 tests/ui/chessboard-filters.spec.ts:171:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь (17.1s)
+  ✘  4 tests/ui/chessboard-filters.spec.ts:236:1 › §37: ничего не найдено — «Сбросить фильтры» (17.0s)
+  ✘  5 tests/ui/chessboard-filters.spec.ts:249:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится (1.8s)
+  ✘  6 tests/ui/chessboard-filters.spec.ts:271:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр (17.0s)
+  ✘  7 tests/ui/chessboard-filters.spec.ts:289:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px (45.3s)
+  ✘  8 tests/ui/chessboard-filters.spec.ts:316:1 › доступность: окошко «Фильтры» открыто (45.3s)
+
+
+  1) tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByLabel('Места на шахматке')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByLabel('Места на шахматке') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Места на шахматке')
+
+
+      69 |   await expect(main.getByLabel('Поиск на шахматке')).toBeVisible();
+      70 |   await expect(main.getByLabel('Категория на шахматке')).toBeVisible();
+    > 71 |   await expect(main.getByLabel('Места на шахматке')).toBeVisible();
+         |                                                      ^
+      72 |   await expect(main.getByLabel('Вид шахматки')).toBeVisible();
+      73 |   await expect(main.getByRole('button', { name: 'Номера', exact: true })).toHaveCount(0);
+      74 |   await expect(main.getByRole('button', { name: 'Свободные', exact: true })).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:71:54
+
+    Error Context: test-results/chessboard-filters-§8–9-ос-c28b2-«Применить»-чипы-«Сбросить»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§8–9-ос-c28b2-«Применить»-чипы-«Сбросить»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§8–9-ос-c28b2-«Применить»-чипы-«Сбросить»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-filters.spec.ts:141:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Фильтры', exact: true })
+
+
+      149 |   const open = main.getByRole('button', { name: 'Фильтры', exact: true });
+      150 |   const pop = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+    > 151 |   await open.click();
+          |              ^
+      152 |   await pop.getByRole('button', { name: 'Выезд сегодня', exact: true }).click();
+      153 |   await pop.getByRole('button', { name: 'Применить', exact: true }).click();
+      154 |   // TEST3 на R04: заселён, последняя ночь вчера
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:151:14
+
+    Error Context: test-results/chessboard-filters-§9-«Вые-3d670-и-ссылка-на-брони-без-места/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§9-«Вые-3d670-и-ссылка-на-брони-без-места/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§9-«Вые-3d670-и-ссылка-на-брони-без-места/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-filters.spec.ts:171:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('main').locator('[data-testid="stay-cell"][data-number="20260913-NEW1"]').first()
+    Expected: "hit"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').locator('[data-testid="stay-cell"][data-number="20260913-NEW1"]').first() with timeout 15000ms
+      - waiting for getByRole('main').locator('[data-testid="stay-cell"][data-number="20260913-NEW1"]').first()
+        34 × locator resolved to <a draggable="true" class="board__stay" data-unit-code="R02" data-date="2026-10-02" aria-haspopup="dialog" data-testid="stay-cell" data-number="20260913-NEW1" data-item-id="20260913-NEW1-0-0" href="/reservations/20260913-NEW1" aria-label="Поискова Динара · 20260913-NEW1 · подтверждена, ждём · 2026-10-02 → 2026-10-04 · 2 ночи">…</a>
+           - unexpected value "null"
+
+
+      192 |   await expect(
+      193 |     main.locator(`[data-testid="stay-cell"][data-number="${near}"]`).first(),
+    > 194 |   ).toHaveAttribute('data-match', 'hit');
+          |     ^
+      195 |   await expect(
+      196 |     main.locator('[data-testid="stay-cell"][data-number="20260913-TEST1"]').first(),
+      197 |   ).toHaveAttribute('data-match', 'dim');
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:194:5
+
+    Error Context: test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§10-§41-a3425-ивает-Enter-открывает-бронь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-filters.spec.ts:236:1 › §37: ничего не найдено — «Сбросить фильтры» ───────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('board-empty')
+    Expected substring: "Ничего не найдено"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('board-empty') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('board-empty')
+
+
+      240 |   await expect(rows(page)).toHaveCount(0);
+      241 |   const empty = main.getByTestId('board-empty');
+    > 242 |   await expect(empty).toContainText('Ничего не найдено');
+          |                       ^
+      243 |   await expect(empty).toContainText('Попробуйте изменить фильтры');
+      244 |   await empty.getByRole('button', { name: 'Сбросить фильтры', exact: true }).click();
+      245 |   await expect(rows(page)).toHaveCount(88);
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:242:23
+
+    Error Context: test-results/chessboard-filters-§37-нич-8c15b-айдено-—-«Сбросить-фильтры»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§37-нич-8c15b-айдено-—-«Сбросить-фильтры»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§37-нич-8c15b-айдено-—-«Сбросить-фильтры»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-filters.spec.ts:249:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('main').getByLabel('Вид шахматки')
+    Expected: "normal"
+    Error: Not an input element
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').getByLabel('Вид шахматки') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Вид шахматки')
+
+
+      253 |   const main = page.getByRole('main');
+      254 |   const view = main.getByLabel('Вид шахматки');
+    > 255 |   await expect(view).toHaveValue('normal');
+          |                      ^
+      256 |   const height = async () =>
+      257 |     (await main.locator('[data-testid="unit-row"][data-unit-code="R01"]').boundingBox())!.height;
+      258 |   const normal = await height();
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:255:22
+
+    Error Context: test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§38-вид-9567a-яет-высоту-строк-и-помнится/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-filters.spec.ts:271:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('main').getByLabel('Поиск на шахматке')
+    Expected: focused
+    Received: inactive
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('main').getByLabel('Поиск на шахматке') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Поиск на шахматке')
+        33 × locator resolved to <input value="" class="inp" aria-label="Поиск на шахматке" placeholder="Номер, койка, гость или бронь"/>
+           - unexpected value "inactive"
+
+
+      276 |   await expect(rows(page)).toHaveCount(88);
+      277 |   await page.keyboard.press('Control+k');
+    > 278 |   await expect(main.getByLabel('Поиск на шахматке')).toBeFocused();
+          |                                                      ^
+      279 |   await page.keyboard.press('Control+k');
+      280 |   await expect(page.getByRole('dialog', { name: 'Быстрый поиск' })).toBeVisible();
+      281 |   await page.keyboard.press('Escape');
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:278:54
+
+    Error Context: test-results/chessboard-filters-§40-Ctr-fe376-er-на-плашке-—-предпросмотр/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-§40-Ctr-fe376-er-на-плашке-—-предпросмотр/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-§40-Ctr-fe376-er-на-плашке-—-предпросмотр/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/chessboard-filters.spec.ts:289:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Фильтры шахматки' })
+
+
+      295 |   await main.getByRole('button', { name: 'Фильтры', exact: true }).click();
+      296 |   const pop = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+    > 297 |   const box = (await pop.boundingBox())!;
+          |                          ^
+      298 |   expect(box.x).toBeGreaterThanOrEqual(0);
+      299 |   expect(box.x + box.width).toBeLessThanOrEqual(390);
+      300 |   await pop.getByLabel('Категория', { exact: true }).selectOption('ROOM');
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:297:26
+
+    Error Context: test-results/chessboard-filters-телефон-53087--окошко-в-экране-цели-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-телефон-53087--окошко-в-экране-цели-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-телефон-53087--окошко-в-экране-цели-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/chessboard-filters.spec.ts:316:1 › доступность: окошко «Фильтры» открыто ─────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByRole('button', { name: 'Фильтры', exact: true })
+
+
+      316 | test('доступность: окошко «Фильтры» открыто', async ({ page }) => {
+      317 |   await page.goto(week(hotelToday()));
+    > 318 |   await page.getByRole('main').getByRole('button', { name: 'Фильтры', exact: true }).click();
+          |                                                                                      ^
+      319 |   await expect(page.getByRole('dialog', { name: 'Фильтры шахматки' })).toBeVisible();
+      320 |   const result = await new AxeBuilder({ page }).include('.board-filters-pop').analyze();
+      321 |   expect(result.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+        at /home/user/wetop.ai/tests/ui/chessboard-filters.spec.ts:318:86
+
+    Error Context: test-results/chessboard-filters-доступность-окошко-«Фильтры»-открыто/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-filters-доступность-окошко-«Фильтры»-открыто/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-filters-доступность-окошко-«Фильтры»-открыто/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/chessboard-filters.spec.ts:56:1 › §8–9: основная строка и окошко «Фильтры» — черновик, «Применить», чипы, «Сбросить» 
+    tests/ui/chessboard-filters.spec.ts:141:1 › §9: «Выезд сегодня», «С долгом» и ссылка на брони без места 
+    tests/ui/chessboard-filters.spec.ts:171:1 › §10, §41: поиск подсвечивает, приглушает, раскрывает категорию, прокручивает, Enter открывает бронь 
+    tests/ui/chessboard-filters.spec.ts:236:1 › §37: ничего не найдено — «Сбросить фильтры» ────────
+    tests/ui/chessboard-filters.spec.ts:249:1 › §38: вид «Компактный / Обычный / Подробный» меняет высоту строк и помнится 
+    tests/ui/chessboard-filters.spec.ts:271:1 › §40: Ctrl+K — поиск шахматки, второй раз — общий; Enter на плашке — предпросмотр 
+    tests/ui/chessboard-filters.spec.ts:289:1 › телефон: категория и места — в окошке, окошко в экране, цели 44 px 
+    tests/ui/chessboard-filters.spec.ts:316:1 › доступность: окошко «Фильтры» открыто ──────────────
+
+# код выхода 1 · 3 мин 49 с

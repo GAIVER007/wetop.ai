@@ -4192,3 +4192,4 @@
 | 29.09.2026 15:06 | typecheck | ✅ без ошибок | 34 с | 22557f7 +22 | [лог](logs/2026-09-29T10-06-03Z-typecheck-463b.log) | S1 support queue |
 | 29.09.2026 15:06 | unit | ❌ упало 1 из 2317, пропущено 3 | 1 мин 50 с | 22557f7 +20 | [лог](logs/2026-09-29T10-06-40Z-unit-9372.log) | S1 support queue |
 | 29.09.2026 15:08 | unit | ✅ 2314 из 2317, пропущено 3 | 1 мин 18 с | 22557f7 +21 | [лог](logs/2026-09-29T10-08-41Z-unit-cc11.log) | S1 support queue |
+| 29.09.2026 15:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 618 из 618 | 51 мин 8 с | 22557f7 +23 | [лог](logs/2026-09-29T10-10-05Z-e2e-d33c.log) | S1 support queue: full UI suite |

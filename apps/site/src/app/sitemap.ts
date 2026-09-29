@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     })),
+    { url: absoluteUrl('/calculator/'), changeFrequency: 'monthly' as const, priority: 0.6 },
     ...posts.map((post) => ({
       url: absoluteUrl(`/blog/${post.slug}/`),
       lastModified: post.date,

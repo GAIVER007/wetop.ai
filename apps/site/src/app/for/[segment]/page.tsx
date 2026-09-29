@@ -93,6 +93,9 @@ export default async function SegmentPage({ params }: Props) {
                 {t.nav.register}
                 <Icon name="arrowRight" size={18} />
               </a>
+              <Link className="link-arrow" href="/calculator/">
+                {t.calculator.link}
+              </Link>
               <Link className="link-arrow" href="/">
                 {t.segments.home}
               </Link>

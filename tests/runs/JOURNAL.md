@@ -4264,3 +4264,7 @@
 | 29.09.2026 17:32 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 26 из 26 | 23 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-01Z-e2e-0f64.log) |  |
 | 29.09.2026 17:32 | unit (частично: tests/unit/site-design.test.ts) | ❌ упало 4 из 6 | 1 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-25Z-unit-f80f.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
 | 29.09.2026 17:38 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 6 с | e6170d3 +1 | [лог](logs/2026-09-29T12-38-46Z-unit-f7ac.log) |  |
+| 29.09.2026 17:40 | unit (частично: tests/unit/site-calculator.test.ts) | ❌ код выхода 1 | 2 с | efff031 +1 | [лог](logs/2026-09-29T12-40-10Z-unit-8884.log) | (файл не выполнился) |
+| 29.09.2026 17:41 | unit (частично: tests/unit/site-calculator.test.ts tests/unit/site-design.test.ts) | ✅ 12 из 12 | 1 с | efff031 +10 | [лог](logs/2026-09-29T12-41-02Z-unit-11ac.log) |  |
+| 29.09.2026 17:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 30 из 30 | 49 с | efff031 +9 | [лог](logs/2026-09-29T12-41-06Z-e2e-5f98.log) |  |
+| 29.09.2026 17:42 | e2e (частично: --config tests/site/playwright.config.ts tests/site/calculator.spec.ts) | ❌ упало 2 из 2 | 1 мин 21 с | efff031 +8 | [лог](logs/2026-09-29T12-42-02Z-e2e-abc6.log) | калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год |

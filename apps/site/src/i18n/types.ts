@@ -119,6 +119,30 @@ export type Dictionary = {
     more: string;
     next: { status: string; title: string; text: string };
   };
+  /** Калькулятор «прямая бронь против OTA» (`/calculator/`, срез D3). */
+  calculator: {
+    metaTitle: string;
+    description: string;
+    title: string;
+    lead: string;
+    fields: {
+      nights: { label: string; hint: string };
+      adr: { label: string; hint: string };
+      commission: { label: string; hint: string };
+      shift: { label: string; hint: string };
+    };
+    errors: { whole: string; nights: string; adr: string; percent: string };
+    result: {
+      title: string;
+      commission: string;
+      savedMonth: string;
+      savedYear: string;
+      note: string;
+    };
+    empty: string;
+    ctaText: string;
+    link: string;
+  };
   /** Страницы по типам объектов (`/for/<slug>/`, срез D2 плана прямых продаж). */
   segments: {
     eyebrow: string;

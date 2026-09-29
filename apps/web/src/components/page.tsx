@@ -29,7 +29,7 @@ export function Page({
           <h1 className="page__title">{title}</h1>
           {subtitle && <div className="page__subtitle">{subtitle}</div>}
         </div>
-        {actions && <nav className="page__actions">{actions}</nav>}
+        {actions && <nav className="page__actions" aria-label="Действия страницы">{actions}</nav>}
       </header>
       {children}
     </main>

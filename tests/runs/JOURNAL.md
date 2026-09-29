@@ -4170,3 +4170,10 @@
 | 29.09.2026 13:10 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 23 с | 44b6810 | [лог](logs/2026-09-29T08-10-25Z-unit-1247.log) | G8 на main 844ecb9c, перед вливанием |
 | 29.09.2026 13:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts tests/ui/trial-read-only.spec.ts tests/ui/pii-storage.spec.ts t | ✅ 103 из 103 | 11 мин 5 с | 44b6810 | [лог](logs/2026-09-29T08-12-19Z-e2e-0372.log) | Гости v2 перед вливанием: main 844ecb9c, чистый кэш .next-ui |
 | 29.09.2026 13:23 | integration | ✅ 123 из 123 | 39 с | 7ff33aa | [лог](logs/2026-09-29T08-23-34Z-integration-ea0c.log) | Гости v2 перед вливанием: main 844ecb9c |
+| 29.09.2026 13:32 | typecheck | ✅ без ошибок | 43 с | d9dce04 | [лог](logs/2026-09-29T08-32-06Z-typecheck-19ae.log) |  |
+| 29.09.2026 13:32 | lint | ✅ без ошибок | 23 с | d9dce04 | [лог](logs/2026-09-29T08-32-49Z-lint-98af.log) |  |
+| 29.09.2026 13:33 | unit | ✅ 2304 из 2307, пропущено 3 | 1 мин 36 с | d9dce04 | [лог](logs/2026-09-29T08-33-13Z-unit-44aa.log) |  |
+| 29.09.2026 13:34 | integration | ✅ 123 из 123 | 42 с | d9dce04 | [лог](logs/2026-09-29T08-34-50Z-integration-146a.log) |  |
+| 29.09.2026 13:35 | e2e | ✅ 25 из 25 | 1 мин 3 с | d9dce04 | [лог](logs/2026-09-29T08-35-49Z-e2e-e2f4.log) |  |
+| 29.09.2026 13:36 | e2e | ✅ 26 из 26 | 1 мин 15 с | d9dce04 | [лог](logs/2026-09-29T08-36-52Z-e2e-ece4.log) |  |
+| 29.09.2026 13:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 612 из 612 | 53 мин 9 с | d9dce04 | [лог](logs/2026-09-29T08-38-08Z-e2e-f49e.log) |  |

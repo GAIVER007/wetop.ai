@@ -22,6 +22,9 @@ export function Hero() {
                 <span className="hero__status-dot" aria-hidden="true" />
                 {t.hero.status}
               </p>
+              <p className="hero__brand" aria-label="WETOP.AI">
+                WETOP<span>.AI</span>
+              </p>
               <h1 id="hero-title" className="hero__title">
                 {typo(t.hero.title)}{' '}
                 <span className="hero__accent">{typo(t.hero.titleAccent)}</span>

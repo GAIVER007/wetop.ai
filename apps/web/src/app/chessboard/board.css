@@ -34,7 +34,7 @@
 .board-bar .legend {
   margin: 0;
   gap: 10px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .board-bar .legend__swatch {
   width: 10px;
@@ -551,7 +551,7 @@
 }
 .board .board__free-count {
   margin-top: 3px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--success);
   font-variant-numeric: tabular-nums;
@@ -655,7 +655,7 @@
 
 /* колонка ячеек: номер крупнее, вид места — тише */
 .board-unit-link {
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
   gap: 6px;
 }
@@ -1062,7 +1062,7 @@
   margin: 0;
 }
 .unassigned-card__guest {
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: 600;
 }
 .unassigned-card__dates {
@@ -1070,7 +1070,7 @@
 }
 .unassigned-card__meta {
   color: var(--text-2);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .unassigned-card__free {
   display: grid;
@@ -1079,7 +1079,7 @@
 }
 .unassigned-card__label {
   color: var(--text-2);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .unassigned-card__problem {
   color: var(--warning);

@@ -94,6 +94,40 @@ $C up -d api && sleep 20
 - **Этап 2** — `ALTER ROLE wetop_app NOLOGIN` той же командой, что включала вход.
 - **Этап 1** — `down.sql` трёх миграций в обратном порядке (28 → 27 → 26), из копии базы — по `docs/ops/backups.md`.
 
+## SEC-1b, стадия A: отзыв прав на учётные данные (29.09.2026)
+
+ADR-124, план `plans/sec1b-credential-grants-2026-09-29.md`. Миграция `20260929000033_rls_credential_grants` отзывает у
+`wetop_app` доступ к `password_resets`, `email_verifications`, `wizard_*`, оставляет на `users` чтение колонок
+`id, email, name, status, email_verified_at`, на `platform_admins` — чтение `user_id, revoked_at`.
+
+**Порядок: сначала выкладка кода, потом миграция.** Код от прав не зависит; прежний код без миграции — тоже. Но прежний код
+после миграции сломал бы `/auth/me`.
+
+Перед миграцией на сервере: `AUTH_REQUIRED` не `0`; `DATABASE_APP_URL` задан. Затем по образцу этапа 1 (резервная копия,
+`mig status`, `mig deploy`, `mig status`, `--migrations-applied`).
+
+Проверка после миграции — в SQL-редакторе базы (пароли и адреса в ответе не появляются):
+
+```sql
+-- 1. Табличных прав у wetop_app на эти таблицы больше нет: ждём пустой ответ
+SELECT table_name, privilege_type
+FROM information_schema.role_table_grants
+WHERE grantee = 'wetop_app' AND table_schema = 'public'
+  AND table_name IN ('users', 'platform_admins', 'password_resets', 'email_verifications',
+                     'wizard_sessions', 'wizard_events', 'wizard_surveys');
+
+-- 2. Колонки, которые остались: users — email, email_verified_at, id, name, status; platform_admins — revoked_at, user_id
+SELECT table_name, column_name
+FROM information_schema.column_privileges
+WHERE grantee = 'wetop_app' AND table_schema = 'public' AND table_name IN ('users', 'platform_admins')
+ORDER BY 1, 2;
+```
+
+Руками: войти в стойку, открыть «Сотрудники» и «Журнал», сменить пароль и войти новым.
+
+**Откат:** `down.sql` этой миграции (`docs/ops/backups.md`, из копии базы) — `wetop_app` снова получает полный доступ. Код
+продолжает работать.
+
 ## Что с `wetop_service`
 
 Роль создана миграцией (с `BYPASSRLS`, если роль миграций может его раздать; иначе — без него, NOTICE в выводе

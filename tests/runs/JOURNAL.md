@@ -4413,10 +4413,26 @@
 | 29.09.2026 21:13 | typecheck | ✅ без ошибок | 35 с | 61bc328 | [лог](logs/2026-09-29T16-13-18Z-typecheck-5784.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | lint | ✅ без ошибок | 21 с | 61bc328 | [лог](logs/2026-09-29T16-14-02Z-lint-4ca6.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 27 с | 61bc328 | [лог](logs/2026-09-29T16-14-23Z-unit-f790.log) | SEC-4 после слияния main: полный unit |
+| 29.09.2026 21:19 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 26 с | 7ee096d +16 | [лог](logs/2026-09-29T16-19-52Z-unit-3072.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 29.09.2026 21:21 | unit | ✅ 2412 из 2415, пропущено 3 | 1 мин 21 с | 7ee096d +17 | [лог](logs/2026-09-29T16-21-29Z-unit-ae9d.log) |  |
+| 29.09.2026 21:22 | typecheck | ✅ без ошибок | 31 с | 7ee096d +17 | [лог](logs/2026-09-29T16-22-51Z-typecheck-9917.log) |  |
+| 29.09.2026 21:23 | lint | ✅ без ошибок | 18 с | 7ee096d +17 | [лог](logs/2026-09-29T16-23-23Z-lint-f3d5.log) |  |
+| 29.09.2026 21:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 5 из 661 | 55 мин 54 с | 4f7cb0e | [лог](logs/2026-09-29T16-23-57Z-e2e-7fb2.log) | 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку |
+| 29.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-desk.spec.ts tests/ui/design-system.spec.ts) | ✅ 19 из 19 | 1 мин 35 с | 4f7cb0e +1 | [лог](logs/2026-09-29T17-22-05Z-e2e-7084.log) |  |
+| 29.09.2026 22:23 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 24 с | 4f7cb0e +1 | [лог](logs/2026-09-29T17-23-41Z-e2e-ef67.log) |  |
 | 29.09.2026 21:18 | unit (частично: apps/web/src/lib/assistant-widget.test.ts apps/web/src/lib/security-headers.test.ts apps/api/src/security-headers.test.ts) | ✅ 21 из 21 | 5 с | 7ee096d | [лог](logs/2026-09-29T16-18-18Z-unit-73d0.log) | Post-merge chat and newly merged security header contracts |
 | 29.09.2026 21:16 | typecheck | ✅ без ошибок | 25 с | d9eb3bd | [лог](logs/2026-09-29T16-16-29Z-typecheck-b304.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | lint | ✅ без ошибок | 23 с | d9eb3bd | [лог](logs/2026-09-29T16-17-04Z-lint-78ae.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | unit | ❌ упало 1 из 2425, пропущено 3 | 1 мин 28 с | d9eb3bd | [лог](logs/2026-09-29T16-17-28Z-unit-904c.log) | SEC-1a после слияния main: полный unit |
+| 29.09.2026 21:30 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ❌ упало 7 из 8 | 2 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-30-30Z-integration-1cb5.log) | SEC-1b red: гранты wetop_app |
+| 29.09.2026 21:31 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 50 | 9 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-31-17Z-unit-ceed.log) | SEC-1b red: whoami и changePassword служебной ролью |
+| 29.09.2026 21:31 | unit (частично: apps/api/src/auth/auth.service.test.ts) | ❌ упало 2 из 50 | 9 с | fbc3e20 +1 | [лог](logs/2026-09-29T16-31-28Z-unit-5c9a.log) | SEC-1b red: whoami и changePassword служебной ролью |
+| 29.09.2026 21:32 | unit (частично: apps/api/src/auth apps/api/src/wizard) | ✅ 189 из 189 | 10 с | fbc3e20 +3 | [лог](logs/2026-09-29T16-32-06Z-unit-036c.log) | SEC-1b green: AuthService и seller-agents |
+| 29.09.2026 21:32 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ✅ 8 из 8 | 2 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-32-45Z-integration-77aa.log) | SEC-1b green: гранты wetop_app |
+| 29.09.2026 21:41 | typecheck | ✅ без ошибок | 26 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-41-15Z-typecheck-137e.log) | SEC-1b |
+| 29.09.2026 21:41 | lint | ✅ без ошибок | 26 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-41-52Z-lint-0ed0.log) | SEC-1b |
+| 29.09.2026 21:42 | integration | ✅ 138 из 138 | 46 с | fbc3e20 +6 | [лог](logs/2026-09-29T16-42-19Z-integration-8c8f.log) | SEC-1b: полный integration на свежей локальной базе |
+| 29.09.2026 21:43 | unit | ❌ упало 1 из 2429, пропущено 3 | 1 мин 27 с | fbc3e20 +5 | [лог](logs/2026-09-29T16-43-08Z-unit-1897.log) | SEC-1b: полный unit |
 | 29.09.2026 21:31 | e2e (частично: --config tests/site/playwright.config.ts --grep product tour\|FAQ and) | ❌ упало 2 из 2 | 2 мин 32 с | d373efe +2 | [лог](logs/2026-09-29T16-31-56Z-e2e-fc8b.log) | RED new homepage product tour, FAQ and persistent theme |
 | 29.09.2026 21:40 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 3 из 22 | 2 мин 51 с | d373efe +12 | [лог](logs/2026-09-29T16-40-38Z-e2e-f789.log) | GREEN public product story redesign and authentication regression |
 | 29.09.2026 21:44 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 22 из 22 | 31 с | d373efe +12 | [лог](logs/2026-09-29T16-44-02Z-e2e-d3c4.log) | Public site final: product tabs, FAQ, themes, mobile layout, authentication and accessibility |
@@ -4441,3 +4457,23 @@
 | 29.09.2026 22:14 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/support-kb.spec.ts tests/ui/platform-support.spec.ts tests/ui/support-queue.spec.ts --workers=1) | ✅ 28 из 28 | 2 мин 59 с | 66923ec +40 | [лог](logs/2026-09-29T17-14-26Z-e2e-7fcb.log) | S6 green: кабинет с журналом действий |
 | 29.09.2026 22:17 | unit | ❌ упало 2 из 2460, пропущено 3 | 1 мин 24 с | 8a72c95 | [лог](logs/2026-09-29T17-17-41Z-unit-ba28.log) | S6: полный unit |
 | 29.09.2026 22:19 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 4 с | be3e37a +1 | [лог](logs/2026-09-29T17-19-26Z-unit-aa73.log) | S6: проходной маршрут журнала действий в таблице прав |
+| 29.09.2026 22:00 | e2e (частично: --config tests/site/playwright.config.ts --grep full product) | ❌ упало 1 из 1 | 45 с | ee31215 +2 | [лог](logs/2026-09-29T17-00-16Z-e2e-b5ce.log) | RED restore detailed public homepage and WETOP heading |
+| 29.09.2026 22:03 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 32 с | ee31215 +9 | [лог](logs/2026-09-29T17-03-43Z-e2e-35fe.log) | Expanded homepage: restored WETOP heading, full module descriptions and seller onboarding |
+| 29.09.2026 21:45 | typecheck | ✅ без ошибок | 25 с | 9febe17 | [лог](logs/2026-09-29T16-45-08Z-typecheck-89dd.log) | SEC-1b после слияния main |
+| 29.09.2026 21:45 | lint | ✅ без ошибок | 21 с | 9febe17 | [лог](logs/2026-09-29T16-45-42Z-lint-a742.log) | SEC-1b после слияния main |
+| 29.09.2026 21:46 | unit | ❌ упало 1 из 2432, пропущено 3 | 1 мин 26 с | 9febe17 | [лог](logs/2026-09-29T16-46-04Z-unit-e4aa.log) | SEC-1b после слияния main: полный unit |
+| 29.09.2026 21:47 | integration | ✅ 139 из 139 | 47 с | 9febe17 | [лог](logs/2026-09-29T16-47-35Z-integration-3562.log) | SEC-1b после слияния main: integration |
+| 29.09.2026 21:52 | typecheck | ✅ без ошибок | 26 с | 8601505 | [лог](logs/2026-09-29T16-52-24Z-typecheck-02e1.log) | SEC-1b перед слиянием |
+| 29.09.2026 21:53 | lint | ✅ без ошибок | 21 с | 8601505 | [лог](logs/2026-09-29T16-53-03Z-lint-15be.log) | SEC-1b перед слиянием |
+| 29.09.2026 21:53 | unit | ❌ упало 1 из 2432, пропущено 3 | 1 мин 26 с | 8601505 | [лог](logs/2026-09-29T16-53-25Z-unit-fae0.log) | SEC-1b перед слиянием: полный unit |
+| 29.09.2026 21:57 | unit (частично: apps/api/src/channels/integration-property.test.ts apps/api/src/channels/integration-owner.test.ts apps/api/src/database/property-ref.test.ts) | ❌ упало 5 из 28 | 3 с | 60449d8 +3 | [лог](logs/2026-09-29T16-57-48Z-unit-d667.log) | SEC-2 red: объект интеграции по идентификатору |
+| 29.09.2026 21:58 | unit (частично: apps/api/src/channels apps/api/src/database apps/api/src/freshness apps/api/src/guard) | ❌ упало 2 из 233 | 8 с | 60449d8 +8 | [лог](logs/2026-09-29T16-58-32Z-unit-a511.log) | SEC-2 green: объект интеграции по идентификатору |
+| 29.09.2026 21:59 | unit (частично: apps/api/src/channels apps/api/src/database apps/api/src/freshness apps/api/src/guard) | ✅ 233 из 233 | 8 с | 60449d8 +10 | [лог](logs/2026-09-29T16-59-08Z-unit-2476.log) | SEC-2 green: объект интеграции по идентификатору |
+| 29.09.2026 22:00 | typecheck | ✅ без ошибок | 25 с | 60449d8 +10 | [лог](logs/2026-09-29T17-00-04Z-typecheck-b65a.log) | SEC-2 |
+| 29.09.2026 22:00 | lint | ✅ без ошибок | 22 с | 60449d8 +10 | [лог](logs/2026-09-29T17-00-41Z-lint-7952.log) | SEC-2 |
+| 29.09.2026 22:01 | unit | ❌ упало 1 из 2449, пропущено 3 | 1 мин 28 с | 60449d8 +10 | [лог](logs/2026-09-29T17-01-04Z-unit-1882.log) | SEC-2: полный unit |
+| 29.09.2026 22:02 | integration | ✅ 139 из 139 | 50 с | 60449d8 +10 | [лог](logs/2026-09-29T17-02-33Z-integration-7a94.log) | SEC-2: integration |
+| 29.09.2026 22:24 | unit | ✅ 2446 из 2449, пропущено 3 | 1 мин 26 с | 3397f85 | [лог](logs/2026-09-29T17-24-27Z-unit-9d6b.log) |  |
+| 29.09.2026 22:25 | typecheck | ✅ без ошибок | 23 с | 3397f85 | [лог](logs/2026-09-29T17-25-53Z-typecheck-abdc.log) |  |
+| 29.09.2026 22:26 | lint | ✅ без ошибок | 19 с | 3397f85 | [лог](logs/2026-09-29T17-26-17Z-lint-cfe4.log) |  |
+| 29.09.2026 22:26 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 27 с | 3397f85 +1 | [лог](logs/2026-09-29T17-26-55Z-e2e-7b48.log) |  |

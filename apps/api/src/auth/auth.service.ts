@@ -39,6 +39,7 @@ import { NEW_PROPERTY_DEFAULTS, createPropertyInChain } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { EmailVerificationService } from './email-verification.service';
 import { hashPasswordQueued, verifyPasswordQueued } from './attempt-limits';
+import { withServiceDatabase } from './request-context';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
 export interface SignedInUser {
@@ -62,6 +63,13 @@ export interface SignedInOrganization {
   name: string;
   status: string;
   trialEndsAt: string | null;
+}
+
+/** Ответ `whoami`: кто вошёл, в какой организации и до какого времени живёт сессия */
+interface WhoAmI {
+  user: SignedInUser;
+  organization: SignedInOrganization | null;
+  expiresAt: string;
 }
 
 export interface LoginResult {
@@ -398,15 +406,18 @@ export class AuthService {
     };
   }
 
-  /** Кто пришёл с этим токеном. Негодный токен — это `null`, а не исключение: решает вызывающий. */
-  async whoami(
-    token: string,
-    now = new Date(),
-  ): Promise<{
-    user: SignedInUser;
-    organization: SignedInOrganization | null;
-    expiresAt: string;
-  } | null> {
+  /**
+   * Кто пришёл с этим токеном. Негодный токен — это `null`, а не исключение: решает вызывающий.
+   *
+   * SEC-1b (аудит 29.09.2026): чтение идёт служебной ролью базы. Роль запросов организации `wetop_app` больше не читает
+   * `users` целиком (хеш пароля) и `platform_admins`; `/auth/me` зовут постоянно, и до этого правила он шёл под ней.
+   * Автор и организация запроса при этом сохраняются: журнал подписывается ими сам.
+   */
+  whoami(token: string, now = new Date()): Promise<WhoAmI | null> {
+    return withServiceDatabase(() => this.readWhoAmI(token, now));
+  }
+
+  private async readWhoAmI(token: string, now: Date): Promise<WhoAmI | null> {
     const found = await this.session(token, now);
     if (!found) return null;
     // Продление сессии при работе (§13.5, PR #29) касалось только входа по коду: смена по паролю
@@ -444,10 +455,20 @@ export class AuthService {
     await this.record(found.row.userId, 'user.logout', {});
   }
 
-  /** Смена пароля своей учётной записи: прочие сессии этого сотрудника гаснут. */
-  async changePassword(
+  /**
+   * Смена пароля своей учётной записи: прочие сессии этого сотрудника гаснут. Служебной ролью базы (SEC-1b): хеш
+   * пароля читает и пишет только она, `wetop_app` доступа к `users.password_hash` не имеет.
+   */
+  changePassword(
     input: { token: string; currentPassword: string; newPassword: string },
     now = new Date(),
+  ): Promise<void> {
+    return withServiceDatabase(() => this.updatePassword(input, now));
+  }
+
+  private async updatePassword(
+    input: { token: string; currentPassword: string; newPassword: string },
+    now: Date,
   ): Promise<void> {
     const found = await this.session(input.token, now);
     if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');

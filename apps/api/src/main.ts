@@ -14,6 +14,7 @@ import { config as loadEnv } from 'dotenv';
 import { NestFactory } from '@nestjs/core';
 import { assertRlsAtStartup } from '@pms/database';
 import { AppModule } from './app.module';
+import { integrationBindingNotice } from './channels/integration-property';
 import { listenHost, listenPort } from './listen-address';
 import { apiSecurityHeaders } from './security-headers';
 
@@ -27,7 +28,15 @@ try {
   process.exit(1);
 }
 
-const app =await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+// SEC-2: объект интеграции задаётся идентификатором; не задан — предупреждение, неверный — отказ старта
+const binding = integrationBindingNotice(process.env);
+if (binding?.level === 'error') {
+  console.error(`PMS API не запущен: ${binding.message}`);
+  process.exit(1);
+}
+if (binding) console.warn(binding.message);
+
+const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
 // Аудит 29.09.2026, SEC-4: версия Express наружу не нужна, ответам — nosniff
 app.getHttpAdapter().getInstance().disable('x-powered-by');
 app.use(apiSecurityHeaders);

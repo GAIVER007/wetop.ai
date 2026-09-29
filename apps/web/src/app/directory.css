@@ -9,7 +9,7 @@
 .dir-table td {
   padding: 9px 12px;
   vertical-align: middle;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .dir-table th {
   font-size: var(--text-xs);
@@ -38,7 +38,7 @@
   padding: 3px 0;
   color: var(--text);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--text-sm);
   white-space: nowrap;
 }
 .dir-guest strong {
@@ -344,7 +344,7 @@ a.dir-number:hover {
 }
 .booking-head dd {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -806,7 +806,7 @@ a.dir-number:hover {
   border-color: var(--success-soft);
 }
 .folio-form__title {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: 600;
 }
 .folio-form .row {

@@ -36,3 +36,7 @@ Premium restrained interface, consistent spacing and typography, balanced text/p
 Check actual product docs before publishing any capability, availability, trial or integration claim. Verify all anchors and CTA destinations; do not create real accounts or bookings for landing-page QA. Browser evidence at 390, 768 and 1440 widths, both themes, keyboard and reduced motion. Appropriate unit/UI tests, lint, typecheck and production build. Review diff; commit/push to main, deploy apps/site through its documented Cloudflare Pages workflow (separate from app.wetop.ai). Verify www and apex domains serve the expected release; never call repository push a deployment.
 
 Implementation note: connections and payment-control explanations are consolidated into the capability explorer to avoid adding another repetitive panel. FAQ appears before the final start CTA.
+
+## Owner correction, 29.09.2026
+
+The owner rejected the reduced information density and the “rhythm” headline. Restore “Центр управления сервисным бизнесом”, make WETOP.AI prominent, restore the three-screen showcase and the modules/connections section, and add always-visible detailed module descriptions plus a dedicated AI seller setup explanation. Keep tested tabs/themes/FAQ and responsive behavior. Publish this correction to main and both public domains after checking.

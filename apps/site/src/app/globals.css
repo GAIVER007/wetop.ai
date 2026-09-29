@@ -1289,6 +1289,10 @@ button {
   display: grid;
   gap: 16px;
 }
+/* Карточка сразу под сеткой (строка «Пока нет» на страницах по типам объектов) */
+.card-grid + .card {
+  margin-top: 16px;
+}
 @media (min-width: 40rem) {
   .card-grid--3,
   .card-grid--4 {

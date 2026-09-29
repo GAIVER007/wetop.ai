@@ -4257,3 +4257,9 @@
 | 29.09.2026 16:42 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 16 | 28 с | a44aa23 | [лог](logs/2026-09-29T11-42-30Z-e2e-a954.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:43 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 1 из 16 | 18 с | a44aa23 | [лог](logs/2026-09-29T11-43-36Z-e2e-d992.log) | / — открывается, доступна и без «TODO» на экране |
 | 29.09.2026 16:45 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 16 из 16 | 19 с | a44aa23 +1 | [лог](logs/2026-09-29T11-45-13Z-e2e-0d2b.log) |  |
+| 29.09.2026 17:27 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 25 из 26 | 32 с | f6f4369 | [лог](logs/2026-09-29T12-27-56Z-e2e-1552.log) | «Войти» открывает окно на главной, вход ведёт прямо в стойку |
+| 29.09.2026 17:28 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 8 из 26 | 1 мин 24 с | f6f4369 | [лог](logs/2026-09-29T12-28-33Z-e2e-0b35.log) | /for/hostels/ — открывается, доступна и без «TODO» на экране |
+| 29.09.2026 17:30 | unit (частично: tests/unit/site-design.test.ts) | ❌ упало 4 из 6 | 1 с | f6f4369 +5 | [лог](logs/2026-09-29T12-30-40Z-unit-eec7.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 17:30 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 26 из 26 | 25 с | f6f4369 +5 | [лог](logs/2026-09-29T12-30-42Z-e2e-d0cf.log) |  |
+| 29.09.2026 17:32 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 26 из 26 | 23 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-01Z-e2e-0f64.log) |  |
+| 29.09.2026 17:32 | unit (частично: tests/unit/site-design.test.ts) | ❌ упало 4 из 6 | 1 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-25Z-unit-f80f.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |

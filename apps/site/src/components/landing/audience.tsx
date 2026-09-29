@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getDictionary } from '../../i18n';
 import { ChessboardMockup } from '../chessboard-mockup';
 import { Icon } from '../icon';
@@ -34,6 +35,10 @@ export function Audience() {
               </span>
               <h3 className="card__title">{typo(item.title)}</h3>
               <p className="card__text">{typo(item.text)}</p>
+              <Link className="link-arrow" href={`/for/${item.segment}/`}>
+                {audience.more}
+                <Icon name="arrowRight" size={16} />
+              </Link>
             </li>
           ))}
         </ul>

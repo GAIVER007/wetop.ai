@@ -4,6 +4,8 @@ import type { IconName } from '../components/icon';
  * Все тексты сайта. Новый язык (казахский, английский) = новый файл рядом с ru.ts того же типа и строка
  * в src/i18n/index.ts; компоненты тексты не хранят.
  */
+export type SegmentSlug = 'hostels' | 'mini-hotels' | 'apart-hotels';
+
 export type Dictionary = {
   meta: {
     title: string;
@@ -112,8 +114,31 @@ export type Dictionary = {
     lead: string;
     /** Плашка у работающего направления. */
     status: string;
-    items: Array<{ icon: IconName; title: string; text: string }>;
+    items: Array<{ icon: IconName; title: string; text: string; segment: SegmentSlug }>;
+    /** Подпись ссылки карточки направления на страницу по типу объекта. */
+    more: string;
     next: { status: string; title: string; text: string };
+  };
+  /** Страницы по типам объектов (`/for/<slug>/`, срез D2 плана прямых продаж). */
+  segments: {
+    eyebrow: string;
+    featuresTitle: string;
+    limitsLabel: string;
+    ctaTitle: string;
+    ctaText: string;
+    home: string;
+    items: Record<
+      SegmentSlug,
+      {
+        title: string;
+        metaTitle: string;
+        description: string;
+        lead: string;
+        cards: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
+        /** Чего в системе пока нет: честная строка, а не скрытое ограничение. */
+        limits?: string;
+      }
+    >;
   };
   features: {
     eyebrow: string;

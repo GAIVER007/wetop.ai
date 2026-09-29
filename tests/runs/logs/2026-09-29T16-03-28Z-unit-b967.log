@@ -1,0 +1,30 @@
+# Модульные (unit) · 29.09.2026 21:03 Алматы · vm
+# коммит 586e3de (claude/sec1a-rls-fail-closed), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-03-28Z-unit-b967.json' 'packages/database/src/rls-startup.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/database/src/rls-startup.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/database/src/rls-startup.test.ts [ packages/database/src/rls-startup.test.ts ]
+Error: Cannot find module './rls-startup' imported from /home/user/wetop.ai/packages/database/src/rls-startup.test.ts
+ ❯ packages/database/src/rls-startup.test.ts:2:1
+      1| import { afterEach, describe, expect, it, vi } from 'vitest';
+      2| import { assertRlsAtStartup, rlsRoleProblem, type RlsProbe } from './r…
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  16:03:30
+   Duration  392ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-03-28Z-unit-b967.json
+
+# код выхода 1 · 2 с

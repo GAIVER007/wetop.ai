@@ -1,0 +1,38 @@
+# Сквозные (e2e) · 29.09.2026 16:42 Алматы · vm
+# коммит a44aa23 (integ-check), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '-g' 'сервисным бизнесом'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (10.3s)
+
+
+  1) tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее 
+
+    Error: expect(page).toHaveTitle(expected) failed
+
+    Expected pattern: /центр управления сервисным бизнесом/i
+    Received string:  "WETOP — система управления хостелом и мини-отелем"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toHaveTitle" with timeout 10000ms
+        23 × locator resolved to <html lang="ru" data-scroll-behavior="smooth" class="manrope_e43ac67-module__aAKcTW__variable ibm_plex_sans_6979dae1-module__07KeAq__variable ibm_plex_mono_ed86ef51-module__ntsEZG__variable">…</html>
+           - unexpected value "WETOP — система управления хостелом и мини-отелем"
+
+
+      153 |   await page.setViewportSize({ width: 1440, height: 1000 });
+      154 |   await page.goto('/');
+    > 155 |   await expect(page).toHaveTitle(/центр управления сервисным бизнесом/i);
+          |                      ^
+      156 |   const hero = page.locator('.hero');
+      157 |   await expect(hero.getByRole('heading', { level: 1 })).toContainText(
+      158 |     /Центр управления сервисным бизнесом/,
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:155:22
+
+    Error Context: test-results/landing-первый-экран-—-цен-652a8-работает-Beauty-—-следующее/error-context.md
+
+  1 failed
+    tests/site/landing.spec.ts:150:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее 
+
+# код выхода 1 · 18 с

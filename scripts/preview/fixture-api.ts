@@ -46,6 +46,7 @@ import {
   type MembershipRole,
   countGuestNights,
   summarizeGuestStays,
+  parseCancellationPenalty,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -212,6 +213,30 @@ const extraPlans: {
   cancellationPenalty: 'FIRST_NIGHT' | 'NONE';
 }[] = [];
 const ratePlanList = () => [...plans, ...(softPlan ? [softPlanSeed] : []), ...extraPlans];
+/** Правило отмены, изменённое на «Тарифных планах» (SET4): живёт до `reset` */
+const planPenalty = new Map<string, 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY'>();
+/** Строки «Тарифных планов» как у API: категории по названию и брони, которые задевает правка правила */
+function ratePlanRows() {
+  const cards = [card, ...extraCards.values()];
+  return ratePlanList().map((p) => ({
+    code: p.code,
+    name: p.name,
+    currency: p.currency,
+    active: p.active,
+    cancellationPenalty: planPenalty.get(p.code) ?? p.cancellationPenalty,
+    categories: categories
+      .filter((c) => (c.rateNames ?? [plans[0]!.name]).includes(p.name))
+      .map((c) => c.name),
+    upcomingReservations: cards.filter((r) =>
+      r.items.some(
+        (i) =>
+          i.ratePlanCode === p.code &&
+          (i.status === 'TENTATIVE' || i.status === 'CONFIRMED') &&
+          i.departureDate >= today,
+      ),
+    ).length,
+  }));
+}
 /** Выбор тарифа из тела запроса: undefined — не выбран, null — такого кода нет; новый тариф заводится */
 function fixturePlanChoice(body: Record<string, unknown>) {
   if (body.ratePlanCode) return ratePlanList().find((p) => p.code === body.ratePlanCode) ?? null;
@@ -1953,6 +1978,16 @@ const platformOrganizations = () => [
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
 const SUPPORT_DIALOG_A = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const SUPPORT_DIALOG_B = '7b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e';
+type SupportSeedUser = {
+  userId: string;
+  email: string;
+  organizationId: string;
+  organizationName: string;
+  role: 'owner' | 'staff' | null;
+};
+const SUPPORT_DIALOG_WAITING = '8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f';
+const SUPPORT_DIALOG_CLOSED = '9d4e5f6a-7b8c-4d9e-9f0a-2b3c4d5e6f7a';
+const SUPPORT_DIALOG_EMPTY = 'ad5e6f7a-8b9c-4e0f-8a1b-3c4d5e6f7a8b';
 const supportDialogSeed = () => [
   {
     id: SUPPORT_DIALOG_A,
@@ -1960,8 +1995,10 @@ const supportDialogSeed = () => [
     clientName: 'd***',
     mode: 'needs_human',
     stage: 'new',
+    startedAt: new Date(Date.now() - 20 * 60_000).toISOString(),
     lastActivityAt: new Date(Date.now() - 15 * 60_000).toISOString(),
     hasContact: false,
+    closed: false,
     // так API отдаёт подпись стойки из `lead_data.platform_user` вместе с названием организации
     platformUser: {
       userId: 'ui-user-staff',
@@ -1969,7 +2006,7 @@ const supportDialogSeed = () => [
       organizationId: 'ui-org',
       organizationName: 'Luxx Aparts',
       role: 'staff' as 'owner' | 'staff' | null,
-    },
+    } as SupportSeedUser | null,
     messages: [
       {
         role: 'user',
@@ -1991,9 +2028,11 @@ const supportDialogSeed = () => [
     clientName: '—',
     mode: 'bot_active',
     stage: 'new',
+    startedAt: new Date(Date.now() - 30 * 3600_000).toISOString(),
     lastActivityAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
     hasContact: false,
-    platformUser: null,
+    closed: false,
+    platformUser: null as SupportSeedUser | null,
     messages: [
       {
         role: 'user',
@@ -2009,6 +2048,85 @@ const supportDialogSeed = () => [
       },
     ],
   },
+  {
+    // оператор забрал диалог, пользователь написал ещё — ждёт оператора
+    id: SUPPORT_DIALOG_WAITING,
+    channel: 'widget',
+    clientName: 'a***',
+    mode: 'owner_takeover',
+    stage: 'new',
+    startedAt: new Date(Date.now() - 50 * 60_000).toISOString(),
+    lastActivityAt: new Date(Date.now() - 12 * 60_000).toISOString(),
+    hasContact: false,
+    closed: false,
+    platformUser: {
+      userId: 'ui-user-owner',
+      email: 'aigerim@example.invalid',
+      organizationId: 'ui-org-2',
+      organizationName: 'Хостел «Пример»',
+      role: 'owner',
+    } as SupportSeedUser | null,
+    messages: [
+      {
+        role: 'user',
+        text: 'Как поменять время заезда?',
+        at: new Date(Date.now() - 50 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'operator',
+        text: 'Настройки объекта → Проживание. Получилось?',
+        at: new Date(Date.now() - 40 * 60_000).toISOString(),
+        sentByUs: true,
+      },
+      {
+        role: 'user',
+        text: 'Поле не сохраняется, пишет «неверное время».',
+        at: new Date(Date.now() - 12 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+    ],
+  },
+  {
+    id: SUPPORT_DIALOG_CLOSED,
+    channel: 'widget',
+    clientName: 'm***',
+    mode: 'bot_active',
+    stage: 'new',
+    startedAt: new Date(Date.now() - 3 * 24 * 3600_000).toISOString(),
+    lastActivityAt: new Date(Date.now() - 3 * 24 * 3600_000).toISOString(),
+    hasContact: false,
+    closed: true,
+    platformUser: null as SupportSeedUser | null,
+    messages: [
+      {
+        role: 'user',
+        text: 'Где выгрузить счёт в PDF?',
+        at: new Date(Date.now() - 3 * 24 * 3600_000).toISOString(),
+        sentByUs: false,
+      },
+      {
+        role: 'assistant',
+        text: 'В карточке брони — «Счёт» → «Печать».',
+        at: new Date(Date.now() - 3 * 24 * 3600_000 + 60_000).toISOString(),
+        sentByUs: true,
+      },
+    ],
+  },
+  {
+    // виджет открыли и закрыли, ничего не написав: в очереди такого нет
+    id: SUPPORT_DIALOG_EMPTY,
+    channel: 'widget',
+    clientName: '—',
+    mode: 'bot_active',
+    stage: 'new',
+    startedAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+    lastActivityAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+    hasContact: false,
+    closed: false,
+    platformUser: null as SupportSeedUser | null,
+    messages: [] as Array<{ role: string; text: string; at: string; sentByUs: boolean }>,
+  },
 ];
 let supportDialogs = supportDialogSeed();
 const supportKnowledgeSeed = () => [
@@ -2016,7 +2134,7 @@ const supportKnowledgeSeed = () => [
 ];
 let supportKnowledge = supportKnowledgeSeed();
 /** Подключена ли панель помощника — `POST /__test/control { supportState: 'not-configured' }` */
-let supportState: 'ready' | 'not-configured' = 'ready';
+let supportState: 'ready' | 'not-configured' | 'unavailable' = 'ready';
 /** Правила и модель помощника (ADR-084): песочница отвечает по сохранённым правилам — так видно, что они дошли */
 const SUPPORT_PROMPT_SEED = 'Ты — ИИ-помощник WETOP. Отвечай на «вы», коротко и по делу.';
 let supportPrompt = SUPPORT_PROMPT_SEED;
@@ -2257,6 +2375,7 @@ function read(path: string, q: URLSearchParams): unknown {
   if (emptyFixture) {
     // календарь цен без справочника: экран показывает пустое состояние с причиной (D4)
     if (path === '/rates/options') return { categories: [], ratePlans: [] };
+    if (path === '/rates/plans') return [];
     if (path === '/finance/services') return [];
     if (path === '/hotel/services') return [];
     if (path === '/hotel/channel-report')
@@ -2538,6 +2657,36 @@ function read(path: string, q: URLSearchParams): unknown {
               perNightMinor: night.toString(),
               ratePlanCode: 'BASE',
             },
+          ];
+        }),
+      ),
+    };
+  }
+  // «Свободные места», AV4 (ADR-110): ближайшая доступность — тот же срок, сдвинутый вперёд, по /availability стенда
+  if (path === '/availability/nearest') {
+    const arrival = q.get('arrival') || today,
+      departure = q.get('departure') || add(arrival, 1),
+      guests = Number(q.get('guests') || '1'),
+      days = Number(q.get('days') || '14');
+    const windows = Array.from({ length: days + 1 }, (_, shift) => {
+      const [a, d] = [add(arrival, shift), add(departure, shift)];
+      const stay = read('/availability', new URLSearchParams({ arrival: a, departure: d })) as {
+        byCategory: Record<string, { available: number }>;
+      };
+      return { arrivalDate: a, departureDate: d, byCategory: stay.byCategory };
+    });
+    return {
+      arrivalDate: arrival,
+      departureDate: departure,
+      guests,
+      days,
+      byCategory: Object.fromEntries(
+        categories.map((c) => {
+          const need = c.code === 'ROOM' ? 1 : guests;
+          const hit = windows.find((w) => (w.byCategory[c.code]?.available ?? 0) >= need);
+          return [
+            c.code,
+            hit ? { arrivalDate: hit.arrivalDate, departureDate: hit.departureDate } : null,
           ];
         }),
       ),
@@ -2898,6 +3047,7 @@ function read(path: string, q: URLSearchParams): unknown {
     } satisfies UnitCard;
   }
   if (path === '/rates/options') return { categories, ratePlans: plans };
+  if (path === '/rates/plans') return ratePlanRows();
   if (path === '/rates')
     return {
       accommodationTypeCode: q.get('accommodationTypeCode'),
@@ -3553,6 +3703,7 @@ createServer(async (req, res) => {
       paymentLines = [];
       piiStorage = 'real';
       softPlan = false;
+      planPenalty.clear();
       resetSeller();
       // «сегодня» стенда: тест берёт дату отсюда, а не считает сам — долгий прогон переходит полночь Алматы
       return send(200, { today });
@@ -3658,7 +3809,10 @@ createServer(async (req, res) => {
         body['sellerTrial'] === true,
       );
       setOrgTrial(body['orgTrialDays']);
-      supportState = body['supportState'] === 'not-configured' ? 'not-configured' : 'ready';
+      supportState =
+        body['supportState'] === 'not-configured' || body['supportState'] === 'unavailable'
+          ? body['supportState']
+          : 'ready';
       // правил у помощника нет — файла промпта на томе ещё не завели (ADR-084)
       if (body['supportPromptEmpty'] === true) supportPrompt = '';
       return send(200, {});
@@ -4095,13 +4249,17 @@ createServer(async (req, res) => {
       }
       if (path.startsWith('/platform/support/')) {
         if (path === '/platform/support/status' && req.method === 'GET')
-          return send(200, { state: supportState });
+          // состояние API знает только настройку: недоступный помощник для него — «ready»
+          return send(200, { state: supportState === 'not-configured' ? 'not-configured' : 'ready' });
         if (supportState === 'not-configured')
           return send(503, {
             message: 'ИИ-помощник не подключён: у платформы нет адреса панели помощника и ключа',
           });
+        // адрес и ключ есть, а сам помощник не отвечает — так API пересказывает сбой связи (`panelHttpError`)
+        if (supportState === 'unavailable')
+          return send(503, { message: 'ИИ-помощник недоступен: нет ответа' });
         const dialog =
-          /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/.exec(path);
+          /^\/platform\/support\/conversations\/([^/]+)(?:\/(takeover|release|reply|close))?$/.exec(path);
         if (path === '/platform/support/conversations' && req.method === 'GET') {
           const mode = url.searchParams.get('mode');
           return send(200, {
@@ -4117,6 +4275,76 @@ createServer(async (req, res) => {
                 messages: d.messages.length,
                 hasContact: d.hasContact,
               })),
+          });
+        }
+        if (path === '/platform/support/queue' && req.method === 'GET') {
+          const queue = url.searchParams.get('queue') || 'open';
+          const QUEUES = ['open', 'new', 'waiting', 'needs_human', 'owner_takeover', 'bot_active', 'closed'];
+          if (!QUEUES.includes(queue)) return send(400, { message: `Очередь: ${QUEUES.join(', ')}` });
+          // как API: без пустых, приоритет и порядок, числа — по открытым (`apps/api/src/platform/support.queue.ts`)
+          const rows = supportDialogs
+            .filter((d) => d.messages.length > 0)
+            .map((d) => {
+              const lastAnswer = Math.max(
+                0,
+                ...d.messages.filter((m) => m.role !== 'user').map((m) => Date.parse(m.at)),
+              );
+              const unanswered = d.messages.filter(
+                (m) => m.role === 'user' && Date.parse(m.at) > lastAnswer,
+              );
+              const waitingSince = unanswered[0]?.at ?? null;
+              const last = d.messages[d.messages.length - 1]!;
+              return {
+                id: d.id,
+                channel: d.channel,
+                clientName: d.clientName,
+                mode: d.mode,
+                stage: d.stage,
+                startedAt: d.startedAt,
+                lastActivityAt: d.lastActivityAt,
+                messages: d.messages.length,
+                lastMessage: { role: last.role, text: last.text, at: last.at },
+                waitingSince,
+                closed: d.closed,
+                priority: d.closed
+                  ? 'normal'
+                  : d.mode === 'needs_human'
+                    ? 'urgent'
+                    : waitingSince
+                      ? 'waiting'
+                      : 'normal',
+              };
+            });
+          const open = rows.filter((r) => !r.closed);
+          const rank = { urgent: 0, waiting: 1, normal: 2 } as const;
+          const items = (queue === 'closed' ? rows.filter((r) => r.closed) : open)
+            .filter((r) =>
+              queue === 'new'
+                ? Date.now() - Date.parse(r.startedAt) <= DAY_MS
+                : queue === 'waiting'
+                  ? r.waitingSince !== null
+                  : ['needs_human', 'owner_takeover', 'bot_active'].includes(queue)
+                    ? r.mode === queue
+                    : true,
+            )
+            .sort(
+              (a, b) =>
+                rank[a.priority as keyof typeof rank] - rank[b.priority as keyof typeof rank] ||
+                Date.parse(a.waitingSince ?? a.lastActivityAt) -
+                  Date.parse(b.waitingSince ?? b.lastActivityAt),
+            );
+          return send(200, {
+            queue,
+            items,
+            counts: {
+              open: open.length,
+              new: open.filter((r) => Date.now() - Date.parse(r.startedAt) <= DAY_MS).length,
+              waiting: open.filter((r) => r.waitingSince !== null).length,
+              needs_human: open.filter((r) => r.mode === 'needs_human').length,
+              owner_takeover: open.filter((r) => r.mode === 'owner_takeover').length,
+              bot_active: open.filter((r) => r.mode === 'bot_active').length,
+              capped: false,
+            },
           });
         }
         if (dialog) {
@@ -4136,8 +4364,13 @@ createServer(async (req, res) => {
                 externalId: null,
               },
               messages: d.messages,
+              closed: d.closed,
               platformUser: d.platformUser,
             });
+          if (dialog[2] === 'close' && req.method === 'POST') {
+            d.closed = true;
+            return send(200, { closed: true });
+          }
           if (dialog[2] === 'reply' && req.method === 'POST') {
             const text = String(body['text'] ?? '').trim();
             if (!text) return send(400, { message: 'Ответ: пустое сообщение' });
@@ -4577,6 +4810,22 @@ createServer(async (req, res) => {
       };
       serviceCatalog.push(row);
       return send(201, row);
+    }
+    if (path.startsWith('/rates/plans/') && req.method === 'PATCH') {
+      // как API: право `rates` — владелец и управляющий (ADR-107); правило действует для всех броней тарифа (SET4)
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const code = decodeURIComponent(path.split('/')[3]!);
+      const extra = Object.keys(body).find((k) => k !== 'cancellationPenalty');
+      if (extra) return send(400, { message: `Неизвестное поле: ${extra}` });
+      const next = parseCancellationPenalty(body['cancellationPenalty']);
+      if (!next)
+        return send(400, {
+          message: 'Правило отмены: без штрафа, первая ночь или всё проживание',
+        });
+      if (!ratePlanList().some((p) => p.code === code))
+        return send(404, { message: 'Тариф не найден' });
+      planPenalty.set(code, next);
+      return send(200, ratePlanRows().find((p) => p.code === code));
     }
     if (path.startsWith('/hotel/services/') && req.method === 'PATCH') {
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });

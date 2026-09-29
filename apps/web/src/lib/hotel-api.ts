@@ -80,7 +80,6 @@ export const hotelApi = {
   // Shared only within one server render. New requests always read the current backend.
   settings: cache(() => getJsonPublic<HotelSettings>('/hotel/settings')),
   /** Есть ли в объекте хоть одна бронь — для «Первых шагов» на Главной (ТЗ ux-retention п. 2.1) */
-  firstSteps: () => getJsonPublic<{ hasReservations: boolean }>('/hotel/first-steps'),
   /** refresh — прочитать из Channex заново, минуя кэш API на 10 минут */
   content: (refresh = false) =>
     getJsonPublic<HotelContent>(`/channels/channex/content${refresh ? '?refresh=1' : ''}`),

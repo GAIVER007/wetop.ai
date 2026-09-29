@@ -20,10 +20,11 @@ export interface SupportConfig {
  * Профиля и фактов нет — они у продавца.
  */
 export interface SupportPort {
-  listConversations(query: { mode?: string; limit?: number }): Promise<unknown>;
+  listConversations(query: assistant.ConversationListQuery): Promise<unknown>;
   conversation(id: string): Promise<unknown>;
   takeover(id: string): Promise<unknown>;
   release(id: string): Promise<unknown>;
+  close(id: string): Promise<unknown>;
   reply(id: string, text: string): Promise<unknown>;
   knowledge(): Promise<unknown>;
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }): Promise<unknown>;

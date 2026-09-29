@@ -26,7 +26,7 @@ export class FakeSeller implements SellerPort {
     return this.replies[op] ?? { status: 'ok' };
   }
 
-  listConversations(query: { mode?: string; limit?: number }) {
+  listConversations(query: Record<string, unknown>) {
     return this.call('listConversations', query);
   }
   conversation(id: string) {
@@ -37,6 +37,9 @@ export class FakeSeller implements SellerPort {
   }
   release(id: string) {
     return this.call('release', id);
+  }
+  close(id: string) {
+    return this.call('close', id);
   }
   reply(id: string, text: string) {
     return this.call('reply', id, text);

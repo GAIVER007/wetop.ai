@@ -1,0 +1,27 @@
+# Модульные (unit) · 29.09.2026 12:30 Алматы · vm
+# коммит 85e1bcd (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T07-30-20Z-unit-9a75.json' 'packages/domain/src/finance/finance.test.ts' 'apps/api/src/rates/rate-plans.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/rates/rates.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/rates/rate-plans.test.ts (4 tests) 20ms
+ ✓ |unit| packages/domain/src/finance/finance.test.ts (19 tests) 22ms
+[Nest] 1782  - 09/29/2026, 7:30:23 AM   ERROR [ExceptionsHandler] Error: channel_outbox insert failed
+    at Proxy.fakes.publisher.ratesChanged (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:324:13)
+    at /home/user/wetop.ai/apps/api/src/rates/rates.service.ts:205:37
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Proxy.applyChanges (/home/user/wetop.ai/apps/api/src/rates/rates.controller.test.ts:58:26)
+    at RatesService.bulk (/home/user/wetop.ai/apps/api/src/rates/rates.service.ts:194:20)
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-execution-context.js:58:62
+    at file:///home/user/wetop.ai/node_modules/@nestjs/core/router/router-proxy.js:6:17
+ ✓ |unit| apps/api/src/rates/rates.controller.test.ts (10 tests) 230ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 49ms
+
+ Test Files  4 passed (4)
+      Tests  35 passed (35)
+   Start at  07:30:21
+   Duration  3.08s (transform 64%, import 31%, tests 5%)
+
+JSON report written to /tmp/pms-test-2026-09-29T07-30-20Z-unit-9a75.json
+
+# код выхода 0 · 4 с

@@ -4269,3 +4269,8 @@
 | 29.09.2026 17:41 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/lib) | ✅ 240 из 240 | 4 с | e8fdd39 +1 | [лог](logs/2026-09-29T12-41-12Z-unit-39a8.log) |  |
 | 29.09.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/roles.spec.ts) | ❌ упало 3 из 35 | 2 мин 9 с | e8fdd39 +3 | [лог](logs/2026-09-29T12-41-16Z-e2e-5348.log) | S0: правка после первого прогона |
 | 29.09.2026 17:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/roles.spec.ts tests/ui/navigati | ✅ 52 из 52 | 4 мин 2 с | e8fdd39 +3 | [лог](logs/2026-09-29T12-43-31Z-e2e-f3c5.log) | S0: в один поток (фикстура общая) |
+| 29.09.2026 18:06 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts) | ✅ 9 из 9 | 38 с | aafed6b +22 | [лог](logs/2026-09-29T13-06-10Z-e2e-2c0c.log) | S0: карточка уважает расширение |
+| 29.09.2026 18:07 | integration (частично: tests/integration/requester-context.test.ts) | ✅ 6 из 6 | 3 с | 56427c4 +12 | [лог](logs/2026-09-29T13-07-21Z-integration-244d.log) | S4: контекст обратившегося на базе |
+| 29.09.2026 18:07 | typecheck | ✅ без ошибок | 33 с | 56427c4 +21 | [лог](logs/2026-09-29T13-07-29Z-typecheck-2d09.log) |  |
+| 29.09.2026 18:08 | lint | ✅ без ошибок | 20 с | 56427c4 +21 | [лог](logs/2026-09-29T13-08-04Z-lint-2968.log) |  |
+| 29.09.2026 18:08 | unit | ❌ упало 4 из 2362, пропущено 3 | 1 мин 23 с | 56427c4 +20 | [лог](logs/2026-09-29T13-08-24Z-unit-3427.log) | S4: полный unit |

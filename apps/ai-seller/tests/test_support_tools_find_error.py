@@ -24,7 +24,7 @@ from tests.support_fakes import (
 )
 
 ADULTS = "adults — целое ≥ 1"
-TOOLS = ["find_error", "my_recent_errors", "my_subscription", "search_knowledge", "get_requester_context", "get_account_status", "get_permissions", "platform_status", "get_integration_health", "get_reservation_status", "get_workspace_health"]
+TOOLS = ["find_error", "my_recent_errors", "my_subscription", "search_knowledge", "get_requester_context", "get_account_status", "get_permissions", "platform_status", "get_integration_health", "get_reservation_status", "get_workspace_health", "list_capabilities", "propose_action", "confirm_action", "cancel_action", "request_human"]
 
 
 @pytest.fixture(autouse=True)

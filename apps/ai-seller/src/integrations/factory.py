@@ -86,6 +86,8 @@ def build_providers(
             requesters=wetop,
             # S5: диагностика — каналы и бронь по номеру.
             diagnostics=wetop,
+            # S6: действия — тот же клиент, ключ действий внутри него.
+            actions=wetop,
         )
 
     if mode != MODE_STUB:

@@ -57,6 +57,7 @@ import { supportReplyAction, supportSandboxAction, supportUploadAction } from '.
 import { SupportDialogActions } from '../dialog-actions';
 import { SupportModelForm, SupportPromptForm } from '../forms';
 import { KbSources, KbView } from '../kb-view';
+import { ActionsJournal } from '../actions-view';
 // «Проверка» и «Знания» — те же формы, что у «ИИ-продавца» (DESIGN.md §8)
 import '../../../ai-seller/ai-seller.css';
 import '../support.css';
@@ -482,6 +483,9 @@ function DialogCard({ card, back }: { card: SupportConversationCard; back: strin
       </ol>
       <Suspense fallback={null}>
         <KbSources conversationId={card.id} closed={closed} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ActionsJournal conversationId={card.id} />
       </Suspense>
       {closed ? (
         <Notice tone="muted" data-testid="support-dialog-closed">

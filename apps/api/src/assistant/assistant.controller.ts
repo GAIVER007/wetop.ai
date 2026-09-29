@@ -7,6 +7,9 @@ import {
   Header,
   Inject,
   NotFoundException,
+  Post,
+  HttpCode,
+  Body,
   Query,
   Req,
   ServiceUnavailableException,
@@ -21,6 +24,7 @@ import { USER_ERRORS_REPOSITORY, type UserErrorsRepository } from './user-errors
 import { Access } from '../auth/access.decorator';
 import { RequesterContextService } from './requester-context.service';
 import { DiagnosticsService } from './diagnostics.service';
+import { AssistantActionsService, type ActionRequest } from './actions.service';
 
 export const IDENTITY_SIGNED_IN_ONLY = 'Подпись помощника выдаётся только вошедшему';
 export const IDENTITY_NOT_CONFIGURED = 'Подпись помощника не настроена';
@@ -29,6 +33,7 @@ export const REQUESTER_KEY_REQUIRED = 'Контекст обратившегос
 export const ORGANIZATION_KEY_REQUIRED = 'Подписку организации читает только помощник по своему ключу';
 export const DIAGNOSTICS_KEY_REQUIRED = 'Диагностику читает только помощник по своему ключу';
 export const RESERVATION_NOT_FOUND = 'Брони с таким номером у организации нет';
+export const ACT_KEY_REQUIRED = 'Действия выполняет только помощник по своему ключу действий';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Номер брони, который назвал человек: буквы, цифры, дефис и подчёркивание — ни пробелов, ни подстановок в запрос
@@ -68,6 +73,7 @@ export class AssistantController {
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
     @Inject(RequesterContextService) private readonly requester: RequesterContextService,
     @Inject(DiagnosticsService) private readonly diagnostics: DiagnosticsService,
+    @Inject(AssistantActionsService) private readonly actions: AssistantActionsService,
   ) {}
 
   @Access('self')
@@ -236,5 +242,56 @@ export class AssistantController {
     const key = serviceKeyKind(request.headers);
     if (key === null && !request.user) throw new UnauthorizedException(message);
     if (key !== 'assistant-read' && key !== 'service') throw new ForbiddenException(message);
+  }
+
+  /**
+   * Действия помощника (S6): подтянуть ленту Channex (SAFE) и полная выгрузка (CONFIRM — «да» человек даёт боту,
+   * платформа этого не различает и одинаково проверяет членство, право, «только чтение», интеграцию, лимит и
+   * идемпотентность). Только ключ действий или служебный: ключ чтения на запись не пускается.
+   */
+  @Access('service')
+  @Post('actions/channel-pull')
+  @HttpCode(200)
+  channelPull(
+    @Req() request: { headers: Record<string, unknown>; user?: SignedInUser },
+    @Body() body: Record<string, unknown> | undefined,
+  ) {
+    this.actKeyOnly(request);
+    return this.actions.channelPull(this.actionRequest(body));
+  }
+
+  @Access('service')
+  @Post('actions/channel-sync')
+  @HttpCode(200)
+  channelSync(
+    @Req() request: { headers: Record<string, unknown>; user?: SignedInUser },
+    @Body() body: Record<string, unknown> | undefined,
+  ) {
+    this.actKeyOnly(request);
+    const parsed = this.actionRequest(body);
+    if (body?.days !== undefined) {
+      const days = typeof body.days === 'number' ? body.days : Number.NaN;
+      if (!Number.isInteger(days)) throw new BadRequestException('days: ожидается целое число');
+      parsed.days = days;
+    }
+    return this.actions.channelSync(parsed);
+  }
+
+  private actionRequest(body: Record<string, unknown> | undefined): ActionRequest {
+    const data = body ?? {};
+    const idempotencyKey = typeof data.idempotencyKey === 'string' ? data.idempotencyKey.trim() : '';
+    if (!idempotencyKey || idempotencyKey.length > 64)
+      throw new BadRequestException('idempotencyKey: ожидается строка до 64 знаков');
+    return {
+      userId: uuidParam(data.userId, 'userId'),
+      organizationId: uuidParam(data.organizationId, 'organizationId'),
+      idempotencyKey,
+    };
+  }
+
+  private actKeyOnly(request: { headers: Record<string, unknown>; user?: SignedInUser }): void {
+    const key = serviceKeyKind(request.headers);
+    if (key === null && !request.user) throw new UnauthorizedException(ACT_KEY_REQUIRED);
+    if (key !== 'assistant-act' && key !== 'service') throw new ForbiddenException(ACT_KEY_REQUIRED);
   }
 }

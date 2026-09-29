@@ -12,6 +12,7 @@ import { ExtensionsService } from '../platform/extensions.service';
 import { AssistantController } from './assistant.controller';
 import { DIAGNOSTICS_REPOSITORY, type DiagnosticsRepository } from './diagnostics.repository';
 import { DiagnosticsService } from './diagnostics.service';
+import { AssistantActionsService } from './actions.service';
 import {
   REQUESTER_CONTEXT_REPOSITORY,
   type RequesterContextRepository,
@@ -114,6 +115,7 @@ beforeAll(async () => {
         },
       },
       DiagnosticsService,
+      { provide: AssistantActionsService, useValue: {} },
       { provide: APP_GUARD, useClass: SessionGuard },
     ],
   }).compile();

@@ -222,6 +222,15 @@ class DiagnosticsProvider(Protocol):
     async def reservation_status(self, *, user_id: str, org_id: str, number: str) -> dict | None: ...
 
 
+class ActionsProvider(Protocol):
+    """Действия платформы для техподдержки (S6): только те, что в матрице. Ключ действий отдельный от ключа
+    чтения. Возврат — словарь результата; отказ — ProviderUnavailable."""
+
+    async def channel_pull(self, *, user_id: str, org_id: str, idempotency_key: str) -> dict: ...
+
+    async def channel_sync(self, *, user_id: str, org_id: str, idempotency_key: str, days: int) -> dict: ...
+
+
 @dataclass
 class Providers:
     """Набор провайдеров для этого запуска. None — такой системы нет:
@@ -243,3 +252,5 @@ class Providers:
     requesters: RequesterContextProvider | None = None
     # S5: диагностика — каналы и бронь по номеру, тем же узким ключом.
     diagnostics: DiagnosticsProvider | None = None
+    # S6: действия — отдельным ключом ASSISTANT_ACT_KEY; без него None и бот только читает.
+    actions: ActionsProvider | None = None

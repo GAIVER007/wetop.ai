@@ -43,6 +43,8 @@ export interface SupportPort {
   kbStatus(id: string, status: string, by: string | null): Promise<unknown>;
   conversationKnowledge(id: string): Promise<unknown>;
   knowledgeDraft(id: string, by: string | null): Promise<unknown>;
+  // журнал действий бота в диалоге (S6)
+  conversationActions(id: string): Promise<unknown>;
 }
 
 export interface SupportConnection {

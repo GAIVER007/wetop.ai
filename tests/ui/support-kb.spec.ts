@@ -157,3 +157,17 @@ for (const theme of ['light', 'dark'] as const) {
     });
   }
 }
+
+test('«Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет', async ({ page, request }) => {
+  await admin(page, request);
+  await page.goto(`/platform/support?id=${SIGNED}`);
+  const journal = page.getByTestId('agent-actions');
+  await expect(journal).toContainText('Действия агента');
+  await expect(journal).toContainText('Подтянуть ленту Channex');
+  await expect(journal).toContainText('Выполнено');
+  await expect(journal).toContainText('Возврат оплаты');
+  await expect(journal).toContainText('Передано человеку');
+  await shot(page, 'agent-actions-1440');
+  await page.goto(`/platform/support?queue=closed&id=${CLOSED}`);
+  await expect(page.getByTestId('agent-actions')).toHaveCount(0);
+});

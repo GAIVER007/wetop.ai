@@ -13,6 +13,8 @@ import { RequesterContextService } from './requester-context.service';
 import { ChannelsModule } from '../channels/channels.module';
 import { DIAGNOSTICS_REPOSITORY, PrismaDiagnosticsRepository } from './diagnostics.repository';
 import { DiagnosticsService } from './diagnostics.service';
+import { AssistantActionsService, INTEGRATION_OWNER_CHECK } from './actions.service';
+import { isIntegrationActor } from '../channels/integration-owner';
 
 /**
  * ИИ-помощник в стойке (ТЗ ред. 1, ADR-079): подпись вошедшего для виджета (П1) и уборка журнала ошибок человека
@@ -30,6 +32,14 @@ import { DiagnosticsService } from './diagnostics.service';
     RequesterContextService,
     { provide: DIAGNOSTICS_REPOSITORY, useClass: PrismaDiagnosticsRepository },
     DiagnosticsService,
+    // S6: действия — подтянуть ленту и полная выгрузка; «подключены ли каналы» — та же проверка, что у разделов каналов
+    {
+      provide: INTEGRATION_OWNER_CHECK,
+      useFactory: (prisma: PrismaService) => (organizationId: string) =>
+        isIntegrationActor(prisma, { organizationId }),
+      inject: [PrismaService],
+    },
+    AssistantActionsService,
   ],
 })
 export class AssistantModule {}

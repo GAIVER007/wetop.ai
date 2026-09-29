@@ -10,6 +10,7 @@ import { databaseTenant } from '../auth/request-context';
 import { ExtensionsService } from '../platform/extensions.service';
 import { AssistantController } from './assistant.controller';
 import { DiagnosticsService } from './diagnostics.service';
+import { AssistantActionsService } from './actions.service';
 import {
   REQUESTER_CONTEXT_REPOSITORY,
   type RequesterContextRepository,
@@ -91,6 +92,7 @@ beforeAll(async () => {
       { provide: ExtensionsService, useValue: {} },
       // S5: диагностика в этом наборе не зовётся
       { provide: DiagnosticsService, useValue: {} },
+      { provide: AssistantActionsService, useValue: {} },
       { provide: REQUESTER_CONTEXT_REPOSITORY, useValue: repo },
       RequesterContextService,
       { provide: APP_GUARD, useClass: SessionGuard },

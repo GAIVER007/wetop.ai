@@ -222,6 +222,8 @@ class Settings(BaseSettings):
     integration_mode: str = "stub"
     integration_base_url: str = ""
     integration_api_key: str = ""
+    # S6: ключ действий помощника (ASSISTANT_ACT_KEY платформы); пусто — действия не выполняются
+    integration_act_key: str = ""
     integration_timeout_seconds: int = 10
 
     # ─── Правка настроек на лету ───

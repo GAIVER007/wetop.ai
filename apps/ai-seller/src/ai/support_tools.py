@@ -23,6 +23,7 @@ from datetime import timedelta
 from typing import Any
 
 from src.ai.tools import ToolRegistry, ToolSpec
+from src.ai.support_actions import register_action_tools
 from src.ai.support_context import register_context_tools
 from src.ai.support_diagnostics import register_diagnostics_tools
 from src.ai.support_kb_tool import register_kb_tool
@@ -114,6 +115,7 @@ def build_registry(
     visitor_getter: Callable[[], Any],
     knowledge_getter: Callable[[], Any] | None = None,
     conversation_getter: Callable[[], str | None] | None = None,
+    actions_getter: Callable[[], Any] | None = None,
 ) -> ToolRegistry:
     """Реестр инструментов помощника (ошибки, подписка, кто обратился, состояние платформы).
 
@@ -272,20 +274,15 @@ def build_registry(
     )
     register_kb_tool(
         registry, knowledge_getter=knowledge_getter or (lambda: None), settings_getter=settings_getter,
-        conversation_getter=conversation_getter or (lambda: None), rules=_RULES, unknown=UNKNOWN,
-    )
-    register_context_tools(
-        registry, providers_getter=providers_getter, visitor_getter=visitor_getter,
-        rules=_RULES, unknown=UNKNOWN, not_signed=NOT_SIGNED,
-    )
+        conversation_getter=conversation_getter or (lambda: None), rules=_RULES, unknown=UNKNOWN)
+    register_context_tools(registry, providers_getter=providers_getter, visitor_getter=visitor_getter,
+                           rules=_RULES, unknown=UNKNOWN, not_signed=NOT_SIGNED)
     registry.register(
         ToolSpec(
             name="platform_status",
             description=(
-                "Общее состояние платформы: «всё работает», список разделов"
-                " со сбоями или «не знаю». «Не знаю» НЕ означает, что всё"
-                " хорошо: так и скажи, что состояние проверить не удалось."
-                + _RULES
+                "Общее состояние платформы: «всё работает», список разделов со сбоями или «не знаю»."
+                " «Не знаю» НЕ означает, что всё хорошо: так и скажи, что проверить не удалось." + _RULES
             ),
             parameters=dict(_NO_PARAMS),
             handler=platform_status,
@@ -294,5 +291,10 @@ def build_registry(
     register_diagnostics_tools(
         registry, providers_getter=providers_getter, visitor_getter=visitor_getter,
         settings_getter=settings_getter, rules=_RULES, unknown=UNKNOWN, not_signed=NOT_SIGNED,
+    )
+    register_action_tools(
+        registry, providers_getter=providers_getter, visitor_getter=visitor_getter,
+        conversation_getter=conversation_getter or (lambda: None), actions_getter=actions_getter or (lambda: None),
+        rules=_RULES, unknown=UNKNOWN, not_signed=NOT_SIGNED,
     )
     return registry

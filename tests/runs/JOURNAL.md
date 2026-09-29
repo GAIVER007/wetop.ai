@@ -4205,3 +4205,6 @@
 | 29.09.2026 15:06 | unit | ❌ упало 1 из 2317, пропущено 3 | 1 мин 50 с | 22557f7 +20 | [лог](logs/2026-09-29T10-06-40Z-unit-9372.log) | S1 support queue |
 | 29.09.2026 15:08 | unit | ✅ 2314 из 2317, пропущено 3 | 1 мин 18 с | 22557f7 +21 | [лог](logs/2026-09-29T10-08-41Z-unit-cc11.log) | S1 support queue |
 | 29.09.2026 15:10 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 618 из 618 | 51 мин 8 с | 22557f7 +23 | [лог](logs/2026-09-29T10-10-05Z-e2e-d33c.log) | S1 support queue: full UI suite |
+| 29.09.2026 16:01 | typecheck | ✅ без ошибок | 33 с | 08107fb | [лог](logs/2026-09-29T11-01-51Z-typecheck-98c8.log) | S1 final regression on merged main 6ab9541b |
+| 29.09.2026 16:02 | lint | ✅ без ошибок | 18 с | 08107fb | [лог](logs/2026-09-29T11-02-25Z-lint-addd.log) | S1 final regression on merged main 6ab9541b |
+| 29.09.2026 16:02 | unit | ✅ 2326 из 2329, пропущено 3 | 1 мин 19 с | 08107fb | [лог](logs/2026-09-29T11-02-43Z-unit-1311.log) | S1 final regression on merged main 6ab9541b |

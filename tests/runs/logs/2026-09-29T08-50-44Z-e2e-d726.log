@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 29.09.2026 13:50 Алматы · vm
+# коммит 02ee07e (release-final-2026-09-29)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 18 tests using 2 workers
+
+  ✓   2 tests/site/landing.spec.ts:11:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (561ms)
+  ✓   1 tests/site/auth-dialog.spec.ts:56:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (2.0s)
+  ✘   3 tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране (1.9s)
+  ✓   4 tests/site/auth-dialog.spec.ts:84:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (1.2s)
+  ✓   6 tests/site/landing.spec.ts:32:3 › / — на телефоне нет горизонтальной прокрутки (526ms)
+  ✓   5 tests/site/auth-dialog.spec.ts:99:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.2s)
+  ✓   7 tests/site/landing.spec.ts:17:3 › /blog/ — открывается, доступна и без «TODO» на экране (1.0s)
+  ✓   9 tests/site/landing.spec.ts:32:3 › /blog/ — на телефоне нет горизонтальной прокрутки (239ms)
+  ✓  10 tests/site/landing.spec.ts:45:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (724ms)
+  ✓  11 tests/site/landing.spec.ts:63:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (17ms)
+  ✓   8 tests/site/auth-dialog.spec.ts:117:1 › «Попробовать бесплатно» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (2.3s)
+  ✓  13 tests/site/auth-dialog.spec.ts:162:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (660ms)
+  ✓  14 tests/site/auth-dialog.spec.ts:173:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (526ms)
+  ✓  12 tests/site/landing.spec.ts:84:1 › главная: безопасные вход и trial, блог скрыт без статей, подсказка макета внутри карточки (1.9s)
+  ✓  16 tests/site/landing.spec.ts:143:1 › главная: B2B-позиционирование, честные обещания и утверждённая структура (545ms)
+  ✓  15 tests/site/auth-dialog.spec.ts:185:1 › на телефоне окно открывается из меню и не шире экрана (983ms)
+  ✓  17 tests/site/landing.spec.ts:199:1 › главная: 375 px без горизонтального скролла, mobile menu работает с клавиатуры (441ms)
+  ✓  18 tests/site/landing.spec.ts:217:1 › главная: prefers-reduced-motion убирает декоративные анимации (320ms)
+
+
+  1) tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране ────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast: 1",
+    + ]
+
+      27 |       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      28 |       .analyze();
+    > 29 |     expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+         |                                                                     ^
+      30 |   });
+      31 |
+      32 |   test(`${path} — на телефоне нет горизонтальной прокрутки`, async ({ page }) => {
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:29:69
+
+    Error Context: test-results/landing--—-открывается-доступна-и-без-«TODO»-на-экране/error-context.md
+
+  1 failed
+    tests/site/landing.spec.ts:17:3 › / — открывается, доступна и без «TODO» на экране ─────────────
+  17 passed (16.7s)
+
+# код выхода 1 · 18 с

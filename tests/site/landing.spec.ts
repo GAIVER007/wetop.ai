@@ -23,6 +23,16 @@ for (const path of PAGES) {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     expect(await page.locator('body').innerText()).not.toMatch(/TODO|заполнить|placeholder/i);
 
+    // Axe судит страницу в покое: вводные анимации (появление брони в макете — 0,9 с) дают полупрозрачный
+    // текст с ложным «контрастом 1,57». Ждём конечные анимации, бесконечные (вращение печати) не ждём.
+    await page.evaluate(() =>
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+          .map((a) => a.finished.catch(() => undefined)),
+      ),
+    );
     const axe = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();

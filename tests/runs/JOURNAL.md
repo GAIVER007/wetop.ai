@@ -4180,3 +4180,4 @@
 | 29.09.2026 13:50 | lint | ✅ без ошибок | 17 с | 2b6ae04 | [лог](logs/2026-09-29T08-50-04Z-lint-1e03.log) | PR7 on main 95f5c0f3 |
 | 29.09.2026 13:50 | unit | ✅ 2316 из 2319, пропущено 3 | 1 мин 25 с | 2b6ae04 | [лог](logs/2026-09-29T08-50-21Z-unit-72db.log) | PR7 on main 95f5c0f3 |
 | 29.09.2026 13:51 | integration | ✅ 123 из 123 | 40 с | 2b6ae04 | [лог](logs/2026-09-29T08-51-59Z-integration-51b3.log) | PR7 on main 95f5c0f3 |
+| 29.09.2026 13:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ✅ 622 из 622 | 50 мин 15 с | 2b6ae04 | [лог](logs/2026-09-29T08-52-44Z-e2e-ab5b.log) | PR7 full UI on main 95f5c0f3 |

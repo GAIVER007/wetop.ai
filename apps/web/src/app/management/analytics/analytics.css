@@ -268,7 +268,7 @@
     min-height: var(--touch-target);
   }
   .pa-range__form .inp {
-    font-size: 16px;
+    font-size: var(--text-lg);
   }
 }
 

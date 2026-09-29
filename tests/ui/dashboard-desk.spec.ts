@@ -99,20 +99,20 @@ test('3. блок «Требуют внимания» один и стоит с�
   await expect(page.locator('#day-attention')).toContainText('Всё в порядке');
 });
 
-test('4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку', async ({
+test('4. названия действий и имена гостей 15 px, подписи 14 px (шкала §6 с 29.09); название действия в одну строку', async ({
   page,
 }) => {
   await page.goto('/today');
-  expect(await fontSize(quick(page).locator('.quick-action__label').first())).toBe('14px');
+  expect(await fontSize(quick(page).locator('.quick-action__label').first())).toBe('15px');
   expect(await fontSize(page.locator('#day-attention .attention-item strong').first())).toBe(
-    '14px',
+    '15px',
   );
   expect(await fontSize(page.locator('#day-attention .attention-item small').first())).toBe(
-    '13px',
+    '14px',
   );
-  expect(await fontSize(quick(page).getByRole('link', { name: 'Все брони' }))).toBe('13px');
+  expect(await fontSize(quick(page).getByRole('link', { name: 'Все брони' }))).toBe('14px');
   await page.goto('/today?date=2027-06-01');
-  expect(await fontSize(quick(page).locator('.quick-action__hint').first())).toBe('13px');
+  expect(await fontSize(quick(page).locator('.quick-action__hint').first())).toBe('14px');
   // крупнее кегль — не повод рвать название: и с числом, и с подписью оно в одну строку
   for (const [path, width] of [
     ['/today', 1440],
@@ -250,10 +250,11 @@ test('8. подробности дня на графике без наведен
   await expect(table.locator('tbody tr').first()).toContainText(' из ');
 });
 
-test('9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 24 px', async ({
+test('9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px', async ({
   page,
 }) => {
-  const scale = ['12px', '13px', '14px', '16px', '18px', '20px', '24px', '28px'];
+  // шкала §6 с 29.09.2026 — на шаг крупнее прежней 12…28
+  const scale = ['13px', '14px', '15px', '17px', '19px', '22px', '26px', '30px'];
   const offScale = (main: import('@playwright/test').Locator) =>
     main.evaluate((root, allowed) => {
       const seen = new Map<string, string>();
@@ -274,13 +275,13 @@ test('9. размеры шрифта на главной и в «Аналити�
     await expect(main.getByRole('region', { name: 'Сегодня на стойке' })).toBeVisible();
     await expect(main.getByRole('region', { name: 'Быстрые действия' })).toBeVisible();
     expect(await offScale(main), `главная, ширина ${width}`).toEqual([]);
-    // число плитки дня — 24 px (--text-3xl), как и до A1
-    if (width === 1440) expect(await fontSize(main.getByTestId('c-inhouse'))).toBe('24px');
-    // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число 24 px (--text-3xl)
+    // число плитки дня — --text-3xl (26 px с 29.09)
+    if (width === 1440) expect(await fontSize(main.getByTestId('c-inhouse'))).toBe('26px');
+    // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число --text-3xl (26 px)
     await page.goto('/management/analytics?period=week');
     await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
     expect(await offScale(main), `аналитика, обзор, ширина ${width}`).toEqual([]);
-    if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('24px');
+    if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('26px');
     await page.goto('/management/analytics/occupancy');
     await expect(main.getByTestId('statistics-table')).toBeVisible();
     expect(await offScale(main), `аналитика, загрузка, ширина ${width}`).toEqual([]);
@@ -294,9 +295,10 @@ test('9. размеры шрифта на главной и в «Аналити�
 test('10. заголовок страницы и панели брони — по шкале §6', async ({ page }) => {
   const title = () => fontSize(page.getByRole('main').locator('.page__title').first());
   for (const [width, size] of [
-    [1440, '28px'],
-    [650, '28px'],
-    [390, '24px'],
+    // --text-4xl / --text-3xl (30 / 26 px с 29.09)
+    [1440, '30px'],
+    [650, '30px'],
+    [390, '26px'],
   ] as const) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/today');
@@ -313,5 +315,5 @@ test('10. заголовок страницы и панели брони — п�
     .click();
   const drawer = page.locator('.booking-drawer .page__title');
   await expect(drawer).toBeVisible();
-  expect(await fontSize(drawer)).toBe('20px');
+  expect(await fontSize(drawer)).toBe('22px'); // --text-2xl
 });

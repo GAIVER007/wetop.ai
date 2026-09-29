@@ -4398,6 +4398,13 @@
 | 29.09.2026 21:13 | typecheck | ✅ без ошибок | 35 с | 61bc328 | [лог](logs/2026-09-29T16-13-18Z-typecheck-5784.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | lint | ✅ без ошибок | 21 с | 61bc328 | [лог](logs/2026-09-29T16-14-02Z-lint-4ca6.log) | SEC-4 после слияния main |
 | 29.09.2026 21:14 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 27 с | 61bc328 | [лог](logs/2026-09-29T16-14-23Z-unit-f790.log) | SEC-4 после слияния main: полный unit |
+| 29.09.2026 21:19 | unit | ❌ упало 1 из 2415, пропущено 3 | 1 мин 26 с | 7ee096d +16 | [лог](logs/2026-09-29T16-19-52Z-unit-3072.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 29.09.2026 21:21 | unit | ✅ 2412 из 2415, пропущено 3 | 1 мин 21 с | 7ee096d +17 | [лог](logs/2026-09-29T16-21-29Z-unit-ae9d.log) |  |
+| 29.09.2026 21:22 | typecheck | ✅ без ошибок | 31 с | 7ee096d +17 | [лог](logs/2026-09-29T16-22-51Z-typecheck-9917.log) |  |
+| 29.09.2026 21:23 | lint | ✅ без ошибок | 18 с | 7ee096d +17 | [лог](logs/2026-09-29T16-23-23Z-lint-f3d5.log) |  |
+| 29.09.2026 21:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 5 из 661 | 55 мин 54 с | 4f7cb0e | [лог](logs/2026-09-29T16-23-57Z-e2e-7fb2.log) | 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку |
+| 29.09.2026 22:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/dashboard-desk.spec.ts tests/ui/design-system.spec.ts) | ✅ 19 из 19 | 1 мин 35 с | 4f7cb0e +1 | [лог](logs/2026-09-29T17-22-05Z-e2e-7084.log) |  |
+| 29.09.2026 22:23 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 17 из 17 | 24 с | 4f7cb0e +1 | [лог](logs/2026-09-29T17-23-41Z-e2e-ef67.log) |  |
 | 29.09.2026 21:18 | unit (частично: apps/web/src/lib/assistant-widget.test.ts apps/web/src/lib/security-headers.test.ts apps/api/src/security-headers.test.ts) | ✅ 21 из 21 | 5 с | 7ee096d | [лог](logs/2026-09-29T16-18-18Z-unit-73d0.log) | Post-merge chat and newly merged security header contracts |
 | 29.09.2026 21:16 | typecheck | ✅ без ошибок | 25 с | d9eb3bd | [лог](logs/2026-09-29T16-16-29Z-typecheck-b304.log) | SEC-1a после слияния main |
 | 29.09.2026 21:17 | lint | ✅ без ошибок | 23 с | d9eb3bd | [лог](logs/2026-09-29T16-17-04Z-lint-78ae.log) | SEC-1a после слияния main |
@@ -4455,3 +4462,7 @@
 | 29.09.2026 22:07 | typecheck | ✅ без ошибок | 31 с | 49abb6e | [лог](logs/2026-09-29T17-07-45Z-typecheck-308f.log) |  |
 | 29.09.2026 22:08 | lint | ✅ без ошибок | 16 с | 49abb6e | [лог](logs/2026-09-29T17-08-17Z-lint-bcde.log) |  |
 | 29.09.2026 22:08 | unit (частично: apps/api/src/ai-seller apps/api/src/auth packages/domain/src/ai-agents apps/web/src/lib/ai-agents.test.ts) | ✅ 293 из 293 | 9 с | 49abb6e | [лог](logs/2026-09-29T17-08-34Z-unit-cfe4.log) |  |
+| 29.09.2026 22:24 | unit | ✅ 2446 из 2449, пропущено 3 | 1 мин 26 с | 3397f85 | [лог](logs/2026-09-29T17-24-27Z-unit-9d6b.log) |  |
+| 29.09.2026 22:25 | typecheck | ✅ без ошибок | 23 с | 3397f85 | [лог](logs/2026-09-29T17-25-53Z-typecheck-abdc.log) |  |
+| 29.09.2026 22:26 | lint | ✅ без ошибок | 19 с | 3397f85 | [лог](logs/2026-09-29T17-26-17Z-lint-cfe4.log) |  |
+| 29.09.2026 22:26 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 27 с | 3397f85 +1 | [лог](logs/2026-09-29T17-26-55Z-e2e-7b48.log) |  |

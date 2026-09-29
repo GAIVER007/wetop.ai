@@ -1,0 +1,23 @@
+{
+  "deployment": "2de7c87a",
+  "sha": "1c059a39",
+  "results": [
+    {
+      "url": "https://wetop.ai/",
+      "status": 200,
+      "h1": "Центр управления\nсервисным бизнесом",
+      "brand": "WETOP.AI",
+      "detailCards": 8,
+      "aiSetupVisible": true
+    },
+    {
+      "url": "https://www.wetop.ai/",
+      "status": 200,
+      "h1": "Центр управления\nсервисным бизнесом",
+      "brand": "WETOP.AI",
+      "detailCards": 8,
+      "aiSetupVisible": true
+    }
+  ],
+  "errors": []
+}

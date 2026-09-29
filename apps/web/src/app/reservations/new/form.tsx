@@ -253,7 +253,7 @@ export function NewReservationForm(props: {
           }
         />
       </Field>
-      {state.error && <Alert style={{ fontSize: 14 }}>{state.error}</Alert>}
+      {state.error && <Alert style={{ fontSize: 'var(--text-md)' }}>{state.error}</Alert>}
       <BookingSummary facts={facts} />
       {/* Липкий подвал: одна строка сути и кнопка — невысокий, чтобы на телефоне при непрокрученной
           форме не уходить под нижнюю навигацию; полное резюме — блоком выше */}

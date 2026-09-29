@@ -40,7 +40,7 @@
 }
 .seller-agents dt {
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 @media (max-width: 480px) {
   .seller-agents {
@@ -58,11 +58,11 @@
 .seller-agents__header p {
   margin: 0;
   max-width: 560px;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 .seller-agents__eyebrow,
 .seller-agents__count {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 .seller-agents__nav {
@@ -91,12 +91,12 @@
 }
 .seller-agents__empty h2 {
   margin: 4px 0;
-  font-size: 24px;
+  font-size: var(--text-3xl);
 }
 .seller-agents__empty p {
   max-width: 520px;
   margin: 0 0 8px;
-  font-size: 15px;
+  font-size: var(--text-md);
 }
 .seller-agents__symbol {
   width: 44px;
@@ -120,7 +120,7 @@
   justify-content: space-between;
 }
 .seller-agents__badge {
-  font-size: 12px;
+  font-size: var(--text-xs);
   border-radius: var(--radius-full);
   padding: var(--space-1) var(--space-2);
   background: var(--surface-muted);
@@ -136,7 +136,7 @@
 }
 .seller-agents article > p {
   margin: 0 0 var(--space-4);
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 .seller-agents article .btn {
   width: 100%;

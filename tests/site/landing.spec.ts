@@ -158,31 +158,31 @@ test('главная: B2B-позиционирование, честные об�
   await page.goto('/');
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Управляйте отелем из одного окна',
+    'WETOP Центр управления сервисным бизнесом',
   );
   await expect(page.locator('.hero')).toContainText(
-    'Брони, гости, номерной фонд, продажи, финансы и аналитика',
+    'Клиенты, расписание, продажи, команда, финансы и аналитика',
   );
 
   const navigation = page.getByRole('navigation', { name: 'Основная навигация' });
   await expect(navigation.getByRole('link')).toHaveText([
     'Продукт',
-    'Возможности',
-    'Для кого',
+    'Платформа',
+    'Вертикали',
     'Интеграции',
     'Тарифы',
   ]);
 
   const headings = await page.locator('main h2').allTextContents();
   expect(headings).toEqual([
-    'Рабочие экраны WETOP',
-    'Подходит разным форматам размещения',
+    'Одна платформа. Разные модели бизнеса.',
+    'Управление объектом размещения в WETOP',
     'Работает с каналами, которыми вы уже пользуетесь',
     'AI-продавец WETOP',
     'Понимайте не только загрузку, но и деньги',
     'Поможем перейти с другой PMS',
     'Простой тариф для всей команды',
-    'Управляйте объектом из одной системы',
+    'Соберите управление бизнесом в WETOP',
   ]);
 
   await expect(page.locator('#showcase').getByRole('heading', { level: 3 })).toHaveText([

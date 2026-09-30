@@ -18,8 +18,8 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <Showcase />
       <Audience />
+      <Showcase />
       <SalesEcosystem />
       <AiSeller />
       <Finance />

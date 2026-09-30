@@ -10,6 +10,7 @@ import { PrismaChannelsRepository } from '../../apps/api/src/channels/channels.r
 import { PrismaIncidentsRepository } from '../../apps/api/src/guard/incidents.repository';
 import { PrismaDiagnosticsRepository } from '../../apps/api/src/assistant/diagnostics.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { enableLocalAppLogin } from '../tools/local-app-login';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
@@ -21,7 +22,7 @@ const appUrl = url?.replace(/\/\/[^@/]*(@)/, '//wetop_app$1');
  * не отзываются (это мешало бы параллельным тестам); вместо этого перехватывается отправка SQL драйвером `pg` и отмечается,
  * какой ролью соединения она ушла. Это и есть условие, при котором будущий отзыв прав ничего не сломает.
  *
- * Нужен вход роли `wetop_app` на локальной базе (`npm run db:local`, docs/ops/rls.md).
+ * Вход роли `wetop_app` на локальной базе включается самим тестом (`tests/tools/local-app-login.ts`); на нелокальной базе не запускать.
  */
 const TABLES = /(external_events|system_incidents|channel_outbox)/;
 const APP_INSERT = /^\s*INSERT\s+INTO\s+"?(?:[a-z_]+"?\.")?"?channel_outbox/i;
@@ -37,6 +38,8 @@ describe.skipIf(!url)(
     let restore: (() => void) | undefined;
 
     beforeAll(async () => {
+      // Роль без входа (миграция) на свежей локальной базе: как у `rls-isolation`, вход включается здесь; чужую базу не трогаем
+      await enableLocalAppLogin(url!);
       admin = createPrismaClient(url);
       organizationId = (await admin.property.findFirstOrThrow({ select: { organizationId: true } }))
         .organizationId;

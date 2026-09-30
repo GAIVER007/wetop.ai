@@ -4758,3 +4758,8 @@
 | 30.09.2026 18:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-compact.spec.ts tests/ui/reservations-v2-r3.spec.ts tests/ui/reservation | ✅ 9 из 9 | 2 мин 53 с | ca4dae5 +5 | [лог](logs/2026-09-30T13-15-41Z-e2e-8926.log) | Compact bookings filters, previews and error states |
 | 30.09.2026 18:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-design.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations | ❌ упало 1 из 16 | 3 мин 36 с | ca4dae5 +8 | [лог](logs/2026-09-30T13-19-22Z-e2e-cd6c.log) | Reservation status select, combined filters, responsive layouts and finance display |
 | 30.09.2026 18:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2-r2.spec.ts --grep пустой отбор) | ✅ 1 из 1 | 24 с | ca4dae5 +8 | [лог](logs/2026-09-30T13-23-35Z-e2e-cc6e.log) | GREEN empty state scope remains in list metadata; reset and invalid filters |
+| 30.09.2026 18:25 | typecheck | ✅ без ошибок | 1 мин 7 с | 338bc07 | [лог](logs/2026-09-30T13-25-48Z-typecheck-097c.log) |  |
+| 30.09.2026 18:26 | lint | ✅ без ошибок | 38 с | 338bc07 | [лог](logs/2026-09-30T13-26-56Z-lint-36f0.log) |  |
+| 30.09.2026 18:27 | unit | ✅ 2686 из 2689, пропущено 3 | 2 мин 6 с | 338bc07 | [лог](logs/2026-09-30T13-27-36Z-unit-ccba.log) |  |
+| 30.09.2026 18:29 | integration | ❌ код выхода 1 | 3 с | 338bc07 | [лог](logs/2026-09-30T13-29-43Z-integration-add8.log) |  |
+| 30.09.2026 18:30 | integration | ✅ 220 из 220 | 1 мин 19 с | 338bc07 | [лог](logs/2026-09-30T13-30-01Z-integration-0ade.log) |  |

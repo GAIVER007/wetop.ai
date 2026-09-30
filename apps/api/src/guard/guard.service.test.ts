@@ -678,7 +678,7 @@ describe('GuardService при остановленном ARI (CHANNEX_ARI=off, �
     expect(s.fixes).toEqual([]);
     expect(t.repo.rows.map((r) => r.kind)).toEqual(['outbox.stuck']);
     expect(t.repo.rows[0]).toMatchObject({ status: 'ESCALATED' });
-    expect(t.repo.rows[0]!.title).toMatch(/CHANNEX_ARI=off/);
+    expect(t.repo.rows[0]!.title).toMatch(/отправка в каналы остановлена вручную/);
     expect(t.repo.rows[0]!.lastFixResult).toMatch(/ARI остановлен вручную/);
   });
 });

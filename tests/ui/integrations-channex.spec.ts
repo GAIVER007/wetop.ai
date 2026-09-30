@@ -44,7 +44,7 @@ test('работает: соединение и состояние без оче
     .click();
   await expect(page).toHaveURL(/\/connections\/channex$/);
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Channex');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
   await expect(main.getByRole('link', { name: 'Интеграции' })).toHaveAttribute('href', '/connections');
   await expect(main.getByTestId('integration-health')).toHaveText('Работает');
   await expect(main.getByTestId('integration-issues')).toHaveCount(0);
@@ -61,7 +61,7 @@ test('работает: соединение и состояние без оче
     await expect(main.getByRole('button', { name })).toHaveCount(0);
   await expect(main.getByTestId('channex-manage')).toContainText('поддержка WETOP');
   // очередь, события и сырые данные остаются в «Каналах продаж»; ключей и адреса webhook нет
-  for (const text of ['Очередь в Channex', 'ui-task-4f2a', 'https://api.example.invalid', 'API key', 'secret'])
+  for (const text of ['Очередь в каналы', 'ui-task-4f2a', 'https://api.example.invalid', 'API key', 'secret'])
     await expect(main).not.toContainText(text);
   // среда и ID объекта — только в свёрнутых технических деталях
   const tech = main.getByTestId('integration-tech');
@@ -172,7 +172,7 @@ for (const theme of ['light', 'dark'] as const) {
     const shot = async (name: string, mode: Mode, extra = {}, full = false) => {
       await control(page, { channex: mode, ...extra });
       await page.goto('/connections/channex');
-      await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Channex');
+      await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
       await page.mouse.move(0, 0);
       await page.screenshot({ path: `${report}/${theme}-${name}.png`, caret: 'initial', fullPage: full });
     };

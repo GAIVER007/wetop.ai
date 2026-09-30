@@ -56,8 +56,8 @@ const tabs = [
 
 const subtitles: Record<string, string> = {
   '': 'Состояние обмена с каналами и брони по источникам.',
-  connections: 'Подключение Channex и настройка обмена.',
-  mapping: 'Категории и тарифы WETOP в Channex.',
+  connections: 'Подключение менеджера каналов и настройка обмена.',
+  mapping: 'Категории и тарифы WETOP в менеджере каналов.',
   sync: 'Что уходит в каналы и что приходит обратно.',
   events: 'Входящие события каналов: новые брони, изменения, отмены.',
 };
@@ -164,7 +164,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
         ? 'неизвестно'
         : 'работает';
   const summary = notConnected
-    ? `${connection?.message ?? 'Не удалось проверить соединение с Channex'}.`
+    ? `${connection?.message ?? 'Не удалось проверить соединение с менеджером каналов'}.`
     : !outbox
       ? 'Сводка очереди не загрузилась — обновите страницу.'
       : outbox.failed > 0
@@ -241,7 +241,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           )}
         </StateFact>
         <StateFact
-          label="Webhook в Channex"
+          label="Webhook менеджера каналов"
           value={
             <span data-testid="webhook-status">
               {webhook === null
@@ -274,7 +274,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
       <section className="stack stack--sm" aria-labelledby="observed-title">
         <SectionTitle id="observed-title">Каналы</SectionTitle>
         <p className="note">
-          Наблюдаются по входящим событиям Channex — это последняя активность источника, а не
+          Наблюдаются по входящим событиям каналов — это последняя активность источника, а не
           состояние его подключения.
         </p>
         {recentEvents === null ? (
@@ -284,7 +284,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           </p>
         ) : observedRows.length === 0 ? (
           <p className="note" data-testid="observed-empty">
-            Событий от каналов ещё не было. Канал появится здесь, когда Channex пришлёт его бронь,
+            Событий от каналов ещё не было. Канал появится здесь, когда придёт его бронь,
             изменение или отмену.
           </p>
         ) : (
@@ -326,7 +326,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
             </p>
           ) : (
             <p className="note" data-testid="mapping-note">
-              Сопоставление — общее для всех каналов Channex: категорий {mappedCategories}
+              Сопоставление — общее для всех каналов: категорий {mappedCategories}
               {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
               {connection?.mappedRatePlans ?? '—'}.
             </p>
@@ -339,7 +339,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
         <div>
           <Grid min={200}>
             <Fact
-              label="Объект Channex"
+              label="Объект в менеджере каналов"
               value={
                 connection?.propertyId ? (
                   <span className="mono break-all">{connection.propertyId}</span>
@@ -349,7 +349,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
               }
             />
             <Fact
-              label="Последняя задача Channex"
+              label="Последняя задача"
               value={
                 <span className="mono break-all" data-testid="outbox-last-task">
                   {outbox ? (outbox.lastTaskId ?? '—') : 'не загрузилось'}
@@ -390,8 +390,8 @@ async function Connections() {
   const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
   return (
     <div className="stack">
-      {!connection && <Alert boxed>Не удалось проверить подключение Channex.</Alert>}
-      <Panel title="Channex" data-testid="channel-connection">
+      {!connection && <Alert boxed>Не удалось проверить подключение менеджера каналов.</Alert>}
+      <Panel title="Менеджер каналов" data-testid="channel-connection">
         <Badge tone={connection?.propertyAccessible ? 'ok' : 'warn'}>
           {connection?.message ?? 'Не проверено'}
         </Badge>
@@ -408,7 +408,7 @@ async function Connections() {
               }
             />
             <Fact
-              label="Объект Channex"
+              label="Объект в менеджере каналов"
               value={
                 connection.propertyId ? (
                   <span className="mono break-all">{connection.propertyId}</span>
@@ -426,7 +426,7 @@ async function Connections() {
           </Grid>
         )}
       </Panel>
-      <Panel title="Webhook в Channex" data-testid="channel-webhook">
+      <Panel title="Webhook менеджера каналов" data-testid="channel-webhook">
         {webhook === null ? (
           <Alert>
             Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
@@ -481,9 +481,9 @@ async function Connections() {
         </p>
       )}
       <p className="note" data-testid="channel-content-location">
-        Ключ Channex хранится только на сервере. Общий экран подключений гостиницы —{' '}
+        Ключ менеджера каналов хранится только на сервере. Общий экран подключений гостиницы —{' '}
         <Link href="/connections">«Интеграции»</Link>; фото, удобства и описание для каналов
-        настраиваются в кабинете Channex или самого канала.
+        настраиваются в кабинете менеджера каналов или самого канала.
       </p>
     </div>
   );
@@ -573,7 +573,7 @@ async function Mapping() {
           <thead>
             <tr>
               <th>Категория WETOP</th>
-              <th>Номер в Channex</th>
+              <th>Номер в каналах</th>
               <th>Статус</th>
             </tr>
           </thead>
@@ -586,7 +586,7 @@ async function Mapping() {
                 <td>
                   {c.roomTypeId ? (
                     (c.channexName ?? (
-                      <span className="cell-sub">название в Channex недоступно</span>
+                      <span className="cell-sub">название в каналах недоступно</span>
                     ))
                   ) : (
                     <span className="cell-sub">—</span>
@@ -658,7 +658,7 @@ async function Mapping() {
           <Table size="sm" className="dir-table dir-table--mapping">
             <thead>
               <tr>
-                {['Категория', 'Номер в Channex', 'Тариф в Channex'].map((h) => (
+                {['Категория', 'Номер в каналах', 'Тариф в каналах'].map((h) => (
                   <th key={h}>{h}</th>
                 ))}
               </tr>
@@ -855,7 +855,7 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
       <details className="context-help" open={queue ? true : undefined} data-testid="sync-tech">
         <summary>Технические детали</summary>
         <section className="stack stack--sm" aria-labelledby="outbox-title">
-          <SectionTitle id="outbox-title">Очередь в Channex</SectionTitle>
+          <SectionTitle id="outbox-title">Очередь в каналы</SectionTitle>
           <OutboxTable
             rows={rows}
             filter={queue}
@@ -921,7 +921,7 @@ function OverbookingAlarm({ outbox }: { outbox: OutboxSummary }) {
       {outbox.failed > 0 && `Ошибок отправки: ${outbox.failed}. `}
       {stuck && `Самая старая неотправленная дельта ждёт ${staleMinutes} мин. `}
       Пока очередь не разошлась, каналы продают по старому остатку — возможен овербукинг. Нажмите
-      «Отправить очередь сейчас» и проверьте ключ Channex.
+      «Отправить очередь сейчас» и проверьте ключ менеджера каналов.
     </Alert>
   );
 }

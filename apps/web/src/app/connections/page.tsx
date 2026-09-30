@@ -102,8 +102,8 @@ function CardHead({ health }: { health: ChannexCard['health'] }) {
   return (
     <header className="integration-card__head">
       <div>
-        <h2 className="integration-card__name">Channex</h2>
-        <p className="integration-card__kind">Менеджер каналов</p>
+        <h2 className="integration-card__name">Менеджер каналов</h2>
+        <p className="integration-card__kind">Booking.com, Trip.com и другие каналы</p>
       </div>
       <HealthBadge health={health} />
     </header>

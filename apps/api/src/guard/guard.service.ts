@@ -369,7 +369,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
             if (w.suspect)
               out.push({
                 kind: 'webhook.suspect',
-                title: `Webhook Channex под подозрением: ${w.suspectReason ?? 'причина не записана'}`,
+                title: `Webhook менеджера каналов под подозрением: ${w.suspectReason ?? 'причина не записана'}`,
                 details: { since: w.suspectSince },
               });
             // Чужой адрес и молчащий свой — разные беды: первую сторож чинит сам, вторая (сеть, туннель) к человеку
@@ -378,7 +378,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
             if (misrouted)
               out.push({
                 kind: 'webhook.misrouted',
-                title: `В Channex записан не тот адрес webhook: ${w.callbackUrl} вместо ${w.callbackExpectedUrl} — брони доходят только опросом ленты`,
+                title: `В менеджере каналов записан не тот адрес webhook: ${w.callbackUrl} вместо ${w.callbackExpectedUrl} — брони доходят только опросом ленты`,
                 details: {
                   url: w.callbackUrl,
                   expectedUrl: w.callbackExpectedUrl,
@@ -388,7 +388,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
             else if (w.callbackReachable === false)
               out.push({
                 kind: 'webhook.unreachable',
-                title: 'Адрес webhook Channex не отвечает — брони доходят только опросом ленты',
+                title: 'Адрес webhook менеджера каналов не отвечает — брони доходят только опросом ленты',
                 details: { url: w.callbackUrl, checkedAt: w.callbackCheckedAt },
               });
             return out;
@@ -406,7 +406,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           : [
               {
                 kind: 'feed.stale',
-                title: `Лента броней Channex не читается ${minutes(waited)} мин`,
+                title: `Лента броней каналов не читается ${minutes(waited)} мин`,
                 details: { lastOkAt: h.okAt?.toISOString() ?? null, error: h.error },
               },
             ];
@@ -425,7 +425,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           if (ariOut && o.failedSinceSync > 0)
             out.push({
               kind: 'outbox.failed',
-              title: `В Channex не ушли изменения остатков или ограничений: ${o.failedSinceSync} после последней полной выгрузки`,
+              title: `В каналы не ушли изменения остатков или ограничений: ${o.failedSinceSync} после последней полной выгрузки`,
               details: {
                 lastFullSyncAt: o.lastFullSyncAt?.toISOString() ?? null,
                 lastError: o.lastFailedError,
@@ -450,7 +450,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           if (o.oldestPendingAt && now.getTime() - o.oldestPendingAt.getTime() >= OUTBOX_STUCK_MS)
             out.push({
               kind: 'outbox.stuck',
-              title: `Очередь в Channex стоит: изменение ждёт отправки ${minutes(now.getTime() - o.oldestPendingAt.getTime())} мин${ariOut ? '' : ' — исходящий ARI остановлен вручную (CHANNEX_ARI=off)'}`,
+              title: `Очередь в каналы стоит: изменение ждёт отправки ${minutes(now.getTime() - o.oldestPendingAt.getTime())} мин${ariOut ? '' : ' — отправка в каналы остановлена вручную'}`,
               details: { oldestPendingAt: o.oldestPendingAt.toISOString() },
             });
           return out;
@@ -463,7 +463,7 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
         return {
           kind: transient ? 'event.failed' : 'event.rejected',
           title: transient
-            ? `Входящая бронь Channex не обработалась из-за сбоя связи (ревизия ${ev.externalEventId})`
+            ? `Входящая бронь из каналов не обработалась из-за сбоя связи (ревизия ${ev.externalEventId})`
             : `Бронь канала отклонена и не попала в PMS (ревизия ${ev.externalEventId})`,
           subjectType: 'external_event',
           subjectId: ev.externalEventId,
@@ -485,8 +485,8 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           {
             kind: 'sync.missing',
             title: lastFullSyncAt
-              ? `Полной выгрузки в Channex не было ${Math.floor((now.getTime() - lastFullSyncAt.getTime()) / (60 * MIN))} ч`
-              : 'Полной выгрузки в Channex не было ни разу',
+              ? `Полной выгрузки в каналы не было ${Math.floor((now.getTime() - lastFullSyncAt.getTime()) / (60 * MIN))} ч`
+              : 'Полной выгрузки в каналы не было ни разу',
             details: { lastFullSyncAt: lastFullSyncAt?.toISOString() ?? null },
           },
         ];

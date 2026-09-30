@@ -1,5 +1,15 @@
 import 'reflect-metadata';
-import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { Access } from '../auth/access.decorator';
 
@@ -50,13 +60,16 @@ export class FinanceController {
   }
 
   @Post('folios/:id/charges')
-  addCharge(@Param('id') id: string, @Body() dto: Parameters<FinanceService['addCharge']>[1]) {
+  addCharge(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Parameters<FinanceService['addCharge']>[1],
+  ) {
     return this.service.addCharge(id, dto ?? {});
   }
 
   @Post('folios/:id/stay-extras')
   addStayExtra(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: Parameters<FinanceService['addStayExtra']>[1],
   ) {
     return this.service.addStayExtra(id, dto ?? {});
@@ -64,14 +77,14 @@ export class FinanceController {
 
   @Post('folios/:id/close')
   @HttpCode(200)
-  closeFolio(@Param('id') id: string) {
+  closeFolio(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.closeFolio(id);
   }
 
   @Access('refunds')
   @Post('charges/:id/void')
   @HttpCode(200)
-  voidCharge(@Param('id') id: string) {
+  voidCharge(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.voidCharge(id);
   }
 
@@ -82,7 +95,10 @@ export class FinanceController {
 
   @Access('refunds')
   @Post('payments/:id/refunds')
-  refund(@Param('id') id: string, @Body() dto: Parameters<FinanceService['refund']>[1]) {
+  refund(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Parameters<FinanceService['refund']>[1],
+  ) {
     return this.service.refund(id, dto ?? {});
   }
 }

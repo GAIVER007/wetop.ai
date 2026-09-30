@@ -5,8 +5,8 @@ import type { BadgeTone } from '../components/ui';
  * классов и статусов. Только показ; матрица и правила — у бота.
  */
 const ACTIONS: Record<string, string> = {
-  channel_pull: 'Подтянуть ленту Channex',
-  channel_sync: 'Полная выгрузка в Channex',
+  channel_pull: 'Подтянуть ленту каналов',
+  channel_sync: 'Полная выгрузка в каналы',
   refund: 'Возврат оплаты',
   subscription: 'Подписка',
   organization_disable: 'Отключение организации',

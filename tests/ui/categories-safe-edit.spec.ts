@@ -35,7 +35,7 @@ test('categories C4: edit shows what uses the category, type as a fact, Channex 
     '16 номеров',
     '1 тариф: Стандартный',
     '123 брони в истории, из них 5 впереди',
-    'Сопоставлена с Channex',
+    'Сопоставлена с каналами',
   ]);
   // тип и вместимость — факты, не поля
   await expect(edit.getByRole('radio')).toHaveCount(0);
@@ -43,7 +43,7 @@ test('categories C4: edit shows what uses the category, type as a fact, Channex 
   await expect(edit).toContainText('Номер целиком');
   await expect(edit).toContainText('2 гостя');
   await expect(edit).toContainText('Тип продажи и вместимость после создания не меняются');
-  await expect(edit).toContainText('В Channex тип номера сохранит прежнее название');
+  await expect(edit).toContainText('В менеджере каналов тип номера сохранит прежнее название');
   await page.screenshot({ path: `${shots}/edit-used-light-1440.png` });
   await axe(page);
 
@@ -71,7 +71,7 @@ test('categories C4: edit shows what uses the category, type as a fact, Channex 
   await page.getByRole('menuitem', { name: 'Редактировать', exact: true }).click();
   await expect(edit).toContainText('Категорию пока ничего не использует');
   await expect(edit.getByRole('list', { name: 'Эту категорию используют' })).toHaveCount(0);
-  await expect(edit).not.toContainText('Channex');
+  await expect(edit).not.toContainText('менеджере каналов');
   await page.screenshot({ path: `${shots}/edit-unused-light-1440.png` });
   await page.keyboard.press('Escape');
 
@@ -83,7 +83,7 @@ test('categories C4: edit shows what uses the category, type as a fact, Channex 
   const preview = page.getByRole('dialog', { name: 'Женский общий номер' });
   const bookings = preview.getByRole('region', { name: 'Брони и каналы' });
   await expect(bookings).toContainText('287 броней в истории, из них 11 впереди');
-  await expect(bookings).toContainText('Сопоставлена с Channex');
+  await expect(bookings).toContainText('Сопоставлена с каналами');
   await page.screenshot({ path: `${shots}/preview-usage-light-1440.png` });
   await page.keyboard.press('Escape');
 

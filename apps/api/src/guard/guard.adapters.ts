@@ -317,7 +317,7 @@ export class NestGuardFixes implements GuardFixes {
    */
   async registerWebhook(): Promise<FixOutcome> {
     const r = await this.sync.registerWebhook();
-    return { ok: true, text: `webhook Channex возвращён на ${r.callbackUrl}` };
+    return { ok: true, text: `webhook менеджера каналов возвращён на ${r.callbackUrl}` };
   }
 
   async retryEvent(revisionId: string): Promise<FixOutcome> {

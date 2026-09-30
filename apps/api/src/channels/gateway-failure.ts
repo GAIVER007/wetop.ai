@@ -20,6 +20,6 @@ export function gatewayFailure(e: channex.ChannexApiError): Error {
   console.error(`[channex] ${e.message}`);
   const what = e.status === 0 ? 'нет связи' : `HTTP ${e.status}`;
   return new BadGatewayException(
-    `Channex ответил отказом (${what}) на ${path}${e.code ? `, код ${e.code}` : ''}. Подробности — в журнале сервера.`,
+    `Менеджер каналов ответил отказом (${what}) на ${path}${e.code ? `, код ${e.code}` : ''}. Подробности — в журнале сервера.`,
   );
 }

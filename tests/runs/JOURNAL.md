@@ -4516,3 +4516,12 @@
 | 30.09.2026 12:44 | lint | ✅ без ошибок | 34 с | e4b2662 +1 | [лог](logs/2026-09-30T07-44-22Z-lint-408d.log) |  |
 | 30.09.2026 12:44 | typecheck | ✅ без ошибок | 39 с | e4b2662 +1 | [лог](logs/2026-09-30T07-44-57Z-typecheck-de7a.log) |  |
 | 30.09.2026 14:48 | unit | ✅ 2489 из 2492, пропущено 3 | 2 мин 3 с | 9b9fbe9 | [лог](logs/2026-09-30T09-48-24Z-unit-a0e3.log) |  |
+| 30.09.2026 14:55 | unit (частично: tests/unit/no-vendor-name.test.ts) | ❌ упало 1 из 1 | 2 с | a3b9197 +1 | [лог](logs/2026-09-30T09-55-55Z-unit-849d.log) | название поставщика менеджера каналов не видно пользователю нет слова «Channex» в текстах стойки, главной, API и бота |
+| 30.09.2026 14:56 | unit (частично: tests/unit/no-vendor-name.test.ts) | ✅ 1 из 1 | 1 с | a3b9197 +50 | [лог](logs/2026-09-30T09-56-03Z-unit-b2a7.log) |  |
+| 30.09.2026 14:56 | typecheck | ✅ без ошибок | 40 с | a3b9197 +50 | [лог](logs/2026-09-30T09-56-05Z-typecheck-427b.log) |  |
+| 30.09.2026 14:56 | unit | ❌ упало 1 из 2493, пропущено 3 | 1 мин 53 с | a3b9197 +50 | [лог](logs/2026-09-30T09-56-48Z-unit-8083.log) | GuardService при остановленном ARI (CHANNEX_ARI=off, план отката) упавшую отправку и выгрузку не «чинит»; стоящую очередь показывает с причиной и будит, но не о |
+| 30.09.2026 14:58 | unit (частично: apps/api/src/guard/guard.service.test.ts) | ✅ 32 из 32 | 2 с | a3b9197 +50 | [лог](logs/2026-09-30T09-58-48Z-unit-681f.log) |  |
+| 30.09.2026 14:58 | lint | ✅ без ошибок | 19 с | a3b9197 +50 | [лог](logs/2026-09-30T09-58-51Z-lint-f36a.log) |  |
+| 30.09.2026 15:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/integrations-channex.spec.ts tests/ui/integrations.spec.ts tests/ui/support-kb.spec.t | ✅ 161 из 161 | 10 мин 34 с | a3b9197 +50 | [лог](logs/2026-09-30T10-12-27Z-e2e-514e.log) |  |
+| 30.09.2026 15:23 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 29 с | a3b9197 +50 | [лог](logs/2026-09-30T10-23-11Z-e2e-4c08.log) |  |
+| 30.09.2026 15:23 | unit (частично: tests/unit/site-design.test.ts tests/unit/no-vendor-name.test.ts) | ✅ 7 из 7 | 1 с | a3b9197 +50 | [лог](logs/2026-09-30T10-23-41Z-unit-67e3.log) |  |

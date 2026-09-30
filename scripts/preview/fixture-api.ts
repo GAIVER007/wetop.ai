@@ -1160,7 +1160,7 @@ function applyChannelShowcase() {
       status: 'FAILED',
       attempts: 3,
       taskId: null,
-      lastError: 'Channex ответил 422 «rate plan not found» — проверьте сопоставление тарифов',
+      lastError: 'Менеджер каналов ответил 422 «rate plan not found» — проверьте сопоставление тарифов',
       createdAt: `${today}T03:58:30Z`,
       sentAt: null,
       dateFrom: t(1),
@@ -1264,7 +1264,7 @@ const mixIncidents = (): Incident[] => [
     class: 'B',
     severity: 'WARNING',
     status: 'ACKNOWLEDGED',
-    title: 'Лента Channex не читалась 3 ч — брони доходят только через webhook',
+    title: 'Лента броней каналов не читалась 3 ч — брони доходят только через webhook',
     subjectType: null,
     subjectId: null,
     occurrences: 998,
@@ -1276,9 +1276,9 @@ const mixIncidents = (): Incident[] => [
 ];
 const mixClosed = (): Incident[] =>
   [
-    ['Webhook Channex под подозрением: адрес не отвечает', 'GUARD', 0.3, 0.25] as const,
+    ['Webhook менеджера каналов под подозрением: адрес не отвечает', 'GUARD', 0.3, 0.25] as const,
     [
-      'Адрес webhook Channex не отвечает — брони доходят только опросом ленты',
+      'Адрес webhook менеджера каналов не отвечает — брони доходят только опросом ленты',
       'GUARD',
       0.4,
       0.25,
@@ -3325,7 +3325,7 @@ function read(path: string, q: URLSearchParams): unknown {
       source: 'channex',
       environment: 'staging',
       state: 'READY',
-      message: 'Контент объекта прочитан из Channex',
+      message: 'Контент объекта прочитан из менеджера каналов',
       property: {
         title: 'Тестовый хостел',
         description: 'Вымышленное описание для проверки экрана',
@@ -3383,7 +3383,7 @@ function read(path: string, q: URLSearchParams): unknown {
         apiConfigured: false,
         propertyAccessible: false,
         state: 'NO_KEY',
-        message: 'Не задан ключ Channex',
+        message: 'Не задан ключ менеджера каналов',
       };
     return base;
   }
@@ -3557,7 +3557,7 @@ function read(path: string, q: URLSearchParams): unknown {
         status: 'FAILED',
         attempts: 3,
         taskId: null,
-        lastError: 'Channex: 422 unprocessable entity — room_type_id не найден',
+        lastError: 'Менеджер каналов: 422 unprocessable entity — room_type_id не найден',
         createdAt: `${today}T05:50:00Z`,
         sentAt: null,
         lines: 2,
@@ -4022,7 +4022,7 @@ createServer(async (req, res) => {
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     if (channexMode === 'foreign' && CHANNEX_FOREIGN.has(path))
       return send(403, {
-        message: 'Каналы продаж, обмен с Channex и сторож системы ведёт поддержка WETOP.',
+        message: 'Каналы продаж, обмен с менеджером каналов и сторож системы ведёт поддержка WETOP.',
       });
     if (path === failPath || failPath === '*')
       return send(

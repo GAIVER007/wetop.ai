@@ -179,7 +179,7 @@ test('сопоставление: названия Channex вместо id, не
   await page.goto('/channels/mapping');
   await expect(
     main.getByTestId('mapping-categories').getByRole('row', { name: /Двухместный номер/ }),
-  ).toContainText('название в Channex недоступно');
+  ).toContainText('название в каналах недоступно');
   await expect(main.getByTestId('mapping-error')).toHaveCount(0);
   // тарифы не загрузились: категории остаются, сбой тарифов назван отдельно
   await request.post(`${fixture}/__test/control`, {

@@ -76,7 +76,7 @@ export function assessWebhook(input: {
     return {
       suspect: true,
       since: previous.suspect && previous.since ? previous.since : now,
-      reason: 'зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь',
+      reason: 'зарегистрированный адрес webhook не отвечает — менеджер каналов не сможет доставить бронь',
       kind: 'unreachable',
     };
   const missed =

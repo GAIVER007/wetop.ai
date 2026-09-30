@@ -72,6 +72,6 @@ export function integrationBindingNotice(
   return {
     level: 'warn',
     message:
-      'INTEGRATION_PROPERTY_ID не задан: объект интеграции Channex определяется по сопоставлениям, а пока их нет — по названию объекта. Впишите идентификатор объекта установки (docs/deploy.md)',
+      'INTEGRATION_PROPERTY_ID не задан: объект интеграции с менеджером каналов определяется по сопоставлениям, а пока их нет — по названию объекта. Впишите идентификатор объекта установки (docs/deploy.md)',
   };
 }

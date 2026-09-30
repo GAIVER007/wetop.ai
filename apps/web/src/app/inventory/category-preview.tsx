@@ -124,7 +124,7 @@ export function CategoryPreview({
           <h3>Брони и каналы</h3>
           <p>{c.reservations ? bookingsLine(c) : 'Броней пока нет'}</p>
           <p className="muted">
-            {c.channexMapped ? 'Сопоставлена с Channex' : 'С Channex не сопоставлена'}
+            {c.channexMapped ? 'Сопоставлена с каналами' : 'С каналами не сопоставлена'}
           </p>
         </section>
         <div className="fund-preview-footer">

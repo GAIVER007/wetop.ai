@@ -95,7 +95,7 @@ export default async function RevisionPageView({
       <div className="chain" data-testid="revision-chain">
         <section className="chain__card" aria-labelledby="chain-revision">
           <h2 id="chain-revision" className="chain__title">
-            1. Ревизия Channex
+            1. Ревизия из каналов
           </h2>
           <div className="row row--inline">
             <Badge tone="info">{EVENT_TYPE_RU[event.type] ?? event.type}</Badge>

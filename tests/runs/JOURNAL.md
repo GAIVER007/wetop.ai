@@ -4839,3 +4839,4 @@
 | 30.09.2026 23:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 18 из 18 | 2 мин 15 с | 4800dfe +9 | [лог](logs/2026-09-30T18-05-12Z-e2e-39b9.log) |  |
 | 30.09.2026 23:07 | typecheck | ❌ ошибок: 1 | 28 с | 4800dfe +10 | [лог](logs/2026-09-30T18-07-50Z-typecheck-479e.log) | TS2322 |
 | 30.09.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts --workers=1) | ✅ 3 из 3 | 34 с | 4800dfe +9 | [лог](logs/2026-09-30T18-08-39Z-e2e-43d4.log) |  |
+| 01.10.2026 00:21 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 37 из 37 | 3 с | 4b25c8d | [лог](logs/2026-09-30T19-21-28Z-unit-d65c.log) |  |

@@ -31,6 +31,21 @@ export const TURNSTILE_FETCH = Symbol('TURNSTILE_FETCH');
 
 type Env = Record<string, string | undefined>;
 
+/**
+ * Режим проверки (Q-224, решение владельца 30.09.2026): `WEB_BOOKING_TURNSTILE_REQUIRED=1` — обязательна, `=0` — выключена
+ * осознанно; не задано — включена, если есть секрет (прежнее поведение). Любое другое значение — `invalid`: проверка
+ * остаётся включённой, а не «выключается опечаткой».
+ */
+export type TurnstileMode = 'off' | 'on' | 'required' | 'invalid';
+
+export function turnstileMode(env: Env = process.env): TurnstileMode {
+  const flag = env['WEB_BOOKING_TURNSTILE_REQUIRED']?.trim();
+  if (flag === '1') return 'required';
+  if (flag === '0') return 'off';
+  if (flag) return 'invalid';
+  return env['TURNSTILE_SECRET_KEY']?.trim() ? 'on' : 'off';
+}
+
 export interface TurnstileContext {
   /** Адрес посетителя: Cloudflare учитывает его при оценке; нигде не сохраняется */
   ip?: string | null;
@@ -48,14 +63,14 @@ export class TurnstileService {
     this.fetchImpl = fetchImpl ?? ((url, init) => fetch(url, init));
   }
 
-  /** Проверка включена, когда задан секрет */
+  /** Проверка включена в режимах `on`, `required` и `invalid`; без секрета в них токен проверить нечем — отказ */
   enabled(env: Env = process.env): boolean {
-    return !!env['TURNSTILE_SECRET_KEY']?.trim();
+    return turnstileMode(env) !== 'off';
   }
 
   /** Публичный ключ для виджета; пока проверка выключена — не отдаётся */
   siteKey(env: Env = process.env): string | null {
-    if (!this.enabled(env)) return null;
+    if (!this.enabled(env) || !env['TURNSTILE_SECRET_KEY']?.trim()) return null;
     return env['TURNSTILE_SITE_KEY']?.trim() || null;
   }
 
@@ -134,31 +149,53 @@ export function turnstileFailureError(reason: TurnstileFailure): HttpException {
 }
 
 /**
- * Сообщение при старте API в production: ничего не задано — предупреждение (бронь с сайта без капчи); задан только один
- * из двух ключей — ошибка (без публичного ключа виджет не покажет проверку, без секрета сервер её не потребует).
+ * Сообщение при старте API. Режим не задан и ключей нет — в production отказ старта: бронь с сайта нельзя тихо оставить без
+ * капчи, потеряв две переменные. Отключить можно только явно (`WEB_BOOKING_TURNSTILE_REQUIRED=0`, предупреждение в журнале).
+ * `=1` без любого ключа — отказ в любом окружении: явное «обязательна» не должно молча ничего не делать. Задан один ключ из
+ * двух — отказ (без публичного ключа виджет не покажет проверку, без секрета сервер её не потребует).
  */
 export function turnstileConfigNotice(
   env: Env,
 ): { level: 'warn' | 'error'; message: string } | null {
-  if (env['NODE_ENV'] !== 'production') return null;
+  const production = env['NODE_ENV'] === 'production';
+  const mode = turnstileMode(env);
   const secret = !!env['TURNSTILE_SECRET_KEY']?.trim();
   const site = !!env['TURNSTILE_SITE_KEY']?.trim();
-  if (secret && site) return null;
-  if (secret)
+  const missing = [!secret && 'TURNSTILE_SECRET_KEY', !site && 'TURNSTILE_SITE_KEY']
+    .filter(Boolean)
+    .join(' и ');
+
+  if (mode === 'invalid')
     return {
       level: 'error',
-      message:
-        'TURNSTILE_SECRET_KEY задан без TURNSTILE_SITE_KEY: виджет не покажет проверку, и все брони с сайта будут отклоняться (docs/deploy.md)',
+      message: `WEB_BOOKING_TURNSTILE_REQUIRED принимает только 1 (обязательна) или 0 (выключить осознанно), задано «${env['WEB_BOOKING_TURNSTILE_REQUIRED']}» (docs/deploy.md)`,
     };
-  if (site)
+  if (mode === 'required') {
+    if (missing)
+      return {
+        level: 'error',
+        message: `WEB_BOOKING_TURNSTILE_REQUIRED=1, но не задано: ${missing}. Без них проверку не показать и не выполнить (docs/deploy.md)`,
+      };
+    return null;
+  }
+  if (!production) return null;
+  if (mode === 'off' && env['WEB_BOOKING_TURNSTILE_REQUIRED']?.trim() === '0')
+    return {
+      level: 'warn',
+      message:
+        'WEB_BOOKING_TURNSTILE_REQUIRED=0: проверка брони с сайта (/w/book) выключена осознанно, бронь не защищена капчей (docs/deploy.md)',
+    };
+  if (secret && site) return null;
+  if (secret || site)
     return {
       level: 'error',
-      message:
-        'TURNSTILE_SITE_KEY задан без TURNSTILE_SECRET_KEY: сервер не будет проверять токен (docs/deploy.md)',
+      message: secret
+        ? 'TURNSTILE_SECRET_KEY задан без TURNSTILE_SITE_KEY: виджет не покажет проверку, и все брони с сайта будут отклоняться (docs/deploy.md)'
+        : 'TURNSTILE_SITE_KEY задан без TURNSTILE_SECRET_KEY: сервер не будет проверять токен (docs/deploy.md)',
     };
   return {
-    level: 'warn',
+    level: 'error',
     message:
-      'TURNSTILE_SECRET_KEY не задан: бронь с сайта (/w/book) не защищена капчей. Задайте TURNSTILE_SITE_KEY и TURNSTILE_SECRET_KEY (docs/deploy.md)',
+      'Не задан режим проверки брони с сайта: укажите WEB_BOOKING_TURNSTILE_REQUIRED=1 вместе с TURNSTILE_SITE_KEY и TURNSTILE_SECRET_KEY, либо WEB_BOOKING_TURNSTILE_REQUIRED=0, если проверку выключают осознанно (docs/deploy.md)',
   };
 }

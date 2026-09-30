@@ -37,7 +37,7 @@ if (binding?.level === 'error') {
 }
 if (binding) console.warn(binding.message);
 
-// BOOK-SEC1: капча перед бронью с сайта; ничего не задано — предупреждение, задан один ключ из двух — отказ старта
+// BOOK-SEC1: капча перед бронью с сайта; режим задаётся WEB_BOOKING_TURNSTILE_REQUIRED, в production без режима и ключей — отказ старта
 const turnstile = turnstileConfigNotice(process.env);
 if (turnstile?.level === 'error') {
   console.error(`PMS API не запущен: ${turnstile.message}`);

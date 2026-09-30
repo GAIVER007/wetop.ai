@@ -4,6 +4,7 @@ import {
   TurnstileService,
   turnstileConfigNotice,
   turnstileFailureError,
+  turnstileMode,
 } from './turnstile';
 
 /**
@@ -176,30 +177,106 @@ describe('Turnstile: отказ гостю', () => {
   });
 });
 
+describe('Turnstile: режим WEB_BOOKING_TURNSTILE_REQUIRED (Q-224, решение владельца 30.09.2026)', () => {
+  const both = { TURNSTILE_SECRET_KEY: 's', TURNSTILE_SITE_KEY: 'k' };
+
+  it('режим задаётся явно: 1 — обязательна, 0 — осознанно выключена, пусто — по наличию ключей', () => {
+    expect(turnstileMode({ WEB_BOOKING_TURNSTILE_REQUIRED: '1' })).toBe('required');
+    expect(turnstileMode({ WEB_BOOKING_TURNSTILE_REQUIRED: ' 1 ' })).toBe('required');
+    expect(turnstileMode({ WEB_BOOKING_TURNSTILE_REQUIRED: '0', ...both })).toBe('off');
+    expect(turnstileMode({})).toBe('off');
+    expect(turnstileMode(both)).toBe('on');
+    expect(turnstileMode({ TURNSTILE_SECRET_KEY: 's' })).toBe('on');
+  });
+
+  it('непонятное значение — не «выключено»: режим invalid, проверка остаётся включённой', () => {
+    for (const v of ['true', 'yes', 'on', 'да', '2']) {
+      expect(turnstileMode({ WEB_BOOKING_TURNSTILE_REQUIRED: v })).toBe('invalid');
+      const t = new TurnstileService(answer(OK_BODY));
+      expect(t.enabled({ WEB_BOOKING_TURNSTILE_REQUIRED: v })).toBe(true);
+    }
+  });
+
+  it('required без секрета: проверка включена и закрыта — токен проверить нечем, бронь не создаётся', async () => {
+    const env = { WEB_BOOKING_TURNSTILE_REQUIRED: '1' };
+    const fetchImpl = answer(OK_BODY);
+    const t = new TurnstileService(fetchImpl);
+    expect(t.enabled(env)).toBe(true);
+    expect(t.siteKey(env)).toBeNull();
+    await expect(t.verify('token', CTX, env)).resolves.toEqual({
+      ok: false,
+      reason: 'unavailable',
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('REQUIRED=0 выключает проверку, даже если ключи заданы; публичный ключ не отдаётся', () => {
+    const env = { WEB_BOOKING_TURNSTILE_REQUIRED: '0', ...both };
+    const t = new TurnstileService(answer(OK_BODY));
+    expect(t.enabled(env)).toBe(false);
+    expect(t.siteKey(env)).toBeNull();
+  });
+});
+
 describe('Turnstile: проверка настроек при старте', () => {
-  it('не production — тихо', () => {
+  const prod = { NODE_ENV: 'production' };
+
+  it('не production и режим не задан — тихо', () => {
     expect(turnstileConfigNotice({})).toBeNull();
     expect(
       turnstileConfigNotice({ NODE_ENV: 'development', TURNSTILE_SECRET_KEY: 'x' }),
     ).toBeNull();
   });
 
-  it('production, ничего не задано — предупреждение: бронь с сайта не защищена капчей', () => {
-    const n = turnstileConfigNotice({ NODE_ENV: 'production' });
-    expect(n?.level).toBe('warn');
+  it('production, ничего не задано — отказ старта: бронь с сайта нельзя тихо оставить без капчи', () => {
+    const n = turnstileConfigNotice(prod);
+    expect(n?.level).toBe('error');
+    expect(n?.message).toMatch(/WEB_BOOKING_TURNSTILE_REQUIRED/);
     expect(n?.message).toMatch(/TURNSTILE_SECRET_KEY/);
   });
 
-  it('production, заданы оба ключа — тихо', () => {
-    expect(turnstileConfigNotice({ NODE_ENV: 'production', ...ENV })).toBeNull();
+  it('production, заданы оба ключа без явного режима — тихо (проверка включена)', () => {
+    expect(turnstileConfigNotice({ ...prod, ...ENV })).toBeNull();
   });
 
   it('production, задан только один ключ — ошибка: такая настройка заблокировала бы все брони с сайта', () => {
-    const onlySecret = turnstileConfigNotice({ NODE_ENV: 'production', TURNSTILE_SECRET_KEY: 's' });
-    const onlySite = turnstileConfigNotice({ NODE_ENV: 'production', TURNSTILE_SITE_KEY: 'k' });
+    const onlySecret = turnstileConfigNotice({ ...prod, TURNSTILE_SECRET_KEY: 's' });
+    const onlySite = turnstileConfigNotice({ ...prod, TURNSTILE_SITE_KEY: 'k' });
     expect(onlySecret?.level).toBe('error');
     expect(onlySite?.level).toBe('error');
     expect(onlySecret?.message).toMatch(/TURNSTILE_SITE_KEY/);
     expect(onlySite?.message).toMatch(/TURNSTILE_SECRET_KEY/);
+  });
+
+  it('REQUIRED=1: без любого из ключей — отказ старта, с обоими — тихо', () => {
+    const req = { ...prod, WEB_BOOKING_TURNSTILE_REQUIRED: '1' };
+    const noKeys = turnstileConfigNotice(req);
+    const noSite = turnstileConfigNotice({ ...req, TURNSTILE_SECRET_KEY: 's' });
+    const noSecret = turnstileConfigNotice({ ...req, TURNSTILE_SITE_KEY: 'k' });
+    expect(noKeys?.level).toBe('error');
+    expect(noKeys?.message).toMatch(/TURNSTILE_SECRET_KEY/);
+    expect(noKeys?.message).toMatch(/TURNSTILE_SITE_KEY/);
+    expect(noSite?.level).toBe('error');
+    expect(noSite?.message).toMatch(/TURNSTILE_SITE_KEY/);
+    expect(noSecret?.level).toBe('error');
+    expect(noSecret?.message).toMatch(/TURNSTILE_SECRET_KEY/);
+    expect(turnstileConfigNotice({ ...req, ...ENV })).toBeNull();
+  });
+
+  it('REQUIRED=1 отказывает и вне production: явное «обязательна» не должно молча ничего не делать', () => {
+    expect(turnstileConfigNotice({ WEB_BOOKING_TURNSTILE_REQUIRED: '1' })?.level).toBe('error');
+  });
+
+  it('REQUIRED=0 в production — только предупреждение: выключено осознанно, но видно в журнале', () => {
+    const n = turnstileConfigNotice({ ...prod, WEB_BOOKING_TURNSTILE_REQUIRED: '0' });
+    expect(n?.level).toBe('warn');
+    expect(n?.message).toMatch(/WEB_BOOKING_TURNSTILE_REQUIRED=0/);
+  });
+
+  it('непонятное значение REQUIRED — отказ старта, а не «выключено»', () => {
+    for (const v of ['true', 'yes', '2'])
+      expect(
+        turnstileConfigNotice({ ...prod, ...ENV, WEB_BOOKING_TURNSTILE_REQUIRED: v })?.level,
+      ).toBe('error');
   });
 });

@@ -607,6 +607,27 @@ describe('виджет бронирования /w/*', () => {
       expect(fake).not.toHaveBeenCalled();
     });
 
+    it('REQUIRED=1 без секрета — бронь закрыта (503), Cloudflare не спрашивается; публичного ключа нет', async () => {
+      vi.stubEnv('WEB_BOOKING_TURNSTILE_REQUIRED', '1');
+      vi.stubEnv('TURNSTILE_SECRET_KEY', '');
+      const fake = cloudflare(() => new Error('не должен вызываться'));
+      const r = await post(withToken('tok-any')).expect(503);
+      expect(r.body.message).toMatch(/попробуйте позже/);
+      expect(created.dtos).toHaveLength(0);
+      expect(fake).not.toHaveBeenCalled();
+      const cfg = await request(app.getHttpServer()).get('/w/config').expect(200);
+      expect(cfg.body).toEqual({ turnstileSiteKey: null });
+    });
+
+    it('REQUIRED=0 — проверки нет даже при заданных ключах: выключено осознанно', async () => {
+      vi.stubEnv('WEB_BOOKING_TURNSTILE_REQUIRED', '0');
+      const fake = cloudflare(() => new Error('не должен вызываться'));
+      await post(booking()).expect(201);
+      expect(fake).not.toHaveBeenCalled();
+      const cfg = await request(app.getHttpServer()).get('/w/config').expect(200);
+      expect(cfg.body).toEqual({ turnstileSiteKey: null });
+    });
+
     it('проверка включена, токена нет — 400, брони нет, Cloudflare не спрашивается', async () => {
       const fake = cloudflare(() => CF_OK);
       const r = await post(withToken()).expect(400);

@@ -417,8 +417,10 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     return id;
   }
   async pendingOutbox(provider: string, kind: OutboxKind, now: Date): Promise<OutboxRow[]> {
+    // B1.5 (Q-222): служебная роль не различает объекты, поэтому объект — в самом запросе и выбирает его сервер
+    const propertyId = await this.scopedPropertyId();
     const rows = await integrationTables(this.prisma.db).channelOutbox.findMany({
-      where: { provider, kind, status: 'PENDING', nextAttemptAt: { lte: now } },
+      where: { provider, kind, propertyId, status: 'PENDING', nextAttemptAt: { lte: now } },
       orderBy: { createdAt: 'asc' },
       take: 200,
     });
@@ -435,8 +437,9 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     taskId: string | null,
     warning?: string | null,
   ): Promise<void> {
+    const propertyId = await this.scopedPropertyId();
     await integrationTables(this.prisma.db).channelOutbox.updateMany({
-      where: { id: { in: ids } },
+      where: { id: { in: ids }, propertyId },
       data: {
         status: 'SENT',
         taskId,
@@ -455,8 +458,9 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     nextAttemptAt: Date,
     failed: boolean,
   ): Promise<void> {
+    const propertyId = await this.scopedPropertyId();
     await integrationTables(this.prisma.db).channelOutbox.updateMany({
-      where: { id: { in: ids } },
+      where: { id: { in: ids }, propertyId },
       data: {
         attempts: { increment: 1 },
         lastError: error.slice(0, 1000),
@@ -481,6 +485,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     const row = await integrationTables(this.prisma.db).externalEvent.findFirst({
       where: {
         provider,
+        propertyId: await this.scopedPropertyId(),
         receivedVia: via,
         ...(typePrefix ? { type: { startsWith: typePrefix } } : {}),
       },
@@ -503,6 +508,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
    * номер брони PMS — на экране от ревизии сразу открывается бронь (срез 7.2).
    */
   async recentEvents(provider: string, limit: number): Promise<InboundEventRow[]> {
+    const propertyId = await this.scopedPropertyId();
     const rows = await onIntegrationTables(() =>
       this.prisma.db.$queryRaw<
         Array<{
@@ -521,7 +527,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
              received_via::text AS received_via, received_at, processed_at, last_error,
              CASE WHEN jsonb_typeof(payload) = 'object' THEN payload->>'unique_id' END AS unique_id
         FROM external_events
-       WHERE provider = ${provider}
+       WHERE provider = ${provider} AND property_id = ${propertyId}::uuid
        ORDER BY received_at DESC
        LIMIT ${limit}
     `),
@@ -552,7 +558,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
    */
   async recentOutbox(provider: string, limit: number): Promise<OutboxMessageRow[]> {
     const rows = await integrationTables(this.prisma.db).channelOutbox.findMany({
-      where: { provider },
+      where: { provider, propertyId: await this.scopedPropertyId() },
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
@@ -682,12 +688,11 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     };
   }
   async eventByRevision(provider: string, revisionId: string) {
-    const r = await integrationTables(this.prisma.db).externalEvent.findUnique({
-      where: { provider_externalEventId: { provider, externalEventId: revisionId } },
+    // Phase 1 изоляции (ADR-100 §17.2): чужая ревизия по прямому id не отдаётся — как не найдена; объект — в самом запросе (B1.5)
+    const r = await integrationTables(this.prisma.db).externalEvent.findFirst({
+      where: { provider, externalEventId: revisionId, propertyId: await this.scopedPropertyId() },
     });
     if (!r) return null;
-    // Phase 1 изоляции (ADR-100 §17.2): чужая ревизия по прямому id не отдаётся — как не найдена
-    if (r.propertyId !== (await this.scopedPropertyId())) return null;
     return {
       externalEventId: r.externalEventId,
       type: r.type,

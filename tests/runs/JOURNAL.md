@@ -4763,3 +4763,5 @@
 | 30.09.2026 18:27 | unit | ✅ 2686 из 2689, пропущено 3 | 2 мин 6 с | 338bc07 | [лог](logs/2026-09-30T13-27-36Z-unit-ccba.log) |  |
 | 30.09.2026 18:29 | integration | ❌ код выхода 1 | 3 с | 338bc07 | [лог](logs/2026-09-30T13-29-43Z-integration-add8.log) |  |
 | 30.09.2026 18:30 | integration | ✅ 220 из 220 | 1 мин 19 с | 338bc07 | [лог](logs/2026-09-30T13-30-01Z-integration-0ade.log) |  |
+| 30.09.2026 18:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/owner-dashboard.spec.ts tests/ui/dashboard-desk.spec.ts tests/ui/today-operations.spe | ❌ упало 2 из 81 | 12 мин 29 с | 6c60419 +2 | [лог](logs/2026-09-30T13-30-55Z-e2e-4f07.log) | Guest operations audit on deployed release 6c604192: dashboard board reservations guests navigation |
+| 30.09.2026 18:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts --grep G3\|G7) | ✅ 2 из 2 | 41 с | 6c60419 +3 | [лог](logs/2026-09-30T13-43-45Z-e2e-0762.log) | Guest audit repeat: reveal filters through UI; unchanged timeout and assertions |

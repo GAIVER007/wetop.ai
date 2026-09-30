@@ -433,6 +433,7 @@ test('гости: отборы по визиту и числу визитов, �
 
   // последний визит за 30 дней и 2–5 визитов: остаётся тот, кто приезжал трижды
   await page.goto('/guests');
+  await filters.getByRole('button', { name: 'Фильтры', exact: true }).click();
   await filters.getByRole('combobox', { name: 'Последний визит', exact: true }).selectOption('30d');
   await filters.getByRole('combobox', { name: 'Визитов', exact: true }).selectOption('2-5');
   await filters.getByRole('button', { name: 'Показать', exact: true }).click();
@@ -469,6 +470,7 @@ test('гости: отборы по визиту и числу визитов, �
   // период с–по виден, когда выбран «период»; даты едут в адрес
   await page.goto('/guests');
   await expect(filters.getByLabel('Последний визит: с', { exact: true })).toBeHidden();
+  await filters.getByRole('button', { name: 'Фильтры', exact: true }).click();
   await filters
     .getByRole('combobox', { name: 'Последний визит', exact: true })
     .selectOption('period');

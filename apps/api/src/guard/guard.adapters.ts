@@ -14,6 +14,7 @@ import {
 import { telegram } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { integrationTables } from '../database/integration-tables';
+import { propertyIdRef } from '../database/property-ref';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PROVIDER } from '../channels/ari-publisher';
 import { isAriStopped } from '../channels/ari-switch';
@@ -113,8 +114,11 @@ export class NestGuardProbes implements GuardProbes {
 
   async outbox(): Promise<OutboxSignal> {
     const lastFullSyncAt = await this.channels.lastAuditAt('channex.fullSync');
+    // B1.5 (Q-222): служебная роль не различает объекты — объект в самом запросе, его выбирает сервер
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const where = {
       provider: PROVIDER,
+      propertyId,
       status: 'FAILED' as const,
       ...(lastFullSyncAt ? { createdAt: { gt: lastFullSyncAt } } : {}),
     };
@@ -139,8 +143,9 @@ export class NestGuardProbes implements GuardProbes {
   }
 
   async failedEvents(): Promise<FailedEvent[]> {
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const rows = await integrationTables(this.prisma.db).externalEvent.findMany({
-      where: { provider: PROVIDER, status: 'FAILED' },
+      where: { provider: PROVIDER, propertyId, status: 'FAILED' },
       orderBy: { receivedAt: 'asc' },
       take: 50,
       select: {

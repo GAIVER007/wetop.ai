@@ -111,9 +111,7 @@ export default async function ReservationsPage({
   // Виды «Будущие», «Проживают», «Требуют внимания» периода не знают (API их отбирает по фактам);
   // «Сегодня» держит день объекта — ручной период и «Дата относится к» есть только у вида «Все»
   const periodView = f.view === 'all';
-  // Числа на чипах: видно, сколько предварительных и проживающих, до нажатия. Ряд не
-  // перестраивается от периода к периоду — статус с нулём остаётся на месте и приглушён,
-  // «Отменены 0» — это тоже ответ, за которым не надо никуда нажимать.
+  // Числа доступны в списке статусов; нулевые значения не перегружают подписи.
   const counts = result?.counts ?? null;
   const narrowed = Boolean(f.source || f.payment || f.allocation || f.category);
   const filtersOn =
@@ -180,7 +178,7 @@ export default async function ReservationsPage({
               className={f.view === id ? 'is-active' : ''}
               aria-current={f.view === id ? 'page' : undefined}
             >
-              {label}
+              {id === 'all' ? 'По периоду' : label}
             </Link>
           ))}
         </nav>
@@ -198,23 +196,24 @@ export default async function ReservationsPage({
               aria-label="Поиск броней"
             />
           </div>
-          <nav className="directory-filters reservations-presets" aria-label="Готовые периоды">
-            {periodPresets.map(([label, p]) => {
-              const current = periodView && p.from === from && p.to === to;
-              return (
-                <Link
-                  key={label}
-                  href={href({ from: p.from, to: p.to, view: 'all', page: '1' })}
-                  className={current ? 'is-active' : ''}
-                  aria-current={current ? 'page' : undefined}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
           {periodView && (
             <DatesToggle defaultOpen={!isPreset || f.date !== 'stay'}>
+              <nav className="directory-filters reservations-presets" aria-label="Готовые периоды">
+                {periodPresets.map(([label, p]) => {
+                  const current = periodView && p.from === from && p.to === to;
+                  return (
+                    <Link
+                      key={label}
+                      href={href({ from: p.from, to: p.to, view: 'all', page: '1' })}
+                      className={current ? 'is-active' : ''}
+                      aria-current={current ? 'page' : undefined}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+
               <Field inline label="С">
                 <DateInput
                   key={`from-${from}`}
@@ -253,6 +252,7 @@ export default async function ReservationsPage({
               {Object.entries(reservationStatuses).map(([id, label]) => (
                 <option key={id} value={id}>
                   {label}
+                  {counts && (counts[id] ?? 0) > 0 ? ` (${counts[id]})` : ''}
                 </option>
               ))}
             </Select>
@@ -347,24 +347,6 @@ export default async function ReservationsPage({
           </FiltersToggle>
           <Button tone="secondary">Показать</Button>
         </form>
-        <nav className="directory-filters reservations-statuses" aria-label="Статусы броней">
-          {Object.entries(reservationStatuses).map(([id, label]) => {
-            const count = counts ? (counts[id] ?? 0) : null;
-            return (
-              <Link
-                key={id}
-                href={href({ status: id, page: '1' })}
-                className={
-                  status === id ? 'is-active' : count === 0 ? 'reservations-chip--zero' : ''
-                }
-                aria-current={status === id ? 'page' : undefined}
-              >
-                {label}
-                {count !== null && <span className="reservations-count">{count}</span>}
-              </Link>
-            );
-          })}
-        </nav>
       </section>
       {error && (
         <Alert boxed>
@@ -509,12 +491,7 @@ export default async function ReservationsPage({
                     <Link href={href({ page: '1' })}>К первой странице</Link>
                   </p>
                 ) : (
-                  <p>
-                    Бронирований{scopeText}
-                    {statusText}
-                    {conditionText}
-                    {queryText} нет. Уберите условие или выберите другой день.
-                  </p>
+                  <p>По выбранным условиям броней нет. Измените даты или сбросьте фильтры.</p>
                 )}
                 <div className="empty-state__actions">
                   {q && (

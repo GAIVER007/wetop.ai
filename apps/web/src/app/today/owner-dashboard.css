@@ -1,0 +1,345 @@
+.page:has(.owner-dashboard) {
+  padding: 8px 16px 8px;
+}
+.page:has(.owner-dashboard) .page__head {
+  margin-bottom: 8px;
+}
+.page:has(.owner-dashboard) .page__title {
+  font-size: var(--text-4xl);
+}
+.owner-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: var(--text-xs);
+}
+.owner-toolbar nav {
+  display: flex;
+  padding: 4px;
+  background: var(--surface);
+  border-radius: var(--radius-control);
+  gap: 4px;
+}
+.owner-toolbar nav a {
+  padding: 8px 8px;
+  border-radius: var(--radius-control);
+  color: var(--muted);
+}
+.owner-toolbar nav a[aria-current] {
+  color: var(--primary);
+  background: var(--surface-muted);
+}
+.owner-toolbar form {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.owner-toolbar input {
+  width: 132px;
+  min-width: 0;
+  padding: 8px;
+  font-size: var(--text-xs);
+}
+.owner-toolbar .btn {
+  min-height: 34px;
+  padding: 4px 8px;
+  font-size: var(--text-xs);
+}
+.owner-property {
+  margin-left: auto;
+  color: var(--muted);
+}
+.owner-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.owner-finance {
+  order: 1;
+}
+.owner-operations {
+  order: 2;
+}
+.owner-charts {
+  order: 3;
+}
+.owner-bottom {
+  order: 4;
+}
+.owner-row-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.owner-row-label h2 {
+  font-size: var(--text-xs);
+  color: var(--text);
+  margin: 0;
+}
+.owner-row-label a {
+  margin-left: auto;
+}
+.owner-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.owner-stat,
+.owner-panel,
+.owner-bottom {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-control);
+}
+.owner-stat {
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.owner-stat > span {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.owner-stat strong {
+  font-size: var(--text-3xl);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.6px;
+}
+.owner-stat strong a {
+  color: inherit;
+}
+.owner-stat small {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--muted);
+}
+.owner-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.1fr;
+  gap: 8px;
+}
+.owner-panel {
+  padding: 8px 8px;
+  min-width: 0;
+}
+.owner-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.owner-panel h2 {
+  font-size: var(--text-xs);
+  margin: 0;
+}
+.owner-panel header a {
+  font-size: var(--text-xs);
+}
+.owner-charts .bars {
+  height: 44px;
+}
+.owner-charts .bars-day {
+  margin-top: 8px;
+}
+.owner-charts .bars-day p {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+.owner-charts .bars-day .btn {
+  min-height: 28px;
+  padding: 4px;
+}
+.owner-caption {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  line-height: 1.4;
+  margin: 8px 0 0;
+}
+.owner-source-list {
+  min-height: 92px;
+}
+.owner-source {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 8px;
+  padding: 4px 0;
+  font-size: var(--text-xs);
+}
+.owner-source small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.owner-source strong {
+  grid-column: 2;
+  grid-row: span 2;
+  align-self: center;
+}
+.owner-bookings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.owner-bookings b {
+  color: var(--text);
+}
+.owner-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.6fr;
+  gap: 8px;
+  padding: 8px 8px;
+}
+.owner-bottom > div:not(.owner-bottom__actions) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.owner-bottom > div > span {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.owner-bottom > div > strong {
+  font-size: var(--text-xl);
+}
+.owner-bottom > div > small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.owner-bottom__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.owner-bottom__actions > .btn {
+  font-size: var(--text-xs);
+  padding: 8px 8px;
+  min-height: 34px;
+}
+.owner-system-link {
+  font-size: var(--text-xs);
+  width: 100%;
+  text-align: right;
+}
+.owner-details {
+  display: grid;
+  gap: 16px;
+}
+@media (min-width: 1600px) and (min-height: 900px) {
+  .owner-stat {
+    padding: 16px;
+  }
+  .owner-charts .bars {
+    height: 130px;
+  }
+  .owner-stat strong {
+    font-size: var(--text-4xl);
+  }
+  .owner-dashboard {
+    gap: 16px;
+  }
+}
+@media (max-width: 1000px) {
+  .owner-property {
+    display: none;
+  }
+  .owner-toolbar {
+    gap: 8px;
+  }
+  .owner-charts {
+    grid-template-columns: 1fr 1fr;
+  }
+  .owner-charts > article:last-child {
+    grid-column: 1/-1;
+  }
+  .owner-bottom {
+    grid-template-columns: 1fr 1fr;
+  }
+  .owner-bottom__actions {
+    grid-column: 1/-1;
+    justify-content: flex-start;
+  }
+  .owner-system-link {
+    text-align: left;
+  }
+}
+@media (max-width: 600px) {
+  .owner-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .owner-charts {
+    grid-template-columns: 1fr;
+  }
+  .owner-toolbar form {
+    flex-wrap: wrap;
+  }
+  .page:has(.owner-dashboard) {
+    padding: 8px;
+  }
+  .owner-stat strong {
+    font-size: var(--text-2xl);
+  }
+  .owner-row-label {
+    flex-wrap: wrap;
+  }
+  .owner-toolbar input {
+    width: 120px;
+  }
+  .owner-charts .bars {
+    height: 100px;
+  }
+}
+
+.owner-charts .bars .bar:only-child {
+  max-width: 48px;
+  margin-inline: auto;
+}
+.owner-toolbar input {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+}
+
+@media (max-width: 600px) {
+  .page:has(.owner-dashboard) .page__title {
+    font-size: var(--text-3xl);
+  }
+}
+
+.owner-source {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+.owner-source strong {
+  grid-column: 3;
+  grid-row: 1;
+}
+.owner-source small {
+  grid-column: 2;
+  grid-row: 1;
+}
+.owner-source-list {
+  min-height: 80px;
+}
+
+.owner-charts .bars-day {
+  margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+  .page:has(.owner-dashboard) {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}

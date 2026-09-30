@@ -978,7 +978,32 @@ export function ChessboardGrid({
           <thead>
             <tr>
               <th className="board__unit-head">
-                Номера и койки<div className="board__wd">Свободно / занято</div>
+                Номера и койки{' '}
+                <div className="board-overview-controls">
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    disabled={groups.length === 0}
+                    onClick={() => {
+                      const next = new Set(collapsed);
+                      const expand = groups.every((group) => collapsed.has(group.code));
+                      for (const group of groups) {
+                        if (expand) next.delete(group.code);
+                        else next.add(group.code);
+                      }
+                      setCollapsed(next);
+                      try {
+                        localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...next]));
+                      } catch {
+                        // Сворачивание доступно и без сохранения в браузере.
+                      }
+                    }}
+                  >
+                    {groups.length > 0 && groups.every((group) => collapsed.has(group.code))
+                      ? 'Развернуть категории'
+                      : 'Свернуть категории'}
+                  </button>
+                </div>
               </th>
               {board.dates.map((d) => (
                 <th

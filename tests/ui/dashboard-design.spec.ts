@@ -94,8 +94,13 @@ test('показатели: на телефоне таблица категор�
  */
 test('главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам', async ({
   page,
+  request,
 }) => {
   await page.goto('/today');
+  await page
+    .getByTestId('owner-dashboard')
+    .getByRole('button', { name: 'Работа с гостями', exact: true })
+    .click();
   const quick = page.getByRole('region', { name: 'Быстрые действия' });
 
   // числа из того же `DeskDay` и равны строкам окна выбора (разбор 23.09.2026, находка 1): заселить —
@@ -111,6 +116,8 @@ test('главная: быстрые действия называют числ�
   );
 
   // разбивка сверху видна и при нуле (23.09); с A3 — по важности: Критично, Важно, К сведению, и сумма равна счётчику
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const tally = page.getByTestId('attention-tally');
   await expect(tally.getByRole('listitem')).toHaveText([/Критично/, /Важно/, /К сведению/]);
   const numbers = (await tally.locator('strong').allInnerTexts()).map(Number);
@@ -119,7 +126,12 @@ test('главная: быстрые действия называют числ�
   );
 
   // день без броней: ни одной мёртвой кнопки — каждая ведёт туда, где действие начинается
-  await page.goto('/today?date=2027-06-01');
+  await request.post('http://127.0.0.1:4311/__test/control', { data: { noBookings: true } });
+  await page.goto('/today');
+  await page
+    .getByTestId('owner-dashboard')
+    .getByRole('button', { name: 'Работа с гостями', exact: true })
+    .click();
   const empty = page.getByRole('region', { name: 'Быстрые действия' });
   await expect(empty.locator('button:disabled')).toHaveCount(0);
   const checkIn = empty.getByRole('link', { name: /Заселить гостя/ });

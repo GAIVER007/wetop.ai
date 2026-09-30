@@ -2,7 +2,7 @@ import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
-const report = 'reports/reservations-design-2026-09-20';
+const report = 'reports/reservations-compact-2026-09-30';
 test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
 });
@@ -17,18 +17,14 @@ test('выбранный статус броней доступен с клав�
     await page.screenshot({ path: `${report}/before-390.png`, caret: 'initial' });
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
-  const statuses = page.getByRole('navigation', { name: 'Статусы броней' });
-  // В названии чипа теперь ещё и число броней этого статуса: «Все статусы 9»
-  await expect(statuses.getByRole('link', { name: /^Все статусы/ })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
-  await expect(statuses.getByRole('link', { name: /^Все статусы/ })).toContainText('9');
-  const confirmed = statuses.getByRole('link', { name: /^Подтверждены/ });
-  await confirmed.focus();
+  const statuses = page.getByLabel('Статус брони');
+  await expect(statuses).toHaveValue('ALL');
+  await expect(statuses.locator('option[value="ALL"]')).toContainText('9');
+  await statuses.selectOption('CONFIRMED');
+  await page.getByRole('button', { name: 'Показать', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/status=CONFIRMED/);
-  await expect(confirmed).toHaveAttribute('aria-current', 'page');
+  await expect(statuses).toHaveValue('CONFIRMED');
   await expect(page.getByTestId('directory-meta')).toContainText('Подтверждены');
 });
 

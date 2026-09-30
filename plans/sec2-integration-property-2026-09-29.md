@@ -65,6 +65,8 @@ API, проверить вход в «Каналы продаж». Без пер
 - Риск шага 6: служебные ходоки без `INTEGRATION_PROPERTY_ID` в своём окружении перестанут находить объект. Проверить до включения обязательности:
   скрипты владельца (`scripts/ops/*`, `scripts/reconciliation/*`) и сторож берут `.env` сервера; тесты (`pms_test`) идут вне production и
   сохраняют путь по названию как DEPRECATED.
+- Ещё одно место, зависящее от названия: `apps/api/src/guard/guard.adapters.ts` (`stays()`, фильтр `reservation: { property: { name: LUXX_APARTS_PROPERTY.name } }`) —
+  выборка броней сторожем по названию объекта. Это не выбор владельца, но при шаге 6 его тоже нужно перевести на идентификатор.
 - Сопоставления Channex как второй шаг цепочки — в `channels/integration-property.ts` (`resolveIntegrationProperty`) и
   `channels/operator-access.ts`; в production они перестают быть источником владельца.
 

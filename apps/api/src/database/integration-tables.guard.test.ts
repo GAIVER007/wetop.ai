@@ -84,6 +84,53 @@ describe('ворота к данным интеграции: обращений 
     expect(bad, bad.join('\n')).toEqual([]);
   });
 
+  it('чтение и правка external_events и channel_outbox ограничены объектом (propertyId в аргументах), system_incidents — вне правила', () => {
+    // B1.5 (Q-222): служебная роль не различает объекты; фильтра по провайдеру мало. Объект выбирает сервер.
+    // `system_incidents` колонки property_id не имеет (инциденты сторожа на всю установку) — правило к ней не применяется.
+    // Исключение — комментарий `property-scope: причина` в аргументах или в двух строках выше вызова.
+    const call =
+      /(?:integrationTables\([^)]*\)|\btables)\.(externalEvent|channelOutbox)\.(findMany|findFirst|findUnique|count|updateMany|update|deleteMany|delete)\(/g;
+    /** Текст до парной закрывающей скобки/фигурной, начиная с открывающей в позиции `open` */
+    const balanced = (text: string, open: number): string => {
+      const pair: Record<string, string> = { '(': ')', '{': '}' };
+      const start = text[open]!;
+      let depth = 0;
+      for (let k = open; k < text.length; k++) {
+        if (text[k] === start) depth++;
+        else if (text[k] === pair[start]) {
+          depth--;
+          if (depth === 0) return text.slice(open, k + 1);
+        }
+      }
+      return text.slice(open);
+    };
+    const bad: string[] = [];
+    for (const f of files) {
+      const text = f.text.replace(/\/\/[^\n]*/g, (c) => (/property-scope:/.test(c) ? c : ''));
+      const re = new RegExp(call.source, 'g');
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(text))) {
+        const open = m.index + m[0].length - 1;
+        const args = balanced(text, open);
+        const line = text.slice(0, m.index).split('\n').length;
+        const before = text.slice(Math.max(0, m.index - 200), m.index);
+        if (
+          /propertyId/.test(args) ||
+          /property-scope:/.test(args) ||
+          /property-scope:/.test(before)
+        )
+          continue;
+        // сокращённая запись `{ where }`: условие объявлено выше как `const where = { ... }`
+        if (/\{\s*where\s*[,}]/.test(args)) {
+          const decl = text.slice(0, m.index).lastIndexOf('const where');
+          if (decl >= 0 && /propertyId/.test(balanced(text, text.indexOf('{', decl)))) continue;
+        }
+        bad.push(`${f.rel}:${line}`);
+      }
+    }
+    expect(bad, bad.join('\n')).toEqual([]);
+  });
+
   it('исключения перечислены с причиной', () => {
     for (const [rel, e] of Object.entries(DIRECT_ALLOWED))
       expect(e.why.length, rel).toBeGreaterThan(20);

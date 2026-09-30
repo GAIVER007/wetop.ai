@@ -108,6 +108,16 @@ async def check_llm_key(request: Request, org_id: uuid.UUID, body: LlmKeyIn) -> 
     plain = body.key.strip()
     if plain == "":
         raise HTTPException(status_code=422, detail="Нечего проверять: ключ пуст")
+    # Пробный вызов роутера с произвольным ключом — оракул годности чужих ключей (аудит 30.09.2026):
+    # часовой предел по организации, без счётчика (Redis) — 503 и вызова нет.
+    from src.channels.widget_guards import RateLimitUnavailable, rate_exceeded
+
+    try:
+        exceeded = await rate_exceeded(settings, "llm-key", str(org_id), fail_closed=True)
+    except RateLimitUnavailable:
+        raise HTTPException(status_code=503, detail="Счётчик запросов недоступен — попробуйте позже") from None
+    if exceeded:
+        raise HTTPException(status_code=429, detail="Слишком много проверок ключа за час — попробуйте позже")
     try:
         response = await get_http_client().get(
             f"{base}/models",

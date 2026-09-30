@@ -259,7 +259,8 @@ class Engine:
         history = [HistoryTurn(role=_ROLE_TO_TURN[m.role], text=m.content) for m in t.history if m.role in _ROLE_TO_TURN]
         t.messages = build_messages(system_prompt=system_prompt, knowledge=knowledge, history=history,
                                     user_text=t.verdict.text, history_turns=s.llm_history_turns,
-                                    max_turn_chars=s.guard_max_input_chars)
+                                    max_turn_chars=s.guard_max_input_chars,
+                                    max_history_chars=s.llm_history_max_chars)
 
     async def _model(self, t: Turn) -> None:
         t.step("model")
@@ -292,7 +293,8 @@ class Engine:
 
         Проверка и списание врозь пропускали к модели все параллельные вызовы: каждый видел счётчик
         до чужого списания. Резерв (предел ответа модели) виден соседям сразу; после вызова — _settle_tokens.
-        Redis недоступен — не исчерпан: бюджет защищает счёт, а не заменяет ответ клиенту.
+        Redis недоступен — считаем исчерпанным: без счётчика падение Redis снимало бы предел на расход
+        токенов целиком (решение владельца 30.09.2026); гостю — фраза бюджета, контакт сохраняется.
         """
         # Не «budget»: так называется модуль дневного предела гостиницы (src/ai/budget.py).
         ceiling = self._settings.llm_daily_token_budget
@@ -302,8 +304,8 @@ class Engine:
         try:
             used = int(await self._redis.incrby(key, reserve))
         except Exception:  # noqa: BLE001 — Redis недоступен
-            logger.warning("бюджет модели: Redis недоступен, считаем не исчерпанным", exc_info=True)
-            return 0
+            logger.warning("бюджет модели: Redis недоступен, модель не зовём", exc_info=True)
+            return None
         try:
             await self._redis.expire(key, 2 * 86_400)
         except Exception:  # noqa: BLE001 — срок поставит списание

@@ -1,0 +1,156 @@
+# Модульные (unit) · 29.09.2026 22:08 Алматы · vm
+# коммит 66923ec (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T17-08-12Z-unit-3ec2.json' 'apps/api/src/assistant/actions.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/assistant/actions.controller.test.ts (8 tests | 7 failed) 242ms
+   ❯ ключи (S6) (2)
+     × ключ чтения на действие — 403, без ключа — 401 36ms
+     ✓ ключ действий на чтение — 403 5ms
+   ❯ POST /assistant/actions/channel-pull (S6) (4)
+     × владелец организации с каналами: лента подтянута от имени организации, числа без адресов 4ms
+     × повтор с тем же ключом идемпотентности не выполняет второй раз 3ms
+     × чужая пара — 404; администратор без права «каналы» — 403; «только чтение» — 409; без интеграции — 409 6ms
+     × кривые id и пустой ключ идемпотентности — 400 до проверок 3ms
+   ❯ POST /assistant/actions/channel-sync (S6) (2)
+     × полная выгрузка на 90 дней по умолчанию; кривые days — 400 3ms
+     × лимит: то же действие той же организации сразу ещё раз — 429; тот же ключ идемпотентности — прежний ответ 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/assistant/actions.controller.test.ts > ключи (S6) > ключ чтения на действие — 403, без ключа — 401
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/assistant/actions.controller.test.ts:120:46
+    118| describe('ключи (S6)', () => {
+    119|   it('ключ чтения на действие — 403, без ключа — 401', async () => {
+    120|     await pull(OWNER_A, ORG_A, {}, READ_KEY).expect(403);
+       |                                              ^
+    121|     await pull(OWNER_A, ORG_A, {}, null).expect(401);
+    122|     expect(pulls).toEqual([]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| apps/api/src/assistant/actions.controller.test.ts > POST /assistant/actions/channel-pull (S6) > владелец организации с каналами: лента подтянута от имени организации, числа без адресов
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/actions.controller.test.ts:137:44
+    135| describe('POST /assistant/actions/channel-pull (S6)', () => {
+    136|   it('владелец организации с каналами: лента подтянута от имени органи…
+    137|     const res = await pull(OWNER_A, ORG_A).expect(200);
+       |                                            ^
+    138|     expect(res.body).toEqual({ ok: true, action: 'channel_pull', repla…
+    139|     expect(pulls).toEqual([ORG_A]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| apps/api/src/assistant/actions.controller.test.ts > POST /assistant/actions/channel-pull (S6) > повтор с тем же ключом идемпотентности не выполняет второй раз
+Error: expected 409 "Conflict", got 404 "Not Found"
+ ❯ apps/api/src/assistant/actions.controller.test.ts:145:57
+    143|     const body = { userId: OWNER_B, organizationId: ORG_B, idempotency…
+    144|     // Б — без интеграции: сначала докажем 409, чтобы повтор ниже пров…
+    145|     await post('/assistant/actions/channel-pull', body).expect(409);
+       |                                                         ^
+    146|   });
+    147|
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| apps/api/src/assistant/actions.controller.test.ts > POST /assistant/actions/channel-pull (S6) > чужая пара — 404; администратор без права «каналы» — 403; «только чтение» — 409; без интеграции — 409
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ apps/api/src/assistant/actions.controller.test.ts:150:46
+    148|   it('чужая пара — 404; администратор без права «каналы» — 403; «тольк…
+    149|     await pull(OWNER_A, ORG_B).expect(404);
+    150|     const staff = await pull(STAFF_A, ORG_A).expect(403);
+       |                                              ^
+    151|     expect(staff.body.message).toContain('каналы');
+    152|     const ro = await pull(OWNER_RO, ORG_RO).expect(409);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| apps/api/src/assistant/actions.controller.test.ts > POST /assistant/actions/channel-pull (S6) > кривые id и пустой ключ идемпотентности — 400 до проверок
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ apps/api/src/assistant/actions.controller.test.ts:160:112
+    158|
+    159|   it('кривые id и пустой ключ идемпотентности — 400 до проверок', asyn…
+    160|     await post('/assistant/actions/channel-pull', { userId: '1', organ…
+       |                                                                                                                ^
+    161|     await post('/assistant/actions/channel-pull', { userId: OWNER_A, o…
+    162|     expect(pulls).toEqual([]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| apps/api/src/assistant/actions.controller.test.ts > POST /assistant/actions/channel-sync (S6) > полная выгрузка на 90 дней по умолчанию; кривые days — 400
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/assistant/actions.controller.test.ts:168:47
+    166| describe('POST /assistant/actions/channel-sync (S6)', () => {
+    167|   it('полная выгрузка на 90 дней по умолчанию; кривые days — 400', asy…
+    168|     const res = await syncReq(OWNER_A, ORG_A).expect(200);
+       |                                               ^
+    169|     expect(res.body).toEqual({ ok: true, action: 'channel_sync', repla…
+    170|     expect(syncs).toEqual([90]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| apps/api/src/assistant/actions.controller.test.ts > POST /assistant/actions/channel-sync (S6) > лимит: то же действие той же организации сразу ещё раз — 429; тот же ключ идемпотентности — прежний ответ
+Error: expected 429 "Too Many Requests", got 404 "Not Found"
+ ❯ apps/api/src/assistant/actions.controller.test.ts:182:51
+    180|       expect(again.body.replayed).toBe(true);
+    181|     }
+    182|     const limited = await syncReq(OWNER_A, ORG_A).expect(429);
+       |                                                   ^
+    183|     expect(limited.body.message).toBe(TOO_OFTEN);
+    184|     expect(syncs.length).toBeLessThanOrEqual(1);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 1 passed (8)
+   Start at  17:08:13
+   Duration  2.59s (transform 63%, import 27%, tests 10%)
+
+JSON report written to /tmp/pms-test-2026-09-29T17-08-12Z-unit-3ec2.json
+
+# код выхода 1 · 4 с

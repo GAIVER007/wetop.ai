@@ -149,6 +149,12 @@ export class SupportController {
     return this.kb.conversationSources(id);
   }
 
+  @Get('conversations/:id/actions')
+  @Header('Cache-Control', 'no-store')
+  conversationActions(@Param('id') id: string) {
+    return this.kb.conversationActions(id);
+  }
+
   @Post('conversations/:id/knowledge-draft')
   @HttpCode(200)
   knowledgeDraft(@Param('id') id: string) {

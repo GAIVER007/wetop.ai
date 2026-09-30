@@ -1,0 +1,118 @@
+# Интеграционные (integration) · 29.09.2026 21:40 Алматы · vm
+# коммит 500d24c (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 11
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-40-18Z-integration-50ce.json' 'tests/integration/assistant-diagnostics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/assistant-diagnostics.test.ts (4 tests | 4 skipped) 703ms
+   ❯ диагностика помощника (integration, DATABASE_URL required) (4)
+     ↓ владелец А видит свою бронь: факты без имени, телефона, заметок и сумм
+     ↓ владелец Б с тем же номером получает бронь своего объекта, а не А
+     ↓ чужая пара «человек, организация» — нет обратившегося; несуществующий номер — нет брони
+     ↓ организация без подключённых каналов — channex: null
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/assistant-diagnostics.test.ts > диагностика помощника (integration, DATABASE_URL required)
+PrismaClientValidationError: 
+Invalid `prisma.guest.create()` invocation:
+
+{
+  data: {
+    propertyId: "0d6505b7-fc4d-4f0f-8bb4-714178d977cd",
+    ~~~~~~~~~~
+    firstName: "Гость А",
+    lastName: "Вымышленный",
+    phone: "<телефон>",
+?   id?: String,
+?   middleName?: String | Null,
+?   birthDate?: DateTime | Null,
+?   citizenship?: String | Null,
+?   gender?: Gender,
+?   email?: String | Null,
+?   notes?: String | Null,
+?   createdAt?: DateTime,
+?   updatedAt?: DateTime,
+?   organization?: OrganizationCreateNestedOneWithoutGuestsInput,
+?   documents?: GuestDocumentCreateNestedManyWithoutGuestInput,
+?   stays?: StayGuestCreateNestedManyWithoutGuestInput,
+?   primaryReservations?: ReservationCreateNestedManyWithoutPrimaryGuestInput
+  }
+}
+
+Unknown argument `propertyId`. Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/assistant-diagnostics.test.ts:73:21
+     71|         data: { propertyId: property.id, code: `std-${mark}`, name: 'С…
+     72|       });
+     73|       const guest = await db.guest.create({
+       |                     ^
+     74|         data: { propertyId: property.id, firstName: guestName, lastNam…
+     75|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/assistant-diagnostics.test.ts > диагностика помощника (integration, DATABASE_URL required)
+PrismaClientValidationError: 
+Invalid `prisma.guest.deleteMany()` invocation:
+
+{
+  where: {
+    propertyId: {
+    ~~~~~~~~~~
+      in: [
+        "0d6505b7-fc4d-4f0f-8bb4-714178d977cd"
+      ]
+    },
+?   AND?: GuestWhereInput | GuestWhereInput[],
+?   OR?: GuestWhereInput[],
+?   NOT?: GuestWhereInput | GuestWhereInput[],
+?   id?: UuidFilter | String,
+?   organizationId?: UuidFilter | String,
+?   firstName?: StringFilter | String,
+?   lastName?: StringFilter | String,
+?   middleName?: StringNullableFilter | String | Null,
+?   birthDate?: DateTimeNullableFilter | DateTime | Null,
+?   citizenship?: StringNullableFilter | String | Null,
+?   gender?: EnumGenderFilter | Gender,
+?   phone?: StringNullableFilter | String | Null,
+?   email?: StringNullableFilter | String | Null,
+?   notes?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   organization?: OrganizationScalarRelationFilter | OrganizationWhereInput,
+?   documents?: GuestDocumentListRelationFilter,
+?   stays?: StayGuestListRelationFilter,
+?   primaryReservations?: ReservationListRelationFilter
+  }
+}
+
+Unknown argument `propertyId`. Available options are marked with ?.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/assistant-diagnostics.test.ts:110:5
+    108|     await db.reservationItem.deleteMany({ where: { reservation: { prop…
+    109|     await db.reservation.deleteMany({ where: { propertyId: { in: prope…
+    110|     await db.guest.deleteMany({ where: { propertyId: { in: properties …
+       |     ^
+    111|     await db.accommodationType.deleteMany({ where: { propertyId: { in:…
+    112|     await db.property.deleteMany({ where: { id: { in: properties } } }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 skipped (4)
+   Start at  16:40:19
+   Duration  4.57s (transform 54%, tests 27%, import 20%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-40-18Z-integration-50ce.json
+
+# код выхода 1 · 6 с

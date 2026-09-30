@@ -174,6 +174,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',
   'GET /ai-seller/catalog': 'dialogs',
+  'GET /ai-seller/agents/options': 'dialogs',
+  'POST /ai-seller/agents': 'seller',
+  'GET /ai-seller/agents/:id': 'dialogs',
+  'POST /ai-seller/agents/:id/activate': 'seller',
   'GET /ai-seller/summary': 'dialogs',
   'GET /ai-seller/conversations': 'dialogs',
   'GET /ai-seller/conversations/:id': 'dialogs',

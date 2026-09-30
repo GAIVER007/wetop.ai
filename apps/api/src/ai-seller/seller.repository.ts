@@ -93,6 +93,8 @@ export interface SellerCatalogDraft {
   id: string;
   name: string;
   updatedAt: Date;
+  /** Филиал агента (SA2). Пусто у черновиков гостевого мастера — они филиала не выбирают */
+  placement: SellerCatalogPlacement | null;
 }
 
 export interface SellerCatalogRepository {
@@ -442,12 +444,29 @@ export class PrismaSellerCatalogRepository implements SellerCatalogRepository {
   }
 
   async drafts(organizationId: string, limit: number): Promise<SellerCatalogDraft[]> {
-    // Рабочий продавец организации (`id = organization_id`) — отдельная карточка каталога, не черновик мастера
-    return this.prisma.db.sellerAgent.findMany({
-      where: { organizationId, NOT: { id: organizationId } },
+    // Рабочий продавец организации (`id = organization_id`) — отдельная карточка каталога, не черновик мастера;
+    // архивные агенты в каталоге не показываются
+    const rows = await this.prisma.db.sellerAgent.findMany({
+      where: { organizationId, NOT: { id: organizationId }, lifecycle: { not: 'archived' } },
       orderBy: { createdAt: 'desc' },
       take: limit,
-      select: { id: true, name: true, updatedAt: true },
+      select: {
+        id: true,
+        name: true,
+        updatedAt: true,
+        location: { select: { id: true, name: true, business: { select: { id: true, name: true } } } },
+      },
     });
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      updatedAt: r.updatedAt,
+      placement: r.location
+        ? {
+            business: { id: r.location.business.id, name: r.location.business.name },
+            location: { id: r.location.id, name: r.location.name },
+          }
+        : null,
+    }));
   }
 }

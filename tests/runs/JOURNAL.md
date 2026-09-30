@@ -4551,3 +4551,13 @@
 | 30.09.2026 12:14 | unit | ✅ 2508 из 2511, пропущено 3 | 1 мин 41 с | bea1ca2 | [лог](logs/2026-09-30T07-14-14Z-unit-0610.log) |  |
 | 30.09.2026 12:16 | integration | ✅ 165 из 165 | 52 с | bea1ca2 | [лог](logs/2026-09-30T07-16-09Z-integration-5afd.log) |  |
 | 30.09.2026 12:17 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 55 из 55 | 2 мин 46 с | bea1ca2 | [лог](logs/2026-09-30T07-17-04Z-e2e-2fb8.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ код выхода 1 | 2 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-14Z-integration-9007.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-28Z-integration-9702.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ упало 1 из 7 | 4 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-37Z-integration-d3a2.log) | Business Agents: создание и чтение (integration, DATABASE_URL required) create: ключ чужой организации, чужого человека и ключ, равный организации, — ForeignIde |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-42Z-integration-4ba5.log) |  |
+| 30.09.2026 12:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ❌ упало 2 из 50 | 3 мин 37 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-45-59Z-e2e-2c8f.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 12:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ✅ 23 из 23 | 1 мин 34 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-49-50Z-e2e-66e3.log) |  |
+| 30.09.2026 12:53 | unit | ❌ упало 1 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-53-05Z-unit-0a67.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 30.09.2026 12:54 | integration | ✅ 172 из 172 | 52 с | 1fb5cbb +16 | [лог](logs/2026-09-30T07-54-43Z-integration-8800.log) |  |
+| 30.09.2026 12:55 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-55-59Z-unit-79d8.log) |  |
+| 30.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/ui/roles.spec | ✅ 112 из 112 | 8 мин | 1fb5cbb +26 | [лог](logs/2026-09-30T07-57-30Z-e2e-e428.log) |  |

@@ -4,7 +4,7 @@ import { AGENT_STATUS_WORDS } from '@pms/domain';
 import { LoadError } from '../../components/load-error';
 import { Page } from '../../components/page';
 import { Badge, Fact, Grid, Notice, Panel, Row, Stack } from '../../components/ui';
-import { catalogButton, channelLines, placementLine, statusTone } from '../../lib/ai-agents';
+import { agentHref, channelLines, createButton, placementLine, statusTone } from '../../lib/ai-agents';
 import { sellerApi, type AgentCardView, type AgentCatalogView } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { loadErrorProps } from '../../lib/load-error';
@@ -18,7 +18,7 @@ import { loadErrorProps } from '../../lib/load-error';
  * через «Техподдержка → Написать в поддержку».
  */
 export default async function AiAgentsPage() {
-  const { access } = await deskShell();
+  const { access, readOnly } = await deskShell();
   let catalog: AgentCatalogView | null = null;
   let failure: unknown = null;
   try {
@@ -26,7 +26,7 @@ export default async function AiAgentsPage() {
   } catch (error) {
     failure = error;
   }
-  const button = catalog ? catalogButton(catalog) : null;
+  const button = catalog ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
   return (
     <Page
@@ -96,6 +96,11 @@ export default async function AiAgentsPage() {
                   </Notice>
                 </>
               )}
+              {button.connectHref && (
+                <div>
+                  <Link href={button.connectHref}>Как подключить расширение</Link>
+                </div>
+              )}
             </Stack>
           </div>
         )}
@@ -125,16 +130,17 @@ function OffCard() {
 
 function AgentCard({ agent }: { agent: AgentCardView }) {
   const isSeller = agent.kind === 'seller';
+  const isSales = isSeller || agent.kind === 'agent';
   const channels = channelLines(agent);
   return (
     <Panel
       title={agent.name}
       className="agent-card"
-      data-testid={isSeller ? 'agent-seller' : 'agent-draft'}
+      data-testid={isSeller ? 'agent-seller' : agent.kind === 'agent' ? 'agent-created' : 'agent-draft'}
     >
       <Stack gap="sm">
         <Row>
-          {isSeller && (
+          {isSales && (
             <>
               <Badge>Продажи</Badge>
               <Badge>Hospitality</Badge>
@@ -155,7 +161,7 @@ function AgentCard({ agent }: { agent: AgentCardView }) {
         <div>
           <Link
             className="btn btn--secondary"
-            href={isSeller ? '/ai-seller' : `/ai-seller/agents/${agent.id}`}
+            href={agentHref(agent)}
             aria-label={`Открыть: ${agent.name}`}
           >
             Открыть

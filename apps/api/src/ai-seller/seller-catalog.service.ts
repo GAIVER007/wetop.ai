@@ -1,12 +1,13 @@
 import 'reflect-metadata';
 import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { agentStatus, type AgentStatus, type ChannelState } from '@pms/domain';
+import { agentStatus, type AgentStatus, type ChannelState, type CreateAgentAvailability } from '@pms/domain';
 import {
   actorMay,
   currentOrganizationId,
   hasSignedInActor,
 } from '../auth/request-context';
 import { ExtensionsService, type AiSellerAccessView } from '../platform/extensions.service';
+import { BusinessAgentsService } from './business-agents.service';
 import { SELLER_CONNECTION, type SellerConnection } from './seller.connection';
 import {
   SELLER_CATALOG,
@@ -25,9 +26,10 @@ export const CATALOG_BOT_TIMEOUT_MS = 1_500;
 export const SELLER_AGENT_DEFAULT_NAME = 'AI-продавец';
 
 export interface AgentCardView {
-  /** `seller` — рабочий продавец организации; у черновика — id записи `seller_agents` */
+  /** `seller` — рабочий продавец организации; иначе — id записи `seller_agents` */
   id: string;
-  kind: 'seller' | 'draft';
+  /** `seller` — рабочий продавец; `agent` — агент с филиалом (SA2); `draft` — черновик гостевого мастера без филиала */
+  kind: 'seller' | 'agent' | 'draft';
   name: string;
   status: AgentStatus;
   business: { id: string; name: string } | null;
@@ -42,6 +44,8 @@ export interface AgentCatalogView {
   canManage: boolean;
   /** Может менять настройки сейчас: управляющая роль и действующее расширение */
   canConfigure: boolean;
+  /** Состояние кнопки «+ Подключить AI-продавца»: причина словами, когда неактивна. Считает сервер (SA2) */
+  create: CreateAgentAvailability;
   agents: AgentCardView[];
 }
 
@@ -58,6 +62,7 @@ export class SellerCatalogService {
     @Inject(SELLER_ORGS) private readonly orgs: SellerOrgsRepository,
     @Inject(SELLER_CATALOG) private readonly catalog: SellerCatalogRepository,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
+    @Inject(BusinessAgentsService) private readonly businessAgents: BusinessAgentsService,
   ) {}
 
   async list(now: Date = new Date()): Promise<AgentCatalogView> {
@@ -67,7 +72,8 @@ export class SellerCatalogService {
     const extension = await this.extensions.aiSeller(organizationId, now);
     const access = extension.access;
     const canManage = actorMay('seller');
-    const view = { extension, canManage, canConfigure: canManage && access === 'active' };
+    const create = await this.businessAgents.availability(access);
+    const view = { extension, canManage, canConfigure: canManage && access === 'active', create };
     // без расширения продавца не трогаем: ни объекта, ни бота, ни черновиков (план §8.1, C8)
     if (access === 'off') return { ...view, agents: [] };
 
@@ -104,11 +110,11 @@ export class SellerCatalogService {
         ...drafts.map(
           (d): AgentCardView => ({
             id: d.id,
-            kind: 'draft',
+            kind: d.placement ? 'agent' : 'draft',
             name: d.name,
             status: 'DRAFT',
-            business: null,
-            location: null,
+            business: d.placement?.business ?? null,
+            location: d.placement?.location ?? null,
             channels: null,
           }),
         ),

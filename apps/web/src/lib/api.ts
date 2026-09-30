@@ -1752,7 +1752,8 @@ export interface SellerPromptView {
  */
 export interface AgentCardView {
   id: string;
-  kind: 'seller' | 'draft';
+  /** `seller` — рабочий продавец; `agent` — агент с филиалом (SA2); `draft` — черновик гостевого мастера без филиала */
+  kind: 'seller' | 'agent' | 'draft';
   name: string;
   status: AgentStatus;
   business: { id: string; name: string } | null;
@@ -1765,8 +1766,42 @@ export interface AgentCatalogView {
   /** Владелец и управляющий: им доступны кнопки */
   canManage: boolean;
   canConfigure: boolean;
+  /** Состояние кнопки «+ Подключить AI-продавца» (SA2): причину словами и доступность считает сервер */
+  create: { enabled: boolean; reason: string | null };
   agents: AgentCardView[];
 }
+
+/** Куда можно создать AI-продавца: Business → филиалы со словом «занят» (SA2) */
+export interface AgentOptionsView {
+  extension: ExtensionAccessView | null;
+  canCreate: boolean;
+  reason: string | null;
+  businesses: Array<{
+    id: string;
+    name: string;
+    locations: Array<{ id: string; name: string; free: boolean; reason: string | null }>;
+  }>;
+}
+
+export interface BusinessAgentView {
+  id: string;
+  name: string;
+  lifecycle: string;
+  business: { id: string; name: string };
+  location: { id: string; name: string };
+  /** Список настройки: готово только «Основное», остальное — статусы, а не шаги мастера */
+  setup: Array<{ code: string; label: string; done: boolean }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const businessAgentsApi = {
+  options: () => getJson<AgentOptionsView>('/ai-seller/agents/options'),
+  get: (id: string) => getJson<BusinessAgentView>(`/ai-seller/agents/${encodeURIComponent(id)}`),
+  /** `Idempotency-Key` — повтор той же отправки возвращает того же агента; организацию и автора называет сервер */
+  create: (key: string, input: { name: string; businessId: string; locationId: string }) =>
+    sendJson<BusinessAgentView>('POST', '/ai-seller/agents', input, { 'idempotency-key': key }),
+};
 
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),

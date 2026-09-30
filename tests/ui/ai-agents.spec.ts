@@ -6,11 +6,13 @@ import type { Page } from '@playwright/test';
 /**
  * Вход в раздел «ИИ-агенты» (S0, plans/ai-agents-wetop-support-2026-09-29.md; решение владельца 29.09, Q-A2) и его
  * каталог (SA1, plans/business-ai-seller-v2-2026-09-29.md §8): состояние расширения, карточки со статусом, Business,
- * Location и каналами, кнопка по состоянию. Партнёр видит AI-продавца; карточка WETOP Support — только у главного
+ * Location и каналами, кнопка по состоянию (SA2: видна всегда, при невозможности — неактивна с причиной от сервера, plans/
+ * business-ai-seller-sa2-2026-09-30.md §4). Партнёр видит AI-продавца; карточка WETOP Support — только у главного
  * администратора. Старый адрес `/ai-seller` работает. Стенд — `scripts/preview/fixture-api.ts`.
  */
 const API = 'http://127.0.0.1:4311';
-const SHOTS = 'reports/business-ai-seller-sa1-2026-09-29';
+// снимки SA1 (`reports/business-ai-seller-sa1-2026-09-29/`) остаются как были; каталог с новой кнопкой снимается в отчёт SA2
+const SHOTS = 'reports/business-ai-seller-sa2-2026-09-30';
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
@@ -59,7 +61,7 @@ test('главный администратор: рядом с продавцо�
   await expect(page).toHaveURL(/\/platform\/support/);
 });
 
-test('расширение не подключено: карточка объясняет, «Подключить» ведёт на страницу с объяснением', async ({ page, request }) => {
+test('расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением', async ({ page, request }) => {
   await request.post(`${API}/__test/control`, { data: { sellerExtension: 'off' } });
   await signIn(page);
   await page.goto('/ai-agents');
@@ -69,12 +71,16 @@ test('расширение не подключено: карточка объя�
   // карточки продавца, статуса и «Открыть» без расширения нет
   await expect(page.getByTestId('agent-status')).toHaveCount(0);
   await expect(seller.getByRole('link', { name: 'Открыть' })).toHaveCount(0);
-  await page.getByTestId('agent-add').getByRole('link', { name: 'Подключить', exact: true }).click();
+  // кнопка создания видна, но неактивна: расширения нет; рядом — путь к странице с объяснением
+  const add = page.getByTestId('agent-add');
+  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add).toContainText('Расширение «ИИ-продавец» не подключено.');
+  await add.getByRole('link', { name: 'Как подключить расширение', exact: true }).click();
   await expect(page).toHaveURL(/\/ai-seller$/);
   await expect(page.getByTestId('seller-extension-off')).toBeVisible();
 });
 
-test('срок расширения вышел: карточка остаётся, «Подписка не активна», «Возобновить»', async ({ page, request }) => {
+test('срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна', async ({ page, request }) => {
   await request.post(`${API}/__test/control`, { data: { sellerExtension: 'expired', sellerApplied: true } });
   await signIn(page);
   await page.goto('/ai-agents');
@@ -82,19 +88,25 @@ test('срок расширения вышел: карточка остаётс�
   const seller = page.getByTestId('agent-seller');
   await expect(seller.getByTestId('agent-status')).toHaveText('Подписка не активна');
   await expect(seller.getByRole('link', { name: 'Открыть' })).toBeVisible();
-  await expect(page.getByTestId('agent-add').getByRole('link', { name: 'Возобновить', exact: true })).toBeVisible();
+  const add = page.getByTestId('agent-add');
+  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add).toContainText('Срок расширения «ИИ-продавец» вышел.');
+  await expect(add.getByRole('link', { name: 'Как подключить расширение', exact: true })).toBeVisible();
 });
 
-test('действует, профиль не применён: «Не настроен», Business и Location объекта, «Настроить»', async ({ page }) => {
+test('действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят', async ({ page }) => {
   await signIn(page);
   await page.goto('/ai-agents');
   const seller = page.getByTestId('agent-seller');
   await expect(seller.getByTestId('agent-status')).toHaveText('Не настроен');
   await expect(seller).toContainText('Сеть Тест · Алматы');
-  await expect(page.getByTestId('agent-add').getByRole('link', { name: 'Настроить', exact: true })).toBeVisible();
+  // единственный филиал занят рабочим продавцом: создать второго нельзя, кнопка видна и объясняет почему
+  const add = page.getByTestId('agent-add');
+  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add).toContainText('Нет свободного филиала. Для этого филиала AI-продавец уже создан.');
 });
 
-test('продавец работает: статус, каналы по данным, второго завести нельзя — причина словами', async ({ page, request }) => {
+test('продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами', async ({ page, request }) => {
   await request.post(`${API}/__test/control`, { data: { sellerApplied: true, sellerWhatsApp: 'on' } });
   await signIn(page);
   await page.goto('/ai-agents');
@@ -108,9 +120,9 @@ test('продавец работает: статус, каналы по дан�
   const add = page.getByTestId('agent-add');
   const button = add.getByRole('button', { name: '+ Подключить AI-продавца' });
   await expect(button).toBeDisabled();
-  await expect(add).toContainText('В организации пока один AI-продавец');
+  await expect(add).toContainText('Нет свободного филиала. Для этого филиала AI-продавец уже создан.');
   // причина связана с кнопкой для читалки экрана
-  await expect(button).toHaveAccessibleDescription(/один AI-продавец/);
+  await expect(button).toHaveAccessibleDescription(/Нет свободного филиала/);
 });
 
 test('бот не ответил: страница жива, WhatsApp — «Нет данных»', async ({ page, request }) => {
@@ -147,12 +159,14 @@ test('каталог не загрузился: экран остаётся, в�
   await expect(page.getByTestId('agent-support')).toBeVisible();
 });
 
-test('сотрудник смены видит список, но без кнопок', async ({ page, request }) => {
-  await request.post(`${API}/__test/control`, { data: { role: 'STAFF', sellerApplied: true } });
+test('сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль', async ({ page, request }) => {
+  await request.post(`${API}/__test/control`, { data: { role: 'STAFF', sellerApplied: true, sellerExtraLocation: true } });
   await signIn(page);
   await page.goto('/ai-agents');
   await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Работает');
-  await expect(page.getByTestId('agent-add')).toHaveCount(0);
+  const add = page.getByTestId('agent-add');
+  await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
+  await expect(add).toContainText('Создавать агентов могут владелец и управляющий.');
 });
 
 test('старый адрес /ai-seller работает', async ({ page }) => {

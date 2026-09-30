@@ -11,9 +11,12 @@ import { AuthService } from '../auth/auth.service';
 import { AuthorInterceptor } from '../auth/author.interceptor';
 import { AiSellerController } from './ai-seller.controller';
 import { SellerCatalogService } from './seller-catalog.service';
+import { BUSINESS_AGENTS } from './business-agents.repository';
+import { BusinessAgentsService } from './business-agents.service';
 import { ExtensionsService } from '../platform/extensions.service';
 import {
   FakeAudit,
+  FakeBusinessAgents,
   FakeCatalog,
   FakeConnection,
   FakeFacts,
@@ -100,6 +103,7 @@ const audit = new FakeAudit();
 const extensions = new FakeSellerExtensions();
 const orgs = new FakeOrgs();
 const catalog = new FakeCatalog();
+const businessAgents = new FakeBusinessAgents();
 let app: INestApplication;
 
 beforeAll(async () => {
@@ -136,6 +140,8 @@ beforeAll(async () => {
     providers: [
       SellerService,
       SellerCatalogService,
+      BusinessAgentsService,
+      { provide: BUSINESS_AGENTS, useValue: businessAgents },
       { provide: SELLER_CONNECTION, useValue: connection },
       { provide: SELLER_PROFILES, useValue: profiles },
       { provide: SELLER_FACTS, useValue: facts },
@@ -174,6 +180,8 @@ beforeEach(() => {
   orgs.siteHosts.clear();
   catalog.placements.clear();
   catalog.draftRows.clear();
+  businessAgents.businesses.clear();
+  businessAgents.agents.clear();
   catalog.asked = [];
   audit.events = [];
   extensions.access = 'active';
@@ -928,7 +936,7 @@ describe('каталог AI-агентов (SA1)', () => {
 
   it('расширение не подключено: карточек нет, но и отказа нет — страница объясняет', async () => {
     extensions.access = 'off';
-    catalog.draftRows.set(ORG_A, [{ id: 'd1', name: 'Черновик', updatedAt: NOW }]);
+    catalog.draftRows.set(ORG_A, [{ id: 'd1', name: 'Черновик', updatedAt: NOW, placement: null }]);
     const res = await get('session-a').expect(200);
     expect(res.body.extension.access).toBe('off');
     expect(res.body.agents).toEqual([]);
@@ -1024,8 +1032,8 @@ describe('каталог AI-агентов (SA1)', () => {
   });
 
   it('чужие карточки не видны: организация Б видит свой объект и свои черновики', async () => {
-    catalog.draftRows.set(ORG_A, [{ id: 'a-draft', name: 'Черновик А', updatedAt: NOW }]);
-    catalog.draftRows.set(ORG_B, [{ id: 'b-draft', name: 'Черновик Б', updatedAt: NOW }]);
+    catalog.draftRows.set(ORG_A, [{ id: 'a-draft', name: 'Черновик А', updatedAt: NOW, placement: null }]);
+    catalog.draftRows.set(ORG_B, [{ id: 'b-draft', name: 'Черновик Б', updatedAt: NOW, placement: null }]);
     await applyProfile(ORG_A, USER_A);
     const res = await get('session-b').expect(200);
     const text = JSON.stringify(res.body);
@@ -1060,5 +1068,55 @@ describe('каталог AI-агентов (SA1)', () => {
     expect(text).not.toContain('seller:8000');
     expect(text).not.toContain('seller.example.invalid');
     expect(text).not.toContain('vt-secret-1234');
+  });
+
+  describe('агенты с филиалом и кнопка создания (SA2)', () => {
+    const BIZ = 'e0000000-0000-4000-8000-00000000000a';
+    const LOC_1 = 'e1000000-0000-4000-8000-0000000000a1';
+    const LOC_2 = 'e2000000-0000-4000-8000-0000000000a2';
+
+    it('черновик с филиалом — карточка `agent` с Business и Location; без филиала — прежний `draft`', async () => {
+      catalog.draftRows.set(ORG_A, [
+        { id: 'agent-1', name: 'AI-продавец Luxx 2', updatedAt: NOW, placement: PLACE_B },
+        { id: 'wizard-1', name: 'Черновик мастера', updatedAt: NOW, placement: null },
+      ]);
+      const res = await get('session-a').expect(200);
+      const cards = res.body.agents.slice(1);
+      expect(cards).toEqual([
+        {
+          id: 'agent-1',
+          kind: 'agent',
+          name: 'AI-продавец Luxx 2',
+          status: 'DRAFT',
+          business: PLACE_B.business,
+          location: PLACE_B.location,
+          channels: null,
+        },
+        { id: 'wizard-1', kind: 'draft', name: 'Черновик мастера', status: 'DRAFT', business: null, location: null, channels: null },
+      ]);
+    });
+
+    it('кнопка: есть свободный филиал — активна; единственный занят — неактивна с причиной; сотрудник — причина про роль', async () => {
+      businessAgents.businesses.set(ORG_A, [{ id: BIZ, name: 'Сеть', locations: [{ id: LOC_1, name: 'Алматы' }] }]);
+      expect((await get('session-a').expect(200)).body.create).toEqual({ enabled: true, reason: null });
+      await businessAgents.create({ id: 'f0000000-0000-4000-8000-0000000000f1', organizationId: ORG_A, userId: USER_A, name: 'Агент', businessId: BIZ, locationId: LOC_1 });
+      expect((await get('session-a').expect(200)).body.create).toEqual({
+        enabled: false,
+        reason: 'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
+      });
+      businessAgents.businesses.get(ORG_A)![0]!.locations.push({ id: LOC_2, name: 'Астана' });
+      expect((await get('session-a').expect(200)).body.create.enabled).toBe(true);
+      expect((await get('session-staff').expect(200)).body.create).toEqual({
+        enabled: false,
+        reason: 'Создавать агентов могут владелец и управляющий.',
+      });
+    });
+
+    it('расширения нет — кнопка неактивна с причиной про расширение, филиалы не читаются', async () => {
+      extensions.access = 'off';
+      businessAgents.businesses.set(ORG_A, [{ id: BIZ, name: 'Сеть', locations: [{ id: LOC_1, name: 'Алматы' }] }]);
+      const res = await get('session-a').expect(200);
+      expect(res.body.create).toEqual({ enabled: false, reason: 'Расширение «ИИ-продавец» не подключено.' });
+    });
   });
 });

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { READ_ONLY_MESSAGE } from '@pms/domain';
 import type { AgentCardView, AgentCatalogView } from './api';
 import {
-  SECOND_SELLER_REASON,
-  catalogButton,
+  CREATE_LABEL,
+  agentHref,
   channelLines,
+  createButton,
   placementLine,
   statusTone,
 } from './ai-agents';
@@ -31,39 +33,61 @@ const catalog = (
   extension: { access, status: access === 'off' ? null : 'ACTIVE', activeUntil: null, daysLeft: null },
   canManage: true,
   canConfigure: access === 'active',
+  create: { enabled: access === 'active', reason: access === 'active' ? null : 'Причина от сервера.' },
   agents: access === 'off' ? [] : [seller()],
   ...patch,
 });
 
 describe('кнопка каталога', () => {
-  it('расширение не подключено — «Подключить» ведёт на страницу с объяснением', () => {
-    expect(catalogButton(catalog('off'))).toEqual({ label: 'Подключить', href: '/ai-seller' });
-  });
-
-  it('срок вышел — «Возобновить»', () => {
-    expect(catalogButton(catalog('expired'))).toEqual({ label: 'Возобновить', href: '/ai-seller' });
-  });
-
-  it('действует, продавец не настроен или бот не подключён — «Настроить»', () => {
-    for (const status of ['NOT_CONFIGURED', 'BOT_OFFLINE'] as const)
-      expect(catalogButton(catalog('active', { agents: [seller({ status })] }))).toEqual({
-        label: 'Настроить',
-        href: '/ai-seller',
-      });
-  });
-
-  it('действует и продавец работает — второй завести нельзя, причина словами', () => {
-    expect(catalogButton(catalog('active'))).toEqual({
-      label: '+ Подключить AI-продавца',
-      href: null,
-      reason: SECOND_SELLER_REASON,
+  it('сервер разрешил — кнопка активна и ведёт в форму создания', () => {
+    expect(createButton(catalog('active'))).toEqual({
+      label: CREATE_LABEL,
+      href: '/ai-agents/new',
+      reason: null,
+      connectHref: null,
     });
-    expect(SECOND_SELLER_REASON).toContain('один AI-продавец');
   });
 
-  it('сотруднику смены кнопок нет ни в одном состоянии', () => {
-    for (const access of ['off', 'expired', 'active'] as const)
-      expect(catalogButton(catalog(access, { canManage: false }))).toBeNull();
+  it('сервер не разрешил — кнопка видна, неактивна, причина его словами; страница её не пересчитывает', () => {
+    const noFree = catalog('active', { create: { enabled: false, reason: 'Нет свободного филиала.' } });
+    expect(createButton(noFree)).toEqual({
+      label: CREATE_LABEL,
+      href: null,
+      reason: 'Нет свободного филиала.',
+      connectHref: null,
+    });
+  });
+
+  it('расширения нет или оно истекло — неактивна, рядом ссылка «как подключить»', () => {
+    for (const access of ['off', 'expired'] as const)
+      expect(createButton(catalog(access))).toMatchObject({ href: null, reason: 'Причина от сервера.', connectHref: '/ai-seller' });
+  });
+
+  it('сотруднику смены кнопка тоже видна: неактивна, причина про роль приходит с сервера', () => {
+    const staff = catalog('active', {
+      canManage: false,
+      create: { enabled: false, reason: 'Создавать агентов могут владелец и управляющий.' },
+    });
+    expect(createButton(staff)).toMatchObject({ href: null, reason: 'Создавать агентов могут владелец и управляющий.' });
+  });
+});
+
+describe('кнопка в режиме «только чтение»', () => {
+  it('организация в «только чтении» — кнопка неактивна общей фразой режима, даже если сервер разрешает', () => {
+    expect(createButton(catalog('active'), true)).toEqual({
+      label: CREATE_LABEL,
+      href: null,
+      reason: READ_ONLY_MESSAGE,
+      connectHref: null,
+    });
+  });
+});
+
+describe('куда ведёт «Открыть»', () => {
+  it('рабочий продавец — в раздел, агент с филиалом — на страницу состояния, черновик мастера — в его редактор', () => {
+    expect(agentHref(seller())).toBe('/ai-seller');
+    expect(agentHref(seller({ id: 'a1', kind: 'agent', status: 'DRAFT' }))).toBe('/ai-agents/a1');
+    expect(agentHref(seller({ id: 'd1', kind: 'draft', status: 'DRAFT' }))).toBe('/ai-seller/agents/d1');
   });
 });
 

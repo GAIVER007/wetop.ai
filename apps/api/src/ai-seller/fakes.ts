@@ -13,6 +13,14 @@ import type {
   SellerProfileRow,
   SellerProfilesRepository,
 } from './seller.repository';
+import {
+  ForeignIdempotencyKeyError,
+  LocationTakenError,
+  type AgentPlacementRow,
+  type BusinessAgentRecord,
+  type BusinessAgentsRepository,
+  type BusinessOption,
+} from './business-agents.repository';
 
 /** Подставной продавец для тестов раздела: запоминает вызовы, отвечает заданным или падает заданной ошибкой */
 export class FakeSeller implements SellerPort {
@@ -301,5 +309,137 @@ export class FakeCatalog implements SellerCatalogRepository {
   }
   async drafts(organizationId: string, limit: number): Promise<SellerCatalogDraft[]> {
     return (this.draftRows.get(organizationId) ?? []).slice(0, limit);
+  }
+}
+
+
+/**
+ * Business Agents (SA2) в памяти: те же правила, что у настоящего хранилища — повтор по ключу, чужой ключ, занятый филиал,
+ * рабочий продавец (`id = organization_id`) не отдаётся как черновик. Журнал — список событий.
+ */
+export class FakeBusinessAgents implements BusinessAgentsRepository {
+  /** Business → филиалы по организациям; `archived` — снятые с показа */
+  businesses = new Map<
+    string,
+    Array<{ id: string; name: string; archived?: boolean; locations: Array<{ id: string; name: string; archived?: boolean }> }>
+  >();
+  agents = new Map<
+    string,
+    {
+      id: string;
+      organizationId: string;
+      createdBy: string;
+      name: string;
+      scenario: string;
+      lifecycle: string;
+      locationId: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+    }
+  >();
+  events: Array<{ entityId: string; action: string; after: unknown; organizationId: string; userId: string }> = [];
+
+  private find(organizationId: string, locationId: string) {
+    for (const b of this.businesses.get(organizationId) ?? [])
+      for (const l of b.locations) if (l.id === locationId) return { b, l };
+    return null;
+  }
+
+  async options(organizationId: string): Promise<BusinessOption[]> {
+    return (this.businesses.get(organizationId) ?? [])
+      .filter((b) => !b.archived)
+      .map((b) => ({
+        id: b.id,
+        name: b.name,
+        locations: b.locations
+          .filter((l) => !l.archived)
+          .map((l) => ({
+            id: l.id,
+            name: l.name,
+            taken: [...this.agents.values()].some(
+              (a) => a.locationId === l.id && a.scenario === 'sales' && a.lifecycle !== 'archived',
+            ),
+          })),
+      }));
+  }
+
+  async placement(organizationId: string, businessId: string, locationId: string): Promise<AgentPlacementRow | null> {
+    const hit = this.find(organizationId, locationId);
+    if (!hit || hit.b.id !== businessId || hit.b.archived || hit.l.archived) return null;
+    return { business: { id: hit.b.id, name: hit.b.name }, location: { id: hit.l.id, name: hit.l.name } };
+  }
+
+  async create(input: {
+    id: string;
+    organizationId: string;
+    userId: string;
+    name: string;
+    businessId: string;
+    locationId: string;
+  }): Promise<{ agent: BusinessAgentRecord; created: boolean }> {
+    const existing = this.agents.get(input.id);
+    if (existing) {
+      if (
+        existing.organizationId !== input.organizationId ||
+        existing.createdBy !== input.userId ||
+        existing.id === input.organizationId
+      )
+        throw new ForeignIdempotencyKeyError();
+      return { agent: this.record(existing)!, created: false };
+    }
+    const taken = [...this.agents.values()].some(
+      (a) => a.locationId === input.locationId && a.scenario === 'sales' && a.lifecycle !== 'archived',
+    );
+    if (taken) throw new LocationTakenError();
+    const now = new Date('2026-09-30T08:00:00.000Z');
+    const row = {
+      id: input.id,
+      organizationId: input.organizationId,
+      createdBy: input.userId,
+      name: input.name,
+      scenario: 'sales',
+      lifecycle: 'draft',
+      locationId: input.locationId,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.agents.set(row.id, row);
+    this.events.push({
+      entityId: row.id,
+      action: 'agent.created',
+      after: { source: 'business-agent', businessId: input.businessId, locationId: input.locationId, lifecycle: 'draft' },
+      organizationId: input.organizationId,
+      userId: input.userId,
+    });
+    return { agent: this.record(row)!, created: true };
+  }
+
+  async get(organizationId: string, id: string): Promise<BusinessAgentRecord | null> {
+    if (id === organizationId) return null;
+    const row = this.agents.get(id);
+    return row && row.organizationId === organizationId ? this.record(row) : null;
+  }
+
+  private record(row: {
+    id: string;
+    name: string;
+    lifecycle: string;
+    locationId: string | null;
+    organizationId: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }): BusinessAgentRecord | null {
+    if (!row.locationId) return null;
+    const hit = this.find(row.organizationId, row.locationId);
+    if (!hit) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      lifecycle: row.lifecycle,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      business: { id: hit.b.id, name: hit.b.name },
+      location: { id: hit.l.id, name: hit.l.name },
+    };
   }
 }

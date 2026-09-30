@@ -202,3 +202,175 @@ describe('котировка продавца /bot/availability', () => {
       .expect(403);
   });
 });
+
+/**
+ * SA2.5: котировка и домены виджета по агенту. `agent` в запросе — недоверенный селектор, а не область: организацию,
+ * филиал и объект платформа выводит только из найденной строки агента (plans/…sa25 §10 п. 6). Параметр `organization` при
+ * `agent` не читается вовсе. Чужой, несуществующий и архивный агент отвечают одинаково.
+ */
+describe('SA2.5: /bot/availability и /bot/agent-origins по агенту', () => {
+  let app: INestApplication;
+  let sites: FakeAnalyticsRepository;
+  let service: WebBookingService;
+
+  const AGENT_A = ORG; // перенесённый продавец: id = organization_id, филиал с сайтом
+  const AGENT_B = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'; // второй агент той же организации, другой филиал без сайта
+  const AGENT_ARCHIVED = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  const OTHER_ORG = '55555555-5555-4555-8555-555555555555';
+  const AGENT_OTHER = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd'; // агент чужой организации с собственным сайтом
+  const PROPERTY_2 = '88888888-8888-4888-8888-888888888888';
+  const OTHER_SITE = {
+    ...SITE,
+    id: '66666666-6666-4666-8666-666666666666',
+    propertyId: '77777777-7777-4777-8777-777777777777',
+    name: 'Чужой сайт',
+    hosts: ['chuzhoy.local'],
+    publicKey: 'pms_abcdefabcdef',
+    bookingEnabled: true,
+    bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name },
+  };
+
+  beforeAll(async () => {
+    process.env.SELLER_QUOTE_KEY = KEY;
+    process.env.ANONYMIZE_SALT = 'test-salt';
+    sites = new FakeAnalyticsRepository();
+    sites.sitesById.set(SITE.id, {
+      ...SITE,
+      bookingEnabled: true,
+      bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name },
+    });
+    sites.siteOrganizations.set(SITE.id, ORG);
+    sites.sitesById.set(OTHER_SITE.id, OTHER_SITE);
+    sites.siteOrganizations.set(OTHER_SITE.id, OTHER_ORG);
+    sites.agentRows.set(AGENT_A, { id: AGENT_A, organizationId: ORG, locationId: 'loc-a', propertyId: SITE.propertyId, lifecycle: 'active', scenario: 'sales' });
+    sites.agentRows.set(AGENT_B, { id: AGENT_B, organizationId: ORG, locationId: 'loc-b', propertyId: PROPERTY_2, lifecycle: 'draft', scenario: 'sales' });
+    sites.agentRows.set(AGENT_ARCHIVED, { id: AGENT_ARCHIVED, organizationId: ORG, locationId: 'loc-a', propertyId: SITE.propertyId, lifecycle: 'archived', scenario: 'sales' });
+    sites.agentRows.set(AGENT_OTHER, { id: AGENT_OTHER, organizationId: OTHER_ORG, locationId: 'loc-o', propertyId: OTHER_SITE.propertyId, lifecycle: 'active', scenario: 'sales' });
+    const m = await Test.createTestingModule({ imports: [WebBookingModule] })
+      .overrideProvider(ANALYTICS_REPOSITORY)
+      .useValue(sites)
+      .overrideProvider(RESERVATIONS_UOW)
+      .useValue(uow)
+      .overrideProvider(ReservationsService)
+      .useValue({})
+      .overrideProvider(PrismaService)
+      .useValue({})
+      .overrideProvider(ARI_PUBLISHER)
+      .useValue({ reservationChanged: async () => {} })
+      .overrideProvider(CHANNELS_REPOSITORY)
+      .useValue({})
+      .compile();
+    app = m.createNestApplication();
+    await app.init();
+    service = app.get(WebBookingService);
+    vi.useFakeTimers({ now: TODAY, toFake: ['Date'] });
+  });
+
+  afterAll(async () => {
+    vi.useRealTimers();
+    delete process.env.SELLER_QUOTE_KEY;
+    await app.close();
+  });
+
+  beforeEach(() => {
+    service.resetLimits();
+  });
+
+  const quote = (query: Record<string, string>, key: string | null = KEY) => {
+    let r = request(app.getHttpServer()).get('/bot/availability').query(query);
+    if (key !== null) r = r.set('x-wetop-service-key', key);
+    return r;
+  };
+  const origins = (query: Record<string, string>, key: string | null = KEY) => {
+    let r = request(app.getHttpServer()).get('/bot/agent-origins').query(query);
+    if (key !== null) r = r.set('x-wetop-service-key', key);
+    return r;
+  };
+  const when = { arrival: '2026-09-13', departure: '2026-09-15', adults: '2' };
+
+  it('agent без organization: котировка филиала агента, тот же JSON', async () => {
+    const res = await quote({ agent: AGENT_A, ...when }).expect(200);
+    expect(res.body).toMatchObject({ site: SITE.name, nights: 2, currency: 'KZT' });
+  });
+
+  it('organization при agent не читается: чужая организация в запросе не подменяет область', async () => {
+    const res = await quote({ agent: AGENT_A, organization: OTHER_ORG, ...when }).expect(200);
+    expect(res.body.site).toBe(SITE.name);
+  });
+
+  it('подделанный agent: несуществующий и архивный — одинаковый 404; не UUID — 400', async () => {
+    const unknown = await quote({ agent: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', ...when }).expect(404);
+    const archived = await quote({ agent: AGENT_ARCHIVED, ...when }).expect(404);
+    expect(archived.body.message).toBe(unknown.body.message);
+    await quote({ agent: 'ne-uuid', ...when }).expect(400);
+  });
+
+  it('агент другого филиала без сайта: 404, а не сайт первого филиала той же организации', async () => {
+    const res = await quote({ agent: AGENT_B, ...when }).expect(404);
+    expect(res.body.categories).toBeUndefined();
+  });
+
+  it('агент чужой организации получает только свой сайт; наш агент чужого сайта не видит', async () => {
+    // чужой сайт стоит на другом объекте: до мультиобъектной котировки это честный отказ, а не наши цены
+    const other = await quote({ agent: AGENT_OTHER, ...when });
+    expect(other.status).toBe(404);
+    expect(other.body.categories).toBeUndefined();
+    const own = await quote({ agent: AGENT_A, ...when }).expect(200);
+    expect(own.body.site).not.toBe(OTHER_SITE.name);
+  });
+
+  it('только organization (прежний бот) у организации с двумя агентами: 400, область не угадывается', async () => {
+    await quote({ organization: ORG, ...when }).expect(400);
+  });
+
+  it('только organization у организации с одним агентом — как раньше', async () => {
+    // чужая организация: один агент, но сайт на чужом объекте — отказ по прежнему правилу
+    await quote({ organization: OTHER_ORG, ...when }).expect(404);
+  });
+
+  it('без ключа — 401; с чужим — 403; ключ чтения помощника на этот адрес не годится', async () => {
+    await quote({ agent: AGENT_A, ...when }, null).expect(401);
+    await quote({ agent: AGENT_A, ...when }, 'ne-tot-klyuch').expect(403);
+  });
+
+  it('домены виджета: только сайты филиала агента, чужие и других филиалов не попадают', async () => {
+    const a = await origins({ agent: AGENT_A }).expect(200);
+    expect(a.body).toEqual({ hosts: SITE.hosts });
+    const b = await origins({ agent: AGENT_B }).expect(200);
+    expect(b.body).toEqual({ hosts: [] });
+    const other = await origins({ agent: AGENT_OTHER }).expect(200);
+    expect(other.body).toEqual({ hosts: OTHER_SITE.hosts });
+    expect(JSON.stringify([a.body, b.body])).not.toContain(OTHER_SITE.hosts[0]!);
+  });
+
+  it('домены: подделанный agent — 404 без подробностей, не UUID — 400, без ключа — 401', async () => {
+    await origins({ agent: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee' }).expect(404);
+    await origins({ agent: AGENT_ARCHIVED }).expect(404);
+    await origins({ agent: 'ne-uuid' }).expect(400);
+    await origins({}).expect(400);
+    await origins({ agent: AGENT_A }, null).expect(401);
+    await origins({ agent: AGENT_A }, 'ne-tot-klyuch').expect(403);
+  });
+
+  it('домены и котировка: ключ чтения помощника — 403, узкий ключ продавца не расширен на другие адреса', async () => {
+    const READ = 'assistant-read-key-for-tests-0123456789';
+    process.env.ASSISTANT_READ_KEY = READ;
+    try {
+      await origins({ agent: AGENT_A }, READ).expect(403);
+      await quote({ agent: AGENT_A, ...when }, READ).expect(403);
+    } finally {
+      delete process.env.ASSISTANT_READ_KEY;
+    }
+  });
+
+  it('домены: приостановленный сайт филиала не открывает виджет', async () => {
+    const paused = { ...SITE, status: 'PAUSED' as const, bookingEnabled: true, bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name } };
+    sites.sitesById.set(SITE.id, paused);
+    try {
+      expect((await origins({ agent: AGENT_A }).expect(200)).body).toEqual({ hosts: [] });
+    } finally {
+      sites.sitesById.set(SITE.id, { ...SITE, bookingEnabled: true, bookingRatePlan: { id: plan.id, code: plan.code, name: plan.name } });
+    }
+  });
+});
+

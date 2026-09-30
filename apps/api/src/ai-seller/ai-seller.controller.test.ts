@@ -33,6 +33,7 @@ import {
   SELLER_FACTS,
   SELLER_ORGS,
   SELLER_PROFILES,
+  workingSellerScope,
 } from './seller.repository';
 import {
   SELLER_EXTENSION_EXPIRED,
@@ -178,6 +179,7 @@ beforeEach(() => {
     { organizationId: ORG_B, name: 'Гостиница Б' },
   ];
   orgs.siteHosts.clear();
+  orgs.agentHosts.clear();
   catalog.placements.clear();
   catalog.draftRows.clear();
   businessAgents.businesses.clear();
@@ -591,6 +593,7 @@ describe('диалоги, знания, сводка, песочница (П7)',
 describe('код для сайта объекта', () => {
   it('тег чата продавца: публичный адрес и data-key гостиницы, служебного ключа в теге нет (Э4)', async () => {
     orgs.siteHosts.set(ORG_A, ['hotel-a.example.invalid']);
+    orgs.agentHosts.set(ORG_A, ['hotel-a.example.invalid']);
     const res = await api().get('/ai-seller/embed').set(as('session-a')).expect(200);
     const key = assistant.widgetOrgKey(KEY, ORG_A);
     expect(res.body).toEqual({
@@ -602,6 +605,7 @@ describe('код для сайта объекта', () => {
 
   it('публичного адреса нет — кода нет; доменов нет — экран скажет завести сайт', async () => {
     orgs.siteHosts.delete(ORG_A);
+    orgs.agentHosts.delete(ORG_A);
     connection.settings = { ...baseConfig(), publicUrl: null };
     const res = await api().get('/ai-seller/embed').set(as('session-a')).expect(200);
     expect(res.body).toEqual({ snippet: null, hosts: [] });
@@ -924,7 +928,7 @@ describe('каталог AI-агентов (SA1)', () => {
   };
   const NOW = new Date('2026-09-29T10:00:00.000Z');
   const applyProfile = async (organizationId: string, userId: string) => {
-    await profiles.save(organizationId, profile as SellerProfileInput, userId, NOW);
+    await profiles.save(workingSellerScope(organizationId), profile as SellerProfileInput, userId, NOW);
     await profiles.markProfileApplied(organizationId, NOW);
   };
   const get = (session: string) => api().get('/ai-seller/catalog').set(as(session));
@@ -963,6 +967,7 @@ describe('каталог AI-агентов (SA1)', () => {
   it('профиль применён — «Работает», имя из настроек, каналы по данным', async () => {
     await applyProfile(ORG_A, USER_A);
     orgs.siteHosts.set(ORG_A, ['hotel-a.example.invalid']);
+    orgs.agentHosts.set(ORG_A, ['hotel-a.example.invalid']);
     connection.seller.replies.whatsappStatus = { set: false };
     const res = await get('session-a').expect(200);
     expect(res.body.agents[0]).toMatchObject({

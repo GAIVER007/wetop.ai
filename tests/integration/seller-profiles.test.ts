@@ -8,6 +8,7 @@ import { DEFAULT_SELLER_PROFILE } from '@pms/domain';
 import {
   PrismaSellerFactsRepository,
   PrismaSellerProfilesRepository,
+  workingSellerScope,
 } from '../../apps/api/src/ai-seller/seller.repository';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { purgeAuditRows } from '../tools/audit-purge';
@@ -128,10 +129,10 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
 
   it('первая правка заводит строку организации и пишет журнал: до — пусто, после — поля', async () => {
     expect(await profiles.get(org)).toBeNull();
-    const saved = await profiles.save(org, { ...DEFAULT_SELLER_PROFILE, botName: 'Айгерим' }, null, now);
+    const saved = await profiles.save(workingSellerScope(org), { ...DEFAULT_SELLER_PROFILE, botName: 'Айгерим' }, null, now);
     expect(saved).toMatchObject({ organizationId: org, botName: 'Айгерим', profileAppliedAt: null });
     const again = await profiles.save(
-      org,
+      workingSellerScope(org),
       {
         ...DEFAULT_SELLER_PROFILE,
         botName: 'Айгерим',
@@ -239,7 +240,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
   });
 
   it('факты: активные категории с числом активных мест, тариф сайта, его цены в окне', async () => {
-    const source = await factsRepo.load(org, now);
+    const source = await factsRepo.load(workingSellerScope(org), now);
     expect(source).not.toBeNull();
     expect(source!.property).toEqual({
       name: `Хостел продавца ${mark}`,
@@ -266,13 +267,13 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
   });
 
   it('у организации нет объекта — фактов нет', async () => {
-    expect(await factsRepo.load(emptyOrg, now)).toBeNull();
+    expect(await factsRepo.load(workingSellerScope(emptyOrg), now)).toBeNull();
   });
 
   it('инструкция одним текстом (ADR-097): в строку организации, поля прежних шагов целы, в журнал — только длина', async () => {
     const text = 'Отвечай на «вы», коротко. Парковки нет, рядом городская.';
     const at = new Date(now.getTime() + 2_000);
-    const row = await profiles.savePrompt(org, text, null, at);
+    const row = await profiles.savePrompt(workingSellerScope(org), text, null, at);
     expect(row).toMatchObject({ promptText: text, botName: 'Айгерим' });
     expect(row.updatedAt.getTime()).toBe(at.getTime());
     const log = await db.auditLog.findFirst({
@@ -280,7 +281,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     });
     expect(log!.after).toEqual({ length: text.length });
     // первая правка организации — сразу инструкцией: строка заводится с настройками по умолчанию
-    const fresh = await profiles.savePrompt(emptyOrg, text, null, at);
+    const fresh = await profiles.savePrompt(workingSellerScope(emptyOrg), text, null, at);
     expect(fresh).toMatchObject({
       organizationId: emptyOrg,
       promptText: text,

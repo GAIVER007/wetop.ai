@@ -10,6 +10,7 @@
 --      заводится без филиала, а не с угаданным;
 --   3. seller_agents_backfill: заполняет филиал legacy-агента, только если он единственно возможный, и связывает профили
 --      с агентами (seller_profiles.agent_id);
+--   3а. seller_agent_bind_location(agent) — тот же однозначный выбор филиала по одной организации, для API;
 --   4. миграция вызывает assert по всей базе ДО backfill: любая неоднозначность — отказ без изменений, вручную решает
 --      владелец (Location по created_at, названию или догадке не выбирается).
 --
@@ -200,6 +201,43 @@ BEGIN
   UPDATE seller_profiles SET agent_id = organization_id
   WHERE agent_id IS NULL AND EXISTS (SELECT 1 FROM seller_agents a WHERE a.id = seller_profiles.organization_id);
   RETURN v_created;
+END $$;
+
+-- 3а. Перенесённый продавец без филиала (объект появился позже профиля): единственно возможный филиал ставит база, по
+-- одной организации. У агентов SA2 (id ≠ organization_id) филиал выбирает человек, функция их не трогает.
+CREATE FUNCTION seller_agent_bind_location(p_agent uuid) RETURNS uuid LANGUAGE plpgsql AS $$
+DECLARE
+  v_org uuid;
+  v_location uuid;
+  v_candidates integer;
+BEGIN
+  SELECT organization_id, location_id INTO v_org, v_location FROM seller_agents WHERE id = p_agent;
+  IF NOT FOUND THEN RETURN NULL; END IF;
+  IF v_location IS NOT NULL THEN RETURN v_location; END IF;
+  IF p_agent <> v_org THEN RETURN NULL; END IF;
+
+  SELECT count(*), (array_agg(c.location_id))[1] INTO v_candidates, v_location
+  FROM (
+    SELECT DISTINCT p.location_id
+    FROM properties p JOIN locations l ON l.id = p.location_id
+    WHERE p.organization_id = v_org AND l.status = 'ACTIVE'
+  ) c;
+  IF v_candidates <> 1 THEN RETURN NULL; END IF;
+  IF EXISTS (
+    SELECT 1 FROM seller_agents x
+    WHERE x.location_id = v_location AND x.scenario = 'sales' AND x.lifecycle <> 'archived' AND x.id <> p_agent
+  ) THEN
+    RETURN NULL;
+  END IF;
+
+  UPDATE seller_agents a
+  SET location_id = v_location,
+      lifecycle = CASE WHEN a.lifecycle = 'draft'
+                            AND EXISTS (SELECT 1 FROM seller_profiles sp WHERE sp.organization_id = a.id AND sp.profile_applied_at IS NOT NULL)
+                       THEN 'active' ELSE a.lifecycle END,
+      updated_at = now()
+  WHERE a.id = p_agent;
+  RETURN v_location;
 END $$;
 
 -- 4. Предпроверка по всей базе, затем backfill. Красная проверка — отказ миграции без изменений данных

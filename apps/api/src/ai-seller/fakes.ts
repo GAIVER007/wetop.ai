@@ -7,6 +7,7 @@ import type {
   SellerCatalogDraft,
   SellerCatalogPlacement,
   SellerCatalogRepository,
+  SellerAgentScope,
   SellerFactsRepository,
   SellerOrganizationRow,
   SellerOrgsRepository,
@@ -158,6 +159,8 @@ export const rejected = (status: number, detail: string, fields: string[] = []) 
 export class FakeConnection implements SellerConnection {
   /** С какой организацией просили клиента (Э4): каждая отправка — со своей */
   requestedOrgs: Array<string | undefined> = [];
+  /** С каким агентом (SA2.5, `X-Agent`): у рабочего продавца — его идентификатор, у вызова без организации — `undefined` */
+  requestedAgents: Array<string | undefined> = [];
   constructor(
     public settings: SellerConfig,
     public seller: FakeSeller = new FakeSeller(),
@@ -165,9 +168,10 @@ export class FakeConnection implements SellerConnection {
   config(): SellerConfig {
     return this.settings;
   }
-  client(organizationId?: string): SellerPort | null {
+  client(organizationId?: string, agentId?: string): SellerPort | null {
     if (!this.settings.baseUrl || !this.settings.serviceKey) return null;
     this.requestedOrgs.push(organizationId);
+    this.requestedAgents.push(agentId);
     return this.seller;
   }
 }
@@ -176,6 +180,8 @@ export class FakeConnection implements SellerConnection {
 export class FakeOrgs implements SellerOrgsRepository {
   rows: SellerOrganizationRow[] = [];
   siteHosts = new Map<string, string[]>();
+  /** Домены сайтов ФИЛИАЛА агента (SA2.5): ключ — идентификатор агента */
+  agentHosts = new Map<string, string[]>();
   async withExtension(): Promise<SellerOrganizationRow[]> {
     return this.rows;
   }
@@ -185,22 +191,27 @@ export class FakeOrgs implements SellerOrgsRepository {
   async hosts(organizationId: string): Promise<string[]> {
     return this.siteHosts.get(organizationId) ?? [];
   }
+  async hostsForAgent(scope: SellerAgentScope): Promise<string[]> {
+    return this.agentHosts.get(scope.agentId) ?? [];
+  }
 }
 
 export class FakeProfiles implements SellerProfilesRepository {
+  /** Ключ — идентификатор АГЕНТА (SA2.5); у перенесённого продавца он равен организации */
   rows = new Map<string, SellerProfileRow>();
-  audits: Array<{ organizationId: string; before: unknown; after: unknown }> = [];
+  audits: Array<{ organizationId: string; agentId: string; before: unknown; after: unknown }> = [];
 
-  async get(organizationId: string): Promise<SellerProfileRow | null> {
-    return this.rows.get(organizationId) ?? null;
+  async get(agentId: string): Promise<SellerProfileRow | null> {
+    return this.rows.get(agentId) ?? null;
   }
   async save(
-    organizationId: string,
+    scope: SellerAgentScope,
     profile: SellerProfileInput,
     userId: string | null,
     now: Date,
   ): Promise<SellerProfileRow> {
-    const before = this.rows.get(organizationId) ?? null;
+    const { agentId, organizationId } = scope;
+    const before = this.rows.get(agentId) ?? null;
     const row: SellerProfileRow = {
       ...(before ?? {
         promptText: null,
@@ -215,17 +226,18 @@ export class FakeProfiles implements SellerProfilesRepository {
       updatedAt: now,
       updatedBy: userId,
     };
-    this.rows.set(organizationId, row);
-    this.audits.push({ organizationId, before, after: profile });
+    this.rows.set(agentId, row);
+    this.audits.push({ organizationId, agentId, before, after: profile });
     return row;
   }
   async savePrompt(
-    organizationId: string,
+    scope: SellerAgentScope,
     text: string,
     userId: string | null,
     now: Date,
   ): Promise<SellerProfileRow> {
-    const before = this.rows.get(organizationId) ?? null;
+    const { agentId, organizationId } = scope;
+    const before = this.rows.get(agentId) ?? null;
     const row: SellerProfileRow = {
       ...(before ?? {
         ...DEFAULT_SELLER_PROFILE,
@@ -240,33 +252,35 @@ export class FakeProfiles implements SellerProfilesRepository {
       updatedAt: now,
       updatedBy: userId,
     };
-    this.rows.set(organizationId, row);
+    this.rows.set(agentId, row);
     return row;
   }
-  async markProfileApplied(organizationId: string, version: Date): Promise<void> {
-    const row = this.rows.get(organizationId);
+  async markProfileApplied(agentId: string, version: Date): Promise<void> {
+    const row = this.rows.get(agentId);
     if (row) row.profileAppliedAt = version;
   }
-  async markFactsApplied(organizationId: string, hash: string, at: Date): Promise<void> {
-    const row = this.rows.get(organizationId);
+  async markFactsApplied(agentId: string, hash: string, at: Date): Promise<void> {
+    const row = this.rows.get(agentId);
     if (row) Object.assign(row, { factsHash: hash, factsAppliedAt: at });
   }
-  async markError(organizationId: string, message: string, at: Date): Promise<void> {
-    const row = this.rows.get(organizationId);
+  async markError(agentId: string, message: string, at: Date): Promise<void> {
+    const row = this.rows.get(agentId);
     if (row) Object.assign(row, { lastError: message, lastErrorAt: at });
   }
-  async clearError(organizationId: string): Promise<void> {
-    const row = this.rows.get(organizationId);
+  async clearError(agentId: string): Promise<void> {
+    const row = this.rows.get(agentId);
     if (row) Object.assign(row, { lastError: null, lastErrorAt: null });
   }
 }
 
 export class FakeFacts implements SellerFactsRepository {
   source: SellerFactsSource | null = null;
-  asked: Array<{ organizationId: string; now: Date }> = [];
-  async load(organizationId: string, now: Date): Promise<SellerFactsSource | null> {
-    this.asked.push({ organizationId, now });
-    return this.source;
+  asked: Array<{ organizationId: string; agentId: string; now: Date }> = [];
+  /** Факты по агенту (SA2.5): без записи — общий `source`; у агента без филиала тест ставит `null` */
+  byAgent = new Map<string, SellerFactsSource | null>();
+  async load(scope: SellerAgentScope, now: Date): Promise<SellerFactsSource | null> {
+    this.asked.push({ organizationId: scope.organizationId, agentId: scope.agentId, now });
+    return this.byAgent.has(scope.agentId) ? this.byAgent.get(scope.agentId)! : this.source;
   }
 }
 

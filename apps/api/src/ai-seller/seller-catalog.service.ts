@@ -13,6 +13,7 @@ import {
   SELLER_CATALOG,
   SELLER_ORGS,
   SELLER_PROFILES,
+  workingSellerScope,
   type SellerCatalogRepository,
   type SellerOrgsRepository,
   type SellerProfilesRepository,
@@ -80,7 +81,8 @@ export class SellerCatalogService {
     const config = this.connection.config();
     const connection = !config.baseUrl || !config.serviceKey ? 'not-configured' : 'ready';
     const [row, placement, hosts, drafts, whatsapp] = await Promise.all([
-      this.profiles.get(organizationId),
+      // карточка рабочего продавца: профиль — агента (SA2.5), у перенесённого он равен организации
+      this.profiles.get(workingSellerScope(organizationId).agentId),
       this.catalog.placement(organizationId),
       this.orgs.hosts(organizationId),
       this.catalog.drafts(organizationId, CATALOG_DRAFTS_MAX),
@@ -124,7 +126,7 @@ export class SellerCatalogService {
 
   /** Подключён ли WhatsApp — по ответу бота; не ответил вовремя или упал — «нет данных», а не ошибка страницы */
   private async whatsappState(organizationId: string): Promise<ChannelState> {
-    const client = this.connection.client(organizationId);
+    const client = this.connection.client(organizationId, workingSellerScope(organizationId).agentId);
     if (!client) return 'UNKNOWN';
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {

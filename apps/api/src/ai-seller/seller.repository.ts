@@ -21,6 +21,27 @@ export const SELLER_AUDIT = Symbol('SELLER_AUDIT');
 export const SELLER_ORGS = Symbol('SELLER_ORGS');
 export const SELLER_CATALOG = Symbol('SELLER_CATALOG');
 
+/**
+ * Агент, чьи настройки, факты и подключения читаются и пишутся (SA2.5, DATA_MODEL §20). Профиль, факты и всё, что уходит
+ * продавцу, привязаны к АГЕНТУ, а не к организации: организация остаётся границей арендатора (RLS, права, расширение).
+ * У перенесённого продавца `agentId = organizationId` (§20.4) — поэтому его данные, ключ виджета и адрес вебхука прежние.
+ */
+export interface SellerAgentScope {
+  agentId: string;
+  organizationId: string;
+}
+
+/**
+ * Агент, которому адресованы страницы «Настройки», «Инструкция», «Факты», «Применить» и подключения (SA2.5): рабочий
+ * продавец организации — агент с `id = organization_id` (DATA_MODEL §20.4). Это единственное место, где «агент организации»
+ * называется по идентификатору организации; всё дальше (профиль, факты, ключ виджета, вебхук, заголовок `X-Agent`) идёт
+ * по `agentId`. Маршруты с явным агентом добавит SA3.
+ */
+export const workingSellerScope = (organizationId: string): SellerAgentScope => ({
+  agentId: organizationId,
+  organizationId,
+});
+
 /** Организация для заведения у продавца (Э4) */
 export interface SellerOrganizationRow {
   organizationId: string;
@@ -34,8 +55,13 @@ export interface SellerOrganizationRow {
 export interface SellerOrgsRepository {
   withExtension(): Promise<SellerOrganizationRow[]>;
   one(organizationId: string): Promise<SellerOrganizationRow | null>;
-  /** Домены действующих сайтов организации («Настройки сайта», срез 8): с них открывается виджет */
+  /** Домены действующих сайтов организации («Настройки сайта», срез 8): их получает прежний бот (org-уровень) */
   hosts(organizationId: string): Promise<string[]>;
+  /**
+   * Домены действующих сайтов ФИЛИАЛА агента (SA2.5, Q-SA-17): с них открывается виджет агента. Считается из строки агента,
+   * копии в агенте нет; агент без филиала — пусто.
+   */
+  hostsForAgent(scope: SellerAgentScope): Promise<string[]>;
 }
 
 /** Строка `seller_profiles` (DATA_MODEL §15): поля «Настроек» плюс отметки доставки продавцу */
@@ -54,30 +80,35 @@ export interface SellerProfileRow extends SellerProfileInput {
 }
 
 export interface SellerProfilesRepository {
-  get(organizationId: string): Promise<SellerProfileRow | null>;
-  /** Правка «Настроек»: одна строка на организацию, в журнал действий — до и после, с автором */
+  /** Профиль агента (SA2.5): ключ — агент; профиля другого агента той же организации здесь нет */
+  get(agentId: string): Promise<SellerProfileRow | null>;
+  /** Правка «Настроек»: одна строка на агента, в журнал действий — до и после, с автором */
   save(
-    organizationId: string,
+    scope: SellerAgentScope,
     profile: SellerProfileInput,
     userId: string | null,
     now: Date,
   ): Promise<SellerProfileRow>;
   /** Инструкция одним текстом (ADR-097): строки нет — заводится с полями по умолчанию, иначе факты не уйдут */
   savePrompt(
-    organizationId: string,
+    scope: SellerAgentScope,
     text: string,
     userId: string | null,
     now: Date,
   ): Promise<SellerProfileRow>;
-  markProfileApplied(organizationId: string, version: Date): Promise<void>;
-  markFactsApplied(organizationId: string, hash: string, at: Date): Promise<void>;
-  markError(organizationId: string, message: string, at: Date): Promise<void>;
-  clearError(organizationId: string): Promise<void>;
+  markProfileApplied(agentId: string, version: Date): Promise<void>;
+  markFactsApplied(agentId: string, hash: string, at: Date): Promise<void>;
+  markError(agentId: string, message: string, at: Date): Promise<void>;
+  clearError(agentId: string): Promise<void>;
 }
 
 export interface SellerFactsRepository {
-  /** Факты объекта организации; `null` — объекта у организации нет */
-  load(organizationId: string, now: Date): Promise<SellerFactsSource | null>;
+  /**
+   * Факты объекта ФИЛИАЛА агента (SA2.5). Область — только из строки агента: агент организации, его филиал, объект филиала.
+   * `null` — агента нет в этой организации, у него нет филиала или у филиала нет объекта. «Самый ранний объект организации»
+   * больше не читается.
+   */
+  load(scope: SellerAgentScope, now: Date): Promise<SellerFactsSource | null>;
 }
 
 /**
@@ -177,13 +208,23 @@ const rowOf = (r: ProfileRecord): SellerProfileRow => ({
 export class PrismaSellerProfilesRepository implements SellerProfilesRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async get(organizationId: string): Promise<SellerProfileRow | null> {
-    const r = await this.prisma.db.sellerProfile.findUnique({ where: { organizationId } });
+  async get(agentId: string): Promise<SellerProfileRow | null> {
+    const r = await this.prisma.db.sellerProfile.findUnique({ where: { agentId } });
     return r ? rowOf(r as ProfileRecord) : null;
   }
 
+  /**
+   * Перенесённый продавец: агента может ещё не быть — при вставке профиля триггер базы заводит его с `id = organization_id`
+   * (§20.4), поэтому `agentId` в `create` ставится только у агента, который уже существует (SA3 заводит их явно).
+   */
+  private createKey(scope: SellerAgentScope) {
+    return scope.agentId === scope.organizationId
+      ? { organizationId: scope.organizationId }
+      : { organizationId: scope.organizationId, agentId: scope.agentId };
+  }
+
   async save(
-    organizationId: string,
+    scope: SellerAgentScope,
     profile: SellerProfileInput,
     userId: string | null,
     now: Date,
@@ -195,19 +236,18 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
       updatedAt: now,
       updatedBy: userId,
     };
+    const { agentId } = scope;
     return this.prisma.db.$transaction(async (tx) => {
-      const before = await tx.sellerProfile.findUnique({ where: { organizationId } });
-      const saved = await tx.sellerProfile.upsert({
-        where: { organizationId },
-        create: { organizationId, ...data },
-        update: data,
-      });
+      const before = await tx.sellerProfile.findUnique({ where: { agentId } });
+      const saved = before
+        ? await tx.sellerProfile.update({ where: { agentId }, data })
+        : await tx.sellerProfile.create({ data: { ...this.createKey(scope), ...data } });
       // SECURITY.md §6: правка настроек продавца — в журнал; тексты — настройки владельца, не данные гостей
       await tx.auditLog.create({
         data: {
           userId: userId ?? auditUserId(),
           entityType: 'SellerProfile',
-          entityId: organizationId,
+          entityId: agentId,
           action: 'seller.profile.updated',
           ...(before
             ? {
@@ -224,30 +264,32 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
   }
 
   async savePrompt(
-    organizationId: string,
+    scope: SellerAgentScope,
     text: string,
     userId: string | null,
     now: Date,
   ): Promise<SellerProfileRow> {
     const defaults = pickSellerProfile(DEFAULT_SELLER_PROFILE);
     const stamp = { promptText: text, updatedAt: now, updatedBy: userId };
+    const { agentId } = scope;
     return this.prisma.db.$transaction(async (tx) => {
-      const saved = await tx.sellerProfile.upsert({
-        where: { organizationId },
-        create: {
-          organizationId,
-          ...defaults,
-          faq: defaults.faq.map((f) => ({ question: f.question, answer: f.answer })),
-          ...stamp,
-        },
-        update: stamp,
-      });
+      const before = await tx.sellerProfile.findUnique({ where: { agentId }, select: { agentId: true } });
+      const saved = before
+        ? await tx.sellerProfile.update({ where: { agentId }, data: stamp })
+        : await tx.sellerProfile.create({
+            data: {
+              ...this.createKey(scope),
+              ...defaults,
+              faq: defaults.faq.map((f) => ({ question: f.question, answer: f.answer })),
+              ...stamp,
+            },
+          });
       // SECURITY.md §6: правка — в журнал с автором; сам текст — настройка владельца, в журнал идёт его длина
       await tx.auditLog.create({
         data: {
           userId: userId ?? auditUserId(),
           entityType: 'SellerProfile',
-          entityId: organizationId,
+          entityId: agentId,
           action: 'seller.prompt.updated',
           after: { length: text.length },
         },
@@ -256,49 +298,54 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
     });
   }
 
-  async markProfileApplied(organizationId: string, version: Date): Promise<void> {
-    await this.prisma.db.sellerProfile.updateMany({
-      where: { organizationId },
-      data: { profileAppliedAt: version },
-    });
+  async markProfileApplied(agentId: string, version: Date): Promise<void> {
+    await this.prisma.db.sellerProfile.updateMany({ where: { agentId }, data: { profileAppliedAt: version } });
   }
 
-  async markFactsApplied(organizationId: string, hash: string, at: Date): Promise<void> {
-    await this.prisma.db.sellerProfile.updateMany({
-      where: { organizationId },
-      data: { factsHash: hash, factsAppliedAt: at },
-    });
+  async markFactsApplied(agentId: string, hash: string, at: Date): Promise<void> {
+    await this.prisma.db.sellerProfile.updateMany({ where: { agentId }, data: { factsHash: hash, factsAppliedAt: at } });
   }
 
-  async markError(organizationId: string, message: string, at: Date): Promise<void> {
+  async markError(agentId: string, message: string, at: Date): Promise<void> {
     await this.prisma.db.sellerProfile.updateMany({
-      where: { organizationId },
+      where: { agentId },
       data: { lastError: message.slice(0, 500), lastErrorAt: at },
     });
   }
 
-  async clearError(organizationId: string): Promise<void> {
-    await this.prisma.db.sellerProfile.updateMany({
-      where: { organizationId },
-      data: { lastError: null, lastErrorAt: null },
-    });
+  async clearError(agentId: string): Promise<void> {
+    await this.prisma.db.sellerProfile.updateMany({ where: { agentId }, data: { lastError: null, lastErrorAt: null } });
   }
 }
 
 /**
- * Факты объекта (ТЗ П8): карточка объекта организации, активные категории с числом активных мест, тариф виджета
- * бронирования на сайте и его цены в окне. Объект — по организации напрямую, а не по имени: служба сверки ходит
- * без человека, и чужой объект сюда не попадёт.
+ * Факты объекта (ТЗ П8): карточка объекта филиала АГЕНТА (SA2.5), активные категории с числом активных мест, тариф виджета
+ * бронирования на сайте и его цены в окне. Объект — из строки агента, а не по имени и не «самый ранний у организации»:
+ * служба сверки ходит без человека, и чужой объект сюда не попадёт.
  */
 @Injectable()
 export class PrismaSellerFactsRepository implements SellerFactsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async load(organizationId: string, now: Date): Promise<SellerFactsSource | null> {
+  async load(scope: SellerAgentScope, now: Date): Promise<SellerFactsSource | null> {
     const db = this.prisma.db;
+    // Область — из строки агента: агент этой организации, его филиал, объект филиала (Property–Location 1:1). Идентификатор
+    // агента, не принадлежащий организации, строки не даёт (`null`), как и агент без филиала
+    let agent = await db.sellerAgent.findFirst({
+      where: { id: scope.agentId, organizationId: scope.organizationId },
+      select: { locationId: true },
+    });
+    if (agent && agent.locationId === null && scope.agentId === scope.organizationId) {
+      // Перенесённый продавец без филиала: единственно возможный филиал организации (иначе — без догадок) ставит база
+      await db.$queryRaw`SELECT seller_agent_bind_location(${scope.agentId}::uuid)`;
+      agent = await db.sellerAgent.findFirst({
+        where: { id: scope.agentId, organizationId: scope.organizationId },
+        select: { locationId: true },
+      });
+    }
+    if (!agent?.locationId) return null;
     const property = await db.property.findFirst({
-      where: { organizationId },
-      orderBy: { createdAt: 'asc' },
+      where: { organizationId: scope.organizationId, locationId: agent.locationId },
       select: {
         id: true,
         name: true,
@@ -407,6 +454,21 @@ export class PrismaSellerOrgsRepository implements SellerOrgsRepository {
       orderBy: { createdAt: 'asc' },
     });
     // Свои домены без повторов, в порядке сайтов: их сравнивает дверь виджета продавца
+    return [...new Set(sites.flatMap((s) => s.hosts))];
+  }
+
+  async hostsForAgent(scope: SellerAgentScope): Promise<string[]> {
+    const agent = await this.prisma.db.sellerAgent.findFirst({
+      where: { id: scope.agentId, organizationId: scope.organizationId },
+      select: { location: { select: { property: { select: { id: true } } } } },
+    });
+    const propertyId = agent?.location?.property?.id;
+    if (!propertyId) return [];
+    const sites = await this.prisma.db.trackedSite.findMany({
+      where: { propertyId, status: 'ACTIVE' },
+      select: { hosts: true },
+      orderBy: { createdAt: 'asc' },
+    });
     return [...new Set(sites.flatMap((s) => s.hosts))];
   }
 }

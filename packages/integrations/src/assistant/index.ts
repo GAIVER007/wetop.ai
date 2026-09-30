@@ -14,6 +14,7 @@ export {
   SellerClient,
   SellerRejectedError,
   SellerUnavailableError,
+  widgetAgentKey,
   widgetOrgKey,
   type BotKnowledgeFile,
   type ConversationListQuery,

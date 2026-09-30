@@ -162,4 +162,29 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     await db.$queryRawUnsafe('SELECT seller_agents_backfill()');
     expect((await report(org.id)).profiles_without_agent).toBe(0);
   });
+  it('seller_agent_bind_location: перенесённому агенту — единственный филиал; при двух, у агента SA2 и уже занятого — нет', async () => {
+    const bind = async (agent: string) => (await db.$queryRawUnsafe<Array<{ r: string | null }>>('SELECT seller_agent_bind_location($1::uuid)::text AS r', agent))[0]!.r;
+    const one = await newOrg('bind один');
+    await db.sellerAgent.create({ data: { id: one.id, organizationId: one.id, createdBy: one.user!, name: 'Продавец' } });
+    expect(await bind(one.id)).toBe(one.locations[0]);
+    expect((await agentOf(one.id))?.locationId).toBe(one.locations[0]);
+    expect(await bind(one.id)).toBe(one.locations[0]); // повтор — то же
+
+    const two = await newOrg('bind два', { locations: 2 });
+    await db.sellerAgent.create({ data: { id: two.id, organizationId: two.id, createdBy: two.user!, name: 'Продавец' } });
+    expect(await bind(two.id)).toBeNull();
+    expect((await agentOf(two.id))?.locationId).toBeNull();
+
+    // агент SA2 (id ≠ организация): филиал выбирает человек, функция его не трогает
+    const drafted = await db.sellerAgent.create({ data: { organizationId: one.id, createdBy: one.user!, name: 'Черновик', scenario: 'support' } });
+    expect(await bind(drafted.id)).toBeNull();
+    expect(await bind(randomUUID())).toBeNull();
+
+    // филиал занят другим неархивным AI-продавцом
+    const busy = await newOrg('bind занят');
+    await db.sellerAgent.create({ data: { organizationId: busy.id, createdBy: busy.user!, name: 'Занял', locationId: busy.locations[0]! } });
+    await db.sellerAgent.create({ data: { id: busy.id, organizationId: busy.id, createdBy: busy.user!, name: 'Продавец', lifecycle: 'archived' } });
+    await db.sellerAgent.update({ where: { id: busy.id }, data: { lifecycle: 'draft' } }).catch(() => undefined);
+    expect(await bind(busy.id)).toBeNull();
+  });
 });

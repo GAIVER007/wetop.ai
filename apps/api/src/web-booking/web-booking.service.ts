@@ -160,6 +160,11 @@ export class WebBookingService {
     raw: unknown,
     now: Date = new Date(),
   ): Promise<Quote> {
+    // Прежний бот присылает только организацию. Двух AI-продавцов в организации организация не различает: область не
+    // угадывается («самый ранний сайт»), вызывающий обязан назвать агента (SA2.5)
+    if ((await this.sites.salesAgentCount(organizationId)) > 1) {
+      throw new BadRequestException('у организации несколько AI-продавцов: нужен agent');
+    }
     const site = await this.sites.bookingSiteForOrganization(organizationId);
     if (!site) {
       throw new NotFoundException('у организации нет сайта с включённым бронированием');
@@ -172,6 +177,36 @@ export class WebBookingService {
     // а продавец знает организацию, не ключ.
     const body = raw && typeof raw === 'object' ? { ...(raw as Record<string, unknown>) } : {};
     return asSite(site, () => this.quoteForSite(site, { ...body, k: site.publicKey }, now));
+  }
+
+  /**
+   * Котировка по агенту (SA2.5): `agentId` — недоверенный селектор. Организацию, филиал и объект платформа берёт из
+   * найденной строки агента; сайт — ТОЛЬКО на объекте его филиала, без запасного «первого сайта организации».
+   * Несуществующий, архивный и чужой агент отвечают одинаково.
+   */
+  async quoteForAgent(agentId: string, raw: unknown, now: Date = new Date()): Promise<Quote> {
+    const site = await this.sites.bookingSiteForAgent(agentId);
+    if (!site) {
+      throw new NotFoundException('у агента нет сайта с включённым бронированием');
+    }
+    await this.assertServingProperty(site, 'котировка для объекта этого агента пока не подключена');
+    if (!this.limits.botQuotePerOrg.allow(`agent:${agentId}`, now.getTime())) {
+      throw new HttpException('слишком много котировок, попробуйте позже', HttpStatus.TOO_MANY_REQUESTS);
+    }
+    const body = raw && typeof raw === 'object' ? { ...(raw as Record<string, unknown>) } : {};
+    delete body.organization;
+    delete body.agent;
+    return asSite(site, () => this.quoteForSite(site, { ...body, k: site.publicKey }, now));
+  }
+
+  /**
+   * Домены, с которых открывается виджет агента (SA2.5, Q-SA-17): вычисляются во время запроса из действующих сайтов
+   * его филиала, копии в агенте нет. Нет сайта — пустой список: черновик создаётся, а публичный виджет не открывается.
+   */
+  async originsForAgent(agentId: string): Promise<string[]> {
+    const hosts = await this.sites.hostsForAgent(agentId);
+    if (hosts === null) throw new NotFoundException('агент не найден');
+    return hosts;
   }
 
   /** Общий расчёт двух дверей: сайт уже найден и проверен вызывающим */

@@ -1,0 +1,117 @@
+# Типы (typecheck) · 30.09.2026 22:39 Алматы · vm
+# коммит a3c5c6e (claude/security-audit-vibe-coding-k3xakb), незакоммиченных файлов набора: 1
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/ai-seller/business-agents.repository.ts(131,90): error TS2339: Property 'length' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(220,72): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(256,67): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(258,52): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(291,67): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(291,88): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(293,52): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(317,62): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(321,62): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(326,16): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(332,62): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(351,17): error TS2353: Object literal may only specify known properties, and 'locationId' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(353,24): error TS2339: Property 'locationId' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; profile: JsonValue; lifecycle: string; scenario: string; }'.
+apps/api/src/ai-seller/seller.repository.ts(358,19): error TS2353: Object literal may only specify known properties, and 'locationId' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(361,17): error TS2339: Property 'locationId' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; profile: JsonValue; lifecycle: string; scenario: string; }'.
+apps/api/src/ai-seller/seller.repository.ts(363,72): error TS2339: Property 'locationId' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; profile: JsonValue; lifecycle: string; scenario: string; }'.
+apps/api/src/ai-seller/seller.repository.ts(478,17): error TS2353: Object literal may only specify known properties, and 'location' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(480,31): error TS2339: Property 'location' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; profile: JsonValue; lifecycle: string; scenario: string; }'.
+apps/api/src/ai-seller/seller.repository.ts(506,17): error TS2353: Object literal may only specify known properties, and 'location' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(508,29): error TS2339: Property 'location' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; profile: JsonValue; lifecycle: string; scenario: string; }'.
+apps/api/src/ai-seller/seller.repository.ts(515,29): error TS2339: Property 'location' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; profile: JsonValue; lifecycle: string; scenario: string; }'.
+apps/api/src/ai-seller/seller.repository.ts(543,40): error TS2339: Property 'business' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(543,70): error TS2339: Property 'business' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(544,40): error TS2339: Property 'id' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(544,61): error TS2339: Property 'name' does not exist on type 'never'.
+apps/api/src/analytics/analytics.repository.ts(279,35): error TS2339: Property 'property' does not exist on type 'never'.
+apps/api/src/rates/promo-codes.ts(47,39): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(52,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(89,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(92,28): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/promo-codes.ts(126,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(144,29): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/rate-plans.ts(93,37): error TS2339: Property 'name' does not exist on type 'never'.
+apps/api/src/reservations/reservations.repository.ts(552,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(554,18): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(565,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(570,27): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(576,44): error TS2339: Property 'discountPercent' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(585,31): error TS2339: Property 'promoCode' does not exist on type 'TransactionClient | Db'.
+  Property 'promoCode' does not exist on type 'TransactionClient'.
+apps/api/src/reservations/reservations.repository.ts(885,36): error TS2339: Property 'discountPercent' does not exist on type 'never'.
+tests/integration/derived-rate-plans.test.ts(42,20): error TS2339: Property 'discountPercent' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+tests/integration/derived-rate-plans.test.ts(73,30): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(78,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(81,16): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(83,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(86,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(89,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(92,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(103,12): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rate-plans.test.ts(106,16): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/derived-rates-booking.test.ts(88,20): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/derived-rates-booking.test.ts(91,20): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/derived-rates-booking.test.ts(94,20): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+tests/integration/rates-derived-api.test.ts(107,16): error TS2339: Property 'promoCode' does not exist on type 'PrismaClient'.
+tests/integration/seller-agent-profiles.test.ts(138,67): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+tests/integration/seller-agent-scope.test.ts(131,80): error TS2339: Property 'locationId' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; profile: JsonValue; lifecycle: string; scenario: string; }'.
+tests/integration/seller-agent-scope.test.ts(175,65): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+tests/integration/seller-scope-precheck.test.ts(103,69): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/ai-seller/business-agents.repository.ts(131,90): error TS2339: Property 'length' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(220,72): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(256,67): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(258,52): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(291,67): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(291,88): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(293,52): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereUniqueInput'.
+apps/api/src/ai-seller/seller.repository.ts(317,62): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(321,62): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(326,16): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(332,62): error TS2353: Object literal may only specify known properties, and 'agentId' does not exist in type 'SellerProfileWhereInput'.
+apps/api/src/ai-seller/seller.repository.ts(351,17): error TS2353: Object literal may only specify known properties, and 'locationId' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(353,24): error TS2339: Property 'locationId' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; scenario: string; lifecycle: string; profile: JsonValue; }'.
+apps/api/src/ai-seller/seller.repository.ts(358,19): error TS2353: Object literal may only specify known properties, and 'locationId' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(361,17): error TS2339: Property 'locationId' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; scenario: string; lifecycle: string; profile: JsonValue; }'.
+apps/api/src/ai-seller/seller.repository.ts(363,72): error TS2339: Property 'locationId' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; scenario: string; lifecycle: string; profile: JsonValue; }'.
+apps/api/src/ai-seller/seller.repository.ts(478,17): error TS2353: Object literal may only specify known properties, and 'location' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(480,31): error TS2339: Property 'location' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; scenario: string; lifecycle: string; profile: JsonValue; }'.
+apps/api/src/ai-seller/seller.repository.ts(506,17): error TS2353: Object literal may only specify known properties, and 'location' does not exist in type 'SellerAgentSelect<DefaultArgs>'.
+apps/api/src/ai-seller/seller.repository.ts(508,29): error TS2339: Property 'location' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; scenario: string; lifecycle: string; profile: JsonValue; }'.
+apps/api/src/ai-seller/seller.repository.ts(515,29): error TS2339: Property 'location' does not exist on type '{ organizationId: string; id: string; name: string; createdAt: Date; updatedAt: Date; createdBy: string; scenario: string; lifecycle: string; profile: JsonValue; }'.
+apps/api/src/ai-seller/seller.repository.ts(543,40): error TS2339: Property 'business' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(543,70): error TS2339: Property 'business' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(544,40): error TS2339: Property 'id' does not exist on type 'never'.
+apps/api/src/ai-seller/seller.repository.ts(544,61): error TS2339: Property 'name' does not exist on type 'never'.
+apps/api/src/analytics/analytics.repository.ts(279,35): error TS2339: Property 'property' does not exist on type 'never'.
+apps/api/src/rates/promo-codes.ts(47,39): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(52,22): error TS7006: Parameter 'r' implicitly has an 'any' type.
+apps/api/src/rates/promo-codes.ts(89,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(92,28): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/promo-codes.ts(126,30): error TS2339: Property 'promoCode' does not exist on type 'Db'.
+apps/api/src/rates/promo-codes.ts(144,29): error TS2339: Property 'promoCode' does not exist on type 'Omit<PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$use" | "$extends">'.
+apps/api/src/rates/rate-plans.ts(93,37): error TS2339: Property 'name' does not exist on type 'never'.
+apps/api/src/reservations/reservations.repository.ts(552,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(554,18): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(565,17): error TS2353: Object literal may only specify known properties, and 'parentRatePlanId' does not exist in type 'RatePlanSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(570,27): error TS2339: Property 'parentRatePlanId' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(576,44): error TS2339: Property 'discountPercent' does not exist on type '{ id: string; name: string; currency: string; createdAt: Date; updatedAt: Date; propertyId: string; note: string | null; code: string; active: boolean; mealPlan: string | null; cancellationPenalty: CancellationPenalty; }'.
+apps/api/src/reservations/reservations.repository.ts(585,31): error TS2339: Property 'promoCode' does not exist on type 'TransactionClient | Db'.
+  Property 'promoCode' does not exist on type 'TransactionClient'.
+apps/api/src/reservations/reservations.repository.ts(885,36): error TS2339: Property 'discountPercent' does not exist on type 'never'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 43 с

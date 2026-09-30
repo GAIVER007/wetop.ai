@@ -25,7 +25,8 @@ from starlette.responses import Response
 from src import dependencies
 from src.channels.widget_identity import Visitor, anonymous, is_platform_key, read_identity
 from src.config import Settings, normalize_bot_role
-from src.db.models import ORG_KEY_RE_TEXT, Organization
+from src.channels.agent_origins import origins_for_agent
+from src.db.models import ORG_KEY_RE_TEXT, Agent, Organization
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ def check_origin(request: Request) -> None:
         raise HTTPException(status_code=403, detail="forbidden")
 
 
-# ─── Гостиница по ключу из тега (Э4, ADR-083) ───
+# ─── Агент по ключу из тега (SA2.5; до неё — гостиница, Э4, ADR-083) ───
 
 
 def seller_mode(settings: Settings) -> bool:
@@ -77,43 +78,54 @@ def seller_mode(settings: Settings) -> bool:
     return normalize_bot_role(settings.bot_role) == "seller"
 
 
-def org_hosts_allowed(origin: str, org: Organization, own_host: str = "") -> bool:
-    """Домены гостиницы, а не WIDGET_SITE_HOSTS. 🔴 Пустой список доменов —
-    отказ, а не «пускаем всех»: у гостиницы без сайта виджет не подключить,
-    и режим разработки этой двери не касается."""
-    hosts = [str(h) for h in (org.hosts or [])]
+def hosts_allowed(origin: str, hosts: list[str], own_host: str = "") -> bool:
+    """Домены агента вычисляет платформа (`agent_origins`). 🔴 Пустой список — отказ, а не «пускаем всех»:
+    у филиала без разрешённого домена виджет на внешнем сайте не открывается, и режим разработки этой двери не касается."""
     return bool(hosts) and origin_allowed(origin, hosts, own_host)
 
 
-async def organization_by_key(org_key: str) -> Organization | None:
+async def agent_by_key(org_key: str) -> Agent | None:
+    """Агент по публичному ключу из тега (`sk_…`). Ключ у агента свой: у перенесённого продавца он прежний (выводится от
+    идентификатора, равного организации), у нового — от его идентификатора."""
     if not org_key or not ORG_KEY_RE.match(org_key):
         return None
     async with dependencies.get_sessionmaker()() as session:
-        stmt = sa.select(Organization).where(Organization.public_key == org_key)
+        stmt = sa.select(Agent).where(Agent.public_key == org_key)
         return (await session.execute(stmt)).scalar_one_or_none()
 
 
-async def require_org(request: Request) -> Organization | None:
-    """Дверь канала: у продавца её открывает ключ гостиницы (?k=sk_…),
-    и только с её доменов. Помощник — как раньше: Origin по настройке,
-    ключа в теге нет, возвращаем None.
+async def agent_door_open(agent: Agent) -> bool:
+    """Дверь агента открыта, когда действуют И агент, И расширение его организации (Q-183)."""
+    if not agent.active:
+        return False
+    async with dependencies.get_sessionmaker()() as session:
+        org = await session.get(Organization, agent.organization_id)
+    return org is not None and bool(org.active)
 
-    🔴 Неизвестный ключ, чужой домен и active=false отвечают одинаково
-    (403 без подробностей): так после конца срока расширения виджет
-    на сайте гостиницы молча гаснет (Q-183), а чужой сайт не узнаёт,
-    чем именно не подошёл.
+
+async def require_agent(request: Request) -> Agent | None:
+    """Дверь канала: у продавца её открывает ключ АГЕНТА из тега (?k=sk_…), и только с доменов его филиала. Помощник — как
+    раньше: Origin по настройке, ключа в теге нет, возвращаем None.
+
+    🔴 Неизвестный ключ, выключенный агент или организация, чужой домен и «у филиала нет домена» отвечают одинаково
+    (403 без подробностей): так после конца срока расширения виджет на сайте гостиницы молча гаснет (Q-183), а чужой
+    сайт не узнаёт, чем именно не подошёл.
     """
     settings = settings_of(request)
     if not seller_mode(settings):
         check_origin(request)
         return None
-    org = await organization_by_key(as_str(request.query_params.get("k")))
+    agent = await agent_by_key(as_str(request.query_params.get("k")))
     origin = request.headers.get("origin", "")
-    if org is None or not org.active or not org_hosts_allowed(
-        origin, org, request.headers.get("host", "")
+    if (
+        agent is None
+        or not await agent_door_open(agent)
+        or not hosts_allowed(
+            origin, await origins_for_agent(settings, agent), request.headers.get("host", "")
+        )
     ):
         raise HTTPException(status_code=403, detail="forbidden")
-    return org
+    return agent
 
 
 class WidgetCorsMiddleware(BaseHTTPMiddleware):
@@ -151,18 +163,22 @@ class WidgetCorsMiddleware(BaseHTTPMiddleware):
 
     @staticmethod
     async def _allowed(request: Request, settings: Settings, origin: str) -> bool:
-        """У продавца CORS открывают домены гостиницы по её ключу (Э4):
+        """У продавца CORS открывают домены филиала агента по его ключу (SA2.5):
         preflight несёт адрес с ?k=, тела у него нет. Сбой базы дверь
         не открывает — браузеру честнее не отдать заголовки."""
         own_host = request.headers.get("host", "")
         if not seller_mode(settings):
             return origin_allowed(origin, settings.widget_site_hosts_list, own_host)
         try:
-            org = await organization_by_key(as_str(request.query_params.get("k")))
+            agent = await agent_by_key(as_str(request.query_params.get("k")))
+            return (
+                agent is not None
+                and await agent_door_open(agent)
+                and hosts_allowed(origin, await origins_for_agent(settings, agent), own_host)
+            )
         except Exception:  # noqa: BLE001 — база недоступна
-            logger.warning("widget: CORS не смог проверить ключ гостиницы", exc_info=True)
+            logger.warning("widget: CORS не смог проверить ключ агента", exc_info=True)
             return False
-        return org is not None and bool(org.active) and org_hosts_allowed(origin, org, own_host)
 
 
 # ─── Тело запроса ───

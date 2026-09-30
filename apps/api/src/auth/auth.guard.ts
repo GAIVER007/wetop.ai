@@ -76,7 +76,8 @@ const ASSISTANT_READ_ALLOWED = [
  * тарифа сайта по организации, ровно один адрес, только GET — тот же образец. Брони этим ключом нет:
  * она остаётся заявкой администратору до базы в РК (Q-166б, ADR-086).
  */
-const SELLER_QUOTE_ALLOWED = ['/bot/availability'];
+// SA2.5: домены виджета агента — тоже чтение узким ключом продавца (Agent → Location → сайты филиала)
+const SELLER_QUOTE_ALLOWED = ['/bot/availability', '/bot/agent-origins'];
 
 /**
  * Ключ действий помощника (`ASSISTANT_ACT_KEY`, S6, Q-S6-1): только POST и только действия из матрицы —

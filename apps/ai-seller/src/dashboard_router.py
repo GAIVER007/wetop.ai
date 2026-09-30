@@ -20,6 +20,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from src import dependencies
 from src.ai.engine import IncomingMessage, build_engine
 from src.channels.sender import SendResult
 from src.dashboard import (
@@ -63,9 +64,10 @@ class SandboxIn(BaseModel):
     external_id: str
     text: str
     client_name: str | None = None
-    # Э4: у продавца ход песочницы идёт в организации — без неё непонятно,
-    # чей промпт и чьи знания брать.
+    # Э4: у продавца ход песочницы идёт в организации — без неё непонятно, чья это гостиница.
     organization_id: str | None = None
+    # SA2.5: и у агента — чей промпт и чьи знания брать. Без него — единственный агент организации; при нескольких — отказ.
+    agent_id: str | None = None
 
 
 class CollectSender:
@@ -110,11 +112,26 @@ async def sandbox(request: Request) -> JSONResponse:
     from src.config import normalize_bot_role
 
     organization_id: str | None = None
+    agent_id: str | None = None
     if normalize_bot_role(request.app.state.settings.bot_role) == "seller":
+        from src.agent_scope import AgentError, AmbiguousAgent, resolve_agent
+
         try:
-            organization_id = str(uuid.UUID((body.organization_id or "").strip()))
+            org = uuid.UUID((body.organization_id or "").strip())
+            wanted = uuid.UUID((request.headers.get("x-agent") or body.agent_id or "").strip()) if (
+                request.headers.get("x-agent") or body.agent_id
+            ) else None
         except ValueError:
             return JSONResponse(status_code=400, content={"status": "bad_request"})
+        try:
+            async with dependencies.get_sessionmaker()() as session:
+                scope = await resolve_agent(session, org, wanted)
+        except AmbiguousAgent:
+            return JSONResponse(status_code=400, content={"status": "agent_required"})
+        except AgentError:
+            # чужой, несуществующий и «агента ещё нет» — одним ответом
+            return JSONResponse(status_code=403, content={"status": "forbidden"})
+        organization_id, agent_id = str(scope.organization_id), str(scope.agent_id)
 
     sender = CollectSender()
     try:
@@ -127,6 +144,7 @@ async def sandbox(request: Request) -> JSONResponse:
                 received_at=utcnow(),
                 client_name=body.client_name,
                 organization_id=organization_id,
+                agent_id=agent_id,
             )
         )
     except Exception:

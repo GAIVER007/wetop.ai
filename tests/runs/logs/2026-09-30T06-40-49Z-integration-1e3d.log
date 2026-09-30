@@ -1,0 +1,347 @@
+# Интеграционные (integration) · 30.09.2026 11:40 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-40-49Z-integration-1e3d.json' 'tests/integration/business-agent-identity.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/business-agent-identity.test.ts (11 tests | 11 failed) 893ms
+   ❯ Business Agent: личность и перенос (integration, DATABASE_URL required) (11)
+     ❯ перенос существующего продавца (seller_agents_backfill) (5)
+       × рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором 337ms
+       × профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец» 14ms
+       × организация с расширением, но без объекта и профиля — черновик без филиала 16ms
+       × организация без продавца и без расширения агента не получает 41ms
+       × повторный запуск ничего не дублирует и не меняет уже перенесённого агента 22ms
+     ❯ ограничения агента (6)
+       × четыре хранимых состояния: `preparing` и `error` больше не допускаются 35ms
+       × активный и приостановленный агент без филиала невозможны, черновик без филиала можно 33ms
+       × на филиале не более одного неархивного AI-продавца; архивный не мешает 27ms
+       × агент другого типа на занятом филиале допустим: ограничение относится только к AI-продавцу 21ms
+       × филиал чужой организации: отказ при вставке и при смене филиала 14ms
+       × профиль связан с агентом своей организации: чужой агент — отказ 35ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Перенос активный munql09t",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "81e0981b-1288-4f50-860b-b56a1c940794",
+    locationId: "6ffbe0ac-97dd-4805-9243-7d72c965cccd",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:99:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец»
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Перенос черновик munql09t",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "db7b2b22-032e-4131-98ec-ed53f825627c",
+    locationId: "351b3150-fbfe-4b10-ba49-479cc915ccaf",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:119:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > организация с расширением, но без объекта и профиля — черновик без филиала
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42883`. Message: `function seller_agents_backfill() does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:136:7
+    134|       });
+    135|
+    136|       await backfill();
+       |       ^
+    137|
+    138|       const [row] = await agent(a.orgId);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > организация без продавца и без расширения агента не получает
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Перенос пустой munql09t",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "fc00b5ff-3ab9-4022-b95d-6ffa8247ef58",
+    locationId: "f37d4bc8-afa0-4b17-b464-b037084ff969",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:144:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > повторный запуск ничего не дублирует и не меняет уже перенесённого агента
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Перенос повтор munql09t",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "a311aabc-a7b6-46da-8d23-52d0b32174eb",
+    locationId: "5494a31b-c0b2-4efa-aa25-5672b864daac",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:152:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > четыре хранимых состояния: `preparing` и `error` больше не допускаются
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column "location_id" of relation "seller_agents" does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:174:7
+    172|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'prepar…
+    173|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'error'…
+    174|       await insertAgent(a.orgId, a.userId, { lifecycle: 'draft' });
+       |       ^
+    175|       await insertAgent(a.orgId, a.userId, { lifecycle: 'archived' });
+    176|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > активный и приостановленный агент без филиала невозможны, черновик без филиала можно
+PrismaClientKnownRequestError: 
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column "location_id" of relation "seller_agents" does not exist`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/business-agent-identity.test.ts:182:7
+    180|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'active…
+    181|       await expect(insertAgent(a.orgId, a.userId, { lifecycle: 'paused…
+    182|       await insertAgent(a.orgId, a.userId, { lifecycle: 'draft', locat…
+       |       ^
+    183|     });
+    184|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > на филиале не более одного неархивного AI-продавца; архивный не мешает
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Один на филиал munql09t",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "926bc5a0-ed93-4ced-8891-678734447232",
+    locationId: "f96088cf-c843-4dbd-8938-308a3d114805",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:186:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > агент другого типа на занятом филиале допустим: ограничение относится только к AI-продавцу
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Другой тип munql09t",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "adef5937-d9c7-4091-b495-5d85c8082b17",
+    locationId: "d8c0620d-5b46-49b7-8c1e-6fff13f3aebe",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:196:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > филиал чужой организации: отказ при вставке и при смене филиала
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Своя цепочка munql09t",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "1e48c4b2-7344-42bd-ae3e-afd112500140",
+    locationId: "07c317e5-8be4-4406-b4ac-b68e5c34c293",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:203:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > профиль связан с агентом своей организации: чужой агент — отказ
+AssertionError: expected [Function] to throw error matching /принадлеж|organization|агент/i but got '\nInvalid `prisma.$executeRawUnsafe()…'
+
+- Expected:
+/принадлеж|organization|агент/i
+
++ Received:
+"
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `42703`. Message: `column \"agent_id\" of relation \"seller_profiles\" does not exist`"
+
+ ❯ tests/integration/business-agent-identity.test.ts:236:8
+    234|           a.orgId,
+    235|         ),
+    236|       ).rejects.toThrow(/принадлеж|organization|агент/i);
+       |        ^
+    237|     });
+    238|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  06:40:50
+   Duration  3.88s (tests 57%, transform 29%, import 13%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-40-49Z-integration-1e3d.json
+
+# код выхода 1 · 5 с

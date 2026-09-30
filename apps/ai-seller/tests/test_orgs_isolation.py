@@ -175,8 +175,8 @@ def test_the_poll_does_not_cross_organizations(seller_widget, sync_db) -> None: 
     with sync_db() as session:
         conv = session.get(Conversation, conversation_id)
         client = session.get(Client, conv.client_id)
-        client.organization_id = uuid.UUID(ORG_A)
-        conv.organization_id = uuid.UUID(ORG_A)
+        client.organization_id = client.agent_id = uuid.UUID(ORG_A)  # перенесённый продавец: агент = организации
+        conv.organization_id = conv.agent_id = uuid.UUID(ORG_A)
         session.commit()
 
     mine = seller_widget.poll("gost-hotelya-a", origin=HOST_A, org_key=KEY_A)
@@ -208,8 +208,8 @@ def seed_dialog(sessions, org_id: str | None, text: str, *, visitor: str) -> uui
         with sessions() as session:
             conv = session.get(Conversation, conversation_id)
             client = session.get(Client, conv.client_id)
-            client.organization_id = uuid.UUID(org_id)
-            conv.organization_id = uuid.UUID(org_id)
+            client.organization_id = client.agent_id = uuid.UUID(org_id)  # агент = организации (§20.4)
+            conv.organization_id = conv.agent_id = uuid.UUID(org_id)
             session.commit()
     return conversation_id
 
@@ -356,6 +356,7 @@ async def test_the_engine_answers_with_the_org_prompt(engine_env, sync_db) -> No
             text="Есть места на завтра?",
             received_at=utcnow(),
             organization_id=ORG_A,
+            agent_id=ORG_A,
         )
     )
     assert outcome.status == "replied", outcome
@@ -367,9 +368,8 @@ async def test_the_engine_answers_with_the_org_prompt(engine_env, sync_db) -> No
     assert [str(c.organization_id) for c in clients] == [ORG_A]
 
 
-async def test_an_unknown_org_fails_closed(engine_env) -> None:
-    """Организации нет в базе — бот не отвечает по чужому файлу, а честно
-    падает в prompt_missing с нейтральной фразой."""
+async def test_an_unknown_agent_fails_closed(engine_env, sync_db) -> None:  # noqa: F811
+    """Агента нет в базе — бот не отвечает по чужому файлу и не пишет строк чужому продавцу: сбой хода, нейтральная фраза."""
     sender_engine = engine_env.engine(prompt_text="Файловый промпт помощника.")
     outcome = await sender_engine.process_message(
         IncomingMessage(
@@ -378,15 +378,18 @@ async def test_an_unknown_org_fails_closed(engine_env) -> None:
             text="Есть места?",
             received_at=utcnow(),
             organization_id=ORG_B,
+            agent_id=ORG_B,
         )
     )
     assert outcome.status == "error"
-    assert "prompt_missing" in outcome.reasons
-    assert outcome.reply == NEUTRAL_REPLY
+    assert "exception" in outcome.reasons
+    assert _all(sync_db, sa.select(Client).where(Client.external_id == "gost-x")) == []
 
 
-async def test_search_is_scoped_by_the_organization(engine_env) -> None:
-    """Поиск по знаниям не выносит факты одной гостиницы в ответы другой."""
+async def test_search_is_scoped_by_the_agent(engine_env, sync_db) -> None:  # noqa: F811
+    """Поиск по знаниям не выносит факты одного агента в ответы другого (гостиница — тот же случай: агент = организации)."""
+    seed_org(sync_db, ORG_A, KEY_A, [HOST_A])
+    seed_org(sync_db, ORG_B, KEY_B, [HOST_B])
     sessionmaker = engine_env.sessionmaker
     kwargs = dict(max_bytes=1024 * 1024, chunk_chars=400, overlap=40, min_chars=10)
     async with sessionmaker() as session:
@@ -396,6 +399,7 @@ async def test_search_is_scoped_by_the_organization(engine_env) -> None:
             source="zavtrak-a.md",
             data="Завтрак включён в цену проживания.".encode(),
             organization_id=uuid.UUID(ORG_A),
+            agent_id=uuid.UUID(ORG_A),
             **kwargs,
         )
         await ingest_document(
@@ -404,6 +408,7 @@ async def test_search_is_scoped_by_the_organization(engine_env) -> None:
             source="zavtrak-b.md",
             data="Завтрак подаётся только за отдельную плату.".encode(),
             organization_id=uuid.UUID(ORG_B),
+            agent_id=uuid.UUID(ORG_B),
             **kwargs,
         )
         mine = await retriever.search(
@@ -411,7 +416,7 @@ async def test_search_is_scoped_by_the_organization(engine_env) -> None:
             engine_env.embedder,
             "завтрак включён в цену",
             top_k=5,
-            organization_id=uuid.UUID(ORG_A),
+            agent_id=uuid.UUID(ORG_A),
         )
         assert mine, "свои знания находятся"
         assert all("отдельную плату" not in c.content for c in mine)
@@ -420,14 +425,15 @@ async def test_search_is_scoped_by_the_organization(engine_env) -> None:
             engine_env.embedder,
             "завтрак включён в цену",
             top_k=5,
-            organization_id=uuid.UUID(ORG_B),
+            agent_id=uuid.UUID(ORG_B),
         )
         assert all("включён в цену" not in c.content for c in foreign)
 
 
-async def test_the_same_facts_file_may_live_in_both_orgs(engine_env) -> None:
-    """Одинаковое содержимое у двух гостиниц — две записи: хеш уникален
-    в пределах организации, а не на всю базу."""
+async def test_the_same_facts_file_may_live_in_both_agents(engine_env, sync_db) -> None:  # noqa: F811
+    """Одинаковое содержимое у двух агентов — две записи: хеш уникален в пределах агента, а не организации и не базы."""
+    seed_org(sync_db, ORG_A, KEY_A, [HOST_A])
+    seed_org(sync_db, ORG_B, KEY_B, [HOST_B])
     sessionmaker = engine_env.sessionmaker
     kwargs = dict(max_bytes=1024 * 1024, chunk_chars=400, overlap=40, min_chars=10)
     async with sessionmaker() as session:
@@ -438,6 +444,7 @@ async def test_the_same_facts_file_may_live_in_both_orgs(engine_env) -> None:
                 source="obshchie-pravila.md",
                 data="Заезд с 14:00, выезд до 12:00.".encode(),
                 organization_id=uuid.UUID(org),
+                agent_id=uuid.UUID(org),
                 **kwargs,
             )
             assert result.created is True, f"у {org} своя копия"

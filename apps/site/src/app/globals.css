@@ -1212,6 +1212,10 @@ button {
   display: grid;
   gap: 16px;
 }
+/* Карточка сразу под сеткой (строка «Пока нет» на страницах по типам объектов) */
+.card-grid + .card {
+  margin-top: 16px;
+}
 @media (min-width: 40rem) {
   .card-grid--3,
   .card-grid--4 {
@@ -3388,4 +3392,92 @@ button {
   .hero__title {
     font-size: clamp(1.875rem, 7.5vw, 2.75rem);
   }
+}
+/* Калькулятор «прямая бронь против OTA»: четыре поля и результат (страница /calculator/, срез D3) */
+.calc {
+  display: grid;
+  gap: 32px;
+}
+.calc__fields {
+  display: grid;
+  gap: 20px;
+}
+@media (min-width: 40rem) {
+  .calc__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.calc__field {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.calc__label {
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.calc__input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+  /* 16 px — иначе iOS увеличивает страницу при фокусе на поле */
+  font: inherit;
+  font-size: 1rem;
+}
+.calc__input:hover {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border-input));
+}
+.calc__input:focus-visible {
+  border-color: var(--primary);
+  outline-offset: 1px;
+}
+.calc__input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+.calc__hint,
+.calc__error,
+.calc__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.calc__error {
+  color: var(--danger);
+  font-weight: 600;
+}
+.calc__output {
+  padding-top: 24px;
+  border-top: 1px solid var(--glass-border-dim);
+}
+.calc__title {
+  margin: 0 0 16px;
+  font-family: var(--font-head);
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+.calc__numbers {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 16px;
+}
+@media (min-width: 48rem) {
+  .calc__numbers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.calc__numbers dt {
+  color: var(--text-2);
+  font-size: 0.875rem;
+}
+.calc__numbers dd {
+  margin: 4px 0 0;
+  font-family: var(--font-head);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
 }

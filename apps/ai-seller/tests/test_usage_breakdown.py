@@ -105,7 +105,7 @@ async def test_the_engine_writes_the_breakdown_to_the_bot_reply(engine_env, sync
     seed_org(sync_db, ORG, prompt="Ты продавец гостиницы.")
     outcome = await engine_env.engine(llm=_UsageLlm()).process_message(
         IncomingMessage(channel="widget", external_id="guest-u1", text="Есть места?",
-                        received_at=utcnow(), organization_id=ORG)
+                        received_at=utcnow(), organization_id=ORG, agent_id=ORG)
     )
     assert outcome.status == "replied", outcome
     rows = _all(sync_db, sa.select(Message).where(Message.conversation_id == outcome.conversation_id))

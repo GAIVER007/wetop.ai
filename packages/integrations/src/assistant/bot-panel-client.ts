@@ -52,6 +52,11 @@ export interface BotPanelClientConfig {
    * `X-Organization` на каждом вызове, `organization_id` в теле песочницы. Без неё — помощник, как раньше.
    */
   organizationId?: string;
+  /**
+   * Агент вызова (SA2.5): заголовок `X-Agent` на каждом вызове. Бот сверяет, что агент принадлежит организации вызова
+   * (чужой — 403). Без него — единственный агент организации с `id = organization_id`, как до SA2.5.
+   */
+  agentId?: string;
   /** Чья это панель — для слов ошибок; без него — продавец, как было до «Техподдержки» */
   bot?: BotNames;
   fetch?: typeof fetch;
@@ -76,6 +81,13 @@ export function widgetOrgKey(serviceKey: string, organizationId: string): string
     createHmac('sha256', serviceKey).update(`seller-widget|${organizationId}`).digest('hex').slice(0, 24)
   );
 }
+
+/**
+ * Публичный ключ виджета АГЕНТА (SA2.5): та же формула, от идентификатора агента. У перенесённого продавца
+ * `agent.id = organization_id` (DATA_MODEL §20.4), поэтому ключ Luxx и всех существующих гостиниц не меняется; новый
+ * агент получает ключ от своего UUID.
+ */
+export const widgetAgentKey = (serviceKey: string, agentId: string): string => widgetOrgKey(serviceKey, agentId);
 
 export interface BotKnowledgeFile {
   name: string;
@@ -141,6 +153,7 @@ export class BotPanelClient {
   private readonly origin: string;
   private readonly key: string;
   private readonly organizationId: string | null;
+  private readonly agentId: string | null;
   private readonly bot: BotNames;
   private readonly fetchFn: typeof fetch;
 
@@ -154,6 +167,7 @@ export class BotPanelClient {
     this.origin = new URL(this.base).origin;
     this.key = config.serviceKey.trim();
     this.organizationId = config.organizationId?.trim() || null;
+    this.agentId = config.agentId?.trim() || null;
     this.bot = config.bot ?? SELLER_BOT;
     this.fetchFn = config.fetch ?? fetch;
   }
@@ -378,6 +392,7 @@ export class BotPanelClient {
       accept: 'application/json',
       'x-service-key': this.key,
       ...(this.organizationId ? { 'x-organization': this.organizationId } : {}),
+      ...(this.agentId ? { 'x-agent': this.agentId } : {}),
     };
     // У FormData заголовок с границей ставит сам fetch
     if (typeof body === 'string') headers['content-type'] = 'application/json';

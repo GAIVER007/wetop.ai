@@ -50,6 +50,9 @@ import {
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
   parseCancellationPenalty,
+  validateDerivedRule,
+  normalizePromoCode,
+  MAX_DISCOUNT_PERCENT,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -218,6 +221,27 @@ const extraPlans: {
 const ratePlanList = () => [...plans, ...(softPlan ? [softPlanSeed] : []), ...extraPlans];
 /** Правило отмены, изменённое на «Тарифных планах» (SET4): живёт до `reset` */
 const planPenalty = new Map<string, 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY'>();
+/** Производные тарифы (D4, DATA_MODEL §20): код тарифа → родитель и правило; живут до `reset` */
+const derivedRules = new Map<
+  string,
+  {
+    parentCode: string;
+    discountPercent: number;
+    minDaysBeforeArrival: number | null;
+    maxDaysBeforeArrival: number | null;
+    minNights: number | null;
+  }
+>();
+/** Промокоды объекта (D4): живут до `reset` */
+const promoCodes: Array<{
+  code: string;
+  discountPercent: number;
+  stayFrom: string | null;
+  stayTo: string | null;
+  maxUses: number | null;
+  active: boolean;
+  uses: number;
+}> = [];
 /** Строки «Тарифных планов» как у API: категории по названию и брони, которые задевает правка правила */
 function ratePlanRows() {
   const cards = [card, ...extraCards.values()];
@@ -227,6 +251,12 @@ function ratePlanRows() {
     currency: p.currency,
     active: p.active,
     cancellationPenalty: planPenalty.get(p.code) ?? p.cancellationPenalty,
+    derived: (() => {
+      const rule = derivedRules.get(p.code);
+      if (!rule) return null;
+      const { parentCode, ...rest } = rule;
+      return { parentName: ratePlanList().find((x) => x.code === parentCode)?.name ?? '', ...rest };
+    })(),
     categories: categories
       .filter((c) => (c.rateNames ?? [plans[0]!.name]).includes(p.name))
       .map((c) => c.name),
@@ -2379,7 +2409,52 @@ let sellerState: 'ready' | 'not-configured' = 'ready';
 let sellerHosts: string[] = ['hotel-a.example.invalid'];
 let sellerLastError: string | null = null;
 let sellerRetrying = false;
+/** Каталог «ИИ-агентов» (SA1): названия черновиков гостевого мастера и ответ бота о WhatsApp (`unknown` — не ответил) */
+let sellerDrafts: string[] = [];
+let sellerWhatsAppUnknown = false;
+/** Сбой каталога: `POST /__test/control { sellerCatalogFails: true }` — экран «Не удалось загрузить агентов» */
+let sellerCatalogFails = false;
+/**
+ * Business Agents (SA2): Business «Сеть Тест» с филиалом «Алматы» (его держит рабочий продавец) и, по команде теста
+ * `sellerExtraLocation: true`, свободным «Астана». Созданные черновики живут здесь до сброса стенда.
+ */
+const AGENT_BUSINESS = { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Сеть Тест' };
+const AGENT_LOCATION_LEGACY = { id: 'c0000000-0000-4000-8000-0000000000aa', name: 'Алматы' };
+const AGENT_LOCATION_EXTRA = { id: 'c0000000-0000-4000-8000-0000000000ab', name: 'Астана' };
+let sellerExtraLocation = false;
+let sellerAgents: Array<{ id: string; name: string; locationId: string; lifecycle: string }> = [];
+/** Филиалы стенда для агентов: «Алматы» всегда занят рабочим продавцом, «Астана» — по команде теста */
+function agentLocations() {
+  return sellerExtraLocation ? [AGENT_LOCATION_LEGACY, AGENT_LOCATION_EXTRA] : [AGENT_LOCATION_LEGACY];
+}
+function agentLocationTaken(locationId: string) {
+  return (
+    locationId === AGENT_LOCATION_LEGACY.id ||
+    sellerAgents.some((a) => a.locationId === locationId && a.lifecycle !== 'archived')
+  );
+}
+/** Кнопка «+ Подключить AI-продавца»: те же слова и тот же порядок причин, что у сервера (`createAgentAvailability`) */
+function agentCreateState(access: string, canManage: boolean) {
+  if (access === 'off') return { enabled: false, reason: 'Расширение «ИИ-продавец» не подключено.' };
+  if (access === 'expired') return { enabled: false, reason: 'Срок расширения «ИИ-продавец» вышел.' };
+  if (!canManage) return { enabled: false, reason: 'Создавать агентов могут владелец и управляющий.' };
+  const locations = agentLocations();
+  const free = locations.filter((l) => !agentLocationTaken(l.id)).length;
+  if (free > 0) return { enabled: true, reason: null };
+  return {
+    enabled: false,
+    reason:
+      locations.length === 1
+        ? 'Нет свободного филиала. Для этого филиала AI-продавец уже создан.'
+        : 'Нет свободного филиала. Во всех филиалах AI-продавец уже создан.',
+  };
+}
 function resetSeller() {
+  sellerExtraLocation = false;
+  sellerAgents = [];
+  sellerDrafts = [];
+  sellerWhatsAppUnknown = false;
+  sellerCatalogFails = false;
   sellerProfile = structuredClone(sellerProfileSeed);
   sellerAppliedProfile = structuredClone(sellerProfileSeed);
   sellerSaved = false;
@@ -3127,6 +3202,7 @@ function read(path: string, q: URLSearchParams): unknown {
   }
   if (path === '/rates/options') return { categories, ratePlans: plans };
   if (path === '/rates/plans') return ratePlanRows();
+  if (path === '/rates/promo-codes') return promoCodes;
   if (path === '/rates')
     return {
       accommodationTypeCode: q.get('accommodationTypeCode'),
@@ -3731,6 +3807,8 @@ createServer(async (req, res) => {
       units.splice(88);
       categories.splice(0, categories.length, ...structuredClone(categorySeed));
       extraPlans.splice(0, extraPlans.length);
+      derivedRules.clear();
+      promoCodes.splice(0, promoCodes.length);
       for (const unit of units)
         unit.accommodationTypeName = categories.find(
           (c) => c.code === unit.accommodationTypeCode,
@@ -3878,6 +3956,18 @@ createServer(async (req, res) => {
       sellerLastError =
         typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
+      // каталог «ИИ-агентов» (SA1): профиль применён, WhatsApp подключён или бот молчит, черновики мастера
+      if (body['sellerApplied'] === true) {
+        sellerSaved = true;
+        sellerApplied = true;
+        sellerUpdatedAt = new Date().toISOString();
+      }
+      if (body['sellerWhatsApp'] === 'on')
+        sellerWhatsApp = { phoneNumberId: '123456789', verifyToken: 'slovo-dlya-meta-ui' };
+      sellerWhatsAppUnknown = body['sellerWhatsApp'] === 'unknown';
+      sellerCatalogFails = body['sellerCatalogFails'] === true;
+      sellerExtraLocation = body['sellerExtraLocation'] === true;
+      sellerDrafts = Array.isArray(body['sellerDrafts']) ? (body['sellerDrafts'] as string[]).map(String) : [];
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
@@ -4662,7 +4752,12 @@ createServer(async (req, res) => {
               path.startsWith('/ai-seller/whatsapp')
             ? 'configure'
             : 'act';
-      if (path !== '/ai-seller/status') {
+      // статус и каталог отвечают при любом расширении: страница объясняет, а не падает
+      if (
+        path !== '/ai-seller/status' &&
+        path !== '/ai-seller/catalog' &&
+        !path.startsWith('/ai-seller/agents')
+      ) {
         if (sellerUse === 'configure' && !sellerOwner)
           return send(403, { message: 'Настройки продавца меняют владелец и управляющий' });
         if (extension.access === 'off')
@@ -4682,10 +4777,146 @@ createServer(async (req, res) => {
         updatedAt: sellerUpdatedAt,
         applied: sellerApplied,
       });
+      // Business Agents (SA2): создание черновика и страница его состояния
+      if (path.startsWith('/ai-seller/agents')) {
+        const agentView = (a: (typeof sellerAgents)[number]) => ({
+          id: a.id,
+          name: a.name,
+          lifecycle: a.lifecycle,
+          business: AGENT_BUSINESS,
+          location: agentLocations().find((l) => l.id === a.locationId) ?? AGENT_LOCATION_LEGACY,
+          setup: [
+            { code: 'basics', label: 'Основное', done: true },
+            { code: 'behavior', label: 'Поведение', done: false },
+            { code: 'knowledge', label: 'Знания', done: false },
+            { code: 'data', label: 'Данные WETOP', done: false },
+            { code: 'whatsapp', label: 'WhatsApp', done: false },
+            { code: 'testing', label: 'Тестирование', done: false },
+            { code: 'launch', label: 'Запуск', done: false },
+          ],
+          createdAt: '2026-09-30T08:00:00.000Z',
+          updatedAt: '2026-09-30T08:00:00.000Z',
+        });
+        if (path === '/ai-seller/agents/options' && req.method === 'GET') {
+          const state = agentCreateState(extension.access, sellerOwner);
+          return send(200, {
+            extension,
+            canCreate: state.enabled,
+            reason: state.reason,
+            businesses:
+              extension.access === 'off'
+                ? []
+                : [
+                    {
+                      ...AGENT_BUSINESS,
+                      locations: agentLocations().map((l) => ({
+                        ...l,
+                        free: !agentLocationTaken(l.id),
+                        reason: agentLocationTaken(l.id) ? 'Для этого филиала AI-продавец уже создан.' : null,
+                      })),
+                    },
+                  ],
+          });
+        }
+        if (path === '/ai-seller/agents' && req.method === 'POST') {
+          if (!sellerOwner) return send(403, { message: 'Создавать агентов могут владелец и управляющий.' });
+          const key = String(req.headers['idempotency-key'] ?? '');
+          if (!/^[0-9a-f-]{36}$/i.test(key)) return send(400, { message: 'Обновите форму и повторите.' });
+          if (extension.access === 'off')
+            return send(403, { message: 'Расширение «ИИ-продавец» не подключено.' });
+          if (extension.access === 'expired')
+            return send(403, { message: 'Срок расширения «ИИ-продавец» вышел.' });
+          const org = uiUser.organization;
+          if (org.status === 'TRIAL' && org.trialEndsAt && Date.parse(org.trialEndsAt) < Date.now())
+            return send(403, { message: 'Организация в режиме «только чтение»: менять данные можно после оплаты.' });
+          const name = String(body['name'] ?? '').trim();
+          if (name === '') return send(400, { message: 'Введите название агента.' });
+          const location = agentLocations().find((l) => l.id === body['locationId']);
+          if (body['businessId'] !== AGENT_BUSINESS.id || !location)
+            return send(404, { message: 'Филиал не найден' });
+          const existing = sellerAgents.find((a) => a.id === key);
+          if (existing) return send(201, agentView(existing));
+          if (agentLocationTaken(location.id))
+            return send(409, {
+              message: 'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
+            });
+          const created = { id: key, name, locationId: location.id, lifecycle: 'draft' };
+          sellerAgents.push(created);
+          return send(201, agentView(created));
+        }
+        const one = path.match(/^\/ai-seller\/agents\/([^/]+)$/);
+        if (one) {
+          const found = sellerAgents.find((a) => a.id === one[1]);
+          if (!found) return send(404, { message: 'Агент не найден' });
+          if (req.method === 'GET') return send(200, agentView(found));
+        }
+        return send(404, { message: 'Маршрут не найден' });
+      }
       const dialog = path.match(
         /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/,
       );
       if (req.method === 'GET') {
+        if (path === '/ai-seller/catalog') {
+          if (sellerCatalogFails) return send(500, { message: 'Каталог агентов недоступен' });
+          const access = extension.access;
+          const status =
+            access === 'expired'
+              ? 'SUBSCRIPTION_INACTIVE'
+              : sellerState === 'not-configured'
+                ? 'BOT_OFFLINE'
+                : sellerApplied
+                  ? 'WORKING'
+                  : 'NOT_CONFIGURED';
+          return send(200, {
+            extension,
+            canManage: sellerOwner,
+            canConfigure: sellerOwner && access === 'active',
+            create: agentCreateState(access, sellerOwner),
+            agents:
+              access === 'off'
+                ? []
+                : [
+                    {
+                      id: 'seller',
+                      kind: 'seller',
+                      name: 'AI-продавец',
+                      status,
+                      business: { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Сеть Тест' },
+                      location: { id: 'c0000000-0000-4000-8000-0000000000aa', name: 'Алматы' },
+                      channels: {
+                        site: sellerHosts.length > 0 ? 'ON' : 'OFF',
+                        whatsapp:
+                          sellerState === 'not-configured' || sellerWhatsAppUnknown
+                            ? 'UNKNOWN'
+                            : sellerWhatsApp
+                              ? 'ON'
+                              : 'OFF',
+                      },
+                    },
+                    ...sellerAgents
+                      .slice()
+                      .reverse()
+                      .map((a) => ({
+                        id: a.id,
+                        kind: 'agent',
+                        name: a.name,
+                        status: 'DRAFT',
+                        business: AGENT_BUSINESS,
+                        location: agentLocations().find((l) => l.id === a.locationId) ?? null,
+                        channels: null,
+                      })),
+                    ...sellerDrafts.map((name, i) => ({
+                      id: `d0000000-0000-4000-8000-00000000000${i}`,
+                      kind: 'draft',
+                      name,
+                      status: 'DRAFT',
+                      business: null,
+                      location: null,
+                      channels: null,
+                    })),
+                  ],
+          });
+        }
         if (path === '/ai-seller/status')
           return send(200, {
             state:
@@ -4993,6 +5224,83 @@ createServer(async (req, res) => {
       };
       serviceCatalog.push(row);
       return send(201, row);
+    }
+    // Производные тарифы и промокоды (D4, DATA_MODEL §20): те же проверки и слова, что у API
+    if (path === '/rates/plans/derived' && req.method === 'POST') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const name = typeof body['name'] === 'string' ? body['name'].trim() : '';
+      if (!name) return send(400, { message: 'Название тарифа: от 1 до 120 знаков' });
+      const num = (k: string): number | null =>
+        body[k] === undefined || body[k] === null || body[k] === '' ? null : Number(body[k]);
+      const rule = {
+        discountPercent: num('discountPercent') as number,
+        minDaysBeforeArrival: num('minDaysBeforeArrival'),
+        maxDaysBeforeArrival: num('maxDaysBeforeArrival'),
+        minNights: num('minNights'),
+      };
+      const problem = validateDerivedRule(rule);
+      if (problem) return send(400, { message: problem });
+      const parent = ratePlanList().find((p) => p.code === body['parentCode']);
+      if (!parent) return send(404, { message: 'Родительский тариф не найден' });
+      if (derivedRules.has(parent.code))
+        return send(400, { message: 'Родитель не может сам быть производным тарифом' });
+      const code = `rate-d${derivedRules.size + 1}`;
+      extraPlans.push({ code, name, currency: parent.currency, active: true, cancellationPenalty: parent.cancellationPenalty });
+      derivedRules.set(code, { parentCode: parent.code, ...rule });
+      return send(201, ratePlanRows().find((p) => p.code === code));
+    }
+    if (path.startsWith('/rates/plans/') && path.endsWith('/derived') && req.method === 'PATCH') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const code = decodeURIComponent(path.split('/')[3]!);
+      const rule = derivedRules.get(code);
+      if (!rule) return send(400, { message: 'Это не производный тариф: правило скидки у него не задаётся' });
+      const num = (k: string, was: number | null): number | null =>
+        !(k in body) ? was : body[k] === null || body[k] === '' ? null : Number(body[k]);
+      const next = {
+        discountPercent: num('discountPercent', rule.discountPercent) as number,
+        minDaysBeforeArrival: num('minDaysBeforeArrival', rule.minDaysBeforeArrival),
+        maxDaysBeforeArrival: num('maxDaysBeforeArrival', rule.maxDaysBeforeArrival),
+        minNights: num('minNights', rule.minNights),
+      };
+      const problem = validateDerivedRule(next);
+      if (problem) return send(400, { message: problem });
+      derivedRules.set(code, { ...rule, ...next });
+      const plan = extraPlans.find((p) => p.code === code);
+      if (plan && typeof body['name'] === 'string' && body['name'].trim()) plan.name = body['name'].trim();
+      if (plan && typeof body['active'] === 'boolean') plan.active = body['active'];
+      return send(200, ratePlanRows().find((p) => p.code === code));
+    }
+    if (path === '/rates/promo-codes' && req.method === 'POST') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const code = typeof body['code'] === 'string' ? normalizePromoCode(body['code']) : null;
+      if (!code) return send(400, { message: 'Код: от 3 до 32 знаков — латинские буквы, цифры, «-» и «_»' });
+      const percent = body['discountPercent'];
+      if (typeof percent !== 'number' || !Number.isInteger(percent) || percent < 1 || percent > MAX_DISCOUNT_PERCENT)
+        return send(400, { message: `Скидка — целое число от 1 до ${MAX_DISCOUNT_PERCENT} процентов` });
+      if (promoCodes.some((p) => p.code === code)) return send(409, { message: `Промокод ${code} уже есть` });
+      const row = {
+        code,
+        discountPercent: percent,
+        stayFrom: typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null,
+        stayTo: typeof body['stayTo'] === 'string' && body['stayTo'] ? body['stayTo'] : null,
+        maxUses: typeof body['maxUses'] === 'number' ? body['maxUses'] : null,
+        active: true,
+        uses: 0,
+      };
+      promoCodes.push(row);
+      return send(201, row);
+    }
+    if (path.startsWith('/rates/promo-codes/') && req.method === 'PATCH') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      if ('discountPercent' in body)
+        return send(400, { message: 'Процент скидки после создания не меняется: заведите новый промокод' });
+      const row = promoCodes.find((p) => p.code === decodeURIComponent(path.split('/')[3]!).toUpperCase());
+      if (!row) return send(404, { message: 'Промокод не найден' });
+      if (typeof body['active'] === 'boolean') row.active = body['active'];
+      if ('maxUses' in body) row.maxUses = typeof body['maxUses'] === 'number' ? body['maxUses'] : null;
+      if ('stayFrom' in body) row.stayFrom = typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null;
+      if ('stayTo' in body) row.stayTo = typeof body['stayTo'] === 'string' && body['stayTo'] ? body['stayTo'] : null;
+      return send(200, row);
     }
     if (path.startsWith('/rates/plans/') && req.method === 'PATCH') {
       // как API: право `rates` — владелец и управляющий (ADR-107); правило действует для всех броней тарифа (SET4)

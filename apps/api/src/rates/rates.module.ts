@@ -6,6 +6,7 @@ import { RatesController } from './rates.controller';
 import { PrismaRatesRepository, RATES_REPOSITORY } from './rates.repository';
 import { RatesService } from './rates.service';
 import { RatePlansService } from './rate-plans';
+import { PromoCodesService } from './promo-codes';
 
 @Module({
   imports: [ChannelsModule],
@@ -14,6 +15,7 @@ import { RatePlansService } from './rate-plans';
     PrismaService,
     RatesService,
     RatePlansService,
+    PromoCodesService,
     { provide: RATES_REPOSITORY, useClass: PrismaRatesRepository },
   ],
 })

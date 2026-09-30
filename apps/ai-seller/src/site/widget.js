@@ -27,7 +27,7 @@
   var IDLE_PAUSE_MS = 700;
 
   var CSS = [
-    ".pmsw{--cw-bg:#fff;--cw-soft:#f5f7fb;--cw-text:#182438;--cw-muted:#617087;--cw-border:#dfe6ef;--cw-own:#e7f1ff;font:14px/1.5 system-ui,sans-serif}",
+    ".pmsw{--cw-bg:#fff;--cw-soft:#f5f7fb;--cw-text:#182438;--cw-muted:#56667e;--cw-border:#dfe6ef;--cw-own:#e7f1ff;font:14px/1.5 system-ui,sans-serif}",
     "[data-theme=dark] .pmsw{--cw-bg:#0e1726;--cw-soft:#111e30;--cw-text:#eff5ff;--cw-muted:#9aaec6;--cw-border:#27384d;--cw-own:#173657;color-scheme:dark}",
     ".pmsw *{box-sizing:border-box}.pmsw button,.pmsw textarea{font:inherit}.pmsw button{cursor:pointer}.pmsw button:disabled{cursor:default;opacity:.45}.pmsw button:focus-visible,.pmsw textarea:focus-visible{outline:2px solid #419bff;outline-offset:3px}",
     ".pmsw-b{position:fixed;right:24px;bottom:24px;width:52px;height:52px;border:1px solid #398fff;border-radius:18px;background:#176be0;color:#fff;font-size:24px;box-shadow:0 6px 24px #0003;z-index:2147483000}",
@@ -41,6 +41,7 @@
     ".pmsw-chip{font-size:12px;color:var(--cw-muted);padding:0 18px}.pmsw-chip:not(:empty){padding-top:10px}.pmsw-file{display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:12px;color:var(--cw-muted)}.pmsw-file:empty{display:none}.pmsw-file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pmsw-remove{flex-shrink:0}",
     ".pmsw-f{display:flex;align-items:flex-end;gap:8px;padding:12px 14px 8px}.pmsw-i{flex:1;min-width:0;resize:none;max-height:112px;padding:10px 12px;border:1px solid var(--cw-border);border-radius:13px;background:var(--cw-soft);color:var(--cw-text);line-height:22px!important}.pmsw-i::placeholder{color:var(--cw-muted)}",
     ".pmsw-s,.pmsw-a{display:grid;place-items:center;flex-shrink:0;width:40px;height:44px;border:0;border-radius:12px;background:#176be0;color:#fff;font-size:22px!important}.pmsw-a{background:var(--cw-soft);color:var(--cw-muted)}.pmsw-hint{padding:0 18px 12px;font-size:11px;color:var(--cw-muted)}.pmsw-chip .pmsw-s{width:auto;padding:8px 14px;font-size:14px!important}",
+    ".pmsw-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 18px;background:var(--cw-bg);color:var(--cw-muted);font-size:11px}.pmsw-human{padding:7px 10px;border:1px solid var(--cw-border);border-radius:9px;background:var(--cw-soft);color:var(--cw-text);font-size:12px!important}.pmsw-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:5px;white-space:normal;font-size:11px;color:var(--cw-muted)}.pmsw-author{font-weight:650}.pmsw-op .pmsw-author{color:var(--cw-text)}.pmsw-op{border-left:0;box-shadow:inset 3px 0 #24ac94}.pmsw-note[data-mode=owner_takeover]{color:var(--cw-text)}.pmsw-l{scroll-behavior:smooth}.pmsw-empty{padding-top:8px}.pmsw-h{border-bottom:0}.pmsw-m{border:0}.pmsw-own{background:var(--cw-own)}@media(prefers-reduced-motion:reduce){.pmsw-l{scroll-behavior:auto}}",
     "@media(max-width:600px){.pmsw-p{right:12px;width:calc(100vw - 24px);max-width:none;border-radius:18px}.pmsw-b{right:16px}.pmsw-i{font-size:16px!important}.pmsw-hint{display:none}.pmsw-f{padding-bottom:14px}}"
   ].join('');
 
@@ -52,7 +53,8 @@
   var attachmentId = '';
   var retryMs = RETRY_MIN_MS;
   var resetting = false;
-  var busy = false, uploading = false, sendButton, attachButton, empty, fileChip;
+  var busy = false, uploading = false, sendButton, attachButton, empty, fileChip, humanButton;
+  var humanRequested = false;
   function el(tag, cls, text) {
     var node = document.createElement(tag);
     if (cls) { node.className = cls; }
@@ -109,12 +111,28 @@
     else if (msg.from_operator) { cls += 'pmsw-op'; }
     else { cls += 'pmsw-bot'; }
     empty.style.display = 'none';
-    list.appendChild(el('div', cls, msg.text));
-    list.scrollTop = list.scrollHeight;
+    var nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+    var message = el('div', cls);
+    var meta = el('div', 'pmsw-meta');
+    meta.appendChild(el('span', 'pmsw-author', msg.role === 'user' ? 'Вы' : msg.from_operator ? (ORG_KEY ? 'Сотрудник' : 'Сотрудник поддержки') : 'ИИ-помощник'));
+    var date = msg.at ? new Date(msg.at) : null;
+    if (date && !isNaN(date.getTime())) {
+      var time = el('time', '', date.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}));
+      time.setAttribute('datetime', date.toISOString()); time.setAttribute('title', date.toLocaleString('ru-RU')); meta.appendChild(time);
+    }
+    message.appendChild(meta); message.appendChild(el('div', 'pmsw-text', msg.text));
+    list.appendChild(message);
+    if (nearBottom || msg.role === 'user') { list.scrollTop = list.scrollHeight; }
   }
 
   function showMode(mode) {
-    note.textContent = mode && mode !== 'bot_active' ? 'С вами оператор' : (ORG_KEY ? 'Задайте ваш вопрос' : 'Помощь в работе с платформой');
+    var labels = {bot_active: 'Отвечает ИИ-помощник', needs_human: 'Ожидаем сотрудника · ИИ продолжает помогать', owner_takeover: 'Диалог принят сотрудником'};
+    note.textContent = labels[mode] || 'Уточняем статус поддержки';
+    note.setAttribute('data-mode', labels[mode] ? mode : 'unknown');
+    if (humanButton) {
+      humanButton.disabled = busy || !visitorKey || humanRequested || mode === 'needs_human' || mode === 'owner_takeover';
+      humanButton.textContent = mode === 'owner_takeover' ? 'Сотрудник подключён' : mode === 'needs_human' ? 'Ожидаем сотрудника' : humanRequested ? 'Запрос сотруднику отправлен' : 'Позвать сотрудника';
+    }
   }
 
   function poll(mine) {
@@ -132,6 +150,7 @@
       window.setTimeout(function () { poll(mine); }, items.length ? 0 : IDLE_PAUSE_MS);
     }, function (status) {
       if (mine !== generation) { return; }
+      note.textContent = 'Переподключаемся… История сохранена';
       if (status === 403) { resetSession(); return; }
       window.setTimeout(function () { poll(mine); }, retryMs);
       retryMs = Math.min(retryMs * 2, RETRY_MAX_MS);
@@ -147,6 +166,7 @@
     sendButton.disabled = busy || uploading || !visitorKey || !input.value.trim();
     attachButton.disabled = busy || uploading || !visitorKey;
     input.readOnly = busy;
+    if (humanButton) { humanButton.disabled = busy || uploading || !visitorKey || humanRequested || note.getAttribute('data-mode') === 'needs_human' || note.getAttribute('data-mode') === 'owner_takeover'; }
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 112) + 'px';
   }
@@ -159,14 +179,18 @@
     remove.onclick = function () { if (!busy) { attachmentId = ''; fileChip.textContent = ''; } };
     fileChip.appendChild(remove);
   }
-  function submit() {
+  function submit(requestHuman) {
+    requestHuman = requestHuman === true;
     var text = input.value.replace(/^\s+|\s+$/g, '');
+    if (requestHuman) { text = 'Прошу подключить сотрудника технической поддержки к этому диалогу.'; }
     if (!text || !visitorKey || busy || uploading) { return; }
     busy = true; controls(); chip.textContent = 'Отправляем…';
     var body = { visitor_key: visitorKey, text: text, identity: IDENTITY };
-    if (attachmentId) { body.attachment_id = attachmentId; }
+    if (attachmentId && !requestHuman) { body.attachment_id = attachmentId; }
     send('POST', '/message', body, false, function () {
-      busy = false; input.value = ''; attachmentId = ''; fileChip.textContent = ''; chip.textContent = '';
+      busy = false;
+      if (requestHuman) { humanRequested = true; chip.textContent = 'Запрос отправлен в диалог. Подключение сотрудника появится в статусе чата.'; }
+      else { input.value = ''; attachmentId = ''; fileChip.textContent = ''; chip.textContent = ''; }
       controls(); restartPoll(); input.focus();
     }, function (status) {
       busy = false; controls();
@@ -199,19 +223,20 @@
     bubble.setAttribute('aria-label', 'Открыть чат');
     panel = el('div', 'pmsw-p');
 
-    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Чат с помощником');
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', ORG_KEY ? 'Чат с помощником' : 'Поддержка WETOP');
     var head = el('div', 'pmsw-h');
     head.appendChild(el('span', 'pmsw-mark', 'W'));
-    var title = el('div', 'pmsw-title'); title.appendChild(el('span', '', ORG_KEY ? 'Чат' : 'Помощник WETOP'));
+    var title = el('div', 'pmsw-title'); title.appendChild(el('span', '', ORG_KEY ? 'Чат' : 'Поддержка WETOP'));
     var close = el('button', 'pmsw-close', '×'); close.setAttribute('aria-label', 'Закрыть чат');
-    note = el('div', 'pmsw-note');
+    note = el('div', 'pmsw-note'); note.setAttribute('role', 'status');
     title.appendChild(note); head.appendChild(title); head.appendChild(close);
     list = el('div', 'pmsw-l');
+    list.setAttribute('aria-label', 'Переписка с поддержкой');
     list.setAttribute('role', 'log'); list.setAttribute('aria-live', 'polite');
     empty = el('div', 'pmsw-empty');
     empty.appendChild(el('span', 'pmsw-mark', '?'));
     empty.appendChild(el('h3', '', 'Чем помочь?'));
-    empty.appendChild(el('p', '', ORG_KEY ? 'Напишите ваш вопрос — начнём разговор.' : 'Подскажу, как пользоваться WETOP. Опишите задачу или приложите снимок экрана.'));
+    empty.appendChild(el('p', '', ORG_KEY ? 'Напишите ваш вопрос — начнём разговор.' : 'Сначала поможет ИИ. Если нужен сотрудник — позовите его в этот же диалог.' + (IDENTITY ? ' Ваш аккаунт уже известен поддержке.' : '')));
     if (!ORG_KEY) { ['Как создать бронь?', 'Как найти свободный номер?'].forEach(function (text) {
       var suggestion = el('button', 'pmsw-suggest', text);
       suggestion.onclick = function () { if (!busy) { input.value = text; controls(); input.focus(); } };
@@ -241,6 +266,14 @@
     form.appendChild(attachBtn);
     form.appendChild(sendBtn);
     panel.appendChild(head);
+    if (!ORG_KEY) {
+      var toolbar = el('div', 'pmsw-toolbar');
+      humanButton = el('button', 'pmsw-human', 'Позвать сотрудника');
+      humanButton.setAttribute('type', 'button');
+      humanButton.onclick = function () { submit(true); };
+      toolbar.appendChild(el('span', '', 'Один диалог — вся помощь'));
+      toolbar.appendChild(humanButton); panel.appendChild(toolbar);
+    }
     panel.appendChild(list);
     panel.appendChild(chip);
     panel.appendChild(fileChip);

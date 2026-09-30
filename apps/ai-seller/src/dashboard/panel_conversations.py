@@ -39,15 +39,25 @@ class ReplyIn(BaseModel):
     text: str
 
 
-def build_reply_sender(settings: Settings):
+def build_reply_sender(
+    settings: Settings, channel: str | None = None, organization: uuid.UUID | None = None
+):
     """Отправитель канала для реплики оператора.
 
-    Тот же отправитель, что у движка: реплика оператора уходит клиенту ровно
-    тем же путём, что ответ бота, и видна тем же опросом виджета. Очереди
-    здесь нет намеренно — виджет работает вытягиванием, доставка это запись
-    в историю. Импорт внутри: модуль канала не нужен тем, кто подменяет
-    отправителя в тестах.
+    🔴 Реплика уходит тем же путём, что ответ бота в ЭТОМ канале. Виджет вытягивает
+    сообщения сам: доставка там — запись в историю, очереди нет намеренно. WhatsApp
+    так не работает: гость получит текст, только если он ушёл в Graph API токеном
+    гостиницы диалога (BUG-WA-1, Q-SA-7). Раньше любой канал шёл через виджетного
+    отправителя, и оператор видел «отправлено» там, где гость ничего не получил.
+    Импорт внутри: модуль канала не нужен тем, кто подменяет отправителя в тестах.
     """
+    from src.channels.whatsapp import CHANNEL as WHATSAPP_CHANNEL
+
+    if channel == WHATSAPP_CHANNEL:
+        from src.channels.whatsapp import WhatsAppSender
+
+        return WhatsAppSender(dependencies.get_sessionmaker(), settings, organization)
+
     from src.channels.widget import WidgetSender
 
     return WidgetSender(redis=dependencies.get_redis())
@@ -294,8 +304,9 @@ async def reply(
             raise HTTPException(status_code=404, detail="диалог не найден")
         client = await session.get(Client, conv.client_id)
         channel, external_id = client.channel, client.external_id
+        conv_org = conv.organization_id or org
 
-    sender = build_reply_sender(request.app.state.settings)
+    sender = build_reply_sender(request.app.state.settings, channel=channel, organization=conv_org)
     result = await sender.send(channel=channel, external_id=external_id, text=text)
     if not result.ok:
         # 🔴 В историю не пишем: иначе оператор видит отправленным то, что

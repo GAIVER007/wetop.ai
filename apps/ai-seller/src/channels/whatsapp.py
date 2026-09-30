@@ -50,18 +50,23 @@ SEND_TIMEOUT = 20.0
 class WhatsAppSender:
     """Ответ гостю через Graph API токеном ЕГО гостиницы.
 
-    Организацию хода сендер читает из contextvar (ставит движок): у одного
-    гостя может быть переписка с двумя гостиницами, и внешний id этого
-    не различает. Отказ Graph — SendResult(ok=False): движок не запишет
+    Организацию хода сендер читает из contextvar (ставит движок) или получает
+    явно (реплика оператора из панели): у одного гостя может быть переписка
+    с двумя гостиницами, и внешний id этого не различает. Отказ Graph — SendResult(ok=False): движок не запишет
     ответ в историю и бот не будет считать, что ответил.
     """
 
-    def __init__(self, sessionmaker, settings: Settings) -> None:
+    def __init__(
+        self, sessionmaker, settings: Settings, organization: uuid.UUID | str | None = None
+    ) -> None:
         self._sessions = sessionmaker
         self._settings = settings
+        # Реплика оператора идёт вне хода движка, contextvar там пуст: организацию диалога
+        # называет панель. Ход движка её не задаёт — читаем из contextvar, как раньше.
+        self._organization = str(organization) if organization else None
 
     async def send(self, *, channel: str, external_id: str, text: str) -> SendResult:
-        org = dependencies.get_current_organization_id()
+        org = self._organization or dependencies.get_current_organization_id()
         if not org:
             return SendResult(ok=False, error="no_organization")
         async with self._sessions() as session:

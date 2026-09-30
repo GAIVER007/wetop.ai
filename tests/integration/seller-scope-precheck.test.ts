@@ -104,6 +104,27 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     expect(row.organizationId).toBe(org.id);
   });
 
+  it('принятый профиль, вставленный прежним кодом, сразу даёт активного агента с единственным филиалом и именем из профиля', async () => {
+    const org = await newOrg('принятый профиль');
+    await insertLegacyProfile(db, org.id, { applied: true, botName: 'Айгерим' });
+    const agent = await db.sellerAgent.findUniqueOrThrow({ where: { id: org.id }, select: { name: true, lifecycle: true, locationId: true } });
+    expect(agent).toEqual({ name: 'Айгерим', lifecycle: 'active', locationId: org.locations[0] });
+  });
+
+  it('backfill: рабочий агент-черновик с филиалом и принятым профилем становится активным; без принятого профиля — остаётся', async () => {
+    const accepted = await newOrg('черновик принят');
+    await db.sellerAgent.create({ data: { id: accepted.id, organizationId: accepted.id, createdBy: accepted.user!, name: 'Продавец', locationId: accepted.locations[0]! } });
+    await db.sellerProfile.create({
+      data: { agentId: accepted.id, organizationId: accepted.id, addressForm: 'FORMAL', replyLength: 'SHORT', languages: ['ru'], updatedAt: new Date(), profileAppliedAt: new Date() },
+    });
+    const draft = await newOrg('черновик не принят');
+    await db.sellerAgent.create({ data: { id: draft.id, organizationId: draft.id, createdBy: draft.user!, name: 'Продавец', locationId: draft.locations[0]! } });
+    await profileOf(draft.id, draft.id);
+    await db.$queryRawUnsafe('SELECT seller_agents_backfill()');
+    expect((await agentOf(accepted.id))?.lifecycle).toBe('active');
+    expect((await agentOf(draft.id))?.lifecycle).toBe('draft');
+  });
+
   it('два филиала у организации с профилем: неоднозначно, агент без филиала, assert останавливает', async () => {
     const org = await newOrg('два филиала', { locations: 2 });
     await profile(org.id);

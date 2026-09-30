@@ -149,10 +149,10 @@ export function turnstileFailureError(reason: TurnstileFailure): HttpException {
 }
 
 /**
- * Сообщение при старте API. Режим не задан и ключей нет — в production отказ старта: бронь с сайта нельзя тихо оставить без
- * капчи, потеряв две переменные. Отключить можно только явно (`WEB_BOOKING_TURNSTILE_REQUIRED=0`, предупреждение в журнале).
- * `=1` без любого ключа — отказ в любом окружении: явное «обязательна» не должно молча ничего не делать. Задан один ключ из
- * двух — отказ (без публичного ключа виджет не покажет проверку, без секрета сервер её не потребует).
+ * Сообщение при старте API. В production режим обязан быть задан явно: не задан — отказ старта, даже если ключи есть (защита не
+ * определяется косвенно по наличию секрета, потеряв переменные нельзя тихо открыть бронь). Отключить можно только явно
+ * (`WEB_BOOKING_TURNSTILE_REQUIRED=0`, предупреждение в журнале). `=1` без любого ключа — отказ в любом окружении: явное
+ * «обязательна» не должно молча ничего не делать. Вне production неявный режим (по наличию секрета) допустим для dev и тестов.
  */
 export function turnstileConfigNotice(
   env: Env,
@@ -179,23 +179,15 @@ export function turnstileConfigNotice(
     return null;
   }
   if (!production) return null;
-  if (mode === 'off' && env['WEB_BOOKING_TURNSTILE_REQUIRED']?.trim() === '0')
+  if (env['WEB_BOOKING_TURNSTILE_REQUIRED']?.trim() === '0')
     return {
       level: 'warn',
       message:
         'WEB_BOOKING_TURNSTILE_REQUIRED=0: проверка брони с сайта (/w/book) выключена осознанно, бронь не защищена капчей (docs/deploy.md)',
     };
-  if (secret && site) return null;
-  if (secret || site)
-    return {
-      level: 'error',
-      message: secret
-        ? 'TURNSTILE_SECRET_KEY задан без TURNSTILE_SITE_KEY: виджет не покажет проверку, и все брони с сайта будут отклоняться (docs/deploy.md)'
-        : 'TURNSTILE_SITE_KEY задан без TURNSTILE_SECRET_KEY: сервер не будет проверять токен (docs/deploy.md)',
-    };
+  // production, режим не задан: защита не определяется косвенно по наличию секрета, администратор говорит явно
   return {
     level: 'error',
-    message:
-      'Не задан режим проверки брони с сайта: укажите WEB_BOOKING_TURNSTILE_REQUIRED=1 вместе с TURNSTILE_SITE_KEY и TURNSTILE_SECRET_KEY, либо WEB_BOOKING_TURNSTILE_REQUIRED=0, если проверку выключают осознанно (docs/deploy.md)',
+    message: `Не задан WEB_BOOKING_TURNSTILE_REQUIRED: в production режим проверки брони с сайта указывается явно — 1 вместе с TURNSTILE_SITE_KEY и TURNSTILE_SECRET_KEY, либо 0, если проверку выключают осознанно (docs/deploy.md)`,
   };
 }

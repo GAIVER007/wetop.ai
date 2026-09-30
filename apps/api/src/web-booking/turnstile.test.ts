@@ -235,8 +235,20 @@ describe('Turnstile: проверка настроек при старте', () 
     expect(n?.message).toMatch(/TURNSTILE_SECRET_KEY/);
   });
 
-  it('production, заданы оба ключа без явного режима — тихо (проверка включена)', () => {
-    expect(turnstileConfigNotice({ ...prod, ...ENV })).toBeNull();
+  it('production без явного режима — отказ старта ДАЖЕ при обоих ключах: режим защиты не выводится косвенно из секрета', () => {
+    const n = turnstileConfigNotice({ ...prod, ...ENV });
+    expect(n?.level).toBe('error');
+    expect(n?.message).toMatch(/WEB_BOOKING_TURNSTILE_REQUIRED/);
+    // пустое и пробельное значение — тоже «не задан»
+    for (const v of ['', '   '])
+      expect(
+        turnstileConfigNotice({ ...prod, ...ENV, WEB_BOOKING_TURNSTILE_REQUIRED: v })?.level,
+      ).toBe('error');
+  });
+
+  it('не production без режима, ключи заданы — тихо: удобное неявное поведение для dev и тестов', () => {
+    expect(turnstileConfigNotice({ NODE_ENV: 'development', ...ENV })).toBeNull();
+    expect(turnstileConfigNotice({ NODE_ENV: 'test', ...ENV })).toBeNull();
   });
 
   it('production, задан только один ключ — ошибка: такая настройка заблокировала бы все брони с сайта', () => {

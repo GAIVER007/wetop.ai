@@ -1,0 +1,16 @@
+# Модульные (unit) · 01.10.2026 00:23 Алматы · vm
+# коммит 65e8d67 (claude/security-audit-vibe-coding-k3xakb), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T19-23-34Z-unit-3544.json' 'tests/unit/deploy-server.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/deploy-server.test.ts (37 tests) 92ms
+
+ Test Files  1 passed (1)
+      Tests  37 passed (37)
+   Start at  19:23:36
+   Duration  455ms (tests 43%, transform 41%, import 13%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-30T19-23-34Z-unit-3544.json
+
+# код выхода 0 · 2 с

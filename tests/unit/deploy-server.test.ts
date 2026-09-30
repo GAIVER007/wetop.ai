@@ -154,10 +154,20 @@ describe('deploy/compose.yml', () => {
     );
   });
 
-  it('у API пул соединений задан явно: умолчание переполняет пулер и роняет соседнюю копию', () => {
-    // 18–19.09.2026: вторая копия PMS с пулом по умолчанию выбрала остаток Session pooler Supabase
-    // (15 клиентов на проект), и боевая стойка отвечала 500 — 609 раз на одной карточке брони.
-    expect(service('api')).toMatch(/DATABASE_POOL_MAX:/);
+  it('пул и замки решает серверный .env, а не подстановка compose: умолчания держит код (пул 5, замки включены)', () => {
+    // 18–19.09.2026: вторая копия PMS с пулом по умолчанию выбрала остаток Session pooler Supabase (15 клиентов на
+    // проект), и боевая стойка отвечала 500. Пул ограничивает packages/database: DATABASE_POOL_MAX, иначе 5.
+    // 30.09.2026 (аудит, INFRA-ENV): `${DATABASE_POOL_MAX:-5}`, `${AUTH_REQUIRED:-1}` и `${APP_AUTH_REQUIRED:-1}` в
+    // environment читали deploy/.env, которого нет намеренно, а environment старше env_file — DATABASE_POOL_MAX=3 и
+    // AUTH_REQUIRED=0 из серверного .env контейнеры не видели. Подстановок `${…}` в compose быть не должно вовсе:
+    // их источник — .env каталога compose-файла, а не ../.env; `$${…}` — доллар для оболочки контейнера, не подстановка.
+    expect(withoutComments(COMPOSE)).not.toMatch(/(^|[^$])\$\{/m);
+    expect(withoutComments(service('api'))).not.toMatch(/DATABASE_POOL_MAX|AUTH_REQUIRED/);
+    expect(withoutComments(service('web'))).not.toMatch(/APP_AUTH_REQUIRED:/);
+    // Умолчания живут в коде и совпадают с тем, что подстановки ставили раньше
+    expect(read('packages/database/src/index.ts')).toMatch(/poolMax\(process\.env\.DATABASE_POOL_MAX, 5\)/);
+    expect(read('apps/api/src/auth/auth.guard.ts')).toMatch(/NODE_ENV === 'production'\) return setting !== '0'/);
+    expect(read('apps/web/src/lib/auth-lock.ts')).toMatch(/nodeEnv === 'production'\) return v !== '0'/);
   });
 
   it('стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1', () => {

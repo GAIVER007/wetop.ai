@@ -4840,3 +4840,9 @@
 | 30.09.2026 23:07 | typecheck | ❌ ошибок: 1 | 28 с | 4800dfe +10 | [лог](logs/2026-09-30T18-07-50Z-typecheck-479e.log) | TS2322 |
 | 30.09.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts --workers=1) | ✅ 3 из 3 | 34 с | 4800dfe +9 | [лог](logs/2026-09-30T18-08-39Z-e2e-43d4.log) |  |
 | 01.10.2026 00:21 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 37 из 37 | 3 с | 4b25c8d | [лог](logs/2026-09-30T19-21-28Z-unit-d65c.log) |  |
+| 01.10.2026 00:22 | unit (частично: tests/unit/deploy-server.test.ts) | ❌ упало 1 из 37 | 2 с | 65e8d67 +1 | [лог](logs/2026-09-30T19-22-52Z-unit-b196.log) | deploy/compose.yml пул и замки решает серверный .env, а не подстановка compose: умолчания держит код (пул 5, замки включены) |
+| 01.10.2026 00:23 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 37 из 37 | 2 с | 65e8d67 +1 | [лог](logs/2026-09-30T19-23-34Z-unit-3544.log) |  |
+| 01.10.2026 00:23 | typecheck | ✅ без ошибок | 29 с | 65e8d67 +1 | [лог](logs/2026-09-30T19-23-37Z-typecheck-23f4.log) |  |
+| 01.10.2026 00:24 | lint | ✅ без ошибок | 22 с | 65e8d67 +1 | [лог](logs/2026-09-30T19-24-07Z-lint-37e0.log) |  |
+| 01.10.2026 00:24 | unit | ❌ упало 10 из 2701, пропущено 3 | 1 мин 31 с | 65e8d67 +1 | [лог](logs/2026-09-30T19-24-29Z-unit-9eeb.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 01.10.2026 00:26 | unit (частично: apps/api/src/auth/route-access.test.ts apps/web/src/design-rules.test.ts scripts/design/build-tokens.test.ts tests/unit/design-slop.test.ts test | ❌ упало 10 из 44 | 4 с | 65e8d67 | [лог](logs/2026-09-30T19-26-12Z-unit-6041.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |

@@ -4484,3 +4484,6 @@
 | 30.09.2026 00:19 | typecheck | ✅ без ошибок | 39 с | 8825509 | [лог](logs/2026-09-29T19-19-55Z-typecheck-7252.log) | S5+S6 после слияния main f0fedbeb |
 | 30.09.2026 00:20 | lint | ✅ без ошибок | 24 с | 8825509 | [лог](logs/2026-09-29T19-20-35Z-lint-aa90.log) | S5+S6 после слияния main |
 | 30.09.2026 00:21 | unit (частично: apps/api/src/assistant apps/api/src/platform apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 144 из 144 | 10 с | 8825509 | [лог](logs/2026-09-29T19-21-00Z-unit-64b8.log) | S5+S6 после слияния main: помощник, платформа, права, домен |
+| 30.09.2026 11:50 | typecheck | ✅ без ошибок | 51 с | 892480e | [лог](logs/2026-09-30T06-50-43Z-typecheck-7dd5.log) |  |
+| 30.09.2026 11:51 | lint | ✅ без ошибок | 33 с | 892480e | [лог](logs/2026-09-30T06-51-34Z-lint-1014.log) |  |
+| 30.09.2026 11:52 | integration | ✅ 143 из 143 | 1 мин 4 с | 892480e | [лог](logs/2026-09-30T06-52-21Z-integration-a3c1.log) |  |

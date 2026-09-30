@@ -278,7 +278,7 @@ export const ru: Dictionary = {
           {
             icon: 'channels',
             title: 'Каналы продаж',
-            text: 'Через channel manager Channex, в том числе Hostelworld: новые брони приходят за секунды, остатки уходят обратно автоматически.',
+            text: 'Через менеджер каналов, в том числе Hostelworld: новые брони приходят за секунды, остатки уходят обратно автоматически.',
             tags: ['Booking.com', 'Trip.com', 'Agoda', 'Expedia', 'Hostelworld', 'Островок'],
           },
           {
@@ -314,7 +314,7 @@ export const ru: Dictionary = {
           {
             icon: 'channels',
             title: 'Каналы продаж',
-            text: 'Через channel manager Channex: новые брони приходят за секунды, остатки уходят обратно автоматически.',
+            text: 'Через менеджер каналов: новые брони приходят за секунды, остатки уходят обратно автоматически.',
             tags: ['Booking.com', 'Trip.com', 'Agoda', 'Expedia', 'Hostelworld', 'Островок'],
           },
           {
@@ -359,7 +359,7 @@ export const ru: Dictionary = {
           {
             icon: 'channels',
             title: 'Каналы продаж',
-            text: 'Через channel manager Channex: новые брони приходят за секунды, остатки уходят обратно автоматически.',
+            text: 'Через менеджер каналов: новые брони приходят за секунды, остатки уходят обратно автоматически.',
             tags: ['Booking.com', 'Trip.com', 'Agoda', 'Expedia', 'Hostelworld', 'Островок'],
           },
           {

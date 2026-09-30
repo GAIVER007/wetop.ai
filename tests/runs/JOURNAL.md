@@ -4699,3 +4699,10 @@
 | 30.09.2026 16:05 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 32 с | fab3817 | [лог](logs/2026-09-30T11-05-45Z-unit-ddbc.log) |  |
 | 30.09.2026 16:10 | integration | ✅ 0 из 188, пропущено 188 | 30 с | fab3817 | [лог](logs/2026-09-30T11-10-30Z-integration-e234.log) |  |
 | 30.09.2026 16:11 | integration | ✅ 188 из 188 | 57 с | fab3817 | [лог](logs/2026-09-30T11-11-08Z-integration-8e07.log) |  |
+| 30.09.2026 16:39 | unit | ❌ упало 2 из 2676, пропущено 3 | 1 мин 25 с | 077b9c6 | [лог](logs/2026-09-30T11-39-04Z-unit-028f.log) | название поставщика менеджера каналов не видно пользователю нет слова «Channex» в текстах стойки, главной, API и бота |
+| 30.09.2026 16:40 | integration | ✅ 213 из 213 | 53 с | 077b9c6 | [лог](logs/2026-09-30T11-40-41Z-integration-4408.log) |  |
+| 30.09.2026 16:41 | unit | ✅ 2673 из 2676, пропущено 3 | 1 мин 23 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-41-39Z-unit-090f.log) |  |
+| 30.09.2026 16:43 | e2e (частично: tests/ui/rates-derived.spec.ts tests/ui/reservation-promo-field.spec.ts tests/ui/rates-range.spec.ts tests/ui/rates-design.spec.ts tests/ui/ai-ag | ❌ код выхода 1 | 3 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-43-07Z-e2e-bf4c.log) | (ошибка вне тестов) |
+| 30.09.2026 16:43 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts tests/ui/reservation-promo-field.spec.ts tests/ui/rates-range.spec.ts tests | ❌ упало 9 из 94 | 5 мин 14 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-43-17Z-e2e-5a14.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:48 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts) | ❌ упало 3 из 50 | 3 мин 6 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-48-38Z-e2e-3ee5.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts) | ✅ 50 из 50 | 2 мин 39 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-52-13Z-e2e-c156.log) |  |

@@ -149,17 +149,17 @@ export class ChannelContentService {
       source: 'channex',
       environment: channexEnvironment(),
       state: 'READY',
-      message: 'Контент объекта прочитан из Channex',
+      message: 'Контент объекта прочитан из менеджера каналов',
       property: null,
       policy: null,
       facilities: [],
       photos: [],
     };
-    if (!this.reader) return { ...base, state: 'NO_KEY', message: 'Не задан ключ Channex' };
+    if (!this.reader) return { ...base, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
     const propertyId = (await this.repo.mappings(PROVIDER)).find(
       (m) => m.providerPropertyId,
     )?.providerPropertyId;
-    if (!propertyId) return { ...base, state: 'NO_MAPPING', message: 'Объект не сопоставлен с Channex' };
+    if (!propertyId) return { ...base, state: 'NO_MAPPING', message: 'Объект не сопоставлен с менеджером каналов' };
     try {
       const filter = { 'filter[property_id]': propertyId };
       const [property, dictionary, policies, photos] = await Promise.all([
@@ -227,10 +227,10 @@ export class ChannelContentService {
               ? 'RATE_LIMITED'
               : 'UNREACHABLE';
       const messages: Record<string, string> = {
-        DENIED: 'Нет доступа к объекту в Channex',
-        NOT_FOUND: 'Объект не найден в Channex',
-        RATE_LIMITED: 'Лимит запросов Channex — повторите через минуту',
-        UNREACHABLE: 'Channex не отвечает',
+        DENIED: 'Нет доступа к объекту в менеджере каналов',
+        NOT_FOUND: 'Объект не найден в менеджере каналов',
+        RATE_LIMITED: 'Лимит запросов менеджера каналов — повторите через минуту',
+        UNREACHABLE: 'Менеджер каналов не отвечает',
       };
       return { ...base, state, message: messages[state]! };
     }

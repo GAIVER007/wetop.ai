@@ -95,7 +95,7 @@ export class OutboxWorker implements OnModuleInit, OnModuleDestroy {
           // SECURITY.md §7: в last_error очереди — без контактов и секретов, даже если Channex их повторит
           const warning = warnings.length
             ? redactText(
-                `Channex отклонил значений: ${warnings.length} — ${JSON.stringify(warnings)}`,
+                `Менеджер каналов отклонил значений: ${warnings.length} — ${JSON.stringify(warnings)}`,
                 2000,
               )
             : null;

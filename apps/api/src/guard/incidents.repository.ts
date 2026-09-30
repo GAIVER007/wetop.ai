@@ -11,6 +11,7 @@ import {
   type Observation,
 } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { integrationTables, onIntegrationTables } from '../database/integration-tables';
 
 export const INCIDENTS_REPOSITORY = Symbol('INCIDENTS_REPOSITORY');
 
@@ -137,7 +138,7 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async open(): Promise<IncidentRow[]> {
-    const rows = await this.prisma.db.systemIncident.findMany({
+    const rows = await integrationTables(this.prisma.db).systemIncident.findMany({
       where: { status: { not: 'RESOLVED' } },
       orderBy: [{ severity: 'asc' }, { firstSeenAt: 'asc' }],
     });
@@ -153,7 +154,8 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
     const p = POLICY[o.kind];
     const severity = o.severity ?? p.severity;
     const details = o.details === undefined ? null : JSON.stringify(redactDetails(o.details));
-    const rows = await this.prisma.db.$queryRaw<Raw[]>`
+    const rows = await onIntegrationTables(
+      () => this.prisma.db.$queryRaw<Raw[]>`
       INSERT INTO "system_incidents"
         ("id", "kind", "class", "severity", "fingerprint", "title", "subject_type", "subject_id", "details",
          "first_seen_at", "last_seen_at")
@@ -166,13 +168,14 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
                     "title" = EXCLUDED."title",
                     "details" = EXCLUDED."details",
                     "severity" = EXCLUDED."severity"
-      RETURNING *`;
+      RETURNING *`,
+    );
     return fromRaw(rows[0]!);
   }
 
   async resolve(ids: string[], by: ResolvedBy, now: Date): Promise<number> {
     if (ids.length === 0) return 0;
-    const r = await this.prisma.db.systemIncident.updateMany({
+    const r = await integrationTables(this.prisma.db).systemIncident.updateMany({
       where: { id: { in: ids }, status: { not: 'RESOLVED' } },
       data: { status: 'RESOLVED', resolvedAt: now, resolvedBy: by },
     });
@@ -180,7 +183,7 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
   }
 
   async markFixAttempt(id: string, result: string, now: Date): Promise<void> {
-    await this.prisma.db.systemIncident.updateMany({
+    await integrationTables(this.prisma.db).systemIncident.updateMany({
       where: { id, status: { in: ['OPEN', 'FIXING'] } },
       data: {
         status: 'FIXING',
@@ -192,7 +195,7 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
   }
 
   async escalate(id: string, reason: string | null): Promise<void> {
-    await this.prisma.db.systemIncident.updateMany({
+    await integrationTables(this.prisma.db).systemIncident.updateMany({
       where: { id, status: { in: ['OPEN', 'FIXING'] } },
       data: { status: 'ESCALATED', ...(reason ? { lastFixResult: redactText(reason) } : {}) },
     });
@@ -200,14 +203,14 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
 
   async markAlerted(ids: string[], now: Date): Promise<void> {
     if (ids.length === 0) return;
-    await this.prisma.db.systemIncident.updateMany({
+    await integrationTables(this.prisma.db).systemIncident.updateMany({
       where: { id: { in: ids } },
       data: { alertedAt: now },
     });
   }
 
   async acknowledge(id: string, now: Date): Promise<IncidentRow | null> {
-    await this.prisma.db.systemIncident.updateMany({
+    await integrationTables(this.prisma.db).systemIncident.updateMany({
       where: { id, status: { not: 'RESOLVED' } },
       data: { status: 'ACKNOWLEDGED', acknowledgedAt: now },
     });
@@ -215,12 +218,12 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
   }
 
   async get(id: string): Promise<IncidentRow | null> {
-    const r = await this.prisma.db.systemIncident.findUnique({ where: { id } });
+    const r = await integrationTables(this.prisma.db).systemIncident.findUnique({ where: { id } });
     return r ? fromPrisma(r) : null;
   }
 
   async list(opts: { status: 'open' | 'all'; limit: number }): Promise<IncidentRow[]> {
-    const rows = await this.prisma.db.systemIncident.findMany({
+    const rows = await integrationTables(this.prisma.db).systemIncident.findMany({
       where: opts.status === 'open' ? { status: { not: 'RESOLVED' } } : {},
       orderBy: [{ lastSeenAt: 'desc' }],
       take: opts.limit,
@@ -229,7 +232,7 @@ export class PrismaIncidentsRepository implements IncidentsRepository {
   }
 
   async purgeResolvedBefore(date: Date): Promise<number> {
-    const r = await this.prisma.db.systemIncident.deleteMany({
+    const r = await integrationTables(this.prisma.db).systemIncident.deleteMany({
       where: { status: 'RESOLVED', resolvedAt: { lt: date } },
     });
     return r.count;

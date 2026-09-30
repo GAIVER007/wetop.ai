@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { IntegrationFacts, ReservationCardLike } from '@pms/domain';
 import { isIntegrationActor } from '../channels/integration-owner';
 import { PrismaService } from '../database/prisma.provider';
+import { integrationTables } from '../database/integration-tables';
 import { loadReservationCard } from '../reservations/reservation-card';
 
 export const DIAGNOSTICS_REPOSITORY = Symbol('DIAGNOSTICS_REPOSITORY');
@@ -41,20 +42,22 @@ export class PrismaDiagnosticsRepository implements DiagnosticsRepository {
     });
     if (!property) return null;
     const propertyId = property.id;
+    // SEC-1b, стадия B (Q-222): данные интеграции читает служебная роль, остальное — организация
+    const tables = integrationTables(db);
     const [mappings, categoriesTotal, lastEvent, pending, failed, oldest] = await Promise.all([
       db.channelMapping.findMany({
         where: { provider: PROVIDER, propertyId },
         select: { providerPropertyId: true, providerRoomTypeId: true, providerRatePlanId: true },
       }),
       db.accommodationType.count({ where: { propertyId, active: true } }),
-      db.externalEvent.findFirst({
+      tables.externalEvent.findFirst({
         where: { provider: PROVIDER, propertyId, receivedVia: { in: ['WEBHOOK', 'PULL'] } },
         orderBy: { receivedAt: 'desc' },
         select: { receivedAt: true },
       }),
-      db.channelOutbox.count({ where: { provider: PROVIDER, propertyId, status: 'PENDING' } }),
-      db.channelOutbox.count({ where: { provider: PROVIDER, propertyId, status: 'FAILED' } }),
-      db.channelOutbox.findFirst({
+      tables.channelOutbox.count({ where: { provider: PROVIDER, propertyId, status: 'PENDING' } }),
+      tables.channelOutbox.count({ where: { provider: PROVIDER, propertyId, status: 'FAILED' } }),
+      tables.channelOutbox.findFirst({
         where: { provider: PROVIDER, propertyId, status: 'PENDING' },
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true },

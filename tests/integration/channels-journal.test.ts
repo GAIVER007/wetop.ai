@@ -56,6 +56,7 @@ describe.skipIf(!url)('журнал каналов: очередь строка�
         {
           id: randomUUID(),
           provider,
+          propertyId: property.id, // B1.5: журнал и очередь читаются по объекту сервера; строка без объекта не видна
           externalEventId: `${mark}-rev-linked`,
           type: 'booking_new',
           payloadHash: 'h1',
@@ -66,6 +67,7 @@ describe.skipIf(!url)('журнал каналов: очередь строка�
         {
           id: randomUUID(),
           provider,
+          propertyId: property.id, // B1.5: журнал и очередь читаются по объекту сервера; строка без объекта не видна
           externalEventId: `${mark}-rev-orphan`,
           type: 'booking_modification',
           payloadHash: 'h2',
@@ -81,6 +83,7 @@ describe.skipIf(!url)('журнал каналов: очередь строка�
         {
           id: randomUUID(),
           provider,
+          propertyId: property.id, // B1.5: журнал и очередь читаются по объекту сервера; строка без объекта не видна
           kind: 'AVAILABILITY',
           payload: [
             { property_id: 'p1', room_type_id: 'rt-1', date_from: '2027-12-10', date_to: '2027-12-12', availability: 3 },
@@ -90,6 +93,7 @@ describe.skipIf(!url)('журнал каналов: очередь строка�
         {
           id: randomUUID(),
           provider,
+          propertyId: property.id, // B1.5: журнал и очередь читаются по объекту сервера; строка без объекта не видна
           kind: 'RESTRICTIONS',
           payload: [
             { property_id: 'p1', rate_plan_id: 'rp-1', date_from: '2027-12-15', date_to: '2027-12-15', rate: '12000.00' },

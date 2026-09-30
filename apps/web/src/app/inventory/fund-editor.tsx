@@ -451,7 +451,7 @@ function CategoryUsage({ category: c, units }: { category: InventoryCategory; un
       )}
       {c.channexMapped && (
         <Notice tone="muted">
-          В Channex тип номера сохранит прежнее название: там оно меняется отдельно.
+          В менеджере каналов тип номера сохранит прежнее название: там оно меняется отдельно.
         </Notice>
       )}
     </>

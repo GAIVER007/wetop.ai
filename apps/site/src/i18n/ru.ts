@@ -49,7 +49,7 @@ export const ru: Dictionary = {
         icon: 'channels',
         value: '6',
         label: 'Каналов продаж',
-        note: 'через channel manager Channex',
+        note: 'через менеджер каналов',
       },
       {
         icon: 'receipt',
@@ -84,8 +84,8 @@ export const ru: Dictionary = {
         no: '02',
         screen: 'channels',
         title: 'Каналы продаж',
-        text: 'Бронирования из подключённых каналов поступают через Channex. Категории, тарифы и остатки сопоставляются при настройке объекта.',
-        tags: ['Channex', 'Остатки', 'Цены'],
+        text: 'Бронирования из подключённых каналов поступают через менеджер каналов. Категории, тарифы и остатки сопоставляются при настройке объекта.',
+        tags: ['Менеджер каналов', 'Остатки', 'Цены'],
       },
       {
         no: '03',
@@ -121,7 +121,6 @@ export const ru: Dictionary = {
         { mark: 'E', name: 'Expedia' },
         { mark: 'H', name: 'Hostelworld' },
         { mark: 'О', name: 'Островок' },
-        { mark: 'Cx', name: 'Channex' },
         { mark: 'С', name: 'Сайт отеля' },
         { mark: 'W', name: 'Стойка WETOP' },
       ],
@@ -226,7 +225,7 @@ export const ru: Dictionary = {
       {
         icon: 'channels',
         title: 'Каналы продаж',
-        text: 'Подключение через channel manager Channex: новые брони приходят за секунды, остатки уходят обратно автоматически.',
+        text: 'Подключение через менеджер каналов: новые брони приходят за секунды, остатки уходят обратно автоматически.',
         tags: ['Booking.com', 'Trip.com', 'Agoda', 'Expedia', 'Hostelworld', 'Островок'],
       },
       {

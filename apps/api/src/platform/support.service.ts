@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {
   BadRequestException,
+  HttpException,
   Inject,
   Injectable,
   ServiceUnavailableException,
@@ -25,6 +26,7 @@ import {
   type UploadedFile,
 } from '../bots/panel';
 import { currentUserId } from '../auth/request-context';
+import { RateWindows } from '../rate-window';
 import { requirePlatformAdmin } from './admin';
 import { EXTENSIONS_REPOSITORY, type ExtensionsRepository } from './extensions.repository';
 import { SUPPORT_AUDIT, type SupportAudit } from './support.audit';
@@ -47,6 +49,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const SUPPORT_PROMPT_MAX = 50_000;
 /** Как у песочницы продавца: ход длиннее бот всё равно не примет */
 const SANDBOX_MAX = 2000;
+/** Песочница — ход модели за счёт платформы: предел в час на администратора (аудит 30.09.2026) */
+export const SUPPORT_SANDBOX_PER_HOUR = 60;
+export const SUPPORT_SANDBOX_TOO_OFTEN = 'Слишком много проверок за час — попробуйте позже';
+const HOUR_MS = 60 * 60_000;
 
 /** Кто пишет в техподдержку — из подписи стойки, которую бот хранит в диалоге (`lead_data.platform_user`) */
 export interface SupportPlatformUser {
@@ -79,6 +85,8 @@ export class SupportService {
     private readonly organizations: Pick<ExtensionsRepository, 'organization'>,
     @Inject(SUPPORT_AUDIT) private readonly audit: SupportAudit,
   ) {}
+
+  private readonly sandboxWindows = new RateWindows(HOUR_MS, 10_000);
 
   status(): { state: 'not-configured' | 'ready' } {
     requirePlatformAdmin();
@@ -249,13 +257,15 @@ export class SupportService {
   }
 
   /** «Проверка»: свой разговор в песочнице помощника — гости и «Диалоги» его не видят */
-  async sandbox(raw: unknown) {
+  async sandbox(raw: unknown, now: Date = new Date()) {
     requirePlatformAdmin();
     const text = typeof raw === 'string' ? raw.trim() : '';
     if (text === '') throw new BadRequestException('Проверка: пустое сообщение');
     if (text.length > SANDBOX_MAX)
       throw new BadRequestException(`Проверка: не длиннее ${SANDBOX_MAX} знаков`);
     const client = this.client();
+    if (!this.sandboxWindows.allow(currentUserId() ?? 'service', SUPPORT_SANDBOX_PER_HOUR, now))
+      throw new HttpException(SUPPORT_SANDBOX_TOO_OFTEN, 429);
     const externalId = `wetop-support-check-${currentUserId() ?? 'service'}`;
     const body = obj(await call(() => client.sandbox({ externalId, text })));
     return {

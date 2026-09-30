@@ -10,6 +10,7 @@ import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AuthorInterceptor } from '../auth/author.interceptor';
 import { AiSellerController } from './ai-seller.controller';
+import { SELLER_LLM_LIMITS } from './seller.service';
 import { ExtensionsService } from '../platform/extensions.service';
 import {
   FakeAudit,
@@ -888,5 +889,54 @@ describe('подключение WhatsApp (С3, Q-185 (а); план `plans/sell
     extensions.access = 'active';
     await api().post('/ai-seller/whatsapp/check').set(as('session-a')).send({ phoneNumberId: '' }).expect(400);
     expect(connection.seller.calls).toEqual([]);
+  });
+});
+
+describe('часовые пределы на платные вызовы модели (аудит 30.09.2026)', () => {
+  // 🔴 На коде до правки все вызовы ниже отвечали 200: предела не было
+  async function untilTooOften(
+    send: () => request.Test,
+    limit: number,
+  ): Promise<{ ok: number; tooOften: boolean }> {
+    let ok = 0;
+    for (let i = 0; i <= limit; i += 1) {
+      const res = await send();
+      if (res.status === 429) return { ok, tooOften: true };
+      expect(res.status).toBe(200);
+      ok += 1;
+    }
+    return { ok, tooOften: false };
+  }
+
+  it('песочница: не больше SELLER_LLM_LIMITS.sandbox в час на человека, сверх — 429 без хода к продавцу', async () => {
+    connection.seller.replies.sandbox = { status: 'ok', reply: 'Да', needs_human: false, edits: [], reasons: [] };
+    const outcome = await untilTooOften(
+      () => api().post('/ai-seller/sandbox').set(as('session-b')).send({ text: 'Есть места?' }),
+      SELLER_LLM_LIMITS.sandbox,
+    );
+    expect(outcome.tooOften).toBe(true);
+    expect(outcome.ok).toBeGreaterThan(0);
+    expect(connection.seller.calls.filter((c) => c.op === 'sandbox')).toHaveLength(outcome.ok);
+  });
+
+  it('разбор рассказа: не больше SELLER_LLM_LIMITS.extract в час', async () => {
+    connection.seller.replies.extractProfile = { profile: {}, facts: {}, unparsed: [], rejected: [] };
+    const story = 'Хостел на двадцать коек в центре, заезд с четырнадцати, выезд до двенадцати.';
+    const outcome = await untilTooOften(
+      () => api().post('/ai-seller/extract').set(as('session-manager')).send({ story }),
+      SELLER_LLM_LIMITS.extract,
+    );
+    expect(outcome.tooOften).toBe(true);
+    expect(connection.seller.calls.filter((c) => c.op === 'extractProfile')).toHaveLength(outcome.ok);
+  });
+
+  it('проверка ключа модели: не больше SELLER_LLM_LIMITS[llm-key] в час — оракул годности ключей', async () => {
+    connection.seller.replies.checkLlmKey = { valid: false, reason: 'нет' };
+    const outcome = await untilTooOften(
+      () => api().post('/ai-seller/llm-key/check').set(as('session-a')).send({ key: 'sk-partner-1234567890' }),
+      SELLER_LLM_LIMITS['llm-key'],
+    );
+    expect(outcome.tooOften).toBe(true);
+    expect(connection.seller.calls.filter((c) => c.op === 'checkLlmKey')).toHaveLength(outcome.ok);
   });
 });

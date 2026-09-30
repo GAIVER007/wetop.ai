@@ -23,6 +23,7 @@ import {
   type SupportPort,
 } from './support.connection';
 import { SupportController } from './support.controller';
+import { SUPPORT_SANDBOX_PER_HOUR } from './support.service';
 import { SupportKnowledgeService } from './support-kb.service';
 import { SUPPORT_NOT_CONNECTED, SUPPORT_PROMPT_MAX, SupportService } from './support.service';
 
@@ -648,5 +649,26 @@ describe('очередь техподдержки (S1)', () => {
     };
     const card = await api().get(`/platform/support/conversations/${CONV}`).set(admin).expect(200);
     expect(card.body.closed).toBe(true);
+  });
+});
+
+describe('предел песочницы помощника (аудит 30.09.2026)', () => {
+  it('не больше SUPPORT_SANDBOX_PER_HOUR в час на администратора, сверх — 429 без хода к помощнику', async () => {
+    // 🔴 На коде до правки предела не было: все вызовы отвечали 200
+    connection.bot.replies.sandbox = { status: 'ok', reply: 'Да', needs_human: false, reasons: [] };
+    let ok = 0;
+    let tooOften = false;
+    for (let i = 0; i <= SUPPORT_SANDBOX_PER_HOUR; i += 1) {
+      const res = await api().post('/platform/support/sandbox').set(as('session-admin')).send({ text: 'Привет' });
+      if (res.status === 429) {
+        tooOften = true;
+        break;
+      }
+      expect(res.status).toBe(200);
+      ok += 1;
+    }
+    expect(tooOften).toBe(true);
+    expect(ok).toBeGreaterThan(0);
+    expect(connection.bot.calls.filter((c) => c.op === 'sandbox')).toHaveLength(ok);
   });
 });

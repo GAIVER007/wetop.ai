@@ -4,6 +4,7 @@
  * `ReservationsService.create`, тот же путь, что у стойки. Здесь только форма: даты в окне, гости, телефон,
  * honeypot против ботов, обрезка длин.
  */
+import { normalizePromoCode } from '../rates/discounts';
 import { SITE_KEY_RE } from '../web-analytics/hit';
 
 export const BOOKING_WINDOW = {
@@ -29,6 +30,8 @@ export interface QuoteRequest {
   arrivalDate: string;
   departureDate: string;
   adults: number;
+  /** Промокод (DATA_MODEL §20): нормализованный, `null` — не введён */
+  promoCode: string | null;
 }
 
 export interface BookingRequest extends QuoteRequest {
@@ -88,7 +91,11 @@ export function parseQuoteRequest(raw: unknown, today: string): Parsed<QuoteRequ
   if (!Number.isInteger(adults) || adults < 1 || adults > BOOKING_WINDOW.maxAdults) {
     return fail(`гостей: от 1 до ${BOOKING_WINDOW.maxAdults}`);
   }
-  return { ok: true, value: { siteKey, arrivalDate, departureDate, adults } };
+  // промокод — необязательное поле; введён, но записан неверно — отказ словами, а не молчаливое «без скидки»
+  const promoRaw = typeof b.promo === 'string' ? b.promo.trim() : '';
+  const promoCode = promoRaw === '' ? null : normalizePromoCode(promoRaw);
+  if (promoRaw !== '' && !promoCode) return fail('промокод записан неверно');
+  return { ok: true, value: { siteKey, arrivalDate, departureDate, adults, promoCode } };
 }
 
 export function parseBookingRequest(raw: unknown, today: string): Parsed<BookingRequest> {

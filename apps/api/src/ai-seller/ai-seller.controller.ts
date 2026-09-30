@@ -14,6 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SellerCatalogService } from './seller-catalog.service';
 import { KNOWLEDGE_MAX_BYTES, SellerService } from './seller.service';
 import { Access } from '../auth/access.decorator';
 
@@ -26,13 +27,27 @@ import { Access } from '../auth/access.decorator';
 @Access('seller')
 @Controller('ai-seller')
 export class AiSellerController {
-  constructor(@Inject(SellerService) private readonly seller: SellerService) {}
+  constructor(
+    @Inject(SellerService) private readonly seller: SellerService,
+    @Inject(SellerCatalogService) private readonly agents: SellerCatalogService,
+  ) {}
 
   @Access('dialogs')
   @Get('status')
   @Header('Cache-Control', 'no-store')
   status() {
     return this.seller.status();
+  }
+
+  /**
+   * Каталог AI-агентов организации (SA1): расширение и карточки. Видят все роли с диалогами; кнопки — по `canManage`.
+   * Не бросает при выключенном расширении: страница объясняет, а не падает.
+   */
+  @Access('dialogs')
+  @Get('catalog')
+  @Header('Cache-Control', 'no-store')
+  catalog() {
+    return this.agents.list();
   }
 
   @Get('profile')

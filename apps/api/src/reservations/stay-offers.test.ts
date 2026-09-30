@@ -40,6 +40,7 @@ const restrictions: Record<string, StayRestriction[]> = {};
 
 const repo = {
   property: async () => ({ id: 'prop', currency: 'KZT' }),
+  today: async () => '2026-09-29',
   activeRatePlans: async () => plans,
   activeCategories: async () => categories,
   ratePlanCoversType: async (plan: string, type: string) => covers.has(`${plan}:${type}`),
@@ -65,6 +66,27 @@ beforeAll(async () => {
 afterAll(() => app?.close());
 
 const get = (q: string) => request(app.getHttpServer()).get(`/availability/offers?${q}`);
+
+describe('GET /availability/offers — производный тариф (DATA_MODEL §20)', () => {
+  it('тариф, которому правило продажи запрещает эти даты, в цену «от» не попадает', async () => {
+    const original = plans[1]!;
+    plans[1] = {
+      ...original,
+      derivedRule: { discountPercent: 20, minDaysBeforeArrival: null, maxDaysBeforeArrival: null, minNights: 5 },
+    };
+    try {
+      const res = await get('arrival=2026-10-01&departure=2026-10-04&guests=2');
+      expect(res.body.byCategory.ROOM).toEqual({
+        plans: 1,
+        totalMinor: '9600000',
+        perNightMinor: '3200000',
+        ratePlanCode: 'BASE',
+      });
+    } finally {
+      plans[1] = original;
+    }
+  });
+});
 
 describe('GET /availability/offers — цены «от» (Q-204)', () => {
   it('номер: самый дешёвый допустимый тариф за весь срок, число тарифов, цена ночи', async () => {

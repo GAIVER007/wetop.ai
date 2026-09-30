@@ -19,7 +19,7 @@ const COUNTER: Record<(typeof TABLES)[number], string> = {
 /**
  * SEC-1b, стадия B (Q-222, решение владельца 30.09.2026): права базы на данные интеграции — настоящий тест уровня PostgreSQL.
  *
- * Целевое состояние (его выдаёт миграция `…035_rls_integration_grants`, B2):
+ * Целевое состояние (его выдаёт миграция `…038_rls_integration_grants`, B2):
  *   wetop_app:  external_events — ничего; system_incidents — ничего; channel_outbox — только INSERT (без SELECT, UPDATE, DELETE);
  *   wetop_service: всё нужное проходит.
  *

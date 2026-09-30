@@ -1,0 +1,309 @@
+# Модульные (unit) · 29.09.2026 21:37 Алматы · vm
+# коммит 068cf57 (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-37-07Z-unit-62d4.json' 'apps/api/src/ai-seller/ai-seller.controller.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (62 tests | 12 failed) 389ms
+   ✓ состояние раздела (4)
+     ✓ без адреса и ключа продавца — «не подключён» 30ms
+     ✓ вошедший из другой организации видит свой раздел: продавец общий (Э4) 10ms
+     ✓ своя организация: профиль не сохранён и не применён 5ms
+     ✓ ни адреса, ни ключа продавца в ответе нет 5ms
+   ✓ профиль (П5) (4)
+     ✓ без сохранённого — умолчание и признак «не сохранён» 5ms
+     ✓ неверные поля — 400 со всеми причинами, ничего не сохранено 11ms
+     ✓ сохраняет свою организацию с автором; журнал знает, что было и что стало 11ms
+     ✓ другая организация сохраняет свой профиль, а не чужой 4ms
+   ✓ инструкция продавцу одним текстом (ADR-097) (4)
+     ✓ без сохранённой — пустой текст и признак «не сохранена» 4ms
+     ✓ сохраняет текст своей организации; пустой и длиннее 20 000 знаков — 400 10ms
+     ✓ сотрудник текст не меняет — 403 4ms
+     ✓ «Применить» шлёт продавцу текст вместо полей и факты объекта 10ms
+   ✓ «Применить» (П8) (7)
+     ✓ без сохранённого профиля — 409 3ms
+     ✓ отправляет продавцу профиль полями и факты объекта; помечает доставленное 9ms
+     ✓ продавец недоступен — 503 со словами, профиль сохранён, ошибка запомнена для повтора 7ms
+     ✓ продавец отклонил поле — 422 с его причиной 12ms
+     ✓ «Применить» другой организации уходит с её организацией, а не с чужой (Э4) 5ms
+     ✓ у организации нет объекта — применить нечего: 404 словами, причина в разделе, продавцу ни одного вызова 5ms
+     ✓ продавец не подключён — 503 и ни одного вызова 5ms
+   ✓ данные объекта для продавца (2)
+     ✓ отдаёт ровно те факты, что уйдут продавцу, и отпечаток 3ms
+     ✓ объекта у организации нет — 404 5ms
+   ✓ диалоги, знания, сводка, песочница (П7) (10)
+     ✓ список диалогов: режим и предел уходят продавцу, ответ — в словах стойки 3ms
+     ✓ неизвестный режим — 400, продавец не спрошен 2ms
+     ✓ карточка — по UUID; не UUID — 400; нет у продавца — 404 7ms
+     ✓ продавец не пускает платформу — раздел называет его причину словами продавца 5ms
+     ✓ перехват, возврат и ответ идут продавцу; журнал платформы знает, кто, — без текста ответа 6ms
+     ✓ пустой или слишком длинный ответ — 400 4ms
+     ✓ знания: список и загрузка документа; чужой формат — 415 13ms
+     ✓ сводка и песочница 6ms
+     ✓ другая организация ходит к продавцу со своей организацией: изоляция — на панели бота (Э4) 15ms
+     ✓ продавец недоступен — 503 со словами, а не 500 5ms
+   ✓ код для сайта объекта (2)
+     ✓ тег чата продавца: публичный адрес и data-key гостиницы, служебного ключа в теге нет (Э4) 3ms
+     ✓ публичного адреса нет — кода нет; доменов нет — экран скажет завести сайт 3ms
+   ✓ расширение и роли (DATA_MODEL §16, ADR-083, Q-183) (4)
+     ✓ расширение не подключено — раздел так и говорит, продавца не спрашиваем, настройки не сохраняются 13ms
+     ✓ срок вышел — читать можно, а отвечать гостям и менять настройки нельзя 13ms
+     ✓ сотрудник ведёт диалоги, а настройки, знания и «Применить» — у владельца 14ms
+     ✓ управляющий настраивает продавца наравне с владельцем (ADR-107) 4ms
+   ✓ рассказ владельца → поля мастера (С1, план `plans/seller-partner-bot-2026-09-25.md`) (6)
+     ✓ извлечённое ложится в пустые поля черновика, занятое рукой не затирается 10ms
+     ✓ адрес, заезд и цены из рассказа не пишутся в тарифы — отдаются сверить глазами 3ms
+     ✓ поле, отброшенное защитой бота, называется человеку 3ms
+     ✓ слишком короткий рассказ — 400, продавца не звали 2ms
+     ✓ настройка — владельцу с действующим расширением 5ms
+     ✓ продавец недоступен — 503 со словами, черновик цел 2ms
+   ✓ ключ модели партнёра (С2, Q-186; план `plans/seller-partner-bot-2026-09-25.md`) (4)
+     ✓ поставить и прочитать: наружу — set и последние 4 знака, ключ уходит боту как есть 4ms
+     ✓ пустой ключ снимает сохранённый; проверка отдаёт вердикт словами 4ms
+     ✓ настройка — владельцу с действующим расширением; пустая проверка — 400 без вызова 5ms
+     ✓ продавец недоступен — 503 словами, ключ в тексте не всплывает 2ms
+   ✓ подключение WhatsApp (С3, Q-185 (а); план `plans/seller-partner-bot-2026-09-25.md`) (3)
+     ✓ подключить: поля уходят боту, назад — номер, слово и адрес вебхука без токена 2ms
+     ✓ статус и отключение; проверка отдаёт вердикт и номер словами 6ms
+     ✓ настройка — владельцу с действующим расширением; пустая проверка — 400 без вызова 5ms
+   ❯ каталог AI-агентов (SA1) (12)
+     × расширение не подключено: карточек нет, но и отказа нет — страница объясняет 3ms
+     × действует, профиля нет: рабочий продавец «Не настроен» с Business и Location объекта 2ms
+     × профиль применён — «Работает», имя из настроек, каналы по данным 2ms
+     × WhatsApp подключён — «ON»; вызов уходит с организацией вошедшего 2ms
+     × срок расширения вышел: «Подписка не активна», карточка остаётся, менять нельзя 2ms
+     × бот не ответил: страница жива, WhatsApp «нет данных» 2ms
+     × у платформы нет адреса и ключа бота: «Бот не подключён», к боту не ходим 2ms
+     × черновики гостевого мастера: «Черновик», без Business и Location, не больше 50 3ms
+     × чужие карточки не видны: организация Б видит свой объект и свои черновики 4ms
+     × сотрудник смены видит список, но не управляет им 2ms
+     × без входа — отказ 2ms
+     × ни адреса, ни ключа продавца в ответе нет 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > расширение не подключено: карточек нет, но и отказа нет — страница объясняет
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:930:40
+    928|     extensions.access = 'off';
+    929|     catalog.draftRows.set(ORG_A, [{ id: 'd1', name: 'Черновик', update…
+    930|     const res = await get('session-a').expect(200);
+       |                                        ^
+    931|     expect(res.body.extension.access).toBe('off');
+    932|     expect(res.body.agents).toEqual([]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > действует, профиля нет: рабочий продавец «Не настроен» с Business и Location объекта
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:939:40
+    937|
+    938|   it('действует, профиля нет: рабочий продавец «Не настроен» с Busines…
+    939|     const res = await get('session-a').expect(200);
+       |                                        ^
+    940|     expect(res.body.agents).toEqual([
+    941|       {
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > профиль применён — «Работает», имя из настроек, каналы по данным
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:957:40
+    955|     orgs.siteHosts.set(ORG_A, ['hotel-a.example.invalid']);
+    956|     connection.seller.replies.whatsappStatus = { set: false };
+    957|     const res = await get('session-a').expect(200);
+       |                                        ^
+    958|     expect(res.body.agents[0]).toMatchObject({
+    959|       kind: 'seller',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > WhatsApp подключён — «ON»; вызов уходит с организацией вошедшего
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:968:40
+    966|   it('WhatsApp подключён — «ON»; вызов уходит с организацией вошедшего…
+    967|     connection.seller.replies.whatsappStatus = { set: true, phone_numb…
+    968|     const res = await get('session-b').expect(200);
+       |                                        ^
+    969|     expect(res.body.agents[0].channels.whatsapp).toBe('ON');
+    970|     expect(connection.requestedOrgs).toEqual([ORG_B]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > срок расширения вышел: «Подписка не активна», карточка остаётся, менять нельзя
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:978:40
+    976|     extensions.access = 'expired';
+    977|     await applyProfile(ORG_A, USER_A);
+    978|     const res = await get('session-a').expect(200);
+       |                                        ^
+    979|     expect(res.body.extension.access).toBe('expired');
+    980|     expect(res.body.agents[0].status).toBe('SUBSCRIPTION_INACTIVE');
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > бот не ответил: страница жива, WhatsApp «нет данных»
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:987:40
+    985|   it('бот не ответил: страница жива, WhatsApp «нет данных»', async () …
+    986|     connection.seller.failOn.whatsappStatus = unavailable();
+    987|     const res = await get('session-a').expect(200);
+       |                                        ^
+    988|     expect(res.body.agents[0].channels.whatsapp).toBe('UNKNOWN');
+    989|     expect(res.body.agents[0].channels.site).toBe('OFF');
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > у платформы нет адреса и ключа бота: «Бот не подключён», к боту не ходим
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:995:40
+    993|     connection.settings = { ...baseConfig(), baseUrl: null, serviceKey…
+    994|     await applyProfile(ORG_A, USER_A);
+    995|     const res = await get('session-a').expect(200);
+       |                                        ^
+    996|     expect(res.body.agents[0]).toMatchObject({
+    997|       status: 'BOT_OFFLINE',
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > черновики гостевого мастера: «Черновик», без Business и Location, не больше 50
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:1010:40
+    1008|     }));
+    1009|     catalog.draftRows.set(ORG_A, many);
+    1010|     const res = await get('session-a').expect(200);
+       |                                        ^
+    1011|     const drafts = res.body.agents.filter((a: { kind: string }) => a.k…
+    1012|     expect(drafts).toHaveLength(50);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > чужие карточки не видны: организация Б видит свой объект и свои черновики
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:1028:40
+    1026|     catalog.draftRows.set(ORG_B, [{ id: 'b-draft', name: 'Черновик Б',…
+    1027|     await applyProfile(ORG_A, USER_A);
+    1028|     const res = await get('session-b').expect(200);
+       |                                        ^
+    1029|     const text = JSON.stringify(res.body);
+    1030|     expect(catalog.asked).toEqual([ORG_B]);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > сотрудник смены видит список, но не управляет им
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:1040:44
+    1038|
+    1039|   it('сотрудник смены видит список, но не управляет им', async () => {
+    1040|     const res = await get('session-staff').expect(200);
+       |                                            ^
+    1041|     expect(res.body.canManage).toBe(false);
+    1042|     expect(res.body.agents[0].kind).toBe('seller');
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > без входа — отказ
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:1050:43
+    1048|
+    1049|   it('без входа — отказ', async () => {
+    1050|     await api().get('/ai-seller/catalog').expect(401);
+       |                                           ^
+    1051|   });
+    1052|
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts > каталог AI-агентов (SA1) > ни адреса, ни ключа продавца в ответе нет
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ apps/api/src/ai-seller/ai-seller.controller.test.ts:1055:40
+    1053|   it('ни адреса, ни ключа продавца в ответе нет', async () => {
+    1054|     connection.seller.replies.whatsappStatus = { set: true, verify_tok…
+    1055|     const res = await get('session-a').expect(200);
+       |                                        ^
+    1056|     const text = JSON.stringify(res.body);
+    1057|     expect(text).not.toContain(KEY);
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 50 passed (62)
+   Start at  16:37:08
+   Duration  2.34s (transform 56%, import 26%, tests 18%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-37-07Z-unit-62d4.json
+
+# код выхода 1 · 3 с

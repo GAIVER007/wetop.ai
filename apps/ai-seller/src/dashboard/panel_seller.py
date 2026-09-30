@@ -11,11 +11,12 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.ai.guardrails import scan_document
 from src.ai.seller_prompt import SellerProfile, SellerPromptText, dirty_fields, render, render_owner_text
+from src.agent_scope import AgentScope
 from src.config import normalize_bot_role
-from src.dashboard.auth_router import request_org, require_owner
+from src.dashboard.auth_router import request_agent, require_owner
 from src.dashboard.panel_common import log_action, sessions
 from src.db.base import utcnow
-from src.db.models import Organization
+from src.db.models import Agent, Organization
 from src.knowledge.facts import ObjectFacts, replace_facts
 from src.knowledge.ingestor import SuspiciousDocument
 
@@ -31,7 +32,7 @@ def _require_seller(request: Request) -> None:
 
 @router.put("/seller/profile", dependencies=[Depends(require_owner)])
 async def apply_profile(
-    request: Request, profile: SellerProfile, org: uuid.UUID | None = Depends(request_org)
+    request: Request, profile: SellerProfile, scope: AgentScope | None = Depends(request_agent)
 ) -> dict:
     _require_seller(request)
     dirty = dirty_fields(profile)
@@ -42,29 +43,42 @@ async def apply_profile(
             detail={"message": "В полях найдены инструкции для модели", "fields": dirty},
         )
     text = render(profile)
-    # Э4: промпт продавца живёт в строке гостиницы, а не файлом на томе —
-    # у каждой организации свой. Файл PROMPT_PATH остался помощнику.
+    await _store_prompt(scope, text, action="seller_profile")
+    return {"status": "ok", "length": len(text)}
+
+
+async def _store_prompt(scope: AgentScope | None, text: str, *, action: str) -> None:
+    """Промпт продавца живёт в строке АГЕНТА (SA2.5), а не файлом на томе: у каждого агента свой. Файл PROMPT_PATH остался
+    помощнику. У перенесённого продавца (id агента равен организации) прежняя строка организации обновляется тем же
+    значением: старый образ читает промпт из неё, пока идёт выкладка (зеркало — до сжатия схемы)."""
+    if scope is None:
+        raise HTTPException(status_code=400, detail="У продавца нужен агент")
     async with sessions()() as session:
-        row = await session.get(Organization, org)
-        if row is None:
-            # Сверка платформы заводит гостиницу раньше профиля; нет строки —
-            # значит порядок нарушен, и молча создавать её без ключа нельзя.
-            raise HTTPException(status_code=404, detail="Организация у продавца не заведена")
-        row.system_prompt = text
-        row.updated_at = utcnow()
+        agent = await session.get(Agent, scope.agent_id)
+        if agent is None or agent.organization_id != scope.organization_id:
+            # Сверка платформы заводит гостиницу и агента раньше профиля; нет строки — порядок нарушен, и молча
+            # создавать её без ключа нельзя.
+            raise HTTPException(status_code=404, detail="Агент у продавца не заведён")
+        now = utcnow()
+        if agent.id == agent.organization_id:
+            org = await session.get(Organization, agent.organization_id)
+            if org is not None:
+                org.system_prompt = text
+                org.updated_at = now
+        agent.system_prompt = text
+        agent.updated_at = now
         # В журнал — факт и размер, без текста профиля.
         log_action(
             session,
-            action="seller_profile",
-            payload={"organization": str(org), "length": len(text)},
+            action=action,
+            payload={"organization": str(scope.organization_id), "agent": str(scope.agent_id), "length": len(text)},
         )
         await session.commit()
-    return {"status": "ok", "length": len(text)}
 
 
 @router.put("/seller/prompt", dependencies=[Depends(require_owner)])
 async def apply_prompt_text(
-    request: Request, prompt: SellerPromptText, org: uuid.UUID | None = Depends(request_org)
+    request: Request, prompt: SellerPromptText, scope: AgentScope | None = Depends(request_agent)
 ) -> dict:
     """Инструкция продавцу одним текстом (ADR-097): ядро бот ставит сам и сверху."""
     _require_seller(request)
@@ -74,27 +88,16 @@ async def apply_prompt_text(
             detail={"message": "В тексте найдены инструкции для модели", "fields": ["text"]},
         )
     text = render_owner_text(prompt)
-    async with sessions()() as session:
-        row = await session.get(Organization, org)
-        if row is None:
-            raise HTTPException(status_code=404, detail="Организация у продавца не заведена")
-        row.system_prompt = text
-        row.updated_at = utcnow()
-        log_action(
-            session,
-            action="seller_prompt",
-            payload={"organization": str(org), "length": len(text)},
-        )
-        await session.commit()
+    await _store_prompt(scope, text, action="seller_prompt")
     return {"status": "ok", "length": len(text)}
 
 
 @router.put("/seller/facts", dependencies=[Depends(require_owner)])
 async def apply_facts(
-    request: Request, facts: ObjectFacts, org: uuid.UUID | None = Depends(request_org)
+    request: Request, facts: ObjectFacts, scope: AgentScope | None = Depends(request_agent)
 ) -> dict:
     """Адрес, заезд, категории и цены из платформы. Заменяют прежние атомарно —
-    в пределах организации запроса (Э4): цены одной гостиницы не трут другую."""
+    в пределах АГЕНТА запроса (SA2.5): цены одного агента не трут другого, даже в одной организации."""
     from src.knowledge.embedder import get_embedder
 
     _require_seller(request)
@@ -105,7 +108,7 @@ async def apply_facts(
                 session,
                 get_embedder(),
                 facts,
-                organization_id=org,
+                scope=scope,
                 max_bytes=settings.kb_max_file_mb * 1024 * 1024,
                 chunk_chars=settings.kb_chunk_chars,
                 overlap=settings.kb_chunk_overlap,
@@ -119,7 +122,11 @@ async def apply_facts(
             log_action(
                 session,
                 action="seller_facts",
-                payload={"organization": str(org) if org else None, "categories": len(facts.categories)},
+                payload={
+                    "organization": str(scope.organization_id) if scope else None,
+                    "agent": str(scope.agent_id) if scope else None,
+                    "categories": len(facts.categories),
+                },
             )
             await session.commit()
     return {"status": status}

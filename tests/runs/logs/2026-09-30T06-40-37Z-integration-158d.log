@@ -1,0 +1,276 @@
+# Интеграционные (integration) · 30.09.2026 11:40 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-40-37Z-integration-158d.json' 'tests/integration/business-agent-identity.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/business-agent-identity.test.ts (11 tests | 11 failed) 774ms
+   ❯ Business Agent: личность и перенос (integration, DATABASE_URL required) (11)
+     ❯ перенос существующего продавца (seller_agents_backfill) (5)
+       × рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором 389ms
+       × профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец» 16ms
+       × организация с расширением, но без объекта и профиля — черновик без филиала 19ms
+       × организация без продавца и без расширения агента не получает 11ms
+       × повторный запуск ничего не дублирует и не меняет уже перенесённого агента 11ms
+     ❯ ограничения агента (6)
+       × четыре хранимых состояния: `preparing` и `error` больше не допускаются 9ms
+       × активный и приостановленный агент без филиала невозможны, черновик без филиала можно 13ms
+       × на филиале не более одного неархивного AI-продавца; архивный не мешает 7ms
+       × агент другого типа на занятом филиале допустим: ограничение относится только к AI-продавцу 8ms
+       × филиал чужой организации: отказ при вставке и при смене филиала 8ms
+       × профиль связан с агентом своей организации: чужой агент — отказ 9ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором
+PrismaClientValidationError: 
+Invalid `prisma.property.create()` invocation:
+
+{
+  data: {
+    name: "Хостел Перенос активный munqkt03",
+    address: "Алматы, ул. Вымышленная, 1",
+    timezone: "Asia/Almaty",
+    currency: "KZT",
+    organizationId: "8c526ae1-3a1e-4b47-a893-c7608d86b7c1",
+    locationId: "5b005c74-a6b2-4924-93fb-f80e37fc2efd",
++   checkInTime: String
+  }
+}
+
+Argument `checkInTime` is missing.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:35:24
+     33|     let locationId: string | null = null;
+     34|     if (withProperty) {
+     35|       const property = await createPropertyInChain(db, org.id, {
+       |                        ^
+     36|         name: `Хостел ${name} ${mark}`,
+     37|         address: 'Алматы, ул. Вымышленная, 1',
+ ❯ tests/integration/business-agent-identity.test.ts:99:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец»
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:119:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > организация с расширением, но без объекта и профиля — черновик без филиала
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:131:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > организация без продавца и без расширения агента не получает
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:144:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > перенос существующего продавца (seller_agents_backfill) > повторный запуск ничего не дублирует и не меняет уже перенесённого агента
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:152:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > четыре хранимых состояния: `preparing` и `error` больше не допускаются
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:171:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > активный и приостановленный агент без филиала невозможны, черновик без филиала можно
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:179:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > на филиале не более одного неархивного AI-продавца; архивный не мешает
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:186:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > агент другого типа на занятом филиале допустим: ограничение относится только к AI-продавцу
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:196:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > филиал чужой организации: отказ при вставке и при смене филиала
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:203:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  |integration| tests/integration/business-agent-identity.test.ts > Business Agent: личность и перенос (integration, DATABASE_URL required) > ограничения агента > профиль связан с агентом своей организации: чужой агент — отказ
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.create()` invocation:
+
+
+Unique constraint failed on the constraint: `users_email_key`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ organization tests/integration/business-agent-identity.test.ts:27:18
+     25|     const org = await db.organization.create({ data: { name: `${name} …
+     26|     orgIds.push(org.id);
+     27|     const user = await db.user.create({
+       |                  ^
+     28|       data: { email: `${name.toLowerCase().replace(/\W+/g, '-')}-${mar…
+     29|       select: { id: true },
+ ❯ tests/integration/business-agent-identity.test.ts:219:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  06:40:40
+   Duration  4.57s (tests 59%, transform 29%, import 12%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-40-37Z-integration-158d.json
+
+# код выхода 1 · 7 с

@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { normalizeHost, SITE_KEY_RE } from '@pms/domain';
 import { clientIp } from './client-ip';
+import { TurnstileService } from './turnstile';
 import { WebBookingService, type RequestContext } from './web-booking.service';
 import { Public } from '../auth/public.decorator';
 
@@ -52,7 +53,20 @@ function context(h: {
 @Public() // наружу через api.wetop.ai, входа не требует (SECURITY.md §11)
 @Controller('w')
 export class WebBookingController {
-  constructor(@Inject(WebBookingService) private readonly service: WebBookingService) {}
+  constructor(
+    @Inject(WebBookingService) private readonly service: WebBookingService,
+    @Inject(TurnstileService) private readonly turnstile: TurnstileService,
+  ) {}
+
+  /**
+   * Настройки виджета (BOOK-SEC1): публичный ключ Turnstile или `null`, пока проверка выключена. Секрет сюда не попадает.
+   * Без обращения к базе и без ключа сайта: ответ один на всех.
+   */
+  @Get('config')
+  @Header('Cache-Control', 'public, max-age=300')
+  config() {
+    return { turnstileSiteKey: this.turnstile.siteKey() };
+  }
 
   @Get('widget.js')
   @Header('Content-Type', 'application/javascript; charset=utf-8')

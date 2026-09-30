@@ -61,6 +61,7 @@ def _seed_spend(sessions, org: str | None, tokens: int, at: datetime) -> None:
             channel="widget",
             external_id=f"spend-{uuid.uuid4().hex[:8]}",
             organization_id=uuid.UUID(org) if org else None,
+            agent_id=uuid.UUID(org) if org else None,  # перенесённый продавец: агент = организации (§20.4)
             created_at=at,
         )
         session.add(client)
@@ -68,6 +69,7 @@ def _seed_spend(sessions, org: str | None, tokens: int, at: datetime) -> None:
         conversation = Conversation(
             client_id=client.id,
             organization_id=uuid.UUID(org) if org else None,
+            agent_id=uuid.UUID(org) if org else None,
             mode=ConversationMode.BOT_ACTIVE,
             funnel_stage=FunnelStage.NEW,
             lead_data={},
@@ -105,6 +107,7 @@ def _incoming(external_id: str, org: str | None = ORG_A) -> IncomingMessage:
         text="Есть места на завтра?",
         received_at=utcnow(),
         organization_id=org,
+        agent_id=org,  # перенесённый продавец: агент = организации (§20.4)
     )
 
 

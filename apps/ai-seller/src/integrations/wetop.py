@@ -1,8 +1,10 @@
 """[КЛИЕНТ] Провайдер WETOP: наличие, расчёт, бронь.
 
 Наличие и цену продавец читает дверью котировки GET /bot/availability
-(Q-166 в объёме чтения — ADR-085): узкий ключ SELLER_QUOTE_KEY, организация
-в запросе, JSON — тот же, что у публичного виджета. Бронь из чата не
+(Q-166 в объёме чтения — ADR-085): узкий ключ SELLER_QUOTE_KEY, АГЕНТ хода
+в запросе (SA2.5), JSON — тот же, что у публичного виджета. Агента ставит дверь
+канала, а не модель: инструмент не принимает от неё ни агента, ни организацию,
+ни объект. Платформа сама выводит организацию и филиал из строки агента. Бронь из чата не
 включена — заявка администратору до базы в РК (Q-166б, ADR-086); POST /w/book
 здесь на тот день. Разбор мягкий: незнакомое тело даёт «не знаю» с пометкой
 в журнал, а не выдуманное число мест и не выдуманную сумму. Сам разбор —
@@ -126,19 +128,20 @@ class WetopProviders(WetopSupportMixin):
     async def _availability(self, arrival: date, departure: date, guests: int) -> dict:
         """Остаток и сумму отдаёт один адрес, поэтому запрос общий.
 
-        Организация — из хода (ставит движок): продавец спрашивает про СВОЮ
-        гостиницу. Поле гостей у платформы зовётся adults — контракт виджета.
+        Агент — из хода (ставит движок): продавец спрашивает про СВОЙ филиал. Поле гостей
+        у платформы зовётся adults — контракт виджета. Организацию платформе не называем:
+        `agent` для неё — недоверенный селектор, всё остальное она берёт из строки агента.
         """
-        from src.dependencies import get_current_organization_id
+        from src.dependencies import get_current_agent_id
 
         params: dict = {
             "arrival": arrival.isoformat(),
             "departure": departure.isoformat(),
             "adults": guests,
         }
-        organization = get_current_organization_id()
-        if organization:
-            params["organization"] = organization
+        agent = get_current_agent_id()
+        if agent:
+            params["agent"] = agent
         return await self._request("GET", PATH_AVAILABILITY, params=params)
 
     async def check(

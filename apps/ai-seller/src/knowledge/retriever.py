@@ -67,7 +67,7 @@ async def search(
     query: str,
     *,
     top_k: int,
-    organization_id: uuid.UUID | None = None,
+    agent_id: uuid.UUID | None = None,
 ) -> list[RetrievedChunk]:
     """Ближайшие top_k чанков к запросу по косинусу, по убыванию оценки.
 
@@ -75,19 +75,19 @@ async def search(
     миграции). SQLite (только тесты) — косинус в Python по всем чанкам:
     индекса нет, но и данных в тестах мало.
 
-    🔴 organization_id (Э4): поиск не выносит знания одной гостиницы
-    в ответы другой. None — как раньше, без отбора: экземпляр-помощник
-    держит все документы без организации.
+    🔴 agent_id (SA2.5; до неё — организация, Э4): поиск не выносит знания одного
+    агента в ответы другого — ни другой гостиницы, ни другого агента той же организации.
+    None — как раньше, без отбора: экземпляр-помощник держит все документы без организации.
     """
     if not query.strip() or top_k <= 0:
         return []
     vec = await embedder.embed_query(query)
 
     def scoped(stmt):
-        if organization_id is None:
+        if agent_id is None:
             return stmt
         return stmt.join(Document, Document.id == KnowledgeChunk.document_id).where(
-            Document.organization_id == organization_id
+            Document.agent_id == agent_id
         )
 
     if _dialect_name(session) == "postgresql":

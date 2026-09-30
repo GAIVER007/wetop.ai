@@ -131,7 +131,7 @@ ORDER BY 1, 2;
 ## SEC-1b, стадия B: отзыв прав на данные интеграции (30.09.2026)
 
 ADR-124 (дополнения 30.09.2026), Q-222, Q-225, план `plans/sec1b-stage-b-2026-09-30.md`. Миграция
-`20260930000035_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox`
+`20260930000038_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox`
 оставляет только `INSERT` (без `RETURNING`). `wetop_service` не меняется.
 
 **Порядок: сначала код, потом миграция.** Нужен код не старше PR #198 (`a47fc932` и позже): все обращения к трём таблицам идут
@@ -147,7 +147,7 @@ ADR-124 (дополнения 30.09.2026), Q-222, Q-225, план `plans/sec1b-s
    Строки `NULL` после B1.5 экранам не видны, но отправляет очередь служебный путь; догадочной привязки нет.
 4. Желательно: `INTEGRATION_PROPERTY_ID` задан в `.env` (иначе объект интеграции выбирается по сопоставлениям и названию, `docs/deploy.md`).
 
-Применение — по образцу стадии A (`mig status`: не применена только `…035`; `mig deploy`; `mig status`; затем
+Применение — по образцу стадии A (`mig status`: не применена только `…038`; `mig deploy`; `mig status`; затем
 `/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина>` только если `release` перематывали).
 
 Проверка после миграции (только чтение, ответы без данных):

@@ -13,6 +13,7 @@ import {
   unavailable,
 } from './fakes';
 import type { SellerConfig } from './seller.connection';
+import { workingSellerScope } from './seller.repository';
 import { SellerService, type SyncResult } from './seller.service';
 
 /**
@@ -82,13 +83,13 @@ const opsAfterOrg = () => connection.seller.ops().filter((op) => op !== 'putOrga
 describe('SellerService.syncOnce', () => {
   it('продавец не подключён — ничего не делает', async () => {
     connection.settings = { ...config(), baseUrl: null };
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     expect(await service.syncOnce(now)).toEqual({ skipped: 'not-configured' });
     expect(connection.seller.ops()).toEqual([]);
   });
 
   it('расширение организации не действует — гостиница уходит с active=false, профиль и факты нет (ADR-083, Q-183)', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     for (const access of ['off', 'expired'] as const) {
       extensions.access = access;
       connection.seller.calls = [];
@@ -105,7 +106,7 @@ describe('SellerService.syncOnce', () => {
   });
 
   it('новый профиль и новые факты — отправляет оба; повтор без правок — только гостиницу', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     expect(await service.syncOnce(now)).toEqual(one(1, 1));
     expect(connection.seller.ops()).toEqual(['putOrganization', 'putProfile', 'putFacts']);
     // каждая отправка — с организацией гостиницы: панель продавца кладёт строки в неё
@@ -117,7 +118,7 @@ describe('SellerService.syncOnce', () => {
   });
 
   it('цена в «Тарифах» поменялась — факты уходят сами, без действий в разделе', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     await service.syncOnce(now);
     connection.seller.calls = [];
     facts.source = source(1_600_000n);
@@ -130,15 +131,15 @@ describe('SellerService.syncOnce', () => {
   });
 
   it('профиль поправили, пока он уходил продавцу, — отправится ещё раз', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     await service.syncOnce(now);
-    await profiles.save(ORG, { ...DEFAULT_SELLER_PROFILE, emoji: 'MODERATE' }, null, new Date(now.getTime() + 1));
+    await profiles.save(workingSellerScope(ORG), { ...DEFAULT_SELLER_PROFILE, emoji: 'MODERATE' }, null, new Date(now.getTime() + 1));
     connection.seller.calls = [];
     expect(await service.syncOnce(new Date(now.getTime() + 60_000))).toMatchObject({ profile: 1 });
   });
 
   it('название объекта в карточке поменялось — профиль уходит заново: бот представляется именем из карточки', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     await service.syncOnce(now);
     connection.seller.calls = [];
     const renamed = source();
@@ -151,7 +152,7 @@ describe('SellerService.syncOnce', () => {
   });
 
   it('у организации нет объекта — профиль не уходит, причина словами; гостиница уходит всё равно', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     facts.source = null;
     expect(await service.syncOnce(now)).toEqual(
       one(0, 0, [`${NAME}: У организации нет объекта: факты для продавца собрать не из чего`]),
@@ -160,7 +161,7 @@ describe('SellerService.syncOnce', () => {
   });
 
   it('продавец недоступен — ошибка запомнена, исключения нет; следующая минута доставляет и снимает ошибку', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failWith = unavailable();
     expect(await service.syncOnce(now)).toEqual(
       one(0, 0, [`${NAME}: ИИ-продавец недоступен (HTTP 502)`]),
@@ -172,7 +173,7 @@ describe('SellerService.syncOnce', () => {
   });
 
   it('отказ путей профиля запоминается в last_error и виден статусу раздела', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failOn.putProfile = unavailable();
     expect(await service.syncOnce(now)).toEqual(
       one(0, 0, [`${NAME}: ИИ-продавец недоступен (HTTP 502)`]),
@@ -195,7 +196,7 @@ describe('SellerService: отказ по содержанию не повтор�
   const INJECTION = 'в поле найдены инструкции для модели';
 
   it('422 на профиль: та же версия больше не уходит, факты идут; правка профиля — уходит и снимает отказ', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failOn.putProfile = rejected(422, INJECTION);
     expect(await service.syncOnce(now)).toEqual(
       one(0, 0, [`${NAME}: ИИ-продавец отклонил: ${INJECTION}`]),
@@ -216,13 +217,13 @@ describe('SellerService: отказ по содержанию не повтор�
     expect(opsAfterOrg()).toEqual([]);
 
     delete connection.seller.failOn.putProfile;
-    await profiles.save(ORG, { ...DEFAULT_SELLER_PROFILE, emoji: 'MODERATE' }, null, minute(3));
+    await profiles.save(workingSellerScope(ORG), { ...DEFAULT_SELLER_PROFILE, emoji: 'MODERATE' }, null, minute(3));
     expect(await service.syncOnce(minute(4))).toEqual(one(1, 0));
     expect(profiles.rows.get(ORG)!.lastError).toBeNull();
   });
 
   it('«Применить» отправляет и отклонённую версию: её шлёт человек, а не сверка', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failOn.putProfile = rejected(422, INJECTION);
     await service.syncOnce(now);
 
@@ -237,7 +238,7 @@ describe('SellerService: отказ по содержанию не повтор�
   });
 
   it('422 на факты: тот же отпечаток не повторяется; поменялась цена — новые факты уходят', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failOn.putFacts = rejected(422, 'категория: слишком длинное название');
     expect(await service.syncOnce(now)).toEqual(
       one(0, 0, [`${NAME}: ИИ-продавец отклонил: категория: слишком длинное название`]),
@@ -257,7 +258,7 @@ describe('SellerService: отказ по содержанию не повтор�
   it.each([401, 403, 404, 429])(
     '%i — не про содержание (ключ, адреса ещё нет, частота): следующая минута повторяет',
     async (status) => {
-      await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+      await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
       connection.seller.failOn.putProfile = rejected(status, 'отказ');
       expect((await service.syncOnce(now)) as { failed: string[] }).toMatchObject({
         failed: [expect.stringContaining('ИИ-продавец отклонил')],
@@ -272,7 +273,7 @@ describe('SellerService: отказ по содержанию не повтор�
   );
 
   it('отказ с именами полей (Б6) — в «Последнем отказе» названия полей экрана, а не коды бота', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failOn.putProfile = rejected(422, 'В полях найдены инструкции для модели', [
       'greeting',
       'house_rules',
@@ -284,7 +285,7 @@ describe('SellerService: отказ по содержанию не повтор�
   });
 
   it('продавец недоступен — раздел знает, что отправка повторится сама', async () => {
-    await profiles.save(ORG, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failOn.putProfile = unavailable();
     await service.syncOnce(now);
     expect(await asOwner(() => service.status(now))).toMatchObject({

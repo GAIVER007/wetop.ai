@@ -241,6 +241,14 @@ export function NewReservationForm(props: {
           номеру брони в канале.
         </Notice>
       )}
+      <Field label="Промокод">
+        <Input
+          name="promoCode"
+          autoComplete="off"
+          defaultValue={kept['promoCode'] ?? ''}
+          placeholder="Если гость назвал код"
+        />
+      </Field>
       <Field label="Заметки">
         <Textarea
           name="notes"

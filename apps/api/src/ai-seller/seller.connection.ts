@@ -36,6 +36,7 @@ export interface SellerPort {
   putFacts(payload: unknown): Promise<unknown>;
   /** Рассказ владельца → поля анкеты (С1): раскладывает бот, промптом рассказ не становится */
   extractProfile(story: string): Promise<unknown>;
+  generateInstruction(story: string): Promise<unknown>;
   /** Ключ модели партнёра (С2): хранит только бот, наружу — set и последние 4 знака */
   llmKeyStatus(orgId: string): Promise<unknown>;
   putLlmKey(orgId: string, key: string): Promise<unknown>;

@@ -65,7 +65,7 @@ export function AgentCreateForm({
         />
         {fieldError('name')}
       </Field>
-      <Field label="Business">
+      <Field label="Бизнес">
         <Select
           name="businessId"
           value={businessId}
@@ -105,7 +105,7 @@ export function AgentCreateForm({
       <Stack gap="sm">
         <Row>
           <Button type="submit" disabled={pending} aria-busy={pending} data-testid="agent-create-submit">
-            {pending ? 'Создаю…' : 'Создать черновик'}
+            {pending ? 'Создаю…' : 'Создать и настроить'}
           </Button>
           <Link className="btn btn--secondary" href="/ai-agents">
             Отмена

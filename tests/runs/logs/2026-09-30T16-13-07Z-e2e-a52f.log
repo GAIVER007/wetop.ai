@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 30.09.2026 21:13 Алматы · MacBook-Air-Urij.local
+# коммит 0110f56 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents-create.spec.ts' '--grep' 'диктовка:'
+[WebServer] (node:20818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20898) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:21017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:21161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/ai-agents-create.spec.ts:229:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон (19.5s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:229:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByLabel('Ваш рассказ', { exact: true })
+    Expected: "Голосовой рассказ тестового владельца."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Ваш рассказ', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Ваш рассказ', { exact: true })
+
+
+      238 |   await page.waitForURL(/\/ai-agents\/[0-9a-f-]{36}$/);
+      239 |   await page.getByRole('button', {name:'Надиктовать', exact:true}).click();
+    > 240 |   await expect(page.getByLabel('Ваш рассказ',{exact:true})).toHaveValue('Голосовой рассказ тестового владельца.');
+          |                                                             ^
+      241 |   await page.getByRole('button', {name:/03 Инструкция/}).click();
+      242 |   expect(await page.evaluate('window.__dictationStopped')).toBe(true);
+      243 |   await page.getByRole('button', {name:/Ваш рассказ/}).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/ai-agents-create.spec.ts:240:61
+
+    Error Context: test-results/ai-agents-create-диктовка--779f5-струкции-выключает-микрофон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-диктовка--779f5-струкции-выключает-микрофон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-диктовка--779f5-струкции-выключает-микрофон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-agents-create.spec.ts:229:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон 
+
+# код выхода 1 · 33 с

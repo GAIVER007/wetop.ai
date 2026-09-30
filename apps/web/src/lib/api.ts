@@ -1836,7 +1836,13 @@ export interface BusinessAgentView {
   updatedAt: string;
 }
 
+export interface AgentInstructionView { text: string; saved: boolean; updatedAt: string | null }
+export interface AgentInstructionPreview { text: string; warnings: string[] }
+
 export const businessAgentsApi = {
+  instruction: (id: string) => getJson<AgentInstructionView>(`/ai-seller/agents/${encodeURIComponent(id)}/instruction`),
+  saveInstruction: (id: string, text: string) => sendJson<AgentInstructionView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/instruction`, { text }),
+  generateInstruction: (id: string, story: string) => sendJson<AgentInstructionPreview>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/instruction/generate`, { story }),
   options: () => getJson<AgentOptionsView>('/ai-seller/agents/options'),
   get: (id: string) => getJson<BusinessAgentView>(`/ai-seller/agents/${encodeURIComponent(id)}`),
   /** `Idempotency-Key` — повтор той же отправки возвращает того же агента; организацию и автора называет сервер */

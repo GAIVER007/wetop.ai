@@ -36,6 +36,7 @@ import { ChannelReport } from '../report';
 import { categoryMappings, planMappings } from '../mapping';
 import { Icon } from '../../../components/icon';
 import '../../directory.css';
+import '../channels.css';
 
 /**
  * Модуль «Каналы продаж» (ADR-112, поручение владельца 27.09.2026): один вход вместо пунктов
@@ -91,8 +92,7 @@ export default async function ChannelSalesPage({
   if (!view && sp.queue) redirect(`/channels/sync?queue=${encodeURIComponent(sp.queue)}`);
   if (!view && sp.type) {
     const u = new URLSearchParams();
-    for (const key of ['status', 'type', 'q', 'page'] as const)
-      if (sp[key]) u.set(key, sp[key]);
+    for (const key of ['status', 'type', 'q', 'page'] as const) if (sp[key]) u.set(key, sp[key]);
     redirect(`/channels/events?${u.toString()}`);
   }
   const tab = tabs.find((item) => item.view === view);
@@ -100,11 +100,11 @@ export default async function ChannelSalesPage({
   return (
     <Page
       title={view ? tab.label : 'Каналы продаж'}
-      subtitle={subtitles[view]}
+      subtitle={view ? subtitles[view] : undefined}
       crumbs={view ? <Link href="/channels">Каналы продаж</Link> : undefined}
       actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
     >
-      <nav className="settings-tabs" aria-label="Каналы продаж">
+      <nav className="settings-tabs channels-tabs" aria-label="Каналы продаж">
         {tabs.map((item) => (
           <Link
             key={item.href}
@@ -153,8 +153,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
     : 0;
   const notConnected = !connection?.propertyAccessible;
-  const alarm =
-    (outbox?.failed ?? 0) > 0 || stalledMinutes >= 10 || (failedEvents ?? 0) > 0;
+  const alarm = (outbox?.failed ?? 0) > 0 || stalledMinutes >= 10 || (failedEvents ?? 0) > 0;
   const tone = alarm ? 'alarm' : !outbox || notConnected || outbox.pending > 0 ? 'warn' : 'calm';
   const word = notConnected
     ? 'не подключены'
@@ -162,7 +161,11 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
       ? 'требует внимания'
       : !outbox
         ? 'неизвестно'
-        : 'работает';
+        : connection?.environment === 'staging'
+          ? 'тестовый контур'
+          : !webhook?.registered || !webhook?.active
+            ? 'настройка не завершена'
+            : 'API доступен';
   const summary = notConnected
     ? `${connection?.message ?? 'Не удалось проверить соединение с менеджером каналов'}.`
     : !outbox
@@ -175,7 +178,9 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
             ? 'Входящая бронь требует разбора — откройте «События».'
             : outbox.pending > 0
               ? 'Изменения ждут отправки в каналы.'
-              : 'Цены, остатки и брони ходят между WETOP и каналами.';
+              : connection?.environment === 'staging'
+                ? 'Channex staging · тестовое подключение.'
+                : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
   const lastExchange =
     [outbox?.lastSentAt, connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)
@@ -202,10 +207,8 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
   const mappingGap =
     fundCategories !== null && mappedCategories !== null && mappedCategories < fundCategories;
   return (
-    <div className="stack">
-      {!loadedOutbox.ok && (
-        <LoadError testId="outbox-error" {...loadErrorProps(loadedOutbox.e)} />
-      )}
+    <div className="stack channels-overview">
+      {!loadedOutbox.ok && <LoadError testId="outbox-error" {...loadErrorProps(loadedOutbox.e)} />}
       <StateBar
         className="state-bar--wide"
         tone={tone}
@@ -219,14 +222,17 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           value={outbox ? <span data-testid="outbox-pending">{String(outbox.pending)}</span> : '—'}
         >
           {outbox && outbox.pending === 0 && (
-            <span className="state-bar__sub">всё ушло в каналы</span>
+            <span className="state-bar__sub">нет ожидающих отправки</span>
           )}
         </StateFact>
         <StateFact
           label="Ошибки"
           value={
             outbox || failedEvents !== null ? (
-              <span className={failedTotal > 0 ? 'danger-text' : undefined} data-testid="channels-errors">
+              <span
+                className={failedTotal > 0 ? 'danger-text' : undefined}
+                data-testid="channels-errors"
+              >
                 {String(failedTotal)}
               </span>
             ) : (
@@ -241,7 +247,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           )}
         </StateFact>
         <StateFact
-          label="Webhook менеджера каналов"
+          label="Приём событий"
           value={
             <span data-testid="webhook-status">
               {webhook === null
@@ -270,70 +276,78 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
           )}
         </StateFact>
       </StateBar>
-      {outbox && <OverbookingAlarm outbox={outbox} />}
-      <section className="stack stack--sm" aria-labelledby="observed-title">
-        <SectionTitle id="observed-title">Каналы</SectionTitle>
-        <p className="note">
-          Наблюдаются по входящим событиям каналов — это последняя активность источника, а не
-          состояние его подключения.
-        </p>
-        {recentEvents === null ? (
-          <p className="note" data-testid="observed-failed">
-            События не загрузились: API не ответил. Обновите страницу или откройте{' '}
-            <Link href="/incidents">неисправности</Link>.
+      {outbox && alarm && (
+        <Alert boxed data-testid="overbooking-alarm">
+          Остатки могут быть неактуальны. <Link href="/channels/sync">Проверить очередь</Link> ·{' '}
+          <Link href="/channels/events?status=FAILED">Ошибки входящих</Link>
+        </Alert>
+      )}
+      <ChannelReport sp={sp} />
+      <details className="context-help" data-testid="channels-activity">
+        <summary>Активность каналов и ручной обмен</summary>
+        <section className="stack stack--sm" aria-labelledby="observed-title">
+          <SectionTitle id="observed-title">Каналы</SectionTitle>
+          <p className="note">
+            Наблюдаются по входящим событиям каналов — это последняя активность источника, а не
+            состояние его подключения.
           </p>
-        ) : observedRows.length === 0 ? (
-          <p className="note" data-testid="observed-empty">
-            Событий от каналов ещё не было. Канал появится здесь, когда придёт его бронь,
-            изменение или отмену.
-          </p>
-        ) : (
-          <Table size="sm" className="dir-table" data-testid="channels-observed">
-            <thead>
-              <tr>
-                {['Канал', 'Последнее событие', 'Событий с ошибкой'].map((h) => (
-                  <th key={h}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {observedRows.map(([name, row]) => (
-                <tr key={name} data-testid="observed-row">
-                  <td>
-                    <strong>{name}</strong>
-                  </td>
-                  <td className="nowrap">{eventTime(row.lastAt, clock)}</td>
-                  <td className="num">
-                    {row.failed > 0 ? (
-                      <Link href="/channels/events?status=FAILED" className="danger-text">
-                        {row.failed}
-                      </Link>
-                    ) : (
-                      '0'
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-        {mappedCategories !== null &&
-          (mappingGap ? (
-            <p className="note danger-text" data-testid="mapping-gap">
-              Сопоставлены не все категории: {mappedCategories} из {fundCategories} — по остальным
-              цены и остатки в каналы не уходят. Проверить —{' '}
-              <Link href="/channels/mapping">«Сопоставление»</Link>.
+          {recentEvents === null ? (
+            <p className="note" data-testid="observed-failed">
+              События не загрузились: API не ответил. Обновите страницу или откройте{' '}
+              <Link href="/incidents">неисправности</Link>.
+            </p>
+          ) : observedRows.length === 0 ? (
+            <p className="note" data-testid="observed-empty">
+              Событий от каналов ещё не было. Канал появится здесь, когда придёт его бронь,
+              изменение или отмену.
             </p>
           ) : (
-            <p className="note" data-testid="mapping-note">
-              Сопоставление — общее для всех каналов: категорий {mappedCategories}
-              {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
-              {connection?.mappedRatePlans ?? '—'}.
-            </p>
-          ))}
-      </section>
-      <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} />
-      <ChannelReport sp={sp} />
+            <Table size="sm" className="dir-table" data-testid="channels-observed">
+              <thead>
+                <tr>
+                  {['Канал', 'Последнее событие', 'Событий с ошибкой'].map((h) => (
+                    <th key={h}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {observedRows.map(([name, row]) => (
+                  <tr key={name} data-testid="observed-row">
+                    <td>
+                      <strong>{name}</strong>
+                    </td>
+                    <td className="nowrap">{eventTime(row.lastAt, clock)}</td>
+                    <td className="num">
+                      {row.failed > 0 ? (
+                        <Link href="/channels/events?status=FAILED" className="danger-text">
+                          {row.failed}
+                        </Link>
+                      ) : (
+                        '0'
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+          {mappedCategories !== null &&
+            (mappingGap ? (
+              <p className="note danger-text" data-testid="mapping-gap">
+                Сопоставлены не все категории: {mappedCategories} из {fundCategories} — по остальным
+                цены и остатки в каналы не уходят. Проверить —{' '}
+                <Link href="/channels/mapping">«Сопоставление»</Link>.
+              </p>
+            ) : (
+              <p className="note" data-testid="mapping-note">
+                Сопоставление — общее для всех каналов: категорий {mappedCategories}
+                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифов{' '}
+                {connection?.mappedRatePlans ?? '—'}.
+              </p>
+            ))}
+        </section>
+        <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} />
+      </details>
       <details className="context-help" data-testid="channels-tech">
         <summary>Технические детали</summary>
         <div>
@@ -421,7 +435,10 @@ async function Connections() {
               label="Сопоставлено"
               value={`категорий ${connection.mappedCategories}, тарифов ${connection.mappedRatePlans}`}
             />
-            <Fact label="Последний webhook, по Алматы" value={clock.local(connection.lastWebhookAt)} />
+            <Fact
+              label="Последний webhook, по Алматы"
+              value={clock.local(connection.lastWebhookAt)}
+            />
             <Fact label="Последний импорт, по Алматы" value={clock.local(connection.lastPullAt)} />
           </Grid>
         )}
@@ -741,20 +758,25 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
           ? 'Ждут отправки в каналы.'
           : 'Очередь пуста: всё ушло в каналы.';
   const lastInbound =
-    [connection?.lastWebhookAt, connection?.lastPullAt].filter((x): x is string => !!x).sort().at(-1) ??
-    null;
+    [connection?.lastWebhookAt, connection?.lastPullAt]
+      .filter((x): x is string => !!x)
+      .sort()
+      .at(-1) ?? null;
   const kindState = (kind: OutboxRow['kind']) => {
     const ofKind = (allRows ?? []).filter((r) => r.kind === kind);
     const failed = ofKind.filter((r) => r.status === 'FAILED').length;
     const pending = ofKind.filter((r) => r.status === 'PENDING').length;
-    const lastSent = ofKind.filter((r) => r.sentAt).map((r) => r.sentAt as string).sort().at(-1) ?? null;
+    const lastSent =
+      ofKind
+        .filter((r) => r.sentAt)
+        .map((r) => r.sentAt as string)
+        .sort()
+        .at(-1) ?? null;
     return { failed, pending, lastSent };
   };
   return (
     <div className="stack">
-      {!loadedOutbox.ok && (
-        <LoadError testId="outbox-error" {...loadErrorProps(loadedOutbox.e)} />
-      )}
+      {!loadedOutbox.ok && <LoadError testId="outbox-error" {...loadErrorProps(loadedOutbox.e)} />}
       <StateBar
         tone={tone}
         label="В очереди"

@@ -1,0 +1,37 @@
+# Сквозные (e2e) · 30.09.2026 21:37 Алматы · MacBook-Air-Urij.local
+# коммит 1c24aba (codex/unified-workspace-20260929), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/widget-design.spec.ts'
+[WebServer] (node:37265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:37349) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+(node:37429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/widget-design.spec.ts:29:1 › welcome, draft suggestions, close and focus return (998ms)
+  ✓  2 tests/ui/widget-design.spec.ts:38:1 › multiline, failure retains draft and attachment, no duplicate sends (490ms)
+  ✓  3 tests/ui/widget-design.spec.ts:55:1 › themes and mobile layout (435ms)
+  ✓  4 tests/ui/widget-design.spec.ts:66:1 › successful send, deduplication, safe message rendering and Escape (374ms)
+  ✓  5 tests/ui/widget-design.spec.ts:101:1 › regression: failed request preserves original draft (463ms)
+  ✓  6 tests/ui/widget-design.spec.ts:108:1 › support distinguishes queue, operator and unknown state (3.1s)
+  ✓  7 tests/ui/widget-design.spec.ts:118:1 › human request preserves draft and messages identify their author (884ms)
+
+  7 passed (17.3s)
+
+# код выхода 0 · 19 с

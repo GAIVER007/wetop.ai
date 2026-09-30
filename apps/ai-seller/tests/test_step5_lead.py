@@ -101,8 +101,8 @@ def test_reply_already_asks() -> None:
 # ─── Прогон через движок ───
 
 
-async def test_no_name_no_phone_hook_never_called_and_bot_asks(engine_env) -> None:
-    """Четыре хода без имени и номера: заявки нет, просьба есть, но не больше двух."""
+async def test_no_name_no_phone_hook_never_called_and_no_contact_prompt(engine_env) -> None:
+    """Четыре справочных хода: нет заявки и нет автоматического сбора контакта."""
     hook = RecordingHook()
     sender = MemorySender()
     llm = ScriptedLlm([reply("Студия свободна."), reply("Заезд с 14:00."), reply("Есть парковка."), reply("Да.")])
@@ -113,9 +113,8 @@ async def test_no_name_no_phone_hook_never_called_and_bot_asks(engine_env) -> No
 
     assert hook.calls == []
     asks = _asks_in(sender.texts)
-    assert 1 <= len(asks) <= 2
-    assert any("обращаться" in t or "имя" in t or "зовут" in t for t in asks)
-    assert any("номер" in t or "телефон" in t for t in asks)
+    assert asks == []
+    assert sender.texts == ["Студия свободна.", "Заезд с 14:00.", "Есть парковка.", "Да."]
     # Первый ход — без просьбы.
     assert sender.texts[0] == "Студия свободна."
 

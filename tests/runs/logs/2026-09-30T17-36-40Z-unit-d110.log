@@ -1,0 +1,129 @@
+# Модульные (unit) · 30.09.2026 22:36 Алматы · vm
+# коммит df22a07 (claude/security-audit-vibe-coding-k3xakb), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T17-36-40Z-unit-d110.json' 'tests/unit/deploy-server.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/deploy-server.test.ts (37 tests | 3 failed) 77ms
+   ✓ deploy/Dockerfile (6)
+     ✓ копирует манифест каждого рабочего пакета — иначе npm ci в образе не сойдётся 4ms
+     ✓ копирует схему базы и prisma.config.ts до npm ci: клиент Prisma генерируется на postinstall 1ms
+     ✓ ставит и devDependencies: API и скрипты идут через tsx, стойка собирается next-ом 1ms
+     ✓ собирает стойку: next start без сборки не поднимется 0ms
+     ✓ ставит пояс объекта 0ms
+     ✓ не запускается от root и держит PID 1 за tini 1ms
+   ❯ deploy/compose.yml (24)
+     ✓ поднимает три службы: API, стойка, туннель 1ms
+     ✓ службы синхронизации с Legacy нет: Legacy перестал быть источником (ADR-052, 19.09.2026) 1ms
+     ✓ API и стойка идут из одного образа — иначе сборка стойки и клиент базы разъезжаются 1ms
+     ✓ туннель ровно один и никогда не масштабируется 2ms
+     ✓ живость меряется маршрутами, которые отвечают и с включённым замком 1ms
+     ✓ API в контейнере слушает 0.0.0.0 — иначе до него не достучится никто, даже стойка 0ms
+     ✓ API запускается из своей папки: из корня tsx берёт tsconfig без декораторов и Nest падает 0ms
+     ✓ у API пул соединений задан явно: умолчание переполняет пулер и роняет соседнюю копию 0ms
+     ✓ стойка поднимается своей командой: npm run start -w apps/web прибит к 127.0.0.1 1ms
+     ✓ стойка ходит в API по имени службы, а не в собственный контейнер 0ms
+     ❯ стойка получает только свои переменные (INFRA-ENV) (3)
+       × всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча пустая 12ms
+       × лишнего в процесс стойки не уходит: ни ключей API, ни строки базы, ни того, что код не читает 36ms
+       × стойка по-прежнему поднимается next start на 0.0.0.0 из одного `.env` с API 1ms
+     ✓ проверки синхронизации из Legacy у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073) 0ms
+     ✓ выключателя GUARD_LOCAL_FILES в compose больше нет: возраст файлов сторож судит сам 0ms
+     ✓ API и туннель в общей сети с ботом (ADR-081): сеть заводит сама платформа, без выхода наружу, стойки в ней нет 0ms
+     ✓ сторож проверяет стойку по имени службы, а не собственный контейнер 0ms
+     ✓ порты наружу не публикуются: 0.0.0.0 виден только внутри сети compose 0ms
+     ✓ выключатель ARI подхватывается файлом и не обязателен 0ms
+     ✓ секреты приходят снаружи, а не из файла compose, и .env лежит в корне репозитория 0ms
+     ✓ боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15) 0ms
+     ✓ команды служб зовут то, что есть в репозитории 0ms
+     ✓ ключ туннеля монтируется только на чтение 0ms
+     ✓ сторож видит статус ночной копии, но не сами копии: смонтирована только папка статуса и только на чтение 0ms
+   ✓ контекст сборки (7)
+     ✓ runtime multer не содержит известные multipart DoS из версий до 2.3.0 5ms
+     ✓ Docker читает исключения из корня context, а не произвольного файла рядом с Dockerfile 0ms
+     ✓ секреты в образ не попадают 0ms
+     ✓ папка с ключом туннеля не едет в git 0ms
+     ✓ образец конфига туннеля ходит в службы по именам, а не на 127.0.0.1 0ms
+     ✓ помощник наружу — только чат и живость (ADR-081): панель бота и /internal/* туннель не пропускает 1ms
+     ✓ продавец наружу — только вебхук WhatsApp гостиницы (С3, SECURITY.md §11): чат, панель и /internal/* — нет 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/compose.yml > стойка получает только свои переменные (INFRA-ENV) > всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча пустая
+AssertionError: команда стойки чистит окружение: exec env -i …: expected 'command: [\'npx\', \'next\', \'start\…' to contain 'exec env -i'
+
+Expected: "exec env -i"
+Received: "command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']"
+
+ ❯ webEnvAllowlist tests/unit/deploy-server.test.ts:186:73
+    184|       const web = withoutComments(service('web'));
+    185|       const command = web.match(/command:[\s\S]*?(?=\n {4}[a-z_]+:)/)?…
+    186|       expect(command, 'команда стойки чистит окружение: exec env -i …'…
+       |                                                                         ^
+    187|       return [...command.matchAll(/\b([A-Z][A-Z0-9_]+)="\$\$\{?\1\b/g)…
+    188|     }
+ ❯ tests/unit/deploy-server.test.ts:211:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/compose.yml > стойка получает только свои переменные (INFRA-ENV) > лишнего в процесс стойки не уходит: ни ключей API, ни строки базы, ни того, что код не читает
+AssertionError: команда стойки чистит окружение: exec env -i …: expected 'command: [\'npx\', \'next\', \'start\…' to contain 'exec env -i'
+
+Expected: "exec env -i"
+Received: "command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']"
+
+ ❯ webEnvAllowlist tests/unit/deploy-server.test.ts:186:73
+    184|       const web = withoutComments(service('web'));
+    185|       const command = web.match(/command:[\s\S]*?(?=\n {4}[a-z_]+:)/)?…
+    186|       expect(command, 'команда стойки чистит окружение: exec env -i …'…
+       |                                                                         ^
+    187|       return [...command.matchAll(/\b([A-Z][A-Z0-9_]+)="\$\$\{?\1\b/g)…
+    188|     }
+ ❯ tests/unit/deploy-server.test.ts:218:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| tests/unit/deploy-server.test.ts > deploy/compose.yml > стойка получает только свои переменные (INFRA-ENV) > стойка по-прежнему поднимается next start на 0.0.0.0 из одного `.env` с API
+AssertionError: expected '  web:\n    <<: *app\n    working_dir…' to match /npx next start --port 3000 --hostname…/
+
+- Expected:
+/npx next start --port 3000 --hostname 0\.0\.0\.0/
+
++ Received:
+"  web:
+    <<: *app
+    working_dir: /app/apps/web
+    command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']
+    environment:
+      APP_API_URL: http://api:3001
+      APP_AUTH_REQUIRED: '${APP_AUTH_REQUIRED:-1}'
+    expose: ['3000']
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD', 'node', '-e', \"fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+"
+
+ ❯ tests/unit/deploy-server.test.ts:226:19
+    224|     it('стойка по-прежнему поднимается next start на 0.0.0.0 из одного…
+    225|       const web = withoutComments(service('web'));
+    226|       expect(web).toMatch(/npx next start --port 3000 --hostname 0\.0\…
+       |                   ^
+    227|       // Второго файла с секретами не заводим (README: два файла разъе…
+    228|       expect(web).toContain('<<: *app');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 34 passed (37)
+   Start at  17:36:46
+   Duration  871ms (transform 54%, tests 34%, import 9%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-30T17-36-40Z-unit-d110.json
+
+# код выхода 1 · 7 с

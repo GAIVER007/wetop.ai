@@ -4,7 +4,7 @@
 from src.ai.guardrails import OutputContext, check_output
 
 FALLBACK = "Уточню у администратора и вернусь к вам."
-ASK_PHONE = "Напишите, пожалуйста, ваш телефон, и администратор свяжется с вами."
+CONTACT_FALLBACK = "Продолжим здесь, в чате."
 
 
 def _ctx(**overrides) -> OutputContext:
@@ -35,7 +35,7 @@ def test_a_repeated_greeting_is_removed_but_first_turn_keeps_it() -> None:
 def test_b_false_contact_claim_is_replaced() -> None:
     verdict = check_output("Записал ваш номер. Администратор перезвонит.", _ctx(contact_known=False))
     assert "Записал" not in verdict.text
-    assert ASK_PHONE in verdict.text
+    assert CONTACT_FALLBACK in verdict.text
     assert "Администратор перезвонит." in verdict.text
     assert "false_contact" in verdict.edits
 
@@ -52,7 +52,8 @@ def test_c_contact_request_removed_when_contact_known() -> None:
     assert len(verdict.edits) == 1
 
     verdict = check_output(answer, _ctx(contact_known=False))
-    assert verdict.edits == []
+    assert "Оставьте" not in verdict.text
+    assert "ask_contact" in verdict.edits
 
 
 def test_d_unknown_url_is_removed_allowed_stays() -> None:
@@ -153,3 +154,10 @@ def test_e_price_regex_is_linear_on_long_digit_rows() -> None:
     started = time.perf_counter()
     check_output(answer, _ctx(allowed_prices={15000}))
     assert time.perf_counter() - started < 0.05
+
+
+def test_phone_questions_removed_even_when_channel_context_missing() -> None:
+    for question in ("Какой у вас телефон?", "По какому номеру с вами связаться?", "Ваш номер телефона?", "Напишите, пожалуйста, ваш телефон."):
+        verdict = check_output("Заезд с 14:00. " + question, _ctx())
+        assert verdict.text == "Заезд с 14:00."
+        assert "ask_contact" in verdict.edits

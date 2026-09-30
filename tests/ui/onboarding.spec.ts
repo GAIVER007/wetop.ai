@@ -93,7 +93,7 @@ test('после запуска отеля Главная без «Первых 
   await expect(page.getByRole('heading', { name: 'Главная', level: 1 })).toBeVisible();
   await expect(page.getByTestId('first-steps')).toHaveCount(0);
   await expect(page.getByText('Первые шаги')).toHaveCount(0);
-  await expect(main.getByRole('link', { name: 'Новая бронь', exact: true })).toHaveAttribute(
+  await expect(main.getByRole('link', { name: '+ Новая бронь', exact: true })).toHaveAttribute(
     'href',
     '/reservations/new',
   );

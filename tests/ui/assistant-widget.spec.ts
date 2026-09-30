@@ -7,7 +7,7 @@ import { expect, test, type Page } from './fixtures';
  * Сотрудник и пароль — вымышленные, из фикстуры интерфейса (ADR-010).
  */
 const API = 'http://127.0.0.1:4314';
-const WIDGET_SRC = 'http://127.0.0.1:4315/widget/widget.js?v=20260929';
+const WIDGET_SRC = 'http://127.0.0.1:4315/widget/widget.js?v=20260930-support';
 const EMAIL = 'admin@wetop.test';
 const PASSWORD = 'ui-test-parol';
 

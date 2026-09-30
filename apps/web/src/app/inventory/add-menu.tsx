@@ -11,7 +11,7 @@ import { FundEditorDialog } from './fund-editor';
  */
 export function AddMenu({ categories }: { categories: InventoryCategory[] }) {
   const [open, setOpen] = useState<null | 'room' | 'dorm' | 'category'>(null);
-  const empty = categories.length === 0;
+
   return (
     <>
       <ActionMenu
@@ -19,20 +19,22 @@ export function AddMenu({ categories }: { categories: InventoryCategory[] }) {
         tone="primary"
         label="Добавить в номерной фонд"
         items={[
-          { label: 'Номер', onSelect: () => setOpen('room'), disabled: empty },
-          { label: 'Комнату с койками', onSelect: () => setOpen('dorm'), disabled: empty },
+          { label: 'Номер', onSelect: () => setOpen('room') },
+          { label: 'Комнату с койками', onSelect: () => setOpen('dorm') },
           { label: 'Категорию', onSelect: () => setOpen('category') },
         ]}
       />
       <FundEditorDialog
         categories={categories}
         preferKind="PRIVATE_ROOM"
+        mode={categories.some((c) => c.kind === 'PRIVATE_ROOM') ? 'room' : 'category'}
         open={open === 'room'}
         onClose={() => setOpen(null)}
       />
       <FundEditorDialog
         categories={categories}
         preferKind="DORM_BED"
+        mode={categories.some((c) => c.kind === 'DORM_BED') ? 'room' : 'category'}
         open={open === 'dorm'}
         onClose={() => setOpen(null)}
       />

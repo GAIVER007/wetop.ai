@@ -55,7 +55,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
   if (!loadedOptions.ok) {
     // Без справочника категорий и тарифов заполнять нечего: заголовок и месяц на месте, дальше — повтор
     return (
-      <Page width="wide" title="Тарифы и цены" subtitle="Управление ценами и ограничениями продаж">
+      <Page width="wide" title="Тарифы и цены">
         <RatesTabs current="prices" />
         <LoadError testId="rates-error" {...loadErrorProps(loadedOptions.e)} />
       </Page>
@@ -117,7 +117,7 @@ export default async function RatesPage({ searchParams }: { searchParams: Promis
     <Page
       width="wide"
       title="Тарифы и цены"
-      subtitle="Управление ценами и ограничениями продаж"
+
       actions={
         !noDirectory && !error ? (
           <RatesEditDrawer

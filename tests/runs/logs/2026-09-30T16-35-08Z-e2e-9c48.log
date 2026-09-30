@@ -1,0 +1,102 @@
+# Сквозные (e2e) · 30.09.2026 21:35 Алматы · MacBook-Air-Urij.local
+# коммит 1c24aba (codex/unified-workspace-20260929), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/widget-design.spec.ts' '--grep' 'support distinguishes|human request'
+[WebServer] (node:35924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35966) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+(node:36100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/widget-design.spec.ts:108:1 › support distinguishes queue, operator and unknown state (16.3s)
+(node:36325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/widget-design.spec.ts:118:1 › human request preserves draft and messages identify their author (45.4s)
+
+
+  1) tests/ui/widget-design.spec.ts:108:1 › support distinguishes queue, operator and unknown state 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.pmsw-note')
+    Expected: "Ожидаем сотрудника · ИИ продолжает помогать"
+    Received: "С вами оператор"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.pmsw-note') with timeout 15000ms
+      - waiting for locator('.pmsw-note')
+        5 × locator resolved to <div class="pmsw-note">Помощь в работе с платформой</div>
+          - unexpected value "Помощь в работе с платформой"
+        29 × locator resolved to <div class="pmsw-note">С вами оператор</div>
+           - unexpected value "С вами оператор"
+
+
+      109 |   let mode = 'needs_human';
+      110 |   await page.route('https://widget.test/messages?**', route => route.fulfill({json:{mode,messages:[]}}));
+    > 111 |   await expect(page.locator('.pmsw-note')).toHaveText('Ожидаем сотрудника · ИИ продолжает помогать');
+          |                                            ^
+      112 |   mode = 'owner_takeover';
+      113 |   await expect(page.locator('.pmsw-note')).toHaveText('Диалог принят сотрудником');
+      114 |   mode = 'unexpected';
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:111:44
+
+    Error Context: test-results/widget-design-support-dist-63900--operator-and-unknown-state/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/widget-design-support-dist-63900--operator-and-unknown-state/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/widget-design-support-dist-63900--operator-and-unknown-state/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/widget-design.spec.ts:118:1 › human request preserves draft and messages identify their author 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Позвать сотрудника', exact: true })
+
+
+      119 |   await page.route('https://widget.test/message', route => {sent.push(route.request().postDataJSON());return route.fulfill({json:{status:'accepted'}});});
+      120 |   await page.getByRole('textbox',{name:'Сообщение',exact:true}).fill('Несохранённые подробности');
+    > 121 |   await page.getByRole('button',{name:'Позвать сотрудника',exact:true}).click();
+          |                                                                         ^
+      122 |   await expect(page.getByRole('textbox',{name:'Сообщение',exact:true})).toHaveValue('Несохранённые подробности');
+      123 |   expect(sent[0]).toMatchObject({text:'Прошу подключить сотрудника технической поддержки к этому диалогу.'});
+      124 |   await page.route('https://widget.test/messages?**', route => route.fulfill({json:{mode:'owner_takeover',messages:[
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:121:73
+
+    Error Context: test-results/widget-design-human-reques-8a4fc-sages-identify-their-author/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/widget-design-human-reques-8a4fc-sages-identify-their-author/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/widget-design-human-reques-8a4fc-sages-identify-their-author/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/widget-design.spec.ts:108:1 › support distinguishes queue, operator and unknown state ─
+    tests/ui/widget-design.spec.ts:118:1 › human request preserves draft and messages identify their author 
+
+# код выхода 1 · 1 мин 16 с

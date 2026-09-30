@@ -117,7 +117,7 @@ export default async function AiSellerPage({
       }
       actions={
         configure ? (
-          <Link className="btn btn--secondary" href="/ai-seller/agents">
+          <Link className="btn btn--secondary" href="/ai-agents">
             Все агенты
           </Link>
         ) : undefined
@@ -186,7 +186,10 @@ async function SellerScreen({
 }) {
   const status = await settle(sellerApi.status());
   if (!status.ok) return <LoadError testId="seller-error" {...loadErrorProps(status.error)} />;
-  if (status.value.state === 'extension-off') return <ExtensionOff status={status.value} />;
+  if (status.value.state === 'extension-off') {
+    const { access } = await deskShell();
+    return <ExtensionOff status={status.value} platform={access.platform} />;
+  }
   // напоминание — тому, кто продлевает: владельцу организации (Q-183, ADR-107)
   const reminder =
     owner && status.value.canConfigure !== false ? extensionReminder(status.value.extension) : null;
@@ -222,7 +225,9 @@ async function SetupView({ status }: { status: SellerStatus }) {
     return <LoadError testId="seller-prompt-error-load" {...loadErrorProps(prompt.error)} />;
   const banner = sellerBanner(status);
   // что осталось до запуска — тому, кто может это сделать: сотруднику и после срока список ни к чему
-  const checklist = readOnly ? null : sellerChecklist(status, key?.ok ? key.value.set : null, prompt.value);
+  const checklist = readOnly
+    ? null
+    : sellerChecklist(status, key?.ok ? key.value.set : null, prompt.value);
   const initial =
     prompt.value.text ||
     sellerPromptDraft(profile.ok && profile.value.saved ? profile.value.profile : null);
@@ -387,13 +392,23 @@ async function WhatsAppView({ status }: { status: SellerStatus }) {
 }
 
 /** Расширение не подключено: вместо экранов — что это и кто подключает; прочитать сохранённое API тоже не даст */
-function ExtensionOff({ status }: { status: SellerStatus }) {
+function ExtensionOff({ status, platform }: { status: SellerStatus; platform: boolean }) {
   const banner = sellerBanner(status);
   return (
     <EmptyState
       icon={<Icon name="chat" width={32} height={32} />}
       title={banner.title}
       data-testid="seller-extension-off"
+      actions={
+        <Row>
+          <Link className="btn" href={platform ? '/platform' : '/platform/support'}>
+            {platform ? 'Управлять доступом' : 'Обратиться в поддержку'}
+          </Link>
+          <Link className="btn btn--secondary" href="/ai-agents">
+            Все агенты
+          </Link>
+        </Row>
+      }
     >
       Продавец отвечает гостям в чате на сайте объекта: называет цены по тарифу сайта, рассказывает
       о правилах, берёт контакт и зовёт человека, когда нужно. {banner.text}

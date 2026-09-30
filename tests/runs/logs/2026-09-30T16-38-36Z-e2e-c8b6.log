@@ -1,0 +1,162 @@
+# Сквозные (e2e) · 30.09.2026 21:38 Алматы · MacBook-Air-Urij.local
+# коммит 1c24aba (codex/unified-workspace-20260929), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/widget-design.spec.ts'
+[WebServer] (node:37999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38037) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38038) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+(node:38177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/widget-design.spec.ts:31:1 › welcome, draft suggestions, close and focus return (1.6s)
+  ✓  2 tests/ui/widget-design.spec.ts:40:1 › multiline, failure retains draft and attachment, no duplicate sends (483ms)
+  ✓  3 tests/ui/widget-design.spec.ts:57:1 › themes and mobile layout (339ms)
+  ✓  4 tests/ui/widget-design.spec.ts:68:1 › successful send, deduplication, safe message rendering and Escape (364ms)
+  ✓  5 tests/ui/widget-design.spec.ts:103:1 › regression: failed request preserves original draft (367ms)
+  ✓  6 tests/ui/widget-design.spec.ts:110:1 › support distinguishes queue, operator and unknown state (2.6s)
+  ✓  7 tests/ui/widget-design.spec.ts:120:1 › human request preserves draft and messages identify their author (507ms)
+  ✘  8 tests/ui/widget-design.spec.ts:135:1 › support accessibility and visual evidence (3.2s)
+
+
+  1) tests/ui/widget-design.spec.ts:135:1 › support accessibility and visual evidence ──────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e7f1ff",
+    +               "contrastRatio": 4.41,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#617087",
+    +               "fontSize": "7.5pt (10px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.41 (foreground color: #617087, background color: #e7f1ff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"pmsw-m pmsw-own\"><div class=\"pmsw-meta\"><span class=\"pmsw-author\">Вы</span><time datetime=\"2026-09-30T10:00:00.000Z\" title=\"30.09.2026, 14:00:00\">14:00</time></div><div class=\"pmsw-text\">Где посмотреть заезды на завтра?</div></div>",
+    +                 "target": Array [
+    +                   ".pmsw-own",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #617087, background color: #e7f1ff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"pmsw-author\">Вы</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".pmsw-own > .pmsw-meta > .pmsw-author",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#e7f1ff",
+    +               "contrastRatio": 4.41,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#617087",
+    +               "fontSize": "7.5pt (10px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.41 (foreground color: #617087, background color: #e7f1ff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"pmsw-m pmsw-own\"><div class=\"pmsw-meta\"><span class=\"pmsw-author\">Вы</span><time datetime=\"2026-09-30T10:00:00.000Z\" title=\"30.09.2026, 14:00:00\">14:00</time></div><div class=\"pmsw-text\">Где посмотреть заезды на завтра?</div></div>",
+    +                 "target": Array [
+    +                   ".pmsw-own",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.41 (foreground color: #617087, background color: #e7f1ff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<time datetime=\"2026-09-30T10:00:00.000Z\" title=\"30.09.2026, 14:00:00\">14:00</time>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "time[datetime=\"2026-09-30T10:00:00.000Z\"]",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      143 |   for (const theme of ['dark','light']) {
+      144 |     await page.evaluate(theme => {document.documentElement.dataset.theme=theme;},theme);
+    > 145 |     expect((await new AxeBuilder({page}).include('.pmsw-p').analyze()).violations).toEqual([]);
+          |                                                                                    ^
+      146 |     await page.getByRole('dialog').screenshot({path:`${folder}/${theme}.png`});
+      147 |   }
+      148 |   await page.setViewportSize({width:320,height:568});
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/widget-design.spec.ts:145:84
+
+    Error Context: test-results/widget-design-support-accessibility-and-visual-evidence/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/widget-design-support-accessibility-and-visual-evidence/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/widget-design-support-accessibility-and-visual-evidence/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/widget-design.spec.ts:135:1 › support accessibility and visual evidence ───────────────
+  7 passed (21.8s)
+
+# код выхода 1 · 23 с

@@ -4815,6 +4815,13 @@
 | 30.09.2026 21:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/widget-design.spec.ts) | ✅ 8 из 8 | 21 с | 1c24aba +9 | [лог](logs/2026-09-30T16-39-19Z-e2e-afae.log) |  |
 | 30.09.2026 21:39 | e2e (частично: --config tests/ui/playwright.assistant.config.ts) | ✅ 4 из 4 | 17 с | 1c24aba +9 | [лог](logs/2026-09-30T16-39-49Z-e2e-0d6a.log) |  |
 | 30.09.2026 21:40 | unit (частично: apps/web/src/lib/assistant-widget.test.ts) | ✅ 15 из 15 | 1 с | 1c24aba +5 | [лог](logs/2026-09-30T16-40-20Z-unit-0e8a.log) |  |
+| 30.09.2026 22:36 | unit (частично: tests/unit/deploy-server.test.ts) | ❌ упало 3 из 37 | 7 с | df22a07 +1 | [лог](logs/2026-09-30T17-36-40Z-unit-d110.log) | deploy/compose.yml стойка получает только свои переменные (INFRA-ENV) всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча |
+| 30.09.2026 22:37 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 37 из 37 | 1 с | df22a07 +1 | [лог](logs/2026-09-30T17-37-53Z-unit-ceae.log) |  |
+| 30.09.2026 22:39 | typecheck | ❌ ошибок: 98 | 43 с | a3c5c6e +1 | [лог](logs/2026-09-30T17-39-40Z-typecheck-4650.log) | TS2339 |
+| 30.09.2026 22:40 | lint | ✅ без ошибок | 21 с | a3c5c6e +1 | [лог](logs/2026-09-30T17-40-24Z-lint-3fff.log) |  |
+| 30.09.2026 22:41 | typecheck | ✅ без ошибок | 24 с | a3c5c6e +1 | [лог](logs/2026-09-30T17-41-05Z-typecheck-4f2b.log) |  |
+| 30.09.2026 22:41 | unit | ❌ упало 7 из 2701, пропущено 3 | 1 мин 57 с | a3c5c6e +1 | [лог](logs/2026-09-30T17-41-29Z-unit-13dd.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 30.09.2026 22:43 | unit (частично: tests/unit/design-slop.test.ts tests/unit/e2e-windows.test.ts scripts/design/build-tokens.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 7 из 30 | 4 с | a3c5c6e | [лог](logs/2026-09-30T17-43-51Z-unit-8f94.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
 | 30.09.2026 22:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts --grep шести недель) | ❌ упало 1 из 1 | 33 с | ef76158 +5 | [лог](logs/2026-09-30T17-29-38Z-e2e-0c75.log) | месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь |
 | 30.09.2026 22:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts --grep шести недель --workers=1) | ❌ упало 1 из 1 | 38 с | ef76158 +8 | [лог](logs/2026-09-30T17-31-02Z-e2e-8289.log) | месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь |
 | 30.09.2026 22:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-design.spec.ts tests/ui/rates-range.spec.ts tests/ui/rates-derived.spec.ts --workers=1) | ❌ упало 1 из 17 | 3 мин 30 с | ef76158 +8 | [лог](logs/2026-09-30T17-32-01Z-e2e-5ab9.log) | месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь |
@@ -4832,3 +4839,4 @@
 | 30.09.2026 23:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts tests/ui/channex-screens.spec.ts --workers=1) | ✅ 18 из 18 | 2 мин 15 с | 4800dfe +9 | [лог](logs/2026-09-30T18-05-12Z-e2e-39b9.log) |  |
 | 30.09.2026 23:07 | typecheck | ❌ ошибок: 1 | 28 с | 4800dfe +10 | [лог](logs/2026-09-30T18-07-50Z-typecheck-479e.log) | TS2322 |
 | 30.09.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts --workers=1) | ✅ 3 из 3 | 34 с | 4800dfe +9 | [лог](logs/2026-09-30T18-08-39Z-e2e-43d4.log) |  |
+| 01.10.2026 00:21 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 37 из 37 | 3 с | 4b25c8d | [лог](logs/2026-09-30T19-21-28Z-unit-d65c.log) |  |

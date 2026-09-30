@@ -1,0 +1,239 @@
+# Модульные (unit) · 30.09.2026 22:43 Алматы · vm
+# коммит a3c5c6e (claude/security-audit-vibe-coding-k3xakb)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T17-43-51Z-unit-8f94.json' 'tests/unit/design-slop.test.ts' 'tests/unit/e2e-windows.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 4 failed) 18ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 2ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 8ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 1ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 2ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (14 tests | 1 failed) 46ms
+   ❯ tokens.css генерируется из design/tokens.json (3)
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 3ms
+     ✓ design/contrast.md совпадает с расчётом 2ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 30ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 3ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 1ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 1ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ❯ |unit| tests/unit/e2e-windows.test.ts (3 tests | 1 failed) 17ms
+   ❯ окна дат сквозных тестов (3)
+     × у каждого спека, который создаёт брони, есть свой BASE 12ms
+     ✓ отрезки не пересекаются: два спека не займут одну койку на одну ночь 2ms
+     ✓ отрезки лежат в пределах календаря цен и глубины шахматки 2ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 60ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 58ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--space-5' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--space-5",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:85:21
+     83|     ]);
+     84|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     85|     expect(missing).toEqual([]);
+       |                     ^
+     86|   });
+     87| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/ai-agents.css: 0 → 5",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/[id]/instruction-editor.tsx: 0 → 1",
++   "apps/web/src/app/inventory/fund-editor.tsx: 0 → 2",
++   "apps/web/src/app/inventory/inventory-catalog.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/ai-agents.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/inventory/inventory.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  |unit| tests/unit/e2e-windows.test.ts > окна дат сквозных тестов > у каждого спека, который создаёт брони, есть свой BASE
+AssertionError: expected [ 'desk-day.spec.ts' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "desk-day.spec.ts",
++ ]
+
+ ❯ tests/unit/e2e-windows.test.ts:48:58
+     46|       .filter((f) => f.endsWith('.spec.ts'))
+     47|       .filter((f) => /\bplus\(\d+\)/.test(readFileSync(resolve(DIR, f)…
+     48|     expect([...booking].filter((f) => !withBase.has(f))).toEqual([]);
+       |                                                          ^
+     49|   });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(214) } to deeply equal { …(212) }
+
+- Expected
++ Received
+
+@@ -5,10 +5,11 @@
+    "DELETE /guests/:id/documents/:documentId": "desk",
+    "DELETE /units/:code/blocks/:blockId": "desk",
+    "GET /a/demo": "public",
+    "GET /a/pms.js": "public",
+    "GET /ai-seller/agents/:id": "dialogs",
++   "GET /ai-seller/agents/:id/instruction": "seller",
+    "GET /ai-seller/agents/options": "dialogs",
+    "GET /ai-seller/catalog": "dialogs",
+    "GET /ai-seller/conversations": "dialogs",
+    "GET /ai-seller/conversations/:id": "dialogs",
+    "GET /ai-seller/embed": "seller",
+@@ -125,10 +126,11 @@
+    "PATCH /reservations/:number/items/:itemId": "desk",
+    "PATCH /seller-agents/:id": "seller",
+    "PATCH /wizard/config": "public",
+    "POST /a/hit": "public",
+    "POST /ai-seller/agents": "seller",
++   "POST /ai-seller/agents/:id/instruction/generate": "seller",
+    "POST /ai-seller/apply": "seller",
+    "POST /ai-seller/conversations/:id/release": "dialogs",
+    "POST /ai-seller/conversations/:id/reply": "dialogs",
+    "POST /ai-seller/conversations/:id/takeover": "dialogs",
+    "POST /ai-seller/extract": "seller",
+@@ -200,10 +202,11 @@
+    "POST /seller-agents/claim": "seller",
+    "POST /units/:code/blocks": "desk",
+    "POST /units/:code/housekeeping": "desk",
+    "POST /w/book": "public",
+    "POST /wizard/session": "public",
++   "PUT /ai-seller/agents/:id/instruction": "seller",
+    "PUT /ai-seller/llm-key": "seller",
+    "PUT /ai-seller/profile": "seller",
+    "PUT /ai-seller/prompt": "seller",
+    "PUT /ai-seller/whatsapp": "seller",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:304:20
+    302|       .map(([key]) => key);
+    303|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    304|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    305|   });
+    306|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  7 failed | 23 passed (30)
+   Start at  17:43:52
+   Duration  3.02s (transform 69%, import 26%, tests 4%)
+
+JSON report written to /tmp/pms-test-2026-09-30T17-43-51Z-unit-8f94.json
+
+# код выхода 1 · 4 с

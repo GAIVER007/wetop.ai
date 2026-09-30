@@ -110,7 +110,23 @@ services:
     # в контейнере стойка обязана слушать 0.0.0.0, иначе туннель её не увидит. Поэтому next запускается
     # напрямую из папки стойки, а не через npm-скрипт.
     working_dir: /app/apps/web
-    command: ['npx', 'next', 'start', '--port', '3000', '--hostname', '0.0.0.0']
+    # INFRA-ENV (аудит 30.09.2026, §1): `.env` через env_file приходит в контейнер целиком — ключи Channex, база, почта,
+    # а стойке из него нужны только APP_URL, SITE_ORIGINS, ASSISTANT_URL (и APP_AUTH_REQUIRED, APP_API_URL ниже).
+    # Отфильтровать env_file compose не умеет, а `environment` с подстановкой `${…}` берёт значения не из ../.env,
+    # а из deploy/.env, которого нет намеренно: пришлось бы писать `--env-file .env` в каждом вызове compose, и без
+    # него стойка молча стартовала бы без APP_URL. Поэтому окружение чистит сама команда: `env -i` оставляет процессу
+    # next только названное — путь к node и npx, кэш npx (HOME), пояс и режим из образа и пять переменных стойки.
+    # `$$` — знак доллара для оболочки контейнера, compose его не подставляет. Список сверяет с кодом стойки
+    # tests/unit/deploy-server.test.ts: новая переменная в коде без строки здесь на сервере окажется пустой.
+    command:
+      - sh
+      - -c
+      - >-
+        exec env -i
+        PATH="$$PATH" HOME="$$HOME" TZ="$$TZ" NODE_ENV="$$NODE_ENV"
+        APP_API_URL="$$APP_API_URL" APP_AUTH_REQUIRED="$$APP_AUTH_REQUIRED"
+        APP_URL="$${APP_URL:-}" SITE_ORIGINS="$${SITE_ORIGINS:-}" ASSISTANT_URL="$${ASSISTANT_URL:-}"
+        npx next start --port 3000 --hostname 0.0.0.0
     environment:
       # Стойка ходит в API по имени службы; умолчание клиента (127.0.0.1:3001) в контейнере — это она сама
       APP_API_URL: http://api:3001

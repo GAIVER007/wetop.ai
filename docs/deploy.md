@@ -201,7 +201,9 @@ docker compose -f compose.yml -f compose.hostinger.yml exec -w /app api node --i
 передают через `-e WEB_URL=http://web:3000`.
 
 Секреты в образ не попадают: `.env` подаётся через `env_file`, ключ туннеля монтируется только на
-чтение (`SECURITY.md` §3). Проверки этих правил — `tests/unit/deploy-server.test.ts`.
+чтение (`SECURITY.md` §3). Процесс стойки при этом видит не весь `.env`, а только свои пять переменных:
+команда службы `web` чистит окружение через `env -i` (INFRA-ENV, 30.09.2026; список — в `deploy/compose.yml`
+и `deploy/README.md`). Проверки этих правил — `tests/unit/deploy-server.test.ts`.
 
 **Живость контейнеров меряет `GET /health`**, а не рабочий маршрут. Он публичный, поэтому отвечает и с
 включённым `AUTH_REQUIRED=1`, и обязательно трогает базу: 14.09.2026 Mac уснул, соединения пула умерли, и

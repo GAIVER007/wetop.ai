@@ -171,6 +171,64 @@ describe('deploy/compose.yml', () => {
     expect(service('web')).toMatch(/APP_API_URL:\s*http:\/\/api:3001/);
   });
 
+  /**
+   * INFRA-ENV (аудит 30.09.2026, §1): один `.env` на сервере уходит через `env_file` в оба контейнера, а стойке из него
+   * нужны пять переменных. Отфильтровать `env_file` compose не умеет, `environment` с подстановкой потребовал бы
+   * `--env-file` в каждом вызове compose (без него значения молча пустые), поэтому список держит сама команда службы:
+   * `exec env -i ИМЯ="$$ИМЯ" … npx next start` — процесс next видит только названное. Что читает код стойки, сверяется
+   * с этим списком здесь: новая переменная в коде без строки в compose на сервере молча оказалась бы пустой.
+   */
+  describe('стойка получает только свои переменные (INFRA-ENV)', () => {
+    /** Переменные, которые команда стойки пропускает в процесс next: `ИМЯ="$$ИМЯ"` или `ИМЯ="$${ИМЯ:-}"`. */
+    function webEnvAllowlist(): string[] {
+      const web = withoutComments(service('web'));
+      const command = web.match(/command:[\s\S]*?(?=\n {4}[a-z_]+:)/)?.[0] ?? '';
+      expect(command, 'команда стойки чистит окружение: exec env -i …').toContain('exec env -i');
+      return [...command.matchAll(/\b([A-Z][A-Z0-9_]+)="\$\$\{?\1\b/g)].map((m) => m[1] ?? '');
+    }
+
+    /** Переменные окружения, которые читает код стойки (без тестов): `process.env.ИМЯ` и `env.ИМЯ` в lib. */
+    function webEnvReads(): string[] {
+      const dir = join(ROOT, 'apps/web/src');
+      const files = (readdirSync(dir, { recursive: true }) as string[])
+        .filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\.(ts|tsx)$/.test(f))
+        .map((f) => join(dir, f));
+      files.push(join(ROOT, 'apps/web/next.config.ts'));
+      const names = new Set<string>();
+      for (const file of files) {
+        const text = readFileSync(file, 'utf8');
+        for (const m of text.matchAll(/\benv\.([A-Z][A-Z0-9_]+)\b/g)) names.add(m[1] ?? '');
+      }
+      return [...names].sort();
+    }
+
+    /** Читаются только вне production (`NODE_ENV !== 'production'`) или на сборке — в боевой стойке им неоткуда взяться. */
+    const DEV_ONLY = ['APP_ALLOW_TEST_DATA', 'APP_DEMO_MODE', 'APP_UI_TEST'];
+    /** Нужны самому процессу, а не коду стойки: путь к node и npx, кэш npx, пояс и режим из образа. */
+    const PROCESS = ['PATH', 'HOME', 'TZ', 'NODE_ENV'];
+
+    it('всё, что стойка читает в production, названо в команде — иначе на сервере переменная молча пустая', () => {
+      const allowed = new Set(webEnvAllowlist());
+      const missing = webEnvReads().filter((n) => !DEV_ONLY.includes(n) && !allowed.has(n));
+      expect(missing, `читается кодом стойки, но не пропущено в процесс: ${missing.join(', ')}`).toEqual([]);
+    });
+
+    it('лишнего в процесс стойки не уходит: ни ключей API, ни строки базы, ни того, что код не читает', () => {
+      const reads = new Set(webEnvReads());
+      const extra = webEnvAllowlist().filter((n) => !PROCESS.includes(n) && !reads.has(n));
+      expect(extra, `пропущено в процесс, но кодом стойки не читается: ${extra.join(', ')}`).toEqual([]);
+      for (const n of webEnvAllowlist())
+        expect(n, 'секретам в процессе стойки не место').not.toMatch(/API_KEY|SECRET|TOKEN|PASSWORD|DATABASE|CHANNEX/);
+    });
+
+    it('стойка по-прежнему поднимается next start на 0.0.0.0 из одного `.env` с API', () => {
+      const web = withoutComments(service('web'));
+      expect(web).toMatch(/npx next start --port 3000 --hostname 0\.0\.0\.0/);
+      // Второго файла с секретами не заводим (README: два файла разъезжаются) — фильтр в команде, источник тот же
+      expect(web).toContain('<<: *app');
+    });
+  });
+
   it('проверки синхронизации из Legacy у сторожа больше нет — и выключателя для неё в compose тоже (ADR-073)', () => {
     // С 19.09 Legacy не источник (ADR-052), 23.09 проверку сняли из кода: выключатель стал бы мёртвой строкой.
     expect(service('api')).not.toMatch(/GUARD_LEGACY_SYNC/);

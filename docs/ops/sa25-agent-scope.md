@@ -11,7 +11,7 @@
 
 ## 1. Расширить (шаг A и B)
 
-### 1.1. PMS — миграция `20260930000035_seller_agent_scope_expand`
+### 1.1. PMS — миграция `20260930000036_seller_agent_scope_expand`
 
 Миграция сама вызывает `seller_scope_assert()` **до** любых изменений: любая неоднозначность цепочки
 `seller_profile → Organization → legacy Seller Agent → Business → Location` — отказ без изменений. Филиал по `created_at`,
@@ -38,7 +38,7 @@ SELECT * FROM seller_scope_precheck();   -- все bad = 0
 
 **Любая красная — STOP.** Разбирает владелец вручную; миграцию не «подгоняют». Для Luxx ожидается: один филиал, все нули.
 
-Откат: `down.sql` (вернёт прежние тела функций 034; данные — филиалы агентов, `agent_id` профилей — остаются, они однозначны).
+Откат: `down.sql` (вернёт прежние тела функций 035; данные — филиалы агентов, `agent_id` профилей — остаются, они однозначны).
 
 ### 1.2. Бот — миграция `0009_agent_scope_expand`
 
@@ -99,5 +99,5 @@ SELECT (SELECT count(*) FROM clients WHERE agent_id = :id) AS clients,
 ## 5. Откат
 
 - код — прежние образы (`pms-lux:rollback-<sha>`, образ бота);
-- PMS `035`: `down.sql`; бот `0009`: `alembic downgrade 0008`;
+- PMS `036`: `down.sql`; бот `0009`: `alembic downgrade 0008`;
 - историю переписки при откате не удаляют.

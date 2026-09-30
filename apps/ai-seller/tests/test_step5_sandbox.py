@@ -1,5 +1,6 @@
-"""Шаг 5: песочница /internal/sandbox — по внутреннему ключу, через движок,
-без сети; текст ошибки наружу не уходит."""
+"""Шаг 5: песочница /internal/sandbox — по служебному ключу платформы, через движок,
+без сети; текст ошибки наружу не уходит. Ключ живости (/internal/health) её не открывает
+(решение владельца 30.09.2026)."""
 
 from pathlib import Path
 
@@ -11,7 +12,9 @@ from src.ai.llm import reset_cascade_client, set_cascade_client
 from src.config import get_settings
 from tests.engine_fakes import ScriptedLlm, reply
 
-KEY = {"X-Internal-Key": "test-key"}
+SERVICE_KEY = "sandbox-service-key-for-tests"
+KEY = {"X-Service-Key": SERVICE_KEY}
+HEALTH_KEY = {"X-Internal-Key": "test-key"}
 
 
 def _prepare(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fake_redis, llm) -> None:
@@ -19,6 +22,7 @@ def _prepare(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fake_redis, llm) -
     prompt = tmp_path / "system_prompt.md"
     prompt.write_text("Ты продавец апартаментов.", encoding="utf-8")
     monkeypatch.setenv("PROMPT_PATH", str(prompt))
+    monkeypatch.setenv("SELLER_SERVICE_KEY", SERVICE_KEY)
     get_settings.cache_clear()
     set_cascade_client(llm)  # Redis подменяет фикстура fake_redis через dependencies.get_redis
 
@@ -47,9 +51,20 @@ def test_wrong_key_forbidden(sandbox) -> None:
     response = client.post(
         "/internal/sandbox",
         json={"external_id": "u1", "text": "Есть места?"},
-        headers={"X-Internal-Key": "wrong"},
+        headers={"X-Service-Key": "wrong"},
     )
     assert response.status_code == 403
+
+
+def test_the_health_key_does_not_open_the_sandbox(sandbox) -> None:
+    """🔴 Аудит 30.09.2026: ключ живости открывал песочницу — ход модели от имени любой
+    организации из тела. Красный на коде до правки: 200."""
+    client, llm = sandbox
+    response = client.post(
+        "/internal/sandbox", json={"external_id": "u1", "text": "Есть места?"}, headers=HEALTH_KEY
+    )
+    assert response.status_code == 403
+    assert llm.calls == 0
 
 
 def test_with_key_replies(sandbox) -> None:
@@ -83,9 +98,10 @@ def test_error_text_not_exposed(tmp_path, monkeypatch, migrated_db, fake_redis, 
 
 
 def test_empty_key_in_settings_closes_sandbox(tmp_path, monkeypatch, migrated_db, fake_redis, fake_embedder) -> None:
-    monkeypatch.setenv("INTERNAL_HEALTH_KEY", "")
     llm = ScriptedLlm([reply("Не должно дойти.")])
     _prepare(tmp_path, monkeypatch, fake_redis, llm)
+    monkeypatch.setenv("SELLER_SERVICE_KEY", "")
+    get_settings.cache_clear()
     from src.main import create_app
 
     with TestClient(create_app(), raise_server_exceptions=False) as client:

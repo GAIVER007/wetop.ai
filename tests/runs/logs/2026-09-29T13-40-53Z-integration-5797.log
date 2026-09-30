@@ -1,0 +1,43 @@
+# Интеграционные (integration) · 29.09.2026 18:40 Алматы · vm
+# коммит b8c2794 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-40-53Z-integration-5797.json' 'tests/integration/rates-derived-api.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/rates-derived-api.test.ts (1 test | 1 failed) 434ms
+   ❯ derived rate plans and promo codes API (1)
+     × creates and edits a derived plan and a promo code with validation and audit 433ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rates-derived-api.test.ts > derived rate plans and promo codes API > creates and edits a derived plan and a promo code with validation and audit
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/integration/rates-derived-api.test.ts:53:14
+     51|             .post('/rates/plans/derived')
+     52|             .send({ name: 'Раннее бронирование', parentCode: 'base-d4'…
+     53|             .expect(201)
+       |              ^
+     54|         ).body as { code: string; derived: { parentName: string; disco…
+     55|         expect(created.code).toBeTruthy();
+ ❯ apps/api/src/auth/request-context.ts:56:47
+ ❯ runAwaited apps/api/src/auth/request-context.ts:56:18
+ ❯ withSignedInUser apps/api/src/auth/request-context.ts:68:10
+ ❯ tests/integration/rates-derived-api.test.ts:45:13
+ ❯ Test._assertStatus node_modules/supertest/lib/test.js:309:14
+ ❯ node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  13:40:54
+   Duration  3.32s (transform 53%, import 25%, tests 22%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-40-53Z-integration-5797.json
+
+# код выхода 1 · 4 с

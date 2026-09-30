@@ -4316,6 +4316,49 @@
 | 29.09.2026 18:51 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ❌ упало 3 из 89 | 13 мин 50 с | 60fabfd | [лог](logs/2026-09-29T13-51-10Z-e2e-957c.log) | S3: затронутые UI |
 | 29.09.2026 19:07 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts tests/ui/support-queue.spec.ts tests/ui/platform-support.spec.ts t | ❌ упало 1 из 33 | 3 мин 18 с | 60fabfd +1 | [лог](logs/2026-09-29T14-07-41Z-e2e-5084.log) | S3: заголовок «На основании» без h2; navigation повтор |
 | 29.09.2026 19:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/support-kb.spec.ts) | ✅ 11 из 11 | 57 с | 60fabfd +2 | [лог](logs/2026-09-29T14-11-11Z-e2e-20f8.log) | S3: ожидание заголовка перед axe |
+| 29.09.2026 17:27 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 25 из 26 | 32 с | f6f4369 | [лог](logs/2026-09-29T12-27-56Z-e2e-1552.log) | «Войти» открывает окно на главной, вход ведёт прямо в стойку |
+| 29.09.2026 17:28 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 8 из 26 | 1 мин 24 с | f6f4369 | [лог](logs/2026-09-29T12-28-33Z-e2e-0b35.log) | /for/hostels/ — открывается, доступна и без «TODO» на экране |
+| 29.09.2026 17:30 | unit (частично: tests/unit/site-design.test.ts) | ❌ упало 4 из 6 | 1 с | f6f4369 +5 | [лог](logs/2026-09-29T12-30-40Z-unit-eec7.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 17:30 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 26 из 26 | 25 с | f6f4369 +5 | [лог](logs/2026-09-29T12-30-42Z-e2e-d0cf.log) |  |
+| 29.09.2026 17:32 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 26 из 26 | 23 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-01Z-e2e-0f64.log) |  |
+| 29.09.2026 17:32 | unit (частично: tests/unit/site-design.test.ts) | ❌ упало 4 из 6 | 1 с | f6f4369 +6 | [лог](logs/2026-09-29T12-32-25Z-unit-f80f.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
+| 29.09.2026 17:38 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 6 с | e6170d3 +1 | [лог](logs/2026-09-29T12-38-46Z-unit-f7ac.log) |  |
+| 29.09.2026 17:40 | unit (частично: tests/unit/site-calculator.test.ts) | ❌ код выхода 1 | 2 с | efff031 +1 | [лог](logs/2026-09-29T12-40-10Z-unit-8884.log) | (файл не выполнился) |
+| 29.09.2026 17:41 | unit (частично: tests/unit/site-calculator.test.ts tests/unit/site-design.test.ts) | ✅ 12 из 12 | 1 с | efff031 +10 | [лог](logs/2026-09-29T12-41-02Z-unit-11ac.log) |  |
+| 29.09.2026 17:41 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 30 из 30 | 49 с | efff031 +9 | [лог](logs/2026-09-29T12-41-06Z-e2e-5f98.log) |  |
+| 29.09.2026 17:42 | e2e (частично: --config tests/site/playwright.config.ts tests/site/calculator.spec.ts) | ❌ упало 2 из 2 | 1 мин 21 с | efff031 +8 | [лог](logs/2026-09-29T12-42-02Z-e2e-abc6.log) | калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год |
+| 29.09.2026 18:27 | unit (частично: packages/domain/src/rates/discounts.test.ts) | ❌ код выхода 1 | 2 с | 9283bec +1 | [лог](logs/2026-09-29T13-27-21Z-unit-5460.log) | (файл не выполнился) |
+| 29.09.2026 18:27 | unit (частично: packages/domain/src/rates/discounts.test.ts) | ✅ 16 из 16 | 1 с | 9283bec +4 | [лог](logs/2026-09-29T13-27-39Z-unit-4037.log) |  |
+| 29.09.2026 18:34 | integration (частично: tests/integration/derived-rate-plans.test.ts) | ✅ 1 из 1 | 3 с | 9283bec +8 | [лог](logs/2026-09-29T13-34-25Z-integration-7b81.log) |  |
+| 29.09.2026 18:34 | integration (частично: tests/integration/derived-rate-plans.test.ts) | ❌ упало 1 из 1 | 3 с | 9283bec +6 | [лог](logs/2026-09-29T13-34-44Z-integration-8bd0.log) | derived rate plans and promo codes: database guards accepts a valid derived plan and rejects every broken shape |
+| 29.09.2026 18:34 | integration (частично: tests/integration/derived-rate-plans.test.ts) | ✅ 1 из 1 | 3 с | 9283bec +8 | [лог](logs/2026-09-29T13-34-58Z-integration-7e11.log) |  |
+| 29.09.2026 18:38 | integration (частично: tests/integration/derived-rates-booking.test.ts) | ❌ упало 1 из 1 | 4 с | 48a25ef +5 | [лог](logs/2026-09-29T13-38-10Z-integration-48d8.log) | derived rate plans and promo codes in a booking (integration, rolled back) prices by parent rates with the larger of plan and promo discount, enforces rules, ke |
+| 29.09.2026 18:38 | integration (частично: tests/integration/derived-rates-booking.test.ts) | ✅ 1 из 1 | 4 с | 48a25ef +5 | [лог](logs/2026-09-29T13-38-26Z-integration-e75e.log) |  |
+| 29.09.2026 18:38 | integration (частично: tests/integration/derived-rates-booking.test.ts) | ❌ упало 1 из 1 | 3 с | 48a25ef +3 | [лог](logs/2026-09-29T13-38-35Z-integration-6d06.log) | derived rate plans and promo codes in a booking (integration, rolled back) prices by parent rates with the larger of plan and promo discount, enforces rules, ke |
+| 29.09.2026 18:38 | integration (частично: tests/integration/derived-rates-booking.test.ts) | ✅ 1 из 1 | 3 с | 48a25ef +5 | [лог](logs/2026-09-29T13-38-39Z-integration-5faa.log) |  |
+| 29.09.2026 18:38 | unit | ✅ 2357 из 2360, пропущено 3 | 1 мин 23 с | 48a25ef +4 | [лог](logs/2026-09-29T13-38-46Z-unit-a885.log) |  |
+| 29.09.2026 18:40 | integration (частично: tests/integration/rates-derived-api.test.ts) | ❌ упало 1 из 1 | 4 с | b8c2794 +1 | [лог](logs/2026-09-29T13-40-53Z-integration-5797.log) | derived rate plans and promo codes API creates and edits a derived plan and a promo code with validation and audit |
+| 29.09.2026 18:41 | integration (частично: tests/integration/rates-derived-api.test.ts) | ✅ 1 из 1 | 4 с | b8c2794 +5 | [лог](logs/2026-09-29T13-41-46Z-integration-91c7.log) |  |
+| 29.09.2026 18:42 | unit (частично: apps/api/src/web-booking packages/domain/src/web-booking apps/api/src/rates) | ❌ упало 3 из 74 | 4 с | b8c2794 +6 | [лог](logs/2026-09-29T13-42-31Z-unit-622e.log) | «Тарифные планы»: правило отмены список: правило, категории по названию и брони, которые правка заденет |
+| 29.09.2026 18:42 | unit (частично: apps/api/src/web-booking packages/domain/src/web-booking apps/api/src/rates) | ✅ 77 из 77 | 4 с | b8c2794 +8 | [лог](logs/2026-09-29T13-42-46Z-unit-98e6.log) |  |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/web-booking) | ✅ 33 из 33 | 4 с | b8c2794 +9 | [лог](logs/2026-09-29T13-43-16Z-unit-f0f3.log) |  |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/web-booking) | ❌ упало 2 из 33 | 4 с | b8c2794 +7 | [лог](logs/2026-09-29T13-43-24Z-unit-873b.log) | виджет бронирования /w/* промокод: цены со скидкой, ответ называет код; неверный, выключенный и не на эти даты — 400 словами; в бронь уходит код |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/web-booking) | ✅ 33 из 33 | 4 с | b8c2794 +9 | [лог](logs/2026-09-29T13-43-29Z-unit-cb37.log) |  |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/reservations/stay-offers.test.ts) | ❌ упало 1 из 7 | 3 с | b8c2794 +10 | [лог](logs/2026-09-29T13-43-51Z-unit-cc93.log) | GET /availability/offers — производный тариф (DATA_MODEL §20) тариф, которому правило продажи запрещает эти даты, в цену «от» не попадает |
+| 29.09.2026 18:43 | unit (частично: apps/api/src/reservations/stay-offers.test.ts) | ✅ 7 из 7 | 3 с | b8c2794 +11 | [лог](logs/2026-09-29T13-43-55Z-unit-3acc.log) |  |
+| 29.09.2026 18:44 | typecheck | ✅ без ошибок | 32 с | b8c2794 +12 | [лог](logs/2026-09-29T13-44-02Z-typecheck-6342.log) |  |
+| 29.09.2026 18:44 | lint | ❌ ошибок: 1 | 17 с | b8c2794 +12 | [лог](logs/2026-09-29T13-44-35Z-lint-779a.log) | no-irregular-whitespace |
+| 29.09.2026 18:44 | unit | ❌ упало 1 из 2366, пропущено 3 | 1 мин 19 с | b8c2794 +11 | [лог](logs/2026-09-29T13-44-52Z-unit-84c9.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 29.09.2026 18:46 | integration | ❌ упало 1 из 127 | 48 с | b8c2794 +12 | [лог](logs/2026-09-29T13-46-12Z-integration-1c09.log) | RLS: организации разделены в самой базе (integration, DATABASE_URL required) каждая таблица схемы названа: арендаторская под RLS или осознанно без него |
+| 29.09.2026 18:47 | lint | ✅ без ошибок | 19 с | b8c2794 +15 | [лог](logs/2026-09-29T13-47-22Z-lint-430f.log) |  |
+| 29.09.2026 18:47 | unit | ✅ 2363 из 2366, пропущено 3 | 1 мин 21 с | b8c2794 +14 | [лог](logs/2026-09-29T13-47-42Z-unit-7c12.log) |  |
+| 29.09.2026 18:49 | integration | ✅ 127 из 127 | 51 с | b8c2794 +14 | [лог](logs/2026-09-29T13-49-04Z-integration-9942.log) |  |
+| 29.09.2026 18:50 | unit (частично: apps/web/src/lib/rate-rule-text.test.ts) | ❌ код выхода 1 | 1 с | fb0dfbc +1 | [лог](logs/2026-09-29T13-50-48Z-unit-8088.log) | (файл не выполнился) |
+| 29.09.2026 18:50 | unit (частично: apps/web/src/lib/rate-rule-text.test.ts) | ✅ 4 из 4 | 1 с | fb0dfbc +2 | [лог](logs/2026-09-29T13-50-50Z-unit-29d3.log) |  |
+| 29.09.2026 18:51 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ❌ код выхода 1 | 1 с | fb0dfbc +3 | [лог](logs/2026-09-29T13-51-19Z-e2e-45af.log) | (ошибка вне тестов) |
+| 29.09.2026 18:51 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ❌ упало 4 из 5 | 7 мин 47 с | fb0dfbc +3 | [лог](logs/2026-09-29T13-51-28Z-e2e-48ca.log) | производный тариф: добавить, условия словами, ошибка у формы, правка процента |
+| 29.09.2026 19:01 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ❌ упало 4 из 5 | 50 с | fb0dfbc +12 | [лог](logs/2026-09-29T14-01-05Z-e2e-08b8.log) | производный тариф: добавить, условия словами, ошибка у формы, правка процента |
+| 29.09.2026 19:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts --workers=1) | ✅ 5 из 5 | 34 с | 2fbbc6f +3 | [лог](logs/2026-09-29T14-02-41Z-e2e-9e69.log) |  |
 | 29.09.2026 17:24 | typecheck | ✅ без ошибок | 34 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-24-28Z-typecheck-af46.log) |  |
 | 29.09.2026 17:25 | lint | ✅ без ошибок | 20 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-25-02Z-lint-438f.log) |  |
 | 29.09.2026 17:25 | unit | ❌ упало 4 из 2351, пропущено 3 | 1 мин 26 с | 34e2b9e +50 | [лог](logs/2026-09-29T12-25-23Z-unit-69b3.log) | главная wetop.ai — правила DESIGN.md §19 отступы — только из лестницы §19.3 |
@@ -4491,6 +4534,25 @@
 | 29.09.2026 22:00 | lint | ✅ без ошибок | 22 с | 60449d8 +10 | [лог](logs/2026-09-29T17-00-41Z-lint-7952.log) | SEC-2 |
 | 29.09.2026 22:01 | unit | ❌ упало 1 из 2449, пропущено 3 | 1 мин 28 с | 60449d8 +10 | [лог](logs/2026-09-29T17-01-04Z-unit-1882.log) | SEC-2: полный unit |
 | 29.09.2026 22:02 | integration | ✅ 139 из 139 | 50 с | 60449d8 +10 | [лог](logs/2026-09-29T17-02-33Z-integration-7a94.log) | SEC-2: integration |
+| 29.09.2026 22:08 | unit (частично: apps/api/src/web-booking/turnstile.test.ts) | ❌ код выхода 1 | 1 с | 38254b5 +1 | [лог](logs/2026-09-29T17-08-26Z-unit-9acf.log) | BOOK-SEC1 red: TurnstileService |
+| 29.09.2026 22:09 | unit (частично: apps/api/src/web-booking/turnstile.test.ts) | ✅ 18 из 18 | 2 с | 38254b5 +2 | [лог](logs/2026-09-29T17-09-03Z-unit-5d66.log) | BOOK-SEC1 green: TurnstileService |
+| 29.09.2026 22:09 | unit (частично: apps/api/src/web-booking/web-booking.controller.test.ts) | ❌ упало 9 из 32 | 4 с | 38254b5 +3 | [лог](logs/2026-09-29T17-09-36Z-unit-b61c.log) | BOOK-SEC1 red: проверка в /w/book и /w/config |
+| 29.09.2026 22:10 | unit (частично: apps/api/src/web-booking apps/api/src/analytics) | ❌ упало 1 из 95 | 5 с | 38254b5 +7 | [лог](logs/2026-09-29T17-10-14Z-unit-3c9d.log) | BOOK-SEC1 green: проверка в /w/book, /w/config |
+| 29.09.2026 22:10 | unit (частично: apps/api/src/web-booking) | ✅ 61 из 61 | 4 с | 38254b5 +8 | [лог](logs/2026-09-29T17-10-42Z-unit-d5f2.log) | BOOK-SEC1 green: виджет |
+| 29.09.2026 22:12 | typecheck | ✅ без ошибок | 25 с | 38254b5 +10 | [лог](logs/2026-09-29T17-12-25Z-typecheck-ef37.log) | BOOK-SEC1 |
+| 29.09.2026 22:13 | lint | ✅ без ошибок | 22 с | 38254b5 +10 | [лог](logs/2026-09-29T17-13-02Z-lint-efed.log) | BOOK-SEC1 |
+| 29.09.2026 22:13 | unit | ❌ упало 2 из 2479, пропущено 3 | 1 мин 30 с | 38254b5 +8 | [лог](logs/2026-09-29T17-13-25Z-unit-e378.log) | BOOK-SEC1: полный unit |
+| 29.09.2026 22:14 | integration | ✅ 139 из 139 | 49 с | 38254b5 +8 | [лог](logs/2026-09-29T17-14-56Z-integration-7605.log) | BOOK-SEC1: integration |
+| 29.09.2026 22:15 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 5 с | 38254b5 +9 | [лог](logs/2026-09-29T17-15-53Z-unit-b6a8.log) | BOOK-SEC1: GET /w/config в таблице прав |
+| 29.09.2026 22:16 | e2e (частично: tests/e2e/web-booking.spec.ts) | ✅ 3 из 3 | 13 с | 38254b5 +11 | [лог](logs/2026-09-29T17-16-47Z-e2e-b682.log) | BOOK-SEC1: живой web-booking, /w/config отдаёт null |
+| 29.09.2026 22:18 | typecheck | ✅ без ошибок | 38 с | 38254b5 +11 | [лог](logs/2026-09-29T17-18-01Z-typecheck-081c.log) | BOOK-SEC1 финал |
+| 29.09.2026 22:18 | lint | ✅ без ошибок | 22 с | 38254b5 +11 | [лог](logs/2026-09-29T17-18-51Z-lint-7186.log) | BOOK-SEC1 финал |
+| 29.09.2026 22:19 | unit | ❌ упало 1 из 2479, пропущено 3 | 1 мин 27 с | 38254b5 +9 | [лог](logs/2026-09-29T17-19-14Z-unit-9a5c.log) | BOOK-SEC1 финал: полный unit |
+| 30.09.2026 11:29 | typecheck | ✅ без ошибок | 39 с | 36b8715 +4 | [лог](logs/2026-09-30T06-29-37Z-typecheck-2226.log) |  |
+| 30.09.2026 11:30 | lint | ✅ без ошибок | 31 с | 36b8715 +4 | [лог](logs/2026-09-30T06-30-17Z-lint-5630.log) |  |
+| 30.09.2026 11:30 | unit | ❌ упало 1 из 2489, пропущено 3 | 1 мин 46 с | 36b8715 +4 | [лог](logs/2026-09-30T06-30-49Z-unit-3a13.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 30.09.2026 11:44 | typecheck | ✅ без ошибок | 34 с | 96a1c89 +2 | [лог](logs/2026-09-30T06-44-31Z-typecheck-44cd.log) |  |
+| 30.09.2026 11:45 | lint | ✅ без ошибок | 29 с | 96a1c89 +2 | [лог](logs/2026-09-30T06-45-05Z-lint-0251.log) |  |
 | 29.09.2026 22:07 | typecheck | ✅ без ошибок | 31 с | 49abb6e | [лог](logs/2026-09-29T17-07-45Z-typecheck-308f.log) |  |
 | 29.09.2026 22:08 | lint | ✅ без ошибок | 16 с | 49abb6e | [лог](logs/2026-09-29T17-08-17Z-lint-bcde.log) |  |
 | 29.09.2026 22:08 | unit (частично: apps/api/src/ai-seller apps/api/src/auth packages/domain/src/ai-agents apps/web/src/lib/ai-agents.test.ts) | ✅ 293 из 293 | 9 с | 49abb6e | [лог](logs/2026-09-29T17-08-34Z-unit-cfe4.log) |  |
@@ -4613,6 +4675,10 @@
 | 30.09.2026 14:52 | unit | ✅ 2494 из 2497, пропущено 3 | 1 мин 51 с | f756000 | [лог](logs/2026-09-30T09-52-21Z-unit-b450.log) |  |
 | 30.09.2026 14:54 | integration | ✅ 0 из 165, пропущено 165 | 39 с | f756000 | [лог](logs/2026-09-30T09-54-13Z-integration-d787.log) |  |
 | 30.09.2026 14:54 | integration | ✅ 165 из 165 | 1 мин 9 с | f756000 | [лог](logs/2026-09-30T09-54-55Z-integration-d51d.log) |  |
+| 30.09.2026 16:04 | typecheck | ✅ без ошибок | 35 с | 9e5cf4b +20 | [лог](logs/2026-09-30T11-04-24Z-typecheck-02d8.log) | аудит безопасности 30.09: лимиты, идемпотентность, миграция 034 |
+| 30.09.2026 16:04 | lint | ✅ без ошибок | 18 с | 9e5cf4b +20 | [лог](logs/2026-09-30T11-04-59Z-lint-30b5.log) | аудит безопасности 30.09 |
+| 30.09.2026 16:06 | unit | ✅ 2500 из 2503, пропущено 3 | 1 мин 40 с | 9e5cf4b +20 | [лог](logs/2026-09-30T11-06-34Z-unit-c632.log) | аудит безопасности 30.09: лимиты ИИ-маршрутов, идемпотентность действий, миграция 034 |
+| 30.09.2026 16:08 | integration | ✅ 165 из 165 | 52 с | 9e5cf4b +8 | [лог](logs/2026-09-30T11-08-14Z-integration-96b6.log) | аудит безопасности 30.09: миграция 034 на локальном стенде |
 | 30.09.2026 15:42 | unit (частично: tests/unit/no-vendor-name.test.ts) | ✅ 1 из 1 | 3 с | 45935a7 | [лог](logs/2026-09-30T10-42-54Z-unit-0f98.log) |  |
 | 30.09.2026 15:43 | typecheck | ✅ без ошибок | 26 с | 45935a7 | [лог](logs/2026-09-30T10-43-00Z-typecheck-1675.log) |  |
 | 30.09.2026 15:43 | unit | ✅ 2495 из 2498, пропущено 3 | 1 мин 30 с | 45935a7 | [лог](logs/2026-09-30T10-43-27Z-unit-f547.log) |  |
@@ -4625,3 +4691,72 @@
 | 30.09.2026 16:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ упало 12 из 78 | 4 мин 18 с | 6983bcb | [лог](logs/2026-09-30T11-20-17Z-e2e-c962.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
 | 30.09.2026 16:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ упало 8 из 78 | 3 мин 39 с | 6983bcb | [лог](logs/2026-09-30T11-24-42Z-e2e-af82.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
 | 30.09.2026 16:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 106 из 106 | 7 мин 4 с | 6983bcb | [лог](logs/2026-09-30T11-28-47Z-e2e-0aec.log) |  |
+| 30.09.2026 16:29 | typecheck | ✅ без ошибок | 48 с | 01835a1 +5 | [лог](logs/2026-09-30T11-29-23Z-typecheck-8a1e.log) |  |
+| 30.09.2026 16:30 | lint | ❌ ошибок: 1 | 35 с | 01835a1 +5 | [лог](logs/2026-09-30T11-30-12Z-lint-2042.log) | no-useless-assignment |
+| 30.09.2026 16:30 | unit | ❌ упало 1 из 2505, пропущено 3 | 2 мин 7 с | 01835a1 +4 | [лог](logs/2026-09-30T11-30-48Z-unit-0951.log) | название поставщика менеджера каналов не видно пользователю нет слова «Channex» в текстах стойки, главной, API и бота |
+| 30.09.2026 16:32 | integration | ✅ 166 из 166 | 1 мин 12 с | 01835a1 +5 | [лог](logs/2026-09-30T11-32-56Z-integration-1a4d.log) |  |
+| 30.09.2026 16:34 | lint | ✅ без ошибок | 33 с | 01835a1 +5 | [лог](logs/2026-09-30T11-34-45Z-lint-d057.log) |  |
+| 30.09.2026 16:35 | unit | ✅ 2502 из 2505, пропущено 3 | 1 мин 54 с | 01835a1 +4 | [лог](logs/2026-09-30T11-35-19Z-unit-a510.log) |  |
+| 30.09.2026 16:37 | integration | ✅ 166 из 166 | 1 мин 10 с | 01835a1 +5 | [лог](logs/2026-09-30T11-37-32Z-integration-fbfe.log) |  |
+| 30.09.2026 16:40 | typecheck | ✅ без ошибок | 37 с | 991bb31 +1 | [лог](logs/2026-09-30T11-40-31Z-typecheck-ed69.log) |  |
+| 30.09.2026 16:41 | lint | ✅ без ошибок | 31 с | 991bb31 +1 | [лог](logs/2026-09-30T11-41-08Z-lint-5da6.log) |  |
+| 30.09.2026 16:41 | unit | ✅ 2505 из 2508, пропущено 3 | 1 мин 50 с | 991bb31 +1 | [лог](logs/2026-09-30T11-41-40Z-unit-bdf5.log) |  |
+| 30.09.2026 16:11 | typecheck | ✅ без ошибок | 27 с | a76030e | [лог](logs/2026-09-30T11-11-31Z-typecheck-30ae.log) | аудит безопасности 30.09: слитое с main дерево |
+| 30.09.2026 16:11 | lint | ✅ без ошибок | 18 с | a76030e | [лог](logs/2026-09-30T11-11-59Z-lint-f704.log) | аудит безопасности 30.09: слитое с main дерево |
+| 30.09.2026 16:12 | unit | ✅ 2501 из 2504, пропущено 3 | 1 мин 22 с | a76030e | [лог](logs/2026-09-30T11-12-18Z-unit-ee14.log) | аудит безопасности 30.09: слитое с main дерево |
+| 30.09.2026 12:03 | typecheck | ✅ без ошибок | 35 с | b642e1a +50 | [лог](logs/2026-09-30T07-03-16Z-typecheck-05df.log) |  |
+| 30.09.2026 12:03 | lint | ✅ без ошибок | 30 с | b642e1a +50 | [лог](logs/2026-09-30T07-03-52Z-lint-9584.log) |  |
+| 30.09.2026 12:04 | unit | ✅ 2521 из 2524, пропущено 3 | 1 мин 48 с | b642e1a +50 | [лог](logs/2026-09-30T07-04-23Z-unit-731f.log) |  |
+| 30.09.2026 12:06 | integration | ✅ 143 из 143 | 1 мин 5 с | b642e1a +29 | [лог](logs/2026-09-30T07-06-16Z-integration-e89a.log) |  |
+| 29.09.2026 19:04 | typecheck | ✅ без ошибок | 35 с | c87ad0a | [лог](logs/2026-09-29T14-04-10Z-typecheck-ed8e.log) |  |
+| 29.09.2026 19:04 | lint | ✅ без ошибок | 18 с | c87ad0a | [лог](logs/2026-09-29T14-04-46Z-lint-e799.log) |  |
+| 29.09.2026 19:05 | unit | ❌ упало 1 из 2387, пропущено 3 | 1 мин 19 с | c87ad0a | [лог](logs/2026-09-29T14-05-04Z-unit-54e2.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 29.09.2026 19:06 | integration | ✅ 127 из 127 | 44 с | c87ad0a | [лог](logs/2026-09-29T14-06-24Z-integration-f373.log) |  |
+| 29.09.2026 19:07 | unit (частично: scripts/design/build-tokens.test.ts) | ✅ 14 из 14 | 1 с | c87ad0a +1 | [лог](logs/2026-09-29T14-07-16Z-unit-0e77.log) |  |
+| 29.09.2026 19:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts tests/ui/rate-plans.spec.ts tests/ui/rates-design.spec.ts tests/ui/rates-ra | ✅ 47 из 47 | 3 мин 21 с | 3decf17 | [лог](logs/2026-09-29T14-07-22Z-e2e-0c29.log) |  |
+| 29.09.2026 20:57 | e2e (частично: tests/ui/reservation-promo-field.spec.ts) | ❌ код выхода 1 | 9 с | 57999eb +1 | [лог](logs/2026-09-29T15-57-57Z-e2e-30a9.log) | (ошибка вне тестов) |
+| 29.09.2026 20:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservation-promo-field.spec.ts) | ❌ упало 1 из 2 | 2 мин 13 с | 57999eb +1 | [лог](logs/2026-09-29T15-58-20Z-e2e-ead0.log) | промокод из формы уходит в запрос брони |
+| 29.09.2026 21:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservation-promo-field.spec.ts tests/ui/channel-booking-number.spec.ts tests/ui/manual-reservati | ❌ упало 1 из 3 | 25 с | 57999eb +3 | [лог](logs/2026-09-29T16-00-36Z-e2e-9341.log) | промокод из формы уходит в запрос брони |
+| 29.09.2026 21:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservation-promo-field.spec.ts tests/ui/channel-booking-number.spec.ts tests/ui/manu | ✅ 11 из 11 | 7 мин 38 с | 57999eb +3 | [лог](logs/2026-09-29T16-01-58Z-e2e-250c.log) |  |
+| 30.09.2026 12:14 | unit | ✅ 2508 из 2511, пропущено 3 | 1 мин 41 с | bea1ca2 | [лог](logs/2026-09-30T07-14-14Z-unit-0610.log) |  |
+| 30.09.2026 12:16 | integration | ✅ 165 из 165 | 52 с | bea1ca2 | [лог](logs/2026-09-30T07-16-09Z-integration-5afd.log) |  |
+| 30.09.2026 12:17 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 55 из 55 | 2 мин 46 с | bea1ca2 | [лог](logs/2026-09-30T07-17-04Z-e2e-2fb8.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ код выхода 1 | 2 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-14Z-integration-9007.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-28Z-integration-9702.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ упало 1 из 7 | 4 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-37Z-integration-d3a2.log) | Business Agents: создание и чтение (integration, DATABASE_URL required) create: ключ чужой организации, чужого человека и ключ, равный организации, — ForeignIde |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-42Z-integration-4ba5.log) |  |
+| 30.09.2026 12:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ❌ упало 2 из 50 | 3 мин 37 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-45-59Z-e2e-2c8f.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 12:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ✅ 23 из 23 | 1 мин 34 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-49-50Z-e2e-66e3.log) |  |
+| 30.09.2026 12:53 | unit | ❌ упало 1 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-53-05Z-unit-0a67.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 30.09.2026 12:54 | integration | ✅ 172 из 172 | 52 с | 1fb5cbb +16 | [лог](logs/2026-09-30T07-54-43Z-integration-8800.log) |  |
+| 30.09.2026 12:55 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-55-59Z-unit-79d8.log) |  |
+| 30.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/ui/roles.spec | ✅ 112 из 112 | 8 мин | 1fb5cbb +26 | [лог](logs/2026-09-30T07-57-30Z-e2e-e428.log) |  |
+| 30.09.2026 13:35 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 40 с | 3315609 +2 | [лог](logs/2026-09-30T08-35-53Z-unit-e3db.log) |  |
+| 30.09.2026 13:37 | integration | ✅ 172 из 172 | 52 с | 3315609 +2 | [лог](logs/2026-09-30T08-37-43Z-integration-d960.log) |  |
+| 30.09.2026 15:26 | typecheck | ❌ ошибок: 1 | 38 с | b0760a3 | [лог](logs/2026-09-30T10-26-30Z-typecheck-daf1.log) | TS2345 |
+| 30.09.2026 15:27 | lint | ✅ без ошибок | 21 с | b0760a3 | [лог](logs/2026-09-30T10-27-09Z-lint-db42.log) |  |
+| 30.09.2026 15:27 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 28 с | b0760a3 | [лог](logs/2026-09-30T10-27-30Z-unit-e4e9.log) |  |
+| 30.09.2026 15:29 | typecheck | ✅ без ошибок | 26 с | b0760a3 +1 | [лог](logs/2026-09-30T10-29-40Z-typecheck-3742.log) |  |
+| 30.09.2026 15:30 | integration | ❌ упало 5 из 186 | 55 с | b0760a3 +1 | [лог](logs/2026-09-30T10-30-06Z-integration-ba9b.log) | seller_profiles и факты объекта (integration, DATABASE_URL required) первая правка заводит строку организации и пишет журнал: до — пусто, после — поля |
+| 30.09.2026 15:31 | integration | ✅ 186 из 186 | 54 с | b0760a3 +2 | [лог](logs/2026-09-30T10-31-24Z-integration-88f0.log) |  |
+| 30.09.2026 15:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 112 из 112 | 8 мин 35 с | b0760a3 +1 | [лог](logs/2026-09-30T10-32-22Z-e2e-de31.log) |  |
+| 30.09.2026 16:04 | typecheck | ✅ без ошибок | 28 с | fab3817 | [лог](logs/2026-09-30T11-04-51Z-typecheck-4408.log) |  |
+| 30.09.2026 16:05 | lint | ✅ без ошибок | 24 с | fab3817 | [лог](logs/2026-09-30T11-05-20Z-lint-02ed.log) |  |
+| 30.09.2026 16:05 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 32 с | fab3817 | [лог](logs/2026-09-30T11-05-45Z-unit-ddbc.log) |  |
+| 30.09.2026 16:10 | integration | ✅ 0 из 188, пропущено 188 | 30 с | fab3817 | [лог](logs/2026-09-30T11-10-30Z-integration-e234.log) |  |
+| 30.09.2026 16:11 | integration | ✅ 188 из 188 | 57 с | fab3817 | [лог](logs/2026-09-30T11-11-08Z-integration-8e07.log) |  |
+| 30.09.2026 16:39 | unit | ❌ упало 2 из 2676, пропущено 3 | 1 мин 25 с | 077b9c6 | [лог](logs/2026-09-30T11-39-04Z-unit-028f.log) | название поставщика менеджера каналов не видно пользователю нет слова «Channex» в текстах стойки, главной, API и бота |
+| 30.09.2026 16:40 | integration | ✅ 213 из 213 | 53 с | 077b9c6 | [лог](logs/2026-09-30T11-40-41Z-integration-4408.log) |  |
+| 30.09.2026 16:41 | unit | ✅ 2673 из 2676, пропущено 3 | 1 мин 23 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-41-39Z-unit-090f.log) |  |
+| 30.09.2026 16:43 | e2e (частично: tests/ui/rates-derived.spec.ts tests/ui/reservation-promo-field.spec.ts tests/ui/rates-range.spec.ts tests/ui/rates-design.spec.ts tests/ui/ai-ag | ❌ код выхода 1 | 3 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-43-07Z-e2e-bf4c.log) | (ошибка вне тестов) |
+| 30.09.2026 16:43 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/rates-derived.spec.ts tests/ui/reservation-promo-field.spec.ts tests/ui/rates-range.spec.ts tests | ❌ упало 9 из 94 | 5 мин 14 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-43-17Z-e2e-5a14.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:48 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts) | ❌ упало 3 из 50 | 3 мин 6 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-48-38Z-e2e-3ee5.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts) | ✅ 50 из 50 | 2 мин 39 с | 077b9c6 +1 | [лог](logs/2026-09-30T11-52-13Z-e2e-c156.log) |  |
+| 30.09.2026 17:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --shard=1/3) | ⏹ прерван | 9 мин 59 с | c78ec02 | [лог](logs/2026-09-30T12-05-11Z-e2e-c1b5.log) |  |
+| 30.09.2026 17:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/navigation.spec.ts tests/ui/roles.spec.ts tests/ui/integrations.spec.ts tests/ui/inte | ✅ 85 из 85 | 4 мин 59 с | c78ec02 | [лог](logs/2026-09-30T12-15-22Z-e2e-d94c.log) |  |
+| 30.09.2026 16:45 | typecheck | ✅ без ошибок | 35 с | 6d5bd72 | [лог](logs/2026-09-30T11-45-19Z-typecheck-4482.log) |  |
+| 30.09.2026 16:45 | lint | ✅ без ошибок | 31 с | 6d5bd72 | [лог](logs/2026-09-30T11-45-54Z-lint-b3f2.log) |  |
+| 30.09.2026 16:46 | unit | ✅ 2511 из 2514, пропущено 3 | 1 мин 49 с | 6d5bd72 | [лог](logs/2026-09-30T11-46-26Z-unit-acbd.log) |  |
+| 30.09.2026 16:48 | integration | ✅ 166 из 166 | 1 мин 11 с | 6d5bd72 | [лог](logs/2026-09-30T11-48-16Z-integration-134f.log) |  |
+| 30.09.2026 17:21 | unit | ✅ 2683 из 2686, пропущено 3 | 1 мин 25 с | 4a398f8 | [лог](logs/2026-09-30T12-21-42Z-unit-e1d1.log) |  |
+| 30.09.2026 17:23 | integration | ✅ 214 из 214 | 54 с | 4a398f8 | [лог](logs/2026-09-30T12-23-08Z-integration-1bf6.log) |  |

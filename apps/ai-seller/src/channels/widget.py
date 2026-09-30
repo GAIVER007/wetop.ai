@@ -40,6 +40,7 @@ from src.channels.widget_guards import (
     as_str,
     client_ip,
     origin_allowed,
+    RateLimitUnavailable,
     rate_exceeded,
     read_json,
     require_agent,
@@ -176,12 +177,20 @@ async def post_message(request: Request) -> Response:
     text = as_str(data.get("text"))
     if not text:
         raise HTTPException(status_code=400, detail="bad_request")
+    if len(text) > settings.widget_max_message_chars:
+        # Как и переросток тела: 413 до хода, реплика в историю не ложится.
+        return JSONResponse(status_code=413, content={"status": "too_long"})
     attachment = as_str(data.get("attachment_id"))
     if attachment and KEY_RE.match(attachment):
         # Картинку модель на этом шаге не смотрит: ссылка нужна оператору,
         # разбор снимков делается отдельно.
         text = f"{text}\n[вложение: {attachment}]"
-    if await rate_exceeded(settings, "message", visitor.key, client_ip(request)):
+    try:
+        exceeded = await rate_exceeded(settings, "message", visitor.key, client_ip(request), fail_closed=True)
+    except RateLimitUnavailable:
+        # Счётчика нет — хода к модели тоже нет: браузер повторит позже (решение владельца 30.09.2026).
+        return JSONResponse(status_code=503, content={"status": "unavailable"})
+    if exceeded:
         # Тело нейтральное: пределов и причин чужому не объясняем.
         return JSONResponse(status_code=429, content={"status": "too_many"})
     incoming = IncomingMessage(

@@ -131,6 +131,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /rates/bulk': 'rates',
   'GET /rates/plans': 'rates',
   'PATCH /rates/plans/:code': 'rates',
+  'POST /rates/plans/derived': 'rates',
+  'PATCH /rates/plans/:code/derived': 'rates',
+  'GET /rates/promo-codes': 'rates',
+  'POST /rates/promo-codes': 'rates',
+  'PATCH /rates/promo-codes/:code': 'rates',
 
   // ── каналы: webhook Channex приходит снаружи со своим секретом ──────────────────────────
   'GET /channels/channex/mapping': 'channels',
@@ -242,6 +247,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /a/hit': 'public',
   'GET /a/demo': 'public',
   'GET /w/widget.js': 'public',
+  'GET /w/config': 'public',
   'GET /w/availability': 'public',
   'POST /w/book': 'public',
   'GET /w/demo': 'public',

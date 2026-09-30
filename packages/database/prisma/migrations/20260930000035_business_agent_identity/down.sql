@@ -1,4 +1,4 @@
--- Откат 20260930000034_business_agent_identity (DATA_MODEL §20, SA1.6): снимает добавленное и удаляет агентов, созданных
+-- Откат 20260930000035_business_agent_identity (DATA_MODEL §20, SA1.6): снимает добавленное и удаляет агентов, созданных
 -- переносом (id = organization_id). Агенты гостевого мастера (случайные id) не трогаются; историю бота откат не касается.
 DROP TRIGGER IF EXISTS "seller_profiles_link" ON "seller_profiles";
 DROP TRIGGER IF EXISTS "seller_agents_chain" ON "seller_agents";

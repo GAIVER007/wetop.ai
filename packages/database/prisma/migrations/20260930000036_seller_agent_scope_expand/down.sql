@@ -1,4 +1,4 @@
--- Откат 20260930000035_seller_agent_scope_expand (SA2.5, шаг A): снимает функции предпроверки и возвращает прежние тела
+-- Откат 20260930000036_seller_agent_scope_expand (SA2.5, шаг A): снимает функции предпроверки и возвращает прежние тела
 -- seller_agent_ensure / seller_agents_backfill из 034 дословно (выбор самого раннего объекта). Данные не откатываются:
 -- филиалы агентов и agent_id профилей, заполненные backfill, остаются — они однозначны и прежним кодом не читаются.
 DROP FUNCTION IF EXISTS seller_agent_bind_location(uuid);

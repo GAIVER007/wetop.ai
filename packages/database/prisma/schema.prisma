@@ -119,6 +119,7 @@ model Property {
   accommodationTypes AccommodationType[]
   reservations       Reservation[]
   ratePlans          RatePlan[]
+  promoCodes         PromoCode[]
   channelMappings    ChannelMapping[]
   payments           Payment[]
   services           Service[]
@@ -295,10 +296,13 @@ model Reservation {
   primaryGuestId     String?           @map("primary_guest_id") @db.Uuid
   /// Заметки — главный канал передачи смены (FINDINGS §2 #8)
   notes              String?
+  /// Промокод, применённый к брони (DATA_MODEL §20); число использований — число броней с этой ссылкой
+  promoCodeId        String?           @map("promo_code_id") @db.Uuid
   createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   property     Property          @relation(fields: [propertyId], references: [id])
+  promoCode    PromoCode?        @relation(fields: [promoCodeId], references: [id], onDelete: Restrict)
   primaryGuest Guest?            @relation("primaryGuest", fields: [primaryGuestId], references: [id])
   items        ReservationItem[]
   webSessions  WebSession[]
@@ -309,7 +313,30 @@ model Reservation {
   @@index([propertyId, arrivalDate])
   @@index([propertyId, departureDate])
   @@index([status])
+  @@index([promoCodeId])
   @@map("reservations")
+}
+
+/// Промокод объекта (DATA_MODEL §20, ADR-128): процент скидки, период проживания, предел использований.
+/// Не удаляется: выключается (`active`), чтобы броням оставался след.
+model PromoCode {
+  id              String   @id @default(uuid()) @db.Uuid
+  propertyId      String   @map("property_id") @db.Uuid
+  /// Верхний регистр, 3–32 знака A–Z, 0–9, «-», «_»
+  code            String
+  discountPercent Int      @map("discount_percent")
+  /// Первая и последняя ночь проживания, включительно; NULL — без границы
+  stayFrom        DateTime? @map("stay_from") @db.Date
+  stayTo          DateTime? @map("stay_to") @db.Date
+  maxUses         Int?     @map("max_uses")
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property     Property      @relation(fields: [propertyId], references: [id])
+  reservations Reservation[]
+
+  @@unique([propertyId, code])
+  @@map("promo_codes")
 }
 
 /// Проживание (room stay): одна ячейка на весь период (ADR-013; `quantity` убран, v0.3).
@@ -496,6 +523,14 @@ model RatePlan {
   note                String?
   /// Штраф при отмене/незаезде (Q-103); умолчание — стоимость первых суток
   cancellationPenalty CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
+  /// Производный тариф (DATA_MODEL §20, ADR-128): родитель и процент скидки; NULL — обычный тариф
+  parentRatePlanId     String? @map("parent_rate_plan_id") @db.Uuid
+  discountPercent      Int?    @map("discount_percent")
+  /// Окно продаж: заезд не раньше чем через N дней (раннее бронирование) и не позже чем через N дней (last minute)
+  minDaysBeforeArrival Int?    @map("min_days_before_arrival")
+  maxDaysBeforeArrival Int?    @map("max_days_before_arrival")
+  /// Минимум ночей (long stay)
+  minNights            Int?    @map("min_nights")
   createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -506,8 +541,11 @@ model RatePlan {
   channelMappings ChannelMapping[]
   items           ReservationItem[]
   trackedSites    TrackedSite[]
+  parent          RatePlan?                   @relation("RatePlanDerived", fields: [parentRatePlanId], references: [id], onDelete: Restrict)
+  derived         RatePlan[]                  @relation("RatePlanDerived")
 
   @@unique([propertyId, code])
+  @@index([parentRatePlanId])
   @@map("rate_plans")
 }
 

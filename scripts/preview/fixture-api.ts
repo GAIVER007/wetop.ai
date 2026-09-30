@@ -50,6 +50,9 @@ import {
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
   parseCancellationPenalty,
+  validateDerivedRule,
+  normalizePromoCode,
+  MAX_DISCOUNT_PERCENT,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -218,6 +221,27 @@ const extraPlans: {
 const ratePlanList = () => [...plans, ...(softPlan ? [softPlanSeed] : []), ...extraPlans];
 /** Правило отмены, изменённое на «Тарифных планах» (SET4): живёт до `reset` */
 const planPenalty = new Map<string, 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY'>();
+/** Производные тарифы (D4, DATA_MODEL §20): код тарифа → родитель и правило; живут до `reset` */
+const derivedRules = new Map<
+  string,
+  {
+    parentCode: string;
+    discountPercent: number;
+    minDaysBeforeArrival: number | null;
+    maxDaysBeforeArrival: number | null;
+    minNights: number | null;
+  }
+>();
+/** Промокоды объекта (D4): живут до `reset` */
+const promoCodes: Array<{
+  code: string;
+  discountPercent: number;
+  stayFrom: string | null;
+  stayTo: string | null;
+  maxUses: number | null;
+  active: boolean;
+  uses: number;
+}> = [];
 /** Строки «Тарифных планов» как у API: категории по названию и брони, которые задевает правка правила */
 function ratePlanRows() {
   const cards = [card, ...extraCards.values()];
@@ -227,6 +251,12 @@ function ratePlanRows() {
     currency: p.currency,
     active: p.active,
     cancellationPenalty: planPenalty.get(p.code) ?? p.cancellationPenalty,
+    derived: (() => {
+      const rule = derivedRules.get(p.code);
+      if (!rule) return null;
+      const { parentCode, ...rest } = rule;
+      return { parentName: ratePlanList().find((x) => x.code === parentCode)?.name ?? '', ...rest };
+    })(),
     categories: categories
       .filter((c) => (c.rateNames ?? [plans[0]!.name]).includes(p.name))
       .map((c) => c.name),
@@ -3172,6 +3202,7 @@ function read(path: string, q: URLSearchParams): unknown {
   }
   if (path === '/rates/options') return { categories, ratePlans: plans };
   if (path === '/rates/plans') return ratePlanRows();
+  if (path === '/rates/promo-codes') return promoCodes;
   if (path === '/rates')
     return {
       accommodationTypeCode: q.get('accommodationTypeCode'),
@@ -3776,6 +3807,8 @@ createServer(async (req, res) => {
       units.splice(88);
       categories.splice(0, categories.length, ...structuredClone(categorySeed));
       extraPlans.splice(0, extraPlans.length);
+      derivedRules.clear();
+      promoCodes.splice(0, promoCodes.length);
       for (const unit of units)
         unit.accommodationTypeName = categories.find(
           (c) => c.code === unit.accommodationTypeCode,
@@ -5191,6 +5224,83 @@ createServer(async (req, res) => {
       };
       serviceCatalog.push(row);
       return send(201, row);
+    }
+    // Производные тарифы и промокоды (D4, DATA_MODEL §20): те же проверки и слова, что у API
+    if (path === '/rates/plans/derived' && req.method === 'POST') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const name = typeof body['name'] === 'string' ? body['name'].trim() : '';
+      if (!name) return send(400, { message: 'Название тарифа: от 1 до 120 знаков' });
+      const num = (k: string): number | null =>
+        body[k] === undefined || body[k] === null || body[k] === '' ? null : Number(body[k]);
+      const rule = {
+        discountPercent: num('discountPercent') as number,
+        minDaysBeforeArrival: num('minDaysBeforeArrival'),
+        maxDaysBeforeArrival: num('maxDaysBeforeArrival'),
+        minNights: num('minNights'),
+      };
+      const problem = validateDerivedRule(rule);
+      if (problem) return send(400, { message: problem });
+      const parent = ratePlanList().find((p) => p.code === body['parentCode']);
+      if (!parent) return send(404, { message: 'Родительский тариф не найден' });
+      if (derivedRules.has(parent.code))
+        return send(400, { message: 'Родитель не может сам быть производным тарифом' });
+      const code = `rate-d${derivedRules.size + 1}`;
+      extraPlans.push({ code, name, currency: parent.currency, active: true, cancellationPenalty: parent.cancellationPenalty });
+      derivedRules.set(code, { parentCode: parent.code, ...rule });
+      return send(201, ratePlanRows().find((p) => p.code === code));
+    }
+    if (path.startsWith('/rates/plans/') && path.endsWith('/derived') && req.method === 'PATCH') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const code = decodeURIComponent(path.split('/')[3]!);
+      const rule = derivedRules.get(code);
+      if (!rule) return send(400, { message: 'Это не производный тариф: правило скидки у него не задаётся' });
+      const num = (k: string, was: number | null): number | null =>
+        !(k in body) ? was : body[k] === null || body[k] === '' ? null : Number(body[k]);
+      const next = {
+        discountPercent: num('discountPercent', rule.discountPercent) as number,
+        minDaysBeforeArrival: num('minDaysBeforeArrival', rule.minDaysBeforeArrival),
+        maxDaysBeforeArrival: num('maxDaysBeforeArrival', rule.maxDaysBeforeArrival),
+        minNights: num('minNights', rule.minNights),
+      };
+      const problem = validateDerivedRule(next);
+      if (problem) return send(400, { message: problem });
+      derivedRules.set(code, { ...rule, ...next });
+      const plan = extraPlans.find((p) => p.code === code);
+      if (plan && typeof body['name'] === 'string' && body['name'].trim()) plan.name = body['name'].trim();
+      if (plan && typeof body['active'] === 'boolean') plan.active = body['active'];
+      return send(200, ratePlanRows().find((p) => p.code === code));
+    }
+    if (path === '/rates/promo-codes' && req.method === 'POST') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      const code = typeof body['code'] === 'string' ? normalizePromoCode(body['code']) : null;
+      if (!code) return send(400, { message: 'Код: от 3 до 32 знаков — латинские буквы, цифры, «-» и «_»' });
+      const percent = body['discountPercent'];
+      if (typeof percent !== 'number' || !Number.isInteger(percent) || percent < 1 || percent > MAX_DISCOUNT_PERCENT)
+        return send(400, { message: `Скидка — целое число от 1 до ${MAX_DISCOUNT_PERCENT} процентов` });
+      if (promoCodes.some((p) => p.code === code)) return send(409, { message: `Промокод ${code} уже есть` });
+      const row = {
+        code,
+        discountPercent: percent,
+        stayFrom: typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null,
+        stayTo: typeof body['stayTo'] === 'string' && body['stayTo'] ? body['stayTo'] : null,
+        maxUses: typeof body['maxUses'] === 'number' ? body['maxUses'] : null,
+        active: true,
+        uses: 0,
+      };
+      promoCodes.push(row);
+      return send(201, row);
+    }
+    if (path.startsWith('/rates/promo-codes/') && req.method === 'PATCH') {
+      if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
+      if ('discountPercent' in body)
+        return send(400, { message: 'Процент скидки после создания не меняется: заведите новый промокод' });
+      const row = promoCodes.find((p) => p.code === decodeURIComponent(path.split('/')[3]!).toUpperCase());
+      if (!row) return send(404, { message: 'Промокод не найден' });
+      if (typeof body['active'] === 'boolean') row.active = body['active'];
+      if ('maxUses' in body) row.maxUses = typeof body['maxUses'] === 'number' ? body['maxUses'] : null;
+      if ('stayFrom' in body) row.stayFrom = typeof body['stayFrom'] === 'string' && body['stayFrom'] ? body['stayFrom'] : null;
+      if ('stayTo' in body) row.stayTo = typeof body['stayTo'] === 'string' && body['stayTo'] ? body['stayTo'] : null;
+      return send(200, row);
     }
     if (path.startsWith('/rates/plans/') && req.method === 'PATCH') {
       // как API: право `rates` — владелец и управляющий (ADR-107); правило действует для всех броней тарифа (SET4)

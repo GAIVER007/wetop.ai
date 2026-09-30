@@ -162,7 +162,7 @@ def test_a_turn_of_the_hotel_uses_its_partner_key(app, sync_db) -> None:  # noqa
     response = app.client.post(
         "/internal/sandbox",
         json={"external_id": "u-key-1", "text": "Есть места?", "organization_id": ORG},
-        headers={"X-Internal-Key": app.settings.internal_health_key or "test-key"},
+        headers=SERVICE,
     )
     assert response.status_code == 200, response.text
     assert llm.last_api_key == PARTNER_KEY
@@ -172,7 +172,7 @@ def test_a_turn_of_the_hotel_uses_its_partner_key(app, sync_db) -> None:  # noqa
     response = app.client.post(
         "/internal/sandbox",
         json={"external_id": "u-key-2", "text": "Есть места?", "organization_id": ORG_B},
-        headers={"X-Internal-Key": app.settings.internal_health_key or "test-key"},
+        headers=SERVICE,
     )
     assert response.status_code == 200, response.text
     assert llm2.last_api_key is None, "без ключа партнёра ход идёт ключом платформы"
@@ -208,3 +208,39 @@ async def test_the_cascade_sends_the_partner_key_to_the_router() -> None:
     result = await cascade.generate([{"role": "user", "content": "привет"}], use_tools=False)
     assert result.ok
     assert seen[-1].headers["authorization"] == "Bearer platform-key"
+
+
+def test_key_check_has_an_hourly_limit_and_closes_without_the_counter(monkeypatch, fake_redis, sync_db) -> None:  # noqa: F811
+    """🔴 Аудит 30.09.2026: проверка ключа — запрос к роутеру с произвольным ключом (оракул годности
+    чужих ключей) без предела. Теперь часовой предел по организации, а без счётчика (Redis) — 503."""
+    import httpx
+
+    calls: list[str] = []
+
+    async def fake_get(url, **kwargs):
+        calls.append(url)
+        return httpx.Response(401, request=httpx.Request("GET", url))
+
+    class _Http:
+        get = staticmethod(fake_get)
+
+    with panel(
+        monkeypatch, fake_redis, SELLER_SERVICE_KEY=KEY, BOT_ROLE="seller", LLM_KEYS_SECRET=FERNET,
+        LLM_BASE_URL="https://router.example.invalid/v1", WIDGET_MESSAGES_PER_HOUR="2",
+    ) as app:
+        from src import dependencies
+
+        monkeypatch.setattr(dependencies, "get_http_client", lambda: _Http())
+        check = lambda: app.client.post(  # noqa: E731
+            f"{PANEL}/seller/organizations/{ORG}/llm-key/check", json={"key": PARTNER_KEY}, headers=SERVICE
+        )
+        codes = [check().status_code for _ in range(3)]
+        assert codes == [200, 200, 429], codes
+        assert len(calls) == 2
+
+        async def down(*_args, **_kwargs):
+            raise RuntimeError("redis недоступен")
+
+        monkeypatch.setattr(fake_redis, "incr", down)
+        assert check().status_code == 503
+        assert len(calls) == 2

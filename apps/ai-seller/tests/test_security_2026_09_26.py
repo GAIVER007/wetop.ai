@@ -407,3 +407,20 @@ def test_one_hotel_filling_its_share_does_not_block_another(
 
 
 from tests.dashboard_fakes import sync_db  # noqa: E402,F401 — фикстура из пространства имён модуля
+
+
+async def test_budget_closes_the_model_when_redis_is_down(engine_env, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: F811
+    """🔴 Решение владельца 30.09.2026: недоступный Redis раньше считался «бюджет не исчерпан», и падение
+    Redis снимало предел на расход токенов целиком. Теперь модель не зовётся, гостю — фраза бюджета."""
+    monkeypatch.setenv("LLM_DAILY_TOKEN_BUDGET", "1000")
+    get_settings.cache_clear()
+
+    async def down(*_args, **_kwargs):
+        raise RuntimeError("redis недоступен")
+
+    monkeypatch.setattr(engine_env.redis, "incrby", down)
+    llm = ScriptedLlm([reply("Есть места.")])
+    engine = engine_env.engine(llm=llm)
+    outcome = await engine.process_message(incoming("Есть места?", external_id="rd-1"))
+    assert llm.calls == 0
+    assert outcome.status == "budget"

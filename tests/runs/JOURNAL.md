@@ -4561,3 +4561,5 @@
 | 30.09.2026 12:54 | integration | ✅ 172 из 172 | 52 с | 1fb5cbb +16 | [лог](logs/2026-09-30T07-54-43Z-integration-8800.log) |  |
 | 30.09.2026 12:55 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-55-59Z-unit-79d8.log) |  |
 | 30.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/ui/roles.spec | ✅ 112 из 112 | 8 мин | 1fb5cbb +26 | [лог](logs/2026-09-30T07-57-30Z-e2e-e428.log) |  |
+| 30.09.2026 13:35 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 40 с | 3315609 +2 | [лог](logs/2026-09-30T08-35-53Z-unit-e3db.log) |  |
+| 30.09.2026 13:37 | integration | ✅ 172 из 172 | 52 с | 3315609 +2 | [лог](logs/2026-09-30T08-37-43Z-integration-d960.log) |  |

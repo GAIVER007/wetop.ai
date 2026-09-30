@@ -46,7 +46,7 @@ SA3 поведение → SA4 знания → SA5 инструменты PMS �
 
 ## 3. API (server authoritative)
 
-Контекст Business Agent (ADR-126), отдельно от гостевого `/seller-agents`:
+Контекст Business Agent (ADR-127), отдельно от гостевого `/seller-agents`:
 
 | Маршрут | Право | Что делает |
 |---|---|---|

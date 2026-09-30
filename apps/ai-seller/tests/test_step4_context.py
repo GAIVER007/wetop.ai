@@ -67,3 +67,15 @@ def test_custom_output_instructions() -> None:
         system_prompt=PROMPT, knowledge=[], history=[], user_text="x", history_turns=1, output_instructions="ИНСТР"
     )
     assert messages[0]["content"] == PROMPT + "\n\nИНСТР"
+
+
+def test_history_turns_are_clipped_to_max_turn_chars() -> None:
+    """🔴 Аудит 30.09.2026: текущий ход режет guardrails, а история уходила в модель
+    как есть. Красный на коде до правки: параметра нет."""
+    long_turn = HistoryTurn(role="user", text="ж" * 10_000)
+    messages = build_messages(
+        system_prompt=PROMPT, knowledge=[], history=[long_turn], user_text="?", history_turns=5, max_turn_chars=4000
+    )
+    assert len(messages[1]["content"]) == 4000
+    untouched = build_messages(system_prompt=PROMPT, knowledge=[], history=[long_turn], user_text="?", history_turns=5)
+    assert len(untouched[1]["content"]) == 10_000

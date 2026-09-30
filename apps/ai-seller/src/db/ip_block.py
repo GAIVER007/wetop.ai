@@ -12,6 +12,8 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+from src.channels.widget_guards import client_ip
+
 logger = logging.getLogger(__name__)
 
 
@@ -60,11 +62,13 @@ class IpBlockMiddleware(BaseHTTPMiddleware):
         if not self._protected(request.url.path) or request.client is None:
             return await call_next(request)
 
-        # За nginx здесь придёт адрес прокси, а не клиента. Доверять
-        # X-Forwarded-For можно только когда привратник сам его ставит
-        # и затирает присланный клиентом — это настройка шага выкатки
-        # (vykatka.md), а не этого модуля: иначе заголовок подделывается.
-        ip = request.client.host
+        # 🔴 Тот же адрес, каким его видит движок при блокировке (client_ip):
+        # за туннелем cloudflared сокет у всех посетителей один — адрес
+        # контейнера туннеля, а блок ставится по CF-Connecting-IP. Сравнивая
+        # здесь сокет, middleware не находила ни одного блока (аудит 30.09.2026).
+        # CF-Connecting-IP берётся только от своих (loopback, частные сети);
+        # снаружи заголовком чужой адрес не выбрать.
+        ip = client_ip(request)
         try:
             blocked = await is_ip_blocked(self._redis_getter(), ip)
         except Exception:  # noqa: BLE001 — любой сбой Redis

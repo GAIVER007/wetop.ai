@@ -59,8 +59,9 @@ export interface SellerConnection {
   /**
    * `null` — продавец не подключён: нет адреса или ключа. `organizationId` — организация вызова (Э4): панель
    * продавца отдаёт строки ровно этой гостиницы; без неё — только заведение гостиниц и помощниковские пути.
+   * `agentId` — агент вызова (SA2.5): заголовок `X-Agent`, бот сверяет принадлежность организации.
    */
-  client(organizationId?: string): SellerPort | null;
+  client(organizationId?: string, agentId?: string): SellerPort | null;
 }
 
 export const SELLER_CONNECTION = Symbol('SELLER_CONNECTION');
@@ -86,13 +87,14 @@ export class EnvSellerConnection implements SellerConnection {
     return sellerConfigFromEnv();
   }
 
-  client(organizationId?: string): SellerPort | null {
+  client(organizationId?: string, agentId?: string): SellerPort | null {
     const config = this.config();
     if (!config.baseUrl || !config.serviceKey) return null;
     return new assistant.SellerClient({
       baseUrl: config.baseUrl,
       serviceKey: config.serviceKey,
       ...(organizationId ? { organizationId } : {}),
+      ...(organizationId && agentId ? { agentId } : {}),
     });
   }
 }

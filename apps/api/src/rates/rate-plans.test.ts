@@ -97,6 +97,7 @@ describe('«Тарифные планы»: правило отмены', () => {
         cancellationPenalty: 'FIRST_NIGHT',
         categories: ['Двухместный', 'Койка'],
         upcomingReservations: 3,
+        derived: null,
       },
       {
         code: 'rate-flex',
@@ -106,6 +107,7 @@ describe('«Тарифные планы»: правило отмены', () => {
         cancellationPenalty: 'NONE',
         categories: [],
         upcomingReservations: 0,
+        derived: null,
       },
     ]);
   });

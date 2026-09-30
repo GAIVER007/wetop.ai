@@ -1,0 +1,253 @@
+# Сквозные (e2e) · 30.09.2026 12:57 Алматы · vm
+# коммит 1fb5cbb (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/ai-agents-create.spec.ts' 'tests/ui/requests.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/support-queue.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 112 tests using 1 worker
+
+  ✓    1 tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (7.3s)
+  ✓    2 tests/ui/ai-agents-create.spec.ts:68:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (4.5s)
+  ✓    3 tests/ui/ai-agents-create.spec.ts:89:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (4.5s)
+  ✓    4 tests/ui/ai-agents-create.spec.ts:105:1 › двойной щелчок по «Создать черновик» даёт одного агента (3.9s)
+  ✓    5 tests/ui/ai-agents-create.spec.ts:116:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (2.6s)
+  ✓    6 tests/ui/ai-agents-create.spec.ts:127:1 › сотрудник смены: страница создания объясняет роль, формы нет (2.1s)
+  ✓    7 tests/ui/ai-agents-create.spec.ts:135:1 › управляющий может создать агента (3.0s)
+  ✓    8 tests/ui/ai-agents-create.spec.ts:144:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (3.5s)
+  ✓    9 tests/ui/ai-agents-create.spec.ts:155:1 › расширения нет: на странице создания причина про расширение (2.2s)
+  ✓   10 tests/ui/ai-agents-create.spec.ts:162:1 › несуществующий агент — страница «не найдено», а не пустая карточка (2.9s)
+  ✓   11 tests/ui/ai-agents-create.spec.ts:171:1 › запуска нет и на сервере: activate отвечает 409, черновик остаётся черновиком (3.6s)
+  ✓   12 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 1440 (3.8s)
+  ✓   13 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 1440 (4.3s)
+  ✓   14 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 1440 (3.6s)
+  ✓   15 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, light, 390 (3.6s)
+  ✓   16 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, light, 390 (4.0s)
+  ✓   17 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, light, 390 (3.5s)
+  ✓   18 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 1440 (3.7s)
+  ✓   19 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 1440 (4.3s)
+  ✓   20 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 1440 (3.5s)
+  ✓   21 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, form, dark, 390 (3.3s)
+  ✓   22 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, agent, dark, 390 (3.8s)
+  ✓   23 tests/ui/ai-agents-create.spec.ts:192:7 › оформление: axe и снимок, blocked, dark, 390 (3.4s)
+  ✓   24 tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (4.2s)
+  ✓   25 tests/ui/ai-agents.spec.ts:52:1 › главный администратор: рядом с продавцом карточка WETOP Support (4.7s)
+  ✓   26 tests/ui/ai-agents.spec.ts:64:1 › расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением (3.3s)
+  ✓   27 tests/ui/ai-agents.spec.ts:83:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна (2.8s)
+  ✓   28 tests/ui/ai-agents.spec.ts:97:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят (2.6s)
+  ✓   29 tests/ui/ai-agents.spec.ts:109:1 › продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами (2.5s)
+  ✓   30 tests/ui/ai-agents.spec.ts:128:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (2.3s)
+  ✓   31 tests/ui/ai-agents.spec.ts:137:1 › черновики гостевого мастера: «Черновик», без Business и Location (2.9s)
+  ✓   32 tests/ui/ai-agents.spec.ts:149:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (2.6s)
+  ✓   33 tests/ui/ai-agents.spec.ts:162:1 › сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль (2.5s)
+  ✓   34 tests/ui/ai-agents.spec.ts:172:1 › старый адрес /ai-seller работает (2.6s)
+  ✓   35 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 1440 (4.3s)
+  ✓   36 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 1440 (3.7s)
+  ✓   37 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 1440 (3.5s)
+  ✓   38 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 1440 (3.7s)
+  ✓   39 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, light, 390 (3.4s)
+  ✓   40 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, light, 390 (3.2s)
+  ✓   41 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, light, 390 (3.4s)
+  ✓   42 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, light, 390 (3.2s)
+  ✓   43 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 1440 (4.3s)
+  ✓   44 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 1440 (5.2s)
+  ✓   45 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 1440 (3.7s)
+  ✓   46 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 1440 (3.6s)
+  ✓   47 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, working, dark, 390 (3.4s)
+  ✓   48 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, off, dark, 390 (3.2s)
+  ✓   49 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, expired, dark, 390 (3.3s)
+  ✓   50 tests/ui/ai-agents.spec.ts:188:7 › каталог: axe и снимок, setup, dark, 390 (3.6s)
+  ✓   51 tests/ui/navigation.spec.ts:32:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (3.8s)
+  ✓   52 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (3.0s)
+  ✓   53 tests/ui/navigation.spec.ts:86:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (4.0s)
+  ✓   54 tests/ui/navigation.spec.ts:113:1 › все пункты меню открывают существующие страницы (17.3s)
+  ✓   55 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: light (7.3s)
+  ✓   56 tests/ui/navigation.spec.ts:142:3 › навигация ровная, адаптивная и доступная: dark (6.1s)
+  ✓   57 tests/ui/platform-support.spec.ts:46:1 › не главный администратор: пункта нет, а страница говорит, чей это раздел (4.4s)
+  ✓   58 tests/ui/platform-support.spec.ts:60:1 › главный администратор: сводка, очередь, карточка — кто пишет (6.8s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <div>
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SupportScreen>
+[WebServer]                 <KnowledgeView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack">
+[WebServer]                       ...
+[WebServer]                         <KnowledgeUploadForm upload={function supportUploadAction}>
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Документ: ...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input type="file" name="file" accept=".md,.txt,...." required={true} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     type="file"
+[WebServer]                                     name="file"
+[WebServer]                                     accept=".md,.txt,.pdf,.docx,.xlsx"
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="knowledge-file"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]     ...
+[WebServer]  
+  ✓   59 tests/ui/platform-support.spec.ts:103:1 › знания помощника: список и загрузка документа (5.3s)
+  ✓   60 tests/ui/platform-support.spec.ts:123:1 › настройка помощника: правила и модель сохраняются, «Проверка» отвечает по новым правилам (9.1s)
+  ✓   61 tests/ui/platform-support.spec.ts:175:1 › правил у помощника ещё нет — «Настройки» предупреждают, что он не отвечает (2.6s)
+  ✓   62 tests/ui/platform-support.spec.ts:192:1 › помощник не подключён — раздел говорит, что вписать владельцу (2.5s)
+  ✓   63 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 1440px (16.7s)
+  ✓   64 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 1440px (16.3s)
+  ✓   65 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: light, 390px (14.6s)
+  ✓   66 tests/ui/platform-support.spec.ts:202:5 › доступность «Техподдержки»: dark, 390px (16.1s)
+  ✓   67 tests/ui/requests.spec.ts:70:3 › экран /today: данные берутся одним запросом на путь (1.9s)
+  ✓   68 tests/ui/requests.spec.ts:70:3 › экран /chessboard: данные берутся одним запросом на путь (2.1s)
+  ✓   69 tests/ui/requests.spec.ts:70:3 › экран /reservations: данные берутся одним запросом на путь (2.0s)
+  ✓   70 tests/ui/requests.spec.ts:70:3 › экран /guests: данные берутся одним запросом на путь (1.8s)
+  ✓   71 tests/ui/requests.spec.ts:70:3 › экран /inventory: данные берутся одним запросом на путь (2.1s)
+  ✓   72 tests/ui/requests.spec.ts:70:3 › экран /rooms/categories: данные берутся одним запросом на путь (3.1s)
+  ✓   73 tests/ui/requests.spec.ts:70:3 › экран /rooms/availability: данные берутся одним запросом на путь (1.7s)
+  ✓   74 tests/ui/requests.spec.ts:70:3 › экран /rates: данные берутся одним запросом на путь (1.7s)
+  ✓   75 tests/ui/requests.spec.ts:70:3 › экран /management/analytics: данные берутся одним запросом на путь (2.2s)
+  ✓   76 tests/ui/requests.spec.ts:70:3 › экран /management/analytics/occupancy: данные берутся одним запросом на путь (2.2s)
+  ✓   77 tests/ui/requests.spec.ts:70:3 › экран /finance: данные берутся одним запросом на путь (2.7s)
+  ✓   78 tests/ui/requests.spec.ts:70:3 › экран /channels: данные берутся одним запросом на путь (2.7s)
+  ✓   79 tests/ui/requests.spec.ts:70:3 › экран /channels/connections: данные берутся одним запросом на путь (1.8s)
+  ✓   80 tests/ui/requests.spec.ts:70:3 › экран /channels/mapping: данные берутся одним запросом на путь (2.1s)
+  ✓   81 tests/ui/requests.spec.ts:70:3 › экран /channels/sync: данные берутся одним запросом на путь (2.0s)
+  ✓   82 tests/ui/requests.spec.ts:70:3 › экран /channels/events: данные берутся одним запросом на путь (1.8s)
+  ✓   83 tests/ui/requests.spec.ts:70:3 › экран /website: данные берутся одним запросом на путь (1.6s)
+  ✓   84 tests/ui/requests.spec.ts:70:3 › экран /website/booking: данные берутся одним запросом на путь (2.3s)
+  ✓   85 tests/ui/requests.spec.ts:70:3 › экран /website/analytics: данные берутся одним запросом на путь (2.4s)
+  ✓   86 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings: данные берутся одним запросом на путь (1.7s)
+  ✓   87 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/stay: данные берутся одним запросом на путь (1.6s)
+  ✓   88 tests/ui/requests.spec.ts:70:3 › экран /hotel-settings/services: данные берутся одним запросом на путь (1.7s)
+  ✓   89 tests/ui/requests.spec.ts:70:3 › экран /connections: данные берутся одним запросом на путь (1.9s)
+  ✓   90 tests/ui/requests.spec.ts:70:3 › экран /ai-agents: данные берутся одним запросом на путь (1.6s)
+  ✓   91 tests/ui/requests.spec.ts:70:3 › экран /website/settings: данные берутся одним запросом на путь (2.0s)
+  ✓   92 tests/ui/requests.spec.ts:70:3 › экран /incidents: данные берутся одним запросом на путь (1.6s)
+  ✓   93 tests/ui/requests.spec.ts:70:3 › экран /journal: данные берутся одним запросом на путь (1.6s)
+  ✓   94 tests/ui/requests.spec.ts:70:3 › экран /reservations/new?unit=M03: данные берутся одним запросом на путь (2.3s)
+  ✓   95 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (3.7s)
+  ✓   96 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (9.7s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   97 tests/ui/roles.spec.ts:99:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (5.3s)
+  ✓   98 tests/ui/roles.spec.ts:116:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (7.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓   99 tests/ui/roles.spec.ts:144:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (8.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  100 tests/ui/roles.spec.ts:206:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.8s)
+  ✓  101 tests/ui/roles.spec.ts:257:1 › владелец: зовёт управляющего и администратора, меняет роль (2.9s)
+  ✓  102 tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий (2.4s)
+  ✓  103 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.7s)
+  ✓  104 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.6s)
+  ✓  105 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 390px (5.4s)
+  ✓  106 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 390px (6.0s)
+  ✓  107 tests/ui/support-queue.spec.ts:43:1 › очередь: без пустых диалогов, срочные первыми, последнее сообщение и сколько ждёт (3.9s)
+  ✓  108 tests/ui/support-queue.spec.ts:82:1 › переписка открывается рядом со списком; забрать, ответить, вернуть ИИ (6.8s)
+  ✓  109 tests/ui/support-queue.spec.ts:123:1 › закрыть обращение: с подтверждением, уходит в «Закрытые», переписка только для чтения (5.7s)
+  ✓  110 tests/ui/support-queue.spec.ts:151:1 › помощник не отвечает — отдельно от «не подключён», с повтором (3.3s)
+  ✓  111 tests/ui/support-queue.spec.ts:161:1 › телефон: список на весь экран, переписка вместо него и «К списку» (5.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="platform/s...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <SupportPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             ...
+[WebServer]               <SupportScreen>
+[WebServer]                 <DialogsView>
+[WebServer]                   <Stack>
+[WebServer]                     <div className="stack supp...">
+[WebServer]                       <div>
+[WebServer]                       <nav>
+[WebServer]                       ...
+[WebServer]                         <DialogReplyForm id="8c3d4e5f-6..." reply={function supportReplyAction} label="Ответ поль...">
+[WebServer]                           <form action={function bound dispatchActionState} className="stack stac...">
+[WebServer]                             <Field label="Ответ поль...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Textarea name="text" rows={3} maxLength={4000} required={true} ...>
+[WebServer]                                   <textarea
+[WebServer]                                     className="inp"
+[WebServer]                                     name="text"
+[WebServer]                                     rows={3}
+[WebServer]                                     maxLength={4000}
+[WebServer]                                     required={true}
+[WebServer]                                     data-testid="dialog-reply-text"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]  
+  ✓  112 tests/ui/support-queue.spec.ts:189:1 › снимки для владельца: тёмная тема, компьютер и телефон (5.2s)
+
+  112 passed (8.0m)
+
+# код выхода 0 · 8 мин

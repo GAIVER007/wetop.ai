@@ -1,0 +1,132 @@
+# Интеграционные (integration) · 30.09.2026 11:43 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 4
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-43-53Z-integration-de4a.json' 'tests/integration/business-agent-identity.test.ts' 'tests/integration/seller-catalog.test.ts' 'tests/integration/seller-profiles.test.ts' 'tests/integration/seller-orgs.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/business-agent-identity.test.ts (12 tests) 785ms
+ ❯ |integration| tests/integration/seller-profiles.test.ts (7 tests | 5 failed) 390ms
+   ❯ seller_profiles и факты объекта (integration, DATABASE_URL required) (7)
+     × первая правка заводит строку организации и пишет журнал: до — пусто, после — поля 23ms
+     × отметки доставки и ошибки продавца 2ms
+     × языков от одного до шести — правило самой базы 15ms
+     × запретов и «когда звать человека» — не больше 30 строк; перечисления — только значения бота 11ms
+     ✓ факты: активные категории с числом активных мест, тариф сайта, его цены в окне 30ms
+     ✓ у организации нет объекта — фактов нет 1ms
+     × инструкция одним текстом (ADR-097): в строку организации, поля прежних шагов целы, в журнал — только длина 13ms
+ ✓ |integration| tests/integration/seller-catalog.test.ts (3 tests) 301ms
+ ✓ |integration| tests/integration/seller-orgs.test.ts (3 tests) 270ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > первая правка заводит строку организации и пишет журнал: до — пусто, после — поля
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.upsert()` invocation:
+
+
+Database error. Code: `23514`. Message: `Агента некому назначить автором: у организации 8334d798-943c-411e-a0be-65eea74b6ac8 нет участников`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/ai-seller/seller.repository.ts:198:21
+    196|     return this.prisma.db.$transaction(async (tx) => {
+    197|       const before = await tx.sellerProfile.findUnique({ where: { orga…
+    198|       const saved = await tx.sellerProfile.upsert({
+       |                     ^
+    199|         where: { organizationId },
+    200|         create: { organizationId, ...data },
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/seller-profiles.test.ts:131:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > отметки доставки и ошибки продавца
+TypeError: Cannot read properties of null (reading 'updatedAt')
+ ❯ tests/integration/seller-profiles.test.ts:171:48
+    169|
+    170|   it('отметки доставки и ошибки продавца', async () => {
+    171|     const version = (await profiles.get(org))!.updatedAt;
+       |                                                ^
+    172|     await profiles.markProfileApplied(org, version);
+    173|     await profiles.markFactsApplied(org, 'a'.repeat(64), now);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > языков от одного до шести — правило самой базы
+AssertionError: expected [Function] to throw error matching /seller_profiles_languages_check|chec…/i but got '\nInvalid `prisma.$executeRawUnsafe()…'
+
+- Expected:
+/seller_profiles_languages_check|check constraint/i
+
++ Received:
+"
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `23514`. Message: `Агента некому назначить автором: у организации a25dbbf7-a372-4151-9a6c-5f9360a14c2c нет участников`"
+
+ ❯ tests/integration/seller-profiles.test.ts:193:29
+    191|         languages,
+    192|       );
+    193|     await expect(insert([])).rejects.toThrow(/seller_profiles_language…
+       |                             ^
+    194|     await expect(insert(['ru', 'kk', 'en', 'zh', 'uz', 'ky', 'tr'])).r…
+    195|       /seller_profiles_languages_check|check constraint/i,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > запретов и «когда звать человека» — не больше 30 строк; перечисления — только значения бота
+AssertionError: expected [Function] to throw error matching /seller_profiles_prohibitions_check|c…/i but got '\nInvalid `prisma.$executeRawUnsafe()…'
+
+- Expected:
+/seller_profiles_prohibitions_check|check constraint/i
+
++ Received:
+"
+Invalid `prisma.$executeRawUnsafe()` invocation:
+
+
+Raw query failed. Code: `23514`. Message: `Агента некому назначить автором: у организации a25dbbf7-a372-4151-9a6c-5f9360a14c2c нет участников`"
+
+ ❯ tests/integration/seller-profiles.test.ts:208:47
+    206|       );
+    207|     const many = Array.from({ length: 31 }, (_, i) => `Правило ${i + 1…
+    208|     await expect(insert('prohibitions', many)).rejects.toThrow(
+       |                                               ^
+    209|       /seller_profiles_prohibitions_check|check constraint/i,
+    210|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |integration| tests/integration/seller-profiles.test.ts > seller_profiles и факты объекта (integration, DATABASE_URL required) > инструкция одним текстом (ADR-097): в строку организации, поля прежних шагов целы, в журнал — только длина
+PrismaClientKnownRequestError: 
+Invalid `prisma.sellerProfile.upsert()` invocation:
+
+
+Database error. Code: `23514`. Message: `Агента некому назначить автором: у организации 8334d798-943c-411e-a0be-65eea74b6ac8 нет участников`
+ ❯ vn.handleRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:238:13
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ apps/api/src/ai-seller/seller.repository.ts:233:21
+    231|     const stamp = { promptText: text, updatedAt: now, updatedBy: userI…
+    232|     return this.prisma.db.$transaction(async (tx) => {
+    233|       const saved = await tx.sellerProfile.upsert({
+       |                     ^
+    234|         where: { organizationId },
+    235|         create: {
+ ❯ Proxy._transactionWithCallback node_modules/@prisma/client/src/runtime/getPrismaClient.ts:861:18
+ ❯ tests/integration/seller-profiles.test.ts:275:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  5 failed | 20 passed (25)
+   Start at  06:43:53
+   Duration  6.14s (tests 43%, import 36%, transform 21%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-43-53Z-integration-de4a.json
+
+# код выхода 1 · 7 с

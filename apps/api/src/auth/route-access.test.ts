@@ -131,6 +131,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /rates/bulk': 'rates',
   'GET /rates/plans': 'rates',
   'PATCH /rates/plans/:code': 'rates',
+  'POST /rates/plans/derived': 'rates',
+  'PATCH /rates/plans/:code/derived': 'rates',
+  'GET /rates/promo-codes': 'rates',
+  'POST /rates/promo-codes': 'rates',
+  'PATCH /rates/promo-codes/:code': 'rates',
 
   // ── каналы: webhook Channex приходит снаружи со своим секретом ──────────────────────────
   'GET /channels/channex/mapping': 'channels',
@@ -173,6 +178,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
 
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',
+  'GET /ai-seller/catalog': 'dialogs',
+  'GET /ai-seller/agents/options': 'dialogs',
+  'POST /ai-seller/agents': 'seller',
+  'GET /ai-seller/agents/:id': 'dialogs',
   'GET /ai-seller/summary': 'dialogs',
   'GET /ai-seller/conversations': 'dialogs',
   'GET /ai-seller/conversations/:id': 'dialogs',
@@ -238,10 +247,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /a/hit': 'public',
   'GET /a/demo': 'public',
   'GET /w/widget.js': 'public',
+  'GET /w/config': 'public',
   'GET /w/availability': 'public',
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
+  'GET /bot/agent-origins': 'public',
   'POST /wizard/session': 'public',
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',

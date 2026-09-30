@@ -4,6 +4,7 @@
  */
 import type { SessionRow } from '@pms/domain';
 import type {
+  AgentScopeRow,
   AnalyticsRepository,
   RatePlanOption,
   SiteRecord,
@@ -56,6 +57,8 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   ]);
   /** Чья гостиница у сайта (Q-166, ADR-085): в записи сайта организации нет, она у объекта */
   siteOrganizations = new Map<string, string>();
+  /** Агенты продавца (SA2.5): область запроса берётся только из этой строки */
+  agentRows = new Map<string, AgentScopeRow>();
   recorded: StoredHit[] = [];
   audits: Array<{ action: string; siteId: string; details?: Record<string, unknown> | undefined }> =
     [];
@@ -137,6 +140,34 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
         return site;
     }
     return null;
+  }
+
+  async agentScope(agentId: string): Promise<AgentScopeRow | null> {
+    const row = this.agentRows.get(agentId);
+    return row && row.lifecycle !== 'archived' ? row : null;
+  }
+  async bookingSiteForAgent(agentId: string): Promise<SiteRecord | null> {
+    const scope = await this.agentScope(agentId);
+    if (!scope?.propertyId) return null;
+    for (const site of this.sitesById.values()) {
+      if (site.propertyId === scope.propertyId && site.status === 'ACTIVE' && site.bookingEnabled && site.bookingRatePlan)
+        return { ...site, organizationId: scope.organizationId };
+    }
+    return null;
+  }
+  async hostsForAgent(agentId: string): Promise<string[] | null> {
+    const scope = await this.agentScope(agentId);
+    if (!scope) return null;
+    if (!scope.propertyId) return [];
+    const hosts = [...this.sitesById.values()]
+      .filter((s) => s.propertyId === scope.propertyId && s.status === 'ACTIVE')
+      .flatMap((s) => s.hosts);
+    return [...new Set(hosts)];
+  }
+  async salesAgentCount(organizationId: string): Promise<number> {
+    return [...this.agentRows.values()].filter(
+      (a) => a.organizationId === organizationId && a.scenario === 'sales' && a.lifecycle !== 'archived',
+    ).length;
   }
 
   async siteByKey(key: string): Promise<SiteRecord | null> {

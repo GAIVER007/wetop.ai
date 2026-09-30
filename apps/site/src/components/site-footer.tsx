@@ -35,6 +35,9 @@ export function SiteFooter() {
                 </li>
               ) : null}
               <li>
+                <Link href="/calculator/">{t.calculator.link}</Link>
+              </li>
+              <li>
                 <a href={loginLink().href}>{t.nav.login}</a>
               </li>
             </ul>

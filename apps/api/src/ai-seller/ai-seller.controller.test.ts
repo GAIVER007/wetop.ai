@@ -4,16 +4,21 @@ import type { INestApplication } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SellerFactsSource } from '@pms/domain';
+import type { SellerFactsSource, SellerProfileInput } from '@pms/domain';
 import { assistant } from '@pms/integrations';
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AuthorInterceptor } from '../auth/author.interceptor';
 import { AiSellerController } from './ai-seller.controller';
 import { SELLER_LLM_LIMITS } from './seller.service';
+import { SellerCatalogService } from './seller-catalog.service';
+import { BUSINESS_AGENTS } from './business-agents.repository';
+import { BusinessAgentsService } from './business-agents.service';
 import { ExtensionsService } from '../platform/extensions.service';
 import {
   FakeAudit,
+  FakeBusinessAgents,
+  FakeCatalog,
   FakeConnection,
   FakeFacts,
   FakeOrgs,
@@ -23,7 +28,14 @@ import {
   unavailable,
 } from './fakes';
 import { SELLER_CONNECTION, type SellerConfig } from './seller.connection';
-import { SELLER_AUDIT, SELLER_FACTS, SELLER_ORGS, SELLER_PROFILES } from './seller.repository';
+import {
+  SELLER_AUDIT,
+  SELLER_CATALOG,
+  SELLER_FACTS,
+  SELLER_ORGS,
+  SELLER_PROFILES,
+  workingSellerScope,
+} from './seller.repository';
 import {
   SELLER_EXTENSION_EXPIRED,
   SELLER_EXTENSION_OFF,
@@ -92,6 +104,8 @@ const facts = new FakeFacts();
 const audit = new FakeAudit();
 const extensions = new FakeSellerExtensions();
 const orgs = new FakeOrgs();
+const catalog = new FakeCatalog();
+const businessAgents = new FakeBusinessAgents();
 let app: INestApplication;
 
 beforeAll(async () => {
@@ -127,11 +141,15 @@ beforeAll(async () => {
     controllers: [AiSellerController],
     providers: [
       SellerService,
+      SellerCatalogService,
+      BusinessAgentsService,
+      { provide: BUSINESS_AGENTS, useValue: businessAgents },
       { provide: SELLER_CONNECTION, useValue: connection },
       { provide: SELLER_PROFILES, useValue: profiles },
       { provide: SELLER_FACTS, useValue: facts },
       { provide: SELLER_AUDIT, useValue: audit },
       { provide: SELLER_ORGS, useValue: orgs },
+      { provide: SELLER_CATALOG, useValue: catalog },
       { provide: ExtensionsService, useValue: extensions },
       { provide: AuthService, useValue: auth },
       { provide: APP_GUARD, useClass: SessionGuard },
@@ -162,6 +180,12 @@ beforeEach(() => {
     { organizationId: ORG_B, name: 'Гостиница Б' },
   ];
   orgs.siteHosts.clear();
+  orgs.agentHosts.clear();
+  catalog.placements.clear();
+  catalog.draftRows.clear();
+  businessAgents.businesses.clear();
+  businessAgents.agents.clear();
+  catalog.asked = [];
   audit.events = [];
   extensions.access = 'active';
   extensions.asked = [];
@@ -371,12 +395,23 @@ describe('«Применить» (П8)', () => {
 describe('данные объекта для продавца', () => {
   it('отдаёт ровно те факты, что уйдут продавцу, и отпечаток', async () => {
     const res = await api().get('/ai-seller/facts').set(as('session-a')).expect(200);
-    expect(res.body.facts).toMatchObject({ object_name: 'Тестовый хостел', check_in: '14:00', currency: 'KZT' });
+    expect(res.body.facts).toMatchObject({
+      object_name: 'Тестовый хостел',
+      check_in: '14:00',
+      currency: 'KZT',
+    });
     // для экрана — ещё тариф сайта, окно и разбор цены по категориям: что ушло продавцу и почему
     expect(res.body.ratePlan).toEqual({ code: 'BASE', name: 'Базовый тариф', currency: 'KZT' });
     expect(res.body.window).toEqual({ from: '2026-09-24', to: '2026-11-22' });
     expect(res.body.prices).toMatchObject([
-      { code: 'DBL', name: 'Двухместная', occupancy: 2, priceMinor: '1500000', reason: 'same', units: 4 },
+      {
+        code: 'DBL',
+        name: 'Двухместная',
+        occupancy: 2,
+        priceMinor: '1500000',
+        reason: 'same',
+        units: 4,
+      },
     ]);
     expect(res.body.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(res.body.applied).toBe(false);
@@ -440,10 +475,21 @@ describe('диалоги, знания, сводка, песочница (П7)',
       mode: 'bot_active',
       stage: 'new',
       lead_data: { dates: '1–3 окт' },
-      contact: { name: 'Гость Тестов', phone: null, email: null, channel: 'widget', external_id: 'x' },
-      messages: [{ role: 'user', text: 'Есть места?', at: '2026-09-24T09:00:00+00:00', sent_by_us: false }],
+      contact: {
+        name: 'Гость Тестов',
+        phone: null,
+        email: null,
+        channel: 'widget',
+        external_id: 'x',
+      },
+      messages: [
+        { role: 'user', text: 'Есть места?', at: '2026-09-24T09:00:00+00:00', sent_by_us: false },
+      ],
     };
-    const res = await api().get(`/ai-seller/conversations/${CONV}`).set(as('session-a')).expect(200);
+    const res = await api()
+      .get(`/ai-seller/conversations/${CONV}`)
+      .set(as('session-a'))
+      .expect(200);
     expect(res.body).toMatchObject({
       id: CONV,
       mode: 'bot_active',
@@ -504,11 +550,19 @@ describe('диалоги, знания, сводка, песочница (П7)',
     expect(list.body).toEqual({
       items: [{ source: 'прайс.md', chunks: 3, createdAt: '2026-09-24T09:00:00+00:00' }],
     });
-    connection.seller.replies.uploadKnowledge = { status: 'ok', source: 'правила.md', created: true, chunks: 2 };
+    connection.seller.replies.uploadKnowledge = {
+      status: 'ok',
+      source: 'правила.md',
+      created: true,
+      chunks: 2,
+    };
     const up = await api()
       .post('/ai-seller/knowledge')
       .set(as('session-a'))
-      .attach('file', Buffer.from('# Правила'), { filename: 'правила.md', contentType: 'text/markdown' })
+      .attach('file', Buffer.from('# Правила'), {
+        filename: 'правила.md',
+        contentType: 'text/markdown',
+      })
       .expect(201);
     expect(up.body).toEqual({ source: 'правила.md', created: true, chunks: 2 });
     const uploaded = connection.seller.calls.find((c) => c.op === 'uploadKnowledge')!;
@@ -517,12 +571,21 @@ describe('диалоги, знания, сводка, песочница (П7)',
     await api()
       .post('/ai-seller/knowledge')
       .set(as('session-a'))
-      .attach('file', Buffer.from('MZ'), { filename: 'setup.exe', contentType: 'application/octet-stream' })
+      .attach('file', Buffer.from('MZ'), {
+        filename: 'setup.exe',
+        contentType: 'application/octet-stream',
+      })
       .expect(415);
   });
 
   it('сводка и песочница', async () => {
-    connection.seller.replies.summary = { hours: 24, dialogs: 5, replies: 12, leads: 2, sla_breaches: 0 };
+    connection.seller.replies.summary = {
+      hours: 24,
+      dialogs: 5,
+      replies: 12,
+      leads: 2,
+      sla_breaches: 0,
+    };
     const summary = await api().get('/ai-seller/summary').set(as('session-a')).expect(200);
     expect(summary.body).toEqual({ hours: 24, dialogs: 5, replies: 12, leads: 2, slaBreaches: 0 });
 
@@ -541,7 +604,10 @@ describe('диалоги, знания, сводка, песочница (П7)',
       .expect(200);
     expect(res.body).toEqual({ reply: 'Привет! Места есть.', needsHuman: false, reasons: [] });
     const call = connection.seller.calls.find((c) => c.op === 'sandbox')!;
-    expect(call.args[0]).toEqual({ externalId: `wetop-check-${USER_A}`, text: 'Есть места на выходные?' });
+    expect(call.args[0]).toEqual({
+      externalId: `wetop-check-${USER_A}`,
+      text: 'Есть места на выходные?',
+    });
   });
 
   it('другая организация ходит к продавцу со своей организацией: изоляция — на панели бота (Э4)', async () => {
@@ -570,6 +636,7 @@ describe('диалоги, знания, сводка, песочница (П7)',
 describe('код для сайта объекта', () => {
   it('тег чата продавца: публичный адрес и data-key гостиницы, служебного ключа в теге нет (Э4)', async () => {
     orgs.siteHosts.set(ORG_A, ['hotel-a.example.invalid']);
+    orgs.agentHosts.set(ORG_A, ['hotel-a.example.invalid']);
     const res = await api().get('/ai-seller/embed').set(as('session-a')).expect(200);
     const key = assistant.widgetOrgKey(KEY, ORG_A);
     expect(res.body).toEqual({
@@ -581,6 +648,7 @@ describe('код для сайта объекта', () => {
 
   it('публичного адреса нет — кода нет; доменов нет — экран скажет завести сайт', async () => {
     orgs.siteHosts.delete(ORG_A);
+    orgs.agentHosts.delete(ORG_A);
     connection.settings = { ...baseConfig(), publicUrl: null };
     const res = await api().get('/ai-seller/embed').set(as('session-a')).expect(200);
     expect(res.body).toEqual({ snippet: null, hosts: [] });
@@ -598,7 +666,11 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
     });
     const list = await api().get('/ai-seller/conversations').set(as('session-a')).expect(403);
     expect(list.body.message).toBe(SELLER_EXTENSION_OFF);
-    const saved = await api().put('/ai-seller/profile').set(as('session-a')).send(profile).expect(403);
+    const saved = await api()
+      .put('/ai-seller/profile')
+      .set(as('session-a'))
+      .send(profile)
+      .expect(403);
     expect(saved.body.message).toBe(SELLER_EXTENSION_OFF);
     await api().get('/ai-seller/embed').set(as('session-a')).expect(403);
     // и прочитать сохранённое нельзя: без расширения раздела нет целиком, а не только кнопок (§4.1 плана)
@@ -628,11 +700,19 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
       .send({ text: 'Здравствуйте!' })
       .expect(403);
     expect(reply.body.message).toBe(SELLER_EXTENSION_EXPIRED);
-    const saved = await api().put('/ai-seller/profile').set(as('session-a')).send(profile).expect(403);
+    const saved = await api()
+      .put('/ai-seller/profile')
+      .set(as('session-a'))
+      .send(profile)
+      .expect(403);
     expect(saved.body.message).toBe(SELLER_EXTENSION_EXPIRED);
     // сохранённое читается: владелец видит, что было настроено, и продлевает не вслепую
     await api().get('/ai-seller/profile').set(as('session-a')).expect(200);
-    await api().post('/ai-seller/sandbox').set(as('session-a')).send({ text: 'Есть места?' }).expect(403);
+    await api()
+      .post('/ai-seller/sandbox')
+      .set(as('session-a'))
+      .send({ text: 'Есть места?' })
+      .expect(403);
     expect(connection.seller.ops()).toEqual(['listConversations']);
   });
 
@@ -640,7 +720,11 @@ describe('расширение и роли (DATA_MODEL §16, ADR-083, Q-183)', (
     connection.seller.replies.listConversations = { items: [] };
     const status = await api().get('/ai-seller/status').set(as('session-staff')).expect(200);
     expect(status.body.canConfigure).toBe(false);
-    const saved = await api().put('/ai-seller/profile').set(as('session-staff')).send(profile).expect(403);
+    const saved = await api()
+      .put('/ai-seller/profile')
+      .set(as('session-staff'))
+      .send(profile)
+      .expect(403);
     expect(saved.body.message).toBe(SELLER_CONFIGURE_ONLY);
     await api().post('/ai-seller/apply').set(as('session-staff')).expect(403);
     await api()
@@ -842,7 +926,11 @@ describe('подключение WhatsApp (С3, Q-185 (а); план `plans/sell
     const res = await api()
       .put('/ai-seller/whatsapp')
       .set(as('session-a'))
-      .send({ phoneNumberId: '555000111', token: 'EAAG-token-16chars-min', appSecret: 'meta-secret' })
+      .send({
+        phoneNumberId: '555000111',
+        token: 'EAAG-token-16chars-min',
+        appSecret: 'meta-secret',
+      })
       .expect(200);
     expect(res.body).toEqual({
       set: true,
@@ -853,7 +941,10 @@ describe('подключение WhatsApp (С3, Q-185 (а); план `plans/sell
     expect(res.text).not.toContain('EAAG-token');
     expect(connection.seller.calls).toContainEqual({
       op: 'putWhatsApp',
-      args: [ORG_A, { phoneNumberId: '555000111', token: 'EAAG-token-16chars-min', appSecret: 'meta-secret' }],
+      args: [
+        ORG_A,
+        { phoneNumberId: '555000111', token: 'EAAG-token-16chars-min', appSecret: 'meta-secret' },
+      ],
     });
   });
 
@@ -865,10 +956,22 @@ describe('подключение WhatsApp (С3, Q-185 (а); план `plans/sell
     };
     const got = await api().get('/ai-seller/whatsapp').set(as('session-a')).expect(200);
     expect(got.body).toMatchObject({ set: true, phoneNumberId: '555000111' });
-    connection.seller.replies.putWhatsApp = { set: false, phone_number_id: null, verify_token: null };
-    const off = await api().put('/ai-seller/whatsapp').set(as('session-a')).send({ phoneNumberId: '' }).expect(200);
+    connection.seller.replies.putWhatsApp = {
+      set: false,
+      phone_number_id: null,
+      verify_token: null,
+    };
+    const off = await api()
+      .put('/ai-seller/whatsapp')
+      .set(as('session-a'))
+      .send({ phoneNumberId: '' })
+      .expect(200);
     expect(off.body).toMatchObject({ set: false, phoneNumberId: null, webhookUrl: null });
-    connection.seller.replies.checkWhatsApp = { valid: true, phone: '+7 701 000-00-00', reason: null };
+    connection.seller.replies.checkWhatsApp = {
+      valid: true,
+      phone: '+7 701 000-00-00',
+      reason: null,
+    };
     const check = await api()
       .post('/ai-seller/whatsapp/check')
       .set(as('session-a'))
@@ -887,7 +990,11 @@ describe('подключение WhatsApp (С3, Q-185 (а); план `plans/sell
     extensions.access = 'expired';
     await api().get('/ai-seller/whatsapp').set(as('session-a')).expect(403);
     extensions.access = 'active';
-    await api().post('/ai-seller/whatsapp/check').set(as('session-a')).send({ phoneNumberId: '' }).expect(400);
+    await api()
+      .post('/ai-seller/whatsapp/check')
+      .set(as('session-a'))
+      .send({ phoneNumberId: '' })
+      .expect(400);
     expect(connection.seller.calls).toEqual([]);
   });
 });
@@ -909,7 +1016,13 @@ describe('часовые пределы на платные вызовы мод�
   }
 
   it('песочница: не больше SELLER_LLM_LIMITS.sandbox в час на человека, сверх — 429 без хода к продавцу', async () => {
-    connection.seller.replies.sandbox = { status: 'ok', reply: 'Да', needs_human: false, edits: [], reasons: [] };
+    connection.seller.replies.sandbox = {
+      status: 'ok',
+      reply: 'Да',
+      needs_human: false,
+      edits: [],
+      reasons: [],
+    };
     const outcome = await untilTooOften(
       () => api().post('/ai-seller/sandbox').set(as('session-b')).send({ text: 'Есть места?' }),
       SELLER_LLM_LIMITS.sandbox,
@@ -920,23 +1033,278 @@ describe('часовые пределы на платные вызовы мод�
   });
 
   it('разбор рассказа: не больше SELLER_LLM_LIMITS.extract в час', async () => {
-    connection.seller.replies.extractProfile = { profile: {}, facts: {}, unparsed: [], rejected: [] };
+    connection.seller.replies.extractProfile = {
+      profile: {},
+      facts: {},
+      unparsed: [],
+      rejected: [],
+    };
     const story = 'Хостел на двадцать коек в центре, заезд с четырнадцати, выезд до двенадцати.';
     const outcome = await untilTooOften(
       () => api().post('/ai-seller/extract').set(as('session-manager')).send({ story }),
       SELLER_LLM_LIMITS.extract,
     );
     expect(outcome.tooOften).toBe(true);
-    expect(connection.seller.calls.filter((c) => c.op === 'extractProfile')).toHaveLength(outcome.ok);
+    expect(connection.seller.calls.filter((c) => c.op === 'extractProfile')).toHaveLength(
+      outcome.ok,
+    );
   });
 
   it('проверка ключа модели: не больше SELLER_LLM_LIMITS[llm-key] в час — оракул годности ключей', async () => {
     connection.seller.replies.checkLlmKey = { valid: false, reason: 'нет' };
     const outcome = await untilTooOften(
-      () => api().post('/ai-seller/llm-key/check').set(as('session-a')).send({ key: 'sk-partner-1234567890' }),
+      () =>
+        api()
+          .post('/ai-seller/llm-key/check')
+          .set(as('session-a'))
+          .send({ key: 'sk-partner-1234567890' }),
       SELLER_LLM_LIMITS['llm-key'],
     );
     expect(outcome.tooOften).toBe(true);
     expect(connection.seller.calls.filter((c) => c.op === 'checkLlmKey')).toHaveLength(outcome.ok);
+  });
+});
+
+describe('каталог AI-агентов (SA1)', () => {
+  const PLACE_A = {
+    business: { id: 'b0000000-0000-4000-8000-00000000000a', name: 'Сеть А' },
+    location: { id: 'c0000000-0000-4000-8000-00000000000a', name: 'Алматы' },
+  };
+  const PLACE_B = {
+    business: { id: 'b0000000-0000-4000-8000-00000000000b', name: 'Сеть Б' },
+    location: { id: 'c0000000-0000-4000-8000-00000000000b', name: 'Астана' },
+  };
+  const NOW = new Date('2026-09-29T10:00:00.000Z');
+  const applyProfile = async (organizationId: string, userId: string) => {
+    await profiles.save(
+      workingSellerScope(organizationId),
+      profile as SellerProfileInput,
+      userId,
+      NOW,
+    );
+    await profiles.markProfileApplied(organizationId, NOW);
+  };
+  const get = (session: string) => api().get('/ai-seller/catalog').set(as(session));
+
+  beforeEach(() => {
+    catalog.placements.set(ORG_A, PLACE_A);
+    catalog.placements.set(ORG_B, PLACE_B);
+  });
+
+  it('расширение не подключено: карточек нет, но и отказа нет — страница объясняет', async () => {
+    extensions.access = 'off';
+    catalog.draftRows.set(ORG_A, [{ id: 'd1', name: 'Черновик', updatedAt: NOW, placement: null }]);
+    const res = await get('session-a').expect(200);
+    expect(res.body.extension.access).toBe('off');
+    expect(res.body.agents).toEqual([]);
+    // без расширения продавца не трогаем: ни объекта, ни бота
+    expect(connection.seller.ops()).toEqual([]);
+    expect(catalog.asked).toEqual([]);
+  });
+
+  it('действует, профиля нет: рабочий продавец «Не настроен» с Business и Location объекта', async () => {
+    const res = await get('session-a').expect(200);
+    expect(res.body.agents).toEqual([
+      {
+        id: 'seller',
+        kind: 'seller',
+        name: 'AI-продавец',
+        status: 'NOT_CONFIGURED',
+        business: PLACE_A.business,
+        location: PLACE_A.location,
+        channels: { site: 'OFF', whatsapp: 'OFF' },
+      },
+    ]);
+  });
+
+  it('профиль применён — «Работает», имя из настроек, каналы по данным', async () => {
+    await applyProfile(ORG_A, USER_A);
+    orgs.siteHosts.set(ORG_A, ['hotel-a.example.invalid']);
+    orgs.agentHosts.set(ORG_A, ['hotel-a.example.invalid']);
+    connection.seller.replies.whatsappStatus = { set: false };
+    const res = await get('session-a').expect(200);
+    expect(res.body.agents[0]).toMatchObject({
+      kind: 'seller',
+      name: 'Айгерим',
+      status: 'WORKING',
+      channels: { site: 'ON', whatsapp: 'OFF' },
+    });
+  });
+
+  it('WhatsApp подключён — «ON»; вызов уходит с организацией вошедшего', async () => {
+    connection.seller.replies.whatsappStatus = { set: true, phone_number_id: '123456789' };
+    const res = await get('session-b').expect(200);
+    expect(res.body.agents[0].channels.whatsapp).toBe('ON');
+    expect(connection.requestedOrgs).toEqual([ORG_B]);
+    // номер и адрес вебхука в каталог не попадают: это данные подключения, а не карточки
+    expect(JSON.stringify(res.body)).not.toContain('123456789');
+  });
+
+  it('срок расширения вышел: «Подписка не активна», карточка остаётся, менять нельзя', async () => {
+    extensions.access = 'expired';
+    await applyProfile(ORG_A, USER_A);
+    const res = await get('session-a').expect(200);
+    expect(res.body.extension.access).toBe('expired');
+    expect(res.body.agents[0].status).toBe('SUBSCRIPTION_INACTIVE');
+    expect(res.body.canConfigure).toBe(false);
+    expect(res.body.canManage).toBe(true);
+  });
+
+  it('бот не ответил: страница жива, WhatsApp «нет данных»', async () => {
+    connection.seller.failOn.whatsappStatus = unavailable();
+    const res = await get('session-a').expect(200);
+    expect(res.body.agents[0].channels.whatsapp).toBe('UNKNOWN');
+    expect(res.body.agents[0].channels.site).toBe('OFF');
+  });
+
+  it('у платформы нет адреса и ключа бота: «Бот не подключён», к боту не ходим', async () => {
+    connection.settings = { ...baseConfig(), baseUrl: null, serviceKey: null };
+    await applyProfile(ORG_A, USER_A);
+    const res = await get('session-a').expect(200);
+    expect(res.body.agents[0]).toMatchObject({
+      status: 'BOT_OFFLINE',
+      channels: { whatsapp: 'UNKNOWN' },
+    });
+    expect(connection.seller.ops()).toEqual([]);
+  });
+
+  it('черновики гостевого мастера: «Черновик», без Business и Location, не больше 50', async () => {
+    const many = Array.from({ length: 60 }, (_, i) => ({
+      id: `d${i}`,
+      name: `Черновик ${i}`,
+      updatedAt: NOW,
+      placement: null,
+    }));
+    catalog.draftRows.set(ORG_A, many);
+    const res = await get('session-a').expect(200);
+    const drafts = res.body.agents.filter((a: { kind: string }) => a.kind === 'draft');
+    expect(drafts).toHaveLength(50);
+    expect(drafts[0]).toEqual({
+      id: 'd0',
+      kind: 'draft',
+      name: 'Черновик 0',
+      status: 'DRAFT',
+      business: null,
+      location: null,
+      channels: null,
+    });
+  });
+
+  it('чужие карточки не видны: организация Б видит свой объект и свои черновики', async () => {
+    catalog.draftRows.set(ORG_A, [
+      { id: 'a-draft', name: 'Черновик А', updatedAt: NOW, placement: null },
+    ]);
+    catalog.draftRows.set(ORG_B, [
+      { id: 'b-draft', name: 'Черновик Б', updatedAt: NOW, placement: null },
+    ]);
+    await applyProfile(ORG_A, USER_A);
+    const res = await get('session-b').expect(200);
+    const text = JSON.stringify(res.body);
+    expect(catalog.asked).toEqual([ORG_B]);
+    expect(text).toContain('Астана');
+    expect(text).toContain('Черновик Б');
+    expect(text).not.toContain('Алматы');
+    expect(text).not.toContain('Черновик А');
+    // профиль А не даёт Б «Работает»
+    expect(res.body.agents[0].status).toBe('NOT_CONFIGURED');
+  });
+
+  it('сотрудник смены видит список, но не управляет им', async () => {
+    const res = await get('session-staff').expect(200);
+    expect(res.body.canManage).toBe(false);
+    expect(res.body.agents[0].kind).toBe('seller');
+    const owner = await get('session-a').expect(200);
+    expect(owner.body.canManage).toBe(true);
+    const manager = await get('session-manager').expect(200);
+    expect(manager.body.canManage).toBe(true);
+  });
+
+  it('без входа — отказ', async () => {
+    await api().get('/ai-seller/catalog').expect(401);
+  });
+
+  it('ни адреса, ни ключа продавца в ответе нет', async () => {
+    connection.seller.replies.whatsappStatus = { set: true, verify_token: 'vt-secret-1234' };
+    const res = await get('session-a').expect(200);
+    const text = JSON.stringify(res.body);
+    expect(text).not.toContain(KEY);
+    expect(text).not.toContain('seller:8000');
+    expect(text).not.toContain('seller.example.invalid');
+    expect(text).not.toContain('vt-secret-1234');
+  });
+
+  describe('агенты с филиалом и кнопка создания (SA2)', () => {
+    const BIZ = 'e0000000-0000-4000-8000-00000000000a';
+    const LOC_1 = 'e1000000-0000-4000-8000-0000000000a1';
+    const LOC_2 = 'e2000000-0000-4000-8000-0000000000a2';
+
+    it('черновик с филиалом — карточка `agent` с Business и Location; без филиала — прежний `draft`', async () => {
+      catalog.draftRows.set(ORG_A, [
+        { id: 'agent-1', name: 'AI-продавец Luxx 2', updatedAt: NOW, placement: PLACE_B },
+        { id: 'wizard-1', name: 'Черновик мастера', updatedAt: NOW, placement: null },
+      ]);
+      const res = await get('session-a').expect(200);
+      const cards = res.body.agents.slice(1);
+      expect(cards).toEqual([
+        {
+          id: 'agent-1',
+          kind: 'agent',
+          name: 'AI-продавец Luxx 2',
+          status: 'DRAFT',
+          business: PLACE_B.business,
+          location: PLACE_B.location,
+          channels: null,
+        },
+        {
+          id: 'wizard-1',
+          kind: 'draft',
+          name: 'Черновик мастера',
+          status: 'DRAFT',
+          business: null,
+          location: null,
+          channels: null,
+        },
+      ]);
+    });
+
+    it('кнопка: есть свободный филиал — активна; единственный занят — неактивна с причиной; сотрудник — причина про роль', async () => {
+      businessAgents.businesses.set(ORG_A, [
+        { id: BIZ, name: 'Сеть', locations: [{ id: LOC_1, name: 'Алматы' }] },
+      ]);
+      expect((await get('session-a').expect(200)).body.create).toEqual({
+        enabled: true,
+        reason: null,
+      });
+      await businessAgents.create({
+        id: 'f0000000-0000-4000-8000-0000000000f1',
+        organizationId: ORG_A,
+        userId: USER_A,
+        name: 'Агент',
+        businessId: BIZ,
+        locationId: LOC_1,
+      });
+      expect((await get('session-a').expect(200)).body.create).toEqual({
+        enabled: false,
+        reason: 'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
+      });
+      businessAgents.businesses.get(ORG_A)![0]!.locations.push({ id: LOC_2, name: 'Астана' });
+      expect((await get('session-a').expect(200)).body.create.enabled).toBe(true);
+      expect((await get('session-staff').expect(200)).body.create).toEqual({
+        enabled: false,
+        reason: 'Создавать агентов могут владелец и управляющий.',
+      });
+    });
+
+    it('расширения нет — кнопка неактивна с причиной про расширение, филиалы не читаются', async () => {
+      extensions.access = 'off';
+      businessAgents.businesses.set(ORG_A, [
+        { id: BIZ, name: 'Сеть', locations: [{ id: LOC_1, name: 'Алматы' }] },
+      ]);
+      const res = await get('session-a').expect(200);
+      expect(res.body.create).toEqual({
+        enabled: false,
+        reason: 'Расширение «ИИ-продавец» не подключено.',
+      });
+    });
   });
 });

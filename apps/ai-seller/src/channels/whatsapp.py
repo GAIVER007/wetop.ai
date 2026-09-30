@@ -1,6 +1,7 @@
 """Канал WhatsApp Cloud API (С3 «под ключ», Q-185 (а); ADR-086).
 
-Дверь вебхука живёт под организацией: `/channels/whatsapp/webhook/{org}`.
+Дверь вебхука живёт под АГЕНТОМ: `/channels/whatsapp/webhook/{agent}` (SA2.5; до неё — организация). У перенесённого
+продавца идентификатор агента равен организации, поэтому прежний адрес в консоли Meta не меняется.
 GET — подтверждение подписки Meta проверочным словом ЕЁ строки; POST —
 сообщения, подпись `X-Hub-Signature-256` считается секретом ЕЁ приложения
 по сырому телу. Чужой `phone_number_id` в теле — 200 и молча мимо: Meta
@@ -9,9 +10,10 @@ GET — подтверждение подписки Meta проверочным 
 окно 24 часов Cloud API соблюдено самим устройством канала; телефон гостя
 приходит каналом (`wa_id`), просить его не нужно.
 
-Организация хода — правило Э4: её ставит дверь, движок про Meta не знает.
+Агент и организация хода — правило Э4/SA2.5: их ставит дверь, движок про Meta не знает. Организацию дверь берёт из строки
+агента, а не из адреса.
 
-🔴 Срок расширения вышел (`organizations.active=false`) — продавец молчит
+🔴 Срок расширения вышел (`organizations.active=false`) или агент выключен — продавец молчит
 (Q-183), как гаснет виджет: Meta получает 200 (иначе повторяет доставку),
 а движок и модель не вызываются. Тело вебхука — с пределом
 `WHATSAPP_MAX_BODY_BYTES` ДО чтения и подписи: дверь публичная.
@@ -35,7 +37,7 @@ from src.channels.sender import SendResult
 from src.channels.widget_runner import WidgetRunner, build_runner
 from src.config import Settings
 from src.db.base import utcnow
-from src.db.models import Organization, WhatsAppConnection
+from src.db.models import Agent, Organization, WhatsAppConnection
 from src.security.llm_keys import decrypt_key
 
 logger = logging.getLogger(__name__)
@@ -48,24 +50,29 @@ SEND_TIMEOUT = 20.0
 
 
 class WhatsAppSender:
-    """Ответ гостю через Graph API токеном ЕГО гостиницы.
+    """Ответ гостю через Graph API токеном подключения ЕГО агента.
 
-    Организацию хода сендер читает из contextvar (ставит движок): у одного
-    гостя может быть переписка с двумя гостиницами, и внешний id этого
-    не различает. Отказ Graph — SendResult(ok=False): движок не запишет
-    ответ в историю и бот не будет считать, что ответил.
+    Агента хода сендер читает из contextvar (ставит движок) или получает явно (реплика оператора из панели): у одного
+    гостя может быть переписка с двумя гостиницами и с двумя агентами одной гостиницы, и внешний id этого не различает.
+    Токен берётся ТОЛЬКО из подключения этого агента. Отказ Graph — SendResult(ok=False): движок не запишет ответ в
+    историю и бот не будет считать, что ответил.
     """
 
-    def __init__(self, sessionmaker, settings: Settings) -> None:
+    def __init__(
+        self, sessionmaker, settings: Settings, agent: uuid.UUID | str | None = None
+    ) -> None:
         self._sessions = sessionmaker
         self._settings = settings
+        # Реплика оператора идёт вне хода движка, contextvar там пуст: агента диалога называет панель.
+        # Ход движка его не задаёт — читаем из contextvar.
+        self._agent = str(agent) if agent else None
 
     async def send(self, *, channel: str, external_id: str, text: str) -> SendResult:
-        org = dependencies.get_current_organization_id()
-        if not org:
-            return SendResult(ok=False, error="no_organization")
+        agent = self._agent or dependencies.get_current_agent_id()
+        if not agent:
+            return SendResult(ok=False, error="no_agent")
         async with self._sessions() as session:
-            row = await session.get(WhatsAppConnection, uuid.UUID(org))
+            row = await session.get(WhatsAppConnection, uuid.UUID(agent))
         if row is None:
             return SendResult(ok=False, error="not_connected")
         token = decrypt_key(row.token_encrypted, self._settings)
@@ -112,15 +119,15 @@ def get_whatsapp_runner(app) -> WidgetRunner:
     return runner
 
 
-async def _connection(org_id: uuid.UUID) -> WhatsAppConnection | None:
+async def _connection(agent_id: uuid.UUID) -> WhatsAppConnection | None:
     async with dependencies.get_sessionmaker()() as session:
-        return await session.get(WhatsAppConnection, org_id)
+        return await session.get(WhatsAppConnection, agent_id)
 
 
-@router.get("/channels/whatsapp/webhook/{org_id}")
-async def verify(org_id: uuid.UUID, request: Request) -> PlainTextResponse:
-    """Подтверждение подписки Meta: эхо challenge только со словом этой гостиницы."""
-    row = await _connection(org_id)
+@router.get("/channels/whatsapp/webhook/{agent_id}")
+async def verify(agent_id: uuid.UUID, request: Request) -> PlainTextResponse:
+    """Подтверждение подписки Meta: эхо challenge только со словом подключения этого агента."""
+    row = await _connection(agent_id)
     token = request.query_params.get("hub.verify_token") or ""
     # Сравниваем байты: compare_digest(str, str) падает на не-ASCII, и чужая строка в запросе
     # давала бы 500 вместо 403 (аудит 30.09.2026).
@@ -147,17 +154,22 @@ async def _read_limited(request: Request, max_bytes: int) -> bytes:
     return bytes(body)
 
 
-async def _organization_active(org_id: uuid.UUID) -> bool:
+async def _door_open(agent_id: uuid.UUID) -> uuid.UUID | None:
+    """Организация агента, если дверь его канала открыта: агент действует И расширение организации действует (Q-183).
+    Организацию даёт строка агента, а не адрес запроса."""
     async with dependencies.get_sessionmaker()() as session:
-        org = await session.get(Organization, org_id)
-    return org is not None and bool(org.active)
+        agent = await session.get(Agent, agent_id)
+        if agent is None or not agent.active:
+            return None
+        org = await session.get(Organization, agent.organization_id)
+    return agent.organization_id if org is not None and bool(org.active) else None
 
 
-@router.post("/channels/whatsapp/webhook/{org_id}")
-async def receive(org_id: uuid.UUID, request: Request) -> JSONResponse:
+@router.post("/channels/whatsapp/webhook/{agent_id}")
+async def receive(agent_id: uuid.UUID, request: Request) -> JSONResponse:
     settings: Settings = request.app.state.settings
     raw = await _read_limited(request, settings.whatsapp_max_body_bytes)
-    row = await _connection(org_id)
+    row = await _connection(agent_id)
     if row is None:
         raise HTTPException(status_code=403, detail="forbidden")
     secret = decrypt_key(row.app_secret_encrypted, settings)
@@ -167,10 +179,15 @@ async def receive(org_id: uuid.UUID, request: Request) -> JSONResponse:
         provided.encode("utf-8"), expected.encode("utf-8")
     ):
         raise HTTPException(status_code=403, detail="forbidden")
-    if not await _organization_active(org_id):
-        # Срок расширения вышел (Q-183): 200 — Meta не повторяет, хода нет.
-        logger.info("whatsapp: расширение гостиницы %s не действует, сообщение без ответа", org_id)
+    organization_id = await _door_open(agent_id)
+    if organization_id is None:
+        # Срок расширения вышел или агент выключен (Q-183): 200 — Meta не повторяет, хода нет.
+        logger.info("whatsapp: дверь агента %s закрыта (расширение или агент), сообщение без ответа", agent_id)
         return JSONResponse({"status": "ok", "accepted": 0})
+    if row.organization_id != organization_id:
+        # Подключение и агент указывают на разные организации — данные испорчены, дверь закрыта без подробностей
+        logger.error("whatsapp: подключение агента %s принадлежит другой организации", agent_id)
+        raise HTTPException(status_code=403, detail="forbidden")
 
     try:
         body = json.loads(raw)
@@ -203,7 +220,8 @@ async def receive(org_id: uuid.UUID, request: Request) -> JSONResponse:
                     text=text,
                     received_at=utcnow(),
                     client_name=names.get(sender_id) or None,
-                    organization_id=str(org_id),
+                    organization_id=str(organization_id),
+                    agent_id=str(agent_id),
                 )
                 if get_whatsapp_runner(request.app).submit(incoming) is None:
                     # Очередь полна: не-200 — Meta доставит ещё раз, реплика не теряется.

@@ -6,7 +6,9 @@ export type { ActionPreview } from './action-preview';
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
 import type {
+  AgentStatus,
   CancellationPenaltyPolicy,
+  ChannelState,
   DashboardFund,
   DashboardPeriod,
   InviteRole,
@@ -796,7 +798,40 @@ export const ratesApi = {
   plans: () => getJson<RatePlanRow[]>('/rates/plans'),
   updatePlan: (code: string, input: { cancellationPenalty: CancellationPenaltyPolicy }) =>
     sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}`, input),
+  /** Производный тариф (D4, DATA_MODEL §20): процент от тарифа-родителя, окно продаж, минимум ночей */
+  createDerived: (input: DerivedPlanInput & { name: string; parentCode: string }) =>
+    sendJson<RatePlanRow>('POST', '/rates/plans/derived', input),
+  updateDerived: (code: string, input: Partial<DerivedPlanInput> & { name?: string; active?: boolean }) =>
+    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}/derived`, input),
+  promoCodes: () => getJson<PromoCodeRow[]>('/rates/promo-codes'),
+  createPromo: (input: PromoCodeInput) => sendJson<PromoCodeRow>('POST', '/rates/promo-codes', input),
+  updatePromo: (
+    code: string,
+    input: { active?: boolean; maxUses?: number | null; stayFrom?: string | null; stayTo?: string | null },
+  ) => sendJson<PromoCodeRow>('PATCH', `/rates/promo-codes/${encodeURIComponent(code)}`, input),
 };
+export interface DerivedPlanInput {
+  discountPercent: number;
+  minDaysBeforeArrival: number | null;
+  maxDaysBeforeArrival: number | null;
+  minNights: number | null;
+}
+export interface PromoCodeInput {
+  code: string;
+  discountPercent: number;
+  stayFrom?: string | null;
+  stayTo?: string | null;
+  maxUses?: number | null;
+}
+export interface PromoCodeRow {
+  code: string;
+  discountPercent: number;
+  stayFrom: string | null;
+  stayTo: string | null;
+  maxUses: number | null;
+  active: boolean;
+  uses: number;
+}
 export interface RatePlanRow {
   code: string;
   name: string;
@@ -805,6 +840,14 @@ export interface RatePlanRow {
   cancellationPenalty: CancellationPenaltyPolicy;
   /** Названия категорий, к которым привязан тариф */
   categories: string[];
+  /** Производный тариф: родитель и условия продажи; у обычного — `null` (D4, DATA_MODEL §20) */
+  derived?: {
+    parentName: string;
+    discountPercent: number;
+    minDaysBeforeArrival: number | null;
+    maxDaysBeforeArrival: number | null;
+    minNights: number | null;
+  } | null;
   /** Брони по тарифу, ещё не заехавшие и не отменённые, с выездом сегодня или позже: их задевает правка правила */
   upcomingReservations: number;
 }
@@ -1744,8 +1787,67 @@ export interface SellerPromptView {
   applied: boolean;
 }
 
+/**
+ * Карточка каталога «ИИ-агентов» (SA1): рабочий продавец организации или черновик гостевого мастера. Статус и канал —
+ * ключи домена (`AgentStatus`, `ChannelState`); слова к ним даёт `lib/ai-agents.ts`.
+ */
+export interface AgentCardView {
+  id: string;
+  /** `seller` — рабочий продавец; `agent` — агент с филиалом (SA2); `draft` — черновик гостевого мастера без филиала */
+  kind: 'seller' | 'agent' | 'draft';
+  name: string;
+  status: AgentStatus;
+  business: { id: string; name: string } | null;
+  location: { id: string; name: string } | null;
+  channels: { site: ChannelState; whatsapp: ChannelState } | null;
+}
+
+export interface AgentCatalogView {
+  extension: ExtensionAccessView | null;
+  /** Владелец и управляющий: им доступны кнопки */
+  canManage: boolean;
+  canConfigure: boolean;
+  /** Состояние кнопки «+ Подключить AI-продавца» (SA2): причину словами и доступность считает сервер */
+  create: { enabled: boolean; reason: string | null };
+  agents: AgentCardView[];
+}
+
+/** Куда можно создать AI-продавца: Business → филиалы со словом «занят» (SA2) */
+export interface AgentOptionsView {
+  extension: ExtensionAccessView | null;
+  canCreate: boolean;
+  reason: string | null;
+  businesses: Array<{
+    id: string;
+    name: string;
+    locations: Array<{ id: string; name: string; free: boolean; reason: string | null }>;
+  }>;
+}
+
+export interface BusinessAgentView {
+  id: string;
+  name: string;
+  lifecycle: string;
+  business: { id: string; name: string };
+  location: { id: string; name: string };
+  /** Список настройки: готово только «Основное», остальное — статусы, а не шаги мастера */
+  setup: Array<{ code: string; label: string; done: boolean }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const businessAgentsApi = {
+  options: () => getJson<AgentOptionsView>('/ai-seller/agents/options'),
+  get: (id: string) => getJson<BusinessAgentView>(`/ai-seller/agents/${encodeURIComponent(id)}`),
+  /** `Idempotency-Key` — повтор той же отправки возвращает того же агента; организацию и автора называет сервер */
+  create: (key: string, input: { name: string; businessId: string; locationId: string }) =>
+    sendJson<BusinessAgentView>('POST', '/ai-seller/agents', input, { 'idempotency-key': key }),
+};
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
+  /** Каталог AI-агентов организации (SA1): только чтение, права `dialogs` */
+  catalog: () => getJson<AgentCatalogView>('/ai-seller/catalog'),
   prompt: () => getJson<SellerPromptView>('/ai-seller/prompt'),
   savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */

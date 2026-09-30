@@ -13,6 +13,7 @@ import {
   unavailable,
 } from './fakes';
 import type { SellerConfig } from './seller.connection';
+import { workingSellerScope } from './seller.repository';
 import { SellerService } from './seller.service';
 
 /**
@@ -73,6 +74,8 @@ beforeEach(() => {
     { organizationId: ORG_B, name: 'Гостиница Б' },
   ];
   orgs.siteHosts.set(ORG_A, ['hotel-a.example.test']);
+  // домены виджета агента — сайты его филиала (SA2.5); у перенесённого продавца агент = организация
+  orgs.agentHosts.set(ORG_A, ['hotel-a.example.test']);
   service = new SellerService(
     connection,
     profiles,
@@ -90,7 +93,7 @@ const putOrgs = () =>
 
 describe('SellerService.syncOnce — обход организаций (Э4)', () => {
   it('гостиница уходит каждой организации со строкой расширения: имя, active, домены, ключ', async () => {
-    await profiles.save(ORG_A, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG_A), DEFAULT_SELLER_PROFILE, null, now);
     const result = await service.syncOnce(now);
     expect(result).toEqual({ organizations: 2, profile: 1, facts: 1, failed: [] });
     expect(putOrgs()).toEqual([
@@ -109,10 +112,14 @@ describe('SellerService.syncOnce — обход организаций (Э4)', (
     expect(connection.seller.ops().filter((op) => op === 'putProfile')).toHaveLength(1);
     // клиент каждой отправки зовётся с её организацией
     expect(connection.requestedOrgs).toEqual([ORG_A, ORG_B]);
+    // и с агентом (SA2.5, `X-Agent`): у перенесённого продавца идентификатор агента равен организации
+    expect(connection.requestedAgents).toEqual([ORG_A, ORG_B]);
+    // факты грузятся по агенту, а не по организации
+    expect(facts.asked.map((a) => [a.organizationId, a.agentId])).toEqual([[ORG_A, ORG_A]]);
   });
 
   it('расширение кончилось — гостиница уходит с active=false, профиль не шлётся (Q-183)', async () => {
-    await profiles.save(ORG_A, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG_A), DEFAULT_SELLER_PROFILE, null, now);
     extensions.access = 'expired';
     const result = await service.syncOnce(now);
     expect(result).toEqual({ organizations: 2, profile: 0, facts: 0, failed: [] });
@@ -121,8 +128,8 @@ describe('SellerService.syncOnce — обход организаций (Э4)', (
   });
 
   it('отказ одной гостиницы не останавливает остальные', async () => {
-    await profiles.save(ORG_A, DEFAULT_SELLER_PROFILE, null, now);
-    await profiles.save(ORG_B, DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG_A), DEFAULT_SELLER_PROFILE, null, now);
+    await profiles.save(workingSellerScope(ORG_B), DEFAULT_SELLER_PROFILE, null, now);
     connection.seller.failOn.putProfile = unavailable();
     const result = await service.syncOnce(now);
     if ('skipped' in result) throw new Error('сверка не должна была пропустить проход');

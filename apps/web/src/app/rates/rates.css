@@ -368,6 +368,12 @@
   color: var(--muted);
   font-size: var(--text-sm);
 }
+/* Кнопка «Добавить …» над таблицей тарифных планов и промокодов (D4) */
+.rates-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 var(--space-4);
+}
 /* «Тарифные планы» (SET4): название уже, чем у «Услуг», — категории списком не ломаются в столбик;
    подстрока под названием — только на телефоне, где категории и статус скрыты */
 .rates-plans .settings-table th:first-child {

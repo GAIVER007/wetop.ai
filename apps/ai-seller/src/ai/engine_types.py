@@ -31,6 +31,13 @@ class IncomingMessage:
     # Гостиница (Э4): ставит дверь канала — виджет из ключа в теге,
     # песочница из тела. None — экземпляр-помощник или строки до Э4.
     organization_id: str | None = None
+    # Агент (SA2.5): ставит дверь канала — из ключа в теге, из адреса вебхука, из тела песочницы. Продавец — ВСЕГДА
+    # вместе с организацией; помощник — ни того ни другого. Организация без агента (и наоборот) — ошибка двери:
+    # движок такой ход не обрабатывает, а не угадывает агента по организации.
+    agent_id: str | None = None
+
+    def agent_uuid(self) -> uuid.UUID | None:
+        return uuid.UUID(self.agent_id) if self.agent_id else None
 
     def org_uuid(self) -> uuid.UUID | None:
         """Организация как UUID на границе с базой. В JSON и по каналам она
@@ -66,6 +73,7 @@ class Turn:
     outcome: TurnOutcome
     client: Client | None = None
     conversation: Conversation | None = None
+    agent: Any = None  # строка `agents` этого хода (SA2.5); у помощника — None
     history: list[Message] = field(default_factory=list)  # реплики ДО этого хода
     lead: dict = field(default_factory=dict)
     verdict: Any = None

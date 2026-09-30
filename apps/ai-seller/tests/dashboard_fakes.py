@@ -378,4 +378,4 @@ def install_sender(monkeypatch: pytest.MonkeyPatch, sender: Any) -> None:
     тест на отказ канала не отличить от теста на живую сеть."""
     import src.dashboard.panel_conversations as panel_conversations
 
-    monkeypatch.setattr(panel_conversations, "build_reply_sender", lambda settings: sender)
+    monkeypatch.setattr(panel_conversations, "build_reply_sender", lambda settings, **_: sender)

@@ -1,0 +1,24 @@
+/* Карточка агента (SA1, DESIGN.md §8): в ряду каталога карточки тянутся до одной высоты, и лишнее место
+   должно оставаться внизу карточки, а не расходиться между её строками (`.panel` и `.stack` — сетки). */
+.agent-card {
+  align-content: start;
+}
+
+/* Страница агента (SA2): список настройки — статусы, а не шаги мастера */
+.agent-setup {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.agent-setup__item {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+}
+.agent-setup__item--done .agent-setup__label {
+  font-weight: var(--weight-semibold, 600);
+}

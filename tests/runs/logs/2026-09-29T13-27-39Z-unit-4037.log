@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 18:27 Алматы · vm
+# коммит 9283bec (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-27-39Z-unit-4037.json' 'packages/domain/src/rates/discounts.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/rates/discounts.test.ts (16 tests) 12ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  13:27:40
+   Duration  354ms (transform 83%, import 11%, tests 5%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-27-39Z-unit-4037.json
+
+# код выхода 0 · 1 с

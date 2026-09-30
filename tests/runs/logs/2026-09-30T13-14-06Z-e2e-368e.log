@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 30.09.2026 18:14 Алматы · MacBook-Air-Urij.local
+# коммит ca4dae5 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/reservations-compact.spec.ts'
+[WebServer] (node:32997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33034) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33035) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33077) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:33143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist (18.6s)
+
+
+  1) tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByLabel('Источник', { exact: true })
+    Expected: hidden
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeHidden" getByLabel('Источник', { exact: true }) with timeout 15000ms
+      - waiting for getByLabel('Источник', { exact: true })
+        33 × locator resolved to <select class="inp" name="source" aria-label="Источник">…</select>
+           - unexpected value "visible"
+
+
+       5 |   await page.setViewportSize({ width: 1366, height: 768 });
+       6 |   await page.goto('/reservations');
+    >  7 |   await expect(page.getByLabel('Источник', { exact: true })).toBeHidden();
+         |                                                              ^
+       8 |   await expect(page.getByLabel('Статус брони')).toBeVisible();
+       9 |   await page.getByRole('button', { name: 'Фильтры', exact: true }).click();
+      10 |   await expect(page.getByLabel('Источник', { exact: true })).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/reservations-compact.spec.ts:7:62
+
+    Error Context: test-results/reservations-compact-compa-cdcdb-disclose-submit-and-persist/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reservations-compact-compa-cdcdb-disclose-submit-and-persist/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reservations-compact-compa-cdcdb-disclose-submit-and-persist/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/reservations-compact.spec.ts:3:1 › compact reservations: filters disclose, submit and persist 
+
+# код выхода 1 · 33 с

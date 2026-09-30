@@ -60,7 +60,7 @@ test('R2: быстрые виды отбирают на сервере и жив
   await page.goto('/reservations');
   const main = page.getByRole('main');
   const views = main.getByRole('navigation', { name: 'Быстрые виды' });
-  await expect(views.getByRole('link', { name: 'Все', exact: true })).toHaveAttribute(
+  await expect(views.getByRole('link', { name: 'По периоду', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
   );
@@ -109,6 +109,8 @@ test('R2: сочетание условий через форму — чисты
   await seedShowcase(request);
   await page.goto('/reservations?view=today');
   const main = page.getByRole('main');
+  if (!(await main.getByLabel('Оплата', { exact: true }).isVisible()))
+    await main.getByRole('button', { name: 'Фильтры', exact: true }).click();
   await main.getByLabel('Оплата', { exact: true }).selectOption('due');
   await main.getByLabel('Сортировка', { exact: true }).selectOption('arrival');
   await main.getByRole('button', { name: 'Показать', exact: true }).click();
@@ -176,8 +178,8 @@ test('R2: пустой отбор объясняет условия и пред�
   await page.goto('/reservations?view=inhouse&source=Hostelworld&payment=refunded');
   const empty = main.getByTestId('reservations-empty');
   await expect(empty).toContainText('Бронирований не найдено');
-  await expect(empty).toContainText('в виде «Проживают»');
-  await expect(empty).toContainText('Hostelworld');
+  await expect(main.getByTestId('directory-meta')).toContainText('в виде «Проживают»');
+  await expect(main.getByTestId('directory-meta')).toContainText('Hostelworld');
   await empty.getByRole('link', { name: 'Убрать условия отбора', exact: true }).click();
   await expect(page).toHaveURL(
     (u) => /view=inhouse/.test(u.search) && !/(source|payment)=/.test(u.search),
@@ -239,11 +241,16 @@ for (const theme of ['light', 'dark'] as const) {
     await shot('unassigned', '/reservations?allocation=missing');
     // комбинация — через форму, как это сделает смена: вид, оплата, сортировка, «Показать»
     await page.goto('/reservations?view=today');
+    if (!(await main.getByLabel('Оплата', { exact: true }).isVisible()))
+      await main.getByRole('button', { name: 'Фильтры', exact: true }).click();
     await main.getByLabel('Оплата', { exact: true }).selectOption('due');
     await main.getByLabel('Источник', { exact: true }).selectOption('WHATSAPP');
     await main.getByLabel('Сортировка', { exact: true }).selectOption('arrival');
     await main.getByRole('button', { name: 'Показать', exact: true }).click();
-    await expect(page).toHaveURL((u) => /payment=due/.test(u.search) && !/(source|allocation|category|date)=(&|$)/.test(u.search));
+    await expect(page).toHaveURL(
+      (u) =>
+        /payment=due/.test(u.search) && !/(source|allocation|category|date)=(&|$)/.test(u.search),
+    );
     await expect(rows(page).first()).toBeVisible();
     await page.mouse.move(0, 0);
     await page.screenshot({ path: `${report}/${theme}-combo.png`, caret: 'initial' });

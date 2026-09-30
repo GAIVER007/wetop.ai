@@ -4616,3 +4616,12 @@
 | 30.09.2026 15:42 | unit (частично: tests/unit/no-vendor-name.test.ts) | ✅ 1 из 1 | 3 с | 45935a7 | [лог](logs/2026-09-30T10-42-54Z-unit-0f98.log) |  |
 | 30.09.2026 15:43 | typecheck | ✅ без ошибок | 26 с | 45935a7 | [лог](logs/2026-09-30T10-43-00Z-typecheck-1675.log) |  |
 | 30.09.2026 15:43 | unit | ✅ 2495 из 2498, пропущено 3 | 1 мин 30 с | 45935a7 | [лог](logs/2026-09-30T10-43-27Z-unit-f547.log) |  |
+| 30.09.2026 16:13 | typecheck | ✅ без ошибок | 35 с | 6983bcb | [лог](logs/2026-09-30T11-13-16Z-typecheck-beaa.log) |  |
+| 30.09.2026 16:13 | lint | ✅ без ошибок | 22 с | 6983bcb | [лог](logs/2026-09-30T11-13-52Z-lint-bb64.log) |  |
+| 30.09.2026 16:14 | unit | ✅ 2593 из 2596, пропущено 3 | 1 мин 31 с | 6983bcb | [лог](logs/2026-09-30T11-14-18Z-unit-1144.log) |  |
+| 30.09.2026 16:15 | integration | ✅ 210 из 210 | 59 с | 6983bcb | [лог](logs/2026-09-30T11-15-49Z-integration-2a67.log) |  |
+| 30.09.2026 16:20 | e2e (частично: -- tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents-catalog.spec.ts) | ❌ код выхода 1 | 4 с | 6983bcb | [лог](logs/2026-09-30T11-20-02Z-e2e-4d44.log) | (ошибка вне тестов) |
+| 30.09.2026 16:20 | e2e (частично: -- tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ код выхода 1 | 4 с | 6983bcb | [лог](logs/2026-09-30T11-20-08Z-e2e-44bb.log) | (ошибка вне тестов) |
+| 30.09.2026 16:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ упало 12 из 78 | 4 мин 18 с | 6983bcb | [лог](logs/2026-09-30T11-20-17Z-e2e-c962.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ упало 8 из 78 | 3 мин 39 с | 6983bcb | [лог](logs/2026-09-30T11-24-42Z-e2e-af82.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 106 из 106 | 7 мин 4 с | 6983bcb | [лог](logs/2026-09-30T11-28-47Z-e2e-0aec.log) |  |

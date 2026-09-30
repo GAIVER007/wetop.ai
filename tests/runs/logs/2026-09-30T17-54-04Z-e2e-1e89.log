@@ -1,0 +1,143 @@
+# Сквозные (e2e) · 30.09.2026 22:54 Алматы · MacBook-Air-Urij.local
+# коммит 4800dfe (codex/unified-workspace-20260929), незакоммиченных файлов набора: 5
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channels-compact.spec.ts' '--workers=1'
+[WebServer] (node:60609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60731) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:60795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60921) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (4.7s)
+(node:60942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/ui/channels-compact.spec.ts:14:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (17.5s)
+(node:60973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:60991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/ui/channels-compact.spec.ts:20:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (17.5s)
+
+
+  1) tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+       9 |   await page.goto('/channels');
+      10 |   await expect(page.getByRole('main').getByTestId('channel-report')).toBeVisible();
+    > 11 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(true);
+         |                                                                                               ^
+      12 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+      13 | });
+      14 | test('нет подключения: пустая очередь не выдаётся за успешную отправку', async ({ page, request }) => {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/channels-compact.spec.ts:11:95
+
+    Error Context: test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/channels-compact.spec.ts:14:1 › нет подключения: пустая очередь не выдаётся за успешную отправку 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('main')
+    Expected substring: not "всё ушло в каналы"
+    Received string: "Каналы продажСостояние обмена с каналами и брони по источникам.ОбзорПодключенияСопоставлениеСинхронизацияСобытияОбмен с каналамине подключеныОбъект не сопоставлен.Последний обмен—Очередь0всё ушло в каналыОшибки0Webhook менеджера каналовнет PUBLIC_API_URLКаналыНаблюдаются по входящим событиям каналов — это последняя активность источника, а не состояние его подключения.Событий от каналов ещё не было. Канал появится здесь, когда придёт его бронь, изменение или отмену.Сопоставлены не все категории: 0 из 3 — по остальным цены и остатки в каналы не уходят. Проверить — «Сопоставление».Обмен прямо сейчасОтправить очередь сейчасЗабрать брони из каналовНет соединения с менеджером каналов — проверьте ключ и подключение.Брони по источникамБрони с заездом 1 сент. → 30 сент., 30 дней, все статусыЗаезд сЗаезд поСтатус брониВсе статусыПредварительныеПодтвержденыПроживаютЗавершеныОтмененыНезаездыПоказатьБронирований48Отмен3Незаездов1Стоимость броней1 920 000 ₸включая отмены и незаезды. Фактические оплаты за периодИсточникБрониОтменыНезаездыСтоимость бронейДоля бронейBooking.comКанал продаж, KZT2420960 000 ₸50%Trip.comКанал продаж, KZT1211480 000 ₸25%СайтСайт, KZT800320 000 ₸17%СтойкаСтойка, KZT400160 000 ₸8%Как считаются показателиОдна коммерческая бронь считается один раз, даже если в ней несколько мест. Источники появляются по сохранённым броням: наличие строки Booking.com или Trip.com не означает, что канал сейчас подключён. Валюты считаются отдельно.Технические деталиОбъект в менеджере каналовui-propertyПоследняя задача—Адрес webhook—Очередь отправки — на вкладке «Синхронизация», журнал входящих — в «Событиях»."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "not toContainText" getByRole('main') with timeout 15000ms
+      - waiting for getByRole('main')
+        33 × locator resolved to <main class="page" tabindex="-1" id="main-content">…</main>
+           - unexpected value "Каналы продажСостояние обмена с каналами и брони по источникам.ОбзорПодключенияСопоставлениеСинхронизацияСобытияОбмен с каналамине подключеныОбъект не сопоставлен.Последний обмен—Очередь0всё ушло в каналыОшибки0Webhook менеджера каналовнет PUBLIC_API_URLКаналыНаблюдаются по входящим событиям каналов — это последняя активность источника, а не состояние его подключения.Событий от каналов ещё не было. Канал появится здесь, когда придёт его бронь, изменение или отмену.Сопоставлены не все категории: 0 из 3 — по остальным цены и остатки в каналы не уходят. Проверить — «Сопоставление».Обмен прямо сейчасОтправить очередь сейчасЗабрать брони из каналовНет соединения с менеджером каналов — проверьте ключ и подключение.Брони по источникамБрони с заездом 1 сент. → 30 сент., 30 дней, все статусыЗаезд сЗаезд поСтатус брониВсе статусыПредварительныеПодтвержденыПроживаютЗавершеныОтмененыНезаездыПоказатьБронирований48Отмен3Незаездов1Стоимость броней1 920 000 ₸включая отмены и незаезды. Фактические оплаты за периодИсточникБрониОтменыНезаездыСтоимость бронейДоля бронейBooking.comКанал продаж, KZT2420960 000 ₸50%Trip.comКанал продаж, KZT1211480 000 ₸25%СайтСайт, KZT800320 000 ₸17%СтойкаСтойка, KZT400160 000 ₸8%Как считаются показателиОдна коммерческая бронь считается один раз, даже если в ней несколько мест. Источники появляются по сохранённым броням: наличие строки Booking.com или Trip.com не означает, что канал сейчас подключён. Валюты считаются отдельно.Технические деталиОбъект в менеджере каналовui-propertyПоследняя задача—Адрес webhook—Очередь отправки — на вкладке «Синхронизация», журнал входящих — в «Событиях»."
+
+
+      16 |   await page.goto('/channels');
+      17 |   await expect(page.getByTestId('channels-state')).toHaveText('не подключены');
+    > 18 |   await expect(page.getByRole('main')).not.toContainText('всё ушло в каналы');
+         |                                            ^
+      19 | });
+      20 | test('доступ к API в staging не выдаётся за работающий обмен с OTA', async ({ page }) => {
+      21 |   await page.goto('/channels');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/channels-compact.spec.ts:18:44
+
+    Error Context: test-results/channels-compact-нет-подкл-d0572-даётся-за-успешную-отправку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-нет-подкл-d0572-даётся-за-успешную-отправку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-нет-подкл-d0572-даётся-за-успешную-отправку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/channels-compact.spec.ts:20:1 › доступ к API в staging не выдаётся за работающий обмен с OTA 
+
+    Error: expect(locator).not.toHaveText(expected) failed
+
+    Locator:  getByTestId('channels-state')
+    Expected: not "работает"
+    Received: "работает"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "not toHaveText" getByTestId('channels-state') with timeout 15000ms
+      - waiting for getByTestId('channels-state')
+        33 × locator resolved to <span data-testid="channels-state">работает</span>
+           - unexpected value "работает"
+
+
+      20 | test('доступ к API в staging не выдаётся за работающий обмен с OTA', async ({ page }) => {
+      21 |   await page.goto('/channels');
+    > 22 |   await expect(page.getByTestId('channels-state')).not.toHaveText('работает');
+         |                                                        ^
+      23 |   await expect(page.getByRole('main')).not.toContainText('Цены, остатки и брони ходят между WETOP и каналами');
+      24 | });
+      25 |
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/channels-compact.spec.ts:22:56
+
+    Error Context: test-results/channels-compact-доступ-к--72564-я-за-работающий-обмен-с-OTA/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-доступ-к--72564-я-за-работающий-обмен-с-OTA/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-доступ-к--72564-я-за-работающий-обмен-с-OTA/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+    tests/ui/channels-compact.spec.ts:14:1 › нет подключения: пустая очередь не выдаётся за успешную отправку 
+    tests/ui/channels-compact.spec.ts:20:1 › доступ к API в staging не выдаётся за работающий обмен с OTA 
+
+# код выхода 1 · 1 мин 2 с

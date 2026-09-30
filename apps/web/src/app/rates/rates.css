@@ -4,39 +4,35 @@
  * всплывают над сеткой (absolute), иначе ячейка прыгает по высоте под кнопки.
  */
 
-/* ── шапка: категория и тариф чипами в одно касание, месяц русским списком; «Показать» нет ── */
+/* Панель выбора не растёт с количеством категорий и тарифов. */
 .rates-filters {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-.rates-chips {
-  margin: 0;
-  align-items: center;
-}
-.rates-chips__word {
-  min-width: 6em;
-  font-size: var(--text-sm);
-  color: var(--muted);
+  margin-bottom: 8px;
 }
 .rates-filters__controls {
   display: flex;
-  flex-wrap: wrap;
   align-items: flex-end;
-  gap: var(--space-4);
+  gap: 16px;
 }
-/* выпадающие списки — только на телефоне, вместо чипов (как статус на «Бронях») */
 .rates-filters__selects {
-  display: none;
+  display: grid;
+  grid-template-columns: minmax(180px, 1.3fr) minmax(160px, 1fr);
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.rates-filters__selects .field {
+  min-width: 0;
+  gap: 4px;
 }
 .rates-filters select {
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
 }
 .rates-month {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: 4px;
 }
 .rates-month__select {
   min-width: 0;
@@ -44,28 +40,29 @@
 .rates-month__today {
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-h);
-  padding: 0 var(--space-2);
+  min-height: 36px;
+  padding: 0 8px;
   color: var(--primary);
   text-decoration: none;
 }
 .rates-month__today:hover {
   text-decoration: underline;
 }
-@media (max-width: 600px) {
-  .rates-chips {
-    display: none;
+@media (max-width: 1100px) {
+  .rates-filters__controls {
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .rates-filters__selects {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    width: 100%;
+    flex-basis: 100%;
   }
-  .rates-filters__selects .field {
-    flex: 1 1 100%;
-    min-width: 0;
-    max-width: 100%;
+}
+@media (max-width: 600px) {
+  .rates-filters__selects {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rates-month {
+    width: 100%;
   }
 }
 
@@ -494,4 +491,115 @@
 .range-preview__who {
   color: var(--muted);
   font-size: var(--text-sm);
+}
+
+/* Рабочая область цен: компактная шапка, месяц на экране ноутбука.
+   Нет фиксированной высоты/обрезки: большие вместимости и масштаб текста растят страницу. */
+.workspace .page:has(> .rates-filters) {
+  padding: 16px 24px;
+}
+.page:has(> [data-testid='rates-tabs']) > .page__head {
+  margin-bottom: 12px;
+}
+.page:has(> [data-testid='rates-tabs']) .page__title {
+  font-size: var(--text-2xl);
+}
+[data-testid='rates-tabs'] {
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 12px;
+  border: 0;
+  padding: 3px;
+  border-radius: 12px;
+}
+[data-testid='rates-tabs'] a {
+  min-height: 34px;
+  padding: 6px 14px;
+  font-size: var(--text-sm);
+}
+.rates-selection {
+  position: static;
+  min-height: 40px;
+  margin-bottom: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.rates-selection .btn {
+  min-height: 32px;
+  padding: 4px 12px;
+  font-size: var(--text-sm);
+}
+.rates-selection__text {
+  font-size: var(--text-sm);
+}
+@media (min-width: 1101px) {
+  .rates-filters select {
+    min-height: 36px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: var(--text-sm);
+  }
+  .rates-month .icon-button {
+    min-height: 36px;
+    width: 32px;
+  }
+}
+@media (min-width: 601px) {
+  .rate-cal__day {
+    position: relative;
+    padding: 6px 10px;
+    min-height: 68px;
+  }
+  .rate-cal__void {
+    min-height: 68px;
+    background: var(--surface-muted);
+  }
+  .rate-cal__pick {
+    width: 28px;
+    height: 24px;
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    justify-content: center;
+    margin: 0;
+  }
+  .rate-cal__price {
+    margin-left: 26px;
+  }
+  .rate-cal__price--secondary {
+    margin-left: 0;
+  }
+  .rate-cal__price:not(.rate-cal__price--secondary) .rate-cal__word {
+    display: none;
+  }
+  .rate-cal__weekdays span {
+    padding: 5px 10px;
+    text-align: left;
+  }
+  .price-cell__value {
+    border-bottom: 0;
+  }
+  .rate-cal__limits {
+    gap: 2px 6px;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+}
+@media (max-width: 600px) {
+  .workspace .page:has(> .rates-filters) {
+    padding: 16px 16px 90px;
+  }
+  .rates-selection {
+    padding: 8px 0;
+  }
+}
+
+/* Подсказка отсутствующей цены привязана к правому краю цены,
+   иначе даже скрытый текст воскресенья расширяет документ. */
+.rate-cal .tooltip {
+  left: auto;
+  right: 0;
+  transform: none;
+  max-width: min(280px, calc(100vw - 48px));
 }

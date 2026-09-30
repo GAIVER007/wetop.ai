@@ -107,24 +107,16 @@ test('массовое изменение: ни одного дня недели
   await expect(editor.getByTestId('apply-changes')).toHaveText('Сохранить');
 });
 
-test('фильтры: категория и тариф чипами в одно касание, месяц русским списком — без «Показать»', async ({
+test('фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать»', async ({
   page,
 }) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/rates?month=2026-10');
   const filters = main.getByTestId('rates-filters');
-  // категория — чип-ссылка (правка владельца по снимкам RT1: выбор в одно касание)
-  await filters
-    .getByRole('navigation', { name: 'Категория' })
-    .getByRole('link', { name: 'Мужской общий номер' })
-    .click();
+  await filters.getByLabel('Категория', { exact: true }).selectOption('MALE');
   await expect(page).toHaveURL(/category=MALE/);
-  await expect(
-    filters.getByRole('navigation', { name: 'Категория' }).getByRole('link', {
-      name: 'Мужской общий номер',
-    }),
-  ).toHaveAttribute('aria-current', 'true');
+  await expect(filters.getByLabel('Категория', { exact: true })).toHaveValue('MALE');
   // категория на одного гостя — в ячейке одна цена, без слова «гость»
   await expect(main.getByTestId('price-2026-10-01-1')).toBeVisible();
   await expect(main.getByTestId('rate-row-2026-10-01')).not.toContainText('гост');
@@ -164,4 +156,45 @@ test('на телефоне сетка складывается в список 
   expect(editor!.x, 'окно правки цены за левым краем экрана').toBeGreaterThanOrEqual(0);
   expect(editor!.x + editor!.width, 'окно правки цены за правым краем').toBeLessThanOrEqual(390);
   await expect(page.getByRole('button', { name: 'Сохранить цену' })).toBeInViewport();
+  await page.screenshot({ path: 'reports/rates-compact-2026-09-30/mobile.png' });
+});
+
+test('месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto('/rates?month=2026-08');
+  const main = page.getByRole('main');
+  await expect(main.getByLabel('Категория', { exact: true })).toBeVisible();
+  const cal = main.getByTestId('rates-calendar');
+  await expect(cal).toBeVisible();
+  await page.screenshot({ path: 'reports/rates-compact-2026-09-30/desktop.png', fullPage: true });
+  const before = await cal.boundingBox();
+  expect(before!.y + before!.height).toBeLessThanOrEqual(768);
+  await main
+    .getByTestId('rate-row-2026-08-01')
+    .getByRole('button', { name: /^Выбрать/ })
+    .click();
+  const after = await cal.boundingBox();
+  expect(after!.y).toBe(before!.y);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+    true,
+  );
+  await page.getByRole('button', { name: 'Переключить тему' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.screenshot({
+    path: 'reports/rates-compact-2026-09-30/dark.png',
+    animations: 'disabled',
+  });
+});
+
+test('нет цены в воскресенье: подсказка не расширяет страницу', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto('/rates?month=2026-06');
+  await expect(page.getByRole('main').getByTestId('rate-row-2026-06-21')).toContainText('Нет цены');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
 });

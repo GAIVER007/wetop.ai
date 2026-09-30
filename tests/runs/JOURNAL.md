@@ -4563,3 +4563,10 @@
 | 30.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/ui/roles.spec | ✅ 112 из 112 | 8 мин | 1fb5cbb +26 | [лог](logs/2026-09-30T07-57-30Z-e2e-e428.log) |  |
 | 30.09.2026 13:35 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 40 с | 3315609 +2 | [лог](logs/2026-09-30T08-35-53Z-unit-e3db.log) |  |
 | 30.09.2026 13:37 | integration | ✅ 172 из 172 | 52 с | 3315609 +2 | [лог](logs/2026-09-30T08-37-43Z-integration-d960.log) |  |
+| 30.09.2026 15:26 | typecheck | ❌ ошибок: 1 | 38 с | b0760a3 | [лог](logs/2026-09-30T10-26-30Z-typecheck-daf1.log) | TS2345 |
+| 30.09.2026 15:27 | lint | ✅ без ошибок | 21 с | b0760a3 | [лог](logs/2026-09-30T10-27-09Z-lint-db42.log) |  |
+| 30.09.2026 15:27 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 28 с | b0760a3 | [лог](logs/2026-09-30T10-27-30Z-unit-e4e9.log) |  |
+| 30.09.2026 15:29 | typecheck | ✅ без ошибок | 26 с | b0760a3 +1 | [лог](logs/2026-09-30T10-29-40Z-typecheck-3742.log) |  |
+| 30.09.2026 15:30 | integration | ❌ упало 5 из 186 | 55 с | b0760a3 +1 | [лог](logs/2026-09-30T10-30-06Z-integration-ba9b.log) | seller_profiles и факты объекта (integration, DATABASE_URL required) первая правка заводит строку организации и пишет журнал: до — пусто, после — поля |
+| 30.09.2026 15:31 | integration | ✅ 186 из 186 | 54 с | b0760a3 +2 | [лог](logs/2026-09-30T10-31-24Z-integration-88f0.log) |  |
+| 30.09.2026 15:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 112 из 112 | 8 мин 35 с | b0760a3 +1 | [лог](logs/2026-09-30T10-32-22Z-e2e-de31.log) |  |

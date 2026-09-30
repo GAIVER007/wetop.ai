@@ -91,4 +91,44 @@ describe.skipIf(!url)('каталог AI-агентов (integration, DATABASE_U
     expect((await repo.drafts(orgB, 50)).map((d) => d.name)).toEqual([`Черновик Б1 ${mark}`]);
     expect(await repo.drafts(orgEmpty, 50)).toEqual([]);
   });
+
+  describe('после переноса продавца в агента (DATA_MODEL §20, SA1.6)', () => {
+    let secondLocation = '';
+
+    beforeAll(async () => {
+      secondLocation = (await db.property.findUniqueOrThrow({ where: { id: secondProperty }, select: { locationId: true } }))
+        .locationId;
+      // перенесённый продавец организации А: id = organization_id, филиал — второй, а не самый ранний объект
+      await db.sellerAgent.create({
+        data: {
+          id: orgA,
+          organizationId: orgA,
+          createdBy: userId,
+          name: `Перенесённый А ${mark}`,
+          lifecycle: 'active',
+          locationId: secondLocation,
+        },
+      });
+    });
+
+    it('placement: филиал перенесённого агента важнее самого раннего объекта', async () => {
+      const place = await repo.placement(orgA);
+      expect(place?.location.id).toBe(secondLocation);
+      expect(place?.location.name).toBe(`Второй филиал ${mark}`);
+    });
+
+    it('placement: у агента без филиала — прежнее правило, самый ранний объект', async () => {
+      await db.$executeRawUnsafe(`UPDATE seller_agents SET lifecycle = 'draft', location_id = NULL WHERE id = $1::uuid`, orgA);
+      try {
+        expect((await repo.placement(orgA))?.location.name).toBe(`Первый филиал ${mark}`);
+      } finally {
+        await db.sellerAgent.update({ where: { id: orgA }, data: { lifecycle: 'active', locationId: secondLocation } });
+      }
+    });
+
+    it('drafts: перенесённый продавец не дублируется черновиком — он рабочий, а не черновик мастера', async () => {
+      const own = await repo.drafts(orgA, 50);
+      expect(own.map((d) => d.name).sort()).toEqual([`Черновик А1 ${mark}`, `Черновик А2 ${mark}`]);
+    });
+  });
 });

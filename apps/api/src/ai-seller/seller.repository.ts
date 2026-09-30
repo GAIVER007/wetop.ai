@@ -416,17 +416,24 @@ export { PrismaBotAudit as PrismaSellerAudit } from '../bots/audit';
 export class PrismaSellerCatalogRepository implements SellerCatalogRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
+  /**
+   * Расположение рабочего продавца. Перенесённый агент (`id = organization_id`, DATA_MODEL §20.4) знает свой филиал сам;
+   * у продавца без агента или агента без филиала — прежнее правило: филиал самого раннего объекта организации.
+   */
   async placement(organizationId: string): Promise<SellerCatalogPlacement | null> {
-    const property = await this.prisma.db.property.findFirst({
-      where: { organizationId },
-      orderBy: { createdAt: 'asc' },
-      select: {
-        location: {
-          select: { id: true, name: true, business: { select: { id: true, name: true } } },
-        },
-      },
+    const select = { id: true, name: true, business: { select: { id: true, name: true } } } as const;
+    const agent = await this.prisma.db.sellerAgent.findFirst({
+      where: { id: organizationId, organizationId },
+      select: { location: { select } },
     });
-    const location = property?.location;
+    const property = agent?.location
+      ? null
+      : await this.prisma.db.property.findFirst({
+          where: { organizationId },
+          orderBy: { createdAt: 'asc' },
+          select: { location: { select } },
+        });
+    const location = agent?.location ?? property?.location;
     if (!location) return null;
     return {
       business: { id: location.business.id, name: location.business.name },
@@ -435,8 +442,9 @@ export class PrismaSellerCatalogRepository implements SellerCatalogRepository {
   }
 
   async drafts(organizationId: string, limit: number): Promise<SellerCatalogDraft[]> {
+    // Рабочий продавец организации (`id = organization_id`) — отдельная карточка каталога, не черновик мастера
     return this.prisma.db.sellerAgent.findMany({
-      where: { organizationId },
+      where: { organizationId, NOT: { id: organizationId } },
       orderBy: { createdAt: 'desc' },
       take: limit,
       select: { id: true, name: true, updatedAt: true },

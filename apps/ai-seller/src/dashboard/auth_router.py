@@ -398,9 +398,35 @@ async def request_org(request: Request) -> uuid.UUID | None:
     if not raw:
         raise HTTPException(status_code=400, detail="У продавца нужен заголовок X-Organization")
     try:
-        return uuid.UUID(raw)
+        org = uuid.UUID(raw)
     except ValueError:
         raise HTTPException(status_code=400, detail="X-Organization — не идентификатор") from None
+    await _require_own_agent(request, org)
+    return org
+
+
+AGENT_HEADER = "X-Agent"
+
+
+async def _require_own_agent(request: Request, org: uuid.UUID) -> None:
+    """Агент из `X-Agent` принадлежит организации запроса (DATA_MODEL §20.6, SA1.6).
+
+    Без заголовка агент — тот, чей `id` равен организации (прежнее поведение). Чужой, несуществующий или
+    не идентификатор — 403 одним ответом: чужому не подтверждаем, есть ли такой агент.
+    """
+    raw = (request.headers.get(AGENT_HEADER) or "").strip()
+    if not raw:
+        return
+    try:
+        agent_id = uuid.UUID(raw)
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Агент не принадлежит организации") from None
+    from src.db.models import Agent
+
+    async with dependencies.get_sessionmaker()() as session:
+        owner = await session.scalar(sa.select(Agent.organization_id).where(Agent.id == agent_id))
+    if owner != org:
+        raise HTTPException(status_code=403, detail="Агент не принадлежит организации")
 
 
 def _reconnect_allowed(user: DashboardUser, code: str, settings: Settings) -> bool:

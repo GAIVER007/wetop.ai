@@ -80,12 +80,16 @@ def make_registry(db_session, fake_redis):
 
     settings = support_settings()
 
-    def build(actions=None, visitor=signed_visitor(), conversation: str | None = None):
+    def build(actions=None, visitor=signed_visitor(), conversation: str | None = None, incoming: str | None = None):
         runtime = Runtime(get_sessionmaker(), fake_redis, settings)
-        return build_registry(
+        state = {"incoming": incoming}
+        registry_ = build_registry(
             lambda: providers(actions), settings_getter=lambda: settings, visitor_getter=lambda: visitor,
             conversation_getter=lambda: conversation, actions_getter=lambda: runtime,
+            incoming_getter=lambda: state["incoming"],
         )
+        registry_.say = lambda text: state.__setitem__("incoming", text)  # что человек написал в этот ход
+        return registry_
 
     return build
 
@@ -186,6 +190,7 @@ async def test_confirm_action_needs_a_yes_first(make_registry, db_session, fake_
     assert "подтвержд" in text.lower() and "90" in text
     assert actions.calls == []
     assert await fake_redis.ttl(pending_key(conv_id)) > PENDING_TTL_SECONDS - 60
+    reg.say("да")
     done = await call_tool(reg, "confirm_action")
     assert "Готово" in done and "180" in done and "sk-secret" not in done
     assert actions.calls[0][0] == "channel_sync" and actions.calls[0][1]["days"] == 90
@@ -203,6 +208,7 @@ async def test_stale_proposal_expires(make_registry, db_session, fake_redis, con
     raw = json.loads(await fake_redis.get(pending_key(conv_id)))
     raw["proposed_at"] = raw["proposed_at"] - PENDING_TTL_SECONDS - 1
     await fake_redis.set(pending_key(conv_id), json.dumps(raw))
+    reg.say("да")
     assert "устарело" in await call_tool(reg, "confirm_action")
     assert actions.calls == []
     assert [r.status for r in await rows(db_session, conv_id)] == ["EXPIRED"]
@@ -266,3 +272,51 @@ async def test_journal_is_listed_for_the_operator(make_registry, db_session, con
     assert len(listing) == 1
     assert listing[0]["action"] == "channel_pull" and listing[0]["status"] == "DONE" and listing[0]["class"] == "SAFE"
     assert set(listing[0]) >= {"id", "action", "class", "status", "result", "createdAt", "executedAt"}
+
+
+# ─── Q-S6-2: согласие проверяет сервер, не модель ───
+
+
+@pytest.mark.asyncio
+async def test_confirm_without_an_explicit_yes_from_the_human_does_nothing(make_registry, db_session, fake_redis, conv_id) -> None:
+    """Модель зовёт confirm_action, а человек «да» не писал: действие не выполняется, предложение остаётся ждать."""
+    actions = FakeActions()
+    reg = make_registry(actions, conversation=conv_id)
+    await call_tool(reg, "propose_action", action="channel_sync")
+    for said in (None, "", "нет", "а что это даст?", "да нет, не надо", "давай потом", "ДА или нет?"):
+        reg.say(said)
+        text = await call_tool(reg, "confirm_action")
+        assert "подтвержд" in text.lower() and "Готово" not in text, said
+    assert actions.calls == []
+    assert await fake_redis.get(pending_key(conv_id)) is not None, "предложение не потрачено"
+    assert [r.status for r in await rows(db_session, conv_id)] == ["PROPOSED"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("said", ["да", "Да.", "ДА!", "подтверждаю", "Выполняй", "да, запусти", "да, подтверждаю", "запускай", "да, выполняй"])
+async def test_explicit_yes_phrases_are_recognised_deterministically(make_registry, conv_id, said) -> None:
+    actions = FakeActions()
+    reg = make_registry(actions, conversation=conv_id)
+    await call_tool(reg, "propose_action", action="channel_sync")
+    reg.say(said)
+    assert "Готово" in await call_tool(reg, "confirm_action")
+    assert len(actions.calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_another_person_cannot_confirm_someone_elses_proposal(make_registry, fake_redis, conv_id) -> None:
+    actions = FakeActions()
+    await call_tool(make_registry(actions, conversation=conv_id), "propose_action", action="channel_sync")
+    other = make_registry(actions, visitor=signed_visitor(user_id="77"), conversation=conv_id, incoming="да")
+    text = await call_tool(other, "confirm_action")
+    assert "Готово" not in text and actions.calls == []
+    assert await fake_redis.get(pending_key(conv_id)) is not None
+
+
+@pytest.mark.asyncio
+async def test_a_yes_in_another_conversation_does_not_confirm(make_registry, sync_db, conv_id) -> None:  # noqa: F811
+    actions = FakeActions()
+    await call_tool(make_registry(actions, conversation=conv_id), "propose_action", action="channel_sync")
+    other_conv = str(seed_conversation(sync_db, external_id="1002"))
+    assert "нечего подтверждать" in await call_tool(make_registry(actions, conversation=other_conv, incoming="да"), "confirm_action")
+    assert actions.calls == []

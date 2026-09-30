@@ -31,6 +31,8 @@ conversation_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar
 
 # Организация текущего хода (Э4/Q-166): ставит движок в accept, читает провайдер
 # котировки — инструменты наличия и цены спрашивают платформу про СВОЮ гостиницу.
+# S6 (Q-S6-2): текст сообщения человека в этом ходе — по нему сервер бота проверяет явное «да» на действие
+incoming_text_var: contextvars.ContextVar[str | None] = contextvars.ContextVar("incoming_text", default=None)
 organization_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "organization_id", default=None
 )

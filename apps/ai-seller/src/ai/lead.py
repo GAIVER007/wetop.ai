@@ -130,18 +130,17 @@ def append_sentence(reply: str, sentence: str) -> str:
 def apply_turn(
     lead: dict, *, text: str, reply: str, model_lead: LeadFields | None, client_name: str | None, turn_index: int
 ) -> tuple[dict, str]:
-    """Правила лида за один ход: слить поля модели, учесть отказ (ответ на него —
-    один раз) или дописать просьбу о контакте. Возвращает новый lead и ответ."""
+    """Правила лида за один ход: слить поля модели и учесть отказ один раз.
+    Контактные вопросы к ответу не дописываются. Возвращает новый lead и ответ."""
     lead = merge_model_lead(lead, model_lead, client_name)
     if contact_refused(text, asked=int(lead.get("asks", 0) or 0) > 0):
         if not lead.get("contact_refused"):
             lead["contact_refused"] = True
             reply = append_sentence(reply, REFUSAL_ACK)
         return lead, reply
-    ask = needs_ask(lead, turn_index=turn_index)
-    if ask and not reply_already_asks(reply, ask):
-        reply = append_sentence(reply, ASK_TEXTS[ask])
-        lead["asks"] = int(lead.get("asks", 0) or 0) + 1
+    # Контакт приходит из канала/подписанного контекста. Справочный ход не
+    # запускает сбор телефона (решение владельца 30.09.2026).
+    # Слияние добровольно сообщённых данных и отказ сохраняются.
     return lead, reply
 
 

@@ -31,7 +31,7 @@ from src.security.pii import Contacts, extract_contacts
 Action = Literal["pass", "flag", "refuse", "block"]
 
 FALLBACK_ANSWER = "Уточню у администратора и вернусь к вам."
-ASK_PHONE = "Напишите, пожалуйста, ваш телефон, и администратор свяжется с вами."
+CONTACT_FALLBACK = "Продолжим здесь, в чате."
 ASK_PRICE = "Точную стоимость подтвердит администратор."
 
 _INVISIBLE_TABLE = {ord(c): None for c in INVISIBLE_CHARS}
@@ -238,7 +238,9 @@ _FALSE_CONTACT = re.compile(
 )
 _ASK_CONTACT = re.compile(
     r"\b(?:оставьте|напишите|укажите|отправьте|пришлите|сообщите|подскажите)\b"
-    r"[^.!?]{0,30}?\b" + _CONTACT_WORD,
+    r"[^.!?]{0,30}?\b" + _CONTACT_WORD
+    + r"|\b(?:какой|каков|ваш|твой)\b[^.!?]{0,25}?\bтелефон\w*[^.!?]{0,20}\?"
+    + r"|\bпо\s+какому\s+номеру\b[^.!?]{0,30}?\bсвязаться\b",
     re.IGNORECASE,
 )
 _URL = re.compile(r"(?:https?://|www\.)[^\s<>()\"']+", re.IGNORECASE)
@@ -295,11 +297,11 @@ def check_output(answer: str, ctx: OutputContext) -> OutputVerdict:
         if s is None or not s.strip():
             continue
         if not ctx.contact_known and _FALSE_CONTACT.search(s):  # (б)
-            sents[i] = None if asked_phone else ASK_PHONE
+            sents[i] = None if asked_phone else CONTACT_FALLBACK
             asked_phone = True
             edits.append("false_contact")
             continue
-        if ctx.contact_known and _ASK_CONTACT.search(s):  # (в)
+        if _ASK_CONTACT.search(s):  # (в)
             sents[i] = None
             edits.append("ask_contact")
             continue

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   SELLER_TABS,
@@ -29,7 +30,12 @@ const status = (over: Partial<SellerStatus> = {}): SellerStatus => ({
 
 describe('вкладки раздела (макет владельца 26.09.2026)', () => {
   it('четыре экрана: настройка, диалоги, знания, подключения', () => {
-    expect(SELLER_TABS.map((t) => t.label)).toEqual(['Настройка', 'Диалоги', 'Знания', 'Подключения']);
+    expect(SELLER_TABS.map((t) => t.label)).toEqual([
+      'Настройка',
+      'Диалоги',
+      'Знания',
+      'Подключения',
+    ]);
     expect(SELLER_TABS.map((t) => t.href)).toEqual([
       '/ai-seller',
       '/ai-seller/dialogs',
@@ -67,9 +73,16 @@ describe('sellerBanner — полоса состояния над экранам
 
   it('продавец отклонил по содержанию — сами не повторяем, просим поправить и нажать «Сохранить и применить»', () => {
     const b = sellerBanner(
-      status({ lastError: 'ИИ-продавец отклонил: в поле найдены инструкции для модели', retrying: false }),
+      status({
+        lastError: 'ИИ-продавец отклонил: в поле найдены инструкции для модели',
+        retrying: false,
+      }),
     );
-    expect(b).toMatchObject({ tone: 'alarm', value: 'отклонил правки', title: 'Продавец отклонил правки' });
+    expect(b).toMatchObject({
+      tone: 'alarm',
+      value: 'отклонил правки',
+      title: 'Продавец отклонил правки',
+    });
     expect(b.text).toContain('в поле найдены инструкции для модели');
     expect(b.text).toContain('«Сохранить и применить»');
     // обещания повтора нет: «Повторяем отправку…» — слова временного отказа
@@ -155,7 +168,10 @@ describe('categoryPriceLine — цена категории в «Данных о
 
   it('цена меняется — продавец скажет «уточнит администратор», стойка показывает разброс', () => {
     expect(
-      categoryPriceLine(price({ reason: 'varies', priceMinor: null, min: '450000', max: '520000' }), 'KZT'),
+      categoryPriceLine(
+        price({ reason: 'varies', priceMinor: null, min: '450000', max: '520000' }),
+        'KZT',
+      ),
     ).toEqual({
       value: 'уточнит администратор',
       note: 'цена меняется по датам: от 4 500 ₸ до 5 200 ₸',
@@ -184,8 +200,14 @@ describe('conversationModeLabel — режим диалога словами с�
   it('«нужен человек» — предупреждением, остальные — спокойно', () => {
     expect(conversationModeLabel('needs_human')).toEqual({ label: 'нужен человек', tone: 'warn' });
     expect(conversationModeLabel('bot_active')).toEqual({ label: 'ведёт бот', tone: 'neutral' });
-    expect(conversationModeLabel('owner_takeover')).toEqual({ label: 'ведёт человек', tone: 'info' });
-    expect(conversationModeLabel('что-то новое')).toEqual({ label: 'что-то новое', tone: 'neutral' });
+    expect(conversationModeLabel('owner_takeover')).toEqual({
+      label: 'ведёт человек',
+      tone: 'info',
+    });
+    expect(conversationModeLabel('что-то новое')).toEqual({
+      label: 'что-то новое',
+      tone: 'neutral',
+    });
   });
 });
 
@@ -249,7 +271,14 @@ describe('leadFacts — что продавец узнал о госте, сло
 
   it('ключи `extra`, которые бот отдаёт в бронь (`create_lead`), — тоже словами стойки', () => {
     expect(
-      leadFacts({ extra: { arrival: '2026-10-01', departure: '2026-10-03', category: 'Двухместная', guests: '2' } }),
+      leadFacts({
+        extra: {
+          arrival: '2026-10-01',
+          departure: '2026-10-03',
+          category: 'Двухместная',
+          guests: '2',
+        },
+      }),
     ).toEqual([
       { label: 'Заезд', value: '2026-10-01' },
       { label: 'Выезд', value: '2026-10-03' },
@@ -283,7 +312,11 @@ describe('чек-лист «Три шага до запуска» (макет в
   });
 
   it('продавец не подключён к платформе — первым шагом, остальное ждёт', () => {
-    const items = sellerChecklist(status({ state: 'not-configured', connection: 'not-configured' }), null, prompt(true, false))!;
+    const items = sellerChecklist(
+      status({ state: 'not-configured', connection: 'not-configured' }),
+      null,
+      prompt(true, false),
+    )!;
     expect(items[0]).toMatchObject({ key: 'connect', done: false });
   });
 
@@ -292,7 +325,9 @@ describe('чек-лист «Три шага до запуска» (макет в
   });
 
   it('инструкция сохранена, но не применена — шаг не готов и говорит, что нажать', () => {
-    const item = sellerChecklist(status(), true, prompt(true, false))!.find((i) => i.key === 'prompt')!;
+    const item = sellerChecklist(status(), true, prompt(true, false))!.find(
+      (i) => i.key === 'prompt',
+    )!;
     expect(item.done).toBe(false);
     expect(item.hint).toContain('«Сохранить и применить»');
   });
@@ -337,5 +372,31 @@ describe('sellerPromptDraft — черновик инструкции из то�
     expect(order.every((i) => i >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     expect(draft).toContain('- Есть парковка? → Нет, рядом городская.');
+  });
+});
+
+describe('согласованные правила короткого ответа', () => {
+  const support = readFileSync(
+    new URL('../../../ai-seller/sistemnyy-prompt-pomoshchnik.md', import.meta.url),
+    'utf8',
+  );
+  for (const [role, prompt] of [
+    ['продавец', sellerPromptDraft(null)],
+    ['поддержка', support],
+  ]) {
+    it(`${role}: отвечает по существу, не превращает справку в сбор контактов`, () => {
+      expect(prompt).toContain('Сначала ответь прямо на вопрос');
+      expect(prompt).toContain('не больше одного необходимого уточняющего вопроса');
+      expect(prompt).toContain('Подробности давай по просьбе');
+      expect(prompt).toContain('Не повторяй уже известные сведения');
+      expect(prompt).toContain('Не запрашивай телефон у пользователя');
+      expect(prompt).toContain('Не выдумывай цены, доступность, причины ошибок');
+    });
+  }
+  it('продавец: использует контакт канала вместо повторного сбора телефона', () => {
+    expect(sellerPromptDraft(null)).not.toContain(
+      'Попроси телефон, чтобы администратор подтвердил бронь.',
+    );
+    expect(sellerPromptDraft(null)).toContain('Контакт бери из канала связи');
   });
 });

@@ -4548,3 +4548,6 @@
 | 30.09.2026 11:57 | unit | ✅ 2480 из 2483, пропущено 3 | 1 мин 51 с | 61a4650 | [лог](logs/2026-09-30T06-57-14Z-unit-c304.log) |  |
 | 30.09.2026 11:59 | integration | ✅ 143 из 143 | 1 мин 10 с | 61a4650 | [лог](logs/2026-09-30T06-59-05Z-integration-4305.log) |  |
 | 30.09.2026 12:00 | unit | ✅ 2480 из 2483, пропущено 3 | 1 мин 51 с | ec75a7c | [лог](logs/2026-09-30T07-00-46Z-unit-df52.log) |  |
+| 30.09.2026 12:14 | unit | ✅ 2508 из 2511, пропущено 3 | 1 мин 41 с | bea1ca2 | [лог](logs/2026-09-30T07-14-14Z-unit-0610.log) |  |
+| 30.09.2026 12:16 | integration | ✅ 165 из 165 | 52 с | bea1ca2 | [лог](logs/2026-09-30T07-16-09Z-integration-5afd.log) |  |
+| 30.09.2026 12:17 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 55 из 55 | 2 мин 46 с | bea1ca2 | [лог](logs/2026-09-30T07-17-04Z-e2e-2fb8.log) |  |

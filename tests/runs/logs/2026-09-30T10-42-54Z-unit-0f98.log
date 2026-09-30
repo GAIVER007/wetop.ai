@@ -1,0 +1,16 @@
+# Модульные (unit) · 30.09.2026 15:42 Алматы · vm
+# коммит 45935a7 (claude/peaceful-tesla-yfad2q)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T10-42-54Z-unit-0f98.json' 'tests/unit/no-vendor-name.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/no-vendor-name.test.ts (1 test) 99ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  10:42:56
+   Duration  395ms (tests 62%, transform 25%, import 9%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-30T10-42-54Z-unit-0f98.json
+
+# код выхода 0 · 3 с

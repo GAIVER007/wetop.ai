@@ -119,6 +119,8 @@ DECLARE
   v_candidates integer;
   v_name text;
   v_applied boolean;
+  v_row_name text;
+  v_row_applied boolean;
 BEGIN
   IF EXISTS (SELECT 1 FROM seller_agents WHERE id = p_org) THEN
     RETURN false;
@@ -128,8 +130,8 @@ BEGIN
   SELECT m.user_id INTO v_author FROM memberships m WHERE m.organization_id = p_org
   ORDER BY (m.role = 'OWNER') DESC, m.created_at ASC, m.user_id LIMIT 1;
   IF v_author IS NULL THEN
-    -- Автора нет: агента не заводим. Сохранение профиля прежним кодом из-за этого падать не должно;
-    -- организации с продавцом, но без участников, останавливает предпроверка (seller_scope_assert)
+    -- Автора нет: агента не заводим. Организации с продавцом, но без участников, останавливает предпроверка
+    -- (seller_scope_assert); профиль без агента после сужения (036) не вставляется, до него — сохранялся без связи
     RETURN false;
   END IF;
 
@@ -151,13 +153,18 @@ BEGIN
     v_location := NULL;
   END IF;
 
-  SELECT coalesce(p_name, nullif(sp.bot_name, '')), coalesce(p_applied, sp.profile_applied_at IS NOT NULL)
-  INTO v_name, v_applied FROM seller_profiles sp WHERE sp.organization_id = p_org;
+  -- Профиль может ещё не существовать (триггер срабатывает ДО вставки строки): SELECT INTO без строки обнуляет цели, поэтому
+  -- значения из строки читаются в отдельные переменные, а не поверх переданных аргументов (в 034 принятый профиль,
+  -- вставленный прежним кодом, оставлял агента черновиком)
+  SELECT nullif(sp.bot_name, ''), sp.profile_applied_at IS NOT NULL INTO v_row_name, v_row_applied
+  FROM seller_profiles sp WHERE sp.organization_id = p_org;
+  v_name := coalesce(p_name, v_row_name, 'AI-продавец');
+  v_applied := coalesce(p_applied, v_row_applied, false);
 
   INSERT INTO seller_agents (id, organization_id, created_by, name, scenario, lifecycle, location_id, profile, created_at, updated_at)
   VALUES (
-    p_org, p_org, v_author, coalesce(v_name, p_name, 'AI-продавец'), 'sales',
-    CASE WHEN coalesce(v_applied, false) AND v_location IS NOT NULL THEN 'active' ELSE 'draft' END,
+    p_org, p_org, v_author, v_name, 'sales',
+    CASE WHEN v_applied AND v_location IS NOT NULL THEN 'active' ELSE 'draft' END,
     v_location, '{}'::jsonb, now(), now()
   )
   ON CONFLICT (id) DO NOTHING;

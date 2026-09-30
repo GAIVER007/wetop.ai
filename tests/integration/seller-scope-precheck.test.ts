@@ -98,6 +98,18 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     expect(row.agentId).toBe(org.id);
   });
 
+  it('принятый профиль, вставленный прежним кодом, сразу даёт активного агента с единственным филиалом и именем из профиля', async () => {
+    const org = await newOrg('принятый профиль');
+    await db.sellerProfile.create({
+      data: {
+        organizationId: org.id, botName: 'Айгерим', addressForm: 'FORMAL', replyLength: 'SHORT', languages: ['ru'],
+        updatedAt: new Date(), profileAppliedAt: new Date(),
+      },
+    });
+    const agent = await db.sellerAgent.findUniqueOrThrow({ where: { id: org.id }, select: { name: true, lifecycle: true, locationId: true } });
+    expect(agent).toEqual({ name: 'Айгерим', lifecycle: 'active', locationId: org.locations[0] });
+  });
+
   it('два филиала у организации с профилем: неоднозначно, агент без филиала, assert останавливает', async () => {
     const org = await newOrg('два филиала', { locations: 2 });
     await profile(org.id);

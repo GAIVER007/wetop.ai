@@ -1,0 +1,123 @@
+# Сквозные (e2e) · 30.09.2026 17:22 Алматы · MacBook-Air-Urij.local
+# коммит cb9b26c (codex/unified-workspace-20260929), незакоммиченных файлов набора: 8
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--grep' 'owner dashboard|dashboard period changes|экран /today:'
+[WebServer] (node:8915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:8956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:8973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 4 tests using 2 workers
+
+(node:9119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9118) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/requests.spec.ts:68:3 › экран /today: данные берутся одним запросом на путь (21.0s)
+  ✘  2 tests/ui/owner-dashboard.spec.ts:6:1 › owner dashboard shows financial and operational summary without desktop scrolling (20.8s)
+(node:9297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/ui/owner-dashboard.spec.ts:24:1 › dashboard period changes and mobile retains content (3.0s)
+  ✓  4 tests/ui/owner-dashboard.spec.ts:35:1 › owner dashboard keeps operations visible when finance fails (2.2s)
+
+
+  1) tests/ui/owner-dashboard.spec.ts:6:1 › owner dashboard shows financial and operational summary without desktop scrolling 
+
+    Error: locator.click: Error: strict mode violation: getByRole('button', { name: 'Работа с гостями', exact: true }) resolved to 2 elements:
+        1) <button type="button" aria-expanded="true" data-tour="section-guests" aria-label="Работа с гостями" aria-controls="_R_iqlb_-guests" class="sidebar-section-toggle has-current-page">…</button> aka getByRole('navigation', { name: 'Разделы' }).getByRole('button', { name: 'Работа с гостями' })
+        2) <button class="btn btn--secondary">Работа с гостями</button> aka getByTestId('owner-dashboard').getByRole('button', { name: 'Работа с гостями' })
+
+    Call log:
+      - waiting for getByRole('button', { name: 'Работа с гостями', exact: true })
+
+
+      17 |   ).toBeLessThanOrEqual(2);
+      18 |   await page.screenshot({ path: 'reports/owner-dashboard-desktop.png', fullPage: true });
+    > 19 |   await page.getByRole('button', { name: 'Работа с гостями', exact: true }).click();
+         |                                                                             ^
+      20 |   await expect(page.getByRole('dialog', { name: 'Работа с гостями', exact: true })).toBeVisible();
+      21 |   await page.keyboard.press('Escape');
+      22 |   await expect(page.getByRole('dialog', { name: 'Работа с гостями', exact: true })).toBeHidden();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/owner-dashboard.spec.ts:19:77
+
+    Error Context: test-results/owner-dashboard-owner-dash-1a809-y-without-desktop-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/owner-dashboard-owner-dash-1a809-y-without-desktop-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/owner-dashboard-owner-dash-1a809-y-without-desktop-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/requests.spec.ts:68:3 › экран /today: данные берутся одним запросом на путь ──────────
+
+    Error: путь с данными запрошен повторно за один показ /today: {"GET /hotel/settings":2,"GET /auth/me":2,"GET /desk/today?date=2026-09-30":2,"GET /chessboard?from=2026-09-30&to=2026-09-30":2,"GET /guard/status":2,"GET /desk/dashboard?from=2026-09-30&to=2026-09-30":2,"GET /system/freshness":2}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 22
+
+    - Array []
+    + Array [
+    +   Array [
+    +     "GET /hotel/settings",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /desk/today?date=2026-09-30",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /chessboard?from=2026-09-30&to=2026-09-30",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /guard/status",
+    +     2,
+    +   ],
+    +   Array [
+    +     "GET /desk/dashboard?from=2026-09-30&to=2026-09-30",
+    +     2,
+    +   ],
+    + ]
+
+      75 |       ([key, n]) => n > 1 && !SHELL.includes(key.split(' ')[1]!.split('?')[0]!),
+      76 |     );
+    > 77 |     expect(twice, `путь с данными запрошен повторно за один показ ${screen}: ${seen}`).toEqual([]);
+         |                                                                                        ^
+      78 |     expect(total, `запросов на экран ${screen}: ${seen}`).toBeLessThanOrEqual(
+      79 |       ['/channels', '/channels/sync'].includes(screen) ? 12 : 10,
+      80 |     );
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/requests.spec.ts:77:88
+
+    Error Context: test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/requests-экран-today-данные-берутся-одним-запросом-на-путь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/owner-dashboard.spec.ts:6:1 › owner dashboard shows financial and operational summary without desktop scrolling 
+    tests/ui/requests.spec.ts:68:3 › экран /today: данные берутся одним запросом на путь ───────────
+  2 passed (54.5s)
+
+# код выхода 1 · 57 с

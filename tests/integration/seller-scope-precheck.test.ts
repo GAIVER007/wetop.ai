@@ -4,6 +4,7 @@ import { config as loadEnv } from 'dotenv';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { createPrismaClient, createPropertyInChain, type Db } from '@pms/database';
 import { purgeAuditRows } from '../tools/audit-purge';
+import { insertLegacyProfile } from '../tools/seller-profile-sql';
 import { deleteOrganizationChain } from '../tools/property-owner';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
@@ -13,6 +14,9 @@ const url = process.env.DATABASE_URL;
  * SA2.5, миграция 035 (expand): предпроверка однозначности перед переводом рантайма на agent_id (plans/…sa25 §10 п. 3).
  * Цепочка `seller_profile → Organization → legacy Seller Agent → Business → Location`: для каждого профиля ровно один
  * однозначный целевой агент и один филиал. Любая неоднозначность останавливает миграцию — Location по `created_at`, названию
+
+ * Схема здесь — ПОСЛЕ сужения (036): у профиля обязателен агент, поэтому «профиль без агента» и «профиль организации без участников»
+ * невозможны как данные; их проверки остаются в функции (она идёт и по схеме шага «расширить») и доказаны в ветке до сужения.
  * или догадке не выбирается. Здесь проверяются функции `seller_scope_precheck(org)` и `seller_scope_assert(org)`, которые
  * миграция вызывает по всей базе; тесты сужают их одной организацией, чтобы соседние данные не мешали.
  */
@@ -42,9 +46,11 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     return { id, user, locations };
   }
 
-  const profile = (organizationId: string, extra: Record<string, unknown> = {}) =>
+  // профиль «как вставлял прежний код»: триггер заводит агента (`id = organization_id`) с единственным возможным филиалом
+  const profile = (organizationId: string) => insertLegacyProfile(db, organizationId);
+  const profileOf = (agentId: string, organizationId: string) =>
     db.sellerProfile.create({
-      data: { organizationId, addressForm: 'FORMAL', replyLength: 'SHORT', languages: ['ru'], updatedAt: new Date(), ...extra },
+      data: { agentId, organizationId, addressForm: 'FORMAL', replyLength: 'SHORT', languages: ['ru'], updatedAt: new Date() },
     });
 
   type Row = { check_name: string; total: bigint | number; bad: bigint | number };
@@ -94,8 +100,8 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     });
     await expect(assertScope(org.id)).resolves.toBeDefined();
     expect((await agentOf(org.id))?.locationId).toBe(org.locations[0]);
-    const row = await db.sellerProfile.findUniqueOrThrow({ where: { organizationId: org.id }, select: { agentId: true } });
-    expect(row.agentId).toBe(org.id);
+    const row = await db.sellerProfile.findUniqueOrThrow({ where: { agentId: org.id }, select: { organizationId: true } });
+    expect(row.organizationId).toBe(org.id);
   });
 
   it('два филиала у организации с профилем: неоднозначно, агент без филиала, assert останавливает', async () => {
@@ -108,12 +114,13 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     await expect(assertScope(org.id)).rejects.toThrow(/orgs_with_many_locations/);
   });
 
-  it('профиль организации без участников: некому быть автором — агента нет, проверка красная', async () => {
+  it('организация с рабочим агентом, но без участников: некому быть автором — проверка красная; профиль без автора не вставляется', async () => {
     const org = await newOrg('без участников', { member: false });
-    await profile(org.id);
-    const found = await report(org.id);
-    expect(found.orgs_without_actor).toBe(1);
-    expect(found.profiles_without_agent).toBe(1);
+    await expect(profile(org.id)).rejects.toThrow(); // агента триггер не заведёт, а agent_id теперь NOT NULL
+    const author = await db.user.create({ data: { id: randomUUID(), email: `${randomUUID()}@example.invalid` } });
+    users.push(author.id);
+    await db.sellerAgent.create({ data: { id: org.id, organizationId: org.id, createdBy: author.id, name: 'Продавец', locationId: org.locations[0]! } });
+    expect((await report(org.id)).orgs_without_actor).toBe(1);
     await expect(assertScope(org.id)).rejects.toThrow(/orgs_without_actor/);
   });
 
@@ -122,7 +129,7 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     const other = await db.sellerAgent.create({
       data: { organizationId: org.id, createdBy: org.user!, name: 'Второй', locationId: org.locations[0]! },
     });
-    await profile(org.id, { agentId: other.id });
+    await profileOf(other.id, org.id);
     const found = await report(org.id);
     expect(found.profiles_wrong_agent).toBe(1);
     await expect(assertScope(org.id)).rejects.toThrow(/profiles_wrong_agent/);
@@ -147,21 +154,6 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     expect((await agentOf(two.id))?.locationId).toBeNull();
   });
 
-  it('backfill профилей: agent_id заполнен у каждого профиля с агентом id = организация, повтор ничего не меняет', async () => {
-    const org = await newOrg('backfill профиля');
-    await db.sellerAgent.create({ data: { id: org.id, organizationId: org.id, createdBy: org.user!, name: 'Продавец', locationId: org.locations[0]! } });
-    await db.$executeRawUnsafe('ALTER TABLE seller_profiles DISABLE TRIGGER seller_profiles_link');
-    try {
-      await profile(org.id);
-    } finally {
-      await db.$executeRawUnsafe('ALTER TABLE seller_profiles ENABLE TRIGGER seller_profiles_link');
-    }
-    expect((await db.sellerProfile.findUniqueOrThrow({ where: { organizationId: org.id }, select: { agentId: true } })).agentId).toBeNull();
-    await db.$queryRawUnsafe('SELECT seller_agents_backfill()');
-    expect((await db.sellerProfile.findUniqueOrThrow({ where: { organizationId: org.id }, select: { agentId: true } })).agentId).toBe(org.id);
-    await db.$queryRawUnsafe('SELECT seller_agents_backfill()');
-    expect((await report(org.id)).profiles_without_agent).toBe(0);
-  });
   it('seller_agent_bind_location: перенесённому агенту — единственный филиал; при двух, у агента SA2 и уже занятого — нет', async () => {
     const bind = async (agent: string) => (await db.$queryRawUnsafe<Array<{ r: string | null }>>('SELECT seller_agent_bind_location($1::uuid)::text AS r', agent))[0]!.r;
     const one = await newOrg('bind один');

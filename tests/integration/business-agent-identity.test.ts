@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { insertLegacyProfile } from '../tools/seller-profile-sql';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -47,31 +48,11 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
   }
 
   async function profile(organizationId: string, applied: boolean, botName: string | null = null) {
-    await db.sellerProfile.create({
-      data: {
-        organizationId,
-        botName,
-        addressForm: 'FORMAL',
-        replyLength: 'SHORT',
-        languages: ['ru'],
-        updatedAt: new Date(),
-        profileAppliedAt: applied ? new Date() : null,
-      },
-    });
+    await insertLegacyProfile(db, organizationId, { applied, botName });
   }
 
   const backfill = () => db.$executeRawUnsafe('SELECT seller_agents_backfill()');
 
-  /**
-   * Состояние базы до миграции: у организации есть профиль, а агента и связи нет. Триггеры отключаются на время
-   * транзакции (нужна роль владельца — тестовая база её даёт), иначе профиль тут же получил бы агента.
-   */
-  const legacy = (organizationId: string) =>
-    db.$transaction(async (tx) => {
-      await tx.$executeRawUnsafe(`SET LOCAL session_replication_role = replica`);
-      await tx.$executeRawUnsafe(`UPDATE seller_profiles SET agent_id = NULL WHERE organization_id = $1::uuid`, organizationId);
-      await tx.$executeRawUnsafe(`DELETE FROM seller_agents WHERE id = $1::uuid`, organizationId);
-    });
 
   const agent = (id: string) =>
     db.$queryRawUnsafe<
@@ -110,10 +91,8 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
   describe('перенос существующего продавца (seller_agents_backfill)', () => {
     it('рабочий продавец с принятым профилем становится активным агентом с id = organization_id, филиалом объекта и владельцем как автором', async () => {
       const a = await organization('Перенос активный');
+      // на схеме после сужения (036) профиль без агента невозможен: агента заводит триггер при вставке профиля
       await profile(a.orgId, true, 'Алия');
-      await legacy(a.orgId);
-      expect(await agent(a.orgId)).toHaveLength(0);
-
       await backfill();
 
       const row = (await agent(a.orgId))[0]!;
@@ -133,8 +112,6 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
     it('профиль без принятия продавцом остаётся черновиком, имя по умолчанию — «AI-продавец»', async () => {
       const a = await organization('Перенос черновик');
       await profile(a.orgId, false);
-      await legacy(a.orgId);
-
       await backfill();
 
       const row = (await agent(a.orgId))[0]!;
@@ -159,18 +136,14 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
       expect(link.agent_id).toBe(a.orgId);
     });
 
-    it('организация без участников: профиль сохраняется, агент не заводится, связь пуста (запись прежним кодом не падает)', async () => {
+    it('организация без участников: агента база не заводит, а профиль без агента после сужения (036) не вставляется', async () => {
       const org = await db.organization.create({ data: { name: `Без участников ${mark}` }, select: { id: true } });
       orgIds.push(org.id);
 
-      await profile(org.id, false);
+      await expect(profile(org.id, false)).rejects.toThrow();
 
       expect(await agent(org.id)).toHaveLength(0);
-      const link = (await db.$queryRawUnsafe<{ agent_id: string | null }[]>(
-        `SELECT agent_id::text FROM seller_profiles WHERE organization_id = $1::uuid`,
-        org.id,
-      ))[0]!;
-      expect(link.agent_id).toBeNull();
+      expect(await db.sellerProfile.count({ where: { organizationId: org.id } })).toBe(0);
     });
 
     it('организация с расширением, но без объекта и профиля — черновик без филиала', async () => {
@@ -197,7 +170,6 @@ describe.skipIf(!url)('Business Agent: личность и перенос (integ
     it('повторный запуск ничего не дублирует и не меняет уже перенесённого агента', async () => {
       const a = await organization('Перенос повтор');
       await profile(a.orgId, true);
-      await legacy(a.orgId);
       await backfill();
       await db.$executeRawUnsafe(`UPDATE seller_agents SET name = 'Переименован' WHERE id = $1::uuid`, a.orgId);
 

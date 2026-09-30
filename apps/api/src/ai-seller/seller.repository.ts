@@ -13,6 +13,7 @@ import {
 } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
 import type { BotAudit } from '../bots/audit';
+import type { DbTx } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 
 export const SELLER_PROFILES = Symbol('SELLER_PROFILES');
@@ -20,6 +21,13 @@ export const SELLER_FACTS = Symbol('SELLER_FACTS');
 export const SELLER_AUDIT = Symbol('SELLER_AUDIT');
 export const SELLER_ORGS = Symbol('SELLER_ORGS');
 export const SELLER_CATALOG = Symbol('SELLER_CATALOG');
+
+/** Профиль некуда сохранить: агента нет и база его не завела (у организации нет участника — некому быть автором) */
+export class SellerAgentMissingError extends Error {
+  constructor() {
+    super('seller agent missing');
+  }
+}
 
 /**
  * Агент, чьи настройки, факты и подключения читаются и пишутся (SA2.5, DATA_MODEL §20). Профиль, факты и всё, что уходит
@@ -214,13 +222,20 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
   }
 
   /**
-   * Перенесённый продавец: агента может ещё не быть — при вставке профиля триггер базы заводит его с `id = organization_id`
-   * (§20.4), поэтому `agentId` в `create` ставится только у агента, который уже существует (SA3 заводит их явно).
+   * Ключ новой строки профиля: `agentId` обязателен (первичный ключ, сужение SA2.5). Перенесённый продавец (id агента равен
+   * организации): агента может ещё не быть — его заводит база (`seller_agent_ensure`: автор — участник организации, филиал —
+   * единственный возможный), и если не завела (у организации нет участников), профиль не сохраняется с понятной причиной.
    */
-  private createKey(scope: SellerAgentScope) {
-    return scope.agentId === scope.organizationId
-      ? { organizationId: scope.organizationId }
-      : { organizationId: scope.organizationId, agentId: scope.agentId };
+  private async createKey(tx: DbTx, scope: SellerAgentScope): Promise<{ organizationId: string; agentId: string }> {
+    if (scope.agentId === scope.organizationId) {
+      await tx.$queryRaw`SELECT seller_agent_ensure(${scope.organizationId}::uuid)`;
+    }
+    const agent = await tx.sellerAgent.findFirst({
+      where: { id: scope.agentId, organizationId: scope.organizationId },
+      select: { id: true },
+    });
+    if (!agent) throw new SellerAgentMissingError();
+    return { organizationId: scope.organizationId, agentId: scope.agentId };
   }
 
   async save(
@@ -241,7 +256,7 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
       const before = await tx.sellerProfile.findUnique({ where: { agentId } });
       const saved = before
         ? await tx.sellerProfile.update({ where: { agentId }, data })
-        : await tx.sellerProfile.create({ data: { ...this.createKey(scope), ...data } });
+        : await tx.sellerProfile.create({ data: { ...(await this.createKey(tx, scope)), ...data } });
       // SECURITY.md §6: правка настроек продавца — в журнал; тексты — настройки владельца, не данные гостей
       await tx.auditLog.create({
         data: {
@@ -278,7 +293,7 @@ export class PrismaSellerProfilesRepository implements SellerProfilesRepository 
         ? await tx.sellerProfile.update({ where: { agentId }, data: stamp })
         : await tx.sellerProfile.create({
             data: {
-              ...this.createKey(scope),
+              ...(await this.createKey(tx, scope)),
               ...defaults,
               faq: defaults.faq.map((f) => ({ question: f.question, answer: f.answer })),
               ...stamp,

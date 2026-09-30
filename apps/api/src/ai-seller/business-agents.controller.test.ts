@@ -4,7 +4,7 @@ import type { INestApplication } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AGENT_ACTIVATION_DENIED, AGENT_SETUP_ITEMS, writeBlocked } from '@pms/domain';
+import { AGENT_SETUP_ITEMS, writeBlocked } from '@pms/domain';
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AuthorInterceptor } from '../auth/author.interceptor';
@@ -320,22 +320,38 @@ describe('страница агента', () => {
   });
 });
 
-describe('запуск запрещён на сервере', () => {
-  it('activate — всегда 409, черновик остаётся черновиком, что бы ни прислал клиент', async () => {
+describe('перевода из черновика нет ни в одном маршруте (Q-SA-16: /activate удалён до SA9)', () => {
+  const NO_ROUTE = [
+    ['POST', 'activate'],
+    ['POST', 'launch'],
+    ['POST', 'pause'],
+    ['POST', 'archive'],
+  ] as const;
+
+  it.each(NO_ROUTE)('%s /ai-seller/agents/:id/%s — маршрута нет', async (_method, action) => {
     await create('session-a', KEY_1, draft()).expect(201);
-    const res = await api().post(`/ai-seller/agents/${KEY_1}/activate`).set(as('session-a')).send({ lifecycle: 'active' }).expect(409);
-    expect(res.body.message).toBe(AGENT_ACTIVATION_DENIED);
+    await api().post(`/ai-seller/agents/${KEY_1}/${action}`).set(as('session-a')).send({ lifecycle: 'active' }).expect(404);
     expect(repo.agents.get(KEY_1)!.lifecycle).toBe('draft');
   });
 
-  it('activate: сотрудник — 403, чужой агент — 404', async () => {
+  it.each(['PATCH', 'PUT', 'POST', 'DELETE'] as const)('%s /ai-seller/agents/:id — менять агента этим маршрутом нельзя', async (method) => {
     await create('session-a', KEY_1, draft()).expect(201);
-    await api().post(`/ai-seller/agents/${KEY_1}/activate`).set(as('session-staff')).expect(403);
-    await api().post(`/ai-seller/agents/${KEY_1}/activate`).set(as('session-b')).expect(404);
-    expect(repo.agents.get(KEY_1)!.lifecycle).toBe('draft');
+    const call = { PATCH: api().patch, PUT: api().put, POST: api().post, DELETE: api().delete }[method].bind(api());
+    await call(`/ai-seller/agents/${KEY_1}`).set(as('session-a')).send({ lifecycle: 'active', locationId: LOC_A2 }).expect(404);
+    const kept = repo.agents.get(KEY_1)!;
+    expect(kept.lifecycle).toBe('draft');
+    expect(kept.locationId).toBe(LOC_A1);
   });
 
   it('нового агента нельзя создать сразу рабочим: `lifecycle` из тела не читается', async () => {
+    await create('session-a', KEY_1, draft({ lifecycle: 'active' })).expect(201);
+    expect(repo.agents.get(KEY_1)!.lifecycle).toBe('draft');
+    const res = await api().get(`/ai-seller/agents/${KEY_1}`).set(as('session-a')).expect(200);
+    expect(res.body.lifecycle).toBe('draft');
+  });
+
+  it('повтор create с тем же ключом и другим `lifecycle` тоже не переводит агента', async () => {
+    await create('session-a', KEY_1, draft()).expect(201);
     await create('session-a', KEY_1, draft({ lifecycle: 'active' })).expect(201);
     expect(repo.agents.get(KEY_1)!.lifecycle).toBe('draft');
   });
@@ -346,7 +362,6 @@ describe('режим «только чтение»', () => {
     const organization = { status: 'TRIAL' as const, trialEndsAt: new Date('2026-09-01T00:00:00.000Z') };
     const at = { organization, platformAdmin: false, now: new Date('2026-09-30T00:00:00.000Z') };
     expect(writeBlocked({ method: 'POST', path: '/ai-seller/agents', ...at })).toBe(true);
-    expect(writeBlocked({ method: 'POST', path: `/ai-seller/agents/${KEY_1}/activate`, ...at })).toBe(true);
     expect(writeBlocked({ method: 'GET', path: '/ai-seller/agents/options', ...at })).toBe(false);
   });
 });

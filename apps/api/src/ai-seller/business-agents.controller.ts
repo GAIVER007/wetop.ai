@@ -33,11 +33,4 @@ export class BusinessAgentsController {
   get(@Param('id') id: string) {
     return this.agents.get(id);
   }
-
-  /** Всегда 409 до SA9: запрет запуска живёт на сервере */
-  @Post(':id/activate')
-  @HttpCode(200)
-  activate(@Param('id') id: string) {
-    return this.agents.activate(id);
-  }
 }

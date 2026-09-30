@@ -168,7 +168,7 @@ test('несуществующий агент — страница «не най
   await expect(page.getByTestId('agent-setup')).toHaveCount(0);
 });
 
-test('запуска нет и на сервере: activate отвечает 409, черновик остаётся черновиком', async ({ page, request }) => {
+test('запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком', async ({ page, request }) => {
   await control(request, FREE);
   await signIn(page);
   await page.goto('/ai-agents/new');
@@ -179,7 +179,7 @@ test('запуска нет и на сервере: activate отвечает 40
   const answer = await request.post(`${API}/ai-seller/agents/${id}/activate`, {
     headers: { 'x-wetop-test-client': '1' },
   });
-  expect(answer.status()).toBe(409);
+  expect(answer.status()).toBe(404);
   await page.reload();
   await expect(page.getByTestId('agent-lifecycle')).toHaveText('Черновик');
 });

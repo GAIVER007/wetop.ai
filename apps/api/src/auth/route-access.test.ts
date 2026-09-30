@@ -177,7 +177,6 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /ai-seller/agents/options': 'dialogs',
   'POST /ai-seller/agents': 'seller',
   'GET /ai-seller/agents/:id': 'dialogs',
-  'POST /ai-seller/agents/:id/activate': 'seller',
   'GET /ai-seller/summary': 'dialogs',
   'GET /ai-seller/conversations': 'dialogs',
   'GET /ai-seller/conversations/:id': 'dialogs',

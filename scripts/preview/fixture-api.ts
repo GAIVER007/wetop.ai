@@ -4811,12 +4811,10 @@ createServer(async (req, res) => {
           sellerAgents.push(created);
           return send(201, agentView(created));
         }
-        const one = path.match(/^\/ai-seller\/agents\/([^/]+)(\/activate)?$/);
+        const one = path.match(/^\/ai-seller\/agents\/([^/]+)$/);
         if (one) {
           const found = sellerAgents.find((a) => a.id === one[1]);
           if (!found) return send(404, { message: 'Агент не найден' });
-          if (one[2] && req.method === 'POST')
-            return send(409, { message: 'Запуск агента появится позже: сейчас доступен только черновик.' });
           if (req.method === 'GET') return send(200, agentView(found));
         }
         return send(404, { message: 'Маршрут не найден' });

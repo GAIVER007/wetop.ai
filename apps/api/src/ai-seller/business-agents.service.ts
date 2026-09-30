@@ -9,7 +9,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
-  AGENT_ACTIVATION_DENIED,
   AGENT_SETUP_ITEMS,
   createAgentAvailability,
   parseAgentInput,
@@ -162,17 +161,6 @@ export class BusinessAgentsService {
     const agent = await this.repo.get(organizationId, id.toLowerCase());
     if (!agent || !this.inScope(agent.business.id, agent.location.id)) throw new NotFoundException('Агент не найден');
     return view(agent);
-  }
-
-  /**
-   * Запуск агента запрещён на сервере до среза SA9: черновик остаётся черновиком, что бы ни прислал клиент.
-   * Маршрут существует, чтобы запрет проверялся тестом, а не жил только в скрытой кнопке.
-   */
-  async activate(id: string): Promise<never> {
-    this.actor();
-    if (!actorMay('seller')) throw new ForbiddenException('Менять агентов могут владелец и управляющий.');
-    await this.get(id);
-    throw new ConflictException(AGENT_ACTIVATION_DENIED);
   }
 }
 

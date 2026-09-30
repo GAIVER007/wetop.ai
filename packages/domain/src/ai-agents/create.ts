@@ -78,7 +78,6 @@ export const AGENT_SETUP_ITEMS: readonly AgentSetupItem[] = [
 ];
 
 export const AGENT_SETUP_PENDING_WORD = 'Пока недоступно';
-export const AGENT_ACTIVATION_DENIED = 'Запуск агента появится позже: сейчас доступен только черновик.';
 
 export interface CreateAgentAvailability {
   enabled: boolean;

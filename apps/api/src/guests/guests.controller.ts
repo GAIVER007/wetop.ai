@@ -7,6 +7,7 @@ import {
   HttpCode,
   Inject,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -59,23 +60,23 @@ export class GuestsController {
 
   // предпросмотр панелью (G3): без документов — показ карточки с ними пишется в журнал, панель нет
   @Get(':id/preview')
-  preview(@Param('id') id: string) {
+  preview(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.preview(id);
   }
 
   @Get(':id')
-  card(@Param('id') id: string) {
+  card(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.card(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: Record<string, unknown>) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: Record<string, unknown>) {
     return this.service.update(id, dto ?? {});
   }
 
   @Post(':id/documents')
   addDocument(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body()
     dto: {
       type?: string;
@@ -90,7 +91,10 @@ export class GuestsController {
 
   @Delete(':id/documents/:documentId')
   @HttpCode(200)
-  deleteDocument(@Param('id') id: string, @Param('documentId') documentId: string) {
+  deleteDocument(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('documentId', ParseUUIDPipe) documentId: string,
+  ) {
     return this.service.deleteDocument(id, documentId);
   }
 }

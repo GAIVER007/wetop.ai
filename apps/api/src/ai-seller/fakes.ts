@@ -81,6 +81,9 @@ export class FakeSeller implements SellerPort {
   knowledgeDraft(id: string, by: string | null) {
     return this.call('knowledgeDraft', id, by);
   }
+  conversationActions(id: string) {
+    return this.call('conversationActions', id);
+  }
   putProfile(payload: unknown) {
     return this.call('putProfile', payload);
   }

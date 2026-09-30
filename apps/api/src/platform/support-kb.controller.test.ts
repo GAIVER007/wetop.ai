@@ -186,4 +186,15 @@ describe('ответы помощника пересказываются в came
     const sources = await api().get(`/platform/support/conversations/${CONV}/knowledge`).set(admin).expect(200);
     expect(sources.body.items[0]).toEqual({ knowledgeId: KB, title: 'Стирка', version: 2, visibility: 'PUBLIC_SUPPORT', score: 0.9, usedAt: 'd' });
   });
+
+  it('журнал действий бота у диалога (S6): слова и статусы, результат через маску, только администратору', async () => {
+    connection.bot.replies['conversationActions'] = {
+      items: [{ id: 'a1', action: 'channel_pull', class: 'SAFE', status: 'DONE', result: 'ревизий получено 3, звоните +7 777 123 45 67', createdAt: 'c', executedAt: 'e' }],
+    };
+    const res = await api().get(`/platform/support/conversations/${CONV}/actions`).set(admin).expect(200);
+    expect(res.body.items[0]).toMatchObject({ id: 'a1', action: 'channel_pull', actionClass: 'SAFE', status: 'DONE', createdAt: 'c', executedAt: 'e' });
+    expect(res.body.items[0].result).not.toContain('1234567');
+    expect(connection.bot.calls.at(-1)).toMatchObject({ op: 'conversationActions', args: [CONV] });
+    await api().get(`/platform/support/conversations/${CONV}/actions`).set(owner).expect(403);
+  });
 });

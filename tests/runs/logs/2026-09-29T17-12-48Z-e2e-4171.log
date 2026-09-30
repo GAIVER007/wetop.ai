@@ -1,0 +1,25 @@
+# Сквозные (e2e) · 29.09.2026 22:12 Алматы · vm
+# коммит 66923ec (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 40
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/support-kb.spec.ts' 'tests/ui/platform-support.spec.ts' 'tests/ui/support-queue.spec.ts' '--workers=1'
+[WebServer] [Nest] 11087  - 09/29/2026, 5:12:50 PM   ERROR [ExceptionHandler] Error: DATABASE_URL is not set
+[WebServer]     at createPrismaClient (/home/user/wetop.ai/packages/database/src/index.ts:38:11)
+[WebServer]     at new PrismaService (/home/user/wetop.ai/apps/api/src/database/prisma.provider.ts:42:11)
+[WebServer]     at Injector.instantiateClass (file:///home/user/wetop.ai/node_modules/@nestjs/core/injector/injector.js:439:19)
+[WebServer]     at callback (file:///home/user/wetop.ai/node_modules/@nestjs/core/injector/injector.js:69:45)
+[WebServer]     at async Injector.resolveConstructorParams (file:///home/user/wetop.ai/node_modules/@nestjs/core/injector/injector.js:182:24)
+[WebServer]     at async Injector.loadInstance (file:///home/user/wetop.ai/node_modules/@nestjs/core/injector/injector.js:75:13)
+[WebServer]     at async Injector.loadProvider (file:///home/user/wetop.ai/node_modules/@nestjs/core/injector/injector.js:109:9)
+[WebServer]     at async file:///home/user/wetop.ai/node_modules/@nestjs/core/injector/instance-loader.js:57:13
+[WebServer]     at async Promise.all (index 5)
+[WebServer]     at async InstanceLoader.createInstancesOfProviders (file:///home/user/wetop.ai/node_modules/@nestjs/core/injector/instance-loader.js:56:9)
+[WebServer] npm error Lifecycle script `start` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /home/user/wetop.ai/apps/api
+[WebServer] npm error workspace @pms/api@0.0.0
+[WebServer] npm error location /home/user/wetop.ai/apps/api
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c tsx src/main.ts
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 3 с

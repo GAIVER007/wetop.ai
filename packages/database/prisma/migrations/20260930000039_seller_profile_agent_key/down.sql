@@ -1,11 +1,11 @@
--- Откат 20260930000038_seller_profile_agent_key: первичный ключ `seller_profiles` возвращается на `organization_id`.
+-- Откат 20260930000039_seller_profile_agent_key: первичный ключ `seller_profiles` возвращается на `organization_id`.
 -- Отказывает, если у организации уже несколько профилей (несколько агентов): молча склеивать или удалять чужое нельзя.
 DO $$
 DECLARE many integer;
 BEGIN
   SELECT count(*) INTO many FROM (SELECT 1 FROM seller_profiles GROUP BY organization_id HAVING count(*) > 1) d;
   IF many > 0 THEN
-    RAISE EXCEPTION 'Откат 038 невозможен: у % организаций несколько профилей (несколько агентов) — оставьте схему', many;
+    RAISE EXCEPTION 'Откат 039 невозможен: у % организаций несколько профилей (несколько агентов) — оставьте схему', many;
   END IF;
 END $$;
 

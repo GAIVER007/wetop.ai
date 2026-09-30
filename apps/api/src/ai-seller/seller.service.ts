@@ -55,6 +55,7 @@ import {
   SELLER_FACTS,
   SELLER_ORGS,
   SELLER_PROFILES,
+  SellerAgentMissingError,
   workingSellerScope,
   type SellerAgentScope,
   type SellerAudit,
@@ -68,6 +69,8 @@ import {
 export const SELLER_NOT_CONNECTED =
   'ИИ-продавец не подключён: у платформы нет адреса и ключа продавца';
 export const SELLER_NO_PROFILE = 'Сначала сохраните настройки продавца';
+export const SELLER_NO_AGENT =
+  'Настройки не сохранены: у организации нет участника, от имени которого создаётся AI-продавец.';
 export const SELLER_NO_ORGANIZATION = 'Не выбрана организация: войдите в систему';
 export const SELLER_NO_PROPERTY =
   'У организации нет объекта: факты для продавца собрать не из чего';
@@ -370,6 +373,16 @@ export class SellerService {
     return { client, organizationId, scope };
   }
 
+  /** Запись профиля: нет агента и база его не завела — понятная причина, а не 500 (SA2.5, ключ профиля — агент) */
+  private async saved<T>(fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      if (error instanceof SellerAgentMissingError) throw new ConflictException(SELLER_NO_AGENT);
+      throw error;
+    }
+  }
+
   private async call<T>(fn: () => Promise<T>): Promise<T> {
     try {
       return await fn();
@@ -450,11 +463,13 @@ export class SellerService {
     this.checkUse((await this.gate(now)).extension, 'configure');
     const parsed = parseSellerProfile(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
-    await this.profiles.save(
-      workingSellerScope(this.profileOrganization()),
-      parsed.value,
-      currentUserId(),
-      now,
+    await this.saved(() =>
+      this.profiles.save(
+        workingSellerScope(this.profileOrganization()),
+        parsed.value,
+        currentUserId(),
+        now,
+      ),
     );
     return this.savedProfile();
   }
@@ -481,11 +496,13 @@ export class SellerService {
     if (!text) throw new BadRequestException('Инструкция: пустой текст');
     if (text.length > SELLER_PROMPT_MAX)
       throw new BadRequestException(`Инструкция: не длиннее ${SELLER_PROMPT_MAX} знаков`);
-    await this.profiles.savePrompt(
-      workingSellerScope(this.profileOrganization()),
-      text,
-      currentUserId(),
-      now,
+    await this.saved(() =>
+      this.profiles.savePrompt(
+        workingSellerScope(this.profileOrganization()),
+        text,
+        currentUserId(),
+        now,
+      ),
     );
     return this.savedPrompt();
   }
@@ -523,7 +540,7 @@ export class SellerService {
       // пределы у бота и платформы одинаковые, но черновик всё равно идёт через общую проверку
       const parsed = parseSellerProfile(draft);
       if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
-      await this.profiles.save(scope, parsed.value, currentUserId(), now);
+      await this.saved(() => this.profiles.save(scope, parsed.value, currentUserId(), now));
     }
     return {
       filled,

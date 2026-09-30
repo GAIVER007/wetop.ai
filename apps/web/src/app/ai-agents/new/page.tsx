@@ -26,7 +26,7 @@ export default async function NewAgentPage() {
   return (
     <Page
       title="Новый AI-продавец"
-      subtitle="Название, Business и филиал. Агент появится черновиком: запустить его можно будет позже."
+      subtitle="Шаг 1 из 5. Выберите объект и дайте продавцу имя."
       width="narrow"
       crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}
     >
@@ -51,7 +51,7 @@ export default async function NewAgentPage() {
             <AgentCreateForm idempotencyKey={randomUUID()} businesses={options.businesses} />
           </Panel>
           <Notice tone="muted">
-            Поведение, знания и каналы настраиваются после создания, по мере готовности разделов.
+            Далее — рассказ текстом или голосом и редактор инструкции. Агент останется черновиком до подключения и проверки.
           </Notice>
         </Stack>
       )}

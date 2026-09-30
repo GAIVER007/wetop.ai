@@ -3,6 +3,8 @@ import { Module } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
 import { PlatformModule } from '../platform/platform.module';
 import { AiSellerController } from './ai-seller.controller';
+import { AgentInstructionsService } from './agent-instructions.service';
+import { AgentInstructionsController } from './agent-instructions.controller';
 import { BusinessAgentsController } from './business-agents.controller';
 import { BUSINESS_AGENTS, PrismaBusinessAgentsRepository } from './business-agents.repository';
 import { BusinessAgentsService } from './business-agents.service';
@@ -29,7 +31,7 @@ import { SellerSyncService } from './seller-sync.service';
  */
 @Module({
   imports: [PlatformModule],
-  controllers: [AiSellerController, BusinessAgentsController],
+  controllers: [AiSellerController, BusinessAgentsController, AgentInstructionsController],
   providers: [
     PrismaService,
     { provide: SELLER_CONNECTION, useClass: EnvSellerConnection },
@@ -41,6 +43,7 @@ import { SellerSyncService } from './seller-sync.service';
     SellerService,
     { provide: BUSINESS_AGENTS, useClass: PrismaBusinessAgentsRepository },
     BusinessAgentsService,
+    AgentInstructionsService,
     SellerCatalogService,
     SellerSyncService,
   ],

@@ -2422,6 +2422,7 @@ const AGENT_BUSINESS = { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Се
 const AGENT_LOCATION_LEGACY = { id: 'c0000000-0000-4000-8000-0000000000aa', name: 'Алматы' };
 const AGENT_LOCATION_EXTRA = { id: 'c0000000-0000-4000-8000-0000000000ab', name: 'Астана' };
 let sellerExtraLocation = false;
+const agentInstructions = new Map<string, string>();
 let sellerAgents: Array<{ id: string; name: string; locationId: string; lifecycle: string }> = [];
 /** Филиалы стенда для агентов: «Алматы» всегда занят рабочим продавцом, «Астана» — по команде теста */
 function agentLocations() {
@@ -2452,6 +2453,7 @@ function agentCreateState(access: string, canManage: boolean) {
 function resetSeller() {
   sellerExtraLocation = false;
   sellerAgents = [];
+  agentInstructions.clear();
   sellerDrafts = [];
   sellerWhatsAppUnknown = false;
   sellerCatalogFails = false;
@@ -4843,6 +4845,16 @@ createServer(async (req, res) => {
           const created = { id: key, name, locationId: location.id, lifecycle: 'draft' };
           sellerAgents.push(created);
           return send(201, agentView(created));
+        }
+        const instruction = path.match(/^\/ai-seller\/agents\/([^/]+)\/instruction(\/generate)?$/);
+        if (instruction) {
+          const id = instruction[1]!;
+          if (!sellerAgents.some(a => a.id === id)) return send(404, {message: 'Агент не найден'});
+          if (!sellerOwner) return send(403, {message: 'Недостаточно прав'});
+          if (req.method === 'POST' && instruction[2]) return send(200, {text: 'Ты Ася. Отвечай коротко и по делу. Проверяй стоимость через платформу.', warnings: ['Проверьте условия объекта.']});
+          if (req.method === 'PUT') agentInstructions.set(id, String(body['text'] ?? ''));
+          const text = agentInstructions.get(id) ?? '';
+          return send(200, {text, saved: !!text, updatedAt: text ? new Date().toISOString() : null});
         }
         const one = path.match(/^\/ai-seller\/agents\/([^/]+)$/);
         if (one) {

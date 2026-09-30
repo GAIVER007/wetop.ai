@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 30.09.2026 21:01 Алматы · MacBook-Air-Urij.local
+# коммит 0110f56 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 9
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T16-01-02Z-integration-1dcb.json' 'tests/integration/seller-agent-scope.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |integration| tests/integration/seller-agent-scope.test.ts (7 tests) 1265ms
+   ✓ SA2.5: область агента в базе (integration, DATABASE_URL required) (7)
+     ✓ две инструкции одной организации сохраняются независимо и переживают повторное чтение 300ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  20:01:04
+   Duration  2.63s (tests 59%, transform 26%, import 15%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-30T16-01-02Z-integration-1dcb.json
+
+# код выхода 0 · 4 с

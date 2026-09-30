@@ -1,0 +1,151 @@
+# Сквозные (e2e) · 30.09.2026 21:08 Алматы · MacBook-Air-Urij.local
+# коммит 0110f56 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents-create.spec.ts'
+[WebServer] (node:17388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17426) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17468) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 23 tests using 1 worker
+
+(node:17572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17707) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/ai-agents-create.spec.ts:31:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (6.0s)
+[WebServer] (node:17711) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/ai-agents-create.spec.ts:76:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (2.4s)
+[WebServer] (node:17715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/ai-agents-create.spec.ts:97:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (3.4s)
+[WebServer] (node:17727) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/ai-agents-create.spec.ts:113:1 › двойной щелчок по «Создать черновик» даёт одного агента (4.8s)
+  ✓   5 tests/ui/ai-agents-create.spec.ts:124:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (8.4s)
+  ✓   6 tests/ui/ai-agents-create.spec.ts:135:1 › сотрудник смены: страница создания объясняет роль, формы нет (2.7s)
+  ✓   7 tests/ui/ai-agents-create.spec.ts:143:1 › управляющий может создать агента (1.6s)
+[WebServer] (node:17919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/ai-agents-create.spec.ts:152:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (1.6s)
+  ✓   9 tests/ui/ai-agents-create.spec.ts:163:1 › расширения нет: на странице создания причина про расширение (1.2s)
+[WebServer] (node:17929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/ai-agents-create.spec.ts:170:1 › несуществующий агент — страница «не найдено», а не пустая карточка (1.3s)
+[WebServer] (node:17935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/ai-agents-create.spec.ts:179:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (2.3s)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, form, light, 1440 (2.3s)
+[WebServer] (node:17957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, light, 1440 (2.8s)
+(node:18049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, blocked, light, 1440 (3.5s)
+  ✓  15 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, form, light, 390 (2.8s)
+[WebServer] (node:18257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, light, 390 (2.1s)
+(node:18259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, blocked, light, 390 (2.0s)
+  ✓  18 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, form, dark, 1440 (1.8s)
+[WebServer] (node:18296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, dark, 1440 (2.2s)
+  ✓  20 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, blocked, dark, 1440 (2.1s)
+  ✓  21 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, form, dark, 390 (2.4s)
+[WebServer] (node:18453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, dark, 390 (2.0s)
+  ✓  23 tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, blocked, dark, 390 (2.0s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, light, 1440 ────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast",
+    + ]
+
+      215 |         }
+      216 |         const scan = await new AxeBuilder({ page }).analyze();
+    > 217 |         expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                  ^
+      218 |         const overflow = await page.evaluate(
+      219 |           () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      220 |         );
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/ai-agents-create.spec.ts:217:50
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, light, 390 ─────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast",
+    + ]
+
+      215 |         }
+      216 |         const scan = await new AxeBuilder({ page }).analyze();
+    > 217 |         expect(scan.violations.map((v) => v.id)).toEqual([]);
+          |                                                  ^
+      218 |         const overflow = await page.evaluate(
+      219 |           () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      220 |         );
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/ai-agents-create.spec.ts:217:50
+
+    Error Context: test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-оформление-axe-и-снимок-agent-light-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, light, 1440 ─────────
+    tests/ui/ai-agents-create.spec.ts:200:7 › оформление: axe и снимок, agent, light, 390 ──────────
+  21 passed (1.3m)
+
+# код выхода 1 · 1 мин 19 с

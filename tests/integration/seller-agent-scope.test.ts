@@ -90,6 +90,18 @@ describe.skipIf(!url)('SA2.5: область агента в базе (integrati
   const nameOf = async (agentId: string, organizationId: string) =>
     (await facts.load({ agentId, organizationId }, now))?.property.name ?? null;
 
+  it('две инструкции одной организации сохраняются независимо и переживают повторное чтение', async () => {
+    const scope1 = {agentId: agentA1, organizationId: orgA};
+    const scope2 = {agentId: agentA2, organizationId: orgA};
+    await profiles.savePrompt(scope1, 'Инструкция первого тестового агента', users[0]!, now);
+    await profiles.savePrompt(scope2, 'Инструкция второго тестового агента', users[0]!, now);
+    expect((await profiles.get(agentA1))?.promptText).toBe('Инструкция первого тестового агента');
+    expect((await profiles.get(agentA2))?.promptText).toBe('Инструкция второго тестового агента');
+    await profiles.savePrompt(scope2, 'Обновление второго агента', users[0]!, new Date(now.getTime() + 1000));
+    expect((await profiles.get(agentA1))?.promptText).toBe('Инструкция первого тестового агента');
+    expect((await profiles.get(agentA2))?.promptText).toBe('Обновление второго агента');
+  });
+
   it('факты: каждый агент видит объект своего филиала, а не самый ранний объект организации', async () => {
     expect(await nameOf(agentA1, orgA)).toContain('Объект А1');
     expect(await nameOf(agentA2, orgA)).toContain('Объект А2');

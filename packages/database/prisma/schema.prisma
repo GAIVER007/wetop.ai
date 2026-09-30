@@ -1094,7 +1094,7 @@ model Organization {
   properties  Property[]
   businesses  Business[]
   userErrors  UserError[]
-  sellerProfile SellerProfile?
+  sellerProfiles SellerProfile[]
   agents SellerAgent[]
   wizardDrafts WizardDraft[]
   extensions  OrganizationExtension[]
@@ -1280,11 +1280,16 @@ enum SellerReplyLength {
   DETAILED
 }
 
-/// Профиль ИИ-продавца: одна строка на организацию (DATA_MODEL §15, ТЗ ред. 1 П5, ADR-079, ADR-081). Поля экрана
+/// Профиль ИИ-продавца: одна строка на АГЕНТА (SA2.5; до сужения — на организацию; DATA_MODEL §15, ТЗ ред. 1 П5, ADR-079, ADR-081). Поля экрана
 /// «Настройки», не текст промпта: ядро правил держит бот. Перечисления и пределы — модели бота `SellerProfile`. Поля
 /// доставки (П8) ведёт платформа. CHECK на число языков и строк в списках — в миграции.
 model SellerProfile {
-  organizationId   String            @id @map("organization_id") @db.Uuid
+  /// Агент, которому принадлежит профиль (DATA_MODEL §20.2, сужение SA2.5 — миграция 036): первичный ключ. У перенесённого
+  /// продавца равен `organization_id`; у организации может быть по профилю на каждого агента
+  agentId          String            @id @map("agent_id") @db.Uuid
+  agent            SellerAgent       @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  /// Организация профиля — граница арендатора (RLS §17.3); согласие с организацией агента держит триггер
+  organizationId   String            @map("organization_id") @db.Uuid
   botName          String?           @map("bot_name") @db.VarChar(40)
   addressForm      SellerAddressForm @map("address_form")
   emoji            SellerEmoji       @default(NEVER)
@@ -1304,10 +1309,6 @@ model SellerProfile {
   promptText       String?           @map("prompt_text") @db.VarChar(20000)
   updatedAt        DateTime          @map("updated_at") @db.Timestamptz(6)
   updatedBy        String?           @map("updated_by") @db.Uuid
-  /// Агент, которому принадлежит профиль (DATA_MODEL §20.2). Пусто при вставке — триггер ставит `organization_id` и заводит
-  /// перенесённого агента (id = organization_id). Уникален; FK на `seller_agents`. NOT NULL и смена ключа — в «сужении» (§20.7 п. 6)
-  agentId          String?           @unique @map("agent_id") @db.Uuid
-  agent            SellerAgent?      @relation(fields: [agentId], references: [id], onDelete: Restrict)
   /// Версия профиля (`updated_at`), которую продавец принял; NULL — не принимал
   profileAppliedAt DateTime?         @map("profile_applied_at") @db.Timestamptz(6)
   /// SHA-256 последних доставленных фактов объекта
@@ -1321,6 +1322,7 @@ model SellerProfile {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   editor       User?        @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
 
+  @@index([organizationId])
   @@map("seller_profiles")
 }
 

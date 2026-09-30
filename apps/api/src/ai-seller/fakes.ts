@@ -102,6 +102,8 @@ export class FakeSeller implements SellerPort {
   putSellerPrompt(payload: { object_name: string; text: string }) {
     return this.call('putSellerPrompt', payload);
   }
+  generateInstruction(story: string) { return this.call('generateInstruction', story); }
+
   extractProfile(story: string) {
     return this.call('extractProfile', story);
   }

@@ -250,6 +250,7 @@ SERVICE_ROUTES = frozenset({
     ("PUT", "/seller/facts"),
     # С1 «под ключ»: рассказ партнёра -> поля анкеты (свободный текст промптом не становится).
     ("POST", "/extract-profile"),
+    ("POST", "/generate-instruction"),
     # Э4: платформа заводит и выключает гостиницу у продавца.
     ("PUT", "/seller/organizations/{org_id}"),
     # С2: ключ модели партнёра — поставить/снять, статус (set+last4), проверка.

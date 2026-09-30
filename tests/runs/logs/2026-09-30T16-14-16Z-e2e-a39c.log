@@ -1,0 +1,61 @@
+# Сквозные (e2e) · 30.09.2026 21:14 Алматы · MacBook-Air-Urij.local
+# коммит 0110f56 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 26
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents-create.spec.ts' '--grep' 'диктовка:'
+[WebServer] (node:22301) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22343) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22501) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:22621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22766) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/ai-agents-create.spec.ts:229:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон (5.3s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:229:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: undefined
+
+      240 |   await expect(page.getByRole('textbox',{name:'Ваш рассказ',exact:true})).toHaveValue('Голосовой рассказ тестового владельца.');
+      241 |   await page.getByRole('button', {name:/03 Инструкция/}).click();
+    > 242 |   expect(await page.evaluate('window.__dictationStopped')).toBe(true);
+          |                                                            ^
+      243 |   await page.getByRole('button', {name:/Ваш рассказ/}).click();
+      244 |   await page.getByRole('textbox',{name:'Ваш рассказ',exact:true}).fill('Исправленная расшифровка');
+      245 |   await expect(page.getByRole('textbox',{name:'Ваш рассказ',exact:true})).toHaveValue('Исправленная расшифровка');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/ai-agents-create.spec.ts:242:60
+
+    Error Context: test-results/ai-agents-create-диктовка--779f5-струкции-выключает-микрофон/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-диктовка--779f5-струкции-выключает-микрофон/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-диктовка--779f5-струкции-выключает-микрофон/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-agents-create.spec.ts:229:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон 
+
+# код выхода 1 · 17 с

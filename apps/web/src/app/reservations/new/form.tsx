@@ -145,7 +145,7 @@ export function NewReservationForm(props: {
       {snapshot['source'] === 'OTA' && (
         <p className="hint" data-testid="channel-number-hint">
           Номер брони — из экстранета канала. По нему WETOP узнает эту бронь, когда канал подключат
-          к Channex, и не создаст вторую.
+          к менеджеру каналов, и не создаст вторую.
         </p>
       )}
       <input type="hidden" name="placementIds" value={placementIds.join(',')} />
@@ -241,6 +241,14 @@ export function NewReservationForm(props: {
           номеру брони в канале.
         </Notice>
       )}
+      <Field label="Промокод">
+        <Input
+          name="promoCode"
+          autoComplete="off"
+          defaultValue={kept['promoCode'] ?? ''}
+          placeholder="Если гость назвал код"
+        />
+      </Field>
       <Field label="Заметки">
         <Textarea
           name="notes"

@@ -11,7 +11,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { channelOperatorOrganizationId } from './operator-access';
 
 export const INTEGRATION_ONLY =
-  'Каналы продаж, обмен с Channex и сторож системы ведёт поддержка WETOP: раздел открыт гостинице, к которой ' +
+  'Каналы продаж, обмен с менеджером каналов и сторож системы ведёт поддержка WETOP: раздел открыт гостинице, к которой ' +
   'подключены каналы, и главному администратору.';
 
 type Actor = { organizationId: string; platformAdmin?: boolean };

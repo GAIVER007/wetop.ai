@@ -136,7 +136,7 @@ export class ChannelsController {
     const status = await within(
       this.sync.webhookStatus(),
       Number(process.env.CHANNEX_STATUS_TIMEOUT_MS ?? 10_000),
-      'Channex не ответил на запрос webhook вовремя — повторите проверку позже',
+      'Менеджер каналов не ответил на запрос webhook вовремя — повторите проверку позже',
     );
     const health = this.health.snapshot();
     return {

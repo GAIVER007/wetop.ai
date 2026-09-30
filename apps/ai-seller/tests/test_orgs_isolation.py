@@ -337,7 +337,7 @@ def test_the_sandbox_needs_the_org_for_the_seller(seller_panel) -> None:
     response = seller_panel.client.post(
         "/internal/sandbox",
         json={"external_id": "sandbox-1", "text": "Привет"},
-        headers={"X-Internal-Key": "test-key"},
+        headers=SERVICE,  # песочницу открывает только служебный ключ платформы (30.09.2026)
     )
     assert response.status_code == 400, "у продавца песочница без организации не знает, чей промпт брать"
 

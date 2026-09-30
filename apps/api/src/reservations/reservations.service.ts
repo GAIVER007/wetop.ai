@@ -31,6 +31,9 @@ import {
   assertCanExtend,
   hasCitizenship,
   mayAssignPlanWithoutRates,
+  assertDerivedRuleAllows,
+  assertPromoAllows,
+  normalizePromoCode,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
 import { deskGuestForStorage, freeTextForStorage } from '@pms/shared';
@@ -41,6 +44,7 @@ import {
   AllocationOverlapError,
   RESERVATIONS_UOW,
   type ItemState,
+  type PromoRef,
   type RatePlanRef,
   type ReservationsRepository,
   type UnitOfWork,
@@ -48,6 +52,8 @@ import {
 } from './reservations.repository';
 
 export interface CreateReservationDto {
+  /** Промокод (DATA_MODEL §20): один на бронь, скидка действует на все проживания */
+  promoCode?: string | null | undefined;
   source?: string;
   /** ADR-071: для источника OTA — канал (любое написание имени канала объекта) */
   channel?: string | null;
@@ -402,6 +408,23 @@ export class ReservationsService {
     const created = await this.uow.run((repo) =>
       guarded(async () => {
         let currency: string | null = null;
+        // Промокод (DATA_MODEL §20): один на бронь; блокировка держит предел использований при одновременных бронях
+        const promoRaw = dto.promoCode == null ? '' : String(dto.promoCode).trim();
+        let promo: PromoRef | null = null;
+        if (promoRaw !== '') {
+          const code = normalizePromoCode(promoRaw);
+          if (!code) throw new UnprocessableEntityException('Промокод записан неверно');
+          const found = await repo.promoByCode(code);
+          if (!found) throw new UnprocessableEntityException(`Промокод ${code} не найден`);
+          await repo.lockPromo(found.id);
+          promo = (await repo.promoByCode(code)) ?? found;
+          assertPromoAllows(promo, dates);
+        }
+        const todayIso = await repo.today();
+        const nightsCount = Math.round(
+          (Date.parse(`${dates.departureDate}T00:00:00Z`) - Date.parse(`${dates.arrivalDate}T00:00:00Z`)) /
+            86_400_000,
+        );
         const prepared: Array<{
           typeId: string;
           ratePlanId: string;
@@ -441,12 +464,20 @@ export class ReservationsService {
               'Все проживания одной брони должны быть в одной валюте',
             );
           currency = plan.currency;
+          if (plan.derivedRule)
+            assertDerivedRuleAllows(plan.derivedRule, {
+              planName: plan.name,
+              today: todayIso,
+              arrivalDate: dates.arrivalDate,
+              nights: nightsCount,
+            });
           await this.assertRestrictions(repo, type, plan.id, dates);
           const rates = await repo.nightRates(
             type.id,
             plan.id,
             dates.arrivalDate,
             dates.departureDate,
+            promo?.discountPercent ?? null,
           );
           const price = priceStay({ ...dates, occupancy: adults, rates });
           const quantity = it.quantity ?? 1;
@@ -527,6 +558,7 @@ export class ReservationsService {
           children: 0,
           currency: currency!,
           totalAmountMinor: prepared.reduce((s, p) => s + p.totalMinor, 0n),
+          promoCodeId: promo?.id ?? null,
           primaryGuestId: guestId,
           // Q-169: пока база не в РК, почта и телефоны в заметке маскируются (сайт приходит сюда же)
           notes: freeTextForStorage(dto.notes),
@@ -618,6 +650,7 @@ export class ReservationsService {
             plan.id,
             dates.arrivalDate,
             dates.departureDate,
+            item.promoPercent ?? null,
           );
           const price = priceStay({
             ...dates,
@@ -740,6 +773,7 @@ export class ReservationsService {
           planId,
           item.departureDate,
           departureDate,
+          item.promoPercent ?? null,
         );
         const added = priceStay({
           arrivalDate: item.departureDate,
@@ -775,7 +809,13 @@ export class ReservationsService {
       const planId = await this.resolvePlanId(repo, item, q.ratePlanCode);
       if (!(await repo.ratePlanCoversType(planId, target.id)))
         throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
-      const rates = await repo.nightRates(target.id, planId, item.arrivalDate, item.departureDate);
+      const rates = await repo.nightRates(
+        target.id,
+        planId,
+        item.arrivalDate,
+        item.departureDate,
+        item.promoPercent ?? null,
+      );
       const price = priceStay({
         arrivalDate: item.arrivalDate,
         departureDate: item.departureDate,
@@ -1247,6 +1287,7 @@ export class ReservationsService {
       planId,
       item.departureDate,
       departureDate,
+      item.promoPercent ?? null,
     );
     return priceStay({
       arrivalDate: item.departureDate,
@@ -1275,7 +1316,13 @@ export class ReservationsService {
     const planId = await this.resolvePlanId(repo, item, ratePlanCode);
     if (!(await repo.ratePlanCoversType(planId, target.id)))
       throw new UnprocessableEntityException(`Тариф не действует на категорию ${target.name}`);
-    const rates = await repo.nightRates(target.id, planId, item.arrivalDate, item.departureDate);
+    const rates = await repo.nightRates(
+      target.id,
+      planId,
+      item.arrivalDate,
+      item.departureDate,
+      item.promoPercent ?? null,
+    );
     const price = priceStay({
       arrivalDate: item.arrivalDate,
       departureDate: item.departureDate,

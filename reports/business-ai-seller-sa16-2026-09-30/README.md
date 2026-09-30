@@ -8,7 +8,7 @@
 
 ## Что сделано
 
-**PMS** — миграция `20260930000034_business_agent_identity` (+ `down.sql`):
+**PMS** — миграция `20260930000035_business_agent_identity` (+ `down.sql`):
 - `seller_agents.location_id` (FK на `locations`, RESTRICT); состояний четыре: `draft`, `active`, `paused`, `archived`; `active` и `paused` без филиала невозможны;
 - не более одного неархивного AI-продавца (`scenario = 'sales'`) на филиал — частичный уникальный индекс; агент другого типа на занятом филиале допустим;
 - триггер: филиал агента принадлежит организации агента (при вставке и смене); тот же контроль для `seller_profiles.agent_id`;

@@ -1,0 +1,22 @@
+# Модульные (unit) · 29.09.2026 22:10 Алматы · vm
+# коммит 38254b5 (claude/book-sec1-turnstile), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T17-10-42Z-unit-d5f2.json' 'apps/api/src/web-booking'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/web-booking/turnstile.test.ts (18 tests) 71ms
+ ✓ |unit| apps/api/src/web-booking/client-ip.test.ts (4 tests) 10ms
+stderr | apps/api/src/web-booking/web-booking.controller.test.ts > виджет бронирования /w/* > сбой после записи брони не превращается в ошибку для гостя
+[web-booking] бронь 20260912-ABC123 записана, привязка или журнал сайта — нет: база занята
+
+ ✓ |unit| apps/api/src/web-booking/bot-quote.controller.test.ts (7 tests) 386ms
+ ✓ |unit| apps/api/src/web-booking/web-booking.controller.test.ts (32 tests) 531ms
+
+ Test Files  4 passed (4)
+      Tests  61 passed (61)
+   Start at  17:10:43
+   Duration  3.15s (transform 58%, import 27%, tests 14%)
+
+JSON report written to /tmp/pms-test-2026-09-29T17-10-42Z-unit-d5f2.json
+
+# код выхода 0 · 4 с

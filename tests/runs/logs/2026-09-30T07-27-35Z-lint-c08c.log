@@ -1,0 +1,11 @@
+# Линтер (lint) · 30.09.2026 12:27 Алматы · vm
+# коммит 5a7d989 (claude/sec1b-stage-b), незакоммиченных файлов набора: 3
+# npx eslint .
+
+/home/user/wetop.ai/apps/api/src/channels/outbox-enqueue.test.ts
+  16:35  error  '_args' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 35 с

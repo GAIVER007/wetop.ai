@@ -35,6 +35,11 @@ const OWNER_A = '0b6c3c1e-4f4e-4a53-9b7e-2f1d7a9c0a11';
 const STAFF_A = '11111111-1111-4111-8111-111111111111';
 const OWNER_B = '33333333-3333-4333-8333-333333333333';
 const OWNER_RO = '44444444-4444-4444-8444-444444444444';
+// две подключённые организации для проверки идемпотентности (аудит 30.09.2026)
+const ORG_C = '5c5c5c5c-5c5c-4c5c-8c5c-5c5c5c5c5c5c';
+const ORG_D = '6d6d6d6d-6d6d-4d6d-8d6d-6d6d6d6d6d6d';
+const OWNER_C = '55555555-5555-4555-8555-555555555555';
+const OWNER_D = '66666666-6666-4666-8666-666666666666';
 
 const org = (name: string, status: 'ACTIVE' | 'READ_ONLY' = 'ACTIVE') => ({ name, status, trialEndsAt: null });
 const facts = (role: RequesterFacts['role'], organization: RequesterFacts['organization']): RequesterFacts => ({
@@ -48,6 +53,8 @@ const members = new Map<string, RequesterFacts>([
   [`${STAFF_A}|${ORG_A}`, facts('STAFF', org('Гостиница А'))],
   [`${OWNER_B}|${ORG_B}`, facts('OWNER', org('Гостиница Б'))],
   [`${OWNER_RO}|${ORG_RO}`, facts('OWNER', org('Гостиница РО', 'READ_ONLY'))],
+  [`${OWNER_C}|${ORG_C}`, facts('OWNER', org('Гостиница В'))],
+  [`${OWNER_D}|${ORG_D}`, facts('OWNER', org('Гостиница Г'))],
 ]);
 const membership: RequesterContextRepository = {
   async facts(userId, organizationId) {
@@ -82,7 +89,10 @@ beforeAll(async () => {
       { provide: REQUESTER_CONTEXT_REPOSITORY, useValue: membership },
       RequesterContextService,
       { provide: DiagnosticsService, useValue: {} },
-      { provide: INTEGRATION_OWNER_CHECK, useValue: async (id: string) => id === ORG_A || id === ORG_RO },
+      {
+        provide: INTEGRATION_OWNER_CHECK,
+        useValue: async (id: string) => id === ORG_A || id === ORG_RO || id === ORG_C || id === ORG_D,
+      },
       { provide: InboundBookingsService, useValue: inbound },
       { provide: ChannexSyncService, useValue: sync },
       AssistantActionsService,
@@ -137,6 +147,15 @@ describe('POST /assistant/actions/channel-pull (S6)', () => {
     const res = await pull(OWNER_A, ORG_A).expect(200);
     expect(res.body).toEqual({ ok: true, action: 'channel_pull', replayed: false, received: 3, processed: 2, failed: 1 });
     expect(pulls).toEqual([ORG_A]);
+  });
+
+  it('одинаковый ключ идемпотентности у двух организаций — два действия, а не чужой ответ из памяти', async () => {
+    // 🔴 Аудит 30.09.2026: ключ повтора хранился без организации — вторая организация получала ответ первой
+    const first = await pull(OWNER_C, ORG_C, { idempotencyKey: 'shared-key' }).expect(200);
+    expect(first.body.replayed).toBe(false);
+    const second = await pull(OWNER_D, ORG_D, { idempotencyKey: 'shared-key' }).expect(200);
+    expect(second.body.replayed).toBe(false);
+    expect(pulls).toEqual([ORG_C, ORG_D]);
   });
 
   it('повтор с тем же ключом идемпотентности не выполняет второй раз', async () => {

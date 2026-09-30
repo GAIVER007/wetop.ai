@@ -14,12 +14,12 @@ NOT_CONNECTED = "каналы продаж к организации не под
 
 _STATES = {
     "READY": "работает",
-    "NO_KEY": "ключ Channex не задан",
-    "NO_MAPPING": "объект не сопоставлен с Channex",
+    "NO_KEY": "ключ менеджера каналов не задан",
+    "NO_MAPPING": "объект не сопоставлен с менеджером каналов",
     "ATTENTION": "требует внимания",
 }
 _PROBLEMS = {
-    "KEY_MISSING": "ключ Channex не задан",
+    "KEY_MISSING": "ключ менеджера каналов не задан",
     "PROPERTY_NOT_MAPPED": "объект не сопоставлен",
     "CATEGORIES_UNMAPPED": "не все категории сопоставлены",
     "RATE_PLANS_UNMAPPED": "ни один тариф не сопоставлен",
@@ -115,7 +115,7 @@ def integration_text(body: dict) -> tuple[str, str]:
     categories = _dict(view.get("categories"))
     outbox = _dict(view.get("outbox"))
     webhook = _dict(view.get("webhook"))
-    parts = [f"Каналы продаж (Channex): {state}"]
+    parts = [f"Каналы продаж: {state}"]
     mapped, total = _int(categories.get("mapped")), _int(categories.get("total"))
     if mapped is not None and total is not None:
         parts.append(f"категорий сопоставлено {mapped} из {total}")

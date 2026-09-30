@@ -30,7 +30,7 @@ export default async function ChannexPage() {
   const off = card.health === 'off';
   return (
     <Page
-      title="Channex"
+      title="Менеджер каналов"
       crumbs={<Link href="/connections">Интеграции</Link>}
       subtitle={
         <span className="integration-subtitle">
@@ -43,7 +43,7 @@ export default async function ChannexPage() {
     >
       {off ? (
         <Panel className="integration-card" data-testid="channex-not-connected">
-          <h2 className="integration-card__name">Channex не подключён</h2>
+          <h2 className="integration-card__name">Менеджер каналов не подключён</h2>
           <p className="integration-card__how" data-testid="integration-connect">
             {readOnly ? CHANNEX_READ_ONLY : CHANNEX_SUPPORT}
           </p>
@@ -151,12 +151,12 @@ export default async function ChannexPage() {
             data-testid="channex-manage"
           >
             <p className="integration-card__how">
-              Переподключить, сменить ключ или отключить Channex может поддержка WETOP: ключ хранится на
+              Переподключить, сменить ключ или отключить менеджер каналов может поддержка WETOP: ключ хранится на
               сервере, в интерфейсе его нет. Напишите в чат помощника справа внизу.
             </p>
             {owner && !readOnly && (
               <p className="integration-card__how">
-                Webhook и объект в Channex владелец настраивает в{' '}
+                Webhook и объект в менеджере каналов владелец настраивает в{' '}
                 <Link href="/channels/connections">«Каналах продаж», на вкладке «Подключения»</Link>.
               </p>
             )}

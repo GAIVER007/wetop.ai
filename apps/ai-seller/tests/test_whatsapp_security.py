@@ -193,3 +193,33 @@ def test_a_normal_webhook_still_fits(app, net) -> None:  # noqa: F811
     assert _post(app, _webhook_body("Есть места на выходные?")).status_code == 200
     _drain(app)
     assert net.llm_calls == 1
+
+
+# ─── 6. Сравнение подписи и слова подтверждения — по байтам (аудит 30.09.2026) ───
+#
+# `hmac.compare_digest(str, str)` бросает TypeError, если в любой из строк есть не-ASCII символ.
+# Строку в запрос кладёт кто угодно: чужое слово подтверждения или подпись давали 500 вместо 403.
+# 🔴 Оба теста красные на коде до правки: TypeError вместо HTTPException(403).
+
+
+def test_a_non_ascii_verify_word_is_refused_with_403(app) -> None:  # noqa: F811
+    _connect(app)
+    bad = app.client.get(
+        f"/channels/whatsapp/webhook/{ORG}",
+        params={"hub.mode": "subscribe", "hub.verify_token": "не-то-слово", "hub.challenge": "42"},
+    )
+    assert bad.status_code == 403, bad.text
+
+
+def test_a_non_ascii_signature_is_refused_with_403(app, net) -> None:  # noqa: F811
+    _connect(app)
+    raw = _webhook_body()
+    response = app.client.post(
+        f"/channels/whatsapp/webhook/{ORG}",
+        content=raw,
+        # Байты заголовка: Starlette читает их как latin-1, и в строке появляются символы выше ASCII
+        headers={b"Content-Type": b"application/json", b"X-Hub-Signature-256": "sha256=подпись".encode("utf-8")},
+    )
+    assert response.status_code == 403, response.text
+    _drain(app)
+    assert net.llm_calls == 0

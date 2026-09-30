@@ -27,6 +27,8 @@ import {
 } from '../reservations/reservations.repository';
 import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from './ari-publisher';
 import { CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
+import { PrismaService } from '../database/prisma.provider';
+import { runIntegrationCommand } from './integration-command';
 import { PROVIDER } from './sync.service';
 
 export interface RevisionOutcome {
@@ -229,6 +231,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
     @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -463,10 +466,12 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
    * `via` — как ревизия дошла, для журнала событий: по webhook, опросом или по кнопке.
    */
   pull(propertyId?: string, via: ExternalEventVia = 'PULL'): Promise<PullResult> {
-    const run = this.pullChain.then(
-      () => this.pullOnce(propertyId, via),
-      () => this.pullOnce(propertyId, via),
-    );
+    // Q-225 (а*): из запроса организации разбор идёт служебной ролью, объект выбирает сервер (`integration-command.ts`)
+    const command = () =>
+      runIntegrationCommand(this.prisma, propertyId, (channexPropertyId) =>
+        this.pullOnce(channexPropertyId, via),
+      );
+    const run = this.pullChain.then(command, command);
     this.pullChain = run.catch(() => undefined);
     return run;
   }
@@ -521,14 +526,17 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
    * неразобранная не подтверждена и в ленте остаётся (bookings-collection.md, «Booking Revisions Feed»).
    */
   async retryEvent(revisionId: string): Promise<RevisionOutcome> {
-    await this.uow.run((repo) => repo.resetExternalEventAttempts(PROVIDER, revisionId));
-    const r = await this.pull(undefined, 'MANUAL');
-    const outcome = r.outcomes.find((o) => o.revisionId === revisionId);
-    if (!outcome)
-      throw new NotFoundException(
-        `Ревизии ${revisionId} нет в ленте неподтверждённых: Channex её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,
-      );
-    return outcome;
+    // Сброс попыток и разбор — одна интеграционная команда (Q-225 а*): обе части на служебной роли
+    return runIntegrationCommand(this.prisma, undefined, async () => {
+      await this.uow.run((repo) => repo.resetExternalEventAttempts(PROVIDER, revisionId));
+      const r = await this.pull(undefined, 'MANUAL');
+      const outcome = r.outcomes.find((o) => o.revisionId === revisionId);
+      if (!outcome)
+        throw new NotFoundException(
+          `Ревизии ${revisionId} нет в ленте неподтверждённых: менеджер каналов её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,
+        );
+      return outcome;
+    });
   }
 
   private async viaChannex<T>(fn: () => Promise<T>): Promise<T> {

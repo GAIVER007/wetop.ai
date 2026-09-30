@@ -27,7 +27,7 @@ export function ChannelsSystemRow() {
   }
   return (
     <SystemRow
-      name="Channex"
+      name="Менеджер каналов"
       testId="systems-channex"
       href="/channels/sync"
       word={word}

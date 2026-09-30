@@ -8,7 +8,7 @@ import type { PropertyClock } from '../../lib/property-time';
 export const CHANNEX_ABOUT =
   'Цены, остатки, ограничения и брони из Booking.com, Trip.com и других каналов.';
 export const CHANNEX_CONTENT_NOTE =
-  'Фото, удобства и описание для каналов настраиваются в кабинете Channex или самого канала.';
+  'Фото, удобства и описание для каналов настраиваются в кабинете менеджера каналов или самого канала.';
 /** Ключ Channex — на сервере установки (ADR-004, ADR-095): подключает и меняет поддержка WETOP, поля в интерфейсе нет */
 export const CHANNEX_SUPPORT =
   'Подключает поддержка WETOP: ключ хранится на сервере и в интерфейс не вводится. Напишите в чат помощника справа внизу.';
@@ -56,11 +56,11 @@ export function TechDetails({ card, clock }: { card: ChannexCard; clock: Propert
       <summary>Технические детали</summary>
       <dl className="integration-card__facts">
         <div>
-          <dt>Среда Channex</dt>
+          <dt>Среда</dt>
           <dd>{environmentWord(c?.environment)}</dd>
         </div>
         <div>
-          <dt>Объект в Channex</dt>
+          <dt>Объект в менеджере каналов</dt>
           <dd className="integration-card__code">{c?.propertyId ?? '—'}</dd>
         </div>
         <div>

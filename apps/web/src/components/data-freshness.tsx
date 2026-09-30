@@ -89,9 +89,9 @@ export function DataFreshness() {
     <span
       className={cx('freshness', (queueStale || failed) && 'freshness--warn')}
       data-testid="data-freshness"
-      title={'Последнее событие из Channex и очередь изменений остатков и цен в Channex'}
+      title={'Последнее событие из менеджера каналов и очередь изменений остатков и цен'}
     >
-      Channex {data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—'} · очередь{' '}
+      Каналы {data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—'} · очередь{' '}
       {data.channex.outboxPending}
       {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
     </span>

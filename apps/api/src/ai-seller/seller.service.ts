@@ -23,6 +23,7 @@ import {
   type SellerProfileInput,
 } from '@pms/domain';
 import { assistant } from '@pms/integrations';
+import { RateWindows } from '../rate-window';
 import {
   actorMay,
   currentOrganizationId,
@@ -91,6 +92,14 @@ const STORY_MIN = 10;
 const STORY_MAX = 4000;
 // Ключ модели партнёра (С2): предел — как у двери бота
 const LLM_KEY_MAX = 200;
+/**
+ * Часовые пределы на вызовы, за которые платит платформа или партнёр (аудит 30.09.2026): песочница и разбор
+ * рассказа — ход модели, проверка ключа — запрос к роутеру моделей с произвольным ключом (оракул годности ключей).
+ * Окно в памяти процесса на человека, как у входа (`auth.controller.ts`); длина сообщений режется отдельно выше.
+ */
+export const SELLER_LLM_LIMITS = { sandbox: 60, extract: 10, 'llm-key': 10 } as const;
+const HOUR_MS = 60 * 60_000;
+export const SELLER_LLM_TOO_OFTEN = 'Слишком много запросов за час — попробуйте позже';
 
 /** Поля профиля, которые рассказ вправе заполнить; манера (обращение, эмодзи, длина) — выбор партнёра в мастере */
 const STORY_FIELDS: ReadonlyArray<readonly [botField: string, field: string]> = [
@@ -307,6 +316,15 @@ export class SellerService {
     @Inject(SELLER_ORGS) private readonly orgs: SellerOrgsRepository,
   ) {}
 
+  private readonly llmWindows = new RateWindows(HOUR_MS, 10_000);
+
+  /** Предел в час на человека для платных вызовов модели; сверх предела — 429 до обращения к продавцу */
+  private takeLlmTurn(kind: keyof typeof SELLER_LLM_LIMITS, now: Date): void {
+    const who = currentUserId() ?? 'service';
+    if (!this.llmWindows.allow(`${kind}:${who}`, SELLER_LLM_LIMITS[kind], now))
+      throw new HttpException(SELLER_LLM_TOO_OFTEN, 429);
+  }
+
   /** Организация вызова — вошедшего: продавец общий, и «чьи строки отдавать» решает только она (Э4) */
   private profileOrganization(): string {
     if (!hasSignedInActor()) throw new BadRequestException(SELLER_NO_ORGANIZATION);
@@ -332,7 +350,8 @@ export class SellerService {
 
   /** Отказ по расширению и роли — до любого вызова продавца и до записи в базу */
   private checkUse(extension: AiSellerAccessView | null, use: SellerUse): void {
-    if (use === 'configure' && !actorMay('seller')) throw new ForbiddenException(SELLER_CONFIGURE_ONLY);
+    if (use === 'configure' && !actorMay('seller'))
+      throw new ForbiddenException(SELLER_CONFIGURE_ONLY);
     if (extension?.access === 'off') throw new ForbiddenException(SELLER_EXTENSION_OFF);
     if (extension?.access === 'expired' && use !== 'read')
       throw new ForbiddenException(SELLER_EXTENSION_EXPIRED);
@@ -445,7 +464,12 @@ export class SellerService {
     const parsed = parseSellerProfile(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
     await this.saved(() =>
-      this.profiles.save(workingSellerScope(this.profileOrganization()), parsed.value, currentUserId(), now),
+      this.profiles.save(
+        workingSellerScope(this.profileOrganization()),
+        parsed.value,
+        currentUserId(),
+        now,
+      ),
     );
     return this.savedProfile();
   }
@@ -473,7 +497,12 @@ export class SellerService {
     if (text.length > SELLER_PROMPT_MAX)
       throw new BadRequestException(`Инструкция: не длиннее ${SELLER_PROMPT_MAX} знаков`);
     await this.saved(() =>
-      this.profiles.savePrompt(workingSellerScope(this.profileOrganization()), text, currentUserId(), now),
+      this.profiles.savePrompt(
+        workingSellerScope(this.profileOrganization()),
+        text,
+        currentUserId(),
+        now,
+      ),
     );
     return this.savedPrompt();
   }
@@ -488,6 +517,7 @@ export class SellerService {
     if (story.length > STORY_MAX)
       throw new BadRequestException(`Рассказ длиннее ${STORY_MAX} знаков — сократите`);
     const { client, scope } = await this.bound('configure', now);
+    this.takeLlmTurn('extract', now);
     const body = obj(await this.call(() => client.extractProfile(story)));
     const extracted = obj(body.profile);
 
@@ -552,6 +582,7 @@ export class SellerService {
     if (key.length > LLM_KEY_MAX)
       throw new BadRequestException(`Ключ длиннее ${LLM_KEY_MAX} знаков — это не ключ`);
     const { client, organizationId } = await this.bound('configure', now);
+    this.takeLlmTurn('llm-key', now);
     const body = obj(await this.call(() => client.checkLlmKey(organizationId, key)));
     return { valid: body.valid === true, reason: str(body.reason) };
   }
@@ -633,7 +664,12 @@ export class SellerService {
     const config = this.connection.config();
     if (!config.baseUrl || !config.serviceKey) return { skipped: 'not-configured' };
     const organizations = await this.orgs.withExtension();
-    const out = { organizations: organizations.length, profile: 0, facts: 0, failed: [] as string[] };
+    const out = {
+      organizations: organizations.length,
+      profile: 0,
+      facts: 0,
+      failed: [] as string[],
+    };
     for (const org of organizations) {
       try {
         const pushed = await this.syncOrganization(org, now);
@@ -674,7 +710,10 @@ export class SellerService {
     await client.putOrganization(org.organizationId, {
       name: org.name,
       // ключ выводится заново на каждый вызов: платформа его нигде не хранит (Э4, план §1)
-      publicKey: assistant.widgetAgentKey(serviceKey, workingSellerScope(org.organizationId).agentId),
+      publicKey: assistant.widgetAgentKey(
+        serviceKey,
+        workingSellerScope(org.organizationId).agentId,
+      ),
       active,
       hosts: await this.orgs.hosts(org.organizationId),
     });
@@ -722,7 +761,8 @@ export class SellerService {
       const renamed = this.sentObjectName.get(agentId) !== objectName;
       if (force || ((!profileApplied(row) || renamed) && held.profile !== key)) {
         // ADR-097: сохранён текст владельца — уходит он, иначе поля профиля
-        if (row.promptText) await client.putSellerPrompt({ object_name: objectName, text: row.promptText });
+        if (row.promptText)
+          await client.putSellerPrompt({ object_name: objectName, text: row.promptText });
         else await client.putProfile(sellerProfilePayload(pickSellerProfile(row), objectName));
         // принятой считается ровно отправленная версия: правка во время отправки уйдёт следующей сверкой
         await this.profiles.markProfileApplied(agentId, row.updatedAt);
@@ -842,12 +882,13 @@ export class SellerService {
   }
 
   /** «Проверка»: у каждого сотрудника свой разговор в песочнице продавца */
-  async sandbox(rawText: unknown) {
+  async sandbox(rawText: unknown, now: Date = new Date()) {
     const text = typeof rawText === 'string' ? rawText.trim() : '';
     if (text === '') throw new BadRequestException('Проверка: пустое сообщение');
     if (text.length > SANDBOX_MAX)
       throw new BadRequestException(`Проверка: не длиннее ${SANDBOX_MAX} знаков`);
-    const { client } = await this.bound('act');
+    const { client } = await this.bound('act', now);
+    this.takeLlmTurn('sandbox', now);
     const externalId = `wetop-check-${currentUserId() ?? 'service'}`;
     const body = obj(await this.call(() => client.sandbox({ externalId, text })));
     return {

@@ -128,7 +128,7 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
       if (expectedUrl && url !== expectedUrl) {
         if (this.callback.url !== url || this.callback.reachable !== false)
           this.log.warn(
-            `в Channex зарегистрирован ${url}, а постоянный адрес PMS — ${expectedUrl}: перерегистрируйте webhook на /channels`,
+            `в менеджере каналов зарегистрирован ${url}, а постоянный адрес PMS — ${expectedUrl}: перерегистрируйте webhook на /channels`,
           );
         this.callback = { url, reachable: false, checkedAt: now, expectedUrl };
         return;

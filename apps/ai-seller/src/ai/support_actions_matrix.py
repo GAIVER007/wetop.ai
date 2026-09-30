@@ -37,13 +37,13 @@ CHANNEL_SYNC_DAYS = 90
 
 _SPECS = (
     ActionSpec(
-        "channel_pull", ActionClass.SAFE, "лента Channex подтянута",
-        "подтянуть из ленты Channex неподтверждённые ревизии броней и обработать их; повтор безопасен",
+        "channel_pull", ActionClass.SAFE, "лента каналов подтянута",
+        "подтянуть из ленты каналов неподтверждённые ревизии броней и обработать их; повтор безопасен",
         permission="channels", route="/assistant/actions/channel-pull",
     ),
     ActionSpec(
-        "channel_sync", ActionClass.CONFIRM, "полная выгрузка в Channex",
-        f"полная выгрузка остатков и ограничений в Channex на {CHANNEL_SYNC_DAYS} дней вперёд: каналы продаж получат "
+        "channel_sync", ActionClass.CONFIRM, "полная выгрузка в каналы",
+        f"полная выгрузка остатков и ограничений в каналы на {CHANNEL_SYNC_DAYS} дней вперёд: каналы продаж получат "
         "текущие остатки заново",
         permission="channels", route="/assistant/actions/channel-sync",
     ),

@@ -13,6 +13,8 @@ import {
 } from '@pms/domain';
 import { telegram } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
+import { integrationTables } from '../database/integration-tables';
+import { propertyIdRef } from '../database/property-ref';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PROVIDER } from '../channels/ari-publisher';
 import { isAriStopped } from '../channels/ari-switch';
@@ -112,14 +114,17 @@ export class NestGuardProbes implements GuardProbes {
 
   async outbox(): Promise<OutboxSignal> {
     const lastFullSyncAt = await this.channels.lastAuditAt('channex.fullSync');
+    // B1.5 (Q-222): служебная роль не различает объекты — объект в самом запросе, его выбирает сервер
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
     const where = {
       provider: PROVIDER,
+      propertyId,
       status: 'FAILED' as const,
       ...(lastFullSyncAt ? { createdAt: { gt: lastFullSyncAt } } : {}),
     };
     const [failedSinceSync, lastFailed, summary, lostDeltaAt] = await Promise.all([
-      this.prisma.db.channelOutbox.count({ where }),
-      this.prisma.db.channelOutbox.findFirst({
+      integrationTables(this.prisma.db).channelOutbox.count({ where }),
+      integrationTables(this.prisma.db).channelOutbox.findFirst({
         where,
         orderBy: { createdAt: 'desc' },
         select: { lastError: true },
@@ -138,8 +143,9 @@ export class NestGuardProbes implements GuardProbes {
   }
 
   async failedEvents(): Promise<FailedEvent[]> {
-    const rows = await this.prisma.db.externalEvent.findMany({
-      where: { provider: PROVIDER, status: 'FAILED' },
+    const propertyId = await propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
+    const rows = await integrationTables(this.prisma.db).externalEvent.findMany({
+      where: { provider: PROVIDER, propertyId, status: 'FAILED' },
       orderBy: { receivedAt: 'asc' },
       take: 50,
       select: {
@@ -316,7 +322,7 @@ export class NestGuardFixes implements GuardFixes {
    */
   async registerWebhook(): Promise<FixOutcome> {
     const r = await this.sync.registerWebhook();
-    return { ok: true, text: `webhook Channex возвращён на ${r.callbackUrl}` };
+    return { ok: true, text: `webhook менеджера каналов возвращён на ${r.callbackUrl}` };
   }
 
   async retryEvent(revisionId: string): Promise<FixOutcome> {

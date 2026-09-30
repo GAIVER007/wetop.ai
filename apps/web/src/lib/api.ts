@@ -798,7 +798,40 @@ export const ratesApi = {
   plans: () => getJson<RatePlanRow[]>('/rates/plans'),
   updatePlan: (code: string, input: { cancellationPenalty: CancellationPenaltyPolicy }) =>
     sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}`, input),
+  /** Производный тариф (D4, DATA_MODEL §20): процент от тарифа-родителя, окно продаж, минимум ночей */
+  createDerived: (input: DerivedPlanInput & { name: string; parentCode: string }) =>
+    sendJson<RatePlanRow>('POST', '/rates/plans/derived', input),
+  updateDerived: (code: string, input: Partial<DerivedPlanInput> & { name?: string; active?: boolean }) =>
+    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}/derived`, input),
+  promoCodes: () => getJson<PromoCodeRow[]>('/rates/promo-codes'),
+  createPromo: (input: PromoCodeInput) => sendJson<PromoCodeRow>('POST', '/rates/promo-codes', input),
+  updatePromo: (
+    code: string,
+    input: { active?: boolean; maxUses?: number | null; stayFrom?: string | null; stayTo?: string | null },
+  ) => sendJson<PromoCodeRow>('PATCH', `/rates/promo-codes/${encodeURIComponent(code)}`, input),
 };
+export interface DerivedPlanInput {
+  discountPercent: number;
+  minDaysBeforeArrival: number | null;
+  maxDaysBeforeArrival: number | null;
+  minNights: number | null;
+}
+export interface PromoCodeInput {
+  code: string;
+  discountPercent: number;
+  stayFrom?: string | null;
+  stayTo?: string | null;
+  maxUses?: number | null;
+}
+export interface PromoCodeRow {
+  code: string;
+  discountPercent: number;
+  stayFrom: string | null;
+  stayTo: string | null;
+  maxUses: number | null;
+  active: boolean;
+  uses: number;
+}
 export interface RatePlanRow {
   code: string;
   name: string;
@@ -807,6 +840,14 @@ export interface RatePlanRow {
   cancellationPenalty: CancellationPenaltyPolicy;
   /** Названия категорий, к которым привязан тариф */
   categories: string[];
+  /** Производный тариф: родитель и условия продажи; у обычного — `null` (D4, DATA_MODEL §20) */
+  derived?: {
+    parentName: string;
+    discountPercent: number;
+    minDaysBeforeArrival: number | null;
+    maxDaysBeforeArrival: number | null;
+    minNights: number | null;
+  } | null;
   /** Брони по тарифу, ещё не заехавшие и не отменённые, с выездом сегодня или позже: их задевает правка правила */
   upcomingReservations: number;
 }

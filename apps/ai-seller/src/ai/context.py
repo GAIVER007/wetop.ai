@@ -54,8 +54,16 @@ def build_messages(
     user_text: str,
     history_turns: int,
     output_instructions: str = OUTPUT_INSTRUCTIONS,
+    max_turn_chars: int = 0,
+    max_history_chars: int = 0,
 ) -> list[dict]:
-    """[system: промпт + инструкции] [system: знания?] [история…] [user]."""
+    """[system: промпт + инструкции] [system: знания?] [история…] [user].
+
+    max_turn_chars > 0 — каждая реплика истории обрезается до этого числа знаков: текущий ход
+    режет guardrails, а история уходила в модель как есть (аудит 30.09.2026).
+    max_history_chars > 0 — общий предел истории в знаках: самые старые реплики выпадают, пока сумма
+    не уложится (N реплик по пределу — всё ещё огромный контекст, решение владельца 30.09.2026).
+    """
     messages: list[dict] = [{"role": "system", "content": system_prompt + "\n\n" + output_instructions}]
     facts = [fact.strip() for fact in knowledge if fact and fact.strip()]
     if facts:
@@ -66,7 +74,16 @@ def build_messages(
         turns = turns[-history_turns:]
     else:
         turns = []
-    messages.extend({"role": turn.role, "content": str(turn.text)} for turn in turns)
+    def clip(text: str) -> str:
+        return text[:max_turn_chars] if max_turn_chars > 0 and len(text) > max_turn_chars else text
+
+    kept = [(turn.role, clip(str(turn.text))) for turn in turns]
+    if max_history_chars > 0:
+        total = sum(len(text) for _, text in kept)
+        while kept and total > max_history_chars:
+            total -= len(kept[0][1])
+            kept.pop(0)
+    messages.extend({"role": role, "content": text} for role, text in kept)
     messages.append({"role": "user", "content": user_text})
     return messages
 

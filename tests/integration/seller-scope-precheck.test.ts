@@ -174,6 +174,22 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     await db.$queryRawUnsafe('SELECT seller_agents_backfill()');
     expect((await report(org.id)).profiles_without_agent).toBe(0);
   });
+  it('backfill: рабочий агент-черновик с филиалом и принятым профилем становится активным; без принятого профиля — остаётся', async () => {
+    const accepted = await newOrg('черновик принят');
+    await db.sellerAgent.create({ data: { id: accepted.id, organizationId: accepted.id, createdBy: accepted.user!, name: 'Продавец', locationId: accepted.locations[0]! } });
+    await db.sellerProfile.create({
+      data: { organizationId: accepted.id, addressForm: 'FORMAL', replyLength: 'SHORT', languages: ['ru'], updatedAt: new Date(), profileAppliedAt: new Date() },
+    });
+    const draft = await newOrg('черновик не принят');
+    await db.sellerAgent.create({ data: { id: draft.id, organizationId: draft.id, createdBy: draft.user!, name: 'Продавец', locationId: draft.locations[0]! } });
+    await db.sellerProfile.create({
+      data: { organizationId: draft.id, addressForm: 'FORMAL', replyLength: 'SHORT', languages: ['ru'], updatedAt: new Date() },
+    });
+    await db.$queryRawUnsafe('SELECT seller_agents_backfill()');
+    expect((await agentOf(accepted.id))?.lifecycle).toBe('active');
+    expect((await agentOf(draft.id))?.lifecycle).toBe('draft');
+  });
+
   it('seller_agent_bind_location: перенесённому агенту — единственный филиал; при двух, у агента SA2 и уже занятого — нет', async () => {
     const bind = async (agent: string) => (await db.$queryRawUnsafe<Array<{ r: string | null }>>('SELECT seller_agent_bind_location($1::uuid)::text AS r', agent))[0]!.r;
     const one = await newOrg('bind один');

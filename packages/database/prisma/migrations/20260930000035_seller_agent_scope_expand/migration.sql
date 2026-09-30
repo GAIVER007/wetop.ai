@@ -205,6 +205,13 @@ BEGIN
       SELECT 1 FROM seller_agents x
       WHERE x.location_id = one.location_id AND x.scenario = 'sales' AND x.lifecycle <> 'archived' AND x.id <> a.id);
 
+  -- рабочий агент с филиалом и принятым профилем — active (в 034 агент, заведённый триггером при вставке принятого профиля,
+  -- оставался черновиком: значения из ещё не вставленной строки терялись)
+  UPDATE seller_agents a
+  SET lifecycle = 'active', updated_at = now()
+  WHERE a.id = a.organization_id AND a.lifecycle = 'draft' AND a.location_id IS NOT NULL
+    AND EXISTS (SELECT 1 FROM seller_profiles sp WHERE sp.organization_id = a.id AND sp.profile_applied_at IS NOT NULL);
+
   UPDATE seller_profiles SET agent_id = organization_id
   WHERE agent_id IS NULL AND EXISTS (SELECT 1 FROM seller_agents a WHERE a.id = seller_profiles.organization_id);
   RETURN v_created;

@@ -128,6 +128,45 @@ ORDER BY 1, 2;
 **Откат:** `down.sql` этой миграции (`docs/ops/backups.md`, из копии базы) — `wetop_app` снова получает полный доступ. Код
 продолжает работать.
 
+## Роли Data API Supabase: отзыв прав (30.09.2026)
+
+Аудит 30.09.2026 (`reports/security-vibe-audit-2026-09-30.md` §2). Миграция `20260930000034_revoke_supabase_api_roles`
+снимает у `anon` и `authenticated` все права на таблицы, последовательности и функции схемы и умолчания на будущие
+объекты: до неё десять таблиц без RLS (`users`, `password_resets`, `external_events`, …) закрывал от публичного ключа
+проекта только выключенный Data API (SECURITY.md §12, вариант Б так и не был выполнен). На базе без этих ролей
+(локальный стенд, ps.kz) миграция ничего не делает и пишет NOTICE.
+
+Порядок не важен: код от прав `anon` не зависит. Применение — как обычно (`prisma migrate deploy` с `DIRECT_URL`,
+`docs/deploy.md` §1д).
+
+**Проверочный лист перед рабочей базой (решение владельца 30.09.2026):**
+
+1. Приложение этих ролей не использует: в коде нет `@supabase/*`, `SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` не
+   читаются (аудит §1–2); Data API выключен (§12 SECURITY.md).
+2. Живых подключений под ними нет и права такие, как ожидается:
+   ```sql
+   select usename, count(*) from pg_stat_activity where usename in ('anon', 'authenticated') group by 1; -- ждём 0 строк
+   select grantee, count(*) from information_schema.role_table_grants
+    where table_schema = 'public' and grantee in ('anon', 'authenticated') group by 1;             -- сколько грантов снимем
+   ```
+3. Свежая копия базы есть (`scripts/ops/db-backup.sh`, `docs/ops/backups.md`).
+4. Миграция проверена в обе стороны: `scripts/ops/check-migrations.sh` — OK; на локальном стенде с заведёнными ролями
+   `anon`/`authenticated` и грантами как у Supabase — до: `has_table_privilege('anon','public.users','SELECT') = true`,
+   после `migration.sql` — false и новая таблица `anon` не видна, после `down.sql` — снова true (снято 30.09.2026).
+5. После применения: smoke входа (`/auth/login`, `/auth/me`, смена пароля), ручная оплата на стойке
+   (`POST /finance/payments` — счёт открывается, оплата записывается), сутки `cli-day-selfcheck`.
+
+Проверка после: в SQL Editor Supabase
+
+```sql
+select has_table_privilege('anon', 'public.users', 'SELECT'),            -- ждём false
+       has_table_privilege('authenticated', 'public.payments', 'INSERT'); -- ждём false
+```
+
+и советник безопасности (Security Advisor) — без новых ошибок. Откат — `down.sql` той же миграции: возвращает
+умолчания Supabase (ALL), нужен только если Data API для `public` открывают намеренно. Умолчания роли
+`supabase_admin` миграции недоступны — их видно только советником.
+
 ## Что с `wetop_service`
 
 Роль создана миграцией (с `BYPASSRLS`, если роль миграций может его раздать; иначе — без него, NOTICE в выводе

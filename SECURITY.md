@@ -386,7 +386,9 @@ Data API не пользуется: база — через Prisma, пакето
 значит, `public` через Data API наружу больше не отдаётся. Остался WARN «Extension in Public» (`btree_gist`). Права
 `anon`/`authenticated` остались — если Data API когда-нибудь включат снова, сначала отобрать их (вариант Б). На ps.kz
 (A1) Data API нет. Перепроверено 24.09.2026 в 09:01 UTC: советник показывает только WARN «Extension in Public»
-(`btree_gist`).
+(`btree_gist`). **30.09.2026: вариант Б оформлен миграцией `…034_revoke_supabase_api_roles` (аудит,
+`reports/security-vibe-audit-2026-09-30.md` §2) — права `anon`/`authenticated` и умолчания на будущие объекты
+снимаются; на рабочей базе применяет владелец по проверочному листу в `docs/ops/rls.md`.**
 
 
 ## 13. ИИ-помощник и ИИ-продавец (ТЗ ред. 1 от 24.09.2026, ADR-079)

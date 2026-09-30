@@ -12,6 +12,8 @@ import {
   Optional,
 } from '@nestjs/common';
 import {
+  assertDerivedRuleAllows,
+  assertPromoAllows,
   assertRestrictionsAllow,
   fingerprintOf,
   hostMatches,
@@ -69,6 +71,8 @@ export interface Quote {
   checkInTime: string;
   checkOutTime: string;
   ratePlan: string;
+  /** Применённый промокод; цены в `categories` уже со скидкой (одна большая, Q-231) */
+  promo: { code: string; discountPercent: number } | null;
   categories: QuoteCategory[];
 }
 
@@ -184,7 +188,7 @@ export class WebBookingService {
   private async quoteForSite(site: SiteRecord, raw: unknown, now: Date): Promise<Quote> {
     const parsed = parseQuoteRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
-    const { arrivalDate, departureDate, adults } = parsed.value;
+    const { arrivalDate, departureDate, adults, promoCode } = parsed.value;
     const plan = site.bookingRatePlan!;
 
     // Расчёт цены и мест только читает — без транзакции (Б9): занятый пул не превращает витрину сайта в 500
@@ -192,6 +196,34 @@ export class WebBookingService {
       const ratePlan = await repo.ratePlanByCode(plan.code);
       if (!ratePlan || !ratePlan.active) {
         throw new NotFoundException('тариф сайта неактивен — бронирование с сайта выключено');
+      }
+      // Промокод: неверный, выключенный, исчерпанный или не на эти даты — отказ словами, а не молчаливое «без скидки»
+      let promo: { id: string; code: string; discountPercent: number } | null = null;
+      if (promoCode) {
+        const found = await repo.promoByCode(promoCode);
+        if (!found) throw new BadRequestException(`Промокод ${promoCode} не найден`);
+        try {
+          assertPromoAllows(found, { arrivalDate, departureDate });
+        } catch (e) {
+          if (e instanceof ReservationRuleError) throw new BadRequestException(e.message);
+          throw e;
+        }
+        promo = found;
+      }
+      // Производный тариф сайта: окно продаж и минимум ночей закрывают продажу целиком, как ограничение
+      let planClosed = false;
+      if (ratePlan.derivedRule) {
+        try {
+          assertDerivedRuleAllows(ratePlan.derivedRule, {
+            planName: ratePlan.name,
+            today: localDate(now, site.timezone),
+            arrivalDate,
+            nights: nightsBetween(arrivalDate, departureDate),
+          });
+        } catch (e) {
+          if (!(e instanceof ReservationRuleError)) throw e;
+          planClosed = true;
+        }
       }
       const out: QuoteCategory[] = [];
       for (const cat of await repo.activeCategories()) {
@@ -202,7 +234,7 @@ export class WebBookingService {
           arrivalDate,
           addDays(departureDate, 1),
         );
-        let closed = false;
+        let closed = planClosed;
         try {
           assertRestrictionsAllow({
             arrivalDate,
@@ -216,7 +248,13 @@ export class WebBookingService {
         }
         const available = await repo.categoryAvailability(cat.id, arrivalDate, departureDate);
         const occupancy = Math.min(adults, cat.capacityAdults);
-        const rates = await repo.nightRates(cat.id, ratePlan.id, arrivalDate, departureDate);
+        const rates = await repo.nightRates(
+          cat.id,
+          ratePlan.id,
+          arrivalDate,
+          departureDate,
+          promo?.discountPercent ?? null,
+        );
         let price: ReturnType<typeof priceStay> | null = null;
         try {
           price = priceStay({ arrivalDate, departureDate, occupancy, rates });
@@ -236,7 +274,11 @@ export class WebBookingService {
             : [],
         });
       }
-      return { rows: out, currency: ratePlan.currency };
+      return {
+        rows: out,
+        currency: ratePlan.currency,
+        promo: promo ? { code: promo.code, discountPercent: promo.discountPercent } : null,
+      };
     });
 
     return {
@@ -249,6 +291,7 @@ export class WebBookingService {
       checkInTime: site.checkInTime,
       checkOutTime: site.checkOutTime,
       ratePlan: plan.name,
+      promo: categories.promo,
       categories: categories.rows,
     };
   }
@@ -315,6 +358,7 @@ export class WebBookingService {
           arrivalDate: req.arrivalDate,
           departureDate: req.departureDate,
           notes,
+          promoCode: req.promoCode,
           guest: {
             firstName: guest.firstName,
             lastName: guest.lastName,

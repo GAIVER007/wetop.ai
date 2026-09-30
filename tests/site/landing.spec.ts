@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test';
  * нет адресов, которых на сайте нет. Данных владельца тесты не требуют: пустые поля `site.config.ts`
  * прячут блоки, и это проверяется отдельно — «TODO» на странице быть не должно ни в каком виде.
  */
-const PAGES = ['/', '/blog/'];
+const PAGES = ['/', '/blog/', '/for/hostels/', '/for/mini-hotels/', '/for/apart-hotels/', '/calculator/'];
 test('чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('script[src*="/widget/widget.js"]')).toHaveCount(0);

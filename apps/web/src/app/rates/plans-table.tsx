@@ -4,8 +4,11 @@ import type { CancellationPenaltyPolicy } from '@pms/domain';
 import type { RatePlanRow } from '../../lib/api';
 import { cancellationRuleLabel, cancellationRuleOptions } from '../../lib/penalty-text';
 import { pluralRu } from '../../lib/plural';
+import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, Table } from '../../components/ui';
+import { derivedRuleText } from '../../lib/rate-rule-text';
+import { DerivedForm } from './derived-form';
 import { saveRatePlanPenalty, type RatePlanActionResult } from './actions';
 import '../inventory/fund.css';
 
@@ -17,7 +20,10 @@ import '../inventory/fund.css';
  */
 export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; editable: boolean }) {
   const [editing, setEditing] = useState<RatePlanRow | null>(null);
+  const [creating, setCreating] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
+  // родитель — обычный действующий тариф: производный от производного запрещён
+  const parents = plans.filter((p) => !p.derived && p.active);
   return (
     <section className="settings-catalog rates-plans" aria-label="Тарифные планы">
       <span
@@ -27,11 +33,26 @@ export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; edit
       >
         {saved ? `✓ ${saved}` : ''}
       </span>
+      {editable && parents.length > 0 && (
+        <div className="rates-toolbar">
+          <Button
+            type="button"
+            onClick={() => {
+              setSaved(null);
+              setCreating(true);
+            }}
+          >
+            <Icon name="plus" />
+            Добавить производный тариф
+          </Button>
+        </div>
+      )}
       <Table data-testid="rate-plans-table" className="settings-table">
         <thead>
           <tr>
             <th>Тариф</th>
             <th className="settings-col-wide">Категории</th>
+            <th className="settings-col-wide">Условия</th>
             <th>Правило отмены</th>
             <th className="num settings-col-wide">Брони впереди</th>
             <th className="settings-col-wide">Статус</th>
@@ -60,10 +81,16 @@ export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; edit
                   {p.categories.length ? p.categories.join(', ') : 'Без категорий'}
                   {!p.active && <Badge tone="neutral">не действует</Badge>}
                 </span>
+                {p.derived && (
+                  <span className="cell-sub rates-plans-sub rates-plans-rule">
+                    {derivedRuleText(p.derived)}
+                  </span>
+                )}
               </td>
               <td className="settings-col-wide">
                 {p.categories.length ? p.categories.join(', ') : '—'}
               </td>
+              <td className="settings-col-wide">{p.derived ? derivedRuleText(p.derived) : '—'}</td>
               <td>{cancellationRuleLabel(p.cancellationPenalty)}</td>
               <td className="num settings-col-wide">{p.upcomingReservations}</td>
               <td className="settings-col-wide">
@@ -83,6 +110,18 @@ export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; edit
           title={editing.name}
           onClose={() => setEditing(null)}
         >
+          {editing.derived && (
+            <DerivedForm
+              key={`derived-${editing.code}`}
+              plan={editing}
+              parents={parents}
+              onCancel={() => setEditing(null)}
+              onSaved={(text) => {
+                setSaved(text);
+                setEditing(null);
+              }}
+            />
+          )}
           <PenaltyForm
             key={editing.code}
             plan={editing}
@@ -90,6 +129,24 @@ export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; edit
             onSaved={(text) => {
               setSaved(text);
               setEditing(null);
+            }}
+          />
+        </Overlay>
+      )}
+      {creating && (
+        <Overlay
+          open
+          drawer
+          className="settings-service-drawer"
+          title="Новый производный тариф"
+          onClose={() => setCreating(false)}
+        >
+          <DerivedForm
+            parents={parents}
+            onCancel={() => setCreating(false)}
+            onSaved={(text) => {
+              setSaved(text);
+              setCreating(false);
             }}
           />
         </Overlay>

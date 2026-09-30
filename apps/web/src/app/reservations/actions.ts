@@ -39,6 +39,7 @@ const KEPT = [
   'email',
   'phone',
   'notes',
+  'promoCode',
   'placementIds',
   'guestId',
 ];
@@ -100,6 +101,8 @@ export async function createReservationAction(
       arrivalDate: str(fd, 'arrivalDate'),
       departureDate: str(fd, 'departureDate'),
       notes: str(fd, 'notes') ?? null,
+      // D4: промокод необязателен; пустое поле в запрос не попадает
+      ...(str(fd, 'promoCode') ? { promoCode: str(fd, 'promoCode') } : {}),
       // G6 (ТЗ «Гости v2» §33): выбран существующий гость — бронь на него, полей нового нет
       ...(str(fd, 'guestId')
         ? { guestId: str(fd, 'guestId') }

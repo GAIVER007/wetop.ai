@@ -19,7 +19,8 @@ import { describe, expect, it } from 'vitest';
  * тесту не нужен: на 23.09.2026 их ноль, и так и должно остаться.
  *
  * Исключения ровно два, оба названы в §19.3 и §19.4:
- *   - макет шахматки (`.mockup*`) — иллюстрация со своей мелкой сеткой, а не компонент страницы;
+ *   - макеты первого экрана (`.mockup*` — шахматка, `.ops*` — экран «Сегодня») — иллюстрации со своей мелкой
+ *     сеткой, а не компоненты страницы;
  *   - `.visually-hidden` — общепринятый приём с `margin: -1px`.
  */
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -45,8 +46,8 @@ function rules(css: string): Rule[] {
     .filter((r) => r.selector !== '' && !r.selector.startsWith('@'));
 }
 
-/** Иллюстрация шахматки живёт по своим правилам (§19.4): у неё сетка мельче страницы. */
-const isMockup = (selector: string) => /\.mockup/.test(selector);
+/** Макеты живут по своим правилам (§19.4): у них сетка мельче страницы. `.ops*` — экран «Сегодня» внутри `.mockup`. */
+const isMockup = (selector: string) => /\.(mockup|ops)(?![a-z0-9-])/.test(selector);
 
 function walk(dir: string, ext: RegExp): string[] {
   return readdirSync(dir).flatMap((name) => {

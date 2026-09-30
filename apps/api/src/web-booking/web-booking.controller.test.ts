@@ -109,7 +109,26 @@ const fakeRepo = {
   async categoryAvailability(typeId: string) {
     return fakeRepo.availability[typeId] ?? 0;
   },
-  async nightRates(typeId: string) {
+  /** Какую скидку промокода спросили у цен в последний раз (DATA_MODEL §20) */
+  lastPromoPercent: null as number | null,
+  promos: {} as Record<
+    string,
+    {
+      id: string;
+      code: string;
+      discountPercent: number;
+      stayFrom: string | null;
+      stayTo: string | null;
+      maxUses: number | null;
+      active: boolean;
+      uses: number;
+    }
+  >,
+  async promoByCode(code: string) {
+    return fakeRepo.promos[code] ?? null;
+  },
+  async nightRates(typeId: string, _p?: string, _f?: string, _t?: string, promoPercent?: number | null) {
+    fakeRepo.lastPromoPercent = promoPercent ?? null;
     const price = typeId === 't1' ? 1_100_000n : 1_500_000n;
     return ['2026-09-13', '2026-09-14', '2026-09-15'].flatMap((date) => [
       { date, occupancy: 1, priceMinor: price },
@@ -231,6 +250,9 @@ describe('виджет бронирования /w/*', () => {
     incidents.rows = [];
     service.resetLimits();
     fakeRepo.restrictions = [];
+    fakeRepo.promos = {};
+    fakeRepo.lastPromoPercent = null;
+    delete (plan as { derivedRule?: unknown }).derivedRule;
   });
 
   const get = (path: string, origin = ORIGIN) =>
@@ -345,6 +367,64 @@ describe('виджет бронирования /w/*', () => {
     ],
   ])('%s', async (_l, path, origin, status) => {
     await get(path, origin).expect(status);
+  });
+
+  it('промокод: цены со скидкой, ответ называет код; неверный, выключенный и не на эти даты — 400 словами; в бронь уходит код', async () => {
+    fakeRepo.promos['SUMMER10'] = {
+      id: 'pr1',
+      code: 'SUMMER10',
+      discountPercent: 10,
+      stayFrom: null,
+      stayTo: null,
+      maxUses: null,
+      active: true,
+      uses: 0,
+    };
+    const q = (promo: string) =>
+      get(`/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1&promo=${promo}`);
+    const ok = await q('summer10').expect(200);
+    expect(ok.body.promo).toEqual({ code: 'SUMMER10', discountPercent: 10 });
+    expect(fakeRepo.lastPromoPercent).toBe(10);
+    const none = await get(
+      `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+    ).expect(200);
+    expect(none.body.promo).toBeNull();
+    expect(fakeRepo.lastPromoPercent).toBeNull();
+
+    expect((await q('NOPE99').expect(400)).body.message).toMatch(/не найден/);
+    expect((await q('ab').expect(400)).body.message).toMatch(/неверно/);
+    fakeRepo.promos['SUMMER10'].active = false;
+    expect((await q('SUMMER10').expect(400)).body.message).toMatch(/не действует/);
+    fakeRepo.promos['SUMMER10'].active = true;
+    fakeRepo.promos['SUMMER10'].stayTo = '2026-09-13'; // последняя ночь 13-го, а проживание — две ночи
+    expect((await q('SUMMER10').expect(400)).body.message).toMatch(/период/);
+    fakeRepo.promos['SUMMER10'].stayTo = null;
+
+    await post({ ...booking(), promo: 'summer10' }).expect(201);
+    expect(created.dtos[0]).toMatchObject({ promoCode: 'SUMMER10' });
+  });
+
+  it('производный тариф сайта: окно продаж закрывает продажу, как ограничение; правило в окне — цены есть', async () => {
+    (plan as { derivedRule?: unknown }).derivedRule = {
+      discountPercent: 15,
+      minDaysBeforeArrival: 30,
+      maxDaysBeforeArrival: null,
+      minNights: null,
+    };
+    const closed = await get(
+      `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+    ).expect(200);
+    expect((closed.body.categories as Array<{ closed: boolean }>).every((c) => c.closed)).toBe(true);
+    (plan as { derivedRule?: unknown }).derivedRule = {
+      discountPercent: 15,
+      minDaysBeforeArrival: null,
+      maxDaysBeforeArrival: null,
+      minNights: 2,
+    };
+    const open = await get(
+      `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+    ).expect(200);
+    expect((open.body.categories as Array<{ code: string; closed: boolean }>).find((c) => c.code === 'category-single')?.closed).toBe(false);
   });
 
   it('расчёт и бронь идут от имени организации сайта, а не объекта Luxx по имени', async () => {

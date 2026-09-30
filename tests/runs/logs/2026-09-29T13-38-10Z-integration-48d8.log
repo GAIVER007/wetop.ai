@@ -1,0 +1,35 @@
+# Интеграционные (integration) · 29.09.2026 18:38 Алматы · vm
+# коммит 48a25ef (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-38-10Z-integration-48d8.json' 'tests/integration/derived-rates-booking.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+(node:9368) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ❯ |integration| tests/integration/derived-rates-booking.test.ts (1 test | 1 failed) 425ms
+   ❯ derived rate plans and promo codes in a booking (integration, rolled back) (1)
+     × prices by parent rates with the larger of plan and promo discount, enforces rules, keeps promo on extend 392ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/derived-rates-booking.test.ts > derived rate plans and promo codes in a booking (integration, rolled back) > prices by parent rates with the larger of plan and promo discount, enforces rules, keeps promo on extend
+AssertionError: expected ConflictException: В категории Двухместны… { …(4) } to be an instance of Rollback
+ ❯ tests/integration/derived-rates-booking.test.ts:174:6
+    172|         { timeout: 60_000 },
+    173|       ),
+    174|     ).rejects.toBeInstanceOf(Rollback);
+       |      ^
+    175|
+    176|     expect(seen['base']).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  13:38:11
+   Duration  2.73s (transform 54%, tests 26%, import 20%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-38-10Z-integration-48d8.json
+
+# код выхода 1 · 4 с

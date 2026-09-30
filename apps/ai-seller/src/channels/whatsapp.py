@@ -122,7 +122,11 @@ async def verify(org_id: uuid.UUID, request: Request) -> PlainTextResponse:
     """Подтверждение подписки Meta: эхо challenge только со словом этой гостиницы."""
     row = await _connection(org_id)
     token = request.query_params.get("hub.verify_token") or ""
-    if row is None or not hmac.compare_digest(token, row.verify_token):
+    # Сравниваем байты: compare_digest(str, str) падает на не-ASCII, и чужая строка в запросе
+    # давала бы 500 вместо 403 (аудит 30.09.2026).
+    if row is None or not hmac.compare_digest(
+        token.encode("utf-8"), (row.verify_token or "").encode("utf-8")
+    ):
         raise HTTPException(status_code=403, detail="forbidden")
     return PlainTextResponse(request.query_params.get("hub.challenge") or "")
 
@@ -159,7 +163,9 @@ async def receive(org_id: uuid.UUID, request: Request) -> JSONResponse:
     secret = decrypt_key(row.app_secret_encrypted, settings)
     expected = "sha256=" + hmac.new((secret or "").encode(), raw, hashlib.sha256).hexdigest()
     provided = request.headers.get(SIGNATURE_HEADER) or ""
-    if not secret or not hmac.compare_digest(provided, expected):
+    if not secret or not hmac.compare_digest(
+        provided.encode("utf-8"), expected.encode("utf-8")
+    ):
         raise HTTPException(status_code=403, detail="forbidden")
     if not await _organization_active(org_id):
         # Срок расширения вышел (Q-183): 200 — Meta не повторяет, хода нет.

@@ -104,7 +104,10 @@ export class AssistantActionsService {
         throw new ConflictException(READ_ONLY);
       if (!(await this.integrationOwner(request.organizationId))) throw new ConflictException(NOT_CONNECTED);
 
-      const replay = this.done.get(`${action}:${request.idempotencyKey}`);
+      // Ключ идемпотентности живёт внутри организации: один и тот же ключ у двух организаций — два разных
+      // действия, а не чужой ответ из памяти (аудит 30.09.2026)
+      const replayKey = `${action}:${request.organizationId}:${request.idempotencyKey}`;
+      const replay = this.done.get(replayKey);
       if (replay) return { ...replay.answer, replayed: true };
 
       const limitKey = `${action}:${request.organizationId}`;
@@ -114,7 +117,7 @@ export class AssistantActionsService {
       this.recent.set(limitKey, now.getTime());
 
       const answer: ActionAnswer = { ok: true, action, replayed: false, ...(await execute()) };
-      this.done.set(`${action}:${request.idempotencyKey}`, { at: now.getTime(), answer });
+      this.done.set(replayKey, { at: now.getTime(), answer });
       return answer;
     });
   }

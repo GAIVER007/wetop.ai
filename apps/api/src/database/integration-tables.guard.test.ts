@@ -21,7 +21,7 @@ const DIRECT_ALLOWED: Record<string, { count: number; why: string }> = {
   },
   'reservations/reservations.repository.ts': {
     count: 4,
-    why: 'Q-225: обработка входящих ревизий идёт в транзакциях, начатых под организацией, ворота там не переключают соединение; решение владельца',
+    why: 'Q-225 (а*): обработка входящих ревизий идёт в транзакциях; их начинает InboundBookingsService, а запрос организации переводит на служебную роль runIntegrationCommand до начала транзакции (см. проверки ниже)',
   },
 };
 
@@ -129,6 +129,36 @@ describe('ворота к данным интеграции: обращений 
       }
     }
     expect(bad, bad.join('\n')).toEqual([]);
+  });
+
+  it('Q-225: запись событий в транзакциях брони вызывает только InboundBookingsService, и pull/retryEvent идут через команду', () => {
+    const callers = files
+      .filter((f) => /\.(recordExternalEvent|updateExternalEvent|resetExternalEventAttempts)\(/.test(f.text))
+      .map((f) => f.rel)
+      .sort();
+    expect(callers).toEqual(['channels/inbound.service.ts']);
+
+    const inbound = files.find((f) => f.rel === 'channels/inbound.service.ts')!.text;
+    // pull и retryEvent — единственные входы из запроса организации; без команды транзакция начнётся на wetop_app
+    const body = (header: RegExp): string => {
+      const m = header.exec(inbound);
+      expect(m, String(header)).not.toBeNull();
+      const open = inbound.indexOf('{', m!.index + m![0].length - 1);
+      let depth = 0;
+      for (let i = open; i < inbound.length; i += 1) {
+        if (inbound[i] === '{') depth += 1;
+        if (inbound[i] === '}' && (depth -= 1) === 0) return inbound.slice(open, i + 1);
+      }
+      throw new Error(`не закрыта скобка метода ${header}`);
+    };
+    for (const header of [/\n {2}pull\(/, /\n {2}async retryEvent\(/]) {
+      const method = body(header);
+      const at = method.indexOf('runIntegrationCommand(');
+      expect(at, `${header}: нет runIntegrationCommand`).toBeGreaterThanOrEqual(0);
+      // команда стоит раньше первого обращения к репозиторию брони в этом методе
+      const firstRepo = method.search(/\buow\.(run|read)\(/);
+      if (firstRepo >= 0) expect(at, `${header}: uow до команды`).toBeLessThan(firstRepo);
+    }
   });
 
   it('исключения перечислены с причиной', () => {

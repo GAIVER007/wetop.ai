@@ -100,11 +100,9 @@ test('R1: панель в две строки, таблица в первом э
   await expect(rowOf('20260913-TEST2')).toContainText('не подтверждена');
   await expect(rowOf('DSG-CANC')).toContainText('отменена');
   await expect(rowOf('DSG-NOSH')).toContainText('незаезд');
-  await expect(
-    main.getByRole('navigation', { name: 'Статусы броней' }).getByRole('link', {
-      name: /^Отменены/,
-    }),
-  ).toBeVisible();
+  await expect(main.getByLabel('Статус брони').locator('option[value="CANCELLED"]')).toContainText(
+    'Отменены',
+  );
 
   // деньги: частичная оплата — «к оплате», созданная без оплат — «не оплачено»
   await expect(rowOf('20260913-TESTAA')).toContainText('к оплате');
@@ -170,13 +168,11 @@ test('R1: «только чтение» — список, поиск и карт
   // чтение не сужено: таблица, чипы, поиск и карточка работают
   const table = main.getByTestId('reservations-table');
   await expect(table.locator('tbody tr').first()).toBeVisible();
-  await expect(main.getByRole('navigation', { name: 'Статусы броней' })).toBeVisible();
+  await expect(main.getByLabel('Статус брони')).toBeVisible();
   await main.getByLabel('Поиск броней').fill('Тестовый');
   await main.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(main.getByTestId('directory-meta')).toContainText('Тестовый');
-  await page
-    .getByRole('link', { name: 'Открыть бронь 20260913-TESTAA', exact: true })
-    .click();
+  await page.getByRole('link', { name: 'Открыть бронь 20260913-TESTAA', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Бронирование', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.keyboard.press('Escape');
@@ -213,9 +209,7 @@ for (const theme of ['light', 'dark'] as const) {
       .screenshot({ path: `${report}/${theme}-group-row.png` });
     // отменённые и их финансы одним экраном (§16): «—», «к возврату», «возвращено», «оплачено»
     await page.goto('/reservations?status=CANCELLED');
-    await expect(
-      main.getByTestId('reservations-table').locator('tbody tr'),
-    ).toHaveCount(4);
+    await expect(main.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(4);
     await page.screenshot({ path: `${report}/${theme}-cancelled-finance.png`, caret: 'initial' });
     await page.goto('/reservations');
     await expect(main.getByTestId('reservations-table')).toBeVisible();

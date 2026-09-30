@@ -30,6 +30,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
   const mark = Date.now().toString(36);
   const org = randomUUID();
   const emptyOrg = randomUUID();
+  const author = randomUUID();
   const now = new Date('2026-09-24T09:00:00.000Z');
   let propertyId = '';
   const ids: Record<string, string> = {};
@@ -45,6 +46,11 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
         { id: org, name: `Тест продавца ${mark}` },
         { id: emptyOrg, name: `Тест продавца без объекта ${mark}` },
       ],
+    });
+    // автор агента: без участника база агента не заводит, а профиль ищется по агенту (SA2.5)
+    await db.user.create({ data: { id: author, email: `${author}@example.invalid` } });
+    await db.membership.createMany({
+      data: [org, emptyOrg].map((organizationId) => ({ userId: author, organizationId, role: 'OWNER' as const })),
     });
     const property = await createPropertyInChain(db, org, {
       name: `Хостел продавца ${mark}`,
@@ -113,6 +119,7 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     await purgeAuditRows(db, { entityType: 'SellerProfile', entityId: org });
     await purgeAuditRows(db, { entityType: 'SellerProfile', entityId: emptyOrg });
     await db.sellerProfile.deleteMany({ where: { organizationId: { in: [org, emptyOrg] } } });
+    await db.sellerAgent.deleteMany({ where: { organizationId: { in: [org, emptyOrg] } } });
     await db.dailyRate.deleteMany({ where: { ratePlanId: { in: [ids.site!, ids.ota!] } } });
     await db.trackedSite.deleteMany({ where: { propertyId } });
     await db.ratePlan.deleteMany({ where: { propertyId } });
@@ -123,6 +130,8 @@ describe.skipIf(!url)('seller_profiles и факты объекта (integration
     await db.building.deleteMany({ where: { propertyId } });
     await db.property.deleteMany({ where: { id: propertyId } });
     await deleteOrganizationChain(db, [org]);
+    await db.membership.deleteMany({ where: { organizationId: { in: [org, emptyOrg] } } });
+    await db.user.deleteMany({ where: { id: author } });
     await db.organization.deleteMany({ where: { id: { in: [org, emptyOrg] } } });
     await db.$disconnect();
   });

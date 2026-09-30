@@ -1020,6 +1020,7 @@ describe('каталог AI-агентов (SA1)', () => {
       id: `d${i}`,
       name: `Черновик ${i}`,
       updatedAt: NOW,
+      placement: null,
     }));
     catalog.draftRows.set(ORG_A, many);
     const res = await get('session-a').expect(200);

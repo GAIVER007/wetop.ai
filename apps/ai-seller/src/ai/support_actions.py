@@ -22,6 +22,7 @@ from src.ai.support_actions_journal import (
     PENDING_TTL_SECONDS,
     clear_pending,
     escalate,
+    explicit_consent,
     get_pending,
     is_stale,
     list_for_conversation,  # noqa: F401 — реэкспорт для панели
@@ -48,6 +49,11 @@ logger = logging.getLogger(__name__)
 
 _NO_PARAMS: dict[str, Any] = {"type": "object", "properties": {}, "required": []}
 _NOTHING_PENDING = "нечего подтверждать: ожидающего предложения в этом диалоге нет"
+_NO_CONSENT = (
+    "явного подтверждения в сообщении человека нет: действие не выполнено, предложение ждёт. Спроси прямо, "
+    "делать ли это, и не подтверждай сам — подтверждает человек словом «да»"
+)
+_OTHER_PERSON = "предложение делал другой человек: подтвердить его может только он"
 _STALE = "предложение устарело (прошло больше 15 минут): предложи действие заново"
 _NO_CONVERSATION = "не могу запомнить предложение вне диалога: уточнит человек"
 _SUMMARY_LIMIT = 300
@@ -65,6 +71,7 @@ def register_action_tools(
     visitor_getter: Callable[[], Any],
     conversation_getter: Callable[[], str | None],
     actions_getter: Callable[[], Any],
+    incoming_getter: Callable[[], str | None] = lambda: None,
     rules: str = "",
     unknown: str = "не знаю",
     not_signed: str = "не вошли",
@@ -170,7 +177,7 @@ def register_action_tools(
                 action_class=spec.action_class.value, status="PROPOSED",
             )
             await session.commit()
-            await put_pending(runtime.redis, conversation, action_id=row.id, action=spec.name)
+            await put_pending(runtime.redis, conversation, action_id=row.id, action=spec.name, user_ref=ref)
             return (
                 f"Нужно подтверждение человека: {spec.description}. Спроси, делать ли это. Ответит «да» — вызови "
                 f"confirm_action, «нет» — cancel_action. Предложение действует {PENDING_TTL_SECONDS // 60} минут."
@@ -196,6 +203,19 @@ def register_action_tools(
             return unknown
         if conversation is None:
             return _NOTHING_PENDING
+        # Q-S6-2: согласие доказывает сервер — тот же человек, тот же диалог, явное «да» в его сообщении этого хода.
+        # Вызов confirm_action моделью доказательством не считается: без «да» предложение остаётся ждать.
+        waiting = await get_pending(runtime.redis, conversation)
+        if waiting is None:
+            return _NOTHING_PENDING
+        if waiting.get("user_ref") != user_ref(scope[0]):
+            return _OTHER_PERSON
+        try:
+            said = incoming_getter()
+        except Exception:
+            said = None
+        if not explicit_consent(said):
+            return _NO_CONSENT
         pending, action_id = await _take_pending(runtime, conversation)
         if pending is None:
             return _NOTHING_PENDING
@@ -273,7 +293,10 @@ def register_action_tools(
     ))
     registry.register(ToolSpec(
         name="confirm_action",
-        description="Выполнить ожидающее предложение после явного «да» человека в этом диалоге. Без «да» не зови." + rules,
+        description=(
+            "Выполнить ожидающее предложение. Сервер сам проверяет, что человек в этом сообщении написал явное «да»: "
+            "без него действие не выполнится. Зови только после ответа человека." + rules
+        ),
         parameters=dict(_NO_PARAMS), handler=confirm_action,
     ))
     registry.register(ToolSpec(

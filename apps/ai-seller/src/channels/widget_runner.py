@@ -106,11 +106,14 @@ class WidgetRunner:
 
     async def _handle(self, incoming: IncomingMessage) -> None:
         """Исключения ловятся здесь: один упавший ход не роняет обработчик."""
+        # Текст хода — инструменту подтверждения действий (Q-S6-2); задача идёт в своём контексте
+        token = dependencies.incoming_text_var.set(getattr(incoming, "text", None))
         try:
             await self.engine.process_message(incoming)
         except Exception:
             logger.exception("widget: обработка сообщения упала")
         finally:
+            dependencies.incoming_text_var.reset(token)
             # 🔴 Посетитель снимается в finally, а не последней строкой:
             # после падения хода он остался бы виден следующему, и человек
             # получил бы чужие происшествия.
@@ -176,6 +179,7 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
             conversation_getter=dependencies.conversation_id_var.get,
             # S6: действия — журнал в базе бота, ожидающие предложения в Redis
             actions_getter=_actions_runtime,
+            incoming_getter=dependencies.incoming_text_var.get,
         )
         lead_hook = None
         # Помощник отвечает по делу: эмодзи в разборе ошибки неуместны.

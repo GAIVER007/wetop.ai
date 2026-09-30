@@ -1,10 +1,12 @@
 import 'reflect-metadata';
+import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { Prisma } from '@pms/database';
 import { guardAriGateway } from './ari-switch';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
+import { integrationTables, onIntegrationTables } from '../database/integration-tables';
 import { propertyToday, propertyIdRef, propertyRef } from '../database/property-ref';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { stayFacts } from '../chessboard/stay-facts';
@@ -289,7 +291,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
       localAccommodationTypeId: r.localAccommodationTypeId,
       localAccommodationTypeCode: r.accommodationType?.code ?? null,
       localRatePlanId: r.localRatePlanId,
-      localRatePlanCode: r.localRatePlanId ? codeById.get(r.localRatePlanId) ?? null : null,
+      localRatePlanCode: r.localRatePlanId ? (codeById.get(r.localRatePlanId) ?? null) : null,
       providerPropertyId: r.providerPropertyId,
       providerRoomTypeId: r.providerRoomTypeId,
       providerRatePlanId: r.providerRatePlanId,
@@ -406,14 +408,16 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   async enqueueOutbox(provider: string, kind: OutboxKind, payload: unknown[]): Promise<string> {
     // Phase 1 изоляции (ADR-100 §17.2): сообщение очереди с рождения знает объект
     const propertyId = await this.scopedPropertyId();
-    const row = await this.prisma.db.channelOutbox.create({
-      data: { provider, kind, payload: JSON.parse(JSON.stringify(payload)), propertyId },
-      select: { id: true },
+    // SEC-1b, стадия B (Q-222): у `wetop_app` на `channel_outbox` только `INSERT`. `create()` добавляет `RETURNING` и требует
+    // `SELECT`, `createMany()` — нет; поэтому id создаётся здесь, а не базой. Запись остаётся в транзакции вызывающей команды.
+    const id = randomUUID();
+    await this.prisma.db.channelOutbox.createMany({
+      data: [{ id, provider, kind, payload: JSON.parse(JSON.stringify(payload)), propertyId }],
     });
-    return row.id;
+    return id;
   }
   async pendingOutbox(provider: string, kind: OutboxKind, now: Date): Promise<OutboxRow[]> {
-    const rows = await this.prisma.db.channelOutbox.findMany({
+    const rows = await integrationTables(this.prisma.db).channelOutbox.findMany({
       where: { provider, kind, status: 'PENDING', nextAttemptAt: { lte: now } },
       orderBy: { createdAt: 'asc' },
       take: 200,
@@ -431,7 +435,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     taskId: string | null,
     warning?: string | null,
   ): Promise<void> {
-    await this.prisma.db.channelOutbox.updateMany({
+    await integrationTables(this.prisma.db).channelOutbox.updateMany({
       where: { id: { in: ids } },
       data: {
         status: 'SENT',
@@ -451,7 +455,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     nextAttemptAt: Date,
     failed: boolean,
   ): Promise<void> {
-    await this.prisma.db.channelOutbox.updateMany({
+    await integrationTables(this.prisma.db).channelOutbox.updateMany({
       where: { id: { in: ids } },
       data: {
         attempts: { increment: 1 },
@@ -474,7 +478,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     via: 'WEBHOOK' | 'PULL' | 'MANUAL',
     typePrefix?: string,
   ): Promise<Date | null> {
-    const row = await this.prisma.db.externalEvent.findFirst({
+    const row = await integrationTables(this.prisma.db).externalEvent.findFirst({
       where: {
         provider,
         receivedVia: via,
@@ -499,19 +503,20 @@ export class PrismaChannelsRepository implements ChannelsRepository {
    * номер брони PMS — на экране от ревизии сразу открывается бронь (срез 7.2).
    */
   async recentEvents(provider: string, limit: number): Promise<InboundEventRow[]> {
-    const rows = await this.prisma.db.$queryRaw<
-      Array<{
-        external_event_id: string;
-        type: string;
-        status: string;
-        attempt_count: number;
-        received_via: 'WEBHOOK' | 'PULL' | 'MANUAL';
-        received_at: Date;
-        processed_at: Date | null;
-        last_error: string | null;
-        unique_id: string | null;
-      }>
-    >(Prisma.sql`
+    const rows = await onIntegrationTables(() =>
+      this.prisma.db.$queryRaw<
+        Array<{
+          external_event_id: string;
+          type: string;
+          status: string;
+          attempt_count: number;
+          received_via: 'WEBHOOK' | 'PULL' | 'MANUAL';
+          received_at: Date;
+          processed_at: Date | null;
+          last_error: string | null;
+          unique_id: string | null;
+        }>
+      >(Prisma.sql`
       SELECT external_event_id, type, status::text AS status, attempt_count,
              received_via::text AS received_via, received_at, processed_at, last_error,
              CASE WHEN jsonb_typeof(payload) = 'object' THEN payload->>'unique_id' END AS unique_id
@@ -519,7 +524,8 @@ export class PrismaChannelsRepository implements ChannelsRepository {
        WHERE provider = ${provider}
        ORDER BY received_at DESC
        LIMIT ${limit}
-    `);
+    `),
+    );
     const uniqueIds = [...new Set(rows.map((r) => r.unique_id).filter((x): x is string => !!x))];
     const numbers = uniqueIds.length
       ? await this.prisma.db.reservation.findMany({
@@ -545,7 +551,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
    * значения — сообщение полной выгрузки содержит тысячи строк.
    */
   async recentOutbox(provider: string, limit: number): Promise<OutboxMessageRow[]> {
-    const rows = await this.prisma.db.channelOutbox.findMany({
+    const rows = await integrationTables(this.prisma.db).channelOutbox.findMany({
       where: { provider },
       orderBy: { createdAt: 'desc' },
       take: limit,
@@ -618,8 +624,8 @@ export class PrismaChannelsRepository implements ChannelsRepository {
         : {}),
     };
     const [total, rows] = await Promise.all([
-      this.prisma.db.externalEvent.count({ where }),
-      this.prisma.db.externalEvent.findMany({
+      integrationTables(this.prisma.db).externalEvent.count({ where }),
+      integrationTables(this.prisma.db).externalEvent.findMany({
         where,
         orderBy: { receivedAt: 'desc' },
         skip: q.offset,
@@ -676,7 +682,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     };
   }
   async eventByRevision(provider: string, revisionId: string) {
-    const r = await this.prisma.db.externalEvent.findUnique({
+    const r = await integrationTables(this.prisma.db).externalEvent.findUnique({
       where: { provider_externalEventId: { provider, externalEventId: revisionId } },
     });
     if (!r) return null;
@@ -730,7 +736,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     q: { status?: OutboxStatus | undefined; limit: number },
   ): Promise<OutboxListRow[]> {
     // Phase 1 изоляции (ADR-100 §17.2): очередь — только своего объекта (backfill 20260927000026)
-    const rows = await this.prisma.db.channelOutbox.findMany({
+    const rows = await integrationTables(this.prisma.db).channelOutbox.findMany({
       where: {
         provider,
         propertyId: await this.scopedPropertyId(),
@@ -755,15 +761,21 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     // Phase 1 изоляции (ADR-100 §17.2): сводка очереди — только своего объекта
     const propertyId = await this.scopedPropertyId();
     const [pending, failed, sent, last, oldest] = await Promise.all([
-      this.prisma.db.channelOutbox.count({ where: { provider, propertyId, status: 'PENDING' } }),
-      this.prisma.db.channelOutbox.count({ where: { provider, propertyId, status: 'FAILED' } }),
-      this.prisma.db.channelOutbox.count({ where: { provider, propertyId, status: 'SENT' } }),
-      this.prisma.db.channelOutbox.findFirst({
+      integrationTables(this.prisma.db).channelOutbox.count({
+        where: { provider, propertyId, status: 'PENDING' },
+      }),
+      integrationTables(this.prisma.db).channelOutbox.count({
+        where: { provider, propertyId, status: 'FAILED' },
+      }),
+      integrationTables(this.prisma.db).channelOutbox.count({
+        where: { provider, propertyId, status: 'SENT' },
+      }),
+      integrationTables(this.prisma.db).channelOutbox.findFirst({
         where: { provider, propertyId, status: 'SENT' },
         orderBy: { sentAt: 'desc' },
         select: { sentAt: true, taskId: true },
       }),
-      this.prisma.db.channelOutbox.findFirst({
+      integrationTables(this.prisma.db).channelOutbox.findFirst({
         where: { provider, propertyId, status: 'PENDING' },
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true },

@@ -2409,7 +2409,52 @@ let sellerState: 'ready' | 'not-configured' = 'ready';
 let sellerHosts: string[] = ['hotel-a.example.invalid'];
 let sellerLastError: string | null = null;
 let sellerRetrying = false;
+/** Каталог «ИИ-агентов» (SA1): названия черновиков гостевого мастера и ответ бота о WhatsApp (`unknown` — не ответил) */
+let sellerDrafts: string[] = [];
+let sellerWhatsAppUnknown = false;
+/** Сбой каталога: `POST /__test/control { sellerCatalogFails: true }` — экран «Не удалось загрузить агентов» */
+let sellerCatalogFails = false;
+/**
+ * Business Agents (SA2): Business «Сеть Тест» с филиалом «Алматы» (его держит рабочий продавец) и, по команде теста
+ * `sellerExtraLocation: true`, свободным «Астана». Созданные черновики живут здесь до сброса стенда.
+ */
+const AGENT_BUSINESS = { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Сеть Тест' };
+const AGENT_LOCATION_LEGACY = { id: 'c0000000-0000-4000-8000-0000000000aa', name: 'Алматы' };
+const AGENT_LOCATION_EXTRA = { id: 'c0000000-0000-4000-8000-0000000000ab', name: 'Астана' };
+let sellerExtraLocation = false;
+let sellerAgents: Array<{ id: string; name: string; locationId: string; lifecycle: string }> = [];
+/** Филиалы стенда для агентов: «Алматы» всегда занят рабочим продавцом, «Астана» — по команде теста */
+function agentLocations() {
+  return sellerExtraLocation ? [AGENT_LOCATION_LEGACY, AGENT_LOCATION_EXTRA] : [AGENT_LOCATION_LEGACY];
+}
+function agentLocationTaken(locationId: string) {
+  return (
+    locationId === AGENT_LOCATION_LEGACY.id ||
+    sellerAgents.some((a) => a.locationId === locationId && a.lifecycle !== 'archived')
+  );
+}
+/** Кнопка «+ Подключить AI-продавца»: те же слова и тот же порядок причин, что у сервера (`createAgentAvailability`) */
+function agentCreateState(access: string, canManage: boolean) {
+  if (access === 'off') return { enabled: false, reason: 'Расширение «ИИ-продавец» не подключено.' };
+  if (access === 'expired') return { enabled: false, reason: 'Срок расширения «ИИ-продавец» вышел.' };
+  if (!canManage) return { enabled: false, reason: 'Создавать агентов могут владелец и управляющий.' };
+  const locations = agentLocations();
+  const free = locations.filter((l) => !agentLocationTaken(l.id)).length;
+  if (free > 0) return { enabled: true, reason: null };
+  return {
+    enabled: false,
+    reason:
+      locations.length === 1
+        ? 'Нет свободного филиала. Для этого филиала AI-продавец уже создан.'
+        : 'Нет свободного филиала. Во всех филиалах AI-продавец уже создан.',
+  };
+}
 function resetSeller() {
+  sellerExtraLocation = false;
+  sellerAgents = [];
+  sellerDrafts = [];
+  sellerWhatsAppUnknown = false;
+  sellerCatalogFails = false;
   sellerProfile = structuredClone(sellerProfileSeed);
   sellerAppliedProfile = structuredClone(sellerProfileSeed);
   sellerSaved = false;
@@ -3911,6 +3956,18 @@ createServer(async (req, res) => {
       sellerLastError =
         typeof body['sellerLastError'] === 'string' ? body['sellerLastError'] : null;
       sellerRetrying = body['sellerRetrying'] === true;
+      // каталог «ИИ-агентов» (SA1): профиль применён, WhatsApp подключён или бот молчит, черновики мастера
+      if (body['sellerApplied'] === true) {
+        sellerSaved = true;
+        sellerApplied = true;
+        sellerUpdatedAt = new Date().toISOString();
+      }
+      if (body['sellerWhatsApp'] === 'on')
+        sellerWhatsApp = { phoneNumberId: '123456789', verifyToken: 'slovo-dlya-meta-ui' };
+      sellerWhatsAppUnknown = body['sellerWhatsApp'] === 'unknown';
+      sellerCatalogFails = body['sellerCatalogFails'] === true;
+      sellerExtraLocation = body['sellerExtraLocation'] === true;
+      sellerDrafts = Array.isArray(body['sellerDrafts']) ? (body['sellerDrafts'] as string[]).map(String) : [];
       // роль вошедшего, отметка главного администратора и расширение своей гостиницы (ADR-083)
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
@@ -4695,7 +4752,12 @@ createServer(async (req, res) => {
               path.startsWith('/ai-seller/whatsapp')
             ? 'configure'
             : 'act';
-      if (path !== '/ai-seller/status') {
+      // статус и каталог отвечают при любом расширении: страница объясняет, а не падает
+      if (
+        path !== '/ai-seller/status' &&
+        path !== '/ai-seller/catalog' &&
+        !path.startsWith('/ai-seller/agents')
+      ) {
         if (sellerUse === 'configure' && !sellerOwner)
           return send(403, { message: 'Настройки продавца меняют владелец и управляющий' });
         if (extension.access === 'off')
@@ -4715,10 +4777,146 @@ createServer(async (req, res) => {
         updatedAt: sellerUpdatedAt,
         applied: sellerApplied,
       });
+      // Business Agents (SA2): создание черновика и страница его состояния
+      if (path.startsWith('/ai-seller/agents')) {
+        const agentView = (a: (typeof sellerAgents)[number]) => ({
+          id: a.id,
+          name: a.name,
+          lifecycle: a.lifecycle,
+          business: AGENT_BUSINESS,
+          location: agentLocations().find((l) => l.id === a.locationId) ?? AGENT_LOCATION_LEGACY,
+          setup: [
+            { code: 'basics', label: 'Основное', done: true },
+            { code: 'behavior', label: 'Поведение', done: false },
+            { code: 'knowledge', label: 'Знания', done: false },
+            { code: 'data', label: 'Данные WETOP', done: false },
+            { code: 'whatsapp', label: 'WhatsApp', done: false },
+            { code: 'testing', label: 'Тестирование', done: false },
+            { code: 'launch', label: 'Запуск', done: false },
+          ],
+          createdAt: '2026-09-30T08:00:00.000Z',
+          updatedAt: '2026-09-30T08:00:00.000Z',
+        });
+        if (path === '/ai-seller/agents/options' && req.method === 'GET') {
+          const state = agentCreateState(extension.access, sellerOwner);
+          return send(200, {
+            extension,
+            canCreate: state.enabled,
+            reason: state.reason,
+            businesses:
+              extension.access === 'off'
+                ? []
+                : [
+                    {
+                      ...AGENT_BUSINESS,
+                      locations: agentLocations().map((l) => ({
+                        ...l,
+                        free: !agentLocationTaken(l.id),
+                        reason: agentLocationTaken(l.id) ? 'Для этого филиала AI-продавец уже создан.' : null,
+                      })),
+                    },
+                  ],
+          });
+        }
+        if (path === '/ai-seller/agents' && req.method === 'POST') {
+          if (!sellerOwner) return send(403, { message: 'Создавать агентов могут владелец и управляющий.' });
+          const key = String(req.headers['idempotency-key'] ?? '');
+          if (!/^[0-9a-f-]{36}$/i.test(key)) return send(400, { message: 'Обновите форму и повторите.' });
+          if (extension.access === 'off')
+            return send(403, { message: 'Расширение «ИИ-продавец» не подключено.' });
+          if (extension.access === 'expired')
+            return send(403, { message: 'Срок расширения «ИИ-продавец» вышел.' });
+          const org = uiUser.organization;
+          if (org.status === 'TRIAL' && org.trialEndsAt && Date.parse(org.trialEndsAt) < Date.now())
+            return send(403, { message: 'Организация в режиме «только чтение»: менять данные можно после оплаты.' });
+          const name = String(body['name'] ?? '').trim();
+          if (name === '') return send(400, { message: 'Введите название агента.' });
+          const location = agentLocations().find((l) => l.id === body['locationId']);
+          if (body['businessId'] !== AGENT_BUSINESS.id || !location)
+            return send(404, { message: 'Филиал не найден' });
+          const existing = sellerAgents.find((a) => a.id === key);
+          if (existing) return send(201, agentView(existing));
+          if (agentLocationTaken(location.id))
+            return send(409, {
+              message: 'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
+            });
+          const created = { id: key, name, locationId: location.id, lifecycle: 'draft' };
+          sellerAgents.push(created);
+          return send(201, agentView(created));
+        }
+        const one = path.match(/^\/ai-seller\/agents\/([^/]+)$/);
+        if (one) {
+          const found = sellerAgents.find((a) => a.id === one[1]);
+          if (!found) return send(404, { message: 'Агент не найден' });
+          if (req.method === 'GET') return send(200, agentView(found));
+        }
+        return send(404, { message: 'Маршрут не найден' });
+      }
       const dialog = path.match(
         /^\/ai-seller\/conversations\/([^/]+)(?:\/(takeover|release|reply))?$/,
       );
       if (req.method === 'GET') {
+        if (path === '/ai-seller/catalog') {
+          if (sellerCatalogFails) return send(500, { message: 'Каталог агентов недоступен' });
+          const access = extension.access;
+          const status =
+            access === 'expired'
+              ? 'SUBSCRIPTION_INACTIVE'
+              : sellerState === 'not-configured'
+                ? 'BOT_OFFLINE'
+                : sellerApplied
+                  ? 'WORKING'
+                  : 'NOT_CONFIGURED';
+          return send(200, {
+            extension,
+            canManage: sellerOwner,
+            canConfigure: sellerOwner && access === 'active',
+            create: agentCreateState(access, sellerOwner),
+            agents:
+              access === 'off'
+                ? []
+                : [
+                    {
+                      id: 'seller',
+                      kind: 'seller',
+                      name: 'AI-продавец',
+                      status,
+                      business: { id: 'b0000000-0000-4000-8000-0000000000aa', name: 'Сеть Тест' },
+                      location: { id: 'c0000000-0000-4000-8000-0000000000aa', name: 'Алматы' },
+                      channels: {
+                        site: sellerHosts.length > 0 ? 'ON' : 'OFF',
+                        whatsapp:
+                          sellerState === 'not-configured' || sellerWhatsAppUnknown
+                            ? 'UNKNOWN'
+                            : sellerWhatsApp
+                              ? 'ON'
+                              : 'OFF',
+                      },
+                    },
+                    ...sellerAgents
+                      .slice()
+                      .reverse()
+                      .map((a) => ({
+                        id: a.id,
+                        kind: 'agent',
+                        name: a.name,
+                        status: 'DRAFT',
+                        business: AGENT_BUSINESS,
+                        location: agentLocations().find((l) => l.id === a.locationId) ?? null,
+                        channels: null,
+                      })),
+                    ...sellerDrafts.map((name, i) => ({
+                      id: `d0000000-0000-4000-8000-00000000000${i}`,
+                      kind: 'draft',
+                      name,
+                      status: 'DRAFT',
+                      business: null,
+                      location: null,
+                      channels: null,
+                    })),
+                  ],
+          });
+        }
         if (path === '/ai-seller/status')
           return send(200, {
             state:

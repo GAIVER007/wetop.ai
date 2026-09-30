@@ -21,7 +21,8 @@ from pydantic import BaseModel, ConfigDict
 
 from src import dependencies
 from src.config import Settings
-from src.dashboard.auth_router import request_org
+from src.agent_scope import AgentScope
+from src.dashboard.auth_router import request_agent
 from src.dashboard.panel_common import iso, log_action, mask_name, sessions
 from src.db.base import ConversationMode, MessageRole, utcnow
 from src.db.models import Client, Conversation, Message
@@ -39,15 +40,25 @@ class ReplyIn(BaseModel):
     text: str
 
 
-def build_reply_sender(settings: Settings):
+def build_reply_sender(
+    settings: Settings, channel: str | None = None, agent: uuid.UUID | None = None
+):
     """Отправитель канала для реплики оператора.
 
-    Тот же отправитель, что у движка: реплика оператора уходит клиенту ровно
-    тем же путём, что ответ бота, и видна тем же опросом виджета. Очереди
-    здесь нет намеренно — виджет работает вытягиванием, доставка это запись
-    в историю. Импорт внутри: модуль канала не нужен тем, кто подменяет
-    отправителя в тестах.
+    🔴 Реплика уходит тем же путём, что ответ бота в ЭТОМ канале. Виджет вытягивает
+    сообщения сам: доставка там — запись в историю, очереди нет намеренно. WhatsApp
+    так не работает: гость получит текст, только если он ушёл в Graph API токеном
+    гостиницы диалога (BUG-WA-1, Q-SA-7). Раньше любой канал шёл через виджетного
+    отправителя, и оператор видел «отправлено» там, где гость ничего не получил.
+    Импорт внутри: модуль канала не нужен тем, кто подменяет отправителя в тестах.
     """
+    from src.channels.whatsapp import CHANNEL as WHATSAPP_CHANNEL
+
+    if channel == WHATSAPP_CHANNEL:
+        from src.channels.whatsapp import WhatsAppSender
+
+        return WhatsAppSender(dependencies.get_sessionmaker(), settings, agent)
+
     from src.channels.widget import WidgetSender
 
     return WidgetSender(redis=dependencies.get_redis())
@@ -81,10 +92,10 @@ async def list_conversations(
     nonempty: bool = False,
     closed: bool | None = None,
     limit: int = 50,
-    org: uuid.UUID | None = Depends(request_org),
+    scope: AgentScope | None = Depends(request_agent),
 ) -> dict:
     """Список диалогов. 🔴 Телефона в ответе нет, имя маскировано.
-    У продавца — только диалоги организации из X-Organization (Э4).
+    У продавца — только диалоги АГЕНТА запроса (SA2.5: X-Organization + X-Agent).
 
     Очередь техподдержки (S1): `nonempty` — без диалогов без сообщений, `queue=new` — начатые за сутки,
     `queue=waiting` — последнее слово за пользователем, `closed` — закрытые (`is_active = false`) или открытые;
@@ -130,8 +141,8 @@ async def list_conversations(
     )
     if wanted is not None:
         stmt = stmt.where(Conversation.mode == wanted)
-    if org is not None:
-        stmt = stmt.where(Conversation.organization_id == org)
+    if scope is not None:
+        stmt = stmt.where(Conversation.agent_id == scope.agent_id)
     if nonempty:
         stmt = stmt.where(counts.c.n > 0)
     if closed is not None:
@@ -193,18 +204,18 @@ async def _last_messages(session, conversation_ids: list[uuid.UUID]) -> dict[uui
     }
 
 
-def _foreign(conv: Conversation | None, org: uuid.UUID | None) -> bool:
-    """Чужой диалог для организации запроса — как несуществующий (Э4):
-    404 не подтверждает чужому даже сам факт диалога."""
-    return conv is not None and org is not None and conv.organization_id != org
+def _foreign(conv: Conversation | None, scope: AgentScope | None) -> bool:
+    """Чужой диалог для АГЕНТА запроса — как несуществующий (Э4, SA2.5): диалог другой гостиницы и другого агента той же
+    гостиницы 404 не подтверждает даже как факт."""
+    return conv is not None and scope is not None and conv.agent_id != scope.agent_id
 
 
 @router.get("/conversations/{conv_id}")
-async def conversation_card(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
+async def conversation_card(conv_id: uuid.UUID, scope: AgentScope | None = Depends(request_agent)) -> dict:
     """Карточка: контакт целиком — оператор за ним и пришёл."""
     async with sessions()() as session:
         conv = await session.get(Conversation, conv_id)
-        if conv is None or _foreign(conv, org):
+        if conv is None or _foreign(conv, scope):
             raise HTTPException(status_code=404, detail="диалог не найден")
         client = await session.get(Client, conv.client_id)
         stmt = sa.select(Message).where(Message.conversation_id == conv_id).order_by(Message.created_at)
@@ -230,12 +241,12 @@ async def conversation_card(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(
 
 
 async def _switch_mode(
-    conv_id: uuid.UUID, target: ConversationMode, action: str, org: uuid.UUID | None
+    conv_id: uuid.UUID, target: ConversationMode, action: str, scope: AgentScope | None
 ) -> dict:
     """Смена режима руками оператора + запись прежнего значения в журнал."""
     async with sessions()() as session:
         conv = await session.get(Conversation, conv_id)
-        if conv is None or _foreign(conv, org):
+        if conv is None or _foreign(conv, scope):
             raise HTTPException(status_code=404, detail="диалог не найден")
         previous = conv.mode.value
         conv.mode = target
@@ -245,24 +256,24 @@ async def _switch_mode(
 
 
 @router.post("/conversations/{conv_id}/takeover")
-async def takeover(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
+async def takeover(conv_id: uuid.UUID, scope: AgentScope | None = Depends(request_agent)) -> dict:
     """Перехват: дальше отвечает человек."""
-    return await _switch_mode(conv_id, ConversationMode.OWNER_TAKEOVER, "takeover", org)
+    return await _switch_mode(conv_id, ConversationMode.OWNER_TAKEOVER, "takeover", scope)
 
 
 @router.post("/conversations/{conv_id}/release")
-async def release(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
+async def release(conv_id: uuid.UUID, scope: AgentScope | None = Depends(request_agent)) -> dict:
     """Возврат боту — тоже кнопкой, а не по таймеру."""
-    return await _switch_mode(conv_id, ConversationMode.BOT_ACTIVE, "release", org)
+    return await _switch_mode(conv_id, ConversationMode.BOT_ACTIVE, "release", scope)
 
 
 @router.post("/conversations/{conv_id}/close")
-async def close(conv_id: uuid.UUID, org: uuid.UUID | None = Depends(request_org)) -> dict:
+async def close(conv_id: uuid.UUID, scope: AgentScope | None = Depends(request_agent)) -> dict:
     """Закрыть обращение: диалог уходит в «Закрытые» с перепиской, следующее сообщение того же человека
     откроет новый диалог — движок и виджет ищут диалог клиента по `is_active`."""
     async with sessions()() as session:
         conv = await session.get(Conversation, conv_id)
-        if conv is None or _foreign(conv, org):
+        if conv is None or _foreign(conv, scope):
             raise HTTPException(status_code=404, detail="диалог не найден")
         was_active = conv.is_active
         conv.is_active = False
@@ -281,7 +292,7 @@ async def reply(
     conv_id: uuid.UUID,
     body: ReplyIn,
     request: Request,
-    org: uuid.UUID | None = Depends(request_org),
+    scope: AgentScope | None = Depends(request_agent),
 ) -> dict:
     """Реплика оператора в канал клиента."""
     text = body.text.strip()
@@ -290,12 +301,13 @@ async def reply(
 
     async with sessions()() as session:
         conv = await session.get(Conversation, conv_id)
-        if conv is None or _foreign(conv, org):
+        if conv is None or _foreign(conv, scope):
             raise HTTPException(status_code=404, detail="диалог не найден")
         client = await session.get(Client, conv.client_id)
         channel, external_id = client.channel, client.external_id
+        conv_agent = conv.agent_id or (scope.agent_id if scope else None)
 
-    sender = build_reply_sender(request.app.state.settings)
+    sender = build_reply_sender(request.app.state.settings, channel=channel, agent=conv_agent)
     result = await sender.send(channel=channel, external_id=external_id, text=text)
     if not result.ok:
         # 🔴 В историю не пишем: иначе оператор видит отправленным то, что

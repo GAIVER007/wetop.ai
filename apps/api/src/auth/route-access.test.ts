@@ -178,6 +178,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
 
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',
+  'GET /ai-seller/catalog': 'dialogs',
+  'GET /ai-seller/agents/options': 'dialogs',
+  'POST /ai-seller/agents': 'seller',
+  'GET /ai-seller/agents/:id': 'dialogs',
   'GET /ai-seller/summary': 'dialogs',
   'GET /ai-seller/conversations': 'dialogs',
   'GET /ai-seller/conversations/:id': 'dialogs',
@@ -248,6 +252,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /w/book': 'public',
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
+  'GET /bot/agent-origins': 'public',
   'POST /wizard/session': 'public',
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',

@@ -1,4 +1,4 @@
--- Откат 20260930000035_direct_sales_discounts: убрать промокод и производные тарифы. Обычные тарифы и брони не
+-- Откат 20260930000037_direct_sales_discounts: убрать промокод и производные тарифы. Обычные тарифы и брони не
 -- затрагиваются; данные промокодов и связей производных тарифов теряются — перед откатом снять копию (`docs/deploy.md`).
 ALTER TABLE "reservations" DROP CONSTRAINT IF EXISTS "reservations_promo_code_id_fkey";
 DROP INDEX IF EXISTS "reservations_promo_code_id_idx";

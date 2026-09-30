@@ -56,7 +56,8 @@ export class SellerAgentsService {
     const { organizationId } = await this.owner();
     return {
       items: await this.prisma.db.sellerAgent.findMany({
-        where: { organizationId },
+        // Рабочий продавец (`id = organization_id`, DATA_MODEL §20.4) — не черновик мастера, в редакторе его нет
+        where: { organizationId, NOT: { id: organizationId } },
         orderBy: { createdAt: 'desc' },
         take: 100,
         select: {
@@ -77,7 +78,9 @@ export class SellerAgentsService {
   async get(id: string) {
     this.validId(id);
     const { organizationId } = await this.owner();
-    const agent = await this.prisma.db.sellerAgent.findFirst({ where: { id, organizationId } });
+    const agent = await this.prisma.db.sellerAgent.findFirst({
+      where: { id: { equals: id, not: organizationId }, organizationId },
+    });
     if (!agent) throw new NotFoundException('Агент не найден');
     return { ...agent, profile: agent.profile as Record<string, string> };
   }
@@ -95,7 +98,9 @@ export class SellerAgentsService {
     const expected = new Date(input.updatedAt);
     const name = profile.assistantName || profile.businessName;
     return this.prisma.db.$transaction(async (tx) => {
-      const before = await tx.sellerAgent.findFirst({ where: { id, organizationId } });
+      const before = await tx.sellerAgent.findFirst({
+        where: { id: { equals: id, not: organizationId }, organizationId },
+      });
       if (!before) throw new NotFoundException('Агент не найден');
       if (before.lifecycle !== 'draft')
         throw new ConflictException('Настройки работающего агента меняются через публикацию');

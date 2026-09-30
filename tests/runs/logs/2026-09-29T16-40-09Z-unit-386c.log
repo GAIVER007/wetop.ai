@@ -1,0 +1,31 @@
+# Модульные (unit) · 29.09.2026 21:40 Алматы · vm
+# коммит 068cf57 (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-40-09Z-unit-386c.json' 'apps/web/src/lib/ai-agents.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/ai-agents.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/ai-agents.test.ts [ apps/web/src/lib/ai-agents.test.ts ]
+Error: Cannot find module './ai-agents' imported from /home/user/wetop.ai/apps/web/src/lib/ai-agents.test.ts
+ ❯ apps/web/src/lib/ai-agents.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { AgentCardView, AgentCatalogView } from './api';
+      3| import {
+       | ^
+      4|   SECOND_SELLER_REASON,
+      5|   catalogButton,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  16:40:10
+   Duration  178ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-40-09Z-unit-386c.json
+
+# код выхода 1 · 1 с

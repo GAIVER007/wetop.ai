@@ -4483,6 +4483,24 @@
 | 29.09.2026 21:28 | unit | ❌ упало 1 из 2428, пропущено 3 | 1 мин 43 с | 27beec3 | [лог](logs/2026-09-29T16-28-48Z-unit-470d.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 29.09.2026 21:30 | integration | ❌ код выхода 1 | 1 с | 27beec3 | [лог](logs/2026-09-29T16-30-32Z-integration-5dbf.log) |  |
 | 29.09.2026 21:31 | integration | ✅ 131 из 131 | 44 с | 27beec3 | [лог](logs/2026-09-29T16-31-00Z-integration-4b22.log) |  |
+| 29.09.2026 21:36 | unit (частично: packages/domain/src/ai-agents) | ❌ код выхода 1 | 1 с | 068cf57 +2 | [лог](logs/2026-09-29T16-36-07Z-unit-0dcd.log) | SA1 red: домен каталога агентов, модуля ещё нет |
+| 29.09.2026 21:36 | unit (частично: packages/domain/src/ai-agents) | ✅ 7 из 7 | 1 с | 068cf57 +4 | [лог](logs/2026-09-29T16-36-16Z-unit-20a9.log) | SA1 green: домен каталога агентов |
+| 29.09.2026 21:37 | unit (частично: apps/api/src/ai-seller/ai-seller.controller.test.ts) | ❌ упало 12 из 62 | 3 с | 068cf57 +7 | [лог](logs/2026-09-29T16-37-07Z-unit-62d4.log) | SA1 red: /ai-seller/catalog ещё нет |
+| 29.09.2026 21:38 | unit (частично: apps/api/src/ai-seller apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 91 | 4 с | 068cf57 +11 | [лог](logs/2026-09-29T16-38-04Z-unit-9e5a.log) | SA1 green: каталог агентов в API |
+| 29.09.2026 21:38 | unit (частично: apps/api/src/ai-seller apps/api/src/auth/route-access.test.ts) | ✅ 91 из 91 | 4 с | 068cf57 +12 | [лог](logs/2026-09-29T16-38-13Z-unit-c2ab.log) | SA1 green: каталог агентов в API, таблица прав |
+| 29.09.2026 21:39 | integration (частично: tests/integration/seller-catalog.test.ts) | ❌ упало 2 из 3 | 3 с | 068cf57 +13 | [лог](logs/2026-09-29T16-39-17Z-integration-7bdc.log) | SA1 red (мутация): раннее правило и отбор по организации сломаны |
+| 29.09.2026 21:39 | integration (частично: tests/integration/seller-catalog.test.ts) | ✅ 3 из 3 | 3 с | 068cf57 +13 | [лог](logs/2026-09-29T16-39-20Z-integration-e80d.log) | SA1 green: запросы каталога агентов на локальной PostgreSQL 16 |
+| 29.09.2026 21:40 | unit (частично: apps/web/src/lib/ai-agents.test.ts) | ❌ код выхода 1 | 1 с | 068cf57 +14 | [лог](logs/2026-09-29T16-40-09Z-unit-386c.log) | SA1 red: слова и кнопки каталога, модуля ещё нет |
+| 29.09.2026 21:40 | unit (частично: apps/web/src/lib/ai-agents.test.ts) | ✅ 8 из 8 | 1 с | 068cf57 +15 | [лог](logs/2026-09-29T16-40-22Z-unit-8733.log) | SA1 green: слова и кнопки каталога |
+| 29.09.2026 21:41 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 7 из 26 | 3 мин 15 с | 068cf57 +17 | [лог](logs/2026-09-29T16-41-35Z-e2e-3006.log) | SA1 red: страница каталога ещё старая |
+| 29.09.2026 21:45 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 26 из 26 | 1 мин 17 с | 068cf57 +18 | [лог](logs/2026-09-29T16-45-31Z-e2e-4243.log) | SA1 green: каталог ИИ-агентов, страница /ai-agents |
+| 29.09.2026 21:47 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1 -g каталог не загрузился) | ❌ упало 1 из 1 | 23 с | 068cf57 +19 | [лог](logs/2026-09-29T16-47-35Z-e2e-319c.log) | SA1 red: состояние сбоя каталога, стенд сбой ещё не отдаёт |
+| 29.09.2026 21:48 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 27 из 27 | 1 мин 17 с | 068cf57 +19 | [лог](logs/2026-09-29T16-48-17Z-e2e-66d9.log) | SA1 green: каталог ИИ-агентов, отступы и сбой каталога |
+| 29.09.2026 21:49 | e2e (частично: tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts tests/ui/platform-access.spec.ts tests/ui | ✅ 129 из 129 | 12 мин 58 с | 068cf57 +20 | [лог](logs/2026-09-29T16-49-55Z-e2e-cb2e.log) | SA1: связанные UI-спеки (каталог, бюджет запросов, меню, роли, платформа, продавец) |
+| 29.09.2026 22:03 | typecheck | ✅ без ошибок | 22 с | 068cf57 +21 | [лог](logs/2026-09-29T17-03-03Z-typecheck-bd25.log) |  |
+| 29.09.2026 22:03 | lint | ✅ без ошибок | 16 с | 068cf57 +21 | [лог](logs/2026-09-29T17-03-26Z-lint-c1c6.log) |  |
+| 29.09.2026 22:03 | unit | ❌ упало 1 из 2455, пропущено 3 | 1 мин 35 с | 068cf57 +18 | [лог](logs/2026-09-29T17-03-43Z-unit-8dfa.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 29.09.2026 22:05 | integration | ✅ 134 из 134 | 40 с | 068cf57 +14 | [лог](logs/2026-09-29T17-05-18Z-integration-1c63.log) |  |
 | 29.09.2026 21:50 | typecheck | ✅ без ошибок | 25 с | f4cd39b | [лог](logs/2026-09-29T16-50-14Z-typecheck-7ce0.log) | S5 после слияния main 70cdb2b6 |
 | 29.09.2026 21:50 | lint | ✅ без ошибок | 19 с | f4cd39b | [лог](logs/2026-09-29T16-50-39Z-lint-1a2f.log) | S5 после слияния main |
 | 29.09.2026 21:50 | unit (частично: apps/api/src/assistant apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 96 из 96 | 5 с | f4cd39b | [лог](logs/2026-09-29T16-50-59Z-unit-2b46.log) | S5 после слияния main: помощник, права, домен |
@@ -4535,10 +4553,42 @@
 | 30.09.2026 11:30 | unit | ❌ упало 1 из 2489, пропущено 3 | 1 мин 46 с | 36b8715 +4 | [лог](logs/2026-09-30T06-30-49Z-unit-3a13.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 30.09.2026 11:44 | typecheck | ✅ без ошибок | 34 с | 96a1c89 +2 | [лог](logs/2026-09-30T06-44-31Z-typecheck-44cd.log) |  |
 | 30.09.2026 11:45 | lint | ✅ без ошибок | 29 с | 96a1c89 +2 | [лог](logs/2026-09-30T06-45-05Z-lint-0251.log) |  |
+| 29.09.2026 22:07 | typecheck | ✅ без ошибок | 31 с | 49abb6e | [лог](logs/2026-09-29T17-07-45Z-typecheck-308f.log) |  |
+| 29.09.2026 22:08 | lint | ✅ без ошибок | 16 с | 49abb6e | [лог](logs/2026-09-29T17-08-17Z-lint-bcde.log) |  |
+| 29.09.2026 22:08 | unit (частично: apps/api/src/ai-seller apps/api/src/auth packages/domain/src/ai-agents apps/web/src/lib/ai-agents.test.ts) | ✅ 293 из 293 | 9 с | 49abb6e | [лог](logs/2026-09-29T17-08-34Z-unit-cfe4.log) |  |
 | 29.09.2026 22:24 | unit | ✅ 2446 из 2449, пропущено 3 | 1 мин 26 с | 3397f85 | [лог](logs/2026-09-29T17-24-27Z-unit-9d6b.log) |  |
 | 29.09.2026 22:25 | typecheck | ✅ без ошибок | 23 с | 3397f85 | [лог](logs/2026-09-29T17-25-53Z-typecheck-abdc.log) |  |
 | 29.09.2026 22:26 | lint | ✅ без ошибок | 19 с | 3397f85 | [лог](logs/2026-09-29T17-26-17Z-lint-cfe4.log) |  |
 | 29.09.2026 22:26 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 24 из 24 | 27 с | 3397f85 +1 | [лог](logs/2026-09-29T17-26-55Z-e2e-7b48.log) |  |
+| 29.09.2026 22:35 | typecheck | ✅ без ошибок | 31 с | 834bb52 | [лог](logs/2026-09-29T17-35-45Z-typecheck-e244.log) |  |
+| 29.09.2026 22:36 | lint | ✅ без ошибок | 20 с | 834bb52 | [лог](logs/2026-09-29T17-36-17Z-lint-ca73.log) |  |
+| 29.09.2026 22:36 | unit | ✅ 2473 из 2476, пропущено 3 | 1 мин 24 с | 834bb52 | [лог](logs/2026-09-29T17-36-37Z-unit-fba7.log) |  |
+| 29.09.2026 22:38 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 27 из 27 | 3 мин 9 с | 834bb52 | [лог](logs/2026-09-29T17-38-02Z-e2e-9b2c.log) | SA1 после слияния main (шкала шрифтов) |
+| 30.09.2026 00:19 | typecheck | ✅ без ошибок | 39 с | 8825509 | [лог](logs/2026-09-29T19-19-55Z-typecheck-7252.log) | S5+S6 после слияния main f0fedbeb |
+| 30.09.2026 00:20 | lint | ✅ без ошибок | 24 с | 8825509 | [лог](logs/2026-09-29T19-20-35Z-lint-aa90.log) | S5+S6 после слияния main |
+| 30.09.2026 00:21 | unit (частично: apps/api/src/assistant apps/api/src/platform apps/api/src/auth/route-access.test.ts packages/domain/src/assistant) | ✅ 144 из 144 | 10 с | 8825509 | [лог](logs/2026-09-29T19-21-00Z-unit-64b8.log) | S5+S6 после слияния main: помощник, платформа, права, домен |
+| 30.09.2026 01:20 | typecheck | ✅ без ошибок | 35 с | 34525e7 | [лог](logs/2026-09-29T20-20-31Z-typecheck-516c.log) |  |
+| 30.09.2026 01:21 | lint | ✅ без ошибок | 20 с | 34525e7 | [лог](logs/2026-09-29T20-21-06Z-lint-9f31.log) |  |
+| 30.09.2026 01:21 | unit | ✅ 2505 из 2508, пропущено 3 | 1 мин 24 с | 34525e7 | [лог](logs/2026-09-29T20-21-27Z-unit-31a8.log) |  |
+| 30.09.2026 01:22 | e2e (частично: tests/ui/ai-agents.spec.ts --config tests/ui/playwright.config.ts --workers=1) | ✅ 27 из 27 | 1 мин 36 с | 34525e7 | [лог](logs/2026-09-29T20-22-52Z-e2e-e97a.log) | SA1 после слияния main (S5, S6) |
+| 30.09.2026 11:40 | integration (частично: tests/integration/business-agent-identity.test.ts) | ❌ упало 11 из 11 | 7 с | f177acf +1 | [лог](logs/2026-09-30T06-40-37Z-integration-158d.log) | Business Agent: личность и перенос (integration, DATABASE_URL required) перенос существующего продавца (seller_agents_backfill) рабочий продавец с принятым проф |
+| 30.09.2026 11:40 | integration (частично: tests/integration/business-agent-identity.test.ts) | ❌ упало 11 из 11 | 5 с | f177acf +1 | [лог](logs/2026-09-30T06-40-49Z-integration-1e3d.log) | Business Agent: личность и перенос (integration, DATABASE_URL required) перенос существующего продавца (seller_agents_backfill) рабочий продавец с принятым проф |
+| 30.09.2026 11:42 | integration (частично: tests/integration/business-agent-identity.test.ts) | ❌ упало 8 из 12 | 4 с | f177acf +4 | [лог](logs/2026-09-30T06-42-33Z-integration-e2f5.log) | Business Agent: личность и перенос (integration, DATABASE_URL required) перенос существующего продавца (seller_agents_backfill) рабочий продавец с принятым проф |
+| 30.09.2026 11:42 | integration (частично: tests/integration/business-agent-identity.test.ts) | ✅ 12 из 12 | 3 с | f177acf +4 | [лог](logs/2026-09-30T06-42-43Z-integration-42d5.log) |  |
+| 30.09.2026 11:42 | integration (частично: tests/integration/business-agent-identity.test.ts) | ✅ 12 из 12 | 3 с | f177acf +4 | [лог](logs/2026-09-30T06-42-54Z-integration-1ea7.log) |  |
+| 30.09.2026 11:43 | integration (частично: tests/integration/business-agent-identity.test.ts) | ✅ 12 из 12 | 3 с | f177acf +2 | [лог](logs/2026-09-30T06-43-14Z-integration-fc91.log) |  |
+| 30.09.2026 11:43 | integration (частично: tests/integration/business-agent-identity.test.ts) | ❌ упало 12 из 12 | 4 с | f177acf +2 | [лог](logs/2026-09-30T06-43-35Z-integration-10d5.log) | Business Agent: личность и перенос (integration, DATABASE_URL required) перенос существующего продавца (seller_agents_backfill) рабочий продавец с принятым проф |
+| 30.09.2026 11:43 | integration (частично: tests/integration/business-agent-identity.test.ts tests/integration/seller-catalog.test.ts tests/integration/seller-profiles.test.ts test | ❌ упало 5 из 25 | 7 с | f177acf +4 | [лог](logs/2026-09-30T06-43-53Z-integration-de4a.log) | seller_profiles и факты объекта (integration, DATABASE_URL required) первая правка заводит строку организации и пишет журнал: до — пусто, после — поля |
+| 30.09.2026 11:44 | integration (частично: tests/integration/business-agent-identity.test.ts tests/integration/seller-catalog.test.ts tests/integration/seller-profiles.test.ts test | ✅ 26 из 26 | 6 с | f177acf +4 | [лог](logs/2026-09-30T06-44-25Z-integration-7aff.log) |  |
+| 30.09.2026 11:51 | integration (частично: tests/integration/seller-catalog.test.ts) | ❌ упало 2 из 6 | 4 с | f177acf +5 | [лог](logs/2026-09-30T06-51-52Z-integration-a952.log) | каталог AI-агентов (integration, DATABASE_URL required) после переноса продавца в агента (DATA_MODEL §20, SA1.6) placement: филиал перенесённого агента важнее с |
+| 30.09.2026 11:52 | integration (частично: tests/integration/seller-catalog.test.ts) | ✅ 6 из 6 | 4 с | f177acf +6 | [лог](logs/2026-09-30T06-52-02Z-integration-bea7.log) |  |
+| 30.09.2026 11:58 | integration (частично: tests/integration/seller-agents-migrated.test.ts) | ❌ упало 3 из 3 | 4 с | f177acf +7 | [лог](logs/2026-09-30T06-58-23Z-integration-62b2.log) | редактор мастера и перенесённый продавец (integration, DATABASE_URL required) список редактора: только черновики мастера, рабочего продавца нет |
+| 30.09.2026 11:58 | integration (частично: tests/integration/seller-agents-migrated.test.ts) | ❌ упало 2 из 3 | 4 с | f177acf +7 | [лог](logs/2026-09-30T06-58-32Z-integration-c4f5.log) | редактор мастера и перенесённый продавец (integration, DATABASE_URL required) список редактора: только черновики мастера, рабочего продавца нет |
+| 30.09.2026 11:58 | integration (частично: tests/integration/seller-agents-migrated.test.ts tests/integration/wizard-claim.test.ts) | ✅ 4 из 4 | 4 с | f177acf +8 | [лог](logs/2026-09-30T06-58-41Z-integration-a030.log) |  |
+| 30.09.2026 11:59 | unit | ✅ 2506 из 2509, пропущено 3 | 1 мин 49 с | f177acf +9 | [лог](logs/2026-09-30T06-59-39Z-unit-fdda.log) |  |
+| 30.09.2026 12:01 | integration | ✅ 165 из 165 | 50 с | f177acf +8 | [лог](logs/2026-09-30T07-01-41Z-integration-408a.log) |  |
+| 30.09.2026 12:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts --workers=1) | ❌ код выхода 1 | 2 мин 2 с | f177acf +9 | [лог](logs/2026-09-30T07-04-04Z-e2e-843c.log) | (ошибка вне тестов) |
+| 30.09.2026 12:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 55 из 55 | 2 мин 52 с | f177acf +9 | [лог](logs/2026-09-30T07-06-15Z-e2e-e085.log) |  |
 | 29.09.2026 23:24 | typecheck | ✅ без ошибок | 29 с | f0fedbe +3 | [лог](logs/2026-09-29T18-24-02Z-typecheck-9b90.log) |  |
 | 29.09.2026 23:24 | unit | ✅ 2446 из 2449, пропущено 3 | 1 мин 49 с | f0fedbe +3 | [лог](logs/2026-09-29T18-24-31Z-unit-f856.log) |  |
 | 30.09.2026 01:32 | typecheck | ✅ без ошибок | 33 с | f0fedbe +4 | [лог](logs/2026-09-29T20-32-34Z-typecheck-4f1c.log) |  |
@@ -4622,3 +4672,30 @@
 | 29.09.2026 20:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservation-promo-field.spec.ts) | ❌ упало 1 из 2 | 2 мин 13 с | 57999eb +1 | [лог](logs/2026-09-29T15-58-20Z-e2e-ead0.log) | промокод из формы уходит в запрос брони |
 | 29.09.2026 21:00 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservation-promo-field.spec.ts tests/ui/channel-booking-number.spec.ts tests/ui/manual-reservati | ❌ упало 1 из 3 | 25 с | 57999eb +3 | [лог](logs/2026-09-29T16-00-36Z-e2e-9341.log) | промокод из формы уходит в запрос брони |
 | 29.09.2026 21:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservation-promo-field.spec.ts tests/ui/channel-booking-number.spec.ts tests/ui/manu | ✅ 11 из 11 | 7 мин 38 с | 57999eb +3 | [лог](logs/2026-09-29T16-01-58Z-e2e-250c.log) |  |
+| 30.09.2026 12:14 | unit | ✅ 2508 из 2511, пропущено 3 | 1 мин 41 с | bea1ca2 | [лог](logs/2026-09-30T07-14-14Z-unit-0610.log) |  |
+| 30.09.2026 12:16 | integration | ✅ 165 из 165 | 52 с | bea1ca2 | [лог](logs/2026-09-30T07-16-09Z-integration-5afd.log) |  |
+| 30.09.2026 12:17 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 55 из 55 | 2 мин 46 с | bea1ca2 | [лог](logs/2026-09-30T07-17-04Z-e2e-2fb8.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ код выхода 1 | 2 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-14Z-integration-9007.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-28Z-integration-9702.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ упало 1 из 7 | 4 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-37Z-integration-d3a2.log) | Business Agents: создание и чтение (integration, DATABASE_URL required) create: ключ чужой организации, чужого человека и ключ, равный организации, — ForeignIde |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-42Z-integration-4ba5.log) |  |
+| 30.09.2026 12:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ❌ упало 2 из 50 | 3 мин 37 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-45-59Z-e2e-2c8f.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 12:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ✅ 23 из 23 | 1 мин 34 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-49-50Z-e2e-66e3.log) |  |
+| 30.09.2026 12:53 | unit | ❌ упало 1 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-53-05Z-unit-0a67.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 30.09.2026 12:54 | integration | ✅ 172 из 172 | 52 с | 1fb5cbb +16 | [лог](logs/2026-09-30T07-54-43Z-integration-8800.log) |  |
+| 30.09.2026 12:55 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-55-59Z-unit-79d8.log) |  |
+| 30.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/ui/roles.spec | ✅ 112 из 112 | 8 мин | 1fb5cbb +26 | [лог](logs/2026-09-30T07-57-30Z-e2e-e428.log) |  |
+| 30.09.2026 13:35 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 40 с | 3315609 +2 | [лог](logs/2026-09-30T08-35-53Z-unit-e3db.log) |  |
+| 30.09.2026 13:37 | integration | ✅ 172 из 172 | 52 с | 3315609 +2 | [лог](logs/2026-09-30T08-37-43Z-integration-d960.log) |  |
+| 30.09.2026 15:26 | typecheck | ❌ ошибок: 1 | 38 с | b0760a3 | [лог](logs/2026-09-30T10-26-30Z-typecheck-daf1.log) | TS2345 |
+| 30.09.2026 15:27 | lint | ✅ без ошибок | 21 с | b0760a3 | [лог](logs/2026-09-30T10-27-09Z-lint-db42.log) |  |
+| 30.09.2026 15:27 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 28 с | b0760a3 | [лог](logs/2026-09-30T10-27-30Z-unit-e4e9.log) |  |
+| 30.09.2026 15:29 | typecheck | ✅ без ошибок | 26 с | b0760a3 +1 | [лог](logs/2026-09-30T10-29-40Z-typecheck-3742.log) |  |
+| 30.09.2026 15:30 | integration | ❌ упало 5 из 186 | 55 с | b0760a3 +1 | [лог](logs/2026-09-30T10-30-06Z-integration-ba9b.log) | seller_profiles и факты объекта (integration, DATABASE_URL required) первая правка заводит строку организации и пишет журнал: до — пусто, после — поля |
+| 30.09.2026 15:31 | integration | ✅ 186 из 186 | 54 с | b0760a3 +2 | [лог](logs/2026-09-30T10-31-24Z-integration-88f0.log) |  |
+| 30.09.2026 15:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 112 из 112 | 8 мин 35 с | b0760a3 +1 | [лог](logs/2026-09-30T10-32-22Z-e2e-de31.log) |  |
+| 30.09.2026 16:04 | typecheck | ✅ без ошибок | 28 с | fab3817 | [лог](logs/2026-09-30T11-04-51Z-typecheck-4408.log) |  |
+| 30.09.2026 16:05 | lint | ✅ без ошибок | 24 с | fab3817 | [лог](logs/2026-09-30T11-05-20Z-lint-02ed.log) |  |
+| 30.09.2026 16:05 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 32 с | fab3817 | [лог](logs/2026-09-30T11-05-45Z-unit-ddbc.log) |  |
+| 30.09.2026 16:10 | integration | ✅ 0 из 188, пропущено 188 | 30 с | fab3817 | [лог](logs/2026-09-30T11-10-30Z-integration-e234.log) |  |
+| 30.09.2026 16:11 | integration | ✅ 188 из 188 | 57 с | fab3817 | [лог](logs/2026-09-30T11-11-08Z-integration-8e07.log) |  |

@@ -1,0 +1,61 @@
+# Интеграционные (integration) · 29.09.2026 21:39 Алматы · vm
+# коммит 068cf57 (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 13
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-39-17Z-integration-7bdc.json' 'tests/integration/seller-catalog.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/seller-catalog.test.ts (3 tests | 2 failed) 269ms
+   ❯ каталог AI-агентов (integration, DATABASE_URL required) (3)
+     × placement: Business и Location самого раннего объекта организации 12ms
+     ✓ placement: чужой объект не попадает, у организации без объекта — null 6ms
+     × drafts: только своей организации, предел работает 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/seller-catalog.test.ts > каталог AI-агентов (integration, DATABASE_URL required) > placement: Business и Location самого раннего объекта организации
+AssertionError: expected 'Второй филиал mumwis3l' to be 'Первый филиал mumwis3l' // Object.is equality
+
+Expected: "Первый филиал mumwis3l"
+Received: "Второй филиал mumwis3l"
+
+ ❯ tests/integration/seller-catalog.test.ts:73:34
+     71|   it('placement: Business и Location самого раннего объекта организаци…
+     72|     const place = await repo.placement(orgA);
+     73|     expect(place?.location.name).toBe(`Первый филиал ${mark}`);
+       |                                  ^
+     74|     expect(place?.business.name).toBe(`Каталог-сеть А ${mark}`);
+     75|     const location = await db.location.findUniqueOrThrow({ where: { id…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/seller-catalog.test.ts > каталог AI-агентов (integration, DATABASE_URL required) > drafts: только своей организации, предел работает
+AssertionError: expected [ 'Черновик Б1 mumwis3l' ] to deeply equal [ 'Черновик А1 mumwis3l', …(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Черновик А1 mumwis3l",
+-   "Черновик А2 mumwis3l",
++   "Черновик Б1 mumwis3l",
+  ]
+
+ ❯ tests/integration/seller-catalog.test.ts:89:43
+     87|   it('drafts: только своей организации, предел работает', async () => {
+     88|     const own = await repo.drafts(orgA, 50);
+     89|     expect(own.map((d) => d.name).sort()).toEqual([`Черновик А1 ${mark…
+       |                                           ^
+     90|     expect((await repo.drafts(orgA, 1)).length).toBe(1);
+     91|     expect((await repo.drafts(orgB, 50)).map((d) => d.name)).toEqual([…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  16:39:18
+   Duration  2.05s (transform 53%, tests 24%, import 22%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-39-17Z-integration-7bdc.json
+
+# код выхода 1 · 3 с

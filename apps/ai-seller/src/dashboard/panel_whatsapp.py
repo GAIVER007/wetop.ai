@@ -20,7 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.exc import IntegrityError
 
-from src.dashboard.auth_router import require_platform
+from src.dashboard.auth_router import agent_of_organization, require_platform
 from src.dashboard.panel_common import log_action, sessions
 from src.db.base import utcnow
 from src.db.models import Organization, WhatsAppConnection
@@ -32,8 +32,8 @@ router = APIRouter()
 
 CHECK_TIMEOUT = 15.0
 
-# Номер WhatsApp — одной гостинице (уникальность `phone_number_id`, миграция 0004):
-# вебхук находит гостиницу по двери, а ответ уходит с её номера.
+# Номер WhatsApp — одному агенту (уникальность `phone_number_id`, миграция 0004):
+# вебхук находит агента по двери, а ответ уходит с его номера.
 NUMBER_TAKEN = "Этот номер уже подключён к другой гостинице"
 
 
@@ -65,8 +65,9 @@ def _view(row: WhatsAppConnection | None) -> dict:
 @router.get("/seller/organizations/{org_id}/whatsapp", dependencies=[Depends(require_platform)])
 async def whatsapp_status(request: Request, org_id: uuid.UUID) -> dict:
     _require_seller(request)
+    scope = await agent_of_organization(request, org_id)
     async with sessions()() as session:
-        return _view(await session.get(WhatsAppConnection, org_id))
+        return _view(await session.get(WhatsAppConnection, scope.agent_id))
 
 
 @router.put("/seller/organizations/{org_id}/whatsapp", dependencies=[Depends(require_platform)])
@@ -74,12 +75,18 @@ async def put_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) ->
     _require_seller(request)
     settings = request.app.state.settings
     phone_id = body.phone_number_id.strip()
+    # Подключение принадлежит АГЕНТУ (SA2.5): X-Agent называет его, без заголовка — единственный агент организации
+    scope = await agent_of_organization(request, org_id)
     async with sessions()() as session:
         if phone_id == "":
-            row = await session.get(WhatsAppConnection, org_id)
+            row = await session.get(WhatsAppConnection, scope.agent_id)
             if row is not None:
                 await session.delete(row)
-                log_action(session, action="whatsapp_cleared", payload={"organization": str(org_id)})
+                log_action(
+                    session,
+                    action="whatsapp_cleared",
+                    payload={"organization": str(org_id), "agent": str(scope.agent_id)},
+                )
                 await session.commit()
             return {"set": False, "phone_number_id": None, "verify_token": None}
         if not phone_id.isdigit():
@@ -90,9 +97,9 @@ async def put_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) ->
         if await session.get(Organization, org_id) is None:
             raise HTTPException(status_code=404, detail="Организация у продавца не заведена")
         taken = await session.scalar(
-            sa.select(WhatsAppConnection.organization_id).where(
+            sa.select(WhatsAppConnection.agent_id).where(
                 WhatsAppConnection.phone_number_id == phone_id,
-                WhatsAppConnection.organization_id != org_id,
+                WhatsAppConnection.agent_id != scope.agent_id,
             )
         )
         if taken is not None:
@@ -105,9 +112,10 @@ async def put_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) ->
                 status_code=409,
                 detail="Хранилище ключей не настроено: задайте LLM_KEYS_SECRET у продавца",
             ) from None
-        row = await session.get(WhatsAppConnection, org_id)
+        row = await session.get(WhatsAppConnection, scope.agent_id)
         if row is None:
             row = WhatsAppConnection(
+                agent_id=scope.agent_id,
                 organization_id=org_id,
                 phone_number_id=phone_id,
                 token_encrypted=token_blob,
@@ -124,7 +132,7 @@ async def put_whatsapp(request: Request, org_id: uuid.UUID, body: WhatsAppIn) ->
         log_action(
             session,
             action="whatsapp_set",
-            payload={"organization": str(org_id), "phone_number_id": phone_id},
+            payload={"organization": str(org_id), "agent": str(scope.agent_id), "phone_number_id": phone_id},
         )
         view = _view(row)
         try:

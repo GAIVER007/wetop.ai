@@ -55,6 +55,8 @@ import {
   SELLER_FACTS,
   SELLER_ORGS,
   SELLER_PROFILES,
+  workingSellerScope,
+  type SellerAgentScope,
   type SellerAudit,
   type SellerFactsRepository,
   type SellerOrganizationRow,
@@ -345,7 +347,8 @@ export class SellerService {
 
   /** Отказ по расширению и роли — до любого вызова продавца и до записи в базу */
   private checkUse(extension: AiSellerAccessView | null, use: SellerUse): void {
-    if (use === 'configure' && !actorMay('seller')) throw new ForbiddenException(SELLER_CONFIGURE_ONLY);
+    if (use === 'configure' && !actorMay('seller'))
+      throw new ForbiddenException(SELLER_CONFIGURE_ONLY);
     if (extension?.access === 'off') throw new ForbiddenException(SELLER_EXTENSION_OFF);
     if (extension?.access === 'expired' && use !== 'read')
       throw new ForbiddenException(SELLER_EXTENSION_EXPIRED);
@@ -355,15 +358,16 @@ export class SellerService {
   private async bound(
     use: SellerUse,
     now: Date = new Date(),
-  ): Promise<{ client: SellerPort; organizationId: string }> {
+  ): Promise<{ client: SellerPort; organizationId: string; scope: SellerAgentScope }> {
     const { extension, connection } = await this.gate(now);
     this.checkUse(extension, use);
     if (connection === 'not-configured')
       throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
     const organizationId = this.profileOrganization();
-    const client = this.connection.client(organizationId);
+    const scope = workingSellerScope(organizationId);
+    const client = this.connection.client(organizationId, scope.agentId);
     if (!client) throw new ServiceUnavailableException(SELLER_NOT_CONNECTED);
-    return { client, organizationId };
+    return { client, organizationId, scope };
   }
 
   private async call<T>(fn: () => Promise<T>): Promise<T> {
@@ -375,10 +379,10 @@ export class SellerService {
   }
 
   private async currentFacts(
-    organizationId: string,
+    scope: SellerAgentScope,
     now: Date,
   ): Promise<{ source: SellerFactsSource; payload: SellerFactsPayload; hash: string } | null> {
-    const source = await this.facts.load(organizationId, now);
+    const source = await this.facts.load(scope, now);
     if (!source) return null;
     const payload = buildSellerFacts(source);
     return { source, payload, hash: sellerFactsHash(payload) };
@@ -395,10 +399,10 @@ export class SellerService {
           ? 'extension-expired'
           : connection;
     // служебный ходок: организации нет — и профиля, значит, тоже
-    const organizationId = hasSignedInActor() ? this.profileOrganization() : null;
-    const row = organizationId ? await this.profiles.get(organizationId) : null;
-    const held = organizationId ? this.rejected.get(organizationId) : undefined;
-    const facts = organizationId && row ? await this.currentFacts(organizationId, now) : null;
+    const scope = hasSignedInActor() ? workingSellerScope(this.profileOrganization()) : null;
+    const row = scope ? await this.profiles.get(scope.agentId) : null;
+    const held = scope ? this.rejected.get(scope.agentId) : undefined;
+    const facts = scope && row ? await this.currentFacts(scope, now) : null;
     return {
       state,
       profile: {
@@ -432,7 +436,7 @@ export class SellerService {
   }
 
   private async savedProfile(): Promise<SellerProfileView> {
-    const row = await this.profiles.get(this.profileOrganization());
+    const row = await this.profiles.get(workingSellerScope(this.profileOrganization()).agentId);
     return {
       saved: row !== null,
       profile: row ? pickSellerProfile(row) : DEFAULT_SELLER_PROFILE,
@@ -446,7 +450,12 @@ export class SellerService {
     this.checkUse((await this.gate(now)).extension, 'configure');
     const parsed = parseSellerProfile(raw);
     if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
-    await this.profiles.save(this.profileOrganization(), parsed.value, currentUserId(), now);
+    await this.profiles.save(
+      workingSellerScope(this.profileOrganization()),
+      parsed.value,
+      currentUserId(),
+      now,
+    );
     return this.savedProfile();
   }
 
@@ -457,7 +466,7 @@ export class SellerService {
   }
 
   private async savedPrompt(): Promise<SellerPromptView> {
-    const row = await this.profiles.get(this.profileOrganization());
+    const row = await this.profiles.get(workingSellerScope(this.profileOrganization()).agentId);
     return {
       saved: !!row?.promptText,
       text: row?.promptText ?? '',
@@ -472,7 +481,12 @@ export class SellerService {
     if (!text) throw new BadRequestException('Инструкция: пустой текст');
     if (text.length > SELLER_PROMPT_MAX)
       throw new BadRequestException(`Инструкция: не длиннее ${SELLER_PROMPT_MAX} знаков`);
-    await this.profiles.savePrompt(this.profileOrganization(), text, currentUserId(), now);
+    await this.profiles.savePrompt(
+      workingSellerScope(this.profileOrganization()),
+      text,
+      currentUserId(),
+      now,
+    );
     return this.savedPrompt();
   }
 
@@ -485,12 +499,12 @@ export class SellerService {
       throw new BadRequestException(`Рассказ короче ${STORY_MIN} знаков — расскажите подробнее`);
     if (story.length > STORY_MAX)
       throw new BadRequestException(`Рассказ длиннее ${STORY_MAX} знаков — сократите`);
-    const { client, organizationId } = await this.bound('configure', now);
+    const { client, scope } = await this.bound('configure', now);
     this.takeLlmTurn('extract', now);
     const body = obj(await this.call(() => client.extractProfile(story)));
     const extracted = obj(body.profile);
 
-    const row = await this.profiles.get(organizationId);
+    const row = await this.profiles.get(scope.agentId);
     const base = row ? pickSellerProfile(row) : DEFAULT_SELLER_PROFILE;
     const draft: Record<string, unknown> = { ...base };
     const filled: string[] = [];
@@ -509,7 +523,7 @@ export class SellerService {
       // пределы у бота и платформы одинаковые, но черновик всё равно идёт через общую проверку
       const parsed = parseSellerProfile(draft);
       if (!parsed.ok) throw new BadRequestException(parsed.errors.join('; '));
-      await this.profiles.save(organizationId, parsed.value, currentUserId(), now);
+      await this.profiles.save(scope, parsed.value, currentUserId(), now);
     }
     return {
       filled,
@@ -558,26 +572,26 @@ export class SellerService {
 
   // ── подключение WhatsApp (С3, Q-185 (а)) ───────────────────────────────────────────────────
 
-  /** Адрес вебхука для консоли Meta: публичный адрес продавца + дверь организации */
-  private whatsappWebhookUrl(organizationId: string): string | null {
+  /** Адрес вебхука для консоли Meta: публичный адрес продавца + дверь АГЕНТА (у перенесённого совпадает с организацией) */
+  private whatsappWebhookUrl(agentId: string): string | null {
     const publicUrl = this.connection.config().publicUrl;
-    return publicUrl ? `${publicUrl}/channels/whatsapp/webhook/${organizationId}` : null;
+    return publicUrl ? `${publicUrl}/channels/whatsapp/webhook/${agentId}` : null;
   }
 
-  private whatsappView(body: Record<string, unknown>, organizationId: string) {
+  private whatsappView(body: Record<string, unknown>, agentId: string) {
     const set = body.set === true;
     return {
       set,
       phoneNumberId: str(body.phone_number_id),
       verifyToken: str(body.verify_token),
-      webhookUrl: set ? this.whatsappWebhookUrl(organizationId) : null,
+      webhookUrl: set ? this.whatsappWebhookUrl(agentId) : null,
     };
   }
 
   async whatsapp(now: Date = new Date()) {
-    const { client, organizationId } = await this.bound('configure', now);
+    const { client, organizationId, scope } = await this.bound('configure', now);
     const body = obj(await this.call(() => client.whatsappStatus(organizationId)));
-    return this.whatsappView(body, organizationId);
+    return this.whatsappView(body, scope.agentId);
   }
 
   /** Пустой `phoneNumberId` — отключить; токен и секрет Meta платформа не хранит и не показывает */
@@ -588,9 +602,9 @@ export class SellerService {
       token: str(body.token)?.trim() ?? '',
       appSecret: str(body.appSecret)?.trim() ?? '',
     };
-    const { client, organizationId } = await this.bound('configure', now);
+    const { client, organizationId, scope } = await this.bound('configure', now);
     const answer = obj(await this.call(() => client.putWhatsApp(organizationId, input)));
-    return this.whatsappView(answer, organizationId);
+    return this.whatsappView(answer, scope.agentId);
   }
 
   /** Проверка до сохранения: Graph отдаёт номер по токену — вызов делает бот */
@@ -611,11 +625,11 @@ export class SellerService {
 
   /** «Применить»: профиль и факты уходят продавцу сейчас; отказ — понятные слова и повтор службой сверки */
   async apply(now: Date = new Date()): Promise<{ profileApplied: boolean; factsApplied: boolean }> {
-    const { client, organizationId } = await this.bound('configure', now);
-    const row = await this.profiles.get(organizationId);
+    const { client, scope } = await this.bound('configure', now);
+    const row = await this.profiles.get(scope.agentId);
     if (!row) throw new ConflictException(SELLER_NO_PROFILE);
     try {
-      const pushed = await this.push(client, organizationId, row, now, true);
+      const pushed = await this.push(client, scope, row, now, true);
       return { profileApplied: pushed.profile, factsApplied: pushed.facts };
     } catch (error) {
       httpError(error);
@@ -633,7 +647,12 @@ export class SellerService {
     const config = this.connection.config();
     if (!config.baseUrl || !config.serviceKey) return { skipped: 'not-configured' };
     const organizations = await this.orgs.withExtension();
-    const out = { organizations: organizations.length, profile: 0, facts: 0, failed: [] as string[] };
+    const out = {
+      organizations: organizations.length,
+      profile: 0,
+      facts: 0,
+      failed: [] as string[],
+    };
     for (const org of organizations) {
       try {
         const pushed = await this.syncOrganization(org, now);
@@ -652,15 +671,16 @@ export class SellerService {
     org: SellerOrganizationRow,
     now: Date,
   ): Promise<{ profile: boolean; facts: boolean }> {
-    const client = this.connection.client(org.organizationId);
+    const scope = workingSellerScope(org.organizationId);
+    const client = this.connection.client(org.organizationId, scope.agentId);
     if (!client) return { profile: false, facts: false };
     const extension = await this.extensions.aiSeller(org.organizationId, now);
     await this.putOrganization(client, org, extension.access === 'active');
     // расширение не действует — профиль и факты не шлём: продавец уже получил active=false и молчит (Q-183)
     if (extension.access !== 'active') return { profile: false, facts: false };
-    const row = await this.profiles.get(org.organizationId);
+    const row = await this.profiles.get(scope.agentId);
     if (!row) return { profile: false, facts: false };
-    return this.push(client, org.organizationId, row, now, false);
+    return this.push(client, scope, row, now, false);
   }
 
   private async putOrganization(
@@ -673,7 +693,10 @@ export class SellerService {
     await client.putOrganization(org.organizationId, {
       name: org.name,
       // ключ выводится заново на каждый вызов: платформа его нигде не хранит (Э4, план §1)
-      publicKey: assistant.widgetOrgKey(serviceKey, org.organizationId),
+      publicKey: assistant.widgetAgentKey(
+        serviceKey,
+        workingSellerScope(org.organizationId).agentId,
+      ),
       active,
       hosts: await this.orgs.hosts(org.organizationId),
     });
@@ -698,69 +721,71 @@ export class SellerService {
 
   private async push(
     client: SellerPort,
-    organizationId: string,
+    scope: SellerAgentScope,
     row: SellerProfileRow,
     now: Date,
     force: boolean,
   ): Promise<{ profile: boolean; facts: boolean }> {
+    const agentId = scope.agentId;
     const pushed = { profile: false, facts: false };
     // Факты — первыми: из той же карточки профилю нужно название объекта, а без объекта продавцу сказать нечего
-    const facts = await this.currentFacts(organizationId, now);
+    const facts = await this.currentFacts(scope, now);
     if (!facts) {
-      await this.profiles.markError(organizationId, SELLER_NO_PROPERTY, now);
+      await this.profiles.markError(agentId, SELLER_NO_PROPERTY, now);
       throw new NotFoundException(SELLER_NO_PROPERTY);
     }
     const objectName = facts.payload.object_name;
     const key = profileKey(row, objectName);
     // «Применить» шлёт всё: отклонённую версию отправляет человек, а не сверка
-    if (force) this.rejected.delete(organizationId);
-    const held: Rejected = this.rejected.get(organizationId) ?? { profile: null, facts: null };
+    if (force) this.rejected.delete(agentId);
+    const held: Rejected = this.rejected.get(agentId) ?? { profile: null, facts: null };
     let part: keyof Rejected = 'profile';
     try {
-      const renamed = this.sentObjectName.get(organizationId) !== objectName;
+      const renamed = this.sentObjectName.get(agentId) !== objectName;
       if (force || ((!profileApplied(row) || renamed) && held.profile !== key)) {
         // ADR-097: сохранён текст владельца — уходит он, иначе поля профиля
-        if (row.promptText) await client.putSellerPrompt({ object_name: objectName, text: row.promptText });
+        if (row.promptText)
+          await client.putSellerPrompt({ object_name: objectName, text: row.promptText });
         else await client.putProfile(sellerProfilePayload(pickSellerProfile(row), objectName));
         // принятой считается ровно отправленная версия: правка во время отправки уйдёт следующей сверкой
-        await this.profiles.markProfileApplied(organizationId, row.updatedAt);
-        this.sentObjectName.set(organizationId, objectName);
+        await this.profiles.markProfileApplied(agentId, row.updatedAt);
+        this.sentObjectName.set(agentId, objectName);
         pushed.profile = true;
       }
       part = 'facts';
       if (force || (facts.hash !== row.factsHash && held.facts !== facts.hash)) {
         await client.putFacts(facts.payload);
-        await this.profiles.markFactsApplied(organizationId, facts.hash, now);
+        await this.profiles.markFactsApplied(agentId, facts.hash, now);
         pushed.facts = true;
       }
     } catch (error) {
       if (rejectedForContent(error))
-        this.rejected.set(organizationId, {
+        this.rejected.set(agentId, {
           ...held,
           ...(pushed.profile ? { profile: null } : {}),
           [part]: part === 'profile' ? key : facts.hash,
         });
-      await this.profiles.markError(organizationId, sellerErrorText(error), now);
+      await this.profiles.markError(agentId, sellerErrorText(error), now);
       throw error;
     }
     const left: Rejected = {
       profile: pushed.profile ? null : held.profile,
       facts: pushed.facts ? null : held.facts,
     };
-    if (left.profile === null && left.facts === null) this.rejected.delete(organizationId);
-    else this.rejected.set(organizationId, left);
+    if (left.profile === null && left.facts === null) this.rejected.delete(agentId);
+    else this.rejected.set(agentId, left);
     // отказ снимается, когда отклонённого больше нет: иначе раздел потерял бы причину, а сверка её не повторит
     if (row.lastError !== null && !stillRejected(left, row, facts.hash, objectName, pushed))
-      await this.profiles.clearError(organizationId);
+      await this.profiles.clearError(agentId);
     return pushed;
   }
 
   async factsPreview(now: Date = new Date()) {
     this.checkUse((await this.gate(now)).extension, 'read');
-    const organizationId = this.profileOrganization();
-    const facts = await this.currentFacts(organizationId, now);
+    const scope = workingSellerScope(this.profileOrganization());
+    const facts = await this.currentFacts(scope, now);
     if (!facts) throw new NotFoundException(SELLER_NO_PROPERTY);
-    const row = await this.profiles.get(organizationId);
+    const row = await this.profiles.get(scope.agentId);
     return {
       facts: facts.payload,
       hash: facts.hash,
@@ -863,20 +888,21 @@ export class SellerService {
    */
   async embed(now: Date = new Date()): Promise<{ snippet: string | null; hosts: string[] }> {
     this.checkUse((await this.gate(now)).extension, 'act');
-    const organizationId = this.profileOrganization();
+    const scope = workingSellerScope(this.profileOrganization());
     const { publicUrl, serviceKey } = this.connection.config();
     return {
       snippet:
         publicUrl && serviceKey
-          ? `<script async src="${publicUrl}/widget/widget.js" data-key="${assistant.widgetOrgKey(serviceKey, organizationId)}"></script>`
+          ? `<script async src="${publicUrl}/widget/widget.js" data-key="${assistant.widgetAgentKey(serviceKey, scope.agentId)}"></script>`
           : null,
-      hosts: await this.orgs.hosts(organizationId),
+      // домены — сайты филиала агента (SA2.5, Q-SA-17): те же, что бот вычисляет для своей двери виджета
+      hosts: await this.orgs.hostsForAgent(scope),
     };
   }
 }
 
 /** Продавец принял текущую версию профиля */
-function profileApplied(row: SellerProfileRow): boolean {
+export function profileApplied(row: SellerProfileRow): boolean {
   return row.profileAppliedAt !== null && row.profileAppliedAt.getTime() >= row.updatedAt.getTime();
 }
 

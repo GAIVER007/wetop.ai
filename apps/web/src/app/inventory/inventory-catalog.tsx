@@ -49,12 +49,25 @@ export function InventoryCatalog({
   const kind = ['ROOM', 'BED'].includes(search.get('kind') ?? '') ? search.get('kind')! : '';
   const q = search.get('q') ?? '';
   const view = search.get('view') === 'cards' ? 'cards' : 'list';
+  const building = search.get('building') ?? '';
+  const floor = search.get('floor') ?? '';
+  const state = search.get('state') ?? '';
+  const housekeeping = search.get('housekeeping') ?? '';
   const query = q.trim().toLocaleLowerCase('ru');
   const filtered = units
     .filter(
       (unit) =>
         (!category || unit.accommodationTypeCode === category) &&
         (!kind || unit.kind === kind) &&
+        (!building || unit.buildingName === building) &&
+        (!floor || unit.floorName === floor) &&
+        (!housekeeping || unit.housekeepingStatus === housekeeping) &&
+        (!state ||
+          (state === 'blocked'
+            ? Boolean(unit.block)
+            : state === 'archived'
+              ? !unit.active
+              : unit.active && !unit.block)) &&
         `${unit.code} ${unit.roomNumber} ${unit.accommodationTypeName}`
           .toLocaleLowerCase('ru')
           .includes(query),
@@ -79,7 +92,7 @@ export function InventoryCatalog({
     );
   const label = (unit: InventoryUnit) =>
     `Открыть ${unit.kind === 'BED' ? 'койко-место' : 'номер'} ${unit.code}`;
-  const isFiltered = Boolean(category || kind || q);
+  const isFiltered = Boolean(category || kind || q || building || floor || state || housekeeping);
   function update(key: string, value: string, replace = false) {
     const params = new URLSearchParams(search.toString());
     if (value) params.set(key, value);
@@ -167,6 +180,77 @@ export function InventoryCatalog({
             Сбросить фильтры
           </Button>
         )}
+        <details
+          className="inventory-extra"
+          open={Boolean(building || floor || state || housekeeping) || undefined}
+        >
+          <summary>
+            Расположение и состояние
+            {building || floor || state || housekeeping ? ' · применены' : ''}
+          </summary>
+          <div className="inventory-extra-fields">
+            <label>
+              Корпус
+              <Select
+                aria-label="Фильтр по корпусу"
+                value={building}
+                onChange={(e) => update('building', e.target.value)}
+              >
+                <option value="">Все корпуса</option>
+                {[...new Set(units.map((u) => u.buildingName).filter(Boolean))]
+                  .sort()
+                  .map((value) => (
+                    <option key={value} value={value!}>
+                      {value}
+                    </option>
+                  ))}
+              </Select>
+            </label>
+            <label>
+              Этаж
+              <Select
+                aria-label="Фильтр по этажу"
+                value={floor}
+                onChange={(e) => update('floor', e.target.value)}
+              >
+                <option value="">Все этажи</option>
+                {[...new Set(units.map((u) => u.floorName).filter(Boolean))]
+                  .sort((a, b) => a!.localeCompare(b!, 'ru', { numeric: true }))
+                  .map((value) => (
+                    <option key={value} value={value!}>
+                      {value}
+                    </option>
+                  ))}
+              </Select>
+            </label>
+            <label>
+              Состояние
+              <Select
+                aria-label="Фильтр по состоянию"
+                value={state}
+                onChange={(e) => update('state', e.target.value)}
+              >
+                <option value="">Все состояния</option>
+                <option value="sale">В продаже</option>
+                <option value="blocked">Заблокированы</option>
+                <option value="archived">В архиве</option>
+              </Select>
+            </label>
+            <label>
+              Уборка
+              <Select
+                aria-label="Фильтр по уборке"
+                value={housekeeping}
+                onChange={(e) => update('housekeeping', e.target.value)}
+              >
+                <option value="">Любая уборка</option>
+                <option value="DIRTY">Требует уборки</option>
+                <option value="CLEAN">Убрано</option>
+                <option value="INSPECTED">Проверено</option>
+              </Select>
+            </label>
+          </div>
+        </details>
       </div>
       <div className="inventory-results" role="status" aria-live="polite">
         Показано {filtered.length} из {units.length}

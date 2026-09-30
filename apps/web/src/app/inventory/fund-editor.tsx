@@ -18,7 +18,12 @@ import {
 } from './rate-plan-choice';
 
 type Mode = 'category' | 'room';
-type Created = { code: string; name: string; kind: InventoryCategory['kind']; rateName: string | null };
+type Created = {
+  code: string;
+  name: string;
+  kind: InventoryCategory['kind'];
+  rateName: string | null;
+};
 
 /**
  * Управляемый drawer создания/правки фонда (ADR-108): открывается и кнопкой `FundEditor`,
@@ -48,11 +53,19 @@ export function FundEditorDialog({
   const [pending, start] = useTransition(),
     [error, setError] = useState<string | null>(null);
   const preferred =
-    (preferKind && categories.find((c) => c.kind === preferKind)?.code) ?? categories[0]?.code ?? '';
+    (preferKind && categories.find((c) => c.kind === preferKind)?.code) ??
+    categories[0]?.code ??
+    '';
   const [selected, setSelected] = useState(category?.code ?? preferred);
   const [kind, setKind] = useState<InventoryCategory['kind']>(category?.kind ?? 'PRIVATE_ROOM');
   /** Создание категории (C3, ADR-119): форма → «Категория создана» → номер или тариф */
   const [view, setView] = useState<'form' | 'created' | 'rate' | 'room'>('form');
+  const [roomPreview, setRoomPreview] = useState({
+    building: '',
+    floor: '',
+    room: '',
+    codes: [] as string[],
+  });
   const [created, setCreated] = useState<Created | null>(null);
   const [planMode, setPlanMode] = useState<'later' | 'now'>('later');
   const [pick, setPick] = useState<PlanPick>({ plan: '', newName: '' });
@@ -70,15 +83,23 @@ export function FundEditorDialog({
     created && !categories.some((c) => c.code === created.code)
       ? [...categories, { code: created.code, name: created.name }]
       : categories;
+  const roomKind = created?.kind ?? preferKind;
+  const roomChoices = roomKind
+    ? choices.filter(
+        (c) =>
+          (categories.find((item) => item.code === c.code)?.kind ?? created?.kind) === roomKind,
+      )
+    : choices;
   useEffect(() => {
     if (!open) return;
     setError(null);
+    setRoomPreview({ building: '', floor: '', room: '', codes: [] });
     setErrors({});
     setView('form');
     setCreated(null);
     setPlanMode('later');
     setPick({ plan: '', newName: '' });
-    setKind(category?.kind ?? 'PRIVATE_ROOM');
+    setKind(category?.kind ?? preferKind ?? 'PRIVATE_ROOM');
     setSelected(category?.code ?? preferred);
     // предвыбор категории освежается при каждом открытии, не на каждую перерисовку
   }, [open]);
@@ -181,15 +202,13 @@ export function FundEditorDialog({
       {open && view === 'created' && created && (
         <div className="fund-form fund-created">
           <p>
-            <b>{created.name}</b> — {KIND_WORD[created.kind].toLowerCase()}. Категория уже в номерном
-            фонде.
+            <b>{created.name}</b> — {KIND_WORD[created.kind].toLowerCase()}. Категория уже в
+            номерном фонде.
           </p>
           <dl className="fund-preview-facts">
             <div>
               <dt>Тариф</dt>
-              <dd>
-                {created.rateName ?? <Badge tone="warn">Тариф не настроен</Badge>}
-              </dd>
+              <dd>{created.rateName ?? <Badge tone="warn">Тариф не настроен</Badge>}</dd>
             </div>
           </dl>
           <p className="muted">
@@ -230,6 +249,19 @@ export function FundEditorDialog({
       {open && (view === 'form' || view === 'room') && (
         <form
           className="fund-form"
+          onChange={(e) => {
+            if (formMode !== 'room' || edit) return;
+            const data = new FormData(e.currentTarget);
+            setRoomPreview({
+              building: String(data.get('building') ?? ''),
+              floor: String(data.get('floor') ?? ''),
+              room: String(data.get('roomNumber') ?? ''),
+              codes: String(data.get('codes') ?? '')
+                .split(/[\n,]+/)
+                .map((v) => v.trim())
+                .filter(Boolean),
+            });
+          }}
           noValidate={formMode === 'category' && !edit}
           onSubmit={(e) => {
             e.preventDefault();
@@ -290,9 +322,7 @@ export function FundEditorDialog({
                           aria-describedby={errors.capacity ? 'fund-err-capacity' : undefined}
                         />
                       </Field>
-                      {errors.capacity && (
-                        <Alert id="fund-err-capacity">{errors.capacity}</Alert>
-                      )}
+                      {errors.capacity && <Alert id="fund-err-capacity">{errors.capacity}</Alert>}
                     </>
                   )}
                   <fieldset className="fund-choice">
@@ -307,7 +337,9 @@ export function FundEditorDialog({
                       />
                       <span>
                         Настроить позже
-                        <small>Категория появится в фонде, продавать её можно после тарифа и цен</small>
+                        <small>
+                          Категория появится в фонде, продавать её можно после тарифа и цен
+                        </small>
                       </span>
                     </label>
                     <label className="fund-choice__option">
@@ -320,7 +352,9 @@ export function FundEditorDialog({
                       />
                       <span>
                         Настроить сейчас
-                        <small>Выбрать тариф объекта или назвать новый; цены — в календаре тарифов</small>
+                        <small>
+                          Выбрать тариф объекта или назвать новый; цены — в календаре тарифов
+                        </small>
                       </span>
                     </label>
                   </fieldset>
@@ -359,7 +393,7 @@ export function FundEditorDialog({
             <>
               <Field label="Категория">
                 <Select value={selected} onChange={(e) => setSelected(e.target.value)} required>
-                  {choices.map((c) => (
+                  {roomChoices.map((c) => (
                     <option key={c.code} value={c.code}>
                       {c.name}
                     </option>
@@ -392,6 +426,22 @@ export function FundEditorDialog({
                   <Input name="codes" required maxLength={100} placeholder="201" />
                 </Field>
               )}
+              <div className="fund-room-preview" aria-label="Предпросмотр размещения">
+                <strong>
+                  {dorm
+                    ? `Комната ${roomPreview.room || '…'} · ${roomPreview.codes.length} койко-мест`
+                    : `Номер ${roomPreview.codes[0] || '…'}`}
+                </strong>
+                <span>
+                  {[roomPreview.building, roomPreview.floor && `этаж ${roomPreview.floor}`]
+                    .filter(Boolean)
+                    .join(' · ') || 'Укажите корпус и этаж'}
+                </span>
+                <span>{choices.find((c) => c.code === selected)?.name}</span>
+                {dorm && roomPreview.codes.length > 0 && (
+                  <span>На шахматке: {roomPreview.codes.join(', ')}</span>
+                )}
+              </div>
               <p className="muted">
                 {dorm
                   ? 'Будет создана одна общая комната с перечисленными койками.'

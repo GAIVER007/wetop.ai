@@ -5475,12 +5475,12 @@ createServer(async (req, res) => {
       for (const code of codes)
         units.push({
           code,
-          kind: 'ROOM',
+          kind: c.kind === 'DORM_BED' ? 'BED' : 'ROOM',
           accommodationTypeCode: c.code,
           accommodationTypeName: c.name,
           roomNumber: String(body.roomNumber),
           roomCapacity: c.capacityAdults,
-          isDorm: false,
+          isDorm: c.kind === 'DORM_BED',
           buildingName: String(body.building ?? '') || null,
           floorName: String(body.floor ?? '') || null,
         });

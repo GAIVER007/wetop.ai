@@ -4762,6 +4762,13 @@
 | 30.09.2026 16:45 | lint | ✅ без ошибок | 31 с | 6d5bd72 | [лог](logs/2026-09-30T11-45-54Z-lint-b3f2.log) |  |
 | 30.09.2026 16:46 | unit | ✅ 2511 из 2514, пропущено 3 | 1 мин 49 с | 6d5bd72 | [лог](logs/2026-09-30T11-46-26Z-unit-acbd.log) |  |
 | 30.09.2026 16:48 | integration | ✅ 166 из 166 | 1 мин 11 с | 6d5bd72 | [лог](logs/2026-09-30T11-48-16Z-integration-134f.log) |  |
+| 30.09.2026 17:05 | integration | ❌ упало 1 из 172 | 1 мин 11 с | 4b859ae +3 | [лог](logs/2026-09-30T12-05-39Z-integration-cc37.log) | данные интеграции: под запросом организации — служебной ролью (integration) контроль: прямое чтение очереди под организацией ловится (значит, перехват работает) |
+| 30.09.2026 17:08 | e2e | ❌ упало 21 из 25, пропущено 3 | 27 с | 4b859ae +2 | [лог](logs/2026-09-30T12-08-36Z-e2e-1573.log) | отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять |
+| 30.09.2026 17:09 | e2e | ✅ 25 из 25 | 1 мин 56 с | 4b859ae +2 | [лог](logs/2026-09-30T12-09-15Z-e2e-ede8.log) |  |
+| 30.09.2026 17:11 | typecheck | ✅ без ошибок | 38 с | ce76722 | [лог](logs/2026-09-30T12-11-17Z-typecheck-1f64.log) |  |
+| 30.09.2026 17:11 | lint | ✅ без ошибок | 34 с | ce76722 | [лог](logs/2026-09-30T12-11-55Z-lint-d0fa.log) |  |
+| 30.09.2026 17:12 | unit | ✅ 2512 из 2515, пропущено 3 | 1 мин 59 с | ce76722 | [лог](logs/2026-09-30T12-12-30Z-unit-e96a.log) |  |
+| 30.09.2026 17:14 | integration | ✅ 172 из 172 | 1 мин 18 с | ce76722 | [лог](logs/2026-09-30T12-14-30Z-integration-4f62.log) |  |
 | 30.09.2026 17:21 | unit | ✅ 2683 из 2686, пропущено 3 | 1 мин 25 с | 4a398f8 | [лог](logs/2026-09-30T12-21-42Z-unit-e1d1.log) |  |
 | 30.09.2026 17:23 | integration | ✅ 214 из 214 | 54 с | 4a398f8 | [лог](logs/2026-09-30T12-23-08Z-integration-1bf6.log) |  |
 | 30.09.2026 17:30 | typecheck | ❌ ошибок: 42 | 48 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-30-52Z-typecheck-6e21.log) | TS2339 |
@@ -4769,3 +4776,35 @@
 | 30.09.2026 17:32 | unit | ✅ 2684 из 2687, пропущено 3 | 1 мин 33 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-32-07Z-unit-3c96.log) |  |
 | 30.09.2026 17:33 | typecheck | ✅ без ошибок | 27 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-33-48Z-typecheck-5043.log) |  |
 | 30.09.2026 17:34 | integration | ✅ 220 из 220 | 1 мин 2 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-34-32Z-integration-7d1d.log) |  |
+| 30.09.2026 17:30 | typecheck | ❌ ошибок: 102 | 1 мин 2 с | abe4156 +50 | [лог](logs/2026-09-30T12-30-02Z-typecheck-c92f.log) | TS2339 |
+| 30.09.2026 17:31 | lint | ✅ без ошибок | 36 с | abe4156 +50 | [лог](logs/2026-09-30T12-31-05Z-lint-d15c.log) |  |
+| 30.09.2026 17:31 | unit | ✅ 2684 из 2687, пропущено 3 | 2 мин 1 с | abe4156 +50 | [лог](logs/2026-09-30T12-31-42Z-unit-eb42.log) |  |
+| 30.09.2026 17:36 | typecheck | ✅ без ошибок | 40 с | abe4156 +50 | [лог](logs/2026-09-30T12-36-03Z-typecheck-44d5.log) |  |
+| 30.09.2026 17:36 | lint | ✅ без ошибок | 36 с | abe4156 +50 | [лог](logs/2026-09-30T12-36-44Z-lint-5b2e.log) |  |
+| 30.09.2026 17:37 | unit | ✅ 2684 из 2687, пропущено 3 | 2 мин 1 с | abe4156 +50 | [лог](logs/2026-09-30T12-37-20Z-unit-4a57.log) |  |
+| 30.09.2026 17:39 | integration | ✅ 220 из 220 | 1 мин 28 с | abe4156 +50 | [лог](logs/2026-09-30T12-39-22Z-integration-86da.log) |  |
+| 30.09.2026 17:41 | e2e | ✅ 25 из 25 | 1 мин 54 с | 8b0075d | [лог](logs/2026-09-30T12-41-29Z-e2e-bb97.log) |  |
+| 30.09.2026 17:13 | e2e (частично: --config tests/ui/playwright.config.ts --grep owner dashboard) | ❌ упало 1 из 1 | 1 мин | 55567af +3 | [лог](logs/2026-09-30T12-13-03Z-e2e-21f0.log) | RED owner dashboard financial overview and single screen layout |
+| 30.09.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts --grep owner dashboard\|dashboard period changes) | ❌ упало 1 из 2 | 45 с | 55567af +8 | [лог](logs/2026-09-30T12-20-28Z-e2e-0d93.log) | Owner dashboard layout and interactions |
+| 30.09.2026 17:22 | e2e (частично: --config tests/ui/playwright.config.ts --grep owner dashboard\|dashboard period changes\|экран /today:) | ❌ упало 2 из 4 | 57 с | cb9b26c +8 | [лог](logs/2026-09-30T12-22-06Z-e2e-eaa5.log) | Owner dashboard merged main verification |
+| 30.09.2026 17:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep owner dashboard\|dashboard period changes\|экран /today:) | ❌ упало 1 из 4 | 24 с | cb9b26c +9 | [лог](logs/2026-09-30T12-23-39Z-e2e-1689.log) | Owner dashboard isolated sequential acceptance |
+| 30.09.2026 17:24 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep owner dashboard\|dashboard period changes\|экран /today:) | ❌ упало 1 из 4 | 31 с | cb9b26c +9 | [лог](logs/2026-09-30T12-24-38Z-e2e-7356.log) | Owner dashboard final layout and error states |
+| 30.09.2026 17:25 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep owner dashboard\|dashboard period changes\|экран /today:) | ✅ 4 из 4 | 23 с | cb9b26c +9 | [лог](logs/2026-09-30T12-25-41Z-e2e-5adf.log) | Owner dashboard design tokens and compact charts |
+| 30.09.2026 17:27 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 owner-dashboard.spec.ts dashboard-desk.spec.ts today-operations.spec.ts today-attention.spec.t | ❌ упало 2 из 26 | 4 мин 35 с | cb9b26c +13 | [лог](logs/2026-09-30T12-27-44Z-e2e-3d85.log) | Owner dashboard regression including preserved desk actions |
+| 30.09.2026 17:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 loading-performance.spec.ts --grep ошибка стойки\|пока настройки) | ❌ упало 2 из 2 | 31 с | cb9b26c +14 | [лог](logs/2026-09-30T12-32-41Z-e2e-d919.log) | RED owner dashboard slow settings and fast error handling |
+| 30.09.2026 17:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep ошибка стойки\|пока настройки\|4. действия\|снимки панелей\|owner dashboard\|экран /today:) | ✅ 7 из 7 | 1 мин 40 с | cb9b26c +14 | [лог](logs/2026-09-30T12-34-06Z-e2e-feaa.log) | GREEN slow settings, fail fast, mobile overlays and panel typography |
+| 30.09.2026 17:36 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --grep главная: быстрые\|owner dashboard dark\|замер: блоки) | ✅ 3 из 3 | 32 с | cb9b26c +15 | [лог](logs/2026-09-30T12-36-27Z-e2e-0c9a.log) | Final empty-state actions, dark desktop mobile and timing |
+| 30.09.2026 17:21 | unit | ✅ 2683 из 2686, пропущено 3 | 1 мин 25 с | 4a398f8 | [лог](logs/2026-09-30T12-21-42Z-unit-e1d1.log) |  |
+| 30.09.2026 17:23 | integration | ✅ 214 из 214 | 54 с | 4a398f8 | [лог](logs/2026-09-30T12-23-08Z-integration-1bf6.log) |  |
+| 30.09.2026 17:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-compact-screen.spec.ts) | ❌ упало 1 из 1 | 1 мин 29 с | 57a0bfa +3 | [лог](logs/2026-09-30T12-55-48Z-e2e-ab94.log) | RED compact board viewport and category overview |
+| 30.09.2026 17:58 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-filters.spec.ts tests/ui/chessb | ❌ упало 1 из 18 | 2 мин 24 с | 57a0bfa +6 | [лог](logs/2026-09-30T12-58-08Z-e2e-3137.log) | Compact chessboard layout and existing booking interactions |
+| 30.09.2026 18:00 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/chessboard-compact-screen.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboar | ✅ 13 из 13 | 3 мин 4 с | 57a0bfa +6 | [лог](logs/2026-09-30T13-00-56Z-e2e-f7c4.log) | GREEN compact screen, week responsive views and booking creation |
+| 30.09.2026 18:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-compact.spec.ts) | ❌ упало 1 из 1 | 33 с | ca4dae5 +3 | [лог](logs/2026-09-30T13-14-06Z-e2e-368e.log) | RED desktop reservation filter disclosure |
+| 30.09.2026 18:15 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-compact.spec.ts tests/ui/reservations-v2-r3.spec.ts tests/ui/reservation | ✅ 9 из 9 | 2 мин 53 с | ca4dae5 +5 | [лог](logs/2026-09-30T13-15-41Z-e2e-8926.log) | Compact bookings filters, previews and error states |
+| 30.09.2026 18:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-design.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations | ❌ упало 1 из 16 | 3 мин 36 с | ca4dae5 +8 | [лог](logs/2026-09-30T13-19-22Z-e2e-cd6c.log) | Reservation status select, combined filters, responsive layouts and finance display |
+| 30.09.2026 18:23 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/reservations-v2-r2.spec.ts --grep пустой отбор) | ✅ 1 из 1 | 24 с | ca4dae5 +8 | [лог](logs/2026-09-30T13-23-35Z-e2e-cc6e.log) | GREEN empty state scope remains in list metadata; reset and invalid filters |
+| 30.09.2026 18:25 | typecheck | ✅ без ошибок | 1 мин 7 с | 338bc07 | [лог](logs/2026-09-30T13-25-48Z-typecheck-097c.log) |  |
+| 30.09.2026 18:26 | lint | ✅ без ошибок | 38 с | 338bc07 | [лог](logs/2026-09-30T13-26-56Z-lint-36f0.log) |  |
+| 30.09.2026 18:27 | unit | ✅ 2686 из 2689, пропущено 3 | 2 мин 6 с | 338bc07 | [лог](logs/2026-09-30T13-27-36Z-unit-ccba.log) |  |
+| 30.09.2026 18:29 | integration | ❌ код выхода 1 | 3 с | 338bc07 | [лог](logs/2026-09-30T13-29-43Z-integration-add8.log) |  |
+| 30.09.2026 18:30 | integration | ✅ 220 из 220 | 1 мин 19 с | 338bc07 | [лог](logs/2026-09-30T13-30-01Z-integration-0ade.log) |  |

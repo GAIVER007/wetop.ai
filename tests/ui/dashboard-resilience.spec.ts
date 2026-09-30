@@ -33,13 +33,13 @@ test('период выбирается: «этот месяц» открыва�
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });
 
-test('Главная открывается и с упавшими показателями периода: она их не зовёт', async ({
+test('Главная открывается и с упавшими показателями периода: операционный блок остаётся доступен', async ({
   page,
   request,
 }) => {
   await request.post(`${API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   await page.goto('/today');
   await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible();
-  await expect(page.getByTestId('c-arrivals')).toBeVisible();
+  await expect(page.getByTestId('owner-movements')).toBeVisible();
   await expect(page.getByTestId('pa-error')).toHaveCount(0);
 });

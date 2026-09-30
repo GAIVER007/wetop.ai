@@ -79,6 +79,7 @@ test('очередь: каждое событие дня с числом, важ
 }) => {
   const events = await expected(request);
   await page.goto('/today');
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   for (const [key, e] of Object.entries(events)) {
     const item = block.locator(`[data-testid="attention-event"][data-event="${key}"]`);
@@ -119,6 +120,7 @@ test('незаезд ведёт в бронь, долг — в счёт; бро�
 }) => {
   const day: Day = await (await request.get(`${fixture}/desk/today`, asClient)).json();
   await page.goto('/today');
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   const noShow = block.locator('[data-event="no-show"]');
   const first = day.overdueArrivals[0]!;
@@ -137,6 +139,7 @@ test('сторож не ответил — строк инцидентов не�
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/guard/status' } });
   await page.goto('/today');
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
   await expect(
     block.locator('[data-event="incidents"], [data-event="incidents-critical"]'),
@@ -144,13 +147,12 @@ test('сторож не ответил — строк инцидентов не�
   await expect(block.locator('[data-event="no-show"]')).toHaveCount(1);
 });
 
-test('день без броней — «Всё в порядке»: инциденты и уборка — текущее состояние, только на сегодня', async ({
-  page,
-}) => {
+test('финансовый период в будущем не скрывает текущие задачи гостиницы', async ({ page }) => {
   await page.goto('/today?date=2027-06-01');
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   const block = page.getByRole('region', { name: 'Требуют внимания' });
-  await expect(block).toContainText('Всё в порядке');
-  await expect(block.getByTestId('attention-event')).toHaveCount(0);
+  await expect(block).not.toContainText('Всё в порядке');
+  await expect(block.getByTestId('attention-event').first()).toBeVisible();
 });
 
 /**
@@ -158,8 +160,8 @@ test('день без броней — «Всё в порядке»: инцид�
  * отдельно в натуральную величину. Высокое окно вместо склейки: закреплённые меню и шапка на склейке «плывут».
  * Данные — подставного API; на реальных данных Luxx снимает владелец на своём стенде (ADR-018).
  */
-test('снимки Главной после A3', async ({ page }) => {
-  const dir = 'reports/today-a3-2026-09-28';
+test('снимки панелей Главной после редизайна', async ({ page }) => {
+  const dir = 'reports/owner-dashboard-2026-09-30';
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -170,11 +172,9 @@ test('снимки Главной после A3', async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.goto('/today');
+      await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
       const block = page.getByRole('region', { name: 'Требуют внимания' });
       await expect(block.getByTestId('attention-event').first()).toBeVisible();
-      const systems = page.getByRole('region', { name: 'Системы' });
-      await expect(systems.getByTestId('systems-channex')).toBeVisible();
-      await expect(page.getByTestId('money-paid')).toBeVisible();
       const height = await page.evaluate(() => document.documentElement.scrollHeight);
       await page.setViewportSize({ width, height });
       await page.screenshot({ path: `${dir}/today-${width}-${theme}.png` });

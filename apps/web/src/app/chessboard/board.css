@@ -1653,3 +1653,100 @@
     display: flex;
   }
 }
+
+/* Компактный рабочий экран: одна область прокрутки, управление не конкурирует с сеткой. */
+.page:has(> .board-wrap) {
+  padding: var(--space-4);
+  gap: 0;
+}
+.page:has(> .board-wrap) > .page__head {
+  margin-bottom: var(--space-2);
+  flex-shrink: 0;
+}
+.page:has(> .board-wrap) .page__title {
+  font-size: var(--text-2xl);
+  line-height: 1.2;
+}
+.board-overview-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-1);
+}
+.board-overview-controls .btn {
+  min-height: var(--space-8);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+}
+@media (min-width: 1024px) {
+  .board-controls {
+    gap: var(--space-2);
+  }
+  .board-controls .board-date-nav > .btn,
+  .board-controls .board-custom-range-toggle,
+  .page:has(> .board-wrap) .page__actions .btn {
+    min-height: var(--space-8);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .board-toolbar .board-search {
+    flex: 1 1 160px;
+  }
+  .board-toolbar .board-category {
+    flex: 0 1 200px;
+  }
+  .board-toolbar .board-state {
+    flex: 0 1 200px;
+  }
+  .board-toolbar .field--inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+  .board-toolbar .field > span {
+    font-size: var(--text-xs);
+  }
+  .board-toolbar {
+    align-items: end;
+  }
+  .board-search-label {
+    display: block;
+  }
+  .board-footer {
+    margin-top: var(--space-1);
+    flex: none;
+  }
+  .board-controls .board-period-full {
+    display: none;
+  }
+  .board-controls .board-period-short {
+    display: inline;
+  }
+}
+@media (max-width: 600px) {
+  .page:has(> .board-wrap) {
+    padding: var(--space-2) var(--space-2) calc(96px + env(safe-area-inset-bottom));
+  }
+  .board-overview-controls .btn {
+    min-height: var(--touch-target);
+  }
+}
+.board__unit-head .board-overview-controls {
+  margin: var(--space-1) 0 0;
+}
+.board__unit-head .board-overview-controls .btn {
+  color: var(--primary);
+  padding: 0;
+  min-height: var(--space-6);
+  white-space: normal;
+  text-align: left;
+}
+@media (max-width: 600px) {
+  .board__unit-head .board-overview-controls .btn {
+    min-height: var(--touch-target);
+  }
+}

@@ -74,7 +74,10 @@ describe.skipIf(!url)(
 
     it('контроль: прямое чтение очереди под организацией ловится (значит, перехват работает)', async () => {
       violations.length = 0;
-      await asOrg(() => app.channelOutbox.findFirst({ where: { provider: 'контроль' } }));
+      // После миграции B2 база отвечает отказом (42501) — запрос уходит от wetop_app и перехватывается до ответа; до неё — читает
+      await asOrg(() => app.channelOutbox.findFirst({ where: { provider: 'контроль' } })).catch(
+        (e: unknown) => expect(String(e)).toMatch(/permission denied|42501|denied access/i),
+      );
       expect(violations.length).toBeGreaterThan(0);
       violations.length = 0;
     });

@@ -128,6 +128,50 @@ ORDER BY 1, 2;
 **Откат:** `down.sql` этой миграции (`docs/ops/backups.md`, из копии базы) — `wetop_app` снова получает полный доступ. Код
 продолжает работать.
 
+## SEC-1b, стадия B: отзыв прав на данные интеграции (30.09.2026)
+
+ADR-124 (дополнения 30.09.2026), Q-222, Q-225, план `plans/sec1b-stage-b-2026-09-30.md`. Миграция
+`20260930000038_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox`
+оставляет только `INSERT` (без `RETURNING`). `wetop_service` не меняется.
+
+**Порядок: сначала код, потом миграция.** Нужен код не старше PR #198 (`a47fc932` и позже): все обращения к трём таблицам идут
+через `integrationTables(db)` (служебная роль), очередь ставится `createMany`, разбор входящих ревизий из запроса организации идёт
+интеграционной командой на служебной роли. Прежний код после миграции даст `permission denied` в журнале, очереди и сторожевых
+экранах под организацией.
+
+Перед миграцией на сервере:
+
+1. На сервере выложен код `a47fc932` или новее (`cat /var/lib/wetop-deploy/deployed`), миграции 033 и 034 применены, вход в стойку проверен.
+2. Свежая копия базы (`docs/ops/backups.md`).
+3. Отчёт `scripts/ops/integration-tables-scope-report.sql` (только чтение): `channel_outbox`, PENDING с `NULL` в `property_id` = 0.
+   Строки `NULL` после B1.5 экранам не видны, но отправляет очередь служебный путь; догадочной привязки нет.
+4. Желательно: `INTEGRATION_PROPERTY_ID` задан в `.env` (иначе объект интеграции выбирается по сопоставлениям и названию, `docs/deploy.md`).
+
+Применение — по образцу стадии A (`mig status`: не применена только `…038`; `mig deploy`; `mig status`; затем
+`/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина>` только если `release` перематывали).
+
+Проверка после миграции (только чтение, ответы без данных):
+
+```sql
+-- 1. Права wetop_app на три таблицы: ждём одну строку — INSERT на channel_outbox
+SELECT table_name, privilege_type
+FROM information_schema.role_table_grants
+WHERE grantee = 'wetop_app' AND table_schema = 'public'
+  AND table_name IN ('external_events', 'system_incidents', 'channel_outbox')
+ORDER BY 1, 2;
+
+-- 2. У wetop_service всё осталось: ждём true, true, true
+SELECT has_table_privilege('wetop_service', 'public.external_events', 'SELECT'),
+       has_table_privilege('wetop_service', 'public.channel_outbox', 'UPDATE'),
+       has_table_privilege('wetop_service', 'public.system_incidents', 'DELETE');
+```
+
+Руками: войти в стойку, открыть «Каналы продаж» (журнал событий и очередь), «Подключения → Channex», «Главная» (блок «Системы»);
+если каналы подключены — «Проверить соединение». В логе API за несколько минут нет `permission denied` и `42501`.
+
+**Откат:** `down.sql` этой миграции (`docs/ops/backups.md`, из копии базы) — `wetop_app` снова получает полный доступ. Код
+продолжает работать: он от этих прав не зависит. Откатывать код на версию старше #198 можно только вместе с `down.sql`.
+
 ## Роли Data API Supabase: отзыв прав (30.09.2026)
 
 Аудит 30.09.2026 (`reports/security-vibe-audit-2026-09-30.md` §2). Миграция `20260930000034_revoke_supabase_api_roles`

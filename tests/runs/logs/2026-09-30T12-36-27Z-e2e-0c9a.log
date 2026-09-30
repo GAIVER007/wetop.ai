@@ -1,0 +1,93 @@
+# Сквозные (e2e) · 30.09.2026 17:36 Алматы · MacBook-Air-Urij.local
+# коммит cb9b26c (codex/unified-workspace-20260929), незакоммиченных файлов набора: 15
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' '--grep' 'главная: быстрые|owner dashboard dark|замер: блоки'
+[WebServer] (node:17628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17721) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 3 tests using 1 worker
+
+(node:17807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/dashboard-design.spec.ts:95:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (6.2s)
+TODAY_LOADING_MS [{"heading":1365,"strip":1631,"desk":1631},{"heading":1464,"desk":1656,"strip":2116},{"heading":1296,"strip":2035,"desk":2043}]
+  ✓  2 tests/ui/loading-performance.spec.ts:97:1 › замер: блоки Главной при задержке настроек 2000 мс (9.1s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{scrollRef:null, ...}} cacheNode={{rsc:{...}, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="today/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/today?per..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="today/page...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <TodayPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page page-...">
+[WebServer]                           <header>
+[WebServer]                           <div className="owner-toolbar">
+[WebServer]                             <nav>
+[WebServer]                             <form action="/today">
+[WebServer]                               <input
+[WebServer]                                 type="hidden"
+[WebServer]                                 name="period"
+[WebServer]                                 value="custom"
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <input
+[WebServer]                                 aria-label="Начало периода"
+[WebServer]                                 type="date"
+[WebServer]                                 name="from"
+[WebServer]                                 defaultValue="2026-09-24"
+[WebServer]                                 required={true}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               <span>
+[WebServer]                               <input
+[WebServer]                                 aria-label="Конец периода"
+[WebServer]                                 type="date"
+[WebServer]                                 name="to"
+[WebServer]                                 defaultValue="2026-09-30"
+[WebServer]                                 required={true}
+[WebServer] -                               style={{caret-color:"transparent"}}
+[WebServer]                               >
+[WebServer]                               ...
+[WebServer]                             ...
+[WebServer]                           ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+  ✓  3 tests/ui/owner-dashboard.spec.ts:51:1 › owner dashboard dark desktop and mobile remain usable (3.8s)
+
+  3 passed (30.8s)
+
+# код выхода 0 · 32 с

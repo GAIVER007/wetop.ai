@@ -34,8 +34,8 @@ test('Главная показывает блоки, пока настройк�
     await expect(page.getByRole('heading', { name: 'Главная', exact: true })).toBeVisible({
       timeout: 5000,
     });
-    await expect(page.getByTestId('c-inhouse')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('c-arrivals')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('owner-guests')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('owner-movements')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
       'Объект не загружен',
     );
@@ -67,7 +67,7 @@ test('стойка и её шахматка запрашиваются пара�
       { timeout: 2000 },
     )
     .toBe(1);
-  await expect(page.getByTestId('c-arrivals')).toBeVisible();
+  await expect(page.getByTestId('owner-movements')).toBeVisible();
 });
 
 test('мобильное меню использует уже загруженную свежесть без второго опроса', async ({ page }) => {
@@ -107,8 +107,8 @@ test('замер: блоки Главной при задержке настро
     await Promise.all(
       [
         ['heading', page.getByRole('heading', { name: 'Главная', exact: true })],
-        ['strip', page.getByTestId('c-inhouse')],
-        ['desk', page.getByTestId('c-arrivals')],
+        ['strip', page.getByTestId('owner-guests')],
+        ['desk', page.getByTestId('owner-movements')],
       ].map(async ([key, locator]) => {
         await expect(locator as import('@playwright/test').Locator).toBeVisible();
         sample[key as string] = Math.round(performance.now() - start);

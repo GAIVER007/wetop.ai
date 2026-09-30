@@ -68,14 +68,19 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
   for (const row of report?.rows ?? [])
     money.set(row.currency, (money.get(row.currency) ?? 0n) + BigInt(row.amountMinor));
   return (
-    <section className="stack stack--sm" aria-labelledby="channel-report-title">
+    <section className="stack stack--sm channels-report" aria-labelledby="channel-report-title">
       <SectionTitle id="channel-report-title">Брони по источникам</SectionTitle>
       {valid && (
         <p className="note" data-testid="channel-period">
           {`Брони с заездом ${periodText}, ${pluralRu(nightsBetween(from, to) + 1, ['день', 'дня', 'дней'])}, ${reservationStatuses[status]!.toLowerCase()}`}
         </p>
       )}
-      <form method="get" action="/channels" className="row toolbar" data-testid="channel-period-form">
+      <form
+        method="get"
+        action="/channels"
+        className="row toolbar channels-period"
+        data-testid="channel-period-form"
+      >
         <Field label="Заезд с">
           <DateInput name="from" defaultValue={from} required />
         </Field>
@@ -118,12 +123,6 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
                 ) : (
                   '—'
                 )
-              }
-              hint={
-                <>
-                  {status === 'ALL' && money.size ? 'включая отмены и незаезды. ' : ''}
-                  <Link href={`/finance?from=${from}&to=${to}`}>Фактические оплаты за период</Link>
-                </>
               }
             />
           </Stats>
@@ -194,6 +193,11 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
             </EmptyState>
           )}
           <Help title="Как считаются показатели">
+            Стоимость броней включает отмены и незаезды при выборе всех статусов.
+            <Link href={`/finance?from=${from}&to=${to}`}>
+              {' '}
+              Фактические оплаты за период — в финансах.
+            </Link>{' '}
             Одна коммерческая бронь считается один раз, даже если в ней несколько мест. Источники
             появляются по сохранённым броням: наличие строки Booking.com или Trip.com не означает,
             что канал сейчас подключён. Валюты считаются отдельно.

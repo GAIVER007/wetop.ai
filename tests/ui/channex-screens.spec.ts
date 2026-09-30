@@ -86,6 +86,7 @@ test('обзор каналов: полоса состояния, вкладки
   await expect(main.getByTestId('webhook-status')).toHaveText('нет PUBLIC_API_URL');
   // наблюдаемые каналы (Q-205 закрыт владельцем, дополнение к ADR-112): факты из событий,
   // без зелёного health — формулировка «Booking.com — работает» запрещена
+  await main.getByTestId('channels-activity').locator('summary').click();
   const observedTable = main.getByTestId('channels-observed');
   await expect(observedTable.getByTestId('observed-row').first()).toContainText('Booking.com');
   await expect(observedTable).not.toContainText('работает');
@@ -145,6 +146,7 @@ test('сопоставление: названия Channex вместо id, не
   await request.post(`${fixture}/__test/control`, { data: { channelMapping: 'partial' } });
   // с обзора: разрыв сопоставления ведёт на вкладку
   await page.goto('/channels');
+  await main.getByTestId('channels-activity').locator('summary').click();
   await main.getByTestId('mapping-gap').getByRole('link', { name: '«Сопоставление»' }).click();
   await expect(page).toHaveURL(/\/channels\/mapping$/);
   // категории: название номера в Channex, статус словом
@@ -457,7 +459,7 @@ test('цены: сбой календаря оставляет форму и м�
   await request.post(`${fixture}/__test/control`, { data: { showcase: true, failPath: '/rates' } });
   await page.goto('/rates?month=2026-10');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Тарифы и цены');
-  await expect(main.getByRole('navigation', { name: 'Категория' })).toBeVisible();
+  await expect(main.getByRole('combobox', { name: 'Категория' })).toBeVisible();
   await main.getByTestId('rates-edit-open').click();
   await expect(main.getByTestId('bulk-editor')).toBeVisible();
   await page.keyboard.press('Escape');

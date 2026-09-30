@@ -58,3 +58,7 @@
 - Next production build: Turbopack остановлен после отсутствия прогресса; альтернативный webpack отказал на импорте node:crypto в клиентскую цепочку access-gate. Сборку main не считать подтверждённой, deploy main не выполнен.
 
 Полные логи: `tests/runs/logs/2026-09-30T13-50-42Z-integration-ae29.log`, `2026-09-30T13-55-50Z-e2e-7bd2.log`, `2026-09-30T14-00-45Z-e2e-0e43.log`.
+
+## После ручного применения 035–037 владельцем
+
+30.09.2026: рабочая Supabase проверена READ ONLY. Все три миграции завершены; `seller_agents.location_id`, `seller_profiles.agent_id`, `reservations.promo_code_id` присутствуют. `seller_scope_assert()` проходит. Повтор служебной сверки через локальный API 3001: `RESULT: OK — сутки внутри PMS сходятся`; прежний HTTP 500 шахматки больше не воспроизводится. [Сверка](day-selfcheck-2026-09-30.md). Это подтверждение схемы и запросов, а не новая выкладка приложения.

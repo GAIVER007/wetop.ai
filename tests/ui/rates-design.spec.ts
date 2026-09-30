@@ -188,3 +188,13 @@ test('месяц из шести недель помещается на ноут
     animations: 'disabled',
   });
 });
+
+test('нет цены в воскресенье: подсказка не расширяет страницу', async ({ page, request }) => {
+  await request.post(`${fixture}/__test/control`, { data: { showcase: true } });
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto('/rates?month=2026-06');
+  await expect(page.getByRole('main').getByTestId('rate-row-2026-06-21')).toContainText('Нет цены');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+});

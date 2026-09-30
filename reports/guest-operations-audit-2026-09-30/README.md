@@ -46,3 +46,15 @@
 - [Брони](reservations.png)
 - [Меню шахматки](chessboard-menu.png)
 - [Мобильная навигация](navigation-mobile.png)
+
+## Дополнение: настоящий API и PostgreSQL
+
+- `integration-ae29`: 8/8 на изолированной локальной PostgreSQL с синтетическим seed (guest-card, guest-directory, existing guest, reservation filters/lock, folio, checkout lock).
+- `e2e-7bd2`: schema guard, check-in/out, full-day и manual reservation прошли; старый dragTo не вызвал ожидаемое окно.
+- `e2e-0e43`: после замены жеста теста на последовательность mouse/dragover с проверкой preview перенос прошёл с настоящим API и БД. Все прежние проверки переноса, свободных ячеек, карточки и отмены сохранены.
+- Сквозной стенд: Next dev (`APP_UI_TEST` использован только для отдельной папки `.next-ui`), настоящий Nest API 3101, PostgreSQL 55432, схема pms_test. Workers внешних интеграций выключены. Это не production-build тест.
+- Production read-only: Главная и шахматка HTTP 200; countsMatch и assignedMatch true на 30.09, 88 единиц фонда.
+- Рабочая Supabase прочитана в READ ONLY: `promo_code_id` отсутствует, миграции завершены до 034. Поэтому локальный API текущей main даёт HTTP 500, хотя опубликованный совместимый release работает. Для ручного обновления владельцу подготовлен пакет [035–037](../../docs/ops/supabase-2026-09-30/README.md); он пока не применён к рабочей базе.
+- Next production build: Turbopack остановлен после отсутствия прогресса; альтернативный webpack отказал на импорте node:crypto в клиентскую цепочку access-gate. Сборку main не считать подтверждённой, deploy main не выполнен.
+
+Полные логи: `tests/runs/logs/2026-09-30T13-50-42Z-integration-ae29.log`, `2026-09-30T13-55-50Z-e2e-7bd2.log`, `2026-09-30T14-00-45Z-e2e-0e43.log`.

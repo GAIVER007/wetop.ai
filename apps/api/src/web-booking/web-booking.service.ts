@@ -346,7 +346,7 @@ export class WebBookingService {
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
-    // BOOK-SEC1 (аудит 29.09.2026, ADR-127): токен Turnstile проверяется здесь, после разбора запроса (мусор до Cloudflare не
+    // BOOK-SEC1 (аудит 29.09.2026, ADR-129): токен Turnstile проверяется здесь, после разбора запроса (мусор до Cloudflare не
     // доходит) и до занятия места в лимите сайта: отказ проверки лимит брони не тратит. Секрет не задан — проверки нет.
     if (this.turnstile.enabled()) {
       const verdict = await this.turnstile.verify(

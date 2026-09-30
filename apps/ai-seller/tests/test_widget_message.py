@@ -195,3 +195,19 @@ def test_a_message_over_the_character_limit_is_refused(app, runner) -> None:
     assert runner.submitted == []
     assert app.message(key, "я" * 4000).status_code == 200
     assert len(runner.submitted) == 1
+
+
+def test_message_is_refused_when_the_rate_counter_is_down(monkeypatch, fake_redis, sync_db, runner) -> None:  # noqa: F811
+    """🔴 Решение владельца 30.09.2026: за дверью — ход модели, и без счётчика (Redis) она не
+    открывается: 503, хода нет. Красный на коде до правки: 200 и ход в очереди (fail-open)."""
+    with widget_app(monkeypatch, fake_redis, runner=runner) as app:
+        key = app.new_visitor()
+
+        async def down(*_args, **_kwargs):
+            raise RuntimeError("redis недоступен")
+
+        monkeypatch.setattr(fake_redis, "incr", down)
+        response = app.message(key, "Есть места?")
+    assert response.status_code == 503, response.status_code
+    assert runner.submitted == []
+    assert "redis" not in response.text.lower()

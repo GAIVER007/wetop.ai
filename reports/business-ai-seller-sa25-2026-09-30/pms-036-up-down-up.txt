@@ -1,0 +1,34 @@
+--- PMS 036 (сужение) на настоящей PostgreSQL 16, поверх 035 и данных; всё в одной транзакции и откатывается
+--- до 036: первичный ключ seller_profiles (колонка), agent_id NOT NULL?
+    pk_column    
+ organization_id
+ agent_id_not_null 
+ f
+--- 036 (up)
+--- после 036: первичный ключ, NOT NULL, индекс организации
+ pk_column 
+ agent_id
+ agent_id_not_null 
+ org_index 
+         1
+--- два агента одной организации, у каждого свой профиль: разрешено (профилей у организации)
+ profiles_of_org 
+               2
+--- откат при двух профилях у организации: отказ без изменений
+psql:packages/database/prisma/migrations/20260930000036_seller_profile_agent_key/down.sql:10: ERROR:  Откат 036 невозможен: у 1 организаций несколько профилей (несколько агентов) — оставьте схему
+CONTEXT:  PL/pgSQL function inline_code_block line 6 at RAISE
+psql:packages/database/prisma/migrations/20260930000036_seller_profile_agent_key/down.sql:12: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:packages/database/prisma/migrations/20260930000036_seller_profile_agent_key/down.sql:13: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:packages/database/prisma/migrations/20260930000036_seller_profile_agent_key/down.sql:14: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:packages/database/prisma/migrations/20260930000036_seller_profile_agent_key/down.sql:15: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:packages/database/prisma/migrations/20260930000036_seller_profile_agent_key/down.sql:16: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ pk_column_after_refusal 
+ agent_id
+--- после удаления второго профиля откат проходит: ключ снова по организации
+    pk_column    
+ organization_id
+ profiles_kept 
+             1
+--- повторный up
+ pk_column 
+ agent_id

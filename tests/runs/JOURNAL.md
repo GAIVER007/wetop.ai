@@ -4570,3 +4570,7 @@
 | 30.09.2026 15:30 | integration | ❌ упало 5 из 186 | 55 с | b0760a3 +1 | [лог](logs/2026-09-30T10-30-06Z-integration-ba9b.log) | seller_profiles и факты объекта (integration, DATABASE_URL required) первая правка заводит строку организации и пишет журнал: до — пусто, после — поля |
 | 30.09.2026 15:31 | integration | ✅ 186 из 186 | 54 с | b0760a3 +2 | [лог](logs/2026-09-30T10-31-24Z-integration-88f0.log) |  |
 | 30.09.2026 15:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 112 из 112 | 8 мин 35 с | b0760a3 +1 | [лог](logs/2026-09-30T10-32-22Z-e2e-de31.log) |  |
+| 30.09.2026 15:55 | typecheck | ✅ без ошибок | 28 с | fbdf8e5 | [лог](logs/2026-09-30T10-55-36Z-typecheck-e93b.log) |  |
+| 30.09.2026 15:56 | lint | ✅ без ошибок | 22 с | fbdf8e5 | [лог](logs/2026-09-30T10-56-04Z-lint-28be.log) |  |
+| 30.09.2026 15:56 | unit | ✅ 2579 из 2582, пропущено 3 | 1 мин 27 с | fbdf8e5 | [лог](logs/2026-09-30T10-56-27Z-unit-6f6c.log) |  |
+| 30.09.2026 15:57 | integration | ✅ 194 из 194 | 56 с | fbdf8e5 | [лог](logs/2026-09-30T10-57-54Z-integration-d022.log) |  |

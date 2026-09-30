@@ -67,7 +67,15 @@ test('перетаскивание клетки брони на свободну
   await expect(rowB.locator(`td[data-date="${arrival}"]`)).toHaveAttribute('data-state', 'FREE');
   await expect(rowB.locator(`td[data-date="${plus(13)}"]`)).toHaveAttribute('data-state', 'FREE');
 
-  await source.dragTo(rowB.locator(`td[data-date="${arrival}"]`));
+  // Реальный жест с несколькими dragover: одиночного dragTo недостаточно для preview/drop.
+  const target = rowB.locator(`td[data-date="${arrival}"]`);
+  await source.hover();
+  await page.mouse.down();
+  const targetBox = (await target.boundingBox())!;
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 6 });
+  await page.mouse.move(targetBox.x + targetBox.width / 2 + 3, targetBox.y + targetBox.height / 2, { steps: 2 });
+  await expect(rowB.getByTestId('drop-ghost')).toBeVisible();
+  await page.mouse.up();
   // вопрос стойки: номер брони в заголовке, ячейки и дата переезда — в теле
   const confirm = page.getByRole('main').getByTestId('confirm-dialog');
   await expect(confirm).toContainText(`Переселить бронь ${number}?`);

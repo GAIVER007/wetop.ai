@@ -1,0 +1,19 @@
+# Типы (typecheck) · 30.09.2026 15:26 Алматы · vm
+# коммит b0760a3 (claude/charming-heisenberg-ainaqm)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/ai-seller/ai-seller.controller.test.ts(1024,34): error TS2345: Argument of type '{ id: string; name: string; updatedAt: Date; }[]' is not assignable to parameter of type 'SellerCatalogDraft[]'.
+  Property 'placement' is missing in type '{ id: string; name: string; updatedAt: Date; }' but required in type 'SellerCatalogDraft'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 38 с

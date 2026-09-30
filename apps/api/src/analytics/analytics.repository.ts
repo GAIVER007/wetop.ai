@@ -33,6 +33,21 @@ export interface SiteRecord {
   organizationId?: string | null;
 }
 
+/**
+ * Область агента продавца (SA2.5): организация, филиал и объект берутся ТОЛЬКО из строки `seller_agents`. Идентификатор агента,
+ * пришедший в запросе, — недоверенный селектор: по нему находится строка, а всё остальное берётся из неё.
+ * Архивный агент областью не является (`null`), как и несуществующий.
+ */
+export interface AgentScopeRow {
+  id: string;
+  organizationId: string;
+  locationId: string | null;
+  /** Объект филиала (Property–Location 1:1); `null` — у агента нет филиала или у филиала нет объекта */
+  propertyId: string | null;
+  lifecycle: 'draft' | 'active' | 'paused' | 'archived';
+  scenario: string;
+}
+
 export interface RatePlanOption {
   id: string;
   code: string;
@@ -62,6 +77,13 @@ export interface SiteStatus {
   pageviewsToday: number;
 }
 
+/** Бронь с источником «Сайт» для отчёта сайта (WEB4, Q-212): статус, валюта и начисления её счетов */
+export interface SiteReservationRow {
+  status: string;
+  currency: string;
+  charges: Array<{ amountMinor: bigint; voided: boolean }>;
+}
+
 export interface AnalyticsRepository {
   sites(): Promise<SiteRecord[]>;
   site(id: string): Promise<SiteRecord | null>;
@@ -71,6 +93,14 @@ export interface AnalyticsRepository {
   /** Сайт бронирования организации для котировки продавца (Q-166, ADR-085): первый ACTIVE с включённым
    * бронированием и тарифом сайта — тот же выбор, что у фактов продавца. `null` — такого нет */
   bookingSiteForOrganization(organizationId: string): Promise<SiteRecord | null>;
+  /** Строка агента для области запроса (SA2.5); `null` — агента нет или он в архиве */
+  agentScope(agentId: string): Promise<AgentScopeRow | null>;
+  /** Сайт бронирования ФИЛИАЛА агента (не организации): первый ACTIVE с включённым бронированием и тарифом на его объекте */
+  bookingSiteForAgent(agentId: string): Promise<SiteRecord | null>;
+  /** Домены действующих сайтов филиала агента — из них вычисляется allowlist виджета; `null` — агента нет */
+  hostsForAgent(agentId: string): Promise<string[] | null>;
+  /** Сколько неархивных AI-продавцов у организации: прежний запрос по одной организации неоднозначен при двух */
+  salesAgentCount(organizationId: string): Promise<number>;
   createSite(input: { name: string; hosts: string[]; publicKey: string }): Promise<SiteRecord>;
   updateSite(
     id: string,
@@ -104,6 +134,11 @@ export interface AnalyticsRepository {
    * дописывается: счёт переживает перезапуск API, в отличие от окон в памяти (С-7, ТЗ аудита 25.09.2026)
    */
   siteBookingsSince(siteId: string, since: Date): Promise<number>;
+  /**
+   * Брони объекта с источником «Сайт», созданные в полуинтервале (WEB4): у брони нет номера сайта, поэтому — по
+   * объекту; аннулированные начисления приходят помеченными, считает их `siteReservations` домена
+   */
+  siteReservations(startUtc: Date, endUtcExclusive: Date): Promise<SiteReservationRow[]>;
   /** Тариф для виджета по коду (срез 9) */
   ratePlanByCode(code: string): Promise<RatePlanOption | null>;
   /** Первый активный тариф объекта по стабильной сортировке */
@@ -224,6 +259,60 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     });
     return r ? toRecord(r) : null;
   }
+  async agentScope(agentId: string): Promise<AgentScopeRow | null> {
+    const a = await this.prisma.db.sellerAgent.findFirst({
+      where: { id: agentId, lifecycle: { not: 'archived' } },
+      select: {
+        id: true,
+        organizationId: true,
+        locationId: true,
+        lifecycle: true,
+        scenario: true,
+        location: { select: { property: { select: { id: true } } } },
+      },
+    });
+    return a
+      ? {
+          id: a.id,
+          organizationId: a.organizationId,
+          locationId: a.locationId,
+          propertyId: a.location?.property?.id ?? null,
+          lifecycle: a.lifecycle as AgentScopeRow['lifecycle'],
+          scenario: a.scenario,
+        }
+      : null;
+  }
+  async bookingSiteForAgent(agentId: string): Promise<SiteRecord | null> {
+    const scope = await this.agentScope(agentId);
+    if (!scope?.propertyId) return null;
+    const r = await this.prisma.db.trackedSite.findFirst({
+      where: {
+        propertyId: scope.propertyId,
+        status: 'ACTIVE',
+        bookingEnabled: true,
+        bookingRatePlanId: { not: null },
+      },
+      orderBy: { createdAt: 'asc' },
+      select: SITE_SELECT,
+    });
+    return r ? toRecord(r) : null;
+  }
+  async hostsForAgent(agentId: string): Promise<string[] | null> {
+    const scope = await this.agentScope(agentId);
+    if (!scope) return null;
+    if (!scope.propertyId) return [];
+    const sites = await this.prisma.db.trackedSite.findMany({
+      where: { propertyId: scope.propertyId, status: 'ACTIVE' },
+      select: { hosts: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    return [...new Set(sites.flatMap((x) => x.hosts))];
+  }
+  async salesAgentCount(organizationId: string): Promise<number> {
+    return this.prisma.db.sellerAgent.count({
+      where: { organizationId, scenario: 'sales', lifecycle: { not: 'archived' } },
+    });
+  }
   async createSite(input: {
     name: string;
     hosts: string[];
@@ -338,6 +427,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       where: { siteId, startedAt: { gte: startUtc, lt: endUtcExclusive } },
       select: {
         visitorKey: true,
+        sessionKey: true,
         startedAt: true,
         pageviews: true,
         durationSeconds: true,
@@ -401,6 +491,35 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         after: after as Prisma.InputJsonObject,
       },
     });
+  }
+
+  async siteReservations(startUtc: Date, endUtcExclusive: Date): Promise<SiteReservationRow[]> {
+    const rows = await this.prisma.db.reservation.findMany({
+      where: {
+        propertyId: await this.propertyId(),
+        source: 'WEBSITE',
+        createdAt: { gte: startUtc, lt: endUtcExclusive },
+      },
+      select: {
+        status: true,
+        currency: true,
+        // начисления — как у списка «Брони» (R1): действующие, по счетам проживаний брони
+        items: {
+          select: {
+            folio: {
+              select: { charges: { where: { voidedAt: null }, select: { amount: true } } },
+            },
+          },
+        },
+      },
+    });
+    return rows.map((r) => ({
+      status: r.status,
+      currency: r.currency,
+      charges: r.items.flatMap((it) =>
+        (it.folio?.charges ?? []).map((c) => ({ amountMinor: c.amount, voided: false })),
+      ),
+    }));
   }
 
   async siteBookingsSince(siteId: string, since: Date): Promise<number> {

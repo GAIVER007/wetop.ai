@@ -8,6 +8,17 @@
   gap: var(--space-2);
   margin-bottom: var(--space-6);
 }
+.pa-toolbar__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.pa-day-step {
+  flex: none;
+}
+.pa-day-step--prev svg {
+  transform: scaleX(-1);
+}
 .pa-toolbar__caption {
   margin: 0;
   font-size: var(--text-sm);
@@ -124,18 +135,78 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* «Загрузка» (AN2): пять плиток в ряд */
+.pa-kpis--occupancy {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.pa-kpis .kpi__hint .pa-kpi-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.pa-meta {
+  margin-bottom: var(--space-4);
+}
+.pa-panel-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+.pa-occupancy-table .kpi-delta {
+  white-space: nowrap;
+}
+/* «Сравнение категорий»: полоса — загрузка категории, черта — средняя по фонду */
+.pa-rank {
+  margin-bottom: var(--space-4);
+}
+/* одна колонка названий на все строки: полосы начинаются с одной линии и сравниваются на глаз */
+.hbars.pa-rank li {
+  grid-template-columns: minmax(160px, 22%) minmax(0, 1fr) auto;
+}
+.pa-rank__track {
+  position: relative;
+}
+.pa-rank__avg {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--text-2);
+}
+.pa-rank__diff {
+  min-width: 150px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.pa-rank__diff--up {
+  color: var(--success);
+}
+.pa-rank__diff--down {
+  color: var(--danger);
+}
+.pa-rank__diff--flat {
+  color: var(--muted);
+}
+
 /*
  * Полоска загрузки в таблице категорий: общий стиль (`management/hotel.css`) красит заливку тем же
  * `--success-soft`, что и дорожку, и доля не видна. Здесь заливка — акцентом, как столбики графика.
  */
-.pa-categories .occupancy-meter meter::-webkit-meter-optimum-value {
+.pa-categories .occupancy-meter meter::-webkit-meter-optimum-value,
+.pa-occupancy-table .occupancy-meter meter::-webkit-meter-optimum-value {
   background: var(--primary);
 }
-.pa-categories .occupancy-meter meter::-moz-meter-bar {
+.pa-categories .occupancy-meter meter::-moz-meter-bar,
+.pa-occupancy-table .occupancy-meter meter::-moz-meter-bar {
   background: var(--primary);
 }
 .pa-categories .occupancy-meter meter::-webkit-meter-bar,
-.pa-categories .occupancy-meter meter {
+.pa-categories .occupancy-meter meter,
+.pa-occupancy-table .occupancy-meter meter::-webkit-meter-bar,
+.pa-occupancy-table .occupancy-meter meter {
   background: var(--primary-soft);
 }
 
@@ -150,6 +221,15 @@
 @media (max-width: 1279px) {
   .pa-kpis {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+/* на телефоне отличие от средней — своей строкой под полосой, название уже стоит над ней */
+@media (max-width: 760px) {
+  .hbars.pa-rank li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .pa-rank__diff {
+    min-width: 0;
   }
 }
 @media (max-width: 760px) {
@@ -167,6 +247,28 @@
   .pa-range__form {
     flex-wrap: wrap;
     width: min(360px, calc(100vw - var(--space-8)));
+  }
+}
+
+/* телефон: каждая цель полосы периода не меньше 44 px (DESIGN.md §11), поле даты — 16 px, без приближения */
+@media (max-width: 600px) {
+  .pa-fund a,
+  .pa-compare,
+  .pa-range > summary,
+  .pa-range__form .btn,
+  .pa-range__form .inp {
+    min-height: var(--touch-target);
+  }
+  .pa-fund a {
+    display: inline-flex;
+    align-items: center;
+  }
+  .pa-day-step {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+  }
+  .pa-range__form .inp {
+    font-size: var(--text-lg);
   }
 }
 

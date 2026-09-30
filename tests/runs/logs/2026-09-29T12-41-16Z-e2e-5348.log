@@ -1,0 +1,454 @@
+# Сквозные (e2e) · 29.09.2026 17:41 Алматы · vm
+# коммит e8fdd39 (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents.spec.ts' 'tests/ui/ai-seller.spec.ts' 'tests/ui/roles.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 35 tests using 2 workers
+
+  ✓   1 tests/ui/ai-agents.spec.ts:26:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (3.8s)
+  ✓   2 tests/ui/ai-seller.spec.ts:39:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (4.8s)
+  ✓   4 tests/ui/ai-seller.spec.ts:70:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (3.4s)
+  ✓   5 tests/ui/ai-seller.spec.ts:97:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (1.4s)
+  ✓   6 tests/ui/ai-seller.spec.ts:122:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (1.8s)
+  ✓   7 tests/ui/ai-seller.spec.ts:137:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (4.2s)
+  ✓   8 tests/ui/ai-seller.spec.ts:165:1 › продавец недоступен — метка, причина и обещание повтора (1.2s)
+  ✓   9 tests/ui/ai-seller.spec.ts:176:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.3s)
+  ✘   3 tests/ui/ai-agents.spec.ts:49:1 › главный администратор: рядом с продавцом карточка WETOP Support (18.4s)
+  ✓  10 tests/ui/ai-seller.spec.ts:191:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (8.9s)
+  ✓  11 tests/ui/ai-agents.spec.ts:61:1 › старый адрес /ai-seller работает (3.9s)
+  ✓  12 tests/ui/ai-seller.spec.ts:205:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (3.3s)
+  ✓  13 tests/ui/ai-agents.spec.ts:69:5 › вход в раздел: axe и снимок, light, 1440 (4.7s)
+  ✓  14 tests/ui/ai-seller.spec.ts:236:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (4.2s)
+  ✓  16 tests/ui/ai-seller.spec.ts:270:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.4s)
+  ✓  15 tests/ui/ai-agents.spec.ts:69:5 › вход в раздел: axe и снимок, light, 390 (4.3s)
+  ✓  18 tests/ui/ai-agents.spec.ts:69:5 › вход в раздел: axe и снимок, dark, 1440 (4.5s)
+  ✓  19 tests/ui/ai-agents.spec.ts:69:5 › вход в раздел: axe и снимок, dark, 390 (3.3s)
+  ✓  20 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (3.2s)
+  ✓  21 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (8.0s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  22 tests/ui/roles.spec.ts:99:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (4.3s)
+  ✓  23 tests/ui/roles.spec.ts:116:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.1s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '264203589'
+[WebServer] }
+  ✓  24 tests/ui/roles.spec.ts:144:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (7.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  25 tests/ui/roles.spec.ts:206:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.6s)
+  ✓  26 tests/ui/roles.spec.ts:257:1 › владелец: зовёт управляющего и администратора, меняет роль (3.6s)
+  ✘  17 tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (45.3s)
+  ✓  28 tests/ui/ai-seller.spec.ts:304:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (4.3s)
+  ✓  29 tests/ui/ai-seller.spec.ts:318:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (2.3s)
+  ✓  30 tests/ui/ai-seller.spec.ts:335:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (3.0s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <AiSellerPage>
+[WebServer]       <Page>
+[WebServer]         <main id="main-content" tabIndex={-1} className="page">
+[WebServer]           <header>
+[WebServer]           ...
+[WebServer]             <SellerScreen>
+[WebServer]               <Stack>
+[WebServer]                 <div className="stack">
+[WebServer]                   <ConnectionsView>
+[WebServer]                     <Stack>
+[WebServer]                       <div className="stack">
+[WebServer]                         ...
+[WebServer]                           <form className="stack stac...">
+[WebServer]                             <Field label="API-ключ м...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="key" type="password" maxLength={200} autoComplete="off" placeholder="sk-…" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="key"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={200}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="sk-…"
+[WebServer]                                     data-testid="seller-llm-key-input"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]                         <section>
+[WebServer]                         ...
+[WebServer]                           <form className="stack stac...">
+[WebServer]                             <Field label="phone_numb...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="phoneNumberId" inputMode="numeric" maxLength={64} ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="phoneNumberId"
+[WebServer]                                     inputMode="numeric"
+[WebServer]                                     maxLength={64}
+[WebServer]                                     placeholder="из консоли Meta, только цифры"
+[WebServer]                                     data-testid="seller-whatsapp-phone-id"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Постоянный...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="token" type="password" maxLength={512} autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="token"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={512}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     placeholder="EAAG…"
+[WebServer]                                     data-testid="seller-whatsapp-token"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             <Field label="Секрет при...">
+[WebServer]                               <label className="field">
+[WebServer]                                 <Input name="appSecret" type="password" maxLength={200} autoComplete="off" ...>
+[WebServer]                                   <input
+[WebServer]                                     className="inp"
+[WebServer]                                     name="appSecret"
+[WebServer]                                     type="password"
+[WebServer]                                     maxLength={200}
+[WebServer]                                     autoComplete="off"
+[WebServer]                                     data-testid="seller-whatsapp-secret"
+[WebServer]                                     disabled={false}
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                             ...
+[WebServer]  
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <SegmentViewNode type="page" pagePath="ai-seller/...">
+[WebServer]       <SegmentTrieNode>
+[WebServer]       <AiSellerPage>
+[WebServer]         <Page>
+[WebServer]           <main id="main-content" tabIndex={-1} className="page">
+[WebServer]             <header>
+[WebServer]             <nav>
+[WebServer]             <Suspense fallback={<div>}>
+[WebServer]               <SellerScreen>
+[WebServer]                 <Stack>
+[WebServer]                   <div className="stack">
+[WebServer]                     <SetupView>
+[WebServer]                       <Stack>
+[WebServer]                         <div className="stack">
+[WebServer]                           <section>
+[WebServer]                           <div className="seller-setup">
+[WebServer]                             ...
+[WebServer]                               <SellerPromptForm initial={"Разговор..."} max={20000} readOnly={null} note={null}>
+[WebServer]                                 <form action={function bound dispatchActionState} className="stack" ...>
+[WebServer]                                   <Textarea name="text" aria-labelledby="seller-pro..." rows={16} maxLength={20000} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       aria-labelledby="seller-prompt-title"
+[WebServer]                                       rows={16}
+[WebServer]                                       maxLength={20000}
+[WebServer]                                       required={true}
+[WebServer]                                       disabled={false}
+[WebServer]                                       defaultValue={"Разговор по шагам\n- Узнай, что нужно гостю: даты, сколько госте..."}
+[WebServer]                                       data-testid="seller-prompt-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]                                   ...
+[WebServer]                             ...
+[WebServer]                               <Field label="Сообщение ...">
+[WebServer]                                 <label className="field">
+[WebServer]                                   <Textarea name="text" rows={2} maxLength={2000} required={true} ...>
+[WebServer]                                     <textarea
+[WebServer]                                       className="inp"
+[WebServer]                                       name="text"
+[WebServer]                                       rows={2}
+[WebServer]                                       maxLength={2000}
+[WebServer]                                       required={true}
+[WebServer]                                       placeholder="Здравствуйте, есть места на выходные?"
+[WebServer]                                       data-testid="sandbox-text"
+[WebServer] -                                     style={{caret-color:"transparent"}}
+[WebServer]                                     >
+[WebServer]     ...
+[WebServer]  
+  ✓  31 tests/ui/ai-seller.spec.ts:364:1 › снимки экранов раздела (5.3s)
+  ✘  27 tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий (17.9s)
+  ✓  32 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.8s)
+  ✓  33 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 1440px (5.7s)
+  ✓  34 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 390px (5.0s)
+  ✓  35 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 390px (5.4s)
+
+
+  1) tests/ui/ai-agents.spec.ts:49:1 › главный администратор: рядом с продавцом карточка WETOP Support 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('agent-support')
+    Expected substring: "WETOP Support"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('agent-support') with timeout 15000ms
+      - waiting for getByTestId('agent-support')
+
+
+      52 |   await page.goto('/ai-agents');
+      53 |   const support = page.getByTestId('agent-support');
+    > 54 |   await expect(support).toContainText('WETOP Support');
+         |                         ^
+      55 |   await expect(support).toContainText('Техническая поддержка платформы');
+      56 |   await expect(support).toContainText('Platform Agent');
+      57 |   await support.getByRole('link', { name: 'Открыть' }).click();
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:54:25
+
+    Error Context: test-results/ai-agents-главный-админист-5fcf8-вцом-карточка-WETOP-Support/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-главный-админист-5fcf8-вцом-карточка-WETOP-Support/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-главный-админист-5fcf8-вцом-карточка-WETOP-Support/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('seller-llm-key-clear')
+
+
+      297 |   // «Снять ключ» возвращает ход на ключ платформы
+      298 |   await page.goto('/ai-seller/connections');
+    > 299 |   await page.getByTestId('seller-llm-key-clear').click();
+          |                                                  ^
+      300 |   await expect(page.getByTestId('seller-llm-key-cleared')).toContainText('Ключ снят');
+      301 |   await expect(page.getByTestId('seller-llm-key-state')).toContainText('Ключ не задан');
+      302 | });
+        at /home/user/wetop.ai/tests/ui/ai-seller.spec.ts:299:50
+
+    Error Context: test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Подключения»-→--62659-ько-последние-4-знака-снять/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий ──────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('invite-not-allowed')
+    Expected: "Приглашать сотрудников могут владелец и управляющий."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('invite-not-allowed') with timeout 15000ms
+      - waiting for getByTestId('invite-not-allowed')
+
+
+      286 |   await asRole(request, 'STAFF');
+      287 |   await page.goto('/login');
+    > 288 |   await expect(page.getByTestId('invite-not-allowed')).toHaveText(
+          |                                                        ^
+      289 |     'Приглашать сотрудников могут владелец и управляющий.',
+      290 |   );
+      291 |   await expect(page.getByTestId('team')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:288:56
+
+    Error Context: test-results/roles-администратор-сотруд-61df8-дают-владелец-и-управляющий/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-сотруд-61df8-дают-владелец-и-управляющий/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-сотруд-61df8-дают-владелец-и-управляющий/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/ui/ai-agents.spec.ts:49:1 › главный администратор: рядом с продавцом карточка WETOP Support 
+    tests/ui/ai-seller.spec.ts:276:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять 
+    tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий ───────
+  32 passed (2.1m)
+
+# код выхода 1 · 2 мин 9 с

@@ -50,6 +50,10 @@ export function Toolkit() {
                 </li>
               ))}
             </ul>
+            <p className="panel__connection-note">
+              OTA подключаются через менеджер каналов. Доступность площадок и обмен данными проверяются для
+              вашего объекта; регистрация сама по себе не включает синхронизацию.
+            </p>
           </div>
 
           <div className="panel glass">

@@ -1,0 +1,30 @@
+# Модульные (unit) · 29.09.2026 17:40 Алматы · vm
+# коммит efff031 (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T12-40-10Z-unit-8884.json' 'tests/unit/site-calculator.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/site-calculator.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/site-calculator.test.ts [ tests/unit/site-calculator.test.ts ]
+Error: Cannot find module '../../apps/site/src/lib/calculator' imported from /home/user/wetop.ai/tests/unit/site-calculator.test.ts
+ ❯ tests/unit/site-calculator.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { directSaving, parseWhole } from '../../apps/site/src/lib/calc…
+       | ^
+      3|
+      4| /**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:40:12
+   Duration  302ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-09-29T12-40-10Z-unit-8884.json
+
+# код выхода 1 · 2 с

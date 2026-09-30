@@ -1,0 +1,75 @@
+# Интеграционные (integration) · 30.09.2026 11:58 Алматы · vm
+# коммит f177acf (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 7
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T06-58-32Z-integration-c4f5.json' 'tests/integration/seller-agents-migrated.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/seller-agents-migrated.test.ts (3 tests | 2 failed) 247ms
+   ❯ редактор мастера и перенесённый продавец (integration, DATABASE_URL required) (3)
+     × список редактора: только черновики мастера, рабочего продавца нет 37ms
+     × карточка и правка рабочего продавца через редактор мастера — «не найден» 13ms
+     ✓ черновик мастера по-прежнему открывается 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/seller-agents-migrated.test.ts > редактор мастера и перенесённый продавец (integration, DATABASE_URL required) > список редактора: только черновики мастера, рабочего продавца нет
+AssertionError: expected [ …(2) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+    "90126faa-e3f5-4e7e-8a86-91097f5cf006",
++   "bc49f266-8414-4e26-84c5-6f5bc54e4474",
+  ]
+
+ ❯ tests/integration/seller-agents-migrated.test.ts:49:36
+     47|   it('список редактора: только черновики мастера, рабочего продавца не…
+     48|     const { items } = await asOwner(() => service.list());
+     49|     expect(items.map((a) => a.id)).toEqual([draftId]);
+       |                                    ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |integration| tests/integration/seller-agents-migrated.test.ts > редактор мастера и перенесённый продавец (integration, DATABASE_URL required) > карточка и правка рабочего продавца через редактор мастера — «не найден»
+AssertionError: promise resolved "{ …(10) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "createdAt": 2026-09-30T06:58:35.862Z,
++   "createdBy": "595d8773-5974-4240-a1ec-44ac63ba6c9b",
++   "id": "bc49f266-8414-4e26-84c5-6f5bc54e4474",
++   "lifecycle": "draft",
++   "locationId": null,
++   "name": "Рабочий продавец",
++   "organizationId": "bc49f266-8414-4e26-84c5-6f5bc54e4474",
++   "profile": {},
++   "scenario": "sales",
++   "updatedAt": 2026-09-30T06:58:35.862Z,
+  }
+
+ ❯ tests/integration/seller-agents-migrated.test.ts:53:50
+     51|
+     52|   it('карточка и правка рабочего продавца через редактор мастера — «не…
+     53|     await expect(asOwner(() => service.get(org))).rejects.toThrow(/не …
+       |                                                  ^
+     54|     await expect(
+     55|       asOwner(() =>
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  06:58:33
+   Duration  2.73s (transform 58%, import 24%, tests 18%)
+
+JSON report written to /tmp/pms-test-2026-09-30T06-58-32Z-integration-c4f5.json
+
+# код выхода 1 · 4 с

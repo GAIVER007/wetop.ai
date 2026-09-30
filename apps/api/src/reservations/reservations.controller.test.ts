@@ -27,6 +27,7 @@ import {
 /** Фальшивка хранит и то, чего в ReservationState нет, но что отдаёт карточка: источник, заметки, гостей */
 type StoredReservation = ReservationState & {
   source?: string;
+  primaryGuestId?: string;
   notes?: string | null;
   channel?: string | null;
   externalId?: string | null;
@@ -117,6 +118,10 @@ function makeFake() {
     guests: 0,
     /** что записано в гости (ADR-072: до переезда базы — псевдоним) */
     createdGuests: [] as Array<Record<string, unknown>>,
+    /** гости организации объекта, которым можно оформить новую бронь (G6, ТЗ «Гости v2» §33) */
+    orgGuests: new Set(['7d6c5b4a-0000-4000-8000-000000000001']),
+    /** кто стал гостем проживания */
+    stayGuests: [] as Array<{ itemId: string; guestId: string; isPrimary: boolean }>,
     seq: 0,
   };
   const blocked: Array<{ unitId: string; from: string; to: string; reason?: string }> = [
@@ -128,6 +133,8 @@ function makeFake() {
     );
   const penalties: Array<{ itemId: string; amountMinor: bigint; description: string }> = [];
   const repo: ReservationsRepository = {
+    promoByCode: async () => null,
+    lockPromo: async () => undefined,
     async today() {
       // как прежний жёсткий UTC+5 — под фальшивыми часами тестов даёт ту же дату
       return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -239,6 +246,9 @@ function makeFake() {
           closedToDeparture: r.closedToDeparture,
         }));
     },
+    async guestForBooking(guestId) {
+      return state.orgGuests.has(guestId) ? guestId : null;
+    },
     async createGuest(g) {
       state.guests += 1;
       state.createdGuests.push({ ...g });
@@ -270,6 +280,7 @@ function makeFake() {
         currency: input.currency,
         items,
         source: input.source,
+        primaryGuestId: input.primaryGuestId,
         notes: input.notes,
         adults: input.adults,
         children: input.children,
@@ -278,7 +289,8 @@ function makeFake() {
       });
       return { id, itemIds: items.map((i) => i.id) };
     },
-    async addStayGuest(itemId) {
+    async addStayGuest(itemId, guestId, isPrimary) {
+      state.stayGuests.push({ itemId, guestId, isPrimary });
       for (const r of state.reservations.values())
         for (const it of r.items) if (it.id === itemId) it.guestsCount += 1;
     },
@@ -586,6 +598,44 @@ describe('manual reservation API', () => {
       else process.env.PII_STORAGE = before;
     }
   });
+  it('G6 (ТЗ «Гости v2» §33): guestId существующего гостя — бронь на него, нового гостя нет', async () => {
+    const guestId = '7d6c5b4a-0000-4000-8000-000000000001';
+    const group = [
+      {
+        accommodationTypeCode: 'category-single',
+        ratePlanCode: 'rate-base',
+        adults: 1,
+        quantity: 2,
+      },
+    ];
+    const r = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ guest: undefined, guestId, items: group }))
+      .expect(201);
+    expect(fake.state.createdGuests).toEqual([]);
+    expect(fake.state.reservations.get(r.body.confirmationNumber)?.primaryGuestId).toBe(guestId);
+    // групповая бронь: тот же гость главный на каждом проживании, как у только что созданного
+    expect(fake.state.stayGuests).toHaveLength(2);
+    expect(fake.state.stayGuests.every((s) => s.guestId === guestId && s.isPrimary)).toBe(true);
+  });
+  it('G6: гость не своей организации или несуществующий — 404, брони нет', async () => {
+    for (const guestId of ['7d6c5b4a-0000-4000-8000-00000000ffff', 'не-uuid']) {
+      const res = await request(app.getHttpServer())
+        .post('/reservations')
+        .send(body({ guest: undefined, guestId }))
+        .expect(404);
+      expect(res.body.message).toBe('Гость не найден');
+    }
+    expect(fake.state.reservations.size).toBe(0);
+    expect(fake.state.createdGuests).toEqual([]);
+  });
+  it('G6: guestId вместе с полями нового гостя — 400, чтобы не гадать, кого имели в виду', async () => {
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ guestId: '7d6c5b4a-0000-4000-8000-000000000001' }))
+      .expect(400);
+    expect(fake.state.reservations.size).toBe(0);
+  });
   it('ADR-071: OTA вручную — канал и номер брони в канале обязательны; номер без пробелов, канал каноническим именем', async () => {
     const ota = (over: Record<string, unknown>) =>
       body({ source: 'OTA', arrivalDate: '2026-09-18', departureDate: '2026-09-19', ...over });
@@ -784,7 +834,10 @@ describe('manual reservation API', () => {
   // Аудит 26.09, С-15: отмена и незаезд читали статус без блокировки — две вкладки или два сотрудника одновременно
   // проходили проверку «ещё не отменена» и начисляли штраф дважды. Теперь бронь берётся под замок до чтения.
   it('отмена и незаезд берут замок брони раньше, чем читают её состояние', async () => {
-    const created = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
     const n = created.body.confirmationNumber as string;
     fake.state.events.length = 0;
     await request(app.getHttpServer()).post(`/reservations/${n}/cancel`).send({}).expect(200);
@@ -806,7 +859,10 @@ describe('manual reservation API', () => {
   // Предпросмотры читают без транзакции, а рекомендательный замок вне транзакции отпускается тем же запросом: он ничего
   // не держит, только заставляет чтение ждать чужую запись (проверка исправлений 26.09)
   it('предпросмотр действия замок брони не берёт — только читает', async () => {
-    const created = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body())
+      .expect(201);
     const n = created.body.confirmationNumber as string;
     const itemId = created.body.items[0].id as string;
     fake.state.events.length = 0;
@@ -1356,7 +1412,12 @@ describe('manual reservation API', () => {
     try {
       const created = await request(app.getHttpServer())
         .post('/reservations')
-        .send(body({ notes: 'звонить +7 701 234 56 78', guest: { firstName: 'Тест', lastName: 'Гостев' } }))
+        .send(
+          body({
+            notes: 'звонить +7 701 234 56 78',
+            guest: { firstName: 'Тест', lastName: 'Гостев' },
+          }),
+        )
         .expect(201);
       expect(created.body.notes).toBe('звонить +7 701 234 56 78');
     } finally {
@@ -1567,7 +1628,9 @@ describe('manual reservation API', () => {
       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
       await as('STAFF', () => service().extend(n, itemId, { nights: 1 }));
       await expect(
-        as('STAFF', () => service().assign(n, itemId, { unitCode: '9002', ratePlanCode: 'rate-ota' })),
+        as('STAFF', () =>
+          service().assign(n, itemId, { unitCode: '9002', ratePlanCode: 'rate-ota' }),
+        ),
       ).rejects.toThrow(RATE_PLAN_CHANGE_MESSAGE);
       const moved = await as('STAFF', () => service().assign(n, itemId, { unitCode: '9002' }));
       expect(moved.items[0]!.unitCode).toBe('9002');
@@ -1595,7 +1658,9 @@ describe('manual reservation API', () => {
         as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_SOFT_MESSAGE);
       expect(planOf(plain.n)).toBeNull();
-      await as('STAFF', () => service().changeDates(plain.n, { ...stay, ratePlanCode: 'rate-base' }));
+      await as('STAFF', () =>
+        service().changeDates(plain.n, { ...stay, ratePlanCode: 'rate-base' }),
+      );
       expect(planOf(plain.n)).toBe('p1');
       // записанный тариф администратор уже не меняет (Q-200)
       await expect(
@@ -1610,7 +1675,9 @@ describe('manual reservation API', () => {
       await expect(
         as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'rate-ota' })),
       ).rejects.toThrow(RATE_PLAN_SOFT_MESSAGE);
-      await as('STAFF', () => service().extend(n, itemId, { nights: 1, ratePlanCode: 'rate-base' }));
+      await as('STAFF', () =>
+        service().extend(n, itemId, { nights: 1, ratePlanCode: 'rate-base' }),
+      );
       expect(planOf(n)).toBe('p1');
       await as('STAFF', () => service().extend(n, itemId, { nights: 1 }));
       expect(fake.state.reservations.get(n)!.items[0]!.departureDate).toBe('2026-09-19');
@@ -1717,6 +1784,58 @@ describe('manual reservation API', () => {
     expect(fake.state.audits.map((a) => a.action)).toEqual(
       expect.arrayContaining(['reservation.checkIn', 'reservation.checkOut', 'reservation.noShow']),
     );
+  });
+  it('каждая команда, меняющая остаток категории, ставит дельту доступности: создание, смена дат, отмена, незаезд, ранний выезд', async () => {
+    const send = (path: string, payload: object = {}, method: 'post' | 'patch' = 'post') =>
+      request(app.getHttpServer())[method](path).send(payload);
+    /** Дельта, поставленная последней командой: одна, по категории брони */
+    const lastDelta = () => {
+      expect(published).toHaveLength(1);
+      const d = published[0] as { categoryCodes: string[]; from: string; toExclusive: string };
+      published.length = 0;
+      expect(d.categoryCodes).toEqual(['category-single']);
+      return d;
+    };
+
+    const created = await send('/reservations', body()).expect(201);
+    expect(lastDelta()).toMatchObject({ from: '2026-09-15', toExclusive: '2026-09-17' });
+    const n = created.body.confirmationNumber as string;
+
+    // смена дат: старые и новые ночи вместе, иначе освободившаяся ночь останется закрытой в канале
+    await send(
+      `/reservations/${n}/dates`,
+      { arrivalDate: '2026-09-16', departureDate: '2026-09-19', ratePlanCode: 'rate-base' },
+      'patch',
+    ).expect(200);
+    expect(lastDelta()).toMatchObject({ from: '2026-09-15', toExclusive: '2026-09-19' });
+
+    await send(`/reservations/${n}/cancel`).expect(200);
+    expect(lastDelta()).toMatchObject({ from: '2026-09-16', toExclusive: '2026-09-19' });
+
+    const second = await send(
+      '/reservations',
+      body({ arrivalDate: '2026-09-18', departureDate: '2026-09-19' }),
+    ).expect(201);
+    published.length = 0;
+    await send(
+      `/reservations/${second.body.confirmationNumber}/items/${second.body.items[0].id}/no-show`,
+    ).expect(200);
+    expect(lastDelta()).toMatchObject({ from: '2026-09-18', toExclusive: '2026-09-19' });
+
+    // ранний выезд освобождает оставшиеся ночи
+    const third = await send(
+      '/reservations',
+      body({ arrivalDate: '2026-09-15', departureDate: '2026-09-18' }),
+    ).expect(201);
+    published.length = 0;
+    vi.setSystemTime(new Date('2026-09-16T06:00:00Z')); // середина проживания: выезд «раньше срока»
+    const n3 = third.body.confirmationNumber as string;
+    const i3 = third.body.items[0].id as string;
+    await send(`/reservations/${n3}/items/${i3}/check-in`).expect(200);
+    expect(published).toHaveLength(0); // заезд остаток не меняет
+    await send(`/reservations/${n3}/items/${i3}/check-out`).expect(200);
+    expect(lastDelta()).toMatchObject({ toExclusive: '2026-09-18' });
+    vi.setSystemTime(new Date('2026-09-10T06:00:00Z'));
   });
   it('заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением', async () => {
     const created = await request(app.getHttpServer())

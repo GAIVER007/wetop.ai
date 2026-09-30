@@ -20,6 +20,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from src import dependencies
 from src.ai.engine import IncomingMessage, build_engine
 from src.channels.sender import SendResult
 from src.dashboard import (
@@ -30,6 +31,7 @@ from src.dashboard import (
     panel_whatsapp,
     panel_seller,
     panel_settings,
+    panel_support_kb,
 )
 from src.dashboard.auth_router import current_user
 from src.db.base import utcnow
@@ -49,6 +51,7 @@ panel_router.include_router(panel_extract.router)
 panel_router.include_router(panel_llm_key.router)
 panel_router.include_router(panel_whatsapp.router)
 panel_router.include_router(panel_orgs.router)
+panel_router.include_router(panel_support_kb.router)
 
 SANDBOX_CHANNEL = "sandbox"
 
@@ -61,9 +64,10 @@ class SandboxIn(BaseModel):
     external_id: str
     text: str
     client_name: str | None = None
-    # Э4: у продавца ход песочницы идёт в организации — без неё непонятно,
-    # чей промпт и чьи знания брать.
+    # Э4: у продавца ход песочницы идёт в организации — без неё непонятно, чья это гостиница.
     organization_id: str | None = None
+    # SA2.5: и у агента — чей промпт и чьи знания брать. Без него — единственный агент организации; при нескольких — отказ.
+    agent_id: str | None = None
 
 
 class CollectSender:
@@ -79,19 +83,17 @@ class CollectSender:
 
 
 def _key_ok(request: Request) -> bool:
-    """Внутренний ключ (как у /internal/health) или служебный ключ платформы:
-    экран «Проверка» раздела «ИИ-продавец» говорит с ботом через песочницу.
+    """Только служебный ключ платформы (x-service-key): экран «Проверка» раздела
+    «ИИ-продавец» говорит с ботом через песочницу им же. Ключ живости
+    (/internal/health, x-internal-key) песочницу больше не открывает: это ход
+    модели от имени любой организации из тела, и утечка ключа проверки
+    живости не должна его давать (решение владельца 30.09.2026).
     Пустой ключ в настройках этот вход не открывает."""
     settings = request.app.state.settings
-    for expected, header in (
-        (settings.internal_health_key, "x-internal-key"),
-        (settings.seller_service_key, "x-service-key"),
-    ):
-        provided = request.headers.get(header, "")
-        # Сравниваем байты: compare_digest(str, str) падает на не-ASCII.
-        if expected and secrets.compare_digest(provided.encode("utf-8"), expected.encode("utf-8")):
-            return True
-    return False
+    expected = settings.seller_service_key
+    provided = request.headers.get("x-service-key", "")
+    # Сравниваем байты: compare_digest(str, str) падает на не-ASCII.
+    return bool(expected) and secrets.compare_digest(provided.encode("utf-8"), expected.encode("utf-8"))
 
 
 @router.post("/internal/sandbox")
@@ -110,11 +112,26 @@ async def sandbox(request: Request) -> JSONResponse:
     from src.config import normalize_bot_role
 
     organization_id: str | None = None
+    agent_id: str | None = None
     if normalize_bot_role(request.app.state.settings.bot_role) == "seller":
+        from src.agent_scope import AgentError, AmbiguousAgent, resolve_agent
+
         try:
-            organization_id = str(uuid.UUID((body.organization_id or "").strip()))
+            org = uuid.UUID((body.organization_id or "").strip())
+            wanted = uuid.UUID((request.headers.get("x-agent") or body.agent_id or "").strip()) if (
+                request.headers.get("x-agent") or body.agent_id
+            ) else None
         except ValueError:
             return JSONResponse(status_code=400, content={"status": "bad_request"})
+        try:
+            async with dependencies.get_sessionmaker()() as session:
+                scope = await resolve_agent(session, org, wanted)
+        except AmbiguousAgent:
+            return JSONResponse(status_code=400, content={"status": "agent_required"})
+        except AgentError:
+            # чужой, несуществующий и «агента ещё нет» — одним ответом
+            return JSONResponse(status_code=403, content={"status": "forbidden"})
+        organization_id, agent_id = str(scope.organization_id), str(scope.agent_id)
 
     sender = CollectSender()
     try:
@@ -127,6 +144,7 @@ async def sandbox(request: Request) -> JSONResponse:
                 received_at=utcnow(),
                 client_name=body.client_name,
                 organization_id=organization_id,
+                agent_id=agent_id,
             )
         )
     except Exception:

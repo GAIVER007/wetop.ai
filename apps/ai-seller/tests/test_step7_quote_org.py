@@ -94,29 +94,34 @@ def _capture(body: object = PLATFORM_BODY):
 
 @pytest.fixture
 def org_turn():
-    """Ход идёт в организации: так её ставит движок в accept."""
-    token = dependencies.organization_id_var.set(ORG)
+    """Ход идёт у агента (SA2.5): так его ставит движок. Организация в ходе стоит, но платформе не уходит."""
+    org_token = dependencies.organization_id_var.set(ORG)
+    agent_token = dependencies.agent_id_var.set(ORG)
     yield
-    dependencies.organization_id_var.reset(token)
+    dependencies.agent_id_var.reset(agent_token)
+    dependencies.organization_id_var.reset(org_token)
 
 
-async def test_the_request_carries_the_organization_and_platform_field_names(org_turn) -> None:
+async def test_the_request_carries_the_agent_and_platform_field_names(org_turn) -> None:
     seen, handler = _capture()
     await _providers(handler).check(ARRIVAL, DEPARTURE, 2, None)
     assert len(seen) == 1
     request = seen[0]
     assert request.url.path == PATH_AVAILABILITY == "/bot/availability"
-    assert request.url.params["organization"] == ORG
+    assert request.url.params["agent"] == ORG
+    # организацию платформе не называем: `agent` — недоверенный селектор, остальное она берёт из строки агента
+    assert "organization" not in request.url.params
     # контракт виджета: поле гостей зовётся adults
     assert request.url.params["adults"] == "2"
     assert "guests" not in request.url.params
 
 
-async def test_without_an_organization_the_param_is_absent() -> None:
-    """Помощник и ходы без организации: параметра нет, платформа ответит 400 —
+async def test_without_an_agent_the_param_is_absent() -> None:
+    """Помощник и ходы без агента: параметра нет, платформа ответит 400 —
     инструмент честно скажет «не знаю», а не спросит про чужую гостиницу."""
     seen, handler = _capture()
     await _providers(handler).check(ARRIVAL, DEPARTURE, 2, None)
+    assert "agent" not in seen[0].url.params
     assert "organization" not in seen[0].url.params
 
 

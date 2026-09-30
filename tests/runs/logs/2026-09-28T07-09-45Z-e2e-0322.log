@@ -1,0 +1,235 @@
+# Сквозные (e2e) · 28.09.2026 12:09 Алматы · vm
+# коммит cdd83aa (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/chessboard-dnd.spec.ts' 'tests/ui/chessboard-extend.spec.ts' '--workers=1'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 243ms. If /home/user/wetop.ai/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/ui/chessboard-dnd.spec.ts:60:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (19.4s)
+  ✘  2 tests/ui/chessboard-dnd.spec.ts:99:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (19.0s)
+  ✘  3 tests/ui/chessboard-dnd.spec.ts:129:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (18.0s)
+  ✘  4 tests/ui/chessboard-dnd.spec.ts:157:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (19.6s)
+  ✘  5 tests/ui/chessboard-dnd.spec.ts:184:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (19.6s)
+  ✓  6 tests/ui/chessboard-extend.spec.ts:24:1 › правый край брони: продление на несколько ночей с подтверждением и отменой (3.0s)
+  ✘  7 tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload (17.9s)
+  ✓  8 tests/ui/chessboard-extend.spec.ts:79:1 › отказ сохранения не удлиняет плашку, а отсутствие цены не открывает подтверждение (4.1s)
+  ✓  9 tests/ui/chessboard-extend.spec.ts:112:1 › одна видимая ночь: имя имеет две строки, канал не отнимает ширину (3.7s)
+
+
+  1) tests/ui/chessboard-dnd.spec.ts:60:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('[data-testid="unit-row"][data-unit-code="R07"]')
+    Expected: "ok"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('[data-testid="unit-row"][data-unit-code="R07"]') with timeout 15000ms
+      - waiting for locator('[data-testid="unit-row"][data-unit-code="R07"]')
+        33 × locator resolved to <tr class="is-over" data-unit-code="R07" data-testid="unit-row">…</tr>
+           - unexpected value "null"
+
+
+      68 |   await dragOver(page, source, unitRow(page, 'R07').locator(`td[data-date="${arrival}"]`));
+      69 |   // допустимые места подсвечены, недопустимые помечены ещё до наведения (§26)
+    > 70 |   await expect(unitRow(page, 'R07')).toHaveAttribute('data-drop', 'ok');
+         |                                      ^
+      71 |   await expect(unitRow(page, 'R06')).toHaveAttribute('data-drop', 'blocked');
+      72 |   await expect(unitRow(page, 'R09')).toHaveAttribute('data-drop', 'blocked');
+      73 |   const ghost = page.getByTestId('drop-ghost');
+        at /home/user/wetop.ai/tests/ui/chessboard-dnd.spec.ts:70:38
+
+    Error Context: test-results/chessboard-dnd-во-время-пе-9c94e--drop-туда-ничего-не-делает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-во-время-пе-9c94e--drop-туда-ничего-не-делает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-во-время-пе-9c94e--drop-туда-ничего-не-делает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-dnd.spec.ts:99:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('confirm-dialog').getByTestId('move-guest')
+    Expected: "Гость Оплаченный"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('confirm-dialog').getByTestId('move-guest') with timeout 15000ms
+      - waiting for getByTestId('confirm-dialog').getByTestId('move-guest')
+
+
+      108 |   const dialog = page.getByTestId('confirm-dialog');
+      109 |   await expect(dialog).toContainText(`Переселить бронь ${NUMBER}?`);
+    > 110 |   await expect(dialog.getByTestId('move-guest')).toHaveText('Гость Оплаченный');
+          |                                                  ^
+      111 |   await expect(dialog.getByTestId('move-route')).toHaveText('R05 → R07');
+      112 |   await expect(dialog.getByTestId('move-dates')).toContainText('2 ночи');
+      113 |   await expect(dialog.getByTestId('move-money')).toHaveText('Стоимость не изменится');
+        at /home/user/wetop.ai/tests/ui/chessboard-dnd.spec.ts:110:50
+
+    Error Context: test-results/chessboard-dnd-drop-на-сво-34c9b--только-после-подтверждения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-drop-на-сво-34c9b--только-после-подтверждения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-drop-на-сво-34c9b--только-после-подтверждения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/chessboard-dnd.spec.ts:129:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="unit-row"][data-unit-code="M20"]').locator('td[data-date="2026-09-29"]').getByTestId('drop-ghost')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="unit-row"][data-unit-code="M20"]').locator('td[data-date="2026-09-29"]').getByTestId('drop-ghost') with timeout 15000ms
+      - waiting for locator('[data-testid="unit-row"][data-unit-code="M20"]').locator('td[data-date="2026-09-29"]').getByTestId('drop-ghost')
+
+
+      143 |   );
+      144 |   await dragOver(page, second, target.locator(`td[data-date="${add(arrival, 1)}"]`));
+    > 145 |   await expect(target.locator(`td[data-date="${arrival}"]`).getByTestId('drop-ghost')).toBeVisible();
+          |                                                                                        ^
+      146 |   await page.mouse.up();
+      147 |
+      148 |   const dialog = page.getByTestId('confirm-dialog');
+        at /home/user/wetop.ai/tests/ui/chessboard-dnd.spec.ts:145:88
+
+    Error Context: test-results/chessboard-dnd-другая-кате-2846c-разница-стоимости-со-знаком/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-другая-кате-2846c-разница-стоимости-со-знаком/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-другая-кате-2846c-разница-стоимости-со-знаком/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/chessboard-dnd.spec.ts:157:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('[data-testid="unit-row"][data-unit-code="R07"]').getByTestId('drop-ghost')
+    Expected substring: "Сохраняем"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('[data-testid="unit-row"][data-unit-code="R07"]').getByTestId('drop-ghost') with timeout 15000ms
+      - waiting for locator('[data-testid="unit-row"][data-unit-code="R07"]').getByTestId('drop-ghost')
+
+
+      176 |     .click();
+      177 |   // пока сервер думает, призрак стоит на новом месте — администратор видит, что происходит
+    > 178 |   await expect(unitRow(page, 'R07').getByTestId('drop-ghost')).toContainText('Сохраняем');
+          |                                                                ^
+      179 |   await expect(page.getByTestId('drag-error')).toContainText('Не удалось переселить');
+      180 |   await expect(page.getByTestId('drop-ghost')).toHaveCount(0);
+      181 |   await expect(source).toHaveAttribute('data-number', NUMBER);
+        at /home/user/wetop.ai/tests/ui/chessboard-dnd.spec.ts:178:64
+
+    Error Context: test-results/chessboard-dnd-отказ-серве-b5ca3-сте-ошибка-словами-§49-§54-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-отказ-серве-b5ca3-сте-ошибка-словами-§49-§54-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-отказ-серве-b5ca3-сте-ошибка-словами-§49-§54-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/chessboard-dnd.spec.ts:184:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('status').filter({ hasText: 'До ' })
+    Expected substring: "+1 ночь"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('status').filter({ hasText: 'До ' }) with timeout 15000ms
+      - waiting for getByRole('status').filter({ hasText: 'До ' })
+
+
+      203 |   await page.mouse.move(next.x + next.width / 2, next.y + next.height / 2, { steps: 6 });
+      204 |   const label = page.getByRole('status').filter({ hasText: 'До ' });
+    > 205 |   await expect(label).toContainText('+1 ночь');
+          |                       ^
+      206 |   // сумму называет предпросмотр продления API (номер — 8 000 ₸ за ночь на стенде)
+      207 |   await expect(label).toContainText('+8 000 ₸');
+      208 |
+        at /home/user/wetop.ai/tests/ui/chessboard-dnd.spec.ts:205:23
+
+    Error Context: test-results/chessboard-dnd-продление-з-0082f-овки-—-конфликт-команды-нет/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-dnd-продление-з-0082f-овки-—-конфликт-команды-нет/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-dnd-продление-з-0082f-овки-—-конфликт-команды-нет/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: '+2 ночи' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: '+2 ночи' }) with timeout 15000ms
+      - waiting for getByRole('status').filter({ hasText: '+2 ночи' })
+
+
+      58 |   await page.mouse.down();
+      59 |   await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 });
+    > 60 |   await expect(page.getByRole('status').filter({ hasText: '+2 ночи' })).toBeVisible();
+         |                                                                         ^
+      61 |   await page.mouse.up();
+      62 |   const dialog = page.getByRole('dialog');
+      63 |   await expect(dialog).toContainText('2 ноч');
+        at /home/user/wetop.ai/tests/ui/chessboard-extend.spec.ts:60:73
+
+    Error Context: test-results/chessboard-extend-мышь-пра-2f594-результат-переживает-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-extend-мышь-пра-2f594-результат-переживает-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-extend-мышь-пра-2f594-результат-переживает-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/chessboard-dnd.spec.ts:60:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает 
+    tests/ui/chessboard-dnd.spec.ts:99:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения 
+    tests/ui/chessboard-dnd.spec.ts:129:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком 
+    tests/ui/chessboard-dnd.spec.ts:157:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) 
+    tests/ui/chessboard-dnd.spec.ts:184:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет 
+    tests/ui/chessboard-extend.spec.ts:43:1 › мышь: правый край добавляет две ночи только после подтверждения; результат переживает reload 
+  3 passed (3.9m)
+
+# код выхода 1 · 3 мин 53 с

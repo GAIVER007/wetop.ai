@@ -6,6 +6,7 @@ import { Badge, Button } from '../../components/ui';
 import {
   KIND_WORD,
   addWord,
+  bookingsLine,
   capacityLong,
   compositionHref,
   unitWord,
@@ -24,12 +25,14 @@ export function CategoryPreview({
   onClose,
   onEdit,
   onAdd,
+  onSetRate,
 }: {
   category: InventoryCategory;
   units: InventoryUnit[];
   onClose: () => void;
   onEdit: () => void;
   onAdd: () => void;
+  onSetRate: () => void;
 }) {
   const members = units
     .filter((u) => u.accommodationTypeCode === c.code)
@@ -39,7 +42,13 @@ export function CategoryPreview({
   return (
     <Overlay open onClose={onClose} title={c.name} drawer>
       <div className="fund-preview">
-        <Badge tone={c.active ? 'ok' : 'neutral'}>{c.active ? 'Активна' : 'В архиве'}</Badge>
+        {!c.active ? (
+          <Badge tone="neutral">В архиве</Badge>
+        ) : members.length && c.ratePlans ? (
+          <Badge tone="ok">Активна</Badge>
+        ) : (
+          <Badge tone="warn">Не готова к продаже</Badge>
+        )}
         <section aria-label="Что продаём">
           <h3>Что продаём</h3>
           <dl className="fund-preview-facts">
@@ -94,14 +103,29 @@ export function CategoryPreview({
               ))}
             </ul>
           ) : (
-            <p>Тариф не назначен — цены этой категории не настроены.</p>
+            <p>
+              <Badge tone="warn">Тариф не настроен</Badge> Без тарифа и цен категория не продаётся.
+            </p>
           )}
           {c.ratePlans > 0 && <p className="muted">Цены — по датам в календаре тарифов.</p>}
           <div className="fund-preview-actions">
-            <Link className="btn btn--secondary" href={`/rates?category=${code}`} prefetch={false}>
-              Настроить тарифы
-            </Link>
+            {c.ratePlans > 0 ? (
+              <Link className="btn btn--secondary" href={`/rates?category=${code}`} prefetch={false}>
+                Настроить тарифы
+              </Link>
+            ) : (
+              <Button tone="secondary" onClick={onSetRate}>
+                Настроить тариф
+              </Button>
+            )}
           </div>
+        </section>
+        <section aria-label="Брони и каналы">
+          <h3>Брони и каналы</h3>
+          <p>{c.reservations ? bookingsLine(c) : 'Броней пока нет'}</p>
+          <p className="muted">
+            {c.channexMapped ? 'Сопоставлена с каналами' : 'С каналами не сопоставлена'}
+          </p>
         </section>
         <div className="fund-preview-footer">
           <Link className="btn btn--secondary" href={`/chessboard?category=${code}`} prefetch={false}>

@@ -1,0 +1,23 @@
+# Модульные (unit) · 29.09.2026 21:50 Алматы · vm
+# коммит f4cd39b (claude/epic-lamport-3il4q0)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-50-59Z-unit-2b46.json' 'apps/api/src/assistant' 'apps/api/src/auth/route-access.test.ts' 'packages/domain/src/assistant'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 249ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 255ms
+ ✓ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests) 278ms
+ ✓ |unit| packages/domain/src/assistant/user-errors.test.ts (38 tests) 43ms
+ ✓ |unit| packages/domain/src/assistant/diagnostics.test.ts (12 tests) 14ms
+[Nest] 28579  - 09/29/2026, 4:51:03 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 7ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 46ms
+
+ Test Files  7 passed (7)
+      Tests  96 passed (96)
+   Start at  16:51:00
+   Duration  4.46s (transform 58%, import 32%, tests 9%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-50-59Z-unit-2b46.json
+
+# код выхода 0 · 5 с

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import type { Dictionary } from '../i18n/types';
 import type { AuthMode } from '../lib/site';
+import { PHONE_COUNTRIES, PRIVACY_POLICY_PATH, defaultPhoneCountry } from '../lib/phone-countries';
 
 type Texts = Dictionary['auth'];
 
@@ -67,7 +68,13 @@ export function AuthDialog({ texts, urls }: Props) {
   const [resent, setResent] = useState(false);
   const [pause, setPause] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '', name: '', hotelName: '' });
+  const [form, setForm] = useState({ email: '', password: '', name: '', hotelName: '', phoneCountry: 'KZ', phone: '' });
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  // Страна кода телефона — по браузеру (29.09.2026), после появления на экране: статичная сборка браузера не знает
+  useEffect(() => {
+    const country = defaultPhoneCountry(navigator.languages ?? [], Intl.DateTimeFormat().resolvedOptions().timeZone);
+    setForm((f) => ({ ...f, phoneCountry: country }));
+  }, []);
   const optionsAsked = useRef(false);
   const passwordId = useId();
 
@@ -161,10 +168,14 @@ export function AuthDialog({ texts, urls }: Props) {
       name: form.name.trim(),
       hotelName: form.hotelName.trim(),
       password: form.password,
+      phoneCountry: form.phoneCountry,
+      phone: form.phone.trim(),
+      privacyAccepted,
     };
-    if (!body.email || !body.name || !body.hotelName || !body.password) {
+    if (!body.email || !body.name || !body.hotelName || !body.password || !body.phone) {
       return setError({ text: texts.errors.required, fallback: false });
     }
+    if (!privacyAccepted) return setError({ text: texts.errors.privacy, fallback: false });
     setPending(true);
     setError(null);
     const res = await post(urls.endpoint.register, body);
@@ -411,8 +422,59 @@ export function AuthDialog({ texts, urls }: Props) {
                       disabled={pending}
                     />
                   </label>
+                  <div className="auth-field">
+                    <span className="auth-field__label" id="auth-phone-label">
+                      {texts.fields.phone}
+                    </span>
+                    <span className="auth-phone">
+                      <select
+                        className="auth-field__input"
+                        name="phoneCountry"
+                        aria-label={texts.fields.phoneCountry}
+                        value={form.phoneCountry}
+                        onChange={(e) => setForm((f) => ({ ...f, phoneCountry: e.target.value }))}
+                        disabled={pending}
+                      >
+                        {PHONE_COUNTRIES.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.name} {c.dial}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        className="auth-field__input"
+                        type="tel"
+                        inputMode="tel"
+                        name="phone"
+                        autoComplete="tel-national"
+                        aria-labelledby="auth-phone-label"
+                        required
+                        maxLength={40}
+                        placeholder={texts.fields.phonePlaceholder}
+                        value={form.phone}
+                        onChange={set('phone')}
+                        disabled={pending}
+                      />
+                    </span>
+                  </div>
                   {emailField}
                   {passwordField('new-password')}
+                  <label className="auth-consent">
+                    <input
+                      type="checkbox"
+                      name="privacyAccepted"
+                      checked={privacyAccepted}
+                      onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                      disabled={pending}
+                    />
+                    <span>
+                      {texts.register.consentBefore}{' '}
+                      <a href={PRIVACY_POLICY_PATH} target="_blank" rel="noreferrer">
+                        {texts.register.consentLink}
+                      </a>{' '}
+                      {texts.register.consentAfter}
+                    </span>
+                  </label>
                   <p className="auth-form__hint">{texts.register.terms}</p>
                   {errorBlock}
                   <button className="btn btn--primary auth-form__submit" type="submit" disabled={pending} aria-busy={pending}>

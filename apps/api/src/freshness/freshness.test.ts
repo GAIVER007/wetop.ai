@@ -65,7 +65,11 @@ describe('FreshnessController — состояние каналов только
     new FreshnessController(
       { snapshot: async () => snapshot } as never,
       {
-        db: { property: { findFirst: async () => ({ organizationId: integrationOrg }) } },
+        db: {
+          property: { findFirst: async () => ({ organizationId: integrationOrg }) },
+          // SEC-2: объект интеграции — по сопоставлениям Channex раньше названия; здесь их нет — остаётся название
+          channelMapping: { findFirst: async () => null },
+        },
       } as never,
     );
   const req = (user?: { organizationId: string; platformAdmin?: boolean }) => ({ user }) as never;

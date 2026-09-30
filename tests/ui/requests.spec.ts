@@ -47,7 +47,6 @@ for (const screen of [
   '/rates',
   '/management/analytics',
   '/management/analytics/occupancy',
-  '/management/dashboard',
   '/finance',
   '/channels',
   '/channels/connections',
@@ -61,6 +60,8 @@ for (const screen of [
   '/hotel-settings/stay',
   '/hotel-settings/services',
   '/connections',
+  // каталог «ИИ-агентов» (SA1): один запрос каталога, бот и объект API опрашивает сам
+  '/ai-agents',
   '/website/settings',
   '/incidents',
   '/journal',

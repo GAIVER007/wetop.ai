@@ -12,12 +12,43 @@ import 'reflect-metadata';
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { NestFactory } from '@nestjs/core';
+import { assertRlsAtStartup } from '@pms/database';
 import { AppModule } from './app.module';
+import { integrationBindingNotice } from './channels/integration-property';
+import { turnstileConfigNotice } from './web-booking/turnstile';
 import { listenHost, listenPort } from './listen-address';
+import { apiSecurityHeaders } from './security-headers';
 
 loadEnv({ path: resolve(import.meta.dirname, '../../../.env'), quiet: true });
 
+// Аудит 29.09.2026, SEC-1a: production без роли с политиками RLS не стартует, а не молча идёт служебной ролью
+try {
+  await assertRlsAtStartup(process.env);
+} catch (e) {
+  console.error(`PMS API не запущен: ${(e as Error).message}`);
+  process.exit(1);
+}
+
+// SEC-2: объект интеграции задаётся идентификатором; не задан — предупреждение, неверный — отказ старта
+const binding = integrationBindingNotice(process.env);
+if (binding?.level === 'error') {
+  console.error(`PMS API не запущен: ${binding.message}`);
+  process.exit(1);
+}
+if (binding) console.warn(binding.message);
+
+// BOOK-SEC1: капча перед бронью с сайта; режим задаётся WEB_BOOKING_TURNSTILE_REQUIRED, в production без режима и ключей — отказ старта
+const turnstile = turnstileConfigNotice(process.env);
+if (turnstile?.level === 'error') {
+  console.error(`PMS API не запущен: ${turnstile.message}`);
+  process.exit(1);
+}
+if (turnstile) console.warn(turnstile.message);
+
 const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+// Аудит 29.09.2026, SEC-4: версия Express наружу не нужна, ответам — nosniff
+app.getHttpAdapter().getInstance().disable('x-powered-by');
+app.use(apiSecurityHeaders);
 const port = listenPort();
 const host = listenHost();
 await app.listen(port, host);

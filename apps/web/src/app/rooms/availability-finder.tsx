@@ -2,10 +2,18 @@
 import { useState } from 'react';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import Link from 'next/link';
-import type { InventorySummary, InventoryUnit, reservationsApi } from '../../lib/api';
+import type {
+  InventorySummary,
+  InventoryUnit,
+  NearestStays,
+  StayOffers,
+  reservationsApi,
+} from '../../lib/api';
 import { Alert, Button, Field, Input, Select, cx } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
+import { bookingHref } from '../../lib/booking-link';
 import { displayDate } from '../../lib/display-date';
+import { formatMoney } from '../../lib/money';
 import { pluralRu } from '../../lib/plural';
 const plusDays = (date: string, n: number) =>
   new Date(Date.parse(`${date}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
@@ -14,6 +22,8 @@ export function AvailabilityFinder({
   arrival,
   departure,
   guests,
+  offers,
+  nearest,
   result,
   error,
   summary,
@@ -24,6 +34,10 @@ export function AvailabilityFinder({
   arrival: string;
   departure: string;
   guests: number;
+  /** Цены «от» (AV2); null — не загрузились или период неверный */
+  offers: StayOffers | null;
+  /** Ближайшая доступность (AV4); null — не нужна (у всех категорий есть места) или не загрузилась */
+  nearest: NearestStays | null;
   result: Availability | null;
   error: string | null;
   summary: InventorySummary;
@@ -44,6 +58,9 @@ export function AvailabilityFinder({
       bed,
       // Койкам нужно по месту на гостя; номер вмещает всех гостей целиком — комбинации категорий не предлагаем (ТЗ §2)
       fits: bed ? (availability?.available ?? 0) >= guests : c.capacityAdults >= guests,
+      // вмещает, но мест на весь запрос нет — строка уходит в «Нет мест на эти даты» с ближайшей датой (AV4)
+      soldOut:
+        (bed || c.capacityAdults >= guests) && (availability?.available ?? 0) < (bed ? guests : 1),
     };
   });
   const found = rows.filter((c) => c.fits && (c.availability?.available ?? 0) > 0);
@@ -55,10 +72,9 @@ export function AvailabilityFinder({
       (!kind || units.some((u) => u.accommodationTypeCode === c.code && u.kind === kind)),
   );
   const visible = showAll
-    ? matching
+    ? matching.filter((c) => !c.soldOut)
     : matching.filter((c) => c.fits && (c.availability?.available ?? 0) > 0);
-  const booking = (unit: string) =>
-    `/reservations/new?${new URLSearchParams({ arrival, departure, unit })}`;
+  const soldOut = matching.filter((c) => c.soldOut);
   return (
     <>
       <form className="fund-search" method="get">
@@ -125,6 +141,11 @@ export function AvailabilityFinder({
                 </span>
               </div>
             </div>
+            {!offers && (
+              <p className="fund-row-note muted" role="status">
+                Цены не загрузились — места показаны без цен. Обновите страницу.
+              </p>
+            )}
             <div className="fund-toolbar">
               <Select
                 aria-label="Категория"
@@ -166,7 +187,7 @@ export function AvailabilityFinder({
                 ))}
               </div>
             </div>
-            {!visible.length ? (
+            {!visible.length && !soldOut.length ? (
               <section className="fund-empty" role="status">
                 <h2>Нет подходящих вариантов</h2>
                 <p>
@@ -184,7 +205,7 @@ export function AvailabilityFinder({
                   Показать все категории
                 </Button>
               </section>
-            ) : (
+            ) : visible.length > 0 ? (
               <div className="fund-availability">
                 {visible.map((c) => {
                   const available = c.availability?.available ?? 0;
@@ -201,6 +222,15 @@ export function AvailabilityFinder({
                             {c.bed ? 'койко-место' : 'номер'}
                           </span>
                         </div>
+                        {available > 0 && c.fits && (
+                          <OfferPrice
+                            offer={offers ? offers.byCategory[c.code] : undefined}
+                            currency={offers?.currency}
+                            bed={c.bed}
+                            guests={guests}
+                            nights={result.nights}
+                          />
+                        )}
                         <div className="fund-available-count">
                           <b>{available}</b>
                           <span>свободно из {c.availability?.units ?? c.units}</span>
@@ -218,21 +248,29 @@ export function AvailabilityFinder({
                             </p>
                           )}
                           <details>
-                            <summary>
-                              Показать{' '}
-                              {pluralRu(
-                                available,
-                                c.bed ? ['место', 'места', 'мест'] : ['номер', 'номера', 'номеров'],
+                            <summary>{c.bed ? 'Показать места' : 'Показать номера'}</summary>
+                            <UnitPicker
+                              name={c.name}
+                              bed={c.bed}
+                              fits={c.fits}
+                              guests={guests}
+                              free={c.availability?.availableUnitCodes ?? []}
+                              units={units.filter(
+                                (u) => u.accommodationTypeCode === c.code && u.active,
                               )}
-                            </summary>
-                            <div className="fund-members">
-                              {c.availability?.availableUnitCodes.map((code) => (
-                                <Link key={code} className="fund-book-unit" href={booking(code)}>
-                                  {c.bed ? 'Койка' : 'Номер'} {code}
-                                  <span>Создать бронь</span>
-                                </Link>
-                              ))}
-                            </div>
+                              housekeeping={arrival === today}
+                              link={(picked, auto) =>
+                                bookingHref({
+                                  arrival,
+                                  departure,
+                                  category: c.code,
+                                  rate: offers?.byCategory[c.code]?.ratePlanCode,
+                                  adults: c.bed ? 1 : guests,
+                                  units: picked,
+                                  auto,
+                                })
+                              }
+                            />
                           </details>
                         </>
                       )}
@@ -240,6 +278,9 @@ export function AvailabilityFinder({
                   );
                 })}
               </div>
+            ) : null}
+            {soldOut.length > 0 && (
+              <SoldOutCategories rows={soldOut} guests={guests} nearest={nearest} />
             )}
             <div className="fund-footer">
               <span className="muted">
@@ -256,5 +297,241 @@ export function AvailabilityFinder({
         )
       )}
     </>
+  );
+}
+
+/**
+ * Категории, которые вмещают гостей, но мест на весь срок нет (ADR-110, ТЗ §7, AV4): не прячутся, а отвечают
+ * «с 1-го нет, но есть с 3-го». Дату считает API тем же расчётом, что места (`GET /availability/nearest`);
+ * «Посмотреть варианты» — тот же поиск на найденные даты.
+ */
+function SoldOutCategories({
+  rows,
+  guests,
+  nearest,
+}: {
+  rows: ReadonlyArray<{
+    code: string;
+    name: string;
+    bed: boolean;
+    availability: { available: number; units: number } | undefined;
+    units: number;
+  }>;
+  guests: number;
+  nearest: NearestStays | null;
+}) {
+  return (
+    <section className="fund-soldout" aria-labelledby="fund-soldout-title">
+      <h2 id="fund-soldout-title">Нет мест на эти даты</h2>
+      <div className="fund-availability">
+        {rows.map((c) => {
+          const available = c.availability?.available ?? 0;
+          const next = nearest?.byCategory[c.code];
+          return (
+            <article key={c.code}>
+              <div className="fund-available-row">
+                <div>
+                  <span className="fund-type">{c.bed ? 'Койко-место' : 'Номер целиком'}</span>
+                  <h3>{c.name}</h3>
+                  <span className="muted">
+                    {available > 0
+                      ? `Свободно ${pluralRu(available, ['койка', 'койки', 'коек'])} — меньше, чем гостей`
+                      : 'Нет мест на весь период'}
+                  </span>
+                </div>
+                {next ? (
+                  <div className="fund-price">
+                    <span className="muted">Ближайшая доступность</span>
+                    <b>с {displayDate(next.arrivalDate)}</b>
+                    <Link
+                      href={`/rooms/availability?${new URLSearchParams({
+                        arrival: next.arrivalDate,
+                        departure: next.departureDate,
+                        guests: String(guests),
+                      })}`}
+                      aria-label={`Посмотреть варианты: ${c.name} с ${displayDate(next.arrivalDate)}`}
+                    >
+                      Посмотреть варианты
+                    </Link>
+                  </div>
+                ) : (
+                  next === null && (
+                    <div className="fund-price">
+                      <span className="muted">
+                        Нет мест в ближайшие {pluralRu(nearest!.days, ['день', 'дня', 'дней'])}
+                      </span>
+                    </div>
+                  )
+                )}
+                <div className="fund-available-count">
+                  <b>{available}</b>
+                  <span>свободно из {c.availability?.units ?? c.units}</span>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** Номер ячейки как число (1, 5, 41…), иначе строка — тот же порядок, что у `firstFreeUnit` API */
+const byUnitNumber = (a: string, b: string) => {
+  const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
+  return num(a) - num(b) || a.localeCompare(b);
+};
+
+/**
+ * Места категории компактным списком (ADR-110, AV3). «Выбрать автоматически» — место назначит API по правилу
+ * Q-094 (флаг `autoAssign`, у коек на нескольких гостей — групповая бронь); «Выбрать» — конкретное место.
+ * Койки на N гостей: отмечается до N коек, остальные назначит система. Уборка — только подсказка при заезде
+ * сегодня: продажу она не запрещает.
+ */
+function UnitPicker({
+  name,
+  bed,
+  fits,
+  guests,
+  free,
+  units,
+  housekeeping,
+  link,
+}: {
+  name: string;
+  bed: boolean;
+  fits: boolean;
+  guests: number;
+  free: readonly string[];
+  units: readonly InventoryUnit[];
+  housekeeping: boolean;
+  link: (picked: string[], auto: number) => string;
+}) {
+  const [picked, setPicked] = useState<string[]>([]);
+  const several = bed && guests > 1;
+  const freeSet = new Set(free);
+  const unitByCode = new Map(units.map((u) => [u.code, u]));
+  const codes = [...new Set([...units.map((u) => u.code), ...free])].sort(byUnitNumber);
+  const what = bed ? 'койку' : 'номер';
+  return (
+    <div className="fund-units">
+      {fits && (
+        <div className="fund-units-action">
+          <Link className="btn btn--sm" href={link([], bed ? guests : 1)}>
+            Выбрать автоматически
+          </Link>
+          <span className="muted">
+            {several
+              ? `Система назначит ${pluralRu(guests, ['койку', 'койки', 'коек'])} — первые свободные по номеру`
+              : 'Система назначит первое свободное место по номеру'}
+          </span>
+        </div>
+      )}
+      <ul className="fund-unit-list" aria-label={`Места: ${name}`}>
+        {codes.map((code) => {
+          const isFree = freeSet.has(code);
+          const on = picked.includes(code);
+          const dirty = housekeeping && unitByCode.get(code)?.housekeepingStatus === 'DIRTY';
+          return (
+            <li key={code} className={cx(!isFree && 'is-off')}>
+              <b>{code}</b>
+              <span className={cx(!isFree && 'muted')}>
+                {!isFree ? 'недоступно' : dirty ? 'свободно, нужна уборка' : 'свободно'}
+              </span>
+              {isFree &&
+                fits &&
+                (several ? (
+                  <button
+                    type="button"
+                    className={cx('btn btn--sm', !on && 'btn--secondary')}
+                    aria-pressed={on}
+                    aria-label={`Выбрать ${what} ${code}`}
+                    disabled={!on && picked.length >= guests}
+                    onClick={() =>
+                      setPicked((list) =>
+                        on ? list.filter((item) => item !== code) : [...list, code],
+                      )
+                    }
+                  >
+                    {on ? 'Выбрано' : 'Выбрать'}
+                  </button>
+                ) : (
+                  <Link
+                    className="btn btn--secondary btn--sm fund-book-unit"
+                    href={link([code], 0)}
+                    aria-label={`Выбрать ${what} ${code}`}
+                  >
+                    Выбрать
+                  </Link>
+                ))}
+            </li>
+          );
+        })}
+      </ul>
+      {several && picked.length > 0 && (
+        <div className="fund-units-action" role="status">
+          <Link
+            className="btn btn--sm"
+            href={link([...picked].sort(byUnitNumber), guests - picked.length)}
+          >
+            Создать бронь
+          </Link>
+          <span className="muted">
+            Выбрано {picked.length} из {guests}
+            {picked.length < guests ? ' — остальные назначит система' : ''}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Цена «от» в строке категории (ADR-110, AV2; правило — закрытый Q-204). Итог — весь срок на всех гостей
+ * запроса, вторая строка — цена ночи за номер или за одну койку. `undefined` — цены не загрузились
+ * (сказано над списком), `null` — ни один тариф не прошёл правило.
+ */
+function OfferPrice({
+  offer,
+  currency,
+  bed,
+  guests,
+  nights,
+}: {
+  offer: StayOffers['byCategory'][string] | undefined;
+  currency: string | undefined;
+  bed: boolean;
+  guests: number;
+  nights: number;
+}) {
+  if (offer === undefined) return null;
+  if (offer === null)
+    return (
+      <div className="fund-price">
+        <span className="muted">Нет цены на эти даты</span>
+        <Link href="/rates">Тарифы</Link>
+      </div>
+    );
+  const money = (minor: string) => formatMoney(minor, currency);
+  const plans =
+    offer.plans > 1 ? (
+      <span className="muted">{pluralRu(offer.plans, ['тариф', 'тарифа', 'тарифов'])}</span>
+    ) : null;
+  return bed ? (
+    <div className="fund-price">
+      <b>Итого от {money(offer.totalMinor)}</b>
+      <span className="muted">от {money(offer.perNightMinor)} / койка / ночь</span>
+      <span className="muted">
+        {pluralRu(guests, ['гость', 'гостя', 'гостей'])},{' '}
+        {pluralRu(nights, ['ночь', 'ночи', 'ночей'])}
+      </span>
+      {plans}
+    </div>
+  ) : (
+    <div className="fund-price">
+      <b>от {money(offer.totalMinor)} за проживание</b>
+      <span className="muted">от {money(offer.perNightMinor)} / ночь</span>
+      {plans}
+    </div>
   );
 }

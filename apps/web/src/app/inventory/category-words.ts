@@ -28,3 +28,20 @@ export const addWord = (c: InventoryCategory) =>
 
 export const compositionHref = (c: InventoryCategory) =>
   `/inventory?category=${encodeURIComponent(c.code)}`;
+
+/** Брони категории: разные брони за всю историю и сколько из них впереди (C4, ТЗ §17) */
+export const bookingsLine = (c: InventoryCategory) =>
+  `${pluralRu(c.reservations, ['бронь', 'брони', 'броней'])} в истории` +
+  (c.upcomingReservations ? `, из них ${c.upcomingReservations} впереди` : '');
+
+/** «Эту категорию используют» — только то, что есть; пустой список — категорию ничего не держит */
+export function usageLines(c: InventoryCategory, units: number): string[] {
+  return [
+    ...(units ? [unitWord(c.kind, units)] : []),
+    ...(c.ratePlans
+      ? [`${pluralRu(c.ratePlans, ['тариф', 'тарифа', 'тарифов'])}: ${c.ratePlanNames.join(', ')}`]
+      : []),
+    ...(c.reservations ? [bookingsLine(c)] : []),
+    ...(c.channexMapped ? ['Сопоставлена с каналами'] : []),
+  ];
+}

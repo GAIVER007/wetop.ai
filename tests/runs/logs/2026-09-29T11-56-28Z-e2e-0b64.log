@@ -1,0 +1,176 @@
+# Сквозные (e2e) · 29.09.2026 16:56 Алматы · vm
+# коммит 6ab9541 (claude/deploy-main-production-3qoyod), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/login-access.spec.ts' '-g' 'Регистрация|регистрация'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/login-access.spec.ts:224:3 › регистрация доступна по умолчанию › на экране входа нет входа по коду: только пароль и кнопка регистрации (3.0s)
+  ✘  2 tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю (16.2s)
+  ✓  3 tests/ui/login-access.spec.ts:257:3 › регистрация доступна по умолчанию › /login?mode=register открывает регистрацию сразу — по этой ссылке приходят с сайта (901ms)
+  ✘  4 tests/ui/login-access.spec.ts:264:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии (45.3s)
+  ✘  5 tests/ui/login-access.spec.ts:286:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly (45.3s)
+  ✓  6 tests/ui/login-access.spec.ts:311:3 › регистрация доступна по умолчанию › негодная ссылка подтверждения: отказ текстом на той же странице (1.5s)
+  ✘  7 tests/ui/login-access.spec.ts:318:3 › регистрация доступна по умолчанию › регистрация: без согласия с политикой форма не уходит, неверный телефон — отказ словами (45.3s)
+  ✘  8 tests/ui/login-access.spec.ts:341:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы (45.3s)
+
+
+  1) tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByLabel('Телефон')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByLabel('Телефон') with timeout 15000ms
+      - waiting for getByRole('main').getByLabel('Телефон')
+
+
+      244 |     await expect(main).not.toContainText('Название организации');
+      245 |     // форма 29.09.2026: телефон с кодом страны и согласие с политикой
+    > 246 |     await expect(main.getByLabel('Телефон')).toBeVisible();
+          |                                              ^
+      247 |     await expect(main.getByLabel('Код страны')).toBeVisible();
+      248 |     await expect(main.getByRole('link', { name: 'политикой конфиденциальности' })).toHaveAttribute(
+      249 |       'href',
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:246:46
+
+    Error Context: test-results/login-access-регистрация-д-53f47-и-возвращает-назад-к-паролю/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-регистрация-д-53f47-и-возвращает-назад-к-паролю/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-регистрация-д-53f47-и-возвращает-назад-к-паролю/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/login-access.spec.ts:264:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByLabel('Телефон')
+
+
+      272 |     await main.getByLabel('Имя').fill('Вячеслав Петров');
+      273 |     await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    > 274 |     await main.getByLabel('Телефон').fill('701 555 44 33');
+          |                                      ^
+      275 |     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+      276 |     await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
+      277 |     await main.getByRole('button', { name: 'Создать организацию' }).click();
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:274:38
+
+    Error Context: test-results/login-access-регистрация-д-68548-дтвердите-почту»-без-сессии/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-регистрация-д-68548-дтвердите-почту»-без-сессии/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-регистрация-д-68548-дтвердите-почту»-без-сессии/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/login-access.spec.ts:286:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByLabel('Телефон')
+
+
+      293 |     await main.getByLabel('Имя').fill('Вячеслав Петров');
+      294 |     await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    > 295 |     await main.getByLabel('Телефон').fill('701 555 44 33');
+          |                                      ^
+      296 |     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+      297 |     await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
+      298 |     await main.getByRole('button', { name: 'Создать организацию' }).click();
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:295:38
+
+    Error Context: test-results/login-access-регистрация-д-27cb2-рабочее-место-кука-HttpOnly/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-регистрация-д-27cb2-рабочее-место-кука-HttpOnly/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-регистрация-д-27cb2-рабочее-место-кука-HttpOnly/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/login-access.spec.ts:318:3 › регистрация доступна по умолчанию › регистрация: без согласия с политикой форма не уходит, неверный телефон — отказ словами 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByLabel('Телефон')
+
+
+      324 |     await main.getByLabel('Имя').fill('Вячеслав Петров');
+      325 |     await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    > 326 |     await main.getByLabel('Телефон').fill('701 555 44 33');
+          |                                      ^
+      327 |     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+      328 |     // галочка обязательна: браузер не отправит форму, страница та же
+      329 |     await main.getByRole('button', { name: 'Создать организацию' }).click();
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:326:38
+
+    Error Context: test-results/login-access-регистрация-д-392d5-ный-телефон-—-отказ-словами/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-регистрация-д-392d5-ный-телефон-—-отказ-словами/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-регистрация-д-392d5-ный-телефон-—-отказ-словами/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/login-access.spec.ts:341:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByLabel('Телефон')
+
+
+      349 |     await main.getByLabel('Имя').fill('Вячеслав Петров');
+      350 |     await main.getByLabel('Название отеля').fill('Хостел на Абая');
+    > 351 |     await main.getByLabel('Телефон').fill('701 555 44 33');
+          |                                      ^
+      352 |     await main.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
+      353 |     await main.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
+      354 |     await main.getByRole('button', { name: 'Создать организацию' }).click();
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:351:38
+
+    Error Context: test-results/login-access-регистрация-д-a4ff5-API-и-не-уводят-со-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-регистрация-д-a4ff5-API-и-не-уводят-со-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-регистрация-д-a4ff5-API-и-не-уводят-со-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/ui/login-access.spec.ts:234:3 › регистрация доступна по умолчанию › кнопка «Регистрация» открывает форму из трёх полей и возвращает назад к паролю 
+    tests/ui/login-access.spec.ts:264:3 › регистрация доступна по умолчанию › регистрация с /register: почта, имя, пароль → «подтвердите почту», без сессии 
+    tests/ui/login-access.spec.ts:286:3 › регистрация доступна по умолчанию › ссылка из письма: подтверждение почты открывает рабочее место; кука HttpOnly 
+    tests/ui/login-access.spec.ts:318:3 › регистрация доступна по умолчанию › регистрация: без согласия с политикой форма не уходит, неверный телефон — отказ словами 
+    tests/ui/login-access.spec.ts:341:3 › регистрация доступна по умолчанию › регистрация: ошибки формы приходят текстом из API и не уводят со страницы 
+  3 passed (3.8m)
+
+# код выхода 1 · 3 мин 53 с

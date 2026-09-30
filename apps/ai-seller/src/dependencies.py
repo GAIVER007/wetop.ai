@@ -31,13 +31,24 @@ conversation_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar
 
 # Организация текущего хода (Э4/Q-166): ставит движок в accept, читает провайдер
 # котировки — инструменты наличия и цены спрашивают платформу про СВОЮ гостиницу.
+# S6 (Q-S6-2): текст сообщения человека в этом ходе — по нему сервер бота проверяет явное «да» на действие
+incoming_text_var: contextvars.ContextVar[str | None] = contextvars.ContextVar("incoming_text", default=None)
 organization_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "organization_id", default=None
 )
 
 
+# Агент текущего хода (SA2.5): инструменты котировки, отправитель WhatsApp и всё, что зависит от продавца, берут его отсюда.
+# Организацию вместо него не читаем: продавец — агент, а не организация.
+agent_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar("agent_id", default=None)
+
+
 def get_current_organization_id() -> str | None:
     return organization_id_var.get()
+
+
+def get_current_agent_id() -> str | None:
+    return agent_id_var.get()
 
 _LOG_FORMAT = "%(asctime)s | %(levelname)s | %(conversation_id)s | %(name)s | %(message)s"
 _STDOUT_HANDLER = "app_stdout"

@@ -24,6 +24,10 @@ import {
   newSessionToken,
   normalizeOrganizationName,
   normalizePersonName,
+  PRIVACY_POLICY_VERSION,
+  REGISTRATION_PHONE_MESSAGE,
+  REGISTRATION_PRIVACY_MESSAGE,
+  registrationPhone,
   trialEndsAt,
   validEmail,
   sessionExpiry,
@@ -31,9 +35,11 @@ import {
   type MembershipRole,
   type UserStatus,
 } from '@pms/domain';
+import { NEW_PROPERTY_DEFAULTS, createPropertyInChain } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { EmailVerificationService } from './email-verification.service';
 import { hashPasswordQueued, verifyPasswordQueued } from './attempt-limits';
+import { withServiceDatabase } from './request-context';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
 export interface SignedInUser {
@@ -57,6 +63,13 @@ export interface SignedInOrganization {
   name: string;
   status: string;
   trialEndsAt: string | null;
+}
+
+/** Ответ `whoami`: кто вошёл, в какой организации и до какого времени живёт сессия */
+interface WhoAmI {
+  user: SignedInUser;
+  organization: SignedInOrganization | null;
+  expiresAt: string;
 }
 
 export interface LoginResult {
@@ -274,7 +287,16 @@ export class AuthService {
    * осознанная: форме регистрации иначе нечего ответить человеку, который уже регистрировался.
    */
   async register(
-    input: { email: string; name: string; hotelName: string; password: string },
+    input: {
+      email: string;
+      name: string;
+      hotelName: string;
+      password: string;
+      /** Страна кода телефона (ISO), номер как введён и согласие с политикой — форма 29.09.2026 */
+      phoneCountry: string;
+      phone: string;
+      privacyAccepted: boolean;
+    },
     now = new Date(),
   ): Promise<RegisterResult> {
     this.assertRegistrationOpen();
@@ -290,6 +312,10 @@ export class AuthService {
     }
     const strength = checkPassword(input.password);
     if (!strength.ok) throw new BadRequestException(`Пароль не годится: ${strength.reason}`);
+    // Телефон — контакт нового объекта (и его филиала): колонка `properties.phone` уже есть, модель не менялась
+    const phone = registrationPhone(input.phoneCountry, input.phone);
+    if (!phone) throw new BadRequestException(REGISTRATION_PHONE_MESSAGE);
+    if (input.privacyAccepted !== true) throw new BadRequestException(REGISTRATION_PRIVACY_MESSAGE);
 
     const name = normalizePersonName(input.name);
     const organizationName = normalizeOrganizationName(input.hotelName);
@@ -311,16 +337,9 @@ export class AuthService {
         // Объект новой организации создаётся сразу (мультитенантность, решение владельца 21.09):
         // без него вошедший упирался бы в «объект не настроен для вашей организации» на каждом экране.
         // Часы и валюта — казахстанские по умолчанию, реквизиты человек заполнит в настройках.
-        await tx.property.create({
-          data: {
-            organizationId: org.id,
-            name: organizationName,
-            timezone: 'Asia/Almaty', // tz-allow: значение по умолчанию новой гостиницы, не вычисление времени
-            currency: 'KZT',
-            checkInTime: '14:00',
-            checkOutTime: '12:00',
-          },
-        });
+        // Сразу в цепочке Organization → Business → Location (Platform P1, DATA_MODEL v2.6): объект вошедшего
+        // ищется только ею, а объект без филиала база не примет.
+        await createPropertyInChain(tx, org.id, { name: organizationName, phone, ...NEW_PROPERTY_DEFAULTS });
         const user = await tx.user.create({
           data: { email, name, passwordHash, status: 'ACTIVE', lastLoginAt: now },
           select: { id: true },
@@ -338,7 +357,12 @@ export class AuthService {
       throw e;
     }
 
-    await this.record(created.userId, 'user.register', { via: 'password', verified: false });
+    // Согласие с политикой — в журнал с версией текста (журнал только дописывается); телефон туда не пишем
+    await this.record(created.userId, 'user.register', {
+      via: 'password',
+      verified: false,
+      privacy: { version: PRIVACY_POLICY_VERSION },
+    });
 
     const sent = await this.verification.sendFor({ userId: created.userId, email, name }, now);
     return { pendingVerification: true, email, name, sent };
@@ -382,15 +406,18 @@ export class AuthService {
     };
   }
 
-  /** Кто пришёл с этим токеном. Негодный токен — это `null`, а не исключение: решает вызывающий. */
-  async whoami(
-    token: string,
-    now = new Date(),
-  ): Promise<{
-    user: SignedInUser;
-    organization: SignedInOrganization | null;
-    expiresAt: string;
-  } | null> {
+  /**
+   * Кто пришёл с этим токеном. Негодный токен — это `null`, а не исключение: решает вызывающий.
+   *
+   * SEC-1b (аудит 29.09.2026): чтение идёт служебной ролью базы. Роль запросов организации `wetop_app` больше не читает
+   * `users` целиком (хеш пароля) и `platform_admins`; `/auth/me` зовут постоянно, и до этого правила он шёл под ней.
+   * Автор и организация запроса при этом сохраняются: журнал подписывается ими сам.
+   */
+  whoami(token: string, now = new Date()): Promise<WhoAmI | null> {
+    return withServiceDatabase(() => this.readWhoAmI(token, now));
+  }
+
+  private async readWhoAmI(token: string, now: Date): Promise<WhoAmI | null> {
     const found = await this.session(token, now);
     if (!found) return null;
     // Продление сессии при работе (§13.5, PR #29) касалось только входа по коду: смена по паролю
@@ -428,10 +455,20 @@ export class AuthService {
     await this.record(found.row.userId, 'user.logout', {});
   }
 
-  /** Смена пароля своей учётной записи: прочие сессии этого сотрудника гаснут. */
-  async changePassword(
+  /**
+   * Смена пароля своей учётной записи: прочие сессии этого сотрудника гаснут. Служебной ролью базы (SEC-1b): хеш
+   * пароля читает и пишет только она, `wetop_app` доступа к `users.password_hash` не имеет.
+   */
+  changePassword(
     input: { token: string; currentPassword: string; newPassword: string },
     now = new Date(),
+  ): Promise<void> {
+    return withServiceDatabase(() => this.updatePassword(input, now));
+  }
+
+  private async updatePassword(
+    input: { token: string; currentPassword: string; newPassword: string },
+    now: Date,
   ): Promise<void> {
     const found = await this.session(input.token, now);
     if (!found) throw new UnauthorizedException('Войдите заново: сессия не годится');

@@ -33,7 +33,7 @@ from src.channels.sender import Sender, SendResult
 from src.config import Settings, get_settings
 from src.db.base import ConversationMode, FunnelStage, MessageRole, utcnow
 from src.db.dedup import is_duplicate
-from src.db.models import Client, Conversation, Message, Organization
+from src.db.models import Agent, Client, Conversation, Message, Organization
 from src.knowledge import retriever
 from src.knowledge.prompt import PromptMissing, load_system_prompt
 from src.security.llm_keys import org_llm_api_key
@@ -86,9 +86,16 @@ class Engine:
         """from_queue: повтор из очереди — дедуп он уже прошёл (иначе был бы
         отброшен как дубль самого себя), а замок держит внешний вызов."""
         outcome = TurnOutcome("error", None, None, False, [], [], [])
+        if bool(incoming.organization_id) != bool(incoming.agent_id):
+            # Область хода неполна (SA2.5): продавец — агент И его организация, помощник — ни того ни другого. Агента по
+            # организации не угадываем: такой ход — ошибка двери канала, он не обрабатывается и гостю не отвечает.
+            logger.error("ход без полной области агента: %s/%s", incoming.channel, incoming.external_id)
+            outcome.reasons.append("no_agent")
+            return outcome
         ctx = dependencies.conversation_id_var.set(None)
-        # Организация хода — инструментам (котировка Q-166): снимается вместе с диалогом ниже.
+        # Организация и агент хода — инструментам (котировка Q-166, WhatsApp): снимаются вместе с диалогом ниже.
         org_ctx = dependencies.organization_id_var.set(incoming.organization_id)
+        agent_ctx = dependencies.agent_id_var.set(incoming.agent_id)
         turn: Turn | None = None
         try:
             async with self._sessionmaker() as session:
@@ -109,6 +116,7 @@ class Engine:
         finally:
             dependencies.conversation_id_var.reset(ctx)
             dependencies.organization_id_var.reset(org_ctx)
+            dependencies.agent_id_var.reset(agent_ctx)
         return outcome
 
     async def _run_locked(self, t: Turn) -> None:
@@ -145,15 +153,21 @@ class Engine:
     async def _accept(self, t: Turn) -> None:
         t.step("accept")
         inc, session = t.incoming, t.session
-        org = inc.org_uuid()
+        org, agent_id = inc.org_uuid(), inc.agent_uuid()
+        if agent_id is not None:
+            # Агент хода должен существовать и принадлежать организации двери: иначе это ошибка двери, а не повод
+            # писать строки чужому продавцу (SA2.5)
+            t.agent = await session.get(Agent, agent_id)
+            if t.agent is None or t.agent.organization_id != org:
+                raise LookupError("агент хода не принадлежит организации входящего")
         stmt = sa.select(Client).where(Client.channel == inc.channel, Client.external_id == str(inc.external_id))
-        # Клиент — в пределах организации входящего (Э4): один человек на
-        # сайтах двух гостиниц — два клиента. Без организации — как раньше.
-        stmt = stmt.where(Client.organization_id == org) if org else stmt.where(Client.organization_id.is_(None))
+        # Клиент — в пределах АГЕНТА входящего (SA2.5): один человек у двух агентов, даже одной организации, — два
+        # клиента. Без агента (помощник) — строки без организации, как раньше.
+        stmt = stmt.where(Client.agent_id == agent_id) if agent_id else stmt.where(Client.organization_id.is_(None))
         client = (await session.execute(stmt)).scalar_one_or_none()
         if client is None:
             client = Client(channel=inc.channel, external_id=str(inc.external_id), name=inc.client_name,
-                            organization_id=org, created_at=utcnow())
+                            organization_id=org, agent_id=agent_id, created_at=utcnow())
             session.add(client)
             await session.flush()
         stmt = (sa.select(Conversation).where(Conversation.client_id == client.id, Conversation.is_active.is_(True))
@@ -161,7 +175,7 @@ class Engine:
         conv = (await session.execute(stmt)).scalar_one_or_none()
         if conv is None:
             now = utcnow()
-            conv = Conversation(client_id=client.id, organization_id=org, mode=ConversationMode.BOT_ACTIVE,
+            conv = Conversation(client_id=client.id, organization_id=org, agent_id=agent_id, mode=ConversationMode.BOT_ACTIVE,
                                 funnel_stage=FunnelStage.NEW, lead_data={}, created_at=now, last_activity_at=now)
             session.add(conv)
         await session.commit()
@@ -172,10 +186,10 @@ class Engine:
     async def _dedup(self, t: Turn) -> bool:
         t.step("dedup")
         inc = t.incoming
-        # Организация — в ключе: телефон гостя WhatsApp один на все гостиницы (26.09).
+        # Агент — в ключе: телефон гостя WhatsApp один на все гостиницы (26.09) и на всех агентов одной организации.
         duplicate = await is_duplicate(self._redis, channel=inc.channel, external_id=str(inc.external_id),
                                        text=inc.text, ttl_seconds=self._settings.guard_dedup_ttl_seconds,
-                                       organization_id=inc.organization_id)
+                                       agent_id=inc.agent_id)
         if duplicate:
             t.outcome.status = "duplicate"
         return duplicate
@@ -231,17 +245,15 @@ class Engine:
     async def _context(self, t: Turn) -> None:
         t.step("context")
         s = self._settings
-        org = t.incoming.org_uuid()
-        if org is not None:
-            # Промпт гостиницы (Э4): ядро правил + профиль, собранные в
-            # organizations.system_prompt. Нет строки или промпта — отказ,
-            # а не файл PROMPT_PATH: отвечать по чужой инструкции нельзя.
-            row = await t.session.get(Organization, org)
-            system_prompt = (row.system_prompt or "") if row is not None else ""
-            # С2: ход гостиницы идёт с её ключом модели, если партнёр его подключил.
-            t.llm_api_key = await org_llm_api_key(t.session, org, s)
+        agent = t.agent
+        if agent is not None:
+            # Промпт АГЕНТА (SA2.5): ядро правил + профиль, собранные в `agents.system_prompt`. Нет строки или промпта —
+            # отказ, а не файл PROMPT_PATH и не промпт соседнего агента: отвечать по чужой инструкции нельзя.
+            system_prompt = agent.system_prompt or ""
+            # Ключ модели и лимиты — организации агента (Q-SA-10): ход идёт с ключом партнёра, если он подключён.
+            t.llm_api_key = await org_llm_api_key(t.session, agent.organization_id, s)
             if not system_prompt.strip():
-                logger.error("системный промпт организации %s недоступен", org)
+                logger.error("системный промпт агента %s недоступен", agent.id)
                 return self._fail(t, "prompt_missing")
         else:
             try:
@@ -251,14 +263,16 @@ class Engine:
                 return self._fail(t, "prompt_missing")
         try:
             chunks = await retriever.search(t.session, self._embedder, t.verdict.text, top_k=s.kb_top_k,
-                                            organization_id=org)
+                                            agent_id=agent.id if agent is not None else None)
             knowledge = [c.content for c in chunks]
         except Exception:
             logger.warning("поиск по базе знаний не удался, отвечаем без фактов", exc_info=True)
             knowledge = []
         history = [HistoryTurn(role=_ROLE_TO_TURN[m.role], text=m.content) for m in t.history if m.role in _ROLE_TO_TURN]
         t.messages = build_messages(system_prompt=system_prompt, knowledge=knowledge, history=history,
-                                    user_text=t.verdict.text, history_turns=s.llm_history_turns)
+                                    user_text=t.verdict.text, history_turns=s.llm_history_turns,
+                                    max_turn_chars=s.guard_max_input_chars,
+                                    max_history_chars=s.llm_history_max_chars)
 
     async def _model(self, t: Turn) -> None:
         t.step("model")
@@ -291,7 +305,8 @@ class Engine:
 
         Проверка и списание врозь пропускали к модели все параллельные вызовы: каждый видел счётчик
         до чужого списания. Резерв (предел ответа модели) виден соседям сразу; после вызова — _settle_tokens.
-        Redis недоступен — не исчерпан: бюджет защищает счёт, а не заменяет ответ клиенту.
+        Redis недоступен — считаем исчерпанным: без счётчика падение Redis снимало бы предел на расход
+        токенов целиком (решение владельца 30.09.2026); гостю — фраза бюджета, контакт сохраняется.
         """
         # Не «budget»: так называется модуль дневного предела гостиницы (src/ai/budget.py).
         ceiling = self._settings.llm_daily_token_budget
@@ -301,8 +316,8 @@ class Engine:
         try:
             used = int(await self._redis.incrby(key, reserve))
         except Exception:  # noqa: BLE001 — Redis недоступен
-            logger.warning("бюджет модели: Redis недоступен, считаем не исчерпанным", exc_info=True)
-            return 0
+            logger.warning("бюджет модели: Redis недоступен, модель не зовём", exc_info=True)
+            return None
         try:
             await self._redis.expire(key, 2 * 86_400)
         except Exception:  # noqa: BLE001 — срок поставит списание

@@ -8,6 +8,7 @@ import {
   SellerClient,
   SellerRejectedError,
   SellerUnavailableError,
+  widgetAgentKey,
   widgetOrgKey,
 } from './bot-panel-client';
 
@@ -43,6 +44,18 @@ describe('SellerClient — адреса и ключ', () => {
     expect(calls[0]!.init.method).toBe('GET');
     expect(header(calls[0]!, 'x-service-key')).toBe(KEY);
     expect(calls[0]!.url).not.toContain(KEY);
+  });
+
+  it('очередь техподдержки: отбор очереди, непустые, открытые или закрытые; закрыть обращение', async () => {
+    const { calls, seller } = client(() => Response.json({ items: [], status: 'ok' }));
+    await seller.listConversations({ queue: 'waiting', nonempty: true, closed: false, limit: 200 });
+    await seller.listConversations({ closed: true, nonempty: true });
+    await seller.close('c1');
+    expect(calls.map((c) => `${c.init.method} ${c.url}`)).toEqual([
+      'GET http://seller:8000/panel-x/conversations?limit=200&queue=waiting&nonempty=true&closed=false',
+      'GET http://seller:8000/panel-x/conversations?nonempty=true&closed=true',
+      'POST http://seller:8000/panel-x/conversations/c1/close',
+    ]);
   });
 
   it('карточка, перехват, возврат, ответ — по id диалога, id экранируется', async () => {
@@ -298,6 +311,31 @@ describe('Э4 — организация в клиенте панели (ADR-083
       active: false,
       hosts: ['hotel-a.example.test'],
     });
+  });
+
+  it('SA2.5: агент — заголовок X-Agent на каждом вызове; без агента заголовка нет (прежний клиент не меняется)', async () => {
+    const calls: Call[] = [];
+    const fetch = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return Response.json({ items: [] });
+    });
+    const AGENT = 'cccccccc-3333-4333-8333-cccccccccccc';
+    const withAgent = new SellerClient({ baseUrl: BASE, serviceKey: KEY, organizationId: ORG, agentId: AGENT, fetch });
+    await withAgent.listConversations({});
+    await withAgent.whatsappStatus(ORG);
+    const legacy = new SellerClient({ baseUrl: BASE, serviceKey: KEY, organizationId: ORG, fetch });
+    await legacy.listConversations({});
+    expect(header(calls[0]!, 'x-agent')).toBe(AGENT);
+    expect(header(calls[1]!, 'x-agent')).toBe(AGENT);
+    expect(header(calls[0]!, 'x-organization')).toBe(ORG);
+    expect(header(calls[2]!, 'x-agent')).toBeNull();
+  });
+
+  it('SA2.5: ключ виджета агента — от идентификатора агента; у перенесённого (id = организация) совпадает с прежним', () => {
+    const AGENT = 'cccccccc-3333-4333-8333-cccccccccccc';
+    expect(widgetAgentKey(KEY, ORG)).toBe(widgetOrgKey(KEY, ORG));
+    expect(widgetAgentKey(KEY, AGENT)).toMatch(/^sk_[0-9a-f]{24}$/);
+    expect(widgetAgentKey(KEY, AGENT)).not.toBe(widgetAgentKey(KEY, ORG));
   });
 
   it('widgetOrgKey: sk_ + 24 hex, свой у каждой организации, из ключа не восстановим', () => {

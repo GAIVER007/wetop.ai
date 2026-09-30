@@ -1,0 +1,52 @@
+# Сквозные (e2e) · 29.09.2026 21:47 Алматы · vm
+# коммит 068cf57 (claude/charming-heisenberg-ainaqm), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/ai-agents.spec.ts' '--config' 'tests/ui/playwright.config.ts' '--workers=1' '-g' 'каталог не загрузился'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/ai-agents.spec.ts:137:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (17.4s)
+
+
+  1) tests/ui/ai-agents.spec.ts:137:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('agents-error')
+    Expected substring: "Не удалось загрузить агентов"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('agents-error') with timeout 15000ms
+      - waiting for getByTestId('agents-error')
+
+
+      141 |   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+      142 |   const failure = page.getByTestId('agents-error');
+    > 143 |   await expect(failure).toContainText('Не удалось загрузить агентов');
+          |                         ^
+      144 |   await expect(failure.getByRole('button', { name: /Повторить/ })).toBeVisible();
+      145 |   await expect(page.getByTestId('agent-seller')).toHaveCount(0);
+      146 |   // соседний агент платформы не зависит от каталога партнёра
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:143:25
+
+    Error Context: test-results/ai-agents-каталог-не-загру-51c6e-к-—-сбой-со-следующим-шагом/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-каталог-не-загру-51c6e-к-—-сбой-со-следующим-шагом/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-каталог-не-загру-51c6e-к-—-сбой-со-следующим-шагом/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-agents.spec.ts:137:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом 
+
+# код выхода 1 · 23 с

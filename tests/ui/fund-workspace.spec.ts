@@ -4,8 +4,14 @@ test('category creation, rename, room creation and reload', async ({ page }) => 
   await page.goto('/rooms/categories');
   await page.getByRole('button', { name: '+ Категория', exact: true }).first().click();
   await page.getByLabel('Название категории').fill('Тестовая новая категория');
-  await expect(page.getByLabel('Тариф для категории')).toBeEnabled();
+  // тариф — явным «Настроить сейчас» (ADR-119: по умолчанию «позже»)
+  await page.getByRole('radio', { name: 'Настроить сейчас' }).check();
+  await expect(page.getByRole('combobox', { name: /^Тариф/ })).toBeEnabled();
   await page.getByRole('button', { name: 'Создать', exact: true }).click();
+  await page
+    .getByRole('dialog', { name: 'Категория создана' })
+    .getByRole('button', { name: 'Готово' })
+    .click();
   const category = page
     .getByTestId('fund-category-row')
     .filter({ hasText: 'Тестовая новая категория' });
@@ -101,6 +107,148 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
     'href',
     /guests=3/,
+  );
+});
+
+test('AV2: price «from» — rooms for the whole stay, beds for every guest', async ({
+  page,
+  request,
+}) => {
+  // ТЗ «Свободные места» §4 (ADR-110, закрытый Q-204); подставной API: номер 8 000 ₸, койка 4 000 ₸ за ночь
+  await request.post('http://127.0.0.1:4311/__test/reset');
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2');
+  const rows = page.locator('.fund-availability article');
+  const room = rows.filter({ hasText: 'Двухместный номер' });
+  await expect(room.getByText('от 24 000 ₸ за проживание')).toBeVisible();
+  await expect(room.getByText('от 8 000 ₸ / ночь')).toBeVisible();
+  // корректировка владельца: итог коек — на всех гостей запроса (4 000 × 2 гостя × 3 ночи)
+  const bed = rows.filter({ hasText: 'Мужской общий номер' });
+  await expect(bed.getByText('Итого от 24 000 ₸')).toBeVisible();
+  await expect(bed.getByText('от 4 000 ₸ / койка / ночь')).toBeVisible();
+  await expect(bed.getByText('2 гостя, 3 ночи')).toBeVisible();
+});
+
+test('AV3: places as a compact list; automatic choice and picked beds prefill the booking', async ({
+  page,
+  request,
+}) => {
+  // ТЗ «Свободные места» §5–§6 (ADR-110): место назначает API по правилу Q-094, повторно ничего не вводится
+  const fixture = 'http://127.0.0.1:4311';
+  await request.post(`${fixture}/__test/reset`);
+  const search = '/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2';
+  await page.goto(search);
+  const rows = page.locator('.fund-availability article');
+  const room = rows.filter({ hasText: 'Двухместный номер' });
+  await room.getByText('Показать номера', { exact: true }).click();
+  const roomList = room.getByRole('list', { name: 'Места: Двухместный номер' });
+  await expect(roomList.getByRole('listitem').first()).toContainText('R01');
+  // стенд «вокруг сегодня»: какой номер свободен, решает дата прогона, а не тест (TESTING.md)
+  const roomPick = roomList.getByRole('link', { name: /^Выбрать номер / }).first();
+  const roomCode = (await roomPick.getAttribute('aria-label'))!.replace('Выбрать номер ', '');
+  await expect(roomPick).toHaveAttribute(
+    'href',
+    new RegExp(`unit=${roomCode}&category=ROOM&rate=BASE&adults=2$`),
+  );
+  await room.getByRole('link', { name: 'Выбрать автоматически', exact: true }).click();
+  const form = page.getByTestId('new-reservation-form');
+  await expect(form.locator('[name="accommodationTypeCode"]')).toHaveValue('ROOM');
+  await expect(form.locator('[name="ratePlanCode"]')).toHaveValue('BASE');
+  await expect(form.locator('[name="adults"]')).toHaveValue('2');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
+  await expect(form.getByTestId('booking-summary')).toContainText('ячейку назначит система');
+  await form.locator('[name="source"]').selectOption('PHONE');
+  await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
+  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByRole('button', { name: 'Создать бронь' }).click();
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+  const created = async () =>
+    (
+      (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{
+        path: string;
+        body: Record<string, unknown>;
+      }>
+    )
+      .filter((c) => c.path === '/reservations')
+      .at(-1)?.body;
+  expect(await created()).toMatchObject({
+    arrivalDate: '2026-10-01',
+    departureDate: '2026-10-04',
+    items: [
+      {
+        accommodationTypeCode: 'ROOM',
+        ratePlanCode: 'BASE',
+        adults: 2,
+        quantity: 1,
+        unitCode: null,
+        autoAssign: true,
+      },
+    ],
+  });
+
+  // койки на двоих: одну выбрали вручную, вторую назначит система
+  await page.goto(search);
+  const bed = rows.filter({ hasText: 'Мужской общий номер' });
+  await bed.getByText('Показать места', { exact: true }).click();
+  const pick = bed.getByRole('button', { name: /^Выбрать койку / }).first();
+  const code = (await pick.getAttribute('aria-label'))!.replace('Выбрать койку ', '');
+  await pick.click();
+  await expect(bed.getByRole('button', { name: `Выбрать койку ${code}` })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(bed.getByRole('status')).toHaveText(/Выбрано 1 из 2 — остальные назначит система/);
+  await bed.getByRole('link', { name: 'Создать бронь', exact: true }).click();
+  const placements = form.getByTestId('placement-fields');
+  await expect(placements).toHaveCount(2);
+  await expect(form.locator('[name="accommodationTypeCode"]')).toHaveValue('MALE');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue(code);
+  await expect(form.locator('[name="item.1.accommodationTypeCode"]')).toHaveValue('MALE');
+  await expect(form.locator('[name="item.1.adults"]')).toHaveValue('1');
+  await expect(form.locator('[name="item.1.unitCode"]')).toHaveValue('@auto');
+});
+
+test('AV4: a category without places stays on screen with the nearest availability', async ({
+  page,
+  request,
+}) => {
+  // ТЗ «Свободные места» §7 (ADR-110): «с 1-го нет, но есть с N-го» — вместо того чтобы исчезнуть
+  const fixture = 'http://127.0.0.1:4311';
+  await request.post(`${fixture}/__test/reset`);
+  // все двухместные закрыты на 1–4 октября: категория вмещает двоих, но мест на весь срок нет
+  for (let i = 1; i <= 16; i += 1) {
+    const blocked = await request.post(`${fixture}/units/R${String(i).padStart(2, '0')}/blocks`, {
+      headers: { 'x-wetop-test-client': '1' },
+      data: { dateFrom: '2026-10-01', dateTo: '2026-10-04', type: 'MAINTENANCE', reason: 'AV4' },
+    });
+    expect(blocked.ok()).toBe(true);
+  }
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=2');
+  const soldOut = page.getByRole('region', { name: 'Нет мест на эти даты' });
+  const room = soldOut.locator('article').filter({ hasText: 'Двухместный номер' });
+  await expect(room.getByText('Нет мест на весь период')).toBeVisible();
+  await expect(room.getByText('Ближайшая доступность')).toBeVisible();
+  const link = room.getByRole('link', { name: /^Посмотреть варианты: Двухместный номер с / });
+  const next = new URL((await link.getAttribute('href'))!, 'http://x').searchParams;
+  // тот же срок (три ночи) и те же гости, позже запрошенного заезда
+  expect(next.get('guests')).toBe('2');
+  expect(next.get('arrival')! > '2026-10-01').toBe(true);
+  expect((Date.parse(next.get('departure')!) - Date.parse(next.get('arrival')!)) / 86400000).toBe(
+    3,
+  );
+  // номер показан один раз — в блоке «Нет мест на эти даты», а не среди доступных
+  await expect(
+    page.locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }),
+  ).toHaveCount(1);
+  await link.click();
+  await expect(page).toHaveURL(new RegExp(`arrival=${next.get('arrival')}`));
+  await expect(page.getByRole('region', { name: 'Нет мест на эти даты' })).toHaveCount(0);
+  await expect(
+    page.locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }),
+  ).toContainText('Показать номера');
+  // сорок гостей: 36 коек не хватит ни в какой день из четырнадцати — так и сказано
+  await page.goto('/rooms/availability?arrival=2026-10-01&departure=2026-10-04&guests=40');
+  await expect(soldOut.locator('article').filter({ hasText: 'Мужской общий номер' })).toContainText(
+    'Нет мест в ближайшие 14 дней',
   );
 });
 

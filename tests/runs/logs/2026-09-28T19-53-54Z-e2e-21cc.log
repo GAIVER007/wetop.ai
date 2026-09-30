@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 29.09.2026 00:53 Алматы · vm
+# коммит 1332e2f (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/chessboard-month.spec.ts:72' 'tests/ui/workspace.spec.ts:159'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-month.spec.ts:72:1 › 7 дней, 14 дней, произвольный период и возврат к месяцу (6.5s)
+  ✘  2 tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (16.9s)
+
+
+  1) tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /arrival=2026-10-01&departure=2026-10-04&unit=R01/
+    Received string:  "http://127.0.0.1:3100/reservations/new?arrival=2026-10-01&departure=2026-10-04&unit=R04"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/rooms/availability?arrival=2026-10-01&departure=2026-10-04"
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/reservations/new?arrival=2026-10-01&departure=2026-10-04&unit=R04"
+
+
+      163 |   await page.locator('.fund-availability summary').first().click();
+      164 |   await page.locator('.fund-book-unit').first().click();
+    > 165 |   await expect(page).toHaveURL(/arrival=2026-10-01&departure=2026-10-04&unit=R01/);
+          |                      ^
+      166 |   await expect(
+      167 |     page
+      168 |       .getByRole('dialog', { name: 'Новая бронь', exact: true })
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:165:22
+
+    Error Context: test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+  1 passed (28.5s)
+
+# код выхода 1 · 30 с

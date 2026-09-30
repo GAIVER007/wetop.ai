@@ -1,0 +1,25 @@
+# Типы (typecheck) · 28.09.2026 13:45 Алматы · vm
+# коммит 1b187fa (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 13
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/hotel/hotel.module.ts(243,11): error TS2322: Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/hotel/hotel.module.ts(243,11): error TS2322: Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue'.
+apps/api/src/hotel/services-catalog.test.ts(39,57): error TS2783: 'nameKz' is specified more than once, so this usage will be overwritten.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+apps/web/src/app/hotel-settings/catalogs.tsx(301,20): error TS2345: Argument of type '{ field: ServiceInputField | undefined; error: string; }' is not assignable to parameter of type 'SetStateAction<{ field?: ServiceInputField; error: string; } | null>'.
+  Type '{ field: ServiceInputField | undefined; error: string; }' is not assignable to type '{ field?: ServiceInputField; error: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'field' are incompatible.
+      Type 'ServiceInputField | undefined' is not assignable to type 'ServiceInputField'.
+        Type 'undefined' is not assignable to type 'ServiceInputField'.
+
+# код выхода 1 · 35 с

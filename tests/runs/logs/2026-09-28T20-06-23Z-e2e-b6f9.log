@@ -1,0 +1,207 @@
+# Сквозные (e2e) · 29.09.2026 01:06 Алматы · vm
+# коммит e1adee8 (HEAD)
+# npx playwright test --workers=2 --reporter=list,json 'tests/e2e/chessboard-drag.spec.ts' 'tests/e2e/desk-tasks.spec.ts' 'tests/e2e/manual-reservation.spec.ts' 'tests/e2e/stay-extras.spec.ts' 'tests/e2e/unit-blocks.spec.ts'
+[pms_test] миграций применено 0 из 34; данные от 2026-09-28T20:06:14.701Z (сид)
+
+Running 6 tests using 2 workers
+
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (55ms)
+[WebServer] (node:17355) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  2 [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (31.7s)
+  ✘  3 [isolated] › tests/e2e/desk-tasks.spec.ts:27:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (32.6s)
+  ✘  4 [isolated] › tests/e2e/manual-reservation.spec.ts:12:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (31.6s)
+  ✘  5 [isolated] › tests/e2e/stay-extras.spec.ts:24:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (33.1s)
+  ✘  6 [isolated] › tests/e2e/unit-blocks.spec.ts:27:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (31.0s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 5)
+  свежих, моложе 15 мин, оставлено: 5 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('main').getByTestId('stay-row').first().locator('td').first()
+    Expected: "@auto"
+    Received: "L10"
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('stay-row').first().locator('td').first() with timeout 30000ms
+      - waiting for getByRole('main').getByTestId('stay-row').first().locator('td').first()
+        60 × locator resolved to <td class="mono">L10</td>
+           - unexpected value "L10"
+
+
+      51 |   await expect(
+      52 |     page.getByRole('main').getByTestId('stay-row').first().locator('td').first(),
+    > 53 |   ).toHaveText(unitA);
+         |     ^
+      54 |
+      55 |   // ── шахматка: тянем клетку заезда с A на строку B ─────────────────────────────────────────
+      56 |   await page.goto(`/chessboard?from=${arrival}&to=${departure}`);
+        at /home/user/wetop.ai/tests/e2e/chessboard-drag.spec.ts:53:5
+
+    Error Context: test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/desk-tasks.spec.ts:27:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert').first()
+    Expected pattern: /занят|пересек/i
+    Received string:  "Бронь 20260929-J5MN4D"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('alert').first() with timeout 30000ms
+      - waiting for getByRole('alert').first()
+        3 × locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div>
+          - unexpected value ""
+        60 × locator resolved to <div role="alert" aria-live="assertive" id="__next-route-announcer__">Бронь 20260929-J5MN4D</div>
+           - unexpected value "Бронь 20260929-J5MN4D"
+
+
+      74 |   // администратор обязан увидеть внятный отказ, а не белый экран и не вторую бронь на той же койке
+      75 |   const refusal = second.getByRole('alert').first();
+    > 76 |   await expect(refusal).toContainText(/занят|пересек/i);
+         |                         ^
+      77 |   // в сообщении номер койки, а не внутренний идентификатор — иначе оно бесполезно на стойке
+      78 |   await expect(refusal).toContainText(unit);
+      79 |   await expect(refusal).not.toContainText(/[0-9a-f]{8}-[0-9a-f]{4}-/);
+        at /home/user/wetop.ai/tests/e2e/desk-tasks.spec.ts:76:25
+
+    Error Context: test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [isolated] › tests/e2e/manual-reservation.spec.ts:12:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('stay-row').first()
+    Expected substring: "@auto"
+    Received string:    "L1Одноместный с окном (стенд)10 мая12 маяподтверждена24 000 ₸Гость Тест-e2e · 1"
+    Timeout: 30000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('stay-row').first() with timeout 30000ms
+      - waiting for getByRole('main').getByTestId('stay-row').first()
+        63 × locator resolved to <tr data-testid="stay-row">…</tr>
+           - unexpected value "L1Одноместный с окном (стенд)10 мая12 маяподтверждена24 000 ₸Гость Тест-e2e · 1"
+
+
+      33 |   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
+      34 |   await expect(page.getByRole('heading', { name: /Бронь/ })).toBeVisible();
+    > 35 |   await expect(page.getByRole('main').getByTestId('stay-row').first()).toContainText(unitCode!);
+         |                                                                        ^
+      36 |   await page.screenshot({
+      37 |     path: 'reports/screenshots/manual-reservation-card.png',
+      38 |     fullPage: true,
+        at /home/user/wetop.ai/tests/e2e/manual-reservation.spec.ts:35:72
+
+    Error Context: test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [isolated] › tests/e2e/stay-extras.spec.ts:24:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').locator('[data-testid="unit-row"][data-unit-code="@auto"]').locator('td[data-date="2026-10-20"][data-state="BLOCKED"]')
+    Expected: 1
+    Received: 0
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').locator('[data-testid="unit-row"][data-unit-code="@auto"]').locator('td[data-date="2026-10-20"][data-state="BLOCKED"]') with timeout 30000ms
+      - waiting for getByRole('main').locator('[data-testid="unit-row"][data-unit-code="@auto"]').locator('td[data-date="2026-10-20"][data-state="BLOCKED"]')
+        63 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      80 |     .getByRole('main')
+      81 |     .locator(`[data-testid="unit-row"][data-unit-code="${unit}"]`);
+    > 82 |   await expect(unitRow.locator(`td[data-date="${plus(11)}"][data-state="BLOCKED"]`)).toHaveCount(1);
+         |                                                                                      ^
+      83 |   await expect(unitRow.locator(`td[data-date="${plus(14)}"][data-state="BLOCKED"]`)).toHaveCount(1);
+      84 |   await page.goto(`/reservations/${number}`);
+      85 |
+        at /home/user/wetop.ai/tests/e2e/stay-extras.spec.ts:82:86
+
+    Error Context: test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [isolated] › tests/e2e/unit-blocks.spec.ts:27:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /Ячейка @auto/ })
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /Ячейка @auto/ }) with timeout 30000ms
+      - waiting for getByRole('heading', { name: /Ячейка @auto/ })
+
+
+      48 |
+      49 |   await page.goto(`/units/${unitCode}`);
+    > 50 |   await expect(page.getByRole('heading', { name: new RegExp(`Ячейка ${unitCode}`) })).toBeVisible();
+         |                                                                                       ^
+      51 |   const form = page.getByRole('main').getByTestId('block-form');
+      52 |   await form.locator('input[name="dateFrom"]').fill(FROM);
+      53 |   await form.locator('input[name="dateTo"]').fill(TO);
+        at /home/user/wetop.ai/tests/e2e/unit-blocks.spec.ts:50:87
+
+    Error Context: test-results/unit-blocks-заблокировать--29307-1-→-снять-→-как-было-уборка-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unit-blocks-заблокировать--29307-1-→-снять-→-как-было-уборка-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unit-blocks-заблокировать--29307-1-→-снять-→-как-было-уборка-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    [isolated] › tests/e2e/chessboard-drag.spec.ts:25:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+    [isolated] › tests/e2e/desk-tasks.spec.ts:27:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+    [isolated] › tests/e2e/manual-reservation.spec.ts:12:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+    [isolated] › tests/e2e/stay-extras.spec.ts:24:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+    [isolated] › tests/e2e/unit-blocks.spec.ts:27:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка 
+  1 passed (1.7m)
+
+# код выхода 1 · 1 мин 44 с

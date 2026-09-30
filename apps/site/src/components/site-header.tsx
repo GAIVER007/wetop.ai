@@ -1,6 +1,8 @@
+import { ThemeToggle } from './theme-toggle';
 import Link from 'next/link';
 import { getDictionary } from '../i18n';
 import { loginLink, registerLink } from '../lib/site';
+import { getPublishedPosts } from '../lib/posts';
 import { Wordmark } from './brand';
 import { MobileMenu } from './mobile-menu';
 
@@ -10,12 +12,12 @@ export function SiteHeader() {
   const register = registerLink();
   // Якоря ведут на главную: из блога ссылка «Возможности» открывает главную сразу на нужном разделе.
   // «Блог» — только когда есть опубликованные статьи (С2, 20.09.2026): пустую страницу в меню не зовём.
+  const hasPosts = getPublishedPosts().length > 0;
   const links = [
-    { href: '/#product', label: t.nav.product },
-    { href: '/#features', label: t.nav.features },
     { href: '/#audience', label: t.nav.audience },
-    { href: '/#integrations', label: t.nav.integrations },
-    { href: '/#pricing', label: t.nav.pricing },
+    { href: '/#features', label: t.nav.features },
+    { href: '/#start', label: t.nav.start },
+    ...(hasPosts ? [{ href: '/blog/', label: t.nav.blog }] : []),
   ];
 
   return (
@@ -34,6 +36,7 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="site-header__actions">
+          <ThemeToggle />
           <a
             className="btn btn--ghost btn--sm site-header__login"
             href={login.href}

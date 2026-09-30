@@ -1,0 +1,18 @@
+# Интеграционные (integration) · 29.09.2026 18:34 Алматы · vm
+# коммит 9283bec (claude/focused-gauss-p6zmlb), незакоммиченных файлов набора: 8
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T13-34-58Z-integration-7e11.json' 'tests/integration/derived-rate-plans.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/derived-rate-plans.test.ts (1 test) 421ms
+   ✓ derived rate plans and promo codes: database guards (1)
+     ✓ accepts a valid derived plan and rejects every broken shape 418ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  13:34:59
+   Duration  1.98s (tests 54%, transform 29%, import 16%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-29T13-34-58Z-integration-7e11.json
+
+# код выхода 0 · 3 с

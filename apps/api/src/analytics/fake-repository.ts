@@ -4,9 +4,11 @@
  */
 import type { SessionRow } from '@pms/domain';
 import type {
+  AgentScopeRow,
   AnalyticsRepository,
   RatePlanOption,
   SiteRecord,
+  SiteReservationRow,
   SiteStatus,
   StoredHit,
 } from './analytics.repository';
@@ -55,20 +57,34 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
   ]);
   /** Чья гостиница у сайта (Q-166, ADR-085): в записи сайта организации нет, она у объекта */
   siteOrganizations = new Map<string, string>();
+  /** Агенты продавца (SA2.5): область запроса берётся только из этой строки */
+  agentRows = new Map<string, AgentScopeRow>();
   recorded: StoredHit[] = [];
-  audits: Array<{ action: string; siteId: string; details?: Record<string, unknown> | undefined }> = [];
+  audits: Array<{ action: string; siteId: string; details?: Record<string, unknown> | undefined }> =
+    [];
   sessionRows: SessionRow[] = [];
   pageviewRows: Array<{ path: string }> = [];
   eventRows: Array<{ name: string; sessionKey: string; props: unknown }> = [];
+  /** Брони с источником «Сайт» (WEB4): задаёт тест; период запроса — `lastReservationsRange` */
+  reservationRows: SiteReservationRow[] = [];
   siteStatus: SiteStatus = { lastEventAt: null, sessionsToday: 0, pageviewsToday: 0 };
   lastRange: { startUtc: string; endUtcExclusive: string } | null = null;
+  lastReservationsRange: { startUtc: string; endUtcExclusive: string } | null = null;
   private seq = 0;
 
   seedGate(): void {
     this.sessionRows = [
-      row({ visitorKey: 'A', pageviews: 2, durationSeconds: 40, browser: 'Chrome', os: 'macOS' }),
       row({
         visitorKey: 'A',
+        sessionKey: 'k1',
+        pageviews: 2,
+        durationSeconds: 40,
+        browser: 'Chrome',
+        os: 'macOS',
+      }),
+      row({
+        visitorKey: 'A',
+        sessionKey: 'k2',
         startedAt: new Date('2026-09-12T05:31:00Z'),
         browser: 'Chrome',
         os: 'macOS',
@@ -78,6 +94,7 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
       }),
       row({
         visitorKey: 'B',
+        sessionKey: 'k3',
         startedAt: new Date('2026-09-12T18:59:30Z'),
         durationSeconds: 30,
         sourceKind: 'SEARCH',
@@ -123,6 +140,34 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
         return site;
     }
     return null;
+  }
+
+  async agentScope(agentId: string): Promise<AgentScopeRow | null> {
+    const row = this.agentRows.get(agentId);
+    return row && row.lifecycle !== 'archived' ? row : null;
+  }
+  async bookingSiteForAgent(agentId: string): Promise<SiteRecord | null> {
+    const scope = await this.agentScope(agentId);
+    if (!scope?.propertyId) return null;
+    for (const site of this.sitesById.values()) {
+      if (site.propertyId === scope.propertyId && site.status === 'ACTIVE' && site.bookingEnabled && site.bookingRatePlan)
+        return { ...site, organizationId: scope.organizationId };
+    }
+    return null;
+  }
+  async hostsForAgent(agentId: string): Promise<string[] | null> {
+    const scope = await this.agentScope(agentId);
+    if (!scope) return null;
+    if (!scope.propertyId) return [];
+    const hosts = [...this.sitesById.values()]
+      .filter((s) => s.propertyId === scope.propertyId && s.status === 'ACTIVE')
+      .flatMap((s) => s.hosts);
+    return [...new Set(hosts)];
+  }
+  async salesAgentCount(organizationId: string): Promise<number> {
+    return [...this.agentRows.values()].filter(
+      (a) => a.organizationId === organizationId && a.scenario === 'sales' && a.lifecycle !== 'archived',
+    ).length;
   }
 
   async siteByKey(key: string): Promise<SiteRecord | null> {
@@ -188,6 +233,13 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     };
     return this.sessionRows.filter((r) => r.startedAt >= startUtc && r.startedAt < endUtcExclusive);
   }
+  async siteReservations(startUtc: Date, endUtcExclusive: Date): Promise<SiteReservationRow[]> {
+    this.lastReservationsRange = {
+      startUtc: startUtc.toISOString(),
+      endUtcExclusive: endUtcExclusive.toISOString(),
+    };
+    return this.reservationRows;
+  }
   async pageviews(): Promise<Array<{ path: string }>> {
     return this.pageviewRows;
   }
@@ -221,7 +273,8 @@ export class FakeAnalyticsRepository implements AnalyticsRepository {
     confirmationNumber: string,
   ): Promise<boolean> {
     // Как в базе: привязать можно только сессию, которая уже записана; иначе updateMany никого не найдёт
-    if (!this.recorded.some((h) => h.siteId === siteId && h.sessionKey === sessionKey)) return false;
+    if (!this.recorded.some((h) => h.siteId === siteId && h.sessionKey === sessionKey))
+      return false;
     this.linked.push({ siteId, sessionKey, confirmationNumber });
     return true;
   }

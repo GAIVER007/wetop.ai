@@ -37,7 +37,7 @@ def _dialect_name(session: AsyncSession) -> str:
     return bind.dialect.name
 
 
-def _cosine_distance(vec: list[float]) -> sa.ColumnElement[float]:
+def _cosine_distance(vec: list[float], column=None) -> sa.ColumnElement[float]:
     """Косинусное расстояние pgvector (`<=>`) до вектора запроса.
 
     Оператором, а не .cosine_distance(): колонка объявлена через TypeDecorator,
@@ -46,7 +46,9 @@ def _cosine_distance(vec: list[float]) -> sa.ColumnElement[float]:
     pgvector пытается разобрать число float8 как строку «[…]» — падение на
     первом же ответе.
     """
-    return KnowledgeChunk.embedding.op("<=>", return_type=sa.Float())(vec)
+    # column — чужая таблица чанков (управляемая база знаний); по умолчанию документы помощника
+    target = column if column is not None else KnowledgeChunk.embedding
+    return target.op("<=>", return_type=sa.Float())(vec)
 
 
 def _cosine(a: list[float], b: list[float]) -> float:
@@ -65,7 +67,7 @@ async def search(
     query: str,
     *,
     top_k: int,
-    organization_id: uuid.UUID | None = None,
+    agent_id: uuid.UUID | None = None,
 ) -> list[RetrievedChunk]:
     """Ближайшие top_k чанков к запросу по косинусу, по убыванию оценки.
 
@@ -73,19 +75,19 @@ async def search(
     миграции). SQLite (только тесты) — косинус в Python по всем чанкам:
     индекса нет, но и данных в тестах мало.
 
-    🔴 organization_id (Э4): поиск не выносит знания одной гостиницы
-    в ответы другой. None — как раньше, без отбора: экземпляр-помощник
-    держит все документы без организации.
+    🔴 agent_id (SA2.5; до неё — организация, Э4): поиск не выносит знания одного
+    агента в ответы другого — ни другой гостиницы, ни другого агента той же организации.
+    None — как раньше, без отбора: экземпляр-помощник держит все документы без организации.
     """
     if not query.strip() or top_k <= 0:
         return []
     vec = await embedder.embed_query(query)
 
     def scoped(stmt):
-        if organization_id is None:
+        if agent_id is None:
             return stmt
         return stmt.join(Document, Document.id == KnowledgeChunk.document_id).where(
-            Document.organization_id == organization_id
+            Document.agent_id == agent_id
         )
 
     if _dialect_name(session) == "postgresql":

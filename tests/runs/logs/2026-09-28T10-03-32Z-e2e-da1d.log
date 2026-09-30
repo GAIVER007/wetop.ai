@@ -1,0 +1,316 @@
+# Сквозные (e2e) · 28.09.2026 15:03 Алматы · vm
+# коммит 1b187fa (HEAD)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/channex-screens.spec.ts:107' 'tests/ui/integrations.spec.ts:112' 'tests/ui/navigation.spec.ts:45' 'tests/ui/roles.spec.ts:36' 'tests/ui/roles.spec.ts:61' 'tests/ui/ux-retention.spec.ts:101' 'tests/ui/workspace.spec.ts:24' 'tests/ui/workspace.spec.ts:1038'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/channex-screens.spec.ts:107:1 › подключения каналов: настройка подключения только владельцу (18.5s)
+  ✘  2 tests/ui/integrations.spec.ts:112:1 › сотрудник смены технических деталей не видит (17.1s)
+  ✘  3 tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (1.4s)
+  ✘  4 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (16.3s)
+  ✘  5 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (19.3s)
+  ✘  6 tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (45.4s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '1052313065'
+[WebServer] }
+  ✘  7 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (47.1s)
+  ✘  8 tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (16.5s)
+
+
+  1) tests/ui/channex-screens.spec.ts:107:1 › подключения каналов: настройка подключения только владельцу 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('channel-setup-owner-only')
+    Expected: "Настройку подключения меняет владелец организации."
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('channel-setup-owner-only') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('channel-setup-owner-only')
+
+
+      119 |   await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
+      120 |   await page.goto('/channels/connections');
+    > 121 |   await expect(main.getByTestId('channel-setup-owner-only')).toHaveText(
+          |                                                              ^
+      122 |     'Настройку подключения меняет владелец организации.',
+      123 |   );
+      124 |   await expect(main.getByTestId('channel-setup')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/channex-screens.spec.ts:121:62
+
+    Error Context: test-results/channex-screens-подключени-18423-одключения-только-владельцу/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channex-screens-подключени-18423-одключения-только-владельцу/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/integrations.spec.ts:112:1 › сотрудник смены технических деталей не видит ────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+    Expected: "Работает"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('main').getByTestId('integration-channex').getByTestId('integration-health') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('integration-channex').getByTestId('integration-health')
+
+
+      115 |   await page.goto('/connections');
+      116 |   const card = page.getByRole('main').getByTestId('integration-channex');
+    > 117 |   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
+          |                                                        ^
+      118 |   await expect(card.getByTestId('integration-tech')).toHaveCount(0);
+      119 |   await expect(card).not.toContainText('ui-property');
+      120 | });
+        at /home/user/wetop.ai/tests/ui/integrations.spec.ts:117:56
+
+    Error Context: test-results/integrations-сотрудник-смены-технических-деталей-не-видит/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integrations-сотрудник-смены-технических-деталей-не-видит/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integrations-сотрудник-смены-технических-деталей-не-видит/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -8,11 +8,10 @@
+        "/hotel-settings",
+        "/incidents",
+        "/inventory",
+        "/journal",
+        "/management/analytics",
+    -   "/management/dashboard",
+        "/rates",
+        "/reservations",
+        "/today",
+        "/website",
+      ]
+
+      58 |     .locator('.workspace-links a')
+      59 |     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
+    > 60 |   expect(links.sort()).toEqual([...routes].sort());
+         |                        ^
+      61 |   expect(new Set(links).size).toBe(links.length);
+      62 |   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
+      63 |   // /today стримится, а панель — клиентский компонент: до гидрации у кнопки нет обработчика, и Space
+        at /home/user/wetop.ai/tests/ui/navigation.spec.ts:60:24
+
+    Error Context: test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/navigation-разделы-содержа-977af-й-раскрываются-с-клавиатуры/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -3,8 +3,8 @@
+        "/chessboard",
+        "/reservations",
+        "/guests",
+        "/ai-seller",
+        "/finance",
+    -   "/management/statistics",
+    +   "/management/analytics",
+        "/incidents",
+      ]
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      43 |   await expect
+      44 |     .poll(() => menuLinks(page))
+    > 45 |     .toEqual([
+         |      ^
+      46 |       '/today',
+      47 |       '/chessboard',
+      48 |       '/reservations',
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:45:6
+
+    Error Context: test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-в-меню-aaee5-ка-продавец-и-неисправности/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('heading', { level: 1 })
+    Expected: "Синхронизация"
+    Received: "Каналы продаж"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        34 × locator resolved to <h1 class="page__title">Каналы продаж</h1>
+           - unexpected value "Каналы продаж"
+
+
+      86 |     await expect(refusal).toContainText('Ваша роль — администратор');
+      87 |     // заголовок — раздела, а не самой страницы: её содержимого на экране нет
+    > 88 |     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
+         |                                                           ^
+      89 |     if (route === '/rates') await shot(page, 'no-access-administrator');
+      90 |   }
+      91 |
+        at /home/user/wetop.ai/tests/ui/roles.spec.ts:88:59
+
+    Error Context: test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/roles-администратор-закрыт-6e9ca-уп-—-и-данных-не-показывают/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('hotel-settings-form').getByRole('button', { name: 'Сохранить' })
+
+
+      125 |   await expect(form.getByLabel('Телефон')).toBeVisible();
+      126 |   await form.getByLabel('Телефон').fill('<телефон>');
+    > 127 |   await form.getByRole('button', { name: 'Сохранить' }).click();
+          |                                                         ^
+      128 |   await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+      129 |
+      130 |   await control(request, { role: 'STAFF' });
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:127:57
+
+    Error Context: test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected substring: "Цены и ограничения"
+    Received string:    "Тарифы и цены"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Тарифы и цены</h1>
+           - unexpected value "Тарифы и цены"
+
+
+      87 |     await page.goto(route!);
+      88 |     if (redirects[route!]) await expect(page).toHaveURL(redirects[route!]!);
+    > 89 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(title!);
+         |                                                           ^
+      90 |     await noPageOverflow(page);
+      91 |     if (
+      92 |       ['/today', '/chessboard', '/rooms', '/hotel-settings', '/channel-manager'].includes(route!)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:89:59
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests\?state=inhouse$/
+    Received string:  "http://127.0.0.1:3100/guests"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/hotel-settings/services"
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/guests"
+
+
+      1045 |   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
+      1046 |   // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
+    > 1047 |   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
+           |                      ^
+      1048 |   await expect(page.getByTestId('guests-meta')).toContainText('проживают');
+      1049 | });
+      1050 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1047:22
+
+    Error Context: test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/ui/channex-screens.spec.ts:107:1 › подключения каналов: настройка подключения только владельцу 
+    tests/ui/integrations.spec.ts:112:1 › сотрудник смены технических деталей не видит ─────────────
+    tests/ui/navigation.spec.ts:45:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры 
+    tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности 
+    tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают 
+    tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+    tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+    tests/ui/workspace.spec.ts:1038:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+# код выхода 1 · 3 мин 17 с

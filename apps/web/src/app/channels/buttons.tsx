@@ -31,7 +31,7 @@ export function ChannelButtons({
   const run = (kind: 'setup' | 'sync' | 'pull' | 'flush' | 'webhook-register' | 'webhook-test') =>
     start(async () => setResult(await channelAction(kind)));
   // Одна причина на группу: без соединения не работает ничего, без ключа — настройка, без адреса — webhook
-  const noConnection = !connected ? 'Нет соединения с Channex — проверьте ключ и подключение.' : '';
+  const noConnection = !connected ? 'Нет соединения с менеджером каналов — проверьте ключ и подключение.' : '';
   return (
     <Stack gap="sm">
       {group !== 'setup' && (
@@ -53,7 +53,7 @@ export function ChannelButtons({
               onClick={() => run('pull')}
               disabled={pending || !connected}
             >
-              Забрать брони из Channex
+              Забрать брони из каналов
             </Button>
           </Row>
           {noConnection && <p className="note">{noConnection}</p>}
@@ -102,7 +102,7 @@ export function ChannelButtons({
           </Row>
           <p className="note">
             {!configured &&
-              'Ключ Channex не задан на сервере — объект и категории создать нельзя. '}
+              'Ключ менеджера каналов не задан на сервере — объект и категории создать нельзя. '}
             {!webhookReady &&
               'Для webhook нужны публичный HTTPS-адрес (PUBLIC_API_URL) и секрет на сервере. '}
             Полная выгрузка отправляет цены и остатки за 500 дней по всем категориям: это долго и

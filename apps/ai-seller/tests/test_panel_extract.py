@@ -167,3 +167,38 @@ def test_the_support_instance_refuses(monkeypatch, fake_redis, sync_db) -> None:
         response = p.client.post(f"{PANEL}/extract-profile", json={"story": STORY}, headers=SERVICE)
         assert response.status_code == 409
     reset_cascade_client()
+
+
+def test_extraction_has_an_hourly_limit_per_organization(monkeypatch, fake_redis, sync_db) -> None:  # noqa: F811
+    """🔴 Аудит 30.09.2026: разбор идёт к модели мимо суточных бюджетов движка, и
+    вошедший владелец крутил его без предела. Красный на коде до правки: 200 на третьем."""
+    with panel(monkeypatch, fake_redis, SELLER_SERVICE_KEY=KEY, BOT_ROLE="seller", WIDGET_MESSAGES_PER_HOUR="2") as p:
+        seed_org(sync_db, ORG)
+        set_cascade_client(ScriptedLlm([reply(json.dumps(MODEL_JSON, ensure_ascii=False))] * 3))
+        try:
+            codes = [
+                p.client.post(f"{PANEL}/extract-profile", json={"story": STORY}, headers=SERVICE).status_code
+                for _ in range(3)
+            ]
+        finally:
+            reset_cascade_client()
+    assert codes == [200, 200, 429], codes
+
+
+def test_extraction_is_refused_when_the_rate_counter_is_down(monkeypatch, fake_redis, sync_db) -> None:  # noqa: F811
+    """🔴 Решение владельца 30.09.2026: без счётчика — 503 и вызова модели нет (было: fail-open)."""
+    with panel(monkeypatch, fake_redis, SELLER_SERVICE_KEY=KEY, BOT_ROLE="seller") as p:
+        seed_org(sync_db, ORG)
+        llm = ScriptedLlm([reply(json.dumps(MODEL_JSON, ensure_ascii=False))])
+        set_cascade_client(llm)
+
+        async def down(*_args, **_kwargs):
+            raise RuntimeError("redis недоступен")
+
+        monkeypatch.setattr(fake_redis, "incr", down)
+        try:
+            response = p.client.post(f"{PANEL}/extract-profile", json={"story": STORY}, headers=SERVICE)
+        finally:
+            reset_cascade_client()
+    assert response.status_code == 503, response.text
+    assert llm.calls == 0

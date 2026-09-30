@@ -20,6 +20,20 @@ export class ChessboardController {
     return this.service.availability(arrival || undefined, departure || undefined);
   }
 
+  /**
+   * Ближайшая доступность для «Свободных мест» (AV4): ?arrival&departure&guests[&days=14] — по категории первое
+   * окно того же срока, где хватает мест; null — не нашлось за `days` дней.
+   */
+  @Get('availability/nearest')
+  nearest(
+    @Query('arrival') arrival?: string,
+    @Query('departure') departure?: string,
+    @Query('guests') guests?: string,
+    @Query('days') days?: string,
+  ) {
+    return this.service.nearest(arrival, departure, guests, days);
+  }
+
   /** Карточка брони по номеру подтверждения. */
   @Get('reservations/:number')
   reservation(@Param('number') number: string) {

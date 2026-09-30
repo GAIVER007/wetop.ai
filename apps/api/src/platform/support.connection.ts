@@ -20,10 +20,11 @@ export interface SupportConfig {
  * Профиля и фактов нет — они у продавца.
  */
 export interface SupportPort {
-  listConversations(query: { mode?: string; limit?: number }): Promise<unknown>;
+  listConversations(query: assistant.ConversationListQuery): Promise<unknown>;
   conversation(id: string): Promise<unknown>;
   takeover(id: string): Promise<unknown>;
   release(id: string): Promise<unknown>;
+  close(id: string): Promise<unknown>;
   reply(id: string, text: string): Promise<unknown>;
   knowledge(): Promise<unknown>;
   uploadKnowledge(file: { name: string; type: string; data: Uint8Array }): Promise<unknown>;
@@ -33,6 +34,17 @@ export interface SupportPort {
   settings(): Promise<unknown>;
   putModel(model: string): Promise<unknown>;
   sandbox(input: { externalId: string; text: string }): Promise<unknown>;
+  // управляемая база знаний (S3)
+  kbList(query: { status?: string; category?: string; visibility?: string; q?: string }): Promise<unknown>;
+  kbCreate(body: Record<string, unknown>): Promise<unknown>;
+  kbRead(id: string): Promise<unknown>;
+  kbUpdate(id: string, body: Record<string, unknown>): Promise<unknown>;
+  kbPublish(id: string, approvedBy: string): Promise<unknown>;
+  kbStatus(id: string, status: string, by: string | null): Promise<unknown>;
+  conversationKnowledge(id: string): Promise<unknown>;
+  knowledgeDraft(id: string, by: string | null): Promise<unknown>;
+  // журнал действий бота в диалоге (S6)
+  conversationActions(id: string): Promise<unknown>;
 }
 
 export interface SupportConnection {

@@ -240,6 +240,8 @@ SERVICE_ROUTES = frozenset({
     ("POST", "/conversations/{conv_id}/takeover"),
     ("POST", "/conversations/{conv_id}/release"),
     ("POST", "/conversations/{conv_id}/reply"),
+    # Кабинет техподдержки (S1): «Закрыть обращение».
+    ("POST", "/conversations/{conv_id}/close"),
     ("GET", "/knowledge"),
     ("POST", "/knowledge"),
     ("GET", "/summary"),
@@ -268,6 +270,17 @@ SUPPORT_SERVICE_ROUTES = SERVICE_ROUTES | frozenset({
     ("PUT", "/prompt"),
     ("GET", "/settings"),
     ("PUT", "/settings/model"),
+    # S3: управляемая база знаний — публикует главный администратор платформы (approved_by подставляет платформа).
+    ("GET", "/support-knowledge"),
+    ("POST", "/support-knowledge"),
+    ("GET", "/support-knowledge/{knowledge_id}"),
+    ("PUT", "/support-knowledge/{knowledge_id}"),
+    ("POST", "/support-knowledge/{knowledge_id}/publish"),
+    ("POST", "/support-knowledge/{knowledge_id}/status"),
+    ("GET", "/conversations/{conv_id}/knowledge"),
+    # S6: журнал действий бота в диалоге — для кабинета
+    ("GET", "/conversations/{conv_id}/actions"),
+    ("POST", "/conversations/{conv_id}/knowledge-draft"),
 })
 
 
@@ -360,7 +373,7 @@ async def require_platform(
 ORG_HEADER = "X-Organization"
 
 
-async def request_org(request: Request) -> uuid.UUID | None:
+def _org_from_request(request: Request) -> uuid.UUID | None:
     """Организация запроса панели (Э4): у продавца обязательна — без неё
     непонятно, чьи диалоги и знания отдавать, поэтому 400, а не «все подряд».
     У помощника заголовок не читается вовсе: его строки без организации.
@@ -388,6 +401,76 @@ async def request_org(request: Request) -> uuid.UUID | None:
         return uuid.UUID(raw)
     except ValueError:
         raise HTTPException(status_code=400, detail="X-Organization — не идентификатор") from None
+
+
+async def request_org(request: Request) -> uuid.UUID | None:
+    """Организация запроса (арендатор): для маршрутов уровня организации — ключ модели, заведение гостиницы."""
+    org = _org_from_request(request)
+    if org is not None:
+        await _require_own_agent(request, org)
+    return org
+
+
+async def request_agent(request: Request):
+    """Агент запроса панели (SA2.5): данные продавца — диалоги, знания, профиль, подключения — принадлежат агенту.
+
+    `X-Agent` называет агента и проверяется на принадлежность организации (чужой — 403 одним ответом). Без заголовка —
+    единственный агент организации; при нескольких — 400: угадывать, чьи данные отдать, нельзя. У помощника
+    (нет организаций) области нет — `None`, поведение прежнее.
+    """
+    org = _org_from_request(request)
+    if org is None:
+        return None
+    return await agent_of_organization(request, org)
+
+
+async def agent_of_organization(request: Request, org: uuid.UUID):
+    """Агент вызова для организации `org` (заголовок `X-Agent` или единственный агент организации). Общий для
+    маршрутов, где организацию называет адрес (подключение WhatsApp), а не заголовок."""
+    from src.agent_scope import AmbiguousAgent, NoAgent, UnknownAgent, resolve_agent
+
+    raw = (request.headers.get(AGENT_HEADER) or "").strip()
+    requested: uuid.UUID | None = None
+    if raw:
+        try:
+            requested = uuid.UUID(raw)
+        except ValueError:
+            raise HTTPException(status_code=403, detail="Агент не принадлежит организации") from None
+    async with dependencies.get_sessionmaker()() as session:
+        try:
+            return await resolve_agent(session, org, requested)
+        except UnknownAgent:
+            raise HTTPException(status_code=403, detail="Агент не принадлежит организации") from None
+        except AmbiguousAgent:
+            raise HTTPException(
+                status_code=400, detail="У организации несколько агентов: нужен заголовок X-Agent"
+            ) from None
+        except NoAgent:
+            raise HTTPException(status_code=404, detail="Агент у продавца не заведён") from None
+
+
+AGENT_HEADER = "X-Agent"
+
+
+async def _require_own_agent(request: Request, org: uuid.UUID) -> None:
+    """Агент из `X-Agent` принадлежит организации запроса (DATA_MODEL §20.6, SA1.6).
+
+    Без заголовка агент — тот, чей `id` равен организации (прежнее поведение). Чужой, несуществующий или
+    не идентификатор — 403 одним ответом: чужому не подтверждаем, есть ли такой агент.
+    """
+    raw = (request.headers.get(AGENT_HEADER) or "").strip()
+    if not raw:
+        return
+    try:
+        agent_id = uuid.UUID(raw)
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Агент не принадлежит организации") from None
+    from src.db.models import Agent
+
+    async with dependencies.get_sessionmaker()() as session:
+        owner = await session.scalar(sa.select(Agent.organization_id).where(Agent.id == agent_id))
+    if owner != org:
+        raise HTTPException(status_code=403, detail="Агент не принадлежит организации")
 
 
 def _reconnect_allowed(user: DashboardUser, code: str, settings: Settings) -> bool:

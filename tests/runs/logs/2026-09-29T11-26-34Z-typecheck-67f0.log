@@ -1,0 +1,5 @@
+# Типы (typecheck) · 29.09.2026 16:26 Алматы · vm
+# коммит d080b85 (integ-check)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+# код выхода 0 · 36 с

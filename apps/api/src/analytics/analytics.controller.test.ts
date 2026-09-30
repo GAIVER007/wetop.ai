@@ -65,6 +65,15 @@ describe('сайты и отчёты /analytics', () => {
       .expect(404);
   });
 
+  it('идентификатор сайта в адресе не UUID — 400, а не 500 из базы (аудит 29.09, SEC-4)', async () => {
+    const http = () => request(app.getHttpServer());
+    await http().get('/analytics/sites/nope').expect(400);
+    await http().get('/analytics/sites/nope/report?from=2026-09-11&to=2026-09-13').expect(400);
+    await http().patch('/analytics/sites/nope').send({ name: 'x' }).expect(400);
+    await http().delete('/analytics/sites/nope').expect(400);
+    await http().get('/analytics/sites/%00').expect(400);
+  });
+
   it('отчёт за период — контрольные числа гейта', async () => {
     const r = await request(app.getHttpServer())
       .get(`/analytics/sites/${SITE.id}/report?from=2026-09-11&to=2026-09-13`)
@@ -116,6 +125,43 @@ describe('сайты и отчёты /analytics', () => {
     expect(repo.lastRange).toEqual({
       startUtc: '2026-09-10T19:00:00.000Z',
       endUtcExclusive: '2026-09-13T19:00:00.000Z',
+    });
+    // WEB4: воронка по сессиям периода, брони с сайта — за тот же полуинтервал
+    expect(r.body.funnel).toEqual({
+      visits: 3,
+      searches: 1,
+      started: 0,
+      booked: 0,
+      conversion: 0,
+    });
+    expect(r.body.siteReservations).toEqual({ count: 0, cancelled: 0, noShow: 0, charged: [] });
+    expect(repo.lastReservationsRange).toEqual(repo.lastRange);
+  });
+
+  it('брони с сайта в отчёте: число, отменённые, начислено по счетам (WEB4, Q-212)', async () => {
+    repo.reservationRows = [
+      {
+        status: 'CONFIRMED',
+        currency: 'KZT',
+        charges: [{ amountMinor: 45_000_00n, voided: false }],
+      },
+      {
+        status: 'CANCELLED',
+        currency: 'KZT',
+        charges: [
+          { amountMinor: 20_000_00n, voided: true },
+          { amountMinor: 10_000_00n, voided: false },
+        ],
+      },
+    ];
+    const r = await request(app.getHttpServer())
+      .get(`/analytics/sites/${SITE.id}/report?from=2026-09-11&to=2026-09-13`)
+      .expect(200);
+    expect(r.body.siteReservations).toEqual({
+      count: 2,
+      cancelled: 1,
+      noShow: 0,
+      charged: [{ currency: 'KZT', chargedMinor: '5500000' }],
     });
   });
 

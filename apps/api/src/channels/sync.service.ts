@@ -264,7 +264,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     const m = (await this.repo.mappings(PROVIDER)).find((x) => x.providerPropertyId);
     if (!m)
       throw new UnprocessableEntityException(
-        'Объект в Channex не создан — сначала POST /channels/channex/setup',
+        'Объект в менеджере каналов не создан — сначала POST /channels/channex/setup',
       );
     return m.providerPropertyId;
   }
@@ -357,7 +357,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     const savedUrl = saved.attributes.callback_url;
     if (savedUrl !== url)
       throw new BadGatewayException(
-        `Channex оставил адрес webhook ${savedUrl} вместо ${url} — webhook не перерегистрирован`,
+        `Менеджер каналов оставил адрес webhook ${savedUrl} вместо ${url} — webhook не перерегистрирован`,
       );
     await this.repo.audit('channels.webhook.register', {
       webhookId: saved.id,
@@ -419,7 +419,7 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     );
     if (mappings.length === 0)
       throw new UnprocessableEntityException(
-        'Маппинг Channex пуст — сначала POST /channels/channex/setup',
+        'Сопоставление с менеджером каналов пустое — сначала POST /channels/channex/setup',
       );
     const providerPropertyId = mappings[0]!.providerPropertyId;
     const local = await this.repo.localSetup(DEFAULT_OTA_RATE_PLAN_CODE);

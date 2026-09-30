@@ -81,6 +81,9 @@ class Settings(BaseSettings):
     llm_temperature: float = 0.2
     # Сколько последних реплик истории уходит модели: чистый текст, не объекты.
     llm_history_turns: int = 20
+    # Общий предел истории в знаках поверх числа ходов (аудит 30.09.2026): 20 реплик по 4 000 знаков — всё ещё
+    # 80 000 знаков на каждый вызов; сверх предела самые старые реплики выпадают.
+    llm_history_max_chars: int = 20_000
     # Дневной предел токенов гостиницы на ключе платформы (решение владельца
     # 26.09.2026: 150 000). Выше предела модель не зовётся — src/ai/budget.py.
     # 0 — предела нет. Гостиница со своим ключом (С2) и помощник — без предела.
@@ -181,6 +184,10 @@ class Settings(BaseSettings):
     widget_messages_per_hour: int = 60
     # Предел тела запроса; проверяется по Content-Length ДО чтения.
     widget_max_body_bytes: int = 64 * 1024
+    # Предел длины одной реплики в знаках (аудит 30.09.2026): тело в 64 КБ отбивало только переростков,
+    # а реплика до предела тела ложилась в историю целиком и уходила в модель 20 ходов подряд.
+    # Столько же режет guard_max_input_chars перед моделью — длиннее модель всё равно не видит.
+    widget_max_message_chars: int = 4000
     widget_attachments_enabled: bool = True
     widget_attachment_max_mb: int = 5
     widget_attachment_dir: str = "data/attachments"
@@ -211,6 +218,9 @@ class Settings(BaseSettings):
     # Прогрев на старте выключают только тесты.
     kb_embed_warmup: bool = True
     kb_top_k: int = 5
+    # S3: уровни уверенности поиска по знаниям WETOP Support; откалибровать на eval-наборе (S10)
+    support_kb_high: float = 0.85
+    support_kb_medium: float = 0.78
 
     # ─── Внешняя система ───
     # Режим выбирается настройкой, а не правкой кода: stub | wetop.
@@ -219,6 +229,8 @@ class Settings(BaseSettings):
     integration_mode: str = "stub"
     integration_base_url: str = ""
     integration_api_key: str = ""
+    # S6: ключ действий помощника (ASSISTANT_ACT_KEY платформы); пусто — действия не выполняются
+    integration_act_key: str = ""
     integration_timeout_seconds: int = 10
 
     # ─── Правка настроек на лету ───

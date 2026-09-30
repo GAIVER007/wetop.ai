@@ -1,0 +1,20 @@
+# Модульные (unit) · 29.09.2026 01:37 Алматы · vm
+# коммит 9e20bd4 (claude/eager-noether-1uncrq-k1), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T20-37-47Z-unit-92ae.json' 'apps/api/src/auth/scope.test.ts' 'apps/api/src/auth/author.interceptor.test.ts' 'apps/api/src/database/property-ref.test.ts' 'apps/api/src/auth/me-access.test.ts' 'apps/web/src/lib/scope-pointer.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/auth/author.interceptor.test.ts (10 tests) 22ms
+ ✓ |unit| apps/api/src/database/property-ref.test.ts (17 tests) 15ms
+ ✓ |unit| apps/api/src/auth/scope.test.ts (10 tests) 9ms
+ ✓ |unit| apps/web/src/lib/scope-pointer.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/auth/me-access.test.ts (3 tests) 173ms
+
+ Test Files  5 passed (5)
+      Tests  44 passed (44)
+   Start at  20:37:48
+   Duration  1.58s (transform 60%, import 33%, tests 6%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T20-37-47Z-unit-92ae.json
+
+# код выхода 0 · 2 с

@@ -1,10 +1,19 @@
 .settings-tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: thin;
+  padding: var(--space-1);
+  gap: var(--space-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
   margin-bottom: var(--space-6);
 }
 .settings-tabs a {
+  flex: none;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   min-height: var(--control-h);
@@ -70,6 +79,51 @@
 }
 .settings-save-state--saved {
   color: var(--success-2);
+}
+/* поле времени «Проживания» (SET2): 24 часа текстом, ширина под «14:00» */
+.settings-time {
+  font-variant-numeric: tabular-nums;
+}
+/* «Услуги» (SET3): вводная строка, название-кнопка как ссылки таблиц, архив приглушён (не зачёркнут — это не сторно) */
+.settings-lead {
+  margin-bottom: var(--space-4);
+}
+.settings-service-name {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  min-height: 24px;
+}
+.settings-service-name:hover,
+.settings-service-name:focus-visible {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.settings-table--services tr.is-archived td {
+  color: var(--muted);
+}
+/* подстрока под названием — только на телефоне, где колонки группы и статуса скрыты */
+.settings-service-sub {
+  display: none;
+}
+.settings-service-form {
+  display: grid;
+  gap: var(--space-4);
+}
+.settings-service-form .field {
+  margin: 0;
+}
+.settings-service-form .settings-note {
+  margin: 0;
+}
+.settings-service-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 .settings-service-help h2 {
   font-size: var(--text-xl);
@@ -235,6 +289,24 @@
   .settings-fields,
   .settings-fields--times {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .settings-service-name {
+    min-height: 44px;
+  }
+  .settings-table--services .settings-col-wide {
+    display: none;
+  }
+  .settings-table--services th:first-child {
+    width: auto;
+  }
+  .settings-table--services .settings-service-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .settings-service-actions .btn {
+    flex: 1;
   }
   .settings-toolbar {
     gap: var(--space-2);

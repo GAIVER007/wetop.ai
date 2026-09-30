@@ -1,0 +1,24 @@
+# Модульные (unit) · 29.09.2026 03:54 Алматы · vm
+# коммит c60fe74 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 12
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T22-54-20Z-unit-0c10.json' 'apps/web/src/app/chessboard' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/chessboard/unassigned-plan.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 8ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 32ms
+ ✓ |unit| apps/web/src/app/chessboard/stay-labels.test.ts (9 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 5ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 9ms
+ ✓ |unit| apps/web/src/app/chessboard/week-period.test.ts (9 tests) 5ms
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 8ms
+ ✓ |unit| apps/web/src/app/chessboard/month-period.test.ts (7 tests) 4ms
+
+ Test Files  9 passed (9)
+      Tests  89 passed (89)
+   Start at  22:54:21
+   Duration  685ms (transform 61%, import 25%, tests 10%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-28T22-54-20Z-unit-0c10.json
+
+# код выхода 0 · 1 с

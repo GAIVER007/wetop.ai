@@ -91,6 +91,61 @@ SELECT message, status, count(*) AS n
 `my_subscription` для вошедших берёт организацию из подписи (ничего называть не нужно), обращению
 без подписи нужен ID — точным совпадением (рекомендация Q-187).
 
+### `GET /assistant/requester` (S4)
+
+Контекст обратившегося для помощника поддержки: роль, организация, бизнесы и филиалы, состояние аккаунта
+(`ACTIVE`/`TRIAL`/`READ_ONLY`/`SUSPENDED`, можно ли менять данные, причина, срок пробного периода), права роли.
+Параметры `userId` и `organizationId` — из подписи посетителя, которую бот проверил сам; API сверяет пару с членством
+(чужая организация — 404). Ответа без почты, телефона, имени и внутренних id. Третий адрес узкого ключа помощника.
+
+### `GET /assistant/integrations` и `GET /assistant/reservation` (S5)
+
+Диагностика для помощника поддержки (`plans/ai-agents-s5-diagnostics-2026-09-29.md`). Параметры `userId` и
+`organizationId` — из подписи посетителя, сверка с членством как у `/assistant/requester` (чужая пара — 404). Четвёртый
+и пятый адреса узкого ключа; живых вызовов Channex нет — только база и снимок сторожа webhook.
+
+- `integrations` → `{ "channex": null }` у организации без подключённых каналов; иначе `channex`: `state`
+  (`READY` / `NO_KEY` / `NO_MAPPING` / `ATTENTION`), `categories { mapped, total }`, `ratePlansMapped`,
+  `lastEventAgeMinutes`, `outbox { pending, failed, oldestPendingMinutes }`, `webhook { suspect, reachable }`,
+  `problems[]` кодами (`CATEGORIES_UNMAPPED`, `WEBHOOK_SUSPECT`, `OUTBOX_STUCK`, `NO_EVENTS_24H`…). Ключей и адресов нет.
+- `reservation?number=` → бронь по номеру среди объектов организации: `status`, даты, `nights`, `source`, `channel`,
+  `guests { adults, children }`, `items[] { category, status, unitAssigned, unitCode, housekeeping }`, `problems[]`
+  (`UNASSIGNED_ITEMS`, `ARRIVAL_PASSED_NOT_CHECKED_IN`, `UNIT_NOT_INSPECTED_BEFORE_ARRIVAL`…). Имени, телефона,
+  заметок и сумм нет по построению; чужая или несуществующая бронь — 404 без различения; `number` — до 40 знаков
+  из букв, цифр, дефиса и подчёркивания, иначе 400.
+
+Инструменты бота: `get_integration_health`, `get_reservation_status(number)`, `get_workspace_health` (сводка:
+аккаунт из S4, `platform_status`, каналы, число своих ошибок за окно `SUPPORT_INCIDENT_WINDOW_HOURS`).
+
+### Действия помощника (S6): `POST /assistant/actions/channel-pull`, `POST /assistant/actions/channel-sync`
+
+Ключ **действий** `ASSISTANT_ACT_KEY` — отдельный от ключа чтения (Q-S6-1): пускает **только POST** и только на эти
+два адреса; ключ чтения на них — 403, ключ действий на чтение — 403. У бота он зовётся `INTEGRATION_ACT_KEY`; пустой —
+бот только читает, матрица возможностей остаётся (`list_capabilities`), SAFE/CONFIRM отвечают «не знаю».
+
+Тело: `{ userId, organizationId, idempotencyKey, days? }` — пара из подписи, ключ идемпотентности — id строки журнала
+бота. Порядок проверок на платформе: членство (404) → право `channels` у роли (403) → аккаунт пишущий (409 «только
+чтение») → организация с подключённой интеграцией (409) → лимит: то же действие той же организации не чаще раза в
+10 минут (429) → повтор с тем же `idempotencyKey` в течение часа возвращает прежний результат с `replayed: true`,
+ничего не выполняя. Ответ — `{ ok, action, replayed, received/processed/failed | queued/days }`, без адресов и ключей.
+
+Классы (матрица — `apps/ai-seller/src/ai/support_actions_matrix.py`, план `plans/ai-agents-s6-actions-2026-09-29.md` §2):
+`channel_pull` — SAFE, выполняется сразу; `channel_sync` — CONFIRM, бот сначала предлагает, выполняет только после
+`confirm_action` тем же диалогом не позже 15 минут, причём согласие проверяет сервер бота, а не модель (Q-S6-2): тот же
+человек, тот же диалог, в сообщении человека этого хода — явное «да» из закрытого списка фраз; иначе предложение ждёт; `refund`, `subscription`, `organization_disable`, `owner_rights`,
+`data_delete`, `reservations_bulk`, `other_human` — HUMAN_ONLY: `request_human` ставит диалогу «нужен человек» и пишет в
+журнал, платформа не зовётся. Журнал — таблица бота `support_actions` (миграция `0007`), панель бота
+`GET /conversations/{id}/actions`, кабинет — `GET /platform/support/conversations/:id/actions` («Действия агента»).
+
+### База знаний WETOP Support (S3, только помощник, только служебный ключ)
+
+Панель бота: `GET/POST /support-knowledge`, `GET/PUT /support-knowledge/{id}`, `POST /support-knowledge/{id}/publish`
+(`approved_by` обязателен), `POST /support-knowledge/{id}/status` (`DRAFT`/`OUTDATED`/`ARCHIVED`; `ACTIVE` ставит только
+публикация), `GET /conversations/{id}/knowledge` (на каких знаниях строились ответы), `POST
+/conversations/{id}/knowledge-draft` (пустой черновик из закрытого обращения). Платформа: `platform/support/kb…` — только
+главный администратор; `by` и `approved_by` ставит сервер из сессии. Таблицы бота — миграция `0006`. Правила состояния
+и видимости — `plans/ai-agents-s3-knowledge-2026-09-29.md`.
+
 ### `GET /guard/status`
 
 Состояние системы — то же, что видит экран «Неисправности»: `{ …, dbDownSince, open: { total, critical, escalated, byClass } }`.
@@ -147,11 +202,12 @@ networks:
 
 | Метод и путь | Зачем | Тело и ответ |
 |---|---|---|
-| `GET /conversations?mode=&limit=` | «Диалоги», список | как у панели сегодня: `{ items: [{ id, channel, client_name, mode, stage, last_activity_at, messages, has_contact }] }` |
+| `GET /conversations?mode=&limit=&queue=&nonempty=&closed=` | «Диалоги», список | как у панели сегодня: `{ items: [{ id, channel, client_name, mode, stage, last_activity_at, messages, has_contact }] }`; с 29.09 (ADR-122) в строке ещё `started_at`, `last_message: { role, text ≤ 160, at }`, `waiting_since` (первое сообщение пользователя после последнего ответа, иначе `null`), `closed`; необязательные отборы в SQL: `nonempty=true` — без пустых, `closed=true/false`, `queue=new` (начат за сутки) или `queue=waiting` (последнее слово за пользователем) |
 | `GET /conversations/{id}` | карточка | `{ id, mode, stage, lead_data, contact, messages: [{ role, text, at, sent_by_us }] }` |
 | `POST /conversations/{id}/takeover` | «Перехватить» | `{ status, mode, previous_mode }` |
 | `POST /conversations/{id}/release` | «Вернуть боту» | то же |
 | `POST /conversations/{id}/reply` | «Ответить» | тело `{ text }`, до 4000 знаков; `{ status }` |
+| `POST /conversations/{id}/close` | «Закрыть обращение» (ADR-122) | `{ status, closed }`; диалог `is_active = false`, запись `close` в журнал бота; следующее сообщение того же человека откроет новый диалог. Карточка отдаёт `closed` |
 | `GET /knowledge` | «Знания», список | `{ items: [{ source, chunks, created_at }] }` |
 | `POST /knowledge` | загрузка документа | `multipart/form-data`, поле `file` (md, txt, pdf, docx, xlsx; платформа пропускает до 10 МБ — как `kb_max_file_mb` продавца, имя в UTF-8); `{ status, source, created, chunks }` |
 | `GET /summary` | сводка за сутки | `{ hours, dialogs, replies, leads, sla_breaches }` |
@@ -312,6 +368,7 @@ networks:
 |---|---|---|
 | API платформы | `WIDGET_IDENTITY_SECRET` | общий с помощником |
 | API платформы | `ASSISTANT_READ_KEY` | общий с помощником |
+| API платформы | `ASSISTANT_ACT_KEY` | S6: ключ действий помощника, только `POST /assistant/actions/*`; у бота — `INTEGRATION_ACT_KEY`; не задан — бот только читает |
 | API платформы | `SELLER_URL`, `SELLER_SERVICE_KEY` | адрес панели продавца с её путём (`DASHBOARD_PATH_PREFIX` бота) и ключ Б5; песочница — по корню того же адреса |
 | API платформы | ~~`SELLER_ORGANIZATION_ID`~~ | **снята (Э4, ADR-083):** продавец общий, организация — в каждом вызове; оставшаяся в `.env` строка игнорируется, можно удалить |
 | API платформы | `SELLER_PUBLIC_URL` | публичный адрес продавца — из него код чата для сайта объекта |
@@ -482,6 +539,10 @@ cd /opt/wetop-bot/seller && docker compose up -d --build && curl -s 127.0.0.1:80
 🔴 **Всё, что вставляется в веб-терминал, — внутри `bash <<'SCRIPT' … SCRIPT`.** `set -e`, вставленный прямо в
 терминал, закрывает сам терминал на первой ошибке («Your session ended», 26.09.2026): так закрыла его проверка
 `curl`, запущенная раньше, чем продавец успел подняться. В дочернем `bash` ошибка заканчивает только скрипт.
+
+🔴 **Внутри такого скрипта `docker compose exec` — только с `</dev/null`.** Скрипт приходит в `bash` через стандартный
+ввод, а `exec` его тоже читает: он съедает все строки после себя, и скрипт молча кончается без ошибки (29.09.2026 после
+обновления помощника не выполнились проверки живости снаружи). Правильно: `docker compose exec -T app … </dev/null`.
 
 **Шаги 10–11 одним скриптом** (котировка и хранилище ключей продавца). Запускать **после** выкладки нового кода:
 скрипт сам откажет, если клон на сервере старый. Повторный запуск безопасен: ключ котировки берётся уже вписанный,

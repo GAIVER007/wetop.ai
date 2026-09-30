@@ -20,6 +20,10 @@ test('1. число на быстром действии равно строка
   page,
 }) => {
   await page.goto('/today');
+  await page
+    .getByTestId('owner-dashboard')
+    .getByRole('button', { name: 'Работа с гостями', exact: true })
+    .click();
   const living = ['20260913-TEST3', '20260913-TEST5', '20260913-TEST6', '20260913-TEST7'];
   const cases = [
     {
@@ -47,7 +51,9 @@ test('1. число на быстром действии равно строка
   }
   // «Создать счёт» — любая бронь дня, а не дело: число на нём ничего не значило бы
   await expect(
-    quick(page).getByRole('button', { name: /Создать счёт/ }).locator('.quick-action__count'),
+    quick(page)
+      .getByRole('button', { name: /Создать счёт/ })
+      .locator('.quick-action__count'),
   ).toHaveCount(0);
 });
 
@@ -62,6 +68,10 @@ test('2. из окна выбора карточка открывается на
   ];
   for (const c of cases) {
     await page.goto('/today');
+    await page
+      .getByTestId('owner-dashboard')
+      .getByRole('button', { name: 'Работа с гостями', exact: true })
+      .click();
     await quick(page)
       .getByRole('button', { name: new RegExp(c.label) })
       .click();
@@ -78,159 +88,63 @@ test('2. из окна выбора карточка открывается на
   }
 });
 
-test('3. блок «Требуют внимания» один и стоит сразу под полосой стойки; сводки-дубля сверху нет', async ({
+test('3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез', async ({
   page,
 }) => {
-  // A1 (ADR-103): малую сводку сверху сняли — блок один, с разбивкой по причинам
-  await page.goto('/today');
-  await expect(page.getByTestId('attention-summary')).toHaveCount(0);
-  const blocks = page.locator('#day-attention');
-  await expect(blocks).toHaveCount(1);
-  await expect(blocks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
-  // порядок: полоса «На стойке» выше блока задач
-  const stripY = (await page
-    .getByRole('region', { name: 'Сегодня на стойке' })
-    .boundingBox())!.y;
-  const attentionY = (await blocks.boundingBox())!.y;
-  expect(stripY).toBeLessThan(attentionY);
-  // день без дел — блок говорит «Всё в порядке», дубля тоже нет
   await page.goto('/today?date=2027-06-01');
-  await expect(page.getByTestId('attention-summary')).toHaveCount(0);
-  await expect(page.locator('#day-attention')).toContainText('Всё в порядке');
+  await expect(page.getByRole('region', { name: 'Гостиница сегодня' })).toBeVisible();
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await expect(page.locator('#day-attention')).toHaveCount(1);
+  await expect(page.locator('#day-attention .attention-list')).toBeVisible();
+  await expect(page.locator('#day-attention')).not.toContainText('Всё в порядке');
 });
-
-test('4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку', async ({
-  page,
-}) => {
+test('4. действия сохраняют читаемые размеры внутри панели', async ({ page }) => {
   await page.goto('/today');
-  expect(await fontSize(quick(page).locator('.quick-action__label').first())).toBe('14px');
-  expect(await fontSize(page.locator('#day-attention .attention-item strong').first())).toBe(
-    '14px',
-  );
-  expect(await fontSize(page.locator('#day-attention .attention-item small').first())).toBe(
-    '13px',
-  );
-  expect(await fontSize(quick(page).getByRole('link', { name: 'Все брони' }))).toBe('13px');
-  await page.goto('/today?date=2027-06-01');
-  expect(await fontSize(quick(page).locator('.quick-action__hint').first())).toBe('13px');
-  // крупнее кегль — не повод рвать название: и с числом, и с подписью оно в одну строку
-  for (const [path, width] of [
-    ['/today', 1440],
-    ['/today', 1024],
-    ['/today?date=2027-06-01', 1440],
-    ['/today?date=2027-06-01', 1024],
-    ['/today', 390],
-  ] as const) {
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto(path);
-    const lines = await quick(page)
-      .locator('.quick-action__label')
-      .evaluateAll((els) =>
-        els.map((el) => {
-          const cs = getComputedStyle(el);
-          const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
-          return { text: el.textContent, lines: Math.round(el.getBoundingClientRect().height / lh) };
-        }),
-      );
-    expect(
-      lines.filter((l) => l.lines > 1),
-      `${path} на ${width}`,
-    ).toEqual([]);
-  }
-});
-
-test('5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены»', async ({
-  page,
-}) => {
-  await page.goto('/today');
-  const strip = page.getByRole('region', { name: 'Сегодня на стойке' });
-  const color = (id: string) =>
-    strip.getByTestId(id).evaluate((el) => getComputedStyle(el).color);
-  const neutral = await color('c-inhouse');
-  // §9: зелёный — «заселён», жёлтый — «внимание», синий — «подтверждена»; счётчик дня ни то, ни другое.
-  // С A1 число — ссылка в раздел, но цвет по-прежнему наследуется, а не «синий ссылки»
-  for (const id of ['c-arrivals', 'c-departures', 'c-free', 'c-occupancy'])
-    expect(await color(id)).toBe(neutral);
-  // шесть плиток дня: Проживают · Заезды · Выезды · Свободно · Загрузка · К оплате (A1, ADR-103)
-  await expect(strip.locator('.desk-stat')).toHaveCount(6);
-  await expect(strip.getByTestId('c-occupancy')).toContainText('%');
-  // у живущих долга нет (значение — из API как есть), но TEST4 выехал сегодня с долгом 16 000 ₸
-  await expect(strip.getByTestId('c-debt')).toHaveText('0 ₸');
-  await expect(strip).not.toContainText('все счета оплачены');
-  await expect(strip.getByRole('link', { name: 'выехавших с долгом: 1' })).toHaveAttribute(
-    'href',
-    '#day-attention',
-  );
-  // «сейчас» — отметка текущего дня, а не статус «норма»: не зелёная
-  const now = strip.getByText('сейчас', { exact: true });
-  const success = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--success').trim(),
-  );
-  const probe = await page.evaluate((c) => {
-    const el = document.createElement('i');
-    el.style.color = c;
-    document.body.append(el);
-    const rgb = getComputedStyle(el).color;
-    el.remove();
-    return rgb;
-  }, success);
-  expect(await now.evaluate((el) => getComputedStyle(el).color)).not.toBe(probe);
-});
-
-test('6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока', async ({
-  page,
-}) => {
-  for (const width of [1440, 1024]) {
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto('/today');
-    const list = page.locator('#day-attention .attention-list');
-    await expect(list).toBeVisible();
-    const style = await list.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return { maxHeight: s.maxHeight, overflowY: s.overflowY };
-    });
-    expect(style, `ширина ${width}`).toEqual({ maxHeight: 'none', overflowY: 'visible' });
-  }
-});
-
-test('7. строки главной без разделителя « · »', async ({ page }) => {
-  await page.goto('/today');
-  const main = page.getByRole('main');
-  const texts = [
-    await main.getByRole('region', { name: 'Сегодня на стойке' }).locator('h2').innerText(),
-    ...(await main.locator('#day-attention .attention-item').allInnerTexts()),
-  ];
-  for (const text of texts) expect(text, text).not.toContain(' · ');
-  // подпись отрезка «1 сент. — 30 сент. · 30 дней» §14 разрешает — её точку не считаем
-  await page.goto('/management/dashboard?period=month');
-  const caption = await main.getByTestId('period-caption').innerText();
-  expect(caption.replace(/ · \d+ (?:день|дня|дней)/, ''), caption).not.toContain(' · ');
-  await page.goto('/today');
-  await quick(page)
-    .getByRole('button', { name: /Выселить гостя/ })
+  await page
+    .getByTestId('owner-dashboard')
+    .getByRole('button', { name: 'Работа с гостями', exact: true })
     .click();
-  for (const text of await page
-    .getByRole('dialog', { name: 'Выселить гостя' })
-    .locator('.assistant-results > a')
-    .allInnerTexts())
-    expect(text).not.toContain(' · ');
+  expect(await fontSize(quick(page).locator('.quick-action__label').first())).toBe('15px');
+  expect(await fontSize(quick(page).getByRole('link', { name: 'Все брони' }))).toBe('14px');
 });
-
+test('5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди', async ({
+  page,
+}) => {
+  await page.goto('/today');
+  await expect(page.getByTestId('c-debt')).toHaveText('0 ₸');
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  await expect(page.locator('#day-attention')).toContainText('20260913-TEST4');
+});
+test('6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка', async ({
+  page,
+}) => {
+  await page.goto('/today');
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  const list = page.locator('#day-attention .attention-list');
+  await expect(list).toBeVisible();
+  expect(await list.evaluate((el) => getComputedStyle(el).overflowY)).toBe('visible');
+});
+test('7. краткие подписи без декоративных разделителей', async ({ page }) => {
+  await page.goto('/today');
+  expect(await page.getByTestId('owner-dashboard').innerText()).not.toContain(' · ');
+});
 test('8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title', async ({
   page,
 }) => {
-  await page.goto('/management/dashboard?period=week');
+  // с AN2 график по дням — «Аналитика → Обзор» (ADR-114): у загрузки и у выручки свои подписи дня
+  await page.goto('/management/analytics?period=week');
   const main = page.getByRole('main');
-  const chart = main.getByTestId('chart-daily');
+  const chart = main.getByTestId('pa-chart-occupancy');
   await expect(chart).toBeVisible();
   await expect(chart.locator('[title]')).toHaveCount(0);
-  const day = main.getByTestId('chart-day');
+  const day = main.getByTestId('pa-chart-occupancy-day');
   // по умолчанию — сегодняшний день, подробности видны без наведения
   await expect(day).toContainText('занято');
-  await expect(day).toContainText('заезды');
+  await expect(main.getByTestId('pa-chart-revenue-day')).toContainText('заездов');
   const todayText = await day.innerText();
-  const prev = main.getByRole('button', { name: 'Предыдущий день' });
-  const next = main.getByRole('button', { name: 'Следующий день' });
+  const panel = main.locator('.dash-panel').filter({ has: page.getByTestId('pa-chart-occupancy') });
+  const prev = panel.getByRole('button', { name: 'Предыдущий день' });
+  const next = panel.getByRole('button', { name: 'Следующий день' });
   await expect(next).toBeDisabled();
   // с клавиатуры: Enter на кнопке листает дни
   await prev.focus();
@@ -243,15 +157,16 @@ test('8. подробности дня на графике без наведен
   await expect(prev).toBeDisabled();
   await expect(day).not.toHaveText(todayText);
   // таблица по категориям: «из N возможных» видно в ячейке, а не в title
-  const table = main.getByTestId('categories-table');
+  const table = main.getByTestId('pa-categories');
   await expect(table.locator('[title]')).toHaveCount(0);
   await expect(table.locator('tbody tr').first()).toContainText(' из ');
 });
 
-test('9. размеры шрифта на главной и показателях за период — из шкалы §6, число плитки 28 px', async ({
+test('9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px', async ({
   page,
 }) => {
-  const scale = ['12px', '13px', '14px', '16px', '18px', '20px', '24px', '28px'];
+  // шкала §6 с 29.09.2026 — на шаг крупнее прежней 12…28
+  const scale = ['13px', '14px', '15px', '17px', '19px', '22px', '26px', '30px'];
   const offScale = (main: import('@playwright/test').Locator) =>
     main.evaluate((root, allowed) => {
       const seen = new Map<string, string>();
@@ -269,15 +184,20 @@ test('9. размеры шрифта на главной и показателя
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/today');
     const main = page.getByRole('main');
-    await expect(main.getByRole('region', { name: 'Сегодня на стойке' })).toBeVisible();
-    await expect(main.getByRole('region', { name: 'Быстрые действия' })).toBeVisible();
+    await expect(main.getByRole('region', { name: 'Гостиница сегодня' })).toBeVisible();
+
     expect(await offScale(main), `главная, ширина ${width}`).toEqual([]);
-    // число плитки дня — 24 px (--text-3xl), как и до A1
-    if (width === 1440) expect(await fontSize(main.getByTestId('c-inhouse'))).toBe('24px');
-    await page.goto('/management/dashboard?period=week');
-    await expect(main.getByTestId('chart-daily')).toBeVisible();
-    expect(await offScale(main), `показатели, ширина ${width}`).toEqual([]);
-    if (width === 1440) expect(await fontSize(main.getByTestId('kpi-occupancy'))).toBe('28px');
+    // число плитки дня — --text-3xl (26 px с 29.09)
+    if (width === 1440)
+      expect(await fontSize(main.getByTestId('owner-guests').locator('strong'))).toBe('26px');
+    // «Показатели за период» с AN2 — «Аналитика» (ADR-114): шесть плиток в ряд, число --text-3xl (26 px)
+    await page.goto('/management/analytics?period=week');
+    await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
+    expect(await offScale(main), `аналитика, обзор, ширина ${width}`).toEqual([]);
+    if (width === 1440) expect(await fontSize(main.getByTestId('pa-kpi-occupancy'))).toBe('26px');
+    await page.goto('/management/analytics/occupancy');
+    await expect(main.getByTestId('statistics-table')).toBeVisible();
+    expect(await offScale(main), `аналитика, загрузка, ширина ${width}`).toEqual([]);
   }
 });
 
@@ -288,9 +208,10 @@ test('9. размеры шрифта на главной и показателя
 test('10. заголовок страницы и панели брони — по шкале §6', async ({ page }) => {
   const title = () => fontSize(page.getByRole('main').locator('.page__title').first());
   for (const [width, size] of [
-    [1440, '28px'],
-    [650, '28px'],
-    [390, '24px'],
+    // --text-4xl / --text-3xl (30 / 26 px с 29.09)
+    [1440, '30px'],
+    [650, '30px'],
+    [390, '26px'],
   ] as const) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/today');
@@ -298,6 +219,10 @@ test('10. заголовок страницы и панели брони — п�
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/today');
+  await page
+    .getByTestId('owner-dashboard')
+    .getByRole('button', { name: 'Работа с гостями', exact: true })
+    .click();
   await quick(page)
     .getByRole('button', { name: /Выселить гостя/ })
     .click();
@@ -307,5 +232,5 @@ test('10. заголовок страницы и панели брони — п�
     .click();
   const drawer = page.locator('.booking-drawer .page__title');
   await expect(drawer).toBeVisible();
-  expect(await fontSize(drawer)).toBe('20px');
+  expect(await fontSize(drawer)).toBe('22px'); // --text-2xl
 });

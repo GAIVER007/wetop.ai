@@ -14,12 +14,7 @@ import {
 } from '@nestjs/common';
 import { channex } from '@pms/integrations';
 import { gatewayFailure } from './gateway-failure';
-import {
-  penaltyAmount,
-  penaltyDue,
-  redactText,
-  type ReservationStatus,
-} from '@pms/domain';
+import { penaltyAmount, penaltyDue, redactText, type ReservationStatus } from '@pms/domain';
 import {
   AllocationOverlapError,
   RESERVATIONS_UOW,
@@ -30,8 +25,10 @@ import {
   type ReservationsRepository,
   type UnitOfWork,
 } from '../reservations/reservations.repository';
-import { ARI_PUBLISHER, type AriPublisher } from './ari-publisher';
+import { ARI_PUBLISHER, publishAfterCommit, type AriPublisher } from './ari-publisher';
 import { CHANNEX_GATEWAY, type ChannexGateway } from './channels.repository';
+import { PrismaService } from '../database/prisma.provider';
+import { runIntegrationCommand } from './integration-command';
 import { PROVIDER } from './sync.service';
 
 export interface RevisionOutcome {
@@ -44,6 +41,8 @@ export interface RevisionOutcome {
   warnings: string[];
   /** Затронутые категории и ночи — для дельты доступности */
   affected?: { categoryCodes: string[]; from: string; toExclusive: string };
+  /** Блоки соседних ночей, снятые вместе с отменённой бронью (ADR-021): дельта уходит после коммита */
+  released?: Array<{ categoryCode: string; from: string; toExclusive: string }>;
 }
 export interface PullResult {
   received: number;
@@ -232,6 +231,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(RESERVATIONS_UOW) private readonly uow: UnitOfWork,
     @Inject(ARI_PUBLISHER) private readonly publisher: AriPublisher,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -466,10 +466,12 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
    * `via` — как ревизия дошла, для журнала событий: по webhook, опросом или по кнопке.
    */
   pull(propertyId?: string, via: ExternalEventVia = 'PULL'): Promise<PullResult> {
-    const run = this.pullChain.then(
-      () => this.pullOnce(propertyId, via),
-      () => this.pullOnce(propertyId, via),
-    );
+    // Q-225 (а*): из запроса организации разбор идёт служебной ролью, объект выбирает сервер (`integration-command.ts`)
+    const command = () =>
+      runIntegrationCommand(this.prisma, propertyId, (channexPropertyId) =>
+        this.pullOnce(channexPropertyId, via),
+      );
+    const run = this.pullChain.then(command, command);
     this.pullChain = run.catch(() => undefined);
     return run;
   }
@@ -482,7 +484,11 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     try {
       feed = await this.viaChannex(() => this.gateway.bookingRevisionsFeed(propertyId));
     } catch (e) {
-      this.pullState = { ...this.pullState, failedAt: new Date(), error: redactText((e as Error).message, 1000) };
+      this.pullState = {
+        ...this.pullState,
+        failedAt: new Date(),
+        error: redactText((e as Error).message, 1000),
+      };
       throw e;
     }
     this.pullState = { okAt: new Date(), failedAt: null, error: null };
@@ -520,14 +526,17 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
    * неразобранная не подтверждена и в ленте остаётся (bookings-collection.md, «Booking Revisions Feed»).
    */
   async retryEvent(revisionId: string): Promise<RevisionOutcome> {
-    await this.uow.run((repo) => repo.resetExternalEventAttempts(PROVIDER, revisionId));
-    const r = await this.pull(undefined, 'MANUAL');
-    const outcome = r.outcomes.find((o) => o.revisionId === revisionId);
-    if (!outcome)
-      throw new NotFoundException(
-        `Ревизии ${revisionId} нет в ленте неподтверждённых: Channex её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,
-      );
-    return outcome;
+    // Сброс попыток и разбор — одна интеграционная команда (Q-225 а*): обе части на служебной роли
+    return runIntegrationCommand(this.prisma, undefined, async () => {
+      await this.uow.run((repo) => repo.resetExternalEventAttempts(PROVIDER, revisionId));
+      const r = await this.pull(undefined, 'MANUAL');
+      const outcome = r.outcomes.find((o) => o.revisionId === revisionId);
+      if (!outcome)
+        throw new NotFoundException(
+          `Ревизии ${revisionId} нет в ленте неподтверждённых: менеджер каналов её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,
+        );
+      return outcome;
+    });
   }
 
   private async viaChannex<T>(fn: () => Promise<T>): Promise<T> {
@@ -628,14 +637,21 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     for (const w of outcome.warnings) this.log.warn(`ревизия ${rev.id} (${a.unique_id}): ${w}`);
     if (outcome.result !== 'failed')
       await this.viaChannex(() => this.gateway.ackBookingRevision(rev.id));
-    if (outcome.affected && outcome.affected.categoryCodes.length) {
-      // Дельта доступности: категории и ночи ревизии (плюс прежние даты, если бронь уже была)
-      await this.publisher.reservationChanged({
+    // Дельта доступности: категории и ночи ревизии (плюс прежние даты, если бронь уже была) и снятые блоки.
+    // Только после коммита разбора: остаток считается по базе, а до коммита отменённая бронь и блоки ещё в ней.
+    // Ревизия уже принята и подтверждена — сбой постановки её не рвёт: он пишется следом для сторожа.
+    if (outcome.affected && outcome.affected.categoryCodes.length)
+      await publishAfterCommit(this.publisher, {
         categoryCodes: [...new Set(outcome.affected.categoryCodes)],
         from: outcome.affected.from,
         toExclusive: outcome.affected.toExclusive,
       });
-    }
+    for (const b of outcome.released ?? [])
+      await publishAfterCommit(this.publisher, {
+        categoryCodes: [b.categoryCode],
+        from: b.from,
+        toExclusive: b.toExclusive,
+      });
     return outcome;
   }
 
@@ -644,7 +660,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     a: channex.ChannexBookingRevisionAttributes,
     mappings: ChannelMappingRef[],
     warnings: string[],
-  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'affected'>> {
+  ): Promise<Pick<RevisionOutcome, 'result' | 'confirmationNumber' | 'affected' | 'released'>> {
     // Порядок поиска важен для переезда с Legacy (CUTOVER §1, Q-034):
     // 1) unique_id — брони, которые PMS уже приняла от Channex;
     // 2) ota_reservation_code — брони, у которых externalId — номер брони НА СТОРОНЕ КАНАЛА, а unique_id
@@ -721,12 +737,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         await repo.settleChannelPrepaymentAfterCancel(item.id);
       }
       // ADR-021: блоки соседних ночей этой брони снимаются вместе с ней
-      for (const b of await repo.releaseStayExtraBlocks(existing.confirmationNumber))
-        await this.publisher.reservationChanged({
-          categoryCodes: [b.categoryCode],
-          from: b.from,
-          toExclusive: b.toExclusive,
-        });
+      const released = await repo.releaseStayExtraBlocks(existing.confirmationNumber);
       await repo.updateReservation(existing.id, { status: 'CANCELLED' });
       const after = await repo.card(existing.confirmationNumber);
       await repo.audit({
@@ -740,6 +751,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
         result: 'cancelled',
         confirmationNumber: existing.confirmationNumber,
         affected: affectedOf(existing.items),
+        released,
       };
     }
 

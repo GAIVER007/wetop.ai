@@ -1,0 +1,54 @@
+# Сквозные (e2e) · 29.09.2026 00:48 Алматы · vm
+# коммит 10b7bd4 (claude/hopeful-fermat-1hyuij), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/workspace.spec.ts:159'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (17.4s)
+
+
+  1) tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /arrival=2026-10-01&departure=2026-10-04&unit=R04Создать(?:&|$)/
+    Received string:  "http://127.0.0.1:3100/reservations/new?arrival=2026-10-01&departure=2026-10-04&unit=R04"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        6 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/rooms/availability?arrival=2026-10-01&departure=2026-10-04"
+        27 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/reservations/new?arrival=2026-10-01&departure=2026-10-04&unit=R04"
+
+
+      167 |   expect(unit).toBeTruthy();
+      168 |   await firstFree.click();
+    > 169 |   await expect(page).toHaveURL(
+          |                      ^
+      170 |     new RegExp(`arrival=2026-10-01&departure=2026-10-04&unit=${unit}(?:&|$)`),
+      171 |   );
+      172 |   await expect(
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:169:22
+
+    Error Context: test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-доступность-пере-bc6e3-брони-неверный-период-виден/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/workspace.spec.ts:159:1 › доступность переносит даты и свободное место в создание брони; неверный период виден 
+
+# код выхода 1 · 26 с

@@ -1,97 +1,122 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { resolvePeriod } from '@pms/domain';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
+import { hotelApi, hotelToday } from '../../lib/hotel-api';
 import { ApiError } from '../../lib/api';
-import { hotelApi, hotelToday, validDate } from '../../lib/hotel-api';
-import { FALLBACK_TIMEZONE } from '../../lib/property-time';
 import { Page } from '../../components/page';
-import { Icon } from '../../components/icon';
-import { HotelClock } from './dashboard-widgets';
-import { DayBar } from './day-bar';
-import { DeskSection, DeskSkeleton } from './desk-section';
-import { FirstSteps } from './first-steps';
+import { Alert } from '../../components/ui';
+import { OwnerFinance, OwnerOperations } from './owner-dashboard';
+import { DashboardRefresh } from './owner-controls';
+import './owner-dashboard.css';
 
-async function loadHotel() {
-  return hotelApi.settings().catch((error: unknown) => {
+async function PropertyCaption() {
+  const hotel = await hotelApi.settings().catch((error: unknown) => {
     if (error instanceof ApiError) return null;
     throw error;
   });
+  return <span className="owner-property">{hotel?.property.name ?? 'Объект не загружен'}</span>;
 }
-
-async function PropertyName() {
-  const hotel = await loadHotel();
-  return hotel?.property.name ?? 'Гостиница';
+async function CurrencyFinance({
+  period,
+  today,
+}: {
+  period: ReturnType<typeof resolvePeriod>;
+  today: string;
+}) {
+  const hotel = await hotelApi.settings().catch((error: unknown) => {
+    if (error instanceof ApiError) return null;
+    throw error;
+  });
+  if (!hotel)
+    return (
+      <div className="owner-finance">
+        <Alert>Не удалось загрузить валюту объекта. Обновите страницу.</Alert>
+      </div>
+    );
+  return <OwnerFinance period={period} currency={hotel.property.currency} today={today} />;
 }
-
-async function PropertyClock() {
-  const hotel = await loadHotel();
-  return <HotelClock timezone={hotel?.property.timezone ?? FALLBACK_TIMEZONE} />;
-}
-
-/**
- * Главная — рабочий экран дня (A1, ADR-103; ТЗ `plans/tz-today-2026-09-27.md`): полоса дня,
- * операционные показатели «На стойке», «Требуют внимания» рядом с быстрыми действиями. Экран живёт
- * одним днём; показатели за период с их пресетами переехали на `/management/dashboard` — `?period=`
- * Главная больше не читает. Каждый блок приходит своим куском (`Suspense`), как и раньше: отказ
- * одного вызова не прячет экран целиком (замечание владельца 16.09.2026).
- */
 export default async function TodayPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
-  // Полоса стойки: явная ?date=, иначе сегодня объекта
-  const deskDate = sp.date && validDate(sp.date) ? sp.date : today;
+  const period = resolvePeriod(
+    { preset: sp.period, from: sp.from, to: sp.to, date: sp.date },
+    today,
+  );
   return (
     <Page
       title="Главная"
-      crumbs={
-        <span className="eyebrow">
-          <Suspense fallback="Гостиница">
-            <PropertyName />
-          </Suspense>
-        </span>
-      }
+      width="full"
       actions={
         <>
-          <Link href="/chessboard" className="btn btn--secondary">
-            Шахматка
-          </Link>
-          <Link href="/reservations/new" className="btn">
-            <Icon name="plus" />
-            Новая бронь
+          <DashboardRefresh />
+          <Link className="btn" href="/reservations/new">
+            + Новая бронь
           </Link>
         </>
       }
     >
-      <Suspense fallback={null}>
-        <FirstSteps />
-      </Suspense>
-      <div className="day-bar-row">
-        <DayBar date={deskDate} today={today} />
-        <Suspense
-          fallback={
-            <span className="hotel-clock">
-              <Icon name="clock" width={14} />— <span>Время гостиницы</span>
-            </span>
-          }
-        >
-          <PropertyClock />
+      <div className="owner-toolbar">
+        <nav aria-label="Период финансов">
+          {[
+            ['today', 'Сегодня'],
+            ['week', '7 дней'],
+            ['month', 'Месяц'],
+          ].map(([id, label]) => (
+            <Link
+              key={id}
+              href={`/today?period=${id}`}
+              aria-current={period.preset === id ? 'page' : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <form action="/today" key={`${period.from}|${period.to}`}>
+          <input type="hidden" name="period" value="custom" />
+          <input
+            aria-label="Начало периода"
+            type="date"
+            name="from"
+            defaultValue={period.from}
+            required
+          />
+          <span>—</span>
+          <input
+            aria-label="Конец периода"
+            type="date"
+            name="to"
+            defaultValue={period.to}
+            required
+          />
+          <button className="btn btn--secondary">Показать</button>
+        </form>
+        <Suspense fallback={<span className="owner-property">Загружаем объект…</span>}>
+          <PropertyCaption />
         </Suspense>
       </div>
-      <Suspense fallback={<DeskSkeleton />}>
-        <DeskSection date={deskDate} today={today} />
-      </Suspense>
-      {/* Ссылки на модули (ТЗ §4 п. 8): аналитика и финансы живут в своих разделах, не на Главной */}
-      <nav className="today-links" aria-label="Отчёты и финансы">
-        <Link className="btn btn--secondary" href="/management/dashboard">
-          Показатели за период
-        </Link>
-        <Link className="btn btn--secondary" href={`/finance?from=${deskDate}&to=${deskDate}`}>
-          Оплаты
-        </Link>
-        <Link className="btn btn--secondary" href={`/management/statistics?date=${deskDate}`}>
-          Статистика
-        </Link>
-      </nav>
+      {period.error && <Alert>{period.error}</Alert>}
+      <div className="owner-dashboard" data-testid="owner-dashboard">
+        <Suspense
+          key={`${period.from}|${period.to}`}
+          fallback={
+            <div className="owner-finance owner-panel" role="status">
+              Загружаем финансы…
+            </div>
+          }
+        >
+          <CurrencyFinance period={period} today={today} />
+        </Suspense>
+        <Suspense
+          fallback={
+            <div className="owner-operations owner-panel" role="status">
+              Загружаем данные гостиницы…
+            </div>
+          }
+        >
+          <OwnerOperations date={today} />
+        </Suspense>
+      </div>
     </Page>
   );
 }

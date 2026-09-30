@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 29.09.2026 22:00 Алматы · MacBook-Air-Urij.local
+# коммит ee31215 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '--grep' 'full product'
+[WebServer] (node:55476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:55693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/site/product-story.spec.ts:64:1 › homepage explains the full product and keeps WETOP positioning (11.8s)
+
+
+  1) tests/site/product-story.spec.ts:64:1 › homepage explains the full product and keeps WETOP positioning 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.hero h1')
+    Expected substring: "Центр управления"
+    Received string:    "Весь бизнес. В одном ритме."
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" locator('.hero h1') with timeout 10000ms
+      - waiting for locator('.hero h1')
+        23 × locator resolved to <h1 id="hero-title" class="hero__title">…</h1>
+           - unexpected value "Весь бизнес. В одном ритме."
+
+
+      64 | test('homepage explains the full product and keeps WETOP positioning', async ({ page }) => {
+      65 |   await page.goto('/');
+    > 66 |   await expect(page.locator('.hero h1')).toContainText('Центр управления');
+         |                                          ^
+      67 |   await expect(page.locator('.hero__brand')).toHaveText('WETOP.AI');
+      68 |   await expect(page.locator('.hero')).not.toContainText('В одном ритме');
+      69 |   for (const id of ['showcase', 'product-details', 'toolkit', 'ai-sellers']) {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/site/product-story.spec.ts:66:42
+
+    Error Context: test-results/product-story-homepage-exp-eff02-and-keeps-WETOP-positioning/error-context.md
+
+  1 failed
+    tests/site/product-story.spec.ts:64:1 › homepage explains the full product and keeps WETOP positioning 
+
+# код выхода 1 · 45 с

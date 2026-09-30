@@ -1,0 +1,136 @@
+# Сквозные (e2e) · 29.09.2026 17:26 Алматы · vm
+# коммит 5f43f69 (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/ai-agents.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/ui/ai-agents.spec.ts:26:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (89ms)
+  ✘  2 tests/ui/ai-agents.spec.ts:48:1 › главный администратор: рядом с продавцом карточка WETOP Support (56ms)
+  ✘  3 tests/ui/ai-agents.spec.ts:60:1 › старый адрес /ai-seller работает (61ms)
+  ✘  4 tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, light, 1440 (52ms)
+  ✘  5 tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, light, 390 (76ms)
+  ✘  6 tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, dark, 1440 (61ms)
+  ✘  7 tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, dark, 390 (61ms)
+
+
+  1) tests/ui/ai-agents.spec.ts:26:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-agents.spec.ts:48:1 › главный администратор: рядом с продавцом карточка WETOP Support 
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/ai-agents-главный-админист-5fcf8-вцом-карточка-WETOP-Support/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-главный-админист-5fcf8-вцом-карточка-WETOP-Support/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-главный-админист-5fcf8-вцом-карточка-WETOP-Support/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/ai-agents.spec.ts:60:1 › старый адрес /ai-seller работает ────────────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/ai-agents-старый-адрес-ai-seller-работает/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-старый-адрес-ai-seller-работает/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-старый-адрес-ai-seller-работает/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, light, 1440 ────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/ai-agents-вход-в-раздел-axe-и-снимок-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-вход-в-раздел-axe-и-снимок-light-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-вход-в-раздел-axe-и-снимок-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, light, 390 ─────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/ai-agents-вход-в-раздел-axe-и-снимок-light-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-вход-в-раздел-axe-и-снимок-light-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-вход-в-раздел-axe-и-снимок-light-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, dark, 1440 ─────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/ai-agents-вход-в-раздел-axe-и-снимок-dark-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-вход-в-раздел-axe-и-снимок-dark-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-вход-в-раздел-axe-и-снимок-dark-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, dark, 390 ──────────────────────
+
+    Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome
+    Run "npx playwright install chrome"
+
+    Error Context: test-results/ai-agents-вход-в-раздел-axe-и-снимок-dark-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-вход-в-раздел-axe-и-снимок-dark-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-вход-в-раздел-axe-и-снимок-dark-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/ai-agents.spec.ts:26:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец ─
+    tests/ui/ai-agents.spec.ts:48:1 › главный администратор: рядом с продавцом карточка WETOP Support 
+    tests/ui/ai-agents.spec.ts:60:1 › старый адрес /ai-seller работает ─────────────────────────────
+    tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, light, 1440 ─────────────────────
+    tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, light, 390 ──────────────────────
+    tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, dark, 1440 ──────────────────────
+    tests/ui/ai-agents.spec.ts:68:5 › вход в раздел: axe и снимок, dark, 390 ───────────────────────
+
+# код выхода 1 · 20 с

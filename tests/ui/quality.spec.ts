@@ -146,16 +146,15 @@ test('изменение уборки относится только к выб�
 });
 
 test('неподключённые внешние демо не ведут на несуществующие страницы', async ({ page }) => {
-  // Код счётчика и виджета лежат в свёртках своих вкладок (ADR-117): раскрываем их, как это делает пользователь
+  // Код счётчика и код виджета — в окнах установки своих вкладок (ADR-117): открываем их, как пользователь
   await page.goto('/website/settings');
-  await page.locator('summary').getByText('Установка счётчика', { exact: true }).click();
+  await page.getByTestId('site-install').click();
   await expect(page.getByText('Демо счётчика не подключено', { exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
   await page.goto('/website/booking');
-  await page
-    .locator('summary')
-    .getByText('Установка виджета бронирования', { exact: true })
-    .click();
+  await page.getByTestId('booking-install').click();
   await expect(page.getByText('Демо виджета не подключено', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('site-card-booking-demo')).toHaveCount(0);
   await expect(page.locator('a[href="/demo"], a[href="/demo-booking"]')).toHaveCount(0);
 });
 
@@ -169,7 +168,7 @@ for (const scenario of [
   },
   {
     name: 'документ гостя',
-    path: '/guests/ui-guest#guest-profile',
+    path: '/guests/ui-guest#guest-documents',
     form: 'document-form',
     button: 'Добавить',
     fields: { number: 'TEST-ONLY', issueCountry: 'KAZ' },
@@ -185,7 +184,7 @@ for (const scenario of [
     name: 'сайт аналитики',
     path: '/website/settings',
     form: 'site-form',
-    button: 'Добавить сайт',
+    button: 'Подключить сайт',
     fields: { name: 'Тестовый сайт', hosts: 'example.invalid' },
   },
 ]) {

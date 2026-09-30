@@ -81,7 +81,7 @@ export function ToastDemo() {
 export function ToastStatic() {
   const items = [
     { id: 1, text: 'Гость заселён, R01', tone: 'success' as const },
-    { id: 2, text: 'Остаток отправлен в Channex', tone: 'info' as const },
+    { id: 2, text: 'Остаток отправлен в каналы', tone: 'info' as const },
     {
       id: 3,
       text: 'Гражданство не указано — заселение без него не пройдёт',

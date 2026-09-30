@@ -11,6 +11,10 @@ export async function cardTab(page: Page, name: CardTab) {
   const tab = page
     .getByRole('tablist', { name: 'Разделы карточки брони' })
     .getByRole('tab', { name, exact: true });
-  if ((await tab.getAttribute('aria-selected')) !== 'true') await tab.click();
-  await expect(tab).toHaveAttribute('aria-selected', 'true');
+  // Щелчок, попавший на обновление карточки после действия, теряется: карточка возвращает вкладку, где действие
+  // выполнили. 28.09.2026 так `full-day` 30 с ждал «Обзор» после выезда — поэтому щёлкаем, пока вкладка не откроется.
+  await expect(async () => {
+    if ((await tab.getAttribute('aria-selected')) !== 'true') await tab.click();
+    await expect(tab).toHaveAttribute('aria-selected', 'true', { timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
 }

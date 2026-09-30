@@ -7,21 +7,10 @@ import { expect, test } from '@playwright/test';
  * нет адресов, которых на сайте нет. Данных владельца тесты не требуют: пустые поля `site.config.ts`
  * прячут блоки, и это проверяется отдельно — «TODO» на странице быть не должно ни в каком виде.
  */
-const PAGES = ['/', '/blog/'];
-/** Адрес ИИ-помощника (Q-180, ADR-081) — `assistantUrl` в `apps/site/src/site.config.ts` */
-const ASSISTANT = 'https://assistant.wetop.ai';
-
-// Скрипт чата — чужой: тесты главной его не грузят, чтобы проверять страницу, а не бота и его доступность
-test.beforeEach(async ({ page }) => {
-  await page.route(`${ASSISTANT}/**`, (route) => route.abort());
-});
-
-test('чат ИИ-помощника: анонимный тег по адресу помощника (ТЗ П2, ADR-081)', async ({ page }) => {
+const PAGES = ['/', '/blog/', '/for/hostels/', '/for/mini-hotels/', '/for/apart-hotels/', '/calculator/'];
+test('чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён', async ({ page }) => {
   await page.goto('/');
-  const tag = page.locator(`script[src="${ASSISTANT}/widget/widget.js"]`);
-  await expect(tag).toHaveCount(1);
-  // на главной человек не вошёл: подписи в теге нет
-  expect(await tag.getAttribute('data-identity')).toBeNull();
+  await expect(page.locator('script[src*="/widget/widget.js"]')).toHaveCount(0);
 });
 
 for (const path of PAGES) {
@@ -85,26 +74,29 @@ test('в sitemap.xml только живые адреса, robots.txt на не�
 
 /**
  * «Как начать» говорит то, что есть на самом деле. 20.09.2026 ADR-056 снял обещания регистрации и пробных дней —
- * тогда их в системе не было. 26.09.2026 владелец открыл самостоятельную регистрацию с 7 днями пробного периода
+ * тогда их в системе не было. 26.09.2026 владелец открыл самостоятельную регистрацию с 14 днями пробного периода
  * (ADR-098; `TRIAL_DAYS` в `packages/domain/src/accounts/trial.ts`): на главной «Войти» и «Регистрация» — в шапке,
  * на первом экране и в призыве «Как начать»; «Регистрация» ведёт прямо на форму стойки `/register`. Кода из письма
  * по-прежнему нет — подтверждение идёт ссылкой. Пункт «Блог» не показывается, пока опубликованных статей нет
- * (страница `/blog/` остаётся по адресу); подсказка «Новая бронь» на макете не выходит за карточку на 1440 px;
+ * (страница `/blog/` остаётся по адресу); подсказка на макете первого экрана не выходит за карточку на 1440 px;
  * в текстах сайта нет « · » (тот же голос, что у стойки, §14).
  */
-test('главная: безопасные вход и trial, блог скрыт без статей, подсказка макета внутри карточки', async ({
+test('главная: «Войти» и «Регистрация», шаги под регистрацию с 14 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · »', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
+  const body = await page.locator('body').innerText();
+  expect(body).not.toContain(' · ');
   const start = page.locator('#start');
   await expect(start.getByRole('heading', { level: 3 })).toHaveText([
-    /^Создаём объект$/,
-    /^Настраиваем фонд и тарифы$/,
-    /^Переносим данные$/,
-    /^Подключаем продажи$/,
+    /^Доступ$/, // ручное подключение пилотных партнёров до RLS (ADR-102)
+    /^Номера и цены$/, // `typo()` может ставить неразрывные пробелы — regex их пропускает
+    /^Работа$/,
+    /./, // заголовок призыва
   ]);
   await expect(start).toContainText(/14\sдней/);
+  await expect(start).not.toContainText(/7\sдней|подключаем партнёров вручную|заведём аккаунт/i);
   await expect(start).not.toContainText(/код из письма/);
   // «Получить доступ» (27.09.2026, ADR-100, ADR-102) без JavaScript — прямо на форму стойки, «Войти» — на экран входа;
   // с JavaScript обе открывают окно поверх главной (tests/site/auth-dialog.spec.ts)
@@ -113,17 +105,18 @@ test('главная: безопасные вход и trial, блог скры�
     'href',
     'https://app.wetop.ai/login',
   );
-  await expect(
-    header.getByRole('link', { name: 'Попробовать бесплатно', exact: true }),
-  ).toHaveAttribute('href', 'https://app.wetop.ai/register');
-  const hero = page.locator('.hero');
-  await expect(hero.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
+  await expect(header.getByRole('link', { name: 'Получить доступ', exact: true })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
-  await expect(hero.getByRole('link', { name: 'Войти', exact: true })).toBeVisible();
+  const hero = page.locator('.hero');
+  await expect(hero.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
+    'href',
+    'https://app.wetop.ai/register',
+  );
+  await expect(hero.getByRole('link', { name: /Смотреть возможности/ })).toBeVisible();
   await expect(hero).toContainText(/14\sдней бесплатно/);
-  await expect(start.getByRole('link', { name: /Попробовать бесплатно/ })).toHaveAttribute(
+  await expect(start.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
     'href',
     'https://app.wetop.ai/register',
   );
@@ -138,90 +131,68 @@ test('главная: безопасные вход и trial, блог скры�
     page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
-  // подсказка «Новая бронь» — внутри карточки макета (после анимации появления: она сдвигает на 14 px)
-  const mockups = page.locator('.mockup');
-  for (let index = 0; index < (await mockups.count()); index += 1) {
-    const mockup = mockups.nth(index);
-    await mockup
-      .locator('.mockup__toast')
-      .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
-    const card = await mockup.locator('.mockup__window').boundingBox();
-    const toast = await mockup.locator('.mockup__toast').boundingBox();
-    expect(card && toast && toast.x + toast.width <= card.x + card.width + 1).toBe(true);
-    expect(card && toast && toast.y + toast.height <= card.y + card.height + 1).toBe(true);
-  }
+  // событие «Новая продажа» — строкой внутри окна макета, а не плавающей подсказкой
+  const card = await hero.locator('.mockup__window').boundingBox();
+  const event = await hero.locator('.ops__event').boundingBox();
+  expect(card && event && event.x + event.width <= card.x + card.width + 1).toBe(true);
+  expect(card && event && event.y + event.height <= card.y + card.height + 1).toBe(true);
 });
 
-test('главная: B2B-позиционирование, честные обещания и утверждённая структура', async ({
+/**
+ * Позиционирование 29.09.2026 (решение владельца, ADR-104: WETOP — платформа для сервисного бизнеса).
+ * Первый экран говорит о платформе, а не о гостинице: общий операционный экран «Сегодня» с клиентами, филиалами,
+ * задачами, продажами и финансами; ни номеров, ни койко-мест, ни каналов OTA. Hospitality показан ниже как
+ * работающее направление, Beauty — как следующее, с явной пометкой, что подключить его пока нельзя.
+ */
+test('первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее', async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'WETOP Центр управления сервисным бизнесом',
+  await expect(page).toHaveTitle(/центр управления сервисным бизнесом/i);
+  const hero = page.locator('.hero');
+  await expect(hero.getByRole('heading', { level: 1 })).toContainText(
+    /Центр управления сервисным бизнесом/,
   );
-  await expect(page.locator('.hero')).toContainText(
-    'Клиенты, расписание, продажи, команда, финансы и аналитика',
+  await expect(hero).toContainText(
+    /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\s—\sв\sодном\sрабочем\sпространстве/,
   );
-
-  const navigation = page.getByRole('navigation', { name: 'Основная навигация' });
-  await expect(navigation.getByRole('link')).toHaveText([
-    'Продукт',
-    'Платформа',
-    'Вертикали',
-    'Интеграции',
-    'Тарифы',
-  ]);
-
-  const headings = await page.locator('main h2').allTextContents();
-  expect(headings).toEqual([
-    'Одна платформа. Разные модели бизнеса.',
-    'Управление объектом размещения в WETOP',
-    'Работает с каналами, которыми вы уже пользуетесь',
-    'AI-продавец WETOP',
-    'Понимайте не только загрузку, но и деньги',
-    'Поможем перейти с другой PMS',
-    'Простой тариф для всей команды',
-    'Соберите управление бизнесом в WETOP',
-  ]);
-
-  await expect(page.locator('#showcase').getByRole('heading', { level: 3 })).toHaveText([
+  const heroText = await hero.innerText();
+  expect(heroText).not.toMatch(/номер|койк|шахматк|Booking|Hostelworld|Agoda|хостел|отел/i);
+  const screen = hero.getByRole('img', { name: /Сегодня/ });
+  await expect(screen).toBeVisible();
+  const screenLabel = (await screen.getAttribute('aria-label')) ?? '';
+  // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
+  // одна плашка, без круглой печати; в макете боковое меню разделов объясняет, что внутри
+  await expect(hero.locator('.hero__seal')).toHaveCount(0);
+  await expect(hero.locator('.hero__word')).toHaveCount(0);
+  await expect(hero.locator('.hero__status')).toHaveText(/Регистрация открыта/);
+  for (const section of [
     'Сегодня',
-    'Шахматка',
-    'Брони',
-  ]);
-  await expect(page.locator('#integrations')).toContainText('через Channex');
-  await expect(page.locator('#pricing')).toContainText('49 900 ₸');
-  await expect(page.locator('#pricing')).toContainText('Более 100 единиц — индивидуальные условия');
-  await expect(page.getByRole('link', { name: 'Попробовать бесплатно' }).first()).toHaveAttribute(
-    'href',
-    'https://app.wetop.ai/register',
-  );
+    'Клиенты',
+    'Расписание',
+    'Продажи',
+    'Команда',
+    'Финансы',
+    'Аналитика',
+  ]) {
+    await expect(hero.locator('.ops__rail')).toContainText(section);
+  }
+  for (const word of [/клиент/i, /филиал/i, /задач/i, /продаж/i, /финанс/i]) {
+    expect(screenLabel, `подпись экрана «Сегодня» без ${word}`).toMatch(word);
+  }
 
-  const body = await page.locator('body').innerText();
-  expect(body).not.toMatch(/за секунды|всегда мгновенно|Сторож системы/i);
-});
-
-test('главная: 375 px без горизонтального скролла, mobile menu работает с клавиатуры', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('/');
-  expect(
-    await page.evaluate('document.documentElement.scrollWidth - window.innerWidth'),
-  ).toBeLessThanOrEqual(1);
-
-  const menu = page.getByRole('button', { name: 'Меню' });
-  await menu.focus();
-  await page.keyboard.press('Enter');
-  await expect(menu).toHaveAttribute('aria-expanded', 'true');
-  await page.keyboard.press('Escape');
-  await expect(menu).toHaveAttribute('aria-expanded', 'false');
-  await expect(menu).toBeFocused();
-});
-
-test('главная: prefers-reduced-motion убирает декоративные анимации', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
-  expect(await page.evaluate('document.getAnimations().length')).toBe(0);
+  const verticals = page.locator('#audience');
+  await expect(verticals.getByRole('heading', { level: 2 })).toContainText(/Hospitality/);
+  await expect(verticals).toContainText(/Хостелы/);
+  const beauty = verticals.locator('.vertical-next');
+  await expect(beauty).toContainText(/Beauty/);
+  await expect(beauty).toContainText(/Следующее направление/);
+  await expect(beauty).toContainText(/пока нельзя/);
+  // Первый экран идёт раньше разделов про гостиницу
+  const order = await page
+    .locator('main > section')
+    .evaluateAll((els) => els.map((el) => el.getAttribute('id') ?? el.className));
+  expect(order.indexOf('workflow')).toBeLessThan(order.indexOf('features'));
+  expect(order.indexOf('features')).toBeLessThan(order.indexOf('audience'));
 });

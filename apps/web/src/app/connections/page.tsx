@@ -1,22 +1,22 @@
 import Link from 'next/link';
-import { channelsApi } from '../../lib/api';
 import { Page } from '../../components/page';
 import { RefreshButton } from '../../components/refresh-button';
-import { Badge, EmptyState, Panel } from '../../components/ui';
+import { EmptyState, Panel } from '../../components/ui';
 import { Icon } from '../../components/icon';
-import { hotelApi, hotelClock } from '../../lib/hotel-api';
-import { currentMe, deskShell } from '../../lib/desk-shell';
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import { pluralRu } from '../../lib/plural';
 import type { PropertyClock } from '../../lib/property-time';
+import { exchangeLine, type ChannexCard } from '../../lib/integrations';
+import { loadChannexState } from './connection-state';
 import {
-  HEALTH_LABEL,
-  HEALTH_TONE,
-  channexCard,
-  exchangeLine,
-  settle,
-  type ChannexCard,
-} from '../../lib/integrations';
+  CHANNEX_ABOUT,
+  CHANNEX_CONTENT_NOTE,
+  CHANNEX_READ_ONLY,
+  CHANNEX_SUPPORT,
+  HealthBadge,
+  IssueList,
+  TechDetails,
+} from './connection-parts';
 import './integrations.css';
 
 /**
@@ -24,6 +24,7 @@ import './integrations.css';
  * их состояние и место настройки. Внутренней диагностики (база, Supabase, число броней и номеров) здесь нет — она у
  * главного администратора в «Платформе». Сайт и виджет — модуль самого WETOP, живут в «Настройки → Сайт».
  * Channex здесь — только соединение и его сводка; очередь, сопоставления и события — в «Каналах продаж».
+ * eQonaq не показывается даже «скоро»: отложен без срока (Q-122, решение владельца 28.09.2026).
  */
 export default async function ConnectionsPage({
   searchParams,
@@ -32,21 +33,8 @@ export default async function ConnectionsPage({
 }) {
   const sp = normalizeSearchParams(await searchParams);
   const tab = sp.tab === 'available' ? 'available' : 'connected';
-  const now = new Date();
-  const [clock, shell, settings, me, connection, webhook, outbox] = await Promise.all([
-    hotelClock(),
-    deskShell(),
-    settle(hotelApi.settings()),
-    settle(currentMe()),
-    settle(channelsApi.connection()),
-    settle(channelsApi.webhookStatus()),
-    settle(channelsApi.outbox()),
-  ]);
-  const channex = channexCard({ connection, webhook, outbox, now });
-  const propertyName = settings.ok ? settings.value.property.name : null;
-  // технические детали — владельцу организации и поддержке WETOP, не каждому сотруднику смены
-  const user = me.ok ? me.value.user : null;
-  const technical = user?.role === 'OWNER' || user?.platformAdmin === true;
+  const state = await loadChannexState();
+  const { card: channex, propertyName, clock, now, technical } = state;
   const connected = channex.health === 'off' ? [] : [channex];
   const available = channex.health === 'off' ? [channex] : [];
   const tabHref = (next: 'connected' | 'available') =>
@@ -95,7 +83,7 @@ export default async function ConnectionsPage({
         )
       ) : available.length ? (
         <div className="integration-list" data-testid="integrations-available">
-          <ChannexAvailable readOnly={shell.readOnly} />
+          <ChannexAvailable readOnly={state.readOnly} />
         </div>
       ) : (
         <EmptyState
@@ -114,19 +102,13 @@ function CardHead({ health }: { health: ChannexCard['health'] }) {
   return (
     <header className="integration-card__head">
       <div>
-        <h2 className="integration-card__name">Channex</h2>
-        <p className="integration-card__kind">Менеджер каналов</p>
+        <h2 className="integration-card__name">Менеджер каналов</h2>
+        <p className="integration-card__kind">Booking.com, Trip.com и другие каналы</p>
       </div>
-      <Badge tone={HEALTH_TONE[health]} data-testid="integration-health">
-        {HEALTH_LABEL[health]}
-      </Badge>
+      <HealthBadge health={health} />
     </header>
   );
 }
-
-const ABOUT = 'Цены, остатки, ограничения и брони из Booking.com, Trip.com и других каналов.';
-const CONTENT_NOTE =
-  'Фото, удобства и описание для каналов настраиваются в кабинете Channex или самого канала.';
 
 function ChannexConnected({
   card,
@@ -145,17 +127,8 @@ function ChannexConnected({
   return (
     <Panel className="integration-card" id="channex-connection" data-testid="integration-channex">
       <CardHead health={card.health} />
-      <p className="integration-card__about">{ABOUT}</p>
-      {card.issues.length > 0 && (
-        <ul className="integration-card__issues" data-testid="integration-issues">
-          {card.issues.map((issue) => (
-            <li key={issue.text}>
-              <span>{issue.text}</span>
-              {issue.href && issue.action && <Link href={issue.href}>{issue.action}</Link>}
-            </li>
-          ))}
-        </ul>
-      )}
+      <p className="integration-card__about">{CHANNEX_ABOUT}</p>
+      <IssueList issues={card.issues} />
       <dl className="integration-card__facts">
         <div>
           <dt>Объект</dt>
@@ -185,60 +158,16 @@ function ChannexConnected({
       </dl>
       <div className="integration-card__actions">
         <RefreshButton label="Проверить соединение" />
-        <Link className="btn btn--secondary" href="/channels/connections#channel-setup">
+        <Link className="btn btn--secondary" href="/connections/channex">
           Настройки
         </Link>
         <Link className="btn btn--ghost" href="/channels">
           Каналы продаж
         </Link>
       </div>
-      {technical && (
-        <details className="integration-card__tech" data-testid="integration-tech">
-          <summary>Технические детали</summary>
-          <dl className="integration-card__facts">
-            <div>
-              <dt>Среда Channex</dt>
-              <dd>
-                {!c
-                  ? '—'
-                  : c.environment === 'production'
-                    ? 'Рабочая'
-                    : c.environment === 'staging'
-                      ? 'Тестовая'
-                      : 'Свой сервер'}
-              </dd>
-            </div>
-            <div>
-              <dt>Объект в Channex</dt>
-              <dd className="integration-card__code">{c?.propertyId ?? '—'}</dd>
-            </div>
-            <div>
-              <dt>Webhook</dt>
-              <dd>
-                {!card.webhook
-                  ? '—'
-                  : card.webhook.registered && card.webhook.active
-                    ? 'включён'
-                    : 'не включён'}
-              </dd>
-            </div>
-            <div>
-              <dt>Последний webhook</dt>
-              <dd>{clock.full(c?.lastWebhookAt)}</dd>
-            </div>
-            <div>
-              <dt>Последний импорт</dt>
-              <dd>{clock.full(c?.lastPullAt)}</dd>
-            </div>
-            <div>
-              <dt>Проверено</dt>
-              <dd>{clock.full(c?.checkedAt)}</dd>
-            </div>
-          </dl>
-        </details>
-      )}
+      {technical && <TechDetails card={card} clock={clock} />}
       <p className="note" data-testid="channel-content-location">
-        {CONTENT_NOTE}
+        {CHANNEX_CONTENT_NOTE}
       </p>
     </Panel>
   );
@@ -252,14 +181,12 @@ function ChannexAvailable({ readOnly }: { readOnly: boolean }) {
   return (
     <Panel className="integration-card" id="channex-connection" data-testid="integration-channex">
       <CardHead health="off" />
-      <p className="integration-card__about">{ABOUT}</p>
+      <p className="integration-card__about">{CHANNEX_ABOUT}</p>
       <p className="integration-card__how" data-testid="integration-connect">
-        {readOnly
-          ? 'Подключение — после оплаты подписки. Данные доступны для просмотра.'
-          : 'Подключает поддержка WETOP: ключ хранится на сервере и в интерфейс не вводится. Напишите в чат помощника справа внизу.'}
+        {readOnly ? CHANNEX_READ_ONLY : CHANNEX_SUPPORT}
       </p>
       <p className="note" data-testid="channel-content-location">
-        {CONTENT_NOTE}
+        {CHANNEX_CONTENT_NOTE}
       </p>
     </Panel>
   );

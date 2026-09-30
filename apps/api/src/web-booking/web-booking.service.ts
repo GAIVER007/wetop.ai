@@ -9,8 +9,11 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import {
+  assertDerivedRuleAllows,
+  assertPromoAllows,
   assertRestrictionsAllow,
   fingerprintOf,
   hostMatches,
@@ -32,6 +35,7 @@ import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/inciden
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 import { withOrganizationScope } from '../auth/request-context';
+import { TurnstileService, turnstileFailureError } from './turnstile';
 
 export interface RequestContext {
   originHost: string | null;
@@ -67,6 +71,8 @@ export interface Quote {
   checkInTime: string;
   checkOutTime: string;
   ratePlan: string;
+  /** Применённый промокод; цены в `categories` уже со скидкой (одна большая, Q-231) */
+  promo: { code: string; discountPercent: number } | null;
   categories: QuoteCategory[];
 }
 
@@ -134,6 +140,10 @@ export class WebBookingService {
     @Inject(ReservationsService) private readonly reservations: ReservationsService,
     @Inject(CollectService) private readonly collect: CollectService,
     @Inject(INCIDENTS_REPOSITORY) private readonly incidents: IncidentsRepository,
+    // BOOK-SEC1: проверка токена Turnstile перед бронью; по умолчанию — выключенная, пока не задан секрет
+    @Optional()
+    @Inject(TurnstileService)
+    private readonly turnstile: TurnstileService = new TurnstileService(),
   ) {}
 
   async quote(raw: unknown, ctx: RequestContext): Promise<Quote> {
@@ -160,6 +170,11 @@ export class WebBookingService {
     raw: unknown,
     now: Date = new Date(),
   ): Promise<Quote> {
+    // Прежний бот присылает только организацию. Двух AI-продавцов в организации организация не различает: область не
+    // угадывается («самый ранний сайт»), вызывающий обязан назвать агента (SA2.5)
+    if ((await this.sites.salesAgentCount(organizationId)) > 1) {
+      throw new BadRequestException('у организации несколько AI-продавцов: нужен agent');
+    }
     const site = await this.sites.bookingSiteForOrganization(organizationId);
     if (!site) {
       throw new NotFoundException('у организации нет сайта с включённым бронированием');
@@ -174,11 +189,41 @@ export class WebBookingService {
     return asSite(site, () => this.quoteForSite(site, { ...body, k: site.publicKey }, now));
   }
 
+  /**
+   * Котировка по агенту (SA2.5): `agentId` — недоверенный селектор. Организацию, филиал и объект платформа берёт из
+   * найденной строки агента; сайт — ТОЛЬКО на объекте его филиала, без запасного «первого сайта организации».
+   * Несуществующий, архивный и чужой агент отвечают одинаково.
+   */
+  async quoteForAgent(agentId: string, raw: unknown, now: Date = new Date()): Promise<Quote> {
+    const site = await this.sites.bookingSiteForAgent(agentId);
+    if (!site) {
+      throw new NotFoundException('у агента нет сайта с включённым бронированием');
+    }
+    await this.assertServingProperty(site, 'котировка для объекта этого агента пока не подключена');
+    if (!this.limits.botQuotePerOrg.allow(`agent:${agentId}`, now.getTime())) {
+      throw new HttpException('слишком много котировок, попробуйте позже', HttpStatus.TOO_MANY_REQUESTS);
+    }
+    const body = raw && typeof raw === 'object' ? { ...(raw as Record<string, unknown>) } : {};
+    delete body.organization;
+    delete body.agent;
+    return asSite(site, () => this.quoteForSite(site, { ...body, k: site.publicKey }, now));
+  }
+
+  /**
+   * Домены, с которых открывается виджет агента (SA2.5, Q-SA-17): вычисляются во время запроса из действующих сайтов
+   * его филиала, копии в агенте нет. Нет сайта — пустой список: черновик создаётся, а публичный виджет не открывается.
+   */
+  async originsForAgent(agentId: string): Promise<string[]> {
+    const hosts = await this.sites.hostsForAgent(agentId);
+    if (hosts === null) throw new NotFoundException('агент не найден');
+    return hosts;
+  }
+
   /** Общий расчёт двух дверей: сайт уже найден и проверен вызывающим */
   private async quoteForSite(site: SiteRecord, raw: unknown, now: Date): Promise<Quote> {
     const parsed = parseQuoteRequest(raw, localDate(now, site.timezone));
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
-    const { arrivalDate, departureDate, adults } = parsed.value;
+    const { arrivalDate, departureDate, adults, promoCode } = parsed.value;
     const plan = site.bookingRatePlan!;
 
     // Расчёт цены и мест только читает — без транзакции (Б9): занятый пул не превращает витрину сайта в 500
@@ -186,6 +231,34 @@ export class WebBookingService {
       const ratePlan = await repo.ratePlanByCode(plan.code);
       if (!ratePlan || !ratePlan.active) {
         throw new NotFoundException('тариф сайта неактивен — бронирование с сайта выключено');
+      }
+      // Промокод: неверный, выключенный, исчерпанный или не на эти даты — отказ словами, а не молчаливое «без скидки»
+      let promo: { id: string; code: string; discountPercent: number } | null = null;
+      if (promoCode) {
+        const found = await repo.promoByCode(promoCode);
+        if (!found) throw new BadRequestException(`Промокод ${promoCode} не найден`);
+        try {
+          assertPromoAllows(found, { arrivalDate, departureDate });
+        } catch (e) {
+          if (e instanceof ReservationRuleError) throw new BadRequestException(e.message);
+          throw e;
+        }
+        promo = found;
+      }
+      // Производный тариф сайта: окно продаж и минимум ночей закрывают продажу целиком, как ограничение
+      let planClosed = false;
+      if (ratePlan.derivedRule) {
+        try {
+          assertDerivedRuleAllows(ratePlan.derivedRule, {
+            planName: ratePlan.name,
+            today: localDate(now, site.timezone),
+            arrivalDate,
+            nights: nightsBetween(arrivalDate, departureDate),
+          });
+        } catch (e) {
+          if (!(e instanceof ReservationRuleError)) throw e;
+          planClosed = true;
+        }
       }
       const out: QuoteCategory[] = [];
       for (const cat of await repo.activeCategories()) {
@@ -196,7 +269,7 @@ export class WebBookingService {
           arrivalDate,
           addDays(departureDate, 1),
         );
-        let closed = false;
+        let closed = planClosed;
         try {
           assertRestrictionsAllow({
             arrivalDate,
@@ -210,7 +283,13 @@ export class WebBookingService {
         }
         const available = await repo.categoryAvailability(cat.id, arrivalDate, departureDate);
         const occupancy = Math.min(adults, cat.capacityAdults);
-        const rates = await repo.nightRates(cat.id, ratePlan.id, arrivalDate, departureDate);
+        const rates = await repo.nightRates(
+          cat.id,
+          ratePlan.id,
+          arrivalDate,
+          departureDate,
+          promo?.discountPercent ?? null,
+        );
         let price: ReturnType<typeof priceStay> | null = null;
         try {
           price = priceStay({ arrivalDate, departureDate, occupancy, rates });
@@ -230,7 +309,11 @@ export class WebBookingService {
             : [],
         });
       }
-      return { rows: out, currency: ratePlan.currency };
+      return {
+        rows: out,
+        currency: ratePlan.currency,
+        promo: promo ? { code: promo.code, discountPercent: promo.discountPercent } : null,
+      };
     });
 
     return {
@@ -243,6 +326,7 @@ export class WebBookingService {
       checkInTime: site.checkInTime,
       checkOutTime: site.checkOutTime,
       ratePlan: plan.name,
+      promo: categories.promo,
       categories: categories.rows,
     };
   }
@@ -261,6 +345,15 @@ export class WebBookingService {
         'слишком много броней с одного адреса, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
       );
+    }
+    // BOOK-SEC1 (аудит 29.09.2026, ADR-129): токен Turnstile проверяется здесь, после разбора запроса (мусор до Cloudflare не
+    // доходит) и до занятия места в лимите сайта: отказ проверки лимит брони не тратит. Секрет не задан — проверки нет.
+    if (this.turnstile.enabled()) {
+      const verdict = await this.turnstile.verify(
+        (raw as { turnstileToken?: unknown } | null)?.turnstileToken,
+        { ip: ctx.ip, allowedHosts: site.hosts, ownHost: ctx.ownHost },
+      );
+      if (!verdict.ok) throw turnstileFailureError(verdict.reason);
     }
     // Лимит сайта считает брони, а не попытки: тридцать неудачных запросов глушили бронирование с сайта на час
     // (аудит 26.09, С-35). Место берётся до записи — иначе одновременные запросы с разных адресов все проходили
@@ -300,6 +393,7 @@ export class WebBookingService {
           arrivalDate: req.arrivalDate,
           departureDate: req.departureDate,
           notes,
+          promoCode: req.promoCode,
           guest: {
             firstName: guest.firstName,
             lastName: guest.lastName,
@@ -433,5 +527,4 @@ export class WebBookingService {
       );
     }
   }
-
 }

@@ -1,0 +1,17 @@
+# Модульные (unit) · 28.09.2026 23:39 Алматы · vm
+# коммит c39c55e (claude/serene-fermat-om5559), незакоммиченных файлов набора: 4
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T18-39-21Z-unit-98fc.json' 'apps/web/src/lib/website.test.ts' 'apps/web/src/app/website/actions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/website/actions.test.ts (8 tests) 11ms
+ ✓ |unit| apps/web/src/lib/website.test.ts (31 tests) 13ms
+
+ Test Files  2 passed (2)
+      Tests  39 passed (39)
+   Start at  18:39:22
+   Duration  892ms (transform 86%, import 11%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-28T18-39-21Z-unit-98fc.json
+
+# код выхода 0 · 2 с

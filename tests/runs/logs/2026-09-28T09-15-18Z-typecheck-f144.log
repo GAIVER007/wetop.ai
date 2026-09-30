@@ -1,0 +1,29 @@
+# Типы (typecheck) · 28.09.2026 14:15 Алматы · vm
+# коммит 6818af0 (claude/eager-noether-1uncrq-a2), незакоммиченных файлов набора: 2
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(266,74): error TS2322: Type 'import("/home/user/wetop.ai/packages/domain/src/accounts/roles").MembershipRole' is not assignable to type 'import("/home/user/wetop.ai/packages/database/src/generated/prisma/enums").MembershipRole'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole'.
+apps/api/src/accounts/accounts.prisma-repository.ts(354,56): error TS2322: Type 'MembershipRole' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+tests/integration/manager-role.test.ts(56,87): error TS2322: Type '"OWNER" | "MANAGER" | "STAFF"' is not assignable to type 'MembershipRole'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole'.
+tests/integration/manager-role.test.ts(97,22): error TS2339: Property 'role' does not exist on type '{ organizationId: string; id: string; createdBy: string; createdAt: Date; email: string; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+tests/integration/manager-role.test.ts(106,24): error TS2339: Property 'role' does not exist on type '{ organizationId: string; id: string; createdBy: string; createdAt: Date; email: string; expiresAt: Date; tokenHash: string; acceptedAt: Date | null; }'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/accounts/accounts.prisma-repository.ts(266,74): error TS2322: Type 'import("/home/user/wetop.ai/packages/domain/src/accounts/roles").MembershipRole' is not assignable to type 'import("/home/user/wetop.ai/packages/database/src/generated/prisma/enums").MembershipRole'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole'.
+apps/api/src/accounts/accounts.prisma-repository.ts(354,56): error TS2322: Type 'MembershipRole' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+  Type '"MANAGER"' is not assignable to type 'MembershipRole | EnumMembershipRoleFieldUpdateOperationsInput'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 22 с

@@ -1,18 +1,34 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Page } from '../../components/page';
 import { Icon } from '../../components/icon';
-import { Alert, Badge, EmptyState, Table } from '../../components/ui';
+import { Alert, Badge, Button, EmptyState, Field, Select, Table } from '../../components/ui';
+import { DateInput } from '../../components/date-field';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { guestsApi, messengerLinks } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { hotelToday } from '../../lib/hotel-api';
-import { displayDate } from '../../lib/display-date';
+import { displayDate, displayPeriod } from '../../lib/display-date';
 import { pluralRu } from '../../lib/plural';
 import { GuestsSearch } from './guests-search';
 import { STATE_BADGE } from './guest-state';
+import {
+  LAST_VISIT,
+  SECTIONS,
+  SORTS,
+  VISITS,
+  activeSelects,
+  describeFilters,
+  directoryQuery,
+  guestsHref,
+  keptParams,
+  parseGuestFilters,
+} from './filters';
+import { FiltersToggle } from '../reservations/filters-toggle';
 import '../directory.css';
+import '../reservations/reservations.css';
 import './guests.css';
 
 /**
@@ -20,55 +36,30 @@ import './guests.css';
  * человек, а не бронь. Раздел отвечает «кто это, где он сейчас, когда был и когда приедет»;
  * список броней на день — это /reservations. Статус брони («отменена») строку гостя не подписывает.
  */
-const SECTIONS: ReadonlyArray<{ id: string; label: string; meta: string }> = [
-  { id: 'ALL', label: 'Все', meta: '' },
-  { id: 'INHOUSE', label: 'Проживают', meta: 'проживают' },
-  { id: 'EXPECTED', label: 'Ожидаются', meta: 'ожидаются' },
-  { id: 'RECENT', label: 'Недавние', meta: 'выехали за 30 дней' },
-];
-/** Старые адреса ?status=CHECKED_IN живут в закладках и тестах — читаются как раздел */
-const LEGACY_STATUS: Record<string, string> = {
-  ALL: 'ALL',
-  CHECKED_IN: 'INHOUSE',
-  CONFIRMED: 'EXPECTED',
-  TENTATIVE: 'EXPECTED',
-  CHECKED_OUT: 'RECENT',
-};
-
 export default async function GuestsPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
   const sp = normalizeSearchParams(await searchParams);
-  const stateRaw = sp.state
-    ? sp.state.toUpperCase()
-    : sp.status
-      ? (LEGACY_STATUS[sp.status] ?? sp.status)
-      : 'ALL';
-  const rawQ = sp.q ?? '';
-  const q = rawQ.trim();
-  const page = sp.page || '1';
-  const error = !SECTIONS.some((s) => s.id === stateRaw)
-    ? 'Неизвестный раздел гостей.'
-    : !/^\d+$/.test(page) || Number(page) < 1 || Number(page) > 10000
-      ? 'Номер страницы должен быть от 1 до 10000.'
-      : q.length > 120
-        ? 'Поиск: не более 120 символов.'
-        : null;
-  const state = error ? 'ALL' : stateRaw;
+  // отбор целиком в адресе (G7, ТЗ §31): раздел, поиск, последний визит, визиты, порядок, страница
+  const { f, error } = parseGuestFilters(sp);
+  // «Показать» — обычная GET-форма: она шлёт и пустые, и умолчательные поля (`from=&sort=name`).
+  // Короткий адрес — тот, что пересылают ссылкой (§31), поэтому такой запрос уводится на него
+  const noisy =
+    Object.values(sp).some((v) => v === '') ||
+    sp.sort === 'name' ||
+    (Boolean(sp.from || sp.to) && sp.last !== 'period');
+  if (!error && noisy) redirect(guestsHref(f, { page: f.page }));
+  const rawQ = error ? '' : (sp.q ?? '');
+  const { state, q } = f;
   const searching = q.length >= 2;
   const [today, { readOnly }] = await Promise.all([hotelToday(), deskShell()]);
   // Отказ API не выглядит как пустая база (B5): заголовок, разделы и поиск остаются
   const loaded = !error
     ? await guestsApi
-        .directory({
-          ...(state !== 'ALL' ? { state } : {}),
-          ...(searching ? { q } : {}),
-          page,
-          // 100 — потолок API: все ≤92 живущих объекта видны без листания, дальше — страницы (ТЗ §44)
-          pageSize: '100',
-        })
+        // 100 — потолок API: все ≤92 живущих объекта видны без листания, дальше — страницы (ТЗ §44)
+        .directory(directoryQuery(f, 100))
         .then(
           (r) => ({ ok: true as const, r }),
           (e: unknown) => ({ ok: false as const, e }),
@@ -76,20 +67,10 @@ export default async function GuestsPage({
     : null;
   const result = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
-  const href = (values: Record<string, string>) => {
-    const params = new URLSearchParams({
-      ...(state !== 'ALL' ? { state: state.toLowerCase() } : {}),
-      ...(searching ? { q } : {}),
-      ...values,
-    });
-    if (params.get('state') === 'all') params.delete('state');
-    if (params.get('q') === '') params.delete('q');
-    if (params.get('page') === '1') params.delete('page');
-    const tail = params.toString();
-    return `/guests${tail ? `?${tail}` : ''}`;
-  };
+  const href = (over: Partial<typeof f>) => guestsHref(f, over);
   const section = SECTIONS.find((s) => s.id === state)!;
-  const filtersOn = state !== 'ALL' || searching;
+  const filtersOn = state !== 'ALL' || searching || activeSelects(f) > 0;
+  const filterWords = describeFilters(f, displayPeriod);
   const emptyBase = result !== null && result.counts.ALL === 0 && !filtersOn;
   const pageOutOfRange = (result?.total ?? 0) > 0 && result?.rows.length === 0;
   const thisYear = today.slice(0, 4);
@@ -114,16 +95,8 @@ export default async function GuestsPage({
             key={s.id}
             className={state === s.id ? 'is-active' : ''}
             aria-current={state === s.id ? 'page' : undefined}
-            href={
-              s.id === 'ALL'
-                ? searching
-                  ? `/guests?q=${encodeURIComponent(q)}`
-                  : '/guests'
-                : `/guests?${new URLSearchParams({
-                    state: s.id.toLowerCase(),
-                    ...(searching ? { q } : {}),
-                  })}`
-            }
+            // смена раздела держит остальной отбор (поиск, визит, визиты, порядок)
+            href={href({ state: s.id })}
           >
             {s.label}
             {result && (
@@ -134,7 +107,68 @@ export default async function GuestsPage({
           </Link>
         ))}
       </nav>
-      <GuestsSearch q={rawQ} state={state} />
+      {/* §47: поиск и отборы — одна строка («🔎 Поиск… [Фильтры]»), таблица сразу под ней */}
+      <div className="guests-bar">
+        <GuestsSearch q={rawQ} keep={keptParams(f, ['q'])} />
+        {/* Отборы G7 (ТЗ §28, §30): как «Брони» (R2) — GET-форма и «Показать», на телефоне — за
+            «Фильтрами». Период с–по виден, когда выбран «период» (CSS :has, без скрипта) */}
+        <form method="get" action="/guests" className="guests-filters" data-testid="guests-filters">
+          {Object.entries(keptParams(f, ['last', 'from', 'to', 'visits', 'sort'])).map(
+            ([name, value]) => (
+              <input key={name} type="hidden" name={name} value={value} />
+            ),
+          )}
+          <FiltersToggle active={activeSelects(f)}>
+            <Field inline label="Последний визит">
+              <Select name="last" key={`last-${f.last}`} defaultValue={f.last}>
+                {LAST_VISIT.map(([id, label]) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <span className="guests-period">
+              <Field inline label="С">
+                <DateInput
+                  key={`from-${f.from}`}
+                  name="from"
+                  defaultValue={f.from}
+                  aria-label="Последний визит: с"
+                />
+              </Field>
+              <Field inline label="По">
+                <DateInput
+                  key={`to-${f.to}`}
+                  name="to"
+                  rangeFromName="from"
+                  defaultValue={f.to}
+                  aria-label="Последний визит: по"
+                />
+              </Field>
+            </span>
+            <Field inline label="Визитов">
+              <Select name="visits" key={`visits-${f.visits}`} defaultValue={f.visits}>
+                {VISITS.map(([id, label]) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field inline label="Порядок">
+              <Select name="sort" key={`sort-${f.sort}`} defaultValue={f.sort}>
+                {SORTS.map(([id, label]) => (
+                  <option key={id} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          </FiltersToggle>
+          <Button tone="secondary">Показать</Button>
+        </form>
+      </div>
       {q.length === 1 && (
         <p className="hint" role="status">
           Введите не менее 2 символов для поиска.
@@ -145,13 +179,21 @@ export default async function GuestsPage({
           {error} <Link href="/guests">Сбросить фильтры</Link>
         </Alert>
       )}
-      {loadError !== null && <LoadError testId="guests-error" {...loadErrorProps(loadError)} />}
+      {loadError !== null && (
+        <LoadError
+          testId="guests-error"
+          title="Не удалось загрузить гостей"
+          {...loadErrorProps(loadError)}
+        />
+      )}
       {result && !emptyBase && (
         <section aria-label="Список гостей">
-          <p className="directory-meta" data-testid="guests-meta">
+          {/* итог выдачи меняют автопоиск и отборы — читалка узнаёт его без перехода фокуса */}
+          <p className="directory-meta" data-testid="guests-meta" role="status">
             {pluralRu(result.total, ['гость', 'гостя', 'гостей'])}
             {section.meta ? `, ${section.meta}` : ''}
             {searching ? `, по запросу «${q}»` : ''}
+            {filterWords.map((w) => `, ${w}`).join('')}
             {filtersOn && (
               <>
                 {' '}
@@ -277,8 +319,11 @@ export default async function GuestsPage({
                         )}
                       </td>
                       <td className="num">
-                        <span className="dir-cell-word">визитов </span>
-                        {g.staysCount}
+                        {/* на широком экране — число под шапкой «Визитов», в карточке телефона — словом */}
+                        <span className="guests-visits__num">{g.staysCount}</span>
+                        <span className="dir-cell-word">
+                          {pluralRu(g.staysCount, ['визит', 'визита', 'визитов'])}
+                        </span>
                       </td>
                       <td>
                         {badge ? (
@@ -306,10 +351,7 @@ export default async function GuestsPage({
                     </Link>
                   )}
                   {searching && (
-                    <Link
-                      href={state !== 'ALL' ? `/guests?state=${state.toLowerCase()}` : '/guests'}
-                      className="btn btn--secondary"
-                    >
+                    <Link href={href({ q: '' })} className="btn btn--secondary">
                       Убрать поиск
                     </Link>
                   )}

@@ -1,0 +1,31 @@
+# Модульные (unit) · 29.09.2026 12:40 Алматы · vm
+# коммит 44f401e (claude/vigilant-sagan-qk5oqg), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T07-40-35Z-unit-4caa.json' 'packages/domain/src/availability/nearest.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/availability/nearest.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/availability/nearest.test.ts [ packages/domain/src/availability/nearest.test.ts ]
+Error: Cannot find module './nearest' imported from /home/user/wetop.ai/packages/domain/src/availability/nearest.test.ts
+ ❯ packages/domain/src/availability/nearest.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import type { ChessboardAllocation, ChessboardUnit } from '../chessboa…
+      3| import { nearestAvailability, sellableStay } from './nearest';
+       | ^
+      4|
+      5| // ТЗ «Свободные места» §7, AV4 (ADR-110): «С 1-го нет, но есть с 3-го…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  07:40:43
+   Duration  572ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T07-40-35Z-unit-4caa.json
+
+# код выхода 1 · 8 с

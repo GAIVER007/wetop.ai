@@ -1,8 +1,10 @@
 """[КЛИЕНТ] Провайдер WETOP: наличие, расчёт, бронь.
 
 Наличие и цену продавец читает дверью котировки GET /bot/availability
-(Q-166 в объёме чтения — ADR-085): узкий ключ SELLER_QUOTE_KEY, организация
-в запросе, JSON — тот же, что у публичного виджета. Бронь из чата не
+(Q-166 в объёме чтения — ADR-085): узкий ключ SELLER_QUOTE_KEY, АГЕНТ хода
+в запросе (SA2.5), JSON — тот же, что у публичного виджета. Агента ставит дверь
+канала, а не модель: инструмент не принимает от неё ни агента, ни организацию,
+ни объект. Платформа сама выводит организацию и филиал из строки агента. Бронь из чата не
 включена — заявка администратору до базы в РК (Q-166б, ADR-086); POST /w/book
 здесь на тот день. Разбор мягкий: незнакомое тело даёт «не знаю» с пометкой
 в журнал, а не выдуманное число мест и не выдуманную сумму. Сам разбор —
@@ -75,12 +77,14 @@ class WetopProviders(WetopSupportMixin):
     def __init__(self, settings: Settings, http_client: httpx.AsyncClient) -> None:
         self._base_url = settings.integration_base_url.rstrip("/")
         self._api_key = settings.integration_api_key
+        self._act_key = (getattr(settings, "integration_act_key", "") or "").strip()
         self._timeout = settings.integration_timeout_seconds
         # Клиент общий на процесс: соединения дорогие, свой плодить незачем.
         self._http = http_client
 
     async def _request(
-        self, method: str, path: str, *, params: dict | None = None, json: dict | None = None
+        self, method: str, path: str, *, params: dict | None = None, json: dict | None = None,
+        key: str | None = None,
     ) -> dict:
         """Запрос к WETOP. Любой отказ — ProviderUnavailable с коротким кодом.
 
@@ -88,7 +92,8 @@ class WetopProviders(WetopSupportMixin):
         в журналы прокси целиком. Заголовок — тот, из которого платформа
         читает служебные ключи (x-wetop-service-key, auth.guard.ts).
         """
-        headers = {KEY_HEADER: self._api_key}
+        # key — ключ действий (S6); по умолчанию ключ чтения
+        headers = {KEY_HEADER: key or self._api_key}
         try:
             response = await self._http.request(
                 method,
@@ -123,19 +128,20 @@ class WetopProviders(WetopSupportMixin):
     async def _availability(self, arrival: date, departure: date, guests: int) -> dict:
         """Остаток и сумму отдаёт один адрес, поэтому запрос общий.
 
-        Организация — из хода (ставит движок): продавец спрашивает про СВОЮ
-        гостиницу. Поле гостей у платформы зовётся adults — контракт виджета.
+        Агент — из хода (ставит движок): продавец спрашивает про СВОЙ филиал. Поле гостей
+        у платформы зовётся adults — контракт виджета. Организацию платформе не называем:
+        `agent` для неё — недоверенный селектор, всё остальное она берёт из строки агента.
         """
-        from src.dependencies import get_current_organization_id
+        from src.dependencies import get_current_agent_id
 
         params: dict = {
             "arrival": arrival.isoformat(),
             "departure": departure.isoformat(),
             "adults": guests,
         }
-        organization = get_current_organization_id()
-        if organization:
-            params["organization"] = organization
+        agent = get_current_agent_id()
+        if agent:
+            params["agent"] = agent
         return await self._request("GET", PATH_AVAILABILITY, params=params)
 
     async def check(

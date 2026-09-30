@@ -61,14 +61,40 @@ const GUARD_READ_ALLOWED = ['/guard/status', '/guard/incidents'];
  * которые API отдал человеку (DATA_MODEL §14), и состояние системы — и больше ничего. Неисправности, запись, брони,
  * гости, деньги — отказ. Сам `GET /assistant/errors` сверяет ключ ещё раз: замок молчит без `AUTH_REQUIRED=1`.
  */
-const ASSISTANT_READ_ALLOWED = ['/assistant/errors', '/guard/status', '/assistant/organization'];
+const ASSISTANT_READ_ALLOWED = [
+  '/assistant/errors',
+  '/guard/status',
+  '/assistant/organization',
+  '/assistant/requester',
+  // S5: диагностика — состояние каналов и бронь по номеру, только чтение
+  '/assistant/integrations',
+  '/assistant/reservation',
+];
 
 /**
  * Узкий ключ котировки ИИ-продавца (`SELLER_QUOTE_KEY`, Q-166 в объёме чтения — ADR-085): наличие и цена
  * тарифа сайта по организации, ровно один адрес, только GET — тот же образец. Брони этим ключом нет:
  * она остаётся заявкой администратору до базы в РК (Q-166б, ADR-086).
  */
-const SELLER_QUOTE_ALLOWED = ['/bot/availability'];
+// SA2.5: домены виджета агента — тоже чтение узким ключом продавца (Agent → Location → сайты филиала)
+const SELLER_QUOTE_ALLOWED = ['/bot/availability', '/bot/agent-origins'];
+
+/**
+ * Ключ действий помощника (`ASSISTANT_ACT_KEY`, S6, Q-S6-1): только POST и только действия из матрицы —
+ * подтянуть ленту Channex и полная выгрузка. Ключ чтения на эти адреса не пускается, ключ действий на чтение — тоже:
+ * компрометация одного ключа не даёт другого. Проверки членства, права, лимита и идемпотентности — в сервисе.
+ */
+const ASSISTANT_ACT_ALLOWED = ['/assistant/actions/channel-pull', '/assistant/actions/channel-sync'];
+
+function pathOf(url: unknown): string | null {
+  if (typeof url !== 'string') return null;
+  return url.split('?')[0]!.replace(/\/+$/, '');
+}
+
+function postAllowed(allowed: readonly string[], method: unknown, url: unknown): boolean {
+  const path = pathOf(url);
+  return method === 'POST' && path !== null && allowed.includes(path);
+}
 
 function readAllowed(allowed: readonly string[], method: unknown, url: unknown): boolean {
   if (method !== 'GET') return false;
@@ -78,7 +104,13 @@ function readAllowed(allowed: readonly string[], method: unknown, url: unknown):
 }
 
 /** Какой служебный ключ пришёл в `x-wetop-service-key`: `null` — никакого, `unknown` — ни один не подошёл */
-export type ServiceKeyKind = 'service' | 'guard-read' | 'assistant-read' | 'seller-quote' | 'unknown';
+export type ServiceKeyKind =
+  | 'service'
+  | 'guard-read'
+  | 'assistant-read'
+  | 'assistant-act'
+  | 'seller-quote'
+  | 'unknown';
 
 export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
   const presented = headers['x-wetop-service-key'];
@@ -89,6 +121,8 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   if (readKey && sameKey(presented, readKey)) return 'guard-read';
   const assistantKey = process.env.ASSISTANT_READ_KEY?.trim();
   if (assistantKey && sameKey(presented, assistantKey)) return 'assistant-read';
+  const actKey = process.env.ASSISTANT_ACT_KEY?.trim();
+  if (actKey && sameKey(presented, actKey)) return 'assistant-act';
   const quoteKey = process.env.SELLER_QUOTE_KEY?.trim();
   if (quoteKey && sameKey(presented, quoteKey)) return 'seller-quote';
   return 'unknown';
@@ -165,6 +199,13 @@ export class SessionGuard implements CanActivate {
       throw new ForbiddenException(
         'Ключ помощника читает только ошибки человека и состояние системы',
       );
+    }
+    if (key === 'assistant-act') {
+      if (postAllowed(ASSISTANT_ACT_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException('Ключ действий помощника выполняет только действия из матрицы');
     }
     if (key === 'seller-quote') {
       if (readAllowed(SELLER_QUOTE_ALLOWED, request.method, request.url)) {

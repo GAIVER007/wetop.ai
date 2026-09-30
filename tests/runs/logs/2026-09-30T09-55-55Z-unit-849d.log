@@ -1,0 +1,155 @@
+# Модульные (unit) · 30.09.2026 14:55 Алматы · vm
+# коммит a3b9197 (claude/peaceful-tesla-yfad2q), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T09-55-55Z-unit-849d.json' 'tests/unit/no-vendor-name.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/no-vendor-name.test.ts (1 test | 1 failed) 151ms
+   ❯ название поставщика менеджера каналов не видно пользователю (1)
+     × нет слова «Channex» в текстах стойки, главной, API и бота 149ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/no-vendor-name.test.ts > название поставщика менеджера каналов не видно пользователю > нет слова «Channex» в текстах стойки, главной, API и бота
+AssertionError: expected [ …(114) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/channels/[[...section]]/page.tsx: connections: 'Подключение Channex и настройка обмена.',",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: mapping: 'Категории и тарифы WETOP в Channex.',",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: ? `${connection?.message ?? 'Не удалось проверить соединение с Channex'}.`",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: label=\"Webhook в Channex\"",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: Наблюдаются по входящим событиям Channex — это последняя активность источника, а не",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: Событий от каналов ещё не было. Канал появится здесь, когда Channex пришлёт его бронь,",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: Сопоставление — общее для всех каналов Channex: категорий {mappedCategories}",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: label=\"Объект Channex\"",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: label=\"Последняя задача Channex\"",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: {!connection && <Alert boxed>Не удалось проверить подключение Channex.</Alert>}",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: <Panel title=\"Channex\" data-testid=\"channel-connection\">",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: label=\"Объект Channex\"",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: <Panel title=\"Webhook в Channex\" data-testid=\"channel-webhook\">",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: Ключ Channex хранится только на сервере. Общий экран подключений гостиницы —{' '}",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: настраиваются в кабинете Channex или самого канала.",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: <th>Номер в Channex</th>",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: <span className=\"cell-sub\">название в Channex недоступно</span>",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: {['Категория', 'Номер в Channex', 'Тариф в Channex'].map((h) => (",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: <SectionTitle id=\"outbox-title\">Очередь в Channex</SectionTitle>",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: «Отправить очередь сейчас» и проверьте ключ Channex.",
++   "apps/web/src/app/channels/actions.ts: message = `Полная выгрузка ${r.from} → ${r.to}; задачи Channex: ${r.tasks.join(', ')}`;",
++   "apps/web/src/app/channels/buttons.tsx: const noConnection = !connected ? 'Нет соединения с Channex — проверьте ключ и подключение.' : '';",
++   "apps/web/src/app/channels/buttons.tsx: Забрать брони из Channex",
++   "apps/web/src/app/channels/buttons.tsx: 'Ключ Channex не задан на сервере — объект и категории создать нельзя. '}",
++   "apps/web/src/app/channels/events/[revisionId]/page.tsx: 1. Ревизия Channex",
++   "apps/web/src/app/channels/events-table.tsx: 'Событий пока нет: Channex ещё не присылал броней. Когда пришлёт, событие появится здесь, а бронь — на шахматке.'",
++   "apps/web/src/app/channels/outbox-table.tsx: {['Что', 'Категории', 'Даты', 'Статус', 'Попыток', 'Задача Channex', 'Создано'].map(",
++   "apps/web/src/app/channels/outbox-table.tsx: 'Очередь пуста: все изменения цен и остатков уже ушли в Channex. Новая строка появится после правки цены, брони или блокировки.'",
++   "apps/web/src/app/chessboard/page.tsx: {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} Channex не разобрана",
++   "apps/web/src/app/connections/channex/loading.tsx: <Page title=\"Channex\">",
++   "apps/web/src/app/connections/channex/loading.tsx: <LoadingState label=\"Проверяем соединение с Channex…\" data-testid=\"channex-loading\">",
++   "apps/web/src/app/connections/channex/page.tsx: title=\"Channex\"",
++   "apps/web/src/app/connections/channex/page.tsx: <h2 className=\"integration-card__name\">Channex не подключён</h2>",
++   "apps/web/src/app/connections/channex/page.tsx: Переподключить, сменить ключ или отключить Channex может поддержка WETOP: ключ хранится на",
++   "apps/web/src/app/connections/channex/page.tsx: Webhook и объект в Channex владелец настраивает в{' '}",
++   "apps/web/src/app/connections/connection-parts.tsx: 'Фото, удобства и описание для каналов настраиваются в кабинете Channex или самого канала.';",
++   "apps/web/src/app/connections/connection-parts.tsx: <dt>Среда Channex</dt>",
++   "apps/web/src/app/connections/connection-parts.tsx: <dt>Объект в Channex</dt>",
++   "apps/web/src/app/connections/page.tsx: <h2 className=\"integration-card__name\">Channex</h2>",
++   "apps/web/src/app/design-system/demos.tsx: { id: 2, text: 'Остаток отправлен в Channex', tone: 'info' as const },",
++   "apps/web/src/app/design-system/page.tsx: Webhook Channex не отвечает 12 минут — брони подбирает опрос ленты",
++   "apps/web/src/app/design-system/page.tsx: <span className=\"toast__text\">Остаток отправлен в Channex</span>",
++   "apps/web/src/app/inventory/category-preview.tsx: {c.channexMapped ? 'Сопоставлена с Channex' : 'С Channex не сопоставлена'}",
++   "apps/web/src/app/inventory/category-words.ts: ...(c.channexMapped ? ['Сопоставлена с Channex'] : []),",
++   "apps/web/src/app/inventory/fund-editor.tsx: В Channex тип номера сохранит прежнее название: там оно меняется отдельно.",
++   "apps/web/src/app/journal/page.tsx: 'channex.setup': 'Channex: объект и категории',",
++   "apps/web/src/app/journal/page.tsx: 'channex.fullSync': 'Channex: полная выгрузка',",
++   "apps/web/src/app/rates/bulk-editor.tsx: : 'В каналы не ушло: категория или тариф не сопоставлены с Channex.'",
++   "apps/web/src/app/rates/bulk-editor.tsx: Channex: номер «{chRoom.name}», тариф «{chPlan.name}»",
++   "apps/web/src/app/rates/bulk-editor.tsx: Не сопоставлено с Channex — изменение в каналы не уйдёт.",
++   "apps/web/src/app/rates/price-cell.tsx: : 'Цена сохранена, но в очередь каналов не ушла: категория или тариф не сопоставлены с Channex',",
++   "apps/web/src/app/rates/range-drawer.tsx: : 'В каналы не ушло: категория или тариф не сопоставлены с Channex.'",
++   "apps/web/src/app/reservations/[number]/actions-panel.tsx: из Channex: {props.externalId}",
++   "apps/web/src/app/reservations/new/form.tsx: к Channex, и не создаст вторую.",
++   "apps/web/src/app/today/systems-channels.tsx: name=\"Channex\"",
++   "apps/web/src/components/data-freshness.tsx: title={'Последнее событие из Channex и очередь изменений остатков и цен в Channex'}",
++   "apps/web/src/components/data-freshness.tsx: Channex {data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—'} · очередь{' '}",
++   "apps/web/src/lib/integrations.ts: issues: [{ text: 'Не удалось проверить Channex. Повторите проверку.' }],",
++   "apps/web/src/lib/integrations.ts: text: 'Объект в Channex не создан',",
++   "apps/web/src/lib/navigation.ts: description: 'Подключение Channex и настройка обмена.',",
++   "apps/web/src/lib/navigation.ts: description: 'Категории и тарифы WETOP в Channex.',",
++   "apps/web/src/lib/support-actions.ts: channel_pull: 'Подтянуть ленту Channex',",
++   "apps/web/src/lib/support-actions.ts: channel_sync: 'Полная выгрузка в Channex',",
++   "apps/site/src/app/privacy/page.tsx: менеджеру каналов Channex — брони и цены, если ваша организация подключила каналы продаж (Booking.com и",
++   "apps/site/src/components/landing/features.tsx: points: ['Тарифы по категориям', 'Каналы через Channex', 'Брони, отмены и суммы по источникам'],",
++   "apps/site/src/components/landing/features.tsx: ['Booking.com', 'Через Channex'],",
++   "apps/site/src/components/landing/product-story.tsx: 'Менеджер каналов работает через Channex. Состав каналов, сопоставление категорий и готовность синхронизации проверяются при подключении вашего объекта.',",
++   "apps/site/src/components/landing/toolkit.tsx: OTA подключаются через Channex. Доступность площадок и обмен данными проверяются для",
++   "apps/site/src/i18n/ru.ts: note: 'через channel manager Channex',",
++   "apps/site/src/i18n/ru.ts: text: 'Бронирования из подключённых каналов поступают через Channex. Категории, тарифы и остатки сопоставляются при настройке объекта.',",
++   "apps/site/src/i18n/ru.ts: tags: ['Channex', 'Остатки', 'Цены'],",
++   "apps/site/src/i18n/ru.ts: { mark: 'Cx', name: 'Channex' },",
++   "apps/site/src/i18n/ru.ts: text: 'Подключение через channel manager Channex: новые брони приходят за секунды, остатки уходят обратно автоматически.',",
++   "apps/api/src/channels/ari-switch.ts: 'Исходящий ARI в Channex остановлен (CHANNEX_ARI=off, план отката CUTOVER.md): остатки и ограничения не отправляются, ' +",
++   "apps/api/src/channels/channels.controller.ts: 'Channex не ответил на запрос webhook вовремя — повторите проверку позже',",
++   "apps/api/src/channels/connection.ts: if (!this.reader) return { ...result, state: 'NO_KEY', message: 'Не задан ключ Channex' };",
++   "apps/api/src/channels/connection.ts: RATE_LIMITED: 'Лимит запросов Channex',",
++   "apps/api/src/channels/connection.ts: UNREACHABLE: 'Channex не отвечает',",
++   "apps/api/src/channels/content.ts: message: 'Контент объекта прочитан из Channex',",
++   "apps/api/src/channels/content.ts: if (!this.reader) return { ...base, state: 'NO_KEY', message: 'Не задан ключ Channex' };",
++   "apps/api/src/channels/content.ts: if (!propertyId) return { ...base, state: 'NO_MAPPING', message: 'Объект не сопоставлен с Channex' };",
++   "apps/api/src/channels/content.ts: DENIED: 'Нет доступа к объекту в Channex',",
++   "apps/api/src/channels/content.ts: NOT_FOUND: 'Объект не найден в Channex',",
++   "apps/api/src/channels/content.ts: RATE_LIMITED: 'Лимит запросов Channex — повторите через минуту',",
++   "apps/api/src/channels/content.ts: UNREACHABLE: 'Channex не отвечает',",
++   "apps/api/src/channels/gateway-failure.ts: `Channex ответил отказом (${what}) на ${path}${e.code ? `, код ${e.code}` : ''}. Подробности — в журнале сервера.`,",
++   "apps/api/src/channels/inbound.service.ts: `Ревизии ${revisionId} нет в ленте неподтверждённых: Channex её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,",
++   "apps/api/src/channels/integration-owner.ts: 'Каналы продаж, обмен с Channex и сторож системы ведёт поддержка WETOP: раздел открыт гостинице, к которой ' +",
++   "apps/api/src/channels/integration-property.ts: 'INTEGRATION_PROPERTY_ID не задан: объект интеграции Channex определяется по сопоставлениям, а пока их нет — по названию объекта. Впишите идентификатор объекта установки (docs/deploy.md)',",
++   "apps/api/src/channels/outbox.worker.ts: `Channex отклонил значений: ${warnings.length} — ${JSON.stringify(warnings)}`,",
++   "apps/api/src/channels/schedule.ts: reason: 'зарегистрированный адрес webhook не отвечает — Channex не сможет доставить бронь',",
++   "apps/api/src/channels/setup-plan.ts: if (input.categories.length === 0) throw new Error('Нет категорий для Channex');",
++   "apps/api/src/channels/sync.service.ts: 'Объект в Channex не создан — сначала POST /channels/channex/setup',",
++   "apps/api/src/channels/sync.service.ts: `Channex оставил адрес webhook ${savedUrl} вместо ${url} — webhook не перерегистрирован`,",
++   "apps/api/src/channels/sync.service.ts: 'Маппинг Channex пуст — сначала POST /channels/channex/setup',",
++   "apps/api/src/guard/guard.adapters.ts: return { ok: true, text: `webhook Channex возвращён на ${r.callbackUrl}` };",
++   "apps/api/src/guard/guard.service.ts: title: `Webhook Channex под подозрением: ${w.suspectReason ?? 'причина не записана'}`,",
++   "apps/api/src/guard/guard.service.ts: title: `В Channex записан не тот адрес webhook: ${w.callbackUrl} вместо ${w.callbackExpectedUrl} — брони доходят только опросом ленты`,",
++   "apps/api/src/guard/guard.service.ts: title: 'Адрес webhook Channex не отвечает — брони доходят только опросом ленты',",
++   "apps/api/src/guard/guard.service.ts: title: `Лента броней Channex не читается ${minutes(waited)} мин`,",
++   "apps/api/src/guard/guard.service.ts: title: `В Channex не ушли изменения остатков или ограничений: ${o.failedSinceSync} после последней полной выгрузки`,",
++   "apps/api/src/guard/guard.service.ts: title: `Очередь в Channex стоит: изменение ждёт отправки ${minutes(now.getTime() - o.oldestPendingAt.getTime())} мин${ariOut ? '' : ' — исходящий ARI остановлен вручную (CHANNEX_ARI=off)'}`,",
++   "apps/api/src/guard/guard.service.ts: ? `Входящая бронь Channex не обработалась из-за сбоя связи (ревизия ${ev.externalEventId})`",
++   "apps/api/src/guard/guard.service.ts: ? `Полной выгрузки в Channex не было ${Math.floor((now.getTime() - lastFullSyncAt.getTime()) / (60 * MIN))} ч`",
++   "apps/api/src/guard/guard.service.ts: : 'Полной выгрузки в Channex не было ни разу',",
++   "apps/ai-seller/src/ai/support_actions_matrix.py: \"channel_pull\", ActionClass.SAFE, \"лента Channex подтянута\",",
++   "apps/ai-seller/src/ai/support_actions_matrix.py: \"подтянуть из ленты Channex неподтверждённые ревизии броней и обработать их; повтор безопасен\",",
++   "apps/ai-seller/src/ai/support_actions_matrix.py: \"channel_sync\", ActionClass.CONFIRM, \"полная выгрузка в Channex\",",
++   "apps/ai-seller/src/ai/support_actions_matrix.py: f\"полная выгрузка остатков и ограничений в Channex на {CHANNEL_SYNC_DAYS} дней вперёд: каналы продаж получат \"",
++   "apps/ai-seller/src/ai/support_diagnostics.py: \"Состояние каналов продаж (Channex) у организации обратившегося: сопоставление категорий и тарифов,\"",
++   "apps/ai-seller/src/ai/support_diagnostics_text.py: \"NO_KEY\": \"ключ Channex не задан\",",
++   "apps/ai-seller/src/ai/support_diagnostics_text.py: \"NO_MAPPING\": \"объект не сопоставлен с Channex\",",
++   "apps/ai-seller/src/ai/support_diagnostics_text.py: \"KEY_MISSING\": \"ключ Channex не задан\",",
++   "apps/ai-seller/src/ai/support_diagnostics_text.py: parts = [f\"Каналы продаж (Channex): {state}\"]",
++ ]
+
+ ❯ tests/unit/no-vendor-name.test.ts:67:27
+     65| describe('название поставщика менеджера каналов не видно пользователю'…
+     66|   it('нет слова «Channex» в текстах стойки, главной, API и бота', () =…
+     67|     expect(vendorLines()).toEqual([]);
+       |                           ^
+     68|   });
+     69| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  09:55:56
+   Duration  450ms (tests 76%, transform 16%, import 6%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-09-30T09-55-55Z-unit-849d.json
+
+# код выхода 1 · 2 с

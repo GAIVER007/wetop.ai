@@ -82,6 +82,12 @@ def build_providers(
             health=wetop,
             # С5: карточка организации для техподдержки — тем же узким ключом.
             subscriptions=wetop,
+            # S4: кто обратился — роль, организация, состояние аккаунта, права.
+            requesters=wetop,
+            # S5: диагностика — каналы и бронь по номеру.
+            diagnostics=wetop,
+            # S6: действия — тот же клиент, ключ действий внутри него.
+            actions=wetop,
         )
 
     if mode != MODE_STUB:

@@ -56,7 +56,7 @@ export function buildChannexSetup(input: {
   dormBedsPerRoom?: number;
 }): ChannexSetupPlan {
   const dormBeds = input.dormBedsPerRoom ?? DEFAULT_DORM_BEDS_PER_ROOM;
-  if (input.categories.length === 0) throw new Error('Нет категорий для Channex');
+  if (input.categories.length === 0) throw new Error('Нет категорий для менеджера каналов');
   if (input.ratePlan.currency !== input.property.currency)
     throw new Error(
       `Валюта тарифа ${input.ratePlan.code} (${input.ratePlan.currency}) не совпадает с валютой объекта (${input.property.currency})`,

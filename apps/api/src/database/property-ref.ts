@@ -1,7 +1,14 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import type { Db } from '@pms/database';
 import { todayAt } from '@pms/domain';
-import { actsForOrganization, currentOrganizationId } from '../auth/request-context';
+import { integrationIdSetting } from './integration-property-id';
+import {
+  actsForOrganization,
+  currentBusinessId,
+  currentLocationId,
+  currentOrganizationId,
+  currentScope,
+} from '../auth/request-context';
 
 /**
  * Идентификатор объекта: один запрос на процесс, а не на каждый рейс в базу.
@@ -61,6 +68,23 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
   // публичный виджет) человека за собой не имеет и по-прежнему берёт объект по имени.
   if (actsForOrganization()) return organizationPropertyRef(db);
 
+  // SEC-2 (аудит 29.09.2026): объект установки задан явно — название на выбор не влияет
+  const setting = integrationIdSetting(process.env);
+  if (setting.kind === 'invalid')
+    throw new Error('INTEGRATION_PROPERTY_ID задан не UUID: объект установки не определить');
+  if (setting.kind === 'id') {
+    const idKey = `${schema()}|id|${setting.id}`;
+    const cached = cache.get(idKey);
+    if (cached) return cached;
+    const byId = await db.property.findUnique({
+      where: { id: setting.id },
+      select: { id: true, name: true, organizationId: true, timezone: true },
+    });
+    if (!byId) throw new Error('Объект INTEGRATION_PROPERTY_ID не найден: проверьте настройку');
+    cache.set(idKey, byId);
+    return byId;
+  }
+
   const key = `${schema()}|name|${name}`;
   const known = cache.get(key);
   if (known) return known;
@@ -80,28 +104,37 @@ export async function propertyRef(db: Db, name: string): Promise<PropertyRef> {
 }
 
 /**
- * Объект организации вошедшего. Выборка идёт прямо по `organizationId`, поэтому чужой объект сюда
- * не попадает по построению, а не по проверке после. Кэш — по организации плюс схема базы (ADR-042).
+ * Объект организации вошедшего — только по цепочке Organization → Business → Location → Property
+ * (Platform P1, ADR-104 §18; DATA_MODEL v2.6). Выборка идёт от организации Business, поэтому чужой
+ * объект сюда не попадает по построению, а не по проверке после. Фолбэк по `properties.organization_id`
+ * был миграционным окном и снят после production backfill (broken_chain = 0, 28.09.2026): объект без
+ * цепочки база больше не принимает (`location_id` NOT NULL). Кэш — по организации плюс схема базы (ADR-042).
  */
 async function organizationPropertyRef(db: Db): Promise<PropertyRef> {
   const organizationId = currentOrganizationId();
   // Вошедший без организации (членства нет) не видит ни одного объекта — как и должен.
   if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-  const key = `${schema()}|org|${organizationId}`;
+  // Scope запроса (Platform P2, К1; план P2 §4а) уже проверен `auth/scope.ts`: LOCATION — объект этого филиала,
+  // BUSINESS — самый ранний объект этого Business, ORGANIZATION — самый ранний объект организации, как раньше.
+  // Организация Business в выборке остаётся и при scope: чужой объект сюда не попадает по построению.
+  const scope = currentScope();
+  const businessId = currentBusinessId();
+  const locationId = currentLocationId();
+  const key = `${schema()}|org|${organizationId}|${scope ?? 'ORGANIZATION'}|${businessId ?? ''}|${locationId ?? ''}`;
   const known = cache.get(key);
   if (known) return known;
-  // Platform P1 (ADR-104 §18, Q-199 вариант Б): путь к объекту идёт по финальной цепочке
-  // Organization → Business → Location → Property; внешний контракт PropertyRef не меняется.
-  // Фолбэк по properties.organization_id — ТОЛЬКО миграционное окно (приёмка владельца 27.09.2026,
-  // отчёт Platform P1 §5): после production backfill и broken_chain = 0 он снимается в следующей
-  // platform-фазе — окончательный переход на цепочку, новых зависимостей от фолбэка не заводить.
-  const select = { id: true, name: true, organizationId: true, timezone: true };
-  const found =
-    (await db.property.findFirst({
-      where: { location: { business: { organizationId } } },
-      orderBy: { createdAt: 'asc' },
-      select,
-    })) ?? (await db.property.findFirst({ where: { organizationId }, select }));
+  const chain = { business: { organizationId } };
+  const where =
+    scope === 'LOCATION' && locationId
+      ? { locationId, location: chain }
+      : scope === 'BUSINESS' && businessId
+        ? { location: { businessId, ...chain } }
+        : { location: chain };
+  const found = await db.property.findFirst({
+    where,
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, name: true, organizationId: true, timezone: true },
+  });
   if (!found) throw new NotFoundException(PROPERTY_NOT_SET_UP_MESSAGE);
   cache.set(key, found);
   return found;

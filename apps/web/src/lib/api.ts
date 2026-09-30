@@ -6,13 +6,22 @@ export type { ActionPreview } from './action-preview';
  * Формы ответов повторяют apps/api (InventorySummaryDto, InventoryUnitDto).
  */
 import type {
+  AgentStatus,
   CancellationPenaltyPolicy,
+  ChannelState,
   DashboardFund,
   DashboardPeriod,
   InviteRole,
   MembershipRole,
 } from '@pms/domain';
 import { ApiError } from './api-error';
+import type {
+  SupportLastMessage,
+  SupportPriority,
+  SupportQueue,
+  SupportQueueCounts,
+} from './support-queue';
+import { requestScopeHeader } from './scope-pointer';
 export interface CategorySummary {
   code: string;
   name: string;
@@ -73,6 +82,8 @@ async function backendFetch(path: string, options: RequestInit = {}): Promise<Re
       headers: {
         ...options.headers,
         ...(await sessionHeader()),
+        // указатель выбора Business и филиала (Platform P2, К1): проверяет API, стойка только пересылает
+        ...(await requestScopeHeader()),
         ...(testing ? { 'x-wetop-test-client': '1' } : {}),
         ...(demo ? { 'x-wetop-demo-client': '1' } : {}),
       },
@@ -170,6 +181,27 @@ export const hotelSettingsApi = {
   update: (patch: Record<string, string | null>) => sendJson<unknown>('PATCH', '/hotel/settings', patch),
 };
 
+/** Услуга каталога «Настроек объекта» (SET3): весь каталог, с архивными; код — ссылка для правки, в стойке не виден */
+export interface CatalogService {
+  code: string;
+  name: string;
+  group: string | null;
+  priceMinor: string;
+  active: boolean;
+}
+export type CatalogServiceInput = {
+  name?: string;
+  group?: string | null;
+  price?: string;
+  active?: boolean;
+};
+export const serviceCatalogApi = {
+  list: () => getJson<CatalogService[]>('/hotel/services'),
+  create: (input: CatalogServiceInput) => sendJson<CatalogService>('POST', '/hotel/services', input),
+  update: (code: string, input: CatalogServiceInput) =>
+    sendJson<CatalogService>('PATCH', `/hotel/services/${encodeURIComponent(code)}`, input),
+};
+
 /** Где лежат данные гостей (ADR-072): `real` — база в Казахстане; `pseudonymized` — имена и контакты не хранятся */
 export type PiiStorage = 'real' | 'pseudonymized';
 
@@ -217,9 +249,12 @@ export interface ChessboardRow {
   };
   cells: ChessboardCell[];
 }
-/** Проживание без назначенной ячейки в диапазоне доски. Без гостей — ПД. */
+/** Проживание без назначенной ячейки в диапазоне доски; гость — только имя, как на плашке сетки */
 export interface UnassignedStay {
   confirmationNumber: string;
+  /** id проживания для назначения из ящика «Брони без размещения» (ТЗ «Шахматка v2» §12) */
+  itemId?: string;
+  guestLabel?: string;
   categoryCode: string;
   categoryName: string;
   arrivalDate: string;
@@ -294,6 +329,33 @@ export const chessboardApi = {
 // formatMinor и messengerLinks переехали в ./format — их берут и клиентские компоненты (см. там же)
 export { formatMinor, messengerLinks } from './format';
 
+export interface StayOffer {
+  /** Сколько тарифов допустимо для проживания */
+  plans: number;
+  /** Весь срок на всех гостей запроса по самому дешёвому тарифу, тиыны строкой */
+  totalMinor: string;
+  /** Самая низкая цена ночи за номер целиком или за одну койку */
+  perNightMinor: string;
+  ratePlanCode: string;
+}
+export interface StayOffers {
+  arrivalDate: string;
+  departureDate: string;
+  nights: number;
+  guests: number;
+  currency: string;
+  byCategory: Record<string, StayOffer | null>;
+}
+/** Ближайшая доступность (ADR-110, AV4): по категории первое окно того же срока, где хватает мест */
+export interface NearestStays {
+  arrivalDate: string;
+  departureDate: string;
+  guests: number;
+  /** Глубина поиска вперёд, дней */
+  days: number;
+  /** null — за `days` дней мест не нашлось */
+  byCategory: Record<string, { arrivalDate: string; departureDate: string } | null>;
+}
 export interface StayAvailability {
   arrivalDate: string;
   departureDate: string;
@@ -440,7 +502,15 @@ export const authApi = {
    * и подтверждение почты. 400 с текстом приходит на кривую форму и на занятый адрес.
    */
   register: (
-    body: { email: string; name: string; hotelName: string; password: string },
+    body: {
+      email: string;
+      name: string;
+      hotelName: string;
+      password: string;
+      phoneCountry: string;
+      phone: string;
+      privacyAccepted: boolean;
+    },
     info?: AuthClientInfo,
   ) =>
     sendJson<{ pendingVerification: true; email: string; name: string; sent: boolean }>(
@@ -612,6 +682,12 @@ export const reservationsApi = {
     getJson<StayAvailability>(
       `/availability?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`,
     ),
+  /** Цены «от» для «Свободных мест» (ADR-110, AV2): правило закрытого Q-204 считает API */
+  offers: (arrival: string, departure: string, guests: number) =>
+    getJson<StayOffers>(`/availability/offers${query({ arrival, departure, guests })}`),
+  /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
+  nearest: (arrival: string, departure: string, guests: number) =>
+    getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
@@ -718,7 +794,63 @@ export const ratesApi = {
       '/rates/bulk',
       { changes },
     ),
+  /** «Тарифные планы» (SET4): тарифы с правилом отмены и числом броней, которые его правка заденет */
+  plans: () => getJson<RatePlanRow[]>('/rates/plans'),
+  updatePlan: (code: string, input: { cancellationPenalty: CancellationPenaltyPolicy }) =>
+    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}`, input),
+  /** Производный тариф (D4, DATA_MODEL §20): процент от тарифа-родителя, окно продаж, минимум ночей */
+  createDerived: (input: DerivedPlanInput & { name: string; parentCode: string }) =>
+    sendJson<RatePlanRow>('POST', '/rates/plans/derived', input),
+  updateDerived: (code: string, input: Partial<DerivedPlanInput> & { name?: string; active?: boolean }) =>
+    sendJson<RatePlanRow>('PATCH', `/rates/plans/${encodeURIComponent(code)}/derived`, input),
+  promoCodes: () => getJson<PromoCodeRow[]>('/rates/promo-codes'),
+  createPromo: (input: PromoCodeInput) => sendJson<PromoCodeRow>('POST', '/rates/promo-codes', input),
+  updatePromo: (
+    code: string,
+    input: { active?: boolean; maxUses?: number | null; stayFrom?: string | null; stayTo?: string | null },
+  ) => sendJson<PromoCodeRow>('PATCH', `/rates/promo-codes/${encodeURIComponent(code)}`, input),
 };
+export interface DerivedPlanInput {
+  discountPercent: number;
+  minDaysBeforeArrival: number | null;
+  maxDaysBeforeArrival: number | null;
+  minNights: number | null;
+}
+export interface PromoCodeInput {
+  code: string;
+  discountPercent: number;
+  stayFrom?: string | null;
+  stayTo?: string | null;
+  maxUses?: number | null;
+}
+export interface PromoCodeRow {
+  code: string;
+  discountPercent: number;
+  stayFrom: string | null;
+  stayTo: string | null;
+  maxUses: number | null;
+  active: boolean;
+  uses: number;
+}
+export interface RatePlanRow {
+  code: string;
+  name: string;
+  currency: string;
+  active: boolean;
+  cancellationPenalty: CancellationPenaltyPolicy;
+  /** Названия категорий, к которым привязан тариф */
+  categories: string[];
+  /** Производный тариф: родитель и условия продажи; у обычного — `null` (D4, DATA_MODEL §20) */
+  derived?: {
+    parentName: string;
+    discountPercent: number;
+    minDaysBeforeArrival: number | null;
+    maxDaysBeforeArrival: number | null;
+    minNights: number | null;
+  } | null;
+  /** Брони по тарифу, ещё не заехавшие и не отменённые, с выездом сегодня или позже: их задевает правка правила */
+  upcomingReservations: number;
+}
 
 // ── Каналы (Channex) ──
 export interface ChannelMappingRow {
@@ -930,6 +1062,10 @@ export interface UnitCard {
   accommodationTypeCode: string;
   accommodationTypeName: string;
   roomNumber: string;
+  /** Расположение и вместимость для панели места (ADR-108, срез I2) */
+  buildingName: string;
+  floorName: string;
+  capacity: number;
   blocks: Array<{
     id: string;
     dateFrom: string;
@@ -1013,8 +1149,10 @@ export interface GuestCard {
     source: string;
     channel: string | null;
     currency: string;
-    /** Начислено и остаток по счёту проживания (из Folio); null — счёта нет */
+    /** Начислено, оплачено, возвращено и остаток по счёту проживания (из Folio); null — счёта нет */
     chargedMinor: string | null;
+    paidMinor: string | null;
+    refundedMinor: string | null;
     balanceMinor: string | null;
   }>;
 }
@@ -1061,7 +1199,14 @@ export interface GuestDirectoryResult {
   total: number;
   page: number;
   pageSize: number;
-  counts: { ALL: number; INHOUSE: number; EXPECTED: number; RECENT: number };
+  counts: {
+    ALL: number;
+    INHOUSE: number;
+    EXPECTED: number;
+    RECENT: number;
+    /** G7: без активного проживания — не живёт, не ожидается и не выезжал за 30 дней */
+    NONE: number;
+  };
   rows: GuestDirectoryRow[];
 }
 export const guestsApi = {
@@ -1166,7 +1311,8 @@ export interface PeriodDebts {
   currency: string;
   count: number;
   balanceMinor: string;
-  checkedOut: { count: number; balanceMinor: string };
+  /** Q-207: просроченный долг — время выезда по часам объекта прошло, остаток не оплачен */
+  overdue: { count: number; balanceMinor: string };
   rows: Array<{
     confirmationNumber: string;
     status: string;
@@ -1177,6 +1323,7 @@ export interface PeriodDebts {
     paidMinor: string;
     refundedMinor: string;
     balanceMinor: string;
+    overdue: boolean;
   }>;
   truncated: boolean;
 }
@@ -1379,6 +1526,15 @@ export interface SiteReport {
     devices: Array<{ key: string | null; sessions: number; share: number }>;
     browsers: Array<{ key: string | null; sessions: number; share: number }>;
     os: Array<{ key: string | null; sessions: number; share: number }>;
+  };
+  /** Воронка по сессиям периода (WEB4): сессия, дошедшая дальше, засчитана и на шагах до этого */
+  funnel: { visits: number; searches: number; started: number; booked: number; conversion: number };
+  /** Брони с источником «Сайт», созданные за период, — по объекту; начислено по их счетам (WEB4, Q-212) */
+  siteReservations: {
+    count: number;
+    cancelled: number;
+    noShow: number;
+    charged: Array<{ currency: string; chargedMinor: string }>;
   };
 }
 export const analyticsApi = {
@@ -1631,8 +1787,67 @@ export interface SellerPromptView {
   applied: boolean;
 }
 
+/**
+ * Карточка каталога «ИИ-агентов» (SA1): рабочий продавец организации или черновик гостевого мастера. Статус и канал —
+ * ключи домена (`AgentStatus`, `ChannelState`); слова к ним даёт `lib/ai-agents.ts`.
+ */
+export interface AgentCardView {
+  id: string;
+  /** `seller` — рабочий продавец; `agent` — агент с филиалом (SA2); `draft` — черновик гостевого мастера без филиала */
+  kind: 'seller' | 'agent' | 'draft';
+  name: string;
+  status: AgentStatus;
+  business: { id: string; name: string } | null;
+  location: { id: string; name: string } | null;
+  channels: { site: ChannelState; whatsapp: ChannelState } | null;
+}
+
+export interface AgentCatalogView {
+  extension: ExtensionAccessView | null;
+  /** Владелец и управляющий: им доступны кнопки */
+  canManage: boolean;
+  canConfigure: boolean;
+  /** Состояние кнопки «+ Подключить AI-продавца» (SA2): причину словами и доступность считает сервер */
+  create: { enabled: boolean; reason: string | null };
+  agents: AgentCardView[];
+}
+
+/** Куда можно создать AI-продавца: Business → филиалы со словом «занят» (SA2) */
+export interface AgentOptionsView {
+  extension: ExtensionAccessView | null;
+  canCreate: boolean;
+  reason: string | null;
+  businesses: Array<{
+    id: string;
+    name: string;
+    locations: Array<{ id: string; name: string; free: boolean; reason: string | null }>;
+  }>;
+}
+
+export interface BusinessAgentView {
+  id: string;
+  name: string;
+  lifecycle: string;
+  business: { id: string; name: string };
+  location: { id: string; name: string };
+  /** Список настройки: готово только «Основное», остальное — статусы, а не шаги мастера */
+  setup: Array<{ code: string; label: string; done: boolean }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const businessAgentsApi = {
+  options: () => getJson<AgentOptionsView>('/ai-seller/agents/options'),
+  get: (id: string) => getJson<BusinessAgentView>(`/ai-seller/agents/${encodeURIComponent(id)}`),
+  /** `Idempotency-Key` — повтор той же отправки возвращает того же агента; организацию и автора называет сервер */
+  create: (key: string, input: { name: string; businessId: string; locationId: string }) =>
+    sendJson<BusinessAgentView>('POST', '/ai-seller/agents', input, { 'idempotency-key': key }),
+};
+
 export const sellerApi = {
   status: () => getJson<SellerStatus>('/ai-seller/status'),
+  /** Каталог AI-агентов организации (SA1): только чтение, права `dialogs` */
+  catalog: () => getJson<AgentCatalogView>('/ai-seller/catalog'),
   prompt: () => getJson<SellerPromptView>('/ai-seller/prompt'),
   savePrompt: (text: string) => sendJson<SellerPromptView>('PUT', '/ai-seller/prompt', { text }),
   /** Рассказ своими словами → черновик профиля мастера (С1); занятые поля не затираются */
@@ -1748,20 +1963,93 @@ export interface SupportPlatformUser {
 
 export type SupportConversationCard = SellerConversationCard & {
   platformUser: SupportPlatformUser | null;
+  /** Обращение закрыто: переписка только для чтения */
+  closed?: boolean;
 };
+
+/** Строка очереди техподдержки (S1): отбор, приоритет и порядок считает API */
+export interface SupportQueueItem {
+  id: string;
+  channel: string;
+  clientName: string | null;
+  mode: string;
+  stage: string;
+  startedAt: string | null;
+  lastActivityAt: string | null;
+  messages: number;
+  lastMessage: SupportLastMessage | null;
+  waitingSince: string | null;
+  closed: boolean;
+  priority: SupportPriority;
+}
 
 /**
  * «Платформа → Техподдержка» (ADR-083, план Э3): панель ИИ-помощника через API платформы — адреса и ключа помощника
  * стойка не знает. Только главному администратору; остальным API отвечает 403.
  */
+/** Запись управляемой базы знаний WETOP Support (S3); список отдаёт `excerpt`, запись — `content` и `versions` */
+export interface SupportKbEntry {
+  id: string | null;
+  title: string | null;
+  category: string | null;
+  visibility: string | null;
+  status: string | null;
+  version: number;
+  source: string | null;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  excerpt?: string;
+  content?: string;
+  versions?: Array<{
+    version: number;
+    title: string | null;
+    category: string | null;
+    visibility: string | null;
+    content: string | null;
+    savedBy: string | null;
+    savedAt: string | null;
+  }>;
+}
+export interface SupportKbSource {
+  knowledgeId: string | null;
+  title: string | null;
+  version: number;
+  visibility: string | null;
+  score: number;
+  usedAt: string | null;
+}
+
+/** Строка журнала действий бота в диалоге (S6) */
+export interface SupportAgentAction {
+  id: string | null;
+  action: string | null;
+  actionClass: string | null;
+  status: string | null;
+  result: string | null;
+  createdAt: string | null;
+  executedAt: string | null;
+}
+
 export const supportApi = {
   status: () => getJson<{ state: 'not-configured' | 'ready' }>('/platform/support/status'),
   conversations: (mode?: string) =>
     getJson<{ items: SellerConversationRow[] }>(
       `/platform/support/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
     ),
+  queue: (queue: SupportQueue) =>
+    getJson<{ queue: SupportQueue; items: SupportQueueItem[]; counts: SupportQueueCounts }>(
+      `/platform/support/queue?queue=${encodeURIComponent(queue)}`,
+    ),
   conversation: (id: string) =>
     getJson<SupportConversationCard>(`/platform/support/conversations/${encodeURIComponent(id)}`),
+  close: (id: string) =>
+    sendJson<{ closed: true }>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/close`,
+      {},
+    ),
   switchMode: (id: string, action: 'takeover' | 'release') =>
     sendJson<{ mode: string | null; previousMode: string | null }>(
       'POST',
@@ -1789,6 +2077,41 @@ export const supportApi = {
     return (await res.json()) as { source: string; created: boolean; chunks: number };
   },
   summary: () => getJson<SellerSummary>('/platform/support/summary'),
+  // ── управляемая база знаний (S3) ──
+  kbList: (query: { status?: string; category?: string; visibility?: string; q?: string }) => {
+    const params = new URLSearchParams();
+    for (const [name, value] of Object.entries(query)) if (value) params.set(name, value);
+    const qs = params.toString();
+    return getJson<{ items: SupportKbEntry[]; counts: Record<string, number> }>(
+      `/platform/support/kb${qs ? `?${qs}` : ''}`,
+    );
+  },
+  kbRead: (id: string) =>
+    getJson<SupportKbEntry>(`/platform/support/kb/${encodeURIComponent(id)}`),
+  kbCreate: (body: Record<string, unknown>) =>
+    sendJson<SupportKbEntry>('POST', '/platform/support/kb', body),
+  kbUpdate: (id: string, body: Record<string, unknown>) =>
+    sendJson<SupportKbEntry>('PUT', `/platform/support/kb/${encodeURIComponent(id)}`, body),
+  kbPublish: (id: string) =>
+    sendJson<SupportKbEntry>('POST', `/platform/support/kb/${encodeURIComponent(id)}/publish`, {}),
+  kbStatus: (id: string, status: string) =>
+    sendJson<SupportKbEntry>('POST', `/platform/support/kb/${encodeURIComponent(id)}/status`, {
+      status,
+    }),
+  conversationSources: (id: string) =>
+    getJson<{ items: SupportKbSource[] }>(
+      `/platform/support/conversations/${encodeURIComponent(id)}/knowledge`,
+    ),
+  conversationActions: (id: string) =>
+    getJson<{ items: SupportAgentAction[] }>(
+      `/platform/support/conversations/${encodeURIComponent(id)}/actions`,
+    ),
+  knowledgeDraft: (id: string) =>
+    sendJson<SupportKbEntry>(
+      'POST',
+      `/platform/support/conversations/${encodeURIComponent(id)}/knowledge-draft`,
+      {},
+    ),
   // ── настройка помощника (ADR-084): правила, модель, песочница ──
   prompt: () => getJson<{ text: string }>('/platform/support/prompt'),
   savePrompt: (text: string) =>
@@ -1870,13 +2193,26 @@ export interface InventoryCategory {
   ratePlans: number;
   /** Имена тех же тарифов — для панели категории (C2), цены здесь нет: она своя на каждую дату */
   ratePlanNames: string[];
+  /** Что использует категорию (C4, ТЗ §17): брони в истории — разные брони, не проживания */
+  reservations: number;
+  /** Из них впереди: не отменены и не закрыты, выезд сегодня или позже */
+  upcomingReservations: number;
+  /** Категория сопоставлена с типом номера в Channex */
+  channexMapped: boolean;
 }
 export const inventoryEditorApi = {
   categories: () => getJson<InventoryCategory[]>('/inventory/categories'),
   save: (resource: 'categories' | 'rooms', body: Record<string, unknown>, code?: string) =>
-    sendJson(
+    sendJson<{ code?: string }>(
       code ? 'PATCH' : 'POST',
       `/inventory/${resource}${code ? `/${encodeURIComponent(code)}` : ''}`,
+      body,
+    ),
+  /** «Настроить тариф» (ADR-119): существующий `ratePlanCode` или новый `newRatePlanName` */
+  linkRatePlan: (code: string, body: Record<string, unknown>) =>
+    sendJson<{ linked: boolean }>(
+      'POST',
+      `/inventory/categories/${encodeURIComponent(code)}/rate-plan`,
       body,
     ),
 };

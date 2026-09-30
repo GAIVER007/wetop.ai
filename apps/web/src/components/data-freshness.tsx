@@ -59,6 +59,14 @@ export function DataFreshnessProvider({ children }: { children: ReactNode }) {
   return <FreshnessContext.Provider value={{ data, failed }}>{children}</FreshnessContext.Provider>;
 }
 
+/**
+ * Тот же результат для блоков страницы (строка Channex в «Системах» Главной, A2): свой запрос к
+ * `/system/freshness` стоил бы рейс сверх бюджета экрана (`tests/ui/requests.spec.ts`).
+ */
+export function useFreshness() {
+  return useContext(FreshnessContext);
+}
+
 /** Строка состояния читает общий результат, не заводя собственный таймер. */
 export function DataFreshness() {
   const { data, failed } = useContext(FreshnessContext);
@@ -81,9 +89,9 @@ export function DataFreshness() {
     <span
       className={cx('freshness', (queueStale || failed) && 'freshness--warn')}
       data-testid="data-freshness"
-      title={'Последнее событие из Channex и очередь изменений остатков и цен в Channex'}
+      title={'Последнее событие из менеджера каналов и очередь изменений остатков и цен'}
     >
-      Channex {data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—'} · очередь{' '}
+      Каналы {data.channex.lastEventAt ? clock.clock(data.channex.lastEventAt) : '—'} · очередь{' '}
       {data.channex.outboxPending}
       {data.channex.outboxFailed > 0 ? `, ошибок ${data.channex.outboxFailed}` : ''}
     </span>

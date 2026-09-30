@@ -1,0 +1,116 @@
+# Модульные (unit) · 29.09.2026 21:42 Алматы · vm
+# коммит 500d24c (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-42-48Z-unit-9a57.json' 'apps/api/src/assistant' 'tests/unit/design-slop.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 1 failed) 17ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 3ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 9ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     ✓ dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 0ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     ✓ radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 0ms
+     ✓ z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| apps/api/src/assistant/assistant.controller.test.ts (19 tests | 19 skipped) 21ms
+   ↓ GET /assistant/identity — подпись вошедшего (ТЗ П1) (7)
+     ↓ вошедшему отдаёт токен, который сходится с общим секретом и несёт поля сессии
+     ↓ ответ не кэшируется: в подписи почта человека
+     ↓ без сессии при включённом замке — 401
+     ↓ без сессии при выключенном замке — тоже 401: подпись выдаётся только человеку
+     ↓ служебный ключ — не человек: подписи нет
+     ↓ при выключенном замке вошедший тоже получает подпись: автора узнаёт замок и без AUTH_REQUIRED
+     ↓ секрет не вписан — 503, а не подпись пустым ключом
+   ↓ GET /assistant/errors — ошибки человека для помощника (ТЗ П4) (10)
+     ↓ по ключу помощника отдаёт время, раздел, код и текст — новые сверху, как отдало хранилище
+     ↓ ошибок не было — пустой `items`, а не пустое тело
+     ↓ `since` так, как его шлёт бот: Python `isoformat()` с микросекундами и смещением
+     ↓ по умолчанию — за сутки и не больше 20 строк; больше 50 не отдаёт
+     ↓ userId и organizationId обязательны и должны быть UUID; since — дата
+     ↓ служебный ключ владельца тоже читает
+     ↓ ключ дежурного агента — 403: ошибки человека не его
+     ↓ вошедший человек без ключа не читает даже свои ошибки через этот адрес
+     ↓ при выключенном замке без ключа — отказ, а не чужие ошибки
+     ↓ ключ помощника не задан в окружении — адрес закрыт для всех, кроме служебного ключа
+   ↓ GET /assistant/organization — клиент и подписка для техподдержки (С5, Q-187) (2)
+     ↓ по узкому ключу помощника: название, статус и срок расширения — без почт и денег
+     ↓ без ключа — 401; чужим ключом — 403; кривой id — 400; неизвестная организация — 404
+ ✓ |unit| apps/api/src/assistant/diagnostics.controller.test.ts (11 tests) 233ms
+ ✓ |unit| apps/api/src/assistant/requester-context.controller.test.ts (12 tests) 256ms
+[Nest] 15262  - 09/29/2026, 4:42:52 PM     LOG [UserErrorsRetentionService] журнал ошибок: удалено строк 3 старше 30 суток
+ ✓ |unit| apps/api/src/assistant/user-errors-retention.service.test.ts (2 tests) 6ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts [ apps/api/src/assistant/assistant.controller.test.ts ]
+Error: Nest can't resolve dependencies of the AssistantController (Symbol(USER_ERRORS_REPOSITORY), ExtensionsService, RequesterContextService, ?). Please make sure that the argument DiagnosticsService at index [3] is available in the RootTestModule module.
+
+Potential solutions:
+- Is RootTestModule a valid NestJS module?
+- If DiagnosticsService is a provider, is it part of the current RootTestModule?
+- If DiagnosticsService is exported from a separate @Module, is that module imported within RootTestModule?
+  @Module({
+    imports: [ /* the Module containing DiagnosticsService */ ]
+  })
+
+For more common dependency resolution issues, see: https://docs.nestjs.com/faq/common-errors
+ ❯ TestingInjector.lookupComponentInParentModules node_modules/@nestjs/core/injector/injector.js:313:19
+ ❯ TestingInjector.resolveComponentWrapper node_modules/@nestjs/testing/testing-injector.js:16:45
+ ❯ resolveParam node_modules/@nestjs/core/injector/injector.js:149:38
+ ❯ TestingInjector.resolveConstructorParams node_modules/@nestjs/core/injector/injector.js:181:27
+ ❯ TestingInjector.loadInstance node_modules/@nestjs/core/injector/injector.js:75:13
+ ❯ TestingInjector.loadController node_modules/@nestjs/core/injector/injector.js:97:9
+ ❯ node_modules/@nestjs/core/injector/instance-loader.js:69:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/assistant/assistant.controller.test.ts [ apps/api/src/assistant/assistant.controller.test.ts ]
+TypeError: Cannot read properties of undefined (reading 'close')
+ ❯ apps/api/src/assistant/assistant.controller.test.ts:84:13
+     82|
+     83| afterAll(async () => {
+     84|   await app.close();
+       |             ^
+     85| });
+     86|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: нарушений стало меньше — обновите снимок: DESIGN_SLOP_UPDATE=1: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/premium.css: 132 → 123",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:180:88
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+       |                                                                                        ^
+    181|     });
+    182|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 3 passed (5)
+      Tests  1 failed | 35 passed | 19 skipped (55)
+   Start at  16:42:49
+   Duration  2.97s (transform 62%, import 30%, tests 7%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-42-48Z-unit-9a57.json
+
+# код выхода 1 · 4 с

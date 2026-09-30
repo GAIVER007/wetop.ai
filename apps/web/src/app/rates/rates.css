@@ -127,12 +127,43 @@
   outline-offset: -2px;
 }
 /* день под курсором — лёгкий отклик; занятые смыслом фоны (стоп, выходной) не перекрашиваются */
-.rate-cal__day:not(.is-stop):not(.is-weekend):hover {
+.rate-cal__day:not(.is-stop):not(.is-weekend):not(.is-selected):hover {
   background: var(--row-hover);
+}
+/* RT2: выбранный день — кольцо и глиф «✓»; фон стоп-продажи не перекрашивается, смысл «закрыто» важнее */
+.rate-cal__day.is-selected {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+.rate-cal__day.is-selected:not(.is-stop) {
+  background: var(--primary-soft);
+}
+/* число дня — кнопка выбора даты: вся верхняя строка ячейки, цель не ниже 24 px (§11) */
+.rate-cal__pick {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: var(--control-h-xs);
+  margin-bottom: var(--space-1);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-xs);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.rate-cal__pick:hover .rate-cal__num {
+  color: var(--primary);
+}
+.rate-cal__check {
+  color: var(--primary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
 }
 .rate-cal__date {
   display: block;
-  margin-bottom: var(--space-1);
 }
 .rate-cal__num {
   font-size: var(--text-sm);
@@ -301,7 +332,8 @@
     color: var(--primary);
   }
   /* на телефоне цель нажатия — 44 px (§11) */
-  .rate-cal__day .price-cell__value {
+  .rate-cal__day .price-cell__value,
+  .rate-cal__pick {
     min-height: var(--touch-target);
   }
   /* Окно правки цены — во всю ширину карточки дня, привязанное к ячейке уезжало за край экрана */
@@ -333,6 +365,133 @@
 /* правило отмены выбранного тарифа (ADR-115) — подпись под фильтром, до «Тарифных планов» */
 .rates-rule {
   margin: 0 0 var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+/* Кнопка «Добавить …» над таблицей тарифных планов и промокодов (D4) */
+.rates-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 var(--space-4);
+}
+/* «Тарифные планы» (SET4): название уже, чем у «Услуг», — категории списком не ломаются в столбик;
+   подстрока под названием — только на телефоне, где категории и статус скрыты */
+.rates-plans .settings-table th:first-child {
+  width: 26%;
+}
+.rates-plans .settings-table .rates-plans-sub {
+  display: none;
+}
+@media (max-width: 600px) {
+  .rates-plans .settings-table th:first-child {
+    width: auto;
+  }
+  .rates-plans .settings-col-wide {
+    display: none;
+  }
+  .rates-plans .settings-table .rates-plans-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
+/* ── RT2: полоса выбора дат над сеткой; липкая под шапкой, как панель «Броней» ── */
+.rates-selection {
+  position: sticky;
+  top: var(--header-h);
+  z-index: var(--layer-sticky);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  min-height: calc(var(--control-h) + var(--space-4));
+  margin-bottom: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.rates-selection__text {
+  margin: 0;
+  font-weight: var(--weight-semibold);
+}
+.rates-selection__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.rates-selection__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ── RT2: панель «Изменить цены»: факты, цены по вместимостям, предпросмотр ── */
+.range-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+.range-facts dt {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.range-facts dd {
+  margin: 0;
+  font-weight: var(--weight-medium);
+}
+.range-price {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-soft);
+}
+.range-price__legend {
+  padding: 0;
+  font-weight: var(--weight-semibold);
+}
+.range-price__current {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+.range-price__word {
+  color: var(--muted);
+}
+.range-price__error {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.range-preview {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-variant-numeric: tabular-nums;
+}
+.range-preview p {
+  margin: 0;
+}
+.range-preview__title {
+  font-weight: var(--weight-semibold);
+}
+.range-preview__line {
+  display: grid;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
+}
+.range-preview__who {
   color: var(--muted);
   font-size: var(--text-sm);
 }

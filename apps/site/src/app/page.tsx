@@ -1,15 +1,14 @@
 import type { Metadata } from 'next';
 import { Audience } from '../components/landing/audience';
+import { Company } from '../components/landing/company';
+import { Features } from '../components/landing/features';
 import { Hero } from '../components/landing/hero';
-import {
-  AiSeller,
-  FinalCta,
-  Finance,
-  Launch,
-  Pricing,
-  SalesEcosystem,
-} from '../components/landing/product-sections';
+import { LatestPosts } from '../components/landing/latest-posts';
+import { Journey, FAQ } from '../components/landing/product-story';
 import { Showcase } from '../components/landing/showcase';
+import { Toolkit } from '../components/landing/toolkit';
+import { ProductDetails, SellerDetails } from '../components/landing/product-details';
+import { Start } from '../components/landing/start';
 import { pageMetadata } from '../lib/metadata';
 
 export const metadata: Metadata = pageMetadata({ path: '/' });
@@ -18,14 +17,17 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <Audience />
+      <Journey />
+      <Features />
       <Showcase />
-      <SalesEcosystem />
-      <AiSeller />
-      <Finance />
-      <Launch />
-      <Pricing />
-      <FinalCta />
+      <ProductDetails />
+      <Audience />
+      <Toolkit />
+      <SellerDetails />
+      <FAQ />
+      <Start />
+      <Company />
+      <LatestPosts />
     </>
   );
 }

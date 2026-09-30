@@ -1,0 +1,20 @@
+# Модульные (unit) · 28.09.2026 23:06 Алматы · vm
+# коммит 17fda46 (claude/admiring-maxwell-vgk7r5), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-28T18-06-45Z-unit-99d1.json' 'apps/web/src/app/chessboard/range-plan.test.ts' 'apps/web/src/app/chessboard/drag-plan.test.ts' 'apps/web/src/app/chessboard/extend-plan.test.ts' 'tests/unit/design-slop.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/web/src/app/chessboard/range-plan.test.ts (8 tests) 7ms
+ ✓ |unit| apps/web/src/app/chessboard/drag-plan.test.ts (15 tests) 8ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 36ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 6ms
+ ✓ |unit| apps/web/src/app/chessboard/extend-plan.test.ts (8 tests) 6ms
+
+ Test Files  5 passed (5)
+      Tests  56 passed (56)
+   Start at  18:06:45
+   Duration  518ms (transform 64%, import 24%, tests 9%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-09-28T18-06-45Z-unit-99d1.json
+
+# код выхода 0 · 1 с

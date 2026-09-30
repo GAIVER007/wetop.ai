@@ -1,0 +1,155 @@
+# Сквозные (e2e) · 30.09.2026 17:27 Алматы · MacBook-Air-Urij.local
+# коммит cb9b26c (codex/unified-workspace-20260929), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'owner-dashboard.spec.ts' 'dashboard-desk.spec.ts' 'today-operations.spec.ts' 'today-attention.spec.ts' 'dashboard-resilience.spec.ts'
+[WebServer] (node:13185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13387) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 26 tests using 1 worker
+
+(node:13463) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (7.0s)
+[WebServer] (node:13688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/dashboard-desk.spec.ts:60:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (35.8s)
+  ✓   3 tests/ui/dashboard-desk.spec.ts:91:1 › 3. одна очередь внимания в панели; выбор финансового периода не меняет сегодняшний срез (3.1s)
+  ✘   4 tests/ui/dashboard-desk.spec.ts:101:1 › 4. действия сохраняют читаемые размеры внутри панели (3.7s)
+(node:13788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/dashboard-desk.spec.ts:110:1 › 5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди (4.4s)
+  ✓   6 tests/ui/dashboard-desk.spec.ts:118:1 › 6. очередь прокручивается вместе с панелью, без вложенной прокрутки списка (4.4s)
+  ✓   7 tests/ui/dashboard-desk.spec.ts:127:1 › 7. краткие подписи без декоративных разделителей (4.3s)
+  ✓   8 tests/ui/dashboard-desk.spec.ts:131:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (3.2s)
+  ✓   9 tests/ui/dashboard-desk.spec.ts:165:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 26 px (11.4s)
+  ✓  10 tests/ui/dashboard-desk.spec.ts:208:1 › 10. заголовок страницы и панели брони — по шкале §6 (9.4s)
+[WebServer] (node:13885) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (2.7s)
+  ✓  12 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (2.4s)
+  ✓  13 tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: операционный блок остаётся доступен (2.1s)
+  ✓  14 tests/ui/owner-dashboard.spec.ts:6:1 › owner dashboard shows financial and operational summary without desktop scrolling (5.1s)
+  ✓  15 tests/ui/owner-dashboard.spec.ts:28:1 › dashboard period changes and mobile retains content (18.6s)
+  ✓  16 tests/ui/owner-dashboard.spec.ts:39:1 › owner dashboard keeps operations visible when finance fails (14.2s)
+  ✓  17 tests/ui/today-attention.spec.ts:76:1 › очередь: каждое событие дня с числом, важностью и одним действием; порядок Critical → Warning → Info (4.2s)
+  ✓  18 tests/ui/today-attention.spec.ts:117:1 › незаезд ведёт в бронь, долг — в счёт; брони строками с именем и номером (29.8s)
+  ✓  19 tests/ui/today-attention.spec.ts:136:1 › сторож не ответил — строк инцидентов нет, остальная очередь на месте (4.9s)
+  ✓  20 tests/ui/today-attention.spec.ts:150:1 › финансовый период в будущем не скрывает текущие задачи гостиницы (5.5s)
+[WebServer] (node:14581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 tests/ui/today-attention.spec.ts:163:1 › снимки Главной после A3 (47.0s)
+(node:14658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/today-operations.spec.ts:52:1 › заезды и выезды дня: строка на проживание, действие ведёт в существующий поток (5.3s)
+  ✓  23 tests/ui/today-operations.spec.ts:106:1 › номерной фонд и уборка: числа шахматки дня, неисправности — блокировки ремонта (4.8s)
+  ✓  24 tests/ui/today-operations.spec.ts:142:1 › финансовые показатели совпадают с dashboard API и не подменяют расходы нулём (9.1s)
+  ✓  25 tests/ui/today-operations.spec.ts:161:1 › финансы будущего периода не меняют текущую уборку (3.8s)
+  ✓  26 tests/ui/today-operations.spec.ts:171:1 › сбой сторожа не скрывает показатели и действия (2.5s)
+
+
+  1) tests/ui/dashboard-desk.spec.ts:101:1 › 4. действия сохраняют читаемые размеры внутри панели ──
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "15px"
+    Received: "13px"
+
+      105 |     .getByRole('button', { name: 'Работа с гостями', exact: true })
+      106 |     .click();
+    > 107 |   expect(await fontSize(quick(page).locator('.quick-action__label').first())).toBe('15px');
+          |                                                                               ^
+      108 |   expect(await fontSize(quick(page).getByRole('link', { name: 'Все брони' }))).toBe('14px');
+      109 | });
+      110 | test('5. долг у выезжающих отдельно от финансов периода, задолженность уже выехавшего остаётся в очереди', async ({
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/dashboard-desk.spec.ts:107:79
+
+    Error Context: test-results/dashboard-desk-4-действия--04afa-аемые-размеры-внутри-панели/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-4-действия--04afa-аемые-размеры-внутри-панели/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-4-действия--04afa-аемые-размеры-внутри-панели/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/today-attention.spec.ts:163:1 › снимки Главной после A3 ──────────────────────────────
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Требуют внимания', exact: true })
+        - locator resolved to <button class="btn btn--secondary">Требуют внимания</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <a class="" href="/chessboard">…</a> from <nav class="bottom-navigation" aria-label="Основная навигация">…</nav> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <a class="" href="/chessboard">…</a> from <nav class="bottom-navigation" aria-label="Основная навигация">…</nav> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        59 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <a class="" href="/chessboard">…</a> from <nav class="bottom-navigation" aria-label="Основная навигация">…</nav> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+
+
+      173 |       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      174 |       await page.goto('/today');
+    > 175 |       await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+          |                                                                                 ^
+      176 |       const block = page.getByRole('region', { name: 'Требуют внимания' });
+      177 |       await expect(block.getByTestId('attention-event').first()).toBeVisible();
+      178 |       const height = await page.evaluate(() => document.documentElement.scrollHeight);
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/today-attention.spec.ts:175:81
+
+    Error Context: test-results/today-attention-снимки-Главной-после-A3/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/today-attention-снимки-Главной-после-A3/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/today-attention-снимки-Главной-после-A3/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/dashboard-desk.spec.ts:101:1 › 4. действия сохраняют читаемые размеры внутри панели ───
+    tests/ui/today-attention.spec.ts:163:1 › снимки Главной после A3 ───────────────────────────────
+  24 passed (4.5m)
+
+# код выхода 1 · 4 мин 35 с

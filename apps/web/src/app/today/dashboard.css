@@ -1,7 +1,7 @@
 /*
  * Главная — рабочий экран дня (A1, ADR-103): полоса дня, полоса стойки, задачи и быстрые действия.
- * Периодная часть ниже (период, показатели, графики, таблицы) обслуживает «Показатели за период»
- * (`/management/dashboard`) — блок, переехавший с Главной; файл подключается глобально из layout.
+ * Периодная часть ниже (показатели, графики, таблицы) обслуживает «Аналитику» (`/management/analytics`,
+ * ADR-114) — блок, переехавший с Главной в A1; файл подключается глобально из layout.
  */
 
 /* ---------- полоса дня ---------- */
@@ -45,7 +45,7 @@
 .day-custom label {
   display: grid;
   gap: 4px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--text-2);
   min-width: 0;
 }
@@ -53,7 +53,7 @@
   min-height: var(--control-h);
   width: 100%;
   min-width: 0;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 /* ссылки на модули внизу Главной (ТЗ §4 п. 8) */
 .today-links {
@@ -102,7 +102,7 @@
 .period-custom label {
   display: grid;
   gap: 4px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--text-2);
   min-width: 0;
 }
@@ -110,12 +110,12 @@
   min-height: var(--control-h);
   width: 100%;
   min-width: 0;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 .period-caption {
   margin: 0;
   flex-basis: 100%;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 .period-caption strong {
@@ -148,7 +148,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-2);
 }
@@ -193,7 +193,7 @@
   min-height: 2.8em;
 }
 .kpi-delta {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -210,7 +210,7 @@
 }
 .kpi-compare {
   margin: 12px 0 24px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .kpi-secondary {
   display: grid;
@@ -276,6 +276,10 @@
 .dash-grid--desk {
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 }
+/* Ряды A2 Главной — две равные колонки: заезды | выезды, фонд | уборка, деньги | системы */
+.dash-grid--events {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 .dash-grid > * {
   min-width: 0;
 }
@@ -305,7 +309,7 @@
 .dash-table td,
 .dash-table th {
   padding: 8px 8px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   white-space: nowrap;
 }
 /* название категории может переноситься, число мест — под ним */
@@ -334,7 +338,7 @@
 }
 .dash-empty {
   margin: 8px 0;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .dash-note {
   margin: auto 0 0;
@@ -348,7 +352,7 @@
   flex-wrap: wrap;
   gap: 6px 18px;
   margin: 0 0 12px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 .bars-meta strong {
@@ -481,7 +485,7 @@
   grid-template-columns: fit-content(45%) minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px 14px;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .hbars__label {
   white-space: nowrap;
@@ -662,6 +666,12 @@ a.desk-stat__hint--warn {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+/* Две колонки держатся до планшета: у строки заезда имя, пометки и кнопка помещаются от ~420 px */
+@media (max-width: 900px) {
+  .dash-grid--events {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 @media (max-width: 760px) {
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -726,6 +736,11 @@ a.desk-stat__hint--warn {
   .sources li {
     grid-template-columns: auto minmax(0, 1fr) 48px auto;
   }
+  /* у полос категорий под названием две ячейки — полоса и число; в колонке `auto` пустая полоса
+     схлопывалась в ноль, и на телефоне оставались одни числа (28.09, снимок гейта AN2) */
+  .hbars li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
 }
 @media (max-width: 600px) {
   .day-bar-row {
@@ -735,7 +750,7 @@ a.desk-stat__hint--warn {
   }
   .day-custom .inp,
   .period-custom .inp {
-    font-size: 16px;
+    font-size: var(--text-lg);
     min-height: var(--touch-target);
   }
   .day-presets a,

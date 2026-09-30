@@ -2,14 +2,14 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { can, parseMembershipRole } from '@pms/domain';
 import { notFound, redirect } from 'next/navigation';
-import { financeApi } from '../../../lib/api';
+import { serviceCatalogApi } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { Page } from '../../../components/page';
 import { Icon } from '../../../components/icon';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { Notice, Panel } from '../../../components/ui';
-import { ServicesCatalog } from '../catalogs';
+import { AddServiceButton, ServiceEditor, ServicesCatalog } from '../catalogs';
 import {
   GeneralSettingsForm,
   RegionalSettings,
@@ -44,7 +44,7 @@ export default async function HotelSettingsPage({
   const view = section[0] ?? '';
   if (view === 'description') redirect('/hotel-settings');
   if (view === 'check-in') redirect('/hotel-settings/stay');
-  if (view === 'penalties') redirect('/rates');
+  if (view === 'penalties') redirect('/rates/plans');
   if (view === 'photos' || view === 'amenities') redirect('/connections#channex-connection');
   if (!tabs.some((item) => item.view === view)) notFound();
   // настройки уже прочитал макет (кэш на одну отрисовку): название объекта в подзаголовке ничего не стоит
@@ -59,44 +59,56 @@ export default async function HotelSettingsPage({
   const owner = role !== null && can(role, 'settings');
   // Правят только вне «только чтения» (ADR-102): иначе сведения
   // фактами, а кнопки сохранения нет вовсе (DESIGN.md §8 — действия, которого нельзя, не рисуем)
-  const editable = owner && !readOnly && loaded.ok && view !== 'services';
+  const mayEdit = owner && !readOnly;
+  const editable = mayEdit && loaded.ok && view !== 'services';
+  // «Услуги» (SET3): новая услуга — из шапки, как «Сохранить изменения» на других вкладках
+  const actions =
+    view === 'services' ? (
+      mayEdit ? (
+        <AddServiceButton />
+      ) : undefined
+    ) : editable ? (
+      <SaveAction />
+    ) : undefined;
   return (
     <SettingsSave>
-      <Page
-        title="Настройки объекта"
-        subtitle={loaded.ok ? loaded.value.property.name : undefined}
-        actions={editable ? <SaveAction /> : undefined}
-      >
-        <nav className="settings-tabs" aria-label="Настройки объекта">
-          {tabs.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              prefetch={false}
-              aria-current={item.view === view ? 'page' : undefined}
+      <ServiceEditor currency={loaded.ok ? loaded.value.property.currency : 'KZT'}>
+        <Page
+          title="Настройки объекта"
+          subtitle={loaded.ok ? loaded.value.property.name : undefined}
+          actions={actions}
+        >
+          <nav className="settings-tabs" aria-label="Настройки объекта">
+            {tabs.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                prefetch={false}
+                aria-current={item.view === view ? 'page' : undefined}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          {view === 'services' ? (
+            <Suspense
+              fallback={
+                <Panel data-testid="settings-loading" role="status">
+                  Читаем настройки объекта…
+                </Panel>
+              }
             >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        {view === 'services' ? (
-          <Suspense
-            fallback={
-              <Panel data-testid="settings-loading" role="status">
-                Читаем настройки объекта…
-              </Panel>
-            }
-          >
-            <Services />
-          </Suspense>
-        ) : !loaded.ok ? (
-          <LoadError testId="settings-error" {...loadErrorProps(loaded.error)} />
-        ) : view === 'stay' ? (
-          <StaySettings property={loaded.value.property} editable={editable} owner={owner} />
-        ) : (
-          <GeneralSettings property={loaded.value.property} editable={editable} owner={owner} />
-        )}
-      </Page>
+              <Services editable={mayEdit} />
+            </Suspense>
+          ) : !loaded.ok ? (
+            <LoadError testId="settings-error" {...loadErrorProps(loaded.error)} />
+          ) : view === 'stay' ? (
+            <StaySettings property={loaded.value.property} editable={editable} owner={owner} />
+          ) : (
+            <GeneralSettings property={loaded.value.property} editable={editable} owner={owner} />
+          )}
+        </Page>
+      </ServiceEditor>
     </SettingsSave>
   );
 }
@@ -193,13 +205,21 @@ function StaySettings({
   );
 }
 
-async function Services() {
-  const loaded = await settle(Promise.all([financeApi.services(), hotelApi.settings()]));
+async function Services({ editable }: { editable: boolean }) {
+  // весь каталог, с архивными (SET3); выбор услуги в счёте берёт только активные — `/finance/services`
+  const loaded = await settle(Promise.all([serviceCatalogApi.list(), hotelApi.settings()]));
   if (!loaded.ok) return <LoadError testId="services-error" {...loadErrorProps(loaded.error)} />;
   const [services, settings] = loaded.value;
   return (
     <>
-      <ServicesCatalog services={services} currency={settings.property.currency} />
+      <p className="settings-note settings-lead">
+        Дополнительные товары и услуги, которые можно добавить в счёт гостя.
+      </p>
+      <ServicesCatalog
+        services={services}
+        currency={settings.property.currency}
+        editable={editable}
+      />
       <Panel className="settings-service-help" data-testid="service-hint">
         <Icon name="receipt" />
         <div>
@@ -210,9 +230,6 @@ async function Services() {
           Найти проживающего гостя
         </Link>
       </Panel>
-      <p className="settings-note">
-        Каталог доступен только для просмотра. Добавление услуг и изменение цен пока недоступны.
-      </p>
     </>
   );
 }

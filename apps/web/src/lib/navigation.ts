@@ -126,13 +126,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/management/dashboard',
-        requires: 'reports',
-        label: 'Показатели за период',
-        icon: 'analytics',
-        description: 'Загрузка, выручка, ADR и RevPAR за период со сравнением.',
-      },
-      {
         // «Статистика» стала вкладкой «Загрузка» этого модуля (ТЗ «Аналитика v2», ADR-114)
         href: '/management/analytics',
         requires: 'reports',
@@ -165,14 +158,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             requires: 'channels',
             label: 'Подключения',
             icon: 'channels',
-            description: 'Подключение Channex и настройка обмена.',
+            description: 'Подключение менеджера каналов и настройка обмена.',
           },
           {
             href: '/channels/mapping',
             requires: 'channels',
             label: 'Сопоставление',
             icon: 'channels',
-            description: 'Категории и тарифы WETOP в Channex.',
+            description: 'Категории и тарифы WETOP в менеджере каналов.',
           },
           {
             href: '/channels/sync',
@@ -191,11 +184,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/ai-seller',
+        // Вход в раздел — список агентов (S0, план ai-agents-wetop-support): AI-продавец живёт по `/ai-seller`,
+        // WETOP Support — по `/platform/support`, карточку видит только главный администратор
+        href: '/ai-agents',
         requires: 'dialogs',
-        label: 'ИИ-продавец',
+        label: 'ИИ-агенты',
         icon: 'chat',
-        description: 'Бот на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
+        description: 'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
         // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
       {
@@ -308,20 +303,20 @@ export const sidebarSections: SidebarSection[] = [
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
-    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-продавец, Сайт
+    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-агенты (бывший ИИ-продавец), Сайт
     items: [
       menuItem('/rates'),
       menuItem('/channels'),
       menuItem('/website'),
       // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
-      menuItem('/ai-seller'),
+      menuItem('/ai-agents'),
     ],
   },
   {
     id: 'finance',
     label: 'Финансы и отчёты',
     icon: 'money',
-    // «Показатели за период» (A1, ADR-105) — временный экран до «Аналитики» (ADR-114): адрес живёт, в меню — «Аналитика»
+    // «Показатели за период» (A1, ADR-105) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114)
     items: [menuItem('/finance'), menuItem('/management/analytics')],
   },
   {
@@ -338,7 +333,7 @@ export const sidebarSections: SidebarSection[] = [
   },
   {
     // только главному администратору (ADR-083): данных чужих гостиниц здесь нет — названия, люди и расширения.
-    // Техподдержка переехала под «ИИ-продавец» — там теперь два агента (переключатель на странице раздела)
+    // Техподдержка — карточка WETOP Support на входе «ИИ-агенты» и переключатель на странице продавца
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
@@ -426,7 +421,13 @@ export function deskAccessOf(
   };
 }
 
+/** Страницы агентов лежат под своими адресами, но в меню это один пункт «ИИ-агенты» */
+const AGENT_PAGES = '/ai-seller';
+
 export function activeNavigation(path: string) {
+  if (path === AGENT_PAGES || path.startsWith(`${AGENT_PAGES}/`)) {
+    return navigationItems.find((item) => item.href === '/ai-agents');
+  }
   return navigationItems
     .filter((item) => path === item.href || path.startsWith(`${item.href}/`))
     .sort((a, b) => b.href.length - a.href.length)[0];

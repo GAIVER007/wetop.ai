@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { createHash } from 'node:crypto';
 import {
   BadRequestException,
   Body,
@@ -22,6 +23,7 @@ import { tokenFromHeaders } from './auth.guard';
 import { Public } from './public.decorator';
 import { visitorKey } from './attempt-limits';
 import { Access } from './access.decorator';
+import { scopeView } from './request-context';
 
 const text = (value: unknown, field: string, max = 200): string => {
   if (typeof value !== 'string' || value.trim() === '')
@@ -43,7 +45,11 @@ export const AUTH_IP_LIMITS = {
   resendPerHour: 10,
   verifyPerHour: 30,
   resetConfirmPerHour: 10,
+  // смена пароля вошедшего: каждая попытка занимает общую очередь scrypt (SEC-4, аудит 29.09.2026)
+  passwordPerHour: 20,
 } as const;
+/** Попыток смены пароля одной сессией в час: неверный текущий пароль у вошедшего — перебор из украденной сессии */
+export const PASSWORD_CHANGE_PER_SESSION_PER_HOUR = 10;
 const HOUR_MS = 3_600_000;
 
 /**
@@ -100,7 +106,7 @@ export class AuthController {
   }
 
   /**
-   * Регистрация: почта, имя, пароль. Сессии в ответе нет — сначала письмо и подтверждение почты
+   * Регистрация: почта, имя, название отеля, пароль, телефон и согласие с политикой. Сессии в ответе нет — сначала письмо и подтверждение почты
    * (решение владельца 20.09.2026). Без входа по построению, как и вход.
    */
   @Public()
@@ -117,6 +123,11 @@ export class AuthController {
       name: text(body?.name, 'name'),
       hotelName: text(body?.hotelName, 'hotelName', 200),
       password: text(body?.password, 'password', 200),
+      // пустой или чужой телефон отклонит сервис словами для человека («Проверьте телефон…»)
+      phoneCountry: typeof body?.phoneCountry === 'string' ? body.phoneCountry.slice(0, 2) : '',
+      phone: typeof body?.phone === 'string' ? body.phone.slice(0, 40) : '',
+      // только настоящее `true`: строка «true» или пропуск — не согласие
+      privacyAccepted: body?.privacyAccepted === true,
     });
   }
 
@@ -165,6 +176,8 @@ export class AuthController {
     return {
       ...signedIn,
       access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
+      // фактический scope запроса (Platform P2, К1; план P2 §4б): по нему переключатель P3 покажет, что выбрано
+      context: scopeView(),
     };
   }
 
@@ -213,8 +226,24 @@ export class AuthController {
   async password(
     @Headers() headers: Record<string, string>,
     @Body() body: Record<string, unknown>,
+    @Ip() socketIp?: string,
+    @Headers('cf-connecting-ip') cfConnectingIp?: string,
   ) {
     const token = tokenFromHeaders(headers);
+    this.ipLimit('password', AUTH_IP_LIMITS.passwordPerHour, socketIp, cfConnectingIp);
+    // по сессии: ключ окна — отпечаток ключа сессии, самого ключа в памяти окон нет
+    if (
+      token &&
+      !this.windows.allow(
+        `password-session:${createHash('sha256').update(token).digest('hex')}`,
+        PASSWORD_CHANGE_PER_SESSION_PER_HOUR,
+        new Date(),
+      )
+    )
+      throw new HttpException(
+        'слишком много попыток сменить пароль, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     await this.auth.changePassword({
       token: token ?? '',
       currentPassword: text(body?.currentPassword, 'currentPassword', 200),

@@ -2,16 +2,17 @@ import Link from 'next/link';
 import { analyticsApi, reservationsApi, type TrackedSiteCard } from '../../../lib/api';
 import { hotelApi, type HotelSettings } from '../../../lib/hotel-api';
 import { propertyClock } from '../../../lib/property-time';
-import { WEBSITE_TITLE, siteState } from '../../../lib/website';
+import { WEBSITE_TITLE, isOpenableUrl, siteState } from '../../../lib/website';
 import { Page } from '../../../components/page';
-import { Alert, Badge, Panel, Row, Stack, StateBar, StateFact } from '../../../components/ui';
-import { BookingSettings, CopyButton } from '../forms';
+import { Icon } from '../../../components/icon';
+import { Alert, Panel, Row, Stack, StateBar, StateFact } from '../../../components/ui';
+import { BookingSettings, InstallWidgetButton } from '../forms';
 import { WebsiteNotConnected, WebsiteTabs } from '../parts';
 
 /**
- * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1): бывший блок «Бронирование с сайта» со страницы
- * настроек сайта. Виджет ничего не решает сам (ADR-026): места и цены — те же правила, что у стойки, бронь сразу
- * в PMS с источником «сайт», без предоплаты. Настроек виджета, которых нет в модели, здесь нет (WEB3).
+ * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
+ * установки). Виджет ничего не решает сам (ADR-026): места и цены — те же правила, что у стойки, бронь сразу в PMS
+ * с источником «сайт», без предоплаты. Настраивается только то, что есть в модели: включение и тариф сайта.
  */
 export default async function WebsiteBookingPage() {
   const sites = await analyticsApi.sites();
@@ -52,13 +53,10 @@ function SiteBooking({
 }) {
   const { site, snippet } = card;
   const state = siteState(card, propertyClock(site.timezone));
-  const previewAvailable = (url: string) => {
-    try {
-      return ['https:', 'http:'].includes(new URL(url).protocol);
-    } catch {
-      return false;
-    }
-  };
+  const working = state.booking.state === 'on';
+  const demo = working && isOpenableUrl(snippet.bookingDemoUrl);
+  const planName = site.bookingRatePlan?.name;
+  const currency = settings?.property.currency;
   return (
     <Stack>
       <StateBar
@@ -66,15 +64,32 @@ function SiteBooking({
         tone={state.booking.tone}
         label="Онлайн-бронирование"
         value={state.booking.value}
-        summary="Бронь сразу в PMS, оплата при заселении"
+        summary={working ? 'Бронь сразу в PMS, оплата при заселении' : state.booking.note}
         data-testid="website-booking-state"
         data-state={state.booking.state}
       >
         <StateFact label="Основной домен" value={state.host ?? 'не указан'} />
         <StateFact label="Объект" value={settings?.property.name ?? '—'} />
-        <StateFact label="Валюта" value={settings?.property.currency ?? '—'} />
-        <StateFact label="Тариф" value={site.bookingRatePlan?.name ?? 'не выбран'} />
+        <StateFact label="Валюта" value={currency ?? '—'} />
+        <StateFact label="Тариф" value={planName ?? 'не выбран'} />
       </StateBar>
+      {/* WEB3: демо и код — только у работающего бронирования; живой вид виджета — демо, а не макет в стойке */}
+      {site.bookingEnabled && (
+        <Row data-testid="booking-actions">
+          {demo && (
+            <a
+              className="btn btn--secondary"
+              href={snippet.bookingDemoUrl}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="site-card-booking-demo"
+            >
+              Открыть демо <Icon name="external" width={14} />
+            </a>
+          )}
+          <InstallWidgetButton code={snippet.bookingCode} demoUrl={snippet.bookingDemoUrl} />
+        </Row>
+      )}
 
       <p className="hint--lg" data-testid="booking-explained">
         Когда гость выбирает даты на вашем сайте, WETOP показывает свободные места и цены по тарифу
@@ -93,6 +108,25 @@ function SiteBooking({
         </Alert>
       )}
 
+      <Panel size="lg" data-testid="booking-guest-view">
+        <h2>Что увидит гость</h2>
+        {/* По шагам настоящего виджета (`apps/api/src/web-booking/widget.js`); меняется виджет — меняется и список */}
+        <ol className="list hint--lg list--gap">
+          <li>Даты заезда и выезда, число гостей — от 1 до 4 — и промокод, если он есть.</li>
+          <li data-testid="booking-guest-plan">
+            Свободные категории тарифа «{planName ?? 'не выбран'}» с ценой за весь период
+            {currency ? `, ${currency}` : ''}. Занятые и не проданные в тарифе — с пометкой.
+          </li>
+          <li>Имя, фамилия и телефон; почта и комментарий — по желанию.</li>
+          <li>Номер брони и «К оплате при заселении»: бронь сразу подтверждена.</li>
+        </ol>
+        {/* языки — Q-116, письмо гостю — Q-115, предоплата — Q-114: до решения владельца виджет их не умеет */}
+        <p className="hint" data-testid="booking-guest-limits">
+          Пока не умеет: другие языки кроме русского, детей, письмо или SMS гостю, предоплату.
+          Скидка тарифа и промокода не суммируется: гостю применяется большая.
+        </p>
+      </Panel>
+
       <Panel
         size="lg"
         className="site-settings-card"
@@ -109,40 +143,6 @@ function SiteBooking({
           />
         ) : (
           <Alert>Не удалось загрузить тарифы. Обновите страницу.</Alert>
-        )}
-        {site.bookingEnabled && (
-          <details className="settings-disclosure">
-            <summary>Установка виджета бронирования</summary>
-            <div>
-              <div className="hint--lg block--top block--bottom-xs">
-                Вставьте код туда, где на сайте должна быть форма бронирования (тариф «
-                {site.bookingRatePlan?.name}», бронь сразу подтверждается, оплата при заселении):
-              </div>
-              <pre data-testid="site-card-booking-snippet" className="code">
-                {snippet.bookingCode}
-              </pre>
-              <Row>
-                <CopyButton text={snippet.bookingCode} />
-                {previewAvailable(snippet.bookingDemoUrl) ? (
-                  <a
-                    href={snippet.bookingDemoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    data-testid="site-card-booking-demo"
-                  >
-                    Открыть демо виджета
-                  </a>
-                ) : (
-                  <Badge>Демо виджета не подключено</Badge>
-                )}
-              </Row>
-              {/* Демо работает на живом API: бронь с него — обычная бронь PMS, а не примерка (§7.3) */}
-              <p className="note" data-testid="booking-demo-warning">
-                Бронь с демо-страницы настоящая: она попадёт в PMS, займёт место и откроет счёт.
-                После проверки отмените её на карточке брони.
-              </p>
-            </div>
-          </details>
         )}
       </Panel>
     </Stack>

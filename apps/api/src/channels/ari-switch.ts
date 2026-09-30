@@ -10,7 +10,7 @@ import type { ChannexGateway } from './channels.repository';
 export const ARI_SWITCH_ENV = 'CHANNEX_ARI';
 
 export const ARI_STOPPED_MESSAGE =
-  'Исходящий ARI в Channex остановлен (CHANNEX_ARI=off, план отката CUTOVER.md): остатки и ограничения не отправляются, ' +
+  'Исходящая отправка в каналы остановлена (CHANNEX_ARI=off, план отката CUTOVER.md): остатки и ограничения не отправляются, ' +
   'изменения ждут в очереди. Включить: scripts/ops/ari.sh start';
 
 export function isAriStopped(env: Record<string, string | undefined> = process.env): boolean {

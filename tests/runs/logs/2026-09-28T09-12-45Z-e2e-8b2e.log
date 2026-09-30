@@ -1,0 +1,430 @@
+# Сквозные (e2e) · 28.09.2026 14:12 Алматы · vm
+# коммит 50551c0 (claude/eloquent-edison-f73at4), незакоммиченных файлов набора: 39
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/workspace.spec.ts' 'tests/ui/navigation.spec.ts' 'tests/ui/dashboard-design.spec.ts' 'tests/ui/dashboard-desk.spec.ts' 'tests/ui/dashboard-resilience.spec.ts' 'tests/ui/date-field.spec.ts' 'tests/ui/design-refresh.spec.ts' 'tests/ui/system-screens.spec.ts' 'tests/ui/analytics-design.spec.ts' 'tests/ui/ux-retention.spec.ts' 'tests/ui/empty-base.spec.ts'
+[WebServer] ⚠ Turbopack's filesystem cache has been deleted because we previously detected an internal error in Turbopack. Builds or page loads may be slower as a result.
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 129 tests using 1 worker
+
+  ✓    1 tests/ui/analytics-design.spec.ts:19:1 › аналитика и статистика: подпись периода — одной строкой без разрывов (3.4s)
+  ✓    2 tests/ui/analytics-design.spec.ts:49:1 › аналитика: нижние таблицы не обрезаются, пустые состояния говорят словами и ведут к подключению (1.5s)
+  ✘    3 tests/ui/dashboard-design.spec.ts:20:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек (1.6s)
+  ✓    4 tests/ui/dashboard-design.spec.ts:57:1 › показатели: на телефоне таблица категорий складывается, а не обрезается прокруткой (1.3s)
+  ✓    5 tests/ui/dashboard-design.spec.ts:95:1 › главная: быстрые действия называют число дел, без дел ведут к началу действия, внимание разбито по причинам (2.4s)
+  ✓    6 tests/ui/dashboard-desk.spec.ts:19:1 › 1. число на быстром действии равно строкам в окне выбора, в окне только те, с кем это действие можно сделать (2.3s)
+  ✓    7 tests/ui/dashboard-desk.spec.ts:54:1 › 2. из окна выбора карточка открывается на кнопке этого действия для этого проживания (9.0s)
+  ✓    8 tests/ui/dashboard-desk.spec.ts:81:1 › 3. блок «Требуют внимания» один и стоит сразу под полосой стойки; сводки-дубля сверху нет (2.2s)
+  ✓    9 tests/ui/dashboard-desk.spec.ts:102:1 › 4. названия действий и имена гостей 14 px, подписи 13 px; название действия в одну строку (5.5s)
+  ✓   10 tests/ui/dashboard-desk.spec.ts:142:1 › 5. полоса «На стойке»: числа без цвета статуса, выехавший с долгом не прячется за «все счета оплачены» (1.6s)
+  ✓   11 tests/ui/dashboard-desk.spec.ts:180:1 › 6. список «Требуют внимания» без своей прокрутки: задачи не прячутся под край блока (2.1s)
+  ✓   12 tests/ui/dashboard-desk.spec.ts:196:1 › 7. строки главной без разделителя « · » (2.8s)
+  ✘   13 tests/ui/dashboard-desk.spec.ts:219:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title (16.5s)
+  ✓   14 tests/ui/dashboard-desk.spec.ts:253:1 › 9. размеры шрифта на главной и в «Аналитике» — из шкалы §6, число плитки 24 px (5.8s)
+  ✓   15 tests/ui/dashboard-desk.spec.ts:294:1 › 10. заголовок страницы и панели брони — по шкале §6 (4.3s)
+  ✓   16 tests/ui/dashboard-resilience.spec.ts:16:1 › показатели не пришли — экран открыт, период выбирается, причина названа (1.1s)
+  ✓   17 tests/ui/dashboard-resilience.spec.ts:29:1 › период выбирается: «этот месяц» открывается с числами (1.2s)
+  ✓   18 tests/ui/dashboard-resilience.spec.ts:36:1 › Главная открывается и с упавшими показателями периода: она их не зовёт (1.1s)
+  ✓   19 tests/ui/date-field.spec.ts:23:1 › показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает (1.6s)
+  ✓   20 tests/ui/date-field.spec.ts:55:1 › показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности (2.8s)
+  ✓   21 tests/ui/date-field.spec.ts:79:1 › телефон: кнопки календаря нет, родное поле остаётся (1.2s)
+  ✓   22 tests/ui/date-field.spec.ts:88:1 › панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле (5.9s)
+  ✓   23 tests/ui/design-refresh.spec.ts:9:1 › главная: новая бронь и полоса стойки доступны на первом экране (3.3s)
+  ✘   24 tests/ui/design-refresh.spec.ts:25:1 › полоса дня на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px (2.6s)
+  ✓   25 tests/ui/design-refresh.spec.ts:67:1 › главная живёт одним днём, месячные показатели — на своём экране (3.0s)
+  ✓   26 tests/ui/design-refresh.spec.ts:86:5 › редизайн: доступность и снимки главной и компонентов, light, 1440 (10.7s)
+  ✓   27 tests/ui/design-refresh.spec.ts:86:5 › редизайн: доступность и снимки главной и компонентов, light, 390 (9.9s)
+  ✓   28 tests/ui/design-refresh.spec.ts:86:5 › редизайн: доступность и снимки главной и компонентов, dark, 1440 (10.0s)
+  ✓   29 tests/ui/design-refresh.spec.ts:86:5 › редизайн: доступность и снимки главной и компонентов, dark, 390 (9.5s)
+  ✓   30 tests/ui/empty-base.spec.ts:41:3 › пустая база: /today открывается и объясняет пустоту (1.0s)
+  ✓   31 tests/ui/empty-base.spec.ts:41:3 › пустая база: /chessboard открывается и объясняет пустоту (1.3s)
+  ✓   32 tests/ui/empty-base.spec.ts:41:3 › пустая база: /reservations открывается и объясняет пустоту (1.6s)
+  ✓   33 tests/ui/empty-base.spec.ts:41:3 › пустая база: /guests открывается и объясняет пустоту (1.3s)
+  ✓   34 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms открывается и объясняет пустоту (2.0s)
+  ✓   35 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/categories открывается и объясняет пустоту (1.1s)
+  ✓   36 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rooms/availability открывается и объясняет пустоту (1.1s)
+  ✓   37 tests/ui/empty-base.spec.ts:41:3 › пустая база: /rates открывается и объясняет пустоту (1.5s)
+  ✓   38 tests/ui/empty-base.spec.ts:41:3 › пустая база: /finance открывается и объясняет пустоту (1.4s)
+  ✓   39 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics открывается и объясняет пустоту (1.0s)
+  ✓   40 tests/ui/empty-base.spec.ts:41:3 › пустая база: /management/analytics/occupancy открывается и объясняет пустоту (1.1s)
+  ✓   41 tests/ui/empty-base.spec.ts:41:3 › пустая база: /journal открывается и объясняет пустоту (1.3s)
+  ✓   42 tests/ui/empty-base.spec.ts:41:3 › пустая база: /incidents открывается и объясняет пустоту (1.4s)
+  ✓   43 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels открывается и объясняет пустоту (2.2s)
+  ✓   44 tests/ui/empty-base.spec.ts:41:3 › пустая база: /connections открывается и объясняет пустоту (1.4s)
+  ✓   45 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website открывается и объясняет пустоту (1.3s)
+  ✓   46 tests/ui/empty-base.spec.ts:41:3 › пустая база: /website/analytics открывается и объясняет пустоту (1.1s)
+  ✓   47 tests/ui/empty-base.spec.ts:41:3 › пустая база: /hotel-settings открывается и объясняет пустоту (1.9s)
+  ✓   48 tests/ui/empty-base.spec.ts:41:3 › пустая база: /channels/mapping открывается и объясняет пустоту (1.0s)
+  ✓   49 tests/ui/empty-base.spec.ts:51:1 › пустая база: шахматка показывает все места свободными, а не пустую сетку (1.6s)
+  ✓   50 tests/ui/empty-base.spec.ts:62:1 › пустая база: главная говорит про ноль словами, а не пустыми плитками (1.1s)
+  ✓   51 tests/ui/navigation.spec.ts:31:1 › свёрнутая desktop-панель не скрывает подписи мобильного меню (1.8s)
+  ✓   52 tests/ui/navigation.spec.ts:44:1 › разделы содержат основные ссылки без дублей; раскрываются с клавиатуры (1.7s)
+  ✓   53 tests/ui/navigation.spec.ts:85:1 › компактная панель открывает выбранную группу; прямая ссылка раскрывает текущий раздел (3.0s)
+  ✓   54 tests/ui/navigation.spec.ts:112:1 › все пункты меню открывают существующие страницы (10.2s)
+  ✓   55 tests/ui/navigation.spec.ts:141:3 › навигация ровная, адаптивная и доступная: light (5.0s)
+  ✓   56 tests/ui/navigation.spec.ts:141:3 › навигация ровная, адаптивная и доступная: dark (4.5s)
+  ✓   57 tests/ui/system-screens.spec.ts:18:1 › журнал: выборка словами, разделы чипами, сбой без потери формы, пустой результат с причиной (7.5s)
+  ✓   58 tests/ui/system-screens.spec.ts:84:1 › неисправности: сбой состояния сторожа с повтором, пустые таблицы объяснены, время в <time>, телефон (6.5s)
+  ✓   59 tests/ui/system-screens.spec.ts:152:1 › аналитика и статистика: пустое состояние, сбой с повтором, период словами, загрузка словом (14.0s)
+  ✓   60 tests/ui/system-screens.spec.ts:253:1 › настройки объекта: сбой с повтором, пустые справочники с причиной, загрузка словом (8.7s)
+  ✓   61 tests/ui/system-screens.spec.ts:307:1 › вход и профиль: «Вы вошли» без точек, приглашение при сбое с повтором, «Доступ» словами (9.1s)
+  ✓   62 tests/ui/ux-retention.spec.ts:25:1 › пробный период виден в меню на рабочих экранах, у оплаченной организации строки нет (п. 2.7) (4.8s)
+  ✓   63 tests/ui/ux-retention.spec.ts:45:1 › пустые экраны без «Exely» и «импорта», с действием и без круговой ссылки на онбординг (пп. 1.2, 1.3) (3.2s)
+  ✓   64 tests/ui/ux-retention.spec.ts:75:1 › новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4) (1.4s)
+  ✓   65 tests/ui/ux-retention.spec.ts:80:1 › нижняя панель телефона — в порядке бокового меню (п. 1.6) (1.0s)
+  ✓   66 tests/ui/ux-retention.spec.ts:88:1 › подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7) (1.8s)
+  ✘   67 tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) (45.5s)
+  ✘   68 tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения (50.6s)
+  ✓   69 tests/ui/workspace.spec.ts:116:1 › вложенные разделы: раскрытие, один активный пункт, мобильный переход (5.7s)
+  ✓   70 tests/ui/workspace.spec.ts:161:1 › доступность переносит даты и свободное место в создание брони; неверный период виден (4.0s)
+  ✓   71 tests/ui/workspace.spec.ts:180:1 › отчёт по источникам: реальные фильтры, пустой результат, период и отказ API (4.6s)
+  ✓   72 tests/ui/workspace.spec.ts:205:1 › подключения показывают частичный сбой, неподключённые функции не имитируют сохранение (5.8s)
+  ✓   73 tests/ui/workspace.spec.ts:232:1 › показатели за период: готовые отрезки и свои даты; поиск из шапки (6.6s)
+  ✓   74 tests/ui/workspace.spec.ts:282:1 › шахматка: фильтры, продолжение брони, выбранная койка в форме (3.4s)
+  ✓   75 tests/ui/workspace.spec.ts:310:1 › шахматка: подсказка закрывается щелчком вне и не держит кнопки под собой (3.2s)
+  ✓   76 tests/ui/workspace.spec.ts:330:1 › ошибка создания сохраняет ввод; повтор отправляет поля существующего API (2.9s)
+  ✓   77 tests/ui/workspace.spec.ts:362:1 › карточка: профиль гостя и заселение проходят через server actions (4.1s)
+[WebServer] ⨯ Error: Синтетический отказ API: запрос отклонён
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 404,
+[WebServer]   digest: 'API_404'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   78 tests/ui/workspace.spec.ts:407:1 › экран ошибки различает отклонённый запрос (400/404) и отсутствие связи (2.4s)
+[WebServer] ⨯ Error: API /reservations/20260913-TESTAA: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async ReservationPage (src/app/reservations/[number]/page.tsx:45:13)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   79 tests/ui/workspace.spec.ts:424:1 › сбой карточки брони показывает ошибку внутри выезжающей карточки, повтор открывает бронь (3.5s)
+  ✓   80 tests/ui/workspace.spec.ts:441:1 › аналитика: период дольше года и отклонённый запрос названы словами; демо бронирования предупреждает (2.4s)
+  ✓   81 tests/ui/workspace.spec.ts:463:1 › карточка брони и новая бронь при сбое справочника тарифов: предупреждение, а не экран ошибки (2.6s)
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓   82 tests/ui/workspace.spec.ts:489:1 › сбой API показывает ошибку, повтор восстанавливает страницу (2.3s)
+  ✓   83 tests/ui/workspace.spec.ts:498:1 › неисправности из обновлённого main: принятие и закрытие работают в новом каркасе (2.4s)
+  ✓   84 tests/ui/workspace.spec.ts:524:1 › сбой списка неисправностей не выдаётся за отсутствие проблем (1.3s)
+  ✓   85 tests/ui/workspace.spec.ts:536:1 › неверная дата в ссылке оставляет доступную форму для исправления (1.1s)
+  ✓   86 tests/ui/workspace.spec.ts:543:1 › отсутствующая бронь, гость или ячейка показывают 404 вместо сбоя системы (3.3s)
+  ✓   87 tests/ui/workspace.spec.ts:552:1 › групповая бронь: разные категории сохраняются при конфликте (2.0s)
+  ✓   88 tests/ui/workspace.spec.ts:576:1 › общий платёж: ошибка не стирает распределения, успешный повтор обновляет баланс (2.8s)
+  ✓   89 tests/ui/workspace.spec.ts:603:1 › обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия (2.9s)
+  ✓   90 tests/ui/workspace.spec.ts:645:1 › ошибка буфера обмена видна, код остаётся доступен (1.4s)
+  ✓   91 tests/ui/workspace.spec.ts:662:1 › финансы: неверные даты можно исправить без падения страницы (2.0s)
+  ✓   92 tests/ui/workspace.spec.ts:673:1 › ошибка загрузки тарифов не позволяет включить виджет (1.1s)
+  ✓   93 tests/ui/workspace.spec.ts:682:1 › номера: статус уборки, блокировка и снятие сохраняются (3.1s)
+  ✓   94 tests/ui/workspace.spec.ts:712:1 › гости: удаление документа переспрашивает; «Отмена» не шлёт команду (2.7s)
+  ✓   95 tests/ui/workspace.spec.ts:739:1 › новая бронь: число гостей ограничено вместимостью выбранной категории (1.5s)
+  ✓   96 tests/ui/workspace.spec.ts:748:1 › тарифы: гостей в массовом изменении — по вместимости категории; несопоставленная категория не «уходит в каналы» (2.3s)
+  ✓   97 tests/ui/workspace.spec.ts:767:1 › неисправности: когда история обрезана, это написано (2.4s)
+  ✓   98 tests/ui/workspace.spec.ts:775:1 › настройки: подсказка про услуги ведёт во вкладку «Счета», а не в «Финансы» (2.6s)
+  ✓   99 tests/ui/workspace.spec.ts:787:1 › тарифы: добавить, удалить, сохранить и прочитать новую цену; отказ сохраняет список (2.9s)
+  ✓  100 tests/ui/workspace.spec.ts:813:1 › сайты: проверка, домены, пауза, виджет, удаление и создание обновляют данные (5.7s)
+  ✓  101 tests/ui/workspace.spec.ts:854:1 › кнопки Channex отправляют команды один раз и показывают результат; проверка только читает (6.0s)
+[WebServer] ⨯ Error: API /chessboard?from=2026-09-28&to=2026-10-04: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async ChessboardPage (src/app/chessboard/page.tsx:77:45)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+[WebServer] ⨯ Error: API /inventory/summary: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async InventoryPage (src/app/inventory/page.tsx:14:40)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  102 tests/ui/workspace.spec.ts:906:1 › пустые ответы дают нули; сбой API не выдаётся за пустую базу (9.1s)
+  ✓  103 tests/ui/workspace.spec.ts:971:1 › снятие блокировки спрашивают: «оставить как есть» ничего не меняет, подтверждение снимает (2.6s)
+  ✓  104 tests/ui/workspace.spec.ts:1000:1 › удаление документа гостя спрашивают: отказ оставляет документ на карточке (2.2s)
+  ✓  105 tests/ui/workspace.spec.ts:1024:1 › гости на сегодня: в списке все, а не первые двадцать пять (1.5s)
+  ✘  106 tests/ui/workspace.spec.ts:1043:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей (16.5s)
+  ✓  107 tests/ui/workspace.spec.ts:1056:1 › общие настройки показывают адрес PMS без дублирования контента Channex (2.3s)
+  ✓  108 tests/ui/workspace.spec.ts:1063:1 › кнопки называют своё действие: гость заводится бронью, оплата — на счёте брони (3.4s)
+  ✓  109 tests/ui/workspace.spec.ts:1092:1 › доступность: период длиннее 62 ночей объясняется формой, а не ошибкой связи (1.7s)
+[WebServer] ⨯ Error: API /inventory/categories: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:142:11)
+[WebServer]     at async RoomsPage (src/app/rooms/[[...section]]/page.tsx:26:28)
+[WebServer]   140 |         /* тело не JSON */
+[WebServer]   141 |       }
+[WebServer] > 142 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   143 |   }
+[WebServer]   144 |   return (await res.json()) as T;
+[WebServer]   145 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  110 tests/ui/workspace.spec.ts:1114:1 › фонд и категории открываются независимо от сбоя шахматки (4.8s)
+  ✓  111 tests/ui/workspace.spec.ts:1135:1 › настройка сайта: у демо бронирования сказано, что бронь настоящая (1.4s)
+  ✓  112 tests/ui/workspace.spec.ts:1153:1 › подключения каналов: время события — по Алматы, а не сырой UTC (1.2s)
+  ✓  113 tests/ui/workspace.spec.ts:1172:1 › каналы: сбой сводки фонда не уносит очередь и webhook; пустой маппинг назван словами (2.0s)
+  ✓  114 tests/ui/workspace.spec.ts:1187:1 › журнал: время операции — тем же способом, что и везде (по Алматы) (1.0s)
+  ✓  115 tests/ui/workspace.spec.ts:1200:1 › счета: приём оплаты подтверждается суммой на экране (2.1s)
+  ✓  116 tests/ui/workspace.spec.ts:1217:1 › деньги за период: период длиннее года объясняется на странице (1.3s)
+  ✓  117 tests/ui/workspace.spec.ts:1236:1 › шахматка: статус словом, канал бейджем, долг плашкой, уборка в строке (1.9s)
+  ✓  118 tests/ui/workspace.spec.ts:1255:1 › шахматка: фильтр «Уборка» показывает грязные ячейки, а не пустоту (1.9s)
+  ✓  119 tests/ui/workspace.spec.ts:1280:1 › шахматка: несопоставленные ревизии канала названы плашкой со ссылкой на разбор (2.9s)
+  ✓  120 tests/ui/workspace.spec.ts:1300:1 › каналы: очередь показана строками — что уехало, за какие даты и чем кончилось (1.4s)
+  ✓  121 tests/ui/workspace.spec.ts:1316:1 › каналы: входящая бронь ведёт на карточку брони (1.9s)
+  ✓  122 tests/ui/workspace.spec.ts:1329:1 › цены: правка в ячейке календаря уходит тем же путём, что массовая, и говорит про очередь (1.7s)
+  ✓  123 tests/ui/workspace.spec.ts:1348:1 › незаезд: окно называет штраф суммой, а не «может начислиться» (2.0s)
+  ✓  124 tests/ui/workspace.spec.ts:1366:1 › «+1 ночь» спрашивает и называет цену новой ночи; отказ ничего не меняет (2.4s)
+  ✓  125 tests/ui/workspace.spec.ts:1404:1 › новая бронь: резюме выбора обновляется по ходу, кнопка создания видна при прокрутке и на телефоне (2.6s)
+  ✓  126 tests/ui/workspace.spec.ts:1466:1 › гости D1: выборка и пустота словами, статус пребывания, длинное имя и история на телефоне (4.5s)
+  ✓  127 tests/ui/workspace.spec.ts:1539:1 › финансы F1: период в подзаголовке, четыре итога с пояснениями, отказ не выглядит нулями (3.4s)
+  ✓  128 tests/ui/workspace.spec.ts:1579:1 › единый фонд: старый адрес, сброс фильтров и адаптивные категории (5.1s)
+  ✓  129 tests/ui/workspace.spec.ts:1606:1 › отмена брони: окно называет, что сторнируется и будет ли штраф (1.9s)
+
+
+  1) tests/ui/dashboard-design.spec.ts:20:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4
+    Received: 3
+
+      29 |   const hidden = main.locator('.kpi-delta .sr-only');
+      30 |   await expect(main.getByTestId('pa-compare')).toContainText('в прошлом периоде данных нет');
+    > 31 |   expect(await main.getByText('нет данных для сравнения').count()).toBe(await hidden.count());
+         |                                                                    ^
+      32 |   for (const width of await hidden.evaluateAll((els) =>
+      33 |     els.map((el) => el.getBoundingClientRect().width),
+      34 |   ))
+        at /home/user/wetop.ai/tests/ui/dashboard-design.spec.ts:31:68
+
+    Error Context: test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-design-показател-6ce40-не-дважды-подписи-без-точек/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/dashboard-desk.spec.ts:219:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('main').locator('.dash-panel').filter({ has: getByRole('main').getByTestId('pa-chart-occupancy') }).getByRole('button', { name: 'Следующий день' })
+    Expected: disabled
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('main').locator('.dash-panel').filter({ has: getByRole('main').getByTestId('pa-chart-occupancy') }).getByRole('button', { name: 'Следующий день' }) with timeout 15000ms
+      - waiting for getByRole('main').locator('.dash-panel').filter({ has: getByRole('main').getByTestId('pa-chart-occupancy') }).getByRole('button', { name: 'Следующий день' })
+
+
+      234 |   const prev = panel.getByRole('button', { name: 'Предыдущий день' });
+      235 |   const next = panel.getByRole('button', { name: 'Следующий день' });
+    > 236 |   await expect(next).toBeDisabled();
+          |                      ^
+      237 |   // с клавиатуры: Enter на кнопке листает дни
+      238 |   await prev.focus();
+      239 |   await page.keyboard.press('Enter');
+        at /home/user/wetop.ai/tests/ui/dashboard-desk.spec.ts:236:22
+
+    Error Context: test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-desk-8-подробнос-297e6--касанием-таблица-без-title/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/design-refresh.spec.ts:25:1 › полоса дня на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px 
+
+    Error: /management/analytics: getByRole('main').getByTestId('pa-fund').getByRole('link', { name: 'Койки' })
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    34
+
+      59 |       const box = await control.boundingBox();
+      60 |       expect(box, `${route}: ${control}`).not.toBeNull();
+    > 61 |       expect(box!.height, `${route}: ${control}`).toBeGreaterThanOrEqual(44);
+         |                                                   ^
+      62 |       expect(box!.width, `${route}: ${control}`).toBeGreaterThanOrEqual(44);
+      63 |     }
+      64 |   }
+        at /home/user/wetop.ai/tests/ui/design-refresh.spec.ts:61:51
+
+    Error Context: test-results/design-refresh-полоса-дня--410c7-поля-и-цели-не-меньше-44-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/design-refresh-полоса-дня--410c7-поля-и-цели-не-меньше-44-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/design-refresh-полоса-дня--410c7-поля-и-цели-не-меньше-44-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('hotel-settings-form').getByRole('button', { name: 'Сохранить' })
+
+
+      125 |   await expect(form.getByLabel('Телефон')).toBeVisible();
+      126 |   await form.getByLabel('Телефон').fill('<телефон>');
+    > 127 |   await form.getByRole('button', { name: 'Сохранить' }).click();
+          |                                                         ^
+      128 |   await expect(form.getByRole('status')).toHaveText('Сведения гостиницы сохранены');
+      129 |
+      130 |   await control(request, { role: 'STAFF' });
+        at /home/user/wetop.ai/tests/ui/ux-retention.spec.ts:127:57
+
+    Error Context: test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ux-retention-владелец-и-уп-68779-ратору-раздел-закрыт-п-3-1-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected substring: "Цены и ограничения"
+    Received string:    "Тарифы и цены"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { level: 1 })
+        33 × locator resolved to <h1 class="page__title">Тарифы и цены</h1>
+           - unexpected value "Тарифы и цены"
+
+
+      89 |     await page.goto(route!);
+      90 |     if (redirects[route!]) await expect(page).toHaveURL(redirects[route!]!);
+    > 91 |     await expect(page.getByRole('heading', { level: 1 })).toContainText(title!);
+         |                                                           ^
+      92 |     await noPageOverflow(page);
+      93 |     if (
+      94 |       ['/today', '/chessboard', '/rooms', '/hotel-settings', '/channel-manager'].includes(route!)
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:91:59
+
+    Error Context: test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-все-разделы-карт-b5ca8-top-mobile-без-переполнения/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/workspace.spec.ts:1043:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/guests\?state=inhouse$/
+    Received string:  "http://127.0.0.1:3100/guests"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        3 × locator resolved to <html lang="ru" data-theme="light">…</html>
+          - unexpected value "http://127.0.0.1:3100/hotel-settings/services"
+        30 × locator resolved to <html lang="ru" data-theme="light">…</html>
+           - unexpected value "http://127.0.0.1:3100/guests"
+
+
+      1050 |   await panel.getByRole('link', { name: 'Найти проживающего гостя' }).click();
+      1051 |   // Гости v2: раздел «Проживают» открывается адресом (ТЗ §31)
+    > 1052 |   await expect(page).toHaveURL(/\/guests\?state=inhouse$/);
+           |                      ^
+      1053 |   await expect(page.getByTestId('guests-meta')).toContainText('проживают');
+      1054 | });
+      1055 |
+        at /home/user/wetop.ai/tests/ui/workspace.spec.ts:1052:22
+
+    Error Context: test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/workspace-настройки-услуг--21cd2-сть-и-ведёт-к-списку-гостей/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/dashboard-design.spec.ts:20:1 › показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек 
+    tests/ui/dashboard-desk.spec.ts:219:1 › 8. подробности дня на графике без наведения: день выбирается кнопками и касанием, таблица без title 
+    tests/ui/design-refresh.spec.ts:25:1 › полоса дня на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px 
+    tests/ui/ux-retention.spec.ts:101:1 › владелец и управляющий правят сведения гостиницы; отказ сохраняет ввод; администратору раздел закрыт (п. 3.1) 
+    tests/ui/workspace.spec.ts:24:1 › все разделы, карточки и печать открываются; desktop/mobile без переполнения 
+    tests/ui/workspace.spec.ts:1043:1 › настройки услуг: путь к начислению назван вкладкой, которая есть, и ведёт к списку гостей 
+  123 passed (9.0m)
+
+# код выхода 1 · 9 мин 4 с

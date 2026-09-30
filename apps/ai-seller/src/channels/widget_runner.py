@@ -17,7 +17,7 @@ from src.ai.engine_types import IncomingMessage
 from src.channels.sender import Sender, SendResult
 from src.channels.widget_identity import current_visitor
 from src.channels.widget_store import new_flag_key
-from src.config import Settings, normalize_bot_role
+from src.config import Settings, get_settings, normalize_bot_role
 
 logger = logging.getLogger(__name__)
 
@@ -106,15 +106,45 @@ class WidgetRunner:
 
     async def _handle(self, incoming: IncomingMessage) -> None:
         """Исключения ловятся здесь: один упавший ход не роняет обработчик."""
+        # Текст хода — инструменту подтверждения действий (Q-S6-2); задача идёт в своём контексте
+        token = dependencies.incoming_text_var.set(getattr(incoming, "text", None))
         try:
             await self.engine.process_message(incoming)
         except Exception:
             logger.exception("widget: обработка сообщения упала")
         finally:
+            dependencies.incoming_text_var.reset(token)
             # 🔴 Посетитель снимается в finally, а не последней строкой:
             # после падения хода он остался бы виден следующему, и человек
             # получил бы чужие происшествия.
             current_visitor.set(None)
+
+
+@dataclass
+class _KnowledgeRuntime:
+    """Сессия и эмбеддер для инструмента знаний: собираются на вызове, а не при сборке реестра."""
+
+    session_factory: Any
+    embedder: Any
+
+
+def _knowledge_runtime() -> _KnowledgeRuntime:
+    from src.knowledge.embedder import get_embedder
+
+    return _KnowledgeRuntime(dependencies.get_sessionmaker(), get_embedder())
+
+
+@dataclass
+class _ActionsRuntime:
+    """Сессия, Redis и настройки для инструментов действий (S6): собираются на вызове."""
+
+    session_factory: Any
+    redis: Any
+    settings: Any
+
+
+def _actions_runtime() -> _ActionsRuntime:
+    return _ActionsRuntime(dependencies.get_sessionmaker(), dependencies.get_redis(), get_settings())
 
 
 def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunner:
@@ -144,6 +174,12 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
             # Посетителя инструменты берут из contextvar: движок про
             # платформу и её пользователей не знает.
             visitor_getter=current_visitor.get,
+            # S3: управляемая база знаний; диалог для журнала использования — из contextvar движка
+            knowledge_getter=_knowledge_runtime,
+            conversation_getter=dependencies.conversation_id_var.get,
+            # S6: действия — журнал в базе бота, ожидающие предложения в Redis
+            actions_getter=_actions_runtime,
+            incoming_getter=dependencies.incoming_text_var.get,
         )
         lead_hook = None
         # Помощник отвечает по делу: эмодзи в разборе ошибки неуместны.

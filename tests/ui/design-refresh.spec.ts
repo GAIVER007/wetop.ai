@@ -22,7 +22,7 @@ test('главная: новая бронь и полоса стойки дос�
   }
 });
 
-test('полоса дня на телефоне и период на «Показателях»: подписанные поля и цели не меньше 44 px', async ({
+test('полоса дня на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -39,19 +39,28 @@ test('полоса дня на телефоне и период на «Пока�
     expect(box!.height).toBeGreaterThanOrEqual(44);
     expect(box!.width).toBeGreaterThanOrEqual(44);
   }
-  await page.goto('/management/dashboard');
-  for (const control of [
-    page.getByLabel('Период: с'),
-    page.getByLabel('Период: по'),
-    page.getByTestId('period-form').getByRole('button', { name: 'Показать' }),
-    page
-      .getByRole('navigation', { name: 'Период показателей' })
-      .getByRole('link', { name: 'Сегодня', exact: true }),
-  ]) {
-    const box = await control.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.height).toBeGreaterThanOrEqual(44);
-    expect(box!.width).toBeGreaterThanOrEqual(44);
+  // «Показатели за период» с AN2 — «Аналитика» (ADR-114): обе вкладки, свой период — в панели «Период»
+  for (const route of ['/management/analytics', '/management/analytics/occupancy']) {
+    await page.goto(route);
+    const main = page.getByRole('main');
+    await main.locator('.pa-range > summary').click();
+    const controls = [
+      main.getByLabel('Период: с'),
+      main.getByLabel('Период: по'),
+      main.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }),
+      main.locator('.pa-range > summary'),
+      main.getByRole('navigation', { name: 'Период' }).getByRole('link', { name: 'Сегодня' }),
+      main.getByTestId('pa-fund').getByRole('link', { name: 'Койки' }),
+      main.getByTestId('pa-compare-toggle'),
+    ];
+    if (route.endsWith('occupancy'))
+      controls.push(main.getByTestId('pa-day-prev'), main.getByTestId('pa-day-next'));
+    for (const control of controls) {
+      const box = await control.boundingBox();
+      expect(box, `${route}: ${control}`).not.toBeNull();
+      expect(box!.height, `${route}: ${control}`).toBeGreaterThanOrEqual(44);
+      expect(box!.width, `${route}: ${control}`).toBeGreaterThanOrEqual(44);
+    }
   }
 });
 
@@ -62,11 +71,14 @@ test('главная живёт одним днём, месячные показ
     page.getByRole('region', { name: 'Сегодня на стойке' }).locator('.desk-strip__date'),
   ).toHaveAttribute('datetime', '2026-09-17');
   await expect(page.getByTestId('period-caption')).toHaveCount(0);
-  await page.goto('/management/dashboard?period=month');
-  await expect(page.getByTestId('period-caption')).toContainText('30 дней');
-  for (const id of ['occupancy', 'revenue', 'paid', 'adr', 'revpar', 'arrivals']) {
-    await expect(page.getByTestId(`kpi-${id}`)).toBeVisible();
+  // месячные показатели — «Аналитика → Обзор» (ADR-114); оплаты — в «Оплатах», ADR и RevPAR — у типа фонда
+  await page.goto('/management/analytics?period=month');
+  await expect(page.getByTestId('pa-period')).toContainText(/(28|29|30|31) д/);
+  for (const id of ['occupancy', 'revenue', 'nights', 'bookings', 'cancelled', 'average']) {
+    await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
   }
+  await page.goto('/management/analytics?period=month&fund=rooms');
+  for (const id of ['adr', 'revpar']) await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
 });
 
 for (const theme of ['light', 'dark'] as const) {

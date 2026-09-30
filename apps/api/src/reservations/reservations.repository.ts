@@ -7,7 +7,11 @@ import {
   type Db,
   type DbTx,
 } from '@pms/database';
-import { folioBalance, channelPrepaymentToKeep } from '@pms/domain';
+import { folioBalance, channelPrepaymentToKeep,
+  discountedMinor,
+  pickDiscount,
+  type DerivedRule,
+} from '@pms/domain';
 import type {
   HousekeepingStatus,
   NightRate,
@@ -43,6 +47,8 @@ export interface CategoryRef {
   capacityAdults: number;
   /** На объекте у всех 0: детское размещение выключено — гостей-детей на проживании быть не может */
   capacityChildren: number;
+  /** Вид размещения; читает только `activeCategories` — «Свободные места» считают койки по гостю (ADR-110) */
+  kind?: 'PRIVATE_ROOM' | 'DORM_BED' | 'APARTMENT';
 }
 export type CancellationPenalty = 'NONE' | 'FIRST_NIGHT' | 'FULL_STAY';
 /**
@@ -58,6 +64,19 @@ export interface RatePlanRef {
   active: boolean;
   /** Политика штрафа при отмене/незаезде (Q-103) */
   cancellationPenalty: CancellationPenalty;
+  /** Производный тариф (DATA_MODEL §20): правило скидки и продажи; `null` или не задано — обычный тариф */
+  derivedRule?: DerivedRule | null;
+}
+/** Промокод объекта и сколько раз он уже использован — число броней с этой ссылкой (DATA_MODEL §20) */
+export interface PromoRef {
+  id: string;
+  code: string;
+  discountPercent: number;
+  stayFrom: string | null;
+  stayTo: string | null;
+  maxUses: number | null;
+  active: boolean;
+  uses: number;
 }
 export interface UnitRef {
   id: string;
@@ -86,6 +105,8 @@ export interface ItemState {
   children: number;
   /** Политика штрафа тарифа; без тарифа — `DEFAULT_CANCELLATION_PENALTY` (штрафа нет, Q-103) */
   cancellationPenalty: CancellationPenalty;
+  /** Скидка промокода брони, процент; `null` — промокода нет. Пересчёт цены (продление, переселение) её сохраняет */
+  promoPercent?: number | null;
   allocations: AllocationState[];
 }
 export interface ReservationState {
@@ -121,6 +142,8 @@ export interface NewReservation {
   totalAmountMinor: bigint;
   primaryGuestId: string;
   notes: string | null;
+  /** Применённый промокод (DATA_MODEL §20) */
+  promoCodeId?: string | null;
   items: Array<{
     accommodationTypeId: string;
     /** Тариф проживания (Q-102); null — неизвестен (перенос из внешней системы) */
@@ -182,12 +205,21 @@ export interface ReservationsRepository {
   /** Активные тарифы объекта — для формы брони */
   activeRatePlans(): Promise<RatePlanRef[]>;
   ratePlanCoversType(ratePlanId: string, accommodationTypeId: string): Promise<boolean>;
+  /**
+   * Цены ночей тарифа. Производный тариф берёт цены родителя со скидкой тарифа; `promoPercent` — скидка промокода:
+   * скидки не суммируются, применяется большая (Q-231).
+   */
   nightRates(
     accommodationTypeId: string,
     ratePlanId: string,
     from: string,
     toExclusive: string,
+    promoPercent?: number | null,
   ): Promise<NightRate[]>;
+  /** Промокод объекта по коду с числом использований; нет такого — `null` */
+  promoByCode(code: string): Promise<PromoRef | null>;
+  /** Блокировка промокода до конца транзакции: предел использований не обходится двумя одновременными бронями */
+  lockPromo(promoId: string): Promise<void>;
   unitByCode(code: string): Promise<UnitRef | null>;
   /** Статус уборки ячейки: выезд сам переводит её в «требует уборки» (Q-155, ADR-068) */
   unitHousekeeping(unitId: string): Promise<HousekeepingStatus | null>;
@@ -234,6 +266,11 @@ export interface ReservationsRepository {
     from: string,
     toExclusive: string,
   ): Promise<StayRestriction[]>;
+  /**
+   * G6 (ТЗ «Гости v2» §33): существующий гость для новой брони — только организации объекта
+   * (та же колонка, по которой режет RLS). null — такого гостя нет или он чужой.
+   */
+  guestForBooking(guestId: string): Promise<string | null>;
   createGuest(guest: NewGuest): Promise<string>;
   createReservation(input: NewReservation): Promise<{ id: string; itemIds: string[] }>;
   addStayGuest(itemId: string, guestId: string, isPrimary: boolean): Promise<void>;
@@ -359,6 +396,45 @@ const iso = (x: Date) => x.toISOString().slice(0, 10);
 // «сегодня» считает today(): по Property.timezone, не по жёсткому UTC+5 (С-13, ТЗ аудита 25.09.2026)
 const json = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 
+const PLAN_SELECT = {
+  id: true,
+  code: true,
+  name: true,
+  currency: true,
+  active: true,
+  cancellationPenalty: true,
+  parentRatePlanId: true,
+  discountPercent: true,
+  minDaysBeforeArrival: true,
+  maxDaysBeforeArrival: true,
+  minNights: true,
+} as const;
+
+/** Строка тарифа → `RatePlanRef`: производный тариф несёт правило скидки и продажи (DATA_MODEL §20) */
+function toPlanRef(row: {
+  id: string;
+  code: string;
+  name: string;
+  currency: string;
+  active: boolean;
+  cancellationPenalty: CancellationPenalty;
+  parentRatePlanId: string | null;
+  discountPercent: number | null;
+  minDaysBeforeArrival: number | null;
+  maxDaysBeforeArrival: number | null;
+  minNights: number | null;
+}): RatePlanRef {
+  const { parentRatePlanId, discountPercent, minDaysBeforeArrival, maxDaysBeforeArrival, minNights, ...plan } =
+    row;
+  return {
+    ...plan,
+    derivedRule:
+      parentRatePlanId !== null && discountPercent !== null
+        ? { discountPercent, minDaysBeforeArrival, maxDaysBeforeArrival, minNights }
+        : null,
+  };
+}
+
 export class PrismaReservationsRepository implements ReservationsRepository {
   private propertyCache: { id: string; currency: string; timezone: string; organizationId: string } | null = null;
   /** propertyName — имя объекта; в тестах на вымышленных данных передаётся тестовый объект. */
@@ -408,6 +484,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         active: true,
         capacityAdults: true,
         capacityChildren: true,
+        kind: true,
       },
     });
   }
@@ -440,68 +517,90 @@ export class PrismaReservationsRepository implements ReservationsRepository {
   }
   async ratePlanByCode(code: string): Promise<RatePlanRef | null> {
     const { id: propertyId } = await this.property();
-    return this.db.ratePlan.findUnique({
+    const row = await this.db.ratePlan.findUnique({
       where: { propertyId_code: { propertyId, code } },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        currency: true,
-        active: true,
-        cancellationPenalty: true,
-      },
+      select: PLAN_SELECT,
     });
+    return row ? toPlanRef(row) : null;
   }
   async ratePlanById(id: string): Promise<RatePlanRef | null> {
-    return this.db.ratePlan.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        currency: true,
-        active: true,
-        cancellationPenalty: true,
-      },
-    });
+    const row = await this.db.ratePlan.findUnique({ where: { id }, select: PLAN_SELECT });
+    return row ? toPlanRef(row) : null;
   }
   async activeRatePlans(): Promise<RatePlanRef[]> {
     const { id: propertyId } = await this.property();
-    return this.db.ratePlan.findMany({
+    const rows = await this.db.ratePlan.findMany({
       where: { propertyId, active: true },
       orderBy: { code: 'asc' },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        currency: true,
-        active: true,
-        cancellationPenalty: true,
-      },
+      select: PLAN_SELECT,
     });
+    return rows.map(toPlanRef);
   }
   async ratePlanCoversType(ratePlanId: string, accommodationTypeId: string): Promise<boolean> {
+    // производный тариф действует там же, где родитель: своих привязок к категориям у него нет
+    const sourceId = await this.sourcePlanId(ratePlanId);
     const link = await this.db.ratePlanAccommodationType.findUnique({
-      where: { ratePlanId_accommodationTypeId: { ratePlanId, accommodationTypeId } },
+      where: { ratePlanId_accommodationTypeId: { ratePlanId: sourceId, accommodationTypeId } },
       select: { ratePlanId: true },
     });
     return link !== null;
+  }
+  /** Тариф, из которого берутся цены, ограничения и категории: у производного — родитель, иначе он сам */
+  private async sourcePlanId(ratePlanId: string): Promise<string> {
+    const plan = await this.db.ratePlan.findUnique({
+      where: { id: ratePlanId },
+      select: { parentRatePlanId: true },
+    });
+    return plan?.parentRatePlanId ?? ratePlanId;
   }
   async nightRates(
     accommodationTypeId: string,
     ratePlanId: string,
     from: string,
     toExclusive: string,
+    promoPercent?: number | null,
   ): Promise<NightRate[]> {
+    const plan = await this.db.ratePlan.findUnique({
+      where: { id: ratePlanId },
+      select: { parentRatePlanId: true, discountPercent: true },
+    });
     const rows = await this.db.dailyRate.findMany({
       where: {
         accommodationTypeId,
-        ratePlanId,
+        ratePlanId: plan?.parentRatePlanId ?? ratePlanId,
         date: { gte: asDate(from), lt: asDate(toExclusive) },
       },
       select: { date: true, occupancy: true, price: true },
     });
-    return rows.map((r) => ({ date: iso(r.date), occupancy: r.occupancy, priceMinor: r.price }));
+    // Q-231: скидки не суммируются — одна, большая; у обычного тарифа своей скидки нет, остаётся промокод
+    const { percent } = pickDiscount(plan?.discountPercent ?? null, promoPercent ?? null);
+    return rows.map((r) => ({
+      date: iso(r.date),
+      occupancy: r.occupancy,
+      priceMinor: percent > 0 ? discountedMinor(r.price, percent) : r.price,
+    }));
+  }
+  async promoByCode(code: string): Promise<PromoRef | null> {
+    const { id: propertyId } = await this.property();
+    const row = await this.db.promoCode.findUnique({
+      where: { propertyId_code: { propertyId, code } },
+      include: { _count: { select: { reservations: true } } },
+    });
+    if (!row) return null;
+    return {
+      id: row.id,
+      code: row.code,
+      discountPercent: row.discountPercent,
+      stayFrom: row.stayFrom ? iso(row.stayFrom) : null,
+      stayTo: row.stayTo ? iso(row.stayTo) : null,
+      maxUses: row.maxUses,
+      active: row.active,
+      uses: row._count.reservations,
+    };
+  }
+  async lockPromo(promoId: string): Promise<void> {
+    await this.db
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`pms.promo:${promoId}`}, 0))`;
   }
   async unitHousekeeping(unitId: string): Promise<HousekeepingStatus | null> {
     const u = await this.db.inventoryUnit.findUnique({
@@ -574,7 +673,8 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const rows = await this.db.restriction.findMany({
       where: {
         accommodationTypeId,
-        ratePlanId,
+        // ограничения производный тариф берёт у родителя (DATA_MODEL §20)
+        ratePlanId: await this.sourcePlanId(ratePlanId),
         date: { gte: asDate(from), lt: asDate(toExclusive) },
       },
       select: {
@@ -615,6 +715,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
     return n > 0;
   }
+  async guestForBooking(guestId: string): Promise<string | null> {
+    const { organizationId } = await this.property();
+    const g = await this.db.guest.findFirst({
+      where: { id: guestId, organizationId },
+      select: { id: true },
+    });
+    return g?.id ?? null;
+  }
   async createGuest(guest: NewGuest): Promise<string> {
     // Гость с рождения знает организацию объекта (Phase 1 ADR-100 §17.2 + RLS-1 v1.13 §17.1):
     // и от стойки (вошедший), и от канала/виджета (служебный путь и organizationScope дают тот же объект).
@@ -651,6 +759,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         totalAmount: input.totalAmountMinor,
         primaryGuestId: input.primaryGuestId,
         notes: input.notes,
+        promoCodeId: input.promoCodeId ?? null,
       },
       select: { id: true },
     });
@@ -738,6 +847,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const r = await this.db.reservation.findUnique({
       where: { propertyId_confirmationNumber: { propertyId, confirmationNumber } },
       include: {
+        promoCode: { select: { discountPercent: true } },
         items: {
           orderBy: { createdAt: 'asc' },
           include: {
@@ -772,6 +882,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         adults: it.adults,
         children: it.children,
         cancellationPenalty: it.ratePlan?.cancellationPenalty ?? DEFAULT_CANCELLATION_PENALTY,
+        promoPercent: r.promoCode?.discountPercent ?? null,
         allocations: it.allocations.map((a) => ({
           id: a.id,
           unitId: a.inventoryUnitId,

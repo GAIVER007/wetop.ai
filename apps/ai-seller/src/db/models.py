@@ -71,6 +71,42 @@ class Organization(Base):
     updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
 
 
+class Agent(Base):
+    """Личность продавца (DATA_MODEL §20, SA1.6): продавец одного филиала гостиницы.
+
+    Сегодня продавец один на организацию: `id` перенесённого агента равен `organization_id`, поэтому ключ
+    виджета и адрес вебхука Meta не меняются. Строка организации остаётся источником, эта — её зеркало на время
+    перехода (слушатель в конце модуля обновляет её вместе с организацией). Новые агенты получают свой UUID —
+    их заведёт срез SA2.
+    """
+
+    __tablename__ = "agents"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True)
+    organization_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("organizations.id", ondelete="CASCADE", name="fk_agents_organization"), nullable=False
+    )
+    # Справочно: филиал агента в PMS. Источник правды — платформа (`seller_agents.location_id`)
+    location_id: Mapped[uuid.UUID | None] = mapped_column(UUID)
+    name: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    public_key: Mapped[str] = mapped_column(sa.Text, nullable=False, unique=True)
+    hosts: Mapped[list[Any]] = mapped_column(JSONType, nullable=False, default=list)
+    system_prompt: Mapped[str | None] = mapped_column(sa.Text)
+    active: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+def _agent_id_column(table: str) -> Mapped[uuid.UUID | None]:
+    """Агент строки (DATA_MODEL §20.5). Значения по умолчанию нет: каждая дверь и каждый писатель называют агента сами.
+
+    До SA2.5 агент подставлялся из организации строки (`agent_id = organization_id`), и это скрывало ошибку «писатель
+    забыл агента». Теперь забытый агент — `NULL`, а не молчаливое «агент равен организации»: тесты и (после сужения)
+    CHECK базы такую строку не пропускают. Строки помощника (без организации) агента не имеют.
+    """
+    return mapped_column(UUID, sa.ForeignKey("agents.id", name=f"fk_{table}_agent"))
+
+
 # ─── Клиенты ───
 
 
@@ -109,6 +145,12 @@ class WhatsAppConnection(Base):
 
     __tablename__ = "whatsapp_connections"
 
+    # Подключение принадлежит АГЕНТУ (DATA_MODEL §20.5, SA2.5): ключ — `agent_id`, секреты WhatsApp — на подключении канала
+    # агента. Организация — граница арендатора (и внешний ключ), но не ключ подключения. На рабочей базе первичный ключ по
+    # организации снимает миграция сужения 0010: до неё у организации одно подключение, и оно принадлежит одному агенту
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("agents.id", name="fk_whatsapp_connections_agent"), primary_key=True
+    )
     organization_id: Mapped[uuid.UUID] = mapped_column(
         UUID,
         sa.ForeignKey(
@@ -116,7 +158,7 @@ class WhatsAppConnection(Base):
             ondelete="CASCADE",
             name="fk_whatsapp_connections_organization",
         ),
-        primary_key=True,
+        nullable=False,
     )
     phone_number_id: Mapped[str] = mapped_column(sa.Text, nullable=False, unique=True)
     token_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
@@ -128,18 +170,20 @@ class WhatsAppConnection(Base):
 class Client(Base):
     __tablename__ = "clients"
     __table_args__ = (
-        # Уникальность внешнего id — в пределах организации (Э4). Строки без
-        # организации (помощник, старые диалоги продавца) — своя уникальность:
-        # NULL в обычном уникальном индексе различен, дубли прошли бы молча.
+        # Агент — граница диалога (DATA_MODEL §20.5, SA2.5): один гость у двух агентов, даже одной организации, — два
+        # клиента. Прежняя уникальность по организации (`uq_clients_org_channel_external`) из модели снята: на рабочей
+        # базе её убирает миграция сужения 0010 после доказанного рантайма, пока агент в организации один — они совпадают
         sa.Index(
-            "uq_clients_org_channel_external",
-            "organization_id",
+            "uq_clients_agent_channel_external",
+            "agent_id",
             "channel",
             "external_id",
             unique=True,
-            postgresql_where=sa.text("organization_id IS NOT NULL"),
-            sqlite_where=sa.text("organization_id IS NOT NULL"),
+            postgresql_where=sa.text("agent_id IS NOT NULL"),
+            sqlite_where=sa.text("agent_id IS NOT NULL"),
         ),
+        # Строки без организации (помощник, старые диалоги продавца) — своя уникальность:
+        # NULL в обычном уникальном индексе различен, дубли прошли бы молча.
         sa.Index(
             "uq_clients_channel_external_null",
             "channel",
@@ -161,6 +205,7 @@ class Client(Base):
     organization_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID, sa.ForeignKey("organizations.id")
     )
+    agent_id: Mapped[uuid.UUID | None] = _agent_id_column("clients")
     # Всегда строка, даже если канал прислал число: приводит тип ExternalId.
     external_id: Mapped[str] = mapped_column(ExternalId, nullable=False)
     channel: Mapped[str] = mapped_column(sa.Text, nullable=False)
@@ -241,6 +286,7 @@ class Conversation(Base):
     organization_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID, sa.ForeignKey("organizations.id")
     )
+    agent_id: Mapped[uuid.UUID | None] = _agent_id_column("conversations")
     mode: Mapped[ConversationMode] = mapped_column(
         enum_column(ConversationMode, "conversation_mode"),
         nullable=False,
@@ -314,15 +360,16 @@ class OwnerAction(Base):
 class Document(Base):
     __tablename__ = "documents"
     __table_args__ = (
-        # Дедуп по хешу — в пределах организации: один и тот же прайс у двух
-        # гостиниц — две записи, а не молчаливый пропуск второй (Э4).
+        # Дедуп по хешу — в пределах АГЕНТА (SA2.5): один и тот же прайс у двух агентов, даже одной организации, —
+        # две записи, а не молчаливый пропуск второй (Э4). Прежняя уникальность по организации
+        # (`uq_documents_org_hash`) из модели снята: на рабочей базе её убирает миграция сужения 0010
         sa.Index(
-            "uq_documents_org_hash",
-            "organization_id",
+            "uq_documents_agent_hash",
+            "agent_id",
             "file_hash",
             unique=True,
-            postgresql_where=sa.text("organization_id IS NOT NULL"),
-            sqlite_where=sa.text("organization_id IS NOT NULL"),
+            postgresql_where=sa.text("agent_id IS NOT NULL"),
+            sqlite_where=sa.text("agent_id IS NOT NULL"),
         ),
         sa.Index(
             "uq_documents_hash_null",
@@ -337,6 +384,7 @@ class Document(Base):
     organization_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID, sa.ForeignKey("organizations.id")
     )
+    agent_id: Mapped[uuid.UUID | None] = _agent_id_column("documents")
     source: Mapped[str] = mapped_column(sa.Text, nullable=False)
     file_hash: Mapped[str] = mapped_column(sa.Text, nullable=False)
     chunk_count: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
@@ -364,6 +412,118 @@ class KnowledgeChunk(Base):
     created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
 
     document: Mapped["Document"] = relationship(back_populates="chunks")
+
+
+# ─── База знаний WETOP Support (S3, plans/ai-agents-s3-knowledge-2026-09-29.md) ───
+
+KB_CATEGORIES = (
+    "PRODUCT", "HOW_TO", "TROUBLESHOOTING", "BILLING", "INTEGRATIONS", "SECURITY", "KNOWN_ISSUE", "RUNBOOK",
+)
+KB_VISIBILITIES = ("PUBLIC_SUPPORT", "INTERNAL_SUPPORT", "PLATFORM_ADMIN_ONLY")
+KB_STATUSES = ("DRAFT", "ACTIVE", "OUTDATED", "ARCHIVED")
+
+
+def _in(column: str, values: tuple[str, ...]) -> str:
+    return f"{column} IN ({', '.join(repr(v) for v in values)})"
+
+
+class SupportKnowledge(Base):
+    """Запись управляемой базы знаний. Отвечает клиенту только ACTIVE; публикует главный администратор."""
+
+    __tablename__ = "support_knowledge"
+    __table_args__ = (
+        sa.CheckConstraint(_in("category", KB_CATEGORIES), name="ck_support_knowledge_category"),
+        sa.CheckConstraint(_in("visibility", KB_VISIBILITIES), name="ck_support_knowledge_visibility"),
+        sa.CheckConstraint(_in("status", KB_STATUSES), name="ck_support_knowledge_status"),
+        sa.Index("idx_support_knowledge_status", "status"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    title: Mapped[str] = mapped_column(sa.String(200), nullable=False)
+    category: Mapped[str] = mapped_column(sa.String(20), nullable=False)
+    visibility: Mapped[str] = mapped_column(sa.String(24), nullable=False)
+    status: Mapped[str] = mapped_column(sa.String(12), nullable=False)
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=1)
+    source: Mapped[str] = mapped_column(sa.String(200), nullable=False, default="manual")
+    content: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    approved_by: Mapped[str | None] = mapped_column(sa.String(200))
+    approved_at: Mapped[datetime | None] = mapped_column(TZ)
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class SupportKnowledgeVersion(Base):
+    """Снимок записи при каждой смене версии: история для оператора и откат вручную."""
+
+    __tablename__ = "support_knowledge_versions"
+    __table_args__ = (sa.UniqueConstraint("knowledge_id", "version", name="uq_support_knowledge_version"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    knowledge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("support_knowledge.id", ondelete="CASCADE"), nullable=False
+    )
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    title: Mapped[str] = mapped_column(sa.String(200), nullable=False)
+    category: Mapped[str] = mapped_column(sa.String(20), nullable=False)
+    visibility: Mapped[str] = mapped_column(sa.String(24), nullable=False)
+    content: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    saved_by: Mapped[str | None] = mapped_column(sa.String(200))
+    saved_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class SupportKnowledgeChunk(Base):
+    """Чанки и векторы АКТИВНОЙ версии записи. Индекс hnsw — в миграции, только Postgres."""
+
+    __tablename__ = "support_knowledge_chunks"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    knowledge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("support_knowledge.id", ondelete="CASCADE"), nullable=False
+    )
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    chunk_index: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    content: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    embedding: Mapped[list[float] | None] = mapped_column(VectorType(EMBEDDING_DIM))
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class SupportKnowledgeUsage(Base):
+    """Какие знания легли в ответ: оператор видит это в кабинете, клиент — нет."""
+
+    __tablename__ = "support_knowledge_usage"
+    __table_args__ = (sa.Index("idx_support_kb_usage_conv", "conversation_id", "used_at"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    conversation_id: Mapped[str | None] = mapped_column(sa.String(64))
+    knowledge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("support_knowledge.id", ondelete="CASCADE"), nullable=False
+    )
+    version: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    visibility: Mapped[str] = mapped_column(sa.String(24), nullable=False)
+    score: Mapped[float] = mapped_column(sa.Float, nullable=False)
+    used_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+ACTION_STATUSES = ("PROPOSED", "CONFIRMED", "DONE", "FAILED", "CANCELLED", "EXPIRED", "REFUSED", "ESCALATED")
+
+
+class SupportAction(Base):
+    """Журнал действий WETOP Support (S6): предложил, подтвердил, выполнил, отказал, передал человеку.
+    `result` — короткая строка без ПД; `args` — только белый список; `user_ref` — псевдоним, не id."""
+
+    __tablename__ = "support_actions"
+    __table_args__ = (sa.Index("idx_support_actions_conv", "conversation_id", "created_at"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    conversation_id: Mapped[str | None] = mapped_column(sa.String(64))
+    user_ref: Mapped[str] = mapped_column(sa.String(32), nullable=False)
+    action: Mapped[str] = mapped_column(sa.String(40), nullable=False)
+    action_class: Mapped[str] = mapped_column(sa.String(16), nullable=False)
+    args: Mapped[dict | None] = mapped_column(sa.JSON())
+    status: Mapped[str] = mapped_column(sa.String(16), nullable=False)
+    result: Mapped[str | None] = mapped_column(sa.String(300))
+    created_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    executed_at: Mapped[datetime | None] = mapped_column(TZ)
 
 
 # ─── Исходящие: outbox ───
@@ -407,3 +567,32 @@ class OutboxItem(Base):
     sent_at: Mapped[datetime | None] = mapped_column(TZ)
     expires_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
     created_at: Mapped[datetime] = mapped_column(TZ, nullable=False, default=utcnow)
+
+
+# ─── Зеркало организации в агенте (SA1.6) ───
+
+
+def _mirror_agent(_mapper: Any, connection: sa.Connection, org: Organization) -> None:
+    """Строка `agents` с `id = organizations.id` следует за организацией при любой записи — одной транзакцией.
+
+    Слушатель, а не вызов в каждом обработчике: писателей организации несколько (PUT платформы, профиль, инструкция),
+    и новый не должен забыть про агента. Сверка нужна, пока читают ещё организацию; когда читателем станет агент,
+    источником станет он (SA2).
+    """
+    values = {
+        "organization_id": org.id,
+        "name": org.name,
+        "public_key": org.public_key,
+        "hosts": list(org.hosts or []),
+        "system_prompt": org.system_prompt,
+        "active": bool(org.active),
+        "updated_at": org.updated_at,
+    }
+    agents = Agent.__table__
+    updated = connection.execute(sa.update(agents).where(agents.c.id == org.id).values(**values))
+    if updated.rowcount == 0:
+        connection.execute(sa.insert(agents).values(id=org.id, created_at=org.created_at, **values))
+
+
+sa.event.listen(Organization, "after_insert", _mirror_agent)
+sa.event.listen(Organization, "after_update", _mirror_agent)

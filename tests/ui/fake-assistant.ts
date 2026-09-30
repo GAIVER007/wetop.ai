@@ -39,7 +39,7 @@ createServer((req, res) => {
     res.end('{"ok":true}');
     return;
   }
-  if (req.url === '/widget/widget.js') {
+  if (new URL(req.url || '/', 'http://localhost').pathname === '/widget/widget.js') {
     res.writeHead(200, {
       'content-type': 'application/javascript; charset=utf-8',
       'cache-control': 'no-store',

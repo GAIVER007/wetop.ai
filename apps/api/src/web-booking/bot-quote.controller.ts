@@ -39,11 +39,38 @@ export class BotQuoteController {
     @Req() request: { headers: Record<string, unknown> },
     @Query() query: Record<string, string>,
   ): Promise<Quote> {
-    const key = serviceKeyKind(request.headers);
-    if (key === null) throw new UnauthorizedException(QUOTE_KEY_REQUIRED);
-    if (key !== 'seller-quote' && key !== 'service') throw new ForbiddenException(QUOTE_KEY_REQUIRED);
+    this.checkKey(request);
+    // `agent` — недоверенный селектор: по нему находится строка агента, организация и филиал берутся из неё (SA2.5).
+    // Организация при этом не читается вовсе. Только `organization` — прежний бот; двух агентов он не различает (сервис).
+    if (query.agent !== undefined) {
+      const agent = query.agent;
+      if (!UUID.test(agent)) throw new BadRequestException('agent: ожидается UUID');
+      return this.service.quoteForAgent(agent.toLowerCase(), query);
+    }
     const organization = query.organization ?? '';
     if (!UUID.test(organization)) throw new BadRequestException('organization: ожидается UUID');
     return this.service.quoteForOrganization(organization.toLowerCase(), query);
+  }
+
+  /**
+   * Домены виджета агента (SA2.5, Q-SA-17): allowlist вычисляется из действующих сайтов его филиала во время запроса.
+   * Копии доменов в агенте нет; бот кэширует ответ на минуты, платформа отвечает всегда свежим.
+   */
+  @Get('agent-origins')
+  @Header('Cache-Control', 'no-store')
+  async agentOrigins(
+    @Req() request: { headers: Record<string, unknown> },
+    @Query() query: Record<string, string>,
+  ): Promise<{ hosts: string[] }> {
+    this.checkKey(request);
+    const agent = query.agent ?? '';
+    if (!UUID.test(agent)) throw new BadRequestException('agent: ожидается UUID');
+    return { hosts: await this.service.originsForAgent(agent.toLowerCase()) };
+  }
+
+  private checkKey(request: { headers: Record<string, unknown> }): void {
+    const key = serviceKeyKind(request.headers);
+    if (key === null) throw new UnauthorizedException(QUOTE_KEY_REQUIRED);
+    if (key !== 'seller-quote' && key !== 'service') throw new ForbiddenException(QUOTE_KEY_REQUIRED);
   }
 }

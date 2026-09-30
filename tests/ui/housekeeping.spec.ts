@@ -70,13 +70,19 @@ test('шахматка: цикл в строке — требует уборки
   // после проверки ячейка доступна: значка в строке нет, в уборке осталась одна M01
   await expect(glyph).toHaveCount(0);
   await expect(glyphs).toHaveCount(1);
-  await expect(main.getByRole('button', { name: /^Уборка 1$/ })).toBeVisible();
+  // счётчик уборки — в пункте поля «Места» (PR 7 «Шахматки v2»)
+  await expect(main.getByLabel('Места на шахматке').locator('option[value="cleaning"]')).toHaveText(
+    'Уборка 1',
+  );
 });
 
 test('шахматка: «Уборка» в фильтрах считает всё, что ещё не проверено', async ({ page }) => {
   const main = page.getByRole('main');
   await page.goto('/chessboard');
-  await expect(main.getByRole('button', { name: /^Уборка 2$/ })).toBeVisible();
+  // «Уборка N» — пункт поля «Места» (PR 7 «Шахматки v2»), а не чип
+  const places = main.getByLabel('Места на шахматке');
+  const cleaning = places.locator('option[value="cleaning"]');
+  await expect(cleaning).toHaveText('Уборка 2');
   const r01 = main.getByTestId('unit-row').filter({ hasText: /\bR01\b/ });
   await r01.getByTestId('unit-housekeeping').getByRole('button').click();
   await page
@@ -92,9 +98,8 @@ test('шахматка: «Уборка» в фильтрах считает вс
   // строка обновляется через router.refresh() после ответа — ждём новый статус, а не читаем прежний
   await expect(r01.getByTestId('unit-housekeeping')).toHaveAttribute('data-status', 'CLEAN');
   // убранная, но не проверенная ячейка всё ещё в списке уборки
-  const chip = main.getByRole('button', { name: /^Уборка 2$/ });
-  await expect(chip).toBeVisible();
-  await chip.click();
+  await expect(cleaning).toHaveText('Уборка 2');
+  await places.selectOption('cleaning');
   await expect(main.getByTestId('unit-row')).toHaveCount(2);
   const statuses = await main
     .getByTestId('unit-housekeeping')

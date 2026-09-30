@@ -1,0 +1,16 @@
+# Модульные (unit) · 29.09.2026 21:31 Алматы · vm
+# коммит 500d24c (claude/epic-lamport-3il4q0), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-29T16-31-02Z-unit-b855.json' 'packages/domain/src/assistant/diagnostics.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/assistant/diagnostics.test.ts (12 tests) 14ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  16:31:03
+   Duration  370ms (transform 73%, import 13%, tests 10%, worker 4%)
+
+JSON report written to /tmp/pms-test-2026-09-29T16-31-02Z-unit-b855.json
+
+# код выхода 0 · 2 с

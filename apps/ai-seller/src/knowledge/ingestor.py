@@ -229,17 +229,20 @@ async def ingest_document(
     overlap: int,
     min_chars: int,
     organization_id: uuid.UUID | None = None,
+    agent_id: uuid.UUID | None = None,
 ) -> IngestResult:
     """Загружает один файл. Повторная загрузка того же содержимого — no-op.
 
-    organization_id (Э4): документ гостиницы. Дедуп по хешу — в её пределах:
-    один и тот же прайс у двух гостиниц — две записи. None — как раньше.
+    organization_id и agent_id (SA2.5): документ АГЕНТА. Дедуп по хешу — в его пределах: один и тот же прайс у двух
+    агентов, даже одной организации, — две записи. Оба None — как раньше (помощник); один без другого — ошибка вызова.
 
     Граница транзакции: один документ = одна транзакция, commit делает эта
     функция. В сессию до вызова ничего не кладут: незавершённая чужая работа
     (например, запись в журнал действий оператора) зафиксируется здесь
     раньше времени или частично.
     """
+    if (organization_id is None) != (agent_id is None):
+        raise ValueError("документ продавца: нужны и организация, и агент")
     # (1) Предел — до разбора: разборщик pdf/docx на большом файле ест память.
     check_size(len(data), max_bytes)
 
@@ -249,8 +252,8 @@ async def ingest_document(
 
     # (3) Проверка «уже сделано» ДО действия.
     dedup = sa.select(Document).where(Document.file_hash == file_hash)
-    if organization_id is not None:
-        dedup = dedup.where(Document.organization_id == organization_id)
+    if agent_id is not None:
+        dedup = dedup.where(Document.agent_id == agent_id)
     existing = (await session.execute(dedup)).scalar_one_or_none()
     if existing is not None:
         logger.info("Документ %s уже в базе (hash=%s…), пропускаем", source, file_hash[:12])
@@ -277,6 +280,7 @@ async def ingest_document(
     document = Document(
         source=source,
         organization_id=organization_id,
+        agent_id=agent_id,
         file_hash=file_hash,
         chunk_count=len(chunks),
         created_at=utcnow(),

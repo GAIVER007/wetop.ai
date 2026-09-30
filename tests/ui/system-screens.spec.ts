@@ -193,19 +193,20 @@ test('аналитика и статистика: пустое состояни�
     '/website/settings',
   );
   await request.post(`${fixture}/__test/control`, { data: {} });
-  // статистика (с ADR-114 — «Аналитика → Загрузка»): старый адрес ведёт на вкладку с той же датой;
-  // подпись даты словами; отказ шахматки оставляет форму и дату
+  // статистика (с ADR-114 — «Аналитика → Загрузка», с AN2 — на расчёте `GET /desk/dashboard`): старый
+  // адрес ведёт на вкладку с той же датой; подпись даты словами; отказ оставляет полосу периода и дату
   await page.goto('/management/statistics?date=2026-09-25');
   await expect(page).toHaveURL(/\/management\/analytics\/occupancy\?date=2026-09-25$/);
   await expect(main.getByTestId('statistics-meta')).toContainText('Загрузка на 25.09.2026');
   await expect(main.getByTestId('statistics-table').locator('tbody tr').first()).toBeVisible();
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '/chessboard' } });
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   await page.goto('/management/analytics/occupancy?date=2026-09-25');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Аналитика');
-  await expect(main.getByLabel('Дата')).toHaveValue('2026-09-25');
+  await expect(main.getByTestId('pa-period')).toContainText('25 сентября 2026');
+  await expect(main.getByLabel('Период: с')).toHaveValue('2026-09-25');
   const statsFailure = main.getByTestId('statistics-error');
   await expect(statsFailure).toContainText('Проверьте подключение и повторите запрос');
-  await expect(main.locator('.stat__value')).toHaveCount(0);
+  await expect(main.locator('.kpi__value')).toHaveCount(0);
   await request.post(`${fixture}/__test/control`, { data: {} });
   await statsFailure.getByRole('button', { name: 'Повторить загрузку' }).click();
   await expect(main.getByTestId('statistics-table').locator('tbody tr').first()).toBeVisible();
@@ -223,9 +224,10 @@ test('аналитика и статистика: пустое состояни�
   expect(layout.content, 'статистика шире экрана телефона').toBeLessThanOrEqual(
     layout.viewport + 1,
   );
+  // «Загрузка» строки — во всю ширину карточки, числа — по два в ряд
   await expect(
-    main.getByTestId('statistics-table').locator('tbody tr').first().locator('td').nth(5),
-  ).toHaveCSS('grid-column-start', '2');
+    main.getByTestId('statistics-table').locator('tbody tr').first().locator('td').nth(6),
+  ).toHaveCSS('grid-column-start', '1');
   await page.setViewportSize({ width: 1440, height: 1000 });
   // загрузка словом на обоих экранах
   await request.post(`${fixture}/__test/control`, {
@@ -235,7 +237,7 @@ test('аналитика и статистика: пустое состояни�
   await expect(main.getByTestId('an-loading')).toContainText('Считаем отчёт по сайту');
   await expect(main.getByTestId('an-summary')).toBeVisible({ timeout: 15_000 });
   await request.post(`${fixture}/__test/control`, {
-    data: { delayPath: '/chessboard', delayMs: 2500 },
+    data: { delayPath: '/desk/dashboard', delayMs: 2500 },
   });
   await page.goto('/management/analytics/occupancy', { waitUntil: 'commit' });
   await expect(main.getByTestId('statistics-loading')).toContainText(
@@ -257,11 +259,11 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(page).toHaveURL(/\/hotel-settings$/);
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByText('Не указан', { exact: true })).toHaveCount(0);
-  // правила отмены ушли к тарифам (ADR-115): старый адрес — «Цены» со строкой правила, без кода тарифа
+  // правила отмены ушли к тарифам (ADR-115, SET4): старый адрес — «Тарифные планы», правило словами, без кода тарифа
   await page.goto('/hotel-settings/penalties');
-  await expect(page).toHaveURL(/\/rates$/);
-  await expect(main.getByTestId('rate-plan-cancellation')).toContainText('стоимость первой ночи');
-  await expect(main.getByTestId('rate-plan-cancellation')).not.toContainText('BASE');
+  await expect(page).toHaveURL(/\/rates\/plans$/);
+  await expect(main.getByTestId('rate-plans-table')).toContainText('Стоимость первой ночи');
+  await expect(main.getByTestId('rate-plans-table')).not.toContainText('BASE');
   // Ошибка чтения настроек оставляет заголовок и вкладки на месте.
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/settings' } });
   await page.goto('/hotel-settings');
@@ -274,7 +276,7 @@ test('настройки объекта: сбой с повтором, пуст�
   await expect(main.getByTestId('stored-property')).toBeVisible();
   await expect(main.getByTestId('settings-error')).toHaveCount(0);
   // отказ настроек на «Услугах»: сбой с повтором вместо общего экрана
-  await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/services' } });
+  await request.post(`${fixture}/__test/control`, { data: { failPath: '/hotel/services' } });
   await page.goto('/hotel-settings/services');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
   await expect(main.getByTestId('services-error')).toContainText(
@@ -289,7 +291,7 @@ test('настройки объекта: сбой с повтором, пуст�
   await request.post(`${fixture}/__test/control`, { data: {} });
   // загрузка словом
   await request.post(`${fixture}/__test/control`, {
-    data: { delayPath: '/finance/services', delayMs: 2500 },
+    data: { delayPath: '/hotel/services', delayMs: 2500 },
   });
   await page.goto('/hotel-settings/services', { waitUntil: 'commit' });
   await expect(main.getByTestId('settings-loading')).toContainText('Читаем настройки объекта');

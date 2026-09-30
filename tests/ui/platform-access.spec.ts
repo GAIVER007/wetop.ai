@@ -35,17 +35,17 @@ const menuLinks = (page: Page) =>
     .locator('.workspace-sidebar .workspace-links a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
-test('меню: «ИИ-продавец» — всегда (ADR-090), «Платформа» — у главного администратора', async ({
+test('меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора', async ({
   page,
   request,
 }) => {
   // без входа стойка не знает организацию: продавец виден для знакомства (ADR-090), «Платформы» нет
   await page.goto('/today');
-  await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
+  await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
   expect(await menuLinks(page)).not.toContain('/platform');
 
   await signIn(page);
-  await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
+  await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
   expect(await menuLinks(page)).not.toContain('/platform');
   // вместо «Администратор» — кто вошёл и его роль
   const footer = page.locator('.workspace-sidebar .workspace-footer');
@@ -56,7 +56,7 @@ test('меню: «ИИ-продавец» — всегда (ADR-090), «Плат
   await page.goto('/today');
   await expect.poll(() => menuLinks(page)).toContain('/platform');
   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
-  expect(await menuLinks(page)).toContain('/ai-seller');
+  expect(await menuLinks(page)).toContain('/ai-agents');
   await expect(page.locator('.workspace-sidebar .sidebar-section-toggle')).toHaveText([
     'Работа с гостями',
     'Номерной фонд',

@@ -14,6 +14,7 @@ from typing import Annotated, Literal
 import sqlalchemy as sa
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.agent_scope import AgentScope
 from src.db.models import Document
 from src.knowledge.ingestor import ingest_document
 
@@ -84,12 +85,12 @@ def render(facts: ObjectFacts) -> str:
 
 
 async def replace_facts(
-    session, embedder, facts: ObjectFacts, *, organization_id: uuid.UUID | None = None, **ingest_kwargs
+    session, embedder, facts: ObjectFacts, *, scope: AgentScope | None = None, **ingest_kwargs
 ) -> str:
     """Заменить факты одной транзакцией. Возвращает 'unchanged' или 'replaced'.
 
-    organization_id (Э4): у каждой гостиницы свой platform:facts.md — замена
-    фактов одной не трогает цены другой.
+    scope (SA2.5; до неё — организация, Э4): у каждого АГЕНТА свой platform:facts.md — замена
+    фактов одного не трогает цены другого, даже в одной организации.
 
     🔴 Удаление старых и запись новых фиксируются вместе: ingest_document делает
     единственный commit в конце. Упала запись (инъекция в поле, отказ модели
@@ -99,8 +100,8 @@ async def replace_facts(
     data = render(facts).encode("utf-8")
     digest = hashlib.sha256(data).hexdigest()
     stmt = sa.select(Document).where(Document.source == SOURCE)
-    if organization_id is not None:
-        stmt = stmt.where(Document.organization_id == organization_id)
+    if scope is not None:
+        stmt = stmt.where(Document.agent_id == scope.agent_id)
     old = (await session.execute(stmt)).scalars().all()
     if any(doc.file_hash == digest for doc in old):
         return "unchanged"
@@ -108,7 +109,8 @@ async def replace_facts(
         for doc in old:
             await session.delete(doc)  # каскад ORM уносит куски документа
         await ingest_document(session, embedder, source=SOURCE, data=data,
-                              organization_id=organization_id, **ingest_kwargs)
+                              organization_id=scope.organization_id if scope else None,
+                              agent_id=scope.agent_id if scope else None, **ingest_kwargs)
     except Exception:
         await session.rollback()
         raise

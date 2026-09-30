@@ -47,7 +47,7 @@ test('не главный администратор: пункта нет, а с
   page,
 }) => {
   await signIn(page);
-  await expect.poll(() => menuLinks(page)).toContain('/ai-seller');
+  await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
   expect(await menuLinks(page)).not.toContain('/platform/support');
   // Техподдержка переехала под переключатель агентов на «ИИ-продавце» — не главному администратору его не видно
   await page.goto('/ai-seller');
@@ -57,7 +57,7 @@ test('не главный администратор: пункта нет, а с
   await expect(page.getByTestId('support-dialogs')).toHaveCount(0);
 });
 
-test('главный администратор: сводка, отбор, карточка — кто пишет; перехват, ответ, возврат', async ({
+test('главный администратор: сводка, очередь, карточка — кто пишет', async ({
   page,
   request,
 }) => {
@@ -73,19 +73,13 @@ test('главный администратор: сводка, отбор, ка�
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Техподдержка');
   await expect(main.getByTestId('support-summary')).toContainText('Диалогов за сутки');
-  const table = main.getByTestId('support-dialogs');
-  await expect(table.getByRole('row')).toHaveCount(3);
-  await expect(table).toContainText('d***');
-  await expect(table).toContainText('Без подписи');
+  // очередь и действия оператора подробно — `support-queue.spec.ts` (S1); здесь — вход в раздел и карточка
+  const queue = main.getByTestId('support-queue-list');
+  await expect(queue.getByRole('listitem')).toHaveCount(3);
+  await expect(queue).toContainText('d***');
+  await expect(queue).toContainText('Без подписи');
 
-  await main
-    .getByRole('navigation', { name: 'Отбор диалогов' })
-    .getByRole('link', { name: 'Нужен человек' })
-    .click();
-  await expect(page).toHaveURL(/mode=needs_human/);
-  await expect(table.getByRole('row')).toHaveCount(2);
-
-  await table.getByRole('link', { name: 'd***' }).click();
+  await queue.locator(`[data-id="${SIGNED}"]`).getByRole('link').click();
   const card = main.getByTestId('support-dialog-card');
   await expect(card.getByRole('heading', { level: 2 })).toHaveText('dana@example.invalid');
   const who = card.getByTestId('support-dialog-who');
@@ -97,21 +91,6 @@ test('главный администратор: сводка, отбор, ка�
   await expect(who).toContainText('администратор');
   await expect(card).toContainText('Не сохраняется бронь');
   await shot(page, 'support-dialog');
-
-  await card.getByTestId('dialog-takeover').click();
-  await expect(card.getByTestId('dialog-mode-result')).toHaveText(
-    'Диалог ваш: помощник молчит, пока вы не вернёте его боту.',
-  );
-  await card.getByLabel('Ответ пользователю').fill('Проверим за десять минут.');
-  await card.getByTestId('dialog-reply').click();
-  await expect(card.getByTestId('dialog-reply-result')).toHaveText('Ответ отправлен.');
-  await page.reload();
-  await expect(main.getByTestId('support-dialog-card')).toContainText('Проверим за десять минут.');
-  await expect(main.getByTestId('support-dialog-mode')).toHaveText('ведёт человек');
-  await main.getByTestId('support-dialog-card').getByTestId('dialog-release').click();
-  await expect(
-    main.getByTestId('support-dialog-card').getByTestId('dialog-mode-result'),
-  ).toHaveText('Диалог вернули помощнику.');
 
   // без входа, с главной wetop.ai: подписи нет — так и сказано
   await page.goto(`/platform/support?id=${ANONYMOUS}`);
@@ -227,7 +206,10 @@ for (const width of [1440, 390]) {
       await signIn(page);
       await control(request, { platformAdmin: true });
       for (const route of [
+        '/platform/support',
         `/platform/support?id=${SIGNED}`,
+        // закрытое обращение — переписка без формы ответа (S1)
+        '/platform/support?queue=closed&id=9d4e5f6a-7b8c-4d9e-9f0a-2b3c4d5e6f7a',
         `/platform/support?id=${ANONYMOUS}`,
         '/platform/support/knowledge',
         '/platform/support/settings',

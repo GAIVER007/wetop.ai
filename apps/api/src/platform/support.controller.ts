@@ -16,6 +16,7 @@ import {
 import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { KNOWLEDGE_MAX_BYTES, type UploadedFile as PanelFile } from '../bots/panel';
+import { SupportKnowledgeService } from './support-kb.service';
 import { SupportService } from './support.service';
 import { Access } from '../auth/access.decorator';
 
@@ -29,7 +30,10 @@ import { Access } from '../auth/access.decorator';
 @UseInterceptors(ServiceDatabaseInterceptor)
 @Controller('platform/support')
 export class SupportController {
-  constructor(@Inject(SupportService) private readonly support: SupportService) {}
+  constructor(
+    @Inject(SupportService) private readonly support: SupportService,
+    @Inject(SupportKnowledgeService) private readonly kb: SupportKnowledgeService,
+  ) {}
 
   @Get('status')
   @Header('Cache-Control', 'no-store')
@@ -41,6 +45,12 @@ export class SupportController {
   @Header('Cache-Control', 'no-store')
   conversations(@Query('mode') mode?: string, @Query('limit') limit?: string) {
     return this.support.conversations({ mode, limit });
+  }
+
+  @Get('queue')
+  @Header('Cache-Control', 'no-store')
+  queue(@Query('queue') queue?: string) {
+    return this.support.queue(queue);
   }
 
   @Get('conversations/:id')
@@ -59,6 +69,12 @@ export class SupportController {
   @HttpCode(200)
   release(@Param('id') id: string) {
     return this.support.switchMode(id, 'release');
+  }
+
+  @Post('conversations/:id/close')
+  @HttpCode(200)
+  close(@Param('id') id: string) {
+    return this.support.close(id);
   }
 
   @Post('conversations/:id/reply')
@@ -83,6 +99,66 @@ export class SupportController {
   )
   uploadKnowledge(@UploadedFile() file: PanelFile | undefined) {
     return this.support.uploadKnowledge(file);
+  }
+
+  // ── управляемая база знаний (S3): публикует главный администратор, автора ставит сервер ────────────────────────
+
+  @Get('kb')
+  @Header('Cache-Control', 'no-store')
+  kbList(
+    @Query('status') status?: string,
+    @Query('category') category?: string,
+    @Query('visibility') visibility?: string,
+    @Query('q') q?: string,
+  ) {
+    return this.kb.list({ status, category, visibility, q });
+  }
+
+  @Post('kb')
+  @HttpCode(200)
+  kbCreate(@Body() body: unknown) {
+    return this.kb.create(body);
+  }
+
+  @Get('kb/:id')
+  @Header('Cache-Control', 'no-store')
+  kbRead(@Param('id') id: string) {
+    return this.kb.read(id);
+  }
+
+  @Put('kb/:id')
+  kbUpdate(@Param('id') id: string, @Body() body: unknown) {
+    return this.kb.update(id, body);
+  }
+
+  @Post('kb/:id/publish')
+  @HttpCode(200)
+  kbPublish(@Param('id') id: string) {
+    return this.kb.publish(id);
+  }
+
+  @Post('kb/:id/status')
+  @HttpCode(200)
+  kbStatus(@Param('id') id: string, @Body() body: unknown) {
+    return this.kb.setStatus(id, body);
+  }
+
+  @Get('conversations/:id/knowledge')
+  @Header('Cache-Control', 'no-store')
+  conversationKnowledge(@Param('id') id: string) {
+    return this.kb.conversationSources(id);
+  }
+
+  @Get('conversations/:id/actions')
+  @Header('Cache-Control', 'no-store')
+  conversationActions(@Param('id') id: string) {
+    return this.kb.conversationActions(id);
+  }
+
+  @Post('conversations/:id/knowledge-draft')
+  @HttpCode(200)
+  knowledgeDraft(@Param('id') id: string) {
+    return this.kb.draftFromConversation(id);
   }
 
   @Get('summary')

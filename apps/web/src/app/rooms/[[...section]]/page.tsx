@@ -63,9 +63,11 @@ export default async function RoomsPage({
     validDate(departure) &&
     arrival < departure &&
     nightsBetween(arrival, departure) <= MAX_CHESSBOARD_DAYS;
-  const [summary, units, result] = await Promise.all([
+  const [summary, units, offers, result] = await Promise.all([
     api.inventorySummary(),
     api.inventoryUnits(),
+    // Цены — дополнение к местам: не загрузились — места всё равно видны, строка скажет «цены не загрузились»
+    valid ? reservationsApi.offers(arrival, departure, guests).catch(() => null) : null,
     valid
       ? reservationsApi
           .availability(arrival, departure)
@@ -79,6 +81,17 @@ export default async function RoomsPage({
           error: `Выезд должен быть позже заезда. Период — не больше ${MAX_CHESSBOARD_DAYS} ночей.`,
         }),
   ]);
+  // Ближайшая доступность (AV4) — только когда есть категория, подходящая по вместимости, но без мест на весь
+  // запрос: иначе лишний рейс к API на каждом поиске. Не загрузилась — строка просто скажет «нет мест».
+  const beds = new Set(units.filter((u) => u.kind === 'BED').map((u) => u.accommodationTypeCode));
+  const soldOut = summary.byCategory.some((c) => {
+    const bed = beds.has(c.code);
+    const available = result.data?.byCategory[c.code]?.available ?? 0;
+    return result.data && (bed || c.capacityAdults >= guests) && available < (bed ? guests : 1);
+  });
+  const nearest = soldOut
+    ? await reservationsApi.nearest(arrival, departure, guests).catch(() => null)
+    : null;
   return (
     <Page
       title="Свободные места"
@@ -90,6 +103,8 @@ export default async function RoomsPage({
         arrival={arrival}
         departure={departure}
         guests={guests}
+        offers={offers}
+        nearest={nearest}
         result={result.data}
         error={result.error}
         summary={summary}

@@ -25,7 +25,7 @@ import uuid
 import sqlalchemy as sa
 
 from src.db.dedup import is_duplicate
-from src.db.models import Client, Organization
+from src.db.models import Agent, Client, Organization
 from tests.dashboard_fakes import (  # noqa: F401 — sync_db идёт фикстурой
     PANEL,
     _all,
@@ -134,16 +134,16 @@ def test_another_hotels_number_is_refused_with_409(app) -> None:  # noqa: F811
 
 async def test_dedup_key_separates_organizations(fake_redis) -> None:
     kw = dict(channel="whatsapp", external_id="77021112233", text="Здравствуйте", ttl_seconds=60)
-    assert await is_duplicate(fake_redis, organization_id=ORG, **kw) is False
-    assert await is_duplicate(fake_redis, organization_id=ORG_B, **kw) is False
-    assert await is_duplicate(fake_redis, organization_id=ORG, **kw) is True
+    assert await is_duplicate(fake_redis, agent_id=ORG, **kw) is False
+    assert await is_duplicate(fake_redis, agent_id=ORG_B, **kw) is False
+    assert await is_duplicate(fake_redis, agent_id=ORG, **kw) is True
 
 
 def test_the_same_greeting_to_two_hotels_is_answered_by_both(app, sync_db, net) -> None:  # noqa: F811
     with sync_db() as session:
         session.execute(
-            sa.update(Organization)
-            .where(Organization.name == "Гостиница Б")
+            sa.update(Agent)
+            .where(Agent.name == "Гостиница Б")
             .values(system_prompt="Ты продавец второй гостиницы-стенда.")
         )
         session.commit()
@@ -193,3 +193,33 @@ def test_a_normal_webhook_still_fits(app, net) -> None:  # noqa: F811
     assert _post(app, _webhook_body("Есть места на выходные?")).status_code == 200
     _drain(app)
     assert net.llm_calls == 1
+
+
+# ─── 6. Сравнение подписи и слова подтверждения — по байтам (аудит 30.09.2026) ───
+#
+# `hmac.compare_digest(str, str)` бросает TypeError, если в любой из строк есть не-ASCII символ.
+# Строку в запрос кладёт кто угодно: чужое слово подтверждения или подпись давали 500 вместо 403.
+# 🔴 Оба теста красные на коде до правки: TypeError вместо HTTPException(403).
+
+
+def test_a_non_ascii_verify_word_is_refused_with_403(app) -> None:  # noqa: F811
+    _connect(app)
+    bad = app.client.get(
+        f"/channels/whatsapp/webhook/{ORG}",
+        params={"hub.mode": "subscribe", "hub.verify_token": "не-то-слово", "hub.challenge": "42"},
+    )
+    assert bad.status_code == 403, bad.text
+
+
+def test_a_non_ascii_signature_is_refused_with_403(app, net) -> None:  # noqa: F811
+    _connect(app)
+    raw = _webhook_body()
+    response = app.client.post(
+        f"/channels/whatsapp/webhook/{ORG}",
+        content=raw,
+        # Байты заголовка: Starlette читает их как latin-1, и в строке появляются символы выше ASCII
+        headers={b"Content-Type": b"application/json", b"X-Hub-Signature-256": "sha256=подпись".encode("utf-8")},
+    )
+    assert response.status_code == 403, response.text
+    _drain(app)
+    assert net.llm_calls == 0

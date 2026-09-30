@@ -1,0 +1,22 @@
+# Модульные (unit) · 29.09.2026 20:40 Алматы · MacBook-Air-Urij.local
+# коммит 3be9b67 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-29T15-40-49Z-unit-c140.json' 'apps/web/src/design-rules.test.ts' 'tests/unit/desk-glass.test.ts' 'scripts/design/build-tokens.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| tests/unit/desk-glass.test.ts (5 tests) 91ms
+ ✓ |unit| scripts/design/build-tokens.test.ts (14 tests) 483ms
+   ✓ tokens.css генерируется из design/tokens.json (3)
+     ✓ имена переменных прежние: ни одна var(--…) стойки не осталась без определения 414ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 1101ms
+   ✓ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 429ms
+
+ Test Files  3 passed (3)
+      Tests  32 passed (32)
+   Start at  19:40:55
+   Duration  1.95s (tests 52%, transform 37%, import 9%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-09-29T15-40-49Z-unit-c140.json
+
+# код выхода 0 · 9 с

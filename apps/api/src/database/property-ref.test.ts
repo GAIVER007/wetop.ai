@@ -4,7 +4,7 @@
  * База в Сингапуре, стойка в Алматы — каждый лишний рейс это десятки миллисекунд на пустом месте.
  * Объект один и не переименовывается на ходу, поэтому id держим в памяти процесса.
  */
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { withOrganizationScope, withSignedInUser } from '../auth/request-context';
 import { forgetPropertyRef, propertyIdRef } from './property-ref';
 
@@ -13,7 +13,14 @@ import { forgetPropertyRef, propertyIdRef } from './property-ref';
  * Location → Business у объекта (Platform P1, ADR-104).
  */
 function fakeDb(
-  rows: Array<{ id: string; name: string; organizationId?: string | null; chainOrganizationId?: string }>,
+  rows: Array<{
+    id: string;
+    name: string;
+    organizationId?: string | null;
+    chainOrganizationId?: string;
+    businessId?: string;
+    locationId?: string;
+  }>,
 ) {
   let calls = 0;
   return {
@@ -26,7 +33,8 @@ function fakeDb(
           where: {
             name?: string;
             organizationId?: string | null;
-            location?: { business?: { organizationId?: string } };
+            locationId?: string;
+            location?: { businessId?: string; business?: { organizationId?: string } };
           };
         }) => {
           calls += 1;
@@ -36,7 +44,9 @@ function fakeDb(
               (where.organizationId === undefined ||
                 (r.organizationId ?? null) === where.organizationId) &&
               (where.location === undefined ||
-                r.chainOrganizationId === where.location.business?.organizationId),
+                r.chainOrganizationId === where.location.business?.organizationId) &&
+              (where.locationId === undefined || r.locationId === where.locationId) &&
+              (where.location?.businessId === undefined || r.businessId === where.location.businessId),
           );
           return row ? { organizationId: null, ...row } : null;
         },
@@ -101,8 +111,8 @@ describe('идентификатор объекта', () => {
  */
 describe('вошедший получает объект своей организации, не чужой', () => {
   const two = [
-    { id: 'p1', name: 'Luxx', organizationId: 'org-luxx' },
-    { id: 'p2', name: 'Второй хостел', organizationId: 'org-b' },
+    { id: 'p1', name: 'Luxx', organizationId: 'org-luxx', chainOrganizationId: 'org-luxx' },
+    { id: 'p2', name: 'Второй хостел', organizationId: 'org-b', chainOrganizationId: 'org-b' },
   ];
 
   it('служебный ходок проходит по имени: за ним нет человека — скрипт, сторож, импорт', async () => {
@@ -132,9 +142,7 @@ describe('вошедший получает объект своей органи
     await withSignedInUser({ userId: 'u-2', organizationId: 'org-b' }, async () => {
       expect(await propertyIdRef(db, 'Luxx')).toBe('p2'); // своя память, не org-luxx
     });
-    // Platform P1: у объектов фейка нет цепочки, путь через неё даёт по пустому рейсу перед фолбэком;
-    // после применения миграции (location_id заполнен) рейс снова один — первый же запрос попадает
-    expect(f.calls(), 'по два рейса на организацию (Location-путь + фолбэк), из памяти — ноль').toBe(4);
+    expect(f.calls(), 'по одному рейсу на организацию, из памяти — ноль').toBe(2);
   });
 
   it('у чьей организации ещё нет объекта — «создайте в настройках», а не чужой объект', async () => {
@@ -197,11 +205,11 @@ describe('служебный контекст и одноимённые объе
 });
 
 /**
- * Platform P1 (ADR-104 §18, Q-199 вариант Б): объект организации находится по финальной цепочке
- * Organization → Business → Location → Property; пока миграция не применена (у объекта нет location_id) —
- * прежний путь по properties.organization_id, поведение то же.
+ * Platform P1 (ADR-104 §18, Q-199 вариант Б): объект организации находится ТОЛЬКО по цепочке
+ * Organization → Business → Location → Property. Фолбэк по properties.organization_id был миграционным
+ * окном и снят после production backfill (broken_chain = 0, 28.09.2026; DATA_MODEL v2.6).
  */
-describe('Platform P1: объект организации через цепочку Business → Location', () => {
+describe('Platform P1: объект организации только через цепочку Business → Location', () => {
   it('когда цепочка привязана — объект берётся через неё, а не по organizationId', async () => {
     const db = fakeDb([
       { id: 'старый-путь', name: 'Luxx', organizationId: 'org-luxx' },
@@ -212,12 +220,109 @@ describe('Platform P1: объект организации через цепоч
     });
   });
 
-  it('пока цепочки нет (миграция не применена) — прежний путь по organizationId, два рейса', async () => {
+  it('объект без цепочки (только properties.organization_id) не находится: обходного пути нет, один рейс', async () => {
     const f = fakeDb([{ id: 'p1', name: 'Luxx', organizationId: 'org-luxx' }]);
     const db = f.db as never;
     await withSignedInUser({ userId: 'u-1', organizationId: 'org-luxx' }, async () => {
-      expect(await propertyIdRef(db, 'Luxx')).toBe('p1');
+      await expect(propertyIdRef(db, 'Luxx')).rejects.toThrow(/ещё нет объекта/);
     });
-    expect(f.calls()).toBe(2);
+    expect(f.calls()).toBe(1);
+  });
+});
+
+/**
+ * Platform P2, К1 (план P2 §4а, ADR-120): объект открывается по scope запроса. ORGANIZATION — как раньше, самый ранний
+ * объект цепочки; BUSINESS — самый ранний объект этого Business; LOCATION — объект этого филиала. Scope приходит уже
+ * проверенным (`auth/scope.ts`); здесь только выбор и память по scope.
+ */
+describe('Platform P2, К1: объект по scope запроса', () => {
+  const rows = [
+    { id: 'p-first', name: 'Первый', organizationId: 'org-a', chainOrganizationId: 'org-a', businessId: 'b-1', locationId: 'l-1' },
+    { id: 'p-second', name: 'Второй', organizationId: 'org-a', chainOrganizationId: 'org-a', businessId: 'b-2', locationId: 'l-2' },
+    { id: 'p-third', name: 'Третий', organizationId: 'org-a', chainOrganizationId: 'org-a', businessId: 'b-2', locationId: 'l-3' },
+  ];
+  const as = (scope: Record<string, string>) => ({ userId: 'u-1', organizationId: 'org-a', ...scope });
+
+  it('ORGANIZATION — самый ранний объект организации, как до P2', async () => {
+    const db = fakeDb(rows).db as never;
+    await withSignedInUser(as({ scope: 'ORGANIZATION' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-first');
+    });
+  });
+
+  it('BUSINESS — самый ранний объект этого Business', async () => {
+    const db = fakeDb(rows).db as never;
+    await withSignedInUser(as({ scope: 'BUSINESS', businessId: 'b-2' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-second');
+    });
+  });
+
+  it('LOCATION — объект этого филиала', async () => {
+    const db = fakeDb(rows).db as never;
+    await withSignedInUser(as({ scope: 'LOCATION', businessId: 'b-2', locationId: 'l-3' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-third');
+    });
+  });
+
+  it('память — по scope: переключение не отдаёт объект прежнего scope', async () => {
+    const f = fakeDb(rows);
+    const db = f.db as never;
+    await withSignedInUser(as({ scope: 'ORGANIZATION' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-first');
+    });
+    await withSignedInUser(as({ scope: 'LOCATION', businessId: 'b-2', locationId: 'l-3' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-third');
+    });
+    await withSignedInUser(as({ scope: 'ORGANIZATION' }) as never, async () => {
+      expect(await propertyIdRef(db, 'Luxx')).toBe('p-first');
+    });
+    expect(f.calls(), 'по рейсу на scope, повтор — из памяти').toBe(2);
+  });
+});
+
+/**
+ * SEC-2 (аудит 29.09.2026): служебный ходок (сторож, фоновые циклы, скрипты) брал объект по названию — самому раннему с
+ * этим именем. `INTEGRATION_PROPERTY_ID` задаёт объект установки явно: название на выбор больше не влияет.
+ */
+describe('служебный путь: INTEGRATION_PROPERTY_ID', () => {
+  const ID = '67646baa-d066-4977-8afc-67f48398842f';
+  afterEach(() => vi.unstubAllEnvs());
+
+  function idDb(found: { id: string; name: string; organizationId: string | null; timezone: string } | null) {
+    const findUnique = vi.fn(async () => found);
+    const findFirst = vi.fn(async () => ({ id: 'p-namesake', name: 'Luxx', organizationId: null, timezone: 'Asia/Almaty' }));
+    return { findUnique, findFirst, db: { property: { findUnique, findFirst } } as never };
+  }
+
+  it('идентификатор задан — объект по нему, а не по названию', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', ID);
+    const f = idDb({ id: ID, name: 'Другое имя', organizationId: 'org-luxx', timezone: 'Asia/Almaty' });
+    expect(await propertyIdRef(f.db, 'Luxx')).toBe(ID);
+    expect(f.findFirst).not.toHaveBeenCalled();
+    // второй раз — из памяти
+    expect(await propertyIdRef(f.db, 'Luxx')).toBe(ID);
+    expect(f.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  it('идентификатор задан, объекта нет — понятная ошибка, к названию не откатываемся', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', ID);
+    const f = idDb(null);
+    await expect(propertyIdRef(f.db, 'Luxx')).rejects.toThrow(/INTEGRATION_PROPERTY_ID/);
+    expect(f.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('идентификатор не UUID — понятная ошибка, в базу не ходим', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', 'luxx');
+    const f = idDb(null);
+    await expect(propertyIdRef(f.db, 'Luxx')).rejects.toThrow(/INTEGRATION_PROPERTY_ID/);
+    expect(f.findUnique).not.toHaveBeenCalled();
+    expect(f.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('идентификатора нет — прежний путь по названию', async () => {
+    vi.stubEnv('INTEGRATION_PROPERTY_ID', '');
+    const f = idDb(null);
+    expect(await propertyIdRef(f.db, 'Luxx')).toBe('p-namesake');
+    expect(f.findUnique).not.toHaveBeenCalled();
   });
 });

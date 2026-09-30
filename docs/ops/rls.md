@@ -76,12 +76,140 @@ $C up -d api && sleep 20
 до включения; больше +20 % — написать, будет оптимизация (копия `property_id` в горячие таблицы — отдельной правкой
 модели).
 
+## Проверка при старте (SEC-1a, 29.09.2026)
+
+В боевом образе (`NODE_ENV=production`) API перед запуском одним разовым соединением по `DATABASE_APP_URL` спрашивает у
+базы `current_user` и права роли. Он не стартует, если: адрес не задан; соединение идёт не ролью `wetop_app` (например,
+в адрес попала копия `DATABASE_URL`); у роли `BYPASSRLS` или права суперпользователя; роль проверить не удалось.
+Причина пишется в журнал контейнера строкой `PMS API не запущен: …` (без адреса и пароля). Вне production проверки нет.
+
+Явный выход на время разбора — `RLS_DISABLED=1` в `.env`: API стартует с предупреждением в журнале, а изоляция
+организаций держится только на фильтрах кода. Выключает только значение `1`. Держать так дольше разбора не нужно.
+
 ## Откат
 
-- **Этап 3** — строку `DATABASE_APP_URL` убрать из `.env` (`sed -i '/^DATABASE_APP_URL=/d' .env`) и `$C up -d api`.
+- **Этап 3** — в `.env` строку `DATABASE_APP_URL` убрать (`sed -i '/^DATABASE_APP_URL=/d' .env`) **и добавить
+  `RLS_DISABLED=1`** (`echo 'RLS_DISABLED=1' >> .env`), затем `$C up -d api`: без второго API не запустится — так и задумано.
   API вернётся на прежнюю роль; политики останутся, но на неё не действуют.
 - **Этап 2** — `ALTER ROLE wetop_app NOLOGIN` той же командой, что включала вход.
 - **Этап 1** — `down.sql` трёх миграций в обратном порядке (28 → 27 → 26), из копии базы — по `docs/ops/backups.md`.
+
+## SEC-1b, стадия A: отзыв прав на учётные данные (29.09.2026)
+
+ADR-124, план `plans/sec1b-credential-grants-2026-09-29.md`. Миграция `20260929000033_rls_credential_grants` отзывает у
+`wetop_app` доступ к `password_resets`, `email_verifications`, `wizard_*`, оставляет на `users` чтение колонок
+`id, email, name, status, email_verified_at`, на `platform_admins` — чтение `user_id, revoked_at`.
+
+**Порядок: сначала выкладка кода, потом миграция.** Код от прав не зависит; прежний код без миграции — тоже. Но прежний код
+после миграции сломал бы `/auth/me`.
+
+Перед миграцией на сервере: `AUTH_REQUIRED` не `0`; `DATABASE_APP_URL` задан. Затем по образцу этапа 1 (резервная копия,
+`mig status`, `mig deploy`, `mig status`, `--migrations-applied`).
+
+Проверка после миграции — в SQL-редакторе базы (пароли и адреса в ответе не появляются):
+
+```sql
+-- 1. Табличных прав у wetop_app на эти таблицы больше нет: ждём пустой ответ
+SELECT table_name, privilege_type
+FROM information_schema.role_table_grants
+WHERE grantee = 'wetop_app' AND table_schema = 'public'
+  AND table_name IN ('users', 'platform_admins', 'password_resets', 'email_verifications',
+                     'wizard_sessions', 'wizard_events', 'wizard_surveys');
+
+-- 2. Колонки, которые остались: users — email, email_verified_at, id, name, status; platform_admins — revoked_at, user_id
+SELECT table_name, column_name
+FROM information_schema.column_privileges
+WHERE grantee = 'wetop_app' AND table_schema = 'public' AND table_name IN ('users', 'platform_admins')
+ORDER BY 1, 2;
+```
+
+Руками: войти в стойку, открыть «Сотрудники» и «Журнал», сменить пароль и войти новым.
+
+**Откат:** `down.sql` этой миграции (`docs/ops/backups.md`, из копии базы) — `wetop_app` снова получает полный доступ. Код
+продолжает работать.
+
+## SEC-1b, стадия B: отзыв прав на данные интеграции (30.09.2026)
+
+ADR-124 (дополнения 30.09.2026), Q-222, Q-225, план `plans/sec1b-stage-b-2026-09-30.md`. Миграция
+`20260930000038_rls_integration_grants` отзывает у `wetop_app` всё на `external_events` и `system_incidents`, а на `channel_outbox`
+оставляет только `INSERT` (без `RETURNING`). `wetop_service` не меняется.
+
+**Порядок: сначала код, потом миграция.** Нужен код не старше PR #198 (`a47fc932` и позже): все обращения к трём таблицам идут
+через `integrationTables(db)` (служебная роль), очередь ставится `createMany`, разбор входящих ревизий из запроса организации идёт
+интеграционной командой на служебной роли. Прежний код после миграции даст `permission denied` в журнале, очереди и сторожевых
+экранах под организацией.
+
+Перед миграцией на сервере:
+
+1. На сервере выложен код `a47fc932` или новее (`cat /var/lib/wetop-deploy/deployed`), миграции 033 и 034 применены, вход в стойку проверен.
+2. Свежая копия базы (`docs/ops/backups.md`).
+3. Отчёт `scripts/ops/integration-tables-scope-report.sql` (только чтение): `channel_outbox`, PENDING с `NULL` в `property_id` = 0.
+   Строки `NULL` после B1.5 экранам не видны, но отправляет очередь служебный путь; догадочной привязки нет.
+4. Желательно: `INTEGRATION_PROPERTY_ID` задан в `.env` (иначе объект интеграции выбирается по сопоставлениям и названию, `docs/deploy.md`).
+
+Применение — по образцу стадии A (`mig status`: не применена только `…038`; `mig deploy`; `mig status`; затем
+`/usr/local/sbin/wetop-auto-deploy --migrations-applied <вершина>` только если `release` перематывали).
+
+Проверка после миграции (только чтение, ответы без данных):
+
+```sql
+-- 1. Права wetop_app на три таблицы: ждём одну строку — INSERT на channel_outbox
+SELECT table_name, privilege_type
+FROM information_schema.role_table_grants
+WHERE grantee = 'wetop_app' AND table_schema = 'public'
+  AND table_name IN ('external_events', 'system_incidents', 'channel_outbox')
+ORDER BY 1, 2;
+
+-- 2. У wetop_service всё осталось: ждём true, true, true
+SELECT has_table_privilege('wetop_service', 'public.external_events', 'SELECT'),
+       has_table_privilege('wetop_service', 'public.channel_outbox', 'UPDATE'),
+       has_table_privilege('wetop_service', 'public.system_incidents', 'DELETE');
+```
+
+Руками: войти в стойку, открыть «Каналы продаж» (журнал событий и очередь), «Подключения → Channex», «Главная» (блок «Системы»);
+если каналы подключены — «Проверить соединение». В логе API за несколько минут нет `permission denied` и `42501`.
+
+**Откат:** `down.sql` этой миграции (`docs/ops/backups.md`, из копии базы) — `wetop_app` снова получает полный доступ. Код
+продолжает работать: он от этих прав не зависит. Откатывать код на версию старше #198 можно только вместе с `down.sql`.
+
+## Роли Data API Supabase: отзыв прав (30.09.2026)
+
+Аудит 30.09.2026 (`reports/security-vibe-audit-2026-09-30.md` §2). Миграция `20260930000034_revoke_supabase_api_roles`
+снимает у `anon` и `authenticated` все права на таблицы, последовательности и функции схемы и умолчания на будущие
+объекты: до неё десять таблиц без RLS (`users`, `password_resets`, `external_events`, …) закрывал от публичного ключа
+проекта только выключенный Data API (SECURITY.md §12, вариант Б так и не был выполнен). На базе без этих ролей
+(локальный стенд, ps.kz) миграция ничего не делает и пишет NOTICE.
+
+Порядок не важен: код от прав `anon` не зависит. Применение — как обычно (`prisma migrate deploy` с `DIRECT_URL`,
+`docs/deploy.md` §1д).
+
+**Проверочный лист перед рабочей базой (решение владельца 30.09.2026):**
+
+1. Приложение этих ролей не использует: в коде нет `@supabase/*`, `SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` не
+   читаются (аудит §1–2); Data API выключен (§12 SECURITY.md).
+2. Живых подключений под ними нет и права такие, как ожидается:
+   ```sql
+   select usename, count(*) from pg_stat_activity where usename in ('anon', 'authenticated') group by 1; -- ждём 0 строк
+   select grantee, count(*) from information_schema.role_table_grants
+    where table_schema = 'public' and grantee in ('anon', 'authenticated') group by 1;             -- сколько грантов снимем
+   ```
+3. Свежая копия базы есть (`scripts/ops/db-backup.sh`, `docs/ops/backups.md`).
+4. Миграция проверена в обе стороны: `scripts/ops/check-migrations.sh` — OK; на локальном стенде с заведёнными ролями
+   `anon`/`authenticated` и грантами как у Supabase — до: `has_table_privilege('anon','public.users','SELECT') = true`,
+   после `migration.sql` — false и новая таблица `anon` не видна, после `down.sql` — снова true (снято 30.09.2026).
+5. После применения: smoke входа (`/auth/login`, `/auth/me`, смена пароля), ручная оплата на стойке
+   (`POST /finance/payments` — счёт открывается, оплата записывается), сутки `cli-day-selfcheck`.
+
+Проверка после: в SQL Editor Supabase
+
+```sql
+select has_table_privilege('anon', 'public.users', 'SELECT'),            -- ждём false
+       has_table_privilege('authenticated', 'public.payments', 'INSERT'); -- ждём false
+```
+
+и советник безопасности (Security Advisor) — без новых ошибок. Откат — `down.sql` той же миграции: возвращает
+умолчания Supabase (ALL), нужен только если Data API для `public` открывают намеренно. Умолчания роли
+`supabase_admin` миграции недоступны — их видно только советником.
 
 ## Что с `wetop_service`
 

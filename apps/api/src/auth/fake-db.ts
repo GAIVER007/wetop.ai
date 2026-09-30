@@ -83,6 +83,27 @@ export interface FakeProperty {
   currency: string;
   checkInTime: string;
   checkOutTime: string;
+  /** Platform P1 (DATA_MODEL v2.6): филиал объекта; у объектов, положенных тестом руками, может не быть */
+  locationId?: string;
+  /** Контакт объекта; регистрация 29.09.2026 кладёт сюда телефон из формы */
+  phone?: string | null;
+}
+
+/** Цепочка Platform P1 (DATA_MODEL §18): бизнес организации и его филиал */
+export interface FakeBusiness {
+  id: string;
+  organizationId: string;
+  name: string;
+  vertical: string;
+}
+
+export interface FakeLocation {
+  id: string;
+  businessId: string;
+  name: string;
+  timezone: string;
+  currency: string;
+  phone?: string | null;
 }
 
 export function fakeUser(over: Partial<FakeUser> = {}): FakeUser {
@@ -108,6 +129,8 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
   const verifications: FakeVerification[] = [];
   const audit: AuditRow[] = [];
   const properties: FakeProperty[] = [];
+  const businesses: FakeBusiness[] = [];
+  const locations: FakeLocation[] = [];
   // каждый заведённый человек состоит в одной организации — так его пускает §13.3; первый — её владелец (§16.1)
   const memberships: FakeMembership[] = users.map((u, i) => ({
     userId: u.id,
@@ -132,10 +155,44 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         const row = organizations.find((o) => o.id === where.id);
         return row ? { ...row } : null;
       },
+      async findUniqueOrThrow({ where }: { where: { id: string } }) {
+        const row = organizations.find((o) => o.id === where.id);
+        if (!row) throw new Error(`organization ${where.id} not found`);
+        return { ...row };
+      },
       async create({ data }: { data: Omit<FakeOrganization, 'id'> }) {
         seq += 1;
         const row: FakeOrganization = { id: `org-${seq + 1}`, ...data };
         organizations.push(row);
+        return { ...row };
+      },
+    },
+    business: {
+      async findFirst({ where }: { where: { organizationId: string; vertical?: string } }) {
+        const row = businesses.find(
+          (b) => b.organizationId === where.organizationId && (where.vertical === undefined || b.vertical === where.vertical),
+        );
+        return row ? { ...row } : null;
+      },
+      async create({ data }: { data: Omit<FakeBusiness, 'id'> }) {
+        seq += 1;
+        const row: FakeBusiness = { id: `biz-${seq}`, ...data };
+        businesses.push(row);
+        return { ...row };
+      },
+    },
+    location: {
+      async create({ data }: { data: Omit<FakeLocation, 'id'> }) {
+        seq += 1;
+        const row: FakeLocation = {
+          id: `loc-${seq}`,
+          businessId: data.businessId,
+          name: data.name,
+          timezone: data.timezone,
+          currency: data.currency,
+          phone: data.phone ?? null,
+        };
+        locations.push(row);
         return { ...row };
       },
     },
@@ -450,6 +507,8 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
       const before = [
         organizations,
         properties,
+        businesses,
+        locations,
         users,
         memberships,
         sessions,
@@ -463,6 +522,8 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         [
           organizations,
           properties,
+          businesses,
+          locations,
           users,
           memberships,
           sessions,
@@ -484,6 +545,8 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     memberships,
     platformAdmins,
     properties,
+    businesses,
+    locations,
     organizations,
     audit,
     db,

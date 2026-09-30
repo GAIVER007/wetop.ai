@@ -112,7 +112,7 @@ export function channexCard(input: {
       };
     return {
       health: 'unknown',
-      issues: [{ text: 'Не удалось проверить Channex. Повторите проверку.' }],
+      issues: [{ text: 'Не удалось проверить менеджер каналов. Повторите проверку.' }],
       connection: null,
       webhook,
       outbox,
@@ -132,7 +132,7 @@ export function channexCard(input: {
   const unknowns: HealthIssue[] = [];
   if (connection.state === 'NO_MAPPING') {
     problems.push({
-      text: 'Объект в Channex не создан',
+      text: 'Объект в менеджере каналов не создан',
       href: `${CHANNELS}/connections`,
       action: 'Открыть настройку',
     });

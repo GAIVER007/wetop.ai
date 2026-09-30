@@ -60,7 +60,7 @@ export class ChannelConnectionService {
       lastWebhookAt: lastWebhookAt?.toISOString() ?? null,
       lastPullAt: lastPullAt?.toISOString() ?? null,
     };
-    if (!this.reader) return { ...result, state: 'NO_KEY', message: 'Не задан ключ Channex' };
+    if (!this.reader) return { ...result, state: 'NO_KEY', message: 'Не задан ключ менеджера каналов' };
     if (!propertyId) return { ...result, state: 'NO_MAPPING', message: 'Объект не сопоставлен' };
     const configuredId = process.env.CHANNEX_PROPERTY_ID?.trim();
     if (configuredId && configuredId !== propertyId)
@@ -85,8 +85,8 @@ export class ChannelConnectionService {
       const messages = {
         DENIED: 'Нет доступа к объекту',
         NOT_FOUND: 'Объект не найден',
-        RATE_LIMITED: 'Лимит запросов Channex',
-        UNREACHABLE: 'Channex не отвечает',
+        RATE_LIMITED: 'Лимит запросов менеджера каналов',
+        UNREACHABLE: 'Менеджер каналов не отвечает',
       };
       return { ...result, state, message: messages[state] };
     }

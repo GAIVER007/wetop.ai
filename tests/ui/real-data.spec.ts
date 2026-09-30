@@ -72,7 +72,7 @@ test('недоступный API не скрывается за демо или 
   await page.goto('/connections');
   // нет связи — состояние Channex «неизвестно», а не зелёное и не «не подключено»
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
-  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить Channex');
+  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить менеджер каналов');
   await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
     'Объект не загружен',
   );

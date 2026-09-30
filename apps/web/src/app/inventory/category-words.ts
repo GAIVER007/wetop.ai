@@ -42,6 +42,6 @@ export function usageLines(c: InventoryCategory, units: number): string[] {
       ? [`${pluralRu(c.ratePlans, ['тариф', 'тарифа', 'тарифов'])}: ${c.ratePlanNames.join(', ')}`]
       : []),
     ...(c.reservations ? [bookingsLine(c)] : []),
-    ...(c.channexMapped ? ['Сопоставлена с Channex'] : []),
+    ...(c.channexMapped ? ['Сопоставлена с каналами'] : []),
   ];
 }

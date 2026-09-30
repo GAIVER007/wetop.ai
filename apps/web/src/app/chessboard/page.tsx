@@ -210,7 +210,7 @@ export default async function ChessboardPage({
       {failedEvents > 0 && (
         <Alert boxed tone="warning" data-testid="review-callout">
           Входящая бронь требует разбора:{' '}
-          {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} Channex не разобрана
+          {pluralRu(failedEvents, ['ревизия', 'ревизии', 'ревизий'])} из каналов не разобрана
           автоматически. <Link href="/channels/events?status=FAILED">Разобрать</Link>
         </Alert>
       )}

@@ -602,7 +602,7 @@ function Kit() {
             <Alert>Ячейка R01 уже занята на 16–19 сент.</Alert>
             <Alert boxed>Не удалось сохранить: ответ сервера не получен</Alert>
             <Alert boxed tone="warning">
-              Webhook Channex не отвечает 12 минут — брони подбирает опрос ленты
+              Webhook менеджера каналов не отвечает 12 минут — брони подбирает опрос ленты
             </Alert>
             <Notice>Бронь создана, ячейка R04 назначена</Notice>
             <Notice tone="muted">Данные обновлены 15:44</Notice>
@@ -878,7 +878,7 @@ function Kit() {
         <State name="selected" note="успех">
           <div className="toast-region toast-region--static">
             <div className="toast toast--success" role="status">
-              <span className="toast__text">Остаток отправлен в Channex</span>
+              <span className="toast__text">Остаток отправлен в каналы</span>
               <button type="button" className="toast__close" aria-label="Закрыть уведомление">
                 <Icon name="close" width={16} height={16} />
               </button>

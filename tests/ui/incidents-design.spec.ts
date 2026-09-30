@@ -27,7 +27,7 @@ test('неисправности: срочное сверху, вся выбор
 
   // порядок: срочная техника первой, принятая — последней (раньше первой шла бронь без ячейки)
   await expect(rows.first()).toContainText('Стойка PMS не отвечает');
-  await expect(rows.last()).toContainText('Лента Channex не читалась');
+  await expect(rows.last()).toContainText('Лента броней каналов не читалась');
 
   // все четыре открытые видны без прокрутки: сводка и состояние сторожа не занимают экран
   const lastBottom = await rows.last().evaluate((el) => el.getBoundingClientRect().bottom);

@@ -526,7 +526,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
     const outcome = r.outcomes.find((o) => o.revisionId === revisionId);
     if (!outcome)
       throw new NotFoundException(
-        `Ревизии ${revisionId} нет в ленте неподтверждённых: Channex её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,
+        `Ревизии ${revisionId} нет в ленте неподтверждённых: менеджер каналов её больше не отдаёт — скорее всего, она уже подтверждена. Сверьте бронь вручную`,
       );
     return outcome;
   }

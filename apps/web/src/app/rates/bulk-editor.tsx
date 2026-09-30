@@ -100,7 +100,7 @@ export function BulkEditor(props: {
           `Сохранено изменений: ${res.applied}. ${
             res.queued
               ? `В очередь каналов ушло ${res.queued} одним сообщением.`
-              : 'В каналы не ушло: категория или тариф не сопоставлены с Channex.'
+              : 'В каналы не ушло: категория или тариф не сопоставлены с менеджером каналов.'
           }`,
         );
         setRows([]);
@@ -154,11 +154,11 @@ export function BulkEditor(props: {
         {props.channels &&
           (chRoom?.mapped && chPlan?.mapped ? (
             <p className="rates-channel-hint" data-testid="channel-hint">
-              Channex: номер «{chRoom.name}», тариф «{chPlan.name}»
+              В каналах: номер «{chRoom.name}», тариф «{chPlan.name}»
             </p>
           ) : (
             <p className="rates-channel-hint rates-channel-hint--warn" data-testid="channel-hint">
-              Не сопоставлено с Channex — изменение в каналы не уйдёт.
+              Не сопоставлено с менеджером каналов — изменение в каналы не уйдёт.
             </p>
           ))}
         {/* Подпись своей строкой, семь дней — одним рядом: в общем `.row` «вс» переносилось (21.09) */}

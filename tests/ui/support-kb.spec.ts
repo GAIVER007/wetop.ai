@@ -163,7 +163,7 @@ test('«Действия агента» у диалога (S6): выполнен
   await page.goto(`/platform/support?id=${SIGNED}`);
   const journal = page.getByTestId('agent-actions');
   await expect(journal).toContainText('Действия агента');
-  await expect(journal).toContainText('Подтянуть ленту Channex');
+  await expect(journal).toContainText('Подтянуть ленту каналов');
   await expect(journal).toContainText('Выполнено');
   await expect(journal).toContainText('Возврат оплаты');
   await expect(journal).toContainText('Передано человеку');

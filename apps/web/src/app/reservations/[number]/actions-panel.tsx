@@ -388,7 +388,7 @@ function EditForm(props: {
         )}
         {channexBooking && (
           <span className="hint" data-testid="channex-booking-id">
-            из Channex: {props.externalId}
+            из канала: {props.externalId}
           </span>
         )}
         <Textarea

@@ -158,14 +158,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             requires: 'channels',
             label: 'Подключения',
             icon: 'channels',
-            description: 'Подключение Channex и настройка обмена.',
+            description: 'Подключение менеджера каналов и настройка обмена.',
           },
           {
             href: '/channels/mapping',
             requires: 'channels',
             label: 'Сопоставление',
             icon: 'channels',
-            description: 'Категории и тарифы WETOP в Channex.',
+            description: 'Категории и тарифы WETOP в менеджере каналов.',
           },
           {
             href: '/channels/sync',

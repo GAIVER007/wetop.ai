@@ -33,16 +33,17 @@ export function CoreTasks() {
   );
 }
 
-export function Integrations() {
+export function SalesEcosystem() {
   const section = getDictionary().product.integrations;
+  const direct = getDictionary().product.direct;
   return (
     <section
       id="integrations"
       className="section split-section"
       aria-labelledby="integrations-title"
     >
-      <div className="container split-section__grid">
-        <div>
+      <div className="container sales-panel glass glass--strong">
+        <div className="sales-panel__copy">
           <SectionHeading
             id="integrations-title"
             eyebrow={section.eyebrow}
@@ -53,19 +54,27 @@ export function Integrations() {
             <Icon name="shield" size={18} />
             {typo(section.note)}
           </p>
-          <a className="link-arrow" href="#features">
-            {section.cta}
-            <Icon name="arrowRight" size={18} />
-          </a>
+          <div className="sales-panel__direct">
+            <span className="icon-tile"><Icon name="site" /></span>
+            <div>
+              <h3>{direct.title}</h3>
+              <p>{typo(direct.lead)}</p>
+              <ul className="mini-list">{direct.items.map((item) => <li key={item}>{item}</li>)}</ul>
+            </div>
+          </div>
         </div>
-        <ul className="integration-grid glass">
+        <div className="sales-panel__channels">
+          <p className="sales-panel__label">OTA через Channex</p>
+          <ul className="integration-grid">
           {section.items.map((item) => (
             <li key={item.name}>
               <span>{item.mark}</span>
               <strong>{item.name}</strong>
             </li>
           ))}
-        </ul>
+          </ul>
+          <p className="feature-band__note">{typo(direct.note)}</p>
+        </div>
       </div>
     </section>
   );
@@ -100,9 +109,9 @@ export function DirectBooking() {
 export function AiSeller() {
   const section = getDictionary().product.ai;
   return (
-    <section className="section" aria-labelledby="ai-title">
-      <div className="container split-section__grid split-section__grid--reverse">
-        <div className="ai-chat glass" aria-label="Пример диалога с AI-продавцом">
+    <section className="section ai-section" aria-labelledby="ai-title">
+      <div className="container ai-section__panel">
+        <div className="ai-chat" aria-label="Пример диалога с AI-продавцом">
           <p className="ai-chat__label">{section.guest}</p>
           <p className="ai-chat__bubble">{section.guestText}</p>
           <p className="ai-chat__label ai-chat__label--ai">
@@ -137,7 +146,7 @@ export function Finance() {
   const section = getDictionary().product.finance;
   return (
     <section className="section" aria-labelledby="finance-title">
-      <div className="container finance-panel glass">
+      <div className="container finance-panel glass glass--strong">
         <SectionHeading
           id="finance-title"
           eyebrow={section.eyebrow}
@@ -182,20 +191,37 @@ export function WhyWetop() {
   );
 }
 
-export function Migration() {
-  const section = getDictionary().product.migration;
+export function Launch() {
+  const t = getDictionary();
+  const section = t.product.migration;
   return (
-    <section className="section" aria-labelledby="migration-title">
-      <div className="container migration-panel glass">
-        <div>
-          <p className="eyebrow">{section.eyebrow}</p>
-          <h2 id="migration-title">{section.title}</h2>
-          <p>{typo(section.lead)}</p>
+    <section id="start" className="section" aria-labelledby="migration-title">
+      <div className="container launch-panel glass">
+        <div className="launch-panel__intro">
+          <div>
+            <p className="eyebrow">{section.eyebrow}</p>
+            <h2 id="migration-title">{section.title}</h2>
+            <p>{typo(section.lead)}</p>
+          </div>
+          <div className="migration-panel__proof">
+            <Icon name="migrate" />
+            <strong>{section.proof}</strong>
+            <p>{section.note}</p>
+          </div>
         </div>
-        <div className="migration-panel__proof">
-          <Icon name="migrate" />
-          <strong>{section.proof}</strong>
-          <p>{section.note}</p>
+        <ol className="launch-steps">
+          {t.start.steps.slice(0, 4).map((step, index) => (
+            <li key={step.title}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div><h3>{step.title}</h3><p>{typo(step.text)}</p></div>
+            </li>
+          ))}
+        </ol>
+        <div className="launch-panel__action">
+          <p>{typo(t.start.ctaText)}</p>
+          <a className="btn btn--primary btn--lg" href={registerLink().href} data-auth="register">
+            {t.nav.register}<Icon name="arrowRight" size={18} />
+          </a>
         </div>
       </div>
     </section>

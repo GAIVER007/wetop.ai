@@ -1,12 +1,9 @@
 import { getDictionary } from '../../i18n';
 import { loginLink, registerLink } from '../../lib/site';
 import { Icon } from '../icon';
+import { ChessboardMockup } from '../chessboard-mockup';
 import { typo } from '../typo';
 
-/*
- * Первый экран: стеклянная панель, слева слово-знак металлом и текст, справа — макет шахматки.
- * Портрета человека здесь нет намеренно: показываем экран продукта, а не лицо.
- */
 export function Hero() {
   const t = getDictionary();
   return (
@@ -48,6 +45,25 @@ export function Hero() {
               <a className="hero__login" href={loginLink().href} data-auth="login">
                 {t.nav.login}
               </a>
+            </div>
+            <div className="hero__visual" aria-label="Демонстрационный интерфейс WETOP">
+              <div className="hero-dashboard glass glass--strong">
+                <div className="hero-dashboard__topline">
+                  <span>Сегодня</span>
+                  <span>Демонстрационные данные</span>
+                </div>
+                <div className="hero-dashboard__metrics">
+                  {t.stats.items.map((item) => (
+                    <div key={item.label}>
+                      <span>{item.label}</span>
+                      <strong>{item.value}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="hero-dashboard__board">
+                <ChessboardMockup />
+              </div>
             </div>
           </div>
         </div>

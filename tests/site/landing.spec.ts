@@ -103,8 +103,6 @@ test('главная: безопасные вход и trial, блог скры�
     /^Настраиваем фонд и тарифы$/,
     /^Переносим данные$/,
     /^Подключаем продажи$/,
-    /^Начинаете работу$/,
-    /./, // заголовок призыва
   ]);
   await expect(start).toContainText(/14\sдней/);
   await expect(start).not.toContainText(/код из письма/);
@@ -141,13 +139,17 @@ test('главная: безопасные вход и trial, блог скры�
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
   // подсказка «Новая бронь» — внутри карточки макета (после анимации появления: она сдвигает на 14 px)
-  await page
-    .locator('.mockup__toast')
-    .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
-  const card = await page.locator('.mockup__window').boundingBox();
-  const toast = await page.locator('.mockup__toast').boundingBox();
-  expect(card && toast && toast.x + toast.width <= card.x + card.width + 1).toBe(true);
-  expect(card && toast && toast.y + toast.height <= card.y + card.height + 1).toBe(true);
+  const mockups = page.locator('.mockup');
+  for (let index = 0; index < (await mockups.count()); index += 1) {
+    const mockup = mockups.nth(index);
+    await mockup
+      .locator('.mockup__toast')
+      .evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+    const card = await mockup.locator('.mockup__window').boundingBox();
+    const toast = await mockup.locator('.mockup__toast').boundingBox();
+    expect(card && toast && toast.x + toast.width <= card.x + card.width + 1).toBe(true);
+    expect(card && toast && toast.y + toast.height <= card.y + card.height + 1).toBe(true);
+  }
 });
 
 test('главная: B2B-позиционирование, честные обещания и утверждённая структура', async ({
@@ -173,18 +175,12 @@ test('главная: B2B-позиционирование, честные об�
 
   const headings = await page.locator('main h2').allTextContents();
   expect(headings).toEqual([
-    'Вся смена перед глазами',
-    'Всё, что нужно для ежедневной работы',
     'Рабочие экраны WETOP',
     'Подходит разным форматам размещения',
-    'Всё необходимое для работы объекта',
     'Работает с каналами, которыми вы уже пользуетесь',
-    'Принимайте больше прямых бронирований',
     'AI-продавец WETOP',
     'Понимайте не только загрузку, но и деньги',
-    'Почему WETOP',
     'Поможем перейти с другой PMS',
-    'Запустить WETOP можно за несколько шагов',
     'Простой тариф для всей команды',
     'Управляйте объектом из одной системы',
   ]);

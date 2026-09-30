@@ -19,16 +19,15 @@ const COUNTER: Record<(typeof TABLES)[number], string> = {
 /**
  * SEC-1b, стадия B (Q-222, решение владельца 30.09.2026): права базы на данные интеграции — настоящий тест уровня PostgreSQL.
  *
- * Целевое состояние (его выдаст миграция B2; здесь она НЕ применяется, реальные права базы не меняются):
+ * Целевое состояние (его выдаёт миграция `…035_rls_integration_grants`, B2):
  *   wetop_app:  external_events — ничего; system_incidents — ничего; channel_outbox — только INSERT (без SELECT, UPDATE, DELETE);
  *   wetop_service: всё нужное проходит.
  *
- * Как: в ОДНОЙ транзакции, которая в конце откатывается, во временной схеме создаются копии трёх таблиц (`LIKE`), выдаются целевые
- * права, и каждая операция выполняется настоящим запросом под `SET LOCAL ROLE`, каждая внутри SAVEPOINT (отказ базы — не
- * исключение теста, а результат). Следов не остаётся. Права `wetop_service` проверяются на НАСТОЯЩИХ таблицах: миграция B2 их не
- * трогает, и они не должны потеряться.
- *
- * После B2 ту же матрицу нужно прогнать против настоящей схемы (`run(SRC)` ниже) — тогда тест станет проверкой самой миграции.
+ * Как: в ОДНОЙ транзакции, которая в конце откатывается, каждая операция выполняется настоящим запросом под `SET LOCAL ROLE`,
+ * каждая внутри SAVEPOINT (отказ базы — не исключение теста, а результат). Следов не остаётся. Матрица `wetop_app` идёт дважды:
+ * на копиях таблиц во временной схеме с целевыми правами (доказательство самой матрицы: что даёт INSERT без RETURNING и чего
+ * нельзя) и на НАСТОЯЩЕЙ схеме `SRC` — это проверка самой миграции B2. Права `wetop_service` проверяются на настоящих таблицах:
+ * миграция их не трогает, и они не должны потеряться.
  */
 describe.skipIf(!url)(
   'права на данные интеграции: целевая матрица wetop_app и права wetop_service (integration, PostgreSQL)',
@@ -86,34 +85,37 @@ describe.skipIf(!url)(
       await client?.end();
     });
 
-    describe('wetop_app: целевая матрица (копии таблиц, реальные запросы под ролью)', () => {
+    describe.each([
+      ['копии таблиц с целевыми правами', PROBE],
+      ['настоящая схема (миграция B2)', SRC],
+    ] as const)('wetop_app: целевая матрица — %s, реальные запросы под ролью', (_label, schema) => {
       it.each(['external_events', 'system_incidents'] as const)(
         '%s: SELECT, INSERT, UPDATE, DELETE — отказ',
         async (t) => {
-          expect(await as('wetop_app', `SELECT 1 FROM ${PROBE}.${t} LIMIT 1`)).toEqual(denied);
-          expect(await as('wetop_app', `UPDATE ${PROBE}.${t} SET ${COUNTER[t]} = 1`)).toEqual(
+          expect(await as('wetop_app', `SELECT 1 FROM ${schema}.${t} LIMIT 1`)).toEqual(denied);
+          expect(await as('wetop_app', `UPDATE ${schema}.${t} SET ${COUNTER[t]} = 1`)).toEqual(
             denied,
           );
-          expect(await as('wetop_app', `DELETE FROM ${PROBE}.${t} WHERE false`)).toEqual(denied);
+          expect(await as('wetop_app', `DELETE FROM ${schema}.${t} WHERE false`)).toEqual(denied);
           // и вставка: без права INSERT отказывает раньше, чем проверяются значения
-          expect(await as('wetop_app', `INSERT INTO ${PROBE}.${t} DEFAULT VALUES`)).toEqual(denied);
+          expect(await as('wetop_app', `INSERT INTO ${schema}.${t} DEFAULT VALUES`)).toEqual(denied);
         },
       );
 
       it('channel_outbox: SELECT, UPDATE, DELETE — отказ', async () => {
-        expect(await as('wetop_app', `SELECT 1 FROM ${PROBE}.channel_outbox LIMIT 1`)).toEqual(
+        expect(await as('wetop_app', `SELECT 1 FROM ${schema}.channel_outbox LIMIT 1`)).toEqual(
           denied,
         );
         expect(
-          await as('wetop_app', `UPDATE ${PROBE}.channel_outbox SET ${COUNTER.channel_outbox} = 1`),
+          await as('wetop_app', `UPDATE ${schema}.channel_outbox SET ${COUNTER.channel_outbox} = 1`),
         ).toEqual(denied);
-        expect(await as('wetop_app', `DELETE FROM ${PROBE}.channel_outbox WHERE false`)).toEqual(
+        expect(await as('wetop_app', `DELETE FROM ${schema}.channel_outbox WHERE false`)).toEqual(
           denied,
         );
       });
 
       it('channel_outbox: INSERT без RETURNING — разрешён (так пишет createMany внутри транзакции команды)', async () => {
-        expect(await as('wetop_app', insertOutbox(PROBE), [randomUUID(), propertyId])).toEqual({
+        expect(await as('wetop_app', insertOutbox(schema), [randomUUID(), propertyId])).toEqual({
           ok: true,
           rows: 1,
         });
@@ -121,7 +123,7 @@ describe.skipIf(!url)(
 
       it('channel_outbox: INSERT … RETURNING — отказ (поэтому create() заменён на createMany())', async () => {
         expect(
-          await as('wetop_app', insertOutbox(PROBE, ' RETURNING id'), [randomUUID(), propertyId]),
+          await as('wetop_app', insertOutbox(schema, ' RETURNING id'), [randomUUID(), propertyId]),
         ).toEqual(denied);
       });
 
@@ -130,7 +132,7 @@ describe.skipIf(!url)(
           (
             await client.query(`SELECT has_table_privilege($1, $2, $3) AS ok`, [
               role,
-              `${PROBE}.${t}`,
+              `${schema}.${t}`,
               p,
             ])
           ).rows[0].ok as boolean;

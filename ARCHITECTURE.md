@@ -130,7 +130,8 @@ organizations ─────< businesses ─────< locations          �
       │                  │                  │
       │ (v1.6, ADR-061)  │                  │
       └──< properties ───┼──────────────────┘             ← v2.0: properties.location_id
-               │         │                                   (сам Property не меняется)
+               │         │                                   (сам Property не меняется; с 28.09.2026
+               │         │                                    `location_id` обязателен: NOT NULL, DM §18.4)
                │         │
    Hospitality-домен     │  Beauty-домен (целевой, §9):
    (без изменений):      │

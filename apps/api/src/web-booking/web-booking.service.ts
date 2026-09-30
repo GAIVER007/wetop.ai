@@ -9,6 +9,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import {
   assertRestrictionsAllow,
@@ -32,6 +33,7 @@ import { INCIDENTS_REPOSITORY, type IncidentsRepository } from '../guard/inciden
 import { RESERVATIONS_UOW, type UnitOfWork } from '../reservations/reservations.repository';
 import { ReservationsService } from '../reservations/reservations.service';
 import { withOrganizationScope } from '../auth/request-context';
+import { TurnstileService, turnstileFailureError } from './turnstile';
 
 export interface RequestContext {
   originHost: string | null;
@@ -134,6 +136,10 @@ export class WebBookingService {
     @Inject(ReservationsService) private readonly reservations: ReservationsService,
     @Inject(CollectService) private readonly collect: CollectService,
     @Inject(INCIDENTS_REPOSITORY) private readonly incidents: IncidentsRepository,
+    // BOOK-SEC1: проверка токена Turnstile перед бронью; по умолчанию — выключенная, пока не задан секрет
+    @Optional()
+    @Inject(TurnstileService)
+    private readonly turnstile: TurnstileService = new TurnstileService(),
   ) {}
 
   async quote(raw: unknown, ctx: RequestContext): Promise<Quote> {
@@ -261,6 +267,15 @@ export class WebBookingService {
         'слишком много броней с одного адреса, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
       );
+    }
+    // BOOK-SEC1 (аудит 29.09.2026, ADR-127): токен Turnstile проверяется здесь, после разбора запроса (мусор до Cloudflare не
+    // доходит) и до занятия места в лимите сайта: отказ проверки лимит брони не тратит. Секрет не задан — проверки нет.
+    if (this.turnstile.enabled()) {
+      const verdict = await this.turnstile.verify(
+        (raw as { turnstileToken?: unknown } | null)?.turnstileToken,
+        { ip: ctx.ip, allowedHosts: site.hosts, ownHost: ctx.ownHost },
+      );
+      if (!verdict.ok) throw turnstileFailureError(verdict.reason);
     }
     // Лимит сайта считает брони, а не попытки: тридцать неудачных запросов глушили бронирование с сайта на час
     // (аудит 26.09, С-35). Место берётся до записи — иначе одновременные запросы с разных адресов все проходили
@@ -433,5 +448,4 @@ export class WebBookingService {
       );
     }
   }
-
 }

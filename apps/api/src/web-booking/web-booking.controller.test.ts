@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Test } from '@nestjs/testing';
 import { NotFoundException, type INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { StayRestriction } from '@pms/domain';
 import { ANALYTICS_REPOSITORY } from '../analytics/analytics.repository';
 import { CollectService } from '../analytics/collect.service';
@@ -475,10 +475,12 @@ describe('виджет бронирования /w/*', () => {
   // Проверка исправлений 26.09: предел сайта проверялся до записи брони, а засчитывался после — параллельные запросы с
   // разных адресов все проходили проверку, и сайт принимал больше броней в час, чем позволено
   it('одновременные брони с разных адресов не выходят за предел сайта в час', async () => {
-    reservations.create.mockImplementation(async (dto: { arrivalDate: string; departureDate: string }) => {
-      await new Promise((ok) => setTimeout(ok, 20));
-      return createBooking(dto);
-    });
+    reservations.create.mockImplementation(
+      async (dto: { arrivalDate: string; departureDate: string }) => {
+        await new Promise((ok) => setTimeout(ok, 20));
+        return createBooking(dto);
+      },
+    );
     try {
       const host = new URL(ORIGIN).hostname;
       const results = await Promise.allSettled(
@@ -561,5 +563,168 @@ describe('виджет бронирования /w/*', () => {
     expect(r.text).toContain('/a/pms.js');
     expect(r.text).toContain(`data-site="${SITE.publicKey}"`);
     await request(app.getHttpServer()).get(`/w/demo?k=${SITE_PAUSED.publicKey}`).expect(404);
+  });
+  /**
+   * BOOK-SEC1 (аудит 29.09.2026, ADR-127): публичный `POST /w/book` создаёт подтверждённую бронь, а `Origin` вне браузера
+   * подделывается. Перед бронью проверяется токен Cloudflare Turnstile — на сервере, до занятия лимита сайта; любая
+   * неопределённость — отказ. Поиск цен идёт без проверки. Cloudflare в тестах подделан (глобальный `fetch`).
+   */
+  describe('Turnstile перед бронью (BOOK-SEC1)', () => {
+    const CF_OK = {
+      success: true,
+      hostname: 'test-site.local',
+      action: 'booking',
+      'error-codes': [],
+    };
+    const cloudflare = (impl: (body: URLSearchParams) => unknown) => {
+      const fake = vi.fn(async (_url: string, init?: RequestInit) => {
+        const out = impl(new URLSearchParams(String(init?.body)));
+        if (out instanceof Error) throw out;
+        return new Response(JSON.stringify(out), { status: 200 });
+      });
+      vi.stubGlobal('fetch', fake);
+      return fake;
+    };
+    const withToken = (token?: string) => ({
+      ...booking(),
+      ...(token ? { turnstileToken: token } : {}),
+    });
+
+    beforeEach(() => {
+      vi.stubEnv('TURNSTILE_SECRET_KEY', 'secret-not-real');
+      vi.stubEnv('TURNSTILE_SITE_KEY', 'site-key-not-real');
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+      vi.unstubAllGlobals();
+    });
+
+    it('секрет не задан — проверки нет, бронь как раньше, Cloudflare не спрашивается', async () => {
+      vi.stubEnv('TURNSTILE_SECRET_KEY', '');
+      const fake = cloudflare(() => new Error('не должен вызываться'));
+      await post(booking()).expect(201);
+      expect(created.dtos).toHaveLength(1);
+      expect(fake).not.toHaveBeenCalled();
+    });
+
+    it('REQUIRED=1 без секрета — бронь закрыта (503), Cloudflare не спрашивается; публичного ключа нет', async () => {
+      vi.stubEnv('WEB_BOOKING_TURNSTILE_REQUIRED', '1');
+      vi.stubEnv('TURNSTILE_SECRET_KEY', '');
+      const fake = cloudflare(() => new Error('не должен вызываться'));
+      const r = await post(withToken('tok-any')).expect(503);
+      expect(r.body.message).toMatch(/попробуйте позже/);
+      expect(created.dtos).toHaveLength(0);
+      expect(fake).not.toHaveBeenCalled();
+      const cfg = await request(app.getHttpServer()).get('/w/config').expect(200);
+      expect(cfg.body).toEqual({ turnstileSiteKey: null });
+    });
+
+    it('REQUIRED=0 — проверки нет даже при заданных ключах: выключено осознанно', async () => {
+      vi.stubEnv('WEB_BOOKING_TURNSTILE_REQUIRED', '0');
+      const fake = cloudflare(() => new Error('не должен вызываться'));
+      await post(booking()).expect(201);
+      expect(fake).not.toHaveBeenCalled();
+      const cfg = await request(app.getHttpServer()).get('/w/config').expect(200);
+      expect(cfg.body).toEqual({ turnstileSiteKey: null });
+    });
+
+    it('проверка включена, токена нет — 400, брони нет, Cloudflare не спрашивается', async () => {
+      const fake = cloudflare(() => CF_OK);
+      const r = await post(withToken()).expect(400);
+      expect(r.body.message).toMatch(/не робот/);
+      expect(created.dtos).toHaveLength(0);
+      expect(fake).not.toHaveBeenCalled();
+    });
+
+    it('верный токен — бронь создана; у Cloudflare спрошен секрет и токен', async () => {
+      const fake = cloudflare(() => CF_OK);
+      await post(withToken('tok-ok')).expect(201);
+      expect(created.dtos).toHaveLength(1);
+      expect(fake).toHaveBeenCalledOnce();
+      const [url, init] = fake.mock.calls[0]!;
+      expect(url).toBe('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+      const sent = Object.fromEntries(new URLSearchParams(String(init?.body)));
+      expect(sent).toMatchObject({ secret: 'secret-not-real', response: 'tok-ok' });
+    });
+
+    it('неверный и устаревший токен — 403, брони нет', async () => {
+      cloudflare(() => ({ success: false, 'error-codes': ['invalid-input-response'] }));
+      const bad = await post(withToken('tok-bad')).expect(403);
+      expect(bad.body.message).toMatch(/не пройдена/);
+      cloudflare(() => ({ success: false, 'error-codes': ['timeout-or-duplicate'] }));
+      const old = await post(withToken('tok-old')).expect(403);
+      expect(old.body.message).toMatch(/устарела/);
+      expect(created.dtos).toHaveLength(0);
+    });
+
+    it('Cloudflare недоступен — 503 и брони нет (fail-closed), в ответе подробностей нет', async () => {
+      cloudflare(() => new Error('ECONNREFUSED challenges.cloudflare.com'));
+      const r = await post(withToken('tok-1')).expect(503);
+      expect(r.text).not.toMatch(/ECONNREFUSED|cloudflare/i);
+      expect(created.dtos).toHaveLength(0);
+    });
+
+    it('токен одноразовый: повтор того же токена — отказ, вторая бронь не создаётся', async () => {
+      const used = new Set<string>();
+      cloudflare((body) => {
+        const token = body.get('response') ?? '';
+        if (used.has(token)) return { success: false, 'error-codes': ['timeout-or-duplicate'] };
+        used.add(token);
+        return CF_OK;
+      });
+      await post(withToken('tok-once')).expect(201);
+      await post(withToken('tok-once')).expect(403);
+      expect(created.dtos).toHaveLength(1);
+    });
+
+    it('токен решён на чужой странице (другой хост в ответе Cloudflare) — 403', async () => {
+      cloudflare(() => ({ ...CF_OK, hostname: 'evil.example' }));
+      await post(withToken('tok-evil')).expect(403);
+      expect(created.dtos).toHaveLength(0);
+    });
+
+    it('мусорный запрос отклоняется до Cloudflare: квота проверки не тратится', async () => {
+      const fake = cloudflare(() => CF_OK);
+      await post({ ...withToken('tok-1'), arrival: 'не дата' }).expect(400);
+      expect(fake).not.toHaveBeenCalled();
+      expect(created.dtos).toHaveLength(0);
+    });
+
+    it('отказ проверки не тратит лимит брони: после трёх неудач верная попытка проходит', async () => {
+      let call = 0;
+      cloudflare(() =>
+        ++call <= 3 ? { success: false, 'error-codes': ['invalid-input-response'] } : CF_OK,
+      );
+      for (let i = 0; i < 3; i += 1) await post(withToken(`tok-${i}`)).expect(403);
+      await post(withToken('tok-4')).expect(201);
+      expect(created.dtos).toHaveLength(1);
+    });
+
+    it('поиск цен и мест идёт без проверки', async () => {
+      const fake = cloudflare(() => new Error('не должен вызываться'));
+      await get(
+        `/w/availability?k=${SITE.publicKey}&arrival=2026-09-13&departure=2026-09-15&adults=1`,
+      ).expect(200);
+      expect(fake).not.toHaveBeenCalled();
+    });
+
+    it('GET /w/config: включено — публичный ключ без секрета; выключено — null', async () => {
+      const on = await request(app.getHttpServer()).get('/w/config').expect(200);
+      expect(on.body).toEqual({ turnstileSiteKey: 'site-key-not-real' });
+      expect(on.text).not.toContain('secret-not-real');
+      expect(on.headers['cache-control']).toMatch(/public/);
+      vi.stubEnv('TURNSTILE_SECRET_KEY', '');
+      const off = await request(app.getHttpServer()).get('/w/config').expect(200);
+      expect(off.body).toEqual({ turnstileSiteKey: null });
+    });
+
+    it('скрипт виджета знает про проверку: берёт ключ из /w/config, шлёт токен и не содержит ключей', async () => {
+      const js = await request(app.getHttpServer()).get('/w/widget.js').expect(200);
+      expect(js.text).toContain('/w/config');
+      expect(js.text).toContain('turnstileToken');
+      expect(js.text).toContain('https://challenges.cloudflare.com/turnstile/v0/api.js');
+      expect(js.text).not.toContain('site-key-not-real');
+      expect(js.text).not.toContain('secret-not-real');
+    });
   });
 });

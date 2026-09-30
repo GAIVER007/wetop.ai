@@ -60,6 +60,7 @@
     '.pmsw .done .s{font-size:14px;color:var(--pmsw-ink-2)}',
     '.pmsw .note{font-size:12.5px;color:var(--pmsw-muted);margin-top:14px;padding-top:12px;border-top:1px solid var(--pmsw-line-soft)}',
     '.pmsw .hp{position:absolute;left:-9999px;top:-9999px}',
+    '.pmsw .captcha{margin:2px 0 12px}',
     '@media (max-width:460px){.pmsw{padding:16px;border-radius:12px}.pmsw label{flex:1 1 100%}',
     '.pmsw .row>button{width:100%}.pmsw .cat{flex-wrap:wrap}.pmsw .cat .p{margin-left:0}.pmsw .cat>button{width:100%}}',
   ].join('');
@@ -162,6 +163,39 @@
       });
   }
 
+  /*
+   * Проверка «не робот» (Cloudflare Turnstile, BOOK-SEC1). Публичный ключ приходит с сервера (`/w/config`): пока он не
+   * задан, проверки нет и форма работает как раньше. Токен одноразовый — после каждой попытки виджет сбрасывается.
+   * Поиск цен проверки не требует: она нужна только перед самой бронью.
+   */
+  var configPromise = null;
+  function loadConfig() {
+    if (!configPromise)
+      configPromise = request('GET', '/w/config').catch(function () {
+        return {};
+      });
+    return configPromise;
+  }
+  var turnstilePromise = null;
+  function loadTurnstile() {
+    if (window.turnstile) return Promise.resolve(window.turnstile);
+    if (!turnstilePromise)
+      turnstilePromise = new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        s.async = true;
+        s.onload = function () {
+          resolve(window.turnstile);
+        };
+        s.onerror = function () {
+          turnstilePromise = null;
+          reject(new Error('turnstile'));
+        };
+        document.head.appendChild(s);
+      });
+    return turnstilePromise;
+  }
+
   ready(function () {
     var target = document.querySelector(targetSel);
     if (!target) return;
@@ -171,6 +205,7 @@
       st.textContent = css;
       document.head.appendChild(st);
     }
+    loadConfig();
     var today = new Date();
     today.setHours(0, 0, 0, 0);
     var root = el('div', { class: 'pmsw', 'data-pmsw': 'root' });
@@ -382,6 +417,52 @@
           renderQuote(r);
         },
       });
+      // BOOK-SEC1: кнопка ждёт ответа /w/config; есть публичный ключ — ещё и токена проверки
+      var token = '';
+      var widgetId = null;
+      var captchaBox = el('div', { class: 'captcha', 'data-pmsw': 'captcha' });
+      submit.disabled = true;
+      loadConfig().then(function (cfg) {
+        var siteKey = cfg && cfg.turnstileSiteKey;
+        if (!siteKey) {
+          submit.disabled = false;
+          return;
+        }
+        loadTurnstile()
+          .then(function (ts) {
+            widgetId = ts.render(captchaBox, {
+              sitekey: siteKey,
+              action: 'booking',
+              language: 'ru',
+              theme: 'light',
+              callback: function (t) {
+                token = t;
+                submit.disabled = false;
+              },
+              'expired-callback': function () {
+                token = '';
+                submit.disabled = true;
+              },
+              'error-callback': function () {
+                token = '';
+                submit.disabled = true;
+                say('Не удалось загрузить проверку. Обновите страницу и повторите.', 'err');
+              },
+            });
+          })
+          .catch(function () {
+            say('Не удалось загрузить проверку. Обновите страницу или свяжитесь с нами.', 'err');
+          });
+      });
+      function resetCaptcha() {
+        token = '';
+        if (widgetId === null) return false;
+        try {
+          window.turnstile.reset(widgetId);
+        } catch (e) {}
+        submit.disabled = true;
+        return true;
+      }
       var form = el('form', { 'data-pmsw': 'form' }, [
         el('div', { class: 'cat chosen' }, [
           el('div', {}, [
@@ -410,6 +491,7 @@
         ]),
         el('label', { text: 'Комментарий' }, [comment]),
         hp,
+        captchaBox,
         el('div', { class: 'row' }, [submit, back]),
       ]);
       form.addEventListener('submit', function (ev) {
@@ -433,6 +515,7 @@
           website: hp.value,
           v: keys.v,
           s: keys.s,
+          turnstileToken: token || undefined,
         };
         request('POST', '/w/book', body)
           .then(function (b) {
@@ -468,7 +551,8 @@
           })
           .catch(function (e) {
             say(e.message, 'err');
-            submit.disabled = false;
+            // токен использован: с проверкой кнопка ждёт нового, без неё — сразу доступна
+            if (!resetCaptcha()) submit.disabled = false;
           });
       });
       list.appendChild(form);

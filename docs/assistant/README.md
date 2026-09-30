@@ -98,6 +98,44 @@ SELECT message, status, count(*) AS n
 Параметры `userId` и `organizationId` — из подписи посетителя, которую бот проверил сам; API сверяет пару с членством
 (чужая организация — 404). Ответа без почты, телефона, имени и внутренних id. Третий адрес узкого ключа помощника.
 
+### `GET /assistant/integrations` и `GET /assistant/reservation` (S5)
+
+Диагностика для помощника поддержки (`plans/ai-agents-s5-diagnostics-2026-09-29.md`). Параметры `userId` и
+`organizationId` — из подписи посетителя, сверка с членством как у `/assistant/requester` (чужая пара — 404). Четвёртый
+и пятый адреса узкого ключа; живых вызовов Channex нет — только база и снимок сторожа webhook.
+
+- `integrations` → `{ "channex": null }` у организации без подключённых каналов; иначе `channex`: `state`
+  (`READY` / `NO_KEY` / `NO_MAPPING` / `ATTENTION`), `categories { mapped, total }`, `ratePlansMapped`,
+  `lastEventAgeMinutes`, `outbox { pending, failed, oldestPendingMinutes }`, `webhook { suspect, reachable }`,
+  `problems[]` кодами (`CATEGORIES_UNMAPPED`, `WEBHOOK_SUSPECT`, `OUTBOX_STUCK`, `NO_EVENTS_24H`…). Ключей и адресов нет.
+- `reservation?number=` → бронь по номеру среди объектов организации: `status`, даты, `nights`, `source`, `channel`,
+  `guests { adults, children }`, `items[] { category, status, unitAssigned, unitCode, housekeeping }`, `problems[]`
+  (`UNASSIGNED_ITEMS`, `ARRIVAL_PASSED_NOT_CHECKED_IN`, `UNIT_NOT_INSPECTED_BEFORE_ARRIVAL`…). Имени, телефона,
+  заметок и сумм нет по построению; чужая или несуществующая бронь — 404 без различения; `number` — до 40 знаков
+  из букв, цифр, дефиса и подчёркивания, иначе 400.
+
+Инструменты бота: `get_integration_health`, `get_reservation_status(number)`, `get_workspace_health` (сводка:
+аккаунт из S4, `platform_status`, каналы, число своих ошибок за окно `SUPPORT_INCIDENT_WINDOW_HOURS`).
+
+### Действия помощника (S6): `POST /assistant/actions/channel-pull`, `POST /assistant/actions/channel-sync`
+
+Ключ **действий** `ASSISTANT_ACT_KEY` — отдельный от ключа чтения (Q-S6-1): пускает **только POST** и только на эти
+два адреса; ключ чтения на них — 403, ключ действий на чтение — 403. У бота он зовётся `INTEGRATION_ACT_KEY`; пустой —
+бот только читает, матрица возможностей остаётся (`list_capabilities`), SAFE/CONFIRM отвечают «не знаю».
+
+Тело: `{ userId, organizationId, idempotencyKey, days? }` — пара из подписи, ключ идемпотентности — id строки журнала
+бота. Порядок проверок на платформе: членство (404) → право `channels` у роли (403) → аккаунт пишущий (409 «только
+чтение») → организация с подключённой интеграцией (409) → лимит: то же действие той же организации не чаще раза в
+10 минут (429) → повтор с тем же `idempotencyKey` в течение часа возвращает прежний результат с `replayed: true`,
+ничего не выполняя. Ответ — `{ ok, action, replayed, received/processed/failed | queued/days }`, без адресов и ключей.
+
+Классы (матрица — `apps/ai-seller/src/ai/support_actions_matrix.py`, план `plans/ai-agents-s6-actions-2026-09-29.md` §2):
+`channel_pull` — SAFE, выполняется сразу; `channel_sync` — CONFIRM, бот сначала предлагает, выполняет только после
+`confirm_action` тем же диалогом не позже 15 минут; `refund`, `subscription`, `organization_disable`, `owner_rights`,
+`data_delete`, `reservations_bulk`, `other_human` — HUMAN_ONLY: `request_human` ставит диалогу «нужен человек» и пишет в
+журнал, платформа не зовётся. Журнал — таблица бота `support_actions` (миграция `0007`), панель бота
+`GET /conversations/{id}/actions`, кабинет — `GET /platform/support/conversations/:id/actions` («Действия агента»).
+
 ### База знаний WETOP Support (S3, только помощник, только служебный ключ)
 
 Панель бота: `GET/POST /support-knowledge`, `GET/PUT /support-knowledge/{id}`, `POST /support-knowledge/{id}/publish`
@@ -329,6 +367,7 @@ networks:
 |---|---|---|
 | API платформы | `WIDGET_IDENTITY_SECRET` | общий с помощником |
 | API платформы | `ASSISTANT_READ_KEY` | общий с помощником |
+| API платформы | `ASSISTANT_ACT_KEY` | S6: ключ действий помощника, только `POST /assistant/actions/*`; у бота — `INTEGRATION_ACT_KEY`; не задан — бот только читает |
 | API платформы | `SELLER_URL`, `SELLER_SERVICE_KEY` | адрес панели продавца с её путём (`DASHBOARD_PATH_PREFIX` бота) и ключ Б5; песочница — по корню того же адреса |
 | API платформы | ~~`SELLER_ORGANIZATION_ID`~~ | **снята (Э4, ADR-083):** продавец общий, организация — в каждом вызове; оставшаяся в `.env` строка игнорируется, можно удалить |
 | API платформы | `SELLER_PUBLIC_URL` | публичный адрес продавца — из него код чата для сайта объекта |

@@ -94,6 +94,24 @@ function listView(raw: unknown) {
   };
 }
 
+/** Журнал действий бота (S6): только слова и статусы, `result` — короткая строка без ПД (маска у бота) */
+function actionsView(raw: unknown) {
+  return {
+    items: asList(obj(raw).items).map((row) => {
+      const x = obj(row);
+      return {
+        id: str(x.id),
+        action: str(x.action),
+        actionClass: str(x.class),
+        status: str(x.status),
+        result: x.result === null || x.result === undefined ? null : redactText(str(x.result) ?? '', 300),
+        createdAt: str(x.createdAt),
+        executedAt: str(x.executedAt),
+      };
+    }),
+  };
+}
+
 function sourcesView(raw: unknown) {
   return {
     items: asList(obj(raw).items).map((row) => {
@@ -218,6 +236,13 @@ export class SupportKnowledgeService {
     const conv = id(rawId);
     const client = this.client();
     return call(async () => sourcesView(await client.conversationKnowledge(conv)));
+  }
+
+  conversationActions(rawId: string) {
+    requirePlatformAdmin();
+    const conv = id(rawId);
+    const client = this.client();
+    return call(async () => actionsView(await client.conversationActions(conv)));
   }
 
   async draftFromConversation(rawId: string) {

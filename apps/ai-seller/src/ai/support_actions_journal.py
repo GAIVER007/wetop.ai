@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 import uuid
 from typing import Any
@@ -21,6 +22,14 @@ from src.db.models import ACTION_STATUSES, Conversation, SupportAction
 
 PENDING_TTL_SECONDS = 15 * 60
 RESULT_LIMIT = 300
+
+# Q-S6-2: согласие человека распознаёт сервер бота, а не модель — закрытый список фраз после нормализации
+# (строчные, без знаков препинания, один пробел). «да нет, не надо» и «да или нет?» сюда не попадают.
+CONSENT_PHRASES: frozenset[str] = frozenset({
+    "да", "да да", "подтверждаю", "да подтверждаю", "выполняй", "да выполняй", "да запусти", "запускай",
+    "да запускай", "делай", "да делай",
+})
+_PUNCT = re.compile(r"[^\w\s]+", re.UNICODE)
 
 
 class JournalError(ValueError):
@@ -109,11 +118,21 @@ async def escalate(session: AsyncSession, conversation_id: str | None) -> bool:
     return True
 
 
+def explicit_consent(text: object) -> bool:
+    """Явное «да» в сообщении человека этого хода. Детерминированно: точное совпадение с фразой из списка."""
+    if not isinstance(text, str):
+        return False
+    normalized = re.sub(r"\s+", " ", _PUNCT.sub(" ", text.lower().replace("ё", "е"))).strip()
+    return normalized in CONSENT_PHRASES
+
+
 # ─── Ожидающее предложение ───
 
 
-async def put_pending(redis: Any, conversation_id: str, *, action_id: uuid.UUID, action: str) -> None:
-    payload = {"action_id": str(action_id), "action": action, "proposed_at": int(time.time())}
+async def put_pending(
+    redis: Any, conversation_id: str, *, action_id: uuid.UUID, action: str, user_ref: str
+) -> None:
+    payload = {"action_id": str(action_id), "action": action, "user_ref": user_ref, "proposed_at": int(time.time())}
     await redis.set(pending_key(conversation_id), json.dumps(payload), ex=PENDING_TTL_SECONDS)
 
 

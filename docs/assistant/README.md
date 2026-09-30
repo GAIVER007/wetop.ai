@@ -131,7 +131,8 @@ SELECT message, status, count(*) AS n
 
 Классы (матрица — `apps/ai-seller/src/ai/support_actions_matrix.py`, план `plans/ai-agents-s6-actions-2026-09-29.md` §2):
 `channel_pull` — SAFE, выполняется сразу; `channel_sync` — CONFIRM, бот сначала предлагает, выполняет только после
-`confirm_action` тем же диалогом не позже 15 минут; `refund`, `subscription`, `organization_disable`, `owner_rights`,
+`confirm_action` тем же диалогом не позже 15 минут, причём согласие проверяет сервер бота, а не модель (Q-S6-2): тот же
+человек, тот же диалог, в сообщении человека этого хода — явное «да» из закрытого списка фраз; иначе предложение ждёт; `refund`, `subscription`, `organization_disable`, `owner_rights`,
 `data_delete`, `reservations_bulk`, `other_human` — HUMAN_ONLY: `request_human` ставит диалогу «нужен человек» и пишет в
 журнал, платформа не зовётся. Журнал — таблица бота `support_actions` (миграция `0007`), панель бота
 `GET /conversations/{id}/actions`, кабинет — `GET /platform/support/conversations/:id/actions` («Действия агента»).

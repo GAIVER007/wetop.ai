@@ -97,18 +97,14 @@ class Agent(Base):
     updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
 
 
-def agent_of_organization(context: Any) -> uuid.UUID | None:
-    """Значение `agent_id` по умолчанию: агент — тот, чей `id` равен организации строки (DATA_MODEL §20.4).
-    Строка без организации (помощник) агента не имеет."""
-    return context.get_current_parameters().get("organization_id")
-
-
 def _agent_id_column(table: str) -> Mapped[uuid.UUID | None]:
-    return mapped_column(
-        UUID,
-        sa.ForeignKey("agents.id", name=f"fk_{table}_agent"),
-        default=agent_of_organization,
-    )
+    """Агент строки (DATA_MODEL §20.5). Значения по умолчанию нет: каждая дверь и каждый писатель называют агента сами.
+
+    До SA2.5 агент подставлялся из организации строки (`agent_id = organization_id`), и это скрывало ошибку «писатель
+    забыл агента». Теперь забытый агент — `NULL`, а не молчаливое «агент равен организации»: тесты и (после сужения)
+    CHECK базы такую строку не пропускают. Строки помощника (без организации) агента не имеют.
+    """
+    return mapped_column(UUID, sa.ForeignKey("agents.id", name=f"fk_{table}_agent"))
 
 
 # ─── Клиенты ───
@@ -149,6 +145,12 @@ class WhatsAppConnection(Base):
 
     __tablename__ = "whatsapp_connections"
 
+    # Подключение принадлежит АГЕНТУ (DATA_MODEL §20.5, SA2.5): ключ — `agent_id`, секреты WhatsApp — на подключении канала
+    # агента. Организация — граница арендатора (и внешний ключ), но не ключ подключения. На рабочей базе первичный ключ по
+    # организации снимает миграция сужения 0010: до неё у организации одно подключение, и оно принадлежит одному агенту
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID, sa.ForeignKey("agents.id", name="fk_whatsapp_connections_agent"), primary_key=True
+    )
     organization_id: Mapped[uuid.UUID] = mapped_column(
         UUID,
         sa.ForeignKey(
@@ -156,10 +158,8 @@ class WhatsAppConnection(Base):
             ondelete="CASCADE",
             name="fk_whatsapp_connections_organization",
         ),
-        primary_key=True,
+        nullable=False,
     )
-    # Подключение принадлежит агенту (DATA_MODEL §20.5): секреты WhatsApp — на подключении канала агента
-    agent_id: Mapped[uuid.UUID | None] = _agent_id_column("whatsapp_connections")
     phone_number_id: Mapped[str] = mapped_column(sa.Text, nullable=False, unique=True)
     token_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
     app_secret_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
@@ -170,20 +170,9 @@ class WhatsAppConnection(Base):
 class Client(Base):
     __tablename__ = "clients"
     __table_args__ = (
-        # Уникальность внешнего id — в пределах организации (Э4). Строки без
-        # организации (помощник, старые диалоги продавца) — своя уникальность:
-        # NULL в обычном уникальном индексе различен, дубли прошли бы молча.
-        sa.Index(
-            "uq_clients_org_channel_external",
-            "organization_id",
-            "channel",
-            "external_id",
-            unique=True,
-            postgresql_where=sa.text("organization_id IS NOT NULL"),
-            sqlite_where=sa.text("organization_id IS NOT NULL"),
-        ),
-        # Агент — граница диалога (DATA_MODEL §20.5): один гость у двух агентов — два клиента. Рядом со старой
-        # уникальностью по организации; старая снимается в «сужении», пока агент один на организацию, они совпадают
+        # Агент — граница диалога (DATA_MODEL §20.5, SA2.5): один гость у двух агентов, даже одной организации, — два
+        # клиента. Прежняя уникальность по организации (`uq_clients_org_channel_external`) из модели снята: на рабочей
+        # базе её убирает миграция сужения 0010 после доказанного рантайма, пока агент в организации один — они совпадают
         sa.Index(
             "uq_clients_agent_channel_external",
             "agent_id",
@@ -193,6 +182,8 @@ class Client(Base):
             postgresql_where=sa.text("agent_id IS NOT NULL"),
             sqlite_where=sa.text("agent_id IS NOT NULL"),
         ),
+        # Строки без организации (помощник, старые диалоги продавца) — своя уникальность:
+        # NULL в обычном уникальном индексе различен, дубли прошли бы молча.
         sa.Index(
             "uq_clients_channel_external_null",
             "channel",
@@ -369,15 +360,16 @@ class OwnerAction(Base):
 class Document(Base):
     __tablename__ = "documents"
     __table_args__ = (
-        # Дедуп по хешу — в пределах организации: один и тот же прайс у двух
-        # гостиниц — две записи, а не молчаливый пропуск второй (Э4).
+        # Дедуп по хешу — в пределах АГЕНТА (SA2.5): один и тот же прайс у двух агентов, даже одной организации, —
+        # две записи, а не молчаливый пропуск второй (Э4). Прежняя уникальность по организации
+        # (`uq_documents_org_hash`) из модели снята: на рабочей базе её убирает миграция сужения 0010
         sa.Index(
-            "uq_documents_org_hash",
-            "organization_id",
+            "uq_documents_agent_hash",
+            "agent_id",
             "file_hash",
             unique=True,
-            postgresql_where=sa.text("organization_id IS NOT NULL"),
-            sqlite_where=sa.text("organization_id IS NOT NULL"),
+            postgresql_where=sa.text("agent_id IS NOT NULL"),
+            sqlite_where=sa.text("agent_id IS NOT NULL"),
         ),
         sa.Index(
             "uq_documents_hash_null",

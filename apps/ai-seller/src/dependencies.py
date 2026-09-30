@@ -38,8 +38,17 @@ organization_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar
 )
 
 
+# Агент текущего хода (SA2.5): инструменты котировки, отправитель WhatsApp и всё, что зависит от продавца, берут его отсюда.
+# Организацию вместо него не читаем: продавец — агент, а не организация.
+agent_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar("agent_id", default=None)
+
+
 def get_current_organization_id() -> str | None:
     return organization_id_var.get()
+
+
+def get_current_agent_id() -> str | None:
+    return agent_id_var.get()
 
 _LOG_FORMAT = "%(asctime)s | %(levelname)s | %(conversation_id)s | %(name)s | %(message)s"
 _STDOUT_HANDLER = "app_stdout"

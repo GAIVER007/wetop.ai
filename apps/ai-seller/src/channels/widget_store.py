@@ -15,7 +15,7 @@ import sqlalchemy as sa
 
 from src.channels.widget_identity import Visitor
 from src.db.base import ConversationMode, MessageRole, utcnow
-from src.db.models import Client, Conversation, Message
+from src.db.models import Agent, Client, Conversation, Message
 
 CHANNEL = "widget"
 # Сколько реплик отдаём за один опрос: браузер догонит следующим запросом.
@@ -37,33 +37,34 @@ async def _active_conversation(session, client_id) -> Conversation | None:
     return (await session.execute(stmt)).scalar_one_or_none()
 
 
-def _same_org(stmt, organization_id: uuid.UUID | None):
-    """Отбор по организации (Э4). None — строки без неё (помощник и старые
+def _same_agent(stmt, agent: Agent | None):
+    """Отбор по АГЕНТУ двери (SA2.5; до неё — по организации, Э4). None — строки без организации (помощник и старые
     диалоги): NULL не равен NULL, поэтому явное IS NULL, а не ==."""
-    if organization_id is None:
+    if agent is None:
         return stmt.where(Client.organization_id.is_(None))
-    return stmt.where(Client.organization_id == organization_id)
+    return stmt.where(Client.agent_id == agent.id)
 
 
-async def ensure_conversation(
-    session, visitor: Visitor, organization_id: uuid.UUID | None = None
-) -> Conversation:
+async def ensure_conversation(session, visitor: Visitor, agent: Agent | None = None) -> Conversation:
     """Тот же поиск, что делает движок в _accept: клиент по (канал, внешний
-    id) в пределах организации и его активный диалог. Дальше движок найдёт их же."""
-    stmt = _same_org(
+    id) в пределах агента и его активный диалог. Дальше движок найдёт их же."""
+    stmt = _same_agent(
         sa.select(Client).where(Client.channel == CHANNEL, Client.external_id == visitor.key),
-        organization_id,
+        agent,
     )
     client = (await session.execute(stmt)).scalar_one_or_none()
     if client is None:
         client = Client(channel=CHANNEL, external_id=visitor.key, name=visitor.display_name,
-                        organization_id=organization_id, created_at=utcnow())
+                        organization_id=agent.organization_id if agent else None,
+                        agent_id=agent.id if agent else None, created_at=utcnow())
         session.add(client)
         await session.flush()
     conv = await _active_conversation(session, client.id)
     if conv is None:
         now = utcnow()
-        conv = Conversation(client_id=client.id, organization_id=organization_id,
+        conv = Conversation(client_id=client.id,
+                            organization_id=agent.organization_id if agent else None,
+                            agent_id=agent.id if agent else None,
                             lead_data={}, created_at=now, last_activity_at=now)
         session.add(conv)
         await session.flush()
@@ -78,14 +79,12 @@ async def ensure_conversation(
     return conv
 
 
-async def conversation_for_key(
-    session, key: str, organization_id: uuid.UUID | None = None
-) -> Conversation | None:
-    """Активный диалог посетителя — в пределах организации двери. Нет
-    клиента (или он чужой гостиницы) — нет и диалога."""
-    stmt = _same_org(
+async def conversation_for_key(session, key: str, agent: Agent | None = None) -> Conversation | None:
+    """Активный диалог посетителя — в пределах агента двери. Нет клиента
+    (или он чужой гостиницы либо чужого агента) — нет и диалога."""
+    stmt = _same_agent(
         sa.select(Client.id).where(Client.channel == CHANNEL, Client.external_id == str(key)),
-        organization_id,
+        agent,
     )
     client_id = (await session.execute(stmt)).scalar_one_or_none()
     if client_id is None:
@@ -107,15 +106,15 @@ async def _marker(session, after: str):
 
 
 async def load_messages(
-    sessionmaker, key: str, after: str, organization_id: uuid.UUID | None = None
+    sessionmaker, key: str, after: str, agent: Agent | None = None
 ) -> tuple[list[dict], str]:
     """Новые сообщения и режим диалога.
 
     🔴 Только сообщения ЭТОГО диалога: ключ приводит ровно к одному клиенту
-    своей организации — чужим ключом гостиницы историю не открыть.
+    своего агента — ключом другого агента, даже той же гостиницы, историю не открыть.
     """
     async with sessionmaker() as session:
-        conv = await conversation_for_key(session, key, organization_id)
+        conv = await conversation_for_key(session, key, agent)
         if conv is None:
             return [], ConversationMode.BOT_ACTIVE.value
         stmt = sa.select(Message).where(Message.conversation_id == conv.id)

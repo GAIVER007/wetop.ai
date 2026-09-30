@@ -59,8 +59,9 @@ def _dialog(sync_db, org: str = ORG, external_id: str = GUEST) -> uuid.UUID:  # 
     with sync_db() as session:
         conv = session.get(Conversation, conversation_id)
         client = session.get(Client, conv.client_id)
-        conv.organization_id = uuid.UUID(org)
-        client.organization_id = uuid.UUID(org)
+        conv.organization_id = client.organization_id = uuid.UUID(org)
+        # перенесённый продавец: агент = организации (§20.4)
+        conv.agent_id = client.agent_id = uuid.UUID(org)
         session.commit()
     return conversation_id
 
@@ -177,5 +178,5 @@ def test_widget_dialog_still_goes_through_the_widget_sender(channel) -> None:
     from src.config import get_settings
     from src.dashboard.panel_conversations import build_reply_sender
 
-    sender = build_reply_sender(get_settings(), channel=channel, organization=uuid.UUID(ORG))
+    sender = build_reply_sender(get_settings(), channel=channel, agent=uuid.UUID(ORG))
     assert isinstance(sender, WidgetSender)

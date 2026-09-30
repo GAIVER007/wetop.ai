@@ -25,7 +25,7 @@ import uuid
 import sqlalchemy as sa
 
 from src.db.dedup import is_duplicate
-from src.db.models import Client, Organization
+from src.db.models import Agent, Client, Organization
 from tests.dashboard_fakes import (  # noqa: F401 — sync_db идёт фикстурой
     PANEL,
     _all,
@@ -134,16 +134,16 @@ def test_another_hotels_number_is_refused_with_409(app) -> None:  # noqa: F811
 
 async def test_dedup_key_separates_organizations(fake_redis) -> None:
     kw = dict(channel="whatsapp", external_id="77021112233", text="Здравствуйте", ttl_seconds=60)
-    assert await is_duplicate(fake_redis, organization_id=ORG, **kw) is False
-    assert await is_duplicate(fake_redis, organization_id=ORG_B, **kw) is False
-    assert await is_duplicate(fake_redis, organization_id=ORG, **kw) is True
+    assert await is_duplicate(fake_redis, agent_id=ORG, **kw) is False
+    assert await is_duplicate(fake_redis, agent_id=ORG_B, **kw) is False
+    assert await is_duplicate(fake_redis, agent_id=ORG, **kw) is True
 
 
 def test_the_same_greeting_to_two_hotels_is_answered_by_both(app, sync_db, net) -> None:  # noqa: F811
     with sync_db() as session:
         session.execute(
-            sa.update(Organization)
-            .where(Organization.name == "Гостиница Б")
+            sa.update(Agent)
+            .where(Agent.name == "Гостиница Б")
             .values(system_prompt="Ты продавец второй гостиницы-стенда.")
         )
         session.commit()

@@ -1,0 +1,33 @@
+# Сквозные (e2e) · 30.09.2026 19:29 Алматы · MacBook-Air-Urij.local
+# коммит 364c574 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' 'tests/e2e/desk-day.spec.ts' 'tests/e2e/chessboard-drag.spec.ts'
+[WebServer] (node:70143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[pms_test] миграций применено 0 из 40; данные от 2026-09-30T13:50:17.685Z (сид)
+
+Running 3 tests using 1 worker
+
+(node:70251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (38ms)
+(node:70256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:70144) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✓  2 [isolated] › tests/e2e/chessboard-drag.spec.ts:26:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (3.3s)
+  ✓  3 [isolated] › tests/e2e/desk-day.spec.ts:14:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (3.8s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 10)
+  свежих, моложе 15 мин, оставлено: 10 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+  3 passed (13.9s)
+
+# код выхода 0 · 15 с

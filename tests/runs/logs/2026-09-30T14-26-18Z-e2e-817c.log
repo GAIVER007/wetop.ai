@@ -1,0 +1,68 @@
+# Сквозные (e2e) · 30.09.2026 19:26 Алматы · MacBook-Air-Urij.local
+# коммит 364c574 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--workers=1' 'tests/e2e/desk-day.spec.ts'
+[WebServer] (node:67544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:67545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:67620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:67659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[pms_test] миграций применено 0 из 40; данные от 2026-09-30T13:50:17.685Z (сид)
+
+Running 2 tests using 1 worker
+
+(node:67667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (47ms)
+(node:67671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:67545) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ✘  2 [isolated] › tests/e2e/desk-day.spec.ts:14:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (35.4s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 4)
+  свежих, моложе 15 мин, оставлено: 4 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/desk-day.spec.ts:14:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByRole('main').getByLabel('День стойки: дата')
+    Expected: "2026-08-15"
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByRole('main').getByLabel('День стойки: дата') with timeout 30000ms
+      - waiting for getByRole('main').getByLabel('День стойки: дата')
+
+
+       97 |   await page.goto('/today?date=2026-08-15');
+       98 |   await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible();
+    >  99 |   await expect(page.getByRole('main').getByLabel('День стойки: дата')).toHaveValue('2026-08-15');
+          |                                                                        ^
+      100 |   expect(Number.isInteger(await card('c-arrivals'))).toBe(true);
+      101 |   await page.goto('/management/analytics?date=2026-08-15');
+      102 |   await expect(page.getByRole('main').getByTestId('pa-period')).toContainText('15 августа');
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/e2e/desk-day.spec.ts:99:72
+
+    Error Context: test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [isolated] › tests/e2e/desk-day.spec.ts:14:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+  1 passed (43.7s)
+
+# код выхода 1 · 45 с

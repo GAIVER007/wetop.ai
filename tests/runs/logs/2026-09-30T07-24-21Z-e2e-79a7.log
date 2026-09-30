@@ -1,0 +1,21 @@
+# Сквозные (e2e) · 30.09.2026 12:24 Алматы · vm
+# коммит 5a7d989 (claude/sec1b-stage-b)
+# npx playwright test --workers=2 --reporter=list,json 'tests/e2e/finance.spec.ts'
+[pms_test] миграций применено 0 из 35; данные от 2026-09-30T07:20:43.022Z (сид)
+
+Running 2 tests using 1 worker
+
+  ✓  1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (87ms)
+[WebServer] (node:2912) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  2 [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (7.7s)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 6)
+  свежих, моложе 15 мин, оставлено: 6 — уберёт следующая уборка
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+  2 passed (19.7s)
+
+# код выхода 0 · 22 с

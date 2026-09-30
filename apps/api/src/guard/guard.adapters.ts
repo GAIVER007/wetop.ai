@@ -13,6 +13,7 @@ import {
 } from '@pms/domain';
 import { telegram } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
+import { integrationTables } from '../database/integration-tables';
 import { LUXX_APARTS_PROPERTY } from '@pms/domain';
 import { PROVIDER } from '../channels/ari-publisher';
 import { isAriStopped } from '../channels/ari-switch';
@@ -118,8 +119,8 @@ export class NestGuardProbes implements GuardProbes {
       ...(lastFullSyncAt ? { createdAt: { gt: lastFullSyncAt } } : {}),
     };
     const [failedSinceSync, lastFailed, summary, lostDeltaAt] = await Promise.all([
-      this.prisma.db.channelOutbox.count({ where }),
-      this.prisma.db.channelOutbox.findFirst({
+      integrationTables(this.prisma.db).channelOutbox.count({ where }),
+      integrationTables(this.prisma.db).channelOutbox.findFirst({
         where,
         orderBy: { createdAt: 'desc' },
         select: { lastError: true },
@@ -138,7 +139,7 @@ export class NestGuardProbes implements GuardProbes {
   }
 
   async failedEvents(): Promise<FailedEvent[]> {
-    const rows = await this.prisma.db.externalEvent.findMany({
+    const rows = await integrationTables(this.prisma.db).externalEvent.findMany({
       where: { provider: PROVIDER, status: 'FAILED' },
       orderBy: { receivedAt: 'asc' },
       take: 50,

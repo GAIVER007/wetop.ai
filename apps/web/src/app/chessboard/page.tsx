@@ -115,7 +115,6 @@ export default async function ChessboardPage({
     <Page
       width="full"
       title="Шахматка"
-      subtitle={`${board.rows.length} мест`}
       actions={
         <Link className="btn" href="/reservations/new">
           <Icon name="plus" />
@@ -253,7 +252,9 @@ export default async function ChessboardPage({
 }
 
 /** Категории в порядке строк сетки — ящик «Брони без размещения» показывает чужие места в том же порядке */
-function categoriesOf(rows: Array<{ unit: { accommodationTypeCode: string; accommodationTypeName: string } }>) {
+function categoriesOf(
+  rows: Array<{ unit: { accommodationTypeCode: string; accommodationTypeName: string } }>,
+) {
   const seen = new Map<string, string>();
   for (const r of rows)
     if (!seen.has(r.unit.accommodationTypeCode))

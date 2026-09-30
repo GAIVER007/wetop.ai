@@ -181,6 +181,10 @@ class Settings(BaseSettings):
     widget_messages_per_hour: int = 60
     # Предел тела запроса; проверяется по Content-Length ДО чтения.
     widget_max_body_bytes: int = 64 * 1024
+    # Предел длины одной реплики в знаках (аудит 30.09.2026): тело в 64 КБ отбивало только переростков,
+    # а реплика до предела тела ложилась в историю целиком и уходила в модель 20 ходов подряд.
+    # Столько же режет guard_max_input_chars перед моделью — длиннее модель всё равно не видит.
+    widget_max_message_chars: int = 4000
     widget_attachments_enabled: bool = True
     widget_attachment_max_mb: int = 5
     widget_attachment_dir: str = "data/attachments"

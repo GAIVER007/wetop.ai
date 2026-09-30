@@ -176,6 +176,9 @@ async def post_message(request: Request) -> Response:
     text = as_str(data.get("text"))
     if not text:
         raise HTTPException(status_code=400, detail="bad_request")
+    if len(text) > settings.widget_max_message_chars:
+        # Как и переросток тела: 413 до хода, реплика в историю не ложится.
+        return JSONResponse(status_code=413, content={"status": "too_long"})
     attachment = as_str(data.get("attachment_id"))
     if attachment and KEY_RE.match(attachment):
         # Картинку модель на этом шаге не смотрит: ссылка нужна оператору,

@@ -258,7 +258,8 @@ class Engine:
             knowledge = []
         history = [HistoryTurn(role=_ROLE_TO_TURN[m.role], text=m.content) for m in t.history if m.role in _ROLE_TO_TURN]
         t.messages = build_messages(system_prompt=system_prompt, knowledge=knowledge, history=history,
-                                    user_text=t.verdict.text, history_turns=s.llm_history_turns)
+                                    user_text=t.verdict.text, history_turns=s.llm_history_turns,
+                                    max_turn_chars=s.guard_max_input_chars)
 
     async def _model(self, t: Turn) -> None:
         t.step("model")

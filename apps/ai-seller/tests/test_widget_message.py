@@ -183,3 +183,15 @@ def test_seeded_history_is_what_the_poll_reads(app, sync_db) -> None:  # noqa: F
     assert [m.content for m in messages_of(sync_db, conversation_id)] == ["Здравствуйте"]
     polled = app.poll(VISITOR).json()
     assert [m["text"] for m in polled["messages"]] == ["Здравствуйте"]
+
+
+def test_a_message_over_the_character_limit_is_refused(app, runner) -> None:
+    """🔴 Аудит 30.09.2026: тело в 64 КБ отбивало только переростков, а реплика до
+    предела тела ложилась в историю целиком и уходила в модель 20 ходов подряд.
+    Красный на коде до правки: 200 и ход в очереди."""
+    key = app.new_visitor()
+    response = app.message(key, "я" * 4001)
+    assert response.status_code == 413, response.status_code
+    assert runner.submitted == []
+    assert app.message(key, "я" * 4000).status_code == 200
+    assert len(runner.submitted) == 1

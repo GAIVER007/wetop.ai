@@ -128,6 +128,26 @@ ORDER BY 1, 2;
 **Откат:** `down.sql` этой миграции (`docs/ops/backups.md`, из копии базы) — `wetop_app` снова получает полный доступ. Код
 продолжает работать.
 
+## Роли Data API Supabase: отзыв прав (30.09.2026)
+
+Аудит 30.09.2026 (`reports/security-vibe-audit-2026-09-30.md` §2). Миграция `20260930000034_revoke_supabase_api_roles`
+снимает у `anon` и `authenticated` все права на таблицы, последовательности и функции схемы и умолчания на будущие
+объекты: до неё десять таблиц без RLS (`users`, `password_resets`, `external_events`, …) закрывал от публичного ключа
+проекта только выключенный Data API (SECURITY.md §12, вариант Б так и не был выполнен). На базе без этих ролей
+(локальный стенд, ps.kz) миграция ничего не делает и пишет NOTICE.
+
+Порядок не важен: код от прав `anon` не зависит. Применение — как обычно (`prisma migrate deploy` с `DIRECT_URL`,
+`docs/deploy.md` §1д). Проверка после: в SQL Editor Supabase
+
+```sql
+select has_table_privilege('anon', 'public.users', 'SELECT'),            -- ждём false
+       has_table_privilege('authenticated', 'public.payments', 'INSERT'); -- ждём false
+```
+
+и советник безопасности (Security Advisor) — без новых ошибок. Откат — `down.sql` той же миграции: возвращает
+умолчания Supabase (ALL), нужен только если Data API для `public` открывают намеренно. Умолчания роли
+`supabase_admin` миграции недоступны — их видно только советником.
+
 ## Что с `wetop_service`
 
 Роль создана миграцией (с `BYPASSRLS`, если роль миграций может его раздать; иначе — без него, NOTICE в выводе

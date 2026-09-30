@@ -81,19 +81,17 @@ class CollectSender:
 
 
 def _key_ok(request: Request) -> bool:
-    """Внутренний ключ (как у /internal/health) или служебный ключ платформы:
-    экран «Проверка» раздела «ИИ-продавец» говорит с ботом через песочницу.
+    """Только служебный ключ платформы (x-service-key): экран «Проверка» раздела
+    «ИИ-продавец» говорит с ботом через песочницу им же. Ключ живости
+    (/internal/health, x-internal-key) песочницу больше не открывает: это ход
+    модели от имени любой организации из тела, и утечка ключа проверки
+    живости не должна его давать (решение владельца 30.09.2026).
     Пустой ключ в настройках этот вход не открывает."""
     settings = request.app.state.settings
-    for expected, header in (
-        (settings.internal_health_key, "x-internal-key"),
-        (settings.seller_service_key, "x-service-key"),
-    ):
-        provided = request.headers.get(header, "")
-        # Сравниваем байты: compare_digest(str, str) падает на не-ASCII.
-        if expected and secrets.compare_digest(provided.encode("utf-8"), expected.encode("utf-8")):
-            return True
-    return False
+    expected = settings.seller_service_key
+    provided = request.headers.get("x-service-key", "")
+    # Сравниваем байты: compare_digest(str, str) падает на не-ASCII.
+    return bool(expected) and secrets.compare_digest(provided.encode("utf-8"), expected.encode("utf-8"))
 
 
 @router.post("/internal/sandbox")

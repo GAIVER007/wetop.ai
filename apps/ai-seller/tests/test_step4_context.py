@@ -79,3 +79,15 @@ def test_history_turns_are_clipped_to_max_turn_chars() -> None:
     assert len(messages[1]["content"]) == 4000
     untouched = build_messages(system_prompt=PROMPT, knowledge=[], history=[long_turn], user_text="?", history_turns=5)
     assert len(untouched[1]["content"]) == 10_000
+
+
+def test_history_has_a_total_char_budget() -> None:
+    """🔴 Решение владельца 30.09.2026: предел на реплику не спасает от 20 × 4 000 знаков — нужен общий
+    предел; самые старые реплики выпадают первыми. Красный на коде до правки: параметра нет."""
+    history = [HistoryTurn(role="user" if i % 2 == 0 else "assistant", text=str(i) * 1000) for i in range(6)]
+    messages = build_messages(
+        system_prompt=PROMPT, knowledge=[], history=history, user_text="?", history_turns=20, max_history_chars=2500
+    )
+    kept = [m["content"] for m in messages[1:-1]]
+    assert [len(t) for t in kept] == [1000, 1000]
+    assert kept[0].startswith("4") and kept[1].startswith("5")

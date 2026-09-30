@@ -183,3 +183,22 @@ def test_extraction_has_an_hourly_limit_per_organization(monkeypatch, fake_redis
         finally:
             reset_cascade_client()
     assert codes == [200, 200, 429], codes
+
+
+def test_extraction_is_refused_when_the_rate_counter_is_down(monkeypatch, fake_redis, sync_db) -> None:  # noqa: F811
+    """🔴 Решение владельца 30.09.2026: без счётчика — 503 и вызова модели нет (было: fail-open)."""
+    with panel(monkeypatch, fake_redis, SELLER_SERVICE_KEY=KEY, BOT_ROLE="seller") as p:
+        seed_org(sync_db, ORG)
+        llm = ScriptedLlm([reply(json.dumps(MODEL_JSON, ensure_ascii=False))])
+        set_cascade_client(llm)
+
+        async def down(*_args, **_kwargs):
+            raise RuntimeError("redis недоступен")
+
+        monkeypatch.setattr(fake_redis, "incr", down)
+        try:
+            response = p.client.post(f"{PANEL}/extract-profile", json={"story": STORY}, headers=SERVICE)
+        finally:
+            reset_cascade_client()
+    assert response.status_code == 503, response.text
+    assert llm.calls == 0

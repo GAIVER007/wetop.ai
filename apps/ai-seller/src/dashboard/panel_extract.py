@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from src.ai.guardrails import scan_document
 from src.ai.schemas import parse_model_json
-from src.channels.widget_guards import rate_exceeded
+from src.channels.widget_guards import RateLimitUnavailable, rate_exceeded
 from src.dashboard.auth_router import request_org, require_owner
 from src.dashboard.panel_common import log_action, sessions
 from src.knowledge.facts import Category
@@ -185,7 +185,11 @@ async def extract_profile(
     # Разбор идёт к модели мимо суточных бюджетов движка (engine._reserve_tokens, _over_daily_budget):
     # вошедший владелец мог крутить его без предела на ключе платформы (аудит 30.09.2026).
     # Тот же часовой счётчик, что у виджета, только по организации.
-    if await rate_exceeded(request.app.state.settings, "extract", str(org or "-")):
+    try:
+        exceeded = await rate_exceeded(request.app.state.settings, "extract", str(org or "-"), fail_closed=True)
+    except RateLimitUnavailable:
+        raise HTTPException(status_code=503, detail="Счётчик запросов недоступен — попробуйте позже") from None
+    if exceeded:
         raise HTTPException(status_code=429, detail="Слишком много разборов за час — попробуйте позже")
 
     async with sessions()() as session:

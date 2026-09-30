@@ -257,9 +257,17 @@ def visitor_from(
 # ─── Предел частоты ───
 
 
-async def _over_limit(door: str, key: str, limit: int) -> bool:
-    """Счётчик запросов в часовом окне. Сбой Redis дверь не закрывает:
-    молчащий бот дороже лишней реплики, но это видно в журнале."""
+class RateLimitUnavailable(Exception):
+    """Счётчик частоты недоступен (Redis), а дверь платная: ход к модели не делается."""
+
+
+async def _over_limit(door: str, key: str, limit: int, *, fail_closed: bool = False) -> bool:
+    """Счётчик запросов в часовом окне.
+
+    Сбой Redis у обычной двери (сессия, согласие, вложение) её не закрывает: молчащий бот дороже
+    лишней реплики, но это видно в журнале. Дверь, за которой ход модели (реплика, разбор рассказа,
+    проверка ключа), при сбое закрывается — RateLimitUnavailable: без счётчика падение Redis
+    превращалось бы в снятие всех пределов и расход токенов (решение владельца 30.09.2026)."""
     if limit <= 0 or not key:
         return False
     redis_key = f"widget:rate:{door}:{key}"
@@ -269,21 +277,26 @@ async def _over_limit(door: str, key: str, limit: int) -> bool:
         if count == 1:
             await redis.expire(redis_key, RATE_WINDOW_SECONDS)
         return count > limit
-    except Exception:  # noqa: BLE001 — любой сбой Redis
+    except Exception as exc:  # noqa: BLE001 — любой сбой Redis
+        if fail_closed:
+            logger.warning("widget: счётчик частоты недоступен, платная дверь %s закрыта", door)
+            raise RateLimitUnavailable(door) from exc
         logger.warning("widget: счётчик частоты недоступен, запрос принят")
         return False
 
 
-async def rate_exceeded(settings: Settings, door: str, *keys: str) -> bool:
+async def rate_exceeded(settings: Settings, door: str, *keys: str, fail_closed: bool = False) -> bool:
     """🔴 Считаем и по ключу посетителя, и по его адресу: ключ выбирает сам
     браузер, и без второго счётчика предел обходится новым ключом на каждое
     сообщение — а каждое сообщение это ход с каскадом моделей, то есть
     деньги. Окно у каждой двери своё: общее сложило бы выдачу сессии
     с сообщениями и отбило бы первую же реплику.
+
+    fail_closed=True — сбой Redis поднимает RateLimitUnavailable (вызывающий отвечает 503, модель не зовётся).
     """
     limit = settings.widget_messages_per_hour
     for key in keys:
-        if await _over_limit(door, key, limit):
+        if await _over_limit(door, key, limit, fail_closed=fail_closed):
             return True
     return False
 

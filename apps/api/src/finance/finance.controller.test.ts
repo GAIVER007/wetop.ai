@@ -35,7 +35,7 @@ function makeFakes() {
     },
     charges: [
       {
-        id: `acc-${id}`,
+        id: id.replace('4000-8000', '4000-8acc'),
         folioId: id,
         kind: 'ACCOMMODATION',
         serviceCode: null,
@@ -51,7 +51,10 @@ function makeFakes() {
     allocations: [],
     refunds: [],
   });
-  const folios = [folio('f1', 'S-1', 1_200_000n), folio('f2', 'S-2', 800_000n)];
+  const folios = [
+    folio('00000000-0000-4000-8000-000000000021', 'S-1', 1_200_000n),
+    folio('00000000-0000-4000-8000-000000000022', 'S-2', 800_000n),
+  ];
   const payments: PaymentRecord[] = [];
   const audits: string[] = [];
   /** Что возврат записал в журнал — проверяем, что туда не уехали контакты (аудит 26.09, С-39) */
@@ -195,7 +198,7 @@ function makeFakes() {
     },
     async addCharge(folioId, c, audit) {
       if (audit) audits.push(audit.action);
-      const id = `c${++seq}`;
+      const id = `00000000-0000-4000-8c00-${String(++seq).padStart(12, '0')}`;
       folios
         .find((f) => f.id === folioId)!
         .charges.push({
@@ -233,7 +236,7 @@ function makeFakes() {
     },
     async createPayment(p, audit) {
       if (audit) audits.push(audit.action);
-      const id = `p${++seq}`;
+      const id = `00000000-0000-4000-8b00-${String(++seq).padStart(12, '0')}`;
       payments.push({
         id,
         method: p.method,
@@ -366,6 +369,16 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
   afterAll(async () => {
     await app.close();
   });
+  it('id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026)', async () => {
+    const http = () => request(app.getHttpServer());
+    for (const bad of ['abc', "1'%20or%20'1'='1", '123']) {
+      await http().post(`/finance/folios/${bad}/charges`).send({}).expect(400);
+      await http().post(`/finance/folios/${bad}/stay-extras`).send({}).expect(400);
+      await http().post(`/finance/folios/${bad}/close`).expect(400);
+      await http().post(`/finance/charges/${bad}/void`).expect(400);
+      await http().post(`/finance/payments/${bad}/refunds`).send({}).expect(400);
+    }
+  });
   const get = () => request(app.getHttpServer()).get('/finance/reservations/B-1').expect(200);
 
   it('GET returns one folio per stay with balances = charged − paid + refunded; 404 for unknown booking', async () => {
@@ -380,7 +393,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
     expect(res.body.folios).toHaveLength(2);
     expect(res.body.folios[0]).toMatchObject({
-      id: 'f1',
+      id: '00000000-0000-4000-8000-000000000021',
       status: 'OPEN',
       chargedMinor: '1200000',
       balanceMinor: '1200000',
@@ -553,7 +566,9 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
 
   it('charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price', async () => {
     const post = (body: object) =>
-      request(app.getHttpServer()).post('/finance/folios/f1/charges').send(body);
+      request(app.getHttpServer())
+        .post('/finance/folios/00000000-0000-4000-8000-000000000021/charges')
+        .send(body);
     await post({ kind: 'ACCOMMODATION', description: 'x', unitPrice: '1' }).expect(400);
     await post({ kind: 'SERVICE' }).expect(400); // нет serviceCode
     await post({ kind: 'SERVICE', serviceCode: 'Сауна' }).expect(400);
@@ -575,7 +590,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     await post({ kind: 'PENALTY', description: 'Штраф', unitPrice: '-10' }).expect(400);
     await post({ kind: 'ADJUSTMENT', description: 'Скидка', unitPrice: '0' }).expect(400);
     await request(app.getHttpServer())
-      .post('/finance/folios/nope/charges')
+      .post('/finance/folios/00000000-0000-4000-8000-0000000000ff/charges')
       .send({ kind: 'PENALTY', description: 'Штраф', unitPrice: '1000' })
       .expect(404);
     const ok = await post({
@@ -609,15 +624,15 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     await post({
       method: 'BITCOIN',
       amount: '10',
-      allocations: [{ folioId: 'f1', amount: '10' }],
+      allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '10' }],
     }).expect(400);
     await post({ method: 'CASH', amount: '10', allocations: [] }).expect(400);
     const mismatch = await post({
       method: 'CASH',
       amount: '20000',
       allocations: [
-        { folioId: 'f1', amount: '12000' },
-        { folioId: 'f2', amount: '7000' },
+        { folioId: '00000000-0000-4000-8000-000000000021', amount: '12000' },
+        { folioId: '00000000-0000-4000-8000-000000000022', amount: '7000' },
       ],
     }).expect(400);
     expect(mismatch.body.message).toContain('Распределено');
@@ -630,15 +645,15 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       method: 'CASH',
       amount: '10',
       currency: 'USD',
-      allocations: [{ folioId: 'f1', amount: '10' }],
+      allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '10' }],
     }).expect(400);
     const ok = await post({
       method: 'KASPI',
       amount: '20000',
       note: 'перевод',
       allocations: [
-        { folioId: 'f1', amount: '13000' },
-        { folioId: 'f2', amount: '7000' },
+        { folioId: '00000000-0000-4000-8000-000000000021', amount: '13000' },
+        { folioId: '00000000-0000-4000-8000-000000000022', amount: '7000' },
       ],
     }).expect(201);
     expect(ok.body).toMatchObject({ paidMinor: '2000000', balanceMinor: '0' });
@@ -658,7 +673,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     delete process.env.PII_STORAGE;
     try {
       const charge = await request(app.getHttpServer())
-        .post('/finance/folios/f1/charges')
+        .post('/finance/folios/00000000-0000-4000-8000-000000000021/charges')
         .send({
           kind: 'ADJUSTMENT',
           description: 'Скидка по звонку +7 701 234 56 78',
@@ -671,13 +686,17 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
           method: 'KASPI',
           amount: '1000',
           note: 'чек на guest.test@example.com',
-          allocations: [{ folioId: 'f1', amount: '1000' }],
+          allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '1000' }],
         })
         .expect(201);
       const paymentId: string = pay.body.folios[0].payments[0].paymentId;
       const refund = await request(app.getHttpServer())
         .post(`/finance/payments/${paymentId}/refunds`)
-        .send({ folioId: 'f1', amount: '500', reason: 'вернуть на 8 777 123 45 67' })
+        .send({
+          folioId: '00000000-0000-4000-8000-000000000021',
+          amount: '500',
+          reason: 'вернуть на 8 777 123 45 67',
+        })
         .expect(201);
       const all = JSON.stringify([charge.body, pay.body, refund.body]);
       for (const raw of ['701 234 56 78', 'guest.test@example.com', '777 123 45 67'])
@@ -696,18 +715,26 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
   it('refund: only from a payment that was allocated to this folio, not more than allocated − refunded', async () => {
     const pay = await request(app.getHttpServer())
       .post('/finance/payments')
-      .send({ method: 'CASH', amount: '12000', allocations: [{ folioId: 'f1', amount: '12000' }] })
+      .send({
+        method: 'CASH',
+        amount: '12000',
+        allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '12000' }],
+      })
       .expect(201);
     const paymentId: string = pay.body.folios[0].payments[0].paymentId;
     const post = (body: object) =>
       request(app.getHttpServer()).post(`/finance/payments/${paymentId}/refunds`).send(body);
     await request(app.getHttpServer())
-      .post('/finance/payments/nope/refunds')
-      .send({ folioId: 'f1', amount: '1' })
+      .post('/finance/payments/00000000-0000-4000-8000-0000000000ff/refunds')
+      .send({ folioId: '00000000-0000-4000-8000-000000000021', amount: '1' })
       .expect(404);
-    await post({ folioId: 'f2', amount: '10' }).expect(400); // на f2 не распределялся
-    await post({ folioId: 'f1', amount: '12000.01' }).expect(400);
-    const ok = await post({ folioId: 'f1', amount: '3000', reason: 'ранний выезд' }).expect(201);
+    await post({ folioId: '00000000-0000-4000-8000-000000000022', amount: '10' }).expect(400); // на f2 не распределялся
+    await post({ folioId: '00000000-0000-4000-8000-000000000021', amount: '12000.01' }).expect(400);
+    const ok = await post({
+      folioId: '00000000-0000-4000-8000-000000000021',
+      amount: '3000',
+      reason: 'ранний выезд',
+    }).expect(201);
     expect(ok.body.folios[0]).toMatchObject({
       paidMinor: '1200000',
       refundedMinor: '300000',
@@ -715,41 +742,56 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       payments: [{ allocatedMinor: '1200000', refundedMinor: '300000' }],
       refunds: [{ amountMinor: '300000', reason: 'ранний выезд' }],
     });
-    await post({ folioId: 'f1', amount: '9000.01' }).expect(400); // остаток 9 000
+    await post({ folioId: '00000000-0000-4000-8000-000000000021', amount: '9000.01' }).expect(400); // остаток 9 000
     expect(fakes.audits).toEqual(['finance.payment', 'finance.refund']);
   });
 
   it('ручное закрытие счёта: только при нулевом балансе (иначе 409 с суммой), закрытый счёт не принимает начислений и платежей', async () => {
     const close = (id: string) => request(app.getHttpServer()).post(`/finance/folios/${id}/close`);
-    await close('nope').expect(404);
+    await close('00000000-0000-4000-8000-0000000000ff').expect(404);
     // гость должен 12 000 ₸ — закрыть нельзя, сумма в сообщении
-    const debt = await close('f1').expect(409);
+    const debt = await close('00000000-0000-4000-8000-000000000021').expect(409);
     expect(debt.body.message).toContain('12 000,00 ₸');
     expect(debt.body.message).toMatch(/закрыть нельзя/);
     // переплата — тоже не ноль
     await request(app.getHttpServer())
       .post('/finance/payments')
-      .send({ method: 'CASH', amount: '12500', allocations: [{ folioId: 'f1', amount: '12500' }] })
+      .send({
+        method: 'CASH',
+        amount: '12500',
+        allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '12500' }],
+      })
       .expect(201);
-    const over = await close('f1').expect(409);
+    const over = await close('00000000-0000-4000-8000-000000000021').expect(409);
     expect(over.body.message).toContain('−500,00 ₸');
     // возврат переплаты → баланс 0 → закрывается, счёт CLOSED, в журнале
     const paymentId: string = (await get()).body.folios[0].payments[0].paymentId;
     await request(app.getHttpServer())
       .post(`/finance/payments/${paymentId}/refunds`)
-      .send({ folioId: 'f1', amount: '500', reason: 'переплата' })
+      .send({ folioId: '00000000-0000-4000-8000-000000000021', amount: '500', reason: 'переплата' })
       .expect(201);
-    const closed = await close('f1').expect(200);
-    expect(closed.body.folios[0]).toMatchObject({ id: 'f1', status: 'CLOSED', balanceMinor: '0' });
-    expect(closed.body.folios[1]).toMatchObject({ id: 'f2', status: 'OPEN' });
-    await close('f1').expect(409); // уже закрыт
+    const closed = await close('00000000-0000-4000-8000-000000000021').expect(200);
+    expect(closed.body.folios[0]).toMatchObject({
+      id: '00000000-0000-4000-8000-000000000021',
+      status: 'CLOSED',
+      balanceMinor: '0',
+    });
+    expect(closed.body.folios[1]).toMatchObject({
+      id: '00000000-0000-4000-8000-000000000022',
+      status: 'OPEN',
+    });
+    await close('00000000-0000-4000-8000-000000000021').expect(409); // уже закрыт
     await request(app.getHttpServer())
-      .post('/finance/folios/f1/charges')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/charges')
       .send({ kind: 'PENALTY', description: 'Штраф', unitPrice: '1000' })
       .expect(409);
     await request(app.getHttpServer())
       .post('/finance/payments')
-      .send({ method: 'CASH', amount: '10', allocations: [{ folioId: 'f1', amount: '10' }] })
+      .send({
+        method: 'CASH',
+        amount: '10',
+        allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '10' }],
+      })
       .expect(409);
     expect(fakes.audits).toEqual(['finance.payment', 'finance.refund', 'finance.folio.close']);
   });
@@ -757,10 +799,12 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
   it('ADR-021: «Поздний выезд» и «Ранний заезд» начисляются одной командой — половина ночи по умолчанию, сумму можно задать', async () => {
     // счёт f1: проживание 12 000 ₸ за 2 ночи (01→03.10) → половина ночи 3 000 ₸
     const late = await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'LATE_CHECK_OUT' })
       .expect(201);
-    const f1 = late.body.folios.find((f: { id: string }) => f.id === 'f1');
+    const f1 = late.body.folios.find(
+      (f: { id: string }) => f.id === '00000000-0000-4000-8000-000000000021',
+    );
     const charge = f1.charges.find(
       (c: { description: string }) => c.description === 'Поздний выезд',
     );
@@ -771,28 +815,28 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
     // ранний заезд с заданной суммой и датой заезда
     const early = await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'EARLY_CHECK_IN', unitPrice: '2500' })
       .expect(201);
     const e = early.body.folios
-      .find((f: { id: string }) => f.id === 'f1')
+      .find((f: { id: string }) => f.id === '00000000-0000-4000-8000-000000000021')
       .charges.find((c: { description: string }) => c.description === 'Ранний заезд');
     expect(e).toMatchObject({ amountMinor: '250000', serviceDate: '2026-10-01' });
     await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'BREAKFAST' })
       .expect(400);
     // правило объекта по времени: выезд в 19:00 — вся ночь 6 000 ₸; в 11:30 — бесплатно, начислять нечего
     const night = await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'LATE_CHECK_OUT', time: '19:00' })
       .expect(201);
     const full = night.body.folios
-      .find((f: { id: string }) => f.id === 'f1')
+      .find((f: { id: string }) => f.id === '00000000-0000-4000-8000-000000000021')
       .charges.filter((c: { description: string }) => c.description === 'Поздний выезд');
     expect(full.at(-1)).toMatchObject({ amountMinor: '600000' });
     await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'LATE_CHECK_OUT', time: '11:30' })
       .expect(400);
   });
@@ -801,7 +845,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     // счёт f1: проживание 01→03.10 в ячейке 9001 (фальшивка stayUnitCode)
     fakes.blocks.length = 0;
     await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'LATE_CHECK_OUT', time: '19:00' })
       .expect(201);
     expect(fakes.blocks).toEqual([
@@ -816,7 +860,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     ]);
     // ранний заезд: ночь перед заездом
     await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'EARLY_CHECK_IN', time: '07:00' })
       .expect(201);
     expect(fakes.blocks[1]).toMatchObject({ dateFrom: '2026-09-30', dateTo: '2026-10-01' });
@@ -825,28 +869,34 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       'В ячейке 9001 есть проживание: X-1 (2026-10-03 → 2026-10-05) — сначала переселите';
     const before = (
       await request(app.getHttpServer()).get('/finance/reservations/B-1')
-    ).body.folios.find((f: { id: string }) => f.id === 'f1').charges.length;
+    ).body.folios.find((f: { id: string }) => f.id === '00000000-0000-4000-8000-000000000021')
+      .charges.length;
     const refused = await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'LATE_CHECK_OUT', time: '19:00' });
     expect(refused.status).toBe(409);
     expect(refused.body.message).toMatch(/занята|проживание/);
     const after = (
       await request(app.getHttpServer()).get('/finance/reservations/B-1')
-    ).body.folios.find((f: { id: string }) => f.id === 'f1').charges.length;
+    ).body.folios.find((f: { id: string }) => f.id === '00000000-0000-4000-8000-000000000021')
+      .charges.length;
     expect(after).toBe(before);
     fakes.blockConflict = null;
   });
 
   it('void: a manual charge is voided once; accommodation is managed by the stay and cannot be voided by hand', async () => {
     const c = await request(app.getHttpServer())
-      .post('/finance/folios/f1/charges')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/charges')
       .send({ kind: 'PENALTY', description: 'Штраф за отмену', unitPrice: '5000' })
       .expect(201);
     const chargeId: string = c.body.folios[0].charges[1].id;
     expect(c.body.folios[0].balanceMinor).toBe('1700000');
-    await request(app.getHttpServer()).post('/finance/charges/nope/void').expect(404);
-    await request(app.getHttpServer()).post('/finance/charges/acc-f1/void').expect(409);
+    await request(app.getHttpServer())
+      .post('/finance/charges/00000000-0000-4000-8000-0000000000ff/void')
+      .expect(404);
+    await request(app.getHttpServer())
+      .post('/finance/charges/00000000-0000-4000-8acc-000000000021/void')
+      .expect(409);
     const v = await request(app.getHttpServer())
       .post(`/finance/charges/${chargeId}/void`)
       .expect(200);
@@ -859,12 +909,12 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
   it('Б7: сторно доплаты за соседнюю ночь снимает её блокировку — койка снова продаётся', async () => {
     fakes.blocks.length = 0;
     const late = await request(app.getHttpServer())
-      .post('/finance/folios/f1/stay-extras')
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/stay-extras')
       .send({ extra: 'LATE_CHECK_OUT', time: '19:00' })
       .expect(201);
     expect(fakes.blocks).toHaveLength(1);
     const chargeId: string = late.body.folios
-      .find((f: { id: string }) => f.id === 'f1')
+      .find((f: { id: string }) => f.id === '00000000-0000-4000-8000-000000000021')
       .charges.find((c: { description: string }) => c.description === 'Поздний выезд').id;
     // чужая блокировка той же койки (ремонт) остаётся — снимается только блок этой доплаты
     fakes.blocks.push({
@@ -941,16 +991,24 @@ describe('роли в деньгах: возврат, сторно и умень
   });
   const as = (session: string) => ({ 'x-wetop-session': session });
   const charge = (session: string, body: Record<string, unknown>) =>
-    request(app.getHttpServer()).post('/finance/folios/f1/charges').set(as(session)).send(body);
+    request(app.getHttpServer())
+      .post('/finance/folios/00000000-0000-4000-8000-000000000021/charges')
+      .set(as(session))
+      .send(body);
   const pay = (session: string) =>
     request(app.getHttpServer())
       .post('/finance/payments')
       .set(as(session))
-      .send({ method: 'CASH', amount: '1000', allocations: [{ folioId: 'f1', amount: '1000' }] });
+      .send({
+        method: 'CASH',
+        amount: '1000',
+        allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '1000' }],
+      });
 
   /** Ручное начисление, созданное этим ответом: его id — для сторно (проживание сторнирует только система) */
-  const manualChargeId = (body: { folios: Array<{ charges: Array<{ id: string; kind: string }> }> }) =>
-    body.folios[0]!.charges.find((c) => c.kind !== 'ACCOMMODATION')!.id;
+  const manualChargeId = (body: {
+    folios: Array<{ charges: Array<{ id: string; kind: string }> }>;
+  }) => body.folios[0]!.charges.find((c) => c.kind !== 'ACCOMMODATION')!.id;
 
   it('администратор принимает оплату и начисляет, но не возвращает, не сторнирует и не уменьшает счёт', async () => {
     const up = await charge('session-admin', {
@@ -971,7 +1029,11 @@ describe('роли в деньгах: возврат, сторно и умень
     const refund = await request(app.getHttpServer())
       .post(`/finance/payments/${paymentId}/refunds`)
       .set(as('session-admin'))
-      .send({ folioId: 'f1', amount: '500', reason: 'ошибся суммой' });
+      .send({
+        folioId: '00000000-0000-4000-8000-000000000021',
+        amount: '500',
+        reason: 'ошибся суммой',
+      });
     expect(refund.status).toBe(403);
     expect(refund.body.message).toBe(accessDeniedMessage('refunds'));
     const voided = await request(app.getHttpServer())
@@ -994,7 +1056,11 @@ describe('роли в деньгах: возврат, сторно и умень
       await request(app.getHttpServer())
         .post(`/finance/payments/${paymentId}/refunds`)
         .set(as(session))
-        .send({ folioId: 'f1', amount: '500', reason: 'ошибся суммой' })
+        .send({
+          folioId: '00000000-0000-4000-8000-000000000021',
+          amount: '500',
+          reason: 'ошибся суммой',
+        })
         .expect(201);
       await request(app.getHttpServer())
         .post(`/finance/charges/${manualChargeId(down.body)}/void`)

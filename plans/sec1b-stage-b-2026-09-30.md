@@ -22,10 +22,10 @@ HTTP-запрос → wetop_app + RLS → обычные таблицы арен
    (`rates/rates.service.ts` → `publisher.ratesChanged`, `channels/ari-publisher.ts`, дельты остатков при создании, смене дат,
    отмене и т. д.) и все места, где очередь читают или обновляют. Чтение, разбор и смена статуса — только служебный путь
    (фоновые циклы уже ходят служебной ролью).
-2. **Проверить на живом Postgres 16 ДО миграции.** У Prisma `create` возвращает строку (`INSERT … RETURNING`), а для `RETURNING`
-   нужен `SELECT` на возвращаемые колонки; `ON CONFLICT` и повторный разбор тоже читают. Варианты, если это упирается в права:
-   `createMany` без возврата, «сырой» `INSERT` без `RETURNING`, либо `SELECT` только на колонку `id`. Выбор — по результату
-   проверки, а не по догадке.
+2. **Проверка на живом Postgres 16 — СДЕЛАНА 30.09.2026, до миграции** (результат ниже). Решение по приоритету владельца:
+   (1) `INSERT` без `RETURNING` внутри существующей транзакции; (2) только если результат нужен — минимальный `RETURNING` и
+   `SELECT` на одну колонку; (3) узкая функция БД — если ни то ни другое не подходит. **Широкий `SELECT` на `channel_outbox`
+   не выдаётся ни при каких условиях**, лишь бы Prisma не ругался.
 3. **`IntegrationRepository`** (служебная роль, `withServiceDatabase`): единственный вход к `external_events`, `system_incidents`
    и другим таблицам «только интеграции». Метод принимает `integrationPropertyId`, выведенный сервером (`resolveIntegrationProperty`,
    ADR-125); никаких идентификаторов из пути, запроса или тела. Маршруты оператора (`ChannelOperatorInterceptor` в
@@ -43,6 +43,39 @@ HTTP-запрос → wetop_app + RLS → обычные таблицы арен
      `system_incidents` — отказ; `INSERT` в `channel_outbox` в транзакции команды работает; отказ команды откатывает и запись очереди;
    - регресс: вход оператора, «Каналы продаж», `/connections/channex`, `/guard/*`, `/system/freshness` под `wetop_app` в режиме production.
 6. **Документы:** `DATA_MODEL.md` §17.2–17.3 (какие таблицы под какой ролью), `docs/ops/rls.md` (раздел про стадию B и откат), ADR-124.
+
+## Результат проверки `INSERT` без `SELECT` (Postgres 16, реальный Prisma-клиент под `wetop_app`, 30.09.2026)
+
+Права на `channel_outbox` временно менялись и возвращены, тестовые строки удалены (проверено: права `DELETE, INSERT, SELECT, UPDATE` как были).
+
+| Права `wetop_app` | Операция | Итог |
+|---|---|---|
+| все (эталон) | `create({ select: { id } })` | работает |
+| только `INSERT` | `create({ select: { id } })` | **отказ**, `42501 permission denied` |
+| только `INSERT` | `create({ data })` (без `select`) | **отказ**, `42501` |
+| только `INSERT` | **`createMany({ data: [...] })`** | **работает**, `count: 1` (`INSERT` без `RETURNING`) |
+| только `INSERT` | `createMany` внутри интерактивной транзакции | **работает**; при `throw` внутри транзакции строка не остаётся |
+| только `INSERT` | `findMany`, `updateMany`, `deleteMany` | отказ `42501` (как и должно быть) |
+| `INSERT` + `SELECT (id)` | `create({ select: { id } })` | работает |
+| `INSERT` + `SELECT (id)` | `create({ data })` без `select`, `findMany` | отказ `42501` |
+| только `INSERT` | «сырой» `INSERT` без `id` | дошёл до `NOT NULL` по `id`: `id` генерирует Prisma, в БД умолчания нет. Это ошибка пробы, права хватило |
+
+Вывод: приоритет (1) выполним без `SELECT`. `enqueueOutbox` (`channels/channels.repository.ts:406`) сегодня делает
+`create({ select: { id } })` и возвращает `id`, **но оба вызывающих (`channels/ari-publisher.ts:145` и `:186`) результат не используют**. Замена:
+`id = randomUUID()` в коде, `createMany({ data: [{ id, ... }] })`, возврат `id` (контракт `Promise<string>` не меняется), без права `SELECT`
+и без функции БД. Внешний ключ `property_id` проверяется от владельца таблицы, `INSERT` с ним проходит (опыт S1).
+
+## Инвентаризация обращений к `channel_outbox` (по коду на 30.09.2026)
+
+| Место | Что делает | Под какой ролью сегодня | Что нужно |
+|---|---|---|---|
+| `channels/channels.repository.ts:406` `enqueueOutbox` | вставка внутри транзакции команды (вызывается из `ari-publisher.ts:145`, `:186`) | `wetop_app` (контекст организации) | `createMany` с `id` из кода; остаётся у `wetop_app`, единственное разрешённое |
+| `channels/outbox.worker.ts:84,103,120` → `pendingOutbox`, `markOutboxSent`, `markOutboxRetry` (`repository:415,429,448`) | фоновый цикл раз в 5 с: чтение, отметка отправки и повтора | **служебная**: цикл вне запроса, организации в контексте нет, `TenantPool.route()` (`packages/database/src/rls.ts:113-116`) отдаёт служебный пул | без изменений |
+| `channels/channels.repository.ts:548` `recentOutbox`, `:733` `outboxRows`, `:754-766` `outboxSummary` | журнал и счётчики очереди для экранов интеграции | зависит от маршрута (маршруты оператора: `channels/channels.controller.ts`, `connection.ts`, `content.ts`) | переносятся в `IntegrationRepository` (служебная роль, серверный `integrationPropertyId`) |
+| `guard/guard.adapters.ts:121-122` (`count`, `findFirst` по `FAILED`), `:277` `flushOutbox` | статус сторожа и «выгрузить очередь» | маршруты сторожа под `ChannelOperatorInterceptor` | переносятся в `IntegrationRepository` |
+| `scripts/ops/guard-drill.ts:62,79` | учебная запись и удаление строки очереди | `DATABASE_URL` (служебная) | проверить, что не ходит `wetop_app`; вероятно без изменений |
+
+Пока все чтения не перенесены, отзывать у `wetop_app` `SELECT` нельзя: миграция стадии B идёт только после переноса читающих мест и теста на них.
 
 ## Порядок выкладки (как у стадии A)
 

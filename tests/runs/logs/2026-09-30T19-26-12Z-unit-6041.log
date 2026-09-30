@@ -1,0 +1,331 @@
+# Модульные (unit) · 01.10.2026 00:26 Алматы · vm
+# коммит 65e8d67 (claude/security-audit-vibe-coding-k3xakb)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-09-30T19-26-12Z-unit-6041.json' 'apps/api/src/auth/route-access.test.ts' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-slop.test.ts' 'tests/unit/e2e-windows.test.ts' 'tests/unit/no-vendor-name.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/no-vendor-name.test.ts (1 test | 1 failed) 99ms
+   ❯ название поставщика менеджера каналов не видно пользователю (1)
+     × нет слова «Channex» в текстах стойки, главной, API и бота 98ms
+ ❯ |unit| apps/web/src/design-rules.test.ts (13 tests | 1 failed) 212ms
+   ❯ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 37ms
+     × шрифта мельче 12 px нет 29ms
+     ✓ начертания только из шкалы 400 / 500 / 600 / 700 16ms
+     ✓ литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт) 10ms
+     ✓ стрелок в конце текста ссылок нет — ссылка названа словом (§14) 17ms
+     ✓ «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола 17ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 24ms
+     ✓ отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09) 7ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 13ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 21ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ «перейти к содержимому» на --primary пишется цветом --on-primary 1ms
+     ✓ на шахматке инлайн-фон клетки — backgroundColor, не сокращение background 1ms
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 15ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (14 tests | 1 failed) 50ms
+   ❯ tokens.css генерируется из design/tokens.json (3)
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 4ms
+     ✓ design/contrast.md совпадает с расчётом 4ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 30ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 2ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 1ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 1ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 5 failed) 18ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     ✓ color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 2ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 8ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 0ms
+     ✓ shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 0ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 1ms
+     ✓ trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 0ms
+     × font-under-12: шрифт мельче 12 px (DESIGN.md §6) 1ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 1ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| tests/unit/e2e-windows.test.ts (3 tests | 1 failed) 22ms
+   ❯ окна дат сквозных тестов (3)
+     × у каждого спека, который создаёт брони, есть свой BASE 15ms
+     ✓ отрезки не пересекаются: два спека не займут одну койку на одну ночь 2ms
+     ✓ отрезки лежат в пределах календаря цен и глубины шахматки 3ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 61ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 59ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/ai-agents.css: 0 → 5",
++   "apps/web/src/app/channels/channels.css: 0 → 40",
++   "apps/web/src/app/rates/rates.css: 0 → 18",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(4) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/[id]/instruction-editor.tsx: 0 → 1",
++   "apps/web/src/app/channels/[[...section]]/page.tsx: 0 → 1",
++   "apps/web/src/app/inventory/fund-editor.tsx: 0 → 2",
++   "apps/web/src/app/inventory/inventory-catalog.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > font-under-12: шрифт мельче 12 px (DESIGN.md §6)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/channels/channels.css: 0 → 6",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/ai-agents.css: 0 → 1",
++   "apps/web/src/app/rates/rates.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/inventory/inventory.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| tests/unit/e2e-windows.test.ts > окна дат сквозных тестов > у каждого спека, который создаёт брони, есть свой BASE
+AssertionError: expected [ 'desk-day.spec.ts' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "desk-day.spec.ts",
++ ]
+
+ ❯ tests/unit/e2e-windows.test.ts:48:58
+     46|       .filter((f) => f.endsWith('.spec.ts'))
+     47|       .filter((f) => /\bplus\(\d+\)/.test(readFileSync(resolve(DIR, f)…
+     48|     expect([...booking].filter((f) => !withBase.has(f))).toEqual([]);
+       |                                                          ^
+     49|   });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| tests/unit/no-vendor-name.test.ts > название поставщика менеджера каналов не видно пользователю > нет слова «Channex» в текстах стойки, главной, API и бота
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/channels/[[...section]]/page.tsx: ? 'Channex staging · тестовое подключение.'",
++ ]
+
+ ❯ tests/unit/no-vendor-name.test.ts:67:27
+     65| describe('название поставщика менеджера каналов не видно пользователю'…
+     66|   it('нет слова «Channex» в текстах стойки, главной, API и бота', () =…
+     67|     expect(vendorLines()).toEqual([]);
+       |                           ^
+     68|   });
+     69| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--space-5' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--space-5",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:85:21
+     83|     ]);
+     84|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     85|     expect(missing).toEqual([]);
+       |                     ^
+     86|   });
+     87| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > шрифта мельче 12 px нет
+AssertionError: expected [ …(6) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/channels/channels.css: .channels-overview .state-bar__facts dt",
++   "app/channels/channels.css: .channels-overview .state-bar__sub",
++   "app/channels/channels.css: .channels-report .stat__hint",
++   "app/channels/channels.css: .channels-report .dir-table th",
++   "app/channels/channels.css: .channels-report .cell-sub",
++   "app/channels/channels.css: .channels-overview .fact__label",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:75:89
+     73|   });
+     74|   it('шрифта мельче 12 px нет', () => {
+     75|     expect(offenders((r) => /font-size:\s*(?:[0-9]|1[01])(?:\.\d+)?px\…
+       |                                                                                         ^
+     76|   });
+     77|   it('начертания только из шкалы 400 / 500 / 600 / 700', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(214) } to deeply equal { …(212) }
+
+- Expected
++ Received
+
+@@ -5,10 +5,11 @@
+    "DELETE /guests/:id/documents/:documentId": "desk",
+    "DELETE /units/:code/blocks/:blockId": "desk",
+    "GET /a/demo": "public",
+    "GET /a/pms.js": "public",
+    "GET /ai-seller/agents/:id": "dialogs",
++   "GET /ai-seller/agents/:id/instruction": "seller",
+    "GET /ai-seller/agents/options": "dialogs",
+    "GET /ai-seller/catalog": "dialogs",
+    "GET /ai-seller/conversations": "dialogs",
+    "GET /ai-seller/conversations/:id": "dialogs",
+    "GET /ai-seller/embed": "seller",
+@@ -125,10 +126,11 @@
+    "PATCH /reservations/:number/items/:itemId": "desk",
+    "PATCH /seller-agents/:id": "seller",
+    "PATCH /wizard/config": "public",
+    "POST /a/hit": "public",
+    "POST /ai-seller/agents": "seller",
++   "POST /ai-seller/agents/:id/instruction/generate": "seller",
+    "POST /ai-seller/apply": "seller",
+    "POST /ai-seller/conversations/:id/release": "dialogs",
+    "POST /ai-seller/conversations/:id/reply": "dialogs",
+    "POST /ai-seller/conversations/:id/takeover": "dialogs",
+    "POST /ai-seller/extract": "seller",
+@@ -200,10 +202,11 @@
+    "POST /seller-agents/claim": "seller",
+    "POST /units/:code/blocks": "desk",
+    "POST /units/:code/housekeeping": "desk",
+    "POST /w/book": "public",
+    "POST /wizard/session": "public",
++   "PUT /ai-seller/agents/:id/instruction": "seller",
+    "PUT /ai-seller/llm-key": "seller",
+    "PUT /ai-seller/profile": "seller",
+    "PUT /ai-seller/prompt": "seller",
+    "PUT /ai-seller/whatsapp": "seller",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:304:20
+    302|       .map(([key]) => key);
+    303|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    304|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    305|   });
+    306|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  6 failed (6)
+      Tests  10 failed | 34 passed (44)
+   Start at  19:26:13
+   Duration  3.26s (transform 63%, import 25%, tests 12%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-09-30T19-26-12Z-unit-6041.json
+
+# код выхода 1 · 4 с

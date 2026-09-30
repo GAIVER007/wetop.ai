@@ -385,3 +385,30 @@ test('снимки экранов раздела', async ({ page }) => {
   await expect(page.getByTestId('seller-checklist')).toBeVisible();
   await page.screenshot({ path: `${dir}/setup-390.png`, fullPage: false });
 });
+
+test('Все агенты возвращает в единый каталог, а не только к черновикам', async ({ page }) => {
+  await page.goto('/ai-seller');
+  const back = page.getByRole('link', { name: 'Все агенты', exact: true });
+  await expect(back).toHaveAttribute('href', '/ai-agents');
+  await back.click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+  await expect(page.getByTestId('agent-seller')).toBeVisible();
+});
+
+test('закрытое расширение: администратор видит действие для управления доступом', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, {
+    data: { platformAdmin: true, sellerExtension: 'off' },
+  });
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
+  await page.goto('/ai-seller');
+  await expect(
+    page.getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }),
+  ).toHaveAttribute('href', '/platform');
+});

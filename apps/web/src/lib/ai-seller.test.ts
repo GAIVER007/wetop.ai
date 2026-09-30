@@ -279,7 +279,7 @@ describe('чек-лист «Три шага до запуска» (макет в
       ['prompt', false],
       ['check', false],
     ]);
-    expect(items[0]).toMatchObject({ title: 'Подключить модель', href: '/ai-seller/connections' });
+    expect(items[0]).toMatchObject({ title: 'Проверить модель', href: '/ai-seller/connections' });
   });
 
   it('продавец не подключён к платформе — первым шагом, остальное ждёт', () => {

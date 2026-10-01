@@ -5007,3 +5007,4 @@
 | 01.10.2026 17:10 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --workers=1) | ❌ упало 1 из 2 | 22 с | 9e7718d +50 | [лог](logs/2026-10-01T12-10-44Z-e2e-d091.log) | организации: филиал создаётся прямо в разделе и сохраняется после reload |
 | 01.10.2026 17:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --workers=1) | ✅ 2 из 2 | 21 с | 9e7718d +50 | [лог](logs/2026-10-01T12-11-44Z-e2e-c1c4.log) |  |
 | 01.10.2026 17:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts --grep филиалы:\|организации:\|главный администра | ✅ 3 из 3 | 26 с | 9e7718d +50 | [лог](logs/2026-10-01T12-12-43Z-e2e-9525.log) |  |
+| 01.10.2026 17:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --workers=1) | ✅ 2 из 2 | 26 с | 15862ea +50 | [лог](logs/2026-10-01T12-22-54Z-e2e-f044.log) |  |

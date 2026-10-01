@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import { BranchOverview } from './overview';
 import { todayAt, isIsoDate } from '@pms/domain';
 import { randomUUID } from 'node:crypto';
-import Link from 'next/link';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { Panel, Stack } from '../../components/ui';
@@ -89,27 +88,6 @@ export async function BranchWorkspace({
         <Suspense fallback={<p role="status">Считаем показатели филиалов…</p>}>
           <BranchOverview from={from} to={to} />
         </Suspense>
-        <Panel>
-          <details>
-            <summary>Доступ и подписка WETOP</summary>
-            <p>
-              Доступ организации:{' '}
-              {organization.status === 'ACTIVE'
-                ? 'работа разрешена'
-                : organization.status === 'READ_ONLY'
-                  ? 'только просмотр'
-                  : organization.status === 'TRIAL'
-                    ? 'пробный период'
-                    : 'приостановлен'}
-              .
-            </p>
-            <p>
-              Статус доступа не является подтверждением оплаты. Оплата Core подтверждается главным
-              администратором вручную; расширения подключаются отдельно.
-            </p>
-            <Link href="/today">Вернуться на Главную выбранного филиала</Link>
-          </details>
-        </Panel>
       </Stack>
     </section>
   );

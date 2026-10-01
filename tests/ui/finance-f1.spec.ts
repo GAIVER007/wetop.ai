@@ -9,7 +9,7 @@ import { expect, test, type Page } from './fixtures';
  * из них TEST4 уже выехала с остатком — её долг просрочен (Q-207). «К сбору» — сумма строк списка (Q-206).
  */
 const fixture = 'http://127.0.0.1:4311';
-const report = 'reports/finance-f1-2026-09-27';
+const report = 'reports/finance-compact-2026-10-01/debts';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>
   new Date(Date.parse(today) + days * 86400000).toISOString().slice(0, 10);
@@ -128,18 +128,24 @@ test('F1: «Требует внимания» — сумма к сбору и п
   await expect(page).toHaveURL(/debts=overdue#debts$/);
   const rows = main.getByTestId('debt-row');
   await expect(rows).toHaveCount(debts.overdue.count);
-  for (const row of await rows.all()) await expect(row.getByTestId('debt-overdue')).toHaveText('просрочено');
+  for (const row of await rows.all())
+    await expect(row.getByTestId('debt-overdue')).toHaveText('просрочено');
   // сумма отобранных строк — та, что названа в «Требует внимания»
   const sum = (await rows.getByTestId('debt-balance').allInnerTexts())
     .map(money)
     .reduce((a, b) => a + b, 0);
   expect(sum * 100).toBe(Number(debts.overdue.balanceMinor));
   await expect(
-    main.getByRole('navigation', { name: 'Отбор долгов' }).getByRole('link', { name: /Просрочено/ }),
+    main
+      .getByRole('navigation', { name: 'Отбор долгов' })
+      .getByRole('link', { name: /Просрочено/ }),
   ).toHaveAttribute('aria-current', 'page');
 
   // в полном списке отметка стоит только у просроченных
-  await main.getByRole('navigation', { name: 'Отбор долгов' }).getByRole('link', { name: /Все/ }).click();
+  await main
+    .getByRole('navigation', { name: 'Отбор долгов' })
+    .getByRole('link', { name: /Все/ })
+    .click();
   await expect(main.getByTestId('debt-row')).toHaveCount(Math.min(debts.count, 20));
   await expect(main.getByTestId('debt-overdue')).toHaveCount(
     debts.rows.slice(0, 20).filter((x) => x.overdue).length,
@@ -165,6 +171,7 @@ test('F1: структура денег — четыре вида всегда, 
   await expect(main.getByTestId('payments-table-total')).toHaveText(
     (await main.getByTestId('paid').innerText()).trim(),
   );
+  await main.locator('.finance-category-details summary').click();
   await expect(main.getByTestId('category-table').getByRole('columnheader')).toHaveText([
     'Категория',
     'Проживаний',
@@ -183,6 +190,7 @@ test('F1: брони с остатком — колонки, крупные до
   const debts = await debtsOf(request);
   await page.goto(url);
   const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const table = main.getByTestId('debts-table');
   await expect(table.getByRole('columnheader')).toHaveText([
     'Бронь',
@@ -200,7 +208,9 @@ test('F1: брони с остатком — колонки, крупные до
   expect(balances.every((x) => x > 0)).toBe(true);
   // итог списка назван словами; Q-206: плитка «К сбору» — ровно сумма строк списка, пояснения о расхождении нет
   await expect(main.getByTestId('debts-meta')).toContainText(`${debts.count} брон`);
-  expect(money(await main.getByTestId('balance').innerText()) * 100).toBe(Number(debts.balanceMinor));
+  expect(money(await main.getByTestId('balance').innerText()) * 100).toBe(
+    Number(debts.balanceMinor),
+  );
   if (debts.count <= 20)
     expect(money(await main.getByTestId('balance').innerText())).toBe(
       balances.reduce((a, b) => a + b, 0),
@@ -223,6 +233,7 @@ test('F1: «только чтение» — список долгов виден
   await signIn(page);
   await page.goto(url);
   const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('debt-row').first()).toBeVisible();
   await expect(main.getByRole('link', { name: 'Принять оплату' })).toHaveCount(0);
   await expect(
@@ -237,6 +248,7 @@ test('F1: сбой списка долгов не роняет итоги; пу�
   await request.post(`${fixture}/__test/control`, { data: { failPath: '/finance/debts' } });
   await page.goto(url);
   const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('charged')).toBeVisible();
   await expect(main.getByTestId('debts-error')).toBeVisible();
   await expect(main.getByTestId('attention-failed')).toContainText('не загрузился');
@@ -249,12 +261,13 @@ test('F1: сбой списка долгов не роняет итоги; пу�
   await expect(main.getByRole('navigation', { name: 'Отбор долгов' })).toHaveCount(0);
 });
 
-test('F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри', async ({
+test('F1: телефон — без прокрутки страницы вбок, итоги в две колонки, таблица долгов листается внутри', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(url);
   const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('debts-table')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,
@@ -263,7 +276,7 @@ test('F1: телефон — без прокрутки страницы вбок
     .getByTestId('finance-kpis')
     .locator('.stat')
     .evaluateAll((tiles) => tiles.map((t) => Math.round(t.getBoundingClientRect().left)));
-  expect(new Set(xs).size).toBe(1);
+  expect(new Set(xs).size).toBe(2);
 });
 
 for (const theme of ['light', 'dark'] as const) {
@@ -273,6 +286,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(url);
     const main = page.getByRole('main');
+    await page.getByRole('tab', { name: 'Долги', exact: true }).click();
     await expect(main.getByTestId('debts-table')).toBeVisible();
     await page.mouse.move(0, 0);
     mkdirSync(report, { recursive: true });

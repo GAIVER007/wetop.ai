@@ -1,0 +1,66 @@
+# Сквозные (e2e) · 01.10.2026 11:25 Алматы · MacBook-Air-Urij.local
+# коммит 6353984 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 78
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-compact.spec.ts' '--workers=1'
+[WebServer] (node:84131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:84216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+(node:84228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (25.9s)
+
+
+  1) tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('tab', { name: 'Обзор', exact: true })
+    Expected: "true"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('tab', { name: 'Обзор', exact: true }) with timeout 15000ms
+      - waiting for getByRole('tab', { name: 'Обзор', exact: true })
+
+
+       8 |   await page.setViewportSize({ width: 1366, height: 768 });
+       9 |   await page.goto('/finance');
+    > 10 |   await expect(page.getByRole('tab', { name: 'Обзор', exact: true })).toHaveAttribute('aria-selected','true');
+         |                                                                       ^
+      11 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(true);
+      12 |   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
+      13 |   await expect(page.getByTestId('finance-operations')).toBeVisible();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/finance-compact.spec.ts:10:71
+
+    Error Context: test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+
+# код выхода 1 · 58 с

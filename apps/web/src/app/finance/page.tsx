@@ -30,6 +30,7 @@ import {
 import { DateInput } from '../../components/date-field';
 import '../directory.css';
 import './finance.css';
+import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
 
@@ -264,143 +265,167 @@ export default async function FinanceReportPage({
         </section>
       )}
 
-      {valid && (r || debts) && (
-        <Attention
-          report={r}
-          debts={debts}
-          debtsFailed={debtsError !== null}
-          period={period}
-          refundsHref={opsHref({ op: 'refund' })}
-        />
+      {opsError !== null && (
+        <Alert boxed>
+          Операции не загрузились. <a href={`${period}#operations`}>Открыть детали ошибки</a>
+        </Alert>
       )}
-
-      {r && (
-        <div className="finance-structure">
-          <section className="finance-block" id="charges" data-testid="finance-charges">
-            <SectionTitle first>По видам начислений</SectionTitle>
-            <MoneyTable
-              testId="charges-table"
-              head={['Вид', 'Штук', 'Сумма']}
-              cur={cur}
-              rows={KINDS.map(([kind, label]) => {
-                const x = r.chargesByKind.find((c) => c.kind === kind);
-                return { label, count: x?.count ?? 0, amountMinor: x?.amountMinor ?? '0' };
-              })}
-              total={r.chargedMinor}
-            />
-            <SectionTitle>Проживание по категориям</SectionTitle>
-            <MoneyTable
-              testId="category-table"
-              head={['Категория', 'Проживаний', 'Сумма']}
-              cur={cur}
-              empty="Начислений за проживание за период нет"
-              rows={byAmount(r.accommodationByCategory).map((x) => ({
-                label: x.category,
-                count: x.count,
-                amountMinor: x.amountMinor,
-              }))}
-            />
-          </section>
-          <section className="finance-block" data-testid="finance-money">
-            <SectionTitle first>Оплаты по способам</SectionTitle>
-            <MoneyTable
-              testId="payments-table"
-              head={['Способ', 'Операций', 'Сумма']}
-              cur={cur}
-              empty="Оплат за период нет"
-              rows={byAmount(r.paymentsByMethod).map((x) => ({
-                label: METHOD_RU[x.method] ?? x.method,
-                count: x.count,
-                amountMinor: x.amountMinor,
-                href: opsHref({ op: 'payment', method: x.method }),
-              }))}
-              total={r.paymentsByMethod.length ? r.paidMinor : undefined}
-            />
-          </section>
-        </div>
-      )}
-
-      {valid && (
-        <section
-          className="finance-block finance-debts"
-          id="debts"
-          aria-labelledby="debts-title"
-          data-testid="finance-debts"
-        >
-          <div className="finance-debts__head">
-            <SectionTitle first id="debts-title">
-              Брони с остатком к сбору
-            </SectionTitle>
-            {debts && debts.count > 0 && (
-              <nav className="directory-filters finance-chips" aria-label="Отбор долгов">
-                <Link
-                  href={`${period}#debts`}
-                  className={onlyOverdue ? '' : 'is-active'}
-                  aria-current={onlyOverdue ? undefined : 'page'}
-                >
-                  Все<span className="finance-chips__count">{debts.count}</span>
-                </Link>
-                <Link
-                  href={`${period}&debts=overdue#debts`}
-                  className={onlyOverdue ? 'is-active' : ''}
-                  aria-current={onlyOverdue ? 'page' : undefined}
-                >
-                  Просрочено
-                  <span className="finance-chips__count">{debts.overdue.count}</span>
-                </Link>
-              </nav>
+      <FinanceWorkspace
+        initialView={
+          sp.op || sp.method || sp.ops ? 'operations' : sp.debts || sp.more ? 'debts' : 'overview'
+        }
+        overview={
+          <>
+            {valid && (r || debts) && (
+              <Attention
+                report={r}
+                debts={debts}
+                debtsFailed={debtsError !== null}
+                period={period}
+                refundsHref={opsHref({ op: 'refund' })}
+              />
             )}
-          </div>
-          {debtsError !== null && (
-            <LoadError testId="debts-error" {...loadErrorProps(debtsError)} />
-          )}
-          {debts && (
-            <DebtList
-              debts={debts}
-              onlyOverdue={onlyOverdue}
-              showAll={sp.more === '1'}
-              period={period}
-              canPay={!shell.readOnly}
-            />
-          )}
-        </section>
-      )}
 
-      {valid && (
-        <section
-          className="finance-block finance-ops"
-          id="operations"
-          aria-labelledby="operations-title"
-          data-testid="finance-operations"
-        >
-          <div className="finance-debts__head">
-            <SectionTitle first id="operations-title">
-              Оплаты и возвраты
-            </SectionTitle>
-            {/* Файл уходит из системы: без имён гостей, бронь — номером (ADR-113, F2) */}
-            <a
-              href={`/finance/export?${exportQuery}`}
-              className="btn btn--secondary btn--sm"
-              data-testid="ops-export"
-              download
-            >
-              <Icon name="down" />
-              Скачать CSV
-            </a>
-          </div>
-          {opsError !== null && <LoadError testId="ops-error" {...loadErrorProps(opsError)} />}
-          {ops && (
-            <Operations
-              ops={ops}
-              type={filter.type}
-              method={filter.method}
-              all={opsAll}
-              opsHref={opsHref}
-              opParam={opParam}
-            />
-          )}
-        </section>
-      )}
+            {r && (
+              <div className="finance-structure">
+                <section className="finance-block" id="charges" data-testid="finance-charges">
+                  <SectionTitle first>По видам начислений</SectionTitle>
+                  <MoneyTable
+                    testId="charges-table"
+                    head={['Вид', 'Штук', 'Сумма']}
+                    cur={cur}
+                    rows={KINDS.map(([kind, label]) => {
+                      const x = r.chargesByKind.find((c) => c.kind === kind);
+                      return { label, count: x?.count ?? 0, amountMinor: x?.amountMinor ?? '0' };
+                    })}
+                    total={r.chargedMinor}
+                  />
+                  <details className="finance-category-details">
+                    <summary>Проживание по категориям</summary>
+                    <MoneyTable
+                      testId="category-table"
+                      head={['Категория', 'Проживаний', 'Сумма']}
+                      cur={cur}
+                      empty="Начислений за проживание за период нет"
+                      rows={byAmount(r.accommodationByCategory).map((x) => ({
+                        label: x.category,
+                        count: x.count,
+                        amountMinor: x.amountMinor,
+                      }))}
+                    />
+                  </details>
+                </section>
+                <section className="finance-block" data-testid="finance-money">
+                  <SectionTitle first>Оплаты по способам</SectionTitle>
+                  <MoneyTable
+                    testId="payments-table"
+                    head={['Способ', 'Операций', 'Сумма']}
+                    cur={cur}
+                    empty="Оплат за период нет"
+                    rows={byAmount(r.paymentsByMethod).map((x) => ({
+                      label: METHOD_RU[x.method] ?? x.method,
+                      count: x.count,
+                      amountMinor: x.amountMinor,
+                      href: opsHref({ op: 'payment', method: x.method }),
+                    }))}
+                    total={r.paymentsByMethod.length ? r.paidMinor : undefined}
+                  />
+                </section>
+              </div>
+            )}
+          </>
+        }
+        debts={
+          <>
+            {valid && (
+              <section
+                className="finance-block finance-debts"
+                id="debts"
+                aria-labelledby="debts-title"
+                data-testid="finance-debts"
+              >
+                <div className="finance-debts__head">
+                  <SectionTitle first id="debts-title">
+                    Брони с остатком к сбору
+                  </SectionTitle>
+                  {debts && debts.count > 0 && (
+                    <nav className="directory-filters finance-chips" aria-label="Отбор долгов">
+                      <Link
+                        href={`${period}#debts`}
+                        className={onlyOverdue ? '' : 'is-active'}
+                        aria-current={onlyOverdue ? undefined : 'page'}
+                      >
+                        Все<span className="finance-chips__count">{debts.count}</span>
+                      </Link>
+                      <Link
+                        href={`${period}&debts=overdue#debts`}
+                        className={onlyOverdue ? 'is-active' : ''}
+                        aria-current={onlyOverdue ? 'page' : undefined}
+                      >
+                        Просрочено
+                        <span className="finance-chips__count">{debts.overdue.count}</span>
+                      </Link>
+                    </nav>
+                  )}
+                </div>
+                {debtsError !== null && (
+                  <LoadError testId="debts-error" {...loadErrorProps(debtsError)} />
+                )}
+                {debts && (
+                  <DebtList
+                    debts={debts}
+                    onlyOverdue={onlyOverdue}
+                    showAll={sp.more === '1'}
+                    period={period}
+                    canPay={!shell.readOnly}
+                  />
+                )}
+              </section>
+            )}
+          </>
+        }
+        operations={
+          <>
+            {valid && (
+              <section
+                className="finance-block finance-ops"
+                id="operations"
+                aria-labelledby="operations-title"
+                data-testid="finance-operations"
+              >
+                <div className="finance-debts__head">
+                  <SectionTitle first id="operations-title">
+                    Оплаты и возвраты
+                  </SectionTitle>
+                  {/* Файл уходит из системы: без имён гостей, бронь — номером (ADR-113, F2) */}
+                  <a
+                    href={`/finance/export?${exportQuery}`}
+                    className="btn btn--secondary btn--sm"
+                    data-testid="ops-export"
+                    download
+                  >
+                    <Icon name="down" />
+                    Скачать CSV
+                  </a>
+                </div>
+                {opsError !== null && (
+                  <LoadError testId="ops-error" {...loadErrorProps(opsError)} />
+                )}
+                {ops && (
+                  <Operations
+                    ops={ops}
+                    type={filter.type}
+                    method={filter.method}
+                    all={opsAll}
+                    opsHref={opsHref}
+                    opParam={opParam}
+                  />
+                )}
+              </section>
+            )}
+          </>
+        }
+      />
 
       <Help title="Как считаются суммы">
         <p>

@@ -13,12 +13,24 @@ const day = (n: number) => new Date(Date.now() + n * 86400000).toISOString().sli
 describe.skipIf(!local)('manual booking concurrency on isolated local PostgreSQL', () => {
   let db: Db;
   let propertyName: string;
+  const unitCode = `RETRY-${randomUUID()}`;
   const marker = `ТЕСТ-RETRY-${randomUUID()}`;
   beforeAll(async () => {
     db = createPrismaClient(url);
     propertyName = (
       await db.property.findFirstOrThrow({ where: { inventoryUnits: { some: { code: 'L1' } } } })
     ).name;
+    const source = await db.inventoryUnit.findFirstOrThrow({ where: { code: 'L85' } });
+    await db.inventoryUnit.create({
+      data: {
+        propertyId: source.propertyId,
+        physicalRoomId: source.physicalRoomId,
+        accommodationTypeId: source.accommodationTypeId,
+        kind: source.kind,
+        code: unitCode,
+        housekeepingStatus: 'INSPECTED',
+      },
+    });
   });
   afterAll(async () => {
     await db?.$disconnect();
@@ -40,10 +52,8 @@ describe.skipIf(!local)('manual booking concurrency on isolated local PostgreSQL
     notes: marker,
     arrivalDate: day(offset),
     departureDate: day(offset + 1),
-    guest: { firstName: 'ТЕСТ', lastName: 'Повтор' },
-    items: [
-      { accommodationTypeCode: 'L-DOUBLE', ratePlanCode: 'L-BASE', adults: 1, unitCode: 'L85' },
-    ],
+    guest: { firstName: 'ТЕСТ', lastName: 'Повтор', citizenship: 'KAZ' },
+    items: [{ accommodationTypeCode: 'L-DOUBLE', ratePlanCode: 'L-BASE', adults: 1, unitCode }],
   });
 
   it('concurrent duplicate and lost response replay persist one guest, booking, folio and allocation', async () => {
@@ -81,5 +91,61 @@ describe.skipIf(!local)('manual booking concurrency on isolated local PostgreSQL
     expect(results.filter((r) => r.status === 'rejected')).toHaveLength(1);
     expect(await db.guest.count()).toBe(before + 1);
     expect(await db.reservation.count({ where: { notes: marker } })).toBe(2);
+  });
+  it('same-day checkout releases the DB allocation and preserves charges through inspection and rebooking', async () => {
+    class Rollback extends Error {}
+    await expect(
+      db.$transaction(
+        async (tx) => {
+          const repo = new PrismaReservationsRepository(tx, propertyName);
+          const svc = new ReservationsService(
+            { run: (fn) => fn(repo), read: (fn) => fn(repo) },
+            new NoopAriPublisher(),
+          );
+          const today = await repo.today();
+          const input = {
+            ...payload(randomUUID(), 0),
+            arrivalDate: today,
+            departureDate: new Date(Date.parse(today + 'T00:00:00Z') + 3 * 86400000)
+              .toISOString()
+              .slice(0, 10),
+          };
+          const first = await svc.create(input);
+          const itemId = first.items[0]!.id;
+          // Local synthetic guest card prerequisite, independent of pseudonymized creation mode.
+          const stored = await tx.reservation.findFirstOrThrow({
+            where: { creationKey: input.creationKey },
+          });
+          await tx.guest.update({
+            where: { id: stored.primaryGuestId! },
+            data: { citizenship: 'KAZ' },
+          });
+          const charges = await tx.charge.findMany({
+            where: { folio: { reservationItemId: itemId } },
+            orderBy: { id: 'asc' },
+          });
+          await svc.checkIn(first.confirmationNumber, itemId);
+          await svc.checkOut(first.confirmationNumber, itemId, { withDebt: true });
+          expect(await tx.allocation.count({ where: { reservationItemId: itemId } })).toBe(0);
+          expect(
+            await tx.charge.findMany({
+              where: { folio: { reservationItemId: itemId } },
+              orderBy: { id: 'asc' },
+            }),
+          ).toEqual(charges);
+          const unit = await tx.inventoryUnit.findFirstOrThrow({ where: { code: unitCode } });
+          expect(unit.housekeepingStatus).toBe('DIRTY');
+          await repo.setUnitHousekeeping(unit.id, 'DIRTY', 'CLEAN');
+          await repo.setUnitHousekeeping(unit.id, 'CLEAN', 'INSPECTED');
+          const next = await svc.create({ ...input, creationKey: randomUUID() });
+          expect(next.confirmationNumber).not.toBe(first.confirmationNumber);
+          expect(
+            await tx.allocation.count({ where: { reservationItemId: next.items[0]!.id } }),
+          ).toBe(1);
+          throw new Rollback();
+        },
+        { timeout: 60000 },
+      ),
+    ).rejects.toBeInstanceOf(Rollback);
   });
 });

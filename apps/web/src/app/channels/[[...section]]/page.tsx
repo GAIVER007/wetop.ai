@@ -628,22 +628,30 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
   const stalledMinutes = outbox?.oldestPendingAt
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
     : 0;
-  const tone = !outbox
-    ? 'warn'
-    : outbox.failed > 0 || stalledMinutes >= 10
-      ? 'alarm'
-      : outbox.pending > 0
-        ? 'warn'
-        : 'calm';
-  const summaryWord = !outbox
-    ? 'Сводка очереди не загрузилась.'
-    : outbox.failed > 0
-      ? `Ошибок отправки ${outbox.failed} — каналы продают по старому остатку.`
-      : stalledMinutes >= 10
-        ? `Очередь стоит ${stalledMinutes} мин — каналы продают по старому остатку.`
+  const notConnected = !connection?.apiConfigured || !connection.propertyAccessible;
+  const tone =
+    !outbox || notConnected
+      ? 'warn'
+      : outbox.failed > 0 || stalledMinutes >= 10
+        ? 'alarm'
         : outbox.pending > 0
-          ? 'Ждут отправки в каналы.'
-          : 'Очередь пуста: всё ушло в каналы.';
+          ? 'warn'
+          : 'calm';
+  const summaryWord = !connection
+    ? 'Не удалось проверить подключение каналов.'
+    : notConnected
+      ? 'Каналы не подключены. Обмен с OTA не подтверждён.'
+      : !outbox
+        ? 'Сводка очереди не загрузилась.'
+        : outbox.failed > 0
+          ? `Ошибок отправки: ${outbox.failed}. Проверьте журнал.`
+          : stalledMinutes >= 10
+            ? `Очередь ожидает ${stalledMinutes} мин. Проверьте отправку.`
+            : outbox.pending > 0
+              ? 'Изменения ждут отправки в менеджер каналов.'
+              : connection.environment !== 'production'
+                ? 'Тестовый контур. Ожидающих заданий нет; обмен с рабочими OTA не подтверждён.'
+                : 'Ожидающих заданий нет. Результаты обмена смотрите в журнале.';
   const lastInbound =
     [connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)

@@ -20,11 +20,9 @@ export type Dictionary = {
     menu: string;
   };
   nav: {
-    product: string;
     audience: string;
     features: string;
-    integrations: string;
-    pricing: string;
+    sales: string;
     start: string;
     blog: string;
     login: string;
@@ -33,40 +31,25 @@ export type Dictionary = {
   hero: {
     /** Плашка над заголовком: регистрация открыта (ADR-098). */
     status: string;
-    /** Заголовок первого экрана; `titleAccent` идёт следом металлом (ADR-070). */
+    /** Заголовок первого экрана; `titleAccent` идёт второй строкой фирменным цветом. */
     title: string;
     titleAccent: string;
     lead: string;
+    /** Вторая кнопка первого экрана: к блоку «Возможности». */
+    secondary: string;
     points: Array<{ icon: IconName; text: string }>;
     /** Строка под кнопками первого экрана: срок пробного периода (ADR-098). */
     note: string;
-  };
-  stats: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    items: Array<{ icon: IconName; value: string; label: string; note: string }>;
-  };
-  showcase: {
-    eyebrow: string;
-    title: string;
-    all: string;
-    items: Array<{
-      no: string;
-      /** Какой мини-экран рисуется в карточке. */
-      screen: 'today' | 'board' | 'reservations';
+    /** Карта разделов (01.10.2026): шесть областей платформы ссылками на блоки страницы; имён и сумм нет. */
+    map: {
+      label: string;
       title: string;
-      text: string;
-      tags: string[];
-    }>;
-  };
-  toolkit: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    modules: { title: string; state: string; items: string[] };
-    channels: { title: string; items: Array<{ mark: string; name: string }> };
-    principles: { title: string; center: string; items: [string, string, string, string] };
+      hint: string;
+      items: Array<{ icon: IconName; title: string; text: string; href: string }>;
+      live: string;
+      next: string;
+      caption: string;
+    };
   };
   mockup: {
     label: string;
@@ -83,33 +66,7 @@ export type Dictionary = {
     toastTitle: string;
     toastText: string;
   };
-  /** Общий операционный экран «Сегодня» на первом экране: без номеров, коек и каналов OTA (29.09.2026). */
-  operations: {
-    label: string;
-    /** Разделы бокового меню макета; первый выбран. */
-    rail: string[];
-    title: string;
-    branch: string;
-    kpis: Array<{ label: string; value: string; note: string; tone?: 'up' | 'warn' }>;
-    clientsTitle: string;
-    clients: Array<{
-      time: string;
-      name: string;
-      what: string;
-      state: string;
-      tone: 'done' | 'now' | 'new';
-    }>;
-    tasksTitle: string;
-    tasks: Array<{ text: string; who: string; done?: boolean }>;
-    financeTitle: string;
-    /** Высоты столбиков выручки за неделю, в процентах; последний — сегодня. */
-    financeBars: number[];
-    financeValue: string;
-    financeNote: string;
-    event: { title: string; text: string; time: string };
-  };
-
-  /** Раздел «Направления»: Hospitality работает, следующее направление — отдельной карточкой. */
+  /** Раздел «Направления»: Hospitality работает, следующее направление отдельной карточкой. */
   audience: {
     eyebrow: string;
     title: string;
@@ -119,7 +76,65 @@ export type Dictionary = {
     items: Array<{ icon: IconName; title: string; text: string; segment: SegmentSlug }>;
     /** Подпись ссылки карточки направления на страницу по типу объекта. */
     more: string;
+    /** Подпись под макетом шахматки. */
+    caption: string;
     next: { status: string; title: string; text: string };
+  };
+  features: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    items: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
+  };
+  /** «Откуда приходят брони»: четыре входа и карточка со ссылкой на калькулятор. */
+  sales: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    items: Array<{ icon: IconName; title: string; text: string; tags?: string[]; link?: string }>;
+    calculator: { title: string; text: string; link: string };
+  };
+  /** «ИИ-продавцы»: шаги настройки и пример знаний. */
+  ai: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    steps: Array<{ title: string; text: string }>;
+    preview: {
+      label: string;
+      hint: string;
+      title: string;
+      items: Array<{ term: string; text: string }>;
+      note: string;
+      open: string;
+      signIn: string;
+    };
+  };
+  /** «Команда и доступ»: три карточки. */
+  team: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    items: Array<{ icon: IconName; title: string; text: string }>;
+  };
+  start: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    steps: Array<{ title: string; text: string }>;
+    ctaTitle: string;
+    ctaText: string;
+    contactsLabel: string;
+    cityLabel: string;
+    siteLabel: string;
+    connectLabel: string;
+    connectText: string;
+  };
+  /** «Вопросы и ответы»: нативные details. */
+  faq: {
+    eyebrow: string;
+    title: string;
+    items: Array<{ q: string; a: string }>;
   };
   /** Калькулятор «прямая бронь против OTA» (`/calculator/`, срез D3). */
   calculator: {
@@ -165,90 +180,6 @@ export type Dictionary = {
         limits?: string;
       }
     >;
-  };
-  features: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    items: Array<{ icon: IconName; title: string; text: string; tags?: string[] }>;
-  };
-  product: {
-    core: {
-      eyebrow: string;
-      title: string;
-      lead: string;
-      items: Array<{ icon: IconName; title: string; text: string }>;
-    };
-    integrations: {
-      eyebrow: string;
-      title: string;
-      lead: string;
-      note: string;
-      cta: string;
-      items: Array<{ mark: string; name: string }>;
-    };
-    direct: {
-      eyebrow: string;
-      title: string;
-      lead: string;
-      items: string[];
-      note: string;
-    };
-    ai: {
-      eyebrow: string;
-      title: string;
-      lead: string;
-      items: string[];
-      guest: string;
-      guestText: string;
-      answer: string;
-      answerText: string;
-      note: string;
-    };
-    finance: {
-      eyebrow: string;
-      title: string;
-      lead: string;
-      metrics: Array<{ label: string; value: string }>;
-      example: string;
-    };
-    why: {
-      eyebrow: string;
-      title: string;
-      items: Array<{ icon: IconName; title: string; text: string }>;
-    };
-    migration: {
-      eyebrow: string;
-      title: string;
-      lead: string;
-      proof: string;
-      note: string;
-    };
-    pricing: {
-      eyebrow: string;
-      title: string;
-      plan: string;
-      price: string;
-      period: string;
-      scope: string;
-      items: string[];
-      overage: string;
-      trial: string;
-    };
-    final: { eyebrow: string; title: string; lead: string; contact: string };
-  };
-  start: {
-    eyebrow: string;
-    title: string;
-    lead: string;
-    steps: Array<{ title: string; text: string }>;
-    ctaTitle: string;
-    ctaText: string;
-    contactsLabel: string;
-    cityLabel: string;
-    siteLabel: string;
-    connectLabel: string;
-    connectText: string;
   };
   company: {
     eyebrow: string;

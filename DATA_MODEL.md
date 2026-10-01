@@ -2180,7 +2180,7 @@ WhatsApp, дедуп — живут в пределах `agent_id`. У пере�
 серверная котировка и намерение брони: agent_id, organization_id, property_id,
 conversation_id, channel_message_id (ключ подтверждения), category_id, rate_plan_id,
 arrival_date/departure_date (DATE), adults, total_minor (integer), currency,
-expires_at, state (`QUOTED`, `CONFIRMED`, `REJECTED`), reservation_id (nullable),
+expires_at (30 минут после создания котировки, решение владельца 01.10.2026), state (`QUOTED`, `CONFIRMED`, `REJECTED`), reservation_id (nullable),
 request_hash, created_at/updated_at. UNIQUE(agent_id, channel_message_id),
 UNIQUE(reservation_id). Организация/объект выводятся из агента на сервере.
 Подтверждение сверяет точную котировку, наличие и цену в одной транзакции с созданием брони;

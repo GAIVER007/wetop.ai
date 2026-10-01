@@ -5,7 +5,19 @@
 set -eu
 
 if [ "${1:-}" = "gunicorn" ]; then
-    alembic upgrade head
+    # 0010 сужает ключи: только отдельная ручная выкладка после smoke.
+    # Уже суженную базу не откатываем; неизвестную ревизию не угадываем.
+    revision=$(alembic current)
+    case "$revision" in
+        "0010"|"0010 (head)") ;;
+        ""|0001|0002|0003|0004|0005|0006|0007|0008|0009)
+            alembic upgrade 0009
+            ;;
+        *)
+            echo "Unsupported database revision; deployment requires review" >&2
+            exit 1
+            ;;
+    esac
 fi
 
 exec "$@"

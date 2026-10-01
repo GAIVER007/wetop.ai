@@ -18,19 +18,13 @@ export async function checkBookingAvailability(arrival: string, departure: strin
   }
 }
 
-export async function bookingPriceOffer(arrival: string, departure: string, guests: number) {
-  if (
-    !/^\d{4}-\d{2}-\d{2}$/.test(arrival) ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(departure) ||
-    departure <= arrival ||
-    !Number.isInteger(guests) ||
-    guests < 1 ||
-    guests > 100
-  )
-    return null;
+export async function bookingQuote(input: unknown) {
   try {
-    return await reservationsApi.offers(arrival, departure, guests);
-  } catch {
-    return null;
+    return { quote: await reservationsApi.quote(input), error: '' };
+  } catch (error) {
+    return {
+      quote: null,
+      error: error instanceof Error ? error.message : 'Не удалось рассчитать стоимость.',
+    };
   }
 }

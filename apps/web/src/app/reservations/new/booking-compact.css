@@ -228,3 +228,11 @@
     grid-column: span 3;
   }
 }
+
+.booking-form [aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.booking-form .field > small[role="alert"] {
+  color: var(--danger);
+  font-size: var(--text-sm);
+}

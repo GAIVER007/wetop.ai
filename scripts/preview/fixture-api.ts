@@ -5669,6 +5669,23 @@ createServer(async (req, res) => {
         return send(422, { message: 'Сумма платежа и распределения должны совпадать' });
       }
     }
+    if (path === '/reservations/quote') {
+      const arrival = String(body['arrivalDate']);
+      const departure = String(body['departureDate']);
+      const items = body['items'] as Array<{ accommodationTypeCode: string; quantity?: number }>;
+      const nights = BigInt(nightsOf({ arrivalDate: arrival, departureDate: departure }));
+      const total = items.reduce(
+        (sum, item) =>
+          sum + nightly(item.accommodationTypeCode) * nights * BigInt(item.quantity ?? 1),
+        0n,
+      );
+      return send(201, {
+        arrivalDate: arrival,
+        departureDate: departure,
+        totalMinor: total.toString(),
+        currency: 'KZT',
+      });
+    }
     if (path === '/reservations') {
       if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });
       const r = cardSeed();

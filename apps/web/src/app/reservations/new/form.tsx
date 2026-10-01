@@ -10,11 +10,12 @@ import {
   type ActionResult,
   type BookingGuest,
 } from '../actions';
-import { BookingPrice } from './price';
+import { BookingPrice, useBookingQuote } from './price';
 import { DateInput } from '../../../components/date-field';
 import type { StayAvailability } from '../../../lib/api';
 import { checkBookingAvailability } from './availability';
 import { CHANNELS, SOURCES } from '../sources';
+import { isStayDate } from '../../../lib/stay-date';
 
 export function NewReservationForm(props: {
   /** Размещения из адресной строки: «Свободные места» (AV3, ADR-110) или ячейка из шахматки */
@@ -41,10 +42,13 @@ export function NewReservationForm(props: {
   const [availabilityError, setAvailabilityError] = useState('');
   const [checking, setChecking] = useState(false);
   const [retry, setRetry] = useState(0);
-  const validDates =
-    /^\d{4}-\d{2}-\d{2}$/.test(arrival) &&
-    /^\d{4}-\d{2}-\d{2}$/.test(departure) &&
-    departure > arrival;
+  const arrivalError = isStayDate(arrival) ? '' : 'Введите корректную дату';
+  const departureError = !isStayDate(departure)
+    ? 'Введите корректную дату'
+    : !arrivalError && departure <= arrival
+      ? 'Дата выезда должна быть позже даты заезда'
+      : '';
+  const validDates = !arrivalError && !departureError;
   const fresh =
     validDates &&
     availability?.arrivalDate === arrival &&
@@ -55,12 +59,19 @@ export function NewReservationForm(props: {
     setChecking(true);
     setAvailabilityError('');
     const timer = window.setTimeout(() => {
-      void checkBookingAvailability(arrival, departure).then((result) => {
-        if (!active) return;
-        setChecking(false);
-        setAvailability(result.availability);
-        setAvailabilityError(result.error);
-      });
+      void checkBookingAvailability(arrival, departure)
+        .then((result) => {
+          if (!active) return;
+          setChecking(false);
+          setAvailability(result.availability);
+          setAvailabilityError(result.error);
+        })
+        .catch(() => {
+          if (!active) return;
+          setChecking(false);
+          setAvailability(null);
+          setAvailabilityError('Не удалось проверить свободные места.');
+        });
     }, 200);
     return () => {
       active = false;
@@ -76,11 +87,23 @@ export function NewReservationForm(props: {
   function chooseArrival(value: string) {
     const nights = Math.max(1, nightsBetween(arrival, departure) || 1);
     setArrival(value);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) setDeparture(plusDays(value, nights));
+    if (isStayDate(value)) setDeparture(plusDays(value, nights));
   }
-  const [state, action, pending] = useActionState<ActionResult, FormData>(createReservationAction, {
-    error: null,
-  });
+  const submission = useRef<{ fingerprint: string; key: string } | null>(null);
+  const [state, action, pending] = useActionState<ActionResult, FormData>(
+    async (previous, fd) => {
+      const fingerprint = JSON.stringify(
+        [...fd.entries()]
+          .filter(([name]) => name !== 'creationKey')
+          .sort(([a], [b]) => a.localeCompare(b)),
+      );
+      if (submission.current?.fingerprint !== fingerprint)
+        submission.current = { fingerprint, key: crypto.randomUUID() };
+      fd.set('creationKey', submission.current.key);
+      return createReservationAction(previous, fd);
+    },
+    { error: null },
+  );
   // отказ (например, койку заняли из соседнего окна) не должен стирать введённое
   const kept = state.values ?? {};
   // выбранный гость живёт вне формы с ключом попытки: отказ API не сбрасывает выбор
@@ -90,12 +113,6 @@ export function NewReservationForm(props: {
     props.prefill.length ? props.prefill.map((_, index) => String(index)) : ['0'],
   );
   const nextPlacement = useRef(Math.max(1, props.prefill.length));
-  const unavailable = props.prefill
-    .map((p) => p.unit)
-    .filter(
-      (unit) =>
-        unit && unit !== AUTO_UNIT && !categories.some((c) => c.availableUnitCodes.includes(unit)),
-    );
   // Резюме читается из полей формы; цену и доступность проверяет сервер.
   const formRef = useRef<HTMLFormElement>(null);
   const [snapshot, setSnapshot] = useState<Record<string, string>>({});
@@ -107,6 +124,23 @@ export function NewReservationForm(props: {
     setSnapshot(next);
   }, []);
   useEffect(refresh, [refresh, state.attempt, placementIds, availability, arrival, departure]);
+  const quote = useBookingQuote(
+    arrival,
+    departure,
+    snapshot,
+    placementIds,
+    validDates,
+    state.attempt ?? 0,
+  );
+  const unavailable = placementIds.flatMap((id) => {
+    const prefix = id === '0' ? '' : `item.${id}.`;
+    const unit = snapshot[`${prefix}unitCode`];
+    const category = categories.find((c) => c.code === snapshot[`${prefix}accommodationTypeCode`]);
+    return fresh && unit && unit !== AUTO_UNIT && !category?.availableUnitCodes.includes(unit)
+      ? [unit]
+      : [];
+  });
+  const unavailableSelection = unavailable.length > 0;
   const facts = summarize({ ...props, arrival, departure }, placementIds, snapshot, picked);
   return (
     <form
@@ -115,6 +149,22 @@ export function NewReservationForm(props: {
       key={state.attempt ?? 0}
       ref={formRef}
       action={action}
+      onSubmit={(event) => {
+        const fields = new FormData(event.currentTarget);
+        if (
+          pending ||
+          !validDates ||
+          !quote.ready ||
+          unavailableSelection ||
+          checking ||
+          !fresh ||
+          availabilityError ||
+          fields.get('arrivalDate') !== arrival ||
+          fields.get('departureDate') !== departure ||
+          event.currentTarget.querySelector('[aria-invalid="true"]')
+        )
+          event.preventDefault();
+      }}
       // второй проход после отрисовки: смена категории перерисовывает список ячеек уже после события
       onChange={() => {
         refresh();
@@ -129,18 +179,38 @@ export function NewReservationForm(props: {
             <DateInput
               name="arrivalDate"
               value={arrival}
-              onChange={(e) => chooseArrival(e.target.value)}
+              aria-label="Заезд"
+              aria-invalid={Boolean(arrivalError)}
+              aria-describedby={arrivalError ? 'booking-arrival-error' : undefined}
+              onChange={(e) => setArrival(e.target.value)}
+              onInput={(e) => setArrival(e.currentTarget.value)}
+              onBlur={(e) => setArrival(e.currentTarget.value)}
               required
             />
+            {arrivalError && (
+              <small id="booking-arrival-error" role="alert">
+                {arrivalError}
+              </small>
+            )}
           </Field>
           <Field label="Выезд">
             <DateInput
               name="departureDate"
               rangeFromName="arrivalDate"
               value={departure}
+              aria-label="Выезд"
+              aria-invalid={Boolean(departureError)}
+              aria-describedby={departureError ? 'booking-departure-error' : undefined}
               onChange={(e) => setDeparture(e.target.value)}
+              onInput={(e) => setDeparture(e.currentTarget.value)}
+              onBlur={(e) => setDeparture(e.currentTarget.value)}
               required
             />
+            {departureError && (
+              <small id="booking-departure-error" role="alert">
+                {departureError}
+              </small>
+            )}
           </Field>
         </div>
         <div className="booking-create__quick" aria-label="Быстрые даты">
@@ -166,7 +236,7 @@ export function NewReservationForm(props: {
               type="button"
               size="sm"
               tone="secondary"
-              disabled={!/^\d{4}-\d{2}-\d{2}$/.test(arrival)}
+              disabled={!isStayDate(arrival)}
               aria-pressed={nightsBetween(arrival, departure) === n}
               onClick={() => setDeparture(plusDays(arrival, n))}
             >
@@ -207,6 +277,7 @@ export function NewReservationForm(props: {
           на этот период. Выберите другое размещение.
         </Alert>
       )}
+      <input type="hidden" name="expectedTotalMinor" value={quote.quote?.totalMinor ?? ''} />
       <input type="hidden" name="placementIds" value={placementIds.join(',')} />
       {placementIds.map((id, index) => (
         <fieldset
@@ -366,25 +437,28 @@ export function NewReservationForm(props: {
       {state.error && <Alert style={{ fontSize: 'var(--text-md)' }}>{state.error}</Alert>}
       <details className="booking-create__review">
         <summary>Проверить детали брони</summary>
-        <BookingSummary facts={facts} />
+        {validDates ? <BookingSummary facts={facts} /> : <p>Проверьте даты проживания</p>}
       </details>
       {/* Липкий подвал: одна строка сути и кнопка — невысокий, чтобы на телефоне при непрокрученной
           форме не уходить под нижнюю навигацию; полное резюме — блоком выше */}
       <div className="booking-footer">
         <p className="booking-footer__digest" data-testid="booking-digest">
-          {[facts.datesText, ...facts.placements].join('; ')}
+          {validDates
+            ? [facts.datesText, ...facts.placements].join('; ')
+            : 'Проверьте даты проживания'}
         </p>
         <div className="booking-footer__actions">
-          <BookingPrice
-            arrival={arrival}
-            departure={departure}
-            snapshot={snapshot}
-            single={placementIds.length === 1}
-          />
+          {!validDates ? (
+            <span className="booking-create__price">Укажите корректные даты для расчёта</span>
+          ) : (
+            <BookingPrice state={quote} />
+          )}
           <Button
             type="submit"
             disabled={
               pending ||
+              !quote.ready ||
+              unavailableSelection ||
               checking ||
               !fresh ||
               Boolean(availabilityError) ||
@@ -620,10 +694,16 @@ function PlacementFields({
         <Field label="Номер / койка">
           <Select
             name={field('unitCode')}
-            value={chosenUnit === AUTO_UNIT || units.includes(chosenUnit) ? chosenUnit : ''}
+            value={chosenUnit}
+            aria-invalid={Boolean(
+              chosenUnit && chosenUnit !== AUTO_UNIT && !units.includes(chosenUnit),
+            )}
             onChange={(e) => setChosenUnit(e.target.value)}
           >
             <option value="">Назначить позже</option>
+            {chosenUnit && chosenUnit !== AUTO_UNIT && !units.includes(chosenUnit) && (
+              <option value={chosenUnit}>{chosenUnit}: недоступно на выбранные даты</option>
+            )}
             {units.length > 0 && <option value={AUTO_UNIT}>Первая свободная</option>}
             {units.map((u) => (
               <option key={u} value={u}>

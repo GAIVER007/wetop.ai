@@ -702,6 +702,7 @@ export const reservationsApi = {
   /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
   nearest: (arrival: string, departure: string, guests: number) =>
     getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
+  quote: (body: unknown) => sendJson<{ totalMinor: string; currency: string }>('POST', '/reservations/quote', body),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),

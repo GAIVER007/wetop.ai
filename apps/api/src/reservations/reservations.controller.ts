@@ -21,6 +21,11 @@ export class ReservationsController {
     return this.service.create(dto ?? {});
   }
 
+  @Post('quote')
+  quote(@Body() dto: CreateReservationDto) {
+    return this.service.create(dto ?? {}, { preview: true });
+  }
+
   @Patch(':number/dates')
   changeDates(@Param('number') number: string, @Body() dto: ChangeDatesDto) {
     return this.service.changeDates(number, dto ?? {});

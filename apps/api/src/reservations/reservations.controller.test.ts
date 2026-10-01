@@ -26,6 +26,8 @@ import {
 
 /** Фальшивка хранит и то, чего в ReservationState нет, но что отдаёт карточка: источник, заметки, гостей */
 type StoredReservation = ReservationState & {
+  creationKey?: string | null;
+  creationFingerprint?: string | null;
   source?: string;
   primaryGuestId?: string;
   notes?: string | null;
@@ -254,6 +256,12 @@ function makeFake() {
       state.createdGuests.push({ ...g });
       return `g${state.guests}`;
     },
+    async reservationByCreationKey(key) {
+      const r = [...state.reservations.values()].find((r) => r.creationKey === key);
+      return r
+        ? { confirmationNumber: r.confirmationNumber, fingerprint: r.creationFingerprint ?? null }
+        : null;
+    },
     async createReservation(input) {
       state.seq += 1;
       const id = `r${state.seq}`;
@@ -274,6 +282,8 @@ function makeFake() {
       state.reservations.set(input.confirmationNumber, {
         id,
         confirmationNumber: input.confirmationNumber,
+        creationKey: input.creationKey ?? null,
+        creationFingerprint: input.creationFingerprint ?? null,
         status: input.status,
         arrivalDate: input.arrivalDate,
         departureDate: input.departureDate,
@@ -524,6 +534,58 @@ describe('manual reservation API', () => {
     } finally {
       publishFails = false;
     }
+  });
+
+  it.each([
+    ['2026-02-31', '2026-03-03'],
+    ['2026-02-28', '2026-02-31'],
+    ['2026-10-02', '2026-10-01'],
+    ['2026-10-01', '2026-10-01'],
+    ['', '2026-10-01'],
+    ['2026-10-01', ''],
+  ])('rejects invalid stay %s to %s before writes', async (arrivalDate, departureDate) => {
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate, departureDate }))
+      .expect(400);
+    expect(fake.state.reservations.size).toBe(0);
+  });
+
+  it('quotes the selected booking without writing a guest or reservation', async () => {
+    const q = await request(app.getHttpServer())
+      .post('/reservations/quote')
+      .send(body())
+      .expect(201);
+    expect(q.body.totalMinor).toBe('2200000');
+    expect(fake.state.reservations.size).toBe(0);
+    expect(fake.state.guests).toBe(0);
+    expect(published).toHaveLength(0);
+  });
+  it('replays one creation key and rejects changed payload without duplicate guests', async () => {
+    const payload = body({ creationKey: '00000000-0000-4000-8000-000000000001' });
+    const first = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(payload)
+      .expect(201);
+    const repeat = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(payload)
+      .expect(201);
+    expect(repeat.body.confirmationNumber).toBe(first.body.confirmationNumber);
+    expect(fake.state.reservations.size).toBe(1);
+    expect(fake.state.guests).toBe(1);
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send({ ...payload, notes: 'ТЕСТ changed' })
+      .expect(409);
+  });
+  it('rejects an outdated expected total before writes', async () => {
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ expectedTotalMinor: '1' }))
+      .expect(409);
+    expect(fake.state.reservations.size).toBe(0);
+    expect(fake.state.guests).toBe(0);
   });
 
   it('POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit', async () => {

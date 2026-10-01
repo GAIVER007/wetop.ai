@@ -4881,3 +4881,16 @@ UI /branches доступен из карточки объекта, Главно
 ### 2026-10-01. Читаемые подписи брони в шахматке
 
 Согласовано владельцем: технические псевдонимы не показываем как фамилии на плашках. Опознаём только точные форматы генератора «Гость Стойка-xxxxxx» и «Гость Канал-xxxxxx». Заголовок строится по фактическому источнику брони, например «Бронь со стойки»; без источника используется «Бронь без имени». Настоящие имена и похожие строки не изменяются. Бейдж источника не повторяется, когда источник уже указан в заголовке. Предпросмотр и подписи действий используют тот же заголовок; номер брони и привязки не меняются. Это только представление, политика хранения гостей и модель данных остаются прежними.
+
+## 2026-10-01: coherent manual booking dates, quote and retry
+
+Problem: incomplete date validation and separate offers could disagree with the submitted
+booking. A lost create response had no durable replay key.
+Decision approved in chat: exact calendar validation, preserve invalid input with inline
+errors, gate submission on the current availability and exact quote, reject changed totals.
+The quote reuses create preparation in a transaction and exits before writes. Alternative
+cheapest-category offers cannot quote a selected rate, promo or multiple placements.
+Reservation gets nullable creation key/fingerprint, unique per property, with an advisory
+transaction lock before readback. Same key/body replays; different body conflicts.
+Alternative button-only deduplication cannot handle lost responses or concurrent requests.
+Existing access rules, price formulas, category locks and allocation exclusion remain.

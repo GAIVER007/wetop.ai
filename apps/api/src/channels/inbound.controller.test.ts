@@ -256,6 +256,9 @@ function makeFakes() {
       guests.push(g);
       return id('g');
     },
+    async reservationByCreationKey() {
+      return null;
+    },
     async createReservation(input) {
       // ошибка записи с данными гостя в тексте — как у Prisma, которая печатает аргументы (SECURITY.md §7)
       if (input.confirmationNumber === 'BDC-FAIL-PII')

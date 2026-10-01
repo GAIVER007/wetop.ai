@@ -1,0 +1,23 @@
+BEGIN
+DROP INDEX
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE INDEX
+ALTER TABLE
+ columns_present 
+-----------------
+               2
+(1 row)
+
+ unique_index_present 
+----------------------
+                    1
+(1 row)
+
+ pair_constraint_present 
+-------------------------
+                       2
+(1 row)
+
+ROLLBACK

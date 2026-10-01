@@ -141,7 +141,14 @@ describe.skipIf(!url)('предохранители базы: UNIQUE external_id
       lockTakenAt = Date.now();
       await held;
     });
-    await new Promise((r) => setTimeout(r, 50));
+    // Ждём, пока «бронь» и правда возьмёт замок, а не 50 мс по таймеру: на раннере GitHub новое подключение второго
+    // клиента не укладывалось в 50 мс, блокировка проходила первой, и тест видел «done» вместо «waiting»
+    // (run 36907844128, 01.10.2026; на машине разработчика та же гонка не проявлялась)
+    const lockDeadline = Date.now() + 10_000;
+    while (lockTakenAt === 0) {
+      if (Date.now() > lockDeadline) throw new Error('«бронь» не взяла замок категории за 10 с');
+      await new Promise((r) => setTimeout(r, 10));
+    }
     const repo = new PrismaUnitsRepository({ db } as PrismaService);
     const block = repo
       .createBlock(

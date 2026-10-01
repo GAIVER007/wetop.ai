@@ -148,7 +148,7 @@
   font-size: 13px;
 }
 .integrations-page .settings-tabs {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   border: 0;
   background: transparent;
 }
@@ -156,15 +156,15 @@
   grid-template-columns: minmax(0, 1fr);
 }
 .integrations-page .integration-card {
-  padding: 18px;
-  gap: 12px;
+  padding: 16px;
+  gap: 16px;
 }
 .integrations-page .integration-card__name {
   font-size: 18px;
 }
 .integrations-page .integration-card__issues {
   font-size: 13px;
-  padding: 10px 12px;
+  padding: 8px 16px;
   border: 0;
 }
 .integrations-page .integration-card__facts {
@@ -174,7 +174,7 @@
 .integrations-page .integration-card__facts > div {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 5px;
+  gap: 4px;
 }
 .integrations-page .integration-card__facts dd {
   font-size: 14px;
@@ -184,7 +184,7 @@
   padding-top: 0;
 }
 .integrations-page .integration-card__tech > dl {
-  margin-top: 12px;
+  margin-top: 16px;
 }
 .integrations-page .integration-card .note {
   margin: 0;
@@ -192,8 +192,8 @@
 }
 .integration-environment {
   margin: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 8px 16px;
+  border-radius: var(--radius-control);
   color: var(--text-2);
   background: var(--surface-muted);
   font-size: 13px;
@@ -204,7 +204,7 @@
   }
   .integrations-page .integration-card__facts {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
   .integrations-page .integration-card__head {
     flex-wrap: wrap;

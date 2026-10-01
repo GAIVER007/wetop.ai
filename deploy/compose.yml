@@ -137,8 +137,8 @@ services:
     depends_on:
       api: { condition: service_healthy }
     healthcheck:
-      # /login отвечает и с замком APP_AUTH_REQUIRED=1, и без него; /today с замком уводит на вход
-      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      # Локальная форма отвечает 200; /login перенаправляет на публичный сайт (ADR-131).
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/auth/fallback').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3

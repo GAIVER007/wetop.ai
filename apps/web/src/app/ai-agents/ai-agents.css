@@ -125,14 +125,14 @@ button.agent-wizard__step {
   font-size: 28px;
 }
 .agent-card {
-  padding: 20px;
-  gap: 12px;
+  padding: 24px;
+  gap: 16px;
 }
 .agent-card .panel__title {
   font-size: 20px;
 }
 .agent-card .stack {
-  gap: 12px;
+  gap: 16px;
 }
 .agent-card__hint {
   margin: 0;

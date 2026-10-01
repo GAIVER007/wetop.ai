@@ -1,0 +1,19 @@
+# Модульные (unit) · 01.10.2026 11:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 9
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-37-35Z-unit-8912.json' 'apps/web/src/lib/unified-auth-entry.test.ts' 'apps/web/src/lib/auth-entry.test.ts' 'apps/web/src/app/login/actions.test.ts' 'apps/site/src/lib/site.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 3ms
+ ✓ |unit| apps/site/src/lib/site.test.ts (15 tests) 5ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 13ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (3 tests) 2ms
+
+ Test Files  4 passed (4)
+      Tests  34 passed (34)
+   Start at  23:37:36
+   Duration  245ms (transform 70%, import 20%, tests 7%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-37-35Z-unit-8912.json
+
+# код выхода 0 · 1 с

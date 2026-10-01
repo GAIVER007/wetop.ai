@@ -499,7 +499,7 @@
   padding: 16px 24px;
 }
 .page:has(> [data-testid='rates-tabs']) > .page__head {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 .page:has(> [data-testid='rates-tabs']) .page__title {
   font-size: var(--text-2xl);
@@ -507,7 +507,7 @@
 [data-testid='rates-tabs'] {
   width: fit-content;
   max-width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   border: 0;
   padding: 4px;
   border-radius: var(--radius-control);

@@ -1,0 +1,61 @@
+# Модульные (unit) · 01.10.2026 11:37 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 10
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-37-56Z-unit-d720.json' 'apps/web/src/lib/site-auth-flow.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/lib/site-auth-flow.test.ts (2 tests | 2 failed) 18ms
+   × успешный вход возвращает разрешённый next, а сессию — только cookie 17ms
+   × браузер может подтвердить сохранение сессии без получения ключа 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/site-auth-flow.test.ts > успешный вход возвращает разрешённый next, а сессию — только cookie
+AssertionError: expected { next: '/today' } to deeply equal { next: '/journal?page=2' }
+
+- Expected
++ Received
+
+  {
+-   "next": "/journal?page=2",
++   "next": "/today",
+  }
+
+ ❯ apps/web/src/lib/site-auth-flow.test.ts:16:33
+     14|   vi.spyOn(authApi, 'login').mockResolvedValue({ token: '<скрыто>
+     15|   const response = await POST(request('login', { email: 'user@example.…
+     16|   expect(await response.json()).toEqual({ next: '/journal?page=2' });
+       |                                 ^
+     17|   expect(response.headers.get('set-cookie')).toContain('HttpOnly');
+     18| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/site-auth-flow.test.ts > браузер может подтвердить сохранение сессии без получения ключа
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ apps/web/src/lib/site-auth-flow.test.ts:22:27
+     20|   vi.spyOn(authApi, 'me').mockResolvedValue({ user: { id: 'synthetic-u…
+     21|   const response = await GET(request('session'), context('session'));
+     22|   expect(response.status).toBe(200);
+       |                           ^
+     23|   expect(await response.json()).toEqual({ authenticated: true });
+     24| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  23:37:57
+   Duration  151ms (transform 60%, tests 23%, import 15%, worker 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-37-56Z-unit-d720.json
+
+# код выхода 1 · 1 с

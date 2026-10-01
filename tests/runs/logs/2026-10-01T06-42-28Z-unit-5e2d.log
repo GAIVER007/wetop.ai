@@ -1,0 +1,150 @@
+# Модульные (unit) · 01.10.2026 11:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-42-28Z-unit-5e2d.json' 'apps/web/src/lib/auth-aliases.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/lib/auth-aliases.test.ts (2 tests | 2 failed) 6ms
+   × старый вход больше не рендерит дублирующий экран 4ms
+   × старая регистрация больше не рендерит дублирующий экран 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/auth-aliases.test.ts > старый вход больше не рендерит дублирующий экран
+AssertionError: expected 'import { canManageStaff, parseMembers…' not to contain '<LoginForm'
+
+- Expected
++ Received
+
+- <LoginForm
++ import { canManageStaff, parseMembershipRole } from '@pms/domain';
++ import {
++   ApiError,
++   authApi,
++   type AuthInvite,
++   type AuthMember,
++   type AuthSessionRow,
++ } from '../../lib/api';
++ import { clientInfo, sessionToken } from '../../lib/session';
++ import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
++ import { LoginForm, type LoginMode } from './login-form';
++ import { registrationAvailable, signedInUser } from './signed-in';
++
++ /** Ожидающие приглашения своей организации — только вошедшему; сбой списка экран входа не роняет. */
++ async function pendingInvites(): Promise<AuthInvite[]> {
++   const token = await sessionToken();
++   if (!token) return [];
++   try {
++     return await authApi.invites(token, await clientInfo());
++   } catch (e) {
++     if (e instanceof ApiError) return [];
++     throw e;
++   }
++ }
++
++ /** Сотрудники своей организации (ADR-107) — владельцу и управляющему; сбой списка экран входа не роняет. */
++ async function teamMembers(): Promise<AuthMember[]> {
++   const token = await sessionToken();
++   if (!token) return [];
++   try {
++     return await authApi.members(token, await clientInfo());
++   } catch (e) {
++     if (e instanceof ApiError) return [];
++     throw e;
++   }
++ }
++
++ /** «Где я вошёл» — живые сессии вошедшего; сбой списка экран входа тоже не роняет. */
++ async function activeSessions(): Promise<AuthSessionRow[]> {
++   const token = await sessionToken();
++   if (!token) return [];
++   try {
++     return await authApi.sessions(token, await clientInfo());
++   } catch (e) {
++     if (e instanceof ApiError) return [];
++     throw e;
++   }
++ }
++
++ /**
++  * Вход по паролю (ADR-053). Доступность самостоятельной регистрации определяет API (ADR-055).
++  * Прежние ссылки на регистрацию при закрытом доступе сохраняют вход сотрудников.
++  */
++ export default async function LoginPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
++   const q = normalizeSearchParams(await searchParams);
++   const [user, registrationEnabled] = await Promise.all([signedInUser(), registrationAvailable()]);
++   // `?mode=register` открывает регистрацию сразу — с неё ведёт ссылка «Попробовать бесплатно» с сайта.
++   const mode: LoginMode = q.mode === 'register' ? 'register' : 'password';
++   // приглашениями и сотрудниками ведают владелец и управляющий (ADR-107): администратору их и не запрашиваем
++   const role = user?.role ? parseMembershipRole(user.role) : null;
++   const team = !!user?.organization && !!role && canManageStaff(role);
++   return (
++     <LoginForm
++       demo={process.env.NODE_ENV !== 'production' && process.env.APP_DEMO_MODE === '1'}
++       user={user}
++       invites={team ? await pendingInvites() : []}
++       members={team ? await teamMembers() : []}
++       // «Где я вошёл» — любому вошедшему, каким бы входом он ни пришёл (Q-146: API узнаёт оба)
++       sessions={user ? await activeSessions() : []}
++       initialEmail={q.email ?? ''}
++       passwordJustSet={q.password === 'set'}
++       mode={mode}
++       registrationEnabled={registrationEnabled}
++     />
++   );
++ }
++
+
+ ❯ apps/web/src/lib/auth-aliases.test.ts:10:22
+      8| it('старый вход больше не рендерит дублирующий экран', () => {
+      9|   const source = readFileSync('apps/web/src/app/login/page.tsx', 'utf8…
+     10|   expect(source).not.toContain('<LoginForm');
+       |                      ^
+     11|   expect(source).toContain('publicAuthUrl');
+     12| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/auth-aliases.test.ts > старая регистрация больше не рендерит дублирующий экран
+AssertionError: expected 'import { LoginForm } from \'../login/…' not to contain '<LoginForm'
+
+- Expected
++ Received
+
+- <LoginForm
++ import { LoginForm } from '../login/login-form';
++ import { registrationAvailable, signedInUser } from '../login/signed-in';
++
++ /** Сюда ведёт «Попробовать бесплатно» с wetop.ai (срез 13, ADR-046). Та же форма, открытая на регистрации. */
++ export default async function RegisterPage() {
++   const [user, registrationEnabled] = await Promise.all([signedInUser(), registrationAvailable()]);
++   return (
++     <LoginForm
++       demo={false}
++       user={user}
++       mode="register"
++       registrationEnabled={registrationEnabled}
++     />
++   );
++ }
++
+
+ ❯ apps/web/src/lib/auth-aliases.test.ts:15:22
+     13| it('старая регистрация больше не рендерит дублирующий экран', () => {
+     14|   const source = readFileSync('apps/web/src/app/register/page.tsx', 'u…
+     15|   expect(source).not.toContain('<LoginForm');
+       |                      ^
+     16|   expect(source).toContain("publicAuthUrl('register')");
+     17| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  23:42:29
+   Duration  129ms (transform 62%, import 19%, tests 13%, worker 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-42-28Z-unit-5e2d.json
+
+# код выхода 1 · 1 с

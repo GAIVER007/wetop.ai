@@ -12,7 +12,7 @@
 #   - в обновлении есть новые миграции: боевую миграцию делает владелец (AGENTS.md §15).
 # Отказ по одной вершине сообщается один раз; следующий коммит в ветке проверяется заново.
 #
-# Выложил — проверяет: /health API, /login стойки (200) и что страницы без входа не падают (не 5xx). Не прошло —
+# Выложил — проверяет: /health API, /auth/fallback стойки (200) и что страницы без входа не падают (не 5xx). Не прошло —
 # возвращает прежний коммит и прежний образ, поднимает их и пишет дежурным.
 #
 #   scripts/ops/auto-deploy.sh                        одна проверка (так его зовёт cron)
@@ -146,7 +146,7 @@ healthy() {
   while [ "$SECONDS" -lt "$deadline" ]; do
     if "${compose[@]}" exec -T api wget -qO- http://127.0.0.1:3001/health 2>/dev/null | grep -q '"status":"ok"' &&
       "${compose[@]}" exec -T web node -e "
-        const pages = ['/login', '/today', '/chessboard', '/reservations'];
+        const pages = ['/auth/fallback', '/today', '/chessboard', '/reservations'];
         Promise.all(pages.map((p) => fetch('http://127.0.0.1:3000' + p, { redirect: 'manual' }).then((r) => [p, r.status])))
           .then((all) => process.exit(all[0][1] === 200 && all.every(([, s]) => s < 500) ? 0 : 1))
           .catch(() => process.exit(1));" >/dev/null 2>&1; then

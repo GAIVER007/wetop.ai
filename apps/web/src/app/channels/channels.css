@@ -184,6 +184,9 @@
   padding: 4px 0;
 }
 @media (min-width: 1000px) {
+  .channels-report .dir-table td {
+    padding-block: 4px;
+  }
   .channels-report {
     display: grid;
     grid-template-columns: 1fr 1fr;

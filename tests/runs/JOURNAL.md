@@ -4980,3 +4980,8 @@
 | 01.10.2026 15:44 | unit (частично: apps/web/src/components/shell/tour-steps.test.ts) | ✅ 8 из 8 | 2 с | 20d0858 +50 | [лог](logs/2026-10-01T10-44-22Z-unit-85e1.log) | GREEN role aware complete training topics |
 | 01.10.2026 15:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/product-tour.spec.ts --workers=1) | ✅ 4 из 4 | 57 с | 20d0858 +50 | [лог](logs/2026-10-01T10-47-06Z-e2e-a1fe.log) | Training topics, clean account menu, restart and mobile layout |
 | 01.10.2026 15:48 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/product-tour.spec.ts --workers=1) | ✅ 5 из 5 | 39 с | 20d0858 +50 | [лог](logs/2026-10-01T10-48-38Z-e2e-823b.log) | Complete training with STAFF mobile permissions |
+| 01.10.2026 15:56 | typecheck | ✅ без ошибок | 48 с | a1b240e +41 | [лог](logs/2026-10-01T10-56-19Z-typecheck-8cf8.log) |  |
+| 01.10.2026 15:57 | lint | ✅ без ошибок | 29 с | a1b240e +41 | [лог](logs/2026-10-01T10-57-08Z-lint-e41c.log) |  |
+| 01.10.2026 15:57 | unit | ❌ упало 3 из 2749, пропущено 3 | 2 мин 12 с | a1b240e +33 | [лог](logs/2026-10-01T10-57-37Z-unit-4e5d.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 01.10.2026 15:59 | integration | ✅ 227 из 227 | 1 мин 1 с | a1b240e +22 | [лог](logs/2026-10-01T10-59-50Z-integration-fc86.log) |  |
+| 01.10.2026 16:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts) | ❌ упало 2 из 51 | 3 мин 32 с | a1b240e +34 | [лог](logs/2026-10-01T11-01-33Z-e2e-569d.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |

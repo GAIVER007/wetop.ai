@@ -23,9 +23,9 @@
   font-weight: var(--weight-semibold, 600);
 }
 
-.agent-wizard { display: grid; gap: var(--space-5, 24px); min-width: 0; }
+.agent-wizard { display: grid; gap: var(--space-6); min-width: 0; }
 .agent-wizard__steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-.agent-wizard__step { display: grid; grid-template-columns: 30px 1fr; align-content: center; gap: 3px 8px; padding: 14px 12px; border: 0; border-radius: 12px; background: transparent; color: inherit; text-align: left; font: inherit; }
+.agent-wizard__step { display: grid; grid-template-columns: 30px 1fr; align-content: center; gap: 4px 8px; padding: 16px 16px; border: 0; border-radius: var(--radius-control); background: transparent; color: inherit; text-align: left; font: inherit; }
 button.agent-wizard__step { cursor: pointer; }
 .agent-wizard__step span { grid-row: span 2; align-self: center; color: var(--primary); font-size: 14px; }
 .agent-wizard__step b { font-size: 14px; }
@@ -36,8 +36,8 @@ button.agent-wizard__step { cursor: pointer; }
 .agent-wizard__body > *, .agent-wizard__body .panel { min-width: 0; }
 .agent-wizard__body .panel { align-content: start; }
 .agent-wizard__body textarea { line-height: 1.6; resize: vertical; }
-.agent-wizard__rules ol { display: grid; gap: 16px; padding-left: 20px; line-height: 1.5; }
+.agent-wizard__rules ol { display: grid; gap: 16px; padding-left: 24px; line-height: 1.5; }
 .agent-wizard__save { justify-content: space-between; }
 .agent-wizard__preview { border-color: var(--primary); }
 @media (max-width: 1100px) { .agent-wizard__body { grid-template-columns: minmax(0, 1fr); } .agent-wizard__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 600px) { .agent-wizard__steps { grid-template-columns: minmax(0, 1fr); } .agent-wizard__step { padding: 10px; } .agent-wizard__step[aria-disabled] { display: none; } }
+@media (max-width: 600px) { .agent-wizard__steps { grid-template-columns: minmax(0, 1fr); } .agent-wizard__step { padding: 8px; } .agent-wizard__step[aria-disabled] { display: none; } }

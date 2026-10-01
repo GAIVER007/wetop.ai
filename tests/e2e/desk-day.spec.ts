@@ -2,9 +2,11 @@ import { expect, test } from './fixtures';
 import { roomiestCategory } from './pick-category';
 
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+// This scenario intentionally verifies today's operations; other BASE windows start at +3.
+const BASE = 0;
 const plus = (n: number) => {
   const x = new Date(`${today}T00:00:00Z`);
-  x.setUTCDate(x.getUTCDate() + n);
+  x.setUTCDate(x.getUTCDate() + BASE + n);
   return x.toISOString().slice(0, 10);
 };
 
@@ -35,7 +37,7 @@ test('главная открывается с корня; заезд на да�
 
   // Заводим заведомый заезд на выбранную дату и проверяем, что счётчик вырос, а бронь без ячейки
   // попала в «Требуют внимания» с причиной. Сравнение счётчика с самим собой ничего бы не доказывало.
-  const day = today;
+  const day = plus(0);
   await page.goto(`/today?date=${day}`);
   const before = await arrivals();
   await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();

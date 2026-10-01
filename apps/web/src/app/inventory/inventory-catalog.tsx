@@ -186,7 +186,7 @@ export function InventoryCatalog({
         >
           <summary>
             Расположение и состояние
-            {building || floor || state || housekeeping ? ' · применены' : ''}
+            {building || floor || state || housekeeping ? ' применены' : ''}
           </summary>
           <div className="inventory-extra-fields">
             <label>

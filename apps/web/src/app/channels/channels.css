@@ -1,27 +1,27 @@
 /* Scoped channel workspace: summaries stay visible; operational detail is expandable. */
 .page:has(.channels-tabs) {
-  padding-top: 18px;
+  padding-top: 16px;
 }
 .page:has(.channels-tabs) > .page__head {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .page:has(.channels-tabs) .page__title {
   font-size: 28px;
 }
 .channels-tabs {
   gap: 4px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .channels-tabs a {
-  padding: 9px 14px;
+  padding: 8px 16px;
   font-size: 14px;
 }
 .channels-overview {
-  gap: 12px;
+  gap: 16px;
 }
 .channels-overview > .state-bar {
-  padding: 14px 16px;
-  gap: 18px;
+  padding: 16px 16px;
+  gap: 16px;
   margin: 0;
   grid-template-columns: minmax(210px, 1fr) 2fr;
 }
@@ -31,22 +31,22 @@
 }
 .channels-overview .state-bar__summary {
   font-size: 12px;
-  margin-top: 5px;
+  margin-top: 4px;
 }
 .channels-overview .state-bar__facts {
-  gap: 12px;
+  gap: 16px;
 }
 .channels-overview .state-bar__facts dt {
-  font-size: 11px;
+  font-size: 12px;
 }
 .channels-overview .state-bar__facts dd {
   font-size: 15px;
 }
 .channels-overview .state-bar__sub {
-  font-size: 11px;
+  font-size: 12px;
 }
 .channels-report {
-  gap: 9px;
+  gap: 8px;
   min-width: 0;
 }
 .channels-report h2 {
@@ -57,7 +57,7 @@
   margin: 0;
 }
 .channels-period {
-  gap: 10px;
+  gap: 8px;
   align-items: end;
 }
 .channels-period .field {
@@ -67,8 +67,8 @@
 .channels-period select,
 .channels-period button {
   min-height: 36px;
-  padding-top: 7px;
-  padding-bottom: 7px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   font-size: 13px;
 }
 .channels-period label {
@@ -76,10 +76,10 @@
 }
 .channels-report .stats {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 .channels-report .stat {
-  padding: 12px 14px;
+  padding: 16px 16px;
   text-align: left;
 }
 .channels-report .stat__label {
@@ -88,31 +88,31 @@
 .channels-report .stat__value {
   font-size: 24px;
   line-height: 1.2;
-  margin: 5px 0;
+  margin: 4px 0;
 }
 .channels-report .stat__hint {
-  font-size: 11px;
+  font-size: 12px;
 }
 .channels-report .dir-table th {
-  padding: 9px 12px;
-  font-size: 11px;
+  padding: 8px 16px;
+  font-size: 12px;
 }
 .channels-report .dir-table td {
-  padding: 9px 12px;
+  padding: 8px 16px;
   font-size: 13px;
 }
 .channels-report .cell-sub {
-  font-size: 11px;
+  font-size: 12px;
 }
 .channels-overview .context-help {
   margin: 0;
   font-size: 12px;
 }
 .channels-overview .context-help > summary {
-  padding: 6px 0;
+  padding: 8px 0;
 }
 .channels-report .empty-state {
-  padding: 20px;
+  padding: 24px;
   min-height: 0;
 }
 .channels-report .empty-state__title {
@@ -135,21 +135,21 @@
     flex-wrap: wrap;
   }
   .channels-tabs a {
-    padding: 8px 10px;
+    padding: 8px 8px;
   }
 }
 .page:has(.channels-overview) {
-  padding-bottom: 14px;
+  padding-bottom: 16px;
 }
 .channels-overview .state-bar__state {
   border: 0;
   padding-left: 0;
 }
 .channels-overview .state-bar__state p {
-  margin: 3px 0 0;
+  margin: 4px 0 0;
 }
 .channels-overview > .alert {
-  padding: 8px 12px;
+  padding: 8px 16px;
   font-size: 12px;
 }
 .channels-report > .section-title {
@@ -174,14 +174,14 @@
 }
 .channels-report .dir-table td {
   height: auto;
-  padding: 6px 12px;
+  padding: 8px 16px;
 }
 .channels-report .dir-table .cell-sub {
   display: inline;
   margin-left: 8px;
 }
 .channels-overview .context-help > summary {
-  padding: 2px 0;
+  padding: 4px 0;
 }
 @media (min-width: 1000px) {
   .channels-report {
@@ -204,21 +204,21 @@
   margin: 0;
 }
 .channels-report .stat {
-  padding: 9px 12px;
+  padding: 8px 16px;
 }
 .channels-overview > .state-bar {
   min-height: 0;
-  padding: 10px 14px;
+  padding: 8px 16px;
 }
 .channels-overview .fact__label {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
 }
 .channels-overview .state-bar__state {
   min-height: 0;
 }
 .channels-overview .state-bar__facts dd {
-  margin: 3px 0 0;
+  margin: 4px 0 0;
 }
 .channels-overview .state-bar__summary {
   line-height: 1.35;
@@ -227,15 +227,15 @@
   gap: 8px;
 }
 .channels-period .field {
-  gap: 3px;
+  gap: 4px;
 }
 .channels-tabs {
-  margin-bottom: 10px;
-  padding: 3px;
+  margin-bottom: 8px;
+  padding: 4px;
 }
 @media (min-width: 1000px) {
   .page:has(.channels-overview) {
-    padding-top: 10px;
+    padding-top: 8px;
     padding-bottom: 8px;
   }
   .channels-overview {

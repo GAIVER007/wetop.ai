@@ -480,8 +480,22 @@ export const authApi = {
       body,
       info ? authHeaders(info) : {},
     ),
-  me: () =>
-    getJson<{ user: SignedIn | null; expiresAt?: string; access?: DeskAccessView }>('/auth/me'),
+  me: async () => {
+    const result = await getJson<{
+      user: SignedIn | null;
+      organization?: SignedInOrganization | null;
+      expiresAt?: string;
+      access?: DeskAccessView;
+    }>('/auth/me');
+    // whoami returns organization alongside user; older previews nested it inside user.
+    return {
+      ...result,
+      user: result.user ? {
+        ...result.user,
+        organization: result.organization !== undefined ? result.organization : (result.user.organization ?? null),
+      } : null,
+    };
+  },
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),

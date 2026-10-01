@@ -4377,9 +4377,11 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : undefined;
       if (!who) return send(200, { user: null });
-      // что открыто организации — пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083)
+      // Match production whoami: organization is a sibling of user.
+      const { organization, ...user } = signedInView(who);
       return send(200, {
-        user: signedInView(who),
+        user,
+        organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
       });
     }

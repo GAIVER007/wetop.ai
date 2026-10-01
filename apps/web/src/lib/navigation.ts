@@ -232,6 +232,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
+        href: '/staff',
+        requires: 'staff',
+        label: 'Сотрудники',
+        icon: 'guests',
+        description: 'Приглашения, роли и доступ сотрудников организации.',
+      },
+      {
         href: '/connections',
         requires: 'settings',
         label: 'Интеграции',
@@ -323,7 +330,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
-    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/connections')],
+    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/staff'), menuItem('/connections')],
   },
   {
     id: 'control',

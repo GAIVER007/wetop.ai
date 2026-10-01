@@ -4,7 +4,7 @@ process.env.SESSION_SECRET ??= 'секрет-для-прогона';
 import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   INVITE_ALREADY_MEMBER_MESSAGE,
   INVITE_EMAIL_MESSAGE,
@@ -283,4 +283,19 @@ describe('приглашение: отзыв и предел в сутки', () 
     expect(over.body.message).toMatch(/приглашений/);
     expect(sender.to('lishnij@example.com')).toHaveLength(0);
   });
+});
+
+it('сбой почты не выдаётся за отправленное приглашение и ссылка отозвана', async () => {
+  const token = await login();
+  const send = vi.spyOn(sender, 'send').mockRejectedValueOnce(new Error('synthetic mail failure'));
+  try {
+    const result = await invite(token, INVITEE);
+    expect(result.status).toBe(503);
+    const pending = await request(app.getHttpServer())
+      .get('/auth/invites')
+      .set('Authorization', `Bearer ${token}`);
+    expect(pending.body).toEqual([]);
+  } finally {
+    send.mockRestore();
+  }
 });

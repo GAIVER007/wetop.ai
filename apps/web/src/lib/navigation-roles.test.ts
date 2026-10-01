@@ -146,9 +146,21 @@ describe('«ИИ-агенты» (S0)', () => {
     for (const path of ['/ai-seller/knowledge', '/ai-seller/connections', '/ai-seller/agents']) {
       expect(routeRule(path)?.requires).toBe('seller');
     }
-    expect(allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER' } }))).toBe(false);
+    expect(allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER' } }))).toBe(
+      false,
+    );
     expect(
-      allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER', platformAdmin: true } })),
+      allowedItem(
+        { requires: 'platform' },
+        deskAccessOf({ user: { role: 'OWNER', platformAdmin: true } }),
+      ),
     ).toBe(true);
   });
+});
+
+it('сотрудники доступны в настройках только владельцу и управляющему', () => {
+  expect(routeRule('/staff')?.requires).toBe('staff');
+  expect(hrefs(access('OWNER'))).toContain('/staff');
+  expect(hrefs(access('MANAGER'))).toContain('/staff');
+  expect(hrefs(access('STAFF'))).not.toContain('/staff');
 });

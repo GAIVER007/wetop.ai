@@ -12,8 +12,10 @@ export function Page({
   actions,
   crumbs,
   width,
+  className,
   children,
 }: {
+  className?: string;
   title: ReactNode;
   subtitle?: ReactNode;
   actions?: ReactNode;
@@ -22,14 +24,22 @@ export function Page({
   children: ReactNode;
 }) {
   return (
-    <main id="main-content" tabIndex={-1} className={cx('page', width && `page--${width}`)}>
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className={cx('page', width && `page--${width}`, className)}
+    >
       {crumbs && <div className="page__crumbs">{crumbs}</div>}
       <header className="page__head">
         <div className="page__heading">
           <h1 className="page__title">{title}</h1>
           {subtitle && <div className="page__subtitle">{subtitle}</div>}
         </div>
-        {actions && <nav className="page__actions" aria-label="Действия страницы">{actions}</nav>}
+        {actions && (
+          <nav className="page__actions" aria-label="Действия страницы">
+            {actions}
+          </nav>
+        )}
       </header>
       {children}
     </main>

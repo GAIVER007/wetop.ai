@@ -1,0 +1,50 @@
+# Модульные (unit) · 01.10.2026 11:48 Алматы · MacBook-Air-Urij.local
+# коммит 7f64725 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 65
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T06-48-15Z-unit-77b1.json' 'apps/web/src/lib/ai-agents.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ❯ |unit| apps/web/src/lib/ai-agents.test.ts (10 tests | 1 failed) 12ms
+   ✓ кнопка каталога (4)
+     ✓ сервер разрешил — кнопка активна и ведёт в форму создания 2ms
+     ✓ сервер не разрешил — кнопка видна, неактивна, причина его словами; страница её не пересчитывает 0ms
+     ✓ расширения нет или оно истекло — неактивна, рядом ссылка «как подключить» 1ms
+     ✓ сотруднику смены кнопка тоже видна: неактивна, причина про роль приходит с сервера 0ms
+   ✓ кнопка в режиме «только чтение» (1)
+     ✓ организация в «только чтении» — кнопка неактивна общей фразой режима, даже если сервер разрешает 0ms
+   ✓ куда ведёт «Открыть» (1)
+     ✓ рабочий продавец — в раздел, агент с филиалом — на страницу состояния, черновик мастера — в его редактор 0ms
+   ✓ слова карточки (3)
+     ✓ Business и Location — через «·», а если объекта нет — так и сказано 0ms
+     ✓ каналы — только сайт и WhatsApp, словами данных; у черновика их нет 0ms
+     ✓ тон значка статуса: работает — ok, требует действия — warn, бот не подключён — danger 0ms
+   ❯ каталог: правдивая готовность и название объекта (1)
+     × совпадающие названия сети и объекта не дублируются 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/ai-agents.test.ts > каталог: правдивая готовность и название объекта > совпадающие названия сети и объекта не дублируются
+AssertionError: expected 'Отель · Отель' to be 'Отель' // Object.is equality
+
+Expected: "Отель"
+Received: "Отель · Отель"
+
+ ❯ apps/web/src/lib/ai-agents.test.ts:122:109
+    120| describe('каталог: правдивая готовность и название объекта', () => {
+    121|   it('совпадающие названия сети и объекта не дублируются', () => {
+    122|     expect(placementLine(seller({business: {id: 'b', name: 'Отель'}, l…
+       |                                                                                                             ^
+    123|   });
+    124| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  10:48:17
+   Duration  860ms (transform 80%, import 16%, tests 3%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T06-48-15Z-unit-77b1.json
+
+# код выхода 1 · 3 с

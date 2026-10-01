@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
  * и снимает стоп-гейт §34 — обе темы, «Все / Номера / Койки», прошлый месяц, база сравнения ноль, телефон.
  */
 const fixture = 'http://127.0.0.1:4311';
-const report = 'reports/analytics-v2-an1-2026-09-27';
+const report = 'reports/unified-sections-2026-10-01/analytics-v2-an1-2026-09-27';
 
 async function withHistory(page: Page) {
   await page.request.post(`${fixture}/__test/reset`);
@@ -16,6 +16,36 @@ async function withHistory(page: Page) {
     data: { analyticsHistory: true },
   });
   expect(r.ok()).toBe(true);
+}
+
+// Direction depends on the calendar: the seeded rooms near today are reserved for other tests.
+// Verify the rendered comparison against the endpoint instead of assuming October grows.
+async function expectOccupancyDirection(page: Page, fund: string) {
+  const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
+  const [y, m] = today.split('-').map(Number) as [number, number];
+  const from = `${today.slice(0, 7)}-01`;
+  const to = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+  const login = await page.request.post(`${fixture}/auth/login`, {
+    data: { email: 'admin@wetop.test', password: 'ui-test-parol' },
+    headers: { 'x-wetop-test-client': '1' },
+  });
+  expect(login.ok()).toBe(true);
+  const { token } = await login.json();
+  const response = await page.request.get(
+    `${fixture}/desk/dashboard?${new URLSearchParams({ from, to, fund })}`,
+    { headers: { authorization: `Bearer ${token}`, 'x-wetop-test-client': '1' } },
+  );
+  expect(response.ok()).toBe(true);
+  const { current, previous } = await response.json();
+  const direction =
+    current.occupancy.percent > previous.occupancy.percent
+      ? 'up'
+      : current.occupancy.percent < previous.occupancy.percent
+        ? 'down'
+        : 'flat';
+  await expect(
+    page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`),
+  ).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -44,7 +74,7 @@ test('меню: «Статистика» стала «Аналитикой», с
   await expect(page).toHaveURL(/\/management\/analytics$/);
 });
 
-test('обзор за месяц: шесть плиток со сравнением, график загрузки и выручки, категории', async ({
+test('обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории', async ({
   page,
 }) => {
   const main = page.getByRole('main');
@@ -56,18 +86,14 @@ test('обзор за месяц: шесть плиток со сравнени�
     'page',
   );
   const kpis = main.getByTestId('pa-kpis');
-  for (const label of [
-    'Загрузка',
-    'Выручка проживания',
-    'Продано ночей',
-    'Брони',
-    'Отмены',
-    'Средний чек брони',
-  ])
+  for (const label of ['Загрузка', 'Начислено за проживание', 'Брони', 'Отмены'])
     await expect(kpis).toContainText(label);
-  await expect(kpis.locator('.kpi')).toHaveCount(6);
+  await expect(kpis.locator('.kpi')).toHaveCount(4);
   // стенд: весь фонд в этом месяце загружен слабее прошлого — падение в п.п.
   await expect(kpis.locator('.kpi--occupancy .kpi-delta--down')).toContainText('п.п.');
+  await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
+  await main.locator('.pa-details > summary').click();
+  await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);
   // средняя цена при «Всех» не показывается — ссылки на номера и койки (ТЗ §6)
   await expect(main.getByTestId('pa-unit-economics')).toContainText('считаются отдельно');
   await expect(main.getByTestId('pa-compare')).toContainText('Сравнение с');
@@ -92,14 +118,14 @@ test('номера и койки считаются раздельно: своя
   const economics = main.getByTestId('pa-unit-economics');
   await expect(economics).toContainText('Средняя цена номера (ADR)');
   await expect(economics).toContainText('Доход на номер (RevPAR)');
-  await expect(main.locator('.kpi--occupancy .kpi-delta--up')).toBeVisible();
+  await expectOccupancyDirection(page, 'rooms');
   await expect(main.getByTestId('pa-categories').locator('tbody tr')).toHaveCount(1);
 
   await main.getByTestId('pa-fund').getByRole('link', { name: 'Койки' }).click();
   await expect(page).toHaveURL(/fund=beds/);
   await expect(economics).toContainText('Средняя цена койки');
   await expect(economics).toContainText('Доход на койку');
-  await expect(main.locator('.kpi--occupancy .kpi-delta--down')).toBeVisible();
+  await expectOccupancyDirection(page, 'beds');
   await expect(main.getByTestId('pa-categories').locator('tbody tr')).toHaveCount(2);
   // тип фонда не теряется при смене периода
   await main.getByRole('link', { name: 'Прошлый месяц' }).click();
@@ -132,7 +158,9 @@ test('база сравнения ноль — «нет данных», а не 
   // позапрошлый месяц — первый с историей: до него данных нет
   await page.goto(`/management/analytics?period=custom&from=${first(-2)}&to=${last(-2)}`);
   const kpis = main.getByTestId('pa-kpis');
-  await expect(kpis.locator('.kpi-delta--none')).toHaveCount(6);
+  await expect(kpis.locator('.kpi-delta--none')).toHaveCount(4);
+  await main.locator('.pa-details > summary').click();
+  await expect(main.getByTestId('pa-kpis-detail').locator('.kpi-delta--none')).toHaveCount(2);
   await expect(kpis).not.toContainText('100 %');
   await expect(kpis.locator('.kpi-delta--none').first()).toContainText('нет данных для сравнения');
   // ещё раньше — ни ночей, ни броней, ни начислений

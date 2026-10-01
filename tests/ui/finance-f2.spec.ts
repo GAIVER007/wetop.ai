@@ -7,7 +7,7 @@ import { expect, test } from './fixtures';
  * Брони подставного API вымышленные (ADR-010); возврат есть только в витрине `design-seed` (DSG-RETD).
  */
 const fixture = 'http://127.0.0.1:4311';
-const report = 'reports/finance-f2-2026-09-28';
+const report = 'reports/finance-compact-2026-10-01/operations';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>
   new Date(Date.parse(today) + days * 86400000).toISOString().slice(0, 10);
@@ -27,6 +27,7 @@ test('F2: оплаты и возвраты — колонки, строка ит
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(url);
   const main = page.getByRole('main');
+  await page.getByRole('tab', { name: 'Операции', exact: true }).click();
   const section = main.getByTestId('finance-operations');
   await expect(section.getByRole('heading', { level: 2 })).toHaveText('Оплаты и возвраты');
   await expect(section.getByTestId('ops-table').getByRole('columnheader')).toHaveText([
@@ -139,7 +140,9 @@ test('F2: сбой операций не роняет итоги и долги; 
   await page.goto(url);
   const main = page.getByRole('main');
   await expect(main.getByTestId('charged')).toBeVisible();
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(main.getByTestId('finance-debts')).toBeVisible();
+  await page.getByRole('tab', { name: 'Операции', exact: true }).click();
   await expect(main.getByTestId('ops-error')).toBeVisible();
   await expect(main.getByTestId('op-row')).toHaveCount(0);
 });

@@ -26,6 +26,7 @@ export default async function OccupancyPage({
   return (
     <Page
       title="Аналитика"
+      className="analytics-page"
       subtitle="Сколько мест занято, свободно и закрыто — за день или период."
     >
       <AnalyticsTabs current="occupancy" fund={query.fund} />

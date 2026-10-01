@@ -14,6 +14,7 @@ import {
   CHANNEX_READ_ONLY,
   CHANNEX_SUPPORT,
   HealthBadge,
+  EnvironmentNote,
   IssueList,
   TechDetails,
 } from './connection-parts';
@@ -42,6 +43,7 @@ export default async function ConnectionsPage({
   return (
     <Page
       title="Интеграции"
+      className="integrations-page"
       subtitle={
         propertyName
           ? `Подключения внешних сервисов для ${propertyName}.`
@@ -50,7 +52,7 @@ export default async function ConnectionsPage({
     >
       <nav className="settings-tabs" aria-label="Интеграции">
         <Link href={tabHref('connected')} aria-current={tab === 'connected' ? 'page' : undefined}>
-          Подключённые <span className="integration-tab__count">{connected.length}</span>
+          Подключения <span className="integration-tab__count">{connected.length}</span>
         </Link>
         <Link href={tabHref('available')} aria-current={tab === 'available' ? 'page' : undefined}>
           Доступные <span className="integration-tab__count">{available.length}</span>
@@ -89,7 +91,7 @@ export default async function ConnectionsPage({
         <EmptyState
           data-testid="integrations-available-empty"
           icon={<Icon name="channels" width={32} height={32} />}
-          title="Все доступные интеграции подключены"
+          title="Других доступных интеграций пока нет"
         >
           Новые подключения появятся здесь, когда WETOP начнёт их поддерживать.
         </EmptyState>
@@ -127,7 +129,7 @@ function ChannexConnected({
   return (
     <Panel className="integration-card" id="channex-connection" data-testid="integration-channex">
       <CardHead health={card.health} />
-      <p className="integration-card__about">{CHANNEX_ABOUT}</p>
+      <EnvironmentNote environment={c?.environment} />
       <IssueList issues={card.issues} />
       <dl className="integration-card__facts">
         <div>

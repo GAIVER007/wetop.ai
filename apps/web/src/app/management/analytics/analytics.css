@@ -278,3 +278,91 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
+/* Overview: four primary KPIs, two charts, details on demand. */
+.analytics-page {
+  padding: 16px 24px;
+}
+.analytics-page .page__head {
+  margin-bottom: 12px;
+}
+.analytics-page .page__title {
+  font-size: 28px;
+}
+.analytics-page .page__subtitle {
+  font-size: 13px;
+}
+.analytics-page .pa-tabs {
+  background: transparent;
+  border: 0;
+  margin-bottom: 12px;
+}
+.analytics-page .pa-toolbar {
+  margin-bottom: 14px;
+}
+.analytics-page .pa-toolbar__caption strong {
+  font-size: 14px;
+}
+.analytics-page .pa-kpis {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.analytics-page .kpi {
+  padding: 12px;
+}
+.analytics-page .kpi__value {
+  font-size: 26px;
+}
+.analytics-page .kpi__hint,
+.analytics-page .kpi-delta {
+  font-size: 12px;
+}
+.analytics-page .kpi-compare {
+  margin: 10px 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.analytics-page .pa-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.analytics-page .dash-panel {
+  padding: 16px;
+  margin: 0;
+}
+.analytics-page .dash-panel .panel__title {
+  font-size: 16px;
+}
+.analytics-page .pa-details {
+  margin-top: 12px;
+}
+.analytics-page .pa-details > summary {
+  cursor: pointer;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--primary);
+}
+.analytics-page .pa-details[open] {
+  display: grid;
+  gap: 14px;
+}
+.analytics-page .pa-details .pa-kpis {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 900px) {
+  .analytics-page .pa-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .analytics-page .pa-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .analytics-page {
+    padding: 16px;
+  }
+  .analytics-page .kpi__value {
+    font-size: 22px;
+  }
+}

@@ -11,6 +11,7 @@ import {
   CHANNEX_READ_ONLY,
   CHANNEX_SUPPORT,
   HealthBadge,
+  EnvironmentNote,
   IssueList,
   TechDetails,
 } from '../connection-parts';
@@ -31,6 +32,7 @@ export default async function ChannexPage() {
   return (
     <Page
       title="Менеджер каналов"
+      className="integrations-page"
       crumbs={<Link href="/connections">Интеграции</Link>}
       subtitle={
         <span className="integration-subtitle">
@@ -51,6 +53,7 @@ export default async function ChannexPage() {
         </Panel>
       ) : (
         <div className="stack" data-testid="channex-settings">
+          <EnvironmentNote environment={c?.environment} />
           <IssueList issues={card.issues} />
           <div className="integration-detail">
             <Panel className="integration-card" title="Соединение" data-testid="channex-connection">
@@ -151,13 +154,14 @@ export default async function ChannexPage() {
             data-testid="channex-manage"
           >
             <p className="integration-card__how">
-              Переподключить, сменить ключ или отключить менеджер каналов может поддержка WETOP: ключ хранится на
-              сервере, в интерфейсе его нет. Напишите в чат помощника справа внизу.
+              Переподключить, сменить ключ или отключить менеджер каналов может поддержка WETOP:
+              ключ хранится на сервере, в интерфейсе его нет. Напишите в чат помощника справа внизу.
             </p>
             {owner && !readOnly && (
               <p className="integration-card__how">
                 Webhook и объект в менеджере каналов владелец настраивает в{' '}
-                <Link href="/channels/connections">«Каналах продаж», на вкладке «Подключения»</Link>.
+                <Link href="/channels/connections">«Каналах продаж», на вкладке «Подключения»</Link>
+                .
               </p>
             )}
             {readOnly && (

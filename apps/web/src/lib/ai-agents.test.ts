@@ -3,6 +3,7 @@ import { READ_ONLY_MESSAGE } from '@pms/domain';
 import type { AgentCardView, AgentCatalogView } from './api';
 import {
   CREATE_LABEL,
+  agentReadiness,
   agentHref,
   channelLines,
   createButton,
@@ -30,10 +31,18 @@ const catalog = (
   access: 'active' | 'expired' | 'off',
   patch: Partial<AgentCatalogView> = {},
 ): AgentCatalogView => ({
-  extension: { access, status: access === 'off' ? null : 'ACTIVE', activeUntil: null, daysLeft: null },
+  extension: {
+    access,
+    status: access === 'off' ? null : 'ACTIVE',
+    activeUntil: null,
+    daysLeft: null,
+  },
   canManage: true,
   canConfigure: access === 'active',
-  create: { enabled: access === 'active', reason: access === 'active' ? null : 'Причина от сервера.' },
+  create: {
+    enabled: access === 'active',
+    reason: access === 'active' ? null : 'Причина от сервера.',
+  },
   agents: access === 'off' ? [] : [seller()],
   ...patch,
 });
@@ -49,7 +58,9 @@ describe('кнопка каталога', () => {
   });
 
   it('сервер не разрешил — кнопка видна, неактивна, причина его словами; страница её не пересчитывает', () => {
-    const noFree = catalog('active', { create: { enabled: false, reason: 'Нет свободного филиала.' } });
+    const noFree = catalog('active', {
+      create: { enabled: false, reason: 'Нет свободного филиала.' },
+    });
     expect(createButton(noFree)).toEqual({
       label: CREATE_LABEL,
       href: null,
@@ -60,7 +71,11 @@ describe('кнопка каталога', () => {
 
   it('расширения нет или оно истекло — неактивна, рядом ссылка «как подключить»', () => {
     for (const access of ['off', 'expired'] as const)
-      expect(createButton(catalog(access))).toMatchObject({ href: null, reason: 'Причина от сервера.', connectHref: '/ai-seller' });
+      expect(createButton(catalog(access))).toMatchObject({
+        href: null,
+        reason: 'Причина от сервера.',
+        connectHref: '/ai-seller',
+      });
   });
 
   it('сотруднику смены кнопка тоже видна: неактивна, причина про роль приходит с сервера', () => {
@@ -68,7 +83,10 @@ describe('кнопка каталога', () => {
       canManage: false,
       create: { enabled: false, reason: 'Создавать агентов могут владелец и управляющий.' },
     });
-    expect(createButton(staff)).toMatchObject({ href: null, reason: 'Создавать агентов могут владелец и управляющий.' });
+    expect(createButton(staff)).toMatchObject({
+      href: null,
+      reason: 'Создавать агентов могут владелец и управляющий.',
+    });
   });
 });
 
@@ -87,7 +105,9 @@ describe('куда ведёт «Открыть»', () => {
   it('рабочий продавец — в раздел, агент с филиалом — на страницу состояния, черновик мастера — в его редактор', () => {
     expect(agentHref(seller())).toBe('/ai-seller');
     expect(agentHref(seller({ id: 'a1', kind: 'agent', status: 'DRAFT' }))).toBe('/ai-agents/a1');
-    expect(agentHref(seller({ id: 'd1', kind: 'draft', status: 'DRAFT' }))).toBe('/ai-seller/agents/d1');
+    expect(agentHref(seller({ id: 'd1', kind: 'draft', status: 'DRAFT' }))).toBe(
+      '/ai-seller/agents/d1',
+    );
   });
 });
 
@@ -96,7 +116,11 @@ describe('слова карточки', () => {
     expect(placementLine(seller())).toBe('Сеть А · Алматы');
     expect(placementLine(seller({ business: null, location: null }))).toBe('Объект ещё не создан');
     expect(
-      placementLine({ ...seller({ kind: 'draft', status: 'DRAFT' }), business: null, location: null }),
+      placementLine({
+        ...seller({ kind: 'draft', status: 'DRAFT' }),
+        business: null,
+        location: null,
+      }),
     ).toBe('Business и Location не выбраны');
   });
 
@@ -115,4 +139,29 @@ describe('слова карточки', () => {
     expect(statusTone('BOT_OFFLINE')).toBe('danger');
     expect(statusTone('DRAFT')).toBe('neutral');
   });
+});
+
+describe('каталог: правдивая готовность и название объекта', () => {
+  it('совпадающие названия сети и объекта не дублируются', () => {
+    expect(
+      placementLine(
+        seller({ business: { id: 'b', name: 'Отель' }, location: { id: 'l', name: 'Отель' } }),
+      ),
+    ).toBe('Отель');
+  });
+});
+
+it('профиль принят без каналов — требуется подключение, а не «работает»', () => {
+  expect(agentReadiness(seller({ channels: { site: 'OFF', whatsapp: 'OFF' } }))).toMatchObject({
+    label: 'Настройте каналы',
+    tone: 'warn',
+  });
+});
+it('нет ответа канала — проверка, не успешная работа', () => {
+  expect(agentReadiness(seller({ channels: { site: 'OFF', whatsapp: 'UNKNOWN' } }))).toMatchObject({
+    label: 'Проверьте подключение',
+  });
+});
+it('даже заданный канал не доказывает ответ модели', () => {
+  expect(agentReadiness(seller())).toMatchObject({ label: 'Профиль сохранён' });
 });

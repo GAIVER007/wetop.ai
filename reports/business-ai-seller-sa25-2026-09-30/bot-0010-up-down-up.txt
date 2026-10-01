@@ -1,0 +1,38 @@
+--- бот 0010 (сужение) на настоящей PostgreSQL 16, поверх данных 0009 (pgvector подменён, как в bot-0009-up-down-up.txt)
+--- до 0010: первичный ключ подключения (колонка), прежних индексов
+ organization_id
+
+     3
+
+ok up 0010
+--- после 0010: первичный ключ (колонка), CHECK-и, прежних индексов
+ agent_id
+
+ ck_clients_org_has_agent
+ ck_conversations_org_has_agent
+ ck_documents_org_has_agent
+
+     0
+
+--- два агента одной организации делят гостя: разрешено (строк с этим гостем)
+     2
+
+--- строка организации без агента: отказ базы (CHECK)
+ERROR:  new row for relation "clients" violates check constraint "ck_clients_org_has_agent"
+DETAIL:  Failing row contains (2bebc960-f00d-4434-b5ec-adf4f0f38984, x, widget, null, null, null, 2026-09-30 10:41:03.281588+00, aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa, null).
+--- откат при общем госте двух агентов: отказ, ничего не изменилось (первичный ключ)
+RuntimeError: 0010 не откатывается: в clients у одной организации несколько агентов делят прежний ключ — уберите лишние �
+ agent_id
+
+--- после удаления лишнего: откат проходит; ключ, прежних индексов, строк (клиентов, документов, подключений)
+ok down 0009
+ organization_id
+
+     3
+
+     3 |     1 |     1
+
+--- повторный up
+ok up 0010
+ agent_id
+

@@ -153,19 +153,22 @@ def test_prompt_of_the_organization_reaches_the_agent_row(app, sync_db) -> None:
 # ─── Новые строки получают агента ───
 
 
-def test_rows_do_not_get_an_implicit_agent_from_their_organization(app, sync_db) -> None:  # noqa: F811
-    """SA2.5: неявного «агент = организация» больше нет. Строка, у которой писатель агента не назвал, остаётся без него —
-    и это видно (а после сужения CHECK базы такую строку не пустит), а не прячется за молчаливой подстановкой."""
+def test_a_row_of_an_organization_without_an_agent_is_refused(app, sync_db) -> None:  # noqa: F811
+    """После сужения (0010) писатель, забывший агента, получает отказ базы, а не молчаливое «агент = организации»."""
     _connect(app)
+    from sqlalchemy.exc import IntegrityError
+
     from src.db.base import utcnow
 
     with sync_db() as session:
         session.add(Client(channel="widget", external_id="guest-3", organization_id=uuid.UUID(ORG), created_at=utcnow()))
-        session.add(Document(organization_id=uuid.UUID(ORG), source="a.txt", file_hash="hh", chunk_count=0, created_at=utcnow()))
-        session.commit()
+        with pytest.raises(IntegrityError):
+            session.commit()
     with sync_db() as session:
-        assert session.execute(sa.select(Client.agent_id).where(Client.external_id == "guest-3")).scalar_one() is None
-        assert session.execute(sa.select(Document.agent_id).where(Document.source == "a.txt")).scalar_one() is None
+        session.add(Document(organization_id=uuid.UUID(ORG), source="a.txt", file_hash="hh", chunk_count=0, created_at=utcnow()))
+        with pytest.raises(IntegrityError):
+            session.commit()
+    with sync_db() as session:
         # подключение WhatsApp принадлежит агенту, который назван явно
         connection = session.get(WhatsAppConnection, uuid.UUID(ORG))
         assert connection is not None and connection.agent_id == uuid.UUID(ORG)

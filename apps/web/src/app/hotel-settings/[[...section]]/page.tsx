@@ -75,6 +75,7 @@ export default async function HotelSettingsPage({
       <ServiceEditor currency={loaded.ok ? loaded.value.property.currency : 'KZT'}>
         <Page
           title="Настройки объекта"
+          className="object-settings"
           subtitle={loaded.ok ? loaded.value.property.name : undefined}
           actions={actions}
         >

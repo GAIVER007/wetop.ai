@@ -9,7 +9,7 @@ import { expect, test, type Page } from './fixtures';
  * не подключено, только чтение.
  */
 const fixture = 'http://127.0.0.1:4311';
-const report = 'reports/integrations-int2-2026-09-28';
+const report = 'reports/unified-sections-2026-10-01/integrations-int2-2026-09-28';
 
 type Mode = 'ok' | 'stale' | 'webhook' | 'foreign' | 'no-key';
 const control = (page: Page, data: Record<string, unknown>) =>

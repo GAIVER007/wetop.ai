@@ -1,0 +1,256 @@
+# Сквозные (e2e) · 01.10.2026 11:28 Алматы · MacBook-Air-Urij.local
+# коммит 6353984 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 83
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-compact.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-f2.spec.ts' '--workers=1'
+[WebServer] (node:85637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:85722) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 17 tests using 1 worker
+
+(node:85729) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="finance/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/finance" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="finance/pa...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <FinanceReportPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <section className="finance-co..." aria-label="Период">
+[WebServer]                         <form method="get" className="finance-to..." data-testid="period-form">
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-01" aria-label="Период: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     aria-label="Период: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-31" aria-label="Период: по">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-31"
+[WebServer]                                     aria-label="Период: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+[
+  { c: 'page__head', h: 59.59375, y: 84 },
+  { c: 'finance-controls', h: 68.5, y: 155.59375 },
+  { c: 'finance-kpis', h: 98.796875, y: 236.09375 },
+  { c: 'finance-workspace', h: 405.59375, y: 346.890625 },
+  { c: 'finance-attention', h: 56.796875, y: 397.890625 },
+  { c: 'finance-structure', h: 285.796875, y: 466.6875 },
+  { c: 'context-help', h: 39.796875, y: 760.484375 }
+]
+  ✘   1 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (7.2s)
+(node:85954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (4.0s)
+  ✓   3 tests/ui/finance-f1.spec.ts:105:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (11.4s)
+  ✓   4 tests/ui/finance-f1.spec.ts:149:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (14.9s)
+[WebServer] (node:86393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/finance-f1.spec.ts:180:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (20.6s)
+  ✓   6 tests/ui/finance-f1.spec.ts:220:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (10.1s)
+  ✓   7 tests/ui/finance-f1.spec.ts:236:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (6.4s)
+  ✘   8 tests/ui/finance-f1.spec.ts:256:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (3.9s)
+(node:86461) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/ui/finance-f1.spec.ts:275:3 › F1, стоп-гейт: снимки для владельца, light (18.4s)
+(node:86535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/ui/finance-f1.spec.ts:275:3 › F1, стоп-гейт: снимки для владельца, dark (20.0s)
+(node:86613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (13.6s)
+  ✓  12 tests/ui/finance-f2.spec.ts:69:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (4.2s)
+  ✓  13 tests/ui/finance-f2.spec.ts:88:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (5.7s)
+  ✓  14 tests/ui/finance-f2.spec.ts:108:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (6.0s)
+  ✓  15 tests/ui/finance-f2.spec.ts:135:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (19.9s)
+  ✓  16 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (7.0s)
+  ✓  17 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (6.2s)
+
+
+  1) tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      14 |   await page.screenshot({path:'reports/finance-compact.png',fullPage:true,animations:'disabled'});
+      15 |   console.log(await page.locator('main > *, .finance-tab-panel:not([hidden]) > *').evaluateAll(es=>es.map(e=>({c:e.className,h:e.getBoundingClientRect().height,y:e.getBoundingClientRect().top}))));
+    > 16 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+         |                                                                                               ^
+      17 |     true,
+      18 |   );
+      19 |   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/finance-compact.spec.ts:16:95
+
+    Error Context: test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-f1.spec.ts:256:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 2
+
+      269 |     .locator('.stat')
+      270 |     .evaluateAll((tiles) => tiles.map((t) => Math.round(t.getBoundingClientRect().left)));
+    > 271 |   expect(new Set(xs).size).toBe(1);
+          |                            ^
+      272 | });
+      273 |
+      274 | for (const theme of ['light', 'dark'] as const) {
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/finance-f1.spec.ts:271:28
+
+    Error Context: test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-телефон-—-бе-a57a1-ица-долгов-листается-внутри/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/finance-f1.spec.ts:275:3 › F1, стоп-гейт: снимки для владельца, light ────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').getByTestId('debts-table')
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('debts-table') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('debts-table')
+        33 × locator resolved to <table data-testid="debts-table" class="tbl tbl--sm finance-debts__table">…</table>
+           - unexpected value "hidden"
+
+
+      279 |     await page.goto(url);
+      280 |     const main = page.getByRole('main');
+    > 281 |     await expect(main.getByTestId('debts-table')).toBeVisible();
+          |                                                   ^
+      282 |     await page.mouse.move(0, 0);
+      283 |     mkdirSync(report, { recursive: true });
+      284 |     await page.screenshot({ path: `${report}/${theme}-1440.png`, caret: 'initial' });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/finance-f1.spec.ts:281:51
+
+    Error Context: test-results/finance-f1-F1-стоп-гейт-снимки-для-владельца-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-стоп-гейт-снимки-для-владельца-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-стоп-гейт-снимки-для-владельца-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/finance-f1.spec.ts:275:3 › F1, стоп-гейт: снимки для владельца, dark ─────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByRole('main').getByTestId('debts-table')
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('debts-table') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('debts-table')
+        33 × locator resolved to <table data-testid="debts-table" class="tbl tbl--sm finance-debts__table">…</table>
+           - unexpected value "hidden"
+
+
+      279 |     await page.goto(url);
+      280 |     const main = page.getByRole('main');
+    > 281 |     await expect(main.getByTestId('debts-table')).toBeVisible();
+          |                                                   ^
+      282 |     await page.mouse.move(0, 0);
+      283 |     mkdirSync(report, { recursive: true });
+      284 |     await page.screenshot({ path: `${report}/${theme}-1440.png`, caret: 'initial' });
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/finance-f1.spec.ts:281:51
+
+    Error Context: test-results/finance-f1-F1-стоп-гейт-снимки-для-владельца-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-f1-F1-стоп-гейт-снимки-для-владельца-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-f1-F1-стоп-гейт-снимки-для-владельца-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+    tests/ui/finance-f1.spec.ts:256:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри 
+    tests/ui/finance-f1.spec.ts:275:3 › F1, стоп-гейт: снимки для владельца, light ─────────────────
+    tests/ui/finance-f1.spec.ts:275:3 › F1, стоп-гейт: снимки для владельца, dark ──────────────────
+  13 passed (3.9m)
+
+# код выхода 1 · 3 мин 54 с

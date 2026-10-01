@@ -7,7 +7,7 @@ import type { Page } from '@playwright/test';
  * Создание AI-продавца (SA2, plans/business-ai-seller-sa2-2026-09-30.md): один экран вместо мастера, черновик и страница
  * его состояния. Что проверяется: форма и ошибки словами у поля, занятый филиал виден и не выбирается, повторная отправка не
  * даёт второго агента, страница агента без фальшивых шагов, кнопка и форма для разных ролей и режимов, оформление в двух темах
- * и на телефоне. Запись в базу и права сервера доказывают API-тесты; стенд — `scripts/preview/fixture-api.ts`.
+ * и на телефоне. Запись в базу и права сервера доказывают API-тесты; стенд, `scripts/preview/fixture-api.ts`.
  */
 const API = 'http://127.0.0.1:4311';
 const SHOTS = 'reports/unified-sections-2026-10-01/create-agent';
@@ -54,7 +54,7 @@ test('свободный филиал: кнопка активна, форма �
   // занятый филиал стоит в списке и выбрать его нельзя, выбран свободный
   const busy = page.getByTestId('agent-location').locator('option', { hasText: 'Алматы' });
   await expect(busy).toHaveAttribute('disabled', '');
-  await expect(busy).toHaveText('Алматы — занят');
+  await expect(busy).toHaveText('Алматы (занят)');
   await expect(page.getByTestId('agent-location')).toHaveValue(
     'c0000000-0000-4000-8000-0000000000ab',
   );
@@ -207,7 +207,7 @@ test('расширения нет: на странице создания при
   );
 });
 
-test('несуществующий агент — страница «не найдено», а не пустая карточка', async ({
+test('несуществующий агент, страница «не найдено», а не пустая карточка', async ({
   page,
   request,
 }) => {

@@ -12,7 +12,7 @@ import { AgentCreateForm } from './form';
 
 /**
  * Создание AI-продавца (SA2, plans/business-ai-seller-sa2-2026-09-30.md): один экран, а не мастер из шагов. Создаётся
- * черновик; дальше — страница агента со списком настройки. Можно ли создавать, решает сервер (`options.canCreate`).
+ * черновик; дальше, страница агента со списком настройки. Можно ли создавать, решает сервер (`options.canCreate`).
  */
 export default async function NewAgentPage() {
   const { readOnly } = await deskShell();
@@ -51,7 +51,7 @@ export default async function NewAgentPage() {
             <AgentCreateForm idempotencyKey={randomUUID()} businesses={options.businesses} />
           </Panel>
           <Notice tone="muted">
-            Далее — рассказ текстом или голосом и редактор инструкции. Агент останется черновиком до подключения и проверки.
+            Далее: рассказ текстом или голосом и редактор инструкции. Агент останется черновиком до подключения и проверки.
           </Notice>
         </Stack>
       )}

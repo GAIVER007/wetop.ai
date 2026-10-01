@@ -7,7 +7,7 @@ import type { AgentOptionsView } from '../../../lib/api';
 import { createAgentAction, type CreateAgentResult } from './actions';
 
 /**
- * Форма создания AI-продавца (SA2): название, Business, филиал. Занятый филиал виден и не выбирается — причина рядом.
+ * Форма создания AI-продавца (SA2): название, Business, филиал. Занятый филиал виден и не выбирается, причина рядом.
  * Ключ повтора приходит от страницы: двойной щелчок отправляет ту же запись, а не вторую.
  */
 export function AgentCreateForm({
@@ -91,7 +91,7 @@ export function AgentCreateForm({
         >
           {business?.locations.map((l) => (
             <option key={l.id} value={l.id} disabled={!l.free}>
-              {l.free ? l.name : `${l.name} — занят`}
+              {l.free ? l.name : `${l.name} (занят)`}
             </option>
           ))}
         </Select>

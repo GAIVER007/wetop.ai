@@ -1,10 +1,10 @@
 """Миграция 0009 (SA2.5, «расширить»): добирает агентов и `agent_id`, ничего не сужает, обратима, и рантайм по `agent_id`
-работает на схеме ПОСЛЕ неё (то есть до сужения 0010 — так выкладка и идёт).
+работает на схеме ПОСЛЕ неё (то есть до сужения 0010, так выкладка и идёт).
 
 🔴 Что доказывается:
   · агент организации без строки `agents` появляется; `agent_id` строк с организацией добирается; строки помощника
     (без организации) агента не получают;
-  · прежние ключи по организации НА МЕСТЕ: сужение — отдельный релиз;
+  · прежние ключи по организации НА МЕСТЕ: сужение, отдельный релиз;
   · откат снимает только добавленные индексы, данные остаются;
   · перенесённый продавец на этой схеме отвечает так же: клиент, диалог, документ и подключение по агенту читаются и пишутся.
 """
@@ -32,7 +32,7 @@ def test_0009_fills_the_gaps_and_keeps_every_organization_key(alembic_config) ->
     now = "2026-09-29 10:00:00.000000"
     other = "bbbbbbbb2222422282228bbbbbbbbbbb"
     with engine.begin() as conn:
-        # организация, заведённая после 0008 прежним кодом: агент у неё есть (слушатель), а `agent_id` строк — нет
+        # организация, заведённая после 0008 прежним кодом: агент у неё есть (слушатель), а `agent_id` строк, нет
         conn.execute(
             sa.text(
                 "INSERT INTO organizations (id, name, public_key, active, hosts, system_prompt, created_at, updated_at) "
@@ -59,13 +59,13 @@ def test_0009_fills_the_gaps_and_keeps_every_organization_key(alembic_config) ->
         assert [r.agent_id for r in support] == [None]
 
     clients = _indexes(engine, "clients")
-    assert clients["uq_clients_org_channel_external"] is True, "прежняя уникальность по организации на месте (сужение — 0010)"
+    assert clients["uq_clients_org_channel_external"] is True, "прежняя уникальность по организации на месте (сужение, 0010)"
     assert clients["uq_clients_agent_channel_external"] is True
     assert _indexes(engine, "documents")["uq_documents_org_hash"] is True
     assert _indexes(engine, "documents")["uq_documents_agent_hash"] is True
     assert _indexes(engine, "whatsapp_connections")["uq_whatsapp_connections_agent"] is True
     pk = sa.inspect(engine).get_pk_constraint("whatsapp_connections")["constrained_columns"]
-    assert pk == ["organization_id"], "первичный ключ подключения по организации на месте (сужение — 0010)"
+    assert pk == ["organization_id"], "первичный ключ подключения по организации на месте (сужение, 0010)"
 
 
 def test_0009_is_reversible_without_touching_the_data(alembic_config) -> None:
@@ -87,7 +87,7 @@ def test_0009_is_reversible_without_touching_the_data(alembic_config) -> None:
 
 @pytest.mark.parametrize("_", [0])
 def test_the_runtime_by_agent_works_on_the_expand_schema(alembic_config, _) -> None:
-    """Схема 0009 — то, что стоит на рабочей базе, пока не выложено сужение: код, читающий по `agent_id`, обязан работать."""
+    """Схема 0009, то, что стоит на рабочей базе, пока не выложено сужение: код, читающий по `agent_id`, обязан работать."""
     from sqlalchemy.orm import sessionmaker
 
     from src.db.base import utcnow
@@ -108,7 +108,7 @@ def test_the_runtime_by_agent_works_on_the_expand_schema(alembic_config, _) -> N
         session.add(Document(organization_id=org, agent_id=org, source="novyy.md", file_hash="h-new", chunk_count=0,
                              created_at=utcnow()))
         session.commit()
-        # подключение читается по агенту (у перенесённого продавца — тот же идентификатор), а не по первичному ключу базы
+        # подключение читается по агенту (у перенесённого продавца, тот же идентификатор), а не по первичному ключу базы
         connection = session.get(WhatsAppConnection, org)
         assert connection is not None and connection.agent_id == org
         assert session.scalar(sa.select(sa.func.count()).select_from(Client).where(Client.agent_id == org)) == 2

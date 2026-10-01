@@ -21,7 +21,7 @@ ok up 0010
 ERROR:  new row for relation "clients" violates check constraint "ck_clients_org_has_agent"
 DETAIL:  Failing row contains (2bebc960-f00d-4434-b5ec-adf4f0f38984, x, widget, null, null, null, 2026-09-30 10:41:03.281588+00, aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa, null).
 --- откат при общем госте двух агентов: отказ, ничего не изменилось (первичный ключ)
-RuntimeError: 0010 не откатывается: в clients у одной организации несколько агентов делят прежний ключ — уберите лишние �
+RuntimeError: 0010 не откатывается: в clients у одной организации несколько агентов делят прежний ключ, уберите лишние �
  agent_id
 
 --- после удаления лишнего: откат проходит; ключ, прежних индексов, строк (клиентов, документов, подключений)

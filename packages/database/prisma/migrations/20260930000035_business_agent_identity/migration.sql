@@ -1,18 +1,18 @@
 -- DATA_MODEL v2.8 §20 (утверждён владельцем 30.09.2026, ADR-127), срез SA1.6: личность Business Agent и перенос
--- существующего продавца. План — plans/business-ai-seller-sa16-2026-09-30.md.
+-- существующего продавца. План, plans/business-ai-seller-sa16-2026-09-30.md.
 --
 -- Что делает (расширение без сужения: прежний код продолжает работать между миграцией и выкладкой):
---   1. seller_agents.location_id — филиал агента (FK → locations, RESTRICT), индекс;
---   2. хранимых состояний четыре — draft / active / paused / archived (Q-SA-11); active и paused требуют филиал;
+--   1. seller_agents.location_id, филиал агента (FK → locations, RESTRICT), индекс;
+--   2. хранимых состояний четыре, draft / active / paused / archived (Q-SA-11); active и paused требуют филиал;
 --   3. не более одного неархивного AI-продавца (scenario = 'sales') на филиал (Q-SA-2): частичный уникальный индекс.
 --      Агенты других типов на филиале допустимы;
 --   4. триггер: филиал агента принадлежит Business той же организации (locations без organization_id, CHECK невозможен);
---   5. seller_profiles.agent_id — связь профиля с агентом (unique, FK). Первичный ключ остаётся organization_id;
---      NOT NULL и смена ключа — в «сужении» (§20.7 п. 6), пока прежний код может вставить профиль без агента.
+--   5. seller_profiles.agent_id, связь профиля с агентом (unique, FK). Первичный ключ остаётся organization_id;
+--      NOT NULL и смена ключа, в «сужении» (§20.7 п. 6), пока прежний код может вставить профиль без агента.
 --      Триггер при вставке профиля без агента сам заводит агента с id = organization_id (Q-SA-9);
---   6. функции seller_agent_ensure(org) и seller_agents_backfill() — перенос существующего продавца (§20.4): агент с
+--   6. функции seller_agent_ensure(org) и seller_agents_backfill(), перенос существующего продавца (§20.4): агент с
 --      id = organization_id для организации с профилем или расширением «ИИ-продавец». Идемпотентно, повтор ничего не
---      дублирует; миграция вызывает перенос сама, тесты и «сужение» — тот же путь.
+--      дублирует; миграция вызывает перенос сама, тесты и «сужение», тот же путь.
 --
 -- Идёт и в public, и в pms_test (ADR-042): имена без схемы, поиск идёт по search_path.
 
@@ -22,7 +22,7 @@ DECLARE bad integer; orphan integer;
 BEGIN
   SELECT count(*) INTO bad FROM seller_agents WHERE lifecycle NOT IN ('draft', 'archived');
   IF bad > 0 THEN
-    RAISE EXCEPTION 'SA1.6 остановлена: % агентов в состояниях preparing/ready/error — код мастера пишет только draft, разобрать вручную', bad;
+    RAISE EXCEPTION 'SA1.6 остановлена: % агентов в состояниях preparing/ready/error, код мастера пишет только draft, разобрать вручную', bad;
   END IF;
 
   SELECT count(*) INTO orphan
@@ -31,7 +31,7 @@ BEGIN
          OR EXISTS (SELECT 1 FROM organization_extensions e WHERE e.organization_id = o.id AND e.extension = 'AI_SELLER'))
     AND NOT EXISTS (SELECT 1 FROM memberships m WHERE m.organization_id = o.id);
   IF orphan > 0 THEN
-    RAISE EXCEPTION 'SA1.6 остановлена: % организаций с продавцом без единого участника — некому быть автором агента', orphan;
+    RAISE EXCEPTION 'SA1.6 остановлена: % организаций с продавцом без единого участника, некому быть автором агента', orphan;
   END IF;
 
   IF EXISTS (SELECT 1 FROM seller_agents a JOIN organizations o ON o.id = a.id WHERE a.organization_id <> o.id) THEN
@@ -85,7 +85,7 @@ BEGIN
     RETURN false;
   END IF;
 
-  -- автор — самый ранний владелец, иначе самый ранний участник
+  -- автор, самый ранний владелец, иначе самый ранний участник
   SELECT m.user_id INTO v_author FROM memberships m WHERE m.organization_id = p_org
   ORDER BY (m.role = 'OWNER') DESC, m.created_at ASC, m.user_id LIMIT 1;
   IF v_author IS NULL THEN
@@ -94,7 +94,7 @@ BEGIN
     RETURN false;
   END IF;
 
-  -- филиал самого раннего объекта организации — то же правило, что у фактов и котировки продавца
+  -- филиал самого раннего объекта организации, то же правило, что у фактов и котировки продавца
   SELECT p.location_id INTO v_location FROM properties p WHERE p.organization_id = p_org
   ORDER BY p.created_at ASC, p.id LIMIT 1;
 

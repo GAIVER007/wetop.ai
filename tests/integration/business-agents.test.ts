@@ -65,7 +65,7 @@ describe.skipIf(!url)('Business Agents: создание и чтение (integr
     const first = await placementOf((await createPropertyInChain(db, orgA, { name: `Филиал А1 ${orgA}`, ...base })).id);
     businessA = first.businessId;
     locA1 = first.id;
-    // у Property и Location связь 1:1: второй филиал — это второй объект
+    // у Property и Location связь 1:1: второй филиал, это второй объект
     locA2 = (await placementOf((await createPropertyInChain(db, orgA, { name: `Филиал А2 ${orgA}`, ...base })).id)).id;
     const third = await placementOf((await createPropertyInChain(db, orgB, { name: `Филиал Б1 ${orgB}`, ...base })).id);
     businessB = third.businessId;
@@ -83,7 +83,7 @@ describe.skipIf(!url)('Business Agents: создание и чтение (integr
     await db.$disconnect();
   });
 
-  it('placement: свой Business и свой филиал — да; чужой, не того Business, снятый с показа — null', async () => {
+  it('placement: свой Business и свой филиал, да; чужой, не того Business, снятый с показа, null', async () => {
     expect((await repo.placement(orgA, businessA, locA1))?.location.id).toBe(locA1);
     expect(await repo.placement(orgA, businessB, locB1)).toBeNull();
     expect(await repo.placement(orgA, businessA, locB1)).toBeNull();
@@ -97,7 +97,7 @@ describe.skipIf(!url)('Business Agents: создание и чтение (integr
     }
   });
 
-  it('create: черновик с филиалом, автором и журналом; повтор по ключу — тот же агент, один журнал', async () => {
+  it('create: черновик с филиалом, автором и журналом; повтор по ключу, тот же агент, один журнал', async () => {
     const key = randomUUID();
     const first = await repo.create(input({ id: key }));
     expect(first.created).toBe(true);
@@ -116,7 +116,7 @@ describe.skipIf(!url)('Business Agents: создание и чтение (integr
     expect(event.after).toMatchObject({ source: 'business-agent', businessId: businessA, locationId: locA1, lifecycle: 'draft' });
   });
 
-  it('create: занятый филиал — LocationTakenError, второй записи и журнала нет; архивный агент филиал освобождает', async () => {
+  it('create: занятый филиал, LocationTakenError, второй записи и журнала нет; архивный агент филиал освобождает', async () => {
     const before = await created(orgA);
     await expect(repo.create(input({ id: randomUUID() }))).rejects.toBeInstanceOf(LocationTakenError);
     expect(await created(orgA)).toBe(before);
@@ -127,7 +127,7 @@ describe.skipIf(!url)('Business Agents: создание и чтение (integr
     expect(next.created).toBe(true);
   });
 
-  it('create: ключ чужой организации, чужого человека и ключ, равный организации, — ForeignIdempotencyKeyError', async () => {
+  it('create: ключ чужой организации, чужого человека и ключ, равный организации, ForeignIdempotencyKeyError', async () => {
     const key = randomUUID();
     await repo.create(input({ id: key, locationId: locA2 }));
     await expect(
@@ -142,7 +142,7 @@ describe.skipIf(!url)('Business Agents: создание и чтение (integr
     expect(await repo.get(orgB, orgB)).toBeNull();
   });
 
-  it('create: два одновременных создателя на свободный филиал — победитель один, второй LocationTakenError', async () => {
+  it('create: два одновременных создателя на свободный филиал, победитель один, второй LocationTakenError', async () => {
     const race = await Promise.allSettled([
       repo.create({ ...input(), organizationId: orgB, userId: userB, businessId: businessB, locationId: locB1 }),
       repo.create({ ...input(), organizationId: orgB, userId: userB, businessId: businessB, locationId: locB1 }),
@@ -165,7 +165,7 @@ describe.skipIf(!url)('Business Agents: создание и чтение (integr
     expect((await repo.options(orgB))[0]!.locations.find((l) => l.id === locB1)?.taken).toBe(true);
   });
 
-  it('get: агент своей организации с филиалом; чужой, рабочий продавец и запись мастера без филиала — null', async () => {
+  it('get: агент своей организации с филиалом; чужой, рабочий продавец и запись мастера без филиала, null', async () => {
     const mine = (await agentsOf(orgA)).find((a) => a.lifecycle === 'draft')!;
     expect((await repo.get(orgA, mine.id))?.id).toBe(mine.id);
     expect(await repo.get(orgB, mine.id)).toBeNull();

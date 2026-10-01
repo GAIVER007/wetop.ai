@@ -21,6 +21,12 @@ export function BranchSwitcher({
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
+  const filtered =
+    choices?.items?.filter((item) =>
+      `${item.name} ${item.address ?? ''}`
+        .toLocaleLowerCase('ru')
+        .includes(search.trim().toLocaleLowerCase('ru')),
+    ) ?? [];
   useEffect(() => {
     setOpen(false);
   }, [path]);
@@ -56,6 +62,13 @@ export function BranchSwitcher({
     <div
       className="branch-switcher"
       ref={root}
+      onBlur={(event) => {
+        if (
+          event.relatedTarget instanceof Node &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          setOpen(false);
+      }}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
           setOpen(false);
@@ -87,12 +100,15 @@ export function BranchSwitcher({
           aria-label="Выбор филиала"
           aria-busy={loading || switching}
         >
-          <strong>Ваши филиалы</strong>
+          <div className="branch-switcher__heading">
+            <strong>Выберите филиал</strong>
+            <span>{choices?.items?.length ?? ''}</span>
+          </div>
           {loading ? (
             <p role="status">Загружаем…</p>
           ) : choices?.items ? (
             <>
-              {choices.items.length > 5 && (
+              {choices.items.length > 1 && (
                 <input
                   className="inp"
                   aria-label="Найти филиал"
@@ -102,28 +118,29 @@ export function BranchSwitcher({
                 />
               )}
               <div className="branch-switcher__options">
-                {choices.items
-                  .filter((item) =>
-                    `${item.name} ${item.address ?? ''}`
-                      .toLocaleLowerCase('ru')
-                      .includes(search.toLocaleLowerCase('ru')),
-                  )
-                  .map((item) => (
-                    <button
-                      type="button"
-                      key={item.id}
-                      disabled={switching}
-                      aria-pressed={item.id === choices.currentId}
-                      onClick={() =>
-                        item.id === choices.currentId ? setOpen(false) : choose(item.id)
-                      }
-                    >
-                      <strong>{item.name}</strong>
-                      <span>{item.address || 'Адрес не указан'}</span>
-                      {item.id === choices.currentId && <small>Текущий филиал</small>}
-                    </button>
-                  ))}
-                {choices.items.length === 0 && <p>Нет доступных филиалов.</p>}
+                {filtered.map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    disabled={switching}
+                    aria-pressed={item.id === choices.currentId}
+                    onClick={() =>
+                      item.id === choices.currentId ? setOpen(false) : choose(item.id)
+                    }
+                  >
+                    <strong>{item.name}</strong>
+                    {item.id === choices.currentId && <Icon name="check" width={16} />}
+                    <span title={item.address || undefined}>
+                      {item.address || 'Адрес не указан'}
+                    </span>
+                    {item.id === choices.currentId && (
+                      <small className="sr-only">Текущий филиал</small>
+                    )}
+                  </button>
+                ))}
+                {filtered.length === 0 && (
+                  <p role="status">{search ? 'Филиалы не найдены' : 'Нет доступных филиалов.'}</p>
+                )}
               </div>
             </>
           ) : (

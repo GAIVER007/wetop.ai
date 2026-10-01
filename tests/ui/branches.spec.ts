@@ -97,8 +97,15 @@ test('переключатель филиалов сохраняет разде�
   await page.goto('/chessboard');
   const sidebar = page.locator('.workspace-sidebar');
   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
+  const navigation = sidebar.locator('.workspace-links');
+  const before = await navigation.boundingBox();
   await trigger.click();
   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });
+  await expect(choices).toBeVisible();
+  expect((await navigation.boundingBox())!.y).toBe(before!.y);
+  await choices.getByLabel('Найти филиал').fill('Нет такого филиала');
+  await expect(choices.getByText('Филиалы не найдены')).toBeVisible();
+  await choices.getByLabel('Найти филиал').fill('');
   await expect(choices.getByText('Текущий филиал')).toBeVisible();
   await choices.getByRole('button', { name: /Филиал Север/ }).click();
   await expect(trigger).toContainText('Филиал Север');
@@ -117,13 +124,19 @@ test('переключатель филиалов сохраняет разде�
   await expect(choices).not.toBeVisible();
   await expect(trigger).toBeFocused();
   await trigger.click();
-  await expect(choices.getByRole('button', { name: /Филиал Север/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(choices.getByRole('button', { name: /Филиал Север/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   await page.screenshot({ path: 'reports/branches-2026-10-01/switcher.png' });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const mobile = page.locator('.mobile-navigation');
   await mobile.getByRole('button', { name: 'Выбрать филиал', exact: true }).click();
-  await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(mobile.getByRole('button', { name: /Филиал Север Тестовая/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: 'reports/branches-2026-10-01/switcher-mobile.png' });
 });

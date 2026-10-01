@@ -215,6 +215,7 @@
 }
 
 .branch-switcher {
+  position: relative;
   flex: none;
   min-width: 0;
 }
@@ -226,6 +227,13 @@
   font: inherit;
 }
 .branch-switcher__list {
+  position: absolute;
+  top: calc(100% - var(--space-2));
+  inset-inline: 0;
+  z-index: 20;
+  max-height: calc(100dvh - 210px);
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 24%);
   padding: var(--space-2);
   margin-bottom: var(--space-4);
   border: 1px solid var(--border);
@@ -266,5 +274,43 @@
   color: var(--primary);
 }
 .sidebar-shell.is-compact .branch-switcher {
+  position: relative;
   display: none;
+}
+
+.branch-switcher__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 4px 10px;
+}
+.branch-switcher__heading > span {
+  color: var(--muted);
+}
+.branch-switcher__list .inp {
+  width: 100%;
+  min-width: 0;
+  font-size: 13px;
+}
+.branch-switcher__options button {
+  grid-template-columns: minmax(0, 1fr) 20px;
+  padding: 10px;
+}
+.branch-switcher__options button > strong {
+  font-size: 14px;
+}
+.branch-switcher__options button > svg {
+  color: var(--primary);
+}
+.branch-switcher__options button > span {
+  grid-column: 1 / -1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.branch-switcher > .workspace-property[aria-expanded='true'] {
+  border-color: var(--primary);
+}
+.branch-switcher > .workspace-property[aria-expanded='true'] > svg {
+  transform: rotate(90deg);
 }

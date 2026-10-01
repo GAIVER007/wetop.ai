@@ -30,6 +30,7 @@ test('боковое окно компактно, псевдонимная бр�
   await request.post('http://127.0.0.1:4311/__test/control', {
     data: { piiStorage: 'pseudonymized' },
   });
+  await page.addInitScript(() => localStorage.setItem('wetop.theme', 'dark'));
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/reservations');
   await page.getByRole('link', { name: 'Новая бронь', exact: true }).click();

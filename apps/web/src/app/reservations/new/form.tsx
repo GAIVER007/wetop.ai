@@ -209,8 +209,14 @@ export function NewReservationForm(props: {
       )}
       <input type="hidden" name="placementIds" value={placementIds.join(',')} />
       {placementIds.map((id, index) => (
-        <fieldset key={id} className="placement-fields" data-testid="placement-fields">
-          <legend>Размещение {index + 1}</legend>
+        <fieldset
+          key={id}
+          className={`placement-fields${placementIds.length === 1 ? ' is-single' : ''}`}
+          data-testid="placement-fields"
+        >
+          <legend className={placementIds.length === 1 ? 'sr-only' : undefined}>
+            Размещение {index + 1}
+          </legend>
           <PlacementFields
             id={id}
             kept={kept}
@@ -605,6 +611,28 @@ function PlacementFields({
           ))}
         </Select>
       </Field>
+      {group ? (
+        <div className="field" style={{ justifyContent: 'end' }} data-testid="group-hint">
+          {Number(quantity)} проживания на первых свободных ячейках по номеру
+          {Number(quantity) > units.length ? `, свободно только ${units.length}` : ''}
+        </div>
+      ) : (
+        <Field label="Номер / койка">
+          <Select
+            name={field('unitCode')}
+            value={chosenUnit === AUTO_UNIT || units.includes(chosenUnit) ? chosenUnit : ''}
+            onChange={(e) => setChosenUnit(e.target.value)}
+          >
+            <option value="">Назначить позже</option>
+            {units.length > 0 && <option value={AUTO_UNIT}>Первая свободная</option>}
+            {units.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
       <Field label="Тариф *">
         <Select
           name={field('ratePlanCode')}
@@ -621,7 +649,7 @@ function PlacementFields({
           ))}
         </Select>
       </Field>
-      <Field label="Гостей в проживании">
+      <Field label="Гостей">
         <Input
           type="number"
           name={field('adults')}
@@ -641,30 +669,6 @@ function PlacementFields({
           title={`свободно ${units.length} в категории; при 2 и больше ячейки назначит система`}
         />
       </Field>
-      {group ? (
-        <div className="field" style={{ justifyContent: 'end' }} data-testid="group-hint">
-          {Number(quantity)} проживания на первых свободных ячейках по номеру
-          {Number(quantity) > units.length ? ` — свободно только ${units.length}` : ''}
-        </div>
-      ) : (
-        <Field label="Ячейка">
-          <Select
-            name={field('unitCode')}
-            value={chosenUnit === AUTO_UNIT || units.includes(chosenUnit) ? chosenUnit : ''}
-            onChange={(e) => setChosenUnit(e.target.value)}
-          >
-            <option value="">— назначить позже —</option>
-            {units.length > 0 && (
-              <option value={AUTO_UNIT}>Автоматически — первая свободная</option>
-            )}
-            {units.map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      )}
     </Grid>
   );
 }

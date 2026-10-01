@@ -8,6 +8,18 @@
 
 ---
 
+## Шаг 0. Две вещи с сервера, замеченные 01.10 в 18:26 UTC
+
+- **Диск заполнен на 95 %** (`/` 95,82 ГБ). Сборка образа и ночная копия на полном диске упадут. Безопасно сразу:
+  `docker system df`, затем `docker image prune -f` (только висячие слои), `du -sh /root/backups /var/lib/docker
+  /var/log`; образы отката `pms-lux:rollback-*` старше недели можно снять `docker rmi`. Журналы:
+  `journalctl --vacuum-size=200M`.
+- **«System restart required»** и 33 обновления: перезагрузка в тихий час, не перед живой сменой; после неё
+  `docker compose ps` в `deploy/`, раннере и дежурном агенте.
+- После `up -d --build` стойка ответила 502: `web` в этот момент был `health: starting`. Через полминуты повторить
+  `curl -s https://app.wetop.ai/login -o /dev/null -w '%{http_code}\n'`; если снова 502:
+  `docker compose -f compose.yml -f compose.hostinger.yml logs --tail 30 web` из `/root/wetop/deploy`.
+
 ## Шаг 1. Поднять раннер `wetop` (10 минут, сервер)
 
 Он не берёт задачи с 14:50 UTC 01.10. Без него проверки `lint · typecheck · unit · главная`, `UI` и `pytest` не
@@ -21,10 +33,27 @@ docker compose -f scripts/ops/ci-runner/compose.yml logs --tail 30 runner
 
 - В логе есть `Listening for Jobs`, контейнер `Up`: раннер жив, задачи возьмёт сам.
 - Контейнера нет или он `Restarting`: `docker compose -f scripts/ops/ci-runner/compose.yml up -d --build`.
-- В логе `not configured`, `invalid token`, `runner version … deprecated`: нужна новая регистрация. GitHub →
-  Settings → Actions → Runners → New self-hosted runner → скопировать значение `--token` (живёт час) → вписать в
-  `/root/wetop/scripts/ops/ci-runner/.env` строкой `RUNNER_TOKEN=…` → `docker compose -f scripts/ops/ci-runner/compose.yml down -v`
-  → `docker compose -f scripts/ops/ci-runner/compose.yml up -d --build`.
+- **В логе по кругу «Request headers must contain only ASCII characters» на шаге Authentication** (так было
+  01.10 в 18:26 UTC): в `.env` раннера токен или адрес с не-ASCII символом. Чаще всего это многоточие «…»,
+  оставшееся от примера `RUNNER_TOKEN=…`, или неразрывный пробел из буфера обмена. Найти строку:
+
+  ```bash
+  grep -nP '[^\x00-\x7F]' /root/wetop/scripts/ops/ci-runner/.env
+  ```
+
+  Дальше новая регистрация (токен живёт час, старый всё равно просрочен): GitHub → Settings → Actions → Runners →
+  New self-hosted runner → Linux → скопировать только значение после `--token` → в `.env` строка
+  `RUNNER_TOKEN=<значение>` без кавычек и пробелов, `RUNNER_REPO_URL=https://github.com/GAIVER007/wetop.ai` →
+
+  ```bash
+  cd /root/wetop
+  docker compose -f scripts/ops/ci-runner/compose.yml down -v
+  docker compose -f scripts/ops/ci-runner/compose.yml up -d --build
+  docker compose -f scripts/ops/ci-runner/compose.yml logs --tail 20 runner     # ждём «Listening for Jobs»
+  ```
+
+  После PR #211 вход раннера сам отказывает словами на не-ASCII, вместо цикла.
+- В логе `not configured`, `invalid token`, `runner version … deprecated`: та же новая регистрация, что выше.
 
 Проверка: GitHub → Settings → Actions → Runners: `wetop` зелёный, `Idle` или `Active`; в PR #211 задачи своего
 раннера перешли из «Queued» в работу.
@@ -167,7 +196,17 @@ SELECT migration_name, finished_at FROM _prisma_migrations ORDER BY migration_na
 
 ## Шаг 5. Channex, боевой объект (5 минут, сервер; после шага 8)
 
-Скрипт живёт в образе API, ключ Channex уже в `.env` сервера:
+Скрипт живёт в образе API, ключ Channex уже в `.env` сервера. **Только после слияния PR #211 и выкладки:** на образе
+`release` до него команда отвечает `Cannot find module …/cli-channex-property-settings.ts` (так было 01.10 в 18:27 UTC,
+это ожидаемо, не поломка). Раньше выкладки можно с Mac из клона на ветке PR, ключ и адрес боевого Channex из `.env`
+сервера, объект по id из панели Channex:
+
+```bash
+CHANNEX_API_BASE_URL=https://app.channex.io/api/v1 CHANNEX_API_KEY=<ключ> \
+  npx tsx scripts/reconciliation/src/cli-channex-property-settings.ts --property=<id объекта>
+```
+
+На сервере после выкладки:
 
 ```bash
 cd /root/wetop/deploy

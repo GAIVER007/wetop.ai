@@ -64,6 +64,18 @@ describe('свой раннер CI', () => {
  *  9. Свой раннер стоит на боевом сервере и исполняет код из запросов на слияние. Код из форка на него попадать
  *     не должен: задачи на своём раннере идут только для пушей в этот репозиторий и PR из его же веток.
  */
+describe('регистрация своего раннера', () => {
+  // 01.10.2026: раннер wetop сутки не брал задачи, в логе по кругу «Request headers must contain only ASCII characters»
+  // на шаге Authentication. Это GitHub отвечает на токен или адрес с не-ASCII символом: «…» из примера в README,
+  // неразрывный пробел или кавычка из буфера обмена. Вход должен падать сразу и словами, а не крутить цикл регистрации.
+  it('entrypoint отказывает словами, если в RUNNER_TOKEN или RUNNER_REPO_URL есть не-ASCII символ', () => {
+    const entry = withoutComments(read('scripts/ops/ci-runner/entrypoint.sh'));
+    expect(entry).toMatch(/ASCII/);
+    expect(entry.indexOf('ASCII')).toBeLessThan(entry.indexOf('./config.sh'));
+    expect(entry).toMatch(/RUNNER_TOKEN RUNNER_REPO_URL|RUNNER_REPO_URL RUNNER_TOKEN/);
+  });
+});
+
 describe('проверки GitHub после разбора 01.10.2026', () => {
   const selfHosted = ['fast', 'ui-shard', 'ui', 'bot'];
 

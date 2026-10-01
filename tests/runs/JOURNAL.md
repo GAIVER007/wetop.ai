@@ -5097,3 +5097,7 @@
 | 01.10.2026 21:14 | integration | ✅ 225 из 230, пропущено 5 | 1 мин 4 с | 1ef224b | [лог](logs/2026-10-01T16-14-50Z-integration-8095.log) | полный integration на локальном PostgreSQL 16, как задача db в CI |
 | 01.10.2026 21:16 | e2e (частично: tests/e2e/inventory.spec.ts tests/e2e/chessboard.spec.ts tests/e2e/manual-reservation.spec.ts) | ❌ упало 4 из 6 | 45 с | ec86aed | [лог](logs/2026-10-01T16-16-21Z-e2e-c94e.log) | red: сквозные на pms_test после полного integration, как run 838 в CI |
 | 01.10.2026 21:17 | e2e | ❌ упало 13 из 25 | 18 мин 14 с | ec86aed | [лог](logs/2026-10-01T16-17-17Z-e2e-b9fb.log) | green: свежая pms_test с сидом перед сквозными, как новый шаг задачи db |
+| 01.10.2026 23:32 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 10 | 7 с | c6cbf32 +1 | [лог](logs/2026-10-01T18-32-42Z-unit-f251.log) | red: регистрация раннера не проверяет ASCII |
+| 01.10.2026 23:32 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 10 из 10 | 2 с | c6cbf32 +2 | [лог](logs/2026-10-01T18-32-51Z-unit-fa9c.log) | green: регистрация раннера отказывает на не-ASCII |
+| 01.10.2026 23:33 | typecheck | ✅ без ошибок | 39 с | c6cbf32 +2 | [лог](logs/2026-10-01T18-33-11Z-typecheck-1718.log) | вход раннера, чеклист |
+| 01.10.2026 23:33 | lint | ✅ без ошибок | 27 с | c6cbf32 +2 | [лог](logs/2026-10-01T18-33-51Z-lint-14eb.log) | вход раннера, чеклист |

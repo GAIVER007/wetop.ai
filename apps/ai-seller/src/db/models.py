@@ -170,6 +170,8 @@ class WhatsAppConnection(Base):
 class Client(Base):
     __tablename__ = "clients"
     __table_args__ = (
+        # Строка организации имеет агента (миграция сужения 0010): забытый писателем агент — не молчаливый NULL
+        sa.CheckConstraint("organization_id IS NULL OR agent_id IS NOT NULL", name="ck_clients_org_has_agent"),
         # Агент — граница диалога (DATA_MODEL §20.5, SA2.5): один гость у двух агентов, даже одной организации, — два
         # клиента. Прежняя уникальность по организации (`uq_clients_org_channel_external`) из модели снята: на рабочей
         # базе её убирает миграция сужения 0010 после доказанного рантайма, пока агент в организации один — они совпадают
@@ -269,6 +271,7 @@ class DashboardUser(Base):
 class Conversation(Base):
     __tablename__ = "conversations"
     __table_args__ = (
+        sa.CheckConstraint("organization_id IS NULL OR agent_id IS NOT NULL", name="ck_conversations_org_has_agent"),
         sa.Index(
             "idx_conv_mode",
             "mode",
@@ -360,6 +363,7 @@ class OwnerAction(Base):
 class Document(Base):
     __tablename__ = "documents"
     __table_args__ = (
+        sa.CheckConstraint("organization_id IS NULL OR agent_id IS NOT NULL", name="ck_documents_org_has_agent"),
         # Дедуп по хешу — в пределах АГЕНТА (SA2.5): один и тот же прайс у двух агентов, даже одной организации, —
         # две записи, а не молчаливый пропуск второй (Э4). Прежняя уникальность по организации
         # (`uq_documents_org_hash`) из модели снята: на рабочей базе её убирает миграция сужения 0010

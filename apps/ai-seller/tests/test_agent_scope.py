@@ -46,6 +46,7 @@ from tests.test_whatsapp import (  # noqa: F401
 from tests.llm_fakes import LLM_ENV
 from tests.widget_fakes import FakeRunner, SITE_ORIGIN, seed_visitor, widget_app
 
+SERVICE = {"X-Service-Key": "service-key-for-tests-only"}  # песочницу открывает только служебный ключ платформы (30.09.2026)
 ORG = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa"  # у tests.test_whatsapp.app это ORG; агент перенесённого продавца — тот же id
 ORG_B = "bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb"
 AGENT_1 = ORG  # перенесённый продавец
@@ -455,9 +456,9 @@ def test_facts_are_kept_per_agent(seller_panel, fake_embedder, sync_db) -> None:
 def test_the_sandbox_names_the_agent_when_there_are_two(seller_panel) -> None:
     body = {"external_id": "sandbox-1", "text": "Привет", "organization_id": ORG}
     p = seller_panel.client
-    unnamed = p.post("/internal/sandbox", json=body, headers={"X-Internal-Key": "test-key"})
+    unnamed = p.post("/internal/sandbox", json=body, headers=SERVICE)
     assert unnamed.status_code == 400 and unnamed.json()["status"] == "agent_required"
-    foreign = p.post("/internal/sandbox", json={**body, "agent_id": ORG_B}, headers={"X-Internal-Key": "test-key"})
+    foreign = p.post("/internal/sandbox", json={**body, "agent_id": ORG_B}, headers=SERVICE)
     assert foreign.status_code == 403
 
 

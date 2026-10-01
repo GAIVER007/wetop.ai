@@ -38,10 +38,12 @@ def _utc(*args: int) -> datetime:
 def _conversation(sessions, org: str | None, external_id: str) -> uuid.UUID:
     with sessions() as session:
         client = Client(channel="widget", external_id=external_id,
-                        organization_id=uuid.UUID(org) if org else None, created_at=SEPT)
+                        organization_id=uuid.UUID(org) if org else None,
+                        agent_id=uuid.UUID(org) if org else None, created_at=SEPT)  # агент = организации (§20.4)
         session.add(client)
         session.flush()
         conversation = Conversation(client_id=client.id, organization_id=uuid.UUID(org) if org else None,
+                                    agent_id=uuid.UUID(org) if org else None,
                                     mode=ConversationMode.BOT_ACTIVE, funnel_stage=FunnelStage.NEW,
                                     lead_data={}, created_at=SEPT, last_activity_at=SEPT)
         session.add(conversation)

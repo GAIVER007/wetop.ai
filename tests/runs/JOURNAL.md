@@ -4610,6 +4610,37 @@
 | 30.09.2026 11:57 | unit | ✅ 2480 из 2483, пропущено 3 | 1 мин 51 с | 61a4650 | [лог](logs/2026-09-30T06-57-14Z-unit-c304.log) |  |
 | 30.09.2026 11:59 | integration | ✅ 143 из 143 | 1 мин 10 с | 61a4650 | [лог](logs/2026-09-30T06-59-05Z-integration-4305.log) |  |
 | 30.09.2026 12:00 | unit | ✅ 2480 из 2483, пропущено 3 | 1 мин 51 с | ec75a7c | [лог](logs/2026-09-30T07-00-46Z-unit-df52.log) |  |
+| 30.09.2026 12:14 | unit | ✅ 2508 из 2511, пропущено 3 | 1 мин 41 с | bea1ca2 | [лог](logs/2026-09-30T07-14-14Z-unit-0610.log) |  |
+| 30.09.2026 12:16 | integration | ✅ 165 из 165 | 52 с | bea1ca2 | [лог](logs/2026-09-30T07-16-09Z-integration-5afd.log) |  |
+| 30.09.2026 12:17 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 55 из 55 | 2 мин 46 с | bea1ca2 | [лог](logs/2026-09-30T07-17-04Z-e2e-2fb8.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ код выхода 1 | 2 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-14Z-integration-9007.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-28Z-integration-9702.log) |  |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ❌ упало 1 из 7 | 4 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-37Z-integration-d3a2.log) | Business Agents: создание и чтение (integration, DATABASE_URL required) create: ключ чужой организации, чужого человека и ключ, равный организации, — ForeignIde |
+| 30.09.2026 12:41 | integration (частично: tests/integration/business-agents.test.ts) | ✅ 7 из 7 | 3 с | 1fb5cbb +15 | [лог](logs/2026-09-30T07-41-42Z-integration-4ba5.log) |  |
+| 30.09.2026 12:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ❌ упало 2 из 50 | 3 мин 37 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-45-59Z-e2e-2c8f.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 12:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts --workers=1) | ✅ 23 из 23 | 1 мин 34 с | 1fb5cbb +26 | [лог](logs/2026-09-30T07-49-50Z-e2e-66e3.log) |  |
+| 30.09.2026 12:53 | unit | ❌ упало 1 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-53-05Z-unit-0a67.log) | design: сторож ИИ-слопа (DESIGN.md §15) dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица |
+| 30.09.2026 12:54 | integration | ✅ 172 из 172 | 52 с | 1fb5cbb +16 | [лог](logs/2026-09-30T07-54-43Z-integration-8800.log) |  |
+| 30.09.2026 12:55 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 27 с | 1fb5cbb +24 | [лог](logs/2026-09-30T07-55-59Z-unit-79d8.log) |  |
+| 30.09.2026 12:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/ui/roles.spec | ✅ 112 из 112 | 8 мин | 1fb5cbb +26 | [лог](logs/2026-09-30T07-57-30Z-e2e-e428.log) |  |
+| 30.09.2026 13:35 | unit | ✅ 2556 из 2559, пропущено 3 | 1 мин 40 с | 3315609 +2 | [лог](logs/2026-09-30T08-35-53Z-unit-e3db.log) |  |
+| 30.09.2026 13:37 | integration | ✅ 172 из 172 | 52 с | 3315609 +2 | [лог](logs/2026-09-30T08-37-43Z-integration-d960.log) |  |
+| 30.09.2026 15:26 | typecheck | ❌ ошибок: 1 | 38 с | b0760a3 | [лог](logs/2026-09-30T10-26-30Z-typecheck-daf1.log) | TS2345 |
+| 30.09.2026 15:27 | lint | ✅ без ошибок | 21 с | b0760a3 | [лог](logs/2026-09-30T10-27-09Z-lint-db42.log) |  |
+| 30.09.2026 15:27 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 28 с | b0760a3 | [лог](logs/2026-09-30T10-27-30Z-unit-e4e9.log) |  |
+| 30.09.2026 15:29 | typecheck | ✅ без ошибок | 26 с | b0760a3 +1 | [лог](logs/2026-09-30T10-29-40Z-typecheck-3742.log) |  |
+| 30.09.2026 15:30 | integration | ❌ упало 5 из 186 | 55 с | b0760a3 +1 | [лог](logs/2026-09-30T10-30-06Z-integration-ba9b.log) | seller_profiles и факты объекта (integration, DATABASE_URL required) первая правка заводит строку организации и пишет журнал: до — пусто, после — поля |
+| 30.09.2026 15:31 | integration | ✅ 186 из 186 | 54 с | b0760a3 +2 | [лог](logs/2026-09-30T10-31-24Z-integration-88f0.log) |  |
+| 30.09.2026 15:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 112 из 112 | 8 мин 35 с | b0760a3 +1 | [лог](logs/2026-09-30T10-32-22Z-e2e-de31.log) |  |
+| 30.09.2026 15:55 | typecheck | ✅ без ошибок | 28 с | fbdf8e5 | [лог](logs/2026-09-30T10-55-36Z-typecheck-e93b.log) |  |
+| 30.09.2026 15:56 | lint | ✅ без ошибок | 22 с | fbdf8e5 | [лог](logs/2026-09-30T10-56-04Z-lint-28be.log) |  |
+| 30.09.2026 15:56 | unit | ✅ 2579 из 2582, пропущено 3 | 1 мин 27 с | fbdf8e5 | [лог](logs/2026-09-30T10-56-27Z-unit-6f6c.log) |  |
+| 30.09.2026 15:57 | integration | ✅ 194 из 194 | 56 с | fbdf8e5 | [лог](logs/2026-09-30T10-57-54Z-integration-d022.log) |  |
+| 30.09.2026 16:04 | typecheck | ✅ без ошибок | 28 с | fab3817 | [лог](logs/2026-09-30T11-04-51Z-typecheck-4408.log) |  |
+| 30.09.2026 16:05 | lint | ✅ без ошибок | 24 с | fab3817 | [лог](logs/2026-09-30T11-05-20Z-lint-02ed.log) |  |
+| 30.09.2026 16:05 | unit | ✅ 2578 из 2581, пропущено 3 | 1 мин 32 с | fab3817 | [лог](logs/2026-09-30T11-05-45Z-unit-ddbc.log) |  |
+| 30.09.2026 16:10 | integration | ✅ 0 из 188, пропущено 188 | 30 с | fab3817 | [лог](logs/2026-09-30T11-10-30Z-integration-e234.log) |  |
+| 30.09.2026 16:11 | integration | ✅ 188 из 188 | 57 с | fab3817 | [лог](logs/2026-09-30T11-11-08Z-integration-8e07.log) |  |
 | 30.09.2026 12:20 | e2e | ❌ упало 21 из 25, пропущено 3 | 40 с | 5a7d989 | [лог](logs/2026-09-30T07-20-51Z-e2e-690a.log) | отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять |
 | 30.09.2026 12:21 | e2e | ✅ 25 из 25 | 1 мин 56 с | 5a7d989 | [лог](logs/2026-09-30T07-21-39Z-e2e-868a.log) |  |
 | 30.09.2026 12:23 | e2e (частично: tests/e2e/finance.spec.ts) | ✅ 2 из 2 | 21 с | 5a7d989 | [лог](logs/2026-09-30T07-23-42Z-e2e-e206.log) |  |
@@ -4655,6 +4686,15 @@
 | 30.09.2026 15:42 | unit (частично: tests/unit/no-vendor-name.test.ts) | ✅ 1 из 1 | 3 с | 45935a7 | [лог](logs/2026-09-30T10-42-54Z-unit-0f98.log) |  |
 | 30.09.2026 15:43 | typecheck | ✅ без ошибок | 26 с | 45935a7 | [лог](logs/2026-09-30T10-43-00Z-typecheck-1675.log) |  |
 | 30.09.2026 15:43 | unit | ✅ 2495 из 2498, пропущено 3 | 1 мин 30 с | 45935a7 | [лог](logs/2026-09-30T10-43-27Z-unit-f547.log) |  |
+| 30.09.2026 16:13 | typecheck | ✅ без ошибок | 35 с | 6983bcb | [лог](logs/2026-09-30T11-13-16Z-typecheck-beaa.log) |  |
+| 30.09.2026 16:13 | lint | ✅ без ошибок | 22 с | 6983bcb | [лог](logs/2026-09-30T11-13-52Z-lint-bb64.log) |  |
+| 30.09.2026 16:14 | unit | ✅ 2593 из 2596, пропущено 3 | 1 мин 31 с | 6983bcb | [лог](logs/2026-09-30T11-14-18Z-unit-1144.log) |  |
+| 30.09.2026 16:15 | integration | ✅ 210 из 210 | 59 с | 6983bcb | [лог](logs/2026-09-30T11-15-49Z-integration-2a67.log) |  |
+| 30.09.2026 16:20 | e2e (частично: -- tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents-catalog.spec.ts) | ❌ код выхода 1 | 4 с | 6983bcb | [лог](logs/2026-09-30T11-20-02Z-e2e-4d44.log) | (ошибка вне тестов) |
+| 30.09.2026 16:20 | e2e (частично: -- tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ код выхода 1 | 4 с | 6983bcb | [лог](logs/2026-09-30T11-20-08Z-e2e-44bb.log) | (ошибка вне тестов) |
+| 30.09.2026 16:20 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ упало 12 из 78 | 4 мин 18 с | 6983bcb | [лог](logs/2026-09-30T11-20-17Z-e2e-c962.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/ai-agents-create.spec.ts tests/ui/ai-agents.spec.ts tests/ui/requests.spec.ts) | ❌ упало 8 из 78 | 3 мин 39 с | 6983bcb | [лог](logs/2026-09-30T11-24-42Z-e2e-af82.log) | свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние |
+| 30.09.2026 16:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui/requests.spec.ts tests/u | ✅ 106 из 106 | 7 мин 4 с | 6983bcb | [лог](logs/2026-09-30T11-28-47Z-e2e-0aec.log) |  |
 | 30.09.2026 16:29 | typecheck | ✅ без ошибок | 48 с | 01835a1 +5 | [лог](logs/2026-09-30T11-29-23Z-typecheck-8a1e.log) |  |
 | 30.09.2026 16:30 | lint | ❌ ошибок: 1 | 35 с | 01835a1 +5 | [лог](logs/2026-09-30T11-30-12Z-lint-2042.log) | no-useless-assignment |
 | 30.09.2026 16:30 | unit | ❌ упало 1 из 2505, пропущено 3 | 2 мин 7 с | 01835a1 +4 | [лог](logs/2026-09-30T11-30-48Z-unit-0951.log) | название поставщика менеджера каналов не видно пользователю нет слова «Channex» в текстах стойки, главной, API и бота |
@@ -4731,6 +4771,11 @@
 | 30.09.2026 17:14 | integration | ✅ 172 из 172 | 1 мин 18 с | ce76722 | [лог](logs/2026-09-30T12-14-30Z-integration-4f62.log) |  |
 | 30.09.2026 17:21 | unit | ✅ 2683 из 2686, пропущено 3 | 1 мин 25 с | 4a398f8 | [лог](logs/2026-09-30T12-21-42Z-unit-e1d1.log) |  |
 | 30.09.2026 17:23 | integration | ✅ 214 из 214 | 54 с | 4a398f8 | [лог](logs/2026-09-30T12-23-08Z-integration-1bf6.log) |  |
+| 30.09.2026 17:30 | typecheck | ❌ ошибок: 42 | 48 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-30-52Z-typecheck-6e21.log) | TS2339 |
+| 30.09.2026 17:31 | lint | ✅ без ошибок | 26 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-31-41Z-lint-1b50.log) |  |
+| 30.09.2026 17:32 | unit | ✅ 2684 из 2687, пропущено 3 | 1 мин 33 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-32-07Z-unit-3c96.log) |  |
+| 30.09.2026 17:33 | typecheck | ✅ без ошибок | 27 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-33-48Z-typecheck-5043.log) |  |
+| 30.09.2026 17:34 | integration | ✅ 220 из 220 | 1 мин 2 с | bd06cd0 +50 | [лог](logs/2026-09-30T12-34-32Z-integration-7d1d.log) |  |
 | 30.09.2026 17:30 | typecheck | ❌ ошибок: 102 | 1 мин 2 с | abe4156 +50 | [лог](logs/2026-09-30T12-30-02Z-typecheck-c92f.log) | TS2339 |
 | 30.09.2026 17:31 | lint | ✅ без ошибок | 36 с | abe4156 +50 | [лог](logs/2026-09-30T12-31-05Z-lint-d15c.log) |  |
 | 30.09.2026 17:31 | unit | ✅ 2684 из 2687, пропущено 3 | 2 мин 1 с | abe4156 +50 | [лог](logs/2026-09-30T12-31-42Z-unit-eb42.log) |  |
@@ -4763,6 +4808,10 @@
 | 30.09.2026 18:27 | unit | ✅ 2686 из 2689, пропущено 3 | 2 мин 6 с | 338bc07 | [лог](logs/2026-09-30T13-27-36Z-unit-ccba.log) |  |
 | 30.09.2026 18:29 | integration | ❌ код выхода 1 | 3 с | 338bc07 | [лог](logs/2026-09-30T13-29-43Z-integration-add8.log) |  |
 | 30.09.2026 18:30 | integration | ✅ 220 из 220 | 1 мин 19 с | 338bc07 | [лог](logs/2026-09-30T13-30-01Z-integration-0ade.log) |  |
+| 30.09.2026 18:46 | typecheck | ✅ без ошибок | 34 с | eb5e0c8 +5 | [лог](logs/2026-09-30T13-46-41Z-typecheck-9bff.log) |  |
+| 30.09.2026 18:47 | lint | ✅ без ошибок | 25 с | eb5e0c8 +5 | [лог](logs/2026-09-30T13-47-15Z-lint-9393.log) |  |
+| 30.09.2026 18:47 | unit | ✅ 2687 из 2690, пропущено 3 | 1 мин 36 с | eb5e0c8 +2 | [лог](logs/2026-09-30T13-47-41Z-unit-8618.log) |  |
+| 30.09.2026 18:49 | integration | ✅ 226 из 226 | 1 мин 1 с | eb5e0c8 +5 | [лог](logs/2026-09-30T13-49-17Z-integration-972c.log) |  |
 | 30.09.2026 18:30 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/owner-dashboard.spec.ts tests/ui/dashboard-desk.spec.ts tests/ui/today-operations.spe | ❌ упало 2 из 81 | 12 мин 29 с | 6c60419 +2 | [лог](logs/2026-09-30T13-30-55Z-e2e-4f07.log) | Guest operations audit on deployed release 6c604192: dashboard board reservations guests navigation |
 | 30.09.2026 18:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/guests-design.spec.ts --grep G3\|G7) | ✅ 2 из 2 | 41 с | 6c60419 +3 | [лог](logs/2026-09-30T13-43-45Z-e2e-0762.log) | Guest audit repeat: reveal filters through UI; unchanged timeout and assertions |
 | 30.09.2026 18:50 | integration (частично: tests/integration/guest-card.test.ts tests/integration/guest-directory.test.ts tests/integration/booking-existing-guest.test.ts tests/int | ✅ 8 из 8 | 19 с | 7cd8c88 +1 | [лог](logs/2026-09-30T13-50-42Z-integration-ae29.log) | Guest operations persistence audit on isolated PostgreSQL; synthetic seed |
@@ -4840,3 +4889,7 @@
 | 30.09.2026 23:07 | typecheck | ❌ ошибок: 1 | 28 с | 4800dfe +10 | [лог](logs/2026-09-30T18-07-50Z-typecheck-479e.log) | TS2322 |
 | 30.09.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts --workers=1) | ✅ 3 из 3 | 34 с | 4800dfe +9 | [лог](logs/2026-09-30T18-08-39Z-e2e-43d4.log) |  |
 | 01.10.2026 00:21 | unit (частично: tests/unit/deploy-server.test.ts) | ✅ 37 из 37 | 3 с | 4b25c8d | [лог](logs/2026-09-30T19-21-28Z-unit-d65c.log) |  |
+| 01.10.2026 00:25 | typecheck | ✅ без ошибок | 50 с | 4f51630 | [лог](logs/2026-09-30T19-25-33Z-typecheck-afdc.log) |  |
+| 01.10.2026 00:26 | lint | ✅ без ошибок | 25 с | 4f51630 | [лог](logs/2026-09-30T19-26-24Z-lint-b870.log) |  |
+| 01.10.2026 00:26 | unit | ❌ упало 10 из 2701, пропущено 3 | 2 мин 13 с | 4f51630 | [лог](logs/2026-09-30T19-26-50Z-unit-1c00.log) | tokens.css генерируется из design/tokens.json имена переменных прежние: ни одна var(--…) стойки не осталась без определения |
+| 01.10.2026 00:29 | integration | ✅ 227 из 227 | 58 с | 4f51630 | [лог](logs/2026-09-30T19-29-04Z-integration-b0a7.log) |  |

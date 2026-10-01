@@ -1,0 +1,25 @@
+# Модульные (unit) · 01.10.2026 20:22 Алматы · vm
+# коммит c674598 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-22-24Z-unit-86fe.json' 'tests/unit/promote-release.test.ts' 'tests/unit/guard-agent-run.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/guard-agent-run.test.ts (4 tests) 4ms
+ ✓ |unit| tests/unit/promote-release.test.ts (7 tests) 3207ms
+   ✓ scripts/ops/promote-release.sh (7)
+     ✓ обязательные проверки зелёные и владелец сказал «да»: release перематывается на коммит 495ms
+     ✓ обязательная задача красная: отказ, release не тронута 434ms
+     ✓ проверка ещё идёт или не запускалась: отказ 485ms
+     ✓ необязательная задача красная: тоже отказ: красный db не прячется за «необязательно» 433ms
+     ✓ коммит не из main: отказ: ветка выкладки не обходит main 363ms
+     ✓ перемотка назад: отказ: откат делается руками 472ms
+     ✓ без «да» владельца release не трогается, --dry-run только показывает 523ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  15:22:26
+   Duration  3.45s (tests 95%, transform 4%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-22-24Z-unit-86fe.json
+
+# код выхода 0 · 5 с

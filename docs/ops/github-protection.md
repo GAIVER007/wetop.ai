@@ -13,7 +13,7 @@
 | Restrict deletions | включить | |
 | Block force pushes | включить | ключ развёртывания дежурного агента и любой токен с записью физически не перепишут историю (`scripts/ops/guard/README.md`, §«Права ключа») |
 | Require a pull request before merging | включить, 0 обязательных ревью | изменения в `main` только через PR; ревью людьми при одном владельце не требуем |
-| Require status checks to pass | включить, `Require branches to be up to date` выключить | обязательные: `lint · typecheck · unit · главная`, `стойка на синтетическом API (tests/ui)`, `ИИ-помощник и продавец · pytest (apps/ai-seller)`. Задачу `миграции · integration · e2e на чистом PostgreSQL 16` в обязательные не ставить, пока минуты Actions не восстановлены (`scripts/ops/ci-runner/README.md`): иначе ни один PR не сольётся |
+| Require status checks to pass | включить, `Require branches to be up to date` выключить | обязательные: `lint · typecheck · unit · главная`, `стойка на синтетическом API (tests/ui)`, `ИИ-помощник и продавец · pytest (apps/ai-seller)`. Задачу `миграции · integration · e2e на чистом PostgreSQL 16` добавить в обязательные после первого зелёного прогона на `main`: минуты Actions с 01.10 снова есть, а её окружение приведено к локальному стенду (разбор 01.10, п. 8); до зелёного прогона она в обязательных заблокировала бы все PR |
 | Bypass list | пусто | владелец тоже идёт через PR; в срочном случае правило выключается на минуту руками, и это видно в журнале |
 
 Ruleset, а не классическая Branch protection: он показывает, кто и когда его обходил.

@@ -63,6 +63,10 @@ jobs:
           POSTGRES_USER: pms
           POSTGRES_PASSWORD: pms
           POSTGRES_DB: postgres
+          # Как локальный стенд (scripts/ops/local-db.sh): вход по trust, роль wetop_app входит без пароля.
+          # Тесты rls-isolation и integration-tables-role подставляют wetop_app в DATABASE_URL без пароля;
+          # с паролем на раннере они падали «SASL: client password must be a string» (разбор 01.10.2026, п. 8).
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U pms"
@@ -89,6 +93,22 @@ jobs:
         run: scripts/ops/check-migrations.sh
       # Дальше — тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
       - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
+      # Схема public тоже заполняется миграциями, как на локальном стенде: rls-isolation и rls-credential-grants ходят
+      # в базу сырым pg по DATABASE_URL и ждут таблицы в current_schema(); с пустой public они падали
+      # «relation … does not exist» на каждом PR с 30.09 (разбор 01.10.2026, п. 8). DIRECT_URL задан явно:
+      # prisma.config.ts предпочитает его и иначе дочитал бы из .env (здесь его нет, но правило то же, что в local-db.sh)
+      - name: Миграции в public, как на локальном стенде
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          DIRECT_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+        run: npm run migrate:deploy -w @pms/database
+      # И вымышленный объект в public (ADR-010), как делает local-db.sh после test:schema: rls-isolation и
+      # integration-tables-role берут объект и организацию из public, без них «Cannot read properties of undefined»
+      - name: Сид объекта в public, как на локальном стенде
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          DATABASE_SCHEMA: ''
+        run: npx tsx tests/tools/seed-local.ts
       - name: Интеграционные тесты
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev

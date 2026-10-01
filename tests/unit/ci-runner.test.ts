@@ -75,6 +75,19 @@ describe('проверки GitHub после разбора 01.10.2026', () => {
     expect(bot).toMatch(/requirements\.txt/);
   });
 
+  // Задача db на раннере GitHub была красной на каждом PR с 30.09: три файла интеграционных тестов (rls-isolation,
+  // rls-credential-grants, integration-tables-role) ходят в базу сырым pg по DATABASE_URL, как локальный стенд
+  // (scripts/ops/local-db.sh): схема public заполнена migrate:deploy, вход 127.0.0.1 по trust, wetop_app без пароля.
+  // В CI public была пустой, а postgres требовал пароль: «relation does not exist» и «SASL: client password».
+  it('задача db повторяет локальный стенд: миграции в public и вход без пароля', () => {
+    const db = withoutComments(job('db'));
+    expect(db).toMatch(/POSTGRES_HOST_AUTH_METHOD: trust/);
+    expect(db).toMatch(/migrate:deploy -w @pms\/database/);
+    expect(db).toMatch(/tests\/tools\/seed-local\.ts/);
+    expect(db.indexOf('migrate:deploy')).toBeLessThan(db.indexOf('seed-local.ts'));
+    expect(db.indexOf('seed-local.ts')).toBeLessThan(db.indexOf('--project integration'));
+  });
+
   it('код из форка на свой раннер не попадает', () => {
     for (const name of selfHosted) {
       const text = withoutComments(job(name));

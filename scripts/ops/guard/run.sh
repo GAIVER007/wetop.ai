@@ -91,7 +91,7 @@ while true; do
 
   # Счётчик запусков за сутки UTC; файлы прошлых дней убираются сами
   today="$(date -u +%Y-%m-%d)"
-  find "$STATE" -name 'runs-*' -mtime +2 -delete 2>/dev/null || true
+  find "$STATE" \( -name 'runs-*' -o -name 'capped-*' \) -mtime +2 -delete 2>/dev/null || true
   runs="$(cat "$STATE/runs-$today" 2>/dev/null || echo 0)"
   if [ "$runs" -ge "$GUARD_RUNS_PER_DAY" ]; then
     say "суточный предел вызовов модели ($GUARD_RUNS_PER_DAY) исчерпан, до полуночи UTC агент не зовётся"

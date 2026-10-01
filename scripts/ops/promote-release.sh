@@ -51,7 +51,7 @@ git merge-base --is-ancestor "$current" "$target" || { say "origin/$BRANCH ($(gi
 # gh отдаёт по одному объекту check-run на строку (--jq по страницам), curl: одну страницу целиком.
 checks_json() {
   if command -v gh >/dev/null 2>&1; then
-    gh api --paginate "repos/$REPO/commits/$target/check-runs?per_page=100" --jq '.check_runs[]'
+    gh api --paginate "repos/$REPO/commits/$target/check-runs?per_page=100" --jq '.check_runs[] | @json'
   elif [ -n "${GITHUB_TOKEN:-}" ]; then
     # Токен через --config из stdin: аргументы процесса видны всем через ps
     printf 'header = "Authorization: Bearer %s"\n' "$GITHUB_TOKEN" |
@@ -64,12 +64,20 @@ checks_json() {
 verdict="$(checks_json | REQUIRED="$REQUIRED" node -e '
   let raw = "";
   process.stdin.on("data", (c) => (raw += c)).on("end", () => {
+    // Один документ (curl, страница целиком или массив), иначе поток объектов: по строке или с переносами
     let runs = [];
     try {
       const whole = JSON.parse(raw);
       runs = Array.isArray(whole) ? whole : whole.check_runs ?? [];
     } catch {
-      for (const line of raw.split("\n")) if (line.trim()) runs.push(JSON.parse(line));
+      let depth = 0, start = -1, inString = false, escaped = false;
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        if (inString) { if (escaped) escaped = false; else if (ch === "\\") escaped = true; else if (ch === "\"") inString = false; continue; }
+        if (ch === "\"") inString = true;
+        else if (ch === "{") { if (depth++ === 0) start = i; }
+        else if (ch === "}" && --depth === 0 && start >= 0) { runs.push(JSON.parse(raw.slice(start, i + 1))); start = -1; }
+      }
     }
     const required = process.env.REQUIRED.split(",").map((s) => s.trim()).filter(Boolean);
     const byName = new Map();

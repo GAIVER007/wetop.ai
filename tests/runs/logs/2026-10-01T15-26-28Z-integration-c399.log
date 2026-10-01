@@ -1,0 +1,114 @@
+# Интеграционные (integration) · 01.10.2026 20:26 Алматы · vm
+# коммит c674598 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 2
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-26-28Z-integration-c399.json' 'tests/integration/rls-isolation.test.ts' 'tests/integration/rls-credential-grants.test.ts' 'tests/integration/integration-tables-role.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/rls-isolation.test.ts (6 tests | 4 failed) 242ms
+   ❯ RLS: организации разделены в самой базе (integration, DATABASE_URL required) (5)
+     ✓ каждая таблица схемы названа: арендаторская под RLS или осознанно без него 9ms
+     × чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои 6ms
+     × гость чужой организации не виден своей; без переменной не видно ничего 3ms
+     × записать бронь в объект чужой организации нельзя — отказ базы 2ms
+     × служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше 2ms
+   ✓ RLS: служебный доступ внутри запроса организации (1)
+     ✓ withServiceDatabase уводит запрос со служебной роли: чужой объект виден, в обычном запросе — нет 190ms
+ ❯ |integration| tests/integration/rls-credential-grants.test.ts (8 tests | 1 failed) 66ms
+   ❯ RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) (8)
+     ✓ password_resets: wetop_app не может ни читать, ни писать 12ms
+     ✓ email_verifications: wetop_app не может ни читать, ни писать 4ms
+     ✓ wizard_sessions: wetop_app не может ни читать, ни писать 3ms
+     ✓ wizard_events: wetop_app не может ни читать, ни писать 3ms
+     ✓ wizard_surveys: wetop_app не может ни читать, ни писать 5ms
+     ✓ users: только id, email, name, status, email_verified_at и только чтение 13ms
+     ✓ platform_admins: читаются только user_id и revoked_at; писать нельзя — выдать себе права главного администратора нечем 5ms
+     × внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит 5ms
+[Nest] 10504  - 10/01/2026, 3:26:33 PM    WARN [InboundBookingsService] ревизия role-q225-muposw9j (BDC-role-q225-muposw9j) отклонена: Комната 1 брони BDC-role-q225-muposw9j: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+[Nest] 10504  - 10/01/2026, 3:26:33 PM    WARN [InboundBookingsService] ревизия role-q225-muposw9j (BDC-role-q225-muposw9j) отклонена: Комната 1 брони BDC-role-q225-muposw9j: room_type_id rt-none не сопоставлен с категорией (booking_unmapped_room)
+ ✓ |integration| tests/integration/integration-tables-role.test.ts (6 tests) 475ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rls-credential-grants.test.ts > RLS: гранты wetop_app на учётные данные (integration, DATABASE_URL required) > внешний ключ audit_logs.user_id проверяется и без прав на users: запись журнала под организацией проходит
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/integration/rls-credential-grants.test.ts:151:20
+    149|         const organizationId = (
+    150|           await client.query<{ id: string }>(`SELECT id FROM organizat…
+    151|         ).rows[0]!.id;
+       |                    ^
+    152|         const written = await asApp(
+    153|           `INSERT INTO audit_logs (id, user_id, entity_type, entity_id…
+ ❯ inRollback tests/integration/rls-credential-grants.test.ts:36:9
+ ❯ tests/integration/rls-credential-grants.test.ts:143:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > чужая организация не видит ни одной строки объекта ни в одной таблице; своя — видит свои
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:125
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                                                                                                                             ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:117:30
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:116:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > гость чужой организации не виден своей; без переменной не видно ничего
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:125
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                                                                                                                             ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:137:35
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:136:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > записать бронь в объект чужой организации нельзя — отказ базы
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:125
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                                                                                                                             ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:152:35
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:151:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |integration| tests/integration/rls-isolation.test.ts > RLS: организации разделены в самой базе (integration, DATABASE_URL required) > служебная роль видит объект целиком — фоновые циклы и вебхуки работают как раньше
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ seedTwoOrganizations tests/integration/rls-isolation.test.ts:64:125
+     62|     const own = randomUUID();
+     63|     const other = randomUUID();
+     64|     const property = (await client.query<{ id: string }>(`SELECT id FR…
+       |                                                                                                                             ^
+     65|     await client.query(`INSERT INTO organizations (id, name) VALUES ($…
+     66|     await client.query(`UPDATE properties SET organization_id = $1 WHE…
+ ❯ tests/integration/rls-isolation.test.ts:170:7
+ ❯ inRollback tests/integration/rls-isolation.test.ts:40:7
+ ❯ tests/integration/rls-isolation.test.ts:169:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  5 failed | 15 passed (20)
+   Start at  15:26:29
+   Duration  4.13s (transform 46%, tests 29%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-26-28Z-integration-c399.json
+
+# код выхода 1 · 5 с

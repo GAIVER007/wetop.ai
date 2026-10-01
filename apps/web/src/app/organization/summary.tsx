@@ -10,8 +10,8 @@ import { pluralRu } from '../../lib/plural';
 
 /**
  * «По филиалам» (Platform P3, ADR-130; `ARCHITECTURE.md` §10): показатели «Аналитики → Обзор» по каждому филиалу за
- * период и итог. Деньги итога — по валютам: курса в отчётную валюту нет (Q-237), складывать тенге с дирхамами нельзя;
- * занятость итога — взвешенно по фонду. Готовые отрезки — ссылки, как в «Аналитике».
+ * период и итог. Деньги итога, по валютам: курса в отчётную валюту нет (Q-237), складывать тенге с дирхамами нельзя;
+ * занятость итога, взвешенно по фонду. Готовые отрезки, ссылки, как в «Аналитике».
  */
 const PRESETS = PERIOD_PRESETS.filter((p) => p.id !== 'yesterday');
 
@@ -27,12 +27,12 @@ export function SummarySkeleton() {
 const href = (preset: string) => (preset === 'month' ? '/organization' : `/organization?period=${preset}`);
 const days = (from: string, to: string) =>
   Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
-/** Подпись периода — как полоса «Аналитики» (`rangeCaption`), без импорта клиентского модуля в серверный */
+/** Подпись периода, как полоса «Аналитики» (`rangeCaption`), без импорта клиентского модуля в серверный */
 const caption = (from: string, to: string) => {
   const text =
     from === to
       ? displayDate(from, 'full')
-      : `${displayDate(from)} — ${displayDate(to)}, ${pluralRu(days(from, to), ['день', 'дня', 'дней'])}`;
+      : `${displayDate(from)}, ${displayDate(to)}, ${pluralRu(days(from, to), ['день', 'дня', 'дней'])}`;
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
@@ -101,7 +101,7 @@ export async function BranchesSummary({ period }: { period: ResolvedPeriod }) {
                 </>
               ) : (
                 <td colSpan={7} className="muted">
-                  Объекта нет — показателей нет
+                  Объекта нет: показателей нет
                 </td>
               )}
             </tr>
@@ -145,7 +145,7 @@ export async function BranchesSummary({ period }: { period: ResolvedPeriod }) {
       <p className="company-note">
         {multiCurrency
           ? 'Филиалы в разных валютах: деньги итога показаны по каждой валюте отдельно, курса пересчёта в отчётную валюту пока нет.'
-          : 'Итог — сумма по филиалам; загрузка итога взвешена по фонду. Те же числа у каждого филиала — в «Аналитике» после его открытия.'}
+          : 'Итог: сумма по филиалам, загрузка итога взвешена по фонду. Те же числа у каждого филиала есть в «Аналитике» после его открытия.'}
       </p>
     </Panel>
   );

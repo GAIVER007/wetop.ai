@@ -43,7 +43,7 @@ beforeAll(async () => {
       return { access: 'active', status: 'ACTIVE', activeUntil: null, daysLeft: null };
     }),
   };
-  // подпись и варианты переключателя филиала (Platform P3, ADR-130) — из структуры организации
+  // подпись и варианты переключателя филиала (Platform P3, ADR-130), из структуры организации
   const organization = {
     workspace: vi.fn(async () => ({
       business: { id: 'b-1', name: 'Хостел' },
@@ -87,7 +87,7 @@ describe('GET /auth/me — что открыто организации воше
       businessId: null,
       locationId: null,
       vertical: null,
-      // Platform P3: имена текущего Business и филиала и из чего выбирать — без отдельного запроса стойки
+      // Platform P3: имена текущего Business и филиала и из чего выбирать, без отдельного запроса стойки
       business: { id: 'b-1', name: 'Хостел' },
       location: { id: 'l-1', name: 'Хостел' },
       options: [{ businessId: 'b-1', businessName: 'Хостел', locationId: 'l-1', locationName: 'Хостел' }],

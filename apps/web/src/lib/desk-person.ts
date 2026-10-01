@@ -26,7 +26,7 @@ export interface DeskShell {
   tourKey: string | null;
   /** Пробный срок вышел или организация в «только чтение» (Q-144 — Б, ADR-102): полоса над экраном */
   readOnly: boolean;
-  /** Текущий Business и филиал и из чего выбирать (Platform P3, ADR-130); старый API или сбой — `null`, подписи нет */
+  /** Текущий Business и филиал и из чего выбирать (Platform P3, ADR-130); старый API или сбой, `null`, подписи нет */
   workspace: Pick<WorkspaceContext, 'business' | 'location' | 'options'> | null;
 }
 
@@ -88,7 +88,7 @@ type MeLike = Parameters<typeof deskAccessOf>[0] & {
   context?: Partial<Pick<WorkspaceContext, 'business' | 'location' | 'options'>> | null;
 };
 
-/** Подпись и варианты переключателя из `/auth/me`; поля нет (старый API) — подписи нет */
+/** Подпись и варианты переключателя из `/auth/me`; поля нет (старый API), подписи нет */
 export function workspaceOf(context: MeLike['context']): DeskShell['workspace'] {
   if (!context || !Array.isArray(context.options)) return null;
   return { business: context.business ?? null, location: context.location ?? null, options: context.options };

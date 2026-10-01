@@ -15,8 +15,8 @@ export interface BranchActionResult {
 const FIELDS = ['name', 'address', 'phone', 'email', 'timezone', 'currency'] as const;
 
 /**
- * Новый филиал (Platform P3, ADR-130): проверка — той же функцией домена, что у API, поэтому причина одна и стоит у
- * поля; API проверяет ещё раз (владелец, «только чтение», тёзка — 409 с полем). Введённое при отказе не теряется.
+ * Новый филиал (Platform P3, ADR-130): проверка, той же функцией домена, что у API, поэтому причина одна и стоит у
+ * поля; API проверяет ещё раз (владелец, «только чтение», тёзка, 409 с полем). Введённое при отказе не теряется.
  */
 export async function createBranchAction(
   prev: BranchActionResult | null,

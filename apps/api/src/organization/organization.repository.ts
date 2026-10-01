@@ -6,7 +6,7 @@ import { PrismaService } from '../database/prisma.provider';
 
 /**
  * Структура организации вошедшего (Platform P3, ADR-130; DATA_MODEL §18): бизнесы и их филиалы с объектами.
- * Только действующие строки — архивный филиал не выбирается указателем (`auth/scope.ts`), поэтому и в списке его нет.
+ * Только действующие строки, архивный филиал не выбирается указателем (`auth/scope.ts`), поэтому и в списке его нет.
  */
 export interface BranchRow {
   id: string;
@@ -18,7 +18,7 @@ export interface BranchRow {
   timezone: string;
   currency: string;
   createdAt: Date;
-  /** Объект филиала; `null` — филиал без объекта (у Hospitality так не бывает, но модель это допускает) */
+  /** Объект филиала; `null`, филиал без объекта (у Hospitality так не бывает, но модель это допускает) */
   property: { id: string; name: string } | null;
 }
 
@@ -38,11 +38,11 @@ export interface OrganizationStructure {
 
 export interface OrganizationRepository {
   structure(organizationId: string): Promise<OrganizationStructure | null>;
-  /** Есть ли уже филиал с таким названием (без учёта регистра) — тёзки переключатель не различит */
+  /** Есть ли уже филиал с таким названием (без учёта регистра), тёзки переключатель не различит */
   namesake(organizationId: string, name: string): Promise<boolean>;
   /**
-   * Новый филиал — сразу в цепочке Business → Location → Property одной транзакцией (`createPropertyInChain`:
-   * ранний Business HOSPITALITY организации или новый с её именем). Журнал — той же транзакцией.
+   * Новый филиал, сразу в цепочке Business → Location → Property одной транзакцией (`createPropertyInChain`:
+   * ранний Business HOSPITALITY организации или новый с её именем). Журнал, той же транзакцией.
    */
   createBranch(organizationId: string, input: BranchInput): Promise<BranchRow>;
 }

@@ -149,7 +149,7 @@ describe('раздел «Платформа» — только главный а
         createdAt: '2026-09-25T00:00:00.000Z',
         members: 2,
         owners: ['vladelec@example.invalid'],
-        // структура партнёра — счётчики, без содержимого филиалов (Platform P3)
+        // структура партнёра, счётчики, без содержимого филиалов (Platform P3)
         businesses: 1,
         locations: 2,
         aiSeller: { access: 'off', status: null, activeUntil: null, daysLeft: null, note: null, updatedAt: null },

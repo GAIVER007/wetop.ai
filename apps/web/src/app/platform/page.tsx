@@ -109,7 +109,7 @@ async function Organizations({ selected }: { selected: string }) {
                     <Badge tone={status.tone}>{status.label}</Badge>
                   </td>
                   <td>{o.members}</td>
-                  {/* структура партнёра — счётчики (ARCHITECTURE.md §17, Platform P3); старый API их не присылает */}
+                  {/* структура партнёра, счётчики (ARCHITECTURE.md §17, Platform P3); старый API их не присылает */}
                   <td data-testid="platform-structure">
                     {o.businesses === undefined || o.locations === undefined
                       ? '—'

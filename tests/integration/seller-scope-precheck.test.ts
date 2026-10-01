@@ -13,9 +13,9 @@ const url = process.env.DATABASE_URL;
 /**
  * SA2.5, миграция 035 (expand): предпроверка однозначности перед переводом рантайма на agent_id (plans/…sa25 §10 п. 3).
  * Цепочка `seller_profile → Organization → legacy Seller Agent → Business → Location`: для каждого профиля ровно один
- * однозначный целевой агент и один филиал. Любая неоднозначность останавливает миграцию — Location по `created_at`, названию
+ * однозначный целевой агент и один филиал. Любая неоднозначность останавливает миграцию, Location по `created_at`, названию
 
- * Схема здесь — ПОСЛЕ сужения (039): у профиля обязателен агент, поэтому «профиль без агента» и «профиль организации без участников»
+ * Схема здесь, ПОСЛЕ сужения (039): у профиля обязателен агент, поэтому «профиль без агента» и «профиль организации без участников»
  * невозможны как данные; их проверки остаются в функции (она идёт и по схеме шага «расширить») и доказаны в ветке до сужения.
  * или догадке не выбирается. Здесь проверяются функции `seller_scope_precheck(org)` и `seller_scope_assert(org)`, которые
  * миграция вызывает по всей базе; тесты сужают их одной организацией, чтобы соседние данные не мешали.
@@ -111,7 +111,7 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     expect(agent).toEqual({ name: 'Айгерим', lifecycle: 'active', locationId: org.locations[0] });
   });
 
-  it('backfill: рабочий агент-черновик с филиалом и принятым профилем становится активным; без принятого профиля — остаётся', async () => {
+  it('backfill: рабочий агент-черновик с филиалом и принятым профилем становится активным; без принятого профиля, остаётся', async () => {
     const accepted = await newOrg('черновик принят');
     await db.sellerAgent.create({ data: { id: accepted.id, organizationId: accepted.id, createdBy: accepted.user!, name: 'Продавец', locationId: accepted.locations[0]! } });
     await db.sellerProfile.create({
@@ -135,7 +135,7 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     await expect(assertScope(org.id)).rejects.toThrow(/orgs_with_many_locations/);
   });
 
-  it('организация с рабочим агентом, но без участников: некому быть автором — проверка красная; профиль без автора не вставляется', async () => {
+  it('организация с рабочим агентом, но без участников: некому быть автором, проверка красная; профиль без автора не вставляется', async () => {
     const org = await newOrg('без участников', { member: false });
     await expect(profile(org.id)).rejects.toThrow(); // агента триггер не заведёт, а agent_id теперь NOT NULL
     const author = await db.user.create({ data: { id: randomUUID(), email: `${randomUUID()}@example.invalid` } });
@@ -145,7 +145,7 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     await expect(assertScope(org.id)).rejects.toThrow(/orgs_without_actor/);
   });
 
-  it('профиль привязан к чужому по смыслу агенту (не legacy) — profiles_wrong_agent', async () => {
+  it('профиль привязан к чужому по смыслу агенту (не legacy), profiles_wrong_agent', async () => {
     const org = await newOrg('не тот агент');
     const other = await db.sellerAgent.create({
       data: { organizationId: org.id, createdBy: org.user!, name: 'Второй', locationId: org.locations[0]! },
@@ -156,7 +156,7 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     await expect(assertScope(org.id)).rejects.toThrow(/profiles_wrong_agent/);
   });
 
-  it('рабочий агент без филиала у организации без объектов — legacy_agents_without_location', async () => {
+  it('рабочий агент без филиала у организации без объектов, legacy_agents_without_location', async () => {
     const org = await newOrg('без объектов', { locations: 0 });
     await db.sellerAgent.create({ data: { id: org.id, organizationId: org.id, createdBy: org.user!, name: 'Продавец' } });
     const found = await report(org.id);
@@ -164,7 +164,7 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     await expect(assertScope(org.id)).rejects.toThrow(/legacy_agents_without_location/);
   });
 
-  it('backfill: агент без филиала получает единственный возможный; при двух филиалах — не получает', async () => {
+  it('backfill: агент без филиала получает единственный возможный; при двух филиалах, не получает', async () => {
     const one = await newOrg('backfill один');
     await db.sellerAgent.create({ data: { id: one.id, organizationId: one.id, createdBy: one.user!, name: 'Продавец' } });
     const two = await newOrg('backfill два', { locations: 2 });
@@ -175,13 +175,13 @@ describe.skipIf(!url)('SA2.5: предпроверка миграции 035 (int
     expect((await agentOf(two.id))?.locationId).toBeNull();
   });
 
-  it('seller_agent_bind_location: перенесённому агенту — единственный филиал; при двух, у агента SA2 и уже занятого — нет', async () => {
+  it('seller_agent_bind_location: перенесённому агенту, единственный филиал; при двух, у агента SA2 и уже занятого, нет', async () => {
     const bind = async (agent: string) => (await db.$queryRawUnsafe<Array<{ r: string | null }>>('SELECT seller_agent_bind_location($1::uuid)::text AS r', agent))[0]!.r;
     const one = await newOrg('bind один');
     await db.sellerAgent.create({ data: { id: one.id, organizationId: one.id, createdBy: one.user!, name: 'Продавец' } });
     expect(await bind(one.id)).toBe(one.locations[0]);
     expect((await agentOf(one.id))?.locationId).toBe(one.locations[0]);
-    expect(await bind(one.id)).toBe(one.locations[0]); // повтор — то же
+    expect(await bind(one.id)).toBe(one.locations[0]); // повтор, то же
 
     const two = await newOrg('bind два', { locations: 2 });
     await db.sellerAgent.create({ data: { id: two.id, organizationId: two.id, createdBy: two.user!, name: 'Продавец' } });

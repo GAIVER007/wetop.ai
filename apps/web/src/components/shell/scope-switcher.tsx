@@ -4,9 +4,9 @@ import type { DeskShell } from '../../lib/desk-person';
 import { switchScopeAction } from '../../app/actions/scope';
 
 /**
- * Переключатель филиала (Platform P3, ADR-130; Q-215): у организации с одним филиалом — статичная подпись
- * (филиал строкой, бизнес второй строкой), без списка; при двух и больше — родной `<select>` (компонент `Select` из `ui.tsx`, 38 px),
- * смена значения сразу отправляет форму — выбор кладётся в куку серверным действием, и макет перечитывается.
+ * Переключатель филиала (Platform P3, ADR-130; Q-215): у организации с одним филиалом, статичная подпись
+ * (филиал строкой, бизнес второй строкой), без списка; при двух и больше, родной `<select>` (компонент `Select` из `ui.tsx`, 38 px),
+ * смена значения сразу отправляет форму, выбор кладётся в куку серверным действием, и макет перечитывается.
  * Новых компонентов нет: подпись и поле формы из реестра DESIGN.md §8.
  */
 export function ScopeSwitcher({ workspace }: { workspace: NonNullable<DeskShell['workspace']> }) {
@@ -15,7 +15,7 @@ export function ScopeSwitcher({ workspace }: { workspace: NonNullable<DeskShell[
   const [pending, start] = useTransition();
   const { business, location, options } = workspace;
   if (options.length === 0) return null;
-  // DESIGN.md §14: подпись не склеивается точкой — филиал строкой, бизнес — второй строкой
+  // DESIGN.md §14: подпись не склеивается точкой, филиал строкой, бизнес, второй строкой
   if (options.length === 1) {
     return (
       <p className="workspace-scope" data-testid="scope-label">
@@ -34,7 +34,7 @@ export function ScopeSwitcher({ workspace }: { workspace: NonNullable<DeskShell[
       data-testid="scope-switcher"
     >
       <label htmlFor={id}>Филиал</label>
-      {/* ключ — текущий выбор: после «Открыть» в таблице макет перечитан, и поле должно показать новый филиал */}
+      {/* ключ: текущий выбор; после «Открыть» в таблице макет перечитан, и поле должно показать новый филиал */}
       <select
         key={current}
         id={id}

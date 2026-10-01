@@ -4,12 +4,12 @@ import { parseBranchInput, summarizeBranches } from './branches';
 
 /**
  * Филиалы организации (Platform P3, ADR-130; план `plans/platform-p3-branches-2026-10-01.md` §3): разбор формы «Добавить
- * филиал» одной функцией для стойки и API и итог сводки по филиалам — суммы по валютам, занятость взвешенно по фонду.
+ * филиал» одной функцией для стойки и API и итог сводки по филиалам, суммы по валютам, занятость взвешенно по фонду.
  */
 describe('parseBranchInput', () => {
   const defaults = { timezone: 'Asia/Almaty', currency: 'KZT' };
 
-  it('название обязательно, лишние пробелы схлопываются, остальное — умолчания первого филиала', () => {
+  it('название обязательно, лишние пробелы схлопываются, остальное, умолчания первого филиала', () => {
     const parsed = parseBranchInput({ name: '  Luxx   Astana ' }, defaults);
     expect(parsed).toEqual({
       ok: true,
@@ -24,7 +24,7 @@ describe('parseBranchInput', () => {
     });
   });
 
-  it('пустое название и название из одного знака — ошибка у поля', () => {
+  it('пустое название и название из одного знака, ошибка у поля', () => {
     expect(parseBranchInput({ name: '' }, defaults)).toEqual({
       ok: false,
       field: 'name',
@@ -34,7 +34,7 @@ describe('parseBranchInput', () => {
     expect(parseBranchInput({ name: 'x'.repeat(201) }, defaults)).toMatchObject({ ok: false, field: 'name' });
   });
 
-  it('часовой пояс — только настоящий IANA, валюта — три латинские буквы в любом регистре', () => {
+  it('часовой пояс, только настоящий IANA, валюта, три латинские буквы в любом регистре', () => {
     expect(parseBranchInput({ name: 'Marina', timezone: 'Asia/Dubai', currency: 'aed' }, defaults)).toMatchObject({
       ok: true,
       value: { timezone: 'Asia/Dubai', currency: 'AED' },
@@ -42,16 +42,16 @@ describe('parseBranchInput', () => {
     expect(parseBranchInput({ name: 'Marina', timezone: 'Mars/Olympus' }, defaults)).toEqual({
       ok: false,
       field: 'timezone',
-      reason: 'Часовой пояс — в виде Asia/Almaty',
+      reason: 'Часовой пояс, в виде Asia/Almaty',
     });
     expect(parseBranchInput({ name: 'Marina', currency: 'тенге' }, defaults)).toEqual({
       ok: false,
       field: 'currency',
-      reason: 'Валюта — три латинские буквы, например KZT',
+      reason: 'Валюта, три латинские буквы, например KZT',
     });
   });
 
-  it('телефон и почта — как у объекта: 5–15 цифр и name@example.kz', () => {
+  it('телефон и почта, как у объекта: 5–15 цифр и name@example.kz', () => {
     expect(parseBranchInput({ name: 'Marina', phone: '+7 701 000 00 00', email: 'Marina@Example.kz' }, defaults)).toMatchObject({
       ok: true,
       value: { phone: '+7 701 000 00 00', email: 'marina@example.kz' },
@@ -64,7 +64,7 @@ describe('parseBranchInput', () => {
     });
   });
 
-  it('не объект — нечего сохранять', () => {
+  it('не объект, нечего сохранять', () => {
     expect(parseBranchInput(null, defaults)).toMatchObject({ ok: false });
   });
 });
@@ -104,7 +104,7 @@ const period = (input: {
 };
 
 describe('summarizeBranches', () => {
-  it('итог: ночи и заезды суммой, занятость — взвешенно по фонду, деньги — по валютам, ADR при одной валюте', () => {
+  it('итог: ночи и заезды суммой, занятость, взвешенно по фонду, деньги, по валютам, ADR при одной валюте', () => {
     const a = period({ units: 10, occupied: 5, accommodation: 100_000n, payments: 50_000n });
     const b = period({ units: 30, occupied: 30, accommodation: 300_000n });
     const total = summarizeBranches([
@@ -144,7 +144,7 @@ describe('summarizeBranches', () => {
     ]);
   });
 
-  it('пусто — нули и ни одной валюты', () => {
+  it('пусто, нули и ни одной валюты', () => {
     expect(summarizeBranches([])).toEqual({
       branches: 0,
       occupancy: { unitNights: 0, occupiedNights: 0, blockedNights: 0, freeNights: 0, percent: 0 },

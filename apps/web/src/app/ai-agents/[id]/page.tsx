@@ -25,7 +25,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
   }
   if (!agent) {
     return (
-      <Page title="AI-продавец" crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}>
+      <Page title="AI-продавец" crumbs={<Link href="/ai-agents">ИИ-продавцы</Link>}>
         <LoadError testId="agent-error" title="Не удалось загрузить агента" {...loadErrorProps(failure)} />
       </Page>
     );
@@ -38,7 +38,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
     <Page
       title={agent.name}
       subtitle={placement(agent.business, agent.location)}
-      crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}
+      crumbs={<Link href="/ai-agents">ИИ-продавцы</Link>}
       width="wide"
     >
       <Stack>

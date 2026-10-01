@@ -1,4 +1,5 @@
 'use client';
+import { RoleAccess } from './role-access';
 import { useState, useTransition } from 'react';
 import {
   MEMBERSHIP_ROLES,
@@ -27,7 +28,9 @@ export function TeamSection({
   role,
   invites,
   members,
+  workspace = false,
 }: {
+  workspace?: boolean;
   role: MembershipRole;
   invites: AuthInvite[];
   members: AuthMember[];
@@ -61,15 +64,17 @@ export function TeamSection({
   }
 
   const who = (m: AuthMember) => m.name ?? m.email;
-  const waiting = invites.filter((i) => !invited.some((n) => n.email === i.email));
+  const waiting = invites;
 
   return (
     <section className="login-invites" aria-labelledby="team-heading" data-testid="team">
-      <h3 id="team-heading">Сотрудники</h3>
+      <h2 id="team-heading">{workspace ? 'Добавить сотрудника' : 'Сотрудники'}</h2>
       <p className="muted">
-        Ссылка-приглашение действует 7 дней. Роль определяет, что человек видит и может на стойке.
+        Отправьте приглашение на почту. Сотрудник сам задаст пароль и войдёт в вашу организацию.
+        Ссылка действует 7 дней.
       </p>
       <form
+        className="team-invite-form"
         onSubmit={(e) => {
           e.preventDefault();
           submitInvite();
@@ -95,6 +100,7 @@ export function TeamSection({
               name="inviteRole"
               // подпись вокруг списка добавила бы к имени выбранную роль: имя задаём явно, видимое слово в нём есть
               aria-label="Роль приглашённого"
+              aria-describedby="team-role-help"
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value as InviteRole)}
             >
@@ -110,6 +116,15 @@ export function TeamSection({
             Управляющий приглашает администраторов; управляющих приглашает владелец.
           </p>
         )}
+        <p className="team-role-help" id="team-role-help">
+          {inviteRole === 'MANAGER'
+            ? 'Управляющий: работа с гостями, номерной фонд, тарифы, финансы, интеграции и приглашение администраторов. Права владельца не передаются.'
+            : 'Администратор: брони, гости, заезды и выезды, приём оплат и просмотр отчётов. Без изменения тарифов, настроек и управления сотрудниками.'}
+        </p>
+        <details className="team-access" open>
+          <summary>Что будет доступно сотруднику</summary>
+          <RoleAccess role={inviteRole} />
+        </details>
         {error && (
           <p className="alert" role="alert">
             {error}
@@ -120,6 +135,7 @@ export function TeamSection({
         </button>
       </form>
 
+      <h2 className="team-list-heading">В команде · {members.length}</h2>
       <ul className="login-invite-list" data-testid="member-list" aria-label="Люди организации">
         {members.map((m) => (
           <li key={m.userId} className="login-team-row" data-testid="member-row">
@@ -131,6 +147,10 @@ export function TeamSection({
                 {m.you ? ' — это вы' : ''}
               </span>
             </span>
+            <details className="team-access">
+              <summary>Посмотреть права</summary>
+              <RoleAccess role={m.role} />
+            </details>
             {m.roleEditable && (
               <Select
                 aria-label={`Роль: ${who(m)}`}
@@ -164,23 +184,24 @@ export function TeamSection({
         ))}
       </ul>
 
-      {invited.length + waiting.length > 0 ? (
+      <h2 className="team-list-heading">Ожидают принятия · {waiting.length}</h2>
+      {waiting.length > 0 ? (
         <ul className="login-invite-list" data-testid="invite-list" aria-label="Приглашения">
-          {invited.map((i) => (
-            <li key={`new-${i.email}`}>
-              <b>{i.email}</b>{' '}
-              <span className="muted">{MEMBERSHIP_ROLES[i.role]}, приглашение отправлено</span>
-            </li>
-          ))}
           {waiting.map((i) => (
             <li key={i.id} className="login-team-row">
               <span className="login-team-row__who">
                 <b>{i.email}</b>{' '}
                 <span className="muted">
-                  {MEMBERSHIP_ROLES[i.role ?? 'STAFF']}, ждёт ответа до{' '}
+                  {MEMBERSHIP_ROLES[i.role ?? 'STAFF']},{' '}
+                  {invited.some((n) => n.email === i.email) ? 'приглашение отправлено, ' : ''}ждёт
+                  ответа до{' '}
                   <time dateTime={i.expiresAt}>{displayDate(i.expiresAt.slice(0, 10))}</time>
                 </span>
               </span>
+              <details className="team-access">
+                <summary>Посмотреть права приглашённого</summary>
+                <RoleAccess role={i.role ?? 'STAFF'} />
+              </details>
               {i.revocable && (
                 <Button
                   type="button"

@@ -1991,9 +1991,9 @@ const aiSellerView = (organizationId: string) => {
 const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: uiPlatformAdmin });
 
 /**
- * Филиалы организации стенда (Platform P3, ADR-130): один Business HOSPITALITY и его филиалы; первый — объект стенда.
- * Указатель `X-Wetop-Scope` (кука `wetop_scope` стойки) выбирает текущий филиал; чужой или битый — первый, как в API.
- * Идентификаторы — UUID: иную форму указателя стойка не пересылает (`scope-pointer.ts`).
+ * Филиалы организации стенда (Platform P3, ADR-130): один Business HOSPITALITY и его филиалы; первый, объект стенда.
+ * Указатель `X-Wetop-Scope` (кука `wetop_scope` стойки) выбирает текущий филиал; чужой или битый, первый, как в API.
+ * Идентификаторы, UUID: иную форму указателя стойка не пересылает (`scope-pointer.ts`).
  */
 const UI_BUSINESS = { id: '0b000000-0000-4000-8000-000000000001', name: 'Luxx Hotels' };
 interface UiBranch {
@@ -2037,7 +2037,7 @@ function resetBranches() {
   uiBranches = [firstBranch()];
   scopeLocationId = null;
 }
-/** Текущий филиал — по указателю, иначе первый (как `property-ref.ts` при scope ORGANIZATION) */
+/** Текущий филиал, по указателю, иначе первый (как `property-ref.ts` при scope ORGANIZATION) */
 const currentBranch = (): UiBranch =>
   uiBranches.find((b) => b.id === scopeLocationId) ?? uiBranches[0]!;
 function readScopePointer(header: unknown): void {
@@ -2081,7 +2081,7 @@ const scopeContext = () => {
     ...workspaceView(),
   };
 };
-/** Показатели филиала за период — выдуманные, но разные, чтобы итог было с чем сверить (ADR-010) */
+/** Показатели филиала за период, выдуманные, но разные, чтобы итог было с чем сверить (ADR-010) */
 function branchPeriod(index: number, from: string, to: string, fund: string) {
   const units = 10 * (index + 1);
   const occupied = Math.min(units, 4 * (index + 1));
@@ -2829,7 +2829,7 @@ function read(path: string, q: URLSearchParams): unknown {
     return {
       property: {
         id: 'test-property',
-        // второй филиал стенда — свой объект: имя и адрес филиала (Platform P3)
+        // второй филиал стенда, свой объект: имя и адрес филиала (Platform P3)
         name: scopeLocationId && currentBranch().id !== uiBranches[0]!.id ? currentBranch().name : propertyName,
         legalName: null,
         bin: null,
@@ -4552,14 +4552,17 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : undefined;
       if (!who) return send(200, { user: null });
-      // что открыто организации — пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083); scope и филиалы (P3)
+      // что открыто организации: пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083); scope и филиалы (P3).
+      // Match production whoami: organization is a sibling of user.
+      const { organization, ...user } = signedInView(who);
       return send(200, {
-        user: signedInView(who),
+        user,
+        organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
         context: scopeContext(),
       });
     }
-    // новый филиал (Platform P3, ADR-130): владелец, разбор домена, тёзка — 409 с полем
+    // новый филиал (Platform P3, ADR-130): владелец, разбор домена, тёзка, 409 с полем
     if (path === '/organization/locations' && req.method === 'POST') {
       const token = sessionOf(req as never);
       if (!token || !uiSessions.get(token)) return send(401, { message: 'Нужно войти' });

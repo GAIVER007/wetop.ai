@@ -53,7 +53,7 @@ export interface BranchView {
   propertyName: string | null;
 }
 
-/** Текущий филиал — тот, чей объект отвечает на запросы стойки сейчас (по указателю, иначе самый ранний) */
+/** Текущий филиал, тот, чей объект отвечает на запросы стойки сейчас (по указателю, иначе самый ранний) */
 export interface WorkspaceView {
   business: { id: string; name: string } | null;
   location: { id: string; name: string } | null;
@@ -68,7 +68,7 @@ export interface OrganizationView {
   businesses: Array<{ id: string; name: string; vertical: string; locations: BranchView[] }>;
   current: WorkspaceView;
   canAddBranch: { ok: true } | { ok: false; reason: string };
-  /** Умолчания формы нового филиала — часовой пояс и валюта первого филиала (у организации без филиалов — регистрации) */
+  /** Умолчания формы нового филиала, часовой пояс и валюта первого филиала (у организации без филиалов, регистрации) */
   branchDefaults: { timezone: string; currency: string };
 }
 
@@ -79,7 +79,7 @@ export interface BranchSummaryRow {
   name: string;
   currency: string;
   propertyName: string | null;
-  /** Текущий филиал стойки — строку можно подсветить */
+  /** Текущий филиал стойки, строку можно подсветить */
   current: boolean;
   period: DashboardPeriod | null;
 }
@@ -109,8 +109,8 @@ const branchView = (row: BranchRow): BranchView => ({
 
 /**
  * Филиалы организации (Platform P3, ADR-130; план `plans/platform-p3-branches-2026-10-01.md`). Структуру читает каждый
- * вошедший — переключатель нужен и администратору; добавляет филиал владелец (Q-236); сводку видит право `reports`
- * (маршрут). Служебным ходокам здесь нечего делать: филиалы — выбор человека.
+ * вошедший, переключатель нужен и администратору; добавляет филиал владелец (Q-236); сводку видит право `reports`
+ * (маршрут). Служебным ходокам здесь нечего делать: филиалы, выбор человека.
  */
 @Injectable()
 export class OrganizationService {
@@ -140,14 +140,14 @@ export class OrganizationService {
     };
   }
 
-  /** Все действующие филиалы с их бизнесом — в порядке создания бизнесов и филиалов */
+  /** Все действующие филиалы с их бизнесом, в порядке создания бизнесов и филиалов */
   private branches(structure: OrganizationStructure) {
     return structure.businesses.flatMap((b) => b.locations.map((l) => ({ business: b, location: l })));
   }
 
   /**
-   * Какой филиал обслуживает запросы стойки сейчас: по проверенному указателю, иначе — филиал самого раннего объекта
-   * (то же правило, что `property-ref.ts` при scope ORGANIZATION). У организации без объекта — ничего.
+   * Какой филиал обслуживает запросы стойки сейчас: по проверенному указателю, иначе, филиал самого раннего объекта
+   * (то же правило, что `property-ref.ts` при scope ORGANIZATION). У организации без объекта, ничего.
    */
   private async currentOf(structure: OrganizationStructure): Promise<WorkspaceView> {
     const all = this.branches(structure);
@@ -172,7 +172,7 @@ export class OrganizationService {
     };
   }
 
-  /** Для `GET /auth/me`: подпись и варианты переключателя. Любой сбой — пустая область, вход от этого не ломается */
+  /** Для `GET /auth/me`: подпись и варианты переключателя. Любой сбой, пустая область, вход от этого не ломается */
   async workspace(): Promise<WorkspaceView> {
     const empty: WorkspaceView = { business: null, location: null, options: [] };
     try {
@@ -201,7 +201,7 @@ export class OrganizationService {
     };
   }
 
-  /** Новый филиал: умолчания часового пояса и валюты — у первого филиала организации; тёзка — 409 */
+  /** Новый филиал: умолчания часового пояса и валюты, у первого филиала организации; тёзка, 409 */
   async createBranch(raw: unknown): Promise<BranchView> {
     const organizationId = this.organizationId();
     if (!actorIsOwner()) throw new ForbiddenException(BRANCH_OWNER_ONLY_MESSAGE);
@@ -215,7 +215,7 @@ export class OrganizationService {
 
   /**
    * Сводка по филиалам за период: те же показатели, что «Аналитика → Обзор», в scope каждого филиала по очереди (пул
-   * API — 5 соединений, а шахматка сама ходит в базу несколькими запросами), и итог по правилу домена.
+   * API, 5 соединений, а шахматка сама ходит в базу несколькими запросами), и итог по правилу домена.
    */
   async summary(from?: string, to?: string, fund: string = 'all'): Promise<BranchesSummaryView> {
     const period = this.dashboard.checkPeriod(from, to, fund);
@@ -255,7 +255,7 @@ export class OrganizationService {
     };
   }
 
-  /** Scope текущего запроса — для ответа стойке вместе с подписью */
+  /** Scope текущего запроса, для ответа стойке вместе с подписью */
   scope() {
     return scopeView();
   }

@@ -6,11 +6,11 @@ import { ApiError, businessAgentsApi } from '../../../lib/api';
 
 /**
  * Создание AI-продавца-черновика (SA2). Организацию и автора называет сервер из вошедшего: форма передаёт только название,
- * Business, филиал и ключ повтора. Ответ — слова для человека; введённое остаётся в форме при любой ошибке.
+ * Business, филиал и ключ повтора. Ответ, слова для человека; введённое остаётся в форме при любой ошибке.
  */
 export interface CreateAgentResult {
   error: string | null;
-  /** Ошибка относится к полю — остальным ничего не мешает */
+  /** Ошибка относится к полю, остальным ничего не мешает */
   field: AgentInputField | null;
   values: { name: string; businessId: string; locationId: string };
   attempt: number;

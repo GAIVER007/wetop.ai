@@ -15,7 +15,7 @@
  profiles_of_org 
                2
 --- откат при двух профилях у организации: отказ без изменений
-psql:packages/database/prisma/migrations/20260930000039_seller_profile_agent_key/down.sql:10: ERROR:  Откат 039 невозможен: у 1 организаций несколько профилей (несколько агентов) — оставьте схему
+psql:packages/database/prisma/migrations/20260930000039_seller_profile_agent_key/down.sql:10: ERROR:  Откат 039 невозможен: у 1 организаций несколько профилей (несколько агентов), оставьте схему
 CONTEXT:  PL/pgSQL function inline_code_block line 6 at RAISE
 psql:packages/database/prisma/migrations/20260930000039_seller_profile_agent_key/down.sql:12: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 psql:packages/database/prisma/migrations/20260930000039_seller_profile_agent_key/down.sql:13: ERROR:  current transaction is aborted, commands ignored until end of transaction block

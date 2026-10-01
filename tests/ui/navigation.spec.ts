@@ -19,10 +19,10 @@ const routes = [
   '/finance',
   '/management/analytics',
   '/hotel-settings',
-  // «Компания» — филиалы организации (Platform P3, ADR-130)
+  // «Компания», филиалы организации (Platform P3, ADR-130)
   '/organization',
   '/connections',
-  '/incidents',
+  '/staff',
   '/journal',
 ];
 
@@ -37,6 +37,7 @@ test('свёрнутая desktop-панель не скрывает подпис
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация', exact: true });
+  await menu.getByRole('button', { name: 'Работа с гостями', exact: true }).click();
   const board = menu.getByRole('link', { name: 'Шахматка', exact: true });
   await expect(board.locator('span')).toBeVisible();
   await board.click();
@@ -49,12 +50,13 @@ test('разделы содержат основные ссылки без ду�
   const sidebar = page.locator('.workspace-sidebar');
   const groups = sidebar.locator('.sidebar-section-toggle');
   await expect(groups).toHaveText([
+    'Главная',
     'Работа с гостями',
     'Номерной фонд',
     'Продажи',
-    'Финансы и отчёты',
+    'Финансы',
+    'Аналитика',
     'Настройки',
-    'Контроль',
   ]);
   const links = await sidebar
     .locator('.workspace-links a')
@@ -71,17 +73,14 @@ test('разделы содержат основные ссылки без ду�
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
   await expect(sidebar.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
-  await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).toBeVisible();
+  await expect(sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true })).toBeVisible();
   await page.keyboard.press('Tab');
-  await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).toBeFocused();
+  await expect(sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/rates$/);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
   await page.goBack();
-  await expect(sidebar.getByRole('button', { name: 'Работа с гостями' })).toHaveAttribute(
-    'aria-expanded',
-    'true',
-  );
+
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Главная');
 });
 
@@ -105,26 +104,31 @@ test('компактная панель открывает выбранную г
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108): один пункт вместо трёх
   await sidebar.getByRole('link', { name: 'Номерной фонд', exact: true }).click();
   await expect(page).toHaveURL(/\/inventory$/);
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-    'Номерной фонд',
-  );
+  await expect(
+    page
+      .getByRole('main')
+      .filter({ visible: true })
+      .getByRole('heading', { level: 1 })
+      .filter({ visible: true }),
+  ).toHaveText('Номерной фонд');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Номерной фонд');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
 test('все пункты меню открывают существующие страницы', async ({ page }) => {
   test.setTimeout(180_000);
-  await page.goto('/today');
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/today');
   const sidebar = page.locator('.workspace-sidebar');
   const sections = sidebar.locator('.sidebar-section');
   for (let i = 0; i < (await sections.count()); i++) {
     const section = sections.nth(i);
     const toggle = section.getByRole('button');
     // раздел из одного пункта — прямая ссылка без кнопки-раскрывашки (ADR-108)
-    if (
-      (await toggle.count()) > 0 &&
-      (await toggle.getAttribute('aria-expanded')) !== 'true'
-    )
+    if ((await toggle.count()) > 0 && (await toggle.getAttribute('aria-expanded')) !== 'true')
       await toggle.click();
     const links = section.locator('a');
     for (let j = 0; j < (await links.count()); j++) {
@@ -132,8 +136,17 @@ test('все пункты меню открывают существующие �
       const href = await link.getAttribute('href');
       await link.click();
       await expect(page).toHaveURL(new RegExp(`${href}$`));
-      await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible();
-      await expect(page.getByRole('main')).not.toContainText('Не удалось загрузить данные');
+      await expect(page.getByRole('main').filter({ visible: true }).getByRole('heading', {level: 1}).filter({visible: true})).toHaveCount(1);
+      await expect(
+        page
+          .getByRole('main')
+          .filter({ visible: true })
+          .getByRole('heading', { level: 1 })
+          .filter({ visible: true }),
+      ).toBeVisible();
+      await expect(page.getByRole('main').filter({ visible: true })).not.toContainText(
+        'Не удалось загрузить данные',
+      );
       await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
       await expect(link).toHaveAttribute('aria-current', 'page');
     }
@@ -158,7 +171,7 @@ for (const theme of ['light', 'dark'] as const) {
         : page.locator('.workspace-sidebar');
       if (mobile) await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
       const groups = menu.locator('.sidebar-section-toggle');
-      await expect(groups).toHaveCount(6);
+      await expect(groups).toHaveCount(7);
       const boxes = await groups.evaluateAll((items) =>
         items.map((item) => {
           const box = item.getBoundingClientRect();
@@ -181,7 +194,7 @@ for (const theme of ['light', 'dark'] as const) {
       }
       if (mobile) {
         await menu.getByRole('button', { name: 'Настройки', exact: true }).click();
-        await menu.getByRole('link', { name: 'Интеграции', exact: true }).scrollIntoViewIfNeeded();
+        await menu.getByRole('link', { name: 'Подключения', exact: true }).scrollIntoViewIfNeeded();
         const close = menu.getByRole('button', { name: 'Закрыть: Навигация', exact: true });
         const rect = await close.boundingBox();
         expect(rect!.y).toBeGreaterThanOrEqual(0);

@@ -1,12 +1,12 @@
-# Platform P3 — филиалы организации (01.10.2026)
+# Platform P3: филиалы организации (01.10.2026)
 
-План — `plans/platform-p3-branches-2026-10-01.md`, решение — ADR-130, вопросы — Q-236…Q-238.
+План: `plans/platform-p3-branches-2026-10-01.md`. Решение: ADR-130. Вопросы: Q-236…Q-238.
 
 ## Что видно на снимках
 
 | Файл | Что |
 |---|---|
-| `company-light-1440.png`, `company-dark-1440.png` | «Компания»: факты, таблица филиалов (текущий — бейдж, другой — «Открыть»), «По филиалам» за месяц с итогом; слева под объектом — переключатель филиала (два филиала) |
+| `company-light-1440.png`, `company-dark-1440.png` | «Компания»: факты, таблица филиалов (у текущего бейдж, у другого кнопка «Открыть»), «По филиалам» за месяц с итогом; слева под объектом переключатель филиала (два филиала) |
 | `company-light-390.png`, `company-dark-390.png` | то же на телефоне: таблицы прокручиваются внутри, горизонтальной прокрутки страницы нет |
 | `company-light-390-drawer.png`, `company-dark-390-drawer.png` | панель «Новый филиал»: название, адрес, телефон, почта, часовой пояс и валюта с умолчаниями первого филиала |
 
@@ -15,10 +15,17 @@
 ## Доказательства
 
 - домен `packages/domain/src/organization/branches.test.ts`: red (модуля нет) `tests/runs/logs/2026-10-01T10-36-25Z-unit-877f.log` → green 9/9 `…10-37-09Z-unit-07e0.log`;
-- API: `organization.controller.test.ts` (структура и текущий филиал, права, тёзка 409, разбор 400, сводка в scope каждого филиала и итог), `/auth/me` с именами и вариантами, «Платформа» со счётчиками, `route-access` с тремя новыми маршрутами — 62/62 `…10-43-36Z-unit-9ead.log`;
-- integration `tests/integration/organization-branches.test.ts` на локальной PostgreSQL: red на уборке журнала (`audit_logs` только дописывается) `…10-43-44Z-integration-2e46.log` → green `…10-44-15Z-integration-351a.log`; полный набор 229/229 `…11-15-47Z-integration-16e3.log` (до правки ожидания полей сводки организаций — 228/229, `…11-13-52Z-integration-f07a.log`);
+- API: `organization.controller.test.ts` (структура и текущий филиал, права, тёзка 409, разбор 400, сводка в scope каждого филиала и итог), `/auth/me` с именами и вариантами, «Платформа» со счётчиками, `route-access` с тремя новыми маршрутами: 62/62 `…10-43-36Z-unit-9ead.log`;
+- integration `tests/integration/organization-branches.test.ts` на локальной PostgreSQL: red на уборке журнала (`audit_logs` только дописывается) `…10-43-44Z-integration-2e46.log` → green `…10-44-15Z-integration-351a.log`; полный набор 229/229 `…11-15-47Z-integration-16e3.log` (до правки ожидания полей сводки организаций было 228/229, `…11-13-52Z-integration-f07a.log`);
 - UI `tests/ui/organization.spec.ts`: первый прогон 3/7 (`devNoise` в спеке, кука в кодировке Next, пустой `<th>` по axe) `…10-52-58Z-e2e-735a.log` → 6/7 (поле переключателя не перечитывало выбор после «Открыть») → **7/7** `…10-56-16Z-e2e-a3cd.log`; вместе с `navigation.spec.ts` (в списке меню появилась «Компания») **13/13** `…11-12-29Z-e2e-c00a.log`;
-- соседние спеки (`requests`, `navigation`, `roles`, `platform-access`, `platform-support`, `property-settings-set2-set3`, `analytics-v2`, `empty-base`) — 92/102 `…10-57-14Z-e2e-cdd2.log`: десять красных воспроизводятся на нетронутом дереве `main` `6e4b768` (степпер настройки продавца — контраст и поля, ссылка «Техподдержка» на `/ai-seller`, плитка `c-arrivals` на пустой Главной) — к P3 не относятся; `navigation.spec.ts:45` чинился списком маршрутов спека.
+- соседние спеки (`requests`, `navigation`, `roles`, `platform-access`, `platform-support`, `property-settings-set2-set3`, `analytics-v2`, `empty-base`): 92/102 `…10-57-14Z-e2e-cdd2.log`: десять красных воспроизводятся на нетронутом дереве `main` `6e4b768` (степпер настройки продавца: контраст и поля; ссылка «Техподдержка» на `/ai-seller`, плитка `c-arrivals` на пустой Главной), к P3 не относятся; `navigation.spec.ts:45` чинился списком маршрутов спека.
+
+## После слияния с `main` `5880f14`
+
+- typecheck и lint чисто (`…11-34-40Z-typecheck-eb7e.log`, `…11-35-41Z-lint-98e6.log`);
+- integration 229/229 (`…11-32-51Z-integration-5f9e.log`);
+- UI «Компании», меню и бюджета запросов 40/41 (`…11-34-28Z-e2e-9972.log`): красный `requests.spec.ts:70` (экран `/channels/connections` дважды просит `/hotel/settings`) пришёл из `main` с `channels/connection-setup.tsx`; до слияния этот спек был 41/41 (`…11-21-55Z-e2e-0d12.log`);
+- полный unit 2760/2768 (`…11-32-51Z-unit-52b8.log`): пять красных из `main` (`desk-person.test.ts` против `navigation.ts` самого `main`, проверено на чистом `origin/main`; `design-slop` ×3 и `design-rules` на файлах сотрудников и продавца).
 
 ## Не сделано (по плану §4)
 

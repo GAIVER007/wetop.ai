@@ -25,7 +25,7 @@ import {
 
 /**
  * Компания и филиалы (Platform P3, ADR-130; план `plans/platform-p3-branches-2026-10-01.md` §3): структура с текущим
- * филиалом, новый филиал одной транзакцией с умолчаниями первого, тёзка — 409, не владелец — 403, сводка по филиалам
+ * филиалом, новый филиал одной транзакцией с умолчаниями первого, тёзка, 409, не владелец, 403, сводка по филиалам
  * в scope каждого и итог. Замок ролей на маршрутах стоит в приложении отдельно (`route-access.test.ts`); здесь роль
  * вошедшего подставляется контекстом, как её ставит `AuthorInterceptor` в приложении.
  */
@@ -116,7 +116,7 @@ let signedIn: typeof actor | null = actor;
 
 beforeAll(async () => {
   repo = new FakeOrganizationRepository();
-  // объект при scope ORGANIZATION — самый ранний объект организации, как в `property-ref.ts`
+  // объект при scope ORGANIZATION, самый ранний объект организации, как в `property-ref.ts`
   const prisma = {
     db: {
       property: {
@@ -146,7 +146,7 @@ beforeAll(async () => {
     ],
   }).compile();
   app = moduleRef.createNestApplication({ logger: false });
-  // контекст запроса — как его ставит `AuthorInterceptor` в приложении: кто вошёл и его роль
+  // контекст запроса, как его ставит `AuthorInterceptor` в приложении: кто вошёл и его роль
   app.useGlobalInterceptors(new ActorInterceptor());
   await app.init();
 });
@@ -177,8 +177,8 @@ beforeEach(() => {
 
 const api = () => request(app.getHttpServer());
 
-describe('GET /organization — структура и текущий филиал', () => {
-  it('без указателя текущий — филиал самого раннего объекта; владельцу можно добавлять', async () => {
+describe('GET /organization, структура и текущий филиал', () => {
+  it('без указателя текущий, филиал самого раннего объекта; владельцу можно добавлять', async () => {
     const res = await api().get('/organization').expect(200);
     expect(res.body.name).toBe('Luxx Group');
     expect(res.body.businesses[0].locations.map((l: { name: string }) => l.name)).toEqual(['Almaty', 'Astana']);
@@ -193,7 +193,7 @@ describe('GET /organization — структура и текущий филиа�
     expect(res.body.canAddBranch).toEqual({ ok: true });
   });
 
-  it('управляющему структура видна, а добавлять нельзя — причина словами', async () => {
+  it('управляющему структура видна, а добавлять нельзя, причина словами', async () => {
     signedIn = { ...actor, role: 'MANAGER' as never };
     const res = await api().get('/organization').expect(200);
     expect(res.body.canAddBranch).toEqual({ ok: false, reason: BRANCH_OWNER_ONLY_MESSAGE });
@@ -205,8 +205,8 @@ describe('GET /organization — структура и текущий филиа�
   });
 });
 
-describe('POST /organization/locations — новый филиал', () => {
-  it('создаётся в цепочке с умолчаниями первого филиала, ответ — филиал с объектом', async () => {
+describe('POST /organization/locations, новый филиал', () => {
+  it('создаётся в цепочке с умолчаниями первого филиала, ответ, филиал с объектом', async () => {
     const res = await api().post('/organization/locations').send({ name: '  Luxx  Shymkent ' }).expect(201);
     expect(repo.created).toEqual([
       {
@@ -225,13 +225,13 @@ describe('POST /organization/locations — новый филиал', () => {
     expect(typeof res.body.id).toBe('string');
   });
 
-  it('тёзка без учёта регистра — 409 с полем', async () => {
+  it('тёзка без учёта регистра, 409 с полем', async () => {
     const res = await api().post('/organization/locations').send({ name: 'astana' }).expect(409);
     expect(res.body).toMatchObject({ message: BRANCH_NAMESAKE_MESSAGE, field: 'name' });
     expect(repo.created).toHaveLength(0);
   });
 
-  it('ошибка разбора — 400 с полем, ничего не создано', async () => {
+  it('ошибка разбора, 400 с полем, ничего не создано', async () => {
     const res = await api()
       .post('/organization/locations')
       .send({ name: 'Marina', timezone: 'Mars/Olympus' })
@@ -240,7 +240,7 @@ describe('POST /organization/locations — новый филиал', () => {
     expect(repo.created).toHaveLength(0);
   });
 
-  it('не владелец — 403, даже если замок маршрута обошли', async () => {
+  it('не владелец, 403, даже если замок маршрута обошли', async () => {
     signedIn = { ...actor, role: 'MANAGER' as never };
     const res = await api().post('/organization/locations').send({ name: 'Marina' }).expect(403);
     expect(res.body.message).toBe(BRANCH_OWNER_ONLY_MESSAGE);
@@ -248,8 +248,8 @@ describe('POST /organization/locations — новый филиал', () => {
   });
 });
 
-describe('GET /organization/summary — по филиалам и итог', () => {
-  it('каждый филиал считается в своём scope, итог — по правилу домена', async () => {
+describe('GET /organization/summary, по филиалам и итог', () => {
+  it('каждый филиал считается в своём scope, итог, по правилу домена', async () => {
     const res = await api().get('/organization/summary?from=2026-10-01&to=2026-10-02').expect(200);
     expect(scopes).toEqual([L1, L2]);
     expect(res.body.branches.map((b: { name: string; current: boolean }) => [b.name, b.current])).toEqual([

@@ -16,7 +16,7 @@ import { FakeBusinessAgents, FakeSellerExtensions } from './fakes';
 
 /**
  * Business Agents (SA2, plans/business-ai-seller-sa2-2026-09-30.md §3, §5): создание черновика и страница состояния.
- * Настоящие замок, автор и перехватчик запроса; подставные хранилище и расширение. Организацию и автора называет вошедший —
+ * Настоящие замок, автор и перехватчик запроса; подставные хранилище и расширение. Организацию и автора называет вошедший,
  * тело запроса их не несёт, и это проверяется здесь же.
  */
 
@@ -126,7 +126,7 @@ describe('создание черновика', () => {
     expect(saved.lifecycle).toBe('draft');
   });
 
-  it('управляющий тоже может создать; сотрудник смены — нет', async () => {
+  it('управляющий тоже может создать; сотрудник смены, нет', async () => {
     await create('session-manager', KEY_1, draft()).expect(201);
     await create('session-staff', KEY_2, draft({ locationId: LOC_A2 })).expect(403);
     expect(repo.agents.size).toBe(1);
@@ -139,7 +139,7 @@ describe('создание черновика', () => {
     expect(saved.createdBy).toBe(USER_A);
   });
 
-  it('без действующего расширения — 403 словами, ничего не создано', async () => {
+  it('без действующего расширения, 403 словами, ничего не создано', async () => {
     extensions.access = 'off';
     const off = await create('session-a', KEY_1, draft()).expect(403);
     expect(off.body.message).toBe('Расширение «ИИ-продавец» не подключено.');
@@ -149,7 +149,7 @@ describe('создание черновика', () => {
     expect(repo.agents.size).toBe(0);
   });
 
-  it('чужой Business, чужой филиал, филиал не этого Business, несуществующий и снятый с показа — 404', async () => {
+  it('чужой Business, чужой филиал, филиал не этого Business, несуществующий и снятый с показа, 404', async () => {
     await create('session-a', KEY_1, draft({ businessId: BIZ_B, locationId: LOC_B1 })).expect(404);
     await create('session-a', KEY_1, draft({ locationId: LOC_B1 })).expect(404);
     await create('session-a', KEY_1, draft({ businessId: BIZ_B })).expect(404);
@@ -162,7 +162,7 @@ describe('создание черновика', () => {
     expect(repo.agents.size).toBe(0);
   });
 
-  it('на филиале уже есть неархивный AI-продавец — 409 словами; архивный филиал не занимает', async () => {
+  it('на филиале уже есть неархивный AI-продавец, 409 словами; архивный филиал не занимает', async () => {
     await create('session-a', KEY_1, draft()).expect(201);
     const second = await create('session-manager', KEY_2, draft({ name: 'Второй' })).expect(409);
     expect(second.body.message).toBe(AGENT_LOCATION_TAKEN);
@@ -175,19 +175,19 @@ describe('создание черновика', () => {
     await create('session-a', KEY_2, draft({ locationId: LOC_A2 })).expect(201);
   });
 
-  it('ошибки ввода — 400 с полями: пустое название, не UUID', async () => {
+  it('ошибки ввода, 400 с полями: пустое название, не UUID', async () => {
     const res = await create('session-a', KEY_1, { name: '   ', businessId: 'x', locationId: LOC_A1 }).expect(400);
     expect(res.body.errors).toMatchObject({ name: expect.any(String), businessId: expect.any(String) });
     expect(res.body.errors.locationId).toBeUndefined();
   });
 
-  it('без входа — 401', async () => {
+  it('без входа, 401', async () => {
     await api().post('/ai-seller/agents').set('idempotency-key', KEY_1).send(draft()).expect(401);
   });
 });
 
 describe('повтор: Idempotency-Key', () => {
-  it('тот же запрос тем же человеком — тот же агент, второй записи нет, журнал не дописывается', async () => {
+  it('тот же запрос тем же человеком, тот же агент, второй записи нет, журнал не дописывается', async () => {
     const first = await create('session-a', KEY_1, draft()).expect(201);
     const again = await create('session-a', KEY_1, draft()).expect(201);
     expect(again.body.id).toBe(first.body.id);
@@ -209,7 +209,7 @@ describe('повтор: Idempotency-Key', () => {
     expect(JSON.stringify(repo.events)).not.toContain('Секретное имя');
   });
 
-  it('ключ чужой организации или чужого человека — 404 как несуществующий, чужой агент не отдаётся', async () => {
+  it('ключ чужой организации или чужого человека, 404 как несуществующий, чужой агент не отдаётся', async () => {
     await create('session-a', KEY_1, draft()).expect(201);
     const foreignOrg = await create('session-b', KEY_1, draft({ businessId: BIZ_B, locationId: LOC_B1 })).expect(404);
     expect(JSON.stringify(foreignOrg.body)).not.toContain('AI-продавец Luxx');
@@ -217,7 +217,7 @@ describe('повтор: Idempotency-Key', () => {
     expect(repo.agents.size).toBe(1);
   });
 
-  it('ключ, равный организации, — рабочий продавец, а не результат создания: 404', async () => {
+  it('ключ, равный организации, рабочий продавец, а не результат создания: 404', async () => {
     repo.agents.set(ORG_A, {
       id: ORG_A,
       organizationId: ORG_A,
@@ -233,7 +233,7 @@ describe('повтор: Idempotency-Key', () => {
     expect(repo.agents.size).toBe(1);
   });
 
-  it('нет ключа или он не UUID — 400', async () => {
+  it('нет ключа или он не UUID, 400', async () => {
     await create('session-a', undefined, draft()).expect(400);
     await create('session-a', 'not-a-uuid', draft()).expect(400);
     expect(repo.agents.size).toBe(0);
@@ -259,7 +259,7 @@ describe('варианты создания', () => {
     expect(JSON.stringify(res.body)).not.toContain('Чужая сеть');
   });
 
-  it('единственный филиал занят — кнопка неактивна с причиной (для Luxx)', async () => {
+  it('единственный филиал занят, кнопка неактивна с причиной (для Luxx)', async () => {
     repo.businesses.get(ORG_A)![0]!.locations.pop();
     await create('session-a', KEY_1, draft()).expect(201);
     const res = await api().get('/ai-seller/agents/options').set(as('session-a')).expect(200);
@@ -269,7 +269,7 @@ describe('варианты создания', () => {
     });
   });
 
-  it('появился новый филиал — кнопка снова доступна сама', async () => {
+  it('появился новый филиал, кнопка снова доступна сама', async () => {
     repo.businesses.get(ORG_A)![0]!.locations.pop();
     await create('session-a', KEY_1, draft()).expect(201);
     repo.businesses.get(ORG_A)![0]!.locations.push({ id: LOC_A2, name: 'Астана' });
@@ -283,7 +283,7 @@ describe('варианты создания', () => {
     expect(res.body.businesses).toHaveLength(1);
   });
 
-  it('расширения нет — ни Business, ни филиалов не отдаётся, причина про расширение', async () => {
+  it('расширения нет, ни Business, ни филиалов не отдаётся, причина про расширение', async () => {
     extensions.access = 'off';
     const res = await api().get('/ai-seller/agents/options').set(as('session-a')).expect(200);
     expect(res.body).toMatchObject({ canCreate: false, reason: 'Расширение «ИИ-продавец» не подключено.', businesses: [] });
@@ -300,7 +300,7 @@ describe('страница агента', () => {
     }
   });
 
-  it('чужой, несуществующий и не-UUID — 404; рабочий продавец (id = организация) — 404', async () => {
+  it('чужой, несуществующий и не-UUID, 404; рабочий продавец (id = организация), 404', async () => {
     await create('session-a', KEY_1, draft()).expect(201);
     await api().get(`/ai-seller/agents/${KEY_1}`).set(as('session-b')).expect(404);
     await api().get(`/ai-seller/agents/${KEY_2}`).set(as('session-a')).expect(404);
@@ -328,13 +328,13 @@ describe('перевода из черновика нет ни в одном м�
     ['POST', 'archive'],
   ] as const;
 
-  it.each(NO_ROUTE)('%s /ai-seller/agents/:id/%s — маршрута нет', async (_method, action) => {
+  it.each(NO_ROUTE)('%s /ai-seller/agents/:id/%s, маршрута нет', async (_method, action) => {
     await create('session-a', KEY_1, draft()).expect(201);
     await api().post(`/ai-seller/agents/${KEY_1}/${action}`).set(as('session-a')).send({ lifecycle: 'active' }).expect(404);
     expect(repo.agents.get(KEY_1)!.lifecycle).toBe('draft');
   });
 
-  it.each(['PATCH', 'PUT', 'POST', 'DELETE'] as const)('%s /ai-seller/agents/:id — менять агента этим маршрутом нельзя', async (method) => {
+  it.each(['PATCH', 'PUT', 'POST', 'DELETE'] as const)('%s /ai-seller/agents/:id, менять агента этим маршрутом нельзя', async (method) => {
     await create('session-a', KEY_1, draft()).expect(201);
     const call = { PATCH: api().patch, PUT: api().put, POST: api().post, DELETE: api().delete }[method].bind(api());
     await call(`/ai-seller/agents/${KEY_1}`).set(as('session-a')).send({ lifecycle: 'active', locationId: LOC_A2 }).expect(404);

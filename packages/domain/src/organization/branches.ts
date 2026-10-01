@@ -3,9 +3,9 @@ import type { DashboardPeriod } from '../dashboard/metrics';
 /**
  * Филиалы организации (Platform P3, ADR-130; план `plans/platform-p3-branches-2026-10-01.md`).
  *
- * Филиал — `Location` утверждённой модели (DATA_MODEL §18) со своим объектом Hospitality. Здесь — чистые правила:
- * разбор формы «Добавить филиал» (одна функция для стойки и API, причина — у поля) и итог сводки по филиалам
- * (`ARCHITECTURE.md` §10: универсальные величины складываются снизу вверх, деньги — только внутри одной валюты).
+ * Филиал, `Location` утверждённой модели (DATA_MODEL §18) со своим объектом Hospitality. Здесь, чистые правила:
+ * разбор формы «Добавить филиал» (одна функция для стойки и API, причина, у поля) и итог сводки по филиалам
+ * (`ARCHITECTURE.md` §10: универсальные величины складываются снизу вверх, деньги, только внутри одной валюты).
  */
 export interface BranchInput {
   name: string;
@@ -37,7 +37,7 @@ const text = (v: unknown): string | null => {
   return s === '' ? null : s;
 };
 
-/** Часовой пояс настоящий — его знает `Intl`; иначе «Asia/Almaty» с опечаткой молча сломал бы границы ночей */
+/** Часовой пояс настоящий, его знает `Intl`; иначе «Asia/Almaty» с опечаткой молча сломал бы границы ночей */
 export function isIanaTimezone(v: string): boolean {
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: v });
@@ -48,8 +48,8 @@ export function isIanaTimezone(v: string): boolean {
 }
 
 /**
- * Разбор формы филиала. Умолчания (`defaults`) — часовой пояс и валюта первого филиала организации: второй филиал в том
- * же городе их не набирает. Пустые адрес, телефон и почта — `null`, как у объекта (DATA_MODEL §1, v1.7).
+ * Разбор формы филиала. Умолчания (`defaults`), часовой пояс и валюта первого филиала организации: второй филиал в том
+ * же городе их не набирает. Пустые адрес, телефон и почта, `null`, как у объекта (DATA_MODEL §1, v1.7).
  */
 export function parseBranchInput(
   raw: unknown,
@@ -60,54 +60,54 @@ export function parseBranchInput(
   const name = text(body.name);
   if (name === null) return { ok: false, reason: 'Укажите название филиала', field: 'name' };
   if (name.length < NAME_MIN)
-    return { ok: false, reason: `Название — не короче ${NAME_MIN} знаков`, field: 'name' };
+    return { ok: false, reason: `Название, не короче ${NAME_MIN} знаков`, field: 'name' };
   if (name.length > NAME_MAX)
-    return { ok: false, reason: `Название — не длиннее ${NAME_MAX} знаков`, field: 'name' };
+    return { ok: false, reason: `Название, не длиннее ${NAME_MAX} знаков`, field: 'name' };
   const address = text(body.address);
   if (address !== null && address.length > ADDRESS_MAX)
-    return { ok: false, reason: `Адрес — не длиннее ${ADDRESS_MAX} знаков`, field: 'address' };
+    return { ok: false, reason: `Адрес, не длиннее ${ADDRESS_MAX} знаков`, field: 'address' };
   const phone = text(body.phone);
   const digits = phone?.replace(/\D/g, '').length ?? 0;
   if (phone !== null && (digits < 5 || digits > 15))
-    return { ok: false, reason: 'Телефон — от 5 до 15 цифр', field: 'phone' };
+    return { ok: false, reason: 'Телефон, от 5 до 15 цифр', field: 'phone' };
   const email = text(body.email)?.toLowerCase() ?? null;
   if (email !== null && !EMAIL.test(email))
-    return { ok: false, reason: 'Почта — в виде name@example.kz', field: 'email' };
+    return { ok: false, reason: 'Почта, в виде name@example.kz', field: 'email' };
   const timezone = text(body.timezone) ?? defaults.timezone;
   if (!isIanaTimezone(timezone))
-    return { ok: false, reason: 'Часовой пояс — в виде Asia/Almaty', field: 'timezone' };
+    return { ok: false, reason: 'Часовой пояс, в виде Asia/Almaty', field: 'timezone' };
   const currencyRaw = text(body.currency) ?? defaults.currency;
   if (!CURRENCY.test(currencyRaw))
-    return { ok: false, reason: 'Валюта — три латинские буквы, например KZT', field: 'currency' };
+    return { ok: false, reason: 'Валюта, три латинские буквы, например KZT', field: 'currency' };
   return {
     ok: true,
     value: { name, address, phone, email, timezone, currency: currencyRaw.toUpperCase() },
   };
 }
 
-/** Строка сводки: филиал и его показатели за период; `null` — у филиала нет объекта или показатели не посчитались */
+/** Строка сводки: филиал и его показатели за период; `null`, у филиала нет объекта или показатели не посчитались */
 export interface BranchPeriod {
   locationId: string;
   currency: string;
   period: DashboardPeriod | null;
 }
 
-/** Деньги итога — по валютам: курса пересчёта в отчётную валюту нет (Q-237), а складывать тенге с дирхамами нельзя */
+/** Деньги итога, по валютам: курса пересчёта в отчётную валюту нет (Q-237), а складывать тенге с дирхамами нельзя */
 export interface BranchMoneyTotal {
   currency: string;
   revenueMinor: string;
   paymentsMinor: string;
   refundsMinor: string;
-  /** Средняя цена ночи по филиалам этой валюты; null — проданных ночей не было */
+  /** Средняя цена ночи по филиалам этой валюты; null, проданных ночей не было */
   adrMinor: string | null;
-  /** Доход на единицу за ночь по филиалам этой валюты; null — единиц не было */
+  /** Доход на единицу за ночь по филиалам этой валюты; null, единиц не было */
   revparMinor: string | null;
 }
 
 export interface BranchesTotal {
   /** Сколько филиалов вошло в сводку (с объектом и без) */
   branches: number;
-  /** Ночи фонда суммой; процент — взвешенно: занятые ночи всех филиалов к ночам фонда всех филиалов */
+  /** Ночи фонда суммой; процент, взвешенно: занятые ночи всех филиалов к ночам фонда всех филиалов */
   occupancy: DashboardPeriod['occupancy'];
   arrivals: number;
   bookings: number;

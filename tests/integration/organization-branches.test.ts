@@ -44,7 +44,7 @@ describe.skipIf(!process.env.DATABASE_URL)('филиалы организаци�
     await db.$disconnect();
   });
 
-  it('новый филиал — в том же Business, с объектом, журналом; указатель открывает его объект', async () => {
+  it('новый филиал, в том же Business, с объектом, журналом; указатель открывает его объект', async () => {
     const repo = new PrismaOrganizationRepository({ db } as never);
     const branch = await repo.createBranch(own.id, {
       name: `TEST branch B ${marker}`,
@@ -76,7 +76,7 @@ describe.skipIf(!process.env.DATABASE_URL)('филиалы организаци�
     ]);
     expect(JSON.stringify(structure)).not.toContain(alien.id);
 
-    // стойка без указателя — первый объект; указатель нового филиала — его объект
+    // стойка без указателя, первый объект; указатель нового филиала, его объект
     const open = async (pointer: { businessId?: string; locationId?: string }) => {
       const scope = await resolveScope(db, own.id, pointer);
       return withSignedInUser({ userId: randomUUID(), organizationId: own.id, ...scope }, () =>

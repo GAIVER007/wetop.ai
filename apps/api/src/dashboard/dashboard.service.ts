@@ -33,7 +33,7 @@ export class DashboardService {
     return { current, previous };
   }
 
-  /** Проверка запроса периода — одна для «Обзора» и для сводки по филиалам (Platform P3) */
+  /** Проверка запроса периода, одна для «Обзора» и для сводки по филиалам (Platform P3) */
   checkPeriod(from?: string, to?: string, fund: string = 'all'): { from: string; to: string; fund: DashboardFund } {
     if (!isIsoDate(from) || !isIsoDate(to))
       throw new BadRequestException('from и to — даты YYYY-MM-DD');
@@ -45,7 +45,7 @@ export class DashboardService {
     return { from, to, fund: fund as DashboardFund };
   }
 
-  /** Показатели одного отрезка по объекту текущего scope — сводка по филиалам зовёт его в scope каждого филиала */
+  /** Показатели одного отрезка по объекту текущего scope, сводка по филиалам зовёт его в scope каждого филиала */
   async period(from: string, to: string, fund: DashboardFund): Promise<DashboardPeriod> {
     // Шахматка сама ходит в базу в четыре запроса — её держим отдельно; остальные четыре выборки
     // друг от друга не зависят и идут одновременно. Было десять рейсов подряд на один экран, и на

@@ -238,7 +238,7 @@ function PropertyBlock({
   property?: PropertyIdentity | null | undefined;
   settings: boolean;
   close: (() => void) | undefined;
-  /** Текущий филиал и варианты (Platform P3): два и больше — переключатель под объектом, один — подпись (Q-215) */
+  /** Текущий филиал и варианты (Platform P3): два и больше, переключатель под объектом, один, подпись (Q-215) */
   workspace?: DeskShell['workspace'];
 }) {
   const identity = (

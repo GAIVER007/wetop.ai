@@ -179,7 +179,7 @@ export class AuthController {
       ...signedIn,
       access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
       // фактический scope запроса (Platform P2, К1; план P2 §4б) плюс подпись и варианты переключателя филиала
-      // (Platform P3, ADR-130): стойка читает `/auth/me` на каждом экране — отдельного запроса за филиалами нет
+      // (Platform P3, ADR-130): стойка читает `/auth/me` на каждом экране, отдельного запроса за филиалами нет
       context: { ...scopeView(), ...(await this.organization.workspace()) },
     };
   }

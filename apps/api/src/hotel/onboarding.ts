@@ -105,8 +105,8 @@ export class OnboardingService {
    * (plans/onboarding-without-property-2026-09-28.md).
    */
   private async findProperty(organizationId: string, db: Pick<PrismaService['db'], 'property'> = this.prisma.db) {
-    // Несколько филиалов (Platform P3): объект — текущего scope, как у остальных экранов (`property-ref.ts`); без
-    // указателя — самый ранний, а не случайный
+    // Несколько филиалов (Platform P3): объект, текущего scope, как у остальных экранов (`property-ref.ts`); без
+    // указателя, самый ранний, а не случайный
     const scope = currentScope();
     const locationId = currentLocationId();
     const businessId = currentBusinessId();

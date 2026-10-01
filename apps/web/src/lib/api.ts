@@ -436,7 +436,7 @@ export interface DeskAccessView {
 
 /**
  * Рабочая область стойки (Platform P2 К1 + P3, ADR-120, ADR-130): scope запроса по указателю `wetop_scope`, текущий
- * Business и филиал с именами и из чего выбирать. Один филиал — переключателя нет, подпись статична (Q-215).
+ * Business и филиал с именами и из чего выбирать. Один филиал, переключателя нет, подпись статична (Q-215).
  */
 export interface WorkspaceContext {
   scope: 'ORGANIZATION' | 'BUSINESS' | 'LOCATION';
@@ -500,13 +500,24 @@ export const authApi = {
       body,
       info ? authHeaders(info) : {},
     ),
-  me: () =>
-    getJson<{
+  me: async () => {
+    const result = await getJson<{
       user: SignedIn | null;
+      organization?: SignedInOrganization | null;
       expiresAt?: string;
       access?: DeskAccessView;
+      // scope и подпись переключателя филиала (Platform P2 K1, P3; ADR-130)
       context?: WorkspaceContext;
-    }>('/auth/me'),
+    }>('/auth/me');
+    // whoami returns organization alongside user; older previews nested it inside user.
+    return {
+      ...result,
+      user: result.user ? {
+        ...result.user,
+        organization: result.organization !== undefined ? result.organization : (result.user.organization ?? null),
+      } : null,
+    };
+  },
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
@@ -1994,7 +2005,7 @@ export const platformApi = {
     ),
 };
 
-/** Филиал организации — `Location` со своим объектом (Platform P3, ADR-130; DATA_MODEL §18) */
+/** Филиал организации, `Location` со своим объектом (Platform P3, ADR-130; DATA_MODEL §18) */
 export interface OrganizationBranch {
   id: string;
   businessId: string;
@@ -2016,7 +2027,7 @@ export interface OrganizationStructure {
   businesses: Array<{ id: string; name: string; vertical: string; locations: OrganizationBranch[] }>;
   current: Pick<WorkspaceContext, 'business' | 'location' | 'options'>;
   canAddBranch: { ok: true } | { ok: false; reason: string };
-  /** Умолчания формы нового филиала: часовой пояс и валюта первого филиала — их знает API, не стойка */
+  /** Умолчания формы нового филиала: часовой пояс и валюта первого филиала, их знает API, не стойка */
   branchDefaults: { timezone: string; currency: string };
 }
 

@@ -78,7 +78,7 @@ export function AddBranchButton() {
   );
 }
 
-/** «Открыть» — тот же выбор филиала, что переключатель слева: кука и перечитанный макет */
+/** «Открыть», тот же выбор филиала, что переключатель слева: кука и перечитанный макет */
 export function OpenBranchButton({
   businessId,
   locationId,
@@ -110,7 +110,7 @@ function BranchForm({
 }) {
   const action = (prev: BranchActionResult | null, form: FormData) => createBranchAction(prev, form, defaults);
   const [state, submit, pending] = useActionState<BranchActionResult | null, FormData>(action, null);
-  // своя проверка до отправки — тем же разбором домена, что у API; причина — у поля
+  // своя проверка до отправки, тем же разбором домена, что у API; причина, у поля
   const [local, setLocal] = useState<{ field?: BranchInputField | undefined; error: string } | null>(null);
   const errorId = useId();
   const reported = useRef<BranchActionResult | null>(null);
@@ -183,7 +183,7 @@ function BranchForm({
       </div>
       <p className="company-note">
         У нового филиала появится свой объект без номеров и цен: после открытия стойка предложит первичную настройку.
-        Заезд с 14:00, выезд до 12:00 — меняются в «Настройках объекта» филиала.
+        Заезд с 14:00 и выезд до 12:00 меняются в «Настройках объекта» филиала.
       </p>
       <div className="company-branch-form__actions">
         <Button type="button" tone="secondary" onClick={onCancel}>

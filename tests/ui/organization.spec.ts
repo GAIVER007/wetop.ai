@@ -5,8 +5,8 @@ import { mkdirSync } from 'node:fs';
 
 /**
  * «Компания» и филиалы (Platform P3, ADR-130; план `plans/platform-p3-branches-2026-10-01.md`): у организации с одним
- * филиалом переключателя нет — подпись; владелец добавляет филиал панелью (ошибка у поля, тёзка — 409 от API);
- * после второго филиала слева появляется переключатель, выбор ставит куку и меняет объект стойки; «Открыть» в таблице —
+ * филиалом переключателя нет, подпись; владелец добавляет филиал панелью (ошибка у поля, тёзка, 409 от API);
+ * после второго филиала слева появляется переключатель, выбор ставит куку и меняет объект стойки; «Открыть» в таблице:
  * тот же выбор; управляющему кнопки нет, администратору раздел закрыт; сводка по филиалам с итогом; axe, темы, ширины.
  */
 const API = 'http://127.0.0.1:4311';
@@ -29,7 +29,7 @@ async function signIn(page: Page) {
   await page.waitForURL('**/today');
 }
 
-test('один филиал: подпись без переключателя; владелец добавляет филиал, ошибки у поля, тёзка — от API', async ({
+test('один филиал: подпись без переключателя; владелец добавляет филиал, ошибки у поля, тёзка, от API', async ({
   page,
 }) => {
   await signIn(page);
@@ -38,7 +38,7 @@ test('один филиал: подпись без переключателя; �
   await expect(main.getByRole('heading', { level: 1, name: 'Компания' })).toBeVisible();
   await expect(main.getByTestId('company-branch')).toHaveCount(1);
   await expect(main.getByTestId('company-branch').first()).toContainText('Текущий');
-  // Q-215: один филиал — статичная подпись, списка нет
+  // Q-215: один филиал, статичная подпись, списка нет
   await expect(page.getByTestId('scope-label')).toContainText('Luxx Aparts');
   await expect(page.getByTestId('scope-switcher')).toHaveCount(0);
 
@@ -61,7 +61,7 @@ test('один филиал: подпись без переключателя; �
   await expect(page.getByTestId('company-saved')).toContainText('Филиал «Luxx Astana» добавлен');
   await expect(main.getByTestId('company-branch')).toHaveCount(2);
   await expect(main.getByTestId('company-branch').nth(1)).toContainText('Luxx Astana');
-  // второй филиал — появился переключатель слева с обоими филиалами
+  // второй филиал, появился переключатель слева с обоими филиалами
   const switcher = page.getByTestId('scope-switcher').getByRole('combobox');
   await expect(switcher).toBeVisible();
   await expect(switcher.locator('option')).toHaveText(['Luxx Aparts', 'Luxx Astana']);
@@ -82,7 +82,7 @@ test('выбор филиала: «Открыть» и переключател�
   const cookie = (await context.cookies()).find((c) => c.name === 'wetop_scope');
   // Next кодирует значение куки; стойка раскодирует его перед пересылкой (`scopeHeader`)
   expect(decodeURIComponent(cookie?.value ?? '')).toMatch(/^business=[0-9a-f-]{36};location=[0-9a-f-]{36}$/);
-  // объект в шапке слева — объект выбранного филиала
+  // объект в шапке слева, объект выбранного филиала
   await expect(page.locator('.sidebar-shell .workspace-property strong')).toHaveText('Luxx Astana');
   await expect(page.getByTestId('scope-switcher').getByRole('combobox')).toHaveValue(/0c000000-0000-4000-8000-000000000002$/);
   // сводка подсвечивает текущий
@@ -90,7 +90,7 @@ test('выбор филиала: «Открыть» и переключател�
   await expect(rows).toHaveCount(2);
   await expect(rows.nth(1)).toContainText('(текущий)');
 
-  // обратно — переключателем слева
+  // обратно, переключателем слева
   await page.getByTestId('scope-switcher').getByRole('combobox').selectOption({ label: 'Luxx Aparts' });
   await expect(page.locator('.sidebar-shell .workspace-property strong')).toHaveText('Luxx Aparts');
   await expect(main.getByTestId('company-branch').first()).toContainText('Текущий');
@@ -104,7 +104,7 @@ test('сводка по филиалам: строки по каждому, ит
   const summary = main.getByTestId('company-summary');
   await expect(summary).toBeVisible();
   await expect(main.getByTestId('company-summary-row')).toHaveCount(3);
-  // 7 дней: филиалы 10/4, 20/8, 30/12 номеров и занятых — итог 24 из 60 = 40 %
+  // 7 дней: филиалы 10/4, 20/8, 30/12 номеров и занятых, итог 24 из 60 = 40 %
   await expect(main.getByTestId('company-summary-row').nth(0)).toContainText('40 %');
   const total = main.getByTestId('company-total');
   await expect(total).toHaveCount(1);

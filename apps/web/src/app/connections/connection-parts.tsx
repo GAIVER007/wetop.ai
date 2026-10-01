@@ -91,3 +91,15 @@ export function TechDetails({ card, clock }: { card: ChannexCard; clock: Propert
     </details>
   );
 }
+
+export function EnvironmentNote({ environment }: { environment: string | undefined }) {
+  return (
+    <p className="integration-environment" data-testid="integration-environment">
+      {environment === 'staging'
+        ? 'Тестовый контур · рабочий обмен с каналами ещё не запущен.'
+        : environment === 'production'
+          ? 'Рабочий контур · состояние обмена показано ниже.'
+          : 'Контур подключения не определён — проверьте настройки.'}
+    </p>
+  );
+}

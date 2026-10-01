@@ -327,3 +327,100 @@
     min-height: 44px;
   }
 }
+
+/* Object settings: compact editable workspace, no clipped fields. */
+.object-settings {
+  padding: 16px 24px;
+}
+.object-settings .page__head {
+  margin-bottom: 16px;
+}
+.object-settings .page__title {
+  font-size: 28px;
+}
+.object-settings .page__subtitle {
+  font-size: 13px;
+}
+.object-settings .settings-tabs {
+  margin-bottom: 16px;
+  border: 0;
+  background: transparent;
+}
+.object-settings .settings-tabs a {
+  min-height: 36px;
+  padding: 8px 16px;
+}
+.object-settings .settings-stack,
+.object-settings .settings-form {
+  max-width: none;
+  gap: 14px;
+}
+.object-settings .settings-block {
+  padding: 18px;
+}
+.object-settings .settings-block > h2 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.object-settings .settings-fields {
+  gap: 12px;
+}
+.object-settings .settings-fields input {
+  min-height: 38px;
+  padding: 8px 12px;
+}
+.object-settings .settings-facts {
+  margin-bottom: 0;
+}
+.object-settings .settings-facts > div {
+  padding: 8px 0;
+  border: 0;
+}
+.object-settings .settings-note {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.object-settings .settings-service-help {
+  padding: 12px 16px;
+  gap: 12px;
+}
+.object-settings .settings-service-help h2 {
+  font-size: 14px;
+}
+.object-settings .settings-toolbar {
+  margin-bottom: 12px;
+}
+.object-settings .settings-table th,
+.object-settings .settings-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+}
+@media (min-width: 1000px) {
+  .object-settings .settings-form--general {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .object-settings .settings-form--general > .settings-block:first-of-type {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  .object-settings .settings-form--general > .settings-block {
+    grid-column: 2;
+  }
+  .object-settings .settings-form--general > [role='alert'] {
+    grid-column: 1 / -1;
+  }
+  .object-settings .settings-catalog .table-scroll {
+    max-height: max(240px, calc(100dvh - 415px));
+    overflow: auto;
+  }
+}
+@media (max-width: 600px) {
+  .object-settings {
+    padding: 16px;
+  }
+  .object-settings .settings-fields input,
+  .object-settings .settings-tabs a {
+    min-height: 44px;
+  }
+}

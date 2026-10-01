@@ -14,77 +14,101 @@ import { Tile, countDelta, moneyDelta, pointsDelta } from './tiles';
 const b = (v: string) => BigInt(v);
 
 /** Шесть плиток ТЗ §5: загрузка, выручка проживания, продано ночей, брони, отмены, средний чек */
-function KpiRow({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null }) {
+function KpiRow({
+  c,
+  p,
+  detail = false,
+}: {
+  c: DashboardPeriod;
+  p: DashboardPeriod | null;
+  detail?: boolean;
+}) {
   const compare = p !== null;
   const prev = p ?? c;
   const single = c.nights === 1;
   return (
-    <section className="kpi-grid pa-kpis" aria-label="Показатели за период" data-testid="pa-kpis">
-      <Tile
-        id="occupancy"
-        label="Загрузка"
-        value={formatPercent(c.occupancy.percent)}
-        hint={
-          single
-            ? `занято ${c.occupancy.occupiedNights} из ${c.units} мест`
-            : `блокировки входят в фонд: ${formatInt(c.occupancy.blockedNights)} ночей закрыто`
-        }
-        delta={pointsDelta(
-          c.occupancy.percent,
-          prev.occupancy.percent,
-          prev.occupancy.occupiedNights,
-        )}
-        compare={compare}
-      />
-      <Tile
-        id="revenue"
-        label="Выручка проживания"
-        value={wholeTenge(c.revenue.accommodationMinor)}
-        hint="начислено за проживание, по дню заезда"
-        delta={moneyDelta(c.revenue.accommodationMinor, prev.revenue.accommodationMinor)}
-        compare={compare}
-      />
-      <Tile
-        id="nights"
-        label="Продано ночей"
-        value={formatInt(c.occupancy.occupiedNights)}
-        hint={`из ${formatInt(c.occupancy.unitNights)} ночей фонда`}
-        delta={countDelta(c.occupancy.occupiedNights, prev.occupancy.occupiedNights)}
-        compare={compare}
-      />
-      <Tile
-        id="bookings"
-        label="Брони"
-        value={formatInt(c.bookings.total)}
-        hint={`с заездом в периоде; к заезду ${formatInt(c.bookings.active)}, размещений ${formatInt(c.bookings.stays)}`}
-        delta={countDelta(c.bookings.total, prev.bookings.total)}
-        compare={compare}
-      />
-      <Tile
-        id="cancelled"
-        label="Отмены"
-        value={formatPercent(c.bookings.cancelledPercent)}
-        hint={`${pluralRu(c.bookings.cancelled, ['отмена', 'отмены', 'отмен'])}${
-          c.bookings.noShow
-            ? `, незаездов ${c.bookings.noShow} (${formatPercent(c.bookings.noShowPercent)})`
-            : ''
-        }`}
-        delta={pointsDelta(
-          c.bookings.cancelledPercent,
-          prev.bookings.cancelledPercent,
-          prev.bookings.total,
-        )}
-        inverse
-        compare={compare}
-      />
-      <Tile
-        id="average"
-        label="Средний чек брони"
-        value={c.bookings.averageMinor ? wholeTenge(c.bookings.averageMinor) : '—'}
-        hint="стоимость броней без отмен и незаездов"
-        delta={moneyDelta(c.bookings.averageMinor, prev.bookings.averageMinor)}
-        compare={compare}
-      />
+    <section
+      className="kpi-grid pa-kpis"
+      aria-label="Показатели за период"
+      data-testid={detail ? 'pa-kpis-detail' : 'pa-kpis'}
+    >
+      {!detail && (
+        <Tile
+          id="occupancy"
+          label="Загрузка"
+          value={formatPercent(c.occupancy.percent)}
+          hint={
+            single
+              ? `занято ${c.occupancy.occupiedNights} из ${c.units} мест`
+              : `блокировки входят в фонд: ${formatInt(c.occupancy.blockedNights)} ночей закрыто`
+          }
+          delta={pointsDelta(
+            c.occupancy.percent,
+            prev.occupancy.percent,
+            prev.occupancy.occupiedNights,
+          )}
+          compare={compare}
+        />
+      )}
+      {!detail && (
+        <Tile
+          id="revenue"
+          label="Начислено за проживание"
+          value={wholeTenge(c.revenue.accommodationMinor)}
+          hint="начислено за проживание, по дню заезда"
+          delta={moneyDelta(c.revenue.accommodationMinor, prev.revenue.accommodationMinor)}
+          compare={compare}
+        />
+      )}
+      {detail && (
+        <Tile
+          id="nights"
+          label="Продано ночей"
+          value={formatInt(c.occupancy.occupiedNights)}
+          hint={`из ${formatInt(c.occupancy.unitNights)} ночей фонда`}
+          delta={countDelta(c.occupancy.occupiedNights, prev.occupancy.occupiedNights)}
+          compare={compare}
+        />
+      )}
+      {!detail && (
+        <Tile
+          id="bookings"
+          label="Брони"
+          value={formatInt(c.bookings.total)}
+          hint={`с заездом в периоде; к заезду ${formatInt(c.bookings.active)}, размещений ${formatInt(c.bookings.stays)}`}
+          delta={countDelta(c.bookings.total, prev.bookings.total)}
+          compare={compare}
+        />
+      )}
+      {!detail && (
+        <Tile
+          id="cancelled"
+          label="Отмены"
+          value={formatPercent(c.bookings.cancelledPercent)}
+          hint={`${pluralRu(c.bookings.cancelled, ['отмена', 'отмены', 'отмен'])}${
+            c.bookings.noShow
+              ? `, незаездов ${c.bookings.noShow} (${formatPercent(c.bookings.noShowPercent)})`
+              : ''
+          }`}
+          delta={pointsDelta(
+            c.bookings.cancelledPercent,
+            prev.bookings.cancelledPercent,
+            prev.bookings.total,
+          )}
+          inverse
+          compare={compare}
+        />
+      )}
+      {detail && (
+        <Tile
+          id="average"
+          label="Средний чек брони"
+          value={c.bookings.averageMinor ? wholeTenge(c.bookings.averageMinor) : '—'}
+          hint="стоимость броней без отмен и незаездов"
+          delta={moneyDelta(c.bookings.averageMinor, prev.bookings.averageMinor)}
+          compare={compare}
+        />
+      )}
     </section>
   );
 }
@@ -191,7 +215,7 @@ function RevenuePanel({ c, today }: { c: DashboardPeriod; today: string }) {
   // высота — доля от самого денежного дня; тысячные доли целочисленно, без float над деньгами
   const height = (v: string) => (max > 0n ? Number((b(v) * 1000n) / max) / 10 : 0);
   return (
-    <Panel title="Выручка по заездам" className="dash-panel">
+    <Panel title="Начисления по заездам" className="dash-panel">
       {c.nights === 1 ? (
         <p className="pa-single">
           <strong data-testid="pa-revenue-day">{wholeTenge(c.revenue.accommodationMinor)}</strong>{' '}
@@ -373,7 +397,7 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
   return (
     <>
       <KpiRow c={c} p={p} />
-      <UnitEconomics c={c} p={p} query={query} />
+
       {p && (
         <p className="kpi-compare muted" data-testid="pa-compare">
           Сравнение с {displayDate(p.from)}
@@ -383,12 +407,17 @@ export async function Overview({ query, today }: { query: AnalyticsQuery; today:
             ` Без ячейки ${pluralRu(c.unassigned, ['проживание', 'проживания', 'проживаний'])} — в загрузку не входят.`}
         </p>
       )}
-      <OccupancyPanel c={c} today={today} />
-      <div className="dash-grid dash-grid--chart">
+      <div className="dash-grid dash-grid--chart pa-charts">
+        <OccupancyPanel c={c} today={today} />
         <RevenuePanel c={c} today={today} />
-        <SourcesPanel c={c} />
       </div>
-      <CategoriesPanel c={c} />
+      <details className="pa-details">
+        <summary>Подробности: ночи, средний чек, категории и источники</summary>
+        <KpiRow c={c} p={p} detail />
+        <UnitEconomics c={c} p={p} query={query} />
+        <SourcesPanel c={c} />
+        <CategoriesPanel c={c} />
+      </details>
     </>
   );
 }
@@ -398,7 +427,7 @@ export function OverviewSkeleton() {
   return (
     <div className="pa-skeleton" aria-busy="true" data-testid="pa-loading">
       <div className="kpi-grid pa-kpis">
-        {Array.from({ length: 6 }, (_, i) => (
+        {Array.from({ length: 4 }, (_, i) => (
           <Skeleton key={i} variant="stat" />
         ))}
       </div>

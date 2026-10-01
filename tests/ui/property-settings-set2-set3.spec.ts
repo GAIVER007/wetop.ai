@@ -9,7 +9,7 @@ import { mkdirSync } from 'node:fs';
  * панелью, архив вместо удаления, код услуги не виден. Стенд — подставной API с тем же разбором, что у API.
  */
 const API = 'http://127.0.0.1:4311';
-const SHOTS = 'reports/property-settings-set2-set3-2026-09-28';
+const SHOTS = 'reports/unified-sections-2026-10-01/property-settings-set2-set3-2026-09-28';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 

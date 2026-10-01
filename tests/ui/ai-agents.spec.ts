@@ -12,7 +12,7 @@ import type { Page } from '@playwright/test';
  */
 const API = 'http://127.0.0.1:4311';
 // снимки SA1 (`reports/business-ai-seller-sa1-2026-09-29/`) остаются как были; каталог с новой кнопкой снимается в отчёт SA2
-const SHOTS = 'reports/business-ai-seller-sa2-2026-09-30';
+const SHOTS = 'reports/unified-sections-2026-10-01/agents';
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
@@ -111,7 +111,7 @@ test('продавец работает: статус, каналы по дан�
   await signIn(page);
   await page.goto('/ai-agents');
   const seller = page.getByTestId('agent-seller');
-  await expect(seller.getByTestId('agent-status')).toHaveText('Работает');
+  await expect(seller.getByTestId('agent-status')).toHaveText('Профиль сохранён');
   const channels = seller.getByTestId('agent-channels');
   await expect(channels).toContainText('Сайт');
   await expect(channels).toContainText('Домены заданы');
@@ -131,7 +131,7 @@ test('бот не ответил: страница жива, WhatsApp — «Не
   await page.goto('/ai-agents');
   const channels = page.getByTestId('agent-seller').getByTestId('agent-channels');
   await expect(channels).toContainText('Нет данных');
-  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Работает');
+  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Проверьте подключение');
 });
 
 test('черновики гостевого мастера: «Черновик», без Business и Location', async ({ page, request }) => {
@@ -163,7 +163,7 @@ test('сотрудник смены видит список; кнопка соз
   await request.post(`${API}/__test/control`, { data: { role: 'STAFF', sellerApplied: true, sellerExtraLocation: true } });
   await signIn(page);
   await page.goto('/ai-agents');
-  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Работает');
+  await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Профиль сохранён');
   const add = page.getByTestId('agent-add');
   await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
   await expect(add).toContainText('Создавать агентов могут владелец и управляющий.');

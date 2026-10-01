@@ -9,7 +9,7 @@ import { mkdirSync } from 'node:fs';
  * правила отмены ушли к тарифам. Схема и API не менялись — стенд тот же подставной API.
  */
 const API = 'http://127.0.0.1:4311';
-const SHOTS = 'reports/property-settings-set1-2026-09-27';
+const SHOTS = 'reports/unified-sections-2026-10-01/property-settings-set1-2026-09-27';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 

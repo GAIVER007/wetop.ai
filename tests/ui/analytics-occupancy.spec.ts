@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
  * знаменатель прежний (заблокированные места — в фонде). Снимает стоп-гейт AN2.
  */
 const fixture = 'http://127.0.0.1:4311';
-const report = 'reports/analytics-v2-an2-2026-09-28';
+const report = 'reports/unified-sections-2026-10-01/analytics-v2-an2-2026-09-28';
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number, from = today) =>

@@ -10,7 +10,7 @@ import type { Page } from '@playwright/test';
  * и на телефоне. Запись в базу и права сервера доказывают API-тесты; стенд — `scripts/preview/fixture-api.ts`.
  */
 const API = 'http://127.0.0.1:4311';
-const SHOTS = 'reports/seller-unified-wizard-2026-09-30';
+const SHOTS = 'reports/unified-sections-2026-10-01/create-agent';
 const FREE = { sellerApplied: true, sellerExtraLocation: true };
 
 test.beforeEach(async ({ request }) => {

@@ -1,4 +1,5 @@
 import {
+  AGENT_STATUS_WORDS,
   CHANNEL_LABELS,
   READ_ONLY_MESSAGE,
   channelWord,
@@ -32,10 +33,12 @@ export const CREATE_LABEL = '+ Подключить AI-продавца';
  */
 export function createButton(catalog: AgentCatalogView, readOnly = false): CreateButton {
   // «только чтение» знает оболочка стойки, а не сервер раздела: запись всё равно отклонит `SessionGuard` до контроллера
-  if (readOnly) return { label: CREATE_LABEL, href: null, reason: READ_ONLY_MESSAGE, connectHref: null };
+  if (readOnly)
+    return { label: CREATE_LABEL, href: null, reason: READ_ONLY_MESSAGE, connectHref: null };
   const access = catalog.extension?.access ?? 'off';
   const connectHref = access === 'off' || access === 'expired' ? '/ai-seller' : null;
-  if (catalog.create.enabled) return { label: CREATE_LABEL, href: '/ai-agents/new', reason: null, connectHref };
+  if (catalog.create.enabled)
+    return { label: CREATE_LABEL, href: '/ai-agents/new', reason: null, connectHref };
   return { label: CREATE_LABEL, href: null, reason: catalog.create.reason, connectHref };
 }
 
@@ -47,7 +50,9 @@ export function agentHref(agent: AgentCardView): string {
 
 /** Business и Location карточки одной строкой; у черновика мастера их нет, у организации без объекта — тоже */
 export function placement(business: { name: string }, location: { name: string }): string {
-  return `${business.name} · ${location.name}`;
+  return business.name.trim() === location.name.trim()
+    ? location.name
+    : `${business.name} · ${location.name}`;
 }
 
 export function placementLine(agent: AgentCardView): string {
@@ -72,4 +77,38 @@ export function statusTone(status: AgentStatus): StatusTone {
   if (status === 'BOT_OFFLINE') return 'danger';
   if (status === 'DRAFT') return 'neutral';
   return 'warn';
+}
+
+/** Catalog signals prove profile/channel configuration, not a successful LLM conversation. */
+export function agentReadiness(agent: AgentCardView): {
+  label: string;
+  tone: StatusTone;
+  hint: string;
+} {
+  if (agent.status !== 'WORKING')
+    return {
+      label: AGENT_STATUS_WORDS[agent.status],
+      tone: statusTone(agent.status),
+      hint:
+        agent.status === 'DRAFT'
+          ? 'Продолжите настройку инструкции и проверьте агента.'
+          : 'Откройте настройки, чтобы проверить готовность агента.',
+    };
+  if (agent.channels && Object.values(agent.channels).every((state) => state === 'OFF'))
+    return {
+      label: 'Настройте каналы',
+      tone: 'warn',
+      hint: 'Инструкция сохранена. Подключите сайт или WhatsApp и проверьте ответ.',
+    };
+  if (!agent.channels || Object.values(agent.channels).some((state) => state === 'UNKNOWN'))
+    return {
+      label: 'Проверьте подключение',
+      tone: 'warn',
+      hint: 'Инструкция сохранена, но состояние одного из каналов не удалось проверить.',
+    };
+  return {
+    label: 'Профиль сохранён',
+    tone: 'neutral',
+    hint: 'Проверьте ответ в тестовом чате и доставку в выбранном канале перед запуском.',
+  };
 }

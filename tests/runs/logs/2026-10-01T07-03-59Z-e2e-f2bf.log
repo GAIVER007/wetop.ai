@@ -1,0 +1,145 @@
+# Сквозные (e2e) · 01.10.2026 12:03 Алматы · MacBook-Air-Urij.local
+# коммит 7f64725 (codex/unified-workspace-20260929), незакоммиченных файлов набора: 103
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/analytics-v2.spec.ts' '--workers=1'
+[WebServer] (node:95876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95913) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:95960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+(node:95979) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96015) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/analytics-v2.spec.ts:57:1 › меню: «Статистика» стала «Аналитикой», старый экран — вкладка «Загрузка» (5.2s)
+  ✓  2 tests/ui/analytics-v2.spec.ts:76:1 › обзор за месяц: четыре основных показателя со сравнением, график загрузки и выручки, категории (2.0s)
+  ✘  3 tests/ui/analytics-v2.spec.ts:110:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение (4.1s)
+(node:96090) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/ui/analytics-v2.spec.ts:135:1 › рост отмен — красный, падение — зелёный; сравнение выключается (3.9s)
+  ✓  5 tests/ui/analytics-v2.spec.ts:148:1 › база сравнения ноль — «нет данных», а не ±100 %; пустой период — словами (3.9s)
+  ✓  6 tests/ui/analytics-v2.spec.ts:171:1 › сбой API не уносит полосу периода; неизвестный тип фонда — весь фонд (3.2s)
+  ✓  7 tests/ui/analytics-v2.spec.ts:188:1 › телефон: без прокрутки вбок, плитки в две колонки (2.2s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <Suspense name="occupancy/" fallback={<Fragment>}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/managemen..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="management...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <OccupancyPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page analy...">
+[WebServer]                       <header>
+[WebServer]                       <nav>
+[WebServer]                       <AnalyticsToolbar>
+[WebServer]                         <section className="pa-toolbar" aria-label="Период и о..." data-testid="pa-toolbar">
+[WebServer]                           <div>
+[WebServer]                           <div className="pa-toolbar...">
+[WebServer]                             <nav>
+[WebServer]                             <details className="pa-range">
+[WebServer]                               <summary>
+[WebServer]                               <form method="get" className="pa-range__..." data-testid="pa-range-form">
+[WebServer]                                 <input
+[WebServer]                                   type="hidden"
+[WebServer]                                   name="period"
+[WebServer]                                   value="custom"
+[WebServer] -                                 style={{caret-color:"transparent"}}
+[WebServer]                                 >
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="from" defaultValue="2026-10-01" aria-label="Период: с">
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="from"
+[WebServer]                                         defaultValue="2026-10-01"
+[WebServer]                                         aria-label="Период: с"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 <label>
+[WebServer]                                   <DateInput name="to" rangeFromName="from" defaultValue="2026-10-01" ...>
+[WebServer]                                     <span className="date-field">
+[WebServer]                                       <input
+[WebServer]                                         ref={{current:null}}
+[WebServer]                                         type="date"
+[WebServer]                                         className="inp date-field__input"
+[WebServer]                                         id={undefined}
+[WebServer]                                         name="to"
+[WebServer]                                         defaultValue="2026-10-01"
+[WebServer]                                         aria-label="Период: по"
+[WebServer] -                                       style={{caret-color:"transparent"}}
+[WebServer]                                       >
+[WebServer]                                       ...
+[WebServer]                                 ...
+[WebServer]                             ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✓  8 tests/ui/analytics-v2.spec.ts:199:1 › снимки для визуального гейта AN1 (20.3s)
+
+
+  1) tests/ui/analytics-v2.spec.ts:110:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      29 |     data: { email: '<email>', password: '<скрыто>' },
+      30 |   });
+    > 31 |   expect(login.ok()).toBe(true);
+         |                      ^
+      32 |   const { token } = await login.json();
+      33 |   const response = await page.request.get(
+      34 |     `${fixture}/desk/dashboard?${new URLSearchParams({ from, to, fund })}`,
+        at expectOccupancyDirection (/Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/analytics-v2.spec.ts:31:22)
+        at /Users/urijzapojnov/Documents/ChatGPT/WETOP/tests/ui/analytics-v2.spec.ts:120:3
+
+    Error Context: test-results/analytics-v2-номера-и-койк-036a5-яя-цена-свой-рост-и-падение/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-v2-номера-и-койк-036a5-яя-цена-свой-рост-и-падение/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-v2-номера-и-койк-036a5-яя-цена-свой-рост-и-падение/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/analytics-v2.spec.ts:110:1 › номера и койки считаются раздельно: своя средняя цена, свой рост и падение 
+  7 passed (55.9s)
+
+# код выхода 1 · 57 с

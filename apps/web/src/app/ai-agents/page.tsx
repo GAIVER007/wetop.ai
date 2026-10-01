@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import './ai-agents.css';
-import { AGENT_STATUS_WORDS } from '@pms/domain';
 import { LoadError } from '../../components/load-error';
 import { Page } from '../../components/page';
 import { Badge, Fact, Grid, Notice, Panel, Row, Stack } from '../../components/ui';
-import { agentHref, channelLines, createButton, placementLine, statusTone } from '../../lib/ai-agents';
+import {
+  agentHref,
+  channelLines,
+  createButton,
+  placementLine,
+  agentReadiness,
+} from '../../lib/ai-agents';
 import { sellerApi, type AgentCardView, type AgentCatalogView } from '../../lib/api';
 import { deskShell } from '../../lib/desk-shell';
 import { loadErrorProps } from '../../lib/load-error';
@@ -29,10 +34,7 @@ export default async function AiAgentsPage() {
   const button = catalog ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
   return (
-    <Page
-      title="ИИ-агенты"
-      subtitle="Помощники, которые работают в вашей организации: где они и как их настроить."
-    >
+    <Page title="ИИ-агенты" subtitle="Настройка продавцов, инструкции и каналы общения.">
       {failure !== null && (
         <LoadError
           testId="agents-error"
@@ -132,11 +134,14 @@ function AgentCard({ agent }: { agent: AgentCardView }) {
   const isSeller = agent.kind === 'seller';
   const isSales = isSeller || agent.kind === 'agent';
   const channels = channelLines(agent);
+  const readiness = agentReadiness(agent);
   return (
     <Panel
       title={agent.name}
       className="agent-card"
-      data-testid={isSeller ? 'agent-seller' : agent.kind === 'agent' ? 'agent-created' : 'agent-draft'}
+      data-testid={
+        isSeller ? 'agent-seller' : agent.kind === 'agent' ? 'agent-created' : 'agent-draft'
+      }
     >
       <Stack gap="sm">
         <Row>
@@ -146,11 +151,12 @@ function AgentCard({ agent }: { agent: AgentCardView }) {
               <Badge>Hospitality</Badge>
             </>
           )}
-          <Badge tone={statusTone(agent.status)} data-testid="agent-status">
-            {AGENT_STATUS_WORDS[agent.status]}
+          <Badge tone={readiness.tone} data-testid="agent-status">
+            {readiness.label}
           </Badge>
         </Row>
         <div className="muted">{placementLine(agent)}</div>
+        <p className="agent-card__hint">{readiness.hint}</p>
         {channels.length > 0 && (
           <Row gap="lg" data-testid="agent-channels">
             {channels.map((c) => (

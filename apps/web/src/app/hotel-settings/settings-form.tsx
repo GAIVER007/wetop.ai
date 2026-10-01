@@ -110,7 +110,7 @@ function SettingsForm({
         if (Object.keys(found).length) event.preventDefault();
       }}
       data-testid={testId}
-      className="settings-form"
+      className={`settings-form ${testId === 'hotel-settings-form' ? 'settings-form--general' : ''}`}
       noValidate
     >
       {state?.error && <Alert boxed>{state.error}</Alert>}

@@ -4,10 +4,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
 /**
- * «Компания» и филиалы (Platform P3, ADR-130; план `plans/platform-p3-branches-2026-10-01.md`): у организации с одним
- * филиалом переключателя нет, подпись; владелец добавляет филиал панелью (ошибка у поля, тёзка, 409 от API);
- * после второго филиала слева появляется переключатель, выбор ставит куку и меняет объект стойки; «Открыть» в таблице:
- * тот же выбор; управляющему кнопки нет, администратору раздел закрыт; сводка по филиалам с итогом; axe, темы, ширины.
+ * «Компания» и филиалы (Platform P3, ADR-130; план `plans/platform-p3-branches-2026-10-01.md`): владелец добавляет
+ * филиал панелью (ошибка у поля, тёзка, 409 от API); «Открыть» в таблице ставит куку `wetop_scope` и меняет объект
+ * стойки; управляющему кнопки нет, администратору раздел закрыт; сводка по филиалам с итогом; axe, темы, ширины.
+ * Переключатель филиала в карточке объекта слева, из `main` (`shell/branch-switcher.tsx`), проверяет `branches.spec.ts`.
  */
 const API = 'http://127.0.0.1:4311';
 const SHOTS = 'reports/platform-p3-branches-2026-10-01';
@@ -29,7 +29,7 @@ async function signIn(page: Page) {
   await page.waitForURL('**/today');
 }
 
-test('один филиал: подпись без переключателя; владелец добавляет филиал, ошибки у поля, тёзка, от API', async ({
+test('владелец добавляет филиал: ошибки у поля, тёзка, 409 от API', async ({
   page,
 }) => {
   await signIn(page);
@@ -38,9 +38,6 @@ test('один филиал: подпись без переключателя; �
   await expect(main.getByRole('heading', { level: 1, name: 'Компания' })).toBeVisible();
   await expect(main.getByTestId('company-branch')).toHaveCount(1);
   await expect(main.getByTestId('company-branch').first()).toContainText('Текущий');
-  // Q-215: один филиал, статичная подпись, списка нет
-  await expect(page.getByTestId('scope-label')).toContainText('Luxx Aparts');
-  await expect(page.getByTestId('scope-switcher')).toHaveCount(0);
 
   await main.getByTestId('branch-add').click();
   const dialog = page.getByRole('dialog', { name: 'Новый филиал' });
@@ -61,13 +58,10 @@ test('один филиал: подпись без переключателя; �
   await expect(page.getByTestId('company-saved')).toContainText('Филиал «Luxx Astana» добавлен');
   await expect(main.getByTestId('company-branch')).toHaveCount(2);
   await expect(main.getByTestId('company-branch').nth(1)).toContainText('Luxx Astana');
-  // второй филиал, появился переключатель слева с обоими филиалами
-  const switcher = page.getByTestId('scope-switcher').getByRole('combobox');
-  await expect(switcher).toBeVisible();
-  await expect(switcher.locator('option')).toHaveText(['Luxx Aparts', 'Luxx Astana']);
+  await expect(main.getByRole('button', { name: 'Открыть филиал Luxx Astana' })).toBeVisible();
 });
 
-test('выбор филиала: «Открыть» и переключатель ставят куку, объект стойки и текущая строка меняются', async ({
+test('выбор филиала: «Открыть» ставит куку, объект стойки и текущая строка меняются', async ({
   page,
   request,
   context,
@@ -84,14 +78,13 @@ test('выбор филиала: «Открыть» и переключател�
   expect(decodeURIComponent(cookie?.value ?? '')).toMatch(/^business=[0-9a-f-]{36};location=[0-9a-f-]{36}$/);
   // объект в шапке слева, объект выбранного филиала
   await expect(page.locator('.sidebar-shell .workspace-property strong')).toHaveText('Luxx Astana');
-  await expect(page.getByTestId('scope-switcher').getByRole('combobox')).toHaveValue(/0c000000-0000-4000-8000-000000000002$/);
   // сводка подсвечивает текущий
   const rows = main.getByTestId('company-summary-row');
   await expect(rows).toHaveCount(2);
   await expect(rows.nth(1)).toContainText('(текущий)');
 
-  // обратно, переключателем слева
-  await page.getByTestId('scope-switcher').getByRole('combobox').selectOption({ label: 'Luxx Aparts' });
+  // обратно, «Открыть» у первого
+  await main.getByRole('button', { name: 'Открыть филиал Luxx Aparts' }).click();
   await expect(page.locator('.sidebar-shell .workspace-property strong')).toHaveText('Luxx Aparts');
   await expect(main.getByTestId('company-branch').first()).toContainText('Текущий');
 });
@@ -136,14 +129,6 @@ test('роли: управляющий видит без кнопки, адми�
   await page.goto('/organization');
   await expect(page.getByRole('main').getByTestId('company-branches')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('branch-add')).toHaveCount(0);
-});
-
-test('«Платформа → Организации» показывает структуру партнёра', async ({ page, request }) => {
-  await control(request, { platformAdmin: true, branches: ['Luxx Astana'] });
-  await signIn(page);
-  await page.goto('/platform');
-  const table = page.getByTestId('platform-organizations');
-  await expect(table.getByTestId('platform-structure').first()).toHaveText('1 бизнес, 2 филиала');
 });
 
 for (const theme of ['light', 'dark'] as const) {

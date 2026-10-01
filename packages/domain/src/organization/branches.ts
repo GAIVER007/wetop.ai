@@ -92,7 +92,7 @@ export interface BranchPeriod {
   period: DashboardPeriod | null;
 }
 
-/** Деньги итога, по валютам: курса пересчёта в отчётную валюту нет (Q-237), а складывать тенге с дирхамами нельзя */
+/** Деньги итога, по валютам: курса пересчёта в отчётную валюту нет (Q-238), а складывать тенге с дирхамами нельзя */
 export interface BranchMoneyTotal {
   currency: string;
   revenueMinor: string;

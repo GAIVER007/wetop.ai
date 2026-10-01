@@ -767,7 +767,7 @@ test('гости: удаление документа переспрашивае
 
 test('новая бронь: число гостей ограничено вместимостью выбранной категории', async ({ page }) => {
   await page.goto('/reservations/new?unit=M03');
-  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей в проживании');
+  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей', { exact: true });
   // койка в общем номере — один гость
   await expect(guests).toHaveAttribute('max', '1');
   await page.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
@@ -1451,7 +1451,7 @@ test('новая бронь: резюме выбора обновляется п
     /\s*\(свободно \d+\)\s*$/,
     '',
   );
-  const unitSelect = first.getByLabel('Ячейка');
+  const unitSelect = first.getByLabel('Номер / койка');
   // первая настоящая ячейка: до неё «назначить позже» и «Автоматически» (AV3, ADR-110)
   const unitCode = (await unitSelect
     .locator('option:not([value=""]):not([value="@auto"])')

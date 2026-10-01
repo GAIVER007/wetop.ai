@@ -139,9 +139,10 @@ test('главная: «Войти» и «Регистрация», шаги п�
     page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
-  // Схематичный обзор не выдаёт вымышленные продажи за реальные показатели.
-  await expect(hero.locator('.workspace-preview')).toBeVisible();
-  await expect(hero).toContainText('Не данные действующего объекта');
+  // Карта разделов на первом экране (01.10.2026): схема продукта, а не снимок системы и не выдуманные показатели
+  await expect(hero.locator('.product-map')).toBeVisible();
+  await expect(hero).toContainText(/Схема разделов/);
+  await expect(hero).not.toContainText(/248[\s\u00a0]?500|\+12%|Алина|Марат/);
 });
 
 /**
@@ -161,17 +162,18 @@ test('первый экран — центр управления сервисн
     /Центр управления сервисным бизнесом/,
   );
   await expect(hero).toContainText(
-    /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\s—\sв\sодном\sрабочем\sпространстве/,
+    /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\sв\sодном\sрабочем\sпространстве/,
   );
-  const screen = hero.getByRole('img', { name: /Схема рабочего пространства/ });
-  await expect(screen).toBeVisible();
   // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
-  // одна плашка, без круглой печати; в макете боковое меню разделов объясняет, что внутри
+  // одна плашка, без круглой печати. С 01.10.2026 справа карта разделов: шесть областей платформы ссылками на блоки
+  // страницы (plans/site-home-clear-blocks-2026-10-01.md), без вымышленных имён и сумм.
   await expect(hero.locator('.hero__seal')).toHaveCount(0);
   await expect(hero.locator('.hero__word')).toHaveCount(0);
   await expect(hero.locator('.hero__status')).toHaveText(/Регистрация открыта/);
+  const map = hero.getByRole('list', { name: /Разделы WETOP/ });
+  await expect(map).toBeVisible();
   for (const section of ['Операции', 'Продажи', 'Команда', 'Финансы', 'Аналитика', 'ИИ-продавцы']) {
-    await expect(hero.locator('.hero__capabilities')).toContainText(section);
+    await expect(map).toContainText(section);
   }
 
   const verticals = page.locator('#audience');
@@ -185,6 +187,6 @@ test('первый экран — центр управления сервисн
   const order = await page
     .locator('main section')
     .evaluateAll((els) => els.map((el) => el.getAttribute('id') ?? el.className));
-  expect(order.indexOf('workflow')).toBeLessThan(order.indexOf('features'));
   expect(order.indexOf('audience')).toBeLessThan(order.indexOf('features'));
+  expect(order.indexOf('features')).toBeLessThan(order.indexOf('sales'));
 });

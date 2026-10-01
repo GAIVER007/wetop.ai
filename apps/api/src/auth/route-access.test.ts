@@ -70,6 +70,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /hotel/onboarding': 'desk',
   'GET /rate-plans': 'desk',
   'POST /reservations': 'desk',
+  'POST /reservations/quote': 'desk',
   'PATCH /reservations/:number/dates': 'desk',
   'PATCH /reservations/:number': 'desk',
   'PATCH /reservations/:number/items/:itemId': 'desk',

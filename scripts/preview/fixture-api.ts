@@ -4151,6 +4151,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
         body['sellerDaysLeft'],
@@ -4582,6 +4583,11 @@ createServer(async (req, res) => {
         currency: parsed.value.currency,
       });
       return send(201, branchJson(row));
+    }
+    if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
+      const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      const settings = read(path, url.searchParams) as { property: Record<string, unknown>; needsOnboarding?: boolean };
+      return send(200, { ...settings, property: { ...settings.property, id: '11111111-1111-4111-8111-111111111111', ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}) } });
     }
     if (path === '/branches' || path === '/branches/overview') {
       const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
@@ -5858,6 +5864,23 @@ createServer(async (req, res) => {
       } catch {
         return send(422, { message: 'Сумма платежа и распределения должны совпадать' });
       }
+    }
+    if (path === '/reservations/quote') {
+      const arrival = String(body['arrivalDate']);
+      const departure = String(body['departureDate']);
+      const items = body['items'] as Array<{ accommodationTypeCode: string; quantity?: number }>;
+      const nights = BigInt(nightsOf({ arrivalDate: arrival, departureDate: departure }));
+      const total = items.reduce(
+        (sum, item) =>
+          sum + nightly(item.accommodationTypeCode) * nights * BigInt(item.quantity ?? 1),
+        0n,
+      );
+      return send(201, {
+        arrivalDate: arrival,
+        departureDate: departure,
+        totalMinor: total.toString(),
+        currency: 'KZT',
+      });
     }
     if (path === '/reservations') {
       if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });

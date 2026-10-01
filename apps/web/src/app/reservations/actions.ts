@@ -95,6 +95,10 @@ export async function createReservationAction(
     });
     const card = await reservationsApi.create({
       source: str(fd, 'source'),
+      ...(str(fd, 'creationKey') ? { creationKey: str(fd, 'creationKey') } : {}),
+      ...(str(fd, 'expectedTotalMinor')
+        ? { expectedTotalMinor: str(fd, 'expectedTotalMinor') }
+        : {}),
       // ADR-071: поля есть в форме только у источника OTA
       ...(fd.has('channel') ? { channel: str(fd, 'channel') ?? null } : {}),
       ...(fd.has('externalId') ? { externalId: str(fd, 'externalId') ?? null } : {}),

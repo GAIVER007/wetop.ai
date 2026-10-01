@@ -64,28 +64,6 @@
   margin: 0 0 var(--space-4);
   line-height: 1.6;
 }
-/* переключатель филиала под объектом в левой панели (Q-215): подпись или поле */
-.sidebar-shell .workspace-scope {
-  margin: 0 0 var(--space-4);
-  padding: 0 var(--space-2);
-  color: var(--muted);
-  font-size: var(--text-xs);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.sidebar-shell .workspace-scope--switch {
-  display: grid;
-  gap: var(--space-1);
-  white-space: normal;
-}
-.sidebar-shell .workspace-scope--switch select {
-  width: 100%;
-  min-width: 0;
-}
-.sidebar-shell.is-compact .workspace-scope {
-  display: none;
-}
 @media (max-width: 600px) {
   .company-branch-form__pair {
     grid-template-columns: 1fr;

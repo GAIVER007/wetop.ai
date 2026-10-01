@@ -4,7 +4,6 @@ import { Suspense, use, useEffect, useId, useState, type ReactNode } from 'react
 import {
   CLOSED_ACCESS,
   PENDING_ACCESS,
-  allowedItem,
   sidebarSections,
   sidebarSectionsFor,
   activeNavigation,
@@ -12,8 +11,8 @@ import {
 } from '../../lib/navigation';
 import type { DeskPerson, DeskShell } from '../../lib/desk-person';
 import { DataFreshness } from '../data-freshness';
-import { ScopeSwitcher } from './scope-switcher';
 import { Icon } from '../icon';
+import { BranchSwitcher } from './branch-switcher';
 import { cx } from '../ui';
 /** Server-rendered text slots keep late metadata independent of the interactive shell. */
 export interface PropertyIdentity {
@@ -89,7 +88,7 @@ export function Sidebar({
         )}
       </div>
       <Suspense fallback={<PropertyBlock property={property} settings={false} close={close} />}>
-        <GrantedProperty desk={desk} property={property} close={close} />
+        <GrantedProperty desk={desk} property={property} close={close} path={path} />
       </Suspense>
       <nav className="workspace-links" aria-label="Разделы">
         {/* пока API не ответил — меню как у администратора: пункты появляются, а не исчезают (ADR-107) */}
@@ -215,7 +214,7 @@ function SectionLinks({
   );
 }
 
-/** Объект вверху панели ведёт в настройки гостиницы — тем, кому они открыты (ADR-107) */
+/** Authenticated users select an accessible branch in place. API enforces membership scope. */
 function GrantedProperty({
   desk,
   ...props
@@ -223,23 +222,23 @@ function GrantedProperty({
   desk: Promise<DeskShell> | undefined;
   property?: PropertyIdentity | null | undefined;
   close: (() => void) | undefined;
+  path: string;
 }) {
   const shell = desk ? use(desk) : null;
-  const settings = allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS);
-  return <PropertyBlock {...props} settings={settings} workspace={shell?.workspace ?? null} />;
+  const settings = Boolean(shell?.person);
+  return <PropertyBlock {...props} settings={settings} />;
 }
 
 function PropertyBlock({
   property,
   settings,
   close,
-  workspace = null,
+  path = '/today',
 }: {
   property?: PropertyIdentity | null | undefined;
   settings: boolean;
+  path?: string;
   close: (() => void) | undefined;
-  /** Текущий филиал и варианты (Platform P3): два и больше, переключатель под объектом, один, подпись (Q-215) */
-  workspace?: DeskShell['workspace'];
 }) {
   const identity = (
     <>
@@ -252,19 +251,12 @@ function PropertyBlock({
       </div>
     </>
   );
-  const block = settings ? (
-    <Link href="/branches" className="workspace-property" onClick={() => close?.()}>
+  return settings ? (
+    <BranchSwitcher path={path} close={close}>
       {identity}
-      <Icon name="chevron" width={14} />
-    </Link>
+    </BranchSwitcher>
   ) : (
     <div className="workspace-property">{identity}</div>
-  );
-  return (
-    <>
-      {block}
-      {workspace && <ScopeSwitcher workspace={workspace} />}
-    </>
   );
 }
 

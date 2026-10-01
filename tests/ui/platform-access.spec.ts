@@ -202,6 +202,7 @@ test('«Платформа → Организации»: главный адми
 
   await control(request, { platformAdmin: true });
   await page.goto('/platform');
+  await page.locator('summary').filter({ hasText: 'Подписки и администрирование' }).click();
   const table = page.getByTestId('platform-organizations');
   await expect(table).toContainText('Luxx Aparts');
   await expect(table).toContainText('Хостел «Пример»');

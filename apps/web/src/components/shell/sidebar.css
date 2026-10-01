@@ -213,3 +213,104 @@
     transition: none;
   }
 }
+
+.branch-switcher {
+  position: relative;
+  flex: none;
+  min-width: 0;
+}
+.branch-switcher > .workspace-property {
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+.branch-switcher__list {
+  position: absolute;
+  top: calc(100% - var(--space-2));
+  inset-inline: 0;
+  z-index: 20;
+  max-height: calc(100dvh - 210px);
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 24%);
+  padding: var(--space-2);
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: var(--text-sm);
+}
+.branch-switcher__options {
+  max-height: 240px;
+  overflow-y: auto;
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+.branch-switcher__options button {
+  display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: var(--space-2);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.branch-switcher__options button:hover,
+.branch-switcher__options button[aria-pressed='true'] {
+  background: var(--primary-soft);
+}
+.branch-switcher__options span {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.branch-switcher__options small {
+  color: var(--primary);
+}
+.sidebar-shell.is-compact .branch-switcher {
+  position: relative;
+  display: none;
+}
+
+.branch-switcher__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 4px 10px;
+}
+.branch-switcher__heading > span {
+  color: var(--muted);
+}
+.branch-switcher__list .inp {
+  width: 100%;
+  min-width: 0;
+  font-size: 13px;
+}
+.branch-switcher__options button {
+  grid-template-columns: minmax(0, 1fr) 20px;
+  padding: 10px;
+}
+.branch-switcher__options button > strong {
+  font-size: 14px;
+}
+.branch-switcher__options button > svg {
+  color: var(--primary);
+}
+.branch-switcher__options button > span {
+  grid-column: 1 / -1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.branch-switcher > .workspace-property[aria-expanded='true'] {
+  border-color: var(--primary);
+}
+.branch-switcher > .workspace-property[aria-expanded='true'] > svg {
+  transform: rotate(90deg);
+}

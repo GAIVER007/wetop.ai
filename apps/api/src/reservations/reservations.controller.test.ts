@@ -1309,6 +1309,39 @@ describe('manual reservation API', () => {
     ]);
   });
 
+  it.each(['2026-09-15', '2026-09-16'])(
+    'checkout on %s releases the unit and permits rebooking after inspection',
+    async (day) => {
+      vi.setSystemTime(new Date(day + 'T06:00:00Z'));
+      try {
+        const created = await request(app.getHttpServer())
+          .post('/reservations')
+          .send(body())
+          .expect(201);
+        const n = created.body.confirmationNumber;
+        const item = created.body.items[0].id;
+        await request(app.getHttpServer())
+          .post(`/reservations/${n}/items/${item}/check-in`)
+          .send({})
+          .expect(200);
+        const out = await request(app.getHttpServer())
+          .post(`/reservations/${n}/items/${item}/check-out`)
+          .send({})
+          .expect(200);
+        expect(fake.state.allocations.filter((a) => a.unitId === 'u1' && a.end > day)).toEqual([]);
+        expect(out.body.departureDate).toBe(day === '2026-09-15' ? '2026-09-17' : day);
+        expect(fake.units.find((u) => u.id === 'u1')?.housekeepingStatus).toBe('DIRTY');
+        fake.units.find((u) => u.id === 'u1')!.housekeepingStatus = 'INSPECTED';
+        await request(app.getHttpServer())
+          .post('/reservations')
+          .send(body({ arrivalDate: day }))
+          .expect(201);
+      } finally {
+        vi.setSystemTime(new Date('2026-09-10T06:00:00Z'));
+      }
+    },
+  );
+
   it('T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал', async () => {
     const created = await request(app.getHttpServer())
       .post('/reservations')

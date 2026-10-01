@@ -1591,7 +1591,9 @@ export class ReservationsService {
             `На счёте долг ${formatMinorRu(debtMinor)}. Примите оплату или подтвердите выселение с долгом`,
           );
         const today = await repo.today();
-        const early = today < item.departureDate && today > item.arrivalDate;
+        const early = today < item.departureDate && today >= item.arrivalDate;
+        // Same-day checkout releases capacity without creating a zero-night billing period.
+        const departureDate = early && today > item.arrivalDate ? today : item.departureDate;
         if (early) {
           for (const a of item.allocations) {
             if (a.endDate <= today) continue;
@@ -1601,7 +1603,7 @@ export class ReservationsService {
         }
         await repo.updateItem(item.id, {
           status: 'CHECKED_OUT',
-          ...(early ? { departureDate: today } : {}),
+          ...(early ? { departureDate } : {}),
         });
         // Q-155, решение владельца 22.09 (ADR-068): выезд сам переводит ячейку в «требует уборки» — с него
         // начинается цикл уборки; уже грязную не трогаем, запись журнала называет причину
@@ -1618,9 +1620,9 @@ export class ReservationsService {
           });
         }
         const others = state.items.filter((i) => i.id !== item.id && i.status !== 'CANCELLED');
-        const departure = [item.departureDate, ...others.map((i) => i.departureDate)].reduce(
+        const departure = [departureDate, ...others.map((i) => i.departureDate)].reduce(
           (m, d) => (d > m ? d : m),
-          early ? today : item.departureDate,
+          departureDate,
         );
         await repo.updateReservation(state.id, {
           status: deriveReservationStatus(

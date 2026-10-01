@@ -215,7 +215,7 @@ export function StaySettingsForm({ property }: { property: Property }) {
 /** Валюта и пояс — только просмотр при любых правах: от них зависят суммы и границы ночей */
 export function RegionalSettings({ property: p }: { property: Property }) {
   return (
-    <Panel className="settings-block" aria-labelledby="settings-region">
+    <Panel className="settings-block settings-region" aria-labelledby="settings-region">
       <h2 id="settings-region">Региональные настройки</h2>
       <dl className="settings-facts">
         <div>

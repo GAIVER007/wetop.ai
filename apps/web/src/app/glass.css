@@ -1,109 +1,11 @@
-/*
- * Стеклянный слой стойки (DESIGN.md §20, ADR-069). Подключается последним: он не переопределяет
- * раскладку и плотность, а добавляет к уже существующим блокам свет за стеклом, размытие и кромку.
- *
- * Что здесь есть и чего нет:
- *   — свет за страницей: четыре пятна и звёздная пыль, закреплены за прокруткой;
- *   — размытие и кромка у блоков страницы — списком селекторов, тем же, что в §20.3;
- *   — акцентный градиент у главной кнопки и знака.
- * Работа смены не трогается: сетка шахматки, таблицы, поля, меню и окна остаются непрозрачными
- * (DESIGN.md §1.1 — статус читается за секунду; размытие под плотными данными этому мешает).
- *
- * Цвета — только токены из tokens.css (он генерируется из design/tokens.json).
- */
-
-/* ---------- свет за стеклом ---------- */
-body {
-  position: relative;
-  isolation: isolate;
-}
-body::before {
-  content: '';
-  position: fixed;
-  inset: -20vmax;
-  z-index: var(--layer-glass-glow);
-  pointer-events: none;
-  background:
-    radial-gradient(42vmax 38vmax at 14% 4%, var(--glow-1), transparent 62%),
-    radial-gradient(38vmax 34vmax at 88% 10%, var(--glow-2), transparent 60%),
-    radial-gradient(46vmax 40vmax at 74% 82%, var(--glow-3), transparent 64%),
-    radial-gradient(34vmax 30vmax at 6% 88%, var(--glow-1), transparent 66%);
-}
+/* Shared application surfaces. Flat treatment requested 01.10.2026;
+   filename retained to preserve the existing global stylesheet import order. */
+body::before,
 body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: var(--layer-glass-stars);
-  pointer-events: none;
-  opacity: 0.6;
-  background-image:
-    radial-gradient(1px 1px at 12% 18%, var(--star), transparent),
-    radial-gradient(1px 1px at 68% 8%, var(--star), transparent),
-    radial-gradient(1px 1px at 36% 62%, var(--star), transparent),
-    radial-gradient(1px 1px at 82% 46%, var(--star), transparent),
-    radial-gradient(1px 1px at 24% 88%, var(--star), transparent),
-    radial-gradient(1px 1px at 92% 74%, var(--star), transparent);
-  background-size: 620px 620px;
-}
-/* Печать и режим повышенного контраста света за стеклом не знают: там бумага и плотный фон. */
-@media print {
-  body::before,
-  body::after {
-    display: none;
-  }
-}
-[data-theme='contrast'] body::before,
-[data-theme='contrast'] body::after {
+  content: none;
   display: none;
 }
-
-/*
- * ---------- стекло блоков страницы ----------
- * Список тот же, что в DESIGN.md §20.3. Новый блок добавляется сюда и туда одной правкой;
- * сторож tests/unit/desk-glass.test.ts следит, чтобы списки не разошлись.
- */
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .panel,
-  .stat,
-  .kpi,
-  .attention-card,
-  .attention-summary,
-  .section-card,
-  .facts--card,
-  .chart,
-  .chain__card,
-  .empty-state,
-  .tbl-wrap,
-  .table-scroll,
-  .desk-strip,
-  .quick-action,
-  .room-card,
-  .rooms-link,
-  .incident,
-  .incident-history,
-  .inventory-summary,
-  .inventory-categories,
-  .inventory-card,
-  .feature-pending,
-  .onboarding__section,
-  .booking-head,
-  .booking-footer,
-  .finance-block,
-  .reservations-controls,
-  .control-journal-search,
-  .board-toolbar,
-  .toolbar,
-  .workspace-property,
-  .workspace-sidebar {
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  }
-}
-/*
- * Кромка и тень стекла. Тень здесь — исключение из §5 («у блока страницы тени нет»), названное
- * в §20: без неё стекло лежит на свету плоско и не читается как стекло. Она мягкая и с отрицательным
- * разлётом — тяжести таблицы не добавляет.
- */
+/* Shared surfaces */
 .panel,
 .stat,
 .kpi,
@@ -113,16 +15,19 @@ body::after {
 .facts--card,
 .chart,
 .chain__card,
+.empty-state,
 .tbl-wrap,
 .table-scroll,
 .desk-strip,
 .quick-action,
 .room-card,
+.rooms-link,
 .incident,
 .incident-history,
 .inventory-summary,
 .inventory-categories,
 .inventory-card,
+.feature-pending,
 .onboarding__section,
 .booking-head,
 .booking-footer,
@@ -131,129 +36,27 @@ body::after {
 .control-journal-search,
 .board-toolbar,
 .toolbar,
-.workspace-property {
-  box-shadow:
-    inset 0 1px 0 var(--glass-edge),
-    var(--shadow-glass);
-  border-radius: var(--radius-lg);
-}
-
-/*
- * ---------- стекло внутри стекла ----------
- * Панель внутри панели не получает второго стекла: два размытия подряд и две тени превращают экран
- * в «набор карточек» — ровно то, от чего предостерегает §5. Вложенный блок остаётся тихой заливкой
- * с рамкой, как было до направления. Список тот же, что выше (§20.3), поэтому он и здесь целиком.
- */
-:is(
-    .panel,
-    .stat,
-    .kpi,
-    .attention-card,
-    .attention-summary,
-    .section-card,
-    .facts--card,
-    .chart,
-    .chain__card,
-    .empty-state,
-    .tbl-wrap,
-    .table-scroll,
-    .desk-strip,
-    .quick-action,
-    .room-card,
-    .rooms-link,
-    .incident,
-    .incident-history,
-    .inventory-summary,
-    .inventory-categories,
-    .inventory-card,
-    .feature-pending,
-    .onboarding__section,
-    .booking-head,
-    .booking-footer,
-    .finance-block,
-    .reservations-controls,
-    .control-journal-search,
-    .board-toolbar,
-    .toolbar,
-    .workspace-property,
-    .workspace-sidebar
-  )
-  :is(
-    .panel,
-    .stat,
-    .kpi,
-    .attention-card,
-    .attention-summary,
-    .section-card,
-    .facts--card,
-    .chart,
-    .chain__card,
-    .empty-state,
-    .tbl-wrap,
-    .table-scroll,
-    .desk-strip,
-    .quick-action,
-    .room-card,
-    .rooms-link,
-    .incident,
-    .incident-history,
-    .inventory-summary,
-    .inventory-categories,
-    .inventory-card,
-    .feature-pending,
-    .onboarding__section,
-    .booking-head,
-    .booking-footer,
-    .finance-block,
-    .reservations-controls,
-    .control-journal-search,
-    .board-toolbar,
-    .toolbar,
-    .workspace-property,
-    .workspace-sidebar
-  ) {
+.workspace-property,
+.workspace-sidebar {
+  background: var(--surface-solid);
+  background-image: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  background: var(--surface-muted);
   box-shadow: none;
   border-radius: var(--radius);
 }
-
-/* Боковое меню и шапка — то же стекло, что у панелей, но плотнее: под ними идёт прокрутка страницы. */
-.workspace-sidebar {
-  background: var(--sidebar);
-}
-
-/* ---------- акцент ---------- */
-/*
- * Главная кнопка страницы и знак получают акцентный градиент. Вторичные, опасные и остальные
- * кнопки не трогаем: цвет там означает последствие действия (DESIGN.md §9), а не украшение.
- */
-/*
- * Главная кнопка — это `.btn` без тона (`<Button>` ставит класс тона только не-главным, ui.tsx).
- * Размер (`--sm`, `--xs`) тоном не считается: маленькая главная кнопка остаётся главной, поэтому
- * исключения перечислены по именам тонов, а не «любой модификатор».
- */
-.btn:not(.btn--secondary):not(.btn--ghost):not(.btn--danger):not(.btn--warning):not(
-    .btn--success
-  ):not(.btn--info):not(.btn--inverse),
+.workspace-sidebar { background: var(--sidebar); }
+/* Functional status colors, keyboard focus and floating dialog shadows are preserved. */
+.btn:not(.btn--secondary):not(.btn--ghost):not(.btn--danger):not(.btn--warning):not(.btn--success):not(.btn--info):not(.btn--inverse),
 .btn--primary {
-  background-image: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 140%);
-  border-color: transparent;
+  background-image: none;
+  background-color: var(--primary);
+  color: var(--on-primary);
 }
-.workspace-mark {
-  background-image: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 130%);
-}
-
-/*
- * Сетка шахматки, таблицы, поля и слои над страницей остаются непрозрачными — на них смотрят
- * в спешке. Явное указание нужно потому, что часть из них лежит внутри стеклянной панели
- * и иначе просвечивала бы насквозь.
- */
+.workspace-mark { background: var(--primary); color: var(--on-primary); }
 .board,
 .board thead th,
 .board td.board__unit,
 .tbl,
-.tbl thead th {
-  background: var(--surface-solid);
-}
+.tbl thead th { background: var(--surface-solid); }
+.skeleton { background: var(--surface-muted); animation: none; }

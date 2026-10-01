@@ -1,0 +1,66 @@
+# Модульные (unit) · 01.10.2026 20:31 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-31-06Z-unit-b7ba.json' 'apps/web/src/app/reservations/new/summary.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/app/reservations/new/summary.test.ts (3 tests | 2 failed) 21ms
+   ❯ сводка новой брони: гости в групповом размещении (3)
+     × 3 койки по одному гостю: 3 места и 3 гостя 15ms
+     × 2 номера по два гостя: 2 места и 4 гостя; второе размещение считается своими полями 2ms
+     ✓ одно место: гостей столько, сколько в поле 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/new/summary.test.ts > сводка новой брони: гости в групповом размещении > 3 койки по одному гостю: 3 места и 3 гостя
+AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+-   "Мужской общий номер, 3 места, ячейки назначит система, 3 гостя",
++   "Мужской общий номер, 3 места, ячейки назначит система, 1 гость",
+  ]
+
+ ❯ apps/web/src/app/reservations/new/summary.test.ts:27:30
+     25|       null,
+     26|     );
+     27|     expect(facts.placements).toEqual([
+       |                              ^
+     28|       'Мужской общий номер, 3 места, ячейки назначит система, 3 гостя',
+     29|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/app/reservations/new/summary.test.ts > сводка новой брони: гости в групповом размещении > 2 номера по два гостя: 2 места и 4 гостя; второе размещение считается своими полями
+AssertionError: expected [ …(2) ] to deeply equal [ …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "Двухместный номер, 2 места, ячейки назначит система, 4 гостя",
++   "Двухместный номер, 2 места, ячейки назначит система, 2 гостя",
+    "Мужской общий номер, ячейка M05, 1 гость",
+  ]
+
+ ❯ apps/web/src/app/reservations/new/summary.test.ts:48:30
+     46|       null,
+     47|     );
+     48|     expect(facts.placements).toEqual([
+       |                              ^
+     49|       'Двухместный номер, 2 места, ячейки назначит система, 4 гостя',
+     50|       'Мужской общий номер, ячейка M05, 1 гость',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  15:31:07
+   Duration  385ms (transform 72%, import 17%, tests 9%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-31-06Z-unit-b7ba.json
+
+# код выхода 1 · 2 с

@@ -9,7 +9,7 @@ import { Overlay } from '../../components/overlay';
 import { Alert, Badge, Button, Table } from '../../components/ui';
 import { derivedRuleText } from '../../lib/rate-rule-text';
 import { DerivedForm } from './derived-form';
-import { saveRatePlanPenalty, type RatePlanActionResult } from './actions';
+import { saveRatePlanPenalty, setRatePlanActive, type RatePlanActionResult } from './actions';
 import '../inventory/fund.css';
 
 /**
@@ -131,6 +131,14 @@ export function RatePlansTable({ plans, editable }: { plans: RatePlanRow[]; edit
               setEditing(null);
             }}
           />
+          <StatusForm
+            key={`status-${editing.code}`}
+            plan={editing}
+            onSaved={(text) => {
+              setSaved(text);
+              setEditing(null);
+            }}
+          />
         </Overlay>
       )}
       {creating && (
@@ -223,6 +231,54 @@ function PenaltyForm({
           aria-busy={pending}
         >
           {pending ? 'Сохраняю…' : 'Сохранить'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+/**
+ * Выключить или включить тариф (ТЗ QA 01.10.2026, WET-04) через существующее поле `active`. Пока тариф держат
+ * каналы, сайт, производные или брони впереди, кнопка недоступна и причины перечислены; включить обратно можно
+ * всегда. Отказ API — словами в панели.
+ */
+function StatusForm({ plan, onSaved }: { plan: RatePlanRow; onSaved: (text: string) => void }) {
+  const [state, action, pending] = useActionState<RatePlanActionResult | null, FormData>(
+    setRatePlanActive,
+    null,
+  );
+  const reported = useRef<RatePlanActionResult | null>(null);
+  useEffect(() => {
+    if (!state?.saved || reported.current === state) return;
+    reported.current = state;
+    onSaved(`Тариф «${state.saved.name}» ${state.saved.active ? 'включён' : 'выключен'}`);
+  }, [state, onSaved]);
+  const blocked = plan.active && plan.offBlockers.length > 0;
+  return (
+    <form action={action} className="settings-service-form" data-testid="rate-plan-status-form">
+      <input type="hidden" name="code" value={plan.code} />
+      <input type="hidden" name="active" value={plan.active ? 'false' : 'true'} />
+      {state?.error && <Alert boxed>{state.error}</Alert>}
+      <p className="settings-note" data-testid="rate-plan-status">
+        {plan.active
+          ? 'Тариф действует: предлагается в новой брони и в предложениях цен.'
+          : 'Тариф выключен: в новой брони не предлагается, прежние брони хранят его условия.'}
+      </p>
+      {blocked && (
+        <Alert tone="warning" data-testid="rate-plan-off-blockers">
+          {plan.offBlockers.map((reason) => (
+            <p key={reason}>{reason}</p>
+          ))}
+        </Alert>
+      )}
+      <div className="settings-service-actions">
+        <Button
+          type="submit"
+          tone="secondary"
+          disabled={pending || blocked}
+          aria-busy={pending}
+        >
+          {pending ? 'Сохраняю…' : plan.active ? 'Выключить тариф' : 'Включить тариф'}
         </Button>
       </div>
     </form>

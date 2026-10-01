@@ -1,0 +1,95 @@
+# Сквозные (e2e) · 01.10.2026 20:43 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/rate-plans.spec.ts' 'tests/ui/rates-derived.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 12 tests using 2 workers
+
+  ✓   1 tests/ui/rate-plans.spec.ts:34:1 › вкладки «Цены | Тарифные планы»: правило словами у тарифа, кодов нет, на «Ценах» строки правила нет (6.9s)
+  ✓   3 tests/ui/rate-plans.spec.ts:57:1 › правка правила: панель называет затронутые брони, «Сохранить» ждёт другого выбора, правило сохраняется (4.8s)
+  ✓   4 tests/ui/rate-plans.spec.ts:87:1 › тариф без будущих броней: панель говорит, что правило коснётся новых (2.8s)
+  ✓   5 tests/ui/rate-plans.spec.ts:105:1 › «только чтение»: тарифы и правила видны, править нельзя (2.6s)
+  ✘   2 tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента (22.8s)
+  ✓   7 tests/ui/rates-derived.spec.ts:65:1 › промокоды: вкладка, добавить, повтор кода — ошибка, выключить (5.7s)
+  ✓   8 tests/ui/rates-derived.spec.ts:103:1 › «только чтение»: производные тарифы и промокоды видны, кнопок правки нет (3.2s)
+  ✓   9 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: light (10.6s)
+  ✓  10 tests/ui/rates-derived.spec.ts:117:3 › снимки D4 и доступность: dark (9.7s)
+  ✘   6 tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони (45.3s)
+  ✓  11 tests/ui/rate-plans.spec.ts:167:3 › снимки SET4 и доступность: light (8.0s)
+  ✓  12 tests/ui/rate-plans.spec.ts:167:3 › снимки SET4 и доступность: dark (8.3s)
+
+
+  1) tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('rate-plans-table').getByRole('button', { name: 'Гибкий без штрафа' })
+
+
+      153 |
+      154 |   await page.goto('/rates/plans');
+    > 155 |   await table.getByRole('button', { name: 'Гибкий без штрафа' }).click();
+          |                                                                  ^
+      156 |   const again = page.getByRole('dialog', { name: 'Гибкий без штрафа' });
+      157 |   await expect(again.getByTestId('rate-plan-status')).toContainText('Тариф выключен');
+      158 |   await again.getByRole('button', { name: 'Включить тариф' }).click();
+        at /home/user/wetop.ai/tests/ui/rate-plans.spec.ts:155:66
+
+    Error Context: test-results/rate-plans-выключить-и-вкл-602de-роней-уходит-из-формы-брони/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rate-plans-выключить-и-вкл-602de-роней-уходит-из-формы-брони/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rate-plans-выключить-и-вкл-602de-роней-уходит-из-формы-брони/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('rate-plans-table').getByRole('row', { name: /Раннее бронирование/ })
+    Expected substring: "−20% от «Стандартный»"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('rate-plans-table').getByRole('row', { name: /Раннее бронирование/ }) with timeout 15000ms
+      - waiting for getByTestId('rate-plans-table').getByRole('row', { name: /Раннее бронирование/ })
+        5 × locator resolved to <tr>…</tr>
+          - unexpected value "Раннее бронированиеБез категорий−15% от «Стандартный»; заезд не раньше чем за 30 дн.—−15% от «Стандартный»; заезд не раньше чем за 30 дн.Стоимость первой ночи0действует"
+
+
+      60 |   await edit.getByLabel('Скидка, %').fill('20');
+      61 |   await edit.getByRole('button', { name: 'Сохранить условия' }).click();
+    > 62 |   await expect(row).toContainText('−20% от «Стандартный»');
+         |                     ^
+      63 | });
+      64 |
+      65 | test('промокоды: вкладка, добавить, повтор кода — ошибка, выключить', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/rates-derived.spec.ts:62:21
+
+    Error Context: test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-derived-производный--1a9b1-бка-у-формы-правка-процента/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/rate-plans.spec.ts:120:1 › выключить и включить тариф: причина у тарифа с бронями, тариф без броней уходит из формы брони 
+    tests/ui/rates-derived.spec.ts:33:1 › производный тариф: добавить, условия словами, ошибка у формы, правка процента 
+  10 passed (1.5m)
+
+# код выхода 1 · 1 мин 31 с

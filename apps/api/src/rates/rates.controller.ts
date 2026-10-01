@@ -49,9 +49,10 @@ export class RatesController {
     return this.plans.updateDerived(code, body);
   }
 
+  // правило отмены (SET4) или выключить / включить тариф (WET-04): одно поле за запрос
   @Patch('plans/:code')
   updateRatePlan(@Param('code') code: string, @Body() body: unknown) {
-    return this.plans.updatePenalty(code, body);
+    return this.plans.update(code, body);
   }
 
   @Get('promo-codes')

@@ -1,0 +1,58 @@
+# Интеграционные (integration) · 01.10.2026 20:51 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 5
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-51-45Z-integration-07de.json' 'tests/integration/rate-plan-active.test.ts' 'tests/integration/rates-derived-api.test.ts' 'tests/integration/rate-plan-penalty.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/rate-plan-active.test.ts (1 test | 1 failed) 488ms
+   ❯ rate plan on/off API (1)
+     × lists blockers, refuses to switch off a held plan, switches a free plan off and on with audit 486ms
+ ✓ |integration| tests/integration/rates-derived-api.test.ts (1 test) 735ms
+   ✓ derived rate plans and promo codes API (1)
+     ✓ creates and edits a derived plan and a promo code with validation and audit 732ms
+ ✓ |integration| tests/integration/rate-plan-penalty.test.ts (1 test) 534ms
+   ✓ rate plan cancellation rule (1)
+     ✓ counts reservations the rule can still affect and saves the rule with an audit row 530ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/rate-plan-active.test.ts > rate plan on/off API > lists blockers, refuses to switch off a held plan, switches a free plan off and on with audit
+PrismaClientValidationError: 
+Invalid `prisma.accommodationType.create()` invocation:
+
+{
+  data: {
+    propertyId: "b54b4175-c564-4954-8efa-8114b83ceedc",
+    code: "wet04-room",
+    name: "Номер WET-04",
+    kind: "ROOM",
+          ~~~~~~
+    capacityAdults: 2
+  }
+}
+
+Invalid value for argument `kind`. Expected AccommodationKind.
+ ❯ Fr node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:46:9
+ ❯ throwValidationException node_modules/@prisma/client/src/runtime/RequestHandler.ts:212:7
+ ❯ vn.handleAndLogRequestError node_modules/@prisma/client/src/runtime/RequestHandler.ts:184:12
+ ❯ vn.request node_modules/@prisma/client/src/runtime/RequestHandler.ts:153:12
+ ❯ a node_modules/@prisma/client/src/runtime/getPrismaClient.ts:1014:24
+ ❯ tests/integration/rate-plan-active.test.ts:43:20
+     41|     await app.init();
+     42|     try {
+     43|       const type = await db.accommodationType.create({
+       |                    ^
+     44|         data: { propertyId: property.id, code: 'wet04-room', name: 'Но…
+     45|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 2 passed (3)
+   Start at  15:51:46
+   Duration  6.63s (tests 37%, transform 31%, import 31%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-51-45Z-integration-07de.json
+
+# код выхода 1 · 8 с

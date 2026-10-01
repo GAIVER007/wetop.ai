@@ -1,0 +1,16 @@
+# Модульные (unit) · 01.10.2026 20:34 Алматы · vm
+# коммит 9f2ee55 (claude/intelligent-maxwell-mhyoxn), незакоммиченных файлов набора: 6
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-34-23Z-unit-a5b2.json' 'apps/api/src/rates/rate-plans.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| apps/api/src/rates/rate-plans.test.ts (9 tests) 32ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  15:34:24
+   Duration  1.58s (transform 76%, import 22%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-34-23Z-unit-a5b2.json
+
+# код выхода 0 · 3 с

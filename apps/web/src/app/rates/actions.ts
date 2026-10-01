@@ -56,6 +56,27 @@ export async function saveRatePlanPenalty(
 
 const errorText = (e: unknown) => (e instanceof ApiError || e instanceof Error ? e.message : String(e));
 
+/**
+ * Выключить или включить тариф (ТЗ QA 01.10.2026, WET-04): проверки и журнал в API; выключенный тариф не
+ * предлагается в новой брони, прежние брони хранят его условия. Отказ (каналы, сайт, производные, брони впереди)
+ * приходит словами и показывается в панели.
+ */
+export async function setRatePlanActive(
+  _prev: RatePlanActionResult | null,
+  form: FormData,
+): Promise<RatePlanActionResult> {
+  const code = String(form.get('code') ?? '');
+  const active = String(form.get('active') ?? '') === 'true';
+  try {
+    const saved = await ratesApi.updatePlan(code, { active });
+    revalidatePath('/rates/plans');
+    revalidatePath('/reservations/new');
+    return { error: null, saved };
+  } catch (e) {
+    return { error: errorText(e) };
+  }
+}
+
 /** Целое из поля формы: пусто — `null`, не число — `undefined` (ошибка словами у формы) */
 function wholeOrNull(form: FormData, key: string): number | null | undefined {
   const raw = String(form.get(key) ?? '').trim();

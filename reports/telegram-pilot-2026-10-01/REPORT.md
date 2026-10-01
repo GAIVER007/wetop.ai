@@ -50,3 +50,14 @@ Remote main advanced to 0930cf5d during work (homepage/authentication changes). 
 pre-existing untracked report image collisions preserved under `.agent-tmp/pre-main-merge-20261001/`.
 After adding the four Telegram endpoints to the explicit access-contract table, merged authentication/
 role/Telegram API set passes **26 tests** (09:11:28 UTC run). No role or auth check was disabled.
+
+## Deployment recovery
+
+First rollout of 8c8b125b rolled back successfully to ed8cc7b9: API image import failed EACCES on
+bot-panel-client.ts. Cause reproduced in an isolated no-network container: deployment inherited umask077
+from private patch-backup preparation, so git checkout produced root-only sources. Server tracked source
+modes restored from Git modes (secrets/untracked files untouched); deploy script now explicitly sets022.
+Regression test runs real checkout under077 and asserts file readability/directory traversal by image user.
+Also fixed brace expansion around APPLIED_SHA next to a Unicode quote (macOS bash3 invalid-ref error path).
+Final deploy behavior set: 14/14 pass, with 15s command-line timeout for Git/rollback subprocess tests.
+No assertions removed. Existing production database remains unchanged.

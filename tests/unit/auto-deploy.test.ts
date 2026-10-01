@@ -7,7 +7,7 @@
  * падение без отката и повторную тревогу раз в две минуты.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, statSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -35,8 +35,8 @@ function commit(file: string, text: string, message: string, force = false) {
   return git(dev, 'rev-parse', 'HEAD');
 }
 
-function run(env: Record<string, string> = {}, args: string[] = []) {
-  const r = spawnSync('bash', [SCRIPT, ...args], {
+function run(env: Record<string, string> = {}, args: string[] = [], restrictiveMask = false) {
+  const r = spawnSync('bash', restrictiveMask ? ['-c', 'umask 077; exec bash "$@"', 'test', SCRIPT, ...args] : [SCRIPT, ...args], {
     encoding: 'utf8',
     env: {
       ...process.env,
@@ -103,6 +103,13 @@ exit 0
 afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
 describe('scripts/ops/auto-deploy.sh', () => {
+  it('checked-out source stays readable by the container user under a private caller umask', () => {
+    commit('apps/api/src/new-module.ts', 'export const ready = true;\n', 'new module');
+    const result = run({DEPLOY_NOTIFY: 'off'}, [], true);
+    expect(result.code).toBe(0);
+    expect(statSync(join(server, 'apps/api/src/new-module.ts')).mode & 0o444).toBe(0o444);
+    expect(statSync(join(server, 'apps/api/src')).mode & 0o111).toBe(0o111);
+  });
   it('ветка не ушла вперёд — ничего не делает и молчит', () => {
     const r = run();
     expect(r.code).toBe(0);
@@ -193,7 +200,8 @@ describe('scripts/ops/auto-deploy.sh', () => {
   it('--migrations-applied с номером вершины выкладывает ровно её, другую — нет', () => {
     const target = commit('packages/database/prisma/migrations/0002_more/migration.sql', 'select 2;\n', 'migration');
     expect(run().code).toBe(1);
-    expect(run({}, ['--migrations-applied', 'deadbeef']).code).not.toBe(0);
+    const rejected = run({}, ['--migrations-applied', 'deadbeef']);
+    expect(rejected.code, rejected.out).not.toBe(0);
     const r = run({}, ['--migrations-applied', target.slice(0, 8)]);
     expect(r.code, r.out).toBe(0);
     expect(head()).toBe(target);

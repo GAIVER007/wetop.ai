@@ -30,6 +30,9 @@
 # DEPLOY_NOTIFY=off  не писать в Telegram (тесты)
 # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID — из окружения или .env клона; в журнал и сообщения не попадают
 set -euo pipefail
+# Git checkout files are copied into an image running as a non-root user.
+# A private caller umask must not turn application source into root-only files.
+umask 022
 # cron даёт скупой PATH: системные каталоги дописываются в конец, свои (и подставные в тестах) остаются первыми
 export PATH="${PATH:+$PATH:}/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -111,7 +114,7 @@ applied_ok=0
 if [ -n "$APPLIED_SHA" ]; then
   applied_commit="$(git rev-parse --verify --quiet "${APPLIED_SHA}^{commit}" || true)"
   if [ -z "$applied_commit" ]; then
-    say "--migrations-applied: не узнаю вершину «$APPLIED_SHA» — возьмите sha из сообщения об отказе"
+    say "--migrations-applied: не узнаю вершину «${APPLIED_SHA}» — возьмите sha из сообщения об отказе"
     exit 2
   fi
   if [ "$applied_commit" != "$target" ]; then

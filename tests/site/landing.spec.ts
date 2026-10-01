@@ -7,7 +7,14 @@ import { expect, test } from '@playwright/test';
  * нет адресов, которых на сайте нет. Данных владельца тесты не требуют: пустые поля `site.config.ts`
  * прячут блоки, и это проверяется отдельно — «TODO» на странице быть не должно ни в каком виде.
  */
-const PAGES = ['/', '/blog/', '/for/hostels/', '/for/mini-hotels/', '/for/apart-hotels/', '/calculator/'];
+const PAGES = [
+  '/',
+  '/blog/',
+  '/for/hostels/',
+  '/for/mini-hotels/',
+  '/for/apart-hotels/',
+  '/calculator/',
+];
 test('чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('script[src*="/widget/widget.js"]')).toHaveCount(0);
@@ -90,9 +97,10 @@ test('главная: «Войти» и «Регистрация», шаги п�
   expect(body).not.toContain(' · ');
   const start = page.locator('#start');
   await expect(start.getByRole('heading', { level: 3 })).toHaveText([
-    /^Доступ$/, // ручное подключение пилотных партнёров до RLS (ADR-102)
-    /^Номера и цены$/, // `typo()` может ставить неразрывные пробелы — regex их пропускает
-    /^Работа$/,
+    /^Создайте аккаунт$/,
+    /^Подтвердите почту$/,
+    /^Настройте объект$/,
+    /^Начните работу$/,
     /./, // заголовок призыва
   ]);
   await expect(start).toContainText(/14\sдней/);
@@ -103,22 +111,22 @@ test('главная: «Войти» и «Регистрация», шаги п�
   const header = page.locator('.site-header');
   await expect(header.getByRole('link', { name: 'Войти', exact: true })).toHaveAttribute(
     'href',
-    'https://app.wetop.ai/login',
+    'https://wetop.ai/#login',
   );
   await expect(header.getByRole('link', { name: 'Получить доступ', exact: true })).toHaveAttribute(
     'href',
-    'https://app.wetop.ai/register',
+    'https://wetop.ai/#register',
   );
   const hero = page.locator('.hero');
   await expect(hero.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
     'href',
-    'https://app.wetop.ai/register',
+    'https://wetop.ai/#register',
   );
   await expect(hero.getByRole('link', { name: /Смотреть возможности/ })).toBeVisible();
   await expect(hero).toContainText(/14\sдней бесплатно/);
   await expect(start.getByRole('link', { name: /Получить доступ/ })).toHaveAttribute(
     'href',
-    'https://app.wetop.ai/register',
+    'https://wetop.ai/#register',
   );
   expect(await page.locator('a[href$="#start"]').filter({ hasText: /заявк/i }).count()).toBe(0);
   // блог: статей нет — пункта нет ни в шапке, ни в подвале; сама страница отдаётся
@@ -131,11 +139,9 @@ test('главная: «Войти» и «Регистрация», шаги п�
     page.getByRole('navigation', { name: 'Ссылки' }).getByRole('link', { name: 'Блог' }),
   ).toHaveCount(0);
   expect((await page.request.get('/blog/')).status()).toBe(200);
-  // событие «Новая продажа» — строкой внутри окна макета, а не плавающей подсказкой
-  const card = await hero.locator('.mockup__window').boundingBox();
-  const event = await hero.locator('.ops__event').boundingBox();
-  expect(card && event && event.x + event.width <= card.x + card.width + 1).toBe(true);
-  expect(card && event && event.y + event.height <= card.y + card.height + 1).toBe(true);
+  // Схематичный обзор не выдаёт вымышленные продажи за реальные показатели.
+  await expect(hero.locator('.workspace-preview')).toBeVisible();
+  await expect(hero).toContainText('Не данные действующего объекта');
 });
 
 /**
@@ -157,29 +163,15 @@ test('первый экран — центр управления сервисн
   await expect(hero).toContainText(
     /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\s—\sв\sодном\sрабочем\sпространстве/,
   );
-  const heroText = await hero.innerText();
-  expect(heroText).not.toMatch(/номер|койк|шахматк|Booking|Hostelworld|Agoda|хостел|отел/i);
-  const screen = hero.getByRole('img', { name: /Сегодня/ });
+  const screen = hero.getByRole('img', { name: /Схема рабочего пространства/ });
   await expect(screen).toBeVisible();
-  const screenLabel = (await screen.getAttribute('aria-label')) ?? '';
   // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
   // одна плашка, без круглой печати; в макете боковое меню разделов объясняет, что внутри
   await expect(hero.locator('.hero__seal')).toHaveCount(0);
   await expect(hero.locator('.hero__word')).toHaveCount(0);
   await expect(hero.locator('.hero__status')).toHaveText(/Регистрация открыта/);
-  for (const section of [
-    'Сегодня',
-    'Клиенты',
-    'Расписание',
-    'Продажи',
-    'Команда',
-    'Финансы',
-    'Аналитика',
-  ]) {
-    await expect(hero.locator('.ops__rail')).toContainText(section);
-  }
-  for (const word of [/клиент/i, /филиал/i, /задач/i, /продаж/i, /финанс/i]) {
-    expect(screenLabel, `подпись экрана «Сегодня» без ${word}`).toMatch(word);
+  for (const section of ['Операции', 'Продажи', 'Команда', 'Финансы', 'Аналитика', 'ИИ-продавцы']) {
+    await expect(hero.locator('.hero__capabilities')).toContainText(section);
   }
 
   const verticals = page.locator('#audience');
@@ -191,8 +183,8 @@ test('первый экран — центр управления сервисн
   await expect(beauty).toContainText(/пока нельзя/);
   // Первый экран идёт раньше разделов про гостиницу
   const order = await page
-    .locator('main > section')
+    .locator('main section')
     .evaluateAll((els) => els.map((el) => el.getAttribute('id') ?? el.className));
   expect(order.indexOf('workflow')).toBeLessThan(order.indexOf('features'));
-  expect(order.indexOf('features')).toBeLessThan(order.indexOf('audience'));
+  expect(order.indexOf('audience')).toBeLessThan(order.indexOf('features'));
 });

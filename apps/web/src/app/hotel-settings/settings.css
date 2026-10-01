@@ -353,21 +353,21 @@
 .object-settings .settings-stack,
 .object-settings .settings-form {
   max-width: none;
-  gap: 14px;
+  gap: 16px;
 }
 .object-settings .settings-block {
-  padding: 18px;
+  padding: 16px;
 }
 .object-settings .settings-block > h2 {
   font-size: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .object-settings .settings-fields {
-  gap: 12px;
+  gap: 16px;
 }
 .object-settings .settings-fields input {
   min-height: 38px;
-  padding: 8px 12px;
+  padding: 8px 16px;
 }
 .object-settings .settings-facts {
   margin-bottom: 0;
@@ -378,21 +378,21 @@
 }
 .object-settings .settings-note {
   font-size: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .object-settings .settings-service-help {
-  padding: 12px 16px;
-  gap: 12px;
+  padding: 16px 16px;
+  gap: 16px;
 }
 .object-settings .settings-service-help h2 {
   font-size: 14px;
 }
 .object-settings .settings-toolbar {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .object-settings .settings-table th,
 .object-settings .settings-table td {
-  padding: 10px 12px;
+  padding: 8px 16px;
   font-size: 13px;
 }
 @media (min-width: 1000px) {

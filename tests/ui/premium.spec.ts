@@ -135,7 +135,7 @@ test('новые страницы и обе темы: адаптивность �
     '/inventory',
     '/finance',
     '/profile',
-    '/login',
+    '/profile',
     '/connections',
     '/hotel-settings',
     '/channels',
@@ -177,14 +177,14 @@ test('новые страницы и обе темы: адаптивность �
 });
 // вход настоящий (ADR-047): чужая почта с чужим паролем не пускает, и текст один для обоих случаев
 test('вход не пускает с чужой почтой и чужим паролем', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('demo@example.invalid');
   await page.getByLabel('Пароль', { exact: true }).fill('demo-password');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Неверная почта или пароль',
   );
-  await expect(page).toHaveURL(/login/);
+  await expect(page).toHaveURL(/\/auth\/fallback/);
 });
 
 /**
@@ -206,7 +206,9 @@ test('список броней: выборка названа, пустой р�
   // ручной период — за кнопкой «Даты» (ADR-106, §62 ТЗ); в раскрытом виде подписи видны, не только aria-label
   await main.getByRole('button', { name: 'Даты', exact: true }).click();
   await expect(main.locator('.reservations-toolbar').getByText('С', { exact: true })).toBeVisible();
-  await expect(main.locator('.reservations-toolbar').getByText('По', { exact: true })).toBeVisible();
+  await expect(
+    main.locator('.reservations-toolbar').getByText('По', { exact: true }),
+  ).toBeVisible();
   // одна страница — счётчик страниц не рисуется
   await expect(main.getByText(/Страница \d+ из/)).toHaveCount(0);
 

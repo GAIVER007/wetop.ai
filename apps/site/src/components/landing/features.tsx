@@ -95,7 +95,7 @@ export function Features() {
   return (
     <section id="features" className="section explorer" aria-labelledby="features-title">
       <div className="container">
-        <p className="eyebrow">02 / Возможности</p>
+        <p className="eyebrow">Возможности в действии</p>
         <h2 id="features-title">
           Меньше рутины.
           <br />

@@ -10,7 +10,7 @@ export default defineConfig({
   testMatch: '*.spec.ts',
   // наборы со своим стендом идут отдельно: замок — `playwright.auth.config.ts`, подставной помощник —
   // `playwright.assistant.config.ts` (стойке нужен `ASSISTANT_URL` на время запуска)
-  testIgnore: ['login-lock.spec.ts', 'assistant-widget.spec.ts'],
+  testIgnore: ['login-lock.spec.ts', 'unified-auth.spec.ts', 'assistant-widget.spec.ts'],
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,
@@ -40,8 +40,18 @@ export default defineConfig({
         APP_DEMO_MODE: '',
         APP_API_URL: 'http://127.0.0.1:4311',
         APP_ALLOW_TEST_DATA: '1',
+        APP_URL: 'http://127.0.0.1:3100',
+        WETOP_SITE_URL: 'http://127.0.0.1:3002',
       },
       url: 'http://127.0.0.1:3100/today',
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run dev -w apps/site',
+      cwd: '../..',
+      env: { WETOP_SITE_URL: 'http://127.0.0.1:3002', WETOP_APP_URL: 'http://127.0.0.1:3100' },
+      url: 'http://127.0.0.1:3002',
       reuseExistingServer: false,
       timeout: 120_000,
     },

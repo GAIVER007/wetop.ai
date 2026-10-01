@@ -2,6 +2,7 @@ import { cookies, headers } from 'next/headers';
 import type { AuthClientInfo } from './api';
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure } from './session-cookie';
 import { lockRequired } from './auth-lock';
+import { publicAuthUrl } from './auth-entry';
 
 // имена сохранены: их зовут действия входа, спеки и посредник
 export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
@@ -18,8 +19,7 @@ export { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, cookieSecure };
  * кроме «0» и «false»; без значения стойка в разработке работает без входа — иначе встали бы сквозные наборы.
  */
 
-export const authRequired = () =>
-  lockRequired(process.env.APP_AUTH_REQUIRED, process.env.NODE_ENV);
+export const authRequired = () => lockRequired(process.env.APP_AUTH_REQUIRED, process.env.NODE_ENV);
 
 /** Адрес посетителя и его браузер — API считает по ним пределы и список «где я вошёл». Вне запроса — пусто. */
 export async function clientInfo(): Promise<AuthClientInfo> {
@@ -72,5 +72,12 @@ export async function clearSessionCookie(): Promise<void> {
 export async function redirectToLoginIfRequired(): Promise<void> {
   if (!authRequired()) return;
   const { redirect } = await import('next/navigation');
-  redirect('/login');
+  let next: string | null = null;
+  try {
+    const h = await headers();
+    next = h.get('x-wetop-return') ?? h.get('x-wetop-path');
+  } catch {
+    // Служебный вызов вне запроса: замок остаётся включён, адрес возврата — /today.
+  }
+  redirect(publicAuthUrl('login', next));
 }

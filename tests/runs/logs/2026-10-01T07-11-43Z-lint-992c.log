@@ -1,0 +1,11 @@
+# Линтер (lint) · 01.10.2026 12:11 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 75
+# npx eslint .
+
+/Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/lib/auth-entry.ts
+  8:5  error  Unexpected control character(s) in regular expression: \x00, \x1f  no-control-regex
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 21 с

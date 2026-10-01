@@ -15,14 +15,17 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-test('пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет', async ({ page, request }) => {
+test('пробный срок вышел — полоса «оплатите подписку» на рабочих экранах; в срок её нет', async ({
+  page,
+  request,
+}) => {
   await request.post(`${API}/__test/control`, { data: { orgTrialDays: 10 } });
   await signIn(page);
   await expect(page.getByTestId('read-only-banner')).toHaveCount(0);

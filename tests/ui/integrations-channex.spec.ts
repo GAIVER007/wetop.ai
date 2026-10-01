@@ -24,7 +24,7 @@ test.afterEach(async ({ request }) => {
 
 /** Роль, «только чтение» и технические детали знает только оболочка вошедшего (ADR-083, ADR-102) */
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -45,23 +45,43 @@ test('работает: соединение и состояние без оче
   await expect(page).toHaveURL(/\/connections\/channex$/);
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
-  await expect(main.getByRole('link', { name: 'Интеграции' })).toHaveAttribute('href', '/connections');
+  await expect(main.getByRole('link', { name: 'Интеграции' })).toHaveAttribute(
+    'href',
+    '/connections',
+  );
   await expect(main.getByTestId('integration-health')).toHaveText('Работает');
   await expect(main.getByTestId('integration-issues')).toHaveCount(0);
   await expect(main.getByTestId('channex-connection')).toContainText('Luxx Aparts');
-  await expect(main.getByTestId('channex-connection')).toContainText('задан, хранится на сервере WETOP');
+  await expect(main.getByTestId('channex-connection')).toContainText(
+    'задан, хранится на сервере WETOP',
+  );
   await expect(main.getByTestId('channex-check')).toHaveText(/^прошла в \d{2}:\d{2}$/);
   await expect(main.getByTestId('channex-webhook')).toHaveText('включён и отвечает');
   await expect(main.getByTestId('channex-categories')).toHaveText('3 из 3');
   await expect(main.getByTestId('integration-last-exchange')).toHaveText(/^[12] мин назад$/);
   // действия — только те, что API умеет: проверка (чтение) и переход в «Каналы продаж»
   await expect(main.getByRole('button', { name: 'Проверить соединение' })).toBeVisible();
-  await expect(main.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute('href', '/channels');
-  for (const name of [/Переподключить/, /Отключить/, /Подключить/, /Полная выгрузка/, /Зарегистрировать/])
+  await expect(main.getByRole('link', { name: 'Каналы продаж' })).toHaveAttribute(
+    'href',
+    '/channels',
+  );
+  for (const name of [
+    /Переподключить/,
+    /Отключить/,
+    /Подключить/,
+    /Полная выгрузка/,
+    /Зарегистрировать/,
+  ])
     await expect(main.getByRole('button', { name })).toHaveCount(0);
   await expect(main.getByTestId('channex-manage')).toContainText('поддержка WETOP');
   // очередь, события и сырые данные остаются в «Каналах продаж»; ключей и адреса webhook нет
-  for (const text of ['Очередь в каналы', 'ui-task-4f2a', 'https://api.example.invalid', 'API key', 'secret'])
+  for (const text of [
+    'Очередь в каналы',
+    'ui-task-4f2a',
+    'https://api.example.invalid',
+    'API key',
+    'secret',
+  ])
     await expect(main).not.toContainText(text);
   // среда и ID объекта — только в свёрнутых технических деталях
   const tech = main.getByTestId('integration-tech');
@@ -74,7 +94,9 @@ test('работает: соединение и состояние без оче
   expect(await (await page.request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
 });
 
-test('устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад', async ({ page }) => {
+test('устарело: очередь стоит — внимание, ссылка в очередь, обмен часами назад', async ({
+  page,
+}) => {
   await control(page, { channex: 'stale' satisfies Mode });
   await page.goto('/connections/channex');
   const main = page.getByRole('main');
@@ -86,10 +108,14 @@ test('устарело: очередь стоит — внимание, ссыл
     '/channels/sync?queue=PENDING',
   );
   await expect(main.getByTestId('channex-webhook')).toHaveText('включён и отвечает');
-  await expect(main.getByTestId('integration-last-exchange')).toHaveText(/^(сегодня|вчера), \d{2}:\d{2}$/);
+  await expect(main.getByTestId('integration-last-exchange')).toHaveText(
+    /^(сегодня|вчера), \d{2}:\d{2}$/,
+  );
   // карточка на «Интеграциях» говорит то же самое
   await page.goto('/connections');
-  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText('Требует внимания');
+  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText(
+    'Требует внимания',
+  );
 });
 
 test('webhook не отвечает: причина словами и тот же вывод на карточке', async ({ page }) => {
@@ -101,7 +127,9 @@ test('webhook не отвечает: причина словами и тот ж�
   await expect(main.getByTestId('channex-webhook')).toHaveText('не отвечает');
 });
 
-test('не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния', async ({ page }) => {
+test('не подключено: как подключить, без ссылки в «Каналы продаж» и без состояния', async ({
+  page,
+}) => {
   await control(page, { channex: 'foreign' satisfies Mode });
   await page.goto('/connections/channex');
   const main = page.getByRole('main');
@@ -115,7 +143,9 @@ test('не подключено: как подключить, без ссылк�
 test('ключ не задан — тоже «не подключено»', async ({ page }) => {
   await control(page, { channex: 'no-key' satisfies Mode });
   await page.goto('/connections/channex');
-  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText('Не подключено');
+  await expect(page.getByRole('main').getByTestId('integration-health')).toHaveText(
+    'Не подключено',
+  );
 });
 
 test('только чтение: состояние и проверка доступны, изменения — после оплаты', async ({ page }) => {
@@ -172,9 +202,15 @@ for (const theme of ['light', 'dark'] as const) {
     const shot = async (name: string, mode: Mode, extra = {}, full = false) => {
       await control(page, { channex: mode, ...extra });
       await page.goto('/connections/channex');
-      await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Менеджер каналов');
+      await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
+        'Менеджер каналов',
+      );
       await page.mouse.move(0, 0);
-      await page.screenshot({ path: `${report}/${theme}-${name}.png`, caret: 'initial', fullPage: full });
+      await page.screenshot({
+        path: `${report}/${theme}-${name}.png`,
+        caret: 'initial',
+        fullPage: full,
+      });
     };
     await page.setViewportSize({ width: 1440, height: 1000 });
     await shot('ok-1440', 'ok');

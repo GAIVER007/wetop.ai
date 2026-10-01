@@ -10,7 +10,14 @@ export const ONBOARDING_LATER_COOKIE = 'wetop_onboarding_later';
 export const ONBOARDING_LATER_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 /** Пути, где гейт не работает: сам онбординг, вход, регистрация, приглашение, сброс пароля — иначе был бы цикл. */
-const SKIP = ['/onboarding', '/login', '/register', '/invite', '/password-reset'];
+const SKIP = [
+  '/onboarding',
+  '/login',
+  '/register',
+  '/invite',
+  '/password-reset',
+  '/profile/access',
+];
 
 export function needsOnboardingRedirect(input: {
   path: string;

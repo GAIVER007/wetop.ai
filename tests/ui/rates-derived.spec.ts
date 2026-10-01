@@ -21,7 +21,7 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -30,7 +30,9 @@ async function signIn(page: Page) {
 const planRow = (page: Page, name: string) =>
   page.getByTestId('rate-plans-table').getByRole('row', { name: new RegExp(name) });
 
-test('производный тариф: добавить, условия словами, ошибка у формы, правка процента', async ({ page }) => {
+test('производный тариф: добавить, условия словами, ошибка у формы, правка процента', async ({
+  page,
+}) => {
   await signIn(page);
   await page.goto('/rates/plans');
   const main = page.getByRole('main');
@@ -50,7 +52,10 @@ test('производный тариф: добавить, условия сло
   // у обычного тарифа условий нет
   await expect(planRow(page, 'Стандартный').first()).toContainText('—');
 
-  await main.getByTestId('rate-plans-table').getByRole('button', { name: 'Раннее бронирование' }).click();
+  await main
+    .getByTestId('rate-plans-table')
+    .getByRole('button', { name: 'Раннее бронирование' })
+    .click();
   const edit = page.getByRole('dialog', { name: 'Раннее бронирование' });
   await edit.getByLabel('Скидка, %').fill('20');
   await edit.getByRole('button', { name: 'Сохранить условия' }).click();
@@ -64,7 +69,10 @@ test('промокоды: вкладка, добавить, повтор код�
   const tabs = main.getByRole('navigation', { name: 'Тарифы и цены' });
   await tabs.getByRole('link', { name: 'Промокоды' }).click();
   await expect(page).toHaveURL(/\/rates\/promo$/);
-  await expect(tabs.getByRole('link', { name: 'Промокоды' })).toHaveAttribute('aria-current', 'page');
+  await expect(tabs.getByRole('link', { name: 'Промокоды' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
 
   await main.getByRole('button', { name: 'Добавить промокод' }).click();
   const drawer = page.getByRole('dialog', { name: 'Новый промокод' });
@@ -92,7 +100,10 @@ test('промокоды: вкладка, добавить, повтор код�
   await expect(row.getByRole('button', { name: 'Включить' })).toBeVisible();
 });
 
-test('«только чтение»: производные тарифы и промокоды видны, кнопок правки нет', async ({ page, request }) => {
+test('«только чтение»: производные тарифы и промокоды видны, кнопок правки нет', async ({
+  page,
+  request,
+}) => {
   await signIn(page);
   await control(request, { orgTrialDays: 'ended' });
   await page.goto('/rates/plans');
@@ -114,13 +125,17 @@ for (const theme of ['light', 'dark'] as const) {
     mkdirSync(SHOTS, { recursive: true });
     const main = page.getByRole('main');
     const axe = async () => {
-      const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      const audit = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze();
       expect(audit.violations).toEqual([]);
     };
     const shot = async (name: string) => {
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        ).toBe(true);
         await page.screenshot({ path: `${SHOTS}/${name}-${theme}-${width}.png`, fullPage: true });
       }
       await page.setViewportSize({ width: 1440, height: 900 });

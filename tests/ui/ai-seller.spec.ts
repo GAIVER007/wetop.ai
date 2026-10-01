@@ -26,7 +26,9 @@ const instruction = (page: Page) => page.getByRole('textbox', { name: 'Инст�
  */
 const fillInstruction = async (page: Page, text: string) => {
   const hydrated = () =>
-    instruction(page).evaluate((node) => Object.keys(node).some((key) => key.startsWith('__reactProps$')));
+    instruction(page).evaluate((node) =>
+      Object.keys(node).some((key) => key.startsWith('__reactProps$')),
+    );
   await expect.poll(hydrated).toBe(true);
   await instruction(page).fill(text);
 };
@@ -36,9 +38,11 @@ const ask = async (page: Page, text: string) => {
   await page.getByTestId('sandbox-send').click();
 };
 
-test('раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска', async ({ page }) => {
+test('раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска', async ({
+  page,
+}) => {
   // пункт меню — у вошедшего, чья организация с расширением (ADR-083; без входа — tests/ui/platform-access.spec.ts)
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -60,7 +64,10 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await expect(page.getByTestId('seller-checklist-connect')).toHaveCount(0);
   const model = page.getByTestId('seller-checklist-model');
   await expect(model).toHaveAttribute('data-state', 'todo');
-  await expect(model.getByRole('link', { name: 'Вставить ключ' })).toHaveAttribute('href', '/ai-seller/connections');
+  await expect(model.getByRole('link', { name: 'Вставить ключ' })).toHaveAttribute(
+    'href',
+    '/ai-seller/connections',
+  );
   await expect(page.getByTestId('seller-checklist-prompt')).toHaveAttribute('data-state', 'todo');
   // языка, имени и приветствия отдельными полями нет: всё — в одном окне инструкции (решение владельца)
   await expect(page.getByLabel('Имя бота')).toHaveCount(0);
@@ -86,7 +93,9 @@ test('одно окно: «Сохранить и применить» — сле
   );
   await expect(instruction(page)).toHaveValue(/Парковки нет, рядом городская\./);
   await expect(page.getByTestId('seller-prompt-state')).toContainText('Применено');
-  await expect(page.getByTestId('seller-state')).toContainText('Продавец работает с текущими настройками');
+  await expect(page.getByTestId('seller-state')).toContainText(
+    'Продавец работает с текущими настройками',
+  );
   await expect(page.getByTestId('seller-checklist-prompt')).toHaveAttribute('data-state', 'done');
   await expect(page.getByTestId('seller-checklist')).toContainText('До запуска — 1 шаг');
 
@@ -98,7 +107,9 @@ test('черновик собирает ответы, сохранённые п�
   page,
   request,
 }) => {
-  const saved = (await (await request.get(`${API}/ai-seller/profile`, { headers: TEST_CLIENT })).json()) as {
+  const saved = (await (
+    await request.get(`${API}/ai-seller/profile`, { headers: TEST_CLIENT })
+  ).json()) as {
     profile: object;
   };
   const put = await request.put(`${API}/ai-seller/profile`, {
@@ -114,7 +125,9 @@ test('черновик собирает ответы, сохранённые п�
   await page.goto('/ai-seller');
   await expect(instruction(page)).toHaveValue(/Тебя зовут Айгерим\./);
   await expect(instruction(page)).toHaveValue(/Тишина после 23:00/);
-  await expect(instruction(page)).toHaveValue(/Есть ли парковка\? → Парковки нет, рядом городская\./);
+  await expect(instruction(page)).toHaveValue(
+    /Есть ли парковка\? → Парковки нет, рядом городская\./,
+  );
   // сохранено полями, но инструкцией не применено — шаг не сделан
   await expect(page.getByTestId('seller-checklist-prompt')).toHaveAttribute('data-state', 'todo');
 });
@@ -131,7 +144,9 @@ test('скрытая инструкция в тексте: продавец не
   );
   await expect(instruction(page)).toHaveValue(text);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец отклонил правки');
-  await expect(page.getByTestId('seller-state-reason')).toContainText('нажмите «Сохранить и применить»');
+  await expect(page.getByTestId('seller-state-reason')).toContainText(
+    'нажмите «Сохранить и применить»',
+  );
 });
 
 test('продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4)', async ({
@@ -142,21 +157,29 @@ test('продавец не подключён — чек-лист зовёт п
   await page.goto('/ai-seller');
   await expect(page.getByTestId('seller-state')).toContainText('не подключён');
   await expect(page.getByTestId('seller-checklist-connect')).toHaveAttribute('data-state', 'todo');
-  await expect(page.getByTestId('seller-check')).toContainText('Проверка заработает, когда продавец будет подключён');
+  await expect(page.getByTestId('seller-check')).toContainText(
+    'Проверка заработает, когда продавец будет подключён',
+  );
   await fillInstruction(page, 'Отвечай на «вы», коротко.');
   await saveInstruction(page);
   await expect(page.getByTestId('seller-prompt-warning')).toHaveText(
     'Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.',
   );
   await expect(instruction(page)).toHaveValue('Отвечай на «вы», коротко.');
-  await expect(page.getByTestId('seller-prompt-state')).toHaveText('Сохранено, но ещё не у продавца');
+  await expect(page.getByTestId('seller-prompt-state')).toHaveText(
+    'Сохранено, но ещё не у продавца',
+  );
 
   await page.goto('/ai-seller/knowledge');
-  await expect(page.getByTestId('seller-not-ready')).toContainText('Документы появятся, когда продавец будет подключён');
+  await expect(page.getByTestId('seller-not-ready')).toContainText(
+    'Документы появятся, когда продавец будет подключён',
+  );
   // данные объекта продавец получит при подключении — их видно и сейчас
   await expect(page.getByTestId('seller-facts')).toContainText('Алматы, ул. Тестовая, 1');
   await page.goto('/ai-seller/dialogs');
-  await expect(page.getByTestId('seller-not-ready')).toContainText('Диалоги появятся, когда продавец будет подключён');
+  await expect(page.getByTestId('seller-not-ready')).toContainText(
+    'Диалоги появятся, когда продавец будет подключён',
+  );
   await page.goto('/ai-seller/connections');
   await expect(page.getByTestId('seller-llm-key-offline')).toBeVisible();
   await expect(page.getByTestId('seller-whatsapp-offline')).toBeVisible();
@@ -173,10 +196,14 @@ test('продавец недоступен — метка, причина и о
   await expect(reason).toContainText('Повторяем отправку автоматически раз в минуту');
 });
 
-test('продавец отклонил правки — его причина и что делать; повтора не обещаем', async ({ page, request }) => {
+test('продавец отклонил правки — его причина и что делать; повтора не обещаем', async ({
+  page,
+  request,
+}) => {
   await request.post(`${API}/__test/control`, {
     data: {
-      sellerLastError: 'ИИ-продавец отклонил: В тексте найдены инструкции для модели — «Инструкция»',
+      sellerLastError:
+        'ИИ-продавец отклонил: В тексте найдены инструкции для модели — «Инструкция»',
       sellerRetrying: false,
     },
   });
@@ -202,7 +229,9 @@ test('старые адреса вкладок ведут на новые, а н
   }
 });
 
-test('«Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править', async ({ page }) => {
+test('«Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править', async ({
+  page,
+}) => {
   await page.goto('/ai-seller/knowledge');
   await expect(page.getByTestId('seller-knowledge')).toContainText('правила.md');
   // документ, который бот собирает из «Данных объекта», — словами, а не именем файла
@@ -222,7 +251,9 @@ test('«Знания»: документы, загрузка и данные о�
   await expect(facts).toContainText('14:00');
   const table = page.getByRole('region', { name: 'Категории и цены продавца' });
   // одна цена весь срок — её продавец и называет; меняется — «уточнит администратор» (ADR-081, Q-179)
-  await expect(table.getByRole('row', { name: /Двухместный номер/ })).toContainText('15 000 ₸ за ночь за 2 гостей');
+  await expect(table.getByRole('row', { name: /Двухместный номер/ })).toContainText(
+    '15 000 ₸ за ночь за 2 гостей',
+  );
   await expect(table.getByRole('row', { name: /Мужской общий номер/ })).toContainText(
     'уточнит администратор — цена меняется по датам: от 4 500 ₸ до 5 200 ₸',
   );
@@ -230,7 +261,10 @@ test('«Знания»: документы, загрузка и данные о�
     'href',
     '/hotel-settings',
   );
-  await expect(page.getByRole('link', { name: 'Изменить цены в «Тарифах»' })).toHaveAttribute('href', '/rates');
+  await expect(page.getByRole('link', { name: 'Изменить цены в «Тарифах»' })).toHaveAttribute(
+    'href',
+    '/rates',
+  );
 });
 
 test('«Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ', async ({ page }) => {
@@ -239,9 +273,14 @@ test('«Диалоги»: пометка «нужен человек», отбо
   await expect(list.getByRole('row')).toHaveCount(3);
   await expect(list).toContainText('нужен человек');
 
-  await page.getByRole('navigation', { name: 'Отбор диалогов' }).getByRole('link', { name: 'Нужен человек' }).click();
+  await page
+    .getByRole('navigation', { name: 'Отбор диалогов' })
+    .getByRole('link', { name: 'Нужен человек' })
+    .click();
   await expect(page).toHaveURL(/mode=needs_human/);
-  await expect(page.getByRole('region', { name: 'Диалоги продавца' }).getByRole('row')).toHaveCount(2);
+  await expect(page.getByRole('region', { name: 'Диалоги продавца' }).getByRole('row')).toHaveCount(
+    2,
+  );
 
   await page.getByRole('link', { name: 'А***' }).click();
   const card = page.getByTestId('seller-dialog-card');
@@ -261,10 +300,14 @@ test('«Диалоги»: пометка «нужен человек», отбо
   await expect(page.getByTestId('dialog-mode-result')).toContainText('Диалог ваш');
   await expect(page.getByTestId('seller-dialog-mode')).toHaveText('ведёт человек');
 
-  await page.getByTestId('dialog-reply-text').fill('Здравствуйте! Двухместный на эти даты свободен.');
+  await page
+    .getByTestId('dialog-reply-text')
+    .fill('Здравствуйте! Двухместный на эти даты свободен.');
   await page.getByTestId('dialog-reply').click();
   await expect(page.getByTestId('dialog-reply-result')).toHaveText('Ответ отправлен.');
-  await expect(page.getByTestId('seller-dialog-card')).toContainText('Двухместный на эти даты свободен');
+  await expect(page.getByTestId('seller-dialog-card')).toContainText(
+    'Двухместный на эти даты свободен',
+  );
 });
 
 test('карточка диалога по неизвестному id не падает, а говорит словами', async ({ page }) => {
@@ -340,7 +383,9 @@ test('«Подключения» → «WhatsApp» (С3): проверить, п�
   await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
   await page.getByTestId('seller-whatsapp-token').fill('EAAG-bad-token-16chars');
   await page.getByTestId('seller-whatsapp-check').click();
-  await expect(page.getByTestId('seller-whatsapp-error')).toContainText('Meta не приняла номер или токен');
+  await expect(page.getByTestId('seller-whatsapp-error')).toContainText(
+    'Meta не приняла номер или токен',
+  );
   // после действия форма сбрасывается — заполняем оба поля заново
   await page.getByTestId('seller-whatsapp-phone-id').fill('555000111');
   await page.getByTestId('seller-whatsapp-token').fill('EAAG-valid-token-16chars');
@@ -402,7 +447,7 @@ test('закрытое расширение: администратор види
   await request.post(`${API}/__test/control`, {
     data: { platformAdmin: true, sellerExtension: 'off' },
   });
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

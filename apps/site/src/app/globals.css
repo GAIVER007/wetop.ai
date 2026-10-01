@@ -4375,7 +4375,7 @@ button {
 }
 .seller-details__layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 48px;
   align-items: start;
 }
@@ -4389,6 +4389,10 @@ button {
 .seller-details__steps li {
   display: flex;
   gap: 20px;
+}
+.seller-details__steps li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .seller-details__number {
   display: grid;
@@ -4476,7 +4480,7 @@ button {
 @media (max-width: 48rem) {
   .product-details__grid,
   .seller-details__layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .seller-details__layout {
     gap: 32px;

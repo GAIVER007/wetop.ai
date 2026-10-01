@@ -284,7 +284,7 @@
   padding: 16px 24px;
 }
 .analytics-page .page__head {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .analytics-page .page__title {
   font-size: 28px;
@@ -295,20 +295,20 @@
 .analytics-page .pa-tabs {
   background: transparent;
   border: 0;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .analytics-page .pa-toolbar {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .analytics-page .pa-toolbar__caption strong {
   font-size: 14px;
 }
 .analytics-page .pa-kpis {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 .analytics-page .kpi {
-  padding: 12px;
+  padding: 16px;
 }
 .analytics-page .kpi__value {
   font-size: 26px;
@@ -318,14 +318,14 @@
   font-size: 12px;
 }
 .analytics-page .kpi-compare {
-  margin: 10px 0;
+  margin: 8px 0;
   font-size: 12px;
   line-height: 1.5;
 }
 .analytics-page .pa-charts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 .analytics-page .dash-panel {
   padding: 16px;
@@ -335,17 +335,17 @@
   font-size: 16px;
 }
 .analytics-page .pa-details {
-  margin-top: 12px;
+  margin-top: 16px;
 }
 .analytics-page .pa-details > summary {
   cursor: pointer;
-  padding: 10px 0;
+  padding: 8px 0;
   font-size: 13px;
   color: var(--primary);
 }
 .analytics-page .pa-details[open] {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 .analytics-page .pa-details .pa-kpis {
   grid-template-columns: repeat(2, minmax(0, 1fr));

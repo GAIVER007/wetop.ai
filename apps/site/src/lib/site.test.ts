@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { appPath, assistantScriptSrc, loginLink, registerLink, resetLink, siteAuthEndpoint } from './site';
+import {
+  appPath,
+  assistantScriptSrc,
+  loginLink,
+  registerLink,
+  resetLink,
+  siteAuthEndpoint,
+} from './site';
 import type { SiteConfig } from '../site.config';
 
 const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
@@ -10,28 +17,37 @@ const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
   ...over,
 });
 
+describe('единая точка входа', () => {
+  it('вход открывается на главной продукта, без второй страницы', () => {
+    expect(loginLink(config())).toEqual({ href: 'https://wetop.ai/#login', external: false });
+  });
+  it('регистрация открывается на главной продукта', () => {
+    expect(registerLink(config())).toEqual({ href: 'https://wetop.ai/#register', external: false });
+  });
+});
+
 /**
  * «Войти» на главной ведёт на экран входа стойки, а не в корень. Корень стойки редиректом бросает в `/today`
  * (apps/web/src/app/page.tsx), то есть человек проваливался сразу в рабочий день смены и экрана входа не видел:
  * под кем он вошёл и как выйти — негде посмотреть. Экран `/login` это показывает (ADR-045, Д5).
  */
 describe('loginLink', () => {
-  it('ведёт на экран входа стойки', () => {
-    expect(loginLink(config()).href).toBe('https://app.wetop.ai/login');
+  it('ведёт на главную с открытой формой', () => {
+    expect(loginLink(config()).href).toBe('https://wetop.ai/#login');
   });
 
   it('не удваивает слеш, если адрес стойки записан со слешем в конце', () => {
-    expect(loginLink(config({ appUrl: 'https://app.wetop.ai/' })).href).toBe(
-      'https://app.wetop.ai/login',
+    expect(loginLink(config({ siteUrl: 'https://wetop.ai/' })).href).toBe(
+      'https://wetop.ai/#login',
     );
   });
 
-  it('ведёт наружу — стойка на другом хосте', () => {
-    expect(loginLink(config()).external).toBe(true);
+  it('не ведёт на другой хост', () => {
+    expect(loginLink(config()).external).toBe(false);
   });
 
   it('останавливает сборку, если адрес стойки записан неверно', () => {
-    expect(() => loginLink(config({ appUrl: 'app.wetop.ai' }))).toThrow(/appUrl/);
+    expect(() => loginLink(config({ siteUrl: 'wetop.ai' }))).toThrow(/siteUrl/);
   });
 });
 
@@ -41,12 +57,12 @@ describe('loginLink', () => {
  */
 describe('registerLink', () => {
   it('ведёт на форму регистрации стойки', () => {
-    expect(registerLink(config())).toEqual({ href: 'https://app.wetop.ai/register', external: true });
+    expect(registerLink(config())).toEqual({ href: 'https://wetop.ai/#register', external: false });
   });
 
   it('не удваивает слеш, если адрес стойки записан со слешем в конце', () => {
-    expect(registerLink(config({ appUrl: 'https://app.wetop.ai/' })).href).toBe(
-      'https://app.wetop.ai/register',
+    expect(registerLink(config({ siteUrl: 'https://wetop.ai/' })).href).toBe(
+      'https://wetop.ai/#register',
     );
   });
 });

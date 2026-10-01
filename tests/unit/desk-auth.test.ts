@@ -21,6 +21,11 @@ describe('deskCredentials', () => {
 });
 
 describe('locked', () => {
+  it('распознаёт новый вход на главной и техническую форму', () => {
+    expect(locked('https://wetop.ai/?next=%2Ftoday#login')).toBe(true);
+    expect(locked('http://127.0.0.1:3002/#login')).toBe(true);
+    expect(locked('http://127.0.0.1:3000/auth/fallback')).toBe(true);
+  });
   it('стойка увела на экран входа', () => {
     expect(locked('http://127.0.0.1:3000/login')).toBe(true);
     expect(locked('https://app.wetop.ai/login?from=%2Ftoday')).toBe(true);

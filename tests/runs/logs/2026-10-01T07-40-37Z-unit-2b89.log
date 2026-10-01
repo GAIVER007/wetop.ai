@@ -1,0 +1,61 @@
+# Модульные (unit) · 01.10.2026 12:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 52
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T07-40-37Z-unit-2b89.json' 'tests/unit/design-slop.test.ts' 'tests/unit/e2e-windows.test.ts' 'scripts/design/build-tokens.test.ts' 'apps/web/src/design-rules.test.ts' 'apps/api/src/auth/route-access.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| tests/unit/e2e-windows.test.ts (3 tests) 8ms
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 3ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (14 tests | 1 failed) 31ms
+   ❯ tokens.css генерируется из design/tokens.json (3)
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 2ms
+     ✓ design/contrast.md совпадает с расчётом 1ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 25ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 0ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 0ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 0ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 0ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 0ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ✓ |unit| apps/web/src/design-rules.test.ts (13 tests) 131ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--z-base' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--z-base",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:85:21
+     83|     ]);
+     84|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     85|     expect(missing).toEqual([]);
+       |                     ^
+     86|   });
+     87| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 42 passed (43)
+   Start at  00:40:37
+   Duration  1.28s (transform 48%, import 39%, tests 12%, worker 1%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T07-40-37Z-unit-2b89.json
+
+# код выхода 1 · 2 с

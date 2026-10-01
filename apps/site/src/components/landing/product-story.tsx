@@ -72,11 +72,11 @@ export function Journey() {
   return (
     <section id="workflow" className="section journey" aria-labelledby="workflow-title">
       <div className="container">
-        <p className="eyebrow">01 / Одна система</p>
+        <p className="eyebrow">Логика работы</p>
         <h2 id="workflow-title">
-          Не пять таблиц.
+          От первого обращения
           <br />
-          Одна история гостя.
+          до завершённого проживания.
         </h2>
         <p className="journey__lead">
           От первого обращения до отчёта. Посмотрите, как связаны этапы работы.
@@ -152,7 +152,7 @@ export function FAQ() {
     <section id="faq" className="section faq" aria-labelledby="faq-title">
       <div className="container faq__layout">
         <div>
-          <p className="eyebrow">04 / Без недосказанности</p>
+          <p className="eyebrow">Вопросы перед началом</p>
           <h2 id="faq-title">
             Хорошие вопросы.
             <br />

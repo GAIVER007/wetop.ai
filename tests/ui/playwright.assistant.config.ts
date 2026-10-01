@@ -6,12 +6,12 @@ import base from './playwright.config';
  * (`tests/ui/fake-assistant.ts`), подпись выдаёт синтетический API. В обычном наборе `ASSISTANT_URL` нет —
  * там проверяется, что без него стойка такая же, как была.
  *
- * Свои порты (3103, 4314, 4315): набор идёт отдельно и не спорит с обычным прогоном и набором замка.
+ * Свои порты (3103, 4314, 4316), главная на 3002: набор идёт отдельно от других UI-прогонов.
  * Запуск: npm run test:record -- e2e --config tests/ui/playwright.assistant.config.ts
  */
 const API = 'http://127.0.0.1:4314';
 const WEB = 'http://127.0.0.1:3103';
-export const FAKE_ASSISTANT = 'http://127.0.0.1:4315';
+export const FAKE_ASSISTANT = 'http://127.0.0.1:4316';
 
 export default defineConfig({
   ...base,
@@ -30,7 +30,7 @@ export default defineConfig({
     {
       command: 'npx tsx tests/ui/fake-assistant.ts',
       cwd: '../..',
-      env: { FAKE_ASSISTANT_PORT: '4315' },
+      env: { FAKE_ASSISTANT_PORT: '4316' },
       url: `${FAKE_ASSISTANT}/health`,
       reuseExistingServer: false,
     },
@@ -43,8 +43,18 @@ export default defineConfig({
         APP_API_URL: API,
         APP_ALLOW_TEST_DATA: '1',
         ASSISTANT_URL: FAKE_ASSISTANT,
+        APP_URL: WEB,
+        WETOP_SITE_URL: 'http://127.0.0.1:3002',
       },
-      url: `${WEB}/login`,
+      url: `${WEB}/auth/fallback`,
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run dev -w apps/site',
+      cwd: '../..',
+      env: { WETOP_SITE_URL: 'http://127.0.0.1:3002', WETOP_APP_URL: WEB },
+      url: 'http://127.0.0.1:3002',
       reuseExistingServer: false,
       timeout: 120_000,
     },

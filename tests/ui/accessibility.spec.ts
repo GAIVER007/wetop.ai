@@ -41,7 +41,7 @@ const routes = [
   '/website/analytics',
   '/website/settings',
   '/profile',
-  '/login',
+  '/profile/access',
   '/incidents',
   '/journal',
   // раздел «ИИ-продавец» (макет владельца 26.09.2026, ADR-097): четыре вкладки и открытая карточка диалога

@@ -1,53 +1,55 @@
-/* Homepage-only composition; shared auth, blog and application styles stay unchanged. */
+/*
+ * Композиция главной (ADR-132): сплошные панели вместо стекла, чередование полос, ритм блоков. Прочие страницы
+ * (блог, /for/…/, калькулятор, политика) остаются стеклянными и этот файл не читают.
+ *
+ * Правила те же, что у globals.css (DESIGN.md §19): отступы из лестницы §19.3, радиус токеном, цвет только var(--…),
+ * текст не мельче 12 px. Сторож tests/unit/site-design.test.ts читает и этот файл.
+ */
 .home {
   background: var(--surface-solid);
 }
-.home :global(.section) {
-  padding-block: clamp(56px, 7vw, 104px);
-}
-.home :global(.section-heading) {
-  max-width: 840px;
-}
-.home :global(h2) {
-  font-size: clamp(1.8rem, 3.3vw, 2.75rem);
-  line-height: 1.2;
-  letter-spacing: -0.035em;
-}
-.home :global(.eyebrow) {
-  color: var(--primary);
-  font-size: 0.8125rem;
-  letter-spacing: 0.08em;
-}
+
+/* Стекло на главной становится сплошной панелью: тёмный текст на светлой основе, кромка и тихая тень */
 .home :global(.glass) {
   background: var(--surface-solid);
   border-color: var(--border);
-  box-shadow: none;
+  box-shadow: var(--shadow);
   backdrop-filter: none;
 }
 .home :global(.glass::before) {
   display: none;
 }
-.home :global(.hero) {
-  padding: clamp(40px, 6vw, 88px) 0 0;
-  background: linear-gradient(155deg, var(--surface-solid) 30%, var(--bg));
+.home :global(.glass--quiet) {
+  box-shadow: none;
 }
-.home :global(.hero__inner) {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-  gap: 48px;
-  padding-block: 0;
-  padding-inline: var(--gutter);
+.home :global(.icon-tile) {
+  box-shadow: none;
 }
-.home :global(.hero__brand) {
-  margin-top: 24px;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  letter-spacing: 0.12em;
+
+/* Полоса: каждый второй блок на фоне страницы, чтобы границы блоков читались */
+.home :global(.section--band) {
+  background: var(--bg);
+  border-block: 1px solid var(--border-soft);
 }
-.home :global(.hero__title) {
-  margin-top: 12px;
-  font-size: clamp(2.25rem, 3.8vw, 3.5rem);
-  line-height: 1.12;
-  letter-spacing: -0.045em;
+.home :global(.section--band + .section--band) {
+  border-top: 0;
+}
+
+/* Плашки состояния (регистрация, направления): на сплошной панели кромка должна быть видна */
+.home :global(.vertical-status) {
+  background: var(--surface-solid);
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+/* Первый экран: панель с мягким переходом к фону, акцент заголовка фирменным цветом */
+.home :global(.hero__panel) {
+  background: linear-gradient(160deg, var(--surface-solid) 45%, var(--bg));
+}
+.home :global(.hero__status) {
+  background: var(--surface-solid);
+  border-color: var(--border);
+  box-shadow: none;
 }
 .home :global(.hero__accent) {
   color: var(--primary);
@@ -55,373 +57,28 @@
   background: none;
   filter: none;
 }
-.home :global(.hero__lead) {
-  font-size: 1.125rem;
-  margin-top: 24px;
-  max-width: 46ch;
+
+/* Шаги «Как начать»: четыре в ряд на широком экране, по два на планшете */
+@media (min-width: 40rem) {
+  .home :global(.steps) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
-.home :global(.hero__actions) {
-  gap: 12px;
-  margin-top: 28px;
-}
-.home :global(.hero__actions .btn) {
-  padding-inline: 18px;
-  font-size: 0.9375rem;
-  min-height: 48px;
-}
-.home :global(.hero__note) {
-  font-size: 0.875rem;
-}
-.home :global(.hero__status) {
-  background: var(--surface-solid);
-  box-shadow: none;
-  border-color: var(--border);
-}
-.home :global(.hero__preview-label) {
-  display: block;
-  text-align: center;
-  margin: 16px 0 0;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-.home :global(.hero__capabilities) {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 16px 24px;
-  border-top: 1px solid var(--border);
-  margin-top: 64px;
-  padding-block: 24px;
-  color: var(--text-2);
-  font-weight: 500;
-}
-.home :global(.workspace-preview) {
-  border: 1px solid var(--border-input);
-  border-radius: var(--radius-lg);
-  background: var(--surface-solid);
-  overflow: hidden;
-  box-shadow: var(--shadow-floating);
-}
-.home :global(.workspace-preview__head) {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border);
-  padding: 20px 24px;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-.home :global(.workspace-preview__head strong) {
-  color: var(--primary);
-  font-size: 1.125rem;
-}
-.home :global(.workspace-preview__head strong span) {
-  color: var(--text-2);
-  font-size: 0.8125rem;
-  font-weight: 500;
-}
-.home :global(.workspace-preview__body) {
-  padding: 28px 24px 16px;
-}
-.home :global(.workspace-preview h2) {
-  font-size: clamp(1.5rem, 2.2vw, 2rem);
-  margin-top: 12px;
-}
-.home :global(.workspace-preview__flow) {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 28px 0 16px;
-  gap: 8px;
-}
-.home :global(.workspace-preview__flow > div) {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 16px 12px;
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-  min-width: 0;
-}
-.home :global(.workspace-preview__flow svg) {
-  color: var(--primary);
-  margin-bottom: 16px;
-}
-.home :global(.workspace-preview__flow strong) {
-  font-size: 0.875rem;
-}
-.home :global(.workspace-preview__flow span) {
-  color: var(--text-2);
-  font-size: 0.75rem;
-  margin-top: 4px;
-}
-.home :global(.workspace-preview__activity p) {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-block: 12px;
-  border-bottom: 1px solid var(--border-soft);
-  font-size: 0.8125rem;
-}
-.home :global(.workspace-preview__activity svg) {
-  color: var(--success);
-  flex-shrink: 0;
-}
-.home :global(.workspace-preview__activity p > span:last-child) {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-.home :global(.workspace-preview__foot) {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 24px;
-  background: var(--bg);
-  color: var(--text-2);
-  font-size: 0.75rem;
-}
-.home :global(.workspace-preview__foot > span) {
-  margin-left: auto;
-  font-weight: 600;
-}
-.home :global(.brand-about__intro) {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  margin-top: 20px;
-}
-.home :global(.brand-about__intro p) {
-  color: var(--text-2);
-  font-size: 1.125rem;
-}
-.home :global(.brand-about__intro p + p) {
-  margin-top: 20px;
-}
-.home :global(.brand-about__principles) {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px;
-  margin-top: 48px;
-}
-.home :global(.brand-about__principles > div) {
-  border-top: 2px solid var(--primary);
-  padding-top: 20px;
-}
-.home :global(.brand-about__principles dt) {
-  font-family: var(--font-head);
-  font-weight: 700;
-}
-.home :global(.brand-about__principles dd) {
-  margin-top: 12px;
-  color: var(--text-2);
-}
-.home :global(#audience),
-.home :global(#features),
-.home :global(#toolkit),
-.home :global(#control) {
-  background: var(--bg);
-  border-block: 1px solid var(--border-soft);
-}
-.home :global(.vertical-live) {
-  box-shadow: none;
-}
-.home :global(.vertical-next) {
-  margin-top: 32px;
-  border-radius: var(--radius-control);
-  padding: 24px;
-}
-.home :global(.explorer__panel),
-.home :global(.journey__panel) {
-  box-shadow: none;
-  border-radius: var(--radius-lg);
-  background: var(--surface-solid);
-}
-.home :global(.journey__panel) {
-  border: 1px solid var(--border);
-}
-.home :global(.product-details__grid) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 40px;
-}
-.home :global(.product-details__card) {
-  padding: 28px 0;
-  border: 0;
-  border-top: 1px solid var(--border);
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-}
-.home :global(.product-details__top) {
-  margin-bottom: 16px;
-}
-.home :global(.product-details__card details) {
-  margin-top: 12px;
-}
-.home :global(.product-details__card summary) {
-  cursor: pointer;
-  color: var(--primary);
-  padding-block: 12px;
-  min-height: 44px;
-  font-weight: 600;
-}
-.home :global(.product-details__result) {
-  border: 0;
-  padding-top: 0;
-  margin-top: 12px;
-}
-.home :global(.sales-paths__grid),
-.home :global(.team-control__grid) {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-.home :global(.sales-paths__grid article),
-.home :global(.team-control__grid article) {
-  padding: 32px;
-  background: var(--surface-solid);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-.home :global(.sales-paths__grid svg),
-.home :global(.team-control__grid svg) {
-  color: var(--primary);
-}
-.home :global(.sales-paths__grid h3),
-.home :global(.team-control__grid h3) {
-  margin-top: 24px;
-  font-size: 1.25rem;
-}
-.home :global(.sales-paths__grid p),
-.home :global(.team-control__grid p) {
-  margin-top: 16px;
-  color: var(--text-2);
-}
-.home :global(.sales-paths__grid a) {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 20px;
-  padding-block: 10px;
-  font-weight: 600;
-}
-.home :global(.sales-paths__note) {
-  font-size: 0.875rem;
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
-.home :global(.seller-details__preview) {
-  box-shadow: none;
-  background: var(--bg);
-}
-.home :global(.steps) {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
-}
-.home :global(.step) {
-  padding: 24px 0;
-  border: 0;
-  border-top: 1px solid var(--border);
-  border-radius: 0;
+@media (min-width: 64rem) {
+  .home :global(.steps) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 .home :global(.step__number) {
   background: var(--primary-soft);
   color: var(--primary);
   box-shadow: none;
 }
+
+/* Плита призыва: на фоне страницы, без отсвета за стеклом */
 .home :global(.cta) {
   background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
 }
-.home :global(.connect__gem) {
+.home :global(.cta::after) {
   display: none;
-}
-
-@media (max-width: 70rem) {
-  .home :global(.hero__inner) {
-    gap: 32px;
-  }
-  .home :global(.sales-paths__grid article),
-  .home :global(.team-control__grid article) {
-    padding: 24px;
-  }
-  .home :global(.steps) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 58rem) {
-  .home :global(.hero__inner),
-  .home :global(.brand-about__intro) {
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 36px;
-  }
-  .home :global(.hero__copy) {
-    max-width: 650px;
-  }
-  .home :global(.hero__visual) {
-    max-width: 650px;
-    width: 100%;
-    margin-inline: auto;
-  }
-  .home :global(.hero__title) {
-    font-size: clamp(2.25rem, 6vw, 3.5rem);
-  }
-  .home :global(.sales-paths__grid),
-  .home :global(.team-control__grid) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .home :global(.brand-about__principles) {
-    gap: 24px;
-  }
-}
-@media (max-width: 38rem) {
-  .home :global(.hero__brand) {
-    margin-top: 20px;
-  }
-  .home :global(.hero__actions) {
-    display: grid;
-  }
-  .home :global(.hero__capabilities) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    font-size: 0.875rem;
-    margin-top: 36px;
-  }
-  .home :global(.brand-about__principles),
-  .home :global(.product-details__grid),
-  .home :global(.steps) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .home :global(.workspace-preview__head),
-  .home :global(.workspace-preview__foot) {
-    padding: 16px;
-  }
-  .home :global(.workspace-preview__head > span) {
-    display: none;
-  }
-  .home :global(.workspace-preview__body) {
-    padding: 20px 16px 12px;
-  }
-  .home :global(.workspace-preview__flow) {
-    grid-template-columns: minmax(0, 1fr);
-    margin-top: 20px;
-  }
-  .home :global(.workspace-preview__flow > div) {
-    display: grid;
-    grid-template-columns: 24px 1fr;
-    gap: 0 12px;
-    padding: 12px;
-  }
-  .home :global(.workspace-preview__flow svg) {
-    grid-row: span 2;
-    margin: 0;
-    align-self: center;
-  }
-  .home :global(.workspace-preview__activity p > span:last-child) {
-    display: none;
-  }
-  .home :global(.brand-about__intro p) {
-    font-size: 1rem;
-  }
 }

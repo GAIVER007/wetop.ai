@@ -1,0 +1,685 @@
+# Сквозные (e2e) · 01.10.2026 12:50 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9489d64 (codex/unified-auth-entry), незакоммиченных файлов набора: 9
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'login-access.spec.ts' 'roles.spec.ts' 'sessions.spec.ts' 'invites.spec.ts' 'password-reset.spec.ts' 'channels-compact.spec.ts' 'rates-design.spec.ts' 'fund-workspace.spec.ts' 'finance-compact.spec.ts' 'unified-sections.spec.ts' 'ai-agents-create.spec.ts'
+[WebServer] (node:5408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5442) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[WebServer] (node:5528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5530) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 91 tests using 1 worker
+
+(node:5535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5566) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (4.1s)
+[WebServer] (node:5574) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/ui/ai-agents-create.spec.ts:94:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (2.8s)
+[WebServer] (node:5594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/ui/ai-agents-create.spec.ts:120:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (2.2s)
+[WebServer] (node:5605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5606) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/ui/ai-agents-create.spec.ts:141:1 › двойной щелчок по «Создать черновик» даёт одного агента (1.5s)
+[WebServer] (node:5615) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/ui/ai-agents-create.spec.ts:152:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (1.1s)
+[WebServer] (node:5624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/ui/ai-agents-create.spec.ts:168:1 › сотрудник смены: страница создания объясняет роль, формы нет (1.0s)
+[WebServer] (node:5630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/ui/ai-agents-create.spec.ts:178:1 › управляющий может создать агента (1.3s)
+[WebServer] (node:5636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/ui/ai-agents-create.spec.ts:187:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (1.3s)
+[WebServer] (node:5644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/ui/ai-agents-create.spec.ts:201:1 › расширения нет: на странице создания причина про расширение (962ms)
+[WebServer] (node:5647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/ui/ai-agents-create.spec.ts:210:1 › несуществующий агент — страница «не найдено», а не пустая карточка (1.1s)
+[WebServer] (node:5655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/ui/ai-agents-create.spec.ts:222:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (1.9s)
+[WebServer] (node:5662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, light, 1440 (1.5s)
+[WebServer] (node:5670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, light, 1440 (1.9s)
+[WebServer] (node:5692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, light, 1440 (1.5s)
+[WebServer] (node:5702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, light, 390 (1.4s)
+[WebServer] (node:5717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, light, 390 (1.6s)
+[WebServer] (node:5730) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, light, 390 (1.4s)
+[WebServer] (node:5747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, dark, 1440 (1.5s)
+[WebServer] (node:5760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, dark, 1440 (1.7s)
+[WebServer] (node:5769) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, dark, 1440 (1.4s)
+[WebServer] (node:5776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, dark, 390 (1.6s)
+[WebServer] (node:5794) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, dark, 390 (1.6s)
+[WebServer] (node:5810) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, dark, 390 (1.5s)
+[WebServer] (node:5818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 tests/ui/ai-agents-create.spec.ts:282:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон (1.7s)
+[WebServer] (node:5829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  25 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (1.6s)
+(node:5831) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (927ms)
+[WebServer] (node:5856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (649ms)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="finance/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/finance" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="finance/pa...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <FinanceReportPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <section className="finance-co..." aria-label="Период">
+[WebServer]                         <form method="get" className="finance-to..." data-testid="period-form">
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-01" aria-label="Период: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     aria-label="Период: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-31" aria-label="Период: по">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-31"
+[WebServer]                                     aria-label="Период: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✘  28 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (1.2s)
+(node:5868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5885) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (4.2s)
+[WebServer] (node:5899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5923) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (5.1s)
+[WebServer] (node:5936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  31 tests/ui/fund-workspace.spec.ts:81:1 › guests filter categories by capacity; toggle shows all; tab renamed (926ms)
+[WebServer] (node:5942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  32 tests/ui/fund-workspace.spec.ts:113:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (638ms)
+[WebServer] (node:5946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 tests/ui/fund-workspace.spec.ts:131:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (3.1s)
+[WebServer] (node:5965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 tests/ui/fund-workspace.spec.ts:210:1 › AV4: a category without places stays on screen with the nearest availability (1.1s)
+[WebServer] (node:5981) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5989) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:5994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 tests/ui/fund-workspace.spec.ts:255:1 › dark categories and availability; invalid dates and empty onboarding (2.9s)
+[WebServer] (node:6002) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 tests/ui/invites.spec.ts:22:1 › вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом (3.0s)
+  ✓  37 tests/ui/invites.spec.ts:45:1 › без сессии формы приглашения нет (432ms)
+[WebServer] (node:6027) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6031) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6041) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  38 tests/ui/invites.spec.ts:52:1 › ссылка из письма: кто зовёт и кого → принять → человек задаёт себе пароль и входит им (2.0s)
+[WebServer] (node:6050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  39 tests/ui/invites.spec.ts:71:1 › мёртвая ссылка — один текст и путь на форму входа (711ms)
+  ✓  40 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.0s)
+[WebServer] (node:6056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6061) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  41 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (2.2s)
+[WebServer] (node:6072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  42 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.1s)
+[WebServer] (node:6077) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  43 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (1.5s)
+[WebServer] (node:6085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  44 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (1.5s)
+[WebServer] (node:6094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  45 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (3.4s)
+[WebServer] (node:6108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6121) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  46 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (3.4s)
+  ✓  47 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (841ms)
+[WebServer] (node:6129) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  48 tests/ui/login-access.spec.ts:130:1 › управление командой и сессиями открывается в профиле, не на входе (1.8s)
+[WebServer] (node:6137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  49 tests/ui/login-access.spec.ts:142:1 › вкладки входа и регистрации переключаются без перехода в приложение (932ms)
+  ✓  50 tests/ui/login-access.spec.ts:152:1 › старая ссылка mode=register открывает регистрацию на главной (739ms)
+[WebServer] (node:6143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  51 tests/ui/login-access.spec.ts:157:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (2.2s)
+  ✓  52 tests/ui/login-access.spec.ts:170:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (391ms)
+[WebServer] (node:6159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  53 tests/ui/login-access.spec.ts:175:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (1.2s)
+[WebServer] (node:6160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  54 tests/ui/login-access.spec.ts:186:1 › занятая почта и короткий пароль не создают сессию (1.2s)
+[WebServer] (node:6169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  55 tests/ui/password-reset.spec.ts:14:1 › «Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта (886ms)
+[WebServer] (node:6175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  56 tests/ui/password-reset.spec.ts:29:1 › по ссылке из письма сотрудник задаёт пароль сам и входит с ним (1.6s)
+  ✓  57 tests/ui/password-reset.spec.ts:44:1 › второй раз та же ссылка не работает (967ms)
+  ✓  58 tests/ui/password-reset.spec.ts:59:1 › просроченная ссылка говорит, что делать (452ms)
+  ✓  59 tests/ui/password-reset.spec.ts:68:1 › разные пароли в двух полях не отправляются в API (460ms)
+  ✓  60 tests/ui/password-reset.spec.ts:77:1 › короткий пароль отклоняется с объяснением (479ms)
+  ✓  61 tests/ui/password-reset.spec.ts:86:1 › ссылка без ключа объясняет, а не молчит (359ms)
+  ✓  62 tests/ui/password-reset.spec.ts:96:1 › журнал показывает, кто сделал действие, и где система (886ms)
+  ✓  63 tests/ui/password-reset.spec.ts:108:1 › в журнале есть отбор по сотрудникам, и вход в систему там виден (530ms)
+  ✓  64 tests/ui/rates-design.spec.ts:18:1 › календарь: сетка месяца с ценой в ячейке, ограничения словами, постоянной формы нет (1.0s)
+  ✓  65 tests/ui/rates-design.spec.ts:64:1 › изменить цены: панель открывается кнопкой, форма прежняя — дни одной строкой, число изменений (1.1s)
+  ✓  66 tests/ui/rates-design.spec.ts:94:1 › массовое изменение: ни одного дня недели — строка не добавляется, форма объясняет почему (1.5s)
+  ✓  67 tests/ui/rates-design.spec.ts:110:1 › фильтры: категория и тариф компактными списками, месяц русским списком — без «Показать» (1.4s)
+  ✓  68 tests/ui/rates-design.spec.ts:131:1 › на телефоне сетка складывается в список дней, цена по-прежнему правится в ячейке (801ms)
+  ✘  69 tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь (711ms)
+(node:6234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  70 tests/ui/rates-design.spec.ts:192:1 › нет цены в воскресенье: подсказка не расширяет страницу (1.1s)
+[WebServer] (node:6262) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  71 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (1.6s)
+[WebServer] (node:6288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6501) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6551) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  72 tests/ui/roles.spec.ts:61:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (41.6s)
+[WebServer] (node:6584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  73 tests/ui/roles.spec.ts:99:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (13.2s)
+[WebServer] (node:6599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  74 tests/ui/roles.spec.ts:116:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (6.8s)
+[WebServer] (node:6631) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6639) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  75 tests/ui/roles.spec.ts:144:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (4.9s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '912616482'
+[WebServer] }
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+[WebServer] (node:6662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  76 tests/ui/roles.spec.ts:206:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (8.2s)
+[WebServer] (node:6697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  77 tests/ui/roles.spec.ts:257:1 › владелец: зовёт управляющего и администратора, меняет роль (8.6s)
+[WebServer] (node:6718) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  78 tests/ui/roles.spec.ts:284:1 › администратор: сотрудниками ведают владелец и управляющий (3.7s)
+[WebServer] (node:6725) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  79 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.5s)
+[WebServer] (node:6742) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  80 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 1440px (4.2s)
+[WebServer] (node:6761) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  81 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, light, 390px (3.9s)
+[WebServer] (node:6785) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  82 tests/ui/roles.spec.ts:296:5 › доступность: сотрудники и отказ по роли, dark, 390px (3.4s)
+[WebServer] (node:6794) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  83 tests/ui/sessions.spec.ts:21:1 › вошедший видит, где он вошёл, — устройство словами и пометку своего сеанса (1.4s)
+[WebServer] (node:6801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  84 tests/ui/sessions.spec.ts:36:1 › «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет (2.6s)
+[WebServer] (node:6809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  85 tests/ui/sessions.spec.ts:61:1 › выписанный ранее сеанс по паролю продолжает работать и гасится «Завершить все сеансы» (8.0s)
+[WebServer] (node:6817) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  86 tests/ui/sessions.spec.ts:76:1 › удалённый вход по коду не выдаёт сессию; неизвестная старая cookie не открывает профиль (1.2s)
+  ✓  87 tests/ui/sessions.spec.ts:105:1 › без сессии списка сеансов нет (271ms)
+[WebServer] (node:6828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  88 tests/ui/sessions.spec.ts:113:1 › кука сессии выписывается заново при работе: срок отсчитывается от последней страницы (3.3s)
+[WebServer] (node:6844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  89 tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке (45.4s)
+(node:6920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  90 tests/ui/unified-sections.spec.ts:26:1 › интеграции: незавершённая настройка не называется подключением (45.3s)
+(node:7007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:7022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  91 tests/ui/unified-sections.spec.ts:32:1 › адаптивный обзор разделов (27.9m)
+
+
+  1) tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      18 |     animations: 'disabled',
+      19 |   });
+    > 20 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+         |                                                                                               ^
+      21 |     true,
+      22 |   );
+      23 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/channels-compact.spec.ts:20:95
+
+    Error Context: test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/channels-compact-обзор-кан-76f5b-лица-помещаются-на-ноутбуке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      17 |     animations: 'disabled',
+      18 |   });
+    > 19 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+         |                                                                                               ^
+      20 |     true,
+      21 |   );
+      22 |   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/finance-compact.spec.ts:19:95
+
+    Error Context: test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      179 |   const after = await cal.boundingBox();
+      180 |   expect(after!.y).toBe(before!.y);
+    > 181 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+          |                                                                                               ^
+      182 |     true,
+      183 |   );
+      184 |   await page.getByRole('button', { name: 'Переключить тему' }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/rates-design.spec.ts:181:95
+
+    Error Context: test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rates-design-месяц-из-шест-e00a0-выбор-не-сдвигает-календарь/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 |
+      4 | const API = 'http://127.0.0.1:4311';
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${API}/__test/reset`);
+      7 |   await page.setViewportSize({ width: 1366, height: 768 });
+      8 |   await page.goto('/login');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/unified-sections.spec.ts:5:6
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+
+
+       7 |   await page.setViewportSize({ width: 1366, height: 768 });
+       8 |   await page.goto('/login');
+    >  9 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      10 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      11 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      12 |   await page.waitForURL('**/today');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/unified-sections.spec.ts:9:51
+
+    Error Context: test-results/unified-sections-настройки-7f700-ение-помещаются-на-ноутбуке/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-sections-настройки-7f700-ение-помещаются-на-ноутбуке/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-sections-настройки-7f700-ение-помещаются-на-ноутбуке/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/unified-sections.spec.ts:26:1 › интеграции: незавершённая настройка не называется подключением 
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 |
+      4 | const API = 'http://127.0.0.1:4311';
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${API}/__test/reset`);
+      7 |   await page.setViewportSize({ width: 1366, height: 768 });
+      8 |   await page.goto('/login');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/unified-sections.spec.ts:5:6
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+        - waiting for "http://127.0.0.1:3002/?next=%2Ftoday" navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+
+
+       7 |   await page.setViewportSize({ width: 1366, height: 768 });
+       8 |   await page.goto('/login');
+    >  9 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      10 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      11 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      12 |   await page.waitForURL('**/today');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/unified-sections.spec.ts:9:51
+
+    Error Context: test-results/unified-sections-интеграци-3d47d--не-называется-подключением/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-sections-интеграци-3d47d--не-называется-подключением/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-sections-интеграци-3d47d--не-называется-подключением/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/unified-sections.spec.ts:32:1 › адаптивный обзор разделов ────────────────────────────
+
+    Test timeout of 45000ms exceeded while running "beforeEach" hook.
+
+      3 |
+      4 | const API = 'http://127.0.0.1:4311';
+    > 5 | test.beforeEach(async ({ page, request }) => {
+        |      ^
+      6 |   await request.post(`${API}/__test/reset`);
+      7 |   await page.setViewportSize({ width: 1366, height: 768 });
+      8 |   await page.goto('/login');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/unified-sections.spec.ts:5:6
+
+    Error: locator.fill: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Email', { exact: true })
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:3002/?next=%2Ftoday#login"
+
+
+       7 |   await page.setViewportSize({ width: 1366, height: 768 });
+       8 |   await page.goto('/login');
+    >  9 |   await page.getByLabel('Email', { exact: true }).fill('<email>');
+         |                                                   ^
+      10 |   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      11 |   await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      12 |   await page.waitForURL('**/today');
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/unified-sections.spec.ts:9:51
+
+    Error Context: test-results/unified-sections-адаптивный-обзор-разделов/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/unified-sections-адаптивный-обзор-разделов/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/unified-sections-адаптивный-обзор-разделов/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке 
+    tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+    tests/ui/rates-design.spec.ts:162:1 › месяц из шести недель помещается на ноутбуке, выбор не сдвигает календарь 
+    tests/ui/unified-sections.spec.ts:15:1 › настройки: основные поля и сохранение помещаются на ноутбуке 
+    tests/ui/unified-sections.spec.ts:26:1 › интеграции: незавершённая настройка не называется подключением 
+    tests/ui/unified-sections.spec.ts:32:1 › адаптивный обзор разделов ─────────────────────────────
+  85 passed (33.5m)
+
+# код выхода 1 · 33 мин 29 с

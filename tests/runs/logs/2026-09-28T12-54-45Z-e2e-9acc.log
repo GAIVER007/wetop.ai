@@ -1,0 +1,75 @@
+# Сквозные (e2e) · 28.09.2026 17:54 Алматы · Noutbuk-Vyacheslav.local
+# коммит 2cc9831 (codex/site-hospitality-positioning), незакоммиченных файлов набора: 36
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.auth.config.ts'
+[WebServer] (node:64200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64237) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64326) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:64327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 2 workers
+
+(node:64367) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:64365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/ui/login-lock.spec.ts:22:3 › без входа /today уводит на экран входа (12.5s)
+  ✓  3 tests/ui/login-lock.spec.ts:22:3 › без входа /chessboard уводит на экран входа (5.2s)
+  ✓  4 tests/ui/login-lock.spec.ts:22:3 › без входа /reservations уводит на экран входа (16.3s)
+  ✓  5 tests/ui/login-lock.spec.ts:32:1 › после входа рабочее место открывается, «Выйти» закрывает двери снова (16.6s)
+  ✘  2 tests/ui/branches-auth.spec.ts:13:1 › владелец создаёт филиал, попадает в его настройку и возвращается в основной объект (49.1s)
+(node:64624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/ui/branches-auth.spec.ts:28:1 › форма филиала доступна с клавиатуры и без горизонтальной прокрутки на телефоне (7.5s)
+  ✓  6 tests/ui/login-lock.spec.ts:47:1 › ссылка из письма подтверждает почту при включённом замке (19.3s)
+
+
+  1) tests/ui/branches-auth.spec.ts:13:1 › владелец создаёт филиал, попадает в его настройку и возвращается в основной объект 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: page.goto: Test timeout of 45000ms exceeded.
+    Call log:
+      - navigating to "http://127.0.0.1:3102/branches", waiting until "load"
+
+
+       at fixtures.ts:63
+
+      61 |     const goto = page.goto.bind(page);
+      62 |     page.goto = async (url, options) => {
+    > 63 |       const response = await goto(url, options);
+         |                              ^
+      64 |       await settleStreaming(page);
+      65 |       return response;
+      66 |     };
+        at _Page.goto (/Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fixtures.ts:63:30)
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/branches-auth.spec.ts:21:14
+
+    Error Context: test-results/branches-auth-владелец-соз-8038a-вращается-в-основной-объект/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/branches-auth-владелец-соз-8038a-вращается-в-основной-объект/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/branches-auth-владелец-соз-8038a-вращается-в-основной-объект/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/branches-auth.spec.ts:13:1 › владелец создаёт филиал, попадает в его настройку и возвращается в основной объект 
+  6 passed (1.6m)
+
+# код выхода 1 · 1 мин 39 с

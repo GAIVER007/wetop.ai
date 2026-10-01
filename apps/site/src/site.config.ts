@@ -28,8 +28,8 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  siteUrl: 'https://wetop.ai',
-  appUrl: 'https://app.wetop.ai',
+  siteUrl: process.env.WETOP_SITE_URL || 'https://wetop.ai',
+  appUrl: process.env.WETOP_APP_URL || 'https://app.wetop.ai',
   // Адрес ИИ-помощника — решение владельца 24.09.2026 (Q-180, ADR-081). Пока публичный сервис и DNS не
   // подняты, значение остаётся пустым: главная не должна отправлять браузер за заведомо недоступным скриптом.
   assistantUrl: '',

@@ -1,0 +1,30 @@
+# Модульные (unit) · 01.10.2026 11:42 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 15
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-42-00Z-unit-0e30.json' 'apps/web/src/lib/auth-aliases.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| apps/web/src/lib/auth-aliases.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/auth-aliases.test.ts [ apps/web/src/lib/auth-aliases.test.ts ]
+AggregateError: oxc transform error
+  Plugin: vite:define
+  File: /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/src/app/login/page.tsx
+ ❯ replaceDefine ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vite/dist/node/chunks/node.js:25392:38
+ ❯ TransformPluginContext.handler ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vite/dist/node/chunks/node.js:25380:11
+ ❯ EnvironmentPluginContainer.transform ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vite/dist/node/chunks/node.js:30932:51
+ ❯ loadAndTransform ../../%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%8B/WETOP/node_modules/vite/dist/node/chunks/node.js:20671:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  23:42:01
+   Duration  81ms (worker 97%, environment 3%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-42-00Z-unit-0e30.json
+
+# код выхода 1 · 1 с

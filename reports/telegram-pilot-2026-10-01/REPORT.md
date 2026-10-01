@@ -43,3 +43,10 @@ No Channex production changes, no Telegram reservation source, no Supabase migra
 
 Root filesystem was full. Pruned unused Docker build cache only: about 32 GB free afterwards.
 No database volumes, working containers, rollback images or backups removed. PMS and seller remained healthy.
+
+## Main reconciliation
+
+Remote main advanced to 0930cf5d during work (homepage/authentication changes). Merged without conflicts;
+pre-existing untracked report image collisions preserved under `.agent-tmp/pre-main-merge-20261001/`.
+After adding the four Telegram endpoints to the explicit access-contract table, merged authentication/
+role/Telegram API set passes **26 tests** (09:11:28 UTC run). No role or auth check was disabled.

@@ -34,7 +34,7 @@ export const metadata = {
 
 /** Public entry screens must never start authenticated hotel requests from the workspace shell. */
 function isPublicEntryPath(path: string): boolean {
-  return ['/create', '/login', '/register', '/invite'].some(
+  return ['/create', '/login', '/register', '/invite', '/auth/fallback'].some(
     (entry) => path === entry || path.startsWith(`${entry}/`),
   );
 }
@@ -44,9 +44,7 @@ async function ProjectProperty({ field }: { field: 'name' | 'address' }) {
     if (error instanceof ApiError) return null;
     throw error;
   });
-  return (
-    hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта')
-  );
+  return hotel?.property[field] ?? (field === 'name' ? 'Объект не загружен' : 'Настройки объекта');
 }
 
 /** Общий shell и параллельная карточка используют одну тему и существующие server actions. */

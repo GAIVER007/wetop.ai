@@ -1,5 +1,7 @@
 import { ApiError } from '../../../../lib/api-error';
 import { authApi } from '../../../../lib/api';
+import { safeReturnPath } from '../../../../lib/auth-entry';
+import { sessionToken } from '../../../../lib/session';
 import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site-auth';
 
 /**
@@ -12,6 +14,20 @@ import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site
  * - `POST resend` — письмо ещё раз; ответ один для любой почты.
  */
 const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> = {
+  session: {
+    method: 'GET',
+    run: async () => {
+      if (!(await sessionToken())) return { body: { authenticated: false } };
+      try {
+        return { body: { authenticated: !!(await authApi.me()).user } };
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          return { body: { authenticated: false } };
+        }
+        throw error;
+      }
+    },
+  },
   options: {
     method: 'GET',
     run: async () => {
@@ -30,7 +46,7 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
       if (!email || !password) throw new ApiError(400, 'Введите почту и пароль');
       const result = await authApi.login({ email, password }, info);
       return {
-        body: { next: '/today' },
+        body: { next: safeReturnPath(field(body, 'next')) },
         session: { token: result.token, expiresAt: result.expiresAt },
       };
     },

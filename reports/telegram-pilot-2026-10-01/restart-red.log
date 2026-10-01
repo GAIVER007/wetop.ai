@@ -1,0 +1,53 @@
+..F                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_persisted_event_is_processed_with_agent_scope[interrupted-FAILED-processing_interrupted] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7dc967f12c50>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7dc967e77850>
+outcome = 'interrupted', state = 'FAILED', error = 'processing_interrupted'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('outcome,state,error', [('replied','DONE',None), ('send_failed','FAILED','delivery_unconfirmed'), ('interrupted','FAILED','processing_interrupted')])
+    async def test_persisted_event_is_processed_with_agent_scope(db_session, monkeypatch, outcome, state, error):
+        import json
+        monkeypatch.setenv('LLM_KEYS_SECRET', FERNET)
+        get_settings.cache_clear(); settings = get_settings()
+        org = Organization(id=uuid.uuid4(), name='Synthetic hotel', active=True, public_key='synthetic_org', created_at=utcnow(), updated_at=utcnow())
+        db_session.add(org); await db_session.flush()
+        agent = Agent(id=uuid.uuid4(), organization_id=org.id, name='Synthetic agent', active=True, public_key='synthetic_agent', created_at=utcnow(), updated_at=utcnow())
+        db_session.add(agent); await db_session.flush()
+        db_session.add(TelegramConnection(agent_id=agent.id, bot_id='1234567', bot_username='fake_bot', token_encrypted=b'x', webhook_secret_encrypted=b'x', allowed_user_ids=['1234'], enabled=True, connection_state='CONNECTED', updated_at=utcnow()))
+        event = TelegramInboundEvent(agent_id=agent.id, update_id='17', received_at=utcnow(), state='RECEIVED', attempts=0, next_retry_at=utcnow(), payload_encrypted=encrypt_key(json.dumps({'chat_id':'1234','text':'Есть свободный номер?'}),settings))
+        if outcome == 'interrupted':
+            from datetime import timedelta
+            event.state = 'PROCESSING'
+            event.next_retry_at = utcnow() - timedelta(minutes=6)
+        db_session.add(event); await db_session.commit()
+        engine = SimpleNamespace(process_message=AsyncMock(return_value=SimpleNamespace(status=outcome)))
+        assert await process_one(settings, engine) == (outcome != 'interrupted')
+        await db_session.refresh(event)
+        assert (event.state, event.error_code) == (state,error)
+        connection = await db_session.get(TelegramConnection, agent.id)
+        await db_session.refresh(connection)
+>       assert connection.last_error_code == error
+E       AssertionError: assert None == 'processing_interrupted'
+E        +  where None = <src.db.models.TelegramConnection object at 0x7dc967f11950>.last_error_code
+
+/qa/tests/test_telegram_worker.py:36: AssertionError
+=============================== warnings summary ===============================
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[replied-DONE-None]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[send_failed-FAILED-delivery_unconfirmed]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[interrupted-FAILED-processing_interrupted]
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[replied-DONE-None]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[send_failed-FAILED-delivery_unconfirmed]
+tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[interrupted-FAILED-processing_interrupted]
+  /usr/local/lib/python3.13/contextlib.py:148: SAWarning: Table '_alembic_tmp_whatsapp_connections' specifies columns 'organization_id', 'agent_id' as primary_key=True, not matching locally specified columns 'agent_id'; setting the current primary key columns to 'agent_id'. This warning may become an exception in a future release
+    next(self.gen)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_telegram_worker.py::test_persisted_event_is_processed_with_agent_scope[interrupted-FAILED-processing_interrupted]
+1 failed, 2 passed, 6 warnings in 1.57s

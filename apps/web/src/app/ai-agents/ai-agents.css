@@ -25,7 +25,7 @@
 
 .agent-wizard {
   display: grid;
-  gap: var(--space-5, 24px);
+  gap: var(--space-6);
   min-width: 0;
 }
 .agent-wizard__steps {
@@ -37,10 +37,10 @@
   display: grid;
   grid-template-columns: 30px 1fr;
   align-content: center;
-  gap: 3px 8px;
-  padding: 14px 12px;
+  gap: 4px 8px;
+  padding: 16px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: transparent;
   color: inherit;
   text-align: left;
@@ -88,7 +88,7 @@ button.agent-wizard__step {
 .agent-wizard__rules ol {
   display: grid;
   gap: 16px;
-  padding-left: 20px;
+  padding-left: 24px;
   line-height: 1.5;
 }
 .agent-wizard__save {
@@ -110,7 +110,7 @@ button.agent-wizard__step {
     grid-template-columns: minmax(0, 1fr);
   }
   .agent-wizard__step {
-    padding: 10px;
+    padding: 8px;
   }
   .agent-wizard__step[aria-disabled] {
     display: none;
@@ -125,14 +125,14 @@ button.agent-wizard__step {
   font-size: 28px;
 }
 .agent-card {
-  padding: 20px;
-  gap: 12px;
+  padding: 24px;
+  gap: 16px;
 }
 .agent-card .panel__title {
   font-size: 20px;
 }
 .agent-card .stack {
-  gap: 12px;
+  gap: 16px;
 }
 .agent-card__hint {
   margin: 0;

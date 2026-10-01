@@ -1,0 +1,202 @@
+# Модульные (unit) · 01.10.2026 12:45 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9489d64 (codex/unified-auth-entry), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T07-45-54Z-unit-4401.json' 'tests/unit/auth-deploy-health.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ❯ |unit| tests/unit/auth-deploy-health.test.ts (1 test | 1 failed) 9ms
+   × deploy health uses the first-party fallback, not the public homepage redirect 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/auth-deploy-health.test.ts > deploy health uses the first-party fallback, not the public homepage redirect
+AssertionError: expected '# PMS на сервере в Казахстане (plans/…' to contain 'fetch(\'http://127.0.0.1:3000/auth/fa…'
+
+- Expected
++ Received
+
+- fetch('http://127.0.0.1:3000/auth/fallback')
++ # PMS на сервере в Казахстане (plans/server-kz-2026-09-17.md, plans/server-kz-2026-09-18.md). Заменяет launchd с
++ # Mac владельца: те же четыре службы, что держал launchd, только под Docker — как сторож на Hostinger
++ # (scripts/ops/watch/compose.yml).
++ #
++ #   api         — NestJS, 3001. Наружу не публикуется: до него ходит только туннель и стойка.
++ #   web         — стойка Next на `next start`, 3000. Тоже только через туннель.
++ #   cloudflared — именованный туннель: app.wetop.ai и api.wetop.ai. Адреса при переезде не меняются,
++ #                 меняется машина под туннелем, поэтому webhook Channex перерегистрировать не нужно.
++ #                 Поднимается ПОСЛЕ сверки двух баз, отдельно: up -d cloudflared (план, шаг 4).
++ #
++ # Портов наружу НЕ публикуем (expose, не ports): снаружи объект виден только через туннель. Внутри сети
++ # compose службы зовут друг друга по имени, поэтому API и стойка слушают здесь 0.0.0.0 — на Mac умолчание
++ # прежнее, 127.0.0.1.
++ #
++ # Секреты — в файле .env в КОРНЕ клона (../.env отсюда), его вписывает владелец (SECURITY.md §3): оттуда же его
++ # читают main.ts, cli-check-env.ts и prisma migrate на хосте. Одно место, все читатели. В образ .env не попадает
++ # (.dockerignore), в контейнер идёт как env_file.
++ # База — управляемый PostgreSQL провайдера, в compose её нет намеренно: бэкапы и обновления на нём (Q-073).
++ # Боевой миграции в службах нет: её делает владелец руками (AGENTS.md §15).
++ #
++ # Запуск:   docker compose -f deploy/compose.yml up -d --build api web
++ # Обновить: git pull && docker compose -f deploy/compose.yml up -d --build
++ # Смотреть: docker compose -f deploy/compose.yml ps ; docker compose -f deploy/compose.yml logs -f api
++ name: pms-lux
++
++ x-app: &app
++   build:
++     context: ..
++     dockerfile: deploy/Dockerfile
++   image: pms-lux:latest
++   restart: unless-stopped
++   env_file:
++     # Один .env на сервере — в корне клона. Копии в deploy/ нет намеренно: два файла разъезжаются.
++     - path: ../.env
++       required: true
++     # Выключатель исходящего ARI (`scripts/ops/ari.sh stop|start`, CUTOVER.md ROLLBACK, шаг 1).
++     # Файл есть — ARI выключен, файла нет — включён. В отличие от `launchctl setenv` на Mac,
++     # это переживает перезагрузку сервера.
++     - path: ari.env
++       required: false
++   security_opt: ['no-new-privileges:true']
++
++ # Общая сеть с ИИ-помощником и ИИ-продавцом (ADR-081, docs/assistant/README.md §3): помощник читает у API ошибки
++ # человека и состояние сторожа, API зовёт продавца по SELLER_URL. Заводит её платформа — с постоянным именем, чтобы бот
++ # подключился к ней из своего compose как к внешней; внешней здесь она не объявлена, иначе выкладка падала бы, пока сеть
++ # не заведена руками. internal: true — выхода наружу у этой сети нет, она только для служб между собой. В ней api и
++ # cloudflared: туннель выводит наружу assistant.wetop.ai (только чат и живость, deploy/cloudflared.example.yml). Стойки нет.
++ networks:
++   wetop-internal:
++     name: wetop-internal
++     internal: true
++
++ # environment у служб не наследуется через &app (слияние YAML не глубокое), поэтому у каждой службы свой блок.
++ # TZ и NODE_ENV заданы в образе (Dockerfile), здесь только то, что различается.
++ services:
++   api:
++     <<: *app
++     # Из папки пакета, а не из корня: tsx берёт tsconfig.json рабочей папки. В корневом нет
++     # experimentalDecorators, и Nest падает на первом же контроллере — «Parameter decorators only work
++     # when experimental decorators are enabled» (проверено на сервере 18.09.2026; та же грабля описана
++     # в шапке apps/api/src/main.ts). На Mac этого не видно: launchd зовёт workspace-скрипт.
++     working_dir: /app/apps/api
++     command: ['node', '--import', 'tsx', 'src/main.ts']
++     # На Mac API слушает только 127.0.0.1; в контейнере это «недоступен никому»: у каждой службы своя сеть.
++     # 0.0.0.0 здесь виден только соседям по сети compose — порты наружу не публикуются.
++     environment:
++       API_HOST: '0.0.0.0'
++       API_PORT: '3001'
++       # Замок включён по умолчанию, а не по строчке в .env: до 20.09.2026 его не было ни здесь,
++       # ни в .env.example, и единственным периметром оставался Cloudflare Access — снятый в тот же
++       # день. Выключить можно только явно, `AUTH_REQUIRED=0` в .env, и это видно в ревью.
++       AUTH_REQUIRED: '${AUTH_REQUIRED:-1}'
++       # Пул задаётся явно, а не умолчанием (5): сумма пулов всех копий PMS обязана быть меньше предела
++       # базы. 18–19.09.2026 вторая копия с умолчанием переполнила Session pooler Supabase (15 клиентов
++       # на проект) и уронила боевую стойку в 500 — 609 отказов на одной только карточке брони.
++       DATABASE_POOL_MAX: '${DATABASE_POOL_MAX:-5}'
++       # Сторож проверяет живость стойки. Умолчание в коде — http://127.0.0.1:3000, и оно верно на Mac,
++       # где обе службы на одной машине. В контейнере 127.0.0.1:3000 — это САМ api, где на 3000 никто не
++       # слушает: проверка отказывала бы всегда, а сторож будил бы дежурного «стойка не отвечает» круглые
++       # сутки. Ложная тревога опаснее тишины: к боту перестают относиться серьёзно (разбор 21.09.2026,
++       # та же грабля, что у ari.sh 17.09 — написано под Mac, перенесено в Docker и не пересмотрено).
++       GUARD_WEB_URL: http://web:3000
++       # Отчёты сверок (reports/) и журнал тестов (tests/runs/journal.jsonl) сторож читает с диска,
++       # а в контейнере /app — слепок кода на момент сборки образа (docs/deploy.md §1а). Выключателя
++       # для этого больше нет: сторож сам считает данные старше двух суток слепком и молчит о них
++       # (LOCAL_FILE_FRESH_MS в @pms/domain, разбор 21.09.2026).
++       # Статус ночной копии базы (ADR-078, docs/ops/backups.md): его пишет scripts/ops/db-backup.sh из cron хоста.
++       # Файла нет или копия старше 26 часов — сторож поднимает «ночной копии базы нет». Выключить: GUARD_BACKUP=off в .env.
++       GUARD_BACKUP_STATUS: /backup-status/last.json
++     # Только папка статуса и только на чтение. Сами копии в контейнер НЕ монтируются: в них хеши паролей и почты
++     # сотрудников, а API смотрит в интернет через туннель. Папки ещё нет — Docker создаст пустую, сторож скажет «не найден».
++     volumes: ['/root/backups/status:/backup-status:ro']
++     expose: ['3001']
++     # default — стойка и туннель; wetop-internal — бот. default обязателен: без него стойка API не увидит
++     networks: [default, wetop-internal]
++     # Живость меряем публичным /health, который трогает базу. Рабочий маршрут сюда не годится:
++     # с включённым AUTH_REQUIRED=1 он отвечает 401 без сессии, контейнер навсегда «нездоров»,
++     # а стойка и туннель ждут его здоровья и не поднимаются вовсе. Проверка через node: она есть в любом
++     # образе, wget/curl — нет.
++     healthcheck:
++       test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
++       interval: 30s
++       timeout: 10s
++       retries: 3
++       start_period: 60s
++
++   web:
++     <<: *app
++     # Скрипт `start` в apps/web/package.json жёстко ставит --hostname 127.0.0.1 (так надо на Mac);
++     # в контейнере стойка обязана слушать 0.0.0.0, иначе туннель её не увидит. Поэтому next запускается
++     # напрямую из папки стойки, а не через npm-скрипт.
++     working_dir: /app/apps/web
++     # INFRA-ENV (аудит 30.09.2026, §1): `.env` через env_file приходит в контейнер целиком — ключи Channex, база, почта,
++     # а стойке из него нужны только APP_URL, SITE_ORIGINS, ASSISTANT_URL (и APP_AUTH_REQUIRED, APP_API_URL ниже).
++     # Отфильтровать env_file compose не умеет, а `environment` с подстановкой `${…}` берёт значения не из ../.env,
++     # а из deploy/.env, которого нет намеренно: пришлось бы писать `--env-file .env` в каждом вызове compose, и без
++     # него стойка молча стартовала бы без APP_URL. Поэтому окружение чистит сама команда: `env -i` оставляет процессу
++     # next только названное — путь к node и npx, кэш npx (HOME), пояс и режим из образа и пять переменных стойки.
++     # `$$` — знак доллара для оболочки контейнера, compose его не подставляет. Список сверяет с кодом стойки
++     # tests/unit/deploy-server.test.ts: новая переменная в коде без строки здесь на сервере окажется пустой.
++     command:
++       - sh
++       - -c
++       - >-
++         exec env -i
++         PATH="$$PATH" HOME="$$HOME" TZ="$$TZ" NODE_ENV="$$NODE_ENV"
++         APP_API_URL="$$APP_API_URL" APP_AUTH_REQUIRED="$$APP_AUTH_REQUIRED"
++         APP_URL="$${APP_URL:-}" SITE_ORIGINS="$${SITE_ORIGINS:-}" ASSISTANT_URL="$${ASSISTANT_URL:-}"
++         WETOP_SITE_URL="$${WETOP_SITE_URL:-https://wetop.ai}"
++         npx next start --port 3000 --hostname 0.0.0.0
++     environment:
++       # Стойка ходит в API по имени службы; умолчание клиента (127.0.0.1:3001) в контейнере — это она сама
++       APP_API_URL: http://api:3001
++       # Замок стойки — как у API: включён, пока явно не выключен
++       APP_AUTH_REQUIRED: '${APP_AUTH_REQUIRED:-1}'
++     expose: ['3000']
++     depends_on:
++       api: { condition: service_healthy }
++     healthcheck:
++       # /login отвечает и с замком APP_AUTH_REQUIRED=1, и без него; /today с замком уводит на вход
++       test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
++       interval: 30s
++       timeout: 10s
++       retries: 3
++       start_period: 90s
++
++   # Ровно одна копия туннеля на весь проект. Две копии одного туннеля друг друга не заменяют:
++   # Cloudflare делит запросы между ними, и адрес отвечает через раз (17.09.2026, docs/deploy.md §1).
++   # Старый туннель гасится со стороны Cloudflare (tunnel delete --force) — deploy/cloudflared.example.yml.
++   cloudflared:
++     image: cloudflare/cloudflared:latest
++     restart: unless-stopped
++     command: ['tunnel', '--no-autoupdate', '--config', '/etc/cloudflared/wetop.yml', 'run']
++     # Правила маршрутизации живут в репозитории и видны в ревью, а не в панели Cloudflare.
++     # Ключ туннеля кладёт владелец рядом с конфигом; в git не едет.
++     volumes: ['./cloudflared:/etc/cloudflared:ro']
++     # default — стойка и API; wetop-internal — ИИ-помощник для assistant.wetop.ai (ADR-081)
++     networks: [default, wetop-internal]
++     depends_on:
++       api: { condition: service_healthy }
++       web: { condition: service_healthy }
++
++ # Брони приходят из Channex webhook'ом или заводятся на стойке.
++
+
+ ❯ tests/unit/auth-deploy-health.test.ts:7:19
+      5|   const compose = readFileSync('deploy/compose.yml', 'utf8');
+      6|   const deploy = readFileSync('scripts/ops/auto-deploy.sh', 'utf8');
+      7|   expect(compose).toContain("fetch('http://127.0.0.1:3000/auth/fallbac…
+       |                   ^
+      8|   expect(deploy).toContain("const pages = ['/auth/fallback', '/today',…
+      9| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  00:45:55
+   Duration  84ms (tests 37%, transform 36%, import 18%, worker 8%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T07-45-54Z-unit-4401.json
+
+# код выхода 1 · 2 с

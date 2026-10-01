@@ -152,7 +152,7 @@ test('«только чтение» (ADR-102): окошко говорит, чт
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { orgTrialDays: 'ended' } });
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

@@ -18,7 +18,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -97,7 +97,10 @@ test('переписка открывается рядом со списком; 
   const listBox = await queue(page).boundingBox();
   const cardBox = await card.boundingBox();
   expect(cardBox!.x).toBeGreaterThan(listBox!.x + listBox!.width - 1);
-  await expect(queue(page).locator(`[data-id="${SIGNED}"]`)).toHaveAttribute('aria-current', 'true');
+  await expect(queue(page).locator(`[data-id="${SIGNED}"]`)).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
 
   await expect(card.getByRole('heading', { level: 2 })).toHaveText('dana@example.invalid');
   await expect(card).toContainText('Не сохраняется бронь');
@@ -111,10 +114,7 @@ test('переписка открывается рядом со списком; 
   await page.reload();
   await expect(main.getByTestId('support-dialog-card')).toContainText('Проверим за десять минут.');
   await expect(main.getByTestId('support-dialog-mode')).toHaveText('ведёт оператор');
-  await main
-    .getByTestId('support-dialog-card')
-    .getByRole('button', { name: 'Вернуть ИИ' })
-    .click();
+  await main.getByTestId('support-dialog-card').getByRole('button', { name: 'Вернуть ИИ' }).click();
   await expect(
     main.getByTestId('support-dialog-card').getByTestId('dialog-mode-result'),
   ).toContainText('вернули помощнику');
@@ -144,7 +144,9 @@ test('закрыть обращение: с подтверждением, ухо
   await expect(queue(page).locator(`[data-id="${WAITING}"]`)).toHaveCount(1);
   await expect(queue(page).locator(`[data-id="${CLOSED}"]`)).toHaveCount(1);
 
-  await chips(page).getByRole('link', { name: /Ждут ответа/ }).click();
+  await chips(page)
+    .getByRole('link', { name: /Ждут ответа/ })
+    .click();
   await expect(main.getByTestId('support-queue-empty')).toContainText('Никто не ждёт ответа');
 });
 

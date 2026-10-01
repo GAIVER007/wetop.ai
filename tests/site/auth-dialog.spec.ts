@@ -17,7 +17,7 @@ async function mockDesk(
   page: Page,
   handlers: Partial<
     Record<
-      'options' | 'login' | 'register' | 'resend',
+      'options' | 'login' | 'register' | 'resend' | 'session',
       (body: unknown) => { status: number; body: unknown }
     >
   >,
@@ -54,10 +54,26 @@ test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
 });
 
+test('несохранённая сессия не запускает круг переходов', async ({ page }) => {
+  await mockDesk(page, {
+    options: () => ({ status: 200, body: { registrationEnabled: true } }),
+    login: () => ({ status: 200, body: { next: '/today' } }),
+    session: () => ({ status: 200, body: { authenticated: false } }),
+  });
+  await page.goto('/#login');
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Почта').fill('test@example.invalid');
+  await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
+  await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toContainText('Браузер не сохранил сессию');
+  await expect(page).toHaveURL(`${SITE_ORIGIN}/#login`);
+});
+
 test('«Войти» открывает окно на главной, вход ведёт прямо в стойку', async ({ page }) => {
   const calls = await mockDesk(page, {
     options: () => ({ status: 200, body: { registrationEnabled: true } }),
     login: () => ({ status: 200, body: { next: '/today' } }),
+    session: () => ({ status: 200, body: { authenticated: true } }),
   });
   await page.goto('/');
   await page.locator('.site-header').getByRole('link', { name: 'Войти', exact: true }).click();
@@ -79,6 +95,7 @@ test('«Войти» открывает окно на главной, вход �
   expect(calls.find((c) => c.path === 'login')?.body).toEqual({
     email: 'dana@example.invalid',
     password: 'parol-dlya-testa',
+    next: '/today',
   });
 });
 
@@ -111,7 +128,7 @@ test('стойка недоступна — окно говорит об это�
   await expect(alert).toContainText('Нет связи с сервером');
   await expect(alert.getByRole('link', { name: 'Открыть на отдельной странице' })).toHaveAttribute(
     'href',
-    `${APP}/login`,
+    `${APP}/auth/fallback`,
   );
 });
 

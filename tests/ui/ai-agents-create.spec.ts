@@ -18,21 +18,28 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-const control = (request: import('@playwright/test').APIRequestContext, data: Record<string, unknown>) =>
-  request.post(`${API}/__test/control`, { data });
+const control = (
+  request: import('@playwright/test').APIRequestContext,
+  data: Record<string, unknown>,
+) => request.post(`${API}/__test/control`, { data });
 
-test('свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние', async ({ page, request }) => {
+test('свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние', async ({
+  page,
+  request,
+}) => {
   await control(request, FREE);
   await signIn(page);
   await page.goto('/ai-agents');
-  const button = page.getByTestId('agent-add').getByRole('link', { name: '+ Подключить AI-продавца' });
+  const button = page
+    .getByTestId('agent-add')
+    .getByRole('link', { name: '+ Подключить AI-продавца' });
   await expect(button).toBeVisible();
   await button.click();
   await expect(page).toHaveURL(/\/ai-agents\/new$/);
@@ -41,39 +48,53 @@ test('свободный филиал: кнопка активна, форма �
   await expect(page.getByRole('button', { name: /Далее/ })).toHaveCount(0);
 
   await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
-  await expect(page.getByTestId('agent-business')).toHaveValue('b0000000-0000-4000-8000-0000000000aa');
+  await expect(page.getByTestId('agent-business')).toHaveValue(
+    'b0000000-0000-4000-8000-0000000000aa',
+  );
   // занятый филиал стоит в списке и выбрать его нельзя, выбран свободный
   const busy = page.getByTestId('agent-location').locator('option', { hasText: 'Алматы' });
   await expect(busy).toHaveAttribute('disabled', '');
   await expect(busy).toHaveText('Алматы — занят');
-  await expect(page.getByTestId('agent-location')).toHaveValue('c0000000-0000-4000-8000-0000000000ab');
+  await expect(page.getByTestId('agent-location')).toHaveValue(
+    'c0000000-0000-4000-8000-0000000000ab',
+  );
   await page.getByTestId('agent-create-submit').click();
 
   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('AI-продавец Luxx 2');
   await expect(page.getByText('Сеть Тест · Астана')).toBeVisible();
   await expect(page.getByTestId('agent-lifecycle')).toHaveText('Черновик');
-  await expect(page.getByRole('navigation', {name: 'Шаги настройки агента'})).toBeVisible();
-  await page.getByLabel('Ваш рассказ', {exact:true}).fill('Назови продавца Ася и отвечай коротко.');
-  await page.getByRole('button', {name:'Сгенерировать инструкцию',exact:true}).click();
+  await expect(page.getByRole('navigation', { name: 'Шаги настройки агента' })).toBeVisible();
+  await page
+    .getByLabel('Ваш рассказ', { exact: true })
+    .fill('Назови продавца Ася и отвечай коротко.');
+  await page.getByRole('button', { name: 'Сгенерировать инструкцию', exact: true }).click();
   await expect(page.getByLabel('Предпросмотр инструкции')).toHaveValue(/Ты Ася/);
   await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue('');
-  await page.getByRole('button', {name:'Использовать эту редакцию'}).click();
+  await page.getByRole('button', { name: 'Использовать эту редакцию' }).click();
   await page.getByLabel('Как агент должен отвечать').fill('Проверенная тестовая инструкция Аси.');
-  await page.getByRole('button', {name:'Сохранить инструкцию',exact:true}).click();
+  await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Инструкция сохранена');
   await page.reload();
-  await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue('Проверенная тестовая инструкция Аси.');
-  await page.getByRole('button', {name:/Ваш рассказ/}).click();
-  await page.getByLabel('Ваш рассказ', {exact:true}).fill('Повторная генерация не должна стереть инструкцию.');
-  await page.getByRole('button', {name:'Сгенерировать инструкцию',exact:true}).click();
-  await page.getByRole('button', {name:'Оставить текущую'}).click();
-  await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue('Проверенная тестовая инструкция Аси.');
+  await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue(
+    'Проверенная тестовая инструкция Аси.',
+  );
+  await page.getByRole('button', { name: /Ваш рассказ/ }).click();
+  await page
+    .getByLabel('Ваш рассказ', { exact: true })
+    .fill('Повторная генерация не должна стереть инструкцию.');
+  await page.getByRole('button', { name: 'Сгенерировать инструкцию', exact: true }).click();
+  await page.getByRole('button', { name: 'Оставить текущую' }).click();
+  await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue(
+    'Проверенная тестовая инструкция Аси.',
+  );
   await expect(page.getByRole('button', { name: /Запустить|Активировать/ })).toHaveCount(0);
-
 });
 
-test('каталог после создания: карточка агента с Business · Location, кнопка снова неактивна', async ({ page, request }) => {
+test('каталог после создания: карточка агента с Business · Location, кнопка снова неактивна', async ({
+  page,
+  request,
+}) => {
   await control(request, FREE);
   await signIn(page);
   await page.goto('/ai-agents/new');
@@ -88,19 +109,26 @@ test('каталог после создания: карточка агента 
   await expect(card.getByTestId('agent-status')).toHaveText('Черновик');
   const add = page.getByTestId('agent-add');
   await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
-  await expect(add).toContainText('Нет свободного филиала. Во всех филиалах AI-продавец уже создан.');
+  await expect(add).toContainText(
+    'Нет свободного филиала. Во всех филиалах AI-продавец уже создан.',
+  );
   await card.getByRole('link', { name: /Открыть/ }).click();
   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Второй продавец');
 });
 
-test('ошибки у поля словами: пустое название не отправляется и ничего не создаёт', async ({ page, request }) => {
+test('ошибки у поля словами: пустое название не отправляется и ничего не создаёт', async ({
+  page,
+  request,
+}) => {
   await control(request, FREE);
   await signIn(page);
   await page.goto('/ai-agents/new');
   await page.getByTestId('agent-name').fill('   ');
   await page.getByTestId('agent-create-submit').click();
-  await expect(page.getByRole('alert').filter({ hasText: 'Введите название агента.' })).toBeVisible();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Введите название агента.' }),
+  ).toBeVisible();
   await expect(page.getByTestId('agent-name')).toHaveAttribute('aria-invalid', 'true');
   await expect(page).toHaveURL(/\/ai-agents\/new$/);
   await page.getByTestId('agent-name').fill('Не пустое');
@@ -121,12 +149,17 @@ test('двойной щелчок по «Создать черновик» да�
   await expect(page.getByTestId('agent-created')).toHaveCount(1);
 });
 
-test('единственный филиал занят: форма недоступна, причина словами, кнопки создания нет', async ({ page, request }) => {
+test('единственный филиал занят: форма недоступна, причина словами, кнопки создания нет', async ({
+  page,
+  request,
+}) => {
   await control(request, { sellerApplied: true });
   await signIn(page);
   await page.goto('/ai-agents/new');
   const blocked = page.getByTestId('agent-create-blocked');
-  await expect(blocked).toContainText('Нет свободного филиала. Для этого филиала AI-продавец уже создан.');
+  await expect(blocked).toContainText(
+    'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
+  );
   await expect(page.getByTestId('agent-create-form')).toHaveCount(0);
   await blocked.getByRole('link', { name: 'К списку агентов' }).click();
   await expect(page).toHaveURL(/\/ai-agents$/);
@@ -136,7 +169,9 @@ test('сотрудник смены: страница создания объя�
   await control(request, { ...FREE, role: 'STAFF' });
   await signIn(page);
   await page.goto('/ai-agents/new');
-  await expect(page.getByTestId('agent-create-blocked')).toContainText('Создавать агентов могут владелец и управляющий.');
+  await expect(page.getByTestId('agent-create-blocked')).toContainText(
+    'Создавать агентов могут владелец и управляющий.',
+  );
   await expect(page.getByTestId('agent-create-form')).toHaveCount(0);
 });
 
@@ -149,7 +184,10 @@ test('управляющий может создать агента', async ({ p
   await expect(page).toHaveURL(/\/ai-agents\/[0-9a-f-]{36}$/);
 });
 
-test('«только чтение»: кнопка в каталоге неактивна, форма недоступна', async ({ page, request }) => {
+test('«только чтение»: кнопка в каталоге неактивна, форма недоступна', async ({
+  page,
+  request,
+}) => {
   await control(request, { ...FREE, orgTrialDays: 'ended' });
   await signIn(page);
   await page.goto('/ai-agents');
@@ -164,10 +202,15 @@ test('расширения нет: на странице создания при
   await control(request, { sellerExtension: 'off' });
   await signIn(page);
   await page.goto('/ai-agents/new');
-  await expect(page.getByTestId('agent-create-blocked')).toContainText('Расширение «ИИ-продавец» не подключено.');
+  await expect(page.getByTestId('agent-create-blocked')).toContainText(
+    'Расширение «ИИ-продавец» не подключено.',
+  );
 });
 
-test('несуществующий агент — страница «не найдено», а не пустая карточка', async ({ page, request }) => {
+test('несуществующий агент — страница «не найдено», а не пустая карточка', async ({
+  page,
+  request,
+}) => {
   await control(request, FREE);
   await signIn(page);
   await page.goto('/ai-agents/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
@@ -176,7 +219,10 @@ test('несуществующий агент — страница «не най
   await expect(page.getByTestId('agent-setup')).toHaveCount(0);
 });
 
-test('запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком', async ({ page, request }) => {
+test('запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком', async ({
+  page,
+  request,
+}) => {
   await control(request, FREE);
   await signIn(page);
   await page.goto('/ai-agents/new');
@@ -207,10 +253,14 @@ for (const theme of ['light', 'dark'] as const) {
           await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
           await page.getByTestId('agent-create-submit').click();
           await page.waitForURL(/\/ai-agents\/[0-9a-f-]{36}$/);
-          await expect(page.getByRole('navigation', {name: 'Шаги настройки агента'})).toBeVisible();
+          await expect(
+            page.getByRole('navigation', { name: 'Шаги настройки агента' }),
+          ).toBeVisible();
         } else {
           await page.goto('/ai-agents/new');
-          await expect(page.getByTestId(view === 'form' ? 'agent-create-form' : 'agent-create-blocked')).toBeVisible();
+          await expect(
+            page.getByTestId(view === 'form' ? 'agent-create-form' : 'agent-create-blocked'),
+          ).toBeVisible();
           if (view === 'form') await page.getByTestId('agent-name').fill('AI-продавец Luxx 2');
         }
         const scan = await new AxeBuilder({ page }).analyze();
@@ -220,27 +270,41 @@ for (const theme of ['light', 'dark'] as const) {
         );
         expect(overflow).toBeLessThanOrEqual(0);
         mkdirSync(SHOTS, { recursive: true });
-        await page.screenshot({ path: `${SHOTS}/create-${view}-${theme}-${width}.png`, fullPage: true });
+        await page.screenshot({
+          path: `${SHOTS}/create-${view}-${theme}-${width}.png`,
+          fullPage: true,
+        });
       });
     }
   }
 }
 
-test('диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон', async ({page, request}) => {
+test('диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон', async ({
+  page,
+  request,
+}) => {
   await control(request, FREE);
   await page.addInitScript(`window.SpeechRecognition = class {
     start() { this.onresult({resultIndex:0,results:[{isFinal:true,0:{transcript:'Голосовой рассказ тестового владельца.'}}]}); }
     stop() { window.__dictationStopped = true; this.onend?.(); }
     abort() { window.__dictationStopped = true; }
   };`);
-  await signIn(page); await page.goto('/ai-agents/new');
-  await page.getByTestId('agent-name').fill('Голосовой тест'); await page.getByTestId('agent-create-submit').click();
+  await signIn(page);
+  await page.goto('/ai-agents/new');
+  await page.getByTestId('agent-name').fill('Голосовой тест');
+  await page.getByTestId('agent-create-submit').click();
   await page.waitForURL(/\/ai-agents\/[0-9a-f-]{36}$/);
-  await page.getByRole('button', {name:'Надиктовать', exact:true}).click();
-  await expect(page.getByRole('textbox',{name:'Ваш рассказ',exact:true})).toHaveValue('Голосовой рассказ тестового владельца.');
-  await page.getByRole('button', {name:/03 Инструкция/}).click();
+  await page.getByRole('button', { name: 'Надиктовать', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Ваш рассказ', exact: true })).toHaveValue(
+    'Голосовой рассказ тестового владельца.',
+  );
+  await page.getByRole('button', { name: /03 Инструкция/ }).click();
   expect(await page.evaluate('window.__dictationStopped')).toBe(true);
-  await page.getByRole('button', {name:/Ваш рассказ/}).click();
-  await page.getByRole('textbox',{name:'Ваш рассказ',exact:true}).fill('Исправленная расшифровка');
-  await expect(page.getByRole('textbox',{name:'Ваш рассказ',exact:true})).toHaveValue('Исправленная расшифровка');
+  await page.getByRole('button', { name: /Ваш рассказ/ }).click();
+  await page
+    .getByRole('textbox', { name: 'Ваш рассказ', exact: true })
+    .fill('Исправленная расшифровка');
+  await expect(page.getByRole('textbox', { name: 'Ваш рассказ', exact: true })).toHaveValue(
+    'Исправленная расшифровка',
+  );
 });

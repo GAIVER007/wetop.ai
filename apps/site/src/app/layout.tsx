@@ -7,14 +7,7 @@ import { SiteFooter } from '../components/site-footer';
 import { SiteHeader } from '../components/site-header';
 import { getDictionary, localeInfo } from '../i18n';
 import { websiteOpenGraph } from '../lib/metadata';
-import {
-  assistantScriptSrc,
-  loginLink,
-  registerLink,
-  resetLink,
-  siteAuthEndpoint,
-  siteUrl,
-} from '../lib/site';
+import { assistantScriptSrc, resetLink, siteAuthEndpoint, siteUrl } from '../lib/site';
 import { siteConfig } from '../site.config';
 import './tokens.css';
 import './globals.css';
@@ -45,8 +38,8 @@ const t = getDictionary();
 const assistantSrc = assistantScriptSrc();
 // Окно входа и создания аккаунта (ADR-100): адреса стойки считаются при сборке, клиенту настройки не передаются
 const authUrls = {
-  login: loginLink().href,
-  register: registerLink().href,
+  login: `${siteConfig.appUrl}/auth/fallback`,
+  register: `${siteConfig.appUrl}/auth/fallback?mode=register`,
   reset: resetLink().href,
   app: siteConfig.appUrl.replace(/\/+$/, ''),
   endpoint: {
@@ -54,6 +47,7 @@ const authUrls = {
     login: siteAuthEndpoint('login'),
     register: siteAuthEndpoint('register'),
     resend: siteAuthEndpoint('resend'),
+    session: siteAuthEndpoint('session'),
   },
 };
 
@@ -91,6 +85,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </main>
         <SiteFooter />
         <AuthDialog texts={t.auth} urls={authUrls} />
+        <noscript>
+          <p>
+            Для входа без JavaScript: <a href={authUrls.login}>Войти</a> или{' '}
+            <a href={authUrls.register}>Получить доступ</a>.
+          </p>
+        </noscript>
         {/* Чат ИИ-помощника (ТЗ П2): анонимный, адрес — assistantUrl в site.config.ts */}
         {assistantSrc && <Script src={assistantSrc} />}
       </body>

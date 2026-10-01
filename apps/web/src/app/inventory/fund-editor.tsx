@@ -429,13 +429,14 @@ export function FundEditorDialog({
               <div className="fund-room-preview" aria-label="Предпросмотр размещения">
                 <strong>
                   {dorm
-                    ? `Комната ${roomPreview.room || '…'} · ${roomPreview.codes.length} койко-мест`
+                    ? `Комната ${roomPreview.room || '…'}`
                     : `Номер ${roomPreview.codes[0] || '…'}`}
                 </strong>
+                {dorm && <span>Койко-мест: {roomPreview.codes.length}</span>}
                 <span>
                   {[roomPreview.building, roomPreview.floor && `этаж ${roomPreview.floor}`]
                     .filter(Boolean)
-                    .join(' · ') || 'Укажите корпус и этаж'}
+                    .join(', ') || 'Укажите корпус и этаж'}
                 </span>
                 <span>{choices.find((c) => c.code === selected)?.name}</span>
                 {dorm && roomPreview.codes.length > 0 && (

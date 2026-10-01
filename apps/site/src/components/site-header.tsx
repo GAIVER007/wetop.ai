@@ -14,6 +14,7 @@ export function SiteHeader() {
   // «Блог» — только когда есть опубликованные статьи (С2, 20.09.2026): пустую страницу в меню не зовём.
   const hasPosts = getPublishedPosts().length > 0;
   const links = [
+    { href: '/#about', label: 'О WETOP' },
     { href: '/#audience', label: t.nav.audience },
     { href: '/#features', label: t.nav.features },
     { href: '/#start', label: t.nav.start },

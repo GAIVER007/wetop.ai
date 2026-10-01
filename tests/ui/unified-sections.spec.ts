@@ -5,7 +5,7 @@ const API = 'http://127.0.0.1:4311';
 test.beforeEach(async ({ page, request }) => {
   await request.post(`${API}/__test/reset`);
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

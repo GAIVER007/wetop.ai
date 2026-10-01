@@ -17,7 +17,7 @@ const WEB = 'http://127.0.0.1:3102';
 
 export default defineConfig({
   ...base,
-  testMatch: 'login-lock.spec.ts',
+  testMatch: 'unified-auth.spec.ts',
   testIgnore: undefined as unknown as string,
   snapshotPathTemplate: undefined as unknown as string,
   use: { ...base.use, baseURL: WEB },
@@ -39,9 +39,19 @@ export default defineConfig({
         APP_ALLOW_TEST_DATA: '1',
         // то, что владелец впишет в .env стойки на шаге 4
         APP_AUTH_REQUIRED: '1',
+        APP_URL: WEB,
+        WETOP_SITE_URL: 'http://127.0.0.1:3002',
       },
       // экран входа отвечает и без сессии — по нему и ждём готовности стойки
-      url: `${WEB}/login`,
+      url: `${WEB}/auth/fallback`,
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command: 'npm run dev -w apps/site',
+      cwd: '../..',
+      env: { WETOP_SITE_URL: 'http://127.0.0.1:3002', WETOP_APP_URL: WEB },
+      url: 'http://127.0.0.1:3002',
       reuseExistingServer: false,
       timeout: 120_000,
     },

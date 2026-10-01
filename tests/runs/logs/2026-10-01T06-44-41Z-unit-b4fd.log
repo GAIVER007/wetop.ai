@@ -1,0 +1,22 @@
+# Модульные (unit) · 01.10.2026 11:44 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 23
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-44-41Z-unit-b4fd.json' 'apps/web/src/lib/auth-aliases.test.ts' 'apps/web/src/lib/site-auth-flow.test.ts' 'apps/web/src/lib/site-auth.test.ts' 'apps/web/src/lib/auth-entry.test.ts' 'apps/web/src/lib/unified-auth-entry.test.ts' 'apps/web/src/app/login/actions.test.ts' 'apps/site/src/lib/site.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/site/src/lib/site.test.ts (15 tests) 8ms
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 3ms
+ ✓ |unit| apps/web/src/lib/auth-aliases.test.ts (3 tests) 2ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 16ms
+ ✓ |unit| apps/web/src/lib/site-auth.test.ts (14 tests) 22ms
+ ✓ |unit| apps/web/src/lib/site-auth-flow.test.ts (4 tests) 18ms
+ ✓ |unit| apps/web/src/app/login/actions.test.ts (4 tests) 13ms
+
+ Test Files  7 passed (7)
+      Tests  56 passed (56)
+   Start at  23:44:43
+   Duration  616ms (transform 77%, import 14%, tests 7%, worker 2%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-01T06-44-41Z-unit-b4fd.json
+
+# код выхода 0 · 2 с

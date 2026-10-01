@@ -17,14 +17,16 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-test('первый вход: обучение открывается само, идёт по шагам и больше само не открывается', async ({ page }) => {
+test('первый вход: обучение открывается само, идёт по шагам и больше само не открывается', async ({
+  page,
+}) => {
   await signIn(page);
   const tour = page.getByTestId('product-tour');
   await expect(tour.getByRole('heading', { name: 'Добро пожаловать в WETOP' })).toBeVisible();
@@ -65,7 +67,9 @@ test('первый вход: обучение открывается само, �
   // повтор — из меню профиля
   await page.getByRole('button', { name: 'Меню администратора' }).click();
   await page.getByTestId('tour-restart').click();
-  await expect(page.getByTestId('product-tour').getByRole('heading', { name: 'Добро пожаловать в WETOP' })).toBeVisible();
+  await expect(
+    page.getByTestId('product-tour').getByRole('heading', { name: 'Добро пожаловать в WETOP' }),
+  ).toBeVisible();
 });
 
 test('последний шаг — профиль, «Начать работу» закрывает обучение', async ({ page }) => {
@@ -84,7 +88,9 @@ test('последний шаг — профиль, «Начать работу�
   await expect(tour).toBeHidden();
 });
 
-test('на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край', async ({ page }) => {
+test('на телефоне шаги меню без подсветки — окно по центру, ничего не уезжает за край', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page);
   const tour = page.getByTestId('product-tour');

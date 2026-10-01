@@ -217,7 +217,9 @@ test('подключения показывают частичный сбой, �
   await page.goto('/connections');
   // частичный сбой: webhook не проверен — «неизвестно» и причина словами; сайт — модуль WETOP, не интеграция (INT1)
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
-  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить webhook');
+  await expect(page.getByTestId('integration-issues')).toContainText(
+    'Не удалось проверить webhook',
+  );
   await expect(page.getByRole('main')).not.toContainText('Сайтов в системе');
   // Контент каналов не дублируется: старые ссылки ведут к подключению Channex.
   for (const section of ['photos', 'amenities']) {
@@ -261,7 +263,9 @@ test('показатели за период: готовые отрезки и �
   await expect(page.getByTestId('pa-period')).toContainText('3 дня');
   // неверный отрезок — ошибка на экране, показан сегодняшний день
   await page.goto('/management/dashboard?period=custom&from=2026-09-10&to=2026-09-01');
-  await expect(page).toHaveURL(/\/management\/analytics\?period=custom&from=2026-09-10&to=2026-09-01$/);
+  await expect(page).toHaveURL(
+    /\/management\/analytics\?period=custom&from=2026-09-10&to=2026-09-01$/,
+  );
   await expect(page.getByRole('main').getByRole('alert')).toContainText('раньше начала');
   await expect(page.getByRole('main').getByTestId('pa-chart-categories')).toBeVisible();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
@@ -304,7 +308,10 @@ test('шахматка: фильтры, продолжение брони, вы�
   await expect(page.getByTestId('unit-row')).toHaveCount(1);
   await page.getByTestId('free-cell').first().click();
   // PR 5 (ТЗ v2 §32): щелчок открывает окошко свободной клетки, форма — по «Новая бронь»
-  await page.getByTestId('free-menu').getByRole('link', { name: 'Новая бронь', exact: true }).click();
+  await page
+    .getByTestId('free-menu')
+    .getByRole('link', { name: 'Новая бронь', exact: true })
+    .click();
   await expect(page).toHaveURL(/unit=M03/);
   await expect(page.locator('select[name="accommodationTypeCode"]')).toHaveValue('MALE');
   await expect(page.locator('select[name="unitCode"]')).toHaveValue('M03');
@@ -617,20 +624,28 @@ test('обзор: задачи ведут к счетам, полоса стой
   // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
   const queueTotal = async () =>
     String(
-      (await tasks.getByTestId('attention-event').evaluateAll((els) =>
-        els.map((el) => Number(el.getAttribute('data-count'))),
-      )).reduce((a, b) => a + b, 0),
+      (
+        await tasks
+          .getByTestId('attention-event')
+          .evaluateAll((els) => els.map((el) => Number(el.getAttribute('data-count'))))
+      ).reduce((a, b) => a + b, 0),
     );
   await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
   const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
   await expect(departureDebt).toContainText('К оплате');
-  await expect(departureDebt).toHaveAttribute('href', '/reservations/20260913-TEST4#booking-finance');
+  await expect(departureDebt).toHaveAttribute(
+    'href',
+    '/reservations/20260913-TEST4#booking-finance',
+  );
   const overdue = tasks.getByTestId('overdue-arrival');
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
   // A1 (ADR-103): Главная живёт одним днём — «Завтра» меняет и полосу, и задачи на тот день
-  await page.getByRole('navigation', { name: 'День стойки' }).getByRole('link', { name: 'Завтра' }).click();
+  await page
+    .getByRole('navigation', { name: 'День стойки' })
+    .getByRole('link', { name: 'Завтра' })
+    .click();
   await expect(page).toHaveURL(/date=\d{4}-\d{2}-\d{2}/);
   await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).not.toContainText('сейчас');
   await page
@@ -874,7 +889,7 @@ test('кнопки Channex отправляют команды один раз �
   request,
 }) => {
   // «Настройка подключения» видна только вошедшему владельцу (ADR-112): роль читается из /auth/me
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

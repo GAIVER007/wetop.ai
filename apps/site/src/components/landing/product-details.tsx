@@ -28,14 +28,17 @@ export function ProductDetails() {
               </div>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
-              <ul>
-                {item.actions.map((action) => (
-                  <li key={action}>
-                    <Icon name="check" size={16} />
-                    {action}
-                  </li>
-                ))}
-              </ul>
+              <details>
+                <summary>Что входит</summary>
+                <ul>
+                  {item.actions.map((action) => (
+                    <li key={action}>
+                      <Icon name="check" size={16} />
+                      {action}
+                    </li>
+                  ))}
+                </ul>
+              </details>
               <p className="product-details__result">{item.result}</p>
             </article>
           ))}
@@ -97,8 +100,8 @@ export function SellerDetails() {
               </div>
             </dl>
             <p className="seller-details__note">
-              Агент начинает работать после настройки модели и подключения канала. Ответы нужно
-              проверить на данных вашего бизнеса.
+              ИИ-продавец — отдельное расширение. Агент начинает работать после настройки модели и
+              подключения канала. Ответы нужно проверить на данных вашего бизнеса.
             </p>
             <a
               className="btn btn--primary"

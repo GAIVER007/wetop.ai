@@ -14,7 +14,7 @@ test.beforeEach(async ({ request }) => {
 test('«Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта', async ({
   page,
 }) => {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByRole('link', { name: 'Забыли пароль?' }).click();
 
   await expect(page).toHaveURL(/\/login\/reset/);
@@ -32,10 +32,10 @@ test('по ссылке из письма сотрудник задаёт пар
   await page.getByLabel('Пароль ещё раз', { exact: true }).fill('zhanga-parol-2026');
   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
 
-  await expect(page).toHaveURL(/\/login\?password=set/);
-  await expect(page.getByRole('main')).toContainText('Пароль сохранён');
+  await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday&password=set#login');
+  await expect(page.getByRole('dialog')).toContainText('Пароль сохранён');
 
-  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Почта', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('zhanga-parol-2026');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page).toHaveURL(/\/today/);
@@ -46,7 +46,7 @@ test('второй раз та же ссылка не работает', async (
   await page.getByLabel('Пароль', { exact: true }).fill('zhanga-parol-2026');
   await page.getByLabel('Пароль ещё раз', { exact: true }).fill('zhanga-parol-2026');
   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
-  await expect(page).toHaveURL(/\/login\?password=set/);
+  await expect(page).toHaveURL('http://127.0.0.1:3002/?next=%2Ftoday&password=set#login');
 
   await page.goto('/login/set-password?token=ui-reset-token');
   await page.getByLabel('Пароль', { exact: true }).fill('basqa-parol-2026');

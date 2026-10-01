@@ -15,7 +15,7 @@ type Props = {
     register: string;
     reset: string;
     app: string;
-    endpoint: Record<'options' | 'login' | 'register' | 'resend', string>;
+    endpoint: Record<'options' | 'login' | 'register' | 'resend' | 'session', string>;
   };
 };
 
@@ -23,13 +23,17 @@ type Registration = 'unknown' | 'open' | 'closed';
 type Sent = { email: string; sent: boolean };
 
 /** Ответ стойки: `{ message }` при ошибке. Сбой сети — `null`: окно предложит отдельную страницу. */
-async function post(url: string, body: unknown): Promise<{ ok: boolean; data: Record<string, unknown> } | null> {
+async function post(
+  url: string,
+  body: unknown,
+): Promise<{ ok: boolean; data: Record<string, unknown> } | null> {
   try {
     const res = await fetch(url, {
       method: 'POST',
       credentials: 'include',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(15_000),
     });
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     return { ok: res.ok, data };
@@ -53,13 +57,14 @@ const RESEND_PAUSE_S = 60;
 /*
  * Окно входа и создания аккаунта поверх главной (ADR-100, plans/site-auth-dialog-tour-2026-09-27.md).
  *
- * Кнопки «Войти» и «Создать аккаунт» остаются обычными ссылками на стойку — без JavaScript они и работают как раньше.
+ * Кнопки ведут на главную; для браузера без JavaScript в layout есть техническая резервная форма.
  * Здесь ссылки с `data-auth` перехватываются и открывают окно; `#login` и `#register` в адресе — тоже.
  * Запрос уходит на стойку (`/api/site-auth/*`), куку сессии ставит она; после входа браузер переходит в стойку.
  */
 export function AuthDialog({ texts, urls }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mode, setMode] = useState<AuthMode>('login');
+  const [isOpen, setIsOpen] = useState(false);
   const [registration, setRegistration] = useState<Registration>('unknown');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<{ text: string; fallback: boolean } | null>(null);
@@ -68,12 +73,25 @@ export function AuthDialog({ texts, urls }: Props) {
   const [resent, setResent] = useState(false);
   const [pause, setPause] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '', name: '', hotelName: '', phoneCountry: 'KZ', phone: '' });
+  const [passwordJustSet, setPasswordJustSet] = useState(false);
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    name: '',
+    hotelName: '',
+    phoneCountry: 'KZ',
+    phone: '',
+  });
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   // Страна кода телефона — по браузеру (29.09.2026), после появления на экране: статичная сборка браузера не знает
   useEffect(() => {
-    const country = defaultPhoneCountry(navigator.languages ?? [], Intl.DateTimeFormat().resolvedOptions().timeZone);
-    setForm((f) => ({ ...f, phoneCountry: country }));
+    const country = defaultPhoneCountry(
+      navigator.languages ?? [],
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+    const query = new URLSearchParams(window.location.search);
+    setForm((f) => ({ ...f, phoneCountry: country, email: query.get('email') ?? '' }));
+    setPasswordJustSet(query.get('password') === 'set');
   }, []);
   const optionsAsked = useRef(false);
   const passwordId = useId();
@@ -82,8 +100,7 @@ export function AuthDialog({ texts, urls }: Props) {
     (next: AuthMode) => {
       setMode(next);
       setError(null);
-      const dialog = dialogRef.current;
-      if (dialog && !dialog.open) dialog.showModal();
+      setIsOpen(true);
       if (!optionsAsked.current) {
         optionsAsked.current = true;
         fetch(urls.endpoint.options, { credentials: 'include' })
@@ -96,6 +113,12 @@ export function AuthDialog({ texts, urls }: Props) {
     },
     [urls.endpoint.options],
   );
+
+  // Открываем после commit: режим и начальные поля уже отрисованы, ввод не потеряется при гидратации.
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (isOpen && dialog && !dialog.open) dialog.showModal();
+  }, [isOpen]);
 
   // Ссылки с data-auth по всей странице и #login / #register в адресе
   useEffect(() => {
@@ -131,6 +154,7 @@ export function AuthDialog({ texts, urls }: Props) {
 
   const close = () => dialogRef.current?.close();
   const onClose = () => {
+    setIsOpen(false);
     const hash = window.location.hash;
     if (hash === '#login' || hash === '#register') {
       history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -142,16 +166,46 @@ export function AuthDialog({ texts, urls }: Props) {
     setError(null);
   };
 
-  const set = (key: keyof typeof form) => (event: { target: { value: string } }) =>
-    setForm((f) => ({ ...f, [key]: event.target.value }));
+  const set = (key: keyof typeof form) => (event: { target: { value: string } }) => {
+    const value = event.target.value;
+    setForm((f) => ({ ...f, [key]: value }));
+  };
 
   const submitLogin = async (event: FormEvent) => {
     event.preventDefault();
-    if (!form.email.trim() || !form.password) return setError({ text: texts.errors.required, fallback: false });
+    if (!form.email.trim() || !form.password)
+      return setError({ text: texts.errors.required, fallback: false });
     setPending(true);
     setError(null);
-    const res = await post(urls.endpoint.login, { email: form.email.trim(), password: form.password });
+    const next = new URLSearchParams(window.location.search).get('next') ?? '/today';
+    const res = await post(urls.endpoint.login, {
+      email: form.email.trim(),
+      password: form.password,
+      next,
+    });
     if (res?.ok) {
+      try {
+        const check = await fetch(urls.endpoint.session, {
+          credentials: 'include',
+          cache: 'no-store',
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (!check.ok) throw new Error('session unavailable');
+        const session = await check.json();
+        if (session.authenticated !== true) {
+          setPending(false);
+          return setError({
+            text: 'Браузер не сохранил сессию. Разрешите cookies для WETOP или откройте резервную форму входа.',
+            fallback: true,
+          });
+        }
+      } catch {
+        setPending(false);
+        return setError({
+          text: 'Не удалось проверить вход. Проверьте соединение и попробуйте ещё раз.',
+          fallback: true,
+        });
+      }
       setDone(true);
       window.location.assign(nextUrl(urls.app, res.data.next));
       return;
@@ -181,7 +235,8 @@ export function AuthDialog({ texts, urls }: Props) {
     const res = await post(urls.endpoint.register, body);
     setPending(false);
     if (!res) return setError({ text: texts.errors.network, fallback: true });
-    if (!res.ok) return setError({ text: message(res.data, texts.errors.network), fallback: false });
+    if (!res.ok)
+      return setError({ text: message(res.data, texts.errors.network), fallback: false });
     setSent({
       email: typeof res.data.email === 'string' ? res.data.email : body.email,
       sent: res.data.sent !== false,
@@ -197,7 +252,8 @@ export function AuthDialog({ texts, urls }: Props) {
     const res = await post(urls.endpoint.resend, { email: sent.email });
     setPending(false);
     if (!res) return setError({ text: texts.errors.network, fallback: true });
-    if (!res.ok) return setError({ text: message(res.data, texts.errors.network), fallback: false });
+    if (!res.ok)
+      return setError({ text: message(res.data, texts.errors.network), fallback: false });
     setResent(true);
     setPause(RESEND_PAUSE_S);
   };
@@ -208,6 +264,19 @@ export function AuthDialog({ texts, urls }: Props) {
       {error.fallback ? (
         <a href={mode === 'login' ? urls.login : urls.register}>{texts.errors.fallback}</a>
       ) : null}
+      {mode === 'login' && error.text.includes('Почта не подтверждена') && (
+        <button
+          type="button"
+          onClick={() => {
+            setSent({ email: form.email.trim(), sent: false });
+            setPause(0);
+            setResent(false);
+            setError(null);
+          }}
+        >
+          Запросить письмо подтверждения
+        </button>
+      )}
     </div>
   );
 
@@ -227,7 +296,9 @@ export function AuthDialog({ texts, urls }: Props) {
           required
           minLength={autoComplete === 'new-password' ? 10 : undefined}
           placeholder={
-            autoComplete === 'new-password' ? texts.fields.newPasswordPlaceholder : texts.fields.passwordPlaceholder
+            autoComplete === 'new-password'
+              ? texts.fields.newPasswordPlaceholder
+              : texts.fields.passwordPlaceholder
           }
           value={form.password}
           onChange={set('password')}
@@ -278,8 +349,23 @@ export function AuthDialog({ texts, urls }: Props) {
       }}
     >
       <div className="auth-dialog__panel">
-        <button type="button" className="auth-dialog__close" aria-label={texts.close} onClick={close}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" focusable="false">
+        <button
+          type="button"
+          className="auth-dialog__close"
+          aria-label={texts.close}
+          onClick={close}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            aria-hidden="true"
+            focusable="false"
+          >
             <path d="M6 6l12 12M18 6 6 18" />
           </svg>
         </button>
@@ -287,7 +373,16 @@ export function AuthDialog({ texts, urls }: Props) {
         {sent ? (
           <div className="auth-dialog__body" data-testid="auth-sent">
             <span className="auth-dialog__icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <rect x="3" y="5" width="18" height="14" rx="2" />
                 <path d="m3 7 9 6 9-6" />
               </svg>
@@ -295,7 +390,9 @@ export function AuthDialog({ texts, urls }: Props) {
             <h2 className="auth-dialog__title">{texts.sent.title}</h2>
             {sent.sent ? (
               <>
-                <p className="auth-dialog__lead">{texts.sent.text.replace('{email}', sent.email)}</p>
+                <p className="auth-dialog__lead">
+                  {texts.sent.text.replace('{email}', sent.email)}
+                </p>
                 <p className="auth-dialog__lead">{texts.sent.next}</p>
               </>
             ) : (
@@ -358,6 +455,9 @@ export function AuthDialog({ texts, urls }: Props) {
                 <form className="auth-form" onSubmit={submitLogin} noValidate>
                   <h2 className="auth-dialog__title">{texts.login.title}</h2>
                   <p className="auth-dialog__lead">{texts.login.lead}</p>
+                  {passwordJustSet && (
+                    <p role="status">Пароль сохранён. Войдите с новым паролем.</p>
+                  )}
                   {emailField}
                   {passwordField('current-password')}
                   {errorBlock}
@@ -366,14 +466,23 @@ export function AuthDialog({ texts, urls }: Props) {
                       {texts.signedIn}
                     </p>
                   ) : null}
-                  <button className="btn btn--primary auth-form__submit" type="submit" disabled={pending || done} aria-busy={pending}>
+                  <button
+                    className="btn btn--primary auth-form__submit"
+                    type="submit"
+                    disabled={pending || done}
+                    aria-busy={pending}
+                  >
                     {pending || done ? texts.login.pending : texts.login.submit}
                   </button>
                   <div className="auth-form__foot">
                     <a href={urls.reset}>{texts.login.forgot}</a>
                     <span>
                       {texts.login.noAccount}{' '}
-                      <button type="button" className="auth-dialog__link" onClick={() => switchTo('register')}>
+                      <button
+                        type="button"
+                        className="auth-dialog__link"
+                        onClick={() => switchTo('register')}
+                      >
                         {texts.tabs.register}
                       </button>
                     </span>
@@ -477,13 +586,22 @@ export function AuthDialog({ texts, urls }: Props) {
                   </label>
                   <p className="auth-form__hint">{texts.register.terms}</p>
                   {errorBlock}
-                  <button className="btn btn--primary auth-form__submit" type="submit" disabled={pending} aria-busy={pending}>
+                  <button
+                    className="btn btn--primary auth-form__submit"
+                    type="submit"
+                    disabled={pending}
+                    aria-busy={pending}
+                  >
                     {pending ? texts.register.pending : texts.register.submit}
                   </button>
                   <div className="auth-form__foot">
                     <span>
                       {texts.register.haveAccount}{' '}
-                      <button type="button" className="auth-dialog__link" onClick={() => switchTo('login')}>
+                      <button
+                        type="button"
+                        className="auth-dialog__link"
+                        onClick={() => switchTo('login')}
+                      >
                         {texts.tabs.login}
                       </button>
                     </span>

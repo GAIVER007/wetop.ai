@@ -1,0 +1,24 @@
+INFO [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO [alembic.runtime.migration] Will assume transactional DDL.
+INFO [alembic.runtime.migration] Running upgrade  -> 0001, Схема ядра: всё из shema-bd.sql.
+INFO [alembic.runtime.migration] Running upgrade 0001 -> 0002, Организации (Э4, ADR-083): один продавец обслуживает много гостиниц.
+INFO [alembic.runtime.migration] Running upgrade 0002 -> 0003, Ключ модели партнёра (С2 «под ключ», Q-186): шифрованный, по организации.
+INFO [alembic.runtime.migration] Running upgrade 0003 -> 0004, Подключения WhatsApp Cloud API по организациям (С3 «под ключ», Q-185 (а)).
+INFO [alembic.runtime.migration] Running upgrade 0004 -> 0005, Разбивка расхода модели у ответа бота (plans/seller-cost-controls-2026-09-26.md, Р2).
+INFO [alembic.runtime.migration] Running upgrade 0005 -> 0006, База знаний WETOP Support: записи, версии, чанки, использование (S3).
+INFO [alembic.runtime.migration] Running upgrade 0006 -> 0007, Журнал действий WETOP Support (S6): что предложил, подтвердил, выполнил или отдал человеку бот.
+INFO [alembic.runtime.migration] Running upgrade 0007 -> 0008, Личность агента (DATA_MODEL §20, SA1.6): таблица agents и agent_id у знаний, клиентов, диалогов и WhatsApp.
+INFO [alembic.runtime.migration] Running upgrade 0008 -> 0009, Область агента, шаг «расширить» (DATA_MODEL §20, SA2.5): всё, что нужно рантайму, читающему по `agent_id`.
+INFO [alembic.runtime.migration] Running upgrade 0009 -> 0010, Область агента, шаг «сузить» (DATA_MODEL §20.7 п. 6, SA2.5): ключи по организации уступают ключам по агенту.
+INFO [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO [alembic.runtime.migration] Will assume transactional DDL.
+INFO [alembic.runtime.migration] Running upgrade 0010 -> 0011, Telegram test channel. Production: apply only AFTER separately approved 0010.
+INFO [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO [alembic.runtime.migration] Will assume transactional DDL.
+INFO [alembic.runtime.migration] Running downgrade 0011 -> 0010, Telegram test channel. Production: apply only AFTER separately approved 0010.
+INFO [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO [alembic.runtime.migration] Will assume transactional DDL.
+INFO [alembic.runtime.migration] Running upgrade 0010 -> 0011, Telegram test channel. Production: apply only AFTER separately approved 0010.
+0011
+0
+0

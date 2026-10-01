@@ -16,7 +16,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -57,10 +57,7 @@ test('не главный администратор: пункта нет, а с
   await expect(page.getByTestId('support-dialogs')).toHaveCount(0);
 });
 
-test('главный администратор: сводка, очередь, карточка — кто пишет', async ({
-  page,
-  request,
-}) => {
+test('главный администратор: сводка, очередь, карточка — кто пишет', async ({ page, request }) => {
   await signIn(page);
   await control(request, { platformAdmin: true });
   await page.goto('/today');

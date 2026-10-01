@@ -212,3 +212,14 @@ export function scopeView() {
     vertical: currentVertical(),
   };
 }
+
+/** Только для внутренних отчётов по филиалам, уже выбранным запросом своей организации. */
+export function withReportLocation<T>(
+  businessId: string,
+  locationId: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const actor = storage.getStore();
+  if (!actor?.userId || !actor.organizationId) throw new Error('Для отчёта нужна организация');
+  return runAwaited({ ...actor, scope: 'LOCATION', businessId, locationId }, fn);
+}

@@ -3919,6 +3919,7 @@ function read(path: string, q: URLSearchParams): unknown {
   return undefined;
 }
 
+const fixtureBranches: Array<Record<string, unknown>> = [];
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -3963,6 +3964,7 @@ createServer(async (req, res) => {
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
     if (path === '/__test/reset') {
+      fixtureBranches.length = 0;
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
@@ -4580,6 +4582,17 @@ createServer(async (req, res) => {
         currency: parsed.value.currency,
       });
       return send(201, branchJson(row));
+    }
+    if (path === '/branches' || path === '/branches/overview') {
+      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      if (req.method === 'POST') {
+        const item = { ...branch, ...body, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
+        if (!fixtureBranches.some((b) => b.id === item.id)) fixtureBranches.push(item);
+        return send(200, item);
+      }
+      const items = [branch, ...fixtureBranches];
+      if (path.endsWith('/overview')) return send(200, { rows: items.map((b) => ({ branch: b, stats: dashboard(url.searchParams.get('from') || today, url.searchParams.get('to') || today).current })) });
+      return send(200, { organization: { id: '44444444-4444-4444-8444-444444444444', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {

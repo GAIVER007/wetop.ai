@@ -253,7 +253,7 @@ function PropertyBlock({
     </>
   );
   const block = settings ? (
-    <Link href="/hotel-settings" className="workspace-property" onClick={() => close?.()}>
+    <Link href="/branches" className="workspace-property" onClick={() => close?.()}>
       {identity}
       <Icon name="chevron" width={14} />
     </Link>

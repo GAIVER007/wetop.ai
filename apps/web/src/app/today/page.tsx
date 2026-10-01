@@ -50,6 +50,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       actions={
         <>
           <DashboardRefresh />
+          <Link className="btn btn-secondary" href="/branches">Все филиалы</Link>
           <Link className="btn" href="/reservations/new">
             + Новая бронь
           </Link>

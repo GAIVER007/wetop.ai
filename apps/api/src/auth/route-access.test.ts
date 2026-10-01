@@ -22,6 +22,9 @@ import { RoleGuard } from './role.guard';
  * только служебный ключ.
  */
 const EXPECTED: Record<string, RouteAccess | 'public'> = {
+  'GET /branches': 'desk',
+  'POST /branches': 'owner',
+  'GET /branches/overview': 'reports',
   // ── учётная запись, вход, сотрудники ─────────────────────────────────────────────────────
   'GET /auth/options': 'public',
   'POST /auth/login': 'public',

@@ -58,3 +58,15 @@ test('боковое окно компактно, псевдонимная бр�
 test.afterEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/control', { data: {} });
 });
+
+test('пустой филиал не позволяет создать бронь без категории', async ({ page, request }) => {
+  await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
+  await page.goto('/reservations/new');
+  await expect(page.getByTestId('availability')).toContainText(/свободно|Не удалось/);
+  await expect(page.getByRole('button', { name: 'Создать бронь', exact: true })).toBeDisabled();
+  await expect(
+    page.getByText('Сначала добавьте категории и номера в разделе «Номерной фонд».', {
+      exact: true,
+    }),
+  ).toBeVisible();
+});

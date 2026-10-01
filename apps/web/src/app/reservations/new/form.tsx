@@ -193,6 +193,12 @@ export function NewReservationForm(props: {
           <h2>Размещение</h2>
         </div>
       </div>
+      {props.categories.length === 0 && (
+        <Alert tone="warning">Сначала добавьте категории и номера в разделе «Номерной фонд».</Alert>
+      )}
+      {props.ratePlans.length === 0 && (
+        <Alert tone="warning">Сначала добавьте тариф в разделе «Тарифы и цены».</Alert>
+      )}
       {unavailable.length > 0 && (
         <Alert tone="warning">
           {unavailable.length === 1
@@ -371,7 +377,14 @@ export function NewReservationForm(props: {
           />
           <Button
             type="submit"
-            disabled={pending || checking || !fresh || Boolean(availabilityError)}
+            disabled={
+              pending ||
+              checking ||
+              !fresh ||
+              Boolean(availabilityError) ||
+              props.categories.length === 0 ||
+              props.ratePlans.length === 0
+            }
           >
             {pending ? 'Сохраняю…' : 'Создать бронь'}
           </Button>

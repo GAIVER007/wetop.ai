@@ -5091,3 +5091,7 @@
 | 01.10.2026 20:39 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 14 из 14 | 13 с | d5fc2f6 +3 | [лог](logs/2026-10-01T15-39-54Z-unit-db6d.log) | green: снятая миграция отличается от новой |
 | 01.10.2026 20:40 | typecheck | ✅ без ошибок | 37 с | d5fc2f6 +3 | [лог](logs/2026-10-01T15-40-33Z-typecheck-5f85.log) | очередь задач CI, отложенные миграции в auto-deploy |
 | 01.10.2026 20:41 | lint | ✅ без ошибок | 25 с | d5fc2f6 +3 | [лог](logs/2026-10-01T15-41-10Z-lint-aaa4.log) | очередь задач CI, отложенные миграции в auto-deploy |
+| 01.10.2026 21:14 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 9 | 3 с | 1ef224b +1 | [лог](logs/2026-10-01T16-14-50Z-unit-135b.log) | red: сквозные в CI на грязной pms_test |
+| 01.10.2026 21:15 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 9 | 1 с | 1ef224b +1 | [лог](logs/2026-10-01T16-15-12Z-unit-57fe.log) | green: свежая pms_test перед сквозными |
+| 01.10.2026 21:15 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 9 из 9 | 1 с | 1ef224b +1 | [лог](logs/2026-10-01T16-15-29Z-unit-2d19.log) | green: свежая pms_test перед сквозными |
+| 01.10.2026 21:14 | integration | ✅ 225 из 230, пропущено 5 | 1 мин 4 с | 1ef224b | [лог](logs/2026-10-01T16-14-50Z-integration-8095.log) | полный integration на локальном PostgreSQL 16, как задача db в CI |

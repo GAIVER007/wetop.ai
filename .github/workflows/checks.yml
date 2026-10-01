@@ -123,9 +123,20 @@ jobs:
         run: |
           npm run build -w apps/web
           npx playwright install --with-deps chromium
+      # Живые e2e только на свежем стенде (TESTING.md §4): после интеграционных тестов в pms_test остаются их данные
+      # (01.10.2026, run 838: 89 ячеек вместо 88, пустой выбор места в форме брони, таймауты по 2–4 минуты).
+      # Схема пересоздаётся из миграций и засевается заново, как `db:local reset` с TEST_DATA=seed.
+      - name: Свежая схема pms_test с сидом перед сквозными
+        env:
+          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          TEST_DATA: seed
+        run: |
+          psql postgresql://pms:pms@127.0.0.1:5432/pms_dev -c 'DROP SCHEMA IF EXISTS pms_test CASCADE'
+          npm run test:schema
       - name: Сквозные тесты
         env:
           DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
+          TEST_DATA: seed
         run: npx playwright test --workers=2
       - uses: actions/upload-artifact@v4
         if: failure()

@@ -98,6 +98,18 @@ describe('проверки GitHub после разбора 01.10.2026', () => {
       expect(withoutComments(job(name)), name).toMatch(/concurrency:\s*\n\s*group: [^\n]*\$\{\{ github\.ref \}\}/);
   });
 
+  // Сквозные тесты идут после интеграционных на той же pms_test и видели их остатки: 89 ячеек вместо 88, пустой
+  // выбор места в форме брони, таймауты (run 838, 01.10). TESTING.md §4: живые e2e только на свежем стенде с
+  // TEST_DATA=seed. Перед playwright схема пересоздаётся и засевается заново.
+  it('перед сквозными тестами pms_test пересоздаётся и засевается заново', () => {
+    const db = withoutComments(job('db'));
+    const between = db.slice(db.indexOf('--project integration'), db.indexOf('playwright test'));
+    const drop = between.indexOf('DROP SCHEMA IF EXISTS pms_test CASCADE');
+    expect(drop).toBeGreaterThan(-1);
+    expect(between.indexOf('test:schema')).toBeGreaterThan(drop);
+    expect(between).toMatch(/TEST_DATA: seed/);
+  });
+
   it('код из форка на свой раннер не попадает', () => {
     for (const name of selfHosted) {
       const text = withoutComments(job(name));

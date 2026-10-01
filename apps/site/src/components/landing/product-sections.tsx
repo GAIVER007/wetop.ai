@@ -64,7 +64,7 @@ export function SalesEcosystem() {
           </div>
         </div>
         <div className="sales-panel__channels">
-          <p className="sales-panel__label">OTA через Channex</p>
+          <p className="sales-panel__label">Каналы онлайн-продаж</p>
           <ul className="integration-grid">
           {section.items.map((item) => (
             <li key={item.name}>

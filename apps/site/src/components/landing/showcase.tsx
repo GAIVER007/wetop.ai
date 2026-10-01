@@ -6,7 +6,7 @@ import { typo } from '../typo';
 export function Showcase() {
   const { showcase } = getDictionary();
   return (
-    <section id="product" className="section section--tight" aria-labelledby="features">
+    <section id="product" className="section section--tight" aria-labelledby="showcase-title">
       <div id="showcase" className="container">
         <div className="showcase__head">
           <p className="eyebrow">{showcase.eyebrow}</p>
@@ -15,7 +15,7 @@ export function Showcase() {
             <Icon name="arrowRight" size={18} />
           </a>
         </div>
-        <h2 id="features" className="section-heading__title">
+        <h2 id="showcase-title" className="section-heading__title">
           {typo(showcase.title)}
         </h2>
         <ol className="product-tour">
@@ -61,9 +61,9 @@ function TodayScreen() {
         {items.map(([label, value, note]) => <div key={label}><span>{label}</span><strong>{value}</strong><small>{note}</small></div>)}
       </div>
       <div className="today-screen__timeline">
-        <span>09:00</span><i /><b>Заезд · Номер 12</b><em>ожидается</em>
-        <span>11:30</span><i /><b>Выезд · Апартамент 4</b><em>к оплате</em>
-        <span>14:00</span><i /><b>Заезд · Койка 7</b><em>Booking.com</em>
+        <span>09:00</span><i /><b>Заезд — Номер 12</b><em>ожидается</em>
+        <span>11:30</span><i /><b>Выезд — Апартамент 4</b><em>к оплате</em>
+        <span>14:00</span><i /><b>Заезд — Койка 7</b><em>Booking.com</em>
       </div>
     </div>
   );

@@ -87,6 +87,17 @@ describe('buildChannexSetup', () => {
       buildChannexSetup({ property, categories, ratePlan: { ...ratePlan, currency: 'USD' } }),
     ).toThrow(/USD/);
   });
+  // hotels-collection.md, Property Settings: autoupdate on modification and on cancellation, «Recommended Setting is false».
+  // Остатки после изменения и отмены считает и шлёт PMS сама (channel_outbox, абсолютные значения); правка Channex поверх них лишняя.
+  // Разбор 01.10.2026 (reports/order-2026-10-01), пункт 3.
+  it('property settings: availability autoupdate only on confirmation, as the Channex docs recommend', () => {
+    const plan = buildChannexSetup({ property, categories, ratePlan });
+    expect(plan.property.settings).toMatchObject({
+      allow_availability_autoupdate_on_confirmation: true,
+      allow_availability_autoupdate_on_modification: false,
+      allow_availability_autoupdate_on_cancellation: false,
+    });
+  });
 });
 
 describe('ARI values', () => {

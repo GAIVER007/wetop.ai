@@ -57,3 +57,30 @@ describe('свой раннер CI', () => {
     expect(db).toContain('postgres');
   });
 });
+
+/**
+ * Разбор 01.10.2026 (reports/order-2026-10-01, пункты 8 и 9).
+ *  8. Тесты бота (pytest, apps/ai-seller) в проверки GitHub не входили: `release` мог уйти вперёд с красным ботом.
+ *  9. Свой раннер стоит на боевом сервере и исполняет код из запросов на слияние. Код из форка на него попадать
+ *     не должен: задачи на своём раннере идут только для пушей в этот репозиторий и PR из его же веток.
+ */
+describe('проверки GitHub после разбора 01.10.2026', () => {
+  const selfHosted = ['fast', 'ui-shard', 'ui', 'bot'];
+
+  it('тесты бота идут отдельной задачей на своём раннере', () => {
+    const bot = job('bot');
+    expect(bot).toMatch(/runs-on: \[self-hosted, linux, x64, wetop\]/);
+    expect(bot).toContain('apps/ai-seller');
+    expect(bot).toMatch(/pytest/);
+    expect(bot).toMatch(/requirements\.txt/);
+  });
+
+  it('код из форка на свой раннер не попадает', () => {
+    for (const name of selfHosted) {
+      const text = withoutComments(job(name));
+      expect(text, name).toMatch(
+        /if: .*github\.event\.pull_request\.head\.repo\.full_name == github\.repository/,
+      );
+    }
+  });
+});

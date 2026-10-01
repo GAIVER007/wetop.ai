@@ -13,12 +13,17 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
+# Свой раннер стоит на боевом сервере (scripts/ops/ci-runner) и исполняет код из запросов на слияние. Код из форка
+# на него не попадает: задачи на своём раннере идут только для пушей в этот репозиторий и PR из его же веток
+# (разбор 01.10.2026, reports/order-2026-10-01, пункт 9). Форки у репозитория выключены в настройках GitHub
+# (docs/ops/github-protection.md), это условие: второй замок на случай, если их включат.
 jobs:
   fast:
     name: lint · typecheck · unit · главная
     # Свой раннер на сервере (scripts/ops/ci-runner). 21.09.2026 включённые минуты GitHub были выбраны,
     # бюджет Actions стоит $0 со «Stop usage», и проверки перестали запускаться вовсе — падали за две
     # секунды с «job was not started». На self-hosted минуты не тарифицируются.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, x64, wetop]
     timeout-minutes: 20
     steps:
@@ -107,6 +112,7 @@ jobs:
     name: UI · часть ${{ matrix.shard }}/3
     # Три части UI — основной расход минут; базы им не нужно, поэтому они и уходят на свой раннер.
     # Раннер один и берёт задачи по очереди: части идут не параллельно, а друг за другом.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, linux, x64, wetop]
     timeout-minutes: 25
     strategy:
@@ -146,10 +152,32 @@ jobs:
     # Сохраняем прежнее имя обязательной проверки; успешны должны быть все части.
     name: стойка на синтетическом API (tests/ui)
     needs: ui-shard
-    if: always()
+    if: always() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: [self-hosted, linux, x64, wetop]
     steps:
       - name: Все части UI прошли
         env:
           UI_RESULT: ${{ needs.ui-shard.result }}
         run: test "$UI_RESULT" = success
+
+  bot:
+    name: ИИ-помощник и продавец · pytest (apps/ai-seller)
+    # Тесты бота идут без базы, Redis и сети (apps/ai-seller/testy.md), на том же раннере. До 01.10.2026 их в
+    # проверках GitHub не было, и `release` мог уйти вперёд с красным ботом (разбор 01.10.2026, пункт 8).
+    # torch ставится сборкой CPU с индекса PyTorch (requirements.txt), кэш pip держит её между прогонами.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, linux, x64, wetop]
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/ai-seller
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: apps/ai-seller/requirements.txt
+      - run: python -m pip install --quiet --upgrade pip
+      - run: python -m pip install --quiet -r requirements.txt
+      - run: python -m pytest -q

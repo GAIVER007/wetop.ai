@@ -1,0 +1,58 @@
+# Модульные (unit) · 01.10.2026 19:50 Алматы · vm
+# коммит e8b3914 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T14-50-22Z-unit-5c3a.json' 'apps/api/src/channels/channels.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/channels/channels.test.ts (10 tests | 1 failed) 23ms
+   ❯ buildChannexSetup (3)
+     ✓ maps categories to room types (dorm → room_kind dorm, capacity 18) and one manual per_room rate plan each 3ms
+     ✓ refuses a tariff in another currency than the property 1ms
+     × property settings: availability autoupdate only on confirmation, as the Channex docs recommend 10ms
+   ✓ ARI values (3)
+     ✓ compressRuns merges consecutive equal days and breaks on gaps 1ms
+     ✓ availability = active units − allocated − blocked per night, per room type, as date ranges 2ms
+     ✓ restrictions: rate per range; days without a price are stop_sell but carry the last known rate 1ms
+   ✓ lastPricedDate — граница выгрузки ограничений (Channex требует rate в каждом объекте) (3)
+     ✓ последний день с ценой по вместимости категории 0ms
+     ✓ цена не по вместимости (1 гость в двухместной) не считается за горизонт 0ms
+     ✓ без цен — null: ограничения не выгружаются 0ms
+   ✓ Full Sync: ограничения тянутся до конца окна (Channex — end dates aligned) (1)
+     ✓ хвост без цены закрыт stop_sell, но с перенесённой ценой; конец окна = доступности 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/channels.test.ts > buildChannexSetup > property settings: availability autoupdate only on confirmation, as the Channex docs recommend
+AssertionError: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "allow_availability_autoupdate_on_cancellation": false,
++   "allow_availability_autoupdate_on_cancellation": true,
+    "allow_availability_autoupdate_on_confirmation": true,
+-   "allow_availability_autoupdate_on_modification": false,
++   "allow_availability_autoupdate_on_modification": true,
+  }
+
+ ❯ apps/api/src/channels/channels.test.ts:95:36
+     93|   it('property settings: availability autoupdate only on confirmation,…
+     94|     const plan = buildChannexSetup({ property, categories, ratePlan });
+     95|     expect(plan.property.settings).toMatchObject({
+       |                                    ^
+     96|       allow_availability_autoupdate_on_confirmation: true,
+     97|       allow_availability_autoupdate_on_modification: false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  14:50:23
+   Duration  992ms (transform 87%, import 10%, tests 3%)
+
+JSON report written to /tmp/pms-test-2026-10-01T14-50-22Z-unit-5c3a.json
+
+# код выхода 1 · 2 с

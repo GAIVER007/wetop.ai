@@ -1,0 +1,300 @@
+# Модульные (unit) · 01.10.2026 20:08 Алматы · vm
+# коммит e8b3914 (claude/eloquent-hypatia-7fm68p)
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-08-12Z-unit-f1a8.json' 'apps/web/src/design-rules.test.ts' 'scripts/design/build-tokens.test.ts' 'tests/unit/design-slop.test.ts' 'apps/web/src/lib/desk-person.test.ts' 'tests/unit/no-hardcoded-utc5.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/no-hardcoded-utc5.test.ts (2 tests | 1 failed) 34ms
+   ❯ С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет (2)
+     ✓ API: ни сдвига на пять часов, ни строки +05:00, ни зашитого Asia/Almaty 13ms
+     × стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5 19ms
+ ❯ |unit| scripts/design/build-tokens.test.ts (14 tests | 1 failed) 43ms
+   ❯ tokens.css генерируется из design/tokens.json (3)
+     ✓ файл на диске совпадает с выводом генератора (ручная правка — красный тест) 3ms
+     ✓ design/contrast.md совпадает с расчётом 2ms
+     × имена переменных прежние: ни одна var(--…) стойки не осталась без определения 29ms
+   ✓ design/tokens.json (8)
+     ✓ граница поля различима на поверхности в светлой и тёмной теме (редизайн A2) 1ms
+     ✓ темы объявлены, у каждого семантического цвета есть тёмное значение 0ms
+     ✓ отступы только из шкалы 4, 8, 16, 24, 32, 40, 48, 64 1ms
+     ✓ шрифт не мельче 12 px 0ms
+     ✓ имена токенов и групп годятся по DTCG: без $ в начале, без фигурных скобок и точки 1ms
+     ✓ у каждого листа есть $type — свой или унаследованный от группы 1ms
+     ✓ ссылка на несуществующий токен и цикл — ошибка с путём 1ms
+     ✓ сериализация: цвет с прозрачностью — rgba, размер — px, тень целиком 0ms
+   ✓ контраст (3)
+     ✓ формула WCAG: чёрный на белом 21:1 0ms
+     ✓ все пары проходят порог, кроме закреплённого списка известных нарушений 1ms
+     ✓ контрастная тема: текст и границы полей проходят, декоративные линии — как в светлой 0ms
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 7 failed) 16ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     × color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 7ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 1ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 1ms
+     × shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 1ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 1ms
+     × trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 1ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 0ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| apps/web/src/design-rules.test.ts (13 tests | 2 failed) 178ms
+   ❯ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 33ms
+     ✓ шрифта мельче 12 px нет 13ms
+     ✓ начертания только из шкалы 400 / 500 / 600 / 700 19ms
+     × литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт) 12ms
+     × стрелок в конце текста ссылок нет — ссылка названа словом (§14) 15ms
+     ✓ «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола 17ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 19ms
+     ✓ отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09) 5ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 11ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 16ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ «перейти к содержимому» на --primary пишется цветом --on-primary 1ms
+     ✓ на шахматке инлайн-фон клетки — backgroundColor, не сокращение background 1ms
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 14ms
+ ❯ |unit| apps/web/src/lib/desk-person.test.ts (11 tests | 1 failed) 17ms
+   ❯ меню и подпись по тому, кто вошёл (ADR-083) (3)
+     ✓ «ИИ-продавец» — при действующем расширении и после срока; «Платформа» — главному администратору 4ms
+     × продавец виден для знакомства, а раздел «Платформа» без прав скрыт 7ms
+     ✓ подпись: имя и роль; без имени — почта; главный администратор — отдельно 1ms
+   ✓ строка пробного периода в меню (4)
+     ✓ пробный — сколько дней осталось; кончился — так и сказано 1ms
+     ✓ у оплаченной организации, без срока и без организации строки нет 0ms
+     ✓ оболочка несёт строку вошедшего; без вошедшего — пусто 1ms
+     ✓ обучение (ADR-100): ключ отметки — у вошедшего, без почты в ключе; без вошедшего — нет 0ms
+   ✓ deskShellOf — только чтение (4)
+     ✓ пробный срок вышел — полоса есть 0ms
+     ✓ переведена в «только чтение» руками — полоса есть 1ms
+     ✓ в срок, после оплаты и без организации в ответе — полосы нет 0ms
+     ✓ сбой ответа о вошедшем — полосы нет 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| scripts/design/build-tokens.test.ts > tokens.css генерируется из design/tokens.json > имена переменных прежние: ни одна var(--…) стойки не осталась без определения
+AssertionError: expected [ '--accent', '--text-base' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--accent",
++   "--text-base",
++ ]
+
+ ❯ scripts/design/build-tokens.test.ts:85:21
+     83|     ]);
+     84|     const missing = [...used].filter((v) => !defined.has(v) && !local.…
+     85|     expect(missing).toEqual([]);
+       |                     ^
+     86|   });
+     87| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/shell/sidebar.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/login/role-access.css: 0 → 2",
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 19",
++   "apps/web/src/components/shell/sidebar.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(8) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx: 0 → 2",
++   "apps/web/src/app/ai-seller/forms.tsx: 0 → 1",
++   "apps/web/src/app/branches/overview.tsx: 0 → 4",
++   "apps/web/src/app/branches/workspace.tsx: 0 → 2",
++   "apps/web/src/app/login/team-section.tsx: 0 → 2",
++   "apps/web/src/app/platform/page.tsx: 0 → 1",
++   "apps/web/src/app/reservations/new/form.tsx: 0 → 1",
++   "apps/web/src/app/staff/page.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-seller/[[...section]]/page.tsx: 0 → 3",
++   "apps/web/src/app/ai-seller/setup-wizard.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |unit| tests/unit/no-hardcoded-utc5.test.ts > С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет > стойка: даты и моменты — по поясу объекта из /hotel/settings, а не по UTC+5
+AssertionError: часы объекта — lib/property-time.ts: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/branches/form.tsx:41:          defaultValue=\"Asia/Almaty\"",
++   "apps/web/src/app/branches/form.tsx:42:          placeholder=\"Asia/Almaty\"",
++ ]
+
+ ❯ tests/unit/no-hardcoded-utc5.test.ts:68:86
+     66|
+     67|   it('стойка: даты и моменты — по поясу объекта из /hotel/settings, а …
+     68|     expect(hardcodedTimezone('apps/web/src'), 'часы объекта — lib/prop…
+       |                                                                                      ^
+     69|   });
+     70| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт)
+AssertionError: expected [ 'components/shell/sidebar.css' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "components/shell/sidebar.css",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:90:7
+     88|         )
+     89|         .map((f) => relative(SRC, f)),
+     90|     ).toEqual([]);
+       |       ^
+     91|   });
+     92|   it('стрелок в конце текста ссылок нет — ссылка названа словом (§14)'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > стрелок в конце текста ссылок нет — ссылка названа словом (§14)
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/ai-seller/[[...section]]/page.tsx",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:96:20
+     94|       .filter((f) => /(→|›)\s*<\/(?:Link|a)>/.test(readFileSync(f, 'ut…
+     95|       .map((f) => relative(SRC, f));
+     96|     expect(guilty).toEqual([]);
+       |                    ^
+     97|   });
+     98|   it('«шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradie…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > меню и подпись по тому, кто вошёл (ADR-083) > продавец виден для знакомства, а раздел «Платформа» без прав скрыт
+AssertionError: expected [ '/today', '/chessboard', …(15) ] to not include '/platform/support'
+ ❯ apps/web/src/lib/desk-person.test.ts:49:60
+     47|     // «Техподдержка» переехала под «ИИ-продавец» (переключатель агент…
+     48|     // пункта меню у неё больше нет, маршрут /platform/support остаётс…
+     49|     expect(hrefs({ aiSeller: false, platform: true })).not.toContain('…
+       |                                                            ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+
+ Test Files  5 failed (5)
+      Tests  12 failed | 39 passed (51)
+   Start at  15:08:13
+   Duration  1.34s (transform 66%, tests 19%, import 14%, worker 2%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-08-12Z-unit-f1a8.json
+
+# код выхода 1 · 2 с

@@ -72,10 +72,14 @@ export function buildChannexSetup(input: {
     ...(input.property.email ? { email: input.property.email } : {}),
     ...(input.property.phone ? { phone: input.property.phone } : {}),
     settings: {
-      // бронь из канала уменьшает доступность сразу; мы всё равно шлём availability сами (ari.md)
+      // Новая бронь из канала уменьшает остаток в Channex сразу, до нашего ответа: иначе окно между бронью и нашей
+      // выгрузкой открыто для второй продажи. Изменение и отмену Channex сам не пересчитывает: остаток считает PMS и
+      // шлёт абсолютные значения через channel_outbox (ari.md); правка Channex поверх наших чисел лишняя и может
+      // разойтись с ними, поэтому для этих двух событий документация советует false (hotels-collection.md, Property
+      // Settings: «Recommended Setting is false»). До 01.10.2026 здесь стояло true (разбор reports/order-2026-10-01, п. 3).
       allow_availability_autoupdate_on_confirmation: true,
-      allow_availability_autoupdate_on_modification: true,
-      allow_availability_autoupdate_on_cancellation: true,
+      allow_availability_autoupdate_on_modification: false,
+      allow_availability_autoupdate_on_cancellation: false,
       min_stay_type: 'both',
     },
   };

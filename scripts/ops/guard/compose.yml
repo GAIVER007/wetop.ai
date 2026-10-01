@@ -2,8 +2,8 @@
 # Отдельный намеренно: падение или перерасход агента не должны задевать боевую PMS (проект pms-lux).
 #
 # Секреты — в файле .env рядом, вписывает владелец руками (SECURITY.md §3, правило 1.4 Академии):
-#   CLAUDE_CODE_OAUTH_TOKEN  токен подписки (`claude setup-token`, живёт год) — ИЛИ
-#   ANTHROPIC_API_KEY        ключ Anthropic, платный, только для этого агента
+#   ANTHROPIC_API_KEY   отдельный ключ Anthropic только для этого агента, с пределом расхода в консоли; токен
+#                       подписки владельца сюда не вписывается: с ним run.sh не стартует (разбор 01.10.2026, п. 6)
 #   GUARD_READ_KEY      ключ на чтение сторожа; тот же, что в .env боевой PMS
 #   TELEGRAM_BOT_TOKEN  токен бота; TELEGRAM_CHAT_ID — группа дежурных
 #   GUARD_REPO          адрес репозитория по SSH, например git@github.com:GAIVER007/wetop.ai.git
@@ -18,6 +18,8 @@ services:
       # API в проекте pms-lux зовётся по имени службы; сеть подключена ниже как внешняя.
       GUARD_API_URL: ${GUARD_API_URL:-http://api:3001}
       GUARD_INTERVAL_SECONDS: ${GUARD_INTERVAL_SECONDS:-3600}
+      # Не больше стольких вызовов модели в сутки (run.sh); деньги ограничивает предел на ключе в консоли Anthropic
+      GUARD_RUNS_PER_DAY: ${GUARD_RUNS_PER_DAY:-6}
     volumes:
       - ./ssh:/home/node/.ssh:ro
     security_opt: ['no-new-privileges:true']

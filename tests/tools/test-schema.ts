@@ -25,6 +25,25 @@ import {
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const MIGRATIONS = resolve(ROOT, 'packages/database/prisma/migrations');
+/**
+ * Отложенные миграции (docs/ops/migrations-held.md): `migrate deploy` их не видит, чтобы они не уехали на рабочую базу
+ * раньше кода, а `schema.prisma` и клиент Prisma их уже учитывают. Схема автотестов строится вместе с ними, иначе тесты
+ * шли бы против клиента, который ждёт другой ключ таблицы.
+ */
+const HELD = resolve(ROOT, 'packages/database/prisma/migrations-held');
+/** Папки миграций по имени: цепочка плюс отложенные; имя из цепочки отложенной быть не может */
+function migrationDirs(): Map<string, string> {
+  const dirs = new Map<string, string>();
+  for (const d of readdirSync(MIGRATIONS))
+    if (existsSync(resolve(MIGRATIONS, d, 'migration.sql'))) dirs.set(d, resolve(MIGRATIONS, d));
+  if (existsSync(HELD))
+    for (const d of readdirSync(HELD)) {
+      if (!existsSync(resolve(HELD, d, 'migration.sql'))) continue;
+      if (dirs.has(d)) throw new Error(`отложенная миграция ${d} повторяет имя из цепочки (migrations-held)`);
+      dirs.set(d, resolve(HELD, d));
+    }
+  return dirs;
+}
 const SERVICE_TABLES = new Set(['_test_migrations', '_test_meta', '_prisma_migrations']);
 const q = (s: string) => `"${s.replace(/"/g, '""')}"`;
 const S = q(TEST_SCHEMA);
@@ -63,13 +82,13 @@ export async function ensureTestSchema(
     );
     await client.query(`CREATE TABLE IF NOT EXISTS ${S}."_test_meta" (key text PRIMARY KEY, value text NOT NULL)`);
 
-    const all = readdirSync(MIGRATIONS).filter((d) => existsSync(resolve(MIGRATIONS, d, 'migration.sql')));
+    const dirs = migrationDirs();
     const applied = new Set(
       (await client.query<{ name: string }>(`SELECT name FROM ${S}."_test_migrations"`)).rows.map((r) => r.name),
     );
-    const pending = pendingMigrations(all, applied);
+    const pending = pendingMigrations([...dirs.keys()], applied);
     for (const name of pending) {
-      const sql = readFileSync(resolve(MIGRATIONS, name, 'migration.sql'), 'utf-8');
+      const sql = readFileSync(resolve(dirs.get(name)!, 'migration.sql'), 'utf-8');
       try {
         await client.query('BEGIN');
         await client.query(`SET LOCAL search_path TO ${S}, public`);
@@ -115,7 +134,7 @@ export async function ensureTestSchema(
     return {
       created: !existed,
       migrated: pending,
-      totalMigrations: all.length,
+      totalMigrations: dirs.size,
       copied,
       seeded,
       refreshedAt: meta.rows[0]?.value ?? null,
@@ -230,7 +249,7 @@ export async function testSchemaReady(): Promise<{ ready: boolean; reason: strin
   try {
     const exists = (await pool.query('SELECT 1 FROM pg_namespace WHERE nspname = $1', [TEST_SCHEMA])).rowCount === 1;
     if (!exists) return { ready: false, reason: `схемы ${TEST_SCHEMA} нет` };
-    const all = readdirSync(MIGRATIONS).filter((d) => existsSync(resolve(MIGRATIONS, d, 'migration.sql')));
+    const all = [...migrationDirs().keys()];
     const applied = new Set(
       (await pool.query<{ name: string }>(`SELECT name FROM ${S}."_test_migrations"`)).rows.map((r) => r.name),
     );

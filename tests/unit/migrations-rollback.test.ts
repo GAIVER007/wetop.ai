@@ -9,12 +9,19 @@ import { describe, expect, it } from 'vitest';
  * `unit` и базы не требует; сам откат (схема снимок в снимок) по-прежнему доказывает скрипт.
  */
 const MIGRATIONS = resolve(import.meta.dirname, '../../packages/database/prisma/migrations');
+/** Отложенные миграции (docs/ops/migrations-held.md): лежат рядом, `migrate deploy` их не видит, откат нужен так же */
+const HELD = resolve(import.meta.dirname, '../../packages/database/prisma/migrations-held');
+
+const listDirs = (root: string): string[] =>
+  existsSync(root)
+    ? readdirSync(root, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+    : [];
 
 describe('миграции: у каждой есть откат (AGENTS.md §14)', () => {
-  const dirs = readdirSync(MIGRATIONS, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
+  const dirs = listDirs(MIGRATIONS);
 
   it('папка миграций не пуста', () => {
     expect(dirs.length).toBeGreaterThan(0);
@@ -23,6 +30,39 @@ describe('миграции: у каждой есть откат (AGENTS.md §14)
   it.each(dirs)('%s — есть migration.sql и down.sql', (name) => {
     expect(existsSync(resolve(MIGRATIONS, name, 'migration.sql')), 'migration.sql').toBe(true);
     expect(existsSync(resolve(MIGRATIONS, name, 'down.sql')), 'down.sql').toBe(true);
+  });
+});
+
+/**
+ * Отложенные миграции (разбор 01.10.2026, reports/order-2026-10-01, пункт 4): миграция, которую применяют только после
+ * выкладки кода (039: профиль продавца по агенту), не лежит в общей цепочке, иначе `migrate deploy` применит её раньше
+ * кода. Папка `migrations-held` держит её до своего релиза; имя не должно повторять имя из цепочки, откат нужен так же,
+ * а ворота `check-migrations.sh` и сборка схемы автотестов (`tests/tools/test-schema.ts`) обязаны про папку знать:
+ * `schema.prisma` описывает базу вместе с отложенными.
+ */
+describe('отложенные миграции: migrations-held', () => {
+  const held = listDirs(HELD);
+  const chain = new Set(listDirs(MIGRATIONS));
+
+  it.each(held)('%s: есть migration.sql и down.sql, в цепочке такого имени нет', (name) => {
+    expect(existsSync(resolve(HELD, name, 'migration.sql')), 'migration.sql').toBe(true);
+    expect(existsSync(resolve(HELD, name, 'down.sql')), 'down.sql').toBe(true);
+    expect(chain.has(name), 'имя занято в цепочке').toBe(false);
+  });
+
+  it('039 (профиль продавца по агенту) отложена, пока её релиз не пришёл', () => {
+    expect(held).toContain('20260930000039_seller_profile_agent_key');
+    expect(chain.has('20260930000039_seller_profile_agent_key')).toBe(false);
+  });
+
+  it('ворота миграций сверяют schema.prisma с цепочкой вместе с отложенными', () => {
+    const script = readFileSync(resolve(import.meta.dirname, '../../scripts/ops/check-migrations.sh'), 'utf8');
+    expect(script).toContain('migrations-held');
+  });
+
+  it('схема автотестов строится из цепочки вместе с отложенными', () => {
+    const builder = readFileSync(resolve(import.meta.dirname, '../../tests/tools/test-schema.ts'), 'utf8');
+    expect(builder).toContain('migrations-held');
   });
 });
 

@@ -1,0 +1,29 @@
+# Модульные (unit) · 01.10.2026 19:57 Алматы · vm
+# коммит e8b3914 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 17
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T14-57-43Z-unit-9c1d.json' 'tests/unit/migrations-rollback.test.ts' 'tests/unit/guard-agent-run.test.ts' 'tests/unit/ci-runner.test.ts' 'tests/unit/channex-property-settings.test.ts' 'tests/unit/promote-release.test.ts' 'apps/api/src/channels/channels.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/guard-agent-run.test.ts (4 tests) 4ms
+ ✓ |unit| tests/unit/migrations-rollback.test.ts (48 tests) 28ms
+ ✓ |unit| tests/unit/ci-runner.test.ts (6 tests) 6ms
+ ✓ |unit| tests/unit/channex-property-settings.test.ts (4 tests) 6ms
+ ✓ |unit| apps/api/src/channels/channels.test.ts (10 tests) 10ms
+ ✓ |unit| tests/unit/promote-release.test.ts (7 tests) 3137ms
+   ✓ scripts/ops/promote-release.sh (7)
+     ✓ обязательные проверки зелёные и владелец сказал «да» — release перематывается на коммит 507ms
+     ✓ обязательная задача красная — отказ, release не тронута 416ms
+     ✓ проверка ещё идёт или не запускалась — отказ 483ms
+     ✓ необязательная задача красная — тоже отказ: красный db не прячется за «необязательно» 442ms
+     ✓ коммит не из main — отказ: ветка выкладки не обходит main 360ms
+     ✓ перемотка назад — отказ: откат делается руками 444ms
+     ✓ без «да» владельца release не трогается, --dry-run только показывает 482ms
+
+ Test Files  6 passed (6)
+      Tests  79 passed (79)
+   Start at  14:57:44
+   Duration  3.42s (tests 74%, transform 21%, import 4%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-01T14-57-43Z-unit-9c1d.json
+
+# код выхода 0 · 4 с

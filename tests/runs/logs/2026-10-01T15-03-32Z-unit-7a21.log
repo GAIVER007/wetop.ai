@@ -1,0 +1,21 @@
+# Модульные (unit) · 01.10.2026 20:03 Алматы · vm
+# коммит e8b3914 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 19
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-03-32Z-unit-7a21.json' 'tests/unit/db-backup-offsite.test.ts' 'tests/unit/db-backup.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/db-backup.test.ts (14 tests) 727ms
+ ✓ |unit| tests/unit/db-backup-offsite.test.ts (4 tests) 3280ms
+   ✓ scripts/ops/db-backup-offsite.sh (4)
+     ✓ шифрует последнюю копию, грузит с подписью v4, сверяет размер и пишет статус без ключей 1599ms
+     ✓ размер в хранилище не сошёлся: отказ, статус не пишется 772ms
+     ✓ копии нет: отказ словами; регион подписи берётся из настроек 814ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  15:03:33
+   Duration  3.49s (tests 94%, transform 5%, import 1%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-03-32Z-unit-7a21.json
+
+# код выхода 0 · 5 с

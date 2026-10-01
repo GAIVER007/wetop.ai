@@ -9,19 +9,26 @@
 # Почему не «запускать всегда»: рассуждение стоит денег. Тихий час — это `sleep`, а не вызов модели.
 set -eu
 
-# Чем платим за рассуждение — одно из двух, и это не равнозначные варианты (README, §«Подписка или ключ»):
-#   CLAUDE_CODE_OAUTH_TOKEN — токен подписки, `claude setup-token`, живёт год, отдельных денег не стоит;
-#   ANTHROPIC_API_KEY       — ключ Anthropic, оплата по расходу.
-if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-  echo 'нужен CLAUDE_CODE_OAUTH_TOKEN (подписка) или ANTHROPIC_API_KEY в .env' >&2
+# Чем платим за рассуждение: только отдельным ключом Anthropic (README, §«Ключ»). Токен подписки владельца
+# (`CLAUDE_CODE_OAUTH_TOKEN`) до 01.10.2026 принимался наравне с ключом и делил лимит подписки с дневной работой;
+# теперь он в .env агента считается ошибкой настройки, и скрипт с ним не стартует (разбор 01.10.2026, пункт 6).
+if [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+  echo 'в .env дежурного агента стоит CLAUDE_CODE_OAUTH_TOKEN: токен подписки делит лимит с владельцем. Уберите его и впишите отдельный ANTHROPIC_API_KEY (README, §«Ключ»)' >&2
   exit 1
 fi
+: "${ANTHROPIC_API_KEY:?нужен отдельный ключ ANTHROPIC_API_KEY в .env (README, §«Ключ»)}"
 : "${GUARD_READ_KEY:?нужен ключ на чтение сторожа в .env}"
 : "${GUARD_REPO:?нужен адрес репозитория по SSH в .env}"
 GUARD_API_URL="${GUARD_API_URL:-http://api:3001}"
 GUARD_INTERVAL_SECONDS="${GUARD_INTERVAL_SECONDS:-3600}"
 GUARD_RUN_LIMIT_SECONDS="${GUARD_RUN_LIMIT_SECONDS:-900}"
+# Суточный предел вызовов модели. Предел расхода в деньгах стоит на самом ключе в консоли Anthropic; этот считает
+# запуски: сторож, который каждый час «находит» ту же неисправность, не должен превращаться в 24 разбора за ночь.
+GUARD_RUNS_PER_DAY="${GUARD_RUNS_PER_DAY:-6}"
+case "$GUARD_RUNS_PER_DAY" in '' | *[!0-9]*) echo 'GUARD_RUNS_PER_DAY: целое число запусков в сутки' >&2; exit 1 ;; esac
 WORK=/home/node/work/repo
+STATE=/home/node/work/state
+mkdir -p "$STATE"
 export GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/home/node/.ssh/known_hosts -i /home/node/.ssh/id_ed25519'
 
 say() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"; }
@@ -82,7 +89,22 @@ while true; do
     continue
   fi
 
-  say 'есть что разобрать — зову агента'
+  # Счётчик запусков за сутки UTC; файлы прошлых дней убираются сами
+  today="$(date -u +%Y-%m-%d)"
+  find "$STATE" -name 'runs-*' -mtime +2 -delete 2>/dev/null || true
+  runs="$(cat "$STATE/runs-$today" 2>/dev/null || echo 0)"
+  if [ "$runs" -ge "$GUARD_RUNS_PER_DAY" ]; then
+    say "суточный предел вызовов модели ($GUARD_RUNS_PER_DAY) исчерпан, до полуночи UTC агент не зовётся"
+    if [ ! -f "$STATE/capped-$today" ]; then
+      : >"$STATE/capped-$today"
+      tg "Дежурный агент: за сутки уже $runs запусков, предел $GUARD_RUNS_PER_DAY. Неисправности открыты, до полуночи UTC разбирает человек."
+    fi
+    sleep "$GUARD_INTERVAL_SECONDS"
+    continue
+  fi
+  printf '%s\n' "$((runs + 1))" >"$STATE/runs-$today"
+
+  say "есть что разобрать, зову агента (запуск $((runs + 1)) из $GUARD_RUNS_PER_DAY за сутки)"
   set +e
   timeout "$GUARD_RUN_LIMIT_SECONDS" claude -p \
     --permission-mode acceptEdits \

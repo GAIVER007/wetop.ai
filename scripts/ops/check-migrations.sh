@@ -12,9 +12,15 @@
 #
 # Скрипт создаёт и удаляет базы `_mig_before` и `_mig_after`, поэтому работает только с локальным адресом:
 # рабочую базу он не тронет, даже если подсунуть её строку подключения. DATABASE_URL не читается намеренно.
+#
+# Отложенные миграции (docs/ops/migrations-held.md, разбор 01.10.2026 п. 4): папка `migrations-held` рядом с цепочкой.
+# `prisma migrate deploy` их не видит, поэтому они не уедут на рабочую базу раньше кода; здесь они проверяются так же,
+# как цепочка: `schema.prisma` сверяется с базой «цепочка + отложенные», откат каждой отложенной проверяется поверх
+# всей цепочки, снимок в снимок.
 set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MIGRATIONS="$ROOT/packages/database/prisma/migrations"
+HELD="$ROOT/packages/database/prisma/migrations-held"
 URL="${MIGRATION_CHECK_URL:-}"
 
 if [ -z "$URL" ]; then
@@ -34,6 +40,20 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 MIGS=()
 while IFS= read -r dir; do MIGS+=("$dir"); done < <(ls -d "$MIGRATIONS"/*/ | sort)
 if [ "${#MIGS[@]}" -eq 0 ]; then echo "RESULT: FAIL (миграций не найдено в $MIGRATIONS)"; exit 1; fi
+HELD_MIGS=()
+if [ -d "$HELD" ]; then
+  while IFS= read -r dir; do [ -n "$dir" ] && HELD_MIGS+=("$dir"); done < <(ls -d "$HELD"/*/ 2>/dev/null | sort)
+fi
+# Полный список: цепочка, затем отложенные. Отложенная с именем из цепочки: ошибка: Prisma считала бы её применённой.
+ALL=("${MIGS[@]}")
+for held in "${HELD_MIGS[@]+"${HELD_MIGS[@]}"}"; do
+  for mig in "${MIGS[@]}"; do
+    if [ "$(basename "$held")" = "$(basename "$mig")" ]; then
+      echo "RESULT: FAIL (отложенная $(basename "$held") повторяет имя из цепочки)"; exit 1
+    fi
+  done
+  ALL+=("$held")
+done
 fails=0
 
 snapshot() { # $1 — база; снимок схемы без комментариев и разовых ключей pg_dump
@@ -69,35 +89,43 @@ drift() { # schema.prisma против базы из всех миграций; 
   esac
 }
 
-build() { # $1 — база, $2 — сколько миграций применить
+build() { # $1, база, $2, сколько миграций применить (из ALL: сначала цепочка, потом отложенные)
   "${PSQL[@]}" "$ADMIN" -c "DROP DATABASE IF EXISTS $1" >/dev/null 2>&1
   "${PSQL[@]}" "$ADMIN" -c "CREATE DATABASE $1" >/dev/null || return 1
   "${PSQL[@]}" "$BASE_URL/$1" -c "CREATE EXTENSION IF NOT EXISTS btree_gist" >/dev/null || return 1
   local i
   for ((i = 0; i < $2; i++)); do
-    if ! "${PSQL[@]}" "$BASE_URL/$1" -f "${MIGS[$i]}/migration.sql" > "$TMP/apply.log" 2>&1; then
-      echo "  не применилась $(basename "${MIGS[$i]}"): $(tail -1 "$TMP/apply.log")"; return 1
+    if ! "${PSQL[@]}" "$BASE_URL/$1" -f "${ALL[$i]}/migration.sql" > "$TMP/apply.log" 2>&1; then
+      echo "  не применилась $(basename "${ALL[$i]}"): $(tail -1 "$TMP/apply.log")"; return 1
     fi
   done
 }
 
-echo "Миграций: ${#MIGS[@]}"
+echo "Миграций: ${#MIGS[@]}, отложенных (migrations-held): ${#HELD_MIGS[@]}"
 if build _mig_after "${#MIGS[@]}"; then
   echo "ok   вся цепочка легла на пустую базу"
-  drift || fails=$((fails + 1))
+  if [ "${#HELD_MIGS[@]}" -eq 0 ]; then
+    drift || fails=$((fails + 1))
+  elif build _mig_after "${#ALL[@]}"; then
+    echo "ok   отложенные легли поверх цепочки"
+    drift || fails=$((fails + 1))
+  else
+    echo "FAIL отложенные миграции не применились поверх цепочки"; fails=$((fails + 1))
+  fi
 else
   echo "FAIL цепочка не применилась на пустую базу"; fails=$((fails + 1))
 fi
 
-for ((n = 0; n < ${#MIGS[@]}; n++)); do
-  name="$(basename "${MIGS[$n]}")"
-  if [ ! -f "${MIGS[$n]}/down.sql" ]; then
+for ((n = 0; n < ${#ALL[@]}; n++)); do
+  name="$(basename "${ALL[$n]}")"
+  [ "$n" -lt "${#MIGS[@]}" ] || name="$name (отложенная)"
+  if [ ! -f "${ALL[$n]}/down.sql" ]; then
     echo "FAIL $name — down.sql нет, откатить нечем"; fails=$((fails + 1)); continue
   fi
   build _mig_before "$n" || { echo "FAIL $name (подготовка)"; fails=$((fails + 1)); continue; }
   snapshot _mig_before > "$TMP/before.sql"
   build _mig_after $((n + 1)) || { echo "FAIL $name (подготовка)"; fails=$((fails + 1)); continue; }
-  if ! "${PSQL[@]}" "$BASE_URL/_mig_after" -f "${MIGS[$n]}/down.sql" > "$TMP/down.log" 2>&1; then
+  if ! "${PSQL[@]}" "$BASE_URL/_mig_after" -f "${ALL[$n]}/down.sql" > "$TMP/down.log" 2>&1; then
     echo "FAIL $name — down.sql не выполнился: $(tail -1 "$TMP/down.log")"; fails=$((fails + 1)); continue
   fi
   snapshot _mig_after > "$TMP/after.sql"

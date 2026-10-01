@@ -23,7 +23,7 @@ import { loadErrorProps } from '../../lib/load-error';
  * через «Техподдержка → Написать в поддержку».
  */
 export default async function AiAgentsPage() {
-  const { access, readOnly } = await deskShell();
+  const { readOnly } = await deskShell();
   let catalog: AgentCatalogView | null = null;
   let failure: unknown = null;
   try {
@@ -34,7 +34,7 @@ export default async function AiAgentsPage() {
   const button = catalog ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
   return (
-    <Page title="ИИ-агенты" subtitle="Настройка продавцов, инструкции и каналы общения.">
+    <Page title="ИИ-продавцы" subtitle="Настройка продавцов, инструкции и каналы общения.">
       {failure !== null && (
         <LoadError
           testId="agents-error"
@@ -48,29 +48,6 @@ export default async function AiAgentsPage() {
           {catalog?.agents.map((agent) => (
             <AgentCard key={agent.id} agent={agent} />
           ))}
-          {access.platform && (
-            <Panel title="WETOP Support" className="agent-card" data-testid="agent-support">
-              <Stack gap="sm">
-                <div className="muted">Техническая поддержка платформы</div>
-                <div>
-                  <Badge>Platform Agent</Badge>
-                </div>
-                <div>
-                  Отвечает пользователям всех организаций; диалоги, знания и настройки — здесь.
-                </div>
-                <div>
-                  <Link
-                    className="btn"
-                    href="/platform/support"
-                    prefetch={false}
-                    aria-label="Открыть: WETOP Support"
-                  >
-                    Открыть
-                  </Link>
-                </div>
-              </Stack>
-            </Panel>
-          )}
         </Grid>
         {button && (
           <div data-testid="agent-add">

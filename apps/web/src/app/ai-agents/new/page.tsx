@@ -28,7 +28,7 @@ export default async function NewAgentPage() {
       title="Новый AI-продавец"
       subtitle="Шаг 1 из 5. Выберите объект и дайте продавцу имя."
       width="narrow"
-      crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}
+      crumbs={<Link href="/ai-agents">ИИ-продавцы</Link>}
     >
       {failure !== null && (
         <LoadError testId="agents-error" title="Не удалось загрузить варианты" {...loadErrorProps(failure)} />

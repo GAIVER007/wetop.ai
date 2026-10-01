@@ -44,13 +44,13 @@ describe('меню по ролям', () => {
       '/ai-agents',
       '/finance',
       '/management/analytics',
-      '/incidents',
     ]);
     expect(sidebarSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+      'home',
       'guests',
       'sales',
       'finance',
-      'control',
+      'analytics',
     ]);
   });
 

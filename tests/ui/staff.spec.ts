@@ -60,3 +60,32 @@ test('администратор не получает список сотруд
   await expect(page.getByTestId('team')).toHaveCount(0);
   await expect(page.locator('.workspace-sidebar a[href="/staff"]')).toHaveCount(0);
 });
+
+test('выбор роли показывает конкретные разрешения', async ({ page }) => {
+  await page.goto('/staff');
+  const form = page.locator('.team-invite-form');
+  const refunds = form.locator('.role-access > div', {
+    hasText: 'Возвраты и уменьшение начислений',
+  });
+  await expect(refunds).toContainText('Недоступно');
+  await expect(
+    form.locator('.role-access > div', { hasText: 'Финансы и аналитика' }),
+  ).toContainText('Просмотр');
+  await form.getByLabel('Роль приглашённого').selectOption('MANAGER');
+  await expect(refunds).toContainText('Доступно');
+  await expect(
+    form.locator('.role-access > div', { hasText: 'Управляющие и платные расширения' }),
+  ).toContainText('Недоступно');
+});
+
+test('навигация разделяет задачи и сохраняет единый экран подключения', async ({ page }) => {
+  await page.goto('/today');
+  const nav = page.locator('.workspace-sidebar');
+  await expect(nav.getByRole('button', { name: 'Контроль', exact: true })).toHaveCount(0);
+  await expect(nav.getByRole('link', { name: 'Главная', exact: true })).toBeVisible();
+  await expect(nav.locator('a[href="/finance"]')).toBeVisible();
+  await expect(nav.locator('a[href="/management/analytics"]')).toBeVisible();
+  await page.goto('/channels/connections');
+  await expect(page).toHaveURL(/\/connections\/channex$/);
+  await expect(page.getByTestId('channel-connection')).toBeVisible();
+});

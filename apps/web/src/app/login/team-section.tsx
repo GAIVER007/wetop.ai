@@ -1,4 +1,5 @@
 'use client';
+import { RoleAccess } from './role-access';
 import { useState, useTransition } from 'react';
 import {
   MEMBERSHIP_ROLES,
@@ -120,6 +121,10 @@ export function TeamSection({
             ? 'Управляющий: работа с гостями, номерной фонд, тарифы, финансы, интеграции и приглашение администраторов. Права владельца не передаются.'
             : 'Администратор: брони, гости, заезды и выезды, приём оплат и просмотр отчётов. Без изменения тарифов, настроек и управления сотрудниками.'}
         </p>
+        <details className="team-access" open>
+          <summary>Что будет доступно сотруднику</summary>
+          <RoleAccess role={inviteRole} />
+        </details>
         {error && (
           <p className="alert" role="alert">
             {error}
@@ -142,6 +147,10 @@ export function TeamSection({
                 {m.you ? ' — это вы' : ''}
               </span>
             </span>
+            <details className="team-access">
+              <summary>Посмотреть права</summary>
+              <RoleAccess role={m.role} />
+            </details>
             {m.roleEditable && (
               <Select
                 aria-label={`Роль: ${who(m)}`}
@@ -189,6 +198,10 @@ export function TeamSection({
                   <time dateTime={i.expiresAt}>{displayDate(i.expiresAt.slice(0, 10))}</time>
                 </span>
               </span>
+              <details className="team-access">
+                <summary>Посмотреть права приглашённого</summary>
+                <RoleAccess role={i.role ?? 'STAFF'} />
+              </details>
               {i.revocable && (
                 <Button
                   type="button"

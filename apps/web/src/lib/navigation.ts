@@ -114,7 +114,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             requires: 'property',
             label: 'Свободные места',
             icon: 'board',
-            description: 'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
+            description:
+              'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
           },
           {
             href: '/rates',
@@ -190,7 +191,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'dialogs',
         label: 'ИИ-агенты',
         icon: 'chat',
-        description: 'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
+        description:
+          'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
         // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
       {
@@ -260,6 +262,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'История операций в системе.',
       },
       {
+        href: '/platform/support',
+        label: 'Техподдержка WETOP',
+        description: 'Управление поддержкой платформы.',
+        icon: 'chat',
+        requires: 'platform',
+      },
+      {
         href: '/platform',
         label: 'Организации',
         icon: 'inventory',
@@ -291,60 +300,61 @@ function menuItem(href: string, label?: string): NavigationItem {
 }
 
 export const sidebarSections: SidebarSection[] = [
+  { id: 'home', label: 'Главная', icon: 'today', direct: true, items: [menuItem('/today')] },
   {
     id: 'guests',
     label: 'Работа с гостями',
     icon: 'guests',
-    items: ['/today', '/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
+    items: ['/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
   },
   {
-    // Один пункт вместо трёх (ADR-108): «Категории» и «Доступность» — вкладки внутри страницы,
-    // их адреса живут (deep links), а меню не дублирует навигацию экрана
     id: 'inventory',
     label: 'Номерной фонд',
     icon: 'bed',
-    items: [menuItem('/inventory', 'Номерной фонд')],
     direct: true,
+    items: [menuItem('/inventory')],
   },
   {
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
-    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-агенты (бывший ИИ-продавец), Сайт
     items: [
-      menuItem('/rates'),
+      menuItem('/rates', 'Тарифы и цены'),
       menuItem('/channels'),
+      menuItem('/ai-agents', 'ИИ-продавцы'),
       menuItem('/website'),
-      // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
-      menuItem('/ai-agents'),
     ],
   },
   {
     id: 'finance',
-    label: 'Финансы и отчёты',
+    label: 'Финансы',
     icon: 'money',
-    // «Показатели за период» (A1, ADR-105) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114)
-    items: [menuItem('/finance'), menuItem('/management/analytics')],
+    direct: true,
+    items: [menuItem('/finance', 'Финансы')],
+  },
+  {
+    id: 'analytics',
+    label: 'Аналитика',
+    icon: 'analytics',
+    direct: true,
+    items: [menuItem('/management/analytics')],
   },
   {
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
-    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/staff'), menuItem('/connections')],
+    items: [
+      menuItem('/hotel-settings', 'Объект'),
+      menuItem('/staff', 'Сотрудники и доступ'),
+      menuItem('/connections', 'Подключения'),
+      menuItem('/journal', 'Журнал действий'),
+    ],
   },
   {
-    id: 'control',
-    label: 'Контроль',
-    icon: 'shield',
-    items: [menuItem('/incidents'), menuItem('/journal')],
-  },
-  {
-    // только главному администратору (ADR-083): данных чужих гостиниц здесь нет — названия, люди и расширения.
-    // Техподдержка — карточка WETOP Support на входе «ИИ-агенты» и переключатель на странице продавца
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
-    items: [menuItem('/platform')],
+    items: [menuItem('/platform'), menuItem('/platform/support')],
   },
 ];
 

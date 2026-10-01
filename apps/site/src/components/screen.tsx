@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type ScreenKind = 'board' | 'channels' | 'folio';
+export type ScreenKind = 'today' | 'board' | 'reservations';
 
 /*
  * Мини-экраны для карточек витрины: рисунок на SVG, без снимков и фотографий. Цвета — через классы
@@ -38,11 +38,11 @@ const board = (
   </>
 );
 
-const channels = (
+const today = (
   <>
     <rect className="screen__frame" x="52" y="42" width="56" height="26" rx="8" />
     <text className="screen__value" x="64" y="59">
-      WETOP
+      Сегодня
     </text>
     <path className="screen__accent" d="M52 55H26M108 55h26M80 42V26M80 68v16" />
     <circle className="screen__dot" cx="22" cy="55" r="5" />
@@ -50,38 +50,38 @@ const channels = (
     <circle className="screen__dot" cx="80" cy="22" r="5" />
     <circle className="screen__dot" cx="80" cy="88" r="5" />
     <text className="screen__text" x="8" y="44">
-      Каналы
+      Заезды
     </text>
     <text className="screen__text" x="118" y="44">
-      Остатки
+      Выезды
     </text>
     <text className="screen__text" x="94" y="24">
-      Брони
+      Гости
     </text>
     <text className="screen__text" x="94" y="92">
-      Цены
+      К оплате
     </text>
   </>
 );
 
-const folio = (
+const reservations = (
   <>
     <rect className="screen__frame" x="18" y="18" width="124" height="80" rx="8" />
     <path className="screen__line" d="M30 40h100M30 54h100M30 68h100" />
     <rect className="screen__bar screen__bar--soft" x="30" y="76" width="100" height="14" rx="5" />
     <text className="screen__text" x="30" y="36">
-      Проживание
+      Гость
     </text>
     <text className="screen__text" x="30" y="50">
-      Оплата
+      Тариф
     </text>
     <text className="screen__text" x="30" y="64">
-      Возврат
+      Источник
     </text>
     <text className="screen__value" x="34" y="87">
-      Итого до тиына
+      Остаток к сбору
     </text>
   </>
 );
 
-const SCREENS: Record<ScreenKind, ReactNode> = { board, channels, folio };
+const SCREENS: Record<ScreenKind, ReactNode> = { today, board, reservations };

@@ -13,10 +13,12 @@ export function SiteHeader() {
   // Якоря ведут на главную: из блога ссылка «Возможности» открывает главную сразу на нужном разделе.
   // «Блог» — только когда есть опубликованные статьи (С2, 20.09.2026): пустую страницу в меню не зовём.
   const hasPosts = getPublishedPosts().length > 0;
+  // Пункты меню повторяют блоки главной (plans/site-home-clear-blocks-2026-10-01.md): для кого, что умеет,
+  // откуда брони, как начать.
   const links = [
-    { href: '/#about', label: 'О WETOP' },
     { href: '/#audience', label: t.nav.audience },
     { href: '/#features', label: t.nav.features },
+    { href: '/#sales', label: t.nav.sales },
     { href: '/#start', label: t.nav.start },
     ...(hasPosts ? [{ href: '/blog/', label: t.nav.blog }] : []),
   ];

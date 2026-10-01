@@ -9,9 +9,9 @@ on:
     branches: [main]
   pull_request:
 
-concurrency:
-  group: checks-${{ github.ref }}
-  cancel-in-progress: true
+# Очередь у каждой задачи своя (ниже), а не у workflow целиком: иначе, пока задачи своего раннера стоят в очереди
+# (раннер wetop выключен или занят), новый прогон висит «pending» и задача db на раннере GitHub не стартует вовсе
+# (01.10.2026: прогон 836 ждал прогон 834, у которого на раннер GitHub уже всё отработало).
 
 # Свой раннер стоит на боевом сервере (scripts/ops/ci-runner) и исполняет код из запросов на слияние. Код из форка
 # на него не попадает: задачи на своём раннере идут только для пушей в этот репозиторий и PR из его же веток
@@ -20,6 +20,9 @@ concurrency:
 jobs:
   fast:
     name: lint · typecheck · unit · главная
+    concurrency:
+      group: checks-fast-${{ github.ref }}
+      cancel-in-progress: true
     # Свой раннер на сервере (scripts/ops/ci-runner). 21.09.2026 включённые минуты GitHub были выбраны,
     # бюджет Actions стоит $0 со «Stop usage», и проверки перестали запускаться вовсе — падали за две
     # секунды с «job was not started». На self-hosted минуты не тарифицируются.
@@ -51,6 +54,9 @@ jobs:
 
   db:
     name: миграции · integration · e2e на чистом PostgreSQL 16
+    concurrency:
+      group: checks-db-${{ github.ref }}
+      cancel-in-progress: true
     # Единственная задача, оставшаяся на раннерах GitHub: ей нужен `services: postgres`, то есть Docker
     # внутри раннера. Давать своему раннеру сокет Docker нельзя — это root на машине, где рядом чужие
     # проекты. Пока минуты не восстановлены, эта проверка молчит; это известное ограничение.
@@ -130,6 +136,9 @@ jobs:
 
   ui-shard:
     name: UI · часть ${{ matrix.shard }}/3
+    concurrency:
+      group: checks-ui-${{ matrix.shard }}-${{ github.ref }}
+      cancel-in-progress: true
     # Три части UI — основной расход минут; базы им не нужно, поэтому они и уходят на свой раннер.
     # Раннер один и берёт задачи по очереди: части идут не параллельно, а друг за другом.
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
@@ -171,6 +180,9 @@ jobs:
   ui:
     # Сохраняем прежнее имя обязательной проверки; успешны должны быть все части.
     name: стойка на синтетическом API (tests/ui)
+    concurrency:
+      group: checks-ui-all-${{ github.ref }}
+      cancel-in-progress: true
     needs: ui-shard
     if: always() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: [self-hosted, linux, x64, wetop]
@@ -182,6 +194,9 @@ jobs:
 
   bot:
     name: ИИ-помощник и продавец · pytest (apps/ai-seller)
+    concurrency:
+      group: checks-bot-${{ github.ref }}
+      cancel-in-progress: true
     # Тесты бота идут без базы, Redis и сети (apps/ai-seller/testy.md), на том же раннере. До 01.10.2026 их в
     # проверках GitHub не было, и `release` мог уйти вперёд с красным ботом (разбор 01.10.2026, пункт 8).
     # torch ставится сборкой CPU с индекса PyTorch (requirements.txt), кэш pip держит её между прогонами.

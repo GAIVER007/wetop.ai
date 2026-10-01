@@ -137,9 +137,15 @@ refuse() {
   refuse "в $REPO есть локальные правки (git status) — разберите их, автовыкладка ждёт"
 git merge-base --is-ancestor "$current" "$target" ||
   refuse "новая вершина $BRANCH не продолжает текущую — история переписана, нужна выкладка руками"
-migrations="$(git diff --name-only "$current" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
+# Новые и изменённые миграции применяет владелец до выкладки. Снятые из цепочки (отложены в migrations-held,
+# docs/ops/migrations-held.md) не применяются вовсе, но выкладка тоже ждёт: владелец сверяет, что их нет в
+# _prisma_migrations рабочей базы (есть: место миграции в цепочке, а не в отложенных), и подтверждает тем же флагом.
+migrations="$(git diff --name-only --diff-filter=AMR "$current" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
+removed="$(git diff --name-only --diff-filter=D "$current" "$target" -- packages/database/prisma/migrations | sed 's#/[^/]*$##' | sort -u)"
 [ -z "$migrations" ] || [ "$applied_ok" = 1 ] ||
   refuse "в обновлении миграции ($(printf '%s' "$migrations" | tr '\n' ' ')) — их применяет владелец (AGENTS.md §15), затем на сервере: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied $(short "$target")"
+[ -z "$removed" ] || [ "$applied_ok" = 1 ] ||
+  refuse "из цепочки сняты миграции ($(printf '%s' "$removed" | tr '\n' ' ')): они отложены (docs/ops/migrations-held.md), применять нечего. Проверьте, что их нет в _prisma_migrations рабочей базы, затем на сервере: ${AUTO_DEPLOY_SELF:-$0} --migrations-applied $(short "$target")"
 
 compose=(docker compose -f deploy/compose.yml)
 [ -f deploy/compose.hostinger.yml ] && compose+=(-f deploy/compose.hostinger.yml)

@@ -1,0 +1,31 @@
+# Модульные (unit) · 01.10.2026 20:39 Алматы · vm
+# коммит d5fc2f6 (claude/eloquent-hypatia-7fm68p), незакоммиченных файлов набора: 3
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T15-39-54Z-unit-db6d.json' 'tests/unit/auto-deploy.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/auto-deploy.test.ts (14 tests) 11525ms
+   ✓ scripts/ops/auto-deploy.sh (14)
+     ✓ checked-out source stays readable by the container user under a private caller umask 570ms
+     ✓ ветка не ушла вперёд — ничего не делает и молчит 376ms
+     ✓ новый коммит без миграций — выкладывает, проверяет и сообщает, токен в журнал не попадает 642ms
+     ✓ в обновлении миграция — не выкладывает, говорит один раз и ждёт владельца 609ms
+     ✓ миграция снята из цепочки (отложена): отказ один раз с проверкой _prisma_migrations, флаг выкладывает 738ms
+     ✓ владелец применил миграции и назвал вершину — выкладывает ровно её 915ms
+     ✓ флаг без вершины не принимается и тогда, когда cron уже отказал следующей вершине 802ms
+     ✓ --migrations-applied без вершины — отказ с подсказкой, ничего не выложено 584ms
+     ✓ --migrations-applied с номером вершины выкладывает ровно её, другую — нет 689ms
+     ✓ прерванная выкладка: клон уже на новой вершине, но она не выложена — следующий запуск выкладывает 617ms
+     ✓ release перемотали после отказа — флаг со старой вершиной не выкладывает новую 835ms
+     ✓ локальные правки в клоне — не затирает их 597ms
+     ✓ историю ветки переписали — не выкладывает поверх 879ms
+     ✓ после сборки не отвечает — возвращает прежний коммит и прежний образ 2670ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  15:39:55
+   Duration  11.76s (tests 99%)
+
+JSON report written to /tmp/pms-test-2026-10-01T15-39-54Z-unit-db6d.json
+
+# код выхода 0 · 13 с

@@ -7,6 +7,10 @@
 
 ## 1. Защита ветки `main` (Settings → Rules → Rulesets → New branch ruleset)
 
+Короткий путь: **New ruleset → Import a ruleset** и файл `docs/ops/github-rulesets/main.json`, затем то же с
+`release.json`. В файлах ровно то, что в таблице ниже; после импорта проверить, что три обязательные проверки
+подхватились по именам (они совпадают с `name:` задач в `checks.yml`). Таблица остаётся на случай ручной настройки.
+
 | Поле | Значение | Зачем |
 |---|---|---|
 | Target branches | `main` | |

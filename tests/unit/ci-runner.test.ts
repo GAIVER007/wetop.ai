@@ -88,6 +88,16 @@ describe('проверки GitHub после разбора 01.10.2026', () => {
     expect(db.indexOf('seed-local.ts')).toBeLessThan(db.indexOf('--project integration'));
   });
 
+  // Очередь на уровне workflow держала весь прогон, пока задачи своего раннера стояли в очереди (01.10 раннер wetop
+  // не брал задачи): новый прогон висел «pending», и задача db на раннере GitHub не стартовала вовсе. Группа у каждой
+  // задачи своя: db идёт сразу, части UI и bot ждут только свои прежние запуски.
+  it('очередь на уровне задач: db на раннере GitHub не ждёт очереди своего раннера', () => {
+    const top = withoutComments(WORKFLOW.split('\njobs:\n')[0]!);
+    expect(top).not.toMatch(/^concurrency:/m);
+    for (const name of ['fast', 'db', 'ui-shard', 'ui', 'bot'])
+      expect(withoutComments(job(name)), name).toMatch(/concurrency:\s*\n\s*group: [^\n]*\$\{\{ github\.ref \}\}/);
+  });
+
   it('код из форка на свой раннер не попадает', () => {
     for (const name of selfHosted) {
       const text = withoutComments(job(name));

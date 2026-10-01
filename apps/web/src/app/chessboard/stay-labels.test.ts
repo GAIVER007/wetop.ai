@@ -71,3 +71,23 @@ describe('бейдж источника (ТЗ v2 §21): коротко на пл
     expect(sourceBadge(undefined, null)).toBeNull();
   });
 });
+
+describe('служебный псевдоним на плашке', () => {
+  it('заменяет код стойки понятной подписью', () => {
+    expect(guestNames('Гость Стойка-a1b2c3', 'DESK', null)).toEqual({
+      full: 'Бронь со стойки',
+      short: 'Со стойки',
+      initials: 'Бронь',
+    });
+  });
+  it('использует фактический канал, а не способ создания псевдонима', () => {
+    expect(guestNames('Стойка-a1b2c3 Гость', 'DESK', null).full).toBe('Бронь со стойки');
+    expect(guestNames('Гость Стойка-a1b2c3', 'PHONE', null).full).toBe('Бронь по телефону');
+    expect(guestNames('Гость Канал-a1b2c3', 'OTA', 'Booking.com').full).toBe('Бронь · Booking.com');
+    expect(guestNames('Гость Канал-a1b2c3', undefined, null).full).toBe('Бронь без имени');
+  });
+  it('не скрывает настоящую фамилию и похожий текст', () => {
+    expect(guestNames('Гость Стойка', 'DESK', null).full).toBe('Гость Стойка');
+    expect(guestNames('Анна Канал-a1b2c3', 'DESK', null).full).toBe('Анна Канал-a1b2c3');
+  });
+});

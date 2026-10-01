@@ -5095,3 +5095,5 @@
 | 01.10.2026 21:15 | unit (частично: tests/unit/ci-runner.test.ts) | ❌ упало 1 из 9 | 1 с | 1ef224b +1 | [лог](logs/2026-10-01T16-15-12Z-unit-57fe.log) | green: свежая pms_test перед сквозными |
 | 01.10.2026 21:15 | unit (частично: tests/unit/ci-runner.test.ts) | ✅ 9 из 9 | 1 с | 1ef224b +1 | [лог](logs/2026-10-01T16-15-29Z-unit-2d19.log) | green: свежая pms_test перед сквозными |
 | 01.10.2026 21:14 | integration | ✅ 225 из 230, пропущено 5 | 1 мин 4 с | 1ef224b | [лог](logs/2026-10-01T16-14-50Z-integration-8095.log) | полный integration на локальном PostgreSQL 16, как задача db в CI |
+| 01.10.2026 21:16 | e2e (частично: tests/e2e/inventory.spec.ts tests/e2e/chessboard.spec.ts tests/e2e/manual-reservation.spec.ts) | ❌ упало 4 из 6 | 45 с | ec86aed | [лог](logs/2026-10-01T16-16-21Z-e2e-c94e.log) | red: сквозные на pms_test после полного integration, как run 838 в CI |
+| 01.10.2026 21:17 | e2e | ❌ упало 13 из 25 | 18 мин 14 с | ec86aed | [лог](logs/2026-10-01T16-17-17Z-e2e-b9fb.log) | green: свежая pms_test с сидом перед сквозными, как новый шаг задачи db |

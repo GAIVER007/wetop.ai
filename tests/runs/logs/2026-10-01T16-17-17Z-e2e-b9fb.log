@@ -1,0 +1,580 @@
+# Сквозные (e2e) · 01.10.2026 21:17 Алматы · vm
+# коммит ec86aed (claude/eloquent-hypatia-7fm68p)
+# npx playwright test --workers=2 --reporter=list,json
+[pms_test] миграций применено 0 из 42; данные от 2026-10-01T16:17:16.731Z (сид)
+
+Running 25 tests using 2 workers
+
+  ✓   1 [schema-guard] › tests/e2e/_schema-guard.setup.ts:7:1 › API тестов работает в pms_test, а не в рабочих данных (45ms)
+  ✘   2 [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять (2.0m)
+  ✘   3 [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку (4.0m)
+  ✘   4 [isolated] › tests/e2e/chessboard-drag.spec.ts:26:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки (3.0m)
+  ✓   6 [isolated] › tests/e2e/chessboard.spec.ts:13:1 › шахматка показывает 88 ячеек, и занятость на экране совпадает с данными (1.4s)
+  ✓   7 [isolated] › tests/e2e/chessboard.spec.ts:36:1 › щелчок по занятой клетке — предпросмотр, двойной — карточка брони с проживаниями (2.1s)
+  ✘   8 [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» (1.5m)
+  ✘   5 [isolated] › tests/e2e/chessboard-unassigned.spec.ts:29:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает (3.0m)
+  ✘   9 [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта (3.0m)
+  ✘  10 [isolated] › tests/e2e/desk-tasks.spec.ts:28:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом (4.0m)
+  ✘  11 [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс (2.0m)
+  ✓  13 [isolated] › tests/e2e/incidents.spec.ts:26:1 › неисправность на экране: «Принято» — сторож больше не будит, «Решено» — закрыта вручную (1.1s)
+  ✓  14 [isolated] › tests/e2e/inventory.spec.ts:4:1 › страница «Номерной фонд» показывает 88 единиц и сводку 16 / 72 / 92 (1.1s)
+  ✓  15 [isolated] › tests/e2e/inventory.spec.ts:20:1 › фильтр по категории оставляет только её единицы (844ms)
+  ✘  16 [isolated] › tests/e2e/manual-reservation.spec.ts:13:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна (710ms)
+  ✘  17 [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия (32.2s)
+  ✘  12 [isolated] › tests/e2e/full-day.spec.ts:26:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится (4.0m)
+  ✘  18 [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки (3.0m)
+  ✓  20 [isolated] › tests/e2e/unit-blocks.spec.ts:28:1 › заблокировать свободную койку на 2 ночи → шахматка красит, свободных −1 → снять → как было; уборка (4.0s)
+  ✓  21 [isolated] › tests/e2e/web-analytics.spec.ts:72:1 › три сессии двух посетителей доходят до приёмника и сходятся в отчёте (2.5s)
+  ✓  22 [isolated] › tests/e2e/web-analytics.spec.ts:184:1 › настройки сайта: код с ключом, «Проверить счётчик» видит события (1.0s)
+  ✓  23 [isolated] › tests/e2e/web-analytics.spec.ts:199:1 › демо-страница на адресе API: просмотры и клики доходят и видны в отчёте (1.8s)
+[WebServer] (node:3241) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+[WebServer] (Use `node --trace-deprecation ...` to show where the warning was created)
+  ✓  24 [isolated] › tests/e2e/web-booking.spec.ts:48:1 › виджет: цены на завтра, бронь одноместной, номер, карточка в PMS с источником «сайт» (1.4s)
+  ✓  25 [isolated] › tests/e2e/web-booking.spec.ts:103:1 › аналитика: бронь связана с сессией счётчика — «брони с сайта» 1 (646ms)
+  ✘  19 [isolated] › tests/e2e/stay-extras.spec.ts:25:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи (3.0m)
+[уборка e2e] Броней автотестов с активными проживаниями: 0 (кандидатов по фамилии было 0)
+Освобождено броней: 0
+Блоков соседних ночей от тестовых броней: 0 — сняты
+Блокировок от автотестов: 0 — сняты
+Сайтов со счётчиком от автотестов: 0 — удалены
+
+
+  1) [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        235 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      32 |   await page.goto(`/reservations/new?arrival=${plus(20)}&departure=${plus(23)}`);
+      33 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 34 |   await form.locator('select[name="source"]').selectOption('PHONE');
+         |                                               ^
+      35 |   await form
+      36 |     .locator('select[name="accommodationTypeCode"]')
+      37 |     .selectOption(await roomiestCategory(request, plus(20), plus(23)));
+        at /home/user/wetop.ai/tests/e2e/cancellation-penalty.spec.ts:34:47
+
+    Error Context: test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cancellation-penalty-отмен-d962c-ночь-стойка-может-его-снять-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 240000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        471 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      27 |   await page.goto(`/reservations/new?arrival=${plus(3)}&departure=${plus(4)}`);
+      28 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 29 |   await form.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                               ^
+      30 |   await form
+      31 |     .locator('select[name="accommodationTypeCode"]')
+      32 |     .selectOption(await roomiestCategory(request, plus(3), plus(4)));
+        at /home/user/wetop.ai/tests/e2e/check-in-out.spec.ts:29:47
+
+    Error Context: test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/check-in-out-заселить-→-ка-38086--незаезд-освобождает-ячейку-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [isolated] › tests/e2e/chessboard-drag.spec.ts:26:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        353 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      37 |   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
+      38 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 39 |   await form.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                               ^
+      40 |   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+      41 |   const unitSelect = form.locator('select[name="unitCode"]');
+      42 |   const unitA = await unitOption(unitSelect);
+        at /home/user/wetop.ai/tests/e2e/chessboard-drag.spec.ts:39:47
+
+    Error Context: test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-drag-перетаскив-bbb2f-ии-переселяет-с-даты-клетки-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [isolated] › tests/e2e/chessboard-unassigned.spec.ts:29:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        353 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      39 |   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
+      40 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 41 |   await form.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                               ^
+      42 |   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+      43 |   const optionText = await form
+      44 |     .locator(`select[name="accommodationTypeCode"] option[value="${DORM}"]`)
+        at /home/user/wetop.ai/tests/e2e/chessboard-unassigned.spec.ts:41:47
+
+    Error Context: test-results/chessboard-unassigned-брон-be603-еткой-после-отмены-исчезает-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-unassigned-брон-be603-еткой-после-отмены-исчезает-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-unassigned-брон-be603-еткой-после-отмены-исчезает-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        174 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      52 |   await page.goto(`/reservations/new?arrival=${day}&departure=${plus(1)}`);
+      53 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 54 |   await form.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                               ^
+      55 |   await form
+      56 |     .locator('select[name="accommodationTypeCode"]')
+      57 |     .selectOption(await roomiestCategory(request, day, plus(1)));
+        at /home/user/wetop.ai/tests/e2e/desk-day.spec.ts:54:47
+
+    Error Context: test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-day-главная-открывает-1fbe8-чике-и-в-«Требуют-внимания»-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        353 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      39 |   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
+      40 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 41 |   await form.locator('select[name="source"]').selectOption('PHONE');
+         |                                               ^
+      42 |   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+      43 |   await expect(form.locator('select[name="unitCode"]')).toHaveCount(1);
+      44 |   await form.locator('input[name="quantity"]').fill('2');
+        at /home/user/wetop.ai/tests/e2e/desk-edit.spec.ts:41:47
+
+    Error Context: test-results/desk-edit-групповая-бронь--9501f-остей-ручное-закрытие-счёта-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-edit-групповая-бронь--9501f-остей-ручное-закрытие-счёта-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-edit-групповая-бронь--9501f-остей-ручное-закрытие-счёта-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [isolated] › tests/e2e/desk-tasks.spec.ts:28:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 240000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        470 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      45 |   const fill = async (p: typeof page, lastName: string, unitCode: string) => {
+      46 |     const f = p.getByRole('main').getByTestId('new-reservation-form');
+    > 47 |     await f.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                              ^
+      48 |     await f.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
+      49 |     await f.locator('select[name="unitCode"]').selectOption(unitCode);
+      50 |     await f.locator('input[name="firstName"]').fill('Гость');
+        at fill (/home/user/wetop.ai/tests/e2e/desk-tasks.spec.ts:47:46)
+        at /home/user/wetop.ai/tests/e2e/desk-tasks.spec.ts:68:9
+
+    Error Context: test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/desk-tasks-стойка-занятую--64c22--и-переселение-с-пересчётом-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        235 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      35 |   await page.goto(`/reservations/new?arrival=${plus(9)}&departure=${plus(10)}`);
+      36 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 37 |   await form.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                               ^
+      38 |   await form
+      39 |     .locator('select[name="accommodationTypeCode"]')
+      40 |     .selectOption(await roomiestCategory(request, plus(9), plus(10)));
+        at /home/user/wetop.ai/tests/e2e/finance.spec.ts:37:47
+
+    Error Context: test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-счёт-на-проживание-0682f--и-сторно-сходятся-в-баланс-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [isolated] › tests/e2e/full-day.spec.ts:26:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 240000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        471 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      35 |   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
+      36 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 37 |   await form.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                               ^
+      38 |   await form
+      39 |     .locator('select[name="accommodationTypeCode"]')
+      40 |     .selectOption(await roomiestCategory(request, arrival, departure));
+        at /home/user/wetop.ai/tests/e2e/full-day.spec.ts:37:47
+
+    Error Context: test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/full-day-сутки-гостя-целик-a36be-плата-выезд-—-счёт-сходится-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [isolated] › tests/e2e/manual-reservation.spec.ts:13:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   NaN
+
+      18 |   const availabilityBefore = await page.getByRole('main').getByTestId('availability').textContent();
+      19 |   const freeBefore = Number(/свободно (\d+)/.exec(availabilityBefore ?? '')?.[1]);
+    > 20 |   expect(freeBefore).toBeGreaterThan(0);
+         |                      ^
+      21 |
+      22 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+      23 |   await form.locator('select[name="source"]').selectOption('PHONE');
+        at /home/user/wetop.ai/tests/e2e/manual-reservation.spec.ts:20:22
+
+    Error Context: test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/manual-reservation-создать-a5969--отменить-→-ячейка-свободна-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('main').getByTestId('journal-row').first()
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('main').getByTestId('journal-row').first() with timeout 30000ms
+      - waiting for getByRole('main').getByTestId('journal-row').first()
+
+
+      23 |   await page.screenshot({ path: 'reports/screenshots/print-registration-kz.png', fullPage: true });
+      24 |   await page.goto('/journal?type=Reservation');
+    > 25 |   await expect(page.getByRole('main').getByTestId('journal-row').first()).toBeVisible();
+         |                                                                           ^
+      26 |   await page.screenshot({ path: 'reports/screenshots/journal.png' });
+      27 | });
+      28 |
+        at /home/user/wetop.ai/tests/e2e/print-and-journal.spec.ts:25:75
+
+    Error Context: test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/print-and-journal-регистра-f2bd5--журнал-показывает-действия-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        353 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      34 |   await page.goto(`/reservations/new?arrival=${plus(15)}&departure=${plus(17)}`);
+      35 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 36 |   await form.locator('select[name="source"]').selectOption('PHONE');
+         |                                               ^
+      37 |   await form
+      38 |     .locator('select[name="accommodationTypeCode"]')
+      39 |     .selectOption(await roomiestCategory(request, plus(15), plus(17)));
+        at /home/user/wetop.ai/tests/e2e/print-forms.spec.ts:36:47
+
+    Error Context: test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/print-forms-договор-и-счёт-0c017-заготовки-ссылки-с-карточки-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [isolated] › tests/e2e/stay-extras.spec.ts:25:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('new-reservation-form').locator('select[name="source"]')
+        - locator resolved to <select class="inp" required="" name="source">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        353 × waiting for element to be visible and enabled
+            - element is not visible
+          - retrying select option action
+            - waiting 500ms
+
+
+      30 |   await page.goto(`/reservations/new?arrival=${plus(12)}&departure=${plus(14)}`);
+      31 |   const form = page.getByRole('main').getByTestId('new-reservation-form');
+    > 32 |   await form.locator('select[name="source"]').selectOption('WALK_IN');
+         |                                               ^
+      33 |   await form
+      34 |     .locator('select[name="accommodationTypeCode"]')
+      35 |     .selectOption(await roomiestCategory(request, plus(12), plus(14)));
+        at /home/user/wetop.ai/tests/e2e/stay-extras.spec.ts:32:47
+
+    Error Context: test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stay-extras-поздний-выезд--7dc03-я-на-счёт-как-половина-ночи-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13 failed
+    [isolated] › tests/e2e/cancellation-penalty.spec.ts:27:1 › отмена заранее — без штрафа, незаезд — со штрафом за первую ночь, стойка может его снять 
+    [isolated] › tests/e2e/check-in-out.spec.ts:21:1 › заселить → карточка и шахматка показывают «заселён» → выселить; незаезд освобождает ячейку 
+    [isolated] › tests/e2e/chessboard-drag.spec.ts:26:1 › перетаскивание клетки брони на свободную койку той же категории переселяет с даты клетки 
+    [isolated] › tests/e2e/chessboard-unassigned.spec.ts:29:1 › бронь без ячейки видна в блоке «Без ячейки» над сеткой, после отмены исчезает 
+    [isolated] › tests/e2e/desk-day.spec.ts:16:1 › главная открывается с корня; заезд на дату виден в счётчике и в «Требуют внимания» 
+    [isolated] › tests/e2e/desk-edit.spec.ts:28:1 › групповая бронь на 2 койки → две клетки шахматки; правка заметок, источника и гостей; ручное закрытие счёта 
+    [isolated] › tests/e2e/desk-tasks.spec.ts:28:1 › стойка: занятую койку не продать дважды, «+ 1 ночь» и переселение с пересчётом 
+    [isolated] › tests/e2e/finance.spec.ts:30:1 › счёт на проживание: начисления, оплата, возврат и сторно сходятся в баланс 
+    [isolated] › tests/e2e/full-day.spec.ts:26:1 › сутки гостя целиком: заезд, услуга на счёт, оплата, выезд — счёт сходится 
+    [isolated] › tests/e2e/manual-reservation.spec.ts:13:1 › создать бронь с ячейкой → видна в шахматке → отменить → ячейка свободна 
+    [isolated] › tests/e2e/print-and-journal.spec.ts:5:1 › регистрационная карта печатается на RU и KZ; журнал показывает действия 
+    [isolated] › tests/e2e/print-forms.spec.ts:29:1 › договор и счёт печатаются на RU и KZ: номер брони, плашка заготовки, ссылки с карточки 
+    [isolated] › tests/e2e/stay-extras.spec.ts:25:1 › поздний выезд и ранний заезд начисляются на счёт как половина ночи 
+  12 passed (18.2m)
+
+# код выхода 1 · 18 мин 14 с

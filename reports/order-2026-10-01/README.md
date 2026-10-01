@@ -108,6 +108,23 @@ Red → green по AGENTS.md §6:
 **20/20** (`…15-26-48Z-integration-6d94.log`). Эти два шага и `POSTGRES_HOST_AUTH_METHOD: trust` добавлены в задачу
 `db`; `ci-runner.test.ts` держит их порядок (red `…15-25-52Z-unit-ef8e.log` → green).
 
+**Сквозные тесты в задаче `db`.** Как только интеграционные стали зелёными, впервые с 20.09 в CI дошло до шага
+«Сквозные тесты»: 15 из 25 красные (run 838). Две причины. Первая: схема `pms_test` после интеграционных тестов грязная
+(89 ячеек вместо 88, пустой выбор места, таймауты), это грабля из TESTING.md §4 «живые e2e только на свежем стенде».
+Локально воспроизведено на полном `integration` (225/230, `…16-14-50Z-integration-8095.log`) и трёх быстрых спеках:
+4 из 6 красные (`…16-16-21Z-e2e-c94e.log`); в задачу `db` добавлен шаг «свежая схема pms_test с сидом перед сквозными»
+(`DROP SCHEMA` + `TEST_DATA=seed npm run test:schema`), `ci-runner.test.ts` держит порядок (red `…16-15-12Z-unit-57fe.log`
+→ green `…16-15-29Z-unit-2d19.log`). Вторая причина не этого PR: на свежей схеме с сидом (локально 13 красных, 12 зелёных,
+`…16-17-17Z-e2e-b9fb.log`) остаются красными спеки, которые заполняют форму новой брони (`cancellation-penalty`,
+`check-in-out`, `chessboard-drag`, `chessboard-unassigned`, `desk-day`, `desk-edit`, `desk-tasks`, `finance`, `full-day`,
+`manual-reservation`, `print-and-journal`, `print-forms`, `stay-extras`):
+коммиты `a7065b1`, `6c4d0f1`, `e8b3914` от 01.10 в `main` (ветка codex, «compact booking form», в хронике и ADR их нет)
+переставили форму, и поле «Источник» (`select[name="source"]`) ушло под свёрнутый блок `<details>` «Дополнительно»,
+а цена в форме читается иначе (`manual-reservation`: `NaN`); 13 спеков ждут видимый `select[name="source"]`. Файлы
+`apps/web` этот PR не трогает. Что делать, решает владелец: либо спеки учатся раскрывать «Дополнительно» и читать новую
+цену (правка `tests/e2e`, отдельный PR), либо «Источник» возвращается на видное место формы. До этого задача `db` в
+CI красная на шаге сквозных, в обязательные проверки рулсета она не входит.
+
 На дереве целиком: typecheck чисто (`tests/runs/logs/2026-10-01T15-07-03Z-typecheck-5246.log`), lint чисто (`…15-07-30Z-lint-b4d4.log`), полный unit **2801/2816** (`…15-10-12Z-unit-b3f7.log`): 12 красных в пяти файлах стойки и токенов (`design-slop` ×7, `design-rules` ×2, `build-tokens`, `desk-person`, `no-hardcoded-utc5`); те же 12 красные на чистом `main` `e8b3914` без правок этой сессии (`…15-08-12Z-unit-f1a8.log`, 12 из 51), файлы `apps/web` разбор не трогал. Integration и живые e2e не
 гонялись: базы в облаке нет; `check-migrations.sh` с папкой `migrations-held` на настоящей PostgreSQL прогоняется
 задачей `db` в CI, когда минуты Actions вернутся, или владельцем локально (`MIGRATION_CHECK_URL=…`). Тесты бота

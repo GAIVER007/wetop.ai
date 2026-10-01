@@ -102,3 +102,45 @@ test('на телефоне шаги меню без подсветки — ок
   expect(box && box.x >= 0 && box.x + box.width <= 390).toBe(true);
   await page.screenshot({ path: 'test-results/product-tour-5-mobile.png' });
 });
+
+test('меню содержит только обучение, личность и выход; темы можно выбирать', async ({ page }) => {
+  await signIn(page);
+  const tour = page.getByTestId('product-tour');
+  await expect(tour).toBeVisible();
+  await tour
+    .getByLabel('Тема обучения')
+    .selectOption({ label: '4. Шахматка: размещение и продление' });
+  await expect(
+    tour.getByRole('heading', { name: 'Шахматка: размещение и продление' }),
+  ).toBeVisible();
+  await expect(tour.locator('ol li')).toHaveCount(3);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  const menu = page.locator('.profile-dropdown');
+  await expect(menu.getByTestId('tour-restart')).toHaveText('Обучение работе в WETOP');
+  await expect(menu).not.toContainText('Тема устройства');
+  await expect(menu).not.toContainText('Профиль и предпочтения');
+  await expect(menu).not.toContainText('Настройки объекта');
+  await expect(menu.getByText('admin@wetop.test', { exact: true })).toBeVisible();
+  await expect(menu.getByRole('button', { name: 'Выйти', exact: true })).toBeVisible();
+});
+
+test('администратор на телефоне видит рабочие темы без настроек владельца', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, { data: { role: 'STAFF' } });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page);
+  const tour = page.getByTestId('product-tour');
+  await expect(tour).toBeVisible();
+  const topics = tour.getByLabel('Тема обучения');
+  await expect(topics).not.toContainText('Настройки и сотрудники');
+  await expect(topics).not.toContainText('Тарифы и цены');
+  await topics.selectOption({ label: '4. Шахматка: размещение и продление' });
+  await expect(
+    tour.getByRole('heading', { name: 'Шахматка: размещение и продление' }),
+  ).toBeVisible();
+  const box = await tour.locator('.tour__card').boundingBox();
+  expect(box && box.y >= 0 && box.y + box.height <= 844).toBe(true);
+});

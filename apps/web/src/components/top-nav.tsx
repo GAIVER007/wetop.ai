@@ -8,7 +8,7 @@ import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
-import { CLOSED_ACCESS, activeNavigation, allowedItem, sidebarSections } from '../lib/navigation';
+import { activeNavigation, sidebarSections } from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
@@ -172,23 +172,6 @@ export function TopNav({
                       onClick={() => setProfile(false)}
                     />
                     <div className="profile-dropdown" id="profile-dropdown">
-                      <span className="eyebrow">Рабочее пространство</span>
-                      <Link href="/profile">
-                        <Icon name="guests" />
-                        Профиль и предпочтения
-                      </Link>
-                      <Suspense fallback={null}>
-                        <GrantedSettingsLink desk={desk} />
-                      </Suspense>
-                      <button
-                        onClick={() => {
-                          setTheme('system');
-                          setProfile(false);
-                        }}
-                      >
-                        <Icon name="system" />
-                        Тема устройства
-                      </button>
                       <button
                         data-testid="tour-restart"
                         onClick={() => {
@@ -197,7 +180,7 @@ export function TopNav({
                         }}
                       >
                         <Icon name="help" />
-                        Обучение: как устроена стойка
+                        Обучение работе в WETOP
                       </button>
                       {account ?? (
                         <Link href="/login">
@@ -255,18 +238,6 @@ export function TopNav({
         </Suspense>
       </div>
     </DataFreshnessProvider>
-  );
-}
-
-/** «Настройки объекта» в меню профиля — тем, кому они открыты (ADR-107) */
-function GrantedSettingsLink({ desk }: { desk: Promise<DeskShell> | undefined }) {
-  const shell = desk ? use(desk) : null;
-  if (!allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS)) return null;
-  return (
-    <Link href="/hotel-settings">
-      <Icon name="settings" />
-      Настройки объекта
-    </Link>
   );
 }
 

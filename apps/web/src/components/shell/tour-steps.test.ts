@@ -29,8 +29,12 @@ describe('tourStepsFor', () => {
     expect(steps.every((s) => s.target === null || s.highlight)).toBe(true);
   });
 
-  it('закрытый по доступу раздел (элемента нет, шаг необязательный) — шаг пропущен', () => {
-    const steps = tourStepsFor((target) => target !== 'section-sales');
+  it('закрытый по правам раздел — шаг пропущен независимо от разметки', () => {
+    const steps = tourStepsFor(
+      () => true,
+      TOUR_STEPS,
+      (permission) => permission !== 'rates',
+    );
     expect(steps.some((s) => s.target === 'section-sales')).toBe(false);
   });
 
@@ -59,4 +63,15 @@ describe('shouldAutoStartTour', () => {
     expect(shouldAutoStartTour({ path: '/chessboard', key: 'k', done: false })).toBe(false);
     expect(shouldAutoStartTour({ path: '/today', key: null, done: false })).toBe(false);
   });
+});
+
+it('обучение скрывает недоступные права, а доступные темы остаются на телефоне', () => {
+  const mobile = tourStepsFor(
+    () => false,
+    TOUR_STEPS,
+    (permission) => permission === 'desk',
+  );
+  expect(mobile.some((s) => s.title === 'Шахматка: размещение и продление')).toBe(true);
+  expect(mobile.some((s) => s.target === 'section-settings')).toBe(false);
+  expect(mobile.every((s) => !s.highlight)).toBe(true);
 });

@@ -213,3 +213,58 @@
     transition: none;
   }
 }
+
+.branch-switcher {
+  flex: none;
+  min-width: 0;
+}
+.branch-switcher > .workspace-property {
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+.branch-switcher__list {
+  padding: var(--space-2);
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: var(--text-sm);
+}
+.branch-switcher__options {
+  max-height: 240px;
+  overflow-y: auto;
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+.branch-switcher__options button {
+  display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: var(--space-2);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.branch-switcher__options button:hover,
+.branch-switcher__options button[aria-pressed='true'] {
+  background: var(--primary-soft);
+}
+.branch-switcher__options span {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.branch-switcher__options small {
+  color: var(--primary);
+}
+.sidebar-shell.is-compact .branch-switcher {
+  display: none;
+}

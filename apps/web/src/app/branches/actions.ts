@@ -3,6 +3,8 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError } from '../../lib/api';
+import { branchDestination } from '../../lib/branch-destination';
+import { hotelApi } from '../../lib/hotel-api';
 import { SCOPE_COOKIE } from '../../lib/scope-pointer';
 
 export async function selectBranch(form: FormData) {
@@ -20,7 +22,11 @@ export async function selectBranch(form: FormData) {
     },
   );
   revalidatePath('/', 'layout');
-  redirect(branch._count.inventoryUnits ? '/today' : '/onboarding');
+  redirect(
+    branch._count.inventoryUnits
+      ? branchDestination(String(form.get('returnTo') ?? ''))
+      : '/onboarding',
+  );
 }
 export async function createBranch(
   _prev: { error?: string; message?: string } | null,
@@ -42,5 +48,17 @@ export async function createBranch(
       error:
         e instanceof ApiError ? e.message : 'Не удалось сохранить. Обновите список перед повтором.',
     };
+  }
+}
+
+export async function branchChoices() {
+  try {
+    const [{ items }, hotel] = await Promise.all([branchesApi.list(), hotelApi.settings()]);
+    return {
+      items: items.map(({ id, name, address }) => ({ id, name, address })),
+      currentId: hotel.property.id,
+    };
+  } catch {
+    return { error: 'Не удалось загрузить филиалы. Попробуйте ещё раз.' };
   }
 }

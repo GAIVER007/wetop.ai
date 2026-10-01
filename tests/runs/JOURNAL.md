@@ -5008,3 +5008,8 @@
 | 01.10.2026 17:11 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --workers=1) | ✅ 2 из 2 | 21 с | 9e7718d +50 | [лог](logs/2026-10-01T12-11-44Z-e2e-c1c4.log) |  |
 | 01.10.2026 17:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts tests/ui/platform-access.spec.ts --grep филиалы:\|организации:\|главный администра | ✅ 3 из 3 | 26 с | 9e7718d +50 | [лог](logs/2026-10-01T12-12-43Z-e2e-9525.log) |  |
 | 01.10.2026 17:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --workers=1) | ✅ 2 из 2 | 26 с | 15862ea +50 | [лог](logs/2026-10-01T12-22-54Z-e2e-f044.log) |  |
+| 01.10.2026 17:27 | unit (частично: apps/web/src/app/branches/switch.test.ts) | ❌ упало 4 из 7 | 2 с | 8984033 +50 | [лог](logs/2026-10-01T12-27-11Z-unit-a4f4.log) | переключение сохраняет безопасный раздел /chessboard |
+| 01.10.2026 17:28 | unit (частично: apps/web/src/app/branches/switch.test.ts) | ✅ 7 из 7 | 2 с | 8984033 +50 | [лог](logs/2026-10-01T12-28-43Z-unit-4020.log) |  |
+| 01.10.2026 17:29 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --workers=1) | ❌ упало 1 из 3 | 1 мин 4 с | 8984033 +50 | [лог](logs/2026-10-01T12-29-53Z-e2e-61a2.log) | переключатель филиалов сохраняет раздел и выбор после перезагрузки |
+| 01.10.2026 17:31 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --grep переключатель --workers=1) | ✅ 1 из 1 | 23 с | 8984033 +50 | [лог](logs/2026-10-01T12-31-33Z-e2e-c56e.log) |  |
+| 01.10.2026 17:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/branches.spec.ts --grep переключатель --workers=1) | ✅ 1 из 1 | 30 с | 8984033 +50 | [лог](logs/2026-10-01T12-32-39Z-e2e-a04e.log) |  |

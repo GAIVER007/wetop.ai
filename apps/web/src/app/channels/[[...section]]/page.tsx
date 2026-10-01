@@ -657,6 +657,15 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
       .filter((x): x is string => !!x)
       .sort()
       .at(-1) ?? null;
+  const inboundLabel = !connection
+    ? 'Не проверено'
+    : notConnected
+      ? 'Не подключено'
+      : connection.environment !== 'production'
+        ? 'Тестовый контур'
+        : lastInbound
+          ? 'События получены'
+          : 'Событий ещё нет';
   const kindState = (kind: OutboxRow['kind']) => {
     const ofKind = (allRows ?? []).filter((r) => r.kind === kind);
     const failed = ofKind.filter((r) => r.status === 'FAILED').length;
@@ -675,7 +684,9 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
       <StateBar
         tone={tone}
         label="В очереди"
-        value={outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : '—'}
+        value={
+          outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : 'Неизвестно'
+        }
         summary={summaryWord}
       >
         <StateFact
@@ -691,7 +702,7 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
                 )}
               </>
             ) : (
-              '—'
+              'Неизвестно'
             )
           }
         >
@@ -711,7 +722,7 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
             ) : failedEvents > 0 ? (
               <span className="danger-text">требуют разбора: {failedEvents}</span>
             ) : (
-              'принимаются'
+              inboundLabel
             )
           }
         >
@@ -737,13 +748,23 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
                 <td>{label}</td>
                 <td>
                   {allRows === null ? (
-                    '—'
+                    'Неизвестно'
                   ) : s.failed > 0 ? (
                     <Badge tone="danger">ошибка</Badge>
                   ) : s.pending > 0 ? (
                     <Badge tone="info">в очереди: {s.pending}</Badge>
                   ) : (
-                    <Badge tone="ok">актуально</Badge>
+                    <Badge tone="info">
+                      {!connection
+                        ? 'Не проверено'
+                        : notConnected
+                          ? 'Не подключено'
+                          : connection.environment !== 'production'
+                            ? 'Тестовый контур'
+                            : s.lastSent
+                              ? 'Отправлено в менеджер'
+                              : 'Не отправлялось'}
+                    </Badge>
                   )}
                 </td>
                 <td className="nowrap">{eventTime(s.lastSent, clock)}</td>
@@ -754,14 +775,14 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
             <td>Брони из каналов</td>
             <td>
               {failedEvents === null ? (
-                '—'
+                'Неизвестно'
               ) : failedEvents > 0 ? (
                 <>
                   <Badge tone="danger">требуют разбора: {failedEvents}</Badge>{' '}
                   <Link href="/channels/events?status=FAILED">к событиям</Link>
                 </>
               ) : (
-                <Badge tone="ok">принимаются</Badge>
+                <Badge tone="info">{inboundLabel}</Badge>
               )}
             </td>
             <td className="nowrap">{eventTime(lastInbound, clock)}</td>

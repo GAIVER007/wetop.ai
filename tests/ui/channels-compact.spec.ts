@@ -64,5 +64,7 @@ test('sync never calls an empty disconnected queue successful', async ({ page, r
   });
   await page.goto('/channels/sync');
   await expect(page.getByRole('main')).toContainText('Каналы не подключены');
+  await expect(page.getByTestId('sync-kinds')).not.toContainText('актуально');
+  await expect(page.getByRole('main')).not.toContainText('принимаются');
   await expect(page.getByRole('main')).not.toContainText('всё ушло в каналы');
 });

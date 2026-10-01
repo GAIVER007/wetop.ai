@@ -35,7 +35,7 @@ const money = (text: string) => Number(text.replace(/[^\d]/g, ''));
 
 /** Вход стойки — как в reservations-v2.spec: «только чтение» видит вошедший */
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -128,18 +128,24 @@ test('F1: «Требует внимания» — сумма к сбору и п
   await expect(page).toHaveURL(/debts=overdue#debts$/);
   const rows = main.getByTestId('debt-row');
   await expect(rows).toHaveCount(debts.overdue.count);
-  for (const row of await rows.all()) await expect(row.getByTestId('debt-overdue')).toHaveText('просрочено');
+  for (const row of await rows.all())
+    await expect(row.getByTestId('debt-overdue')).toHaveText('просрочено');
   // сумма отобранных строк — та, что названа в «Требует внимания»
   const sum = (await rows.getByTestId('debt-balance').allInnerTexts())
     .map(money)
     .reduce((a, b) => a + b, 0);
   expect(sum * 100).toBe(Number(debts.overdue.balanceMinor));
   await expect(
-    main.getByRole('navigation', { name: 'Отбор долгов' }).getByRole('link', { name: /Просрочено/ }),
+    main
+      .getByRole('navigation', { name: 'Отбор долгов' })
+      .getByRole('link', { name: /Просрочено/ }),
   ).toHaveAttribute('aria-current', 'page');
 
   // в полном списке отметка стоит только у просроченных
-  await main.getByRole('navigation', { name: 'Отбор долгов' }).getByRole('link', { name: /Все/ }).click();
+  await main
+    .getByRole('navigation', { name: 'Отбор долгов' })
+    .getByRole('link', { name: /Все/ })
+    .click();
   await expect(main.getByTestId('debt-row')).toHaveCount(Math.min(debts.count, 20));
   await expect(main.getByTestId('debt-overdue')).toHaveCount(
     debts.rows.slice(0, 20).filter((x) => x.overdue).length,
@@ -200,7 +206,9 @@ test('F1: брони с остатком — колонки, крупные до
   expect(balances.every((x) => x > 0)).toBe(true);
   // итог списка назван словами; Q-206: плитка «К сбору» — ровно сумма строк списка, пояснения о расхождении нет
   await expect(main.getByTestId('debts-meta')).toContainText(`${debts.count} брон`);
-  expect(money(await main.getByTestId('balance').innerText()) * 100).toBe(Number(debts.balanceMinor));
+  expect(money(await main.getByTestId('balance').innerText()) * 100).toBe(
+    Number(debts.balanceMinor),
+  );
   if (debts.count <= 20)
     expect(money(await main.getByTestId('balance').innerText())).toBe(
       balances.reduce((a, b) => a + b, 0),

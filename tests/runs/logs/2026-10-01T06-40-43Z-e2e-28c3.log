@@ -1,0 +1,62 @@
+# Сквозные (e2e) · 01.10.2026 11:40 Алматы · Noutbuk-Vyacheslav.local
+# коммит bfbb662 (codex/unified-auth-entry), незакоммиченных файлов набора: 11
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '--grep' 'несохранённая'
+[WebServer] (node:69141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69147) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69151) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:69157) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:69162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/site/auth-dialog.spec.ts:57:1 › несохранённая сессия не запускает круг переходов (10.9s)
+
+
+  1) tests/site/auth-dialog.spec.ts:57:1 › несохранённая сессия не запускает круг переходов ────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('dialog').getByRole('alert')
+    Expected substring: "Браузер не сохранил сессию"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('dialog').getByRole('alert') with timeout 10000ms
+      - waiting for getByRole('dialog').getByRole('alert')
+        - waiting for "https://app.wetop.ai/today" navigation to finish...
+        - navigated to "https://app.wetop.ai/today"
+
+
+      66 |   await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
+      67 |   await dialog.getByRole('button', { name: 'Войти', exact: true }).click();
+    > 68 |   await expect(dialog.getByRole('alert')).toContainText('Браузер не сохранил сессию');
+         |                                           ^
+      69 |   await expect(page).toHaveURL(`${SITE_ORIGIN}/#login`);
+      70 | });
+      71 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/site/auth-dialog.spec.ts:68:43
+
+    Error Context: test-results/auth-dialog-несохранённая-сессия-не-запускает-круг-переходов/error-context.md
+
+  1 failed
+    tests/site/auth-dialog.spec.ts:57:1 › несохранённая сессия не запускает круг переходов ─────────
+
+# код выхода 1 · 17 с

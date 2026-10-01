@@ -127,8 +127,18 @@ test('отрезок: второе касание задаёт отрезок, �
   const sent = await commands(request);
   expect(sent).toHaveLength(1);
   expect(sent[0]!.body.changes).toEqual([
-    expect.objectContaining({ dateFrom: '2026-10-13', dateTo: '2026-10-19', occupancy: 2, price: '11000' }),
-    expect.objectContaining({ dateFrom: '2026-10-13', dateTo: '2026-10-19', occupancy: 1, price: '9000' }),
+    expect.objectContaining({
+      dateFrom: '2026-10-13',
+      dateTo: '2026-10-19',
+      occupancy: 2,
+      price: '11000',
+    }),
+    expect.objectContaining({
+      dateFrom: '2026-10-13',
+      dateTo: '2026-10-19',
+      occupancy: 1,
+      price: '9000',
+    }),
   ]);
 });
 
@@ -141,7 +151,13 @@ test('разные исходные цены: «отличаются» с наи
     headers: { 'x-wetop-test-client': '1' },
     data: {
       changes: [
-        { accommodationTypeCode: 'ROOM', ratePlanCode: 'BASE', dateFrom: '2026-10-03', dateTo: '2026-10-04', price: '12000' },
+        {
+          accommodationTypeCode: 'ROOM',
+          ratePlanCode: 'BASE',
+          dateFrom: '2026-10-03',
+          dateTo: '2026-10-04',
+          price: '12000',
+        },
       ],
     },
   });
@@ -154,7 +170,9 @@ test('разные исходные цены: «отличаются» с наи
   await expect(selection).toContainText('Выбрано 8 дат: 01.10 → 08.10.2026');
   await selection.getByRole('button', { name: 'Изменить цены', exact: true }).click();
   const drawer = page.getByRole('dialog', { name: 'Изменить цены', exact: true });
-  await expect(drawer.getByTestId('range-current-2')).toHaveText('отличаются: от 10 000 ₸ до 12 000 ₸');
+  await expect(drawer.getByTestId('range-current-2')).toHaveText(
+    'отличаются: от 10 000 ₸ до 12 000 ₸',
+  );
   await drawer.getByLabel('Новая цена за 2 гостей', { exact: true }).fill('15000');
   const preview = drawer.getByTestId('range-preview');
   await expect(preview).toContainText('Будут изменены 8 дат');
@@ -189,13 +207,19 @@ test('щелчок по цене — прежняя правка ячейки, �
   await expect(selection).toContainText('Выберите дату или отрезок в календаре');
 });
 
-test('отказ API: причина в панели, панель, введённая цена и выбор остаются', async ({ page, request }) => {
+test('отказ API: причина в панели, панель, введённая цена и выбор остаются', async ({
+  page,
+  request,
+}) => {
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/rates?month=2026-10');
   await pick(page, '2026-10-05');
   await pick(page, '2026-10-06');
-  await main.getByTestId('rates-selection').getByRole('button', { name: 'Изменить цены', exact: true }).click();
+  await main
+    .getByTestId('rates-selection')
+    .getByRole('button', { name: 'Изменить цены', exact: true })
+    .click();
   const drawer = page.getByRole('dialog', { name: 'Изменить цены', exact: true });
   await drawer.getByLabel('Новая цена за 2 гостей', { exact: true }).fill('11000');
   await request.post(`${fixture}/__test/control`, {
@@ -213,8 +237,10 @@ test('«только чтение»: выбор и предпросмотр до
   page,
   request,
 }) => {
-  await request.post(`${fixture}/__test/control`, { data: { showcase: true, orgTrialDays: 'ended' } });
-  await page.goto('/login');
+  await request.post(`${fixture}/__test/control`, {
+    data: { showcase: true, orgTrialDays: 'ended' },
+  });
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

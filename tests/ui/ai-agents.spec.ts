@@ -19,7 +19,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -49,7 +49,10 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   );
 });
 
-test('главный администратор: рядом с продавцом карточка WETOP Support', async ({ page, request }) => {
+test('главный администратор: рядом с продавцом карточка WETOP Support', async ({
+  page,
+  request,
+}) => {
   await request.post(`${API}/__test/control`, { data: { platformAdmin: true } });
   await signIn(page);
   await page.goto('/ai-agents');
@@ -61,7 +64,10 @@ test('главный администратор: рядом с продавцо�
   await expect(page).toHaveURL(/\/platform\/support/);
 });
 
-test('расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением', async ({ page, request }) => {
+test('расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением', async ({
+  page,
+  request,
+}) => {
   await request.post(`${API}/__test/control`, { data: { sellerExtension: 'off' } });
   await signIn(page);
   await page.goto('/ai-agents');
@@ -80,8 +86,13 @@ test('расширение не подключено: карточка объя�
   await expect(page.getByTestId('seller-extension-off')).toBeVisible();
 });
 
-test('срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна', async ({ page, request }) => {
-  await request.post(`${API}/__test/control`, { data: { sellerExtension: 'expired', sellerApplied: true } });
+test('срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, {
+    data: { sellerExtension: 'expired', sellerApplied: true },
+  });
   await signIn(page);
   await page.goto('/ai-agents');
   await expect(page.getByTestId('agent-seller-off')).toHaveCount(0);
@@ -91,10 +102,14 @@ test('срок расширения вышел: карточка остаётс�
   const add = page.getByTestId('agent-add');
   await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
   await expect(add).toContainText('Срок расширения «ИИ-продавец» вышел.');
-  await expect(add.getByRole('link', { name: 'Как подключить расширение', exact: true })).toBeVisible();
+  await expect(
+    add.getByRole('link', { name: 'Как подключить расширение', exact: true }),
+  ).toBeVisible();
 });
 
-test('действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят', async ({ page }) => {
+test('действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят', async ({
+  page,
+}) => {
   await signIn(page);
   await page.goto('/ai-agents');
   const seller = page.getByTestId('agent-seller');
@@ -103,11 +118,18 @@ test('действует, профиль не применён: «Не наст�
   // единственный филиал занят рабочим продавцом: создать второго нельзя, кнопка видна и объясняет почему
   const add = page.getByTestId('agent-add');
   await expect(add.getByRole('button', { name: '+ Подключить AI-продавца' })).toBeDisabled();
-  await expect(add).toContainText('Нет свободного филиала. Для этого филиала AI-продавец уже создан.');
+  await expect(add).toContainText(
+    'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
+  );
 });
 
-test('продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами', async ({ page, request }) => {
-  await request.post(`${API}/__test/control`, { data: { sellerApplied: true, sellerWhatsApp: 'on' } });
+test('продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, {
+    data: { sellerApplied: true, sellerWhatsApp: 'on' },
+  });
   await signIn(page);
   await page.goto('/ai-agents');
   const seller = page.getByTestId('agent-seller');
@@ -120,13 +142,17 @@ test('продавец работает: статус, каналы по дан�
   const add = page.getByTestId('agent-add');
   const button = add.getByRole('button', { name: '+ Подключить AI-продавца' });
   await expect(button).toBeDisabled();
-  await expect(add).toContainText('Нет свободного филиала. Для этого филиала AI-продавец уже создан.');
+  await expect(add).toContainText(
+    'Нет свободного филиала. Для этого филиала AI-продавец уже создан.',
+  );
   // причина связана с кнопкой для читалки экрана
   await expect(button).toHaveAccessibleDescription(/Нет свободного филиала/);
 });
 
 test('бот не ответил: страница жива, WhatsApp — «Нет данных»', async ({ page, request }) => {
-  await request.post(`${API}/__test/control`, { data: { sellerApplied: true, sellerWhatsApp: 'unknown' } });
+  await request.post(`${API}/__test/control`, {
+    data: { sellerApplied: true, sellerWhatsApp: 'unknown' },
+  });
   await signIn(page);
   await page.goto('/ai-agents');
   const channels = page.getByTestId('agent-seller').getByTestId('agent-channels');
@@ -134,7 +160,10 @@ test('бот не ответил: страница жива, WhatsApp — «Не
   await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Работает');
 });
 
-test('черновики гостевого мастера: «Черновик», без Business и Location', async ({ page, request }) => {
+test('черновики гостевого мастера: «Черновик», без Business и Location', async ({
+  page,
+  request,
+}) => {
   await request.post(`${API}/__test/control`, { data: { sellerDrafts: ['Мой хостел'] } });
   await signIn(page);
   await page.goto('/ai-agents');
@@ -146,8 +175,13 @@ test('черновики гостевого мастера: «Черновик»
   await expect(draft.getByTestId('agent-channels')).toHaveCount(0);
 });
 
-test('каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом', async ({ page, request }) => {
-  await request.post(`${API}/__test/control`, { data: { platformAdmin: true, sellerCatalogFails: true } });
+test('каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, {
+    data: { platformAdmin: true, sellerCatalogFails: true },
+  });
   await signIn(page);
   await page.goto('/ai-agents');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
@@ -159,8 +193,13 @@ test('каталог не загрузился: экран остаётся, в�
   await expect(page.getByTestId('agent-support')).toBeVisible();
 });
 
-test('сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль', async ({ page, request }) => {
-  await request.post(`${API}/__test/control`, { data: { role: 'STAFF', sellerApplied: true, sellerExtraLocation: true } });
+test('сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${API}/__test/control`, {
+    data: { role: 'STAFF', sellerApplied: true, sellerExtraLocation: true },
+  });
   await signIn(page);
   await page.goto('/ai-agents');
   await expect(page.getByTestId('agent-seller').getByTestId('agent-status')).toHaveText('Работает');
@@ -186,7 +225,9 @@ for (const theme of ['light', 'dark'] as const) {
   for (const width of [1440, 390]) {
     for (const [state, control] of Object.entries(SHOT_STATES)) {
       test(`каталог: axe и снимок, ${state}, ${theme}, ${width}`, async ({ page, request }) => {
-        await request.post(`${API}/__test/control`, { data: { platformAdmin: state === 'working', ...control } });
+        await request.post(`${API}/__test/control`, {
+          data: { platformAdmin: state === 'working', ...control },
+        });
         await page.emulateMedia({ colorScheme: theme });
         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
         await signIn(page);
@@ -201,7 +242,10 @@ for (const theme of ['light', 'dark'] as const) {
         );
         expect(overflow).toBeLessThanOrEqual(0);
         mkdirSync(SHOTS, { recursive: true });
-        await page.screenshot({ path: `${SHOTS}/agents-${state}-${theme}-${width}.png`, fullPage: true });
+        await page.screenshot({
+          path: `${SHOTS}/agents-${state}-${theme}-${width}.png`,
+          fullPage: true,
+        });
       });
     }
   }

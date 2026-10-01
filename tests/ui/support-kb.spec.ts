@@ -18,7 +18,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -41,10 +41,17 @@ async function shot(page: Page, name: string) {
 }
 const catalog = (page: Page) => page.getByRole('main').getByTestId('kb-catalog');
 
-test('каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу', async ({ page, request }) => {
+test('каталог: чипы статусов с числами, строки с категорией, видимостью, версией; отбор по статусу', async ({
+  page,
+  request,
+}) => {
   await admin(page, request);
   await page.goto('/platform/support/base');
-  await expect(page.getByRole('navigation', { name: 'Техподдержка' }).getByRole('link', { name: 'База знаний' })).toHaveAttribute('aria-current', 'page');
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Техподдержка' })
+      .getByRole('link', { name: 'База знаний' }),
+  ).toHaveAttribute('aria-current', 'page');
   const rows = catalog(page).getByRole('row');
   await expect(rows).toHaveCount(4); // шапка + три записи стенда
   await expect(catalog(page)).toContainText('Как изменить время заезда');
@@ -66,14 +73,19 @@ test('не главный администратор: раздела нет, д�
   await expect(page.getByTestId('kb-catalog')).toHaveCount(0);
 });
 
-test('запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии', async ({ page, request }) => {
+test('запись: правка активной уводит в черновик, публикация — с подтверждением и автором из сессии', async ({
+  page,
+  request,
+}) => {
   await admin(page, request);
   await page.goto('/platform/support/base?status=ACTIVE');
   await catalog(page).getByRole('link', { name: 'Как изменить время заезда' }).click();
   const panel = page.getByTestId('kb-entry');
   await expect(panel).toContainText('Версия 2');
   await expect(panel).toContainText('Отвечает');
-  await panel.getByLabel('Текст знания').fill('Настройки объекта → Проживание: время заезда пишется в 24 часах, например 14:00.');
+  await panel
+    .getByLabel('Текст знания')
+    .fill('Настройки объекта → Проживание: время заезда пишется в 24 часах, например 14:00.');
   await panel.getByRole('button', { name: 'Сохранить' }).click();
   await expect(page.getByTestId('kb-result')).toContainText('Сохранено');
   await expect(panel).toContainText('Черновик');
@@ -93,14 +105,19 @@ test('запись: правка активной уводит в чернови
 test('публикация отменяется: без «да» запись остаётся черновиком', async ({ page, request }) => {
   await admin(page, request);
   await page.goto('/platform/support/base?status=DRAFT');
-  await catalog(page).getByRole('link', { name: /только чтение/ }).click();
+  await catalog(page)
+    .getByRole('link', { name: /только чтение/ })
+    .click();
   const panel = page.getByTestId('kb-entry');
   await panel.getByRole('button', { name: 'Опубликовать' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Не публиковать' }).click();
   await expect(panel).toContainText('Черновик');
 });
 
-test('создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик', async ({ page, request }) => {
+test('создание записи: пустое название — ошибка у формы, ввод остаётся; верное — черновик', async ({
+  page,
+  request,
+}) => {
   await admin(page, request);
   await page.goto('/platform/support/base?new=1');
   const form = page.getByTestId('kb-entry');
@@ -114,7 +131,10 @@ test('создание записи: пустое название — ошиб�
   await expect(page.getByTestId('kb-entry')).toContainText('Черновик');
 });
 
-test('«На основании» у диалога — для оператора; из закрытого обращения — черновик знания', async ({ page, request }) => {
+test('«На основании» у диалога — для оператора; из закрытого обращения — черновик знания', async ({
+  page,
+  request,
+}) => {
   await admin(page, request);
   await page.goto(`/platform/support?id=${SIGNED}`);
   const sources = page.getByTestId('kb-sources');
@@ -158,7 +178,10 @@ for (const theme of ['light', 'dark'] as const) {
   }
 }
 
-test('«Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет', async ({ page, request }) => {
+test('«Действия агента» у диалога (S6): выполненное и переданное человеку словами; у диалога без действий блока нет', async ({
+  page,
+  request,
+}) => {
   await admin(page, request);
   await page.goto(`/platform/support?id=${SIGNED}`);
   const journal = page.getByTestId('agent-actions');
@@ -169,7 +192,10 @@ test('«Действия агента» у диалога (S6): выполнен
   await expect(journal).toContainText('Передано человеку');
   // снимок S6 — в отчёт S6, не S3
   mkdirSync('reports/ai-agents-s6-2026-09-29', { recursive: true });
-  await page.screenshot({ path: 'reports/ai-agents-s6-2026-09-29/agent-actions-1440.png', fullPage: true });
+  await page.screenshot({
+    path: 'reports/ai-agents-s6-2026-09-29/agent-actions-1440.png',
+    fullPage: true,
+  });
   await page.goto(`/platform/support?queue=closed&id=${CLOSED}`);
   await expect(page.getByTestId('agent-actions')).toHaveCount(0);
 });

@@ -7,7 +7,7 @@ test.beforeEach(async ({ request }) => {
 
 /** «Платформа» открыта только вошедшему главному администратору (ADR-083) */
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -72,7 +72,9 @@ test('недоступный API не скрывается за демо или 
   await page.goto('/connections');
   // нет связи — состояние Channex «неизвестно», а не зелёное и не «не подключено»
   await expect(page.getByTestId('integration-health')).toHaveText('Состояние неизвестно');
-  await expect(page.getByTestId('integration-issues')).toContainText('Не удалось проверить менеджер каналов');
+  await expect(page.getByTestId('integration-issues')).toContainText(
+    'Не удалось проверить менеджер каналов',
+  );
   await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
     'Объект не загружен',
   );

@@ -12,7 +12,7 @@ test.beforeEach(async ({ request }) => {
  */
 // Вход по коду с экрана снят 20.09.2026 (ADR-053): входим паролем, как все.
 async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -23,7 +23,7 @@ test('вошедший видит ожидающие приглашения и �
   page,
 }) => {
   await login(page);
-  await page.goto('/login');
+  await page.goto('/profile/access');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Сотрудники' })).toBeVisible();
   await expect(main).not.toContainText('войдёт по коду');
@@ -43,7 +43,7 @@ test('вошедший видит ожидающие приглашения и �
 });
 
 test('без сессии формы приглашения нет', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   const main = page.getByRole('main');
   await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   await expect(main.getByTestId('team')).toHaveCount(0);
@@ -64,8 +64,8 @@ test('ссылка из письма: кто зовёт и кого → прин
   await page.getByLabel('Пароль', { exact: true }).fill('novyj-parol-2026');
   await page.getByLabel('Пароль ещё раз', { exact: true }).fill('novyj-parol-2026');
   await page.getByRole('button', { name: 'Сохранить пароль' }).click();
-  await page.waitForURL('**/login?password=set');
-  await expect(main).toContainText('Пароль сохранён');
+  await page.waitForURL('http://127.0.0.1:3002/?next=%2Ftoday&password=set#login');
+  await expect(page.getByRole('dialog')).toContainText('Пароль сохранён');
 });
 
 test('мёртвая ссылка — один текст и путь на форму входа', async ({ page }) => {

@@ -22,7 +22,7 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -63,10 +63,7 @@ test('правка правила: панель называет затрону�
   const ahead = Number(await planRow(page, 'Стандартный').locator('td.num').innerText());
   expect(ahead).toBeGreaterThan(0);
 
-  await main
-    .getByTestId('rate-plans-table')
-    .getByRole('button', { name: 'Стандартный' })
-    .click();
+  await main.getByTestId('rate-plans-table').getByRole('button', { name: 'Стандартный' }).click();
   const drawer = page.getByRole('dialog', { name: 'Стандартный' });
   const save = drawer.getByRole('button', { name: 'Сохранить' });
   await expect(drawer.getByRole('radio', { name: /Стоимость первой ночи/ })).toBeChecked();
@@ -149,10 +146,7 @@ for (const theme of ['light', 'dark'] as const) {
     await axe();
     await shot('rate-plans');
 
-    await main
-      .getByTestId('rate-plans-table')
-      .getByRole('button', { name: 'Стандартный' })
-      .click();
+    await main.getByTestId('rate-plans-table').getByRole('button', { name: 'Стандартный' }).click();
     const drawer = page.getByRole('dialog', { name: 'Стандартный' });
     await drawer.getByRole('radio', { name: /Стоимость всего проживания/ }).check();
     await expect(drawer.getByTestId('rate-plan-affected')).toBeVisible();

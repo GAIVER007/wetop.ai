@@ -15,7 +15,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -220,7 +220,7 @@ test('управляющий: всё, кроме «Платформы»; зов�
   await page.goto('/rates');
   await expect(page.getByRole('main').getByTestId('no-access')).toHaveCount(0);
 
-  await page.goto('/login');
+  await page.goto('/profile/access');
   const team = page.getByTestId('team');
   await expect(team.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
@@ -256,7 +256,7 @@ test('управляющий: всё, кроме «Платформы»; зов�
 
 test('владелец: зовёт управляющего и администратора, меняет роль', async ({ page }) => {
   await signIn(page);
-  await page.goto('/login');
+  await page.goto('/profile/access');
   const team = page.getByTestId('team');
   const role = team.getByLabel('Роль приглашённого', { exact: true });
   await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
@@ -284,7 +284,7 @@ test('владелец: зовёт управляющего и админист�
 test('администратор: сотрудниками ведают владелец и управляющий', async ({ page, request }) => {
   await signIn(page);
   await asRole(request, 'STAFF');
-  await page.goto('/login');
+  await page.goto('/profile/access');
   await expect(page.getByTestId('invite-not-allowed')).toHaveText(
     'Приглашать сотрудников могут владелец и управляющий.',
   );
@@ -302,8 +302,8 @@ for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1000 });
       await signIn(page);
       for (const [role, route] of [
-        ['OWNER', '/login'],
-        ['MANAGER', '/login'],
+        ['OWNER', '/profile/access'],
+        ['MANAGER', '/profile/access'],
         ['STAFF', '/rates'],
       ] as const) {
         await asRole(request, role);

@@ -15,7 +15,7 @@ test.beforeEach(async ({ request }) => {
 
 /** Роль читается из `/auth/me`, а без входа его нет: «Настройка подключения» видна только вошедшему владельцу */
 async function signIn(page: import('@playwright/test').Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -113,7 +113,12 @@ test('подключения каналов: настройка подключе
   await expect(main).toContainText('Тестовая');
   await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');
   // владелец видит группу «Настройка подключения» с прежними командами в прежнем порядке
-  for (const id of ['channel-setup', 'channel-webhook-register', 'channel-webhook-test', 'channel-sync'])
+  for (const id of [
+    'channel-setup',
+    'channel-webhook-register',
+    'channel-webhook-test',
+    'channel-sync',
+  ])
     await expect(main.getByTestId(id)).toBeVisible();
   await expect(main.getByTestId('channel-flush')).toHaveCount(0);
   // управляющему (право «Каналы», но не владелец) кнопки не показываются, причина — словами (ADR-107, ADR-112)
@@ -123,7 +128,7 @@ test('подключения каналов: настройка подключе
     'Настройку подключения меняет владелец организации.',
   );
   await expect(main.getByTestId('channel-setup')).toHaveCount(0);
-  await expect(main.getByTestId('channel-sync')).toHaveCount(0);  // администратору модуль закрыт целиком
+  await expect(main.getByTestId('channel-sync')).toHaveCount(0); // администратору модуль закрыт целиком
   await request.post(`${fixture}/__test/control`, { data: { showcase: true, role: 'STAFF' } });
   await page.goto('/channels/connections');
   await expect(main.getByTestId('no-access')).toBeVisible();
@@ -330,9 +335,7 @@ test('события: фильтры, поиск и постраничность
   );
   await page.getByRole('link', { name: 'Дальше' }).click();
   await expect(page).toHaveURL(/\/channels\/events\?.*page=2/);
-  await expect(
-    main.getByTestId('events-table').getByTestId('event-row'),
-  ).toHaveCount(13);
+  await expect(main.getByTestId('events-table').getByTestId('event-row')).toHaveCount(13);
   await expect(main.getByTestId('events-pager')).toContainText('показано 13 из 33');
   // Фильтр по статусу + поиск по unique_id
   await main.getByLabel('Статус события').selectOption('FAILED');

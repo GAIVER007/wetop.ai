@@ -15,7 +15,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -72,7 +72,9 @@ test('пустые экраны без «Legacy» и «импорта», с де
   await expect(main.getByTestId('services-empty')).not.toContainText(/Legacy|импорт/);
 });
 
-test('новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4)', async ({ page }) => {
+test('новая бронь: источник по умолчанию «стойка» — на один выбор меньше (п. 1.4)', async ({
+  page,
+}) => {
   await page.goto('/reservations/new');
   await expect(page.getByRole('main').getByLabel('Источник *')).toHaveValue('DESK');
 });

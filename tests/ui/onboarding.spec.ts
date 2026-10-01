@@ -45,7 +45,7 @@ test('администратор в ненастроенном отеле: не 
 }) => {
   // входим, пока отель настроен: после входа стойка ведёт на «Главную», а гейт увёл бы на онбординг
   await request.post(`${fixture}/__test/control`, { data: { onboardingNeeded: false } });
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

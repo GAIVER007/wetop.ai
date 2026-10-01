@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { INVITE_ROLE_MESSAGE, parseInviteRole } from '@pms/domain';
 import { ApiError, authApi } from '../../lib/api';
 import { clearSessionCookie, clientInfo, sessionToken, setSessionCookie } from '../../lib/session';
+import { publicAuthUrl, safeReturnPath } from '../../lib/auth-entry';
 
 /**
  * Серверные действия экрана входа. Два входа живут рядом, пока владелец не выбрал (Q-146):
@@ -30,14 +31,14 @@ export async function signIn(_prev: LoginState, form: FormData): Promise<LoginSt
     if (error instanceof ApiError) return { error: error.message };
     throw error;
   }
-  redirect('/today');
+  redirect(safeReturnPath(form.get('next')));
 }
 
 /** «Выйти»: сессия отзывается в базе (ключ мёртв, даже если его скопировали), cookie удаляется. Access — отдельный замок. */
 export async function signOut(): Promise<void> {
   await authApi.logout().catch(() => undefined);
   await clearSessionCookie();
-  redirect('/login');
+  redirect(publicAuthUrl());
 }
 
 export interface ResetRequestState {
@@ -83,7 +84,9 @@ export async function setPassword(
     if (error instanceof ApiError) return { error: error.message };
     throw error;
   }
-  redirect('/login?password=set');
+  const destination = new URL(publicAuthUrl());
+  destination.searchParams.set('password', 'set');
+  redirect(destination.toString());
 }
 
 // ── Вход по коду на почту и регистрация (ADR-046) ──
@@ -173,7 +176,7 @@ export async function inviteAction(email: string, role: string): Promise<InviteA
   if (!invited) return { error: INVITE_ROLE_MESSAGE, email: null };
   try {
     const invite = await authApi.invite(token, email, invited, await clientInfo());
-    revalidatePath('/login');
+    revalidatePath('/profile/access');
     return { error: null, email: invite.email };
   } catch (e) {
     return { error: errorText(e), email: null };
@@ -193,7 +196,7 @@ async function teamAction(run: (token: string) => Promise<void>): Promise<TeamAc
   } catch (e) {
     return { error: errorText(e) };
   }
-  revalidatePath('/login');
+  revalidatePath('/profile/access');
   return { error: null };
 }
 
@@ -244,5 +247,5 @@ export async function logoutAllAction(): Promise<void> {
   const token = await sessionToken();
   if (token) await authApi.logoutAll(token, await clientInfo()).catch(() => undefined);
   await clearSessionCookie();
-  redirect('/login');
+  redirect(publicAuthUrl());
 }

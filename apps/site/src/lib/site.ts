@@ -33,12 +33,10 @@ export function absoluteUrl(path: string, config: SiteConfig = siteConfig): stri
 }
 
 /**
- * «Войти» ведёт на экран входа стойки, а не в её корень: корень редиректом бросает в `/today`, и человек
- * проваливается сразу в рабочий день смены. На `/login` видно, под какой почтой пустил Cloudflare Access,
- * и есть выход (ADR-045, Д5).
+ * Единая публичная точка входа — форма на главной продукта (ADR-131).
  */
 export function loginLink(config: SiteConfig = siteConfig): SiteLink {
-  return { href: `${checkHttpUrl('appUrl', config.appUrl)}/login`, external: true };
+  return { href: `${siteUrl(config)}/#login`, external: false };
 }
 
 /**
@@ -46,7 +44,7 @@ export function loginLink(config: SiteConfig = siteConfig): SiteLink {
  * Раньше на её месте была заявка по почте: одна установка обслуживала одну гостиницу (ADR-056).
  */
 export function registerLink(config: SiteConfig = siteConfig): SiteLink {
-  return { href: `${checkHttpUrl('appUrl', config.appUrl)}/register`, external: true };
+  return { href: `${siteUrl(config)}/#register`, external: false };
 }
 
 /** «Забыли пароль?» из окна входа — экран сброса стойки: письмо со ссылкой уходит оттуда (ADR-049). */
@@ -62,7 +60,7 @@ export type AuthMode = 'login' | 'register';
  * Кука сессии ставится ответом стойки: сайт её не видит и ключа не получает.
  */
 export function siteAuthEndpoint(
-  action: 'options' | 'login' | 'register' | 'resend',
+  action: 'options' | 'login' | 'register' | 'resend' | 'session',
   config: SiteConfig = siteConfig,
 ): string {
   return `${checkHttpUrl('appUrl', config.appUrl)}/api/site-auth/${action}`;

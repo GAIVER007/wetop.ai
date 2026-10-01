@@ -10,7 +10,7 @@ test.beforeEach(async ({ request }) => {
  * Проверка экрана и серверных действий стойки; правила API закрыты тестами контроллера.
  */
 async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   const main = page.getByRole('main');
   await main.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await main.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -22,7 +22,7 @@ test('вошедший видит, где он вошёл, — устройст�
   page,
 }) => {
   await login(page);
-  await page.goto('/login');
+  await page.goto('/profile/access');
   const main = page.getByRole('main');
   const list = main.getByTestId('session-list');
   await expect(list).toContainText('Chrome, macOS');
@@ -38,11 +38,11 @@ test('«Завершить все сеансы» гасит вход и возв
   context,
 }) => {
   await login(page);
-  await page.goto('/login');
+  await page.goto('/profile/access');
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
-  await page.waitForURL('**/login');
-  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+  await page.waitForURL('http://127.0.0.1:3002/?next=%2Ftoday#login');
+  await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });
 
@@ -65,11 +65,11 @@ test('выписанный ранее сеанс по паролю продол�
   await login(page);
   await page.goto('/chessboard');
   await expect(page.getByRole('main')).toBeVisible();
-  await page.goto('/login');
+  await page.goto('/profile/access');
   const main = page.getByRole('main');
   await expect(main.getByTestId('session-list')).toContainText('этот сеанс');
   await main.getByRole('button', { name: 'Завершить все сеансы' }).click();
-  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   expect((await context.cookies()).find((c) => c.name === 'wetop_session')).toBeUndefined();
 });
 
@@ -96,16 +96,16 @@ test('удалённый вход по коду не выдаёт сессию; 
       expires: Math.floor(Date.now() / 1000) + 86400,
     },
   ]);
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   const main = page.getByRole('main');
   await expect(main.getByTestId('session-list')).toHaveCount(0);
   await expect(main.getByLabel('Пароль', { exact: true })).toBeVisible();
 });
 
 test('без сессии списка сеансов нет', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   const main = page.getByRole('main');
-  await expect(main.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
   await expect(main.getByTestId('session-list')).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Завершить все сеансы' })).toHaveCount(0);
 });

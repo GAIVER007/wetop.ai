@@ -7,7 +7,11 @@ test.beforeEach(async ({ request }) => {
   });
 });
 
-for (const path of ['/login', '/register', '/login?mode=register']) {
+for (const path of [
+  '/auth/fallback',
+  '/auth/fallback?mode=register',
+  '/auth/fallback?mode=register&next=%2Ftoday',
+]) {
   test(`регистрация закрыта: ${path} оставляет вход сотрудников`, async ({ page, context }) => {
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
@@ -15,7 +19,7 @@ for (const path of ['/login', '/register', '/login?mode=register']) {
     await expect(page.getByRole('button', { name: 'Создать организацию' })).toHaveCount(0);
     await expect(page.getByLabel('Пароль', { exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Забыли пароль?' })).toBeVisible();
-    if (path !== '/login') {
+    if (path !== '/auth/fallback') {
       await expect(page.getByRole('main')).toContainText(
         'Самостоятельная регистрация временно закрыта',
       );
@@ -31,12 +35,12 @@ test('ошибка настроек API закрывает регистраци�
   await request.post('http://127.0.0.1:4311/__test/control', {
     data: { failPath: '/auth/options' },
   });
-  await page.goto('/register');
+  await page.goto('/auth/fallback?mode=register');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Вход в WETOP');
   await expect(page.getByRole('button', { name: 'Регистрация', exact: true })).toHaveCount(0);
 });
 
-test('ранее открытая форма получает отказ через server action без новой сессии', async ({
+test('ранее открытая форма получает отказ через сервер без новой сессии', async ({
   page,
   request,
   context,
@@ -44,7 +48,7 @@ test('ранее открытая форма получает отказ чер�
   await request.post('http://127.0.0.1:4311/__test/control', {
     data: { registrationEnabled: true },
   });
-  await page.goto('/register');
+  await page.goto('/auth/fallback?mode=register');
   await page.getByLabel('Email', { exact: true }).fill('closed@example.invalid');
   await page.getByLabel('Имя', { exact: true }).fill('Тестовый сотрудник');
   // с 21.09 форма спрашивает название отеля (обязательное поле): без него submit не уходит
@@ -61,5 +65,5 @@ test('ранее открытая форма получает отказ чер�
     'Самостоятельная регистрация закрыта',
   );
   expect((await context.cookies()).some((cookie) => cookie.name === 'wetop_session')).toBe(false);
-  await expect(page).toHaveURL(/\/register/);
+  await expect(page).toHaveURL(/\/auth\/fallback/);
 });

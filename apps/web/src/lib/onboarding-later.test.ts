@@ -8,6 +8,12 @@ import { ONBOARDING_LATER_COOKIE, needsOnboardingRedirect } from './onboarding-l
 describe('needsOnboardingRedirect', () => {
   const base = { path: '/today', needsOnboarding: true, postponed: false };
 
+  it('управление своими сессиями доступно до создания объекта', () => {
+    expect(
+      needsOnboardingRedirect({ ...base, path: '/profile/access', propertyMissing: true }),
+    ).toBe(false);
+  });
+
   it('объект без номеров — на онбординг', () => {
     expect(needsOnboardingRedirect(base)).toBe(true);
   });
@@ -21,7 +27,15 @@ describe('needsOnboardingRedirect', () => {
   });
 
   it('вход, регистрация, приглашение, сброс пароля, онбординг и печать — без гейта, иначе цикл', () => {
-    for (const path of ['/onboarding', '/login', '/login/verify', '/register', '/invite/x', '/password-reset', '/reservations/7/print/invoice']) {
+    for (const path of [
+      '/onboarding',
+      '/login',
+      '/login/verify',
+      '/register',
+      '/invite/x',
+      '/password-reset',
+      '/reservations/7/print/invoice',
+    ]) {
       expect(needsOnboardingRedirect({ ...base, path })).toBe(false);
     }
   });
@@ -38,13 +52,23 @@ describe('needsOnboardingRedirect', () => {
 describe('гейт: у организации нет объекта', () => {
   it('ведёт на онбординг, даже если онбординг отложен', () => {
     expect(
-      needsOnboardingRedirect({ path: '/today', needsOnboarding: false, postponed: true, propertyMissing: true }),
+      needsOnboardingRedirect({
+        path: '/today',
+        needsOnboarding: false,
+        postponed: true,
+        propertyMissing: true,
+      }),
     ).toBe(true);
   });
   it('на онбординге, входе и печати — не ведёт: иначе цикл', () => {
     for (const path of ['/onboarding', '/login', '/reservations/R1/print'])
       expect(
-        needsOnboardingRedirect({ path, needsOnboarding: false, postponed: false, propertyMissing: true }),
+        needsOnboardingRedirect({
+          path,
+          needsOnboarding: false,
+          postponed: false,
+          propertyMissing: true,
+        }),
       ).toBe(false);
   });
 });

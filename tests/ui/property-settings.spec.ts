@@ -21,14 +21,16 @@ test.afterEach(async ({ request }) => {
 });
 
 async function signIn(page: Page) {
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
 }
 
-test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({ page }) => {
+test('один заголовок на трёх вкладках, без «Обновить» и без второй карточки часов', async ({
+  page,
+}) => {
   const main = page.getByRole('main');
   await page.goto('/hotel-settings');
   const tabs = main.getByRole('navigation', { name: 'Настройки объекта', exact: true });
@@ -39,7 +41,10 @@ test('один заголовок на трёх вкладках, без «Об�
     ['Услуги', 'services-table'],
   ] as const) {
     await tabs.getByRole('link', { name: tab, exact: true }).click();
-    await expect(tabs.getByRole('link', { name: tab, exact: true })).toHaveAttribute('aria-current', 'page');
+    await expect(tabs.getByRole('link', { name: tab, exact: true })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
     await expect(main.getByTestId(check)).toBeVisible();
     await expect(main.getByRole('heading', { level: 1 })).toHaveText('Настройки объекта');
     await expect(main.locator('.page__subtitle')).toHaveText('Luxx Aparts');
@@ -58,7 +63,9 @@ test('один заголовок на трёх вкладках, без «Об�
   await expect(tabs.getByRole('link', { name: 'Правила отмены' })).toHaveCount(0);
 });
 
-test('старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy', async ({ page }) => {
+test('старые адреса: часы — на «Проживание», правила отмены — к тарифам без кода Legacy', async ({
+  page,
+}) => {
   const main = page.getByRole('main');
   await page.goto('/hotel-settings/check-in');
   await expect(page).toHaveURL(/\/hotel-settings\/stay$/);
@@ -109,7 +116,10 @@ test('владелец: «Сохранить изменения» ждёт пр�
   await expect(state).toHaveText('• Есть несохранённые изменения');
 
   // «Проживание» шлёт только свои поля: сведения «Основного» не затираются
-  await main.getByRole('navigation', { name: 'Настройки объекта' }).getByRole('link', { name: 'Проживание' }).click();
+  await main
+    .getByRole('navigation', { name: 'Настройки объекта' })
+    .getByRole('link', { name: 'Проживание' })
+    .click();
   const stay = main.getByTestId('stay-settings');
   await expect(save).toBeDisabled();
   await stay.getByLabel('Заезд с').fill('15:00');
@@ -161,7 +171,9 @@ for (const theme of ['light', 'dark'] as const) {
     const shot = async (name: string) => {
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+        ).toBe(true);
         await page.screenshot({ path: `${SHOTS}/${name}-${theme}-${width}.png`, fullPage: true });
       }
       await page.setViewportSize({ width: 1440, height: 900 });

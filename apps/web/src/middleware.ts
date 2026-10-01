@@ -18,6 +18,7 @@ export function middleware(request: NextRequest) {
   // Путь запроса — в заголовке, чтобы серверный layout знал, где он, и решал про гейт онбординга
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-wetop-path', request.nextUrl.pathname);
+  requestHeaders.set('x-wetop-return', request.nextUrl.pathname + request.nextUrl.search);
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   // Заголовки безопасности (аудит 29.09.2026, SEC-4): запрет фрейма, nosniff, referrer; полная CSP — report-only
   for (const [name, value] of Object.entries(

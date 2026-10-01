@@ -126,6 +126,7 @@ services:
         PATH="$$PATH" HOME="$$HOME" TZ="$$TZ" NODE_ENV="$$NODE_ENV"
         APP_API_URL="$$APP_API_URL" APP_AUTH_REQUIRED="$$APP_AUTH_REQUIRED"
         APP_URL="$${APP_URL:-}" SITE_ORIGINS="$${SITE_ORIGINS:-}" ASSISTANT_URL="$${ASSISTANT_URL:-}"
+        WETOP_SITE_URL="$${WETOP_SITE_URL:-https://wetop.ai}"
         npx next start --port 3000 --hostname 0.0.0.0
     environment:
       # Стойка ходит в API по имени службы; умолчание клиента (127.0.0.1:3001) в контейнере — это она сама

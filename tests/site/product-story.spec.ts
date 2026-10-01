@@ -66,7 +66,7 @@ test('homepage explains the full product and keeps WETOP positioning', async ({ 
   await expect(page.locator('.hero h1')).toContainText('Центр управления');
   await expect(page.locator('.hero__brand')).toHaveText('WETOP.AI');
   await expect(page.locator('.hero')).not.toContainText('В одном ритме');
-  for (const id of ['showcase', 'product-details', 'toolkit', 'ai-sellers']) {
+  for (const id of ['about', 'control', 'product-details', 'toolkit', 'ai-sellers']) {
     await expect(page.locator(`#${id}`)).toBeVisible();
   }
   await expect(page.locator('#product-details h3')).toHaveCount(8);

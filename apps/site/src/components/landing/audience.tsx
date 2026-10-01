@@ -18,7 +18,7 @@ export function Audience() {
           <div>
             <SectionHeading
               id="audience-title"
-              eyebrow="03 / Уже доступно"
+              eyebrow="Первое направление платформы"
               title={audience.title}
               lead={audience.lead}
             />

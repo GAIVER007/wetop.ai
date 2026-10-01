@@ -162,7 +162,7 @@ test('финансовый период в будущем не скрывает 
  */
 test('снимки панелей Главной после редизайна', async ({ page }) => {
   const dir = 'reports/owner-dashboard-2026-09-30';
-  await page.goto('/login');
+  await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();

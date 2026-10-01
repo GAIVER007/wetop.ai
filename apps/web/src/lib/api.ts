@@ -2268,3 +2268,33 @@ export const sellerAgentsApi = {
   list: () => getJson<{items:Array<{id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}>}>('/seller-agents'),
   claim: (token:string) => sendJson<{id:string}>('POST','/seller-agents/claim',{}, {'x-wizard-token':token}),
 };
+
+export interface BranchItem {
+  id: string;
+  name: string;
+  address: string | null;
+  currency: string;
+  timezone: string;
+  locationId: string;
+  location: { businessId: string };
+  _count: { inventoryUnits: number; accommodationTypes: number };
+}
+export const branchesApi = {
+  overview: (from: string, to: string) =>
+    getJson<{ rows: Array<{ branch: BranchItem; stats: import('@pms/domain').DashboardPeriod }> }>(
+      `/branches/overview?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+  list: () =>
+    getJson<{
+      organization: { id: string; name: string; status: string };
+      items: BranchItem[];
+      canCreate: boolean;
+    }>('/branches'),
+  create: (body: {
+    id: string;
+    name: string;
+    address: string;
+    currency: string;
+    timezone: string;
+  }) => sendJson<BranchItem>('POST', '/branches', body),
+};

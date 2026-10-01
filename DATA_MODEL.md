@@ -2210,3 +2210,34 @@ UNIQUE(agent_id, update_id). Сохранение события предшес�
 Политика хранения соответствует политике переписки бота; отдельный произвольный срок не вводится.
 Источник Reservation и финансовые правила не меняются. Реализация/test DB утверждены владельцем 01.10.2026;
 production migration, отдельные backup/validation/rollback и разрешение.
+
+## Предложение 01.10.2026: подписка сети филиалов (не утверждено)
+
+Контекст: `plans/organizations-branches-2026-10-01.md`. Существующие Organization.status,
+trialEndsAt и OrganizationExtension не являются реестром оплат WETOP. ACTIVE означает
+разрешённые изменения, а не подтверждённый платёж. Исторические ACTIVE не превращаются в оплаты.
+
+Предлагается отдельная от гостиничных Folio модель SubscriptionPeriod:
+- id UUID PK; organization_id FK Organization, организация имеет N периодов;
+- starts_on DATE, ends_on DATE exclusive, timezone TEXT для границ доступа;
+- grant_kind PAID/COMPLIMENTARY; state DRAFT/CONFIRMED/VOIDED;
+- currency VARCHAR(3), amount_minor BIGINT >= 0, reference TEXT nullable;
+- confirmed_at UTC nullable, confirmed_by FK User nullable, reason TEXT nullable;
+- created_at UTC, created_by FK User; журнал создания, подтверждения и отмены.
+
+SubscriptionPeriodLocation: period_id FK SubscriptionPeriod + location_id FK Location
+как составной PK, unit_price_minor BIGINT, название филиала как снимок для истории.
+Проверять принадлежность всех филиалов организации периода. Подтверждённые снимки не
+пересчитывать при переименовании, архивировании или добавлении филиала.
+
+Требуют отдельного решения: точные границы оплаченного месяца, срок/правила подключения
+нового филиала посреди периода, блокировка отдельного филиала или всей сети, часовой пояс
+подписки, допустимость пересекающихся периодов и исправления ошибочного подтверждения.
+До утверждения сохраняется ручное управление существующим Organization.status;
+автоматические списания, новые сроки доступа и пересчёт стоимости не вводятся.
+
+Переход: текущий доступ сохраняется без выдуманной суммы/даты оплаты. На экране показывать
+«Доступ включён вручную; оплаченный период не указан», пока период не подтверждён явно.
+Бессрочное расширение AI_SELLER не означает бессрочную подписку Core.
+Schema/migration/code этого предложения не реализованы. Production: backup, migration,
+validation, rollback и отдельное разрешение по §14–15 AGENTS.md.

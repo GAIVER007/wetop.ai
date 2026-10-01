@@ -116,10 +116,6 @@ function OffCard() {
   return (
     <Panel title="AI-продавец" className="agent-card" data-testid="agent-seller">
       <Stack gap="sm">
-        <Row>
-          <Badge>Продажи</Badge>
-          <Badge>Hospitality</Badge>
-        </Row>
         <div>Автоматизируйте ответы гостям, подбор размещения и продажи.</div>
         <div data-testid="agent-seller-off" className="muted">
           Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по
@@ -132,7 +128,6 @@ function OffCard() {
 
 function AgentCard({ agent }: { agent: AgentCardView }) {
   const isSeller = agent.kind === 'seller';
-  const isSales = isSeller || agent.kind === 'agent';
   const channels = channelLines(agent);
   const readiness = agentReadiness(agent);
   return (
@@ -145,12 +140,6 @@ function AgentCard({ agent }: { agent: AgentCardView }) {
     >
       <Stack gap="sm">
         <Row>
-          {isSales && (
-            <>
-              <Badge>Продажи</Badge>
-              <Badge>Hospitality</Badge>
-            </>
-          )}
           <Badge tone={readiness.tone} data-testid="agent-status">
             {readiness.label}
           </Badge>

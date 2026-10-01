@@ -1,3 +1,4 @@
+import { SetupWizard } from '../setup-wizard';
 import { TelegramPanel } from '../../ai-agents/[id]/telegram-panel';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -124,16 +125,6 @@ export default async function AiSellerPage({
         ) : undefined
       }
     >
-      {access.platform && (
-        <nav className="settings-tabs" aria-label="Агент">
-          <Link href="/ai-seller" aria-current="page">
-            Продавец
-          </Link>
-          <Link href="/platform/support" prefetch={false}>
-            Техподдержка
-          </Link>
-        </nav>
-      )}
       <nav className="settings-tabs seller-tabs" aria-label="ИИ-продавец">
         {tabs.map((item) => (
           <Link
@@ -241,8 +232,25 @@ async function SetupView({ status }: { status: SellerStatus }) {
   return (
     <Stack>
       {banner.tone === 'alarm' && <Alert data-testid="seller-state-reason">{banner.text}</Alert>}
-      {checklist && <SetupChecklist items={checklist} />}
-      <div className="seller-setup">
+      <SetupWizard>
+        <Panel>
+          <SectionTitle first>Данные вашего объекта</SectionTitle>
+          <p>
+            Продавец использует номера, тарифы и правила проживания из WETOP. Не нужно переписывать
+            их в инструкцию.
+          </p>
+          <Row>
+            <Badge tone={status.facts.applied ? 'ok' : 'warn'}>
+              {status.facts.applied ? 'Данные переданы продавцу' : 'Данные ещё не переданы'}
+            </Badge>
+          </Row>
+          <p>
+            <Link href="/hotel-settings">Проверить объект и правила проживания →</Link>
+          </p>
+          <p>
+            <Link href="/ai-seller/knowledge">Посмотреть данные и дополнительные знания →</Link>
+          </p>
+        </Panel>
         <Panel data-testid="seller-setup" aria-labelledby="seller-prompt-title">
           <SectionTitle first id="seller-prompt-title">
             Инструкция продавцу
@@ -263,6 +271,7 @@ async function SetupView({ status }: { status: SellerStatus }) {
             администратора, зовёт человека.
           </p>
         </Panel>
+        <ConnectionsView status={status} />
         <Panel data-testid="seller-check" aria-labelledby="seller-check-title">
           <SectionTitle first id="seller-check-title">
             Проверка
@@ -277,7 +286,20 @@ async function SetupView({ status }: { status: SellerStatus }) {
             <SandboxForm />
           )}
         </Panel>
-      </div>
+        <Panel>
+          <SectionTitle first>Перед первым разговором с гостем</SectionTitle>
+          {checklist && <SetupChecklist items={checklist} />}
+          <p>
+            Применённая инструкция не означает, что канал уже подключён. На шаге «Подключения»
+            проверьте его состояние.
+          </p>
+          <p>
+            Откройте подключённого бота или чат сайта, отправьте тестовое сообщение и убедитесь, что
+            ответ пришёл. Только после этого начинайте общение с гостями.
+          </p>
+          <Link href="/ai-seller/dialogs">Открыть диалоги →</Link>
+        </Panel>
+      </SetupWizard>
     </Stack>
   );
 }
@@ -329,23 +351,32 @@ function SetupChecklist({ items }: { items: SellerChecklistItem[] }) {
 /** «Подключения»: модель, код для сайта и WhatsApp — всё, что связывает продавца с внешним миром, на одном экране */
 async function ConnectionsView({ status }: { status: SellerStatus }) {
   return (
-    <Stack>
-      <section className="stack" aria-labelledby="seller-model-title">
-        <SectionTitle first id="seller-model-title">
-          Модель
-        </SectionTitle>
+    <div className="seller-connection-steps">
+      <details open>
+        <summary>
+          1. Модель ИИ <span>Проверка и сохранение ключа</span>
+        </summary>
         <ModelView status={status} />
-      </section>
-      <section className="stack" aria-labelledby="seller-embed-title">
-        <SectionTitle id="seller-embed-title">Код для сайта</SectionTitle>
-        <EmbedView status={status} />
-      </section>
-      <TelegramPanel id="working" readOnly={!!sellerReadOnlyReason(status)} />
-      <section className="stack" aria-labelledby="seller-whatsapp-title">
-        <SectionTitle id="seller-whatsapp-title">WhatsApp</SectionTitle>
+      </details>
+      <details>
+        <summary>
+          2. Telegram <span>Закрытый тест с вашим ботом</span>
+        </summary>
+        <TelegramPanel id="working" readOnly={!!sellerReadOnlyReason(status)} />
+      </details>
+      <details>
+        <summary>
+          3. WhatsApp <span>Подключение номера для общения с гостями</span>
+        </summary>
         <WhatsAppView status={status} />
-      </section>
-    </Stack>
+      </details>
+      <details>
+        <summary>
+          4. Чат на сайте <span>Код для установки на ваш сайт</span>
+        </summary>
+        <EmbedView status={status} />
+      </details>
+    </div>
   );
 }
 

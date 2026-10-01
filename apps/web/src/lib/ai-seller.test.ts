@@ -234,7 +234,7 @@ describe('подписи диалога словами стойки, а не к�
 
 describe('короткое значение полосы состояния', () => {
   it('слово, а не фраза: фраза — в пояснении', () => {
-    expect(sellerBanner(status()).value).toBe('работает');
+    expect(sellerBanner(status()).value).toBe('настройки применены');
     expect(sellerBanner(status({ state: 'not-configured' })).value).toBe('не подключён');
     expect(sellerBanner(status({ lastError: 'x', retrying: true })).value).toBe('не принял правки');
     expect(sellerBanner(status({ lastError: 'x', retrying: false })).value).toBe('отклонил правки');

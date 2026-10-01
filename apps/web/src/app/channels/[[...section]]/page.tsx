@@ -179,7 +179,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
             : outbox.pending > 0
               ? 'Изменения ждут отправки в каналы.'
               : connection?.environment === 'staging'
-                ? 'Channex staging · тестовое подключение.'
+            ? 'Менеджер каналов · тестовое подключение.'
                 : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
   const lastExchange =
     [outbox?.lastSentAt, connection?.lastWebhookAt, connection?.lastPullAt]

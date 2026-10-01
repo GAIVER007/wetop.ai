@@ -35,6 +35,7 @@ export async function createBranch(
       timezone: String(form.get('timezone') ?? ''),
     });
     revalidatePath('/branches');
+    revalidatePath('/platform');
     return { message: 'Филиал создан. Откройте его, чтобы добавить категории и номера.' };
   } catch (e) {
     return {

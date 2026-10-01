@@ -2,9 +2,9 @@
 
 🔴 Существующий продавец каждой гостиницы становится агентом с `id = organization_id`: ключ виджета, адрес вебхука
 Meta и `phone_number_id` не меняются, переписка, знания и подключение WhatsApp переходят к нему без потерь.
-🔴 Строка `organizations` остаётся источником, `agents` — её зеркало на время перехода: любой писатель
+🔴 Строка `organizations` остаётся источником, `agents`, её зеркало на время перехода: любой писатель
 (PUT организации, инструкция, профиль) обновляет обе строки.
-🔴 Панельный вызов с `X-Agent` проверяет, что агент принадлежит организации запроса; без заголовка — агент
+🔴 Панельный вызов с `X-Agent` проверяет, что агент принадлежит организации запроса; без заголовка, агент
 с `id`, равным организации, как до миграции.
 """
 
@@ -17,7 +17,7 @@ import sqlalchemy as sa
 from alembic import command
 
 from src.db.models import Agent, Client, Conversation, Document, Organization, WhatsAppConnection
-from tests.dashboard_fakes import (  # noqa: F401 — sync_db используется как фикстура
+from tests.dashboard_fakes import (  # noqa: F401, sync_db используется как фикстура
     PANEL,
     _all,
     panel,
@@ -141,7 +141,7 @@ def test_organization_put_creates_and_updates_the_agent_row(monkeypatch, fake_re
 
 
 def test_prompt_of_the_organization_reaches_the_agent_row(app, sync_db) -> None:  # noqa: F811
-    _connect(app)  # организация ORG заведена фикстурой app, подключение — этим вызовом
+    _connect(app)  # организация ORG заведена фикстурой app, подключение, этим вызовом
     with sync_db() as session:
         row = session.get(Organization, uuid.UUID(ORG))
         row.system_prompt = "Новая инструкция"

@@ -16,7 +16,7 @@ import type { AgentCardView, AgentCatalogView } from './api';
 
 export interface CreateButton {
   label: string;
-  /** Куда ведёт активная кнопка; `null` — кнопка неактивна */
+  /** Куда ведёт активная кнопка; `null`, кнопка неактивна */
   href: string | null;
   /** Почему неактивна */
   reason: string | null;
@@ -27,7 +27,7 @@ export interface CreateButton {
 export const CREATE_LABEL = '+ Подключить AI-продавца';
 
 /**
- * Кнопка под списком (SA2, решение владельца 30.09): видна всегда, при невозможности — неактивна с причиной, а не спрятана.
+ * Кнопка под списком (SA2, решение владельца 30.09): видна всегда, при невозможности, неактивна с причиной, а не спрятана.
  * Доступность и причину считает сервер (`catalog.create`); страница ничего не пересчитывает. Для расширения без действия
  * рядом остаётся ссылка на страницу с объяснением: самообслуживания и цены нет.
  */
@@ -42,13 +42,13 @@ export function createButton(catalog: AgentCatalogView, readOnly = false): Creat
   return { label: CREATE_LABEL, href: null, reason: catalog.create.reason, connectHref };
 }
 
-/** Куда ведёт «Открыть»: рабочий продавец — в свой раздел, агент с филиалом — на страницу состояния, черновик мастера — в его редактор */
+/** Куда ведёт «Открыть»: рабочий продавец, в свой раздел, агент с филиалом, на страницу состояния, черновик мастера, в его редактор */
 export function agentHref(agent: AgentCardView): string {
   if (agent.kind === 'seller') return '/ai-seller';
   return agent.kind === 'agent' ? `/ai-agents/${agent.id}` : `/ai-seller/agents/${agent.id}`;
 }
 
-/** Business и Location карточки одной строкой; у черновика мастера их нет, у организации без объекта — тоже */
+/** Business и Location карточки одной строкой; у черновика мастера их нет, у организации без объекта, тоже */
 export function placement(business: { name: string }, location: { name: string }): string {
   return business.name.trim() === location.name.trim()
     ? location.name

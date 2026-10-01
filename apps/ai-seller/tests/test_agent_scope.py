@@ -2,8 +2,8 @@
 
 Два агента ОДНОЙ организации не видят друг друга ни в одной двери: ключ виджета, вебхук WhatsApp, диалоги, клиенты, знания,
 профиль, факты, дедуп, песочница. Организация остаётся границей арендатора (ключ модели, дневной предел, расширение).
-Перенесённый продавец (`agent.id = organization_id`) работает как прежде — это проверяют остальные наборы бота, не менявшиеся
-по существу; здесь — то, чего в них быть не могло: второй агент в той же организации.
+Перенесённый продавец (`agent.id = organization_id`) работает как прежде, это проверяют остальные наборы бота, не менявшиеся
+по существу; здесь, то, чего в них быть не могло: второй агент в той же организации.
 
 🔴 Второй агент заводится строкой в базе бота напрямую: PUT-двери для новых агентов появятся вместе с их запуском (SA9),
 а SA2.5 доказывает, что рантайм не предполагает «агент = организация».
@@ -47,7 +47,7 @@ from tests.llm_fakes import LLM_ENV
 from tests.widget_fakes import FakeRunner, SITE_ORIGIN, seed_visitor, widget_app
 
 SERVICE = {"X-Service-Key": "service-key-for-tests-only"}  # песочницу открывает только служебный ключ платформы (30.09.2026)
-ORG = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa"  # у tests.test_whatsapp.app это ORG; агент перенесённого продавца — тот же id
+ORG = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa"  # у tests.test_whatsapp.app это ORG; агент перенесённого продавца, тот же id
 ORG_B = "bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb"
 AGENT_1 = ORG  # перенесённый продавец
 AGENT_2 = "cccccccc-3333-4333-8333-cccccccccccc"  # второй агент той же организации
@@ -60,13 +60,13 @@ HOST_2 = "https://two.example.test"
 
 @pytest.fixture(autouse=True)
 def _contract_schema(migrated_db: str) -> None:
-    """Два агента одной организации возможны только на схеме после сужения (0010): её и берём — см. tests/contract_schema.py."""
+    """Два агента одной организации возможны только на схеме после сужения (0010): её и берём, см. tests/contract_schema.py."""
     apply_contract(migrated_db)
 
 
 def seed_agent(sessions, agent_id: str, org_id: str, key: str, hosts: list[str], *, prompt: str | None = None,
                active: bool = True, name: str = "Второй агент") -> None:
-    """Второй агент организации — строка `agents` без изменения организации (DATA_MODEL §20.2)."""
+    """Второй агент организации, строка `agents` без изменения организации (DATA_MODEL §20.2)."""
     now = utcnow()
     with sessions() as session:
         session.add(Agent(id=uuid.UUID(agent_id), organization_id=uuid.UUID(org_id), name=name, public_key=key,
@@ -98,7 +98,7 @@ def test_each_agent_has_its_own_key_and_hosts(two_agent_widget, runner) -> None:
     w = two_agent_widget
     assert w.session(origin=HOST_1, org_key=KEY_1).status_code == 200
     assert w.session(origin=HOST_2, org_key=KEY_2).status_code == 200
-    # ключ одного агента с домена другого — та же организация, но дверь чужая
+    # ключ одного агента с домена другого, та же организация, но дверь чужая
     assert w.session(origin=HOST_2, org_key=KEY_1).status_code == 403
     assert w.session(origin=HOST_1, org_key=KEY_2).status_code == 403
     # ход уходит в движок с агентом двери и организацией из строки агента
@@ -146,7 +146,7 @@ def test_an_inactive_agent_is_silent_even_in_an_active_organization(two_agent_wi
 
 
 class PlatformOrigins:
-    """Платформа в памяти: `GET /bot/agent-origins?agent=` — что она ответит и сколько раз её спросили."""
+    """Платформа в памяти: `GET /bot/agent-origins?agent=`, что она ответит и сколько раз её спросили."""
 
     def __init__(self) -> None:
         self.hosts: dict[str, list[str] | None] = {}
@@ -178,7 +178,7 @@ def widget_with_platform(monkeypatch, fake_redis, sync_db, runner, platform):  #
         monkeypatch, fake_redis, runner=runner, BOT_ROLE="seller",
         INTEGRATION_BASE_URL="http://platform.test", INTEGRATION_API_KEY="quote-key",
     ) as w:
-        # в базе бота домены у агентов «стародавние» — платформа их перекрывает
+        # в базе бота домены у агентов «стародавние», платформа их перекрывает
         seed_org(sync_db, ORG, KEY_1, ["https://stale-mirror.example.test"], prompt="Ты первый агент.")
         seed_agent(sync_db, AGENT_2, ORG, KEY_2, [], prompt="Ты второй агент.")
         yield w
@@ -244,7 +244,7 @@ def test_origins_fall_back_to_the_last_answer_when_the_platform_is_down(monkeypa
     asyncio.run(scenario())
 
 
-# ─── WhatsApp: подключение и вебхук — у агента ───
+# ─── WhatsApp: подключение и вебхук, у агента ───
 
 
 def _connect_agent(app, org: str, agent: str | None, *, phone_id: str, token: str = TOKEN, secret: str = APP_SECRET):  # noqa: F811
@@ -302,11 +302,11 @@ def test_a_webhook_signed_with_another_agents_secret_is_refused(two_agents_whats
 
 
 def test_the_webhook_address_is_the_agent_not_the_organization(two_agents_whatsapp) -> None:
-    """Адрес вебхука — идентификатор агента: организация с двумя агентами по своему id вебхука не имеет."""
+    """Адрес вебхука, идентификатор агента: организация с двумя агентами по своему id вебхука не имеет."""
     app = two_agents_whatsapp
     _connect_agent(app, ORG, AGENT_2, phone_id="555000222", token=TOKEN + "-2", secret=APP_SECRET + "-2")
     raw = _webhook_body(phone_id="555000222")
-    # ORG — идентификатор первого (перенесённого) агента: подключения у него нет
+    # ORG, идентификатор первого (перенесённого) агента: подключения у него нет
     assert _post_agent(two_agents_whatsapp, ORG, raw, secret=APP_SECRET + "-2").status_code == 403
     assert _post_agent(two_agents_whatsapp, "eeeeeeee-5555-4555-8555-eeeeeeeeeeee", raw).status_code == 403
 
@@ -323,7 +323,7 @@ def test_a_message_goes_to_its_agent_and_the_reply_uses_its_token(two_agents_wha
     assert net.graph[0].headers["authorization"] == f"Bearer {TOKEN}-2", "ответ ушёл токеном второго агента"
     assert net.graph[0].url.path.endswith("/555000222/messages")
 
-    # тот же гость пишет первому агенту — отдельный клиент и диалог, и дедуп не съел вторую реплику
+    # тот же гость пишет первому агенту, отдельный клиент и диалог, и дедуп не съел вторую реплику
     assert _post_agent(app, AGENT_1, _webhook_body()).status_code == 200
     _drain(app)
     clients = _all(sync_db, sa.select(Client).where(Client.channel == "whatsapp"))
@@ -362,7 +362,7 @@ def test_conversations_belong_to_their_agent(seller_panel, sync_db) -> None:  # 
     one = p.get(f"{PANEL}/conversations", headers=headers(ORG, AGENT_1)).json()["items"]
     two = p.get(f"{PANEL}/conversations", headers=headers(ORG, AGENT_2)).json()["items"]
     assert [i["id"] for i in one] == [str(c1)] and [i["id"] for i in two] == [str(c2)]
-    # карточка, перехват, закрытие и ответ чужого агента той же организации — как несуществующие
+    # карточка, перехват, закрытие и ответ чужого агента той же организации, как несуществующие
     assert p.get(f"{PANEL}/conversations/{c1}", headers=headers(ORG, AGENT_2)).status_code == 404
     assert p.post(f"{PANEL}/conversations/{c1}/takeover", headers=headers(ORG, AGENT_2)).status_code == 404
     assert p.post(f"{PANEL}/conversations/{c1}/close", headers=headers(ORG, AGENT_2)).status_code == 404
@@ -372,8 +372,8 @@ def test_conversations_belong_to_their_agent(seller_panel, sync_db) -> None:  # 
 
 def test_the_header_is_required_with_two_agents_and_checked_always(seller_panel) -> None:
     p = seller_panel.client
-    assert p.get(f"{PANEL}/conversations", headers=headers(ORG)).status_code == 400, "два агента, а какой — не сказано"
-    assert p.get(f"{PANEL}/conversations", headers=headers(ORG_B)).status_code == 200, "у Б агент один — как прежде"
+    assert p.get(f"{PANEL}/conversations", headers=headers(ORG)).status_code == 400, "два агента, а какой, не сказано"
+    assert p.get(f"{PANEL}/conversations", headers=headers(ORG_B)).status_code == 200, "у Б агент один, как прежде"
     assert p.get(f"{PANEL}/conversations", headers=headers(ORG, ORG_B)).status_code == 403, "агент другой организации"
     assert p.get(f"{PANEL}/conversations", headers=headers(ORG, "eeeeeeee-5555-4555-8555-eeeeeeeeeeee")).status_code == 403
     assert p.get(f"{PANEL}/conversations", headers=headers(ORG_B, AGENT_2)).status_code == 403, "агент А под организацией Б"
@@ -462,7 +462,7 @@ def test_the_sandbox_names_the_agent_when_there_are_two(seller_panel) -> None:
     assert foreign.status_code == 403
 
 
-# ─── Движок: промпт, знания, клиент, диалог и дедуп — агента входящего ───
+# ─── Движок: промпт, знания, клиент, диалог и дедуп, агента входящего ───
 
 
 async def test_the_engine_answers_with_the_agent_prompt_and_its_own_knowledge(engine_env, sync_db) -> None:  # noqa: F811
@@ -503,7 +503,7 @@ async def test_the_same_guest_and_text_reach_both_agents(engine_env, sync_db) ->
 
 
 async def test_an_incomplete_scope_is_refused_without_guessing_the_agent(engine_env, sync_db) -> None:  # noqa: F811
-    """Организация без агента — ошибка двери: агента по организации движок не угадывает и строк не пишет."""
+    """Организация без агента, ошибка двери: агента по организации движок не угадывает и строк не пишет."""
     seed_org(sync_db, ORG, KEY_1, [], prompt="Ты первый агент.")
     outcome = await engine_env.engine(llm=ScriptedLlm([reply("Не должен ответить.")])).process_message(
         IncomingMessage(channel="widget", external_id="gost-n", text="Есть места?", received_at=utcnow(),
@@ -532,7 +532,7 @@ async def test_an_agent_of_another_organization_is_refused(engine_env, sync_db) 
 
 
 async def test_the_llm_key_and_budget_stay_with_the_organization(engine_env, sync_db) -> None:  # noqa: F811
-    """Q-SA-10: ключ модели и дневной предел — организации; оба её агента расходуют один предел."""
+    """Q-SA-10: ключ модели и дневной предел, организации; оба её агента расходуют один предел."""
     from src.ai.budget import tokens_since
     from src.db.base import ConversationMode  # noqa: F401
 
@@ -545,4 +545,4 @@ async def test_the_llm_key_and_budget_stay_with_the_organization(engine_env, syn
         )
     async with engine_env.sessionmaker() as session:
         spent = await tokens_since(session, uuid.UUID(ORG), utcnow().replace(hour=0, minute=0, second=0, microsecond=0))
-    assert spent >= 0  # расход считается по организации: оба агента — в одной сумме (арифметику проверяют тесты предела)
+    assert spent >= 0  # расход считается по организации: оба агента, в одной сумме (арифметику проверяют тесты предела)

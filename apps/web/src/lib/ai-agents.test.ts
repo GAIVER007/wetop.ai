@@ -48,7 +48,7 @@ const catalog = (
 });
 
 describe('кнопка каталога', () => {
-  it('сервер разрешил — кнопка активна и ведёт в форму создания', () => {
+  it('сервер разрешил, кнопка активна и ведёт в форму создания', () => {
     expect(createButton(catalog('active'))).toEqual({
       label: CREATE_LABEL,
       href: '/ai-agents/new',
@@ -57,7 +57,7 @@ describe('кнопка каталога', () => {
     });
   });
 
-  it('сервер не разрешил — кнопка видна, неактивна, причина его словами; страница её не пересчитывает', () => {
+  it('сервер не разрешил, кнопка видна, неактивна, причина его словами; страница её не пересчитывает', () => {
     const noFree = catalog('active', {
       create: { enabled: false, reason: 'Нет свободного филиала.' },
     });
@@ -69,7 +69,7 @@ describe('кнопка каталога', () => {
     });
   });
 
-  it('расширения нет или оно истекло — неактивна, рядом ссылка «как подключить»', () => {
+  it('расширения нет или оно истекло, неактивна, рядом ссылка «как подключить»', () => {
     for (const access of ['off', 'expired'] as const)
       expect(createButton(catalog(access))).toMatchObject({
         href: null,
@@ -91,7 +91,7 @@ describe('кнопка каталога', () => {
 });
 
 describe('кнопка в режиме «только чтение»', () => {
-  it('организация в «только чтении» — кнопка неактивна общей фразой режима, даже если сервер разрешает', () => {
+  it('организация в «только чтении», кнопка неактивна общей фразой режима, даже если сервер разрешает', () => {
     expect(createButton(catalog('active'), true)).toEqual({
       label: CREATE_LABEL,
       href: null,
@@ -102,7 +102,7 @@ describe('кнопка в режиме «только чтение»', () => {
 });
 
 describe('куда ведёт «Открыть»', () => {
-  it('рабочий продавец — в раздел, агент с филиалом — на страницу состояния, черновик мастера — в его редактор', () => {
+  it('рабочий продавец, в раздел, агент с филиалом, на страницу состояния, черновик мастера, в его редактор', () => {
     expect(agentHref(seller())).toBe('/ai-seller');
     expect(agentHref(seller({ id: 'a1', kind: 'agent', status: 'DRAFT' }))).toBe('/ai-agents/a1');
     expect(agentHref(seller({ id: 'd1', kind: 'draft', status: 'DRAFT' }))).toBe(
@@ -112,7 +112,7 @@ describe('куда ведёт «Открыть»', () => {
 });
 
 describe('слова карточки', () => {
-  it('Business и Location — через «·», а если объекта нет — так и сказано', () => {
+  it('Business и Location, через «·», а если объекта нет, так и сказано', () => {
     expect(placementLine(seller())).toBe('Сеть А · Алматы');
     expect(placementLine(seller({ business: null, location: null }))).toBe('Объект ещё не создан');
     expect(
@@ -124,7 +124,7 @@ describe('слова карточки', () => {
     ).toBe('Business и Location не выбраны');
   });
 
-  it('каналы — только сайт и WhatsApp, словами данных; у черновика их нет', () => {
+  it('каналы, только сайт и WhatsApp, словами данных; у черновика их нет', () => {
     expect(channelLines(seller())).toEqual([
       { label: 'Сайт', word: 'Домены заданы', state: 'ON' },
       { label: 'WhatsApp', word: 'Не подключён', state: 'OFF' },
@@ -132,7 +132,7 @@ describe('слова карточки', () => {
     expect(channelLines(seller({ channels: null }))).toEqual([]);
   });
 
-  it('тон значка статуса: работает — ok, требует действия — warn, бот не подключён — danger', () => {
+  it('тон значка статуса: работает, ok, требует действия, warn, бот не подключён, danger', () => {
     expect(statusTone('WORKING')).toBe('ok');
     expect(statusTone('NOT_CONFIGURED')).toBe('warn');
     expect(statusTone('SUBSCRIPTION_INACTIVE')).toBe('warn');
@@ -151,13 +151,13 @@ describe('каталог: правдивая готовность и назва�
   });
 });
 
-it('профиль принят без каналов — требуется подключение, а не «работает»', () => {
+it('профиль принят без каналов, требуется подключение, а не «работает»', () => {
   expect(agentReadiness(seller({ channels: { site: 'OFF', whatsapp: 'OFF' } }))).toMatchObject({
     label: 'Настройте каналы',
     tone: 'warn',
   });
 });
-it('нет ответа канала — проверка, не успешная работа', () => {
+it('нет ответа канала, проверка, не успешная работа', () => {
   expect(agentReadiness(seller({ channels: { site: 'OFF', whatsapp: 'UNKNOWN' } }))).toMatchObject({
     label: 'Проверьте подключение',
   });

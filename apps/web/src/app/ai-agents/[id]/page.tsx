@@ -1,3 +1,4 @@
+import { TelegramPanel } from './telegram-panel';
 import Link from 'next/link';
 import { InstructionEditor } from './instruction-editor';
 import { deskShell } from '../../../lib/desk-shell';
@@ -48,6 +49,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
         </Row>
         {instruction ? <InstructionEditor id={id} initial={instruction} readOnly={shell.readOnly} /> :
           <LoadError testId="agent-instruction-error" title="Не удалось загрузить инструкцию" {...loadErrorProps(instructionError)} />}
+        <TelegramPanel id={id} readOnly={shell.readOnly || agent.lifecycle === 'archived'} />
         <div>
           <Link className="btn btn--secondary" href="/ai-agents">
             К списку агентов

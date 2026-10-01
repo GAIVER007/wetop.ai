@@ -4907,3 +4907,8 @@
 | 01.10.2026 12:05 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/analytics-v2.spec.ts --grep номера и койки --workers=1) | ✅ 1 из 1 | 16 с | 7f64725 +50 | [лог](logs/2026-10-01T07-05-06Z-e2e-40fc.log) |  |
 | 01.10.2026 12:05 | unit (частично: apps/api/src/channels/connection.test.ts apps/api/src/channels/inbound.controller.test.ts apps/api/src/channels/outbox.test.ts apps/api/src/chan | ✅ 54 из 54 | 3 с | 7f64725 +50 | [лог](logs/2026-10-01T07-05-44Z-unit-8402.log) |  |
 | 01.10.2026 12:07 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/unified-sections.spec.ts tests/ui/analytics-v2.spec.ts tests/ui/ai-agents-create.spec.ts tests/ui | ✅ 66 из 66 | 5 мин 38 с | 7f64725 +50 | [лог](logs/2026-10-01T07-07-38Z-e2e-12ee.log) |  |
+| 01.10.2026 13:44 | unit (частично: apps/api/src/ai-seller/agent-telegram.test.ts) | ❌ код выхода 1 | 9 с | 52ff092 +50 | [лог](logs/2026-10-01T08-44-57Z-unit-be10.log) | Telegram scoped API RED |
+| 01.10.2026 13:50 | unit (частично: apps/api/src/ai-seller/agent-telegram.test.ts) | ✅ 3 из 3 | 3 с | 52ff092 +50 | [лог](logs/2026-10-01T08-50-31Z-unit-8652.log) | Telegram scoped API GREEN |
+| 01.10.2026 13:51 | typecheck | ❌ ошибок: 17 | 27 с | 52ff092 +50 | [лог](logs/2026-10-01T08-51-44Z-typecheck-3354.log) | Telegram channel API and UI contracts |
+| 01.10.2026 14:06 | unit (частично: apps/api/src/ai-seller/agent-telegram.test.ts) | ❌ упало 1 из 4 | 16 с | 52ff092 +50 | [лог](logs/2026-10-01T09-06-10Z-unit-e958.log) | Working seller Telegram scope RED |
+| 01.10.2026 14:07 | unit (частично: apps/api/src/ai-seller/agent-telegram.test.ts) | ✅ 4 из 4 | 7 с | 52ff092 +50 | [лог](logs/2026-10-01T09-07-13Z-unit-53ef.log) | Working and selected seller Telegram GREEN |

@@ -62,6 +62,8 @@ class Settings(BaseSettings):
     whatsapp_graph_base_url: str = "https://graph.facebook.com/v20.0"
     # Предел тела вебхука WhatsApp; проверяется по Content-Length ДО чтения и подписи.
     whatsapp_max_body_bytes: int = 256 * 1024
+    telegram_seller_enabled: bool = False
+    telegram_webhook_base_url: str = ""
     llm_model: str = ""
     llm_model_fallback: str = ""
     llm_model_emergency: str = ""

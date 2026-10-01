@@ -338,6 +338,13 @@ export class BotPanelClient {
   }
 
   /** Подключение WhatsApp (С3): токен и секрет Meta бот хранит шифрованными и назад не отдаёт */
+  telegram(orgId: string, action: 'status' | 'check' | 'connect' | 'disconnect', body?: unknown): Promise<Json> {
+    const path = `/seller/organizations/${encodeURIComponent(orgId)}/telegram`;
+    if (action === 'status') return this.json('GET', path);
+    if (action === 'connect') return this.json('PUT', path, body);
+    return this.json('POST', `${path}/${action}`, body);
+  }
+
   whatsappStatus(orgId: string): Promise<Json> {
     return this.json('GET', `/seller/organizations/${encodeURIComponent(orgId)}/whatsapp`);
   }

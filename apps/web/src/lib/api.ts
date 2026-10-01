@@ -1839,7 +1839,15 @@ export interface BusinessAgentView {
 export interface AgentInstructionView { text: string; saved: boolean; updatedAt: string | null }
 export interface AgentInstructionPreview { text: string; warnings: string[] }
 
+export interface TelegramStatusView {
+  set: boolean; state: 'NOT_CONNECTED' | 'CONFIGURED' | 'CONNECTING' | 'CONNECTED' | 'ERROR';
+  username: string | null; allowedUserIds: string[]; lastReceivedAt: string | null; lastSentAt: string | null; error: string | null;
+}
 export const businessAgentsApi = {
+  telegram: (id: string) => getJson<TelegramStatusView>(`/ai-seller/agents/${encodeURIComponent(id)}/telegram`),
+  checkTelegram: (id: string, token: string) => sendJson<{valid: boolean; username: string | null; conflict: boolean}>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/telegram/check`, {token}),
+  connectTelegram: (id: string, token: string, allowedUserIds: string[]) => sendJson<TelegramStatusView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/telegram`, {token, allowedUserIds}),
+  disconnectTelegram: (id: string) => sendJson<TelegramStatusView>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/telegram/disconnect`, {}),
   instruction: (id: string) => getJson<AgentInstructionView>(`/ai-seller/agents/${encodeURIComponent(id)}/instruction`),
   saveInstruction: (id: string, text: string) => sendJson<AgentInstructionView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/instruction`, { text }),
   generateInstruction: (id: string, story: string) => sendJson<AgentInstructionPreview>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/instruction/generate`, { story }),

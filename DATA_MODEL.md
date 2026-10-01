@@ -2192,7 +2192,7 @@ UNIQUE(reservation_id). Организация/объект выводятся �
 
 Без изменения хранимых сущностей и миграций: производная строка ChannelReport получает `paidMinor` (строка целого числа minor units). Предложенная семантика — сумма COMPLETED PaymentAllocation по Folio выбранных Reservation минус Refund по тем же Folio; фильтры объекта, даты заезда, статуса и разделение валют остаются как у текущего ChannelReport. Платёж не считается целиком несколько раз при распределении по разным счетам. Модель не применяется до решения владельца Q-233.
 
-### Предложение 01.10.2026 — Telegram для тестирования ИИ-продавца (ожидает утверждения)
+### 01.10.2026 — Telegram для тестирования ИИ-продавца (утверждено для реализации и тестовой базы)
 
 В базе сервиса ботов, не PMS: TelegramConnection (agent_id PK/FK Agent, bot_id TEXT UNIQUE,
 bot_username TEXT, token_encrypted BINARY, webhook_secret_encrypted BINARY,
@@ -2208,5 +2208,5 @@ next_retry_at UTC nullable, error_code TEXT nullable, payload_encrypted BINARY;
 UNIQUE(agent_id, update_id). Сохранение события предшествует HTTP 200; payload не попадает в логи,
 повтор использует ту же запись; общие Client/Conversation/Message получают channel=telegram.
 Политика хранения соответствует политике переписки бота; отдельный произвольный срок не вводится.
-Источник Reservation и финансовые правила не меняются. Реализация/test DB — после утверждения;
+Источник Reservation и финансовые правила не меняются. Реализация/test DB утверждены владельцем 01.10.2026;
 production migration — отдельные backup/validation/rollback и разрешение.

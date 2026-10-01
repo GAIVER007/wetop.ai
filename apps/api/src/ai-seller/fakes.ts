@@ -25,6 +25,7 @@ import {
 
 /** Подставной продавец для тестов раздела: запоминает вызовы, отвечает заданным или падает заданной ошибкой */
 export class FakeSeller implements SellerPort {
+  telegram(orgId: string, action: string, body?: unknown) { return this.call('telegram', orgId, action, body); }
   calls: Array<{ op: string; args: unknown[] }> = [];
   failWith: Error | null = null;
   /** Отказ одного вызова (`putProfile`, `putFacts`…) — остальные отвечают как обычно */

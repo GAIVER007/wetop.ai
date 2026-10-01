@@ -1,3 +1,4 @@
+import { TelegramPanel } from '../../ai-agents/[id]/telegram-panel';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
@@ -339,6 +340,7 @@ async function ConnectionsView({ status }: { status: SellerStatus }) {
         <SectionTitle id="seller-embed-title">Код для сайта</SectionTitle>
         <EmbedView status={status} />
       </section>
+      <TelegramPanel id="working" readOnly={!!sellerReadOnlyReason(status)} />
       <section className="stack" aria-labelledby="seller-whatsapp-title">
         <SectionTitle id="seller-whatsapp-title">WhatsApp</SectionTitle>
         <WhatsAppView status={status} />

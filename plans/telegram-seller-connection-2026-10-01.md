@@ -1,7 +1,7 @@
 # Telegram и WhatsApp — подключение ИИ-продавца на сайте
 
 01.10.2026. Пользователь попросил подключение через сайт: токен добавит сам после готовности.
-Новый план и модель ниже ожидают подтверждения согласно AGENTS.md §1–2.
+План и модель подтверждены поручением владельца «давай продолжай дальше» после представления модели 01.10.2026. Production-миграция остаётся отдельным шагом.
 
 1. Проверить живые Аналитику, Настройки объекта и Интеграции; отдельно проверить WhatsApp signature,
    дедупликацию, чужого агента, ошибку отправки и повтор. Не считать HTTP 200 доказательством ответа.
@@ -22,3 +22,10 @@
 
 Зависимость: runtime продавца на 0004; подготовлен переход 0009. Новая Telegram-миграция не должна
 неявно запускать сужение 0010. Порядок веток миграций спроектировать и проверить до production.
+
+## 01.10 implementation progress
+
+Telegram API/UI, encrypted inbox, common-engine worker and guarded migration implemented/tested.
+Working seller uses Connections tab; newly created selected agent uses its own card.
+Evidence: reports/telegram-pilot-2026-10-01/REPORT.md. Live enablement awaits explicit production DB
+rollout approval and later owner-entered test bot token. Do not report this as verified live Telegram.

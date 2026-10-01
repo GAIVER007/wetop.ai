@@ -54,8 +54,21 @@ export function NewReservationForm(props: {
     validDates &&
     availability?.arrivalDate === arrival &&
     availability?.departureDate === departure;
+  // Доступность на даты открытия уже проверил сервер (`initialAvailability`): повторный запрос при первом
+  // показе не нужен, он лишь мигал «Проверяем…» и удваивал `GET /availability` (бюджет `requests.spec`).
+  // Ключ последней проверки держит и строгий режим React: повторный запуск эффекта с тем же ключом молчит
+  const checked = useRef(
+    props.initialAvailability &&
+      props.initialAvailability.arrivalDate === props.arrival &&
+      props.initialAvailability.departureDate === props.departure
+      ? `${props.arrival}|${props.departure}|0`
+      : '',
+  );
   useEffect(() => {
     if (!validDates) return;
+    const key = `${arrival}|${departure}|${retry}`;
+    if (checked.current === key) return;
+    checked.current = key;
     let active = true;
     setChecking(true);
     setAvailabilityError('');

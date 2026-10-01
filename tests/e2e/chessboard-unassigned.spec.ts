@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /**
  * Брони без ячейки на шахматке — паритет со строкой «Без номера» в Legacy: проживание без назначения
@@ -38,7 +39,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
   // ── бронь без ячейки из формы ─────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await form.locator('select[name="source"]').selectOption('WALK_IN');
+  await chooseSource(form, 'WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const optionText = await form
     .locator(`select[name="accommodationTypeCode"] option[value="${DORM}"]`)

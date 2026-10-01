@@ -5562,7 +5562,9 @@ createServer(async (req, res) => {
         result ?? { message: `No UI fixture for ${path}` },
       );
     }
-    commands.push({ method: req.method || '', path, body });
+    // расчёт стоимости (`POST /reservations/quote`, 01.10) ничего не меняет: в журнал команд не пишется,
+    // иначе номера `20260913-NEW<n>` и индексы команд в спеках сдвигались бы на каждый расчёт
+    if (path !== '/reservations/quote') commands.push({ method: req.method || '', path, body });
     if (path.startsWith('/units/')) {
       const [, , code, command, blockId] = path.split('/');
       if (!units.some((u) => u.code === code)) return send(404, { message: 'Ячейка не найдена' });

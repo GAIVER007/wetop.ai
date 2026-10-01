@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /**
  * Заготовки печатных форм: договор и счёт открываются с карточки брони на RU и KZ, в тексте есть
@@ -33,7 +34,7 @@ test('договор и счёт печатаются на RU и KZ: номер 
   test.setTimeout(180_000);
   await page.goto(`/reservations/new?arrival=${plus(15)}&departure=${plus(17)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await form.locator('select[name="source"]').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(15), plus(17)));

@@ -3,6 +3,7 @@ import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /** Срез 5, B1: заезд и выезд с карточки; незаезд снимает ячейку. Гость вымышленный, даты сегодня → завтра. */
 const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -26,7 +27,7 @@ test('заселить → карточка и шахматка показыва
   test.setTimeout(240_000);
   await page.goto(`/reservations/new?arrival=${plus(3)}&departure=${plus(4)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await form.locator('select[name="source"]').selectOption('WALK_IN');
+  await chooseSource(form, 'WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(3), plus(4)));
@@ -131,7 +132,7 @@ test('заселить → карточка и шахматка показыва
   // незаезд
   await page.goto(`/reservations/new?arrival=${plus(5)}&departure=${plus(6)}`);
   const f2 = page.getByRole('main').getByTestId('new-reservation-form');
-  await f2.locator('select[name="source"]').selectOption('PHONE');
+  await chooseSource(f2, 'PHONE');
   await f2
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(5), plus(6)));

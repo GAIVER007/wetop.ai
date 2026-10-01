@@ -3,6 +3,7 @@ import { unitOption } from './unit-options';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /**
  * Задачи стойки T1, T2 и овербукинг из интерфейса (plans/plan-2026-09-10-desk-tasks.md).
@@ -42,15 +43,15 @@ test('стойка: занятую койку не продать дважды, 
   const second = await context.newPage();
   await second.goto(url);
 
-  const fill = async (p: typeof page, lastName: string, unitCode: string) => {
+  const fill = async (p: typeof page, lastName: string, unitCode: string, submit = true) => {
     const f = p.getByRole('main').getByTestId('new-reservation-form');
-    await f.locator('select[name="source"]').selectOption('WALK_IN');
+    await chooseSource(f, 'WALK_IN');
     await f.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
     await f.locator('select[name="unitCode"]').selectOption(unitCode);
     await f.locator('input[name="firstName"]').fill('Гость');
     await f.locator('input[name="lastName"]').fill(lastName);
     await f.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
-    await f.getByRole('button', { name: 'Создать бронь' }).click();
+    if (submit) await f.getByRole('button', { name: 'Создать бронь' }).click();
   };
 
   // Форма доезжает потоковым куском Next: пока он встраивается, та же разметка лежит в двух копиях —
@@ -68,13 +69,16 @@ test('стойка: занятую койку не продать дважды, 
   await fill(page, 'Тест-первый', unit);
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
 
-  await fill(second, 'Тест-второй', unit);
+  // компактная форма (01.10): стоимость считает сервер до отправки тем же кодом, что и создание, и занятую
+  // койку он называет сразу: кнопка «Создать бронь» не включается, отправки и второй брони нет
+  await fill(second, 'Тест-второй', unit, false);
   // администратор обязан увидеть внятный отказ, а не белый экран и не вторую бронь на той же койке
-  const refusal = second.getByRole('alert').first();
-  await expect(refusal).toContainText(/занят|пересек/i);
+  const refusal = secondForm.getByRole('status').filter({ hasText: /занят|пересек/i });
+  await expect(refusal).toBeVisible();
   // в сообщении номер койки, а не внутренний идентификатор — иначе оно бесполезно на стойке
   await expect(refusal).toContainText(unit);
   await expect(refusal).not.toContainText(/[0-9a-f]{8}-[0-9a-f]{4}-/);
+  await expect(secondForm.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
   await expect(second).toHaveURL(/\/reservations\/new/);
   // введённое не стёрлось: администратор меняет одну ячейку, а не набирает всё заново
   await expect(secondForm.locator('input[name="lastName"]')).toHaveValue('Тест-второй');

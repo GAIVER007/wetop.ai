@@ -3,6 +3,7 @@ import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
 import { selectService } from './pick-service';
+import { chooseSource } from './booking-form';
 
 /**
  * Финансы (DATA_MODEL §6, ADR-014): счёт создаётся вместе с проживанием, начисление = цене;
@@ -34,7 +35,7 @@ test('счёт на проживание: начисления, оплата, в
   test.setTimeout(120_000);
   await page.goto(`/reservations/new?arrival=${plus(9)}&departure=${plus(10)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await form.locator('select[name="source"]').selectOption('WALK_IN');
+  await chooseSource(form, 'WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, plus(9), plus(10)));

@@ -3,6 +3,7 @@ import { unitOption } from './unit-options';
 import { minorFromText } from './money';
 import { cardTab } from './card-tabs';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /**
  * Срез 5 целиком одной цепочкой: «сутки можно прожить руками».
@@ -34,7 +35,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   // 1. Бронь с ячейкой
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await form.locator('select[name="source"]').selectOption('WALK_IN');
+  await chooseSource(form, 'WALK_IN');
   await form
     .locator('select[name="accommodationTypeCode"]')
     .selectOption(await roomiestCategory(request, arrival, departure));

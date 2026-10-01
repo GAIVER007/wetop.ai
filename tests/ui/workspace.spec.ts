@@ -1,4 +1,5 @@
 import { expect, test, devNoise, type Page } from './fixtures';
+import { chooseSource } from './booking-form';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -46,7 +47,8 @@ test('все разделы, карточки и печать открывают
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
-    ['/channels/connections', 'Подключения'],
+    // с 01.10 «Подключения» каналов живут на `/connections/channex` (ADR-121, план навигации по задачам)
+    ['/channels/connections', 'Подключение каналов'],
     ['/channels/mapping', 'Сопоставление'],
     ['/channels/sync', 'Синхронизация'],
     ['/channels/events', 'События'],
@@ -65,19 +67,20 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/penalties', 'Тарифы и цены'],
     ['/hotel-settings/services', 'Настройки объекта'],
     ['/hotel-settings/description', 'Настройки объекта'],
-    ['/hotel-settings/photos', 'Интеграции'],
-    ['/hotel-settings/amenities', 'Интеграции'],
+    ['/hotel-settings/photos', 'Подключения'],
+    ['/hotel-settings/amenities', 'Подключения'],
     ['/management/analytics', 'Аналитика'],
     ['/management/analytics/occupancy', 'Аналитика'],
     // временные «Показатели за период» (A1) с AN2 ведут на «Обзор» (ADR-114)
     ['/management/dashboard', 'Аналитика'],
     ['/channel-manager', 'Каналы продаж'],
-    ['/connections', 'Интеграции'],
+    ['/connections', 'Подключения'],
   ];
   // Старые адреса — redirect(): у экрана загрузки «Настроек объекта» тот же заголовок, что у цели (ADR-115), поэтому
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
   const redirects: Record<string, RegExp> = {
     '/hotel-settings/check-in': /\/hotel-settings\/stay$/,
+    '/channels/connections': /\/connections\/channex$/,
     '/hotel-settings/penalties': /\/rates\/plans$/,
     '/management/dashboard': /\/management\/analytics$/,
     '/hotel-settings/description': /\/hotel-settings$/,
@@ -123,11 +126,11 @@ test('вложенные разделы: раскрытие, один актив
     await sales.click();
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
   }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Тарифы', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true }).click();
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
   await sales.click();
-  await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).not.toBeVisible();
+  await expect(sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true })).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -139,7 +142,7 @@ test('вложенные разделы: раскрытие, один актив
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
   await page.goto('/connections');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Интеграции');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Подключения');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -170,11 +173,11 @@ test('доступность переносит даты и свободное �
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
   await expect(page).toHaveURL(new RegExp(`arrival=${arrival}&departure=${departure}&unit=R01`));
-  await expect(
-    page
-      .getByRole('dialog', { name: 'Новая бронь', exact: true })
-      .getByRole('heading', { level: 1 }),
-  ).toHaveText('Новая бронь');
+  // компактная форма (01.10): боковое окно без повторного заголовка, имя окна и есть «Новая бронь»;
+  // перехватывающий маршрут на холодном `next dev` собирается дольше обычных 15 с
+  await expect(page.getByRole('dialog', { name: 'Новая бронь', exact: true })).toBeVisible({
+    timeout: 45_000,
+  });
   await page.goto(`/rooms/availability?arrival=${departure}&departure=${arrival}`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Выезд должен быть позже заезда',
@@ -351,7 +354,7 @@ test('ошибка создания сохраняет ввод; повтор о
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
-  await form.locator('[name="source"]').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Новый');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
   await form.getByLabel('Отчество').fill('Тестович');
@@ -514,19 +517,10 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет. Главная
-  // стримится, и клик по группе до гидрации теряется (тот же класс, что real-data.spec 20.09) —
-  // жмём, пока ссылка не раскроется, но только если группа свёрнута: иначе щелчок её закроет
-  // (правка ветки PR #28)
-  const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
-  const toggle = control.getByRole('button');
-  await expect(async () => {
-    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
-    await expect(control.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
-      timeout: 1_500,
-    });
-  }).toPass({ timeout: 15_000 });
-  await control.getByRole('link', { name: 'Неисправности', exact: true }).click();
+  // группы «Контроль» в меню с 01.10 нет (план навигации по задачам): к неисправностям ведёт ссылка
+  // «Контроль системы» с Главной
+  await page.getByRole('link', { name: 'Контроль системы', exact: true }).click();
+  await expect(page).toHaveURL(/\/incidents$/);
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();
@@ -551,7 +545,8 @@ test('сбой списка неисправностей не выдаётся �
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {
   await page.goto('/reservations/new?arrival=bad-date');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
-  await expect(page.getByText('Даты некорректны:', { exact: false })).toBeVisible();
+  // компактная форма (01.10): ошибка у самого поля даты, введённое не подменяется
+  await expect(page.getByText('Введите корректную дату', { exact: true }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
 });
 
@@ -568,7 +563,7 @@ test('групповая бронь: разные категории сохра�
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new');
   const form = page.getByTestId('new-reservation-form');
-  await form.getByLabel('Источник *').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await form.getByRole('button', { name: '+ Добавить размещение' }).click();
   const second = form.getByTestId('placement-fields').nth(1);
   await second.getByLabel('Категория *').selectOption('MALE');
@@ -619,7 +614,11 @@ test('обзор: задачи ведут к счетам, полоса стой
   page,
 }) => {
   await page.goto('/today');
-  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
+  // сводная Главная владельца (01.10): очередь «Требуют внимания» открывается кнопкой в боковом окне
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  const tasks = page
+    .getByRole('dialog', { name: 'Требуют внимания' })
+    .getByRole('region', { name: 'Требуют внимания' });
   await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
   // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
   const queueTotal = async () =>
@@ -641,30 +640,16 @@ test('обзор: задачи ведут к счетам, полоса стой
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
-  // A1 (ADR-103): Главная живёт одним днём — «Завтра» меняет и полосу, и задачи на тот день
-  await page
-    .getByRole('navigation', { name: 'День стойки' })
-    .getByRole('link', { name: 'Завтра' })
-    .click();
-  await expect(page).toHaveURL(/date=\d{4}-\d{2}-\d{2}/);
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).not.toContainText('сейчас');
-  await page
-    .getByRole('navigation', { name: 'День стойки' })
-    .getByRole('link', { name: 'Сегодня' })
-    .click();
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
-  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
-  await expect(
-    page
-      .getByRole('region', { name: 'Сегодня на стойке' })
-      .getByRole('link', { name: 'Все брони дня' }),
-  ).toHaveAttribute('href', /\/reservations\?date=\d{4}-\d{2}-\d{2}/);
+  // сводная Главная владельца (01.10) живёт сегодняшним днём: полосы «День стойки» и переключения дня нет
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Требуют внимания' })).toHaveCount(0);
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);
-    await expect(page.getByRole('link', { name: 'Новая бронь', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Новая бронь/ }).first()).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   await departureDebt.click();
   await expect(page).toHaveURL(/#booking-finance$/);
   await expect(page.locator('#booking-finance')).toBeInViewport();
@@ -904,6 +889,8 @@ test('кнопки Channex отправляют команды один раз �
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
+  // ручной обмен на «Обзоре» лежит под раскрытием «Активность каналов и ручной обмен» (01.10)
+  await page.getByTestId('channels-activity').locator('summary').click();
   for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
     const button = page.getByTestId(id).filter({ visible: true });
@@ -913,7 +900,8 @@ test('кнопки Channex отправляют команды один раз �
     await expect(button).toBeEnabled();
     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   }
-  await page.goto('/channels/connections');
+  // настройка подключения с 01.10 живёт на `/connections/channex` (`/channels/connections` уводит туда)
+  await page.goto('/connections/channex');
   for (const id of ['channel-sync', 'channel-setup']) {
     const button = page.getByTestId(id).filter({ visible: true });
     await expect(button).toHaveCount(1);
@@ -964,7 +952,8 @@ test('пустые ответы дают нули; сбой API не выдаё�
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   // «Финансы за период» с D2 (20.09) остаются на экране: заголовок и период на месте, вместо чисел — сбой
   // (и у итогов, и у списка долгов — ADR-113)
-  await page.goto('/finance');
+  // компактные «Финансы» (01.10): долги на своей вкладке, отказ списка долгов виден на ней
+  await page.goto('/finance?debts=all');
   await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
     'Финансы за период',
   );
@@ -1106,7 +1095,7 @@ test('кнопки называют своё действие: гость зав
   await expect(page).toHaveURL(/\/reservations\/new$/);
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
-  await page.goto('/finance');
+  await page.goto('/finance?debts=all');
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))
@@ -1460,7 +1449,7 @@ test('новая бронь: резюме выбора обновляется п
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
   await expect(summary).toContainText(`ячейка ${unitCode}`);
-  await form.getByLabel('Источник *').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await expect(summary).toContainText('телефон');
   await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
@@ -1474,14 +1463,14 @@ test('новая бронь: резюме выбора обновляется п
   await expect(summary).toContainText(roomName);
   await expect(summary).not.toContainText(`ячейка ${unitCode}`);
   // окно 700 px: форма длиннее экрана, но кнопка создания видна, пока прокручено к её началу
-  await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
+  await form.getByText('Дополнительно', { exact: true }).scrollIntoViewIfNeeded();
   await expect(form.getByRole('button', { name: 'Создать бронь' })).toBeInViewport();
 
   // телефон: кнопка над нижней навигацией, страница без прокрутки вбок
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/reservations/new?unit=M03');
   const button = form.getByRole('button', { name: 'Создать бронь' });
-  await form.getByLabel('Источник *').scrollIntoViewIfNeeded();
+  await form.getByText('Дополнительно', { exact: true }).scrollIntoViewIfNeeded();
   await expect(button).toBeInViewport();
   const [box, nav] = await Promise.all([
     button.boundingBox(),

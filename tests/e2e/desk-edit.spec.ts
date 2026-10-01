@@ -2,6 +2,7 @@ import { expect, test } from './fixtures';
 import { cardTab } from './card-tabs';
 import { confirmAction, confirmDialog } from './confirm';
 import { roomiestCategory } from './pick-category';
+import { chooseSource } from './booking-form';
 
 /**
  * Групповая бронь из формы и правка готовой брони (plans/plan-2026-09-09-closing.md, ADR-020).
@@ -38,7 +39,7 @@ test('групповая бронь на 2 койки → две клетки ш
   // ── Форма: «Количество мест» = 2, конкретная ячейка не выбирается ─────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
-  await form.locator('select[name="source"]').selectOption('PHONE');
+  await chooseSource(form, 'PHONE');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   await expect(form.locator('select[name="unitCode"]')).toHaveCount(1);
   await form.locator('input[name="quantity"]').fill('2');
@@ -72,7 +73,7 @@ test('групповая бронь на 2 койки → две клетки ш
   await page.goto(`/reservations/${number}`);
   const edit = page.getByRole('main').getByTestId('edit-reservation-form');
   await cardTab(page, 'Действия');
-  await edit.locator('select[name="source"]').selectOption('WHATSAPP');
+  await chooseSource(edit, 'WHATSAPP');
   await edit.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ · поздний заезд, ключ у соседа');
   await edit.getByRole('button', { name: 'Сохранить' }).click();
   // текст есть и в подписи, и в поле ввода — проверяем именно подпись на карточке

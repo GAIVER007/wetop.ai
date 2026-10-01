@@ -49,7 +49,8 @@ for (const screen of [
   '/management/analytics/occupancy',
   '/finance',
   '/channels',
-  '/channels/connections',
+  // `/channels/connections` с 01.10 уводит на `/connections/channex`: считаем целевой экран, а не переход
+  '/connections/channex',
   '/channels/mapping',
   '/channels/sync',
   '/channels/events',

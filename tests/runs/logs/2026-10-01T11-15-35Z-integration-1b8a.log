@@ -1,0 +1,16 @@
+# Интеграционные (integration) · 01.10.2026 16:15 Алматы · vm
+# коммит 6e4b768 (claude/epic-johnson-8yejs9), незакоммиченных файлов набора: 25
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T11-15-35Z-integration-1b8a.json' 'tests/integration/platform-extensions.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |integration| tests/integration/platform-extensions.test.ts (3 tests) 495ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  11:15:36
+   Duration  3.15s (transform 46%, tests 29%, import 25%)
+
+JSON report written to /tmp/pms-test-2026-10-01T11-15-35Z-integration-1b8a.json
+
+# код выхода 0 · 4 с

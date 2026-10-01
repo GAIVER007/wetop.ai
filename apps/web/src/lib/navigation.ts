@@ -232,6 +232,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
+        // компания и филиалы (Platform P3, ADR-130): термин клиента — «Компания» (ARCHITECTURE.md §1)
+        href: '/organization',
+        requires: 'settings',
+        label: 'Компания',
+        icon: 'inventory',
+        description: 'Филиалы компании, их показатели за период и итог; новый филиал — владелец.',
+      },
+      {
         href: '/connections',
         requires: 'settings',
         label: 'Интеграции',
@@ -323,7 +331,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
-    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/connections')],
+    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/organization'), menuItem('/connections')],
   },
   {
     id: 'control',

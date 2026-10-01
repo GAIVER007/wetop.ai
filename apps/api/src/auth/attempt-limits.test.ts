@@ -6,6 +6,7 @@ import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../database/prisma.provider';
 import { ExtensionsService } from '../platform/extensions.service';
+import { OrganizationService } from '../organization/organization.service';
 import { AttemptWindows, PasswordGate, visitorKey } from './attempt-limits';
 import { AUTH_IP_LIMITS, AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -102,6 +103,8 @@ describe('вход: предел попыток с одного адреса', (
         AuthService,
         { provide: PrismaService, useValue: world.prisma },
         { provide: ExtensionsService, useValue: {} },
+        // подпись переключателя филиала в `/auth/me` (Platform P3): здесь не проверяется
+        { provide: OrganizationService, useValue: { workspace: async () => ({ business: null, location: null, options: [] }) } },
         { provide: PasswordResetService, useValue: {} },
         { provide: EmailVerificationService, useValue: {} },
       ],

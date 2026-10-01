@@ -12,6 +12,7 @@ import {
 } from '../../lib/navigation';
 import type { DeskPerson, DeskShell } from '../../lib/desk-person';
 import { DataFreshness } from '../data-freshness';
+import { ScopeSwitcher } from './scope-switcher';
 import { Icon } from '../icon';
 import { cx } from '../ui';
 /** Server-rendered text slots keep late metadata independent of the interactive shell. */
@@ -225,17 +226,20 @@ function GrantedProperty({
 }) {
   const shell = desk ? use(desk) : null;
   const settings = allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS);
-  return <PropertyBlock {...props} settings={settings} />;
+  return <PropertyBlock {...props} settings={settings} workspace={shell?.workspace ?? null} />;
 }
 
 function PropertyBlock({
   property,
   settings,
   close,
+  workspace = null,
 }: {
   property?: PropertyIdentity | null | undefined;
   settings: boolean;
   close: (() => void) | undefined;
+  /** Текущий филиал и варианты (Platform P3): два и больше — переключатель под объектом, один — подпись (Q-215) */
+  workspace?: DeskShell['workspace'];
 }) {
   const identity = (
     <>
@@ -248,13 +252,19 @@ function PropertyBlock({
       </div>
     </>
   );
-  return settings ? (
+  const block = settings ? (
     <Link href="/hotel-settings" className="workspace-property" onClick={() => close?.()}>
       {identity}
       <Icon name="chevron" width={14} />
     </Link>
   ) : (
     <div className="workspace-property">{identity}</div>
+  );
+  return (
+    <>
+      {block}
+      {workspace && <ScopeSwitcher workspace={workspace} />}
+    </>
   );
 }
 

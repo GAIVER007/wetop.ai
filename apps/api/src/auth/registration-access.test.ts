@@ -6,6 +6,7 @@ import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../database/prisma.provider';
 import { ExtensionsService } from '../platform/extensions.service';
+import { OrganizationService } from '../organization/organization.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SessionGuard } from './auth.guard';
@@ -38,6 +39,8 @@ describe('единая настройка самостоятельной рег�
         AuthService,
         { provide: PrismaService, useValue: world.prisma },
         { provide: ExtensionsService, useValue: {} },
+        // подпись переключателя филиала в `/auth/me` (Platform P3): здесь не проверяется
+        { provide: OrganizationService, useValue: { workspace: async () => ({ business: null, location: null, options: [] }) } },
         { provide: PasswordResetService, useValue: {} },
         {
           provide: EmailVerificationService,

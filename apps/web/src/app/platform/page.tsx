@@ -17,6 +17,7 @@ import {
 import { Icon } from '../../components/icon';
 import { ApiError, platformApi, type PlatformOrganization } from '../../lib/api';
 import { loadErrorProps } from '../../lib/load-error';
+import { pluralRu } from '../../lib/plural';
 import {
   extensionFormDefaults,
   extensionLine,
@@ -87,6 +88,7 @@ async function Organizations({ selected }: { selected: string }) {
               <th>Организация</th>
               <th>Состояние</th>
               <th>Людей</th>
+              <th>Структура</th>
               <th>Владелец</th>
               <th>ИИ-продавец</th>
             </tr>
@@ -107,6 +109,12 @@ async function Organizations({ selected }: { selected: string }) {
                     <Badge tone={status.tone}>{status.label}</Badge>
                   </td>
                   <td>{o.members}</td>
+                  {/* структура партнёра — счётчики (ARCHITECTURE.md §17, Platform P3); старый API их не присылает */}
+                  <td data-testid="platform-structure">
+                    {o.businesses === undefined || o.locations === undefined
+                      ? '—'
+                      : `${pluralRu(o.businesses, ['бизнес', 'бизнеса', 'бизнесов'])}, ${pluralRu(o.locations, ['филиал', 'филиала', 'филиалов'])}`}
+                  </td>
                   <td>{o.owners.length > 0 ? o.owners.join(', ') : '—'}</td>
                   <td>
                     <Badge tone={seller.tone}>{seller.label}</Badge>

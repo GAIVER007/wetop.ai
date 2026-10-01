@@ -25,6 +25,16 @@ export class DashboardService {
 
   /** `fund` — тип фонда (Аналитика v2, AN1): номера и койки считаются раздельно, оба отрезка одним типом */
   async dashboard(from?: string, to?: string, fund: string = 'all'): Promise<DashboardView> {
+    const period = this.checkPeriod(from, to, fund);
+    const prev = previousPeriod(period.from, period.to);
+    // Последовательно: у API пул на 5 соединений, а шахматка сама ходит в базу в несколько запросов
+    const current = await this.period(period.from, period.to, period.fund);
+    const previous = await this.period(prev.from, prev.to, period.fund);
+    return { current, previous };
+  }
+
+  /** Проверка запроса периода — одна для «Обзора» и для сводки по филиалам (Platform P3) */
+  checkPeriod(from?: string, to?: string, fund: string = 'all'): { from: string; to: string; fund: DashboardFund } {
     if (!isIsoDate(from) || !isIsoDate(to))
       throw new BadRequestException('from и to — даты YYYY-MM-DD');
     if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
@@ -32,14 +42,11 @@ export class DashboardService {
     if (to < from) throw new BadRequestException('to не может быть раньше from');
     if (periodNights(from, to) > MAX_PERIOD_DAYS)
       throw new BadRequestException(`Период не больше ${MAX_PERIOD_DAYS} дней`);
-    const prev = previousPeriod(from, to);
-    // Последовательно: у API пул на 5 соединений, а шахматка сама ходит в базу в несколько запросов
-    const current = await this.period(from, to, fund as DashboardFund);
-    const previous = await this.period(prev.from, prev.to, fund as DashboardFund);
-    return { current, previous };
+    return { from, to, fund: fund as DashboardFund };
   }
 
-  private async period(from: string, to: string, fund: DashboardFund): Promise<DashboardPeriod> {
+  /** Показатели одного отрезка по объекту текущего scope — сводка по филиалам зовёт его в scope каждого филиала */
+  async period(from: string, to: string, fund: DashboardFund): Promise<DashboardPeriod> {
     // Шахматка сама ходит в базу в четыре запроса — её держим отдельно; остальные четыре выборки
     // друг от друга не зависят и идут одновременно. Было десять рейсов подряд на один экран, и на
     // задержках сети до Сингапура это стоило секунд (разбор «всё тормозит», 16.09.2026).

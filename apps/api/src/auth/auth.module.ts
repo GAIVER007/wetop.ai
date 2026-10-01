@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { mail } from '@pms/integrations';
 import { PrismaService } from '../database/prisma.provider';
 import { PlatformModule } from '../platform/platform.module';
+import { OrganizationModule } from '../organization/organization.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { APP_URL, MAILER, PasswordResetService, type Mailer } from './password-reset.service';
@@ -15,7 +16,7 @@ import { EmailVerificationService } from './email-verification.service';
  */
 @Module({
   // расширения организации — для `/auth/me` (ADR-083)
-  imports: [PlatformModule],
+  imports: [PlatformModule, OrganizationModule],
   controllers: [AuthController],
   providers: [
     PrismaService,

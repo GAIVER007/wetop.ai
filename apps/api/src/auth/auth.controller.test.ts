@@ -49,6 +49,7 @@ function make() {
     reset as never,
     verification as never,
     {} as never,
+    { workspace: async () => ({ business: null, location: null, options: [] }) } as never,
   );
   return { controller, calls };
 }

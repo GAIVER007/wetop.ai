@@ -1,0 +1,96 @@
+/* «Компания» (Platform P3, ADR-130): факты, филиалы, сводка по филиалам. Новых компонентов нет — блоки
+   «Настроек объекта» (`.settings-block`, `.settings-facts`), таблица, панель формы, таблица сводки «Аналитики». */
+.company-page .settings-block {
+  margin-bottom: var(--space-6);
+}
+.company-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+.company-facts > div {
+  border: 0;
+  padding: 0;
+}
+.company-branches .table-scroll {
+  overflow-x: auto;
+}
+.company-branches td.num,
+.company-summary td.num,
+.company-summary th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.company-branches .company-branch__open form {
+  display: inline;
+}
+.company-summary__periods {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.company-summary__periods .company-period {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin-left: auto;
+}
+.company-summary tfoot td {
+  font-weight: 600;
+  border-top: 1px solid var(--border);
+}
+.company-branch-form {
+  display: grid;
+  gap: var(--space-4);
+}
+.company-branch-form .field {
+  margin: 0;
+}
+.company-branch-form__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.company-branch-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+.company-note {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-4);
+  line-height: 1.6;
+}
+/* переключатель филиала под объектом в левой панели (Q-215): подпись или поле */
+.sidebar-shell .workspace-scope {
+  margin: 0 0 var(--space-4);
+  padding: 0 var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-shell .workspace-scope--switch {
+  display: grid;
+  gap: var(--space-1);
+  white-space: normal;
+}
+.sidebar-shell .workspace-scope--switch select {
+  width: 100%;
+  min-width: 0;
+}
+.sidebar-shell.is-compact .workspace-scope {
+  display: none;
+}
+@media (max-width: 600px) {
+  .company-branch-form__pair {
+    grid-template-columns: 1fr;
+  }
+  .company-branch-form__actions .btn {
+    flex: 1;
+  }
+}

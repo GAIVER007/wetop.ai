@@ -6,6 +6,7 @@ import {
   type OrganizationStatus,
 } from '@pms/domain';
 import { CLOSED_ACCESS, UNKNOWN_ACCESS, deskAccessOf, type NavigationAccess } from './navigation';
+import type { WorkspaceContext } from './api';
 import { tourKeyOf } from '../components/shell/tour-steps';
 
 /** Кто на смене — подпись в меню вместо «Администратор» (ADR-083): имя, роль и буквы для кружка */
@@ -25,6 +26,8 @@ export interface DeskShell {
   tourKey: string | null;
   /** Пробный срок вышел или организация в «только чтение» (Q-144 — Б, ADR-102): полоса над экраном */
   readOnly: boolean;
+  /** Текущий Business и филиал и из чего выбирать (Platform P3, ADR-130); старый API или сбой — `null`, подписи нет */
+  workspace: Pick<WorkspaceContext, 'business' | 'location' | 'options'> | null;
 }
 
 export const CLOSED_SHELL: DeskShell = {
@@ -33,6 +36,7 @@ export const CLOSED_SHELL: DeskShell = {
   trial: null,
   tourKey: null,
   readOnly: false,
+  workspace: null,
 };
 
 /** Нет права записи — то же правило, что у API (`canWrite` в домене). Нет организации в ответе — полосы нет. */
@@ -70,6 +74,7 @@ export const UNKNOWN_SHELL: DeskShell = {
   tourKey: null,
   // статус организации тоже неизвестен: полосу «только чтение» не обещаем, запись закроет API (ADR-102)
   readOnly: false,
+  workspace: null,
 };
 
 type MeLike = Parameters<typeof deskAccessOf>[0] & {
@@ -80,7 +85,14 @@ type MeLike = Parameters<typeof deskAccessOf>[0] & {
     platformAdmin?: boolean;
     organization?: TrialOrganization | null;
   } | null;
+  context?: Partial<Pick<WorkspaceContext, 'business' | 'location' | 'options'>> | null;
 };
+
+/** Подпись и варианты переключателя из `/auth/me`; поля нет (старый API) — подписи нет */
+export function workspaceOf(context: MeLike['context']): DeskShell['workspace'] {
+  if (!context || !Array.isArray(context.options)) return null;
+  return { business: context.business ?? null, location: context.location ?? null, options: context.options };
+}
 
 const capital = (text: string) => text.charAt(0).toLocaleUpperCase('ru') + text.slice(1);
 
@@ -108,5 +120,6 @@ export function deskShellOf(me: MeLike | null): DeskShell {
     trial: trialLine(me.user.organization, new Date()),
     tourKey: tourKeyOf(me.user.email),
     readOnly: readOnlyOf(me.user.organization, new Date()),
+    workspace: workspaceOf(me.context),
   };
 }

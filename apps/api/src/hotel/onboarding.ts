@@ -21,7 +21,13 @@ import {
 } from '@pms/database';
 import { buildHotelSetupPlan, OnboardingError, type HotelSetup } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
-import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import {
+  currentBusinessId,
+  currentLocationId,
+  currentOrganizationId,
+  currentScope,
+  hasSignedInActor,
+} from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
 import { HotelService } from './hotel.module';
@@ -99,8 +105,20 @@ export class OnboardingService {
    * (plans/onboarding-without-property-2026-09-28.md).
    */
   private async findProperty(organizationId: string, db: Pick<PrismaService['db'], 'property'> = this.prisma.db) {
+    // Несколько филиалов (Platform P3): объект — текущего scope, как у остальных экранов (`property-ref.ts`); без
+    // указателя — самый ранний, а не случайный
+    const scope = currentScope();
+    const locationId = currentLocationId();
+    const businessId = currentBusinessId();
+    const where =
+      scope === 'LOCATION' && locationId
+        ? { organizationId, locationId }
+        : scope === 'BUSINESS' && businessId
+          ? { organizationId, location: { businessId } }
+          : { organizationId };
     return db.property.findFirst({
-      where: { organizationId },
+      where,
+      orderBy: { createdAt: 'asc' },
       select: { id: true, name: true, currency: true, timezone: true },
     });
   }

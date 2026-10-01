@@ -218,6 +218,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /seller-agents/:id': 'seller',
   'POST /seller-agents/claim': 'seller',
 
+  // ── компания и филиалы (Platform P3, ADR-130) ────────────────────────────────────────────
+  'GET /organization': 'desk',
+  'GET /organization/summary': 'reports',
+  'POST /organization/locations': 'owner',
+
   // ── «Платформа» — главный администратор (§16.2) ─────────────────────────────────────────
   'GET /platform/organizations': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',

@@ -101,8 +101,6 @@ function organizationJson(o: OrganizationSummary, now: Date) {
     createdAt: o.createdAt.toISOString(),
     members: o.members,
     owners: o.owners,
-    businesses: o.businesses,
-    locations: o.locations,
     aiSeller: {
       ...aiSellerView(o.aiSeller, now),
       note: o.aiSeller?.note ?? null,

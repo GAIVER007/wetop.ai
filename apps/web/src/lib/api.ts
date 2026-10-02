@@ -434,26 +434,6 @@ export interface DeskAccessView {
   aiSeller: ExtensionAccessView;
 }
 
-/**
- * Рабочая область стойки (Platform P2 К1 + P3, ADR-120, ADR-130): scope запроса по указателю `wetop_scope`, текущий
- * Business и филиал с именами и из чего выбирать. Один филиал, переключателя нет, подпись статична (Q-215).
- */
-export interface WorkspaceContext {
-  scope: 'ORGANIZATION' | 'BUSINESS' | 'LOCATION';
-  businessId: string | null;
-  locationId: string | null;
-  vertical: 'HOSPITALITY' | 'BEAUTY' | null;
-  business: { id: string; name: string } | null;
-  location: { id: string; name: string } | null;
-  options: WorkspaceOption[];
-}
-export interface WorkspaceOption {
-  businessId: string;
-  businessName: string;
-  locationId: string;
-  locationName: string;
-}
-
 export interface SignedInOrganization {
   name: string;
   status: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED' | (string & {});
@@ -506,8 +486,6 @@ export const authApi = {
       organization?: SignedInOrganization | null;
       expiresAt?: string;
       access?: DeskAccessView;
-      // scope и подпись переключателя филиала (Platform P2 K1, P3; ADR-130)
-      context?: WorkspaceContext;
     }>('/auth/me');
     // whoami returns organization alongside user; older previews nested it inside user.
     return {
@@ -1975,9 +1953,6 @@ export interface PlatformOrganization {
   createdAt: string;
   members: number;
   owners: string[];
-  /** Структура партнёра (ARCHITECTURE.md §17, Platform P3): счётчики без содержимого */
-  businesses?: number;
-  locations?: number;
   aiSeller: ExtensionAccessView & { note: string | null; updatedAt: string | null };
 }
 
@@ -2003,86 +1978,6 @@ export const platformApi = {
       'PUT',
       `/platform/organizations/${encodeURIComponent(organizationId)}/status`,
       body,
-    ),
-};
-
-/** Филиал организации, `Location` со своим объектом (Platform P3, ADR-130; DATA_MODEL §18) */
-export interface OrganizationBranch {
-  id: string;
-  businessId: string;
-  name: string;
-  address: string | null;
-  phone: string | null;
-  email: string | null;
-  timezone: string;
-  currency: string;
-  createdAt: string;
-  propertyId: string | null;
-  propertyName: string | null;
-}
-
-export interface OrganizationStructure {
-  id: string;
-  name: string;
-  reportingCurrency: string;
-  businesses: Array<{ id: string; name: string; vertical: string; locations: OrganizationBranch[] }>;
-  current: Pick<WorkspaceContext, 'business' | 'location' | 'options'>;
-  canAddBranch: { ok: true } | { ok: false; reason: string };
-  /** Умолчания формы нового филиала: часовой пояс и валюта первого филиала, их знает API, не стойка */
-  branchDefaults: { timezone: string; currency: string };
-}
-
-export interface BranchSummaryRow {
-  locationId: string;
-  businessId: string;
-  businessName: string;
-  name: string;
-  currency: string;
-  propertyName: string | null;
-  current: boolean;
-  period: DashboardPeriod | null;
-}
-
-export interface BranchMoneyTotal {
-  currency: string;
-  revenueMinor: string;
-  paymentsMinor: string;
-  refundsMinor: string;
-  adrMinor: string | null;
-  revparMinor: string | null;
-}
-
-export interface BranchesSummary {
-  from: string;
-  to: string;
-  fund: DashboardFund;
-  reportingCurrency: string;
-  branches: BranchSummaryRow[];
-  total: {
-    branches: number;
-    occupancy: DashboardPeriod['occupancy'];
-    arrivals: number;
-    bookings: number;
-    money: BranchMoneyTotal[];
-  };
-}
-
-export interface BranchBody {
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-  timezone: string;
-  currency: string;
-}
-
-/** Компания и филиалы (Platform P3, ADR-130): структуру видит каждый вошедший, добавляет филиал владелец */
-export const organizationApi = {
-  structure: () => getJson<OrganizationStructure>('/organization'),
-  createBranch: (body: BranchBody) => sendJson<OrganizationBranch>('POST', '/organization/locations', body),
-  summary: (from: string, to: string, fund: DashboardFund = 'all') =>
-    getJson<BranchesSummary>(
-      `/organization/summary?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${fund === 'all' ? '' : `&fund=${fund}`}`,
     ),
 };
 

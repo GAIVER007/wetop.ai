@@ -19,8 +19,6 @@ const routes = [
   '/finance',
   '/management/analytics',
   '/hotel-settings',
-  // «Компания», филиалы организации (Platform P3, ADR-130)
-  '/organization',
   '/connections',
   '/staff',
   '/journal',

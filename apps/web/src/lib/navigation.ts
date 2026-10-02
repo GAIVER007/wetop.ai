@@ -241,14 +241,6 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Приглашения, роли и доступ сотрудников организации.',
       },
       {
-        // компания и филиалы (Platform P3, ADR-130): термин клиента «Компания» (ARCHITECTURE.md §1)
-        href: '/organization',
-        requires: 'settings',
-        label: 'Компания',
-        icon: 'inventory',
-        description: 'Филиалы компании, их показатели за период и итог; новый филиал добавляет владелец.',
-      },
-      {
         href: '/connections',
         requires: 'settings',
         label: 'Интеграции',
@@ -353,7 +345,6 @@ export const sidebarSections: SidebarSection[] = [
     icon: 'settings',
     items: [
       menuItem('/hotel-settings', 'Объект'),
-      menuItem('/organization'),
       menuItem('/staff', 'Сотрудники и доступ'),
       menuItem('/connections', 'Подключения'),
       menuItem('/journal', 'Журнал действий'),

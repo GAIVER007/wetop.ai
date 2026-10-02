@@ -23,7 +23,6 @@ import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { HotelModule } from './hotel/hotel.module';
-import { OrganizationModule } from './organization/organization.module';
 import { PlatformModule } from './platform/platform.module';
 import { RatesModule } from './rates/rates.module';
 import { ReservationsModule } from './reservations/reservations.module';
@@ -42,7 +41,6 @@ import { DataConnectionModule } from './database/connection';
     AccountsModule,
     // главный администратор: организации и их расширения (ADR-083)
     PlatformModule,
-    OrganizationModule,
     InventoryModule,
     HotelModule,
     ChessboardModule,

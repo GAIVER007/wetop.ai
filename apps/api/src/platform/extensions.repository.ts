@@ -23,9 +23,6 @@ export interface OrganizationSummary {
   createdAt: Date;
   members: number;
   owners: string[];
-  /** Структура партнёра (ARCHITECTURE.md §17, Platform P3): сколько бизнесов и филиалов, без их содержимого */
-  businesses: number;
-  locations: number;
   aiSeller: ExtensionRow | null;
 }
 
@@ -153,8 +150,7 @@ const SUMMARY = {
   status: true,
   trialEndsAt: true,
   createdAt: true,
-  _count: { select: { memberships: true, businesses: true } },
-  businesses: { select: { _count: { select: { locations: true } } } },
+  _count: { select: { memberships: true } },
   memberships: {
     where: { role: 'OWNER' as const },
     orderBy: { createdAt: 'asc' as const },
@@ -172,8 +168,7 @@ function summary(row: {
   status: OrganizationStatus;
   trialEndsAt: Date | null;
   createdAt: Date;
-  _count: { memberships: number; businesses: number };
-  businesses: Array<{ _count: { locations: number } }>;
+  _count: { memberships: number };
   memberships: Array<{ user: { email: string } }>;
   extensions: ExtensionRow[];
 }): OrganizationSummary {
@@ -185,8 +180,6 @@ function summary(row: {
     createdAt: row.createdAt,
     members: row._count.memberships,
     owners: row.memberships.map((m) => m.user.email),
-    businesses: row._count.businesses,
-    locations: row.businesses.reduce((n, b) => n + b._count.locations, 0),
     aiSeller: row.extensions[0] ?? null,
   };
 }

@@ -124,10 +124,9 @@ describe.skipIf(!url)('расширения организаций (integration,
       owners: [`ext-owner-${mark}@example.invalid`],
       aiSeller: { status: 'ACTIVE', activeUntil: null },
     });
-    expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null, businesses: 0, locations: 0 });
-    // ровно эти поля и ничего лишнего: броней, гостей, счетов нет; структура партнёра, только счётчики (Platform P3)
+    expect(b).toMatchObject({ members: 0, owners: [], aiSeller: null });
     expect(Object.keys(a ?? {}).sort()).toEqual(
-      ['aiSeller', 'businesses', 'createdAt', 'id', 'locations', 'members', 'name', 'owners', 'status', 'trialEndsAt'].sort(),
+      ['aiSeller', 'createdAt', 'id', 'members', 'name', 'owners', 'status', 'trialEndsAt'].sort(),
     );
     expect(await repo.organization(orgB)).toMatchObject({ id: orgB, aiSeller: null });
     expect(await repo.organization(randomUUID())).toBeNull();

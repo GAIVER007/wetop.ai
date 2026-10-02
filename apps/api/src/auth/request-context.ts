@@ -91,20 +91,6 @@ export function databaseTenant(): string | null {
   return store.organizationId ?? null;
 }
 
-/**
- * Выполнить расчёт в scope филиала внутри текущего запроса (Platform P3, ADR-130): сводка по филиалам считает те же
- * показатели, что экран одного объекта, по очереди для каждого филиала организации вошедшего. Организация и человек те
- * же, меняется только выбор; вне запроса человека (служебный ходок) вызывать нечего.
- */
-export function withScopeOf<T>(
-  scope: Pick<RequestActor, 'scope' | 'businessId' | 'locationId' | 'vertical'>,
-  fn: () => Promise<T>,
-): Promise<T> {
-  const store = storage.getStore();
-  if (!store || store.userId === null) throw new Error('withScopeOf: нет запроса человека');
-  return runAwaited({ ...store, ...scope }, fn);
-}
-
 /** Выполнить внутри запроса человека служебной ролью базы — только для раздела «Платформа» (§17.2) */
 export function withServiceDatabase<T>(fn: () => Promise<T>): Promise<T> {
   const store = storage.getStore();

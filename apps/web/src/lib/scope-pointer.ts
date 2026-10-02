@@ -17,15 +17,6 @@ const MAX_POINTER_LENGTH = 200;
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const POINTER = new RegExp(`^business=${UUID}(;location=${UUID})?$`, 'i');
 
-/** Значение куки для выбора филиала, ровно та форма, которую пересылает `scopeHeader`; не UUID, пусто */
-export function scopePointerValue(businessId: string, locationId: string): string | null {
-  const value = `business=${businessId};location=${locationId}`;
-  return POINTER.test(value) ? value : null;
-}
-
-/** Сколько живёт выбор филиала: год, это предпочтение человека на этом устройстве, а не право (ADR-120) */
-export const SCOPE_COOKIE_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
-
 export function scopeHeader(cookieValue: string | undefined): Record<string, string> {
   if (!cookieValue || cookieValue.length > MAX_POINTER_LENGTH) return {};
   let value: string;

@@ -53,8 +53,6 @@ import {
   validateDerivedRule,
   normalizePromoCode,
   MAX_DISCOUNT_PERCENT,
-  parseBranchInput,
-  summarizeBranches,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -1989,129 +1987,6 @@ const aiSellerView = (organizationId: string) => {
 };
 /** Вошедший так, как его отдаёт API после ADR-083: с ролью и отметкой главного администратора */
 const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: uiPlatformAdmin });
-
-/**
- * Филиалы организации стенда (Platform P3, ADR-130): один Business HOSPITALITY и его филиалы; первый, объект стенда.
- * Указатель `X-Wetop-Scope` (кука `wetop_scope` стойки) выбирает текущий филиал; чужой или битый, первый, как в API.
- * Идентификаторы, UUID: иную форму указателя стойка не пересылает (`scope-pointer.ts`).
- */
-const UI_BUSINESS = { id: '0b000000-0000-4000-8000-000000000001', name: 'Luxx Hotels' };
-interface UiBranch {
-  id: string;
-  name: string;
-  address: string | null;
-  phone: string | null;
-  email: string | null;
-  timezone: string;
-  currency: string;
-  createdAt: string;
-}
-const firstBranch = (): UiBranch => ({
-  id: '0c000000-0000-4000-8000-000000000001',
-  name: 'Luxx Aparts',
-  address: 'Тестовый адрес, 1',
-  phone: '+7 700 000 00 00',
-  email: 'hostel@example.invalid',
-  timezone: 'Asia/Almaty',
-  currency: 'KZT',
-  createdAt: '2026-09-01T04:00:00.000Z',
-});
-let uiBranches: UiBranch[] = [firstBranch()];
-let scopeLocationId: string | null = null;
-const branchId = (n: number) => `0c000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
-function addUiBranch(name: string, extra: Partial<UiBranch> = {}): UiBranch {
-  const row: UiBranch = {
-    ...firstBranch(),
-    id: branchId(uiBranches.length + 1),
-    name,
-    address: null,
-    phone: null,
-    email: null,
-    createdAt: new Date(Date.now() - (10 - uiBranches.length) * DAY_MS).toISOString(),
-    ...extra,
-  };
-  uiBranches.push(row);
-  return row;
-}
-function resetBranches() {
-  uiBranches = [firstBranch()];
-  scopeLocationId = null;
-}
-/** Текущий филиал, по указателю, иначе первый (как `property-ref.ts` при scope ORGANIZATION) */
-const currentBranch = (): UiBranch =>
-  uiBranches.find((b) => b.id === scopeLocationId) ?? uiBranches[0]!;
-function readScopePointer(header: unknown): void {
-  const m = typeof header === 'string' ? /^business=([^;]+);location=([^;]+)$/.exec(header.trim()) : null;
-  scopeLocationId =
-    m && m[1] === UI_BUSINESS.id && uiBranches.some((b) => b.id === m[2]) ? m[2]! : null;
-}
-const branchJson = (b: UiBranch) => ({
-  id: b.id,
-  businessId: UI_BUSINESS.id,
-  name: b.name,
-  address: b.address,
-  phone: b.phone,
-  email: b.email,
-  timezone: b.timezone,
-  currency: b.currency,
-  createdAt: b.createdAt,
-  propertyId: b.id === uiBranches[0]!.id ? 'test-property' : `property-${b.id.slice(-4)}`,
-  propertyName: b.name,
-});
-const workspaceView = () => {
-  const current = currentBranch();
-  return {
-    business: { id: UI_BUSINESS.id, name: UI_BUSINESS.name },
-    location: { id: current.id, name: current.name },
-    options: uiBranches.map((b) => ({
-      businessId: UI_BUSINESS.id,
-      businessName: UI_BUSINESS.name,
-      locationId: b.id,
-      locationName: b.name,
-    })),
-  };
-};
-const scopeContext = () => {
-  const chosen = scopeLocationId !== null;
-  return {
-    scope: chosen ? 'LOCATION' : 'ORGANIZATION',
-    businessId: chosen ? UI_BUSINESS.id : null,
-    locationId: chosen ? scopeLocationId : null,
-    vertical: chosen ? 'HOSPITALITY' : null,
-    ...workspaceView(),
-  };
-};
-/** Показатели филиала за период, выдуманные, но разные, чтобы итог было с чем сверить (ADR-010) */
-function branchPeriod(index: number, from: string, to: string, fund: string) {
-  const units = 10 * (index + 1);
-  const occupied = Math.min(units, 4 * (index + 1));
-  const days = dates(from, to);
-  return buildDashboard(
-    {
-      from,
-      to,
-      categories: [{ code: 'STD', name: 'Стандарт', units, kind: 'ROOM' }],
-      days: days.map((date) => ({
-        date,
-        occupied,
-        free: units - occupied,
-        blocked: 0,
-        byCategory: { STD: { units, occupied, free: units - occupied, blocked: 0 } },
-      })),
-      unassignedByCategory: {},
-      stays: [],
-      charges: days.map((date) => ({
-        kind: 'ACCOMMODATION' as const,
-        amountMinor: BigInt(occupied) * 1_200_000n,
-        categoryCode: 'STD',
-        serviceDate: date,
-      })),
-      payments: [],
-      refundsMinor: 0n,
-    },
-    fund as 'all',
-  );
-}
 /** Гостиницы платформы глазами главного администратора — вымышленные (ADR-010) */
 const platformOrganizations = () => [
   {
@@ -2122,8 +1997,6 @@ const platformOrganizations = () => [
     createdAt: '2026-09-01T04:00:00.000Z',
     members: uiMembers.size,
     owners: ['admin@wetop.test'],
-    businesses: 1,
-    locations: uiBranches.length,
   },
   {
     id: 'ui-org-2',
@@ -2133,8 +2006,6 @@ const platformOrganizations = () => [
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
-    businesses: 1,
-    locations: 1,
   },
 ];
 // ── «Платформа → Техподдержка» (ADR-083, Э3): подставная панель ИИ-помощника. Кто пишет — вымышленные (ADR-010) ─────
@@ -2788,49 +2659,11 @@ function read(path: string, q: URLSearchParams): unknown {
     const rows = [incident, ...extraIncidents];
     return q.get('status') === 'open' ? rows.filter((i) => i.status !== 'RESOLVED') : rows;
   }
-  if (path === '/organization')
-    return {
-      id: uiUser.organizationId,
-      name: uiUser.organization.name,
-      reportingCurrency: 'KZT',
-      businesses: [
-        { ...UI_BUSINESS, vertical: 'HOSPITALITY', locations: uiBranches.map(branchJson) },
-      ],
-      current: workspaceView(),
-      canAddBranch:
-        uiRole === 'OWNER' ? { ok: true } : { ok: false, reason: 'Филиал добавляет владелец организации' },
-      branchDefaults: { timezone: uiBranches[0]!.timezone, currency: uiBranches[0]!.currency },
-    };
-  if (path === '/organization/summary') {
-    const from = q.get('from') || today,
-      to = q.get('to') || today,
-      fund = q.get('fund') || 'all';
-    const current = currentBranch();
-    const branches = uiBranches.map((b, i) => ({
-      locationId: b.id,
-      businessId: UI_BUSINESS.id,
-      businessName: UI_BUSINESS.name,
-      name: b.name,
-      currency: b.currency,
-      propertyName: b.name,
-      current: b.id === current.id,
-      period: branchPeriod(i, from, to, fund),
-    }));
-    return {
-      from,
-      to,
-      fund,
-      reportingCurrency: 'KZT',
-      branches,
-      total: summarizeBranches(branches.map((b) => ({ locationId: b.locationId, currency: b.currency, period: b.period }))),
-    };
-  }
   if (path === '/hotel/settings')
     return {
       property: {
         id: 'test-property',
-        // второй филиал стенда, свой объект: имя и адрес филиала (Platform P3)
-        name: scopeLocationId && currentBranch().id !== uiBranches[0]!.id ? currentBranch().name : propertyName,
+        name: propertyName,
         legalName: null,
         bin: null,
         address: 'Тестовый адрес, 1',
@@ -3939,7 +3772,6 @@ createServer(async (req, res) => {
       res.end(JSON.stringify(data));
     };
     countHit(url, req.method ?? 'GET');
-    readScopePointer(req.headers['x-wetop-scope']);
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
@@ -3971,7 +3803,6 @@ createServer(async (req, res) => {
       resetUiAuth();
       resetAccess();
       resetSupport();
-      resetBranches();
       setHotelHold(false);
       propertyName = 'Luxx Aparts';
       connectionState = 'READY';
@@ -4043,12 +3874,6 @@ createServer(async (req, res) => {
         registrationEnabled = body['registrationEnabled'];
       if (typeof body['holdHotel'] === 'boolean') setHotelHold(body['holdHotel']);
       if (typeof body['propertyName'] === 'string') propertyName = body['propertyName'];
-      // филиалы организации стенда (Platform P3): названия дополнительных филиалов к первому
-      if (Array.isArray(body['branches'])) {
-        resetBranches();
-        for (const name of body['branches'] as unknown[])
-          if (typeof name === 'string') addUiBranch(name);
-      }
       if (
         ['READY', 'PROPERTY_MISSING', 'DATABASE_UNAVAILABLE'].includes(
           String(body['connectionState']),
@@ -4555,34 +4380,13 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : undefined;
       if (!who) return send(200, { user: null });
-      // что открыто организации: пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083); scope и филиалы (P3).
       // Match production whoami: organization is a sibling of user.
       const { organization, ...user } = signedInView(who);
       return send(200, {
         user,
         organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
-        context: scopeContext(),
       });
-    }
-    // новый филиал (Platform P3, ADR-130): владелец, разбор домена, тёзка, 409 с полем
-    if (path === '/organization/locations' && req.method === 'POST') {
-      const token = sessionOf(req as never);
-      if (!token || !uiSessions.get(token)) return send(401, { message: 'Нужно войти' });
-      if (uiRole !== 'OWNER') return send(403, { message: 'Филиал добавляет владелец организации' });
-      const first = uiBranches[0]!;
-      const parsed = parseBranchInput(body, { timezone: first.timezone, currency: first.currency });
-      if (!parsed.ok) return send(400, { message: parsed.reason, field: parsed.field ?? null });
-      if (uiBranches.some((b) => b.name.toLowerCase() === parsed.value.name.toLowerCase()))
-        return send(409, { message: 'Филиал с таким названием уже есть', field: 'name' });
-      const row = addUiBranch(parsed.value.name, {
-        address: parsed.value.address,
-        phone: parsed.value.phone,
-        email: parsed.value.email,
-        timezone: parsed.value.timezone,
-        currency: parsed.value.currency,
-      });
-      return send(201, branchJson(row));
     }
     if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
       const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));

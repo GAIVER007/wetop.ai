@@ -14,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { deviceFromUserAgent } from '@pms/domain';
 import { ExtensionsService } from '../platform/extensions.service';
-import { OrganizationService } from '../organization/organization.service';
 import { RateWindows } from '../rate-window';
 import { visitorIp } from '../web-booking/client-ip';
 import { AuthService } from './auth.service';
@@ -64,7 +63,6 @@ export class AuthController {
     @Inject(PasswordResetService) private readonly reset: PasswordResetService,
     @Inject(EmailVerificationService) private readonly verification: EmailVerificationService,
     @Inject(ExtensionsService) private readonly extensions: ExtensionsService,
-    @Inject(OrganizationService) private readonly organization: OrganizationService,
   ) {}
 
   /** Окна лимитов по адресу; адрес нигде не сохраняется — только ключ окна в памяти */
@@ -178,9 +176,8 @@ export class AuthController {
     return {
       ...signedIn,
       access: { aiSeller: await this.extensions.aiSeller(signedIn.user.organizationId) },
-      // фактический scope запроса (Platform P2, К1; план P2 §4б) плюс подпись и варианты переключателя филиала
-      // (Platform P3, ADR-130): стойка читает `/auth/me` на каждом экране, отдельного запроса за филиалами нет
-      context: { ...scopeView(), ...(await this.organization.workspace()) },
+      // фактический scope запроса (Platform P2, К1; план P2 §4б): по нему переключатель P3 покажет, что выбрано
+      context: scopeView(),
     };
   }
 

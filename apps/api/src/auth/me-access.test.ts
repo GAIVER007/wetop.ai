@@ -3,7 +3,6 @@ import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { OrganizationService } from '../organization/organization.service';
 import { ExtensionsService } from '../platform/extensions.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -43,20 +42,11 @@ beforeAll(async () => {
       return { access: 'active', status: 'ACTIVE', activeUntil: null, daysLeft: null };
     }),
   };
-  // подпись и варианты переключателя филиала (Platform P3, ADR-130), из структуры организации
-  const organization = {
-    workspace: vi.fn(async () => ({
-      business: { id: 'b-1', name: 'Хостел' },
-      location: { id: 'l-1', name: 'Хостел' },
-      options: [{ businessId: 'b-1', businessName: 'Хостел', locationId: 'l-1', locationName: 'Хостел' }],
-    })),
-  };
   const moduleRef = await Test.createTestingModule({
     controllers: [AuthController],
     providers: [
       { provide: AuthService, useValue: auth },
       { provide: ExtensionsService, useValue: extensions },
-      { provide: OrganizationService, useValue: organization },
       { provide: PasswordResetService, useValue: {} },
       { provide: EmailVerificationService, useValue: {} },
     ],
@@ -87,10 +77,6 @@ describe('GET /auth/me — что открыто организации воше
       businessId: null,
       locationId: null,
       vertical: null,
-      // Platform P3: имена текущего Business и филиала и из чего выбирать, без отдельного запроса стойки
-      business: { id: 'b-1', name: 'Хостел' },
-      location: { id: 'l-1', name: 'Хостел' },
-      options: [{ businessId: 'b-1', businessName: 'Хостел', locationId: 'l-1', locationName: 'Хостел' }],
     });
   });
 

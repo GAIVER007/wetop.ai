@@ -5252,6 +5252,12 @@
 | 02.10.2026 17:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts  | ❌ упало 50 из 188 | 28 мин 28 с | 5fc2337 | [лог](logs/2026-10-02T12-52-04Z-e2e-764b.log) | триаж второй партии красных main после стыковки меню |
 | 02.10.2026 18:29 | typecheck | ✅ без ошибок | 39 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-29-23Z-typecheck-74d8.log) |  |
 | 02.10.2026 18:30 | lint | ✅ без ошибок | 21 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-30-02Z-lint-d09c.log) |  |
+| 02.10.2026 21:17 | unit | ✅ 2792 из 2795, пропущено 3 | 1 мин 28 с | 1ec86f1 +1 | [лог](logs/2026-10-02T16-17-23Z-unit-993c.log) |  |
+| 02.10.2026 21:18 | typecheck | ✅ без ошибок | 33 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-18-57Z-typecheck-2c24.log) |  |
+| 02.10.2026 21:19 | lint | ✅ без ошибок | 18 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-19-31Z-lint-b54a.log) |  |
+| 02.10.2026 21:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts  | ❌ упало 11 из 188 | 18 мин 41 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-20-20Z-e2e-2452.log) | green второй партии: переименования, степпер, вкладки финансов, месяц 8px, очередь за кнопкой |
+| 02.10.2026 21:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/acce | ❌ упало 1 из 115 | 10 мин 19 с | 402516e +4 | [лог](logs/2026-10-02T16-44-18Z-e2e-6e8b.log) | хвосты второй партии: вход в axe-обходе, карточки каталога, метка продавца, вкладка Долги, номер NEW без зашивки |
+| 02.10.2026 21:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts) | ✅ 27 из 27 | 1 мин 14 с | bd8477e +1 | [лог](logs/2026-10-02T16-55-11Z-e2e-a4c6.log) | последний хвост: aria-current скрытого пункта группы по CSS |
 | 02.10.2026 21:11 | typecheck | ✅ без ошибок | 11 с | 0dffd81 | [лог](logs/2026-10-02T16-11-17Z-typecheck-cef9.log) | календарь: слияние с main 1ec86f17 |
 | 02.10.2026 21:11 | lint | ✅ без ошибок | 8 с | 0dffd81 | [лог](logs/2026-10-02T16-11-28Z-lint-ca04.log) | календарь: слияние с main |
 | 02.10.2026 21:11 | unit | ❌ упало 1 из 2795, пропущено 3 | 1 мин 12 с | 0dffd81 | [лог](logs/2026-10-02T16-11-37Z-unit-6347.log) | календарь: слияние с main |
@@ -5271,3 +5277,9 @@
 | 02.10.2026 21:43 | lint | ✅ без ошибок | 26 с | f6c18e5 +1 | [лог](logs/2026-10-02T16-43-00Z-lint-4c63.log) |  |
 | 02.10.2026 21:46 | unit (частично: apps/api/src/platform/support.queue.test.ts apps/api/src/platform/support.controller.test.ts) | ❌ упало 22 из 39 | 5 с | f6c18e5 +3 | [лог](logs/2026-10-02T16-46-27Z-unit-9bf5.log) | red: песочница в очереди и категории обращений |
 | 02.10.2026 21:49 | unit (частично: apps/api/src/platform/support.queue.test.ts apps/api/src/platform/support.controller.test.ts) | ✅ 40 из 40 | 3 с | f6c18e5 +7 | [лог](logs/2026-10-02T16-49-28Z-unit-49c4.log) | green: песочница вне очереди, категории обращений |
+| 02.10.2026 21:59 | unit | ✅ 2843 из 2846, пропущено 3 | 1 мин 19 с | 3c66256 | [лог](logs/2026-10-02T16-59-01Z-unit-5583.log) |  |
+| 02.10.2026 22:00 | typecheck | ❌ ошибок: 50 | 31 с | 3c66256 | [лог](logs/2026-10-02T17-00-20Z-typecheck-b9af.log) | TS2339 |
+| 02.10.2026 22:00 | lint | ✅ без ошибок | 16 с | 3c66256 | [лог](logs/2026-10-02T17-00-53Z-lint-8208.log) |  |
+| 02.10.2026 22:01 | typecheck | ✅ без ошибок | 40 с | 3c66256 | [лог](logs/2026-10-02T17-01-52Z-typecheck-620f.log) |  |
+| 02.10.2026 22:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/premium.spec.ts tests/ui/branch | ❌ упало 6 из 327 | 29 мин | 3c66256 | [лог](logs/2026-10-02T17-01-22Z-e2e-01a0.log) | обе партии и новые спеки #217 на слитом дереве перед вторым PR |
+| 02.10.2026 22:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/ui/roles.spec.ts tests/ui/tea | ✅ 36 из 36 | 2 мин 39 с | 3945ad2 +4 | [лог](logs/2026-10-02T17-31-25Z-e2e-6b7b.log) | вкладка Отчёты в ожиданиях спеков, Сотрудники через верхнее меню |

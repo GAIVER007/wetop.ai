@@ -98,6 +98,18 @@ test('управляющий: роль не меняет, приглашает �
   await expect(drawer.getByTestId('invite-role-fixed')).toContainText('приглашает администраторов');
 });
 
+// red — лог соседней сессии …13-16-35Z-e2e-49c1.log: /team уводил на вход и ронял «все пункты меню»
+test('без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107)', async ({
+  page,
+}) => {
+  await page.goto('/team');
+  await expect(page).toHaveURL(/\/team$/);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Сотрудники');
+  await expect(main).toContainText('владелец и управляющий');
+  await expect(main.getByRole('button', { name: 'Пригласить сотрудника' })).toHaveCount(0);
+});
+
 test('администратору раздел закрыт: гейт и меню без пункта', async ({ page, request }) => {
   await signIn(page);
   await asRole(request, 'STAFF');

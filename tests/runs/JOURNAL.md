@@ -5037,3 +5037,5 @@
 | 02.10.2026 18:08 | typecheck | ✅ без ошибок | 11 с | 6a8d472 +17 | [лог](logs/2026-10-02T13-08-03Z-typecheck-a53e.log) | сверка: типы фикстуры |
 | 02.10.2026 18:15 | typecheck | ✅ без ошибок | 50 с | 6a8d472 +19 | [лог](logs/2026-10-02T13-15-23Z-typecheck-4398.log) | сверка: UI |
 | 02.10.2026 18:16 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 2 с | 6a8d472 +17 | [лог](logs/2026-10-02T13-16-15Z-unit-9d6b.log) | сверка: стили |
+| 02.10.2026 18:21 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/team.spec.ts tests/ui/navigation.spec.ts --workers=1) | ❌ код выхода 1 | 2 с | 27e8ad9 +2 | [лог](logs/2026-10-02T13-21-41Z-e2e-04a8.log) | green TEAM1-fix: /team без сессии открыта (ADR-107), все пункты меню живы |
+| 02.10.2026 18:24 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/team.spec.ts tests/ui/navigation.spec.ts --workers=1) | ✅ 15 из 15 | 38 с | 27e8ad9 +5 | [лог](logs/2026-10-02T13-24-55Z-e2e-0ee8.log) | green TEAM1-fix: /team без сессии открыта (ADR-107), все пункты меню живы |

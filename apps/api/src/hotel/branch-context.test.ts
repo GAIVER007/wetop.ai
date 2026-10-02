@@ -58,6 +58,15 @@ describe('контекст филиала', () => {
     const { onboarding } = fixture();
     expect((await inBranch('branch-b', () => onboarding.status())).name).toBe('branch-b');
   });
+  it('без указателя scope онбординг берёт самый ранний объект, как property-ref, а не случайный', async () => {
+    const { onboarding, findFirst } = fixture();
+    await withSignedInUser(
+      { userId: 'synthetic-owner', organizationId: 'synthetic-org', role: 'OWNER' },
+      () => onboarding.status(),
+    );
+    const [arg] = findFirst.mock.calls[0] as [{ orderBy?: unknown }];
+    expect(arg.orderBy).toEqual({ createdAt: 'asc' });
+  });
   it('исчезнувший выбранный филиал не превращается в создание другого объекта', async () => {
     const { onboarding } = fixture();
     await expect(inBranch('missing', () => onboarding.status())).rejects.toThrow();

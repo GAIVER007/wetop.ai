@@ -327,7 +327,7 @@
 .inventory-extra-fields label { display: grid; gap: var(--space-1); min-width: 0; }
 .inventory-extra-fields select { width: 100%; }
 .inventory-table td { font-size: var(--text-sm); }
-.inventory-table th { position: sticky; top: 0; z-index: var(--layer-base); background: var(--surface); }
+.inventory-table thead th { position: sticky; top: 0; z-index: var(--layer-base); background: var(--surface); }
 .inventory-content .table-scroll { max-height: max(280px, calc(100dvh - 410px)); overflow: auto; border-radius: var(--radius-control); }
 .inventory-content:has(.inventory-extra[open]) .table-scroll { max-height: max(240px, calc(100dvh - 490px)); }
 .inventory-table .badge { white-space: nowrap; }
@@ -343,7 +343,20 @@
 
 .inventory-unit-link { flex-wrap: nowrap; white-space: nowrap; }
 .inventory-place { white-space: nowrap; }
-.inventory-table td:nth-child(2) { min-width: 160px; }
 .inventory-table td { vertical-align: middle; }
+/* Заголовок категории внутри таблицы: имя один раз вместо колонки с повторами (02.10) */
+.inventory-group-row th {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  text-align: left;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.inventory-group-row th > span {
+  margin-left: var(--space-2);
+  color: var(--text-2);
+  font-weight: var(--weight-regular);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
 .inventory-extra { margin: 0; }
 .inventory-extra[open] { flex-basis: 100%; }

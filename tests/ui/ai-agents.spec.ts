@@ -43,11 +43,9 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   await seller.getByRole('link', { name: 'Открыть' }).click();
   await expect(page).toHaveURL(/\/ai-seller/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
-  // страницы продавца подсвечивают тот же пункт меню
-  await expect(sidebar.getByRole('link', { name: 'ИИ-продавцы', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  // страницы продавца подсвечивают тот же пункт меню; список группы закрыт, пункт скрыт
+  // от дерева доступности — ищем по CSS, как top-menu.spec
+  await expect(sidebar.locator('a[aria-current="page"]')).toHaveText('ИИ-продавцы');
 });
 
 test('главный администратор: к техподдержке — переключателем агентов на «ИИ-продавце»', async ({

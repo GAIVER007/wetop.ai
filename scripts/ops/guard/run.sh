@@ -9,11 +9,22 @@
 # Почему не «запускать всегда»: рассуждение стоит денег. Тихий час — это `sleep`, а не вызов модели.
 set -eu
 
-# Чем платим за рассуждение — одно из двух, и это не равнозначные варианты (README, §«Подписка или ключ»):
-#   CLAUDE_CODE_OAUTH_TOKEN — токен подписки, `claude setup-token`, живёт год, отдельных денег не стоит;
-#   ANTHROPIC_API_KEY       — ключ Anthropic, оплата по расходу.
-if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-  echo 'нужен CLAUDE_CODE_OAUTH_TOKEN (подписка) или ANTHROPIC_API_KEY в .env' >&2
+# Чем платим за рассуждение (ADR-137, замечание ментора 02.10.2026; README, «Ключ или подписка»):
+#   ANTHROPIC_API_KEY       ключ отдельного рабочего пространства Anthropic с пределом расхода в консоли.
+#                           Вариант по умолчанию: отдельный счёт и отдельный отзыв.
+#   CLAUDE_CODE_OAUTH_TOKEN токен подписки владельца (`claude setup-token`): делит лимиты с его дневной работой,
+#                           поэтому только явным GUARD_ALLOW_SUBSCRIPTION=1.
+if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+  # Заданы оба: платит ключ, токен подписки процессу агента не достаётся
+  unset CLAUDE_CODE_OAUTH_TOKEN
+  PAYER='ключ API'
+elif [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ "${GUARD_ALLOW_SUBSCRIPTION:-0}" = 1 ]; then
+  PAYER='подписка владельца (GUARD_ALLOW_SUBSCRIPTION=1)'
+elif [ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+  echo 'дежурный агент платит ключом API: впишите ANTHROPIC_API_KEY в .env. Подписка (CLAUDE_CODE_OAUTH_TOKEN) делит лимиты с работой владельца и включается только явным GUARD_ALLOW_SUBSCRIPTION=1' >&2
+  exit 1
+else
+  echo 'нужен ANTHROPIC_API_KEY в .env: ключ отдельного рабочего пространства Anthropic с пределом расхода' >&2
   exit 1
 fi
 : "${GUARD_READ_KEY:?нужен ключ на чтение сторожа в .env}"
@@ -21,10 +32,28 @@ fi
 GUARD_API_URL="${GUARD_API_URL:-http://api:3001}"
 GUARD_INTERVAL_SECONDS="${GUARD_INTERVAL_SECONDS:-3600}"
 GUARD_RUN_LIMIT_SECONDS="${GUARD_RUN_LIMIT_SECONDS:-900}"
-WORK=/home/node/work/repo
+# Дневной потолок денег: не больше GUARD_RUNS_PER_DAY запусков модели за сутки UTC и не дороже
+# GUARD_RUN_BUDGET_USD каждый (`claude -p --max-budget-usd`). По умолчанию 4 × $2. Месячный предел
+# расхода ставит владелец в консоли Anthropic на рабочее пространство ключа: это второй замок, снаружи.
+GUARD_RUNS_PER_DAY="${GUARD_RUNS_PER_DAY:-4}"
+GUARD_RUN_BUDGET_USD="${GUARD_RUN_BUDGET_USD:-2}"
+# Рабочие папки переопределяются только в тестах (tests/unit/guard-run.test.ts)
+STATE="${GUARD_STATE_DIR:-/home/node/work}"
+WORK="${GUARD_WORK_DIR:-$STATE/repo}"
+RUNS_FILE="$STATE/runs-today"
+LIMIT_NOTICE_FILE="$STATE/limit-notice"
 export GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/home/node/.ssh/known_hosts -i /home/node/.ssh/id_ed25519'
 
 say() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"; }
+
+# Сколько раз модель уже звали сегодня (сутки UTC); файл вне клона, `git clean` его не трогает
+runs_today() {
+  if [ -f "$RUNS_FILE" ] && [ "$(cut -d' ' -f1 "$RUNS_FILE")" = "$(date -u +%F)" ]; then
+    cut -d' ' -f2 "$RUNS_FILE"
+  else
+    echo 0
+  fi
+}
 
 # Сообщение дежурным. Токена и ключей в тексте нет никогда — только что случилось.
 tg() {
@@ -82,9 +111,22 @@ while true; do
     continue
   fi
 
-  say 'есть что разобрать — зову агента'
+  done_today=$(runs_today)
+  if [ "$done_today" -ge "$GUARD_RUNS_PER_DAY" ]; then
+    say "дневной предел запусков исчерпан ($done_today из $GUARD_RUNS_PER_DAY), модель не зову до 00:00 UTC"
+    if [ "$(cat "$LIMIT_NOTICE_FILE" 2>/dev/null || true)" != "$(date -u +%F)" ]; then
+      tg "Дежурный агент: дневной предел запусков ($GUARD_RUNS_PER_DAY) исчерпан, до 00:00 UTC неисправности разбирает человек."
+      date -u +%F > "$LIMIT_NOTICE_FILE"
+    fi
+    sleep "$GUARD_INTERVAL_SECONDS"
+    continue
+  fi
+  printf '%s %s\n' "$(date -u +%F)" "$((done_today + 1))" > "$RUNS_FILE"
+
+  say "есть что разобрать, зову агента: запуск $((done_today + 1)) из $GUARD_RUNS_PER_DAY за сутки, платит $PAYER"
   set +e
   timeout "$GUARD_RUN_LIMIT_SECONDS" claude -p \
+    --max-budget-usd "$GUARD_RUN_BUDGET_USD" \
     --permission-mode acceptEdits \
     --allowedTools 'Read Grep Glob Edit Write Bash(git add*) Bash(git commit*) Bash(git checkout*) Bash(git status*) Bash(git diff*) Bash(git log*) Bash(npx vitest*) Bash(npx tsc*) Bash(npx eslint*)' \
     --disallowedTools 'WebFetch WebSearch Bash(git push*) Bash(git merge*) Bash(docker*) Bash(ssh*) Bash(curl*) Bash(cat .env*)' \

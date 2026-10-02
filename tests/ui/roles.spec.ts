@@ -27,7 +27,7 @@ const asRole = (request: APIRequestContext, role: 'OWNER' | 'MANAGER' | 'STAFF')
 
 const menuLinks = (page: Page) =>
   page
-    .locator('.workspace-sidebar .workspace-links a')
+    .locator('.workspace-header .topmenu a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 const shot = (page: Page, name: string) =>
@@ -52,9 +52,9 @@ test('администратор: в меню — работа с гостями
       '/management/analytics',
       '/incidents',
     ]);
-  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Администратор');
-  // объект вверху меню в настройки гостиницы не ведёт
-  await expect(page.locator('.workspace-sidebar a.workspace-property')).toHaveCount(0);
+  await expect(page.locator('.workspace-header .profile-caption')).toContainText('Администратор');
+  // объект в шапке в настройки гостиницы не ведёт
+  await expect(page.locator('.workspace-header a.workspace-property')).toHaveCount(0);
   await shot(page, 'menu-administrator');
 });
 
@@ -215,7 +215,7 @@ test('управляющий: всё, кроме «Платформы»; зов�
   for (const href of ['/journal', '/channels', '/hotel-settings', '/team', '/connections'])
     expect(links).toContain(href);
   expect(links).not.toContain('/platform');
-  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Управляющий');
+  await expect(page.locator('.workspace-header .profile-caption')).toContainText('Управляющий');
 
   await page.goto('/rates');
   await expect(page.getByRole('main').getByTestId('no-access')).toHaveCount(0);

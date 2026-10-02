@@ -1,0 +1,180 @@
+# Сквозные (e2e) · 01.10.2026 16:01 Алматы · vm
+# коммит a1b240e (claude/no-long-dash), незакоммиченных файлов набора: 34
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/ai-agents.spec.ts' 'tests/ui/ai-agents-create.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 51 tests using 1 worker
+
+  ✘   1 tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние (10.9s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   2 tests/ui/ai-agents-create.spec.ts:94:1 › каталог после создания: карточка агента с Business · Location, кнопка снова неактивна (5.4s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames
+  ✓   3 tests/ui/ai-agents-create.spec.ts:120:1 › ошибки у поля словами: пустое название не отправляется и ничего не создаёт (4.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   4 tests/ui/ai-agents-create.spec.ts:141:1 › двойной щелчок по «Создать черновик» даёт одного агента (4.0s)
+  ✓   5 tests/ui/ai-agents-create.spec.ts:152:1 › единственный филиал занят: форма недоступна, причина словами, кнопки создания нет (2.4s)
+  ✓   6 tests/ui/ai-agents-create.spec.ts:168:1 › сотрудник смены: страница создания объясняет роль, формы нет (2.3s)
+  ✓   7 tests/ui/ai-agents-create.spec.ts:178:1 › управляющий может создать агента (2.7s)
+  ✓   8 tests/ui/ai-agents-create.spec.ts:187:1 › «только чтение»: кнопка в каталоге неактивна, форма недоступна (2.8s)
+  ✓   9 tests/ui/ai-agents-create.spec.ts:201:1 › расширения нет: на странице создания причина про расширение (2.0s)
+  ✓  10 tests/ui/ai-agents-create.spec.ts:210:1 › несуществующий агент, страница «не найдено», а не пустая карточка (2.3s)
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  11 tests/ui/ai-agents-create.spec.ts:222:1 › запуска нет и на сервере: маршрута activate нет, черновик остаётся черновиком (3.2s)
+  ✓  12 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, light, 1440 (3.0s)
+  ✓  13 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, light, 1440 (3.7s)
+  ✓  14 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, light, 1440 (3.0s)
+  ✓  15 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, light, 390 (2.8s)
+  ✓  16 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, light, 390 (4.2s)
+  ✓  17 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, light, 390 (3.1s)
+  ✓  18 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, dark, 1440 (3.3s)
+  ✓  19 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, dark, 1440 (3.9s)
+  ✓  20 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, dark, 1440 (2.9s)
+  ✓  21 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, form, dark, 390 (2.9s)
+  ✓  22 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, agent, dark, 390 (3.7s)
+  ✓  23 tests/ui/ai-agents-create.spec.ts:246:7 › оформление: axe и снимок, blocked, dark, 390 (3.0s)
+  ✓  24 tests/ui/ai-agents-create.spec.ts:282:1 › диктовка: расшифровку можно исправить, переход к инструкции выключает микрофон (3.0s)
+  ✘  25 tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец (17.9s)
+  ✓  26 tests/ui/ai-agents.spec.ts:52:1 › главный администратор: рядом с продавцом карточка WETOP Support (4.4s)
+  ✓  27 tests/ui/ai-agents.spec.ts:67:1 › расширение не подключено: карточка объясняет, кнопка создания неактивна, ссылка ведёт на страницу с объяснением (3.8s)
+  ✓  28 tests/ui/ai-agents.spec.ts:89:1 › срок расширения вышел: карточка остаётся, «Подписка не активна», кнопка создания неактивна (2.2s)
+  ✓  29 tests/ui/ai-agents.spec.ts:110:1 › действует, профиль не применён: «Не настроен», Business и Location объекта, единственный филиал занят (2.4s)
+  ✓  30 tests/ui/ai-agents.spec.ts:126:1 › продавец работает: статус, каналы по данным, создать ещё нельзя — причина словами (2.4s)
+  ✓  31 tests/ui/ai-agents.spec.ts:152:1 › бот не ответил: страница жива, WhatsApp — «Нет данных» (2.2s)
+  ✓  32 tests/ui/ai-agents.spec.ts:163:1 › черновики гостевого мастера: «Черновик», без Business и Location (2.3s)
+  ✓  33 tests/ui/ai-agents.spec.ts:178:1 › каталог не загрузился: экран остаётся, вместо карточек — сбой со следующим шагом (2.2s)
+  ✓  34 tests/ui/ai-agents.spec.ts:196:1 › сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль (2.2s)
+  ✓  35 tests/ui/ai-agents.spec.ts:211:1 › старый адрес /ai-seller работает (2.3s)
+  ✓  36 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, working, light, 1440 (3.5s)
+  ✓  37 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, off, light, 1440 (3.1s)
+  ✓  38 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, expired, light, 1440 (2.9s)
+  ✓  39 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, setup, light, 1440 (3.0s)
+  ✓  40 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, working, light, 390 (3.3s)
+  ✓  41 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, off, light, 390 (3.2s)
+  ✓  42 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, expired, light, 390 (2.9s)
+  ✓  43 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, setup, light, 390 (3.0s)
+  ✓  44 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, working, dark, 1440 (3.4s)
+  ✓  45 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, off, dark, 1440 (3.2s)
+  ✓  46 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, expired, dark, 1440 (3.6s)
+  ✓  47 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, setup, dark, 1440 (3.1s)
+  ✓  48 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, working, dark, 390 (3.6s)
+  ✓  49 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, off, dark, 390 (3.1s)
+  ✓  50 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, expired, dark, 390 (4.1s)
+  ✓  51 tests/ui/ai-agents.spec.ts:227:7 › каталог: axe и снимок, setup, dark, 390 (2.9s)
+
+
+  1) tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('status')
+    Expected substring: "Инструкция сохранена"
+    Error: strict mode violation: getByRole('status') resolved to 2 elements:
+        1) <div role="status">…</div> aka getByRole('status').filter({ hasText: 'Инструкция сохранена у этого агента' })
+        2) <p role="status">Не удалось подтвердить подключение. Проверьте гот…</p> aka getByText('Не удалось подтвердить подключение. Проверьте готовность сервера, токен и повтор')
+
+    Call log:
+      - Expect "toContainText" getByRole('status') with timeout 15000ms
+      - waiting for getByRole('status')
+        3 × locator resolved to <p role="status">Не удалось подтвердить подключение. Проверьте гот…</p>
+          - unexpected value "Не удалось подтвердить подключение. Проверьте готовность сервера, токен и повторите."
+
+
+      75 |   await page.getByLabel('Как агент должен отвечать').fill('Проверенная тестовая инструкция Аси.');
+      76 |   await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
+    > 77 |   await expect(page.getByRole('status')).toContainText('Инструкция сохранена');
+         |                                          ^
+      78 |   await page.reload();
+      79 |   await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue(
+      80 |     'Проверенная тестовая инструкция Аси.',
+        at /home/user/wetop.ai/tests/ui/ai-agents-create.spec.ts:77:42
+
+    Error Context: test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-create-свободный-a5a2e-агента-показывает-состояние/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('agent-seller')
+    Expected substring: "Продажи"
+    Received string:    "AI-продавецНе настроенСеть Тест · АлматыОткройте настройки, чтобы проверить готовность агента.СайтДомены заданыWhatsAppНе подключёнОткрыть"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByTestId('agent-seller') with timeout 15000ms
+      - waiting for getByTestId('agent-seller')
+        33 × locator resolved to <section class="panel agent-card" data-testid="agent-seller">…</section>
+           - unexpected value "AI-продавецНе настроенСеть Тест · АлматыОткройте настройки, чтобы проверить готовность агента.СайтДомены заданыWhatsAppНе подключёнОткрыть"
+
+
+      36 |   const seller = page.getByTestId('agent-seller');
+      37 |   await expect(seller).toContainText('AI-продавец');
+    > 38 |   await expect(seller).toContainText('Продажи');
+         |                        ^
+      39 |   await expect(seller).toContainText('Hospitality');
+      40 |   await expect(page.getByTestId('agent-support')).toHaveCount(0);
+      41 |   await expect(page.getByText('WETOP Support')).toHaveCount(0);
+        at /home/user/wetop.ai/tests/ui/ai-agents.spec.ts:38:24
+
+    Error Context: test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-agents-партнёр-пункт-ме-42b4b-на-входе-только-AI-продавец/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/ai-agents-create.spec.ts:33:1 › свободный филиал: кнопка активна, форма создаёт черновик, страница агента показывает состояние 
+    tests/ui/ai-agents.spec.ts:29:1 › партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец ─
+  49 passed (3.5m)
+
+# код выхода 1 · 3 мин 32 с

@@ -124,9 +124,14 @@ test('длинное проживание: имя не уезжает при г�
   const seeded = await request.post(`${fixture}/__test/design-seed`);
   expect(seeded.ok()).toBe(true);
   await page.goto('/chessboard');
-  await page.getByRole('link', { name: '30 дней', exact: true }).click();
+  const today = await page.locator('[data-testid="date-col"].is-today').getAttribute('data-date');
+  const nextMonth = new Date(`${today!.slice(0, 7)}-01T00:00:00Z`);
+  nextMonth.setUTCMonth(nextMonth.getUTCMonth() + 1);
+  const from = nextMonth.toISOString().slice(0, 10);
+  nextMonth.setUTCDate(30);
+  await page.goto(`/chessboard?from=${from}&to=${nextMonth.toISOString().slice(0, 10)}`);
   await expect(page.getByTestId('date-col')).toHaveCount(30);
-  // 26 ночей со следующего месяца: подпись длиннее окна, имя должно прилипнуть к колонке мест
+  // Явно открываем месяц тестовой брони: проверка не зависит от текущего дня месяца.
   const long = page.locator('.board-stay-caption').filter({ hasText: 'Гость Полный' }).first();
   const name = long.locator('.board-stay-name');
   await expect(name).toBeVisible();
@@ -153,4 +158,33 @@ test('узкая плашка: вторая строка (источник, но
   await expect(oneNight.locator('.board-stay-line--meta')).toBeHidden();
   const short = oneNight.locator('.board-stay-name-short');
   expect(await short.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+});
+
+test('служебный код скрыт на плашке, источник не повторяется, бронь открывается', async ({
+  page,
+}) => {
+  await page.goto('/reservations/new?unit=M03');
+  const form = page.getByTestId('new-reservation-form');
+  await form.getByLabel('Имя *', { exact: true }).fill('Гость');
+  await form.getByLabel('Фамилия *', { exact: true }).fill('Стойка-a1b2c3');
+  await form.getByRole('button', { name: '3 ночи', exact: true }).click();
+  await form.getByRole('button', { name: 'Создать бронь', exact: true }).click();
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
+  const number = page.url().split('/').pop()!;
+  await page.goto('/chessboard');
+  const stay = page
+    .locator(`[data-testid="stay-cell"][data-number="${number}"]`)
+    .filter({ has: page.locator('.board-stay-caption') })
+    .first();
+  await expect(stay.locator('.board-stay-name')).toHaveText('Бронь со стойки');
+  await expect(stay).not.toContainText('a1b2c3');
+  await expect(stay.getByTestId('cell-channel')).toHaveCount(0);
+  await stay.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'reports/chessboard-readable-label.png' });
+  await stay.click();
+  await expect(page.getByTestId('preview-guest')).toHaveText('Бронь со стойки');
+  await expect(page.getByRole('link', { name: 'Открыть бронь', exact: true })).toHaveAttribute(
+    'href',
+    `/reservations/${number}`,
+  );
 });

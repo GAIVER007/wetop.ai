@@ -46,7 +46,7 @@ test('все разделы, карточки и печать открывают
     ['/inventory', 'Номерной фонд'],
     ['/units/R01', 'R01'],
     ['/channels', 'Каналы продаж'],
-    ['/channels/connections', 'Подключения'],
+    ['/channels/connections', 'Подключение каналов'],
     ['/channels/mapping', 'Сопоставление'],
     ['/channels/sync', 'Синхронизация'],
     ['/channels/events', 'События'],
@@ -65,14 +65,14 @@ test('все разделы, карточки и печать открывают
     ['/hotel-settings/penalties', 'Тарифы и цены'],
     ['/hotel-settings/services', 'Настройки объекта'],
     ['/hotel-settings/description', 'Настройки объекта'],
-    ['/hotel-settings/photos', 'Интеграции'],
-    ['/hotel-settings/amenities', 'Интеграции'],
+    ['/hotel-settings/photos', 'Подключения'],
+    ['/hotel-settings/amenities', 'Подключения'],
     ['/management/analytics', 'Аналитика'],
     ['/management/analytics/occupancy', 'Аналитика'],
     // временные «Показатели за период» (A1) с AN2 ведут на «Обзор» (ADR-114)
     ['/management/dashboard', 'Аналитика'],
     ['/channel-manager', 'Каналы продаж'],
-    ['/connections', 'Интеграции'],
+    ['/connections', 'Подключения'],
   ];
   // Старые адреса — redirect(): у экрана загрузки «Настроек объекта» тот же заголовок, что у цели (ADR-115), поэтому
   // сначала ждём конечный адрес, иначе замер ширины попадает на переход и падает с «Execution context was destroyed»
@@ -81,6 +81,7 @@ test('все разделы, карточки и печать открывают
     '/hotel-settings/penalties': /\/rates\/plans$/,
     '/management/dashboard': /\/management\/analytics$/,
     '/hotel-settings/description': /\/hotel-settings$/,
+    '/channels/connections': /\/connections\/channex$/,
     '/hotel-settings/photos': /\/connections#channex-connection$/,
     '/hotel-settings/amenities': /\/connections#channex-connection$/,
   };
@@ -109,13 +110,14 @@ test('все разделы, карточки и печать открывают
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Регистрационная карта');
-  await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
+  await expect(page.locator('.workspace-header')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/today');
-  const sidebar = page.locator('.workspace-sidebar');
+  // строка разделов в шапке (ADR-134): группа «Продажи» раскрывает список под вкладкой
+  const sidebar = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
@@ -123,11 +125,13 @@ test('вложенные разделы: раскрытие, один актив
     await sales.click();
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
   }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Тарифы', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true }).click();
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы');
-  await sales.click();
-  await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).not.toBeVisible();
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
+  // переход закрывает список; вкладка группы помечена текущим экраном
+  await expect(sales).toHaveAttribute('aria-expanded', 'false');
+  await expect(sales).toHaveClass(/has-current-page/);
+  await expect(sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true })).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -139,7 +143,7 @@ test('вложенные разделы: раскрытие, один актив
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
   await page.goto('/connections');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Интеграции');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Подключения');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -170,11 +174,10 @@ test('доступность переносит даты и свободное �
   await page.locator('.fund-availability summary').first().click();
   await page.locator('.fund-book-unit').first().click();
   await expect(page).toHaveURL(new RegExp(`arrival=${arrival}&departure=${departure}&unit=R01`));
-  await expect(
-    page
-      .getByRole('dialog', { name: 'Новая бронь', exact: true })
-      .getByRole('heading', { level: 1 }),
-  ).toHaveText('Новая бронь');
+  // заголовок страницы в компактной панели скрыт (booking-compact): проверяем саму панель и форму
+  const bookingDrawer = page.getByRole('dialog', { name: 'Новая бронь', exact: true });
+  await expect(bookingDrawer).toBeVisible();
+  await expect(bookingDrawer.getByTestId('new-reservation-form')).toBeVisible();
   await page.goto(`/rooms/availability?arrival=${departure}&departure=${arrival}`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
     'Выезд должен быть позже заезда',
@@ -351,6 +354,8 @@ test('ошибка создания сохраняет ввод; повтор о
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
+  // источник, промокод и заметки — за свёрнутым «Дополнительно» (booking-compact)
+  await form.locator('.booking-create__extras > summary').click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Новый');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
@@ -514,12 +519,13 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/today');
-  // «Неисправности» лежат в группе «Контроль», и до раскрытия ссылки на экране нет. Главная
-  // стримится, и клик по группе до гидрации теряется (тот же класс, что real-data.spec 20.09) —
-  // жмём, пока ссылка не раскроется, но только если группа свёрнута: иначе щелчок её закроет
-  // (правка ветки PR #28)
-  const control = page.locator('.workspace-sidebar .sidebar-section', { hasText: 'Контроль' });
-  const toggle = control.getByRole('button');
+  // «Неисправности» лежат в группе «Настройки» верхнего меню (ADR-134), и до раскрытия ссылка скрыта.
+  // Главная стримится, и клик по группе до гидрации теряется — жмём, пока ссылка не раскроется,
+  // но только если группа свёрнута: иначе щелчок её закроет
+  const control = page
+    .locator('.workspace-header .topmenu__group')
+    .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
+  const toggle = control.getByRole('button', { name: 'Настройки', exact: true });
   await expect(async () => {
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     await expect(control.getByRole('link', { name: 'Неисправности', exact: true })).toBeVisible({
@@ -551,7 +557,8 @@ test('сбой списка неисправностей не выдаётся �
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {
   await page.goto('/reservations/new?arrival=bad-date');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
-  await expect(page.getByText('Даты некорректны:', { exact: false })).toBeVisible();
+  // ошибка даты стоит у самого поля (booking-compact), а не общей строкой
+  await expect(page.getByRole('alert').filter({ hasText: 'Введите корректную дату' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
 });
 
@@ -568,6 +575,7 @@ test('групповая бронь: разные категории сохра�
   await request.post(`${fixture}/__test/control`, { data: { rejectCreate: true } });
   await page.goto('/reservations/new');
   const form = page.getByTestId('new-reservation-form');
+  await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
   await form.getByRole('button', { name: '+ Добавить размещение' }).click();
   const second = form.getByTestId('placement-fields').nth(1);
@@ -767,7 +775,7 @@ test('гости: удаление документа переспрашивае
 
 test('новая бронь: число гостей ограничено вместимостью выбранной категории', async ({ page }) => {
   await page.goto('/reservations/new?unit=M03');
-  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей в проживании');
+  const guests = page.getByTestId('placement-fields').first().getByLabel('Гостей', { exact: true });
   // койка в общем номере — один гость
   await expect(guests).toHaveAttribute('max', '1');
   await page.getByTestId('placement-fields').first().getByLabel('Категория *').selectOption('ROOM');
@@ -1451,7 +1459,7 @@ test('новая бронь: резюме выбора обновляется п
     /\s*\(свободно \d+\)\s*$/,
     '',
   );
-  const unitSelect = first.getByLabel('Ячейка');
+  const unitSelect = first.getByLabel('Номер / койка');
   // первая настоящая ячейка: до неё «назначить позже» и «Автоматически» (AV3, ADR-110)
   const unitCode = (await unitSelect
     .locator('option:not([value=""]):not([value="@auto"])')
@@ -1460,6 +1468,7 @@ test('новая бронь: резюме выбора обновляется п
   await unitSelect.selectOption(unitCode);
   await expect(summary).toContainText(categoryName);
   await expect(summary).toContainText(`ячейка ${unitCode}`);
+  await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
   await expect(summary).toContainText('телефон');
   await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');

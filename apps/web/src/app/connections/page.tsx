@@ -42,7 +42,12 @@ export default async function ConnectionsPage({
     next === 'available' ? '/connections?tab=available' : '/connections';
   return (
     <Page
-      title="Интеграции"
+      actions={
+        <Link className="btn btn--secondary" href="/incidents">
+          Ошибки системы
+        </Link>
+      }
+      title="Подключения"
       className="integrations-page"
       subtitle={
         propertyName

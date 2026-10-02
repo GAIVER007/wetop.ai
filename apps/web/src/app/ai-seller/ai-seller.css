@@ -120,3 +120,26 @@
 .seller-transcript__bot {
   border: 1px solid var(--border-soft);
 }
+
+/* Guided setup: existing server forms remain mounted while navigating steps. */
+.seller-wizard { background: var(--surface); border-radius: var(--radius); padding: var(--space-4); }
+.seller-wizard__steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); }
+.seller-wizard__steps button { display: flex; align-items: center; gap: var(--space-2); background: transparent; color: var(--muted); border: 0; border-radius: var(--radius-control); padding: var(--space-2); min-height: 44px; text-align: left; cursor: pointer; }
+.seller-wizard__steps button[aria-current] { background: var(--surface-elevated); color: var(--primary); }
+.seller-wizard__steps button span { font-variant-numeric: tabular-nums; font-weight: 700; }
+.seller-wizard__heading { padding: var(--space-4) 0 var(--space-2); }
+.seller-wizard__heading h2 { margin: var(--space-2) 0; }
+.seller-wizard__heading p { margin: 0; color: var(--muted); }
+.seller-wizard__body[hidden] { display: none; }
+.seller-wizard__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.seller-wizard__footer .muted { font-size: var(--text-sm); }
+.seller-connection-steps { display: grid; gap: var(--space-2); }
+.seller-connection-steps > details { background: var(--surface); border-radius: var(--radius-control); padding: var(--space-4); }
+.seller-connection-steps summary { cursor: pointer; font-weight: 600; min-height: 44px; }
+.seller-connection-steps summary span { display: block; font-weight: 400; font-size: var(--text-sm); color: var(--muted); margin: var(--space-2) 0; }
+@media (max-width: 700px) { .seller-wizard { padding: var(--space-2); } .seller-wizard__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } .seller-wizard__footer .muted { order: 3; flex-basis: 100%; } }
+
+.seller-wizard__body > .panel { padding: var(--space-4); gap: var(--space-4); align-content: start; }
+.seller-wizard__body > .panel > p { margin: 0; }
+.seller-wizard__body > .panel > .section-title { margin: 0; }
+.seller-wizard__body .panel .settings-note { margin: 0; }

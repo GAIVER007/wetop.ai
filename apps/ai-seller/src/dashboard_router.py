@@ -29,6 +29,7 @@ from src.dashboard import (
     panel_llm_key,
     panel_orgs,
     panel_whatsapp,
+    panel_telegram,
     panel_seller,
     panel_settings,
     panel_support_kb,
@@ -50,6 +51,7 @@ panel_router.include_router(panel_seller.router)
 panel_router.include_router(panel_extract.router)
 panel_router.include_router(panel_llm_key.router)
 panel_router.include_router(panel_whatsapp.router)
+panel_router.include_router(panel_telegram.router)
 panel_router.include_router(panel_orgs.router)
 panel_router.include_router(panel_support_kb.router)
 

@@ -21,7 +21,13 @@ import {
 } from '@pms/database';
 import { buildHotelSetupPlan, OnboardingError, type HotelSetup } from '@pms/domain';
 import { auditUserId } from '../accounts/actor';
-import { currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import {
+  currentBusinessId,
+  currentLocationId,
+  currentOrganizationId,
+  currentScope,
+  hasSignedInActor,
+} from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE, PROPERTY_NOT_SET_UP_MESSAGE } from '../database/property-ref';
 import { HotelService } from './hotel.module';
@@ -98,11 +104,28 @@ export class OnboardingService {
    * владелец и членство, а объект, Business и Location удалены — онбординг начинается с пустого места
    * (plans/onboarding-without-property-2026-09-28.md).
    */
-  private async findProperty(organizationId: string, db: Pick<PrismaService['db'], 'property'> = this.prisma.db) {
-    return db.property.findFirst({
-      where: { organizationId },
+  private async findProperty(
+    organizationId: string,
+    db: Pick<PrismaService['db'], 'property'> = this.prisma.db,
+  ) {
+    // Несколько филиалов (Platform P3): объект текущего scope, как у остальных экранов (`property-ref.ts`); без
+    // указателя самый ранний, а не случайный
+    const property = await db.property.findFirst({
+      where: {
+        organizationId,
+        ...(currentScope() === 'LOCATION' && currentLocationId()
+          ? { locationId: currentLocationId()! }
+          : {}),
+        ...(currentBusinessId()
+          ? { location: { businessId: currentBusinessId()!, business: { organizationId } } }
+          : {}),
+      },
+      orderBy: { createdAt: 'asc' },
       select: { id: true, name: true, currency: true, timezone: true },
     });
+    if (!property && currentLocationId())
+      throw new NotFoundException('Выбранный филиал недоступен. Выберите другой филиал.');
+    return property;
   }
 
   /** Нужен ли онбординг: у объекта ещё нет ни одной категории. Плюс имя и валюта для формы. */
@@ -138,7 +161,11 @@ export class OnboardingService {
       if (e instanceof OnboardingError) throw new BadRequestException(e.message);
       throw e;
     }
-    const dates = horizon(now, existing?.timezone ?? NEW_PROPERTY_DEFAULTS.timezone, PRICE_HORIZON_DAYS);
+    const dates = horizon(
+      now,
+      existing?.timezone ?? NEW_PROPERTY_DEFAULTS.timezone,
+      PRICE_HORIZON_DAYS,
+    );
 
     await this.prisma.db.$transaction(async (tx) => {
       // Объекта нет (после сброса) — создаётся в этой же транзакции сразу в цепочке, как при регистрации:
@@ -274,7 +301,8 @@ export class OnboardingController {
     return this.service.status();
   }
   @Access('settings')
-  @Post() provision(@Body() body: Record<string, unknown>) {
+  @Post()
+  provision(@Body() body: Record<string, unknown>) {
     return this.service.provision(body ?? {});
   }
 }

@@ -10,8 +10,8 @@ Create Date: 2026-09-30
 
 Что делает:
   · клиент и документ уникальны в пределах АГЕНТА: снимает `uq_clients_org_channel_external` и `uq_documents_org_hash` (один
-    гость у двух агентов одной организации — два клиента; один прайс у двух агентов — две записи);
-  · подключение WhatsApp: первичный ключ — `agent_id` (у организации может быть по подключению на агента), `agent_id` NOT NULL;
+    гость у двух агентов одной организации, два клиента; один прайс у двух агентов, две записи);
+  · подключение WhatsApp: первичный ключ, `agent_id` (у организации может быть по подключению на агента), `agent_id` NOT NULL;
   · CHECK «строка организации имеет агента» у клиентов, диалогов, документов: забытый писателем агент больше не молчаливый NULL.
 Останавливается без изменений, если есть строки организации без агента.
 
@@ -39,7 +39,7 @@ def _is_postgres() -> bool:
 
 
 def _wa_primary_key(column: str) -> None:
-    """Первичный ключ подключения WhatsApp. Postgres — по имени ограничения; SQLite (только тесты) держит ключ безымянным, и
+    """Первичный ключ подключения WhatsApp. Postgres, по имени ограничения; SQLite (только тесты) держит ключ безымянным, и
     пакетный режим сам пересобирает таблицу с новым ключом."""
     if _is_postgres():
         op.execute("ALTER TABLE whatsapp_connections DROP CONSTRAINT whatsapp_connections_pkey")
@@ -57,7 +57,7 @@ def upgrade() -> None:
     for table in CHECKED:
         orphans = _count(f"SELECT count(*) FROM {table} WHERE organization_id IS NOT NULL AND agent_id IS NULL")
         if orphans:
-            raise RuntimeError(f"0010 остановлена: в {table} {orphans} строк организации без агента — сначала добрать agent_id")
+            raise RuntimeError(f"0010 остановлена: в {table} {orphans} строк организации без агента, сначала добрать agent_id")
     if _count("SELECT count(*) FROM whatsapp_connections WHERE agent_id IS NULL"):
         raise RuntimeError("0010 остановлена: подключение WhatsApp без агента")
 
@@ -91,7 +91,7 @@ def downgrade() -> None:
     for table, sql in checks.items():
         if _count(sql):
             raise RuntimeError(
-                f"0010 не откатывается: в {table} у одной организации несколько агентов делят прежний ключ — "
+                f"0010 не откатывается: в {table} у одной организации несколько агентов делят прежний ключ, "
                 "уберите лишние строки или оставьте схему"
             )
 

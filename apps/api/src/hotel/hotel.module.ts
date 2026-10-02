@@ -1,3 +1,5 @@
+import { DashboardModule } from '../dashboard/dashboard.module';
+import { BranchesController, BranchesService } from './branches';
 import 'reflect-metadata';
 import { randomUUID } from 'node:crypto';
 import { ReservationDirectory, ReservationDirectoryController } from './reservation-directory';
@@ -28,7 +30,14 @@ import {
   type ServiceInput,
 } from '@pms/domain';
 import { channex } from '@pms/integrations';
-import { actorMay, currentOrganizationId, hasSignedInActor } from '../auth/request-context';
+import {
+  actorMay,
+  currentOrganizationId,
+  currentBusinessId,
+  currentLocationId,
+  currentScope,
+  hasSignedInActor,
+} from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { FOREIGN_PROPERTY_MESSAGE } from '../database/property-ref';
 import { Access } from '../auth/access.decorator';
@@ -58,7 +67,12 @@ export class HotelService {
   /** По какому объекту отвечаем: вошедший — по своей организации, служебный ходок — по имени (Luxx). */
   private settingsKey(): string {
     if (!hasSignedInActor()) return '__service__';
-    return currentOrganizationId() ?? '__nobody__';
+    return [
+      currentOrganizationId() ?? '__nobody__',
+      currentScope(),
+      currentBusinessId(),
+      currentLocationId(),
+    ].join('|');
   }
 
   private async property() {
@@ -67,7 +81,15 @@ export class HotelService {
       ? (() => {
           const organizationId = currentOrganizationId();
           if (organizationId === null) throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
-          return { organizationId };
+          return {
+            organizationId,
+            ...(currentScope() === 'LOCATION' && currentLocationId()
+              ? { locationId: currentLocationId()! }
+              : {}),
+            ...(currentBusinessId()
+              ? { location: { businessId: currentBusinessId()!, business: { organizationId } } }
+              : {}),
+          };
         })()
       : { name: LUXX_APARTS_PROPERTY.name };
     const property = await this.prisma.db.property.findFirst({
@@ -453,7 +475,19 @@ export class HotelController {
 }
 
 @Module({
-  controllers: [HotelController, ReservationDirectoryController, OnboardingController],
-  providers: [PrismaService, HotelService, ReservationDirectory, OnboardingService],
+  imports: [DashboardModule],
+  controllers: [
+    BranchesController,
+    HotelController,
+    ReservationDirectoryController,
+    OnboardingController,
+  ],
+  providers: [
+    BranchesService,
+    PrismaService,
+    HotelService,
+    ReservationDirectory,
+    OnboardingService,
+  ],
 })
 export class HotelModule {}

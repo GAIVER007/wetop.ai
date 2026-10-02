@@ -38,7 +38,7 @@ test('все 31 день помещаются по ширине окна', async
     await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
     await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
   }
-  await page.getByRole('button', { name: 'Свернуть панель', exact: true }).click();
+  // навигация в шапке (ADR-134): на 1024 px сетке отдана вся ширина окна
   await page.setViewportSize({ width: 1024, height: 1000 });
   await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
 });

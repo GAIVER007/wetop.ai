@@ -21,6 +21,7 @@ export interface SellerConfig {
 
 /** То, что платформе нужно от продавца (docs/assistant/README.md §4) */
 export interface SellerPort {
+  telegram(orgId: string, action: 'status' | 'check' | 'connect' | 'disconnect', body?: unknown): Promise<unknown>;
   listConversations(query: { mode?: string; limit?: number }): Promise<unknown>;
   conversation(id: string): Promise<unknown>;
   takeover(id: string): Promise<unknown>;

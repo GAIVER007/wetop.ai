@@ -59,7 +59,7 @@ export function SellerPromptForm({
       <Textarea
         name="text"
         aria-labelledby="seller-prompt-title"
-        rows={16}
+        rows={10}
         maxLength={max}
         required
         disabled={readOnly !== null}
@@ -317,6 +317,7 @@ export function LlmKeyForm({
           <>Ключ не задан: продавец ходит ключом платформы.</>
         )}
       </p>
+      <p className="settings-note">Проверка не сохраняет ключ. После ввода нажмите «Сохранить». Сохранённый секрет не показывается повторно — пустое поле после перезагрузки нормально.</p>
       <form key={saved?.attempt ?? 0} className="stack stack--sm">
         <Field label="API-ключ модели">
           <Input
@@ -324,7 +325,7 @@ export function LlmKeyForm({
             type="password"
             maxLength={200}
             autoComplete="off"
-            placeholder="sk-…"
+            placeholder={status.set ? "Ключ сохранён, введите новый только для замены" : "Вставьте ключ модели"}
             data-testid="seller-llm-key-input"
             disabled={readOnly !== null}
           />

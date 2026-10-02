@@ -13,7 +13,7 @@ import {
 import { type Chessboard, type ChessboardCell, type ChessboardRow } from '../../lib/api';
 import { Alert, Button, EmptyState, Input, Select, cx } from '../../components/ui';
 import { messengerLinks } from '../../lib/format';
-import { guestNames, sourceBadge, stayLabels } from './stay-labels';
+import { guestNames, isGuestPseudonym, sourceBadge, stayLabels } from './stay-labels';
 import { StayPreview, type PreviewCommand, type PreviewTarget } from './stay-preview';
 import { StayResize } from './stay-resize';
 import { FreeMenuPopover } from './free-menu';
@@ -1271,9 +1271,10 @@ function Cell({
       : cell.state === 'FREE'
         ? 'var(--surface)'
         : (STATUS_BG[cell.itemStatus ?? ''] ?? 'var(--st-confirmed)');
+  const names = guestNames(cell.guestLabel ?? '', cell.source, cell.channel);
   const title =
     cell.state === 'OCCUPIED'
-      ? `${cell.guestLabel ?? 'без имени'} · ${cell.confirmationNumber} · ${
+      ? `${names.full || 'Бронь без имени'} · ${cell.confirmationNumber} · ${
           STATUS_RU[cell.itemStatus ?? ''] ?? cell.itemStatus
         }${cell.channel ? ` · ${cell.channel}` : ''}${label ? ` · ${label.continues ? 'с ранее' : cell.date} → ${nextDay(label.lastDate)} · ${nights(label.span, label.continues)}` : ''}`
       : cell.state === 'BLOCKED'
@@ -1285,7 +1286,6 @@ function Cell({
     !!cell.confirmationNumber &&
     !!cell.itemId &&
     DRAGGABLE.has(cell.itemStatus ?? '');
-  const names = guestNames(cell.guestLabel ?? '');
   const badge = sourceBadge(cell.source, cell.channel);
   const hasDebt = !!cell.balanceMinor && BigInt(cell.balanceMinor) > 0n;
   const arrivalToday = !!label && !label.continues && cell.date === today;
@@ -1429,7 +1429,7 @@ function Cell({
                 </span>
                 <span className="board-stay-line board-stay-line--meta">
                   {/* Источник — маленьким бейджем: цвет плашки уже занят статусом брони (DESIGN.md §9) */}
-                  {badge && (
+                  {badge && !isGuestPseudonym(cell.guestLabel ?? '') && (
                     <span className="board-stay-source" data-testid="cell-channel">
                       {badge.code}
                     </span>
@@ -1462,13 +1462,13 @@ function Cell({
             <ActionMenu
               className="board-stay-menu"
               size="sm"
-              label={`Действия: ${cell.guestLabel || cell.confirmationNumber}`}
+              label={`Действия: ${names.full || cell.confirmationNumber}`}
               items={stayMenuItems(
                 {
                   number: cell.confirmationNumber,
                   itemId: cell.itemId,
                   unitCode,
-                  guest: cell.guestLabel || cell.confirmationNumber,
+                  guest: names.full || cell.confirmationNumber,
                   status: cell.itemStatus ?? '',
                 },
                 onExtend,
@@ -1482,7 +1482,7 @@ function Cell({
               number={cell.confirmationNumber!}
               itemId={cell.itemId!}
               unitCode={unitCode}
-              guest={cell.guestLabel || cell.confirmationNumber!}
+              guest={names.full || cell.confirmationNumber!}
               lastNight={cell.date}
               cells={rowCells}
               disabled={pending}
@@ -1493,7 +1493,7 @@ function Cell({
                     number: cell.confirmationNumber!,
                     itemId: cell.itemId!,
                     unitCode,
-                    guest: cell.guestLabel || cell.confirmationNumber!,
+                    guest: names.full || cell.confirmationNumber!,
                     status: cell.itemStatus ?? '',
                   },
                   nights,

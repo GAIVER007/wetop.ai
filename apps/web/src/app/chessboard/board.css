@@ -1760,3 +1760,11 @@
     min-height: var(--touch-target);
   }
 }
+
+/* Separate compact facts without repeating the booking source. */
+.board-stay-line--meta > :not(:first-child)::before {
+  content: '·';
+  margin-inline-end: 5px;
+  color: var(--muted);
+  font-weight: normal;
+}

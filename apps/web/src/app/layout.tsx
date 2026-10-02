@@ -22,9 +22,10 @@ import './management/hotel.css';
 import './tokens.css';
 import './premium.css';
 import '../components/shell/sidebar.css';
+import '../components/shell/top-menu.css';
 import './hotel-settings/settings.css';
 import './control.css';
-// Стеклянный слой — последним: он добавляет свет, размытие и кромку к уже собранным блокам (DESIGN.md §20).
+// Общие непрозрачные поверхности без бликов — последними (DESIGN.md §20, 01.10.2026).
 import './glass.css';
 
 export const metadata = {

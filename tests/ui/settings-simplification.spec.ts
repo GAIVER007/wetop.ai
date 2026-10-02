@@ -11,12 +11,18 @@ test('короткое меню настроек ведёт в единый об
   page,
 }) => {
   await page.goto('/hotel-settings');
-  const sidebar = page.locator('.workspace-sidebar');
+  const sidebar = page.locator('.workspace-header .topmenu');
   const group = sidebar
-    .locator('.sidebar-section')
+    .locator('.topmenu__group')
     .filter({ has: page.getByRole('button', { name: 'Настройки', exact: true }) });
   // Сайт объекта — в «Продажах → Сайт и онлайн-бронирование» (ADR-117), в «Настройках» его больше нет
-  await expect(group.locator('a')).toHaveText(['Объект', 'Интеграции']);
+  await expect(group.locator('a')).toHaveText([
+    'Объект',
+    'Сотрудники и доступ',
+    'Подключения',
+    'Журнал действий',
+    'Неисправности',
+  ]);
   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();

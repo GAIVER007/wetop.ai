@@ -45,7 +45,7 @@ CREATE TABLE "cash_operations" (
     ("kind" = 'TRANSFER' AND "method_to" IS NOT NULL AND "method_to" <> "method" AND "category_id" IS NULL)
     OR ("kind" <> 'TRANSFER' AND "method_to" IS NULL)
   ),
-  -- не живые деньги объекта (Q-237) в кассе не участвуют
+  -- не живые деньги объекта (Q-246) в кассе не участвуют
   CONSTRAINT "cash_operations_methods_cash" CHECK (
     "method" NOT IN ('EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE')
     AND ("method_to" IS NULL OR "method_to" NOT IN ('EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE'))

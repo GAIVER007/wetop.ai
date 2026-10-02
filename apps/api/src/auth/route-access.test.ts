@@ -22,6 +22,9 @@ import { RoleGuard } from './role.guard';
  * только служебный ключ.
  */
 const EXPECTED: Record<string, RouteAccess | 'public'> = {
+  'GET /branches': 'desk',
+  'POST /branches': 'owner',
+  'GET /branches/overview': 'reports',
   // ── учётная запись, вход, сотрудники ─────────────────────────────────────────────────────
   'GET /auth/options': 'public',
   'POST /auth/login': 'public',
@@ -67,6 +70,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /hotel/onboarding': 'desk',
   'GET /rate-plans': 'desk',
   'POST /reservations': 'desk',
+  'POST /reservations/quote': 'desk',
   'PATCH /reservations/:number/dates': 'desk',
   'PATCH /reservations/:number': 'desk',
   'PATCH /reservations/:number/items/:itemId': 'desk',
@@ -192,6 +196,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /ai-seller/agents': 'seller',
   'GET /ai-seller/agents/:id': 'dialogs',
   'GET /ai-seller/agents/:id/instruction': 'seller',
+  'GET /ai-seller/agents/:id/telegram': 'seller',
+  'PUT /ai-seller/agents/:id/telegram': 'seller',
+  'POST /ai-seller/agents/:id/telegram/check': 'seller',
+  'POST /ai-seller/agents/:id/telegram/disconnect': 'seller',
   'PUT /ai-seller/agents/:id/instruction': 'seller',
   'POST /ai-seller/agents/:id/instruction/generate': 'seller',
   'GET /ai-seller/summary': 'dialogs',

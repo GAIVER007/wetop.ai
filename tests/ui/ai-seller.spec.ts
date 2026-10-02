@@ -49,13 +49,12 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await page.waitForURL('**/today');
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
-  // меню раскрывает группу текущего раздела и подсвечивает его (DESIGN.md §8, боковое меню)
-  const sidebar = page.locator('.workspace-sidebar');
-  await expect(sidebar.getByRole('button', { name: 'Продажи', exact: true })).toHaveAttribute(
-    'aria-expanded',
-    'true',
+  // вкладка группы текущего раздела подсвечена, пункт помечен текущим (DESIGN.md §8, верхнее меню)
+  const sidebar = page.locator('.workspace-header .topmenu');
+  await expect(sidebar.getByRole('button', { name: 'Продажи', exact: true })).toHaveClass(
+    /has-current-page/,
   );
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-агенты');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('ИИ-продавцы');
   const tabs = page.getByRole('navigation', { name: 'ИИ-продавец' }).getByRole('link');
   await expect(tabs).toHaveText(['Настройка', 'Диалоги', 'Знания', 'Подключения']);
   await expect(page.getByTestId('seller-state')).toContainText('Продавец ещё не настроен');
@@ -436,7 +435,7 @@ test('Все агенты возвращает в единый каталог, �
   const back = page.getByRole('link', { name: 'Все агенты', exact: true });
   await expect(back).toHaveAttribute('href', '/ai-agents');
   await back.click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   await expect(page.getByTestId('agent-seller')).toBeVisible();
 });
 

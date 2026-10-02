@@ -1,0 +1,45 @@
+# Модульные (unit) · 02.10.2026 11:39 Алматы · vm
+# коммит 31523a6 (claude/epic-johnson-8yejs9), незакоммиченных файлов набора: 36
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T06-39-08Z-unit-c0dd.json' 'apps/api/src/hotel/branch-context.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/hotel/branch-context.test.ts (4 tests | 1 failed) 14ms
+   ❯ контекст филиала (4)
+     ✓ настройки двух филиалов и их кэш не смешиваются 4ms
+     ✓ онбординг читает выбранный филиал 1ms
+     × без указателя scope онбординг берёт самый ранний объект, как property-ref, а не случайный 6ms
+     ✓ исчезнувший выбранный филиал не превращается в создание другого объекта 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branch-context.test.ts > контекст филиала > без указателя scope онбординг берёт самый ранний объект, как property-ref, а не случайный
+AssertionError: expected undefined to deeply equal { createdAt: 'asc' }
+
+- Expected:
+{
+  "createdAt": "asc",
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/hotel/branch-context.test.ts:68:25
+     66|     );
+     67|     const [arg] = findFirst.mock.calls[0] as [{ orderBy?: unknown }];
+     68|     expect(arg.orderBy).toEqual({ createdAt: 'asc' });
+       |                         ^
+     69|   });
+     70|   it('исчезнувший выбранный филиал не превращается в создание другого …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  06:39:09
+   Duration  1.60s (transform 75%, import 23%, tests 1%)
+
+JSON report written to /tmp/pms-test-2026-10-02T06-39-08Z-unit-c0dd.json
+
+# код выхода 1 · 2 с

@@ -51,7 +51,8 @@ for (const screen of [
   // хаб «Отчёты» (REP1): четыре источника данных, каждый — одним запросом
   '/reports',
   '/channels',
-  '/channels/connections',
+  // «Подключения» каналов — redirect() на страницу настроек Channex (INT2): считается сам целевой экран
+  '/connections/channex',
   '/channels/mapping',
   '/channels/sync',
   '/channels/events',

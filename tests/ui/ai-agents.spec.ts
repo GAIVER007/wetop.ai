@@ -28,11 +28,11 @@ async function signIn(page: Page) {
 
 test('партнёр: пункт меню «ИИ-агенты», на входе только AI-продавец', async ({ page }) => {
   await signIn(page);
-  const sidebar = page.locator('.workspace-sidebar');
+  const sidebar = page.locator('.workspace-header .topmenu');
   await sidebar.getByRole('button', { name: 'Продажи', exact: true }).click();
-  await sidebar.getByRole('link', { name: 'ИИ-агенты', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'ИИ-продавцы', exact: true }).click();
   await expect(page).toHaveURL(/\/ai-agents$/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   const seller = page.getByTestId('agent-seller');
   await expect(seller).toContainText('AI-продавец');
   await expect(seller).toContainText('Продажи');
@@ -43,7 +43,7 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   await expect(page).toHaveURL(/\/ai-seller/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   // страницы продавца подсвечивают тот же пункт меню
-  await expect(sidebar.getByRole('link', { name: 'ИИ-агенты', exact: true })).toHaveAttribute(
+  await expect(sidebar.getByRole('link', { name: 'ИИ-продавцы', exact: true })).toHaveAttribute(
     'aria-current',
     'page',
   );
@@ -184,7 +184,7 @@ test('каталог не загрузился: экран остаётся, в�
   });
   await signIn(page);
   await page.goto('/ai-agents');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   const failure = page.getByTestId('agents-error');
   await expect(failure).toContainText('Не удалось загрузить агентов');
   await expect(failure.getByRole('button', { name: /Повторить/ })).toBeVisible();
@@ -232,7 +232,7 @@ for (const theme of ['light', 'dark'] as const) {
         await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
         await signIn(page);
         await page.goto('/ai-agents');
-        await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-агенты');
+        await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
         await expect(page.getByTestId('agent-seller')).toBeVisible();
         const scan = await new AxeBuilder({ page }).analyze();
         expect(scan.violations.map((v) => v.id)).toEqual([]);

@@ -23,7 +23,7 @@ test('источник и агрегаты проекта видны главн�
   request,
 }) => {
   await page.goto('/connections');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(page.getByTestId('data-connection')).toHaveCount(0);
   await expect(page.getByRole('main')).not.toContainText('Supabase');
   await expect(page.getByRole('main')).not.toContainText('Данные проекта');
@@ -59,12 +59,11 @@ test('ошибка базы не превращается в нулевые по
 test('название гостиницы в каркасе и обзоре поступает из backend', async ({ page, request }) => {
   await request.post(`${fixture}/__test/control`, { data: { propertyName: 'Проверочный хостел' } });
   await page.goto('/today');
-  await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+  await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Проверочный хостел',
   );
-  await expect(page.locator('.profile-caption')).toContainText('Проверочный хостел');
   await expect(page.locator('main')).toContainText('Проверочный хостел');
-  await expect(page.locator('.workspace-sidebar')).not.toContainText('Luxx Aparts');
+  await expect(page.locator('.workspace-header')).not.toContainText('Luxx Aparts');
 });
 
 test('недоступный API не скрывается за демо или выдуманным объектом', async ({ page, request }) => {
@@ -75,7 +74,7 @@ test('недоступный API не скрывается за демо или 
   await expect(page.getByTestId('integration-issues')).toContainText(
     'Не удалось проверить менеджер каналов',
   );
-  await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+  await expect(page.locator('.workspace-header .workspace-property')).toContainText(
     'Объект не загружен',
   );
   await expect(page.getByTestId('database-units')).toHaveCount(0);
@@ -98,11 +97,11 @@ test('поздняя загрузка гостиницы сохраняет вв
       await menu.click();
       await expect(menu).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
     }).toPass({ timeout: 15_000 });
-    await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+    await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Объект не загружен',
     );
     await request.post(`${fixture}/__test/control`, { data: { holdHotel: false } });
-    await expect(page.locator('.workspace-sidebar .workspace-property')).toContainText(
+    await expect(page.locator('.workspace-header .workspace-property')).toContainText(
       'Поздний ответ гостиницы',
     );
     await expect(page.getByLabel('Имя *', { exact: true })).toHaveValue('Тестовый ввод');

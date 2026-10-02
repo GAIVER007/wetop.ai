@@ -1,3 +1,4 @@
+import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import {
@@ -17,7 +18,6 @@ import {
   EmptyState,
   Fact,
   Grid,
-  Panel,
   SectionTitle,
   StateBar,
   StateFact,
@@ -30,7 +30,6 @@ import { OutboxTable } from '../outbox-table';
 import { EVENTS_PAGE, EventsTable, type EventsFilter } from '../events-table';
 import { hotelClock } from '../../../lib/hotel-api';
 import type { PropertyClock } from '../../../lib/property-time';
-import { currentMe } from '../../../lib/desk-shell';
 import { eventTime } from '../format';
 import { ChannelReport } from '../report';
 import { categoryMappings, planMappings } from '../mapping';
@@ -49,7 +48,7 @@ import '../channels.css';
  */
 const tabs = [
   { view: '', href: '/channels', label: 'Обзор' },
-  { view: 'connections', href: '/channels/connections', label: 'Подключения' },
+  { view: 'connections', href: '/connections/channex', label: 'Настройка подключения' },
   { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },
   { view: 'sync', href: '/channels/sync', label: 'Синхронизация' },
   { view: 'events', href: '/channels/events', label: 'События' },
@@ -87,6 +86,7 @@ export default async function ChannelSalesPage({
   const { section = [] } = await params;
   if (section.length > 1) notFound();
   const view = section[0] ?? '';
+  if (view === 'connections') redirect('/connections/channex');
   const sp = normalizeSearchParams(await searchParams);
   // Старые адреса пульта «/channels?…» ведут на свои вкладки: queue — очередь, type — журнал событий
   if (!view && sp.queue) redirect(`/channels/sync?queue=${encodeURIComponent(sp.queue)}`);
@@ -117,7 +117,7 @@ export default async function ChannelSalesPage({
         ))}
       </nav>
       {view === '' && <Overview sp={sp} />}
-      {view === 'connections' && <Connections />}
+      {view === 'connections' && <ChannelConnectionSetup />}
       {view === 'mapping' && <Mapping />}
       {view === 'sync' && <Sync queue={queueFilter(sp.queue)} />}
       {view === 'events' && <Events sp={sp} />}
@@ -179,7 +179,7 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
             : outbox.pending > 0
               ? 'Изменения ждут отправки в каналы.'
               : connection?.environment === 'staging'
-            ? 'Менеджер каналов: тестовое подключение.'
+                ? 'Менеджер каналов: тестовое подключение.'
                 : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
   const lastExchange =
     [outbox?.lastSentAt, connection?.lastWebhookAt, connection?.lastPullAt]
@@ -392,119 +392,6 @@ async function Overview({ sp }: { sp: Record<string, string | undefined> }) {
 }
 
 /* ── Подключения: состояние Channex и настройка обмена (кнопки — владельцу) ── */
-
-async function Connections() {
-  const clock = await hotelClock();
-  const [connection, webhook, me] = await Promise.all([
-    channelsApi.connection().catch(() => null),
-    channelsApi.webhookStatus().catch(() => null),
-    settle(currentMe()),
-  ]);
-  const owner = me.ok && me.r.user?.role === 'OWNER';
-  const webhookReady = !!webhook?.expectedUrl && !!webhook?.secretConfigured;
-  return (
-    <div className="stack">
-      {!connection && <Alert boxed>Не удалось проверить подключение менеджера каналов.</Alert>}
-      <Panel title="Менеджер каналов" data-testid="channel-connection">
-        <Badge tone={connection?.propertyAccessible ? 'ok' : 'warn'}>
-          {connection?.message ?? 'Не проверено'}
-        </Badge>
-        {connection && (
-          <Grid min={180}>
-            <Fact
-              label="Среда"
-              value={
-                connection.environment === 'production'
-                  ? 'Рабочая'
-                  : connection.environment === 'staging'
-                    ? 'Тестовая'
-                    : 'Свой сервер'
-              }
-            />
-            <Fact
-              label="Объект в менеджере каналов"
-              value={
-                connection.propertyId ? (
-                  <span className="mono break-all">{connection.propertyId}</span>
-                ) : (
-                  'не создан'
-                )
-              }
-            />
-            <Fact
-              label="Сопоставлено"
-              value={`категорий ${connection.mappedCategories}, тарифов ${connection.mappedRatePlans}`}
-            />
-            <Fact
-              label="Последний webhook, по Алматы"
-              value={clock.local(connection.lastWebhookAt)}
-            />
-            <Fact label="Последний импорт, по Алматы" value={clock.local(connection.lastPullAt)} />
-          </Grid>
-        )}
-      </Panel>
-      <Panel title="Webhook менеджера каналов" data-testid="channel-webhook">
-        {webhook === null ? (
-          <Alert>
-            Статус webhook не загрузился. Его состояние неизвестно — обновите страницу перед
-            настройкой.
-          </Alert>
-        ) : (
-          <>
-            <Badge tone={webhook.registered && webhook.active ? 'ok' : 'warn'}>
-              <span data-testid="webhook-state">
-                {webhook.registered
-                  ? `${webhook.active ? 'активен' : 'выключен'}, события ${webhook.eventMask}`
-                  : webhook.expectedUrl
-                    ? 'не зарегистрирован'
-                    : 'нет PUBLIC_API_URL'}
-              </span>
-            </Badge>
-            {webhook.registered && <p className="note break-all">{webhook.callbackUrl}</p>}
-            {webhook.registered &&
-              webhook.expectedUrl &&
-              webhook.callbackUrl !== webhook.expectedUrl && (
-                <p className="note danger-text" data-testid="webhook-url-mismatch">
-                  зарегистрирован не постоянный адрес PMS ({webhook.expectedUrl}) — события уходят
-                  не туда, нажмите «Зарегистрировать webhook»
-                </p>
-              )}
-            {webhook.registered &&
-              webhook.callbackReachable === false &&
-              (!webhook.expectedUrl || webhook.callbackUrl === webhook.expectedUrl) && (
-                <p className="note danger-text">
-                  адрес не отвечает{checkedAt(webhook.callbackCheckedAt, clock)} — брони подберёт
-                  опрос ленты, но webhook надо поднять
-                </p>
-              )}
-            {webhook.registered && webhook.callbackReachable === true && (
-              <p className="note ok-text">
-                адрес отвечает{checkedAt(webhook.callbackCheckedAt, clock)}
-              </p>
-            )}
-          </>
-        )}
-      </Panel>
-      {owner ? (
-        <ChannelButtons
-          group="setup"
-          webhookReady={webhookReady}
-          configured={!!connection?.apiConfigured}
-          connected={!!connection?.propertyAccessible}
-        />
-      ) : (
-        <p className="note" data-testid="channel-setup-owner-only">
-          Настройку подключения меняет владелец организации.
-        </p>
-      )}
-      <p className="note" data-testid="channel-content-location">
-        Ключ менеджера каналов хранится только на сервере. Общий экран подключений гостиницы —{' '}
-        <Link href="/connections">«Интеграции»</Link>; фото, удобства и описание для каналов
-        настраиваются в кабинете менеджера каналов или самого канала.
-      </p>
-    </div>
-  );
-}
 
 /* ── Сопоставление: категории и тарифы WETOP ↔ Channex ── */
 
@@ -741,27 +628,44 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
   const stalledMinutes = outbox?.oldestPendingAt
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60_000)
     : 0;
-  const tone = !outbox
-    ? 'warn'
-    : outbox.failed > 0 || stalledMinutes >= 10
-      ? 'alarm'
-      : outbox.pending > 0
-        ? 'warn'
-        : 'calm';
-  const summaryWord = !outbox
-    ? 'Сводка очереди не загрузилась.'
-    : outbox.failed > 0
-      ? `Ошибок отправки ${outbox.failed} — каналы продают по старому остатку.`
-      : stalledMinutes >= 10
-        ? `Очередь стоит ${stalledMinutes} мин — каналы продают по старому остатку.`
+  const notConnected = !connection?.apiConfigured || !connection.propertyAccessible;
+  const tone =
+    !outbox || notConnected
+      ? 'warn'
+      : outbox.failed > 0 || stalledMinutes >= 10
+        ? 'alarm'
         : outbox.pending > 0
-          ? 'Ждут отправки в каналы.'
-          : 'Очередь пуста: всё ушло в каналы.';
+          ? 'warn'
+          : 'calm';
+  const summaryWord = !connection
+    ? 'Не удалось проверить подключение каналов.'
+    : notConnected
+      ? 'Каналы не подключены. Обмен с OTA не подтверждён.'
+      : !outbox
+        ? 'Сводка очереди не загрузилась.'
+        : outbox.failed > 0
+          ? `Ошибок отправки: ${outbox.failed}. Проверьте журнал.`
+          : stalledMinutes >= 10
+            ? `Очередь ожидает ${stalledMinutes} мин. Проверьте отправку.`
+            : outbox.pending > 0
+              ? 'Изменения ждут отправки в менеджер каналов.'
+              : connection.environment !== 'production'
+                ? 'Тестовый контур. Ожидающих заданий нет; обмен с рабочими OTA не подтверждён.'
+                : 'Ожидающих заданий нет. Результаты обмена смотрите в журнале.';
   const lastInbound =
     [connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)
       .sort()
       .at(-1) ?? null;
+  const inboundLabel = !connection
+    ? 'Не проверено'
+    : notConnected
+      ? 'Не подключено'
+      : connection.environment !== 'production'
+        ? 'Тестовый контур'
+        : lastInbound
+          ? 'События получены'
+          : 'Событий ещё нет';
   const kindState = (kind: OutboxRow['kind']) => {
     const ofKind = (allRows ?? []).filter((r) => r.kind === kind);
     const failed = ofKind.filter((r) => r.status === 'FAILED').length;
@@ -780,7 +684,9 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
       <StateBar
         tone={tone}
         label="В очереди"
-        value={outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : '—'}
+        value={
+          outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : 'Неизвестно'
+        }
         summary={summaryWord}
       >
         <StateFact
@@ -796,7 +702,7 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
                 )}
               </>
             ) : (
-              '—'
+              'Неизвестно'
             )
           }
         >
@@ -816,7 +722,7 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
             ) : failedEvents > 0 ? (
               <span className="danger-text">требуют разбора: {failedEvents}</span>
             ) : (
-              'принимаются'
+              inboundLabel
             )
           }
         >
@@ -842,13 +748,23 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
                 <td>{label}</td>
                 <td>
                   {allRows === null ? (
-                    '—'
+                    'Неизвестно'
                   ) : s.failed > 0 ? (
                     <Badge tone="danger">ошибка</Badge>
                   ) : s.pending > 0 ? (
                     <Badge tone="info">в очереди: {s.pending}</Badge>
                   ) : (
-                    <Badge tone="ok">актуально</Badge>
+                    <Badge tone="info">
+                      {!connection
+                        ? 'Не проверено'
+                        : notConnected
+                          ? 'Не подключено'
+                          : connection.environment !== 'production'
+                            ? 'Тестовый контур'
+                            : s.lastSent
+                              ? 'Отправлено в менеджер'
+                              : 'Не отправлялось'}
+                    </Badge>
                   )}
                 </td>
                 <td className="nowrap">{eventTime(s.lastSent, clock)}</td>
@@ -859,14 +775,14 @@ async function Sync({ queue }: { queue: OutboxRowStatus | '' }) {
             <td>Брони из каналов</td>
             <td>
               {failedEvents === null ? (
-                '—'
+                'Неизвестно'
               ) : failedEvents > 0 ? (
                 <>
                   <Badge tone="danger">требуют разбора: {failedEvents}</Badge>{' '}
                   <Link href="/channels/events?status=FAILED">к событиям</Link>
                 </>
               ) : (
-                <Badge tone="ok">принимаются</Badge>
+                <Badge tone="info">{inboundLabel}</Badge>
               )}
             </td>
             <td className="nowrap">{eventTime(lastInbound, clock)}</td>

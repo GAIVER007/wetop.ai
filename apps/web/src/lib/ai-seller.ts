@@ -147,8 +147,8 @@ export function sellerBanner(status: SellerStatus): SellerBanner {
   if (status.profile.applied && status.facts.applied)
     return {
       tone: 'calm',
-      value: 'работает',
-      title: 'Продавец работает с текущими настройками',
+      value: 'настройки применены',
+      title: 'Инструкция и данные переданы продавцу',
       text: 'Правки настроек, карточки объекта и цен уходят продавцу сами.',
     };
   return {

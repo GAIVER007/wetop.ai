@@ -106,6 +106,12 @@ const paths = {
   phone: (
     <path d="M6.5 3.5h2.8l1.7 4.3-2.2 1.4a11 11 0 0 0 6 6l1.4-2.2 4.3 1.7v2.8a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 5.7a2 2 0 0 1 2-2.2Z" />
   ),
+  chart: (
+    <>
+      <path d="M4 20h16" />
+      <path d="M7 16.5v-5M12 16.5v-9M17 16.5v-3" strokeWidth="2.4" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof paths;

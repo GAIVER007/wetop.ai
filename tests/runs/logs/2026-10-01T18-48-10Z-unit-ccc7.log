@@ -1,0 +1,252 @@
+# Модульные (unit) · 01.10.2026 23:48 Алматы · vm
+# коммит 2bc2380 (claude/epic-johnson-8yejs9), незакоммиченных файлов набора: 70
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-01T18-48-10Z-unit-ccc7.json' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/organization' 'apps/api/src/hotel' 'apps/api/src/auth/auth.controller.test.ts' 'apps/api/src/platform' 'apps/web/src/lib/desk-person.test.ts' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/app/branches' 'packages/domain/src/organization' 'tests/unit/design-slop.test.ts' 'apps/web/src/design-rules.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| tests/unit/design-slop.test.ts (11 tests | 7 failed) 26ms
+   ❯ design: сторож ИИ-слопа (DESIGN.md §15) (11)
+     × color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css 13ms
+     × space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) 2ms
+     ✓ uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase 1ms
+     × shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset 2ms
+     ✓ window-confirm: window.confirm вместо окна подтверждения с суммой (DESIGN.md §8, §15) 0ms
+     × dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица 2ms
+     × trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются 1ms
+     ✓ font-under-12: шрифт мельче 12 px (DESIGN.md §6) 0ms
+     × radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены 1ms
+     × z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13) 1ms
+     ✓ снимок покрывает все правила 0ms
+ ❯ |unit| apps/web/src/design-rules.test.ts (13 tests | 2 failed) 249ms
+   ❯ DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) (9)
+     ✓ капса в CSS нет — кроме значения поля ввода и первой буквы 41ms
+     ✓ шрифта мельче 12 px нет 30ms
+     ✓ начертания только из шкалы 400 / 500 / 600 / 700 28ms
+     × литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт) 19ms
+     × стрелок в конце текста ссылок нет — ссылка названа словом (§14) 21ms
+     ✓ «шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradient, ни тени-ореола 24ms
+     ✓ « · » как разделитель в TSX не размножается (потолок 70 строк на 20.09; было 104 на 18.09) 23ms
+     ✓ отступов вне шкалы не прибавляется (потолок 444 значений на 20.09; было 475 на 18.09) 7ms
+     ✓ деньги на экранах — formatMoney; formatMinor остался только счёту и печатным формам 14ms
+   ✓ DESIGN.md §15: системных окон подтверждения на экранах нет (1)
+     ✓ ни один экран не зовёт window.confirm — вопрос задаёт ConfirmDialog 20ms
+   ✓ план дизайн-системы §10: попутные дефекты не возвращаются (3)
+     ✓ «перейти к содержимому» на --primary пишется цветом --on-primary 1ms
+     ✓ на шахматке инлайн-фон клетки — backgroundColor, не сокращение background 2ms
+     ✓ мёртвых классов .topbar и .record-nav в CSS стойки нет 15ms
+ ❯ |unit| apps/web/src/lib/desk-person.test.ts (11 tests | 1 failed) 16ms
+   ❯ меню и подпись по тому, кто вошёл (ADR-083) (3)
+     ✓ «ИИ-продавец» — при действующем расширении и после срока; «Платформа» — главному администратору 3ms
+     × продавец виден для знакомства, а раздел «Платформа» без прав скрыт 7ms
+     ✓ подпись: имя и роль; без имени — почта; главный администратор — отдельно 1ms
+   ✓ строка пробного периода в меню (4)
+     ✓ пробный — сколько дней осталось; кончился — так и сказано 1ms
+     ✓ у оплаченной организации, без срока и без организации строки нет 0ms
+     ✓ оболочка несёт строку вошедшего; без вошедшего — пусто 0ms
+     ✓ обучение (ADR-100): ключ отметки — у вошедшего, без почты в ключе; без вошедшего — нет 0ms
+   ✓ deskShellOf — только чтение (4)
+     ✓ пробный срок вышел — полоса есть 0ms
+     ✓ переведена в «только чтение» руками — полоса есть 0ms
+     ✓ в срок, после оплаты и без организации в ответе — полосы нет 0ms
+     ✓ сбой ответа о вошедшем — полосы нет 0ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (12 tests) 273ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 188ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (19 tests) 396ms
+ ✓ |unit| apps/api/src/hotel/hotel.controller.test.ts (12 tests) 206ms
+ ✓ |unit| apps/api/src/organization/organization.controller.test.ts (9 tests) 220ms
+ ✓ |unit| packages/domain/src/organization/branches.test.ts (9 tests) 35ms
+ ✓ |unit| apps/api/src/hotel/reservation-directory.test.ts (18 tests) 42ms
+ ✓ |unit| apps/api/src/auth/auth.controller.test.ts (7 tests) 32ms
+ ✓ |unit| apps/api/src/hotel/settings-update.test.ts (7 tests) 15ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 22ms
+ ✓ |unit| apps/api/src/hotel/branches.test.ts (5 tests) 15ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 88ms
+ ✓ |unit| apps/api/src/hotel/onboarding.test.ts (9 tests) 18ms
+ ✓ |unit| apps/api/src/hotel/services-catalog.test.ts (6 tests) 17ms
+ ✓ |unit| apps/api/src/hotel/settings-concurrency.test.ts (3 tests) 14ms
+ ✓ |unit| apps/api/src/hotel/first-steps.test.ts (2 tests) 14ms
+ ✓ |unit| apps/api/src/hotel/branch-context.test.ts (3 tests) 10ms
+ ✓ |unit| apps/web/src/app/branches/switch.test.ts (7 tests) 48ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > color-literal: цвет мимо токенов (DESIGN.md §2): hex или rgb() вне tokens.css
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > shadow-on-page: тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > z-index-literal: литерал z-index вместо --z-* (DESIGN.md §13)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/components/shell/sidebar.css: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(3) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/login/role-access.css: 0 → 2",
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 19",
++   "apps/web/src/components/shell/sidebar.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строки или таблица
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(8) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-agents/[id]/telegram-panel.tsx: 0 → 2",
++   "apps/web/src/app/ai-seller/forms.tsx: 0 → 1",
++   "apps/web/src/app/branches/overview.tsx: 0 → 4",
++   "apps/web/src/app/branches/workspace.tsx: 0 → 2",
++   "apps/web/src/app/login/team-section.tsx: 0 → 2",
++   "apps/web/src/app/platform/page.tsx: 0 → 1",
++   "apps/web/src/app/reservations/new/form.tsx: 0 → 1",
++   "apps/web/src/app/staff/page.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > trailing-arrow: стрелка в конце ссылки или текста «Все брони →» (DESIGN.md §15); стрелка периода «14.09 → 17.09» и стрелка, которая сама и есть всё содержимое элемента, не считаются
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/ai-seller/[[...section]]/page.tsx: 0 → 3",
++   "apps/web/src/app/ai-seller/setup-wizard.tsx: 0 → 1",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5); 50 % и 0 разрешены
+AssertionError: новые нарушения — исправьте или объясните в reports/design-audit-*.md: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/app/reservations/new/booking-compact.css: 0 → 2",
++ ]
+
+ ❯ tests/unit/design-slop.test.ts:179:9
+    177|         worse,
+    178|         `новые нарушения — исправьте или объясните в reports/design-au…
+    179|       ).toEqual([]);
+       |         ^
+    180|       expect(better, `нарушений стало меньше — обновите снимок: DESIGN…
+    181|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > литералов цвета в CSS стойки нет — цвет только токеном (§2; печатные формы не в счёт)
+AssertionError: expected [ 'components/shell/sidebar.css' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "components/shell/sidebar.css",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:90:7
+     88|         )
+     89|         .map((f) => relative(SRC, f)),
+     90|     ).toEqual([]);
+       |       ^
+     91|   });
+     92|   it('стрелок в конце текста ссылок нет — ссылка названа словом (§14)'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > стрелок в конце текста ссылок нет — ссылка названа словом (§14)
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app/ai-seller/[[...section]]/page.tsx",
++ ]
+
+ ❯ apps/web/src/design-rules.test.ts:96:20
+     94|       .filter((f) => /(→|›)\s*<\/(?:Link|a)>/.test(readFileSync(f, 'ut…
+     95|       .map((f) => relative(SRC, f));
+     96|     expect(guilty).toEqual([]);
+       |                    ^
+     97|   });
+     98|   it('«шаров» и свечения в CSS стойки нет (§13, §15): ни radial-gradie…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > меню и подпись по тому, кто вошёл (ADR-083) > продавец виден для знакомства, а раздел «Платформа» без прав скрыт
+AssertionError: expected [ '/today', '/chessboard', …(16) ] to not include '/platform/support'
+ ❯ apps/web/src/lib/desk-person.test.ts:49:60
+     47|     // «Техподдержка» переехала под «ИИ-продавец» (переключатель агент…
+     48|     // пункта меню у неё больше нет, маршрут /platform/support остаётс…
+     49|     expect(hrefs({ aiSeller: false, platform: true })).not.toContain('…
+       |                                                            ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+
+ Test Files  3 failed | 18 passed (21)
+      Tests  10 failed | 182 passed (192)
+   Start at  18:48:11
+   Duration  6.57s (import 53%, transform 34%, tests 12%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-01T18-48-10Z-unit-ccc7.json
+
+# код выхода 1 · 8 с

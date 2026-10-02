@@ -26,6 +26,8 @@ import {
 
 /** Фальшивка хранит и то, чего в ReservationState нет, но что отдаёт карточка: источник, заметки, гостей */
 type StoredReservation = ReservationState & {
+  creationKey?: string | null;
+  creationFingerprint?: string | null;
   source?: string;
   primaryGuestId?: string;
   notes?: string | null;
@@ -254,6 +256,12 @@ function makeFake() {
       state.createdGuests.push({ ...g });
       return `g${state.guests}`;
     },
+    async reservationByCreationKey(key) {
+      const r = [...state.reservations.values()].find((r) => r.creationKey === key);
+      return r
+        ? { confirmationNumber: r.confirmationNumber, fingerprint: r.creationFingerprint ?? null }
+        : null;
+    },
     async createReservation(input) {
       state.seq += 1;
       const id = `r${state.seq}`;
@@ -274,6 +282,8 @@ function makeFake() {
       state.reservations.set(input.confirmationNumber, {
         id,
         confirmationNumber: input.confirmationNumber,
+        creationKey: input.creationKey ?? null,
+        creationFingerprint: input.creationFingerprint ?? null,
         status: input.status,
         arrivalDate: input.arrivalDate,
         departureDate: input.departureDate,
@@ -526,6 +536,58 @@ describe('manual reservation API', () => {
     }
   });
 
+  it.each([
+    ['2026-02-31', '2026-03-03'],
+    ['2026-02-28', '2026-02-31'],
+    ['2026-10-02', '2026-10-01'],
+    ['2026-10-01', '2026-10-01'],
+    ['', '2026-10-01'],
+    ['2026-10-01', ''],
+  ])('rejects invalid stay %s to %s before writes', async (arrivalDate, departureDate) => {
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate, departureDate }))
+      .expect(400);
+    expect(fake.state.reservations.size).toBe(0);
+  });
+
+  it('quotes the selected booking without writing a guest or reservation', async () => {
+    const q = await request(app.getHttpServer())
+      .post('/reservations/quote')
+      .send(body())
+      .expect(201);
+    expect(q.body.totalMinor).toBe('2200000');
+    expect(fake.state.reservations.size).toBe(0);
+    expect(fake.state.guests).toBe(0);
+    expect(published).toHaveLength(0);
+  });
+  it('replays one creation key and rejects changed payload without duplicate guests', async () => {
+    const payload = body({ creationKey: '00000000-0000-4000-8000-000000000001' });
+    const first = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(payload)
+      .expect(201);
+    const repeat = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(payload)
+      .expect(201);
+    expect(repeat.body.confirmationNumber).toBe(first.body.confirmationNumber);
+    expect(fake.state.reservations.size).toBe(1);
+    expect(fake.state.guests).toBe(1);
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send({ ...payload, notes: 'ТЕСТ changed' })
+      .expect(409);
+  });
+  it('rejects an outdated expected total before writes', async () => {
+    await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ expectedTotalMinor: '1' }))
+      .expect(409);
+    expect(fake.state.reservations.size).toBe(0);
+    expect(fake.state.guests).toBe(0);
+  });
+
   it('POST /reservations creates a CONFIRMED booking priced from DailyRate, assigns the unit, writes audit', async () => {
     const res = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
     expect(res.body.confirmationNumber).toMatch(/^\d{8}-[A-Z0-9]{6}$/);
@@ -537,7 +599,14 @@ describe('manual reservation API', () => {
     ]);
     // после коммита в каналы уходит дельта доступности по категории и ночам брони
     expect(published).toEqual([
-      { categoryCodes: ['category-single'], from: '2026-09-15', toExclusive: '2026-09-17' },
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-09-15',
+        toExclusive: '2026-09-17',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-17' },
+        ],
+      },
     ]);
   });
   it('ADR-072: пока база не в Казахстане, гость со стойки записывается псевдонимом; имя не обязательно', async () => {
@@ -987,6 +1056,10 @@ describe('manual reservation API', () => {
         categoryCodes: ['category-single', 'category-twin'],
         from: '2026-09-15',
         toExclusive: '2026-09-17',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-17' },
+          { categoryCode: 'category-twin', from: '2026-09-15', toExclusive: '2026-09-17' },
+        ],
       },
     ]);
   });
@@ -1077,7 +1150,17 @@ describe('manual reservation API', () => {
       unitCode: '9001',
     });
     expect(fake.state.allocations[0]).toMatchObject({ start: '2026-09-15', end: '2026-09-18' });
-    expect(published).toHaveLength(1);
+    // в канал — только добавленная ночь: остаток 15 и 16 сентября продление не меняло
+    expect(published).toEqual([
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-09-17',
+        toExclusive: '2026-09-18',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-17', toExclusive: '2026-09-18' },
+        ],
+      },
+    ]);
 
     // чужая бронь занимает ту же койку на следующую ночь → продлить нельзя
     const other = await request(app.getHttpServer())
@@ -1246,6 +1329,39 @@ describe('manual reservation API', () => {
       },
     ]);
   });
+
+  it.each(['2026-09-15', '2026-09-16'])(
+    'checkout on %s releases the unit and permits rebooking after inspection',
+    async (day) => {
+      vi.setSystemTime(new Date(day + 'T06:00:00Z'));
+      try {
+        const created = await request(app.getHttpServer())
+          .post('/reservations')
+          .send(body())
+          .expect(201);
+        const n = created.body.confirmationNumber;
+        const item = created.body.items[0].id;
+        await request(app.getHttpServer())
+          .post(`/reservations/${n}/items/${item}/check-in`)
+          .send({})
+          .expect(200);
+        const out = await request(app.getHttpServer())
+          .post(`/reservations/${n}/items/${item}/check-out`)
+          .send({})
+          .expect(200);
+        expect(fake.state.allocations.filter((a) => a.unitId === 'u1' && a.end > day)).toEqual([]);
+        expect(out.body.departureDate).toBe(day === '2026-09-15' ? '2026-09-17' : day);
+        expect(fake.units.find((u) => u.id === 'u1')?.housekeepingStatus).toBe('DIRTY');
+        fake.units.find((u) => u.id === 'u1')!.housekeepingStatus = 'INSPECTED';
+        await request(app.getHttpServer())
+          .post('/reservations')
+          .send(body({ arrivalDate: day }))
+          .expect(201);
+      } finally {
+        vi.setSystemTime(new Date('2026-09-10T06:00:00Z'));
+      }
+    },
+  );
 
   it('T3: выселить с непогашенным счётом можно только с подтверждением, и это попадает в журнал', async () => {
     const created = await request(app.getHttpServer())
@@ -1801,13 +1917,22 @@ describe('manual reservation API', () => {
     expect(lastDelta()).toMatchObject({ from: '2026-09-15', toExclusive: '2026-09-17' });
     const n = created.body.confirmationNumber as string;
 
-    // смена дат: старые и новые ночи вместе, иначе освободившаяся ночь останется закрытой в канале
+    // смена дат 15→17 на 16→19: освободившаяся 15-я и занятые 17-я и 18-я вместе, иначе освободившаяся ночь
+    // останется закрытой в канале; 16-я была занята и осталась — её остаток не менялся, она не уходит
     await send(
       `/reservations/${n}/dates`,
       { arrivalDate: '2026-09-16', departureDate: '2026-09-19', ratePlanCode: 'rate-base' },
       'patch',
     ).expect(200);
-    expect(lastDelta()).toMatchObject({ from: '2026-09-15', toExclusive: '2026-09-19' });
+    expect(lastDelta()).toEqual({
+      categoryCodes: ['category-single'],
+      from: '2026-09-15',
+      toExclusive: '2026-09-19',
+      ranges: [
+        { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-16' },
+        { categoryCode: 'category-single', from: '2026-09-17', toExclusive: '2026-09-19' },
+      ],
+    });
 
     await send(`/reservations/${n}/cancel`).expect(200);
     expect(lastDelta()).toMatchObject({ from: '2026-09-16', toExclusive: '2026-09-19' });
@@ -1834,8 +1959,37 @@ describe('manual reservation API', () => {
     await send(`/reservations/${n3}/items/${i3}/check-in`).expect(200);
     expect(published).toHaveLength(0); // заезд остаток не меняет
     await send(`/reservations/${n3}/items/${i3}/check-out`).expect(200);
-    expect(lastDelta()).toMatchObject({ toExclusive: '2026-09-18' });
+    // только освободившиеся 16-я и 17-я: прожитая 15-я осталась за выехавшим
+    expect(lastDelta()).toMatchObject({
+      from: '2026-09-16',
+      toExclusive: '2026-09-18',
+      ranges: [{ categoryCode: 'category-single', from: '2026-09-16', toExclusive: '2026-09-18' }],
+    });
     vi.setSystemTime(new Date('2026-09-10T06:00:00Z'));
+  });
+  it('перенос брони (live-тест Channex 02.10.2026): в канал уходят только освободившаяся и занятая ночь, ночи между ними — нет', async () => {
+    const created = await request(app.getHttpServer())
+      .post('/reservations')
+      .send(body({ arrivalDate: '2026-09-15', departureDate: '2026-09-16' }))
+      .expect(201);
+    published.length = 0;
+    await request(app.getHttpServer())
+      .patch(`/reservations/${created.body.confirmationNumber}/dates`)
+      .send({ arrivalDate: '2026-09-18', departureDate: '2026-09-19', ratePlanCode: 'rate-base' })
+      .expect(200);
+    // Сертификация Channex §13: «only send changes». 16-я и 17-я остаток не меняли, а до правки уходили вместе
+    // с переносом — live-тест 02.10 (задача 5577ce76: 15.12 → 7, 16–21.12 → 8, 22–28.12 → 7)
+    expect(published).toEqual([
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-09-15',
+        toExclusive: '2026-09-19',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-09-15', toExclusive: '2026-09-16' },
+          { categoryCode: 'category-single', from: '2026-09-18', toExclusive: '2026-09-19' },
+        ],
+      },
+    ]);
   });
   it('заселение без гражданства и с гражданством из одних пробелов отклоняется одним и тем же сообщением', async () => {
     const created = await request(app.getHttpServer())

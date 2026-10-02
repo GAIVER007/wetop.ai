@@ -28,12 +28,22 @@ export async function llmKeySaveAction(
 ): Promise<LlmKeyResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
   const key = form.get('clear') === '1' ? '' : String(form.get('key') ?? '').trim();
+  if (!key && form.get('clear') !== '1')
+    return {
+      error: 'Введите новый ключ. Сохранённый ключ не изменён.',
+      message: null,
+      set: null,
+      last4: null,
+      attempt,
+    };
   try {
     const saved = await sellerApi.saveLlmKey(key);
     refresh();
     return {
       error: null,
-      message: saved.set ? `Ключ сохранён, оканчивается на ${saved.last4}` : 'Ключ снят: ходы идут ключом платформы',
+      message: saved.set
+        ? `Ключ сохранён, оканчивается на ${saved.last4}`
+        : 'Ключ снят: ходы идут ключом платформы',
       set: saved.set,
       last4: saved.last4,
       attempt,
@@ -91,7 +101,9 @@ export async function whatsappSaveAction(
     refresh();
     return {
       error: null,
-      message: view.set ? 'WhatsApp подключён: впишите адрес и слово в консоль Meta' : 'WhatsApp отключён',
+      message: view.set
+        ? 'WhatsApp подключён: впишите адрес и слово в консоль Meta'
+        : 'WhatsApp отключён',
       view,
       attempt,
     };
@@ -113,7 +125,9 @@ export async function whatsappCheckAction(
     });
     return {
       error: verdict.valid ? null : (verdict.reason ?? 'Meta не приняла номер или токен'),
-      message: verdict.valid ? `Номер подтверждён${verdict.phone ? `: ${verdict.phone}` : ''}` : null,
+      message: verdict.valid
+        ? `Номер подтверждён${verdict.phone ? `: ${verdict.phone}` : ''}`
+        : null,
       view: null,
       attempt,
     };
@@ -135,7 +149,10 @@ export interface PromptResult {
  * «Сохранить и применить» (макет владельца 26.09.2026, ADR-097): инструкция записывается и сразу уходит продавцу
  * вместе с данными объекта. Не дошла — это предупреждение, а не ошибка: текст сохранён, сверка отправит его сама.
  */
-export async function savePromptAction(prev: PromptResult | null, form: FormData): Promise<PromptResult> {
+export async function savePromptAction(
+  prev: PromptResult | null,
+  form: FormData,
+): Promise<PromptResult> {
   const attempt = (prev?.attempt ?? 0) + 1;
   const text = String(form.get('text') ?? '');
   try {
@@ -143,7 +160,13 @@ export async function savePromptAction(prev: PromptResult | null, form: FormData
   } catch (e) {
     return { error: describe(e), warning: null, message: null, attempt, text };
   }
-  const saved = (warning: string): PromptResult => ({ error: null, warning, message: null, attempt, text: '' });
+  const saved = (warning: string): PromptResult => ({
+    error: null,
+    warning,
+    message: null,
+    attempt,
+    text: '',
+  });
   try {
     await sellerApi.apply();
     refresh();
@@ -158,10 +181,18 @@ export async function savePromptAction(prev: PromptResult | null, form: FormData
     refresh();
     const status = e instanceof ApiError ? e.status : undefined;
     if (status === 422)
-      return { error: `Продавец не принял инструкцию: ${describe(e)}`, warning: null, message: null, attempt, text };
+      return {
+        error: `Продавец не принял инструкцию: ${describe(e)}`,
+        warning: null,
+        message: null,
+        attempt,
+        text,
+      };
     if (status === 403) return saved(`Инструкция сохранена. ${describe(e)}.`);
     if (status === 503 && /не подключён/.test(describe(e)))
-      return saved('Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.');
+      return saved(
+        'Инструкция сохранена. Продавец ещё не подключён — он получит её при подключении.',
+      );
     return saved(
       `Инструкция сохранена. ${describe(e)}. Отправим продавцу автоматически, как только он ответит.`,
     );

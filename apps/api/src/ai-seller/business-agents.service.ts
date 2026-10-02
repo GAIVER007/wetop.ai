@@ -37,7 +37,7 @@ export const AGENT_LOCATION_TAKEN = 'Нет свободного филиала.
 
 export interface AgentOptionsView {
   extension: AiSellerAccessView;
-  /** Может ли вошедший создать агента сейчас; причина — словами, когда нет. Считает сервер, страница не пересчитывает */
+  /** Может ли вошедший создать агента сейчас; причина, словами, когда нет. Считает сервер, страница не пересчитывает */
   canCreate: boolean;
   reason: string | null;
   businesses: Array<{
@@ -77,7 +77,7 @@ export class BusinessAgentsService {
     return { organizationId, userId };
   }
 
-  /** Scope вошедшего не шире выбора: выбран филиал или Business — за их пределами агента не создать и не увидеть */
+  /** Scope вошедшего не шире выбора: выбран филиал или Business, за их пределами агента не создать и не увидеть */
   private inScope(businessId: string, locationId: string): boolean {
     const scope = currentScope();
     if (scope === 'LOCATION') return currentLocationId() === locationId;
@@ -140,7 +140,7 @@ export class BusinessAgentsService {
     if (extension.access === 'expired') throw new ForbiddenException('Срок расширения «ИИ-продавец» вышел.');
 
     const { name, businessId, locationId } = parsed.value;
-    // чужой, архивный, не того Business и вне выбора вошедшего — одинаково «не найден»: чужому не подтверждаем
+    // чужой, архивный, не того Business и вне выбора вошедшего, одинаково «не найден»: чужому не подтверждаем
     if (!this.inScope(businessId, locationId)) throw new NotFoundException('Филиал не найден');
     const placement = await this.repo.placement(organizationId, businessId, locationId);
     if (!placement) throw new NotFoundException('Филиал не найден');

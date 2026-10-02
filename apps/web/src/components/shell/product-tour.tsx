@@ -1,4 +1,5 @@
 'use client';
+import { can } from '@pms/domain';
 import { use, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { DeskShell } from '../../lib/desk-person';
 import {
@@ -38,24 +39,24 @@ function markDone(key: string | null) {
 
 type Box = { top: number; left: number; width: number; height: number };
 
-const CARD_W = 360;
+const CARD_W = 460;
 const GAP = 16;
 const PAD = 6;
 
 /** Где встать карточке: справа от элемента, если есть место; иначе под ним; иначе над ним. Без элемента — центр. */
-function cardPosition(box: Box | null): { top: number; left: number } | null {
+function cardPosition(box: Box | null, height: number): { top: number; left: number } | null {
   if (!box) return null;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const clampTop = (top: number) => Math.max(GAP, Math.min(top, vh - 260));
+  const clampTop = (top: number) => Math.max(GAP, Math.min(top, vh - height - GAP));
   const clampLeft = (left: number) => Math.max(GAP, Math.min(left, vw - CARD_W - GAP));
   if (box.left + box.width + GAP + CARD_W + GAP <= vw) {
     return { top: clampTop(box.top), left: box.left + box.width + GAP };
   }
-  if (box.top + box.height + GAP + 220 <= vh) {
+  if (box.top + box.height + GAP + height <= vh) {
     return { top: box.top + box.height + GAP, left: clampLeft(box.left) };
   }
-  return { top: clampTop(box.top - GAP - 240), left: clampLeft(box.left) };
+  return { top: clampTop(box.top - GAP - height), left: clampLeft(box.left) };
 }
 
 /**
@@ -64,19 +65,33 @@ function cardPosition(box: Box | null): { top: number; left: number } | null {
  * Окно — нативный `<dialog>` на весь экран (§13): фокус внутри, Escape закрывает. Подсветка — вырез в затемнении
  * над элементом `data-tour`; элемента нет — карточка по центру.
  */
-export function ProductTour({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
+export function ProductTour({
+  desk,
+  path,
+}: {
+  desk: Promise<DeskShell> | undefined;
+  path: string;
+}) {
   const shell = desk ? use(desk) : null;
   const key = shell?.tourKey ?? null;
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const [steps, setSteps] = useState<ShownStep[] | null>(null);
   const [index, setIndex] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
+  const [cardHeight, setCardHeight] = useState(540);
 
   const start = useCallback(() => {
-    setSteps(tourStepsFor((target) => findTarget(target) !== null));
+    setSteps(
+      tourStepsFor(
+        (target) => findTarget(target) !== null,
+        undefined,
+        (permission) => can(shell?.access.role ?? 'STAFF', permission),
+      ),
+    );
     setIndex(0);
-  }, []);
+  }, [shell?.access.role]);
 
   const finish = useCallback(() => {
     markDone(key);
@@ -104,10 +119,16 @@ export function ProductTour({ desk, path }: { desk: Promise<DeskShell> | undefin
     const dialog = dialogRef.current;
     if (dialog && !dialog.open) dialog.showModal();
     const measure = () => {
+      setCardHeight(cardRef.current?.offsetHeight ?? 540);
       const el = step.highlight && step.target ? findTarget(step.target) : null;
       if (!el) return setBox(null);
       const r = el.getBoundingClientRect();
-      setBox({ top: r.top - PAD, left: r.left - PAD, width: r.width + 2 * PAD, height: r.height + 2 * PAD });
+      setBox({
+        top: r.top - PAD,
+        left: r.left - PAD,
+        width: r.width + 2 * PAD,
+        height: r.height + 2 * PAD,
+      });
     };
     const el = step.highlight && step.target ? findTarget(step.target) : null;
     el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -124,7 +145,7 @@ export function ProductTour({ desk, path }: { desk: Promise<DeskShell> | undefin
   if (!steps || !step) return null;
 
   const last = index === steps.length - 1;
-  const position = cardPosition(box);
+  const position = cardPosition(box, cardHeight);
   const go = (delta: number) => setIndex((i) => Math.max(0, Math.min(steps.length - 1, i + delta)));
 
   return (
@@ -139,6 +160,7 @@ export function ProductTour({ desk, path }: { desk: Promise<DeskShell> | undefin
         finish();
       }}
       onKeyDown={(event) => {
+        if ((event.target as HTMLElement).tagName === 'SELECT') return;
         if (event.key === 'ArrowRight' && !last) go(1);
         if (event.key === 'ArrowLeft') go(-1);
       }}
@@ -153,21 +175,47 @@ export function ProductTour({ desk, path }: { desk: Promise<DeskShell> | undefin
         <div className="tour__dim" aria-hidden="true" />
       )}
       <div
+        ref={cardRef}
         className={position ? 'tour__card' : 'tour__card tour__card--center'}
         style={position ? { top: position.top, left: position.left } : undefined}
       >
         <p className="tour__count">
           {index + 1} из {steps.length}
         </p>
+        <label className="tour__topics">
+          Тема обучения
+          <select
+            className="inp"
+            aria-label="Тема обучения"
+            value={index}
+            onChange={(event) => setIndex(Number(event.target.value))}
+          >
+            {steps.map((item, i) => (
+              <option key={item.title} value={i}>
+                {i + 1}. {item.title}
+              </option>
+            ))}
+          </select>
+        </label>
         <h2 id="tour-title" className="tour__title">
           {step.title}
         </h2>
         <p id="tour-text" className="tour__text">
           {step.text}
         </p>
+        {step.actions && (
+          <ol className="tour__checklist">
+            {step.actions.map((action) => (
+              <li key={action}>{action}</li>
+            ))}
+          </ol>
+        )}
         <div className="tour__progress" aria-hidden="true">
           {steps.map((s, i) => (
-            <span key={s.title} className={i === index ? 'is-current' : i < index ? 'is-done' : undefined} />
+            <span
+              key={s.title}
+              className={i === index ? 'is-current' : i < index ? 'is-done' : undefined}
+            />
           ))}
         </div>
         <div className="tour__actions">

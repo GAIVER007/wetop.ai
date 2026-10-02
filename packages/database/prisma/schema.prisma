@@ -279,6 +279,8 @@ enum ReservationStatus {
 /// Шапка брони (коммерческая бронь). Статус — производный от проживаний (v0.3), хранится для выборок.
 /// `confirmationNumber` — бизнес-ключ брони внутри объекта (ADR-003, ADR-007).
 model Reservation {
+  creationKey String? @map("creation_key") @db.Uuid
+  creationFingerprint String? @map("creation_fingerprint") @db.VarChar(64)
   id                 String            @id @default(uuid()) @db.Uuid
   propertyId         String            @map("property_id") @db.Uuid
   confirmationNumber String            @map("confirmation_number")
@@ -310,6 +312,7 @@ model Reservation {
   items        ReservationItem[]
   webSessions  WebSession[]
 
+  @@unique([propertyId, creationKey])
   @@unique([propertyId, confirmationNumber])
   /// дубль OTA-брони отвергает база, NULL ручных броней различны (ТЗ аудита 25.09, С-4; v1.10)
   @@unique([propertyId, externalId])

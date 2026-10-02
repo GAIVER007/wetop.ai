@@ -19,6 +19,7 @@ async function createBooking(
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
+  await form.getByText('Дополнительно', { exact: true }).click();
   if (promo) await form.getByLabel('Промокод', { exact: true }).fill(promo);
   await form.getByLabel('Имя *', { exact: true }).fill('Промо');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');

@@ -33,6 +33,12 @@ def test_already_contracted_database_is_not_downgraded(tmp_path):
 
 
 def test_unknown_future_revision_refuses_to_start(tmp_path):
-    result, commands = run_entrypoint(tmp_path, '0011 (head)')
+    result, commands = run_entrypoint(tmp_path, '0012 (head)')
     assert result.returncode != 0
     assert commands == []
+
+
+def test_telegram_revision_is_accepted_without_implicit_migration(tmp_path):
+    result, commands = run_entrypoint(tmp_path, '0011 (head)')
+    assert result.returncode == 0
+    assert commands == ['started']

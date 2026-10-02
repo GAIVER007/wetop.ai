@@ -139,6 +139,15 @@ export interface PeriodReport {
   accommodationByCategory: Array<{ category: string; count: number; amountMinor: bigint }>;
 }
 
+/** Одно начисление-услуга периода (REP2): услуга справочника или начисление вручную (`service*` — null) */
+export interface ServiceChargeRecord {
+  serviceCode: string | null;
+  serviceName: string | null;
+  serviceGroup: string | null;
+  quantity: number;
+  amountMinor: bigint;
+}
+
 /**
  * Бронь для списка «Брони с остатком к сбору» (ADR-113): у неё есть действующее начисление с датой услуги в
  * периоде, а суммы — по всем её счетам за всё время, как у остатка на карточке брони.
@@ -283,6 +292,8 @@ export interface FinanceRepository {
   services(): Promise<ServiceRef[]>;
   /** Сводка за период [from, to] включительно (T4 «финансовый учёт период») */
   periodReport(from: string, to: string): Promise<PeriodReport>;
+  /** Начисления-услуги периода по дате услуги, без аннулированных — сырьё отчёта по услугам (REP2); сводит сервис */
+  periodServiceCharges(from: string, to: string): Promise<ServiceChargeRecord[]>;
   /** Брони с начислением в периоде [from, to] и суммы по всем их счетам (ADR-113) */
   periodDebts(from: string, to: string): Promise<DebtCandidate[]>;
   /** Общая лента денег за период: оплаты и возвраты броней + операции кассы; итоги без отборов (ADR-113, F2; §21) */
@@ -601,6 +612,31 @@ export class PrismaFinanceRepository implements FinanceRepository {
       },
       accommodationByCategory: [...byCategory].map(([category, v]) => ({ category, ...v })),
     };
+  }
+  // Зеркало выборки periodReport, суженное до услуг: те же правила окна и аннулирования —
+  // «Итого» отчёта по услугам всегда равно строке SERVICE сводки (REP2)
+  async periodServiceCharges(from: string, to: string): Promise<ServiceChargeRecord[]> {
+    const { id: propertyId } = await this.property();
+    const rows = await this.prisma.db.charge.findMany({
+      where: {
+        voidedAt: null,
+        kind: 'SERVICE',
+        serviceDate: { gte: asDate(from), lte: asDate(to) },
+        folio: { reservationItem: { reservation: { propertyId } } },
+      },
+      select: {
+        quantity: true,
+        amount: true,
+        service: { select: { code: true, nameRu: true, group: true } },
+      },
+    });
+    return rows.map((c) => ({
+      serviceCode: c.service?.code ?? null,
+      serviceName: c.service?.nameRu ?? null,
+      serviceGroup: c.service?.group ?? null,
+      quantity: c.quantity,
+      amountMinor: c.amount,
+    }));
   }
   /**
    * Один запрос вместо загрузки всех начислений в память: за год это тысячи броней. Бронь попадает в выборку по

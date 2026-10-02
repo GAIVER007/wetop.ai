@@ -103,6 +103,30 @@ function makeFakes() {
             accommodationByCategory: [],
           };
     },
+    async periodServiceCharges(from, to) {
+      // REP2: октябрь — две стирки (3 загрузки), один трансфер и одно начисление вручную;
+      // сумма 100 000 равна строке SERVICE фальшивой сводки periodReport
+      if (!(from <= '2026-10-02' && to >= '2026-10-02')) return [];
+      const laundry = { serviceCode: 'LAUNDRY', serviceName: 'Стирка', serviceGroup: 'Прачечная' };
+      return [
+        { ...laundry, quantity: 2, amountMinor: 30_000n },
+        { ...laundry, quantity: 1, amountMinor: 15_000n },
+        {
+          serviceCode: 'TRANSFER',
+          serviceName: 'Трансфер',
+          serviceGroup: null,
+          quantity: 1,
+          amountMinor: 50_000n,
+        },
+        {
+          serviceCode: null,
+          serviceName: null,
+          serviceGroup: null,
+          quantity: 1,
+          amountMinor: 5_000n,
+        },
+      ];
+    },
     async periodDebts(from, to) {
       // ADR-113: брони с начислением в периоде и суммы по всем их счетам. Октябрь — пять броней:
       // долг, долг побольше, ровно оплачено, переплата у отменённой, долг после возврата
@@ -580,6 +604,45 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     expect(services.body).toEqual([
       expect.objectContaining({ code: 'Стирка (1 загрузка)', priceMinor: '50000' }),
     ]);
+  });
+
+  it('REP2: отчёт по услугам — свод по услуге, «вручную» одной строкой, крупные первыми, итог равен строке SERVICE сводки; неверный период → 400', async () => {
+    await request(app.getHttpServer()).get('/finance/services-report').expect(400);
+    await request(app.getHttpServer())
+      .get('/finance/services-report?from=2026-10-31&to=2026-10-01')
+      .expect(400);
+    await request(app.getHttpServer())
+      .get('/finance/services-report?from=2020-01-01&to=2030-12-31')
+      .expect(400);
+
+    const r = await request(app.getHttpServer())
+      .get('/finance/services-report?from=2026-10-01&to=2026-10-31')
+      .expect(200);
+    expect(r.body).toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-31',
+      currency: 'KZT',
+      count: 4,
+      totalMinor: '100000',
+    });
+    // две стирки слились в одну строку; сортировка — по сумме; начисление вручную — строкой без кода
+    expect(r.body.rows).toEqual([
+      { code: 'TRANSFER', name: 'Трансфер', group: null, charges: 1, quantity: 1, amountMinor: '50000' },
+      { code: 'LAUNDRY', name: 'Стирка', group: 'Прачечная', charges: 2, quantity: 3, amountMinor: '45000' },
+      { code: null, name: null, group: null, charges: 1, quantity: 1, amountMinor: '5000' },
+    ]);
+    // то же окно, что у сводки: итог равен её строке SERVICE
+    const report = await request(app.getHttpServer())
+      .get('/finance/report?from=2026-10-01&to=2026-10-31')
+      .expect(200);
+    const service = report.body.chargesByKind.find((x: { kind: string }) => x.kind === 'SERVICE');
+    expect(r.body.totalMinor).toBe(service.amountMinor);
+
+    // пустой период — пустой отчёт, не ошибка
+    const empty = await request(app.getHttpServer())
+      .get('/finance/services-report?from=2027-01-01&to=2027-01-02')
+      .expect(200);
+    expect(empty.body).toMatchObject({ count: 0, totalMinor: '0', rows: [] });
   });
 
   it('T4: сводка за период — начисления по видам, оплаты по способам, возвраты, разрез по категориям; неверный период → 400', async () => {

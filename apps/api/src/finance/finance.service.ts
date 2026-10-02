@@ -113,6 +113,24 @@ export interface PeriodReportView {
   /** начислено − оплачено + возвращено за период: сколько ещё не собрано */
   balanceMinor: string;
 }
+/** Отчёт по услугам (REP2): проданные услуги периода; начисления без услуги справочника — одной строкой (`code: null`) */
+export interface PeriodServicesView {
+  from: string;
+  to: string;
+  currency: string;
+  /** начислений-услуг за период — как `count` строки SERVICE в сводке */
+  count: number;
+  /** равен `amountMinor` строки SERVICE в `/finance/report`: то же окно и те же правила */
+  totalMinor: string;
+  rows: Array<{
+    code: string | null;
+    name: string | null;
+    group: string | null;
+    charges: number;
+    quantity: number;
+    amountMinor: string;
+  }>;
+}
 /** Строка списка «Брони с остатком к сбору» (ADR-113): остаток — по всем счетам брони, как на её карточке */
 export interface DebtRowView {
   confirmationNumber: string;
@@ -408,6 +426,54 @@ export class FinanceService {
       paidMinor: s(paid),
       refundedMinor: s(r.refunds.amountMinor),
       balanceMinor: s(charged - paid + r.refunds.amountMinor),
+    };
+  }
+
+  /** Отчёт по услугам (REP2): свод начислений-услуг периода; крупные первыми, «вручную» — одной строкой */
+  async periodServices(fromParam?: string, toParam?: string): Promise<PeriodServicesView> {
+    const { from, to } = checkedPeriod(fromParam, toParam);
+    const charges = await this.repo.periodServiceCharges(from, to);
+    const rows = new Map<
+      string,
+      {
+        code: string | null;
+        name: string | null;
+        group: string | null;
+        charges: number;
+        quantity: number;
+        amountMinor: bigint;
+      }
+    >();
+    let total = 0n;
+    for (const c of charges) {
+      // начисления вручную (`service_id` пуст) сводятся в одну строку с пустым кодом
+      const key = c.serviceCode ?? '';
+      const v = rows.get(key) ?? {
+        code: c.serviceCode,
+        name: c.serviceName,
+        group: c.serviceGroup,
+        charges: 0,
+        quantity: 0,
+        amountMinor: 0n,
+      };
+      v.charges += 1;
+      v.quantity += c.quantity;
+      v.amountMinor += c.amountMinor;
+      rows.set(key, v);
+      total += c.amountMinor;
+    }
+    const sorted = [...rows.values()].sort(
+      (a, b) =>
+        (a.amountMinor === b.amountMinor ? 0 : a.amountMinor > b.amountMinor ? -1 : 1) ||
+        (a.name ?? '').localeCompare(b.name ?? '', 'ru'),
+    );
+    return {
+      from,
+      to,
+      currency: 'KZT',
+      count: charges.length,
+      totalMinor: s(total),
+      rows: sorted.map((x) => ({ ...x, amountMinor: s(x.amountMinor) })),
     };
   }
 

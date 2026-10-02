@@ -1319,6 +1319,23 @@ export interface PeriodReport {
   refundedMinor: string;
   balanceMinor: string;
 }
+/** Отчёт по услугам за период (REP2): свод начислений-услуг; `code: null` — начисления вручную */
+export interface PeriodServices {
+  from: string;
+  to: string;
+  currency: string;
+  count: number;
+  /** равен строке SERVICE в `chargesByKind` сводки — то же окно и те же правила */
+  totalMinor: string;
+  rows: Array<{
+    code: string | null;
+    name: string | null;
+    group: string | null;
+    charges: number;
+    quantity: number;
+    amountMinor: string;
+  }>;
+}
 /** «Брони с остатком к сбору» за период (ADR-113): остаток — по всему счёту брони, как на карточке */
 export interface PeriodDebts {
   from: string;
@@ -1429,6 +1446,10 @@ export const financeApi = {
   report: (from: string, to: string) =>
     getJson<PeriodReport>(
       `/finance/report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+  servicesReport: (from: string, to: string) =>
+    getJson<PeriodServices>(
+      `/finance/services-report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     ),
   debts: (from: string, to: string) =>
     getJson<PeriodDebts>(

@@ -57,6 +57,8 @@ export default async function ReportsHubPage({
   const preset = (p: { from: string; to: string }) => `/reports?from=${p.from}&to=${p.to}`;
   const isPreset = (p: { from: string; to: string }) => p.from === from && p.to === to;
   const due = debts ? BigInt(debts.balanceMinor) : 0n;
+  // REP2: карточка услуг — из уже загруженной сводки, без нового запроса
+  const serviceRow = fin?.chargesByKind.find((x) => x.kind === 'SERVICE');
   const d = dash?.current ?? null;
   const topSource = d && [...d.sources].sort((a, b) => b.count - a.count)[0];
   return (
@@ -136,6 +138,19 @@ export default async function ReportsHubPage({
               title="Оплаты и возвраты"
               value={fin && formatMoney(fin.paidMinor, cur)}
               hint="оплачено за период, с выгрузкой CSV"
+            />
+            <ReportCard
+              href={`/finance?${q}#services`}
+              testId="report-services"
+              title="Отчёт по услугам"
+              value={fin && formatMoney(serviceRow?.amountMinor ?? '0', cur)}
+              hint={
+                fin
+                  ? serviceRow
+                    ? `${pluralRu(serviceRow.count, ['начисление', 'начисления', 'начислений'])} за услуги`
+                    : 'начислений за услуги за период нет'
+                  : undefined
+              }
             />
             <ReportCard
               href={`/finance?${q}#debts`}

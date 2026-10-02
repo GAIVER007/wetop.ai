@@ -1,0 +1,139 @@
+# Сквозные (e2e) · 02.10.2026 21:08 Алматы · Noutbuk-Vyacheslav.local
+# коммит 967ccce (main), незакоммиченных файлов набора: 3
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/finance-services.spec.ts' 'tests/ui/finance-f1.spec.ts' 'tests/ui/finance-f2.spec.ts' 'tests/ui/finance-cash.spec.ts' 'tests/ui/finance-compact.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 32 tests using 1 worker
+
+  ✓   1 tests/ui/finance-cash.spec.ts:30:1 › касса: плитки остатков — оплаты гостей по способам видны без ручного ввода; axe чисто (2.1s)
+  ✓   2 tests/ui/finance-cash.spec.ts:47:1 › поступление и расход со статьёй меняют остаток; ошибка словами, введённое не теряется (2.2s)
+  ✓   3 tests/ui/finance-cash.spec.ts:74:1 › перевод с комиссией: остатки обоих способов, в ленте — перевод и расход «Комиссия банка», аннулирование снимает оба (1.8s)
+  ✓   4 tests/ui/finance-cash.spec.ts:112:1 › статьи: стартовый набор, добавление и выключение; выключенная уходит из формы расхода (1.7s)
+  ✓   5 tests/ui/finance-cash.spec.ts:133:1 › «только чтение»: кнопок кассы нет, остатки видны (1.9s)
+  ✓   6 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, light (2.0s)
+  ✓   7 tests/ui/finance-cash.spec.ts:150:3 › касса, снимки для владельца, dark (2.0s)
+  ✓   8 tests/ui/finance-cash.spec.ts:174:1 › сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента (2.0s)
+  ✓   9 tests/ui/finance-cash.spec.ts:202:1 › сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния (1.5s)
+[WebServer] [browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[WebServer] 
+[WebServer] - A server/client branch `if (typeof window !== 'undefined')`.
+[WebServer] - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+[WebServer] - Date formatting in a user's locale which doesn't match the server.
+[WebServer] - External changing data without sending a snapshot of it along with the HTML.
+[WebServer] - Invalid HTML tag nesting.
+[WebServer] 
+[WebServer] It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+[WebServer] 
+[WebServer] https://react.dev/link/hydration-mismatch
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <LoadingBoundary name="finance/" loading={null}>
+[WebServer]       <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]         <RedirectBoundary>
+[WebServer]           <RedirectErrorBoundary router={{...}}>
+[WebServer]             <InnerLayoutRouter url="/finance" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+[WebServer]               <SegmentViewNode type="page" pagePath="finance/pa...">
+[WebServer]                 <SegmentTrieNode>
+[WebServer]                 <FinanceReportPage>
+[WebServer]                   <Page>
+[WebServer]                     <main id="main-content" tabIndex={-1} className="page">
+[WebServer]                       <header>
+[WebServer]                       <section className="finance-co..." aria-label="Период">
+[WebServer]                         <form method="get" className="finance-to..." data-testid="period-form">
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="from" defaultValue="2026-10-01" aria-label="Период: с">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="from"
+[WebServer]                                     defaultValue="2026-10-01"
+[WebServer]                                     aria-label="Период: с"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           <Field>
+[WebServer]                             <label className="field fiel...">
+[WebServer]                               <DateInput name="to" rangeFromName="from" defaultValue="2026-10-31" aria-label="Период: по">
+[WebServer]                                 <span className="date-field">
+[WebServer]                                   <input
+[WebServer]                                     ref={{current:null}}
+[WebServer]                                     type="date"
+[WebServer]                                     className="inp date-field__input"
+[WebServer]                                     id={undefined}
+[WebServer]                                     name="to"
+[WebServer]                                     defaultValue="2026-10-31"
+[WebServer]                                     aria-label="Период: по"
+[WebServer] -                                   style={{caret-color:"transparent"}}
+[WebServer]                                   >
+[WebServer]                                   ...
+[WebServer]                           ...
+[WebServer]                         ...
+[WebServer]                       ...
+[WebServer]               ...
+[WebServer]             ...
+[WebServer]  
+  ✘  10 tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям (1.1s)
+  ✓  11 tests/ui/finance-f1.spec.ts:52:1 › F1: заголовок и период в подзаголовке, период одной строкой, четыре итога одной высоты (1.3s)
+  ✓  12 tests/ui/finance-f1.spec.ts:105:1 › F1: «Требует внимания» — сумма к сбору и просроченный долг со ссылками к списку, возвраты справкой (1.5s)
+  ✓  13 tests/ui/finance-f1.spec.ts:155:1 › F1: структура денег — четыре вида всегда, «Итого» сходится с итогами, две колонки на 1440 (856ms)
+  ✓  14 tests/ui/finance-f1.spec.ts:186:1 › F1: брони с остатком — колонки, крупные долги первыми, «Принять оплату» ведёт на счёт брони (2.3s)
+  ✓  15 tests/ui/finance-f1.spec.ts:228:1 › F1: «только чтение» — список долгов виден, «Принять оплату» нет (1.5s)
+  ✓  16 tests/ui/finance-f1.spec.ts:244:1 › F1: сбой списка долгов не роняет итоги; пустой период — «проблем не найдено» (1.3s)
+  ✓  17 tests/ui/finance-f1.spec.ts:264:1 › F1: телефон — без прокрутки страницы вбок, итоги столбиком, таблица долгов листается внутри (974ms)
+  ✓  18 tests/ui/finance-f1.spec.ts:284:3 › F1, стоп-гейт: снимки для владельца, light (1.2s)
+  ✓  19 tests/ui/finance-f1.spec.ts:284:3 › F1, стоп-гейт: снимки для владельца, dark (1.1s)
+  ✓  20 tests/ui/finance-f2.spec.ts:24:1 › F2: оплаты и возвраты — колонки, строка итога, новыми первыми; плитки ведут к деталям (2.5s)
+  ✓  21 tests/ui/finance-f2.spec.ts:69:1 › F2: способ в «Оплатах по способам» ведёт к его операциям; чипы способов с числами (2.0s)
+  ✓  22 tests/ui/finance-f2.spec.ts:88:1 › F2: возврат с минусом и статусом «проведён»; «Показать все» раскрывает список (2.3s)
+  ✓  23 tests/ui/finance-f2.spec.ts:108:1 › F2: выгрузка CSV — те же отборы, BOM и «;», без имён гостей; неверные даты — отказ словами (952ms)
+  ✓  24 tests/ui/finance-f2.spec.ts:135:1 › F2: сбой операций не роняет итоги и долги; сбой видно в разделе (1.0s)
+  ✓  25 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, light (2.6s)
+  ✓  26 tests/ui/finance-f2.spec.ts:151:3 › F2, снимки для владельца, dark (2.5s)
+  ✓  27 tests/ui/finance-services.spec.ts:45:1 › вкладка «Услуги»: строки из API, «вручную» словами, «Итого» равно строке «Услуги» обзора (868ms)
+  ✓  28 tests/ui/finance-services.spec.ts:89:1 › CSV услуг: кнопка на вкладке, файл со сводом и строкой «вручную» (863ms)
+  ✓  29 tests/ui/finance-services.spec.ts:104:1 › хаб «Отчёты»: карточка услуг с суммой из сводки ведёт на вкладку (1.4s)
+  ✓  30 tests/ui/finance-services.spec.ts:120:1 › пустая база: вкладка честно говорит, что начислений нет (675ms)
+  ✓  31 tests/ui/finance-services.spec.ts:128:3 › доступность и снимки, light (1.6s)
+  ✓  32 tests/ui/finance-services.spec.ts:128:3 › доступность и снимки, dark (1.6s)
+
+
+  1) tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      17 |     animations: 'disabled',
+      18 |   });
+    > 19 |   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
+         |                                                                                               ^
+      20 |     true,
+      21 |   );
+      22 |   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/finance-compact.spec.ts:19:95
+
+    Error Context: test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/finance-compact-финансы-об-2be38-ереход-из-суммы-к-операциям/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/finance-compact.spec.ts:7:1 › финансы: обзор на ноутбуке, вкладки и переход из суммы к операциям 
+  31 passed (1.0m)
+
+# код выхода 1 · 1 мин 1 с

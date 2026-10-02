@@ -31,6 +31,13 @@ export class FinanceController {
     return this.service.periodReport(from, to);
   }
 
+  /** Отчёт по услугам за период (REP2): свод начислений-услуг, то же окно, что у сводки */
+  @Access('reports')
+  @Get('services-report')
+  servicesReport(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.service.periodServices(from, to);
+  }
+
   /** Брони с остатком к сбору за период — список к «Финансам за период» (ADR-113) */
   @Access('reports')
   @Get('debts')

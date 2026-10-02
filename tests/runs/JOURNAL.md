@@ -5151,3 +5151,9 @@
 | 02.10.2026 17:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts  | ❌ упало 50 из 188 | 28 мин 28 с | 5fc2337 | [лог](logs/2026-10-02T12-52-04Z-e2e-764b.log) | триаж второй партии красных main после стыковки меню |
 | 02.10.2026 18:29 | typecheck | ✅ без ошибок | 39 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-29-23Z-typecheck-74d8.log) |  |
 | 02.10.2026 18:30 | lint | ✅ без ошибок | 21 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-30-02Z-lint-d09c.log) |  |
+| 02.10.2026 21:11 | typecheck | ✅ без ошибок | 11 с | 0dffd81 | [лог](logs/2026-10-02T16-11-17Z-typecheck-cef9.log) | календарь: слияние с main 1ec86f17 |
+| 02.10.2026 21:11 | lint | ✅ без ошибок | 8 с | 0dffd81 | [лог](logs/2026-10-02T16-11-28Z-lint-ca04.log) | календарь: слияние с main |
+| 02.10.2026 21:11 | unit | ❌ упало 1 из 2795, пропущено 3 | 1 мин 12 с | 0dffd81 | [лог](logs/2026-10-02T16-11-37Z-unit-6347.log) | календарь: слияние с main |
+| 02.10.2026 21:13 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-calendar.spec.ts chessboard-design.spec.ts chessboard-week.spec.ts chessboard-dnd.s | ❌ упало 1 из 61 | 5 мин 32 с | 0dffd81 | [лог](logs/2026-10-02T16-13-32Z-e2e-b43b.log) | календарь: контроль на слитом с main 1ec86f17 |
+| 02.10.2026 21:23 | typecheck | ✅ без ошибок | 21 с | 8c27b7d | [лог](logs/2026-10-02T16-23-25Z-typecheck-36a4.log) | календарь: слияние 3ee5db0c |
+| 02.10.2026 21:23 | unit | ❌ упало 1 из 2817, пропущено 3 | 1 мин 13 с | 8c27b7d | [лог](logs/2026-10-02T16-23-46Z-unit-158c.log) | календарь: слияние 3ee5db0c |

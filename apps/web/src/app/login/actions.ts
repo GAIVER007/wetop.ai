@@ -178,7 +178,6 @@ export async function inviteAction(email: string, role: string): Promise<InviteA
     const invite = await authApi.invite(token, email, invited, await clientInfo());
     revalidatePath('/profile/access');
     revalidatePath('/team');
-    revalidatePath('/staff');
     return { error: null, email: invite.email };
   } catch (e) {
     return { error: errorText(e), email: null };
@@ -200,7 +199,6 @@ async function teamAction(run: (token: string) => Promise<void>): Promise<TeamAc
   }
   revalidatePath('/profile/access');
   revalidatePath('/team');
-  revalidatePath('/staff');
   return { error: null };
 }
 

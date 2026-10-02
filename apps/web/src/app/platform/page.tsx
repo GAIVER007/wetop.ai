@@ -122,7 +122,7 @@ async function Organizations({
                       <Link href={`/platform?org=${o.id}`} prefetch={false}>
                         {o.name}
                       </Link>
-                      <span className="sub"> · с {organizationSince(o.createdAt)}</span>
+                      <span className="sub">, с {organizationSince(o.createdAt)}</span>
                     </td>
                     <td>
                       <Badge tone={status.tone}>{status.label}</Badge>

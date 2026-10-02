@@ -24,6 +24,7 @@ const routes = [
   '/connections',
   '/staff',
   '/journal',
+  '/incidents',
 ];
 
 const SECTIONS = [

@@ -1,6 +1,10 @@
 'use client';
 import { useActionState } from 'react';
 import { createBranch } from './actions';
+
+// tz-allow: умолчание поля формы для новой записи, не вычисление времени; пояс филиала человек задаёт сам
+const DEFAULT_BRANCH_TIMEZONE = 'Asia/Almaty';
+
 export function BranchForm({ id }: { id: string }) {
   const [state, action, pending] = useActionState(createBranch, null);
   return (
@@ -38,8 +42,8 @@ export function BranchForm({ id }: { id: string }) {
           className="inp"
           name="timezone"
           required
-          defaultValue="Asia/Almaty"
-          placeholder="Asia/Almaty"
+          defaultValue={DEFAULT_BRANCH_TIMEZONE}
+          placeholder={DEFAULT_BRANCH_TIMEZONE}
         />
       </label>
       <p className="muted">

@@ -44,6 +44,7 @@ describe('меню по ролям', () => {
       '/ai-agents',
       '/finance',
       '/management/analytics',
+      '/incidents',
     ]);
     expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
       'home',
@@ -53,6 +54,7 @@ describe('меню по ролям', () => {
       'sales',
       'finance',
       'analytics',
+      'settings',
     ]);
   });
 

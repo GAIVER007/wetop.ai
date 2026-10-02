@@ -74,7 +74,10 @@ test('свободный филиал: кнопка активна, форма �
   await page.getByRole('button', { name: 'Использовать эту редакцию' }).click();
   await page.getByLabel('Как агент должен отвечать').fill('Проверенная тестовая инструкция Аси.');
   await page.getByRole('button', { name: 'Сохранить инструкцию', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Инструкция сохранена');
+  // на странице агента есть и статус Telegram-панели: берём именно сообщение о сохранении
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Инструкция сохранена' }),
+  ).toBeVisible();
   await page.reload();
   await expect(page.getByLabel('Как агент должен отвечать')).toHaveValue(
     'Проверенная тестовая инструкция Аси.',

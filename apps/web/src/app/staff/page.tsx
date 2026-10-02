@@ -26,7 +26,9 @@ export default async function StaffPage() {
         <div>
           <h1 className="page__title">Сотрудники</h1>
           <p className="page__subtitle">
-            Команда организации · {me.user.organization?.name ?? 'Организация не выбрана'}
+            {me.user.organization?.name
+              ? `Команда организации ${me.user.organization.name}`
+              : 'Организация не выбрана'}
           </p>
         </div>
       </header>

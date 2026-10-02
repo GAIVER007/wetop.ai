@@ -48,6 +48,7 @@ test('администратор: в меню — работа с гостями
       '/reservations',
       '/guests',
       '/ai-agents',
+      '/reports',
       '/finance',
       '/management/analytics',
       '/incidents',

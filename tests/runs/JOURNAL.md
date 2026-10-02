@@ -5281,3 +5281,5 @@
 | 02.10.2026 22:00 | typecheck | ❌ ошибок: 50 | 31 с | 3c66256 | [лог](logs/2026-10-02T17-00-20Z-typecheck-b9af.log) | TS2339 |
 | 02.10.2026 22:00 | lint | ✅ без ошибок | 16 с | 3c66256 | [лог](logs/2026-10-02T17-00-53Z-lint-8208.log) |  |
 | 02.10.2026 22:01 | typecheck | ✅ без ошибок | 40 с | 3c66256 | [лог](logs/2026-10-02T17-01-52Z-typecheck-620f.log) |  |
+| 02.10.2026 22:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/premium.spec.ts tests/ui/branch | ❌ упало 6 из 327 | 29 мин | 3c66256 | [лог](logs/2026-10-02T17-01-22Z-e2e-01a0.log) | обе партии и новые спеки #217 на слитом дереве перед вторым PR |
+| 02.10.2026 22:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/ui/roles.spec.ts tests/ui/tea | ✅ 36 из 36 | 2 мин 39 с | 3945ad2 +4 | [лог](logs/2026-10-02T17-31-25Z-e2e-6b7b.log) | вкладка Отчёты в ожиданиях спеков, Сотрудники через верхнее меню |

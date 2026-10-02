@@ -1,0 +1,96 @@
+# Сквозные (e2e) · 02.10.2026 16:32 Алматы · Noutbuk-Vyacheslav.local
+# коммит 042c413 (main), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/categories-screens.spec.ts' 'tests/ui/fund-workspace.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/ui/categories-screens.spec.ts:10:1 › categories C1: five Luxx-shaped rows, filters, row menu, long name — light/dark/mobile (19.4s)
+  ✓  2 tests/ui/fund-workspace.spec.ts:3:1 › category creation, rename, room creation and reload (3.8s)
+  ✓  3 tests/ui/fund-workspace.spec.ts:49:1 › availability preserves exact unit and dates; responsive category design (4.4s)
+  ✓  4 tests/ui/fund-workspace.spec.ts:81:1 › guests filter categories by capacity; toggle shows all; tab renamed (767ms)
+  ✘  5 tests/ui/fund-workspace.spec.ts:113:1 › AV2: price «from» — rooms for the whole stay, beds for every guest (15.7s)
+  ✓  6 tests/ui/fund-workspace.spec.ts:134:1 › AV3: places as a compact list; automatic choice and picked beds prefill the booking (2.8s)
+  ✓  7 tests/ui/fund-workspace.spec.ts:213:1 › AV4: a category without places stays on screen with the nearest availability (1.3s)
+  ✓  8 tests/ui/fund-workspace.spec.ts:258:1 › dark categories and availability; invalid dates and empty onboarding (3.1s)
+
+
+  1) tests/ui/categories-screens.spec.ts:10:1 › categories C1: five Luxx-shaped rows, filters, row menu, long name — light/dark/mobile 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('columnheader', { name: 'Тип продажи' })
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('columnheader', { name: 'Тип продажи' }) with timeout 15000ms
+      - waiting for getByRole('columnheader', { name: 'Тип продажи' })
+        34 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      50 |   // «Тип продажи» больше не колонка: тип виден по значку у названия и слову фонда («36 коек»);
+      51 |   // «Активна» — текстом, бейджи только у исключений (упрощение 02.10, как в «Номерах и койках»)
+    > 52 |   await expect(page.getByRole('columnheader', { name: 'Тип продажи' })).toHaveCount(0);
+         |                                                                         ^
+      53 |   await expect(
+      54 |     rows.filter({ hasText: 'Мужской общий номер' }).getByText('активна', { exact: true }),
+      55 |   ).toBeVisible();
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/categories-screens.spec.ts:52:73
+
+    Error Context: test-results/categories-screens-categor-ee599-ng-name-—-light-dark-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/categories-screens-categor-ee599-ng-name-—-light-dark-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/categories-screens-categor-ee599-ng-name-—-light-dark-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/fund-workspace.spec.ts:113:1 › AV2: price «from» — rooms for the whole stay, beds for every guest 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }).getByText('Номер целиком, до 2 гостей', { exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }).getByText('Номер целиком, до 2 гостей', { exact: true }) with timeout 15000ms
+      - waiting for locator('.fund-availability article').filter({ hasText: 'Двухместный номер' }).getByText('Номер целиком, до 2 гостей', { exact: true })
+
+
+      128 |   await expect(bed.getByText('2 гостя, 3 ночи')).toBeVisible();
+      129 |   // тип и вместимость — одной строкой под именем, без отдельной метки типа (упрощение 02.10)
+    > 130 |   await expect(room.getByText('Номер целиком, до 2 гостей', { exact: true })).toBeVisible();
+          |                                                                               ^
+      131 |   await expect(bed.getByText('Койко-место, 1 гость на койку', { exact: true })).toBeVisible();
+      132 | });
+      133 |
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/fund-workspace.spec.ts:130:79
+
+    Error Context: test-results/fund-workspace-AV2-price-«-fe033-e-stay-beds-for-every-guest/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fund-workspace-AV2-price-«-fe033-e-stay-beds-for-every-guest/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fund-workspace-AV2-price-«-fe033-e-stay-beds-for-every-guest/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/categories-screens.spec.ts:10:1 › categories C1: five Luxx-shaped rows, filters, row menu, long name — light/dark/mobile 
+    tests/ui/fund-workspace.spec.ts:113:1 › AV2: price «from» — rooms for the whole stay, beds for every guest 
+  6 passed (1.0m)
+
+# код выхода 1 · 1 мин 4 с

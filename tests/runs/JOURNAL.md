@@ -5277,3 +5277,7 @@
 | 02.10.2026 21:43 | lint | ✅ без ошибок | 26 с | f6c18e5 +1 | [лог](logs/2026-10-02T16-43-00Z-lint-4c63.log) |  |
 | 02.10.2026 21:46 | unit (частично: apps/api/src/platform/support.queue.test.ts apps/api/src/platform/support.controller.test.ts) | ❌ упало 22 из 39 | 5 с | f6c18e5 +3 | [лог](logs/2026-10-02T16-46-27Z-unit-9bf5.log) | red: песочница в очереди и категории обращений |
 | 02.10.2026 21:49 | unit (частично: apps/api/src/platform/support.queue.test.ts apps/api/src/platform/support.controller.test.ts) | ✅ 40 из 40 | 3 с | f6c18e5 +7 | [лог](logs/2026-10-02T16-49-28Z-unit-49c4.log) | green: песочница вне очереди, категории обращений |
+| 02.10.2026 21:59 | unit | ✅ 2843 из 2846, пропущено 3 | 1 мин 19 с | 3c66256 | [лог](logs/2026-10-02T16-59-01Z-unit-5583.log) |  |
+| 02.10.2026 22:00 | typecheck | ❌ ошибок: 50 | 31 с | 3c66256 | [лог](logs/2026-10-02T17-00-20Z-typecheck-b9af.log) | TS2339 |
+| 02.10.2026 22:00 | lint | ✅ без ошибок | 16 с | 3c66256 | [лог](logs/2026-10-02T17-00-53Z-lint-8208.log) |  |
+| 02.10.2026 22:01 | typecheck | ✅ без ошибок | 40 с | 3c66256 | [лог](logs/2026-10-02T17-01-52Z-typecheck-620f.log) |  |

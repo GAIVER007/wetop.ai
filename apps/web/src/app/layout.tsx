@@ -22,6 +22,7 @@ import './management/hotel.css';
 import './tokens.css';
 import './premium.css';
 import '../components/shell/sidebar.css';
+import '../components/shell/top-menu.css';
 import './hotel-settings/settings.css';
 import './control.css';
 // Общие непрозрачные поверхности без бликов — последними (DESIGN.md §20, 01.10.2026).

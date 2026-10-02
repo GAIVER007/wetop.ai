@@ -16,7 +16,7 @@ test('сотрудники: приглашение управляющего со
   await page.goto('/staff');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Сотрудники', exact: true })).toBeVisible();
-  await expect(page.locator('.workspace-sidebar a[href="/staff"]')).toBeVisible();
+  await expect(page.locator('.workspace-header .topmenu a[href="/staff"]')).toHaveCount(1);
   await main.getByLabel('Почта приглашённого').fill('new.team@example.com');
   await main.getByLabel('Роль приглашённого').selectOption('MANAGER');
   await expect(main.locator('.team-role-help')).toContainText('Права владельца не передаются');
@@ -58,7 +58,7 @@ test('администратор не получает список сотруд
   await request.post('http://127.0.0.1:4311/__test/control', { data: { role: 'STAFF' } });
   await page.goto('/staff');
   await expect(page.getByTestId('team')).toHaveCount(0);
-  await expect(page.locator('.workspace-sidebar a[href="/staff"]')).toHaveCount(0);
+  await expect(page.locator('.workspace-header .topmenu a[href="/staff"]')).toHaveCount(0);
 });
 
 test('выбор роли показывает конкретные разрешения', async ({ page }) => {
@@ -80,7 +80,7 @@ test('выбор роли показывает конкретные разреш
 
 test('навигация разделяет задачи и сохраняет единый экран подключения', async ({ page }) => {
   await page.goto('/today');
-  const nav = page.locator('.workspace-sidebar');
+  const nav = page.locator('.workspace-header .topmenu');
   await expect(nav.getByRole('button', { name: 'Контроль', exact: true })).toHaveCount(0);
   await expect(nav.getByRole('link', { name: 'Главная', exact: true })).toBeVisible();
   await expect(nav.locator('a[href="/finance"]')).toBeVisible();

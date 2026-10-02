@@ -95,9 +95,10 @@ test('переключатель филиалов сохраняет разде�
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
   await page.goto('/chessboard');
-  const sidebar = page.locator('.workspace-sidebar');
+  // объект и филиал стоят в шапке рядом со знаком (ADR-134); список не сдвигает строку разделов
+  const sidebar = page.locator('.workspace-header');
   const trigger = sidebar.getByRole('button', { name: 'Выбрать филиал', exact: true });
-  const navigation = sidebar.locator('.workspace-links');
+  const navigation = sidebar.locator('.topmenu');
   const before = await navigation.boundingBox();
   await trigger.click();
   const choices = sidebar.getByRole('region', { name: 'Выбор филиала' });

@@ -35,9 +35,7 @@ body::after {
 .reservations-controls,
 .control-journal-search,
 .board-toolbar,
-.toolbar,
-.workspace-property,
-.workspace-sidebar {
+.toolbar {
   background: var(--surface-solid);
   background-image: none;
   -webkit-backdrop-filter: none;
@@ -45,7 +43,6 @@ body::after {
   box-shadow: none;
   border-radius: var(--radius);
 }
-.workspace-sidebar { background: var(--sidebar); }
 /* Functional status colors, keyboard focus and floating dialog shadows are preserved. */
 .btn:not(.btn--secondary):not(.btn--ghost):not(.btn--danger):not(.btn--warning):not(.btn--success):not(.btn--info):not(.btn--inverse),
 .btn--primary {

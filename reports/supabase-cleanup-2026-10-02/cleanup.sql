@@ -60,7 +60,49 @@ delete from public.reservations;
 delete from public.guest_documents;
 delete from public.guests;
 
--- Контрольные числа ПОСЛЕ. Ожидается: incidents 1, sessions 2, остальное 0.
+-- 4. Тестовая категория и её место: расхождение фонда 89 против контрольных 88.
+--    Категория «TEST ЮНГА INVENTORY20261001 EDIT» (код category-74665316-...),
+--    место YUNGA-TEST-20261001, заведены 01.10.2026 при проверках стойки.
+--    Проверено на 02.10.2026: ни одного проживания, ни цены, ни ограничения,
+--    ни тарифа, ни сопоставления Channex; только 3 события уборки и 1 блокировка.
+--    Настоящие 88 мест сходятся: 36 + 36 + 8 + 4 + 4.
+--    Страховка: имя категории обязано содержать «TEST», иначе скрипт прервётся.
+do $$
+declare cat uuid; unit uuid; room uuid; nm text;
+begin
+  select id, name into cat, nm from public.accommodation_types
+  where code = 'category-74665316-234f-4968-aeec-685bcefa71d4';
+
+  if cat is null then
+    raise notice 'Тестовой категории уже нет, шаг 4 пропущен.';
+    return;
+  end if;
+
+  if nm not like '%TEST%' then
+    raise exception 'Категория % не похожа на тестовую. Шаг 4 прерван.', nm;
+  end if;
+
+  select id, physical_room_id into unit, room
+  from public.inventory_units where accommodation_type_id = cat;
+
+  if unit is not null then
+    delete from public.inventory_blocks     where inventory_unit_id = unit;
+    delete from public.housekeeping_events  where inventory_unit_id = unit;
+    delete from public.inventory_units      where id = unit;
+  end if;
+
+  if room is not null and not exists (
+    select 1 from public.inventory_units where physical_room_id = room
+  ) then
+    delete from public.physical_rooms where id = room;
+  end if;
+
+  delete from public.accommodation_types where id = cat;
+  raise notice 'Шаг 4: тестовая категория и её место удалены, фонд приведён к 88.';
+end $$;
+
+-- Контрольные числа ПОСЛЕ. Ожидается: incidents 1, sessions 2, остальное 0,
+-- inventory_units 88, physical_rooms 88, accommodation_types 5.
 select 'ПОСЛЕ' as когда, 'incidents' as что, count(*) as строк from public.system_incidents
 union all select 'ПОСЛЕ', 'sessions', count(*) from public.sessions
 union all select 'ПОСЛЕ', 'reservations', count(*) from public.reservations
@@ -70,7 +112,9 @@ union all select 'ПОСЛЕ', 'charges', count(*) from public.charges
 union all select 'ПОСЛЕ', 'payments', count(*) from public.payments
 union all select 'ПОСЛЕ', 'audit_logs (не тронут)', count(*) from public.audit_logs
 union all select 'ПОСЛЕ', 'daily_rates (не тронут)', count(*) from public.daily_rates
-union all select 'ПОСЛЕ', 'inventory_units (не тронут)', count(*) from public.inventory_units;
+union all select 'ПОСЛЕ', 'inventory_units (ждём 88)', count(*) from public.inventory_units
+union all select 'ПОСЛЕ', 'physical_rooms (ждём 88)', count(*) from public.physical_rooms
+union all select 'ПОСЛЕ', 'accommodation_types (ждём 5)', count(*) from public.accommodation_types;
 
 commit;
 

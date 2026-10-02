@@ -37,7 +37,6 @@ export type Dictionary = {
     lead: string;
     /** Вторая кнопка первого экрана: к блоку «Возможности». */
     secondary: string;
-    points: Array<{ icon: IconName; text: string }>;
     /** Строка под кнопками первого экрана: срок пробного периода (ADR-098). */
     note: string;
     /** Карта разделов (01.10.2026): шесть областей платформы ссылками на блоки страницы; имён и сумм нет. */
@@ -50,6 +49,14 @@ export type Dictionary = {
       next: string;
       caption: string;
     };
+  };
+  /**
+   * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа на вопрос «что это даёт».
+   * Три факта, которые раньше висели под чертой на первом экране, живут здесь. Обещаний и цифр нет (§19.9).
+   */
+  facts: {
+    label: string;
+    items: Array<{ icon: IconName; title: string; text: string }>;
   };
   mockup: {
     label: string;

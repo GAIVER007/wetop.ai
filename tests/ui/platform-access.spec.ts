@@ -110,6 +110,13 @@ test('срок вышел: всё видно, но менять, отвечат�
   await expect(main.getByTestId('seller-state')).toContainText('срок вышел');
   const setup = main.getByTestId('seller-setup');
   await expect(setup.getByTestId('seller-read-only')).toContainText('Срок расширения вышел');
+  // окно инструкции — на шаге «Инструкция» степпера; клик до гидрации теряется — повторяем
+  await expect(async () => {
+    await main.getByRole('button', { name: 'Инструкция' }).click();
+    await expect(setup.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeVisible({
+      timeout: 1_000,
+    });
+  }).toPass({ timeout: 15_000 });
   await expect(setup.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeDisabled();
   await expect(main.getByTestId('seller-prompt-save')).toHaveCount(0);
   // список «До запуска» — тому, кто может его выполнить: после срока его нет
@@ -152,7 +159,8 @@ test('администратор: вместо настроек продавца
   await expect(main.getByTestId('seller-dialog-card').getByTestId('dialog-takeover')).toBeVisible();
 
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Администратор');
-  await page.goto('/auth/fallback');
+  // панель вошедшего с приглашениями живёт на /profile/access: /auth/fallback — резервная форма без сессии
+  await page.goto('/profile/access');
   await expect(page.getByTestId('invite-not-allowed')).toHaveText(
     'Приглашать сотрудников могут владелец и управляющий.',
   );
@@ -166,6 +174,13 @@ test('управляющий настраивает продавца нарав�
   await control(request, { role: 'MANAGER' });
   await page.goto('/ai-seller');
   const main = page.getByRole('main');
+  // окно инструкции — на шаге «Инструкция» степпера; клик до гидрации теряется — повторяем
+  await expect(async () => {
+    await main.getByRole('button', { name: 'Инструкция' }).click();
+    await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeVisible({
+      timeout: 1_000,
+    });
+  }).toPass({ timeout: 15_000 });
   await expect(main.getByRole('textbox', { name: 'Инструкция продавцу' })).toBeEnabled();
   await expect(main.getByTestId('seller-read-only')).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Все агенты' })).toBeVisible();

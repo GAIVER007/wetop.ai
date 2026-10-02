@@ -349,13 +349,17 @@ export const menuSections: MenuSection[] = [
       menuItem('/team', 'Сотрудники и доступ'),
       menuItem('/connections', 'Подключения'),
       menuItem('/journal', 'Журнал действий'),
+      // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту
+      menuItem('/incidents'),
     ],
   },
   {
+    // «Техподдержка» переехала под переключатель агентов на «ИИ-продавце»: своего пункта меню
+    // у неё нет, маршрут /platform/support остаётся в реестре ради прав (routeRule)
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
-    items: [menuItem('/platform'), menuItem('/platform/support')],
+    items: [menuItem('/platform')],
   },
 ];
 

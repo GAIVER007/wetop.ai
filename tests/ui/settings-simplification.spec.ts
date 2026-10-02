@@ -21,6 +21,7 @@ test('короткое меню настроек ведёт в единый об
     'Сотрудники и доступ',
     'Подключения',
     'Журнал действий',
+    'Неисправности',
   ]);
   await expect(page.getByTestId('stored-property')).toContainText('Luxx Aparts');
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });

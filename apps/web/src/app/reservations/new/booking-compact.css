@@ -3,7 +3,7 @@
 }
 .booking-create .booking-form {
   padding: 16px;
-  gap: 12px;
+  gap: 8px;
 }
 .booking-create .form-section-title {
   margin: 0;
@@ -27,34 +27,29 @@
   font-size: 14px;
 }
 .booking-create .grid-auto {
-  gap: 10px;
+  gap: 8px;
 }
 .booking-create .placement-fields {
-  padding: 10px;
+  padding: 8px;
   margin: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
 }
 .booking-create .placement-fields legend {
   font-size: 12px;
 }
 .booking-create__dates {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 .booking-create__date-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
 }
 .booking-create__quick {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
-}
-.booking-create__quick [aria-pressed='true'] {
-  background: var(--surface-muted);
-  color: var(--accent);
-  border-color: var(--accent);
 }
 .booking-create__extras,
 .booking-create__review {
@@ -62,18 +57,18 @@
 }
 .booking-create summary {
   cursor: pointer;
-  padding: 6px 0;
+  padding: 8px 0;
   color: var(--text-2);
 }
 .booking-create__extra-fields {
   display: grid;
-  gap: 12px;
+  gap: 16px;
   padding-top: 8px;
 }
 .booking-create .booking-footer {
   margin: 0 -16px -16px;
-  padding: 12px 16px;
-  gap: 12px;
+  padding: 16px;
+  gap: 16px;
   background: var(--surface);
   flex-wrap: wrap;
 }
@@ -97,10 +92,10 @@
 @media (min-width: 600px) {
   .booking-create .placement-fields .grid-auto {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
   }
   .booking-create .grid-auto {
-    gap: 10px;
+    gap: 8px;
   }
 }
 @media (max-width: 599px) {
@@ -114,11 +109,11 @@
     gap: 8px;
   }
   .booking-create .booking-form {
-    padding: 12px;
+    padding: 16px;
   }
   .booking-create .booking-footer {
-    margin: 0 -12px -12px;
-    padding: 10px 12px;
+    margin: 0 -16px -16px;
+    padding: 8px 16px;
   }
 }
 
@@ -128,7 +123,7 @@
 }
 .booking-create__price {
   display: grid;
-  gap: 3px;
+  gap: 4px;
   color: var(--text-2);
 }
 .booking-create__price strong {
@@ -187,7 +182,7 @@
 }
 .booking-create__quick .btn {
   min-height: 32px;
-  padding: 4px 10px;
+  padding: 4px 8px;
   font-size: 12px;
 }
 .booking-create__quick [aria-pressed='true'] {
@@ -218,7 +213,7 @@
   line-height: 1.5;
 }
 .booking-create .booking-footer {
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
 }
 @media (max-width: 599px) {
   .booking-create .placement-fields .grid-auto > :nth-child(-n + 3) {

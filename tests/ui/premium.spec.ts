@@ -15,7 +15,8 @@ test('темы: system, мгновенное переключение, сохр�
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('.desk-stat__value').first()).toBeVisible();
+  // Главная пересобрана в компактный дашборд владельца (ea9dd3c): плитки — .owner-stat
+  await expect(page.locator('.owner-stat').first()).toBeVisible();
   await page.screenshot({ caret: 'initial', path: `${screenshotDir}/dashboard-dark.png` });
   await page.goto('/profile');
   await page.getByRole('button', { name: 'Как на устройстве' }).click();
@@ -27,10 +28,12 @@ test('shell: панель, меню профиля, поиск', async ({ page }
   await page.goto('/today');
   // панели слева нет (ADR-134): разделы в шапке, сворачивать нечего
   await expect(page.locator('.workspace-header .topmenu__tab').first()).toHaveText('Главная');
+  // меню профиля упрощено 01.10 («Simplify account menu»): обучение и вход/выход, ссылки «Профиль и
+  // предпочтения» больше нет
   await page.getByRole('button', { name: 'Меню администратора' }).click();
-  await expect(page.getByRole('link', { name: 'Профиль и предпочтения' })).toBeVisible();
+  await expect(page.getByTestId('tour-restart')).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('link', { name: 'Профиль и предпочтения' })).toBeHidden();
+  await expect(page.getByTestId('tour-restart')).toBeHidden();
   await page.getByRole('button', { name: 'Найти гостя или бронь' }).click();
   const search = page.getByRole('dialog', { name: 'Быстрый поиск' });
   await expect(search).toBeVisible();
@@ -102,11 +105,9 @@ test('новые фильтры шахматки, список броней и �
   await page.goto('/reservations');
   // девять броней фикстуры: восемь прежних и «не заехал вовремя» (20260913-TEST8)
   await expect(page.getByTestId('reservations-table').locator('tbody tr')).toHaveCount(9);
-  // в названии чипа теперь и число броней этого статуса: «Отменены 0»
-  await page
-    .locator('.directory-filters')
-    .getByRole('link', { name: /^Отменены/ })
-    .click();
+  // статус — больше не чипы, а поле «Статус брони» с кнопкой «Показать» (упрощение списка 01.10, 3a916ca)
+  await page.getByLabel('Статус брони', { exact: true }).selectOption('CANCELLED');
+  await page.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page.getByText('Бронирований не найдено')).toBeVisible();
   // Карточки номеров с PR #66 живут в /inventory (/rooms — переход туда); фильтры, поиск и вид
   // каталога проверяет inventory-catalog.spec
@@ -209,12 +210,11 @@ test('список броней: выборка названа, пустой р�
   // одна страница — счётчик страниц не рисуется
   await expect(main.getByText(/Страница \d+ из/)).toHaveCount(0);
 
-  // пустой результат: названы статус и запрос, шапки пустой таблицы нет, поправка точечная
+  // пустой результат: шапки пустой таблицы нет, поправка точечная — кнопки ровно по применённым
+  // отборам (словами отбор больше не называется: упрощение списка 01.10, 3a916ca)
   await page.goto('/reservations?status=CANCELLED&q=Иванов');
   const empty = main.locator('.empty-state');
   await expect(empty).toContainText('Бронирований не найдено');
-  await expect(empty).toContainText('Отменены');
-  await expect(empty).toContainText('Иванов');
   await expect(main.getByTestId('reservations-table')).toHaveCount(0);
   await empty.getByRole('link', { name: 'Убрать поиск', exact: true }).click();
   await expect(main.getByLabel('Поиск броней')).toHaveValue('');

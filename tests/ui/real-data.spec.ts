@@ -23,7 +23,7 @@ test('источник и агрегаты проекта видны главн�
   request,
 }) => {
   await page.goto('/connections');
-  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(page.getByTestId('data-connection')).toHaveCount(0);
   await expect(page.getByRole('main')).not.toContainText('Supabase');
   await expect(page.getByRole('main')).not.toContainText('Данные проекта');

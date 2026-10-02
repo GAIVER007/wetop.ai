@@ -80,7 +80,7 @@
 
 .branches-page .branch-create-toggle {
   color: var(--primary);
-  font-size: var(--text-base);
+  font-size: var(--text-md);
 }
 .branches-workspace {
   min-width: 0;

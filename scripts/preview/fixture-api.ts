@@ -2683,6 +2683,15 @@ function read(path: string, q: URLSearchParams): unknown {
         refunds: { count: 0, amountMinor: '0' },
         accommodationByCategory: [],
       };
+    if (path === '/finance/services-report')
+      return {
+        from: q.get('from'),
+        to: q.get('to'),
+        currency: 'KZT',
+        count: 0,
+        totalMinor: '0',
+        rows: [],
+      };
   }
   if (path.endsWith('/MISSING')) return undefined;
   if (path === '/guard/status') {
@@ -3318,11 +3327,35 @@ function read(path: string, q: URLSearchParams): unknown {
       ...finance(),
       from: q.get('from'),
       to: q.get('to'),
-      chargesByKind: [{ kind: 'ACCOMMODATION', count: 3, amountMinor: '2400000' }],
+      chargesByKind: [
+        { kind: 'ACCOMMODATION', count: 3, amountMinor: '2400000' },
+        // REP2: строка SERVICE равна итогу /finance/services-report — сверка плитки и вкладки
+        { kind: 'SERVICE', count: 3, amountMinor: '450000' },
+      ],
       paymentsByMethod: [{ method: 'CASH', count: 1, amountMinor: '800000' }],
       refunds: { count: 0, amountMinor: '0' },
       accommodationByCategory: [
         { category: 'Двухместный номер', count: 3, amountMinor: '2400000' },
+      ],
+    };
+  // REP2: отчёт по услугам — суммы согласованы со строкой SERVICE сводки выше
+  if (path === '/finance/services-report')
+    return {
+      from: q.get('from'),
+      to: q.get('to'),
+      currency: 'KZT',
+      count: 3,
+      totalMinor: '450000',
+      rows: [
+        {
+          code: 'LAUNDRY',
+          name: 'Стирка (1 загрузка)',
+          group: 'Прачечная',
+          charges: 2,
+          quantity: 3,
+          amountMinor: '300000',
+        },
+        { code: null, name: null, group: null, charges: 1, quantity: 1, amountMinor: '150000' },
       ],
     };
   if (path === '/finance/operations') {

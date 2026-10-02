@@ -116,6 +116,11 @@ test('карточки ведут в готовые экраны с тем же 
     'href',
     `/finance?from=${monthFrom}&to=${monthTo}#debts`,
   );
+  // REP2: карточка услуг (сумма из сводки — проверяет finance-services.spec)
+  await expect(main.getByTestId('report-services')).toHaveAttribute(
+    'href',
+    `/finance?from=${monthFrom}&to=${monthTo}#services`,
+  );
   await expect(main.getByTestId('report-operations')).toHaveAttribute(
     'href',
     `/finance?from=${monthFrom}&to=${monthTo}#operations`,

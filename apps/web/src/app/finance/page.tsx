@@ -13,6 +13,7 @@ import {
   type PeriodReport,
 } from '../../lib/api';
 import { CashPanel, VoidCashOperation } from './cash';
+import { MANUAL_SERVICE_LABEL } from './services-csv';
 import { formatMoney } from '../../lib/money';
 import { deskShell } from '../../lib/desk-shell';
 import { periods } from '../../lib/report-periods';
@@ -92,7 +93,7 @@ export default async function FinanceReportPage({
     );
   const filter = operationFilter(sp.op, sp.method, sp.src);
   const opsAll = sp.ops === 'all';
-  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded] = await Promise.all([
+  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded, servicesLoaded] = await Promise.all([
     valid ? settle(financeApi.report(from, to)) : null,
     valid ? settle(financeApi.debts(from, to)) : null,
     valid
@@ -101,6 +102,8 @@ export default async function FinanceReportPage({
     deskShell(),
     // касса (§21): остатки за всё время и статьи — одним запросом, от периода не зависят
     settle(financeApi.cash()),
+    // отчёт по услугам (REP2): то же окно, что у сводки
+    valid ? settle(financeApi.servicesReport(from, to)) : null,
   ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
@@ -110,6 +113,8 @@ export default async function FinanceReportPage({
   const opsError = opsLoaded && !opsLoaded.ok ? opsLoaded.e : null;
   const cashBalances = cashLoaded.ok ? cashLoaded.r : null;
   const cashError = !cashLoaded.ok ? cashLoaded.e : null;
+  const services = servicesLoaded?.ok ? servicesLoaded.r : null;
+  const servicesError = servicesLoaded && !servicesLoaded.ok ? servicesLoaded.e : null;
   const role = shell.access.role;
   // роль неизвестна (замок выключен) — кнопки не прячутся, как в меню (ADR-107); защита — проверка API
   const maySettings = !shell.readOnly && (role === null || can(role, 'settings'));
@@ -306,7 +311,13 @@ export default async function FinanceReportPage({
                     cur={cur}
                     rows={KINDS.map(([kind, label]) => {
                       const x = r.chargesByKind.find((c) => c.kind === kind);
-                      return { label, count: x?.count ?? 0, amountMinor: x?.amountMinor ?? '0' };
+                      return {
+                        label,
+                        count: x?.count ?? 0,
+                        amountMinor: x?.amountMinor ?? '0',
+                        // REP2: у услуг есть свой отчёт — строка ведёт на вкладку
+                        ...(kind === 'SERVICE' ? { href: `${period}#services` } : {}),
+                      };
                     })}
                     total={r.chargedMinor}
                   />
@@ -445,6 +456,93 @@ export default async function FinanceReportPage({
                     mayVoidCash={mayVoidCash}
                   />
                 )}
+              </section>
+            )}
+          </>
+        }
+        services={
+          <>
+            {valid && (
+              <section
+                className="finance-block finance-services"
+                id="services"
+                aria-labelledby="services-title"
+                data-testid="finance-services"
+              >
+                <div className="finance-debts__head">
+                  <SectionTitle first id="services-title">
+                    Услуги за период
+                  </SectionTitle>
+                  {services && services.rows.length > 0 && (
+                    <a
+                      href={`/finance/export-services?${new URLSearchParams({ from, to })}`}
+                      className="btn btn--secondary btn--sm"
+                      data-testid="services-export"
+                      download
+                    >
+                      <Icon name="down" />
+                      Скачать CSV
+                    </a>
+                  )}
+                </div>
+                {servicesError !== null && (
+                  <LoadError testId="services-error" {...loadErrorProps(servicesError)} />
+                )}
+                {services &&
+                  (services.rows.length === 0 ? (
+                    <p className="finance-debts__empty" data-testid="services-empty">
+                      Начислений за услуги за период нет.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="finance-debts__meta" data-testid="services-meta">
+                        {pluralRu(services.count, ['начисление', 'начисления', 'начислений'])} за
+                        услуги, итого <strong>{formatMoney(services.totalMinor, cur)}</strong> — как
+                        строка «Услуги» в обзоре: по дате услуги.
+                      </p>
+                      <Table
+                        size="sm"
+                        className="finance-services__table"
+                        data-testid="services-table"
+                      >
+                        <thead>
+                          <tr>
+                            <th>Услуга</th>
+                            <th>Группа</th>
+                            <th className="num">Начислений</th>
+                            <th className="num">Штук</th>
+                            <th className="num">Сумма</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {services.rows.map((x) => (
+                            <tr key={x.code ?? '@manual'} data-testid="service-row">
+                              <td>
+                                {x.name ?? <span className="muted">{MANUAL_SERVICE_LABEL}</span>}
+                              </td>
+                              <td>{x.group ?? <span className="muted">—</span>}</td>
+                              <td className="num">{x.charges}</td>
+                              <td className="num">{x.quantity}</td>
+                              <td className="num">{formatMoney(x.amountMinor, cur)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="finance-row--total">
+                            <th scope="row">Итого</th>
+                            <td />
+                            <td className="num">{services.count}</td>
+                            <td className="num">
+                              {services.rows.reduce((a, x) => a + x.quantity, 0)}
+                            </td>
+                            <td className="num" data-testid="services-total">
+                              {formatMoney(services.totalMinor, cur)}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </Table>
+                    </>
+                  ))}
               </section>
             )}
           </>

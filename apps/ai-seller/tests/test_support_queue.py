@@ -17,6 +17,7 @@ import pytest
 import sqlalchemy as sa
 
 from src.db.base import ConversationMode, MessageRole, utcnow
+from src.dashboard.panel_common import SANDBOX_CHANNEL
 from src.db.models import Client, Conversation, Message
 from tests.dashboard_fakes import (
     OWNER_EMAIL,
@@ -43,6 +44,7 @@ def seed_dialog(
     *,
     turns: tuple[tuple[MessageRole, str, int], ...],
     external_id: str | None = None,
+    channel: str = "widget",
     mode: ConversationMode = ConversationMode.BOT_ACTIVE,
     started_minutes_ago: int = 5,
     active: bool = True,
@@ -51,7 +53,7 @@ def seed_dialog(
     now = utcnow()
     with sessions() as session:
         client = Client(
-            channel="widget",
+            channel=channel,
             external_id=external_id or uuid.uuid4().hex,
             name=None,
             created_at=now,
@@ -211,3 +213,47 @@ def test_platform_service_key_can_close(monkeypatch, fake_redis, sync_db) -> Non
             f"{LIST}/{cid}/close", headers={"X-Service-Key": "service-key-for-tests-only"}
         )
     assert response.status_code == 200, response.text
+
+
+def test_sandbox_dialogs_stay_out_of_the_queue(board, sync_db) -> None:
+    """🔴 Вкладка «Проверка» заводит клиента канала `sandbox`, и такой диалог ничем не отличался
+    от обращения партнёра: 02.10.2026 все четыре строки очереди на рабочей базе были тестами
+    агента, один с отметкой «срочно · нужен человек». Прежний ответ (панель продавца,
+    старые вызовы) при этом не меняется."""
+    partner = seed_dialog(sync_db, turns=((MessageRole.USER, "Не сохраняется бронь", 1),))
+    check = seed_dialog(
+        sync_db, channel=SANDBOX_CHANNEL, turns=((MessageRole.USER, "Проверка агента", 1),)
+    )
+
+    assert {str(partner), str(check)} <= ids(rows(board, nonempty=1))
+    assert ids(rows(board, nonempty=1, exclude_sandbox=1)) == {str(partner)}
+
+
+def test_row_carries_the_first_user_message(board, sync_db) -> None:
+    """Категорию обращения платформа считает по первому сообщению пользователя: в последнем
+    обычно стоит ответ помощника, по которому «возврат» от «ошибки» не отличить."""
+    long_ask = "Вернуть деньги за подписку " + "очень длинная история " * 30
+    cid = seed_dialog(
+        sync_db,
+        turns=(
+            (MessageRole.ASSISTANT, "Здравствуйте! Чем помочь?", 5),
+            (MessageRole.USER, long_ask, 4),
+            (MessageRole.USER, "Алло?", 2),
+            (MessageRole.ASSISTANT, "Передал специалисту", 1),
+        ),
+    )
+
+    row = next(r for r in rows(board) if r["id"] == str(cid))
+
+    assert row["first_message"]["role"] == "user"
+    assert row["first_message"]["text"].startswith("Вернуть деньги за подписку")
+    assert len(row["first_message"]["text"]) <= 160
+    assert row["last_message"]["text"] == "Передал специалисту"
+
+
+def test_first_message_is_none_without_user_turns(board, sync_db) -> None:
+    cid = seed_dialog(sync_db, turns=((MessageRole.ASSISTANT, "Здравствуйте!", 1),))
+
+    row = next(r for r in rows(board) if r["id"] == str(cid))
+
+    assert row["first_message"] is None

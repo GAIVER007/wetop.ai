@@ -35,6 +35,7 @@ from src.dashboard import (
     panel_support_kb,
 )
 from src.dashboard.auth_router import current_user
+from src.dashboard.panel_common import SANDBOX_CHANNEL
 from src.db.base import utcnow
 
 logger = logging.getLogger(__name__)
@@ -54,8 +55,6 @@ panel_router.include_router(panel_whatsapp.router)
 panel_router.include_router(panel_telegram.router)
 panel_router.include_router(panel_orgs.router)
 panel_router.include_router(panel_support_kb.router)
-
-SANDBOX_CHANNEL = "sandbox"
 
 
 class SandboxIn(BaseModel):

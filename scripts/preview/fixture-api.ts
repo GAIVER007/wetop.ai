@@ -5,6 +5,7 @@ import {
   parseMoney,
   assertAllocationsMatch,
   buildDashboard,
+  buildUnitStats,
   DASHBOARD_FUNDS,
   previousPeriod,
   type DashboardFund,
@@ -57,6 +58,15 @@ import {
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
 import { assistant } from '@pms/integrations';
+// Правила категорий берём из того же модуля, что у API: вторая копия разъехалась бы с первой
+import {
+  SUPPORT_CATEGORY_FILTERS,
+  categoryCounts as supportCategoryCounts,
+  filterByCategory as supportFilterByCategory,
+  supportCategoryOf,
+  type SupportCategory,
+  type SupportCategoryFilter,
+} from '../../apps/api/src/platform/support.queue';
 import type {
   Chessboard,
   DeskDay,
@@ -2083,6 +2093,8 @@ type SupportSeedUser = {
 const SUPPORT_DIALOG_WAITING = '8c3d4e5f-6a7b-4c8d-8e9f-1a2b3c4d5e6f';
 const SUPPORT_DIALOG_CLOSED = '9d4e5f6a-7b8c-4d9e-9f0a-2b3c4d5e6f7a';
 const SUPPORT_DIALOG_EMPTY = 'ad5e6f7a-8b9c-4e0f-8a1b-3c4d5e6f7a8b';
+/** Диалог вкладки «Проверка»: в очередь не попадает (канал `sandbox`) */
+const SUPPORT_DIALOG_SANDBOX = 'cf7a8b9c-0d1e-4a2b-8c3d-5e6f7a8b9c0d';
 const supportDialogSeed = () => [
   {
     id: SUPPORT_DIALOG_A,
@@ -2221,6 +2233,27 @@ const supportDialogSeed = () => [
     closed: false,
     platformUser: null as SupportSeedUser | null,
     messages: [] as Array<{ role: string; text: string; at: string; sentByUs: boolean }>,
+  },
+  {
+    // проверка агента из вкладки «Проверка»: очередь её не показывает (ADR S1, правка 02.10.2026)
+    id: SUPPORT_DIALOG_SANDBOX,
+    channel: 'sandbox',
+    clientName: null as string | null,
+    mode: 'bot_active',
+    stage: 'new',
+    startedAt: new Date(Date.now() - 10 * 60_000).toISOString(),
+    lastActivityAt: new Date(Date.now() - 10 * 60_000).toISOString(),
+    hasContact: false,
+    closed: false,
+    platformUser: null as SupportSeedUser | null,
+    messages: [
+      {
+        role: 'user',
+        text: 'Проверка: не могу войти в кабинет',
+        at: new Date(Date.now() - 10 * 60_000).toISOString(),
+        sentByUs: false,
+      },
+    ],
   },
 ];
 let supportDialogs = supportDialogSeed();
@@ -2619,6 +2652,14 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard/units') {
+      const from = q.get('from') || today,
+        to = q.get('to') || today;
+      return buildUnitStats(
+        { from, to, nights: dates(from, to).length, units: [], unassignedStays: 0 },
+        'all',
+      );
+    }
     if (path === '/desk/dashboard') {
       const from = q.get('from') || today,
         to = q.get('to') || today;
@@ -2854,6 +2895,33 @@ function read(path: string, q: URLSearchParams): unknown {
         } satisfies InventoryUnit;
       });
   if (path === '/desk/today') return desk(q.get('date') || today);
+  // «По номерам» (REP3): те же клетки board(), что у сводки — итог вкладки сходится с «Загрузкой»
+  if (path === '/desk/dashboard/units') {
+    const fund = q.get('fund') || 'all';
+    if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
+      throw new Error('fund — all, rooms или beds');
+    const from = q.get('from') || today,
+      to = q.get('to') || today;
+    const b = board(from, to);
+    return buildUnitStats(
+      {
+        from,
+        to,
+        nights: b.dates.length,
+        units: b.rows.map((r) => ({
+          code: r.unit.code,
+          categoryCode: r.unit.accommodationTypeCode,
+          categoryName: r.unit.accommodationTypeName,
+          kind: r.unit.kind,
+          occupiedNights: r.cells.filter((c) => c.state === 'OCCUPIED').length,
+          blockedNights: r.cells.filter((c) => c.state === 'BLOCKED').length,
+          arrivals: r.cells.filter((c) => c.state === 'OCCUPIED' && c.isArrival).length,
+        })),
+        unassignedStays: b.unassigned.length,
+      },
+      fund as DashboardFund,
+    );
+  }
   if (path === '/desk/dashboard') {
     const fund = q.get('fund') || 'all';
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
@@ -4734,9 +4802,13 @@ createServer(async (req, res) => {
           const queue = url.searchParams.get('queue') || 'open';
           const QUEUES = ['open', 'new', 'waiting', 'needs_human', 'owner_takeover', 'bot_active', 'closed'];
           if (!QUEUES.includes(queue)) return send(400, { message: `Очередь: ${QUEUES.join(', ')}` });
+          const category = (url.searchParams.get('category') || 'all') as SupportCategoryFilter;
+          if (!(SUPPORT_CATEGORY_FILTERS as readonly string[]).includes(category))
+            return send(400, { message: `Категория: ${SUPPORT_CATEGORY_FILTERS.join(', ')}` });
           // как API: без пустых, приоритет и порядок, числа — по открытым (`apps/api/src/platform/support.queue.ts`)
           const rows = supportDialogs
-            .filter((d) => d.messages.length > 0)
+            // как бот с `exclude_sandbox`: проверки агента это не обращения партнёров
+            .filter((d) => d.messages.length > 0 && d.channel !== 'sandbox')
             .map((d) => {
               const lastAnswer = Math.max(
                 0,
@@ -4747,6 +4819,10 @@ createServer(async (req, res) => {
               );
               const waitingSince = unanswered[0]?.at ?? null;
               const last = d.messages[d.messages.length - 1]!;
+              const firstUser = d.messages.find((m) => m.role === 'user') ?? null;
+              const firstMessage = firstUser
+                ? { role: firstUser.role, text: firstUser.text, at: firstUser.at }
+                : null;
               return {
                 id: d.id,
                 channel: d.channel,
@@ -4757,6 +4833,8 @@ createServer(async (req, res) => {
                 lastActivityAt: d.lastActivityAt,
                 messages: d.messages.length,
                 lastMessage: { role: last.role, text: last.text, at: last.at },
+                firstMessage,
+                category: supportCategoryOf(firstMessage) as SupportCategory,
                 waitingSince,
                 closed: d.closed,
                 priority: d.closed
@@ -4788,7 +4866,9 @@ createServer(async (req, res) => {
             );
           return send(200, {
             queue,
-            items,
+            category,
+            items: supportFilterByCategory(items, category),
+            categoryCounts: supportCategoryCounts(items),
             counts: {
               open: open.length,
               new: open.filter((r) => Date.now() - Date.parse(r.startedAt) <= DAY_MS).length,

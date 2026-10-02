@@ -4936,7 +4936,8 @@ createServer(async (req, res) => {
         if (path === '/platform/support/summary' && req.method === 'GET')
           return send(200, {
             hours: 24,
-            dialogs: supportDialogs.length,
+            // как API: проверки агента в числа над очередью не попадают
+            dialogs: supportDialogs.filter((d) => d.channel !== 'sandbox').length,
             replies: 3,
             leads: 0,
             slaBreaches: 1,

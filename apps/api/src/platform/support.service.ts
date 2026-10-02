@@ -209,7 +209,8 @@ export class SupportService {
   async summary() {
     requirePlatformAdmin();
     const client = this.client();
-    return summaryView(await call(() => client.summary()));
+    // Проверки агента не должны раздувать числа над очередью, из которой они же и убраны
+    return summaryView(await call(() => client.summary(true)));
   }
 
   // ── настройка помощника (ADR-084): правила, модель, песочница ─────────────────────────────────

@@ -257,3 +257,19 @@ def test_first_message_is_none_without_user_turns(board, sync_db) -> None:
     row = next(r for r in rows(board) if r["id"] == str(cid))
 
     assert row["first_message"] is None
+
+
+def test_summary_can_skip_sandbox(board, sync_db) -> None:
+    """Сводка над очередью считала проверки агента вместе с обращениями: «Диалогов за сутки 6»
+    при трёх настоящих. Без параметра ответ прежний, продавца это не трогает."""
+    seed_dialog(sync_db, turns=((MessageRole.USER, "Не сохраняется бронь", 1),))
+    seed_dialog(sync_db, channel=SANDBOX_CHANNEL, turns=((MessageRole.USER, "Проверка агента", 1),))
+
+    both = board.client.get(f"{PANEL}/summary", headers=board.headers()).json()
+    clean = board.client.get(
+        f"{PANEL}/summary", params={"exclude_sandbox": 1}, headers=board.headers()
+    ).json()
+
+    assert both["dialogs"] == 2
+    assert clean["dialogs"] == 1
+    assert clean["replies"] <= both["replies"]

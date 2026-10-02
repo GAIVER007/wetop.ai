@@ -266,8 +266,9 @@ export class BotPanelClient {
     return this.request('POST', '/knowledge', form, TIMEOUT_MS);
   }
 
-  summary(): Promise<Json> {
-    return this.json('GET', '/summary');
+  /** `excludeSandbox` убирает из чисел диалоги вкладки «Проверка», как и в очереди */
+  summary(excludeSandbox = false): Promise<Json> {
+    return this.json('GET', `/summary${excludeSandbox ? '?exclude_sandbox=true' : ''}`);
   }
 
   sandbox(input: { externalId: string; text: string }): Promise<Json> {

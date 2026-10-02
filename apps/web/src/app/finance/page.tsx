@@ -92,16 +92,15 @@ export default async function FinanceReportPage({
     );
   const filter = operationFilter(sp.op, sp.method, sp.src);
   const opsAll = sp.ops === 'all';
-  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded, categoriesLoaded] = await Promise.all([
+  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded] = await Promise.all([
     valid ? settle(financeApi.report(from, to)) : null,
     valid ? settle(financeApi.debts(from, to)) : null,
     valid
       ? settle(financeApi.operations(from, to, { ...filter, limit: opsAll ? OPS_ALL : OPS_SHOWN }))
       : null,
     deskShell(),
-    // касса (§21): остатки за всё время — от периода не зависят
+    // касса (§21): остатки за всё время и статьи — одним запросом, от периода не зависят
     settle(financeApi.cash()),
-    settle(financeApi.cashCategories()),
   ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
@@ -111,7 +110,6 @@ export default async function FinanceReportPage({
   const opsError = opsLoaded && !opsLoaded.ok ? opsLoaded.e : null;
   const cashBalances = cashLoaded.ok ? cashLoaded.r : null;
   const cashError = !cashLoaded.ok ? cashLoaded.e : null;
-  const cashCategories = categoriesLoaded.ok ? categoriesLoaded.r : [];
   const role = shell.access.role;
   // роль неизвестна (замок выключен) — кнопки не прячутся, как в меню (ADR-107); защита — проверка API
   const maySettings = !shell.readOnly && (role === null || can(role, 'settings'));
@@ -460,7 +458,7 @@ export default async function FinanceReportPage({
             {cashBalances && (
               <CashPanel
                 cash={cashBalances}
-                categories={cashCategories}
+                categories={cashBalances.categories}
                 cashOpsHref={opsHref({ src: 'cash' })}
                 editable={!shell.readOnly}
                 maySettings={maySettings}

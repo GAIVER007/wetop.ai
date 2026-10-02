@@ -1357,11 +1357,12 @@ export interface PeriodOperations {
   }>;
   truncated: boolean;
 }
-/** Остатки кассы по способам (DATA_MODEL §21) — за всё время, не за период */
+/** Остатки кассы по способам (DATA_MODEL §21) — за всё время; статьи — тем же ответом (бюджет запросов) */
 export interface CashBalances {
   currency: string;
   totalMinor: string;
   balances: Array<{ method: string; balanceMinor: string }>;
+  categories: CashCategory[];
 }
 export interface CashCategory {
   id: string;
@@ -1389,7 +1390,6 @@ export const financeApi = {
   },
   // касса (DATA_MODEL §21)
   cash: () => getJson<CashBalances>('/finance/cash'),
-  cashCategories: () => getJson<CashCategory[]>('/finance/cash/categories'),
   createCashCategory: (body: unknown) =>
     sendJson<CashCategory[]>('POST', '/finance/cash/categories', body),
   updateCashCategory: (id: string, body: unknown) =>

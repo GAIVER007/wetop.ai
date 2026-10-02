@@ -58,15 +58,10 @@ export class FinanceController {
   }
 
   // ── Касса (DATA_MODEL §21): остатки, операции мимо броней, переводы, статьи ────────────────────
-  /** Остатки по способам за всё время; кассу ведёт смена — право как у стойки (Q-238) */
+  /** Остатки по способам за всё время и статьи одним ответом; кассу ведёт смена — право стойки (Q-238) */
   @Get('cash')
   cash() {
     return this.service.cash();
-  }
-
-  @Get('cash/categories')
-  cashCategories() {
-    return this.service.cashCategories();
   }
 
   @Access('settings')

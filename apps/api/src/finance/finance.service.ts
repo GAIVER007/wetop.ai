@@ -173,11 +173,12 @@ export interface PeriodOperationsView {
   rows: OperationView[];
   truncated: boolean;
 }
-/** Остатки кассы по способам (§21) — за всё время, не за период */
+/** Остатки кассы по способам (§21) — за всё время, не за период; статьи — тем же ответом (бюджет запросов) */
 export interface CashView {
   currency: string;
   totalMinor: string;
   balances: Array<{ method: string; balanceMinor: string }>;
+  categories: CashCategoryView[];
 }
 export interface CashCategoryView {
   id: string;
@@ -509,17 +510,17 @@ export class FinanceService {
   // ── Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md) ─────────────────────────────
   /** Остатки по способам — за всё время: оплаты гостей − возвраты + касса. Валюта — валюта объекта */
   async cash(): Promise<CashView> {
-    const src = await this.repo.cashBalanceSources();
+    const [src, categories] = await Promise.all([
+      this.repo.cashBalanceSources(),
+      this.repo.cashCategories(),
+    ]);
     const b = cashBalances(src);
     return {
       currency: 'KZT',
       totalMinor: s(b.totalMinor),
       balances: b.balances.map((x) => ({ method: x.method, balanceMinor: s(x.balanceMinor) })),
+      categories,
     };
-  }
-
-  async cashCategories(): Promise<CashCategoryView[]> {
-    return this.repo.cashCategories();
   }
 
   async createCashCategory(dto: { kind?: string; name?: string }): Promise<CashCategoryView[]> {
@@ -538,7 +539,7 @@ export class FinanceService {
         },
       ),
     );
-    return this.cashCategories();
+    return this.repo.cashCategories();
   }
 
   async updateCashCategory(
@@ -566,7 +567,7 @@ export class FinanceService {
       }),
     );
     if (!found) throw new NotFoundException(`Статья ${id} не найдена`);
-    return this.cashCategories();
+    return this.repo.cashCategories();
   }
 
   /** Комиссия из запроса: сумма или процент от суммы операции; статья — указанная или «Комиссия банка» */

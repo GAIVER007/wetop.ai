@@ -2622,8 +2622,7 @@ function read(path: string, q: URLSearchParams): unknown {
         truncated: false,
       };
     if (path === '/finance/cash')
-      return { currency: 'KZT', totalMinor: '0', balances: [] };
-    if (path === '/finance/cash/categories') return [];
+      return { currency: 'KZT', totalMinor: '0', balances: [], categories: [] };
     if (path === '/finance/debts')
       return {
         from: q.get('from'),
@@ -3437,12 +3436,12 @@ function read(path: string, q: URLSearchParams): unknown {
       currency: 'KZT',
       totalMinor: balances.reduce((a, b) => a + BigInt(b.balanceMinor), 0n).toString(),
       balances,
+      // статьи — тем же ответом, как у API (бюджет запросов)
+      categories: [...cashCategories].sort(
+        (a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ru'),
+      ),
     };
   }
-  if (path === '/finance/cash/categories')
-    return [...cashCategories].sort(
-      (a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ru'),
-    );
   if (path === '/finance/debts') {
     // Как у API (ADR-113): бронь с начислением в периоде — проживание начисляется датой заезда; остаток — по всему
     // счёту брони, в список только > 0, крупные первыми, равные — по дате заезда

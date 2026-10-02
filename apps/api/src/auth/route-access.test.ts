@@ -119,7 +119,6 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /finance/operations': 'reports',
   // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
   'GET /finance/cash': 'desk',
-  'GET /finance/cash/categories': 'desk',
   'POST /finance/cash/categories': 'settings',
   'PATCH /finance/cash/categories/:id': 'settings',
   'POST /finance/cash/operations': 'desk',

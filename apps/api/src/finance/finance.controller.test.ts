@@ -1337,9 +1337,9 @@ describe('касса: остатки, операции, переводы, ста
     expect(r.body.totalMinor).toBe('0');
   });
 
-  it('статьи: стартовый набор, добавление, дубль — 400, выключение, неизвестная — 404', async () => {
-    const list = await http().get('/finance/cash/categories').expect(200);
-    expect(list.body.map((c: { name: string }) => c.name)).toContain('Комиссия банка');
+  it('статьи: стартовый набор в ответе кассы, добавление, дубль — 400, выключение, неизвестная — 404', async () => {
+    const list = await http().get('/finance/cash').expect(200);
+    expect(list.body.categories.map((c: { name: string }) => c.name)).toContain('Комиссия банка');
     const added = await http()
       .post('/finance/cash/categories')
       .send({ kind: 'EXPENSE', name: 'Реклама' })

@@ -161,7 +161,7 @@ describe('DESIGN.md §15: системных окон подтверждения
  *  — ссылка «перейти к содержимому» лежит на `--primary`, её текст — только `--on-primary`
  *    (`--muted` на синем давал контраст около 1,1:1, §10);
  *  — штриховка блокировки (`.board-block`, `background-image`) гаснет, если клетка ставит инлайн
- *    сокращение `background:` — оно сбрасывает и изображение; на шахматке инлайн только `backgroundColor`;
+ *    сокращение `background:` — оно сбрасывает и изображение; в календаре инлайн только `backgroundColor`;
  *  — мёртвые классы `.topbar*` и `.record-nav` удалены и не возвращаются.
  */
 describe('план дизайн-системы §10: попутные дефекты не возвращаются', () => {
@@ -174,7 +174,7 @@ describe('план дизайн-системы §10: попутные дефек
     expect(rule!.body).toMatch(/color:\s*var\(--on-primary\)/);
     expect(rule!.body).not.toMatch(/color:\s*var\(--muted\)/);
   });
-  it('на шахматке инлайн-фон клетки — backgroundColor, не сокращение background', () => {
+  it('в календаре инлайн-фон клетки — backgroundColor, не сокращение background', () => {
     const guilty = tsxFiles(join(SRC, 'app', 'chessboard'))
       .filter((f) => /style=\{\{[\s\S]*?\bbackground:/.test(readFileSync(f, 'utf8')))
       .map((f) => relative(SRC, f));

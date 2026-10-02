@@ -290,7 +290,7 @@ export function AvailabilityFinder({
                 className="btn btn--secondary"
                 href={`/chessboard?${new URLSearchParams({ from: arrival, to: plusDays(departure, -1), ...(category ? { category } : {}) })}`}
               >
-                Открыть в шахматке
+                Открыть в календаре
               </Link>
             </div>
           </>

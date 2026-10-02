@@ -35,7 +35,7 @@ test('свёрнутая desktop-панель не скрывает подпис
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация', exact: true });
-  const board = menu.getByRole('link', { name: 'Шахматка', exact: true });
+  const board = menu.getByRole('link', { name: 'Календарь', exact: true });
   await expect(board.locator('span')).toBeVisible();
   await board.click();
   await expect(page).toHaveURL(/\/chessboard$/);

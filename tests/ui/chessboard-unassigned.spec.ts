@@ -167,7 +167,7 @@ test('«Разрешить» у «Продано сверх мест» и ссы
   await expect(drawerOf(page).getByTestId('unassigned-card')).toContainText('20260913-SHOWUN');
   await page.keyboard.press('Escape');
   await expect(drawerOf(page)).toBeHidden();
-  // ссылка «Назначить» с Главной ведёт на шахматку дня с якорем — ящик открыт сразу
+  // ссылка «Назначить» с Главной ведёт на календарь дня с якорем — ящик открыт сразу
   await page.goto('/chessboard#unassigned-stays');
   await expect(drawerOf(page)).toBeVisible();
 });

@@ -171,7 +171,7 @@ export function ChessboardGrid({
 }) {
   const [query, setQuery] = useState('');
   const searchParams = useSearchParams();
-  // категория и тип места из адреса — так «Аналитика → Загрузка» открывает шахматку уже на номерах
+  // категория и тип места из адреса — так «Аналитика → Загрузка» открывает календарь уже на номерах
   // или койках нужной категории
   const [filters, setFilters] = useState<BoardFilters>(() => {
     const k = searchParams.get('kind');
@@ -179,6 +179,8 @@ export function ChessboardGrid({
       ...NO_FILTERS,
       category: searchParams.get('category') ?? '',
       kind: k === 'ROOM' || k === 'BED' ? k : '',
+      // «Неоплаченные» в шапке календаря — ссылка на существующий фильтр «С долгом»
+      stays: searchParams.get('stays') === 'debt' ? ['debt'] : [],
     };
   });
   const patchFilters = (patch: Partial<BoardFilters>) => setFilters((f) => ({ ...f, ...patch }));
@@ -797,7 +799,7 @@ export function ChessboardGrid({
           <span className="board-search-label">Поиск</span>
           <Input
             type="search"
-            aria-label="Поиск на шахматке"
+            aria-label="Поиск в календаре"
             placeholder="Гость, телефон, бронь, номер, койка"
             // Ctrl/Cmd+K шапки ставит курсор сюда, а не в общий поиск (§40)
             data-page-search=""
@@ -815,7 +817,7 @@ export function ChessboardGrid({
         <label className="board-category field field--inline">
           <span>Категория</span>
           <Select
-            aria-label="Категория на шахматке"
+            aria-label="Категория в календаре"
             value={filters.category}
             onChange={(e) => patchFilters({ category: e.target.value })}
           >
@@ -833,7 +835,7 @@ export function ChessboardGrid({
         >
           <span>{stateLabel}</span>
           <Select
-            aria-label="Места на шахматке"
+            aria-label="Места в календаре"
             value={filters.state}
             onChange={(e) => patchFilters({ state: e.target.value as UnitState })}
           >
@@ -859,7 +861,7 @@ export function ChessboardGrid({
         <label className="board-view field field--inline">
           <span>Вид</span>
           <Select
-            aria-label="Вид строк шахматки"
+            aria-label="Вид строк календаря"
             value={view}
             onChange={(e) => pickView(e.target.value as BoardView)}
           >
@@ -944,7 +946,7 @@ export function ChessboardGrid({
         className="tbl-wrap board-wrap"
         data-density={view}
         role="region"
-        aria-label="Шахматка по дням"
+        aria-label="Календарь по дням"
         tabIndex={0}
         style={{ opacity: pending ? 0.6 : 1 }}
       >
@@ -1528,7 +1530,10 @@ function Cell({
           tabIndex={-1}
           aria-hidden="true"
           {...free}
-        />
+        >
+          {/* число месяца в пустой клетке — ориентир при прокрутке длинного периода */}
+          <span className="board__free-day">{Number(cell.date.slice(8))}</span>
+        </Link>
       ) : (
         <Link
           href={`/units/${encodeURIComponent(unitCode)}`}

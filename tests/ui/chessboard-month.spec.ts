@@ -18,8 +18,8 @@ test('месяц: с первого по последнее число, вклю
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await page.getByRole('button', { name: 'Даты', exact: true }).click();
   await page.getByRole('link', { name: 'Месяц', exact: true }).click();
-  await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue(first);
-  await expect(page.getByLabel('Шахматка: по', { exact: true })).toHaveValue(last);
+  await expect(page.getByLabel('Календарь: с', { exact: true })).toHaveValue(first);
+  await expect(page.getByLabel('Календарь: по', { exact: true })).toHaveValue(last);
   await expect(page.getByTestId('date-col')).toHaveCount(Number(last.slice(8)));
   await expect(page.getByTestId('date-col').first().locator('.board__d')).toHaveText('01');
   await expect(page.getByTestId('date-col').last().locator('.board__d')).toHaveText(last.slice(8));
@@ -53,10 +53,10 @@ for (const [from, to, direction, expectedFrom, expectedTo] of [
     await page.goto(`/chessboard?from=${from}&to=${to}`);
     // A previously edited date must not survive navigation into a different month.
     await page.getByRole('button', { name: 'Даты', exact: true }).click();
-    await page.getByLabel('Шахматка: с', { exact: true }).fill('2026-01-15');
+    await page.getByLabel('Календарь: с', { exact: true }).fill('2026-01-15');
     await page.getByRole('link', { name: direction, exact: true }).click();
-    await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue(expectedFrom);
-    await expect(page.getByLabel('Шахматка: по', { exact: true })).toHaveValue(expectedTo);
+    await expect(page.getByLabel('Календарь: с', { exact: true })).toHaveValue(expectedFrom);
+    await expect(page.getByLabel('Календарь: по', { exact: true })).toHaveValue(expectedTo);
     await expect(page.getByTestId('date-col')).toHaveCount(Number(expectedTo.slice(8)));
     // Ссылка «Месяц» видна только в раскрытых «Датах»; после перехода они закрыты
     await page.getByRole('button', { name: 'Даты', exact: true }).click();
@@ -76,8 +76,8 @@ test('7 дней, 14 дней, произвольный период и возв
   await expect(page.getByTestId('date-col')).toHaveCount(14);
   await expect(page.getByRole('link', { name: 'Следующий период', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Даты', exact: true }).click();
-  await page.getByLabel('Шахматка: с', { exact: true }).fill('2028-02-10');
-  await page.getByLabel('Шахматка: по', { exact: true }).fill('2028-02-20');
+  await page.getByLabel('Календарь: с', { exact: true }).fill('2028-02-10');
+  await page.getByLabel('Календарь: по', { exact: true }).fill('2028-02-20');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(11);
   // После «Применить» страница перерисована: под нагрузкой полного набора клик мог прийти до оживления кнопки,

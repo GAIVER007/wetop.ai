@@ -80,7 +80,7 @@ export function CategoryPreview({
           ) : (
             <p>
               Номерной фонд ещё не добавлен. Добавьте {bed ? 'комнату с койками' : 'номера'} — они
-              сразу появятся на шахматке.
+              сразу появятся в календаре.
             </p>
           )}
           <div className="fund-preview-actions">
@@ -129,7 +129,7 @@ export function CategoryPreview({
         </section>
         <div className="fund-preview-footer">
           <Link className="btn btn--secondary" href={`/chessboard?category=${code}`} prefetch={false}>
-            Открыть в шахматке
+            Открыть в календаре
           </Link>
           <Link href="/rooms/availability" prefetch={false}>
             Посмотреть доступность

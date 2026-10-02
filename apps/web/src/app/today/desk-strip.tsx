@@ -19,10 +19,16 @@ export function DeskStrip({
   day,
   board,
   today,
+  attentionHref = '#day-attention',
+  money = true,
 }: {
   day: DeskDay;
   board: Chessboard | null;
   today: string;
+  /** Полоса стоит и на календаре — там «внимание» живёт на Главной, якорь ведёт туда */
+  attentionHref?: string;
+  /** Календарь — про размещение: «К оплате» и долги там не показываются, деньги — в «Финансах» */
+  money?: boolean;
 }) {
   const debt = BigInt(day.debtMinor) > 0n;
   // Уезжающие сегодня с остатком, которых число долга не считает: уже выселенные и так и не заехавшие
@@ -60,7 +66,7 @@ export function DeskStrip({
         </h2>
         <div className="desk-strip__links">
           <Link href={`/reservations?date=${day.date}`}>Все брони дня</Link>
-          <Link href={`/chessboard?from=${day.date}&to=${day.date}`}>Шахматка</Link>
+          <Link href={`/chessboard?from=${day.date}&to=${day.date}`}>Календарь</Link>
         </div>
       </div>
       <div className="desk-strip__stats">
@@ -85,7 +91,7 @@ export function DeskStrip({
         </div>
         <div className="desk-stat">
           <span className="desk-stat__label">Свободно</span>
-          {value('c-free', free, `/chessboard?from=${d}&to=${d}`, 'Свободно — шахматка дня')}
+          {value('c-free', free, `/chessboard?from=${d}&to=${d}`, 'Свободно — календарь дня')}
           <span className="desk-stat__hint">номеров и койко-мест</span>
         </div>
         <div className="desk-stat">
@@ -97,9 +103,10 @@ export function DeskStrip({
             'Загрузка дня по категориям',
           )}
           <span className="desk-stat__hint">
-            {summary ? `занято ${summary.occupied} из ${units}` : 'шахматка не загрузилась'}
+            {summary ? `занято ${summary.occupied} из ${units}` : 'нет данных календаря на этот день'}
           </span>
         </div>
+        {money && (
         <div className={debt ? 'desk-stat desk-stat--debt' : 'desk-stat desk-stat--paid'}>
           <span className="desk-stat__label">К оплате</span>
           {value(
@@ -115,16 +122,17 @@ export function DeskStrip({
             <span className="desk-stat__hint desk-stat__hint--ok">все счета оплачены</span>
           ) : null}
           {left > 0 && (
-            <a className="desk-stat__hint desk-stat__hint--warn" href="#day-attention">
+            <a className="desk-stat__hint desk-stat__hint--warn" href={attentionHref}>
               выехавших с долгом: {left}
             </a>
           )}
           {notArrived > 0 && (
-            <a className="desk-stat__hint desk-stat__hint--warn" href="#day-attention">
+            <a className="desk-stat__hint desk-stat__hint--warn" href={attentionHref}>
               не заехавших с долгом: {notArrived}
             </a>
           )}
         </div>
+        )}
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 'use server';
 import { chessboardApi, financeApi, reservationsApi, type StayAvailability } from '../../lib/api';
 
-/** Что показывает предпросмотр брони на шахматке сверх клетки: точные даты и суммы по счёту проживания */
+/** Что показывает предпросмотр брони в календаре сверх клетки: точные даты и суммы по счёту проживания */
 export interface StayPreviewData {
   arrivalDate: string;
   departureDate: string;

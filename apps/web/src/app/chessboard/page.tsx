@@ -1,8 +1,9 @@
 import { normalizeSearchParams, type SearchParams } from '../../lib/search-params';
 import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
-import { channelsApi, chessboardApi, guardApi } from '../../lib/api';
+import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
+import { DeskStrip } from '../today/desk-strip';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
 import { Alert, Button, Legend, cx } from '../../components/ui';
@@ -46,14 +47,14 @@ export default async function ChessboardPage({
       (from > to || Date.parse(to) - Date.parse(from) > (MAX_CHESSBOARD_DAYS - 1) * 86400000));
   if (invalidPeriod)
     return (
-      <Page title="Шахматка">
+      <Page title="Календарь">
         <form method="get" className="row toolbar">
           <label className="field">
-            С<DateInput name="from" aria-label="Шахматка: с" defaultValue={from} />
+            С<DateInput name="from" aria-label="Календарь: с" defaultValue={from} />
           </label>
           <label className="field">
             По
-            <DateInput name="to" rangeFromName="from" aria-label="Шахматка: по" defaultValue={to} />
+            <DateInput name="to" rangeFromName="from" aria-label="Календарь: по" defaultValue={to} />
           </label>
           <Button>Показать</Button>
         </form>
@@ -65,12 +66,14 @@ export default async function ChessboardPage({
     );
   // Плашки конфликтов (срез 7.3, Д3–Д4) — только чтение: сверх мест из открытых неисправностей сторожа,
   // входящие брони, которые PMS не разобрала, — из ленты событий; их отказ шахматку не роняет
-  const [board, incidents, events, shell] = await Promise.all([
+  const [board, incidents, events, shell, day] = await Promise.all([
     chessboardApi.board(from, to),
     guardApi.incidents('open').catch(() => null),
     channelsApi.events({ limit: 50, status: 'FAILED' }).catch(() => null),
     // «Только чтение» (ADR-102): предпросмотр брони не предлагает изменений (ТЗ §47)
     deskShell().catch(() => null),
+    // Полоса дня над сеткой — та же «На стойке», что на Главной; её отказ календарь не роняет
+    deskApi.today().catch(() => null),
   ]);
   const overbooked = (incidents ?? []).filter((i) => i.kind === 'stay.overbooked');
   const failedEvents = events?.total ?? 0;
@@ -114,14 +117,33 @@ export default async function ChessboardPage({
   return (
     <Page
       width="full"
-      title="Шахматка"
+      title="Календарь"
       actions={
-        <Link className="btn" href="/reservations/new">
-          <Icon name="plus" />
-          Новая бронь
-        </Link>
+        <>
+          <Link className="btn btn--secondary" href="/rooms/availability">
+            Поиск свободных номеров
+          </Link>
+          {/* существующий фильтр «С долгом» (PR 7) — ссылкой, сетка читает stays= из адреса */}
+          <Link className="btn btn--secondary" href="/chessboard?stays=debt">
+            Неоплаченные
+          </Link>
+          <Link className="btn" href="/reservations/new">
+            <Icon name="plus" />
+            Новая бронь
+          </Link>
+        </>
       }
     >
+      {day && (
+        <DeskStrip
+          day={day}
+          board={board}
+          today={today}
+          attentionHref="/today#day-attention"
+          // деньги дня календарь не показывает — «кто сколько должен» живёт в «Финансах» (поручение 02.10)
+          money={false}
+        />
+      )}
       <div className="board-controls">
         <div className="board-period">
           <span className="board-date-nav">
@@ -153,7 +175,7 @@ export default async function ChessboardPage({
           </span>{' '}
           {/* Сегмент — rolling 7/14/30 (ТЗ «Шахматка v2» §6–7); календарный месяц живёт в «Датах».
               «30 дней» не подсвечивается на месяце из 30 дней: это разные периоды. */}
-          <span className="seg" role="group" aria-label="Вид шахматки">
+          <span className="seg" role="group" aria-label="Вид календаря">
             <Link
               href={weekHref()}
               className={cx(isWeek && 'is-on')}
@@ -188,7 +210,7 @@ export default async function ChessboardPage({
           <BoardHelp title="Помощь">
             <div className="board-help-content">
               <p className="note">
-                <b>Как работать с шахматкой.</b> В строке категории — сколько мест свободно на эту
+                <b>Как работать с календарём.</b> В строке категории — сколько мест свободно на эту
                 ночь; под датой в шапке — свободно и занято из {board.rows.length}. Ночь выезда
                 ячейку не занимает. Клик по занятой клетке открывает бронь, по пустой — форму новой
                 брони на эту дату. Перетащите клетку на другую строку — бронь переселится в ту

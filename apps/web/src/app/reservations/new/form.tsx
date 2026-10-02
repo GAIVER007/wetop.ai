@@ -22,7 +22,7 @@ import {
 import { CHANNELS, SOURCES } from '../sources';
 
 export function NewReservationForm(props: {
-  /** Размещения из адресной строки: «Свободные места» (AV3, ADR-110) или ячейка из шахматки */
+  /** Размещения из адресной строки: «Свободные места» (AV3, ADR-110) или ячейка из календаря */
   prefill: PlacementPrefill[];
   canSubmit: boolean;
   arrival: string;

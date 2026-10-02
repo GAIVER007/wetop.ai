@@ -64,7 +64,7 @@ export default async function NewReservationPage({
     return (Array.isArray(value) ? value : value ? [value] : []).map((v) => [name, v] as const);
   });
   return (
-    <Page width="narrow" crumbs={<Link href="/chessboard">← шахматка</Link>} title="Новая бронь">
+    <Page width="narrow" crumbs={<Link href="/chessboard">← календарь</Link>} title="Новая бронь">
       {/* Шаг 01 — даты: отдельная GET-форма (доступность считается сервером на эти даты), но в
           общем ряду шагов с размещением (02) и гостем (03) */}
       <section className="panel panel--lg booking-dates" aria-labelledby="booking-dates-title">

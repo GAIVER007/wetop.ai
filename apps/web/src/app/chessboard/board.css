@@ -480,6 +480,15 @@
   line-height: var(--board-stay-h);
   margin: 0;
 }
+/* Число месяца в пустой клетке — ориентир при прокрутке; события мыши идут клетке, не числу */
+.board__free-day {
+  pointer-events: none;
+  display: block;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  opacity: 0.6;
+}
 .board-stay-caption {
   top: 0;
   font-size: var(--text-sm);

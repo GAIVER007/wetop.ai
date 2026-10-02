@@ -27,7 +27,7 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
             href={`/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`}
           >
             <Icon name="board" />
-            Показать на шахматке
+            Показать в календаре
           </Link>
           <FundEditor categories={[]} room={{ code: unit.code, roomNumber: unit.roomNumber }} />
           {/* обычная ссылка, не Link: мягкий переход снова попал бы в перехват и открыл панель */}

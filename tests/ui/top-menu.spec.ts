@@ -22,7 +22,7 @@ const routes = [
   '/management/analytics',
   '/hotel-settings',
   '/connections',
-  '/staff',
+  '/team',
   '/journal',
   '/incidents',
 ];

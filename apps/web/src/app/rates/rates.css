@@ -587,8 +587,9 @@
   }
 }
 @media (max-width: 600px) {
+  /* Низ — не меньше высоты нижней навигации (70 px), иначе липкая полоса выбора прячется под ней */
   .workspace .page:has(> .rates-filters) {
-    padding: 16px 16px 64px;
+    padding: 16px 16px calc(90px + env(safe-area-inset-bottom, 0px));
   }
   .rates-selection {
     padding: 8px 0;

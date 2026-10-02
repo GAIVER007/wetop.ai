@@ -1,0 +1,36 @@
+# Типы (typecheck) · 02.10.2026 21:15 Алматы · Noutbuk-Vyacheslav.local
+# коммит 6a8fe16 (integration/team-topnav)
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/ai-seller/seller.connection.ts(95,5): error TS2741: Property 'telegram' is missing in type 'BotPanelClient' but required in type 'SellerPort'.
+apps/api/src/reservations/reservations.repository.ts(774,16): error TS2353: Object literal may only specify known properties, and 'propertyId_creationKey' does not exist in type 'ReservationWhereUniqueInput'.
+apps/api/src/reservations/reservations.repository.ts(775,43): error TS2353: Object literal may only specify known properties, and 'creationFingerprint' does not exist in type 'ReservationSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(778,76): error TS2339: Property 'creationFingerprint' does not exist on type '{ currency: string; propertyId: string; source: ReservationSource; channel: string | null; arrivalDate: Date; departureDate: Date; adults: number; children: number; ... 10 more ...; promoCodeId: string | null; }'.
+packages/database/src/folio.ts(5,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(8,43): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/index.ts(13,15): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+packages/database/src/pool-timeouts.test.ts(3,35): error TS2459: Module '"./index"' declares 'PrismaClient' locally, but it is not exported.
+packages/database/src/pool-timeouts.test.ts(69,32): error TS7006: Parameter 't' implicitly has an 'any' type.
+packages/database/src/property-chain.ts(1,29): error TS2307: Cannot find module './generated/prisma/client' or its corresponding type declarations.
+tests/integration/reservation-create-retry.test.ts(71,16): error TS2353: Object literal may only specify known properties, and 'creationKey' does not exist in type 'ReservationWhereInput'.
+tests/integration/reservation-create-retry.test.ts(75,19): error TS2339: Property 'items' does not exist on type '{ currency: string; propertyId: string; source: ReservationSource; channel: string | null; arrivalDate: Date; departureDate: Date; adults: number; children: number; ... 10 more ...; promoCodeId: string | null; }'.
+tests/integration/reservation-create-retry.test.ts(76,19): error TS2339: Property 'items' does not exist on type '{ currency: string; propertyId: string; source: ReservationSource; channel: string | null; arrivalDate: Date; departureDate: Date; adults: number; children: number; ... 10 more ...; promoCodeId: string | null; }'.
+tests/integration/reservation-create-retry.test.ts(77,19): error TS2339: Property 'items' does not exist on type '{ currency: string; propertyId: string; source: ReservationSource; channel: string | null; arrivalDate: Date; departureDate: Date; adults: number; children: number; ... 10 more ...; promoCodeId: string | null; }'.
+tests/integration/reservation-create-retry.test.ts(117,22): error TS2353: Object literal may only specify known properties, and 'creationKey' does not exist in type 'ReservationWhereInput'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/ai-seller/seller.connection.ts(95,5): error TS2741: Property 'telegram' is missing in type 'BotPanelClient' but required in type 'SellerPort'.
+apps/api/src/reservations/reservations.repository.ts(774,16): error TS2353: Object literal may only specify known properties, and 'propertyId_creationKey' does not exist in type 'ReservationWhereUniqueInput'.
+apps/api/src/reservations/reservations.repository.ts(775,43): error TS2353: Object literal may only specify known properties, and 'creationFingerprint' does not exist in type 'ReservationSelect<DefaultArgs>'.
+apps/api/src/reservations/reservations.repository.ts(778,76): error TS2339: Property 'creationFingerprint' does not exist on type '{ id: string; currency: string; createdAt: Date; updatedAt: Date; status: ReservationStatus; propertyId: string; source: ReservationSource; ... 11 more ...; promoCodeId: string | null; }'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 1 мин 22 с

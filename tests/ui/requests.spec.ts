@@ -48,6 +48,8 @@ for (const screen of [
   '/management/analytics',
   '/management/analytics/occupancy',
   '/finance',
+  // хаб «Отчёты» (REP1): четыре источника данных, каждый — одним запросом
+  '/reports',
   '/channels',
   // «Подключения» каналов — redirect() на страницу настроек Channex (INT2): считается сам целевой экран
   '/connections/channex',
@@ -60,6 +62,8 @@ for (const screen of [
   '/hotel-settings',
   '/hotel-settings/stay',
   '/hotel-settings/services',
+  // «Сотрудники» (TEAM1): люди и приглашения — по одному запросу
+  '/team',
   '/connections',
   // каталог «ИИ-агентов» (SA1): один запрос каталога, бот и объект API опрашивает сам
   '/ai-agents',

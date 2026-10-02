@@ -29,12 +29,12 @@ test('F2: оплаты и возвраты — колонки, строка ит
   const main = page.getByRole('main');
   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
   const section = main.getByTestId('finance-operations');
-  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Оплаты и возвраты');
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Операции за период');
   await expect(section.getByTestId('ops-table').getByRole('columnheader')).toHaveText([
     'Дата и время',
     'Тип',
     'Бронь',
-    'Гость',
+    'Гость / статья',
     'Способ',
     'Сумма',
     'Статус',
@@ -120,7 +120,7 @@ test('F2: выгрузка CSV — те же отборы, BOM и «;», без 
   const body = (await csv.body()).toString('utf8');
   expect(body.startsWith('\uFEFF')).toBe(true);
   const lines = body.slice(1).split('\r\n');
-  expect(lines[0]).toBe('Дата;Время;Тип;Статус;Способ;Сумма, ₸;Бронь');
+  expect(lines[0]).toBe('Дата;Время;Тип;Статус;Способ;Сумма, ₸;Бронь;Статья;Комментарий');
   expect(lines.length).toBeGreaterThan(1);
   for (const line of lines.slice(1)) expect(line).toMatch(/;Возврат;проведён;[^;]+;-\d+,\d\d;/);
   expect(body).not.toMatch(/Гость|Посетитель|Клиент/);

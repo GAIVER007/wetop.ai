@@ -1,0 +1,25 @@
+
+ FAIL  |unit| apps/api/src/finance/finance.controller.test.ts > касса: остатки, операции, переводы, статьи (DATA_MODEL §21) > лента операций: source — только RESERVATIONS или CASH, новые типы в type
+Error: expected 400 "Bad Request", got 200 "OK"
+ ❯ apps/api/src/finance/finance.controller.test.ts:1364:86
+    1362|
+    1363|   it('лента операций: source — только RESERVATIONS или CASH, новые тип…
+    1364|     await http().get('/finance/operations?from=2026-10-01&to=2026-10-3…
+       |                                                                                      ^
+    1365|     await http().get('/finance/operations?from=2026-10-01&to=2026-10-3…
+    1366|     const r = await http()
+ ❯ Test._assertStatus ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/supertest/lib/test.js:309:14
+ ❯ ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/supertest/lib/test.js:365:13
+ ❯ Test._assertFunction ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/supertest/lib/test.js:342:13
+ ❯ Test.assert ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/supertest/lib/test.js:195:23
+ ❯ localAssert ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/supertest/lib/test.js:138:14
+ ❯ Server.<anonymous> ../../../../../../../Users/vyacheslav/Desktop/Проекты/WETOP/node_modules/supertest/lib/test.js:152:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 16 passed (24)
+   Start at  04:33:49
+   Duration  1.04s (transform 41%, import 40%, tests 19%)
+

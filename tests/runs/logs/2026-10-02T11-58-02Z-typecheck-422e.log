@@ -1,0 +1,21 @@
+# Типы (typecheck) · 02.10.2026 16:58 Алматы · Noutbuk-Vyacheslav.local
+# коммит bdc8110 (main), незакоммиченных файлов набора: 42
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+apps/api/src/finance/finance.service.ts(542,17): error TS2339: Property 'cashCategories' does not exist on type 'FinanceService'.
+apps/api/src/finance/finance.service.ts(570,17): error TS2339: Property 'cashCategories' does not exist on type 'FinanceService'.
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/finance/finance.service.ts(542,17): error TS2339: Property 'cashCategories' does not exist on type 'FinanceService'.
+apps/api/src/finance/finance.service.ts(570,17): error TS2339: Property 'cashCategories' does not exist on type 'FinanceService'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 15 с

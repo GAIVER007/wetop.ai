@@ -502,12 +502,8 @@
   font-size: var(--text-sm);
 }
 @media (max-width: 600px) {
-  /* на телефоне календарь — про сетку: сводка дня живёт на Главной, вторые кнопки — в меню
-     и в «Фильтрах» (шапка выше 500px отнимает сетку у экрана, контракт chessboard-design) */
+  /* на телефоне сводка дня живёт на Главной */
   .board-day-stats {
-    display: none;
-  }
-  .page:has(> .board-wrap) > .page__head .btn--secondary {
     display: none;
   }
 }
@@ -761,14 +757,16 @@
     gap: var(--space-2);
     margin-bottom: var(--space-2);
   }
+  /* Заголовок — своей строкой, действия под ним: в nowrap-ряду с тремя кнопками
+   * «Календарь» сжимался в колонку по буквам (замер 02.10: h1 ~100 px на 375 px). */
   .page:has(> .board-wrap) > .page__head {
-    flex-direction: row;
     align-items: center;
-    flex-wrap: nowrap;
     gap: var(--space-2);
   }
-  .page:has(> .board-wrap) > .page__head .page__actions {
-    width: auto;
+  /* на телефоне календарь — про сетку: вторые кнопки — в меню и в «Фильтрах»
+     (шапка выше 500px отнимает сетку у экрана, контракт chessboard-design) */
+  .page:has(> .board-wrap) > .page__head .btn--secondary {
+    display: none;
   }
   .board-controls .board-date-nav {
     display: grid;

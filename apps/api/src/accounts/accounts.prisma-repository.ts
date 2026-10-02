@@ -293,7 +293,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
       select: {
         role: true,
         createdAt: true,
-        user: { select: { id: true, email: true, name: true } },
+        user: { select: { id: true, email: true, name: true, lastLoginAt: true } },
       },
     });
     return rows.map((m) => ({
@@ -302,6 +302,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
       name: m.user.name,
       role: m.role,
       joinedAt: m.createdAt,
+      lastLoginAt: m.user.lastLoginAt,
     }));
   }
 

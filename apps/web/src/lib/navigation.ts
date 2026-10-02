@@ -141,6 +141,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'money',
         description: 'Начисления, оплаты, возвраты и остатки за период.',
       },
+      {
+        // Хаб REP1 (план reports-hub-2026-10-02): один вход ко всем отчётам, числа за период и ссылки в готовые экраны
+        href: '/reports',
+        requires: 'reports',
+        label: 'Отчёты',
+        icon: 'analytics',
+        description: 'Все отчёты в одном месте: деньги, загрузка, день и сайт.',
+      },
     ],
   },
   {
@@ -234,11 +242,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        href: '/staff',
+        // Команда — видимый раздел (TEAM1, план settings-hub-2026-10-02): раньше жила только в «Профиль → Доступ» —
+        // при слиянии 02.10 заменил параллельный /staff (список на login/team-section): /staff — переадресация
+        href: '/team',
         requires: 'staff',
         label: 'Сотрудники',
         icon: 'guests',
-        description: 'Приглашения, роли и доступ сотрудников организации.',
+        description: 'Люди организации: роли, приглашения и доступ.',
       },
       {
         href: '/connections',
@@ -326,6 +336,8 @@ export const menuSections: MenuSection[] = [
       menuItem('/website'),
     ],
   },
+  // «Отчёты» — хаб REP1: связывает деньги, загрузку, день и сайт; «Оплаты» и «Аналитика» — свои вкладки (ADR-134)
+  direct('reports', '/reports', 'analytics', 'Отчёты'),
   direct('finance', '/finance', 'money', 'Финансы'),
   direct('analytics', '/management/analytics', 'analytics'),
   {
@@ -334,7 +346,7 @@ export const menuSections: MenuSection[] = [
     icon: 'settings',
     items: [
       menuItem('/hotel-settings', 'Объект'),
-      menuItem('/staff', 'Сотрудники и доступ'),
+      menuItem('/team', 'Сотрудники и доступ'),
       menuItem('/connections', 'Подключения'),
       menuItem('/journal', 'Журнал действий'),
       // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту

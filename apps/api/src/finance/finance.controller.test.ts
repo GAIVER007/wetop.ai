@@ -4,7 +4,12 @@ import { ConflictException, type INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { ADJUSTMENT_DOWN_MESSAGE, accessDeniedMessage, type MembershipRole } from '@pms/domain';
+import {
+  ADJUSTMENT_DOWN_MESSAGE,
+  FinanceRuleError,
+  accessDeniedMessage,
+  type MembershipRole,
+} from '@pms/domain';
 import { SessionGuard } from '../auth/auth.guard';
 import { AuthService } from '../auth/auth.service';
 import { AuthorInterceptor } from '../auth/author.interceptor';
@@ -16,6 +21,7 @@ import {
   FINANCE_REPOSITORY,
   type FinanceRepository,
   type FolioRecord,
+  type PaymentMethod,
   type PaymentRecord,
 } from './finance.repository';
 
@@ -159,11 +165,14 @@ function makeFakes() {
         at: `${day}T05:00:00.000Z`,
         localAt: `${day} 10:00`,
         method,
+        methodTo: null,
         amountMinor: amount,
         status,
         confirmationNumber: booking,
         reservations: 1,
         guestLabel: `Гость ${booking}`,
+        category: null,
+        note: null,
       });
       const all = [
         op('PAYMENT', 'P1', '2026-10-05', 'CASH', 1_500_000n, 'COMPLETED', 'B-1'),
@@ -298,7 +307,172 @@ function makeFakes() {
     async stayUnitCode(itemId) {
       return itemId === 'S-1' ? { code: '9001' } : null;
     },
+    // ── касса (DATA_MODEL §21): статьи как после первого чтения (стартовый набор), операции в памяти ──
+    async cashBalanceSources() {
+      return {
+        payments: payments
+          .filter((p) => p.status === 'COMPLETED')
+          .map((p) => ({ method: p.method, amountMinor: p.amountMinor })),
+        refunds: payments.flatMap((p) =>
+          p.refunds.map((r) => ({ method: p.method, amountMinor: r.amountMinor })),
+        ),
+        operations: cashOps
+          .filter((o) => o.status === 'COMPLETED')
+          .map((o) => ({
+            kind: o.kind,
+            method: o.method,
+            methodTo: o.methodTo,
+            amountMinor: o.amountMinor,
+          })),
+      };
+    },
+    async cashCategories() {
+      return cashCategories.map((c) => ({ ...c }));
+    },
+    async createCashCategory(c, audit) {
+      if (audit) audits.push(audit.action);
+      if (cashCategories.some((x) => x.kind === c.kind && x.name === c.name))
+        throw new FinanceRuleError(`Статья «${c.name}» уже есть`);
+      const id = `00000000-0000-4000-8d00-${String(++seq).padStart(12, '0')}`;
+      cashCategories.push({ id, kind: c.kind, name: c.name, active: true });
+      return id;
+    },
+    async updateCashCategory(id, patch, audit) {
+      const c = cashCategories.find((x) => x.id === id);
+      if (!c) return false;
+      if (audit) audits.push(audit.action);
+      Object.assign(c, patch);
+      return true;
+    },
+    async createCashOperation(op, audit) {
+      if (audit) {
+        audits.push(audit.action);
+        auditAfter.push(audit.after);
+      }
+      const id = `00000000-0000-4000-8e00-${String(++seq).padStart(12, '0')}`;
+      cashOps.push({
+        id,
+        kind: op.kind,
+        method: op.method,
+        methodTo: op.methodTo,
+        amountMinor: op.amountMinor,
+        categoryId: op.categoryId,
+        status: 'COMPLETED',
+        relatedId: null,
+      });
+      if (op.commission)
+        cashOps.push({
+          id: `00000000-0000-4000-8e00-${String(++seq).padStart(12, '0')}`,
+          kind: 'EXPENSE',
+          method: op.method,
+          methodTo: null,
+          amountMinor: op.commission.amountMinor,
+          categoryId: op.commission.categoryId,
+          status: 'COMPLETED',
+          relatedId: id,
+        });
+      return id;
+    },
+    async cashOperationById(id) {
+      const o = cashOps.find((x) => x.id === id);
+      if (!o) return null;
+      return {
+        id: o.id,
+        kind: o.kind,
+        method: o.method,
+        methodTo: o.methodTo,
+        amountMinor: o.amountMinor,
+        status: o.status,
+        relatedId: o.relatedId,
+        commissionId: cashOps.find((x) => x.relatedId === id)?.id ?? null,
+      };
+    },
+    async voidCashOperation(id, audit) {
+      if (audit) audits.push(audit.action);
+      for (const o of cashOps) if (o.id === id || o.relatedId === id) o.status = 'VOIDED';
+    },
+    // сверка (§21.4): последняя по каждому способу; запись с поправкой — одной «транзакцией»
+    async latestCashReconciliations() {
+      const latest = new Map<string, (typeof cashRecs)[number]>();
+      for (const r of cashRecs) latest.set(r.method, r);
+      return [...latest.values()].map((r) => ({
+        method: r.method,
+        at: r.at,
+        localAt: r.at.slice(0, 16).replace('T', ' '),
+        expectedMinor: r.expectedMinor,
+        countedMinor: r.countedMinor,
+        note: r.note,
+      }));
+    },
+    async createCashReconciliation(r, audit) {
+      if (audit) {
+        audits.push(audit.action);
+        auditAfter.push(audit.after);
+      }
+      const id = `00000000-0000-4000-8f00-${String(++seq).padStart(12, '0')}`;
+      cashRecs.push({
+        id,
+        method: r.method,
+        expectedMinor: r.expectedMinor,
+        countedMinor: r.countedMinor,
+        note: r.note,
+        at: new Date().toISOString(),
+      });
+      if (r.adjustment) {
+        let category = cashCategories.find(
+          (c) => c.kind === r.adjustment!.kind && c.name === r.adjustment!.categoryName,
+        );
+        if (!category) {
+          category = {
+            id: `00000000-0000-4000-8d00-${String(++seq).padStart(12, '0')}`,
+            kind: r.adjustment.kind,
+            name: r.adjustment.categoryName,
+            active: true,
+          };
+          cashCategories.push(category);
+        }
+        cashOps.push({
+          id: `${id}-adj`,
+          kind: r.adjustment.kind,
+          method: r.method,
+          methodTo: null,
+          amountMinor: r.adjustment.amountMinor,
+          categoryId: category.id,
+          status: 'COMPLETED',
+          relatedId: null,
+        });
+      }
+      return id;
+    },
   };
+  const cashRecs: Array<{
+    id: string;
+    method: PaymentMethod;
+    expectedMinor: bigint;
+    countedMinor: bigint;
+    note: string | null;
+    at: string;
+  }> = [];
+  const cashCategories: Array<{
+    id: string;
+    kind: 'INCOME' | 'EXPENSE';
+    name: string;
+    active: boolean;
+  }> = [
+    { id: '00000000-0000-4000-8d00-000000000c01', kind: 'INCOME', name: 'Начальный остаток', active: true },
+    { id: '00000000-0000-4000-8d00-000000000c02', kind: 'EXPENSE', name: 'Комиссия банка', active: true },
+    { id: '00000000-0000-4000-8d00-000000000c03', kind: 'EXPENSE', name: 'Зарплата', active: true },
+  ];
+  const cashOps: Array<{
+    id: string;
+    kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+    method: PaymentMethod;
+    methodTo: PaymentMethod | null;
+    amountMinor: bigint;
+    categoryId: string | null;
+    status: 'COMPLETED' | 'VOIDED';
+    relatedId: string | null;
+  }> = [];
   // ADR-021: блок соседней ночи ставится командой ячейки; фальшивка записывает блоки и умеет отказать
   const blocks: Array<{
     id: string;
@@ -337,6 +511,8 @@ function makeFakes() {
     auditAfter,
     blocks,
     units,
+    cashOps,
+    cashCategories,
     get blockConflict() {
       return state.blockConflict;
     },
@@ -529,11 +705,14 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       at: '2026-10-04T05:00:00.000Z',
       localAt: '2026-10-04 10:00',
       method: 'KASPI',
+      methodTo: null,
       amountMinor: '50000',
       status: 'COMPLETED',
       confirmationNumber: 'B-2',
       reservations: 1,
       guestLabel: 'Гость B-2',
+      category: null,
+      note: null,
     });
 
     const payments = await ops('?from=2026-10-01&to=2026-10-31&type=PAYMENT').expect(200);
@@ -1074,5 +1253,265 @@ describe('роли в деньгах: возврат, сторно и умень
       .get('/finance/report?from=2026-10-01&to=2026-10-31')
       .set(as('session-admin'))
       .expect(200);
+  });
+});
+
+describe('касса: остатки, операции, переводы, статьи (DATA_MODEL §21)', () => {
+  let app: INestApplication;
+  let fakes = makeFakes();
+  beforeEach(() => {
+    fakes = makeFakes();
+  });
+  beforeAll(async () => {
+    const proxy = (get: () => object) =>
+      new Proxy({}, { get: (_t, k) => (get() as Record<string, unknown>)[k as string] });
+    const m = await Test.createTestingModule({ imports: [FinanceModule] })
+      .overrideProvider(FINANCE_REPOSITORY)
+      .useFactory({ factory: () => proxy(() => fakes.repo) })
+      .overrideProvider(UnitsService)
+      .useFactory({ factory: () => proxy(() => fakes.units) })
+      .overrideProvider(PrismaService)
+      .useValue({})
+      .compile();
+    app = m.createNestApplication();
+    await app.init();
+  });
+  afterAll(async () => {
+    await app.close();
+  });
+  const http = () => request(app.getHttpServer());
+  const pay = (method: string, amount: string) =>
+    http()
+      .post('/finance/payments')
+      .send({
+        method,
+        amount,
+        allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount }],
+      })
+      .expect(201);
+
+  it('остатки по способам: оплаты гостей − возвраты + касса; плитки по умолчанию видны при нуле', async () => {
+    await pay('CASH', '100');
+    await http()
+      .post('/finance/cash/operations')
+      .send({ kind: 'INCOME', method: 'CASH', amount: '20' })
+      .expect(201);
+    await http()
+      .post('/finance/cash/operations')
+      .send({
+        kind: 'EXPENSE',
+        method: 'CASH',
+        amount: '5',
+        categoryId: '00000000-0000-4000-8d00-000000000c03',
+      })
+      .expect(201);
+    const r = await http().get('/finance/cash').expect(200);
+    const by = Object.fromEntries(
+      r.body.balances.map((b: { method: string; balanceMinor: string }) => [
+        b.method,
+        b.balanceMinor,
+      ]),
+    );
+    expect(by['CASH']).toBe('11500'); // 10 000 + 2 000 − 500 тиын
+    expect(by['KASPI']).toBe('0');
+    expect(by['HALYK']).toBe('0');
+    expect(by['CARD_TERMINAL']).toBe('0');
+    expect(r.body.totalMinor).toBe('11500');
+    expect(fakes.audits).toContain('finance.cash.operation');
+  });
+
+  it('проверки операции: вид, сумма, способ не из кассы, статья другого вида, перевод не этим маршрутом', async () => {
+    const op = (body: object) => http().post('/finance/cash/operations').send(body);
+    await op({ kind: 'WAT', method: 'CASH', amount: '10' }).expect(400);
+    await op({ kind: 'INCOME', method: 'CASH', amount: '0' }).expect(400);
+    await op({ kind: 'INCOME', method: 'CASH', amount: 'abc' }).expect(400);
+    await op({ kind: 'EXPENSE', method: 'EXTERNAL', amount: '10' }).expect(400);
+    // статья дохода у расхода — 400
+    await op({
+      kind: 'EXPENSE',
+      method: 'CASH',
+      amount: '10',
+      categoryId: '00000000-0000-4000-8d00-000000000c01',
+    }).expect(400);
+    await op({ kind: 'TRANSFER', method: 'CASH', amount: '10' }).expect(400);
+    expect(fakes.cashOps).toHaveLength(0);
+  });
+
+  it('перевод: из способа в способ, комиссия процентом — связанный расход со статьёй «Комиссия банка»', async () => {
+    await pay('KASPI', '1000');
+    await http()
+      .post('/finance/cash/transfers')
+      .send({ from: 'KASPI', to: 'CASH', amount: '500', commission: { percent: '1' } })
+      .expect(201);
+    expect(fakes.cashOps).toHaveLength(2);
+    const [transfer, fee] = fakes.cashOps;
+    expect(transfer).toMatchObject({ kind: 'TRANSFER', method: 'KASPI', methodTo: 'CASH' });
+    expect(fee).toMatchObject({
+      kind: 'EXPENSE',
+      method: 'KASPI',
+      amountMinor: 500n, // 1 % от 50 000 тиын
+      categoryId: '00000000-0000-4000-8d00-000000000c02',
+      relatedId: transfer!.id,
+    });
+    const r = await http().get('/finance/cash').expect(200);
+    const by = Object.fromEntries(
+      r.body.balances.map((b: { method: string; balanceMinor: string }) => [
+        b.method,
+        b.balanceMinor,
+      ]),
+    );
+    expect(by['KASPI']).toBe('49500'); // 100 000 − 50 000 − 500
+    expect(by['CASH']).toBe('50000');
+    // в тот же способ — 400
+    await http()
+      .post('/finance/cash/transfers')
+      .send({ from: 'KASPI', to: 'KASPI', amount: '10' })
+      .expect(400);
+  });
+
+  it('статья «Комиссия банка» выключена и статья комиссии не указана — 400 словами', async () => {
+    fakes.cashCategories.find((c) => c.name === 'Комиссия банка')!.active = false;
+    const r = await http()
+      .post('/finance/cash/transfers')
+      .send({ from: 'KASPI', to: 'CASH', amount: '500', commission: { amount: '5' } })
+      .expect(400);
+    expect(r.body.message).toContain('Комиссия банка');
+    expect(fakes.cashOps).toHaveLength(0);
+  });
+
+  it('аннулирование: комиссия снимается с основной; повтор — 409; комиссию отдельно — 409', async () => {
+    await http()
+      .post('/finance/cash/operations')
+      .send({ kind: 'INCOME', method: 'CASH', amount: '100', commission: { amount: '2' } })
+      .expect(201);
+    const [main, fee] = fakes.cashOps;
+    await http().post(`/finance/cash/operations/${fee!.id}/void`).expect(409);
+    await http().post(`/finance/cash/operations/${main!.id}/void`).expect(200);
+    expect(main!.status).toBe('VOIDED');
+    expect(fee!.status).toBe('VOIDED');
+    await http().post(`/finance/cash/operations/${main!.id}/void`).expect(409);
+    await http()
+      .post('/finance/cash/operations/00000000-0000-4000-8e00-00000000dead/void')
+      .expect(404);
+    expect(fakes.audits).toContain('finance.cash.operation.void');
+    const r = await http().get('/finance/cash').expect(200);
+    expect(r.body.totalMinor).toBe('0');
+  });
+
+  it('статьи: стартовый набор в ответе кассы, добавление, дубль — 400, выключение, неизвестная — 404', async () => {
+    const list = await http().get('/finance/cash').expect(200);
+    expect(list.body.categories.map((c: { name: string }) => c.name)).toContain('Комиссия банка');
+    const added = await http()
+      .post('/finance/cash/categories')
+      .send({ kind: 'EXPENSE', name: 'Реклама' })
+      .expect(201);
+    expect(added.body.map((c: { name: string }) => c.name)).toContain('Реклама');
+    await http()
+      .post('/finance/cash/categories')
+      .send({ kind: 'EXPENSE', name: 'Реклама' })
+      .expect(400);
+    await http().post('/finance/cash/categories').send({ kind: 'TRANSFER', name: 'X' }).expect(400);
+    const id = fakes.cashCategories.find((c) => c.name === 'Реклама')!.id;
+    const off = await http().patch(`/finance/cash/categories/${id}`).send({ active: false }).expect(200);
+    expect(
+      off.body.find((c: { id: string; active: boolean }) => c.id === id)!.active,
+    ).toBe(false);
+    await http()
+      .patch('/finance/cash/categories/00000000-0000-4000-8d00-00000000dead')
+      .send({ active: false })
+      .expect(404);
+    expect(fakes.audits).toContain('finance.cash.category.created');
+    expect(fakes.audits).toContain('finance.cash.category.updated');
+  });
+
+  it('лента операций: source — только RESERVATIONS или CASH, новые типы в type', async () => {
+    await http().get('/finance/operations?from=2026-10-01&to=2026-10-31&source=WAT').expect(400);
+    await http().get('/finance/operations?from=2026-10-01&to=2026-10-31&type=WAT').expect(400);
+    const r = await http()
+      .get('/finance/operations?from=2026-10-01&to=2026-10-31&source=CASH')
+      .expect(200);
+    // фальшивый период броней без кассы: лента пуста, суммы кассы нулевые, оплаты броней не подмешаны
+    expect(r.body).toMatchObject({ incomeMinor: '0', expenseMinor: '0', paidMinor: '0' });
+  });
+});
+
+describe('сверка наличных (§21.4, K4)', () => {
+  let app: INestApplication;
+  let fakes = makeFakes();
+  beforeEach(() => {
+    fakes = makeFakes();
+  });
+  beforeAll(async () => {
+    const proxy = (get: () => object) =>
+      new Proxy({}, { get: (_t, k) => (get() as Record<string, unknown>)[k as string] });
+    const m = await Test.createTestingModule({ imports: [FinanceModule] })
+      .overrideProvider(FINANCE_REPOSITORY)
+      .useFactory({ factory: () => proxy(() => fakes.repo) })
+      .overrideProvider(UnitsService)
+      .useFactory({ factory: () => proxy(() => fakes.units) })
+      .overrideProvider(PrismaService)
+      .useValue({})
+      .compile();
+    app = m.createNestApplication();
+    await app.init();
+  });
+  afterAll(async () => {
+    await app.close();
+  });
+  const http = () => request(app.getHttpServer());
+  const income = (amount: string) =>
+    http().post('/finance/cash/operations').send({ kind: 'INCOME', method: 'CASH', amount }).expect(201);
+
+  it('недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному', async () => {
+    await income('100');
+    const r = await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '95', adjust: true })
+      .expect(201);
+    const rec = r.body.reconciliations.find((x: { method: string }) => x.method === 'CASH');
+    expect(rec).toMatchObject({ expectedMinor: '10000', countedMinor: '9500' });
+    const by = Object.fromEntries(
+      r.body.balances.map((b: { method: string; balanceMinor: string }) => [b.method, b.balanceMinor]),
+    );
+    expect(by['CASH']).toBe('9500');
+    const adj = fakes.cashOps.find((o) => o.kind === 'EXPENSE');
+    expect(adj).toMatchObject({ amountMinor: 500n, method: 'CASH' });
+    expect(
+      fakes.cashCategories.find((c) => c.id === adj!.categoryId)!.name,
+    ).toBe('Недостача кассы');
+    expect(fakes.audits).toContain('finance.cash.reconciliation');
+  });
+
+  it('излишек без галочки — остаток не меняется; совпало — поправки нет; GET /finance/cash отдаёт сверку', async () => {
+    await income('100');
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '110' })
+      .expect(201);
+    expect(fakes.cashOps.filter((o) => o.kind !== 'INCOME')).toHaveLength(0);
+    const cash = await http().get('/finance/cash').expect(200);
+    expect(
+      cash.body.reconciliations.find((x: { method: string }) => x.method === 'CASH'),
+    ).toMatchObject({ expectedMinor: '10000', countedMinor: '11000' });
+    // совпало — поправка не создаётся и с галочкой
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '100', adjust: true })
+      .expect(201);
+    expect(fakes.cashOps.filter((o) => o.kind !== 'INCOME')).toHaveLength(0);
+  });
+
+  it('проверки: отрицательная сумма, не-кассовый способ, не число — 400; способ по умолчанию — наличные', async () => {
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '-5' })
+      .expect(400);
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'EXTERNAL', counted: '5' })
+      .expect(400);
+    await http().post('/finance/cash/reconciliations').send({ counted: 'abc' }).expect(400);
+    const r = await http().post('/finance/cash/reconciliations').send({ counted: '0' }).expect(201);
+    expect(r.body.reconciliations[0]).toMatchObject({ method: 'CASH', countedMinor: '0' });
   });
 });

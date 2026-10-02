@@ -138,8 +138,11 @@
     padding: 8px 8px;
   }
 }
-.page:has(.channels-overview) {
-  padding-bottom: 16px;
+/* Не на телефоне: там нижний отступ держит место под нижнюю навигацию (workspace.css) */
+@media (min-width: 601px) {
+  .page:has(.channels-overview) {
+    padding-bottom: 16px;
+  }
 }
 .channels-overview .state-bar__state {
   border: 0;

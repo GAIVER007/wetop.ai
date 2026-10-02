@@ -1225,6 +1225,63 @@ let paymentLines: Array<{
   id: string;
 }> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
+// ── касса (DATA_MODEL §21): статьи и операции мимо счетов броней ──
+const cashCategorySeed = [
+  { id: 'ui-cashcat-start', kind: 'INCOME' as const, name: 'Начальный остаток', active: true },
+  { id: 'ui-cashcat-other', kind: 'INCOME' as const, name: 'Прочее поступление', active: true },
+  { id: 'ui-cashcat-fee', kind: 'EXPENSE' as const, name: 'Комиссия банка', active: true },
+  { id: 'ui-cashcat-salary', kind: 'EXPENSE' as const, name: 'Зарплата', active: true },
+  { id: 'ui-cashcat-household', kind: 'EXPENSE' as const, name: 'Бытовые расходы', active: true },
+];
+let cashCategories = structuredClone(cashCategorySeed);
+let cashOps: Array<{
+  id: string;
+  kind: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  method: string;
+  methodTo: string | null;
+  amountMinor: bigint;
+  categoryId: string | null;
+  note: string | null;
+  relatedId: string | null;
+  status: 'COMPLETED' | 'VOIDED';
+  at: string;
+}> = [];
+let cashRecs: Array<{
+  method: string;
+  at: string;
+  expectedMinor: bigint;
+  countedMinor: bigint;
+  note: string | null;
+}> = [];
+/** Остаток кассы по способам, как считает API: оплаты гостей − возвраты + операции кассы (§21) */
+function fixtureCashBalances(): Map<string, bigint> {
+  const by = new Map<string, bigint>();
+  const nonCash = new Set(['EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE']);
+  const add = (m: string, d: bigint) => {
+    if (!nonCash.has(m)) by.set(m, (by.get(m) ?? 0n) + d);
+  };
+  const seenPayments = new Set<string>();
+  for (const r of allCards())
+    for (const f of finance(r).folios) {
+      for (const p of f.payments) {
+        if (p.status !== 'COMPLETED' || seenPayments.has(p.paymentId)) continue;
+        seenPayments.add(p.paymentId);
+        add(p.method, BigInt(p.paymentAmountMinor));
+      }
+      for (const x of f.refunds)
+        add(f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH', -BigInt(x.amountMinor));
+    }
+  for (const o of cashOps) {
+    if (o.status !== 'COMPLETED') continue;
+    if (o.kind === 'INCOME') add(o.method, o.amountMinor);
+    else if (o.kind === 'EXPENSE') add(o.method, -o.amountMinor);
+    else {
+      add(o.method, -o.amountMinor);
+      if (o.methodTo) add(o.methodTo, o.amountMinor);
+    }
+  }
+  return by;
+}
 const incidentSeed: Incident = {
   id: 'ui-incident',
   kind: 'stay.unassigned',
@@ -1837,6 +1894,8 @@ interface FixtureMember {
   name: string | null;
   role: MembershipRole;
   joinedAt: string;
+  /** Последний вход, как отдаёт API (TEAM1): не входил — null */
+  lastLoginAt: string | null;
 }
 interface FixtureInvite {
   id: string;
@@ -1855,6 +1914,7 @@ function resetTeam() {
       name: 'Марат Тестов',
       role: 'MANAGER',
       joinedAt: '2026-09-02T09:00:00.000Z',
+      lastLoginAt: '2026-09-28T14:30:00.000Z',
     },
     {
       userId: 'ui-admin',
@@ -1862,6 +1922,7 @@ function resetTeam() {
       name: 'Юрий Тестов',
       role: 'STAFF',
       joinedAt: '2026-09-03T09:00:00.000Z',
+      lastLoginAt: null,
     },
   ];
   uiInvites = [
@@ -1891,6 +1952,7 @@ function teamView(me: UiUser) {
       name: me.name,
       role: uiRole,
       joinedAt: '2026-09-01T09:00:00.000Z',
+      lastLoginAt: '2026-10-01T09:00:00.000Z',
     },
     ...uiTeam,
   ];
@@ -2589,10 +2651,14 @@ function read(path: string, q: URLSearchParams): unknown {
         total: 0,
         paidMinor: '0',
         refundedMinor: '0',
+        incomeMinor: '0',
+        expenseMinor: '0',
         methods: [],
         rows: [],
         truncated: false,
       };
+    if (path === '/finance/cash')
+      return { currency: 'KZT', totalMinor: '0', balances: [], categories: [], reconciliations: [] };
     if (path === '/finance/debts')
       return {
         from: q.get('from'),
@@ -3260,26 +3326,30 @@ function read(path: string, q: URLSearchParams): unknown {
       ],
     };
   if (path === '/finance/operations') {
-    // Как у API (ADR-113, F2): оплаты и возвраты из счетов броней, день и время — по часам объекта (UTC+5),
-    // новыми первыми; отбор по типу и способу — к строкам и суммам, числа способов — без отбора по способу
+    // Как у API (ADR-113 F2; касса — §21): общая лента — оплаты и возвраты из счетов броней плюс операции
+    // кассы, день и время — по часам объекта (UTC+5), новыми первыми; отборы — по типу, способу и источнику
     const from = q.get('from') || today;
     const to = q.get('to') || from;
     const type = q.get('type');
     const method = q.get('method');
+    const source = q.get('source');
     const limit = Number(q.get('limit') || 50);
     const local = (iso: string) =>
       new Date(Date.parse(iso) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' ');
     type Op = {
-      kind: 'PAYMENT' | 'REFUND';
+      kind: 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
       id: string;
       at: string;
       localAt: string;
       method: string;
+      methodTo: string | null;
       amountMinor: string;
       status: 'COMPLETED' | 'VOIDED';
       confirmationNumber: string | null;
       reservations: number;
       guestLabel: string | null;
+      category: string | null;
+      note: string | null;
     };
     const ops = new Map<string, Op>();
     for (const r of allCards())
@@ -3287,6 +3357,9 @@ function read(path: string, q: URLSearchParams): unknown {
         const base = {
           confirmationNumber: r.confirmationNumber,
           guestLabel: r.primaryGuest?.label ?? null,
+          methodTo: null,
+          category: null,
+          note: null,
         };
         for (const p of f.payments) {
           const known = ops.get(p.paymentId);
@@ -3319,26 +3392,73 @@ function read(path: string, q: URLSearchParams): unknown {
             ...base,
           });
       }
+    for (const o of cashOps)
+      ops.set(o.id, {
+        kind: o.kind,
+        id: o.id,
+        at: o.at,
+        localAt: local(o.at),
+        method: o.method,
+        methodTo: o.methodTo,
+        amountMinor: o.amountMinor.toString(),
+        status: o.status,
+        confirmationNumber: null,
+        reservations: 0,
+        guestLabel: null,
+        category: cashCategories.find((c) => c.id === o.categoryId)?.name ?? null,
+        note: o.note,
+      });
+    const isCashKind = (k: Op['kind']) => k === 'INCOME' || k === 'EXPENSE' || k === 'TRANSFER';
     const inPeriod = [...ops.values()]
       .filter((o) => o.localAt.slice(0, 10) >= from && o.localAt.slice(0, 10) <= to)
       .filter((o) => !type || o.kind === type)
+      .filter((o) => !source || (source === 'CASH') === isCashKind(o.kind))
       .sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id));
     const counts = new Map<string, number>();
     for (const o of inPeriod) counts.set(o.method, (counts.get(o.method) ?? 0) + 1);
     const picked = inPeriod.filter((o) => !method || o.method === method);
     const sum = (xs: Op[]) => xs.reduce((acc, o) => acc + BigInt(o.amountMinor), 0n).toString();
+    const done = (kind: Op['kind']) =>
+      sum(picked.filter((o) => o.kind === kind && o.status === 'COMPLETED'));
     return {
       from,
       to,
       currency: 'KZT',
       total: picked.length,
-      paidMinor: sum(picked.filter((o) => o.kind === 'PAYMENT' && o.status === 'COMPLETED')),
+      paidMinor: done('PAYMENT'),
       refundedMinor: sum(picked.filter((o) => o.kind === 'REFUND')),
+      incomeMinor: done('INCOME'),
+      expenseMinor: done('EXPENSE'),
       methods: [...counts]
         .map(([m, count]) => ({ method: m, count }))
         .sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
       rows: picked.slice(0, limit),
       truncated: picked.length > limit,
+    };
+  }
+  if (path === '/finance/cash') {
+    const by = fixtureCashBalances();
+    const order = ['CASH', 'KASPI', 'HALYK', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'];
+    const defaults = new Set(order.slice(0, 4));
+    const balances = order
+      .filter((m) => defaults.has(m) || by.has(m))
+      .map((m) => ({ method: m, balanceMinor: (by.get(m) ?? 0n).toString() }));
+    return {
+      currency: 'KZT',
+      totalMinor: balances.reduce((a, b) => a + BigInt(b.balanceMinor), 0n).toString(),
+      balances,
+      // статьи и сверки — тем же ответом, как у API (бюджет запросов)
+      categories: [...cashCategories].sort(
+        (a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ru'),
+      ),
+      reconciliations: [...new Map(cashRecs.map((r) => [r.method, r])).values()].map((r) => ({
+        method: r.method,
+        at: r.at,
+        localAt: new Date(Date.parse(r.at) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' '),
+        expectedMinor: r.expectedMinor.toString(),
+        countedMinor: r.countedMinor.toString(),
+        note: r.note,
+      })),
     };
   }
   if (path === '/finance/debts') {
@@ -3862,6 +3982,9 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      cashCategories = structuredClone(cashCategorySeed);
+      cashOps = [];
+      cashRecs = [];
       piiStorage = 'real';
       softPlan = false;
       planPenalty.clear();
@@ -5323,6 +5446,13 @@ createServer(async (req, res) => {
       promoCodes.push(row);
       return send(201, row);
     }
+    if (path.startsWith('/finance/cash/categories/') && req.method === 'PATCH') {
+      const c = cashCategories.find((x) => x.id === decodeURIComponent(path.split('/')[4]!));
+      if (!c) return send(404, { message: 'Статья не найдена' });
+      if (typeof body['active'] === 'boolean') c.active = body['active'];
+      if (typeof body['name'] === 'string' && body['name'].trim()) c.name = body['name'].trim();
+      return send(200, [...cashCategories]);
+    }
     if (path.startsWith('/rates/promo-codes/') && req.method === 'PATCH') {
       if (!can(uiRole, 'rates')) return send(403, { message: accessDeniedMessage('rates') });
       if ('discountPercent' in body)
@@ -5645,6 +5775,146 @@ createServer(async (req, res) => {
       incident.resolvedBy = 'STAFF';
       incident.resolvedAt = new Date().toISOString();
       return send(200, incident);
+    }
+    // ── касса (DATA_MODEL §21): операция, перевод, аннулирование, статьи — как у API ──
+    if (path === '/finance/cash/operations' || path === '/finance/cash/transfers') {
+      const transfer = path.endsWith('/transfers');
+      const kind = transfer ? 'TRANSFER' : String(body['kind'] ?? '');
+      if (!transfer && kind !== 'INCOME' && kind !== 'EXPENSE')
+        return send(400, { message: 'kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers' });
+      const method = String((transfer ? body['from'] : body['method']) ?? '');
+      const methodTo = transfer ? String(body['to'] ?? '') : null;
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? ''));
+      } catch {
+        return send(400, { message: 'amount — сумма, например 12000 или 456.50' });
+      }
+      if (amountMinor <= 0n) return send(400, { message: 'Сумма операции должна быть больше нуля' });
+      if (transfer && methodTo === method)
+        return send(400, { message: 'Перевод в тот же способ не имеет смысла' });
+      const category = cashCategories.find((c) => c.id === body['categoryId']);
+      if (body['categoryId'] !== undefined && (!category || !category.active || category.kind !== kind))
+        return send(400, { message: 'categoryId — действующая статья кассы своего вида' });
+      const commissionBody = body['commission'] as
+        | { amount?: string; percent?: string }
+        | undefined;
+      let commission: bigint | null = null;
+      if (commissionBody) {
+        commission =
+          commissionBody.amount !== undefined
+            ? parseMoney(String(commissionBody.amount))
+            : (amountMinor * BigInt(Math.round(Number(commissionBody.percent) * 100))) / 10_000n;
+        if (!(commission > 0n)) return send(400, { message: 'Комиссия должна быть больше нуля — или уберите её' });
+        const fee = cashCategories.find((c) => c.name === 'Комиссия банка' && c.active);
+        if (!fee)
+          return send(400, { message: 'Статьи «Комиссия банка» нет — укажите статью комиссии (commission.categoryId)' });
+      }
+      const id = `ui-cashop-${cashOps.length + 1}`;
+      const at = new Date().toISOString();
+      cashOps.push({
+        id,
+        kind: kind as 'INCOME' | 'EXPENSE' | 'TRANSFER',
+        method,
+        methodTo,
+        amountMinor,
+        categoryId: category?.id ?? null,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+        relatedId: null,
+        status: 'COMPLETED',
+        at,
+      });
+      if (commission !== null)
+        cashOps.push({
+          id: `${id}-fee`,
+          kind: 'EXPENSE',
+          method,
+          methodTo: null,
+          amountMinor: commission,
+          categoryId: cashCategories.find((c) => c.name === 'Комиссия банка')!.id,
+          note: 'Комиссия за операцию',
+          relatedId: id,
+          status: 'COMPLETED',
+          at,
+        });
+      return send(201, { ok: true });
+    }
+    if (path === '/finance/cash/reconciliations') {
+      const method = String(body['method'] ?? 'CASH');
+      if (['EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE'].includes(method))
+        return send(400, { message: `Способ ${method} в кассе не участвует` });
+      let countedMinor: bigint;
+      try {
+        countedMinor = parseMoney(String(body['counted'] ?? ''));
+      } catch {
+        return send(400, { message: 'counted — сумма, например 12000 или 456.50' });
+      }
+      if (countedMinor < 0n)
+        return send(400, { message: 'Пересчитанная сумма не бывает отрицательной' });
+      const expectedMinor = fixtureCashBalances().get(method) ?? 0n;
+      cashRecs.push({
+        method,
+        at: new Date().toISOString(),
+        expectedMinor,
+        countedMinor,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+      });
+      const delta = countedMinor - expectedMinor;
+      if (body['adjust'] === true && delta !== 0n) {
+        const kind = delta > 0n ? ('INCOME' as const) : ('EXPENSE' as const);
+        const name = delta > 0n ? 'Излишек кассы' : 'Недостача кассы';
+        let category = cashCategories.find((c) => c.kind === kind && c.name === name);
+        if (!category) {
+          category = {
+            id: `ui-cashcat-adj-${cashCategories.length + 1}`,
+            kind,
+            name,
+            active: true,
+          } as (typeof cashCategories)[number];
+          cashCategories.push(category);
+        }
+        cashOps.push({
+          id: `ui-cashrec-adj-${cashOps.length + 1}`,
+          kind,
+          method,
+          methodTo: null,
+          amountMinor: delta > 0n ? delta : -delta,
+          categoryId: category.id,
+          note: 'Поправка по сверке кассы',
+          relatedId: null,
+          status: 'COMPLETED',
+          at: new Date().toISOString(),
+        });
+      }
+      return send(201, { ok: true });
+    }
+    {
+      const voidCash = /^\/finance\/cash\/operations\/([^/]+)\/void$/.exec(path);
+      if (voidCash) {
+        const op = cashOps.find((o) => o.id === voidCash[1]);
+        if (!op) return send(404, { message: 'Операция не найдена' });
+        if (op.status !== 'COMPLETED') return send(409, { message: 'Операция уже аннулирована' });
+        if (op.relatedId !== null)
+          return send(409, { message: 'Это комиссия: аннулируйте основную операцию — комиссия снимется с ней' });
+        for (const x of cashOps) if (x.id === op.id || x.relatedId === op.id) x.status = 'VOIDED';
+        return send(200, { ok: true });
+      }
+    }
+    if (path === '/finance/cash/categories') {
+      const kind = String(body['kind'] ?? '');
+      const name = String(body['name'] ?? '').trim();
+      if (kind !== 'INCOME' && kind !== 'EXPENSE')
+        return send(400, { message: 'kind — INCOME или EXPENSE (у перевода статей нет)' });
+      if (!name) return send(400, { message: 'name — название статьи' });
+      if (cashCategories.some((c) => c.kind === kind && c.name === name))
+        return send(400, { message: `Статья «${name}» уже есть` });
+      cashCategories.push({
+        id: `ui-cashcat-${cashCategories.length + 1}`,
+        kind,
+        name,
+        active: true,
+      });
+      return send(201, [...cashCategories]);
     }
     if (path === '/finance/payments') {
       try {

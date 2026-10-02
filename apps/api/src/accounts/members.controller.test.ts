@@ -191,6 +191,13 @@ describe('сотрудники организации', () => {
       ['u-admin', 'STAFF', false, true, true],
       ['u-admin2', 'STAFF', false, true, true],
     ]);
+    // «Был в системе» на экране «Сотрудники» (TEAM1): дата последнего входа; не входил — null, не undefined
+    expect(rows.map((r) => [r.userId, r.lastLoginAt])).toEqual([
+      ['u-owner', '2026-09-20T10:00:00.000Z'],
+      ['u-manager', '2026-09-20T10:00:00.000Z'],
+      ['u-admin', '2026-09-20T10:00:00.000Z'],
+      ['u-admin2', null],
+    ]);
   });
 
   it('управляющему: отключить можно только администраторов, роль не меняет никому', async () => {

@@ -232,6 +232,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
+        // Команда — видимый раздел (TEAM1, план settings-hub-2026-10-02): раньше жила только в «Профиль → Доступ»
+        href: '/team',
+        requires: 'staff',
+        label: 'Сотрудники',
+        icon: 'guests',
+        description: 'Люди организации: роли, приглашения и доступ.',
+      },
+      {
         href: '/connections',
         requires: 'settings',
         label: 'Интеграции',
@@ -323,7 +331,7 @@ export const sidebarSections: SidebarSection[] = [
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
-    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/connections')],
+    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/team'), menuItem('/connections')],
   },
   {
     id: 'control',

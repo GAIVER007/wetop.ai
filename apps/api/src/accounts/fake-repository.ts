@@ -267,6 +267,8 @@ export class FakeAccountsRepository implements AccountsRepository {
         name: null,
         role: a.role,
         joinedAt: new Date('2026-09-01T00:00:00.000Z'),
+        // u-admin2 ещё не входил: список отдаёт null, а не undefined (TEAM1)
+        lastLoginAt: a.userId === 'u-admin2' ? null : new Date('2026-09-20T10:00:00.000Z'),
       }));
   }
 

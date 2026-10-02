@@ -19,6 +19,8 @@ const routes = [
   '/finance',
   '/management/analytics',
   '/hotel-settings',
+  // «Сотрудники» — видимый раздел команды (TEAM1, план settings-hub-2026-10-02)
+  '/team',
   '/connections',
   '/incidents',
   '/journal',

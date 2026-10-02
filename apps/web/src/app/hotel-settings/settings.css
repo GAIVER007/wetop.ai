@@ -424,3 +424,39 @@
     min-height: 44px;
   }
 }
+
+/* «Сотрудники» (TEAM1, план settings-hub-2026-10-02): таблица команды на базе .settings-table.
+   Роль строкой под именем — только на телефоне, где колонки роли и даты скрыты. */
+.team-member-sub .team-sub-role {
+  display: none;
+}
+.team-row-actions {
+  text-align: right;
+}
+.team-invites {
+  margin-top: var(--space-6);
+}
+.team-invite-form {
+  display: grid;
+  gap: var(--space-4);
+}
+.team-invite-form__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+@media (max-width: 600px) {
+  .settings-table--team .settings-col-wide {
+    display: none;
+  }
+  .settings-table--team th:first-child {
+    width: auto;
+  }
+  .team-member-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .team-member-sub .team-sub-role {
+    display: inline;
+  }
+}

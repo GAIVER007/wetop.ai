@@ -212,7 +212,7 @@ test('управляющий: всё, кроме «Платформы»; зов�
   await page.goto('/today');
   await expect.poll(() => menuLinks(page)).toContain('/rates');
   const links = await menuLinks(page);
-  for (const href of ['/journal', '/channels', '/hotel-settings', '/connections'])
+  for (const href of ['/journal', '/channels', '/hotel-settings', '/team', '/connections'])
     expect(links).toContain(href);
   expect(links).not.toContain('/platform');
   await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Управляющий');
@@ -220,22 +220,26 @@ test('управляющий: всё, кроме «Платформы»; зов�
   await page.goto('/rates');
   await expect(page.getByRole('main').getByTestId('no-access')).toHaveCount(0);
 
-  await page.goto('/profile/access');
-  const team = page.getByTestId('team');
-  await expect(team.getByTestId('invite-role-fixed')).toContainText(
+  // команда — на странице «Сотрудники» (TEAM1); приглашение — панелью из шапки
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const drawer = page.getByRole('dialog');
+  await expect(drawer.getByTestId('invite-role-fixed')).toContainText(
     'Управляющий приглашает администраторов',
   );
-  await expect(team.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
-  const rows = team.getByTestId('member-row');
+  await expect(drawer.getByLabel('Роль приглашённого', { exact: true })).toHaveCount(0);
+  await drawer.getByRole('button', { name: 'Отмена' }).click();
+  const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
   await expect(
     rows.filter({ hasText: 'Марат Тестов' }).getByRole('button', { name: 'Отключить' }),
   ).toHaveCount(0);
   await expect(rows.filter({ hasText: 'Дана Тестова' })).toContainText('это вы');
   // роль меняет только владелец
-  await expect(team.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
+  await expect(main.getByRole('combobox', { name: /^Роль:/ })).toHaveCount(0);
   // приглашение управляющего отозвать нельзя, администратора — можно
-  const invites = team.getByTestId('invite-list');
+  const invites = main.getByTestId('invite-list');
   await expect(
     invites.locator('li', { hasText: 'boss@example.com' }).getByRole('button'),
   ).toHaveCount(0);
@@ -251,30 +255,34 @@ test('управляющий: всё, кроме «Платформы»; зов�
     .getByRole('button', { name: 'Отключить' })
     .click();
   await expect(rows).toHaveCount(2);
-  await expect(team).not.toContainText('Юрий Тестов');
+  await expect(main).not.toContainText('Юрий Тестов');
 });
 
 test('владелец: зовёт управляющего и администратора, меняет роль', async ({ page }) => {
   await signIn(page);
-  await page.goto('/profile/access');
-  const team = page.getByTestId('team');
-  const role = team.getByLabel('Роль приглашённого', { exact: true });
+  await page.goto('/team');
+  const main = page.getByRole('main');
+  await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const drawer = page.getByRole('dialog');
+  const role = drawer.getByLabel('Роль приглашённого', { exact: true });
   await expect(role.locator('option')).toHaveText(['Управляющий', 'Администратор']);
   await expect(role).toHaveValue('STAFF');
 
-  await team.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');
+  await drawer.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');
   await role.selectOption('MANAGER');
-  await team.getByRole('button', { name: 'Отправить приглашение' }).click();
-  const invites = team.getByTestId('invite-list');
+  await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
+  // панель закрылась, приглашение — в «Ожидают ответа» с ролью словом
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const invites = main.getByTestId('invite-list');
   await expect(invites.locator('li', { hasText: 'new.manager@example.com' })).toContainText(
-    'управляющий, приглашение отправлено',
+    'управляющий',
   );
   await expect(invites.locator('li', { hasText: 'boss@example.com' })).toContainText('управляющий');
   await expect(invites.locator('li', { hasText: 'zhdet@example.com' })).toContainText(
     'администратор',
   );
 
-  const admin = team.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
+  const admin = main.getByTestId('member-row').filter({ hasText: 'Юрий Тестов' });
   await expect(admin).toContainText('администратор');
   await admin.getByRole('combobox', { name: 'Роль: Юрий Тестов' }).selectOption('MANAGER');
   await expect(admin).toContainText('управляющий');

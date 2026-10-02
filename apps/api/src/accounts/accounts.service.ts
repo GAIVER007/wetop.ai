@@ -59,6 +59,8 @@ export interface MemberView {
   name: string | null;
   role: MembershipRole;
   joinedAt: Date;
+  /** Последний вход в систему: не входил — null (TEAM1, «Был в системе») */
+  lastLoginAt: Date | null;
   /** Это вы */
   you: boolean;
   /** Этот вошедший может его отключить */

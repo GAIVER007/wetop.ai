@@ -16,6 +16,7 @@ const routes = [
   '/channels',
   '/website',
   // «Показатели за период» (A1) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114): в меню их нет
+  '/reports',
   '/finance',
   '/management/analytics',
   '/hotel-settings',

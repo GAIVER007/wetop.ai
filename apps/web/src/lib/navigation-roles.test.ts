@@ -42,6 +42,7 @@ describe('меню по ролям', () => {
       '/reservations',
       '/guests',
       '/ai-agents',
+      '/reports',
       '/finance',
       '/management/analytics',
       '/incidents',

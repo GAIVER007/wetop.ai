@@ -140,6 +140,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         icon: 'money',
         description: 'Начисления, оплаты, возвраты и остатки за период.',
       },
+      {
+        // Хаб REP1 (план reports-hub-2026-10-02): один вход ко всем отчётам, числа за период и ссылки в готовые экраны
+        href: '/reports',
+        requires: 'reports',
+        label: 'Отчёты',
+        icon: 'analytics',
+        description: 'Все отчёты в одном месте: деньги, загрузка, день и сайт.',
+      },
     ],
   },
   {
@@ -324,8 +332,9 @@ export const sidebarSections: SidebarSection[] = [
     id: 'finance',
     label: 'Финансы и отчёты',
     icon: 'money',
-    // «Показатели за период» (A1, ADR-105) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114)
-    items: [menuItem('/finance'), menuItem('/management/analytics')],
+    // «Показатели за период» (A1, ADR-105) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114);
+    // «Отчёты» — хаб REP1: первый пункт, он связывает остальные
+    items: [menuItem('/reports'), menuItem('/finance'), menuItem('/management/analytics')],
   },
   {
     id: 'settings',

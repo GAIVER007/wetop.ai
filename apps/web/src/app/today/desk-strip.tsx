@@ -19,16 +19,10 @@ export function DeskStrip({
   day,
   board,
   today,
-  attentionHref = '#day-attention',
-  money = true,
 }: {
   day: DeskDay;
   board: Chessboard | null;
   today: string;
-  /** Полоса стоит и на календаре — там «внимание» живёт на Главной, якорь ведёт туда */
-  attentionHref?: string;
-  /** Календарь — про размещение: «К оплате» и долги там не показываются, деньги — в «Финансах» */
-  money?: boolean;
 }) {
   const debt = BigInt(day.debtMinor) > 0n;
   // Уезжающие сегодня с остатком, которых число долга не считает: уже выселенные и так и не заехавшие
@@ -103,10 +97,9 @@ export function DeskStrip({
             'Загрузка дня по категориям',
           )}
           <span className="desk-stat__hint">
-            {summary ? `занято ${summary.occupied} из ${units}` : 'нет данных календаря на этот день'}
+            {summary ? `занято ${summary.occupied} из ${units}` : 'календарь не загрузился'}
           </span>
         </div>
-        {money && (
         <div className={debt ? 'desk-stat desk-stat--debt' : 'desk-stat desk-stat--paid'}>
           <span className="desk-stat__label">К оплате</span>
           {value(
@@ -122,17 +115,16 @@ export function DeskStrip({
             <span className="desk-stat__hint desk-stat__hint--ok">все счета оплачены</span>
           ) : null}
           {left > 0 && (
-            <a className="desk-stat__hint desk-stat__hint--warn" href={attentionHref}>
+            <a className="desk-stat__hint desk-stat__hint--warn" href="#day-attention">
               выехавших с долгом: {left}
             </a>
           )}
           {notArrived > 0 && (
-            <a className="desk-stat__hint desk-stat__hint--warn" href={attentionHref}>
+            <a className="desk-stat__hint desk-stat__hint--warn" href="#day-attention">
               не заехавших с долгом: {notArrived}
             </a>
           )}
         </div>
-        )}
       </div>
     </section>
   );

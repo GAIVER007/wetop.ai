@@ -59,7 +59,7 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   expect(await menuLinks(page)).toContain('/ai-agents');
   await expect(page.locator('.workspace-header .topmenu__tab')).toHaveText([
     'Главная',
-    'Шахматка',
+    'Календарь',
     'Брони',
     'Гости',
     'Номерной фонд',

@@ -480,6 +480,33 @@
   line-height: var(--board-stay-h);
   margin: 0;
 }
+/* Сводка дня в строке управления: отдельной полосы нет — страница фиксирована по высоте,
+   лишний ряд сверху отнимает его у сетки (контракт «сетка начинается до 350 px») */
+.board-day-stats {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  align-items: baseline;
+  margin-left: auto;
+}
+.board-day-stat {
+  white-space: nowrap;
+  text-decoration: none;
+  color: inherit;
+}
+.board-day-stat:hover b {
+  text-decoration: underline;
+}
+.board-day-stat__label {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+@media (max-width: 600px) {
+  /* на телефоне сводка дня живёт на Главной */
+  .board-day-stats {
+    display: none;
+  }
+}
 /* Число месяца в пустой клетке — ориентир при прокрутке; события мыши идут клетке, не числу */
 .board__free-day {
   pointer-events: none;
@@ -736,10 +763,10 @@
     align-items: center;
     gap: var(--space-2);
   }
-  /* Сначала работа, потом сводка: «На стойке» (~465 px) выталкивала сетку за первый экран */
-  .page:has(> .board-wrap) > .desk-strip {
-    order: 10;
-    margin-top: var(--space-4);
+  /* на телефоне календарь — про сетку: вторые кнопки — в меню и в «Фильтрах»
+     (шапка выше 500px отнимает сетку у экрана, контракт chessboard-design) */
+  .page:has(> .board-wrap) > .page__head .btn--secondary {
+    display: none;
   }
   .board-controls .board-date-nav {
     display: grid;

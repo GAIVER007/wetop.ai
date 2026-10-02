@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
 import { channelsApi, chessboardApi, deskApi, guardApi } from '../../lib/api';
 import { pluralRu } from '../../lib/plural';
-import { DeskStrip } from '../today/desk-strip';
 import { UnassignedStays } from './unassigned-drawer';
 import { Page } from '../../components/page';
 import { Alert, Button, Legend, cx } from '../../components/ui';
@@ -134,16 +133,6 @@ export default async function ChessboardPage({
         </>
       }
     >
-      {day && (
-        <DeskStrip
-          day={day}
-          board={board}
-          today={today}
-          attentionHref="/today#day-attention"
-          // деньги дня календарь не показывает — «кто сколько должен» живёт в «Финансах» (поручение 02.10)
-          money={false}
-        />
-      )}
       <div className="board-controls">
         <div className="board-period">
           <span className="board-date-nav">
@@ -207,6 +196,7 @@ export default async function ChessboardPage({
             monthHref={monthHref()}
             monthCurrent={isMonth}
           />
+          {day && <DayStats day={day} board={board} today={today} />}
           <BoardHelp title="Помощь">
             <div className="board-help-content">
               <p className="note">
@@ -282,4 +272,48 @@ function categoriesOf(
     if (!seen.has(r.unit.accommodationTypeCode))
       seen.set(r.unit.accommodationTypeCode, r.unit.accommodationTypeName);
   return [...seen].map(([code, name]) => ({ code, name }));
+}
+
+/**
+ * Сводка дня в строке управления (поручение 02.10, образец — верхняя панель Lite PMS): заезды,
+ * выезды, проживают, свободно и загрузка — ссылками в свои разделы. Стоит в существующей строке,
+ * а не отдельной полосой: страница календаря фиксирована по высоте, и каждый лишний ряд сверху
+ * отнимает его у сетки (контракт «сетка начинается до 350 px», chessboard-design). Деньги дня
+ * здесь не показываются — «кто сколько должен» живёт в «Финансах» (решение владельца 02.10).
+ */
+function DayStats({
+  day,
+  board,
+  today,
+}: {
+  day: import('../../lib/api').DeskDay;
+  board: import('../../lib/api').Chessboard;
+  today: string;
+}) {
+  const s = board.summary[today];
+  const units = s ? s.occupied + s.free + s.blocked : 0;
+  const occupancy = s && units > 0 ? Math.round((s.occupied / units) * 100) : null;
+  const d = day.date;
+  const items = [
+    { id: 'arrivals', label: 'Заезды', value: String(day.counts.arrivals), href: `/reservations?date=${d}` },
+    { id: 'departures', label: 'Выезды', value: String(day.counts.departures), href: `/reservations?date=${d}` },
+    { id: 'inhouse', label: 'Проживают', value: String(day.counts.inHouse), href: `/reservations?date=${d}` },
+    { id: 'free', label: 'Свободно', value: s ? String(s.free) : '—', href: `/chessboard?from=${today}&to=${today}` },
+    {
+      id: 'occupancy',
+      label: 'Загрузка',
+      value: occupancy === null ? '—' : `${occupancy}%`,
+      href: `/management/analytics/occupancy?date=${d}`,
+    },
+  ];
+  return (
+    <span className="board-day-stats" role="group" aria-label="Сегодня на объекте">
+      {items.map((i) => (
+        <Link key={i.id} href={i.href} className="board-day-stat">
+          <span className="board-day-stat__label">{i.label}</span>{' '}
+          <b data-testid={`day-${i.id}`}>{i.value}</b>
+        </Link>
+      ))}
+    </span>
+  );
 }

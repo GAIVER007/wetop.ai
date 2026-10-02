@@ -53,6 +53,7 @@ describe('меню по ролям', () => {
       'reservations',
       'guests',
       'sales',
+      'reports',
       'finance',
       'analytics',
       'settings',

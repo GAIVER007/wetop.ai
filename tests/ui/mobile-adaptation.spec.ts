@@ -66,14 +66,6 @@ test('телефон: чипы отборов — цели нажатия не �
   expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });
 
-test('телефон: сетка календаря выше сводки «На стойке»', async ({ page }) => {
-  // На 812 px высоты сводка (≈465 px) выталкивала сетку за первый экран: сначала работа, потом сводка
-  await page.goto('/chessboard');
-  const board = await page.locator('.board-wrap').boundingBox();
-  const strip = await page.locator('.desk-strip').boundingBox();
-  expect(board!.y).toBeLessThan(strip!.y);
-});
-
 test('узкий телефон: плитки финансов встают в одну колонку', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/finance');

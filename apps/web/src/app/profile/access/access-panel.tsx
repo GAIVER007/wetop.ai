@@ -2,22 +2,17 @@
 import Link from 'next/link';
 import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { Icon } from '../../../components/icon';
-import type { AuthInvite, AuthMember, AuthSessionRow, SignedIn } from '../../../lib/api';
+import type { AuthSessionRow, SignedIn } from '../../../lib/api';
 import { logoutAllAction, signOut } from '../../login/actions';
 import { trialLine } from '../../../lib/desk-person';
 import { displayDate } from '../../../lib/display-date';
-import { TeamSection } from '../../login/team-section';
 
 /** Управление доступом перенесено с публичного входа в защищённый профиль (ADR-131). */
 export function AccessPanel({
   user,
-  invites = [],
-  members = [],
   sessions = [],
 }: {
   user: SignedIn;
-  invites?: AuthInvite[];
-  members?: AuthMember[];
   sessions?: AuthSessionRow[];
 }) {
   const role = user.role ? parseMembershipRole(user.role) : null;
@@ -49,9 +44,15 @@ export function AccessPanel({
         <span>Смена закончена?</span>
         <button type="submit">Выйти</button>
       </form>
-      {/* Сотрудники и приглашения (срез 13, этап 7; роли — ADR-107): владельцу и управляющему */}
+      {/* Команда переехала на свою страницу «Сотрудники» (TEAM1): здесь — личный доступ и ссылка */}
       {user.organization && role && canManageStaff(role) ? (
-        <TeamSection role={role} invites={invites} members={members} />
+        <section className="login-invites" aria-labelledby="invite-heading">
+          <h2 id="invite-heading">Сотрудники</h2>
+          <p className="muted">Приглашения, роли и отключение — на странице «Сотрудники».</p>
+          <Link className="btn btn--secondary" href="/team" data-testid="team-link">
+            Открыть «Сотрудников»
+          </Link>
+        </section>
       ) : (
         <section className="login-invites" aria-labelledby="invite-heading">
           <h2 id="invite-heading">Сотрудники</h2>

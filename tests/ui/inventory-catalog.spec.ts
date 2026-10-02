@@ -68,6 +68,14 @@ test('таблица показывает расположение, состоя
   await expect(row('R01')).toContainText('Корпус Основной');
   await expect(row('R02')).toContainText('в продаже');
   await expect(row('R02')).toContainText('проверено');
+  // категории — заголовками групп с числом мест и вместимостью (как список категорий),
+  // а не колонкой, где имя повторяется в каждой из 88 строк (упрощение фонда 02.10)
+  const groupHead = main.getByTestId('category-group');
+  await expect(groupHead).toHaveCount(3);
+  await expect(groupHead.nth(1)).toContainText('Мужской общий номер');
+  await expect(groupHead.nth(1)).toContainText('36 койко-мест');
+  await expect(groupHead.nth(1)).toContainText('1 гость');
+  await expect(main.getByRole('table').getByText('Мужской общий номер')).toHaveCount(1);
   // строка сама открывает карточку места: клик по обычной ячейке, не по ссылке (ТЗ §12)
   await row('R02').locator('td').nth(1).click();
   await expect(page).toHaveURL(/\/units\/R02/);

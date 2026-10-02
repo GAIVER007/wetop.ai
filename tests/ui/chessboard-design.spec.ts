@@ -35,18 +35,18 @@ test('ручные даты раскрываются с клавиатуры и 
   await page.goto('/chessboard');
   const dates = page.getByRole('button', { name: 'Даты', exact: true });
   await expect(dates).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByLabel('Шахматка: с', { exact: true })).toBeHidden();
+  await expect(page.getByLabel('Календарь: с', { exact: true })).toBeHidden();
   await dates.focus();
   await page.keyboard.press('Space');
   await expect(dates).toHaveAttribute('aria-expanded', 'true');
-  await page.getByLabel('Шахматка: с', { exact: true }).fill('2026-10-05');
-  await page.getByLabel('Шахматка: по', { exact: true }).fill('2026-10-11');
+  await page.getByLabel('Календарь: с', { exact: true }).fill('2026-10-05');
+  await page.getByLabel('Календарь: по', { exact: true }).fill('2026-10-11');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page).toHaveURL('/chessboard?from=2026-10-05&to=2026-10-11');
   await expect(page.getByTestId('date-col')).toHaveCount(7);
   await expect(dates).toHaveAttribute('aria-expanded', 'false');
   await page.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
-  await expect(page.getByLabel('Шахматка: с', { exact: true })).toHaveValue('2026-10-12');
+  await expect(page.getByLabel('Календарь: с', { exact: true })).toHaveValue('2026-10-12');
   await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
   await expect(page).toHaveURL('/chessboard');
 });
@@ -65,9 +65,9 @@ for (const theme of ['light', 'dark'] as const) {
     });
     await page.goto('/chessboard');
     // Ждём не только SSR, но и интерактивный фильтр перед снимками.
-    await page.getByLabel('Поиск на шахматке').fill('R01');
+    await page.getByLabel('Поиск в календаре').fill('R01');
     await expect(page.getByTestId('unit-row')).toHaveCount(1);
-    await page.getByLabel('Поиск на шахматке').fill('');
+    await page.getByLabel('Поиск в календаре').fill('');
     await expect(page.getByTestId('unit-row')).toHaveCount(88);
     for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });

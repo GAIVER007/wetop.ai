@@ -233,7 +233,7 @@ export async function OwnerOperations({ date }: { date: string }) {
         <div className="owner-row-label">
           <h2>Гостиница сегодня</h2>
           <span>{displayDate(date, 'numeric')}</span>
-          <Link href={`/chessboard?from=${date}&to=${date}`}>Шахматка</Link>
+          <Link href={`/chessboard?from=${date}&to=${date}`}>Календарь</Link>
         </div>
         <div className="owner-stats">
           <Metric
@@ -253,7 +253,7 @@ export async function OwnerOperations({ date }: { date: string }) {
             note={
               summary
                 ? `Занято ${summary.occupied} из ${total} номеров и коек`
-                : 'Шахматка недоступна'
+                : 'Календарь недоступен'
             }
             href={`/management/analytics/occupancy?date=${date}`}
             id="c-occupancy"

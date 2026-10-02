@@ -2265,3 +2265,90 @@ validation, rollback и отдельное разрешение по §14–15 A
 Автоматического перерасчёта начислений или возврата нет. При выезде после дня заезда
 общая дата брони пересчитывается по обновлённым периодам всех её проживаний.
 Схема БД не меняется. Уборка продолжает отдельный цикл DIRTY → CLEAN → INSPECTED.
+
+## 21. Касса: операции мимо счетов гостей, переводы, статьи (УТВЕРЖДЕНО владельцем 02.10.2026 — «давай делай»; ADR-135 (в сессии — ADR-135; номер при интеграции 02.10.2026: ADR-135 занял top-nav))
+
+Поручение владельца 02.10.2026 (снимки кассы старой системы); закрывает «F2 касса» из Q-207 п. 2
+в части операций и остатков — кассовые смены и сверка наличных сюда **не входят** (отдельный ADR).
+План — `plans/finance-cashbox-2026-10-02.md`. Миграция `20261002000040_cashbox` (+`down.sql`);
+Q-236…Q-239 закрыты умолчаниями тем же ответом. **На рабочей базе миграцию применяет владелец.**
+
+Принцип: гостевые оплаты в кассу не дублируются. Остаток по способу оплаты вычисляется:
+Σ `payments` COMPLETED по способу − Σ `refunds` (по способу платежа) + поступления кассы
+− расходы − переводы-откуда + переводы-куда. Валюта — валюта объекта.
+
+```prisma
+enum CashOperationKind { INCOME EXPENSE TRANSFER }
+
+/// Статья кассы: справочник объекта. Удаления нет — архив через active (как Service).
+model CashCategory {
+  id         String            @id @default(uuid()) @db.Uuid
+  propertyId String            @map("property_id") @db.Uuid
+  kind       CashOperationKind // INCOME или EXPENSE; у TRANSFER статей нет
+  name       String
+  active     Boolean           @default(true)
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([propertyId, kind, name])
+  @@map("cash_categories")
+}
+
+/// Движение денег мимо счетов гостей: поступление, расход, перевод между способами.
+model CashOperation {
+  id          String            @id @default(uuid()) @db.Uuid
+  propertyId  String            @map("property_id") @db.Uuid
+  kind        CashOperationKind
+  method      PaymentMethod     // для TRANSFER — «откуда»
+  methodTo    PaymentMethod?    @map("method_to") // только TRANSFER — «куда»
+  /// integer minor units (тиын), ADR-008; > 0
+  amount      BigInt
+  categoryId  String?           @map("category_id") @db.Uuid // статья INCOME/EXPENSE
+  note        String?
+  relatedId   String?           @map("related_id") @db.Uuid // комиссия → своя операция/перевод
+  status      PaymentStatus     @default(COMPLETED) // VOIDED — аннулирование; прошлое не правится
+  occurredAt  DateTime          @map("occurred_at") @db.Timestamptz(6)
+  createdById String?           @map("created_by_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property Property      @relation(fields: [propertyId], references: [id])
+  category CashCategory? @relation(fields: [categoryId], references: [id])
+
+  @@index([propertyId, occurredAt])
+  @@map("cash_operations")
+}
+```
+
+Правила (детали — план §3): начальный остаток — поступление со служебной статьёй
+«Начальный остаток»; комиссия — связанный расход (`relatedId`) одной транзакцией, в базе
+только сумма целыми тиынами; аннулирование — `status = VOIDED` с записью в журнал, комиссия
+аннулируется вместе с основной; `EXTERNAL`, `DEPOSIT`, `CARD_GUARANTEE` в остатках кассы
+не участвуют (Q-237); RLS — как у остальных таблиц организации (§17). `payments`, `refunds`,
+`folios` не меняются. Открытые вопросы — Q-236…Q-239.
+
+### 21.4. Сверка наличных (K4 — утверждено владельцем 02.10.2026, «давай продолжай»; дополнение к ADR-135)
+
+Закрывает остаток Q-207 п. 2 («наличные требуют проверки»). Миграция `20261002000041_cash_reconciliations`.
+
+```prisma
+/// Пересчёт денег в кассе: снимок «по системе» и факт. Аннулирования нет — ошиблись, сверили заново
+model CashReconciliation {
+  id          String        @id @default(uuid()) @db.Uuid
+  propertyId  String        @map("property_id") @db.Uuid
+  method      PaymentMethod
+  /// остаток по системе в момент сверки, тиыны: потом не восстановить — операции сдвигают историю
+  expected    BigInt
+  /// фактически пересчитано, ≥ 0
+  counted     BigInt
+  note        String?
+  createdById String?       @map("created_by_id") @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+}
+```
+
+Правила: CHECK `counted >= 0`, способ — кассовый (как у операций: без `EXTERNAL`/`DEPOSIT`/
+`CARD_GUARANTEE`); RLS `rls_tenant`. Расхождение (`counted − expected`) не хранится; по галочке
+«выровнять поправкой» API той же транзакцией создаёт обычную `cash_operations`: излишек —
+INCOME «Излишек кассы», недостача — EXPENSE «Недостача кассы» (статьи создаются по требованию) —
+лента операций остаётся единственным источником движений. Право сверки — `desk` (сверяет смена).
+Кассовых смен (открытие/закрытие) по-прежнему нет — при необходимости отдельным решением.

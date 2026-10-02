@@ -108,7 +108,7 @@ export default async function ReservationPage({
   return (
     <Page
       width="medium"
-      crumbs={<Link href="/chessboard">← шахматка</Link>}
+      crumbs={<Link href="/chessboard">← календарь</Link>}
       title={`Бронь ${r.confirmationNumber}`}
       actions={
         preview ? (
@@ -395,7 +395,7 @@ export default async function ReservationPage({
                 {longPeriods > 0 && (
                   <Alert boxed tone="warning" data-testid="stay-too-long">
                     Проживание длиннее {MAX_CHESSBOARD_DAYS} ночей: список свободных ячеек на весь
-                    срок не строится. Назначайте и переселяйте с шахматки на нужные даты.
+                    срок не строится. Назначайте и переселяйте из календаря на нужные даты.
                   </Alert>
                 )}
                 {periodResults.filter((v, i) => v === null && !tooLong([...periods.values()][i]!))

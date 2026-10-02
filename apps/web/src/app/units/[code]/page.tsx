@@ -45,7 +45,7 @@ export default async function UnitPage({
   return (
     <Page
       width="medium"
-      crumbs={<Link href="/chessboard">← шахматка</Link>}
+      crumbs={<Link href="/chessboard">← календарь</Link>}
       title={`Ячейка ${unit.code}`}
       subtitle={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'}, категория «${unit.accommodationTypeName}», комната ${unit.roomNumber}${unit.active ? '' : ', выведена из фонда'}`}
     >

@@ -65,6 +65,8 @@ export interface MemberRecord {
   name: string | null;
   role: MembershipRole;
   joinedAt: Date;
+  /** Последний вход в систему (`users.last_login_at`, TEAM1): не входил — null */
+  lastLoginAt: Date | null;
 }
 
 export interface AccountsRepository {

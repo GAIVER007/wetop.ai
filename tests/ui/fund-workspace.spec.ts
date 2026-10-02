@@ -35,7 +35,7 @@ test('category creation, rename, room creation and reload', async ({ page }) => 
   await page.getByLabel('Корпус', { exact: true }).fill('Тестовый корпус');
   await page.getByLabel('Этаж', { exact: true }).fill('1');
   await page.getByLabel('Обозначение комнаты', { exact: true }).fill('TEST-201');
-  await page.getByLabel('Обозначение номера в шахматке').fill('TEST-201');
+  await page.getByLabel('Обозначение номера в календаре').fill('TEST-201');
   await page.getByRole('button', { name: 'Создать', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await page.reload();
@@ -126,6 +126,9 @@ test('AV2: price «from» — rooms for the whole stay, beds for every guest', a
   await expect(bed.getByText('Итого от 24 000 ₸')).toBeVisible();
   await expect(bed.getByText('от 4 000 ₸ / койка / ночь')).toBeVisible();
   await expect(bed.getByText('2 гостя, 3 ночи')).toBeVisible();
+  // тип и вместимость — одной строкой под именем, без отдельной метки типа (упрощение 02.10)
+  await expect(room.getByText('Номер целиком, до 2 гостей', { exact: true })).toBeVisible();
+  await expect(bed.getByText('Койко-место, 1 гость на койку', { exact: true })).toBeVisible();
 });
 
 test('AV3: places as a compact list; automatic choice and picked beds prefill the booking', async ({

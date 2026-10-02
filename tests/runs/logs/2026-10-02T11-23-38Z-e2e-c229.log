@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 02.10.2026 16:23 Алматы · Noutbuk-Vyacheslav.local
+# коммит 9677bb9 (main), незакоммиченных файлов набора: 78
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 738 tests using 1 worker
+
+  ✘    1 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 1440px (59.1s)
+  ✘    2 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: dark, 1440px (53.5s)
+  ✘    3 tests/ui/accessibility.spec.ts:58:5 › доступность всех разделов: light, 390px (48.4s)
+
+# код выхода —, сигнал SIGTERM · 3 мин 31 с

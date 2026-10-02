@@ -64,7 +64,7 @@ test('categories C2: quick preview from row, menu and card; cards view; light/da
     'href',
     '/rates?category=MALE',
   );
-  await expect(bed.getByRole('link', { name: 'Открыть в шахматке' })).toHaveAttribute(
+  await expect(bed.getByRole('link', { name: 'Открыть в календаре' })).toHaveAttribute(
     'href',
     '/chessboard?category=MALE',
   );

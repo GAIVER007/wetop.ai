@@ -22,14 +22,14 @@ const routes = [
   '/management/analytics',
   '/hotel-settings',
   '/connections',
-  '/staff',
+  '/team',
   '/journal',
   '/incidents',
 ];
 
 const TABS = [
   'Главная',
-  'Шахматка',
+  'Календарь',
   'Брони',
   'Гости',
   'Номерной фонд',
@@ -194,7 +194,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(page.locator('.topmenu')).toBeHidden();
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
     const drawer = page.getByRole('dialog', { name: 'Навигация', exact: true });
-    for (const label of ['Главная', 'Шахматка', 'Брони', 'Гости', 'Номерной фонд'])
+    for (const label of ['Главная', 'Календарь', 'Брони', 'Гости', 'Номерной фонд'])
       await expect(drawer.getByRole('link', { name: label, exact: true })).toBeVisible();
     await drawer.getByRole('button', { name: 'Настройки', exact: true }).click();
     await expect(drawer.getByRole('link', { name: 'Объект', exact: true })).toBeVisible();
@@ -202,7 +202,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(drawer).not.toBeVisible();
     const bottom = page.locator('.bottom-navigation');
     await expect(bottom).toBeVisible();
-    await expect(bottom.locator('a')).toHaveText(['Главная', 'Шахматка', 'Брони', 'Гости']);
+    await expect(bottom.locator('a')).toHaveText(['Главная', 'Календарь', 'Брони', 'Гости']);
     await expect(bottom.getByRole('button', { name: 'Ещё разделы', exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),

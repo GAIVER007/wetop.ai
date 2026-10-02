@@ -3,18 +3,28 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { categoryAvailability } from '@pms/domain';
 import type { channex } from '@pms/integrations';
 import { compressRuns } from './ari';
+import { nightsOf, type AriRange } from './ari-ranges';
 import { CHANNELS_REPOSITORY, type ChannelsRepository } from './channels.repository';
 
 export const PROVIDER = 'channex';
 
+/** Изменение остатка: категории и окно ночей [from, toExclusive) */
+export interface AvailabilityChange {
+  categoryCodes: string[];
+  from: string;
+  toExclusive: string;
+  /**
+   * Только эти ночи — у брони: где поменялось число занятых мест (`ari-ranges.ts`; сертификация Channex §13
+   * «only send changes»). Без поля — каждая ночь окна каждой категории: блокировка, новые места и ручной запрос
+   * меняют остаток на всём окне.
+   */
+  ranges?: AriRange[];
+}
+
 /** Дельта ARI из команд PMS → очередь. Интерфейс для модуля броней; реализация здесь. */
 export interface AriPublisher {
-  /** Изменились проживания категорий на ночах [from, toExclusive) → пересчитать и поставить в очередь доступность */
-  reservationChanged(change: {
-    categoryCodes: string[];
-    from: string;
-    toExclusive: string;
-  }): Promise<void>;
+  /** Изменился остаток категорий → пересчитать по базе и поставить в очередь доступность этих ночей */
+  reservationChanged(change: AvailabilityChange): Promise<void>;
   /**
    * Изменились цены/ограничения (в наших терминах) → перевести по маппингу и поставить в очередь одним сообщением.
    * `tx` — транзакция команды: очередь пишется вместе с ценами, иначе цены сохранятся, а в каналы не уйдут (Б5).
@@ -31,10 +41,7 @@ export interface AriPublisher {
    * След для сторожа: дельта не встала в очередь после записанной команды (Б6). Очередь пуста, поэтому
    * «упавшая отправка» и «застряла очередь» этого не увидят — сторож читает журнал (`channex.deltaLost`).
    */
-  deltaLost?(
-    change: { categoryCodes: string[]; from: string; toExclusive: string },
-    error: string,
-  ): Promise<void>;
+  deltaLost?(change: AvailabilityChange, error: string): Promise<void>;
 }
 /** Одно изменение цен/ограничений в терминах PMS (без ID провайдера). */
 export interface LocalRateChange {
@@ -64,7 +71,7 @@ export const ARI_PUBLISHER = Symbol('ARI_PUBLISHER');
  */
 export async function publishAfterCommit(
   publisher: AriPublisher,
-  change: { categoryCodes: string[]; from: string; toExclusive: string },
+  change: AvailabilityChange,
 ): Promise<void> {
   try {
     await publisher.reservationChanged(change);
@@ -100,40 +107,47 @@ export class OutboxAriPublisher implements AriPublisher {
   constructor(@Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository) {}
 
   /** Строка журнала о потерянной дельте: её читает сторож (`OutboxSignal.lostDeltaAt`, ADR-028) */
-  async deltaLost(
-    change: { categoryCodes: string[]; from: string; toExclusive: string },
-    error: string,
-  ): Promise<void> {
+  async deltaLost(change: AvailabilityChange, error: string): Promise<void> {
     await this.repo.audit('channex.deltaLost', { ...change, error });
   }
 
-  async reservationChanged(change: {
-    categoryCodes: string[];
-    from: string;
-    toExclusive: string;
-  }): Promise<void> {
-    if (change.categoryCodes.length === 0 || change.toExclusive <= change.from) return;
+  async reservationChanged(change: AvailabilityChange): Promise<void> {
+    // Ночи по категориям: у брони — только отрезки, где менялся остаток; без них — всё окно каждой категории
+    const ranges =
+      change.ranges ??
+      change.categoryCodes.map((categoryCode) => ({
+        categoryCode,
+        from: change.from,
+        toExclusive: change.toExclusive,
+      }));
+    const nightsByCategory = new Map<string, Set<string>>();
+    for (const r of ranges)
+      for (const d of nightsOf(r.from, r.toExclusive)) {
+        let nights = nightsByCategory.get(r.categoryCode);
+        if (!nights) nightsByCategory.set(r.categoryCode, (nights = new Set()));
+        nights.add(d);
+      }
+    if (nightsByCategory.size === 0) return;
     const mappings = (await this.repo.mappings(PROVIDER)).filter(
       (m) => m.providerRoomTypeId && m.localAccommodationTypeCode,
     );
     if (mappings.length === 0) return; // Channex не настроен — нечего публиковать
-    const to = plusDays(change.toExclusive, -1);
+    const all = [...nightsByCategory.values()].flatMap((s) => [...s]).sort();
+    const from = all[0]!;
+    const to = all[all.length - 1]!;
     const [units, blocks, items] = await Promise.all([
       this.repo.categoryUnits(),
-      this.repo.categoryBlocks(change.from, change.toExclusive),
-      this.repo.soldItems(change.from, change.toExclusive),
+      this.repo.categoryBlocks(from, plusDays(to, 1)),
+      this.repo.soldItems(from, plusDays(to, 1)),
     ]);
-    const avail = categoryAvailability({ from: change.from, to, units, blocks, items });
+    const avail = categoryAvailability({ from, to, units, blocks, items });
     const values: channex.ChannexAvailabilityValue[] = [];
-    const dates = Array.from(
-      { length: (Date.parse(to) - Date.parse(change.from)) / 86_400_000 + 1 },
-      (_, i) => plusDays(change.from, i),
-    );
-    for (const code of new Set(change.categoryCodes)) {
+    for (const [code, nights] of nightsByCategory) {
       const m = mappings.find((x) => x.localAccommodationTypeCode === code);
       const perDate = avail.get(code);
       if (!m || !perDate) continue;
-      for (const run of compressRuns(dates, (d) => perDate.get(d) ?? null, String))
+      // Ночи между отрезками в список не входят: compressRuns склеивает только соседние даты
+      for (const run of compressRuns([...nights].sort(), (d) => perDate.get(d) ?? null, String))
         values.push({
           property_id: m.providerPropertyId,
           room_type_id: m.providerRoomTypeId!,

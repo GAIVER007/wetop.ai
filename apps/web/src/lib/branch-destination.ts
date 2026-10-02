@@ -22,7 +22,7 @@ const pages = new Set([
   '/hotel-settings',
   '/hotel-settings/stay',
   '/hotel-settings/services',
-  '/staff',
+  '/team',
   '/connections',
   '/incidents',
   '/journal',

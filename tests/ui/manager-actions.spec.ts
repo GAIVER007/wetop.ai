@@ -4,7 +4,7 @@ import { cardTab } from '../e2e/card-tabs';
 /**
  * Срез 7.3 «Четыре действия управляющего» (plans/slice-7-3-manager-actions-2026-09-16.md) на синтетическом API:
  * суммы до подтверждения (Д5) — переселение в другую категорию, продление, отмена, незаезд, выселение
- * с долгом; «Разрешить» и плашки конфликтов на шахматке (Д3–Д4). Цены синтетические: номер 8 000 ₸,
+ * с долгом; «Разрешить» и плашки конфликтов в календаре (Д3–Д4). Цены синтетические: номер 8 000 ₸,
  * койка 4 000 ₸ за ночь; карточка 20260913-TESTAA — R01, три ночи, 24 000 ₸, предоплата 8 000 ₸.
  */
 const fixture = 'http://127.0.0.1:4311';
@@ -230,7 +230,7 @@ test('карточка: долгое проживание объясняет, п
   await expect(page.getByRole('main').getByTestId('stay-too-long')).toContainText(
     'длиннее 62 ночей',
   );
-  await expect(page.getByRole('main').getByTestId('stay-too-long')).toContainText('с шахматки');
+  await expect(page.getByRole('main').getByTestId('stay-too-long')).toContainText('из календаря');
   await expect(page.getByRole('main')).not.toContainText(
     'Доступность части периодов не загрузилась',
   );

@@ -93,7 +93,7 @@ function SiteBooking({
 
       <p className="hint--lg" data-testid="booking-explained">
         Когда гость выбирает даты на вашем сайте, WETOP показывает свободные места и цены по тарифу
-        сайта и создаёт бронь сразу в PMS — с источником «сайт», как на шахматке и в «Бронях».
+        сайта и создаёт бронь сразу в PMS — с источником «сайт», как в календаре и в «Бронях».
       </p>
       {!state.connected && (
         <Alert tone="warning" data-testid="booking-domain-missing">

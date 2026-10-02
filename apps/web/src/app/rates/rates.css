@@ -348,6 +348,33 @@
     flex-wrap: wrap;
     transform: translateY(100%);
   }
+  /* День — одной строкой: дата слева, цены справа. Прежде дата и цена на каждую вместимость стояли
+   * тремя блоками по 44 px, и месяц на телефоне прокручивался на четыре экрана (замер 02.10). */
+  .rate-cal__day {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: 0;
+  }
+  .rate-cal__pick {
+    flex: 1 0 auto;
+    width: auto;
+    margin-bottom: 0;
+  }
+  .rate-cal__price {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+  /* подписи вместимости не повторяются столбиком: «2 гостя 10 000 ₸ · 1 гость 8 000 ₸» */
+  .rate-cal__price--secondary {
+    margin-left: auto;
+  }
+  .rate-cal__limits {
+    flex-basis: 100%;
+    margin-top: 0;
+  }
 }
 
 /* Подпись сопоставления с Channex в панели правки (анти-путаница при сертификации) */
@@ -587,8 +614,9 @@
   }
 }
 @media (max-width: 600px) {
+  /* Низ — не меньше высоты нижней навигации (70 px), иначе липкая полоса выбора прячется под ней */
   .workspace .page:has(> .rates-filters) {
-    padding: 16px 16px 64px;
+    padding: 16px 16px calc(90px + env(safe-area-inset-bottom, 0px));
   }
   .rates-selection {
     padding: 8px 0;

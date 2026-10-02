@@ -1319,6 +1319,23 @@ export interface PeriodReport {
   refundedMinor: string;
   balanceMinor: string;
 }
+/** Отчёт по услугам за период (REP2): свод начислений-услуг; `code: null` — начисления вручную */
+export interface PeriodServices {
+  from: string;
+  to: string;
+  currency: string;
+  count: number;
+  /** равен строке SERVICE в `chargesByKind` сводки — то же окно и те же правила */
+  totalMinor: string;
+  rows: Array<{
+    code: string | null;
+    name: string | null;
+    group: string | null;
+    charges: number;
+    quantity: number;
+    amountMinor: string;
+  }>;
+}
 /** «Брони с остатком к сбору» за период (ADR-113): остаток — по всему счёту брони, как на карточке */
 export interface PeriodDebts {
   from: string;
@@ -1343,6 +1360,7 @@ export interface PeriodDebts {
   truncated: boolean;
 }
 /** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
+export type OperationKind = 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
 export interface PeriodOperations {
   from: string;
   to: string;
@@ -1350,36 +1368,88 @@ export interface PeriodOperations {
   total: number;
   paidMinor: string;
   refundedMinor: string;
+  /** касса (DATA_MODEL §21): проведённые поступления и расходы по отбору; комиссии — в расходах */
+  incomeMinor: string;
+  expenseMinor: string;
   methods: Array<{ method: string; count: number }>;
   rows: Array<{
-    kind: 'PAYMENT' | 'REFUND';
+    kind: OperationKind;
     id: string;
     at: string;
     localAt: string;
     method: string;
+    methodTo: string | null;
     amountMinor: string;
     status: 'COMPLETED' | 'VOIDED';
     confirmationNumber: string | null;
     reservations: number;
     guestLabel: string | null;
+    category: string | null;
+    note: string | null;
   }>;
   truncated: boolean;
+}
+/** Остатки кассы по способам (DATA_MODEL §21) — за всё время; статьи и сверки — тем же ответом */
+export interface CashBalances {
+  currency: string;
+  totalMinor: string;
+  balances: Array<{ method: string; balanceMinor: string }>;
+  categories: CashCategory[];
+  /** последняя сверка по каждому способу (§21.4) */
+  reconciliations: Array<{
+    method: string;
+    at: string;
+    localAt: string;
+    expectedMinor: string;
+    countedMinor: string;
+    note: string | null;
+  }>;
+}
+export interface CashCategory {
+  id: string;
+  kind: 'INCOME' | 'EXPENSE';
+  name: string;
+  active: boolean;
 }
 export const financeApi = {
   operations: (
     from: string,
     to: string,
-    filter: { type?: string | undefined; method?: string | undefined; limit?: number } = {},
+    filter: {
+      type?: string | undefined;
+      method?: string | undefined;
+      source?: string | undefined;
+      limit?: number;
+    } = {},
   ) => {
     const qs = new URLSearchParams({ from, to });
     if (filter.type) qs.set('type', filter.type);
     if (filter.method) qs.set('method', filter.method);
+    if (filter.source) qs.set('source', filter.source);
     if (filter.limit) qs.set('limit', String(filter.limit));
     return getJson<PeriodOperations>(`/finance/operations?${qs}`);
   },
+  // касса (DATA_MODEL §21)
+  cash: () => getJson<CashBalances>('/finance/cash'),
+  createCashCategory: (body: unknown) =>
+    sendJson<CashCategory[]>('POST', '/finance/cash/categories', body),
+  updateCashCategory: (id: string, body: unknown) =>
+    sendJson<CashCategory[]>('PATCH', `/finance/cash/categories/${encodeURIComponent(id)}`, body),
+  createCashOperation: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/operations', body),
+  createCashTransfer: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/transfers', body),
+  createCashReconciliation: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/reconciliations', body),
+  voidCashOperation: (id: string) =>
+    sendJson<CashBalances>('POST', `/finance/cash/operations/${encodeURIComponent(id)}/void`, {}),
   report: (from: string, to: string) =>
     getJson<PeriodReport>(
       `/finance/report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+  servicesReport: (from: string, to: string) =>
+    getJson<PeriodServices>(
+      `/finance/services-report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     ),
   debts: (from: string, to: string) =>
     getJson<PeriodDebts>(
@@ -2199,6 +2269,8 @@ export interface AuthMember {
   name: string | null;
   role: MembershipRole;
   joinedAt: string;
+  /** Последний вход в систему: не входил — null (TEAM1, «Был в системе») */
+  lastLoginAt: string | null;
   you: boolean;
   removable: boolean;
   roleEditable: boolean;

@@ -9,7 +9,7 @@ import { expect, type Page } from '@playwright/test';
  * нажали кнопку в окне. Кнопка названа действием («Отменить бронь»), как её нажимает администратор.
  *
  * Открытое окно — только одно, но `<dialog>` на странице несколько: их держит каждая панель с
- * действиями (карточка брони — и «Счета», и «Действия»), а выезжающая карточка брони на шахматке —
+ * действиями (карточка брони — и «Счета», и «Действия»), а выезжающая карточка брони в календаре —
  * тоже role=dialog. Закрытые не имеют атрибута `open`, поэтому ищем именно открытое окно подтверждения.
  */
 const openDialog = (page: Page) => page.locator('dialog[open][data-testid="confirm-dialog"]');
@@ -23,7 +23,7 @@ export async function confirmDialog(page: Page, button: string, expectText?: str
   await expect(openDialog(page)).toHaveCount(0);
 }
 
-/** То же без проверки текста — для окон вне карточки (переселение на шахматке, закрытие счёта). */
+/** То же без проверки текста — для окон вне карточки (переселение в календаре, закрытие счёта). */
 export async function confirmAction(page: Page, label: string) {
   await confirmDialog(page, label);
 }

@@ -18,22 +18,25 @@ const routes = [
   '/channels',
   '/website',
   // «Показатели за период» (A1) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114): в меню их нет
+  '/reports',
   '/finance',
   '/management/analytics',
   '/hotel-settings',
+  // «Сотрудники» — видимый раздел команды (TEAM1, план settings-hub-2026-10-02)
+  '/team',
   '/connections',
-  '/staff',
   '/journal',
   '/incidents',
 ];
 
 const SECTIONS = [
   'Главная',
-  'Шахматка',
+  'Календарь',
   'Брони',
   'Гости',
   'Номерной фонд',
   'Продажи',
+  'Отчёты',
   'Финансы',
   'Аналитика',
   'Настройки',
@@ -58,8 +61,8 @@ test('меню телефона: работа смены прямыми ссыл
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
-  // «Шахматка» больше не спрятана в группе: прямая ссылка с подписью
-  const board = menu.getByRole('link', { name: 'Шахматка', exact: true });
+  // «Календарь» больше не спрятан в группе: прямая ссылка с подписью
+  const board = menu.getByRole('link', { name: 'Календарь', exact: true });
   await expect(board.locator('span')).toBeVisible();
   await board.click();
   await expect(page).toHaveURL(/\/chessboard$/);

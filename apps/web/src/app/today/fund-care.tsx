@@ -22,7 +22,7 @@ const capital = (word: string) => word.charAt(0).toLocaleUpperCase('ru') + word.
 function BoardFailed({ testId }: { testId: string }) {
   return (
     <Alert tone="warning" boxed data-testid={testId}>
-      Шахматка дня не загрузилась. Обновите страницу.
+      Календарь дня не загрузился. Обновите страницу.
     </Alert>
   );
 }
@@ -86,7 +86,7 @@ export function FundPanel({
       <div className="fund-footer">
         {!isToday && <span>{TODAY_ONLY}</span>}
         <Link className="card-heading__link" href={`/chessboard?from=${day.date}&to=${day.date}`}>
-          Шахматка
+          Календарь
           <Icon name="chevron" width={14} />
         </Link>
       </div>
@@ -149,7 +149,7 @@ export function CarePanel({
       </div>
       <div className="fund-footer">
         <Link className="card-heading__link" href={`/chessboard?from=${date}&to=${date}`}>
-          Шахматка
+          Календарь
           <Icon name="chevron" width={14} />
         </Link>
       </div>

@@ -24,7 +24,7 @@ test('шахматка показывает 88 ячеек, и занятость
   expect(summary.occupied).toBeGreaterThan(0);
 
   await page.goto(`/chessboard?from=${TODAY}&to=${plusDays(TODAY, 13)}`);
-  await expect(page.getByRole('heading', { name: 'Шахматка' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Календарь' })).toBeVisible();
   await expect(page.getByRole('main').getByTestId('unit-row')).toHaveCount(88);
   await expect(page.getByRole('main').getByTestId('date-col')).toHaveCount(14);
   await expect(page.getByRole('main').getByTestId(`occupied-${TODAY}`)).toHaveText(

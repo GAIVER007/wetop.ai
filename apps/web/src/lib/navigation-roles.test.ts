@@ -42,6 +42,7 @@ describe('меню по ролям', () => {
       '/reservations',
       '/guests',
       '/ai-agents',
+      '/reports',
       '/finance',
       '/management/analytics',
       '/incidents',
@@ -52,6 +53,7 @@ describe('меню по ролям', () => {
       'reservations',
       'guests',
       'sales',
+      'reports',
       'finance',
       'analytics',
       'settings',
@@ -163,8 +165,8 @@ describe('«ИИ-агенты» (S0)', () => {
 });
 
 it('сотрудники доступны в настройках только владельцу и управляющему', () => {
-  expect(routeRule('/staff')?.requires).toBe('staff');
-  expect(hrefs(access('OWNER'))).toContain('/staff');
-  expect(hrefs(access('MANAGER'))).toContain('/staff');
-  expect(hrefs(access('STAFF'))).not.toContain('/staff');
+  expect(routeRule('/team')?.requires).toBe('staff');
+  expect(hrefs(access('OWNER'))).toContain('/team');
+  expect(hrefs(access('MANAGER'))).toContain('/team');
+  expect(hrefs(access('STAFF'))).not.toContain('/team');
 });

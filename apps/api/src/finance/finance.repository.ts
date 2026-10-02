@@ -139,6 +139,15 @@ export interface PeriodReport {
   accommodationByCategory: Array<{ category: string; count: number; amountMinor: bigint }>;
 }
 
+/** Одно начисление-услуга периода (REP2): услуга справочника или начисление вручную (`service*` — null) */
+export interface ServiceChargeRecord {
+  serviceCode: string | null;
+  serviceName: string | null;
+  serviceGroup: string | null;
+  quantity: number;
+  amountMinor: bigint;
+}
+
 /**
  * Бронь для списка «Брони с остатком к сбору» (ADR-113): у неё есть действующее начисление с датой услуги в
  * периоде, а суммы — по всем её счетам за всё время, как у остатка на карточке брони.
@@ -165,25 +174,93 @@ export interface DebtCandidate {
  * объекта; бронь — через распределение платежа (первая по номеру, `reservations` — сколько их) или счёт возврата.
  */
 export interface OperationRecord {
-  kind: 'PAYMENT' | 'REFUND';
+  kind: 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
   id: string;
   at: string;
   /** `YYYY-MM-DD HH:mm` по поясу объекта */
   localAt: string;
   method: PaymentMethod;
+  /** только у перевода кассы — способ «куда» */
+  methodTo: PaymentMethod | null;
   amountMinor: bigint;
   status: 'COMPLETED' | 'VOIDED';
   confirmationNumber: string | null;
   reservations: number;
   guestLabel: string | null;
+  /** статья кассы словом; у денег броней — null */
+  category: string | null;
+  note: string | null;
 }
 /** Итоги операций периода без отборов — для сумм по отбору и чисел на чипах способов */
 export interface OperationsSummaryRow {
-  kind: 'PAYMENT' | 'REFUND';
+  kind: 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
   method: PaymentMethod;
   status: 'COMPLETED' | 'VOIDED';
   count: number;
   amountMinor: bigint;
+}
+
+// ── Касса (DATA_MODEL §21): операции мимо счетов гостей, статьи, остатки по способам ─────────────
+export type CashKind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
+/** Пять видов строки общей ленты операций: деньги броней + касса */
+export type OperationKind = 'PAYMENT' | 'REFUND' | CashKind;
+export interface CashCategoryRecord {
+  id: string;
+  kind: 'INCOME' | 'EXPENSE';
+  name: string;
+  active: boolean;
+}
+export interface NewCashOperation {
+  kind: CashKind;
+  method: PaymentMethod;
+  methodTo: PaymentMethod | null;
+  amountMinor: bigint;
+  categoryId: string | null;
+  note: string | null;
+  occurredAt: string | null;
+  /** связанный расход той же транзакцией (related_id → основная операция) */
+  commission: { amountMinor: bigint; categoryId: string | null } | null;
+}
+export interface CashOperationRecord {
+  id: string;
+  kind: CashKind;
+  method: PaymentMethod;
+  methodTo: PaymentMethod | null;
+  amountMinor: bigint;
+  status: 'COMPLETED' | 'VOIDED';
+  /** эта операция — комиссия другой: аннулируется только вместе с основной */
+  relatedId: string | null;
+  /** id строки-комиссии этой операции, если есть */
+  commissionId: string | null;
+}
+/** Сверка кассы (§21.4): последняя запись по способу */
+export interface CashReconciliationRecord {
+  method: PaymentMethod;
+  at: string;
+  /** `YYYY-MM-DD HH:mm` по поясу объекта */
+  localAt: string;
+  expectedMinor: bigint;
+  countedMinor: bigint;
+  note: string | null;
+}
+export interface NewCashReconciliation {
+  method: PaymentMethod;
+  expectedMinor: bigint;
+  countedMinor: bigint;
+  note: string | null;
+  /** поправка той же транзакцией; статья находится или заводится по имени */
+  adjustment: { kind: 'INCOME' | 'EXPENSE'; amountMinor: bigint; categoryName: string } | null;
+}
+/** Слагаемые остатков по способам — суммы за всё время, считает база */
+export interface CashBalanceSources {
+  payments: Array<{ method: string; amountMinor: bigint }>;
+  refunds: Array<{ method: string; amountMinor: bigint }>;
+  operations: Array<{
+    kind: CashKind;
+    method: string;
+    methodTo: string | null;
+    amountMinor: bigint;
+  }>;
 }
 
 /** Порт финансов: счета читаются целиком (начисления, распределения, возвраты), команды — точечные записи. */
@@ -215,14 +292,41 @@ export interface FinanceRepository {
   services(): Promise<ServiceRef[]>;
   /** Сводка за период [from, to] включительно (T4 «финансовый учёт период») */
   periodReport(from: string, to: string): Promise<PeriodReport>;
+  /** Начисления-услуги периода по дате услуги, без аннулированных — сырьё отчёта по услугам (REP2); сводит сервис */
+  periodServiceCharges(from: string, to: string): Promise<ServiceChargeRecord[]>;
   /** Брони с начислением в периоде [from, to] и суммы по всем их счетам (ADR-113) */
   periodDebts(from: string, to: string): Promise<DebtCandidate[]>;
-  /** Оплаты и возвраты периода: строки по отбору (новые первыми, не больше `limit`) и итоги без отборов (ADR-113, F2) */
+  /** Общая лента денег за период: оплаты и возвраты броней + операции кассы; итоги без отборов (ADR-113, F2; §21) */
   periodOperations(
     from: string,
     to: string,
-    filter: { type?: 'PAYMENT' | 'REFUND'; method?: PaymentMethod; limit: number },
+    filter: {
+      type?: OperationKind;
+      method?: PaymentMethod;
+      source?: 'RESERVATIONS' | 'CASH';
+      limit: number;
+    },
   ): Promise<{ rows: OperationRecord[]; summary: OperationsSummaryRow[] }>;
+  /** Слагаемые остатков кассы по способам — за всё время (§21) */
+  cashBalanceSources(): Promise<CashBalanceSources>;
+  /** Статьи кассы; пустой справочник заполняется стартовым набором (Q-236) */
+  cashCategories(): Promise<CashCategoryRecord[]>;
+  createCashCategory(c: { kind: 'INCOME' | 'EXPENSE'; name: string }, audit?: AuditEntry): Promise<string>;
+  /** false — статьи нет у этого объекта */
+  updateCashCategory(
+    id: string,
+    patch: { name?: string; active?: boolean },
+    audit?: AuditEntry,
+  ): Promise<boolean>;
+  /** Операция кассы вместе с комиссией — одной транзакцией; возвращает id основной */
+  createCashOperation(op: NewCashOperation, audit?: AuditEntry): Promise<string>;
+  cashOperationById(id: string): Promise<CashOperationRecord | null>;
+  /** Аннулирование под блокировкой строки; комиссия аннулируется вместе с основной */
+  voidCashOperation(id: string, audit?: AuditEntry): Promise<void>;
+  /** Последняя сверка по каждому способу (§21.4) */
+  latestCashReconciliations(): Promise<CashReconciliationRecord[]>;
+  /** Запись сверки вместе с поправкой — одной транзакцией */
+  createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry): Promise<string>;
   /** Сегодня по часам объекта (С-13): дата услуги по умолчанию */
   today(): Promise<string>;
   addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string>;
@@ -509,6 +613,31 @@ export class PrismaFinanceRepository implements FinanceRepository {
       accommodationByCategory: [...byCategory].map(([category, v]) => ({ category, ...v })),
     };
   }
+  // Зеркало выборки periodReport, суженное до услуг: те же правила окна и аннулирования —
+  // «Итого» отчёта по услугам всегда равно строке SERVICE сводки (REP2)
+  async periodServiceCharges(from: string, to: string): Promise<ServiceChargeRecord[]> {
+    const { id: propertyId } = await this.property();
+    const rows = await this.prisma.db.charge.findMany({
+      where: {
+        voidedAt: null,
+        kind: 'SERVICE',
+        serviceDate: { gte: asDate(from), lte: asDate(to) },
+        folio: { reservationItem: { reservation: { propertyId } } },
+      },
+      select: {
+        quantity: true,
+        amount: true,
+        service: { select: { code: true, nameRu: true, group: true } },
+      },
+    });
+    return rows.map((c) => ({
+      serviceCode: c.service?.code ?? null,
+      serviceName: c.service?.nameRu ?? null,
+      serviceGroup: c.service?.group ?? null,
+      quantity: c.quantity,
+      amountMinor: c.amount,
+    }));
+  }
   /**
    * Один запрос вместо загрузки всех начислений в память: за год это тысячи броней. Бронь попадает в выборку по
    * действующему начислению с датой услуги в периоде — та же база, что у «Начислено» в сводке; суммы берутся по
@@ -590,43 +719,59 @@ export class PrismaFinanceRepository implements FinanceRepository {
   async periodOperations(
     from: string,
     to: string,
-    filter: { type?: 'PAYMENT' | 'REFUND'; method?: PaymentMethod; limit: number },
+    filter: {
+      type?: OperationKind;
+      method?: PaymentMethod;
+      source?: 'RESERVATIONS' | 'CASH';
+      limit: number;
+    },
   ): Promise<{ rows: OperationRecord[]; summary: OperationsSummaryRow[] }> {
     const tz = await this.timezone();
     const { id: propertyId } = await this.property();
     const start = localStart(from, tz);
     const end = localEndExclusive(to, tz);
     const ops = Prisma.sql`
-      SELECT 'PAYMENT'::text AS kind, p.id, p.paid_at AS at, p.method::text AS method, p.amount,
-             p.status::text AS status, NULL::uuid AS folio_id
+      SELECT 'PAYMENT'::text AS kind, p.id, p.paid_at AS at, p.method::text AS method, NULL::text AS method_to,
+             p.amount, p.status::text AS status, NULL::uuid AS folio_id, NULL::text AS category, NULL::text AS note
         FROM payments p
        WHERE p.property_id = ${propertyId}::uuid AND p.paid_at >= ${start} AND p.paid_at < ${end}
       UNION ALL
-      SELECT 'REFUND'::text, x.id, x.created_at, p.method::text, x.amount, 'COMPLETED'::text, x.folio_id
+      SELECT 'REFUND'::text, x.id, x.created_at, p.method::text, NULL::text, x.amount, 'COMPLETED'::text,
+             x.folio_id, NULL::text, NULL::text
         FROM refunds x
         JOIN payments p ON p.id = x.payment_id
         JOIN folios f ON f.id = x.folio_id
         JOIN reservation_items ri ON ri.id = f.reservation_item_id
         JOIN reservations r ON r.id = ri.reservation_id
-       WHERE r.property_id = ${propertyId}::uuid AND x.created_at >= ${start} AND x.created_at < ${end}`;
+       WHERE r.property_id = ${propertyId}::uuid AND x.created_at >= ${start} AND x.created_at < ${end}
+      UNION ALL
+      SELECT co.kind::text, co.id, co.occurred_at, co.method::text, co.method_to::text, co.amount,
+             co.status::text, NULL::uuid, cc.name, co.note
+        FROM cash_operations co
+        LEFT JOIN cash_categories cc ON cc.id = co.category_id
+       WHERE co.property_id = ${propertyId}::uuid AND co.occurred_at >= ${start} AND co.occurred_at < ${end}`;
     const rows = await this.prisma.db.$queryRaw<
       Array<{
-        kind: 'PAYMENT' | 'REFUND';
+        kind: OperationKind;
         id: string;
         at: Date;
         local_at: string;
         method: PaymentMethod;
+        method_to: PaymentMethod | null;
         amount: bigint;
         status: 'COMPLETED' | 'VOIDED';
         confirmation_number: string | null;
         first_name: string | null;
         last_name: string | null;
         reservations: bigint | null;
+        category: string | null;
+        note: string | null;
       }>
     >(Prisma.sql`
       WITH ops AS (${ops})
       SELECT o.kind, o.id, o.at, to_char(o.at AT TIME ZONE ${tz}, 'YYYY-MM-DD HH24:MI') AS local_at,
-             o.method, o.amount, o.status, b.confirmation_number, b.first_name, b.last_name, b.reservations
+             o.method, o.method_to, o.amount, o.status, o.category, o.note,
+             b.confirmation_number, b.first_name, b.last_name, b.reservations
         FROM ops o
         LEFT JOIN LATERAL (
           SELECT r.confirmation_number, g.first_name, g.last_name, COUNT(*) OVER () AS reservations
@@ -644,11 +789,14 @@ export class PrismaFinanceRepository implements FinanceRepository {
         ) b ON true
        WHERE (${filter.type ?? null}::text IS NULL OR o.kind = ${filter.type ?? null}::text)
          AND (${filter.method ?? null}::text IS NULL OR o.method = ${filter.method ?? null}::text)
+         AND (${filter.source ?? null}::text IS NULL
+              OR (CASE WHEN o.kind IN ('INCOME', 'EXPENSE', 'TRANSFER') THEN 'CASH' ELSE 'RESERVATIONS' END)
+                 = ${filter.source ?? null}::text)
        ORDER BY o.at DESC, o.id
        LIMIT ${filter.limit}`);
     const summary = await this.prisma.db.$queryRaw<
       Array<{
-        kind: 'PAYMENT' | 'REFUND';
+        kind: OperationKind;
         method: PaymentMethod;
         status: 'COMPLETED' | 'VOIDED';
         count: bigint;
@@ -666,12 +814,15 @@ export class PrismaFinanceRepository implements FinanceRepository {
         at: r.at.toISOString(),
         localAt: r.local_at,
         method: r.method,
+        methodTo: r.method_to,
         amountMinor: BigInt(r.amount),
         status: r.status,
         confirmationNumber: r.confirmation_number,
         reservations: Number(r.reservations ?? 0),
         guestLabel:
           r.first_name === null ? null : `${r.first_name} ${r.last_name ?? ''}`.trim() || null,
+        category: r.category,
+        note: r.note,
       })),
       summary: summary.map((x) => ({
         kind: x.kind,
@@ -873,6 +1024,253 @@ export class PrismaFinanceRepository implements FinanceRepository {
         data: { status: 'CLOSED', closedAt: new Date() },
       });
     });
+  }
+  // ── Касса (DATA_MODEL §21) ─────────────────────────────────────────────────────────────────────
+  async cashBalanceSources(): Promise<CashBalanceSources> {
+    const { id: propertyId } = await this.property();
+    const payments = await this.prisma.db.payment.groupBy({
+      by: ['method'],
+      where: { propertyId, status: 'COMPLETED' },
+      _sum: { amount: true },
+    });
+    // способ возврата — от платежа, с которого вернули (как в ленте операций)
+    const refunds = await this.prisma.db.$queryRaw<Array<{ method: string; amount: bigint }>>`
+      SELECT p.method::text AS method, SUM(x.amount)::bigint AS amount
+        FROM refunds x
+        JOIN payments p ON p.id = x.payment_id
+       WHERE p.property_id = ${propertyId}::uuid
+       GROUP BY p.method`;
+    const operations = await this.prisma.db.cashOperation.groupBy({
+      by: ['kind', 'method', 'methodTo'],
+      where: { propertyId, status: 'COMPLETED' },
+      _sum: { amount: true },
+    });
+    return {
+      payments: payments.map((p) => ({ method: p.method, amountMinor: p._sum.amount ?? 0n })),
+      refunds: refunds.map((r) => ({ method: r.method, amountMinor: BigInt(r.amount) })),
+      operations: operations.map((o) => ({
+        kind: o.kind,
+        method: o.method,
+        methodTo: o.methodTo,
+        amountMinor: o._sum.amount ?? 0n,
+      })),
+    };
+  }
+  /** Стартовый набор статей (Q-236): список старой системы без «Расходы Хостел №2» — это другой объект */
+  private static readonly DEFAULT_CASH_CATEGORIES: ReadonlyArray<{
+    kind: 'INCOME' | 'EXPENSE';
+    name: string;
+  }> = [
+    { kind: 'INCOME', name: 'Начальный остаток' },
+    { kind: 'INCOME', name: 'Прочее поступление' },
+    { kind: 'EXPENSE', name: 'Комиссия банка' },
+    { kind: 'EXPENSE', name: 'Зарплата' },
+    { kind: 'EXPENSE', name: 'Бытовые расходы' },
+    { kind: 'EXPENSE', name: 'Ремонтные работы' },
+    { kind: 'EXPENSE', name: 'Таргет/СММ/Инстаграм' },
+    { kind: 'EXPENSE', name: 'Минибар' },
+    { kind: 'EXPENSE', name: 'Чай/вода/сахар' },
+    { kind: 'EXPENSE', name: 'Бытовая химия' },
+    { kind: 'EXPENSE', name: 'Мероприятия' },
+  ];
+  async cashCategories(): Promise<CashCategoryRecord[]> {
+    const { id: propertyId } = await this.property();
+    const existing = await this.prisma.db.cashCategory.count({ where: { propertyId } });
+    if (existing === 0)
+      // новый объект получает набор при первом чтении; гонка двух чтений упрётся в уникальный ключ — не страшно
+      await this.prisma.db.cashCategory
+        .createMany({
+          data: PrismaFinanceRepository.DEFAULT_CASH_CATEGORIES.map((c) => ({
+            propertyId,
+            ...c,
+          })),
+        })
+        .catch(() => undefined);
+    const rows = await this.prisma.db.cashCategory.findMany({
+      where: { propertyId },
+      orderBy: [{ kind: 'asc' }, { name: 'asc' }],
+    });
+    return rows.map((c) => ({ id: c.id, kind: c.kind as 'INCOME' | 'EXPENSE', name: c.name, active: c.active }));
+  }
+  async createCashCategory(
+    c: { kind: 'INCOME' | 'EXPENSE'; name: string },
+    audit?: AuditEntry,
+  ): Promise<string> {
+    const { id: propertyId } = await this.property();
+    try {
+      const row = await this.withAudit(audit, (tx) =>
+        tx.cashCategory.create({
+          data: { propertyId, kind: c.kind, name: c.name },
+          select: { id: true },
+        }),
+      );
+      return row.id;
+    } catch (e) {
+      if ((e as { code?: string }).code === 'P2002')
+        throw new FinanceRuleError(`Статья «${c.name}» уже есть`);
+      throw e;
+    }
+  }
+  async updateCashCategory(
+    id: string,
+    patch: { name?: string; active?: boolean },
+    audit?: AuditEntry,
+  ): Promise<boolean> {
+    const { id: propertyId } = await this.property();
+    const found = await this.prisma.db.cashCategory.findFirst({ where: { id, propertyId } });
+    if (!found) return false;
+    try {
+      await this.withAudit(audit, async (tx) => {
+        await tx.cashCategory.update({ where: { id }, data: patch });
+      });
+    } catch (e) {
+      if ((e as { code?: string }).code === 'P2002')
+        throw new FinanceRuleError(`Статья «${patch.name}» уже есть`);
+      throw e;
+    }
+    return true;
+  }
+  async createCashOperation(op: NewCashOperation, audit?: AuditEntry): Promise<string> {
+    const { id: propertyId } = await this.property();
+    const row = await this.withAudit(audit, async (tx) => {
+      const main = await tx.cashOperation.create({
+        data: {
+          propertyId,
+          kind: op.kind,
+          method: op.method,
+          methodTo: op.methodTo,
+          amount: op.amountMinor,
+          categoryId: op.categoryId,
+          note: op.note,
+          createdById: auditUserId(),
+          ...(op.occurredAt ? { occurredAt: new Date(op.occurredAt) } : {}),
+        },
+        select: { id: true, occurredAt: true },
+      });
+      if (op.commission)
+        await tx.cashOperation.create({
+          data: {
+            propertyId,
+            kind: 'EXPENSE',
+            method: op.method,
+            amount: op.commission.amountMinor,
+            categoryId: op.commission.categoryId,
+            note: 'Комиссия за операцию',
+            relatedId: main.id,
+            createdById: auditUserId(),
+            occurredAt: main.occurredAt,
+          },
+        });
+      return main;
+    });
+    return row.id;
+  }
+  async cashOperationById(id: string): Promise<CashOperationRecord | null> {
+    const { id: propertyId } = await this.property();
+    const o = await this.prisma.db.cashOperation.findFirst({ where: { id, propertyId } });
+    if (!o) return null;
+    const commission = await this.prisma.db.cashOperation.findFirst({
+      where: { relatedId: id },
+      select: { id: true },
+    });
+    return {
+      id: o.id,
+      kind: o.kind,
+      method: o.method,
+      methodTo: o.methodTo,
+      amountMinor: o.amount,
+      status: o.status,
+      relatedId: o.relatedId,
+      commissionId: commission?.id ?? null,
+    };
+  }
+  async voidCashOperation(id: string, audit?: AuditEntry): Promise<void> {
+    await this.locked(
+      audit,
+      async (tx) => {
+        const rows = await tx.$queryRaw<Array<{ status: string }>>`
+          SELECT "status"::text AS status FROM "cash_operations" WHERE "id" = ${id}::uuid FOR UPDATE`;
+        if (rows[0]?.status !== 'COMPLETED')
+          throw new FinanceStateError('Операция уже аннулирована');
+      },
+      async (tx) => {
+        await tx.cashOperation.updateMany({
+          where: { OR: [{ id }, { relatedId: id }] },
+          data: { status: 'VOIDED' },
+        });
+      },
+    );
+  }
+  // ── Сверка кассы (§21.4) ──────────────────────────────────────────────────────────────────────
+  async latestCashReconciliations(): Promise<CashReconciliationRecord[]> {
+    const tz = await this.timezone();
+    const { id: propertyId } = await this.property();
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{
+        method: PaymentMethod;
+        at: Date;
+        local_at: string;
+        expected: bigint;
+        counted: bigint;
+        note: string | null;
+      }>
+    >`
+      SELECT DISTINCT ON ("method") "method"::text AS method, "created_at" AS at,
+             to_char("created_at" AT TIME ZONE ${tz}, 'YYYY-MM-DD HH24:MI') AS local_at,
+             "expected", "counted", "note"
+        FROM "cash_reconciliations"
+       WHERE "property_id" = ${propertyId}::uuid
+       ORDER BY "method", "created_at" DESC`;
+    return rows.map((r) => ({
+      method: r.method,
+      at: r.at.toISOString(),
+      localAt: r.local_at,
+      expectedMinor: BigInt(r.expected),
+      countedMinor: BigInt(r.counted),
+      note: r.note,
+    }));
+  }
+  async createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry): Promise<string> {
+    const { id: propertyId } = await this.property();
+    const row = await this.withAudit(audit, async (tx) => {
+      if (r.adjustment) {
+        const category = await tx.cashCategory.upsert({
+          where: {
+            propertyId_kind_name: {
+              propertyId,
+              kind: r.adjustment.kind,
+              name: r.adjustment.categoryName,
+            },
+          },
+          update: { active: true },
+          create: { propertyId, kind: r.adjustment.kind, name: r.adjustment.categoryName },
+          select: { id: true },
+        });
+        await tx.cashOperation.create({
+          data: {
+            propertyId,
+            kind: r.adjustment.kind,
+            method: r.method,
+            amount: r.adjustment.amountMinor,
+            categoryId: category.id,
+            note: 'Поправка по сверке кассы',
+            createdById: auditUserId(),
+          },
+        });
+      }
+      return tx.cashReconciliation.create({
+        data: {
+          propertyId,
+          method: r.method,
+          expected: r.expectedMinor,
+          counted: r.countedMinor,
+          note: r.note,
+          createdById: auditUserId(),
+        },
+        select: { id: true },
+      });
+    });
+    return row.id;
   }
   async audit(
     entityType: string,

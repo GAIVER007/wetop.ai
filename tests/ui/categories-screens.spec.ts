@@ -47,6 +47,12 @@ test('categories C1: five Luxx-shaped rows, filters, row menu, long name — lig
   await expect(
     rows.filter({ hasText: 'Мужской общий номер' }).getByRole('link', { name: '36 коек' }),
   ).toBeVisible();
+  // «Тип продажи» больше не колонка: тип виден по значку у названия и слову фонда («36 коек»);
+  // «Активна» — текстом, бейджи только у исключений (упрощение 02.10, как в «Номерах и койках»)
+  await expect(page.getByRole('columnheader', { name: 'Тип продажи' })).toHaveCount(0);
+  await expect(
+    rows.filter({ hasText: 'Мужской общий номер' }).getByText('активна', { exact: true }),
+  ).toBeVisible();
   await page.screenshot({ path: `${shots}/categories-light-1440.png`, fullPage: true });
 
   // фильтр типа чипами (ТЗ §25)

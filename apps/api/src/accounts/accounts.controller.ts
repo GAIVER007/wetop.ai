@@ -283,6 +283,7 @@ interface MemberJson {
   name: string | null;
   role: MembershipRole;
   joinedAt: string;
+  lastLoginAt: string | null;
   you: boolean;
   removable: boolean;
   roleEditable: boolean;
@@ -295,6 +296,7 @@ function memberJson(m: MemberView): MemberJson {
     name: m.name,
     role: m.role,
     joinedAt: m.joinedAt.toISOString(),
+    lastLoginAt: m.lastLoginAt ? m.lastLoginAt.toISOString() : null,
     you: m.you,
     removable: m.removable,
     roleEditable: m.roleEditable,

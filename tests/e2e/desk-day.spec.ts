@@ -90,7 +90,7 @@ test('главная открывается с корня; заезд на да�
   await page.goto(`/management/analytics?period=custom&from=${day}&to=${plus(1)}`);
   await expect(page.getByRole('main').getByTestId('pa-chart-occupancy')).toBeVisible();
   await expect(page.getByRole('main').getByTestId('pa-compare')).toContainText('Сравнение с');
-  // «Загрузка» за тот же день: бронь без ячейки — в «Без размещения», категории — из шахматки
+  // «Загрузка» за тот же день: бронь без ячейки — в «Без размещения», категории — из календаря
   await page.goto(`/management/analytics/occupancy?date=${day}`);
   expect(
     Number(await page.getByRole('main').getByTestId('pa-kpi-unassigned').innerText()),
@@ -105,7 +105,7 @@ test('главная открывается с корня; заезд на да�
   await expect(page.getByRole('main').getByLabel('Начало периода')).toHaveValue('2026-08-15');
   await expect(page.getByRole('main').getByLabel('Конец периода')).toHaveValue('2026-08-15');
   expect(await arrivals()).toBe(before + 1);
-  await expect(strip.getByRole('link', { name: 'Шахматка', exact: true })).toHaveAttribute(
+  await expect(strip.getByRole('link', { name: 'Календарь', exact: true })).toHaveAttribute(
     'href',
     `/chessboard?from=${today}&to=${today}`,
   );

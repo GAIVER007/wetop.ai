@@ -5050,3 +5050,4 @@
 | 02.10.2026 21:11 | lint | ❌ ошибок: 1 | 41 с | ef4e829 | [лог](logs/2026-10-02T16-11-48Z-lint-63f5.log) | REP2: вкладка услуг и фиксы |
 | 02.10.2026 21:12 | lint | ✅ без ошибок | 24 с | ef4e829 +1 | [лог](logs/2026-10-02T16-12-45Z-lint-4705.log) | REP2: BOM услуг в escape |
 | 02.10.2026 21:13 | unit (частично: apps/web/src/app/finance/services-csv.test.ts) | ✅ 2 из 2 | 1 с | ef4e829 +1 | [лог](logs/2026-10-02T16-13-10Z-unit-e0cc.log) | REP2: CSV услуг после escape |
+| 02.10.2026 21:26 | unit (частично: tests/unit/auto-deploy.test.ts) | ✅ 12 из 12 | 15 с | 38e376e | [лог](logs/2026-10-02T16-26-52Z-unit-c4d6.log) | интеграция: проверка auto-deploy вне worktree |

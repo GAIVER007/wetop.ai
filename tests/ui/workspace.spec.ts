@@ -623,22 +623,14 @@ test('общий платёж: ошибка не стирает распреде
   expect(result.balanceMinor).toBe('3000000');
 });
 
-test('обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия', async ({
+test('обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия', async ({
   page,
 }) => {
+  // компактный дашборд владельца (ea9dd3c): очередь A3 живёт за кнопкой «Требуют внимания» в панели,
+  // полосы «День стойки» и «Сегодня на стойке» с Главной сняты тем же срезом
   await page.goto('/today');
-  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
-  await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
-  // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
-  const queueTotal = async () =>
-    String(
-      (
-        await tasks
-          .getByTestId('attention-event')
-          .evaluateAll((els) => els.map((el) => Number(el.getAttribute('data-count'))))
-      ).reduce((a, b) => a + b, 0),
-    );
-  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  const tasks = page.getByRole('dialog', { name: 'Требуют внимания', exact: true });
   const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
   await expect(departureDebt).toContainText('К оплате');
   await expect(departureDebt).toHaveAttribute(
@@ -649,30 +641,15 @@ test('обзор: задачи ведут к счетам, полоса стой
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
-  // A1 (ADR-103): Главная живёт одним днём — «Завтра» меняет и полосу, и задачи на тот день
-  await page
-    .getByRole('navigation', { name: 'День стойки' })
-    .getByRole('link', { name: 'Завтра' })
-    .click();
-  await expect(page).toHaveURL(/date=\d{4}-\d{2}-\d{2}/);
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).not.toContainText('сейчас');
-  await page
-    .getByRole('navigation', { name: 'День стойки' })
-    .getByRole('link', { name: 'Сегодня' })
-    .click();
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
-  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
-  await expect(
-    page
-      .getByRole('region', { name: 'Сегодня на стойке' })
-      .getByRole('link', { name: 'Все брони дня' }),
-  ).toHaveAttribute('href', /\/reservations\?date=\d{4}-\d{2}-\d{2}/);
+  await page.keyboard.press('Escape');
+  await expect(tasks).toBeHidden();
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);
-    await expect(page.getByRole('link', { name: 'Новая бронь', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: '+ Новая бронь', exact: true })).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   await departureDebt.click();
   await expect(page).toHaveURL(/#booking-finance$/);
   await expect(page.locator('#booking-finance')).toBeInViewport();
@@ -912,6 +889,8 @@ test('кнопки Channex отправляют команды один раз �
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
+  // ручной обмен спрятан в раскрывашке «Активность каналов и ручной обмен»
+  await page.getByTestId('channels-activity').locator('> summary').click();
   for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
     const button = page.getByTestId(id).filter({ visible: true });
@@ -921,7 +900,8 @@ test('кнопки Channex отправляют команды один раз �
     await expect(button).toBeEnabled();
     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   }
-  await page.goto('/channels/connections');
+  // «Подключения» каналов переехали на /connections/channex (INT2)
+  await page.goto('/connections/channex');
   for (const id of ['channel-sync', 'channel-setup']) {
     const button = page.getByTestId(id).filter({ visible: true });
     await expect(button).toHaveCount(1);
@@ -977,6 +957,8 @@ test('пустые ответы дают нули; сбой API не выдаё�
     'Финансы за период',
   );
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
+  // «Долги» — отдельная вкладка финансов: сбой списка долгов виден на ней
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   /*

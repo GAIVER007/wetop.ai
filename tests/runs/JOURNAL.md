@@ -5127,3 +5127,6 @@
 | 02.10.2026 17:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts  | ❌ упало 50 из 188 | 28 мин 28 с | 5fc2337 | [лог](logs/2026-10-02T12-52-04Z-e2e-764b.log) | триаж второй партии красных main после стыковки меню |
 | 02.10.2026 18:29 | typecheck | ✅ без ошибок | 39 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-29-23Z-typecheck-74d8.log) |  |
 | 02.10.2026 18:30 | lint | ✅ без ошибок | 21 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-30-02Z-lint-d09c.log) |  |
+| 02.10.2026 21:17 | unit | ✅ 2792 из 2795, пропущено 3 | 1 мин 28 с | 1ec86f1 +1 | [лог](logs/2026-10-02T16-17-23Z-unit-993c.log) |  |
+| 02.10.2026 21:18 | typecheck | ✅ без ошибок | 33 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-18-57Z-typecheck-2c24.log) |  |
+| 02.10.2026 21:19 | lint | ✅ без ошибок | 18 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-19-31Z-lint-b54a.log) |  |

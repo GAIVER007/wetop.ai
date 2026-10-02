@@ -49,18 +49,18 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   );
 });
 
-test('главный администратор: рядом с продавцом карточка WETOP Support', async ({
+test('главный администратор: к техподдержке — переключателем агентов на «ИИ-продавце»', async ({
   page,
   request,
 }) => {
+  // карточку WETOP Support из каталога сняли (89b2474): вход администратора — ссылка «Техподдержка»
+  // рядом с «Все агенты» на /ai-seller; в каталоге карточки нет и у администратора
   await request.post(`${API}/__test/control`, { data: { platformAdmin: true } });
   await signIn(page);
   await page.goto('/ai-agents');
-  const support = page.getByTestId('agent-support');
-  await expect(support).toContainText('WETOP Support');
-  await expect(support).toContainText('Техническая поддержка платформы');
-  await expect(support).toContainText('Platform Agent');
-  await support.getByRole('link', { name: 'Открыть' }).click();
+  await expect(page.getByTestId('agent-support')).toHaveCount(0);
+  await page.goto('/ai-seller');
+  await page.getByRole('link', { name: 'Техподдержка', exact: true }).click();
   await expect(page).toHaveURL(/\/platform\/support/);
 });
 

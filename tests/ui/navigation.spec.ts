@@ -28,7 +28,7 @@ const routes = [
 
 const SECTIONS = [
   'Главная',
-  'Шахматка',
+  'Календарь',
   'Брони',
   'Гости',
   'Номерной фонд',
@@ -57,8 +57,8 @@ test('меню телефона: работа смены прямыми ссыл
   expect([...links].sort()).toEqual([...routes].sort());
   expect(new Set(links).size).toBe(links.length);
   await expect(menu.locator('[aria-current="page"]')).toHaveText('Главная');
-  // «Шахматка» больше не спрятана в группе: прямая ссылка с подписью
-  const board = menu.getByRole('link', { name: 'Шахматка', exact: true });
+  // «Календарь» больше не спрятана в группе: прямая ссылка с подписью
+  const board = menu.getByRole('link', { name: 'Календарь', exact: true });
   await expect(board.locator('span')).toBeVisible();
   await board.click();
   await expect(page).toHaveURL(/\/chessboard$/);

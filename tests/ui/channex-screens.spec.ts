@@ -388,7 +388,7 @@ test('приём брони из канала: цепочка ревизия →
   await expect(page.getByRole('main').getByTestId('revision-unit')).toContainText(
     'R06, Двухместный номер',
   );
-  await expect(page.getByRole('link', { name: 'Открыть шахматку на эти даты' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Открыть календарь на эти даты' })).toHaveAttribute(
     'href',
     /\/chessboard\?from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/,
   );

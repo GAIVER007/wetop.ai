@@ -182,7 +182,7 @@ function OccupancyPanel({ c, today }: { c: DashboardPeriod; today: string }) {
           ))}
         </ul>
         <Link href={chessboard} className="dash-panel__link">
-          Открыть шахматку на этот день
+          Открыть календарь на этот день
         </Link>
       </Panel>
     );
@@ -204,7 +204,7 @@ function OccupancyPanel({ c, today }: { c: DashboardPeriod; today: string }) {
         <span>
           <i className="bars-legend__future" /> будущие (по броням)
         </span>
-        <Link href={chessboard}>Открыть шахматку</Link>
+        <Link href={chessboard}>Открыть календарь</Link>
       </div>
     </Panel>
   );

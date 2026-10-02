@@ -262,7 +262,7 @@ export function InventoryCatalog({
         >
           {units.length
             ? 'Измените поиск или сбросьте фильтры.'
-            : 'Создайте категорию, затем добавьте номера или койки кнопкой «+ Добавить» — они сразу появятся на шахматке.'}
+            : 'Создайте категорию, затем добавьте номера или койки кнопкой «+ Добавить» — они сразу появятся в календаре.'}
         </EmptyState>
       ) : view === 'cards' ? (
         <div className="inventory-groups">
@@ -370,7 +370,7 @@ export function InventoryCatalog({
                       // строка и ссылка открывают панель места; меню ведёт на полную карточку (ADR-108, I2)
                       { label: 'Полная карточка', href: `/units/${encodeURIComponent(unit.code)}` },
                       {
-                        label: 'Показать на шахматке',
+                        label: 'Показать в календаре',
                         href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,
                       },
                       { label: 'Переименовать комнату', onSelect: () => setEditRoom(unit) },

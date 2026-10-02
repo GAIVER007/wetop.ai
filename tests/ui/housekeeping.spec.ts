@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
- * Цикл уборки на шахматке и в карточке ячейки (22.09.2026, поручение владельца по снимку: «построй логику
+ * Цикл уборки в календаре и в карточке ячейки (22.09.2026, поручение владельца по снимку: «построй логику
  * чёткую по значкам: требует уборки → убрано → проверено → после проверено номер становится доступным»).
  *
  * Было (21.09): щётка стояла только у грязной ячейки, а меню предлагало сразу и «Убрано», и «Проверено»;
@@ -71,7 +71,7 @@ test('шахматка: цикл в строке — требует уборки
   await expect(glyph).toHaveCount(0);
   await expect(glyphs).toHaveCount(1);
   // счётчик уборки — в пункте поля «Места» (PR 7 «Шахматки v2»)
-  await expect(main.getByLabel('Места на шахматке').locator('option[value="cleaning"]')).toHaveText(
+  await expect(main.getByLabel('Места в календаре').locator('option[value="cleaning"]')).toHaveText(
     'Уборка 1',
   );
 });
@@ -80,7 +80,7 @@ test('шахматка: «Уборка» в фильтрах считает вс
   const main = page.getByRole('main');
   await page.goto('/chessboard');
   // «Уборка N» — пункт поля «Места» (PR 7 «Шахматки v2»), а не чип
-  const places = main.getByLabel('Места на шахматке');
+  const places = main.getByLabel('Места в календаре');
   const cleaning = places.locator('option[value="cleaning"]');
   await expect(cleaning).toHaveText('Уборка 2');
   const r01 = main.getByTestId('unit-row').filter({ hasText: /\bR01\b/ });
@@ -204,7 +204,7 @@ test('выезд сам переводит ячейку в «требует уб
     .getByRole('button', { name: 'Выселить с долгом' })
     .click();
   await expect(page.getByTestId('check-out-ui-item')).toHaveCount(0);
-  // ячейка снова требует уборки: на шахматке щётка, в карточке — первый шаг цикла
+  // ячейка снова требует уборки: в календаре щётка, в карточке — первый шаг цикла
   await page.goto('/chessboard');
   const r01 = page
     .getByRole('main')

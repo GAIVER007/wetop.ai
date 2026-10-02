@@ -948,7 +948,7 @@ function Kit() {
 
       <Component
         id="legend"
-        title="Легенда шахматки"
+        title="Легенда календаря"
         where="ui.tsx · Legend; цветные квадраты + слово (глифы добавит срез 7.1)"
       >
         <State name="default">

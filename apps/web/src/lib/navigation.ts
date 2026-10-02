@@ -64,7 +64,7 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
       {
         href: '/chessboard',
         requires: 'desk',
-        label: 'Шахматка',
+        label: 'Календарь',
         icon: 'board',
         description: 'Размещение по номерам, койкам и датам.',
       },

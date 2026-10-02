@@ -165,7 +165,7 @@ export function BoardFiltersPopover({
       ref={ref}
       popover="manual"
       role="dialog"
-      aria-label="Фильтры шахматки"
+      aria-label="Фильтры календаря"
       tabIndex={-1}
       className="board-filters-pop"
       data-testid="board-filters-pop"

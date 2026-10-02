@@ -83,7 +83,7 @@ test('новые фильтры шахматки, список броней и �
   await page.goto(`/chessboard?from=${today}&to=${last}`);
   // тип места — в окошке «Фильтры» (PR 7 «Шахматки v2»), состояние мест — полем в строке
   const main = page.getByRole('main');
-  const filters = page.getByRole('dialog', { name: 'Фильтры шахматки' });
+  const filters = page.getByRole('dialog', { name: 'Фильтры календаря' });
   const kind = async (name: string) => {
     await main.getByRole('button', { name: /^Фильтры( \d+)?$/ }).click();
     await filters.getByRole('button', { name, exact: true }).click();
@@ -93,7 +93,7 @@ test('новые фильтры шахматки, список броней и �
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await kind('Койки');
   await expect(page.getByTestId('unit-row')).toHaveCount(72);
-  await main.getByLabel('Места на шахматке').selectOption('FREE');
+  await main.getByLabel('Места в календаре').selectOption('FREE');
   const count = await page.getByTestId('unit-row').count();
   expect(count).toBeGreaterThan(0);
   expect(count).toBeLessThan(72);

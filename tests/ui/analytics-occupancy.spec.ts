@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 /**
  * «Аналитика v2», срез AN2 (ADR-114, план `plans/analytics-v2-an2-2026-09-28.md`): вкладка «Загрузка» —
  * бывшая «Статистика» в системе модуля. Проверяет поручение владельца от 28.09: дата и период, «Все / Номера /
- * Койки», занято, свободно, заблокировано, без размещения, загрузка и сравнение категорий, «Открыть шахматку»,
+ * Койки», занято, свободно, заблокировано, без размещения, загрузка и сравнение категорий, «Открыть календарь»,
  * знаменатель прежний (заблокированные места — в фонде). Снимает стоп-гейт AN2.
  */
 const fixture = 'http://127.0.0.1:4311';
@@ -53,7 +53,7 @@ test('по умолчанию — сегодняшний день: пять пл
   // сравнение по умолчанию включено — со вчерашним днём
   await expect(main.getByTestId('pa-compare')).toContainText('Сравнение с');
   await expect(table.locator('thead')).toContainText('К прошлому');
-  // «Открыть шахматку» — на тот же день; название категории — её строки
+  // «Открыть календарь» — на тот же день; название категории — её строки
   await expect(main.getByTestId('pa-open-chessboard')).toHaveAttribute(
     'href',
     `/chessboard?from=${today}&to=${today}`,
@@ -174,7 +174,7 @@ test('номера и койки: свои категории, своя сред
   await expect(
     page.getByRole('main').getByRole('button', { name: 'Убрать условие: Койки', exact: true }),
   ).toBeVisible();
-  // на шахматке остались только койки: номеров (R…) нет
+  // в календаре остались только койки: номеров (R…) нет
   await expect(page.locator('[data-testid="unit-row"][data-unit-code^="R"]')).toHaveCount(0);
   await expect(page.locator('[data-testid="unit-row"][data-unit-code^="M"]').first()).toBeVisible();
 });

@@ -63,7 +63,7 @@ function OccupancyKpis({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null
         id="occupied"
         label="Занято"
         value={formatInt(o.occupiedNights)}
-        hint={single ? 'мест по размещениям в шахматке' : 'ночей по размещениям в шахматке'}
+        hint={single ? 'мест по размещениям в календаре' : 'ночей по размещениям в календаре'}
         delta={countDelta(o.occupiedNights, prev.occupancy.occupiedNights)}
         compare={compare}
       />
@@ -111,7 +111,7 @@ function OccupancyKpis({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null
 
 /**
  * Таблица категорий — бывшая таблица «Статистики» на новом расчёте: те же колонки плюс «Без места»,
- * изменение загрузки к прошлому отрезку и ссылка на шахматку категории.
+ * изменение загрузки к прошлому отрезку и ссылка в календарь категории.
  */
 function CategoryTable({
   c,
@@ -206,7 +206,7 @@ function CategoryTable({
           href={chessboardHref(c.from, c.to, query.fund)}
           data-testid="pa-open-chessboard"
         >
-          Открыть шахматку
+          Открыть календарь
         </Link>
         <span className="muted">
           {single
@@ -305,12 +305,12 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
           {single ? (
             <>
               Загрузка на <time dateTime={c.from}>{displayDate(c.from, 'numeric')}</time> по
-              размещениям в шахматке
+              размещениям в календаре
             </>
           ) : (
             <>
               Загрузка с <time dateTime={c.from}>{displayDate(c.from, 'numeric')}</time> по{' '}
-              <time dateTime={c.to}>{displayDate(c.to, 'numeric')}</time> по размещениям в шахматке,
+              <time dateTime={c.to}>{displayDate(c.to, 'numeric')}</time> по размещениям в календаре,
               в ночах: место × ночь
             </>
           )}
@@ -331,7 +331,7 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
       <Help title="Расчёт загрузки">
         Загрузка = занятые места / весь фонд, включая заблокированные: закрытое место остаётся в
         знаменателе. Номер считается одним местом, койка — одним. За период считаются ночи: место ×
-        ночь. Проживания без ячейки не занимают место в шахматке и в загрузку не входят —{' '}
+        ночь. Проживания без ячейки не занимают место в календаре и в загрузку не входят —{' '}
         {c.unassigned > 0 ? `сейчас их ${formatInt(c.unassigned)}.` : 'сейчас таких нет.'}
       </Help>
     </>
@@ -341,7 +341,7 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
 /** Ожидание чисел под полосой периода: пять плиток и строки категорий */
 export function OccupancySkeleton() {
   return (
-    <LoadingState label="Считаем загрузку по шахматке…" data-testid="statistics-loading">
+    <LoadingState label="Считаем загрузку по календарю…" data-testid="statistics-loading">
       <div className="kpi-grid pa-kpis pa-kpis--occupancy">
         {Array.from({ length: 5 }, (_, i) => (
           <Skeleton key={i} variant="stat" />

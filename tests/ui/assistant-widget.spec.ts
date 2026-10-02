@@ -61,7 +61,7 @@ test('после входа виджет загружен с подписью в
   await expect(tag).toHaveAttribute('data-identity', identity);
 
   await page.evaluate('window.__samePage = true');
-  await page.getByRole('link', { name: 'Шахматка' }).first().click();
+  await page.getByRole('link', { name: 'Календарь' }).first().click();
   await expect(page).toHaveURL(/\/chessboard/);
   expect(await page.evaluate('window.__samePage === true')).toBe(true);
   expect(await page.evaluate('window.__assistantWidget.loads')).toBe(1);

@@ -241,7 +241,7 @@ test('аналитика и статистика: пустое состояни�
   });
   await page.goto('/management/analytics/occupancy', { waitUntil: 'commit' });
   await expect(main.getByTestId('statistics-loading')).toContainText(
-    'Считаем загрузку по шахматке',
+    'Считаем загрузку по календарю',
   );
   await expect(main.getByTestId('statistics-table')).toBeVisible({ timeout: 15_000 });
 });

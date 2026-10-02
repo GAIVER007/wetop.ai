@@ -84,7 +84,7 @@ test('нижняя панель телефона — в порядке боко�
   await page.goto('/today');
   await expect(
     page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('link'),
-  ).toHaveText(['Главная', 'Шахматка', 'Брони', 'Гости']);
+  ).toHaveText(['Главная', 'Календарь', 'Брони', 'Гости']);
 });
 
 test('подсказка поиска: «⌘ K» на Mac, «Ctrl K» на остальных (п. 1.7)', async ({ page }) => {

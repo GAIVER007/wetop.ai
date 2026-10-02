@@ -125,7 +125,7 @@ test('гейт: овербукинг (critical), режим 30 дней и вк�
   // (с PR 7 тип места — в окошке «Фильтры», в строке остались категория и места)
   await page.getByRole('link', { name: '7 дней', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(7);
-  await page.getByLabel('Категория на шахматке').selectOption('ROOM');
+  await page.getByLabel('Категория в календаре').selectOption('ROOM');
   await expect(page.getByTestId('unit-row')).toHaveCount(16);
   await page.screenshot({ caret: 'initial', path: `${DIR}/filters-applied.png` });
 });

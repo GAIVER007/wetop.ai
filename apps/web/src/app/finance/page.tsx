@@ -37,6 +37,7 @@ import './finance.css';
 import { FinanceWorkspace } from './workspace';
 import { METHOD_RU, operationKind, operationStatus } from './labels';
 import { operationFilter } from './operation-filter';
+import { unstable_rethrow } from 'next/navigation';
 
 /** Тот же предел, что у `/finance/report`: год с запасом (волна 4) */
 const MAX_REPORT_DAYS = 366;
@@ -89,7 +90,10 @@ export default async function FinanceReportPage({
   const settle = <T,>(p: Promise<T>) =>
     p.then(
       (r) => ({ ok: true as const, r }),
-      (e: unknown) => ({ ok: false as const, e }),
+      (e: unknown) => {
+        unstable_rethrow(e);
+        return { ok: false as const, e };
+      },
     );
   const filter = operationFilter(sp.op, sp.method, sp.src);
   const opsAll = sp.ops === 'all';

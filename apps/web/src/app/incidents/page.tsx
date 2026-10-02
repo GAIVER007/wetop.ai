@@ -11,6 +11,7 @@ import { RefreshButton } from '../../components/refresh-button';
 import { ControlNavigation } from '../../components/control-navigation';
 import { hotelClock } from '../../lib/hotel-api';
 import type { PropertyClock } from '../../lib/property-time';
+import { unstable_rethrow } from 'next/navigation';
 import './incidents.css';
 
 /**
@@ -73,7 +74,10 @@ async function IncidentContent() {
   const [loadedStatus, open, all] = await Promise.all([
     guardApi.status().then(
       (r) => ({ ok: true as const, r }),
-      (e: unknown) => ({ ok: false as const, e }),
+      (e: unknown) => {
+        unstable_rethrow(e);
+        return { ok: false as const, e };
+      },
     ),
     guardApi.incidents('open').catch(() => null),
     guardApi.incidents('all', HISTORY_LIMIT).catch(() => null),

@@ -7,6 +7,7 @@ import { decodeInviteToken } from '../../../lib/invite-token';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { AcceptForm } from './accept-form';
+import { unstable_rethrow } from 'next/navigation';
 
 /**
  * Страница по ссылке из письма-приглашения (срез 13, этап 7). Ключ живёт только в адресе и в
@@ -20,7 +21,10 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   const loaded = rawToken
     ? await authApi.inviteByToken(rawToken, await clientInfo()).then(
         (r) => ({ ok: true as const, r }),
-        (e: unknown) => ({ ok: false as const, e }),
+        (e: unknown) => {
+          unstable_rethrow(e);
+          return { ok: false as const, e };
+        },
       )
     : { ok: true as const, r: null };
   const preview = loaded.ok ? loaded.r : null;

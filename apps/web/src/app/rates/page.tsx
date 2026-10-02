@@ -11,6 +11,7 @@ import { RatesEditDrawer } from './edit-drawer';
 import { RatesCalendar } from './rates-calendar';
 import { RatesTabs } from './tabs';
 import { deskShell } from '../../lib/desk-shell';
+import { unstable_rethrow } from 'next/navigation';
 import './rates.css';
 
 const monthRange = (ym: string) => {
@@ -28,7 +29,10 @@ const monthTitle = new Intl.DateTimeFormat('ru-RU', {
 const settle = <T,>(p: Promise<T>) =>
   p.then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
 
 /**

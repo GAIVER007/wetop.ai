@@ -1,6 +1,6 @@
 import { ChannelConnectionSetup } from '../connection-setup';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, redirect, unstable_rethrow } from 'next/navigation';
 import {
   type OutboxRow,
   type OutboxRowStatus,
@@ -66,7 +66,10 @@ const subtitles: Record<string, string> = {
 const settle = <T,>(p: Promise<T>) =>
   p.then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
 
 /**

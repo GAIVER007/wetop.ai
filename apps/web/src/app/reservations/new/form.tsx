@@ -249,7 +249,7 @@ export function NewReservationForm(props: {
             ? 'Выезд должен быть позже заезда.'
             : checking || !fresh
               ? availabilityError || 'Проверяем свободные места…'
-              : `${pluralRu(availability.nights, ['ночь', 'ночи', 'ночей'])} · свободно ${availability.total.available} из ${availability.total.units}`}
+              : `${pluralRu(availability.nights, ['ночь', 'ночи', 'ночей'])}, свободно ${availability.total.available} из ${availability.total.units}`}
         </p>
         {availabilityError && (
           <Button type="button" tone="secondary" size="sm" onClick={() => setRetry((n) => n + 1)}>

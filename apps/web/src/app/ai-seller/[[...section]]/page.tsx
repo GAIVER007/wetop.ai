@@ -245,10 +245,10 @@ async function SetupView({ status }: { status: SellerStatus }) {
             </Badge>
           </Row>
           <p>
-            <Link href="/hotel-settings">Проверить объект и правила проживания →</Link>
+            <Link href="/hotel-settings">Проверить объект и правила проживания</Link>
           </p>
           <p>
-            <Link href="/ai-seller/knowledge">Посмотреть данные и дополнительные знания →</Link>
+            <Link href="/ai-seller/knowledge">Посмотреть данные и дополнительные знания</Link>
           </p>
         </Panel>
         <Panel data-testid="seller-setup" aria-labelledby="seller-prompt-title">
@@ -297,7 +297,7 @@ async function SetupView({ status }: { status: SellerStatus }) {
             Откройте подключённого бота или чат сайта, отправьте тестовое сообщение и убедитесь, что
             ответ пришёл. Только после этого начинайте общение с гостями.
           </p>
-          <Link href="/ai-seller/dialogs">Открыть диалоги →</Link>
+          <Link href="/ai-seller/dialogs">Открыть диалоги</Link>
         </Panel>
       </SetupWizard>
     </Stack>

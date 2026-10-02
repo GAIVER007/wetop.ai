@@ -9,13 +9,13 @@ export async function BranchOverview({ from, to }: { from: string; to: string })
     <Panel>
       <h2>Все филиалы</h2>
       <p>
-        {rows.length} филиалов · {guests} гостей в заездах · загрузка{' '}
+        {rows.length} филиалов, {guests} гостей в заездах, загрузка{' '}
         {percent}%
       </p>
       {[...currencies].map(([currency, total]) => (
         <p key={currency}>
-          <strong>{currency}</strong>: начислено {formatMoney(total.revenue, currency)} · поступило{' '}
-          {formatMoney(total.paid, currency)} · возвраты {formatMoney(total.refunded, currency)}
+          <strong>{currency}</strong>: начислено {formatMoney(total.revenue, currency)}, поступило{' '}
+          {formatMoney(total.paid, currency)}, возвраты {formatMoney(total.refunded, currency)}
         </p>
       ))}
       <div style={{ overflowX: 'auto' }}>

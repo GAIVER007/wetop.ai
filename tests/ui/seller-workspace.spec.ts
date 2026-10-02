@@ -13,11 +13,11 @@ test('five steps, back navigation preserves instruction, desktop and mobile do n
       const steps = page.getByRole('navigation', { name: 'Шаги настройки продавца' });
       await expect(steps.getByRole('button')).toHaveCount(5);
       await expect(page.getByTestId('seller-setup')).toBeHidden();
-      await page.getByRole('button', { name: 'Далее →', exact: true }).click();
+      await page.getByRole('button', { name: 'Далее', exact: true }).click();
       await page
         .getByTestId('seller-prompt-text')
         .fill('Тестовая инструкция для вымышленного объекта');
-      await page.getByRole('button', { name: 'Далее →', exact: true }).click();
+      await page.getByRole('button', { name: 'Далее', exact: true }).click();
       await expect(page.getByTestId('seller-llm-key')).toBeVisible();
       await page.getByRole('button', { name: 'Назад', exact: true }).click();
       await expect(page.getByTestId('seller-prompt-text')).toHaveValue(
@@ -25,7 +25,7 @@ test('five steps, back navigation preserves instruction, desktop and mobile do n
       );
       await steps.getByRole('button', { name: '4 Проверка' }).click();
       await expect(page.getByTestId('seller-check')).toBeVisible();
-      await page.getByRole('button', { name: 'Далее →', exact: true }).click();
+      await page.getByRole('button', { name: 'Далее', exact: true }).click();
       await expect(
         page.getByRole('heading', { name: 'Перед первым разговором с гостем' }),
       ).toBeVisible();

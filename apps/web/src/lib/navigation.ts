@@ -340,10 +340,12 @@ export const menuSections: MenuSection[] = [
     ],
   },
   {
+    // «Техподдержка» переехала под переключатель агентов на «ИИ-продавце»: своего пункта меню
+    // у неё нет, маршрут /platform/support остаётся в реестре ради прав (routeRule)
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
-    items: [menuItem('/platform'), menuItem('/platform/support')],
+    items: [menuItem('/platform')],
   },
 ];
 

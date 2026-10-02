@@ -135,7 +135,7 @@ export function TeamSection({
         </button>
       </form>
 
-      <h2 className="team-list-heading">В команде · {members.length}</h2>
+      <h2 className="team-list-heading">В команде: {members.length}</h2>
       <ul className="login-invite-list" data-testid="member-list" aria-label="Люди организации">
         {members.map((m) => (
           <li key={m.userId} className="login-team-row" data-testid="member-row">
@@ -184,7 +184,7 @@ export function TeamSection({
         ))}
       </ul>
 
-      <h2 className="team-list-heading">Ожидают принятия · {waiting.length}</h2>
+      <h2 className="team-list-heading">Ожидают принятия: {waiting.length}</h2>
       {waiting.length > 0 ? (
         <ul className="login-invite-list" data-testid="invite-list" aria-label="Приглашения">
           {waiting.map((i) => (

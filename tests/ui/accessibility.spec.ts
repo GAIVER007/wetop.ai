@@ -28,7 +28,7 @@ const routes = [
   '/management/analytics',
   '/management/analytics/occupancy',
   '/channels',
-  '/channels/connections',
+  // «Подключения» каналов — redirect() на /connections/channex (INT2), он в списке ниже
   '/channels/mapping',
   '/channels/sync',
   '/channels/events',

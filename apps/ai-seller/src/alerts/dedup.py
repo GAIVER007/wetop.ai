@@ -99,4 +99,8 @@ def window_for(event_type: str, settings) -> int:
         # (src/ai/budget.py), окно молчания — сутки. С окном срока ответа
         # владелец получал бы тот же алерт каждые десять минут до полуночи.
         return 24 * 3600
+    if event_type == "prompt_missing":
+        # Пустой промпт гостиницы не чинится сам за десять минут: раз в сутки
+        # на гостиницу (решение владельца 02.10, Р2), иначе каждый гость — письмо.
+        return 24 * 3600
     return int(settings.alert_dedup_sla_minutes) * 60

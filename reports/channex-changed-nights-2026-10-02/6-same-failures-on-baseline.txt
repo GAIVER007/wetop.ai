@@ -1,0 +1,24 @@
+      Tests  14 failed | 32 passed (46)
+ FAIL  |unit| apps/web/src/design-rules.test.ts > DESIGN.md §6 и §14: шкалы и форматы держит тест, а не глаз (срез 7.4) > стрелок в конце текста
+ FAIL  |unit| apps/web/src/lib/ai-seller.test.ts [ apps/web/src/lib/ai-seller.test.ts ]
+ FAIL  |unit| apps/web/src/lib/desk-person.test.ts > меню и подпись по тому, кто вошёл (ADR-083) > продавец виден для знакомства, а раздел «
+ FAIL  |unit| packages/domain/src/incidents/kinds-doc.test.ts > DATA_MODEL §12: виды неисправностей — по POLICY > kind в SystemIncident перечисляет ровно вид
+ FAIL  |unit| scripts/design/build-tokens.test.ts [ scripts/design/build-tokens.test.ts ]
+ FAIL  |unit| tests/unit/auth-deploy-health.test.ts > deploy health uses the first-party fallback, not the public homepage redirect
+ FAIL  |unit| tests/unit/ci-runner.test.ts [ tests/unit/ci-runner.test.ts ]
+ FAIL  |unit| tests/unit/deploy-server.test.ts [ tests/unit/deploy-server.test.ts ]
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > dot-separator: подпись «A · B · C» (DESIGN.md §14) — отдельные строк�
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > radius-literal: литерал радиуса вместо --radius-sm/control/lg (DESIGN.md §5)
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3)
+ FAIL  |unit| tests/unit/design-slop.test.ts > design: сторож ИИ-слопа (DESIGN.md §15) > trailing-arrow: стрелка в конце ссылки или текста «Все брони
+ FAIL  |unit| tests/unit/desk-glass.test.ts > all documented shared surfaces get the flat treatment
+ FAIL  |unit| tests/unit/no-hardcoded-utc5.test.ts > С-13: жёсткого UTC+5 и зашитого пояса в коде API и стойки нет > стойка: даты и моменты — 
+ FAIL  |unit| tests/unit/no-vendor-name.test.ts > название поставщика менеджера каналов не видно пользователю > нет слова «Channex» в т
+ FAIL  |unit| tests/unit/server-bootstrap.test.ts > deploy/server-bootstrap.sh (root, Linux) > повторный запуск ничего не ломает и не дублирует
+ FAIL  |unit| tests/unit/server-bootstrap.test.ts > deploy/server-bootstrap.sh (root, Linux) > репозиторий доступен: клонирует нужную ветку, заводит па�
+ FAIL  |unit| tests/unit/server-bootstrap.test.ts > deploy/server-bootstrap.sh (root, Linux) > репозиторий недоступен: печатает публичный ключ, просит �
+ FAIL  |unit| tests/unit/site-calculator.test.ts [ tests/unit/site-calculator.test.ts ]
+ FAIL  |unit| tests/unit/site-design.test.ts [ tests/unit/site-design.test.ts ]
+ FAIL  |unit| tests/unit/site-headers.test.ts [ tests/unit/site-headers.test.ts ]
+ Test Files  16 failed (16)
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯

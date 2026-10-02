@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional, ServiceUnavailableException } from '@nestjs/common';
 import {
   INVITES_PER_DAY,
   INVITE_TTL_MS,
@@ -70,7 +70,8 @@ export interface MemberView {
 }
 
 /** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
-export type MemberRefusal = 'staff' | 'missing' | 'self' | 'owner-target' | 'manager-target' | 'role' | 'owner-only';
+export type MemberRefusal =
+  'staff' | 'missing' | 'self' | 'owner-target' | 'manager-target' | 'role' | 'owner-only';
 
 /** Что видит человек, открывший ссылку: кто зовёт и кого. */
 export interface InvitePreview {
@@ -159,7 +160,10 @@ export class AccountsService {
     // приглашают владелец и управляющий (DATA_MODEL §16.5, ADR-107); ярлык 'owner' — отказ «не ваше»
     if (!canManageStaff(who.role)) return { ok: false, reason: 'owner' };
     // без роли — администратор, как принимались приглашения до ADR-107; владельца приглашением не назначают
-    const role = rawRole === undefined || rawRole === null || rawRole === '' ? 'STAFF' : parseInviteRole(rawRole);
+    const role =
+      rawRole === undefined || rawRole === null || rawRole === ''
+        ? 'STAFF'
+        : parseInviteRole(rawRole);
     if (!role) return { ok: false, reason: 'role' };
     if (!canInvite(who.role, role)) return { ok: false, reason: 'manager-role' };
     if (typeof rawEmail !== 'string') return { ok: false, reason: 'email' };
@@ -183,15 +187,22 @@ export class AccountsService {
     });
     const link = `${this.appUrl.replace(/\/+$/, '')}/invite/${token}`;
     try {
-      if (!this.mailReady) {
-        this.log.error('MAIL_* не настроены — приглашение создано, но письмо не отправлено');
-      } else {
-        await this.sender.send(
-          mail.inviteLetter(email, who.organizationName, link, INVITE_TTL_MS, MEMBERSHIP_ROLES[role]),
-        );
-      }
-    } catch (e) {
-      this.log.error(`письмо с приглашением не отправлено: ${(e as Error).message}`);
+      if (!this.mailReady) throw new Error('Mail is not configured');
+      await this.sender.send(
+        mail.inviteLetter(email, who.organizationName, link, INVITE_TTL_MS, MEMBERSHIP_ROLES[role]),
+      );
+    } catch {
+      // A possibly delivered link must not grant access after a reported delivery failure.
+      await this.repo.revokeInvite(
+        invite.id,
+        who.organizationId,
+        new Date(),
+        invitableRoles(who.role),
+      );
+      this.log.error('Не удалось отправить приглашение; ссылка отозвана');
+      throw new ServiceUnavailableException(
+        'Не удалось отправить письмо. Приглашение отозвано. Проверьте настройку почты и попробуйте снова.',
+      );
     }
     return { ok: true, invite: toInviteView(invite, who.role) };
   }
@@ -210,7 +221,9 @@ export class AccountsService {
     if (!canManageStaff(who.role)) return 'owner';
     // отзывает тот, кто вправе позвать с этой ролью: приглашение управляющего управляющему «не найдено»
     const allowed = invitableRoles(who.role);
-    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed)) ? 'ok' : 'missing';
+    return (await this.repo.revokeInvite(id, who.organizationId, new Date(), allowed))
+      ? 'ok'
+      : 'missing';
   }
 
   /**
@@ -239,7 +252,8 @@ export class AccountsService {
         ...m,
         you,
         removable: !you && canRemoveMember(who.role, m.role),
-        roleEditable: !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
+        roleEditable:
+          !you && canSetRoleAtDesk(who.role, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
       };
     });
   }
@@ -248,7 +262,10 @@ export class AccountsService {
    * Отключить сотрудника: владелец — управляющих и администраторов, управляющий — администраторов; себя и владельца — нет.
    * Членство удаляется, сессии этой организации гаснут на следующем запросе.
    */
-  async removeMember(sessionToken: string | null, userId: string): Promise<'ok' | MemberRefusal | null> {
+  async removeMember(
+    sessionToken: string | null,
+    userId: string,
+  ): Promise<'ok' | MemberRefusal | null> {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
     if (!canManageStaff(who.role)) return 'staff';
@@ -274,7 +291,11 @@ export class AccountsService {
     sessionToken: string | null,
     userId: string,
     rawRole: unknown,
-  ): Promise<{ ok: true; member: { userId: string; role: MembershipRole } } | { ok: false; reason: MemberRefusal } | null> {
+  ): Promise<
+    | { ok: true; member: { userId: string; role: MembershipRole } }
+    | { ok: false; reason: MemberRefusal }
+    | null
+  > {
     const who = await this.liveSession(sessionToken);
     if (!who) return null;
     if (!canManageStaff(who.role)) return { ok: false, reason: 'staff' };
@@ -284,7 +305,8 @@ export class AccountsService {
     const target = (await this.repo.members(who.organizationId)).find((m) => m.userId === userId);
     if (!target) return { ok: false, reason: 'missing' };
     if (target.userId === who.userId) return { ok: false, reason: 'self' };
-    if (!canSetRoleAtDesk(who.role, target.role, role)) return { ok: false, reason: 'owner-target' };
+    if (!canSetRoleAtDesk(who.role, target.role, role))
+      return { ok: false, reason: 'owner-target' };
     // владельца так не задеть: роль меняется, только если в момент записи она управляющий или администратор
     const write = await this.repo.setMemberRole({
       organizationId: who.organizationId,
@@ -319,7 +341,11 @@ export class AccountsService {
       const stored = await this.repo.sessionByTokenHash(hash);
       if (!stored) continue;
       if (!checkSession(stored, new Date()).ok) return null;
-      if (stored.organizationStatus === 'SUSPENDED' || stored.userStatus !== 'ACTIVE' || !stored.member)
+      if (
+        stored.organizationStatus === 'SUSPENDED' ||
+        stored.userStatus !== 'ACTIVE' ||
+        !stored.member
+      )
         return null;
       return stored;
     }

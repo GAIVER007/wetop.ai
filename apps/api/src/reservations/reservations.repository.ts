@@ -7,7 +7,9 @@ import {
   type Db,
   type DbTx,
 } from '@pms/database';
-import { folioBalance, channelPrepaymentToKeep,
+import {
+  folioBalance,
+  channelPrepaymentToKeep,
   discountedMinor,
   pickDiscount,
   type DerivedRule,
@@ -24,7 +26,12 @@ import { actsForOrganization, currentOrganizationId } from '../auth/request-cont
 import { LUXX_APARTS_PROPERTY, todayAt } from '@pms/domain';
 import { maskAuditFreeText, withoutGuestIdentity } from '@pms/shared';
 import { PrismaService } from '../database/prisma.provider';
-import { cardForAudit, isReservationCard, loadReservationCard, type ReservationCard } from './reservation-card';
+import {
+  cardForAudit,
+  isReservationCard,
+  loadReservationCard,
+  type ReservationCard,
+} from './reservation-card';
 import { auditUserId } from '../accounts/actor';
 
 /** Ячейка уже занята на эти ночи — сообщила база (exclusion constraint), не код. */
@@ -127,6 +134,8 @@ export interface NewGuest {
   email?: string | null;
 }
 export interface NewReservation {
+  creationKey?: string | null;
+  creationFingerprint?: string | null;
   confirmationNumber: string;
   source: ReservationSource;
   /** Канал (OTA/сайт) текстом, например Booking.com; null для стойки */
@@ -272,6 +281,9 @@ export interface ReservationsRepository {
    */
   guestForBooking(guestId: string): Promise<string | null>;
   createGuest(guest: NewGuest): Promise<string>;
+  reservationByCreationKey(
+    key: string,
+  ): Promise<{ confirmationNumber: string; fingerprint: string | null } | null>;
   createReservation(input: NewReservation): Promise<{ id: string; itemIds: string[] }>;
   addStayGuest(itemId: string, guestId: string, isPrimary: boolean): Promise<void>;
   createAllocation(
@@ -424,8 +436,14 @@ function toPlanRef(row: {
   maxDaysBeforeArrival: number | null;
   minNights: number | null;
 }): RatePlanRef {
-  const { parentRatePlanId, discountPercent, minDaysBeforeArrival, maxDaysBeforeArrival, minNights, ...plan } =
-    row;
+  const {
+    parentRatePlanId,
+    discountPercent,
+    minDaysBeforeArrival,
+    maxDaysBeforeArrival,
+    minNights,
+    ...plan
+  } = row;
   return {
     ...plan,
     derivedRule:
@@ -436,14 +454,24 @@ function toPlanRef(row: {
 }
 
 export class PrismaReservationsRepository implements ReservationsRepository {
-  private propertyCache: { id: string; currency: string; timezone: string; organizationId: string } | null = null;
+  private propertyCache: {
+    id: string;
+    currency: string;
+    timezone: string;
+    organizationId: string;
+  } | null = null;
   /** propertyName — имя объекта; в тестах на вымышленных данных передаётся тестовый объект. */
   constructor(
     private readonly db: Db | DbTx,
     private readonly propertyName: string = LUXX_APARTS_PROPERTY.name,
   ) {}
 
-  async property(): Promise<{ id: string; currency: string; timezone: string; organizationId: string }> {
+  async property(): Promise<{
+    id: string;
+    currency: string;
+    timezone: string;
+    organizationId: string;
+  }> {
     if (!this.propertyCache) {
       // Мультитенантность: вошедший человек — объект СВОЕЙ организации (по organizationId, имя не
       // участвует); служебный ходок (скрипт, импорт) — единственный объект по имени, как раньше.
@@ -740,12 +768,24 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     });
     return g.id;
   }
+  async reservationByCreationKey(key: string) {
+    const { id: propertyId } = await this.property();
+    const found = await this.db.reservation.findUnique({
+      where: { propertyId_creationKey: { propertyId, creationKey: key } },
+      select: { confirmationNumber: true, creationFingerprint: true },
+    });
+    return found
+      ? { confirmationNumber: found.confirmationNumber, fingerprint: found.creationFingerprint }
+      : null;
+  }
   async createReservation(input: NewReservation): Promise<{ id: string; itemIds: string[] }> {
     const { id: propertyId } = await this.property();
     const r = await this.db.reservation.create({
       data: {
         propertyId,
         confirmationNumber: input.confirmationNumber,
+        creationKey: input.creationKey ?? null,
+        creationFingerprint: input.creationFingerprint ?? null,
         source: input.source,
         channel: input.channel ?? null,
         externalId: input.externalId ?? null,

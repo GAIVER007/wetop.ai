@@ -49,7 +49,7 @@ describe.skipIf(!url)('редактор мастера и перенесённы
     expect(items.map((a) => a.id)).toEqual([draftId]);
   });
 
-  it('карточка и правка рабочего продавца через редактор мастера — «не найден»', async () => {
+  it('карточка и правка рабочего продавца через редактор мастера, «не найден»', async () => {
     await expect(asOwner(() => service.get(org))).rejects.toThrow(/не найден/i);
     await expect(
       asOwner(() =>

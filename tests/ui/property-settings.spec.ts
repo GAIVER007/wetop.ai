@@ -51,7 +51,7 @@ test('один заголовок на трёх вкладках, без «Об�
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toHaveCount(0);
   }
-  await expect(page.locator('.workspace-sidebar [aria-current="page"]')).toHaveText('Объект');
+  await expect(page.locator('.workspace-header .topmenu [aria-current="page"]')).toHaveText('Объект');
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');

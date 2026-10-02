@@ -10,7 +10,7 @@ import {
   navigationItems,
   pageOpen,
   routeRule,
-  sidebarSectionsFor,
+  menuSectionsFor,
   type NavigationAccess,
 } from './navigation';
 
@@ -25,8 +25,8 @@ const access = (role: NavigationAccess['role'], platform = false): NavigationAcc
   role,
 });
 const hrefs = (a: NavigationAccess) =>
-  sidebarSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
-const everything = sidebarSectionsFor(access(null, true)).flatMap((s) =>
+  menuSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
+const everything = menuSectionsFor(access(null, true)).flatMap((s) =>
   s.items.map((i) => i.href),
 );
 
@@ -45,13 +45,15 @@ describe('меню по ролям', () => {
       '/reports',
       '/finance',
       '/management/analytics',
-      '/incidents',
     ]);
-    expect(sidebarSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+      'home',
+      'chessboard',
+      'reservations',
       'guests',
       'sales',
       'finance',
-      'control',
+      'analytics',
     ]);
   });
 
@@ -147,9 +149,21 @@ describe('«ИИ-агенты» (S0)', () => {
     for (const path of ['/ai-seller/knowledge', '/ai-seller/connections', '/ai-seller/agents']) {
       expect(routeRule(path)?.requires).toBe('seller');
     }
-    expect(allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER' } }))).toBe(false);
+    expect(allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER' } }))).toBe(
+      false,
+    );
     expect(
-      allowedItem({ requires: 'platform' }, deskAccessOf({ user: { role: 'OWNER', platformAdmin: true } })),
+      allowedItem(
+        { requires: 'platform' },
+        deskAccessOf({ user: { role: 'OWNER', platformAdmin: true } }),
+      ),
     ).toBe(true);
   });
+});
+
+it('сотрудники доступны в настройках только владельцу и управляющему', () => {
+  expect(routeRule('/staff')?.requires).toBe('staff');
+  expect(hrefs(access('OWNER'))).toContain('/staff');
+  expect(hrefs(access('MANAGER'))).toContain('/staff');
+  expect(hrefs(access('STAFF'))).not.toContain('/staff');
 });

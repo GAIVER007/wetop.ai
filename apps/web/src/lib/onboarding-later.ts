@@ -11,6 +11,7 @@ export const ONBOARDING_LATER_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 /** Пути, где гейт не работает: сам онбординг, вход, регистрация, приглашение, сброс пароля — иначе был бы цикл. */
 const SKIP = [
+  '/branches',
   '/onboarding',
   '/login',
   '/register',

@@ -1,0 +1,80 @@
+# Модульные (unit) · 01.10.2026 14:10 Алматы · MacBook-Air-Urij.local
+# коммит 7cf8e5e (codex/unified-workspace-20260929), незакоммиченных файлов набора: 125
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-10-37Z-unit-81ce.json' 'apps/api/src/ai-seller/agent-telegram.test.ts' 'apps/api/src/auth/route-access.test.ts' 'apps/web/src/lib/auth-entry.test.ts' 'apps/web/src/lib/auth-fallback.test.ts' 'apps/web/src/lib/unified-auth-entry.test.ts'
+
+ RUN  v5.0.0 /Users/urijzapojnov/Documents/ChatGPT/WETOP
+
+ ✓ |unit| apps/web/src/lib/auth-entry.test.ts (14 tests) 19ms
+ ✓ |unit| apps/web/src/lib/unified-auth-entry.test.ts (2 tests) 160ms
+ ✓ |unit| apps/web/src/lib/auth-fallback.test.ts (4 tests) 82ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 18ms
+ ❯ |unit| apps/api/src/auth/route-access.test.ts (2 tests | 1 failed) 306ms
+   ❯ права маршрутов API (ADR-107) (2)
+     × у каждого маршрута — право из таблицы, и в таблице нет лишних строк 298ms
+     ✓ замок ролей стоит сразу за замком входа: без сессии роль не узнать 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/auth/route-access.test.ts > права маршрутов API (ADR-107) > у каждого маршрута — право из таблицы, и в таблице нет лишних строк
+AssertionError: expected { 'GET /health': 'public', …(218) } to deeply equal { …(215) }
+
+- Expected
++ Received
+
+@@ -6,10 +6,11 @@
+    "DELETE /units/:code/blocks/:blockId": "desk",
+    "GET /a/demo": "public",
+    "GET /a/pms.js": "public",
+    "GET /ai-seller/agents/:id": "dialogs",
+    "GET /ai-seller/agents/:id/instruction": "seller",
++   "GET /ai-seller/agents/:id/telegram": "seller",
+    "GET /ai-seller/agents/options": "dialogs",
+    "GET /ai-seller/catalog": "dialogs",
+    "GET /ai-seller/conversations": "dialogs",
+    "GET /ai-seller/conversations/:id": "dialogs",
+    "GET /ai-seller/embed": "seller",
+@@ -127,10 +128,12 @@
+    "PATCH /seller-agents/:id": "seller",
+    "PATCH /wizard/config": "public",
+    "POST /a/hit": "public",
+    "POST /ai-seller/agents": "seller",
+    "POST /ai-seller/agents/:id/instruction/generate": "seller",
++   "POST /ai-seller/agents/:id/telegram/check": "seller",
++   "POST /ai-seller/agents/:id/telegram/disconnect": "seller",
+    "POST /ai-seller/apply": "seller",
+    "POST /ai-seller/conversations/:id/release": "dialogs",
+    "POST /ai-seller/conversations/:id/reply": "dialogs",
+    "POST /ai-seller/conversations/:id/takeover": "dialogs",
+    "POST /ai-seller/extract": "seller",
+@@ -203,10 +206,11 @@
+    "POST /units/:code/blocks": "desk",
+    "POST /units/:code/housekeeping": "desk",
+    "POST /w/book": "public",
+    "POST /wizard/session": "public",
+    "PUT /ai-seller/agents/:id/instruction": "seller",
++   "PUT /ai-seller/agents/:id/telegram": "seller",
+    "PUT /ai-seller/llm-key": "seller",
+    "PUT /ai-seller/profile": "seller",
+    "PUT /ai-seller/prompt": "seller",
+    "PUT /ai-seller/whatsapp": "seller",
+    "PUT /platform/organizations/:id/extensions/ai-seller": "platform",
+
+ ❯ apps/api/src/auth/route-access.test.ts:307:20
+    305|       .map(([key]) => key);
+    306|     expect(unannotated, 'маршруты без @Access и без @Public').toEqual(…
+    307|     expect(actual).toEqual(EXPECTED);
+       |                    ^
+    308|   });
+    309|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 25 passed (26)
+   Start at  13:10:45
+   Duration  14.69s (transform 69%, import 28%, tests 2%, worker 1%)
+
+JSON report written to /var/folders/sl/5hhh0s8s42s9nt8thzdp1br00000gn/T/pms-test-2026-10-01T09-10-37Z-unit-81ce.json
+
+# код выхода 1 · 22 с

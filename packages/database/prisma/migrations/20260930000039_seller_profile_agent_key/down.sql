@@ -5,7 +5,7 @@ DECLARE many integer;
 BEGIN
   SELECT count(*) INTO many FROM (SELECT 1 FROM seller_profiles GROUP BY organization_id HAVING count(*) > 1) d;
   IF many > 0 THEN
-    RAISE EXCEPTION 'Откат 039 невозможен: у % организаций несколько профилей (несколько агентов) — оставьте схему', many;
+    RAISE EXCEPTION 'Откат 039 невозможен: у % организаций несколько профилей (несколько агентов), оставьте схему', many;
   END IF;
 END $$;
 

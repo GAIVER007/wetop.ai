@@ -111,9 +111,10 @@ export function StatusForm({
         <Input name="note" maxLength={300} placeholder="Счёт № 17 от 25.09.2026, WETOP Core" />
       </Field>
       <p className="settings-note">
-        WETOP Core — 49 900 ₸ в месяц за объект до 100 единиц продажи. После оплаты счёта нажмите «Оплата получена»:
-        организация снова сможет вносить изменения. «Только чтение» — данные видны, изменения закрыты. Каждое изменение
-        пишется в журнал.
+        WETOP Core: 49 900 ₸ в месяц за каждый филиал до 100 номеров и коек. Доступ включается
+        вручную после проверки оплаты. Эта кнопка меняет доступ и пишет заметку в журнал, но не
+        создаёт платёж или оплаченный период. Автоматического списания нет. Подключение ИИ-продавца
+        учитывается отдельно.
       </p>
       {state?.error && <Alert data-testid="platform-status-error">{state.error}</Alert>}
       {state?.message && <Notice data-testid="platform-status-result">{state.message}</Notice>}

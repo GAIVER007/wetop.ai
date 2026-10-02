@@ -600,3 +600,39 @@ def _mirror_agent(_mapper: Any, connection: sa.Connection, org: Organization) ->
 
 sa.event.listen(Organization, "after_insert", _mirror_agent)
 sa.event.listen(Organization, "after_update", _mirror_agent)
+
+
+class TelegramConnection(Base):
+    """One test Telegram bot per agent. Credentials never appear in read DTOs."""
+    __tablename__ = 'telegram_connections'
+    __table_args__ = (sa.CheckConstraint("connection_state IN ('CONFIGURED','CONNECTING','CONNECTED','ERROR')", name='ck_telegram_connection_state'),)
+    agent_id: Mapped[uuid.UUID] = mapped_column(UUID, sa.ForeignKey('agents.id'), primary_key=True)
+    bot_id: Mapped[str] = mapped_column(sa.Text, unique=True, nullable=False)
+    bot_username: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    token_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
+    webhook_secret_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)
+    allowed_user_ids: Mapped[list] = mapped_column(JSONType, nullable=False)
+    enabled: Mapped[bool] = mapped_column(sa.Boolean, nullable=False)
+    connection_state: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    last_error_code: Mapped[str | None] = mapped_column(sa.Text)
+    last_received_at: Mapped[datetime | None] = mapped_column(TZ)
+    last_sent_at: Mapped[datetime | None] = mapped_column(TZ)
+    updated_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+
+
+class TelegramInboundEvent(Base):
+    __tablename__ = 'telegram_inbound_events'
+    __table_args__ = (
+        sa.UniqueConstraint('agent_id', 'update_id', name='uq_telegram_agent_update'),
+        sa.CheckConstraint("state IN ('RECEIVED','PROCESSING','DONE','FAILED')", name='ck_telegram_event_state'),
+        sa.Index('idx_telegram_event_retry', 'state', 'next_retry_at'),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=new_uuid)
+    agent_id: Mapped[uuid.UUID] = mapped_column(UUID, sa.ForeignKey('agents.id'), nullable=False)
+    update_id: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    received_at: Mapped[datetime] = mapped_column(TZ, nullable=False)
+    state: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    attempts: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    next_retry_at: Mapped[datetime | None] = mapped_column(TZ)
+    error_code: Mapped[str | None] = mapped_column(sa.Text)
+    payload_encrypted: Mapped[bytes] = mapped_column(sa.LargeBinary, nullable=False)

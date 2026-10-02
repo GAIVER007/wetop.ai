@@ -480,8 +480,22 @@ export const authApi = {
       body,
       info ? authHeaders(info) : {},
     ),
-  me: () =>
-    getJson<{ user: SignedIn | null; expiresAt?: string; access?: DeskAccessView }>('/auth/me'),
+  me: async () => {
+    const result = await getJson<{
+      user: SignedIn | null;
+      organization?: SignedInOrganization | null;
+      expiresAt?: string;
+      access?: DeskAccessView;
+    }>('/auth/me');
+    // whoami returns organization alongside user; older previews nested it inside user.
+    return {
+      ...result,
+      user: result.user ? {
+        ...result.user,
+        organization: result.organization !== undefined ? result.organization : (result.user.organization ?? null),
+      } : null,
+    };
+  },
   logout: () => sendJson<{ ok: boolean }>('POST', '/auth/logout', {}),
   changePassword: (body: { currentPassword: string; newPassword: string }) =>
     sendJson<{ ok: boolean }>('POST', '/auth/password', body),
@@ -688,6 +702,7 @@ export const reservationsApi = {
   /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
   nearest: (arrival: string, departure: string, guests: number) =>
     getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
+  quote: (body: unknown) => sendJson<{ totalMinor: string; currency: string }>('POST', '/reservations/quote', body),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
@@ -1888,7 +1903,15 @@ export interface BusinessAgentView {
 export interface AgentInstructionView { text: string; saved: boolean; updatedAt: string | null }
 export interface AgentInstructionPreview { text: string; warnings: string[] }
 
+export interface TelegramStatusView {
+  set: boolean; state: 'NOT_CONNECTED' | 'CONFIGURED' | 'CONNECTING' | 'CONNECTED' | 'ERROR';
+  username: string | null; allowedUserIds: string[]; lastReceivedAt: string | null; lastSentAt: string | null; error: string | null;
+}
 export const businessAgentsApi = {
+  telegram: (id: string) => getJson<TelegramStatusView>(`/ai-seller/agents/${encodeURIComponent(id)}/telegram`),
+  checkTelegram: (id: string, token: string) => sendJson<{valid: boolean; username: string | null; conflict: boolean}>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/telegram/check`, {token}),
+  connectTelegram: (id: string, token: string, allowedUserIds: string[]) => sendJson<TelegramStatusView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/telegram`, {token, allowedUserIds}),
+  disconnectTelegram: (id: string) => sendJson<TelegramStatusView>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/telegram/disconnect`, {}),
   instruction: (id: string) => getJson<AgentInstructionView>(`/ai-seller/agents/${encodeURIComponent(id)}/instruction`),
   saveInstruction: (id: string, text: string) => sendJson<AgentInstructionView>('PUT', `/ai-seller/agents/${encodeURIComponent(id)}/instruction`, { text }),
   generateInstruction: (id: string, story: string) => sendJson<AgentInstructionPreview>('POST', `/ai-seller/agents/${encodeURIComponent(id)}/instruction/generate`, { story }),
@@ -2296,4 +2319,34 @@ export const sellerAgentsApi = {
   update: (id:string,body:unknown) => sendJson<{id:string;updatedAt:string}>('PATCH','/seller-agents/'+encodeURIComponent(id),body),
   list: () => getJson<{items:Array<{id:string;name:string;scenario:string;lifecycle:string;profile:Record<string,string>;updatedAt:string}>}>('/seller-agents'),
   claim: (token:string) => sendJson<{id:string}>('POST','/seller-agents/claim',{}, {'x-wizard-token':token}),
+};
+
+export interface BranchItem {
+  id: string;
+  name: string;
+  address: string | null;
+  currency: string;
+  timezone: string;
+  locationId: string;
+  location: { businessId: string };
+  _count: { inventoryUnits: number; accommodationTypes: number };
+}
+export const branchesApi = {
+  overview: (from: string, to: string) =>
+    getJson<{ rows: Array<{ branch: BranchItem; stats: import('@pms/domain').DashboardPeriod }> }>(
+      `/branches/overview?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+  list: () =>
+    getJson<{
+      organization: { id: string; name: string; status: string };
+      items: BranchItem[];
+      canCreate: boolean;
+    }>('/branches'),
+  create: (body: {
+    id: string;
+    name: string;
+    address: string;
+    currency: string;
+    timezone: string;
+  }) => sendJson<BranchItem>('POST', '/branches', body),
 };

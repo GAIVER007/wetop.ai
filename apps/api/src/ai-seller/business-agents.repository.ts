@@ -4,7 +4,7 @@ import { PrismaService } from '../database/prisma.provider';
 
 /**
  * Business Agent: хранилище создания и чтения черновиков (SA2, plans/business-ai-seller-sa2-2026-09-30.md, DATA_MODEL §20).
- * Организацию называет вызывающий из вошедшего — не из тела запроса. Схему держит SA1.6: здесь только запросы.
+ * Организацию называет вызывающий из вошедшего, не из тела запроса. Схему держит SA1.6: здесь только запросы.
  */
 
 export const BUSINESS_AGENTS = Symbol('BUSINESS_AGENTS');
@@ -43,7 +43,7 @@ export class ForeignIdempotencyKeyError extends Error {}
 export interface BusinessAgentsRepository {
   /** Действующие Business организации и их действующие филиалы с отметкой «занят» */
   options(organizationId: string): Promise<BusinessOption[]>;
-  /** Филиал принадлежит Business, а Business — организации; оба действующие. `null` — иначе */
+  /** Филиал принадлежит Business, а Business, организации; оба действующие. `null`, иначе */
   placement(organizationId: string, businessId: string, locationId: string): Promise<AgentPlacementRow | null>;
   /**
    * Черновик по ключу идемпотентности: ключ становится идентификатором агента (приём гостевого мастера), запись идёт под
@@ -155,7 +155,7 @@ export class PrismaBusinessAgentsRepository implements BusinessAgentsRepository 
         await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${input.id}))::text`;
         const existing = await tx.sellerAgent.findUnique({ where: { id: input.id }, select: agentSelect });
         if (existing) {
-          // ключ чужой записи, а также ключ, равный организации, — это рабочий продавец, а не результат этого создания
+          // ключ чужой записи, а также ключ, равный организации, это рабочий продавец, а не результат этого создания
           if (
             existing.organizationId !== input.organizationId ||
             existing.createdBy !== input.userId ||

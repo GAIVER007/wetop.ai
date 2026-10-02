@@ -39,9 +39,9 @@ test('старые адреса ведут во вкладки модуля и �
 
 test('одна точка входа в меню и четыре вкладки со своим адресом', async ({ page }) => {
   await page.goto('/website');
-  const sidebar = page.locator('.workspace-sidebar');
+  const sidebar = page.locator('.workspace-header .topmenu');
   const hrefs = await sidebar
-    .locator('.workspace-links a')
+    .locator('a')
     .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
   expect(hrefs.filter((href) => href?.startsWith('/website'))).toEqual(['/website']);
   expect(hrefs.filter((href) => href?.startsWith('/analytics'))).toEqual([]);

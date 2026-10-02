@@ -23,7 +23,7 @@ import { loadErrorProps } from '../../lib/load-error';
  * через «Техподдержка → Написать в поддержку».
  */
 export default async function AiAgentsPage() {
-  const { access, readOnly } = await deskShell();
+  const { readOnly } = await deskShell();
   let catalog: AgentCatalogView | null = null;
   let failure: unknown = null;
   try {
@@ -34,7 +34,7 @@ export default async function AiAgentsPage() {
   const button = catalog ? createButton(catalog, readOnly) : null;
   const disabledReasonId = 'agent-add-reason';
   return (
-    <Page title="ИИ-агенты" subtitle="Настройка продавцов, инструкции и каналы общения.">
+    <Page title="ИИ-продавцы" subtitle="Настройка продавцов, инструкции и каналы общения.">
       {failure !== null && (
         <LoadError
           testId="agents-error"
@@ -48,29 +48,6 @@ export default async function AiAgentsPage() {
           {catalog?.agents.map((agent) => (
             <AgentCard key={agent.id} agent={agent} />
           ))}
-          {access.platform && (
-            <Panel title="WETOP Support" className="agent-card" data-testid="agent-support">
-              <Stack gap="sm">
-                <div className="muted">Техническая поддержка платформы</div>
-                <div>
-                  <Badge>Platform Agent</Badge>
-                </div>
-                <div>
-                  Отвечает пользователям всех организаций; диалоги, знания и настройки — здесь.
-                </div>
-                <div>
-                  <Link
-                    className="btn"
-                    href="/platform/support"
-                    prefetch={false}
-                    aria-label="Открыть: WETOP Support"
-                  >
-                    Открыть
-                  </Link>
-                </div>
-              </Stack>
-            </Panel>
-          )}
         </Grid>
         {button && (
           <div data-testid="agent-add">
@@ -116,10 +93,6 @@ function OffCard() {
   return (
     <Panel title="AI-продавец" className="agent-card" data-testid="agent-seller">
       <Stack gap="sm">
-        <Row>
-          <Badge>Продажи</Badge>
-          <Badge>Hospitality</Badge>
-        </Row>
         <div>Автоматизируйте ответы гостям, подбор размещения и продажи.</div>
         <div data-testid="agent-seller-off" className="muted">
           Расширение «ИИ-продавец» не подключено. Подключает администратор WETOP после оплаты по
@@ -132,7 +105,6 @@ function OffCard() {
 
 function AgentCard({ agent }: { agent: AgentCardView }) {
   const isSeller = agent.kind === 'seller';
-  const isSales = isSeller || agent.kind === 'agent';
   const channels = channelLines(agent);
   const readiness = agentReadiness(agent);
   return (
@@ -145,12 +117,6 @@ function AgentCard({ agent }: { agent: AgentCardView }) {
     >
       <Stack gap="sm">
         <Row>
-          {isSales && (
-            <>
-              <Badge>Продажи</Badge>
-              <Badge>Hospitality</Badge>
-            </>
-          )}
           <Badge tone={readiness.tone} data-testid="agent-status">
             {readiness.label}
           </Badge>

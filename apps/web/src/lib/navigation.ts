@@ -114,7 +114,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             requires: 'property',
             label: 'Свободные места',
             icon: 'board',
-            description: 'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
+            description:
+              'Что можно продать на выбранные даты: номера и койки, свободные весь срок.',
           },
           {
             href: '/rates',
@@ -198,7 +199,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'dialogs',
         label: 'ИИ-агенты',
         icon: 'chat',
-        description: 'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
+        description:
+          'ИИ-продавец на сайте объекта: настройки, знания, диалоги с гостями и код чата.',
         // Раздел доступен для знакомства; действия и данные защищены сервером.
       },
       {
@@ -240,7 +242,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         ],
       },
       {
-        // Команда — видимый раздел (TEAM1, план settings-hub-2026-10-02): раньше жила только в «Профиль → Доступ»
+        // Команда — видимый раздел (TEAM1, план settings-hub-2026-10-02): раньше жила только в «Профиль → Доступ» —
+        // при слиянии 02.10 заменил параллельный /staff (список на login/team-section): /staff — переадресация
         href: '/team',
         requires: 'staff',
         label: 'Сотрудники',
@@ -269,6 +272,13 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'История операций в системе.',
       },
       {
+        href: '/platform/support',
+        label: 'Техподдержка WETOP',
+        description: 'Управление поддержкой платформы.',
+        icon: 'chat',
+        requires: 'platform',
+      },
+      {
         href: '/platform',
         label: 'Организации',
         icon: 'inventory',
@@ -282,12 +292,12 @@ export const navigationItems = navigation.flatMap((group) =>
   group.items.flatMap((item) => [item, ...(item.children ?? [])]),
 );
 
-export interface SidebarSection {
+export interface MenuSection {
   id: string;
   label: string;
   icon: IconName;
   items: NavigationItem[];
-  /** Раздел из одного пункта: в меню — прямая ссылка без раскрывашки (ADR-108) */
+  /** Раздел из одного пункта: вкладка в шапке и прямая ссылка в меню телефона без раскрывашки (ADR-108) */
   direct?: boolean;
 }
 
@@ -299,64 +309,60 @@ function menuItem(href: string, label?: string): NavigationItem {
   return label ? { ...item, label } : item;
 }
 
-export const sidebarSections: SidebarSection[] = [
-  {
-    id: 'guests',
-    label: 'Работа с гостями',
-    icon: 'guests',
-    items: ['/today', '/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
-  },
-  {
-    // Один пункт вместо трёх (ADR-108): «Категории» и «Доступность» — вкладки внутри страницы,
-    // их адреса живут (deep links), а меню не дублирует навигацию экрана
-    id: 'inventory',
-    label: 'Номерной фонд',
-    icon: 'bed',
-    items: [menuItem('/inventory', 'Номерной фонд')],
-    direct: true,
-  },
+function direct(id: string, href: string, icon: IconName, label?: string): MenuSection {
+  const item = menuItem(href, label);
+  return { id, label: item.label, icon, direct: true, items: [item] };
+}
+
+/**
+ * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
+ * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони, Гости) одним щелчком; группы с несколькими
+ * экранами («Продажи», «Настройки», «Платформа») раскрывают список.
+ */
+export const menuSections: MenuSection[] = [
+  direct('home', '/today', 'today'),
+  direct('chessboard', '/chessboard', 'board'),
+  direct('reservations', '/reservations', 'booking'),
+  direct('guests', '/guests', 'guests'),
+  direct('inventory', '/inventory', 'bed'),
   {
     id: 'sales',
     label: 'Продажи',
     icon: 'rates',
-    // Состав группы — поручение владельца 27.09 (ADR-112): Тарифы, Каналы продаж, ИИ-агенты (бывший ИИ-продавец), Сайт
     items: [
-      menuItem('/rates'),
+      menuItem('/rates', 'Тарифы и цены'),
       menuItem('/channels'),
+      menuItem('/ai-agents', 'ИИ-продавцы'),
       menuItem('/website'),
-      // рядом с каналами (ТЗ ред. 1 §4.1): бот-продавец на сайте объекта
-      menuItem('/ai-agents'),
     ],
   },
-  {
-    id: 'finance',
-    label: 'Финансы и отчёты',
-    icon: 'money',
-    // «Показатели за период» (A1, ADR-105) с AN2 перенаправляют на «Аналитику → Обзор» (ADR-114);
-    // «Отчёты» — хаб REP1: первый пункт, он связывает остальные
-    items: [menuItem('/reports'), menuItem('/finance'), menuItem('/management/analytics')],
-  },
+  // «Отчёты» — хаб REP1: связывает деньги, загрузку, день и сайт; «Оплаты» и «Аналитика» — свои вкладки (ADR-134)
+  direct('reports', '/reports', 'analytics', 'Отчёты'),
+  direct('finance', '/finance', 'money', 'Финансы'),
+  direct('analytics', '/management/analytics', 'analytics'),
   {
     id: 'settings',
     label: 'Настройки',
     icon: 'settings',
-    items: [menuItem('/hotel-settings', 'Объект'), menuItem('/team'), menuItem('/connections')],
+    items: [
+      menuItem('/hotel-settings', 'Объект'),
+      menuItem('/team', 'Сотрудники и доступ'),
+      menuItem('/connections', 'Подключения'),
+      menuItem('/journal', 'Журнал действий'),
+    ],
   },
   {
-    id: 'control',
-    label: 'Контроль',
-    icon: 'shield',
-    items: [menuItem('/incidents'), menuItem('/journal')],
-  },
-  {
-    // только главному администратору (ADR-083): данных чужих гостиниц здесь нет — названия, люди и расширения.
-    // Техподдержка — карточка WETOP Support на входе «ИИ-агенты» и переключатель на странице продавца
     id: 'platform',
     label: 'Платформа',
     icon: 'system',
-    items: [menuItem('/platform')],
+    items: [menuItem('/platform'), menuItem('/platform/support')],
   },
 ];
+
+/** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */
+export const phoneNavigation: NavigationItem[] = menuSections
+  .slice(0, 4)
+  .map((section) => section.items[0]!);
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
@@ -410,8 +416,8 @@ export function routeRule(
 }
 
 /** Меню вошедшего: закрытые пункты убраны, раздел без пунктов не показывается */
-export function sidebarSectionsFor(access: NavigationAccess): SidebarSection[] {
-  return sidebarSections
+export function menuSectionsFor(access: NavigationAccess): MenuSection[] {
+  return menuSections
     .map((section) => ({
       ...section,
       items: section.items.filter((item) => allowedItem(item, access)),
@@ -436,6 +442,19 @@ export function deskAccessOf(
     platform: me.user.platformAdmin === true,
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
   };
+}
+
+/**
+ * Какой пункт меню подсвечен на этом адресе: вкладки модулей не пункты меню, активен их корень
+ * («Настройки объекта» ADR-115, «Номерной фонд» ADR-108, «Каналы продаж» ADR-112)
+ */
+export function activeMenuRoute(path: string): string | undefined {
+  const route = activeNavigation(path)?.href;
+  if (!route) return undefined;
+  if (route.startsWith('/hotel-settings')) return '/hotel-settings';
+  if (route.startsWith('/rooms')) return '/inventory';
+  if (route.startsWith('/channels')) return '/channels';
+  return route;
 }
 
 /** Страницы агентов лежат под своими адресами, но в меню это один пункт «ИИ-агенты» */

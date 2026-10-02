@@ -3872,6 +3872,7 @@ function read(path: string, q: URLSearchParams): unknown {
   return undefined;
 }
 
+const fixtureBranches: Array<Record<string, unknown>> = [];
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -3915,6 +3916,7 @@ createServer(async (req, res) => {
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
     if (path === '/__test/reset') {
+      fixtureBranches.length = 0;
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
@@ -4097,6 +4099,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if (body['branchWithInventory'] === true) for (const branch of fixtureBranches) branch._count = { inventoryUnits: 3, accommodationTypes: 1 };
       setSellerExtension(
         body['sellerExtension'],
         body['sellerDaysLeft'],
@@ -4500,11 +4503,29 @@ createServer(async (req, res) => {
       const token = sessionOf(req as never);
       const who = token ? uiSessions.get(token) : undefined;
       if (!who) return send(200, { user: null });
-      // что открыто организации — пункт меню «ИИ-продавец» и напоминание о сроке (ADR-083)
+      // Match production whoami: organization is a sibling of user.
+      const { organization, ...user } = signedInView(who);
       return send(200, {
-        user: signedInView(who),
+        user,
+        organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
       });
+    }
+    if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
+      const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      const settings = read(path, url.searchParams) as { property: Record<string, unknown>; needsOnboarding?: boolean };
+      return send(200, { ...settings, property: { ...settings.property, id: '11111111-1111-4111-8111-111111111111', ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}) } });
+    }
+    if (path === '/branches' || path === '/branches/overview') {
+      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      if (req.method === 'POST') {
+        const item = { ...branch, ...body, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
+        if (!fixtureBranches.some((b) => b.id === item.id)) fixtureBranches.push(item);
+        return send(200, item);
+      }
+      const items = [branch, ...fixtureBranches];
+      if (path.endsWith('/overview')) return send(200, { rows: items.map((b) => ({ branch: b, stats: dashboard(url.searchParams.get('from') || today, url.searchParams.get('to') || today).current })) });
+      return send(200, { organization: { id: '44444444-4444-4444-8444-444444444444', name: 'Тестовая сеть', status: 'ACTIVE' }, items, canCreate: true });
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {
@@ -5917,6 +5938,23 @@ createServer(async (req, res) => {
       } catch {
         return send(422, { message: 'Сумма платежа и распределения должны совпадать' });
       }
+    }
+    if (path === '/reservations/quote') {
+      const arrival = String(body['arrivalDate']);
+      const departure = String(body['departureDate']);
+      const items = body['items'] as Array<{ accommodationTypeCode: string; quantity?: number }>;
+      const nights = BigInt(nightsOf({ arrivalDate: arrival, departureDate: departure }));
+      const total = items.reduce(
+        (sum, item) =>
+          sum + nightly(item.accommodationTypeCode) * nights * BigInt(item.quantity ?? 1),
+        0n,
+      );
+      return send(201, {
+        arrivalDate: arrival,
+        departureDate: departure,
+        totalMinor: total.toString(),
+        currency: 'KZT',
+      });
     }
     if (path === '/reservations') {
       if (rejectCreate) return send(409, { message: 'Место уже занято. Выберите другую ячейку.' });

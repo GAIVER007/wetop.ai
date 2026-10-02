@@ -11,17 +11,18 @@ test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: {} });
 });
 
-test('новая бронь без имени и контактов: объяснение на месте, бронь создаётся', async ({
+test('новая бронь без имени и контактов: компактная форма, бронь создаётся', async ({
   page,
   request,
 }) => {
   await request.post(`${fixture}/__test/control`, { data: { piiStorage: 'pseudonymized' } });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
-  await expect(form.getByTestId('guest-pseudonymized')).toContainText('не в Казахстане');
+  await expect(form.getByTestId('guest-pseudonymized')).toHaveCount(0);
   for (const name of ['firstName', 'lastName', 'middleName', 'email', 'phone'])
     await expect(form.locator(`[name="${name}"]`)).toHaveCount(0);
-  await expect(form.getByTestId('booking-summary')).toContainText('без имени');
+  await expect(form.getByTestId('booking-summary')).toContainText('Автоматическая карточка');
+  await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
@@ -43,6 +44,7 @@ test('бронь существующему гостю (G6) — без имён:
   const form = page.getByTestId('new-reservation-form');
   await expect(form.getByTestId('booking-guest')).toContainText('Гость Тестовый');
   await expect(form.getByTestId('guest-pseudonymized')).toHaveCount(0);
+  await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);

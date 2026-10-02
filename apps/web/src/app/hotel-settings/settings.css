@@ -328,101 +328,43 @@
   }
 }
 
-/* Object settings: compact editable workspace, no clipped fields. */
-.object-settings {
-  padding: 16px 24px;
-}
-.object-settings .page__head {
-  margin-bottom: 16px;
-}
-.object-settings .page__title {
-  font-size: 28px;
-}
-.object-settings .page__subtitle {
-  font-size: 13px;
-}
-.object-settings .settings-tabs {
-  margin-bottom: 16px;
-  border: 0;
-  background: transparent;
-}
-.object-settings .settings-tabs a {
-  min-height: 36px;
-  padding: 8px 16px;
-}
-.object-settings .settings-stack,
-.object-settings .settings-form {
-  max-width: none;
-  gap: 16px;
-}
-.object-settings .settings-block {
-  padding: 16px;
-}
-.object-settings .settings-block > h2 {
-  font-size: 16px;
-  margin-bottom: 16px;
-}
-.object-settings .settings-fields {
-  gap: 16px;
-}
-.object-settings .settings-fields input {
-  min-height: 38px;
-  padding: 8px 16px;
-}
-.object-settings .settings-facts {
-  margin-bottom: 0;
-}
-.object-settings .settings-facts > div {
-  padding: 8px 0;
-  border: 0;
-}
-.object-settings .settings-note {
-  font-size: 12px;
-  margin-bottom: 8px;
-}
-.object-settings .settings-service-help {
-  padding: 16px 16px;
-  gap: 16px;
-}
-.object-settings .settings-service-help h2 {
-  font-size: 14px;
-}
-.object-settings .settings-toolbar {
-  margin-bottom: 16px;
-}
-.object-settings .settings-table th,
-.object-settings .settings-table td {
-  padding: 8px 16px;
-  font-size: 13px;
-}
+/* Object settings: one workspace, consistent labels and a compact regional summary. */
+.object-settings { padding: var(--space-6); }
+.object-settings .page__head { align-items: center; margin-bottom: var(--space-4); }
+.object-settings .page__title { font-size: var(--text-2xl); }
+.object-settings .page__subtitle { font-size: var(--text-sm); }
+.object-settings .settings-tabs { margin-bottom: var(--space-6); width: fit-content; max-width: 100%; border: 0; background: var(--surface-muted); }
+.object-settings .settings-tabs a { min-height: var(--touch-target); }
+.object-settings .settings-form, .object-settings .settings-stack { max-width: none; gap: var(--space-4); }
+.object-settings .settings-block { padding: var(--space-6); align-content: start; }
+.object-settings .settings-block > h2 { font-size: var(--text-lg); margin: 0 0 var(--space-4); }
+.object-settings .settings-fields { gap: var(--space-4); }
+.object-settings .field { font-size: var(--text-sm); color: var(--muted); }
+.object-settings .settings-fields input { min-height: var(--touch-target); padding: var(--space-2) var(--space-4); border-color: var(--border-input); background: var(--surface-muted); color: var(--text); }
+.object-settings .settings-fields input:focus-visible { border-color: var(--primary); }
+.object-settings .settings-note { font-size: var(--text-sm); margin: 0 0 var(--space-4); line-height: 1.5; }
+.object-settings .settings-facts { margin: 0; }
+.object-settings .settings-facts > div { border: 0; padding: var(--space-2) 0; }
+.object-settings .settings-service-help { padding: var(--space-4); gap: var(--space-4); }
+.object-settings .settings-service-help h2 { font-size: var(--text-lg); }
+.object-settings .settings-toolbar { margin-bottom: var(--space-4); }
+.object-settings .settings-table th, .object-settings .settings-table td { padding: var(--space-2) var(--space-4); font-size: var(--text-sm); }
 @media (min-width: 1000px) {
-  .object-settings .settings-form--general {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    align-items: start;
-  }
-  .object-settings .settings-form--general > .settings-block:first-of-type {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-  }
-  .object-settings .settings-form--general > .settings-block {
-    grid-column: 2;
-  }
-  .object-settings .settings-form--general > [role='alert'] {
-    grid-column: 1 / -1;
-  }
-  .object-settings .settings-catalog .table-scroll {
-    max-height: max(240px, calc(100dvh - 415px));
-    overflow: auto;
-  }
+  .object-settings .settings-form--general { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: start; }
+  .object-settings .settings-form--general > [aria-labelledby='settings-main'] { grid-column: 1; grid-row: 1; }
+  .object-settings .settings-form--general > [aria-labelledby='settings-legal'] { grid-column: 2; grid-row: 1; }
+  .object-settings .settings-form--general > .settings-region { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr); gap: var(--space-2) var(--space-6); align-items: center; padding: var(--space-4) var(--space-6); }
+  .object-settings .settings-region > h2 { margin: 0; }
+  .object-settings .settings-region .settings-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .object-settings .settings-region .settings-note { grid-column: 1 / -1; margin: 0; }
+  .object-settings .settings-form--general > [role='alert'] { grid-column: 1 / -1; }
+  .object-settings .settings-catalog .table-scroll { max-height: max(240px, calc(100dvh - 415px)); overflow: auto; }
 }
 @media (max-width: 600px) {
-  .object-settings {
-    padding: 16px;
-  }
-  .object-settings .settings-fields input,
-  .object-settings .settings-tabs a {
-    min-height: 44px;
-  }
+  .object-settings { padding: var(--space-4); }
+  .object-settings .settings-block { padding: var(--space-4); }
+  .object-settings .settings-tabs { width: 100%; }
+  .object-settings .settings-tabs a { flex: 1; justify-content: center; }
 }
 
 /* «Сотрудники» (TEAM1, план settings-hub-2026-10-02): таблица команды на базе .settings-table.

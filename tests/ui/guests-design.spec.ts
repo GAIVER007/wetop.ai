@@ -364,6 +364,7 @@ test('гости: новая бронь этому же гостю — из ка
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
   expect(audit.violations).toEqual([]);
+  await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
@@ -396,9 +397,9 @@ test('гости: новая бронь этому же гостю — из ка
   await matches.getByRole('button', { name: 'Выбрать', exact: true }).click();
   await expect(form.getByTestId('booking-guest')).toContainText('Возвращающийся Гость');
   await expect(form.locator('[name="phone"]')).toHaveCount(0);
-  // смена дат перезагружает страницу — выбранный гость едет адресом и остаётся выбранным
-  await page.getByRole('button', { name: 'Проверить доступность', exact: true }).click();
-  await expect(page).toHaveURL(/guest=ui-guest-GCRET0/);
+  // Смена дат сохраняет выбранного гостя без перезагрузки.
+  await form.getByRole('button', { name: '3 ночи', exact: true }).click();
+  await expect(form.getByTestId('availability')).toContainText('3 ночи');
   await expect(form.getByTestId('booking-guest')).toContainText('Возвращающийся Гость');
   // передумал — снова поля нового гостя
   await form.getByRole('button', { name: 'Другой гость', exact: true }).click();

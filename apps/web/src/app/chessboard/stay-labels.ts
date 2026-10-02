@@ -22,8 +22,37 @@ export function stayLabels(
   return labels;
 }
 
-/** Имя гостя по ширине плашки (ТЗ v2 §18, §58): полное → «Имя Ф.» → инициалы; полное — всегда в подсказке */
-export function guestNames(label: string): { full: string; short: string; initials: string } {
+/** Только точные форматы служебных псевдонимов, в обоих порядках имени и фамилии. */
+export function isGuestPseudonym(label: string): boolean {
+  return /^(?:Гость\s+(?:Стойка|Канал)-[0-9a-f]{6}|(?:Стойка|Канал)-[0-9a-f]{6}\s+Гость)$/i.test(
+    label.trim(),
+  );
+}
+
+export function guestNames(
+  label: string,
+  source?: string,
+  channel?: string | null,
+): { full: string; short: string; initials: string } {
+  if (isGuestPseudonym(label)) {
+    const titles: Record<string, string> = {
+      DESK: 'со стойки',
+      WALK_IN: 'со стойки',
+      PHONE: 'по телефону',
+      WEBSITE: 'с сайта',
+      WHATSAPP: 'из WhatsApp',
+      INSTAGRAM: 'из Instagram',
+      OTA: 'из канала',
+    };
+    const origin = channel ? `· ${channel}` : (titles[source ?? ''] ?? 'без имени');
+    return {
+      full: `Бронь ${origin}`,
+      short:
+        channel ??
+        (titles[source ?? ''] ? origin.charAt(0).toUpperCase() + origin.slice(1) : 'Бронь'),
+      initials: 'Бронь',
+    };
+  }
   const words = label.trim().split(/\s+/).filter(Boolean);
   const [first, second] = words;
   if (!first) return { full: '', short: '', initials: '' };

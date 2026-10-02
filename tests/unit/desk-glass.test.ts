@@ -1,87 +1,27 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
-
-/**
- * Сторож стеклянного слоя стойки (DESIGN.md §20, ADR-069).
- *
- * Стекло в стойке — закрытый список блоков, и он записан дважды: словами в DESIGN.md §20.3 и кодом
- * в `apps/web/src/app/glass.css` (два правила: размытие и кромка). Списки расходятся молча —
- * панель получает тень без размытия или наоборот, — поэтому тест держит их равными.
- *
- * Он же следит за тем, что рабочие поверхности остались непрозрачными: сетка шахматки и тело
- * таблицы обязаны брать `--surface-solid` (§20.3), иначе строки просвечивают друг сквозь друга.
- */
-const ROOT = resolve(import.meta.dirname, '../..');
-const GLASS = resolve(ROOT, 'apps/web/src/app/glass.css');
-const DESIGN = resolve(ROOT, 'DESIGN.md');
-
-const glass = readFileSync(GLASS, 'utf8');
-const design = readFileSync(DESIGN, 'utf8');
-
-/** Классы из блока правил, который начинается после `marker`. */
-function selectorsAfter(css: string, marker: string): string[] {
-  const start = css.indexOf(marker);
-  expect(start, `в glass.css нет правила ${marker}`).toBeGreaterThan(-1);
-  const body = css.slice(start + marker.length);
-  const head = body.slice(0, body.indexOf('{'));
-  return [...head.matchAll(/\.[a-z0-9_-]+/g)].map((m) => m[0]).sort();
-}
-
-describe('стеклянный слой стойки — DESIGN.md §20', () => {
-  /** Список §20.3 записан блоком кода после слов «Стекло». */
-  const documented = (() => {
-    const section = /## 20\.3[\s\S]*?```\n([\s\S]*?)```/.exec(design);
-    expect(section, 'в DESIGN.md нет списка блоков §20.3').not.toBeNull();
-    return [...(section?.[1] ?? '').matchAll(/\.[a-z0-9_-]+/g)].map((m) => m[0]).sort();
-  })();
-
-  it('список §20.3 и размытие в glass.css совпадают', () => {
-    // правило размытия стоит внутри @supports сразу после него
-    const blurred = selectorsAfter(glass, 'backdrop-filter: blur(1px)) {');
-    expect(blurred, 'размытие получают не те блоки, что названы в §20.3').toEqual(documented);
-  });
-
-  it('кромку получают те же блоки, кроме тех, у кого её нет по смыслу', () => {
-    const edged = selectorsAfter(glass, 'Кромка и тень стекла.');
-    const extra = edged.filter((s) => !documented.includes(s));
-    expect(extra, 'кромка у блока, которого нет в §20.3').toEqual([]);
-  });
-
-  it('вложенное стекло берёт тот же список блоков (§20.3)', () => {
-    const nested = /стекло внутри стекла[\s\S]*?:is\(([\s\S]*?)\)\s*:is\(([\s\S]*?)\)\s*\{/.exec(
-      glass,
-    );
-    expect(nested, 'в glass.css нет правила «стекло внутри стекла»').not.toBeNull();
-    const [outer, inner] = [nested?.[1] ?? '', nested?.[2] ?? ''].map((part) =>
-      [...part.matchAll(/\.[a-z0-9_-]+/g)].map((m) => m[0]).sort(),
-    );
-    expect(outer, 'внешний список вложенного правила разошёлся с §20.3').toEqual(documented);
-    expect(inner, 'внутренний список вложенного правила разошёлся с §20.3').toEqual(documented);
-  });
-
-  it('сетка шахматки и тело таблицы остаются непрозрачными', () => {
-    const solid = /\.board,[\s\S]*?\{([\s\S]*?)\}/.exec(glass)?.[1] ?? '';
-    expect(solid, 'рабочая поверхность потеряла непрозрачную подложку').toContain(
-      'var(--surface-solid)',
-    );
-    for (const selector of ['.board', '.board thead th', '.tbl', '.tbl thead th']) {
-      expect(glass, `${selector} должен стоять в правиле непрозрачных поверхностей`).toContain(
-        selector,
-      );
-    }
-  });
-
-  it('градиент стоит только у главной кнопки и знака (§20.4)', () => {
-    const gradients = [...glass.matchAll(/^([^{}\n]*)\{[^{}]*linear-gradient/gm)].map((m) =>
-      (m[1] ?? '').trim(),
-    );
-    const allowed = ['.btn', '.workspace-mark'];
-    for (const rule of gradients) {
-      expect(
-        allowed.some((a) => rule.startsWith(a)),
-        `градиент у «${rule}»: §20.4 разрешает его только главной кнопке и знаку`,
-      ).toBe(true);
-    }
-  });
+import { expect, it } from 'vitest';
+const root = resolve(import.meta.dirname, '../..');
+const css = readFileSync(resolve(root, 'apps/web/src/app/glass.css'), 'utf8');
+it('shared surfaces have no decorative gradients, white inset rim or blur', () => {
+  expect(css).not.toMatch(/(?:radial|linear)-gradient\(/);
+  expect(css).not.toMatch(/inset\s+0\s+1px/);
+  expect(css).not.toMatch(/backdrop-filter:\s*blur/);
+  expect(css).toMatch(/body::before,\s*body::after\s*\{[^}]*content:\s*none/);
+});
+it('all documented shared surfaces get the flat treatment', () => {
+  const design = readFileSync(resolve(root, 'DESIGN.md'), 'utf8');
+  const list = /## 20\.3[\s\S]*?```\n([\s\S]*?)```/.exec(design)?.[1];
+  expect(list).toBeTruthy();
+  const documented = [...list!.matchAll(/\.[a-z0-9_-]+/g)].map(m => m[0]).sort();
+  const rule = /\/\* Shared surfaces \*\/([^{]+)\{([^}]+)\}/.exec(css);
+  expect(rule).not.toBeNull();
+  expect([...rule![1]!.matchAll(/\.[a-z0-9_-]+/g)].map(m => m[0]).sort()).toEqual(documented);
+  expect(rule![2]).toContain('box-shadow: none');
+  expect(rule![2]).toContain('var(--surface-solid)');
+});
+it('board and sticky table headers remain opaque', () => {
+  const solid = /\.board,[\s\S]*?\{([\s\S]*?)\}/.exec(css)?.[1] ?? '';
+  expect(solid).toContain('var(--surface-solid)');
+  for (const selector of ['.board', '.board thead th', '.tbl', '.tbl thead th']) expect(css).toContain(selector);
 });

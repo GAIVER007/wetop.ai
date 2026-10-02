@@ -1,3 +1,4 @@
+import { TelegramPanel } from './telegram-panel';
 import Link from 'next/link';
 import { InstructionEditor } from './instruction-editor';
 import { deskShell } from '../../../lib/desk-shell';
@@ -24,7 +25,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
   }
   if (!agent) {
     return (
-      <Page title="AI-продавец" crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}>
+      <Page title="AI-продавец" crumbs={<Link href="/ai-agents">ИИ-продавцы</Link>}>
         <LoadError testId="agent-error" title="Не удалось загрузить агента" {...loadErrorProps(failure)} />
       </Page>
     );
@@ -37,7 +38,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
     <Page
       title={agent.name}
       subtitle={placement(agent.business, agent.location)}
-      crumbs={<Link href="/ai-agents">ИИ-агенты</Link>}
+      crumbs={<Link href="/ai-agents">ИИ-продавцы</Link>}
       width="wide"
     >
       <Stack>
@@ -48,6 +49,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
         </Row>
         {instruction ? <InstructionEditor id={id} initial={instruction} readOnly={shell.readOnly} /> :
           <LoadError testId="agent-instruction-error" title="Не удалось загрузить инструкцию" {...loadErrorProps(instructionError)} />}
+        <TelegramPanel id={id} readOnly={shell.readOnly || agent.lifecycle === 'archived'} />
         <div>
           <Link className="btn btn--secondary" href="/ai-agents">
             К списку агентов

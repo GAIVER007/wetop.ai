@@ -28,7 +28,7 @@ const control = (request: APIRequestContext, body: Record<string, unknown>) =>
 
 const menuLinks = (page: Page) =>
   page
-    .locator('.workspace-sidebar .workspace-links a')
+    .locator('.workspace-header .topmenu a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 /** Снимок для отчёта: без фокуса и с начала страницы — иначе закреплённые шапка и меню снимаются со сдвигом */

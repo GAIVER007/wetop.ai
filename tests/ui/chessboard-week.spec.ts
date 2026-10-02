@@ -185,9 +185,8 @@ for (const theme of ['light', 'dark'] as const) {
         result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
       ).toEqual([]);
     }
-    // At mobile/tablet widths navigation is a drawer, so resize to desktop to collapse it.
+    // At desktop width the board has the whole window: navigation lives in the header (ADR-134).
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.getByRole('button', { name: 'Свернуть панель', exact: true }).click();
     await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });
     expect(errors).toEqual([]);
     writeFileSync(`reports/chessboard-week/${theme}.json`, JSON.stringify(report, null, 2));

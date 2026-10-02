@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { normalizeSearchParams, type SearchParams } from '../../../lib/search-params';
 import { hotelToday } from '../../../lib/hotel-api';
@@ -24,6 +25,7 @@ export default async function AnalyticsPage({
   const query = parseAnalyticsQuery(sp, today);
   return (
     <Page
+      actions={<Link className="btn btn-secondary" href="/branches">Все филиалы</Link>}
       className="analytics-page"
       title="Аналитика"
       subtitle="Как работал объект за период и что изменилось."

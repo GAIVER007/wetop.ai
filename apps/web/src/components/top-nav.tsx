@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, use, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from './icon';
-import { Sidebar, type PropertyIdentity } from './shell/sidebar';
+import { Sidebar } from './shell/sidebar';
+import { GrantedProperty, PropertyBlock, type PropertyIdentity } from './shell/property-block';
+import { TopMenu } from './shell/top-menu';
 import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
@@ -13,13 +15,19 @@ import {
   PENDING_ACCESS,
   activeNavigation,
   allowedItem,
-  sidebarSections,
+  phoneNavigation,
   type NavigationAccess,
 } from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
+
+/**
+ * Оболочка стойки (ADR-134): шапка из двух липких строк. Первая: знак WETOP, объект с переключателем
+ * филиала, поиск ⌘K, «Демо», тема, меню профиля. Вторая: строка разделов (`TopMenu`). До 960 px вместо
+ * строки разделов кнопка «Открыть меню» и окно «Навигация» (`Sidebar`), на телефоне ещё нижняя панель.
+ */
 export function TopNav({
   children,
   demo = false,
@@ -39,16 +47,10 @@ export function TopNav({
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   // Сочетание поиска словами той ОС, на которой человек сидит: ⌘ бывает только у Apple
   const [searchKey, setSearchKey] = useState('⌘ K');
   const { setTheme } = useTheme();
   useEffect(() => {
-    try {
-      setCollapsed(localStorage.getItem('wetop.sidebar') === 'collapsed');
-    } catch {
-      /* Optional preference. */
-    }
     if (!/Mac|iPhone|iPad/.test(navigator.platform)) setSearchKey('Ctrl K');
   }, []);
   // открыт ли общий поиск — для сочетания ниже, без пересоздания обработчика
@@ -84,31 +86,14 @@ export function TopNav({
     setProfile(false);
   }, [path]);
   if (path.includes('/print') || path === '/login' || path === '/register') return <>{children}</>;
-  const collapse = () => {
-    setCollapsed(!collapsed);
-    try {
-      localStorage.setItem('wetop.sidebar', collapsed ? 'expanded' : 'collapsed');
-    } catch {
-      /* Optional preference. */
-    }
-  };
   return (
     <DataFreshnessProvider>
-      <div className={cx('workspace', collapsed && 'is-collapsed')}>
+      <div className="workspace">
         <a className="skip-link" href="#main-content">
           К содержимому
         </a>
-        <aside className="workspace-sidebar">
-          <Sidebar
-            property={property}
-            path={path}
-            collapsed={collapsed}
-            onCollapse={collapse}
-            desk={desk}
-          />
-        </aside>
-        <div className="workspace-body">
-          <header className="workspace-header">
+        <header className="workspace-header">
+          <div className="workspace-header__row">
             <button
               className="icon-button mobile-menu"
               onClick={() => setMenu(true)}
@@ -116,6 +101,20 @@ export function TopNav({
             >
               <Icon name="menu" />
             </button>
+            <Link className="workspace-brand" href="/today" aria-label="WETOP, Главная">
+              <span className="workspace-mark">W</span>
+              <span className="brand-name">
+                WETOP<span>.AI</span>
+              </span>
+            </Link>
+            {/* объект и филиал: переехали сюда из бокового меню (ADR-134); до 960 px они вверху меню телефона */}
+            <div className="workspace-header__property">
+              <Suspense
+                fallback={<PropertyBlock property={property} settings={false} close={undefined} />}
+              >
+                <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
+              </Suspense>
+            </div>
             <button
               className="workspace-search"
               data-tour="search"
@@ -161,11 +160,11 @@ export function TopNav({
                   <Suspense fallback={<HeaderPerson person={null} />}>
                     <GrantedHeaderPerson desk={desk} />
                   </Suspense>
+                  {/* имя и роль словом (ADR-083): объект теперь стоит рядом со знаком, роль иначе негде увидеть */}
                   <span className="profile-caption">
-                    <Suspense fallback={<strong>Администратор</strong>}>
-                      <GrantedHeaderName desk={desk} />
+                    <Suspense fallback={<HeaderCaption person={null} />}>
+                      <GrantedHeaderCaption desk={desk} />
                     </Suspense>
-                    <small>{property?.name ?? 'Объект не загружен'}</small>
                   </span>
                   <Icon name="down" width={14} />
                 </button>
@@ -177,23 +176,6 @@ export function TopNav({
                       onClick={() => setProfile(false)}
                     />
                     <div className="profile-dropdown" id="profile-dropdown">
-                      <span className="eyebrow">Рабочее пространство</span>
-                      <Link href="/profile">
-                        <Icon name="guests" />
-                        Профиль и предпочтения
-                      </Link>
-                      <Suspense fallback={null}>
-                        <GrantedSettingsLink desk={desk} />
-                      </Suspense>
-                      <button
-                        onClick={() => {
-                          setTheme('system');
-                          setProfile(false);
-                        }}
-                      >
-                        <Icon name="system" />
-                        Тема устройства
-                      </button>
                       <button
                         data-testid="tour-restart"
                         onClick={() => {
@@ -202,7 +184,7 @@ export function TopNav({
                         }}
                       >
                         <Icon name="help" />
-                        Обучение: как устроена стойка
+                        Обучение работе в WETOP
                       </button>
                       {account ?? (
                         <Link href="/login">
@@ -215,7 +197,10 @@ export function TopNav({
                 )}
               </div>
             </div>
-          </header>
+          </div>
+          <TopMenu path={path} desk={desk} />
+        </header>
+        <div className="workspace-body">
           <Suspense fallback={null}>
             <GrantedReadOnly desk={desk} />
           </Suspense>
@@ -227,6 +212,7 @@ export function TopNav({
           )}
           {children}
         </div>
+        {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
         <nav className="bottom-navigation" aria-label="Основная навигация">
           <Suspense fallback={<BottomNavLinks access={PENDING_ACCESS} path={path} />}>
             <GrantedBottomNav desk={desk} path={path} />
@@ -262,7 +248,7 @@ export function TopNav({
  * PENDING_ACCESS, как у Sidebar: панель не мигает пустотой на каждом переходе.
  */
 function BottomNavLinks({ access, path }: { access: NavigationAccess; path: string }) {
-  return sidebarSections[0]!.items
+  return phoneNavigation
     .filter((item) => allowedItem(item, access))
     .map((n) => (
       <Link
@@ -281,18 +267,6 @@ function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined
   return <BottomNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} />;
 }
 
-/** «Настройки объекта» в меню профиля — тем, кому они открыты (ADR-107) */
-function GrantedSettingsLink({ desk }: { desk: Promise<DeskShell> | undefined }) {
-  const shell = desk ? use(desk) : null;
-  if (!allowedItem({ requires: 'settings' }, shell?.access ?? CLOSED_ACCESS)) return null;
-  return (
-    <Link href="/hotel-settings">
-      <Icon name="settings" />
-      Настройки объекта
-    </Link>
-  );
-}
-
 function GrantedHeaderPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
   return <HeaderPerson person={shell?.person ?? null} />;
@@ -302,9 +276,19 @@ function HeaderPerson({ person }: { person: DeskPerson | null }) {
   return <span className="desk-avatar">{person?.initials ?? 'АД'}</span>;
 }
 
-function GrantedHeaderName({ desk }: { desk: Promise<DeskShell> | undefined }) {
+function GrantedHeaderCaption({ desk }: { desk: Promise<DeskShell> | undefined }) {
   const shell = desk ? use(desk) : null;
-  return <strong>{shell?.person?.name ?? 'Администратор'}</strong>;
+  return <HeaderCaption person={shell?.person ?? null} />;
+}
+
+/** Имя и роль словом; вошедшего нет — прежняя «Администратор» */
+function HeaderCaption({ person }: { person: DeskPerson | null }) {
+  return (
+    <>
+      <strong>{person?.name ?? 'Администратор'}</strong>
+      <small>{person?.caption ?? 'Рабочее пространство'}</small>
+    </>
+  );
 }
 
 /** Поиск по разделам — только по открытым вошедшему, как и меню */

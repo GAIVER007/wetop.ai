@@ -83,7 +83,7 @@ describe.skipIf(!url)(
       });
     });
 
-    it('users: только id, email, name, status, email_verified_at и только чтение', async () => {
+    it('users: только id, email, name, status, email_verified_at, last_login_at и только чтение', async () => {
       await inRollback(async () => {
         const id = randomUUID();
         await client.query(`INSERT INTO users (id, email, name) VALUES ($1, $2, 'Тест')`, [
@@ -92,7 +92,8 @@ describe.skipIf(!url)(
         ]);
         // нужное коду читается: имена авторов журнала, коллеги, статус для проверок прав
         const ok = await asApp(
-          `SELECT id, email, name, status, email_verified_at FROM users WHERE id = $1`,
+          // last_login_at: «Был в системе» на экране «Сотрудники» (ADR-136, грант — миграция 042)
+          `SELECT id, email, name, status, email_verified_at, last_login_at FROM users WHERE id = $1`,
           [id],
         );
         expect(ok).toMatchObject({ ok: true });

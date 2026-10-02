@@ -5115,3 +5115,4 @@
 | 02.10.2026 16:50 | unit | ✅ 2792 из 2795, пропущено 3 | 1 мин 41 с | 62e3193 +15 | [лог](logs/2026-10-02T11-50-18Z-unit-ade5.log) |  |
 | 02.10.2026 16:52 | typecheck | ✅ без ошибок | 39 с | 62e3193 +16 | [лог](logs/2026-10-02T11-52-04Z-typecheck-ce59.log) |  |
 | 02.10.2026 16:52 | lint | ✅ без ошибок | 20 с | 62e3193 +16 | [лог](logs/2026-10-02T11-52-43Z-lint-7cd3.log) |  |
+| 02.10.2026 16:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/seller-workspace.spec.ts tests/ui/booking-compact.spec.ts tests/ui/staff.spec.ts test | ❌ упало 1 из 27 | 3 мин 45 с | 62e3193 +16 | [лог](logs/2026-10-02T11-53-30Z-e2e-5a47.log) | затронутые UI-спеки после починки восьми красных unit |

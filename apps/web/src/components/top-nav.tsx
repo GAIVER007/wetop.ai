@@ -8,7 +8,14 @@ import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
-import { CLOSED_ACCESS, activeNavigation, allowedItem, sidebarSections } from '../lib/navigation';
+import {
+  CLOSED_ACCESS,
+  PENDING_ACCESS,
+  activeNavigation,
+  allowedItem,
+  sidebarSections,
+  type NavigationAccess,
+} from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
@@ -85,8 +92,6 @@ export function TopNav({
       /* Optional preference. */
     }
   };
-  // Нижняя панель телефона — первый раздел бокового меню, в том же порядке и с теми же подписями
-  const nav = sidebarSections[0]!.items;
   return (
     <DataFreshnessProvider>
       <div className={cx('workspace', collapsed && 'is-collapsed')}>
@@ -223,16 +228,9 @@ export function TopNav({
           {children}
         </div>
         <nav className="bottom-navigation" aria-label="Основная навигация">
-          {nav.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
-            >
-              <Icon name={n.icon} />
-              <span>{n.label}</span>
-            </Link>
-          ))}
+          <Suspense fallback={<BottomNavLinks access={PENDING_ACCESS} path={path} />}>
+            <GrantedBottomNav desk={desk} path={path} />
+          </Suspense>
           <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
             <Icon name="more" />
             <span>Ещё</span>
@@ -256,6 +254,31 @@ export function TopNav({
       </div>
     </DataFreshnessProvider>
   );
+}
+
+/**
+ * Нижняя панель телефона — первый раздел бокового меню, в том же порядке и с теми же подписями;
+ * закрытые вошедшему пункты скрыты, как в самом меню (ADR-107). Пока ответа /auth/me нет —
+ * PENDING_ACCESS, как у Sidebar: панель не мигает пустотой на каждом переходе.
+ */
+function BottomNavLinks({ access, path }: { access: NavigationAccess; path: string }) {
+  return sidebarSections[0]!.items
+    .filter((item) => allowedItem(item, access))
+    .map((n) => (
+      <Link
+        key={n.href}
+        href={n.href}
+        className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
+      >
+        <Icon name={n.icon} />
+        <span>{n.label}</span>
+      </Link>
+    ));
+}
+
+function GrantedBottomNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
+  const shell = desk ? use(desk) : null;
+  return <BottomNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} />;
 }
 
 /** «Настройки объекта» в меню профиля — тем, кому они открыты (ADR-107) */

@@ -447,6 +447,10 @@
   .reservations-views a {
     flex: 0 0 auto;
   }
+  /* Чипы видов и статусов — цели не ниже 44 px (DESIGN.md, правка 19.09): базовые 30 px — для desktop */
+  .reservations-controls .directory-filters a {
+    min-height: var(--touch-target);
+  }
   .reservations-break {
     display: none;
   }

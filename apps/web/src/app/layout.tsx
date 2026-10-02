@@ -32,6 +32,14 @@ export const metadata = {
   description: 'Рабочее пространство хостела: гости, бронирования и управление размещением.',
 };
 
+// Без viewport-fit=cover env(safe-area-inset-*) на iPhone равны нулю, и нижняя навигация (ADR-050)
+// ложится под жестовую полосу; отступы под «бровь» и полосу считает CSS этими же env().
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover' as const,
+};
+
 /** Public entry screens must never start authenticated hotel requests from the workspace shell. */
 function isPublicEntryPath(path: string): boolean {
   return ['/create', '/login', '/register', '/invite', '/auth/fallback'].some(

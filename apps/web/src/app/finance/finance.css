@@ -94,12 +94,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (max-width: 520px) {
-  .finance-kpis {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-2);
-  }
-}
 
 /* ---------- «Требует внимания»: строка на дело, цвет — только у полосы слева и значка */
 .finance-attention {
@@ -302,7 +296,12 @@
 /* Compact period workspace: totals remain outside the detail tabs. */
 .page:has(.finance-workspace) {
   padding-top: 16px;
-  padding-bottom: 16px;
+}
+/* Не на телефоне: там нижний отступ держит место под нижнюю навигацию (workspace.css) */
+@media (min-width: 601px) {
+  .page:has(.finance-workspace) {
+    padding-bottom: 16px;
+  }
 }
 .page:has(.finance-workspace) .page__head {
   margin-bottom: 16px;
@@ -437,6 +436,21 @@
   .finance-kpis .stat__value {
     font-size: 20px;
     white-space: normal;
+  }
+}
+/* После блока ≤800: раньше правило одной колонки стояло выше его и при равной
+ * специфичности никогда не выигрывало — узкий телефон оставался с двумя колонками */
+@media (max-width: 520px) {
+  .finance-kpis {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+}
+/* Телефон: чипы отборов — цели не ниже 44 px (DESIGN.md, правка 19.09) */
+@media (max-width: 600px) {
+  .finance-controls .directory-filters a,
+  .finance-chips a {
+    min-height: var(--touch-target);
   }
 }
 @media (min-width: 1000px) {

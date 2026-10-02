@@ -722,14 +722,16 @@
     gap: var(--space-2);
     margin-bottom: var(--space-2);
   }
+  /* Заголовок — своей строкой, действия под ним: в nowrap-ряду с тремя кнопками
+   * «Календарь» сжимался в колонку по буквам (замер 02.10: h1 ~100 px на 375 px). */
   .page:has(> .board-wrap) > .page__head {
-    flex-direction: row;
     align-items: center;
-    flex-wrap: nowrap;
     gap: var(--space-2);
   }
-  .page:has(> .board-wrap) > .page__head .page__actions {
-    width: auto;
+  /* Сначала работа, потом сводка: «На стойке» (~465 px) выталкивала сетку за первый экран */
+  .page:has(> .board-wrap) > .desk-strip {
+    order: 10;
+    margin-top: var(--space-4);
   }
   .board-controls .board-date-nav {
     display: grid;

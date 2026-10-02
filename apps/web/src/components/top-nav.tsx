@@ -10,7 +10,14 @@ import { GlobalSearch } from './shell/search';
 import { Overlay } from './overlay';
 import { useTheme } from './theme-provider';
 import { cx } from './ui';
-import { activeNavigation, phoneNavigation } from '../lib/navigation';
+import {
+  CLOSED_ACCESS,
+  PENDING_ACCESS,
+  activeNavigation,
+  allowedItem,
+  phoneNavigation,
+  type NavigationAccess,
+} from '../lib/navigation';
 import type { DeskPerson, DeskShell } from '../lib/desk-person';
 import { DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
@@ -207,16 +214,9 @@ export function TopNav({
         </div>
         {/* Нижняя панель телефона: первые четыре вкладки шапки (работа смены) и «Ещё» (ADR-050, ADR-134) */}
         <nav className="bottom-navigation" aria-label="Основная навигация">
-          {phoneNavigation.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
-            >
-              <Icon name={n.icon} />
-              <span>{n.label}</span>
-            </Link>
-          ))}
+          <Suspense fallback={<PhoneNavLinks access={PENDING_ACCESS} path={path} />}>
+            <GrantedPhoneNav desk={desk} path={path} />
+          </Suspense>
           <button onClick={() => setMenu(true)} aria-label="Ещё разделы">
             <Icon name="more" />
             <span>Ещё</span>
@@ -240,6 +240,31 @@ export function TopNav({
       </div>
     </DataFreshnessProvider>
   );
+}
+
+/**
+ * Нижняя панель телефона — те же первые вкладки шапки, но закрытые вошедшему пункты скрыты, как в
+ * самом меню (ADR-107): администратор не должен видеть «Финансы» там, где раздел ему не откроется.
+ * Пока ответа `/auth/me` нет — `PENDING_ACCESS`, чтобы панель не мигала пустотой на каждом переходе.
+ */
+function PhoneNavLinks({ access, path }: { access: NavigationAccess; path: string }) {
+  return phoneNavigation
+    .filter((item) => allowedItem(item, access))
+    .map((n) => (
+      <Link
+        key={n.href}
+        href={n.href}
+        className={cx(activeNavigation(path)?.href === n.href && 'is-active')}
+      >
+        <Icon name={n.icon} />
+        <span>{n.label}</span>
+      </Link>
+    ));
+}
+
+function GrantedPhoneNav({ desk, path }: { desk: Promise<DeskShell> | undefined; path: string }) {
+  const shell = desk ? use(desk) : null;
+  return <PhoneNavLinks access={shell?.access ?? CLOSED_ACCESS} path={path} />;
 }
 
 function GrantedHeaderPerson({ desk }: { desk: Promise<DeskShell> | undefined }) {

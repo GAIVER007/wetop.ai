@@ -11,4 +11,4 @@
 
 npm workspaces, `@pms/*`, TS strict, Vitest, ESLint. Правило ADR-004 закреплено в `eslint.config.js`: импорт
 Channex вне `packages/integrations` — ошибка линтера. В пакетах живёт рабочий код (домен, схема и миграции, адаптеры
-каналов, общие типы); состояние проекта — `CLAUDE.md` §2, устройство — `ARCHITECTURE.md`.
+каналов, общие типы); хроника проекта в `docs/history.md`, устройство в `ARCHITECTURE.md`.

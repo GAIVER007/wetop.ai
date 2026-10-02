@@ -574,6 +574,12 @@ dialog::backdrop {
   .workspace-brand .brand-name {
     display: none;
   }
+  /* Нижняя навигация — fixed ~70 px (ADR-050): без запаса последние строки страницы уходят под неё.
+   * Правило живёт здесь, а не в блоке ≤360: иначе на обычном телефоне (375–430 px) его нет. */
+  .workspace .page,
+  .workspace .page--full {
+    padding: 22px 16px calc(90px + env(safe-area-inset-bottom, 0px));
+  }
 }
 @media (max-width: 360px) {
   /* самые узкие телефоны: поиск только значком, иначе строка шире окна */
@@ -590,11 +596,6 @@ dialog::backdrop {
   }
   .workspace-create {
     margin-left: auto;
-  }
-  /* Нижняя навигация — fixed 70 px (ADR-050): без запаса последние строки любой страницы под ней */
-  .workspace .page,
-  .workspace .page--full {
-    padding: 22px 16px calc(90px + env(safe-area-inset-bottom, 0px));
   }
   .page__title {
     font-size: var(--text-3xl);

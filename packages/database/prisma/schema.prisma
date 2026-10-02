@@ -122,6 +122,8 @@ model Property {
   promoCodes         PromoCode[]
   channelMappings    ChannelMapping[]
   payments           Payment[]
+  cashCategories     CashCategory[]
+  cashOperations     CashOperation[]
   services           Service[]
   trackedSites       TrackedSite[]
   inventoryUnits     InventoryUnit[]
@@ -890,6 +892,58 @@ model Refund {
   @@map("refunds")
 }
 
+// Касса (DATA_MODEL §21, утверждено 02.10.2026): движения денег мимо счетов гостей.
+// Гостевые оплаты сюда не дублируются — остаток по способу вычисляется из payments/refunds и этих операций.
+enum CashOperationKind {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+/// Статья кассы: справочник объекта. Удаления нет — архив через active (как Service)
+model CashCategory {
+  id         String            @id @default(uuid()) @db.Uuid
+  propertyId String            @map("property_id") @db.Uuid
+  kind       CashOperationKind
+  name       String
+  active     Boolean           @default(true)
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property   Property        @relation(fields: [propertyId], references: [id])
+  operations CashOperation[]
+
+  @@unique([propertyId, kind, name])
+  @@map("cash_categories")
+}
+
+/// Поступление, расход или перевод между способами; прошлое не правится — ошибка аннулируется (status)
+model CashOperation {
+  id         String            @id @default(uuid()) @db.Uuid
+  propertyId String            @map("property_id") @db.Uuid
+  kind       CashOperationKind
+  /// для TRANSFER — способ «откуда»
+  method     PaymentMethod
+  /// только TRANSFER — способ «куда»
+  methodTo   PaymentMethod?    @map("method_to")
+  /// integer minor units (тиын), ADR-008; > 0
+  amount     BigInt
+  categoryId String?           @map("category_id") @db.Uuid
+  note       String?
+  /// комиссия ссылается на свою операцию или перевод
+  relatedId   String?       @map("related_id") @db.Uuid
+  status      PaymentStatus @default(COMPLETED)
+  occurredAt  DateTime      @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  createdById String?       @map("created_by_id") @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property  Property      @relation(fields: [propertyId], references: [id])
+  category  CashCategory? @relation(fields: [categoryId], references: [id])
+  createdBy User?         @relation(fields: [createdById], references: [id])
+
+  @@index([propertyId, occurredAt])
+  @@map("cash_operations")
+}
+
 // ───────────────────────── §11 Аналитика сайта ─────────────────────────
 // Срез 8 (план plans/slice-8-web-analytics.md, принят владельцем 12.09.2026). Персональных данных нет по
 // построению: IP и полный User-Agent не сохраняются, visitor_key — случайное число из браузера (ADR-018).
@@ -1132,6 +1186,7 @@ model User {
   passwordResets PasswordReset[]
   emailVerifications EmailVerification[]
   auditLogs      AuditLog[]
+  cashOperations CashOperation[]
   userErrors     UserError[]
   sellerProfileEdits SellerProfile[]
   platformAdmin  PlatformAdmin?

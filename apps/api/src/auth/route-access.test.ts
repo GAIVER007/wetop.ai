@@ -117,6 +117,14 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
+  // касса (DATA_MODEL §21, Q-238): ведёт смена, как оплаты; аннулирование — как возврат; статьи — настройки
+  'GET /finance/cash': 'desk',
+  'GET /finance/cash/categories': 'desk',
+  'POST /finance/cash/categories': 'settings',
+  'PATCH /finance/cash/categories/:id': 'settings',
+  'POST /finance/cash/operations': 'desk',
+  'POST /finance/cash/transfers': 'desk',
+  'POST /finance/cash/operations/:id/void': 'refunds',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',

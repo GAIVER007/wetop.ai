@@ -1328,6 +1328,7 @@ export interface PeriodDebts {
   truncated: boolean;
 }
 /** Оплаты и возвраты за период (ADR-113, F2) — раздел «Оплаты и возвраты» и выгрузка CSV */
+export type OperationKind = 'PAYMENT' | 'REFUND' | 'INCOME' | 'EXPENSE' | 'TRANSFER';
 export interface PeriodOperations {
   from: string;
   to: string;
@@ -1335,33 +1336,70 @@ export interface PeriodOperations {
   total: number;
   paidMinor: string;
   refundedMinor: string;
+  /** касса (DATA_MODEL §21): проведённые поступления и расходы по отбору; комиссии — в расходах */
+  incomeMinor: string;
+  expenseMinor: string;
   methods: Array<{ method: string; count: number }>;
   rows: Array<{
-    kind: 'PAYMENT' | 'REFUND';
+    kind: OperationKind;
     id: string;
     at: string;
     localAt: string;
     method: string;
+    methodTo: string | null;
     amountMinor: string;
     status: 'COMPLETED' | 'VOIDED';
     confirmationNumber: string | null;
     reservations: number;
     guestLabel: string | null;
+    category: string | null;
+    note: string | null;
   }>;
   truncated: boolean;
+}
+/** Остатки кассы по способам (DATA_MODEL §21) — за всё время, не за период */
+export interface CashBalances {
+  currency: string;
+  totalMinor: string;
+  balances: Array<{ method: string; balanceMinor: string }>;
+}
+export interface CashCategory {
+  id: string;
+  kind: 'INCOME' | 'EXPENSE';
+  name: string;
+  active: boolean;
 }
 export const financeApi = {
   operations: (
     from: string,
     to: string,
-    filter: { type?: string | undefined; method?: string | undefined; limit?: number } = {},
+    filter: {
+      type?: string | undefined;
+      method?: string | undefined;
+      source?: string | undefined;
+      limit?: number;
+    } = {},
   ) => {
     const qs = new URLSearchParams({ from, to });
     if (filter.type) qs.set('type', filter.type);
     if (filter.method) qs.set('method', filter.method);
+    if (filter.source) qs.set('source', filter.source);
     if (filter.limit) qs.set('limit', String(filter.limit));
     return getJson<PeriodOperations>(`/finance/operations?${qs}`);
   },
+  // касса (DATA_MODEL §21)
+  cash: () => getJson<CashBalances>('/finance/cash'),
+  cashCategories: () => getJson<CashCategory[]>('/finance/cash/categories'),
+  createCashCategory: (body: unknown) =>
+    sendJson<CashCategory[]>('POST', '/finance/cash/categories', body),
+  updateCashCategory: (id: string, body: unknown) =>
+    sendJson<CashCategory[]>('PATCH', `/finance/cash/categories/${encodeURIComponent(id)}`, body),
+  createCashOperation: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/operations', body),
+  createCashTransfer: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/transfers', body),
+  voidCashOperation: (id: string) =>
+    sendJson<CashBalances>('POST', `/finance/cash/operations/${encodeURIComponent(id)}/void`, {}),
   report: (from: string, to: string) =>
     getJson<PeriodReport>(
       `/finance/report?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
@@ -2176,6 +2214,8 @@ export interface AuthMember {
   name: string | null;
   role: MembershipRole;
   joinedAt: string;
+  /** Последний вход в систему: не входил — null (TEAM1, «Был в системе») */
+  lastLoginAt: string | null;
   you: boolean;
   removable: boolean;
   roleEditable: boolean;

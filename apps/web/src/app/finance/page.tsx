@@ -5,14 +5,17 @@ import { Icon } from '../../components/icon';
 import { hotelToday, reservationStatusWords, validDate } from '../../lib/hotel-api';
 import { nightsBetween, pluralRu } from '../../lib/plural';
 import { displayDate } from '../../lib/display-date';
+import { can } from '@pms/domain';
 import {
   financeApi,
   type PeriodDebts,
   type PeriodOperations,
   type PeriodReport,
 } from '../../lib/api';
+import { CashPanel, VoidCashOperation } from './cash';
 import { formatMoney } from '../../lib/money';
 import { deskShell } from '../../lib/desk-shell';
+import { periods } from '../../lib/report-periods';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -42,6 +45,9 @@ const DEBTS_SHOWN = 20;
 const OPS_SHOWN = 20;
 const OPS_ALL = 500;
 
+/** `op=` в адресе: оплаты и возвраты броней + операции кассы (§21) */
+type OpParam = 'payment' | 'refund' | 'income' | 'expense' | 'transfer';
+
 /** Четыре вида начислений всегда в одном порядке: владелец видит всю структуру, а не только ненулевое */
 const KINDS: Array<[string, string]> = [
   ['ACCOMMODATION', 'Проживание'],
@@ -50,19 +56,7 @@ const KINDS: Array<[string, string]> = [
   ['ADJUSTMENT', 'Корректировки'],
 ];
 
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-/** Границы месяцев и недели от «сегодня» объекта (С-13): день даёт пояс объекта, дальше — календарная арифметика */
-function periods(today: string) {
-  const now = new Date(`${today}T00:00:00Z`);
-  const y = now.getUTCFullYear();
-  const m = now.getUTCMonth();
-  return {
-    today,
-    month: { from: iso(new Date(Date.UTC(y, m, 1))), to: iso(new Date(Date.UTC(y, m + 1, 0))) },
-    prevMonth: { from: iso(new Date(Date.UTC(y, m - 1, 1))), to: iso(new Date(Date.UTC(y, m, 0))) },
-    week: { from: iso(new Date(now.getTime() - 6 * 86400000)), to: iso(now) },
-  };
-}
+// Границы месяцев и недели от «сегодня» объекта — общие с хабом «Отчёты» (REP1)
 
 const byAmount = <T extends { amountMinor: string }>(xs: T[]) =>
   [...xs].sort((a, b) => {
@@ -96,15 +90,18 @@ export default async function FinanceReportPage({
       (r) => ({ ok: true as const, r }),
       (e: unknown) => ({ ok: false as const, e }),
     );
-  const filter = operationFilter(sp.op, sp.method);
+  const filter = operationFilter(sp.op, sp.method, sp.src);
   const opsAll = sp.ops === 'all';
-  const [loaded, debtsLoaded, opsLoaded, shell] = await Promise.all([
+  const [loaded, debtsLoaded, opsLoaded, shell, cashLoaded, categoriesLoaded] = await Promise.all([
     valid ? settle(financeApi.report(from, to)) : null,
     valid ? settle(financeApi.debts(from, to)) : null,
     valid
       ? settle(financeApi.operations(from, to, { ...filter, limit: opsAll ? OPS_ALL : OPS_SHOWN }))
       : null,
     deskShell(),
+    // касса (§21): остатки за всё время — от периода не зависят
+    settle(financeApi.cash()),
+    settle(financeApi.cashCategories()),
   ]);
   const r = loaded?.ok ? loaded.r : null;
   const loadError = loaded && !loaded.ok ? loaded.e : null;
@@ -112,6 +109,13 @@ export default async function FinanceReportPage({
   const debtsError = debtsLoaded && !debtsLoaded.ok ? debtsLoaded.e : null;
   const ops = opsLoaded?.ok ? opsLoaded.r : null;
   const opsError = opsLoaded && !opsLoaded.ok ? opsLoaded.e : null;
+  const cashBalances = cashLoaded.ok ? cashLoaded.r : null;
+  const cashError = !cashLoaded.ok ? cashLoaded.e : null;
+  const cashCategories = categoriesLoaded.ok ? categoriesLoaded.r : [];
+  const role = shell.access.role;
+  // роль неизвестна (замок выключен) — кнопки не прячутся, как в меню (ADR-107); защита — проверка API
+  const maySettings = !shell.readOnly && (role === null || can(role, 'settings'));
+  const mayVoidCash = !shell.readOnly && (role === null || can(role, 'refunds'));
   const cur = r?.currency ?? debts?.currency ?? '';
   const withYear = from.slice(0, 4) !== to.slice(0, 4);
   const periodText =
@@ -125,18 +129,22 @@ export default async function FinanceReportPage({
   const due = debts ? BigInt(debts.balanceMinor) : 0n;
   const onlyOverdue = sp.debts === 'overdue';
   /** Ссылка на операции с отбором: плитки, способы в таблице и «Требует внимания» ведут сюда (drill-down, F2) */
-  const opsHref = (o: { op?: 'payment' | 'refund'; method?: string; all?: boolean }) => {
+  const opsHref = (o: { op?: OpParam; method?: string; src?: 'bookings' | 'cash'; all?: boolean }) => {
     const q = new URLSearchParams({ from, to });
     if (o.op) q.set('op', o.op);
     if (o.method) q.set('method', o.method);
+    if (o.src) q.set('src', o.src);
     if (o.all) q.set('ops', 'all');
     return `/finance?${q}#operations`;
   };
-  const opParam =
-    filter.type === 'PAYMENT' ? 'payment' : filter.type === 'REFUND' ? 'refund' : undefined;
+  const opParam = filter.type
+    ? (filter.type.toLowerCase() as OpParam)
+    : undefined;
+  const srcParam = filter.source === 'CASH' ? 'cash' : filter.source === 'RESERVATIONS' ? 'bookings' : undefined;
   const exportQuery = new URLSearchParams({ from, to });
   if (opParam) exportQuery.set('op', opParam);
   if (filter.method) exportQuery.set('method', filter.method);
+  if (srcParam) exportQuery.set('src', srcParam);
   return (
     <Page
       title="Финансы за период"
@@ -272,7 +280,11 @@ export default async function FinanceReportPage({
       )}
       <FinanceWorkspace
         initialView={
-          sp.op || sp.method || sp.ops ? 'operations' : sp.debts || sp.more ? 'debts' : 'overview'
+          sp.op || sp.method || sp.src || sp.ops
+            ? 'operations'
+            : sp.debts || sp.more
+              ? 'debts'
+              : 'overview'
         }
         overview={
           <>
@@ -367,6 +379,18 @@ export default async function FinanceReportPage({
                       </Link>
                     </nav>
                   )}
+                  {/* Файл уходит из системы: без имён гостей, бронь — номером (REP1, как у операций) */}
+                  {debts && debts.count > 0 && (
+                    <a
+                      href={`/finance/export-debts?${new URLSearchParams({ from, to })}`}
+                      className="btn btn--secondary btn--sm"
+                      data-testid="debts-export"
+                      download
+                    >
+                      <Icon name="down" />
+                      Скачать CSV
+                    </a>
+                  )}
                 </div>
                 {debtsError !== null && (
                   <LoadError testId="debts-error" {...loadErrorProps(debtsError)} />
@@ -395,7 +419,7 @@ export default async function FinanceReportPage({
               >
                 <div className="finance-debts__head">
                   <SectionTitle first id="operations-title">
-                    Оплаты и возвраты
+                    Операции за период
                   </SectionTitle>
                   {/* Файл уходит из системы: без имён гостей, бронь — номером (ADR-113, F2) */}
                   <a
@@ -419,11 +443,30 @@ export default async function FinanceReportPage({
                     all={opsAll}
                     opsHref={opsHref}
                     opParam={opParam}
+                    srcParam={srcParam}
+                    mayVoidCash={mayVoidCash}
                   />
                 )}
               </section>
             )}
           </>
+        }
+        cash={
+          <section className="finance-block" id="cash" aria-labelledby="cash-title">
+            <SectionTitle first id="cash-title">
+              Касса
+            </SectionTitle>
+            {cashError !== null && <LoadError testId="cash-error" {...loadErrorProps(cashError)} />}
+            {cashBalances && (
+              <CashPanel
+                cash={cashBalances}
+                categories={cashCategories}
+                cashOpsHref={opsHref({ src: 'cash' })}
+                editable={!shell.readOnly}
+                maySettings={maySettings}
+              />
+            )}
+          </section>
         }
       />
 
@@ -656,9 +699,24 @@ function DebtList({
   );
 }
 
+/** Строка кассовой операции для вопроса подтверждения и ленты: «Расход 5 000 ₸, Kaspi, Зарплата» */
+function cashSummary(
+  o: PeriodOperations['rows'][number],
+  cur: string,
+): string {
+  const where =
+    o.kind === 'TRANSFER'
+      ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo ?? ''] ?? o.methodTo}`
+      : (METHOD_RU[o.method] ?? o.method);
+  return [operationKind(o.kind), formatMoney(o.amountMinor, cur), where, o.category]
+    .filter(Boolean)
+    .join(', ');
+}
+
 /**
- * «Оплаты и возвраты» (ADR-113, F2): отбор по типу и способу ссылками, строка итога по отбору, таблица новыми
- * первыми. Возврат — с минусом (DESIGN.md §14), аннулированная оплата — приглушена и в суммы не входит.
+ * Общая лента денег (ADR-113 F2; касса — §21): отбор по источнику, типу и способу ссылками, строка итога
+ * по отбору, таблица новыми первыми. Возврат и расход — с минусом (DESIGN.md §14), аннулированное —
+ * приглушено и в суммы не входит.
  */
 function Operations({
   ops,
@@ -667,29 +725,64 @@ function Operations({
   all,
   opsHref,
   opParam,
+  srcParam,
+  mayVoidCash,
 }: {
   ops: PeriodOperations;
-  type: 'PAYMENT' | 'REFUND' | undefined;
+  type: string | undefined;
   method: string | undefined;
   all: boolean;
-  opsHref: (o: { op?: 'payment' | 'refund'; method?: string; all?: boolean }) => string;
-  opParam: 'payment' | 'refund' | undefined;
+  opsHref: (o: {
+    op?: OpParam;
+    method?: string;
+    src?: 'bookings' | 'cash';
+    all?: boolean;
+  }) => string;
+  opParam: OpParam | undefined;
+  srcParam: 'bookings' | 'cash' | undefined;
+  mayVoidCash: boolean;
 }) {
   const cur = ops.currency;
-  const types: Array<[string, 'payment' | 'refund' | undefined]> = [
+  const keep = (o?: { op?: OpParam | undefined; src?: 'bookings' | 'cash' | undefined }) => ({
+    ...((o && 'op' in o ? o.op : opParam) ? { op: (o && 'op' in o ? o.op : opParam)! } : {}),
+    ...((o && 'src' in o ? o.src : srcParam) ? { src: (o && 'src' in o ? o.src : srcParam)! } : {}),
+  });
+  const types: Array<[string, OpParam | undefined]> = [
     ['Все', undefined],
     ['Оплаты', 'payment'],
     ['Возвраты', 'refund'],
+    ['Поступления', 'income'],
+    ['Расходы', 'expense'],
+    ['Переводы', 'transfer'],
   ];
-  const filtered = type !== undefined || method !== undefined;
+  const sources: Array<[string, 'bookings' | 'cash' | undefined]> = [
+    ['Все источники', undefined],
+    ['Брони', 'bookings'],
+    ['Касса', 'cash'],
+  ];
+  const filtered = type !== undefined || method !== undefined || srcParam !== undefined;
+  const minus = (kind: string) => kind === 'REFUND' || kind === 'EXPENSE';
+  const hasCashSums = BigInt(ops.incomeMinor) > 0n || BigInt(ops.expenseMinor) > 0n;
   return (
     <>
       <div className="finance-ops__filters">
+        <nav className="directory-filters finance-chips" aria-label="Источник">
+          {sources.map(([label, src]) => (
+            <Link
+              key={label}
+              href={opsHref({ ...keep({ src }), ...(method ? { method } : {}) })}
+              className={srcParam === src ? 'is-active' : ''}
+              aria-current={srcParam === src ? 'page' : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
         <nav className="directory-filters finance-chips" aria-label="Тип операций">
           {types.map(([label, op]) => (
             <Link
               key={label}
-              href={opsHref({ ...(op ? { op } : {}), ...(method ? { method } : {}) })}
+              href={opsHref({ ...keep({ op }), ...(method ? { method } : {}) })}
               className={opParam === op ? 'is-active' : ''}
               aria-current={opParam === op ? 'page' : undefined}
             >
@@ -700,7 +793,7 @@ function Operations({
         {ops.methods.length > 0 && (
           <nav className="directory-filters finance-chips" aria-label="Способ оплаты">
             <Link
-              href={opsHref(opParam ? { op: opParam } : {})}
+              href={opsHref(keep())}
               className={method ? '' : 'is-active'}
               aria-current={method ? undefined : 'page'}
             >
@@ -709,7 +802,7 @@ function Operations({
             {ops.methods.map((m) => (
               <Link
                 key={m.method}
-                href={opsHref({ ...(opParam ? { op: opParam } : {}), method: m.method })}
+                href={opsHref({ ...keep(), method: m.method })}
                 className={method === m.method ? 'is-active' : ''}
                 aria-current={method === m.method ? 'page' : undefined}
               >
@@ -723,13 +816,18 @@ function Operations({
       <p className="finance-debts__meta" data-testid="ops-meta">
         {pluralRu(ops.total, ['операция', 'операции', 'операций'])}
         {filtered ? ' по отбору' : ''}: оплачено <strong>{formatMoney(ops.paidMinor, cur)}</strong>,
-        возвращено <strong>{formatMoney(ops.refundedMinor, cur)}</strong>.
+        возвращено <strong>{formatMoney(ops.refundedMinor, cur)}</strong>
+        {hasCashSums && (
+          <>
+            ; касса: поступило <strong>{formatMoney(ops.incomeMinor, cur)}</strong>, израсходовано{' '}
+            <strong>{formatMoney(ops.expenseMinor, cur)}</strong>
+          </>
+        )}
+        .
       </p>
       {ops.rows.length === 0 ? (
         <p className="finance-debts__empty" data-testid="ops-empty">
-          {filtered
-            ? 'По этому отбору операций за период нет.'
-            : 'Оплат и возвратов за период нет.'}
+          {filtered ? 'По этому отбору операций за период нет.' : 'Операций за период нет.'}
         </p>
       ) : (
         <Table size="sm" className="finance-ops__table" data-testid="ops-table">
@@ -738,7 +836,7 @@ function Operations({
               <th>Дата и время</th>
               <th>Тип</th>
               <th>Бронь</th>
-              <th>Гость</th>
+              <th>Гость / статья</th>
               <th>Способ</th>
               <th className="num">Сумма</th>
               <th>Статус</th>
@@ -748,6 +846,7 @@ function Operations({
             {ops.rows.map((o) => {
               const [day = '', time = ''] = o.localAt.split(' ');
               const voided = o.status === 'VOIDED';
+              const isCash = o.kind === 'INCOME' || o.kind === 'EXPENSE' || o.kind === 'TRANSFER';
               return (
                 <tr
                   key={`${o.kind}-${o.id}`}
@@ -776,14 +875,24 @@ function Operations({
                       <small className="muted"> и ещё {o.reservations - 1}</small>
                     )}
                   </td>
-                  <td>{o.guestLabel || <span className="muted">—</span>}</td>
-                  <td>{METHOD_RU[o.method] ?? o.method}</td>
+                  <td>
+                    {o.guestLabel || o.category || <span className="muted">—</span>}
+                    {isCash && o.note && <small className="muted cell-sub">{o.note}</small>}
+                  </td>
+                  <td>
+                    {o.kind === 'TRANSFER' && o.methodTo
+                      ? `${METHOD_RU[o.method] ?? o.method} → ${METHOD_RU[o.methodTo] ?? o.methodTo}`
+                      : (METHOD_RU[o.method] ?? o.method)}
+                  </td>
                   <td className="num" data-testid="op-amount">
-                    {o.kind === 'REFUND' ? '−' : ''}
+                    {minus(o.kind) ? '−' : ''}
                     {formatMoney(o.amountMinor, cur)}
                   </td>
                   <td>
                     <Badge tone="neutral">{operationStatus(o.kind, o.status)}</Badge>
+                    {isCash && !voided && mayVoidCash && (
+                      <VoidCashOperation id={o.id} summary={cashSummary(o, cur)} />
+                    )}
                   </td>
                 </tr>
               );
@@ -793,11 +902,7 @@ function Operations({
       )}
       {!all && ops.total > ops.rows.length && (
         <Link
-          href={opsHref({
-            ...(opParam ? { op: opParam } : {}),
-            ...(method ? { method } : {}),
-            all: true,
-          })}
+          href={opsHref({ ...keep(), ...(method ? { method } : {}), all: true })}
           className="finance-debts__more"
           data-testid="ops-more"
         >

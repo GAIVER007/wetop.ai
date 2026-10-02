@@ -103,7 +103,7 @@ test('перевод с комиссией: остатки обоих спосо
 
   // аннулирование основной операции снимает и комиссию (вопрос подтверждения — словами)
   await transfer.getByTestId('cash-void').click();
-  await page.getByRole('button', { name: 'Аннулировать', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Аннулировать', exact: true }).click();
   await expect(page.getByTestId('op-row').filter({ hasText: 'аннулирован' })).toHaveCount(2);
   await page.getByRole('tab', { name: 'Касса', exact: true }).click();
   expect(await tenge(page, 'cash-CASH')).toBe(cashWas);

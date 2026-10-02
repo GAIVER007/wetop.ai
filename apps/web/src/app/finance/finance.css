@@ -57,6 +57,10 @@
   font-size: var(--text-xs);
   color: var(--muted);
 }
+/* ссылка внутри приглушённой заметки различима не только цветом (axe link-in-text-block) */
+.finance-note a {
+  text-decoration: underline;
+}
 
 /* ---------- четыре итога одним рядом и одной высоты; на узком экране — по два, на телефоне — столбиком */
 .finance-kpis {

@@ -1,0 +1,125 @@
+# Модульные (unit) · 02.10.2026 18:12 Алматы · vm
+# коммит 2d8112d (master), незакоммиченных файлов набора: 607
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T13-12-09Z-unit-74cb.json' 'apps/api/src/channels/outbox.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-api
+
+[Nest] 14958  - 10/02/2026, 6:12:12 AM   ERROR [OutboxWorker] Менеджер каналов отклонил значений: 1 — [{"rate_plan_id":"RP1","date_from":"2026-11-22","date_to":"2026-11-22","rate":"0","warning":{"rate":["must be greater than 0"]}}]
+ ❯ |unit| apps/api/src/channels/outbox.test.ts (12 tests | 3 failed) 40ms
+   ❯ OutboxAriPublisher (7)
+     ✓ reservationChanged: availability = units − sold items (unassigned too), only for mapped categories, compressed ranges 5ms
+     × reservationChanged с отрезками (live-тест Channex 02.10): одно сообщение, только ночи отрезков — ночи между ними не уходят и через разрыв не склеиваются 14ms
+     × live-тест Channex 02.10, перенос брони 15.12 → 22.12 в категории на 8 мест: в сообщении 15.12 → 8 и 22.12 → 7, ничего между 2ms
+     × reservationChanged с пустыми отрезками — остаток не менялся, очередь не трогается 2ms
+     ✓ ratesChanged: maps (category, tariff) to the Channex rate plan, rate as minor-unit integer, unmapped tariff skipped 1ms
+     ✓ ratesChanged: a price set for fewer guests than the category holds is not sent as the room rate (the nightly full sync sends the capacity price) 1ms
+     ✓ ratesChanged: min stay "no restriction" goes to Channex as 1, never 0 (Channex: must be greater than or equal to 1) 0ms
+   ✓ OutboxWorker (4)
+     ✓ batches all pending rows of a kind into ONE Channex call (FIFO), records the task id 1ms
+     ✓ throttles to one call per kind per 6 s (10/min limit) unless forced 1ms
+     ✓ on 429/5xx: exponential backoff, rows stay PENDING; FAILED after 6 attempts 5ms
+     ✓ Channex warnings inside a 200 response (rejected values) are kept on the sent rows and reported, not swallowed 4ms
+   ✓ OutboxWorker при остановленном ARI (CHANNEX_ARI=off, план отката) (1)
+     ✓ даже принудительная отправка (кнопка, сторож) ничего не шлёт и не тратит попытки; изменения ждут в очереди и уходят после включения 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/outbox.test.ts > OutboxAriPublisher > reservationChanged с отрезками (live-тест Channex 02.10): одно сообщение, только ночи отрезков — ночи между ними не уходят и через разрыв не склеиваются
+AssertionError: expected [ { property_id: 'P', …(4) }, …(2) ] to deeply equal [ { property_id: 'P', …(4) }, …(2) ]
+
+- Expected
++ Received
+
+@@ -5,19 +5,19 @@
+      "date_to": "2026-11-20",
+      "property_id": "P",
+      "room_type_id": "RT3",
+    },
+    {
+-     "availability": 36,
+-     "date_from": "2026-11-24",
+-     "date_to": "2026-11-24",
++     "availability": 34,
++     "date_from": "2026-11-21",
++     "date_to": "2026-11-21",
+      "property_id": "P",
+      "room_type_id": "RT3",
+    },
+    {
+      "availability": 36,
+-     "date_from": "2026-11-26",
++     "date_from": "2026-11-22",
+      "date_to": "2026-11-26",
+      "property_id": "P",
+      "room_type_id": "RT3",
+    },
+  ]
+
+ ❯ apps/api/src/channels/outbox.test.ts:182:30
+    180|     });
+    181|     expect(rows).toHaveLength(1);
+    182|     expect(rows[0]!.payload).toEqual([
+       |                              ^
+    183|       {
+    184|         property_id: 'P',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |unit| apps/api/src/channels/outbox.test.ts > OutboxAriPublisher > live-тест Channex 02.10, перенос брони 15.12 → 22.12 в категории на 8 мест: в сообщении 15.12 → 8 и 22.12 → 7, ничего между
+AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+@@ -1,11 +1,11 @@
+  [
+    [
+      {
+        "availability": 8,
+        "date_from": "2026-12-15",
+-       "date_to": "2026-12-15",
++       "date_to": "2026-12-21",
+        "property_id": "P",
+        "room_type_id": "RT1",
+      },
+      {
+        "availability": 7,
+
+ ❯ apps/api/src/channels/outbox.test.ts:229:40
+    227|       ],
+    228|     });
+    229|     expect(rows.map((r) => r.payload)).toEqual([
+       |                                        ^
+    230|       [
+    231|         {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |unit| apps/api/src/channels/outbox.test.ts > OutboxAriPublisher > reservationChanged с пустыми отрезками — остаток не менялся, очередь не трогается
+AssertionError: expected [ { id: 'o1', …(6) } ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ apps/api/src/channels/outbox.test.ts:256:18
+    254|       ranges: [],
+    255|     });
+    256|     expect(rows).toHaveLength(0);
+       |                  ^
+    257|   });
+    258|   it('ratesChanged: maps (category, tariff) to the Channex rate plan, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 9 passed (12)
+   Start at  06:12:10
+   Duration  2.37s (transform 80%, import 18%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-02T13-12-09Z-unit-74cb.json
+
+# код выхода 1 · 4 с

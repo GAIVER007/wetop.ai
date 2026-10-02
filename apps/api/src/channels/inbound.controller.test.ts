@@ -21,17 +21,24 @@ import { InboundBookingsService, decimalToMinor, sanitizeRevision } from './inbo
 /** Что вернёт снятие блоков соседних ночей при отмене (ADR-021); тест задаёт, сброс — в beforeEach */
 let releasedBlocks: Array<{ categoryCode: string; from: string; toExclusive: string }> = [];
 /** Дельты доступности, поставленные в очередь; inTx — шла ли в этот момент транзакция разбора ревизии */
+type Range = { categoryCode: string; from: string; toExclusive: string };
 const published: Array<{
   categoryCodes: string[];
   from: string;
   toExclusive: string;
+  ranges?: Range[];
   inTx: boolean;
 }> = [];
 const deltaLostLog: string[] = [];
 let inTx = false;
 let publishFails = false;
 const recordingPublisher = {
-  async reservationChanged(c: { categoryCodes: string[]; from: string; toExclusive: string }) {
+  async reservationChanged(c: {
+    categoryCodes: string[];
+    from: string;
+    toExclusive: string;
+    ranges?: Range[];
+  }) {
     if (publishFails) throw new Error('очередь недоступна');
     published.push({ ...c, inTx });
   },
@@ -662,6 +669,9 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
         categoryCodes: ['category-single'],
         from: '2026-11-10',
         toExclusive: '2026-11-12',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-11-10', toExclusive: '2026-11-12' },
+        ],
         inTx: false,
       },
     ]);
@@ -683,12 +693,43 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
       }),
     ]);
     await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
-    expect(published).toHaveLength(1);
-    expect(published[0]).toMatchObject({
-      from: '2026-11-10',
-      toExclusive: '2026-11-13',
-      inTx: false,
-    });
+    // сдвиг 10→12 на 11→13: ночи брони до и после ревизии — по ним Channex сам вернул и занял место
+    expect(published).toEqual([
+      {
+        categoryCodes: ['category-single'],
+        from: '2026-11-10',
+        toExclusive: '2026-11-13',
+        ranges: [
+          { categoryCode: 'category-single', from: '2026-11-10', toExclusive: '2026-11-13' },
+        ],
+        inTx: false,
+      },
+    ]);
+
+    // перенос из канала на неделю (11→13 на 18→20): ночи между старыми и новыми датами не уходят
+    published.length = 0;
+    fakes.setFeed([
+      revision({
+        id: 'rev-2b',
+        status: 'modified',
+        arrival_date: '2026-11-18',
+        departure_date: '2026-11-20',
+        rooms: [
+          {
+            ...revision().attributes.rooms[0]!,
+            checkin_date: '2026-11-18',
+            checkout_date: '2026-11-20',
+          },
+        ],
+      }),
+    ]);
+    await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(published.map((p) => p.ranges)).toEqual([
+      [
+        { categoryCode: 'category-single', from: '2026-11-11', toExclusive: '2026-11-13' },
+        { categoryCode: 'category-single', from: '2026-11-18', toExclusive: '2026-11-20' },
+      ],
+    ]);
 
     published.length = 0;
     releasedBlocks = [
@@ -699,6 +740,83 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     // остаток считается по базе после коммита: до него блок соседней ночи ещё стоит и ночь выглядела бы занятой
     expect(published.map((p) => p.inTx)).toEqual([false, false]);
     expect(published.map((p) => `${p.from}→${p.toExclusive}`)).toContain('2026-11-13→2026-11-14');
+  });
+
+  it('ревизия канала, которую стойка уже отразила: разница PMS пуста, но ночи брони уходят — Channex меняет свой остаток сам (allow_availability_autoupdate_*)', async () => {
+    const pull = () => request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    const moved = (id: string, status: 'modified' | 'cancelled') =>
+      revision({
+        id,
+        status,
+        arrival_date: '2026-11-18',
+        departure_date: '2026-11-20',
+        rooms: [
+          {
+            ...revision().attributes.rooms[0]!,
+            checkin_date: '2026-11-18',
+            checkout_date: '2026-11-20',
+          },
+        ],
+      });
+    const bookingNights = [
+      [{ categoryCode: 'category-single', from: '2026-11-18', toExclusive: '2026-11-20' }],
+    ];
+    fakes.setFeed([revision()]);
+    await pull();
+    const booking = fakes.state()[0]!;
+
+    // стойка перенесла бронь на 18→20 сама (её дельта ушла), потом канал прислал тот же перенос:
+    // Channex по ревизии сам занял место на 18–19 ещё раз — каналу возвращаются числа PMS
+    booking.items[0]!.arrivalDate = '2026-11-18';
+    booking.items[0]!.departureDate = '2026-11-20';
+    published.length = 0;
+    fakes.setFeed([moved('rev-m', 'modified')]);
+    await pull();
+    expect(published.map((p) => p.ranges)).toEqual(bookingNights);
+
+    // стойка отменила раньше канала; отмена из канала вернёт место в Channex второй раз
+    booking.status = 'CANCELLED';
+    for (const it of booking.items) it.status = 'CANCELLED';
+    published.length = 0;
+    fakes.setFeed([moved('rev-c', 'cancelled')]);
+    await pull();
+    expect(published.map((p) => p.ranges)).toEqual(bookingNights);
+  });
+
+  it('связывание брони стойки с ревизией канала: ночи и брони стойки, и комнат ревизии — Channex уменьшил остаток по своим', async () => {
+    await fakes.repo.createReservation({
+      confirmationNumber: '20261101-DESK02',
+      source: 'OTA',
+      channel: 'Booking.com',
+      externalId: '9996013801', // стойка вписала номер брони из экстранета, даты записала со сдвигом
+      status: 'CONFIRMED',
+      arrivalDate: '2026-11-11',
+      departureDate: '2026-11-13',
+      adults: 1,
+      children: 0,
+      currency: 'KZT',
+      totalAmountMinor: 3_080_000n,
+      primaryGuestId: 'g-desk',
+      notes: null,
+      items: [
+        {
+          accommodationTypeId: 't1',
+          arrivalDate: '2026-11-11',
+          departureDate: '2026-11-13',
+          priceMinor: 3_080_000n,
+          status: 'CONFIRMED',
+        },
+      ],
+    });
+    fakes.setFeed([revision({ id: 'rev-desk-2' })]); // в канале та же бронь на 10→12
+    const res = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(res.body.outcomes[0]).toMatchObject({
+      result: 'modified',
+      confirmationNumber: '20261101-DESK02',
+    });
+    expect(published.map((p) => p.ranges)).toEqual([
+      [{ categoryCode: 'category-single', from: '2026-11-10', toExclusive: '2026-11-13' }],
+    ]);
   });
 
   it('сбой постановки дельты после ACK не рвёт разбор ревизии и оставляет след для сторожа', async () => {

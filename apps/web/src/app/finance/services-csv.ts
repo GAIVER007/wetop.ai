@@ -23,5 +23,5 @@ export function servicesCsv(rows: ServiceRow[]): string {
       .map(csvField)
       .join(';'),
   );
-  return `﻿${[head.join(';'), ...lines].join('\r\n')}`;
+  return `\uFEFF${[head.join(';'), ...lines].join('\r\n')}`;
 }

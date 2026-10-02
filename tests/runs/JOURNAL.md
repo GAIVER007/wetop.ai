@@ -5047,3 +5047,6 @@
 | 02.10.2026 18:29 | unit (частично: apps/web/src/app/finance/services-csv.test.ts) | ✅ 2 из 2 | 1 с | fff94a8 +13 | [лог](logs/2026-10-02T13-29-48Z-unit-7632.log) | REP2 green: CSV услуг |
 | 02.10.2026 18:30 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-services.spec.ts tests/ui/reports-hub.spec.ts tests/ui/navigation.spec.ts tests/ui/team.s | ❌ упало 11 из 85 | 6 мин 12 с | fff94a8 +15 | [лог](logs/2026-10-02T13-30-43Z-e2e-28f2.log) | REP2 green: вкладка Услуги, хаб, навигация, team, финансы |
 | 02.10.2026 21:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-services.spec.ts tests/ui/finance-f1.spec.ts tests/ui/finance-f2.spec.ts tests/ui/finance | ❌ упало 1 из 32 | 1 мин 1 с | 967ccce +3 | [лог](logs/2026-10-02T16-08-14Z-e2e-fbae.log) | REP2: перенос вкладок, <a> для hash, noBookings у услуг |
+| 02.10.2026 21:11 | lint | ❌ ошибок: 1 | 41 с | ef4e829 | [лог](logs/2026-10-02T16-11-48Z-lint-63f5.log) | REP2: вкладка услуг и фиксы |
+| 02.10.2026 21:12 | lint | ✅ без ошибок | 24 с | ef4e829 +1 | [лог](logs/2026-10-02T16-12-45Z-lint-4705.log) | REP2: BOM услуг в escape |
+| 02.10.2026 21:13 | unit (частично: apps/web/src/app/finance/services-csv.test.ts) | ✅ 2 из 2 | 1 с | ef4e829 +1 | [лог](logs/2026-10-02T16-13-10Z-unit-e0cc.log) | REP2: CSV услуг после escape |

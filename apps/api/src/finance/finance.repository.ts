@@ -224,6 +224,24 @@ export interface CashOperationRecord {
   /** id строки-комиссии этой операции, если есть */
   commissionId: string | null;
 }
+/** Сверка кассы (§21.4): последняя запись по способу */
+export interface CashReconciliationRecord {
+  method: PaymentMethod;
+  at: string;
+  /** `YYYY-MM-DD HH:mm` по поясу объекта */
+  localAt: string;
+  expectedMinor: bigint;
+  countedMinor: bigint;
+  note: string | null;
+}
+export interface NewCashReconciliation {
+  method: PaymentMethod;
+  expectedMinor: bigint;
+  countedMinor: bigint;
+  note: string | null;
+  /** поправка той же транзакцией; статья находится или заводится по имени */
+  adjustment: { kind: 'INCOME' | 'EXPENSE'; amountMinor: bigint; categoryName: string } | null;
+}
 /** Слагаемые остатков по способам — суммы за всё время, считает база */
 export interface CashBalanceSources {
   payments: Array<{ method: string; amountMinor: bigint }>;
@@ -294,6 +312,10 @@ export interface FinanceRepository {
   cashOperationById(id: string): Promise<CashOperationRecord | null>;
   /** Аннулирование под блокировкой строки; комиссия аннулируется вместе с основной */
   voidCashOperation(id: string, audit?: AuditEntry): Promise<void>;
+  /** Последняя сверка по каждому способу (§21.4) */
+  latestCashReconciliations(): Promise<CashReconciliationRecord[]>;
+  /** Запись сверки вместе с поправкой — одной транзакцией */
+  createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry): Promise<string>;
   /** Сегодня по часам объекта (С-13): дата услуги по умолчанию */
   today(): Promise<string>;
   addCharge(folioId: string, c: NewCharge, audit?: AuditEntry): Promise<string>;
@@ -1142,6 +1164,77 @@ export class PrismaFinanceRepository implements FinanceRepository {
         });
       },
     );
+  }
+  // ── Сверка кассы (§21.4) ──────────────────────────────────────────────────────────────────────
+  async latestCashReconciliations(): Promise<CashReconciliationRecord[]> {
+    const tz = await this.timezone();
+    const { id: propertyId } = await this.property();
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{
+        method: PaymentMethod;
+        at: Date;
+        local_at: string;
+        expected: bigint;
+        counted: bigint;
+        note: string | null;
+      }>
+    >`
+      SELECT DISTINCT ON ("method") "method"::text AS method, "created_at" AS at,
+             to_char("created_at" AT TIME ZONE ${tz}, 'YYYY-MM-DD HH24:MI') AS local_at,
+             "expected", "counted", "note"
+        FROM "cash_reconciliations"
+       WHERE "property_id" = ${propertyId}::uuid
+       ORDER BY "method", "created_at" DESC`;
+    return rows.map((r) => ({
+      method: r.method,
+      at: r.at.toISOString(),
+      localAt: r.local_at,
+      expectedMinor: BigInt(r.expected),
+      countedMinor: BigInt(r.counted),
+      note: r.note,
+    }));
+  }
+  async createCashReconciliation(r: NewCashReconciliation, audit?: AuditEntry): Promise<string> {
+    const { id: propertyId } = await this.property();
+    const row = await this.withAudit(audit, async (tx) => {
+      if (r.adjustment) {
+        const category = await tx.cashCategory.upsert({
+          where: {
+            propertyId_kind_name: {
+              propertyId,
+              kind: r.adjustment.kind,
+              name: r.adjustment.categoryName,
+            },
+          },
+          update: { active: true },
+          create: { propertyId, kind: r.adjustment.kind, name: r.adjustment.categoryName },
+          select: { id: true },
+        });
+        await tx.cashOperation.create({
+          data: {
+            propertyId,
+            kind: r.adjustment.kind,
+            method: r.method,
+            amount: r.adjustment.amountMinor,
+            categoryId: category.id,
+            note: 'Поправка по сверке кассы',
+            createdById: auditUserId(),
+          },
+        });
+      }
+      return tx.cashReconciliation.create({
+        data: {
+          propertyId,
+          method: r.method,
+          expected: r.expectedMinor,
+          counted: r.countedMinor,
+          note: r.note,
+          createdById: auditUserId(),
+        },
+        select: { id: true },
+      });
+    });
+    return row.id;
   }
   async audit(
     entityType: string,

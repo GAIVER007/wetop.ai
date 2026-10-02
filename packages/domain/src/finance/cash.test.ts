@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_CASH_METHODS,
+  assertCashReconciliation,
+  reconciliationAdjustment,
   NON_CASH_METHODS,
   assertCashOperation,
   cashBalances,
@@ -145,5 +147,31 @@ describe('commissionFromPercent', () => {
     expect(() => commissionFromPercent(10_000n, '0')).toThrow();
     expect(() => commissionFromPercent(10_000n, '101')).toThrow();
     expect(() => commissionFromPercent(10_000n, '1.234')).toThrow();
+  });
+});
+
+describe('сверка наличных (§21.4)', () => {
+  it('counted ≥ 0, способ — кассовый', () => {
+    expect(() =>
+      assertCashReconciliation({ method: 'CASH', countedMinor: 0n }),
+    ).not.toThrow();
+    expect(() =>
+      assertCashReconciliation({ method: 'CASH', countedMinor: -1n }),
+    ).toThrow(/не бывает отрицательной/);
+    expect(() =>
+      assertCashReconciliation({ method: 'EXTERNAL', countedMinor: 100n }),
+    ).toThrow(/касс/i);
+  });
+
+  it('поправка: излишек — поступление, недостача — расход, совпало — нет поправки', () => {
+    expect(reconciliationAdjustment(10_000n, 12_000n)).toEqual({
+      kind: 'INCOME',
+      amountMinor: 2_000n,
+    });
+    expect(reconciliationAdjustment(10_000n, 9_500n)).toEqual({
+      kind: 'EXPENSE',
+      amountMinor: 500n,
+    });
+    expect(reconciliationAdjustment(10_000n, 10_000n)).toBeNull();
   });
 });

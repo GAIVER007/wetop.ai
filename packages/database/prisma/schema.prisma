@@ -124,6 +124,7 @@ model Property {
   payments           Payment[]
   cashCategories     CashCategory[]
   cashOperations     CashOperation[]
+  cashReconciliations CashReconciliation[]
   services           Service[]
   trackedSites       TrackedSite[]
   inventoryUnits     InventoryUnit[]
@@ -944,6 +945,26 @@ model CashOperation {
   @@map("cash_operations")
 }
 
+/// Сверка кассы (§21.4): снимок «по системе» и факт. Аннулирования нет — ошиблись, сверили заново
+model CashReconciliation {
+  id         String        @id @default(uuid()) @db.Uuid
+  propertyId String        @map("property_id") @db.Uuid
+  method     PaymentMethod
+  /// остаток по системе в момент сверки, тиыны (ADR-008): задним числом не восстановить
+  expected   BigInt
+  /// фактически пересчитано, >= 0
+  counted     BigInt
+  note        String?
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property  Property @relation(fields: [propertyId], references: [id])
+  createdBy User?    @relation(fields: [createdById], references: [id])
+
+  @@index([propertyId, method, createdAt])
+  @@map("cash_reconciliations")
+}
+
 // ───────────────────────── §11 Аналитика сайта ─────────────────────────
 // Срез 8 (план plans/slice-8-web-analytics.md, принят владельцем 12.09.2026). Персональных данных нет по
 // построению: IP и полный User-Agent не сохраняются, visitor_key — случайное число из браузера (ADR-018).
@@ -1187,6 +1208,7 @@ model User {
   emailVerifications EmailVerification[]
   auditLogs      AuditLog[]
   cashOperations CashOperation[]
+  cashReconciliations CashReconciliation[]
   userErrors     UserError[]
   sellerProfileEdits SellerProfile[]
   platformAdmin  PlatformAdmin?

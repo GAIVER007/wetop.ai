@@ -391,7 +391,68 @@ function makeFakes() {
       if (audit) audits.push(audit.action);
       for (const o of cashOps) if (o.id === id || o.relatedId === id) o.status = 'VOIDED';
     },
+    // сверка (§21.4): последняя по каждому способу; запись с поправкой — одной «транзакцией»
+    async latestCashReconciliations() {
+      const latest = new Map<string, (typeof cashRecs)[number]>();
+      for (const r of cashRecs) latest.set(r.method, r);
+      return [...latest.values()].map((r) => ({
+        method: r.method,
+        at: r.at,
+        localAt: r.at.slice(0, 16).replace('T', ' '),
+        expectedMinor: r.expectedMinor,
+        countedMinor: r.countedMinor,
+        note: r.note,
+      }));
+    },
+    async createCashReconciliation(r, audit) {
+      if (audit) {
+        audits.push(audit.action);
+        auditAfter.push(audit.after);
+      }
+      const id = `00000000-0000-4000-8f00-${String(++seq).padStart(12, '0')}`;
+      cashRecs.push({
+        id,
+        method: r.method,
+        expectedMinor: r.expectedMinor,
+        countedMinor: r.countedMinor,
+        note: r.note,
+        at: new Date().toISOString(),
+      });
+      if (r.adjustment) {
+        let category = cashCategories.find(
+          (c) => c.kind === r.adjustment!.kind && c.name === r.adjustment!.categoryName,
+        );
+        if (!category) {
+          category = {
+            id: `00000000-0000-4000-8d00-${String(++seq).padStart(12, '0')}`,
+            kind: r.adjustment.kind,
+            name: r.adjustment.categoryName,
+            active: true,
+          };
+          cashCategories.push(category);
+        }
+        cashOps.push({
+          id: `${id}-adj`,
+          kind: r.adjustment.kind,
+          method: r.method,
+          methodTo: null,
+          amountMinor: r.adjustment.amountMinor,
+          categoryId: category.id,
+          status: 'COMPLETED',
+          relatedId: null,
+        });
+      }
+      return id;
+    },
   };
+  const cashRecs: Array<{
+    id: string;
+    method: PaymentMethod;
+    expectedMinor: bigint;
+    countedMinor: bigint;
+    note: string | null;
+    at: string;
+  }> = [];
   const cashCategories: Array<{
     id: string;
     kind: 'INCOME' | 'EXPENSE';
@@ -1371,5 +1432,86 @@ describe('касса: остатки, операции, переводы, ста
       .expect(200);
     // фальшивый период броней без кассы: лента пуста, суммы кассы нулевые, оплаты броней не подмешаны
     expect(r.body).toMatchObject({ incomeMinor: '0', expenseMinor: '0', paidMinor: '0' });
+  });
+});
+
+describe('сверка наличных (§21.4, K4)', () => {
+  let app: INestApplication;
+  let fakes = makeFakes();
+  beforeEach(() => {
+    fakes = makeFakes();
+  });
+  beforeAll(async () => {
+    const proxy = (get: () => object) =>
+      new Proxy({}, { get: (_t, k) => (get() as Record<string, unknown>)[k as string] });
+    const m = await Test.createTestingModule({ imports: [FinanceModule] })
+      .overrideProvider(FINANCE_REPOSITORY)
+      .useFactory({ factory: () => proxy(() => fakes.repo) })
+      .overrideProvider(UnitsService)
+      .useFactory({ factory: () => proxy(() => fakes.units) })
+      .overrideProvider(PrismaService)
+      .useValue({})
+      .compile();
+    app = m.createNestApplication();
+    await app.init();
+  });
+  afterAll(async () => {
+    await app.close();
+  });
+  const http = () => request(app.getHttpServer());
+  const income = (amount: string) =>
+    http().post('/finance/cash/operations').send({ kind: 'INCOME', method: 'CASH', amount }).expect(201);
+
+  it('недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному', async () => {
+    await income('100');
+    const r = await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '95', adjust: true })
+      .expect(201);
+    const rec = r.body.reconciliations.find((x: { method: string }) => x.method === 'CASH');
+    expect(rec).toMatchObject({ expectedMinor: '10000', countedMinor: '9500' });
+    const by = Object.fromEntries(
+      r.body.balances.map((b: { method: string; balanceMinor: string }) => [b.method, b.balanceMinor]),
+    );
+    expect(by['CASH']).toBe('9500');
+    const adj = fakes.cashOps.find((o) => o.kind === 'EXPENSE');
+    expect(adj).toMatchObject({ amountMinor: 500n, method: 'CASH' });
+    expect(
+      fakes.cashCategories.find((c) => c.id === adj!.categoryId)!.name,
+    ).toBe('Недостача кассы');
+    expect(fakes.audits).toContain('finance.cash.reconciliation');
+  });
+
+  it('излишек без галочки — остаток не меняется; совпало — поправки нет; GET /finance/cash отдаёт сверку', async () => {
+    await income('100');
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '110' })
+      .expect(201);
+    expect(fakes.cashOps.filter((o) => o.kind !== 'INCOME')).toHaveLength(0);
+    const cash = await http().get('/finance/cash').expect(200);
+    expect(
+      cash.body.reconciliations.find((x: { method: string }) => x.method === 'CASH'),
+    ).toMatchObject({ expectedMinor: '10000', countedMinor: '11000' });
+    // совпало — поправка не создаётся и с галочкой
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '100', adjust: true })
+      .expect(201);
+    expect(fakes.cashOps.filter((o) => o.kind !== 'INCOME')).toHaveLength(0);
+  });
+
+  it('проверки: отрицательная сумма, не-кассовый способ, не число — 400; способ по умолчанию — наличные', async () => {
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'CASH', counted: '-5' })
+      .expect(400);
+    await http()
+      .post('/finance/cash/reconciliations')
+      .send({ method: 'EXTERNAL', counted: '5' })
+      .expect(400);
+    await http().post('/finance/cash/reconciliations').send({ counted: 'abc' }).expect(400);
+    const r = await http().post('/finance/cash/reconciliations').send({ counted: '0' }).expect(201);
+    expect(r.body.reconciliations[0]).toMatchObject({ method: 'CASH', countedMinor: '0' });
   });
 });

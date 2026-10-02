@@ -89,6 +89,14 @@ export class FinanceController {
     return this.service.createCashTransfer(dto ?? {});
   }
 
+  /** Сверка кассы (§21.4): сверяет смена, как в старой системе */
+  @Post('cash/reconciliations')
+  createCashReconciliation(
+    @Body() dto: Parameters<FinanceService['createCashReconciliation']>[0],
+  ) {
+    return this.service.createCashReconciliation(dto ?? {});
+  }
+
   @Access('refunds')
   @Post('cash/operations/:id/void')
   @HttpCode(200)

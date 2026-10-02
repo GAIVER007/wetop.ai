@@ -123,6 +123,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /finance/cash/categories/:id': 'settings',
   'POST /finance/cash/operations': 'desk',
   'POST /finance/cash/transfers': 'desk',
+  'POST /finance/cash/reconciliations': 'desk',
   'POST /finance/cash/operations/:id/void': 'refunds',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────

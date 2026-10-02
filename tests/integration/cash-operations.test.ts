@@ -19,6 +19,7 @@ describe.skipIf(!url)('касса: операции, статьи, лента (i
   let repo: PrismaFinanceRepository;
 
   async function cleanup() {
+    await db.cashReconciliation.deleteMany({});
     await db.cashOperation.deleteMany({});
     await db.cashCategory.deleteMany({});
   }
@@ -149,5 +150,53 @@ describe.skipIf(!url)('касса: операции, статьи, лента (i
     await db.location.delete({ where: { id: chain.locationId } });
     await db.business.delete({ where: { id: chain.location.businessId } });
     await db.organization.delete({ where: { id: org.id } });
+  });
+});
+
+describe.skipIf(!url)('сверка кассы (§21.4) на настоящей схеме', () => {
+  let db: Db;
+  let repo: PrismaFinanceRepository;
+
+  beforeAll(async () => {
+    db = createPrismaClient(url);
+    repo = new PrismaFinanceRepository({ db } as unknown as PrismaService);
+    await db.cashReconciliation.deleteMany({});
+  });
+  afterAll(async () => {
+    if (!db) return;
+    await db.cashReconciliation.deleteMany({});
+    await db.cashOperation.deleteMany({ where: { note: 'Поправка по сверке кассы' } });
+    await db.cashCategory.deleteMany({ where: { name: { in: ['Недостача кассы', 'Излишек кассы'] } } });
+    await db.$disconnect();
+  });
+
+  it('запись с поправкой одной транзакцией; статья заводится по требованию; последняя сверка по способу', async () => {
+    const id = await repo.createCashReconciliation({
+      method: 'CASH',
+      expectedMinor: 100_000n,
+      countedMinor: 95_000n,
+      note: 'вечерний пересчёт',
+      adjustment: { kind: 'EXPENSE', amountMinor: 5_000n, categoryName: 'Недостача кассы' },
+    });
+    expect(id).toBeTruthy();
+    const adjustment = await db.cashOperation.findFirst({
+      where: { note: 'Поправка по сверке кассы' },
+      include: { category: true },
+    });
+    expect(adjustment).toMatchObject({ kind: 'EXPENSE', method: 'CASH', amount: 5_000n });
+    expect(adjustment!.category!.name).toBe('Недостача кассы');
+    // вторая сверка того же способа — «последней» становится она
+    await repo.createCashReconciliation({
+      method: 'CASH',
+      expectedMinor: 95_000n,
+      countedMinor: 95_000n,
+      note: null,
+      adjustment: null,
+    });
+    const latest = await repo.latestCashReconciliations();
+    const cash = latest.find((r) => r.method === 'CASH')!;
+    expect(cash).toMatchObject({ expectedMinor: 95_000n, countedMinor: 95_000n });
+    expect(latest.filter((r) => r.method === 'CASH')).toHaveLength(1);
+    expect(cash.localAt).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
   });
 });

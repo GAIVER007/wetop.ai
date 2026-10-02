@@ -82,6 +82,24 @@ export async function cashTransferAction(
   return done('Перевод записан.');
 }
 
+/** Сверка кассы (§21.4): снимок «по системе» и факт; расхождение — поправкой по галочке */
+export async function cashReconcileAction(
+  _prev: CashActionResult,
+  fd: FormData,
+): Promise<CashActionResult> {
+  try {
+    await financeApi.createCashReconciliation({
+      method: s(fd, 'method'),
+      counted: s(fd, 'counted'),
+      note: s(fd, 'note') ?? null,
+      adjust: fd.get('adjust') === 'on',
+    });
+  } catch (e) {
+    return { error: describe(e), ok: _prev.ok };
+  }
+  return done('Сверка записана.');
+}
+
 /** Аннулирование операции кассы (право как у возврата): комиссия снимается вместе с основной */
 export async function voidCashOperationAction(id: string): Promise<CashActionResult> {
   try {

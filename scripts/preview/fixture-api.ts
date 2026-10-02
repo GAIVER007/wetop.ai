@@ -1246,6 +1246,42 @@ let cashOps: Array<{
   status: 'COMPLETED' | 'VOIDED';
   at: string;
 }> = [];
+let cashRecs: Array<{
+  method: string;
+  at: string;
+  expectedMinor: bigint;
+  countedMinor: bigint;
+  note: string | null;
+}> = [];
+/** Остаток кассы по способам, как считает API: оплаты гостей − возвраты + операции кассы (§21) */
+function fixtureCashBalances(): Map<string, bigint> {
+  const by = new Map<string, bigint>();
+  const nonCash = new Set(['EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE']);
+  const add = (m: string, d: bigint) => {
+    if (!nonCash.has(m)) by.set(m, (by.get(m) ?? 0n) + d);
+  };
+  const seenPayments = new Set<string>();
+  for (const r of allCards())
+    for (const f of finance(r).folios) {
+      for (const p of f.payments) {
+        if (p.status !== 'COMPLETED' || seenPayments.has(p.paymentId)) continue;
+        seenPayments.add(p.paymentId);
+        add(p.method, BigInt(p.paymentAmountMinor));
+      }
+      for (const x of f.refunds)
+        add(f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH', -BigInt(x.amountMinor));
+    }
+  for (const o of cashOps) {
+    if (o.status !== 'COMPLETED') continue;
+    if (o.kind === 'INCOME') add(o.method, o.amountMinor);
+    else if (o.kind === 'EXPENSE') add(o.method, -o.amountMinor);
+    else {
+      add(o.method, -o.amountMinor);
+      if (o.methodTo) add(o.methodTo, o.amountMinor);
+    }
+  }
+  return by;
+}
 const incidentSeed: Incident = {
   id: 'ui-incident',
   kind: 'stay.unassigned',
@@ -2622,7 +2658,7 @@ function read(path: string, q: URLSearchParams): unknown {
         truncated: false,
       };
     if (path === '/finance/cash')
-      return { currency: 'KZT', totalMinor: '0', balances: [], categories: [] };
+      return { currency: 'KZT', totalMinor: '0', balances: [], categories: [], reconciliations: [] };
     if (path === '/finance/debts')
       return {
         from: q.get('from'),
@@ -3401,32 +3437,7 @@ function read(path: string, q: URLSearchParams): unknown {
     };
   }
   if (path === '/finance/cash') {
-    // остаток по способу: оплаты гостей (COMPLETED) − возвраты + касса; EXTERNAL и прочие не-деньги не считаются
-    const by = new Map<string, bigint>();
-    const nonCash = new Set(['EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE']);
-    const add = (m: string, d: bigint) => {
-      if (!nonCash.has(m)) by.set(m, (by.get(m) ?? 0n) + d);
-    };
-    const seenPayments = new Set<string>();
-    for (const r of allCards())
-      for (const f of finance(r).folios) {
-        for (const p of f.payments) {
-          if (p.status !== 'COMPLETED' || seenPayments.has(p.paymentId)) continue;
-          seenPayments.add(p.paymentId);
-          add(p.method, BigInt(p.paymentAmountMinor));
-        }
-        for (const x of f.refunds)
-          add(f.payments.find((p) => p.paymentId === x.paymentId)?.method ?? 'CASH', -BigInt(x.amountMinor));
-      }
-    for (const o of cashOps) {
-      if (o.status !== 'COMPLETED') continue;
-      if (o.kind === 'INCOME') add(o.method, o.amountMinor);
-      else if (o.kind === 'EXPENSE') add(o.method, -o.amountMinor);
-      else {
-        add(o.method, -o.amountMinor);
-        if (o.methodTo) add(o.methodTo, o.amountMinor);
-      }
-    }
+    const by = fixtureCashBalances();
     const order = ['CASH', 'KASPI', 'HALYK', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'];
     const defaults = new Set(order.slice(0, 4));
     const balances = order
@@ -3436,10 +3447,18 @@ function read(path: string, q: URLSearchParams): unknown {
       currency: 'KZT',
       totalMinor: balances.reduce((a, b) => a + BigInt(b.balanceMinor), 0n).toString(),
       balances,
-      // статьи — тем же ответом, как у API (бюджет запросов)
+      // статьи и сверки — тем же ответом, как у API (бюджет запросов)
       categories: [...cashCategories].sort(
         (a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ru'),
       ),
+      reconciliations: [...new Map(cashRecs.map((r) => [r.method, r])).values()].map((r) => ({
+        method: r.method,
+        at: r.at,
+        localAt: new Date(Date.parse(r.at) + 5 * 3600_000).toISOString().slice(0, 16).replace('T', ' '),
+        expectedMinor: r.expectedMinor.toString(),
+        countedMinor: r.countedMinor.toString(),
+        note: r.note,
+      })),
     };
   }
   if (path === '/finance/debts') {
@@ -3963,6 +3982,7 @@ createServer(async (req, res) => {
       paymentLines = [];
       cashCategories = structuredClone(cashCategorySeed);
       cashOps = [];
+      cashRecs = [];
       piiStorage = 'real';
       softPlan = false;
       planPenalty.clear();
@@ -5796,6 +5816,55 @@ createServer(async (req, res) => {
           status: 'COMPLETED',
           at,
         });
+      return send(201, { ok: true });
+    }
+    if (path === '/finance/cash/reconciliations') {
+      const method = String(body['method'] ?? 'CASH');
+      if (['EXTERNAL', 'DEPOSIT', 'CARD_GUARANTEE'].includes(method))
+        return send(400, { message: `Способ ${method} в кассе не участвует` });
+      let countedMinor: bigint;
+      try {
+        countedMinor = parseMoney(String(body['counted'] ?? ''));
+      } catch {
+        return send(400, { message: 'counted — сумма, например 12000 или 456.50' });
+      }
+      if (countedMinor < 0n)
+        return send(400, { message: 'Пересчитанная сумма не бывает отрицательной' });
+      const expectedMinor = fixtureCashBalances().get(method) ?? 0n;
+      cashRecs.push({
+        method,
+        at: new Date().toISOString(),
+        expectedMinor,
+        countedMinor,
+        note: typeof body['note'] === 'string' && body['note'] ? body['note'] : null,
+      });
+      const delta = countedMinor - expectedMinor;
+      if (body['adjust'] === true && delta !== 0n) {
+        const kind = delta > 0n ? ('INCOME' as const) : ('EXPENSE' as const);
+        const name = delta > 0n ? 'Излишек кассы' : 'Недостача кассы';
+        let category = cashCategories.find((c) => c.kind === kind && c.name === name);
+        if (!category) {
+          category = {
+            id: `ui-cashcat-adj-${cashCategories.length + 1}`,
+            kind,
+            name,
+            active: true,
+          } as (typeof cashCategories)[number];
+          cashCategories.push(category);
+        }
+        cashOps.push({
+          id: `ui-cashrec-adj-${cashOps.length + 1}`,
+          kind,
+          method,
+          methodTo: null,
+          amountMinor: delta > 0n ? delta : -delta,
+          categoryId: category.id,
+          note: 'Поправка по сверке кассы',
+          relatedId: null,
+          status: 'COMPLETED',
+          at: new Date().toISOString(),
+        });
+      }
       return send(201, { ok: true });
     }
     {

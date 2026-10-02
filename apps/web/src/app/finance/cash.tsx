@@ -8,8 +8,10 @@ import { Overlay } from '../../components/overlay';
 import { useConfirm } from '../../components/use-confirm';
 import { Alert, Badge, Button, Field, Input, Select, Stat, Table, Textarea } from '../../components/ui';
 import { METHOD_RU } from './labels';
+import { displayDate } from '../../lib/display-date';
 import {
   cashOperationAction,
+  cashReconcileAction,
   cashTransferAction,
   createCashCategoryAction,
   toggleCashCategoryAction,
@@ -18,7 +20,7 @@ import {
 } from './cash-actions';
 
 const NONE: CashActionResult = { error: null, ok: 0 };
-type Drawer = 'income' | 'expense' | 'transfer' | 'categories' | null;
+type Drawer = 'income' | 'expense' | 'transfer' | 'categories' | 'reconcile' | null;
 
 /**
  * Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md): остатки по способам за всё время,
@@ -67,6 +69,10 @@ export function CashPanel({
               <Icon name="refresh" />
               Перевод
             </Button>
+            <Button type="button" tone="secondary" onClick={() => open('reconcile')} data-testid="cash-reconcile-btn">
+              <Icon name="check" />
+              Сверить
+            </Button>
           </>
         )}
         {maySettings && (
@@ -89,6 +95,7 @@ export function CashPanel({
           />
         ))}
       </div>
+      <ReconciliationStatus cash={cash} />
       <p className="finance-note">
         Остатки — за всё время: оплаты гостей по способу, минус возвраты, плюс операции кассы.{' '}
         <Link href={cashOpsHref} data-testid="cash-ops-link">
@@ -122,7 +129,107 @@ export function CashPanel({
           <Categories categories={categories} />
         </Overlay>
       )}
+      {drawer === 'reconcile' && (
+        <Overlay open drawer className="settings-service-drawer" title="Сверка кассы" onClose={() => setDrawer(null)}>
+          <ReconcileForm cash={cash} onCancel={() => setDrawer(null)} onSaved={onSaved} />
+        </Overlay>
+      )}
     </section>
+  );
+}
+
+/** Расхождение сверки словами: «−500 ₸», «+70 ₸» или «совпало» */
+function deltaText(expectedMinor: string, countedMinor: string, cur: string): string {
+  const delta = BigInt(countedMinor) - BigInt(expectedMinor);
+  if (delta === 0n) return 'совпало';
+  return `расхождение ${delta > 0n ? '+' : '−'}${formatMoney(delta > 0n ? delta.toString() : (-delta).toString(), cur)}`;
+}
+
+/** Последняя сверка по способам (§21.4): наличные показываются всегда — их и пересчитывают */
+function ReconciliationStatus({ cash }: { cash: CashBalances }) {
+  const byMethod = new Map(cash.reconciliations.map((r) => [r.method, r]));
+  const methods = ['CASH', ...cash.reconciliations.map((r) => r.method).filter((m) => m !== 'CASH')];
+  return (
+    <ul className="cash-reconciliation-status" data-testid="cash-reconciliation-status">
+      {methods.map((method) => {
+        const rec = byMethod.get(method);
+        if (!rec)
+          return (
+            <li key={method}>
+              <Icon name="clock" />
+              {METHOD_RU[method] ?? method}: ещё не сверялись
+            </li>
+          );
+        const [day = '', time = ''] = rec.localAt.split(' ');
+        return (
+          <li key={method}>
+            <Icon name="check" />
+            {METHOD_RU[method] ?? method}: сверено {displayDate(day)}, {time} —{' '}
+            {deltaText(rec.expectedMinor, rec.countedMinor, cash.currency)}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** Пересчёт кассы: «по системе» — текущий остаток способа, расхождение выравнивается поправкой по галочке */
+function ReconcileForm({
+  cash,
+  onCancel,
+  onSaved,
+}: {
+  cash: CashBalances;
+  onCancel: () => void;
+  onSaved: (text: string) => void;
+}) {
+  const [state, action, pending] = useActionState(cashReconcileAction, NONE);
+  useSavedEffect(state, onSaved);
+  const [method, setMethod] = useState('CASH');
+  const expected = cash.balances.find((b) => b.method === method)?.balanceMinor ?? '0';
+  return (
+    <form action={action} className="settings-service-form" data-testid="cash-reconcile-form">
+      {state.error && <Alert boxed>{state.error}</Alert>}
+      <Field label="Способ">
+        <Select
+          name="method"
+          value={method}
+          onChange={(e) => setMethod(e.target.value)}
+          data-testid="cash-reconcile-method"
+        >
+          {CASH_METHOD_OPTIONS.map((m) => (
+            <option key={m} value={m}>
+              {METHOD_RU[m]}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <p className="settings-note" data-testid="cash-expected">
+        По системе: <strong>{formatMoney(expected, cash.currency)}</strong>
+      </p>
+      <Field label="Фактически пересчитано">
+        <Input name="counted" inputMode="decimal" required autoFocus data-testid="cash-counted" />
+      </Field>
+      <label className="cash-adjust">
+        <input type="checkbox" name="adjust" defaultChecked />
+        Выровнять остаток поправкой
+      </label>
+      <Field label="Комментарий">
+        <Textarea name="note" rows={2} />
+      </Field>
+      <p className="settings-note">
+        Запишется снимок «по системе» и факт. С галочкой расхождение ляжет отдельной операцией —
+        «Недостача кассы» или «Излишек кассы»; без неё останется только запись сверки.
+      </p>
+      <div className="settings-service-actions">
+        <Button type="button" tone="secondary" onClick={onCancel}>
+          Отмена
+        </Button>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
+          {pending ? 'Сохраняю…' : 'Записать сверку'}
+        </Button>
+      </div>
+    </form>
   );
 }
 

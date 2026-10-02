@@ -1357,12 +1357,21 @@ export interface PeriodOperations {
   }>;
   truncated: boolean;
 }
-/** Остатки кассы по способам (DATA_MODEL §21) — за всё время; статьи — тем же ответом (бюджет запросов) */
+/** Остатки кассы по способам (DATA_MODEL §21) — за всё время; статьи и сверки — тем же ответом */
 export interface CashBalances {
   currency: string;
   totalMinor: string;
   balances: Array<{ method: string; balanceMinor: string }>;
   categories: CashCategory[];
+  /** последняя сверка по каждому способу (§21.4) */
+  reconciliations: Array<{
+    method: string;
+    at: string;
+    localAt: string;
+    expectedMinor: string;
+    countedMinor: string;
+    note: string | null;
+  }>;
 }
 export interface CashCategory {
   id: string;
@@ -1398,6 +1407,8 @@ export const financeApi = {
     sendJson<CashBalances>('POST', '/finance/cash/operations', body),
   createCashTransfer: (body: unknown) =>
     sendJson<CashBalances>('POST', '/finance/cash/transfers', body),
+  createCashReconciliation: (body: unknown) =>
+    sendJson<CashBalances>('POST', '/finance/cash/reconciliations', body),
   voidCashOperation: (id: string) =>
     sendJson<CashBalances>('POST', `/finance/cash/operations/${encodeURIComponent(id)}/void`, {}),
   report: (from: string, to: string) =>

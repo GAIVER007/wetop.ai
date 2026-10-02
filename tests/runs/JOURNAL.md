@@ -5026,3 +5026,14 @@
 | 02.10.2026 17:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts tests/ui/finance-f2.spec.ts tests/ui/finance-compact.spec.ts tests/ui/requests | ❌ упало 2 из 47 | 1 мин 13 с | 201d35e +13 | [лог](logs/2026-10-02T12-44-18Z-e2e-9aa9.log) | касса: соседние спеки финансов и бюджет запросов |
 | 02.10.2026 17:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reports-hub.spec.ts tests/ui/navigation.spec.ts --workers=1) | ❌ упало 1 из 14 | 24 с | 201d35e +13 | [лог](logs/2026-10-02T12-49-03Z-e2e-6166.log) | REP1 green: хаб /reports и навигация, перепрогон после правки утверждения |
 | 02.10.2026 17:49 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-f1.spec.ts --workers=1) | ✅ 9 из 9 | 16 с | 201d35e +14 | [лог](logs/2026-10-02T12-49-46Z-e2e-779b.log) | F1 под мобильную адаптацию 201d35e1: итоги столбиком |
+| 02.10.2026 18:01 | unit (частично: packages/domain/src/finance/cash.test.ts) | ❌ упало 2 из 10 | 1 с | 6a8d472 +2 | [лог](logs/2026-10-02T13-01-28Z-unit-f6f5.log) | red: сверка — функций домена нет |
+| 02.10.2026 18:01 | unit (частично: packages/domain/src/finance/cash.test.ts) | ✅ 10 из 10 | 1 с | 6a8d472 +3 | [лог](logs/2026-10-02T13-01-39Z-unit-d51b.log) | green: домен сверки |
+| 02.10.2026 18:02 | unit (частично: apps/api/src/finance/finance.controller.test.ts) | ❌ упало 3 из 27 | 2 с | 6a8d472 +4 | [лог](logs/2026-10-02T13-02-16Z-unit-4c02.log) | red: маршрута сверки нет |
+| 02.10.2026 18:04 | unit (частично: apps/api/src/finance/finance.controller.test.ts apps/api/src/auth/route-access.test.ts packages/domain/src/finance/cash.test.ts) | ✅ 39 из 39 | 2 с | 6a8d472 +12 | [лог](logs/2026-10-02T13-04-02Z-unit-2a6f.log) | green: сверка API |
+| 02.10.2026 18:04 | integration (частично: tests/integration/cash-operations.test.ts) | ✅ 4 из 4 | 2 с | 6a8d472 +12 | [лог](logs/2026-10-02T13-04-40Z-integration-dae9.log) | green: сверка на настоящей схеме |
+| 02.10.2026 18:06 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/finance-cash.spec.ts --workers=1) | ❌ код выхода 1 | 1 с | 6a8d472 +16 | [лог](logs/2026-10-02T13-06-07Z-e2e-2c5e.log) | red: сверки в UI ещё нет |
+| 02.10.2026 18:07 | typecheck | ❌ ошибок: 2 | 12 с | 6a8d472 +17 | [лог](logs/2026-10-02T13-07-03Z-typecheck-1c87.log) | сверка: API и клиент |
+| 02.10.2026 18:07 | lint | ✅ без ошибок | 23 с | 6a8d472 +17 | [лог](logs/2026-10-02T13-07-16Z-lint-120c.log) | сверка |
+| 02.10.2026 18:08 | typecheck | ✅ без ошибок | 11 с | 6a8d472 +17 | [лог](logs/2026-10-02T13-08-03Z-typecheck-a53e.log) | сверка: типы фикстуры |
+| 02.10.2026 18:15 | typecheck | ✅ без ошибок | 50 с | 6a8d472 +19 | [лог](logs/2026-10-02T13-15-23Z-typecheck-4398.log) | сверка: UI |
+| 02.10.2026 18:16 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 2 с | 6a8d472 +17 | [лог](logs/2026-10-02T13-16-15Z-unit-9d6b.log) | сверка: стили |

@@ -57,9 +57,10 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   // Политики — в миграции 20260927000030_platform_p1_business_location
   'businesses',
   'locations',
-  // Касса (DATA_MODEL §21): политики — в миграции 20261002000040_cashbox
+  // Касса (DATA_MODEL §21): политики — в миграциях 20261002000040_cashbox и …041
   'cash_categories',
   'cash_operations',
+  'cash_reconciliations',
 ];
 
 /**

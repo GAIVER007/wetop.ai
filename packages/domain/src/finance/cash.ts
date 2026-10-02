@@ -106,3 +106,23 @@ export function commissionFromPercent(amountMinor: bigint, percent: string): big
     throw new FinanceRuleError('Процент комиссии — больше нуля и не больше 100');
   return (amountMinor * hundredths) / 10_000n;
 }
+
+/** Сверка (§21.4): пересчитанная сумма не бывает отрицательной, способ — живые деньги кассы */
+export function assertCashReconciliation(input: { method: string; countedMinor: bigint }): void {
+  if (input.countedMinor < 0n)
+    throw new FinanceRuleError('Пересчитанная сумма не бывает отрицательной');
+  if (!isCash(input.method))
+    throw new FinanceRuleError(`Способ ${input.method} в кассе не участвует`);
+}
+
+/** Поправка по сверке: излишек — поступление, недостача — расход; совпало — поправки нет */
+export function reconciliationAdjustment(
+  expectedMinor: bigint,
+  countedMinor: bigint,
+): { kind: 'INCOME' | 'EXPENSE'; amountMinor: bigint } | null {
+  const delta = countedMinor - expectedMinor;
+  if (delta === 0n) return null;
+  return delta > 0n
+    ? { kind: 'INCOME', amountMinor: delta }
+    : { kind: 'EXPENSE', amountMinor: -delta };
+}

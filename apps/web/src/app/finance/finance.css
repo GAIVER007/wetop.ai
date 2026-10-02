@@ -515,3 +515,28 @@
     align-items: stretch;
   }
 }
+
+/* сверка кассы (§21.4): строка состояния под плитками и галочка поправки в панели */
+.cash-reconciliation-status {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--text-2);
+}
+.cash-reconciliation-status li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.cash-reconciliation-status .icon {
+  color: var(--muted);
+}
+.cash-adjust {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}

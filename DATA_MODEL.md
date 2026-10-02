@@ -2270,3 +2270,30 @@ model CashOperation {
 аннулируется вместе с основной; `EXTERNAL`, `DEPOSIT`, `CARD_GUARANTEE` в остатках кассы
 не участвуют (Q-237); RLS — как у остальных таблиц организации (§17). `payments`, `refunds`,
 `folios` не меняются. Открытые вопросы — Q-236…Q-239.
+
+### 21.4. Сверка наличных (K4 — утверждено владельцем 02.10.2026, «давай продолжай»; дополнение к ADR-134)
+
+Закрывает остаток Q-207 п. 2 («наличные требуют проверки»). Миграция `20261002000041_cash_reconciliations`.
+
+```prisma
+/// Пересчёт денег в кассе: снимок «по системе» и факт. Аннулирования нет — ошиблись, сверили заново
+model CashReconciliation {
+  id          String        @id @default(uuid()) @db.Uuid
+  propertyId  String        @map("property_id") @db.Uuid
+  method      PaymentMethod
+  /// остаток по системе в момент сверки, тиыны: потом не восстановить — операции сдвигают историю
+  expected    BigInt
+  /// фактически пересчитано, ≥ 0
+  counted     BigInt
+  note        String?
+  createdById String?       @map("created_by_id") @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+}
+```
+
+Правила: CHECK `counted >= 0`, способ — кассовый (как у операций: без `EXTERNAL`/`DEPOSIT`/
+`CARD_GUARANTEE`); RLS `rls_tenant`. Расхождение (`counted − expected`) не хранится; по галочке
+«выровнять поправкой» API той же транзакцией создаёт обычную `cash_operations`: излишек —
+INCOME «Излишек кассы», недостача — EXPENSE «Недостача кассы» (статьи создаются по требованию) —
+лента операций остаётся единственным источником движений. Право сверки — `desk` (сверяет смена).
+Кассовых смен (открытие/закрытие) по-прежнему нет — при необходимости отдельным решением.

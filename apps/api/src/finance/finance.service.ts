@@ -13,9 +13,11 @@ import {
   FinanceRuleError,
   assertAllocationsMatch,
   assertCashOperation,
+  assertCashReconciliation,
   assertRefundWithin,
   cashBalances,
   commissionFromPercent,
+  reconciliationAdjustment,
   folioBalance,
   parseMoney,
   stayExtraDefaultMinor,
@@ -173,12 +175,21 @@ export interface PeriodOperationsView {
   rows: OperationView[];
   truncated: boolean;
 }
-/** Остатки кассы по способам (§21) — за всё время, не за период; статьи — тем же ответом (бюджет запросов) */
+/** Остатки кассы по способам (§21) — за всё время, не за период; статьи и сверки — тем же ответом */
 export interface CashView {
   currency: string;
   totalMinor: string;
   balances: Array<{ method: string; balanceMinor: string }>;
   categories: CashCategoryView[];
+  /** последняя сверка по каждому способу (§21.4) */
+  reconciliations: Array<{
+    method: string;
+    at: string;
+    localAt: string;
+    expectedMinor: string;
+    countedMinor: string;
+    note: string | null;
+  }>;
 }
 export interface CashCategoryView {
   id: string;
@@ -510,9 +521,10 @@ export class FinanceService {
   // ── Касса (DATA_MODEL §21, план plans/finance-cashbox-2026-10-02.md) ─────────────────────────────
   /** Остатки по способам — за всё время: оплаты гостей − возвраты + касса. Валюта — валюта объекта */
   async cash(): Promise<CashView> {
-    const [src, categories] = await Promise.all([
+    const [src, categories, reconciliations] = await Promise.all([
       this.repo.cashBalanceSources(),
       this.repo.cashCategories(),
+      this.repo.latestCashReconciliations(),
     ]);
     const b = cashBalances(src);
     return {
@@ -520,7 +532,66 @@ export class FinanceService {
       totalMinor: s(b.totalMinor),
       balances: b.balances.map((x) => ({ method: x.method, balanceMinor: s(x.balanceMinor) })),
       categories,
+      reconciliations: reconciliations.map((r) => ({
+        method: r.method,
+        at: r.at,
+        localAt: r.localAt,
+        expectedMinor: s(r.expectedMinor),
+        countedMinor: s(r.countedMinor),
+        note: r.note,
+      })),
     };
+  }
+
+  /**
+   * Сверка кассы (§21.4): снимок «по системе» на момент пересчёта и факт; по галочке расхождение
+   * выравнивается обычной операцией кассы той же транзакцией — лента остаётся единственным источником движений.
+   */
+  async createCashReconciliation(dto: {
+    method?: string;
+    counted?: string | number;
+    note?: string | null;
+    adjust?: boolean;
+  }): Promise<CashView> {
+    const method = dto.method ?? 'CASH';
+    if (!PAYMENT_METHODS.includes(method as PaymentMethod))
+      throw new BadRequestException(`method — один из ${PAYMENT_METHODS.join(', ')}`);
+    const countedMinor = money(dto.counted, 'counted');
+    rule(() => assertCashReconciliation({ method, countedMinor }));
+    if (dto.adjust !== undefined && typeof dto.adjust !== 'boolean')
+      throw new BadRequestException('adjust — true или false');
+    const balances = cashBalances(await this.repo.cashBalanceSources());
+    const expectedMinor =
+      balances.balances.find((b) => b.method === method)?.balanceMinor ?? 0n;
+    const delta = dto.adjust ? reconciliationAdjustment(expectedMinor, countedMinor) : null;
+    const adjustment =
+      delta === null
+        ? null
+        : {
+            ...delta,
+            categoryName: delta.kind === 'INCOME' ? 'Излишек кассы' : 'Недостача кассы',
+          };
+    const note = freeTextForStorage(dto.note?.trim() || null);
+    await lockedWrite(
+      this.repo.createCashReconciliation(
+        { method: method as PaymentMethod, expectedMinor, countedMinor, note, adjustment },
+        {
+          entityType: 'CashReconciliation',
+          action: 'finance.cash.reconciliation',
+          idField: 'reconciliationId',
+          after: {
+            method,
+            expectedMinor: s(expectedMinor),
+            countedMinor: s(countedMinor),
+            ...(adjustment
+              ? { adjustment: { kind: adjustment.kind, amountMinor: s(adjustment.amountMinor) } }
+              : {}),
+            ...(note === null ? {} : { note: maskContacts(note) }),
+          },
+        },
+      ),
+    );
+    return this.cash();
   }
 
   async createCashCategory(dto: { kind?: string; name?: string }): Promise<CashCategoryView[]> {

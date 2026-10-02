@@ -170,3 +170,47 @@ for (const theme of ['light', 'dark'] as const) {
     await page.screenshot({ path: `${report}/${theme}-390-cash.png`, fullPage: true });
   });
 }
+
+test('сверка (§21.4): «по системе» в панели, недостача поправкой, строка состояния и лента', async ({
+  page,
+}) => {
+  await page.goto(url);
+  await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+  const was = await tenge(page, 'cash-CASH');
+  await expect(page.getByTestId('finance-cash')).toContainText('не сверялись');
+  await page.getByTestId('cash-reconcile-btn').click();
+  const form = page.getByTestId('cash-reconcile-form');
+  // «по системе» показывает текущий остаток выбранного способа (группировка formatMoney — обычный пробел)
+  await expect(form.getByTestId('cash-expected')).toContainText(
+    String(was).replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+  );
+  await form.getByTestId('cash-counted').fill(String(was - 500));
+  await form.getByRole('button', { name: 'Записать сверку' }).click();
+  await expect(page.getByTestId('cash-saved')).toContainText('Сверка записана');
+  // поправка выровняла остаток, строка состояния — о последней сверке
+  expect(await tenge(page, 'cash-CASH')).toBe(was - 500);
+  const status = page.getByTestId('cash-reconciliation-status');
+  await expect(status).toContainText('Наличные');
+  await expect(status).toContainText('−500');
+  // поправка видна в ленте кассы со статьёй «Недостача кассы»
+  await page.getByTestId('cash-ops-link').click();
+  const fee = page.getByTestId('op-row').filter({ hasText: 'Недостача кассы' });
+  await expect(fee).toHaveCount(1);
+  await expect(fee.getByTestId('op-amount')).toHaveText(/^−/);
+});
+
+test('сверка без галочки поправки: остаток не меняется, расхождение видно в строке состояния', async ({
+  page,
+}) => {
+  await page.goto(url);
+  await page.getByRole('tab', { name: 'Касса', exact: true }).click();
+  const was = await tenge(page, 'cash-CASH');
+  await page.getByTestId('cash-reconcile-btn').click();
+  const form = page.getByTestId('cash-reconcile-form');
+  await form.getByLabel('Выровнять остаток поправкой').uncheck();
+  await form.getByTestId('cash-counted').fill(String(was + 70));
+  await form.getByRole('button', { name: 'Записать сверку' }).click();
+  await expect(page.getByTestId('cash-saved')).toContainText('Сверка записана');
+  expect(await tenge(page, 'cash-CASH')).toBe(was);
+  await expect(page.getByTestId('cash-reconciliation-status')).toContainText('+70');
+});

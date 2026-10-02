@@ -32,7 +32,7 @@ const shot = (page: Page, name: string) =>
 
 const menuLinks = (page: Page) =>
   page
-    .locator('.workspace-sidebar .workspace-links a')
+    .locator('.workspace-header .topmenu a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
 
 test('меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора', async ({
@@ -47,8 +47,8 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   await signIn(page);
   await expect.poll(() => menuLinks(page)).toContain('/ai-agents');
   expect(await menuLinks(page)).not.toContain('/platform');
-  // вместо «Администратор» — кто вошёл и его роль
-  const footer = page.locator('.workspace-sidebar .workspace-footer');
+  // вместо «Администратор» — кто вошёл и его роль: подпись кнопки профиля в шапке (ADR-134)
+  const footer = page.locator('.workspace-header .profile-caption');
   await expect(footer).toContainText('Дана Тестова');
   await expect(footer).toContainText('Владелец');
 
@@ -57,18 +57,21 @@ test('меню: «ИИ-агенты» — всегда (ADR-090), «Платфо
   await expect.poll(() => menuLinks(page)).toContain('/platform');
   // расширение выключено, а пункт остаётся (ADR-090): закрытый доступ объясняет сам раздел
   expect(await menuLinks(page)).toContain('/ai-agents');
-  await expect(page.locator('.workspace-sidebar .sidebar-section-toggle')).toHaveText([
-    'Работа с гостями',
+  await expect(page.locator('.workspace-header .topmenu__tab')).toHaveText([
+    'Главная',
+    'Шахматка',
+    'Брони',
+    'Гости',
     'Номерной фонд',
     'Продажи',
-    'Финансы и отчёты',
+    'Финансы',
+    'Аналитика',
     'Настройки',
-    'Контроль',
     'Платформа',
   ]);
   await expect(footer).toContainText('Владелец · главный администратор');
   await page
-    .locator('.workspace-sidebar')
+    .locator('.workspace-header')
     .getByRole('button', { name: 'Платформа', exact: true })
     .click();
   await shot(page, 'menu-platform-admin');
@@ -148,7 +151,7 @@ test('администратор: вместо настроек продавца
   await expect(main.getByTestId('seller-dialog-card').getByTestId('dialog-reply')).toBeVisible();
   await expect(main.getByTestId('seller-dialog-card').getByTestId('dialog-takeover')).toBeVisible();
 
-  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Администратор');
+  await expect(page.locator('.workspace-header .profile-caption')).toContainText('Администратор');
   await page.goto('/auth/fallback');
   await expect(page.getByTestId('invite-not-allowed')).toHaveText(
     'Приглашать сотрудников могут владелец и управляющий.',

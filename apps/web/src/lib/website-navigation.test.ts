@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import nextConfig from '../../next.config';
-import { CLOSED_ACCESS, activeNavigation, navigationItems, sidebarSectionsFor } from './navigation';
+import { CLOSED_ACCESS, activeNavigation, navigationItems, menuSectionsFor } from './navigation';
 
 describe('сайт в меню — одно место (ADR-117)', () => {
-  const sections = sidebarSectionsFor(CLOSED_ACCESS);
+  const sections = menuSectionsFor(CLOSED_ACCESS);
   const hrefs = sections.flatMap((section) => section.items.map((item) => item.href));
 
   it('«Сайт и онлайн-бронирование» — в «Продажах»', () => {

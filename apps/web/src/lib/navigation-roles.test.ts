@@ -10,7 +10,7 @@ import {
   navigationItems,
   pageOpen,
   routeRule,
-  sidebarSectionsFor,
+  menuSectionsFor,
   type NavigationAccess,
 } from './navigation';
 
@@ -25,8 +25,8 @@ const access = (role: NavigationAccess['role'], platform = false): NavigationAcc
   role,
 });
 const hrefs = (a: NavigationAccess) =>
-  sidebarSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
-const everything = sidebarSectionsFor(access(null, true)).flatMap((s) =>
+  menuSectionsFor(a).flatMap((s) => s.items.map((i) => i.href));
+const everything = menuSectionsFor(access(null, true)).flatMap((s) =>
   s.items.map((i) => i.href),
 );
 
@@ -45,8 +45,10 @@ describe('меню по ролям', () => {
       '/finance',
       '/management/analytics',
     ]);
-    expect(sidebarSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
+    expect(menuSectionsFor(access('STAFF')).map((s) => s.id)).toEqual([
       'home',
+      'chessboard',
+      'reservations',
       'guests',
       'sales',
       'finance',

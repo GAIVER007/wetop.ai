@@ -282,12 +282,12 @@ export const navigationItems = navigation.flatMap((group) =>
   group.items.flatMap((item) => [item, ...(item.children ?? [])]),
 );
 
-export interface SidebarSection {
+export interface MenuSection {
   id: string;
   label: string;
   icon: IconName;
   items: NavigationItem[];
-  /** Раздел из одного пункта: в меню — прямая ссылка без раскрывашки (ADR-108) */
+  /** Раздел из одного пункта: вкладка в шапке и прямая ссылка в меню телефона без раскрывашки (ADR-108) */
   direct?: boolean;
 }
 
@@ -299,21 +299,22 @@ function menuItem(href: string, label?: string): NavigationItem {
   return label ? { ...item, label } : item;
 }
 
-export const sidebarSections: SidebarSection[] = [
-  { id: 'home', label: 'Главная', icon: 'today', direct: true, items: [menuItem('/today')] },
-  {
-    id: 'guests',
-    label: 'Работа с гостями',
-    icon: 'guests',
-    items: ['/chessboard', '/reservations', '/guests'].map((href) => menuItem(href)),
-  },
-  {
-    id: 'inventory',
-    label: 'Номерной фонд',
-    icon: 'bed',
-    direct: true,
-    items: [menuItem('/inventory')],
-  },
+function direct(id: string, href: string, icon: IconName, label?: string): MenuSection {
+  const item = menuItem(href, label);
+  return { id, label: item.label, icon, direct: true, items: [item] };
+}
+
+/**
+ * Разделы стойки в порядке строки вкладок (ADR-134): на компьютере строка в шапке, на телефоне и планшете
+ * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони, Гости) одним щелчком; группы с несколькими
+ * экранами («Продажи», «Настройки», «Платформа») раскрывают список.
+ */
+export const menuSections: MenuSection[] = [
+  direct('home', '/today', 'today'),
+  direct('chessboard', '/chessboard', 'board'),
+  direct('reservations', '/reservations', 'booking'),
+  direct('guests', '/guests', 'guests'),
+  direct('inventory', '/inventory', 'bed'),
   {
     id: 'sales',
     label: 'Продажи',
@@ -325,20 +326,8 @@ export const sidebarSections: SidebarSection[] = [
       menuItem('/website'),
     ],
   },
-  {
-    id: 'finance',
-    label: 'Финансы',
-    icon: 'money',
-    direct: true,
-    items: [menuItem('/finance', 'Финансы')],
-  },
-  {
-    id: 'analytics',
-    label: 'Аналитика',
-    icon: 'analytics',
-    direct: true,
-    items: [menuItem('/management/analytics')],
-  },
+  direct('finance', '/finance', 'money', 'Финансы'),
+  direct('analytics', '/management/analytics', 'analytics'),
   {
     id: 'settings',
     label: 'Настройки',
@@ -357,6 +346,11 @@ export const sidebarSections: SidebarSection[] = [
     items: [menuItem('/platform'), menuItem('/platform/support')],
   },
 ];
+
+/** Нижняя панель телефона: первые четыре вкладки (работа смены) и кнопка «Ещё» (ADR-050, ADR-134) */
+export const phoneNavigation: NavigationItem[] = menuSections
+  .slice(0, 4)
+  .map((section) => section.items[0]!);
 
 /** Есть ли у вошедшего право. Никто не вошёл — открыто: так же поступает API (ADR-107) */
 export function mayAccess(access: NavigationAccess, permission: Permission): boolean {
@@ -410,8 +404,8 @@ export function routeRule(
 }
 
 /** Меню вошедшего: закрытые пункты убраны, раздел без пунктов не показывается */
-export function sidebarSectionsFor(access: NavigationAccess): SidebarSection[] {
-  return sidebarSections
+export function menuSectionsFor(access: NavigationAccess): MenuSection[] {
+  return menuSections
     .map((section) => ({
       ...section,
       items: section.items.filter((item) => allowedItem(item, access)),
@@ -436,6 +430,19 @@ export function deskAccessOf(
     platform: me.user.platformAdmin === true,
     role: (me.user.role && parseMembershipRole(me.user.role)) || 'STAFF',
   };
+}
+
+/**
+ * Какой пункт меню подсвечен на этом адресе: вкладки модулей не пункты меню, активен их корень
+ * («Настройки объекта» ADR-115, «Номерной фонд» ADR-108, «Каналы продаж» ADR-112)
+ */
+export function activeMenuRoute(path: string): string | undefined {
+  const route = activeNavigation(path)?.href;
+  if (!route) return undefined;
+  if (route.startsWith('/hotel-settings')) return '/hotel-settings';
+  if (route.startsWith('/rooms')) return '/inventory';
+  if (route.startsWith('/channels')) return '/channels';
+  return route;
 }
 
 /** Страницы агентов лежат под своими адресами, но в меню это один пункт «ИИ-агенты» */

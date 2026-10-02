@@ -109,13 +109,14 @@ test('все разделы, карточки и печать открывают
   }
   await page.goto(`/reservations/${booking}/print?lang=ru`);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Регистрационная карта');
-  await expect(page.locator('.workspace-sidebar')).toHaveCount(0);
+  await expect(page.locator('.workspace-header')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
 test('вложенные разделы: раскрытие, один активный пункт, мобильный переход', async ({ page }) => {
   await page.goto('/today');
-  const sidebar = page.locator('.workspace-sidebar');
+  // строка разделов в шапке (ADR-134): группа «Продажи» раскрывает список под вкладкой
+  const sidebar = page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });
   const sales = sidebar.getByRole('button', { name: 'Продажи', exact: true });
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
   // страница ещё стримится, и клик до гидратации кнопки теряется — повторяем, как в real-data.spec
@@ -123,11 +124,13 @@ test('вложенные разделы: раскрытие, один актив
     await sales.click();
     await expect(sales).toHaveAttribute('aria-expanded', 'true', { timeout: 1500 });
   }).toPass({ timeout: 15_000 });
-  await sidebar.getByRole('link', { name: 'Тарифы', exact: true }).click();
+  await sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true }).click();
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы');
-  await sales.click();
-  await expect(sidebar.getByRole('link', { name: 'Тарифы', exact: true })).not.toBeVisible();
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Тарифы и цены');
+  // переход закрывает список; вкладка группы помечена текущим экраном
+  await expect(sales).toHaveAttribute('aria-expanded', 'false');
+  await expect(sales).toHaveClass(/has-current-page/);
+  await expect(sidebar.getByRole('link', { name: 'Тарифы и цены', exact: true })).not.toBeVisible();
   // «Номерной фонд» — прямая ссылка без раскрывашки (ADR-108); вкладки страницы подсвечивают его пункт
   await page.goto('/rooms/categories');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Категории номеров');
@@ -139,7 +142,7 @@ test('вложенные разделы: раскрытие, один актив
   await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Сайт и онлайн-бронирование');
   await page.goto('/connections');
   await expect(sidebar.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Интеграции');
+  await expect(sidebar.locator('[aria-current="page"]')).toHaveText('Подключения');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });

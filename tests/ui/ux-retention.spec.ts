@@ -27,8 +27,8 @@ test('пробный период виден в меню на рабочих э�
   request,
 }) => {
   await signIn(page);
-  const line = page.locator('.workspace-sidebar').getByTestId('trial-line');
-  await expect(page.locator('.workspace-sidebar .workspace-footer')).toContainText('Дана Тестова');
+  const line = page.locator('.workspace-header').getByTestId('trial-line');
+  await expect(page.locator('.workspace-header .profile-caption')).toContainText('Дана Тестова');
   await expect(line).toHaveCount(0);
 
   await control(request, { orgTrialDays: 7 });

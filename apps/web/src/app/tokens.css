@@ -67,14 +67,14 @@
   --radius-lg: 20px;
   --radius-full: 999px;
   --control-h: 38px;
-  --sidebar-w: 232px;
-  --header-h: 72px;
-  --topbar-h: 72px; /* устарел */
+  --header-h: 100px;
+  --header-row-h: 56px;
+  --header-menu-h: 44px;
+  --topbar-h: 100px; /* устарел */
   --control-h-sm: 30px;
   --control-h-xs: 24px;
   --touch-target: 44px;
   --target-min: 24px;
-  --sidebar-w-collapsed: 76px;
   --icon-size: 20px;
   --icon-size-sm: 16px;
   --space-1: 4px;

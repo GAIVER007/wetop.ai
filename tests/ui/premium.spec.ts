@@ -25,11 +25,8 @@ test('темы: system, мгновенное переключение, сохр�
 });
 test('shell: панель, меню профиля, поиск', async ({ page }) => {
   await page.goto('/today');
-  await page.getByRole('button', { name: 'Свернуть панель' }).click();
-  await expect(page.locator('.workspace')).toHaveClass(/is-collapsed/);
-  await page.reload();
-  await expect(page.locator('.workspace')).toHaveClass(/is-collapsed/);
-  await page.getByRole('button', { name: 'Развернуть панель' }).click();
+  // панели слева нет (ADR-134): разделы в шапке, сворачивать нечего
+  await expect(page.locator('.workspace-header .topmenu__tab').first()).toHaveText('Главная');
   await page.getByRole('button', { name: 'Меню администратора' }).click();
   await expect(page.getByRole('link', { name: 'Профиль и предпочтения' })).toBeVisible();
   await page.keyboard.press('Escape');

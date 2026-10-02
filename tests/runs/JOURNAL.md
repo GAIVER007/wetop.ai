@@ -5130,3 +5130,4 @@
 | 02.10.2026 21:17 | unit | ✅ 2792 из 2795, пропущено 3 | 1 мин 28 с | 1ec86f1 +1 | [лог](logs/2026-10-02T16-17-23Z-unit-993c.log) |  |
 | 02.10.2026 21:18 | typecheck | ✅ без ошибок | 33 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-18-57Z-typecheck-2c24.log) |  |
 | 02.10.2026 21:19 | lint | ✅ без ошибок | 18 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-19-31Z-lint-b54a.log) |  |
+| 02.10.2026 21:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts  | ❌ упало 11 из 188 | 18 мин 41 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-20-20Z-e2e-2452.log) | green второй партии: переименования, степпер, вкладки финансов, месяц 8px, очередь за кнопкой |

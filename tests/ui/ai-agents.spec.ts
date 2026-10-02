@@ -35,8 +35,9 @@ test('партнёр: пункт меню «ИИ-агенты», на входе
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавцы');
   const seller = page.getByTestId('agent-seller');
   await expect(seller).toContainText('AI-продавец');
-  await expect(seller).toContainText('Продажи');
-  await expect(seller).toContainText('Hospitality');
+  // карточка пересобрана (89b2474): вместо меток «Продажи»/«Hospitality» — Business · Location и каналы
+  await expect(seller).toContainText('Сеть Тест');
+  await expect(seller).toContainText('Алматы');
   await expect(page.getByTestId('agent-support')).toHaveCount(0);
   await expect(page.getByText('WETOP Support')).toHaveCount(0);
   await seller.getByRole('link', { name: 'Открыть' }).click();
@@ -189,8 +190,8 @@ test('каталог не загрузился: экран остаётся, в�
   await expect(failure).toContainText('Не удалось загрузить агентов');
   await expect(failure.getByRole('button', { name: /Повторить/ })).toBeVisible();
   await expect(page.getByTestId('agent-seller')).toHaveCount(0);
-  // соседний агент платформы не зависит от каталога партнёра
-  await expect(page.getByTestId('agent-support')).toBeVisible();
+  // карточки WETOP Support в каталоге больше нет (89b2474): вход администратора — с /ai-seller
+  await expect(page.getByTestId('agent-support')).toHaveCount(0);
 });
 
 test('сотрудник смены видит список; кнопка создания видна, неактивна, причина про роль', async ({

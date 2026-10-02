@@ -118,8 +118,9 @@ test('одно окно: «Сохранить и применить» — сле
   );
   await expect(instruction(page)).toHaveValue(/Парковки нет, рядом городская\./);
   await expect(page.getByTestId('seller-prompt-state')).toContainText('Применено');
+  // слова метки обновлены доводкой настройки (260ba7b): «настройки применены»
   await expect(page.getByTestId('seller-state')).toContainText(
-    'Продавец работает с текущими настройками',
+    'Инструкция и данные переданы продавцу',
   );
   await expect(page.getByTestId('seller-checklist-prompt')).toHaveAttribute('data-state', 'done');
   await expect(page.getByTestId('seller-checklist')).toContainText('До запуска — 1 шаг');
@@ -208,6 +209,7 @@ test('продавец не подключён — чек-лист зовёт п
   );
   await page.goto('/ai-seller/connections');
   await expect(page.getByTestId('seller-llm-key-offline')).toBeVisible();
+  await openConnection(page, 'WhatsApp');
   await expect(page.getByTestId('seller-whatsapp-offline')).toBeVisible();
 });
 

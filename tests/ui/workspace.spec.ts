@@ -369,13 +369,16 @@ test('ошибка создания сохраняет ввод; повтор о
   await expect(form.locator('[name="unitCode"]')).toHaveValue('M03');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await form.getByRole('button', { name: 'Создать бронь' }).click();
-  await expect(page).toHaveURL(/\/reservations\/20260913-NEW2$/);
+  // номер даёт фикстура по длине журнала команд, а в журнале теперь и POST /reservations/quote
+  // компактной формы: ровно два создания проверяем по самому журналу, номер не зашиваем
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
   await expect(page.getByTestId('stay-row')).toContainText('M03');
   await expect(page.getByRole('main')).toContainText('Тестович');
   const response = await request.get(`${fixture}/__test/commands`);
-  const commands = await response.json();
-  expect(commands).toHaveLength(2);
-  expect(commands[1].body).toMatchObject({
+  const commands = (await response.json()) as Array<{ path: string; body: object }>;
+  const creates = commands.filter((c) => c.path === '/reservations');
+  expect(creates).toHaveLength(2);
+  expect(creates[1]!.body).toMatchObject({
     guest: { email: 'new@example.invalid', middleName: 'Тестович' },
     items: [{ accommodationTypeCode: 'MALE', unitCode: 'M03', quantity: 1 }],
   });
@@ -557,8 +560,9 @@ test('сбой списка неисправностей не выдаётся �
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {
   await page.goto('/reservations/new?arrival=bad-date');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
-  // ошибка даты стоит у самого поля (booking-compact), а не общей строкой
-  await expect(page.getByRole('alert').filter({ hasText: 'Введите корректную дату' })).toBeVisible();
+  // ошибка даты стоит у самого поля (booking-compact), а не общей строкой; битый заезд делает
+  // некорректным и выезд — алертов два, проверяем поле заезда
+  await expect(page.locator('#booking-arrival-error')).toHaveText('Введите корректную дату');
   await expect(page.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
 });
 
@@ -1097,6 +1101,8 @@ test('кнопки называют своё действие: гость зав
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
+  // список долгов с кнопками оплаты — на вкладке «Долги» финансов
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))

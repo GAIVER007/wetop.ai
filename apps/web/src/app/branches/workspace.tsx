@@ -54,11 +54,11 @@ export async function BranchWorkspace({
               <h2>{item.name}</h2>
               <p>{item.address || 'Адрес пока не указан'}</p>
               <p>
-                {item._count.inventoryUnits} номеров и коек · {item._count.accommodationTypes}{' '}
+                {item._count.inventoryUnits} номеров и коек, {item._count.accommodationTypes}{' '}
                 категорий
               </p>
               <p>
-                {item.currency} · {item.timezone}
+                Валюта {item.currency}, часовой пояс {item.timezone}
               </p>
               <p className="muted" style={{ overflowWrap: 'anywhere' }}>
                 <small>ID филиала: {item.locationId}</small>

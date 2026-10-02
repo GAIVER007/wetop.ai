@@ -125,7 +125,7 @@ test('обзор подключённого сайта: домен, счётчи
 test('«Интеграции» больше не показывают сайт', async ({ page }) => {
   await page.goto('/connections');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(main).not.toContainText('Сайт и бронирования');
   await expect(main.locator('a[href^="/website"], a[href^="/analytics"]')).toHaveCount(0);
 });

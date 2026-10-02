@@ -118,10 +118,20 @@ export default async function AiSellerPage({
         </Suspense>
       }
       actions={
-        configure ? (
-          <Link className="btn btn--secondary" href="/ai-agents">
-            Все агенты
-          </Link>
+        configure || access.platform ? (
+          <Row>
+            {/* переключатель агентов: техподдержка WETOP живёт рядом с продавцом, пункта меню у неё нет */}
+            {access.platform && (
+              <Link className="btn btn--secondary" href="/platform/support">
+                Техподдержка
+              </Link>
+            )}
+            {configure && (
+              <Link className="btn btn--secondary" href="/ai-agents">
+                Все агенты
+              </Link>
+            )}
+          </Row>
         ) : undefined
       }
     >

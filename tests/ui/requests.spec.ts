@@ -49,7 +49,8 @@ for (const screen of [
   '/management/analytics/occupancy',
   '/finance',
   '/channels',
-  '/channels/connections',
+  // «Подключения» каналов — redirect() на страницу настроек Channex (INT2): считается сам целевой экран
+  '/connections/channex',
   '/channels/mapping',
   '/channels/sync',
   '/channels/events',

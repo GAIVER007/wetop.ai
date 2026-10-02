@@ -337,6 +337,8 @@ export const menuSections: MenuSection[] = [
       menuItem('/staff', 'Сотрудники и доступ'),
       menuItem('/connections', 'Подключения'),
       menuItem('/journal', 'Журнал действий'),
+      // право `desk`: администратор видит неисправности (ADR-107) — для него группа сводится к этому пункту
+      menuItem('/incidents'),
     ],
   },
   {

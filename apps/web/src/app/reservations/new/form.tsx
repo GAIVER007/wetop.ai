@@ -42,6 +42,12 @@ export function NewReservationForm(props: {
   const [availabilityError, setAvailabilityError] = useState('');
   const [checking, setChecking] = useState(false);
   const [retry, setRetry] = useState(0);
+  // сервер уже проверил даты из пропсов при рендере формы — тот же рейс из браузера не повторяется
+  const lastChecked = useRef(
+    props.initialAvailability
+      ? `${props.initialAvailability.arrivalDate} ${props.initialAvailability.departureDate} 0`
+      : '',
+  );
   const arrivalError = isStayDate(arrival) ? '' : 'Введите корректную дату';
   const departureError = !isStayDate(departure)
     ? 'Введите корректную дату'
@@ -55,10 +61,13 @@ export function NewReservationForm(props: {
     availability?.departureDate === departure;
   useEffect(() => {
     if (!validDates) return;
+    const key = `${arrival} ${departure} ${retry}`;
+    if (lastChecked.current === key) return;
     let active = true;
     setChecking(true);
     setAvailabilityError('');
     const timer = window.setTimeout(() => {
+      lastChecked.current = key;
       void checkBookingAvailability(arrival, departure)
         .then((result) => {
           if (!active) return;

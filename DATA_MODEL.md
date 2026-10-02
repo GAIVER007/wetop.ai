@@ -2210,3 +2210,62 @@ UNIQUE(agent_id, update_id). Сохранение события предшес�
 Политика хранения соответствует политике переписки бота; отдельный произвольный срок не вводится.
 Источник Reservation и финансовые правила не меняются. Реализация/test DB — после утверждения;
 production migration — отдельные backup/validation/rollback и разрешение.
+
+## 21. Касса: операции мимо счетов гостей, переводы, статьи (ПРЕДЛОЖЕНИЕ 02.10.2026 — НЕ УТВЕРЖДЕНО)
+
+Поручение владельца 02.10.2026 (снимки кассы старой системы); закрывает «F2 касса» из Q-207 п. 2
+в части операций и остатков — кассовые смены и сверка наличных сюда **не входят** (отдельный ADR).
+План — `plans/finance-cashbox-2026-10-02.md`. Код и миграции — только после «утверждаю».
+
+Принцип: гостевые оплаты в кассу не дублируются. Остаток по способу оплаты вычисляется:
+Σ `payments` COMPLETED по способу − Σ `refunds` (по способу платежа) + поступления кассы
+− расходы − переводы-откуда + переводы-куда. Валюта — валюта объекта.
+
+```prisma
+enum CashOperationKind { INCOME EXPENSE TRANSFER }
+
+/// Статья кассы: справочник объекта. Удаления нет — архив через active (как Service).
+model CashCategory {
+  id         String            @id @default(uuid()) @db.Uuid
+  propertyId String            @map("property_id") @db.Uuid
+  kind       CashOperationKind // INCOME или EXPENSE; у TRANSFER статей нет
+  name       String
+  active     Boolean           @default(true)
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([propertyId, kind, name])
+  @@map("cash_categories")
+}
+
+/// Движение денег мимо счетов гостей: поступление, расход, перевод между способами.
+model CashOperation {
+  id          String            @id @default(uuid()) @db.Uuid
+  propertyId  String            @map("property_id") @db.Uuid
+  kind        CashOperationKind
+  method      PaymentMethod     // для TRANSFER — «откуда»
+  methodTo    PaymentMethod?    @map("method_to") // только TRANSFER — «куда»
+  /// integer minor units (тиын), ADR-008; > 0
+  amount      BigInt
+  categoryId  String?           @map("category_id") @db.Uuid // статья INCOME/EXPENSE
+  note        String?
+  relatedId   String?           @map("related_id") @db.Uuid // комиссия → своя операция/перевод
+  status      PaymentStatus     @default(COMPLETED) // VOIDED — аннулирование; прошлое не правится
+  occurredAt  DateTime          @map("occurred_at") @db.Timestamptz(6)
+  createdById String?           @map("created_by_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  property Property      @relation(fields: [propertyId], references: [id])
+  category CashCategory? @relation(fields: [categoryId], references: [id])
+
+  @@index([propertyId, occurredAt])
+  @@map("cash_operations")
+}
+```
+
+Правила (детали — план §3): начальный остаток — поступление со служебной статьёй
+«Начальный остаток»; комиссия — связанный расход (`relatedId`) одной транзакцией, в базе
+только сумма целыми тиынами; аннулирование — `status = VOIDED` с записью в журнал, комиссия
+аннулируется вместе с основной; `EXTERNAL`, `DEPOSIT`, `CARD_GUARANTEE` в остатках кассы
+не участвуют (Q-237); RLS — как у остальных таблиц организации (§17). `payments`, `refunds`,
+`folios` не меняются. Открытые вопросы — Q-236…Q-239.

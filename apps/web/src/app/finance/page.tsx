@@ -1057,7 +1057,9 @@ function MoneyTable({
             data-testid="report-row"
             className={x.count === 0 ? 'finance-row--zero' : undefined}
           >
-            <td>{x.href ? <Link href={x.href}>{x.label}</Link> : x.label}</td>
+            {/* обычный <a>, не Link: переход тем же адресом с новым hash — фрагментный, он рождает
+                hashchange, и вкладки workspace его слышат; pushState роутера события не даёт */}
+            <td>{x.href ? <a href={x.href}>{x.label}</a> : x.label}</td>
             <td className="num">{x.count}</td>
             <td className="num">{formatMoney(x.amountMinor, cur)}</td>
           </tr>

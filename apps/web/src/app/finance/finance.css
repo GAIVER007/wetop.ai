@@ -343,6 +343,8 @@
 }
 .finance-tabs {
   display: flex;
+  /* вкладок пять (REP2 добавил «Услуги»): на телефоне ряд переносится, а не выталкивает экран вбок */
+  flex-wrap: wrap;
   gap: 4px;
   margin-bottom: 16px;
 }

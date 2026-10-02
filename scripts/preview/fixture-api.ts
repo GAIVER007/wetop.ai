@@ -3338,12 +3338,12 @@ function read(path: string, q: URLSearchParams): unknown {
         { category: 'Двухместный номер', count: 3, amountMinor: '2400000' },
       ],
     };
-  // REP2: отчёт по услугам — суммы согласованы со строкой SERVICE сводки выше
-  if (path === '/finance/services-report')
+  // REP2: отчёт по услугам — суммы согласованы со строкой SERVICE сводки выше; без броней услуг нет
+  if (path === '/finance/services-report') {
+    const base = { from: q.get('from'), to: q.get('to'), currency: 'KZT' };
+    if (noBookings) return { ...base, count: 0, totalMinor: '0', rows: [] };
     return {
-      from: q.get('from'),
-      to: q.get('to'),
-      currency: 'KZT',
+      ...base,
       count: 3,
       totalMinor: '450000',
       rows: [
@@ -3358,6 +3358,7 @@ function read(path: string, q: URLSearchParams): unknown {
         { code: null, name: null, group: null, charges: 1, quantity: 1, amountMinor: '150000' },
       ],
     };
+  }
   if (path === '/finance/operations') {
     // Как у API (ADR-113 F2; касса — §21): общая лента — оплаты и возвраты из счетов броней плюс операции
     // кассы, день и время — по часам объекта (UTC+5), новыми первыми; отборы — по типу, способу и источнику

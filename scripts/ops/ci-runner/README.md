@@ -84,7 +84,9 @@ cd /root/wetop && docker compose -f scripts/ops/ci-runner/compose.yml up -d --bu
   проверяет это руками. Отдельная машина под раннер вместо боевого сервера: позже;
 - нет сокета Docker, нет путей хоста, нет `.env` боевой PMS — только свой том;
 - `no-new-privileges`, потолки 3 ГБ памяти и 1,5 процессора, чтобы браузерные проверки не душили стойку;
-- раннер работает не от root: `playwright install --with-deps` зовёт apt через sudo внутри контейнера.
+- раннер работает не от root, sudo в образе нет: под `no-new-privileges` он не работает. Библиотеки и шрифты Chromium
+  для Playwright ставятся при сборке образа, задачи зовут `playwright install chromium` без `--with-deps` (03.10.2026:
+  с `--with-deps` все части UI падали на sudo).
 
 ## Критерий готовности
 

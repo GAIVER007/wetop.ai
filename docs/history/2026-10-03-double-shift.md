@@ -34,6 +34,19 @@
 8 падений вне правки, те же, что на нетронутом main (нет папки `tests/e2e` в облачном дереве, `server-bootstrap` под
 root).
 
+**Первый настоящий прогон на своём раннере (main 4987106e) показал ещё две причины красного.** (1) Все три части UI и
+проверка главной падали за две секунды на `npx playwright install --with-deps chromium`: «The "no new privileges" flag
+is set, which prevents sudo from running as root» (лог задачи UI 1/3). Раннер работает под `no-new-privileges`, sudo
+в нём не работает в принципе. Теперь библиотеки и шрифты Chromium ставятся при сборке образа раннера от root (список
+`playwright install-deps chromium` 1.63 для Ubuntu 24.04, тест сверяет его с самим Playwright), задачи зовут
+`playwright install chromium` без `--with-deps`, sudo из образа убран. (2) lint на main красный из-за правки REP3
+другой сессии: `UnitStats` импортирован и не используется (`apps/web/src/app/management/analytics/units/units.tsx`),
+импорт снят. Проверено на дереве main 4987106e с этой веткой: red `tests/runs/logs/2026-10-03T10-39-04Z-unit-ecf5.log`
+(2 из 18), green `…10-39-12Z-unit-0631.log` 58 из 58, lint `…10-39-23Z-lint-4c63.log` и typecheck
+`…10-39-47Z-typecheck-8292.log` чисто, весь unit `…10-40-24Z-unit-5d88.log` 2965 из 2967: два падения
+`server-bootstrap` под root, те же, что на main без ветки. Задача `миграции · integration · e2e` (раннер GitHub) на main
+тоже красная; в обязательные проверки release она не входит, разбор отдельно.
+
 **Ждёт владельца:** утвердить план двойной смены; Google Таблица по шаблону и два-три пробных события; пробный прогон
 сверки на сервере 05.10 (после выкладки этой ветки); остальное по §3 плана (Channex production, галочки, первый канал,
 учение отката, дежурный).

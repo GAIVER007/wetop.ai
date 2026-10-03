@@ -89,6 +89,10 @@ describe('deploy/Dockerfile', () => {
     expect(DOCKERFILE).toContain('npm run build -w apps/web');
   });
 
+  it('сборка стойки с потолком кучи: на 8 ГБ рядом с боевыми службами next build не берёт всю память', () => {
+    expect(DOCKERFILE).toMatch(/NODE_OPTIONS=--max-old-space-size=2048 npm run build -w apps\/web/);
+  });
+
   it('ставит пояс объекта', () => {
     expect(DOCKERFILE).toContain('TZ=Asia/Almaty');
   });
@@ -117,6 +121,15 @@ describe('deploy/compose.yml', () => {
     expect(COMPOSE).toContain('image: pms-lux:latest');
     // api и web; у cloudflared свой образ провайдера. Было три, пока в compose жил legacy-sync (ADR-052)
     expect(COMPOSE.match(/<<: \*app/g)?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  // Сбой 03.10.2026 (plans/deploy-build-outage-2026-10-03.md): сборка образа и проверки CI на одном сервере съели
+  // память, туннель 4–7 минут отвечал 530. Ядро при нехватке убивает того, у кого oom_score больше: боевые службы
+  // должны уходить последними, после сборки и проверок
+  it('API, стойка и туннель последними под OOM-killer: сборку и проверки ядро убьёт раньше', () => {
+    const app = COMPOSE.slice(COMPOSE.indexOf('x-app: &app'), COMPOSE.indexOf('\nnetworks:'));
+    expect(app, 'x-app (api и web)').toMatch(/oom_score_adj: -500/);
+    expect(service('cloudflared')).toMatch(/oom_score_adj: -500/);
   });
 
   it('туннель ровно один и никогда не масштабируется', () => {

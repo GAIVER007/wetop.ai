@@ -175,6 +175,21 @@ export async function refundAction(
   return done(number);
 }
 
+/** DATA_MODEL §25: чек, пробитый в кассе по запросу гостя, отмечается номером у платежа */
+export async function receiptAction(
+  number: string,
+  paymentId: string,
+  _prev: FinanceActionResult,
+  fd: FormData,
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.issueReceipt(paymentId, s(fd, 'receipt') ?? '');
+  } catch (e) {
+    return rejected(e, _prev, fd, ['receipt']);
+  }
+  return done(number);
+}
+
 /** ADR-021: ранний заезд / поздний выезд — услуга на счёте, половина ночи по умолчанию */
 export async function stayExtraAction(
   number: string,

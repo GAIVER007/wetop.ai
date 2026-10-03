@@ -61,6 +61,8 @@ export interface AllocationRecord {
     paidAt: string;
     note: string | null;
     externalReference: string | null;
+    /** DATA_MODEL §25: чек, выданный по запросу гостя; null — не выдавали */
+    receipt: { number: string; issuedAt: string } | null;
   };
 }
 export interface RefundRecord {
@@ -339,6 +341,11 @@ export interface FinanceRepository {
   createPayment(p: NewPayment, audit?: AuditEntry): Promise<string>;
   paymentById(id: string): Promise<PaymentRecord | null>;
   createRefund(r: NewRefund, audit?: AuditEntry): Promise<string>;
+  /**
+   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §25): только у проведённого платежа объекта, один чек на платёж.
+   * Под блокировкой строки платежа; аннулированный — `FinanceStateError`, повтор — `FinanceStateError` («уже выдан»).
+   */
+  issueReceipt(paymentId: string, number: string, audit: AuditEntry): Promise<void>;
   /** Закрыть счёт вручную (DATA_MODEL §6, Folio.status): гость рассчитался, начислений больше не будет */
   closeFolio(id: string, audit?: AuditEntry): Promise<void>;
   audit(
@@ -430,7 +437,10 @@ const folioInclude = {
     orderBy: { createdAt: 'asc' as const },
     include: { service: { select: { code: true } } },
   },
-  allocations: { orderBy: { payment: { paidAt: 'asc' as const } }, include: { payment: true } },
+  allocations: {
+    orderBy: { payment: { paidAt: 'asc' as const } },
+    include: { payment: { include: { receipt: { select: { number: true, issuedAt: true } } } } },
+  },
   refunds: { orderBy: { createdAt: 'asc' as const } },
 } satisfies Prisma.FolioInclude;
 type FolioRow = Prisma.FolioGetPayload<{ include: typeof folioInclude }>;
@@ -472,6 +482,9 @@ const toFolio = (f: FolioRow): FolioRecord => ({
       paidAt: a.payment.paidAt.toISOString(),
       note: a.payment.note,
       externalReference: a.payment.externalReference,
+      receipt: a.payment.receipt
+        ? { number: a.payment.receipt.number, issuedAt: a.payment.receipt.issuedAt.toISOString() }
+        : null,
     },
   })),
   refunds: f.refunds.map((r) => ({
@@ -964,6 +977,39 @@ export class PrismaFinanceRepository implements FinanceRepository {
    * Раньше его считали до транзакции, и два одновременных возврата оба проходили — возвращали больше, чем внесено
    * (аудит 25.09, С-2). Нарушение предела — `FinanceRuleError`, аннулированный платёж — `FinanceStateError`, как в сервисе.
    */
+  async issueReceipt(paymentId: string, number: string, audit: AuditEntry): Promise<void> {
+    const { id: propertyId } = await this.property();
+    try {
+      await this.prisma.db.$transaction(async (t) => {
+        const tx = t as unknown as TxClient;
+        const rows = await tx.$queryRaw<Array<{ status: string }>>`
+          SELECT "status"::text AS status FROM "payments"
+           WHERE "id" = ${paymentId}::uuid AND "property_id" = ${propertyId}::uuid FOR UPDATE`;
+        if (!rows[0]) throw new FinanceStateError('Платёж не найден');
+        if (rows[0].status !== 'COMPLETED') throw new FinanceStateError('Платёж аннулирован');
+        const existing = await tx.fiscalReceipt.findUnique({
+          where: { paymentId },
+          select: { number: true },
+        });
+        if (existing)
+          throw new FinanceStateError(`Чек по этому платежу уже выдан: ${existing.number}`);
+        const row = await tx.fiscalReceipt.create({
+          data: { propertyId, paymentId, number, issuedById: auditUserId() ?? null },
+          select: { id: true },
+        });
+        await writeAudit(tx, {
+          ...audit,
+          entityId: paymentId,
+          after: { ...audit.after, receiptId: row.id },
+        });
+      });
+    } catch (e) {
+      // одновременная отметка с другого места: уникальный индекс страхует проверку выше
+      if ((e as { code?: string }).code === 'P2002')
+        throw new FinanceStateError('Чек по этому платежу уже выдан');
+      throw e;
+    }
+  }
   async createRefund(r: NewRefund, audit?: AuditEntry): Promise<string> {
     const lock = async (tx: TxClient) => {
       // Распределение не меняется после записи платежа — проверка до блокировок: чужой счёт не блокируем

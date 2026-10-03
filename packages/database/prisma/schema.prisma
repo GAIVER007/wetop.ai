@@ -126,6 +126,7 @@ model Property {
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
   paymentRequests     PaymentRequest[]
+  fiscalReceipts      FiscalReceipt[]
   services            Service[]
   trackedSites        TrackedSite[]
   inventoryUnits      InventoryUnit[]
@@ -877,6 +878,7 @@ model Payment {
   allocations PaymentAllocation[]
   refunds     Refund[]
   request     PaymentRequest?
+  receipt     FiscalReceipt?
 
   @@unique([propertyId, externalReference])
   @@index([propertyId, paidAt])
@@ -1018,6 +1020,25 @@ model PaymentRequest {
   @@index([folioId])
   @@index([propertyId, status])
   @@map("payment_requests")
+}
+
+/// DATA_MODEL §25 (03.10.2026, ADR-141): фискальный чек, выданный по запросу гостя. Номер — из кассы объекта,
+/// один чек на платёж; адаптер облачной кассы допишет внешний id без смены таблицы (Q-259)
+model FiscalReceipt {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @map("property_id") @db.Uuid
+  paymentId  String   @unique @map("payment_id") @db.Uuid
+  /// номер чека или фискальный признак из кассы, 1–64 знака
+  number     String
+  issuedAt   DateTime @default(now()) @map("issued_at") @db.Timestamptz(6)
+  issuedById String?  @map("issued_by_id") @db.Uuid
+
+  property Property @relation(fields: [propertyId], references: [id])
+  payment  Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  issuedBy User?    @relation(fields: [issuedById], references: [id])
+
+  @@index([propertyId, issuedAt])
+  @@map("fiscal_receipts")
 }
 
 /// DATA_MODEL §24 (контракт 30.09.2026, ADR-141): намерение брони ИИ-продавца
@@ -1311,6 +1332,7 @@ model User {
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
   paymentRequests     PaymentRequest[]
+  fiscalReceipts      FiscalReceipt[]
   userErrors          UserError[]
   sellerProfileEdits  SellerProfile[]
   platformAdmin       PlatformAdmin?

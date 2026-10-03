@@ -3,6 +3,7 @@ import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { createServer } from 'node:http';
 import {
   parseMoney,
+  parseReceiptNumber,
   assertAllocationsMatch,
   buildDashboard,
   buildUnitStats,
@@ -1238,6 +1239,8 @@ let paymentLines: Array<{
   id: string;
 }> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
+// ── фискальные чеки по запросу гостя (DATA_MODEL §25): номер из кассы по id платежа ──
+let receipts = new Map<string, { number: string; issuedAt: string }>();
 // ── запросы оплаты (DATA_MODEL §23, ADR-141) ──
 let paymentRequests: Array<{
   id: string;
@@ -1717,6 +1720,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T10:00:00Z`,
         note: p.note,
         externalReference: null,
+        receipt: receipts.get(p.id) ?? null,
         paymentAmountMinor: p.amountMinor,
         allocatedMinor: p.amountMinor,
         refundedMinor: '0',
@@ -1729,6 +1733,7 @@ function finance(reservation: ReservationCard = card): ReservationFinance {
         paidAt: `${today}T07:00:00Z`,
         note: null,
         externalReference: null,
+        receipt: receipts.get(`prepaid-${id}`) ?? null,
         paymentAmountMinor: prepaid.toString(),
         allocatedMinor: prepaid.toString(),
         refundedMinor: '0',
@@ -4272,6 +4277,7 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      receipts = new Map();
       paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
       cashOps = [];
@@ -6294,6 +6300,20 @@ createServer(async (req, res) => {
         id: r.paymentId,
       });
       return send(200, paymentRequestsOf(r.number));
+    }
+    const receiptMatch = path.match(/^\/finance\/payments\/([^/]+)\/receipt$/);
+    if (receiptMatch) {
+      const paymentId = decodeURIComponent(receiptMatch[1]!);
+      let receiptNumber: string;
+      try {
+        receiptNumber = parseReceiptNumber(body['number']);
+      } catch (e) {
+        return send(400, { message: (e as Error).message });
+      }
+      const was = receipts.get(paymentId);
+      if (was) return send(409, { message: `Чек по этому платежу уже выдан: ${was.number}` });
+      receipts.set(paymentId, { number: receiptNumber, issuedAt: new Date().toISOString() });
+      return send(200, { paymentId, number: receiptNumber });
     }
     if (path === '/finance/payments') {
       try {

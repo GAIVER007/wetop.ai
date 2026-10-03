@@ -63,6 +63,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'cash_reconciliations',
   // Запросы оплаты (DATA_MODEL §23, ADR-141): политика — в миграции 20261003000044_payment_requests
   'payment_requests',
+  // Фискальные чеки по запросу (DATA_MODEL §25): политика — в миграции 20261003000046_fiscal_receipts
+  'fiscal_receipts',
   // Намерения брони ИИ-продавца (DATA_MODEL §24): политика — в миграции 20261003000045_seller_booking_intents
   'seller_booking_intents',
 ];

@@ -22,6 +22,7 @@ import {
   addChargeAction,
   closeFolioAction,
   payAction,
+  receiptAction,
   refundAction,
   voidChargeAction,
   type FinanceActionResult,
@@ -127,6 +128,8 @@ function FolioPanel({
   const clock = usePropertyClock();
   // возврат и сторно (снятие штрафа — тоже сторно) — владелец и управляющий (ADR-107, Q-024); API откажет и так
   const reverse = useMay('refunds');
+  // чек по запросу гостя отмечает смена (DATA_MODEL §25); касса пробивает чек сама, WETOP хранит номер
+  const desk = useMay('desk');
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
     INIT,
@@ -237,6 +240,7 @@ function FolioPanel({
                 'Когда',
                 'На этот счёт',
                 'Возвращено',
+                'Чек',
                 ...(reverse ? ['Возврат'] : []),
               ].map((h) => (
                 <th
@@ -260,6 +264,17 @@ function FolioPanel({
                 <td>{clock.date(p.paidAt)}</td>
                 <td className="num">{formatMoney(p.allocatedMinor, folio.currency)}</td>
                 <td className="num">{formatMoney(p.refundedMinor, folio.currency)}</td>
+                <td data-testid="payment-receipt">
+                  {p.receipt ? (
+                    <span title={`отмечен ${clock.date(p.receipt.issuedAt)}`}>
+                      № {p.receipt.number}
+                    </span>
+                  ) : p.status === 'COMPLETED' && desk ? (
+                    <ReceiptForm number={number} paymentId={p.paymentId} onResult={setOther} />
+                  ) : (
+                    <span className="muted">нет</span>
+                  )}
+                </td>
                 {reverse && (
                   <td>
                     {open &&
@@ -536,6 +551,46 @@ function PaymentForm({
           Принять оплату
         </Button>
       </div>
+    </form>
+  );
+}
+
+/** DATA_MODEL §25: гость попросил чек, касса его пробила; номер из кассы ложится к платежу, второй чек не пробьётся */
+function ReceiptForm({
+  number,
+  paymentId,
+  onResult,
+}: {
+  number: string;
+  paymentId: string;
+  onResult: (r: FinanceActionResult) => void;
+}) {
+  const [state, action, pending] = useActionState<FinanceActionResult, FormData>(
+    async (prev, fd) => {
+      const r = await receiptAction(number, paymentId, prev, fd);
+      onResult(r);
+      return r;
+    },
+    INIT,
+  );
+  return (
+    <form
+      key={`${state.ok}-${state.attempt ?? 0}`}
+      action={action}
+      data-testid="receipt-form"
+      className="row row--xs"
+    >
+      <Input
+        name="receipt"
+        aria-label="Номер чека из кассы"
+        defaultValue={state.values?.receipt ?? ''}
+        placeholder="номер чека"
+        required
+        className="inp--w110 inp--sm"
+      />
+      <Button type="submit" tone="secondary" size="sm" disabled={pending}>
+        чек выдан
+      </Button>
     </form>
   );
 }

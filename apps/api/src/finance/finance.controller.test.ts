@@ -23,6 +23,7 @@ import {
   type FolioRecord,
   type PaymentMethod,
   type PaymentRecord,
+  FinanceStateError as FinanceStateErrorForTest,
 } from './finance.repository';
 
 /** Счета на вымышленной брони B-1: два проживания (1 200 000 и 800 000 тиын), ничего не оплачено. */
@@ -292,9 +293,20 @@ function makeFakes() {
               paidAt: p.paidAt ?? '2026-09-09T12:00:00.000Z',
               note: p.note,
               externalReference: null,
+              receipt: null,
             },
           });
       return id;
+    },
+    async issueReceipt(paymentId, number, audit) {
+      audits.push(audit.action);
+      for (const f of folios)
+        for (const a of f.allocations)
+          if (a.paymentId === paymentId) {
+            if (a.payment.receipt)
+              throw new FinanceStateErrorForTest('Чек по этому платежу уже выдан');
+            a.payment.receipt = { number, issuedAt: '2026-09-09T14:00:00.000Z' };
+          }
     },
     async paymentById(id) {
       return payments.find((p) => p.id === id) ?? null;
@@ -483,8 +495,18 @@ function makeFakes() {
     name: string;
     active: boolean;
   }> = [
-    { id: '00000000-0000-4000-8d00-000000000c01', kind: 'INCOME', name: 'Начальный остаток', active: true },
-    { id: '00000000-0000-4000-8d00-000000000c02', kind: 'EXPENSE', name: 'Комиссия банка', active: true },
+    {
+      id: '00000000-0000-4000-8d00-000000000c01',
+      kind: 'INCOME',
+      name: 'Начальный остаток',
+      active: true,
+    },
+    {
+      id: '00000000-0000-4000-8d00-000000000c02',
+      kind: 'EXPENSE',
+      name: 'Комиссия банка',
+      active: true,
+    },
     { id: '00000000-0000-4000-8d00-000000000c03', kind: 'EXPENSE', name: 'Зарплата', active: true },
   ];
   const cashOps: Array<{
@@ -577,6 +599,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       await http().post(`/finance/folios/${bad}/close`).expect(400);
       await http().post(`/finance/charges/${bad}/void`).expect(400);
       await http().post(`/finance/payments/${bad}/refunds`).send({}).expect(400);
+      await http().post(`/finance/payments/${bad}/receipt`).send({}).expect(400);
     }
   });
   const get = () => request(app.getHttpServer()).get('/finance/reservations/B-1').expect(200);
@@ -627,8 +650,22 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
     // две стирки слились в одну строку; сортировка — по сумме; начисление вручную — строкой без кода
     expect(r.body.rows).toEqual([
-      { code: 'TRANSFER', name: 'Трансфер', group: null, charges: 1, quantity: 1, amountMinor: '50000' },
-      { code: 'LAUNDRY', name: 'Стирка', group: 'Прачечная', charges: 2, quantity: 3, amountMinor: '45000' },
+      {
+        code: 'TRANSFER',
+        name: 'Трансфер',
+        group: null,
+        charges: 1,
+        quantity: 1,
+        amountMinor: '50000',
+      },
+      {
+        code: 'LAUNDRY',
+        name: 'Стирка',
+        group: 'Прачечная',
+        charges: 2,
+        quantity: 3,
+        amountMinor: '45000',
+      },
       { code: null, name: null, group: null, charges: 1, quantity: 1, amountMinor: '5000' },
     ]);
     // то же окно, что у сводки: итог равен её строке SERVICE
@@ -804,6 +841,38 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       rows: [],
       truncated: false,
     });
+  });
+
+  it('DATA_MODEL §25: чек по запросу — номер у платежа в счёте, пустой номер 400, чужой платёж 404, повтор 409', async () => {
+    const http = () => request(app.getHttpServer());
+    const pay = await http()
+      .post('/finance/payments')
+      .send({
+        method: 'CASH',
+        amount: '500000',
+        currency: 'KZT',
+        allocations: [{ folioId: '00000000-0000-4000-8000-000000000021', amount: '500000' }],
+      })
+      .expect(201);
+    expect(pay.ok).toBe(true);
+    const paymentId = (await fakes.repo.foliosByReservation('B-1'))![0]!.allocations[0]!.paymentId;
+    await http().post(`/finance/payments/${paymentId}/receipt`).send({ number: '  ' }).expect(400);
+    await http()
+      .post('/finance/payments/00000000-0000-4000-8b00-999999999999/receipt')
+      .send({ number: '1' })
+      .expect(404);
+    const ok = await http()
+      .post(`/finance/payments/${paymentId}/receipt`)
+      .send({ number: ' ФП 77 ' })
+      .expect(200);
+    expect(ok.body).toEqual({ paymentId, number: 'ФП 77' });
+    const res = await get();
+    expect(res.body.folios[0].payments[0].receipt).toEqual({
+      number: 'ФП 77',
+      issuedAt: '2026-09-09T14:00:00.000Z',
+    });
+    await http().post(`/finance/payments/${paymentId}/receipt`).send({ number: '2' }).expect(409);
+    expect(fakes.audits).toContain('finance.receipt.issued');
   });
 
   it('charge: only SERVICE/PENALTY/ADJUSTMENT by hand, service fills description and price, amount = qty × price', async () => {
@@ -1475,10 +1544,11 @@ describe('касса: остатки, операции, переводы, ста
       .expect(400);
     await http().post('/finance/cash/categories').send({ kind: 'TRANSFER', name: 'X' }).expect(400);
     const id = fakes.cashCategories.find((c) => c.name === 'Реклама')!.id;
-    const off = await http().patch(`/finance/cash/categories/${id}`).send({ active: false }).expect(200);
-    expect(
-      off.body.find((c: { id: string; active: boolean }) => c.id === id)!.active,
-    ).toBe(false);
+    const off = await http()
+      .patch(`/finance/cash/categories/${id}`)
+      .send({ active: false })
+      .expect(200);
+    expect(off.body.find((c: { id: string; active: boolean }) => c.id === id)!.active).toBe(false);
     await http()
       .patch('/finance/cash/categories/00000000-0000-4000-8d00-00000000dead')
       .send({ active: false })
@@ -1523,7 +1593,10 @@ describe('сверка наличных (§21.4, K4)', () => {
   });
   const http = () => request(app.getHttpServer());
   const income = (amount: string) =>
-    http().post('/finance/cash/operations').send({ kind: 'INCOME', method: 'CASH', amount }).expect(201);
+    http()
+      .post('/finance/cash/operations')
+      .send({ kind: 'INCOME', method: 'CASH', amount })
+      .expect(201);
 
   it('недостача с поправкой: запись сверки, расход «Недостача кассы», остаток равен пересчитанному', async () => {
     await income('100');
@@ -1534,14 +1607,17 @@ describe('сверка наличных (§21.4, K4)', () => {
     const rec = r.body.reconciliations.find((x: { method: string }) => x.method === 'CASH');
     expect(rec).toMatchObject({ expectedMinor: '10000', countedMinor: '9500' });
     const by = Object.fromEntries(
-      r.body.balances.map((b: { method: string; balanceMinor: string }) => [b.method, b.balanceMinor]),
+      r.body.balances.map((b: { method: string; balanceMinor: string }) => [
+        b.method,
+        b.balanceMinor,
+      ]),
     );
     expect(by['CASH']).toBe('9500');
     const adj = fakes.cashOps.find((o) => o.kind === 'EXPENSE');
     expect(adj).toMatchObject({ amountMinor: 500n, method: 'CASH' });
-    expect(
-      fakes.cashCategories.find((c) => c.id === adj!.categoryId)!.name,
-    ).toBe('Недостача кассы');
+    expect(fakes.cashCategories.find((c) => c.id === adj!.categoryId)!.name).toBe(
+      'Недостача кассы',
+    );
     expect(fakes.audits).toContain('finance.cash.reconciliation');
   });
 

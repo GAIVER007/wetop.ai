@@ -20,6 +20,7 @@ import {
   reconciliationAdjustment,
   folioBalance,
   parseMoney,
+  parseReceiptNumber,
   stayExtraDefaultMinor,
   stayExtraPercent,
   adjacentNight,
@@ -62,6 +63,8 @@ export interface PaymentLineView {
   paidAt: string;
   note: string | null;
   externalReference: string | null;
+  /** DATA_MODEL §25: чек, выданный по запросу гостя */
+  receipt: { number: string; issuedAt: string } | null;
   paymentAmountMinor: string;
   /** сколько из этого платежа легло на этот счёт */
   allocatedMinor: string;
@@ -327,6 +330,7 @@ export function folioView(f: FolioRecord): FolioView {
       paidAt: a.payment.paidAt,
       note: a.payment.note,
       externalReference: a.payment.externalReference,
+      receipt: a.payment.receipt,
       paymentAmountMinor: s(a.payment.amountMinor),
       allocatedMinor: s(a.amountMinor),
       refundedMinor: s(refundedBy(a.paymentId)),
@@ -627,8 +631,7 @@ export class FinanceService {
     if (dto.adjust !== undefined && typeof dto.adjust !== 'boolean')
       throw new BadRequestException('adjust — true или false');
     const balances = cashBalances(await this.repo.cashBalanceSources());
-    const expectedMinor =
-      balances.balances.find((b) => b.method === method)?.balanceMinor ?? 0n;
+    const expectedMinor = balances.balances.find((b) => b.method === method)?.balanceMinor ?? 0n;
     const delta = dto.adjust ? reconciliationAdjustment(expectedMinor, countedMinor) : null;
     const adjustment =
       delta === null
@@ -724,8 +727,11 @@ export class FinanceService {
       throw new BadRequestException('Комиссия должна быть больше нуля — или уберите её');
     let category: CashCategoryRecord | undefined;
     if (dto.categoryId !== undefined) {
-      category = categories.find((c) => c.id === dto.categoryId && c.kind === 'EXPENSE' && c.active);
-      if (!category) throw new BadRequestException('commission.categoryId — действующая статья расхода');
+      category = categories.find(
+        (c) => c.id === dto.categoryId && c.kind === 'EXPENSE' && c.active,
+      );
+      if (!category)
+        throw new BadRequestException('commission.categoryId — действующая статья расхода');
     } else {
       category = categories.find(
         (c) => c.kind === 'EXPENSE' && c.active && c.name === COMMISSION_CATEGORY,
@@ -749,7 +755,9 @@ export class FinanceService {
     commission?: { amount?: string | number; percent?: string | number; categoryId?: string };
   }): Promise<CashView> {
     if (dto.kind !== 'INCOME' && dto.kind !== 'EXPENSE')
-      throw new BadRequestException('kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers');
+      throw new BadRequestException(
+        'kind — INCOME или EXPENSE; перевод — POST /finance/cash/transfers',
+      );
     return this.writeCashOperation({ ...dto, kind: dto.kind, methodTo: undefined });
   }
 
@@ -782,11 +790,12 @@ export class FinanceService {
     note?: string | null | undefined;
     occurredAt?: string | undefined;
     commission?:
-      | { amount?: string | number; percent?: string | number; categoryId?: string }
-      | undefined;
+      { amount?: string | number; percent?: string | number; categoryId?: string } | undefined;
   }): Promise<CashView> {
     if (!dto.method || !PAYMENT_METHODS.includes(dto.method as PaymentMethod))
-      throw new BadRequestException(`${dto.kind === 'TRANSFER' ? 'from' : 'method'} — один из ${PAYMENT_METHODS.join(', ')}`);
+      throw new BadRequestException(
+        `${dto.kind === 'TRANSFER' ? 'from' : 'method'} — один из ${PAYMENT_METHODS.join(', ')}`,
+      );
     if (dto.methodTo !== undefined && !PAYMENT_METHODS.includes(dto.methodTo as PaymentMethod))
       throw new BadRequestException(`to — один из ${PAYMENT_METHODS.join(', ')}`);
     const amountMinor = money(dto.amount, 'amount');
@@ -846,7 +855,9 @@ export class FinanceService {
     if (!op) throw new NotFoundException(`Операция ${id} не найдена`);
     if (op.status !== 'COMPLETED') throw new ConflictException('Операция уже аннулирована');
     if (op.relatedId !== null)
-      throw new ConflictException('Это комиссия: аннулируйте основную операцию — комиссия снимется с ней');
+      throw new ConflictException(
+        'Это комиссия: аннулируйте основную операцию — комиссия снимется с ней',
+      );
     await lockedWrite(
       this.repo.voidCashOperation(id, {
         entityType: 'CashOperation',
@@ -1181,6 +1192,33 @@ export class FinanceService {
       ),
     );
     return this.reservation(folios[0]!.confirmationNumber);
+  }
+
+  /**
+   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §25, ADR-141): касса объекта пробила чек, администратор вписывает
+   * его номер. Только проведённый платёж своего объекта; второй чек на тот же платёж — 409.
+   */
+  async issueReceipt(
+    paymentId: string,
+    dto: { number?: unknown },
+  ): Promise<{ paymentId: string; number: string }> {
+    let number: string;
+    try {
+      number = parseReceiptNumber(dto.number);
+    } catch (e) {
+      throw new BadRequestException((e as Error).message);
+    }
+    const p = await this.repo.paymentById(paymentId);
+    if (!p) throw new NotFoundException(`Платёж ${paymentId} не найден`);
+    if (p.status !== 'COMPLETED') throw new ConflictException('Платёж аннулирован');
+    await lockedWrite(
+      this.repo.issueReceipt(paymentId, number, {
+        entityType: 'Payment',
+        action: 'finance.receipt.issued',
+        after: { number, amountMinor: s(p.amountMinor), method: p.method },
+      }),
+    );
+    return { paymentId, number };
   }
 
   /** Возврат по счёту из конкретного платежа: не больше, чем он на этот счёт внёс, минус уже возвращённое. */

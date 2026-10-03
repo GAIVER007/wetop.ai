@@ -1377,6 +1377,8 @@ export interface FinancePaymentLine {
   paidAt: string;
   note: string | null;
   externalReference: string | null;
+  /** DATA_MODEL §25: чек по запросу гостя; старый API поля не отдаёт */
+  receipt?: { number: string; issuedAt: string } | null;
   paymentAmountMinor: string;
   allocatedMinor: string;
   refundedMinor: string;
@@ -1643,6 +1645,12 @@ export const financeApi = {
       'POST',
       `/finance/folios/${encodeURIComponent(folioId)}/close`,
       {},
+    ),
+  issueReceipt: (paymentId: string, number: string) =>
+    sendJson<{ paymentId: string; number: string }>(
+      'POST',
+      `/finance/payments/${encodeURIComponent(paymentId)}/receipt`,
+      { number },
     ),
   refund: (paymentId: string, body: unknown) =>
     sendJson<ReservationFinance>(

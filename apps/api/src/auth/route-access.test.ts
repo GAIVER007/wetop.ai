@@ -117,6 +117,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/folios/:id/stay-extras': 'desk',
   'POST /finance/folios/:id/close': 'desk',
   'POST /finance/payments': 'desk',
+  'POST /finance/payments/:id/receipt': 'desk',
   // Запросы оплаты (DATA_MODEL §23, ADR-141): администратор выставляет счёт и отмечает оплату
   'GET /finance/reservations/:number/payment-requests': 'desk',
   'POST /finance/reservations/:number/payment-requests': 'desk',

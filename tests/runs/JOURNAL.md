@@ -5555,3 +5555,16 @@
 | 04.10.2026 00:36 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-compact.spec.ts tests/ui/channels-reconcile.spec.ts --workers=1) | ✅ 6 из 6 | 16 с | a59d8d9 +22 | [лог](logs/2026-10-03T19-36-36Z-e2e-f9fe.log) | green: обзор каналов помещается на ноутбуке (X3) |
 | 04.10.2026 00:37 | typecheck | ✅ без ошибок | 36 с | a59d8d9 +22 | [лог](logs/2026-10-03T19-37-03Z-typecheck-3263.log) | срез 4 итог |
 | 04.10.2026 00:37 | lint | ✅ без ошибок | 21 с | a59d8d9 +22 | [лог](logs/2026-10-03T19-37-40Z-lint-d6bd.log) | срез 4 итог |
+| 04.10.2026 00:39 | unit (частично: packages/domain/src/finance/fiscal-receipt.test.ts) | ❌ код выхода 1 | 1 с | ba73071 +5 | [лог](logs/2026-10-03T19-39-40Z-unit-4908.log) | red: номера чека ещё нет (K2) |
+| 04.10.2026 00:39 | unit (частично: packages/domain/src/finance/fiscal-receipt.test.ts) | ✅ 3 из 3 | 1 с | ba73071 +7 | [лог](logs/2026-10-03T19-39-42Z-unit-8102.log) | green: номер чека (K2) |
+| 04.10.2026 00:40 | integration (частично: tests/integration/fiscal-receipts.test.ts) | ✅ 3 из 3 | 3 с | ba73071 +12 | [лог](logs/2026-10-03T19-40-42Z-integration-37df.log) | red: таблицы чеков ещё нет в базе (K2) |
+| 04.10.2026 00:40 | integration (частично: tests/integration/fiscal-receipts.test.ts) | ❌ упало 2 из 3 | 3 с | ba73071 +11 | [лог](logs/2026-10-03T19-40-52Z-integration-974b.log) | red: отметки чека в репозитории ещё нет (K2) |
+| 04.10.2026 00:41 | unit (частично: apps/api/src/finance apps/api/src/auth/route-access.test.ts packages/domain/src/finance) | ✅ 91 из 91 | 4 с | ba73071 +12 | [лог](logs/2026-10-03T19-41-24Z-unit-26f1.log) | green: чек по запросу в API (K2) |
+| 04.10.2026 00:41 | unit (частично: apps/api/src/finance/finance.controller.test.ts) | ❌ упало 2 из 29 | 4 с | ba73071 +11 | [лог](logs/2026-10-03T19-41-33Z-unit-5c84.log) | red: маршрута чека ещё нет (K2) |
+| 04.10.2026 00:42 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fiscal-receipt.spec.ts --workers=1) | ❌ упало 5 из 5 | 2 мин 10 с | ba73071 +16 | [лог](logs/2026-10-03T19-42-43Z-e2e-0ff9.log) | red: колонки чека в «Счетах» ещё нет (K2) |
+| 04.10.2026 00:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fiscal-receipt.spec.ts tests/ui/payment-requests.spec.ts --workers=1) | ❌ упало 4 из 12 | 50 с | ba73071 +17 | [лог](logs/2026-10-03T19-44-54Z-e2e-097e.log) | green: чек по запросу в «Счетах» (K2) |
+| 04.10.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/fiscal-receipt.spec.ts tests/ui/payment-requests.spec.ts tests/ui/finance.spec.ts --workers=1) | ✅ 12 из 12 | 42 с | ba73071 +17 | [лог](logs/2026-10-03T19-46-00Z-e2e-a4de.log) | green: чек по запросу в «Счетах» (K2) |
+| 04.10.2026 00:49 | typecheck | ✅ без ошибок | 35 с | ba73071 +18 | [лог](logs/2026-10-03T19-49-39Z-typecheck-08d6.log) | срез 5: чек по запросу |
+| 04.10.2026 00:50 | lint | ✅ без ошибок | 21 с | ba73071 +18 | [лог](logs/2026-10-03T19-50-15Z-lint-7260.log) | срез 5 |
+| 04.10.2026 00:50 | unit | ✅ 3088 из 3091, пропущено 3 | 1 мин 28 с | ba73071 +16 | [лог](logs/2026-10-03T19-50-36Z-unit-0825.log) | срез 5: чек по запросу |
+| 04.10.2026 00:52 | integration | ✅ 251 из 251 | 1 мин 5 с | ba73071 +14 | [лог](logs/2026-10-03T19-52-04Z-integration-c8b1.log) | срез 5: чек по запросу |

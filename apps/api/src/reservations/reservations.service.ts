@@ -58,6 +58,8 @@ export interface ReservationQuote {
   departureDate: string;
   totalMinor: string;
   currency: string;
+  /** Цена каждой ночи по всей брони (все места вместе): «Детализация цены по дням» в форме */
+  nights: Array<{ date: string; priceMinor: string }>;
 }
 
 export interface CreateReservationDto {
@@ -502,6 +504,7 @@ export class ReservationsService {
         // места этого запроса ещё не записаны: считаем их сами, иначе каждое проходит проверку по отдельности
         const requestedByType = new Map<string, number>();
         const pickedUnits = new Set<string>();
+        const nightTotals = new Map<string, bigint>();
         for (const it of dto.items!) {
           const type = await repo.categoryByCode(it.accommodationTypeCode!);
           if (!type || !type.active)
@@ -541,6 +544,11 @@ export class ReservationsService {
           );
           const price = priceStay({ ...dates, occupancy: adults, rates });
           const quantity = it.quantity ?? 1;
+          for (const night of price.nights)
+            nightTotals.set(
+              night.date,
+              (nightTotals.get(night.date) ?? 0n) + night.priceMinor * BigInt(quantity),
+            );
           // Q-107: продать можно не больше, чем видит канал — брони без ячейки уже проданы.
           // Б2: вместе с местами этой же брони, которые ещё не записаны
           const requested = (requestedByType.get(type.id) ?? 0) + quantity;
@@ -604,7 +612,13 @@ export class ReservationsService {
           });
         }
         const totalMinor = prepared.reduce((sum, item) => sum + item.totalMinor, 0n).toString();
-        if (opts.preview) return { ...dates, currency: currency!, totalMinor };
+        if (opts.preview)
+          return {
+            ...dates,
+            currency: currency!,
+            totalMinor,
+            nights: [...nightTotals].map(([date, sum]) => ({ date, priceMinor: sum.toString() })),
+          };
         if (dto.expectedTotalMinor !== undefined && dto.expectedTotalMinor !== totalMinor)
           throw new ConflictException(
             'Стоимость изменилась. Проверьте обновлённый расчёт и подтвердите создание ещё раз.',

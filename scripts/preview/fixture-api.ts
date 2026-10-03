@@ -5983,11 +5983,19 @@ createServer(async (req, res) => {
           sum + nightly(item.accommodationTypeCode) * nights * BigInt(item.quantity ?? 1),
         0n,
       );
+      // разбивка по ночам, как у API: равная цена ночи, сумма ночей равна итогу
+      const perNight = nights > 0n ? total / nights : 0n;
+      const nightList = Array.from({ length: Number(nights) }, (_, i) => {
+        const d = new Date(`${arrival}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + i);
+        return { date: d.toISOString().slice(0, 10), priceMinor: perNight.toString() };
+      });
       return send(201, {
         arrivalDate: arrival,
         departureDate: departure,
         totalMinor: total.toString(),
         currency: 'KZT',
+        nights: nightList,
       });
     }
     if (path === '/reservations') {

@@ -209,7 +209,7 @@ export const ru: Dictionary = {
         icon: 'spark',
         title: 'ИИ-продавец',
         text: 'Отвечает в чате на сайте и в WhatsApp по знаниям вашего объекта.',
-        link: 'Как устроен ИИ-продавец',
+        link: 'Как это устроено',
       },
     ],
     calculator: {

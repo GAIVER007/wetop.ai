@@ -274,9 +274,10 @@ Supabase на бесплатном плане сам копий не делае�
 Сервер раз в две минуты смотрит на GitHub ветку **`release`** и, если она ушла вперёд, выкладывает её сам:
 `scripts/ops/auto-deploy.sh` из cron. Ни GitHub Actions (бюджет $0), ни SSH агенту не нужны.
 
-**Что выкладывать — решает ветка.** В `main` сливается и непроверенное. `release` перематывают на коммит `main` только
-после зелёных наборов (unit, typecheck, lint, integration, живые сквозные, полный UI): `git push origin <коммит>:release`.
-Это делает агент по AGENTS.md §18 или владелец. Откат ветки (перемотка назад) скрипт не выкладывает — это ручной откат, §4.
+**Что выкладывать, решает ветка.** В `main` сливается и непроверенное. `release` перематывают на коммит `main` только
+при зелёных проверках GitHub (`checks`) и наборах (unit, typecheck, lint, integration, живые сквозные, полный UI)
+и только по «да» владельца на эту выкладку (AGENTS.md §18, ADR-137): `git push origin <коммит>:release`.
+Откат ветки (перемотка назад) скрипт не выкладывает: это ручной откат, §4.
 
 **Что скрипт делает на каждой новой вершине:**
 
@@ -285,6 +286,11 @@ Supabase на бесплатном плане сам копий не делае�
    в клоне локальные правки отслеживаемых файлов (`deploy/compose.hostinger.yml` не в git — не мешает); новая вершина не
    продолжает текущую; **в обновлении новые миграции** — их применяет владелец (AGENTS.md §15), затем выкладка руками по
    §1а. Об одной вершине пишет один раз.
+2а. CI-раннер (`scripts/ops/ci-runner`, проект compose `pms-lux-ci`) выполняет задачу (процесс `Runner.Worker` в
+   `docker top`) — сборку откладывает: строка в журнале один раз на вершину, повтор следующим запуском cron. Дольше
+   30 минут (`DEPLOY_CI_MAX_WAIT`) не ждёт: выкладывает и пишет дежурным. Причина — сбой 03.10.2026: сборка образа и
+   проверки на одном сервере съели 8 ГБ, туннель 4–7 минут отвечал 530 (`plans/deploy-build-outage-2026-10-03.md`).
+   Там же у `api`, `web` и `cloudflared` `oom_score_adj: -500`, а у `next build` потолок кучи 2 ГБ.
 3. Точка отката: прежний образ как `pms-lux:rollback-<коммит>`, коммит — в `/var/lib/wetop-deploy/previous`.
 4. `git checkout -B release <вершина>` и `up -d --build api web`; `.env` не трогается, `cloudflared` тоже.
 5. Проверка до трёх минут: `/health` API `ok`, `/login` стойки — 200, `/today`, `/chessboard`, `/reservations` — не 5xx.
@@ -399,8 +405,11 @@ npm run build -w apps/web && npm run test:record -- e2e
 
 ## 4. Откат
 
-- Стойка и API: `git checkout <прошлый коммит>`, затем сборка и `kickstart` по §1.
-- База: `down.sql` рядом с миграцией (`scripts/ops/check-migrations.sh` проверяет их на чистом PostgreSQL).
-- Каналы: `scripts/ops/ari.sh stop` останавливает отправку остатков в Channex, порядок — `CUTOVER.md` ROLLBACK.
+Порядок отката целиком, со временем в минутах и ручным режимом смены: `CUTOVER.md`, раздел ROLLBACK (ADR-137).
+
+- Стойка и API: прежний образ `pms-lux:rollback-<коммит>` без сборки (`CUTOVER.md`, ROLLBACK, ступень 1).
+- База: схема через `down.sql` рядом с миграцией (`scripts/ops/check-migrations.sh` проверяет их на чистом
+  PostgreSQL); данные из копии через `scripts/ops/db-restore-prod.sh` (`docs/ops/backups.md`).
+- Каналы: `scripts/ops/ari.sh stop` останавливает отправку остатков в Channex.
 - Главная: `npx wrangler@4.141.0 pages deployment list --project-name wetop-site` и откат на прошлую выкладку
   в панели Cloudflare.

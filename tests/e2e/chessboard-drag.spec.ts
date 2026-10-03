@@ -36,6 +36,10 @@ test('перетаскивание клетки брони на свободну
   // ── бронь на койке A ──────────────────────────────────────────────────────────────────────
   await page.goto(`/reservations/new?arrival=${arrival}&departure=${departure}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('WALK_IN');
   await form.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
   const unitSelect = form.locator('select[name="unitCode"]');

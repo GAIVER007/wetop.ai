@@ -9,7 +9,7 @@ import { ServicesBoard } from './board';
 import '../beauty.css';
 
 /**
- * «Услуги салона» (срез B3, ADR-139): каталог сети и то, что про него говорит филиал.
+ * «Услуги салона» (срез B3, ADR-140): каталог сети и то, что про него говорит филиал.
  * Право на правку это `rates` (в салоне список услуг и есть прайс, решение Q-253).
  */
 export default async function BeautyServicesPage() {

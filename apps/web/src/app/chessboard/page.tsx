@@ -133,6 +133,7 @@ export default async function ChessboardPage({
         </>
       }
     >
+      <div className="board-top">
       <div className="board-controls">
         <div className="board-period">
           <span className="board-date-nav">
@@ -196,7 +197,6 @@ export default async function ChessboardPage({
             monthHref={monthHref()}
             monthCurrent={isMonth}
           />
-          {day && <DayStats day={day} board={board} today={today} />}
           <BoardHelp title="Помощь">
             <div className="board-help-content">
               <p className="note">
@@ -211,6 +211,8 @@ export default async function ChessboardPage({
             </div>
           </BoardHelp>
         </div>
+      </div>
+      {day && <DayPanel day={day} board={board} today={today} />}
       </div>
       {overbooked.length > 0 && (
         <Alert boxed data-testid="overbooked-callout">
@@ -275,13 +277,13 @@ function categoriesOf(
 }
 
 /**
- * Сводка дня в строке управления (поручение 02.10, образец — верхняя панель Lite PMS): заезды,
- * выезды, проживают, свободно и загрузка — ссылками в свои разделы. Стоит в существующей строке,
- * а не отдельной полосой: страница календаря фиксирована по высоте, и каждый лишний ряд сверху
- * отнимает его у сетки (контракт «сетка начинается до 350 px», chessboard-design). Деньги дня
- * здесь не показываются — «кто сколько должен» живёт в «Финансах» (решение владельца 02.10).
+ * Панель «Сегодня» справа от управления (поручение владельца 02.10, образец — верхняя панель
+ * Lite PMS): слева движение дня ссылками в «Брони», справа состояние фонда. Денег нет — «кто
+ * сколько должен» живёт в «Финансах» (решение 02.10); «Задачи» и «Дни рождения» из образца не
+ * переносятся — в модели данных их нет (Q-249). Панель стоит рядом со строками управления, а не
+ * отдельной полосой: страница фиксирована по высоте, лишний ряд сверху отнимает его у сетки.
  */
-function DayStats({
+function DayPanel({
   day,
   board,
   today,
@@ -294,26 +296,34 @@ function DayStats({
   const units = s ? s.occupied + s.free + s.blocked : 0;
   const occupancy = s && units > 0 ? Math.round((s.occupied / units) * 100) : null;
   const d = day.date;
-  const items = [
-    { id: 'arrivals', label: 'Заезды', value: String(day.counts.arrivals), href: `/reservations?date=${d}` },
-    { id: 'departures', label: 'Выезды', value: String(day.counts.departures), href: `/reservations?date=${d}` },
-    { id: 'inhouse', label: 'Проживают', value: String(day.counts.inHouse), href: `/reservations?date=${d}` },
-    { id: 'free', label: 'Свободно', value: s ? String(s.free) : '—', href: `/chessboard?from=${today}&to=${today}` },
-    {
-      id: 'occupancy',
-      label: 'Загрузка',
-      value: occupancy === null ? '—' : `${occupancy}%`,
-      href: `/management/analytics/occupancy?date=${d}`,
-    },
-  ];
+  const row = (id: string, label: string, value: string, href?: string) => (
+    <div className="board-day-panel__row" key={id}>
+      {href ? <Link href={href}>{label}</Link> : <span>{label}</span>}
+      <b data-testid={`day-${id}`}>{value}</b>
+    </div>
+  );
+  // две строки по три показателя: панель не выше строки управления, под ней нет пустоты (замечание 03.10)
   return (
-    <span className="board-day-stats" role="group" aria-label="Сегодня на объекте">
-      {items.map((i) => (
-        <Link key={i.id} href={i.href} className="board-day-stat">
-          <span className="board-day-stat__label">{i.label}</span>{' '}
-          <b data-testid={`day-${i.id}`}>{i.value}</b>
-        </Link>
-      ))}
-    </span>
+    <aside className="board-day-panel" role="group" aria-label="Сегодня на объекте">
+      <p className="board-day-panel__title">
+        Сегодня
+        <span>{displayDate(today)}</span>
+      </p>
+      <div className="board-day-panel__grid">
+        {row('arrivals', 'Заезды', String(day.counts.arrivals), `/reservations?date=${d}`)}
+        {row('departures', 'Выезды', String(day.counts.departures), `/reservations?date=${d}`)}
+        {row('inhouse', 'Проживания', String(day.counts.inHouse), `/reservations?date=${d}`)}
+        <div className="board-day-panel__row">
+          <span>Свободно</span>
+          <b>
+            <span data-testid="day-free">{s ? String(s.free) : '—'}</span>
+            <span className="board-day-panel__of"> из </span>
+            <span data-testid="day-units">{board.rows.length}</span>
+          </b>
+        </div>
+        {row('occupied', 'Занято', s ? String(s.occupied) : '—')}
+        {row('occupancy', 'Загрузка', occupancy === null ? '—' : `${occupancy}%`)}
+      </div>
+    </aside>
   );
 }

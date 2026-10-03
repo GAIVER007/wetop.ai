@@ -1,0 +1,58 @@
+# Модульные (unit) · 03.10.2026 01:20 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 1
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T20-20-56Z-unit-5215.json' 'apps/api/src/channels/channels.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| apps/api/src/channels/channels.test.ts (10 tests | 1 failed) 29ms
+   ❯ buildChannexSetup (3)
+     ✓ maps categories to room types (dorm → room_kind dorm, capacity 18) and one manual per_room rate plan each 4ms
+     ✓ refuses a tariff in another currency than the property 1ms
+     × остаток при изменении и отмене брони Channex сам не трогает: его присылает PMS (hotels-collection.md — «Recommended Setting is false») 12ms
+   ✓ ARI values (3)
+     ✓ compressRuns merges consecutive equal days and breaks on gaps 1ms
+     ✓ availability = active units − allocated − blocked per night, per room type, as date ranges 3ms
+     ✓ restrictions: rate per range; days without a price are stop_sell but carry the last known rate 1ms
+   ✓ lastPricedDate — граница выгрузки ограничений (Channex требует rate в каждом объекте) (3)
+     ✓ последний день с ценой по вместимости категории 1ms
+     ✓ цена не по вместимости (1 гость в двухместной) не считается за горизонт 0ms
+     ✓ без цен — null: ограничения не выгружаются 1ms
+   ✓ Full Sync: ограничения тянутся до конца окна (Channex — end dates aligned) (1)
+     ✓ хвост без цены закрыт stop_sell, но с перенесённой ценой; конец окна = доступности 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/channels.test.ts > buildChannexSetup > остаток при изменении и отмене брони Channex сам не трогает: его присылает PMS (hotels-collection.md — «Recommended Setting is false»)
+AssertionError: expected { …(4) } to match object { …(3) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "allow_availability_autoupdate_on_cancellation": false,
++   "allow_availability_autoupdate_on_cancellation": true,
+    "allow_availability_autoupdate_on_confirmation": true,
+-   "allow_availability_autoupdate_on_modification": false,
++   "allow_availability_autoupdate_on_modification": true,
+  }
+
+ ❯ apps/api/src/channels/channels.test.ts:94:22
+     92|     // расхождении. Новая бронь — `true`: место закрывается сразу, до …
+     93|     const { settings } = buildChannexSetup({ property, categories, rat…
+     94|     expect(settings).toMatchObject({
+       |                      ^
+     95|       allow_availability_autoupdate_on_confirmation: true,
+     96|       allow_availability_autoupdate_on_modification: false,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  13:21:00
+   Duration  1.97s (transform 88%, import 10%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-02T20-20-56Z-unit-5215.json
+
+# код выхода 1 · 5 с

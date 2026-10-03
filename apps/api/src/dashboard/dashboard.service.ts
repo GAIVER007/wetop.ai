@@ -4,11 +4,13 @@ import {
   DASHBOARD_FUNDS,
   MAX_PERIOD_DAYS,
   buildDashboard,
+  buildUnitStats,
   isIsoDate,
   periodNights,
   previousPeriod,
   type DashboardFund,
   type DashboardPeriod,
+  type UnitStats,
 } from '@pms/domain';
 import { DASHBOARD_REPOSITORY, type DashboardRepository } from './dashboard.repository';
 
@@ -23,8 +25,8 @@ export interface DashboardView {
 export class DashboardService {
   constructor(@Inject(DASHBOARD_REPOSITORY) private readonly repo: DashboardRepository) {}
 
-  /** `fund` — тип фонда (Аналитика v2, AN1): номера и койки считаются раздельно, оба отрезка одним типом */
-  async dashboard(from?: string, to?: string, fund: string = 'all'): Promise<DashboardView> {
+  /** Общие проверки периода и типа фонда — у сводки и «По номерам» они одинаковые */
+  private checked(from?: string, to?: string, fund: string = 'all'): DashboardFund {
     if (!isIsoDate(from) || !isIsoDate(to))
       throw new BadRequestException('from и to — даты YYYY-MM-DD');
     if (!DASHBOARD_FUNDS.includes(fund as DashboardFund))
@@ -32,9 +34,35 @@ export class DashboardService {
     if (to < from) throw new BadRequestException('to не может быть раньше from');
     if (periodNights(from, to) > MAX_PERIOD_DAYS)
       throw new BadRequestException(`Период не больше ${MAX_PERIOD_DAYS} дней`);
-    const prev = previousPeriod(from, to);
+    return fund as DashboardFund;
+  }
+
+  /**
+   * «По номерам» (REP3): те же клетки шахматки, что у сводки, до единицы — итог вкладки сходится
+   * с «Загрузкой» по построению. Один рейс за доской, денег нет (Q-251).
+   */
+  async units(from?: string, to?: string, fund: string = 'all'): Promise<UnitStats> {
+    const f = this.checked(from, to, fund);
+    const board = await this.repo.board(from!, to!);
+    const unassignedStays = Object.values(board.unassignedByCategory).reduce((a, b) => a + b, 0);
+    return buildUnitStats(
+      {
+        from: from!,
+        to: to!,
+        nights: board.days.length,
+        units: board.units,
+        unassignedStays,
+      },
+      f,
+    );
+  }
+
+  /** `fund` — тип фонда (Аналитика v2, AN1): номера и койки считаются раздельно, оба отрезка одним типом */
+  async dashboard(from?: string, to?: string, fund: string = 'all'): Promise<DashboardView> {
+    this.checked(from, to, fund);
+    const prev = previousPeriod(from!, to!);
     // Последовательно: у API пул на 5 соединений, а шахматка сама ходит в базу в несколько запросов
-    const current = await this.period(from, to, fund as DashboardFund);
+    const current = await this.period(from!, to!, fund as DashboardFund);
     const previous = await this.period(prev.from, prev.to, fund as DashboardFund);
     return { current, previous };
   }

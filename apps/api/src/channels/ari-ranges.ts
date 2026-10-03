@@ -84,9 +84,10 @@ export function changedNightRanges(before: StaySpan[], after: StaySpan[]): AriRa
 
 /**
  * Все ночи проживаний в любом статусе — по категориям, отрезками; ночи между проживаниями не входят.
- * Для ревизий канала: Channex сам меняет остаток по ночам брони (`allow_availability_autoupdate_*` включены —
- * setup-plan.ts), а стойка могла отразить то же изменение раньше. Тогда разница PMS пуста, а число в канале уже
- * другое — ему возвращаются числа PMS на все ночи брони: прежние, новые и отменённые.
+ * Для ревизий канала: по новой брони Channex сам закрывает место (`allow_availability_autoupdate_on_confirmation`,
+ * setup-plan.ts), а по изменению и отмене остаток считает только PMS, и стойка могла отразить то же изменение
+ * раньше. Тогда разница PMS пуста, а число в канале уже другое: ему возвращаются числа PMS на все ночи брони,
+ * прежние, новые и отменённые. Так верно при любых настройках объекта в Channex.
  */
 export function stayNightRanges(stays: StaySpan[]): AriRange[] {
   const byCategory = new Map<string, Set<string>>();

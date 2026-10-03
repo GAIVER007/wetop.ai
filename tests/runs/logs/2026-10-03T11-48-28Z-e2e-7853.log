@@ -1,0 +1,51 @@
+# Сквозные (e2e) · 03.10.2026 16:48 Алматы · Noutbuk-Vyacheslav.local
+# коммит c861e1e (main), незакоммиченных файлов набора: 2
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'ai-seller.spec'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 18 tests using 1 worker
+
+  ✓   1 tests/ui/ai-seller.spec.ts:65:1 › раздел в меню «Продажи», четыре вкладки, метка состояния и что осталось до запуска (2.7s)
+  ✓   2 tests/ui/ai-seller.spec.ts:102:1 › одно окно: «Сохранить и применить» — следующий ответ в «Проверке» на «ты» (ТЗ §4.4, ADR-097) (1.5s)
+  ✓   3 tests/ui/ai-seller.spec.ts:133:1 › черновик собирает ответы, сохранённые полями раньше, — при переходе на одно окно ничего не теряется (824ms)
+  ✓   4 tests/ui/ai-seller.spec.ts:163:1 › скрытая инструкция в тексте: продавец не принял — причина словами, написанное не пропало (слой 9) (1.1s)
+  ✓   5 tests/ui/ai-seller.spec.ts:180:1 › продавец не подключён — чек-лист зовёт подключить, инструкция сохраняется заранее (ТЗ §4.4) (2.1s)
+  ✓   6 tests/ui/ai-seller.spec.ts:217:1 › продавец недоступен — метка, причина и обещание повтора (948ms)
+  ✓   7 tests/ui/ai-seller.spec.ts:228:1 › продавец отклонил правки — его причина и что делать; повтора не обещаем (1.2s)
+[WebServer] ⨯ Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET',
+[WebServer]   digest: '2587204292'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓   8 tests/ui/ai-seller.spec.ts:247:1 › старые адреса вкладок ведут на новые, а не в «не найдено» (4.6s)
+  ✓   9 tests/ui/ai-seller.spec.ts:261:1 › «Знания»: документы, загрузка и данные объекта — только просмотр, куда идти править (1.7s)
+  ✓  10 tests/ui/ai-seller.spec.ts:299:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (2.6s)
+  ✓  11 tests/ui/ai-seller.spec.ts:342:1 › карточка диалога по неизвестному id не падает, а говорит словами (1.3s)
+  ✓  12 tests/ui/ai-seller.spec.ts:348:1 › «Подключения» → «Модель» (С2): проверить, сохранить (видны только последние 4 знака), снять (2.5s)
+  ✓  13 tests/ui/ai-seller.spec.ts:376:1 › ключ и инструкция у продавца — чек-листа нет, остаются окно и проверка (1.9s)
+  ✓  14 tests/ui/ai-seller.spec.ts:391:1 › «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) (1.0s)
+  ✓  15 tests/ui/ai-seller.spec.ts:409:1 › «Подключения» → «WhatsApp» (С3): проверить, подключить — адрес и слово для консоли Meta, отключить (1.4s)
+  ✓  16 tests/ui/ai-seller.spec.ts:441:1 › снимки экранов раздела (2.7s)
+  ✓  17 tests/ui/ai-seller.spec.ts:469:1 › Все агенты возвращает в единый каталог, а не только к черновикам (1.8s)
+  ✓  18 tests/ui/ai-seller.spec.ts:478:1 › закрытое расширение: администратор видит действие для управления доступом (1.0s)
+
+  18 passed (40.8s)
+
+# код выхода 0 · 42 с

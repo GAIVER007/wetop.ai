@@ -10,7 +10,7 @@ import {
   type ActionResult,
   type BookingGuest,
 } from '../actions';
-import { BookingPrice, useBookingQuote } from './price';
+import { BookingPrice, PriceByNight, useBookingQuote } from './price';
 import { DateInput } from '../../../components/date-field';
 import type { StayAvailability } from '../../../lib/api';
 import { checkBookingAvailability } from './availability';
@@ -316,6 +316,7 @@ export function NewReservationForm(props: {
           )}
         </fieldset>
       ))}
+      <PriceByNight state={quote} />
       {(picked || props.piiStorage === 'real') && (
         <h2 className="booking-create__guest-title">Гость</h2>
       )}

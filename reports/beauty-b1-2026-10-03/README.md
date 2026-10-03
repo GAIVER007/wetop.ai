@@ -8,7 +8,7 @@ Hospitality не тронут ни одним полем.
 
 ## Что сделано
 
-- миграция `20261003000043_beauty_domain` с `down.sql`: три enum'а, десять таблиц, CHECK'и,
+- миграция `20261003000044_beauty_domain` с `down.sql`: три enum'а, десять таблиц, CHECK'и,
   шесть триггеров принадлежности, exclusion constraint на пересечение записей мастера, RLS на все десять;
 - модели в `schema.prisma` (Customer, CustomerBusiness, Employee, EmployeeLocation, BeautyService,
   LocationService, EmployeeService, WorkingHours, TimeOff, Appointment) и связи у Organization, Business,
@@ -33,7 +33,7 @@ unit **2868 из 2871** (3 пропуска macOS, `…11-36-46Z-unit-eef2.log`)
 
 `scripts/ops/check-migrations.sh` на чистой базе: **46 миграций, цепочка применяется**, и по каждой
 миграции откат возвращает схему в прежнее состояние, включая мою:
-по строке `20261003000043_beauty_domain` скрипт печатает «ok», откат вернул схему в прежнее состояние.
+по строке `20261003000044_beauty_domain` скрипт печатает «ok», откат вернул схему в прежнее состояние.
 
 **Общий RESULT: FAIL (1), и причина не в Beauty.** Падает один сводный пункт, «schema.prisma расходится с
 миграциями», и расхождение целиком про кассу:
@@ -73,7 +73,7 @@ ALTER TABLE "cash_operations" ADD CONSTRAINT "cash_operations_category_id_fkey"
 
 ## За владельцем
 
-- миграция `20261003000043_beauty_domain` на рабочей базе, до выкладки кода (`AGENTS.md` §15,
+- миграция `20261003000044_beauty_domain` на рабочей базе, до выкладки кода (`AGENTS.md` §15,
   `docs/deploy.md`); откат `down.sql`;
 - Q-252 (деньги записи) до среза B7; Q-251, Q-253…Q-257 ответом или согласием с умолчаниями;
 - отдельной задачей: дрейф схемы кассы выше.

@@ -64,8 +64,15 @@ const ARI_KINDS = new Set([
 ]);
 /** Полная выгрузка раз в сутки после 03:00; 26 часов — сутки плюс запас на час выгрузки */
 const SYNC_MISSING_MS = 26 * 60 * MIN;
-/** Сверка остатков с каналом: один запрос чтения на месяц дат, раз в час и сразу после полной выгрузки */
-const ARI_EVERY_MS = 60 * MIN;
+/**
+ * Сверка остатков с каналом: один запрос чтения на месяц дат раз в сутки. До 03.10.2026 читали раз в час; Channex
+ * ответил: «For availability reads, once a day is enough», PMS остаётся источником того, что она шлёт. Когда было
+ * последнее чтение, сторож берёт из журнала, поэтому перезапуск API лишнего чтения не даёт. Внеочередная
+ * пересверка только после полной выгрузки, которой сторож чинил расхождение.
+ */
+const ARI_EVERY_MS = 24 * 60 * MIN;
+/** Channex не ответил на чтение: повтор через час, а не через сутки */
+const ARI_RETRY_MS = 60 * MIN;
 const ARI_DAYS = 30;
 
 /** Проверке не с чем сверять (нет маппинга) — не ошибка и не «всё хорошо»: неисправности вида не закрываются */
@@ -152,7 +159,10 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
   private last: GuardTickSummary | null = null;
   private dbDown: { since: Date; alertedAt: Date | null; error: string } | null = null;
   private purgedDay: string | null = null;
+  /** Последнее чтение остатков у Channex: из памяти, после перезапуска из журнала */
   private ariCheckedAt: Date | null = null;
+  /** Пересверить на ближайшем проходе: после починки полной выгрузкой и по просьбе учений (`all`) */
+  private ariForce = false;
   /** GUARD_AUTOFIX=off — только запись и будильник */
   autofix = process.env.GUARD_AUTOFIX !== 'off';
   /**
@@ -197,9 +207,9 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  /** `all` — не ждать расписания редких проверок (сверка остатков с каналом раз в час): для учений и агента */
+  /** `all`: не ждать расписания редких проверок (сверка остатков с каналом раз в сутки), для учений и агента */
   async tick(now = new Date(), opts: { all?: boolean } = {}): Promise<GuardTickSummary> {
-    if (opts.all) this.ariCheckedAt = null;
+    if (opts.all) this.ariForce = true;
     if (this.ticking && this.last) return this.last;
     this.ticking = true;
     const started = Date.now();
@@ -263,8 +273,8 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
           // Две неисправности с одной починкой (выгрузка) в одном проходе — один вызов Channex
           if (!ran.has(fix.key)) ran.set(fix.key, fix.run());
           const outcome = await ran.get(fix.key)!;
-          // После полной выгрузки остатки в канале свежие — пересверить на следующем проходе, а не через час
-          if (fix.key === 'fullSync') this.ariCheckedAt = null;
+          // После полной выгрузки остатки в канале свежие: пересверить на следующем проходе, а не через сутки
+          if (fix.key === 'fullSync') this.ariForce = true;
           await this.repo.markFixAttempt(inc.id, outcome.text, now);
           summary.fixes.push({
             kind: inc.kind,
@@ -570,14 +580,15 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       if (backup) await run('backup', ['backup.stale'], () => backupObservations(backup, now));
     }
 
-    const ariDue =
-      !this.ariCheckedAt || now.getTime() - this.ariCheckedAt.getTime() >= ARI_EVERY_MS;
-    if (channex && ariOut && this.probes.enabled('ari') && ariDue)
+    if (channex && ariOut && this.probes.enabled('ari') && (await this.ariDue(now)))
       await run('channex.ari', ['ari.oversell'], async () => {
-        this.ariCheckedAt = now;
+        this.ariForce = false;
+        // до ответа Channex: если он не ответит, следующая попытка через час, а не на каждом проходе
+        this.ariCheckedAt = new Date(now.getTime() - ARI_EVERY_MS + ARI_RETRY_MS);
         const today = almatyDay(now);
         const av = await this.probes.channelAvailability(today, addDays(today, ARI_DAYS - 1));
         if (!av) throw new SkipCheck();
+        this.ariCheckedAt = now;
         const bad = channelOversold(av);
         if (bad.length === 0) return [];
         const first = bad[0]!;
@@ -591,6 +602,16 @@ export class GuardService implements OnModuleInit, OnModuleDestroy {
       });
 
     return { observed, checked, errors };
+  }
+
+  /** Пора ли читать остатки у Channex: раз в сутки по журналу чтений, внеочередно только по ariForce */
+  private async ariDue(now: Date): Promise<boolean> {
+    if (this.ariForce) return true;
+    if (!this.ariCheckedAt) {
+      // первый проход после запуска API: когда читали в последний раз, знает только журнал
+      this.ariCheckedAt = await this.probes.lastAvailabilityReadAt().catch(() => null);
+    }
+    return !this.ariCheckedAt || now.getTime() - this.ariCheckedAt.getTime() >= ARI_EVERY_MS;
   }
 
   // ───────────────────────── починка ─────────────────────────

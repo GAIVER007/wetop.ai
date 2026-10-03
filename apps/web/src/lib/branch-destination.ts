@@ -14,6 +14,7 @@ const pages = new Set([
   '/finance',
   '/management/analytics',
   '/management/analytics/occupancy',
+  '/management/analytics/units',
   '/channels',
   '/channels/connections',
   '/channels/mapping',

@@ -28,14 +28,19 @@ import {
   knowledgeSourceLabel,
 } from '../../../../lib/ai-seller';
 import {
+  CATEGORY_CHIPS,
   QUEUE_CHIPS,
+  categoryChipCount,
+  categoryOf,
   chipCount,
+  emptyCategoryText,
   emptyQueueText,
   lastMessageLine,
   priorityBadge,
   queueOf,
   speaker,
   waitingFor,
+  type SupportCategoryFilter,
   type SupportQueue,
 } from '../../../../lib/support-queue';
 import { propertyClock } from '../../../../lib/property-time';
@@ -154,6 +159,7 @@ export default async function SupportPage({
         <SupportScreen
           view={view}
           queue={one(query.queue)}
+          category={one(query.category)}
           id={one(query.id)}
           kbQuery={Object.fromEntries(Object.entries(query).map(([k, v]) => [k, one(v)]))}
         />
@@ -165,11 +171,13 @@ export default async function SupportPage({
 async function SupportScreen({
   view,
   queue,
+  category,
   id,
   kbQuery,
 }: {
   view: SupportView;
   queue: string;
+  category: string;
   id: string;
   kbQuery: Record<string, string>;
 }) {
@@ -204,7 +212,7 @@ async function SupportScreen({
   if (view === 'knowledge') return <KnowledgeView />;
   if (view === 'settings') return <SettingsView />;
   if (view === 'check') return <CheckView />;
-  return <DialogsView queue={queue} id={id} />;
+  return <DialogsView queue={queue} category={category} id={id} />;
 }
 
 /**
@@ -284,12 +292,21 @@ const modeWord = (mode: string) => {
  * «Диалоги» (S1, `plans/support-assistant-v2-2026-09-29.md`): очередь слева, переписка справа — список остаётся на
  * месте (DESIGN.md §1 п. 5). На телефоне — одно из двух: список или переписка с «К списку».
  */
-async function DialogsView({ queue: rawQueue, id }: { queue: string; id: string }) {
+async function DialogsView({
+  queue: rawQueue,
+  category: rawCategory,
+  id,
+}: {
+  queue: string;
+  category: string;
+  id: string;
+}) {
   const queue = queueOf(rawQueue);
+  const category = categoryOf(rawCategory);
   const selected = UUID.test(id) ? id : '';
   const [summary, loaded, card] = await Promise.all([
     settle(supportApi.summary()),
-    settle(supportApi.queue(queue)),
+    settle(supportApi.queue(queue, category)),
     selected ? settle(supportApi.conversation(selected)) : Promise.resolve(null),
   ]);
   if (!loaded.ok && unreachable(loaded.error))
@@ -304,10 +321,13 @@ async function DialogsView({ queue: rawQueue, id }: { queue: string; id: string 
         </Row>
       </Panel>
     );
-  const href = (next: { queue?: SupportQueue; id?: string }) => {
+  const href = (next: { queue?: SupportQueue; category?: SupportCategoryFilter; id?: string }) => {
     const params = new URLSearchParams();
     const q = next.queue ?? queue;
+    // Статус и категория независимы: смена одного держит другое, как чипы «Броней»
+    const c = next.category ?? category;
     if (q !== 'open') params.set('queue', q);
+    if (c !== 'all') params.set('category', c);
     if (next.id) params.set('id', next.id);
     const qs = params.toString();
     return `/platform/support${qs ? `?${qs}` : ''}`;
@@ -338,6 +358,23 @@ async function DialogsView({ queue: rawQueue, id }: { queue: string; id: string 
           );
         })}
       </nav>
+      {loaded.ok && (
+        <nav className="chips support-chips" aria-label="Категория обращения">
+          {CATEGORY_CHIPS.map((chip) => (
+            <Link
+              key={chip.category}
+              href={href({ category: chip.category })}
+              prefetch={false}
+              aria-current={chip.category === category ? 'page' : undefined}
+            >
+              {chip.label}
+              <span className="chips__count">
+                {categoryChipCount(chip.category, loaded.value.categoryCounts)}
+              </span>
+            </Link>
+          ))}
+        </nav>
+      )}
       <div className={cx('support-desk', selected && 'support-desk--open')}>
         <section className="support-desk__list" aria-label="Обращения">
           {!loaded.ok ? (
@@ -346,9 +383,13 @@ async function DialogsView({ queue: rawQueue, id }: { queue: string; id: string 
             <div data-testid="support-queue-empty">
               <EmptyState
                 icon={<Icon name="chat" width={32} height={32} />}
-                title={emptyQueueText(queue).title}
+                title={
+                  emptyCategoryText(category)
+                    ? 'В этой категории обращений нет'
+                    : emptyQueueText(queue).title
+                }
               >
-                {emptyQueueText(queue).text}
+                {emptyCategoryText(category) ?? emptyQueueText(queue).text}
               </EmptyState>
             </div>
           ) : (

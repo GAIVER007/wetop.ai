@@ -133,6 +133,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/payments/:id/refunds': 'refunds',
   'GET /finance/report': 'reports',
   'GET /finance/services-report': 'reports',
+  'GET /desk/dashboard/units': 'reports',
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',

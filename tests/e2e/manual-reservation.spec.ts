@@ -20,6 +20,10 @@ test('создать бронь с ячейкой → видна в календ
   expect(freeBefore).toBeGreaterThan(0);
 
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('PHONE');
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = await unitOption(unitSelect);

@@ -9,7 +9,8 @@ import { expect, test } from './fixtures';
  * Хаб не считает ничего сам: числа — ровно те, что отдают `/finance/report`, `/finance/debts`,
  * `/desk/dashboard` и `/desk/today` подставного API. Плюс выгрузка CSV долгов со вкладки «Долги».
  */
-const fixture = 'http://127.0.0.1:4311';
+// адрес подставного API настраиваем: прогон на своём стенде не трогает общий 4311
+const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const report = 'reports/reports-hub-2026-10-02';
 
 // «сегодня» объекта — Алматы (+5), как в finance-f1.spec

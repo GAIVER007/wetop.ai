@@ -11,7 +11,7 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * Филиал салона на настоящей схеме (DATA_MODEL §19, срез B2, решения Q-254 и Q-256, ADR-139):
+ * Филиал салона на настоящей схеме (DATA_MODEL §19, срез B2, решения Q-254 и Q-256, ADR-140):
  * цепочка Organization → Business (BEAUTY) → Location, объекта нет, повтор запроса салонов не плодит,
  * список отдаёт оба вида филиалов. Данные вымышленные (ADR-010), после прогона удаляются.
  */

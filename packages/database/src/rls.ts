@@ -62,7 +62,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'cash_operations',
   'cash_reconciliations',
   // Beauty-домен (DATA_MODEL §19.1): клиент несёт организацию в строке, остальное через родителя
-  // (бизнес, филиал, мастер), как у locations. Политики, в миграции 20261003000043_beauty_domain
+  // (бизнес, филиал, мастер), как у locations. Политики, в миграции 20261003000044_beauty_domain
   'customers',
   'customer_businesses',
   'employees',

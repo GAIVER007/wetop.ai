@@ -6,6 +6,7 @@ import type {
   DashboardPayment,
   DashboardStay,
   DashboardUnitKind,
+  UnitBoardTally,
 } from '@pms/domain';
 import { LUXX_APARTS_PROPERTY, zonedStartOfDay } from '@pms/domain';
 import { channex } from '@pms/integrations';
@@ -19,6 +20,8 @@ export interface DashboardBoard {
   days: DashboardDay[];
   /** Проживания без ячейки по коду категории — одно проживание считается один раз */
   unassignedByCategory: Record<string, number>;
+  /** Те же клетки до единицы — для «По номерам» (REP3): ночи, блокировки, заезды каждого места */
+  units: UnitBoardTally[];
 }
 /** Что нужно дашборду за период: шахматка, проживания, начисления, платежи, возвраты. */
 export interface DashboardRepository {
@@ -68,9 +71,28 @@ export class PrismaDashboardRepository implements DashboardRepository {
     >();
     // ключ → { категория, сколько таких проживаний }; одинаковые проживания группы различаются только числом
     const unassigned = new Map<string, { code: string; count: number }>();
+    // REP3: те же клетки до единицы; куски не пересекаются — ночи и заезды не задваиваются
+    const units = new Map<string, UnitBoardTally>();
     for (let start = from; start <= to; start = plusDays(start, BOARD_CHUNK_DAYS)) {
       const end = [plusDays(start, BOARD_CHUNK_DAYS - 1), to].sort()[0]!;
       const b = await this.chessboard.board(start, end);
+      for (const r of b.rows) {
+        const u = units.get(r.unit.code) ?? {
+          code: r.unit.code,
+          categoryCode: r.unit.accommodationTypeCode,
+          categoryName: r.unit.accommodationTypeName,
+          kind: r.unit.kind,
+          occupiedNights: 0,
+          blockedNights: 0,
+          arrivals: 0,
+        };
+        for (const cell of r.cells) {
+          if (cell.state === 'OCCUPIED') u.occupiedNights += 1;
+          else if (cell.state === 'BLOCKED') u.blockedNights += 1;
+          if (cell.isArrival) u.arrivals += 1;
+        }
+        units.set(r.unit.code, u);
+      }
       if (!categories.size)
         for (const r of b.rows) {
           const code = r.unit.accommodationTypeCode;
@@ -105,7 +127,12 @@ export class PrismaDashboardRepository implements DashboardRepository {
     const unassignedByCategory: Record<string, number> = {};
     for (const { code, count } of unassigned.values())
       unassignedByCategory[code] = (unassignedByCategory[code] ?? 0) + count;
-    return { categories: [...categories.values()], days, unassignedByCategory };
+    return {
+      categories: [...categories.values()],
+      days,
+      unassignedByCategory,
+      units: [...units.values()],
+    };
   }
 
   async stays(from: string, to: string): Promise<DashboardStay[]> {

@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 03.10.2026 14:33 Алматы · Noutbuk-Vyacheslav.local
+# коммит ebaf8cf (claude/calendar-litepms-20261002), незакоммиченных файлов набора: 13
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'chessboard-calendar.spec.ts' 'chessboard-design.spec.ts' 'chessboard-week.spec.ts' 'chessboard-dnd.spec.ts' 'chessboard-gate-pr4.spec.ts' 'chessboard-gate-pr5.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 28 tests using 1 worker
+
+  ✓   1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (1.5s)
+  ✓   2 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (635ms)
+  ✓   3 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (1.1s)
+  ✓   4 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (1.1s)
+  ✓   5 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (835ms)
+  ✓   6 tests/ui/chessboard-design.spec.ts:12:1 › статусы шахматки понятны без открытия инструкции (937ms)
+  ✓   7 tests/ui/chessboard-design.spec.ts:37:1 › ручные даты раскрываются с клавиатуры и сбрасываются при смене периода (1.9s)
+  ✓   8 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: light, компактное управление и доступная сетка (8.6s)
+  ✓   9 tests/ui/chessboard-design.spec.ts:58:3 › дизайн шахматки: dark, компактное управление и доступная сетка (8.5s)
+  ✓  10 tests/ui/chessboard-dnd.spec.ts:75:1 › во время перетаскивания: свободная строка подсвечена и показывает призрак, занятая и закрытая — причину; drop туда ничего не делает (1.7s)
+  ✓  11 tests/ui/chessboard-dnd.spec.ts:110:1 › drop на свободную строку: окно по §27, переселение с даты клетки только после подтверждения (1.6s)
+  ✓  12 tests/ui/chessboard-dnd.spec.ts:140:1 › другая категория: переезжает всё проживание с первой ночи, разница стоимости со знаком (1.4s)
+  ✓  13 tests/ui/chessboard-dnd.spec.ts:172:1 › отказ сервера: призрак снят, бронь на месте, ошибка словами (§49, §54) (3.4s)
+  ✓  14 tests/ui/chessboard-dnd.spec.ts:199:1 › продление за край: «до даты, +ночи, +сумма» до отпускания; поверх блокировки — конфликт, команды нет (1.6s)
+  ✓  15 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: light (7.3s)
+  ✓  16 tests/ui/chessboard-gate-pr4.spec.ts:34:3 › гейт PR 4: dark (7.5s)
+  ✘  17 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light (16.9s)
+  ✘  18 tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark (17.0s)
+  ✓  19 tests/ui/chessboard-week.spec.ts:12:1 › C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса (1.3s)
+  ✓  20 tests/ui/chessboard-week.spec.ts:26:1 › C1: мобильные даты, виды и фильтры имеют цели 44 px (2.8s)
+  ✓  21 tests/ui/chessboard-week.spec.ts:72:1 › C1: подсказка не выходит за экран, последние места доступны на телефоне (1.2s)
+  ✓  22 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-09-28 → 2026-10-05 (1.8s)
+  ✓  23 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2026-12-28 → 2027-01-04 (1.8s)
+  ✓  24 tests/ui/chessboard-week.spec.ts:104:3 › переход календарной недели: 2028-03-06 → 2028-02-28 (1.7s)
+  ✓  25 tests/ui/chessboard-week.spec.ts:124:1 › в неделе работают бронь, категории и создание на воскресенье (2.4s)
+  ✓  26 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: light, обе панели и телефон (10.0s)
+  ✓  27 tests/ui/chessboard-week.spec.ts:164:3 › неделя помещается на экране: dark, обе панели и телефон (9.9s)
+  ✓  28 tests/ui/chessboard-week.spec.ts:199:1 › по умолчанию видна текущая неделя с понедельника по воскресенье (916ms)
+
+
+  1) tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light ──────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('drop-ghost')
+    Expected: "2 ночи"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('drop-ghost') with timeout 15000ms
+      - waiting for getByTestId('drop-ghost')
+
+
+      73 |     await press(page, cellOf(page, 'R08', today));
+      74 |     await moveTo(page, cellOf(page, 'R08', add(today, 4)));
+    > 75 |     await expect(ghost).toHaveText('2 ночи');
+         |                         ^
+      76 |     await page.screenshot({ caret: 'initial', path: `${DIR}/${theme}-range-stops.png` });
+      77 |     await page.mouse.up();
+      78 |     await page.keyboard.press('Escape');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wetop-rel/tests/ui/chessboard-gate-pr5.spec.ts:75:25
+
+    Error Context: test-results/chessboard-gate-pr5-гейт-PR-5-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-pr5-гейт-PR-5-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-pr5-гейт-PR-5-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark ───────────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('drop-ghost')
+    Expected: "2 ночи"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('drop-ghost') with timeout 15000ms
+      - waiting for getByTestId('drop-ghost')
+
+
+      73 |     await press(page, cellOf(page, 'R08', today));
+      74 |     await moveTo(page, cellOf(page, 'R08', add(today, 4)));
+    > 75 |     await expect(ghost).toHaveText('2 ночи');
+         |                         ^
+      76 |     await page.screenshot({ caret: 'initial', path: `${DIR}/${theme}-range-stops.png` });
+      77 |     await page.mouse.up();
+      78 |     await page.keyboard.press('Escape');
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wetop-rel/tests/ui/chessboard-gate-pr5.spec.ts:75:25
+
+    Error Context: test-results/chessboard-gate-pr5-гейт-PR-5-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/chessboard-gate-pr5-гейт-PR-5-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/chessboard-gate-pr5-гейт-PR-5-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: light ───────────────────────────────────
+    tests/ui/chessboard-gate-pr5.spec.ts:35:3 › гейт PR 5: dark ────────────────────────────────────
+  26 passed (2.1m)
+
+# код выхода 1 · 2 мин 7 с

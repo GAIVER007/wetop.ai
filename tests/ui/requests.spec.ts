@@ -26,7 +26,8 @@ interface Hits {
   byRequest: Record<string, number>;
 }
 
-const API = 'http://127.0.0.1:4311';
+// адрес подставного API настраиваем: прогон на своих портах не ждёт общий стенд 4311 (приём support-queue)
+const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 const SHELL = ['/system/freshness', '/auth/me'];
 
 async function hits(request: import('@playwright/test').APIRequestContext): Promise<Hits> {
@@ -47,6 +48,8 @@ for (const screen of [
   '/rates',
   '/management/analytics',
   '/management/analytics/occupancy',
+  // «По номерам» (REP3): один запрос /desk/dashboard/units
+  '/management/analytics/units',
   '/finance',
   // хаб «Отчёты» (REP1): четыре источника данных, каждый — одним запросом
   '/reports',

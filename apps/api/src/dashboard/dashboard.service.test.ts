@@ -43,6 +43,7 @@ function repoWithBarrier(gate: ReturnType<typeof barrier>): DashboardRepository 
           byCategory: {},
         })),
         unassignedByCategory: {},
+        units: [],
       };
     },
     async stays() {

@@ -5532,3 +5532,6 @@
 | 03.10.2026 20:57 | unit | ❌ упало 1 из 3029, пропущено 3 | 1 мин 25 с | 6374818 +22 | [лог](logs/2026-10-03T15-57-36Z-unit-0655.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
 | 03.10.2026 20:59 | unit (частично: tests/unit/design-slop.test.ts) | ✅ 11 из 11 | 1 с | 6374818 +23 | [лог](logs/2026-10-03T15-59-09Z-unit-0127.log) |  |
 | 03.10.2026 21:00 | typecheck | ✅ без ошибок | 35 с | 8b93ad9 | [лог](logs/2026-10-03T16-00-09Z-typecheck-f873.log) |  |
+| 03.10.2026 22:43 | e2e (частично: -c tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/analytics-design.spec.ts | ✅ 354 из 354 | 32 мин 31 с | 0069355 | [лог](logs/2026-10-03T17-43-00Z-e2e-8315.log) |  |
+| 03.10.2026 23:15 | lint | ✅ без ошибок | 21 с | 0069355 | [лог](logs/2026-10-03T18-15-38Z-lint-ffca.log) |  |
+| 03.10.2026 23:15 | unit | ✅ 3027 из 3030, пропущено 3 | 1 мин 26 с | 0069355 | [лог](logs/2026-10-03T18-15-59Z-unit-9fd2.log) |  |

@@ -5417,3 +5417,8 @@
 | 03.10.2026 17:15 | unit (частично: tests/unit/auto-deploy.test.ts --testTimeout=20000) | ❌ упало 7 из 16 | 5 мин 32 с | 6cd2fa4 +1 | [лог](logs/2026-10-03T12-15-12Z-unit-5540.log) | red: выкладка не ждёт занятый CI-раннер (сбой 03.10) |
 | 03.10.2026 17:29 | unit (частично: tests/unit/deploy-server.test.ts --testTimeout=20000) | ❌ упало 2 из 39 | 49 с | 6cd2fa4 +3 | [лог](logs/2026-10-03T12-29-03Z-unit-ccd6.log) | red: нет oom_score_adj у боевых служб и потолка кучи next build (сбой 03.10) |
 | 03.10.2026 17:38 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/deploy-server.test.ts --testTimeout=60000 --hookTimeout=60000) | ✅ 55 из 55 | 21 с | 6cd2fa4 +3 | [лог](logs/2026-10-03T12-38-37Z-unit-d559.log) | green: выкладка ждёт занятый CI-раннер, боевые службы последними под OOM, потолок кучи next build |
+| 03.10.2026 18:04 | integration (частично: tests/integration/guest-directory.test.ts) | ✅ 1 из 1 | 4 с | d8ee099 | [лог](logs/2026-10-03T13-04-17Z-integration-ac4b.log) |  |
+| 03.10.2026 18:04 | typecheck | ✅ без ошибок | 29 с | d8ee099 | [лог](logs/2026-10-03T13-04-25Z-typecheck-89d6.log) |  |
+| 03.10.2026 18:04 | lint | ✅ без ошибок | 22 с | d8ee099 | [лог](logs/2026-10-03T13-04-54Z-lint-1d8b.log) |  |
+| 03.10.2026 18:05 | integration | ✅ 238 из 238 | 1 мин 10 с | d8ee099 | [лог](logs/2026-10-03T13-05-17Z-integration-a124.log) |  |
+| 03.10.2026 18:06 | unit | ✅ 2977 из 2980, пропущено 3 | 1 мин 40 с | d8ee099 | [лог](logs/2026-10-03T13-06-27Z-unit-b872.log) |  |

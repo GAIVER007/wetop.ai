@@ -491,6 +491,13 @@
   flex: 1 1 auto;
   min-width: 0;
 }
+/* При панели «Сегодня» слева управление календарём прижато вправо */
+.board-day-panel + .board-controls {
+  justify-content: flex-end;
+}
+.board-day-panel + .board-controls .board-bar {
+  margin-left: 0;
+}
 .board-day-panel {
   flex: 0 0 auto;
   display: flex;
@@ -514,7 +521,7 @@
 }
 .board-day-panel__grid {
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: repeat(4, auto);
   gap: 0 var(--space-6);
 }
 .board-day-panel__row {

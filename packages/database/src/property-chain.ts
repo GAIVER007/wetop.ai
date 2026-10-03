@@ -59,3 +59,43 @@ export async function createPropertyInChain(
   });
   return tx.property.create({ data: { ...data, organizationId, locationId: location.id } });
 }
+
+/** Филиал салона: `Organization → Business (BEAUTY) → Location`, объекта у него нет (DATA_MODEL §19, срез B2) */
+export type BeautyLocationData = Pick<
+  Prisma.LocationUncheckedCreateInput,
+  'id' | 'name' | 'address' | 'phone' | 'email' | 'timezone' | 'currency'
+>;
+
+/**
+ * Новый филиал салона: та же цепочка, что у гостиницы, но без `Property` (DATA_MODEL §19: Beauty не
+ * использует Property, Reservation, InventoryUnit и RatePlan). Бизнес организации, самый ранний её Business
+ * направления BEAUTY, а если его нет, заводится один с именем организации, как у HOSPITALITY выше.
+ *
+ * Вызывать внутри транзакции: бизнес и филиал появляются вместе.
+ */
+export async function createBeautyLocationInChain(
+  tx: Pick<Prisma.TransactionClient, 'organization' | 'business' | 'location'>,
+  organizationId: string,
+  data: BeautyLocationData,
+) {
+  const business =
+    (await tx.business.findFirst({
+      where: { organizationId, vertical: 'BEAUTY', status: 'ACTIVE' },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    })) ??
+    (await tx.business.create({
+      data: {
+        organizationId,
+        name: (
+          await tx.organization.findUniqueOrThrow({
+            where: { id: organizationId },
+            select: { name: true },
+          })
+        ).name,
+        vertical: 'BEAUTY',
+      },
+      select: { id: true },
+    }));
+  return tx.location.create({ data: { ...data, businessId: business.id } });
+}

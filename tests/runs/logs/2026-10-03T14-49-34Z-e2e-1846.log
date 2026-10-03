@@ -1,0 +1,312 @@
+# Сквозные (e2e) · 03.10.2026 19:49 Алматы · vm
+# коммит 1c7b808 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 1
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-journal.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 9 tests using 1 worker
+
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  1 tests/ui/beauty-journal.spec.ts:93:1 › запись из пустой клетки появляется в сетке и в списке дня (10.7s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  2 tests/ui/beauty-journal.spec.ts:109:1 › занятое время мастера не предлагается и отказ приходит словами (10.6s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  3 tests/ui/beauty-journal.spec.ts:119:1 › вне графика мастера клетки нерабочие (9.3s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  4 tests/ui/beauty-journal.spec.ts:126:1 › состояния записи идут по жизни, из выполненной дороги нет (13.7s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  5 tests/ui/beauty-journal.spec.ts:150:1 › отмена спрашивает и освобождает время мастера (11.3s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  6 tests/ui/beauty-journal.spec.ts:172:1 › перенос меняет время записи (11.0s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  7 tests/ui/beauty-journal.spec.ts:188:1 › журнал на телефоне: день списком, без прокрутки вбок (10.1s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  8 tests/ui/beauty-journal.spec.ts:201:3 › журнал доступен в светлой теме (11.3s)
+[WebServer] [browser] In HTML, <p> cannot be a descendant of <p>.
+[WebServer] This will cause a hydration error.
+[WebServer] 
+[WebServer]   ...
+[WebServer]     <InnerScrollHandlerNew focusAndScrollRef={{...}} cacheNode={{rsc:<Fragment>, ...}}>
+[WebServer]       <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+[WebServer]         <LoadingBoundary name="beauty/" loading={null}>
+[WebServer]           <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+[WebServer]             <RedirectBoundary>
+[WebServer]               <RedirectErrorBoundary router={{...}}>
+[WebServer]                 <InnerLayoutRouter url="/beauty" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
+[WebServer]                   <SegmentViewNode type="page" pagePath="beauty/pag...">
+[WebServer]                     <SegmentTrieNode>
+[WebServer]                     <BeautyPage>
+[WebServer]                       <Page>
+[WebServer]                         <main id="main-content" tabIndex={-1} className="page beaut...">
+[WebServer]                           <header>
+[WebServer]                           <JournalBoard day={{location:{...}, ...}} readOnly={false}>
+[WebServer]                             <div>
+[WebServer]                             <EmptyState data-testid="beauty-day..." title="В этот ден...">
+[WebServer]                               <section className="empty-state" data-testid="beauty-day...">
+[WebServer]                                 <h3>
+[WebServer] >                               <p className="empty-state__text">
+[WebServer] >                                 <p>
+[WebServer]                             ...
+[WebServer]                   ...
+[WebServer]                 ...
+[WebServer]       ...
+[WebServer]  
+[WebServer] [browser] <p> cannot contain a nested <p>.
+[WebServer] See this log for the ancestor stack trace. 
+  ✓  9 tests/ui/beauty-journal.spec.ts:201:3 › журнал доступен в тёмной теме (11.1s)
+
+  9 passed (1.8m)
+
+# код выхода 0 · 1 мин 48 с

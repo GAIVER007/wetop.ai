@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 03.10.2026 17:46 Алматы · vm
+# коммит 000418f (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 17
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/beauty-catalog.spec.ts' '-g' 'на телефоне'
+Error: http://127.0.0.1:4311/__test/health is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 1 с

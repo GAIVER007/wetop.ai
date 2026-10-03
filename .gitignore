@@ -104,3 +104,8 @@ ds-bundle/
 .omx/
 # PostgreSQL для локального стенда, скачанная scripts/ops/local-db.sh из npm (22.09.2026)
 .local-pg/
+
+# Вложенные клоны проекта на машине владельца: в индекс попали как ссылки без .gitmodules
+# (коммит 1ca70ee9), git их не скачивает, а `git submodule status` на них падает насмерть
+WETOP-pr93/
+/Чат агент/

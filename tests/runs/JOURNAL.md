@@ -5374,6 +5374,87 @@
 | 03.10.2026 14:21 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 31 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-21-31Z-e2e-2f41.log) | green: главная без направлений, приглашение салонам, видимая кромка кнопки |
 | 03.10.2026 14:22 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-22-12Z-unit-9b99.log) | сторож главной, итог 03.10 |
 | 03.10.2026 14:22 | lint | ✅ без ошибок | 18 с | 4cdd4fc +8 | [лог](logs/2026-10-03T09-22-13Z-lint-cf75.log) | итог 03.10 |
+| 03.10.2026 15:08 | typecheck | ✅ без ошибок | 25 с | 2ea6042 | [лог](logs/2026-10-03T10-08-30Z-typecheck-aa50.log) |  |
+| 03.10.2026 15:09 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 34 с | 2ea6042 | [лог](logs/2026-10-03T10-09-04Z-e2e-d525.log) |  |
+| 03.10.2026 15:09 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 2ea6042 | [лог](logs/2026-10-03T10-09-46Z-unit-08af.log) |  |
+| 03.10.2026 16:25 | unit (частично: packages/domain/src/beauty/beauty.test.ts) | ❌ код выхода 1 | 1 с | 50494b7 +1 | [лог](logs/2026-10-03T11-25-46Z-unit-1795.log) | (файл не выполнился) |
+| 03.10.2026 16:26 | unit (частично: packages/domain/src/beauty/beauty.test.ts) | ✅ 17 из 17 | 1 с | 50494b7 +4 | [лог](logs/2026-10-03T11-26-44Z-unit-d38d.log) |  |
+| 03.10.2026 16:27 | integration (частично: tests/integration/beauty-domain.test.ts) | ❌ код выхода 1 | 3 с | 50494b7 +5 | [лог](logs/2026-10-03T11-27-59Z-integration-acc1.log) | (файл не выполнился) |
+| 03.10.2026 16:31 | integration (частично: tests/integration/beauty-domain.test.ts) | ❌ код выхода 1 | 3 с | 50494b7 +9 | [лог](logs/2026-10-03T11-31-51Z-integration-af0e.log) | (файл не выполнился) |
+| 03.10.2026 16:33 | integration (частично: tests/integration/beauty-domain.test.ts) | ❌ код выхода 1 | 3 с | 50494b7 +9 | [лог](logs/2026-10-03T11-33-44Z-integration-0fba.log) | (файл не выполнился) |
+| 03.10.2026 16:34 | integration (частично: tests/integration/beauty-domain.test.ts) | ✅ 11 из 11 | 3 с | 50494b7 +9 | [лог](logs/2026-10-03T11-34-40Z-integration-e54a.log) |  |
+| 03.10.2026 16:34 | integration | ✅ 245 из 245 | 55 с | 50494b7 +9 | [лог](logs/2026-10-03T11-34-48Z-integration-4b6b.log) |  |
+| 03.10.2026 16:35 | typecheck | ✅ без ошибок | 33 с | 50494b7 +9 | [лог](logs/2026-10-03T11-35-46Z-typecheck-6802.log) |  |
+| 03.10.2026 16:36 | lint | ✅ без ошибок | 20 с | 50494b7 +9 | [лог](logs/2026-10-03T11-36-23Z-lint-b5d0.log) |  |
+| 03.10.2026 16:36 | unit | ✅ 2868 из 2871, пропущено 3 | 1 мин 22 с | 50494b7 +8 | [лог](logs/2026-10-03T11-36-46Z-unit-eef2.log) |  |
+| 03.10.2026 17:03 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts) | ❌ упало 1 из 6 | 2 с | 1497435 +15 | [лог](logs/2026-10-03T12-03-10Z-unit-62fd.log) | меню салона нижняя панель телефона тоже идёт по вертикали |
+| 03.10.2026 17:03 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts) | ✅ 6 из 6 | 2 с | 1497435 +15 | [лог](logs/2026-10-03T12-03-29Z-unit-b232.log) |  |
+| 03.10.2026 17:03 | unit (частично: apps/api/src/hotel/branches.test.ts) | ❌ упало 1 из 9 | 2 с | 1497435 +16 | [лог](logs/2026-10-03T12-03-43Z-unit-fa3e.log) | вертикаль филиала вертикаль BEAUTY не трогает объекты вовсе |
+| 03.10.2026 17:03 | unit (частично: apps/api/src/hotel/branches.test.ts) | ✅ 9 из 9 | 2 с | 1497435 +16 | [лог](logs/2026-10-03T12-03-59Z-unit-7cfa.log) |  |
+| 03.10.2026 17:04 | integration (частично: tests/integration/beauty-branch.test.ts) | ❌ упало 6 из 6 | 3 с | 1497435 +6 | [лог](logs/2026-10-03T12-04-26Z-integration-0e8c.log) | филиал салона (integration, DATA_MODEL §19) создаёт бизнес BEAUTY и филиал, объекта не создаёт |
+| 03.10.2026 17:04 | integration (частично: tests/integration/beauty-branch.test.ts) | ✅ 6 из 6 | 3 с | 1497435 +6 | [лог](logs/2026-10-03T12-04-45Z-integration-6bb6.log) |  |
+| 03.10.2026 17:04 | typecheck | ❌ ошибок: 3 | 32 с | 1497435 +17 | [лог](logs/2026-10-03T12-04-53Z-typecheck-74dd.log) | TS2339 |
+| 03.10.2026 17:05 | typecheck | ✅ без ошибок | 31 с | 1497435 +17 | [лог](logs/2026-10-03T12-05-54Z-typecheck-5e3c.log) |  |
+| 03.10.2026 17:06 | lint | ✅ без ошибок | 19 с | 1497435 +17 | [лог](logs/2026-10-03T12-06-29Z-lint-eca9.log) |  |
+| 03.10.2026 17:06 | unit | ❌ упало 1 из 2881, пропущено 3 | 1 мин 20 с | 1497435 +16 | [лог](logs/2026-10-03T12-06-49Z-unit-e015.log) | создание филиала повтор с тем же UUID возвращает исходный объект |
+| 03.10.2026 17:08 | unit | ✅ 2878 из 2881, пропущено 3 | 1 мин 19 с | 1497435 +16 | [лог](logs/2026-10-03T12-08-23Z-unit-41d6.log) |  |
+| 03.10.2026 17:09 | integration | ✅ 251 из 251 | 55 с | 1497435 +6 | [лог](logs/2026-10-03T12-09-47Z-integration-4e35.log) |  |
+| 03.10.2026 17:11 | e2e (частично: tests/ui/beauty-branch.spec.ts) | ❌ код выхода 1 | 3 с | 1497435 +17 | [лог](logs/2026-10-03T12-11-38Z-e2e-64ea.log) | (ошибка вне тестов) |
+| 03.10.2026 17:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ❌ упало 6 из 6 | 4 мин 52 с | 1497435 +17 | [лог](logs/2026-10-03T12-11-50Z-e2e-768a.log) | салон заводится той же формой и открывается своим рабочим местом |
+| 03.10.2026 17:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ❌ упало 4 из 6 | 1 мин 24 с | 1497435 +18 | [лог](logs/2026-10-03T12-17-10Z-e2e-bbf6.log) | салон заводится той же формой и открывается своим рабочим местом |
+| 03.10.2026 17:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ❌ упало 2 из 6 | 32 с | 1497435 +20 | [лог](logs/2026-10-03T12-19-18Z-e2e-d0f7.log) | салон доступен и в светлой теме |
+| 03.10.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ✅ 6 из 6 | 31 с | 1497435 +21 | [лог](logs/2026-10-03T12-20-24Z-e2e-1e8e.log) |  |
+| 03.10.2026 17:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/branches.spec.ts tests/ui/roles | ✅ 60 из 60 | 3 мин 3 с | 1497435 +21 | [лог](logs/2026-10-03T12-21-01Z-e2e-613c.log) |  |
+| 03.10.2026 17:24 | unit (частично: tests/unit/site-design.test.ts apps/web/src/lib/navigation-beauty.test.ts) | ✅ 12 из 12 | 2 с | 1497435 +20 | [лог](logs/2026-10-03T12-24-23Z-unit-c4c4.log) |  |
+| 03.10.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ✅ 6 из 6 | 32 с | 1497435 +21 | [лог](logs/2026-10-03T12-26-01Z-e2e-6501.log) |  |
+| 03.10.2026 17:26 | typecheck | ✅ без ошибок | 34 с | 1497435 +22 | [лог](logs/2026-10-03T12-26-43Z-typecheck-f4d9.log) |  |
+| 03.10.2026 17:27 | lint | ✅ без ошибок | 18 с | 1497435 +22 | [лог](logs/2026-10-03T12-27-27Z-lint-cf3e.log) |  |
+| 03.10.2026 17:30 | unit (частично: packages/domain/src/beauty/catalog.test.ts) | ❌ код выхода 1 | 1 с | 000418f +1 | [лог](logs/2026-10-03T12-30-56Z-unit-537b.log) | (файл не выполнился) |
+| 03.10.2026 17:31 | unit (частично: packages/domain/src/beauty/) | ✅ 32 из 32 | 1 с | 000418f +3 | [лог](logs/2026-10-03T12-31-31Z-unit-ced1.log) |  |
+| 03.10.2026 17:32 | unit (частично: tests/unit/route-access.test.ts) | ⚠️ тестов не найдено | 1 с | 000418f +5 | [лог](logs/2026-10-03T12-32-57Z-unit-0dd2.log) |  |
+| 03.10.2026 17:33 | unit (частично: apps/api/src/auth) | ❌ упало 1 из 189 | 8 с | 000418f +5 | [лог](logs/2026-10-03T12-33-02Z-unit-22b3.log) | права маршрутов API (ADR-107) у каждого маршрута — право из таблицы, и в таблице нет лишних строк |
+| 03.10.2026 17:33 | unit (частично: apps/api/src/auth) | ✅ 189 из 189 | 8 с | 000418f +6 | [лог](logs/2026-10-03T12-33-23Z-unit-556a.log) |  |
+| 03.10.2026 17:34 | integration (частично: tests/integration/beauty-catalog.test.ts) | ✅ 9 из 9 | 3 с | 000418f +7 | [лог](logs/2026-10-03T12-34-07Z-integration-988e.log) |  |
+| 03.10.2026 17:36 | typecheck | ❌ ошибок: 10 | 31 с | 000418f +14 | [лог](logs/2026-10-03T12-36-59Z-typecheck-ee6c.log) | TS2322 |
+| 03.10.2026 17:37 | typecheck | ❌ ошибок: 2 | 22 с | 000418f +14 | [лог](logs/2026-10-03T12-37-42Z-typecheck-6461.log) | TS2322 |
+| 03.10.2026 17:38 | typecheck | ✅ без ошибок | 22 с | 000418f +14 | [лог](logs/2026-10-03T12-38-25Z-typecheck-8020.log) |  |
+| 03.10.2026 17:38 | integration (частично: tests/integration/beauty-catalog.test.ts) | ✅ 9 из 9 | 3 с | 000418f +7 | [лог](logs/2026-10-03T12-38-51Z-integration-9b46.log) |  |
+| 03.10.2026 17:38 | lint | ✅ без ошибок | 18 с | 000418f +14 | [лог](logs/2026-10-03T12-38-54Z-lint-4cc3.log) |  |
+| 03.10.2026 17:39 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts) | ❌ упало 2 из 6 | 2 с | 000418f +14 | [лог](logs/2026-10-03T12-39-24Z-unit-43be.log) | меню салона у филиала салона есть только то, что в нём работает |
+| 03.10.2026 17:39 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts) | ✅ 6 из 6 | 2 с | 000418f +15 | [лог](logs/2026-10-03T12-39-37Z-unit-e0e2.log) |  |
+| 03.10.2026 17:40 | typecheck | ✅ без ошибок | 26 с | 000418f +17 | [лог](logs/2026-10-03T12-40-20Z-typecheck-8031.log) |  |
+| 03.10.2026 17:41 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts) | ❌ упало 2 из 7 | 1 мин 8 с | 000418f +17 | [лог](logs/2026-10-03T12-41-22Z-e2e-2e1b.log) | ошибки услуги словами, введённое не стирается |
+| 03.10.2026 17:43 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts) | ❌ упало 1 из 7 | 50 с | 000418f +17 | [лог](logs/2026-10-03T12-43-15Z-e2e-3bd1.log) | каталог салона на телефоне: без прокрутки вбок |
+| 03.10.2026 17:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts -g на телефоне) | ❌ код выхода 1 | 1 с | 000418f +17 | [лог](logs/2026-10-03T12-46-16Z-e2e-bdfd.log) | (ошибка вне тестов) |
+| 03.10.2026 17:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts) | ✅ 7 из 7 | 51 с | 000418f +17 | [лог](logs/2026-10-03T12-47-18Z-e2e-8826.log) |  |
+| 03.10.2026 17:48 | unit | ❌ упало 2 из 2896, пропущено 3 | 1 мин 16 с | 000418f +16 | [лог](logs/2026-10-03T12-48-13Z-unit-4b48.log) | design: сторож ИИ-слопа (DESIGN.md §15) space-off-scale: отступ вне шкалы 4/8/16/24/32/40/48/64 (DESIGN.md §3) |
+| 03.10.2026 17:49 | integration | ✅ 260 из 260 | 53 с | 000418f +8 | [лог](logs/2026-10-03T12-49-29Z-integration-1bf7.log) |  |
+| 03.10.2026 17:50 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/next-rethrow.test.ts) | ✅ 14 из 14 | 1 с | 000418f +16 | [лог](logs/2026-10-03T12-50-45Z-unit-ea38.log) |  |
+| 03.10.2026 17:50 | unit | ✅ 2893 из 2896, пропущено 3 | 1 мин 16 с | 000418f +16 | [лог](logs/2026-10-03T12-50-51Z-unit-db31.log) |  |
+| 03.10.2026 17:52 | typecheck | ✅ без ошибок | 33 с | 000418f +18 | [лог](logs/2026-10-03T12-52-07Z-typecheck-75d2.log) |  |
+| 03.10.2026 17:52 | lint | ✅ без ошибок | 18 с | 000418f +18 | [лог](logs/2026-10-03T12-52-41Z-lint-f9cc.log) |  |
+| 03.10.2026 17:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts tests/ui/beauty-branch.spec.ts tests/ui/top-menu.spec.ts tests | ✅ 52 из 52 | 2 мин 33 с | 000418f +17 | [лог](logs/2026-10-03T12-53-04Z-e2e-8518.log) |  |
+| 03.10.2026 18:11 | unit (частично: packages/domain/src/beauty/schedule.test.ts) | ❌ код выхода 1 | 2 с | b31830a +1 | [лог](logs/2026-10-03T13-11-09Z-unit-e22e.log) | B4 red: правила графика мастера, модуля нет |
+| 03.10.2026 18:12 | unit (частично: packages/domain/src/beauty) | ✅ 54 из 54 | 2 с | b31830a +3 | [лог](logs/2026-10-03T13-12-04Z-unit-c2ab.log) | B4 green: правила графика и отсутствий |
+| 03.10.2026 18:12 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 2 | 5 с | b31830a +4 | [лог](logs/2026-10-03T13-12-16Z-unit-f143.log) | B4 red: таблица прав, маршрутов графика нет |
+| 03.10.2026 18:14 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 5 с | b31830a +7 | [лог](logs/2026-10-03T13-14-36Z-unit-e26a.log) | B4 green: таблица прав, пять маршрутов графика |
+| 03.10.2026 18:14 | typecheck | ✅ без ошибок | 34 с | b31830a +7 | [лог](logs/2026-10-03T13-14-59Z-typecheck-2b8f.log) | B4: домен и API графика |
+| 03.10.2026 18:17 | integration (частично: tests/integration/beauty-schedule.test.ts) | ❌ код выхода 1 | 3 с | b31830a +8 | [лог](logs/2026-10-03T13-17-27Z-integration-dbcb.log) | B4: график мастера на настоящей базе |
+| 03.10.2026 18:18 | integration (частично: tests/integration/beauty-schedule.test.ts) | ✅ 12 из 12 | 3 с | b31830a +8 | [лог](logs/2026-10-03T13-18-10Z-integration-eb33.log) | B4 green: график мастера, отсутствия, перестановка между филиалами |
+| 03.10.2026 18:20 | integration (частично: tests/integration/beauty-schedule.test.ts) | ✅ 12 из 12 | 3 с | b31830a +8 | [лог](logs/2026-10-03T13-20-45Z-integration-23f1.log) | B4: график мастера, после доказательства мутациями (7 из 7 краснеют) |
+| 03.10.2026 18:26 | typecheck | ❌ ошибок: 1 | 24 с | b31830a +15 | [лог](logs/2026-10-03T13-26-01Z-typecheck-1166.log) | B4: экран графика, подставной API |
+| 03.10.2026 18:26 | typecheck | ✅ без ошибок | 24 с | b31830a +15 | [лог](logs/2026-10-03T13-26-34Z-typecheck-1fd0.log) | B4: экран графика, подставной API |
+| 03.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ✅ 9 из 9 | 2 мин 19 с | b31830a +15 | [лог](logs/2026-10-03T13-28-01Z-e2e-a337.log) |  |
+| 03.10.2026 18:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ✅ 9 из 9 | 1 мин 7 с | b31830a +16 | [лог](logs/2026-10-03T13-31-44Z-e2e-da29.log) | B4: график после компактной недели |
+| 03.10.2026 18:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ❌ упало 1 из 9 | 1 мин 8 с | b31830a +16 | [лог](logs/2026-10-03T13-34-37Z-e2e-14aa.log) | B4 green: график, неделя помещается на телефоне |
+| 03.10.2026 18:38 | lint | ❌ ошибок: 1 | 25 с | b31830a +17 | [лог](logs/2026-10-03T13-38-23Z-lint-7efb.log) | B4: график |
+| 03.10.2026 18:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ✅ 9 из 9 | 1 мин 15 с | b31830a +16 | [лог](logs/2026-10-03T13-38-03Z-e2e-eba6.log) | B4 green: график, неделя на телефоне, axe после анимации панели |
+| 03.10.2026 18:39 | lint | ✅ без ошибок | 23 с | b31830a +17 | [лог](logs/2026-10-03T13-39-00Z-lint-2978.log) | B4: график |
+| 03.10.2026 18:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts tests/ui/beauty-catalog.spec.ts tests/ui/beauty-branch.spec.t | ✅ 76 из 76 | 4 мин 38 с | b31830a +16 | [лог](logs/2026-10-03T13-44-33Z-e2e-f4f9.log) | B4: график, каталог и филиал салона с соседями оболочки |
+| 03.10.2026 18:49 | unit | ✅ 2915 из 2918, пропущено 3 | 1 мин 18 с | b31830a +15 | [лог](logs/2026-10-03T13-49-54Z-unit-08ba.log) | B4: график мастера |
+| 03.10.2026 18:51 | integration | ✅ 272 из 272 | 55 с | b31830a +9 | [лог](logs/2026-10-03T13-51-24Z-integration-8f8f.log) | B4: график мастера |
+| 03.10.2026 18:52 | typecheck | ✅ без ошибок | 23 с | b31830a +17 | [лог](logs/2026-10-03T13-52-34Z-typecheck-e8c5.log) | B4: график мастера |
+| 03.10.2026 18:52 | lint | ✅ без ошибок | 18 с | b31830a +17 | [лог](logs/2026-10-03T13-52-58Z-lint-5f7d.log) | B4: график мастера |
 | 03.10.2026 14:42 | unit | ❌ упало 1 из 2891, пропущено 4 | 1 мин 12 с | f27ac88 | [лог](logs/2026-10-03T09-42-02Z-unit-515d.log) | слияние главной сайта перед пушем |
 | 03.10.2026 17:46 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ❌ упало 1 из 53 | 17 с | d2f4968 +8 | [лог](logs/2026-10-03T12-46-56Z-unit-bb27.log) | red: квота без разбивки по ночам |
 | 03.10.2026 17:47 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ✅ 53 из 53 | 7 с | d2f4968 +9 | [лог](logs/2026-10-03T12-47-20Z-unit-9425.log) | green: квота отдаёт цену каждой ночи |
@@ -5479,6 +5560,26 @@
 | 03.10.2026 18:04 | lint | ✅ без ошибок | 22 с | d8ee099 | [лог](logs/2026-10-03T13-04-54Z-lint-1d8b.log) |  |
 | 03.10.2026 18:05 | integration | ✅ 238 из 238 | 1 мин 10 с | d8ee099 | [лог](logs/2026-10-03T13-05-17Z-integration-a124.log) |  |
 | 03.10.2026 18:06 | unit | ✅ 2977 из 2980, пропущено 3 | 1 мин 40 с | d8ee099 | [лог](logs/2026-10-03T13-06-27Z-unit-b872.log) |  |
+| 03.10.2026 19:18 | typecheck | ✅ без ошибок | 34 с | 90081e4 +50 | [лог](logs/2026-10-03T14-18-01Z-typecheck-8479.log) | B4: слияние с main, миграция перенумерована в 044 |
+| 03.10.2026 19:19 | unit | ✅ 3047 из 3050, пропущено 3 | 1 мин 23 с | 90081e4 +50 | [лог](logs/2026-10-03T14-19-03Z-unit-a9ba.log) | B4: слитое дерево, миграция 044 |
+| 03.10.2026 19:21 | integration | ❌ упало 1 из 276 | 1 мин 1 с | e774d10 | [лог](logs/2026-10-03T14-21-52Z-integration-c412.log) | B4: слитое дерево на локальной базе контейнера |
+| 03.10.2026 19:27 | integration | ✅ 276 из 276 | 1 мин 1 с | e774d10 +2 | [лог](logs/2026-10-03T14-27-52Z-integration-e7cd.log) | B4: после миграции 045, путь функций Beauty закреплён |
+| 03.10.2026 19:31 | lint | ✅ без ошибок | 22 с | e774d10 +2 | [лог](logs/2026-10-03T14-31-37Z-lint-78b5.log) | B4: слитое дерево, миграция 045 |
+| 03.10.2026 19:36 | unit (частично: packages/domain/src/beauty/appointments.test.ts) | ❌ код выхода 1 | 1 с | f98fd21 +1 | [лог](logs/2026-10-03T14-36-23Z-unit-0858.log) | B5 red: правила записи, модуля нет |
+| 03.10.2026 19:37 | unit (частично: packages/domain/src/beauty) | ✅ 70 из 70 | 1 с | f98fd21 +3 | [лог](logs/2026-10-03T14-37-10Z-unit-e6fc.log) | B5 green: правила записи |
+| 03.10.2026 19:39 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 4 с | f98fd21 +6 | [лог](logs/2026-10-03T14-39-02Z-unit-5043.log) | B5: таблица прав, журнал записей |
+| 03.10.2026 19:41 | integration (частично: tests/integration/beauty-appointments.test.ts) | ✅ 14 из 14 | 4 с | f98fd21 +7 | [лог](logs/2026-10-03T14-41-54Z-integration-2641.log) | B5 green: журнал записей, 7 мутаций краснеют |
+| 03.10.2026 19:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts) | ❌ упало 1 из 9 | 1 мин 55 с | f98fd21 +14 | [лог](logs/2026-10-03T14-47-11Z-e2e-eb0b.log) | B5: журнал записей, первый прогон |
+| 03.10.2026 19:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts) | ✅ 9 из 9 | 1 мин 48 с | 1c7b808 +1 | [лог](logs/2026-10-03T14-49-34Z-e2e-1846.log) | B5 green: журнал записей |
+| 03.10.2026 19:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts tests/ui/beauty-branch.spec.ts tests/ui/beauty-schedule.spec.t | ✅ 24 из 24 | 3 мин 15 с | 1c7b808 +4 | [лог](logs/2026-10-03T14-52-49Z-e2e-33b6.log) | B5: журнал после перестройки сетки, с соседями Beauty |
+| 03.10.2026 19:58 | unit | ✅ 3064 из 3067, пропущено 3 | 1 мин 38 с | 950b6cb +1 | [лог](logs/2026-10-03T14-58-16Z-unit-50ab.log) | B5: журнал записей |
+| 03.10.2026 20:03 | typecheck | ❌ ошибок: 3 | 24 с | ed63185 +1 | [лог](logs/2026-10-03T15-03-26Z-typecheck-a112.log) | B5 |
+| 03.10.2026 20:03 | lint | ✅ без ошибок | 19 с | ed63185 +1 | [лог](logs/2026-10-03T15-03-50Z-lint-524a.log) | B5 |
+| 03.10.2026 20:04 | typecheck | ✅ без ошибок | 29 с | ed63185 +2 | [лог](logs/2026-10-03T15-04-26Z-typecheck-91d4.log) | B5 |
+| 03.10.2026 20:04 | lint | ✅ без ошибок | 24 с | ed63185 +2 | [лог](logs/2026-10-03T15-04-56Z-lint-6055.log) | B5 |
+| 03.10.2026 20:04 | unit | ✅ 3064 из 3067, пропущено 3 | 1 мин 39 с | ed63185 | [лог](logs/2026-10-03T15-04-10Z-unit-b7b0.log) | B5: журнал записей |
+| 03.10.2026 20:05 | unit | ✅ 3064 из 3067, пропущено 3 | 1 мин 45 с | ed63185 | [лог](logs/2026-10-03T15-05-20Z-unit-7d7e.log) | B5: журнал записей |
+| 03.10.2026 20:05 | integration | ✅ 290 из 290 | 1 мин 18 с | ed63185 +1 | [лог](logs/2026-10-03T15-05-51Z-integration-1dfe.log) | B5: журнал записей |
 | 03.10.2026 18:14 | typecheck | ✅ без ошибок | 34 с | cd08acf | [лог](logs/2026-10-03T13-14-57Z-typecheck-d752.log) |  |
 | 03.10.2026 18:15 | lint | ✅ без ошибок | 19 с | cd08acf | [лог](logs/2026-10-03T13-15-31Z-lint-2e37.log) |  |
 | 03.10.2026 18:15 | unit | ✅ 3004 из 3007, пропущено 3 | 1 мин 25 с | cd08acf | [лог](logs/2026-10-03T13-15-51Z-unit-e5da.log) |  |
@@ -5514,6 +5615,16 @@
 | 03.10.2026 19:57 | lint | ✅ без ошибок | 21 с | b7abae2 | [лог](logs/2026-10-03T14-57-50Z-lint-7f3b.log) |  |
 | 03.10.2026 19:58 | unit | ✅ 3014 из 3017, пропущено 3 | 1 мин 28 с | b7abae2 | [лог](logs/2026-10-03T14-58-11Z-unit-5ec1.log) |  |
 | 03.10.2026 19:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-list.spec.ts tests/ui/channex-screens.spec.ts tests/ui/channels-compact.spec.ts --worker | ✅ 30 из 30 | 1 мин 49 с | b7abae2 | [лог](logs/2026-10-03T14-59-46Z-e2e-32e4.log) |  |
+| 03.10.2026 20:10 | typecheck | ✅ без ошибок | 25 с | 5a08fed | [лог](logs/2026-10-03T15-10-54Z-typecheck-7579.log) | после слияния с main |
+| 03.10.2026 20:11 | lint | ✅ без ошибок | 21 с | 5a08fed | [лог](logs/2026-10-03T15-11-20Z-lint-ae6d.log) | после слияния с main |
+| 03.10.2026 20:11 | unit | ✅ 3096 из 3099, пропущено 3 | 1 мин 26 с | 5a08fed | [лог](logs/2026-10-03T15-11-43Z-unit-3a01.log) | после слияния с main |
+| 03.10.2026 20:13 | integration | ✅ 290 из 290 | 1 мин 5 с | 5a08fed | [лог](logs/2026-10-03T15-13-09Z-integration-4c7a.log) | после слияния с main |
+| 03.10.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts tests/ui/beauty-branch.spec.ts tests/ui/beauty-schedule.spec.t | ✅ 52 из 52 | 5 мин 36 с | 5a08fed | [лог](logs/2026-10-03T15-14-43Z-e2e-043f.log) | после слияния с main: салон и оболочка |
+| 03.10.2026 20:59 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/rates-design.spec.ts tests/ui/reservation-promo-field.spec.ts tests/ui/unified-sectio | ✅ 37 из 37 | 4 мин 4 с | bb4c3ce | [лог](logs/2026-10-03T15-59-14Z-e2e-a5de.log) |  |
+| 03.10.2026 21:03 | unit | ✅ 3097 из 3100, пропущено 3 | 1 мин 26 с | cc065a8 | [лог](logs/2026-10-03T16-03-19Z-unit-be63.log) |  |
+| 03.10.2026 23:09 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts) | ❌ упало 62 из 62 | 1 мин | 6668c76 +1 | [лог](logs/2026-10-03T18-09-50Z-e2e-bc36.log) | все разделы, карточки и печать открываются; desktop/mobile без переполнения |
+| 03.10.2026 23:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts) | ✅ 62 из 62 | 3 мин 30 с | e482f62 | [лог](logs/2026-10-03T18-11-10Z-e2e-fbce.log) |  |
+| 04.10.2026 00:46 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/theme-transition.spec.ts tests/ui/guests-birthdays.spec.ts tests/ui/beauty-branch.spe | ✅ 46 из 46 | 4 мин 32 с | 02e70a6 +2 | [лог](logs/2026-10-03T19-46-51Z-e2e-ff4d.log) | переход темы: ожидание в фикстуре, сторож, три бывших красных и салонные |
 | 03.10.2026 20:32 | unit (частично: packages/domain/src/market) | ❌ код выхода 1 | 1 с | 6af7487 +8 | [лог](logs/2026-10-03T15-32-46Z-unit-3ece.log) | M1 red: модуля рынка нет |
 | 03.10.2026 20:33 | unit (частично: packages/domain/src/market) | ✅ 17 из 17 | 1 с | 6af7487 +8 | [лог](logs/2026-10-03T15-33-29Z-unit-5984.log) | M1 green: домен рынка |
 | 03.10.2026 20:34 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 2 | 4 с | 6af7487 +14 | [лог](logs/2026-10-03T15-34-52Z-unit-cd17.log) | M1 red: маршрутов рынка нет |
@@ -5625,3 +5736,7 @@
 | 04.10.2026 00:34 | unit | ✅ 3061 из 3064, пропущено 3 | 1 мин 23 с | 57de965 +8 | [лог](logs/2026-10-03T19-34-24Z-unit-3da8.log) |  |
 | 04.10.2026 00:35 | integration | ✅ 242 из 242 | 59 с | 57de965 +9 | [лог](logs/2026-10-03T19-35-48Z-integration-1145.log) |  |
 | 04.10.2026 00:37 | typecheck | ✅ без ошибок | 24 с | c2e45e5 | [лог](logs/2026-10-03T19-37-14Z-typecheck-0a2d.log) |  |
+| 04.10.2026 00:58 | unit | ✅ 3143 из 3146, пропущено 3 | 1 мин 36 с | 7e7cf3d | [лог](logs/2026-10-03T19-58-49Z-unit-6ea6.log) | слитое дерево: main 1f142337 + переход темы |
+| 04.10.2026 01:00 | integration | ✅ 0 из 294, пропущено 294 | 33 с | 7e7cf3d | [лог](logs/2026-10-03T20-00-30Z-integration-e3cd.log) | слитое дерево: Beauty + конкуренты в одной схеме |
+| 04.10.2026 01:01 | integration | ✅ 294 из 294 | 1 мин 2 с | 7e7cf3d | [лог](logs/2026-10-03T20-01-29Z-integration-acba.log) | слитое дерево: Beauty и конкуренты в одной схеме |
+| 04.10.2026 01:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/market.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/theme-transition.spec.ts  | ✅ 70 из 70 | 6 мин 38 с | 7e7cf3d | [лог](logs/2026-10-03T20-05-31Z-e2e-7336.log) | слитое дерево: рынок и каналы из main рядом с салоном |

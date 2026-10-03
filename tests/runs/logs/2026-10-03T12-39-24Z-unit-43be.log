@@ -1,0 +1,74 @@
+# Модульные (unit) · 03.10.2026 17:39 Алматы · vm
+# коммит 000418f (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 14
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-39-24Z-unit-43be.json' 'apps/web/src/lib/navigation-beauty.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/web/src/lib/navigation-beauty.test.ts (6 tests | 2 failed) 14ms
+   ❯ меню салона (6)
+     ✓ у филиала салона нет гостиничных разделов 3ms
+     × у филиала салона есть только то, что в нём работает 7ms
+     ✓ вертикаль не передана: меню гостиницы, как было до среза 1ms
+     × нижняя панель телефона тоже идёт по вертикали 2ms
+     ✓ у каждого пункта салона есть право: закрытую страницу меню не обещает 0ms
+     ✓ администратору смены платформа не видна, а своё рабочее место видно 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > у филиала салона есть только то, что в нём работает
+AssertionError: expected [ '/beauty', '/beauty/services', …(3) ] to deeply equal [ '/beauty', '/team', '/journal' ]
+
+- Expected
++ Received
+
+  [
+    "/beauty",
++   "/beauty/services",
++   "/beauty/masters",
+    "/team",
+    "/journal",
+  ]
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:21:29
+     19|
+     20|   it('у филиала салона есть только то, что в нём работает', () => {
+     21|     expect(hrefs('BEAUTY')).toEqual(['/beauty', '/team', '/journal']);
+       |                             ^
+     22|   });
+     23|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/web/src/lib/navigation-beauty.test.ts > меню салона > нижняя панель телефона тоже идёт по вертикали
+AssertionError: expected [ '/beauty', '/beauty/services', …(2) ] to deeply equal [ '/beauty', '/team', '/journal' ]
+
+- Expected
++ Received
+
+  [
+    "/beauty",
++   "/beauty/services",
++   "/beauty/masters",
+    "/team",
+-   "/journal",
+  ]
+
+ ❯ apps/web/src/lib/navigation-beauty.test.ts:31:61
+     29|
+     30|   it('нижняя панель телефона тоже идёт по вертикали', () => {
+     31|     expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual(['…
+       |                                                             ^
+     32|     expect(phoneNavigationFor().map((i) => i.href)).toContain('/chessb…
+     33|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  12:39:25
+   Duration  743ms (transform 85%, import 12%, tests 2%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-39-24Z-unit-43be.json
+
+# код выхода 1 · 2 с

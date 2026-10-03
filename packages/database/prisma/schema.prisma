@@ -52,6 +52,9 @@ model Business {
 
   organization Organization @relation(fields: [organizationId], references: [id])
   locations    Location[]
+  customers    CustomerBusiness[]
+  employees    Employee[]
+  beautyServices BeautyService[]
 
   @@index([organizationId])
   @@map("businesses")
@@ -78,6 +81,10 @@ model Location {
   business     Business      @relation(fields: [businessId], references: [id])
   property     Property?
   sellerAgents SellerAgent[]
+  employees EmployeeLocation[]
+  services LocationService[]
+  workingHours WorkingHours[]
+  appointments Appointment[]
 
   @@index([businessId])
   @@map("locations")
@@ -1239,6 +1246,7 @@ model Organization {
   extensions     OrganizationExtension[]
   guests         Guest[]
   auditLogs      AuditLog[]
+  customers      Customer[]
 
   @@map("organizations")
 }
@@ -1276,6 +1284,8 @@ model User {
   competitorsCreated  Competitor[]
   competitorReadings  CompetitorOccupancy[]
   userErrors          UserError[]
+  beautyEmployees     Employee[]
+  appointmentsCreated Appointment[]
   sellerProfileEdits  SellerProfile[]
   platformAdmin       PlatformAdmin?
   extensionEdits      OrganizationExtension[]
@@ -1639,4 +1649,223 @@ model WizardEvent {
 
   @@index([guestSessionId, createdAt])
   @@map("wizard_events")
+}
+
+// ───────────────────────── Beauty-домен (DATA_MODEL §19 и §19.1, ADR-104, срез B1) ─────────────────────────
+// Своя предметная область вертикали BEAUTY: Property, Reservation, InventoryUnit, RatePlan и шахматка здесь
+// не участвуют, общей таблицы броней и общего «ресурса» у вертикалей нет (ARCHITECTURE.md §19).
+// Пересечение записей одного мастера держит база: EXCLUDE USING gist в миграции, Prisma такого не описывает.
+
+enum CustomerStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum AppointmentStatus {
+  BOOKED
+  CONFIRMED
+  DONE
+  NO_SHOW
+  CANCELLED
+}
+
+/// Клиент сети: канонический на организацию (freeze-решение №2, закрыло Q-198). Гость §3 не меняется.
+/// Телефон уникален внутри организации, частичным индексом в миграции (без телефона клиентов много).
+model Customer {
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  firstName      String         @map("first_name") @db.VarChar(100)
+  lastName       String?        @map("last_name") @db.VarChar(100)
+  phone          String?        @db.VarChar(32)
+  email          String?        @db.VarChar(320)
+  notes          String?
+  status         CustomerStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization       @relation(fields: [organizationId], references: [id])
+  businesses   CustomerBusiness[]
+  appointments Appointment[]
+
+  @@index([organizationId])
+  @@map("customers")
+}
+
+/// Видимость клиента в конкретном бизнесе: строка появляется при первом обращении в этот бизнес
+model CustomerBusiness {
+  customerId String   @map("customer_id") @db.Uuid
+  businessId String   @map("business_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@id([customerId, businessId])
+  @@index([businessId])
+  @@map("customer_businesses")
+}
+
+/// Мастер: сотрудник сети, не филиала. Филиалы ведёт EmployeeLocation, к одному салону навсегда не привязан.
+/// `userId`: мастер со входом в систему (ARCHITECTURE.md §13), самого входа фаза 3 не делает.
+model Employee {
+  id         String         @id @default(uuid()) @db.Uuid
+  businessId String         @map("business_id") @db.Uuid
+  name       String         @db.VarChar(200)
+  phone      String?        @db.VarChar(32)
+  email      String?        @db.VarChar(320)
+  userId     String?        @map("user_id") @db.Uuid
+  status     EmployeeStatus @default(ACTIVE)
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business     Business           @relation(fields: [businessId], references: [id])
+  user         User?              @relation(fields: [userId], references: [id])
+  locations    EmployeeLocation[]
+  services     EmployeeService[]
+  workingHours WorkingHours[]
+  timeOffs     TimeOff[]
+  appointments Appointment[]
+
+  @@index([businessId])
+  @@map("employees")
+}
+
+/// Один мастер работает в нескольких салонах. Филиал своего бизнеса, проверяет триггер
+model EmployeeLocation {
+  employeeId String   @map("employee_id") @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@id([employeeId, locationId])
+  @@index([locationId])
+  @@map("employee_locations")
+}
+
+/// Единый каталог услуг сети: принадлежит бизнесу, на филиалы не копируется.
+/// `currency`: валюта цены каталога (Q-257), цену в своей валюте филиал задаёт через LocationService.
+model BeautyService {
+  id              String   @id @default(uuid()) @db.Uuid
+  businessId      String   @map("business_id") @db.Uuid
+  name            String   @db.VarChar(200)
+  category        String?  @db.VarChar(100)
+  durationMinutes Int      @map("duration_minutes")
+  price           BigInt
+  currency        String   @db.VarChar(3)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  business     Business          @relation(fields: [businessId], references: [id])
+  locations    LocationService[]
+  employees    EmployeeService[]
+  appointments Appointment[]
+
+  @@index([businessId])
+  @@map("beauty_services")
+}
+
+/// Филиал включает услугу каталога и может поставить свои цену и длительность; пусто, действует каталог
+model LocationService {
+  locationId       String   @map("location_id") @db.Uuid
+  serviceId        String   @map("service_id") @db.Uuid
+  enabled          Boolean  @default(true)
+  priceOverride    BigInt?  @map("price_override")
+  durationOverride Int?     @map("duration_override")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location Location      @relation(fields: [locationId], references: [id])
+  service  BeautyService @relation(fields: [serviceId], references: [id])
+
+  @@id([locationId, serviceId])
+  @@index([serviceId])
+  @@map("location_services")
+}
+
+/// Что мастер умеет. Услуга своего бизнеса, проверяет триггер
+model EmployeeService {
+  employeeId String   @map("employee_id") @db.Uuid
+  serviceId  String   @map("service_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  employee Employee      @relation(fields: [employeeId], references: [id])
+  service  BeautyService @relation(fields: [serviceId], references: [id])
+
+  @@id([employeeId, serviceId])
+  @@index([serviceId])
+  @@map("employee_services")
+}
+
+/// График мастера всегда в контексте филиала (в каком салоне он стоит в этот день).
+/// Недельный шаблон (Q-251), исключения в TimeOff. `weekday`: 0 воскресенье, как Date.getDay()
+model WorkingHours {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @map("employee_id") @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  weekday    Int      @db.SmallInt
+  timeFrom   DateTime @map("time_from") @db.Time(6)
+  timeTo     DateTime @map("time_to") @db.Time(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([employeeId, locationId, weekday, timeFrom])
+  @@index([locationId, weekday])
+  @@map("working_hours")
+}
+
+/// Отпуска и отсутствия мастера: календарные даты включительно с обеих сторон
+model TimeOff {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @map("employee_id") @db.Uuid
+  dateFrom   DateTime @map("date_from") @db.Date
+  dateTo     DateTime @map("date_to") @db.Date
+  reason     String?  @db.VarChar(200)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, dateFrom])
+  @@map("time_offs")
+}
+
+/// Запись клиента к мастеру на услугу. `price` и `currency`: снимок на момент записи, не ссылка на каталог.
+/// Пересечение записей одного мастера запрещает база (EXCLUDE в миграции), отменённая и незаезд места не держат.
+model Appointment {
+  id          String            @id @default(uuid()) @db.Uuid
+  locationId  String            @map("location_id") @db.Uuid
+  customerId  String            @map("customer_id") @db.Uuid
+  employeeId  String            @map("employee_id") @db.Uuid
+  serviceId   String            @map("service_id") @db.Uuid
+  startsAt    DateTime          @map("starts_at") @db.Timestamptz(6)
+  endsAt      DateTime          @map("ends_at") @db.Timestamptz(6)
+  status      AppointmentStatus @default(BOOKED)
+  price       BigInt
+  currency    String            @db.VarChar(3)
+  notes       String?
+  createdById String?           @map("created_by_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  location  Location      @relation(fields: [locationId], references: [id])
+  customer  Customer      @relation(fields: [customerId], references: [id])
+  employee  Employee      @relation(fields: [employeeId], references: [id])
+  service   BeautyService @relation(fields: [serviceId], references: [id])
+  createdBy User?         @relation(fields: [createdById], references: [id])
+
+  @@index([locationId, startsAt])
+  @@index([employeeId, startsAt])
+  @@index([customerId])
+  @@map("appointments")
 }

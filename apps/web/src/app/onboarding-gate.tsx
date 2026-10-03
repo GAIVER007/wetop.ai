@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError } from '../lib/api';
 import { ONBOARDING_LATER_COOKIE, needsOnboardingRedirect } from '../lib/onboarding-later';
+import { deskShell } from '../lib/desk-shell';
 
 /**
  * Гейт онбординга: пока у объекта организации нет номеров, рабочие экраны уводят на /onboarding
@@ -19,10 +20,13 @@ export async function OnboardingGate() {
     if (e instanceof ApiError) return e;
     throw e;
   });
+  // Вертикаль филиала берётся из того же /auth/me, что меню (кэш на рендер): лишнего рейса гейт не делает
+  const { vertical } = await deskShell();
   // 404 — у организации нет объекта (после сброса, ADR-118): онбординг его и создаст
   // (plans/onboarding-without-property-2026-09-28.md). Не вошёл и прочие отказы решают сами страницы.
   const propertyMissing = settings instanceof ApiError && settings.status === 404;
   const needsOnboarding = !(settings instanceof ApiError) && Boolean(settings?.needsOnboarding);
-  if (needsOnboardingRedirect({ path, needsOnboarding, postponed, propertyMissing })) redirect('/onboarding');
+  if (needsOnboardingRedirect({ path, needsOnboarding, postponed, propertyMissing, vertical }))
+    redirect('/onboarding');
   return null;
 }

@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, settleStreaming, test } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -65,6 +65,9 @@ test('казахская форма и переключение форм без 
     'Күн бойынша жиынтық',
   );
   await page.getByRole('link', { name: 'Список проживающих' }).click();
+  // Переход щелчком, а не `goto`: ожидание потока из фикстуры тут не срабатывает само, а под
+  // нагрузкой раннера скрытый серверный сегмент остаётся в DOM и testid находится дважды
+  await settleStreaming(page);
   await expect(page.getByTestId('print-inhouse')).toBeVisible();
 });
 

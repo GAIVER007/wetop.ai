@@ -4539,21 +4539,35 @@ createServer(async (req, res) => {
       if (!who) return send(200, { user: null });
       // Match production whoami: organization is a sibling of user.
       const { organization, ...user } = signedInView(who);
+      // Контекст запроса, как у настоящего scopeView (Platform P2 К1): вертикаль выбранного филиала решает меню
+      const pointer = String(req.headers['x-wetop-scope'] ?? '');
+      const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b.locationId)}`));
       return send(200, {
         user,
         organization,
         access: { aiSeller: aiSellerView(who.organizationId) },
+        context: {
+          scope: scoped ? 'LOCATION' : 'ORGANIZATION',
+          businessId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          locationId: scoped ? String((scoped as Record<string, unknown>)['locationId']) : null,
+          vertical: scoped ? String((scoped as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY') : null,
+        },
       });
     }
     if (path === '/hotel/settings' && req.method === 'GET' && fixtureBranches.length) {
       const selected = fixtureBranches.find(b => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      // Филиал салона объекта не имеет (DATA_MODEL §19): настоящий API здесь отвечает 404
+      if (selected && (selected as Record<string, unknown>)['vertical'] === 'BEAUTY')
+        return send(404, { message: 'У этого филиала нет объекта' });
       const settings = read(path, url.searchParams) as { property: Record<string, unknown>; needsOnboarding?: boolean };
       return send(200, { ...settings, property: { ...settings.property, id: '11111111-1111-4111-8111-111111111111', ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}) } });
     }
     if (path === '/branches' || path === '/branches/overview') {
-      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
+      const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };
       if (req.method === 'POST') {
-        const item = { ...branch, ...body, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
+        // Срез B2: у салона объекта нет, номеров тоже; вертикаль приходит в теле (Q-256)
+        const vertical = body['vertical'] === 'BEAUTY' ? 'BEAUTY' : 'HOSPITALITY';
+        const item = { ...branch, ...body, vertical, locationId: String(body.id), _count: { inventoryUnits: 0, accommodationTypes: 0 } };
         if (!fixtureBranches.some((b) => b.id === item.id)) fixtureBranches.push(item);
         return send(200, item);
       }

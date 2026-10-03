@@ -1,0 +1,42 @@
+# Модульные (unit) · 03.10.2026 17:03 Алматы · vm
+# коммит 1497435 (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 16
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-03-43Z-unit-fa3e.json' 'apps/api/src/hotel/branches.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| apps/api/src/hotel/branches.test.ts (9 tests | 1 failed) 23ms
+   ✓ создание филиала (4)
+     ✓ сотрудник не создаёт филиал, даже вызывая сервис напрямую 5ms
+     ✓ не принимает неверный часовой пояс до записи 2ms
+     ✓ повтор с тем же UUID возвращает исходный объект 3ms
+     ✓ UUID другой формы не притворяется успешным созданием 1ms
+   ✓ создаёт пустой объект в цепочке и возвращает тот же объект при повторе 3ms
+   ❯ вертикаль филиала (4)
+     ✓ без вертикали создаётся гостиница, как было до среза 1ms
+     × вертикаль BEAUTY не трогает объекты вовсе 4ms
+     ✓ незнакомое направление отклоняется до записи 1ms
+     ✓ сотрудник не создаёт и салон 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/hotel/branches.test.ts > вертикаль филиала > вертикаль BEAUTY не трогает объекты вовсе
+TypeError: Cannot read properties of undefined (reading 'findFirst')
+ ❯ apps/api/src/hotel/branches.test.ts:91:24
+     89|     await run(() => service.create({ ...input, vertical: 'BEAUTY' })).…
+     90|     expect(tx.property.findFirst).not.toHaveBeenCalled();
+     91|     expect(tx.location.findFirst).toHaveBeenCalled();
+       |                        ^
+     92|   });
+     93|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  12:03:44
+   Duration  1.51s (transform 73%, import 25%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-03-43Z-unit-fa3e.json
+
+# код выхода 1 · 2 с

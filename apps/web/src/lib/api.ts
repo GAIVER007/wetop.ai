@@ -486,6 +486,13 @@ export const authApi = {
       organization?: SignedInOrganization | null;
       expiresAt?: string;
       access?: DeskAccessView;
+      /** Контекст запроса (Platform P2 К1): какой филиал выбран и какое у него направление (Q-254) */
+      context?: {
+        scope?: string | null;
+        businessId?: string | null;
+        locationId?: string | null;
+        vertical?: 'HOSPITALITY' | 'BEAUTY' | null;
+      } | null;
     }>('/auth/me');
     // whoami returns organization alongside user; older previews nested it inside user.
     return {
@@ -2348,6 +2355,8 @@ export interface BranchItem {
   address: string | null;
   currency: string;
   timezone: string;
+  /** Направление филиала (срез B2, Q-254): у салона объекта нет, гостиничные экраны ему не показываются */
+  vertical: 'HOSPITALITY' | 'BEAUTY';
   locationId: string;
   location: { businessId: string };
   _count: { inventoryUnits: number; accommodationTypes: number };
@@ -2369,5 +2378,6 @@ export const branchesApi = {
     address: string;
     currency: string;
     timezone: string;
+    vertical?: 'HOSPITALITY' | 'BEAUTY';
   }) => sendJson<BranchItem>('POST', '/branches', body),
 };

@@ -5331,3 +5331,25 @@
 | 03.10.2026 16:35 | typecheck | ✅ без ошибок | 33 с | 50494b7 +9 | [лог](logs/2026-10-03T11-35-46Z-typecheck-6802.log) |  |
 | 03.10.2026 16:36 | lint | ✅ без ошибок | 20 с | 50494b7 +9 | [лог](logs/2026-10-03T11-36-23Z-lint-b5d0.log) |  |
 | 03.10.2026 16:36 | unit | ✅ 2868 из 2871, пропущено 3 | 1 мин 22 с | 50494b7 +8 | [лог](logs/2026-10-03T11-36-46Z-unit-eef2.log) |  |
+| 03.10.2026 17:03 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts) | ❌ упало 1 из 6 | 2 с | 1497435 +15 | [лог](logs/2026-10-03T12-03-10Z-unit-62fd.log) | меню салона нижняя панель телефона тоже идёт по вертикали |
+| 03.10.2026 17:03 | unit (частично: apps/web/src/lib/navigation-beauty.test.ts) | ✅ 6 из 6 | 2 с | 1497435 +15 | [лог](logs/2026-10-03T12-03-29Z-unit-b232.log) |  |
+| 03.10.2026 17:03 | unit (частично: apps/api/src/hotel/branches.test.ts) | ❌ упало 1 из 9 | 2 с | 1497435 +16 | [лог](logs/2026-10-03T12-03-43Z-unit-fa3e.log) | вертикаль филиала вертикаль BEAUTY не трогает объекты вовсе |
+| 03.10.2026 17:03 | unit (частично: apps/api/src/hotel/branches.test.ts) | ✅ 9 из 9 | 2 с | 1497435 +16 | [лог](logs/2026-10-03T12-03-59Z-unit-7cfa.log) |  |
+| 03.10.2026 17:04 | integration (частично: tests/integration/beauty-branch.test.ts) | ❌ упало 6 из 6 | 3 с | 1497435 +6 | [лог](logs/2026-10-03T12-04-26Z-integration-0e8c.log) | филиал салона (integration, DATA_MODEL §19) создаёт бизнес BEAUTY и филиал, объекта не создаёт |
+| 03.10.2026 17:04 | integration (частично: tests/integration/beauty-branch.test.ts) | ✅ 6 из 6 | 3 с | 1497435 +6 | [лог](logs/2026-10-03T12-04-45Z-integration-6bb6.log) |  |
+| 03.10.2026 17:04 | typecheck | ❌ ошибок: 3 | 32 с | 1497435 +17 | [лог](logs/2026-10-03T12-04-53Z-typecheck-74dd.log) | TS2339 |
+| 03.10.2026 17:05 | typecheck | ✅ без ошибок | 31 с | 1497435 +17 | [лог](logs/2026-10-03T12-05-54Z-typecheck-5e3c.log) |  |
+| 03.10.2026 17:06 | lint | ✅ без ошибок | 19 с | 1497435 +17 | [лог](logs/2026-10-03T12-06-29Z-lint-eca9.log) |  |
+| 03.10.2026 17:06 | unit | ❌ упало 1 из 2881, пропущено 3 | 1 мин 20 с | 1497435 +16 | [лог](logs/2026-10-03T12-06-49Z-unit-e015.log) | создание филиала повтор с тем же UUID возвращает исходный объект |
+| 03.10.2026 17:08 | unit | ✅ 2878 из 2881, пропущено 3 | 1 мин 19 с | 1497435 +16 | [лог](logs/2026-10-03T12-08-23Z-unit-41d6.log) |  |
+| 03.10.2026 17:09 | integration | ✅ 251 из 251 | 55 с | 1497435 +6 | [лог](logs/2026-10-03T12-09-47Z-integration-4e35.log) |  |
+| 03.10.2026 17:11 | e2e (частично: tests/ui/beauty-branch.spec.ts) | ❌ код выхода 1 | 3 с | 1497435 +17 | [лог](logs/2026-10-03T12-11-38Z-e2e-64ea.log) | (ошибка вне тестов) |
+| 03.10.2026 17:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ❌ упало 6 из 6 | 4 мин 52 с | 1497435 +17 | [лог](logs/2026-10-03T12-11-50Z-e2e-768a.log) | салон заводится той же формой и открывается своим рабочим местом |
+| 03.10.2026 17:17 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ❌ упало 4 из 6 | 1 мин 24 с | 1497435 +18 | [лог](logs/2026-10-03T12-17-10Z-e2e-bbf6.log) | салон заводится той же формой и открывается своим рабочим местом |
+| 03.10.2026 17:19 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ❌ упало 2 из 6 | 32 с | 1497435 +20 | [лог](logs/2026-10-03T12-19-18Z-e2e-d0f7.log) | салон доступен и в светлой теме |
+| 03.10.2026 17:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ✅ 6 из 6 | 31 с | 1497435 +21 | [лог](logs/2026-10-03T12-20-24Z-e2e-1e8e.log) |  |
+| 03.10.2026 17:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/branches.spec.ts tests/ui/roles | ✅ 60 из 60 | 3 мин 3 с | 1497435 +21 | [лог](logs/2026-10-03T12-21-01Z-e2e-613c.log) |  |
+| 03.10.2026 17:24 | unit (частично: tests/unit/site-design.test.ts apps/web/src/lib/navigation-beauty.test.ts) | ✅ 12 из 12 | 2 с | 1497435 +20 | [лог](logs/2026-10-03T12-24-23Z-unit-c4c4.log) |  |
+| 03.10.2026 17:26 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-branch.spec.ts) | ✅ 6 из 6 | 32 с | 1497435 +21 | [лог](logs/2026-10-03T12-26-01Z-e2e-6501.log) |  |
+| 03.10.2026 17:26 | typecheck | ✅ без ошибок | 34 с | 1497435 +22 | [лог](logs/2026-10-03T12-26-43Z-typecheck-f4d9.log) |  |
+| 03.10.2026 17:27 | lint | ✅ без ошибок | 18 с | 1497435 +22 | [лог](logs/2026-10-03T12-27-27Z-lint-cf3e.log) |  |

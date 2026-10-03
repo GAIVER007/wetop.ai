@@ -12,7 +12,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { createPropertyInChain, NEW_PROPERTY_DEFAULTS } from '@pms/database';
+import { createBeautyLocationInChain, createPropertyInChain, NEW_PROPERTY_DEFAULTS } from '@pms/database';
 import {
   currentOrganizationId,
   currentRole,
@@ -35,6 +35,48 @@ const select = {
   _count: { select: { inventoryUnits: true, accommodationTypes: true } },
 } as const;
 
+/** Филиал салона: у него нет объекта, поля те же живут на Location (DATA_MODEL §19, Q-256) */
+const beautySelect = {
+  id: true,
+  name: true,
+  address: true,
+  currency: true,
+  timezone: true,
+  businessId: true,
+} as const;
+
+/** Что показывает и создаёт этот модуль: гостиница с объектом или салон без него (ADR-139, Q-254) */
+export type BranchVertical = 'HOSPITALITY' | 'BEAUTY';
+
+/** Вертикаль из тела запроса. Не указана, значит гостиница, как было до среза B2 (Q-256) */
+export function parseBranchVertical(raw: unknown): BranchVertical {
+  if (raw === undefined || raw === null || raw === '') return 'HOSPITALITY';
+  if (raw === 'HOSPITALITY' || raw === 'BEAUTY') return raw;
+  throw new BadRequestException('Выберите направление: гостиница или салон красоты');
+}
+
+/** Филиал салона в той же форме, что гостиничный: экран и переключатель филиала читают одно поле */
+function beautyBranch(row: {
+  id: string;
+  name: string;
+  address: string | null;
+  currency: string;
+  timezone: string;
+  businessId: string;
+}) {
+  return {
+    id: row.id,
+    name: row.name,
+    address: row.address,
+    currency: row.currency,
+    timezone: row.timezone,
+    vertical: 'BEAUTY' as const,
+    locationId: row.id,
+    location: { businessId: row.businessId },
+    _count: { inventoryUnits: 0, accommodationTypes: 0 },
+  };
+}
+
 @Injectable()
 export class BranchesService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
@@ -49,7 +91,7 @@ export class BranchesService {
       where: { id: organizationId },
       select: { id: true, name: true, status: true },
     });
-    const items = await this.prisma.db.property.findMany({
+    const properties = await this.prisma.db.property.findMany({
       where: {
         organizationId,
         location: { status: 'ACTIVE', business: { organizationId, status: 'ACTIVE' } },
@@ -57,6 +99,20 @@ export class BranchesService {
       select,
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
+    // Филиалы салонов: у них объекта нет вовсе (DATA_MODEL §19), поэтому берутся прямо из Location
+    const salons = await this.prisma.db.location.findMany({
+      where: {
+        status: 'ACTIVE',
+        business: { organizationId, status: 'ACTIVE', vertical: 'BEAUTY' },
+        property: null,
+      },
+      select: beautySelect,
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+    const items = [
+      ...properties.map((item) => ({ ...item, vertical: 'HOSPITALITY' as const })),
+      ...salons.map(beautyBranch),
+    ];
     return { organization, items, canCreate: currentRole() === 'OWNER' };
   }
   async create(raw: unknown) {
@@ -82,9 +138,12 @@ export class BranchesService {
       throw new BadRequestException('Укажите часовой пояс IANA');
     }
     if (!timezone) throw new BadRequestException('Укажите часовой пояс');
+    const vertical = parseBranchVertical(body.vertical);
+    if (vertical === 'BEAUTY') return this.createSalon({ id, name, address, currency, timezone });
     return this.prisma.db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
       const existing = await tx.property.findFirst({ where: { id, organizationId }, select });
+      const hospitality = <T>(row: T) => ({ ...row, vertical: 'HOSPITALITY' as const });
       if (existing) {
         if (
           existing.name !== name ||
@@ -95,7 +154,7 @@ export class BranchesService {
           throw new ConflictException(
             'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.',
           );
-        return existing;
+        return hospitality(existing);
       }
       const property = await createPropertyInChain(tx, organizationId, {
         ...NEW_PROPERTY_DEFAULTS,
@@ -115,7 +174,65 @@ export class BranchesService {
           after: { name, locationId: property.locationId, currency, timezone },
         },
       });
-      return tx.property.findFirstOrThrow({ where: { id: property.id, organizationId }, select });
+      return hospitality(
+        await tx.property.findFirstOrThrow({ where: { id: property.id, organizationId }, select }),
+      );
+    });
+  }
+
+  /**
+   * Филиал салона (срез B2, Q-256): цепочка Organization → Business (BEAUTY) → Location, объекта нет.
+   * Повтор того же запроса возвращает тот же филиал, как у гостиницы: повторное нажатие не плодит салоны.
+   */
+  private async createSalon(data: {
+    id: string;
+    name: string;
+    address: string;
+    currency: string;
+    timezone: string;
+  }) {
+    const organizationId = this.organization();
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
+      const existing = await tx.location.findFirst({
+        where: { id: data.id, business: { organizationId } },
+        select: beautySelect,
+      });
+      if (existing) {
+        if (
+          existing.name !== data.name ||
+          (existing.address ?? '') !== data.address ||
+          existing.currency !== data.currency ||
+          existing.timezone !== data.timezone
+        )
+          throw new ConflictException(
+            'Этот запрос уже сохранён с другими данными. Обновите страницу перед повтором.',
+          );
+        return beautyBranch(existing);
+      }
+      const location = await createBeautyLocationInChain(tx, organizationId, {
+        id: data.id,
+        name: data.name,
+        address: data.address || null,
+        timezone: data.timezone,
+        currency: data.currency,
+      });
+      await tx.auditLog.create({
+        data: {
+          organizationId,
+          userId: currentUserId(),
+          entityType: 'location',
+          entityId: location.id,
+          action: 'location.salon_created',
+          after: {
+            name: data.name,
+            businessId: location.businessId,
+            currency: data.currency,
+            timezone: data.timezone,
+          },
+        },
+      });
+      return beautyBranch({ ...location, address: location.address ?? null });
     });
   }
 }

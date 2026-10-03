@@ -1,0 +1,31 @@
+/* Рабочее место салона (срез B2). Отступы по шкале DESIGN.md §3, цвета только токенами */
+.beauty-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  align-items: start;
+}
+
+.beauty-text {
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.beauty-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.beauty-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: baseline;
+}
+
+.beauty-note {
+  color: var(--muted);
+}

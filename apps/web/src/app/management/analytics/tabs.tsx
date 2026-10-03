@@ -11,13 +11,14 @@ export function AnalyticsTabs({
   current,
   fund = 'all',
 }: {
-  current: 'overview' | 'occupancy';
+  current: 'overview' | 'occupancy' | 'units';
   fund?: DashboardFund;
 }) {
   const q = fund === 'all' ? '' : `?fund=${fund}`;
   const tabs = [
     { id: 'overview', label: 'Обзор', href: `${ANALYTICS_PATH}${q}` },
     { id: 'occupancy', label: 'Загрузка', href: `${ANALYTICS_PATH}/occupancy${q}` },
+    { id: 'units', label: 'По номерам', href: `${ANALYTICS_PATH}/units${q}` },
   ] as const;
   return (
     <nav className="settings-tabs pa-tabs" aria-label="Аналитика" data-testid="pa-tabs">

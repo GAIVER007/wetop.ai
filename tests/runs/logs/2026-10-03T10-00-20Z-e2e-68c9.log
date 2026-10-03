@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 03.10.2026 15:00 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.alt.config.ts' 'analytics-units'
+Error: http://127.0.0.1:3108/today is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 13 с

@@ -1,0 +1,16 @@
+# Сквозные (e2e) · 02.10.2026 23:34 Алматы · Noutbuk-Vyacheslav.local
+# коммит 1d88b19 (main), незакоммиченных файлов набора: 28
+# npx playwright test --workers=2 --reporter=list,json '--config' './playwright.ui-support.local.config.ts' '--workers=1'
+[WebServer] ⨯ Failed to start server
+[WebServer] Error: listen EADDRINUSE: address already in use 127.0.0.1:3106
+[WebServer]     at <unknown> (Error: listen EADDRINUSE: address already in use 127.0.0.1:3106) {
+[WebServer]   code: 'EADDRINUSE',
+[WebServer]   errno: -48,
+[WebServer]   syscall: 'listen',
+[WebServer]   address: '127.0.0.1',
+[WebServer]   port: 3106
+[WebServer] }
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+# код выхода 1 · 2 с

@@ -62,6 +62,20 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Рабочее место салона: филиал, что уже работает и что настраивается.',
       },
       {
+        href: '/beauty/services',
+        requires: 'desk',
+        label: 'Услуги салона',
+        icon: 'rates',
+        description: 'Каталог услуг сети: длительность и цена, своя цена филиала.',
+      },
+      {
+        href: '/beauty/masters',
+        requires: 'desk',
+        label: 'Мастера',
+        icon: 'guests',
+        description: 'Мастера сети: филиалы, в которых работают, и что умеют.',
+      },
+      {
         href: '/today',
         requires: 'desk',
         label: 'Главная',
@@ -378,6 +392,8 @@ export const menuSections: MenuSection[] = [
  */
 export const beautyMenuSections: MenuSection[] = [
   direct('salon', '/beauty', 'today', 'Салон'),
+  direct('beauty-services', '/beauty/services', 'rates', 'Услуги'),
+  direct('beauty-masters', '/beauty/masters', 'guests', 'Мастера'),
   direct('team', '/team', 'guests'),
   direct('journal', '/journal', 'journal'),
   {

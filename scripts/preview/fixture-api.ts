@@ -3907,6 +3907,29 @@ function read(path: string, q: URLSearchParams): unknown {
 }
 
 const fixtureBranches: Array<Record<string, unknown>> = [];
+
+/** Каталог салона в подставном API (срез B3): услуги сети и мастера живут в памяти стенда */
+interface FixtureBeautyService {
+  id: string;
+  name: string;
+  category: string | null;
+  durationMinutes: number;
+  priceMinor: string;
+  currency: string;
+  active: boolean;
+  location: { enabled: boolean; priceOverrideMinor: string | null; durationOverrideMinutes: number | null } | null;
+}
+interface FixtureBeautyEmployee {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  active: boolean;
+  locationIds: string[];
+  serviceIds: string[];
+}
+const fixtureBeautyServices: FixtureBeautyService[] = [];
+const fixtureBeautyEmployees: FixtureBeautyEmployee[] = [];
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -3951,6 +3974,8 @@ createServer(async (req, res) => {
     }
     if (path === '/__test/reset') {
       fixtureBranches.length = 0;
+      fixtureBeautyServices.length = 0;
+      fixtureBeautyEmployees.length = 0;
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
@@ -4561,6 +4586,121 @@ createServer(async (req, res) => {
         return send(404, { message: 'У этого филиала нет объекта' });
       const settings = read(path, url.searchParams) as { property: Record<string, unknown>; needsOnboarding?: boolean };
       return send(200, { ...settings, property: { ...settings.property, id: '11111111-1111-4111-8111-111111111111', ...(selected ? { id: selected.id, name: selected.name, address: selected.address } : {}) } });
+    }
+    // Каталог салона (DATA_MODEL §19.1, срез B3): услуги сети и мастера, цена филиала переопределением
+    if (path.startsWith('/beauty/')) {
+      const current = fixtureBranches.find((b) => String(req.headers['x-wetop-scope'] ?? '').endsWith(`location=${String(b.locationId)}`));
+      const locationId = current ? String((current as Record<string, unknown>)['locationId']) : null;
+      const locationCurrency = current ? String((current as Record<string, unknown>)['currency'] ?? 'KZT') : null;
+      const effective = (s: FixtureBeautyService) => {
+        if (!s.active) return { sellable: false, reason: 'SERVICE_INACTIVE' };
+        if (!locationCurrency) return null;
+        const own = s.location;
+        if (!own || !own.enabled) return { sellable: false, reason: 'NOT_ENABLED' };
+        if (own.priceOverrideMinor === null && s.currency !== locationCurrency)
+          return { sellable: false, reason: 'CURRENCY_MISMATCH' };
+        return {
+          sellable: true,
+          priceMinor: own.priceOverrideMinor ?? s.priceMinor,
+          currency: own.priceOverrideMinor === null ? s.currency : locationCurrency,
+          durationMinutes: own.durationOverrideMinutes ?? s.durationMinutes,
+          overridden: own.priceOverrideMinor !== null || own.durationOverrideMinutes !== null,
+        };
+      };
+      const serviceList = () => ({
+        locationId,
+        locationCurrency,
+        items: fixtureBeautyServices.map((s) => ({ ...s, effective: effective(s) })),
+      });
+      if (path === '/beauty/services' && req.method === 'GET') return send(200, serviceList());
+      if (path === '/beauty/services' && req.method === 'POST') {
+        const name = String(body['name'] ?? '').trim();
+        if (!name) return send(400, { message: 'Укажите название услуги' });
+        const minutes = Number(body['durationMinutes']);
+        if (!Number.isInteger(minutes) || minutes <= 0)
+          return send(400, { message: 'Длительность услуги: целое число минут больше нуля' });
+        if (!/^\d+$/.test(String(body['priceMinor'] ?? '')))
+          return send(400, { message: 'Цена услуги: целое число в тиынах, не меньше нуля' });
+        const row: FixtureBeautyService = {
+          id: `svc-${fixtureBeautyServices.length + 1}-0000-4000-8000-000000000000`,
+          name,
+          category: String(body['category'] ?? '').trim() || null,
+          durationMinutes: minutes,
+          priceMinor: String(body['priceMinor']),
+          currency: String(body['currency'] ?? 'KZT'),
+          active: body['active'] !== false,
+          location: null,
+        };
+        fixtureBeautyServices.push(row);
+        return send(200, { ...row, effective: effective(row) });
+      }
+      const patchService = /^\/beauty\/services\/([^/]+)$/.exec(path);
+      if (patchService && req.method === 'PATCH') {
+        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(patchService[1]!));
+        if (!row) return send(404, { message: 'Услуга не найдена' });
+        if (body['name'] !== undefined) row.name = String(body['name']).trim();
+        if (body['category'] !== undefined) row.category = String(body['category']).trim() || null;
+        if (body['durationMinutes'] !== undefined) row.durationMinutes = Number(body['durationMinutes']);
+        if (body['priceMinor'] !== undefined) row.priceMinor = String(body['priceMinor']);
+        if (body['currency'] !== undefined) row.currency = String(body['currency']);
+        if (body['active'] !== undefined) row.active = Boolean(body['active']);
+        return send(200, { ...row, effective: effective(row) });
+      }
+      const locationService = /^\/beauty\/services\/([^/]+)\/location$/.exec(path);
+      if (locationService && req.method === 'PUT') {
+        const row = fixtureBeautyServices.find((s) => s.id === decodeURIComponent(locationService[1]!));
+        if (!row) return send(404, { message: 'Услуга не найдена' });
+        if (!locationId)
+          return send(400, { message: 'Выберите филиал: цену и доступность услуги задаёт он' });
+        const price = String(body['priceOverrideMinor'] ?? '');
+        const duration = String(body['durationOverrideMinutes'] ?? '');
+        if (price && !/^\d+$/.test(price))
+          return send(400, { message: 'Цена филиала: целое число в тиынах, не меньше нуля' });
+        row.location = {
+          enabled: Boolean(body['enabled']),
+          priceOverrideMinor: price || null,
+          durationOverrideMinutes: duration ? Number(duration) : null,
+        };
+        return send(200, serviceList());
+      }
+      if (path === '/beauty/employees' && req.method === 'GET')
+        return send(200, { locationId, items: fixtureBeautyEmployees });
+      if (path === '/beauty/employees' && req.method === 'POST') {
+        const name = String(body['name'] ?? '').trim();
+        if (!name) return send(400, { message: 'Укажите имя мастера' });
+        const row: FixtureBeautyEmployee = {
+          id: `emp-${fixtureBeautyEmployees.length + 1}-0000-4000-8000-000000000000`,
+          name,
+          phone: String(body['phone'] ?? '').trim() || null,
+          email: String(body['email'] ?? '').trim().toLowerCase() || null,
+          active: body['active'] !== false,
+          locationIds: locationId ? [locationId] : [],
+          serviceIds: [],
+        };
+        fixtureBeautyEmployees.push(row);
+        return send(200, row);
+      }
+      const patchEmployee = /^\/beauty\/employees\/([^/]+)$/.exec(path);
+      if (patchEmployee && req.method === 'PATCH') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(patchEmployee[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        if (body['name'] !== undefined) row.name = String(body['name']).trim();
+        if (body['phone'] !== undefined) row.phone = String(body['phone']).trim() || null;
+        if (body['email'] !== undefined) row.email = String(body['email']).trim().toLowerCase() || null;
+        if (body['active'] !== undefined) row.active = Boolean(body['active']);
+        return send(200, row);
+      }
+      const employeeServices = /^\/beauty\/employees\/([^/]+)\/services$/.exec(path);
+      if (employeeServices && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeServices[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const ids = Array.isArray(body['serviceIds']) ? (body['serviceIds'] as string[]) : [];
+        if (ids.some((id) => !fixtureBeautyServices.some((s) => s.id === id)))
+          return send(400, { message: 'Среди выбранных услуг есть чужая' });
+        row.serviceIds = [...new Set(ids)];
+        return send(200, row);
+      }
+      return send(404, { message: 'Нет такого маршрута салона' });
     }
     if (path === '/branches' || path === '/branches/overview') {
       const branch = { id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый центральный филиал', address: null, currency: 'KZT', timezone: 'Asia/Almaty', vertical: 'HOSPITALITY', locationId: '22222222-2222-4222-8222-222222222222', location: { businessId: '33333333-3333-4333-8333-333333333333' }, _count: { inventoryUnits: 88, accommodationTypes: 5 } };

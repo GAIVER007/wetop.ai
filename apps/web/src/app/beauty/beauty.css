@@ -29,3 +29,56 @@
 .beauty-note {
   color: var(--muted);
 }
+
+/* Каталог салона (срез B3): полоса над таблицей, панели правки, список умений */
+.beauty-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.beauty-bar p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.beauty-form {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.beauty-form h3 {
+  margin: 16px 0 0;
+}
+
+.beauty-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.beauty-skills {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+}
+
+/* Телефон: второстепенные колонки каталога скрываются, иначе таблица уезжает вбок */
+@media (max-width: 600px) {
+  .beauty-page .beauty-col-wide {
+    display: none;
+  }
+}
+
+/* Скрытая подпись «Действия» (`sr-only`, absolute) иначе ищет опору вне прокрутки и растягивает
+   страницу на телефоне: те же грабли, что в «Финансах» (finance.css, долги) */
+.beauty-page .table-scroll {
+  position: relative;
+}

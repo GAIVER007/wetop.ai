@@ -18,7 +18,14 @@ describe('меню салона', () => {
   });
 
   it('у филиала салона есть только то, что в нём работает', () => {
-    expect(hrefs('BEAUTY')).toEqual(['/beauty', '/team', '/journal']);
+    // срез B3 добавил каталог: услуги и мастера
+    expect(hrefs('BEAUTY')).toEqual([
+      '/beauty',
+      '/beauty/services',
+      '/beauty/masters',
+      '/team',
+      '/journal',
+    ]);
   });
 
   it('вертикаль не передана: меню гостиницы, как было до среза', () => {
@@ -28,7 +35,12 @@ describe('меню салона', () => {
   });
 
   it('нижняя панель телефона тоже идёт по вертикали', () => {
-    expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual(['/beauty', '/team', '/journal']);
+    expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual([
+      '/beauty',
+      '/beauty/services',
+      '/beauty/masters',
+      '/team',
+    ]);
     expect(phoneNavigationFor().map((i) => i.href)).toContain('/chessboard');
   });
 
@@ -42,6 +54,8 @@ describe('меню салона', () => {
     const staff = { ...CLOSED_ACCESS, role: 'STAFF' as const };
     const items = menuSectionsFor(staff, 'BEAUTY').flatMap((s) => s.items.map((i) => i.href));
     expect(items).toContain('/beauty');
+    // каталог смена видит (чтение открыто `desk`), а править его не может: решает API по Q-253
+    expect(items).toContain('/beauty/services');
     expect(items).not.toContain('/platform');
     expect(items).not.toContain('/journal');
   });

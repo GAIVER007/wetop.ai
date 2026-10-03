@@ -22,6 +22,7 @@ import { GuardModule } from './guard/guard.module';
 import { HealthModule } from './health/health.module';
 import { GuestsModule } from './guests/guests.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { BeautyModule } from './beauty/beauty.module';
 import { HotelModule } from './hotel/hotel.module';
 import { PlatformModule } from './platform/platform.module';
 import { RatesModule } from './rates/rates.module';
@@ -42,6 +43,7 @@ import { DataConnectionModule } from './database/connection';
     // главный администратор: организации и их расширения (ADR-083)
     PlatformModule,
     InventoryModule,
+    BeautyModule,
     HotelModule,
     ChessboardModule,
     ReservationsModule,

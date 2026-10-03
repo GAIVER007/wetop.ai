@@ -1,6 +1,9 @@
-# Проверки на каждый пуш и PR (plans/tests-without-live-db-2026-09-15.md, шаг 4).
+# Быстрые проверки на каждый пуш и PR (plans/tests-without-live-db-2026-09-15.md, шаг 4): lint, typecheck,
+# unit, главная и тесты бота, на своём раннере. База (миграции, integration, e2e) и весь UI идут перед выкладкой,
+# в release-checks.yml на раннерах GitHub (ADR-139): на своём раннере (боевой сервер, 2 ядра) UI не помещается
+# и душит стойку, а на каждый пуш на GitHub съел бы бесплатные минуты за неделю.
 # Секретов здесь нет и не будет (SECURITY.md §3): наборы, которым нужны внешние API, Telegram или ключ
-# шифрования ПД, остаются ручными на рабочем стенде. Журнал tests/runs/ CI не пишет — он про доказательства
+# шифрования ПД, остаются ручными на рабочем стенде. Журнал tests/runs/ CI не пишет: он про доказательства
 # на рабочем коде, а не про каждый пуш; логи здесь остаются в самом прогоне.
 name: checks
 
@@ -24,7 +27,8 @@ jobs:
     # бюджет Actions стоит $0 со «Stop usage», и проверки перестали запускаться вовсе — падали за две
     # секунды с «job was not started». На self-hosted минуты не тарифицируются.
     runs-on: [self-hosted, linux, x64, wetop]
-    timeout-minutes: 20
+    # unit на раннере идёт 11 минут (прогон main 03.10.2026), вместе с typecheck и главной в 20 не помещается
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,127 +54,6 @@ jobs:
             tests/site/test-results
             test-results
           if-no-files-found: ignore
-
-  db:
-    name: миграции · integration · e2e на чистом PostgreSQL 16
-    # Единственная задача, оставшаяся на раннерах GitHub: ей нужен `services: postgres`, то есть Docker
-    # внутри раннера. Давать своему раннеру сокет Docker нельзя — это root на машине, где рядом чужие
-    # проекты. Пока минуты не восстановлены, эта проверка молчит; это известное ограничение.
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: pms
-          POSTGRES_PASSWORD: pms
-          POSTGRES_DB: postgres
-          # Вход по сети без пароля, как на стенде разработчика: тесты RLS ходят ролью wetop_app без пароля
-          # (вход ей включает tests/tools/local-app-login.ts, только на локальной базе). Без этого postgres:16
-          # требует пароль, и pg падал «client password must be a string» (прогон main 03.10.2026).
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U pms"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    steps:
-      - uses: actions/checkout@v4
-      - name: Клиент PostgreSQL 16 (psql, pg_dump той же мажорной версии, что сервер)
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client-16
-          psql --version && pg_dump --version
-      # Зависимости — до проверки миграций: она сверяет schema.prisma с базой из миграций CLI Prisma
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run generate -w @pms/database
-      - name: Применение и откат каждой миграции, schema.prisma против базы из миграций
-        env:
-          MIGRATION_CHECK_URL: postgresql://pms:pms@127.0.0.1:5432/postgres
-        run: scripts/ops/check-migrations.sh
-      # Дальше — тесты на пустой базе: схему pms_test и данные (сид) они создают сами (tests/README.md)
-      - run: psql postgresql://pms:pms@127.0.0.1:5432/postgres -c 'CREATE DATABASE pms_dev' -c '\c pms_dev' -c 'CREATE EXTENSION IF NOT EXISTS btree_gist'
-      - name: Интеграционные тесты
-        env:
-          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
-        run: npx vitest run --project integration
-      - name: Сборка стойки и Chromium
-        run: |
-          npm run build -w apps/web
-          npx playwright install --with-deps chromium
-      # Интеграционные тесты оставляют в pms_test свои строки (reservation-create-retry заводит ячейку на каждый
-      # прогон), а сквозные сверяют сид число в число (88 ячеек): перед ними сид заново
-      - name: Свежий сид pms_test для сквозных
-        env:
-          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
-        run: npm run test:schema -- --refresh
-      - name: Сквозные тесты
-        env:
-          DATABASE_URL: postgresql://pms:pms@127.0.0.1:5432/pms_dev
-        run: npx playwright test --workers=2
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: e2e-results
-          path: test-results
-          if-no-files-found: ignore
-
-  ui-shard:
-    name: UI · часть ${{ matrix.shard }}/3
-    # Три части UI — основной расход минут; базы им не нужно, поэтому они и уходят на свой раннер.
-    # Раннер один и берёт задачи по очереди: части идут не параллельно, а друг за другом.
-    runs-on: [self-hosted, linux, x64, wetop]
-    timeout-minutes: 25
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run generate -w @pms/database
-      # Без --with-deps: библиотеки Chromium уже в образе раннера, а sudo там не работает (scripts/ops/ci-runner/Dockerfile)
-      - run: npx playwright install chromium
-      # Браузер — chromium Playwright (на Mac набор идёт в Chrome владельца); next dev и подставной API поднимает конфиг
-      - name: Браузерные проверки без базы
-        env:
-          UI_BROWSER_CHANNEL: chromium
-        run: npx playwright test --config tests/ui/playwright.config.ts --shard=${{ matrix.shard }}/3
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: ui-results-${{ matrix.shard }}
-          path: |
-            test-results
-            reports/ui-quality
-          if-no-files-found: ignore
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: ui-visual-diffs-${{ matrix.shard }}
-          path: test-results/design-system-*/**/*.png
-          if-no-files-found: ignore
-
-  ui:
-    # Сохраняем прежнее имя обязательной проверки; успешны должны быть все части.
-    name: стойка на синтетическом API (tests/ui)
-    needs: ui-shard
-    if: always()
-    runs-on: [self-hosted, linux, x64, wetop]
-    steps:
-      - name: Все части UI прошли
-        env:
-          UI_RESULT: ${{ needs.ui-shard.result }}
-        run: test "$UI_RESULT" = success
 
   bot:
     name: бот · pytest

@@ -4,7 +4,9 @@
  * Держит то, что ломается молча и обнаруживается через неделю:
  *  1. раннеру дали сокет Docker — код из любой ветки получает root на машине, где рядом чужие проекты
  *     и боевая PMS;
- *  2. тяжёлые задачи вернулись на раннеры GitHub, где минуты выбраны и ничего не запускается;
+ *  2. на каждый пуш снова пошли тяжёлые задачи: на раннерах GitHub они съедают 2000 бесплатных минут за
+ *     неделю (21.09.2026), а на своём раннере (боевой сервер, 2 ядра) UI не помещается и душит стойку
+ *     (03.10.2026, ADR-139). База и весь UI идут перед выкладкой, в release-checks.yml, на раннерах GitHub;
  *  3. задача с базой уехала на свой раннер, где нет Docker для `services: postgres`, и падает не по делу.
  *  4. раннер на боевом сервере взял задачу из запроса на слияние из чужого форка (ADR-137, замечание ментора
  *     02.10.2026): защищает хук перед задачей в образе раннера, а не условие в checks.yml;
@@ -20,6 +22,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 const ROOT = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8');
 const WORKFLOW = read('.github/workflows/checks.yml');
+const RELEASE_PATH = join(ROOT, '.github/workflows/release-checks.yml');
+const RELEASE = existsSync(RELEASE_PATH) ? readFileSync(RELEASE_PATH, 'utf8') : '';
 const COMPOSE = read('scripts/ops/ci-runner/compose.yml');
 const RUNNER_IMAGE = read('scripts/ops/ci-runner/Dockerfile');
 const HOOK = join(ROOT, 'scripts/ops/ci-runner/job-started.sh');
@@ -32,13 +36,16 @@ const withoutComments = (text: string): string =>
     .join('\n');
 
 /** Кусок файла от заголовка задачи до следующей задачи того же уровня */
-function job(name: string): string {
-  const start = WORKFLOW.indexOf(`\n  ${name}:\n`);
+function job(name: string, text = WORKFLOW): string {
+  const start = text.indexOf(`\n  ${name}:\n`);
   expect(start, `задача ${name} не найдена`).toBeGreaterThan(-1);
-  const rest = WORKFLOW.slice(start + 1);
+  const rest = text.slice(start + 1);
   const next = rest.search(/\n {2}[a-z][a-z-]*:\n/);
   return next === -1 ? rest : rest.slice(0, next);
 }
+
+/** Есть ли в файле задача с таким именем */
+const hasJob = (name: string, text: string) => text.includes(`\n  ${name}:\n`);
 
 describe('свой раннер CI', () => {
   it('раннеру не дают сокет Docker: это был бы root на машине с чужими проектами', () => {
@@ -53,9 +60,29 @@ describe('свой раннер CI', () => {
     expect(run).toMatch(/cpus:/);
   });
 
-  it('тяжёлые задачи идут на свой раннер: минуты GitHub выбраны', () => {
-    for (const name of ['fast', 'ui-shard', 'ui', 'bot'])
+  it('на каждый пуш только быстрые задачи, и они идут на свой раннер: минуты GitHub берегутся для выкладки', () => {
+    for (const name of ['fast', 'bot'])
       expect(job(name), name).toMatch(/runs-on: \[self-hosted, linux, x64, wetop\]/);
+    // UI и база на каждый пуш не идут: на сервере UI не помещается, а на GitHub съел бы минуты (ADR-139)
+    for (const name of ['db', 'ui-shard', 'ui']) expect(hasJob(name, WORKFLOW), name).toBe(false);
+  });
+
+  it('перед выкладкой: база и весь UI на раннерах GitHub, по кнопке или пушем в release-candidate (ADR-139)', () => {
+    expect(RELEASE, '.github/workflows/release-checks.yml').not.toBe('');
+    const triggers = withoutComments(/\non:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '');
+    expect(triggers).toContain('workflow_dispatch:');
+    expect(triggers).toMatch(/push:\n\s+branches: \[release-candidate\]/);
+    expect(triggers).not.toMatch(/pull_request/);
+    for (const name of ['db', 'ui-shard', 'ui'])
+      expect(job(name, RELEASE), name).toMatch(/runs-on: ubuntu-24\.04/);
+    expect(withoutComments(job('ui-shard', RELEASE))).toMatch(/shard: \[1, 2, 3\]/);
+    const summary = withoutComments(job('ui', RELEASE));
+    expect(summary).toContain('needs: ui-shard');
+    expect(summary).toContain('test "$UI_RESULT" = success');
+    // новый кандидат заменяет прежний: его итог уже никому не нужен, а минуты тратятся
+    const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(RELEASE)?.[1] ?? '';
+    expect(withoutComments(block)).toMatch(/cancel-in-progress: true/);
+    expect(withoutComments(RELEASE)).toMatch(/permissions:\n\s+contents: read/);
   });
 
   it('тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота', () => {
@@ -71,7 +98,7 @@ describe('свой раннер CI', () => {
   });
 
   it('на своём раннере Playwright ставится без --with-deps: sudo под no-new-privileges не работает', () => {
-    for (const name of ['fast', 'ui-shard']) {
+    for (const name of ['fast']) {
       const run = withoutComments(job(name));
       expect(run, name).toContain('npx playwright install chromium');
       expect(run, name).not.toContain('--with-deps');
@@ -106,10 +133,11 @@ describe('свой раннер CI', () => {
 
   it('проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория', () => {
     expect(withoutComments(WORKFLOW)).not.toContain('pull_request_target');
+    expect(withoutComments(RELEASE)).not.toContain('pull_request_target');
   });
 
   it('задача с базой остаётся на GitHub: ей нужен Docker для services: postgres', () => {
-    const db = job('db');
+    const db = job('db', RELEASE);
     expect(db).toMatch(/runs-on: ubuntu-24\.04/);
     expect(db).toContain('services:');
     expect(db).toContain('postgres');

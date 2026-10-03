@@ -42,6 +42,8 @@ describe('меню по ролям', () => {
       '/reservations',
       '/guests',
       '/finance',
+      // загрузка конкурентов (ADR-141): администратор смотрит, как все отчёты; вносить не может (право `rates`)
+      '/market',
       '/ai-agents',
       '/reports',
       '/management/analytics',

@@ -133,6 +133,12 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/cash/reconciliations': 'desk',
   'POST /finance/cash/operations/:id/void': 'refunds',
 
+  // загрузка конкурентов (ADR-141): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /market/occupancy': 'reports',
+  'POST /market/competitors': 'rates',
+  'PATCH /market/competitors/:id': 'rates',
+  'PUT /market/competitors/:id/occupancy': 'rates',
+
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
   'POST /inventory/categories': 'property',

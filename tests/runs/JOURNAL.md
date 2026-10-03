@@ -5503,3 +5503,29 @@
 | 03.10.2026 19:57 | lint | ✅ без ошибок | 21 с | b7abae2 | [лог](logs/2026-10-03T14-57-50Z-lint-7f3b.log) |  |
 | 03.10.2026 19:58 | unit | ✅ 3014 из 3017, пропущено 3 | 1 мин 28 с | b7abae2 | [лог](logs/2026-10-03T14-58-11Z-unit-5ec1.log) |  |
 | 03.10.2026 19:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-list.spec.ts tests/ui/channex-screens.spec.ts tests/ui/channels-compact.spec.ts --worker | ✅ 30 из 30 | 1 мин 49 с | b7abae2 | [лог](logs/2026-10-03T14-59-46Z-e2e-32e4.log) |  |
+| 03.10.2026 20:32 | unit (частично: packages/domain/src/market) | ❌ код выхода 1 | 1 с | 6af7487 +8 | [лог](logs/2026-10-03T15-32-46Z-unit-3ece.log) | M1 red: модуля рынка нет |
+| 03.10.2026 20:33 | unit (частично: packages/domain/src/market) | ✅ 17 из 17 | 1 с | 6af7487 +8 | [лог](logs/2026-10-03T15-33-29Z-unit-5984.log) | M1 green: домен рынка |
+| 03.10.2026 20:34 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 2 | 4 с | 6af7487 +14 | [лог](logs/2026-10-03T15-34-52Z-unit-cd17.log) | M1 red: маршрутов рынка нет |
+| 03.10.2026 20:35 | unit (частично: apps/api/src/auth/route-access.test.ts apps/api/src/market) | ✅ 8 из 8 | 4 с | 6af7487 +15 | [лог](logs/2026-10-03T15-35-19Z-unit-06d1.log) | M1 green: API рынка |
+| 03.10.2026 20:37 | integration (частично: tests/integration/market-occupancy.test.ts tests/integration/rls-isolation.test.ts tests/integration/function-search-path.test.ts) | ✅ 11 из 11 | 4 с | 6af7487 +16 | [лог](logs/2026-10-03T15-37-03Z-integration-529c.log) | M1: снимки, составной ключ, RLS |
+| 03.10.2026 20:43 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ❌ упало 2 из 5 | 1 мин 38 с | 6af7487 +23 | [лог](logs/2026-10-03T15-43-06Z-e2e-f0d0.log) | M1 UI: раздел рынка |
+| 03.10.2026 20:45 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ❌ упало 2 из 5 | 1 мин 2 с | 6af7487 +23 | [лог](logs/2026-10-03T15-45-26Z-e2e-c07c.log) | M1 UI: раздел рынка |
+| 03.10.2026 20:46 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 5 из 5 | 30 с | 6af7487 +23 | [лог](logs/2026-10-03T15-46-54Z-e2e-f364.log) | M1 UI: раздел рынка |
+| 03.10.2026 20:47 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 5 из 5 | 31 с | 6af7487 +23 | [лог](logs/2026-10-03T15-47-55Z-e2e-ef60.log) | M1 UI: раздел рынка |
+| 03.10.2026 20:48 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 5 из 5 | 30 с | 6af7487 +23 | [лог](logs/2026-10-03T15-48-51Z-e2e-379b.log) | M1 UI: раздел рынка |
+| 03.10.2026 20:50 | e2e (частично: --config tests/site/playwright.config.ts tests/site/homepage-blocks.spec.ts) | ❌ упало 2 из 18 | 38 с | 6af7487 +23 | [лог](logs/2026-10-03T15-50-23Z-e2e-0584.log) | M1 red: блока рынка на главной нет |
+| 03.10.2026 20:51 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 1 из 50 | 39 с | 6af7487 +27 | [лог](logs/2026-10-03T15-51-22Z-e2e-6cb2.log) | M1: блок рынка на главной, набор сайта |
+| 03.10.2026 20:52 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 50 из 50 | 34 с | 6af7487 +27 | [лог](logs/2026-10-03T15-52-10Z-e2e-662d.log) | M1: блок рынка на главной, набор сайта |
+| 03.10.2026 20:53 | typecheck | ✅ без ошибок | 26 с | 6af7487 +29 | [лог](logs/2026-10-03T15-53-07Z-typecheck-c7a7.log) |  |
+| 03.10.2026 20:53 | lint | ❌ ошибок: 1 | 21 с | 6af7487 +29 | [лог](logs/2026-10-03T15-53-34Z-lint-aba5.log) | @typescript-eslint/no-unused-vars |
+| 03.10.2026 20:54 | lint | ✅ без ошибок | 20 с | 6af7487 +29 | [лог](logs/2026-10-03T15-54-03Z-lint-152e.log) |  |
+| 03.10.2026 20:54 | unit | ❌ упало 4 из 3041, пропущено 3 | 1 мин 41 с | 6af7487 +26 | [лог](logs/2026-10-03T15-54-24Z-unit-8806.log) | design: сторож ИИ-слопа (DESIGN.md §15) uppercase: капс (DESIGN.md §14, §15): text-transform: uppercase |
+| 03.10.2026 20:56 | unit (частично: tests/unit/design-slop.test.ts apps/web/src/lib/navigation-roles.test.ts apps/web/src/lib/workspace-organization.test.ts tests/unit/design-rules | ✅ 30 из 30 | 2 с | 6af7487 +28 | [лог](logs/2026-10-03T15-56-33Z-unit-7de8.log) | M1: сторожа дизайна и меню |
+| 03.10.2026 20:56 | unit | ✅ 3038 из 3041, пропущено 3 | 1 мин 25 с | 6af7487 +28 | [лог](logs/2026-10-03T15-56-43Z-unit-77bf.log) |  |
+| 03.10.2026 20:58 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts tests | ❌ упало 3 из 68 | 4 мин 35 с | 6af7487 +29 | [лог](logs/2026-10-03T15-58-08Z-e2e-7312.log) | M1: рынок + меню, роли, бюджет запросов |
+| 03.10.2026 21:13 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/roles.spec.ts --workers=1) | ✅ 21 из 21 | 1 мин 48 с | 6af7487 +32 | [лог](logs/2026-10-03T16-13-17Z-e2e-5736.log) | M1: меню с рынком |
+| 03.10.2026 21:16 | integration | ✅ 241 из 241 | 1 мин 4 с | 6af7487 +17 | [лог](logs/2026-10-03T16-16-21Z-integration-ec60.log) |  |
+| 03.10.2026 21:17 | typecheck | ✅ без ошибок | 26 с | 6af7487 +34 | [лог](logs/2026-10-03T16-17-42Z-typecheck-54de.log) |  |
+| 03.10.2026 21:18 | lint | ✅ без ошибок | 20 с | 6af7487 +34 | [лог](logs/2026-10-03T16-18-08Z-lint-3c49.log) |  |
+| 03.10.2026 21:18 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 5 из 5 | 30 с | 6af7487 +32 | [лог](logs/2026-10-03T16-18-29Z-e2e-674a.log) | M1 UI: финальный код |
+| 03.10.2026 21:19 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 50 из 50 | 34 с | 6af7487 +32 | [лог](logs/2026-10-03T16-19-00Z-e2e-7928.log) | M1: набор сайта, финальный код |

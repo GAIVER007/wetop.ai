@@ -117,6 +117,22 @@ export type Dictionary = {
       signIn: string;
     };
   };
+  /** «Загрузка конкурентов» (ADR-141): четыре пункта и пример таблицы на одну ночь. */
+  market: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    points: Array<{ title: string; text: string }>;
+    preview: {
+      label: string;
+      hint: string;
+      title: string;
+      items: Array<{ term: string; text: string }>;
+      note: string;
+      open: string;
+      signIn: string;
+    };
+  };
   /** «Команда и доступ»: три карточки. */
   team: {
     eyebrow: string;

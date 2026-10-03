@@ -15,6 +15,7 @@ const pages = new Set([
   '/management/analytics',
   '/management/analytics/occupancy',
   '/management/analytics/units',
+  '/management/analytics/channels',
   '/channels',
   '/channels/connections',
   '/channels/mapping',

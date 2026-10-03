@@ -68,6 +68,10 @@ export async function ChannelList({ sp }: { sp: Record<string, string | undefine
           ? `Последняя получена ${clock.moment(data.inbound.lastEventAt)}.`
           : 'За 30 дней броней из каналов не было.'}
       </p>
+      <p className="note" data-testid="channel-efficiency-link">
+        Доход, ночи и средняя цена по каждому каналу:{' '}
+        <Link href="/management/analytics/channels">отчёт «Эффективность каналов»</Link>.
+      </p>
       {data.environment === 'staging' && data.state === 'READY' && (
         <p className="note" data-testid="channel-list-staging">
           Тестовый контур менеджера каналов: каналы здесь тестовые, настоящие брони через них не

@@ -19,8 +19,16 @@ import { test as base, expect, type Page } from '@playwright/test';
 
 const STREAM_GRACE_MS = 700;
 
-/** Скрытый потоковый сегмент ещё в DOM? Даём ему уйти; не ушёл за форой — отдаём страницу как есть */
-async function settleStreaming(page: Page): Promise<void> {
+/**
+ * Скрытый потоковый сегмент ещё в DOM? Даём ему уйти; не ушёл за форой — отдаём страницу как есть.
+ *
+ * Обёртки ниже зовут это сами на `goto` и `reload`, но до перехода **щелчком по ссылке** фикстура не
+ * достаёт. На спокойной машине он укладывается мгновенно (замер 03.10.2026 на `/reports/print`: один
+ * `main`, скрытых сегментов ноль, пять повторов), а на загруженном раннере, где стойка отдаёт 503 и
+ * рвёт поток, обе копии висят в DOM, и строгий режим Playwright находит `data-testid` дважды. Спеку,
+ * который после щелчка ищет элемент по testid, это ожидание нужно позвать самому.
+ */
+export async function settleStreaming(page: Page): Promise<void> {
   // Выражение строкой: в корневом tsconfig нет библиотеки DOM, `document` тут не типизирован
   await page
     .waitForFunction('!document.querySelector(\'body > div[hidden][id^="S:"]\')', null, {

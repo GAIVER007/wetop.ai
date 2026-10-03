@@ -1233,8 +1233,18 @@ export interface GuestDirectoryResult {
   };
   rows: GuestDirectoryRow[];
 }
+/** «Дни рождения» (Q-249 T0): гость, дата дня рождения в окне и сколько исполняется */
+export interface GuestBirthday {
+  id: string;
+  firstName: string;
+  lastName: string;
+  date: string;
+  age: number;
+}
 export const guestsApi = {
   search: (q: string) => getJson<GuestSummary[]>(`/guests?q=${encodeURIComponent(q)}`),
+  birthdays: (from: string, days: number) =>
+    getJson<GuestBirthday[]>(`/guests/birthdays?from=${encodeURIComponent(from)}&days=${days}`),
   directory: (query: Record<string, string>) =>
     getJson<GuestDirectoryResult>(`/guests/directory?${new URLSearchParams(query)}`),
   preview: (id: string) => getJson<GuestPreview>(`/guests/${encodeURIComponent(id)}/preview`),

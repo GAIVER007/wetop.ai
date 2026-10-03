@@ -124,6 +124,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
             icon: 'rates',
             description: 'Календарь цен, ограничения и массовое редактирование.',
           },
+          {
+            // Фишка №1 (ADR-142): загрузка ближайших отелей рядом со своей; смотрят, кто видит отчёты
+            href: '/market',
+            requires: 'reports',
+            label: 'Загрузка конкурентов',
+            icon: 'analytics',
+            description: 'Ваша загрузка рядом с загрузкой ближайших отелей на каждую ночь и подсказки к цене.',
+          },
         ],
       },
       {
@@ -334,6 +342,7 @@ export const menuSections: MenuSection[] = [
     icon: 'rates',
     items: [
       menuItem('/rates', 'Тарифы и цены'),
+      menuItem('/market'),
       menuItem('/channels'),
       menuItem('/ai-agents', 'ИИ-продавцы'),
       menuItem('/website'),

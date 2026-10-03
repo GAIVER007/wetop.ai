@@ -63,7 +63,7 @@ export interface PaymentLineView {
   paidAt: string;
   note: string | null;
   externalReference: string | null;
-  /** DATA_MODEL §25: чек, выданный по запросу гостя */
+  /** DATA_MODEL §26: чек, выданный по запросу гостя */
   receipt: { number: string; issuedAt: string } | null;
   paymentAmountMinor: string;
   /** сколько из этого платежа легло на этот счёт */
@@ -1195,7 +1195,7 @@ export class FinanceService {
   }
 
   /**
-   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §25, ADR-143): касса объекта пробила чек, администратор вписывает
+   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §26, ADR-143): касса объекта пробила чек, администратор вписывает
    * его номер. Только проведённый платёж своего объекта; второй чек на тот же платёж — 409.
    */
   async issueReceipt(

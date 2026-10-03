@@ -175,7 +175,7 @@ export async function refundAction(
   return done(number);
 }
 
-/** DATA_MODEL §25: чек, пробитый в кассе по запросу гостя, отмечается номером у платежа */
+/** DATA_MODEL §26: чек, пробитый в кассе по запросу гостя, отмечается номером у платежа */
 export async function receiptAction(
   number: string,
   paymentId: string,
@@ -205,7 +205,7 @@ export async function stayExtraAction(
   return done(number);
 }
 
-/** Запрос оплаты (DATA_MODEL §23, ADR-143): счёт Kaspi по телефону, ссылка банка или перевод */
+/** Запрос оплаты (DATA_MODEL §24, ADR-143): счёт Kaspi по телефону, ссылка банка или перевод */
 export async function createPaymentRequestAction(
   number: string,
   prev: FinanceActionResult,

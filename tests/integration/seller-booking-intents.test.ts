@@ -9,11 +9,11 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * Намерение брони ИИ-продавца (DATA_MODEL §24, ADR-143) на настоящей схеме: CHECK канала, дат, гостей и суммы;
+ * Намерение брони ИИ-продавца (DATA_MODEL §25, ADR-143) на настоящей схеме: CHECK канала, дат, гостей и суммы;
  * «подтверждено ⇔ есть бронь»; одно сообщение гостя подтверждает одно предложение агента (UNIQUE). Логику подтверждения
  * доказывает unit `bot-booking.controller.test.ts`. Своя организация и объект, удаляются в конце.
  */
-describe.skipIf(!url)('намерения брони продавца (integration, DATA_MODEL §24)', () => {
+describe.skipIf(!url)('намерения брони продавца (integration, DATA_MODEL §25)', () => {
   let db: Db;
   const org = randomUUID();
   const user = randomUUID();

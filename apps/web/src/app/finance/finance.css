@@ -311,10 +311,10 @@
   margin-bottom: 16px;
 }
 .page:has(.finance-workspace) .page__title {
-  font-size: 28px;
+  font-size: var(--text-3xl);
 }
 .page:has(.finance-workspace) .page__subtitle {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .finance-controls {
   margin-bottom: 16px;
@@ -440,7 +440,8 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .finance-tab-panel {
-    max-height: max(250px, calc(100dvh - 440px));
+    /* высота шапки — из токена: с верхним меню (ADR-134) шапка выросла на 28 px, и обзор перестал помещаться */
+    max-height: max(220px, calc(100dvh - var(--header-h) - 388px));
     overflow: auto;
     scrollbar-gutter: stable;
   }

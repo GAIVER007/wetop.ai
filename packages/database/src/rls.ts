@@ -61,12 +61,15 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'cash_categories',
   'cash_operations',
   'cash_reconciliations',
-  // Запросы оплаты (DATA_MODEL §23, ADR-143): политика — в миграции 20261003000045_payment_requests
+  // Запросы оплаты (DATA_MODEL §24, ADR-143): политика — в миграции 20261003000045_payment_requests
   'payment_requests',
-  // Фискальные чеки по запросу (DATA_MODEL §25): политика — в миграции 20261003000047_fiscal_receipts
+  // Фискальные чеки по запросу (DATA_MODEL §26): политика — в миграции 20261003000047_fiscal_receipts
   'fiscal_receipts',
-  // Намерения брони ИИ-продавца (DATA_MODEL §24): политика — в миграции 20261003000046_seller_booking_intents
+  // Намерения брони ИИ-продавца (DATA_MODEL §25): политика — в миграции 20261003000046_seller_booking_intents
   'seller_booking_intents',
+  // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
+  'competitors',
+  'competitor_occupancy',
 ];
 
 /**

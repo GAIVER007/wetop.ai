@@ -82,7 +82,7 @@ export class WidgetCorsMiddleware implements NestMiddleware {
   providers: [
     PrismaService,
     WebBookingService,
-    // ADR-143, DATA_MODEL §24: бронь из чата ИИ-продавца
+    // ADR-143, DATA_MODEL §25: бронь из чата ИИ-продавца
     BookingIntentsService,
     TurnstileService,
     WidgetCorsMiddleware,

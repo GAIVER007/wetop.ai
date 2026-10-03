@@ -9,11 +9,11 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * Фискальный чек по запросу гостя (DATA_MODEL §25, ADR-143) на настоящей схеме: отметка ложится у проведённого платежа и
+ * Фискальный чек по запросу гостя (DATA_MODEL §26, ADR-143) на настоящей схеме: отметка ложится у проведённого платежа и
  * видна в счёте брони; две одновременные отметки дают одну строку; аннулированный платёж чек не получает; CHECK базы
  * не пускает пустой номер. Строки теста удаляются в конце.
  */
-describe.skipIf(!url)('фискальные чеки (integration, DATA_MODEL §25)', () => {
+describe.skipIf(!url)('фискальные чеки (integration, DATA_MODEL §26)', () => {
   let db: Db;
   let repo: PrismaFinanceRepository;
   let folioId = '';

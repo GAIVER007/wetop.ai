@@ -1,0 +1,252 @@
+# Сквозные (e2e) · 03.10.2026 20:43 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 19
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/analytics-channels.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (17.1s)
+  ✘  2 tests/ui/analytics-channels.spec.ts:86:1 › отбор по каналу, каналы без броней и сравнение — из полосы отбора (45.1s)
+  ✘  3 tests/ui/analytics-channels.spec.ts:117:1 › CSV — те же строки и итог, с разделителем «;» и BOM (45.1s)
+  ✘  4 tests/ui/analytics-channels.spec.ts:133:1 › пустой период и отказ API — словами, не падение страницы (15.9s)
+  ✘  5 tests/ui/analytics-channels.spec.ts:151:1 › телефон: страница без горизонтальной прокрутки (16.0s)
+  ✘  6 tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, light (15.9s)
+  ✘  7 tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, dark (16.1s)
+
+
+  1) tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('main').getByTestId('pa-tabs').getByRole('link', { name: 'Каналы' })
+    Expected: "page"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('main').getByTestId('pa-tabs').getByRole('link', { name: 'Каналы' }) with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-tabs').getByRole('link', { name: 'Каналы' })
+
+
+      55 |   const main = page.getByRole('main');
+      56 |   await page.goto('/management/analytics/channels');
+    > 57 |   await expect(main.getByTestId('pa-tabs').getByRole('link', { name: 'Каналы' })).toHaveAttribute(
+         |                                                                                   ^
+      58 |     'aria-current',
+      59 |     'page',
+      60 |   );
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:57:83
+
+    Error Context: test-results/analytics-channels-вкладка-31da3-ен-сумме-строк-и-ответу-API/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-вкладка-31da3-ен-сумме-строк-и-ответу-API/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-вкладка-31da3-ен-сумме-строк-и-ответу-API/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/analytics-channels.spec.ts:86:1 › отбор по каналу, каналы без броней и сравнение — из полосы отбора 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByRole('main').getByTestId('pa-channels-select')
+
+
+      92 |   const main = page.getByRole('main');
+      93 |   await page.goto('/management/analytics/channels');
+    > 94 |   await main.getByTestId('pa-channels-select').selectOption(pick.label);
+         |                                                ^
+      95 |   await main.getByRole('button', { name: 'Применить' }).click();
+      96 |   await expect(page).toHaveURL(new RegExp(`channel=${encodeURIComponent(pick.label)}`));
+      97 |   await expect(main.getByTestId('pa-channels-row')).toHaveCount(1);
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:94:48
+
+    Error Context: test-results/analytics-channels-отбор-п-e3795-равнение-—-из-полосы-отбора/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-отбор-п-e3795-равнение-—-из-полосы-отбора/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-отбор-п-e3795-равнение-—-из-полосы-отбора/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/ui/analytics-channels.spec.ts:117:1 › CSV — те же строки и итог, с разделителем «;» и BOM 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for getByTestId('pa-channels-export')
+
+
+      118 |   const { current } = await api(request);
+      119 |   await page.goto('/management/analytics/channels');
+    > 120 |   const href = await page.getByTestId('pa-channels-export').getAttribute('href');
+          |                                                             ^
+      121 |   expect(href).toContain('/management/analytics/channels/export?');
+      122 |   const res = await page.request.get(href!);
+      123 |   expect(res.status()).toBe(200);
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:120:61
+
+    Error Context: test-results/analytics-channels-CSV-—-т-ff69f-ог-с-разделителем-«-»-и-BOM/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-CSV-—-т-ff69f-ог-с-разделителем-«-»-и-BOM/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-CSV-—-т-ff69f-ог-с-разделителем-«-»-и-BOM/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/ui/analytics-channels.spec.ts:133:1 › пустой период и отказ API — словами, не падение страницы 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('main').getByTestId('pa-channels-empty')
+    Expected substring: "нет броней"
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('main').getByTestId('pa-channels-empty') with timeout 15000ms
+      - waiting for getByRole('main').getByTestId('pa-channels-empty')
+
+
+      134 |   const main = page.getByRole('main');
+      135 |   await page.goto('/management/analytics/channels?from=2001-01-01&to=2001-01-31');
+    > 136 |   await expect(main.getByTestId('pa-channels-empty')).toContainText('нет броней');
+          |                                                       ^
+      137 |   await page.goto('/management/analytics/channels?from=2026-13-01&to=2026-01-01');
+      138 |   await expect(main.getByRole('alert').or(main.locator('.alert')).first()).toContainText(
+      139 |     'Показан текущий месяц',
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:136:55
+
+    Error Context: test-results/analytics-channels-пустой--67017-словами-не-падение-страницы/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-пустой--67017-словами-не-падение-страницы/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-пустой--67017-словами-не-падение-страницы/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/ui/analytics-channels.spec.ts:151:1 › телефон: страница без горизонтальной прокрутки ────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('pa-channels-table')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('pa-channels-table') with timeout 15000ms
+      - waiting for getByTestId('pa-channels-table')
+
+
+      152 |   await page.setViewportSize({ width: 390, height: 844 });
+      153 |   await page.goto('/management/analytics/channels');
+    > 154 |   await expect(page.getByTestId('pa-channels-table')).toBeVisible();
+          |                                                       ^
+      155 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+      156 |     true,
+      157 |   );
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:154:55
+
+    Error Context: test-results/analytics-channels-телефон-0a20b-ез-горизонтальной-прокрутки/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-телефон-0a20b-ез-горизонтальной-прокрутки/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-телефон-0a20b-ез-горизонтальной-прокрутки/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, light ───────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('pa-channels-total')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('pa-channels-total') with timeout 15000ms
+      - waiting for getByTestId('pa-channels-total')
+
+
+      164 |     await page.setViewportSize({ width: 1440, height: 1000 });
+      165 |     await page.goto('/management/analytics/channels?compare=1');
+    > 166 |     await expect(page.getByTestId('pa-channels-total')).toBeVisible();
+          |                                                         ^
+      167 |     const scan = await new AxeBuilder({ page }).analyze();
+      168 |     expect(scan.violations.map((v) => v.id)).toEqual([]);
+      169 |     await page.mouse.move(0, 0);
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:166:57
+
+    Error Context: test-results/analytics-channels-доступность-и-снимки-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-доступность-и-снимки-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-доступность-и-снимки-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, dark ────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('pa-channels-total')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('pa-channels-total') with timeout 15000ms
+      - waiting for getByTestId('pa-channels-total')
+
+
+      164 |     await page.setViewportSize({ width: 1440, height: 1000 });
+      165 |     await page.goto('/management/analytics/channels?compare=1');
+    > 166 |     await expect(page.getByTestId('pa-channels-total')).toBeVisible();
+          |                                                         ^
+      167 |     const scan = await new AxeBuilder({ page }).analyze();
+      168 |     expect(scan.violations.map((v) => v.id)).toEqual([]);
+      169 |     await page.mouse.move(0, 0);
+        at /home/user/wetop.ai/tests/ui/analytics-channels.spec.ts:166:57
+
+    Error Context: test-results/analytics-channels-доступность-и-снимки-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/analytics-channels-доступность-и-снимки-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/analytics-channels-доступность-и-снимки-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API 
+    tests/ui/analytics-channels.spec.ts:86:1 › отбор по каналу, каналы без броней и сравнение — из полосы отбора 
+    tests/ui/analytics-channels.spec.ts:117:1 › CSV — те же строки и итог, с разделителем «;» и BOM 
+    tests/ui/analytics-channels.spec.ts:133:1 › пустой период и отказ API — словами, не падение страницы 
+    tests/ui/analytics-channels.spec.ts:151:1 › телефон: страница без горизонтальной прокрутки ─────
+    tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, light ────────────────────────
+    tests/ui/analytics-channels.spec.ts:161:3 › доступность и снимки, dark ─────────────────────────
+
+# код выхода 1 · 3 мин 9 с

@@ -44,7 +44,7 @@ from src.integrations.wetop_support import PATH_ERRORS, PATH_GUARD_STATUS, PATH_
 # Дверь котировки продавца (ADR-085, подробности в шапке файла) и бронь.
 PATH_AVAILABILITY = "/bot/availability"
 PATH_BOOK = "/w/book"
-# Бронь из чата (DATA_MODEL §24 платформы, ADR-143): узкий ключ записи SELLER_BOOK_KEY, только POST
+# Бронь из чата (DATA_MODEL §25 платформы, ADR-143): узкий ключ записи SELLER_BOOK_KEY, только POST
 PATH_BOOKING_INTENTS = "/bot/booking-intents"
 PATH_BOOKING_CONFIRM = "/bot/booking-intents/confirm"
 

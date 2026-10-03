@@ -85,7 +85,7 @@ export default async function ReservationPage({
       ),
       // Q-169: подсказка у заметки зависит от того, где лежит база (ADR-072)
       api.piiStorage(),
-      // запросы оплаты (DATA_MODEL §23, ADR-143): отказ гасит только свой блок
+      // запросы оплаты (DATA_MODEL §24, ADR-143): отказ гасит только свой блок
       financeApi.paymentRequests(r.confirmationNumber).catch(() => null),
     ]);
   const desk = await access;

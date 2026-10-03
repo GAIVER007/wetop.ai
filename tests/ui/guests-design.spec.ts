@@ -365,6 +365,7 @@ test('гости: новая бронь этому же гостю — из ка
     .analyze();
   expect(audit.violations).toEqual([]);
   await form.getByText('Дополнительно', { exact: true }).click();
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);

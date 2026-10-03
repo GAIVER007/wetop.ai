@@ -843,7 +843,7 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
     });
   });
 
-  it('DATA_MODEL §25: чек по запросу — номер у платежа в счёте, пустой номер 400, чужой платёж 404, повтор 409', async () => {
+  it('DATA_MODEL §26: чек по запросу — номер у платежа в счёте, пустой номер 400, чужой платёж 404, повтор 409', async () => {
     const http = () => request(app.getHttpServer());
     const pay = await http()
       .post('/finance/payments')

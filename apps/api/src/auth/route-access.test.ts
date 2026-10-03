@@ -118,7 +118,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/folios/:id/close': 'desk',
   'POST /finance/payments': 'desk',
   'POST /finance/payments/:id/receipt': 'desk',
-  // Запросы оплаты (DATA_MODEL §23, ADR-143): администратор выставляет счёт и отмечает оплату
+  // Запросы оплаты (DATA_MODEL §24, ADR-143): администратор выставляет счёт и отмечает оплату
   'GET /finance/reservations/:number/payment-requests': 'desk',
   'POST /finance/reservations/:number/payment-requests': 'desk',
   'POST /finance/payment-requests/:id/paid': 'desk',
@@ -128,6 +128,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /finance/report': 'reports',
   'GET /finance/services-report': 'reports',
   'GET /desk/dashboard/units': 'reports',
+  'GET /desk/dashboard/channels': 'reports',
   // «Финансы за период» F1–F2 (ADR-113): то же право, что у отчёта за период
   'GET /finance/debts': 'reports',
   'GET /finance/operations': 'reports',
@@ -139,6 +140,15 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /finance/cash/transfers': 'desk',
   'POST /finance/cash/reconciliations': 'desk',
   'POST /finance/cash/operations/:id/void': 'refunds',
+
+  // загрузка конкурентов (ADR-142): смотрит, кто видит отчёты; ведёт список и вносит данные, кто ставит цены
+  'GET /market/occupancy': 'reports',
+  'GET /market/night': 'reports',
+  'POST /market/competitors': 'rates',
+  'PATCH /market/competitors/:id': 'rates',
+  'PUT /market/competitors/:id/occupancy': 'rates',
+  'GET /market/collector/competitors': 'service',
+  'PUT /market/collector/competitors/:id/occupancy': 'service',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',
@@ -287,7 +297,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // H14 (ADR-143): страница статуса сервиса без входа
   'GET /status/public': 'public',
   'GET /bot/agent-origins': 'public',
-  // ADR-143, DATA_MODEL §24: бронь из чата — узкий ключ записи продавца сверяет контроллер
+  // ADR-143, DATA_MODEL §25: бронь из чата — узкий ключ записи продавца сверяет контроллер
   'POST /bot/booking-intents': 'public',
   'POST /bot/booking-intents/confirm': 'public',
   'POST /wizard/session': 'public',

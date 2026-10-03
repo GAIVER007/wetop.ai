@@ -61,7 +61,7 @@ export interface AllocationRecord {
     paidAt: string;
     note: string | null;
     externalReference: string | null;
-    /** DATA_MODEL §25: чек, выданный по запросу гостя; null — не выдавали */
+    /** DATA_MODEL §26: чек, выданный по запросу гостя; null — не выдавали */
     receipt: { number: string; issuedAt: string } | null;
   };
 }
@@ -342,7 +342,7 @@ export interface FinanceRepository {
   paymentById(id: string): Promise<PaymentRecord | null>;
   createRefund(r: NewRefund, audit?: AuditEntry): Promise<string>;
   /**
-   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §25): только у проведённого платежа объекта, один чек на платёж.
+   * Отметка «чек выдан» по запросу гостя (DATA_MODEL §26): только у проведённого платежа объекта, один чек на платёж.
    * Под блокировкой строки платежа; аннулированный — `FinanceStateError`, повтор — `FinanceStateError` («уже выдан»).
    */
   issueReceipt(paymentId: string, number: string, audit: AuditEntry): Promise<void>;

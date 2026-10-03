@@ -150,7 +150,7 @@ export class FinanceController {
     return this.service.createPayment(dto ?? {});
   }
 
-  /** Фискальный чек по запросу гостя (DATA_MODEL §25): чек пробит в кассе, стойка отмечает номер */
+  /** Фискальный чек по запросу гостя (DATA_MODEL §26): чек пробит в кассе, стойка отмечает номер */
   @Post('payments/:id/receipt')
   @HttpCode(200)
   issueReceipt(@Param('id', ParseUUIDPipe) id: string, @Body() dto: { number?: unknown }) {

@@ -18,7 +18,7 @@ import { WebBookingModule } from './web-booking.module';
 import { WebBookingService } from './web-booking.service';
 
 /**
- * Бронь из чата ИИ-продавца (DATA_MODEL §24, ADR-143) на подделках: узкий ключ записи, котировка из того же расчёта, что у
+ * Бронь из чата ИИ-продавца (DATA_MODEL §25, ADR-143) на подделках: узкий ключ записи, котировка из того же расчёта, что у
  * виджета, организация и объект из строки агента, подтверждение создаёт бронь с ключом повтора = id намерения и ожидаемой
  * суммой; повтор не создаёт вторую; устаревшее и изменившаяся цена — отказ и REJECTED. Транзакции и CHECK — integration.
  */
@@ -164,7 +164,7 @@ const reservations = {
   }),
 };
 
-describe('бронь из чата продавца /bot/booking-intents (DATA_MODEL §24)', () => {
+describe('бронь из чата продавца /bot/booking-intents (DATA_MODEL §25)', () => {
   let app: INestApplication;
   let sites: FakeAnalyticsRepository;
   beforeAll(async () => {

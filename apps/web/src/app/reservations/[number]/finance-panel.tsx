@@ -128,7 +128,7 @@ function FolioPanel({
   const clock = usePropertyClock();
   // возврат и сторно (снятие штрафа — тоже сторно) — владелец и управляющий (ADR-107, Q-024); API откажет и так
   const reverse = useMay('refunds');
-  // чек по запросу гостя отмечает смена (DATA_MODEL §25); касса пробивает чек сама, WETOP хранит номер
+  // чек по запросу гостя отмечает смена (DATA_MODEL §26); касса пробивает чек сама, WETOP хранит номер
   const desk = useMay('desk');
   const [chargeState, chargeAction, chargePending] = useActionState<FinanceActionResult, FormData>(
     addChargeAction.bind(null, number, folio.id),
@@ -555,7 +555,7 @@ function PaymentForm({
   );
 }
 
-/** DATA_MODEL §25: гость попросил чек, касса его пробила; номер из кассы ложится к платежу, второй чек не пробьётся */
+/** DATA_MODEL §26: гость попросил чек, касса его пробила; номер из кассы ложится к платежу, второй чек не пробьётся */
 function ReceiptForm({
   number,
   paymentId,

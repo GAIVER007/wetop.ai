@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseReceiptNumber } from './fiscal-receipt';
 
-describe('номер фискального чека (DATA_MODEL §25)', () => {
+describe('номер фискального чека (DATA_MODEL §26)', () => {
   it('обрезает пробелы и принимает номер из кассы', () => {
     expect(parseReceiptNumber('  ФП 0001234/56  ')).toBe('ФП 0001234/56');
   });

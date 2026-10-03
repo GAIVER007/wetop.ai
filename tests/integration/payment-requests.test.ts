@@ -9,11 +9,11 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * Запросы оплаты (DATA_MODEL §23, ADR-143) на настоящей схеме: «Оплачено» создаёт обычный платёж и закрывает запрос
+ * Запросы оплаты (DATA_MODEL §24, ADR-143) на настоящей схеме: «Оплачено» создаёт обычный платёж и закрывает запрос
  * одной транзакцией; два одновременных нажатия дают один платёж; отменённый не оплачивается, оплаченный не
  * отменяется; CHECK базы держит способ, ссылку и связку «оплачен ⇔ есть платёж». Строки теста удаляются в конце.
  */
-describe.skipIf(!url)('запросы оплаты (integration, DATA_MODEL §23)', () => {
+describe.skipIf(!url)('запросы оплаты (integration, DATA_MODEL §24)', () => {
   let db: Db;
   let repo: PrismaPaymentRequestsRepository;
   let folioId = '';

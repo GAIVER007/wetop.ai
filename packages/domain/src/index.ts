@@ -6,6 +6,7 @@ export * from './availability/index';
 export * from './rates/index';
 export * from './reservations/index';
 export * from './guests/index';
+export * from './tasks/index';
 export * from './finance/index';
 export * from './web-analytics/index';
 export * from './web-booking/index';

@@ -5445,3 +5445,5 @@
 | 03.10.2026 19:11 | typecheck | ✅ без ошибок | 33 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-11-27Z-typecheck-cf36.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | lint | ✅ без ошибок | 22 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-12-02Z-lint-96cc.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts tests/unit/build-tokens.test.ts tests/unit/no-hardcoded-utc5.test.ts packages/dom | ✅ 47 из 47 | 7 с | 5fabb2c +5 | [лог](logs/2026-10-03T14-12-35Z-unit-0f69.log) | Дни рождения T0: сторожа дизайна, домен и API гостей |
+| 03.10.2026 20:07 | unit (частично: packages/domain/src/tasks) | ❌ код выхода 1 | 25 с | 74f3bc8 +1 | [лог](logs/2026-10-03T15-07-40Z-unit-2f4a.log) | задачи стойки T1: домен red |
+| 03.10.2026 20:09 | unit (частично: packages/domain/src/tasks) | ✅ 6 из 6 | 39 с | 74f3bc8 +4 | [лог](logs/2026-10-03T15-09-31Z-unit-3a2e.log) | задачи стойки T1: домен green |

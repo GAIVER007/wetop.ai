@@ -61,6 +61,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'cash_categories',
   'cash_operations',
   'cash_reconciliations',
+  // Задачи стойки (DATA_MODEL §22): политика — в миграции 20261003000045_desk_tasks
+  'desk_tasks',
 ];
 
 /**

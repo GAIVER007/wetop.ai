@@ -25,6 +25,8 @@ import {
   RestrictionViolationError,
 } from '@pms/domain';
 import { guestForStorage } from '@pms/shared';
+import { mail } from '@pms/integrations';
+import { BOOKING_MAILER } from './booking-mailer';
 import {
   ANALYTICS_REPOSITORY,
   type AnalyticsRepository,
@@ -144,6 +146,10 @@ export class WebBookingService {
     @Optional()
     @Inject(TurnstileService)
     private readonly turnstile: TurnstileService = new TurnstileService(),
+    // ADR-141: письмо гостю с подтверждением брони; null — почта не настроена
+    @Optional()
+    @Inject(BOOKING_MAILER)
+    private readonly mailer: mail.MailSender | null = null,
   ) {}
 
   async quote(raw: unknown, ctx: RequestContext): Promise<Quote> {
@@ -179,9 +185,15 @@ export class WebBookingService {
     if (!site) {
       throw new NotFoundException('у организации нет сайта с включённым бронированием');
     }
-    await this.assertServingProperty(site, 'котировка для объекта этой организации пока не подключена');
+    await this.assertServingProperty(
+      site,
+      'котировка для объекта этой организации пока не подключена',
+    );
     if (!this.limits.botQuotePerOrg.allow(organizationId, now.getTime())) {
-      throw new HttpException('слишком много котировок, попробуйте позже', HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        'слишком много котировок, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
     // Ключ сайта в тело подставляет дверь: разбор запроса общий с виджетом и требует его,
     // а продавец знает организацию, не ключ.
@@ -201,7 +213,10 @@ export class WebBookingService {
     }
     await this.assertServingProperty(site, 'котировка для объекта этого агента пока не подключена');
     if (!this.limits.botQuotePerOrg.allow(`agent:${agentId}`, now.getTime())) {
-      throw new HttpException('слишком много котировок, попробуйте позже', HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        'слишком много котировок, попробуйте позже',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
     const body = raw && typeof raw === 'object' ? { ...(raw as Record<string, unknown>) } : {};
     delete body.organization;
@@ -360,7 +375,11 @@ export class WebBookingService {
     // проверку (проверка исправлений 26.09), — и возвращается, если бронь не записалась.
     const slot = now.getTime();
     if (!this.limits.bookPerSite.allow(site.id, slot)) {
-      await this.flood(site, { limit: 'site-hour', perHour: BOOKING_RATE_LIMITS.perSitePerHour }, now);
+      await this.flood(
+        site,
+        { limit: 'site-hour', perHour: BOOKING_RATE_LIMITS.perSitePerHour },
+        now,
+      );
       throw new HttpException(
         'слишком много броней за час, попробуйте позже',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -417,6 +436,8 @@ export class WebBookingService {
     });
     // Бронь уже записана. Дальше — привязка к счётчику и журнал сайта «лучшим усилием»: их сбой раньше отдавал гостю
     // ошибку, кнопка снова была активна, и повтор создавал вторую настоящую бронь (аудит 26.09, С-33).
+    const item = card.items[0];
+    const confirmationEmail = await this.sendConfirmation(req, site, card, item);
     let linkedSession = false;
     try {
       if (req.sessionKey) {
@@ -438,13 +459,14 @@ export class WebBookingService {
         departureDate: req.departureDate,
         adults: req.adults,
         linkedSession,
+        // адреса в журнале нет: только факт отправки (ADR-018)
+        confirmationEmail,
       });
     } catch (e) {
       console.warn(
         `[web-booking] бронь ${card.confirmationNumber} записана, привязка или журнал сайта — нет: ${(e as Error).message}`,
       );
     }
-    const item = card.items[0];
     return {
       confirmationNumber: card.confirmationNumber,
       status: card.status,
@@ -457,6 +479,56 @@ export class WebBookingService {
       currency: card.currency,
       checkInTime: site.checkInTime,
     };
+  }
+
+  /**
+   * Письмо гостю с подтверждением (ADR-141). Адрес берётся из формы, а не из записанной брони: пока база вне РК, в бронь
+   * пишется псевдоним (ADR-018), и настоящий адрес нигде не сохраняется. Письмо «лучшим усилием»: его сбой не превращает
+   * принятую бронь в ошибку для гостя, иначе повтор кнопки создал бы вторую бронь (аудит 26.09, С-33).
+   */
+  private async sendConfirmation(
+    req: {
+      guest: { firstName: string; email: string | null };
+      adults: number;
+      lang: 'ru' | 'kk' | 'en' | 'zh';
+    },
+    site: SiteRecord,
+    card: {
+      confirmationNumber: string;
+      arrivalDate: string;
+      departureDate: string;
+      totalAmountMinor: string;
+      currency: string;
+    },
+    item: { accommodationTypeName?: string | null } | undefined,
+  ): Promise<'sent' | 'none' | 'failed'> {
+    if (!req.guest.email || !this.mailer) return 'none';
+    try {
+      await this.mailer.send(
+        mail.bookingConfirmationLetter({
+          to: req.guest.email,
+          lang: req.lang,
+          guestFirstName: req.guest.firstName,
+          propertyName: site.name,
+          confirmationNumber: card.confirmationNumber,
+          categoryName: item?.accommodationTypeName ?? '',
+          arrivalDate: card.arrivalDate,
+          departureDate: card.departureDate,
+          nights: nightsBetween(card.arrivalDate, card.departureDate),
+          adults: req.adults,
+          totalMinor: card.totalAmountMinor,
+          currency: card.currency,
+          checkInTime: site.checkInTime,
+          checkOutTime: site.checkOutTime,
+        }),
+      );
+      return 'sent';
+    } catch (e) {
+      console.warn(
+        `[web-booking] бронь ${card.confirmationNumber} записана, письмо гостю не ушло: ${(e as Error).message}`,
+      );
+      return 'failed';
+    }
   }
 
   /** Сайт по ключу для демо-страницы; null — нет или бронирование выключено. */
@@ -481,7 +553,10 @@ export class WebBookingService {
     if (!fromOwnPage && !hostMatches(site.hosts, ctx.originHost)) {
       throw new ForbiddenException('запрос не с домена сайта');
     }
-    await this.assertServingProperty(site, 'бронирование с сайта для этого объекта пока не подключено');
+    await this.assertServingProperty(
+      site,
+      'бронирование с сайта для этого объекта пока не подключено',
+    );
     return site;
   }
 

@@ -343,6 +343,9 @@ test('WEB3 · бронирование: состояние, демо тольк�
   await expect(main.getByTestId('booking-guest-plan')).toContainText('«Стандартный»');
   await expect(main.getByTestId('booking-guest-plan')).toContainText('KZT');
   await expect(main.getByTestId('booking-guest-limits')).toContainText('предоплату');
+  // ADR-141: языки формы и письмо-подтверждение гостю
+  await expect(main.getByTestId('booking-guest-limits')).toContainText('казахский, английский, китайский');
+  await expect(main.getByTestId('booking-guest-letter')).toContainText('письмо с подтверждением');
   // выключили — строка говорит правду: форма на сайте останется, но цен не покажет; демо и кода нет
   await main.getByTestId('booking-enabled').uncheck();
   await main.getByTestId('booking-save').click();

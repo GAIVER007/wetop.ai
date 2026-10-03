@@ -43,7 +43,7 @@ class SellerProfile(BaseModel):
     address_form: Literal["vy", "ty"] = "vy"
     emoji: Literal["never", "moderate", "greeting_only"] = "never"
     reply_length: Literal["short", "detailed"] = "short"
-    languages: Annotated[list[Annotated[str, Field(max_length=20)]], Field(max_length=6)] = ["русский"]
+    languages: Annotated[list[Annotated[str, Field(max_length=20)]], Field(max_length=6)] = ["русский", "казахский", "английский", "китайский"]
     greeting: Short = ""
     included_in_price: Annotated[str, Field(max_length=1000)] = ""
     extra_charges: Annotated[str, Field(max_length=1000)] = ""

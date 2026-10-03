@@ -5503,3 +5503,13 @@
 | 03.10.2026 19:57 | lint | ✅ без ошибок | 21 с | b7abae2 | [лог](logs/2026-10-03T14-57-50Z-lint-7f3b.log) |  |
 | 03.10.2026 19:58 | unit | ✅ 3014 из 3017, пропущено 3 | 1 мин 28 с | b7abae2 | [лог](logs/2026-10-03T14-58-11Z-unit-5ec1.log) |  |
 | 03.10.2026 19:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-list.spec.ts tests/ui/channex-screens.spec.ts tests/ui/channels-compact.spec.ts --worker | ✅ 30 из 30 | 1 мин 49 с | b7abae2 | [лог](logs/2026-10-03T14-59-46Z-e2e-32e4.log) |  |
+| 03.10.2026 23:08 | unit (частично: packages/domain/src/web-booking packages/integrations/src/mail/booking-letter.test.ts) | ❌ упало 7 из 31 | 2 с | aab4342 +2 | [лог](logs/2026-10-03T18-08-56Z-unit-ffc4.log) | red: язык гостя и письмо подтверждения (ADR-141) |
+| 03.10.2026 23:10 | unit (частично: apps/api/src/web-booking/web-booking.controller.test.ts) | ❌ код выхода 1 | 3 с | aab4342 +6 | [лог](logs/2026-10-03T18-10-13Z-unit-642c.log) | red: письмо подтверждения из брони с сайта (ADR-141), модуля нет |
+| 03.10.2026 23:13 | e2e (частично: --config tests/ui/playwright.booking-widget.config.ts) | ✅ 9 из 9 | 5 с | aab4342 +12 | [лог](logs/2026-10-03T18-13-11Z-e2e-eaa0.log) | green: языки виджета и Turnstile (ADR-141) |
+| 03.10.2026 23:13 | e2e (частично: --config tests/ui/playwright.booking-widget.config.ts booking-widget-langs) | ❌ упало 4 из 4 | 51 с | aab4342 +11 | [лог](logs/2026-10-03T18-13-22Z-e2e-3631.log) | red: языки виджета на прежнем widget.js (ADR-141) |
+| 03.10.2026 23:15 | unit (частично: packages/domain/src/ai-seller/profile.test.ts) | ❌ упало 1 из 15 | 1 с | aab4342 +14 | [лог](logs/2026-10-03T18-15-14Z-unit-a12b.log) | red: языки продавца по умолчанию ru, kk, en, zh (ADR-141) |
+| 03.10.2026 23:17 | typecheck | ✅ без ошибок | 39 с | aab4342 +19 | [лог](logs/2026-10-03T18-17-35Z-typecheck-8d1b.log) |  |
+| 03.10.2026 23:18 | lint | ✅ без ошибок | 21 с | aab4342 +19 | [лог](logs/2026-10-03T18-18-17Z-lint-7506.log) |  |
+| 03.10.2026 23:18 | unit | ❌ упало 1 из 3035, пропущено 3 | 1 мин 41 с | aab4342 +16 | [лог](logs/2026-10-03T18-18-42Z-unit-2504.log) | срез 1: письмо гостю и языки (ADR-141) |
+| 03.10.2026 23:20 | unit | ✅ 3032 из 3035, пропущено 3 | 1 мин 25 с | aab4342 +16 | [лог](logs/2026-10-03T18-20-33Z-unit-f63e.log) | срез 1: письмо гостю и языки (ADR-141), повтор |
+| 03.10.2026 23:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1) | ✅ 19 из 19 | 1 мин 33 с | aab4342 +19 | [лог](logs/2026-10-03T18-22-03Z-e2e-4909.log) | срез 1: страница «Бронирование» говорит о языках и письме |

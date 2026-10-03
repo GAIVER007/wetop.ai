@@ -81,6 +81,7 @@ describe('запрос брони с сайта (book)', () => {
         email: 'guest@example.com',
       },
       comment: 'Приеду поздно',
+      lang: 'ru',
       visitorKey: 'visitor-0001',
       sessionKey: 'session-0001',
     });
@@ -139,5 +140,31 @@ describe('промокод в запросе виджета (DATA_MODEL §20)', 
       const r = parseQuoteRequest({ ...base, promo }, today);
       expect(r).toEqual({ ok: false, reason: 'промокод записан неверно' });
     }
+  });
+});
+
+describe('язык гостя в запросе брони (ADR-141, срез «подтверждение брони»)', () => {
+  it('без языка — русский', () => {
+    const r = parseBookingRequest(good, today);
+    expect(r.ok && r.value.lang).toBe('ru');
+  });
+  it.each(['ru', 'kk', 'en', 'zh'] as const)('принимает %s', (lang) => {
+    const r = parseBookingRequest({ ...good, lang }, today);
+    expect(r.ok && r.value.lang).toBe(lang);
+  });
+  it('регистр и региональный хвост не мешают: EN-us → en, zh-CN → zh, kz → kk', () => {
+    expect(parseBookingRequest({ ...good, lang: 'EN-us' }, today)).toMatchObject({
+      value: { lang: 'en' },
+    });
+    expect(parseBookingRequest({ ...good, lang: 'zh-CN' }, today)).toMatchObject({
+      value: { lang: 'zh' },
+    });
+    expect(parseBookingRequest({ ...good, lang: 'kz' }, today)).toMatchObject({
+      value: { lang: 'kk' },
+    });
+  });
+  it('незнакомый язык — русский, а не отказ: бронь важнее языка письма', () => {
+    const r = parseBookingRequest({ ...good, lang: 'fr' }, today);
+    expect(r.ok && r.value.lang).toBe('ru');
   });
 });

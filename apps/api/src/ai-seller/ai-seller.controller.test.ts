@@ -232,7 +232,7 @@ describe('профиль (П5)', () => {
   it('без сохранённого — умолчание и признак «не сохранён»', async () => {
     const res = await api().get('/ai-seller/profile').set(as('session-a')).expect(200);
     expect(res.body.saved).toBe(false);
-    expect(res.body.profile.languages).toEqual(['ru']);
+    expect(res.body.profile.languages).toEqual(['ru', 'kk', 'en', 'zh']);
   });
 
   it('неверные поля — 400 со всеми причинами, ничего не сохранено', async () => {

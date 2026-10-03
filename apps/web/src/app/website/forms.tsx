@@ -488,7 +488,13 @@ export function InstallWidgetButton({ code, demoUrl }: { code: string; demoUrl: 
                 <code>
                   .pmsw {'{'} --pmsw-accent: &lt;цвет сайта&gt;; {'}'}
                 </code>
-                . Подпись кнопок и язык формы пока не настраиваются.
+                .
+              </li>
+              <li>
+                Язык формы: русский, казахский, английский или китайский, гость переключает сам.
+                Язык при открытии задаёт атрибут <code>data-lang=&quot;kk&quot;</code> (
+                <code>ru</code>, <code>kk</code>, <code>en</code>, <code>zh</code>). Если гость
+                оставит почту, ему придёт письмо с подтверждением на его языке.
               </li>
             </ul>
           </InstallStep>

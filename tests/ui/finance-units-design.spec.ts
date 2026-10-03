@@ -24,10 +24,10 @@ for (const [name, width, height] of [
     await page.setViewportSize({ width, height });
     await page.goto('/finance');
     await expect(main.getByTestId('finance-charges')).toBeVisible();
-    // «Проживание по категориям» — под раскрывашкой (компактные финансы 01.10)
-    await main.locator('details.finance-category-details').evaluate((d) => {
-      (d as HTMLDetailsElement).open = true;
-    });
+    // «Проживание по категориям» с 01.10.2026 свёрнуто под «По видам начислений»: раскрываем, чтобы
+    // проверить и его колонку «Сумма»
+    await main.getByTestId('finance-charges').getByText('Проживание по категориям').click();
+    await expect(main.getByTestId('category-table')).toBeVisible();
     for (const id of ['finance-charges', 'finance-money']) {
       const tables = main.getByTestId(id).locator('table');
       const n = await tables.count();

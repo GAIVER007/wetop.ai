@@ -19,20 +19,31 @@ async function login(page: import('@playwright/test').Page) {
   await page.waitForURL('**/today');
 }
 
-test('вошедший видит ожидающие приглашения: из профиля — ссылка в «Сотрудников», там список', async ({
+test('вошедший видит ожидающие приглашения и зовёт по почте; ошибки формы — текстом', async ({
   page,
 }) => {
-  // TEAM1 (ADR-136): команда живёт на /team, в профиле — личные сеансы и ссылка; форма приглашения,
-  // её ошибки и новая строка списка — `team.spec.ts`
   await login(page);
-  await page.goto('/profile/access');
+  // команда и приглашения с 02.10.2026 в разделе «Сотрудники» (TEAM1): приглашение панелью из шапки,
+  // ожидающие ответа списком; в «Профиль → Доступ» остались личные сеансы
+  await page.goto('/team');
   const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { name: 'Сотрудники', level: 1 })).toBeVisible();
   await expect(main).not.toContainText('войдёт по коду');
-  await main.getByTestId('team-link').click();
-  await expect(page).toHaveURL(/\/team$/);
   const list = main.getByTestId('invite-list');
   await expect(list).toContainText('zhdet@example.com');
   await expect(list).toContainText('ждёт ответа до');
+
+  await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
+  const drawer = page.getByRole('dialog');
+  await drawer.getByLabel('Почта приглашённого').fill('admin@wetop.test');
+  await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
+  await expect(drawer.getByRole('alert')).toHaveText('Этот человек уже в организации.');
+
+  // почта приводится к нижнему регистру; после отправки панель закрывается, строка в списке ожидающих
+  await drawer.getByLabel('Почта приглашённого').fill('Novyj@Example.com');
+  await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(list).toContainText('novyj@example.com');
 });
 
 test('без сессии формы приглашения нет', async ({ page }) => {

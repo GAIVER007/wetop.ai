@@ -17,16 +17,19 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
 });
 
+/** «Подробности: ночи, средний чек, категории и источники» свёрнуты: открываем перед таблицей */
+async function details(main: import('@playwright/test').Locator) {
+  const summary = main.locator('.pa-details > summary');
+  await summary.click();
+  await expect(main.locator('.pa-details')).toHaveAttribute('open', '');
+}
+
 test('показатели: «нет данных для сравнения» один раз, загрузка по категориям не дважды, подписи без точек', async ({
   page,
 }) => {
   const main = page.getByRole('main');
   await page.goto(`${OVERVIEW}?period=today`);
   await expect(main.getByTestId('pa-chart-categories')).toBeVisible();
-  // таблица категорий и подписи плиток — под «Подробностями» (7f27fc68)
-  await main.locator('details.pa-details').evaluate((d) => {
-    (d as HTMLDetailsElement).open = true;
-  });
 
   // одна видимая фраза о базе сравнения на все плитки; под плитками — «—», а слово остаётся
   // только программе чтения (1 px, за краем)
@@ -39,7 +42,9 @@ test('показатели: «нет данных для сравнения» о
     expect(width).toBeLessThanOrEqual(1);
   await expect(main.locator('.kpi-delta--none').first()).toContainText('—');
 
-  // один день: загрузку по категориям показывают полосы, таблица её не повторяет
+  // один день: загрузку по категориям показывают полосы, таблица её не повторяет. Таблица категорий
+  // с 01.10.2026 стоит в свёрнутых «Подробностях» под графиками (компактная «Аналитика»)
+  await details(main);
   const table = main.getByTestId('pa-categories');
   await expect(table.getByRole('columnheader', { name: 'Загрузка' })).toHaveCount(0);
   await expect(table.getByRole('columnheader', { name: 'Продано ночей' })).toBeVisible();
@@ -52,10 +57,8 @@ test('показатели: «нет данных для сравнения» о
   // период больше дня: полос по категориям нет, и колонка «Загрузка» в таблице нужна
   await page.goto(`${OVERVIEW}?period=week`);
   await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
-  await main.locator('details.pa-details').evaluate((d) => {
-    (d as HTMLDetailsElement).open = true;
-  });
   await expect(main.getByTestId('pa-chart-categories')).toHaveCount(0);
+  await details(main);
   await expect(
     main.getByTestId('pa-categories').getByRole('columnheader', { name: 'Загрузка' }),
   ).toBeVisible();
@@ -67,9 +70,7 @@ test('показатели: на телефоне таблица категор�
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${OVERVIEW}?period=week`);
-  await main.locator('details.pa-details').evaluate((d) => {
-    (d as HTMLDetailsElement).open = true;
-  });
+  await details(main);
   const table = main.getByTestId('pa-categories');
   await expect(table).toBeVisible();
   const clipped = await table.evaluate((el) => {

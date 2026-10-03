@@ -457,7 +457,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       departureDate: header.departureDate,
       ...(sameCurrency ? { totalAmountMinor: header.totalAmountMinor } : {}),
       externalId: a.unique_id,
-      channel: a.ota_name,
+      channel: channex.revisionChannelLabel(a.unique_id, a.ota_name),
       ...(a.notes != null ? { notes: freeTextForStorage(a.notes) } : {}),
     });
     const after = await repo.card(linked.confirmationNumber);
@@ -818,7 +818,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       const created = await repo.createReservation({
         confirmationNumber: a.unique_id,
         source: 'OTA',
-        channel: a.ota_name,
+        channel: channex.revisionChannelLabel(a.unique_id, a.ota_name),
         externalId: a.unique_id,
         status: 'CONFIRMED',
         ...header,
@@ -905,7 +905,7 @@ export class InboundBookingsService implements OnModuleInit, OnModuleDestroy {
       ...header,
       status: 'CONFIRMED',
       externalId: a.unique_id,
-      channel: a.ota_name,
+      channel: channex.revisionChannelLabel(a.unique_id, a.ota_name),
       notes: freeTextForStorage(a.notes),
     });
     const after = await repo.card(existing.confirmationNumber);

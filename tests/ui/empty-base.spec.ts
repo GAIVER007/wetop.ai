@@ -62,7 +62,7 @@ test('пустая база: шахматка показывает все мес
 test('пустая база: главная говорит про ноль словами, а не пустыми плитками', async ({ page }) => {
   await page.goto('/today');
   const main = page.getByRole('main');
-  // компактная Главная (30.09): заезды и выезды одной плиткой «0 / 0»
+  // Главная владельца (30.09–01.10.2026): заезды и выезды дня одной плиткой «Заезды / выезды»
   await expect(main.getByTestId('owner-movements')).toContainText('0 / 0');
   const text = (await main.innerText()).replace(/\s+/g, ' ');
   expect(text).toMatch(/Заезд|Выезд|Проживают/);

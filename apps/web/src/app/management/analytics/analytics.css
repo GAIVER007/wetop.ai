@@ -306,15 +306,13 @@
   text-underline-offset: 2px;
 }
 
-/* Overview: four primary KPIs, two charts, details on demand. */
+/* Overview: four primary KPIs, two charts, details on demand. Размеры шрифта только из шкалы §6
+   (токены `--text-*`): заголовок страницы общий для всех экранов, своего здесь нет */
 .analytics-page {
   padding: 16px 24px;
 }
 .analytics-page .page__head {
   margin-bottom: 16px;
-}
-.analytics-page .page__title {
-  font-size: var(--text-3xl);
 }
 .analytics-page .page__subtitle {
   font-size: var(--text-xs);

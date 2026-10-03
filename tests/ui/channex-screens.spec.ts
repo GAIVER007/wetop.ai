@@ -71,8 +71,10 @@ test('обзор каналов: полоса состояния, вкладки
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Каналы продаж');
   // вкладки модуля — как у «Настроек гостиницы»
   const nav = page.getByRole('navigation', { name: 'Каналы продаж' });
+  // настройка подключения с 01.10.2026 живёт в «Подключениях» (`/connections/channex`), вкладка ведёт туда
   await expect(nav.getByRole('link')).toHaveText([
     'Обзор',
+    'Каналы',
     'Настройка подключения',
     'Сопоставление',
     'Синхронизация',
@@ -108,7 +110,9 @@ test('обзор каналов: полоса состояния, вкладки
 test('подключения каналов: настройка подключения только владельцу', async ({ page, request }) => {
   const main = page.getByRole('main');
   await signIn(page);
+  // старый адрес ведёт на общую страницу настройки Channex в «Подключениях» (01.10.2026)
   await page.goto('/channels/connections');
+  await expect(page).toHaveURL(/\/connections\/channex$/);
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключение каналов');
   await expect(main).toContainText('Тестовая');
   await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');

@@ -316,23 +316,21 @@
 .page:has(.finance-workspace) .page__subtitle {
   font-size: 12px;
 }
-/* Ноутбук 1366×768 (finance-compact.spec): заметка о датах встаёт в строку периода, а не отдельной
-   строкой под ней; уже не помещается — переносится вниз сама */
 .finance-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: var(--space-4);
   margin-bottom: 16px;
 }
-.finance-controls .finance-note {
-  margin: 0;
-}
-.page:has(.finance-workspace) > .context-help:last-child {
-  margin-bottom: 0;
-}
-.page:has(.finance-workspace) .finance-tabs {
-  margin-bottom: var(--space-2);
+/* Пояснение к датам отчёта стоит в строке периода, пока ей хватает ширины: отдельной строкой (02.10.2026)
+   оно сдвигало обзор ниже первого экрана ноутбука. На узком экране переносится под строку, как раньше */
+@media (min-width: 1200px) {
+  .finance-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-4);
+  }
+  .finance-controls .finance-note {
+    margin: 0;
+  }
 }
 .finance-toolbar .inp,
 .finance-toolbar .btn {

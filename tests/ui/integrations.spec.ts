@@ -37,6 +37,7 @@ test('работает: одна карточка Channex, без базы, са
   await signIn(page);
   await page.goto('/connections');
   const main = page.getByRole('main');
+  // раздел называется «Подключения» с 01.10.2026 (навигация по задачам), адрес прежний
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(main).toContainText('Подключения внешних сервисов для Luxx Aparts.');
   const card = main.getByTestId('integration-channex');

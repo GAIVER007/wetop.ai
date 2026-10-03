@@ -5735,3 +5735,7 @@
 | 04.10.2026 00:34 | unit | ✅ 3061 из 3064, пропущено 3 | 1 мин 23 с | 57de965 +8 | [лог](logs/2026-10-03T19-34-24Z-unit-3da8.log) |  |
 | 04.10.2026 00:35 | integration | ✅ 242 из 242 | 59 с | 57de965 +9 | [лог](logs/2026-10-03T19-35-48Z-integration-1145.log) |  |
 | 04.10.2026 00:37 | typecheck | ✅ без ошибок | 24 с | c2e45e5 | [лог](logs/2026-10-03T19-37-14Z-typecheck-0a2d.log) |  |
+| 04.10.2026 00:58 | unit | ✅ 3143 из 3146, пропущено 3 | 1 мин 36 с | 7e7cf3d | [лог](logs/2026-10-03T19-58-49Z-unit-6ea6.log) | слитое дерево: main 1f142337 + переход темы |
+| 04.10.2026 01:00 | integration | ✅ 0 из 294, пропущено 294 | 33 с | 7e7cf3d | [лог](logs/2026-10-03T20-00-30Z-integration-e3cd.log) | слитое дерево: Beauty + конкуренты в одной схеме |
+| 04.10.2026 01:01 | integration | ✅ 294 из 294 | 1 мин 2 с | 7e7cf3d | [лог](logs/2026-10-03T20-01-29Z-integration-acba.log) | слитое дерево: Beauty и конкуренты в одной схеме |
+| 04.10.2026 01:05 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/market.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/theme-transition.spec.ts  | ✅ 70 из 70 | 6 мин 38 с | 7e7cf3d | [лог](logs/2026-10-03T20-05-31Z-e2e-7336.log) | слитое дерево: рынок и каналы из main рядом с салоном |

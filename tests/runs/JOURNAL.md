@@ -5608,3 +5608,4 @@
 | 03.10.2026 20:11 | lint | ✅ без ошибок | 21 с | 5a08fed | [лог](logs/2026-10-03T15-11-20Z-lint-ae6d.log) | после слияния с main |
 | 03.10.2026 20:11 | unit | ✅ 3096 из 3099, пропущено 3 | 1 мин 26 с | 5a08fed | [лог](logs/2026-10-03T15-11-43Z-unit-3a01.log) | после слияния с main |
 | 03.10.2026 20:13 | integration | ✅ 290 из 290 | 1 мин 5 с | 5a08fed | [лог](logs/2026-10-03T15-13-09Z-integration-4c7a.log) | после слияния с main |
+| 03.10.2026 20:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts tests/ui/beauty-branch.spec.ts tests/ui/beauty-schedule.spec.t | ✅ 52 из 52 | 5 мин 36 с | 5a08fed | [лог](logs/2026-10-03T15-14-43Z-e2e-043f.log) | после слияния с main: салон и оболочка |

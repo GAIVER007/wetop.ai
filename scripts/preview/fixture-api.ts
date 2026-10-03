@@ -1238,6 +1238,26 @@ let paymentLines: Array<{
   id: string;
 }> = [];
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
+// ── запросы оплаты (DATA_MODEL §23, ADR-141) ──
+let paymentRequests: Array<{
+  id: string;
+  number: string;
+  folioId: string;
+  amountMinor: string;
+  currency: string;
+  method: 'KASPI' | 'HALYK' | 'BANK_TRANSFER_PERSON' | 'CARD_TERMINAL';
+  link: string | null;
+  status: 'PENDING' | 'PAID' | 'CANCELLED';
+  paymentId: string | null;
+  note: string | null;
+  createdAt: string;
+  closedAt: string | null;
+}> = [];
+const paymentRequestsOf = (number: string) => ({
+  confirmationNumber: number,
+  propertyName: 'Luxx Aparts',
+  requests: paymentRequests.filter((r) => r.number === number).reverse(),
+});
 // ── касса (DATA_MODEL §21): статьи и операции мимо счетов броней ──
 const cashCategorySeed = [
   { id: 'ui-cashcat-start', kind: 'INCOME' as const, name: 'Начальный остаток', active: true },
@@ -3417,6 +3437,10 @@ function read(path: string, q: URLSearchParams): unknown {
         };
       }),
     };
+  if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+    const r = getCard(decodeURIComponent(path.split('/')[3]!));
+    return r ? paymentRequestsOf(r.confirmationNumber) : undefined;
+  }
   if (path.startsWith('/finance/reservations/')) {
     const r = getCard(decodeURIComponent(path.split('/')[3]!));
     return r ? finance(r) : undefined;
@@ -4219,6 +4243,7 @@ createServer(async (req, res) => {
       analyticsHistory = false;
       paid = new Map();
       paymentLines = [];
+      paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
       cashOps = [];
       cashRecs = [];
@@ -6177,6 +6202,69 @@ createServer(async (req, res) => {
         active: true,
       });
       return send(201, [...cashCategories]);
+    }
+    // запросы оплаты (DATA_MODEL §23): те же отказы и коды, что у API
+    if (path.startsWith('/finance/reservations/') && path.endsWith('/payment-requests')) {
+      const number = decodeURIComponent(path.split('/')[3]!);
+      const methodCode = String(body['method'] ?? '');
+      if (!['KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'CARD_TERMINAL'].includes(methodCode))
+        return send(400, { message: 'Способ: Kaspi, Halyk, перевод или терминал' });
+      let amountMinor: bigint;
+      try {
+        amountMinor = parseMoney(String(body['amount'] ?? '').replace(/\s/g, ''));
+      } catch {
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      }
+      if (amountMinor <= 0n)
+        return send(400, { message: 'Сумма: число больше нуля, до двух знаков после запятой' });
+      const link = typeof body['link'] === 'string' && body['link'] ? body['link'] : null;
+      if (link && !link.startsWith('https://'))
+        return send(400, { message: 'Ссылка: адрес банка, начинается с https://, до 500 знаков' });
+      paymentRequests.push({
+        id: `00000000-0000-4000-8000-${String(paymentRequests.length + 1).padStart(12, '0')}`,
+        number,
+        folioId: String(body['folioId']),
+        amountMinor: amountMinor.toString(),
+        currency: 'KZT',
+        method: methodCode as 'KASPI',
+        link,
+        status: 'PENDING',
+        paymentId: null,
+        note: null,
+        createdAt: `${today}T10:00:00Z`,
+        closedAt: null,
+      });
+      return send(201, paymentRequestsOf(number));
+    }
+    if (/^\/finance\/payment-requests\/[^/]+\/(paid|cancel)$/.test(path)) {
+      const [, , , id, verb] = path.split('/');
+      const r = paymentRequests.find((x) => x.id === id);
+      if (!r) return send(404, { message: `Запрос оплаты ${id} не найден` });
+      if (r.status !== 'PENDING')
+        return send(409, {
+          message:
+            verb === 'cancel' && r.status === 'PAID'
+              ? 'Оплаченный запрос не отменяется: верните деньги возвратом платежа'
+              : r.status === 'PAID'
+                ? 'Запрос уже оплачен'
+                : 'Запрос уже отменён',
+        });
+      r.closedAt = `${today}T11:00:00Z`;
+      if (verb === 'cancel') {
+        r.status = 'CANCELLED';
+        return send(200, paymentRequestsOf(r.number));
+      }
+      r.status = 'PAID';
+      r.paymentId = `ui-payment-request-${r.id.slice(-4)}`;
+      paid.set(r.folioId, (paid.get(r.folioId) ?? 0n) + BigInt(r.amountMinor));
+      paymentLines.push({
+        folioId: r.folioId,
+        amountMinor: r.amountMinor,
+        method: r.method,
+        note: 'Оплата по запросу',
+        id: r.paymentId,
+      });
+      return send(200, paymentRequestsOf(r.number));
     }
     if (path === '/finance/payments') {
       try {

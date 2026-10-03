@@ -1,0 +1,30 @@
+# Модульные (unit) · 03.10.2026 23:26 Алматы · vm
+# коммит 495c002 (claude/busy-dirac-sx971u), незакоммиченных файлов набора: 5
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-26-53Z-unit-082c.json' 'packages/domain/src/finance/payment-request.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/finance/payment-request.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/finance/payment-request.test.ts [ packages/domain/src/finance/payment-request.test.ts ]
+Error: Cannot find module './payment-request' imported from /home/user/wetop.ai/packages/domain/src/finance/payment-request.test.ts
+ ❯ packages/domain/src/finance/payment-request.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import {
+       | ^
+      3|   PAYMENT_REQUEST_METHODS,
+      4|   parsePaymentRequestInput,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:26:54
+   Duration  185ms (worker 96%, environment 4%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-26-53Z-unit-082c.json
+
+# код выхода 1 · 1 с

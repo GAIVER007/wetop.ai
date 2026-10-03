@@ -524,7 +524,7 @@ function InstallStep({ title, children }: { title: string; children: ReactNode }
   );
 }
 
-export function CopyButton({ text }: { text: string }) {
+export function CopyButton({ text, label = 'Скопировать код' }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
   const [error, setError] = useState(false);
   return (
@@ -543,9 +543,9 @@ export function CopyButton({ text }: { text: string }) {
           }
         }}
       >
-        {done ? 'Скопировано' : 'Скопировать код'}
+        {done ? 'Скопировано' : label}
       </Button>
-      {error && <Alert>Не удалось скопировать. Выделите код вручную.</Alert>}
+      {error && <Alert>Не удалось скопировать. Выделите текст вручную.</Alert>}
     </div>
   );
 }

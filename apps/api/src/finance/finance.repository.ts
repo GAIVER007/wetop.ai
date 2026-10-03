@@ -311,7 +311,10 @@ export interface FinanceRepository {
   cashBalanceSources(): Promise<CashBalanceSources>;
   /** Статьи кассы; пустой справочник заполняется стартовым набором (Q-236) */
   cashCategories(): Promise<CashCategoryRecord[]>;
-  createCashCategory(c: { kind: 'INCOME' | 'EXPENSE'; name: string }, audit?: AuditEntry): Promise<string>;
+  createCashCategory(
+    c: { kind: 'INCOME' | 'EXPENSE'; name: string },
+    audit?: AuditEntry,
+  ): Promise<string>;
   /** false — статьи нет у этого объекта */
   updateCashCategory(
     id: string,
@@ -352,7 +355,7 @@ export const FINANCE_REPOSITORY = Symbol('FINANCE_REPOSITORY');
  * Клиент внутри транзакции: те же таблицы, что у `PrismaService.db`, но без вложенных транзакций.
  * Тип берём от самого клиента, чтобы он не разошёлся со схемой.
  */
-type TxClient = PrismaService['db'];
+export type TxClient = PrismaService['db'];
 
 /** Счёт закрыт или его нет: деньги в него не записываются (аудит 26.09, С-25) */
 export class FolioClosedError extends Error {
@@ -375,7 +378,7 @@ export class FolioBalanceError extends Error {
  * записи на те же счета не ждали друг друга по кругу. Раньше «счёт открыт» проверялось до транзакции записи, и
  * одновременное начисление ложилось в только что закрытый счёт (аудит 26.09, С-25).
  */
-async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
+export async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
   for (const id of [...new Set(folioIds)].sort()) {
     const rows = await tx.$queryRaw<Array<{ status: string }>>`
       SELECT "status"::text AS status FROM "folios" WHERE "id" = ${id}::uuid FOR UPDATE`;
@@ -384,7 +387,7 @@ async function lockOpenFolios(tx: TxClient, folioIds: string[]): Promise<void> {
 }
 
 /** Одна строка журнала. Пишется тем же клиентом, что и деньги, — своим или транзакционным. */
-async function writeAudit(tx: TxClient, a: AuditEntry, createdId?: string): Promise<void> {
+export async function writeAudit(tx: TxClient, a: AuditEntry, createdId?: string): Promise<void> {
   const j = (x: unknown) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
   const after = a.idField && createdId ? { ...a.after, [a.idField]: createdId } : a.after;
   await tx.auditLog.create({
@@ -1090,7 +1093,12 @@ export class PrismaFinanceRepository implements FinanceRepository {
       where: { propertyId },
       orderBy: [{ kind: 'asc' }, { name: 'asc' }],
     });
-    return rows.map((c) => ({ id: c.id, kind: c.kind as 'INCOME' | 'EXPENSE', name: c.name, active: c.active }));
+    return rows.map((c) => ({
+      id: c.id,
+      kind: c.kind as 'INCOME' | 'EXPENSE',
+      name: c.name,
+      active: c.active,
+    }));
   }
   async createCashCategory(
     c: { kind: 'INCOME' | 'EXPENSE'; name: string },

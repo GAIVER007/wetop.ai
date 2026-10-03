@@ -189,3 +189,50 @@ export async function stayExtraAction(
   }
   return done(number);
 }
+
+/** Запрос оплаты (DATA_MODEL §23, ADR-141): счёт Kaspi по телефону, ссылка банка или перевод */
+export async function createPaymentRequestAction(
+  number: string,
+  prev: FinanceActionResult,
+  fd: FormData,
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.createPaymentRequest(number, {
+      folioId: s(fd, 'folioId'),
+      method: s(fd, 'method'),
+      amount: s(fd, 'amount'),
+      link: s(fd, 'link') ?? null,
+      note: s(fd, 'note') ?? null,
+    });
+  } catch (e) {
+    return rejected(e, prev, fd, ['folioId', 'method', 'amount', 'link', 'note']);
+  }
+  return done(number, `Запрос на ${money(s(fd, 'amount'))} создан. Отправьте гостю текст ниже.`);
+}
+
+/** «Оплачено»: запрос превращается в обычный платёж на счёт проживания одной транзакцией */
+export async function markPaymentRequestPaidAction(
+  number: string,
+  id: string,
+  prev: FinanceActionResult,
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.markPaymentRequestPaid(id);
+  } catch (e) {
+    return { error: describe(e), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1 };
+  }
+  return done(number, 'Оплата по запросу принята, баланс счёта пересчитан.');
+}
+
+export async function cancelPaymentRequestAction(
+  number: string,
+  id: string,
+  prev: FinanceActionResult,
+): Promise<FinanceActionResult> {
+  try {
+    await financeApi.cancelPaymentRequest(id);
+  } catch (e) {
+    return { error: describe(e), ok: prev.ok, attempt: (prev.attempt ?? 0) + 1 };
+  }
+  return done(number, 'Запрос отменён.');
+}

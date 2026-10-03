@@ -125,6 +125,7 @@ model Property {
   cashCategories      CashCategory[]
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
+  paymentRequests     PaymentRequest[]
   services            Service[]
   trackedSites        TrackedSite[]
   inventoryUnits      InventoryUnit[]
@@ -781,6 +782,13 @@ enum PaymentStatus {
 }
 
 /// Счёт гостя — один на проживание (ADR-014). Создаётся вместе с проживанием.
+/// DATA_MODEL §23: запрос оплаты (ADR-141)
+enum PaymentRequestStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
 model Folio {
   id                String      @id @default(uuid()) @db.Uuid
   reservationItemId String      @unique @map("reservation_item_id") @db.Uuid
@@ -793,6 +801,7 @@ model Folio {
   charges         Charge[]
   allocations     PaymentAllocation[]
   refunds         Refund[]
+  paymentRequests PaymentRequest[]
 
   @@map("folios")
 }
@@ -859,6 +868,7 @@ model Payment {
   property    Property            @relation(fields: [propertyId], references: [id])
   allocations PaymentAllocation[]
   refunds     Refund[]
+  request     PaymentRequest?
 
   @@unique([propertyId, externalReference])
   @@index([propertyId, paidAt])
@@ -970,6 +980,36 @@ model CashReconciliation {
 
   @@index([propertyId, method, createdAt])
   @@map("cash_reconciliations")
+}
+
+/// DATA_MODEL §23 (03.10.2026, ADR-141): счёт Kaspi по телефону, ссылка банка или перевод, привязанные к счёту
+/// проживания. «Оплачено» создаёт обычный Payment и закрывает запрос одной транзакцией.
+model PaymentRequest {
+  id          String               @id @default(uuid()) @db.Uuid
+  propertyId  String               @map("property_id") @db.Uuid
+  folioId     String               @map("folio_id") @db.Uuid
+  /// integer minor units (тиын), ADR-008; > 0
+  amount      BigInt
+  currency    String               @db.Char(3)
+  /// KASPI, HALYK, BANK_TRANSFER_PERSON, CARD_TERMINAL (CHECK в миграции)
+  method      PaymentMethod
+  /// только https://, до 500 знаков
+  link        String?
+  status      PaymentRequestStatus @default(PENDING)
+  paymentId   String?              @unique @map("payment_id") @db.Uuid
+  note        String?
+  createdById String?              @map("created_by_id") @db.Uuid
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  closedAt    DateTime?            @map("closed_at") @db.Timestamptz(6)
+
+  property  Property @relation(fields: [propertyId], references: [id])
+  folio     Folio    @relation(fields: [folioId], references: [id])
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation(fields: [createdById], references: [id])
+
+  @@index([folioId])
+  @@index([propertyId, status])
+  @@map("payment_requests")
 }
 
 // ───────────────────────── §11 Аналитика сайта ─────────────────────────
@@ -1216,6 +1256,7 @@ model User {
   auditLogs           AuditLog[]
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
+  paymentRequests     PaymentRequest[]
   userErrors          UserError[]
   sellerProfileEdits  SellerProfile[]
   platformAdmin       PlatformAdmin?

@@ -5513,3 +5513,15 @@
 | 03.10.2026 23:18 | unit | ❌ упало 1 из 3035, пропущено 3 | 1 мин 41 с | aab4342 +16 | [лог](logs/2026-10-03T18-18-42Z-unit-2504.log) | срез 1: письмо гостю и языки (ADR-141) |
 | 03.10.2026 23:20 | unit | ✅ 3032 из 3035, пропущено 3 | 1 мин 25 с | aab4342 +16 | [лог](logs/2026-10-03T18-20-33Z-unit-f63e.log) | срез 1: письмо гостю и языки (ADR-141), повтор |
 | 03.10.2026 23:22 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/website.spec.ts --workers=1) | ✅ 19 из 19 | 1 мин 33 с | aab4342 +19 | [лог](logs/2026-10-03T18-22-03Z-e2e-4909.log) | срез 1: страница «Бронирование» говорит о языках и письме |
+| 03.10.2026 23:26 | unit (частично: packages/domain/src/finance/payment-request.test.ts) | ❌ код выхода 1 | 1 с | 495c002 +5 | [лог](logs/2026-10-03T18-26-53Z-unit-082c.log) | red: запрос оплаты в домене (DATA_MODEL §23) |
+| 03.10.2026 23:29 | unit (частично: apps/api/src/finance/payment-requests.controller.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 2 | 4 с | 495c002 +12 | [лог](logs/2026-10-03T18-29-04Z-unit-1261.log) | red: маршруты запросов оплаты (DATA_MODEL §23) |
+| 03.10.2026 23:29 | integration (частично: tests/integration/payment-requests.test.ts) | ✅ 3 из 3 | 3 с | 495c002 +15 | [лог](logs/2026-10-03T18-29-51Z-integration-f667.log) | запросы оплаты на схеме (DATA_MODEL §23) |
+| 03.10.2026 23:41 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/payment-requests.spec.ts --workers=1) | ❌ упало 2 из 7 | 31 с | 495c002 +21 | [лог](logs/2026-10-03T18-41-30Z-e2e-9718.log) | запросы оплаты в карточке брони (DATA_MODEL §23) |
+| 03.10.2026 23:44 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/payment-requests.spec.ts tests/ui/payment-draft.spec.ts --workers=1) | ✅ 10 из 10 | 34 с | 495c002 +22 | [лог](logs/2026-10-03T18-44-05Z-e2e-0c47.log) | запросы оплаты + соседние формы оплаты; ширина «Счетов» на телефоне |
+| 03.10.2026 23:44 | unit | ✅ 3057 из 3060, пропущено 3 | 1 мин 27 с | 495c002 +21 | [лог](logs/2026-10-03T18-44-58Z-unit-b12f.log) | срез 2: запросы оплаты (DATA_MODEL §23) |
+| 03.10.2026 23:46 | typecheck | ✅ без ошибок | 25 с | 495c002 +23 | [лог](logs/2026-10-03T18-46-29Z-typecheck-8da2.log) |  |
+| 03.10.2026 23:46 | lint | ❌ ошибок: 2 | 20 с | 495c002 +23 | [лог](logs/2026-10-03T18-46-54Z-lint-d357.log) | no-irregular-whitespace |
+| 03.10.2026 23:47 | integration | ✅ 241 из 241 | 1 мин 2 с | 495c002 +16 | [лог](logs/2026-10-03T18-47-15Z-integration-e5c2.log) | срез 2: запросы оплаты, полный набор на локальной базе |
+| 03.10.2026 23:48 | lint | ❌ ошибок: 1 | 20 с | 495c002 +23 | [лог](logs/2026-10-03T18-48-30Z-lint-602b.log) | no-useless-assignment |
+| 03.10.2026 23:48 | lint | ✅ без ошибок | 20 с | 495c002 +23 | [лог](logs/2026-10-03T18-48-57Z-lint-c51e.log) |  |
+| 03.10.2026 23:49 | unit (частично: packages/domain/src/finance) | ✅ 43 из 43 | 1 с | 495c002 +21 | [лог](logs/2026-10-03T18-49-18Z-unit-0eb4.log) | запрос оплаты после правки lint |

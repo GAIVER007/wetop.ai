@@ -52,8 +52,11 @@ const LEGACY_STATUS: Record<string, GuestSection> = {
   TENTATIVE: 'EXPECTED',
   CHECKED_OUT: 'RECENT',
 };
+// 13-й месяц даёт Invalid Date, его toISOString() бросает RangeError: сначала число
 const isDay = (v: string) =>
-  /^\d{4}-\d{2}-\d{2}$/.test(v) && new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v;
+  /^\d{4}-\d{2}-\d{2}$/.test(v) &&
+  Number.isFinite(Date.parse(`${v}T00:00:00Z`)) &&
+  new Date(`${v}T00:00:00Z`).toISOString().slice(0, 10) === v;
 const oneOf = <T extends string>(value: string, options: ReadonlyArray<[T, string]>) =>
   options.some(([id]) => id === value);
 

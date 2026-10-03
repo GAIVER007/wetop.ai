@@ -1,0 +1,11 @@
+# Линтер (lint) · 03.10.2026 20:56 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 24
+# npx eslint .
+
+/home/user/wetop.ai/packages/domain/src/dashboard/channels.ts
+  112:16  error  '_r' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+
+
+# код выхода 1 · 20 с

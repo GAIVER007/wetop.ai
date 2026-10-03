@@ -48,7 +48,7 @@ test('владелец: соединение фактами, вкладки в �
     ['Сопоставление категорий и тарифов', '/channels/mapping'],
     ['Очередь обмена', '/channels/sync'],
     ['События', '/channels/events'],
-  ])
+  ] as const)
     await expect(tabs.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
   const connection = main.getByTestId('channel-connection');
   await expect(connection).toContainText('Соединение установлено');

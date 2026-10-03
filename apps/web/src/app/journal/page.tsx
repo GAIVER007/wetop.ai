@@ -13,6 +13,7 @@ import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { Table, Input, Button, Field, EmptyState, Panel, cx } from '../../components/ui';
 import { Icon } from '../../components/icon';
+import { unstable_rethrow } from 'next/navigation';
 import '../directory.css';
 
 interface AuditRow {
@@ -206,7 +207,10 @@ async function JournalEntries({
   const today = clock.today();
   const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
   const rows = loaded.ok ? loaded.r : null;
   const meta = rows

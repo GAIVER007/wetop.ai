@@ -5252,6 +5252,12 @@
 | 02.10.2026 17:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts  | ❌ упало 50 из 188 | 28 мин 28 с | 5fc2337 | [лог](logs/2026-10-02T12-52-04Z-e2e-764b.log) | триаж второй партии красных main после стыковки меню |
 | 02.10.2026 18:29 | typecheck | ✅ без ошибок | 39 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-29-23Z-typecheck-74d8.log) |  |
 | 02.10.2026 18:30 | lint | ✅ без ошибок | 21 с | 5fc2337 +7 | [лог](logs/2026-10-02T13-30-02Z-lint-d09c.log) |  |
+| 02.10.2026 21:17 | unit | ✅ 2792 из 2795, пропущено 3 | 1 мин 28 с | 1ec86f1 +1 | [лог](logs/2026-10-02T16-17-23Z-unit-993c.log) |  |
+| 02.10.2026 21:18 | typecheck | ✅ без ошибок | 33 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-18-57Z-typecheck-2c24.log) |  |
+| 02.10.2026 21:19 | lint | ✅ без ошибок | 18 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-19-31Z-lint-b54a.log) |  |
+| 02.10.2026 21:20 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/chessboard-week.spec.ts tests/ui/chessboard-month.spec.ts  | ❌ упало 11 из 188 | 18 мин 41 с | 1ec86f1 +5 | [лог](logs/2026-10-02T16-20-20Z-e2e-2452.log) | green второй партии: переименования, степпер, вкладки финансов, месяц 8px, очередь за кнопкой |
+| 02.10.2026 21:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/workspace.spec.ts tests/ui/ai-agents.spec.ts tests/ui/ai-seller.spec.ts tests/ui/acce | ❌ упало 1 из 115 | 10 мин 19 с | 402516e +4 | [лог](logs/2026-10-02T16-44-18Z-e2e-6e8b.log) | хвосты второй партии: вход в axe-обходе, карточки каталога, метка продавца, вкладка Долги, номер NEW без зашивки |
+| 02.10.2026 21:55 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/ai-agents.spec.ts) | ✅ 27 из 27 | 1 мин 14 с | bd8477e +1 | [лог](logs/2026-10-02T16-55-11Z-e2e-a4c6.log) | последний хвост: aria-current скрытого пункта группы по CSS |
 | 02.10.2026 21:11 | typecheck | ✅ без ошибок | 11 с | 0dffd81 | [лог](logs/2026-10-02T16-11-17Z-typecheck-cef9.log) | календарь: слияние с main 1ec86f17 |
 | 02.10.2026 21:11 | lint | ✅ без ошибок | 8 с | 0dffd81 | [лог](logs/2026-10-02T16-11-28Z-lint-ca04.log) | календарь: слияние с main |
 | 02.10.2026 21:11 | unit | ❌ упало 1 из 2795, пропущено 3 | 1 мин 12 с | 0dffd81 | [лог](logs/2026-10-02T16-11-37Z-unit-6347.log) | календарь: слияние с main |
@@ -5265,6 +5271,7 @@
 | 02.10.2026 21:23 | lint | ✅ без ошибок | 19 с | d92c8cb +2 | [лог](logs/2026-10-02T16-23-30Z-lint-5db6.log) | интеграция: итоговое дерево перед пушем |
 | 02.10.2026 21:23 | unit | ❌ упало 5 из 2843, пропущено 3 | 1 мин 23 с | d92c8cb +2 | [лог](logs/2026-10-02T16-23-50Z-unit-2856.log) | интеграция: итоговое дерево перед пушем |
 | 02.10.2026 21:27 | unit | ❌ упало 2 из 2843, пропущено 3 | 1 мин 12 с | d92c8cb +5 | [лог](logs/2026-10-02T16-27-31Z-unit-e6b5.log) | интеграция: итоговое дерево; 2 красных auto-deploy — артефакт worktree, в основном дереве 12/12 (…16-26-52Z) |
+| 02.10.2026 21:49 | unit | ✅ 2843 из 2846, пропущено 3 | 1 мин 12 с | d7fde24 | [лог](logs/2026-10-02T16-49-05Z-unit-0e5f.log) | календарь: слияние f6c18e50 перед пушем |
 | 02.10.2026 21:41 | typecheck | ❌ ошибок: 11 | 17 с | f6c18e5 | [лог](logs/2026-10-02T16-41-07Z-typecheck-4834.log) | TS2353 |
 | 02.10.2026 21:41 | lint | ✅ без ошибок | 1 мин 4 с | f6c18e5 | [лог](logs/2026-10-02T16-41-25Z-lint-47fe.log) |  |
 | 02.10.2026 21:42 | typecheck | ✅ без ошибок | 10 с | f6c18e5 +1 | [лог](logs/2026-10-02T16-42-50Z-typecheck-c610.log) |  |
@@ -5319,3 +5326,51 @@
 | 03.10.2026 15:06 | e2e (частично: --config tests/ui/playwright.alt.config.ts requests -g analytics) | ✅ 4 из 4 | 47 с | dde556e +29 | [лог](logs/2026-10-03T10-06-09Z-e2e-dd6a.log) | REP3: бюджет запросов вкладок аналитики, включая новую /management/analytics/units |
 | 03.10.2026 15:07 | e2e (частично: --config ./playwright.ui-support.local.config.ts --workers=1 --grep Диалоги) | ✅ 1 из 1 | 1 мин 3 с | dde556e +29 | [лог](logs/2026-10-03T10-07-18Z-e2e-7d87.log) | red: продавец показывает свою проверку в списке |
 | 03.10.2026 15:09 | e2e (частично: --config ./playwright.ui-support.local.config.ts --workers=1 --grep Диалоги) | ❌ упало 1 из 1 | 1 мин 30 с | dde556e +29 | [лог](logs/2026-10-03T10-09-14Z-e2e-0e67.log) | red: без фильтра подставной API показывает проверку агента в списке |
+| 02.10.2026 21:59 | unit | ✅ 2843 из 2846, пропущено 3 | 1 мин 19 с | 3c66256 | [лог](logs/2026-10-02T16-59-01Z-unit-5583.log) |  |
+| 02.10.2026 22:00 | typecheck | ❌ ошибок: 50 | 31 с | 3c66256 | [лог](logs/2026-10-02T17-00-20Z-typecheck-b9af.log) | TS2339 |
+| 02.10.2026 22:00 | lint | ✅ без ошибок | 16 с | 3c66256 | [лог](logs/2026-10-02T17-00-53Z-lint-8208.log) |  |
+| 02.10.2026 22:01 | typecheck | ✅ без ошибок | 40 с | 3c66256 | [лог](logs/2026-10-02T17-01-52Z-typecheck-620f.log) |  |
+| 02.10.2026 22:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/navigation.spec.ts tests/ui/premium.spec.ts tests/ui/branch | ❌ упало 6 из 327 | 29 мин | 3c66256 | [лог](logs/2026-10-02T17-01-22Z-e2e-01a0.log) | обе партии и новые спеки #217 на слитом дереве перед вторым PR |
+| 02.10.2026 22:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/top-menu.spec.ts tests/ui/platform-access.spec.ts tests/ui/roles.spec.ts tests/ui/tea | ✅ 36 из 36 | 2 мин 39 с | 3945ad2 +4 | [лог](logs/2026-10-02T17-31-25Z-e2e-6b7b.log) | вкладка Отчёты в ожиданиях спеков, Сотрудники через верхнее меню |
+| 02.10.2026 23:12 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ❌ код выхода 1 | 1 с | 0ac6085 +17 | [лог](logs/2026-10-02T18-12-24Z-integration-3d98.log) | red TEAM1-grant: last_login_at ещё не выдан wetop_app (прод-падение /team) |
+| 02.10.2026 23:12 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ❌ код выхода 1 | 11 с | 0ac6085 +17 | [лог](logs/2026-10-02T18-12-46Z-integration-8a85.log) | red TEAM1-grant: last_login_at ещё не выдан wetop_app (прод-падение /team) |
+| 02.10.2026 23:14 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ❌ упало 1 из 8 | 1 с | 0ac6085 +17 | [лог](logs/2026-10-02T18-14-02Z-integration-f221.log) | red TEAM1-grant: last_login_at ещё не выдан wetop_app (прод-падение /team) |
+| 02.10.2026 23:14 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ✅ 8 из 8 | 1 с | 0ac6085 +19 | [лог](logs/2026-10-02T18-14-18Z-integration-0281.log) | green TEAM1-grant: миграция 042 открывает last_login_at роли wetop_app |
+| 02.10.2026 23:14 | integration (частично: tests/integration/rls-credential-grants.test.ts) | ✅ 8 из 8 | 1 с | 0ac6085 +19 | [лог](logs/2026-10-02T18-14-43Z-integration-af57.log) | green TEAM1-grant: после down и re-up 042 |
+| 02.10.2026 23:15 | unit (частично: apps/api/src/accounts/members.controller.test.ts) | ✅ 22 из 22 | 1 с | 0ac6085 +27 | [лог](logs/2026-10-02T18-15-11Z-unit-0b9d.log) | TEAM1-grant: фолбэк без last_login_at не ломает список |
+| 03.10.2026 01:25 | e2e (частично: --config tests/site/playwright.config.ts -g кнопки\|одной фразой) | ❌ код выхода 1 | 2 с | f494412 | [лог](logs/2026-10-02T20-25-43Z-e2e-c61b.log) | red: полоса фактов, кнопки в строку, короткий текст карточек |
+| 03.10.2026 01:26 | e2e (частично: --config tests/site/playwright.config.ts -g кнопки\|одной фразой) | ❌ упало 2 из 2 | 9 с | f494412 | [лог](logs/2026-10-02T20-26-03Z-e2e-e96e.log) | red: полоса фактов, кнопки в строку, короткий текст карточек |
+| 03.10.2026 01:35 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ код выхода 1 | 1 с | f494412 +8 | [лог](logs/2026-10-02T20-35-03Z-e2e-3f42.log) | green: главная понятнее — полоса фактов, строки-пункты, кнопки в строку |
+| 03.10.2026 01:35 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 45 из 45 | 29 с | f494412 +8 | [лог](logs/2026-10-02T20-35-34Z-e2e-bf50.log) | green: главная понятнее — полоса фактов, строки-пункты, кнопки в строку |
+| 03.10.2026 01:36 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | f494412 +8 | [лог](logs/2026-10-02T20-36-12Z-unit-1f54.log) | сторож главной после пересборки |
+| 03.10.2026 01:36 | typecheck | ✅ без ошибок | 29 с | f494412 +9 | [лог](logs/2026-10-02T20-36-18Z-typecheck-05c7.log) | главная: полоса фактов и строки-пункты |
+| 03.10.2026 01:36 | lint | ✅ без ошибок | 17 с | f494412 +9 | [лог](logs/2026-10-02T20-36-54Z-lint-1008.log) | главная: полоса фактов и строки-пункты |
+| 03.10.2026 01:37 | unit | ✅ 2850 из 2853, пропущено 3 | 1 мин 36 с | f494412 +8 | [лог](logs/2026-10-02T20-37-21Z-unit-d292.log) | полный unit после правки главной |
+| 03.10.2026 01:42 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 45 из 45 | 28 с | f494412 +8 | [лог](logs/2026-10-02T20-42-44Z-e2e-73eb.log) | главная после правки текстов и реестра: набор сайта целиком |
+| 03.10.2026 01:43 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | f494412 +8 | [лог](logs/2026-10-02T20-43-21Z-unit-cd27.log) | сторож главной после правки реестра DESIGN.md §19.5 |
+| 03.10.2026 01:44 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 45 из 45 | 28 с | f494412 +8 | [лог](logs/2026-10-02T20-44-53Z-e2e-560c.log) | главная 02.10: полоса фактов, строки-пункты, кнопки первого экрана в строку и одного роста |
+| 03.10.2026 01:45 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | f494412 +8 | [лог](logs/2026-10-02T20-45-22Z-unit-c998.log) | сторож главной, итог |
+| 03.10.2026 01:45 | lint | ✅ без ошибок | 17 с | f494412 +9 | [лог](logs/2026-10-02T20-45-29Z-lint-28d8.log) | итог: главная |
+| 03.10.2026 01:45 | typecheck | ✅ без ошибок | 21 с | f494412 +9 | [лог](logs/2026-10-02T20-45-46Z-typecheck-c4fa.log) | итог: главная |
+| 03.10.2026 12:21 | e2e (частично: --config tests/site/playwright.config.ts -g пилюля) | ❌ упало 1 из 1 | 10 с | d281497 | [лог](logs/2026-10-03T07-21-38Z-e2e-fd27.log) | red: ссылка в карточке Продаж растянута и в две строки |
+| 03.10.2026 12:22 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 46 из 46 | 32 с | d281497 +2 | [лог](logs/2026-10-03T07-22-13Z-e2e-fe9a.log) | green: вся главная после правки пилюли в карточке Продаж |
+| 03.10.2026 12:22 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 2 с | d281497 +2 | [лог](logs/2026-10-03T07-22-51Z-unit-9987.log) | сторож главной после правки пилюли |
+| 03.10.2026 12:22 | lint | ✅ без ошибок | 22 с | d281497 +3 | [лог](logs/2026-10-03T07-22-54Z-lint-d035.log) | правка пилюли |
+| 03.10.2026 12:23 | typecheck | ✅ без ошибок | 22 с | d281497 +3 | [лог](logs/2026-10-03T07-23-17Z-typecheck-e46b.log) | правка пилюли |
+| 03.10.2026 14:20 | typecheck | ❌ ошибок: 50 | 10 с | ebaf8cf +8 | [лог](logs/2026-10-03T09-20-50Z-typecheck-c7fb.log) | панель Сегодня и порядок меню |
+| 03.10.2026 14:21 | lint | ✅ без ошибок | 8 с | ebaf8cf +8 | [лог](logs/2026-10-03T09-21-00Z-lint-ca5a.log) | панель Сегодня и порядок меню |
+| 03.10.2026 14:21 | unit | ❌ упало 3 из 2891, пропущено 4 | 1 мин 12 с | ebaf8cf +3 | [лог](logs/2026-10-03T09-21-09Z-unit-bf25.log) | панель Сегодня и порядок меню |
+| 03.10.2026 14:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-calendar.spec.ts chessboard-design.spec.ts chessboard-week.spec.ts chessboard-dnd.s | ❌ упало 8 из 90 | 5 мин 26 с | ebaf8cf +8 | [лог](logs/2026-10-03T09-22-57Z-e2e-a13e.log) | панель Сегодня у календаря и порядок меню по частоте |
+| 03.10.2026 14:33 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-calendar.spec.ts chessboard-design.spec.ts chessboard-week.spec.ts chessboard-dnd.s | ❌ упало 2 из 28 | 2 мин 7 с | ebaf8cf +13 | [лог](logs/2026-10-03T09-33-25Z-e2e-d81b.log) | панель Сегодня: цели 24px, бюджет 384, окно шага переезда 1500 |
+| 03.10.2026 14:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-gate-pr5.spec.ts) | ✅ 2 из 2 | 14 с | ebaf8cf +14 | [лог](logs/2026-10-03T09-37-01Z-e2e-2c81.log) | гейт PR5: окно 1000 под панель Сегодня |
+| 03.10.2026 14:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-calendar.spec.ts chessboard-design.spec.ts chessboard-week.spec.ts chessboard-dnd.s | ✅ 90 из 90 | 3 мин 32 с | ebaf8cf +14 | [лог](logs/2026-10-03T09-37-26Z-e2e-2253.log) | панель Сегодня и меню по частоте: итоговый пакет |
+| 03.10.2026 14:14 | e2e (частично: --config tests/site/playwright.config.ts -g дорожной карты\|Салоны и студии\|заданном порядке\|карта разделов ведёт\|центр управления) | ❌ упало 5 из 5 | 47 с | 4cdd4fc | [лог](logs/2026-10-03T09-14-18Z-e2e-2788.log) | red: дорожная карта направлений снимается, салоны приглашаются |
+| 03.10.2026 14:17 | e2e (частично: --config tests/site/playwright.config.ts) | ❌ упало 2 из 48 | 40 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-17-19Z-e2e-2086.log) | green: дорожная карта снята, салоны приглашены |
+| 03.10.2026 14:18 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 48 из 48 | 31 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-18-35Z-e2e-ed17.log) | green: главная без дорожной карты, салоны приглашены |
+| 03.10.2026 14:19 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-19-13Z-unit-e4e8.log) | сторож главной после снятия направлений |
+| 03.10.2026 14:19 | typecheck | ✅ без ошибок | 22 с | 4cdd4fc +8 | [лог](logs/2026-10-03T09-19-15Z-typecheck-ebd7.log) | главная без направлений |
+| 03.10.2026 14:19 | lint | ✅ без ошибок | 18 с | 4cdd4fc +8 | [лог](logs/2026-10-03T09-19-38Z-lint-4e71.log) | главная без направлений |
+| 03.10.2026 14:21 | e2e (частично: --config tests/site/playwright.config.ts -g белая по белому) | ❌ упало 1 из 1 | 8 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-21-08Z-e2e-d07d.log) | red: кромка второй кнопки белая на сплошной панели |
+| 03.10.2026 14:21 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 31 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-21-31Z-e2e-2f41.log) | green: главная без направлений, приглашение салонам, видимая кромка кнопки |
+| 03.10.2026 14:22 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-22-12Z-unit-9b99.log) | сторож главной, итог 03.10 |
+| 03.10.2026 14:22 | lint | ✅ без ошибок | 18 с | 4cdd4fc +8 | [лог](logs/2026-10-03T09-22-13Z-lint-cf75.log) | итог 03.10 |

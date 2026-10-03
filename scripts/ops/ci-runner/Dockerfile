@@ -19,6 +19,12 @@ RUN useradd -m -s /bin/bash runner \
   && echo 'runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/runner \
   && chmod 0440 /etc/sudoers.d/runner
 
+# Хук перед каждой задачей: задачи из запроса на слияние из чужого форка раннер не выполняет (job-started.sh,
+# ADR-137). Файл root и лежит вне тома раннера: хук приходит с образом, а не с проверяемой веткой.
+COPY job-started.sh /usr/local/lib/wetop-ci/job-started.sh
+RUN chmod 0755 /usr/local/lib/wetop-ci/job-started.sh
+ENV ACTIONS_RUNNER_HOOK_JOB_STARTED=/usr/local/lib/wetop-ci/job-started.sh
+
 USER runner
 WORKDIR /home/runner/actions-runner
 

@@ -2,15 +2,18 @@ import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
+// порт стенда можно переопределить (FIXTURE_PORT) — параллельные сессии не делят 4311
+const fixture = `http://127.0.0.1:${process.env.FIXTURE_PORT || 4311}`;
+
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${fixture}/__test/reset`);
 });
 
-test('C1: сетка начинается до 350 px, фильтры объясняют дату статуса', async ({ page }) => {
+test('C1: сетка начинается до 384 px (350 до панели «Сегодня», поручение 02.10), фильтры объясняют дату статуса', async ({ page }) => {
   await page.goto('/chessboard?from=2026-09-14&to=2026-09-20');
   await expect(page.getByTestId('unit-row')).toHaveCount(88);
   const box = await page.locator('.board-wrap').boundingBox();
-  expect(box!.y).toBeLessThanOrEqual(350);
+  expect(box!.y).toBeLessThanOrEqual(384);
   // состояние мест считается на первую дату окна — подпись поля это говорит (PR 7 «Шахматки v2»)
   await expect(page.getByText('Места на 14 сент.', { exact: true })).toBeVisible();
   await page.getByLabel('Поиск в календаре').fill('Несуществующее место');

@@ -18,6 +18,7 @@ const routes = [
   '/rates',
   '/channels',
   '/website',
+  '/reports',
   '/finance',
   '/management/analytics',
   '/hotel-settings',
@@ -32,10 +33,10 @@ const TABS = [
   'Календарь',
   'Брони',
   'Гости',
-  'Номерной фонд',
-  'Продажи',
   'Финансы',
-  'Аналитика',
+  'Продажи',
+  'Отчёты',
+  'Номерной фонд',
   'Настройки',
 ];
 

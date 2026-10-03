@@ -10,7 +10,8 @@ import { mkdirSync } from 'node:fs';
  * а ожидания подтверждают, что снят нужный момент.
  */
 const DIR = 'reports/chessboard-v2-pr5-2026-09-28/gate';
-const fixture = 'http://127.0.0.1:4311';
+// порт стенда можно переопределить (FIXTURE_PORT) — параллельные сессии не делят 4311
+const fixture = `http://127.0.0.1:${process.env.FIXTURE_PORT || 4311}`;
 const headers = { 'x-wetop-test-client': '1' };
 
 const add = (date: string, n: number) => {
@@ -49,7 +50,8 @@ for (const theme of ['light', 'dark'] as const) {
         reason: 'кондиционер',
       },
     });
-    await page.setViewportSize({ width: 1440, height: 900 });
+    // 1000, не 900: панель «Сегодня» подняла верх сетки, и R08 при 900 уходил за край прокрутки
+    await page.setViewportSize({ width: 1440, height: 1000 });
     await page.emulateMedia({ colorScheme: theme });
     const open = () => page.goto(`/chessboard?from=${add(today, -1)}&to=${add(today, 5)}`);
     await open();

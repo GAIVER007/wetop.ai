@@ -3,7 +3,11 @@ import { Icon } from '../icon';
 import { SectionHeading } from '../section-heading';
 import { typo } from '../typo';
 
-/** «Что умеет WETOP»: восемь карточек разделов стойки, весь текст виден сразу, без вкладок. */
+/*
+ * «Что умеет WETOP»: восемь разделов стойки. С 02.10.2026 это не восемь карточек-колонок с абзацем в каждой,
+ * а восемь строк-пунктов в две колонки (`.card--compact`): иконка слева, заголовок и одна фраза справа.
+ * Раздел просматривают, а не читают: порядок и состав прежние, короче стал текст и форма карточки.
+ */
 export function Features() {
   const { features } = getDictionary();
   return (
@@ -15,23 +19,25 @@ export function Features() {
           title={features.title}
           lead={features.lead}
         />
-        <ul className="card-grid card-grid--4">
+        <ul className="card-grid card-grid--2">
           {features.items.map((item) => (
-            <li key={item.title} className="card glass">
-              <span className="icon-tile">
-                <Icon name={item.icon} />
+            <li key={item.title} className="card card--compact glass">
+              <span className="icon-tile icon-tile--sm">
+                <Icon name={item.icon} size={20} />
               </span>
-              <h3 className="card__title">{typo(item.title)}</h3>
-              <p className="card__text">{typo(item.text)}</p>
-              {item.tags ? (
-                <ul className="tag-list">
-                  {item.tags.map((tag) => (
-                    <li key={tag} className="tag">
-                      {tag}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+              <div className="card__body">
+                <h3 className="card__title">{typo(item.title)}</h3>
+                <p className="card__text">{typo(item.text)}</p>
+                {item.tags ? (
+                  <ul className="tag-list">
+                    {item.tags.map((tag) => (
+                      <li key={tag} className="tag">
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>

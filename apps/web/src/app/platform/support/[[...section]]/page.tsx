@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, unstable_rethrow } from 'next/navigation';
 import { MEMBERSHIP_ROLES, PLATFORM_TIMEZONE, parseMembershipRole } from '@pms/domain';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
@@ -105,7 +105,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
     (value) => ({ ok: true as const, value }),
-    (error: unknown) => ({ ok: false as const, error }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
 
 export default async function SupportPage({

@@ -287,22 +287,35 @@ export class PrismaAccountsRepository implements AccountsRepository {
 
   async members(organizationId: string): Promise<MemberRecord[]> {
     // порядок перечисления в базе — OWNER, MANAGER, STAFF (миграция 20260927000029): владельцы сверху
-    const rows = await this.prisma.db.membership.findMany({
-      where: { organizationId },
-      orderBy: [{ role: 'asc' }, { createdAt: 'asc' }, { userId: 'asc' }],
-      select: {
-        role: true,
-        createdAt: true,
-        user: { select: { id: true, email: true, name: true, lastLoginAt: true } },
-      },
-    });
+    const query = (withLastLogin: boolean) =>
+      this.prisma.db.membership.findMany({
+        where: { organizationId },
+        orderBy: [{ role: 'asc' }, { createdAt: 'asc' }, { userId: 'asc' }],
+        select: {
+          role: true,
+          createdAt: true,
+          user: { select: { id: true, email: true, name: true, lastLoginAt: withLastLogin } },
+        },
+      });
+    let rows: Array<{
+      role: MembershipRole;
+      createdAt: Date;
+      user: { id: string; email: string; name: string | null; lastLoginAt?: Date | null };
+    }>;
+    try {
+      rows = await query(true);
+    } catch {
+      // SEC-1b: у роли wetop_app может не быть гранта на users.last_login_at (его даёт миграция 042);
+      // список сотрудников важнее даты входа — отдаём без неё, а не роняем экран «Сотрудники»
+      rows = await query(false);
+    }
     return rows.map((m) => ({
       userId: m.user.id,
       email: m.user.email,
       name: m.user.name,
       role: m.role,
       joinedAt: m.createdAt,
-      lastLoginAt: m.user.lastLoginAt,
+      lastLoginAt: m.user.lastLoginAt ?? null,
     }));
   }
 

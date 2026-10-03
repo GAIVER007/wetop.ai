@@ -140,6 +140,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /market/competitors': 'rates',
   'PATCH /market/competitors/:id': 'rates',
   'PUT /market/competitors/:id/occupancy': 'rates',
+  'GET /market/collector/competitors': 'service',
+  'PUT /market/collector/competitors/:id/occupancy': 'service',
 
   // ── номерной фонд, тарифы ───────────────────────────────────────────────────────────────
   'GET /inventory/categories': 'property',

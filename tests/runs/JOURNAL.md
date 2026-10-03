@@ -5578,3 +5578,11 @@
 | 04.10.2026 00:59 | lint | ❌ ошибок: 2 | 21 с | 3cafa82 +6 | [лог](logs/2026-10-03T19-59-55Z-lint-a4ca.log) | срез 6 |
 | 04.10.2026 01:00 | lint | ✅ без ошибок | 21 с | 3cafa82 +6 | [лог](logs/2026-10-03T20-00-27Z-lint-7bbc.log) | срез 6 |
 | 04.10.2026 01:00 | unit (частично: apps/web/src/app/reservations) | ✅ 39 из 39 | 2 с | 3cafa82 +5 | [лог](logs/2026-10-03T20-00-48Z-unit-de8a.log) | срез 6: csv броней |
+| 04.10.2026 01:01 | unit (частично: packages/domain/src/finance/form910.test.ts) | ❌ код выхода 1 | 1 с | d9314ea +1 | [лог](logs/2026-10-03T20-01-29Z-unit-cd80.log) | red: правила 910 ещё нет (K7) |
+| 04.10.2026 01:01 | unit (частично: packages/domain/src/finance/form910.test.ts) | ✅ 2 из 2 | 1 с | d9314ea +3 | [лог](logs/2026-10-03T20-01-31Z-unit-953b.log) | green: доход для 910 (K7) |
+| 04.10.2026 01:02 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/form910.spec.ts tests/ui/reports-hub.spec.ts --workers=1) | ❌ упало 1 из 13 | 52 с | d9314ea +6 | [лог](logs/2026-10-03T20-02-19Z-e2e-7f3c.log) | green: доход для 910 и хаб отчётов (K7) |
+| 04.10.2026 01:03 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/form910.spec.ts --workers=1) | ❌ упало 5 из 5 | 1 мин 34 с | d9314ea +5 | [лог](logs/2026-10-03T20-03-19Z-e2e-7bb4.log) | red: страницы 910 ещё нет (K7) |
+| 04.10.2026 01:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/form910.spec.ts tests/ui/reports-hub.spec.ts tests/ui/navigation.spec.ts --workers=1) | ✅ 18 из 18 | 1 мин 6 с | d9314ea +6 | [лог](logs/2026-10-03T20-04-54Z-e2e-4767.log) | green: доход для 910, хаб, навигация (K7) |
+| 04.10.2026 01:06 | typecheck | ✅ без ошибок | 37 с | d9314ea +6 | [лог](logs/2026-10-03T20-06-16Z-typecheck-4293.log) | срез 7 |
+| 04.10.2026 01:06 | lint | ✅ без ошибок | 20 с | d9314ea +6 | [лог](logs/2026-10-03T20-06-53Z-lint-8d4e.log) | срез 7 |
+| 04.10.2026 01:07 | unit | ✅ 3092 из 3095, пропущено 3 | 1 мин 25 с | d9314ea +5 | [лог](logs/2026-10-03T20-07-14Z-unit-c6f1.log) | срезы 6–7 |

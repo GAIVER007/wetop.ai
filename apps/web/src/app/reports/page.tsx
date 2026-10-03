@@ -38,7 +38,11 @@ export default async function ReportsHubPage({
   const days = dates ? nightsBetween(from, to) + 1 : 0;
   const tooLong = dates && days > MAX_REPORT_DAYS;
   const valid = dates && !tooLong;
-  const settle = <T,>(p: Promise<T>) => p.then((r) => r, () => null);
+  const settle = <T,>(p: Promise<T>) =>
+    p.then(
+      (r) => r,
+      () => null,
+    );
   const [fin, debts, dash, day, shell] = await Promise.all([
     valid ? settle(financeApi.report(from, to)) : null,
     valid ? settle(financeApi.debts(from, to)) : null,
@@ -75,7 +79,12 @@ export default async function ReportsHubPage({
       <section className="reports-controls" aria-label="Период">
         <form method="get" className="reports-toolbar" data-testid="reports-period-form">
           <Field inline label="С">
-            <DateInput key={`from-${from}`} name="from" defaultValue={from} aria-label="Период: с" />
+            <DateInput
+              key={`from-${from}`}
+              name="from"
+              defaultValue={from}
+              aria-label="Период: с"
+            />
           </Field>
           <Field inline label="По">
             <DateInput
@@ -165,6 +174,12 @@ export default async function ReportsHubPage({
                     : 'все брони периода оплачены'
                   : undefined
               }
+            />
+            <ReportCard
+              href="/reports/form-910"
+              testId="report-form910"
+              title="Доход для формы 910"
+              hint="по полугодиям, для бухгалтера"
             />
           </Group>
           <Group title="Загрузка и продажи">
@@ -276,7 +291,11 @@ function ReportCard({
   testId: string;
 }) {
   return (
-    <Link href={href} className={cx('report-card', warn && 'report-card--warn')} data-testid={testId}>
+    <Link
+      href={href}
+      className={cx('report-card', warn && 'report-card--warn')}
+      data-testid={testId}
+    >
       <span className="report-card__title">
         {title}
         <Icon name="chevron" width={16} height={16} aria-hidden="true" />

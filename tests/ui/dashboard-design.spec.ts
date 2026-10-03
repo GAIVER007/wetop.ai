@@ -23,6 +23,10 @@ test('показатели: «нет данных для сравнения» о
   const main = page.getByRole('main');
   await page.goto(`${OVERVIEW}?period=today`);
   await expect(main.getByTestId('pa-chart-categories')).toBeVisible();
+  // таблица категорий и подписи плиток — под «Подробностями» (7f27fc68)
+  await main.locator('details.pa-details').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
 
   // одна видимая фраза о базе сравнения на все плитки; под плитками — «—», а слово остаётся
   // только программе чтения (1 px, за краем)
@@ -48,6 +52,9 @@ test('показатели: «нет данных для сравнения» о
   // период больше дня: полос по категориям нет, и колонка «Загрузка» в таблице нужна
   await page.goto(`${OVERVIEW}?period=week`);
   await expect(main.getByTestId('pa-chart-occupancy')).toBeVisible();
+  await main.locator('details.pa-details').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await expect(main.getByTestId('pa-chart-categories')).toHaveCount(0);
   await expect(
     main.getByTestId('pa-categories').getByRole('columnheader', { name: 'Загрузка' }),
@@ -60,6 +67,9 @@ test('показатели: на телефоне таблица категор�
   const main = page.getByRole('main');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${OVERVIEW}?period=week`);
+  await main.locator('details.pa-details').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   const table = main.getByTestId('pa-categories');
   await expect(table).toBeVisible();
   const clipped = await table.evaluate((el) => {

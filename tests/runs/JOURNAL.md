@@ -5433,3 +5433,8 @@
 | 03.10.2026 18:04 | lint | ✅ без ошибок | 22 с | d8ee099 | [лог](logs/2026-10-03T13-04-54Z-lint-1d8b.log) |  |
 | 03.10.2026 18:05 | integration | ✅ 238 из 238 | 1 мин 10 с | d8ee099 | [лог](logs/2026-10-03T13-05-17Z-integration-a124.log) |  |
 | 03.10.2026 18:06 | unit | ✅ 2977 из 2980, пропущено 3 | 1 мин 40 с | d8ee099 | [лог](logs/2026-10-03T13-06-27Z-unit-b872.log) |  |
+| 03.10.2026 18:44 | unit (частично: packages/domain/src/guests/birthdays.test.ts) | ❌ код выхода 1 | 25 с | cebc3d2 +1 | [лог](logs/2026-10-03T13-44-58Z-unit-30ad.log) | red: правила дня рождения нет |
+| 03.10.2026 18:45 | unit (частично: packages/domain/src/guests/birthdays.test.ts) | ✅ 6 из 6 | 36 с | cebc3d2 +3 | [лог](logs/2026-10-03T13-45-52Z-unit-0c0f.log) | green: правило дня рождения |
+| 03.10.2026 18:49 | unit (частично: apps/api/src/guests/guests.controller.test.ts) | ❌ упало 1 из 16 | 15 с | cebc3d2 +4 | [лог](logs/2026-10-03T13-49-53Z-unit-31da.log) | red: маршрута /guests/birthdays нет |
+| 03.10.2026 18:50 | unit (частично: apps/api/src/guests/guests.controller.test.ts apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 18 | 18 с | cebc3d2 +7 | [лог](logs/2026-10-03T13-50-11Z-unit-18b0.log) | green: /guests/birthdays |
+| 03.10.2026 18:52 | unit (частично: apps/api/src/guests/guests.controller.test.ts apps/api/src/auth/route-access.test.ts) | ✅ 18 из 18 | 2 с | cebc3d2 +8 | [лог](logs/2026-10-03T13-52-05Z-unit-be80.log) | green: /guests/birthdays с правом desk |

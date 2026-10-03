@@ -5309,3 +5309,10 @@
 | 03.10.2026 12:22 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 2 с | d281497 +2 | [лог](logs/2026-10-03T07-22-51Z-unit-9987.log) | сторож главной после правки пилюли |
 | 03.10.2026 12:22 | lint | ✅ без ошибок | 22 с | d281497 +3 | [лог](logs/2026-10-03T07-22-54Z-lint-d035.log) | правка пилюли |
 | 03.10.2026 12:23 | typecheck | ✅ без ошибок | 22 с | d281497 +3 | [лог](logs/2026-10-03T07-23-17Z-typecheck-e46b.log) | правка пилюли |
+| 03.10.2026 14:20 | typecheck | ❌ ошибок: 50 | 10 с | ebaf8cf +8 | [лог](logs/2026-10-03T09-20-50Z-typecheck-c7fb.log) | панель Сегодня и порядок меню |
+| 03.10.2026 14:21 | lint | ✅ без ошибок | 8 с | ebaf8cf +8 | [лог](logs/2026-10-03T09-21-00Z-lint-ca5a.log) | панель Сегодня и порядок меню |
+| 03.10.2026 14:21 | unit | ❌ упало 3 из 2891, пропущено 4 | 1 мин 12 с | ebaf8cf +3 | [лог](logs/2026-10-03T09-21-09Z-unit-bf25.log) | панель Сегодня и порядок меню |
+| 03.10.2026 14:22 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-calendar.spec.ts chessboard-design.spec.ts chessboard-week.spec.ts chessboard-dnd.s | ❌ упало 8 из 90 | 5 мин 26 с | ebaf8cf +8 | [лог](logs/2026-10-03T09-22-57Z-e2e-a13e.log) | панель Сегодня у календаря и порядок меню по частоте |
+| 03.10.2026 14:33 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-calendar.spec.ts chessboard-design.spec.ts chessboard-week.spec.ts chessboard-dnd.s | ❌ упало 2 из 28 | 2 мин 7 с | ebaf8cf +13 | [лог](logs/2026-10-03T09-33-25Z-e2e-d81b.log) | панель Сегодня: цели 24px, бюджет 384, окно шага переезда 1500 |
+| 03.10.2026 14:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-gate-pr5.spec.ts) | ✅ 2 из 2 | 14 с | ebaf8cf +14 | [лог](logs/2026-10-03T09-37-01Z-e2e-2c81.log) | гейт PR5: окно 1000 под панель Сегодня |
+| 03.10.2026 14:37 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 chessboard-calendar.spec.ts chessboard-design.spec.ts chessboard-week.spec.ts chessboard-dnd.s | ✅ 90 из 90 | 3 мин 32 с | ebaf8cf +14 | [лог](logs/2026-10-03T09-37-26Z-e2e-2253.log) | панель Сегодня и меню по частоте: итоговый пакет |

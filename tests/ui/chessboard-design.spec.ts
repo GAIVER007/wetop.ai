@@ -80,7 +80,7 @@ for (const theme of ['light', 'dark'] as const) {
       ).toBe(true);
       expect(await board.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
       const box = await board.boundingBox();
-      if (width >= 1440) expect(box!.y).toBeLessThanOrEqual(350);
+      if (width >= 1440) expect(box!.y).toBeLessThanOrEqual(384);
       if (width <= 390) expect(box!.y).toBeLessThanOrEqual(500);
       await expect(page.getByTestId('date-col').first()).toBeInViewport({ ratio: 1 });
       await expect(page.getByTestId('date-col').last()).toBeInViewport({ ratio: 1 });

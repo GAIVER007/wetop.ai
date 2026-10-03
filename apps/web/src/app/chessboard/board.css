@@ -512,6 +512,8 @@
   justify-content: space-between;
   gap: var(--space-4);
   font-size: var(--text-sm);
+  /* ссылки — цели не меньше 24px (axe target-size) */
+  line-height: 24px;
 }
 .board-day-panel__row > a,
 .board-day-panel__row > span {

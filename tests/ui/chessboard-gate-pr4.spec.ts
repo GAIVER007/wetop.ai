@@ -85,7 +85,7 @@ for (const theme of ['light', 'dark'] as const) {
     await dialog.getByRole('button', { name: 'Оставить как есть', exact: true }).click();
 
     // 5. В другую категорию — всё проживание, разница стоимости
-    await page.setViewportSize({ width: 1440, height: 1400 });
+    await page.setViewportSize({ width: 1440, height: 1500 });
     await source.hover();
     await page.mouse.down();
     await moveTo(page, at('M03'));

@@ -50,7 +50,8 @@ for (const theme of ['light', 'dark'] as const) {
         reason: 'кондиционер',
       },
     });
-    await page.setViewportSize({ width: 1440, height: 900 });
+    // 1000, не 900: панель «Сегодня» подняла верх сетки, и R08 при 900 уходил за край прокрутки
+    await page.setViewportSize({ width: 1440, height: 1000 });
     await page.emulateMedia({ colorScheme: theme });
     const open = () => page.goto(`/chessboard?from=${add(today, -1)}&to=${add(today, 5)}`);
     await open();

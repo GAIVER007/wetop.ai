@@ -41,9 +41,9 @@ describe('меню по ролям', () => {
       '/chessboard',
       '/reservations',
       '/guests',
+      '/finance',
       '/ai-agents',
       '/reports',
-      '/finance',
       '/management/analytics',
       '/incidents',
     ]);
@@ -52,10 +52,9 @@ describe('меню по ролям', () => {
       'chessboard',
       'reservations',
       'guests',
+      'finance',
       'sales',
       'reports',
-      'finance',
-      'analytics',
       'settings',
     ]);
   });

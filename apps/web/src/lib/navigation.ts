@@ -319,12 +319,15 @@ function direct(id: string, href: string, icon: IconName, label?: string): MenuS
  * то же меню выдвижное. Работа смены (Главная, Шахматка, Брони, Гости) одним щелчком; группы с несколькими
  * экранами («Продажи», «Настройки», «Платформа») раскрывают список.
  */
+// Порядок вкладок — по частоте использования (поручение владельца 03.10): работа смены,
+// затем деньги дня (касса живёт в «Финансах»), продажи, отчётность; фонд и настройки — реже всего.
+// «Отчёты» и «Аналитика» объединены в одну группу: оба раздела — «посмотреть цифры».
 export const menuSections: MenuSection[] = [
   direct('home', '/today', 'today'),
   direct('chessboard', '/chessboard', 'board'),
   direct('reservations', '/reservations', 'booking'),
   direct('guests', '/guests', 'guests'),
-  direct('inventory', '/inventory', 'bed'),
+  direct('finance', '/finance', 'money', 'Финансы'),
   {
     id: 'sales',
     label: 'Продажи',
@@ -336,10 +339,14 @@ export const menuSections: MenuSection[] = [
       menuItem('/website'),
     ],
   },
-  // «Отчёты» — хаб REP1: связывает деньги, загрузку, день и сайт; «Оплаты» и «Аналитика» — свои вкладки (ADR-134)
-  direct('reports', '/reports', 'analytics', 'Отчёты'),
-  direct('finance', '/finance', 'money', 'Финансы'),
-  direct('analytics', '/management/analytics', 'analytics'),
+  {
+    // хаб REP1 плюс «Аналитика» одной группой; «Оплаты» — вкладка «Финансов» (ADR-134)
+    id: 'reports',
+    label: 'Отчёты',
+    icon: 'analytics',
+    items: [menuItem('/reports', 'Все отчёты'), menuItem('/management/analytics')],
+  },
+  direct('inventory', '/inventory', 'bed'),
   {
     id: 'settings',
     label: 'Настройки',

@@ -142,7 +142,7 @@ test('другая категория: переезжает всё прожив�
   request,
 }) => {
   // выше окна: строка R02 и койка M03 видны сетке одновременно, без прокрутки во время drag
-  await page.setViewportSize({ width: 1440, height: 1400 });
+  await page.setViewportSize({ width: 1440, height: 1500 });
   const arrival = await openWeek(page, request);
   const target = unitRow(page, 'M03');
   for (const n of [0, 1, 2])

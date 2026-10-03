@@ -47,9 +47,9 @@ test('администратор: в меню — работа с гостями
       '/chessboard',
       '/reservations',
       '/guests',
+      '/finance',
       '/ai-agents',
       '/reports',
-      '/finance',
       '/management/analytics',
       '/incidents',
     ]);

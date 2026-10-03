@@ -80,11 +80,20 @@ const ASSISTANT_READ_ALLOWED = [
 const SELLER_QUOTE_ALLOWED = ['/bot/availability', '/bot/agent-origins'];
 
 /**
+ * Ключ записи продавца (`SELLER_BOOK_KEY`, DATA_MODEL §24, ADR-141): только POST и только намерение брони и его
+ * подтверждение. Ключ котировки на эти адреса не пускается, ключ записи на чтение — тоже.
+ */
+const SELLER_BOOK_ALLOWED = ['/bot/booking-intents', '/bot/booking-intents/confirm'];
+
+/**
  * Ключ действий помощника (`ASSISTANT_ACT_KEY`, S6, Q-S6-1): только POST и только действия из матрицы —
  * подтянуть ленту Channex и полная выгрузка. Ключ чтения на эти адреса не пускается, ключ действий на чтение — тоже:
  * компрометация одного ключа не даёт другого. Проверки членства, права, лимита и идемпотентности — в сервисе.
  */
-const ASSISTANT_ACT_ALLOWED = ['/assistant/actions/channel-pull', '/assistant/actions/channel-sync'];
+const ASSISTANT_ACT_ALLOWED = [
+  '/assistant/actions/channel-pull',
+  '/assistant/actions/channel-sync',
+];
 
 function pathOf(url: unknown): string | null {
   if (typeof url !== 'string') return null;
@@ -110,6 +119,7 @@ export type ServiceKeyKind =
   | 'assistant-read'
   | 'assistant-act'
   | 'seller-quote'
+  | 'seller-book'
   | 'unknown';
 
 export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind | null {
@@ -125,6 +135,8 @@ export function serviceKeyKind(headers: Record<string, unknown>): ServiceKeyKind
   if (actKey && sameKey(presented, actKey)) return 'assistant-act';
   const quoteKey = process.env.SELLER_QUOTE_KEY?.trim();
   if (quoteKey && sameKey(presented, quoteKey)) return 'seller-quote';
+  const bookKey = process.env.SELLER_BOOK_KEY?.trim();
+  if (bookKey && sameKey(presented, bookKey)) return 'seller-book';
   return 'unknown';
 }
 
@@ -213,6 +225,15 @@ export class SessionGuard implements CanActivate {
         return true;
       }
       throw new ForbiddenException('Ключ котировки продавца читает только наличие и цену');
+    }
+    if (key === 'seller-book') {
+      if (postAllowed(SELLER_BOOK_ALLOWED, request.method, request.url)) {
+        request.service = true;
+        return true;
+      }
+      throw new ForbiddenException(
+        'Ключ записи продавца создаёт и подтверждает только бронь из чата',
+      );
     }
     if (key === 'unknown') throw new UnauthorizedException('Служебный ключ не подходит');
 

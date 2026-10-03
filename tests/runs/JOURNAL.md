@@ -5525,3 +5525,11 @@
 | 03.10.2026 23:48 | lint | ❌ ошибок: 1 | 20 с | 495c002 +23 | [лог](logs/2026-10-03T18-48-30Z-lint-602b.log) | no-useless-assignment |
 | 03.10.2026 23:48 | lint | ✅ без ошибок | 20 с | 495c002 +23 | [лог](logs/2026-10-03T18-48-57Z-lint-c51e.log) |  |
 | 03.10.2026 23:49 | unit (частично: packages/domain/src/finance) | ✅ 43 из 43 | 1 с | 495c002 +21 | [лог](logs/2026-10-03T18-49-18Z-unit-0eb4.log) | запрос оплаты после правки lint |
+| 03.10.2026 23:54 | unit (частично: apps/api/src/web-booking apps/api/src/auth) | ✅ 289 из 289 | 10 с | 8ba201d +12 | [лог](logs/2026-10-03T18-54-58Z-unit-8811.log) | бронь из чата продавца (DATA_MODEL §24) |
+| 03.10.2026 23:55 | unit (частично: apps/api/src/web-booking/bot-booking.controller.test.ts) | ❌ упало 8 из 10 | 4 с | 8ba201d +11 | [лог](logs/2026-10-03T18-55-18Z-unit-f363.log) | red: бронь из чата без подключённых маршрутов |
+| 03.10.2026 23:55 | integration (частично: tests/integration/seller-booking-intents.test.ts) | ❌ код выхода 1 | 3 с | 8ba201d +13 | [лог](logs/2026-10-03T18-55-50Z-integration-fbb3.log) | намерения брони продавца на схеме (DATA_MODEL §24) |
+| 03.10.2026 23:56 | integration (частично: tests/integration/seller-booking-intents.test.ts) | ✅ 7 из 7 | 2 с | 8ba201d +13 | [лог](logs/2026-10-03T18-56-02Z-integration-de3b.log) | намерения брони продавца на схеме (DATA_MODEL §24) |
+| 04.10.2026 00:05 | unit | ✅ 3068 из 3071, пропущено 3 | 1 мин 28 с | 8ba201d +24 | [лог](logs/2026-10-03T19-05-14Z-unit-859e.log) | срез 3: бронь из чата продавца (DATA_MODEL §24) |
+| 04.10.2026 00:06 | typecheck | ✅ без ошибок | 35 с | 8ba201d +25 | [лог](logs/2026-10-03T19-06-42Z-typecheck-6756.log) |  |
+| 04.10.2026 00:07 | lint | ✅ без ошибок | 21 с | 8ba201d +25 | [лог](logs/2026-10-03T19-07-17Z-lint-3ecc.log) |  |
+| 04.10.2026 00:07 | integration | ✅ 248 из 248 | 1 мин 3 с | 8ba201d +13 | [лог](logs/2026-10-03T19-07-39Z-integration-24bb.log) | срез 3: полный набор |

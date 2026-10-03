@@ -63,6 +63,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'cash_reconciliations',
   // Запросы оплаты (DATA_MODEL §23, ADR-141): политика — в миграции 20261003000044_payment_requests
   'payment_requests',
+  // Намерения брони ИИ-продавца (DATA_MODEL §24): политика — в миграции 20261003000045_seller_booking_intents
+  'seller_booking_intents',
 ];
 
 /**
@@ -94,7 +96,10 @@ type TaggedClient = pg.PoolClient & { wetopOrg?: string };
  * (`set_config(..., false)`): пулер Supabase в режиме сессий держит соединение за этим клиентом, и она живёт до
  * следующей выдачи. Пустая строка — ни одной строки у `wetop_app`.
  */
-export async function applyTenant(client: TaggedClient, organizationId: string | null): Promise<void> {
+export async function applyTenant(
+  client: TaggedClient,
+  organizationId: string | null,
+): Promise<void> {
   const value = organizationId && UUID.test(organizationId) ? organizationId : '';
   if (client.wetopOrg === value) return;
   await client.query(`SELECT set_config('app.org_id', $1, false)`, [value]);
@@ -119,7 +124,9 @@ export class TenantPool extends pg.Pool {
   /** Какой пул и какая организация у текущего запроса */
   private route(): { pool: pg.Pool; organizationId: string | null } {
     const organizationId = this.tenantOf();
-    return organizationId ? { pool: this.app, organizationId } : { pool: this.service, organizationId: null };
+    return organizationId
+      ? { pool: this.app, organizationId }
+      : { pool: this.service, organizationId: null };
   }
 
   private async checkout(): Promise<pg.PoolClient> {
@@ -139,15 +146,24 @@ export class TenantPool extends pg.Pool {
   // Перегрузки pg.Pool: адаптер Prisma пользуется только формой с промисом
   override connect(): Promise<pg.PoolClient>;
   override connect(
-    callback: (err: Error | undefined, client: pg.PoolClient | undefined, done: (release?: unknown) => void) => void,
+    callback: (
+      err: Error | undefined,
+      client: pg.PoolClient | undefined,
+      done: (release?: unknown) => void,
+    ) => void,
   ): void;
   override connect(
-    callback?: (err: Error | undefined, client: pg.PoolClient | undefined, done: (release?: unknown) => void) => void,
+    callback?: (
+      err: Error | undefined,
+      client: pg.PoolClient | undefined,
+      done: (release?: unknown) => void,
+    ) => void,
   ): Promise<pg.PoolClient> | void {
     const promise = this.checkout();
     if (!callback) return promise;
     promise.then(
-      (client) => callback(undefined, client, (release?: unknown) => client.release(release as Error)),
+      (client) =>
+        callback(undefined, client, (release?: unknown) => client.release(release as Error)),
       (err: Error) => callback(err, undefined, () => undefined),
     );
   }

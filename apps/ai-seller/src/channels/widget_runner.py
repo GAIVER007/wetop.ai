@@ -108,12 +108,15 @@ class WidgetRunner:
         """Исключения ловятся здесь: один упавший ход не роняет обработчик."""
         # Текст хода — инструменту подтверждения действий (Q-S6-2); задача идёт в своём контексте
         token = dependencies.incoming_text_var.set(getattr(incoming, "text", None))
+        # ADR-141: бронь из чата берёт канал, телефон WhatsApp и текст согласия из сообщения этого хода; ядро не трогаем
+        incoming_token = dependencies.incoming_var.set(incoming)
         try:
             await self.engine.process_message(incoming)
         except Exception:
             logger.exception("widget: обработка сообщения упала")
         finally:
             dependencies.incoming_text_var.reset(token)
+            dependencies.incoming_var.reset(incoming_token)
             # 🔴 Посетитель снимается в finally, а не последней строкой:
             # после падения хода он остался бы виден следующему, и человек
             # получил бы чужие происшествия.
@@ -188,7 +191,18 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
         from src.ai.hotel_tools import build_registry as build_seller_registry
         from src.integrations.lead_writer import LeadWriter
 
-        registry = build_seller_registry(get_providers)
+        from src.ai.seller_booking import BookingRuntime
+
+        # ADR-141: бронь из чата — предложение в Redis, согласие и канал из сообщения этого хода
+        registry = build_seller_registry(
+            get_providers,
+            booking=BookingRuntime(
+                redis_getter=dependencies.get_redis,
+                incoming_getter=dependencies.incoming_var.get,
+                conversation_getter=dependencies.conversation_id_var.get,
+                agent_getter=dependencies.agent_id_var.get,
+            ),
+        )
         lead_hook = LeadWriter(
             sessionmaker=dependencies.get_sessionmaker(), redis=dependencies.get_redis(),
             # Фабрика, а не готовый набор: режим внешней системы читается настройкой.

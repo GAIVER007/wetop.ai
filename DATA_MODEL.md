@@ -2425,3 +2425,23 @@ INCOME «Излишек кассы», недостача — EXPENSE «Недо�
 6. Журнал: `finance.payment_request.created`, `.paid`, `.cancelled`.
 
 **Миграция** `20261003000044_payment_requests` с `down.sql`; на рабочей базе применяет владелец.
+
+## 24. Намерение брони ИИ-продавца (контракт утверждён 30.09.2026 и 01.10.2026, реализация 03.10.2026, ADR-141)
+
+Оформление того, что записано в «30.09.2026: бронь из WhatsApp» выше. **`seller_booking_intents`**: `id`, `agent_id` →
+seller_agents, `organization_id`, `property_id` (выводятся из агента на сервере, не из запроса бота), `conversation_id`,
+`channel` (`whatsapp` → источник брони WHATSAPP, `widget` → WEBSITE; Telegram остаётся тестовым каналом без брони),
+`channel_message_id` (ключ подтверждения: отпечаток сообщения гостя с согласием; UNIQUE(agent_id, channel_message_id)),
+`accommodation_type_id`, `rate_plan_id` (тариф сайта филиала), `arrival_date`, `departure_date`, `adults`, `total_minor`
+(> 0, тиыны), `currency`, `expires_at` (создание + 30 минут), `state` (`QUOTED`, `CONFIRMED`, `REJECTED`),
+`reservation_id` (UNIQUE; CHECK «подтверждено ⇔ есть бронь»), `request_hash` (sha256 параметров котировки), `created_at`,
+`updated_at`. RLS по `organization_id`.
+
+**Правила.** Котировку считает тот же расчёт, что у виджета сайта (`quoteForAgent`), продать можно только категорию,
+которая вмещает гостей, не закрыта и свободна. Подтверждение: намерение своего агента, не истекло, ключ согласия не
+занят другим сообщением; бронь создаётся `ReservationsService.create` с `creationKey = id намерения` и
+`expectedTotalMinor = total_minor`: повтор возвращает ту же бронь, изменившаяся цена и занятые места дают отказ, намерение
+становится `REJECTED`, нужна новая котировка и новое согласие. Контакт в эту таблицу не копируется: гость записывается
+обычным путём брони (псевдоним, пока база вне РК, ADR-018); телефон WhatsApp берётся из канала. Узкий ключ записи
+`SELLER_BOOK_KEY` открывает только `POST /bot/booking-intents` и `POST /bot/booking-intents/confirm`; ключ котировки на
+них не пускается. Миграция `20261003000045_seller_booking_intents` с `down.sql`; на рабочей базе применяет владелец.

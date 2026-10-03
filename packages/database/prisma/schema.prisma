@@ -132,6 +132,8 @@ model Property {
   externalEvents      ExternalEvent[]
   channelOutbox       ChannelOutbox[]
 
+  sellerBookingIntents SellerBookingIntent[]
+
   @@index([organizationId])
   @@map("properties")
 }
@@ -190,6 +192,8 @@ model AccommodationType {
   dailyRates      DailyRate[]
   restrictions    Restriction[]
   channelMappings ChannelMapping[]
+
+  sellerBookingIntents SellerBookingIntent[]
 
   @@unique([propertyId, code])
   @@map("accommodation_types")
@@ -312,6 +316,8 @@ model Reservation {
   primaryGuest Guest?            @relation("primaryGuest", fields: [primaryGuestId], references: [id])
   items        ReservationItem[]
   webSessions  WebSession[]
+
+  sellerBookingIntent SellerBookingIntent?
 
   @@unique([propertyId, creationKey])
   @@unique([propertyId, confirmationNumber])
@@ -550,6 +556,8 @@ model RatePlan {
   trackedSites    TrackedSite[]
   parent          RatePlan?                   @relation("RatePlanDerived", fields: [parentRatePlanId], references: [id], onDelete: Restrict)
   derived         RatePlan[]                  @relation("RatePlanDerived")
+
+  sellerBookingIntents SellerBookingIntent[]
 
   @@unique([propertyId, code])
   @@index([parentRatePlanId])
@@ -1012,6 +1020,50 @@ model PaymentRequest {
   @@map("payment_requests")
 }
 
+/// DATA_MODEL §24 (контракт 30.09.2026, ADR-141): намерение брони ИИ-продавца
+enum SellerBookingIntentState {
+  QUOTED
+  CONFIRMED
+  REJECTED
+}
+
+/// DATA_MODEL §24: котировка из чата живёт 30 минут; подтверждение создаёт бронь с creationKey = id
+model SellerBookingIntent {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  agentId             String                   @map("agent_id") @db.Uuid
+  organizationId      String                   @map("organization_id") @db.Uuid
+  propertyId          String                   @map("property_id") @db.Uuid
+  conversationId      String                   @map("conversation_id") @db.VarChar(64)
+  /// whatsapp | widget (CHECK в миграции)
+  channel             String                   @db.VarChar(16)
+  channelMessageId    String?                  @map("channel_message_id") @db.VarChar(128)
+  accommodationTypeId String                   @map("accommodation_type_id") @db.Uuid
+  ratePlanId          String                   @map("rate_plan_id") @db.Uuid
+  arrivalDate         DateTime                 @map("arrival_date") @db.Date
+  departureDate       DateTime                 @map("departure_date") @db.Date
+  adults              Int
+  /// integer minor units (тиын), ADR-008; > 0
+  totalMinor          BigInt                   @map("total_minor")
+  currency            String                   @db.Char(3)
+  expiresAt           DateTime                 @map("expires_at") @db.Timestamptz(6)
+  state               SellerBookingIntentState @default(QUOTED)
+  reservationId       String?                  @unique @map("reservation_id") @db.Uuid
+  requestHash         String                   @map("request_hash") @db.VarChar(64)
+  createdAt           DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  agent             SellerAgent       @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  property          Property          @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  accommodationType AccommodationType @relation(fields: [accommodationTypeId], references: [id], onDelete: Restrict)
+  ratePlan          RatePlan          @relation(fields: [ratePlanId], references: [id], onDelete: Restrict)
+  reservation       Reservation?      @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+
+  @@unique([agentId, channelMessageId])
+  @@index([agentId, conversationId, createdAt])
+  @@map("seller_booking_intents")
+}
+
 // ───────────────────────── §11 Аналитика сайта ─────────────────────────
 // Срез 8 (план plans/slice-8-web-analytics.md, принят владельцем 12.09.2026). Персональных данных нет по
 // построению: IP и полный User-Agent не сохраняются, visitor_key — случайное число из браузера (ADR-018).
@@ -1222,6 +1274,8 @@ model Organization {
   extensions     OrganizationExtension[]
   guests         Guest[]
   auditLogs      AuditLog[]
+
+  sellerBookingIntents SellerBookingIntent[]
 
   @@map("organizations")
 }
@@ -1518,6 +1572,8 @@ model SellerAgent {
   draft          WizardDraft?
   /// Рабочий профиль продавца этого агента (`seller_profiles`, DATA_MODEL §20.2); у агентов мастера пусто
   workingProfile SellerProfile?
+
+  bookingIntents SellerBookingIntent[]
 
   @@index([organizationId])
   @@index([locationId])

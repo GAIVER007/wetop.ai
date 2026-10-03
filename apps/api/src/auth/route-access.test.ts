@@ -283,6 +283,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /w/demo': 'public',
   'GET /bot/availability': 'public',
   'GET /bot/agent-origins': 'public',
+  // ADR-141, DATA_MODEL §24: бронь из чата — узкий ключ записи продавца сверяет контроллер
+  'POST /bot/booking-intents': 'public',
+  'POST /bot/booking-intents/confirm': 'public',
   'POST /wizard/session': 'public',
   'GET /wizard/status': 'public',
   'PATCH /wizard/config': 'public',

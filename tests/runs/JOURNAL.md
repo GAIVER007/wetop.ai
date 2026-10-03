@@ -5374,3 +5374,5 @@
 | 03.10.2026 14:21 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 31 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-21-31Z-e2e-2f41.log) | green: главная без направлений, приглашение салонам, видимая кромка кнопки |
 | 03.10.2026 14:22 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-22-12Z-unit-9b99.log) | сторож главной, итог 03.10 |
 | 03.10.2026 14:22 | lint | ✅ без ошибок | 18 с | 4cdd4fc +8 | [лог](logs/2026-10-03T09-22-13Z-lint-cf75.log) | итог 03.10 |
+| 03.10.2026 15:13 | typecheck | ✅ без ошибок | 1 мин 38 с | b633544 +5 | [лог](logs/2026-10-03T10-13-48Z-typecheck-2376.log) | REP3 на дереве после слияния origin/main (24 коммита) |
+| 03.10.2026 15:15 | unit (частично: apps/api/src/dashboard packages/domain/src/dashboard/units.test.ts apps/web/src/app/management/analytics/params.test.ts) | ✅ 22 из 22 | 8 с | b633544 +5 | [лог](logs/2026-10-03T10-15-39Z-unit-f12f.log) | REP3 после слияния origin/main |

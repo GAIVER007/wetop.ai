@@ -11,11 +11,13 @@ import {
   MARKET_MAX_DAYS,
   MarketInputError,
   buildMarketBoard,
+  buildNightHistory,
   isIsoDate,
   marketDates,
   parseCompetitorInput,
   parseOccupancyPercent,
   type MarketBoard,
+  type NightHistory,
   type OwnDay,
 } from '@pms/domain';
 import { MARKET_REPOSITORY, type CompetitorRecord, type MarketRepository } from './market.repository';
@@ -103,6 +105,24 @@ export class MarketService {
       readings,
     });
     return { today, from, days, board, competitors };
+  }
+
+  /** История одной ночи по дням снимков (M1.2): как заполнялись соседи */
+  async night(date?: string): Promise<NightHistory> {
+    if (!isIsoDate(date)) throw new BadRequestException('date: ночь YYYY-MM-DD');
+    const competitors = (await this.repo.competitors()).filter((c) => c.active);
+    const readings = await this.repo.nightReadings(date);
+    return buildNightHistory({
+      stayDate: date,
+      competitors: competitors.map((c) => ({
+        id: c.id,
+        name: c.name,
+        distanceM: c.distanceM,
+        unitsTotal: c.unitsTotal,
+        url: c.url,
+      })),
+      readings,
+    });
   }
 
   private async assertRoom(): Promise<void> {

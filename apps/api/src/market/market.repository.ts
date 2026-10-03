@@ -43,6 +43,8 @@ export interface MarketRepository {
   ): Promise<boolean>;
   /** Снимки ночей [from, to] с днём снимка не позже asOf */
   readings(from: string, to: string, asOf: string): Promise<MarketReading[]>;
+  /** Все снимки одной ночи действующих конкурентов, по всем дням снимка (история ночи, M1.2) */
+  nightReadings(stayDate: string): Promise<MarketReading[]>;
   /**
    * Снимки дня `observedOn`: значение заменяет прежнее за этот день, null снимает его. Одной транзакцией с журналом.
    * false: конкурента нет у этого объекта или он в архиве.
@@ -175,6 +177,22 @@ export class PrismaMarketRepository implements MarketRepository {
         occupancyBp: true,
         source: true,
       },
+    });
+    return rows.map((r) => ({
+      competitorId: r.competitorId,
+      stayDate: iso(r.stayDate),
+      observedOn: iso(r.observedOn),
+      occupancyBp: r.occupancyBp,
+      source: r.source,
+    }));
+  }
+
+  async nightReadings(stayDate: string): Promise<MarketReading[]> {
+    const propertyId = await this.propertyId();
+    const rows = await this.prisma.db.competitorOccupancy.findMany({
+      where: { propertyId, stayDate: asDate(stayDate), competitor: { active: true } },
+      orderBy: { observedOn: 'asc' },
+      select: { competitorId: true, stayDate: true, observedOn: true, occupancyBp: true, source: true },
     });
     return rows.map((r) => ({
       competitorId: r.competitorId,

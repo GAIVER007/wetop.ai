@@ -1,13 +1,15 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { formatOccupancy } from '@pms/domain';
-import type { MarketCell, MarketCompetitor } from '../../lib/api';
+import { formatOccupancy, formatPoints } from '@pms/domain';
+import { useRouter } from 'next/navigation';
+import type { MarketCell, MarketCompetitor, MarketNightHistory } from '../../lib/api';
 import { displayDate } from '../../lib/display-date';
+import { pluralRu } from '../../lib/plural';
 import { Icon } from '../../components/icon';
 import { Overlay } from '../../components/overlay';
 import { useToast } from '../../components/toast';
 import { useConfirm } from '../../components/use-confirm';
-import { Alert, Button, Field, Input, Textarea } from '../../components/ui';
+import { Alert, Button, Field, Input, Table, Textarea, cx } from '../../components/ui';
 import {
   archiveCompetitorAction,
   saveCompetitorAction,
@@ -290,5 +292,78 @@ function OccupancyForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+const pct = (bp: number | null) => (bp === null ? '–' : formatOccupancy(Math.round(bp / 100) * 100));
+
+/**
+ * «История ночи» (ADR-142, M1.2): как заполнялись соседи на одну ночь по дням снимков. Значение без нового снимка в этот
+ * день перенесено с прошлого и показано бледнее; строка «Рынок» и темп за показанные дни. Закрытие убирает `?night=`.
+ */
+export function NightDrawer({
+  date,
+  history,
+  closeHref,
+}: {
+  date: string;
+  history: MarketNightHistory | null;
+  closeHref: string;
+}) {
+  const router = useRouter();
+  const close = () => router.replace(closeHref, { scroll: false });
+  return (
+    <Overlay
+      open
+      drawer
+      className="settings-service-drawer market-night"
+      title={`История ночи: ${dayLabel(date)}`}
+      onClose={close}
+    >
+      {!history ? (
+        <Alert boxed>История ночи не загрузилась. Закройте панель и откройте снова.</Alert>
+      ) : history.days.length === 0 ? (
+        <p className="settings-note" data-testid="market-night-empty">
+          На эту ночь снимков ещё нет. Внесите загрузку соседей, и здесь появится, как они заполняются
+          день за днём.
+        </p>
+      ) : (
+        <>
+          <p className="settings-note" data-testid="market-night-pickup">
+            {history.pickupBp === null
+              ? 'Пока один день снимков: темп рынка появится со вторым.'
+              : `Рынок за ${pluralRu(history.days.length, ['день', 'дня', 'дней'])} снимков: ${formatPoints(Math.round(history.pickupBp / 100) * 100)}`}
+            {' '}
+            Бледным: значение перенесено с прошлого снимка, в этот день соседа не проверяли.
+          </p>
+          <Table size="sm" className="market-night-table" aria-label="Загрузка ночи по дням снимков" data-testid="market-night-table">
+            <thead>
+              <tr>
+                <th scope="col">Снимок</th>
+                {history.competitors.map((c) => (
+                  <th key={c.id} scope="col">
+                    {c.name}
+                  </th>
+                ))}
+                <th scope="col">Рынок</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...history.days].reverse().map((d) => (
+                <tr key={d.observedOn}>
+                  <th scope="row">{displayDate(d.observedOn, 'numeric')}</th>
+                  {d.values.map((v) => (
+                    <td key={v.competitorId} className={cx(!v.observed && 'market-night__carried')}>
+                      {pct(v.bp)}
+                    </td>
+                  ))}
+                  <td className="market-night__market">{pct(d.marketBp)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </>
+      )}
+    </Overlay>
   );
 }

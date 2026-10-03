@@ -43,6 +43,9 @@ class FakeRepo implements MarketRepository {
       (r) => r.stayDate >= from && r.stayDate <= to && r.observedOn <= asOf,
     );
   }
+  async nightReadings(stayDate: string) {
+    return this.readingsStore.filter((r) => r.stayDate === stayDate);
+  }
   async writeReadings(
     competitorId: string,
     observedOn: string,
@@ -161,5 +164,20 @@ describe('MarketService', () => {
     await expect(
       service.writeOccupancy(c.id, { entries: [{ date: '2026-10-05', percent: 50 }] }),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('история ночи: дни снимков, значения конкурентов и средняя рынка; неверная дата — 400', async () => {
+    const c = await service.createCompetitor({ name: 'Отель Сосед' });
+    repo.readingsStore.push(
+      { competitorId: c.id, stayDate: '2026-10-10', observedOn: '2026-10-01', occupancyBp: 4000, source: 'MANUAL' },
+      { competitorId: c.id, stayDate: '2026-10-10', observedOn: '2026-10-03', occupancyBp: 7000, source: 'AI_AGENT' },
+    );
+    const h = await service.night('2026-10-10');
+    expect(h.days.map((d) => [d.observedOn, d.marketBp])).toEqual([
+      ['2026-10-01', 4000],
+      ['2026-10-03', 7000],
+    ]);
+    expect(h.pickupBp).toBe(3000);
+    await expect(service.night('10.10.2026')).rejects.toThrow(BadRequestException);
   });
 });

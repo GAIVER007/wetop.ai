@@ -228,3 +228,31 @@ test('«Заполнить все ночи» ставит одно значен�
   await expect(altyn).toContainText('92 %');
   await expect(altyn).toContainText('+12 п.п.');
 });
+
+test('«История ночи»: дата в шапке открывает панель с днями снимков и темпом рынка; закрытие убирает её из адреса', async ({
+  page,
+  request,
+}) => {
+  const today = await seed(request);
+  await page.goto('/market');
+  await page.getByTestId(`market-night-${today}`).click();
+  await page.waitForURL(`**night=${today}`);
+  const table = page.getByTestId('market-night-table');
+  // два дня снимков: вчера «Алтын» 80 %, «Сити» ещё нет; сегодня 92 % и 95 %
+  await expect(table.locator('tbody tr')).toHaveCount(2);
+  await expect(table.locator('tbody tr').first()).toContainText('92 %');
+  await expect(table.locator('tbody tr').nth(1)).toContainText('80 %');
+  // рынок вчера 80 %, сегодня 93,5 %: темп +13,5 п.п., целыми +14
+  await expect(page.getByTestId('market-night-pickup')).toContainText('+14 п.п.');
+  const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(audit.violations).toEqual([]);
+  mkdirSync(SHOTS, { recursive: true });
+  await page.screenshot({ path: `${SHOTS}/night-light-1440.png` });
+  await page.keyboard.press('Escape');
+  await expect(page).not.toHaveURL(/night=/);
+  await expect(table).toHaveCount(0);
+
+  // ночь без снимков: честная пустая история
+  await page.goto(`/market?night=${plus(today, 20)}`);
+  await expect(page.getByTestId('market-night-empty')).toBeVisible();
+});

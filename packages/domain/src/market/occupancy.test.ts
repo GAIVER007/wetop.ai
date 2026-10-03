@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MarketInputError,
   buildMarketBoard,
+  buildNightHistory,
   demandLevel,
   formatOccupancy,
   marketDates,
@@ -219,5 +220,59 @@ describe('buildMarketBoard', () => {
     expect(b3.market[0]).toEqual({ date: '2026-10-04', bp: null, count: 0 });
     expect(b3.summary).toMatchObject({ marketBp: null, ownBp: null, gapBp: null });
     expect(b3.insights).toEqual([]);
+  });
+});
+
+describe('buildNightHistory', () => {
+  const comps = [
+    { id: 'a', name: 'Альфа', distanceM: 100, unitsTotal: null, url: null },
+    { id: 'b', name: 'Бета', distanceM: 300, unitsTotal: null, url: null },
+  ];
+  const night = (competitorId: string, observedOn: string, occupancyBp: number): MarketReading => ({
+    competitorId,
+    stayDate: '2026-10-10',
+    observedOn,
+    occupancyBp,
+    source: 'MANUAL',
+  });
+
+  it('по дням снимка: значение переносится до нового снимка, отмечено, был ли снимок в этот день; темп рынка', () => {
+    const h = buildNightHistory({
+      stayDate: '2026-10-10',
+      competitors: comps,
+      readings: [
+        night('a', '2026-10-01', 5000),
+        night('b', '2026-10-03', 6000),
+        night('a', '2026-10-05', 8000),
+        night('b', '2026-10-05', 9000),
+        // чужая ночь в выборку не попадает
+        { ...night('a', '2026-10-05', 100), stayDate: '2026-10-11' },
+      ],
+    });
+    expect(h.days.map((d) => d.observedOn)).toEqual(['2026-10-01', '2026-10-03', '2026-10-05']);
+    expect(h.days[1]!.values).toEqual([
+      { competitorId: 'a', bp: 5000, observed: false },
+      { competitorId: 'b', bp: 6000, observed: true },
+    ]);
+    expect(h.days.map((d) => [d.marketBp, d.count])).toEqual([
+      [5000, 1],
+      [5500, 2],
+      [8500, 2],
+    ]);
+    // темп: от первого дня, когда рынок известен, до последнего
+    expect(h.pickupBp).toBe(3500);
+  });
+
+  it('нет снимков: пустая история, темп неизвестен; дней не больше предела, свежие остаются', () => {
+    expect(buildNightHistory({ stayDate: '2026-10-10', competitors: comps, readings: [] })).toMatchObject({
+      days: [],
+      pickupBp: null,
+    });
+    const many = Array.from({ length: 40 }, (_, i) =>
+      night('a', `2026-08-${String((i % 31) + 1).padStart(2, '0')}`, i * 10),
+    ).concat(Array.from({ length: 9 }, (_, i) => night('a', `2026-09-0${i + 1}`, 1000)));
+    const h = buildNightHistory({ stayDate: '2026-10-10', competitors: comps, readings: many, maxDays: 5 });
+    expect(h.days).toHaveLength(5);
+    expect(h.days.at(-1)!.observedOn).toBe('2026-09-09');
   });
 });

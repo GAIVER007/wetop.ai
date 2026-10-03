@@ -339,3 +339,57 @@ export function buildMarketBoard(input: {
     insights,
   };
 }
+
+export interface NightHistory {
+  stayDate: string;
+  competitors: MarketCompetitorRef[];
+  /** Дни снимков по возрастанию: значение конкурента на этот день и средняя по рынку */
+  days: Array<{
+    observedOn: string;
+    values: Array<{ competitorId: string; bp: number | null; observed: boolean }>;
+    marketBp: number | null;
+    count: number;
+  }>;
+  /** Темп рынка: средняя последнего дня минус средняя первого дня, где рынок известен; null — меньше двух точек */
+  pickupBp: number | null;
+}
+
+/**
+ * «История ночи» (ADR-142, M1.2): как заполнялись соседи на одну ночь по дням снимков. Значение конкурента держится до
+ * его следующего снимка, `observed` говорит, был ли снимок в этот самый день. Показываются свежие `maxDays` дней.
+ */
+export function buildNightHistory(input: {
+  stayDate: string;
+  competitors: MarketCompetitorRef[];
+  readings: MarketReading[];
+  maxDays?: number;
+}): NightHistory {
+  const ids = new Set(input.competitors.map((c) => c.id));
+  const readings = input.readings.filter(
+    (r) => r.stayDate === input.stayDate && ids.has(r.competitorId),
+  );
+  const byDay = new Map<string, Map<string, number>>();
+  for (const r of readings) {
+    const day = byDay.get(r.observedOn) ?? new Map<string, number>();
+    day.set(r.competitorId, r.occupancyBp);
+    byDay.set(r.observedOn, day);
+  }
+  const allDays = [...byDay.keys()].sort();
+  const last = new Map<string, number>();
+  const days = allDays.map((observedOn) => {
+    const today = byDay.get(observedOn)!;
+    for (const [id, bp] of today) last.set(id, bp);
+    const values = input.competitors.map((c) => ({
+      competitorId: c.id,
+      bp: last.get(c.id) ?? null,
+      observed: today.has(c.id),
+    }));
+    const known = values.flatMap((v) => (v.bp === null ? [] : [v.bp]));
+    return { observedOn, values, marketBp: mean(known), count: known.length };
+  });
+  const shown = days.slice(-(input.maxDays ?? 30));
+  const withMarket = shown.filter((d) => d.marketBp !== null);
+  const pickupBp =
+    withMarket.length >= 2 ? withMarket.at(-1)!.marketBp! - withMarket[0]!.marketBp! : null;
+  return { stayDate: input.stayDate, competitors: input.competitors, days: shown, pickupBp };
+}

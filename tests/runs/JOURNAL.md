@@ -5590,3 +5590,19 @@
 | 03.10.2026 23:21 | lint | ✅ без ошибок | 22 с | d3917b0 | [лог](logs/2026-10-03T18-21-07Z-lint-d45f.log) |  |
 | 03.10.2026 23:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 guests-design pii-storage booking-dates rates incidents unified-sections finance channel-effic | ✅ 79 из 79 | 4 мин 29 с | d3917b0 | [лог](logs/2026-10-03T18-21-29Z-e2e-2d28.log) |  |
 | 03.10.2026 23:26 | unit | ✅ 3027 из 3030, пропущено 3 | 1 мин 38 с | d3917b0 | [лог](logs/2026-10-03T18-26-04Z-unit-c2b3.log) |  |
+| 03.10.2026 23:30 | unit (частично: packages/domain/src/market) | ❌ упало 2 из 19 | 1 с | 33292e4 +1 | [лог](logs/2026-10-03T18-30-44Z-unit-5232.log) | M1.2 red: истории ночи нет |
+| 03.10.2026 23:30 | unit (частично: packages/domain/src/market) | ✅ 19 из 19 | 1 с | 33292e4 +2 | [лог](logs/2026-10-03T18-30-56Z-unit-0cc9.log) | M1.2 green: история ночи |
+| 03.10.2026 23:31 | unit (частично: apps/api/src/auth/route-access.test.ts packages/domain/src/market) | ❌ упало 1 из 21 | 4 с | 33292e4 +3 | [лог](logs/2026-10-03T18-31-04Z-unit-4a2c.log) | M1.2 red: маршрута истории ночи нет |
+| 03.10.2026 23:31 | unit (частично: apps/api/src/auth/route-access.test.ts apps/api/src/market packages/domain/src/market) | ✅ 28 из 28 | 4 с | 33292e4 +7 | [лог](logs/2026-10-03T18-31-32Z-unit-37b7.log) | M1.2 green: API истории ночи |
+| 03.10.2026 23:32 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts tests/ui/requests.spec.ts --workers=1) | ✅ 38 из 38 | 1 мин 37 с | 33292e4 +13 | [лог](logs/2026-10-03T18-32-53Z-e2e-e05d.log) | M1.2: история ночи |
+| 03.10.2026 23:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 7 из 7 | 35 с | 33292e4 +13 | [лог](logs/2026-10-03T18-34-42Z-e2e-2bd8.log) | M1.2: рынок с историей ночи и axe |
+| 03.10.2026 23:35 | integration | ✅ 241 из 241 | 59 с | 33292e4 +9 | [лог](logs/2026-10-03T18-35-18Z-integration-e3d2.log) |  |
+| 03.10.2026 23:36 | typecheck | ✅ без ошибок | 36 с | 33292e4 +14 | [лог](logs/2026-10-03T18-36-21Z-typecheck-009d.log) |  |
+| 03.10.2026 23:36 | lint | ✅ без ошибок | 20 с | 33292e4 +14 | [лог](logs/2026-10-03T18-36-58Z-lint-4ce9.log) |  |
+| 03.10.2026 23:37 | unit | ✅ 3054 из 3057, пропущено 3 | 1 мин 21 с | 33292e4 +12 | [лог](logs/2026-10-03T18-37-19Z-unit-493c.log) |  |
+| 03.10.2026 23:38 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1 -g История ночи) | ✅ 1 из 1 | 12 с | 33292e4 +13 | [лог](logs/2026-10-03T18-38-52Z-e2e-3e89.log) | M1.2: подпись и ширина панели |
+| 03.10.2026 23:39 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 7 из 7 | 36 с | 33292e4 +13 | [лог](logs/2026-10-03T18-39-10Z-e2e-c4ea.log) | M1.2: рынок целиком, финал |
+| 03.10.2026 23:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 7 из 7 | 34 с | 33292e4 +13 | [лог](logs/2026-10-03T18-40-17Z-e2e-dfd5.log) | M1.2: рынок целиком, ширина панели |
+| 03.10.2026 23:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 7 из 7 | 35 с | 33292e4 +13 | [лог](logs/2026-10-03T18-40-57Z-e2e-dd70.log) | M1.2: рынок целиком, ширина панели |
+| 03.10.2026 23:41 | lint | ✅ без ошибок | 19 с | 33292e4 +14 | [лог](logs/2026-10-03T18-41-41Z-lint-abc6.log) |  |
+| 03.10.2026 23:42 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts apps/web/src/lib) | ✅ 331 из 331 | 4 с | 33292e4 +12 | [лог](logs/2026-10-03T18-42-01Z-unit-ebcf.log) | M1.2: сторожа дизайна |

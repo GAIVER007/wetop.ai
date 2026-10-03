@@ -2553,7 +2553,20 @@ export interface MarketView {
   };
   competitors: MarketCompetitor[];
 }
+export interface MarketNightHistory {
+  stayDate: string;
+  competitors: Array<{ id: string; name: string; distanceM: number | null }>;
+  days: Array<{
+    observedOn: string;
+    values: Array<{ competitorId: string; bp: number | null; observed: boolean }>;
+    marketBp: number | null;
+    count: number;
+  }>;
+  pickupBp: number | null;
+}
 export const marketApi = {
+  night: (date: string) =>
+    getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),
   occupancy: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
     const qs = new URLSearchParams();
     if (q.from) qs.set('from', q.from);

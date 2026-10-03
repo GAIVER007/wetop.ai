@@ -29,7 +29,7 @@ import {
   Table,
   cx,
 } from '../../components/ui';
-import { CompetitorButton, OccupancyButton } from './drawers';
+import { CompetitorButton, NightDrawer, OccupancyButton } from './drawers';
 import '../directory.css';
 import './market.css';
 
@@ -114,7 +114,11 @@ export default async function MarketPage({
   const days = WINDOWS.includes(Number(sp.days) as 7) ? Number(sp.days) : 14;
   const asOf = sp.asOf && validDate(sp.asOf) && sp.asOf <= today ? sp.asOf : today;
   const compare = sp.compare && ['0', '1', '7'].includes(sp.compare) ? Number(sp.compare) : 1;
-  const [loaded, shell] = await Promise.all([
+  // «История ночи» (M1.2): панель по адресу `?night=`, свой запрос только когда она открыта
+  const night = sp.night && validDate(sp.night) ? sp.night : null;
+  const base = new URLSearchParams({ from, days: String(days), asOf, compare: String(compare) });
+  const nightHref = (d: string) => `/market?${base}&night=${d}`;
+  const [loaded, shell, nightLoaded] = await Promise.all([
     marketApi.occupancy({ from, days, asOf, compare }).then(
       (r) => ({ ok: true as const, r }),
       (e: unknown) => {
@@ -123,6 +127,15 @@ export default async function MarketPage({
       },
     ),
     deskShell(),
+    night
+      ? marketApi.night(night).then(
+          (r) => r,
+          (e: unknown) => {
+            unstable_rethrow(e);
+            return null;
+          },
+        )
+      : null,
   ]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'rates'));
@@ -164,7 +177,10 @@ export default async function MarketPage({
         <>
           <Summary view={view} />
           <Insights view={view} />
-          <Grid view={view} editable={editable} />
+          <Grid view={view} editable={editable} nightHref={nightHref} />
+          {night && (
+            <NightDrawer date={night} history={nightLoaded} closeHref={`/market?${base}`} />
+          )}
         </>
       )}
       <p className="market-note" data-testid="market-source-note">
@@ -303,7 +319,15 @@ function Cell({ bp, delta }: { bp: number | null; delta?: number | null | undefi
   );
 }
 
-function Grid({ view, editable }: { view: MarketView; editable: boolean }) {
+function Grid({
+  view,
+  editable,
+  nightHref,
+}: {
+  view: MarketView;
+  editable: boolean;
+  nightHref: (date: string) => string;
+}) {
   const { board } = view;
   const byId = new Map(view.competitors.map((c) => [c.id, c]));
   return (
@@ -319,8 +343,15 @@ function Grid({ view, editable }: { view: MarketView; editable: boolean }) {
               const h = dayHead(d);
               return (
                 <th key={d} scope="col" className="market-table__day">
-                  <span>{h.wd}</span>
-                  {h.day}
+                  <Link
+                    href={nightHref(d)}
+                    scroll={false}
+                    aria-label={`История ночи ${displayDate(d, 'numeric')}`}
+                    data-testid={`market-night-${d}`}
+                  >
+                    <span>{h.wd}</span>
+                    {h.day}
+                  </Link>
                 </th>
               );
             })}

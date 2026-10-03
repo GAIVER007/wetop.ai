@@ -81,6 +81,11 @@ describe.skipIf(!url)('загрузка конкурентов: конкурен
     ]);
     // снимок «из будущего» относительно даты снимка не отдаётся
     expect(await repo.readings('2031-06-01', '2031-06-10', '2031-06-01')).toHaveLength(1);
+    // история ночи: все дни снимка одной ночи по порядку (M1.2)
+    expect((await repo.nightReadings('2031-06-02')).map((r) => [r.observedOn, r.occupancyBp])).toEqual([
+      ['2031-06-01', 7000],
+      ['2031-06-02', 8550],
+    ]);
 
     expect(await repo.updateCompetitor(c!.id, { active: false }, audit)).toBe(true);
     expect(

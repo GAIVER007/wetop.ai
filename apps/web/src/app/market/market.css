@@ -100,6 +100,14 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+.market-table__day a {
+  display: inline-block;
+  min-height: var(--target-min);
+  color: inherit;
+}
+.market-table__day a:hover {
+  color: var(--primary);
+}
 .market-table__day span {
   display: block;
   font-size: var(--text-xs);
@@ -250,4 +258,25 @@
   .market-toolbar .field--inline .inp {
     width: 132px;
   }
+}
+
+/* «История ночи» (M1.2): перенесённое с прошлого снимка значение бледнее, но с контрастом не ниже --muted */
+.table-scroll > .tbl.market-night-table {
+  min-width: 0;
+}
+.market-night-table th,
+.market-night-table td {
+  padding-inline: var(--space-2);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.market-night-table td,
+.market-night-table tbody th {
+  white-space: nowrap;
+}
+.market-night__carried {
+  color: var(--muted);
+}
+.market-night__market {
+  font-weight: var(--weight-semibold);
 }

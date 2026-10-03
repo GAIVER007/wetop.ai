@@ -60,6 +60,7 @@ import {
   MARKET_MAX_COMPETITORS,
   MarketInputError,
   buildMarketBoard,
+  buildNightHistory,
   marketDates,
   parseCompetitorInput,
   parseOccupancyPercent,
@@ -4190,6 +4191,13 @@ function marketRoute(
         readings: marketReadings.filter((r) => active.some((c) => c.id === r.competitorId)),
       });
       return [200, { today, from, days, board, competitors: active }];
+    }
+    if (path === '/market/night' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const date = q.get('date') ?? '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [400, { message: 'date: ночь YYYY-MM-DD' }];
+      const active = marketCompetitors.filter((c) => c.active);
+      return [200, buildNightHistory({ stayDate: date, competitors: active, readings: marketReadings })];
     }
     if (path === '/market/competitors' && method === 'POST') {
       if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];

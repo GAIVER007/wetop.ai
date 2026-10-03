@@ -34,6 +34,11 @@ export class MarketController {
     return this.service.occupancy({ from, days, asOf, compare });
   }
 
+  @Get('night')
+  night(@Query('date') date?: string) {
+    return this.service.night(date);
+  }
+
   @Access('rates')
   @Post('competitors')
   createCompetitor(@Body() dto: Record<string, unknown>) {

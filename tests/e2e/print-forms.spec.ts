@@ -33,6 +33,10 @@ test('договор и счёт печатаются на RU и KZ: номер 
   test.setTimeout(180_000);
   await page.goto(`/reservations/new?arrival=${plus(15)}&departure=${plus(17)}`);
   const form = page.getByRole('main').getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+  await form.locator('details:has(select[name="source"])').evaluate((d) => {
+    (d as HTMLDetailsElement).open = true;
+  });
   await form.locator('select[name="source"]').selectOption('PHONE');
   await form
     .locator('select[name="accommodationTypeCode"]')

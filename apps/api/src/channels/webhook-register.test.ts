@@ -126,3 +126,65 @@ describe('testWebhook: при заданном PUBLIC_API_URL секрет ух�
     expect(tested).toEqual([`${PERMANENT}${WEBHOOK_PATH}`, `${PERMANENT}${WEBHOOK_PATH}`]);
   });
 });
+
+/**
+ * Письмо Channex 03.10.2026: «You don't need to pull webhooks on a constant basis». Сторож спрашивал `GET /webhooks`
+ * раз в пять минут, чтобы узнать адрес, который меняется только нашей же регистрацией. Теперь сервис помнит последний
+ * ответ: фоновым проверкам отдаёт его из памяти, страница каналов и кнопки спрашивают Channex как раньше.
+ */
+describe('webhookStatus: память вместо постоянного опроса Channex', () => {
+  beforeEach(() => {
+    process.env.PUBLIC_API_URL = PERMANENT;
+    process.env.CHANNEX_WEBHOOK_SECRET = 'secret-for-test';
+  });
+
+  function counting(gateway: ChannexGateway) {
+    let lists = 0;
+    const wrapped = {
+      ...gateway,
+      listWebhooks: async () => {
+        lists += 1;
+        return gateway.listWebhooks();
+      },
+    } as unknown as ChannexGateway;
+    return { gateway: wrapped, lists: () => lists };
+  }
+
+  it('с maxAgeMs второй вопрос в пределах срока отвечается из памяти, без запроса к Channex', async () => {
+    const c = counting(gatewayApplyingUpdate());
+    const sync = new ChannexSyncService(c.gateway, repo);
+    const t0 = new Date('2026-10-03T10:00:00Z');
+    const day = 24 * 60 * 60_000;
+    const first = await sync.webhookStatus({ maxAgeMs: day, now: t0 });
+    const again = await sync.webhookStatus({ maxAgeMs: day, now: new Date(t0.getTime() + day - 1) });
+    expect(c.lists()).toBe(1);
+    expect(again).toEqual(first);
+    await sync.webhookStatus({ maxAgeMs: day, now: new Date(t0.getTime() + day) });
+    expect(c.lists()).toBe(2);
+  });
+
+  it('без maxAgeMs (страница каналов) Channex спрашивается всегда, и ответ освежает память', async () => {
+    const c = counting(gatewayApplyingUpdate());
+    const sync = new ChannexSyncService(c.gateway, repo);
+    await sync.webhookStatus();
+    await sync.webhookStatus();
+    expect(c.lists()).toBe(2);
+    await sync.webhookStatus({ maxAgeMs: 60_000 });
+    expect(c.lists()).toBe(2);
+  });
+
+  it('регистрация кладёт в память новый адрес: сторож узнаёт его без запроса списка', async () => {
+    const c = counting(gatewayApplyingUpdate());
+    const sync = new ChannexSyncService(c.gateway, repo);
+    await sync.registerWebhook();
+    const listsAfterRegister = c.lists();
+    const status = await sync.webhookStatus({ maxAgeMs: 24 * 60 * 60_000 });
+    expect(c.lists()).toBe(listsAfterRegister);
+    expect(status).toMatchObject({
+      registered: true,
+      callbackUrl: `${PERMANENT}${WEBHOOK_PATH}`,
+      expectedUrl: `${PERMANENT}${WEBHOOK_PATH}`,
+      active: true,
+    });
+  });
+});

@@ -11,7 +11,11 @@ on:
 
 concurrency:
   group: checks-${{ github.ref }}
-  cancel-in-progress: true
+  # Запрос на слияние: новый пуш отменяет прогон старого, его итог уже никому не нужен. Main: прогон доходит до
+  # конца, а следующий ждёт его (GitHub держит в очереди один, самый новый). С отменой и на main при частых
+  # слияниях ни одна вершина main не получала итога: 02–03.10.2026 каждый прогон отменял следующий пуш,
+  # и release нечем было проверить.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   fast:
@@ -32,8 +36,9 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck && npm run typecheck:api && npm run typecheck:web
       - run: npx vitest run --project unit
+      # Без --with-deps: библиотеки Chromium уже в образе раннера, а sudo там не работает (scripts/ops/ci-runner/Dockerfile)
       - name: Chromium для проверок главной
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - run: npm run site:check
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -121,7 +126,8 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run generate -w @pms/database
-      - run: npx playwright install --with-deps chromium
+      # Без --with-deps: библиотеки Chromium уже в образе раннера, а sudo там не работает (scripts/ops/ci-runner/Dockerfile)
+      - run: npx playwright install chromium
       # Браузер — chromium Playwright (на Mac набор идёт в Chrome владельца); next dev и подставной API поднимает конфиг
       - name: Браузерные проверки без базы
         env:

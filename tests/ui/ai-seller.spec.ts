@@ -6,7 +6,8 @@ import { expect, test, type Page } from './fixtures';
  * серверных действий стойки, а не правил API — те закрыты тестами контроллера (`apps/api/src/ai-seller`) и бота
  * (`apps/ai-seller/tests/test_seller_prompt_text.py`). Гости и переписка — вымышленные (ADR-010).
  */
-const API = 'http://127.0.0.1:4311';
+// адрес подставного API настраиваем: прогон на своём стенде не трогает общий 4311
+const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 // адреса продавца синтетический API отдаёт только прогону тестов
 const TEST_CLIENT = { 'x-wetop-test-client': '1' };
 const DIALOG = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';

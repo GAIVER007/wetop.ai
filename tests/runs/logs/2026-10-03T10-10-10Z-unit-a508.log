@@ -1,0 +1,24 @@
+# Модульные (unit) · 03.10.2026 15:10 Алматы · vm
+# коммит a1a01d7 (double-shift), незакоммиченных файлов набора: 11
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T10-10-10Z-unit-a508.json' 'scripts/reconciliation/src/shift-check.test.ts' 'scripts/reconciliation/src/shift-check-sources.test.ts' 'tests/unit/shift-check-wrapper.test.ts' 'tests/unit/shift-check-cli.test.ts' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ✓ |unit| tests/unit/ci-runner.test.ts (16 tests) 110ms
+ ✓ |unit| tests/unit/shift-check-cli.test.ts (4 tests) 1881ms
+   ✓ cli-shift-check.ts (4)
+     ✓ расхождение по деньгам: строка журнала с заголовком в stdout, сводка в stderr, код 1, только GET со служебным ключом 420ms
+     ✓ то же расхождение уже открыто в журнале: stdout пуст, номер в «ещё не сошлись» 814ms
+     ✓ API не принял служебный ключ: код 2 и понятная причина, журнал не трогается 337ms
+ ✓ |unit| tests/unit/shift-check-wrapper.test.ts (4 tests) 125ms
+ ✓ |unit| scripts/reconciliation/src/shift-check-sources.test.ts (5 tests) 32ms
+ ✓ |unit| scripts/reconciliation/src/shift-check.test.ts (27 tests) 26ms
+
+ Test Files  5 passed (5)
+      Tests  56 passed (56)
+   Start at  03:10:11
+   Duration  3.44s (tests 77%, transform 17%, import 5%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T10-10-10Z-unit-a508.json
+
+# код выхода 0 · 4 с

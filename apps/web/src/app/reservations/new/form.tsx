@@ -42,7 +42,9 @@ export function NewReservationForm(props: {
   const [availabilityError, setAvailabilityError] = useState('');
   const [checking, setChecking] = useState(false);
   const [retry, setRetry] = useState(0);
-  // сервер уже проверил даты из пропсов при рендере формы — тот же рейс из браузера не повторяется
+  // Даты, ответ по которым уже на руках: сервер проверил даты из пропсов при рендере формы, или ответил
+  // прошлый рейс из браузера. Тот же рейс не повторяется. Ключ ставится по приходу ответа, а не при
+  // отправке: иначе возврат к прежним датам (A → B → A) оставлял «Проверяем свободные места…» навсегда
   const lastChecked = useRef(
     props.initialAvailability
       ? `${props.initialAvailability.arrivalDate} ${props.initialAvailability.departureDate} 0`
@@ -62,21 +64,26 @@ export function NewReservationForm(props: {
   useEffect(() => {
     if (!validDates) return;
     const key = `${arrival} ${departure} ${retry}`;
-    if (lastChecked.current === key) return;
+    if (lastChecked.current === key) {
+      // проверка промежуточных дат отменена, ответ по этим датам уже есть: ждать нечего
+      setChecking(false);
+      return;
+    }
     let active = true;
     setChecking(true);
     setAvailabilityError('');
     const timer = window.setTimeout(() => {
-      lastChecked.current = key;
       void checkBookingAvailability(arrival, departure)
         .then((result) => {
           if (!active) return;
+          lastChecked.current = result.availability && !result.error ? key : '';
           setChecking(false);
           setAvailability(result.availability);
           setAvailabilityError(result.error);
         })
         .catch(() => {
           if (!active) return;
+          lastChecked.current = '';
           setChecking(false);
           setAvailability(null);
           setAvailabilityError('Не удалось проверить свободные места.');

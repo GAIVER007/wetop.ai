@@ -6,38 +6,46 @@ test.beforeEach(async ({ request }) => {
   await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
-test('главная: новая бронь и полоса стойки доступны на первом экране', async ({ page }) => {
-  // A1 (ADR-103): операционная часть — первый экран; резюме-дубля внимания сверху больше нет
+test('главная: новая бронь и «Гостиница сегодня» на первом экране', async ({ page }) => {
+  // Главная владельца (30.09.2026, `plans/today-owner-dashboard-2026-09-30.md`) сменила полосу стойки A1:
+  // в шапке новая бронь, ниже финансы периода и «Гостиница сегодня»; на широком экране всё без прокрутки,
+  // очередь «Требуют внимания» и работа с гостями открываются панелями из нижнего ряда
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/today');
-    const create = page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true });
+    const create = page.getByRole('main').getByRole('link', { name: '+ Новая бронь', exact: true });
     await expect(create).toBeInViewport({ ratio: 1 });
-    const strip = page.getByRole('region', { name: 'Сегодня на стойке' });
-    await expect(strip).toBeInViewport();
-    // Блок задач стоит сразу под полосой и приходит тем же потоковым куском
-    const heading = page.getByRole('heading', { name: 'Требуют внимания', exact: true });
-    await expect(heading).toBeAttached();
-    if (width === 1440) await expect(heading).toBeInViewport();
+    const hotel = page.getByRole('region', { name: 'Гостиница сегодня' });
+    await expect(hotel).toBeAttached();
+    const attention = page
+      .getByTestId('owner-dashboard')
+      .getByRole('button', { name: 'Требуют внимания', exact: true });
+    await expect(attention).toBeAttached();
+    if (width === 1440) {
+      await expect(hotel).toBeInViewport({ ratio: 1 });
+      await expect(attention).toBeInViewport();
+    }
   }
 });
 
-test('полоса дня на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px', async ({
+test('период Главной и «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/today');
+  // период финансов Главной: готовые отрезки и свой отрезок (вместо полосы дня стойки A1)
   for (const control of [
-    page.getByLabel('День стойки: дата'),
-    page.getByTestId('day-form').getByRole('button', { name: 'Показать' }),
+    page.getByLabel('Начало периода'),
+    page.getByLabel('Конец периода'),
+    page.getByRole('main').locator('.owner-toolbar').getByRole('button', { name: 'Показать' }),
     page
-      .getByRole('navigation', { name: 'День стойки' })
+      .getByRole('navigation', { name: 'Период финансов' })
       .getByRole('link', { name: 'Сегодня', exact: true }),
   ]) {
     const box = await control.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.height).toBeGreaterThanOrEqual(44);
-    expect(box!.width).toBeGreaterThanOrEqual(44);
+    expect(box, `${control}`).not.toBeNull();
+    expect(box!.height, `${control}`).toBeGreaterThanOrEqual(44);
+    expect(box!.width, `${control}`).toBeGreaterThanOrEqual(44);
   }
   // «Показатели за период» с AN2 — «Аналитика» (ADR-114): обе вкладки, свой период — в панели «Период»
   for (const route of ['/management/analytics', '/management/analytics/occupancy']) {
@@ -64,20 +72,29 @@ test('полоса дня на телефоне и период «Аналити
   }
 });
 
-test('главная живёт одним днём, месячные показатели — на своём экране', async ({ page }) => {
-  // день стойки задаёт ?date=, ?period= Главная больше не читает (A1, ADR-103)
-  await page.goto('/today?period=month&date=2026-09-17');
+test('главная: финансы за выбранный период, гостиница за сегодня; месяц целиком в «Аналитике»', async ({
+  page,
+}) => {
+  // Главная владельца (30.09.2026): ?period= задаёт финансы, «Гостиница сегодня» всегда о сегодняшнем дне
+  await page.goto('/today?period=month');
   await expect(
-    page.getByRole('region', { name: 'Сегодня на стойке' }).locator('.desk-strip__date'),
-  ).toHaveAttribute('datetime', '2026-09-17');
+    page.getByRole('navigation', { name: 'Период финансов' }).getByRole('link', { name: 'Месяц' }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('region', { name: 'Гостиница сегодня' })).toContainText(
+    /\d{2}\.\d{2}\.\d{4}/,
+  );
   await expect(page.getByTestId('period-caption')).toHaveCount(0);
-  // месячные показатели — «Аналитика → Обзор» (ADR-114); оплаты — в «Оплатах», ADR и RevPAR — у типа фонда
+  // месячные показатели в «Аналитике → Обзор» (ADR-114), оплаты в «Оплатах», ADR и RevPAR у типа фонда.
+  // Четыре плитки сразу, ночи, средний чек и цена у типа фонда в свёрнутых «Подробностях» (01.10.2026)
   await page.goto('/management/analytics?period=month');
   await expect(page.getByTestId('pa-period')).toContainText(/(28|29|30|31) д/);
-  for (const id of ['occupancy', 'revenue', 'nights', 'bookings', 'cancelled', 'average']) {
+  for (const id of ['occupancy', 'revenue', 'bookings', 'cancelled'])
     await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
-  }
+  await page.locator('.pa-details > summary').click();
+  for (const id of ['nights', 'average'])
+    await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
   await page.goto('/management/analytics?period=month&fund=rooms');
+  await page.locator('.pa-details > summary').click();
   for (const id of ['adr', 'revpar']) await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
 });
 

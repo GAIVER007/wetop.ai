@@ -146,6 +146,23 @@ describe('свой раннер CI', () => {
     expect(db).toContain('services:');
     expect(db).toContain('postgres');
   });
+
+  it('эталоны -linux снимает раннер GitHub по кнопке и кладёт отдельной веткой, не в main и не в release', () => {
+    // разбор 03.10.2026: эталоны, снятые не на раннере, расходились с проверкой release-checks
+    const text = WORKFLOWS['ui-snapshots.yml'] ?? '';
+    expect(text, '.github/workflows/ui-snapshots.yml').not.toBe('');
+    const run = withoutComments(text);
+    const triggers = /\non:\n([\s\S]*?)\n(?=\S)/.exec(run)?.[1] ?? '';
+    expect(triggers.trim()).toBe('workflow_dispatch:');
+    // запись в репозиторий только у задачи со снимками, по умолчанию чтение
+    expect(/\npermissions:\n\s+contents: read/.test(run)).toBe(true);
+    expect(run).toContain('--update-snapshots=changed');
+    expect(run).toContain("git add -- 'design/reference/kit/*-linux.png'");
+    const pushes = [...run.matchAll(/git push[^\n]*/g)].map((m) => m[0]);
+    expect(pushes).toEqual(['git push origin "HEAD:refs/heads/$BRANCH"']);
+    expect(run).toMatch(/BRANCH: ci\/ui-snapshots-\$\{\{ github\.run_number \}\}/);
+    expect(run).not.toMatch(/--force|\+HEAD|refs\/heads\/(main|release)/);
+  });
 });
 
 const hasJq = spawnSync('jq', ['--version']).status === 0;

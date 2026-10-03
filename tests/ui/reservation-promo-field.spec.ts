@@ -16,7 +16,9 @@ async function createBooking(
   request: import('@playwright/test').APIRequestContext,
   promo: string,
 ): Promise<Record<string, unknown> | undefined> {
-  await request.post(`${fixture}/__test/control`, { data: {} });
+  // чистый стенд на каждую бронь: прошлая бронь на M03 занимает те же даты, и форма с живой проверкой
+  // мест (01.10.2026) честно не даёт создать вторую на занятую ячейку
+  await request.post(`${fixture}/__test/reset`);
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
   await form.getByText('Дополнительно', { exact: true }).click();

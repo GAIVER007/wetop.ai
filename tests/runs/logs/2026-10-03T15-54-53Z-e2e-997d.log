@@ -1,0 +1,24 @@
+# Сквозные (e2e) · 03.10.2026 20:54 Алматы · vm
+# коммит 6374818 (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 24
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/analytics-channels.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/ui/analytics-channels.spec.ts:49:1 › вкладка «Каналы»: строки по каналам за месяц, итог равен сумме строк и ответу API (1.8s)
+  ✓  2 tests/ui/analytics-channels.spec.ts:88:1 › отбор по каналу, каналы без броней и сравнение — из полосы отбора (3.8s)
+  ✓  3 tests/ui/analytics-channels.spec.ts:119:1 › CSV — те же строки и итог, с разделителем «;» и BOM (1.0s)
+  ✓  4 tests/ui/analytics-channels.spec.ts:135:1 › пустой период и отказ API — словами, не падение страницы (2.0s)
+  ✓  5 tests/ui/analytics-channels.spec.ts:153:1 › телефон: страница без горизонтальной прокрутки (1.0s)
+  ✓  6 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, light (3.2s)
+  ✓  7 tests/ui/analytics-channels.spec.ts:163:3 › доступность и снимки, dark (3.2s)
+  ✓  8 tests/ui/analytics-channels.spec.ts:181:1 › вход в отчёт — из раздела «Каналы» и с хаба «Отчёты» с тем же периодом (2.3s)
+
+  8 passed (26.6s)
+
+# код выхода 0 · 28 с

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { FIXTURE_API } from './fixtures';
+import { HEADER_GROWTH_PX, FIXTURE_API } from './fixtures';
 const fixture = FIXTURE_API;
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);
@@ -17,8 +17,10 @@ test('финансы: обзор на ноутбуке, вкладки и пер
     fullPage: true,
     animations: 'disabled',
   });
-  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(
-    true,
+  // бюджет задан 01.10.2026 при прежней шапке; с ADR-134 шапка выше на HEADER_GROWTH_PX, место под обзор то же
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  expect(overflow, 'обзор финансов не помещается на ноутбуке').toBeLessThanOrEqual(
+    HEADER_GROWTH_PX + 1,
   );
   await page.getByRole('tab', { name: 'Операции', exact: true }).click();
   await expect(page.getByTestId('finance-operations')).toBeVisible();

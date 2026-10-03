@@ -1,0 +1,91 @@
+# Сквозные (e2e) · 03.10.2026 20:45 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 23
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/market.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (18.0s)
+  ✘  2 tests/ui/market.spec.ts:105:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (19.6s)
+  ✓  3 tests/ui/market.spec.ts:147:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (2.5s)
+  ✓  4 tests/ui/market.spec.ts:163:3 › снимки и доступность: light (5.5s)
+  ✓  5 tests/ui/market.spec.ts:163:3 › снимки и доступность: dark (5.3s)
+
+
+  1) tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Конкурент добавлен')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Конкурент добавлен') with timeout 15000ms
+      - waiting for getByText('Конкурент добавлен')
+
+
+      79 |   await form.getByTestId('market-distance').fill('300');
+      80 |   await form.getByTestId('market-save').click();
+    > 81 |   await expect(page.getByText('Конкурент добавлен')).toBeVisible();
+         |                                                      ^
+      82 |
+      83 |   const row = main.getByRole('row', { name: /Отель Тестовый/ });
+      84 |   await expect(row).toContainText('300 м');
+        at /home/user/wetop.ai/tests/ui/market.spec.ts:81:54
+
+    Error Context: test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-пункт-в-«Продажах»--8f088--добавить-и-внести-загрузку/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ui/market.spec.ts:105:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Конкурент убран из списка')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Конкурент убран из списка') with timeout 15000ms
+      - waiting for getByText('Конкурент убран из списка')
+
+
+      140 |   await page.getByTestId('market-archive').click();
+      141 |   await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Убрать' }).click();
+    > 142 |   await expect(page.getByText('Конкурент убран из списка')).toBeVisible();
+          |                                                             ^
+      143 |   await expect(main.getByRole('row', { name: /Хостел Сити/ })).toHaveCount(0);
+      144 |   await expect(main.getByTestId('market-row-market')).toContainText('92 %');
+      145 | });
+        at /home/user/wetop.ai/tests/ui/market.spec.ts:142:61
+
+    Error Context: test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/market-таблица-«вы-и-рынок-d83e0-ёт-к-ценам-убрать-из-списка/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку 
+    tests/ui/market.spec.ts:105:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка 
+  3 passed (1.0m)
+
+# код выхода 1 · 1 мин 2 с

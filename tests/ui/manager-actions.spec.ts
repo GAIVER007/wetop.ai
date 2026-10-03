@@ -366,7 +366,9 @@ test('карточка B3 на телефоне: полоса и прожива�
 test('шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag', async ({
   page,
 }) => {
-  await page.goto('/chessboard');
+  // окно с сегодняшнего дня: неделя по умолчанию идёт с понедельника, и в воскресенье бронь «с сегодня на три
+  // ночи» видна одной клеткой, а меню у плашки появляется с двух (CI 03.10.2026, воскресенье по Алматы)
+  await page.goto(`/chessboard?from=${today}&to=${plus(6)}`);
   const main = page.getByRole('main');
   const plate = main.locator(`[data-testid="stay-cell"][data-number="${BOOKING}"]`).first();
   await expect(plate).toBeVisible();

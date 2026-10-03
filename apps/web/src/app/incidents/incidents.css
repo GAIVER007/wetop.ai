@@ -145,3 +145,16 @@
     min-height: var(--touch-target);
   }
 }
+
+/* ───────────────────────── Первый экран ─────────────────────────
+   С верхним меню (ADR-134) шапка выросла на 28 px, и четвёртая открытая неисправность уходила под край
+   1440×1000 (incidents-design.spec). Промежутки между шапкой, вкладками, полосой состояния и заголовком
+   списка — 16 px вместо 24: шаг шкалы §3, содержание не меняется. */
+.page:has(.incidents__controls) .page__head,
+.page:has(.incidents__controls) .control-tabs,
+.page:has(.incidents__controls) .state-bar {
+  margin-bottom: var(--space-4);
+}
+.page:has(.incidents__controls) .state-bar {
+  padding: var(--space-4);
+}

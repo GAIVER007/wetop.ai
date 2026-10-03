@@ -523,7 +523,7 @@
 /* Рабочая область цен: компактная шапка, месяц на экране ноутбука.
    Нет фиксированной высоты/обрезки: большие вместимости и масштаб текста растят страницу. */
 .workspace .page:has(> .rates-filters) {
-  padding: 16px 24px;
+  padding: 16px 24px 8px;
 }
 .page:has(> [data-testid='rates-tabs']) > .page__head {
   margin-bottom: 8px;
@@ -546,13 +546,16 @@
 }
 .rates-selection {
   position: static;
-  min-height: 40px;
+  /* по высоте кнопок полосы (32 px): шестинедельный месяц помещается в 1366×768 (rates-design.spec) */
+  min-height: 32px;
   margin-bottom: 8px;
   padding: 0;
   border: 0;
   background: transparent;
 }
 .rates-selection .btn {
+  /* `.btn` держит высоту через `height: var(--control-h)` (premium.css): одного min-height мало */
+  --control-h: 32px;
   min-height: 32px;
   padding: 4px 16px;
   font-size: var(--text-sm);
@@ -576,10 +579,11 @@
   .rate-cal__day {
     position: relative;
     padding: 8px 8px;
-    min-height: 68px;
+    /* по содержимому дня (две строки — 65 px): шесть недель и шапка с меню помещаются в 1366×768 */
+    min-height: 64px;
   }
   .rate-cal__void {
-    min-height: 68px;
+    min-height: 64px;
     background: var(--surface-muted);
   }
   .rate-cal__pick {

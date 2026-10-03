@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 23:30 Алматы · vm
+# коммит 33292e4 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-30-56Z-unit-0cc9.json' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (19 tests) 11ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  18:30:57
+   Duration  250ms (transform 72%, import 17%, tests 8%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-30-56Z-unit-0cc9.json
+
+# код выхода 0 · 1 с

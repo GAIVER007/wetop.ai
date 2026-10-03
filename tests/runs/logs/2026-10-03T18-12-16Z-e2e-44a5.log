@@ -1,0 +1,22 @@
+# Сквозные (e2e) · 03.10.2026 23:12 Алматы · vm
+# коммит c25f6d9 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/market.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/ui/market.spec.ts:60:1 › пункт в «Продажах» ведёт в раздел; пусто: «Добавьте ближайших конкурентов»; добавить и внести загрузку (4.3s)
+  ✓  2 tests/ui/market.spec.ts:106:1 › таблица «вы и рынок»: изменение к вчера, метка ИИ, средняя, подсказка ведёт к ценам; убрать из списка (4.4s)
+  ✓  3 tests/ui/market.spec.ts:148:1 › «только чтение»: таблица и подсказки видны, добавлять и вносить нельзя (2.3s)
+  ✓  4 tests/ui/market.spec.ts:164:3 › снимки и доступность: light (5.3s)
+  ✓  5 tests/ui/market.spec.ts:164:3 › снимки и доступность: dark (5.3s)
+  ✓  6 tests/ui/market.spec.ts:204:1 › «Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём (2.8s)
+
+  6 passed (32.2s)
+
+# код выхода 0 · 33 с

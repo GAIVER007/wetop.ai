@@ -9,6 +9,12 @@ import { WebhookHealthService } from './webhook-health.service';
 import { ChannexSyncService } from './sync.service';
 import { ChannelsController } from './channels.controller';
 import {
+  CHANNEL_CATALOG_READER,
+  ChannelCatalogController,
+  ChannelCatalogService,
+  catalogReaderFromEnv,
+} from './catalog';
+import {
   ChannelConnectionController,
   ChannelConnectionService,
   CHANNEL_CONNECTION_READER,
@@ -28,7 +34,12 @@ import {
 } from './channels.repository';
 
 @Module({
-  controllers: [ChannelsController, ChannelConnectionController, ChannelContentController],
+  controllers: [
+    ChannelsController,
+    ChannelConnectionController,
+    ChannelContentController,
+    ChannelCatalogController,
+  ],
   providers: [
     PrismaService,
     ChannelConnectionService,
@@ -36,6 +47,9 @@ import {
     // Контент объекта для WETOP из Channex, только чтение (ADR-033)
     ChannelContentService,
     { provide: CHANNEL_CONTENT_READER, useFactory: contentReaderFromEnv },
+    // Раздел «Каналы»: подключения и каталог каналов Channex, только чтение (ADR-138)
+    ChannelCatalogService,
+    { provide: CHANNEL_CATALOG_READER, useFactory: catalogReaderFromEnv },
     ChannexSyncService,
     InboundBookingsService,
     { provide: RESERVATIONS_UOW, useClass: PrismaUnitOfWork },

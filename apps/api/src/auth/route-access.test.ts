@@ -170,6 +170,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /channels/channex/outbox/messages': 'channels',
   'POST /channels/channex/outbox/flush': 'channels',
   'GET /channels/channex/connection': 'channels',
+  'GET /channels/channex/channels': 'channels',
+  'POST /channels/channex/channels/connect-session': 'owner',
   'GET /channels/channex/content': 'channels',
   'GET /channels/channex/content/names': 'channels',
   'GET /hotel/channel-report': 'channels',

@@ -956,7 +956,62 @@ export const channelsApi = {
       '/channels/channex/webhook/test',
       {},
     ),
+  /** Раздел «Каналы» (ADR-138): подключения объекта и каталог каналов Channex, брони за 30 дней из WETOP */
+  catalog: () => getJson<ChannelCatalog>('/channels/channex/channels'),
+  /** Окно Channex для подключения и настройки канала: одноразовый адрес, только владельцу */
+  connectSession: (channel?: string) =>
+    sendJson<{ url: string; expiresInMinutes: number }>(
+      'POST',
+      '/channels/channex/channels/connect-session',
+      channel ? { channel } : {},
+    ),
 };
+/** Статус канала по фактам (ADR-138): «Работает» — включён, событие за 30 дней, нет ошибок входящих за 7 дней */
+export type ChannelStatus = 'WORKING' | 'ENABLED' | 'ERRORS' | 'OFF' | 'REMOVING';
+export interface ChannelConnectionRow {
+  id: string;
+  adapterCode: string;
+  channelKey: string;
+  channelTitle: string;
+  connectionTitle: string;
+  channelPropertyId: string | null;
+  active: boolean;
+  removalDate: string | null;
+  mappedRatePlans: number;
+  actions: string[];
+  shortCode: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+  lastEventAt: string | null;
+  failedEvents7d: number;
+  status: ChannelStatus;
+}
+export interface ChannelAdapterRow {
+  code: string;
+  channelKey: string;
+  title: string;
+  kind: string;
+  canLoadFutureReservations: boolean;
+  shortCode: string | null;
+  connected: boolean;
+}
+export interface ChannelOutsideRow {
+  key: string;
+  source: string;
+  label: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+}
+export interface ChannelCatalog {
+  checkedAt: string;
+  environment: 'staging' | 'production' | 'custom';
+  propertyConnected: boolean;
+  state: 'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'UNREACHABLE';
+  message: string;
+  connections: ChannelConnectionRow[];
+  adapters: ChannelAdapterRow[] | null;
+  outside: ChannelOutsideRow[];
+}
 export interface ChannelConnection {
   checkedAt: string;
   environment: 'staging' | 'production' | 'custom';

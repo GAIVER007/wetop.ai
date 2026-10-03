@@ -270,6 +270,48 @@ export class PrismaChannelsRepository implements ChannelsRepository {
   private scopedPropertyId(): Promise<string> {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
+  /**
+   * Раздел «Каналы» (ADR-138): брони объекта, сделанные с `since` (`booked_at` канала, иначе `created_at`), без
+   * отменённых и незаездов, и входящие события провайдера за то же окно — без ПД, только ключи канала и статус.
+   */
+  async channelActivity(provider: string, since: Date) {
+    const propertyId = await this.scopedPropertyId();
+    const [reservations, events] = await Promise.all([
+      this.prisma.db.reservation.findMany({
+        where: {
+          propertyId,
+          status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+          OR: [{ bookedAt: { gte: since } }, { bookedAt: null, createdAt: { gte: since } }],
+        },
+        select: { source: true, channel: true, bookedAt: true, createdAt: true },
+        take: 20_000,
+      }),
+      integrationTables(this.prisma.db).externalEvent.findMany({
+        where: { provider, propertyId, receivedAt: { gte: since } },
+        select: { payload: true, status: true, receivedAt: true },
+        orderBy: { receivedAt: 'desc' },
+        take: 5_000,
+      }),
+    ]);
+    return {
+      reservations: reservations.map((r) => ({
+        source: r.source,
+        channel: r.channel,
+        at: (r.bookedAt ?? r.createdAt).toISOString(),
+      })),
+      events: events.map((e) => {
+        const p =
+          e.payload && typeof e.payload === 'object' ? (e.payload as Record<string, unknown>) : {};
+        return {
+          uniqueId: typeof p['unique_id'] === 'string' ? (p['unique_id'] as string) : null,
+          otaName: typeof p['ota_name'] === 'string' ? (p['ota_name'] as string) : null,
+          status: e.status,
+          receivedAt: e.receivedAt.toISOString(),
+        };
+      }),
+    };
+  }
+
   async mappings(provider: string): Promise<MappingRow[]> {
     const rows = await this.prisma.db.channelMapping.findMany({
       where: { provider, propertyId: await this.scopedPropertyId() },

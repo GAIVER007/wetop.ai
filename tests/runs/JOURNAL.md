@@ -5526,3 +5526,11 @@
 | 03.10.2026 19:47 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts) | ❌ упало 1 из 9 | 1 мин 55 с | f98fd21 +14 | [лог](logs/2026-10-03T14-47-11Z-e2e-eb0b.log) | B5: журнал записей, первый прогон |
 | 03.10.2026 19:49 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts) | ✅ 9 из 9 | 1 мин 48 с | 1c7b808 +1 | [лог](logs/2026-10-03T14-49-34Z-e2e-1846.log) | B5 green: журнал записей |
 | 03.10.2026 19:52 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-journal.spec.ts tests/ui/beauty-branch.spec.ts tests/ui/beauty-schedule.spec.t | ✅ 24 из 24 | 3 мин 15 с | 1c7b808 +4 | [лог](logs/2026-10-03T14-52-49Z-e2e-33b6.log) | B5: журнал после перестройки сетки, с соседями Beauty |
+| 03.10.2026 19:58 | unit | ✅ 3064 из 3067, пропущено 3 | 1 мин 38 с | 950b6cb +1 | [лог](logs/2026-10-03T14-58-16Z-unit-50ab.log) | B5: журнал записей |
+| 03.10.2026 20:03 | typecheck | ❌ ошибок: 3 | 24 с | ed63185 +1 | [лог](logs/2026-10-03T15-03-26Z-typecheck-a112.log) | B5 |
+| 03.10.2026 20:03 | lint | ✅ без ошибок | 19 с | ed63185 +1 | [лог](logs/2026-10-03T15-03-50Z-lint-524a.log) | B5 |
+| 03.10.2026 20:04 | typecheck | ✅ без ошибок | 29 с | ed63185 +2 | [лог](logs/2026-10-03T15-04-26Z-typecheck-91d4.log) | B5 |
+| 03.10.2026 20:04 | lint | ✅ без ошибок | 24 с | ed63185 +2 | [лог](logs/2026-10-03T15-04-56Z-lint-6055.log) | B5 |
+| 03.10.2026 20:04 | unit | ✅ 3064 из 3067, пропущено 3 | 1 мин 39 с | ed63185 | [лог](logs/2026-10-03T15-04-10Z-unit-b7b0.log) | B5: журнал записей |
+| 03.10.2026 20:05 | unit | ✅ 3064 из 3067, пропущено 3 | 1 мин 45 с | ed63185 | [лог](logs/2026-10-03T15-05-20Z-unit-7d7e.log) | B5: журнал записей |
+| 03.10.2026 20:05 | integration | ✅ 290 из 290 | 1 мин 18 с | ed63185 +1 | [лог](logs/2026-10-03T15-05-51Z-integration-1dfe.log) | B5: журнал записей |

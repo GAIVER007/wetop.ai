@@ -161,10 +161,10 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
         endMinutes: 660,
       }),
     ]);
-    const [{ count }] = await db.$queryRawUnsafe<Array<{ count: bigint }>>(
+    const counted = await db.$queryRawUnsafe<Array<{ count: bigint }>>(
       `SELECT count(*) AS count FROM "customer_businesses" WHERE "business_id" = '${own.business}'`,
     );
-    expect(Number(count), 'клиент стал виден бизнесу').toBe(1);
+    expect(Number(counted[0]?.count), 'клиент стал виден бизнесу').toBe(1);
   });
 
   it('в занятое время того же мастера второй записи нет', async () => {
@@ -213,10 +213,10 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
     const before = await as('STAFF', () => service.day(DATE));
     const customerId = before.appointments[0]?.customer.id ?? '';
     await as('STAFF', () => service.create({ employeeId, serviceId, startsAt: at('16:00'), customerId }));
-    const [{ count }] = await db.$queryRawUnsafe<Array<{ count: bigint }>>(
+    const counted = await db.$queryRawUnsafe<Array<{ count: bigint }>>(
       `SELECT count(*) AS count FROM "customers" WHERE "organization_id" = '${own.org}'`,
     );
-    expect(Number(count)).toBe(2);
+    expect(Number(counted[0]?.count)).toBe(2);
   });
 
   it('тот же телефон это тот же клиент, второго не заводим', async () => {
@@ -243,10 +243,10 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
     const id = before.appointments.find((a) => a.startMinutes === 960)?.id ?? '';
     const day = await as('STAFF', () => service.move(id, { startsAt: at('13:00') }));
     expect(day.appointments.find((a) => a.id === id)?.startMinutes).toBe(780);
-    const [{ count }] = await db.$queryRawUnsafe<Array<{ count: bigint }>>(
+    const counted = await db.$queryRawUnsafe<Array<{ count: bigint }>>(
       `SELECT count(*) AS count FROM "audit_logs" WHERE "organization_id" = '${own.org}' AND "action" = 'beauty.appointment.moved'`,
     );
-    expect(Number(count)).toBe(1);
+    expect(Number(counted[0]?.count)).toBe(1);
   });
 
   it('перенос в занятое время не проходит', async () => {

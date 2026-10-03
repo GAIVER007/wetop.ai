@@ -191,6 +191,8 @@ test('журнал на телефоне: день списком, без про
   await book(page, '10:00', 'Айгуль');
   await page.setViewportSize({ width: 390, height: 844 });
   await openDay(page);
+  // именно видно, а не «есть в разметке»: скрытый список тоже содержал бы текст
+  await expect(page.getByTestId('beauty-day-list')).toBeVisible();
   await expect(page.getByTestId('beauty-day-list')).toContainText('Айгуль');
   await expect(page.getByTestId('beauty-grid')).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

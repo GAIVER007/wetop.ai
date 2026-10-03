@@ -5555,3 +5555,7 @@
 | 03.10.2026 22:43 | e2e (частично: -c tests/ui/playwright.config.ts --workers=1 tests/ui/accessibility.spec.ts tests/ui/analytics-channels.spec.ts tests/ui/analytics-design.spec.ts | ✅ 354 из 354 | 32 мин 31 с | 0069355 | [лог](logs/2026-10-03T17-43-00Z-e2e-8315.log) |  |
 | 03.10.2026 23:15 | lint | ✅ без ошибок | 21 с | 0069355 | [лог](logs/2026-10-03T18-15-38Z-lint-ffca.log) |  |
 | 03.10.2026 23:15 | unit | ✅ 3027 из 3030, пропущено 3 | 1 мин 26 с | 0069355 | [лог](logs/2026-10-03T18-15-59Z-unit-9fd2.log) |  |
+| 03.10.2026 23:20 | typecheck | ✅ без ошибок | 41 с | d3917b0 | [лог](logs/2026-10-03T18-20-25Z-typecheck-fd0f.log) |  |
+| 03.10.2026 23:21 | lint | ✅ без ошибок | 22 с | d3917b0 | [лог](logs/2026-10-03T18-21-07Z-lint-d45f.log) |  |
+| 03.10.2026 23:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 guests-design pii-storage booking-dates rates incidents unified-sections finance channel-effic | ✅ 79 из 79 | 4 мин 29 с | d3917b0 | [лог](logs/2026-10-03T18-21-29Z-e2e-2d28.log) |  |
+| 03.10.2026 23:26 | unit | ✅ 3027 из 3030, пропущено 3 | 1 мин 38 с | d3917b0 | [лог](logs/2026-10-03T18-26-04Z-unit-c2b3.log) |  |

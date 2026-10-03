@@ -5428,3 +5428,8 @@
 | 03.10.2026 18:02 | e2e (частично: --config tests/ui/playwright.nights-alt.config.ts --workers=1 booking-price-nights.spec.ts chessboard-calendar.spec.ts chessboard-design.spec.ts  | ❌ упало 1 из 30 | 4 мин 59 с | 378962f +1 | [лог](logs/2026-10-03T13-02-24Z-e2e-4de4.log) | слитое с main: детализация, панель, календарь |
 | 03.10.2026 18:07 | e2e (частично: --config tests/ui/playwright.nights-alt.config.ts --workers=1 chessboard-week.spec.ts) | ✅ 10 из 10 | 1 мин 49 с | 378962f +1 | [лог](logs/2026-10-03T13-07-55Z-e2e-bf2c.log) | повтор chessboard-week на прогретом кэше |
 | 03.10.2026 18:10 | unit | ❌ упало 2 из 2981, пропущено 4 | 1 мин 16 с | 378962f | [лог](logs/2026-10-03T13-10-02Z-unit-0262.log) | слитое с main перед пушем |
+| 03.10.2026 18:04 | integration (частично: tests/integration/guest-directory.test.ts) | ✅ 1 из 1 | 4 с | d8ee099 | [лог](logs/2026-10-03T13-04-17Z-integration-ac4b.log) |  |
+| 03.10.2026 18:04 | typecheck | ✅ без ошибок | 29 с | d8ee099 | [лог](logs/2026-10-03T13-04-25Z-typecheck-89d6.log) |  |
+| 03.10.2026 18:04 | lint | ✅ без ошибок | 22 с | d8ee099 | [лог](logs/2026-10-03T13-04-54Z-lint-1d8b.log) |  |
+| 03.10.2026 18:05 | integration | ✅ 238 из 238 | 1 мин 10 с | d8ee099 | [лог](logs/2026-10-03T13-05-17Z-integration-a124.log) |  |
+| 03.10.2026 18:06 | unit | ✅ 2977 из 2980, пропущено 3 | 1 мин 40 с | d8ee099 | [лог](logs/2026-10-03T13-06-27Z-unit-b872.log) |  |

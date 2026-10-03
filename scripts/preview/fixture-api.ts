@@ -2400,6 +2400,8 @@ const sellerFactsSource = (): SellerFactsSource => ({
 });
 const SELLER_DIALOG_A = '3f2a1b0c-9d8e-4f7a-8b6c-5d4e3f2a1b0c';
 const SELLER_DIALOG_B = '8c7d6e5f-4a3b-4c2d-9e1f-0a9b8c7d6e5f';
+/** Проверка своего агента из вкладки «Проверка»: в списке диалогов её быть не должно */
+const SELLER_DIALOG_SANDBOX = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d';
 const sellerDialogSeed = () => [
   {
     id: SELLER_DIALOG_A,
@@ -2467,6 +2469,26 @@ const sellerDialogSeed = () => [
         text: 'Заезд с 14:00, выезд до 12:00.',
         at: new Date(Date.now() - 3 * 3600_000).toISOString(),
         sentByUs: true,
+      },
+    ],
+  },
+  {
+    // проверка своего агента: канал `sandbox`, в списке диалогов не показывается
+    id: SELLER_DIALOG_SANDBOX,
+    channel: 'sandbox',
+    clientName: null as string | null,
+    mode: 'needs_human',
+    stage: 'qualifying',
+    lastActivityAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+    hasContact: false,
+    contact: null,
+    leadData: {},
+    messages: [
+      {
+        role: 'user',
+        text: 'Проверка: есть двухместный?',
+        at: new Date(Date.now() - 5 * 60_000).toISOString(),
+        sentByUs: false,
       },
     ],
   },
@@ -5230,6 +5252,8 @@ createServer(async (req, res) => {
           const mode = url.searchParams.get('mode');
           return send(200, {
             items: sellerDialogs
+              // как API с `excludeSandbox`: свои проверки агента не обращения гостей
+              .filter((d) => d.channel !== 'sandbox')
               .filter((d) => !mode || d.mode === mode)
               .map((d) => ({
                 id: d.id,
@@ -5259,7 +5283,8 @@ createServer(async (req, res) => {
         if (path === '/ai-seller/summary')
           return send(200, {
             hours: 24,
-            dialogs: sellerDialogs.length,
+            // как API: числа за сутки без проверок агента
+            dialogs: sellerDialogs.filter((d) => d.channel !== 'sandbox').length,
             replies: 5,
             leads: 1,
             slaBreaches: 0,

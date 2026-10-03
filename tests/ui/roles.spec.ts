@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -8,7 +8,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * (`scripts/preview/fixture-api.ts`) отдаёт роль в `/auth/me`, сотрудников и приглашения — как API. Проверяется, что
  * стойка показывает человеку ровно его разделы и кнопки; права в API закрыты тестами контроллеров и замка ролей.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);

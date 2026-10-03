@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test, devNoise } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -9,7 +9,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * «Был в системе» (`lastLoginAt`); приглашение — панелью из шапки; «Отключить» — только через
  * подтверждение. Права прежние (ADR-107): видят владелец и управляющий, администратору — гейт.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/team-2026-10-02';
 
 test.beforeEach(async ({ request }) => {

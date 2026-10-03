@@ -1,9 +1,9 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('главная: новая бронь и полоса стойки доступны на первом экране', async ({ page }) => {

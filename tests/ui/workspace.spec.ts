@@ -1,8 +1,8 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const booking = '20260913-TESTAA';
 const screenshots = resolve('reports/hostel-frontend/screenshots');
 test.beforeEach(async ({ request }) => {

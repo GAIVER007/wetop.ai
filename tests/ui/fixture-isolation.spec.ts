@@ -1,6 +1,6 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 const booking = '/reservations/20260913-TESTAA';
 

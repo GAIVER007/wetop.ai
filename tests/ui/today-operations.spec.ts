@@ -1,11 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, type Page } from './fixtures';
 
 /**
  * Главная, PR A2 (ТЗ `plans/tz-today-2026-09-27.md` §4, §12.1; план `plans/today-a2-2026-09-28.md`):
  * операционные блоки только на существующих данных. Ожидания берутся из того же подставного API,
  * что рисует экран, — тест сверяет экран с данными, а не с заученными числами.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 type Row = {
   confirmationNumber: string;

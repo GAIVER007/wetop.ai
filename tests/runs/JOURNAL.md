@@ -5412,3 +5412,9 @@
 | 03.10.2026 17:48 | typecheck | ✅ без ошибок | 19 с | c861e1e +3 | [лог](logs/2026-10-03T12-48-08Z-typecheck-c84a.log) |  |
 | 03.10.2026 17:48 | lint | ✅ без ошибок | 12 с | c861e1e +3 | [лог](logs/2026-10-03T12-48-34Z-lint-33f9.log) |  |
 | 03.10.2026 17:51 | lint | ✅ без ошибок | 1 мин 1 с | c861e1e +2 | [лог](logs/2026-10-03T12-51-54Z-lint-4942.log) |  |
+| 03.10.2026 18:16 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ❌ упало 1 из 2 | 3 с | 481b537 +1 | [лог](logs/2026-10-03T13-16-48Z-unit-1f0c.log) | адрес подставного API в наборе UI ни один спек не зашивает адрес стенда: он приходит из FIXTURE_API |
+| 03.10.2026 18:17 | unit (частично: tests/unit/ui-fixture-address.test.ts) | ✅ 2 из 2 | 1 с | 481b537 +1 | [лог](logs/2026-10-03T13-17-00Z-unit-36ed.log) |  |
+| 03.10.2026 18:17 | typecheck | ✅ без ошибок | 44 с | 481b537 +50 | [лог](logs/2026-10-03T13-17-09Z-typecheck-4e3b.log) |  |
+| 03.10.2026 18:18 | lint | ✅ без ошибок | 42 с | 481b537 +50 | [лог](logs/2026-10-03T13-18-09Z-lint-bd2c.log) |  |
+| 03.10.2026 18:19 | e2e (частично: --config tests/ui/playwright.alt.config.ts tests/ui/housekeeping.spec.ts tests/ui/rates-range.spec.ts tests/ui/support-queue.spec.ts tests/ui/ses | ❌ упало 3 из 34 | 13 мин 44 с | 481b537 +50 | [лог](logs/2026-10-03T13-19-53Z-e2e-a5bd.log) | «Завершить все сеансы» гасит вход и возвращает форму; куки больше нет |
+| 03.10.2026 18:34 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/sessions.spec.ts tests/ui/support-queue.spec.ts --workers=1 --timeout=120000) | ✅ 14 из 14 | 3 мин 27 с | 481b537 +50 | [лог](logs/2026-10-03T13-34-23Z-e2e-21cc.log) |  |

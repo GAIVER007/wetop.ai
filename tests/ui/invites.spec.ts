@@ -1,7 +1,7 @@
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 /**

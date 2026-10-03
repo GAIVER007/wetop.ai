@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { FIXTURE_API, expect, test } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -7,7 +7,7 @@ import type { Page } from '@playwright/test';
  * (`scripts/preview/fixture-api.ts`) отвечает так же, как API: роль и отметка — в `/auth/me`, отказ раздела продавца —
  * 403 теми же словами. Проверяется, что стойка показывает человеку ровно то, что ему открыто.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);

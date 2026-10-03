@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
-import { test, expect } from './fixtures';
+import { FIXTURE_API, test, expect } from './fixtures';
 
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 test.beforeEach(async ({ page, request }) => {
   await request.post(`${API}/__test/reset`);
   await page.setViewportSize({ width: 1366, height: 768 });

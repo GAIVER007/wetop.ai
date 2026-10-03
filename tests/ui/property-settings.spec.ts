@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import type { APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
  * вкладки, без «Обновить» и без дубля часов заезда; «Основное» — три блока, сохранение в шапке с состоянием;
  * правила отмены ушли к тарифам. Схема и API не менялись — стенд тот же подставной API.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/unified-sections-2026-10-01/property-settings-set1-2026-09-27';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });

@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { FIXTURE_API, expect, test, devNoise, type Page } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -40,7 +40,7 @@ const TABS = [
   'Настройки',
 ];
 
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const SHOTS = 'reports/top-menu-2026-10-02';
 const menuOf = (page: Page) =>
   page.locator('.workspace-header').getByRole('navigation', { name: 'Разделы' });

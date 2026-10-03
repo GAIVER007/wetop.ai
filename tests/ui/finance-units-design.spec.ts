@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * «Деньги за период» и карточка ячейки без каши (21.09.2026, продолжение правки).
@@ -9,7 +10,7 @@ import { expect, test } from '@playwright/test';
  * 1440 px за краем было 185 px. В карточке ячейки подзаголовок склеен точками («номер · Двухместный
  * номер · комната R1»), даты проживаний печатались как в базе («2026-09-21»), заголовок со скобками.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

@@ -161,6 +161,41 @@ function fakeApi(over: Record<string, unknown> = {}) {
       },
     ],
     '/availability': { byCategory: { DORM6: { available: 2 } } },
+    '/channels/channex/events': {
+      total: 3,
+      rows: [
+        {
+          externalEventId: 'rev-2',
+          type: 'booking_new',
+          status: 'PROCESSED',
+          receivedAt: '2026-10-06T07:00:00Z',
+          lastError: null,
+          uniqueId: BDC,
+          otaName: 'Booking.com',
+          reservationNumber: BDC,
+        },
+        {
+          externalEventId: 'rev-old',
+          type: 'booking_new',
+          status: 'PROCESSED',
+          receivedAt: '2026-09-20T07:00:00Z',
+          lastError: null,
+          uniqueId: 'HW-1',
+          otaName: 'Hostelworld',
+          reservationNumber: 'HW-1',
+        },
+        {
+          externalEventId: 'rev-ancient',
+          type: 'booking_new',
+          status: 'FAILED',
+          receivedAt: '2026-08-01T07:00:00Z',
+          lastError: 'старая ошибка',
+          uniqueId: 'AG-1',
+          otaName: 'Agoda',
+          reservationNumber: null,
+        },
+      ],
+    },
     ...over,
   };
   const get: ApiGet = async <T>(path: string) => {
@@ -180,15 +215,9 @@ function fakeApi(over: Record<string, unknown> = {}) {
 
 const channex = (over: Partial<ChannexSource> = {}): ChannexSource => ({
   availability: async () => ({ 'rt-1': { [DATE]: 2, [plusDays(DATE, 1)]: 2 } }),
-  bookings: async () => [
-    {
-      uniqueId: BDC,
-      otaCode: '1556013801',
-      otaName: 'Booking.com',
-      status: 'new',
-      arrival: DATE,
-      departure: '2026-10-07',
-    },
+  // Лента неподтверждённых ревизий: свежая (5 минут) ещё не расхождение
+  feed: async () => [
+    { id: 'rev-fresh', uniqueId: 'BDC-FRESH', status: 'new', insertedAt: '2026-10-06T09:00:00Z' },
   ],
   ...over,
 });
@@ -239,7 +268,21 @@ describe('сбор данных сверки смены', () => {
       { category: 'DORM6', date: DATE, wetop: 2, channex: 2 },
       { category: 'DORM6', date: plusDays(DATE, 1), wetop: 2, channex: 2 },
     ]);
-    expect('pairs' in snap.channex && snap.channex.pairs[0]!.wetop?.number).toBe(BDC);
+    // журнал приёма: в окне одна ревизия; каналы за 30 дней без Agoda (ревизия старше срока, чтение на ней остановилось)
+    expect(snap.intake.events.map((e) => [e.revisionId, e.receivedLocal])).toEqual([
+      ['rev-2', '2026-10-06 12:00'],
+    ]);
+    expect(snap.intake.channelsViaChannex.sort()).toEqual(['Booking.com', 'Hostelworld']);
+    expect(snap.intake.linkedNumbers.sort()).toEqual([BDC, 'HW-1']);
+    expect(snap.intake.feed).toEqual([
+      {
+        id: 'rev-fresh',
+        uniqueId: 'BDC-FRESH',
+        status: 'new',
+        insertedAt: '2026-10-06T09:00:00Z',
+        insertedLocal: '2026-10-06 14:00',
+      },
+    ]);
 
     const result = checkShift({ table: TABLE, snapshot: snap, logText: '', now: params.now });
     expect(result.summary).toContain('ИТОГ: в ноль по всем трём спискам');
@@ -279,20 +322,22 @@ describe('сбор данных сверки смены', () => {
     expect(api.calls.some((c) => c.startsWith('/availability'))).toBe(false);
   });
 
-  it('Channex ответил ошибкой на брони: только этот список «не сверено», остатки сверены', async () => {
+  it('Channex не отдал ленту: только этот список «не сверено», журнал приёма и остатки сверены', async () => {
     const snap = await gatherShift(
       TABLE.rows,
       params,
       fakeApi().get,
       channex({
-        bookings: async () => {
-          throw new Error('Channex GET /bookings: HTTP 500');
+        feed: async () => {
+          throw new Error('Channex GET /booking_revisions/feed: HTTP 500');
         },
       }),
     );
-    expect(snap.channex).toEqual({
-      skipped: 'брони Channex не прочитаны: Channex GET /bookings: HTTP 500',
-    });
+    expect(snap.intake.feed).toBeNull();
+    expect(snap.intake.feedSkipped).toBe(
+      'лента Channex не прочитана: Channex GET /booking_revisions/feed: HTTP 500',
+    );
+    expect(snap.intake.events).toHaveLength(1);
     expect('cells' in snap.nights && snap.nights.cells).toHaveLength(2);
     expect(
       checkShift({ table: TABLE, snapshot: snap, logText: '', now: params.now }).exitCode,

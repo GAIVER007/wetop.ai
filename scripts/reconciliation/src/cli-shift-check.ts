@@ -9,13 +9,14 @@
  * Код выхода: 0 в ноль, 1 расхождения, 2 ошибка запуска, 3 расхождений нет, но сверено не всё.
  *
  * Только чтение. WETOP: служебный ключ SERVICE_API_KEY из окружения контейнера. Channex: CHANNEX_API_KEY, как у
- * cli-channex-ari.ts; брони читаются списком только для сверки, приём броней по-прежнему лентой и webhook.
+ * cli-channex-ari.ts: остатки на окно ночей и лента неподтверждённых ревизий, без подтверждения. Список всех броней
+ * объекта не читается: Channex просит так не делать (best-practices-guide.md, «Get Bookings»).
  */
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { channex } from '@pms/integrations';
 import { serviceFetch } from '../../lib/service-api';
-import { checkShift, parseShiftTable, type ChannexBookingRow } from './shift-check';
+import { checkShift, parseShiftTable } from './shift-check';
 import { gatherShift, localStamp, type ApiGet, type ChannexSource } from './shift-check-sources';
 
 export const LOG_MARKER = '#=== журнал расхождений ===';
@@ -77,31 +78,20 @@ function channexSource(): ChannexSource | { unavailable: string } {
   return {
     availability: (propertyId, fromDay, toDay) =>
       client.getAvailability(propertyId, fromDay, toDay),
-    async bookings(propertyId, departureFrom) {
-      // Список броней только для сверки; приём броней в WETOP идёт лентой и webhook (сценарий 11 сертификации)
-      const list = await client.listAll<{
-        property_id: string;
-        unique_id: string;
-        ota_reservation_code: string | null;
-        ota_name: string | null;
-        status: 'new' | 'modified' | 'cancelled';
-        arrival_date: string;
-        departure_date: string;
-      }>('/bookings', {
-        'filter[property_id]': propertyId,
-        'filter[departure_date][gte]': departureFrom,
-      });
-      // Из ответа берутся только номер, канал, статус и даты: гость и данные карты (guarantee) не читаются
+    async feed(propertyId) {
+      // Тот же запрос ленты, что делает приём броней, только без подтверждения: ревизии остаются в ленте
+      const list = await client.bookingRevisionsFeed(propertyId);
+      // Из ревизии берутся номер, статус и время: гость и данные карты (guarantee) не читаются
       return list
-        .map((b) => b.attributes)
-        .filter((a) => a.property_id === propertyId && a.departure_date >= departureFrom)
-        .map((a): ChannexBookingRow => ({
-          uniqueId: a.unique_id,
-          otaCode: a.ota_reservation_code ?? '',
-          otaName: a.ota_name ?? '',
-          status: a.status,
-          arrival: a.arrival_date,
-          departure: a.departure_date,
+        .filter((r) => r.attributes.property_id === propertyId)
+        .map((r) => ({
+          id: r.id,
+          uniqueId: r.attributes.unique_id,
+          status: r.attributes.status,
+          // inserted_at у Channex без пояса и в UTC («2019-04-23T10:03:29.335485»)
+          insertedAt: /[zZ]|[+-]\d\d:?\d\d$/.test(r.attributes.inserted_at)
+            ? r.attributes.inserted_at
+            : `${r.attributes.inserted_at}Z`,
         }));
     },
   };

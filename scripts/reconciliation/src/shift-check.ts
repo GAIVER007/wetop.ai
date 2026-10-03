@@ -624,84 +624,113 @@ export function reconcileBookings(input: BookingsInput): Discrepancy[] {
   return out;
 }
 
-// ── Брони канала: Channex против WETOP ──────────────────────────────────────────────────────────────────────
-
-export interface ChannexBookingRow {
-  uniqueId: string;
-  otaCode: string;
-  otaName: string;
-  status: 'new' | 'modified' | 'cancelled';
-  arrival: string;
-  departure: string;
-}
-
-export interface ChannexPair {
-  channex: ChannexBookingRow;
-  /** Найденная в WETOP бронь: по номеру `unique_id`, иначе по номеру брони в канале */
-  wetop: WetopBooking | null;
-}
+// ── Брони канала: приём ревизий из Channex ─────────────────────────────────────────────────────────────────
 
 /**
- * Каждая бронь Channex с выездом от дня смены есть в WETOP с тем же статусом и датами. И обратная сторона, где
- * риск двойной продажи: бронь канала, который уже идёт через Channex, заведена в WETOP за смену руками и в Channex
- * её нет, значит, канал может прислать её второй раз.
+ * Ревизия брони в журнале приёма WETOP (`GET /channels/channex/events`). Время уже по часам объекта.
+ * Типы ревизий: `booking_new`, `booking_modified`, `booking_cancelled`.
  */
-export function reconcileChannexBookings(
-  pairs: ChannexPair[],
-  createdInShift: WetopBooking[],
-): Discrepancy[] {
+export interface IntakeEvent {
+  revisionId: string;
+  type: string;
+  status: 'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED';
+  /** Момент приёма (ISO) и он же по часам объекта `YYYY-MM-DD HH:MM` */
+  receivedAt: string;
+  receivedLocal: string;
+  lastError: string | null;
+  uniqueId: string | null;
+  otaName: string | null;
+  /** Бронь WETOP, связанная с ревизией (externalId = unique_id); null, если брони нет */
+  reservationNumber: string | null;
+}
+
+/** Ревизия в ленте Channex (`GET /booking_revisions/feed`): Channex считает, что WETOP её ещё не подтвердил */
+export interface FeedRevision {
+  id: string;
+  uniqueId: string;
+  status: string;
+  insertedAt: string;
+  insertedLocal: string;
+}
+
+/** Сколько ревизия может ждать подтверждения или обработки, прежде чем это расхождение, а не задержка */
+export const INTAKE_STUCK_MS = 10 * 60_000;
+
+/**
+ * Брони каналов по правилу самого Channex (best-practices-guide.md, «Get Bookings»): подтверждённая ревизия и есть
+ * бронь, сохранённая в PMS, а постоянно выкачивать все брони объекта «на всякий случай» нельзя. Поэтому сверка
+ * смотрит не список броней Channex, а приём:
+ *  1. в ленте Channex нет ревизий, которые ждут подтверждения дольше INTAKE_STUCK_MS (WETOP их не принял);
+ *  2. в журнале приёма WETOP за смену нет упавших и застрявших ревизий, и у каждой обработанной есть бронь
+ *     (отмена брони, которой в WETOP нет, значит, раньше не дошла сама бронь);
+ *  3. бронь канала, который уже идёт через Channex, не заведена в WETOP за смену руками: канал может прислать её
+ *     второй раз, это риск двойной продажи.
+ */
+export function reconcileChannelIntake(input: {
+  /** Ревизии журнала приёма за окно смены */
+  events: IntakeEvent[];
+  feed: FeedRevision[];
+  createdInShift: WetopBooking[];
+  /** Каналы, брони которых уже приходили через Channex (имя как в ota_name) */
+  channelsViaChannex: string[];
+  /** Номера броней WETOP, связанных с ревизиями Channex */
+  linkedNumbers: string[];
+  now: Date;
+}): Discrepancy[] {
   const out: Discrepancy[] = [];
-  for (const { channex: c, wetop: w } of pairs) {
-    const cancelled = c.status === 'cancelled';
-    const theirs = `${c.otaName}, ${cancelled ? 'отменена' : 'действует'}, ${dmy(c.arrival)}–${dmy(c.departure)}`;
-    if (!w) {
+  const age = (iso: string) => input.now.getTime() - Date.parse(iso);
+  for (const r of input.feed) {
+    if (age(r.insertedAt) <= INTAKE_STUCK_MS) continue;
+    out.push({
+      list: 'брони',
+      key: r.uniqueId,
+      wetop: 'ревизия не принята',
+      source: 'Channex',
+      inSource: `ревизия ${r.status} ждёт подтверждения с ${r.insertedLocal.slice(11, 16)}`,
+      what: 'Channex держит ревизию неподтверждённой дольше 10 минут: WETOP её не принял',
+    });
+  }
+  for (const e of input.events) {
+    if (!e.type.startsWith('booking_')) continue;
+    const key = e.uniqueId ?? e.revisionId;
+    const theirs = `${e.type}, ${e.receivedLocal.slice(11, 16)}`;
+    if (e.status === 'FAILED')
       out.push({
         list: 'брони',
-        key: c.uniqueId,
+        key,
+        wetop: `ошибка: ${(e.lastError ?? 'не записана').slice(0, 160)}`,
+        source: 'Channex',
+        inSource: theirs,
+        what: 'ревизия из канала не обработана',
+      });
+    else if (e.status !== 'PROCESSED' && age(e.receivedAt) > INTAKE_STUCK_MS)
+      out.push({
+        list: 'брони',
+        key,
+        wetop: `статус ${e.status}`,
+        source: 'Channex',
+        inSource: theirs,
+        what: 'ревизия застряла в обработке дольше 10 минут',
+      });
+    else if (e.status === 'PROCESSED' && !e.reservationNumber)
+      out.push({
+        list: 'брони',
+        key,
         wetop: 'брони нет',
         source: 'Channex',
         inSource: theirs,
-        what: cancelled
-          ? 'в WETOP нет брони, которую канал уже отменил: не дошли ни бронь, ни отмена'
-          : 'бронь канала есть в Channex, в WETOP её нет',
-      });
-      continue;
-    }
-    const ours = `${w.number}, ${STATUS_WORD[w.status] ?? w.status}, ${dmy(w.arrival)}–${dmy(w.departure)}`;
-    if (cancelled && w.status !== 'CANCELLED')
-      out.push({
-        list: 'брони',
-        key: c.uniqueId,
-        wetop: ours,
-        source: 'Channex',
-        inSource: theirs,
-        what: 'в Channex бронь отменена, в WETOP нет',
-      });
-    else if (!cancelled && w.status === 'CANCELLED')
-      out.push({
-        list: 'брони',
-        key: c.uniqueId,
-        wetop: ours,
-        source: 'Channex',
-        inSource: theirs,
-        what: 'в Channex бронь действует, в WETOP отменена',
-      });
-    else if (!cancelled && (c.arrival !== w.arrival || c.departure !== w.departure))
-      out.push({
-        list: 'брони',
-        key: c.uniqueId,
-        wetop: ours,
-        source: 'Channex',
-        inSource: theirs,
-        what: 'даты в Channex и в WETOP разные',
+        what:
+          e.type === 'booking_cancelled'
+            ? 'пришла отмена брони, которой в WETOP нет: раньше не дошла сама бронь'
+            : 'ревизия обработана, а брони в WETOP нет',
       });
   }
-  const matched = new Set(pairs.flatMap((p) => (p.wetop ? [p.wetop.number] : [])));
   const viaChannex = new Set(
-    pairs.map((p) => channex.otaChannelKey(p.channex.otaName)).filter(Boolean),
+    input.channelsViaChannex.map((n) => channex.otaChannelKey(n)).filter(Boolean),
   );
-  for (const b of createdInShift) {
-    if (b.source !== 'OTA' || !b.channel || b.status === 'CANCELLED' || matched.has(b.number))
+  const linked = new Set(input.linkedNumbers);
+  for (const b of input.createdInShift) {
+    if (b.source !== 'OTA' || !b.channel || b.status === 'CANCELLED' || linked.has(b.number))
       continue;
     if (!viaChannex.has(channex.otaChannelKey(b.channel))) continue;
     out.push({
@@ -709,7 +738,7 @@ export function reconcileChannexBookings(
       key: b.number,
       wetop: `${b.channel}, ${dmy(b.arrival)}–${dmy(b.departure)}, заведена за смену`,
       source: 'Channex',
-      inSource: 'брони нет',
+      inSource: 'ревизии нет',
       what: 'бронь канала заведена в WETOP руками, а канал идёт через Channex: проверьте, не придёт ли она второй раз',
     });
   }
@@ -1164,7 +1193,16 @@ export interface ShiftSnapshot {
         channexSkipped: string | null;
       }
     | Skipped;
-  channex: { pairs: ChannexPair[]; createdInShift: WetopBooking[] } | Skipped;
+  /** Приём броней каналов: журнал WETOP за окно и лента Channex. Без Channex журнал WETOP всё равно сверяется */
+  intake: {
+    events: IntakeEvent[];
+    feed: FeedRevision[] | null;
+    createdInShift: WetopBooking[];
+    channelsViaChannex: string[];
+    linkedNumbers: string[];
+    /** Почему лента Channex не прочитана; null, если прочитана */
+    feedSkipped: string | null;
+  };
 }
 
 export interface ShiftCheck {
@@ -1207,9 +1245,14 @@ export function checkShift(input: {
       aliases: s.aliases,
       events: s.events,
     }),
-    ...(isSkipped(s.channex)
-      ? []
-      : reconcileChannexBookings(s.channex.pairs, s.channex.createdInShift)),
+    ...reconcileChannelIntake({
+      events: s.intake.events,
+      feed: s.intake.feed ?? [],
+      createdInShift: s.intake.createdInShift,
+      channelsViaChannex: s.intake.channelsViaChannex,
+      linkedNumbers: s.intake.linkedNumbers,
+      now: input.now,
+    }),
   ];
   const money = reconcileMoney(rows, s.operations, s.aliases);
   const moneyDiffs = [...money.discrepancies, ...reconcileCash(s.cash)];
@@ -1232,9 +1275,10 @@ export function checkShift(input: {
   const bookingNotes = [
     `в таблице ${plural(tableBookings.size, 'бронь', 'брони', 'броней')}`,
     `событий WETOP за окно ${s.events.length}`,
-    isSkipped(s.channex)
-      ? `Channex не сверен: ${s.channex.skipped}`
-      : `в Channex ${plural(s.channex.pairs.length, 'бронь', 'брони', 'броней')} с выездом от ${dm(s.date)}`,
+    `ревизий Channex за окно ${s.intake.events.length}`,
+    s.intake.feedSkipped
+      ? `лента Channex не прочитана: ${s.intake.feedSkipped}`
+      : `в ленте Channex неподтверждённых ${s.intake.feed?.length ?? 0}`,
     ...(s.eventsTruncated ? ['журнал WETOP отдал не всё окно: начало смены не проверено'] : []),
   ];
   const t = money.totals;
@@ -1270,7 +1314,7 @@ export function checkShift(input: {
   const lines: Array<[string, string, string[]]> = [
     [
       'Брони',
-      verdict(bookingDiffs.length, isSkipped(s.channex) || s.eventsTruncated),
+      verdict(bookingDiffs.length, s.intake.feedSkipped !== null || s.eventsTruncated),
       bookingNotes,
     ],
     ['Деньги', verdict(moneyDiffs.length, s.operationsTruncated), moneyNotes],
@@ -1282,7 +1326,7 @@ export function checkShift(input: {
     ],
   ];
   const skippedAny =
-    isSkipped(s.channex) || nightsSkipped || s.eventsTruncated || s.operationsTruncated;
+    s.intake.feedSkipped !== null || nightsSkipped || s.eventsTruncated || s.operationsTruncated;
   const out: string[] = [
     `Сверка смены ${dmy(s.date)}, окно ${s.from}–${s.to} по Алматы, срез ${when}`,
     '',

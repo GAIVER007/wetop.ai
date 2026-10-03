@@ -11,8 +11,8 @@ import {
   bookingNumber,
   type BoardNight,
   type CashCount,
-  type ChannexBookingRow,
-  type ChannexPair,
+  type FeedRevision,
+  type IntakeEvent,
   type NightCell,
   type OutboxState,
   type ShiftSnapshot,
@@ -33,8 +33,11 @@ export interface ChannexSource {
     from: string,
     to: string,
   ): Promise<Record<string, Record<string, number>>>;
-  /** Брони объекта с выездом от `departureFrom` включительно, в любом статусе */
-  bookings(propertyId: string, departureFrom: string): Promise<ChannexBookingRow[]>;
+  /**
+   * Лента неподтверждённых ревизий объекта (`GET /booking_revisions/feed`): тот же запрос, что делает приём броней, только
+   * без подтверждения. Список всех броней объекта сверка не читает: Channex просит так не делать (best-practices-guide.md)
+   */
+  feed(propertyId: string): Promise<Array<Omit<FeedRevision, 'insertedLocal'>>>;
 }
 
 export interface ShiftParams {
@@ -310,13 +313,14 @@ export async function gatherShift(
   );
   let channexSkipped: string | null = null;
   let cells: NightCell[] = [];
-  let channexPart: ShiftSnapshot['channex'];
+  let feed: FeedRevision[] | null = null;
+  let feedSkipped: string | null = null;
   if ('unavailable' in channex) {
     channexSkipped = channex.unavailable;
-    channexPart = { skipped: channex.unavailable };
+    feedSkipped = channex.unavailable;
   } else if (mapping.length === 0) {
     channexSkipped = 'маппинг Channex пуст: категории не связаны';
-    channexPart = { skipped: channexSkipped };
+    feedSkipped = channexSkipped;
   } else {
     const propertyId = mapping[0]!.providerPropertyId;
     try {
@@ -341,14 +345,15 @@ export async function gatherShift(
       channexSkipped = `остатки Channex не прочитаны: ${(e as Error).message}`;
     }
     try {
-      channexPart = {
-        pairs: await pairChannex(await channex.bookings(propertyId, date), bookings, get, date),
-        createdInShift,
-      };
+      feed = (await channex.feed(propertyId)).map((r) => ({
+        ...r,
+        insertedLocal: localStamp(new Date(r.insertedAt), timeZone),
+      }));
     } catch (e) {
-      channexPart = { skipped: `брони Channex не прочитаны: ${(e as Error).message}` };
+      feedSkipped = `лента Channex не прочитана: ${(e as Error).message}`;
     }
   }
+  const intake = await intakeEvents(get, params, start, end);
 
   return {
     date,
@@ -363,44 +368,68 @@ export async function gatherShift(
     operationsTruncated: ops?.truncated ?? false,
     cash,
     nights: { cells, board, outbox: outboxState, channexSkipped },
-    channex: channexPart,
+    intake: { ...intake, feed, createdInShift, feedSkipped },
   };
 }
 
+interface EventsPage {
+  total: number;
+  rows: Array<{
+    externalEventId: string;
+    type: string;
+    status: IntakeEvent['status'];
+    receivedAt: string;
+    lastError: string | null;
+    uniqueId: string | null;
+    otaName: string | null;
+    reservationNumber: string | null;
+  }>;
+}
+
+/** Сколько дней журнала приёма смотреть, чтобы узнать каналы, которые уже идут через Channex */
+export const CHANNELS_LOOKBACK_DAYS = 30;
+
 /**
- * Бронь Channex → бронь WETOP, тем же порядком, что приём ревизий (inbound.service.ts): по `unique_id` (номер брони,
- * которую WETOP принял из Channex), иначе по номеру брони в канале в externalId (бронь, заведённая руками до
- * переключения канала). Справочник отдаёт OTA-брони с выездом от дня смены пачкой; остальное ищется по одной.
+ * Журнал приёма ревизий WETOP: ревизии окна смены, каналы, чьи брони приходили через Channex за CHANNELS_LOOKBACK_DAYS,
+ * и номера броней, связанных с ревизиями. Журнал отдаётся страницами от новых к старым, чтение останавливается на первой
+ * ревизии старше срока.
  */
-async function pairChannex(
-  rows: ChannexBookingRow[],
-  known: Map<string, WetopBooking>,
+async function intakeEvents(
   get: ApiGet,
-  date: string,
-): Promise<ChannexPair[]> {
-  const ota = await directory(get, {
-    source: 'OTA',
-    date: 'departure',
-    from: date,
-    to: plusDays(date, 365),
-  });
-  const byNumber = new Map<string, WetopBooking>([...known]);
-  for (const b of ota) if (!byNumber.has(b.number)) byNumber.set(b.number, b);
-  const pairs: ChannexPair[] = [];
-  for (const c of rows) {
-    let w = byNumber.get(bookingNumber(c.uniqueId)) ?? null;
-    if (!w) {
-      const card = await get<Card>(`/reservations/${encodeURIComponent(c.uniqueId)}`);
-      if (card) w = fromCard(card);
+  params: ShiftParams,
+  start: string,
+  end: string,
+): Promise<{ events: IntakeEvent[]; channelsViaChannex: string[]; linkedNumbers: string[] }> {
+  const since = `${plusDays(params.date, -CHANNELS_LOOKBACK_DAYS)} 00:00`;
+  const events: IntakeEvent[] = [];
+  const channels = new Set<string>();
+  const linked = new Set<string>();
+  for (let offset = 0; offset < 20 * PAGE; offset += PAGE) {
+    const page = await get<EventsPage>(`/channels/channex/events?limit=${PAGE}&offset=${offset}`);
+    if (!page || page.rows.length === 0) break;
+    let older = false;
+    for (const r of page.rows) {
+      const receivedLocal = localStamp(new Date(r.receivedAt), params.timeZone);
+      if (receivedLocal < since) {
+        older = true;
+        break;
+      }
+      if (r.otaName) channels.add(r.otaName);
+      if (r.reservationNumber) linked.add(bookingNumber(r.reservationNumber));
+      if (receivedLocal >= start && receivedLocal <= end)
+        events.push({
+          revisionId: r.externalEventId,
+          type: r.type,
+          status: r.status,
+          receivedAt: r.receivedAt,
+          receivedLocal,
+          lastError: r.lastError,
+          uniqueId: r.uniqueId,
+          otaName: r.otaName,
+          reservationNumber: r.reservationNumber ? bookingNumber(r.reservationNumber) : null,
+        });
     }
-    for (const q of [c.otaCode, c.uniqueId]) {
-      if (w || !q) continue;
-      const found = await get<DirectoryPage>(
-        `/hotel/reservations?${new URLSearchParams({ q, from: c.arrival, to: c.departure, pageSize: '5' }).toString()}`,
-      );
-      if (found && found.rows.length === 1) w = fromDirectory(found.rows[0]!);
-    }
-    pairs.push({ channex: c, wetop: w });
+    if (older || page.rows.length < PAGE) break;
   }
-  return pairs;
+  return { events, channelsViaChannex: [...channels], linkedNumbers: [...linked] };
 }

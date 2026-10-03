@@ -10,7 +10,7 @@ import {
   parseTime,
   reconcileBookings,
   reconcileCash,
-  reconcileChannexBookings,
+  reconcileChannelIntake,
   reconcileMoney,
   reconcileNights,
   splitRecords,
@@ -278,62 +278,91 @@ describe('брони: таблица против WETOP', () => {
   });
 });
 
-describe('брони канала: Channex против WETOP', () => {
-  const c = (over: Partial<Parameters<typeof reconcileChannexBookings>[0][number]['channex']>) => ({
+describe('брони канала: приём ревизий из Channex (без списка всех броней)', () => {
+  const now = new Date('2026-10-06T09:30:00Z');
+  const ev = (over: Partial<Parameters<typeof reconcileChannelIntake>[0]['events'][number]>) => ({
+    revisionId: 'rev-1',
+    type: 'booking_new',
+    status: 'PROCESSED' as const,
+    receivedAt: '2026-10-06T09:00:00Z',
+    receivedLocal: '2026-10-06 14:00',
+    lastError: null,
     uniqueId: 'BDC-1',
-    otaCode: '1',
     otaName: 'Booking.com',
-    status: 'new' as const,
-    arrival: '2026-10-06',
-    departure: '2026-10-08',
+    reservationNumber: 'BDC-1',
     ...over,
   });
+  const run = (over: Partial<Parameters<typeof reconcileChannelIntake>[0]> = {}) =>
+    reconcileChannelIntake({
+      events: [],
+      feed: [],
+      createdInShift: [],
+      channelsViaChannex: [],
+      linkedNumbers: [],
+      now,
+      ...over,
+    });
 
-  it('потерянная бронь, отмена не дошла, бронь отменена только в WETOP, разные даты', () => {
-    const out = reconcileChannexBookings(
-      [
-        { channex: c({ uniqueId: 'BDC-LOST' }), wetop: null },
+  it('в ноль: ревизии обработаны и связаны с бронями, лента Channex пуста', () => {
+    expect(
+      run({ events: [ev({}), ev({ revisionId: 'rev-2', type: 'booking_cancelled' })] }),
+    ).toEqual([]);
+  });
+
+  it('лента: ревизия ждёт подтверждения дольше 10 минут, свежая ещё не расхождение', () => {
+    const out = run({
+      feed: [
         {
-          channex: c({ uniqueId: 'BDC-X', status: 'cancelled' }),
-          wetop: booking({ number: 'BDC-X', status: 'CONFIRMED' }),
+          id: 'r1',
+          uniqueId: 'BDC-OLD',
+          status: 'new',
+          insertedAt: '2026-10-06T09:15:00Z',
+          insertedLocal: '2026-10-06 14:15',
         },
         {
-          channex: c({ uniqueId: 'BDC-Y' }),
-          wetop: booking({ number: 'BDC-Y', status: 'CANCELLED' }),
-        },
-        {
-          channex: c({ uniqueId: 'BDC-Z', departure: '2026-10-09' }),
-          wetop: booking({ number: 'BDC-Z' }),
-        },
-        {
-          channex: c({ uniqueId: 'BDC-OK', status: 'modified' }),
-          wetop: booking({ number: 'BDC-OK' }),
+          id: 'r2',
+          uniqueId: 'BDC-NEW',
+          status: 'new',
+          insertedAt: '2026-10-06T09:25:00Z',
+          insertedLocal: '2026-10-06 14:25',
         },
       ],
-      [],
-    );
+    });
     expect(out.map((d) => [d.key, d.what])).toEqual([
-      ['BDC-LOST', 'бронь канала есть в Channex, в WETOP её нет'],
-      ['BDC-X', 'в Channex бронь отменена, в WETOP нет'],
-      ['BDC-Y', 'в Channex бронь действует, в WETOP отменена'],
-      ['BDC-Z', 'даты в Channex и в WETOP разные'],
+      ['BDC-OLD', 'Channex держит ревизию неподтверждённой дольше 10 минут: WETOP её не принял'],
     ]);
   });
 
-  it('бронь канала, который идёт через Channex, заведена за смену руками: риск двойного ввода', () => {
-    const out = reconcileChannexBookings(
-      [
-        {
-          channex: c({ otaName: 'BookingCom' }),
-          wetop: booking({ number: 'BDC-1', source: 'OTA' }),
-        },
+  it('журнал приёма: упала, застряла, обработана без брони, отмена брони, которой нет', () => {
+    const out = run({
+      events: [
+        ev({ uniqueId: 'BDC-F', status: 'FAILED', lastError: 'room_type_id не сопоставлен' }),
+        ev({ uniqueId: 'BDC-S', status: 'PROCESSING', receivedAt: '2026-10-06T09:10:00Z' }),
+        ev({ uniqueId: 'BDC-FRESH', status: 'RECEIVED', receivedAt: '2026-10-06T09:25:00Z' }),
+        ev({ uniqueId: 'BDC-N', reservationNumber: null }),
+        ev({ uniqueId: 'BDC-C', type: 'booking_cancelled', reservationNumber: null }),
       ],
-      [
+    });
+    expect(out.map((d) => [d.key, d.what])).toEqual([
+      ['BDC-F', 'ревизия из канала не обработана'],
+      ['BDC-S', 'ревизия застряла в обработке дольше 10 минут'],
+      ['BDC-N', 'ревизия обработана, а брони в WETOP нет'],
+      ['BDC-C', 'пришла отмена брони, которой в WETOP нет: раньше не дошла сама бронь'],
+    ]);
+    expect(out[0]!.wetop).toBe('ошибка: room_type_id не сопоставлен');
+  });
+
+  it('бронь канала, который идёт через Channex, заведена за смену руками: риск двойного ввода', () => {
+    const out = run({
+      channelsViaChannex: ['BookingCom'],
+      linkedNumbers: ['BDC-1'],
+      createdInShift: [
         booking({ number: '20261006-MANUAL', source: 'OTA', channel: 'Booking.com' }),
+        booking({ number: 'BDC-1', source: 'OTA', channel: 'Booking.com' }),
         booking({ number: '20261006-HW', source: 'OTA', channel: 'Hostelworld' }),
         booking({ number: '20261006-DESK', source: 'DESK' }),
       ],
-    );
+    });
     expect(out.map((d) => [d.key, d.source])).toEqual([['20261006-MANUAL', 'Channex']]);
     expect(out[0]!.what).toContain('заведена в WETOP руками');
   });
@@ -547,7 +576,14 @@ describe('срез целиком', () => {
       outbox: { pending: 0, failed: 0, oldestPendingAt: null, ariStopped: false },
       channexSkipped: null,
     },
-    channex: { pairs: [], createdInShift: [] },
+    intake: {
+      events: [],
+      feed: [],
+      createdInShift: [],
+      channelsViaChannex: [],
+      linkedNumbers: [],
+      feedSkipped: null,
+    },
     ...over,
   });
   const table = parseShiftTable(
@@ -596,12 +632,21 @@ describe('срез целиком', () => {
   it('Channex не сверен: расхождений нет, но код 3 и «не сверено» в строке списка', () => {
     const r = checkShift({
       table,
-      snapshot: snapshot({ channex: { skipped: 'нет CHANNEX_API_KEY' } }),
+      snapshot: snapshot({
+        intake: {
+          events: [],
+          feed: null,
+          createdInShift: [],
+          channelsViaChannex: [],
+          linkedNumbers: [],
+          feedSkipped: 'нет CHANNEX_API_KEY',
+        },
+      }),
       logText: '',
       now,
     });
     expect(r.exitCode).toBe(3);
     expect(r.summary).toMatch(/Брони\s+не сверено/);
-    expect(r.summary).toContain('Channex не сверен: нет CHANNEX_API_KEY');
+    expect(r.summary).toContain('лента Channex не прочитана: нет CHANNEX_API_KEY');
   });
 });

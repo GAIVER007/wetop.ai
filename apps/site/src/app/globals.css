@@ -331,6 +331,13 @@ button {
     gap var(--ease),
     border-color var(--ease);
 }
+/*
+ * Пилюля прямым ребёнком карточки: карточка выкладывает детей колонкой и растягивает их по ширине,
+ * из-за чего ссылка превращалась в плашку во всю карточку и ломалась на две строки (02.10.2026).
+ */
+.card > .link-arrow {
+  align-self: flex-start;
+}
 .link-arrow:hover {
   gap: 12px;
   border-color: color-mix(in srgb, var(--accent-1) 50%, transparent);

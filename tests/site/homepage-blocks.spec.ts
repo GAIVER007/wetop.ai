@@ -104,6 +104,23 @@ test('карточки блоков читаются одной фразой, а
   expect(titles, 'заголовок карточки в две строки').not.toContain('Аналитика и финансы за период');
 });
 
+test('ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const link = page.locator('#sales .card > .link-arrow');
+  await expect(link).toHaveCount(1);
+  const card = page.locator('#sales .card', { has: page.locator('> .link-arrow') });
+  const linkBox = (await link.boundingBox())!;
+  const cardBox = (await card.boundingBox())!;
+  expect(Math.round(linkBox.height), 'ссылка переносится на вторую строку').toBeLessThan(48);
+  expect(
+    Math.round(linkBox.width),
+    'ссылка растянута во всю ширину карточки, а не по тексту',
+  ).toBeLessThan(Math.round(cardBox.width) - 48);
+});
+
 test('первый экран: карта разделов ведёт на блоки страницы', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');

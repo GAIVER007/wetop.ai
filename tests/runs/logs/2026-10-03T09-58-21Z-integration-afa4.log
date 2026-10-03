@@ -1,0 +1,56 @@
+# Интеграционные (integration) · 03.10.2026 14:58 Алматы · vm
+# коммит f27ac88 (claude/laughing-franklin-9xn55c), незакоммиченных файлов набора: 1
+# npx vitest run --project integration --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T09-58-21Z-integration-afa4.json' 'tests/integration/function-search-path.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |integration| tests/integration/function-search-path.test.ts (2 tests | 1 failed) 413ms
+   ❯ search_path у функций схемы закреплён (integration, DATABASE_URL required) (2)
+     × у каждой своей функции схемы search_path задан и начинается с её схемы 210ms
+     ✓ закреплённый путь не ломает функции: запись журнала идёт, правка записи запрещена 49ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| tests/integration/function-search-path.test.ts > search_path у функций схемы закреплён (integration, DATABASE_URL required) > у каждой своей функции схемы search_path задан и начинается с её схемы
+AssertionError: функции без закреплённого search_path своей схемы: expected [ 'app_current_org()', …(13) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "app_current_org()",
++   "app_audit_organization(text,text,uuid)",
++   "audit_logs_organization()",
++   "app_property_visible(uuid)",
++   "seller_agents_check_chain()",
++   "audit_logs_immutable()",
++   "seller_profiles_link_agent()",
++   "seller_scope_precheck(uuid)",
++   "seller_scope_assert(uuid)",
++   "seller_agent_ensure(uuid,text,boolean)",
++   "seller_agents_backfill()",
++   "seller_agent_bind_location(uuid)",
++   "rate_plans_parent_guard()",
++   "cash_operations_category_guard()",
++ ]
+
+ ❯ tests/integration/function-search-path.test.ts:48:77
+     46|         })
+     47|         .map((r) => r.fn);
+     48|       expect(unpinned, 'функции без закреплённого search_path своей сх…
+       |                                                                             ^
+     49|     });
+     50|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  09:58:24
+   Duration  2.02s (tests 47%, transform 37%, import 15%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T09-58-21Z-integration-afa4.json
+
+# код выхода 1 · 5 с

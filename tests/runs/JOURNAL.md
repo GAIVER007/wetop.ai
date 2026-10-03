@@ -5374,6 +5374,12 @@
 | 03.10.2026 14:21 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 31 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-21-31Z-e2e-2f41.log) | green: главная без направлений, приглашение салонам, видимая кромка кнопки |
 | 03.10.2026 14:22 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-22-12Z-unit-9b99.log) | сторож главной, итог 03.10 |
 | 03.10.2026 14:22 | lint | ✅ без ошибок | 18 с | 4cdd4fc +8 | [лог](logs/2026-10-03T09-22-13Z-lint-cf75.log) | итог 03.10 |
+| 03.10.2026 14:58 | integration (частично: tests/integration/function-search-path.test.ts) | ❌ упало 1 из 2 | 5 с | f27ac88 +1 | [лог](logs/2026-10-03T09-58-21Z-integration-afa4.log) | search_path функций: red без миграции |
+| 03.10.2026 14:58 | integration (частично: tests/integration/function-search-path.test.ts) | ✅ 2 из 2 | 3 с | f27ac88 +3 | [лог](logs/2026-10-03T09-58-51Z-integration-260c.log) | search_path функций: green с миграцией 043 |
+| 03.10.2026 14:59 | integration | ✅ 238 из 238 | 1 мин 2 с | f27ac88 +3 | [лог](logs/2026-10-03T09-59-10Z-integration-e470.log) | search_path функций: полный integration |
+| 03.10.2026 15:01 | typecheck | ✅ без ошибок | 41 с | f27ac88 +3 | [лог](logs/2026-10-03T10-01-48Z-typecheck-b2d2.log) | search_path функций |
+| 03.10.2026 15:02 | lint | ✅ без ошибок | 21 с | f27ac88 +3 | [лог](logs/2026-10-03T10-02-29Z-lint-1817.log) | search_path функций |
+| 03.10.2026 15:02 | unit | ✅ 2889 из 2892, пропущено 3 | 2 мин 13 с | f27ac88 +2 | [лог](logs/2026-10-03T10-02-51Z-unit-966c.log) | search_path функций |
 | 03.10.2026 15:13 | typecheck | ✅ без ошибок | 1 мин 38 с | b633544 +5 | [лог](logs/2026-10-03T10-13-48Z-typecheck-2376.log) | REP3 на дереве после слияния origin/main (24 коммита) |
 | 03.10.2026 15:15 | unit (частично: apps/api/src/dashboard packages/domain/src/dashboard/units.test.ts apps/web/src/app/management/analytics/params.test.ts) | ✅ 22 из 22 | 8 с | b633544 +5 | [лог](logs/2026-10-03T10-15-39Z-unit-f12f.log) | REP3 после слияния origin/main |
 | 03.10.2026 15:11 | e2e (частично: --config ./playwright.ui-support.local.config.ts --workers=1) | ❌ упало 9 из 26 | 10 мин 32 с | a82fced +8 | [лог](logs/2026-10-03T10-11-43Z-e2e-113d.log) | green: продавец и техподдержка без песочницы |
@@ -5383,3 +5389,16 @@
 | 03.10.2026 16:09 | e2e (частично: --config tests/ui/playwright.alt.config.ts reports-print reports-hub requests -g печат\|Печат\|лист\|reports\|хаб\|Отчёт\|экран /reports\|Сводка\|Список\| | ❌ упало 1 из 14 | 1 мин 45 с | b5dfd50 +6 | [лог](logs/2026-10-03T11-09-18Z-e2e-78d1.log) | REP4 green: печатные формы, хаб и бюджет /reports/print, свой стенд |
 | 03.10.2026 16:11 | e2e (частично: --config tests/ui/playwright.alt.config.ts reports-print reports-hub requests -g печат\|Печат\|лист\|reports\|хаб\|Отчёт\|Сводка\|Список\|казах\|снимки ли | ✅ 14 из 14 | 26 с | b5dfd50 +7 | [лог](logs/2026-10-03T11-11-36Z-e2e-9e83.log) | REP4 green: печатные формы, хаб и бюджет /reports/print, свой стенд |
 | 03.10.2026 16:12 | e2e (частично: --config tests/ui/playwright.alt.config.ts chessboard-dnd) | ✅ 5 из 5 | 1 мин 42 с | b5dfd50 +7 | [лог](logs/2026-10-03T11-12-10Z-e2e-be62.log) | просьба финсессии: dnd-спек на здоровом своём стенде (FIXTURE_PORT из alt-конфига) |
+| 03.10.2026 15:19 | typecheck | ✅ без ошибок | 36 с | 5d581c2 +1 | [лог](logs/2026-10-03T10-19-36Z-typecheck-79b9.log) | search_path + схема кассы |
+| 03.10.2026 15:20 | lint | ❌ ошибок: 1 | 20 с | 5d581c2 +1 | [лог](logs/2026-10-03T10-20-13Z-lint-b5d2.log) | search_path + схема кассы |
+| 03.10.2026 15:20 | unit | ✅ 2918 из 2921, пропущено 3 | 1 мин 32 с | 5d581c2 +1 | [лог](logs/2026-10-03T10-20-33Z-unit-178e.log) | search_path + схема кассы |
+| 03.10.2026 15:22 | integration | ✅ 238 из 238 | 1 мин | 5d581c2 +1 | [лог](logs/2026-10-03T10-22-14Z-integration-c2dd.log) | search_path + схема кассы |
+| 03.10.2026 15:23 | lint | ✅ без ошибок | 20 с | 5d581c2 +2 | [лог](logs/2026-10-03T10-23-23Z-lint-ca8e.log) | лишний импорт REP3 |
+| 03.10.2026 15:23 | typecheck | ✅ без ошибок | 25 с | 5d581c2 +2 | [лог](logs/2026-10-03T10-23-44Z-typecheck-2db0.log) | лишний импорт REP3 |
+| 03.10.2026 15:24 | unit | ✅ 2918 из 2921, пропущено 3 | 1 мин 29 с | 5d581c2 +2 | [лог](logs/2026-10-03T10-24-16Z-unit-44dc.log) | search_path + схема кассы + импорт REP3 |
+| 03.10.2026 15:26 | e2e | ⏹ прерван | 15 мин | 5d581c2 +2 | [лог](logs/2026-10-03T10-26-39Z-e2e-e0d4.log) | живые сквозные: search_path + схема кассы |
+| 03.10.2026 15:55 | e2e | ❌ упало 1 из 25 | 4 мин 37 с | dfe0be6 +13 | [лог](logs/2026-10-03T10-55-18Z-e2e-d1c6.log) | живые сквозные: «Дополнительно» в форме брони |
+| 03.10.2026 16:00 | e2e | ❌ упало 1 из 25 | 1 мин 12 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-00-56Z-e2e-9e6f.log) | живые сквозные: форма брони 02.10 |
+| 03.10.2026 16:02 | e2e | ❌ упало 1 из 25 | 1 мин 14 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-02-39Z-e2e-bf13.log) | живые сквозные: форма брони 02.10 |
+| 03.10.2026 16:04 | e2e | ❌ упало 1 из 25 | 1 мин 15 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-04-23Z-e2e-097f.log) | живые сквозные: форма брони 02.10 |
+| 03.10.2026 16:06 | e2e | ✅ 25 из 25 | 1 мин 5 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-06-15Z-e2e-66e7.log) | живые сквозные: форма брони 02.10 |

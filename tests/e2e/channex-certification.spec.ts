@@ -35,7 +35,12 @@ async function addChange(
   const main = page.getByRole('main');
   // С 27.09 (ADR-111, RT1) форма массового изменения живёт в выдвижной панели за кнопкой
   // «Изменить цены»; поля, testid'ы и порядок команд — прежние
-  if (!(await main.getByTestId('bulk-editor').isVisible().catch(() => false)))
+  if (
+    !(await main
+      .getByTestId('bulk-editor')
+      .isVisible()
+      .catch(() => false))
+  )
     await main.getByTestId('rates-edit-open').click();
   const ed = main.getByTestId('bulk-editor');
   await ed.locator('select[name="accommodationTypeCode"]').selectOption(c.category);
@@ -226,6 +231,10 @@ test.describe.serial('Channex certification from the PMS UI', () => {
   }) => {
     await page.goto(`/reservations/new?arrival=2026-11-21&departure=2026-11-22`);
     const form = page.getByRole('main').getByTestId('new-reservation-form');
+    // источник и заметки с 02.10 под свёрнутым «Дополнительно» (booking-compact); open — без переключения
+    await form.locator('details:has(select[name="source"])').evaluate((d) => {
+      (d as HTMLDetailsElement).open = true;
+    });
     await form.locator('select[name="source"]').selectOption('PHONE');
     await form.locator('select[name="accommodationTypeCode"]').selectOption(SINGLE);
     await form.locator('select[name="ratePlanCode"]').selectOption(OTA);

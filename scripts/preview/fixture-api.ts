@@ -47,6 +47,7 @@ import {
   type MembershipRole,
   countGuestNights,
   summarizeGuestStays,
+  upcomingBirthday,
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
@@ -3302,6 +3303,17 @@ function read(path: string, q: URLSearchParams): unknown {
       counts,
       rows: rows.slice((page - 1) * pageSize, page * pageSize),
     };
+  }
+  // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
+  if (path === '/guests/birthdays') {
+    const from = q.get('from') || today;
+    const days = Number(q.get('days') || 1);
+    return [guest, ...extraGuests.values()]
+      .flatMap((g) => {
+        const b = upcomingBirthday(g.birthDate, from, days);
+        return b ? [{ id: g.id, firstName: g.firstName, lastName: g.lastName, ...b }] : [];
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
   }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]

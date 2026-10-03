@@ -152,6 +152,10 @@ function setup(
       pms: Map<string, Map<string, number>>;
       channel: Map<string, Map<string, number>>;
     } | null,
+    /** Сколько раз сторож прочитал остатки у Channex и когда это записано в журнале (переживает перезапуск API) */
+    availabilityReads: 0,
+    availabilityFails: 0,
+    lastAvailabilityReadAt: null as Date | null,
   };
   const probes: GuardProbes = {
     channexEnabled: () => true,
@@ -177,7 +181,15 @@ function setup(
     // по умолчанию проверка копии не настроена — как на Mac и в тестах; её случаи — в своём блоке ниже
     backup: over.backup ?? (() => null),
     webHealth: async () => ({ ok: state.webOk, error: state.webOk ? null : 'timeout 10 s' }),
-    channelAvailability: async () => state.avail,
+    channelAvailability: async () => {
+      if (state.availabilityFails > 0) {
+        state.availabilityFails--;
+        throw new Error('Channex GET /availability: HTTP 503');
+      }
+      state.availabilityReads++;
+      return state.avail;
+    },
+    lastAvailabilityReadAt: async () => state.lastAvailabilityReadAt,
   };
   const calls: string[] = [];
   const ok = (text: string): FixOutcome => ({ ok: true, text });
@@ -536,6 +548,47 @@ describe('GuardService: стойка и остатки в канале', () => {
       status: 'RESOLVED',
       resolvedBy: 'GUARD',
     });
+  });
+
+  const sameGrid = () => ({
+    pms: grid({ MALE: { '2026-09-14': 1 } }),
+    channel: grid({ MALE: { '2026-09-14': 1 } }),
+  });
+
+  it('остатки у Channex читаются раз в сутки, а не раз в час (письмо Channex 03.10.2026)', async () => {
+    const t = setup();
+    t.state.avail = sameGrid();
+    // сутки проходов раз в минуту: одно чтение
+    for (let m = 0; m < 24 * 60; m++) await t.guard.tick(plus(NIGHT, m));
+    expect(t.state.availabilityReads).toBe(1);
+    await t.guard.tick(plus(NIGHT, 24 * 60));
+    expect(t.state.availabilityReads).toBe(2);
+  });
+
+  it('перезапуск API не даёт лишнего чтения: свежее чтение берётся из журнала', async () => {
+    const t = setup();
+    t.state.avail = sameGrid();
+    t.state.lastAvailabilityReadAt = plus(NIGHT, -120);
+    await t.guard.tick(NIGHT);
+    await t.guard.tick(plus(NIGHT, 60));
+    expect(t.state.availabilityReads).toBe(0);
+    // сутки от того чтения прошли: читаем
+    await t.guard.tick(plus(NIGHT, 24 * 60 - 120));
+    expect(t.state.availabilityReads).toBe(1);
+  });
+
+  it('Channex не ответил на чтение: повтор через час, а не через сутки', async () => {
+    const t = setup();
+    t.state.avail = sameGrid();
+    t.state.availabilityFails = 1;
+    const failed = await t.guard.tick(NIGHT);
+    expect(failed.checkErrors).toContainEqual(
+      expect.objectContaining({ check: 'channex.ari', error: expect.stringContaining('HTTP 503') }),
+    );
+    await t.guard.tick(plus(NIGHT, 30));
+    expect(t.state.availabilityReads).toBe(0);
+    await t.guard.tick(plus(NIGHT, 60));
+    expect(t.state.availabilityReads).toBe(1);
   });
 
   it('сверять не с чем (нет маппинга) — не ошибка проверки и не повод закрыть', async () => {

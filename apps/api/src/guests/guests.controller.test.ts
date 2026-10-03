@@ -92,6 +92,11 @@ function makeFakes() {
   /** Записи журнала целиком: какой документ добавлен, удалён, показан (SECURITY.md §1, §6) */
   const auditDetails: Array<{ action: string; details?: Record<string, unknown> }> = [];
   const repo: GuestsRepository = {
+    async withBirthDates() {
+      return [...guests.values()]
+        .filter((g) => g.birthDate)
+        .map((g) => ({ id: g.id, firstName: g.firstName, lastName: g.lastName, birthDate: g.birthDate! }));
+    },
     async search(q) {
       // как настоящий репозиторий: телефон ищется только от 4 цифр — пустые цифры матчили всех
       const digits = q.replace(/\D/g, '');
@@ -219,6 +224,25 @@ describe('guests API', () => {
   });
   afterAll(async () => {
     await app.close();
+  });
+
+  it('дни рождения: гости с днём рождения в окне, по порядку дат, с возрастом (Q-249 T0)', async () => {
+    const [a, b] = [...fakes.guests.values()];
+    a!.birthDate = '1990-10-06';
+    b!.birthDate = '1985-10-03';
+    const res = await request(app.getHttpServer())
+      .get('/guests/birthdays?from=2026-10-03&days=7')
+      .expect(200);
+    expect(res.body).toEqual([
+      { id: b!.id, firstName: b!.firstName, lastName: b!.lastName, date: '2026-10-03', age: 41 },
+      { id: a!.id, firstName: a!.firstName, lastName: a!.lastName, date: '2026-10-06', age: 36 },
+    ]);
+    const today = await request(app.getHttpServer())
+      .get('/guests/birthdays?from=2026-10-03&days=1')
+      .expect(200);
+    expect(today.body).toHaveLength(1);
+    await request(app.getHttpServer()).get('/guests/birthdays?from=03.10.2026&days=7').expect(400);
+    await request(app.getHttpServer()).get('/guests/birthdays?from=2026-10-03&days=400').expect(400);
   });
 
   it('id не UUID — 400 до базы, а не 500 из-за ошибки типа в запросе (аудит 29.09.2026)', async () => {

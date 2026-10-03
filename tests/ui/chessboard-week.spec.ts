@@ -2,8 +2,11 @@ import { expect, test, devNoise } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
+// порт стенда можно переопределить (FIXTURE_PORT) — параллельные сессии не делят 4311
+const fixture = `http://127.0.0.1:${process.env.FIXTURE_PORT || 4311}`;
+
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${fixture}/__test/reset`);
 });
 
 test('C1: сетка начинается до 350 px, фильтры объясняют дату статуса', async ({ page }) => {

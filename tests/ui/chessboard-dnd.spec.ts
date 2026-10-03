@@ -14,7 +14,8 @@ import { expect, test } from './fixtures';
  * «Клиент Пример» (TEST1) — R02, три ночи с сегодняшнего дня; на R03 в те же ночи TEST2; R07 и
  * койки с M03 свободны; закрытую строку тест делает сам — блокировкой через API стенда.
  */
-const fixture = 'http://127.0.0.1:4311';
+// порт стенда можно переопределить (FIXTURE_PORT) — параллельные сессии не делят 4311
+const fixture = `http://127.0.0.1:${process.env.FIXTURE_PORT || 4311}`;
 const headers = { 'x-wetop-test-client': '1' };
 const NUMBER = '20260913-TEST1';
 const ITEM = 'ui-item-1';

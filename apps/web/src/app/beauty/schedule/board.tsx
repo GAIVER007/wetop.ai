@@ -40,7 +40,7 @@ export function ScheduleBoard({ data, canEdit }: { data: BeautySchedule; canEdit
   if (!master)
     return (
       <EmptyState data-testid="beauty-schedule-empty" title="Мастеров пока нет">
-        <p>Сначала добавьте мастера на странице «Мастера», потом поставьте ему график.</p>
+        Сначала добавьте мастера на странице «Мастера», потом поставьте ему график.
       </EmptyState>
     );
 

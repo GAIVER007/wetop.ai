@@ -155,7 +155,9 @@ test('отмена спрашивает и освобождает время м�
   await page.getByRole('main').getByRole('button').filter({ hasText: 'Жанна' }).first().click();
   const card = page.getByRole('dialog');
   await card.getByRole('button', { name: 'Отменить запись', exact: true }).click();
-  const ask = page.getByRole('dialog').filter({ hasText: 'Отменить запись: Жанна' });
+  // окно вопроса живёт внутри панели, поэтому берём его по своему признаку, а не по роли dialog
+  const ask = page.getByTestId('confirm-dialog');
+  await expect(ask).toContainText('Отменить запись: Жанна');
   await expect(ask).toContainText('Деньги записи это отдельное решение');
   await ask.getByRole('button', { name: 'Отменить запись', exact: true }).click();
 

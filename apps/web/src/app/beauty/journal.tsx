@@ -82,11 +82,22 @@ export function JournalBoard({ day, readOnly }: { day: BeautyDay; readOnly: bool
 
       {day.columns.length === 0 ? (
         <EmptyState data-testid="beauty-day-empty" title="В этот день никто не работает">
-          <p>Поставьте мастеру график в этом филиале на странице «График», тогда появится сетка дня.</p>
+          Поставьте мастеру график в этом филиале на странице «График», тогда появится сетка дня.
         </EmptyState>
       ) : (
         <>
-          <div className="beauty-grid-day" data-testid="beauty-grid">
+          <div
+            className="beauty-grid-day"
+            data-testid="beauty-grid"
+            style={{ gridTemplateColumns: `56px repeat(${day.columns.length}, minmax(160px, 220px))` }}
+          >
+            <div aria-hidden="true" />
+            {day.columns.map((column) => (
+              <h2 key={`head-${column.id}`} className="beauty-col-head">
+                {column.name}
+                {column.timeOff && <Badge>Отсутствие</Badge>}
+              </h2>
+            ))}
             <div className="beauty-hours" style={{ height }} aria-hidden="true">
               {slots.map((m) => (
                 <div key={m} className="beauty-hour" style={{ height: STEP * PX_PER_MIN }}>
@@ -95,12 +106,7 @@ export function JournalBoard({ day, readOnly }: { day: BeautyDay; readOnly: bool
               ))}
             </div>
             {day.columns.map((column) => (
-              <section key={column.id} className="beauty-col">
-                <h2 className="beauty-col-head">
-                  {column.name}
-                  {column.timeOff && <Badge>Отсутствие</Badge>}
-                </h2>
-                <div className="beauty-col-body" style={{ height }}>
+              <div key={column.id} className="beauty-col-body" style={{ height }}>
                   {slots.map((m) => {
                     const works = column.intervals.some(
                       (i) => clockMinutes(i.timeFrom) <= m && m + STEP <= clockMinutes(i.timeTo),
@@ -153,8 +159,7 @@ export function JournalBoard({ day, readOnly }: { day: BeautyDay; readOnly: bool
                         <span className="beauty-tile-service">{a.serviceName}</span>
                       </button>
                     ))}
-                </div>
-              </section>
+              </div>
             ))}
           </div>
 

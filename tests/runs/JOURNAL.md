@@ -5402,3 +5402,13 @@
 | 03.10.2026 16:02 | e2e | ❌ упало 1 из 25 | 1 мин 14 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-02-39Z-e2e-bf13.log) | живые сквозные: форма брони 02.10 |
 | 03.10.2026 16:04 | e2e | ❌ упало 1 из 25 | 1 мин 15 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-04-23Z-e2e-097f.log) | живые сквозные: форма брони 02.10 |
 | 03.10.2026 16:06 | e2e | ✅ 25 из 25 | 1 мин 5 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-06-15Z-e2e-66e7.log) | живые сквозные: форма брони 02.10 |
+| 03.10.2026 16:58 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:390 --workers=1) | ❌ код выхода 1 | 5 с | c861e1e +3 | [лог](logs/2026-10-03T11-58-58Z-e2e-8058.log) | (ошибка вне тестов) |
+| 03.10.2026 16:59 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:390 --workers=1) | ❌ код выхода 1 | 22 с | c861e1e +3 | [лог](logs/2026-10-03T11-59-41Z-e2e-9fb5.log) | (ошибка вне тестов) |
+| 03.10.2026 17:00 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:391 --workers=1) | ❌ упало 1 из 1 | 2 мин 17 с | c861e1e +3 | [лог](logs/2026-10-03T12-00-46Z-e2e-da1a.log) | «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) |
+| 03.10.2026 17:06 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:391 --workers=1 --timeout=150000) | ❌ упало 1 из 1 | 2 мин 25 с | c861e1e +3 | [лог](logs/2026-10-03T12-06-48Z-e2e-fe2b.log) | «Подключения» → «Код для сайта»: тег с ключом гостиницы, домены её сайта, «Скопировать» (Э4) |
+| 03.10.2026 17:10 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts:391 --workers=1 --timeout=150000) | ✅ 1 из 1 | 3 мин 31 с | c861e1e +3 | [лог](logs/2026-10-03T12-10-40Z-e2e-6a71.log) |  |
+| 03.10.2026 17:39 | e2e (частично: --config tests/ui/playwright.ai-seller.local.config.ts tests/ui/ai-seller.spec.ts --workers=1 --timeout=120000) | ✅ 18 из 18 | 6 мин 37 с | c861e1e +3 | [лог](logs/2026-10-03T12-39-21Z-e2e-afeb.log) |  |
+| 03.10.2026 17:46 | typecheck | ❌ ошибок: 642 | 48 с | c861e1e +3 | [лог](logs/2026-10-03T12-46-47Z-typecheck-136d.log) | TS7006 |
+| 03.10.2026 17:48 | typecheck | ✅ без ошибок | 19 с | c861e1e +3 | [лог](logs/2026-10-03T12-48-08Z-typecheck-c84a.log) |  |
+| 03.10.2026 17:48 | lint | ✅ без ошибок | 12 с | c861e1e +3 | [лог](logs/2026-10-03T12-48-34Z-lint-33f9.log) |  |
+| 03.10.2026 17:51 | lint | ✅ без ошибок | 1 мин 1 с | c861e1e +2 | [лог](logs/2026-10-03T12-51-54Z-lint-4942.log) |  |

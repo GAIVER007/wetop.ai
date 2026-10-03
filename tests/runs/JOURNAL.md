@@ -5378,3 +5378,24 @@
 | 03.10.2026 17:52 | typecheck | ✅ без ошибок | 33 с | 000418f +18 | [лог](logs/2026-10-03T12-52-07Z-typecheck-75d2.log) |  |
 | 03.10.2026 17:52 | lint | ✅ без ошибок | 18 с | 000418f +18 | [лог](logs/2026-10-03T12-52-41Z-lint-f9cc.log) |  |
 | 03.10.2026 17:53 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-catalog.spec.ts tests/ui/beauty-branch.spec.ts tests/ui/top-menu.spec.ts tests | ✅ 52 из 52 | 2 мин 33 с | 000418f +17 | [лог](logs/2026-10-03T12-53-04Z-e2e-8518.log) |  |
+| 03.10.2026 18:11 | unit (частично: packages/domain/src/beauty/schedule.test.ts) | ❌ код выхода 1 | 2 с | b31830a +1 | [лог](logs/2026-10-03T13-11-09Z-unit-e22e.log) | B4 red: правила графика мастера, модуля нет |
+| 03.10.2026 18:12 | unit (частично: packages/domain/src/beauty) | ✅ 54 из 54 | 2 с | b31830a +3 | [лог](logs/2026-10-03T13-12-04Z-unit-c2ab.log) | B4 green: правила графика и отсутствий |
+| 03.10.2026 18:12 | unit (частично: apps/api/src/auth/route-access.test.ts) | ❌ упало 1 из 2 | 5 с | b31830a +4 | [лог](logs/2026-10-03T13-12-16Z-unit-f143.log) | B4 red: таблица прав, маршрутов графика нет |
+| 03.10.2026 18:14 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 5 с | b31830a +7 | [лог](logs/2026-10-03T13-14-36Z-unit-e26a.log) | B4 green: таблица прав, пять маршрутов графика |
+| 03.10.2026 18:14 | typecheck | ✅ без ошибок | 34 с | b31830a +7 | [лог](logs/2026-10-03T13-14-59Z-typecheck-2b8f.log) | B4: домен и API графика |
+| 03.10.2026 18:17 | integration (частично: tests/integration/beauty-schedule.test.ts) | ❌ код выхода 1 | 3 с | b31830a +8 | [лог](logs/2026-10-03T13-17-27Z-integration-dbcb.log) | B4: график мастера на настоящей базе |
+| 03.10.2026 18:18 | integration (частично: tests/integration/beauty-schedule.test.ts) | ✅ 12 из 12 | 3 с | b31830a +8 | [лог](logs/2026-10-03T13-18-10Z-integration-eb33.log) | B4 green: график мастера, отсутствия, перестановка между филиалами |
+| 03.10.2026 18:20 | integration (частично: tests/integration/beauty-schedule.test.ts) | ✅ 12 из 12 | 3 с | b31830a +8 | [лог](logs/2026-10-03T13-20-45Z-integration-23f1.log) | B4: график мастера, после доказательства мутациями (7 из 7 краснеют) |
+| 03.10.2026 18:26 | typecheck | ❌ ошибок: 1 | 24 с | b31830a +15 | [лог](logs/2026-10-03T13-26-01Z-typecheck-1166.log) | B4: экран графика, подставной API |
+| 03.10.2026 18:26 | typecheck | ✅ без ошибок | 24 с | b31830a +15 | [лог](logs/2026-10-03T13-26-34Z-typecheck-1fd0.log) | B4: экран графика, подставной API |
+| 03.10.2026 18:28 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ✅ 9 из 9 | 2 мин 19 с | b31830a +15 | [лог](logs/2026-10-03T13-28-01Z-e2e-a337.log) |  |
+| 03.10.2026 18:31 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ✅ 9 из 9 | 1 мин 7 с | b31830a +16 | [лог](logs/2026-10-03T13-31-44Z-e2e-da29.log) | B4: график после компактной недели |
+| 03.10.2026 18:34 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ❌ упало 1 из 9 | 1 мин 8 с | b31830a +16 | [лог](logs/2026-10-03T13-34-37Z-e2e-14aa.log) | B4 green: график, неделя помещается на телефоне |
+| 03.10.2026 18:38 | lint | ❌ ошибок: 1 | 25 с | b31830a +17 | [лог](logs/2026-10-03T13-38-23Z-lint-7efb.log) | B4: график |
+| 03.10.2026 18:38 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts) | ✅ 9 из 9 | 1 мин 15 с | b31830a +16 | [лог](logs/2026-10-03T13-38-03Z-e2e-eba6.log) | B4 green: график, неделя на телефоне, axe после анимации панели |
+| 03.10.2026 18:39 | lint | ✅ без ошибок | 23 с | b31830a +17 | [лог](logs/2026-10-03T13-39-00Z-lint-2978.log) | B4: график |
+| 03.10.2026 18:44 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 tests/ui/beauty-schedule.spec.ts tests/ui/beauty-catalog.spec.ts tests/ui/beauty-branch.spec.t | ✅ 76 из 76 | 4 мин 38 с | b31830a +16 | [лог](logs/2026-10-03T13-44-33Z-e2e-f4f9.log) | B4: график, каталог и филиал салона с соседями оболочки |
+| 03.10.2026 18:49 | unit | ✅ 2915 из 2918, пропущено 3 | 1 мин 18 с | b31830a +15 | [лог](logs/2026-10-03T13-49-54Z-unit-08ba.log) | B4: график мастера |
+| 03.10.2026 18:51 | integration | ✅ 272 из 272 | 55 с | b31830a +9 | [лог](logs/2026-10-03T13-51-24Z-integration-8f8f.log) | B4: график мастера |
+| 03.10.2026 18:52 | typecheck | ✅ без ошибок | 23 с | b31830a +17 | [лог](logs/2026-10-03T13-52-34Z-typecheck-e8c5.log) | B4: график мастера |
+| 03.10.2026 18:52 | lint | ✅ без ошибок | 18 с | b31830a +17 | [лог](logs/2026-10-03T13-52-58Z-lint-5f7d.log) | B4: график мастера |

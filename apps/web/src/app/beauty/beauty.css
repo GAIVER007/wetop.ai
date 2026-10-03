@@ -82,3 +82,56 @@
 .beauty-page .table-scroll {
   position: relative;
 }
+
+/* График мастера (срез B4): выбор мастера, разделы страницы и неделя компактными строками */
+.beauty-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.beauty-section {
+  margin-top: 32px;
+}
+
+.beauty-section h2 {
+  margin: 0;
+}
+
+.beauty-week-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.beauty-week-name {
+  min-width: 128px;
+  font-weight: 600;
+}
+
+.beauty-week-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.beauty-week-slot {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.beauty-time {
+  width: 96px;
+}
+
+/* Неделя это две короткие колонки: общий минимум таблиц 520 px режет её на телефоне (workspace.css) */
+.beauty-page .table-scroll > .beauty-week-table {
+  min-width: 0;
+}

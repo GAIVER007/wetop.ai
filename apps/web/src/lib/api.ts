@@ -2414,6 +2414,42 @@ export interface BeautyEmployeeRow {
   serviceIds: string[];
 }
 
+export interface BeautyWorkingInterval {
+  weekday: number;
+  timeFrom: string;
+  timeTo: string;
+}
+
+export interface BeautyWeekDay {
+  weekday: number;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+}
+
+export interface BeautyTimeOff {
+  id: string;
+  dateFrom: string;
+  dateTo: string;
+  reason: string | null;
+  /** сколько уже созданных записей попадает в эти дни: отсутствие их не отменяет (Q-252) */
+  appointments: number;
+}
+
+/** График мастера в филиале: мастера бизнеса, неделя выбранного, его отсутствия и филиалы (срез B4) */
+export interface BeautySchedule {
+  location: { id: string; name: string | null; timezone: string | null } | null;
+  employees: Array<{ id: string; name: string; active: boolean; worksHere: boolean }>;
+  employee: {
+    id: string;
+    name: string;
+    active: boolean;
+    worksHere: boolean;
+    locationIds: string[];
+  } | null;
+  locations: Array<{ id: string; name: string; assigned: boolean }>;
+  week: BeautyWeekDay[];
+  timeOffs: BeautyTimeOff[];
+}
+
 export const beautyApi = {
   services: () =>
     getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
@@ -2438,5 +2474,33 @@ export const beautyApi = {
       'PUT',
       `/beauty/employees/${encodeURIComponent(id)}/services`,
       { serviceIds },
+    ),
+  schedule: (employee?: string) =>
+    getJson<BeautySchedule>(
+      employee ? `/beauty/schedule?employee=${encodeURIComponent(employee)}` : '/beauty/schedule',
+    ),
+  setWorkingHours: (id: string, intervals: BeautyWorkingInterval[]) =>
+    sendJson<{ week: BeautyWeekDay[] }>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/working-hours`,
+      { intervals },
+    ),
+  addTimeOff: (id: string, body: unknown) =>
+    sendJson<{ timeOffs: BeautyTimeOff[]; affected: number }>(
+      'POST',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs`,
+      body,
+    ),
+  removeTimeOff: (id: string, timeOffId: string) =>
+    sendJson<{ timeOffs: BeautyTimeOff[] }>(
+      'DELETE',
+      `/beauty/employees/${encodeURIComponent(id)}/time-offs/${encodeURIComponent(timeOffId)}`,
+      undefined,
+    ),
+  setEmployeeLocations: (id: string, locationIds: string[]) =>
+    sendJson<BeautySchedule>(
+      'PUT',
+      `/beauty/employees/${encodeURIComponent(id)}/locations`,
+      { locationIds },
     ),
 };

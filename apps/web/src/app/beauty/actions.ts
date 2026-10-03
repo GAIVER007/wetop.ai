@@ -1,9 +1,11 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { ApiError, beautyApi } from '../../lib/api';
+import { ApiError, beautyApi, type BeautyWorkingInterval } from '../../lib/api';
+import { pluralRu } from '../../lib/plural';
 
 /**
- * Каталог салона: сохранение услуги, её настройки в филиале и мастера (срез B3, ADR-139).
+ * Каталог салона и график мастера: сохранение услуги, её настройки в филиале, мастера, его недели,
+ * отсутствий и филиалов (срезы B3 и B4, ADR-139).
  * Отказ API показывается словами, введённое в панели не стирается (DESIGN.md: ошибка у поля, не вместо формы).
  */
 export interface SaveResult {
@@ -83,5 +85,77 @@ export async function saveBeautyEmployee(
     return { message: id ? 'Мастер сохранён' : 'Мастер добавлен' };
   } catch (e) {
     return failed(e, 'Не удалось сохранить мастера. Обновите страницу перед повтором.');
+  }
+}
+
+export async function saveBeautyWorkingHours(
+  _prev: SaveResult | null,
+  form: FormData,
+): Promise<SaveResult> {
+  const id = text(form, 'id');
+  let intervals: BeautyWorkingInterval[];
+  try {
+    intervals = JSON.parse(text(form, 'intervals') || '[]') as BeautyWorkingInterval[];
+  } catch {
+    return { error: 'Не удалось прочитать график. Обновите страницу перед повтором.' };
+  }
+  try {
+    await beautyApi.setWorkingHours(id, intervals);
+    revalidatePath('/beauty/schedule');
+    return { message: 'График сохранён' };
+  } catch (e) {
+    return failed(e, 'Не удалось сохранить график. Обновите страницу перед повтором.');
+  }
+}
+
+export async function addBeautyTimeOff(
+  _prev: SaveResult | null,
+  form: FormData,
+): Promise<SaveResult> {
+  const id = text(form, 'id');
+  try {
+    const { affected } = await beautyApi.addTimeOff(id, {
+      dateFrom: text(form, 'dateFrom'),
+      dateTo: text(form, 'dateTo'),
+      reason: text(form, 'reason'),
+    });
+    revalidatePath('/beauty/schedule');
+    // записи отсутствие не отменяет: это деньги, решение владельца по Q-252 ещё не принято
+    return {
+      message: affected
+        ? `Отсутствие добавлено. В эти дни у мастера остаётся ${pluralRu(affected, ['запись', 'записи', 'записей'])}: их никто не отменил.`
+        : 'Отсутствие добавлено',
+    };
+  } catch (e) {
+    return failed(e, 'Не удалось добавить отсутствие. Обновите страницу перед повтором.');
+  }
+}
+
+export async function removeBeautyTimeOff(
+  employeeId: string,
+  timeOffId: string,
+): Promise<SaveResult> {
+  try {
+    await beautyApi.removeTimeOff(employeeId, timeOffId);
+    revalidatePath('/beauty/schedule');
+    return { message: 'Отсутствие снято' };
+  } catch (e) {
+    return failed(e, 'Не удалось снять отсутствие. Обновите страницу перед повтором.');
+  }
+}
+
+export async function saveBeautyEmployeeLocations(
+  _prev: SaveResult | null,
+  form: FormData,
+): Promise<SaveResult> {
+  const id = text(form, 'id');
+  // филиалы приходят одним списком: снятая галочка должна сниматься, а не копиться
+  const locationIds = form.getAll('locationIds').filter((v): v is string => typeof v === 'string');
+  try {
+    await beautyApi.setEmployeeLocations(id, locationIds);
+    revalidatePath('/beauty/schedule');
+    return { message: 'Филиалы мастера сохранены' };
+  } catch (e) {
+    return failed(e, 'Не удалось сохранить филиалы мастера.');
   }
 }

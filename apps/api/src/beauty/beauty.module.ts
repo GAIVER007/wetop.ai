@@ -4,7 +4,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Inject,
   Injectable,
@@ -16,23 +15,17 @@ import {
   Put,
 } from '@nestjs/common';
 import {
-  accessDeniedMessage,
   effectiveService,
   parseBeautyServiceInput,
   parseEmployeeInput,
   parseLocationServiceInput,
   type Permission,
 } from '@pms/domain';
-import {
-  actorMay,
-  currentBusinessId,
-  currentLocationId,
-  currentOrganizationId,
-  currentUserId,
-  hasSignedInActor,
-} from '../auth/request-context';
+import { currentUserId } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
+import { BeautyScheduleController, BeautyScheduleService } from './schedule';
+import { beautyScope, mayBeauty, UUID, type BeautyScope } from './scope';
 
 /**
  * Каталог салона: услуги сети и мастера (DATA_MODEL §19 и §19.1, срез B3, ADR-139).
@@ -44,63 +37,16 @@ import { PrismaService } from '../database/prisma.provider';
  * Чего здесь нет: записей, расписания и денег. Записи это срез B5, деньги B7 (DATA_MODEL §21.5).
  */
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/** Салон вошедшего: бизнес BEAUTY его организации и выбранный филиал, если он есть */
-interface BeautyScope {
-  organizationId: string;
-  businessId: string;
-  /** Филиал из указателя запроса; его нет, когда человек смотрит организацию целиком */
-  locationId: string | null;
-  locationCurrency: string | null;
-}
-
 @Injectable()
 export class BeautyCatalogService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   private may(permission: Permission): void {
-    if (!hasSignedInActor() || !actorMay(permission))
-      throw new ForbiddenException(accessDeniedMessage(permission));
+    mayBeauty(permission);
   }
 
-  /**
-   * Где мы находимся. Бизнес берётся из указателя запроса (Platform P2 К1), а без указателя это
-   * единственный действующий бизнес BEAUTY организации: у салона на одном филиале указателя нет.
-   */
-  private async scope(): Promise<BeautyScope> {
-    const organizationId = currentOrganizationId();
-    if (!hasSignedInActor() || !organizationId)
-      throw new ForbiddenException('Войдите в организацию');
-    const pointed = currentBusinessId();
-    const business = await this.prisma.db.business.findFirst({
-      where: {
-        organizationId,
-        vertical: 'BEAUTY',
-        status: 'ACTIVE',
-        ...(pointed ? { id: pointed } : {}),
-      },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true },
-    });
-    if (!business) throw new NotFoundException('Салон в этой организации не настроен');
-    const locationId = currentLocationId();
-    const location = locationId
-      ? await this.prisma.db.location.findFirst({
-          where: { id: locationId, businessId: business.id, status: 'ACTIVE' },
-          select: { id: true, currency: true },
-        })
-      : await this.prisma.db.location.findFirst({
-          where: { businessId: business.id, status: 'ACTIVE' },
-          orderBy: { createdAt: 'asc' },
-          select: { id: true, currency: true },
-        });
-    return {
-      organizationId,
-      businessId: business.id,
-      locationId: location?.id ?? null,
-      locationCurrency: location?.currency ?? null,
-    };
+  private scope(): Promise<BeautyScope> {
+    return beautyScope(this.prisma);
   }
 
   /** Услуги каталога с тем, что про них говорит филиал: действующая цена считается домéном */
@@ -573,7 +519,7 @@ export class BeautyCatalogController {
 }
 
 @Module({
-  controllers: [BeautyCatalogController],
-  providers: [BeautyCatalogService, PrismaService],
+  controllers: [BeautyCatalogController, BeautyScheduleController],
+  providers: [BeautyCatalogService, BeautyScheduleService, PrismaService],
 })
 export class BeautyModule {}

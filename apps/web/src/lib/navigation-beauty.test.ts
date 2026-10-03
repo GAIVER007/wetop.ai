@@ -18,11 +18,12 @@ describe('меню салона', () => {
   });
 
   it('у филиала салона есть только то, что в нём работает', () => {
-    // срез B3 добавил каталог: услуги и мастера
+    // срез B3 добавил каталог (услуги и мастера), B4 график мастера
     expect(hrefs('BEAUTY')).toEqual([
       '/beauty',
       '/beauty/services',
       '/beauty/masters',
+      '/beauty/schedule',
       '/team',
       '/journal',
     ]);
@@ -35,11 +36,12 @@ describe('меню салона', () => {
   });
 
   it('нижняя панель телефона тоже идёт по вертикали', () => {
+    // четыре вкладки это работа смены: сотрудники и журнал уходят под «Ещё»
     expect(phoneNavigationFor('BEAUTY').map((i) => i.href)).toEqual([
       '/beauty',
       '/beauty/services',
       '/beauty/masters',
-      '/team',
+      '/beauty/schedule',
     ]);
     expect(phoneNavigationFor().map((i) => i.href)).toContain('/chessboard');
   });

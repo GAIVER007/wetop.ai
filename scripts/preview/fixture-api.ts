@@ -3928,8 +3928,36 @@ interface FixtureBeautyEmployee {
   locationIds: string[];
   serviceIds: string[];
 }
+/** График мастера и отсутствия в подставном API (срез B4): неделя на филиал, отсутствия на сеть */
+interface FixtureWorkingInterval {
+  employeeId: string;
+  locationId: string;
+  weekday: number;
+  timeFrom: string;
+  timeTo: string;
+}
+interface FixtureTimeOff {
+  id: string;
+  employeeId: string;
+  dateFrom: string;
+  dateTo: string;
+  reason: string | null;
+  appointments: number;
+}
 const fixtureBeautyServices: FixtureBeautyService[] = [];
 const fixtureBeautyEmployees: FixtureBeautyEmployee[] = [];
+const fixtureBeautyHours: FixtureWorkingInterval[] = [];
+/** «9:00», «0900», «9.30» → «09:00», как `normalizeClockTime` домена (SET2) */
+function clock(value: string): string {
+  const m = /^(\d{1,2})[:.](\d{2})$/.exec(value.trim()) ?? /^(\d{2})(\d{2})$/.exec(value.trim());
+  if (!m) return '';
+  const h = Number(m[1]);
+  if (h > 23 || Number(m[2]) > 59) return '';
+  return `${String(h).padStart(2, '0')}:${m[2]}`;
+}
+const fixtureBeautyTimeOffs: FixtureTimeOff[] = [];
+/** Записи мастера на дату: срез B5 их ещё не делает, стенду нужно показать наложение отсутствия */
+const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -3976,6 +4004,9 @@ createServer(async (req, res) => {
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
       fixtureBeautyEmployees.length = 0;
+      fixtureBeautyHours.length = 0;
+      fixtureBeautyTimeOffs.length = 0;
+      fixtureBeautyAppointments.length = 0;
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
@@ -4066,6 +4097,15 @@ createServer(async (req, res) => {
       noBookings = body['noBookings'] === true;
       if (typeof body['onboardingNeeded'] === 'boolean')
         onboardingNeeded = body['onboardingNeeded'];
+      // записи мастера на даты: срез B5 их ещё не делает, а наложение отсутствия показать надо (B4)
+      if (Array.isArray(body['beautyAppointments'])) {
+        fixtureBeautyAppointments.length = 0;
+        for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
+          fixtureBeautyAppointments.push({
+            employeeId: String(row['employeeId'] ?? ''),
+            date: String(row['date'] ?? ''),
+          });
+      }
       // история неисправностей отдаёт ровно столько, сколько просили: экран не знает, есть ли ещё
       groupFixture = body['group'] === true;
       if (body['analyticsHistory'] === true) seedAnalyticsHistory();
@@ -4699,6 +4739,148 @@ createServer(async (req, res) => {
           return send(400, { message: 'Среди выбранных услуг есть чужая' });
         row.serviceIds = [...new Set(ids)];
         return send(200, row);
+      }
+      // График мастера (срез B4): неделя в этом филиале, отсутствия на сеть и филиалы мастера
+      const week = (employeeId: string) =>
+        [1, 2, 3, 4, 5, 6, 0].map((weekday) => ({
+          weekday,
+          intervals: fixtureBeautyHours
+            .filter((h) => h.employeeId === employeeId && h.locationId === locationId && h.weekday === weekday)
+            .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom))
+            .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
+        }));
+      const timeOffsOf = (employeeId: string) =>
+        fixtureBeautyTimeOffs
+          .filter((t) => t.employeeId === employeeId)
+          .sort((a, b) => a.dateFrom.localeCompare(b.dateFrom))
+          .map((row) => ({
+            id: row.id,
+            dateFrom: row.dateFrom,
+            dateTo: row.dateTo,
+            reason: row.reason,
+            appointments: row.appointments,
+          }));
+      const salonLocations = () =>
+        fixtureBranches
+          .filter((b) => b['vertical'] === 'BEAUTY')
+          .map((b) => ({ id: String(b['locationId']), name: String(b['name']) }));
+      const scheduleView = (employeeId: string | null) => {
+        const chosen = employeeId
+          ? (fixtureBeautyEmployees.find((e) => e.id === employeeId) ?? null)
+          : (fixtureBeautyEmployees.find((e) => e.active && locationId !== null && e.locationIds.includes(locationId)) ??
+            fixtureBeautyEmployees.find((e) => e.active) ??
+            fixtureBeautyEmployees[0] ??
+            null);
+        return {
+          location: locationId
+            ? { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: String(current?.['timezone'] ?? 'Asia/Almaty') }
+            : null,
+          employees: fixtureBeautyEmployees.map((e) => ({
+            id: e.id,
+            name: e.name,
+            active: e.active,
+            worksHere: locationId !== null && e.locationIds.includes(locationId),
+          })),
+          employee: chosen
+            ? {
+                id: chosen.id,
+                name: chosen.name,
+                active: chosen.active,
+                worksHere: locationId !== null && chosen.locationIds.includes(locationId),
+                locationIds: chosen.locationIds,
+              }
+            : null,
+          locations: salonLocations().map((l) => ({
+            ...l,
+            assigned: chosen ? chosen.locationIds.includes(l.id) : false,
+          })),
+          week: chosen ? week(chosen.id) : [],
+          timeOffs: chosen ? timeOffsOf(chosen.id) : [],
+        };
+      };
+      if (path === '/beauty/schedule' && req.method === 'GET') {
+        const wanted = url.searchParams.get('employee');
+        if (wanted && !fixtureBeautyEmployees.some((e) => e.id === wanted))
+          return send(404, { message: 'Мастер не найден' });
+        return send(200, scheduleView(wanted));
+      }
+      const workingHours = /^\/beauty\/employees\/([^/]+)\/working-hours$/.exec(path);
+      if (workingHours && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(workingHours[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        if (!locationId) return send(409, { message: 'Сначала выберите филиал' });
+        if (!row.locationIds.includes(locationId))
+          return send(409, { message: 'Мастер в этом филиале не работает: сначала поставьте его в филиал' });
+        const list = Array.isArray(body['intervals']) ? (body['intervals'] as Array<Record<string, unknown>>) : [];
+        const parsed = list.map((i) => ({
+          weekday: Number(i['weekday']),
+          timeFrom: clock(String(i['timeFrom'] ?? '')),
+          timeTo: clock(String(i['timeTo'] ?? '')),
+        }));
+        if (parsed.some((i) => !i.timeFrom || !i.timeTo))
+          return send(400, { message: 'Время графика в часах и минутах, например 09:00' });
+        if (parsed.some((i) => i.timeTo <= i.timeFrom))
+          return send(400, { message: 'Конец рабочего времени должен быть позже начала' });
+        const sorted = [...parsed].sort((a, b) => a.weekday - b.weekday || a.timeFrom.localeCompare(b.timeFrom));
+        for (let i = 1; i < sorted.length; i += 1)
+          if (sorted[i]!.weekday === sorted[i - 1]!.weekday && sorted[i]!.timeFrom < sorted[i - 1]!.timeTo)
+            return send(400, { message: 'Интервалы в одном дне накладываются друг на друга' });
+        for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
+          if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === locationId)
+            fixtureBeautyHours.splice(i, 1);
+        for (const i of sorted)
+          fixtureBeautyHours.push({ employeeId: row.id, locationId, ...i });
+        return send(200, { week: week(row.id) });
+      }
+      const timeOffs = /^\/beauty\/employees\/([^/]+)\/time-offs$/.exec(path);
+      if (timeOffs && req.method === 'POST') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(timeOffs[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const dateFrom = String(body['dateFrom'] ?? '');
+        const dateTo = String(body['dateTo'] ?? '');
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFrom) || !/^\d{4}-\d{2}-\d{2}$/.test(dateTo))
+          return send(400, { message: 'Дата отсутствия в виде ГГГГ-ММ-ДД' });
+        if (dateTo < dateFrom)
+          return send(400, { message: 'Отсутствие: конец раньше начала, проверьте даты' });
+        const affected = fixtureBeautyAppointments.filter(
+          (a) => a.employeeId === row.id && a.date >= dateFrom && a.date <= dateTo,
+        ).length;
+        fixtureBeautyTimeOffs.push({
+          id: `off-${fixtureBeautyTimeOffs.length + 1}-0000-4000-8000-000000000000`,
+          employeeId: row.id,
+          dateFrom,
+          dateTo,
+          reason: String(body['reason'] ?? '').trim() || null,
+          appointments: affected,
+        });
+        return send(200, { timeOffs: timeOffsOf(row.id), affected });
+      }
+      const dropTimeOff = /^\/beauty\/employees\/([^/]+)\/time-offs\/([^/]+)$/.exec(path);
+      if (dropTimeOff && req.method === 'DELETE') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(dropTimeOff[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const index = fixtureBeautyTimeOffs.findIndex(
+          (t) => t.id === decodeURIComponent(dropTimeOff[2]!) && t.employeeId === row.id,
+        );
+        if (index < 0) return send(404, { message: 'Отсутствие не найдено' });
+        fixtureBeautyTimeOffs.splice(index, 1);
+        return send(200, { timeOffs: timeOffsOf(row.id) });
+      }
+      const employeeLocations = /^\/beauty\/employees\/([^/]+)\/locations$/.exec(path);
+      if (employeeLocations && req.method === 'PUT') {
+        const row = fixtureBeautyEmployees.find((e) => e.id === decodeURIComponent(employeeLocations[1]!));
+        if (!row) return send(404, { message: 'Мастер не найден' });
+        const ids = Array.isArray(body['locationIds']) ? (body['locationIds'] as string[]) : [];
+        const known = salonLocations().map((l) => l.id);
+        if (ids.some((id) => !known.includes(id)))
+          return send(400, { message: 'Среди выбранных филиалов есть чужой' });
+        for (const gone of row.locationIds.filter((id) => !ids.includes(id))) {
+          for (let i = fixtureBeautyHours.length - 1; i >= 0; i -= 1)
+            if (fixtureBeautyHours[i]!.employeeId === row.id && fixtureBeautyHours[i]!.locationId === gone)
+              fixtureBeautyHours.splice(i, 1);
+        }
+        row.locationIds = [...new Set(ids)];
+        return send(200, scheduleView(row.id));
       }
       return send(404, { message: 'Нет такого маршрута салона' });
     }

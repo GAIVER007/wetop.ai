@@ -42,7 +42,7 @@ test('панель «Сегодня» слева, управление кале�
   );
   await expect(todaySection.getByText(/^\d+ (год|года|лет)$/)).toBeVisible();
   for (const theme of ['light', 'dark'] as const) {
-    await page.emulateMedia({ colorScheme: theme });
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
     const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(axe.violations).toEqual([]);
   }

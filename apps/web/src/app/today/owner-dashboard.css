@@ -296,6 +296,18 @@
   .owner-toolbar input {
     width: 120px;
   }
+  /* телефон: цели касания не меньше 44 px (DESIGN.md, «цели ≥44 px») */
+  .owner-toolbar input,
+  .owner-toolbar .btn,
+  .owner-toolbar nav a {
+    min-height: 44px;
+  }
+  .owner-toolbar nav a {
+    display: inline-flex;
+    align-items: center;
+    min-width: 44px;
+    justify-content: center;
+  }
   .owner-charts .bars {
     height: 100px;
   }

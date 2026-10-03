@@ -137,7 +137,8 @@ test('управление командой и сессиями открывае
     page.getByRole('heading', { name: 'Управление доступом', exact: true }),
   ).toBeVisible();
   await expect(page.getByTestId('session-list')).toBeVisible();
-  await expect(page.getByTestId('team')).toBeVisible();
+  // команда — отдельный раздел «Сотрудники» (TEAM1, ADR-136), из профиля к нему ссылка
+  await expect(page.getByTestId('team-link')).toHaveAttribute('href', '/team');
 });
 test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
   await page.goto('/login');

@@ -7,6 +7,10 @@ import { expect, test } from './fixtures';
  */
 const fixture = 'http://127.0.0.1:4311';
 
+// чистый стенд: бронь соседнего спека на M03 заняла бы те же даты, и форма не дала бы создать эту
+test.beforeEach(async ({ request }) => {
+  await request.post(`${fixture}/__test/reset`);
+});
 test.afterEach(async ({ request }) => {
   await request.post(`${fixture}/__test/control`, { data: {} });
 });

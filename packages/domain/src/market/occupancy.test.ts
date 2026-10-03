@@ -10,7 +10,7 @@ import {
   type MarketReading,
 } from './occupancy';
 
-/** ADR-141, DATA_MODEL §23: загрузка конкурентов, «вы и рынок» по ночам */
+/** ADR-142, DATA_MODEL §23: загрузка конкурентов, «вы и рынок» по ночам */
 describe('parseOccupancyPercent', () => {
   it('процент в базисные пункты: целый, с запятой и точкой, знак процента', () => {
     expect(parseOccupancyPercent('85')).toBe(8500);

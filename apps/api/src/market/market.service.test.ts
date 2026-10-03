@@ -5,7 +5,7 @@ import type { MarketReading, ObservationSource } from '@pms/domain';
 import type { CompetitorRecord, MarketAudit, MarketRepository } from './market.repository';
 import { MarketService, type OwnOccupancySource } from './market.service';
 
-/** «Загрузка конкурентов» (ADR-141): проверки ввода, предел списка, снимки сегодняшнего дня, журнал */
+/** «Загрузка конкурентов» (ADR-142): проверки ввода, предел списка, снимки сегодняшнего дня, журнал */
 class FakeRepo implements MarketRepository {
   rows: CompetitorRecord[] = [];
   readingsStore: MarketReading[] = [];

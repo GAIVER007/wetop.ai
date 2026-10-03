@@ -31,7 +31,7 @@ export default function HomePage() {
       <Facts />
       <Audience />
       <Features />
-      {/* фишка №1 (ADR-141): загрузка конкурентов сразу за возможностями */}
+      {/* фишка №1 (ADR-142): загрузка конкурентов сразу за возможностями */}
       <Market />
       <Sales />
       <AiSellers />

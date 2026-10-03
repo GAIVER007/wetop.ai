@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 const BLOCKS = [
   { id: 'audience', title: /Отели, хостелы и апартаменты/ },
   { id: 'features', title: /Что умеет WETOP/ },
-  // фишка №1 (ADR-141): сразу за возможностями
+  // фишка №1 (ADR-142): сразу за возможностями
   { id: 'market', title: /Загрузка конкурентов/ },
   { id: 'sales', title: /Откуда приходят брони/ },
   { id: 'ai-sellers', title: /ИИ-продавец/ },

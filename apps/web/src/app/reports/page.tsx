@@ -199,7 +199,7 @@ export default async function ReportsHubPage({
               hint="ваша загрузка рядом с ближайшими отелями на каждую ночь, подсказки к цене"
             />
             <ReportCard
-              href={`/management/analytics?${analyticsQ}`}
+              href={`/management/analytics/channels?${q}`}
               testId="report-sources"
               title="Источники броней"
               value={d && (topSource ? sourceLabel(topSource.source, topSource.channel) : '—')}

@@ -4,7 +4,7 @@ import type { APIRequestContext } from '@playwright/test';
 import { expect, test, devNoise, type Page } from './fixtures';
 
 /**
- * «Загрузка конкурентов» (ADR-141, план `plans/market-competitor-occupancy-2026-10-03.md`): пункт «Продажи»,
+ * «Загрузка конкурентов» (ADR-142, план `plans/market-competitor-occupancy-2026-10-03.md`): пункт «Продажи»,
  * пустое состояние, добавить конкурента, внести загрузку по ночам, таблица «вы и рынок» с изменением к вчера,
  * подсказки к цене, «убрать из списка», «только чтение». Подставной API считает тем же доменом, что API.
  * Отели вымышленные (ADR-010).

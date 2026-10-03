@@ -55,7 +55,7 @@ function rule<T>(fn: () => T): T {
   }
 }
 
-/** Раздел «Загрузка конкурентов» (ADR-141, DATA_MODEL §23). Правила расчёта: в домене. */
+/** Раздел «Загрузка конкурентов» (ADR-142, DATA_MODEL §23). Правила расчёта: в домене. */
 @Injectable()
 export class MarketService {
   constructor(

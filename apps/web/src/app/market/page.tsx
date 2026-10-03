@@ -53,7 +53,7 @@ const dayHead = (d: string) => ({
 const range = (i: { from: string; to: string }) =>
   i.from === i.to ? displayDate(i.from) : `${displayDate(i.from)} → ${displayDate(i.to)}`;
 
-/** Слова подсказки (ADR-141 п. 4): что видно на рынке и что с этим сделать; цены человек меняет сам */
+/** Слова подсказки (ADR-142 п. 4): что видно на рынке и что с этим сделать; цены человек меняет сам */
 function insightText(i: MarketInsight): { title: string; text: string; tone: 'warn' | 'ok' | 'info' } {
   const nights = pluralRu(i.nights, ['ночь', 'ночи', 'ночей']);
   const market = i.marketBp === null ? '' : `рынок ${pct(i.marketBp)}`;
@@ -99,7 +99,7 @@ const LEVEL_WORD: Record<DemandLevel, string> = {
 };
 
 /**
- * «Загрузка конкурентов» (ADR-141, план `plans/market-competitor-occupancy-2026-10-03.md`): ваша загрузка по календарю
+ * «Загрузка конкурентов» (ADR-142, план `plans/market-competitor-occupancy-2026-10-03.md`): ваша загрузка по календарю
  * рядом с загрузкой ближайших отелей на каждую ночь, средняя по рынку, разница и подсказки к цене. Данные вносит
  * человек; сбор ИИ-агентом, следующий срез (Q-257).
  */

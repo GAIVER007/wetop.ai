@@ -6,6 +6,8 @@ import {
   assertAllocationsMatch,
   buildDashboard,
   buildUnitStats,
+  buildChannelEfficiency,
+  type ChannelEfficiencySort,
   DASHBOARD_FUNDS,
   previousPeriod,
   type DashboardFund,
@@ -1583,6 +1585,40 @@ function board(from: string, to: string): Chessboard {
  * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
  * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
  */
+/** Проживания стенда в виде расчёта «Аналитики»: общий вход сводки и «Эффективности каналов» (ADR-141) */
+const dashboardStays = () =>
+  allCards().flatMap((r) =>
+    r.items.map((it) => ({
+      arrivalDate: it.arrivalDate,
+      departureDate: it.departureDate,
+      status: it.status,
+      // Q-209: бронь: это Reservation (номер брони стенда), статус: её собственный
+      reservationId: r.confirmationNumber,
+      reservationStatus: r.status,
+      adults: it.adults,
+      children: it.children,
+      priceMinor: BigInt(it.priceMinor),
+      source: r.source,
+      channel: r.channel,
+      categoryCode: it.accommodationTypeCode,
+    })),
+  );
+/** Ответ `GET /desk/dashboard/channels` стенда: текущий период и, если просили, период сравнения (ADR-141) */
+function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardStays>) {
+  const from = q.get('from') || today,
+    to = q.get('to') || today;
+  const opts = {
+    ...(q.get('channel') ? { channel: q.get('channel')! } : {}),
+    sort: (q.get('sort') || 'revenue') as ChannelEfficiencySort,
+    ...(q.get('empty') === '1' ? { knownChannels: ['Booking.com', 'Airbnb', 'Agoda', 'Expedia', 'Trip.com'] } : {}),
+  };
+  const cf = q.get('compareFrom'),
+    ct = q.get('compareTo');
+  return {
+    current: buildChannelEfficiency(stays, from, to, opts),
+    previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
+  };
+}
 function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
@@ -1606,22 +1642,7 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
         byCategory: b.byCategory[date] ?? {},
       })),
       unassignedByCategory,
-      stays: allCards().flatMap((r) =>
-        r.items.map((it) => ({
-          arrivalDate: it.arrivalDate,
-          departureDate: it.departureDate,
-          status: it.status,
-          // Q-209: бронь — это Reservation (номер брони стенда), статус — её собственный
-          reservationId: r.confirmationNumber,
-          reservationStatus: r.status,
-          adults: it.adults,
-          children: it.children,
-          priceMinor: BigInt(it.priceMinor),
-          source: r.source,
-          channel: r.channel,
-          categoryCode: it.accommodationTypeCode,
-        })),
-      ),
+      stays: dashboardStays(),
       charges: allCards().flatMap((r) =>
         r.items
           .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
@@ -2684,6 +2705,7 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard/channels') return channelsReport(q, []);
     if (path === '/desk/dashboard/units') {
       const from = q.get('from') || today,
         to = q.get('to') || today;
@@ -2954,6 +2976,8 @@ function read(path: string, q: URLSearchParams): unknown {
       fund as DashboardFund,
     );
   }
+  // «Эффективность каналов» (ADR-141): тот же доменный расчёт, что у API, по проживаниям стенда
+  if (path === '/desk/dashboard/channels') return channelsReport(q, dashboardStays());
   if (path === '/desk/dashboard') {
     const fund = q.get('fund') || 'all';
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
@@ -4115,7 +4139,7 @@ function read(path: string, q: URLSearchParams): unknown {
   return undefined;
 }
 
-// ── Загрузка конкурентов (ADR-141): те же правила, что API, из домена ──────────────────────────
+// ── Загрузка конкурентов (ADR-142): те же правила, что API, из домена ──────────────────────────
 interface FixtureCompetitor {
   id: string;
   name: string;

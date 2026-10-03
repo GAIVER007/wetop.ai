@@ -1,0 +1,33 @@
+# Сквозные (e2e) · 03.10.2026 14:21 Алматы · vm
+# коммит 4cdd4fc (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '-g' 'белая по белому'
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/site/homepage-blocks.spec.ts:182:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому (507ms)
+
+
+  1) tests/site/homepage-blocks.spec.ts:182:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому 
+
+    Error: белая кромка на белой панели
+
+    expect(received).not.toMatch(expected)
+
+    Expected pattern: not /^rgba?\(255,\s*255,\s*255/
+    Received string:      "rgba(255, 255, 255, 0.85)"
+
+      188 |   expect(borders.length, 'вторых кнопок на главной нет').toBeGreaterThan(0);
+      189 |   for (const color of borders) {
+    > 190 |     expect(color, 'белая кромка на белой панели').not.toMatch(/^rgba?\(255,\s*255,\s*255/);
+          |                                                       ^
+      191 |   }
+      192 | });
+      193 |
+        at /home/user/wetop.ai/tests/site/homepage-blocks.spec.ts:190:55
+
+    Error Context: test-results/homepage-blocks-на-сплошно-1e9bc--видна-а-не-белая-по-белому/error-context.md
+
+  1 failed
+    tests/site/homepage-blocks.spec.ts:182:1 › на сплошной главной кромка второй кнопки видна, а не белая по белому 
+
+# код выхода 1 · 8 с

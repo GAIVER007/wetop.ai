@@ -1,20 +1,27 @@
 import Link from 'next/link';
 import { getDictionary } from '../../i18n';
+import { contactLinks } from '../../lib/site';
 import { ChessboardMockup } from '../chessboard-mockup';
 import { Icon } from '../icon';
 import { SectionHeading } from '../section-heading';
 import { typo } from '../typo';
 
 /*
- * «Направления» (ADR-104): Hospitality работает, с шахматкой и тремя видами объектов, у каждого своя страница
- * `/for/<тип>/`; следующее направление отдельной карточкой с явной пометкой, что подключить его пока нельзя.
+ * «Для кого» (03.10.2026, решение владельца): три типа объектов, с которыми система работает, рядом макет
+ * шахматки, ниже приглашение салонам и студиям. Дорожной карты направлений («Первое направление: Hospitality»,
+ * «Следующее направление», «подключить пока нельзя») на странице нет: она говорила посетителю, что продукт
+ * недоделан, а салону, что ему сюда нельзя.
+ *
+ * Приглашение ведёт на почту, а не на регистрацию, и намеренно не обещает журнал записи, мастеров и расписание
+ * услуг: в стойке этих функций ещё нет (DESIGN.md §19.9).
  */
 export function Audience() {
   const { audience } = getDictionary();
+  const email = contactLinks().find((contact) => contact.kind === 'email');
   return (
     <section id="audience" className="section section--band" aria-labelledby="audience-title">
       <div className="container">
-        <div className="vertical-live__layout">
+        <div className="showcase__layout">
           <div>
             <SectionHeading
               id="audience-title"
@@ -22,7 +29,7 @@ export function Audience() {
               title={audience.title}
               lead={audience.lead}
             />
-            <ul className="vertical-live__cases">
+            <ul className="showcase__cases">
               {audience.items.map((item) => (
                 <li key={item.title}>
                   <span className="icon-tile">
@@ -40,22 +47,22 @@ export function Audience() {
               ))}
             </ul>
           </div>
-          <div className="vertical-live">
-            <p className="vertical-status vertical-status--live">
-              <span className="vertical-status__dot" aria-hidden="true" />
-              {audience.status}
-            </p>
+          <div className="showcase">
             <ChessboardMockup />
-            <p className="vertical-live__caption">{typo(audience.caption)}</p>
+            <p className="showcase__caption">{typo(audience.caption)}</p>
           </div>
         </div>
-        <div className="vertical-next card glass glass--quiet">
-          <p className="vertical-status">
-            <span className="vertical-status__dot" aria-hidden="true" />
-            {audience.next.status}
-          </p>
-          <h3 className="card__title">{audience.next.title}</h3>
-          <p className="card__text">{typo(audience.next.text)}</p>
+        <div className="invite card glass glass--quiet">
+          <div>
+            <h3 className="card__title">{audience.invite.title}</h3>
+            <p className="card__text">{typo(audience.invite.text)}</p>
+          </div>
+          {email ? (
+            <a className="btn btn--secondary" href={email.href}>
+              {audience.invite.action}
+              <Icon name="mail" size={18} />
+            </a>
+          ) : null}
         </div>
       </div>
     </section>

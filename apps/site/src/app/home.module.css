@@ -34,6 +34,16 @@
   border-top: 0;
 }
 
+/*
+ * Вторая кнопка на главной: у стеклянной кромка белая, на стекле это блик, а на сплошной панели она
+ * исчезает и кнопка читается обычным текстом (поймано на приглашении салонам 03.10.2026).
+ */
+.home :global(.btn--secondary) {
+  border-color: var(--border);
+  background: var(--surface-solid);
+  box-shadow: none;
+}
+
 /* Полоса: каждый второй блок на фоне страницы, чтобы границы блоков читались */
 .home :global(.section--band) {
   background: var(--bg);
@@ -41,13 +51,6 @@
 }
 .home :global(.section--band + .section--band) {
   border-top: 0;
-}
-
-/* Плашки состояния (регистрация, направления): на сплошной панели кромка должна быть видна */
-.home :global(.vertical-status) {
-  background: var(--surface-solid);
-  border-color: var(--border);
-  box-shadow: none;
 }
 
 /* Первый экран: панель с мягким переходом к фону, акцент заголовка фирменным цветом */

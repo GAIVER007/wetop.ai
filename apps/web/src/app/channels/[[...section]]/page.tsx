@@ -49,7 +49,7 @@ import '../channels.css';
  */
 const tabs = [
   { view: '', href: '/channels', label: 'Обзор' },
-  // Раздел «Каналы» (ADR-138): подключённые и все доступные каналы Channex — как в прежней системе
+  // Раздел «Каналы» (ADR-140): подключённые и все доступные каналы Channex — как в прежней системе
   { view: 'list', href: '/channels/list', label: 'Каналы' },
   { view: 'connections', href: '/connections/channex', label: 'Настройка подключения' },
   { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },

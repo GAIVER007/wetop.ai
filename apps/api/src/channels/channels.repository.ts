@@ -271,7 +271,7 @@ export class PrismaChannelsRepository implements ChannelsRepository {
     return propertyIdRef(this.prisma.db, LUXX_APARTS_PROPERTY.name);
   }
   /**
-   * Раздел «Каналы» (ADR-138): брони объекта, сделанные с `since` (`booked_at` канала, иначе `created_at`), без
+   * Раздел «Каналы» (ADR-140): брони объекта, сделанные с `since` (`booked_at` канала, иначе `created_at`), без
    * отменённых и незаездов, и входящие события провайдера за то же окно — без ПД, только ключи канала и статус.
    */
   async channelActivity(provider: string, since: Date) {

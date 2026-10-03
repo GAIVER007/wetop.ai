@@ -302,21 +302,27 @@ function DayPanel({
       <b data-testid={`day-${id}`}>{value}</b>
     </div>
   );
+  // две строки по три показателя: панель не выше строки управления, под ней нет пустоты (замечание 03.10)
   return (
     <aside className="board-day-panel" role="group" aria-label="Сегодня на объекте">
-      <p className="board-day-panel__title">Сегодня, {displayDate(today)}</p>
-      <div className="board-day-panel__cols">
-        <div>
-          {row('arrivals', 'Заезды', String(day.counts.arrivals), `/reservations?date=${d}`)}
-          {row('departures', 'Выезды', String(day.counts.departures), `/reservations?date=${d}`)}
-          {row('inhouse', 'Проживания', String(day.counts.inHouse), `/reservations?date=${d}`)}
+      <p className="board-day-panel__title">
+        Сегодня
+        <span>{displayDate(today)}</span>
+      </p>
+      <div className="board-day-panel__grid">
+        {row('arrivals', 'Заезды', String(day.counts.arrivals), `/reservations?date=${d}`)}
+        {row('departures', 'Выезды', String(day.counts.departures), `/reservations?date=${d}`)}
+        {row('inhouse', 'Проживания', String(day.counts.inHouse), `/reservations?date=${d}`)}
+        <div className="board-day-panel__row">
+          <span>Свободно</span>
+          <b>
+            <span data-testid="day-free">{s ? String(s.free) : '—'}</span>
+            <span className="board-day-panel__of"> из </span>
+            <span data-testid="day-units">{board.rows.length}</span>
+          </b>
         </div>
-        <div>
-          {row('units', 'Мест всего', String(board.rows.length))}
-          {row('free', 'Свободно', s ? String(s.free) : '—')}
-          {row('occupied', 'Занято', s ? String(s.occupied) : '—')}
-          {row('occupancy', 'Загрузка', occupancy === null ? '—' : `${occupancy}%`)}
-        </div>
+        {row('occupied', 'Занято', s ? String(s.occupied) : '—')}
+        {row('occupancy', 'Загрузка', occupancy === null ? '—' : `${occupancy}%`)}
       </div>
     </aside>
   );

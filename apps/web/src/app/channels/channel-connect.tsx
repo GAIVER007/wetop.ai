@@ -8,7 +8,7 @@ import { useConfirm } from '../../components/use-confirm';
 import { connectSessionAction, loadFutureReservationsAction } from './channel-connect-actions';
 
 /**
- * Окно Channex внутри WETOP (ADR-138, channel-iframe.md): подключение, сопоставление комнат и тарифов, включение и
+ * Окно Channex внутри WETOP (ADR-140, channel-iframe.md): подключение, сопоставление комнат и тарифов, включение и
  * выключение канала делает Channex — у каждого канала свои шаги. После закрытия окна список перечитывается.
  */
 function useChannexWindow() {

@@ -561,6 +561,21 @@ describe('manual reservation API', () => {
     expect(fake.state.guests).toBe(0);
     expect(published).toHaveLength(0);
   });
+  it('quote breaks the total down by night: one entry per night, sum equals total', async () => {
+    const q = await request(app.getHttpServer())
+      .post('/reservations/quote')
+      .send(body())
+      .expect(201);
+    expect(q.body.nights).toEqual([
+      { date: q.body.arrivalDate, priceMinor: '1100000' },
+      { date: expect.any(String), priceMinor: '1100000' },
+    ]);
+    const sum = (q.body.nights as Array<{ priceMinor: string }>).reduce(
+      (s, n) => s + BigInt(n.priceMinor),
+      0n,
+    );
+    expect(sum.toString()).toBe(q.body.totalMinor);
+  });
   it('replays one creation key and rejects changed payload without duplicate guests', async () => {
     const payload = body({ creationKey: '00000000-0000-4000-8000-000000000001' });
     const first = await request(app.getHttpServer())

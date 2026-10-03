@@ -605,7 +605,7 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect(JSON.stringify(third.body)).toContain('свободной ячейки');
   });
 
-  it('канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справочника кодов (ADR-138)', async () => {
+  it('канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справочника кодов (ADR-140)', async () => {
     fakes.setFeed([
       revision({ id: 'rev-bdc', unique_id: 'BDC-111', ota_reservation_code: '111', ota_name: 'BookingCom' }),
       revision({ id: 'rev-abb', unique_id: 'ABB-HM222', ota_reservation_code: 'HM222', ota_name: 'AirBNB' }),

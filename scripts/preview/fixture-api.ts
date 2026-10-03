@@ -958,7 +958,7 @@ let showcase = false;
  * `setup`; 'partial' — объект создан, две категории из трёх сопоставлены с тарифом BASE, третья нет.
  */
 let channelMapping: 'none' | 'partial' = 'none';
-/** Раздел «Каналы» (ADR-138): '' — пять подключений; 'empty' — ни одного; 'down' — Channex не ответил */
+/** Раздел «Каналы» (ADR-140): '' — пять подключений; 'empty' — ни одного; 'down' — Channex не ответил */
 let channelCatalog: '' | 'empty' | 'down' = '';
 let showcaseEvents: InboundEvent[] = [];
 const showcaseRevisions = new Map<string, RevisionFacts>();
@@ -3679,7 +3679,7 @@ function read(path: string, q: URLSearchParams): unknown {
         },
       ],
     };
-  // Раздел «Каналы» (ADR-138): подключения и каталог Channex; режим — `POST /__test/control { channelCatalog }`
+  // Раздел «Каналы» (ADR-140): подключения и каталог Channex; режим — `POST /__test/control { channelCatalog }`
   if (path === '/channels/channex/channels') {
     const ago = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString();
     const conn = (
@@ -5988,7 +5988,7 @@ createServer(async (req, res) => {
       return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
     if (path === '/channels/channex/setup')
       return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
-    // Окно Channex (ADR-138): настоящий адрес не нужен — тест проверяет, что окно открылось с фреймом
+    // Окно Channex (ADR-140): настоящий адрес не нужен — тест проверяет, что окно открылось с фреймом
     if (/^\/channels\/channex\/channels\/[^/]+\/load-future-reservations$/.test(path))
       return path.includes('/ui-ch-bdc/')
         ? send(200, { channel: 'Booking.com' })
@@ -6194,11 +6194,19 @@ createServer(async (req, res) => {
           sum + nightly(item.accommodationTypeCode) * nights * BigInt(item.quantity ?? 1),
         0n,
       );
+      // разбивка по ночам, как у API: равная цена ночи, сумма ночей равна итогу
+      const perNight = nights > 0n ? total / nights : 0n;
+      const nightList = Array.from({ length: Number(nights) }, (_, i) => {
+        const d = new Date(`${arrival}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + i);
+        return { date: d.toISOString().slice(0, 10), priceMinor: perNight.toString() };
+      });
       return send(201, {
         arrivalDate: arrival,
         departureDate: departure,
         totalMinor: total.toString(),
         currency: 'KZT',
+        nights: nightList,
       });
     }
     if (path === '/reservations') {

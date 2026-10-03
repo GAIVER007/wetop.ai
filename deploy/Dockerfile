@@ -36,7 +36,9 @@ COPY packages/database/prisma.config.ts packages/database/
 RUN npm ci --no-audit --no-fund --include=dev
 
 COPY . .
-RUN npm run build -w apps/web
+# Потолок кучи для next build: сервер один на 8 ГБ с боевыми службами и CI-раннером, без предела сборка забирала всё
+# (сбой 03.10.2026, plans/deploy-build-outage-2026-10-03.md). Не хватит — сборка упадёт, auto-deploy вернёт прежний образ.
+RUN NODE_OPTIONS=--max-old-space-size=2048 npm run build -w apps/web
 
 # --- рабочий слой ---------------------------------------------------------------------------------
 FROM node:24-alpine AS runtime

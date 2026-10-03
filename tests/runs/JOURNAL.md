@@ -5374,6 +5374,14 @@
 | 03.10.2026 14:21 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 31 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-21-31Z-e2e-2f41.log) | green: главная без направлений, приглашение салонам, видимая кромка кнопки |
 | 03.10.2026 14:22 | unit (частично: tests/unit/site-design.test.ts) | ✅ 6 из 6 | 1 с | 4cdd4fc +6 | [лог](logs/2026-10-03T09-22-12Z-unit-9b99.log) | сторож главной, итог 03.10 |
 | 03.10.2026 14:22 | lint | ✅ без ошибок | 18 с | 4cdd4fc +8 | [лог](logs/2026-10-03T09-22-13Z-lint-cf75.log) | итог 03.10 |
+| 03.10.2026 14:42 | unit | ❌ упало 1 из 2891, пропущено 4 | 1 мин 12 с | f27ac88 | [лог](logs/2026-10-03T09-42-02Z-unit-515d.log) | слияние главной сайта перед пушем |
+| 03.10.2026 17:46 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ❌ упало 1 из 53 | 17 с | d2f4968 +8 | [лог](logs/2026-10-03T12-46-56Z-unit-bb27.log) | red: квота без разбивки по ночам |
+| 03.10.2026 17:47 | unit (частично: apps/api/src/reservations/reservations.controller.test.ts) | ✅ 53 из 53 | 7 с | d2f4968 +9 | [лог](logs/2026-10-03T12-47-20Z-unit-9425.log) | green: квота отдаёт цену каждой ночи |
+| 03.10.2026 17:48 | e2e (частично: --config tests/ui/playwright.nights-alt.config.ts --workers=1 booking-price-nights.spec.ts chessboard-calendar.spec.ts) | ✅ 7 из 7 | 45 с | d2f4968 +11 | [лог](logs/2026-10-03T12-48-42Z-e2e-9457.log) | детализация цены по дням и компактная панель, свой стенд 4341/3141 |
+| 03.10.2026 17:49 | e2e (частично: --config tests/ui/playwright.nights-alt.config.ts --workers=1 booking-price-nights.spec.ts) | ❌ упало 2 из 2 | 1 мин 14 с | d2f4968 +4 | [лог](logs/2026-10-03T12-49-50Z-e2e-9610.log) | red: без детализации и с высокой панелью |
+| 03.10.2026 17:53 | typecheck | ✅ без ошибок | 1 мин 59 с | d2f4968 +11 | [лог](logs/2026-10-03T12-53-57Z-typecheck-08e6.log) | детализация по дням и компактная панель |
+| 03.10.2026 17:55 | lint | ✅ без ошибок | 56 с | d2f4968 +11 | [лог](logs/2026-10-03T12-55-59Z-lint-e01d.log) | детализация по дням и компактная панель |
+| 03.10.2026 17:56 | unit | ❌ упало 11 из 2892, пропущено 4 | 2 мин 1 с | d2f4968 +9 | [лог](logs/2026-10-03T12-56-58Z-unit-32ff.log) | детализация по дням и компактная панель |
 | 03.10.2026 14:58 | integration (частично: tests/integration/function-search-path.test.ts) | ❌ упало 1 из 2 | 5 с | f27ac88 +1 | [лог](logs/2026-10-03T09-58-21Z-integration-afa4.log) | search_path функций: red без миграции |
 | 03.10.2026 14:58 | integration (частично: tests/integration/function-search-path.test.ts) | ✅ 2 из 2 | 3 с | f27ac88 +3 | [лог](logs/2026-10-03T09-58-51Z-integration-260c.log) | search_path функций: green с миграцией 043 |
 | 03.10.2026 14:59 | integration | ✅ 238 из 238 | 1 мин 2 с | f27ac88 +3 | [лог](logs/2026-10-03T09-59-10Z-integration-e470.log) | search_path функций: полный integration |
@@ -5460,3 +5468,14 @@
 | 03.10.2026 18:10 | typecheck | ✅ без ошибок | 24 с | 9ac7a5a +12 | [лог](logs/2026-10-03T13-10-42Z-typecheck-6505.log) |  |
 | 03.10.2026 18:11 | lint | ✅ без ошибок | 20 с | 9ac7a5a +12 | [лог](logs/2026-10-03T13-11-06Z-lint-9bfd.log) |  |
 | 03.10.2026 18:11 | unit | ✅ 2997 из 3000, пропущено 3 | 1 мин 26 с | 9ac7a5a +10 | [лог](logs/2026-10-03T13-11-27Z-unit-880a.log) |  |
+| 03.10.2026 17:15 | unit (частично: tests/unit/auto-deploy.test.ts --testTimeout=20000) | ❌ упало 7 из 16 | 5 мин 32 с | 6cd2fa4 +1 | [лог](logs/2026-10-03T12-15-12Z-unit-5540.log) | red: выкладка не ждёт занятый CI-раннер (сбой 03.10) |
+| 03.10.2026 17:29 | unit (частично: tests/unit/deploy-server.test.ts --testTimeout=20000) | ❌ упало 2 из 39 | 49 с | 6cd2fa4 +3 | [лог](logs/2026-10-03T12-29-03Z-unit-ccd6.log) | red: нет oom_score_adj у боевых служб и потолка кучи next build (сбой 03.10) |
+| 03.10.2026 17:38 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/deploy-server.test.ts --testTimeout=60000 --hookTimeout=60000) | ✅ 55 из 55 | 21 с | 6cd2fa4 +3 | [лог](logs/2026-10-03T12-38-37Z-unit-d559.log) | green: выкладка ждёт занятый CI-раннер, боевые службы последними под OOM, потолок кучи next build |
+| 03.10.2026 18:02 | e2e (частично: --config tests/ui/playwright.nights-alt.config.ts --workers=1 booking-price-nights.spec.ts chessboard-calendar.spec.ts chessboard-design.spec.ts  | ❌ упало 1 из 30 | 4 мин 59 с | 378962f +1 | [лог](logs/2026-10-03T13-02-24Z-e2e-4de4.log) | слитое с main: детализация, панель, календарь |
+| 03.10.2026 18:07 | e2e (частично: --config tests/ui/playwright.nights-alt.config.ts --workers=1 chessboard-week.spec.ts) | ✅ 10 из 10 | 1 мин 49 с | 378962f +1 | [лог](logs/2026-10-03T13-07-55Z-e2e-bf2c.log) | повтор chessboard-week на прогретом кэше |
+| 03.10.2026 18:10 | unit | ❌ упало 2 из 2981, пропущено 4 | 1 мин 16 с | 378962f | [лог](logs/2026-10-03T13-10-02Z-unit-0262.log) | слитое с main перед пушем |
+| 03.10.2026 18:04 | integration (частично: tests/integration/guest-directory.test.ts) | ✅ 1 из 1 | 4 с | d8ee099 | [лог](logs/2026-10-03T13-04-17Z-integration-ac4b.log) |  |
+| 03.10.2026 18:04 | typecheck | ✅ без ошибок | 29 с | d8ee099 | [лог](logs/2026-10-03T13-04-25Z-typecheck-89d6.log) |  |
+| 03.10.2026 18:04 | lint | ✅ без ошибок | 22 с | d8ee099 | [лог](logs/2026-10-03T13-04-54Z-lint-1d8b.log) |  |
+| 03.10.2026 18:05 | integration | ✅ 238 из 238 | 1 мин 10 с | d8ee099 | [лог](logs/2026-10-03T13-05-17Z-integration-a124.log) |  |
+| 03.10.2026 18:06 | unit | ✅ 2977 из 2980, пропущено 3 | 1 мин 40 с | d8ee099 | [лог](logs/2026-10-03T13-06-27Z-unit-b872.log) |  |

@@ -706,7 +706,12 @@ export const reservationsApi = {
   /** Ближайшая доступность для категорий без мест (ADR-110, AV4) */
   nearest: (arrival: string, departure: string, guests: number) =>
     getJson<NearestStays>(`/availability/nearest${query({ arrival, departure, guests })}`),
-  quote: (body: unknown) => sendJson<{ totalMinor: string; currency: string }>('POST', '/reservations/quote', body),
+  quote: (body: unknown) =>
+    sendJson<{ totalMinor: string; currency: string; nights?: Array<{ date: string; priceMinor: string }> }>(
+      'POST',
+      '/reservations/quote',
+      body,
+    ),
   create: (body: unknown) => sendJson<ReservationCard>('POST', '/reservations', body),
   changeDates: (number: string, body: unknown) =>
     sendJson<ReservationCard>('PATCH', `/reservations/${encodeURIComponent(number)}/dates`, body),
@@ -956,7 +961,7 @@ export const channelsApi = {
       '/channels/channex/webhook/test',
       {},
     ),
-  /** Раздел «Каналы» (ADR-138): подключения объекта и каталог каналов Channex, брони за 30 дней из WETOP */
+  /** Раздел «Каналы» (ADR-140): подключения объекта и каталог каналов Channex, брони за 30 дней из WETOP */
   catalog: () => getJson<ChannelCatalog>('/channels/channex/channels'),
   /** Канал отдаёт уже сделанные у него будущие брони (только владельцу, только каналу с этим действием) */
   loadFutureReservations: (connectionId: string) =>
@@ -973,7 +978,7 @@ export const channelsApi = {
       channel ? { channel } : {},
     ),
 };
-/** Статус канала по фактам (ADR-138): «Работает» — включён, событие за 30 дней, нет ошибок входящих за 7 дней */
+/** Статус канала по фактам (ADR-140): «Работает» — включён, событие за 30 дней, нет ошибок входящих за 7 дней */
 export type ChannelStatus = 'WORKING' | 'ENABLED' | 'ERRORS' | 'OFF' | 'REMOVING';
 export interface ChannelConnectionRow {
   id: string;

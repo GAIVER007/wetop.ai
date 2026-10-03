@@ -157,7 +157,7 @@ describe('channexUniqueIdOf: как бронь канала будет назы�
   });
 });
 
-describe('имя канала брони из Channex (ADR-138): по коду unique_id, одно на канал', () => {
+describe('имя канала брони из Channex (ADR-140): по коду unique_id, одно на канал', () => {
   it('известные каналы объекта — одним именем при любых написаниях ota_name', () => {
     expect(revisionChannelLabel('BDC-9996013801', 'BookingCom')).toBe('Booking.com');
     expect(revisionChannelLabel('EXP-1695093244', 'A-Expedia')).toBe('Expedia');

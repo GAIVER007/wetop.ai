@@ -47,7 +47,7 @@ import {
     // Контент объекта для WETOP из Channex, только чтение (ADR-033)
     ChannelContentService,
     { provide: CHANNEL_CONTENT_READER, useFactory: contentReaderFromEnv },
-    // Раздел «Каналы»: подключения и каталог каналов Channex, только чтение (ADR-138)
+    // Раздел «Каналы»: подключения и каталог каналов Channex, только чтение (ADR-140)
     ChannelCatalogService,
     { provide: CHANNEL_CATALOG_READER, useFactory: catalogReaderFromEnv },
     ChannexSyncService,

@@ -1,7 +1,7 @@
 'use server';
 import { ApiError, channelsApi } from '../../lib/api';
 
-/** Одноразовый адрес окна Channex (ADR-138): токен живёт 15 минут, выдаёт API только владельцу */
+/** Одноразовый адрес окна Channex (ADR-140): токен живёт 15 минут, выдаёт API только владельцу */
 export async function connectSessionAction(
   channel?: string,
 ): Promise<{ url: string | null; error: string | null }> {

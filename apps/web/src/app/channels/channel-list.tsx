@@ -10,7 +10,7 @@ import { ChannelRowActions, ConnectChannelButton } from './channel-connect';
 import { channelStatusView, matchesChannel, outsideLabel } from './channel-list-format';
 
 /**
- * Раздел «Каналы» (ADR-138, план plans/channels-catalog-2026-10-03.md): как привыкли в прежней системе —
+ * Раздел «Каналы» (ADR-140, план plans/channels-catalog-2026-10-03.md): как привыкли в прежней системе —
  * «Подключённые N» и «Все доступные каналы», таблица с колонками «Канал», «ID в канале», «Название подключения»,
  * «Брони за 30 дней», «Статус», «Действие». Подключения и каталог — из Channex, брони — из WETOP. Подключает, сопоставляет и включает канал
  * владелец в окне Channex; остальные видят список.

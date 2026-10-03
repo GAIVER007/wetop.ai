@@ -1,7 +1,7 @@
 import { expect, test } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
-/** Раздел «Каналы» (ADR-138): подключённые и все доступные каналы Channex, брони за 30 дней из WETOP */
+/** Раздел «Каналы» (ADR-140): подключённые и все доступные каналы Channex, брони за 30 дней из WETOP */
 const fixture = process.env.UI_FIXTURE_API ?? 'http://127.0.0.1:4311';
 const headers = { 'x-wetop-test-client': '1' };
 const control = (

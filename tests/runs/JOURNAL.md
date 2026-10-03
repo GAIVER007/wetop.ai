@@ -5445,3 +5445,5 @@
 | 03.10.2026 19:11 | typecheck | ✅ без ошибок | 33 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-11-27Z-typecheck-cf36.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | lint | ✅ без ошибок | 22 с | 5fabb2c +7 | [лог](logs/2026-10-03T14-12-02Z-lint-96cc.log) | Дни рождения T0 + панель слева |
 | 03.10.2026 19:12 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts tests/unit/build-tokens.test.ts tests/unit/no-hardcoded-utc5.test.ts packages/dom | ✅ 47 из 47 | 7 с | 5fabb2c +5 | [лог](logs/2026-10-03T14-12-35Z-unit-0f69.log) | Дни рождения T0: сторожа дизайна, домен и API гостей |
+| 03.10.2026 20:29 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts tests/unit/build-tokens.test.ts) | ✅ 11 из 11 | 1 с | d09f136 +1 | [лог](logs/2026-10-03T15-29-09Z-unit-0d3d.log) |  |
+| 03.10.2026 20:01 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 42 из 816 | 1 ч 17 мин | 74f3bc8 | [лог](logs/2026-10-03T15-01-06Z-e2e-8b0f.log) | calendar and keyboard produce the same period |

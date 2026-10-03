@@ -1,0 +1,7 @@
+# Сквозные (e2e) · 03.10.2026 01:25 Алматы · vm
+# коммит f494412 (claude/bold-planck-k2ls6o)
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts' '-g' 'кнопки|одной фразой'
+Error: http://127.0.0.1:4320/ is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+# код выхода 1 · 2 с

@@ -369,13 +369,16 @@ test('ошибка создания сохраняет ввод; повтор о
   await expect(form.locator('[name="unitCode"]')).toHaveValue('M03');
   await request.post(`${fixture}/__test/control`, { data: {} });
   await form.getByRole('button', { name: 'Создать бронь' }).click();
-  await expect(page).toHaveURL(/\/reservations\/20260913-NEW2$/);
+  // номер даёт фикстура по длине журнала команд, а в журнале теперь и POST /reservations/quote
+  // компактной формы: ровно два создания проверяем по самому журналу, номер не зашиваем
+  await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
   await expect(page.getByTestId('stay-row')).toContainText('M03');
   await expect(page.getByRole('main')).toContainText('Тестович');
   const response = await request.get(`${fixture}/__test/commands`);
-  const commands = await response.json();
-  expect(commands).toHaveLength(2);
-  expect(commands[1].body).toMatchObject({
+  const commands = (await response.json()) as Array<{ path: string; body: object }>;
+  const creates = commands.filter((c) => c.path === '/reservations');
+  expect(creates).toHaveLength(2);
+  expect(creates[1]!.body).toMatchObject({
     guest: { email: 'new@example.invalid', middleName: 'Тестович' },
     items: [{ accommodationTypeCode: 'MALE', unitCode: 'M03', quantity: 1 }],
   });
@@ -557,8 +560,9 @@ test('сбой списка неисправностей не выдаётся �
 test('неверная дата в ссылке оставляет доступную форму для исправления', async ({ page }) => {
   await page.goto('/reservations/new?arrival=bad-date');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Новая бронь');
-  // ошибка даты стоит у самого поля (booking-compact), а не общей строкой
-  await expect(page.getByRole('alert').filter({ hasText: 'Введите корректную дату' })).toBeVisible();
+  // ошибка даты стоит у самого поля (booking-compact), а не общей строкой; битый заезд делает
+  // некорректным и выезд — алертов два, проверяем поле заезда
+  await expect(page.locator('#booking-arrival-error')).toHaveText('Введите корректную дату');
   await expect(page.getByRole('button', { name: 'Создать бронь' })).toBeDisabled();
 });
 
@@ -623,22 +627,14 @@ test('общий платёж: ошибка не стирает распреде
   expect(result.balanceMinor).toBe('3000000');
 });
 
-test('обзор: задачи ведут к счетам, полоса стойки следует за выбранным днём, узкие экраны сохраняют действия', async ({
+test('обзор: очередь «Требуют внимания» ведёт к счетам; узкие экраны сохраняют действия', async ({
   page,
 }) => {
+  // компактный дашборд владельца (ea9dd3c): очередь A3 живёт за кнопкой «Требуют внимания» в панели,
+  // полосы «День стойки» и «Сегодня на стойке» с Главной сняты тем же срезом
   await page.goto('/today');
-  const tasks = page.getByRole('region', { name: 'Требуют внимания' });
-  await expect(tasks.getByRole('heading', { name: 'Требуют внимания' })).toBeVisible();
-  // A3 (план today-a3): счётчик в шапке — сумма событий очереди; долг уезжающего — строкой своего события
-  const queueTotal = async () =>
-    String(
-      (
-        await tasks
-          .getByTestId('attention-event')
-          .evaluateAll((els) => els.map((el) => Number(el.getAttribute('data-count'))))
-      ).reduce((a, b) => a + b, 0),
-    );
-  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
+  const tasks = page.getByRole('dialog', { name: 'Требуют внимания', exact: true });
   const departureDebt = tasks.locator('[data-event="departure-debt"] .attention-item').first();
   await expect(departureDebt).toContainText('К оплате');
   await expect(departureDebt).toHaveAttribute(
@@ -649,30 +645,15 @@ test('обзор: задачи ведут к счетам, полоса стой
   await expect(overdue).toHaveCount(1);
   await expect(overdue).toContainText('Не заехал');
   await expect(overdue).toHaveAttribute('href', '/reservations/20260913-TEST8#booking-actions');
-  // A1 (ADR-103): Главная живёт одним днём — «Завтра» меняет и полосу, и задачи на тот день
-  await page
-    .getByRole('navigation', { name: 'День стойки' })
-    .getByRole('link', { name: 'Завтра' })
-    .click();
-  await expect(page).toHaveURL(/date=\d{4}-\d{2}-\d{2}/);
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).not.toContainText('сейчас');
-  await page
-    .getByRole('navigation', { name: 'День стойки' })
-    .getByRole('link', { name: 'Сегодня' })
-    .click();
-  await expect(page.getByRole('region', { name: 'Сегодня на стойке' })).toContainText('сейчас');
-  await expect(tasks.locator('.attention-count')).toHaveText(await queueTotal());
-  await expect(
-    page
-      .getByRole('region', { name: 'Сегодня на стойке' })
-      .getByRole('link', { name: 'Все брони дня' }),
-  ).toHaveAttribute('href', /\/reservations\?date=\d{4}-\d{2}-\d{2}/);
+  await page.keyboard.press('Escape');
+  await expect(tasks).toBeHidden();
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await noPageOverflow(page);
-    await expect(page.getByRole('link', { name: 'Новая бронь', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: '+ Новая бронь', exact: true })).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: 'Требуют внимания', exact: true }).click();
   await departureDebt.click();
   await expect(page).toHaveURL(/#booking-finance$/);
   await expect(page.locator('#booking-finance')).toBeInViewport();
@@ -912,6 +893,8 @@ test('кнопки Channex отправляют команды один раз �
   expect(await (await request.get(`${fixture}/__test/commands`)).json()).toEqual([]);
   // ежедневный обмен — на «Обзоре», настройка подключения — на «Подключениях» (ADR-112)
   await page.goto('/channels');
+  // ручной обмен спрятан в раскрывашке «Активность каналов и ручной обмен»
+  await page.getByTestId('channels-activity').locator('> summary').click();
   for (const id of ['channel-pull', 'channel-flush']) {
     // Streamed Suspense may briefly retain a hidden copy; require one visible action.
     const button = page.getByTestId(id).filter({ visible: true });
@@ -921,7 +904,8 @@ test('кнопки Channex отправляют команды один раз �
     await expect(button).toBeEnabled();
     await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   }
-  await page.goto('/channels/connections');
+  // «Подключения» каналов переехали на /connections/channex (INT2)
+  await page.goto('/connections/channex');
   for (const id of ['channel-sync', 'channel-setup']) {
     const button = page.getByTestId(id).filter({ visible: true });
     await expect(button).toHaveCount(1);
@@ -977,6 +961,8 @@ test('пустые ответы дают нули; сбой API не выдаё�
     'Финансы за период',
   );
   await expect(page.getByRole('main').getByTestId('finance-error')).toBeVisible();
+  // «Долги» — отдельная вкладка финансов: сбой списка долгов виден на ней
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   await expect(page.getByRole('main').getByTestId('debts-error')).toBeVisible();
   await expect(page.locator('.stat__value:visible')).toHaveCount(0);
   /*
@@ -1115,6 +1101,8 @@ test('кнопки называют своё действие: гость зав
 
   // С F1 (ADR-113) «Принять оплату» на «Финансах» стоит только в строке долга и ведёт прямо на счёт этой брони
   await page.goto('/finance');
+  // список долгов с кнопками оплаты — на вкладке «Долги» финансов
+  await page.getByRole('tab', { name: 'Долги', exact: true }).click();
   const pay = page.getByRole('main').getByRole('link', { name: 'Принять оплату' });
   await expect(pay.first()).toBeVisible();
   for (const href of await pay.evaluateAll((xs) => xs.map((x) => x.getAttribute('href'))))

@@ -9,6 +9,7 @@ import { Panel, Stack } from '../../components/ui';
 import { branchesApi } from '../../lib/api';
 import { BranchForm } from './form';
 import { selectBranch } from './actions';
+import { unstable_rethrow } from 'next/navigation';
 export async function BranchWorkspace({
   query,
   createLabel = 'Добавить филиал',
@@ -18,7 +19,10 @@ export async function BranchWorkspace({
 }) {
   const loaded = await branchesApi.list().then(
     (value) => ({ ok: true as const, value }),
-    (error: unknown) => ({ ok: false as const, error }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
   if (!loaded.ok)
     return <LoadError testId="branches-load-error" {...loadErrorProps(loaded.error)} />;

@@ -1,0 +1,76 @@
+# Сквозные (e2e) · 02.10.2026 22:31 Алматы · vm
+# коммит 3945ad2 (claude/great-cray-1d5t94), незакоммиченных файлов набора: 4
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' '--workers=1' 'tests/ui/top-menu.spec.ts' 'tests/ui/platform-access.spec.ts' 'tests/ui/roles.spec.ts' 'tests/ui/team.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 36 tests using 1 worker
+
+  ✓   1 tests/ui/platform-access.spec.ts:38:1 › меню: «ИИ-агенты» — всегда (ADR-090), «Платформа» — у главного администратора (3.5s)
+  ✓   2 tests/ui/platform-access.spec.ts:81:1 › расширение не подключено: раздел объясняет, что это и кто подключает; в профиле — то же (3.2s)
+  ✓   3 tests/ui/platform-access.spec.ts:103:1 › срок вышел: всё видно, но менять, отвечать гостю и проверять нельзя (4.5s)
+  ✓   4 tests/ui/platform-access.spec.ts:142:1 › администратор: вместо настроек продавца — его диалоги; приглашают владелец и управляющий (ADR-107) (3.6s)
+  ✓   5 tests/ui/platform-access.spec.ts:170:1 › управляющий настраивает продавца наравне с владельцем (ADR-107) (2.3s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓   6 tests/ui/platform-access.spec.ts:190:1 › за неделю до конца срока владелец видит напоминание; управляющий и администратор — нет (3.9s)
+  ✓   7 tests/ui/platform-access.spec.ts:213:1 › «Платформа → Организации»: главный администратор включает и выключает продавца организации (5.6s)
+  ✓   8 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 1440px (10.5s)
+  ✓   9 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 1440px (10.8s)
+  ✓  10 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, light, 390px (9.3s)
+  ✓  11 tests/ui/platform-access.spec.ts:271:5 › доступность: «Организации» и состояния расширения, dark, 390px (9.8s)
+  ✓  12 tests/ui/roles.spec.ts:36:1 › администратор: в меню — работа с гостями, оплаты, статистика, продавец и неисправности (2.0s)
+  ✓  13 tests/ui/roles.spec.ts:62:1 › администратор: закрытые разделы по адресу говорят, у кого доступ, — и данных не показывают (7.2s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+[WebServer] Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException: Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+[WebServer] ⨯ uncaughtException:  Error: aborted
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNRESET'
+[WebServer] }
+  ✓  14 tests/ui/roles.spec.ts:100:1 › администратор: в «ИИ-продавце» только диалоги, раздел открывается сразу на них (3.6s)
+  ✓  15 tests/ui/roles.spec.ts:117:1 › администратор принимает оплату, но возврата и сторно у него нет; у управляющего — есть (5.3s)
+  ✓  16 tests/ui/roles.spec.ts:145:1 › администратор меняет даты и продлевает в тарифе брони; брони без тарифа назначает тариф со штрафом (Q-200, Q-201) (6.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '862948196'
+[WebServer] }
+  ✓  17 tests/ui/roles.spec.ts:207:1 › управляющий: всё, кроме «Платформы»; зовёт только администраторов и отключает только их (4.1s)
+  ✓  18 tests/ui/roles.spec.ts:262:1 › владелец: зовёт управляющего и администратора, меняет роль (2.6s)
+  ✓  19 tests/ui/roles.spec.ts:293:1 › администратор: сотрудниками ведают владелец и управляющий (1.7s)
+  ✓  20 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, light, 1440px (5.4s)
+  ✓  21 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, dark, 1440px (4.3s)
+  ✓  22 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, light, 390px (4.1s)
+  ✓  23 tests/ui/roles.spec.ts:305:5 › доступность: сотрудники и отказ по роли, dark, 390px (4.4s)
+  ✓  24 tests/ui/team.spec.ts:30:1 › владелец: таблица людей с ролями и датами, пункт «Сотрудники» в меню (1.9s)
+  ✓  25 tests/ui/team.spec.ts:54:1 › приглашение — панелью из шапки: почта, роль, строка в «Ожидают ответа» (2.4s)
+  ✓  26 tests/ui/team.spec.ts:71:1 › ошибка приглашения — словами в панели, ввод не стирается (2.4s)
+  ✓  27 tests/ui/team.spec.ts:83:1 › «Отключить» — только после подтверждения с последствием (2.3s)
+  ✓  28 tests/ui/team.spec.ts:95:1 › управляющий: роль не меняет, приглашает только администраторов (2.1s)
+  ✓  29 tests/ui/team.spec.ts:108:1 › без сессии страница не уводит на вход: открыта, команда закрыта словами (ADR-107) (1.1s)
+  ✓  30 tests/ui/team.spec.ts:119:1 › администратору раздел закрыт: гейт и меню без пункта (1.6s)
+  ✓  31 tests/ui/team.spec.ts:128:3 › снимки TEAM1 и доступность: light (3.4s)
+  ✓  32 tests/ui/team.spec.ts:128:3 › снимки TEAM1 и доступность: dark (3.0s)
+  ✓  33 tests/ui/top-menu.spec.ts:53:1 › строка вкладок в шапке: порядок, одна активная, список группы с клавиатуры (2.2s)
+  ✓  34 tests/ui/top-menu.spec.ts:117:1 › вложенные адреса подсвечивают свою вкладку (3.9s)
+  ✓  35 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: light (3.1s)
+  ✓  36 tests/ui/top-menu.spec.ts:150:3 › шапка ровная, без прокрутки вбок и доступная: dark (3.0s)
+
+  36 passed (2.6m)
+
+# код выхода 0 · 2 мин 39 с

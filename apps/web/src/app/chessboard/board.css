@@ -480,30 +480,50 @@
   line-height: var(--board-stay-h);
   margin: 0;
 }
-/* Сводка дня в строке управления: отдельной полосы нет — страница фиксирована по высоте,
-   лишний ряд сверху отнимает его у сетки (контракт «сетка начинается до 350 px») */
-.board-day-stats {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
-  align-items: baseline;
-  margin-left: auto;
+/* Панель «Сегодня» (поручение 02.10, образец — Lite PMS): рядом со строками управления,
+   чтобы не отнимать высоту у сетки; на экранах уже 1200px скрыта — день живёт на Главной */
+.board-top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
 }
-.board-day-stat {
-  white-space: nowrap;
-  text-decoration: none;
-  color: inherit;
+.board-top > .board-controls {
+  flex: 1 1 auto;
+  min-width: 0;
 }
-.board-day-stat:hover b {
-  text-decoration: underline;
+.board-day-panel {
+  flex: 0 0 auto;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface-muted);
+  padding: var(--space-2) var(--space-4);
 }
-.board-day-stat__label {
-  color: var(--muted);
+.board-day-panel__title {
+  margin: 0 0 var(--space-1);
   font-size: var(--text-sm);
+  font-weight: 600;
 }
-@media (max-width: 600px) {
-  /* на телефоне сводка дня живёт на Главной */
-  .board-day-stats {
+.board-day-panel__cols {
+  display: flex;
+  gap: var(--space-6);
+}
+.board-day-panel__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  /* ссылки — цели не меньше 24px (axe target-size) */
+  line-height: 24px;
+}
+.board-day-panel__row > a,
+.board-day-panel__row > span {
+  color: var(--muted);
+}
+.board-day-panel__row > b {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1199px) {
+  .board-day-panel {
     display: none;
   }
 }
@@ -1695,6 +1715,14 @@
 .page:has(> .board-wrap) {
   padding: var(--space-4);
   gap: 0;
+}
+/* Месяц на узком десктопе: колонка мест схлопнута, 31 день по 24px помещаются только с полями 8px
+   (premium.css задаёт те же 8px, но это правило стоит ниже в каскаде и перебивало их 16px) */
+@media (min-width: 760px) and (max-width: 1279px) {
+  .page:has(> .board-wrap):has(.board--month) {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
 }
 .page:has(> .board-wrap) > .page__head {
   margin-bottom: var(--space-2);

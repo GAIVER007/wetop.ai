@@ -1,0 +1,114 @@
+# Сквозные (e2e) · 03.10.2026 14:17 Алматы · vm
+# коммит 4cdd4fc (claude/bold-planck-k2ls6o), незакоммиченных файлов набора: 6
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/site/playwright.config.ts'
+
+Running 48 tests using 2 workers
+
+  ✓   1 tests/site/calculator.spec.ts:7:1 › калькулятор: пустые поля — результата нет, после ввода — сумма в месяц и в год (790ms)
+  ✓   2 tests/site/auth-dialog.spec.ts:57:1 › несохранённая сессия не запускает круг переходов (1.3s)
+  ✓   3 tests/site/calculator.spec.ts:31:1 › калькулятор: неверное значение — подсказка у поля, результат пропадает (577ms)
+  ✓   5 tests/site/homepage-blocks.spec.ts:23:1 › блоки идут в заданном порядке, у каждого надзаголовок и заголовок словами (550ms)
+  ✓   6 tests/site/homepage-blocks.spec.ts:41:1 › содержимое блоков видно сразу: без вкладок, восемь возможностей, четыре входа броней, три карточки команды (530ms)
+  ✓   4 tests/site/auth-dialog.spec.ts:72:1 › «Войти» открывает окно на главной, вход ведёт прямо в стойку (1.5s)
+  ✓   7 tests/site/homepage-blocks.spec.ts:66:1 › первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним (553ms)
+  ✘   9 tests/site/homepage-blocks.spec.ts:90:1 › карточки блоков читаются одной фразой, а не абзацем (511ms)
+  ✓   8 tests/site/auth-dialog.spec.ts:102:1 › неверный пароль — текст стойки в окне, человек остаётся на главной (923ms)
+  ✓  10 tests/site/auth-dialog.spec.ts:117:1 › стойка недоступна — окно говорит об этом и даёт ссылку на отдельную страницу (1.0s)
+  ✓  11 tests/site/homepage-blocks.spec.ts:107:1 › ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки (623ms)
+  ✓  13 tests/site/homepage-blocks.spec.ts:124:1 › первый экран: карта разделов ведёт на блоки страницы (1.4s)
+  ✓  12 tests/site/auth-dialog.spec.ts:135:1 › «Получить доступ» при открытой регистрации открывает форму, после отправки — «Проверьте почту» и повтор письма (2.1s)
+  ✓  14 tests/site/homepage-blocks.spec.ts:147:1 › на главной нет дорожной карты направлений (393ms)
+  ✓  15 tests/site/auth-dialog.spec.ts:195:1 › регистрация закрыта (до RLS, ADR-102) — окно зовёт написать, форму не показывает (613ms)
+  ✓  16 tests/site/homepage-blocks.spec.ts:161:1 › салоны и студии названы среди тех, кого подключаем, со ссылкой написать (530ms)
+  ✓  18 tests/site/homepage-blocks.spec.ts:178:1 › меню шапки ведёт на блоки, а не на абстрактные разделы (445ms)
+  ✓  17 tests/site/auth-dialog.spec.ts:208:1 › #login в адресе открывает окно; Escape закрывает и убирает метку из адреса (629ms)
+  ✓  19 tests/site/homepage-blocks.spec.ts:186:1 › в текстах главной нет длинного тире и разделителя « · » (434ms)
+  ✓  21 tests/site/homepage-blocks.spec.ts:194:3 › главная помещается в 320 px и открывает регистрацию с первого экрана (495ms)
+  ✓  20 tests/site/auth-dialog.spec.ts:220:1 › на телефоне окно открывается из меню и не шире экрана (962ms)
+  ✓  22 tests/site/homepage-blocks.spec.ts:194:3 › главная помещается в 390 px и открывает регистрацию с первого экрана (440ms)
+  ✓  24 tests/site/homepage-blocks.spec.ts:194:3 › главная помещается в 768 px и открывает регистрацию с первого экрана (576ms)
+  ✓  25 tests/site/homepage-blocks.spec.ts:194:3 › главная помещается в 1440 px и открывает регистрацию с первого экрана (560ms)
+  ✓  23 tests/site/auth-dialog.spec.ts:237:1 › снимки окна регистрации: светлая и тёмная, 1440 и 390 (4.0s)
+  ✓  26 tests/site/homepage-blocks.spec.ts:213:1 › блоки доступны в обеих темах (2.9s)
+  ✓  27 tests/site/landing.spec.ts:18:1 › чат ИИ-помощника: тег отсутствует, пока публичный сервис не подключён (425ms)
+  ✓  28 tests/site/homepage-blocks.spec.ts:227:1 › FAQ раскрывается без JavaScript-вкладок, переключатель темы запоминает выбор (1.0s)
+  ✓  30 tests/site/segments.spec.ts:15:3 › /for/hostels/ — заголовок, возможности и призыв (320ms)
+  ✓  31 tests/site/segments.spec.ts:15:3 › /for/mini-hotels/ — заголовок, возможности и призыв (316ms)
+  ✓  29 tests/site/landing.spec.ts:24:3 › / — открывается, доступна и без «TODO» на экране (1.8s)
+  ✓  32 tests/site/segments.spec.ts:15:3 › /for/apart-hotels/ — заголовок, возможности и призыв (333ms)
+  ✓  33 tests/site/landing.spec.ts:39:3 › / — на телефоне нет горизонтальной прокрутки (371ms)
+  ✓  34 tests/site/segments.spec.ts:28:1 › карточки направлений на главной ведут на страницы по типам объектов (441ms)
+  ✓  35 tests/site/landing.spec.ts:24:3 › /blog/ — открывается, доступна и без «TODO» на экране (759ms)
+  ✓  36 tests/site/landing.spec.ts:39:3 › /blog/ — на телефоне нет горизонтальной прокрутки (182ms)
+  ✓  37 tests/site/landing.spec.ts:24:3 › /for/hostels/ — открывается, доступна и без «TODO» на экране (820ms)
+  ✓  38 tests/site/landing.spec.ts:39:3 › /for/hostels/ — на телефоне нет горизонтальной прокрутки (206ms)
+  ✓  39 tests/site/landing.spec.ts:24:3 › /for/mini-hotels/ — открывается, доступна и без «TODO» на экране (774ms)
+  ✓  40 tests/site/landing.spec.ts:39:3 › /for/mini-hotels/ — на телефоне нет горизонтальной прокрутки (212ms)
+  ✓  41 tests/site/landing.spec.ts:24:3 › /for/apart-hotels/ — открывается, доступна и без «TODO» на экране (767ms)
+  ✓  42 tests/site/landing.spec.ts:39:3 › /for/apart-hotels/ — на телефоне нет горизонтальной прокрутки (219ms)
+  ✓  43 tests/site/landing.spec.ts:24:3 › /calculator/ — открывается, доступна и без «TODO» на экране (788ms)
+  ✓  44 tests/site/landing.spec.ts:39:3 › /calculator/ — на телефоне нет горизонтальной прокрутки (215ms)
+  ✓  45 tests/site/landing.spec.ts:52:1 › ссылка в мессенджере: заголовок, описание и картинка 1200×630 (942ms)
+  ✓  46 tests/site/landing.spec.ts:70:1 › в sitemap.xml только живые адреса, robots.txt на него ссылается (27ms)
+  ✓  47 tests/site/landing.spec.ts:91:1 › главная: «Войти» и «Регистрация», шаги под регистрацию с 14 днями, блог скрыт без статей, подсказка макета внутри карточки, без « · » (412ms)
+  ✘  48 tests/site/landing.spec.ts:154:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее (10.3s)
+
+
+  1) tests/site/homepage-blocks.spec.ts:90:1 › карточки блоков читаются одной фразой, а не абзацем ─
+
+    Error: текст карточки длиннее одной фразы
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "#audience: 137 знаков: Подключаем сервисный бизнес без номеров:",
+    + ]
+
+       97 |     }
+       98 |   }
+    >  99 |   expect(long, 'текст карточки длиннее одной фразы').toEqual([]);
+          |                                                      ^
+      100 |   // «Что умеет WETOP»: восемь строк-пунктов в две колонки вместо восьми карточек-колонок
+      101 |   await expect(page.locator('#features .card-grid--2')).toBeVisible();
+      102 |   await expect(page.locator('#features .card--compact')).toHaveCount(8);
+        at /home/user/wetop.ai/tests/site/homepage-blocks.spec.ts:99:54
+
+    Error Context: test-results/homepage-blocks-карточки-б-52d48-я-одной-фразой-а-не-абзацем/error-context.md
+
+  2) tests/site/landing.spec.ts:154:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.hero')
+    Expected pattern: /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\sв\sодном\sрабочем\sпространстве/
+    Received string:  "Регистрация открытаWETOP.AIЦентр управления сервисным бизнесомОнлайн-система для отеля, хостела и апартаментов: брони, клиенты, цены, деньги, команда и аналитика в одном окне. Подключаем салоны и студии.Получить доступСмотреть возможности14 дней бесплатно. Карта не нужна.WETOP / Рабочее пространствоЧто внутриОперацииШахматка, брони, заезды и выездыПродажиКаналы продаж, сайт объекта, тарифы и ценыКомандаРоли, приглашения, журнал действийФинансыСчета гостей, оплаты, возвраты, долгиАналитикаЗагрузка, выручка, источники бронейИИ-продавцыАгент отвечает клиентам по вашим знаниямСхема разделов рабочего пространства, не снимок системы."
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toContainText" locator('.hero') with timeout 10000ms
+      - waiting for locator('.hero')
+        24 × locator resolved to <section class="hero" aria-labelledby="hero-title">…</section>
+           - unexpected value "Регистрация открытаWETOP.AIЦентр управления сервисным бизнесомОнлайн-система для отеля, хостела и апартаментов: брони, клиенты, цены, деньги, команда и аналитика в одном окне. Подключаем салоны и студии.Получить доступСмотреть возможности14 дней бесплатно. Карта не нужна.WETOP / Рабочее пространствоЧто внутриОперацииШахматка, брони, заезды и выездыПродажиКаналы продаж, сайт объекта, тарифы и ценыКомандаРоли, приглашения, журнал действийФинансыСчета гостей, оплаты, возвраты, долгиАналитикаЗагрузка, выручка, источники бронейИИ-продавцыАгент отвечает клиентам по вашим знаниямСхема разделов рабочего пространства, не снимок системы."
+
+
+      162 |     /Центр управления сервисным бизнесом/,
+      163 |   );
+    > 164 |   await expect(hero).toContainText(
+          |                      ^
+      165 |     /Клиенты,\sрасписание,\sпродажи,\sкоманда,\sфинансы\sи\sаналитика\sв\sодном\sрабочем\sпространстве/,
+      166 |   );
+      167 |   // Первый экран 29.09.2026, вечер (владелец: «сделай лучше, профессиональней, понятней»): главная фраза — заголовок,
+        at /home/user/wetop.ai/tests/site/landing.spec.ts:164:22
+
+    Error Context: test-results/landing-первый-экран-—-цен-652a8-работает-Beauty-—-следующее/error-context.md
+
+  2 failed
+    tests/site/homepage-blocks.spec.ts:90:1 › карточки блоков читаются одной фразой, а не абзацем ──
+    tests/site/landing.spec.ts:154:1 › первый экран — центр управления сервисным бизнесом; Hospitality работает, Beauty — следующее 
+  46 passed (38.7s)
+
+# код выхода 1 · 40 с

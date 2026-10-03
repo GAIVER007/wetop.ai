@@ -59,6 +59,13 @@ for (const width of [1440, 390]) {
       test.setTimeout(360_000);
       await request.post('http://127.0.0.1:4311/__test/reset');
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      // /profile/access для невошедшего уводит на вход wetop.ai (объединение входа): обход идёт вошедшим
+      await page.goto('/auth/fallback');
+      await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+      await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+      await page.getByRole('button', { name: 'Войти', exact: true }).click();
+      await page.waitForURL('**/today');
       await page.setViewportSize({ width, height: 1000 });
       const errors: string[] = [];
       page.on('pageerror', (e) => {

@@ -1,0 +1,141 @@
+# Модульные (unit) · 03.10.2026 02:09 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 17
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T21-09-23Z-unit-428b.json' 'tests/unit/db-restore-prod.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| tests/unit/db-restore-prod.test.ts (6 tests | 6 failed) 55ms
+   ❯ восстановление рабочей базы из копии (ADR-137) (6)
+     × без --yes-replace-production ничего не делает 15ms
+     × данные и все миграции прав одной транзакцией, права после данных и по порядку 9ms
+     × схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления 7ms
+     × пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны 8ms
+     × транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт 8ms
+     × после восстановления wetop_app читает users целиком: отказ, API не запускать 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > без --yes-replace-production ничего не делает
+AssertionError: expected 127 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 127
+
+ ❯ tests/unit/db-restore-prod.test.ts:87:20
+     85|     const s = sandbox();
+     86|     const r = s.run([s.dump]);
+     87|     expect(r.code).toBe(2);
+       |                    ^
+     88|     expect(r.out).toContain('--yes-replace-production');
+     89|     expect(s.read('calls')).toBe('');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > данные и все миграции прав одной транзакцией, права после данных и по порядку
+AssertionError: bash: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/db-restore-prod.sh: No such file or directory
+: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-restore-prod.test.ts:96:27
+     94|     const s = sandbox();
+     95|     const r = s.run([s.dump, '--yes-replace-production']);
+     96|     expect(r.code, r.out).toBe(0);
+       |                           ^
+     97|     expect(s.read('calls')).toMatch(/psql .*--single-transaction/);
+     98|     expect(s.read('calls')).toMatch(/pg_restore .*--clean --if-exists …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > схема public из копии не пересоздаётся: её записи вычеркнуты из оглавления
+AssertionError: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-restore-prod.test.ts:115:62
+    113|   it('схема public из копии не пересоздаётся: её записи вычеркнуты из …
+    114|     const s = sandbox();
+    115|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+       |                                                              ^
+    116|     const used = s.read('used-list');
+    117|     expect(used).toContain('TABLE DATA public reservations');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma срезаны
+AssertionError: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/db-restore-prod.test.ts:124:62
+    122|   it('пароль идёт в PGPASSWORD, не в аргументы; параметры Prisma среза…
+    123|     const s = sandbox();
+    124|     expect(s.run([s.dump, '--yes-replace-production']).code).toBe(0);
+       |                                                              ^
+    125|     expect(s.read('calls')).not.toContain(PASSWORD);
+    126|     expect(s.read('calls')).not.toContain('pgbouncer');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > транзакция упала: код 1 и прямое «откатилось целиком», пароль в сообщении скрыт
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-restore-prod.test.ts:134:20
+    132|     const s = sandbox({ psqlFails: true });
+    133|     const r = s.run([s.dump, '--yes-replace-production']);
+    134|     expect(r.code).toBe(1);
+       |                    ^
+    135|     expect(r.out).toContain('откатилось целиком');
+    136|     expect(r.out).not.toContain(PASSWORD);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |unit| tests/unit/db-restore-prod.test.ts > восстановление рабочей базы из копии (ADR-137) > после восстановления wetop_app читает users целиком: отказ, API не запускать
+AssertionError: expected 127 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 127
+
+ ❯ tests/unit/db-restore-prod.test.ts:142:20
+    140|     const s = sandbox({ check: 'открыто' });
+    141|     const r = s.run([s.dump, '--yes-replace-production']);
+    142|     expect(r.code).toBe(1);
+       |                    ^
+    143|     expect(r.out).toContain('API не запускать');
+    144|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  14:09:24
+   Duration  337ms (tests 47%, transform 37%, import 13%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-02T21-09-23Z-unit-428b.json
+
+# код выхода 1 · 1 с

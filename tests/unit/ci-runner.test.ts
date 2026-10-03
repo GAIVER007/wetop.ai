@@ -6,15 +6,22 @@
  *     и боевая PMS;
  *  2. тяжёлые задачи вернулись на раннеры GitHub, где минуты выбраны и ничего не запускается;
  *  3. задача с базой уехала на свой раннер, где нет Docker для `services: postgres`, и падает не по делу.
+ *  4. раннер на боевом сервере взял задачу из запроса на слияние из чужого форка (ADR-137, замечание ментора
+ *     02.10.2026): защищает хук перед задачей в образе раннера, а не условие в checks.yml;
+ *  5. тесты бота выпали из проверок, и их красноту снова никто не видит (ADR-137).
  */
-import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8');
 const WORKFLOW = read('.github/workflows/checks.yml');
 const COMPOSE = read('scripts/ops/ci-runner/compose.yml');
+const RUNNER_IMAGE = read('scripts/ops/ci-runner/Dockerfile');
+const HOOK = join(ROOT, 'scripts/ops/ci-runner/job-started.sh');
 
 /** Только то, что исполняется: в пояснениях те же слова стоят намеренно. */
 const withoutComments = (text: string): string =>
@@ -46,8 +53,24 @@ describe('свой раннер CI', () => {
   });
 
   it('тяжёлые задачи идут на свой раннер: минуты GitHub выбраны', () => {
-    for (const name of ['fast', 'ui-shard', 'ui'])
+    for (const name of ['fast', 'ui-shard', 'ui', 'bot'])
       expect(job(name), name).toMatch(/runs-on: \[self-hosted, linux, x64, wetop\]/);
+  });
+
+  it('тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота', () => {
+    const bot = withoutComments(job('bot'));
+    expect(bot).toContain('working-directory: apps/ai-seller');
+    expect(bot).toMatch(/-m pytest/);
+    const image = /^FROM python:(\d+\.\d+)/m.exec(read('apps/ai-seller/Dockerfile'));
+    expect(image, 'apps/ai-seller/Dockerfile: FROM python:X.Y').not.toBeNull();
+    expect(bot).toContain(`BOT_PYTHON: '${image![1]}'`);
+    // uv закреплён версией и суммой: скачанный файл без сверки не запускается
+    expect(bot).toMatch(/UV_SHA256: [0-9a-f]{64}/);
+    expect(bot).toContain('sha256sum -c');
+  });
+
+  it('проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория', () => {
+    expect(withoutComments(WORKFLOW)).not.toContain('pull_request_target');
   });
 
   it('задача с базой остаётся на GitHub: ей нужен Docker для services: postgres', () => {
@@ -55,5 +78,75 @@ describe('свой раннер CI', () => {
     expect(db).toMatch(/runs-on: ubuntu-24\.04/);
     expect(db).toContain('services:');
     expect(db).toContain('postgres');
+  });
+});
+
+const hasJq = spawnSync('jq', ['--version']).status === 0;
+
+/** Хук перед задачей (job-started.sh): тот же bash и тот же jq, что в образе раннера */
+describe.skipIf(!hasJq)('свой раннер не выполняет код из чужого форка (ADR-137)', () => {
+  const dirs: string[] = [];
+  afterEach(() => {
+    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+  });
+  const REPO = 'GAIVER007/wetop.ai';
+  const runHook = (event: unknown) => {
+    const dir = mkdtempSync(join(tmpdir(), 'wetop-ci-hook-'));
+    dirs.push(dir);
+    const path = join(dir, 'event.json');
+    if (event !== undefined)
+      writeFileSync(path, typeof event === 'string' ? event : JSON.stringify(event));
+    const r = spawnSync('bash', [HOOK], {
+      encoding: 'utf8',
+      timeout: 10_000,
+      env: { ...process.env, GITHUB_EVENT_PATH: event === undefined ? '' : path },
+    });
+    return { code: r.status, out: `${r.stdout}${r.stderr}` };
+  };
+  const pr = (head: string | null) => ({
+    action: 'opened',
+    pull_request: { head: { repo: head && { full_name: head } }, base: { repo: { full_name: REPO } } },
+    repository: { full_name: REPO },
+  });
+
+  it('образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh', () => {
+    const image = withoutComments(RUNNER_IMAGE);
+    const env = /^ENV ACTIONS_RUNNER_HOOK_JOB_STARTED=(\S+)$/m.exec(image);
+    expect(env, 'ENV ACTIONS_RUNNER_HOOK_JOB_STARTED в Dockerfile раннера').not.toBeNull();
+    const hookPath = env?.[1] ?? '';
+    expect(image).toContain(`COPY job-started.sh ${hookPath}`);
+    // вне тома раннера: том с настройкой переживает пересборку, а хук должен приходить с образом
+    expect(hookPath.startsWith('/home/runner/actions-runner')).toBe(false);
+  });
+
+  // Отказ хука: код 1 и строка «WETOP:», а не падение самого скрипта (127 у отсутствующего файла тоже «не 0»)
+  const refused = (r: { code: number | null; out: string }) => {
+    expect(r.code, r.out).toBe(1);
+    expect(r.out).toContain('WETOP:');
+  };
+
+  it('запрос на слияние из форка: отказ, задача краснеет, а не пропускается', () => {
+    const r = runHook(pr('stranger/wetop.ai'));
+    refused(r);
+    expect(r.out).toContain('stranger/wetop.ai');
+  });
+
+  it('форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ', () => {
+    refused(runHook(pr(null)));
+  });
+
+  it('ветка самого репозитория и пуш в main выполняются', () => {
+    for (const r of [
+      runHook(pr(REPO)),
+      runHook({ ref: 'refs/heads/main', repository: { full_name: REPO } }),
+    ]) {
+      expect(r.code, r.out).toBe(0);
+      expect(r.out).toContain('WETOP: задача из самого репозитория');
+    }
+  });
+
+  it('нет файла события или он битый: отказ, а не молчаливый пропуск проверки', () => {
+    refused(runHook(undefined));
+    refused(runHook('{битый'));
   });
 });

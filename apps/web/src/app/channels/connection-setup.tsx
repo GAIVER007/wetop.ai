@@ -5,11 +5,15 @@ import { currentMe } from '../../lib/desk-shell';
 import type { PropertyClock } from '../../lib/property-time';
 import { Alert, Badge, Panel, Grid, Fact } from '../../components/ui';
 import { ChannelButtons } from './buttons';
+import { unstable_rethrow } from 'next/navigation';
 import './channels.css';
 const settle = <T,>(p: Promise<T>) =>
   p.then(
     (r) => ({ ok: true as const, r }),
-    (e) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
 const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
   iso ? `, проверено ${clock.clock(iso)} по Алматы` : '';

@@ -25,6 +25,7 @@ import {
 } from '../../components/ui';
 import { DateInput } from '../../components/date-field';
 import { Icon } from '../../components/icon';
+import { unstable_rethrow } from 'next/navigation';
 
 /**
  * Отчёт по источникам броней за период по дате заезда — бывший экран «Менеджер каналов»
@@ -45,7 +46,10 @@ export async function ChannelReport({ sp }: { sp: Record<string, string | undefi
   const loaded = valid
     ? await hotelApi.channelReport(from, to, status).then(
         (r) => ({ ok: true as const, r }),
-        (e: unknown) => ({ ok: false as const, e }),
+        (e: unknown) => {
+          unstable_rethrow(e);
+          return { ok: false as const, e };
+        },
       )
     : null;
   const report = loaded?.ok ? loaded.r : null;

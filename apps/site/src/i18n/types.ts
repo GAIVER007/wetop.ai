@@ -37,7 +37,6 @@ export type Dictionary = {
     lead: string;
     /** Вторая кнопка первого экрана: к блоку «Возможности». */
     secondary: string;
-    points: Array<{ icon: IconName; text: string }>;
     /** Строка под кнопками первого экрана: срок пробного периода (ADR-098). */
     note: string;
     /** Карта разделов (01.10.2026): шесть областей платформы ссылками на блоки страницы; имён и сумм нет. */
@@ -46,10 +45,16 @@ export type Dictionary = {
       title: string;
       hint: string;
       items: Array<{ icon: IconName; title: string; text: string; href: string }>;
-      live: string;
-      next: string;
       caption: string;
     };
+  };
+  /**
+   * Полоса фактов под первым экраном (02.10.2026): четыре коротких ответа на вопрос «что это даёт».
+   * Три факта, которые раньше висели под чертой на первом экране, живут здесь. Обещаний и цифр нет (§19.9).
+   */
+  facts: {
+    label: string;
+    items: Array<{ icon: IconName; title: string; text: string }>;
   };
   mockup: {
     label: string;
@@ -66,19 +71,21 @@ export type Dictionary = {
     toastTitle: string;
     toastText: string;
   };
-  /** Раздел «Направления»: Hospitality работает, следующее направление отдельной карточкой. */
+  /**
+   * Раздел «Для кого»: типы объектов, с которыми система работает, и приглашение салонам (03.10.2026).
+   * Дорожной карты направлений на странице нет: `invite` зовёт написать, функций салона не обещает.
+   */
   audience: {
     eyebrow: string;
     title: string;
     lead: string;
-    /** Плашка у работающего направления. */
-    status: string;
     items: Array<{ icon: IconName; title: string; text: string; segment: SegmentSlug }>;
-    /** Подпись ссылки карточки направления на страницу по типу объекта. */
+    /** Подпись ссылки карточки на страницу по типу объекта. */
     more: string;
     /** Подпись под макетом шахматки. */
     caption: string;
-    next: { status: string; title: string; text: string };
+    /** Приглашение салонам и студиям: заголовок, текст и подпись ссылки на почту. */
+    invite: { title: string; text: string; action: string };
   };
   features: {
     eyebrow: string;

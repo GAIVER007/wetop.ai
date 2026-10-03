@@ -1,0 +1,8 @@
+2026-10-02T20:34:08Z
+base: origin/main f494412f (до правки)
+FAILED tests/test_widget_removal.py::test_no_trace_of_the_client_channel_in_sources[channels.telegram]
+FAILED tests/test_widget_removal.py::test_channel_file_is_deleted[src/channels/telegram.py]
+FAILED tests/test_widget_js.py::test_script_is_short_enough_to_read - Asserti...
+FAILED tests/test_step1_entrypoint.py::test_entrypoint_applies_migrations_before_web_process
+4 failed, 21 passed, 6 warnings in 1.73s
+EXIT 1

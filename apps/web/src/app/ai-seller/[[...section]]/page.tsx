@@ -2,7 +2,7 @@ import { SetupWizard } from '../setup-wizard';
 import { TelegramPanel } from '../../ai-agents/[id]/telegram-panel';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, redirect, unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import {
@@ -71,7 +71,10 @@ import '../ai-seller.css';
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
     (value) => ({ ok: true as const, value }),
-    (error: unknown) => ({ ok: false as const, error }),
+    (error: unknown) => {
+      unstable_rethrow(error);
+      return { ok: false as const, error };
+    },
   );
 
 const MODES = [

@@ -13,11 +13,15 @@ import type {
   DashboardPeriod,
   InviteRole,
   MembershipRole,
+  UnitStats,
 } from '@pms/domain';
 import { ApiError } from './api-error';
 import type {
   SupportLastMessage,
   SupportPriority,
+  SupportCategory,
+  SupportCategoryCounts,
+  SupportCategoryFilter,
   SupportQueue,
   SupportQueueCounts,
 } from './support-queue';
@@ -1543,6 +1547,11 @@ export const dashboardApi = {
     getJson<DashboardView>(
       `/desk/dashboard?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
     ),
+  /** «По номерам» (REP3): те же клетки шахматки до единицы, под правом отчётов */
+  units: (from: string, to: string, fund: DashboardFund = 'all') =>
+    getJson<UnitStats>(
+      `/desk/dashboard/units?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
+    ),
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────
@@ -2077,6 +2086,9 @@ export interface SupportQueueItem {
   lastActivityAt: string | null;
   messages: number;
   lastMessage: SupportLastMessage | null;
+  /** Первое сообщение пользователя: по нему API считает категорию */
+  firstMessage: SupportLastMessage | null;
+  category: SupportCategory;
   waitingSince: string | null;
   closed: boolean;
   priority: SupportPriority;
@@ -2137,9 +2149,15 @@ export const supportApi = {
     getJson<{ items: SellerConversationRow[] }>(
       `/platform/support/conversations${mode ? `?mode=${encodeURIComponent(mode)}` : ''}`,
     ),
-  queue: (queue: SupportQueue) =>
-    getJson<{ queue: SupportQueue; items: SupportQueueItem[]; counts: SupportQueueCounts }>(
-      `/platform/support/queue?queue=${encodeURIComponent(queue)}`,
+  queue: (queue: SupportQueue, category: SupportCategoryFilter = 'all') =>
+    getJson<{
+      queue: SupportQueue;
+      category: SupportCategoryFilter;
+      items: SupportQueueItem[];
+      counts: SupportQueueCounts;
+      categoryCounts: SupportCategoryCounts;
+    }>(
+      `/platform/support/queue?queue=${encodeURIComponent(queue)}&category=${encodeURIComponent(category)}`,
     ),
   conversation: (id: string) =>
     getJson<SupportConversationCard>(`/platform/support/conversations/${encodeURIComponent(id)}`),

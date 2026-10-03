@@ -1,0 +1,26 @@
+# Модульные (unit) · 03.10.2026 15:05 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 26
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T10-05-42Z-unit-d82c.json' 'apps/api/src/ai-seller/' 'apps/api/src/platform/'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| apps/api/src/platform/support.queue.test.ts (20 tests) 12ms
+ ✓ |unit| apps/api/src/ai-seller/seller-orgs.test.ts (8 tests) 13ms
+ ✓ |unit| apps/api/src/ai-seller/seller-sync.service.test.ts (19 tests) 53ms
+ ✓ |unit| apps/api/src/ai-seller/agent-telegram.test.ts (4 tests) 7ms
+ ✓ |unit| apps/api/src/ai-seller/agent-instructions.test.ts (5 tests) 11ms
+ ✓ |unit| apps/api/src/platform/platform.controller.test.ts (12 tests) 850ms
+ ✓ |unit| apps/api/src/platform/support-kb.controller.test.ts (10 tests) 174ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.controller.test.ts (32 tests) 867ms
+ ✓ |unit| apps/api/src/ai-seller/business-agents.scope.test.ts (4 tests) 4ms
+ ✓ |unit| apps/api/src/platform/support.controller.test.ts (20 tests) 254ms
+ ✓ |unit| apps/api/src/ai-seller/ai-seller.controller.test.ts (68 tests) 531ms
+
+ Test Files  11 passed (11)
+      Tests  202 passed (202)
+   Start at  03:05:44
+   Duration  6.42s (import 50%, transform 42%, tests 7%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-03T10-05-42Z-unit-d82c.json
+
+# код выхода 0 · 10 с

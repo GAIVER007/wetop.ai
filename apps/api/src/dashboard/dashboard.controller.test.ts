@@ -32,7 +32,37 @@ const repo: DashboardRepository = {
           DORM: { units: 3, occupied: 0, free: 3, blocked: 0 },
         },
       })),
-      unassignedByCategory: {},
+      unassignedByCategory: { ROOM: 1 },
+      // REP3: per-unit клетки тех же дней — R1 занят каждый день, R2 закрыт блоком, койки пустые
+      units: [
+        {
+          code: 'R2',
+          categoryCode: 'ROOM',
+          categoryName: 'Двухместная',
+          kind: 'ROOM' as const,
+          occupiedNights: 0,
+          blockedNights: dateRange(from, to).length,
+          arrivals: 0,
+        },
+        {
+          code: 'R1',
+          categoryCode: 'ROOM',
+          categoryName: 'Двухместная',
+          kind: 'ROOM' as const,
+          occupiedNights: dateRange(from, to).length,
+          blockedNights: 0,
+          arrivals: from <= '2026-10-05' && to >= '2026-10-05' ? 1 : 0,
+        },
+        ...['D1', 'D2', 'D3'].map((code) => ({
+          code,
+          categoryCode: 'DORM',
+          categoryName: 'Мужская общая',
+          kind: 'BED' as const,
+          occupiedNights: 0,
+          blockedNights: 0,
+          arrivals: 0,
+        })),
+      ],
     };
   },
   async stays(from, to) {
@@ -143,6 +173,53 @@ describe('desk dashboard API', () => {
       bookings: { total: 0, averageMinor: null },
     });
     expect(beds.body.previous).toMatchObject({ fund: 'beds', units: 3 });
+  });
+
+  it('REP3 «По номерам»: клетки до единицы, итог сходится со сводкой, тип фонда режет; неверный период — 400', async () => {
+    const r = await request(app.getHttpServer())
+      .get('/desk/dashboard/units?from=2026-10-05&to=2026-10-06')
+      .expect(200);
+    // порядок: категория по алфавиту, внутри — код
+    expect(r.body.rows.map((x: { code: string }) => x.code)).toEqual([
+      'R1',
+      'R2',
+      'D1',
+      'D2',
+      'D3',
+    ]);
+    expect(r.body.rows[0]).toMatchObject({
+      code: 'R1',
+      categoryName: 'Двухместная',
+      occupiedNights: 2,
+      percent: 100,
+      arrivals: 1,
+    });
+    expect(r.body.rows[1]).toMatchObject({ code: 'R2', blockedNights: 2, percent: 0 });
+    // итог — суммы тех же клеток, что занятость сводки того же фонда
+    const dash = await request(app.getHttpServer())
+      .get('/desk/dashboard?from=2026-10-05&to=2026-10-06')
+      .expect(200);
+    expect(r.body.totals).toMatchObject({
+      units: 5,
+      unitNights: 10,
+      occupiedNights: dash.body.current.occupancy.occupiedNights,
+      arrivals: 1,
+    });
+    expect(r.body.unassignedStays).toBe(1);
+
+    const rooms = await request(app.getHttpServer())
+      .get('/desk/dashboard/units?from=2026-10-05&to=2026-10-06&fund=rooms')
+      .expect(200);
+    expect(rooms.body.rows).toHaveLength(2);
+    expect(rooms.body.totals).toMatchObject({ units: 2, percent: 50 });
+
+    await request(app.getHttpServer()).get('/desk/dashboard/units').expect(400);
+    await request(app.getHttpServer())
+      .get('/desk/dashboard/units?from=2026-10-06&to=2026-10-05')
+      .expect(400);
+    await request(app.getHttpServer())
+      .get('/desk/dashboard/units?from=2026-10-05&to=2026-10-06&fund=apartments')
+      .expect(400);
   });
 
   it('неизвестный тип фонда — 400, а не молча весь фонд', async () => {

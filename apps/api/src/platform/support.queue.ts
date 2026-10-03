@@ -28,8 +28,9 @@ export function supportQueue(raw: unknown): SupportQueue {
 /** Что спросить у помощника для очереди; «все открытые» — та же выборка, что для чисел */
 export function queueRequest(queue: SupportQueue): assistant.ConversationListQuery | null {
   if (queue === 'open') return null;
-  if (queue === 'closed') return { nonempty: true, closed: true, limit: QUEUE_PAGE };
-  const base = { nonempty: true, closed: false, limit: QUEUE_PAGE };
+  if (queue === 'closed')
+    return { nonempty: true, closed: true, limit: QUEUE_PAGE, excludeSandbox: true };
+  const base = { nonempty: true, closed: false, limit: QUEUE_PAGE, excludeSandbox: true };
   if (queue === 'new' || queue === 'waiting') return { ...base, queue };
   return { ...base, mode: queue };
 }
@@ -38,6 +39,9 @@ export const OPEN_REQUEST: assistant.ConversationListQuery = {
   nonempty: true,
   closed: false,
   limit: OPEN_WINDOW,
+  // Вкладка «Проверка» заводит диалог канала `sandbox`: без этого очередь показывает
+  // проверки агента как обращения партнёров (02.10.2026: все четыре строки были ими).
+  excludeSandbox: true,
 };
 
 /**
@@ -45,6 +49,84 @@ export const OPEN_REQUEST: assistant.ConversationListQuery = {
  * у закрытого — ничего.
  */
 export type SupportPriority = 'urgent' | 'waiting' | 'normal';
+
+/**
+ * Категория обращения (план `plans/support-queue-hygiene-2026-10-02.md` §3). Порядок задан для показа;
+ * правила разбираются в своём порядке, см. `RULES`.
+ */
+export const SUPPORT_CATEGORIES = ['platform', 'error', 'payment', 'access', 'other'] as const;
+export type SupportCategory = (typeof SUPPORT_CATEGORIES)[number];
+export const SUPPORT_CATEGORY_FILTERS = ['all', ...SUPPORT_CATEGORIES] as const;
+export type SupportCategoryFilter = (typeof SUPPORT_CATEGORY_FILTERS)[number];
+
+export function supportCategoryFilter(raw: unknown): SupportCategoryFilter {
+  if (raw === undefined || raw === '') return 'all';
+  const value = String(raw);
+  if (!(SUPPORT_CATEGORY_FILTERS as readonly string[]).includes(value))
+    throw new BadRequestException(`Категория: ${SUPPORT_CATEGORY_FILTERS.join(', ')}`);
+  return value as SupportCategoryFilter;
+}
+
+/**
+ * Признаки категории. Слово с пробелом ищется в тексте целиком, остальное по НАЧАЛУ слова:
+ * «оплат» ловит «оплате» и «оплатить», но «роль» не ловит «контроль», а «права» не ловит «правки».
+ * Поиском подстроки это не сделать, а `\b` в JS знает только латиницу.
+ */
+const RULES: ReadonlyArray<readonly [Exclude<SupportCategory, 'other'>, readonly string[]]> = [
+  // Поломка сильнее денег и доступа: «ошибка при оплате» и «500 на странице тарифов» значат, что сломалось
+  [
+    'error',
+    [
+      'ошибк',
+      'баг',
+      'зависа',
+      'падает',
+      'вылета',
+      'сломал',
+      '500',
+      '502',
+      'не работает',
+      'не сохраняется',
+      'не открывается',
+      'не загружается',
+    ],
+  ],
+  ['payment', ['возврат', 'вернут', 'оплат', 'платеж', 'списал', 'тариф', 'подписк', 'деньг', 'чек']],
+  [
+    'access',
+    [
+      'доступ',
+      'права',
+      'право',
+      'роль',
+      'роли',
+      'сотрудник',
+      'приглашен',
+      'пароль',
+      'войти',
+      'вход',
+      'заблокирован',
+    ],
+  ],
+  ['platform', ['как', 'где', 'можно', 'подскажит', 'не могу найти', '?']],
+];
+
+const normalize = (text: string) => text.toLowerCase().replace(/ё/g, 'е');
+
+export function supportCategory(text: string): SupportCategory {
+  const flat = normalize(text);
+  const words = flat.split(/[^0-9a-zа-я]+/).filter(Boolean);
+  const hit = (sign: string) =>
+    sign.includes(' ') || sign === '?'
+      ? flat.includes(sign)
+      : words.some((word) => word.startsWith(sign));
+  return RULES.find(([, signs]) => signs.some(hit))?.[0] ?? 'other';
+}
+
+/** Категория по первому сообщению диалога: не пользователь или сообщения нет, ставим «другое», а не догадку */
+export const supportCategoryOf = (
+  first: { role: string; text: string; at?: string | null } | null,
+): SupportCategory => (first && first.role === 'user' ? supportCategory(first.text) : 'other');
 
 export interface SupportQueueItem {
   id: string;
@@ -56,6 +138,9 @@ export interface SupportQueueItem {
   lastActivityAt: string | null;
   messages: number;
   lastMessage: { role: string; text: string; at: string | null } | null;
+  /** Первое сообщение пользователя: в нём стоит сам вопрос, по нему и считается категория */
+  firstMessage: { role: string; text: string; at: string | null } | null;
+  category: SupportCategory;
   waitingSince: string | null;
   closed: boolean;
   priority: SupportPriority;
@@ -65,6 +150,10 @@ export function queueItems(body: unknown): SupportQueueItem[] {
   return list(obj(body).items).map((item) => {
     const i = obj(item);
     const last = i.last_message ? obj(i.last_message) : null;
+    const firstRaw = i.first_message ? obj(i.first_message) : null;
+    const firstMessage = firstRaw
+      ? { role: str(firstRaw.role) ?? '', text: str(firstRaw.text) ?? '', at: str(firstRaw.at) }
+      : null;
     const mode = str(i.mode) ?? '';
     const closed = i.closed === true;
     const waitingSince = str(i.waiting_since);
@@ -80,6 +169,8 @@ export function queueItems(body: unknown): SupportQueueItem[] {
       lastMessage: last
         ? { role: str(last.role) ?? '', text: str(last.text) ?? '', at: str(last.at) }
         : null,
+      firstMessage,
+      category: supportCategoryOf(firstMessage),
       waitingSince,
       closed,
       priority: closed
@@ -129,4 +220,29 @@ export function queueCounts(open: SupportQueueItem[], now = Date.now()): Support
     bot_active: count((i) => i.mode === 'bot_active'),
     capped: open.length >= OPEN_WINDOW,
   };
+}
+
+export interface SupportCategoryCounts extends Record<SupportCategory, number> {
+  all: number;
+}
+
+/**
+ * Числа по категориям считаются по строкам ВЫБРАННОГО статуса: сколько в чипе, столько и покажет отбор.
+ * ponytail: внутри окна `OPEN_WINDOW`; категория производная, в SQL её считать нечем. При нынешних
+ * объёмах это не ограничение: упрётся, когда открытых станет больше двухсот.
+ */
+export function categoryCounts(items: ReadonlyArray<{ category: SupportCategory }>): SupportCategoryCounts {
+  const counts = Object.fromEntries(SUPPORT_CATEGORIES.map((c) => [c, 0])) as Record<
+    SupportCategory,
+    number
+  >;
+  for (const item of items) counts[item.category] += 1;
+  return { ...counts, all: items.length };
+}
+
+export function filterByCategory<T extends { category: SupportCategory }>(
+  items: readonly T[],
+  category: SupportCategoryFilter,
+): T[] {
+  return category === 'all' ? [...items] : items.filter((item) => item.category === category);
 }

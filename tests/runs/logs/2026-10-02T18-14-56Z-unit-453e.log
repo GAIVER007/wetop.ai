@@ -1,0 +1,57 @@
+# Модульные (unit) · 02.10.2026 23:14 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ac6085 (main), незакоммиченных файлов набора: 27
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-14-56Z-unit-453e.json' 'apps/api/src/dashboard/dashboard.controller.test.ts' 'apps/api/src/dashboard/dashboard.service.test.ts' 'apps/api/src/dashboard/dashboard.repository.test.ts' 'apps/api/src/auth/route-access.test.ts' 'packages/domain/src/dashboard/units.test.ts'
+
+ RUN  v5.0.0 /Users/vyacheslav/Desktop/Проекты/WETOP
+
+ ✓ |unit| packages/domain/src/dashboard/units.test.ts (4 tests) 11ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.service.test.ts (1 test) 2ms
+ ❯ |unit| apps/api/src/dashboard/dashboard.repository.test.ts (5 tests | 2 failed) 5ms
+   ✓ главная: имя канала у проживаний (1)
+     ✓ один канал под двумя именами Channex приходит на «Главную» одним именем 2ms
+   ❯ аналитика: тип категории, без ячейки по категориям, дата начисления (3)
+     × тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории 2ms
+     × групповая бронь на три койки без места — три проживания, даже если период разбит на куски 0ms
+     ✓ начисление несёт дату услуги — по ней строится выручка по дням 0ms
+   ✓ аналитика: проживание знает свою бронь (1)
+     ✓ id и статус брони приходят вместе с проживанием 0ms
+ ✓ |unit| apps/api/src/dashboard/dashboard.controller.test.ts (5 tests) 106ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.repository.test.ts > аналитика: тип категории, без ячейки по категориям, дата начисления > тип категории — из единиц шахматки; проживание без ячейки считается один раз в своей категории
+TypeError: r.cells is not iterable
+ ❯ PrismaDashboardRepository.board apps/api/src/dashboard/dashboard.repository.ts:89:30
+     87|           arrivals: 0,
+     88|         };
+     89|         for (const cell of r.cells) {
+       |                              ^
+     90|           if (cell.state === 'OCCUPIED') u.occupiedNights += 1;
+     91|           else if (cell.state === 'BLOCKED') u.blockedNights += 1;
+ ❯ apps/api/src/dashboard/dashboard.repository.test.ts:83:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| apps/api/src/dashboard/dashboard.repository.test.ts > аналитика: тип категории, без ячейки по категориям, дата начисления > групповая бронь на три койки без места — три проживания, даже если период разбит на куски
+TypeError: r.cells is not iterable
+ ❯ PrismaDashboardRepository.board apps/api/src/dashboard/dashboard.repository.ts:89:30
+     87|           arrivals: 0,
+     88|         };
+     89|         for (const cell of r.cells) {
+       |                              ^
+     90|           if (cell.state === 'OCCUPIED') u.occupiedNights += 1;
+     91|           else if (cell.state === 'BLOCKED') u.blockedNights += 1;
+ ❯ apps/api/src/dashboard/dashboard.repository.test.ts:123:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 15 passed (17)
+   Start at  11:14:57
+   Duration  995ms (import 50%, transform 43%, tests 6%)
+
+JSON report written to /var/folders/5t/qkcvdwq11fb_vwc8zvd09_600000gn/T/pms-test-2026-10-02T18-14-56Z-unit-453e.json
+
+# код выхода 1 · 2 с

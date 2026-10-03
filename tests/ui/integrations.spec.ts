@@ -37,7 +37,7 @@ test('работает: одна карточка Channex, без базы, са
   await signIn(page);
   await page.goto('/connections');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Интеграции');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
   await expect(main).toContainText('Подключения внешних сервисов для Luxx Aparts.');
   const card = main.getByTestId('integration-channex');
   await expect(card.getByTestId('integration-health')).toHaveText('Работает');
@@ -172,7 +172,7 @@ for (const theme of ['light', 'dark'] as const) {
       await control(page, { channex: mode, ...extra });
       await page.goto(path);
       await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toHaveText(
-        'Интеграции',
+        'Подключения',
       );
       await page.mouse.move(0, 0);
       await page.screenshot({ path: `${report}/${theme}-${name}.png`, caret: 'initial' });

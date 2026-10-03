@@ -16,6 +16,8 @@ async function createBooking(
   request: import('@playwright/test').APIRequestContext,
   promo: string,
 ): Promise<Record<string, unknown> | undefined> {
+  // каждая бронь занимает M03: без сброса вторая попадала на занятое место, и форма не отправлялась
+  await request.post(`${fixture}/__test/reset`);
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');

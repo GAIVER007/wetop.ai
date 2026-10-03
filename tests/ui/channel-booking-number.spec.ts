@@ -10,9 +10,12 @@ test('новая бронь OTA: канал и номер брони в кана
   page,
   request,
 }) => {
+  await request.post(`${fixture}/__test/reset`);
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
+  // источник и заметки с 02.10 — под «Дополнительно»
+  await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await expect(form.locator('[name="externalId"]')).toHaveCount(0);
   await form.locator('[name="source"]').selectOption('OTA');

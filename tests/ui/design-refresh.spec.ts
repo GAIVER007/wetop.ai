@@ -6,39 +6,25 @@ test.beforeEach(async ({ request }) => {
   await request.post('http://127.0.0.1:4311/__test/reset');
 });
 
-test('главная: новая бронь и полоса стойки доступны на первом экране', async ({ page }) => {
-  // A1 (ADR-103): операционная часть — первый экран; резюме-дубля внимания сверху больше нет
+test('главная: новая бронь и панель владельца доступны на первом экране', async ({ page }) => {
+  // С 01.10 Главная — панель владельца (компактный дашборд): «+ Новая бронь» в шапке страницы, показатели дня
+  // и «Требуют внимания» раскрывашкой сразу под ними; полосы «Сегодня на стойке» больше нет
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width > 600 ? 1000 : 844 });
     await page.goto('/today');
-    const create = page.getByRole('main').getByRole('link', { name: 'Новая бронь', exact: true });
+    const create = page.getByRole('main').getByRole('link', { name: '+ Новая бронь', exact: true });
     await expect(create).toBeInViewport({ ratio: 1 });
-    const strip = page.getByRole('region', { name: 'Сегодня на стойке' });
-    await expect(strip).toBeInViewport();
-    // Блок задач стоит сразу под полосой и приходит тем же потоковым куском
-    const heading = page.getByRole('heading', { name: 'Требуют внимания', exact: true });
-    await expect(heading).toBeAttached();
-    if (width === 1440) await expect(heading).toBeInViewport();
+    await expect(page.getByTestId('owner-movements')).toBeAttached();
+    await expect(page.getByRole('button', { name: 'Требуют внимания', exact: true })).toBeAttached();
+    if (width === 1440) await expect(page.getByTestId('owner-movements')).toBeInViewport();
   }
 });
 
-test('полоса дня на телефоне и период «Аналитики»: подписанные поля и цели не меньше 44 px', async ({
+test('период «Аналитики» на телефоне: подписанные поля и цели не меньше 44 px', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/today');
-  for (const control of [
-    page.getByLabel('День стойки: дата'),
-    page.getByTestId('day-form').getByRole('button', { name: 'Показать' }),
-    page
-      .getByRole('navigation', { name: 'День стойки' })
-      .getByRole('link', { name: 'Сегодня', exact: true }),
-  ]) {
-    const box = await control.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.height).toBeGreaterThanOrEqual(44);
-    expect(box!.width).toBeGreaterThanOrEqual(44);
-  }
+  // полосы дня на Главной с 01.10 нет (панель владельца); цели — у периода «Аналитики»
   // «Показатели за период» с AN2 — «Аналитика» (ADR-114): обе вкладки, свой период — в панели «Период»
   for (const route of ['/management/analytics', '/management/analytics/occupancy']) {
     await page.goto(route);
@@ -64,20 +50,20 @@ test('полоса дня на телефоне и период «Аналити
   }
 });
 
-test('главная живёт одним днём, месячные показатели — на своём экране', async ({ page }) => {
-  // день стойки задаёт ?date=, ?period= Главная больше не читает (A1, ADR-103)
-  await page.goto('/today?period=month&date=2026-09-17');
-  await expect(
-    page.getByRole('region', { name: 'Сегодня на стойке' }).locator('.desk-strip__date'),
-  ).toHaveAttribute('datetime', '2026-09-17');
-  await expect(page.getByTestId('period-caption')).toHaveCount(0);
+test('показатели дня на Главной — на сегодня, месячные показатели — на своём экране', async ({ page }) => {
+  // На Главной (панель владельца) период выбирает только финансовую часть, показатели дня остаются на сегодня
+  await page.goto('/today?period=month');
+  await expect(page.getByTestId('owner-movements')).toContainText('Ожидают заселения / выезда сегодня');
   // месячные показатели — «Аналитика → Обзор» (ADR-114); оплаты — в «Оплатах», ADR и RevPAR — у типа фонда
   await page.goto('/management/analytics?period=month');
   await expect(page.getByTestId('pa-period')).toContainText(/(28|29|30|31) д/);
+  // с 03.10 (компактная «Аналитика») ночи, брони и средний чек — под «Подробностями»
+  await page.locator('.pa-details > summary').click();
   for (const id of ['occupancy', 'revenue', 'nights', 'bookings', 'cancelled', 'average']) {
     await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
   }
   await page.goto('/management/analytics?period=month&fund=rooms');
+  await page.locator('.pa-details > summary').click();
   for (const id of ['adr', 'revpar']) await expect(page.getByTestId(`pa-kpi-${id}`)).toBeVisible();
 });
 

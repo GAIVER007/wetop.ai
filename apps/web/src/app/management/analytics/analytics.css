@@ -314,10 +314,10 @@
   margin-bottom: 16px;
 }
 .analytics-page .page__title {
-  font-size: 28px;
+  font-size: var(--text-3xl);
 }
 .analytics-page .page__subtitle {
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 .analytics-page .pa-tabs {
   background: transparent;
@@ -328,7 +328,7 @@
   margin-bottom: 16px;
 }
 .analytics-page .pa-toolbar__caption strong {
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .analytics-page .pa-kpis {
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -338,15 +338,15 @@
   padding: 16px;
 }
 .analytics-page .kpi__value {
-  font-size: 26px;
+  font-size: var(--text-3xl);
 }
 .analytics-page .kpi__hint,
 .analytics-page .kpi-delta {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .analytics-page .kpi-compare {
   margin: 8px 0;
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.5;
 }
 .analytics-page .pa-charts {
@@ -359,7 +359,7 @@
   margin: 0;
 }
 .analytics-page .dash-panel .panel__title {
-  font-size: 16px;
+  font-size: var(--text-md);
 }
 .analytics-page .pa-details {
   margin-top: 16px;
@@ -367,7 +367,7 @@
 .analytics-page .pa-details > summary {
   cursor: pointer;
   padding: 8px 0;
-  font-size: 13px;
+  font-size: var(--text-xs);
   color: var(--primary);
 }
 .analytics-page .pa-details[open] {

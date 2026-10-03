@@ -1,0 +1,17 @@
+# Сквозные (e2e) · 03.10.2026 15:07 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 29
+# npx playwright test --workers=2 --reporter=list,json '--config' './playwright.ui-support.local.config.ts' '--workers=1' '--grep' 'Диалоги'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/ui/ai-seller.spec.ts:269:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (22.9s)
+
+  1 passed (58.7s)
+
+# код выхода 0 · 1 мин 3 с

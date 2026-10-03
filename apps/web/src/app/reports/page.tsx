@@ -221,6 +221,12 @@ export default async function ReportsHubPage({
               value={day && formatInt(day.counts.inHouse)}
               hint="проживаний сейчас, в «Бронях»"
             />
+            <ReportCard
+              href="/reports/print?form=day"
+              testId="report-print"
+              title="Печать"
+              hint="сводка дня и список проживающих на бумагу, RU и KZ"
+            />
           </Group>
           {mayAccess(shell.access, 'settings') && (
             <Group title="Сайт">

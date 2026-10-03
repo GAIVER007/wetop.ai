@@ -104,6 +104,8 @@ export interface ConversationListQuery {
   queue?: 'new' | 'waiting';
   nonempty?: boolean;
   closed?: boolean;
+  /** Без диалогов вкладки «Проверка» (канал `sandbox`): они не обращения партнёров */
+  excludeSandbox?: boolean;
 }
 
 /**
@@ -172,7 +174,10 @@ export class BotPanelClient {
     this.fetchFn = config.fetch ?? fetch;
   }
 
-  /** Отбор: режим; очередь техподдержки (`new` — за сутки, `waiting` — ждёт ответа), без пустых, открытые или закрытые */
+  /**
+   * Отбор: режим; очередь техподдержки (`new`: за сутки, `waiting`: ждёт ответа), без пустых,
+   * открытые или закрытые, без песочницы. Старый образ бота лишние параметры запроса игнорирует.
+   */
   listConversations(query: ConversationListQuery = {}): Promise<Json> {
     const params = new URLSearchParams();
     if (query.mode) params.set('mode', query.mode);
@@ -180,6 +185,7 @@ export class BotPanelClient {
     if (query.queue) params.set('queue', query.queue);
     if (query.nonempty) params.set('nonempty', 'true');
     if (query.closed !== undefined) params.set('closed', String(query.closed));
+    if (query.excludeSandbox) params.set('exclude_sandbox', 'true');
     const qs = params.toString();
     return this.json('GET', `/conversations${qs ? `?${qs}` : ''}`);
   }
@@ -260,8 +266,9 @@ export class BotPanelClient {
     return this.request('POST', '/knowledge', form, TIMEOUT_MS);
   }
 
-  summary(): Promise<Json> {
-    return this.json('GET', '/summary');
+  /** `excludeSandbox` убирает из чисел диалоги вкладки «Проверка», как и в очереди */
+  summary(excludeSandbox = false): Promise<Json> {
+    return this.json('GET', `/summary${excludeSandbox ? '?exclude_sandbox=true' : ''}`);
   }
 
   sandbox(input: { externalId: string; text: string }): Promise<Json> {

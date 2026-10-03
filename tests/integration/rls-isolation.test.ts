@@ -26,7 +26,10 @@ class Rollback extends Error {}
 describe.skipIf(!url)('RLS: организации разделены в самой базе (integration, DATABASE_URL required)', () => {
   let client: pg.Client;
   beforeAll(async () => {
-    client = new pg.Client({ connectionString: url });
+    // Схема набора integration (DATABASE_SCHEMA = pms_test, ADR-042), как у Prisma-клиента: на чистой базе CI
+    // в public таблиц нет, а на стенде разработчика public это рабочие данные
+    const schema = process.env.DATABASE_SCHEMA?.trim() || 'public';
+    client = new pg.Client({ connectionString: url, options: `-c search_path=${schema},public` });
     await client.connect();
   });
   afterAll(async () => {
@@ -99,9 +102,11 @@ describe.skipIf(!url)('RLS: организации разделены в сам�
   }
 
   it('каждая таблица схемы названа: арендаторская под RLS или осознанно без него', async () => {
+    // служебные таблицы миграций: Prisma и схемы автотестов pms_test (tests/tools/test-schema.ts)
     const res = await client.query<{ table_name: string }>(
       `SELECT table_name FROM information_schema.tables
-        WHERE table_schema = current_schema() AND table_type = 'BASE TABLE' AND table_name <> '_prisma_migrations'`,
+        WHERE table_schema = current_schema() AND table_type = 'BASE TABLE'
+          AND table_name NOT IN ('_prisma_migrations', '_test_migrations', '_test_meta')`,
     );
     const known = new Set([...RLS_TENANT_TABLES, ...RLS_NO_TENANT_TABLES]);
     expect(res.rows.map((r) => r.table_name).filter((t) => !known.has(t)).sort()).toEqual([]);

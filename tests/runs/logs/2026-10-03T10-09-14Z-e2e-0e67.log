@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 03.10.2026 15:09 Алматы · Noutbuk-Vyacheslav.local
+# коммит dde556e (main), незакоммиченных файлов набора: 29
+# npx playwright test --workers=2 --reporter=list,json '--config' './playwright.ui-support.local.config.ts' '--workers=1' '--grep' 'Диалоги'
+[WebServer] ⚠ Slow filesystem detected. The benchmark took 3668ms. If /Users/vyacheslav/Desktop/Проекты/WETOP/apps/web/.next-ui/dev is a network drive, consider moving it to a local folder.
+[WebServer] See more: https://nextjs.org/docs/app/guides/local-development
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/ui/ai-seller.spec.ts:269:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ (28.2s)
+
+
+  1) tests/ui/ai-seller.spec.ts:269:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('region', { name: 'Диалоги продавца' }).getByRole('row')
+    Expected: 3
+    Received: 4
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('region', { name: 'Диалоги продавца' }).getByRole('row') with timeout 15000ms
+      - waiting for getByRole('region', { name: 'Диалоги продавца' }).getByRole('row')
+        31 × locator resolved to 4 elements
+           - unexpected value "4"
+
+
+      270 |   await page.goto('/ai-seller/dialogs');
+      271 |   const list = page.getByRole('region', { name: 'Диалоги продавца' });
+    > 272 |   await expect(list.getByRole('row')).toHaveCount(3);
+          |                                       ^
+      273 |   await expect(list).toContainText('нужен человек');
+      274 |
+      275 |   await page
+        at /Users/vyacheslav/Desktop/Проекты/WETOP/tests/ui/ai-seller.spec.ts:272:39
+
+    Error Context: test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ai-seller-«Диалоги»-пометк-c9b93-р-карточка-перехват-и-ответ/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/ai-seller.spec.ts:269:1 › «Диалоги»: пометка «нужен человек», отбор, карточка, перехват и ответ 
+
+# код выхода 1 · 1 мин 30 с

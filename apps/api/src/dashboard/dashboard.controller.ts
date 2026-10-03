@@ -13,4 +13,11 @@ export class DashboardController {
   dashboard(@Query('from') from?: string, @Query('to') to?: string, @Query('fund') fund?: string) {
     return this.service.dashboard(from, to, fund ?? 'all');
   }
+
+  /** «По номерам» (REP3): клетки шахматки до единицы; отчёт — под правом отчётов */
+  @Access('reports')
+  @Get('dashboard/units')
+  units(@Query('from') from?: string, @Query('to') to?: string, @Query('fund') fund?: string) {
+    return this.service.units(from, to, fund ?? 'all');
+  }
 }

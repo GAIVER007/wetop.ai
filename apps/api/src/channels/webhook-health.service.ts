@@ -31,8 +31,14 @@ export interface WebhookHealthSnapshot {
 /** Проба адреса. Подменяется в тестах; в бою — обычный запрос. */
 export type CallbackProbe = (url: string, timeoutMs: number) => Promise<boolean>;
 export const CALLBACK_PROBE = Symbol('CALLBACK_PROBE');
-/** Как часто дёргать Channex за адресом и проверять его: чаще незачем, страховочный опрос и так раз в 5 минут */
+/** Как часто стучаться в наш собственный адрес webhook: эта проба идёт на наш сервер, Channex она не трогает */
 export const PROBE_EVERY_MS = 5 * 60_000;
+/**
+ * Как часто спрашивать у Channex, какой адрес у нас зарегистрирован (`GET /webhooks`). До 03.10.2026 сторож спрашивал
+ * на каждой пробе, раз в пять минут, 288 раз в сутки, и Channex попросил так не делать. Адрес постоянный
+ * (PUBLIC_API_URL) и меняется только регистрацией через PMS, а она сама обновляет память (ChannexSyncService).
+ */
+export const REGISTRATION_EVERY_MS = 24 * 60 * 60_000;
 export const PROBE_TIMEOUT_MS = 5_000;
 /**
  * Одна неудачная проба — ещё не мёртвый адрес. 20–21.09.2026 единичные пропуски (ответ через
@@ -108,15 +114,16 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Раз в PROBE_EVERY_MS спрашиваем у Channex зарегистрированный адрес и стучимся в него.
-   * Если Channex недоступен, результат — «не проверяли»: подозрение из чужого сбоя не выдумываем.
+   * Раз в PROBE_EVERY_MS стучимся в зарегистрированный адрес. Сам адрес берём из памяти ChannexSyncService: у Channex
+   * он спрашивается не чаще раза в REGISTRATION_EVERY_MS. Если Channex недоступен, пишем «не проверяли»:
+   * подозрение из чужого сбоя не выдумываем, а повтор не раньше следующей пробы, не на каждом тике.
    */
   private async probeCallback(now: Date): Promise<void> {
     if (!this.sync) return;
     const last = this.callback.checkedAt;
     if (last && now.getTime() - last.getTime() < PROBE_EVERY_MS) return;
     try {
-      const status = await this.sync.webhookStatus();
+      const status = await this.sync.webhookStatus({ maxAgeMs: REGISTRATION_EVERY_MS, now });
       const url = status.callbackUrl ?? null;
       const expectedUrl = status.expectedUrl ?? null;
       if (!url) {
@@ -142,7 +149,7 @@ export class WebhookHealthService implements OnModuleInit, OnModuleDestroy {
         this.log.log(`адрес webhook ${url}: ${reachable ? 'отвечает' : 'НЕ отвечает'}`);
       this.callback = { url, reachable, checkedAt: now, expectedUrl };
     } catch (e) {
-      this.callback = { ...this.callback, reachable: null };
+      this.callback = { ...this.callback, reachable: null, checkedAt: now };
       this.log.warn(`адрес webhook не проверен: ${(e as Error).message}`);
     }
   }

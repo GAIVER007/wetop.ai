@@ -117,6 +117,12 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
   private readonly log = new Logger(ChannexSyncService.name);
   private scheduleTimer: NodeJS.Timeout | null = null;
   private syncing = false;
+  /**
+   * Последнее, что Channex ответил о нашем webhook, и когда. Фоновые проверки берут адрес отсюда и не спрашивают Channex
+   * каждые пять минут: письмо Channex 03.10.2026 («You don't need to pull webhooks on a constant basis»). Обновляют
+   * память запрос статуса со страницы каналов, регистрация webhook и сторож не чаще раза в сутки.
+   */
+  private knownWebhook: { at: number; status: WebhookStatus } | null = null;
   constructor(
     @Inject(CHANNEX_GATEWAY) private readonly gateway: ChannexGateway,
     @Inject(CHANNELS_REPOSITORY) private readonly repo: ChannelsRepository,
@@ -291,8 +297,24 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
     return { url, secret };
   }
 
-  /** Что зарегистрировано в Channex для нашего объекта (секрет наружу не отдаётся). */
-  async webhookStatus(): Promise<WebhookStatus> {
+  /**
+   * Что зарегистрировано в Channex для нашего объекта (секрет наружу не отдаётся). Без `maxAgeMs` всегда спрашивает
+   * Channex (страница каналов, кнопки). С `maxAgeMs` отвечает из памяти, если ответ Channex не старше: так ходит сторож.
+   */
+  async webhookStatus(opts: { maxAgeMs?: number; now?: Date } = {}): Promise<WebhookStatus> {
+    const now = (opts.now ?? new Date()).getTime();
+    if (
+      opts.maxAgeMs !== undefined &&
+      this.knownWebhook &&
+      now - this.knownWebhook.at < opts.maxAgeMs
+    )
+      return this.knownWebhook.status;
+    const status = await this.askWebhookStatus();
+    this.knownWebhook = { at: now, status };
+    return status;
+  }
+
+  private async askWebhookStatus(): Promise<WebhookStatus> {
     const expectedUrl = this.expectedCallbackUrl();
     const secretConfigured = !!process.env.CHANNEX_WEBHOOK_SECRET?.trim();
     const none: WebhookStatus = {
@@ -365,6 +387,20 @@ export class ChannexSyncService implements OnModuleInit, OnModuleDestroy {
       eventMask: WEBHOOK_EVENTS,
       created: !existing,
     });
+    // Ответ Channex на регистрацию и есть новое состояние: сторож получит адрес из памяти, без запроса списка
+    this.knownWebhook = {
+      at: Date.now(),
+      status: {
+        registered: true,
+        id: saved.id,
+        callbackUrl: savedUrl,
+        eventMask: saved.attributes.event_mask,
+        active: saved.attributes.is_active,
+        sendData: saved.attributes.send_data,
+        expectedUrl: permanent,
+        secretConfigured: true,
+      },
+    };
     return {
       id: saved.id,
       callbackUrl: savedUrl,

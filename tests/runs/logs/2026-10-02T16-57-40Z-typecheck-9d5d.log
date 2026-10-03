@@ -1,0 +1,22 @@
+# Типы (typecheck) · 02.10.2026 21:57 Алматы · Noutbuk-Vyacheslav.local
+# коммит 0ac6085 (main), незакоммиченных файлов набора: 14
+# npm run typecheck; a=$?; npm run typecheck:api; b=$?; npm run typecheck:web; c=$?; [ $a -eq 0 ] && [ $b -eq 0 ] && [ $c -eq 0 ]
+
+> pms-lux@0.0.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> pms-lux@0.0.0 typecheck:api
+> tsc -p apps/api/tsconfig.json --noEmit
+
+apps/api/src/platform/support.queue.test.ts(44,84): error TS2353: Object literal may only specify known properties, and 'at' does not exist in type '{ role: string; text: string; }'.
+apps/api/src/platform/support.queue.test.ts(70,12): error TS18048: 'item' is possibly 'undefined'.
+apps/api/src/platform/support.queue.test.ts(71,12): error TS18048: 'item' is possibly 'undefined'.
+apps/api/src/platform/support.queue.test.ts(80,12): error TS18048: 'item' is possibly 'undefined'.
+apps/api/src/platform/support.queue.test.ts(81,12): error TS18048: 'item' is possibly 'undefined'.
+
+> pms-lux@0.0.0 typecheck:web
+> tsc -p apps/web/tsconfig.json --noEmit
+
+
+# код выхода 1 · 48 с

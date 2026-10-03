@@ -5433,3 +5433,4 @@
 | 03.10.2026 18:04 | lint | ✅ без ошибок | 22 с | d8ee099 | [лог](logs/2026-10-03T13-04-54Z-lint-1d8b.log) |  |
 | 03.10.2026 18:05 | integration | ✅ 238 из 238 | 1 мин 10 с | d8ee099 | [лог](logs/2026-10-03T13-05-17Z-integration-a124.log) |  |
 | 03.10.2026 18:06 | unit | ✅ 2977 из 2980, пропущено 3 | 1 мин 40 с | d8ee099 | [лог](logs/2026-10-03T13-06-27Z-unit-b872.log) |  |
+| 03.10.2026 18:19 | e2e (частично: --config tests/ui/playwright.alt.config.ts --workers=1 integrations-channex empty-base dashboard-design design-refresh dashboard-resilience ai-ag | ⏹ прерван | 31 мин 41 с | b7f04bd | [лог](logs/2026-10-03T13-19-32Z-e2e-7c1f.log) | триаж устаревших UI-спеков на main 1b47b23d (red) |

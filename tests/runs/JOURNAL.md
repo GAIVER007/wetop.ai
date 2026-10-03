@@ -5604,3 +5604,7 @@
 | 03.10.2026 19:57 | lint | ✅ без ошибок | 21 с | b7abae2 | [лог](logs/2026-10-03T14-57-50Z-lint-7f3b.log) |  |
 | 03.10.2026 19:58 | unit | ✅ 3014 из 3017, пропущено 3 | 1 мин 28 с | b7abae2 | [лог](logs/2026-10-03T14-58-11Z-unit-5ec1.log) |  |
 | 03.10.2026 19:59 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-list.spec.ts tests/ui/channex-screens.spec.ts tests/ui/channels-compact.spec.ts --worker | ✅ 30 из 30 | 1 мин 49 с | b7abae2 | [лог](logs/2026-10-03T14-59-46Z-e2e-32e4.log) |  |
+| 03.10.2026 20:10 | typecheck | ✅ без ошибок | 25 с | 5a08fed | [лог](logs/2026-10-03T15-10-54Z-typecheck-7579.log) | после слияния с main |
+| 03.10.2026 20:11 | lint | ✅ без ошибок | 21 с | 5a08fed | [лог](logs/2026-10-03T15-11-20Z-lint-ae6d.log) | после слияния с main |
+| 03.10.2026 20:11 | unit | ✅ 3096 из 3099, пропущено 3 | 1 мин 26 с | 5a08fed | [лог](logs/2026-10-03T15-11-43Z-unit-3a01.log) | после слияния с main |
+| 03.10.2026 20:13 | integration | ✅ 290 из 290 | 1 мин 5 с | 5a08fed | [лог](logs/2026-10-03T15-13-09Z-integration-4c7a.log) | после слияния с main |

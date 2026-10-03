@@ -5,7 +5,7 @@ import {
   paymentRequestMessage,
 } from './payment-request';
 
-describe('запрос оплаты: разбор формы (DATA_MODEL §23, ADR-141)', () => {
+describe('запрос оплаты: разбор формы (DATA_MODEL §23, ADR-143)', () => {
   it('Kaspi по телефону: сумма в тенге строкой → тиыны, ссылки нет', () => {
     expect(parsePaymentRequestInput({ method: 'KASPI', amount: '12000' })).toEqual({
       ok: true,

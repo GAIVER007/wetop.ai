@@ -44,7 +44,7 @@ from src.integrations.wetop_support import PATH_ERRORS, PATH_GUARD_STATUS, PATH_
 # Дверь котировки продавца (ADR-085, подробности в шапке файла) и бронь.
 PATH_AVAILABILITY = "/bot/availability"
 PATH_BOOK = "/w/book"
-# Бронь из чата (DATA_MODEL §24 платформы, ADR-141): узкий ключ записи SELLER_BOOK_KEY, только POST
+# Бронь из чата (DATA_MODEL §24 платформы, ADR-143): узкий ключ записи SELLER_BOOK_KEY, только POST
 PATH_BOOKING_INTENTS = "/bot/booking-intents"
 PATH_BOOKING_CONFIRM = "/bot/booking-intents/confirm"
 
@@ -81,7 +81,7 @@ class WetopProviders(WetopSupportMixin):
         self._base_url = settings.integration_base_url.rstrip("/")
         self._api_key = settings.integration_api_key
         self._act_key = (getattr(settings, "integration_act_key", "") or "").strip()
-        # ADR-141: ключ записи продавца; пусто — бронь из чата не оформляется (инструмент скажет «не знаю»)
+        # ADR-143: ключ записи продавца; пусто — бронь из чата не оформляется (инструмент скажет «не знаю»)
         self._book_key = (getattr(settings, "integration_book_key", "") or "").strip()
         self._timeout = settings.integration_timeout_seconds
         # Клиент общий на процесс: соединения дорогие, свой плодить незачем.
@@ -263,7 +263,7 @@ class WetopProviders(WetopSupportMixin):
             raise ProviderUnavailable("no_external_id")
         return LeadRef(external_id=str(raw_id), created=True)
 
-    # ─── Бронь из чата (ADR-141) ───
+    # ─── Бронь из чата (ADR-143) ───
 
     async def create_booking_intent(
         self, *, agent: str, conversation: str, channel: str, category: str,

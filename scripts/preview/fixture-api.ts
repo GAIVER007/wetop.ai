@@ -1241,7 +1241,7 @@ let paymentLines: Array<{
 let commands: Array<{ method: string; path: string; body: unknown }> = [];
 // ── фискальные чеки по запросу гостя (DATA_MODEL §25): номер из кассы по id платежа ──
 let receipts = new Map<string, { number: string; issuedAt: string }>();
-// ── запросы оплаты (DATA_MODEL §23, ADR-141) ──
+// ── запросы оплаты (DATA_MODEL §23, ADR-143) ──
 let paymentRequests: Array<{
   id: string;
   number: string;
@@ -2785,7 +2785,7 @@ function read(path: string, q: URLSearchParams): unknown {
       };
   }
   if (path.endsWith('/MISSING')) return undefined;
-  // X3 (ADR-141): сверка остатков у сторожа; «attention» — канал видит больше мест
+  // X3 (ADR-143): сверка остатков у сторожа; «attention» — канал видит больше мест
   if (path === '/guard/reconciliation') {
     const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
     return {
@@ -4175,7 +4175,7 @@ createServer(async (req, res) => {
     if (path === '/health' && demo) return send(200, { demo: true });
     if (demo && path.startsWith('/__test/')) return send(404, {});
     if (path === '/__test/health') return send(200, { testOnly: true });
-    // Публичный статус сервиса (H14, ADR-141): у стенда каналы с перебоями в режиме «attention»
+    // Публичный статус сервиса (H14, ADR-143): у стенда каналы с перебоями в режиме «attention»
     if (path === '/status/public') {
       const channels = channexMode === 'attention' ? 'degraded' : 'ok';
       return send(200, {

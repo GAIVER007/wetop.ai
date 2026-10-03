@@ -12,7 +12,7 @@ import {
 } from './payment-requests.repository';
 import { PaymentRequestsService } from './payment-requests.service';
 
-/** Запросы оплаты на фальшивках (DATA_MODEL §23, ADR-141); транзакцию «платёж + закрытие» доказывает integration */
+/** Запросы оплаты на фальшивках (DATA_MODEL §23, ADR-143); транзакцию «платёж + закрытие» доказывает integration */
 const FOLIO = { id: '00000000-0000-4000-8000-0000000000f1', status: 'OPEN', currency: 'KZT' };
 const CLOSED = { id: '00000000-0000-4000-8000-0000000000f2', status: 'CLOSED', currency: 'KZT' };
 

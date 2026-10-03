@@ -2,12 +2,12 @@
 
 Основание: сценарий владельца 30.09.2026 (бронь `CONFIRMED` сразу после явного согласия, без предоплаты, место занято,
 ответ с номером в исходный канал, повтор без дубля, телефон из канала), срок котировки 30 минут (01.10.2026),
-ADR-141, план `plans/wetop-unified-roadmap-2026-10-03.md` (X1), модель `DATA_MODEL.md` §24. Предыдущий план
+ADR-143, план `plans/wetop-unified-roadmap-2026-10-03.md` (X1), модель `DATA_MODEL.md` §24. Предыдущий план
 `plans/whatsapp-booking-2026-09-30.md` выполнен этим срезом.
 
 ## Платформа
 
-1. Миграция `20261003000045_seller_booking_intents` с `down.sql`: таблица намерений, CHECK канала (`whatsapp`,
+1. Миграция `20261003000046_seller_booking_intents` с `down.sql`: таблица намерений, CHECK канала (`whatsapp`,
    `widget`), дат, гостей, суммы и «подтверждено ⇔ есть бронь», UNIQUE(agent, сообщение согласия), RLS по организации.
 2. Узкий ключ записи `SELLER_BOOK_KEY` (`serviceKeyKind` → `seller-book`): только `POST /bot/booking-intents` и
    `POST /bot/booking-intents/confirm`; ключ котировки туда не пускается.
@@ -38,7 +38,7 @@ ADR-141, план `plans/wetop-unified-roadmap-2026-10-03.md` (X1), модель
 
 ## За владельцем
 
-1. Миграция `20261003000045_seller_booking_intents` на рабочей базе до выкладки API (`docs/deploy.md` §1д).
+1. Миграция `20261003000046_seller_booking_intents` на рабочей базе до выкладки API (`docs/deploy.md` §1д).
 2. Ключ: `openssl rand -hex 32` → `SELLER_BOOK_KEY` в `.env` платформы и тот же — `INTEGRATION_BOOK_KEY` в `.env` бота.
    Без ключа бот бронь не оформляет и предлагает заявку, как раньше.
 3. Выкладка API, затем образ бота (`apps/ai-seller/vykatka.md`), проверка на тестовом номере WhatsApp.

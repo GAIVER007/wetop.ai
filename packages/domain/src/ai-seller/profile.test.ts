@@ -59,7 +59,7 @@ describe('parseSellerProfile — проверка полей «Настроек�
     const r = parseSellerProfile({});
     expect(r).toEqual({ ok: true, value: DEFAULT_SELLER_PROFILE });
     // бот: address_form="vy", emoji="never", reply_length="short", languages=["русский", "казахский", "английский", "китайский"]
-    // ADR-141: гости Казахстана пишут на русском, казахском, английском и китайском
+    // ADR-143: гости Казахстана пишут на русском, казахском, английском и китайском
     expect(DEFAULT_SELLER_PROFILE).toMatchObject({
       addressForm: 'FORMAL',
       emoji: 'NEVER',

@@ -18,7 +18,7 @@ const base: BookingLetterInput = {
   checkOutTime: '12:00',
 };
 
-describe('письмо гостю с подтверждением брони (ADR-141)', () => {
+describe('письмо гостю с подтверждением брони (ADR-143)', () => {
   it('русский: номер, даты, время, сумма и оплата при заселении', () => {
     const m = bookingConfirmationLetter(base);
     expect(m.to).toBe('guest@example.com');

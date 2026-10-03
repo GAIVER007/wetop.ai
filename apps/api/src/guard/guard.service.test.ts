@@ -550,7 +550,7 @@ describe('GuardService: стойка и остатки в канале', () => {
     });
   });
 
-  it('сверка для владельца (X3, ADR-141): время последнего чтения и открытое расхождение с числом ночей', async () => {
+  it('сверка для владельца (X3, ADR-143): время последнего чтения и открытое расхождение с числом ночей', async () => {
     const t = setup();
     expect(await t.guard.reconciliation()).toEqual({ lastCheckedAt: null, mismatch: null });
     t.state.lastAvailabilityReadAt = new Date('2026-10-03T03:00:00Z');

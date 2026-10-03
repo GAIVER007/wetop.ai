@@ -80,7 +80,7 @@ const ASSISTANT_READ_ALLOWED = [
 const SELLER_QUOTE_ALLOWED = ['/bot/availability', '/bot/agent-origins'];
 
 /**
- * Ключ записи продавца (`SELLER_BOOK_KEY`, DATA_MODEL §24, ADR-141): только POST и только намерение брони и его
+ * Ключ записи продавца (`SELLER_BOOK_KEY`, DATA_MODEL §24, ADR-143): только POST и только намерение брони и его
  * подтверждение. Ключ котировки на эти адреса не пускается, ключ записи на чтение — тоже.
  */
 const SELLER_BOOK_ALLOWED = ['/bot/booking-intents', '/bot/booking-intents/confirm'];

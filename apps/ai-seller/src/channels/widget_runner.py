@@ -108,7 +108,7 @@ class WidgetRunner:
         """Исключения ловятся здесь: один упавший ход не роняет обработчик."""
         # Текст хода — инструменту подтверждения действий (Q-S6-2); задача идёт в своём контексте
         token = dependencies.incoming_text_var.set(getattr(incoming, "text", None))
-        # ADR-141: бронь из чата берёт канал, телефон WhatsApp и текст согласия из сообщения этого хода; ядро не трогаем
+        # ADR-143: бронь из чата берёт канал, телефон WhatsApp и текст согласия из сообщения этого хода; ядро не трогаем
         incoming_token = dependencies.incoming_var.set(incoming)
         try:
             await self.engine.process_message(incoming)
@@ -193,7 +193,7 @@ def build_runner(settings: Settings, sender: Sender | None = None) -> WidgetRunn
 
         from src.ai.seller_booking import BookingRuntime
 
-        # ADR-141: бронь из чата — предложение в Redis, согласие и канал из сообщения этого хода
+        # ADR-143: бронь из чата — предложение в Redis, согласие и канал из сообщения этого хода
         registry = build_seller_registry(
             get_providers,
             booking=BookingRuntime(

@@ -146,7 +146,7 @@ export class WebBookingService {
     @Optional()
     @Inject(TurnstileService)
     private readonly turnstile: TurnstileService = new TurnstileService(),
-    // ADR-141: письмо гостю с подтверждением брони; null — почта не настроена
+    // ADR-143: письмо гостю с подтверждением брони; null — почта не настроена
     @Optional()
     @Inject(BOOKING_MAILER)
     private readonly mailer: mail.MailSender | null = null,
@@ -482,7 +482,7 @@ export class WebBookingService {
   }
 
   /**
-   * Письмо гостю с подтверждением (ADR-141). Адрес берётся из формы, а не из записанной брони: пока база вне РК, в бронь
+   * Письмо гостю с подтверждением (ADR-143). Адрес берётся из формы, а не из записанной брони: пока база вне РК, в бронь
    * пишется псевдоним (ADR-018), и настоящий адрес нигде не сохраняется. Письмо «лучшим усилием»: его сбой не превращает
    * принятую бронь в ошибку для гостя, иначе повтор кнопки создал бы вторую бронь (аудит 26.09, С-33).
    */

@@ -41,7 +41,7 @@ describe('«Проверить сейчас» и полная сверка', () 
   });
 });
 
-describe('сверка остатков с каналом видна владельцу подключённого объекта (X3, ADR-141)', () => {
+describe('сверка остатков с каналом видна владельцу подключённого объекта (X3, ADR-143)', () => {
   it('маршрут отдаёт ровно то, что считает сторож', async () => {
     const reconciliation = vi.fn(async () => ({ lastCheckedAt: null, mismatch: null }));
     const guard = new GuardController({ reconciliation } as never, {} as never, {} as never);

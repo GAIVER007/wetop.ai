@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { PropertyClock } from '../../lib/property-time';
 import { reconciliationView } from './format';
 
-/** «Сверка с каналом» на обзоре каналов (X3, ADR-141) */
+/** «Сверка с каналом» на обзоре каналов (X3, ADR-143) */
 const clock = {
   moment: (iso: string) => `[${iso.slice(11, 16)}]`,
   full: (iso: string) => iso,

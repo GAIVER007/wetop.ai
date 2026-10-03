@@ -42,7 +42,7 @@ organization_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar
 # Организацию вместо него не читаем: продавец — агент, а не организация.
 agent_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar("agent_id", default=None)
 
-# Входящее сообщение текущего хода (ADR-141): бронь из чата берёт из него канал, телефон WhatsApp и текст, по которому
+# Входящее сообщение текущего хода (ADR-143): бронь из чата берёт из него канал, телефон WhatsApp и текст, по которому
 # сервер бота проверяет явное «да» гостя. Ставит и снимает движок.
 incoming_var: contextvars.ContextVar[object | None] = contextvars.ContextVar("incoming", default=None)
 

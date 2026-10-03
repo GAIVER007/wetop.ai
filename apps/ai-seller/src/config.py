@@ -233,7 +233,7 @@ class Settings(BaseSettings):
     integration_api_key: str = ""
     # S6: ключ действий помощника (ASSISTANT_ACT_KEY платформы); пусто — действия не выполняются
     integration_act_key: str = ""
-    # ADR-141: ключ записи продавца (SELLER_BOOK_KEY платформы); пусто — бронь из чата не оформляется
+    # ADR-143: ключ записи продавца (SELLER_BOOK_KEY платформы); пусто — бронь из чата не оформляется
     integration_book_key: str = ""
     integration_timeout_seconds: int = 10
 

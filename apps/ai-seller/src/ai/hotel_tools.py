@@ -78,7 +78,7 @@ def _availability(providers_getter: Callable[[], Providers]):
 
 
 def build_registry(providers_getter: Callable[[], Providers], *, booking=None) -> ToolRegistry:
-    """Реестр из двух инструментов; с `booking` (ADR-141) ещё два — бронь из чата. Движок получает его снаружи."""
+    """Реестр из двух инструментов; с `booking` (ADR-143) ещё два — бронь из чата. Движок получает его снаружи."""
 
     async def check_availability(
         arrival: str, departure: str, guests: int, category: str | None = None

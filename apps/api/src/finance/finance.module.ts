@@ -19,7 +19,7 @@ import { UnitsModule } from '../units/units.module';
     PrismaService,
     FinanceService,
     { provide: FINANCE_REPOSITORY, useClass: PrismaFinanceRepository },
-    // Запросы оплаты (DATA_MODEL §23, ADR-141)
+    // Запросы оплаты (DATA_MODEL §23, ADR-143)
     PaymentRequestsService,
     { provide: PAYMENT_REQUESTS_REPOSITORY, useClass: PrismaPaymentRequestsRepository },
   ],

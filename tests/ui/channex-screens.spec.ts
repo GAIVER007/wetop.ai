@@ -73,7 +73,7 @@ test('обзор каналов: полоса состояния, вкладки
   const nav = page.getByRole('navigation', { name: 'Каналы продаж' });
   await expect(nav.getByRole('link')).toHaveText([
     'Обзор',
-    'Подключения',
+    'Настройка подключения',
     'Сопоставление',
     'Синхронизация',
     'События',

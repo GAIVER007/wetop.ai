@@ -1,0 +1,16 @@
+# Модульные (unit) · 03.10.2026 01:50 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 13
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T20-50-51Z-unit-8c12.json' 'tests/unit/guard-run.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ✓ |unit| tests/unit/guard-run.test.ts (8 tests) 387ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  13:50:52
+   Duration  591ms (tests 84%, transform 13%, import 3%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-02T20-50-51Z-unit-8c12.json
+
+# код выхода 0 · 1 с

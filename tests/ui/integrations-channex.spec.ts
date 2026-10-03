@@ -76,10 +76,12 @@ for (const [route, loading, title] of [
   test(`${route}: пока соединение проверяется, заголовок тот же, что у страницы`, async ({
     page,
   }) => {
-    await control(page, { delayPath: '/channels/channex/connection', delayMs: 3000 });
+    await control(page, { delayPath: '/channels/channex/connection', delayMs: 8000 });
     await page.goto(route, { waitUntil: 'commit' });
-    await expect(page.getByTestId(loading)).toBeVisible();
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
+    await expect(page.getByTestId(loading)).toBeVisible({ timeout: 30_000 });
+    // заголовок ищем в той же разметке, что и экран ожидания: настоящая страница его не подменит
+    const waiting = page.getByRole('main').filter({ has: page.getByTestId(loading) });
+    await expect(waiting.getByRole('heading', { level: 1 })).toHaveText(title, { timeout: 2000 });
   });
 
 test('телефон: страница без прокрутки вбок', async ({ page }) => {

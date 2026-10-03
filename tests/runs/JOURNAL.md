@@ -5559,3 +5559,5 @@
 | 03.10.2026 23:21 | lint | ✅ без ошибок | 22 с | d3917b0 | [лог](logs/2026-10-03T18-21-07Z-lint-d45f.log) |  |
 | 03.10.2026 23:21 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 guests-design pii-storage booking-dates rates incidents unified-sections finance channel-effic | ✅ 79 из 79 | 4 мин 29 с | d3917b0 | [лог](logs/2026-10-03T18-21-29Z-e2e-2d28.log) |  |
 | 03.10.2026 23:26 | unit | ✅ 3027 из 3030, пропущено 3 | 1 мин 38 с | d3917b0 | [лог](logs/2026-10-03T18-26-04Z-unit-c2b3.log) |  |
+| 04.10.2026 00:11 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 --shard=2/3) | ❌ упало 1 из 278 | 18 мин 55 с | 24fd1cc | [лог](logs/2026-10-03T19-11-42Z-e2e-8ae1.log) | шахматка C2: меню на плашке — продлить с суммой, отменить со штрафом, с клавиатуры и без drag |
+| 04.10.2026 00:32 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 manager-actions) | ✅ 9 из 9 | 41 с | 24fd1cc +1 | [лог](logs/2026-10-03T19-32-20Z-e2e-edbd.log) |  |

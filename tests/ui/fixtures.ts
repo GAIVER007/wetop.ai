@@ -32,6 +32,13 @@ async function settleStreaming(page: Page): Promise<void> {
 export * from '@playwright/test';
 
 /**
+ * Адрес подставного API. Основной конфиг держит его на 4311; `playwright.alt.config.ts` ставит
+ * `UI_FIXTURE_API` на свой порт, и спеки шлют `__test/reset` и `__test/control` своему стенду, а не
+ * чужому прогону на 4311 (03.10.2026: соседняя сессия ловила сбросы посреди своего набора).
+ */
+export const FIXTURE_API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+
+/**
  * Шум `next dev`, а не ошибка стойки: React ведёт собственную дорожку замеров, и на странице,
  * пришедшей через redirect(), подаёт начало серверного рендера раньше timeOrigin вкладки —
  * браузер отвечает отказом `measure`. Приходит и как console.error, и как необработанное

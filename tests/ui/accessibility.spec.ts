@@ -1,4 +1,4 @@
-import { expect, test, devNoise } from './fixtures';
+import { expect, test, devNoise, FIXTURE_API } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -57,7 +57,7 @@ for (const width of [1440, 390]) {
   for (const theme of ['light', 'dark'] as const) {
     test(`доступность всех разделов: ${theme}, ${width}px`, async ({ page, request }) => {
       test.setTimeout(360_000);
-      await request.post('http://127.0.0.1:4311/__test/reset');
+      await request.post(`${FIXTURE_API}/__test/reset`);
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width: 1440, height: 1000 });
       // /profile/access для невошедшего уводит на вход wetop.ai (объединение входа): обход идёт вошедшим
@@ -128,7 +128,7 @@ for (const width of [1440, 390]) {
   for (const theme of ['light', 'dark'] as const) {
     test(`доступность открытых форм и drawer: ${theme}, ${width}px`, async ({ page, request }) => {
       test.setTimeout(120_000);
-      await request.post('http://127.0.0.1:4311/__test/reset');
+      await request.post(`${FIXTURE_API}/__test/reset`);
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await page.setViewportSize({ width, height: 1000 });
       await page.goto('/reservations');

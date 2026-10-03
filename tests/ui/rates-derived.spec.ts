@@ -1,4 +1,4 @@
-import { expect, test, devNoise, type Page } from './fixtures';
+import { expect, test, devNoise, type Page, FIXTURE_API } from './fixtures';
 import type { APIRequestContext } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { mkdirSync } from 'node:fs';
  * Вкладка «Тарифные планы» получает «Добавить производный тариф» и колонку условий словами; вкладка «Промокоды» —
  * таблицу, добавление и выключение. Ошибки — словами у формы, «только чтение» — без кнопок. Стенд — подставной API.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/direct-sales-d4-2026-09-29';
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });

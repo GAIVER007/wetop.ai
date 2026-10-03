@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, FIXTURE_API } from './fixtures';
 
 /**
  * «Интеграции» v2, срез INT1 (ADR-116, план `plans/integrations-int1-2026-09-27.md`): внешние подключения объекта,
@@ -7,7 +7,7 @@ import { expect, test, type Page } from './fixtures';
  * «Проверить соединение». Последний тест снимает стоп-гейт для владельца: обе темы, телефон, «работает», «требует
  * внимания», «не подключено», «только чтение».
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/integrations-int1-2026-09-27';
 
 type Mode = 'ok' | 'attention' | 'foreign' | 'no-key';

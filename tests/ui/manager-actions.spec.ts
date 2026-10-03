@@ -1,4 +1,4 @@
-import { expect, test, type Page, devNoise } from './fixtures';
+import { expect, test, type Page, devNoise, FIXTURE_API } from './fixtures';
 import { cardTab } from '../e2e/card-tabs';
 
 /**
@@ -7,7 +7,7 @@ import { cardTab } from '../e2e/card-tabs';
  * с долгом; «Разрешить» и плашки конфликтов в календаре (Д3–Д4). Цены синтетические: номер 8 000 ₸,
  * койка 4 000 ₸ за ночь; карточка 20260913-TESTAA — R01, три ночи, 24 000 ₸, предоплата 8 000 ₸.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const BOOKING = '20260913-TESTAA';
 /**
  * «Сегодня» объекта — дата стенда: он считает её при каждом сбросе (Asia/Almaty). Своя дата, посчитанная при загрузке

@@ -1,11 +1,11 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, FIXTURE_API } from './fixtures';
 
 /**
  * Обучение в стойке (plans/site-auth-dialog-tour-2026-09-27.md, Д4, ADR-100): после первого входа на Главной само
  * открывается окно «Добро пожаловать», шаги подсвечивают поиск, разделы меню и профиль. «Пропустить» или последний
  * шаг ставят отметку — повторно само не открывается; пункт меню профиля показывает обучение ещё раз.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.use({ tour: true });
 

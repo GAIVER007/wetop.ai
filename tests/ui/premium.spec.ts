@@ -1,6 +1,6 @@
-import { expect, test, devNoise } from './fixtures';
+import { expect, test, devNoise, FIXTURE_API } from './fixtures';
 import { mkdirSync } from 'node:fs';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const screenshotDir = 'reports/premium-ui';
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

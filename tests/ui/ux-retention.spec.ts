@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -6,7 +6,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * периода, пустые экраны говорят его языком и ведут к действию, частая форма не требует лишнего выбора, телефон и
  * компьютер показывают разделы в одном порядке. Стенд — подставной API (`scripts/preview/fixture-api.ts`).
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const control = (request: APIRequestContext, body: Record<string, unknown>) =>
   request.post(`${API}/__test/control`, { data: body });
 

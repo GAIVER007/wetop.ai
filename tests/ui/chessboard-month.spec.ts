@@ -1,9 +1,9 @@
-import { expect, test, devNoise } from './fixtures';
+import { expect, test, devNoise, FIXTURE_API } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('месяц: с первого по последнее число, включая прошлые дни', async ({ page }) => {

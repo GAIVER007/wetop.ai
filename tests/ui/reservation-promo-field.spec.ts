@@ -1,10 +1,10 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * D4 (ADR-128): в форме брони стойки есть необязательное поле «Промокод». Заполненное — уходит в
  * POST /reservations как `promoCode`; пустое в запрос не попадает.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 // подставной API один на все спеки: журнал команд общий, поэтому тесты идут по очереди
 test.describe.configure({ mode: 'serial' });

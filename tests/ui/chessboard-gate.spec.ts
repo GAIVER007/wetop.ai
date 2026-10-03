@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -10,7 +10,7 @@ import { mkdirSync } from 'node:fs';
  * подтверждают, что снят настоящий экран, а не пустая страница.
  */
 const DIR = 'reports/chessboard-v2-pr2-2026-09-27/gate';
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

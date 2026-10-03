@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * Приглашение и сброс пароля (DATA_MODEL §13.8, ADR-049, решение владельца 15.09.2026 — письма через
@@ -8,7 +8,7 @@ import { expect, test } from './fixtures';
  * её нельзя проверить без ключа, поэтому здесь проверяется всё, что видит человек.
  */
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('«Забыли пароль?» с экрана входа ведёт к форме и не выдаёт, есть ли такая почта', async ({

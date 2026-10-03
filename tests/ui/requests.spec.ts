@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * Сколько рейсов к API стоит один экран. Разбор «всё тормозит» (16.09.2026): база в Сингапуре, стойка в
@@ -27,7 +27,7 @@ interface Hits {
 }
 
 // адрес подставного API настраиваем: прогон на своих портах не ждёт общий стенд 4311 (приём support-queue)
-const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHELL = ['/system/freshness', '/auth/me'];
 
 async function hits(request: import('@playwright/test').APIRequestContext): Promise<Hits> {

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
@@ -9,7 +9,7 @@ import type { Page } from '@playwright/test';
  * даёт второго агента, страница агента без фальшивых шагов, кнопка и форма для разных ролей и режимов, оформление в двух темах
  * и на телефоне. Запись в базу и права сервера доказывают API-тесты; стенд, `scripts/preview/fixture-api.ts`.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SHOTS = 'reports/unified-sections-2026-10-01/create-agent';
 const FREE = { sellerApplied: true, sellerExtraLocation: true };
 

@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * База без броней, но с фондом — состояние боевой PMS после очистки 19.09.2026 (ADR-052) и до
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * Смена увидит именно это, поэтому каждый экран обязан открыться и сказать, что броней нет,
  * а не показать ошибку, пустоту без объяснения или ноль вместо данных.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const ERROR_TEXT =
   /Не удалось загрузить|Проверьте подключение|Application error|Что-то пошло не так|Страница не найдена/;
 

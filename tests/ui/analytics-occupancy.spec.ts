@@ -1,4 +1,4 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, FIXTURE_API } from './fixtures';
 import { mkdirSync } from 'node:fs';
 
 /**
@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
  * Койки», занято, свободно, заблокировано, без размещения, загрузка и сравнение категорий, «Открыть календарь»,
  * знаменатель прежний (заблокированные места — в фонде). Снимает стоп-гейт AN2.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/analytics-v2-an2-2026-09-28';
 const asClient = { headers: { 'x-wetop-test-client': '1' } };
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);

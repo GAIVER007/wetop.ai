@@ -1,6 +1,6 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 test('филиалы: создание, сохранение после reload и обзор', async ({ page, request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -32,7 +32,7 @@ test('организации: филиал создаётся прямо в ра
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
@@ -43,7 +43,7 @@ test('организации: филиал создаётся прямо в ра
   await expect(page.locator('summary').filter({ hasText: 'Добавить объект / филиал' })).toHaveCount(
     0,
   );
-  await request.post('http://127.0.0.1:4311/__test/control', { data: { platformAdmin: true } });
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
   await page.reload();
   const main = page.getByRole('main');
   await main.locator('summary').filter({ hasText: 'Добавить объект / филиал' }).click();
@@ -79,14 +79,14 @@ test('переключатель филиалов сохраняет разде�
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   const branchId = '66666666-6666-4666-8666-666666666666';
-  const seeded = await request.post('http://127.0.0.1:4311/branches', {
+  const seeded = await request.post(`${FIXTURE_API}/branches`, {
     headers: { 'x-wetop-test-client': '1' },
     data: { id: branchId, name: 'Филиал Север', address: 'Тестовая улица, 2' },
   });
   expect(seeded.ok()).toBe(true);
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { branchWithInventory: true },
   });
   await page.goto('/auth/fallback');

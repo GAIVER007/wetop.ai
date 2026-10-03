@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * Параллельный раздел /staff (01.10) при интеграции 02.10 заменён «Сотрудниками» TEAM1 (ADR-136):
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * пункт меню — tests/ui/navigation.spec.ts и top-menu.spec.ts.
  */
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 test('/staff ведёт на «Сотрудников»: старые ссылки живут', async ({ page }) => {

@@ -1,10 +1,10 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * Образец Exely (поручение 03.10): в форме брони — «Детализация цены по дням», цена каждой ночи
  * из того же расчёта, что итог; шапка календаря — панель «Сегодня» не выше строки управления.
  */
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

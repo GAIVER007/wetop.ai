@@ -1,9 +1,9 @@
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, FIXTURE_API } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
 const SITE = 'http://127.0.0.1:3002';
 const APP = 'http://127.0.0.1:3100';
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 // ADR-131: прежние проверки формы перенесены на реальную главную, не на заменитель /login.
 test.beforeEach(async ({ request }) => {
   await request.post(API + '/__test/reset');

@@ -1,7 +1,7 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 test('owner dashboard shows financial and operational summary without desktop scrolling', async ({
   page,
@@ -37,7 +37,7 @@ test('dashboard period changes and mobile retains content', async ({ page }) => 
 });
 
 test('owner dashboard keeps operations visible when finance fails', async ({ page, request }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/desk/dashboard' },
   });
   await page.goto('/today');

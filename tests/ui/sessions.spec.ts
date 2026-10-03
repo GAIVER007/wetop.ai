@@ -1,7 +1,7 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
 });
 
 /**
@@ -80,7 +80,7 @@ test('удалённый вход по коду не выдаёт сессию; 
 }) => {
   // Вход по коду снят в main по ADR-053. Проверяем отсутствие старого пути, а не возвращаем его в fixture.
   for (const path of ['/auth/code', '/auth/verify']) {
-    const response = await request.post(`http://127.0.0.1:4311${path}`, {
+    const response = await request.post(`${FIXTURE_API}${path}`, {
       headers: { 'x-wetop-test-client': '1' },
       data: { email: 'legacy@example.invalid', code: '123456' },
     });

@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from './fixtures';
+import { expect, test, type Locator, type Page, FIXTURE_API } from './fixtures';
 
 /**
  * Разбор «Главной» 23.09.2026 — критика по DESIGN.md, находки 1–9 (отчёт и снимки —
@@ -7,7 +7,7 @@ import { expect, test, type Locator, type Page } from './fixtures';
  * Данные фикстуры на сегодня: заезды без заселения — TESTAA, TEST1, TEST2; не заехал вовремя — TEST8;
  * уезжает и ещё живёт — TEST3; уже выселен, но с долгом 16 000 ₸ — TEST4; живут — TEST5, TEST6, TEST7.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

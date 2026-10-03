@@ -1,10 +1,10 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * ADR-071: ручная бронь OTA несёт канал и номер брони в канале. По номеру WETOP узнает бронь, когда канал
  * подключат к Channex, и не создаст вторую. Поля появляются только у источника OTA.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test('новая бронь OTA: канал и номер брони в канале обязательны и уходят в API', async ({
   page,

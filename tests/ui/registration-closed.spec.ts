@@ -1,8 +1,8 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/reset`);
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { registrationEnabled: false },
   });
 });
@@ -32,7 +32,7 @@ test('ошибка настроек API закрывает регистраци�
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { failPath: '/auth/options' },
   });
   await page.goto('/auth/fallback?mode=register');
@@ -45,7 +45,7 @@ test('ранее открытая форма получает отказ чер�
   request,
   context,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { registrationEnabled: true },
   });
   await page.goto('/auth/fallback?mode=register');
@@ -57,7 +57,7 @@ test('ранее открытая форма получает отказ чер�
   await page.getByLabel('Телефон', { exact: true }).fill('701 555 44 33');
   await page.getByLabel('Пароль', { exact: true }).fill('test-password-2026');
   await page.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();
-  await request.post('http://127.0.0.1:4311/__test/control', {
+  await request.post(`${FIXTURE_API}/__test/control`, {
     data: { registrationEnabled: false },
   });
   await page.getByRole('button', { name: 'Создать организацию' }).click();

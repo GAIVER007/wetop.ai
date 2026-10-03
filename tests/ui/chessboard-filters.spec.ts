@@ -1,6 +1,6 @@
 import type { APIRequestContext, Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * «Шахматка v2» PR 7 (ТЗ §8–10, §37–41; решения — `plans/chessboard-v2-2026-09-27.md`, PR 7):
@@ -11,7 +11,7 @@ import { expect, test } from './fixtures';
  * Стенд UI-тестов: восемь базовых броней недели (R01–R04, M01, M02, F01, F03) и брони, заведённые
  * здесь; гости вымышленные (ADR-010).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const headers = { 'x-wetop-test-client': '1' };
 const add = (date: string, n: number) => {
   const d = new Date(`${date}T12:00:00Z`);

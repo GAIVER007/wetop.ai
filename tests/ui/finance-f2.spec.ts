@@ -1,12 +1,12 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * «Финансы за период», срез F2 (ADR-113, план `plans/finance-f2-2026-09-28.md`): раздел «Оплаты и возвраты» с
  * отбором по типу и способу, переход от плиток и таблицы способов к строкам, выгрузка CSV, сбой одного запроса.
  * Брони подставного API вымышленные (ADR-010); возврат есть только в витрине `design-seed` (DSG-RETD).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/finance-compact-2026-10-01/operations';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

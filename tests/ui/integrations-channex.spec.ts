@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, FIXTURE_API } from './fixtures';
 
 /**
  * «Интеграции → Channex», срез INT2 (ADR-121, план `plans/integrations-int2-2026-09-28.md`): подключено ли
@@ -8,7 +8,7 @@ import { expect, test, type Page } from './fixtures';
  * тест снимает стоп-гейт для владельца: светлая и тёмная темы, телефон, работает, устарело, webhook не отвечает,
  * не подключено, только чтение.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/unified-sections-2026-10-01/integrations-int2-2026-09-28';
 
 type Mode = 'ok' | 'stale' | 'webhook' | 'foreign' | 'no-key';

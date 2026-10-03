@@ -1,13 +1,13 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { devNoise, expect, test, type APIRequestContext, type Page } from './fixtures';
+import { devNoise, expect, test, type APIRequestContext, type Page, FIXTURE_API } from './fixtures';
 
 /**
  * «Продажи → Сайт и онлайн-бронирование» (ADR-117, срез WEB1): сайт объекта — одно место вместо трёх («Аналитика
  * сайта», «Настройки сайта», панель в «Интеграциях»). Браузер → `next dev` → подставной API; учебный сайт фикстуры —
  * на домене-заглушке `example.invalid`, как боевой «Сайт Luxx Aparts» на `luxx-aparts.example`.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 // запись в подставной API — только от прогона тестов
 const TEST_CLIENT = { 'x-wetop-test-client': '1' };
 const SHOTS = 'reports/website-web2-2026-09-28';
@@ -325,7 +325,7 @@ test('снимки WEB2', async ({ page, request }) => {
 });
 
 /** Настоящий адрес демо, как у API на сервере (`${PUBLIC_API_URL}/w/demo?k=…`); у фикстуры по умолчанию — относительный */
-const DEMO_URL = 'http://127.0.0.1:4311/w/demo?k=public-ui-fixture';
+const DEMO_URL = `${FIXTURE_API}/w/demo?k=public-ui-fixture`;
 
 test('WEB3 · бронирование: состояние, демо только у работающего, что увидит гость', async ({
   page,

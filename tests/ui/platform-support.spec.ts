@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 import type { APIRequestContext, Page } from '@playwright/test';
 
 /**
@@ -7,7 +7,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
  * его знания и сводка — только главному администратору. Стенд (`scripts/preview/fixture-api.ts`) отвечает так же, как
  * API: панель помощника за ним, кто пишет — из подписи стойки. Все, кто пишет, вымышленные (ADR-010).
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 const SIGNED = '6a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 const ANONYMOUS = '7b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e';
 

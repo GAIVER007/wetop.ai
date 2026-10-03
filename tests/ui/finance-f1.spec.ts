@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test, type Page } from './fixtures';
+import { expect, test, type Page, FIXTURE_API } from './fixtures';
 
 /**
  * «Финансы за период», срез F1 (ADR-113, план `plans/finance-f1-2026-09-27.md`). Проверяет критерии среза и
@@ -8,7 +8,7 @@ import { expect, test, type Page } from './fixtures';
  * чтение», сбой одного запроса. Брони подставного API — вымышленные (ADR-010): 20260913-TESTAA и TEST1…8,
  * из них TEST4 уже выехала с остатком — её долг просрочен (Q-207). «К сбору» — сумма строк списка (Q-206).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/finance-compact-2026-10-01/debts';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

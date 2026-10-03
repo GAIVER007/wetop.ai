@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * Срез 7.2 «Три экрана Channex» (plans/slice-7-2-channex-screens.md) на синтетическом API с витриной,
@@ -6,7 +6,7 @@ import { expect, test } from './fixtures';
  * «Синхронизации» за «Техническими деталями», журнал входящих — на «Событиях», страница приёма брони
  * без персональных данных.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 
 test.beforeEach(async ({ request }) => {
   await request.post(`${fixture}/__test/reset`);

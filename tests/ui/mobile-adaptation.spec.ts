@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { FIXTURE_API } from './fixtures';
 
 /**
  * Мобильная версия стойки (02.10.2026, поручение владельца «особое внимание телефону»).
@@ -13,7 +14,7 @@ import { expect, test } from '@playwright/test';
  * 4) Правило «плитки финансов в одну колонку» (≤520 px) стояло в файле раньше правила «две колонки»
  *    (≤800 px) и при равной специфичности никогда не применялось.
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const PHONE = { width: 390, height: 844 };
 
 test.beforeEach(async ({ page, request }) => {

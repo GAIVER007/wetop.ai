@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * Хаб «Отчёты» (REP1, план `plans/reports-hub-2026-10-02.md`): один вход ко всем отчётам. Карточки
@@ -10,7 +10,7 @@ import { expect, test } from './fixtures';
  * `/desk/dashboard` и `/desk/today` подставного API. Плюс выгрузка CSV долгов со вкладки «Долги».
  */
 // адрес подставного API настраиваем: прогон на своём стенде не трогает общий 4311
-const fixture = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/reports-hub-2026-10-02';
 
 // «сегодня» объекта — Алматы (+5), как в finance-f1.spec

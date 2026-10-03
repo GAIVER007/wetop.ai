@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, FIXTURE_API } from './fixtures';
 
 test('агент из списка: редактирование, сохранение и повторное открытие', async ({
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
+  await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/ai-seller/agents');
   await page.getByRole('link', { name: 'Тестовый агент', exact: true }).click();
   await page.getByLabel('Имя ассистента').fill('Обновлённый агент');
@@ -26,8 +26,8 @@ test('выключенный каталог объясняет состояни�
   page,
   request,
 }) => {
-  await request.post('http://127.0.0.1:4311/__test/reset');
-  await request.post('http://127.0.0.1:4311/__test/agents-off');
+  await request.post(`${FIXTURE_API}/__test/reset`);
+  await request.post(`${FIXTURE_API}/__test/agents-off`);
   await page.goto('/ai-seller/agents');
   await expect(
     page.getByRole('heading', { name: 'Создание агентов пока недоступно' }),

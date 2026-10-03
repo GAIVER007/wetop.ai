@@ -1,13 +1,13 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * Касса (DATA_MODEL §21, план `plans/finance-cashbox-2026-10-02.md`): вкладка с остатками по способам,
  * поступление и расход мимо счетов броней, перевод с комиссией, статьи, аннулирование и общая лента
  * операций с отбором по источнику. Данные подставного API вымышленные (ADR-010).
  */
-const fixture = 'http://127.0.0.1:4311';
+const fixture = FIXTURE_API;
 const report = 'reports/finance-cash-2026-10-02';
 const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
 const add = (days: number) =>

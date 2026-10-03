@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures';
+import { expect, test, FIXTURE_API } from './fixtures';
 
 /**
  * «Показатели за период» не должны пропадать целиком, когда числа не пришли (замечание владельца
@@ -7,7 +7,7 @@ import { expect, test } from './fixtures';
  * счетов за месяц, и на медленной связи этот вызов может не успеть — экран обязан открыться и назвать причину. Главная (`/today`) от
  * `GET /desk/dashboard` больше не зависит вовсе.
  */
-const API = 'http://127.0.0.1:4311';
+const API = FIXTURE_API;
 
 test.afterEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);

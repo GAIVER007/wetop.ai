@@ -5518,3 +5518,8 @@
 | 03.10.2026 22:04 | lint | ✅ без ошибок | 23 с | a822de1 | [лог](logs/2026-10-03T17-04-51Z-lint-ecdf.log) |  |
 | 03.10.2026 22:05 | unit | ✅ 3015 из 3018, пропущено 3 | 2 мин | a822de1 | [лог](logs/2026-10-03T17-05-14Z-unit-330a.log) |  |
 | 03.10.2026 22:07 | integration | ✅ 238 из 238 | 1 мин 2 с | a822de1 | [лог](logs/2026-10-03T17-07-14Z-integration-3503.log) |  |
+| 03.10.2026 22:08 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1) | ❌ упало 3 из 825 | 1 ч 4 мин | 8ed0af2 | [лог](logs/2026-10-03T17-08-31Z-e2e-d321.log) | axe и эталонные снимки секций: light |
+| 03.10.2026 23:12 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 support-kb) | ❌ код выхода 1 | 2 мин 3 с | 8ed0af2 | [лог](logs/2026-10-03T18-12-49Z-e2e-1aed.log) | (ошибка вне тестов) |
+| 03.10.2026 23:14 | e2e (частично: --config tests/ui/playwright.config.ts --workers=1 support-kb) | ✅ 12 из 12 | 56 с | 8ed0af2 | [лог](logs/2026-10-03T18-14-53Z-e2e-f3b2.log) |  |
+| 03.10.2026 23:16 | e2e | ✅ 25 из 25 | 1 мин 2 с | 8ed0af2 | [лог](logs/2026-10-03T18-16-38Z-e2e-5623.log) |  |
+| 03.10.2026 23:17 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 49 из 49 | 43 с | 8ed0af2 | [лог](logs/2026-10-03T18-17-44Z-e2e-1c26.log) |  |

@@ -159,6 +159,7 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   await expect(form.locator('[name="adults"]')).toHaveValue('2');
   await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
   await expect(form.getByTestId('booking-summary')).toContainText('ячейку назначит система');
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
   await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');

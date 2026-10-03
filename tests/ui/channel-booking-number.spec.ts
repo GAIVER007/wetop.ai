@@ -13,6 +13,7 @@ test('новая бронь OTA: канал и номер брони в кана
   await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
+  await form.locator('details.booking-create__extras').evaluate((d) => { (d as HTMLDetailsElement).open = true; });
   await form.locator('[name="source"]').selectOption('PHONE');
   await expect(form.locator('[name="externalId"]')).toHaveCount(0);
   await form.locator('[name="source"]').selectOption('OTA');

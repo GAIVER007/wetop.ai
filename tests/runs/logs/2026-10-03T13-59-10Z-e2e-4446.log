@@ -1,0 +1,56 @@
+# Сквозные (e2e) · 03.10.2026 18:59 Алматы · Noutbuk-Vyacheslav.local
+# коммит 5fabb2c (claude/birthdays), незакоммиченных файлов набора: 7
+# npx playwright test --workers=2 --reporter=list,json 'tests/ui/guests-birthdays.spec.ts' 'tests/ui/chessboard-calendar.spec.ts' '--config' 'tests/ui/playwright.nights-alt.config.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/ui/chessboard-calendar.spec.ts:12:1 › календарь: заголовок, сводка дня и быстрые действия (24.8s)
+  ✓  2 tests/ui/chessboard-calendar.spec.ts:36:1 › ?stays=debt включает существующий фильтр «С долгом» — «Неоплаченные» одной ссылкой (13.6s)
+  ✓  3 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: light (11.3s)
+  ✓  4 tests/ui/chessboard-calendar.spec.ts:49:3 › гейт «Календарь»: dark (21.2s)
+  ✓  5 tests/ui/chessboard-calendar.spec.ts:62:1 › пустая клетка подписана числом месяца (7.1s)
+  ✘  6 tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» (6.8s)
+  ✓  7 tests/ui/guests-birthdays.spec.ts:51:1 › нет дат рождения: строка «0», страница говорит, что в неделю пусто (20.5s)
+
+
+  1) tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+
+    Error: apiRequestContext.get: read ECONNRESET
+    Call log:
+      - → GET http://127.0.0.1:4341/desk/today
+        - user-agent: Playwright/1.63.0 (arm64; macOS 14.3) node/24.19
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - x-wetop-test-client: 1
+
+
+      19 | }) => {
+      20 |   // день рождения вымышленного гостя — сегодня по часам стенда
+    > 21 |   const day = (await (await request.get(`${API}/desk/today`, { headers: H })).json()) as {
+         |                                     ^
+      22 |     date: string;
+      23 |   };
+      24 |   await request.patch(`${API}/guests/ui-guest`, {
+        at /private/tmp/claude-501/-Users-vyacheslav-Desktop---------WETOP/02843bfd-4df6-4e02-9479-2e5d96cabd25/scratchpad/wt-nights/tests/ui/guests-birthdays.spec.ts:21:37
+
+    Error Context: test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/guests-birthdays-панель-«С-cc7ec-права-строка-«Дни-рождения»/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/guests-birthdays.spec.ts:16:1 › панель «Сегодня» слева, управление календарём справа; строка «Дни рождения» 
+  6 passed (2.4m)
+
+# код выхода 1 · 2 мин 26 с

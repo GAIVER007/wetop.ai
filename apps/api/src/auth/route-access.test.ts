@@ -105,6 +105,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /guests': 'desk',
   'GET /guests/:id': 'desk',
   // «Гости v2» (G1–G3): каталог и предпросмотр гостя — работа смены
+  'GET /guests/birthdays': 'desk',
   'GET /guests/directory': 'desk',
   'GET /guests/:id/preview': 'desk',
   'PATCH /guests/:id': 'desk',
@@ -188,6 +189,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /channels/channex/outbox/messages': 'channels',
   'POST /channels/channex/outbox/flush': 'channels',
   'GET /channels/channex/connection': 'channels',
+  'GET /channels/channex/channels': 'channels',
+  'POST /channels/channex/channels/connect-session': 'owner',
+  'POST /channels/channex/channels/:id/load-future-reservations': 'owner',
   'GET /channels/channex/content': 'channels',
   'GET /channels/channex/content/names': 'channels',
   'GET /hotel/channel-report': 'channels',

@@ -47,6 +47,7 @@ import {
   type MembershipRole,
   countGuestNights,
   summarizeGuestStays,
+  upcomingBirthday,
   REGISTRATION_PHONE_MESSAGE,
   REGISTRATION_PRIVACY_MESSAGE,
   registrationPhone,
@@ -958,6 +959,8 @@ let showcase = false;
  * `setup`; 'partial' — объект создан, две категории из трёх сопоставлены с тарифом BASE, третья нет.
  */
 let channelMapping: 'none' | 'partial' = 'none';
+/** Раздел «Каналы» (ADR-140): '' — пять подключений; 'empty' — ни одного; 'down' — Channex не ответил */
+let channelCatalog: '' | 'empty' | 'down' = '';
 let showcaseEvents: InboundEvent[] = [];
 const showcaseRevisions = new Map<string, RevisionFacts>();
 let showcaseOutbox: OutboxRow[] = [];
@@ -3303,6 +3306,17 @@ function read(path: string, q: URLSearchParams): unknown {
       rows: rows.slice((page - 1) * pageSize, page * pageSize),
     };
   }
+  // «Дни рождения» (Q-249 T0): то же правило домена, что настоящий API
+  if (path === '/guests/birthdays') {
+    const from = q.get('from') || today;
+    const days = Number(q.get('days') || 1);
+    return [guest, ...extraGuests.values()]
+      .flatMap((g) => {
+        const b = upcomingBirthday(g.birthDate, from, days);
+        return b ? [{ id: g.id, firstName: g.firstName, lastName: g.lastName, ...b }] : [];
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
   if (path === '/guests')
     return [guest, ...extraGuests.values()]
       .map((g) => getGuest(g.id)!)
@@ -3677,6 +3691,99 @@ function read(path: string, q: URLSearchParams): unknown {
         },
       ],
     };
+  // Раздел «Каналы» (ADR-140): подключения и каталог Channex; режим — `POST /__test/control { channelCatalog }`
+  if (path === '/channels/channex/channels') {
+    const ago = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString();
+    const conn = (
+      id: string,
+      adapterCode: string,
+      channelKey: string,
+      channelTitle: string,
+      hotel: string,
+      bookings30: number,
+      status: string,
+      extra: Record<string, unknown> = {},
+    ) => ({
+      id,
+      adapterCode,
+      channelKey,
+      channelTitle,
+      connectionTitle: '',
+      channelPropertyId: hotel,
+      active: status !== 'OFF' && status !== 'REMOVING',
+      removalDate: null,
+      mappedRatePlans: 3,
+      actions: [],
+      shortCode: null,
+      bookings30,
+      lastBookingAt: bookings30 ? ago(1) : null,
+      lastEventAt: bookings30 ? ago(1) : null,
+      failedEvents7d: 0,
+      status,
+      ...extra,
+    });
+    const adapters = [
+      ['Agoda', 'agoda', 'Agoda', 'ota', 'AGO'],
+      ['AirBNB', 'airbnb', 'Airbnb', 'ota', 'ABB'],
+      ['BookingCom', 'bookingcom', 'Booking.com', 'meta', 'BDC'],
+      ['Ctrip', 'ctrip', 'Trip.com', 'ota', null],
+      ['Expedia', 'expedia', 'Expedia', 'ota', 'EXP'],
+      ['Hostelworld', 'hostelworld', 'Hostelworld', 'ota', 'HWL'],
+      ['Ostrovok', 'ostrovok', 'Emerging Travel Group', 'ota', 'OVK'],
+    ] as const;
+    const connections =
+      channelCatalog === 'empty'
+        ? []
+        : [
+            conn('ui-ch-trip', 'Ctrip', 'ctrip', 'Trip.com', '132059275', 350, 'WORKING'),
+            conn('ui-ch-bdc', 'BookingCom', 'bookingcom', 'Booking.com', '14087887', 169, 'WORKING', {
+              shortCode: 'BDC',
+              actions: ['load_future_reservations'],
+            }),
+            conn('ui-ch-ago', 'Agoda', 'agoda', 'Agoda', '77196946', 107, 'ERRORS', {
+              failedEvents7d: 2,
+              shortCode: 'AGO',
+            }),
+            conn('ui-ch-hwl', 'Hostelworld', 'hostelworld', 'Hostelworld', '335147', 0, 'ENABLED', {
+              shortCode: 'HWL',
+            }),
+            conn('ui-ch-exp', 'Expedia', 'expedia', 'Expedia', '131927054', 0, 'REMOVING', {
+              removalDate: '2026-10-20',
+              shortCode: 'EXP',
+            }),
+          ];
+    const connected = new Set(connections.map((c) => c.adapterCode));
+    const ready = channelCatalog !== 'down';
+    return {
+      checkedAt: new Date().toISOString(),
+      environment: 'staging',
+      propertyConnected: true,
+      inbound: { lastEventAt: ago(1), failedEvents7d: channelCatalog === 'empty' ? 0 : 2 },
+      state: ready ? 'READY' : 'UNREACHABLE',
+      message: ready
+        ? 'Каналы загружены из менеджера каналов'
+        : 'Менеджер каналов не ответил — показаны только брони из WETOP',
+      connections: ready ? connections : [],
+      adapters: ready
+        ? adapters
+            .map(([code, channelKey, title, kind, shortCode]) => ({
+              code,
+              channelKey,
+              title,
+              kind,
+              canLoadFutureReservations: code === 'BookingCom',
+              shortCode,
+              connected: connected.has(code),
+            }))
+            .sort((a, b) => Number(b.connected) - Number(a.connected) || a.title.localeCompare(b.title))
+        : null,
+      outside: [
+        { key: 'OTA:onetwotrip', source: 'OTA', label: 'OneTwoTrip', bookings30: 3, lastBookingAt: ago(2) },
+        { key: 'DESK', source: 'DESK', label: null, bookings30: 12, lastBookingAt: ago(0) },
+        { key: 'WEBSITE', source: 'WEBSITE', label: null, bookings30: 4, lastBookingAt: ago(3) },
+      ],
+    };
+  }
   if (path === '/channels/channex/connection') {
     const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
     const base = {
@@ -4167,6 +4274,7 @@ createServer(async (req, res) => {
       ratesUnmapped = false;
       incidentHistory = 0;
       channelMapping = 'none';
+      channelCatalog = '';
       emptyFixture = false;
       noBookings = false;
       createdReservation = false;
@@ -4231,6 +4339,8 @@ createServer(async (req, res) => {
       rejectCreate = body['rejectCreate'] === true;
       piiStorage = body['piiStorage'] === 'pseudonymized' ? 'pseudonymized' : 'real';
       channelMapping = body['channelMapping'] === 'partial' ? 'partial' : 'none';
+      channelCatalog =
+        body['channelCatalog'] === 'empty' || body['channelCatalog'] === 'down' ? body['channelCatalog'] : '';
       failPath = String(body['failPath'] || '');
       delayPath = String(body['delayPath'] || '');
       delayMs = Number(body['delayMs'] || 1500);
@@ -6416,6 +6526,13 @@ createServer(async (req, res) => {
       return send(200, { from: today, to: add(today, 499), tasks: ['ui-task'] });
     if (path === '/channels/channex/setup')
       return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
+    // Окно Channex (ADR-140): настоящий адрес не нужен — тест проверяет, что окно открылось с фреймом
+    if (/^\/channels\/channex\/channels\/[^/]+\/load-future-reservations$/.test(path))
+      return path.includes('/ui-ch-bdc/')
+        ? send(200, { channel: 'Booking.com' })
+        : send(409, { message: 'Канал не умеет отдавать будущие брони' });
+    if (path === '/channels/channex/channels/connect-session')
+      return send(200, { url: 'about:blank', expiresInMinutes: 15 });
     if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });
     const guardAction = /^\/guard\/incidents\/([^/]+)\/(acknowledge|resolve)$/.exec(path);
     if (guardAction && guardAction[1] !== 'ui-incident') {

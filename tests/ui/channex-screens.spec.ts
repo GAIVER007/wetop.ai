@@ -73,7 +73,8 @@ test('обзор каналов: полоса состояния, вкладки
   const nav = page.getByRole('navigation', { name: 'Каналы продаж' });
   await expect(nav.getByRole('link')).toHaveText([
     'Обзор',
-    'Подключения',
+    'Каналы',
+    'Настройка подключения',
     'Сопоставление',
     'Синхронизация',
     'События',
@@ -109,7 +110,7 @@ test('подключения каналов: настройка подключе
   const main = page.getByRole('main');
   await signIn(page);
   await page.goto('/channels/connections');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключение каналов');
   await expect(main).toContainText('Тестовая');
   await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');
   // владелец видит группу «Настройка подключения» с прежними командами в прежнем порядке

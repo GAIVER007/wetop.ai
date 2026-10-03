@@ -29,7 +29,7 @@ import { BeautyScheduleController, BeautyScheduleService } from './schedule';
 import { beautyScope, mayBeauty, UUID, type BeautyScope } from './scope';
 
 /**
- * Каталог салона: услуги сети и мастера (DATA_MODEL §19 и §19.1, срез B3, ADR-140).
+ * Каталог салона: услуги сети и мастера (DATA_MODEL §19 и §19.1, срез B3, ADR-141).
  *
  * Права по решению Q-253 (те же 13, подписи по вертикали): каталог услуг и его цены это `rates` (в салоне
  * список услуг и есть прайс), мастера это `property` (в гостинице это право закрывает то, что продаётся).

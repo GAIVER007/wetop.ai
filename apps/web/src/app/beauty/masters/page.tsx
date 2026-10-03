@@ -9,7 +9,7 @@ import { MastersBoard } from './board';
 import '../beauty.css';
 
 /**
- * «Мастера» салона (срез B3, ADR-140): сотрудники сети, их филиалы и умения.
+ * «Мастера» салона (срез B3, ADR-141): сотрудники сети, их филиалы и умения.
  * Право на правку это `property`: в гостинице оно закрывает то, чем объект работает (решение Q-253).
  */
 export default async function BeautyMastersPage() {

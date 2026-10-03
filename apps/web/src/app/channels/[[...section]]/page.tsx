@@ -32,6 +32,7 @@ import { hotelClock } from '../../../lib/hotel-api';
 import type { PropertyClock } from '../../../lib/property-time';
 import { eventTime } from '../format';
 import { ChannelReport } from '../report';
+import { ChannelList } from '../channel-list';
 import { categoryMappings, planMappings } from '../mapping';
 import { Icon } from '../../../components/icon';
 import '../../directory.css';
@@ -48,6 +49,8 @@ import '../channels.css';
  */
 const tabs = [
   { view: '', href: '/channels', label: 'Обзор' },
+  // Раздел «Каналы» (ADR-140): подключённые и все доступные каналы Channex — как в прежней системе
+  { view: 'list', href: '/channels/list', label: 'Каналы' },
   { view: 'connections', href: '/connections/channex', label: 'Настройка подключения' },
   { view: 'mapping', href: '/channels/mapping', label: 'Сопоставление' },
   { view: 'sync', href: '/channels/sync', label: 'Синхронизация' },
@@ -56,6 +59,7 @@ const tabs = [
 
 const subtitles: Record<string, string> = {
   '': 'Состояние обмена с каналами и брони по источникам.',
+  list: 'Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.',
   connections: 'Подключение менеджера каналов и настройка обмена.',
   mapping: 'Категории и тарифы WETOP в менеджере каналов.',
   sync: 'Что уходит в каналы и что приходит обратно.',
@@ -120,6 +124,7 @@ export default async function ChannelSalesPage({
         ))}
       </nav>
       {view === '' && <Overview sp={sp} />}
+      {view === 'list' && <ChannelList sp={sp} />}
       {view === 'connections' && <ChannelConnectionSetup />}
       {view === 'mapping' && <Mapping />}
       {view === 'sync' && <Sync queue={queueFilter(sp.queue)} />}

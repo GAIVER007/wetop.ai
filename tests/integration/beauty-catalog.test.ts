@@ -11,7 +11,7 @@ loadEnv({ path: resolve(import.meta.dirname, '../../.env'), quiet: true });
 const url = process.env.DATABASE_URL;
 
 /**
- * Каталог салона на настоящей схеме (DATA_MODEL §19.1, срез B3, ADR-140): услуги сети с ценой филиала,
+ * Каталог салона на настоящей схеме (DATA_MODEL §19.1, срез B3, ADR-141): услуги сети с ценой филиала,
  * мастера с умениями, права по решению Q-253 и чужое не трогается. Данные вымышленные (ADR-010).
  */
 describe.skipIf(!url)('каталог салона (integration, DATA_MODEL §19.1)', () => {

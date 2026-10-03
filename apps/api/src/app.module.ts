@@ -17,6 +17,7 @@ import { ChessboardModule } from './chessboard/chessboard.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DeskModule } from './desk/desk.module';
 import { FinanceModule } from './finance/finance.module';
+import { MarketModule } from './market/market.module';
 import { FreshnessModule } from './freshness/freshness.module';
 import { GuardModule } from './guard/guard.module';
 import { HealthModule } from './health/health.module';
@@ -53,6 +54,7 @@ import { DataConnectionModule } from './database/connection';
     GuestsModule,
     AuditModule,
     FinanceModule,
+    MarketModule,
     DeskModule,
     DashboardModule,
     AnalyticsModule,

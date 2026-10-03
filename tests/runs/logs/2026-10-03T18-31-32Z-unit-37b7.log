@@ -1,0 +1,18 @@
+# Модульные (unit) · 03.10.2026 23:31 Алматы · vm
+# коммит 33292e4 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 7
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T18-31-32Z-unit-37b7.json' 'apps/api/src/auth/route-access.test.ts' 'apps/api/src/market' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/domain/src/market/occupancy.test.ts (19 tests) 16ms
+ ✓ |unit| apps/api/src/market/market.service.test.ts (7 tests) 13ms
+ ✓ |unit| apps/api/src/auth/route-access.test.ts (2 tests) 44ms
+
+ Test Files  3 passed (3)
+      Tests  28 passed (28)
+   Start at  18:31:33
+   Duration  2.98s (transform 71%, import 27%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T18-31-32Z-unit-37b7.json
+
+# код выхода 0 · 4 с

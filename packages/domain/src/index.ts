@@ -18,3 +18,4 @@ export * from './assistant/index';
 export * from './ai-seller/index';
 export * from './ai-agents/index';
 export * from './beauty/index';
+export * from './market/index';

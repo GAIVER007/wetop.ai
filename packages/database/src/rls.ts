@@ -73,6 +73,9 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'working_hours',
   'time_offs',
   'appointments',
+  // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
+  'competitors',
+  'competitor_occupancy',
 ];
 
 /**

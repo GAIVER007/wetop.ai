@@ -6,6 +6,8 @@ import {
   assertAllocationsMatch,
   buildDashboard,
   buildUnitStats,
+  buildChannelEfficiency,
+  type ChannelEfficiencySort,
   DASHBOARD_FUNDS,
   previousPeriod,
   type DashboardFund,
@@ -55,6 +57,14 @@ import {
   validateDerivedRule,
   normalizePromoCode,
   MAX_DISCOUNT_PERCENT,
+  MARKET_MAX_COMPETITORS,
+  MarketInputError,
+  buildMarketBoard,
+  buildNightHistory,
+  marketDates,
+  parseCompetitorInput,
+  parseOccupancyPercent,
+  type MarketReading,
 } from '@pms/domain';
 import type { DataConnection } from '@pms/shared';
 import { financeState } from '../../apps/web/src/app/reservations/finance-state';
@@ -1576,6 +1586,40 @@ function board(from: string, to: string): Chessboard {
  * Главная за период (срез 14): тот же расчёт, что в API, на данных фикстуры — шахматка, брони, платежи.
  * Начисление за проживание датировано заездом, платежи фикстуры проведены сегодня.
  */
+/** Проживания стенда в виде расчёта «Аналитики»: общий вход сводки и «Эффективности каналов» (ADR-141) */
+const dashboardStays = () =>
+  allCards().flatMap((r) =>
+    r.items.map((it) => ({
+      arrivalDate: it.arrivalDate,
+      departureDate: it.departureDate,
+      status: it.status,
+      // Q-209: бронь: это Reservation (номер брони стенда), статус: её собственный
+      reservationId: r.confirmationNumber,
+      reservationStatus: r.status,
+      adults: it.adults,
+      children: it.children,
+      priceMinor: BigInt(it.priceMinor),
+      source: r.source,
+      channel: r.channel,
+      categoryCode: it.accommodationTypeCode,
+    })),
+  );
+/** Ответ `GET /desk/dashboard/channels` стенда: текущий период и, если просили, период сравнения (ADR-141) */
+function channelsReport(q: URLSearchParams, stays: ReturnType<typeof dashboardStays>) {
+  const from = q.get('from') || today,
+    to = q.get('to') || today;
+  const opts = {
+    ...(q.get('channel') ? { channel: q.get('channel')! } : {}),
+    sort: (q.get('sort') || 'revenue') as ChannelEfficiencySort,
+    ...(q.get('empty') === '1' ? { knownChannels: ['Booking.com', 'Airbnb', 'Agoda', 'Expedia', 'Trip.com'] } : {}),
+  };
+  const cf = q.get('compareFrom'),
+    ct = q.get('compareTo');
+  return {
+    current: buildChannelEfficiency(stays, from, to, opts),
+    previous: cf && ct ? buildChannelEfficiency(stays, cf, ct, opts) : null,
+  };
+}
 function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'): DashboardPeriod {
   const b = board(from, to);
   const active = (status: string) => !['CANCELLED', 'NO_SHOW'].includes(status);
@@ -1599,22 +1643,7 @@ function dashboardPeriod(from: string, to: string, fund: DashboardFund = 'all'):
         byCategory: b.byCategory[date] ?? {},
       })),
       unassignedByCategory,
-      stays: allCards().flatMap((r) =>
-        r.items.map((it) => ({
-          arrivalDate: it.arrivalDate,
-          departureDate: it.departureDate,
-          status: it.status,
-          // Q-209: бронь — это Reservation (номер брони стенда), статус — её собственный
-          reservationId: r.confirmationNumber,
-          reservationStatus: r.status,
-          adults: it.adults,
-          children: it.children,
-          priceMinor: BigInt(it.priceMinor),
-          source: r.source,
-          channel: r.channel,
-          categoryCode: it.accommodationTypeCode,
-        })),
-      ),
+      stays: dashboardStays(),
       charges: allCards().flatMap((r) =>
         r.items
           .filter((it) => active(it.status) && it.arrivalDate >= from && it.arrivalDate <= to)
@@ -2677,6 +2706,7 @@ function read(path: string, q: URLSearchParams): unknown {
         blocks: 0,
         byCategory: [],
       };
+    if (path === '/desk/dashboard/channels') return channelsReport(q, []);
     if (path === '/desk/dashboard/units') {
       const from = q.get('from') || today,
         to = q.get('to') || today;
@@ -2947,6 +2977,8 @@ function read(path: string, q: URLSearchParams): unknown {
       fund as DashboardFund,
     );
   }
+  // «Эффективность каналов» (ADR-141): тот же доменный расчёт, что у API, по проживаниям стенда
+  if (path === '/desk/dashboard/channels') return channelsReport(q, dashboardStays());
   if (path === '/desk/dashboard') {
     const fund = q.get('fund') || 'all';
     // обработчик отвечает на исключение 400, как API на неизвестный тип фонда
@@ -4108,6 +4140,123 @@ function read(path: string, q: URLSearchParams): unknown {
   return undefined;
 }
 
+// ── Загрузка конкурентов (ADR-142): те же правила, что API, из домена ──────────────────────────
+interface FixtureCompetitor {
+  id: string;
+  name: string;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+const marketCompetitors: FixtureCompetitor[] = [];
+let marketReadings: MarketReading[] = [];
+const resetMarket = () => {
+  marketCompetitors.length = 0;
+  marketReadings = [];
+};
+const marketPlus = (iso: string, n: number) => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+/** null — маршрут не рынка; иначе [код, тело] */
+function marketRoute(
+  path: string,
+  method: string,
+  q: URLSearchParams,
+  body: Record<string, unknown>,
+): [number, unknown] | null {
+  if (!path.startsWith('/market/')) return null;
+  const may = (p: 'reports' | 'rates') => can(uiRole, p);
+  try {
+    if (path === '/market/occupancy' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const from = q.get('from') || today;
+      const days = Number(q.get('days') ?? 14);
+      const asOf = q.get('asOf') || today;
+      const compare = Number(q.get('compare') ?? 1);
+      const dates = marketDates(from, days);
+      const active = marketCompetitors.filter((c) => c.active);
+      const chess = read('/chessboard', new URLSearchParams({ from, to: dates.at(-1)! })) as {
+        summary?: Record<string, { occupied: number; free: number; blocked: number }>;
+      };
+      const board = buildMarketBoard({
+        dates,
+        asOf,
+        compareDays: compare,
+        own: emptyFixture ? {} : (chess?.summary ?? {}),
+        competitors: active,
+        readings: marketReadings.filter((r) => active.some((c) => c.id === r.competitorId)),
+      });
+      return [200, { today, from, days, board, competitors: active }];
+    }
+    if (path === '/market/night' && method === 'GET') {
+      if (!may('reports')) return [403, { message: accessDeniedMessage('reports') }];
+      const date = q.get('date') ?? '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return [400, { message: 'date: ночь YYYY-MM-DD' }];
+      const active = marketCompetitors.filter((c) => c.active);
+      return [200, buildNightHistory({ stayDate: date, competitors: active, readings: marketReadings })];
+    }
+    if (path === '/market/competitors' && method === 'POST') {
+      if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
+      const input = parseCompetitorInput(body, 'create');
+      if (marketCompetitors.filter((c) => c.active).length >= MARKET_MAX_COMPETITORS)
+        return [409, { message: `В списке уже ${MARKET_MAX_COMPETITORS} конкурентов: уберите одного, чтобы добавить нового` }];
+      if (marketCompetitors.some((c) => c.name === input.name))
+        return [400, { message: `Конкурент «${input.name}» уже есть в списке` }];
+      const row: FixtureCompetitor = {
+        id: `00000000-0000-4000-8000-${String(marketCompetitors.length + 1).padStart(12, '0')}`,
+        name: input.name!,
+        distanceM: input.distanceM ?? null,
+        unitsTotal: input.unitsTotal ?? null,
+        url: input.url ?? null,
+        note: input.note ?? null,
+        active: true,
+      };
+      marketCompetitors.push(row);
+      return [201, row];
+    }
+    const m = /^\/market\/competitors\/([^/]+)(\/occupancy)?$/.exec(path);
+    if (m) {
+      if (!may('rates')) return [403, { message: accessDeniedMessage('rates') }];
+      const row = marketCompetitors.find((c) => c.id === decodeURIComponent(m[1]!));
+      if (m[2] && method === 'PUT') {
+        if (!row || !row.active) return [404, { message: 'Конкурент не найден или убран из списка' }];
+        const entries = Array.isArray(body['entries']) ? (body['entries'] as Array<Record<string, unknown>>) : [];
+        if (!entries.length) return [400, { message: 'entries: список { date, percent }' }];
+        const parsed = entries.map((e) => ({ date: String(e['date']), bp: parseOccupancyPercent(e['percent']) }));
+        for (const e of parsed) {
+          if (e.date < marketPlus(today, -30) || e.date > marketPlus(today, 365))
+            return [400, { message: `Ночь ${e.date}: можно от ${marketPlus(today, -30)} до ${marketPlus(today, 365)}` }];
+        }
+        for (const e of parsed) {
+          marketReadings = marketReadings.filter(
+            (r) => !(r.competitorId === row.id && r.stayDate === e.date && r.observedOn === today),
+          );
+          if (e.bp !== null)
+            marketReadings.push({ competitorId: row.id, stayDate: e.date, observedOn: today, occupancyBp: e.bp, source: 'MANUAL' });
+        }
+        return [200, { saved: parsed.filter((e) => e.bp !== null).length, cleared: parsed.filter((e) => e.bp === null).length }];
+      }
+      if (!m[2] && method === 'PATCH') {
+        if (!row) return [404, { message: 'Конкурент не найден' }];
+        const patch = parseCompetitorInput(body, 'update');
+        if (patch.name && marketCompetitors.some((c) => c.id !== row.id && c.name === patch.name))
+          return [400, { message: `Конкурент «${patch.name}» уже есть в списке` }];
+        Object.assign(row, patch);
+        if (typeof body['active'] === 'boolean') row.active = body['active'];
+        return [200, row];
+      }
+    }
+    return [404, { message: 'Нет такого маршрута' }];
+  } catch (e) {
+    if (e instanceof MarketInputError) return [400, { message: e.message }];
+    throw e;
+  }
+}
+
 const fixtureBranches: Array<Record<string, unknown>> = [];
 
 /** Каталог салона в подставном API (срез B3): услуги сети и мастера живут в памяти стенда */
@@ -4229,6 +4378,24 @@ createServer(async (req, res) => {
       const agentResponse = agentFixture(path, req.method ?? 'GET', body);
       if (agentResponse) return send(agentResponse.status, agentResponse.data);
     }
+    const marketResponse = marketRoute(path, req.method ?? 'GET', url.searchParams, body);
+    if (marketResponse) return send(marketResponse[0], marketResponse[1]);
+    // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
+    if (path === '/__test/market' && req.method === 'POST') {
+      resetMarket();
+      for (const c of (body['competitors'] as Array<Partial<FixtureCompetitor>> | undefined) ?? [])
+        marketCompetitors.push({
+          id: String(c.id),
+          name: String(c.name),
+          distanceM: c.distanceM ?? null,
+          unitsTotal: c.unitsTotal ?? null,
+          url: c.url ?? null,
+          note: c.note ?? null,
+          active: c.active ?? true,
+        });
+      marketReadings = ((body['readings'] as MarketReading[] | undefined) ?? []).map((r) => ({ ...r }));
+      return send(200, { ok: true, today });
+    }
     if (path === '/__test/reset') {
       fixtureBranches.length = 0;
       fixtureBeautyServices.length = 0;
@@ -4237,6 +4404,7 @@ createServer(async (req, res) => {
       fixtureBeautyTimeOffs.length = 0;
       fixtureBeautyAppointments.length = 0;
       fixtureAppointments.length = 0;
+      resetMarket();
       resetAgentFixture();
       hits.clear();
       requestHits.clear();

@@ -1,0 +1,18 @@
+# Модульные (unit) · 03.10.2026 20:56 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 28
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-56-33Z-unit-7de8.json' 'tests/unit/design-slop.test.ts' 'apps/web/src/lib/navigation-roles.test.ts' 'apps/web/src/lib/workspace-organization.test.ts' 'tests/unit/design-rules.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| tests/unit/design-slop.test.ts (11 tests) 7ms
+ ✓ |unit| apps/web/src/lib/workspace-organization.test.ts (2 tests) 4ms
+ ✓ |unit| apps/web/src/lib/navigation-roles.test.ts (17 tests) 11ms
+
+ Test Files  3 passed (3)
+      Tests  30 passed (30)
+   Start at  15:56:34
+   Duration  877ms (transform 83%, import 14%, tests 1%, worker 1%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-56-33Z-unit-7de8.json
+
+# код выхода 0 · 2 с

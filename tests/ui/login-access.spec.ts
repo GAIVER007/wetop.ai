@@ -43,7 +43,12 @@ test('верный пароль открывает рабочее место, в
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
   await expect(page).toHaveURL(APP + '/today');
-  await page.getByRole('button', { name: 'Меню администратора' }).click();
+  // клик до гидратации шапки теряется (меню не открывается): повторяем, пока меню не раскрыто
+  const profile = page.getByRole('button', { name: 'Меню администратора' });
+  await expect(async () => {
+    if ((await profile.getAttribute('aria-expanded')) !== 'true') await profile.click();
+    await expect(profile).toHaveAttribute('aria-expanded', 'true', { timeout: 1000 });
+  }).toPass();
   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#login');
 });

@@ -1,0 +1,122 @@
+# Сквозные (e2e) · 04.10.2026 00:18 Алматы · vm
+# коммит ff2b775 (main)
+# npx playwright test --workers=2 --reporter=list,json '-c' 'tests/ui/playwright.config.ts' '--workers=1' '--repeat-each=5' 'tests/ui/login-access.spec.ts'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 75 tests using 1 worker
+
+  ✓   1 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (3.3s)
+  ✓   2 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (4.5s)
+  ✓   3 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.2s)
+  ✓   4 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.8s)
+  ✓   5 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.7s)
+  ✓   6 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (6.4s)
+  ✓   7 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (6.0s)
+  ✓   8 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.4s)
+  ✓   9 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (4.2s)
+  ✓  10 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (1.8s)
+  ✓  11 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.5s)
+  ✓  12 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (4.1s)
+  ✓  13 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (725ms)
+  ✓  14 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.4s)
+  ✓  15 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.4s)
+  ✓  16 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.6s)
+  ✓  17 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (3.3s)
+  ✓  18 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.8s)
+  ✓  19 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.8s)
+  ✓  20 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.6s)
+  ✓  21 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (6.6s)
+  ✓  22 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (6.3s)
+  ✓  23 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.4s)
+  ✓  24 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (3.3s)
+  ✓  25 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (2.0s)
+  ✓  26 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.6s)
+  ✓  27 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (2.9s)
+  ✓  28 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (730ms)
+  ✓  29 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.5s)
+  ✓  30 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.4s)
+  ✓  31 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.7s)
+  ✘  32 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (45.2s)
+  ✓  33 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (2.0s)
+  ✓  34 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.7s)
+  ✓  35 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.8s)
+  ✓  36 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (6.3s)
+  ✓  37 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (6.6s)
+  ✓  38 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.5s)
+  ✓  39 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (3.4s)
+  ✓  40 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (1.8s)
+  ✓  41 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.6s)
+  ✓  42 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (2.8s)
+  ✓  43 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (694ms)
+  ✓  44 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.4s)
+  ✓  45 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.3s)
+  ✓  46 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.6s)
+  ✓  47 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (3.4s)
+  ✓  48 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.9s)
+  ✓  49 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.7s)
+  ✓  50 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.9s)
+  ✓  51 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (6.6s)
+  ✓  52 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (6.2s)
+  ✓  53 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.4s)
+  ✓  54 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (3.6s)
+  ✓  55 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (1.9s)
+  ✓  56 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.5s)
+  ✓  57 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (2.8s)
+  ✓  58 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (706ms)
+  ✓  59 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.2s)
+  ✓  60 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.4s)
+  ✓  61 tests/ui/login-access.spec.ts:31:1 › главная просит почту и пароль, без второго рекламного экрана (1.7s)
+  ✓  62 tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной (3.3s)
+  ✓  63 tests/ui/login-access.spec.ts:50:1 › неверный пароль остаётся в форме без раскрытия существования аккаунта (1.9s)
+  ✓  64 tests/ui/login-access.spec.ts:57:1 › сбой API сохраняет поля, повтор после восстановления работает (2.6s)
+  ✓  65 tests/ui/login-access.spec.ts:68:1 › клавиатура, показ пароля и блокировка повторной отправки (2.6s)
+  ✓  66 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — light (6.4s)
+  ✓  67 tests/ui/login-access.spec.ts:102:3 › доступность формы и адаптивность — dark (6.0s)
+  ✓  68 tests/ui/login-access.spec.ts:119:1 › заголовок прежнего Cloudflare Access не подставляет почту и не авторизует (1.4s)
+  ✓  69 tests/ui/login-access.spec.ts:130:1 › сеансы открываются в профиле, команда в «Сотрудниках», не на входе (3.6s)
+  ✓  70 tests/ui/login-access.spec.ts:145:1 › вкладки входа и регистрации переключаются без перехода в приложение (1.9s)
+  ✓  71 tests/ui/login-access.spec.ts:155:1 › старая ссылка mode=register открывает регистрацию на главной (1.5s)
+  ✓  72 tests/ui/login-access.spec.ts:160:1 › до подтверждения письма сессии нет; ссылка подтверждает и создаёт HttpOnly cookie (3.4s)
+  ✓  73 tests/ui/login-access.spec.ts:173:1 › негодная ссылка подтверждения показывает отказ и возможность повтора (703ms)
+  ✓  74 tests/ui/login-access.spec.ts:178:1 › без согласия регистрация не отправляется, неверный телефон отклоняется (2.5s)
+  ✓  75 tests/ui/login-access.spec.ts:189:1 › занятая почта и короткий пароль не создают сессию (2.5s)
+
+
+  1) tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной 
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('#profile-dropdown').getByRole('button', { name: 'Выйти' })
+
+
+      45 |   await expect(page).toHaveURL(APP + '/today');
+      46 |   await page.getByRole('button', { name: 'Меню администратора' }).click();
+    > 47 |   await page.locator('#profile-dropdown').getByRole('button', { name: 'Выйти' }).click();
+         |                                                                                  ^
+      48 |   await expect(page).toHaveURL(SITE + '/?next=%2Ftoday#login');
+      49 | });
+      50 | test('неверный пароль остаётся в форме без раскрытия существования аккаунта', async ({ page }) => {
+        at /home/user/wetop.ai/tests/ui/login-access.spec.ts:47:82
+
+    Error Context: test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной-repeat2/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной-repeat2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/login-access-верный-пароль-6fd3a-од-возвращает-форму-главной-repeat2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/ui/login-access.spec.ts:41:1 › верный пароль открывает рабочее место, выход возвращает форму главной 
+  74 passed (4.6m)
+
+# код выхода 1 · 4 мин 37 с

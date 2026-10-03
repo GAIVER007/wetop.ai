@@ -1714,6 +1714,14 @@
   padding: var(--space-4);
   gap: 0;
 }
+/* Месяц на узком десктопе: колонка мест схлопнута, 31 день по 24px помещаются только с полями 8px
+   (premium.css задаёт те же 8px, но это правило стоит ниже в каскаде и перебивало их 16px) */
+@media (min-width: 760px) and (max-width: 1279px) {
+  .page:has(> .board-wrap):has(.board--month) {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
 .page:has(> .board-wrap) > .page__head {
   margin-bottom: var(--space-2);
   flex-shrink: 0;

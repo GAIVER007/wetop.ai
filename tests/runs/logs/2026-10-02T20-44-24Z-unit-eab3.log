@@ -1,0 +1,109 @@
+# Модульные (unit) · 03.10.2026 01:44 Алматы · vm
+# коммит 5182f5a (master), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-02T20-44-24Z-unit-eab3.json' 'tests/unit/ci-runner.test.ts'
+
+ RUN  v5.0.0 /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev
+
+ ❯ |unit| tests/unit/ci-runner.test.ts (11 tests | 5 failed) 45ms
+   ❯ свой раннер CI (6)
+     ✓ раннеру не дают сокет Docker: это был бы root на машине с чужими проектами 2ms
+     ✓ потолки памяти и процессора заданы: браузерные проверки не душат боевую стойку 0ms
+     × тяжёлые задачи идут на свой раннер: минуты GitHub выбраны 4ms
+     × тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота 1ms
+     ✓ проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория 0ms
+     ✓ задача с базой остаётся на GitHub: ей нужен Docker для services: postgres 0ms
+   ❯ свой раннер не выполняет код из чужого форка (ADR-137) (5)
+     × образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh 2ms
+     × запрос на слияние из форка: отказ, задача краснеет, а не пропускается 9ms
+     ✓ форк уже удалён (head.repo пуст): чей код, не проверить, тоже отказ 8ms
+     × ветка самого репозитория и пуш в main выполняются 6ms
+     ✓ нет файла события или он битый: отказ, а не молчаливый пропуск проверки 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > тяжёлые задачи идут на свой раннер: минуты GitHub выбраны
+AssertionError: задача bot не найдена: expected -1 to be greater than -1
+ ❯ job tests/unit/ci-runner.test.ts:36:46
+     34| function job(name: string): string {
+     35|   const start = WORKFLOW.indexOf(`\n  ${name}:\n`);
+     36|   expect(start, `задача ${name} не найдена`).toBeGreaterThan(-1);
+       |                                              ^
+     37|   const rest = WORKFLOW.slice(start + 1);
+     38|   const next = rest.search(/\n {2}[a-z][a-z-]*:\n/);
+ ❯ tests/unit/ci-runner.test.ts:57:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер CI > тесты бота входят в проверки: pytest в apps/ai-seller на той же версии Python, что образ бота
+AssertionError: задача bot не найдена: expected -1 to be greater than -1
+ ❯ job tests/unit/ci-runner.test.ts:36:46
+     34| function job(name: string): string {
+     35|   const start = WORKFLOW.indexOf(`\n  ${name}:\n`);
+     36|   expect(start, `задача ${name} не найдена`).toBeGreaterThan(-1);
+       |                                              ^
+     37|   const rest = WORKFLOW.slice(start + 1);
+     38|   const next = rest.search(/\n {2}[a-z][a-z-]*:\n/);
+ ❯ tests/unit/ci-runner.test.ts:61:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер не выполняет код из чужого форка (ADR-137) > образ раннера включает хук: переменная ACTIONS_RUNNER_HOOK_JOB_STARTED указывает на job-started.sh
+AssertionError: ENV ACTIONS_RUNNER_HOOK_JOB_STARTED в Dockerfile раннера: expected null not to be null
+ ❯ tests/unit/ci-runner.test.ts:115:81
+    113|     const image = withoutComments(RUNNER_IMAGE);
+    114|     const env = /^ENV ACTIONS_RUNNER_HOOK_JOB_STARTED=(\S+)$/m.exec(im…
+    115|     expect(env, 'ENV ACTIONS_RUNNER_HOOK_JOB_STARTED в Dockerfile ранн…
+       |                                                                                 ^
+    116|     expect(image).toContain(`COPY job-started.sh ${env![1]}`);
+    117|     // вне тома раннера: том с настройкой переживает пересборку, а хук…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер не выполняет код из чужого форка (ADR-137) > запрос на слияние из форка: отказ, задача краснеет, а не пропускается
+AssertionError: expected 'bash: /tmp/claude-0/-home-claude/c56d…' to contain 'stranger/wetop.ai'
+
+- Expected
++ Received
+
+- stranger/wetop.ai
++ bash: /tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-rev/scripts/ops/ci-runner/job-started.sh: No such file or directory
++
+
+ ❯ tests/unit/ci-runner.test.ts:124:19
+    122|     const r = runHook(pr('stranger/wetop.ai'));
+    123|     expect(r.code).not.toBe(0);
+    124|     expect(r.out).toContain('stranger/wetop.ai');
+       |                   ^
+    125|   });
+    126|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |unit| tests/unit/ci-runner.test.ts > свой раннер не выполняет код из чужого форка (ADR-137) > ветка самого репозитория и пуш в main выполняются
+AssertionError: expected 127 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 127
+
+ ❯ tests/unit/ci-runner.test.ts:132:36
+    130|
+    131|   it('ветка самого репозитория и пуш в main выполняются', () => {
+    132|     expect(runHook(pr(REPO)).code).toBe(0);
+       |                                    ^
+    133|     expect(runHook({ ref: 'refs/heads/main', repository: { full_name: …
+    134|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 6 passed (11)
+   Start at  13:44:25
+   Duration  289ms (tests 34%, transform 34%, import 30%, worker 3%)
+
+JSON report written to /tmp/pms-test-2026-10-02T20-44-24Z-unit-eab3.json
+
+# код выхода 1 · 1 с

@@ -82,3 +82,16 @@ test('узкий телефон: плитки финансов встают в �
     .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
   expect(columns).toBe(1);
 });
+
+test('телефон: месяц цен не растягивается на четыре экрана', async ({ page }) => {
+  // День стоял тремя блоками по 44 px (дата, цена на полную вместимость, цена на меньшую) —
+  // месяц прокручивался примерно на 4 300 px. Одна строка на день держит высоту дня в пределах 80 px.
+  await page.goto('/rates');
+  const cal = page.getByTestId('rates-calendar');
+  await expect(cal).toBeVisible();
+  const days = cal.locator('.rate-cal__day');
+  const count = await days.count();
+  expect(count).toBeGreaterThan(27);
+  const height = (await cal.boundingBox())!.height;
+  expect(height / count, `высота дня ${Math.round(height / count)} px`).toBeLessThan(80);
+});

@@ -83,6 +83,9 @@ class Turn:
     reply: str | None = None  # выставлен до модели — значит ранняя ветка
     lock: Any = None  # TurnLock, если замок наш: после хода разбираем очередь
     sent: bool = False
+    # Алерты хода (вид, тело, ключ дедупа): выпускаются после коммита хода — своя сессия алерта
+    # не ждёт незакоммиченную запись хода
+    alerts: list[tuple[str, str, str]] = field(default_factory=list)
 
     def step(self, name: str) -> None:
         self.outcome.trace.append(name)

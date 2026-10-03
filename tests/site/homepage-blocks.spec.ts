@@ -58,6 +58,69 @@ test('содержимое блоков видно сразу: без вклад
   await expect(page.locator('#faq details summary').first()).toBeVisible();
 });
 
+/**
+ * 02.10.2026, поручение владельца «сделай максимально понятной и удобной». Страницу нельзя было просмотреть:
+ * в каждой карточке лежал абзац в три-пять строк, двадцать одинаковых прямоугольников подряд, а две кнопки
+ * первого экрана не помещались в колонку и вставали в столбик разной ширины. Эти три проверки держат правку.
+ */
+test('первый экран: две кнопки стоят в одну строку, факты уехали в полосу под ним', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const tops = await page
+    .locator('.hero .hero__actions a')
+    .evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+  expect(tops.length, 'кнопок на первом экране две').toBe(2);
+  expect(tops[0], 'кнопки первого экрана встали в столбик').toBe(tops[1]);
+  // три факта под чертой ушли с первого экрана: он и без них в семь уровней
+  await expect(page.locator('.hero .hero__points')).toHaveCount(0);
+
+  // полоса фактов сразу под первым экраном: четыре коротких ответа «что это даёт»
+  const facts = page.locator('.facts__item');
+  await expect(facts).toHaveCount(4);
+  for (const fact of await facts.all()) {
+    await expect(fact.getByRole('heading', { level: 2 })).toBeVisible();
+    expect((await fact.innerText()).length, 'факт должен читаться одним взглядом').toBeLessThan(120);
+  }
+  const order = await page
+    .locator('main section')
+    .evaluateAll((els) => els.map((el) => el.className));
+  expect(order.findIndex((c) => c.includes('facts')), 'полоса фактов идёт сразу за первым экраном').toBe(1);
+});
+
+test('карточки блоков читаются одной фразой, а не абзацем', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const long: string[] = [];
+  for (const block of ['#features', '#sales', '#team', '#audience']) {
+    for (const text of await page.locator(`${block} .card__text`).allInnerTexts()) {
+      if (text.length > 108) long.push(`${block}: ${text.length} знаков: ${text.slice(0, 40)}`);
+    }
+  }
+  expect(long, 'текст карточки длиннее одной фразы').toEqual([]);
+  // «Что умеет WETOP»: восемь строк-пунктов в две колонки вместо восьми карточек-колонок
+  await expect(page.locator('#features .card-grid--2')).toBeVisible();
+  await expect(page.locator('#features .card--compact')).toHaveCount(8);
+  const titles = await page.locator('#features .card__title').allInnerTexts();
+  expect(titles, 'заголовок карточки в две строки').not.toContain('Аналитика и финансы за период');
+});
+
+test('ссылка в карточке «Продаж» — пилюля по тексту, а не плашка во всю карточку в две строки', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const link = page.locator('#sales .card > .link-arrow');
+  await expect(link).toHaveCount(1);
+  const card = page.locator('#sales .card', { has: page.locator('> .link-arrow') });
+  const linkBox = (await link.boundingBox())!;
+  const cardBox = (await card.boundingBox())!;
+  expect(Math.round(linkBox.height), 'ссылка переносится на вторую строку').toBeLessThan(48);
+  expect(
+    Math.round(linkBox.width),
+    'ссылка растянута во всю ширину карточки, а не по тексту',
+  ).toBeLessThan(Math.round(cardBox.width) - 48);
+});
+
 test('первый экран: карта разделов ведёт на блоки страницы', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');

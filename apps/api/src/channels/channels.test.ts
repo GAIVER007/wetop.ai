@@ -87,6 +87,16 @@ describe('buildChannexSetup', () => {
       buildChannexSetup({ property, categories, ratePlan: { ...ratePlan, currency: 'USD' } }),
     ).toThrow(/USD/);
   });
+  it('остаток при изменении и отмене брони Channex сам не трогает, его присылает PMS (hotels-collection.md: «Recommended Setting is false»)', () => {
+    // Замечание ментора 02.10.2026: при `true` остаток двигали и Channex, и дельта PMS, при расхождении это двойной
+    // счёт. Новая бронь остаётся `true`: место закрывается сразу, до разбора ревизии в PMS.
+    const { settings } = buildChannexSetup({ property, categories, ratePlan }).property;
+    expect(settings).toMatchObject({
+      allow_availability_autoupdate_on_confirmation: true,
+      allow_availability_autoupdate_on_modification: false,
+      allow_availability_autoupdate_on_cancellation: false,
+    });
+  });
 });
 
 describe('ARI values', () => {

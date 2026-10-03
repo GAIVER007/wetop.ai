@@ -5,6 +5,7 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { deskShell } from '../../../lib/desk-shell';
 import { RatesTabs } from '../tabs';
 import { PromoTable } from '../promo-table';
+import { unstable_rethrow } from 'next/navigation';
 import '../rates.css';
 
 /**
@@ -16,7 +17,10 @@ export default async function PromoCodesPage() {
   const { readOnly } = await deskShell();
   const promos = await ratesApi.promoCodes().then(
     (r) => ({ ok: true as const, r }),
-    (e: unknown) => ({ ok: false as const, e }),
+    (e: unknown) => {
+      unstable_rethrow(e);
+      return { ok: false as const, e };
+    },
   );
   return (
     <Page width="wide" title="Тарифы и цены" subtitle="Управление ценами и ограничениями продаж">

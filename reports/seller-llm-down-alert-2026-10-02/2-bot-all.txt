@@ -1,0 +1,81 @@
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 12%]
+.............................F.......................................... [ 16%]
+........................................................................ [ 21%]
+........................................................................ [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 37%]
+........................................................................ [ 42%]
+........................................................................ [ 46%]
+........................................................................ [ 50%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 67%]
+........................................................................ [ 71%]
+........................................................................ [ 75%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+........................................................................ [ 88%]
+........................................................................ [ 92%]
+..............................................................F......... [ 97%]
+...............................F..F...............                       [100%]
+=================================== FAILURES ===================================
+____________ test_entrypoint_applies_migrations_before_web_process _____________
+
+    def test_entrypoint_applies_migrations_before_web_process() -> None:
+        script = (ROOT / "scripts" / "docker-entrypoint.sh").read_text(encoding="utf-8")
+>       assert "alembic upgrade head" in script
+E       assert 'alembic upgrade head' in '#!/bin/sh\n# Точка входа образа. Миграции применяет только веб-процесс, один раз,\n# до старта gunicorn. monitor идёт...ed database revision; deployment requires review" >&2\n            exit 1\n            ;;\n    esac\nfi\n\nexec "$@"\n'
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_step1_entrypoint.py:10: AssertionError
+_____________________ test_script_is_short_enough_to_read ______________________
+
+    def test_script_is_short_enough_to_read() -> None:
+        lines = _text().splitlines()
+        # 300 → 320 с Э4: ключ гостиницы в каждом запросе и тихий старт (Q-183)
+        # не помещаются в прежний бюджет без выкидывания поясняющих комментариев.
+>       assert len(lines) <= 320, f"{len(lines)} строк — скрипт виджета перерос себя"
+E       AssertionError: 353 строк — скрипт виджета перерос себя
+E       assert 353 <= 320
+E        +  where 353 = len(['/* Виджет чата для сайта платформы.', '', '   Без зависимостей и без сборки, ES5: скрипт вставляется одной строкой',... и тянуть туда сборщик нельзя.', '', '   Свои стили под префиксом .pmsw — чтобы не спорить со стилями платформы.', ...])
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_widget_js.py:104: AssertionError
+______ test_no_trace_of_the_client_channel_in_sources[channels.telegram] _______
+
+needle = 'channels.telegram'
+
+    @pytest.mark.parametrize("needle", FORBIDDEN)
+    def test_no_trace_of_the_client_channel_in_sources(needle: str) -> None:
+        hits = [
+            str(path.relative_to(ROOT))
+            for path in _sources()
+            if needle in path.read_text(encoding="utf-8", errors="replace")
+        ]
+>       assert not hits, f"канал вернулся: {needle} встречается в {hits}"
+E       AssertionError: канал вернулся: channels.telegram встречается в ['src/channels/telegram_worker.py', 'src/dashboard/panel_telegram.py', 'src/main.py']
+E       assert not ['src/channels/telegram_worker.py', 'src/dashboard/panel_telegram.py', 'src/main.py']
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_widget_removal.py:52: AssertionError
+____________ test_channel_file_is_deleted[src/channels/telegram.py] ____________
+
+relative = 'src/channels/telegram.py'
+
+    @pytest.mark.parametrize("relative", GONE)
+    def test_channel_file_is_deleted(relative: str) -> None:
+>       assert not (ROOT / relative).exists(), f"{relative} должен быть удалён вместе с каналом"
+E       AssertionError: src/channels/telegram.py должен быть удалён вместе с каналом
+E       assert not True
+E        +  where True = exists()
+E        +    where exists = (PosixPath('/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller') / 'src/channels/telegram.py').exists
+
+/tmp/claude-0/-home-claude/c56dd129-9911-5e6d-bf13-768ae8164f96/scratchpad/wetop-main/apps/ai-seller/tests/test_widget_removal.py:57: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_step1_entrypoint.py::test_entrypoint_applies_migrations_before_web_process
+FAILED tests/test_widget_js.py::test_script_is_short_enough_to_read - Asserti...
+FAILED tests/test_widget_removal.py::test_no_trace_of_the_client_channel_in_sources[channels.telegram]
+FAILED tests/test_widget_removal.py::test_channel_file_is_deleted[src/channels/telegram.py]
+4 failed, 1702 passed in 198.70s (0:03:18)
+EXIT 1

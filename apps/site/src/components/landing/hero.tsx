@@ -5,9 +5,10 @@ import { typo } from '../typo';
 import { ProductMap } from './product-map';
 
 /*
- * Первый экран: что это и для кого. Слева заголовок (позиционирование ADR-104), лид, две кнопки и три факта;
+ * Первый экран: что это и для кого. Слева заголовок (позиционирование ADR-104), лид и две кнопки;
  * справа карта разделов (`product-map.tsx`): шесть областей платформы ссылками на блоки страницы.
  * Имён, сумм и процентов здесь нет (plans/site-home-clear-blocks-2026-10-01.md).
+ * Факты «что это даёт» с 02.10.2026 стоят полосой ниже (`facts.tsx`): семь уровней в одной колонке не читались.
  */
 export function Hero() {
   const t = getDictionary();
@@ -38,22 +39,12 @@ export function Hero() {
                   {t.nav.register}
                   <Icon name="arrowRight" size={18} />
                 </a>
-                <a className="btn btn--secondary btn--lg" href="#features">
+                <a className="btn btn--secondary" href="#features">
                   {t.hero.secondary}
                   <Icon name="arrowDown" size={18} />
                 </a>
               </div>
               <p className="hero__note">{typo(t.hero.note)}</p>
-              <ul className="hero__points">
-                {t.hero.points.map((point) => (
-                  <li key={point.text}>
-                    <span className="hero__point-icon">
-                      <Icon name={point.icon} size={16} />
-                    </span>
-                    {typo(point.text)}
-                  </li>
-                ))}
-              </ul>
             </div>
             <div className="hero__visual">
               <ProductMap />

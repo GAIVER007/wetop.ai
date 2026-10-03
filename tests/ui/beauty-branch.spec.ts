@@ -48,10 +48,9 @@ test('салон заводится той же формой и открывае
   await createAndOpenSalon(page, 'Студия Айна');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Студия Айна');
-  // честность экрана: что работает и чего нет, без обещаний (DESIGN.md §19.9)
-  await expect(main).toContainText('Что уже работает');
-  await expect(main).toContainText('Чего пока нет');
-  await expect(main).toContainText('Записи клиентов, мастера, услуги');
+  // главный экран салона это журнал записей (срез B5); честность осталась отдельной строкой
+  await expect(main).toContainText('Журнал записей');
+  await expect(main.getByTestId('beauty-journal-note')).toContainText('пока нет');
   await page.screenshot({ path: `${SNAPSHOTS}/salon-1440.png`, fullPage: true });
 });
 

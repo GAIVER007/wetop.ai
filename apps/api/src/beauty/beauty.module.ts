@@ -24,6 +24,7 @@ import {
 import { currentUserId } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
 import { PrismaService } from '../database/prisma.provider';
+import { BeautyAppointmentsController, BeautyAppointmentsService } from './appointments';
 import { BeautyScheduleController, BeautyScheduleService } from './schedule';
 import { beautyScope, mayBeauty, UUID, type BeautyScope } from './scope';
 
@@ -519,7 +520,7 @@ export class BeautyCatalogController {
 }
 
 @Module({
-  controllers: [BeautyCatalogController, BeautyScheduleController],
-  providers: [BeautyCatalogService, BeautyScheduleService, PrismaService],
+  controllers: [BeautyCatalogController, BeautyScheduleController, BeautyAppointmentsController],
+  providers: [BeautyCatalogService, BeautyScheduleService, BeautyAppointmentsService, PrismaService],
 })
 export class BeautyModule {}

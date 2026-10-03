@@ -5519,3 +5519,7 @@
 | 03.10.2026 19:21 | integration | ❌ упало 1 из 276 | 1 мин 1 с | e774d10 | [лог](logs/2026-10-03T14-21-52Z-integration-c412.log) | B4: слитое дерево на локальной базе контейнера |
 | 03.10.2026 19:27 | integration | ✅ 276 из 276 | 1 мин 1 с | e774d10 +2 | [лог](logs/2026-10-03T14-27-52Z-integration-e7cd.log) | B4: после миграции 045, путь функций Beauty закреплён |
 | 03.10.2026 19:31 | lint | ✅ без ошибок | 22 с | e774d10 +2 | [лог](logs/2026-10-03T14-31-37Z-lint-78b5.log) | B4: слитое дерево, миграция 045 |
+| 03.10.2026 19:36 | unit (частично: packages/domain/src/beauty/appointments.test.ts) | ❌ код выхода 1 | 1 с | f98fd21 +1 | [лог](logs/2026-10-03T14-36-23Z-unit-0858.log) | B5 red: правила записи, модуля нет |
+| 03.10.2026 19:37 | unit (частично: packages/domain/src/beauty) | ✅ 70 из 70 | 1 с | f98fd21 +3 | [лог](logs/2026-10-03T14-37-10Z-unit-e6fc.log) | B5 green: правила записи |
+| 03.10.2026 19:39 | unit (частично: apps/api/src/auth/route-access.test.ts) | ✅ 2 из 2 | 4 с | f98fd21 +6 | [лог](logs/2026-10-03T14-39-02Z-unit-5043.log) | B5: таблица прав, журнал записей |
+| 03.10.2026 19:41 | integration (частично: tests/integration/beauty-appointments.test.ts) | ✅ 14 из 14 | 4 с | f98fd21 +7 | [лог](logs/2026-10-03T14-41-54Z-integration-2641.log) | B5 green: журнал записей, 7 мутаций краснеют |

@@ -2473,6 +2473,51 @@ export interface BeautySchedule {
   timeOffs: BeautyTimeOff[];
 }
 
+/** Журнал записей салона за день (срез B5): мастера столбцами, записи плитками */
+export interface BeautyDayColumn {
+  id: string;
+  name: string;
+  intervals: Array<{ timeFrom: string; timeTo: string }>;
+  timeOff: boolean;
+  timeOffReason: string | null;
+  serviceIds: string[];
+}
+
+export interface BeautyAppointmentRow {
+  id: string;
+  employeeId: string;
+  serviceId: string;
+  serviceName: string;
+  customer: { id: string; name: string; phone: string | null };
+  startsAt: string;
+  endsAt: string;
+  /** минуты от начала суток филиала: по ним плитка встаёт в сетку */
+  startMinutes: number;
+  endMinutes: number;
+  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  next: Array<'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED'>;
+  priceMinor: string;
+  currency: string;
+  notes: string | null;
+}
+
+export interface BeautyDay {
+  location: { id: string; name: string | null; timezone: string; currency: string };
+  date: string;
+  columns: BeautyDayColumn[];
+  appointments: BeautyAppointmentRow[];
+  services: Array<{
+    id: string;
+    name: string;
+    category: string | null;
+    sellable: boolean;
+    durationMinutes: number;
+    priceMinor: string;
+    currency: string;
+  }>;
+  bounds: { fromMinutes: number; toMinutes: number };
+}
+
 export const beautyApi = {
   services: () =>
     getJson<{ locationId: string | null; locationCurrency: string | null; items: BeautyServiceRow[] }>(
@@ -2526,4 +2571,11 @@ export const beautyApi = {
       `/beauty/employees/${encodeURIComponent(id)}/locations`,
       { locationIds },
     ),
+  day: (date?: string) =>
+    getJson<BeautyDay>(date ? `/beauty/appointments?date=${encodeURIComponent(date)}` : '/beauty/appointments'),
+  createAppointment: (body: unknown) => sendJson<BeautyDay>('POST', '/beauty/appointments', body),
+  moveAppointment: (id: string, body: unknown) =>
+    sendJson<BeautyDay>('PATCH', `/beauty/appointments/${encodeURIComponent(id)}`, body),
+  setAppointmentStatus: (id: string, status: string) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/status`, { status }),
 };

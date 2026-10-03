@@ -4037,6 +4037,11 @@ interface FixtureTimeOff {
 const fixtureBeautyServices: FixtureBeautyService[] = [];
 const fixtureBeautyEmployees: FixtureBeautyEmployee[] = [];
 const fixtureBeautyHours: FixtureWorkingInterval[] = [];
+function clockMin(value: string): number {
+  const [hh, mm] = value.split(':');
+  return Number(hh) * 60 + Number(mm);
+}
+
 /** «9:00», «0900», «9.30» → «09:00», как `normalizeClockTime` домена (SET2) */
 function clock(value: string): string {
   const m = /^(\d{1,2})[:.](\d{2})$/.exec(value.trim()) ?? /^(\d{2})(\d{2})$/.exec(value.trim());
@@ -4046,8 +4051,30 @@ function clock(value: string): string {
   return `${String(h).padStart(2, '0')}:${m[2]}`;
 }
 const fixtureBeautyTimeOffs: FixtureTimeOff[] = [];
-/** Записи мастера на дату: срез B5 их ещё не делает, стенду нужно показать наложение отсутствия */
+/** Записи мастера: до B5 стенду хватало даты, теперь это сами записи журнала */
+interface FixtureAppointment {
+  id: string;
+  locationId: string;
+  employeeId: string;
+  serviceId: string;
+  customer: { id: string; name: string; phone: string | null };
+  date: string;
+  startMinutes: number;
+  endMinutes: number;
+  status: 'BOOKED' | 'CONFIRMED' | 'DONE' | 'NO_SHOW' | 'CANCELLED';
+  priceMinor: string;
+  currency: string;
+  notes: string | null;
+}
 const fixtureBeautyAppointments: Array<{ employeeId: string; date: string }> = [];
+const fixtureAppointments: FixtureAppointment[] = [];
+const NEXT_STATUS: Record<string, string[]> = {
+  BOOKED: ['CONFIRMED', 'DONE', 'NO_SHOW', 'CANCELLED'],
+  CONFIRMED: ['DONE', 'NO_SHOW', 'CANCELLED'],
+  DONE: [],
+  NO_SHOW: [],
+  CANCELLED: [],
+};
 createServer(async (req, res) => {
   try {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
@@ -4097,6 +4124,7 @@ createServer(async (req, res) => {
       fixtureBeautyHours.length = 0;
       fixtureBeautyTimeOffs.length = 0;
       fixtureBeautyAppointments.length = 0;
+      fixtureAppointments.length = 0;
       resetAgentFixture();
       hits.clear();
       requestHits.clear();
@@ -4190,6 +4218,7 @@ createServer(async (req, res) => {
       // записи мастера на даты: срез B5 их ещё не делает, а наложение отсутствия показать надо (B4)
       if (Array.isArray(body['beautyAppointments'])) {
         fixtureBeautyAppointments.length = 0;
+      fixtureAppointments.length = 0;
         for (const row of body['beautyAppointments'] as Array<Record<string, unknown>>)
           fixtureBeautyAppointments.push({
             employeeId: String(row['employeeId'] ?? ''),
@@ -4955,6 +4984,167 @@ createServer(async (req, res) => {
         if (index < 0) return send(404, { message: 'Отсутствие не найдено' });
         fixtureBeautyTimeOffs.splice(index, 1);
         return send(200, { timeOffs: timeOffsOf(row.id) });
+      }
+      // Журнал записей дня (срез B5). Стенд живёт в поясе Asia/Almaty, как филиал фикстуры
+      const dayOf = (iso: string) => new Date(new Date(iso).getTime() + 5 * 3600_000).toISOString().slice(0, 10);
+      const minutesOfIso = (iso: string) => {
+        const at = new Date(new Date(iso).getTime() + 5 * 3600_000);
+        return at.getUTCHours() * 60 + at.getUTCMinutes();
+      };
+      const isoOf = (date: string, minutes: number) =>
+        new Date(Date.parse(`${date}T00:00:00Z`) + (minutes - 300) * 60_000).toISOString();
+      const effectiveOf = (s: FixtureBeautyService) => {
+        const own = s.location;
+        const price = own?.priceOverrideMinor ?? s.priceMinor;
+        const duration = own?.durationOverrideMinutes ?? s.durationMinutes;
+        const sellable = Boolean(s.active && own?.enabled && (own.priceOverrideMinor !== null || s.currency === locationCurrency));
+        return { sellable, price, duration };
+      };
+      const dayView = (date: string) => {
+        const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+        const columns = fixtureBeautyEmployees
+          .filter((e) => e.active && locationId !== null && e.locationIds.includes(locationId))
+          .map((e) => ({
+            id: e.id,
+            name: e.name,
+            intervals: fixtureBeautyHours
+              .filter((h) => h.employeeId === e.id && h.locationId === locationId && h.weekday === weekday)
+              .map((h) => ({ timeFrom: h.timeFrom, timeTo: h.timeTo })),
+            timeOff: fixtureBeautyTimeOffs.some((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo),
+            timeOffReason: fixtureBeautyTimeOffs.find((t) => t.employeeId === e.id && t.dateFrom <= date && date <= t.dateTo)?.reason ?? null,
+            serviceIds: e.serviceIds,
+          }));
+        const rows = fixtureAppointments
+          .filter((a) => a.locationId === locationId && a.date === date)
+          .sort((a, b) => a.startMinutes - b.startMinutes)
+          .map((a) => ({
+            id: a.id,
+            employeeId: a.employeeId,
+            serviceId: a.serviceId,
+            serviceName: fixtureBeautyServices.find((s) => s.id === a.serviceId)?.name ?? 'Услуга',
+            customer: a.customer,
+            startsAt: isoOf(a.date, a.startMinutes),
+            endsAt: isoOf(a.date, a.endMinutes),
+            startMinutes: a.startMinutes,
+            endMinutes: a.endMinutes,
+            status: a.status,
+            next: NEXT_STATUS[a.status] ?? [],
+            priceMinor: a.priceMinor,
+            currency: a.currency,
+            notes: a.notes,
+          }));
+        const edges = columns.flatMap((c) => c.intervals).flatMap((i) => [clockMin(i.timeFrom), clockMin(i.timeTo)]);
+        const spans = rows.flatMap((r) => [r.startMinutes, r.endMinutes]);
+        return {
+          location: { id: locationId, name: String(current?.['name'] ?? 'Филиал'), timezone: 'Asia/Almaty', currency: locationCurrency },
+          date,
+          columns,
+          appointments: rows,
+          services: fixtureBeautyServices.map((s) => {
+            const e = effectiveOf(s);
+            return {
+              id: s.id,
+              name: s.name,
+              category: s.category,
+              sellable: e.sellable,
+              durationMinutes: e.duration,
+              priceMinor: String(e.price),
+              currency: s.location?.priceOverrideMinor ? String(locationCurrency) : s.currency,
+            };
+          }),
+          bounds: {
+            fromMinutes: Math.min(480, ...edges, ...spans),
+            toMinutes: Math.max(1200, ...edges, ...spans),
+          },
+        };
+      };
+      if (path === '/beauty/appointments' && req.method === 'GET')
+        return send(200, dayView(url.searchParams.get('date') || '2026-10-12'));
+      if (path === '/beauty/appointments' && req.method === 'POST') {
+        const employee = fixtureBeautyEmployees.find((e) => e.id === String(body['employeeId'] ?? ''));
+        if (!employee) return send(404, { message: 'Мастер не найден' });
+        const svc = fixtureBeautyServices.find((s) => s.id === String(body['serviceId'] ?? ''));
+        if (!svc) return send(404, { message: 'Услуга не найдена' });
+        const eff = effectiveOf(svc);
+        if (!eff.sellable) return send(409, { message: 'Филиал эту услугу не оказывает' });
+        const startsAt = String(body['startsAt'] ?? '');
+        const date = dayOf(startsAt);
+        const startMinutes = minutesOfIso(startsAt);
+        const endMinutes = startMinutes + eff.duration;
+        const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+        const works = fixtureBeautyHours.some(
+          (h) => h.employeeId === employee.id && h.locationId === locationId && h.weekday === weekday &&
+            clockMin(h.timeFrom) <= startMinutes && endMinutes <= clockMin(h.timeTo),
+        );
+        if (fixtureBeautyTimeOffs.some((t) => t.employeeId === employee.id && t.dateFrom <= date && date <= t.dateTo))
+          return send(409, { message: 'У мастера в этот день отсутствие' });
+        if (!works) return send(409, { message: 'Мастер в это время не работает' });
+        if (
+          fixtureAppointments.some(
+            (a) => a.employeeId === employee.id && a.date === date && a.status !== 'CANCELLED' &&
+              a.status !== 'NO_SHOW' && a.startMinutes < endMinutes && startMinutes < a.endMinutes,
+          )
+        )
+          return send(409, { message: 'Мастер в это время уже занят' });
+        const name = [String(body['firstName'] ?? '').trim(), String(body['lastName'] ?? '').trim()]
+          .filter(Boolean)
+          .join(' ');
+        if (!String(body['customerId'] ?? '') && !name)
+          return send(400, { message: 'Выберите клиента или впишите имя' });
+        fixtureAppointments.push({
+          id: `apt-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
+          locationId: String(locationId),
+          employeeId: employee.id,
+          serviceId: svc.id,
+          customer: {
+            id: `cus-${fixtureAppointments.length + 1}-0000-4000-8000-000000000000`,
+            name: name || 'Клиент',
+            phone: String(body['phone'] ?? '').trim() || null,
+          },
+          date,
+          startMinutes,
+          endMinutes,
+          status: 'BOOKED',
+          priceMinor: String(eff.price),
+          currency: String(locationCurrency),
+          notes: String(body['notes'] ?? '').trim() || null,
+        });
+        return send(200, dayView(date));
+      }
+      const moveAppointment = /^\/beauty\/appointments\/([^/]+)$/.exec(path);
+      if (moveAppointment && req.method === 'PATCH') {
+        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(moveAppointment[1]!));
+        if (!row) return send(404, { message: 'Запись не найдена' });
+        if (!(NEXT_STATUS[row.status] ?? []).length)
+          return send(409, { message: 'Запись закрыта, переносить её уже нельзя' });
+        const startsAt = String(body['startsAt'] ?? '');
+        const length = row.endMinutes - row.startMinutes;
+        const nextStart = startsAt ? minutesOfIso(startsAt) : row.startMinutes;
+        const nextDate = startsAt ? dayOf(startsAt) : row.date;
+        const employeeId = String(body['employeeId'] ?? '') || row.employeeId;
+        if (
+          fixtureAppointments.some(
+            (a) => a.id !== row.id && a.employeeId === employeeId && a.date === nextDate &&
+              a.status !== 'CANCELLED' && a.status !== 'NO_SHOW' &&
+              a.startMinutes < nextStart + length && nextStart < a.endMinutes,
+          )
+        )
+          return send(409, { message: 'Мастер в это время уже занят' });
+        row.employeeId = employeeId;
+        row.date = nextDate;
+        row.startMinutes = nextStart;
+        row.endMinutes = nextStart + length;
+        return send(200, dayView(row.date));
+      }
+      const appointmentStatus = /^\/beauty\/appointments\/([^/]+)\/status$/.exec(path);
+      if (appointmentStatus && req.method === 'POST') {
+        const row = fixtureAppointments.find((a) => a.id === decodeURIComponent(appointmentStatus[1]!));
+        if (!row) return send(404, { message: 'Запись не найдена' });
+        const to = String(body['status'] ?? '');
+        if (!(NEXT_STATUS[row.status] ?? []).includes(to))
+          return send(409, { message: 'Из этого состояния запись так не меняют' });
+        row.status = to as FixtureAppointment['status'];
+        return send(200, dayView(row.date));
       }
       const employeeLocations = /^\/beauty\/employees\/([^/]+)\/locations$/.exec(path);
       if (employeeLocations && req.method === 'PUT') {

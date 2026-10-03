@@ -4024,8 +4024,13 @@ function read(path: string, q: URLSearchParams): unknown {
     const base =
       channexLive()
         ? {
+            // поля как у API (`askWebhookStatus`): страница настройки Channex читает адрес и маску событий
             registered: true,
+            id: 'ui-webhook',
+            callbackUrl: 'https://api.example.invalid/channels/channex/webhook',
+            eventMask: 'booking',
             active: true,
+            sendData: true,
             expectedUrl: 'https://api.example.invalid/channels/channex/webhook',
             secretConfigured: true,
             callbackReachable: channexMode !== 'attention' && channexMode !== 'webhook',

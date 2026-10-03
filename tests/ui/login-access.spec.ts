@@ -127,7 +127,7 @@ test('заголовок прежнего Cloudflare Access не подстав�
   await expect(dialog(page).getByLabel('Почта')).toHaveValue('');
   expect((await context.cookies(APP)).some((c) => c.name === 'wetop_session')).toBe(false);
 });
-test('управление командой и сессиями открывается в профиле, не на входе', async ({ page }) => {
+test('сеансы открываются в профиле, команда в «Сотрудниках», не на входе', async ({ page }) => {
   await page.goto('/login');
   await fillLogin(page);
   await dialog(page).getByRole('button', { name: 'Войти', exact: true }).click();
@@ -137,8 +137,10 @@ test('управление командой и сессиями открывае
     page.getByRole('heading', { name: 'Управление доступом', exact: true }),
   ).toBeVisible();
   await expect(page.getByTestId('session-list')).toBeVisible();
-  // команда с 02.10 — своя страница «Сотрудники» (TEAM1, ADR-136); здесь ссылка на неё
-  await expect(page.getByTestId('team-link')).toHaveAttribute('href', '/team');
+  // команда с 02.10.2026 в разделе «Сотрудники» (TEAM1), в профиле только личные сеансы
+  await expect(page.getByTestId('team')).toHaveCount(0);
+  await page.goto('/team');
+  await expect(page.getByTestId('member-row').first()).toBeVisible();
 });
 test('вкладки входа и регистрации переключаются без перехода в приложение', async ({ page }) => {
   await page.goto('/login');

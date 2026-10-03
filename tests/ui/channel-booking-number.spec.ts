@@ -10,11 +10,11 @@ test('новая бронь OTA: канал и номер брони в кана
   page,
   request,
 }) => {
+  // чистый стенд: бронь соседнего спека на M03 заняла бы те же даты, и форма не дала бы создать эту
   await request.post(`${fixture}/__test/reset`);
-  await request.post(`${fixture}/__test/control`, { data: {} });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
-  // источник и заметки с 02.10 — под «Дополнительно»
+  // источник, канал и номер в канале с 01.10.2026 за свёрнутым «Дополнительно» (booking-compact)
   await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await expect(form.locator('[name="externalId"]')).toHaveCount(0);

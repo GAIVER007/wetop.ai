@@ -319,6 +319,19 @@
 .finance-controls {
   margin-bottom: 16px;
 }
+/* Пояснение к датам отчёта стоит в строке периода, пока ей хватает ширины: отдельной строкой (02.10.2026)
+   оно сдвигало обзор ниже первого экрана ноутбука. На узком экране переносится под строку, как раньше */
+@media (min-width: 1200px) {
+  .finance-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-4);
+  }
+  .finance-controls .finance-note {
+    margin: 0;
+  }
+}
 .finance-toolbar .inp,
 .finance-toolbar .btn {
   min-height: 36px;

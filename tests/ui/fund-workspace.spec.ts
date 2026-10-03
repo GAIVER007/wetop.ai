@@ -49,15 +49,24 @@ test('category creation, rename, room creation and reload', async ({ page }) => 
 test('availability preserves exact unit and dates; responsive category design', async ({
   page,
 }) => {
-  await page.goto('/rooms/availability?arrival=2029-03-10&departure=2029-03-13');
+  await page.goto('/rooms/availability?arrival=2026-09-24&departure=2026-09-27');
   await expect(page.getByRole('heading', { name: /Найдено \d+ вариант/ })).toBeVisible();
   await page.locator('.fund-availability summary').first().click();
   const link = page.locator('.fund-book-unit').first();
-  await expect(link).toHaveAttribute('href', /arrival=2029-03-10&departure=2029-03-13&unit=/);
+  await expect(link).toHaveAttribute('href', /arrival=2026-09-24&departure=2026-09-27&unit=/);
+  const unit = new URL((await link.getAttribute('href'))!, 'http://127.0.0.1').searchParams.get(
+    'unit',
+  );
   await link.click();
-  // форма брони открывается панелью поверх «Свободных мест» (заголовок панели второго уровня)
-  await expect(page.getByRole('heading', { name: 'Новая бронь', exact: true })).toBeVisible();
-  await expect(page.getByTestId('new-reservation-form')).toBeVisible();
+  // форма брони с 01.10.2026 открывается панелью поверх экрана (перехват маршрута, `@drawer`),
+  // и в ней те же место и даты, что в выдаче
+  const form = page
+    .getByRole('dialog', { name: 'Новая бронь' })
+    .getByTestId('new-reservation-form');
+  await expect(form).toBeVisible();
+  await expect(form.getByLabel('Заезд', { exact: true })).toHaveValue('2026-09-24');
+  await expect(form.getByLabel('Выезд', { exact: true })).toHaveValue('2026-09-27');
+  await expect(form.locator('[name="unitCode"]')).toHaveValue(unit!);
   for (const width of [1440, 768, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/rooms/categories');
@@ -72,7 +81,7 @@ test('availability preserves exact unit and dates; responsive category design', 
   await page.screenshot({ path: 'reports/fund-workspace-mobile.png', fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({ path: 'reports/fund-workspace-categories.png', fullPage: true });
-  await page.goto('/rooms/availability?arrival=2029-03-10&departure=2029-03-13');
+  await page.goto('/rooms/availability?arrival=2026-09-24&departure=2026-09-27');
   await page.getByRole('combobox', { name: 'Тип размещения', exact: true }).selectOption('ROOM');
   await page.getByRole('combobox', { name: 'Тип размещения', exact: true }).selectOption('');
   await page.screenshot({ path: 'reports/fund-workspace-availability.png', fullPage: true });
@@ -80,7 +89,7 @@ test('availability preserves exact unit and dates; responsive category design', 
 
 test('guests filter categories by capacity; toggle shows all; tab renamed', async ({ page }) => {
   // ТЗ «Свободные места» AV1 (ADR-110): поиск отвечает «нас трое», а не только «есть ли место»
-  await page.goto('/rooms/availability?arrival=2029-03-10&departure=2029-03-13&guests=3');
+  await page.goto('/rooms/availability?arrival=2026-09-24&departure=2026-09-27&guests=3');
   await expect(page.getByText(/3 ночи · 3 гостя/)).toBeVisible();
   const rows = page.locator('.fund-availability article');
   // «Двухместный номер» вмещает двоих — запросу на троих не подходит и в выдачу не попадает
@@ -96,8 +105,13 @@ test('guests filter categories by capacity; toggle shows all; tab renamed', asyn
   ).toBeVisible();
   await page.getByRole('button', { name: 'Только доступные', exact: true }).click();
   await expect(rows.filter({ hasText: 'Двухместный номер' })).toHaveCount(0);
-  // заголовок — «Свободные места», маршрут прежний; вкладки фонда с 01.10 (89b2474) — только «Номера и койки»
-  // и «Категории», вход сюда — из каталога категорий
+  // раздел переименован: заголовок «Свободные места», маршрут прежний. Отдельной вкладки фонда
+  // у поиска с 01.10.2026 нет (навигация по задачам, `plans/workspace-order-2026-10-01.md`)
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Номерной фонд', exact: true })
+      .getByRole('link', { name: 'Свободные места' }),
+  ).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Свободные места', level: 1 })).toBeVisible();
   // пресет дат сохраняет число гостей
   await expect(page.getByRole('link', { name: '7 дней', exact: true })).toHaveAttribute(
@@ -155,7 +169,7 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   await expect(form.locator('[name="adults"]')).toHaveValue('2');
   await expect(form.locator('[name="unitCode"]')).toHaveValue('@auto');
   await expect(form.getByTestId('booking-summary')).toContainText('ячейку назначит система');
-  // источник с 02.10 — под «Дополнительно»
+  // источник с 01.10.2026 за свёрнутым «Дополнительно» (booking-compact)
   await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
   await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
@@ -275,7 +289,7 @@ test('dark categories and availability; invalid dates and empty onboarding', asy
       fullPage: true,
     });
   }
-  await page.goto('/rooms/availability?arrival=2029-03-13&departure=2029-03-10');
+  await page.goto('/rooms/availability?arrival=2026-09-27&departure=2026-09-24');
   await expect(page.getByRole('main').getByText(/Выезд должен быть позже заезда/)).toBeVisible();
   await request.post('http://127.0.0.1:4311/__test/control', { data: { empty: true } });
   await page.goto('/rooms/categories');

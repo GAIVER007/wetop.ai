@@ -734,6 +734,17 @@ export class ChannexClient {
     });
   }
   /**
+   * `POST /channels/{id}/execute/{action}` (channel-api-examples/booking.com.md, «Actions»): действие выполняется
+   * сразу; `load_future_reservations` просит канал выдать будущие брони, они приходят обычной лентой ревизий.
+   */
+  async executeChannelAction(channelId: string, action: string): Promise<void> {
+    await this.request<unknown>(
+      'POST',
+      `/channels/${encodeURIComponent(channelId)}/execute/${encodeURIComponent(action)}`,
+      {},
+    );
+  }
+  /**
    * `POST /auth/one_time_token` (channel-iframe.md): одноразовый токен окна Channex, живёт 15 минут.
    * Окно открывается от имени владельца ключа API, поэтому токен выдаёт только сервер и только на объект.
    */

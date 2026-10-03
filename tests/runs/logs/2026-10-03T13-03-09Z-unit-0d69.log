@@ -1,0 +1,64 @@
+# Модульные (unit) · 03.10.2026 18:03 Алматы · vm
+# коммит 9ac7a5a (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 2
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T13-03-09Z-unit-0d69.json' 'apps/api/src/channels/catalog.test.ts' 'packages/integrations/src/channex/channel-connections.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/integrations/src/channex/channel-connections.test.ts (8 tests | 1 failed) 83ms
+   ❯ Channel API: каталог и подключения (только чтение) (8)
+     ✓ ID в канале — hotel_id, иначе первое видимое поле формы адаптера; пароль и скрытое не показываются 3ms
+     ✓ подключение: ключ канала из кода адаптера, имя из каталога, состояние Channex как есть 2ms
+     ✓ канал объекта называется так же, как у броней: Emerging Travel Group → Ostrovok.ru 1ms
+     ✓ адаптер каталога наружу без полей формы 0ms
+     ✓ клиент: GET /channels/list (массив без пагинации), GET /channels?filter[property_id] постранично 66ms
+     ✓ одноразовый токен окна Channex: POST /auth/one_time_token, тело обёрнуто, наружу только токен 1ms
+     × действие подключения: POST /channels/{id}/execute/{action} (channel-api-examples/booking.com.md, Actions) 6ms
+     ✓ адрес окна: сервер без /api/v1, headless, русский, объект и канал 1ms
+ ❯ |unit| apps/api/src/channels/catalog.test.ts (10 tests | 1 failed) 21ms
+   ❯ Каналы: подключённые и все доступные (Channel API Channex) (10)
+     ✓ статусы честные: «Работает» — включён, событие канала за 30 дней и нет ошибок входящих за 7 дней 2ms
+     ✓ список: подключения Channex, брони за 30 дней по ключу канала (оба написания Booking — один канал) 4ms
+     ✓ сводка приёма: последнее событие из менеджера каналов и все ошибки приёма за 7 дней, даже без имени канала 1ms
+     ✓ брони мимо подключений — «Источники вне Channex»: канал без подключения и прямые источники 1ms
+     ✓ все доступные: каталог Channex с отметкой «подключён», подключённые выше, дальше по алфавиту 1ms
+     ✓ без ключа и без сопоставленного объекта Channex не вызывается, причина словами 1ms
+     ✓ Channex не ответил — экран живёт: брони вне Channex видны, состояние и причина 1ms
+     ✓ каталог кэшируется: второй список не просит /channels/list заново 1ms
+     ✓ окно подключения: токен на объект, адрес Channex с кодом канала; без объекта — отказ 3ms
+     × подтянуть будущие брони: только подключение своего объекта и только канал, у которого есть это действие; журнал 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/catalog.test.ts > Каналы: подключённые и все доступные (Channel API Channex) > подтянуть будущие брони: только подключение своего объекта и только канал, у которого есть это действие; журнал
+TypeError: c.service.loadFutureReservations is not a function
+ ❯ apps/api/src/channels/catalog.test.ts:203:31
+    201|   it('подтянуть будущие брони: только подключение своего объекта и тол…
+    202|     const c = context();
+    203|     const r = await c.service.loadFutureReservations('c-bdc');
+       |                               ^
+    204|     expect(c.reader.executeChannelAction).toHaveBeenCalledWith('c-bdc'…
+    205|     expect(c.repo.audit).toHaveBeenCalledWith('channex.channel.load_fu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |unit| packages/integrations/src/channex/channel-connections.test.ts > Channel API: каталог и подключения (только чтение) > действие подключения: POST /channels/{id}/execute/{action} (channel-api-examples/booking.com.md, Actions)
+TypeError: client.executeChannelAction is not a function
+ ❯ packages/integrations/src/channex/channel-connections.test.ts:151:18
+    149|     const f = fakeFetch(() => ({ meta: { message: 'Success' } }));
+    150|     const client = new ChannexClient({ apiKey: 'k', fetch: f.fn });
+    151|     await client.executeChannelAction('c-1', 'load_future_reservations…
+       |                  ^
+    152|     expect(f.calls[0]!.url).toBe(
+    153|       'https://staging.channex.io/api/v1/channels/c-1/execute/load_fut…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 16 passed (18)
+   Start at  13:03:14
+   Duration  4.32s (import 54%, transform 43%, tests 2%)
+
+JSON report written to /tmp/pms-test-2026-10-03T13-03-09Z-unit-0d69.json
+
+# код выхода 1 · 10 с

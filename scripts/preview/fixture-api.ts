@@ -3726,6 +3726,7 @@ function read(path: string, q: URLSearchParams): unknown {
             conn('ui-ch-trip', 'Ctrip', 'ctrip', 'Trip.com', '132059275', 350, 'WORKING'),
             conn('ui-ch-bdc', 'BookingCom', 'bookingcom', 'Booking.com', '14087887', 169, 'WORKING', {
               shortCode: 'BDC',
+              actions: ['load_future_reservations'],
             }),
             conn('ui-ch-ago', 'Agoda', 'agoda', 'Agoda', '77196946', 107, 'ERRORS', {
               failedEvents7d: 2,
@@ -5988,6 +5989,10 @@ createServer(async (req, res) => {
     if (path === '/channels/channex/setup')
       return send(200, { created: { property: false, roomTypes: 0, ratePlans: 0 } });
     // Окно Channex (ADR-138): настоящий адрес не нужен — тест проверяет, что окно открылось с фреймом
+    if (/^\/channels\/channex\/channels\/[^/]+\/load-future-reservations$/.test(path))
+      return path.includes('/ui-ch-bdc/')
+        ? send(200, { channel: 'Booking.com' })
+        : send(409, { message: 'Канал не умеет отдавать будущие брони' });
     if (path === '/channels/channex/channels/connect-session')
       return send(200, { url: 'about:blank', expiresInMinutes: 15 });
     if (path === '/guard/tick') return send(200, { observed: [], resolved: 0 });

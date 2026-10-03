@@ -958,6 +958,13 @@ export const channelsApi = {
     ),
   /** Раздел «Каналы» (ADR-138): подключения объекта и каталог каналов Channex, брони за 30 дней из WETOP */
   catalog: () => getJson<ChannelCatalog>('/channels/channex/channels'),
+  /** Канал отдаёт уже сделанные у него будущие брони (только владельцу, только каналу с этим действием) */
+  loadFutureReservations: (connectionId: string) =>
+    sendJson<{ channel: string }>(
+      'POST',
+      `/channels/channex/channels/${encodeURIComponent(connectionId)}/load-future-reservations`,
+      {},
+    ),
   /** Окно Channex для подключения и настройки канала: одноразовый адрес, только владельцу */
   connectSession: (channel?: string) =>
     sendJson<{ url: string; expiresInMinutes: number }>(

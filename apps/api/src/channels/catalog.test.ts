@@ -48,6 +48,7 @@ function context(opts: { key?: boolean; mapped?: boolean; activity?: ChannelActi
     mappings: vi
       .fn()
       .mockResolvedValue(opts.mapped === false ? [] : [{ providerPropertyId: 'p-1' }]),
+    audit: vi.fn().mockResolvedValue(undefined),
     channelActivity: vi.fn().mockResolvedValue(
       opts.activity ?? {
         reservations: [
@@ -69,11 +70,12 @@ function context(opts: { key?: boolean; mapped?: boolean; activity?: ChannelActi
     listChannels: vi
       .fn()
       .mockResolvedValue([
-        conn('c-bdc', 'BookingCom'),
+        conn('c-bdc', 'BookingCom', { actions: ['load_future_reservations'] }),
         conn('c-ago', 'Agoda'),
         conn('c-abb', 'AirBNB', { is_active: false, expected_removal_date: '2026-10-20' }),
       ]),
     createOneTimeToken: vi.fn().mockResolvedValue('ott-1'),
+    executeChannelAction: vi.fn().mockResolvedValue(undefined),
   };
   const service = new ChannelCatalogService(
     repo as never,
@@ -194,5 +196,19 @@ describe('Каналы: подключённые и все доступные (C
     await expect(
       context({ mapped: false }).service.connectSession({ username: 'x' }),
     ).rejects.toThrow(/объект/i);
+  });
+
+  it('подтянуть будущие брони: только подключение своего объекта и только канал, у которого есть это действие; журнал', async () => {
+    const c = context();
+    const r = await c.service.loadFutureReservations('c-bdc');
+    expect(c.reader.executeChannelAction).toHaveBeenCalledWith('c-bdc', 'load_future_reservations');
+    expect(c.repo.audit).toHaveBeenCalledWith('channex.channel.load_future_reservations', {
+      connectionId: 'c-bdc',
+      channel: 'Booking.com',
+    });
+    expect(r.channel).toBe('Booking.com');
+    await expect(c.service.loadFutureReservations('c-ago')).rejects.toThrow(/не умеет/);
+    await expect(c.service.loadFutureReservations('чужое')).rejects.toThrow(/не найдено/);
+    expect(c.reader.executeChannelAction).toHaveBeenCalledTimes(1);
   });
 });

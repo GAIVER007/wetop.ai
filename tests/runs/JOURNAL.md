@@ -5453,3 +5453,10 @@
 | 03.10.2026 17:39 | unit | ✅ 2995 из 2998, пропущено 3 | 1 мин 22 с | 1c6ae3e +12 | [лог](logs/2026-10-03T12-39-48Z-unit-0e67.log) |  |
 | 03.10.2026 17:41 | typecheck | ✅ без ошибок | 23 с | 1c6ae3e +13 | [лог](logs/2026-10-03T12-41-20Z-typecheck-df6d.log) |  |
 | 03.10.2026 17:41 | unit (частично: apps/api/src/channels/inbound.controller.test.ts) | ✅ 24 из 24 | 3 с | 1c6ae3e +12 | [лог](logs/2026-10-03T12-41-44Z-unit-5196.log) |  |
+| 03.10.2026 18:03 | unit (частично: apps/api/src/channels/catalog.test.ts packages/integrations/src/channex/channel-connections.test.ts) | ❌ упало 2 из 18 | 10 с | 9ac7a5a +2 | [лог](logs/2026-10-03T13-03-09Z-unit-0d69.log) | Каналы: подключённые и все доступные (Channel API Channex) подтянуть будущие брони: только подключение своего объекта и только канал, у которого есть это действ |
+| 03.10.2026 18:03 | unit (частично: apps/api/src/channels packages/integrations apps/api/src/auth/route-access.test.ts) | ✅ 314 из 314 | 7 с | 9ac7a5a +5 | [лог](logs/2026-10-03T13-03-45Z-unit-cea0.log) |  |
+| 03.10.2026 18:04 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channels-list.spec.ts --workers=1) | ✅ 11 из 11 | 1 мин 18 с | 9ac7a5a +11 | [лог](logs/2026-10-03T13-04-32Z-e2e-0ea0.log) |  |
+| 03.10.2026 18:09 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/channex-screens.spec.ts tests/ui/channels-compact.spec.ts --workers=1) | ✅ 19 из 19 | 1 мин 10 с | 9ac7a5a +12 | [лог](logs/2026-10-03T13-09-28Z-e2e-8b74.log) |  |
+| 03.10.2026 18:10 | typecheck | ✅ без ошибок | 24 с | 9ac7a5a +12 | [лог](logs/2026-10-03T13-10-42Z-typecheck-6505.log) |  |
+| 03.10.2026 18:11 | lint | ✅ без ошибок | 20 с | 9ac7a5a +12 | [лог](logs/2026-10-03T13-11-06Z-lint-9bfd.log) |  |
+| 03.10.2026 18:11 | unit | ✅ 2997 из 3000, пропущено 3 | 1 мин 26 с | 9ac7a5a +10 | [лог](logs/2026-10-03T13-11-27Z-unit-880a.log) |  |

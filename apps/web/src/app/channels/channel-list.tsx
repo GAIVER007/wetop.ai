@@ -169,6 +169,8 @@ export async function ChannelList({ sp }: { sp: Record<string, string | undefine
                           bookingsHref={`/reservations?source=${encodeURIComponent(c.channelTitle)}`}
                           channel={c.shortCode ?? undefined}
                           canManage={canManage}
+                          connectionId={c.id}
+                          canLoadFuture={c.active && c.actions.includes('load_future_reservations')}
                         />
                       </td>
                     </tr>

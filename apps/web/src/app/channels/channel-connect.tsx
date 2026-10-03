@@ -3,8 +3,9 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { ActionMenu, type ActionMenuItem } from '../../components/action-menu';
-import { Alert, Button } from '../../components/ui';
-import { connectSessionAction } from './channel-connect-actions';
+import { Alert, Button, Notice } from '../../components/ui';
+import { useConfirm } from '../../components/use-confirm';
+import { connectSessionAction, loadFutureReservationsAction } from './channel-connect-actions';
 
 /**
  * Окно Channex внутри WETOP (ADR-138, channel-iframe.md): подключение, сопоставление комнат и тарифов, включение и
@@ -88,13 +89,32 @@ export function ChannelRowActions({
   bookingsHref,
   channel,
   canManage,
+  connectionId,
+  canLoadFuture = false,
 }: {
   title: string;
   bookingsHref: string;
   channel: string | undefined;
   canManage: boolean;
+  connectionId?: string;
+  /** У канала есть действие `load_future_reservations` (Booking.com, Expedia, Airbnb) */
+  canLoadFuture?: boolean;
 }) {
   const w = useChannexWindow();
+  const { ask, dialog } = useConfirm();
+  const [result, setResult] = useState<{ message: string | null; error: string | null } | null>(
+    null,
+  );
+  const [pending, start] = useTransition();
+  const loadFuture = async () => {
+    if (!connectionId) return;
+    const ok = await ask({
+      title: `Подтянуть будущие брони ${title}?`,
+      body: 'Канал отдаст брони, которые у него уже есть. Они придут как обычные брони из канала, без дублей: уже принятые не задвоятся.',
+      confirmLabel: 'Подтянуть брони',
+    });
+    if (ok) start(async () => setResult(await loadFutureReservationsAction(connectionId)));
+  };
   const items: ActionMenuItem[] = [{ label: 'Брони канала', href: bookingsHref }];
   if (canManage)
     items.push({
@@ -102,10 +122,21 @@ export function ChannelRowActions({
       onSelect: () => w.open(channel),
       disabled: w.pending,
     });
+  if (canManage && canLoadFuture && connectionId)
+    items.push({ label: 'Подтянуть будущие брони', onSelect: () => void loadFuture(), disabled: pending });
   return (
     <>
       <ActionMenu items={items} label={`Действия: ${title}`} size="sm" />
+      {result?.message && (
+        <Notice data-testid="channel-load-future-result">{result.message}</Notice>
+      )}
+      {result?.error && (
+        <Alert boxed data-testid="channel-load-future-error">
+          {result.error}
+        </Alert>
+      )}
       {w.view}
+      {dialog}
     </>
   );
 }

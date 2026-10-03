@@ -18,3 +18,21 @@ export async function connectSessionAction(
     };
   }
 }
+
+/** «Подтянуть будущие брони»: брони придут обычной лентой менеджера каналов в течение нескольких минут */
+export async function loadFutureReservationsAction(
+  connectionId: string,
+): Promise<{ message: string | null; error: string | null }> {
+  try {
+    const r = await channelsApi.loadFutureReservations(connectionId);
+    return {
+      message: `${r.channel}: запрос отправлен. Будущие брони придут в течение нескольких минут и появятся в «Бронях».`,
+      error: null,
+    };
+  } catch (e) {
+    return {
+      message: null,
+      error: e instanceof ApiError ? e.message : 'Не удалось запросить будущие брони, попробуйте ещё раз.',
+    };
+  }
+}

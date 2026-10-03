@@ -85,6 +85,19 @@ test('владелец открывает окно Channex; после «Гот�
   await expect(dialog).toBeHidden();
 });
 
+test('владелец подтягивает будущие брони канала, который это умеет; у другого канала пункта нет', async ({ page }) => {
+  await signIn(page);
+  await page.goto('/channels/list');
+  const booking = page.getByTestId('channel-row').filter({ hasText: 'Booking.com' });
+  await booking.getByRole('button', { name: 'Действия: Booking.com' }).click();
+  await page.getByRole('menuitem', { name: 'Подтянуть будущие брони' }).click();
+  await page.getByRole('button', { name: 'Подтянуть брони' }).click();
+  await expect(page.getByTestId('channel-load-future-result')).toContainText('Booking.com: запрос отправлен');
+  const agoda = page.getByTestId('channel-row').filter({ hasText: 'Agoda' });
+  await agoda.getByRole('button', { name: 'Действия: Agoda' }).click();
+  await expect(page.getByRole('menuitem', { name: 'Подтянуть будущие брони' })).toHaveCount(0);
+});
+
 test('управляющий видит каналы, но не подключает: окно Channex только у владельца', async ({
   page,
   request,

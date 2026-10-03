@@ -110,7 +110,7 @@ test('подключения каналов: настройка подключе
   const main = page.getByRole('main');
   await signIn(page);
   await page.goto('/channels/connections');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключения');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Подключение каналов');
   await expect(main).toContainText('Тестовая');
   await expect(main.getByTestId('webhook-state')).toContainText('нет PUBLIC_API_URL');
   // владелец видит группу «Настройка подключения» с прежними командами в прежнем порядке

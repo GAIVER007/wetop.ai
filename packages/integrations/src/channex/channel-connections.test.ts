@@ -145,6 +145,16 @@ describe('Channel API: каталог и подключения (только ч
     });
   });
 
+  it('действие подключения: POST /channels/{id}/execute/{action} (channel-api-examples/booking.com.md, Actions)', async () => {
+    const f = fakeFetch(() => ({ meta: { message: 'Success' } }));
+    const client = new ChannexClient({ apiKey: 'k', fetch: f.fn });
+    await client.executeChannelAction('c-1', 'load_future_reservations');
+    expect(f.calls[0]!.url).toBe(
+      'https://staging.channex.io/api/v1/channels/c-1/execute/load_future_reservations',
+    );
+    expect(f.calls[0]!.init.method).toBe('POST');
+  });
+
   it('адрес окна: сервер без /api/v1, headless, русский, объект и канал', () => {
     const url = new URL(
       channelIframeUrl('https://staging.channex.io/api/v1', {

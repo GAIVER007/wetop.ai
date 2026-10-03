@@ -6,6 +6,8 @@ import {
   Controller,
   Get,
   HttpCode,
+  NotFoundException,
+  Param,
   Inject,
   Injectable,
   Optional,
@@ -34,7 +36,7 @@ export const CHANNEL_CATALOG_READER = Symbol('CHANNEL_CATALOG_READER');
 export const CHANNEL_CATALOG_CLOCK = Symbol('CHANNEL_CATALOG_CLOCK');
 export type CatalogReader = Pick<
   channex.ChannexClient,
-  'listChannelAdapters' | 'listChannels' | 'createOneTimeToken'
+  'listChannelAdapters' | 'listChannels' | 'createOneTimeToken' | 'executeChannelAction'
 > &
   Partial<Pick<channex.ChannexClient, 'listChannelCodes'>>;
 
@@ -65,6 +67,7 @@ export interface ChannelActivity {
 export interface ChannelActivityRepository {
   mappings(provider: string): Promise<Pick<MappingRow, 'providerPropertyId'>[]>;
   channelActivity(provider: string, since: Date): Promise<ChannelActivity>;
+  audit(action: string, after: unknown): Promise<void>;
 }
 
 /**
@@ -269,6 +272,32 @@ export class ChannelCatalogService {
     };
   }
 
+  /**
+   * «Подтянуть будущие брони» (ADR-138): канал отдаёт уже сделанные у него брони, они приходят обычной лентой
+   * ревизий и принимаются тем же путём, что новые (журнал входящих, подтверждение после записи, без дублей).
+   * Только подключение своего объекта и только у канала, который это умеет (`actions` подключения).
+   */
+  async loadFutureReservations(connectionId: string) {
+    if (!this.reader) throw new ConflictException('Не задан ключ менеджера каналов');
+    const propertyId = await this.propertyId();
+    if (!propertyId) throw new ConflictException('Объект ещё не создан в менеджере каналов');
+    const [raw, catalog] = await Promise.all([
+      this.reader.listChannels(propertyId),
+      this.adapters(),
+    ]);
+    const found = raw.find((r) => r.id === connectionId);
+    if (!found) throw new NotFoundException('Подключение не найдено у этого объекта');
+    const view = channex.toConnectionView(found, new Map(catalog.adapters.map((a) => [a.code, a])));
+    if (!view.actions.includes('load_future_reservations'))
+      throw new ConflictException(`Канал ${view.channelTitle} не умеет отдавать будущие брони`);
+    await this.reader.executeChannelAction(connectionId, 'load_future_reservations');
+    await this.repo.audit('channex.channel.load_future_reservations', {
+      connectionId,
+      channel: view.channelTitle,
+    });
+    return { channel: view.channelTitle };
+  }
+
   /** Окно Channex для подключения или настройки канала: одноразовый токен (15 минут) только на объект */
   async connectSession(input: { username: string; channel?: string }) {
     if (input.channel !== undefined && !CHANNEL_CODE.test(input.channel))
@@ -316,6 +345,14 @@ export class ChannelCatalogController {
 
   @Get('channels') list() {
     return this.service.list();
+  }
+
+  /** Будущие брони канала просит только владелец: разовое действие на стороне канала, пишется в журнал */
+  @Access('owner')
+  @Post('channels/:id/load-future-reservations')
+  @HttpCode(200)
+  loadFuture(@Param('id') id: string) {
+    return this.service.loadFutureReservations(id);
   }
 
   /** Окно Channex открывает только владелец: в нём подключают, включают и выключают каналы (ADR-112, ADR-138) */

@@ -5612,3 +5612,15 @@
 | 03.10.2026 23:40 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 7 из 7 | 35 с | 33292e4 +13 | [лог](logs/2026-10-03T18-40-57Z-e2e-dd70.log) | M1.2: рынок целиком, ширина панели |
 | 03.10.2026 23:41 | lint | ✅ без ошибок | 19 с | 33292e4 +14 | [лог](logs/2026-10-03T18-41-41Z-lint-abc6.log) |  |
 | 03.10.2026 23:42 | unit (частично: tests/unit/design-slop.test.ts tests/unit/design-rules.test.ts apps/web/src/lib) | ✅ 331 из 331 | 4 с | 33292e4 +12 | [лог](logs/2026-10-03T18-42-01Z-unit-ebcf.log) | M1.2: сторожа дизайна |
+| 04.10.2026 00:30 | unit (частично: apps/api/src/market/collector.controller.test.ts) | ❌ код выхода 1 | 4 с | 57de965 +1 | [лог](logs/2026-10-03T19-30-34Z-unit-75c3.log) | (файл не выполнился) |
+| 04.10.2026 00:31 | unit (частично: apps/api/src/market apps/api/src/auth) | ❌ упало 1 из 203 | 10 с | 57de965 +8 | [лог](logs/2026-10-03T19-31-26Z-unit-7587.log) | ключ сборщика (M2a, Q-260) ключ сборщика не открывает раздел стойки: ни таблицу, ни ручной ввод, ни список конкурентов |
+| 04.10.2026 00:31 | unit (частично: apps/api/src/market apps/api/src/auth) | ✅ 203 из 203 | 9 с | 57de965 +8 | [лог](logs/2026-10-03T19-31-45Z-unit-abee.log) |  |
+| 04.10.2026 00:32 | integration (частично: tests/integration/market-occupancy.test.ts) | ❌ упало 1 из 4 | 3 с | 57de965 +9 | [лог](logs/2026-10-03T19-32-19Z-integration-4547.log) | загрузка конкурентов: конкуренты и снимки (integration, DATA_MODEL §23) сборщик (M2a): видит конкурентов всех объектов, пишет AI_AGENT в объект конкурента, ручн |
+| 04.10.2026 00:32 | integration (частично: tests/integration/market-occupancy.test.ts) | ❌ упало 1 из 4 | 3 с | 57de965 +9 | [лог](logs/2026-10-03T19-32-23Z-integration-e316.log) | загрузка конкурентов: конкуренты и снимки (integration, DATA_MODEL §23) сборщик (M2a): видит конкурентов всех объектов, пишет AI_AGENT в объект конкурента, ручн |
+| 04.10.2026 00:32 | integration (частично: tests/integration/market-occupancy.test.ts) | ❌ упало 1 из 4 | 3 с | 57de965 +9 | [лог](logs/2026-10-03T19-32-36Z-integration-d6d3.log) | загрузка конкурентов: конкуренты и снимки (integration, DATA_MODEL §23) сборщик (M2a): видит конкурентов всех объектов, пишет AI_AGENT в объект конкурента, ручн |
+| 04.10.2026 00:32 | integration (частично: tests/integration/market-occupancy.test.ts) | ✅ 4 из 4 | 3 с | 57de965 +9 | [лог](logs/2026-10-03T19-32-40Z-integration-5d20.log) |  |
+| 04.10.2026 00:33 | typecheck | ✅ без ошибок | 26 с | 57de965 +9 | [лог](logs/2026-10-03T19-33-31Z-typecheck-847c.log) |  |
+| 04.10.2026 00:33 | lint | ✅ без ошибок | 21 с | 57de965 +9 | [лог](logs/2026-10-03T19-33-57Z-lint-ab61.log) |  |
+| 04.10.2026 00:34 | unit | ✅ 3061 из 3064, пропущено 3 | 1 мин 23 с | 57de965 +8 | [лог](logs/2026-10-03T19-34-24Z-unit-3da8.log) |  |
+| 04.10.2026 00:35 | integration | ✅ 242 из 242 | 59 с | 57de965 +9 | [лог](logs/2026-10-03T19-35-48Z-integration-1145.log) |  |
+| 04.10.2026 00:37 | typecheck | ✅ без ошибок | 24 с | c2e45e5 | [лог](logs/2026-10-03T19-37-14Z-typecheck-0a2d.log) |  |

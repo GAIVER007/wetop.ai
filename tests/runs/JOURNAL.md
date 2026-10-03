@@ -5568,3 +5568,13 @@
 | 04.10.2026 00:50 | lint | ✅ без ошибок | 21 с | ba73071 +18 | [лог](logs/2026-10-03T19-50-15Z-lint-7260.log) | срез 5 |
 | 04.10.2026 00:50 | unit | ✅ 3088 из 3091, пропущено 3 | 1 мин 28 с | ba73071 +16 | [лог](logs/2026-10-03T19-50-36Z-unit-0825.log) | срез 5: чек по запросу |
 | 04.10.2026 00:52 | integration | ✅ 251 из 251 | 1 мин 5 с | ba73071 +14 | [лог](logs/2026-10-03T19-52-04Z-integration-c8b1.log) | срез 5: чек по запросу |
+| 04.10.2026 00:54 | unit (частично: apps/web/src/app/reservations/reservations-csv.test.ts) | ❌ код выхода 1 | 1 с | 3cafa82 +1 | [лог](logs/2026-10-03T19-54-08Z-unit-7724.log) | red: выгрузки броней ещё нет (H11) |
+| 04.10.2026 00:54 | unit (частично: apps/web/src/app/reservations/reservations-csv.test.ts) | ✅ 2 из 2 | 2 с | 3cafa82 +3 | [лог](logs/2026-10-03T19-54-23Z-unit-03b5.log) | green: выгрузка броней (H11) |
+| 04.10.2026 00:54 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-export.spec.ts --workers=1) | ❌ упало 1 из 1 | 27 с | 3cafa82 +4 | [лог](logs/2026-10-03T19-54-45Z-e2e-1097.log) | red: кнопки выгрузки броней ещё нет (H11) |
+| 04.10.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-export.spec.ts --workers=1) | ✅ 1 из 1 | 12 с | 3cafa82 +5 | [лог](logs/2026-10-03T19-55-13Z-e2e-6a43.log) | green: выгрузка броней (H11) |
+| 04.10.2026 00:55 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-compact.spec.ts | ❌ упало 3 из 21 | 1 мин 41 с | 3cafa82 +5 | [лог](logs/2026-10-03T19-55-32Z-e2e-ee4e.log) | срез 6: соседние спеки броней (H11) |
+| 04.10.2026 00:57 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/reservations-v2.spec.ts tests/ui/reservations-v2-r2.spec.ts tests/ui/reservations-compact.spec.ts | ✅ 21 из 21 | 1 мин 39 с | 3cafa82 +6 | [лог](logs/2026-10-03T19-57-26Z-e2e-9008.log) | срез 6: соседние спеки броней (H11) |
+| 04.10.2026 00:59 | typecheck | ✅ без ошибок | 37 с | 3cafa82 +6 | [лог](logs/2026-10-03T19-59-17Z-typecheck-a1df.log) | срез 6 |
+| 04.10.2026 00:59 | lint | ❌ ошибок: 2 | 21 с | 3cafa82 +6 | [лог](logs/2026-10-03T19-59-55Z-lint-a4ca.log) | срез 6 |
+| 04.10.2026 01:00 | lint | ✅ без ошибок | 21 с | 3cafa82 +6 | [лог](logs/2026-10-03T20-00-27Z-lint-7bbc.log) | срез 6 |
+| 04.10.2026 01:00 | unit (частично: apps/web/src/app/reservations) | ✅ 39 из 39 | 2 с | 3cafa82 +5 | [лог](logs/2026-10-03T20-00-48Z-unit-de8a.log) | срез 6: csv броней |

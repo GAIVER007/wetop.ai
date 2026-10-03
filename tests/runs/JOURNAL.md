@@ -5402,3 +5402,15 @@
 | 03.10.2026 16:02 | e2e | ❌ упало 1 из 25 | 1 мин 14 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-02-39Z-e2e-bf13.log) | живые сквозные: форма брони 02.10 |
 | 03.10.2026 16:04 | e2e | ❌ упало 1 из 25 | 1 мин 15 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-04-23Z-e2e-097f.log) | живые сквозные: форма брони 02.10 |
 | 03.10.2026 16:06 | e2e | ✅ 25 из 25 | 1 мин 5 с | dfe0be6 +13 | [лог](logs/2026-10-03T11-06-15Z-e2e-66e7.log) | живые сквозные: форма брони 02.10 |
+| 03.10.2026 16:24 | typecheck | ✅ без ошибок | 1 мин 10 с | c861e1e +1 | [лог](logs/2026-10-03T11-24-37Z-typecheck-76f4.log) | гейт выкладки c861e1ea (REP4 + ai-seller sandbox) |
+| 03.10.2026 16:25 | lint | ✅ без ошибок | 6 мин 22 с | c861e1e +1 | [лог](logs/2026-10-03T11-25-49Z-lint-4abc.log) | гейт выкладки c861e1ea (REP4 + ai-seller sandbox) |
+| 03.10.2026 16:32 | unit | ❌ упало 3 из 2921, пропущено 4 | 2 мин 13 с | c861e1e | [лог](logs/2026-10-03T11-32-14Z-unit-51a7.log) | гейт выкладки c861e1ea (REP4 + ai-seller sandbox) |
+| 03.10.2026 16:34 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/guard-run.test.ts) | ❌ упало 4 из 21 | 1 мин 14 с | c861e1e | [лог](logs/2026-10-03T11-34-53Z-unit-d05b.log) | гейт c861e1ea: повтор трёх таймаутов под нагрузкой |
+| 03.10.2026 16:36 | unit (частично: tests/unit/auto-deploy.test.ts tests/unit/guard-run.test.ts --testTimeout=20000) | ✅ 21 из 21 | 43 с | c861e1e | [лог](logs/2026-10-03T11-36-56Z-unit-36b4.log) | гейт c861e1ea: скрипты выкладки с таймаутом 20 с, нагрузка 12 |
+| 03.10.2026 16:38 | integration | ❌ код выхода 1 | 8 с | c861e1e | [лог](logs/2026-10-03T11-38-01Z-integration-4ed9.log) | гейт c861e1ea (REP4 + ai-seller sandbox) |
+| 03.10.2026 16:38 | integration | ❌ код выхода 1 | 24 с | c861e1e | [лог](logs/2026-10-03T11-38-50Z-integration-da29.log) | гейт c861e1ea (REP4 + ai-seller sandbox), локальная база |
+| 03.10.2026 16:41 | integration | ❌ код выхода 1 | 19 с | c861e1e | [лог](logs/2026-10-03T11-41-10Z-integration-837c.log) | гейт c861e1ea (REP4 + ai-seller sandbox), свежая локальная база |
+| 03.10.2026 16:43 | integration | ❌ упало 2 из 238, пропущено 9 | 1 мин 5 с | c861e1e | [лог](logs/2026-10-03T11-43-48Z-integration-17e4.log) | гейт c861e1ea (REP4 + ai-seller sandbox), свежая локальная база :55441 |
+| 03.10.2026 16:46 | integration | ❌ упало 1 из 238, пропущено 9 | 45 с | c861e1e | [лог](logs/2026-10-03T11-46-04Z-integration-c48e.log) | гейт c861e1ea (REP4 + ai-seller sandbox), локальная база UTF-8 :55441 |
+| 03.10.2026 16:47 | e2e (частично: --config tests/ui/playwright.alt.config.ts reports-print reports-hub analytics-units ai-seller) | ❌ упало 19 из 36 | 39 с | c861e1e +1 | [лог](logs/2026-10-03T11-47-33Z-e2e-ef96.log) | гейт c861e1ea: UI затронутых разделов (отчёты, продавец), свой стенд |
+| 03.10.2026 16:48 | e2e (частично: --config tests/ui/playwright.alt.config.ts ai-seller.spec) | ✅ 18 из 18 | 42 с | c861e1e +2 | [лог](logs/2026-10-03T11-48-28Z-e2e-7853.log) | гейт c861e1ea: продавец на своём стенде (адрес фикстуры из env) |

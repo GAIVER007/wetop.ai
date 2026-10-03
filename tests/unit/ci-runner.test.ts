@@ -11,9 +11,10 @@
  *  5. тесты бота выпали из проверок, и их красноту снова никто не видит (ADR-137).
  */
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -67,6 +68,40 @@ describe('свой раннер CI', () => {
     // uv закреплён версией и суммой: скачанный файл без сверки не запускается
     expect(bot).toMatch(/UV_SHA256: [0-9a-f]{64}/);
     expect(bot).toContain('sha256sum -c');
+  });
+
+  it('на своём раннере Playwright ставится без --with-deps: sudo под no-new-privileges не работает', () => {
+    for (const name of ['fast', 'ui-shard']) {
+      const run = withoutComments(job(name));
+      expect(run, name).toContain('npx playwright install chromium');
+      expect(run, name).not.toContain('--with-deps');
+    }
+    const image = withoutComments(RUNNER_IMAGE);
+    expect(image).not.toContain('sudoers');
+    expect(image).not.toMatch(/apt-get install[^\n]*\bsudo\b/);
+  });
+
+  it('образ раннера ставит всё, что Playwright просит для Chromium на Ubuntu 24.04', () => {
+    const require = createRequire(import.meta.url);
+    const core = dirname(require.resolve('playwright-core/package.json'));
+    const source = ['lib/server/registry/nativeDeps.js', 'lib/coreBundle.js']
+      .map((f) => join(core, f))
+      .filter((f) => existsSync(f))
+      .map((f) => readFileSync(f, 'utf8'))
+      .find((text) => text.includes('ubuntu24.04-x64'));
+    expect(source, 'список зависимостей Playwright для ubuntu24.04-x64 не найден').toBeDefined();
+    const block = source!.slice(source!.indexOf('ubuntu24.04-x64'));
+    const list = (key: string) =>
+      [...(new RegExp(`${key}:\\s*\\[([^\\]]*)\\]`).exec(block)?.[1] ?? '').matchAll(/["']([^"']+)["']/g)].map((m) => m[1]!);
+    const wanted = [...list('tools'), ...list('chromium')];
+    expect(wanted.length, 'пакеты Playwright').toBeGreaterThan(20);
+    const image = withoutComments(RUNNER_IMAGE);
+    expect(wanted.filter((p) => !new RegExp(`(^|\\s)${p.replace(/[.+]/g, '\\$&')}(\\s|$)`, 'm').test(image))).toEqual([]);
+  });
+
+  it('прогон main не отменяется следующим пушем: иначе при частых слияниях у main нет ни одного итога', () => {
+    const block = /\nconcurrency:\n([\s\S]*?)\n(?=\S)/.exec(WORKFLOW)?.[1] ?? '';
+    expect(withoutComments(block)).toMatch(/cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}/);
   });
 
   it('проверки не слушают pull_request_target: там код форка шёл бы с правами репозитория', () => {
@@ -148,5 +183,66 @@ describe.skipIf(!hasJq)('свой раннер не выполняет код и
   it('нет файла события или он битый: отказ, а не молчаливый пропуск проверки', () => {
     refused(runHook(undefined));
     refused(runHook('{битый'));
+  });
+});
+
+/**
+ * Скрипт запуска раннера (entrypoint.sh). Разбор 03.10.2026: в `.env` раннера стоял образец `RUNNER_TOKEN=…` из README,
+ * многоточие ушло в заголовок запроса, регистрация падала с «Request headers must contain only ASCII characters», и
+ * раннер с 21.09 ни разу не подключился: все задачи проверок стояли в очереди. Теперь токен и адрес проверяются до
+ * регистрации, а отказ говорит словами, что не так. config.sh и run.sh здесь подставные.
+ */
+describe('скрипт запуска раннера: регистрация', () => {
+  const ENTRY = join(ROOT, 'scripts/ops/ci-runner/entrypoint.sh');
+  const dirs: string[] = [];
+  afterEach(() => {
+    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+  });
+  const start = (env: Record<string, string>, opts: { registered?: boolean } = {}) => {
+    const home = mkdtempSync(join(tmpdir(), 'wetop-ci-entry-'));
+    dirs.push(home);
+    writeFileSync(join(home, 'config.sh'), `#!/bin/bash\necho "config $*" >> "${home}/calls"\n`, { mode: 0o755 });
+    writeFileSync(join(home, 'run.sh'), `#!/bin/bash\necho "run" >> "${home}/calls"\n`, { mode: 0o755 });
+    if (opts.registered) writeFileSync(join(home, '.runner'), '{}');
+    const r = spawnSync('bash', [ENTRY], {
+      encoding: 'utf8',
+      timeout: 10_000,
+      env: { PATH: process.env.PATH ?? '', RUNNER_HOME: home, ...env },
+    });
+    let calls = '';
+    try {
+      calls = readFileSync(join(home, 'calls'), 'utf8');
+    } catch {
+      /* ни одного вызова */
+    }
+    return { code: r.status, err: r.stderr, calls };
+  };
+  const URL = 'https://github.com/GAIVER007/wetop.ai';
+
+  it('образец «…» вместо токена: отказ словами до регистрации, config.sh не зовётся', () => {
+    const r = start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: '…' });
+    expect(r.code).toBe(64);
+    expect(r.err).toContain('RUNNER_TOKEN в .env раннера не похож на токен регистрации');
+    expect(r.calls).toBe('');
+  });
+
+  it('токен с пробелом или в кавычках и адрес не GitHub: тоже отказ', () => {
+    expect(start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: 'AAAABBBBCCCCDDDDEEEE FFFF' }).code).toBe(64);
+    expect(start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: '"AAAABBBBCCCCDDDDEEEEFFFF"' }).code).toBe(64);
+    const r = start({ RUNNER_REPO_URL: 'https://github.com/GAIVER007/wetop.ai …', RUNNER_TOKEN: 'AAAABBBBCCCCDDDDEEEEFFFF1' });
+    expect(r.code).toBe(64);
+    expect(r.err).toContain('RUNNER_REPO_URL');
+  });
+
+  it('настоящий токен: регистрация с меткой wetop, затем работа', () => {
+    const r = start({ RUNNER_REPO_URL: URL, RUNNER_TOKEN: 'AAAABBBBCCCCDDDDEEEEFFFF1' });
+    expect(r.code, r.err).toBe(0);
+    expect(r.calls).toMatch(/^config --unattended --replace --url https:\/\/github\.com\/GAIVER007\/wetop\.ai --token AAAABBBBCCCCDDDDEEEEFFFF1 --name wetop-\S+ --labels wetop --work _work\nrun\n$/);
+  });
+
+  it('уже зарегистрирован (настройка в томе): токен не нужен и не проверяется', () => {
+    const r = start({ RUNNER_REPO_URL: URL }, { registered: true });
+    expect(r.code, r.err).toBe(0);
+    expect(r.calls).toBe('run\n');
   });
 });

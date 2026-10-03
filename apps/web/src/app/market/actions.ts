@@ -63,7 +63,10 @@ export async function archiveCompetitorAction(
   return done('Конкурент убран из списка, история сохранена');
 }
 
-/** Загрузка по ночам: поля `p:<дата>`; изменённые и очищенные уходят одним запросом */
+/**
+ * Загрузка по ночам: поля `p:<дата>`. Заполненные уходят все: сохранить без правок значит «сегодня проверил, то же
+ * самое», и снимок дня ложится заново. Очищенное поле (было значение, стало пусто) снимает сегодняшнее значение.
+ */
 export async function writeOccupancyAction(
   _prev: MarketActionResult,
   fd: FormData,
@@ -72,12 +75,11 @@ export async function writeOccupancyAction(
   for (const [key, value] of fd.entries()) {
     if (!key.startsWith('p:') || typeof value !== 'string') continue;
     const date = key.slice(2);
-    const before = s(fd, `was:${date}`);
     const now = value.trim();
-    if (now === before) continue;
-    entries.push({ date, percent: now === '' ? null : now });
+    if (now !== '') entries.push({ date, percent: now });
+    else if (s(fd, `was:${date}`) !== '') entries.push({ date, percent: null });
   }
-  if (entries.length === 0) return { error: 'Вы ничего не изменили', ok: 0, values: echo(fd) };
+  if (entries.length === 0) return { error: 'Заполните загрузку хотя бы на одну ночь', ok: 0, values: echo(fd) };
   try {
     await marketApi.writeOccupancy(s(fd, 'id'), entries);
   } catch (e) {

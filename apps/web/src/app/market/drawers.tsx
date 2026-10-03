@@ -228,14 +228,41 @@ function OccupancyForm({
   onClose: () => void;
 }) {
   const [state, action, pending] = useMarketAction(writeOccupancyAction, onClose);
+  const form = useRef<HTMLFormElement>(null);
+  const [all, setAll] = useState('');
+  /** Одно число во все ночи окна: соседи часто заполнены ровно, вводить 14 раз одно и то же незачем */
+  const fillAll = () => {
+    if (!all.trim()) return;
+    form.current
+      ?.querySelectorAll<HTMLInputElement>('input[name^="p:"]')
+      .forEach((input) => (input.value = all.trim()));
+  };
   return (
-    <form action={action} className="settings-service-form" data-testid="market-occupancy-form">
+    <form ref={form} action={action} className="settings-service-form" data-testid="market-occupancy-form">
       {state.error && <Alert boxed>{state.error}</Alert>}
       <input type="hidden" name="id" value={competitor.id} />
       <p className="settings-note">
         Процент занятых номеров на ночь, от 0 до 100. Запишется снимком сегодняшнего дня: завтра
-        увидите, как изменилась загрузка. Очистите поле, чтобы снять сегодняшнее значение.
+        увидите, как изменилась загрузка. Заполненные поля сохраняются все: так вы подтверждаете,
+        что сегодня проверили и значение то же. Очистите поле, чтобы снять сегодняшнее значение.
       </p>
+      <div className="market-fill">
+        <Field inline label="Все ночи">
+          <span className="market-entry__field">
+            <Input
+              inputMode="decimal"
+              value={all}
+              onChange={(e) => setAll(e.target.value)}
+              aria-label="Одно значение для всех ночей, процентов"
+              data-testid="market-fill-value"
+            />
+            <span aria-hidden="true">%</span>
+          </span>
+        </Field>
+        <Button type="button" size="sm" tone="secondary" onClick={fillAll} data-testid="market-fill">
+          Заполнить все ночи
+        </Button>
+      </div>
       <div className="market-entry-grid">
         {cells.map((c) => (
           <label key={c.date} className="market-entry">

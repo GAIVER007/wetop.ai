@@ -87,7 +87,7 @@ test('пункт в «Продажах» ведёт в раздел; пусто:
 
   await row.getByRole('button', { name: 'Внести загрузку: Отель Тестовый' }).click();
   const entry = page.getByTestId('market-occupancy-form');
-  const fields = entry.getByRole('textbox');
+  const fields = entry.locator('input[name^="p:"]');
   await fields.nth(0).fill('150');
   await entry.getByTestId('market-occupancy-save').click();
   await expect(entry.getByRole('alert')).toContainText('от 0 до 100');
@@ -200,3 +200,31 @@ for (const theme of ['light', 'dark'] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test('«Заполнить все ночи» ставит одно значение во все поля; сохранить без правок подтверждает снимок сегодняшним днём', async ({
+  page,
+  request,
+}) => {
+  const today = await seed(request);
+  await page.goto('/market');
+  const main = page.getByRole('main');
+  const city = main.getByRole('row', { name: /Хостел Сити/ });
+  await city.getByRole('button', { name: 'Внести загрузку: Хостел Сити' }).click();
+  const entry = page.getByTestId('market-occupancy-form');
+  await entry.getByTestId('market-fill-value').fill('70');
+  await entry.getByTestId('market-fill').click();
+  await expect(entry.getByTestId(`market-p-${today}`)).toHaveValue('70');
+  await expect(entry.getByTestId(`market-p-${plus(today, 13)}`)).toHaveValue('70');
+  await entry.getByTestId('market-occupancy-save').click();
+  await expect(page.getByText('Загрузка сохранена: 14 ночей')).toBeVisible();
+  await expect(city).toContainText('70 %');
+  await expect(city).not.toContainText('95 %');
+
+  // у «Алтына» снимок вчера 80 %, сегодня 92 %: без правок «Сохранить» подтверждает сегодняшние 92 %
+  const altyn = main.getByRole('row', { name: /Отель Алтын/ });
+  await altyn.getByRole('button', { name: 'Внести загрузку: Отель Алтын' }).click();
+  await page.getByTestId('market-occupancy-save').click();
+  await expect(page.getByText('Загрузка сохранена: 14 ночей')).toBeVisible();
+  await expect(altyn).toContainText('92 %');
+  await expect(altyn).toContainText('+12 п.п.');
+});

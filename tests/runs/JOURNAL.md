@@ -5529,3 +5529,8 @@
 | 03.10.2026 21:18 | lint | ✅ без ошибок | 20 с | 6af7487 +34 | [лог](logs/2026-10-03T16-18-08Z-lint-3c49.log) |  |
 | 03.10.2026 21:18 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 5 из 5 | 30 с | 6af7487 +32 | [лог](logs/2026-10-03T16-18-29Z-e2e-674a.log) | M1 UI: финальный код |
 | 03.10.2026 21:19 | e2e (частично: --config tests/site/playwright.config.ts) | ✅ 50 из 50 | 34 с | 6af7487 +32 | [лог](logs/2026-10-03T16-19-00Z-e2e-7928.log) | M1: набор сайта, финальный код |
+| 03.10.2026 23:08 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts tests/ui/reports-hub.spec.ts tests/ui/requests.spec.ts --workers=1) | ❌ упало 1 из 45 | 3 мин 30 с | c25f6d9 +6 | [лог](logs/2026-10-03T18-08-32Z-e2e-120e.log) | M1.1: заполнить все ночи, карточка на хабе |
+| 03.10.2026 23:12 | e2e (частично: --config tests/ui/playwright.config.ts tests/ui/market.spec.ts --workers=1) | ✅ 6 из 6 | 33 с | c25f6d9 +6 | [лог](logs/2026-10-03T18-12-16Z-e2e-44a5.log) | M1.1: рынок целиком |
+| 03.10.2026 23:12 | typecheck | ✅ без ошибок | 27 с | c25f6d9 +6 | [лог](logs/2026-10-03T18-12-54Z-typecheck-8231.log) |  |
+| 03.10.2026 23:13 | lint | ✅ без ошибок | 21 с | c25f6d9 +6 | [лог](logs/2026-10-03T18-13-21Z-lint-5beb.log) |  |
+| 03.10.2026 23:13 | unit | ✅ 3039 из 3042, пропущено 3 | 1 мин 38 с | c25f6d9 +4 | [лог](logs/2026-10-03T18-13-43Z-unit-aec1.log) |  |

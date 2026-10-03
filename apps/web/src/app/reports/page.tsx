@@ -193,6 +193,12 @@ export default async function ReportsHubPage({
               }
             />
             <ReportCard
+              href="/market"
+              testId="report-market"
+              title="Загрузка конкурентов"
+              hint="ваша загрузка рядом с ближайшими отелями на каждую ночь, подсказки к цене"
+            />
+            <ReportCard
               href={`/management/analytics?${analyticsQ}`}
               testId="report-sources"
               title="Источники броней"

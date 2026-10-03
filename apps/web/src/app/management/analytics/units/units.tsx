@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { UnitStatRow, UnitStats } from '@pms/domain';
+import type { UnitStatRow } from '@pms/domain';
 import { ApiError, dashboardApi } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
 import { LoadError } from '../../../../components/load-error';

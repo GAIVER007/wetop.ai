@@ -75,8 +75,8 @@ model Location {
   createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  business Business  @relation(fields: [businessId], references: [id])
-  property Property?
+  business     Business      @relation(fields: [businessId], references: [id])
+  property     Property?
   sellerAgents SellerAgent[]
 
   @@index([businessId])
@@ -84,52 +84,52 @@ model Location {
 }
 
 model Property {
-  id           String   @id @default(uuid()) @db.Uuid
+  id             String   @id @default(uuid()) @db.Uuid
   /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
-  organizationId String @map("organization_id") @db.Uuid
-  name         String
-  legalName    String?  @map("legal_name")
-  bin          String?
-  address      String?
+  organizationId String   @map("organization_id") @db.Uuid
+  name           String
+  legalName      String?  @map("legal_name")
+  bin            String?
+  address        String?
   /// Контакты объекта для печатных форм (v1.7, ADR-082): до них телефон и почта были зашиты в код
   /// печати и напечатались бы в договоре любой организации. Пустое — в формах прочерк.
-  phone        String?
-  email        String?
+  phone          String?
+  email          String?
   /// IANA timezone объекта, например Asia/Almaty
-  timezone     String
+  timezone       String
   /// ISO 4217, на объекте KZT
-  currency     String   @db.Char(3)
+  currency       String   @db.Char(3)
   /// Локальное время заезда "HH:mm", на объекте 14:00
-  checkInTime  String   @map("check_in_time")
+  checkInTime    String   @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
-  checkOutTime String   @map("check_out_time")
+  checkOutTime   String   @map("check_out_time")
   /// Platform P1 (ADR-104, DATA_MODEL §18.4, v2.6): родитель объекта — филиал (1:1), NOT NULL с миграции
   /// 20260928000032; новый объект — через createPropertyInChain. organization_id остаётся, пока замок
   /// ADR-061 не переведён на цепочку Location → Business, и совпадает с организацией Business.
-  locationId   String   @unique @map("location_id") @db.Uuid
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  locationId     String   @unique @map("location_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
-  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   /// Location удалить, пока на ней объект, нельзя (RESTRICT): объект не остаётся без точки молча.
-  location           Location            @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  buildings          Building[]
-  accommodationTypes AccommodationType[]
-  reservations       Reservation[]
-  ratePlans          RatePlan[]
-  promoCodes         PromoCode[]
-  channelMappings    ChannelMapping[]
-  payments           Payment[]
-  cashCategories     CashCategory[]
-  cashOperations     CashOperation[]
+  location            Location             @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  buildings           Building[]
+  accommodationTypes  AccommodationType[]
+  reservations        Reservation[]
+  ratePlans           RatePlan[]
+  promoCodes          PromoCode[]
+  channelMappings     ChannelMapping[]
+  payments            Payment[]
+  cashCategories      CashCategory[]
+  cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
-  services           Service[]
-  trackedSites       TrackedSite[]
-  inventoryUnits     InventoryUnit[]
-  externalEvents     ExternalEvent[]
-  channelOutbox      ChannelOutbox[]
+  services            Service[]
+  trackedSites        TrackedSite[]
+  inventoryUnits      InventoryUnit[]
+  externalEvents      ExternalEvent[]
+  channelOutbox       ChannelOutbox[]
 
   @@index([organizationId])
   @@map("properties")
@@ -279,32 +279,32 @@ enum ReservationStatus {
 /// Шапка брони (коммерческая бронь). Статус — производный от проживаний (v0.3), хранится для выборок.
 /// `confirmationNumber` — бизнес-ключ брони внутри объекта (ADR-003, ADR-007).
 model Reservation {
-  creationKey String? @map("creation_key") @db.Uuid
-  creationFingerprint String? @map("creation_fingerprint") @db.VarChar(64)
-  id                 String            @id @default(uuid()) @db.Uuid
-  propertyId         String            @map("property_id") @db.Uuid
-  confirmationNumber String            @map("confirmation_number")
-  source             ReservationSource
+  creationKey         String?           @map("creation_key") @db.Uuid
+  creationFingerprint String?           @map("creation_fingerprint") @db.VarChar(64)
+  id                  String            @id @default(uuid()) @db.Uuid
+  propertyId          String            @map("property_id") @db.Uuid
+  confirmationNumber  String            @map("confirmation_number")
+  source              ReservationSource
   /// Канал OTA/сайт как текст источника (например Booking.com); null для стойки
-  channel            String?
+  channel             String?
   /// Номер брони на стороне канала (OTA), если известен
-  externalId         String?           @map("external_id")
-  status             ReservationStatus
-  bookedAt           DateTime?         @map("booked_at") @db.Timestamptz(6)
-  arrivalDate        DateTime          @map("arrival_date") @db.Date
-  departureDate      DateTime          @map("departure_date") @db.Date
-  adults             Int
-  children           Int               @default(0)
-  currency           String            @db.Char(3)
+  externalId          String?           @map("external_id")
+  status              ReservationStatus
+  bookedAt            DateTime?         @map("booked_at") @db.Timestamptz(6)
+  arrivalDate         DateTime          @map("arrival_date") @db.Date
+  departureDate       DateTime          @map("departure_date") @db.Date
+  adults              Int
+  children            Int               @default(0)
+  currency            String            @db.Char(3)
   /// integer minor units (тиын), ADR-008
-  totalAmount        BigInt            @map("total_amount")
-  primaryGuestId     String?           @map("primary_guest_id") @db.Uuid
+  totalAmount         BigInt            @map("total_amount")
+  primaryGuestId      String?           @map("primary_guest_id") @db.Uuid
   /// Заметки — главный канал передачи смены (FINDINGS §2 #8)
-  notes              String?
+  notes               String?
   /// Промокод, применённый к брони (DATA_MODEL §20); число использований — число броней с этой ссылкой
-  promoCodeId        String?           @map("promo_code_id") @db.Uuid
-  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  promoCodeId         String?           @map("promo_code_id") @db.Uuid
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   property     Property          @relation(fields: [propertyId], references: [id])
   promoCode    PromoCode?        @relation(fields: [promoCodeId], references: [id], onDelete: Restrict)
@@ -326,17 +326,17 @@ model Reservation {
 /// Промокод объекта (DATA_MODEL §20, ADR-128): процент скидки, период проживания, предел использований.
 /// Не удаляется: выключается (`active`), чтобы броням оставался след.
 model PromoCode {
-  id              String   @id @default(uuid()) @db.Uuid
-  propertyId      String   @map("property_id") @db.Uuid
+  id              String    @id @default(uuid()) @db.Uuid
+  propertyId      String    @map("property_id") @db.Uuid
   /// Верхний регистр, 3–32 знака A–Z, 0–9, «-», «_»
   code            String
-  discountPercent Int      @map("discount_percent")
+  discountPercent Int       @map("discount_percent")
   /// Первая и последняя ночь проживания, включительно; NULL — без границы
   stayFrom        DateTime? @map("stay_from") @db.Date
   stayTo          DateTime? @map("stay_to") @db.Date
-  maxUses         Int?     @map("max_uses")
-  active          Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  maxUses         Int?      @map("max_uses")
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   property     Property      @relation(fields: [propertyId], references: [id])
   reservations Reservation[]
@@ -420,24 +420,24 @@ enum Gender {
 /// Персональные данные — доступ по роли, не попадают в логи (SECURITY.md §1).
 /// В dev-БД только анонимизированные значения (ADR-018).
 model Guest {
-  id            String    @id @default(uuid()) @db.Uuid
+  id             String    @id @default(uuid()) @db.Uuid
   /// Гость принадлежит своей организации (v1.13 RLS-1, ADR-103; колонку nullable завела Phase 1 ADR-100 §17.2,
   /// NOT NULL и DEFAULT app_current_org() — миграция 20260927000027). Служебный путь передаёт организацию объекта сам.
-  organizationId String   @default(dbgenerated("app_current_org()")) @map("organization_id") @db.Uuid
-  firstName     String    @map("first_name")
-  lastName      String    @map("last_name")
-  middleName    String?   @map("middle_name")
-  birthDate     DateTime? @map("birth_date") @db.Date
+  organizationId String    @default(dbgenerated("app_current_org()")) @map("organization_id") @db.Uuid
+  firstName      String    @map("first_name")
+  lastName       String    @map("last_name")
+  middleName     String?   @map("middle_name")
+  birthDate      DateTime? @map("birth_date") @db.Date
   /// ISO 3166-1 alpha-3 либо NULL; обязательно на check-in, не на импорте (DATA_MODEL §3).
   /// VARCHAR, не CHAR: тип фиксированной длины дополнял пустую строку пробелами, и '   ' читалось
   /// как заполненное гражданство. Формат стережёт CHECK guests_citizenship_alpha3 (Q-117).
-  citizenship   String?   @db.VarChar(3)
-  gender        Gender    @default(UNKNOWN)
-  phone         String?
-  email         String?
-  notes         String?
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  citizenship    String?   @db.VarChar(3)
+  gender         Gender    @default(UNKNOWN)
+  phone          String?
+  email          String?
+  notes          String?
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization        Organization    @relation(fields: [organizationId], references: [id])
   documents           GuestDocument[]
@@ -452,19 +452,19 @@ model Guest {
 
 /// Документ гостя. Номер — только шифротекст (PII_ENCRYPTION_KEY), просмотр логируется.
 model GuestDocument {
-  id              String    @id @default(uuid()) @db.Uuid
-  guestId         String    @map("guest_id") @db.Uuid
-  type            String
-  numberEncrypted String    @map("number_encrypted")
+  id                 String   @id @default(uuid()) @db.Uuid
+  guestId            String   @map("guest_id") @db.Uuid
+  type               String
+  numberEncrypted    String   @map("number_encrypted")
   /// ISO 3166-1 alpha-3 либо NULL; CHECK guest_documents_issue_country_alpha3 (Q-117)
   /// Открытым остаётся намеренно: класс «персональные», как citizenship, нужен eQonaq (v1.7, ADR-082)
-  issueCountry    String?   @map("issue_country") @db.VarChar(3)
+  issueCountry       String?  @map("issue_country") @db.VarChar(3)
   /// Даты документа — особо чувствительные (SECURITY.md §1): ISO-дата, зашифрованная тем же ключом,
   /// что номер (v1.7, ADR-082). В запросах не участвуют — только запись и показ, расшифровка в приложении
-  issuedAtEncrypted  String? @map("issued_at_encrypted")
-  expiresAtEncrypted String? @map("expires_at_encrypted")
-  documentFileId  String?   @map("document_file_id")
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  issuedAtEncrypted  String?  @map("issued_at_encrypted")
+  expiresAtEncrypted String?  @map("expires_at_encrypted")
+  documentFileId     String?  @map("document_file_id")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   guest Guest @relation(fields: [guestId], references: [id])
 
@@ -518,27 +518,27 @@ model InventoryBlock {
 /// Тарифный план. На объекте 6 (3 без продаж — Q-082: до ответа импортируются с active=false).
 /// Питания нет ни у одного; сезонов в модели нет (DailyRate покрывает).
 model RatePlan {
-  id                  String              @id @default(uuid()) @db.Uuid
-  propertyId          String              @map("property_id") @db.Uuid
-  code                String
-  name                String
-  currency            String              @db.Char(3)
-  mealPlan            String?             @map("meal_plan")
-  active              Boolean             @default(true)
+  id                   String              @id @default(uuid()) @db.Uuid
+  propertyId           String              @map("property_id") @db.Uuid
+  code                 String
+  name                 String
+  currency             String              @db.Char(3)
+  mealPlan             String?             @map("meal_plan")
+  active               Boolean             @default(true)
   /// Служебная заметка тарифа; не участвует в расчётах
-  note                String?
+  note                 String?
   /// Штраф при отмене/незаезде (Q-103); умолчание — стоимость первых суток
-  cancellationPenalty CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
+  cancellationPenalty  CancellationPenalty @default(FIRST_NIGHT) @map("cancellation_penalty")
   /// Производный тариф (DATA_MODEL §20, ADR-128): родитель и процент скидки; NULL — обычный тариф
-  parentRatePlanId     String? @map("parent_rate_plan_id") @db.Uuid
-  discountPercent      Int?    @map("discount_percent")
+  parentRatePlanId     String?             @map("parent_rate_plan_id") @db.Uuid
+  discountPercent      Int?                @map("discount_percent")
   /// Окно продаж: заезд не раньше чем через N дней (раннее бронирование) и не позже чем через N дней (last minute)
-  minDaysBeforeArrival Int?    @map("min_days_before_arrival")
-  maxDaysBeforeArrival Int?    @map("max_days_before_arrival")
+  minDaysBeforeArrival Int?                @map("min_days_before_arrival")
+  maxDaysBeforeArrival Int?                @map("max_days_before_arrival")
   /// Минимум ночей (long stay)
-  minNights            Int?    @map("min_nights")
-  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  minNights            Int?                @map("min_nights")
+  createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   property        Property                    @relation(fields: [propertyId], references: [id])
   types           RatePlanAccommodationType[]
@@ -610,15 +610,15 @@ model Restriction {
 /// Обязательно логируется: даты, цена, room move, cancellation, payment, refund,
 /// ручное изменение availability, изменение документа гостя (SECURITY.md §6). Без PII в логах.
 model AuditLog {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String?  @map("user_id") @db.Uuid
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  entityType String   @map("entity_type")
-  entityId   String   @map("entity_id")
-  action     String
-  before     Json?
-  after      Json?
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String?       @map("user_id") @db.Uuid
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  entityType     String        @map("entity_type")
+  entityId       String        @map("entity_id")
+  action         String
+  before         Json?
+  after          Json?
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   /// Чья запись (v1.13 ADR-103 + Phase 1 ADR-100 §17.2). Пишет код из контекста запроса (attachAuthor), добирает
   /// триггер audit_logs_organization (организация запроса, иначе — по сущности). NULL — платформа/система.
   organizationId String?       @map("organization_id") @db.Uuid
@@ -922,44 +922,48 @@ model CashCategory {
 
 /// Поступление, расход или перевод между способами; прошлое не правится — ошибка аннулируется (status)
 model CashOperation {
-  id         String            @id @default(uuid()) @db.Uuid
-  propertyId String            @map("property_id") @db.Uuid
-  kind       CashOperationKind
+  id          String            @id @default(uuid()) @db.Uuid
+  propertyId  String            @map("property_id") @db.Uuid
+  kind        CashOperationKind
   /// для TRANSFER — способ «откуда»
-  method     PaymentMethod
+  method      PaymentMethod
   /// только TRANSFER — способ «куда»
-  methodTo   PaymentMethod?    @map("method_to")
+  methodTo    PaymentMethod?    @map("method_to")
   /// integer minor units (тиын), ADR-008; > 0
-  amount     BigInt
-  categoryId String?           @map("category_id") @db.Uuid
-  note       String?
+  amount      BigInt
+  categoryId  String?           @map("category_id") @db.Uuid
+  note        String?
   /// комиссия ссылается на свою операцию или перевод
-  relatedId   String?       @map("related_id") @db.Uuid
-  status      PaymentStatus @default(COMPLETED)
-  occurredAt  DateTime      @default(now()) @map("occurred_at") @db.Timestamptz(6)
-  createdById String?       @map("created_by_id") @db.Uuid
-  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  relatedId   String?           @map("related_id") @db.Uuid
+  status      PaymentStatus     @default(COMPLETED)
+  occurredAt  DateTime          @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  createdById String?           @map("created_by_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  property  Property      @relation(fields: [propertyId], references: [id])
-  category  CashCategory? @relation(fields: [categoryId], references: [id])
-  createdBy User?         @relation(fields: [createdById], references: [id])
+  property   Property        @relation(fields: [propertyId], references: [id])
+  category   CashCategory?   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdBy  User?           @relation(fields: [createdById], references: [id])
+  /// как в миграции 040: ключ на свою же таблицу, удалить операцию с комиссией нельзя
+  related    CashOperation?  @relation("CashOperationRelated", fields: [relatedId], references: [id], onDelete: Restrict)
+  dependents CashOperation[] @relation("CashOperationRelated")
 
   @@index([propertyId, occurredAt])
+  @@index([relatedId])
   @@map("cash_operations")
 }
 
 /// Сверка кассы (§21.4): снимок «по системе» и факт. Аннулирования нет — ошиблись, сверили заново
 model CashReconciliation {
-  id         String        @id @default(uuid()) @db.Uuid
-  propertyId String        @map("property_id") @db.Uuid
-  method     PaymentMethod
+  id          String        @id @default(uuid()) @db.Uuid
+  propertyId  String        @map("property_id") @db.Uuid
+  method      PaymentMethod
   /// остаток по системе в момент сверки, тиыны (ADR-008): задним числом не восстановить
-  expected   BigInt
+  expected    BigInt
   /// фактически пересчитано, >= 0
   counted     BigInt
   note        String?
-  createdById String?  @map("created_by_id") @db.Uuid
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdById String?       @map("created_by_id") @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
 
   property  Property @relation(fields: [propertyId], references: [id])
   createdBy User?    @relation(fields: [createdById], references: [id])
@@ -1157,27 +1161,27 @@ enum UserStatus {
 /// Арендатор: одна организация — один клиент платформы (DATA_MODEL §13, ADR-046).
 /// Разделения данных объекта по организациям в срезе 13 нет: пробный период пускает в демо-объект.
 model Organization {
-  id          String             @id @default(uuid()) @db.Uuid
-  name        String             @db.VarChar(200)
-  status      OrganizationStatus @default(TRIAL)
+  id                String             @id @default(uuid()) @db.Uuid
+  name              String             @db.VarChar(200)
+  status            OrganizationStatus @default(TRIAL)
   /// Отчётная валюта партнёра (Platform P1, ADR-104, DATA_MODEL §18.4): в неё сводится аналитика филиалов
   /// с разными операционными валютами. Backfill — из фактической валюты Property, где она однозначна.
-  reportingCurrency String       @default("KZT") @map("reporting_currency") @db.VarChar(3)
-  trialEndsAt DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
-  createdAt   DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  reportingCurrency String             @default("KZT") @map("reporting_currency") @db.VarChar(3)
+  trialEndsAt       DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  memberships Membership[]
-  sessions    Session[]
-  invites     Invite[]
-  properties  Property[]
-  businesses  Business[]
-  userErrors  UserError[]
+  memberships    Membership[]
+  sessions       Session[]
+  invites        Invite[]
+  properties     Property[]
+  businesses     Business[]
+  userErrors     UserError[]
   sellerProfiles SellerProfile[]
-  agents SellerAgent[]
-  wizardDrafts WizardDraft[]
-  extensions  OrganizationExtension[]
-  guests      Guest[]
-  auditLogs   AuditLog[]
+  agents         SellerAgent[]
+  wizardDrafts   WizardDraft[]
+  extensions     OrganizationExtension[]
+  guests         Guest[]
+  auditLogs      AuditLog[]
 
   @@map("organizations")
 }
@@ -1185,15 +1189,15 @@ model Organization {
 /// Человек. Почта в нижнем регистре — за этим следит CHECK в миграции, Prisma такого не описывает.
 /// Паролей нет намеренно (ADR-046): вход по одноразовому коду на почту.
 model User {
-  id          String     @id @default(uuid()) @db.Uuid
-  email       String     @unique @db.VarChar(320)
-  name        String?    @db.VarChar(200)
-  status      UserStatus @default(ACTIVE)
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  lastLoginAt DateTime?  @map("last_login_at") @db.Timestamptz(6)
+  id              String     @id @default(uuid()) @db.Uuid
+  email           String     @unique @db.VarChar(320)
+  name            String?    @db.VarChar(200)
+  status          UserStatus @default(ACTIVE)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastLoginAt     DateTime?  @map("last_login_at") @db.Timestamptz(6)
   /// Когда человек подтвердил почту по ссылке из письма (решение владельца 20.09.2026).
   /// NULL — не подтвердил: вход закрыт. У заведённых до 20.09.2026 проставлено миграцией.
-  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz(6)
 
   /// Вход по паролю (§13.8, ADR-049, миграция 20260915000014). Пустая строка — пароль не задан:
   /// такой человек по паролю не войдёт. scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш».
@@ -1202,20 +1206,20 @@ model User {
   failedAttempts Int       @default(0) @map("failed_attempts")
   lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(6)
 
-  sellerAgents SellerAgent[]
-  wizardDrafts WizardDraft[]
-  memberships    Membership[]
-  sessions       Session[]
-  invitesIssued  Invite[]        @relation("InviteCreatedBy")
-  passwordResets PasswordReset[]
-  emailVerifications EmailVerification[]
-  auditLogs      AuditLog[]
-  cashOperations CashOperation[]
+  sellerAgents        SellerAgent[]
+  wizardDrafts        WizardDraft[]
+  memberships         Membership[]
+  sessions            Session[]
+  invitesIssued       Invite[]                @relation("InviteCreatedBy")
+  passwordResets      PasswordReset[]
+  emailVerifications  EmailVerification[]
+  auditLogs           AuditLog[]
+  cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
-  userErrors     UserError[]
-  sellerProfileEdits SellerProfile[]
-  platformAdmin  PlatformAdmin?
-  extensionEdits OrganizationExtension[]
+  userErrors          UserError[]
+  sellerProfileEdits  SellerProfile[]
+  platformAdmin       PlatformAdmin?
+  extensionEdits      OrganizationExtension[]
 
   @@map("users")
 }
@@ -1274,7 +1278,6 @@ model Membership {
   @@map("memberships")
 }
 
-
 /// Активная сессия. В куке подписанное значение, не сам id. «Выйти везде» проставляет revoked_at всем строкам.
 model Session {
   id             String    @id @default(uuid()) @db.Uuid
@@ -1298,16 +1301,16 @@ model Session {
 
 /// Приглашение в организацию по почте. В базе только хеш ссылки, срок 7 суток.
 model Invite {
-  id             String    @id @default(uuid()) @db.Uuid
-  organizationId String    @map("organization_id") @db.Uuid
-  email          String    @db.VarChar(320)
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  email          String         @db.VarChar(320)
   /// С какой ролью человек войдёт (v1.14, ADR-107): MANAGER или STAFF; CHECK invites_role_not_owner — не OWNER
   role           MembershipRole @default(STAFF)
-  tokenHash      String    @unique @map("token_hash") @db.VarChar(64)
-  expiresAt      DateTime  @map("expires_at") @db.Timestamptz(6)
-  acceptedAt     DateTime? @map("accepted_at") @db.Timestamptz(6)
-  createdBy      String    @map("created_by") @db.Uuid
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  tokenHash      String         @unique @map("token_hash") @db.VarChar(64)
+  expiresAt      DateTime       @map("expires_at") @db.Timestamptz(6)
+  acceptedAt     DateTime?      @map("accepted_at") @db.Timestamptz(6)
+  createdBy      String         @map("created_by") @db.Uuid
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
 
   organization Organization @relation(fields: [organizationId], references: [id])
   creator      User         @relation("InviteCreatedBy", fields: [createdBy], references: [id])
@@ -1453,122 +1456,128 @@ model OrganizationExtension {
   @@map("organization_extensions")
 }
 
-
 /// Guest onboarding model approved 26.09.2026; production migration requires separate cutover.
 model SellerAgent {
-  createdBy String @map("created_by") @db.Uuid
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Restrict)
-  id String @id @default(uuid()) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  name String @db.VarChar(200)
-  scenario String @default("sales") @db.VarChar(16)
+  createdBy      String         @map("created_by") @db.Uuid
+  creator        User           @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  id             String         @id @default(uuid()) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  name           String         @db.VarChar(200)
+  scenario       String         @default("sales") @db.VarChar(16)
   /// Хранимых состояний четыре: draft / active / paused / archived (DATA_MODEL §20.3); active и paused — только с филиалом (CHECK)
-  lifecycle String @default("draft") @db.VarChar(16)
+  lifecycle      String         @default("draft") @db.VarChar(16)
   /// Филиал агента (DATA_MODEL §20.2). Частичный уникальный индекс `seller_agents_one_seller_per_location` — не более
   /// одного неархивного AI-продавца (scenario = 'sales') на филиал; триггер сверяет организацию филиала с организацией агента
-  locationId String? @map("location_id") @db.Uuid
-  location Location? @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  profile Json @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  draft WizardDraft?
+  locationId     String?        @map("location_id") @db.Uuid
+  location       Location?      @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  profile        Json           @default("{}")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  draft          WizardDraft?
   /// Рабочий профиль продавца этого агента (`seller_profiles`, DATA_MODEL §20.2); у агентов мастера пусто
   workingProfile SellerProfile?
+
   @@index([organizationId])
   @@index([locationId])
   @@map("seller_agents")
 }
 
 model WizardSession {
-  id String @id @default(uuid()) @db.Uuid
-  tokenHash String @unique @map("token_hash") @db.VarChar(64)
-  ref String @default("") @db.VarChar(200)
-  lastStep String @default("intro") @map("last_step") @db.VarChar(24)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
-  draft WizardDraft?
-  survey WizardSurvey?
-  events WizardEvent[]
+  id        String        @id @default(uuid()) @db.Uuid
+  tokenHash String        @unique @map("token_hash") @db.VarChar(64)
+  ref       String        @default("") @db.VarChar(200)
+  lastStep  String        @default("intro") @map("last_step") @db.VarChar(24)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt DateTime      @map("expires_at") @db.Timestamptz(6)
+  draft     WizardDraft?
+  survey    WizardSurvey?
+  events    WizardEvent[]
+
   @@index([expiresAt])
   @@map("wizard_sessions")
 }
 
 model WizardDraft {
-  claimedBy String? @map("claimed_by") @db.Uuid
-  claimant User? @relation(fields: [claimedBy], references: [id], onDelete: Restrict)
-  organizationId String? @map("organization_id") @db.Uuid
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  id String @id @default(uuid()) @db.Uuid
-  guestSessionId String @unique @map("guest_session_id") @db.Uuid
-  session WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
-  businessName String @default("") @map("business_name") @db.VarChar(200)
-  niche String @default("") @db.VarChar(200)
-  description String @default("") @db.VarChar(10000)
-  config Json @default("{}")
-  sources Json @default("[]")
-  revision Int @default(0)
-  generatedRevision Int? @map("generated_revision")
-  generatedPrompt String? @map("generated_prompt")
-  generatedKnowledge Json @default("[]") @map("generated_knowledge")
-  testMessagesUsed Int @default(0) @map("test_messages_used")
-  agentId String? @unique @map("agent_id") @db.Uuid
-  agent SellerAgent? @relation(fields: [agentId], references: [id], onDelete: Restrict)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  jobs WizardJob[]
-  messages WizardMessage[]
+  claimedBy          String?         @map("claimed_by") @db.Uuid
+  claimant           User?           @relation(fields: [claimedBy], references: [id], onDelete: Restrict)
+  organizationId     String?         @map("organization_id") @db.Uuid
+  organization       Organization?   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  id                 String          @id @default(uuid()) @db.Uuid
+  guestSessionId     String          @unique @map("guest_session_id") @db.Uuid
+  session            WizardSession   @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
+  businessName       String          @default("") @map("business_name") @db.VarChar(200)
+  niche              String          @default("") @db.VarChar(200)
+  description        String          @default("") @db.VarChar(10000)
+  config             Json            @default("{}")
+  sources            Json            @default("[]")
+  revision           Int             @default(0)
+  generatedRevision  Int?            @map("generated_revision")
+  generatedPrompt    String?         @map("generated_prompt")
+  generatedKnowledge Json            @default("[]") @map("generated_knowledge")
+  testMessagesUsed   Int             @default(0) @map("test_messages_used")
+  agentId            String?         @unique @map("agent_id") @db.Uuid
+  agent              SellerAgent?    @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  jobs               WizardJob[]
+  messages           WizardMessage[]
+
   @@map("wizard_drafts")
 }
 
 model WizardJob {
-  id String @id @default(uuid()) @db.Uuid
-  draftId String @map("draft_id") @db.Uuid
-  draft WizardDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
-  kind String @db.VarChar(16)
-  revision Int
-  state String @default("queued") @db.VarChar(16)
-  attempt Int @default(0)
-  retryAt DateTime? @map("retry_at") @db.Timestamptz(6)
-  maskedError String? @map("masked_error") @db.VarChar(500)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id          String      @id @default(uuid()) @db.Uuid
+  draftId     String      @map("draft_id") @db.Uuid
+  draft       WizardDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  kind        String      @db.VarChar(16)
+  revision    Int
+  state       String      @default("queued") @db.VarChar(16)
+  attempt     Int         @default(0)
+  retryAt     DateTime?   @map("retry_at") @db.Timestamptz(6)
+  maskedError String?     @map("masked_error") @db.VarChar(500)
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
   @@unique([draftId, kind, revision])
   @@map("wizard_jobs")
 }
 
 model WizardMessage {
-  id String @id @default(uuid()) @db.Uuid
-  draftId String @map("draft_id") @db.Uuid
-  draft WizardDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
-  requestId String @map("request_id") @db.VarChar(64)
-  role String @db.VarChar(16)
-  text String @db.VarChar(16000)
-  state String @db.VarChar(16)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id        String      @id @default(uuid()) @db.Uuid
+  draftId   String      @map("draft_id") @db.Uuid
+  draft     WizardDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  requestId String      @map("request_id") @db.VarChar(64)
+  role      String      @db.VarChar(16)
+  text      String      @db.VarChar(16000)
+  state     String      @db.VarChar(16)
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
   @@unique([draftId, requestId, role])
   @@map("wizard_messages")
 }
 
 model WizardSurvey {
-  guestSessionId String @id @map("guest_session_id") @db.Uuid
-  session WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
-  goal String @default("") @db.VarChar(1000)
-  teamSize String @default("") @map("team_size") @db.VarChar(32)
-  leadsPerDay String @default("") @map("leads_per_day") @db.VarChar(32)
-  source String @default("") @db.VarChar(200)
-  industry String @default("") @db.VarChar(200)
+  guestSessionId String        @id @map("guest_session_id") @db.Uuid
+  session        WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
+  goal           String        @default("") @db.VarChar(1000)
+  teamSize       String        @default("") @map("team_size") @db.VarChar(32)
+  leadsPerDay    String        @default("") @map("leads_per_day") @db.VarChar(32)
+  source         String        @default("") @db.VarChar(200)
+  industry       String        @default("") @db.VarChar(200)
+
   @@map("wizard_surveys")
 }
 
 model WizardEvent {
-  id String @id @default(uuid()) @db.Uuid
-  guestSessionId String @map("guest_session_id") @db.Uuid
-  session WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
-  eventType String @map("event_type") @db.VarChar(60)
-  payload Json @default("{}")
-  deduplicationKey String @unique @map("deduplication_key") @db.VarChar(200)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id               String        @id @default(uuid()) @db.Uuid
+  guestSessionId   String        @map("guest_session_id") @db.Uuid
+  session          WizardSession @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
+  eventType        String        @map("event_type") @db.VarChar(60)
+  payload          Json          @default("{}")
+  deduplicationKey String        @unique @map("deduplication_key") @db.VarChar(200)
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
   @@index([guestSessionId, createdAt])
   @@map("wizard_events")
 }

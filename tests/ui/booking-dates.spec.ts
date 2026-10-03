@@ -110,7 +110,8 @@ test('failed quote and availability can be retried without reopening', async ({
 });
 
 test('calendar and keyboard produce the same period', async ({ page }) => {
-  // Даты в будущем: зашитые «текущие» даты краснеют, как только становятся прошлыми (03.10.2026).
+  // даты вдали от «сегодня» стенда: проживания подставного API идут «с сегодня», и вшитые даты рядом с ним
+  // со временем попадали на занятое место (кнопка «Создать бронь» выключена)
   await page.goto('/reservations/new?arrival=2029-02-01&departure=2029-02-02');
   const form = page.getByTestId('new-reservation-form');
   await form.getByRole('button', { name: 'Открыть календарь' }).nth(1).click();

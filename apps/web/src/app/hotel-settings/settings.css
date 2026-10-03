@@ -330,12 +330,6 @@
 
 /* Object settings: one workspace, consistent labels and a compact regional summary. */
 .object-settings { padding: var(--space-6); }
-/* `.workspace .page` (28 32 48) сильнее одного класса: без этого правила отступы выше не действовали, и
-   «Основное» на 1366×768 не помещалось на 10 px (unified-sections.spec). Телефон держит свой нижний
-   отступ под нижнюю навигацию (workspace.css). */
-@media (min-width: 601px) {
-  .workspace .page.object-settings { padding: var(--space-6); }
-}
 .object-settings .page__head { align-items: center; margin-bottom: var(--space-4); }
 .object-settings .page__title { font-size: var(--text-2xl); }
 .object-settings .page__subtitle { font-size: var(--text-sm); }

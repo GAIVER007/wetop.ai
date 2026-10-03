@@ -20,4 +20,27 @@ export class DashboardController {
   units(@Query('from') from?: string, @Query('to') to?: string, @Query('fund') fund?: string) {
     return this.service.units(from, to, fund ?? 'all');
   }
+
+  /** «Эффективность каналов» (ADR-141): отчёт: под правом отчётов */
+  @Access('reports')
+  @Get('dashboard/channels')
+  channels(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('compareFrom') compareFrom?: string,
+    @Query('compareTo') compareTo?: string,
+    @Query('channel') channel?: string,
+    @Query('sort') sort?: string,
+    @Query('empty') empty?: string,
+  ) {
+    return this.service.channels({
+      ...(from !== undefined ? { from } : {}),
+      ...(to !== undefined ? { to } : {}),
+      ...(compareFrom !== undefined ? { compareFrom } : {}),
+      ...(compareTo !== undefined ? { compareTo } : {}),
+      ...(channel ? { channel } : {}),
+      ...(sort !== undefined ? { sort } : {}),
+      empty: empty === '1' || empty === 'true',
+    });
+  }
 }

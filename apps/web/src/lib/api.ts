@@ -8,6 +8,7 @@ export type { ActionPreview } from './action-preview';
 import type {
   AgentStatus,
   CancellationPenaltyPolicy,
+  ChannelEfficiency,
   ChannelState,
   DashboardFund,
   DashboardPeriod,
@@ -1631,6 +1632,28 @@ export const dashboardApi = {
     getJson<UnitStats>(
       `/desk/dashboard/units?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
     ),
+  /** «Эффективность каналов» (ADR-141): доход, ночи и средняя стоимость по каналу; под правом отчётов */
+  channels: (q: {
+    from: string;
+    to: string;
+    compareFrom?: string | undefined;
+    compareTo?: string | undefined;
+    channel?: string | undefined;
+    sort?: string | undefined;
+    empty?: boolean | undefined;
+  }) => {
+    const p = new URLSearchParams({ from: q.from, to: q.to });
+    if (q.compareFrom && q.compareTo) {
+      p.set('compareFrom', q.compareFrom);
+      p.set('compareTo', q.compareTo);
+    }
+    if (q.channel) p.set('channel', q.channel);
+    if (q.sort && q.sort !== 'revenue') p.set('sort', q.sort);
+    if (q.empty) p.set('empty', '1');
+    return getJson<{ current: ChannelEfficiency; previous: ChannelEfficiency | null }>(
+      `/desk/dashboard/channels?${p.toString()}`,
+    );
+  },
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────

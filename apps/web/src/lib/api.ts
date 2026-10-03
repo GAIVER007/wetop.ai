@@ -8,6 +8,7 @@ export type { ActionPreview } from './action-preview';
 import type {
   AgentStatus,
   CancellationPenaltyPolicy,
+  ChannelEfficiency,
   ChannelState,
   DashboardFund,
   DashboardPeriod,
@@ -961,7 +962,71 @@ export const channelsApi = {
       '/channels/channex/webhook/test',
       {},
     ),
+  /** Раздел «Каналы» (ADR-140): подключения объекта и каталог каналов Channex, брони за 30 дней из WETOP */
+  catalog: () => getJson<ChannelCatalog>('/channels/channex/channels'),
+  /** Канал отдаёт уже сделанные у него будущие брони (только владельцу, только каналу с этим действием) */
+  loadFutureReservations: (connectionId: string) =>
+    sendJson<{ channel: string }>(
+      'POST',
+      `/channels/channex/channels/${encodeURIComponent(connectionId)}/load-future-reservations`,
+      {},
+    ),
+  /** Окно Channex для подключения и настройки канала: одноразовый адрес, только владельцу */
+  connectSession: (channel?: string) =>
+    sendJson<{ url: string; expiresInMinutes: number }>(
+      'POST',
+      '/channels/channex/channels/connect-session',
+      channel ? { channel } : {},
+    ),
 };
+/** Статус канала по фактам (ADR-140): «Работает» — включён, событие за 30 дней, нет ошибок входящих за 7 дней */
+export type ChannelStatus = 'WORKING' | 'ENABLED' | 'ERRORS' | 'OFF' | 'REMOVING';
+export interface ChannelConnectionRow {
+  id: string;
+  adapterCode: string;
+  channelKey: string;
+  channelTitle: string;
+  connectionTitle: string;
+  channelPropertyId: string | null;
+  active: boolean;
+  removalDate: string | null;
+  mappedRatePlans: number;
+  actions: string[];
+  shortCode: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+  lastEventAt: string | null;
+  failedEvents7d: number;
+  status: ChannelStatus;
+}
+export interface ChannelAdapterRow {
+  code: string;
+  channelKey: string;
+  title: string;
+  kind: string;
+  canLoadFutureReservations: boolean;
+  shortCode: string | null;
+  connected: boolean;
+}
+export interface ChannelOutsideRow {
+  key: string;
+  source: string;
+  label: string | null;
+  bookings30: number;
+  lastBookingAt: string | null;
+}
+export interface ChannelCatalog {
+  checkedAt: string;
+  environment: 'staging' | 'production' | 'custom';
+  propertyConnected: boolean;
+  /** Приём броней целиком: последнее входящее событие и все ошибки приёма за 7 дней */
+  inbound: { lastEventAt: string | null; failedEvents7d: number };
+  state: 'READY' | 'NO_KEY' | 'NO_MAPPING' | 'DENIED' | 'UNREACHABLE';
+  message: string;
+  connections: ChannelConnectionRow[];
+  adapters: ChannelAdapterRow[] | null;
+  outside: ChannelOutsideRow[];
+}
 export interface ChannelConnection {
   checkedAt: string;
   environment: 'staging' | 'production' | 'custom';
@@ -1567,6 +1632,28 @@ export const dashboardApi = {
     getJson<UnitStats>(
       `/desk/dashboard/units?${new URLSearchParams(fund === 'all' ? { from, to } : { from, to, fund })}`,
     ),
+  /** «Эффективность каналов» (ADR-141): доход, ночи и средняя стоимость по каналу; под правом отчётов */
+  channels: (q: {
+    from: string;
+    to: string;
+    compareFrom?: string | undefined;
+    compareTo?: string | undefined;
+    channel?: string | undefined;
+    sort?: string | undefined;
+    empty?: boolean | undefined;
+  }) => {
+    const p = new URLSearchParams({ from: q.from, to: q.to });
+    if (q.compareFrom && q.compareTo) {
+      p.set('compareFrom', q.compareFrom);
+      p.set('compareTo', q.compareTo);
+    }
+    if (q.channel) p.set('channel', q.channel);
+    if (q.sort && q.sort !== 'revenue') p.set('sort', q.sort);
+    if (q.empty) p.set('empty', '1');
+    return getJson<{ current: ChannelEfficiency; previous: ChannelEfficiency | null }>(
+      `/desk/dashboard/channels?${p.toString()}`,
+    );
+  },
 };
 
 // ───────────── Аналитика сайта (срез 8) ─────────────
@@ -2403,4 +2490,99 @@ export const branchesApi = {
     currency: string;
     timezone: string;
   }) => sendJson<BranchItem>('POST', '/branches', body),
+};
+
+// ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────
+export type MarketSource = 'MANUAL' | 'AI_AGENT';
+export interface MarketCompetitor {
+  id: string;
+  name: string;
+  distanceM: number | null;
+  unitsTotal: number | null;
+  url: string | null;
+  note: string | null;
+  active: boolean;
+}
+export interface MarketCell {
+  date: string;
+  /** Загрузка в базисных пунктах (85,5 % = 8 550); null — нет данных */
+  bp: number | null;
+  deltaBp: number | null;
+  source: MarketSource | null;
+}
+export type MarketInsightKind = 'high-behind' | 'high' | 'low-ahead' | 'low' | 'missing';
+export interface MarketInsight {
+  kind: MarketInsightKind;
+  from: string;
+  to: string;
+  nights: number;
+  marketBp: number | null;
+  ownBp: number | null;
+  competitors?: string[];
+}
+export interface MarketView {
+  today: string;
+  from: string;
+  days: number;
+  board: {
+    dates: string[];
+    asOf: string;
+    compareDays: number;
+    own: Array<{ date: string; bp: number | null }>;
+    competitors: Array<{
+      id: string;
+      name: string;
+      distanceM: number | null;
+      unitsTotal: number | null;
+      url: string | null;
+      cells: MarketCell[];
+      sources: MarketSource[];
+      lastObservedOn: string | null;
+    }>;
+    market: Array<{ date: string; bp: number | null; count: number }>;
+    gap: Array<{ date: string; bp: number | null }>;
+    summary: {
+      marketBp: number | null;
+      ownBp: number | null;
+      gapBp: number | null;
+      highDemandNights: number;
+      competitors: number;
+      competitorsWithData: number;
+    };
+    insights: MarketInsight[];
+  };
+  competitors: MarketCompetitor[];
+}
+export interface MarketNightHistory {
+  stayDate: string;
+  competitors: Array<{ id: string; name: string; distanceM: number | null }>;
+  days: Array<{
+    observedOn: string;
+    values: Array<{ competitorId: string; bp: number | null; observed: boolean }>;
+    marketBp: number | null;
+    count: number;
+  }>;
+  pickupBp: number | null;
+}
+export const marketApi = {
+  night: (date: string) =>
+    getJson<MarketNightHistory>(`/market/night?date=${encodeURIComponent(date)}`),
+  occupancy: (q: { from?: string; days?: number; asOf?: string; compare?: number }) => {
+    const qs = new URLSearchParams();
+    if (q.from) qs.set('from', q.from);
+    if (q.days) qs.set('days', String(q.days));
+    if (q.asOf) qs.set('asOf', q.asOf);
+    if (q.compare !== undefined) qs.set('compare', String(q.compare));
+    const tail = qs.toString();
+    return getJson<MarketView>(`/market/occupancy${tail ? `?${tail}` : ''}`);
+  },
+  createCompetitor: (body: unknown) => sendJson<MarketCompetitor>('POST', '/market/competitors', body),
+  updateCompetitor: (id: string, body: unknown) =>
+    sendJson<MarketCompetitor>('PATCH', `/market/competitors/${encodeURIComponent(id)}`, body),
+  writeOccupancy: (id: string, entries: Array<{ date: string; percent: string | null }>) =>
+    sendJson<{ saved: number; cleared: number }>(
+      'PUT',
+      `/market/competitors/${encodeURIComponent(id)}/occupancy`,
+      { entries },
+    ),
 };

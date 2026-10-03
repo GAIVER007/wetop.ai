@@ -605,6 +605,21 @@ describe('inbound bookings from Channex (contract on fakes)', () => {
     expect(JSON.stringify(third.body)).toContain('свободной ячейки');
   });
 
+  it('канал брони — одним именем по коду unique_id: BookingCom → Booking.com, новый канал Airbnb — именем из справочника кодов (ADR-140)', async () => {
+    fakes.setFeed([
+      revision({ id: 'rev-bdc', unique_id: 'BDC-111', ota_reservation_code: '111', ota_name: 'BookingCom' }),
+      revision({ id: 'rev-abb', unique_id: 'ABB-HM222', ota_reservation_code: 'HM222', ota_name: 'AirBNB' }),
+    ]);
+    const r = await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);
+    expect(r.body).toMatchObject({ received: 2, acknowledged: 2 });
+    // подставное хранилище держит канал брони, хотя в типе состояния его нет
+    const channelOf = (n: string) =>
+      (fakes.state().find((x) => x.confirmationNumber === n) as { channel?: string } | undefined)
+        ?.channel;
+    expect(channelOf('BDC-111')).toBe('Booking.com');
+    expect(channelOf('ABB-HM222')).toBe('Airbnb');
+  });
+
   it('modified revision moves dates and re-dates an existing allocation; cancelled frees units and cancels', async () => {
     fakes.setFeed([revision()]);
     await request(app.getHttpServer()).post('/channels/channex/pull').expect(200);

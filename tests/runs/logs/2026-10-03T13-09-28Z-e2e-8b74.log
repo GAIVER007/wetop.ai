@@ -1,0 +1,48 @@
+# Сквозные (e2e) · 03.10.2026 18:09 Алматы · vm
+# коммит 9ac7a5a (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 12
+# npx playwright test --workers=2 --reporter=list,json '--config' 'tests/ui/playwright.config.ts' 'tests/ui/channex-screens.spec.ts' 'tests/ui/channels-compact.spec.ts' '--workers=1'
+[WebServer] ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+[WebServer] 
+[WebServer]   To migrate automatically, run:
+[WebServer]   npx @next/codemod@canary middleware-to-proxy .
+[WebServer] 
+[WebServer]   Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+Running 19 tests using 1 worker
+
+  ✓   1 tests/ui/channels-compact.spec.ts:6:1 › обзор каналов: состояние, период и таблица помещаются на ноутбуке (2.2s)
+  ✓   2 tests/ui/channels-compact.spec.ts:27:1 › нет подключения: пустая очередь не выдаётся за успешную отправку (1.1s)
+  ✓   3 tests/ui/channels-compact.spec.ts:48:1 › доступ к API в staging не выдаётся за работающий обмен с OTA (1.1s)
+  ✓   4 tests/ui/channels-compact.spec.ts:56:1 › sync never calls an empty disconnected queue successful (1.1s)
+  ✓   5 tests/ui/channex-screens.spec.ts:34:1 › обзор каналов: отчёт по источникам без дубля числа источников и без монограмм (2.2s)
+  ✓   6 tests/ui/channex-screens.spec.ts:66:1 › обзор каналов: полоса состояния, вкладки и технические детали раскрывашкой (1.6s)
+  ✓   7 tests/ui/channex-screens.spec.ts:109:1 › подключения каналов: настройка подключения только владельцу (4.4s)
+  ✓   8 tests/ui/channex-screens.spec.ts:146:1 › сопоставление: названия Channex вместо id, несопоставленная категория, тарифы «K из N» (3.9s)
+  ✓   9 tests/ui/channex-screens.spec.ts:216:1 › цены: правка в ячейке — Enter сохраняет и уведомляет, Escape отменяет, ноль не уходит (1.8s)
+  ✓  10 tests/ui/channex-screens.spec.ts:276:1 › цены: месяц листается кнопками со значками, список массового изменения без « · » (1.9s)
+  ✓  11 tests/ui/channex-screens.spec.ts:295:1 › синхронизация: строки видов обмена, очередь с фильтром за «Техническими деталями» (1.7s)
+  ✓  12 tests/ui/channex-screens.spec.ts:324:1 › события: фильтры, поиск и постраничность на своей вкладке (3.8s)
+  ✓  13 tests/ui/channex-screens.spec.ts:358:1 › старые адреса /channels с параметрами пульта открывают нужную вкладку (3.8s)
+  ✓  14 tests/ui/channex-screens.spec.ts:367:1 › приём брони из канала: цепочка ревизия → бронь → ячейка, без персональных данных; ошибка и 404 (3.8s)
+  ✓  15 tests/ui/channex-screens.spec.ts:416:1 › приём брони: ревизия с двоеточиями в номере открывается (1.0s)
+[WebServer] ⨯ Error: API /channels/channex/events/ui-rev-new-2: HTTP 503
+[WebServer]     at getJson (src/lib/api.ts:156:11)
+[WebServer]     at async RevisionPageView (src/app/channels/events/[revisionId]/page.tsx:58:12)
+[WebServer]   154 |         /* тело не JSON */
+[WebServer]   155 |       }
+[WebServer] > 156 |     throw new ApiError(res.status, message);
+[WebServer]       |           ^
+[WebServer]   157 |   }
+[WebServer]   158 |   return (await res.json()) as T;
+[WebServer]   159 | } {
+[WebServer]   status: 503,
+[WebServer]   digest: 'API_503'
+[WebServer] }
+  ✓  16 tests/ui/channex-screens.spec.ts:430:1 › приём брони: сбой сервера назван ошибкой, а не «страница не найдена» (1.3s)
+  ✓  17 tests/ui/channex-screens.spec.ts:450:1 › цены: сбой календаря оставляет форму и массовое изменение, пустой справочник назван, загрузка словом (6.7s)
+  ✓  18 tests/ui/channex-screens.spec.ts:518:1 › каналы: сбой сводки очереди и сопоставлений не уносит экран, пустые таблицы названы, загрузка словом (9.2s)
+  ✓  19 tests/ui/channex-screens.spec.ts:610:1 › отчёт по источникам и интеграции: период словами, сбой без потери формы, пустой отчёт с причиной, телефон (8.5s)
+
+  19 passed (1.1m)
+
+# код выхода 0 · 1 мин 10 с

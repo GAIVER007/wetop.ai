@@ -1,0 +1,52 @@
+# Модульные (unit) · 03.10.2026 17:37 Алматы · vm
+# коммит 1c6ae3e (claude/funny-dijkstra-q5tfse), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T12-37-29Z-unit-6b64.json' 'apps/api/src/channels/catalog.test.ts' 'packages/integrations/src/channex/channel-connections.test.ts'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ✓ |unit| packages/integrations/src/channex/channel-connections.test.ts (7 tests) 56ms
+ ❯ |unit| apps/api/src/channels/catalog.test.ts (9 tests | 1 failed) 22ms
+   ❯ Каналы: подключённые и все доступные (Channel API Channex) (9)
+     ✓ статусы честные: «Работает» — включён, событие канала за 30 дней и нет ошибок входящих за 7 дней 2ms
+     ✓ список: подключения Channex, брони за 30 дней по ключу канала (оба написания Booking — один канал) 4ms
+     × сводка приёма: последнее событие из менеджера каналов и все ошибки приёма за 7 дней, даже без имени канала 6ms
+     ✓ брони мимо подключений — «Источники вне Channex»: канал без подключения и прямые источники 1ms
+     ✓ все доступные: каталог Channex с отметкой «подключён», подключённые выше, дальше по алфавиту 1ms
+     ✓ без ключа и без сопоставленного объекта Channex не вызывается, причина словами 1ms
+     ✓ Channex не ответил — экран живёт: брони вне Channex видны, состояние и причина 1ms
+     ✓ каталог кэшируется: второй список не просит /channels/list заново 1ms
+     ✓ окно подключения: токен на объект, адрес Channex с кодом канала; без объекта — отказ 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| apps/api/src/channels/catalog.test.ts > Каналы: подключённые и все доступные (Channel API Channex) > сводка приёма: последнее событие из менеджера каналов и все ошибки приёма за 7 дней, даже без имени канала
+AssertionError: expected undefined to deeply equal { …(2) }
+
+- Expected:
+{
+  "failedEvents7d": 1,
+  "lastEventAt": "2026-10-02T10:00:00.000Z",
+}
+
++ Received:
+undefined
+
+ ❯ apps/api/src/channels/catalog.test.ts:127:23
+    125|     });
+    126|     const r = await c.service.list();
+    127|     expect(r.inbound).toEqual({ lastEventAt: day(1), failedEvents7d: 1…
+       |                       ^
+    128|   });
+    129|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 15 passed (16)
+   Start at  12:37:30
+   Duration  1.54s (transform 71%, import 24%, tests 5%)
+
+JSON report written to /tmp/pms-test-2026-10-03T12-37-29Z-unit-6b64.json
+
+# код выхода 1 · 2 с

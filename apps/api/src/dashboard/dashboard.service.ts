@@ -3,15 +3,19 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   DASHBOARD_FUNDS,
   MAX_PERIOD_DAYS,
+  buildChannelEfficiency,
   buildDashboard,
   buildUnitStats,
   isIsoDate,
   periodNights,
   previousPeriod,
+  type ChannelEfficiency,
+  type ChannelEfficiencySort,
   type DashboardFund,
   type DashboardPeriod,
   type UnitStats,
 } from '@pms/domain';
+import { channex } from '@pms/integrations';
 import { DASHBOARD_REPOSITORY, type DashboardRepository } from './dashboard.repository';
 
 export interface DashboardView {
@@ -55,6 +59,49 @@ export class DashboardService {
       },
       f,
     );
+  }
+
+  /**
+   * «Эффективность каналов» (ADR-141): доход, ночи и средняя стоимость по каналу за период заезда, по желанию —
+   * то же за период сравнения (любой, по умолчанию его выбирает стойка). `empty` добавляет каналы объекта без броней
+   * нулевыми строками. Правило счёта: у «Обзора» (Q-208, Q-209), в домене.
+   */
+  async channels(q: {
+    from?: string;
+    to?: string;
+    compareFrom?: string;
+    compareTo?: string;
+    channel?: string;
+    sort?: string;
+    empty?: boolean;
+  }): Promise<{ current: ChannelEfficiency; previous: ChannelEfficiency | null }> {
+    this.checked(q.from, q.to);
+    if ((q.compareFrom === undefined) !== (q.compareTo === undefined))
+      throw new BadRequestException('Период сравнения: обе даты, compareFrom и compareTo');
+    if (q.compareFrom !== undefined) this.checked(q.compareFrom, q.compareTo);
+    const sort = q.sort ?? 'revenue';
+    if (!['revenue', 'nights', 'adr'].includes(sort))
+      throw new BadRequestException('sort: revenue, nights или adr');
+    if (q.channel !== undefined && q.channel.length > 80)
+      throw new BadRequestException('channel: не длиннее 80 знаков');
+    const opts = {
+      sort: sort as ChannelEfficiencySort,
+      ...(q.channel ? { channel: q.channel } : {}),
+      ...(q.empty
+        ? { knownChannels: [...channex.KNOWN_CHANNEL_KEYS].map((k) => channex.otaChannelLabel(k)) }
+        : {}),
+    };
+    const current = buildChannelEfficiency(await this.repo.stays(q.from!, q.to!), q.from!, q.to!, opts);
+    const previous =
+      q.compareFrom !== undefined
+        ? buildChannelEfficiency(
+            await this.repo.stays(q.compareFrom, q.compareTo!),
+            q.compareFrom,
+            q.compareTo!,
+            opts,
+          )
+        : null;
+    return { current, previous };
   }
 
   /** `fund` — тип фонда (Аналитика v2, AN1): номера и койки считаются раздельно, оба отрезка одним типом */

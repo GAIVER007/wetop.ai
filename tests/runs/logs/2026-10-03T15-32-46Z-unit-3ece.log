@@ -1,0 +1,31 @@
+# Модульные (unit) · 03.10.2026 20:32 Алматы · vm
+# коммит 6af7487 (claude/great-turing-f1tj3l), незакоммиченных файлов набора: 8
+# npx vitest run --project unit --reporter=default --reporter=json --outputFile.json='/tmp/pms-test-2026-10-03T15-32-46Z-unit-3ece.json' 'packages/domain/src/market'
+
+ RUN  v5.0.0 /home/user/wetop.ai
+
+ ❯ |unit| packages/domain/src/market/occupancy.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |unit| packages/domain/src/market/occupancy.test.ts [ packages/domain/src/market/occupancy.test.ts ]
+TypeError: buildMarketBoard is not a function
+ ❯ packages/domain/src/market/occupancy.test.ts:126:17
+    124|
+    125| describe('buildMarketBoard', () => {
+    126|   const board = buildMarketBoard({
+       |                 ^
+    127|     dates,
+    128|     asOf: '2026-10-03',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  15:32:47
+   Duration  241ms (worker 97%, environment 3%)
+
+JSON report written to /tmp/pms-test-2026-10-03T15-32-46Z-unit-3ece.json
+
+# код выхода 1 · 1 с

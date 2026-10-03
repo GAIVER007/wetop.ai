@@ -126,6 +126,8 @@ model Property {
   cashOperations      CashOperation[]
   cashReconciliations CashReconciliation[]
   deskTasks           DeskTask[]
+  competitors         Competitor[]
+  competitorOccupancy CompetitorOccupancy[]
   services            Service[]
   trackedSites        TrackedSite[]
   inventoryUnits      InventoryUnit[]
@@ -982,6 +984,61 @@ model CashReconciliation {
   @@map("cash_reconciliations")
 }
 
+// ───────────────────────── §23 Загрузка конкурентов ─────────────────────────
+// ADR-142 (03.10.2026): конкуренты объекта и снимки их загрузки по ночам. Своя загрузка не хранится.
+
+enum CompetitorObservationSource {
+  MANUAL
+  AI_AGENT
+}
+
+model Competitor {
+  id          String   @id @default(uuid()) @db.Uuid
+  propertyId  String   @map("property_id") @db.Uuid
+  name        String
+  /// расстояние в метрах, >= 0
+  distanceM   Int?     @map("distance_m")
+  /// номеров у конкурента, если известно (> 0)
+  unitsTotal  Int?     @map("units_total")
+  url         String?
+  note        String?
+  /// «убрать из списка» = архив, снимки остаются
+  active      Boolean  @default(true)
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  property  Property              @relation(fields: [propertyId], references: [id])
+  createdBy User?                 @relation(fields: [createdById], references: [id])
+  readings  CompetitorOccupancy[]
+
+  @@unique([propertyId, name])
+  @@unique([id, propertyId])
+  @@map("competitors")
+}
+
+/// Снимок загрузки конкурента на ночь stay_date, сделанный в день observed_on; повтор за день заменяет значение
+model CompetitorOccupancy {
+  id           String                      @id @default(uuid()) @db.Uuid
+  propertyId   String                      @map("property_id") @db.Uuid
+  competitorId String                      @map("competitor_id") @db.Uuid
+  stayDate     DateTime                    @map("stay_date") @db.Date
+  observedOn   DateTime                    @map("observed_on") @db.Date
+  /// базисные пункты 0…10 000 (85,5 % = 8 550), ADR-008
+  occupancyBp  Int                         @map("occupancy_bp")
+  source       CompetitorObservationSource @default(MANUAL)
+  createdById  String?                     @map("created_by_id") @db.Uuid
+  observedAt   DateTime                    @default(now()) @map("observed_at") @db.Timestamptz(6)
+
+  property   Property   @relation(fields: [propertyId], references: [id])
+  competitor Competitor @relation(fields: [competitorId, propertyId], references: [id, propertyId], map: "competitor_occupancy_competitor_fkey")
+  createdBy  User?      @relation(fields: [createdById], references: [id])
+
+  @@unique([competitorId, stayDate, observedOn])
+  @@index([propertyId, observedOn, stayDate])
+  @@map("competitor_occupancy")
+}
+
 // ───────────────────────── §11 Аналитика сайта ─────────────────────────
 // Срез 8 (план plans/slice-8-web-analytics.md, принят владельцем 12.09.2026). Персональных данных нет по
 // построению: IP и полный User-Agent не сохраняются, visitor_key — случайное число из браузера (ADR-018).
@@ -1229,6 +1286,8 @@ model User {
   tasksAssigned       DeskTask[]              @relation("DeskTaskAssignee")
   tasksDone           DeskTask[]              @relation("DeskTaskDoneBy")
   tasksCreated        DeskTask[]              @relation("DeskTaskCreatedBy")
+  competitorsCreated  Competitor[]
+  competitorReadings  CompetitorOccupancy[]
   userErrors          UserError[]
   sellerProfileEdits  SellerProfile[]
   platformAdmin       PlatformAdmin?

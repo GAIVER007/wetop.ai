@@ -7,7 +7,7 @@ import { expect, test } from './fixtures';
  * счетов за месяц, и на медленной связи этот вызов может не успеть — экран обязан открыться и назвать причину. Главная (`/today`) от
  * `GET /desk/dashboard` больше не зависит вовсе.
  */
-const API = 'http://127.0.0.1:4311';
+const API = process.env['UI_FIXTURE_API'] ?? 'http://127.0.0.1:4311';
 
 test.afterEach(async ({ request }) => {
   await request.post(`${API}/__test/reset`);
